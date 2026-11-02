@@ -57,6 +57,16 @@ units.sort()
 for (a, e, n, _), (a2, e2, n2, _) in zip(units, units[1:]):
     if e > a2:
         sys.exit(f"{n} and {n2} overlap")
+# Hand-written code jumps between neighbouring functions through local labels:
+# keep each contiguous run of hasm functions in one segment (named after its first).
+merged = []
+for u in units:
+    if merged and u[3] == "hasm" and merged[-1][3] == "hasm" and merged[-1][1] == u[0]:
+        merged[-1] = (merged[-1][0], u[1], merged[-1][2], "hasm")
+    else:
+        merged.append(u)
+hasm_count = sum(1 for u in units if u[3] == "hasm")
+units = merged
 
 off = lambda v: v - BASE_VRAM + FILE_OFF
 lines = []
@@ -90,4 +100,5 @@ out = out.replace(m2[0], "\n".join(ro_lines) + "\n")
 (ROOT / f"configs/{V}/main.yaml").write_text(out)
 for kind in ("c", "hasm"):
     sel = [(a, e) for a, e, _, k in units if k == kind]
-    print(f"{len(sel)} {kind} units, {sum(e - a for a, e in sel):#x} bytes")
+    extra = f" ({hasm_count} functions)" if kind == "hasm" else ""
+    print(f"{len(sel)} {kind} segments{extra}, {sum(e - a for a, e in sel):#x} bytes")

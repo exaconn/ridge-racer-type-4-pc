@@ -42,7 +42,9 @@ def coverage(ledger_path, target_percent=40):
         last=a+size
     resident_c = sum(spans[n][1] for n in owners)
     # Hand-written assembly (splat `hasm` segments) cannot be recovered as C.
-    hasm = [s[2] for s in image['subsegments'] if isinstance(s,list) and s[1] == 'hasm']
+    hasm = [l.split()[0] for l in (ROOT/'configs/PAL/hasm.txt').read_text().splitlines()
+            if l.split('#',1)[0].strip()]
+    assert any(isinstance(s,list) and s[1] == 'hasm' for s in image['subsegments']) or not hasm
     assert not set(hasm) & owners.keys()
     resident_hasm = sum(spans[n][1] for n in hasm)
     resident_total -= resident_hasm

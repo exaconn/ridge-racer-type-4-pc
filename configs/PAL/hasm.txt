@@ -7,9 +7,12 @@
 #   syscall         syscall instruction
 #   k0k1            uses kernel registers $k0/$k1
 #   store-at        stores the assembler temporary $at to memory
+#   shared-entry    has an interior label entered by jumps from other hand-written
+#                   functions (C cannot expose a mid-function entry point)
 #   bios-trampoline li $t2,0xA0/0xB0/0xC0; jr $t2; li $t1,N  BIOS call stubs
 # GTE (cop2) use alone is NOT evidence: C reaches it through inline macros.
 # Format: <function> <evidence>[,<evidence>...]
+func_80058118 shared-entry
 func_8005830C trapping-arith
 func_80058370 trapping-arith
 func_80058400 trapping-arith
@@ -17,6 +20,7 @@ func_8005857C trapping-arith
 func_80058768 trapping-arith
 func_8005F0D0 trapping-arith
 func_8005F14C trapping-arith
+func_8005F200 shared-entry
 func_8005F3D0 trapping-arith
 func_8005F434 trapping-arith
 func_8005F4C4 trapping-arith

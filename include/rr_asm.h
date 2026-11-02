@@ -108,7 +108,7 @@
 #define RR_GTE14_SWC2_RGB012(p) __asm__ volatile ("swc2 $20, 4(%0); swc2 $21, 12(%0); swc2 $22, 20(%0)" : : "r"(p) : "memory")
 #define RR_GTE14_SWC2_RGB2(p) __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(p) : "memory")
 /* func_80027C54: MVMVA rot-matrix x V0, no translation, shift 12 (sf=1,mx=0,v=0,cv=3,lm=0); preceded by the V0 load from p. */
-#define RR_GTE_MVMVA_ROT_V0_NOCV(p) do { __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(p)); __asm__ volatile ("nop; nop"); __asm__ volatile (".word 0x4A486012"); } while (0)
+#define RR_GTE_MVMVA_ROT_V0_NOCV(p) { __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(p)); __asm__ volatile ("nop; nop"); __asm__ volatile (".word 0x4A486012"); }
 
 /* SQR: square signed IR1..IR3, with fixed-point shift 12 or no shift.
  * MAC1..MAC3 retain the arithmetic results; IR saturation and FLAG are hardware side effects. */

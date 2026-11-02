@@ -1,0 +1,366 @@
+/* RODATA 0x8001134c 0x14 */
+
+typedef struct {
+    int f0;
+    int f4;
+    int f8;
+    int fC;
+    int f10;
+    int f14;
+    int f18;
+    unsigned short f1C;
+    unsigned short f1E;
+    unsigned short f20;
+    unsigned short f22;
+    int f24;
+    int f28;
+} S_ECB4; /* size 0x2C */
+
+typedef struct {
+    int f0;
+    int f4;
+    int f8;
+    int fC;
+    int f10;
+    int f14;
+    int f18;
+    int f1C;
+    int f20;
+    int f24;
+    int f28;
+    int f2C;
+} S_ECB0; /* size 0x30 */
+
+typedef struct {
+    int f0;
+    int f4;
+    int f8;
+    int fC;
+    int f10;
+    int f14;
+    int f18;
+    unsigned short f1C;
+    unsigned short f1E;
+    unsigned short f20;
+    unsigned short f22;
+} S_ECAC; /* size 0x24 */
+
+typedef struct {
+    int a[4];
+} S_E8E8; /* size 0x10 */
+
+typedef struct {
+    int f0;
+    int f4;
+    int f8;
+    int fC;
+    short f10;
+    short f12;
+    int pad[10];
+} S_ABEA4; /* size 0x3C */
+
+extern int func_8006E368();
+extern int func_80070934();
+extern int func_80071E04();
+extern int func_80072358();
+extern int func_80090758();
+extern int func_80096464();
+
+extern int D_800A4090;
+extern S_ABEA4 *D_800ABEA4;
+extern int D_800ABECC;
+extern short D_800AC0E6;
+extern short D_800AC1A2;
+extern int D_800F2DE4;
+extern short D_800F3914;
+extern unsigned short D_800F3A38[];
+extern short D_800F4D44;
+extern int D_800FF6B0;
+extern int D_8010E7A8;
+extern int D_8010E7AC;
+extern int D_8010E7B0;
+extern int D_8010E7B4;
+extern int D_8010E7B8;
+extern int D_8010E7C8[];
+extern S_E8E8 D_8010E8E8[];
+extern int D_8010ECA8;
+extern S_ECAC *D_8010ECAC;
+extern S_ECB0 *D_8010ECB0;
+extern S_ECB4 *D_8010ECB4;
+
+#define B4 ((S_ECB4 *)(i * 0x2C + (int)D_8010ECB4))
+#define B0 ((S_ECB0 *)(i * 0x30 + (int)D_8010ECB0))
+#define AC(idx) ((S_ECAC *)((idx) * 0x24 + (int)D_8010ECAC))
+#define AB(idx) ((S_ABEA4 *)((idx) * 0x3C + (int)D_800ABEA4))
+
+void func_800735D8(void) {
+    int i;
+    int s0;
+    int *sp = (int *)0x1F80007C;
+    int v1, a0, a2;
+    int t0, t1;
+    int r1, r2, r3, r5, r6;
+    register int r4 asm("v0"); /* ASM_BARRIER: force modulo result into v0 before copying to a3 */
+    int *hw;
+
+    func_80071E04();
+    for (i = 0; i < D_8010ECA8; i++) {
+            if (B4->f24 == 1) {
+                if (B0->f8 == 0xA) {
+                    if (B4->f8 == 0) {
+                        if (D_800F4D44 != 1) {
+                            B4->f8 = 0xB;
+                        } else if (D_800F3914 == 7) {
+                            if (D_800AC1A2 != 0) {
+                                B4->f8 = D_800AC1A2 + 0xA;
+                            } else {
+                                B4->f8 = 0xB;
+                            }
+                        } else if (D_800AC1A2 <= 0 || (D_800F3914 == 6 && D_800AC1A2 < 2)) {
+                            B4->f8 = 0xB;
+                        } else {
+                            switch (D_800AC0E6 + 1) {
+                            case 1:
+                                B4->f8 = 0xC;
+                                break;
+                            case 2:
+                            case 3:
+                                B4->f8 = 0xB;
+                                break;
+                            default:
+                                B4->f8 = 0xD;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (B0->f4 == 5) {
+                    if (B4->f8 == 0 || B4->f0 >= 0xD1) {
+                        if (B0->f0 > 0 && (func_80096464() % (B0->f0 * 8 + 0x14)) != 0) {
+                            B4->f8 = 0;
+                            goto next_iter;
+                        }
+                        r1 = func_80096464();
+                        B4->fC = AC(B0->f24)->fC + (r1 % AC(B0->f24)[1].fC);
+                        r2 = func_80096464();
+                        B4->f10 = AC(B0->f24)->f10 + (r2 % AC(B0->f24)[1].f10);
+                        r3 = func_80096464();
+                        B4->f14 = AC(B0->f24)->f14 + (r3 % AC(B0->f24)[1].f14);
+                        r4 = func_80096464() % 6;
+                        B4->f8 = r4 + 1;
+                        func_80070934(B0->f0, 7, &B4->fC, r4);
+                        B4->f0 = 0;
+                    } else if (B4->f0 == 0x3C) {
+                        hw = (int *)0x1F800000;
+                        sp[0] = (B4->fC - hw[2]) >> 10;
+                        sp[1] = (B4->f14 - hw[4]) >> 10;
+                        sp[2] = func_80090758((sp[0] * sp[0] + sp[1] * sp[1]) >> 8) >> 4;
+                        B4->f4 = sp[2] - 0x46;
+                    }
+                    B4->f0++;
+                } else {
+                    s0 = B0->f24 + B4->f28;
+                    if (B4->f0 == AC(s0)->f0 * 6) {
+                        if (s0 < B0->f28 + B0->f24) {
+                            B4->f28++;
+                            s0++;
+                            if (B4->f0 == B0->f10 * 6) {
+                                B4->f0 = 0;
+                                B4->f28 = 1;
+                                s0 = B0->f24 + 1;
+                            }
+                            v1 = AC(s0)->f8 / 10;
+                            if (v1 == 1) {
+                                B4->f4 = (B4->f4 % 100) + 300;
+                            } else if (v1 == 0) {
+                                B4->f4 = B4->f4 % 100;
+                            } else if (v1 == 4) {
+                                B4->f4 = (B4->f4 % 100) + 100;
+                            } else if (v1 == 5) {
+                                B4->f4 = (B4->f4 % 100) + 200;
+                            }
+                        }
+                    }
+                    if (B0->f10 == 1) {
+                        B4->fC = AC(s0)->fC;
+                        B4->f10 = AC(s0)->f10;
+                        B4->f14 = AC(s0)->f14;
+                        B4->f1C = AC(s0)->f1C;
+                        B4->f1E = AC(s0)->f1E;
+                        B4->f20 = AC(s0)->f20;
+                    } else {
+                        v1 = B4->f4 / 100;
+                        if (v1 == 1) {
+                            B4->f4 = (B4->f4 == 0x86) ? 0x73 : B4->f4 + 1;
+                        } else if (v1 == 2) {
+                            if ((r5 = B4->f4 - 0xC8) != 0) {
+                                B4->f4 = (B4->f4 == 0xF4) ? 0xC8 : B4->f4 + 1;
+                            }
+                        }
+                        if ((unsigned short)D_800F4D44 - 2 < 3U) {
+                            a2 = B4->f0;
+                            B4->f0 = a2 + 1;
+                            if (D_8010E7C8[i] == D_800F2DE4) {
+                                B4->f0 = a2;
+                            }
+                            D_8010E7C8[i] = D_800F2DE4;
+                        } else {
+                            B4->f0++;
+                        }
+                        v1 = AC(s0)[-1].f0;
+                        t0 = (AC(s0)->f0 - v1) * 6;
+                        t1 = B4->f0 - v1 * 6;
+                        if (t0 == 0) {
+                            B4->f24 = 0;
+                        } else {
+                            switch (AC(s0)->f8 % 10) {
+                            case 1:
+                            case 4:
+                                func_80072358(i, s0, 1, 1, t1, t0, t1, t0);
+                                break;
+                            case 2:
+                            case 5:
+                                func_80072358(i, s0, -1, 0, t0 - t1, t0, t0 - t1, t0);
+                                break;
+                            case 3:
+                                t0 /= 2;
+                                if (t1 < t0) {
+                                    func_80072358(i, s0, 2, 1, t1, t0, t1, t0);
+                                } else {
+                                    func_80072358(i, s0, -2, 0, t0 * 2 - t1, t0, t0 * 2 - t1, t0);
+                                }
+                                break;
+                            default:
+                                func_80072358(i, s0, 1, 1, t1, t0, 1, 1);
+                                break;
+                            }
+                            if (AC(s0)->f8 / 10 == 1) {
+                                switch (B0->fC % 10) {
+                                case 2:
+                                case 5:
+                                    sp[0] = B0->fC / 10;
+                                    sp[1] = (sp[0] << 4) + (sp[0] << 2);
+                                    if (B4->f0 == 1 || B4->f4 == 300) {
+                                        for (a0 = 0; a0 < 20; a0++) {
+                                            D_8010E8E8[sp[1] + a0].a[0] = B4->fC >> 3;
+                                            D_8010E8E8[sp[1] + a0].a[1] = B4->f10 >> 3;
+                                            D_8010E8E8[sp[1] + a0].a[2] = B4->f14 >> 3;
+                                        }
+                                    } else if (B4->f0 % 2 == 1) {
+                                        for (a0 = 19; a0 > 0; a0--) {
+                                            D_8010E8E8[sp[1] + a0] = D_8010E8E8[sp[1] + a0 - 1];
+                                        }
+                                        D_8010E8E8[sp[1]].a[0] = B4->fC >> 3;
+                                        D_8010E8E8[sp[1]].a[1] = B4->f10 >> 3;
+                                        D_8010E8E8[sp[1]].a[2] = B4->f14 >> 3;
+                                    }
+                                    break;
+                                case 3:
+                                    if (B4->f0 == 1) {
+                                        for (a0 = 0; a0 < 40; a0++) {
+                                            D_8010E8E8[a0].a[0] = B4->fC >> 3;
+                                            D_8010E8E8[a0].a[1] = B4->f10 >> 3;
+                                            D_8010E8E8[a0].a[2] = B4->f14 >> 3;
+                                        }
+                                    } else if (B4->f0 % 12 == 1) {
+                                        for (a0 = 39; a0 > 0; a0--) {
+                                            D_8010E8E8[a0] = D_8010E8E8[a0 - 1];
+                                        }
+                                        D_8010E8E8[0].a[0] = B4->fC >> 3;
+                                        D_8010E8E8[0].a[1] = B4->f10 >> 3;
+                                        D_8010E8E8[0].a[2] = B4->f14 >> 3;
+                                    }
+                                    break;
+                                }
+                            }
+                            if (B0->f8 == 0xD) {
+                                if (D_800FF6B0 == 1) {
+                                    switch (B4->f8) {
+                                    case 0:
+                                    case 4:
+                                        if (D_800F3A38[4] & 0x8000) {
+                                            B4->f8++;
+                                        } else if (*(int *)&D_800F3A38[4] & 0x7000) {
+                                            B4->f8 = 5;
+                                        }
+                                        break;
+                                    case 1:
+                                    case 2:
+                                    case 3:
+                                        if (D_800F3A38[4] & 0x2000) {
+                                            B4->f8++;
+                                        } else if (*(int *)&D_800F3A38[4] & 0xD000) {
+                                            B4->f8 = 5;
+                                        }
+                                        break;
+                                    }
+                                    D_8010E7A8 = 0x37;
+                                    D_8010E7AC = 0x36;
+                                    D_8010E7B0 = 0x35;
+                                    D_8010E7B4 = 0x20;
+                                    if (D_800F2DE4 == 0xAF) {
+                                        if (B4->f8 != 4) {
+                                            B4->f24 = -1;
+                                        }
+                                    }
+                                } else {
+                                    D_800A4090 += D_8010E7B4;
+                                    if (D_800A4090 >= 0x80) {
+                                        D_800A4090 -= 0x80;
+                                        a0 = D_8010E7B0 - 1;
+                                        if (D_8010E7B0 <= 0) {
+                                            a0 += D_800ABECC;
+                                        }
+                                        D_8010E7B0 = a0;
+                                        v1 = D_8010E7AC - 1;
+                                        if (D_8010E7AC <= 0) {
+                                            v1 += D_800ABECC;
+                                        }
+                                        D_8010E7AC = v1;
+                                        v1 = D_8010E7A8 - 1;
+                                        if (D_8010E7A8 <= 0) {
+                                            v1 += D_800ABECC;
+                                        }
+                                        D_8010E7A8 = v1;
+                                    }
+                                    sp[2] = (((AB(D_8010E7AC)->f8 - AB(D_8010E7A8)->f8) * D_800A4090) >> 5) + AB(D_8010E7A8)->f8 * 4;
+                                    sp[3] = (((AB(D_8010E7AC)->f10 - AB(D_8010E7A8)->f10) * D_800A4090) >> 7) + AB(D_8010E7A8)->f10;
+                                    sp[4] = (((AB(D_8010E7AC)->fC - AB(D_8010E7A8)->fC) * D_800A4090) >> 5) + AB(D_8010E7A8)->fC * 4;
+                                    sp[5] = ((((AB(D_8010E7B0)->f8 - AB(D_8010E7AC)->f8) * D_800A4090) >> 5) + AB(D_8010E7AC)->f8 * 4) - sp[2];
+                                    sp[6] = ((((AB(D_8010E7B0)->f10 - AB(D_8010E7AC)->f10) * D_800A4090) >> 7) + AB(D_8010E7AC)->f10) - sp[3];
+                                    sp[7] = ((((AB(D_8010E7B0)->fC - AB(D_8010E7AC)->fC) * D_800A4090) >> 5) + AB(D_8010E7AC)->fC * 4) - sp[4];
+                                    B4->fC += sp[2];
+                                    B4->f10 += sp[3] - 0xFA;
+                                    B4->f14 += sp[4];
+                                    sp[8] = 0x400 - func_8006E368(sp[5], sp[7]);
+                                    if (sp[8] == D_8010E7B8) {
+                                        D_8010E7B4 += (D_8010E7B4 < 0x2C);
+                                    } else if ((sp[8] >> 4) == (D_8010E7B8 >> 4)) {
+                                        if (D_8010E7B4 < 0x26) {
+                                            D_8010E7B4++;
+                                        } else if (D_8010E7B4 >= 0x27) {
+                                            D_8010E7B4--;
+                                        }
+                                    } else {
+                                        D_8010E7B4 -= (D_8010E7B4 >= 0x22);
+                                    }
+                                    r6 = sp[8];
+                                    B4->f1E = r6;
+                                    D_8010E7B8 = r6;
+                                    B4->f1C = 0x400 - func_8006E368(sp[6], func_80090758(sp[5] * sp[5] + sp[7] * sp[7]) >> 6);
+                                    B4->f20 = 0;
+                                }
+                            }
+                            if (B0->f14 > 0) {
+                                if (B4->f0 == B0->f14 * 6) {
+                                    B4->f24 = -1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+next_iter:
+        ;
+    }
+}

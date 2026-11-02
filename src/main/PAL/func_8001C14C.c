@@ -1,5 +1,4 @@
-/* NEAR-MISS: 27 diff hunks, 2090 vs 2089 insns. */
-/* RODATA 0x800101F4 0xD8 */
+/* RODATA 0x800101f4 0xd8 */
 #include "types.h"
 #include "rr_asm.h"
 extern int func_8001223C();
@@ -133,7 +132,9 @@ extern char D_8009E510[], D_8009E520[], D_8009E530[], D_8009E540[];
 
 void func_8001C14C() {
     int temp_s5;
-    struct GS *g;
+    register struct GS *g asm("$2"); /* ASM_BARRIER: pin G reload pointer to $v0 */
+    register struct GS *g_a0 asm("$4"); /* ASM_BARRIER: pin G reload pointer to $a0 in case 0x2F */
+    register struct GS *g_v1 asm("$3"); /* ASM_BARRIER: pin G reload pointer to $v1 in case 0x32 */
     int temp_a0;
     int temp_a0_10;
     int temp_a0_2;
@@ -160,7 +161,7 @@ void func_8001C14C() {
     short *temp_a1_7;
     short *temp_a1_8;
     short *temp_a1_9;
-    int temp_t0;
+    register int temp_t0 asm("$8"); /* ASM_BARRIER: pin clamped color temp to $t0 */
     int temp_v0;
     int temp_v1;
     int temp_v1_10;
@@ -180,9 +181,16 @@ void func_8001C14C() {
     int v0;
     struct V16 *dv;
     register char *src asm("$2"); /* ASM_BARRIER: pin src to $2 as in original copy sequence */
-    int *st;
+    register int *st asm("$4"); /* ASM_BARRIER: pin state pointer to $a0 */
+    register int *st_v1 asm("$3"); /* ASM_BARRIER: pin state pointer to $v1 in case 0x2F */
+    register int c80 asm("$3"); /* ASM_BARRIER: pin hoisted 0x80 constant to $v1 in case 0x2F */
+    register int c8 asm("$2"); /* ASM_BARRIER: pin 8 constant to $v0 in case 0x32 */
     int *sp1, *sp2, *sp3, *sp4;
-    int *tabq, *tabr;
+    register int *tabq asm("$3"); /* ASM_BARRIER: pin GTE IR table pointer to $v1 */
+    int *tabr;
+    register int c_800060 asm("$7"); /* ASM_BARRIER: pin 0x800060 constant to $a3 in block_241 */
+    register int c_800080 asm("$6"); /* ASM_BARRIER: pin 0x800080 constant to $a2 in block_241 */
+    register int c_e1000240 asm("$5"); /* ASM_BARRIER: pin 0xE1000240 constant to $a1 in block_241 */
     int var_a1;
     int var_a1_2;
     int var_a1_3;
@@ -192,9 +200,9 @@ void func_8001C14C() {
     int var_v0;
     int var_v0_2;
     int var_v0_3;
-    int var_v0_4;
+    register int var_v0_4 asm("$2"); /* ASM_BARRIER: pin clamp result to $v0 */
     char *temp_s0, *temp_s1, *temp_s2;
-    struct P *temp_t1;
+    register struct P *temp_t1 asm("$9"); /* ASM_BARRIER: pin packet pointer to $t1 */
     struct SPD *spd, *spd2;
     int col;
     temp_s5 = func_800534B4();
@@ -329,19 +337,21 @@ case 0x6:
     func_80096454(0x1F800018, 0, 0x10);
     src = D_8009E540;
     st = &D_8010BF7C;
+    __asm__ volatile("" ::: "$8", "$9"); /* ASM_BARRIER: reserve $t0-$t1 so sp2 allocates to $t5 */
     sp2 = (int *)0x1F800008;
     RR_COPY16_T(sp2, src, 16);
+    g = G;
     *st = 7;
-    G->s56 = 0x100;
-    G->uA2 = 3U;
-    G->s8A = 0x80;
-    G->s48 = 0;
-    G->s5E = 0;
-    G->s66 = 0;
-    G->s68 = 0;
-    G->s6A = 0;
-    G->s74 = 4;
-    G->s44 = 0;
+    g->s56 = 0x100;
+    g->uA2 = 3U;
+    g->s8A = 0x80;
+    g->s48 = 0;
+    g->s5E = 0;
+    g->s66 = 0;
+    g->s68 = 0;
+    g->s6A = 0;
+    g->s74 = 4;
+    g->s44 = 0;
 case 0x7:
     temp_v1 = G->s44;
     if (temp_v1 >= 0x38) {
@@ -630,25 +640,27 @@ case 0x1B:
     }
     G->p40 = (s16 *) (temp_a1_8 + 1);
     K->b4 = K->b4 + 1;
-    D_8010BF7C = 0x19;
-    G->s56 = 0x100;
-    G->s58 = 0x100;
-    G->s5A = 0x100;
-    G->s90 = 0x40;
-    G->s92 = 0x40;
-    G->s94 = 0x40;
-    G->s54 = 0;
-    G->s52 = 0;
-    G->s50 = 0;
-    G->s4E = 0;
-    G->s4C = 0;
-    G->s4A = 0;
-    G->s48 = 0;
-    G->s5E = 0;
-    G->s60 = 0;
-    G->s62 = 0;
-    G->s74 = 8;
-    G->s44 = 0;
+    st = &D_8010BF7C;
+    g = G;
+    *st = 0x19;
+    g->s56 = 0x100;
+    g->s58 = 0x100;
+    g->s5A = 0x100;
+    g->s90 = 0x40;
+    g->s92 = 0x40;
+    g->s94 = 0x40;
+    g->s54 = 0;
+    g->s52 = 0;
+    g->s50 = 0;
+    g->s4E = 0;
+    g->s4C = 0;
+    g->s4A = 0;
+    g->s48 = 0;
+    g->s5E = 0;
+    g->s60 = 0;
+    g->s62 = 0;
+    g->s74 = 8;
+    g->s44 = 0;
 case 0x19:
     if (G->s44 != 0x20) {
         goto block_111;
@@ -955,19 +967,26 @@ case 0x2F:
     if (G->s44 < 0x20) {
         goto block_216;
     }
+    c80 = 0x80;
+    __asm__ volatile("" : "+r"(c80)); /* ASM_BARRIER: hoist 0x80 load into $v1 before s56..s76 stores */
     G->s56 = 0x100;
     G->s5E = 0x1000;
     G->s76 = 4;
-    G->s48 = 0x80;
+    __asm__ volatile(""); /* ASM_BARRIER: keep src load after s76 store */
+    src = D_8009E540;
+    __asm__ volatile("" : "+r"(src)); /* ASM_BARRIER: emit src load before s48..s96 stores */
+    G->s48 = c80;
     G->s4A = 0;
     G->s72 = 0;
-    G->s96 = 0x80;
-    src = D_8009E540;
-    st = &D_8010BF7C;
+    G->s96 = c80;
+    __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: force G reload after s96 store */
+    g_a0 = G;
+    __asm__ volatile("" : "+r"(g_a0) :: "$8", "$9"); /* ASM_BARRIER: emit G reload before state lui and reserve $t0-$t1 for sp2 in $t5 */
+    st_v1 = &D_8010BF7C;
     sp2 = (int *)0x1F800008;
     RR_COPY16_T(sp2, src, 128);
-    *st = 0x30;
-    G->s44 = 0;
+    *st_v1 = 0x30;
+    g_a0->s44 = 0;
 case 0x30:
     if (G->s44 < 0x20) {
         goto block_219;
@@ -995,15 +1014,22 @@ case 0x32:
     sp4[6] = 0x400;
     sp4[7] = 0;
     sp4[8] = 0;
+    __asm__ volatile("" : "=r"(st) :: "memory"); /* ASM_BARRIER: clobber $a0 so %hi(D_8010BF78) stays in $a1 across sp4 stores */
     src = D_8009E540;
+    g_v1 = G;
+    __asm__ volatile("" : "+r"(src), "+r"(g_v1) :: "$8", "$9"); /* ASM_BARRIER: emit src and G reload before state lui and reserve $t0-$t1 for sp2 in $t5 */
     st = &D_8010BF7C;
     sp2 = (int *)0x1F800008;
     RR_COPY16_T(sp2, src, 144);
     *st = 0x33;
-    G->s48 = 0;
-    G->s74 = 8;
-    G->s98 = 8;
-    G->s44 = 0;
+    __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: keep *st = 0x33 before c8 = 8 */
+    c8 = 8;
+    __asm__ volatile("" : "+r"(c8)); /* ASM_BARRIER: schedule 8 load before s48=0 store */
+    g_v1->s48 = 0;
+    __asm__ volatile(""); /* ASM_BARRIER: keep s48=0 before s74=8 */
+    g_v1->s74 = c8;
+    g_v1->s98 = c8;
+    g_v1->s44 = 0;
 case 0x33:
     if (G->s44 < 0x20) {
         goto block_222;
@@ -1027,13 +1053,15 @@ block_199:
     func_8001BAF8(G->s48, 2);
     func_8001BAF8(G->s4A, 3);
     func_8001BAF8(G->s4C, 4);
-    goto block_204;
+    func_8001BBC4(G->s56, G->s5E, 0x6C0018, 0x78);
+    goto block_225;
 block_200:
 block_201:
     func_8001BAF8(G->s48, 5);
     func_8001BAF8(G->s4A, 6);
     func_8001BAF8(G->s4C, 7);
-    goto block_204;
+    func_8001BBC4(G->s56, G->s5E, 0x6C0018, 0x78);
+    goto block_225;
 block_202:
 block_203:
     func_8001BAF8(G->s48, 8);
@@ -1041,7 +1069,6 @@ block_203:
     func_8001BAF8(G->s4C, 0xA);
     func_8001BAF8(G->s4E, 0xB);
     func_8001BAF8(G->s50, 0xC);
-block_204:
     func_8001BBC4(G->s56, G->s5E, 0x6C0018, 0x78);
     goto block_225;
 block_205:
@@ -1080,19 +1107,20 @@ block_212:
     func_8001BAF8(G->s48, 0x19);
     func_8001BAF8(G->s4A, 0x1A);
     func_8001BAF8(G->s4C, 0x1B);
-    goto block_217;
+    func_8001BBC4(G->s56, G->s5E, 0xE0008C, 0x28);
+    goto block_218;
 block_213:
 block_214:
     func_8001BAF8(G->s48, 0x1C);
     func_8001BAF8(G->s4A, 0x1D);
     func_8001BAF8(G->s4C, 0x1E);
-    goto block_217;
+    func_8001BBC4(G->s56, G->s5E, 0xE0008C, 0x28);
+    goto block_218;
 block_215:
 block_216:
     func_8001BAF8(G->s48, 0x1F);
     func_8001BAF8(G->s4A, 0x20);
     func_8001BAF8(G->s4C, 0x21);
-block_217:
     func_8001BBC4(G->s56, G->s5E, 0xE0008C, 0x28);
 block_218:
     func_8001BAF8(0x80, 0xD);
@@ -1144,18 +1172,22 @@ block_225:
     func_8001B83C(&G->s6E, &G->s92);
     func_8001B83C(&G->s70, &G->s94);
     func_8001B83C(&G->s72, &G->s96);
-    v0 = (unsigned short)G->sA0;
-    if (G->sA0 == 0) {
+    g_v1 = G;
+    v0 = (unsigned short)g_v1->sA0;
+    if (g_v1->sA0 == 0) {
         goto block_227;
     }
-    v0 = v0 - 0x80;
-    G->sA0 = v0;
-    RR_GTE_MTC2_IR0(v0);
-    tabq = (int *)D_8009E540 + G->s9E * 4;
+    c8 = v0 - 0x80;
+    g_v1->sA0 = c8;
+    RR_GTE_MTC2_IR0(c8);
+    c8 = g_v1->s9E;
+    st = (int *)D_8009E540;
+    tabq = st + c8 * 4;
     RR_GTE_LWC2_IR(tabq);
-    tabr = (int *)D_8009E540 + (G->s9E - 1) * 4;
+    tabr = st + (c8 - 1) * 4;
     RR_GTE_SETFC_P(tabr);
     RR_GTE_INTPL();
+    __asm__ volatile("" ::: "$8", "$9"); /* ASM_BARRIER: reserve $t0-$t1 so sp3 allocates to $t5 */
     sp3 = (int *)0x1F800008;
     RR_GTE_STORE_IR(sp3);
 block_227:
@@ -1217,27 +1249,56 @@ block_239:
     func_8001B688(temp_a0_10);
     func_8001BEF8();
 block_241:
-    temp_v1_10 = G->s9A;
-    if (temp_v1_10 == 0) {
+    c80 = G->s9A;
+    if (c80 == 0) {
         goto block_247;
     }
+    var_v0_4 = 0x100;
+    __asm__ volatile("" : "+r"(var_v0_4)); /* ASM_BARRIER: fill beq delay slot with addiu $v0,$zero,256 */
     temp_t1 = spd->cur;
+    temp_t0 = var_v0_4 - c80;
+    __asm__ volatile("" : "+r"(temp_t1), "+r"(temp_t0)); /* ASM_BARRIER: emit spd->cur load and subu before bltz */
+    if (temp_t0 >= 0) {
+        if (temp_t0 > 0x100) {
+            var_v0_4 = 0x100;
+            goto block_clamp;
+        }
+    }
+    __asm__ volatile("" :: "r"(c80)); /* ASM_BARRIER: keep $v1 live across >0x100 check so slti uses $v0 */
+    if (temp_t0 < 0) {
+        var_v0_4 = 0;
+    } else {
+        var_v0_4 = temp_t0;
+    }
+block_clamp:
+    __asm__ volatile("" : "+r"(var_v0_4)); /* ASM_BARRIER: materialize clamped value in $v0 before copying to $t0 */
+    temp_t0 = var_v0_4;
+    __asm__ volatile("" : "+r"(temp_t0)); /* ASM_BARRIER: keep addu $t0,$v0,$zero at clamp merge label */
+    c_800060 = 0x800060;
+    c_800080 = 0x800080;
+    c_e1000240 = 0xE1000240;
+    __asm__ volatile("" : "+r"(c_800060), "+r"(c_800080), "+r"(c_e1000240)); /* ASM_BARRIER: hoist constant loads into $a3,$a2,$a1 before color shifts */
+    c80 = temp_t0 << 0x10;
+    var_v0_4 = temp_t0 << 8;
+    st = (int *)0x62000000;
+    __asm__ volatile("" : "+r"(c80), "+r"(var_v0_4), "+r"(st)); /* ASM_BARRIER: order sll/sll/lui before bitwise ors */
+    var_v0_4 |= (int)st;
+    c80 |= var_v0_4;
+    c80 |= temp_t0;
+    temp_t1->w[1] = c80;
+    __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: keep w[1] store before loading 0x1F800000 into $v1 */
     spd2 = (struct SPD *)0x1F800000;
-    temp_t0 = 0x100 - temp_v1_10;
-    var_v0_4 = temp_t0;
-    if (temp_t0 > 0x100) var_v0_4 = 0x100;
-    if (temp_t0 < 0) var_v0_4 = 0;
-    col = var_v0_4;
-    temp_t1->w[1] = ((col << 0x10) | ((col << 8) | 0x62000000) | col);
-    temp_t1->w[2] = 0x800060;
-    temp_t1->w[3] = 0x800080;
-    temp_t1->w[0] = 0xE1000240;
+    temp_t1->w[2] = c_800060;
+    temp_t1->w[3] = c_800080;
+    temp_t1->w[0] = c_e1000240;
     temp_t1->h.p = spd2->ot->h.p;
     temp_t1->h.b.len = 4;
+    __asm__ volatile(""); /* ASM_BARRIER: prevent hoisting call arg setup into packet header load delay slots */
     spd2->ot->h.p = temp_t1;
     spd2->ot->h.b.len = 0;
-    spd2->cur = temp_t1 + 1;
-    func_80041BF0(0, &spd2->ot->h, 1, 0x800060);
+    temp_t1++;
+    spd2->cur = temp_t1;
+    func_80041BF0(0, &spd2->ot->h, 1, c_800060);
 block_247:
     H->s2 = 1;
     func_8003D6F0(0);

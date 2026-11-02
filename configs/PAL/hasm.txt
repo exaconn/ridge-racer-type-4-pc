@@ -1,0 +1,130 @@
+# Hand-written assembly in the PAL main EXE (splat segment type `hasm`).
+# These functions are linked from splat-generated asm (asm/ is not tracked) and are
+# excluded from the C-coverage denominator. Only certain cases are listed, i.e. code
+# no stock gcc 2.7.2/2.8.1 can emit from C:
+#   trapping-arith  add/addi/sub/neg (gcc only emits addu/addiu/subu/negu)
+#   cop0            mfc0/mtc0/rfe
+#   syscall         syscall instruction
+#   k0k1            uses kernel registers $k0/$k1
+#   store-at        stores the assembler temporary $at to memory
+#   bios-trampoline li $t2,0xA0/0xB0/0xC0; jr $t2; li $t1,N  BIOS call stubs
+# GTE (cop2) use alone is NOT evidence: C reaches it through inline macros.
+# Format: <function> <evidence>[,<evidence>...]
+func_8005830C trapping-arith
+func_80058370 trapping-arith
+func_80058400 trapping-arith
+func_8005857C trapping-arith
+func_80058768 trapping-arith
+func_8005F0D0 trapping-arith
+func_8005F14C trapping-arith
+func_8005F3D0 trapping-arith
+func_8005F434 trapping-arith
+func_8005F4C4 trapping-arith
+func_8005F640 trapping-arith
+func_8005F82C trapping-arith
+func_8005F894 trapping-arith
+func_8005F920 trapping-arith
+func_8005FAA4 trapping-arith
+func_8005FD24 trapping-arith
+func_8005FE54 trapping-arith
+func_80060D54 trapping-arith
+func_800611B0 store-at
+func_800614C4 store-at
+func_80061910 trapping-arith
+func_80061E44 store-at
+func_80062158 store-at
+func_800625A4 trapping-arith
+func_8006298C store-at
+func_80062C60 store-at
+func_80063020 trapping-arith
+func_800634AC store-at
+func_80063780 store-at
+func_80063B40 trapping-arith
+func_80063FC4 store-at
+func_800642D8 store-at
+func_80064744 trapping-arith
+func_80064CAC store-at
+func_80064FC0 store-at
+func_80065420 trapping-arith
+func_80065830 store-at
+func_80065B04 store-at
+func_80065ED8 trapping-arith
+func_8006638C store-at
+func_80066660 store-at
+func_80066F18 trapping-arith
+func_80067A94 trapping-arith
+func_800686E8 trapping-arith,store-at
+func_80068E8C store-at
+func_80069134 store-at
+func_80069630 trapping-arith,store-at
+func_80069E60 store-at
+func_8006A108 store-at
+func_8006A604 trapping-arith
+func_8006AA30 store-at
+func_8006AD04 store-at
+func_8006B0C8 trapping-arith
+func_8006B59C store-at
+func_8006B870 store-at
+func_8006BC30 trapping-arith
+func_8006C0D0 store-at
+func_8006C3E4 store-at
+func_8006C880 trapping-arith,store-at
+func_8006CE24 store-at
+func_8006D138 store-at
+func_800907FC cop0
+func_80090884 trapping-arith
+func_80095C74 bios-trampoline
+func_80095C84 bios-trampoline
+func_80095C94 bios-trampoline
+func_80095CE4 bios-trampoline
+func_80095CF4 bios-trampoline
+func_80095DD4 bios-trampoline
+func_80095DE4 bios-trampoline
+func_800963A4 bios-trampoline
+func_800963B4 bios-trampoline
+func_800963DC bios-trampoline
+func_800963F4 bios-trampoline
+func_80096404 bios-trampoline
+func_80096414 bios-trampoline
+func_80096424 bios-trampoline
+func_80096434 bios-trampoline
+func_80096444 bios-trampoline
+func_80096454 bios-trampoline
+func_80096464 bios-trampoline
+func_80096474 bios-trampoline
+func_80096D14 bios-trampoline
+func_80096D24 bios-trampoline
+func_80096E04 bios-trampoline
+func_80096E14 bios-trampoline
+func_80096E3C bios-trampoline
+func_80096E54 bios-trampoline
+func_80096E64 bios-trampoline
+func_80096E74 bios-trampoline
+func_80096E84 bios-trampoline
+func_80096E94 bios-trampoline
+func_80096EA4 bios-trampoline
+func_80096EB4 bios-trampoline
+func_80096ED4 bios-trampoline
+func_80096EE4 bios-trampoline
+func_80096EF4 bios-trampoline
+func_80096F04 syscall
+func_80096F14 syscall
+func_80096F24 bios-trampoline
+func_80096F34 bios-trampoline
+func_80096F44 bios-trampoline
+func_80096F54 bios-trampoline
+func_80096F64 bios-trampoline
+func_80096F74 bios-trampoline
+func_80096F84 bios-trampoline
+func_80096F94 bios-trampoline
+func_800973B4 bios-trampoline
+func_800976C4 bios-trampoline
+func_800976D4 bios-trampoline
+func_800976E4 bios-trampoline
+func_800976F4 bios-trampoline
+func_80097704 bios-trampoline
+func_80097714 bios-trampoline
+func_8009774C trapping-arith
+func_800977C4 trapping-arith
+func_8009B9E4 bios-trampoline
+func_8009B9F4 bios-trampoline

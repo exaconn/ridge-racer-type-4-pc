@@ -41,6 +41,11 @@ def coverage(ledger_path, target_percent=40):
         assert last <= a and a+size <= text_end
         last=a+size
     resident_c = sum(spans[n][1] for n in owners)
+    # Hand-written assembly (splat `hasm` segments) cannot be recovered as C.
+    hasm = [s[2] for s in image['subsegments'] if isinstance(s,list) and s[1] == 'hasm']
+    assert not set(hasm) & owners.keys()
+    resident_hasm = sum(spans[n][1] for n in hasm)
+    resident_total -= resident_hasm
     overlay_c=0
     intervals={}
     for row in report['functions']:
@@ -55,9 +60,10 @@ def coverage(ledger_path, target_percent=40):
     total=resident_total+sum(b-a for a,b in SPANS.values())
     recovered=resident_c+overlay_c
     threshold=(total*target_percent+99)//100
-    return dict(scope='PAL resident .text plus nine unique candidate overlay text spans; aliases excluded',
+    return dict(scope='PAL resident .text (excluding hand-written hasm) plus nine unique candidate overlay text spans; aliases excluded',
                 denominator_provisional=True, denominator_source='configs/PAL/main.yaml and analyze_overlays.SPANS',
                 total_code_bytes=total,resident_text_bytes=resident_total,
+                resident_hasm_bytes=resident_hasm,resident_hasm_functions=len(hasm),
                 resident_c_bytes=resident_c,verified_overlay_c_bytes=overlay_c,
                 recovered_c_bytes=recovered,coverage_percent=100*recovered/total,
                 target_percent=target_percent,target_c_bytes=threshold,remaining_c_bytes=max(0,threshold-recovered),

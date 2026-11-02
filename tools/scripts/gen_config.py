@@ -35,18 +35,36 @@ for c in sorted((ROOT / f"src/main/{V}").glob("*.c")):
     units.append((rng[0][0], rng[-1][0] + rng[-1][1], c.stem))
     for m in re.finditer(r"RODATA\s+(0x[0-9A-Fa-f]+)\s+(0x[0-9A-Fa-f]+)", c.read_text()):
         ro_units.append((int(m[1], 16), int(m[1], 16) + int(m[2], 16), c.stem))
+units = [(a, e, n, "c") for a, e, n in units]
+# Hand-written assembly (configs/<V>/hasm.txt): own splat `hasm` segments, so they
+# are reported apart from not-yet-decompiled `asm` and excluded from C coverage.
+hasm_path = ROOT / f"configs/{V}/hasm.txt"
+if hasm_path.exists():
+    c_names = {n for c in (ROOT / f"src/main/{V}").glob("*.c")
+               for n in function_definitions(c.read_text())}
+    for line in hasm_path.read_text().splitlines():
+        line = line.split("#", 1)[0].strip()
+        if not line:
+            continue
+        n = line.split()[0]
+        if n not in funcs:
+            sys.exit(f"hasm.txt: unknown function {n}")
+        if n in c_names:
+            sys.exit(f"hasm.txt: {n} is defined in C")
+        a, s = funcs[n]
+        units.append((a, a + s, n, "hasm"))
 units.sort()
-for (a, e, n), (a2, e2, n2) in zip(units, units[1:]):
+for (a, e, n, _), (a2, e2, n2, _) in zip(units, units[1:]):
     if e > a2:
         sys.exit(f"{n} and {n2} overlap")
 
 off = lambda v: v - BASE_VRAM + FILE_OFF
 lines = []
 pos = TEXT_START
-for a, e, n in units:
+for a, e, n, kind in units:
     if a > pos:
         lines.append(f"      - [{off(pos):#x}, asm, main_{pos:08X}]")
-    lines.append(f"      - [{off(a):#x}, c, {n}]")
+    lines.append(f"      - [{off(a):#x}, {kind}, {n}]")
     pos = e
 if pos < TEXT_END:
     lines.append(f"      - [{off(pos):#x}, asm, main_{pos:08X}]")
@@ -70,4 +88,6 @@ m2 = re.search(r"      - \[0x800, rodata, main\]\n", out)
 assert m2, "base yaml must contain the rodata subsegment"
 out = out.replace(m2[0], "\n".join(ro_lines) + "\n")
 (ROOT / f"configs/{V}/main.yaml").write_text(out)
-print(f"{len(units)} C units, {sum(e - a for a, e, _ in units):#x} bytes of C")
+for kind in ("c", "hasm"):
+    sel = [(a, e) for a, e, _, k in units if k == kind]
+    print(f"{len(sel)} {kind} units, {sum(e - a for a, e in sel):#x} bytes")

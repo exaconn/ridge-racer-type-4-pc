@@ -3,6 +3,8 @@
 RGB compares the three defined channels; its ABI padding is not a channel.
 Stateful mocks preserve documented selector and active-model mode domains.
 """
+from overlay_units import read_c_source, symbol_addresses, resolve_c_source_path
+SYMBOL_ADDRESSES = symbol_addresses()
 from pathlib import Path
 import re,sys,subprocess,ctypes as C,struct,json,os,hashlib
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN
@@ -10,9 +12,10 @@ from unicorn.mips_const import *
 ROOT=Path(__file__).resolve().parents[2];os.chdir(ROOT)
 P=Path(os.getenv('RR_TEST_DIR','build/tests/overlay659_preview_controller'));P.mkdir(parents=True,exist_ok=True)
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/659/func_80115CE4.c')
-body=source.read_text();body=body[body.index('void ovl659_func_80115CE4'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
-names=sorted(set(re.findall(r'\b(?:ovl659_)?D_[0-9A-F]{8}\b',body)))
-functions=sorted(set(re.findall(r'\b(?:ovl659_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl659_func_80115CE4'})
+body=read_c_source(source);body=body[body.index('void ovl659_update_preview'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
+names=sorted(set(re.findall(r'\b(?:D_[0-9A-F]{8}|ovl659_[a-z][a-z0-9_]*)\b',body)))
+names=[n for n in names if not re.search(r"\b"+n+r"\s*\(",body)]
+functions=sorted(set(re.findall(r'\b(?:ovl659_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl659_update_preview'})
 head='''#include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -66,8 +69,8 @@ native=P/'native.c';native.write_text(code)
 subprocess.run(['cc','-std=gnu11','-O2','-shared','-fPIC','-Iinclude','-fsanitize=undefined,bounds','-fno-sanitize-recover=all',str(native),'-o',str(P/'native.dylib')],check=True)
 lib=C.CDLL(str(P/'native.dylib'));lib.object.restype=C.c_void_p;lib.object_size.restype=C.c_size_t
 N={n:(lib.object(i),lib.object_size(i)) for i,(c,n) in enumerate(objects)};assert all(p>0xffffffff for p,s in N.values())
-assert N['D_800ABEF8'][1]==1600 and N['D_800F3A38'][1]==184 and N['D_800AD4D8'][1]==44 and N['D_800F4D98'][1]==4
-addr=lambda n:int(n[-8:],16)
+assert N['D_800ABEF8'][1]==1600 and N['D_800F3A38'][1]==184 and N['D_800AD4D8'][1]==44 and N['D_800F4D98'][1]==32
+addr=lambda n:SYMBOL_ADDRESSES[n] if n in SYMBOL_ADDRESSES else int(n[-8:],16)
 pointers={'D_800ACC14','D_800F4D80','D_800F3AFC','D_800F2AB0'}
 regions=[(n,p,addr(n),size) for n,(p,size) in N.items() if n in names and n not in pointers]
 extra_addr={'frame0':0x80180000,'frame1':0x801A2778,'rows0':0x801D0000,'rows1':0x801D0200,'badge0':0x801D1000,'badge1':0x801D101C,'mode0':0x801D2000,'mode1':0x801D2038}
@@ -167,7 +170,7 @@ def initialize(n,native):
   for row in range(7):field(0x801D0000+bank*512+row*36+20,row_states[(n//12+row+bank)%len(row_states)],1,native)
   field(0x801D2001+bank*56,mode_states[(n//12+bank)%len(mode_states)],1,native);field(0x801D2002+bank*56,n&255,1,native)
 engine_path=ROOT/'tools/scripts/mips_preview_engine.py'
-ns={};exec(compile(engine_path.read_text(),str(engine_path),'exec'),ns)
+ns={};exec(compile(read_c_source(engine_path),str(engine_path),'exec'),ns)
 u=ns['Mips'](u,UC_MIPS_REG_0,UC_MIPS_REG_PC,UC_MIPS_REG_HI,UC_MIPS_REG_LO,memwrite)
 count=int(sys.argv[2]) if len(sys.argv)>2 else 8192
 for case in range(count):
@@ -185,7 +188,7 @@ for case in range(count):
    u.pc=service_return((event,args,u.reg_read(UC_MIPS_REG_RA)))
   else:u.step()
  assert u.pc==0x803FF800,(case,hex(u.pc))
- expected=snapshot(False);initialize(case,True);lib.ovl659_func_80115CE4()
+ expected=snapshot(False);initialize(case,True);lib.ovl659_update_preview()
  if errors:raise errors[0]
  assert seen==len(events),(case,'missing services');assert expected==snapshot(True),(case,'final full owners')
  if case and case%512==0:print(case,'cases',flush=True)
@@ -193,8 +196,8 @@ assert coverage==set(functions),(coverage,set(functions))
 assert rgb_modes=={1,0x102},rgb_modes
 print('PASS',count,('compiled MIPS interpreter' if os.getenv('RR_COMPILED_ELF') else 'original MIPS interpreter'),'services',len(coverage),'mutating',len(mutations),'RGB',len(rgb_values),'states',sorted(states),flush=True)
 if os.getenv('RR_AUDIT_JSON'):
- sha=lambda f:hashlib.sha256(Path(f).read_bytes()).hexdigest()
+ sha=lambda f:hashlib.sha256(resolve_c_source_path(f).read_bytes()).hexdigest()
  deps=subprocess.check_output(['cc','-MM','-Iinclude',str(native)],text=True).replace('\\\n',' ').split(':',1)[1].split()
- audit=dict(source=str(source),source_sha256=sha(source),test_sha256=sha(__file__),dependencies={f:sha(f) for f in deps+[str(engine_path)]},cases=count,engine='compiled MIPS interpreter' if os.getenv('RR_COMPILED_ELF') else 'original MIPS interpreter',services=sorted(coverage),mutating_services=sorted(mutations),root_replacing_services=sorted(root_changes),phases=sorted(states),rgb_modes=sorted(rgb_modes),rgb_channel_patterns=len(rgb_values),color_argument='three channels in aligned4-byte struct; padding masked',full_owner_guards=True,full_host_pointers=True,caller_save_hi_lo_poison=True,mips_store_bounds=True,sanitizers=['undefined','bounds'])
+ audit=dict(source=str(resolve_c_source_path(source)),source_sha256=sha(source),test_sha256=sha(__file__),dependencies={f:sha(f) for f in deps+[str(engine_path)]},cases=count,engine='compiled MIPS interpreter' if os.getenv('RR_COMPILED_ELF') else 'original MIPS interpreter',services=sorted(coverage),mutating_services=sorted(mutations),root_replacing_services=sorted(root_changes),phases=sorted(states),rgb_modes=sorted(rgb_modes),rgb_channel_patterns=len(rgb_values),color_argument='three channels in aligned4-byte struct; padding masked',full_owner_guards=True,full_host_pointers=True,caller_save_hi_lo_poison=True,mips_store_bounds=True,sanitizers=['undefined','bounds'])
  if os.getenv('RR_COMPILED_ELF'):audit['elf_sha256']=sha(os.environ['RR_COMPILED_ELF'])
  Path(os.environ['RR_AUDIT_JSON']).write_text(json.dumps(audit,indent=2)+'\n')

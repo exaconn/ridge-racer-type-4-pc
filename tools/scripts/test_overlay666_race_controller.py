@@ -5,6 +5,8 @@ Default: public source, 32768 cases; generated files stay under build/tests.
 RR_COMPILED_ELF optionally substitutes candidate MIPS code for compiler audits.
 Services are deterministic mocks, not physical GPU/audio/serial emulation.
 """
+from overlay_units import read_c_source, symbol_addresses
+SYMBOL_ADDRESSES = symbol_addresses()
 from pathlib import Path
 import re,sys,subprocess,ctypes as C,struct,json,os
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN,UC_HOOK_CODE
@@ -12,11 +14,12 @@ from unicorn.mips_const import *
 os.chdir(Path(__file__).resolve().parents[2])
 P=Path(os.environ.get('RR_TEST_DIR','build/tests/overlay666_race_controller'));P.mkdir(parents=True,exist_ok=True)
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/666/func_80116730.c')
-body=source.read_text().split('\n',1)[1]
-globals=sorted(set(re.findall(r'\b(?:ovl666_)?D_[0-9A-F]{8}\b',body)))
+body=read_c_source(source)
+globals=sorted(set(re.findall(r'\b(?:D_[0-9A-F]{8}|ovl666_[a-z][a-z0-9_]*)\b',body)))
+globals=[n for n in globals if not re.search(r"\b"+n+r"\s*\(",body)]
 aliases={'D_800AC0E2':'half1EA','D_800AC0E6':'half1EE'}
 globals=[x for x in globals if x not in aliases]
-functions=sorted(set(re.findall(r'\b(?:ovl666_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl666_func_80116730'})
+functions=sorted(set(re.findall(r'\b(?:func_[0-9A-F]{8}|ovl666_[a-z][a-z0-9_]*)(?=\()',body))-{'ovl666_update_race'})
 head='''#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -77,7 +80,7 @@ if os.getenv('RR_COMPILED_ELF'):
  with open(os.environ['RR_COMPILED_ELF'],'rb') as file:u.mem_write(0x116730,ELFFile(file).get_section_by_name('.text').data())
 def read(a,n):return bytes(u.mem_read(a&0x1fffffff,n))
 def write(a,b):u.mem_write(a&0x1fffffff,b)
-addr=lambda name:int(name[-8:],16)
+addr=lambda name:SYMBOL_ADDRESSES[name] if name in SYMBOL_ADDRESSES else int(name[-8:],16)
 regions=[(name,p,addr(name),size) for name,(p,size) in N.items() if name not in ['D_800ACC14','D_800ADAF0']]
 mappings=[(p,a,size) for name,p,a,size in regions]+[(frame,0x800ADAF0,frameSize*2),(streams,0x80190000,12288)]
 def palpointer(p):
@@ -156,7 +159,7 @@ def hook(uc,a,size,data):
  event=serviceMap[a];count=len(protos[functions[event]][1]);args=[uc.reg_read(r)&0xffffffff for r in regs[:min(count,4)]]
  if count>4:args+=list(struct.unpack('<'+'I'*(count-4),read(uc.reg_read(UC_MIPS_REG_SP)+16,4*(count-4))))
  value=service(event,args,False);uc.reg_write(UC_MIPS_REG_V0,value);uc.reg_write(UC_MIPS_REG_PC,uc.reg_read(UC_MIPS_REG_RA))
-serviceMap={int(name[-8:],16):i for i,name in enumerate(functions)}
+serviceMap={addr(name):i for i,name in enumerate(functions)}
 for a in serviceMap:u.hook_add(UC_HOOK_CODE,hook,begin=a,end=a)
 def initialize(n,native):
  for name,p,a,size in regions:
@@ -186,7 +189,7 @@ for case in range(count):
  try:u.emu_start(0x80116730,0x803FF800,count=30000)
  except Exception:print('MIPS failure',case,hex(u.reg_read(UC_MIPS_REG_PC)));raise
  expected=snapshot(False);expectedFrames=read(0x800ADAF0,frameSize*2)
- initialize(case,True);lib.ovl666_func_80116730()
+ initialize(case,True);lib.ovl666_update_race()
  if callbackError:raise callbackError[0]
  assert len(events)==len(observed),(case,len(events),len(observed))
  for j,(e,o) in enumerate(zip(events,observed)):

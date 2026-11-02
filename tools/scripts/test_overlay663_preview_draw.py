@@ -1,4 +1,5 @@
 """Preview draw wrapper: defined angle wrap, matrix bounds and fresh context."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -7,19 +8,20 @@ import unittest
 class Overlay663PreviewDrawTest(unittest.TestCase):
     def test_angles_matrix_and_mutating_abi(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/663/func_801158B4.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/663/func_801158B4.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
 #include "rr/layout.h"
+#include "rr/frame_storage_types.h"
 #undef RR_ASSERT_SIZE
 #undef RR_ASSERT_OFFSET
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay663_preview_draw.h"
-RrRaceVehicle D_800ABEF8[2];RrIconSpriteContext *D_800ACC14;
+RrRaceVehicle D_800ABEF8[2];RrFrameStorage *D_800ACC14;
 static RrFrameOrderingPrefix frames[3],frames_before[3];
 static RrRaceVehicle untouched,final_car;
 static u16 *matrix,expected_matrix[9];
@@ -33,7 +35,7 @@ static void mutate(unsigned n){unsigned j;
  D_800ABEF8[0].pos20[0]=word(scenario*0x9E3779B9U+n);
  D_800ABEF8[0].pos20[1]=word(scenario*0x1234567U+n);
  D_800ABEF8[0].pos20[2]=word(scenario*0x87654321U+n);
- D_800ACC14=(RrIconSpriteContext*)&frames[n%3];
+ D_800ACC14=(RrFrameStorage*)&frames[n%3];
 }
 void func_8006E1AC(void){assert(calls++==0);mutate(0);}
 void func_8006EF8C(s32 mode){assert(calls++==1&&mode==6);mutate(1);
@@ -71,12 +73,12 @@ int main(void){unsigned j;
   for(j=0;j<sizeof(frames);j++)((u8*)frames)[j]=(u8)next();
   memcpy(&untouched,&D_800ABEF8[1],sizeof(untouched));memcpy(frames_before,frames,sizeof(frames));
   input_y=word((variant?0x80000000U:0x7FFF0000U)|scenario);
-  D_800ACC14=(RrIconSpriteContext*)&frames[0];calls=0;matrix=0;
-  ovl663_func_801158B4();assert(calls==6);
+  D_800ACC14=(RrFrameStorage*)&frames[0];calls=0;matrix=0;
+  ovl663_draw_preview();assert(calls==6);
   assert(memcmp(&untouched,&D_800ABEF8[1],sizeof(untouched))==0);
   assert(memcmp(&final_car,&D_800ABEF8[0],sizeof(final_car))==0);
   assert(memcmp(frames_before,frames,sizeof(frames))==0);
-  assert(D_800ACC14==(RrIconSpriteContext*)&frames[2]);
+  assert(D_800ACC14==(RrFrameStorage*)&frames[2]);
  }
  return 0;
 }

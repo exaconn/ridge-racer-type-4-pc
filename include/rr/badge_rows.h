@@ -4,15 +4,7 @@
 #include "rr/ui_bar.h"
 #include "rr/icon_sprites.h"
 
-typedef struct {
-    u16 status00;
-    s16 half02;
-    s16 x04, y06, x08, y0A, width0C;
-    s16 extent0E;
-    s16 state10;
-    u8 pad12[2];
-    s16 x14, y16, w18, h1A;
-} RrBadgeRow1C;
+#include "rr/badge_row_types.h"
 
 extern RrBadgeRow1C *D_800F3AFC;
 extern s8 D_8009F108[];

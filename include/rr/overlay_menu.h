@@ -10,10 +10,10 @@ s32 func_8003E13C(s32 selected);
 
 s32 ovl660_func_801156A8(void);
 s32 ovl661_func_80117E10(void);
-s32 ovl666_func_80115510(void);
+s32 ovl666_update_retry_choice(s32 mode);
 /* Four-position selection, backed by at least three UI rows and four glyph
  * rows. A sound callback may replace the roots; its signed selection is clamped. */
-void ovl666_func_80115148(void);
+void ovl666_update_course_selection(void);
 s32 ovl667_func_801187DC(void);
 /* The first machine-word argument is passed by callers but unused.
  * Return the final glyph-step completion value without truncation. */

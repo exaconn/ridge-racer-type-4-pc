@@ -1,4 +1,5 @@
 """Extra-course preview: complete owners and mutating typed service boundaries."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
@@ -9,7 +10,7 @@ class Overlay666PreviewTest(unittest.TestCase):
     def test_initialization_and_fresh_selection_roots(self):
         root=Path(__file__).resolve().parents[2]
         paths=['src/main/PAL/func_8003A198.c','src/main/PAL/func_80037040.c','src/overlays/PAL/666/func_80115A88.c']
-        bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',(root/p).read_text(),flags=re.M) for p in paths)
+        bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',read_c_source(root/p),flags=re.M) for p in paths)
         source=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -21,20 +22,20 @@ class Overlay666PreviewTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay666_preview.h"
-static struct World {u32 head[4];RrRaceVehicle cars[2];RrProjectionScratchPrefix scratch;RrBadgeRow1C badges[3][2],*root;RrExtraCourseChoice table[4][9];RrSelectionRows choice;RrMenuGridPoint grid[4];void*base,*published;s32 frame,pulse,local;RrMenuSelectionWord32 index;s16 row,mode,flag;s8 clear1,clear2;u32 tail[4];} world,expected,checkpoint[6];
+static struct World {u32 head[4];RrRaceVehicle cars[2];RrProjectionScratchPrefix scratch;RrBadgeRow1C badges[3][2],*root;RrCourseChoice4 table[4][9];RrCurrentSelection choice;RrMenuGridPoint grid[4];void*base,*published;s32 frame,pulse,local;RrMenuSelectionWord32 index;s16 row,mode,flag;s8 clear1,clear2;u32 tail[4];} world,expected,checkpoint[6];
 static unsigned scenario,calls,reference_calls;static u8 arenas[3][64],packets[64];static u32 orders[32];
 #define D_800ABEF8 world.cars
 #define RR_PROJECTION_SCRATCH (&world.scratch)
 #define D_800F3AFC world.root
-#define ovl666_D_80116FA0 world.table
+#define ovl666_available_courses world.table
 #define D_800ACBD0 world.grid
 #define D_800F4D98 world.choice
 #define D_800F4D40 world.base
 #define D_800ACC18 world.published
 #define D_800F2DE4 world.frame
 #define D_800ABEB0 world.pulse
-#define ovl666_D_80116F98 world.index
-#define ovl666_D_80116F90 world.local
+#define ovl666_selected_course world.index
+#define ovl666_preview_phase world.local
 #define D_800F3826 world.row
 #define D_800AC5E0 world.mode
 #define D_800AC64A world.flag
@@ -68,13 +69,13 @@ static void reference(void){unsigned n;int glyph,t;
  expected.scratch.word18=120;expected.scratch.word08=-16;expected.scratch.word0C=-248;expected.scratch.word1C=expected.scratch.word20=0;expected.scratch.word10=-96;
  event();expected.cars[0].pos20[1]=10;expected.cars[0].pos20[2]=308;expected.cars[0].rot54=2048;
  glyph=expected.table[expected.row][expected.index.word].glyph;t=glyph/160;
- expected.choice.primary=(u8)t;expected.choice.variant=(u8)(glyph/40-t*4);expected.choice.pad02[0]=(u8)(glyph%40);
+ expected.choice.selection.primary=(u8)t;expected.choice.selection.variant=(u8)(glyph/40-t*4);expected.choice.selection.pad02[0]=(u8)(glyph%40);
  expected.grid[0].first=expected.table[expected.row][expected.index.word].first;expected.grid[0].second=expected.table[expected.row][expected.index.word].second;event();
 }
 int main(void){unsigned j,k;for(scenario=0;scenario<65536;scenario++){
  memset(&world,0,sizeof(world));for(j=0;j<4;j++){world.head[j]=next();world.tail[j]=next();}
  for(j=0;j<4;j++)for(k=0;k<9;k++){world.table[j][k].glyph=half(scenario+j*233+k*901);world.table[j][k].first=(s8)(scenario+j+k);world.table[j][k].second=(s8)(scenario*7+j+k);}
- effect(&world,7);expected=world;calls=reference_calls=0;reference();ovl666_func_80115A88();assert(calls==6&&reference_calls==6);assert(memcmp(&world,&expected,sizeof(world))==0);
+ effect(&world,7);expected=world;calls=reference_calls=0;reference();ovl666_init_preview();assert(calls==6&&reference_calls==6);assert(memcmp(&world,&expected,sizeof(world))==0);
  assert((uintptr_t)world.base>UINT32_MAX&& (uintptr_t)world.root>UINT32_MAX);
  }return 0;}
 '''

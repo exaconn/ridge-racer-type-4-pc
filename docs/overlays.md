@@ -53,11 +53,11 @@ Role names are inferred from embedded strings and callers.
 | 665 | 14 | 19582 | 20480 | 0xA0..0x47A0 | 18176 | Menu module; exact role pending |
 | 666 | 15 | 19592 | 10240 | 0x5C..0x2668 | 9740 | Extra course selection (`job_ex_crs_info0`) |
 | 667 | 9 | 19597 | 18432 | 0xB4..0x4588 | 17620 | Multiplayer / serial (`sio:`, `PLAYER 2/3/4`) |
-| 668 | 6 | 19606 | 79872 | 0x98..0x12FAC | 77588 | STR playback (`strNext`, timeout diagnostics) |
+| 668 | 6 | 19606 | 79872 | 0x98..0x2430 | 9112 | STR playback (`strNext`, timeout diagnostics); decoder tables excluded |
 
 Exact whole-entry duplicate pairs: **669 = 660**, **670 = 659**,
 **671 = 661**, **672 = 667**. Thus 13 executable entries represent 9 unique
-images. Their unique candidate text spans total **237,224 bytes**.
+images. Their unique candidate text spans total **168,748 bytes**.
 Duplicates should share source/build products and be checked at both disc sites.
 
 Entries 658, 664 and 673 are not executable overlays on the evidence examined:
@@ -73,6 +73,31 @@ overlay. Its resource semantics still need investigation. This scan does not
 prove absence of compressed code or code without standard returns elsewhere.
 
 ## Effect on coverage
+
+### STR section-map correction (2026-11-02)
+
+The original return-word scan overestimated module 668's text extent. Its last
+executable return and delay slot are at `0x80116CA0` and `0x80116CA4`.
+Data starts at `0x80116CA8`: initial state, the twenty-word camera lookup at
+`0x80116CC0`, quantization commands at `0x80116D10`, and the matrix command at
+`0x80116D94`. The command layouts are independently used by the implemented
+helpers and declared in `include/rr/overlay668_decode.h`.
+
+The decoder at `0x80116958` loads two data bases, `0x80117690` and
+`0x80127690`, into `a2` and `a3`. At `0x80116B3C` it indexes the first with
+the upper thirteen input bits times eight: 8192 records, ending exactly at the
+second base. At `0x80116B7C` it indexes the second with the upper nine bits
+times four: 512 records, ending at `0x80127E90`. Lookup results are consumed
+as bit lengths and coefficient values; they are not control-flow targets.
+The apparent returns near `0x80127818` lie inside that second table.
+The decoder also reads two 256-record, four-byte tables immediately before
+the first base, at `0x80116E90` and `0x80117290`.
+
+Thus the old `0x12FAC` end included decoder data. `analyze_overlays.SPANS`
+now uses the actual exclusive code end `0x2430`, without adding any completed
+functions. The combined resident/overlay code pool is now 741,432 bytes.
+Coverage ledgers must be recalculated against this corrected map; historical
+figures below describe the earlier provisional estimate.
 
 The resident EXE has 572,684 text bytes; C definitions cover 233,480 bytes.
 Adding the nine unique candidate overlay text spans yields an estimated code
@@ -166,33 +191,48 @@ word getters and changing full-width host pointers. These are unit-level checks,
 not an emulator playthrough. Existing resident source files and shared headers
 were left untouched to allow concurrent debt cleanup.
 
-## Whole-image build for 659/670 — work in progress
+## Complete C translation units: 659/670, 663, 666
 
-`configs/PAL/overlays/659.json` records all seven complete function ranges.
-`src/overlays/PAL/659/data.c` reconstructs the module ID, four threshold bytes,
-34 command words and local countdown. The two jump tables come from their
-reference function objects; the remaining sector padding is explicitly zeroed.
+These three unique overlays are now built entirely from C, including typed local
+data. No reference assembly is linked into their images. Overlay 670 is the
+on-disc alias of 659.
+
+| Overlay | Functions | Code TUs | Responsibilities |
+| --- | ---: | ---: | --- |
+| 659 / 670 | 7 | 3 | Race, results/standings, vehicle preview |
+| 663 | 14 | 4 | Menu, selection, previews, record rendering/time formatting |
+| 666 | 13 | 4 | Course menu, results, preview, race/checkpoints |
+
+The manifests in `configs/PAL/overlays/` assign each function to exactly one TU
+and fix the original addresses of code, generated jump tables and typed data.
+`include/rr/overlay659.h`, `overlay663.h` and `overlay666.h` expose module APIs;
+`menu_overlay_runtime.h` gives these modules one consistent resident interface.
+Local globals have module names and real C definitions. The shared selection
+buffer has explicit choice, selection-list and entry views in one union.
+
+The C controllers use ordinary array indexing and structured state transitions.
+They contain no register bindings, inline assembly, fake volatile locals,
+compiler-version overrides or integer conversions of software pointers. The RGB
+argument uses its real three channels and aligned ABI view; padding is ignored
+by the renderer. The scratchpad remains a genuine hardware address.
 
 ```sh
-.venv/bin/python tools/scripts/build_overlay659.py
-.venv/bin/python tools/scripts/build_overlay659.py --require-complete
-.venv/bin/python -m unittest discover -s tools/scripts -p 'test_overlay*.py' -v
+make -j8 check
+.venv/bin/python tools/scripts/build_overlay.py --overlay 659
+.venv/bin/python tools/scripts/build_overlay.py --overlay 663
+.venv/bin/python tools/scripts/build_overlay.py --overlay 666
+.venv/bin/python tools/scripts/verify_overlay_samples.py
 ```
 
-The normal command currently reproduces both complete 8192-byte images exactly,
-with a separate relocated Levenshtein check on every function. The stricter
-command deliberately fails until all seven functions use C. **Current C recovery
-is 2/7 functions**: 801148CC and 801158B4; five reference assembly files remain in
-`asm/overlays/PAL/659/`. Image identity must not be described as complete C recovery.
-The build leaves the main EXE build configuration untouched.
+Each complete build checks relocated instruction Levenshtein distance 0 for
+all module functions, verifies symbol addresses and sizes, then checks the entire
+overlay image (including alias 670) and the full main EXE against the originals.
+Reports are saved under `build/overlays/{entry}-full/verified.json`. The sample
+verifier also handles multiple functions per TU, compiling each TU only once.
+Its reconstructed R4.BIN still uses original bytes outside verified functions;
+the three complete module builders do not use that partial-rebuild mechanism.
 
-The newly recovered standings routine 801158B4 copies a nonnegative prefix of
-at most six results, stably sorts a local copy, and publishes the first minimum's
-index. With status -1 it instead publishes a finish marker and invalidates a
-selected result. Native UBSan checks cover all 3^6 small-value combinations,
-every sentinel position, random signed-word boundaries and finish counts, ties,
-and preservation of the complete resident vehicle storage. The valid positive
-finish-count range is 1..6; nonpositive counts skip the indexed write.
-
-Unfinished C research is retained under `research/overlays/PAL/659/`, explicitly
-outside the build and outside completion accounting.
+Historical per-function headers forward to the canonical module interface.
+Native fixtures select the actual definition from its owning TU, rather than
+keeping duplicate C bodies. Native regressions use UBSan and compare behavior
+with independent state oracles or original MIPS service traces.

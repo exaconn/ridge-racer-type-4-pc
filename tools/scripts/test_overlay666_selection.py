@@ -1,4 +1,5 @@
 """Four-position UI selection, real sound closure and replaced native owners."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -8,9 +9,9 @@ import unittest
 class Overlay666SelectionTest(unittest.TestCase):
     def test_flags_priorities_and_full_signed_callback_selection(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/666/func_80115148.c').read_text()
-        bridge=(root/'src/main/PAL/func_8004F218.c').read_text().replace('#include "rr/audio_pan.h"','')
-        sound=re.sub(r'^extern[^\n]*;\n','',(root/'src/main/PAL/func_8004F24C.c').read_text(),flags=re.M)
+        body=read_c_source(root/'src/overlays/PAL/666/func_80115148.c')
+        bridge=read_c_source(root/'src/main/PAL/func_8004F218.c').replace('#include "rr/audio_pan.h"','')
+        sound=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'src/main/PAL/func_8004F24C.c'),flags=re.M)
         source=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -67,7 +68,7 @@ int main(void){unsigned k,i;u16 flags;
   world.selection=initial;world.buttons=flags;world.calls=0;world.ui=world.backing[old_root];world.glyphs=world.records[(k>>6)%3];
   assert((uintptr_t)world.ui>UINT32_MAX && (uintptr_t)world.glyphs>UINT32_MAX);
   memcpy(&expected,&world,sizeof(world));reference();
-  ovl666_func_80115148();assert(memcmp(&world,&expected,sizeof(world))==0);
+  ovl666_update_course_selection();assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  return 0;
 }

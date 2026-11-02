@@ -5,25 +5,7 @@
 #include "rr/badge_rows.h"
 
 /* Byte-aligned records deliberately use the original unaligned word transfers. */
-#include "rr/menu_choice_types.h"
-typedef struct {
-    u8 pad00[8];
-    s8 retries08[8];
-    u8 reserved10[7];
-    s8 phase17;
-    u8 pad18[2];
-    s16 mode1A;
-    RrMenuChoice4 copies[4];
-} RrMenuSettings2C;
-
-typedef struct {
-    u8 flags00, pad01;
-    s8 control02;
-    u8 pad03[4], glyph07;
-    s16 x08, y0A, w0C, h0E;
-    u8 pad10[8];
-    s32 phase18;
-} RrMenuGlyphRow1C;
+#include "rr/menu_state_types.h"
 
 extern s32 D_8009FDA4, D_800F3A60;
 extern void *D_800ACC18, *D_800F4D40;

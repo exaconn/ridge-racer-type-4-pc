@@ -9,9 +9,11 @@ typedef struct {
 } RrProjectionScratchPrefix;
 typedef struct {u8 pad00[0x20];s32 words20[3];} RrSceneStatePrefix;
 extern RrSceneStatePrefix D_80107198;
+#if defined(mips)
 RR_ASSERT_SIZE(RrProjectionScratchPrefix,0x24);
 RR_ASSERT_OFFSET(RrProjectionScratchPrefix,word08,8);
 RR_ASSERT_OFFSET(RrProjectionScratchPrefix,word18,0x18);
+#endif
 RR_ASSERT_SIZE(RrSceneStatePrefix,0x2C);
 RR_ASSERT_OFFSET(RrSceneStatePrefix,words20,0x20);
 #endif

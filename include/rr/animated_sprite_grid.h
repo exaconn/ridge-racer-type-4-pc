@@ -14,8 +14,10 @@ typedef struct {u32 tag,command;} RrGpuSingleCommandPacket;
  * clears the ordering-head high byte. Finishes with command E100022A. */
 void func_8001E1F0(u32 intensity,RrSpriteGridClock *state);
 
+#if defined(mips)
 RR_ASSERT_SIZE(RrGpuScratchPointers, 8);
 RR_ASSERT_OFFSET(RrGpuScratchPointers, order, 4);
+#endif
 RR_ASSERT_SIZE(RrSpriteGridClock, 16);
 RR_ASSERT_OFFSET(RrSpriteGridClock, tick0E, 14);
 RR_ASSERT_SIZE(RrGpuSingleCommandPacket, 8);

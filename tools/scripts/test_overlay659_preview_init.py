@@ -1,11 +1,12 @@
 """Guarded native oracle for the three-state overlay659 preview initializer."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
 
 root = Path(__file__).resolve().parents[2]
-body = (root/'src/overlays/PAL/659/func_801159E8.c').read_text()
-body = body[body.index('void ovl659_func_801159E8'):]
+body = read_c_source(root/'src/overlays/PAL/659/func_801159E8.c')
+body = body[body.index('void ovl659_init_preview'):]
 source = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -103,7 +104,7 @@ int main(void){assert(sizeof(void*)==8);for(scenario=0;scenario<65536;scenario++
  memset(&actual,0xA6,sizeof(actual));w=&actual;w->phase=profile<6?profile/2:(u16)scenario;
  w->frame=word(scenario*0x1234567U);w->tick=word(~(scenario*0x2345678U));w->settings.phase17=byte(scenario);
  w->root=scenario&1;w->resource=resources[scenario%3];w->published=resources[(scenario+1)%3];
- reference=actual;serial=count=seen=0;referenceRun=1;w=&reference;expected();serial=0;referenceRun=0;w=&actual;ovl659_func_801159E8();
+ reference=actual;serial=count=seen=0;referenceRun=1;w=&reference;expected();serial=0;referenceRun=0;w=&actual;ovl659_init_preview();
  assert(count==seen&&!memcmp(&actual,&reference,sizeof(actual)));
  }
  for(unsigned i=0;i<10;i++)assert(coverage[i]);for(unsigned i=0;i<4;i++)assert(paths[i]);assert(completion[0]&&completion[1]);

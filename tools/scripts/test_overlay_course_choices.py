@@ -1,4 +1,5 @@
 """Real course screens and glyph/count helpers; simulated scene services."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -9,11 +10,11 @@ import unittest
 class CourseChoicesTest(unittest.TestCase):
     def test_native_screens_and_signed_course_records(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/{i}/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/{i}/func_{a}.c')
                            for i,a in ((660,'801163C4'),(661,'80115F8C'),(667,'80116BB4')))
         bodies = re.sub(r'^extern[^\n]*\n', '', bodies, flags=re.M)
-        glyph = (root / 'src/main/PAL/func_80037040.c').read_text()
-        count = (root / 'src/main/PAL/func_800370BC.c').read_text()
+        glyph = read_c_source(root / 'src/main/PAL/func_80037040.c')
+        count = read_c_source(root / 'src/main/PAL/func_800370BC.c')
         source = r'''
 #include <assert.h>
 #include <stddef.h>

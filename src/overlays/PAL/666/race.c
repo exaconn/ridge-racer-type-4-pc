@@ -1,6 +1,54 @@
-#include "rr/overlay666_race_controller.h"
+#include "rr/overlay666.h"
 
-void ovl666_func_80116730(void) {
+void ovl666_update_checkpoint(RrRaceCheckpointVehicle *vehicle) {
+    RrRaceVehicleControl *control;
+    /* Preserve the target through the mode-dependent adjustment. */
+    s32 target;
+    s32 id;
+
+    control = &vehicle->control;
+    if ((s32)((u32)vehicle->second + (u32)vehicle->first) >=
+        (s32)((u32)(s32)control->steering94.count22 * (u32)D_800F2EB8)) {
+        if (control->steering94.count22 <= D_800F3A30) {
+            control->steering94.count22 = (s16)((u16)control->steering94.count22 + 1U);
+            D_8010C134 = 0;
+            target = ((u16)(D_800F3914 - 6) < 2) ? (s32)((u32)D_800F3A30 - 1U) : D_800F3A30;
+            if (control->steering94.count22 == target) {
+                func_800295B8(0);
+            } else if (control->steering94.count22 > D_800F3A30) {
+                if (D_800FF6B0 < 4) {
+                    D_8010C134 = -1;
+                    D_800FF6B0 = 4;
+                    D_800AC5D0 = 75;
+                    func_8004FC18(0, 33);
+                    D_800F4C64 = 0;
+                    func_8004F2D8(19, 1);
+                }
+            }
+        }
+    }
+    if (D_8010C134 == 0) {
+        id = (s32)(9U - ((u32)D_800F3A30 - (u32)(s32)control->steering94.count22));
+        if (id == 9) {
+            id = 15;
+        }
+        if (id >= 6) {
+            func_8004F2D8(id, 0);
+        }
+        D_8010C134 = -1;
+    }
+}
+
+void ovl666_exit_race(void) {
+    func_80036068();
+    func_8003CAB4();
+    D_800F4C6A = 1;
+    D_800F3A26 = 82;
+    D_800F4D8A = 0;
+    func_800207D4(D_800ACC14->ordering.ordering70, 255, 69);
+}
+
+void ovl666_update_race(void) {
     D_800F2DE4 = (u32)D_800F2DE4 + 1;
     func_8006EF8C(0);
     if (((u32)D_800FF6B0 - 1) < 2U && (D_800F3A38[0].buttons08 & 0x800) && D_800AC5D0 <= 0) {
@@ -22,9 +70,9 @@ void ovl666_func_80116730(void) {
     if (D_800F4C68 != 0) {
         func_80034844(D_800F4D44);
         D_800F2DE4 = (u32)D_800F2DE4 - 1;
-        func_800349F4(&D_800ACC14->head70, D_800F2FDC);
+        func_800349F4(&D_800ACC14->ordering.ordering70[0], D_800F2FDC);
         if (D_800FF6B0 < 4) {
-            func_80033F3C(&D_800ACC14->head70, D_800F2DE4);
+            func_80033F3C(&D_800ACC14->ordering.ordering70[0], D_800F2DE4);
         }
         if (((u32)D_800FF6B0 - 1) < 3U) {
             func_80021350(D_800F4C70.first, 0);
@@ -34,7 +82,7 @@ void ovl666_func_80116730(void) {
             func_8002BD18(D_800AC5A4, 0);
             func_80021C94(0, D_800ABEF8[0].steering288.count22);
             func_80021E2C(0);
-            func_80022098(&D_800ACC14->head70, 0);
+            func_80022098(&D_800ACC14->ordering.ordering70[0], 0);
             func_80021C00(1);
             func_800211A4(0);
             func_80020B10(4);
@@ -82,11 +130,12 @@ void ovl666_func_80116730(void) {
             a2 = 37;
         }
         if (D_800AC5D0 < 25) {
-            func_800207D4(&D_800ACC14->head70, (25 - D_800AC5D0) * 10, a2);
-            RR_666_SCRATCH->cursor = func_8001FC28(&D_800ACC14->head70, RR_666_SCRATCH->cursor, 0, 0, 320, 256);
+            func_800207D4(&D_800ACC14->ordering.ordering70[0], (25 - D_800AC5D0) * 10, a2);
+            RR_666_SCRATCH->cursor = func_8001FC28(&D_800ACC14->ordering.ordering70[0],
+                                                   RR_666_SCRATCH->cursor, 0, 0, 320, 256);
         }
         if (D_800AC5D0 <= 0) {
-            if (D_800FF6B0 == 4 && (ovl666_D_80116F94 = D_800ABEF8[0].half1EE) == 0) {
+            if (D_800FF6B0 == 4 && (ovl666_result_kind = D_800ABEF8[0].half1EE) == 0) {
                 D_800F4C6A = 1;
                 D_800F3A26 = 21;
                 D_800F4D8A = 0;
@@ -98,21 +147,22 @@ void ovl666_func_80116730(void) {
         }
     } else if (D_800FF6B0 == 0) {
         if (D_800F2DE4 >= 51U) {
-            func_800207D4(&D_800ACC14->head70, (D_800F2DE4 - 50) * 10, 37);
+            func_800207D4(&D_800ACC14->ordering.ordering70[0], (D_800F2DE4 - 50) * 10, 37);
             D_800ADAF0[1].environment.rgb24 = 0;
             D_800ADAF0[0].environment.rgb24 = 0;
         } else if (D_800F2DE4 < 25U) {
-            func_800207D4(&D_800ACC14->head70, (25 - D_800F2DE4) * 10, 69);
+            func_800207D4(&D_800ACC14->ordering.ordering70[0], (25 - D_800F2DE4) * 10, 69);
             D_800ADAF0[1].environment.rgb24 = 1;
             D_800ADAF0[0].environment.rgb24 = 1;
         }
-        RR_666_SCRATCH->cursor = func_8001FC28(&D_800ACC14->head70, RR_666_SCRATCH->cursor, 0, 0, 320, 256);
+        RR_666_SCRATCH->cursor = func_8001FC28(&D_800ACC14->ordering.ordering70[0],
+                                               RR_666_SCRATCH->cursor, 0, 0, 320, 256);
     }
 
-    ovl666_func_8011656C((RrRaceCheckpointVehicle *)(void *)D_800ABEF8);
+    ovl666_update_checkpoint((RrRaceCheckpointVehicle *)(void *)D_800ABEF8);
     func_8003C96C();
     if (D_800FF6B0 < 4) {
-        func_80033F3C(&D_800ACC14->head70, D_800F2DE4);
+        func_80033F3C(&D_800ACC14->ordering.ordering70[0], D_800F2DE4);
         func_80034630(D_800F2DE4);
     }
     func_800396E4((char *)D_800ABEF8);
@@ -125,7 +175,7 @@ void ovl666_func_80116730(void) {
         func_8002BD18(D_800AC5A4, 0);
         func_80021C94(0, D_800ABEF8[0].steering288.count22);
         func_80021E2C(0);
-        func_80022098(&D_800ACC14->head70, 0);
+        func_80022098(&D_800ACC14->ordering.ordering70[0], 0);
         func_80021C00(1);
         func_800211A4(0);
         func_80020B10(4);

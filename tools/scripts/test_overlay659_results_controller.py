@@ -3,6 +3,8 @@
 Services are stateful mocks. All argument lists and complete owner snapshots
 are checked before each service. RR_COMPILED_ELF substitutes rebuilt MIPS.
 """
+from overlay_units import read_c_source, symbol_addresses, resolve_c_source_path
+SYMBOL_ADDRESSES = symbol_addresses()
 from pathlib import Path
 import re,sys,subprocess,ctypes as C,struct,json,os,hashlib
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN,UC_HOOK_CODE
@@ -10,9 +12,10 @@ from unicorn.mips_const import *
 ROOT=Path(__file__).resolve().parents[2];os.chdir(ROOT)
 P=Path(os.getenv('RR_TEST_DIR','build/tests/overlay659_results_controller'));P.mkdir(parents=True,exist_ok=True)
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/659/func_80115224.c')
-body=source.read_text();body=body[body.index('void ovl659_func_80115224'):]
-global_names=sorted(set(re.findall(r'\b(?:ovl659_)?D_[0-9A-F]{8}\b',body)))
-functions=sorted(set(re.findall(r'\b(?:ovl659_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl659_func_80115224'})
+body=read_c_source(source);body=body[body.index('void ovl659_update_results'):]
+global_names=sorted(set(re.findall(r'\b(?:D_[0-9A-F]{8}|ovl659_[a-z][a-z0-9_]*)\b',body)))
+global_names=[n for n in global_names if not re.search(r"\b"+n+r"\s*\(",body)]
+functions=sorted(set(re.findall(r'\b(?:ovl659_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl659_update_results'})
 head='''#include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -80,7 +83,7 @@ if os.getenv('RR_COMPILED_ELF'):
    if sec:u.mem_write(sec['sh_addr']&0x1fffffff,sec.data())
 read=lambda a,n:bytes(u.mem_read(a&0x1fffffff,n))
 def write(a,b):u.mem_write(a&0x1fffffff,b)
-addr=lambda n:int(n[-8:],16)
+addr=lambda n:SYMBOL_ADDRESSES[n] if n in SYMBOL_ADDRESSES else int(n[-8:],16)
 regions=[(n,p,addr(n),s) for n,(p,s) in N.items() if n not in ['D_800ACC14','D_800FFC14']]
 regions += [('frames',frame,0x800ADAE0,frame_size),('texts',text,0x8018FFF0,text_size)]
 mappings=[(p,a,s) for n,p,a,s in regions]
@@ -137,7 +140,7 @@ def service(event,args,native):
    'D_800AC64A':[-32768,-1,0,1,32767][(case+serial)%5], 'D_800AC5E0':value,
    'D_800F4D8A':[0,3,4,5,6,7,8,65535][(case//7+serial)%8],'D_800F4C6A':value,'D_800F3A26':value>>8,'D_800F4BE8':value>>16,
    'D_800F3914':[0,7,8,-32768,32767][(case+serial)%5], 'D_800F3A30':[-1,0,1,2,3,0x7fffffff][(case+serial)%6],
-   'ovl659_D_801165BC':[-2,-1,0,1,64,0x7fffffff,0x80000000][(case//7+serial)%7]}
+   'ovl659_preview_timer':[-2,-1,0,1,64,0x7fffffff,0x80000000][(case//7+serial)%7]}
   for n,v in changes.items():scalar(n,v,native)
   configure_settings(case,serial,native)
   field('D_800ABEF8',0x2A8,struct.pack('<H',[-32768,-1,0,1,2,3,4,5,32767][(case+serial)%9]&65535),native)
@@ -180,7 +183,7 @@ def initialize(n,native):
  'D_800F3A60':[0,1,-1][(n//7)%3], 'D_800AC5D0':timers[(n//7)%len(timers)],
  'D_800AC64A':[-32768,-1,0,1,32767][(n//7)%5], 'D_800AC5E0':[-1,0,1,2,32767][(n//35)%5],
  'D_800F3914':[0,7,8][(n//7)%3], 'D_800F3A30':[-1,0,1,2,3,0x7fffffff][(n//21)%6],
- 'ovl659_D_801165BC':[-2,-1,0,1,63,64,0x7fffffff,0x80000000][(n//7)%8]}
+ 'ovl659_preview_timer':[-2,-1,0,1,63,64,0x7fffffff,0x80000000][(n//7)%8]}
  for name,value in values.items():scalar(name,value,native)
  configure_settings(n,0,native)
  field('D_800ABEF8',0x2A8,struct.pack('<H',[-32768,-1,0,1,2,3,4,5,32767][(n//7)%9]&65535),native)
@@ -192,15 +195,15 @@ for case in range(count):
  for r in range(UC_MIPS_REG_0,UC_MIPS_REG_31+1):u.reg_write(r,0x5A5AA5A5)
  u.reg_write(UC_MIPS_REG_SP,0x803F0000);u.reg_write(UC_MIPS_REG_RA,0x803FF800);u.reg_write(UC_MIPS_REG_HI,0x12345678);u.reg_write(UC_MIPS_REG_LO,0x87654321)
  u.emu_start(0x80115224,0x803FF800,count=30000);assert u.reg_read(UC_MIPS_REG_PC)==0x803FF800
- expected=snapshot(False);initialize(case,True);lib.ovl659_func_80115224()
+ expected=snapshot(False);initialize(case,True);lib.ovl659_update_results()
  if errors:raise errors[0]
  assert seen==len(events),(case,'missing services');assert expected==snapshot(True),(case,'final full owners')
  if case and case%512==0:print(case,'cases',flush=True)
 assert coverage==set(functions),(coverage,set(functions));assert mutations==set(functions),(mutations,set(functions));assert statecoverage==set(phase_values) and groupcoverage=={0,1}
 print('PASS',count,('compiled MIPS' if os.getenv('RR_COMPILED_ELF') else 'original MIPS'),'services',len(coverage),'states',sorted(statecoverage),'groups',sorted(groupcoverage),flush=True)
 if os.getenv('RR_AUDIT_JSON'):
- sha=lambda f:hashlib.sha256(Path(f).read_bytes()).hexdigest()
+ sha=lambda f:hashlib.sha256(resolve_c_source_path(f).read_bytes()).hexdigest()
  deps=subprocess.check_output(['cc','-MM','-Iinclude',str(native)],text=True).replace('\\\n',' ').split(':',1)[1].split()
- audit=dict(source=str(source),source_sha256=sha(source),test_sha256=sha(__file__),dependencies={f:sha(f) for f in deps},cases=count,engine='compiled MIPS' if os.getenv('RR_COMPILED_ELF') else 'original MIPS',services=sorted(coverage),phases=sorted(statecoverage),groups=sorted(groupcoverage),returns=sorted(returns),mutating_services=sorted(mutations),full_owner_guards=True,full_host_pointers=True,caller_save_hi_lo_poison=True,sanitizers=['undefined','bounds'])
+ audit=dict(source=str(resolve_c_source_path(source)),source_sha256=sha(source),test_sha256=sha(__file__),dependencies={f:sha(f) for f in deps},cases=count,engine='compiled MIPS' if os.getenv('RR_COMPILED_ELF') else 'original MIPS',services=sorted(coverage),phases=sorted(statecoverage),groups=sorted(groupcoverage),returns=sorted(returns),mutating_services=sorted(mutations),full_owner_guards=True,full_host_pointers=True,caller_save_hi_lo_poison=True,sanitizers=['undefined','bounds'])
  if os.getenv('RR_COMPILED_ELF'):audit['elf_sha256']=sha(os.environ['RR_COMPILED_ELF'])
  Path(os.environ['RR_AUDIT_JSON']).write_text(json.dumps(audit,indent=2)+'\n')

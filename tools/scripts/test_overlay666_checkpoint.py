@@ -1,11 +1,12 @@
 """Overlay666 checkpoint, mode adjustment and deferred notification under UBSan."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re, subprocess, unittest
 ROOT=Path(__file__).resolve().parents[2]
 class CheckpointTest(unittest.TestCase):
  def test_counters_modes_and_mutating_services(self):
-  body=(ROOT/'src/overlays/PAL/666/func_8011656C.c').read_text()
+  body=read_c_source(ROOT/'src/overlays/PAL/666/func_8011656C.c')
   body='\n'.join(line for line in body.splitlines() if not line.startswith('#include') and not line.startswith('extern '))
   body=re.sub(r' __asm__\("\$3"\)','',body)
   code=r'''
@@ -41,9 +42,9 @@ static void service(unsigned id,s32 a,s32 b){Event *event;
  assert(event->id==id&&event->a==a&&event->b==b);
  assert(!memcmp(&actual,&event->pre,sizeof(actual)));mutate(&actual,id);
 }
-static void func_800295B8(s32 unused){service(0,unused,0);}
-static void func_8004FC18(s16 a,s16 b){service(1,a,b);}
-static void *func_8004F2D8(s32 a,s32 b){service(2,a,b);return 0;}
+void func_800295B8(s32 unused){service(0,unused,0);}
+void func_8004FC18(s16 a,s16 b){service(1,a,b);}
+void *func_8004F2D8(s32 a,s32 b){service(2,a,b);return 0;}
 #define D_800F2EB8 (actual.length)
 #define D_800F3A30 (actual.target)
 #define D_800FF6B0 (actual.state)
@@ -91,7 +92,7 @@ static void run(unsigned raw,unsigned phase,unsigned mode,int exhaustive){
  actual.vehicle.second=sign32((u32)threshold-(u32)actual.vehicle.first+(phase>=24?0xffffffffU:0U));
  if(exhaustive){actual.target=lap+1;actual.pending=0;}
  mutation=(raw+phase)&15;expected=actual;count=index_=0;
- model();ovl666_func_8011656C(&actual.vehicle);
+ model();ovl666_update_checkpoint(&actual.vehicle);
  assert(index_==count);assert(!memcmp(&actual,&expected,sizeof(actual)));
 }
 int main(void){unsigned raw,phase,i;uint64_t cases=0;

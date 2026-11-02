@@ -3,6 +3,8 @@
 Services are stateful mocks. All argument lists and complete owner snapshots
 are checked before each service. RR_COMPILED_ELF substitutes rebuilt MIPS.
 """
+from overlay_units import read_c_source, symbol_addresses, resolve_c_source_path
+SYMBOL_ADDRESSES = symbol_addresses()
 from pathlib import Path
 import re,sys,subprocess,ctypes as C,struct,json,os,hashlib
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN,UC_HOOK_CODE
@@ -10,9 +12,10 @@ from unicorn.mips_const import *
 ROOT=Path(__file__).resolve().parents[2];os.chdir(ROOT)
 P=Path(os.getenv('RR_TEST_DIR','build/tests/overlay666_text_controller'));P.mkdir(parents=True,exist_ok=True)
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/666/func_80115590.c')
-body=source.read_text();body=body[body.index('void ovl666_func_80115590'):]
-global_names=sorted(set(re.findall(r'\b(?:ovl666_)?D_[0-9A-F]{8}\b',body)))
-functions=sorted(set(re.findall(r'\b(?:ovl666_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl666_func_80115590'})
+body=read_c_source(source);body=body[body.index('void ovl666_update_results'):]
+global_names=sorted(set(re.findall(r'\b(?:D_[0-9A-F]{8}|ovl666_[a-z][a-z0-9_]*)\b',body)))
+global_names=[n for n in global_names if not re.search(r"\b"+n+r"\s*\(",body)]
+functions=sorted(set(re.findall(r'\b(?:func_[0-9A-F]{8}|ovl666_[a-z][a-z0-9_]*)(?=\()',body))-{'ovl666_update_results'})
 head='#include <stdint.h>\n#include <stddef.h>\n#include <stdlib.h>\n#include "rr/overlay666_text_controller.h"\n'
 (P/'header.c').write_text(head)
 pre=subprocess.check_output(['cc','-E','-Iinclude',str(P/'header.c')],text=True)
@@ -58,7 +61,7 @@ if os.getenv('RR_COMPILED_ELF'):
    if sec:u.mem_write(sec['sh_addr']&0x1fffffff,sec.data())
 read=lambda a,n:bytes(u.mem_read(a&0x1fffffff,n))
 def write(a,b):u.mem_write(a&0x1fffffff,b)
-addr=lambda n:int(n[-8:],16)
+addr=lambda n:SYMBOL_ADDRESSES[n] if n in SYMBOL_ADDRESSES else int(n[-8:],16)
 regions=[(n,p,addr(n),s) for n,(p,s) in N.items() if n not in ['D_800ACC14','D_800FFC14']]
 regions += [('frames',frame,0x800ADAE0,frame_size),('texts',text,0x8018FFF0,text_size)]
 mappings=[(p,a,s) for n,p,a,s in regions]
@@ -102,16 +105,16 @@ def service(event,args,native):
   # Helpers can replace both live roots and all scalar state. The phase was
   # already captured by the switch; fresh timer/row reads must still agree.
   value=(case*0x9e3779b9+event*97+serial*31)&0xffffffff
-  changes={'D_800F2DE4':value,'D_800ABEB0':~value,'D_800AC5D0':timers[(case+serial)%len(timers)],'D_800F3A60':(case+serial)%3-1,'D_800F4C64':[-1,0,1][(case+serial)%3],'ovl666_D_80116F94':(case+serial)&1,'D_800AC64A':(case+serial)%3,'D_800F4D8A':value&65535,'D_800F4C6A':value,'D_800F3A26':value>>8,'D_800F4BE8':value>>16}
+  changes={'D_800F2DE4':value,'D_800ABEB0':~value,'D_800AC5D0':timers[(case+serial)%len(timers)],'D_800F3A60':(case+serial)%3-1,'D_800F4C64':[-1,0,1][(case+serial)%3],'ovl666_result_kind':(case+serial)&1,'D_800AC64A':(case+serial)%3,'D_800F4D8A':value&65535,'D_800F4C6A':value,'D_800F3A26':value>>8,'D_800F4BE8':value>>16}
   for n,v in changes.items():scalar(n,v,native)
   for bank in range(2):
    for row,off in [(0,2),(11,2),(5,3),(38,3)]:textbyte(bank,row,off,signed_bytes[(case+serial+row)%len(signed_bytes)],native)
   mutations.add(name)
  if case&128:roots((case+serial)&1,((case//2)+serial)&1,native)
  result=0
- if name=='ovl666_func_80115510':result=[0xffffffff,0,1,0x80000000,0x7fffffff][(case//6)%5]
+ if name=='ovl666_update_retry_choice':result=[0xffffffff,0,1,0x80000000,0x7fffffff][(case//6)%5]
  if name=='func_8003B12C':result=[0,1,2,0xffffffff,0x10001,0x80000000][(case//6)%6]
- if name in ['ovl666_func_80115510','func_8003B12C']:returns.add((name,result))
+ if name in ['ovl666_update_retry_choice','func_8003B12C']:returns.add((name,result))
  return result
 CB=C.CFUNCTYPE(C.c_size_t,C.c_uint,C.POINTER(C.c_size_t))
 def callback(event,args):
@@ -120,7 +123,7 @@ def callback(event,args):
 cb=CB(callback);lib.set_callback(cb)
 argregs=[UC_MIPS_REG_A0,UC_MIPS_REG_A1,UC_MIPS_REG_A2,UC_MIPS_REG_A3]
 volatile_regs=[UC_MIPS_REG_V1]+argregs+[globals()[f'UC_MIPS_REG_T{i}'] for i in range(10)]
-service_map={int(n[-8:],16):i for i,n in enumerate(functions)}
+service_map={addr(n):i for i,n in enumerate(functions)}
 def hook(uc,address,size,data):
  event=service_map[address];argc=len(protos[functions[event]][1]);args=[uc.reg_read(r)&0xffffffff for r in argregs[:argc]]
  result=service(event,args,False);ra=uc.reg_read(UC_MIPS_REG_RA)
@@ -138,7 +141,7 @@ def initialize(n,native):
  roots(n&1,(n//2)&1,native)
  values={'D_800F2DE4':[0x7fffffff,0x80000000,0xffffffff,0,17][n%5],'D_800ABEB0':[0,1,0xffffffff,0x7fffffff,0x80000000][(n//5)%5],
  'D_800F4D8A':phase_values[n%6],'D_800F4C64':[-1,0,1,0x80000000][(n//6)%4],'D_800F3A60':[0,1,-1][(n//24)%3],
- 'ovl666_D_80116F94':(n//12)&1,'D_800AC5D0':timers[(n//6)%len(timers)],'D_800AC64A':(n//36)%3}
+ 'ovl666_result_kind':(n//12)&1,'D_800AC5D0':timers[(n//6)%len(timers)],'D_800AC64A':(n//36)%3}
  for name,value in values.items():scalar(name,value,native)
  for bank in range(2):
   for row,off in [(0,2),(11,2),(5,3),(38,3)]:textbyte(bank,row,off,signed_bytes[(n//6+row+bank)%len(signed_bytes)],native)
@@ -148,15 +151,15 @@ for case in range(count):
  for r in range(UC_MIPS_REG_0,UC_MIPS_REG_31+1):u.reg_write(r,0x5A5AA5A5)
  u.reg_write(UC_MIPS_REG_SP,0x803F0000);u.reg_write(UC_MIPS_REG_RA,0x803FF800);u.reg_write(UC_MIPS_REG_HI,0x12345678);u.reg_write(UC_MIPS_REG_LO,0x87654321)
  u.emu_start(0x80115590,0x803FF800,count=30000);assert u.reg_read(UC_MIPS_REG_PC)==0x803FF800
- expected=snapshot(False);initialize(case,True);lib.ovl666_func_80115590()
+ expected=snapshot(False);initialize(case,True);lib.ovl666_update_results()
  if errors:raise errors[0]
  assert seen==len(events),(case,'missing services');assert expected==snapshot(True),(case,'final full owners')
  if case and case%512==0:print(case,'cases',flush=True)
 assert coverage==set(functions),(coverage,set(functions));assert statecoverage==set(phase_values) and groupcoverage=={0,1,3}
 print('PASS',count,('compiled MIPS' if os.getenv('RR_COMPILED_ELF') else 'original MIPS'),'services',len(coverage),'states',sorted(statecoverage),'groups',sorted(groupcoverage),flush=True)
 if os.getenv('RR_AUDIT_JSON'):
- sha=lambda f:hashlib.sha256(Path(f).read_bytes()).hexdigest()
+ sha=lambda f:hashlib.sha256(resolve_c_source_path(f).read_bytes()).hexdigest()
  deps=subprocess.check_output(['cc','-MM','-Iinclude',str(native)],text=True).replace('\\\n',' ').split(':',1)[1].split()
- audit=dict(source=str(source),source_sha256=sha(source),test_sha256=sha(__file__),dependencies={f:sha(f) for f in deps},cases=count,engine='compiled MIPS' if os.getenv('RR_COMPILED_ELF') else 'original MIPS',services=sorted(coverage),phases=sorted(statecoverage),groups=sorted(groupcoverage),returns=sorted(returns),mutating_services=sorted(mutations),full_owner_guards=True,full_host_pointers=True,caller_save_hi_lo_poison=True,sanitizers=['undefined','bounds'])
+ audit=dict(source=str(resolve_c_source_path(source)),source_sha256=sha(source),test_sha256=sha(__file__),dependencies={f:sha(f) for f in deps},cases=count,engine='compiled MIPS' if os.getenv('RR_COMPILED_ELF') else 'original MIPS',services=sorted(coverage),phases=sorted(statecoverage),groups=sorted(groupcoverage),returns=sorted(returns),mutating_services=sorted(mutations),full_owner_guards=True,full_host_pointers=True,caller_save_hi_lo_poison=True,sanitizers=['undefined','bounds'])
  if os.getenv('RR_COMPILED_ELF'):audit['elf_sha256']=sha(os.environ['RR_COMPILED_ELF'])
  Path(os.environ['RR_AUDIT_JSON']).write_text(json.dumps(audit,indent=2)+'\n')

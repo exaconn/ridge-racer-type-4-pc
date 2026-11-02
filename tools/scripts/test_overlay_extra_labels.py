@@ -1,4 +1,5 @@
 """Two label renderers with live source changes, native cursors and real digits."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -9,10 +10,10 @@ import unittest
 class ExtraLabelsTest(unittest.TestCase):
     def test_native_labels(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/{o}/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/{o}/func_{a}.c')
                            for o,a in ((663,'80116744'),(662,'80118238')))
         bodies = re.sub(r'__asm__\("\$2"\)', '', bodies)
-        formatter = (root / 'src/main/PAL/func_8002B814.c').read_text()
+        formatter = read_c_source(root / 'src/main/PAL/func_8002B814.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -33,9 +34,9 @@ typedef struct {State s;unsigned count;Event events[32];} World;
 static World actual,reference,initial,*w;
 static u8 arena[1024];static u32 ordering[4];
 RrBadgeRow1C *D_800F3AFC;
-#define ovl663_D_80116890 w->s.uv
-#define ovl663_D_80116898 w->s.index
-#define ovl663_D_801168D0 w->s.counts
+#define ovl663_record_label w->s.uv
+#define ovl663_selected_record w->s.index
+#define ovl663_course_unlock_levels w->s.counts
 #define ovl662_D_801273A8 w->s.letters
 #define ovl662_D_801273A0 w->s.selected
 #define D_800ABEB0 w->s.tick
@@ -72,7 +73,7 @@ int main(void){unsigned scenario,kind,i;void *got,*want;
   w->s.selected=(s8)(scenario%10-1);
   for(i=0;i<4;i++){w->s.rows[i].x04=(s16)next();w->s.rows[i].y06=(s16)next();}
   actual=reference=initial;
-  w=&actual;D_800F3AFC=w->s.rows;got=kind?0:ovl663_func_80116744(ordering,arena,scenario%4);if(kind)ovl662_func_80118238(ordering,arena,scenario%4);
+  w=&actual;D_800F3AFC=w->s.rows;got=kind?0:ovl663_draw_record_labels(ordering,arena,scenario%4);if(kind)ovl662_func_80118238(ordering,arena,scenario%4);
   w=&reference;D_800F3AFC=w->s.rows;want=expected(kind,scenario%4);
   assert(kind||got==want);assert(!memcmp(&actual,&reference,sizeof(actual)));
  }

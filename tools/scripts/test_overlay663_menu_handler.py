@@ -1,4 +1,5 @@
 """Menu phase transitions with mutable complete UI owners and typed service mocks."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -7,7 +8,7 @@ import unittest
 class Overlay663MenuHandlerTest(unittest.TestCase):
     def test_phases_and_mutations(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/663/func_80115964.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/663/func_80115964.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -27,9 +28,9 @@ static World actual,reference,initial,*w;
 static RrFrameStorage frames[2],frameSnapshot[2];
 static s32 choices[9]={-91,0,0x12345678,2147483647,-7,11,22,33,44};
 static unsigned scenario,mutation,phaseSeen[10];
-#define ovl663_D_801168A0 choices
-#define ovl663_D_80116898 w->s.selection
-#define ovl663_D_801168CC w->s.limit
+#define ovl663_available_courses choices
+#define ovl663_selected_record w->s.selection
+#define ovl663_available_course_count w->s.limit
 #define D_800F4D8A w->s.phase
 #define D_800F4C6A w->s.scene
 #define D_800F3A26 w->s.nextScene
@@ -51,10 +52,10 @@ s32 func_8003BEA8(s32 resource){Event *e=event(1);e->args[0]=resource;change();r
 void func_8002AF8C(s32 a,s32 b,s32 c){Event *e=event(2);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
 void func_8002B330(s32 a,s32 b,char *selection,s32 limit,s32 flags){Event *e=event(3);assert(selection==(char*)&w->s.selection);e->args[0]=a;e->args[1]=b;e->args[2]=limit;e->args[3]=flags;change();}
 void func_8003A198(void){event(4);change();}
-void ovl663_func_801158B4(void){event(5);change();}
+void ovl663_draw_preview(void){event(5);change();}
 void func_8004F24C(s32 a){event(6)->args[0]=a;change();}
 void func_800207D4(u32 *order,s32 fade,u32 flags){Event *e=event(7);assert(order==frames[w->s.bank].ordering.ordering70);assert((uintptr_t)order>UINT32_MAX);e->args[0]=w->s.bank;e->args[1]=fade;e->args[2]=flags;change();}
-void ovl663_func_801148D8(void){event(8);change();}
+void ovl663_init_menu(void){event(8);change();}
 void func_8002B12C(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){Event *v=event(9);s32 args[]={a,b,c,d,e,f,g};memcpy(v->args,args,sizeof(args));change();}
 void func_8003EC88(s32 a){event(10)->args[0]=a;change();}
 void func_8002A344(s32 a){event(11)->args[0]=a;change();}
@@ -65,12 +66,12 @@ static void expected(void){State *s=&w->s;int old;
   unsigned phase=s->phase;if(phase<10)phaseSeen[phase]++;
   if(phase==0){if(s->rows[s->root][0].byte14==2){func_8002AF8C(1,1,0);s->phase=1;}}
   else if(phase==1){old=s->selection;func_8002B330(1,4,(char*)&s->selection,s->limit,0);
-   if(old==s->selection)ovl663_func_801158B4();else func_8003A198();
+   if(old==s->selection)ovl663_draw_preview();else func_8003A198();
    s->rows[s->root][0].cells[0]=2;
    if(s->accepted){func_8004F24C(1);func_8002AF8C(0,1,0);s->phase=8;s->rows[s->root][0].cells[0]=1;s->timer=64;s->rows[s->root][0].byte14=3;}
   }else if(phase==8){u16 bits=(u16)s->timer-1;memcpy(&s->timer,&bits,2);
    func_800207D4(frames[s->bank].ordering.ordering70,(64-s->timer)*4,69);
-   if(s->timer<=0){ovl663_func_801148D8();s->scene=1;s->nextScene=74;s->phase=0;return;}
+   if(s->timer<=0){ovl663_init_menu();s->scene=1;s->nextScene=74;s->phase=0;return;}
   }
  }
  if(s->limit>=2)func_8002B12C(160,384,16,1,s->selection,0,s->limit);
@@ -84,7 +85,7 @@ int main(void){unsigned i;
   initial.s.selection=(scenario>>1)%9;initial.s.limit=(int)(scenario>>4)%12-2;initial.s.phase=(scenario>>1)%10;
   initial.s.root=scenario%2;initial.s.bank=(scenario>>1)%2;initial.s.accepted=(scenario>>3)%3;
   {static const s16 timers[]={-32768,-32767,-1,0,1,2,63,64,65,32767};initial.s.timer=timers[(scenario/20)%10];}initial.s.rows[initial.s.root][0].byte14=(scenario>>2)%5;
-  actual=reference=initial;w=&actual;ovl663_func_80115964();w=&reference;expected();
+  actual=reference=initial;w=&actual;ovl663_update_preview();w=&reference;expected();
   assert(!memcmp(&actual,&reference,sizeof(actual)));
  }
  assert(phaseSeen[0]&&phaseSeen[1]&&phaseSeen[8]);assert(!memcmp(frames,frameSnapshot,sizeof(frames)));return 0;

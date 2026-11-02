@@ -1,4 +1,5 @@
 """Two complete layout initializers with real reset, glyph and count helpers."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -9,11 +10,11 @@ import unittest
 class CarLayoutsTest(unittest.TestCase):
     def test_native_layouts(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/{o}/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/{o}/func_{a}.c')
                            for o,a in ((660,'80114920'),(662,'8011512C')))
         bodies = re.sub(r'__asm__\("\$2"\)', '', bodies)
         helpers = '\n'.join(re.sub(r'^extern[^\n]*\n','',
-                            (root / f'src/main/PAL/func_{a}.c').read_text(),flags=re.M)
+                            read_c_source(root / f'src/main/PAL/func_{a}.c'),flags=re.M)
                             for a in ('8003A198','80037040','800370BC','80032E9C'))
         source = r'''
 #include <assert.h>

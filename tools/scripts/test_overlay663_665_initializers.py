@@ -1,4 +1,5 @@
 """Two menu constructors, actual work-buffer/reset bodies and native arena owners."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -8,9 +9,9 @@ import unittest
 class OverlayMenuInitializersTest(unittest.TestCase):
     def test_resource_publication_and_ordered_layout_boundaries(self):
         root=Path(__file__).resolve().parents[2]
-        clear=re.sub(r'^extern[^\n]*;\n','',(root/'src/main/PAL/func_8002A604.c').read_text(),flags=re.M)
-        reset=re.sub(r'^extern[^\n]*;\n','',(root/'src/main/PAL/func_8003A198.c').read_text(),flags=re.M)
-        bodies='\n'.join((root/f'src/overlays/PAL/{idx}/func_{addr}.c').read_text() for idx,addr in [(663,'801148D8'),(665,'80114FD8')])
+        clear=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'src/main/PAL/func_8002A604.c'),flags=re.M)
+        reset=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'src/main/PAL/func_8003A198.c'),flags=re.M)
+        bodies='\n'.join(read_c_source(root/f'src/overlays/PAL/{idx}/func_{addr}.c') for idx,addr in [(663,'801148D8'),(665,'80114FD8')])
         source=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -35,9 +36,9 @@ static u8 resources[3][0x2D100],original_resources[3][0x2D100];
 #define D_800AC5E0 world.limit
 #define D_800F4D7C world.flag1
 #define D_800F3A2C world.flag2
-#define ovl663_D_801168C4 world.c4
-#define ovl663_D_801168C8 world.c8
-#define ovl663_D_801168CC world.condition
+#define ovl663_extra_courses_enabled world.c4
+#define ovl663_record_kind world.c8
+#define ovl663_available_course_count world.condition
 #define D_800F4D70 world.arenas
 #define D_800102F0 world.base
 #define D_800ACC18 world.published
@@ -123,7 +124,7 @@ int main(void){unsigned k,i,v;
   for(i=0;i<3;i++)world.rows[i][0].half20=half(k|0x1000U);
   assert((uintptr_t)world.base>UINT32_MAX && (uintptr_t)world.arenas.second>UINT32_MAX && (uintptr_t)world.ui>UINT32_MAX);
   memcpy(&expected,&world,sizeof(world));reference();
-  if(v)ovl665_func_80114FD8();else ovl663_func_801148D8();
+  if(v)ovl665_func_80114FD8();else ovl663_init_menu();
   assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  assert(memcmp(resources,original_resources,sizeof(resources))==0);

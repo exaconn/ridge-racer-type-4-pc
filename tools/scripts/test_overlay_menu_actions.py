@@ -1,4 +1,5 @@
 """Four menu actions, live helper mutations and captured choice bytes."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -13,9 +14,9 @@ class OverlayMenuActionsTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         entries = [(660, '801156A8'), (661, '80117E10'), (666, '80115510'),
                    (667, '801187DC'), (662, '8011662C')]
-        bodies = '\n'.join((root / f'src/overlays/PAL/{i}/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/{i}/func_{a}.c')
                            for i, a in entries)
-        resident = (root / 'src/main/PAL/func_8004F24C.c').read_text()
+        resident = read_c_source(root / 'src/main/PAL/func_8004F24C.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -77,8 +78,9 @@ static void initialize(u32 k){unsigned i;memset(&world,0,sizeof(world));
  world.second_accept=(k&1)?(s32)(next()|1):0;world.sound_accept=(k&2)?0:-1;
  for(i=0;i<4;i++){world.choice.bytes[i]=next();world.changed_choice[i]=next();}
 }
+static s32 retry_menu(void){return ovl666_update_retry_choice(0);}
 static void menus(unsigned which){u32 k;const s32 offsets[]={37,38,37,39};
- s32 (*functions[])(void)={ovl660_func_801156A8,ovl661_func_80117E10,ovl666_func_80115510,ovl667_func_801187DC};
+ s32 (*functions[])(void)={ovl660_func_801156A8,ovl661_func_80117E10,retry_menu,ovl667_func_801187DC};
  for(k=0;k<65536;k++){
   s32 result,wanted,limit;initialize(k);memcpy(&expected,&world,sizeof(world));
   draw(&expected,(s32)expected.selection+offsets[which],0,0);

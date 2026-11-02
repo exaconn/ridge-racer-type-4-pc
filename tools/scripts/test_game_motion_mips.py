@@ -12,7 +12,7 @@ validation=src[src.index(' if(t->state==0',src.index('int main')):src.index('ref
 src=src[:src.index('int main')]+'''static unsigned currentIndex;
 int setup(unsigned i){currentIndex=i;'''+setup+validation+'''D_800ACA28=&actual.controller;return 1;}
 void run(void){func_8005AC0C(&clock);}
-void snapshot(u8 *out){RrMotionTrack44 *t=&actual.controller.track;memcpy(out,actual.controller.prefix,0x15C);out+=0x15C;
+void snapshot(u8 *out){RrMotionTrack44 *t=&actual.controller.track;memcpy(out,&actual.controller,0x15C);out+=0x15C;
 #define PUT(f,n) memcpy(out,&t->f,n);out+=n;
  PUT(state,4);PUT(disabled,4);PUT(word08,4);u32 key=0x80200000+32*(currentIndex%4);memcpy(out,&key,4);out+=4;
  PUT(elapsed,2);PUT(duration,2);PUT(position,8);PUT(scale,4);PUT(word20,4);PUT(word24,4);PUT(velocity,4);

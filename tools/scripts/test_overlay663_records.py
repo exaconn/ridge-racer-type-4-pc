@@ -1,4 +1,5 @@
 """Both record renderers with actual time formatter and mutable typed drawing services."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -7,8 +8,8 @@ import unittest
 class Overlay663RecordsTest(unittest.TestCase):
     def test_live_records_widths_and_captured_footer(self):
         root=Path(__file__).resolve().parents[2]
-        bodies='\n'.join((root/f'src/overlays/PAL/663/func_{a}.c').read_text() for a in ['8011602C','801163B8'])
-        formatter=(root/'src/overlays/PAL/663/func_80115EE8.c').read_text()
+        bodies='\n'.join(read_c_source(root/f'src/overlays/PAL/663/func_{a}.c') for a in ['8011602C','801163B8'])
+        formatter=read_c_source(root/'src/overlays/PAL/663/func_80115EE8.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -31,12 +32,12 @@ static u32 heads[704],arena[4096];static unsigned scenario,bank,mutation,seenTra
 #define D_800AC648 w->s.group
 #define D_800F3914 w->s.track
 #define D_800ABEB0 w->s.tick
-#define ovl663_D_80116898 w->s.selected
+#define ovl663_selected_record w->s.selected
 #define D_8009FAA0 w->s.glyphs
-#define ovl663_D_80116880 w->s.footer
-#define ovl663_D_80116888 w->s.widths[0]
-#define ovl663_D_8011688C w->s.widths[1]
-#define ovl663_D_80116874 w->s.text
+#define ovl663_record_badges w->s.footer
+#define ovl663_race_column_widths w->s.widths[0]
+#define ovl663_lap_column_widths w->s.widths[1]
+#define ovl663_time_text w->s.text
 static s32 word(u32 u){s32 v;memcpy(&v,&u,4);return v;}
 static s16 half(u32 u){u16 bits=u;s16 v;memcpy(&v,&bits,2);return v;}
 static void effect(unsigned n){unsigned b,g,t,r,j;static const u32 times[]={0,1,999,1000,59999,60000,0x7FFFFFFFU,0x80000000U,0xFFFFFFFFU};
@@ -61,7 +62,7 @@ static Event *event(s32 kind){unsigned i;u32 hash=2166136261U;Event *e;assert(w-
 static void change(void){if(mutation)effect(w->calls);}
 static void *render(Event *e,u32 *order,void *cursor){assert(order==heads);assert((uintptr_t)cursor>UINT32_MAX);assert((u8*)cursor>=(u8*)arena&&(u8*)cursor<(u8*)(arena+4096));e->cursor=(u8*)cursor-(u8*)arena;change();return (u8*)cursor+4*(w->calls%7+1);}
 s32 func_800904F4(s32 angle){Event *e=event(1);e->args[0]=angle;change();return (u32)angle&128?-4096:4096;}
-void *func_8001FF84(u32 *o,void *p,s32 x,s32 y,const RrUiUvRect *glyph,u16 clut,s32 color){Event *e=event(2);unsigned i,id=99;
+void *func_8001FF84(u32 *o,void *p,s32 x,s32 y,RrUiUvRect *glyph,u16 clut,s32 color){Event *e=event(2);unsigned i,id=99;
  for(i=0;i<5;i++)if(glyph==w->s.glyphs+i)id=i;for(i=0;i<2;i++)if(glyph==w->s.footer+i)id=5+i;assert(id<7);
  e->args[0]=x;e->args[1]=y;e->args[2]=id;e->args[3]=clut;e->args[4]=color;memcpy(e->data,glyph,4);if(id<5)seenClut|=1U<<(clut-32760);return render(e,o,p);}
 void *func_8001FD20(u32 *o,void *p,s32 x,s32 y,s32 width,s32 height,s32 r,s32 g,s32 b){Event *e=event(3);s32 args[]={x,y,width,height,r,g,b};memcpy(e->args,args,sizeof(args));return render(e,o,p);}
@@ -92,7 +93,7 @@ static void *expected(unsigned row,void *cursor){State *s=&w->s;unsigned g=s->gr
 int main(void){unsigned i,row;
  for(scenario=0;scenario<4096;scenario++)for(bank=0;bank<2;bank++)for(mutation=0;mutation<2;mutation++){
   memset(&initial,0,sizeof(initial));w=&initial;effect(0);row=(scenario/16)%8;for(i=0;i<4;i++){initial.s.guard[i]=scenario+i;initial.s.tail[i]=~(scenario+i);}
-  actual=reference=initial;w=&actual;actual.result=bank?ovl663_func_801163B8(heads,arena,row):ovl663_func_8011602C(heads,arena,row);
+  actual=reference=initial;w=&actual;actual.result=bank?ovl663_draw_lap_records(heads,arena,row):ovl663_draw_race_records(heads,arena,row);
   w=&reference;reference.result=expected(row,arena);assert(!memcmp(&actual,&reference,sizeof(actual)));
  }
  assert(seenTracks==65535&&seenClut==3);return 0;

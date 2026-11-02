@@ -1,4 +1,5 @@
 """Complete124-byte save owner, unlock filtering and three real initializers."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -9,11 +10,11 @@ import unittest
 class SaveInitializersTest(unittest.TestCase):
     def test_native_flags_names_full_save_and_course_records(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/{i}/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/{i}/func_{a}.c')
                            for i,a in ((660,'80114C40'),(662,'80114B9C'),(663,'80114A60')))
         bodies = re.sub(r'^extern[^\n]*\n', '', bodies, flags=re.M)
         helpers = '\n'.join(re.sub(r'^extern[^\n]*\n','',
-                           (root / f'src/main/PAL/func_{a}.c').read_text(),flags=re.M)
+                           read_c_source(root / f'src/main/PAL/func_{a}.c'),flags=re.M)
                            for a in ('8002B75C','80037040','80014A8C'))
         source = r'''
 #include <assert.h>
@@ -50,11 +51,11 @@ static u8 seenCounts[10];
 #define ovl660_D_80117934 w->s.col
 #define ovl660_D_8011792C w->s.local
 #define ovl660_D_8011790C w->s.zoom
-#define ovl663_D_8011689C w->s.zoom
-#define ovl663_D_80116868 w->s.order
-#define ovl663_D_801168A0 w->s.ids
-#define ovl663_D_801168D0 w->s.values
-#define ovl663_D_801168CC w->s.count
+#define ovl663_course_count w->s.zoom
+#define ovl663_course_order w->s.order
+#define ovl663_available_courses w->s.ids
+#define ovl663_course_unlock_levels w->s.values
+#define ovl663_available_course_count w->s.count
 #define D_800AC648 w->s.setting
 #define D_800F4C6A w->s.mode
 #define D_800F3A26 w->s.position
@@ -62,7 +63,7 @@ static u8 seenCounts[10];
 #define D_8009E0AC w->s.driverSetting
 #define ovl660_D_8011487C format660
 #define ovl662_D_8011487C format662
-#define ovl663_D_8011487C format663
+#define ovl663_scene_name format663
 static s32 word(u32 bits){s32 result;memcpy(&result,&bits,4);return result;}
 static void effect(unsigned n){
  unsigned i,j;u32 value=scenario*0x9e3779b9U+n*47;
@@ -103,7 +104,7 @@ void func_8002A604(void){event(2,0,0,0,0);}
 void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags){event(3,r,g,b,(s32)flags);}
 void ovl660_func_80114920(void){event(4,0,0,0,0);}
 void ovl662_func_80114998(void){event(5,0,0,0,0);}
-void ovl663_func_801148D8(void){
+void ovl663_init_menu(void){
  if(w==&actual){assert(w->s.count>=0 && w->s.count<=9);seenCounts[w->s.count]=1;}
  event(6,0,0,0,0);
 }
@@ -129,7 +130,7 @@ static void reference(void){
  }else{
   func_8001ECE8(0,0,0,2);w->s.mode=1;w->s.position=74;w->s.timer=0;func_8001E84C(format663);n=0;w->s.count=0;
   for(i=0;i<9;i++){unsigned key=w->s.order[i];u8 value=w->s.save.unlocked60[key];if(value){w->s.ids[n]=(s32)key;w->s.values[n]=value;n++;w->s.count=(s32)n;}}
-  ovl663_func_801148D8();func_80053BB4(0);
+  ovl663_init_menu();func_80053BB4(0);
   flags=w->s.save.prefix.progress.prefix00.fields.configuration0C;w->s.zoom=flags>=16?8:4;if((u32)flags&256)w->s.zoom=16;
  }
 }
@@ -141,7 +142,7 @@ int main(void){unsigned i;
   memset(&initial,0,sizeof(initial));w=&initial;effect(9);
   for(i=0;i<4;i++){w->s.guard[i]=0x12345678U+i;w->s.tail[i]=0x87654321U-i;}
   actual=initial;expected=initial;w=&actual;
-  if(kind==0)ovl660_func_80114C40();else if(kind==1)ovl662_func_80114B9C();else ovl663_func_80114A60();
+  if(kind==0)ovl660_func_80114C40();else if(kind==1)ovl662_func_80114B9C();else ovl663_init_scene();
   w=&expected;reference();assert(memcmp(&actual,&expected,sizeof(actual))==0);
  }
  for(i=0;i<10;i++)assert(seenCounts[i]);return 0;

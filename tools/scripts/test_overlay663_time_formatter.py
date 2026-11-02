@@ -1,4 +1,5 @@
 """Time buffer layout and signed32 formatting, including preserved separators."""
+from overlay_units import read_c_source
 from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
@@ -16,8 +17,8 @@ class Overlay663TimeFormatterTest(unittest.TestCase):
 #include <string.h>
 #include "rr/overlay663_time.h"
 static struct {u32 before[4];u8 text[10];u8 padding[6];u32 after[4];} buffer,expected;
-#define ovl663_D_80116874 buffer.text
-''' + (root/'src/overlays/PAL/663/func_80115EE8.c').read_text() + r'''
+#define ovl663_time_text buffer.text
+''' + read_c_source(root/'src/overlays/PAL/663/func_80115EE8.c') + r'''
 static u32 seed=0x15EE8;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 static void check(s32 input,unsigned template){
@@ -28,7 +29,7 @@ static void check(s32 input,unsigned template){
  expected.text[0]=(u8)(minutes/10+48);expected.text[1]=(u8)(minutes%10+48);
  expected.text[3]=(u8)(seconds/10+48);expected.text[4]=(u8)(seconds%10+48);
  expected.text[6]=(u8)(millis/100+48);expected.text[7]=(u8)((millis%100)/10+48);expected.text[8]=(u8)(millis%10+48);
- result=ovl663_func_80115EE8(input);assert(result==buffer.text);assert((uintptr_t)result>UINT32_MAX);assert(memcmp(&buffer,&expected,sizeof(buffer))==0);
+ result=ovl663_format_time(input);assert(result==buffer.text);assert((uintptr_t)result>UINT32_MAX);assert(memcmp(&buffer,&expected,sizeof(buffer))==0);
 }
 int main(void){
  unsigned i;static const s32 cases[]={INT32_MIN,INT32_MIN+1,-6000001,-6000000,-5999999,-60001,-60000,-59999,-1001,-1000,-999,-101,-100,-99,-11,-10,-9,-1,0,1,9,10,11,99,100,101,999,1000,1001,59999,60000,60001,5999999,6000000,6000001,INT32_MAX-1,INT32_MAX};

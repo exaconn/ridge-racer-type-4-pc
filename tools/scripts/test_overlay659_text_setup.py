@@ -1,4 +1,5 @@
 """Standings text setup with actual row reset and mutating display services."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -9,9 +10,9 @@ import unittest
 class StandingsTextSetupTest(unittest.TestCase):
     def test_native_setup_and_live_phase_changes(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/659/func_801150CC.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/659/func_801150CC.c')
         body = re.sub(r'^extern[^\n]*\n', '', body, flags=re.M)
-        reset = (root / 'src/main/PAL/func_800402F4.c').read_text()
+        reset = read_c_source(root / 'src/main/PAL/func_800402F4.c')
         source = r'''
 #include <assert.h>
 #include <stddef.h>
@@ -32,8 +33,8 @@ static unsigned scenario,mutation;
 #define D_800FFC48 w->s.rows
 #define D_800FFC14 w->s.published
 #define D_800F4D30 w->s.count
-#define ovl659_D_80116534 w->s.labels
-#define ovl659_D_801165BC w->s.local
+#define ovl659_result_labels w->s.labels
+#define ovl659_preview_timer w->s.local
 #define D_800F2DE4 w->s.frame
 #define D_800AC64A w->s.flag
 #define D_800AC5E0 w->s.mode
@@ -53,7 +54,7 @@ static void event(s32 service,s32 a,s32 b,s32 c,s32 d,s32 e){
  w->event[n].a[2]=c;w->event[n].a[3]=d;w->event[n].a[4]=e;w->event[n].hash=hash;
  w->calls++;if(mutation)effect(n);
 }
-void ovl659_func_801158B4(void){event(1,0,0,0,0,0);}
+void ovl659_rank_standings(void){event(1,0,0,0,0,0);}
 void func_80096434(void *destination,u32 bytes){
  assert(destination==w->s.rows && bytes<=sizeof(w->s.rows));
  event(2,(s32)bytes,0,0,0,0);memset(destination,0,bytes);
@@ -68,7 +69,7 @@ void func_8002AF8C(s32 a,s32 b,s32 c){event(4,a,b,c,0,0);}
 ''' + reset + body + r'''
 static void reference(void){
  unsigned i;u32 bytes;s32 offset;
- ovl659_func_801158B4();bytes=(u32)w->s.count*60U;
+ ovl659_rank_standings();bytes=(u32)w->s.count*60U;
  /* Normalize the expected published pointer to the actual allocation. Its
   * full native value is part of every following service-state snapshot. */
  w->s.published=actual.s.rows;func_80096434(w->s.rows,bytes);
@@ -89,7 +90,7 @@ int main(void){
   for(i=0;i<4;i++){w->s.guard[i]=0x12345678U+i;w->s.tail[i]=0x87654321U-i;}
   initial.s.published=initial.s.rows;
   actual=initial;expected=initial;w=&actual;assert((uintptr_t)w->s.rows>UINT32_MAX);
-  ovl659_func_801150CC();w=&expected;reference();
+  ovl659_init_results();w=&expected;reference();
   assert(memcmp(&actual,&expected,sizeof(actual))==0);
   assert(actual.s.published==actual.s.rows && (uintptr_t)actual.s.published>UINT32_MAX);
  }

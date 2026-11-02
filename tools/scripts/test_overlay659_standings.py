@@ -1,4 +1,5 @@
 """Actual overlay standings source: stable minimum, sentinel, finish writes and guards."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -10,17 +11,16 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class Overlay659StandingsTest(unittest.TestCase):
     def test_standings_with_native_ubsan(self):
-        body = (ROOT / 'src/overlays/PAL/659/func_801158B4.c').read_text()
+        body = read_c_source(ROOT / 'src/overlays/PAL/659/func_801158B4.c')
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         source = r'''
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
-typedef int32_t s32; typedef uint32_t u32;
-typedef int16_t s16; typedef uint16_t u16; typedef uint8_t u8;
+#include "types.h"
 /* Native stand-in for resident vehicle storage, with its real size/alignment. */
-typedef union {u8 bytes[0x320]; u32 alignment;} RrRaceVehicle;
+#include "rr/race_types.h"
 RrRaceVehicle D_800ABEF8[2];
 s32 D_800F4C80[10], D_800F4C64;
 u16 D_800AC1A0;
@@ -53,7 +53,7 @@ static void check(const s32 input[6], s32 rank, s16 count) {
         for (u16 i = 1; i < 6 && input[i] >= 0 && input[0] >= 0; i++)
             if (input[i] < input[selected]) selected = i;
     }
-    ovl659_func_801158B4();
+    ovl659_rank_standings();
     assert(D_800AC1A0 == selected && D_800F4C64 == rank);
     assert(memcmp(expected_times, D_800F4C80, sizeof(expected_times)) == 0);
     assert(memcmp(expected_vehicle, D_800ABEF8, sizeof(expected_vehicle)) == 0);
@@ -83,7 +83,7 @@ int main(void) {
             path = directory / 'standings.c'
             executable = directory / 'standings'
             path.write_text(source)
-            result = subprocess.run(['cc', '-std=c99', '-O2', '-Wall', '-Wextra', '-Werror',
+            result = subprocess.run(['cc', '-I'+str(ROOT/'include'), '-std=c99', '-O2', '-Wall', '-Wextra', '-Werror',
                                      '-fno-strict-aliasing', '-fsanitize=undefined',
                                      str(path), '-o', str(executable)], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)

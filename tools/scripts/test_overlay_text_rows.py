@@ -4,6 +4,7 @@ The real resident initializer is exercised with a memory-clearing BIOS boundary.
 Overlay renderer, initializer and screen-transition calls are simulated, typed
 boundaries which mutate live tables and result state between calls.
 """
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re
@@ -33,7 +34,7 @@ class OverlayTextRowsTest(unittest.TestCase):
 
     def test_resident_clear_keeps_full_pointer_and_captured_count(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/main/PAL/func_800402F4.c').read_text()
+        body = read_c_source(root / 'src/main/PAL/func_800402F4.c')
         self.run_source(r'''
 #include <assert.h>
 #include <stdint.h>
@@ -69,7 +70,7 @@ int main(void) {
     def test_result_screens_fresh_labels_scores_rankings_and_service_order(self):
         root = Path(__file__).resolve().parents[2]
         bodies = '\n'.join(re.sub(r'^extern[^\n]*;\n', '',
-                                  (root / f'src/overlays/PAL/{ov}/func_{addr}.c').read_text(),
+                                  read_c_source(root / f'src/overlays/PAL/{ov}/func_{addr}.c'),
                                   flags=re.M)
                            for ov, addr in [(661, '80117C78'), (667, '80118634')])
         self.run_source(r'''

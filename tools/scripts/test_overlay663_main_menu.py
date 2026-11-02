@@ -1,8 +1,9 @@
 """Guarded native state and service oracle for overlay663 main-menu handling."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
-body=Path('src/overlays/PAL/663/func_80114B98.c').read_text();body=body[body.index('void ovl663_func_80114B98'):]
+body=read_c_source(Path('src/overlays/PAL/663/func_80114B98.c'));body=body[body.index('void ovl663_update_menu'):]
 source=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -16,10 +17,10 @@ source=r'''
 #define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/overlay663_menu_handler.h"
 #include "rr/tables.h"
-void func_80053AF4(s32,s32);void func_80053CB0(void);void ovl663_func_801157B8(void);
-static RrFrameOrderingPrefix contexts[2];static u8 buffers[3][32];
+void func_80053AF4(s32,s32);void func_80053CB0(void);void ovl663_init_preview(void);
+static RrFrameStorage contexts[2];static u8 buffers[3][32];
 static struct State{u32 guard[4];s32 frame,tick,mode,available,table[9];s16 menu,timer,scene;u16 state,enable;
- RrUiRow24 rows[2][4];RrMenuItemState5C input[2];void *context,*published,*buffer;unsigned root;u32 tail[4];}actual,reference,*w;
+ RrUiRow24 rows[2][4];RrMenuItemState5C input[2];RrFrameStorage *context;void *published,*buffer;unsigned root;u32 tail[4];}actual,reference,*w;
 #define D_800F2DE4 w->frame
 #define D_800ABEB0 w->tick
 #define D_800F4D8A w->state
@@ -32,9 +33,9 @@ static struct State{u32 guard[4];s32 frame,tick,mode,available,table[9];s16 menu
 #define D_800ACC14 w->context
 #define D_800ACC18 w->published
 #define D_800F4D40 w->buffer
-#define ovl663_D_801168C8 w->mode
-#define ovl663_D_801168CC w->available
-#define ovl663_D_801168A0 w->table
+#define ovl663_record_kind w->mode
+#define ovl663_available_course_count w->available
+#define ovl663_available_courses w->table
 '''+body+r'''
 static struct Event{unsigned kind;s32 a,b,c;struct State before;} events[24];
 static unsigned scenario,profile,serial,count,seen,coverage[12],choices[5],closing[2],exits[3],completion[2];static int referenceRun;
@@ -53,10 +54,10 @@ void func_8002B330(s32 a,s32 b,char *p,s32 d,s32 e){assert(p==(char*)&w->menu&&(
 void func_8004F24C(s32 a){record(2,a,0,0);effect(2);}
 void func_8003A198(void){record(3,0,0,0);effect(3);}
 void func_80053AF4(s32 a,s32 b){record(4,a,b,0);effect(4);}
-void func_800207D4(u32 *p,s32 a,u32 b){unsigned k;for(k=0;k<2&&p!=contexts[k].ordering70;k++){}assert(k<2&&(uintptr_t)p>UINT32_MAX);record(5,k,a,b);effect(5);}
+void func_800207D4(u32 *p,s32 a,u32 b){unsigned k;for(k=0;k<2&&p!=contexts[k].ordering.ordering70;k++){}assert(k<2&&(uintptr_t)p>UINT32_MAX);record(5,k,a,b);effect(5);}
 s32 func_8003BEA8(s32 a){record(6,a,0,0);effect(6);return ((scenario>>5)&1)?1:word(scenario*0x1234567U);}
-void ovl663_func_801157B8(void){record(7,0,0,0);effect(7);}
-void ovl663_func_80115028(s32 a){record(8,a,0,0);effect(8);}
+void ovl663_init_preview(void){record(7,0,0,0);effect(7);}
+void ovl663_init_selection(s32 a){record(8,a,0,0);effect(8);}
 void func_80053CB0(void){record(9,0,0,0);effect(9);}
 void func_8003EC88(s32 a){record(10,a,0,0);effect(10);}
 void func_8002A344(s32 a){record(11,a,0,0);effect(11);}
@@ -71,11 +72,11 @@ static void expected(void){unsigned phase=w->state;w->frame=word((u32)w->frame+1
   if(close){closing[close-1]++;func_8002AF8C(0,1,1);w->timer=64;
    for(unsigned i=0;i<4;i++)if(w->rows[w->root][i].byte14==2){w->rows[w->root][i].byte14=close==2?7:3;if(close==1)func_80053AF4(0,half((u16)w->timer-4));}
   }
- }else if(phase==3){if(w->timer>0)w->timer=half((u16)w->timer-1);func_800207D4(((RrFrameOrderingPrefix*)w->context)->ordering70,(64-(s32)w->timer)*4,69);
-  if(w->timer<=0){s32 v=func_8003BEA8(w->table[0]);completion[v==1]++;if(v==1){exits[0]++;ovl663_func_801157B8();w->enable=1;w->scene=76;w->state=0;return;}}
- }else if(phase==4||phase==5||phase==8){s16 timer=half((u16)w->timer-1);w->timer=timer;func_800207D4(((RrFrameOrderingPrefix*)w->context)->ordering70,(64-(s32)timer)*4,69);
+ }else if(phase==3){if(w->timer>0)w->timer=half((u16)w->timer-1);func_800207D4(w->context->ordering.ordering70,(64-(s32)w->timer)*4,69);
+  if(w->timer<=0){s32 v=func_8003BEA8(w->table[0]);completion[v==1]++;if(v==1){exits[0]++;ovl663_init_preview();w->enable=1;w->scene=76;w->state=0;return;}}
+ }else if(phase==4||phase==5||phase==8){s16 timer=half((u16)w->timer-1);w->timer=timer;func_800207D4(w->context->ordering.ordering70,(64-(s32)timer)*4,69);
   if(w->timer<=0){if(phase==8){exits[2]++;func_80053CB0();w->enable=1;w->scene=3;w->state=0;}
-   else{exits[1]++;ovl663_func_80115028(w->mode);w->enable=1;w->scene=75;w->state=0;}}
+   else{exits[1]++;ovl663_init_selection(w->mode);w->enable=1;w->scene=75;w->state=0;}}
  }
  for(unsigned i=0;i<4;i++)func_8003EC88(i);func_8002A344(0x10057);
 }
@@ -84,7 +85,7 @@ int main(void){assert(sizeof(void*)==8);for(scenario=0;scenario<65536;scenario++
  w->frame=word(scenario*0x1234567U);w->tick=word(~(scenario*0x2345678U));w->timer=half(scenario);w->menu=scenario%4;w->mode=word(scenario*0x3456789U);w->available=(s32)((scenario>>4)%11)-1;
  w->root=scenario&1;w->context=&contexts[(scenario>>1)&1];w->buffer=buffers[scenario%3];w->published=buffers[(scenario+1)%3];w->input[0].a=(scenario>>6)&1;w->input[0].b=(scenario>>7)&1;
  for(unsigned j=0;j<2;j++)for(unsigned i=0;i<4;i++)w->rows[j][i].byte14=((scenario/256+i+j)&1)?2:5;for(unsigned i=0;i<9;i++)w->table[i]=word(scenario*0x456789AU+i);
- reference=actual;count=seen=serial=0;referenceRun=1;w=&reference;expected();serial=0;referenceRun=0;w=&actual;ovl663_func_80114B98();assert(count==seen&&!memcmp(&actual,&reference,sizeof(actual)));
+ reference=actual;count=seen=serial=0;referenceRun=1;w=&reference;expected();serial=0;referenceRun=0;w=&actual;ovl663_update_menu();assert(count==seen&&!memcmp(&actual,&reference,sizeof(actual)));
  }
  for(unsigned i=0;i<12;i++)assert(coverage[i]);for(unsigned i=0;i<5;i++)assert(choices[i]);assert(closing[0]&&closing[1]&&completion[0]&&completion[1]);for(unsigned i=0;i<3;i++)assert(exits[i]);
  puts("786432 cases passed; all menu choices,both closing modes,three exits and fresh UI/context roots");

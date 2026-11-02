@@ -1,4 +1,5 @@
 """Resource arena publication, four glyph callbacks and seven UI rows."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -8,8 +9,8 @@ import unittest
 class Overlay666ViewLayoutTest(unittest.TestCase):
     def test_fresh_glyph_and_selected_value_after_layout_calls(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/666/func_801148D4.c').read_text()
-        reset=re.sub(r'^extern[^\n]*;\n','',(root/'src/main/PAL/func_8003A198.c').read_text(),flags=re.M)
+        body=read_c_source(root/'src/overlays/PAL/666/func_801148D4.c')
+        reset=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'src/main/PAL/func_8003A198.c'),flags=re.M)
         source=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -71,7 +72,7 @@ int main(void){unsigned k,i;
   for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)next();
   scenario=k;world.calls=0;world.arenas.first=resources[k%3]+64;world.arenas.second=resources[(k+1)%3]+96;world.base=resources[(k+2)%3];world.published=resources[k%3]+128;world.glyph=world.glyphs[k%3];
   assert((uintptr_t)world.base>UINT32_MAX && (uintptr_t)world.glyph>UINT32_MAX);
-  memcpy(&expected,&world,sizeof(world));reference();ovl666_func_801148D4();assert(memcmp(&world,&expected,sizeof(world))==0);
+  memcpy(&expected,&world,sizeof(world));reference();ovl666_init_menu();assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  assert(memcmp(resources,original_resources,sizeof(resources))==0);
  return 0;

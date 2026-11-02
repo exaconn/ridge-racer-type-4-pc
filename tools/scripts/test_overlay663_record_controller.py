@@ -1,11 +1,12 @@
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
 import sys
 root=next(parent for parent in Path(__file__).resolve().parents if (parent/'Makefile').exists() and (parent/'tools/scripts').exists())
 body_path=Path(sys.argv[1]) if len(sys.argv)>1 else root/'src/overlays/PAL/663/func_801151B8.c'
-body=body_path.read_text();body=body[body.index('void ovl663_func_801151B8'):]
-mapper=(root/'src/main/PAL/func_80032E9C.c').read_text().replace('func_80032E9C','actual_mapper');decode=(root/'src/main/PAL/func_80037040.c').read_text().replace('func_80037040','actual_decode')
+body=read_c_source(body_path);body=body[body.index('void ovl663_update_selection'):]
+mapper=read_c_source(root/'src/main/PAL/func_80032E9C.c').replace('func_80032E9C','actual_mapper');decode=read_c_source(root/'src/main/PAL/func_80037040.c').replace('func_80037040','actual_decode')
 src=r'''
 #include <stdint.h>
 #include <stddef.h>
@@ -13,11 +14,13 @@ src=r'''
 #include <string.h>
 #include <stdio.h>
 #include "rr/layout.h"
+#include "rr/frame_storage_types.h"
 #undef RR_ASSERT_SIZE
 #undef RR_ASSERT_OFFSET
 #define RR_ASSERT_SIZE(t,n)
 #define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/menu_transition.h"
+#include "rr/current_selection_types.h"
 #include "rr/overlay_menu.h"
 #include "rr/menu_selection.h"
 #include "rr/menu_glyph.h"
@@ -34,10 +37,10 @@ _Static_assert(sizeof(RrMenuChoice4)==4,"choice size");
 _Static_assert(offsetof(RrTimeRecord16,car)==10,"packed car offset");
 _Static_assert(offsetof(RrUiRow24,cells)==12,"cell offset");
 void func_800207D4(u32 *,s32,u32);void func_8002A344(s32);void func_8003EC88(s32);void func_8003D6F0(s32);
-s32 func_8003AE4C(s32,s32);void ovl663_func_801148D8(void);void ovl663_func_80115BA0(void);
+s32 func_8003AE4C(s32,s32);void ovl663_init_menu(void);void ovl663_init_result_preview(void);
 static struct State {u32 guard[4];s32 frame,tick,selected,limit,mode; s16 scene,state,timer,course,menu,track,style;u16 enable;
- RrMenuItemState5C input[2];RrUiRow24 rows[2][4];RrBadgeRow1C badges[2][2];RrIconSpriteContext contexts[2];
- RrMenuChoice4 choice;RrMenuGridPoint grid[4];RrCourseChoice4 courses[2][9];RrTimeRecord16 banks[2][2][8][5];
+ RrMenuItemState5C input[2];RrUiRow24 rows[2][4];RrBadgeRow1C badges[2][2];RrFrameStorage contexts[2];
+ RrCurrentSelection choice;RrMenuGridPoint grid[4];RrCourseChoice4 courses[2][9];RrTimeRecord16 banks[2][2][8][5];
  u8 mapping[8];unsigned root,badgeRoot,contextRoot;void *published,*buffer;u32 tail[4];} actual,reference,*w;
 static const u32 counterBits[7]={0,1,0x7FFFFFFFU,0x80000000U,0xFFFFFFFEU,0xFFFFFFFFU,0xA6A6A6A6U};
 static u8 buffers[3][32];static const s32 limits[3]={4,8,16};static const s32 modes[6]={-1,0,1,2,0x10001,(s32)0x80000001U};
@@ -63,9 +66,9 @@ static u8 buffers[3][32];static const s32 limits[3]={4,8,16};static const s32 mo
 #define D_800ACC18 w->published
 #define D_800F4D40 w->buffer
 #define D_8009F64C w->mapping
-#define ovl663_D_80116898 w->selected
-#define ovl663_D_8011689C w->limit
-#define ovl663_D_801168C8 w->mode
+#define ovl663_selected_record w->selected
+#define ovl663_course_count w->limit
+#define ovl663_record_kind w->mode
 '''+body+mapper+decode+r'''
 static struct Event{unsigned kind;s32 a[7];struct State before;}events[20];
 static unsigned scenario,profile,serial,count,seen,repliesSeen[8],coverage[14],actions[5],special[3],fadeOut[2];static int referenceRun;
@@ -92,12 +95,12 @@ s32 func_80032E9C(s32 a){record(3,a,0,0,0,0,0,0);if(referenceRun){w->style=a>=8;
 void func_8004F24C(s32 a){record(4,a,0,0,0,0,0,0);effect(4);}
 void func_8003A198(void){record(5,0,0,0,0,0,0,0);effect(5);}
 void func_80037040(s8 *p,s32 a){assert(p==(s8*)&w->choice&&(uintptr_t)p>UINT32_MAX);record(6,a,0,0,0,0,0,0);
- if(referenceRun){w->choice.bytes[0]=a/160;w->choice.bytes[1]=(a%160)/40;w->choice.bytes[2]=a%40;}else actual_decode(p,a);
+ if(referenceRun){w->choice.choice.bytes[0]=a/160;w->choice.choice.bytes[1]=(a%160)/40;w->choice.choice.bytes[2]=a%40;}else actual_decode(p,a);
 }
 s32 func_8003AE4C(s32 a,s32 b){record(7,a,b,0,0,0,0,0);effect(7);static const u32 replies[]={0,1,2,0xFFFFFFFFU,0x10001,0xFFFF0001,0x80000000U,0x80000001U};if(!referenceRun)repliesSeen[scenario&7]++;return word(replies[scenario&7]);}
-void ovl663_func_80115BA0(void){record(8,0,0,0,0,0,0,0);effect(8);}
-void ovl663_func_801148D8(void){record(9,0,0,0,0,0,0,0);effect(9);}
-void func_800207D4(u32 *p,s32 a,u32 b){assert(p==&w->contexts[w->contextRoot].head70&&(uintptr_t)p>UINT32_MAX);record(10,w->contextRoot,a,b,0,0,0,0);effect(10);}
+void ovl663_init_result_preview(void){record(8,0,0,0,0,0,0,0);effect(8);}
+void ovl663_init_menu(void){record(9,0,0,0,0,0,0,0);effect(9);}
+void func_800207D4(u32 *p,s32 a,u32 b){assert(p==&w->contexts[w->contextRoot].ordering.ordering70&&(uintptr_t)p>UINT32_MAX);record(10,w->contextRoot,a,b,0,0,0,0);effect(10);}
 void func_8003EC88(s32 a){record(11,a,0,0,0,0,0,0);effect(11);}
 void func_8003D6F0(s32 a){record(12,a,0,0,0,0,0,0);effect(12);}
 void func_8002A344(s32 a){record(13,a,0,0,0,0,0,0);effect(13);}
@@ -117,12 +120,12 @@ static void expected(void){unsigned phase=(u16)w->state;w->frame=word((u32)w->fr
   if(w->input[0].b){actions[3]++;func_8004F24C(2);w->state=1;}
   else if(w->input[0].a){actions[4]++;func_8002AF8C(0,1,1);w->state=3;func_8003A198();w->published=w->buffer;
    unsigned group=w->course>=8,bank=w->mode==1;int glyph=w->banks[bank][group][w->track][w->selected].car;func_80037040((s8*)&w->choice,glyph);
-   if(w->choice.bytes[2]==39){unsigned key=w->choice.bytes[0]==2?0:w->choice.bytes[0]*4+w->choice.bytes[1];special[w->choice.bytes[0]==2?1:0]++;w->grid[0].second=0;w->grid[0].first=w->courses[0][key].first;}
+   if(w->choice.choice.bytes[2]==39){unsigned key=w->choice.choice.bytes[0]==2?0:w->choice.choice.bytes[0]*4+w->choice.choice.bytes[1];special[w->choice.choice.bytes[0]==2?1:0]++;w->grid[0].second=0;w->grid[0].first=w->courses[0][key].first;}
    else{special[2]++;w->grid[0].first=w->grid[0].second=0;}closeRows();
   }
- }else if(phase==3){int result=func_8003AE4C(0,1);if(result==1&&w->rows[w->root][0].byte14==5){ovl663_func_80115BA0();w->enable=result;w->scene=77;w->state=0;}}
- else if(phase==8){s16 timer=half((u16)w->timer-1);w->timer=timer;func_800207D4(&w->contexts[w->contextRoot].head70,(64-(s32)timer)*4,69);
-  if(w->timer<=0){fadeOut[0]++;ovl663_func_801148D8();w->enable=1;w->scene=74;w->state=0;return;}fadeOut[1]++;
+ }else if(phase==3){int result=func_8003AE4C(0,1);if(result==1&&w->rows[w->root][0].byte14==5){ovl663_init_result_preview();w->enable=result;w->scene=77;w->state=0;}}
+ else if(phase==8){s16 timer=half((u16)w->timer-1);w->timer=timer;func_800207D4(&w->contexts[w->contextRoot].ordering.ordering70,(64-(s32)timer)*4,69);
+  if(w->timer<=0){fadeOut[0]++;ovl663_init_menu();w->enable=1;w->scene=74;w->state=0;return;}fadeOut[1]++;
  }
  for(int i=0;i<3;i++)func_8003EC88(i);func_8003D6F0(1);func_8002A344(w->mode==1?0x1005F:0x10063);
 }
@@ -133,7 +136,7 @@ int main(void){assert(sizeof(void*)==8);for(scenario=0;scenario<65536;scenario++
  for(unsigned j=0;j<2;j++){w->badges[j][1].state10=((scenario>>11)&1)?3:4;w->rows[j][0].byte14=((scenario>>12)&1)?5:2;w->rows[j][2].byte02=scenario%9;}
  for(unsigned j=0;j<18;j++){w->courses[j/9][j%9].first=byte(scenario+j*17);w->courses[j/9][j%9].second=byte(~(scenario+j));}
  for(unsigned b=0;b<2;b++)for(unsigned g=0;g<2;g++)for(unsigned t=0;t<8;t++)for(unsigned i=0;i<5;i++)w->banks[b][g][t][i].car=(scenario+b*79+g*39+t*40+i*80)%480;
- reference=actual;count=seen=serial=0;referenceRun=1;w=&reference;expected();serial=0;referenceRun=0;w=&actual;ovl663_func_801151B8();assert(count==seen&&!memcmp(&actual,&reference,sizeof(actual)));
+ reference=actual;count=seen=serial=0;referenceRun=1;w=&reference;expected();serial=0;referenceRun=0;w=&actual;ovl663_update_selection();assert(count==seen&&!memcmp(&actual,&reference,sizeof(actual)));
  }
  for(unsigned i=0;i<14;i++)assert(coverage[i]);for(unsigned i=0;i<8;i++)assert(repliesSeen[i]);for(unsigned i=0;i<5;i++)assert(actions[i]);for(unsigned i=0;i<3;i++)assert(special[i]);assert(fadeOut[0]&&fadeOut[1]);puts("786432 cases passed; guarded states,canonical2x9 owner,actual mapper/decoder,all record actions,signed16 fade encodings and eight full-word readiness replies");
 }

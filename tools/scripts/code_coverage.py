@@ -11,7 +11,8 @@ from pathlib import Path
 import sys
 import yaml
 from analyze_overlays import BASE, SPANS
-from c_functions import source_owners, function_definitions
+from c_functions import source_owners
+from overlay_units import function_owner, function_extent
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -45,9 +46,8 @@ def coverage(ledger_path, target_percent=40):
     for row in report['functions']:
         index=row['overlay'];a=row['address'];size=row['original_size'];start,end=SPANS[index]
         assert BASE+start <= a and a+size <= BASE+end
-        symbol=row['symbol'];source=ROOT/f'src/overlays/PAL/{index}/func_{a:08X}.c'
-        names=function_definitions(__import__('re').sub(r'\bovl\d+_(?=func_)','',source.read_text()))
-        assert f'func_{a:08X}' in names
+        source, symbol = function_owner(index, a)
+        function_extent(source.read_text(), symbol)
         intervals.setdefault(index,[]).append((a,a+size))
         overlay_c+=size
     for values in intervals.values():

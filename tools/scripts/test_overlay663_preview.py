@@ -1,4 +1,5 @@
 """Vehicle preview setup: genuine race/scratch owners and fresh badge roots."""
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
@@ -7,7 +8,7 @@ import unittest
 class Overlay663PreviewTest(unittest.TestCase):
     def test_mutating_boundaries_and_complete_owners(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/663/func_801157B8.c').read_text()
+        body=read_c_source(root/'src/overlays/PAL/663/func_801157B8.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -29,7 +30,7 @@ static u8 packets[64];static u32 orders[32];static unsigned scenario;
 #define D_800ABEF8 world.cars
 #define RR_PROJECTION_SCRATCH (&world.scratch)
 #define D_800F3AFC world.root
-#define ovl663_D_80116898 world.local
+#define ovl663_selected_record world.local
 #define D_800F2DE4 world.frame
 #define D_800ACC68 world.flag
 '''+body+r'''
@@ -72,7 +73,7 @@ int main(void){unsigned j;
  for(scenario=0;scenario<65536;scenario++){
   memset(&world,0,sizeof(world));effect(&world,7);
   for(j=0;j<4;j++){world.guard[j]=next();world.tail[j]=next();}
-  memcpy(&expected,&world,sizeof(world));reference();ovl663_func_801157B8();
+  memcpy(&expected,&world,sizeof(world));reference();ovl663_init_preview();
   assert(memcmp(&world,&expected,sizeof(world))==0);
   assert((uintptr_t)world.root>UINT32_MAX&&(uintptr_t)world.scratch.pointers.cursor>UINT32_MAX);
  }

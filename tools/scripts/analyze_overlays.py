@@ -19,7 +19,9 @@ SPANS = {
     661: (0xAC, 0x3AE0), 662: (0x120, 0x1199C),
     663: (0x60, 0x1FF0), 665: (0xA0, 0x47A0),
     666: (0x5C, 0x2668), 667: (0xB4, 0x4588),
-    668: (0x98, 0x12FAC),
+    # Last executable return is 0x80116CA0, with its delay slot at 0x80116CA4.
+    # Later jr-ra-shaped words belong to the STR VLC lookup tables, not code.
+    668: (0x98, 0x2430),
 }
 ALIASES = {669: 660, 670: 659, 671: 661, 672: 667}
 

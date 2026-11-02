@@ -1,4 +1,5 @@
 """Configuration constructor: full word mode and a genuine two-row badge owner."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -8,8 +9,8 @@ import unittest
 class Overlay663ConfigSetupTest(unittest.TestCase):
     def test_word_mode_and_fresh_second_badge(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/663/func_80115028.c').read_text()
-        clear=re.sub(r'^extern[^\n]*;\n','',(root/'src/main/PAL/func_8002A604.c').read_text(),flags=re.M)
+        body=read_c_source(root/'src/overlays/PAL/663/func_80115028.c')
+        clear=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'src/main/PAL/func_8002A604.c'),flags=re.M)
         source=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -27,7 +28,7 @@ typedef struct {s32 kind,args[10];void *data;RrBadgeRow1C *badge;s32 frame,count
 static struct World {u32 guard[4];s32 frame,counter,local;s16 selected,mapped,current;Work32 work32;Work12 work12;RrBadgeRow1C *badge;RrBadgeRow1C badges[3][2];u32 calls;Event events[7];u32 tail[4];} world,expected;
 #define D_800F2DE4 world.frame
 #define D_800ABEB0 world.counter
-#define ovl663_D_80116898 world.local
+#define ovl663_selected_record world.local
 #define D_800AC648 world.selected
 #define D_800F3914 world.mapped
 #define D_800AC64A world.current
@@ -73,7 +74,7 @@ int main(void){unsigned k,i;const u32 edge[]={0,1,2,3,0x10002U,0x80000002U,0xfff
   scenario=k;world.calls=0;world.badge=world.badges[k%3];
   if(k<64)mode=word(edge[k&7]);else if(k&1)mode=2;else mode=word((next()&0xffff0000U)|((k>>1)&0xffffU));
   assert((uintptr_t)world.badge>UINT32_MAX);memcpy(&expected,&world,sizeof(world));reference(mode);
-  ovl663_func_80115028(mode);assert(memcmp(&world,&expected,sizeof(world))==0);
+  ovl663_init_selection(mode);assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  return 0;
 }

@@ -3,6 +3,7 @@
 Row initialization/rendering, result classification and transitions are typed
 simulated boundaries. The six-entry standings selector executes its actual C.
 """
+from overlay_units import read_c_source
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re
@@ -14,7 +15,7 @@ class OverlayResultSetupTest(unittest.TestCase):
     def test_progress_flags_label_banks_standings_and_mutable_services(self):
         root = Path(__file__).resolve().parents[2]
         bodies = '\n'.join(re.sub(r'^extern[^\n]*;\n', '',
-                                  (root / f'src/overlays/PAL/{ov}/func_{addr}.c').read_text(),
+                                  read_c_source(root / f'src/overlays/PAL/{ov}/func_{addr}.c'),
                                   flags=re.M)
                            for ov, addr in [(660, '801162D8'), (660, '801154D8'),
                                             (666, '80115388')])
@@ -46,8 +47,8 @@ static unsigned scenario,mutation,overlay;
 #define D_800F4D98 w->state.choice
 #define D_800F2DE4 w->state.frame
 #define D_800ABEB0 w->state.counter
-#define ovl666_D_80116F94 w->state.bank666
-#define ovl666_D_80116EE4 w->state.labels666
+#define ovl666_result_kind w->state.bank666
+#define ovl666_result_labels w->state.labels666
 #define D_800F4C64 w->state.match
 #define D_800F4C80 w->state.standings
 #define D_800AC1A0 w->state.first
@@ -169,7 +170,7 @@ int main(void) {
   initial.state.uiMode=(s32)(scenario%5)-1;
   for(overlay=0;overlay<2;overlay++) {
    actual=initial;expected=initial;
-   w=&actual;if(overlay)ovl666_func_80115388();else ovl660_func_801154D8();
+   w=&actual;if(overlay)ovl666_init_results();else ovl660_func_801154D8();
    w=&expected;if(overlay)reference_666();else reference_660();
    assert(memcmp(&actual,&expected,sizeof(actual))==0);
   }

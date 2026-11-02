@@ -1,4 +1,5 @@
 """Real course initializers, string-tail copy and glyph decomposition."""
+from overlay_units import read_c_source
 from pathlib import Path
 import re
 import subprocess
@@ -11,13 +12,13 @@ class CourseInitializersTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         bodies = []
         for index,address in ((661,'80115DB8'),(666,'80114B14')):
-            body = (root / f'src/overlays/PAL/{index}/func_{address}.c').read_text()
+            body = read_c_source(root / f'src/overlays/PAL/{index}/func_{address}.c')
             body = re.sub(r'^extern[^\n]*\n', '', body, flags=re.M)
             # The fixture owns both existing views of the same selection storage.
             body = body.replace('#include "rr/overlay666_preview.h"',
                                 '#include "rr/course_choice_types.h"')
             bodies.append(body)
-        helpers = '\n'.join((root / f'src/main/PAL/func_{a}.c').read_text()
+        helpers = '\n'.join(read_c_source(root / f'src/main/PAL/func_{a}.c')
                             for a in ('8002B75C','80037040'))
         source = r'''
 #include <assert.h>
@@ -31,12 +32,13 @@ class CourseInitializersTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/course_choices.h"
 #include "rr/menu_choice_types.h"
+#include "rr/current_selection_types.h"
 #include "rr/save_progress.h"
 #include "rr/frame_environment.h"
 #include "rr/diagnostics.h"
 static char player2[12]="PLAYER 2";
 static const char format661[]="job_vs_car_info0\n",format666[]="job_ex_crs_info0\n";
-union Selection {RrSelectionRows complete;RrMenuChoice4 prefix;};
+union Selection {RrSelectionRows complete;RrMenuChoice4 prefix;RrCurrentSelection owner;};
 struct State {
  u32 guard[4];RrSaveProgressRecord7C save;char names[24];union Selection choice;
  RrCourseChoice4 source[2][9],versus[2][2][9],extra[4][9];
@@ -49,15 +51,15 @@ static unsigned scenario,mutation,kind;static u8 seenCounts[4][10];
 #define D_800F3920 w->s.save
 #define D_800ABE08 w->s.source
 #define ovl661_D_80118458 w->s.versus
-#define ovl666_D_80116FA0 w->s.extra
+#define ovl666_available_courses w->s.extra
 #define ovl661_D_80118420 w->s.names
 #define ovl661_D_8011487C player2
 #define ovl661_D_80114888 format661
-#define ovl666_D_8011487C format666
+#define ovl666_scene_name format666
 #define ovl661_D_80118418 w->s.selections
 #define ovl661_D_80118450 w->s.rows
 #define ovl661_D_8011844C w->s.columns
-#define ovl666_D_80116F88 w->s.counts
+#define ovl666_course_counts w->s.counts
 #define D_800ABEC8 w->s.clearABEC8
 #define D_800AC648 w->s.clearAC648
 #define D_800F3914 w->s.clearF3914
@@ -112,9 +114,9 @@ s32 func_8001E84C(const char *format,...){
  if(kind && w==&actual)for(i=0;i<4;i++){assert(w->s.counts[i]>=0 && w->s.counts[i]<=9);seenCounts[i][w->s.counts[i]]=1;}
  event(7,0,0,0,0);return 1;
 }
-void ovl666_func_801148D4(void){event(8,0,0,0,0);}
+void ovl666_init_menu(void){event(8,0,0,0,0);}
 ''' + helpers + '\n#define D_800F4D98 w->s.choice.complete\n' + bodies[0] + \
-                 '\n#undef D_800F4D98\n#define D_800F4D98 w->s.choice.complete\n' + bodies[1] + r'''
+                 '\n#undef D_800F4D98\n#define D_800F4D98 w->s.choice.owner\n' + bodies[1] + r'''
 static void reference_copy(char *destination,const char *source){
  unsigned i=0,j;while(source[i])i++;for(j=0;j<i;j++)destination[j]=source[j];
  while(destination[i])destination[i++]=0;
@@ -145,7 +147,7 @@ static void reference(void){unsigned i,j,k;
     if((u8)(value/40-(value/160)*4)==i && (u8)(value%40)<39){w->s.extra[i][k++]=w->s.source[1][j];w->s.counts[i]=(s16)k;}
    }
   }
-  w->s.clearAC648=0;w->s.clearF3826=0;func_8001E84C(format666);ovl666_func_801148D4();
+  w->s.clearAC648=0;w->s.clearF3826=0;func_8001E84C(format666);ovl666_init_menu();
   w->s.course=1;w->s.position=79;w->s.selected=0;func_80053BB4(0);
  }
 }
@@ -155,7 +157,7 @@ int main(void){unsigned i,j;
   memset(&initial,0,sizeof(initial));w=&initial;effect(9);
   for(i=0;i<4;i++){w->s.guard[i]=0x12345678U+i;w->s.tail[i]=0x87654321U-i;}
   actual=initial;expected=initial;w=&actual;
-  if(kind)ovl666_func_80114B14();else ovl661_func_80115DB8();
+  if(kind)ovl666_init_scene();else ovl661_func_80115DB8();
   w=&expected;reference();assert(memcmp(&actual,&expected,sizeof(actual))==0);
  }
  for(i=0;i<4;i++)for(j=0;j<10;j++)assert(seenCounts[i][j]);

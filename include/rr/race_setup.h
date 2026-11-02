@@ -45,7 +45,7 @@ extern s32 D_80107190;
 extern s32 D_8010C12C;
 extern s16 D_8010C134;
 extern s32 D_8010C13C;
-typedef struct {s16 first,second;} RrRaceSetupPair4;
+#include "rr/race_setup_types.h"
 extern RrRaceSetupPair4 D_800F4C70,D_800F2AB4;
 extern RrRaceVehicle D_800ABEF8[2];
 extern s32 D_8010C0F8[3],D_8010C120[3],D_8010C140[3];

@@ -14,6 +14,7 @@ import subprocess
 
 from elftools.elf.elffile import ELFFile
 from levenshtein import levenshtein
+from overlay_units import function_owner, link_unit
 
 ROOT = Path(__file__).resolve().parents[2]
 SAMPLES = [(659, 0x801148CC, 60), (660, 0x80114910, 16),
@@ -292,7 +293,27 @@ EXTRA_FUNCTIONS = [
     (666, 0x80116730, 0x7B0),
     (659, 0x80114908, 0x7C4),
     (659, 0x80115224, 0x690),
-    (659, 0x80115CE4, 0x84C)]
+    (659, 0x80115CE4, 0x84C),
+    (660, 0x8011572C, 0x87C),
+    (660, 0x80115FA8, 0x330),
+    (660, 0x80116530, 0xB54),
+    (661, 0x801160F0, 0x1250),
+    (662, 0x80114C4C, 0x4E0),
+    (662, 0x80116E10, 0x844),
+    (662, 0x801183C0, 0x47C),
+    (662, 0x80119068, 0x830),
+    (662, 0x8011B484, 0x430),
+    (662, 0x8011B9BC, 0x304),
+    (662, 0x8011C83C, 0x4DC),
+    (662, 0x8011DE70, 0x200),
+    (662, 0x8012571C, 0x2E0),
+    (662, 0x801259FC, 0x3E4),
+    (665, 0x80116D10, 0x21A8),
+    (667, 0x80115640, 0xB68),
+    (667, 0x80116D18, 0x11D0),
+    (667, 0x8011885C, 0x5A4),
+    (668, 0x801159C0, 0x210),
+    (668, 0x80115BD0, 0x22C)]
 ALIASES = {660: [669], 659: [670], 661: [671], 667: [672]}
 
 
@@ -318,6 +339,14 @@ RODATA_SPANS = {
     (666, 0x80115C5C): (0x801148B8, 28),
     (659, 0x80115224): (0x8011487C, 36),
     (659, 0x80115CE4): (0x801148A0, 44),
+    (660, 0x8011572C): (0x801148CC, 0x24),
+    (660, 0x80116530): (0x801148F0, 0x20),
+    (661, 0x801160F0): (0x8011489C, 0x2C),
+    (662, 0x8011B484): (0x80114910, 0x14),
+    (665, 0x80116D10): (0x801148CC, 0x2C),
+    (667, 0x80116D18): (0x801148B4, 0x2C),
+    (667, 0x8011885C): (0x801148E0, 0x4C),
+    (668, 0x801159C0): (0x80114898, 0x10),
 }
 
 
@@ -362,9 +391,9 @@ def main():
     results = []
     output = ROOT / 'build/overlays/samples'
     output.mkdir(parents=True, exist_ok=True)
+    compiled_units = {}
     for index, address, size in SAMPLES + EXTRA_FUNCTIONS:
-        name = f'ovl{index}_func_{address:08X}'
-        source = ROOT / f'src/overlays/PAL/{index}/func_{address:08X}.c'
+        source, name = function_owner(index, address, ROOT)
         rodata_span = RODATA_SPANS.get((index, address))
         if rodata_span:
             data_address, data_size = rodata_span
@@ -372,38 +401,30 @@ def main():
                    and other_address < data_address + data_size
                    for other_index, other_address, other_size in SAMPLES + EXTRA_FUNCTIONS):
                 raise ValueError('Read-only data overlaps an implemented function')
-        obj = output / f'{name}.o'
-        elf = output / f'{name}.elf'
-        run(ROOT / 'tools/scripts/cc.sh', source, obj)
-        with obj.open('rb') as stream:
-            parsed = ELFFile(stream)
-            definitions = []
-            for symbol in parsed.get_section_by_name('.symtab').iter_symbols():
-                if symbol['st_shndx'] == 'SHN_UNDEF' and symbol.name:
-                    match = re.fullmatch(r'(?:ovl\d+_)?(?:D|func)_([0-9A-Fa-f]{8})', symbol.name)
-                    if not match:
-                        raise ValueError(f'Unknown address of {symbol.name}')
-                    definitions.append(f'{symbol.name} = 0x{match[1]};')
-            validate_object_sections(parsed, source, rodata_span)
-        script = output / f'{name}.ld'
-        sections = f'.text 0x{address:X} : SUBALIGN(4) {{ *(.text) }}'
-        if rodata_span:
-            sections += f' .rodata 0x{rodata_span[0]:X} : SUBALIGN(4) {{ *(.rodata) }}'
-        script.write_text('\n'.join(definitions) + f'\nSECTIONS {{ {sections} }}\n')
-        run(ROOT / 'tools/toolchain/bin/mipsel-none-elf-ld', '-EL', '-T', script, '-o', elf, obj)
+        key = (index, source)
+        if key not in compiled_units:
+            compiled_units[key] = link_unit(
+                index, source, SAMPLES + EXTRA_FUNCTIONS, RODATA_SPANS,
+                output, validate_object_sections, ROOT)
+        elf, unit_rodata_span = compiled_units[key]
         with elf.open('rb') as stream:
             parsed = ELFFile(stream)
-            code = parsed.get_section_by_name('.text').data()
+            text = parsed.get_section_by_name('.text')
             symbol = parsed.get_section_by_name('.symtab').get_symbol_by_name(name)[0]
-            assert symbol['st_value'] == address and symbol['st_size'] == len(code)
+            assert symbol['st_value'] == address
+            offset_in_unit = symbol['st_value'] - text['sh_addr']
+            code = text.data()[offset_in_unit:offset_in_unit + symbol['st_size']]
+            assert len(code) == symbol['st_size']
             module = blob[sectors[index] * 2048:sectors[index + 1] * 2048]
-            rodata = read_linked_rodata(parsed, rodata_span, module)
+            unit_rodata = read_linked_rodata(parsed, unit_rodata_span, module)
+            rodata = unit_rodata if rodata_span else b''
         offset = sectors[index] * 2048 + address - 0x80114878
         original = blob[offset:offset + size]
         words = lambda data: list(struct.unpack(f'<{len(data) // 4}I', data))
         distance = levenshtein(words(original), words(code))
         row = dict(overlay=index, symbol=name, address=address,
-                   original_size=size, compiled_size=len(code), levenshtein=distance)
+                   original_size=size, compiled_size=len(code), levenshtein=distance,
+                   source=str(source.relative_to(ROOT)))
         if rodata_span:
             row['rodata'] = dict(address=rodata_span[0], size=len(rodata), identical=True)
         results.append(row)

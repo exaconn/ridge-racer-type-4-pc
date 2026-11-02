@@ -1035,6 +1035,8 @@ segments:
       - [0x6f018, c, func_8007E818]
       - [0x6f104, c, func_8007E904]
       - [0x6f13c, asm, main_8007E93C]
+      - [0x6f144, c, func_8007E944]
+      - [0x6f1c0, asm, main_8007E9C0]
       - [0x6f1c4, c, func_8007E9C4]
       - [0x6f228, asm, main_8007EA28]
       - [0x6f234, c, func_8007EA34]

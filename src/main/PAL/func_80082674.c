@@ -1,3 +1,4 @@
+/* RODATA 0x80011758 0x40 */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/spu_common.h"
 #define SPU(index) (((RrSpuRegisterStorage*)D_800A47D8)->halves[index])

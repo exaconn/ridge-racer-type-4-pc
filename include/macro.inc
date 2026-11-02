@@ -71,5 +71,6 @@
 .endm
 
 .include "gte_macros.inc"
+.include "bios_calls.inc"
 
 .endif

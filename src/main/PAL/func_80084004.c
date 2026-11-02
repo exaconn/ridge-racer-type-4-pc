@@ -1,3 +1,4 @@
+/* RODATA 0x80011798 0x18 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/spu_tick.h"

@@ -1,3 +1,4 @@
+/* RODATA 0x80010514 0x24 */
 #include "rr/menu_transition.h"
 extern s16 D_800F4D2C,D_800FFC18;
 void func_8002F5BC(void){

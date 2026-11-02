@@ -1,7 +1,8 @@
+#include "rr/bios_devices.h"
+
 extern char D_800113D8[];
 extern char D_8010ECD0[];
 extern int func_80096484();
-extern char *func_80097114();
 extern char *func_80096F74();
 int func_8007834C(int a, int b) {
     char sp[32];

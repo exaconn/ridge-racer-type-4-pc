@@ -1,3 +1,4 @@
+/* RODATA 0x8001104C 0x18 */
 #include "rr/color_conversion.h"
 void func_8004C138(const RrHsvColor input,RrRgbColor output) {
     s32 s=input[1];

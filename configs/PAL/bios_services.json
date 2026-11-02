@@ -1,0 +1,252 @@
+[
+  {
+    "vector": 160,
+    "service": 19,
+    "macro": "BIOS_SETJMP"
+  },
+  {
+    "vector": 160,
+    "service": 23,
+    "macro": "BIOS_STRCMP"
+  },
+  {
+    "vector": 160,
+    "service": 24,
+    "macro": "BIOS_STRNCMP"
+  },
+  {
+    "vector": 160,
+    "service": 25,
+    "macro": "BIOS_STRCPY"
+  },
+  {
+    "vector": 160,
+    "service": 27,
+    "macro": "BIOS_STRLEN"
+  },
+  {
+    "vector": 160,
+    "service": 40,
+    "macro": "BIOS_BZERO"
+  },
+  {
+    "vector": 160,
+    "service": 42,
+    "macro": "BIOS_MEMCPY"
+  },
+  {
+    "vector": 160,
+    "service": 43,
+    "macro": "BIOS_MEMSET"
+  },
+  {
+    "vector": 160,
+    "service": 46,
+    "macro": "BIOS_MEMCHR"
+  },
+  {
+    "vector": 160,
+    "service": 47,
+    "macro": "BIOS_RAND"
+  },
+  {
+    "vector": 160,
+    "service": 48,
+    "macro": "BIOS_SRAND"
+  },
+  {
+    "vector": 160,
+    "service": 57,
+    "macro": "BIOS_INIT_HEAP"
+  },
+  {
+    "vector": 160,
+    "service": 68,
+    "macro": "BIOS_FLUSH_CACHE"
+  },
+  {
+    "vector": 160,
+    "service": 112,
+    "macro": "BIOS_BU_INIT"
+  },
+  {
+    "vector": 160,
+    "service": 114,
+    "macro": "BIOS_REMOVE_CDROM"
+  },
+  {
+    "vector": 160,
+    "service": 159,
+    "macro": "BIOS_SET_MEM"
+  },
+  {
+    "vector": 160,
+    "service": 171,
+    "macro": "BIOS_CARD_INFO"
+  },
+  {
+    "vector": 160,
+    "service": 172,
+    "macro": "BIOS_CARD_LOAD"
+  },
+  {
+    "vector": 176,
+    "service": 7,
+    "macro": "BIOS_DELIVER_EVENT"
+  },
+  {
+    "vector": 176,
+    "service": 8,
+    "macro": "BIOS_OPEN_EVENT"
+  },
+  {
+    "vector": 176,
+    "service": 9,
+    "macro": "BIOS_CLOSE_EVENT"
+  },
+  {
+    "vector": 176,
+    "service": 10,
+    "macro": "BIOS_WAIT_EVENT"
+  },
+  {
+    "vector": 176,
+    "service": 11,
+    "macro": "BIOS_TEST_EVENT"
+  },
+  {
+    "vector": 176,
+    "service": 18,
+    "macro": "BIOS_INIT_PAD"
+  },
+  {
+    "vector": 176,
+    "service": 19,
+    "macro": "BIOS_START_PAD"
+  },
+  {
+    "vector": 176,
+    "service": 20,
+    "macro": "BIOS_STOP_PAD"
+  },
+  {
+    "vector": 176,
+    "service": 21,
+    "macro": "BIOS_PAD_INIT"
+  },
+  {
+    "vector": 176,
+    "service": 23,
+    "macro": "BIOS_RETURN_FROM_EXCEPTION"
+  },
+  {
+    "vector": 176,
+    "service": 24,
+    "macro": "BIOS_RESET_ENTRY_INT"
+  },
+  {
+    "vector": 176,
+    "service": 25,
+    "macro": "BIOS_HOOK_ENTRY_INT"
+  },
+  {
+    "vector": 176,
+    "service": 50,
+    "macro": "BIOS_OPEN"
+  },
+  {
+    "vector": 176,
+    "service": 51,
+    "macro": "BIOS_LSEEK"
+  },
+  {
+    "vector": 176,
+    "service": 52,
+    "macro": "BIOS_READ"
+  },
+  {
+    "vector": 176,
+    "service": 53,
+    "macro": "BIOS_WRITE"
+  },
+  {
+    "vector": 176,
+    "service": 54,
+    "macro": "BIOS_CLOSE"
+  },
+  {
+    "vector": 176,
+    "service": 63,
+    "macro": "BIOS_PUTS"
+  },
+  {
+    "vector": 176,
+    "service": 66,
+    "macro": "BIOS_FIRST_FILE"
+  },
+  {
+    "vector": 176,
+    "service": 67,
+    "macro": "BIOS_NEXT_FILE"
+  },
+  {
+    "vector": 176,
+    "service": 71,
+    "macro": "BIOS_ADD_DRIVER"
+  },
+  {
+    "vector": 176,
+    "service": 72,
+    "macro": "BIOS_DELETE_DRIVER"
+  },
+  {
+    "vector": 176,
+    "service": 74,
+    "macro": "BIOS_INIT_CARD"
+  },
+  {
+    "vector": 176,
+    "service": 75,
+    "macro": "BIOS_START_CARD"
+  },
+  {
+    "vector": 176,
+    "service": 78,
+    "macro": "BIOS_CARD_WRITE"
+  },
+  {
+    "vector": 176,
+    "service": 79,
+    "macro": "BIOS_CARD_READ"
+  },
+  {
+    "vector": 176,
+    "service": 80,
+    "macro": "BIOS_NEW_CARD"
+  },
+  {
+    "vector": 176,
+    "service": 91,
+    "macro": "BIOS_CHANGE_CLEAR_PAD"
+  },
+  {
+    "vector": 176,
+    "service": 92,
+    "macro": "BIOS_CARD_STATUS"
+  },
+  {
+    "vector": 192,
+    "service": 2,
+    "macro": "BIOS_ENQUEUE_INTERRUPT_HANDLER"
+  },
+  {
+    "vector": 192,
+    "service": 3,
+    "macro": "BIOS_DEQUEUE_INTERRUPT_HANDLER"
+  },
+  {
+    "vector": 192,
+    "service": 10,
+    "macro": "BIOS_CHANGE_CLEAR_RCOUNT"
+  }
+]

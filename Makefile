@@ -25,8 +25,9 @@ all: check
 split:
 	$(PY) tools/scripts/gen_config.py $(VERSION)
 	$(PY) -m splat split $(CFG)
+	$(PY) tools/scripts/normalize_bios_stubs.py $(VERSION)
 
-$(BUILD)/%.s.o: %.s
+$(BUILD)/%.s.o: %.s include/macro.inc include/bios_calls.inc include/gte_macros.inc
 	@mkdir -p $(dir $@)
 	$(AS) -EL -G0 -march=r3000 -no-pad-sections -Iinclude -o $@ $<
 

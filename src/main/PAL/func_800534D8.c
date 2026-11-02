@@ -1,3 +1,4 @@
+/* RODATA 0x80011198 0x18 */
 #include "rr/audio_cd_controller.h"
 void func_800534D8(void) {
     s32 ready;

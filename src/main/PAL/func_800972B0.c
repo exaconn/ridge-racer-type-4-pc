@@ -1,7 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/bios_devices.h"
-extern s32 func_80096404(const char *,const char *);
-void func_800972B0(s32 *a0,s32 a1,s32 a2) {
+s32 func_800972B0(s32 *a0,s32 a1,s32 a2) {
     /* ASM_BARRIER: Keep the captured handler in its original saved register across name comparisons. */
     register RrBiosDeviceHandler handler __asm__("$19");
     unsigned long cursor,end,limit;
@@ -31,5 +30,5 @@ void func_800972B0(s32 *a0,s32 a1,s32 a2) {
             cursor+=sizeof(RrBiosDevice);
         } while(cursor<limit);
     }
-    D_801143B8(a0,a1,a2);
+    return D_801143B8(a0,a1,a2);
 }

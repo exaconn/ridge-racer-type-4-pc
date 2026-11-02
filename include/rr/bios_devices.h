@@ -26,7 +26,12 @@ typedef struct {
 
 extern RrBiosDeviceHandler D_801143B8;
 extern char D_801143C0[];
-void func_800972B0(s32 *context, s32 second, s32 third);
+s32 func_80096404(const char *first, const char *second);
+/* Install the one-shot BIOS first-file workaround, then enumerate into directory.
+ * Returns the BIOS result, or NULL when the pathname's device is not registered. */
+void *func_80097114(char *path, void *directory);
+void *func_800973B4(char *path, void *directory);
+s32 func_800972B0(s32 *context, s32 second, s32 third);
 
 RR_ASSERT_SIZE(RrBiosDevice, 0x50);
 RR_ASSERT_OFFSET(RrBiosDevice, handler, 0x34);

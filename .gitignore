@@ -96,3 +96,7 @@ tools/decomp-wip/
 raw/
 tools/toolchain/
 build/
+
+# Unfinished decompilation attempts stay local; only completed matches are tracked.
+/src/failed/
+/research/

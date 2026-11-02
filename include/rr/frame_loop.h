@@ -1,0 +1,21 @@
+#ifndef RR_FRAME_LOOP_H
+#define RR_FRAME_LOOP_H
+#include "rr/frame_environment.h"
+
+#include "rr/frame_storage_types.h"
+typedef void (*RrFrameStep)(void);
+extern RrFrameStorage D_800ADAF0[2];
+extern RrFrameStep *D_8009E9F0[];
+extern u8 *D_800ACC14;
+extern u32 D_800ABEAC;
+extern s32 D_800AC5DC, D_800ACBF8, D_800F2DE4, D_800F4BF0;
+extern u16 D_800F4C6A, D_800F3A26;
+extern s16 D_800F4D8A;
+
+/* Initializes once, then runs indefinitely. Helpers may replace the current
+ * context, frame counter, dispatch selectors and frame-wait threshold.
+ * The threshold is captured once per frame after DrawSync. All later context
+ * arguments are read afresh. Dispatch selectors require accessible table rows. */
+void func_8001E684(void);
+RR_ASSERT_SIZE(RrFrameStorage, 0x22778);
+#endif

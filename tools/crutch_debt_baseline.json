@@ -1,0 +1,14 @@
+{
+ "pins": 75,
+ "barriers": 467,
+ "asm_bodies": 0,
+ "directives": 0,
+ "gte_asm": 340,
+ "gotos": 376,
+ "pad_arrays": 335,
+ "raw_offset_derefs": 589,
+ "pointer_int_casts": 476,
+ "gcc_2_7_2_units": 190,
+ "cc1_flags_units": 139,
+ "volatile_hacks": 623
+}

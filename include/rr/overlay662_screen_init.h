@@ -1,0 +1,12 @@
+#ifndef RR_OVERLAY662_SCREEN_INIT_H
+#define RR_OVERLAY662_SCREEN_INIT_H
+#include "rr/menu_arenas.h"
+#include "rr/menu_setup.h"
+#include "rr/menu_transition.h"
+#include "rr/overlay_menu.h"
+#include "rr/renderer_setup.h"
+extern s16 ovl662_D_801272D4;
+void func_80037110(void);
+/* Loader and layout callbacks may replace the published arenas. */
+void ovl662_func_80118ED8(void);
+#endif

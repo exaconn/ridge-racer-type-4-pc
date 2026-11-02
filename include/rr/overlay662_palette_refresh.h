@@ -1,0 +1,16 @@
+#ifndef RR_OVERLAY662_PALETTE_REFRESH_H
+#define RR_OVERLAY662_PALETTE_REFRESH_H
+#include "rr/overlay662_garage.h"
+#include "rr/palette16.h"
+#include "rr/gpu.h"
+#include "rr/trig.h"
+extern s32 ovl662_D_801268C8;
+extern RrGpuRectangleFields ovl662_D_801268A0,ovl662_D_801268A8,ovl662_D_801268B0,ovl662_D_801268B8,ovl662_D_801268C0;
+void func_80092FFC(const RrGpuRectangleFields *rectangle,const void *pixels);
+/* active21 stays0..1. Each palette pointer addresses words[0] of a complete
+ * RrPalette16 owner; owners may coincide. Captured owners stay valid through
+ * all callbacks. Sine returns -4096..4096. Callbacks may change the counter,
+ * palette contents and garage roots; each following phase/root is read fresh.
+ * The counter and phase offsets wrap as 32-bit words. GPU upload is a service. */
+void ovl662_func_8011CD18(void);
+#endif

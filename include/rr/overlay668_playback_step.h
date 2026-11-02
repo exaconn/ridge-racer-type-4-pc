@@ -1,0 +1,16 @@
+#ifndef RR_OVERLAY668_PLAYBACK_STEP_H
+#define RR_OVERLAY668_PLAYBACK_STEP_H
+#include "rr/overlay668_stream.h"
+#include "rr/diagnostics.h"
+#include "rr/tables.h"
+extern RrMenuItemState5C D_800F3A38[];
+extern const char ovl668_D_8011487C[];
+s32 func_8008F670(const RrCdLocation *location);
+void func_80092D50(s32 mode);
+/* activeB8 addresses a complete playback owner, and command/display selectors
+ * word00/word08 are0..1 at each use. Owners and currentC0 remain live across
+ * services, which may replace activeB8 and change thresholds, state or input.
+ * Retry until the next-frame service succeeds or unsigned threshold is reached.
+ * Timer and frame words retain 32-bit wrapping and signed/unsigned comparisons. */
+void ovl668_func_80114C3C(void);
+#endif

@@ -1,0 +1,12 @@
+#ifndef RR_VEHICLE_RPM_H
+#define RR_VEHICLE_RPM_H
+#include "rr/vehicle_drive.h"
+extern s16 D_800F3826,D_800F4D44;
+/* gear68 is nonnegative and below gearCountFC; each threshold index used by
+ * that gear lies in0..5. A zero ordinary span takes the minimum-RPM path. The
+ * special mode requires a nonzero low16 divisor after max-speed rounding.
+ * Products wrap32 before signed division, steering magnitude is computed wide,
+ * and the final halfword stores preserve the original RPM/latch wrapping.
+ * The full canonical record is accessed through the GNU aliasable drive view. */
+void func_800483D8(RrRaceVehicle *vehicle);
+#endif

@@ -1,0 +1,31 @@
+#ifndef RR_OVERLAY661_LAYOUT_H
+#define RR_OVERLAY661_LAYOUT_H
+#include "rr/race.h"
+#include "rr/projection_state.h"
+#include "rr/renderer_setup.h"
+#include "rr/menu_arena_types.h"
+#include "rr/menu_selection.h"
+#include "rr/selection.h"
+#include "rr/course_choice_types.h"
+#include "rr/menu_glyph.h"
+#include "rr/ui.h"
+extern RrMenuArenas D_800F4D70;
+extern u8 *D_800102F0;
+extern void *D_800F4D40,*D_800ACC18;
+extern s32 D_800F2DE4,D_800ABEB0;
+extern s16 D_800AC64A,D_800AC5E0,ovl661_D_80118438;
+extern s16 ovl661_D_80118440[2][2],ovl661_D_8011844C[2],ovl661_D_80118450[2];
+extern RrCourseChoice4 ovl661_D_80118458[2][2][9];
+void func_8003A198(void);
+void func_8003A1B4(void);
+void func_80037110(void);
+void func_8002E4F4(RrRaceVehicle *);
+s32 func_800370BC(const RrCourseChoice4 *);
+/* Mode and fresh player selectors are0..1. Each group is0..1 and course0..8;
+ * count helpers inspect all nine records. The full selection owner has32 bytes.
+ * Setup callbacks may replace arenas and mutate every later selection. */
+void ovl661_func_80115598(s32 mode);
+#ifndef RR_PROJECTION_SCRATCH
+#define RR_PROJECTION_SCRATCH ((RrProjectionScratchPrefix *)0x1F800000U)
+#endif
+#endif

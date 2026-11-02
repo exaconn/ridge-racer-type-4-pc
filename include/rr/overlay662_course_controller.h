@@ -1,0 +1,40 @@
+#ifndef RR_OVERLAY662_COURSE_CONTROLLER_H
+#define RR_OVERLAY662_COURSE_CONTROLLER_H
+#include "rr/race.h"
+#include "rr/menu_transition.h"
+#include "rr/menu_selection.h"
+#include "rr/ui.h"
+#include "rr/badge_rows.h"
+#include "rr/tables.h"
+#include "rr/selection_types.h"
+#include "rr/course_choice_types.h"
+#include "rr/menu_arena_types.h"
+#include "rr/preview_rgb.h"
+#include "rr/frame_storage_types.h"
+extern RrCourseChoice4 D_800ABE08[2][9];
+extern RrMenuItemState5C D_800F3A38[2];
+extern RrSelectionRows D_800F4D98;
+extern RrMenuArenas D_800F4D70;
+extern void *D_800ACC18;
+extern u8 *D_800F2AB0;
+extern s32 D_800F2DE4,D_800AC5D4;
+extern s16 D_800AC64A,D_800F3A26;
+extern u16 D_800AC5D0,D_800F4C6A;
+extern s16 ovl662_D_801272D4,ovl662_D_801272E0,ovl662_D_801272E4;
+extern u16 ovl662_D_801272BA;
+void func_80033A74(s32);void func_8006EF8C(s32);s32 func_8003AE4C(s32,s32);
+void func_8002E394(RrRaceVehicle*);void func_8002E5A0(char*);
+void func_8002AF8C(s32,s32,s32);void func_8002B330(s32,s32,char*,s32,s32);
+void func_80037040(s8*,s32);s32 func_8003708C(void*);
+void func_8003A198(void);void func_80014A8C(s32);void func_8004F24C(s32);
+void func_8003EC88(s32);void func_80037198(s32);
+void func_8002CC88(RrRaceVehicle*,RrPreviewRgb3,s32,s32);
+void func_8003D6F0(s32);s32 func_8003FBA8(s32);
+void func_8002B12C(s32,s32,s32,s32,s32,s32,s32);void func_8002A344(s32);
+void func_800207D4(u32*,s32,u32);void ovl662_func_80118E6C(void);
+/* UI selection is0..3 and available-car selection0..8. Dynamic close counts
+ * require initialized rows. Services may replace full UI, badge, frame, mode
+ * and arena roots; the complete mode allocation and32-byte selection owner
+ * remain live. Readiness is a full signed word; RGB has three defined bytes. */
+void ovl662_func_801154C8(void);
+#endif

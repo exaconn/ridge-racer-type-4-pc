@@ -1,0 +1,18 @@
+#include "rr/diagnostics.h"
+#include "rr/overlay662_garage.h"
+#include "rr/menu_setup.h"
+extern const char ovl662_D_801148F0[];
+extern s16 D_800F4C6A,D_800F3A26,D_800F4D8A;
+void func_8003E928(s32,s32,s32,s32,s32,s32,s32,s32,s32,s32,...);
+void ovl662_func_8011A898(void) {
+    func_8001E84C(ovl662_D_801148F0);
+    ovl662_func_8011A788(0);
+    ovl662_D_801276A8.dirtyD3 = 0;
+    func_8002A604();
+    func_8003D228(0, 12, 304, 296, 88, 0, 0);
+    func_8003E928(0, 140, 136, 28, 32, 0, 0, 1, 0, 104);
+    func_8003E928(1, 140, 176, 28, 32, 0, 0, 1, 0, 105);
+    D_800F4C6A = 3;
+    D_800F3A26 = 4;
+    D_800F4D8A = 0;
+}

@@ -1,0 +1,27 @@
+#ifndef RR_OVERLAY662_PROGRESS_CONTROLLER_H
+#define RR_OVERLAY662_PROGRESS_CONTROLLER_H
+#include "rr/overlay662_setup.h"
+#include "rr/menu_transition.h"
+#include "rr/frame_environment.h"
+#include "rr/tables.h"
+#include "rr/overlay_menu.h"
+extern RrMenuItemState5C D_800F3A38[2];
+extern s16 D_800AC5D0;
+extern u16 ovl662_D_801272D8[4],ovl662_D_80127328[4][4];
+s32 func_8003B47C(void);
+void ovl662_func_80116690(void);
+void ovl662_func_80116808(void);
+void ovl662_func_80116960(void);
+void ovl662_func_8011512C(void);
+void func_800207D4(u32 *,s32,u32);
+void func_8003EC88(s32);
+void func_8003D6F0(s32);
+void func_8002A344(s32);
+/* Entry phase must be0,1,2,3,4 or8. PAL table slots5..7 and its default
+ * consume an unspecified saved register and are not controller states.
+ * Choice bytes0/1 remain0..3 across callbacks. Published roots cover a complete
+ * UI row, badge, four glyph rows and an enclosing frame ordering owner.
+ * All services may change globals; the badge state is captured before input.
+ * Nonzero glyph-step completion triggers navigation. Countdown wraps signed16. */
+void ovl662_func_801161FC(void);
+#endif

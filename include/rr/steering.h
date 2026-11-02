@@ -1,0 +1,27 @@
+#ifndef RR_STEERING_H
+#define RR_STEERING_H
+#include "rr/race_types.h"
+
+/* Active node comparisons require a positive track count. The curve-construction
+ * path uses a positive duration of at least four ticks, as in the original. */
+void func_80048DB0(RrRaceVehicle *vehicle);
+s32 func_80025F84(s32 first, s32 second);
+void func_8004D354(s32 *record, s32 first, s32 duration, s32 last);
+s32 func_8004D420(RrCurve24Fields *record, s32 time, s32 *output);
+extern s32 D_800ABECC;
+extern s16 D_800F3826, D_800F4D44;
+
+RR_ASSERT_SIZE(RrCurve24Fields, 0x18);
+RR_ASSERT_SIZE(RrCurve24, 0x18);
+RR_ASSERT_SIZE(RrSteeringState, 0x64);
+RR_ASSERT_OFFSET(RrSteeringState, primary34, 0x34);
+RR_ASSERT_OFFSET(RrSteeringState, secondary4C, 0x4C);
+RR_ASSERT_SIZE(RrRaceVehicle, 0x320);
+RR_ASSERT_OFFSET(RrRaceVehicle, lateralMotion178, 0x178);
+RR_ASSERT_OFFSET(RrRaceVehicle, steeringLock1B8, 0x1B8);
+RR_ASSERT_OFFSET(RrRaceVehicle, steering288, 0x288);
+RR_ASSERT_OFFSET(RrRaceVehicle, steeringEnabled318, 0x318);
+RR_ASSERT_SIZE(RrRaceVehicleControl, 0x12C);
+RR_ASSERT_OFFSET(RrRaceVehicleControl, steering94, 0x94);
+RR_ASSERT_OFFSET(RrRaceVehicleControl, steeringEnabled124, 0x124);
+#endif

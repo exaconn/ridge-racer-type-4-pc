@@ -1,0 +1,29 @@
+#ifndef RR_MODE_MENU_STATE_H
+#define RR_MODE_MENU_STATE_H
+
+#include "rr/menu_setup.h"
+#include "rr/frame_environment.h"
+#include "rr/driver_control.h"
+
+extern char D_800A457C[], D_800F4D50[24];
+extern s32 D_800AC5D4, D_800A45B8, D_800F4CA8, D_801272F0[3];
+extern s16 D_800AC594, D_800F3A1C, D_800F3AF8, D_800F4C6A;
+extern s16 D_800F4D3C, D_800F4D44, D_800FF688, D_800FFC00, D_800FFC18;
+extern s16 D_8010948C, D_8010948E, D_80109478[3];
+extern u16 D_800F3A26, D_800F4D8A;
+extern RrMenuSettings2C D_800F2E30[3], D_8010B258[3];
+
+void func_8002B75C(char *destination, char *source);
+s32 func_80035024(s32 mode);
+void func_80053BB4(s32 mode);
+s32 func_8003B934(void);
+void func_8002A344(s32 layout);
+
+/* The initial choice index is0..2. The name terminates within23 bytes and
+ * the text destination has24 bytes. Badge helpers may replace the live root;
+ * each replacement covers two complete RrBadgeRow1C records. Both settings
+ * arrays contain three complete records. Only the full word result1 from
+ * the readiness service completes state1. */
+void func_8007ABCC(void);
+
+#endif

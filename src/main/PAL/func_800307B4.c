@@ -1,0 +1,68 @@
+extern int func_8003D228(), func_8003D6F0(), func_8001FC28(), func_8001FD20(), func_80020074();
+extern int func_80030BEC(), func_8003069C(), func_80030F64(), func_8006E1AC(), func_8002E828();
+extern int func_800912B4(), func_800912D4(), func_80041BF0(), func_80030D9C();
+extern short D_8009F1A0[], D_8009F1B0[], D_8009F1C0[], D_8009F1D0[];
+extern unsigned short D_800F4D8A;
+extern char *D_800ACC14;
+extern signed char D_800AD4EF;
+typedef struct { short h0, h2, h4, h6, h8, ha, hc, he, h10, h12, h14, h16, h18, h1a, h1c, h1e, h20, h22, h24, h26, h28, h2a, h2c, h2e, h30, h32, h34, h36; } E1C;
+typedef struct { short h0, h2, h4, h6, h8, ha, hc, he, h10, h12, h14, h16, h18, h1a; } E28;
+extern char *D_800F3AFC;
+#define G ((E1C *)D_800F3AFC)
+
+void func_800307B4(a0) int a0;
+{
+    int s0, s1, t0;
+    char *p;
+    int one;
+    s1 = *(int *)0x1F800000;
+    if (a0 < 2 && D_800F4D8A == 0) {
+        s0 = 0;
+        do {
+            t0 = (s0 == 1 || s0 == 7) ? 8 : 0;
+            func_8003D228(s0, D_8009F1A0[s0], D_8009F1B0[s0], D_8009F1C0[s0], D_8009F1D0[s0], (short)t0, -1);
+            s0++;
+        } while (s0 < 8);
+        one = 1;
+        s0 = 7;
+        p = D_800F3AFC + 0xC4;
+        do {
+            *(short *)(p + 2) = one;
+            s0--;
+            p -= 0x1C;
+        } while (s0 >= 0);
+        goto end;
+    }
+    s0 = 0;
+    do {
+        func_8003D6F0(s0);
+        s0++;
+    } while (s0 < 8);
+    s1 = func_8001FC28(D_800ACC14 + 0x70, s1, 0, 0, 0x140, 0x200);
+    s1 = func_8001FD20(D_800ACC14 + 0x70, s1, 0x24, 0x60, 0xF8, 2, 8, 8, 8);
+    s1 = func_80020074(D_800ACC14 + 0x70, s1, G->h4 + 0x18, G->h6, 0x1C, 0x20, 0x7C, 0x3C, 0x4A, 0x2E29, 0, 0x80);
+    s1 = func_80020074(D_800ACC14 + 0x70, s1, G->h4 + 0x38, G->h6, 0xA8, 0x20, 0, 0, 0x4A, 0x2E28, 1, 0x80);
+    s1 = func_8001FC28(D_800ACC14 + 0x70, s1, G->h14, G->h16, G->h18, G->h1a);
+    s1 = func_80030BEC(s1, 0x12, 2);
+    s1 = func_8003069C(0xE, D_800ACC14 + 0x70, s1, G->h20, G->h22, 0x80);
+    s1 = func_8003069C(0xF, D_800ACC14 + 0x70, s1, G->h20 + 0x90, G->h22, 0x80);
+    s1 = func_8003069C(0x10, D_800ACC14 + 0x70, s1, G->h20, G->h22, 0x80);
+    s1 = func_8003069C(0x11, D_800ACC14 + 0x70, s1, G->h20 + 0x90, G->h22, 0x80);
+    s1 = func_80030F64(D_800ACC14 + 0x70, s1);
+    s1 = func_8001FC28(D_800ACC14 + 0x70, s1, G->h30, G->h32, G->h34, G->h36);
+    if (D_800AD4EF >= 4) {
+        *(int *)0x1F800000 = s1;
+        func_8006E1AC();
+        func_8002E828(2, 0x1F800028);
+        func_800912B4(0xA0, 0x100);
+        func_800912D4(0x100);
+        func_80041BF0(0, D_800ACC14 + 0x74, 1);
+        s1 = *(int *)0x1F800000;
+        s1 = func_8001FC28(D_800ACC14 + 0x74, s1, *(short *)(D_800F3AFC + 0xD8), *(short *)(D_800F3AFC + 0xDA), *(short *)(D_800F3AFC + 0xDC), *(short *)(D_800F3AFC + 0xDE));
+    }
+    if (a0 >= 0x3D) {
+        s1 = func_80030D9C(s1, G->h10 == 3 ? (a0 - 0x3C) * 2 : 0);
+    }
+end:
+    *(int *)0x1F800000 = s1;
+}

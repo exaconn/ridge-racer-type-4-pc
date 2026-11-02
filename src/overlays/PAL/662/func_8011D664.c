@@ -1,0 +1,22 @@
+#include "rr/overlay662_input.h"
+
+void ovl662_func_8011D664(RrGaragePoint *output)
+{
+    RrGaragePoint point;
+    u32 buttons;
+    s32 step;
+    func_80096454(&point,0,4);
+    if (D_800F3A38[0].type01 != 0x12) {
+        buttons = D_800F3A38[0].buttons02;
+        step=1;
+        if (buttons & 8) step=4;
+        if (buttons & 0x1000) point.y=-(step*2);
+        if (buttons & 0x4000) point.y=step*2;
+        if (buttons & 0x8000) point.x=-step;
+        if (buttons & 0x2000) point.x=step;
+    }
+    if ((u16)point.x | (u16)point.y) {
+        output->x=point.x;
+        output->y=point.y;
+    }
+}

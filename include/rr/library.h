@@ -1,0 +1,254 @@
+#ifndef RR_LIBRARY_H
+#define RR_LIBRARY_H
+
+#include "rr/layout.h"
+#include "rr/spu.h"
+
+/* Partial library layouts. Names describe observed sizes, not identified SDK types.
+ * Keep the byte-only and halfword views separate: their alignment differs. */
+
+typedef struct {
+    char b[16];
+    u16 h10, h12;
+    char r[16];
+} RrLibBlock24Fields;
+
+typedef struct {
+    char b[36];
+} RrLibBlock24;
+
+typedef struct {
+    u8 *c0;
+    s32 c4;
+    u8 *c8; /* Saved loop cursor, restored by controller 30. */
+    s32 cC;
+    u8 *p10; /* Stream marker checked before repeat/reset dispatch. */
+    u8 b14, b15, b16;
+    u8 b17, b18, b19, b1a, b1b, b1c, b1d, b1e, b1f;
+    /* b20 is compared as signed; b21 increments modulo 256. */
+    s8 b20;
+    u8 b21;
+    s8 b22[2];
+    char p24[2];
+    s8 b26;
+    u8 b27[0x10];
+    u8 b37[0x10];
+    char p47[1];
+    s16 h48[8];
+    u16 h58[4];
+    u16 h60[0x10];
+    s16 h80;
+    char p82[6];
+    s32 w88;
+    s32 w8c;
+    s32 w90;
+    s32 w94;
+    s32 w98;
+    s32 w9c;
+    s32 wa0, wa4, wa8, wac;
+    char pb0[0];
+} RrLibStateB0;
+
+typedef struct {
+    u32 value;
+} __attribute__((packed)) RrLibPackedWord;
+
+/* Partial layout of the 0x20-byte entries referenced by D_80110310. */
+typedef struct {
+    u16 state;
+    u8 pad02[6];
+    s32 value08;
+    u8 pad0C[4];
+    u16 width10,height12;
+    u8 pad14[8];
+    RrLibPackedWord word1C;
+} RrLibQueueRecord32;
+
+extern RrLibQueueRecord32 *D_80110310;
+void func_8008BE14(RrLibQueueRecord32 *first, s32 second);
+void func_8008F6D4(s32 a, s32 b, s32 c, s32 d, s32 e);
+extern s32 D_801102FC, D_80110304, D_80110314;
+/* Buffer must contain the configured header table and its 0x7E0-byte payload slots. */
+s32 func_8008F854(u8 **data, RrLibQueueRecord32 **header);
+
+RR_ASSERT_SIZE(RrLibPackedWord, 4);
+RR_ASSERT_SIZE(RrLibQueueRecord32, 0x20);
+RR_ASSERT_OFFSET(RrLibQueueRecord32, value08, 8);
+RR_ASSERT_OFFSET(RrLibQueueRecord32, width10, 0x10);
+RR_ASSERT_OFFSET(RrLibQueueRecord32, height12, 0x12);
+RR_ASSERT_OFFSET(RrLibQueueRecord32, word1C, 0x1C);
+
+/* Prefix at D_800ABAC2. Width/height also have assembler aliases
+ * D_800ABAC4 and D_800ABAC6, used by drawing-area coordinate helpers. */
+typedef struct {
+    u8 level,mode;
+    s16 width,height;
+} RrGpuDebugSettings;
+extern RrGpuDebugSettings D_800ABAC2;
+extern s32 (*D_800ABABC)(const char *,...);
+RR_ASSERT_SIZE(RrGpuDebugSettings, 6);
+RR_ASSERT_OFFSET(RrGpuDebugSettings, width, 2);
+RR_ASSERT_OFFSET(RrGpuDebugSettings, height, 4);
+
+/* Observed graphics driver prefix used by DrawOTag dispatch. */
+/* PAL addresses are 32 bits; unsigned long also retains native LP64 pointers. */
+typedef void (*RrLibDrawOrderingTable)(unsigned long address);
+typedef struct {
+    u8 reserved00[8];
+    s32 (*dispatch)(RrLibDrawOrderingTable, s32, s32, s32);
+    u8 reserved0C[12];
+    RrLibDrawOrderingTable draw_ordering_table;
+} RrLibGraphicsDriverPrefix;
+
+RR_ASSERT_SIZE(RrLibGraphicsDriverPrefix, 0x1C);
+RR_ASSERT_OFFSET(RrLibGraphicsDriverPrefix, dispatch, 8);
+RR_ASSERT_OFFSET(RrLibGraphicsDriverPrefix, draw_ordering_table, 0x18);
+
+typedef void (*RrLibInterruptCallback)(void);
+typedef RrLibInterruptCallback (*RrLibInterruptExchange)(s32, RrLibInterruptCallback);
+
+/* DMA callback table has eight slots (initialization clears all eight).
+ * Registration has no bounds check; channel must be in 0..7. */
+extern RrLibInterruptCallback D_800A63A4[8];
+extern volatile u32 *D_800A63A0;
+RrLibInterruptCallback func_8008BD10(s32 channel, RrLibInterruptCallback callback);
+RrLibInterruptExchange func_8008BB44(void);
+void func_8008BB90(void);
+void func_8008BDBC(RrLibInterruptCallback *callbacks, s32 count);
+
+/* Prefix of the callback driver referenced by D_800A6350. */
+typedef struct {
+    RrLibInterruptCallback reserved;
+    RrLibInterruptExchange exchange;
+    RrLibInterruptExchange install;
+    void (*reset)(void);
+} RrLibInterruptDriverPrefix;
+
+extern RrLibInterruptDriverPrefix *D_800A6350;
+extern void func_8008B364(void);
+RrLibInterruptCallback func_8008B3C4(s32 channel, RrLibInterruptCallback callback);
+RrLibInterruptCallback func_8007F764(RrLibInterruptCallback callback);
+RrLibInterruptCallback func_8008B394(s32 channel, RrLibInterruptCallback callback);
+
+RR_ASSERT_SIZE(RrLibInterruptDriverPrefix, 0x10);
+RR_ASSERT_OFFSET(RrLibInterruptDriverPrefix, exchange, 4);
+RR_ASSERT_OFFSET(RrLibInterruptDriverPrefix, install, 8);
+RR_ASSERT_OFFSET(RrLibInterruptDriverPrefix, reset, 0xC);
+
+typedef void (*RrLibDataCallback)(s32, u8 *);
+void func_8008DDAC(void);
+
+typedef void (*RrLibCompletionCallback)(void);
+typedef void (*RrLibNotificationCallback)(s32, s32);
+
+extern RrLibDataCallback D_800A6488, D_800A648C;
+extern RrLibNotificationCallback D_800A63F0;
+extern u32 D_800A63F4;
+s32 func_8008BE44(void);
+void func_8008BF10(s32 selector, u8 *data);
+void func_8008BF38(s32 selector, u8 *data);
+void func_8008BF60(s32 event, s32 argument);
+
+/* Partial state updated by the multi-step library transfer callback. */
+typedef struct {
+    u8 pad00[8];
+    u32 position08;
+    u8 pad0C[4];
+    u32 step10, remaining14;
+    u8 pad18[8];
+    u32 completed20, finished24;
+    u8 pad28[4];
+    RrLibCompletionCallback restore2C, restore30;
+    s32 notify_arg34;
+} RrLibTransferState38;
+
+RR_ASSERT_SIZE(RrLibTransferState38, 0x38);
+RR_ASSERT_OFFSET(RrLibTransferState38, position08, 8);
+RR_ASSERT_OFFSET(RrLibTransferState38, step10, 0x10);
+RR_ASSERT_OFFSET(RrLibTransferState38, remaining14, 0x14);
+RR_ASSERT_OFFSET(RrLibTransferState38, completed20, 0x20);
+RR_ASSERT_OFFSET(RrLibTransferState38, finished24, 0x24);
+RR_ASSERT_OFFSET(RrLibTransferState38, restore2C, 0x2C);
+RR_ASSERT_OFFSET(RrLibTransferState38, restore30, 0x30);
+RR_ASSERT_OFFSET(RrLibTransferState38, notify_arg34, 0x34);
+
+/* Named-entry table beginning at D_80110954. A zero key terminates the scan. */
+typedef struct {
+    s32 key;
+    s32 value;
+    char name[0x24];
+} RrLibNamedEntry;
+
+RR_ASSERT_SIZE(RrLibNamedEntry, 0x2C);
+RR_ASSERT_OFFSET(RrLibNamedEntry, name, 8);
+
+/* Prefix of the saved state at D_800A52C8; callback data begins at 0x38. */
+typedef struct {
+    u16 active;
+    s16 dispatching02;
+    RrLibInterruptCallback callbacks[11];
+    u16 enabled_mask;
+    u16 register16;
+    s32 register32;
+    u8 callback_data[4];
+} RrLibSavedState;
+
+/* IRQ selector must be in the callback-table range 0..10. */
+RrLibInterruptCallback func_8008B7A0(s32 selector, RrLibInterruptCallback callback);
+
+RR_ASSERT_SIZE(RrLibSavedState, 0x3C);
+RR_ASSERT_OFFSET(RrLibSavedState, dispatching02, 2);
+RR_ASSERT_OFFSET(RrLibSavedState, callbacks, 4);
+RR_ASSERT_OFFSET(RrLibSavedState, enabled_mask, 0x30);
+RR_ASSERT_OFFSET(RrLibSavedState, register16, 0x32);
+RR_ASSERT_OFFSET(RrLibSavedState, register32, 0x34);
+RR_ASSERT_OFFSET(RrLibSavedState, callback_data, 0x38);
+
+/* Bank reset requires a low-halfword bank index in the 32-entry table (0..31). */
+void func_8007F794(s32 bank);
+void func_8007F910(s32 bank);
+void func_8007F934(s32 bank);
+
+/* Callback entry points use full argument registers; selectors narrow inside. */
+typedef void (*RrLibControllerCallback)(s32 bank, s32 row, s32 value);
+typedef void (*RrLibControllerResetCallback)(s32 bank, s32 row);
+extern RrLibControllerCallback D_8010EFE0, D_8010EFE4, D_8010EFE8, D_8010EFEC;
+extern RrLibControllerCallback D_8010EFF0, D_8010EFF4, D_8010EFF8, D_8010EFFC;
+extern RrLibControllerCallback D_8010F000, D_8010F004;
+extern RrLibControllerCallback D_8010F0E8[][16];
+extern RrLibControllerResetCallback D_8010F008;
+extern void func_80080434(s32 bank, s32 row, s32 value);
+void func_80080504(s32 bank, s32 row, s32 value);
+extern void func_800806C4(s32 bank, s32 row, s32 value);
+void func_80080774(s32 bank, s32 row, s32 value);
+void func_80086554(s32 left, s32 right);
+void func_80080804(s32 bank, s32 row, s32 value);
+void func_80080904(s32 bank, s32 row, s32 value);
+void func_800805D4(s32 bank, s32 row, s32 value);
+extern void func_80080A44(s32 bank, s32 row, s32 value);
+extern void func_80080AB4(s32 bank, s32 row, s32 value);
+extern void func_80080B24(s32 bank, s32 row);
+extern void func_80081804(s32 bank, s32 row);
+extern void func_800818B4(s32 bank, s32 row, s32 control);
+extern void func_80081D94(s32 bank, s32 row, s32 value);
+extern s32 func_80081E04(s32 bank, s32 row);
+extern void func_80089FA4(s32 channel, s32 device, s32 slot, u32 pitch, u32 value);
+
+RR_ASSERT_SIZE(RrLibBlock24Fields, 0x24);
+RR_ASSERT_OFFSET(RrLibBlock24Fields, h10, 0x10);
+RR_ASSERT_OFFSET(RrLibBlock24Fields, h12, 0x12);
+RR_ASSERT_SIZE(RrLibBlock24, 0x24);
+RR_ASSERT_SIZE(RrLibStateB0, 0xb0);
+RR_ASSERT_OFFSET(RrLibStateB0, c8, 8);
+RR_ASSERT_OFFSET(RrLibStateB0, p10, 0x10);
+RR_ASSERT_OFFSET(RrLibStateB0, b20, 0x20);
+RR_ASSERT_OFFSET(RrLibStateB0, b21, 0x21);
+RR_ASSERT_OFFSET(RrLibStateB0, h48, 0x48);
+RR_ASSERT_OFFSET(RrLibStateB0, w88, 0x88);
+RR_ASSERT_OFFSET(RrLibStateB0, w94, 0x94);
+RR_ASSERT_OFFSET(RrLibStateB0, w98, 0x98);
+RR_ASSERT_OFFSET(RrLibStateB0, wac, 0xac);
+
+s32 func_800865E4(s32 value);
+
+#endif

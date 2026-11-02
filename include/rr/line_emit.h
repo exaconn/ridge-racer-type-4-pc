@@ -1,0 +1,7 @@
+#ifndef RR_LINE_EMIT_H
+#define RR_LINE_EMIT_H
+#include "types.h"
+/* Four coordinate halfwords and three RGB bytes, matching the resident entry.
+ * The renderer reads these arrays and emits one LINE_F2 packet. */
+void func_8004D290(u16 coordinates[4],u8 rgb[3],s32 blend,s32 depth);
+#endif

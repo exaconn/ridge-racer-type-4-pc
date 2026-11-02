@@ -1,0 +1,204 @@
+#include "draft_context.h"
+void func_80114908(void) {
+    register u8 *vehicle __asm__("$17");
+    register u8 *paused __asm__("$16");
+    register u8 *flagged __asm__("$4");
+    register u8 *published __asm__("$5");
+    register u8 *settings __asm__("$2");
+    register u8 *records __asm__("$19");
+    register void **scratch __asm__("$20");
+    s32 temp_v0;
+    s32 temp_v1_2;
+    s32 var_a2;
+    s8 temp_v1;
+    void *temp_v0_2;
+
+    D_800F2DE4 += 1;
+    func_8006EF8C(0);
+    if ((u32) (D_800FF6B0 - 1) < 2U) {
+        if (D_800F3A40 & 0x800) {
+            if ((s16) D_800AC5D0 <= 0) {
+                D_800AC5D0 = 0xF;
+                temp_v1 = D_800F4C68 == 0;
+                D_800F4C68 = temp_v1;
+                if (temp_v1 != 0) {
+                    func_8004FA04();
+                    D_800F2FDC = 0;
+                } else {
+                    func_800348E8((s32) D_800F4D44);
+                    func_8004FA50();
+                }
+            } else {
+                goto block_7;
+            }
+        } else {
+            goto block_6;
+        }
+    } else {
+block_6:
+        if ((s16) D_800AC5D0 > 0) {
+block_7:
+            if (D_800FF6B0 < 4) {
+                D_800AC5D0 -= 1;
+            }
+        }
+    }
+    if (D_800F4C68 != 0) {
+        func_80034844(D_800F4D44);
+        D_800F2DE4 -= 1;
+        func_8003BFC8();
+        func_800349F4(D_800ACC14 + 0x70, (s32) D_800F2FDC);
+        func_8002BA28(0);
+        func_8002BC7C(D_800AC5A4);
+        func_80033F3C(D_800ACC14 + 0x70, (u32) D_800F2DE4);
+        func_80021350(D_800F4C70, 0);
+        func_800211A4();
+        paused = D_800ABEF8;
+        __asm__("" : "+r"(paused));
+        func_80021684((M2C_FIELD(paused, s16 *, 0x1D8) * 0xA0) / 1168, 0);
+        func_800219BC(M2C_FIELD(paused, s16 *, 0x27A), 0);
+        func_80021A7C(M2C_FIELD(paused, s16 *, 0x1EE), 0);
+        func_80021E2C(0);
+        func_80022098(D_800ACC14 + 0x70, 0);
+        func_80021C00(0);
+        func_80020B10(D_800F4D44);
+        func_8006E1AC();
+        func_8002E0D8(0);
+        *(s32 *)0x1F800078 = D_800F2A64;
+        func_8006ECE8();
+        func_800747EC(0);
+        func_80036FD4(0);
+        func_80070734(D_800ABEB0);
+        return;
+    }
+    D_800ABEB0 += 1;
+    if ((u32) (D_800FF6B0 - 2) < 2U) {
+        temp_v0 = D_800AC5A4 - 1;
+        D_800AC5A4 = temp_v0;
+        if (temp_v0 <= 0) {
+            D_800FF6B0 = 5;
+            D_800AC0E6 = 9;
+            D_800AC5D0 = 0x25;
+            D_800F2A68 = -D_800F2EB8;
+            func_8004FC18(0, 0x21);
+        }
+    }
+    if (D_800AC6EC != 0) {
+        if (D_800FF6B0 == 0) {
+            D_800ABEB0 = 0x4B;
+            D_800F2DE4 = 0x4B;
+            func_8004FED4();
+            D_800FF6B0 = 1;
+            flagged = D_800ABEF8;
+            __asm__("" : "+r"(flagged));
+            M2C_FIELD(flagged, u16 *, 0x1E4) = (u16) (M2C_FIELD(flagged, u16 *, 0x1E4) | 0x100);
+            func_800172DC();
+            func_80014A8C(-1);
+        } else {
+            goto block_18;
+        }
+    } else {
+block_18:
+        if (D_800FF6B0 == 1) {
+            if ((u32) D_800F2DE4 >= 0xB0U) {
+                func_80022CD4((s32 *) D_800ABEF8);
+                D_800FF6B0 = 2;
+                func_80052A30(1);
+            }
+        } else if (D_800FF6B0 >= 4) {
+            if ((s16) D_800AC5D0 < 0x19) {
+                var_a2 = 0x45;
+                if ((s32) D_80116530[(s32) ((u8) D_800AD4EF << 0x18) >> 0x19] >= M2C_FIELD(D_800FFC20, s16 *, 0x1EE)) {
+                    var_a2 = 0x25;
+                }
+                func_800207D4(D_800ACC14 + 0x70, (0x19 - (s16) D_800AC5D0) * 0xA, var_a2);
+            }
+            if ((s16) D_800AC5D0 <= 0) {
+                settings = D_800AD4D8;
+                published = D_800ABEF8;
+                __asm__("" : "+r"(settings), "+r"(published));
+                M2C_FIELD(settings, u8 *, 0x19) = (u8) M2C_FIELD(published, s16 *, 0x1EE);
+                if ((s32) D_80116530[(s8) M2C_FIELD(settings, u8 *, 0x17) / 2] >= M2C_FIELD(published, s16 *, 0x1EE)) {
+                    if (D_800FF6B0 == 4) {
+                        D_800F4C6A = 1;
+                        D_800F3A26 = 0x15;
+                        D_800F4D8A = 0;
+                    } else {
+                        goto block_30;
+                    }
+                } else {
+block_30:
+                    func_8003660C();
+                }
+            } else {
+                D_800AC5D0 -= 1;
+            }
+        }
+    }
+    vehicle = D_800ABEF8;
+    __asm__("" : "+r"(vehicle));
+    func_8003C254((s32 *)vehicle);
+    if (D_800FF6B0 < 4) {
+        func_80033F3C(D_800ACC14 + 0x70, (u32) D_800F2DE4);
+        func_80034630((u32) D_800F2DE4);
+    }
+    func_8003C96C();
+    func_800396E4((s32 *) vehicle);
+    if ((u32) (D_800FF6B0 - 1) < 3U) {
+        func_8002BA28(0);
+        func_8002BC7C(D_800AC5A4);
+        func_80021350(D_800F4C70, 0);
+        func_800211A4();
+        func_80021684((M2C_FIELD(vehicle, s16 *, 0x1D8) * 0xA0) / 1168, 0);
+        func_800219BC(M2C_FIELD(vehicle, s16 *, 0x27A), 0);
+        func_80021A7C(M2C_FIELD(vehicle, s16 *, 0x1EE), 0);
+        func_80021E2C(0);
+        func_80022098(D_800ACC14 + 0x70, 0);
+        func_80021C00(0);
+        func_80020B10(D_800F4D44);
+    }
+    func_80037D88(D_800F4D44);
+    if (D_800FF6B0 == 0) {
+        func_80045868((s32 *) vehicle);
+    } else if (D_800FF6B0 == 7) {
+        func_80033808(vehicle + 0x320);
+    } else {
+        func_80033BE4((s32 *) vehicle);
+    }
+    func_800735D8(0);
+    func_8006E1AC();
+    func_8002E0D8(0);
+    if (D_800AC0E2 != D_800AD522) {
+        func_800225DC(0);
+    }
+    scratch = (void **)0x1F800000;
+    __asm__("" : "+r"(scratch));
+    scratch[30] = (void *)D_800F2A64;
+    func_8006ECE8();
+    func_800747EC(0);
+    func_80036FD4(0);
+    func_80070734(D_800ABEB0);
+    if (D_800FF6B0 == 0) {
+        temp_v0_2 = func_8001FC28(D_800ACC14 + 0x78, scratch[0], 0, 0, 0x140, 0x100);
+        scratch[0] = temp_v0_2;
+        records = D_800ADAF0;
+        __asm__("" : "+r"(records));
+        M2C_FIELD(records, s8 *, 0x22790) = 1;
+        M2C_FIELD(records, s8 *, 0x18) = 1;
+        scratch[0] = func_8001FC28(D_800ACC14 + 0xB68, temp_v0_2, 0, D_80107190, 0x140, 0x100 - (D_80107190 * 2));
+        temp_v1_2 = D_80107190 - 0x10;
+        D_80107190 = temp_v1_2;
+        if (temp_v1_2 < 0) {
+            D_80107190 = 0;
+            M2C_FIELD(records, s8 *, 0x22790) = 0;
+            M2C_FIELD(records, s8 *, 0x18) = 0;
+        }
+    }
+    func_8005007C(D_800F4C70, D_800F2AB4, 0);
+    if (D_800FF6B0 >= 4) {
+        func_80036030();
+        if (D_800FF6B0 == 6) {
+            func_80036068();
+        }
+    }
+}

@@ -1,0 +1,24 @@
+#ifndef RR_MENU_TEXT_ROWS_H
+#define RR_MENU_TEXT_ROWS_H
+#include "rr/layout.h"
+
+/* Full text-row storage. The renderer addresses rows with a60-byte stride. */
+/* Signed animation bytes and the two marquee spans share the real row owner. */
+typedef union {
+ u8 bytes[60];
+ s8 signedBytes[60];
+ struct {u8 prefix[4];u8 at4[24];u8 at28[32];} marquee;
+ struct {u8 prefix[0x34];s16 d34;u16 e36;u8 suffix[4];} state;
+} RrMenuTextRow60;
+extern RrMenuTextRow60 D_800FFC48[],*D_800FFC14;
+extern s32 D_800F4D30;
+/* Publish the full storage pointer, clear60*count bytes and return that captured
+ * byte count. Count is in0..35791394 and the supplied owner covers all rows. */
+s32 func_800402F4(RrMenuTextRow60 *rows);
+/* BIOS A0/28 bzero. Count bytes belong to the supplied allocation. */
+void func_80096434(void *destination,u32 bytes);
+void func_80040338(s32 row,s32 position,s32 group,s32 mode,s32 label);
+RR_ASSERT_SIZE(RrMenuTextRow60,60);
+RR_ASSERT_OFFSET(RrMenuTextRow60,marquee,0);
+RR_ASSERT_OFFSET(RrMenuTextRow60,state,0);
+#endif

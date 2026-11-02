@@ -1,0 +1,69 @@
+#include "draft_context.h"
+void func_801159E8(void) {
+    s32 var_v1;
+    register s32 arg0 __asm__("$4"), arg1 __asm__("$5"), arg2 __asm__("$6"), arg3 __asm__("$7"), count __asm__("$2");
+    u8 *settings;
+    u8 *state;
+    register s32 *scratch __asm__("$3");
+    register s32 selection __asm__("$3");
+
+    if (D_800F4D8A == 0) {
+        D_800F2DE4 = 0;
+        D_800ABEB0 = 0;
+        D_800AC64A = 0;
+        D_800AC5E0 = 3;
+        func_80053CB0();
+        func_8003A198();
+        func_8002A604();
+        func_8003A1B4();
+        D_800ACC18 = D_800F4D74;
+        func_8003E928(0, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x54);
+        func_8003E928(1, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 1, 0xC);
+        func_8003E928(2, 0xC, 0x90, 0x44, 0x20, 0, 0, 1, 0, 0x1D);
+        arg0 = 3; arg1 = 12; arg2 = 0x170; arg3 = 0xD0; count = 8;
+        __asm__("" : "+r"(arg0), "+r"(arg1), "+r"(arg2), "+r"(arg3), "+r"(count));
+        settings = D_800AD4D8;
+        __asm__("" : "+r"(settings));
+        func_8003E928(arg0, arg1, arg2, arg3, 0x20, 0, 0, count, 4, (selection = M2C_FIELD(settings, s8 *, 0x17)));
+        func_8003E928(4, 0x74, 0x58, 0x1C, 0x20, 0, 0, 1, 0, 0x37);
+        func_8003E928(5, 0x74, 0x80, 0x1C, 0x20, 0, 0, 1, 0, 0x38);
+        func_8003E928(6, 0x18, 0x58, 0x44, 0x20, 0, 0, 1, 0, 0x53);
+        var_v1 = 0;
+        do {
+            if (var_v1 == M2C_FIELD(settings, s8 *, 0x17)) {
+                M2C_FIELD(&D_800F4D80[var_v1], s8 *, 0x78) = 2;
+            } else {
+                M2C_FIELD(&D_800F4D80[var_v1], s8 *, 0x78) = 0;
+            }
+            var_v1 += 1;
+        } while (var_v1 < 8);
+        state = D_800ABEF8;
+        __asm__("" : "+r"(state) : : "$3");
+        scratch = (s32 *)0x1F800000;
+        scratch[6] = 0x200;
+        scratch[7] = 0;
+        scratch[8] = 0;
+        scratch[2] = 0;
+        scratch[3] = -0x1A0;
+        scratch[4] = 0;
+        M2C_FIELD(state, s32 *, 0x340) = 0;
+        M2C_FIELD(state, s32 *, 0x344) = 0;
+        M2C_FIELD(state, s32 *, 0x348) = 0;
+        func_8002E4F4(state);
+        M2C_FIELD(state, s32 *, 0x24) = 0xA;
+        M2C_FIELD(state, s32 *, 0x28) = 0x134;
+        M2C_FIELD(state, s32 *, 0x54) = 0xA00;
+        D_800F4D8A = 1;
+    } else if (D_800F4D8A == 1) {
+        if (func_8003BAB0() == 1) {
+            D_800F4D8A = 2;
+        }
+    } else if (D_800F4D8A == 2) {
+        func_80052800();
+        func_800528A8(0, 2);
+        D_800F4C6A = 1;
+        D_800F3A26 = 0x12;
+        D_800F4D8A = 0;
+    }
+    func_8002A344(0x1002E);
+}

@@ -1,0 +1,50 @@
+{
+  "entry": 659,
+  "aliases": [
+    670
+  ],
+  "load_address": 2148616312,
+  "image_size": 8192,
+  "functions": [
+    {
+      "address": 2148616396,
+      "size": 60,
+      "source": "src/overlays/PAL/659/func_801148CC.c"
+    },
+    {
+      "address": 2148616456,
+      "size": 1988,
+      "source": null,
+      "reference_asm": "asm/overlays/PAL/659/func_80114908.s"
+    },
+    {
+      "address": 2148618444,
+      "size": 344,
+      "source": null,
+      "reference_asm": "asm/overlays/PAL/659/func_801150CC.s"
+    },
+    {
+      "address": 2148618788,
+      "size": 1680,
+      "source": null,
+      "reference_asm": "asm/overlays/PAL/659/func_80115224.s"
+    },
+    {
+      "address": 2148620468,
+      "size": 308,
+      "source": "src/overlays/PAL/659/func_801158B4.c"
+    },
+    {
+      "address": 2148620776,
+      "size": 764,
+      "source": null,
+      "reference_asm": "asm/overlays/PAL/659/func_801159E8.s"
+    },
+    {
+      "address": 2148621540,
+      "size": 2124,
+      "source": null,
+      "reference_asm": "asm/overlays/PAL/659/func_80115CE4.s"
+    }
+  ]
+}

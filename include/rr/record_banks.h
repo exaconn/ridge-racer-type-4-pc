@@ -1,0 +1,31 @@
+#ifndef RR_RECORD_BANKS_H
+#define RR_RECORD_BANKS_H
+#include "rr/layout.h"
+
+/* Complete snapshot payload. The HUD projects signed map coordinates at20/28;
+ * bank management also interprets the signed status/count halfword at1E4. */
+typedef struct {
+    u32 prefix00[8];
+    s32 x20;u32 word24;s32 y28;
+    u32 reserved2C[110];
+    s16 value1E4;
+    u16 pad1E6;
+    u32 suffix[78];
+} RrBankRecord320;
+extern s32 D_800AC5A8,D_800AD504,D_800ADAC8,D_80107188;
+extern s16 D_800AC59C;
+extern RrBankRecord320 *D_800AC570[],*D_800FFC20[];
+extern u8 D_800FFC48[];
+extern u8 *D_800AD510[];
+
+/* Mode2 restores the live signed count of records; source/destination records
+ * must be identical or disjoint, four-byte-aligned, and their slots accessible.
+ * Other modes configure layout1(two banks/four records), layout2(four/four),
+ * or the default(one/eight). Arena storage must cover0x60E8 bytes, aligned4.
+ * Pointer slots retain native pointer widths; arena byte offsets stay fixed. */
+void func_800293D0(s32 layout,s32 mode);
+RR_ASSERT_SIZE(RrBankRecord320,0x320);
+RR_ASSERT_OFFSET(RrBankRecord320,x20,0x20);
+RR_ASSERT_OFFSET(RrBankRecord320,y28,0x28);
+RR_ASSERT_OFFSET(RrBankRecord320,value1E4,0x1E4);
+#endif

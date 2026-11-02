@@ -1,0 +1,35 @@
+void func_8005D40C(a0) int a0; {
+    int *g = (int *)0x1F800000;
+    char *p = (char *)g[0];
+    int h;
+    int u;
+    int t;
+    int k;
+    p[3] = 9;
+    p[7] = 0x2D;
+    *(short *)(p + 0xA) = 0x70;
+    *(short *)(p + 0x12) = 0x70;
+    *(short *)(p + 0x1A) = 0x170;
+    *(short *)(p + 0x22) = 0x170;
+    h = a0 / 2;
+    *(short *)(p + 0x10) = 0x120;
+    *(short *)(p + 0x20) = 0x120;
+    u = (a0 - h * 2) << 7;
+    p[0xD] = u;
+    p[0x15] = u;
+    u += 0x7F;
+    *(short *)(p + 0x16) = ((((h << 6) + 0x140) & 0x3FF) >> 6) | 0x10;
+    p[0x1D] = u;
+    p[0x25] = u;
+    *(short *)(p + 8) = 0x20;
+    *(short *)(p + 0x18) = 0x20;
+    p[0xC] = 0;
+    p[0x14] = 0xFF;
+    p[0x1C] = 0;
+    p[0x24] = 0xFF;
+    *(short *)(p + 0xE) = 0x1BD6;
+    *(int *)p = (*(int *)p & 0xFF000000) | (*(int *)(g[1] + 4) & 0xFFFFFF);
+    t = g[1];
+    *(int *)(t + 4) = (*(int *)(t + 4) & 0xFF000000) | ((int)p & 0xFFFFFF);
+    g[0] = (int)(p + 0x28);
+}

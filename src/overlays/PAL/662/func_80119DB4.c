@@ -1,0 +1,9 @@
+#include "rr/overlay662_transition.h"
+
+void ovl662_func_80119DB4(void) {
+    ovl662_func_80119B44();
+    D_800F4C6A = 1;
+    D_800F3A26 = 0x46;
+    D_800F4D8A = 0;
+    func_8002A344(0x10002);
+}

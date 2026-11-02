@@ -1738,6 +1738,8 @@ segments:
       - [0x87f10, asm, main_80097710]
       - [0x87f14, hasm, func_80097714]
       - [0x87f20, asm, main_80097720]
+      - [0x87f24, c, func_80097724]
+      - [0x87f38, c, func_80097738]
       - [0x87f4c, hasm, func_8009774C]
       - [0x87fbc, asm, main_800977BC]
       - [0x87fc4, hasm, func_800977C4]

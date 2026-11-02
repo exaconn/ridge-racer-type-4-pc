@@ -1,0 +1,144 @@
+typedef signed char s8;
+typedef unsigned char u8;
+typedef signed short s16;
+typedef unsigned short u16;
+typedef signed int s32;
+typedef unsigned int u32;
+
+typedef struct {
+    char pad0[0xA];
+    s16 unkA;
+} Unk210;
+
+typedef struct {
+    char pad0[0xB];
+    u8 unkB;
+} UnkF3A08;
+
+typedef struct {
+    char pad0[0x54];
+    s32 unk54;
+    char pad58[0x84];
+    s16 unkDC[4];
+    s16 unkE4[4];
+    char padEC[0x1C];
+    s32 unk108;
+    s16 unk10C;
+    s16 unk10E;
+    char pad110[0x98];
+    s16 unk1A8;
+    s16 unk1AA;
+    s16 unk1AC;
+    s16 unk1AE;
+    char pad1B0[0xC];
+    s16 unk1BC[4];
+    char pad1C4[0x10];
+    s16 unk1D4;
+    s16 unk1D6;
+    s16 unk1D8;
+    s16 unk1DA;
+    s16 unk1DC;
+    s16 unk1DE;
+    char pad1E0[0x4];
+    u16 unk1E4;
+    u16 unk1E6;
+    char pad1E8[0x28];
+    Unk210 *unk210;
+    char pad214[0x34];
+    s32 unk248;
+} CarState;
+
+extern s32 func_80025FBC(s16, s32);
+extern s32 func_8006E368(s16, s32);
+extern s32 func_80090424(s32);
+extern UnkF3A08 *D_800F3A08[];
+
+void func_8002C638(CarState *arg0) {
+    s32 s1;
+    s32 s2;
+    s32 s3;
+    s32 v0;
+    s32 i;
+
+    s3 = 0;
+    s2 = (arg0->unk1DA - arg0->unk1D8) * 4;
+    if (arg0->unk1E4 & 0x10) {
+        s1 = func_80025FBC(arg0->unk1D4, arg0->unk54) * 4;
+        if (arg0->unk210->unkA != 0) {
+            s3 = (func_80090424((arg0->unk248 << 5) & 0xFE0) * arg0->unk1DE) / 8128;
+        }
+    } else {
+        s1 = func_80025FBC(arg0->unk1D6, arg0->unk54) * 4;
+    }
+
+    if ((v0 = arg0->unk1D8 < 1000)) {
+        s1 = (s1 * v0) / 1800;
+    } else {
+        s1 = (s1 * 1000) / 1800;
+    }
+
+    /* ASM_BARRIER: increase s2 ref count so global.c allocates $s2 before $s3 */
+    __asm__("" : : "r"(s2));
+    if (s2 < -0x10) {
+        arg0->unk1DE -= 0x10;
+    } else if (s2 > 0x10) {
+        arg0->unk1DE += 0x10;
+    }
+    arg0->unk1DE = (arg0->unk1DE * 26) / 32;
+
+    if (s1 < -0x20) {
+        arg0->unk1DC -= 0x20;
+    } else if (s1 > 0x20) {
+        arg0->unk1DC += 0x20;
+    }
+    arg0->unk1DC = (arg0->unk1DC * 24) / 32;
+
+    for (i = 0; i < 4; i++) {
+        if (arg0->unk1BC[i] == 0) {
+            arg0->unkE4[i] += (i & 1) ? -arg0->unk1DC : arg0->unk1DC;
+            arg0->unkE4[i] += (i >= 2) ? -arg0->unk1DE : arg0->unk1DE;
+        } else if (arg0->unk1BC[i] > 0) {
+            arg0->unkE4[i] -= 8;
+        }
+
+        if (arg0->unkE4[i] > 0x100) {
+            arg0->unkE4[i] = 0x100;
+        } else if (arg0->unkE4[i] < -0x300) {
+            arg0->unkE4[i] = -0x300;
+        }
+        arg0->unkE4[i] = (arg0->unkE4[i] * 24) / 32;
+    }
+
+    if (arg0->unk1DE > 0) {
+        arg0->unkE4[2] += s3;
+        arg0->unkE4[3] += s3;
+    }
+
+    s1 = 4 - D_800F3A08[(s16)arg0->unk1E6 >> 1]->unkB;
+    if (s1 <= 0) {
+        s1 = 4;
+    }
+
+    arg0->unk1AC = func_8006E368(arg0->unk10E, ((arg0->unkE4[0] + arg0->unkE4[1]) - (arg0->unkE4[2] + arg0->unkE4[3])) >> 4) >> 3;
+    arg0->unk1AE = (s16)(func_8006E368(arg0->unk10C, ((arg0->unkE4[0] + arg0->unkE4[2]) - (arg0->unkE4[1] + arg0->unkE4[3])) >> 4) >> 2) / s1;
+
+    if (arg0->unk1AE > 0x20) {
+        arg0->unkDC[0] += arg0->unk1DC / 20;
+        arg0->unkDC[2] += arg0->unk1DC / 16;
+    } else if (arg0->unk1AE < -0x20) {
+        arg0->unkDC[1] += (-arg0->unk1DC) / 20;
+        arg0->unkDC[3] += (-arg0->unk1DC) / 16;
+    }
+
+    for (i = 0; i < 4; i++) {
+        arg0->unkDC[i] = (arg0->unkDC[i] * 22) / 32;
+        if (arg0->unkDC[i] <= 0) {
+            arg0->unkDC[i] = 0;
+        } else if (arg0->unkDC[i] >= (arg0->unk108 << 3)) {
+            arg0->unkDC[i] = arg0->unk108 << 3;
+        }
+    }
+
+    arg0->unk1A8 = func_8006E368(arg0->unk10E, ((arg0->unkDC[0] + arg0->unkDC[1]) - (arg0->unkDC[2] + arg0->unkDC[3])) >> 5);
+    arg0->unk1AA = func_8006E368(arg0->unk10C, ((arg0->unkDC[0] + arg0->unkDC[2]) - (arg0->unkDC[1] + arg0->unkDC[3])) >> 5);
+}

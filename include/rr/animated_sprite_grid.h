@@ -2,8 +2,7 @@
 #define RR_ANIMATED_SPRITE_GRID_H
 #include "rr/gpu.h"
 
-/* PAL scratchpad pointer words; native fixtures retain full pointer widths. */
-typedef struct {u8 *cursor;u32 *order;} RrGpuScratchPointers;
+#include "rr/gpu_scratch_types.h"
 typedef struct {u8 pad00[14];u16 tick0E;} RrSpriteGridClock;
 typedef struct {u32 tag,command;} RrGpuSingleCommandPacket;
 
@@ -14,10 +13,6 @@ typedef struct {u32 tag,command;} RrGpuSingleCommandPacket;
  * clears the ordering-head high byte. Finishes with command E100022A. */
 void func_8001E1F0(u32 intensity,RrSpriteGridClock *state);
 
-#if defined(mips)
-RR_ASSERT_SIZE(RrGpuScratchPointers, 8);
-RR_ASSERT_OFFSET(RrGpuScratchPointers, order, 4);
-#endif
 RR_ASSERT_SIZE(RrSpriteGridClock, 16);
 RR_ASSERT_OFFSET(RrSpriteGridClock, tick0E, 14);
 RR_ASSERT_SIZE(RrGpuSingleCommandPacket, 8);

@@ -45,7 +45,7 @@ void ovl659_update_race(void) {
         func_80020B10(D_800F4D44);
         func_8006E1AC();
         func_8002E0D8(0);
-        RR_659_SCRATCH->field78 = D_800F2A64;
+        RR_659_SCRATCH->word78 = D_800F2A64;
         func_8006ECE8(0);
         func_800747EC(0);
         func_80036FD4(0);
@@ -137,7 +137,7 @@ void ovl659_update_race(void) {
     if (D_800ABEF8[0].half1EA != D_800AD522) {
         func_800225DC(0);
     }
-    RR_659_SCRATCH->field78 = D_800F2A64;
+    RR_659_SCRATCH->word78 = D_800F2A64;
     func_8006ECE8(0);
     func_800747EC(0);
     func_80036FD4(0);

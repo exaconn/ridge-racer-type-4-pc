@@ -1,3 +1,4 @@
+from overlay_units import read_c_source
 """Stable minimum selection, sentinel positions and unchanged shared standings."""
 from pathlib import Path
 import subprocess
@@ -8,7 +9,7 @@ import unittest
 class OverlayMinimumTest(unittest.TestCase):
     def test_minimum_ties_and_negative_sentinels(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/660/func_801162D8.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/660/func_801162D8.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

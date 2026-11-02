@@ -8,7 +8,7 @@ void func_8002B330(s32 mode,s32 width,char *selection,s32 limit,s32 flags);
 void func_8002B12C(s32 x,s32 y,s32 width,s32 mode,s32 selected,s32 first,s32 second);
 s32 func_8003E13C(s32 selected);
 
-s32 ovl660_func_801156A8(void);
+s32 ovl660_func_801156A8(s32 reserved);
 s32 ovl661_func_80117E10(void);
 s32 ovl666_update_retry_choice(s32 mode);
 /* Four-position selection, backed by at least three UI rows and four glyph

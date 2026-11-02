@@ -1,3 +1,4 @@
+from overlay_units import read_c_source
 """Independent guarded native oracle for the overlay660 course menu."""
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -5,8 +6,8 @@ import re,subprocess
 root=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file())
 stage=root/'build/goal_50/parallel660'
 public=root/'src/overlays/PAL/660/func_80114D38.c'
-use_public=public.is_file()
-body=(public if use_public else stage/'controller.c').read_text();body=body[body.index('void ovl660_func_80114D38'):]
+use_public=True
+body=read_c_source(public);body=body[body.index('void ovl660_func_80114D38'):]
 body=re.sub(r' __asm__\("\$\d+"\)','',body)
 source=r'''
 #include <assert.h>
@@ -51,7 +52,7 @@ static State actual,reference,*w;
 #define D_800F4BEC w->rowCount
 #define D_800F4D80 w->rows[w->rowRoot]
 #define D_800ACC14 (&w->frames[w->frameRoot])
-#define ovl660_D_8011790C w->available
+#define ovl660_available_course_count w->available
 ''' + body + r'''
 typedef struct {unsigned kind;s32 args[12];State before;} Event;
 static Event events[24];

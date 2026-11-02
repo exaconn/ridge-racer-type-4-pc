@@ -46,11 +46,11 @@ static u8 seenCounts[10];
 #define D_800F3920 w->s.save
 #define D_800ABE08 w->s.choices
 #define D_800F4D98 w->s.current
-#define ovl660_D_80117920 w->s.name
-#define ovl660_D_8011793C w->s.row
-#define ovl660_D_80117934 w->s.col
-#define ovl660_D_8011792C w->s.local
-#define ovl660_D_8011790C w->s.zoom
+#define ovl660_record_name w->s.name
+#define ovl660_preview_bank w->s.row
+#define ovl660_preview_selection w->s.col
+#define ovl660_preview_confirmation w->s.local
+#define ovl660_available_course_count w->s.zoom
 #define ovl663_course_count w->s.zoom
 #define ovl663_course_order w->s.order
 #define ovl663_available_courses w->s.ids
@@ -61,7 +61,7 @@ static u8 seenCounts[10];
 #define D_800F3A26 w->s.position
 #define D_800F4D8A w->s.timer
 #define D_8009E0AC w->s.driverSetting
-#define ovl660_D_8011487C format660
+#define ovl660_title format660
 #define ovl662_D_8011487C format662
 #define ovl663_scene_name format663
 static s32 word(u32 bits){s32 result;memcpy(&result,&bits,4);return result;}

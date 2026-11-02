@@ -56,14 +56,15 @@ static unsigned scenario,mutation;
 #define D_8010C0D0 w->s.cols667
 #define D_800ABEF8 w->s.vehicles
 #define RR_COURSE_SCRATCH (&w->s.scratch.projection)
+#define RR_PROJECTION_SCRATCH RR_COURSE_SCRATCH
 #define D_800F2DE4 w->s.word2de4
 #define D_800ABEB0 w->s.wordabeb0
 #define D_800AC64A w->s.halfc64a
 #define D_800AC5E0 w->s.halfc5e0
-#define ovl660_D_8011793C w->s.row660
-#define ovl660_D_80117934 w->s.col660
-#define ovl660_D_8011792C w->s.reset660
-#define ovl660_D_80117908 w->s.counts660
+#define ovl660_preview_bank w->s.row660
+#define ovl660_preview_selection w->s.col660
+#define ovl660_preview_confirmation w->s.reset660
+#define ovl660_available_car_counts w->s.counts660
 static s16 half(u32 bits){s16 result;u16 h=(u16)bits;memcpy(&result,&h,2);return result;}
 static void effect(unsigned n){
  unsigned i,j,k;u32 value=scenario*0x9e3779b9U+n*47U;

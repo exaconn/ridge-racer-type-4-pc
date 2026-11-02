@@ -67,7 +67,7 @@ code+='size_t object_size(unsigned i){switch(i){\n'
 for i,name in enumerate(names):code+=f'case {i}:return sizeof({name});\n'
 code+=f'case {G}:return sizeof(scratch);case {G+1}:return sizeof(extraBlock.data);case {G+2}:return sizeof(streamBlock.data);default:abort();}}}}\n'
 code+='''
-size_t scratch_offset(void){return offsetof(RrOvl659Scratch,field78);}
+size_t scratch_offset(void){return offsetof(RrOvl659Scratch,word78);}
 void pointers(unsigned f,unsigned c){D_800ACC14=(void*)&D_800ADAF0[f];scratch.pointers.cursor=(void*)streamBlock.data[c];scratch.pointers.order=streamBlock.data[(c+2)%3];}
 void npc(unsigned slot,unsigned record){D_800FFC20[slot]=record<2?&D_800ABEF8[record]:&extraBlock.data[record-2];}
 '''

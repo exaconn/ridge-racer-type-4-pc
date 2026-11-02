@@ -1,9 +1,37 @@
-#include "rr/menu_overlay_runtime.h"
+#include "rr/overlay660.h"
 
-extern s16 ovl660_D_8011793C, ovl660_D_80117934, ovl660_D_8011792C;
-extern s16 ovl660_D_80117908[2];
-extern u8 ovl660_D_801178FC[2][4];
-void ovl660_func_80114920(void);
+void ovl660_func_801163C4(void)
+{
+    RrRaceVehicle *state;
+    RrProjectionScratchPrefix *scratch;
+
+    D_800F2DE4 = 0;
+    D_800ABEB0 = 0;
+    func_80013890(5);
+    D_800AC64A = 0;
+    D_800AC5E0 = 3;
+    func_8003A198();
+    func_80037110();
+    state = D_800ABEF8;
+    scratch = RR_PROJECTION_SCRATCH;
+    scratch->word18 = 120;
+    scratch->word08 = -16;
+    scratch->word0C = -248;
+    scratch->word10 = -96;
+    scratch->word1C = 0;
+    scratch->word20 = 0;
+    D_800ACC18 = D_800F4D40;
+    func_8002E4F4(state);
+    state->pos20[1] = 10;
+    state->pos20[2] = 308;
+    state->rot54 = 2048;
+    ovl660_preview_confirmation = 0;
+    func_80037040((s8 *)&D_800F4D98, D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].glyph);
+    D_800ACBD0[0].first = D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].first;
+    D_800ACBD0[0].second = D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].second;
+    ovl660_available_car_counts[0] = func_800370BC(&D_800ABE08[0][0]);
+    ovl660_available_car_counts[1] = func_800370BC(&D_800ABE08[1][0]);
+}
 
 void ovl660_func_80116530(void) {
     RrPreviewColor color;
@@ -41,58 +69,58 @@ void ovl660_func_80116530(void) {
     modelReady = 1;
     switch (D_800F4D8A) {
     case 7:
-        if (D_800F4D80[(s16)(ovl660_D_8011793C ^ 1) * 3 + 4].byte14 == 5) {
+        if (D_800F4D80[(s16)(ovl660_preview_bank ^ 1) * 3 + 4].byte14 == 5) {
             D_800F4D8A = 0;
         }
     case 0:
         func_8002AF8C(1, 1, 1);
         previousCar = func_8003708C((s8 *)&D_800F4D98);
-        func_8002B330(1, 2, (char *)&ovl660_D_80117934,
-                      ovl660_D_80117908[ovl660_D_8011793C], 0);
+        func_8002B330(1, 2, (char *)&ovl660_preview_selection,
+                      ovl660_available_car_counts[ovl660_preview_bank], 0);
         func_80037040((s8 *)&D_800F4D98,
-                      D_800ABE08[ovl660_D_8011793C][ovl660_D_80117934].glyph);
+                      D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].glyph);
         if (((u32)previousCar << 16) != ((u32)func_8003708C((s8 *)&D_800F4D98) << 16)) {
             func_8003A198();
             D_800ACC18 = D_800F4D40;
             func_80037040((s8 *)&D_800F4D98,
-                          D_800ABE08[ovl660_D_8011793C][ovl660_D_80117934].glyph);
-            D_800ACBD0[0].first = D_800ABE08[ovl660_D_8011793C][ovl660_D_80117934].first;
-            D_800ACBD0[0].second = D_800ABE08[ovl660_D_8011793C][ovl660_D_80117934].second;
+                          D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].glyph);
+            D_800ACBD0[0].first = D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].first;
+            D_800ACBD0[0].second = D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].second;
             ((s8 *)D_800F2AB0)[1] = 6;
         }
-        D_800F4D80[ovl660_D_801178FC[ovl660_D_8011793C][D_800AC64A]].cells[0] = 0;
+        D_800F4D80[ovl660_preview_row_map[ovl660_preview_bank][D_800AC64A]].cells[0] = 0;
         func_8002B330(0, 2, (char *)&D_800AC64A, D_800AC5E0, 0);
-        D_800F4D80[ovl660_D_801178FC[ovl660_D_8011793C][D_800AC64A]].cells[0] = 2;
-        selectionState = D_800F4D80[ovl660_D_8011793C * 3 + 4].byte14;
+        D_800F4D80[ovl660_preview_row_map[ovl660_preview_bank][D_800AC64A]].cells[0] = 2;
+        selectionState = D_800F4D80[ovl660_preview_bank * 3 + 4].byte14;
         if (selectionState != 2) {
             break;
         }
         if (D_800F3A38[0].a != 0) {
-            D_800F4D80[ovl660_D_801178FC[ovl660_D_8011793C][D_800AC64A]].cells[0] = 1;
+            D_800F4D80[ovl660_preview_row_map[ovl660_preview_bank][D_800AC64A]].cells[0] = 1;
             if (D_800AC64A == 0) {
                 func_8004F24C(1);
-                ovl660_D_8011792C = selectionState;
+                ovl660_preview_confirmation = selectionState;
                 D_800F4D8A = 4;
             } else if (D_800AC64A == 1 && D_800ABE08[1][0].glyph != -1) {
                 func_8004F24C(1);
-                ovl660_D_80117934 = 0;
+                ovl660_preview_selection = 0;
                 rowIndex = 0;
                 do {
-                    if (D_800F4D80[ovl660_D_8011793C * 3 + rowIndex + 4].byte14 == 2) {
-                        D_800F4D80[ovl660_D_8011793C * 3 + rowIndex + 4].byte14 = 3;
+                    if (D_800F4D80[ovl660_preview_bank * 3 + rowIndex + 4].byte14 == 2) {
+                        D_800F4D80[ovl660_preview_bank * 3 + rowIndex + 4].byte14 = 3;
                     }
-                    D_800F4D80[(s16)(ovl660_D_8011793C ^ 1) * 3 + rowIndex + 4].byte14 = 0;
+                    D_800F4D80[(s16)(ovl660_preview_bank ^ 1) * 3 + rowIndex + 4].byte14 = 0;
                     rowIndex += 1;
                 } while (rowIndex < 3);
                 D_800F4D8A = 7;
                 D_800AC64A = 0;
-                ovl660_D_8011793C ^= 1;
+                ovl660_preview_bank ^= 1;
             } else if (D_800AC64A == 2) {
                 func_8004F24C(1);
                 rowIndex = 0;
                 do {
-                    if (D_800F4D80[ovl660_D_8011793C * 3 + rowIndex + 4].byte14 == 2) {
-                        D_800F4D80[ovl660_D_8011793C * 3 + rowIndex + 4].byte14 = 3;
+                    if (D_800F4D80[ovl660_preview_bank * 3 + rowIndex + 4].byte14 == 2) {
+                        D_800F4D80[ovl660_preview_bank * 3 + rowIndex + 4].byte14 = 3;
                     }
                     rowIndex += 1;
                 } while (rowIndex < 3);
@@ -102,8 +130,8 @@ void ovl660_func_80116530(void) {
             func_8004F24C(2);
             rowIndex = 0;
             do {
-                if (D_800F4D80[ovl660_D_8011793C * 3 + rowIndex + 4].byte14 == 2) {
-                    D_800F4D80[ovl660_D_8011793C * 3 + rowIndex + 4].byte14 = 3;
+                if (D_800F4D80[ovl660_preview_bank * 3 + rowIndex + 4].byte14 == 2) {
+                    D_800F4D80[ovl660_preview_bank * 3 + rowIndex + 4].byte14 = 3;
                 }
                 rowIndex += 1;
             } while (rowIndex < 3);
@@ -154,13 +182,13 @@ void ovl660_func_80116530(void) {
     case 6:
         if (D_800F4D80[10].byte14 == 5) {
             D_800F4D8A = 0;
-            ovl660_D_8011792C = 1;
+            ovl660_preview_confirmation = 1;
             D_800F4D80[10].byte14 = 0;
             D_800F4D80[11].byte14 = 0;
         }
         break;
     case 5:
-        closingState = D_800F4D80[ovl660_D_8011793C * 3 + 4].byte14;
+        closingState = D_800F4D80[ovl660_preview_bank * 3 + 4].byte14;
         if (closingState == 5 && ((s8 *)D_800F2AB0)[1] == closingState) {
             func_8003A198();
             ovl660_func_80114920();
@@ -172,7 +200,7 @@ void ovl660_func_80116530(void) {
         break;
     }
 draw_rows:
-    if (ovl660_D_8011792C == 0 && ((s8 *)D_800F2AB0)[1] == 2) {
+    if (ovl660_preview_confirmation == 0 && ((s8 *)D_800F2AB0)[1] == 2) {
         rowIndex = 0;
         do {
             if (D_800F4D80[rowIndex].byte14 == 9) {
@@ -183,26 +211,26 @@ draw_rows:
     }
     headerState = D_800F4D80[0].byte14;
     if (headerState == 5) {
-        if (ovl660_D_8011792C == 0) {
-            ovl660_D_8011792C = 1;
+        if (ovl660_preview_confirmation == 0) {
+            ovl660_preview_confirmation = 1;
             D_800F3AFC->half02 = 1;
         }
         if (D_800F4D8A == 7) {
-            other = (s16)(ovl660_D_8011793C ^ 1);
+            other = (s16)(ovl660_preview_bank ^ 1);
             if (D_800F4D80[other * 3 + 4].byte14 == headerState) {
-                first = ovl660_D_8011793C * 3 + 4;
+                first = ovl660_preview_bank * 3 + 4;
             } else {
                 first = other * 3 + 4;
             }
         } else {
-            first = ovl660_D_8011793C * 3 + 4;
+            first = ovl660_preview_bank * 3 + 4;
         }
         rowIndex = 0;
         do {
             func_8003EC88(first + rowIndex);
             rowIndex += 1;
         } while (rowIndex < 3);
-        if (ovl660_D_8011792C == 2) {
+        if (ovl660_preview_confirmation == 2) {
             func_8003EC88(10);
             func_8003EC88(11);
         }
@@ -229,9 +257,9 @@ draw_rows:
     }
     func_8003D6F0(0);
     if (func_8003FBA8(0) > 0) {
-        func_8002B12C(0xA0, 0x90, 8, 1, ovl660_D_80117934, 0,
-                      ovl660_D_80117908[ovl660_D_8011793C]);
+        func_8002B12C(0xA0, 0x90, 8, 1, ovl660_preview_selection, 0,
+                      ovl660_available_car_counts[ovl660_preview_bank]);
     }
 end:
-    func_8002A344(ovl660_D_8011793C != 0 ? 0x10036 : 0x10032);
+    func_8002A344(ovl660_preview_bank != 0 ? 0x10036 : 0x10032);
 }

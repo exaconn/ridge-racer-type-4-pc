@@ -1,3 +1,4 @@
+from overlay_units import read_c_source
 """Scene exits reload their frame after real reset/transition helpers."""
 from pathlib import Path
 import subprocess
@@ -7,7 +8,7 @@ import unittest
 class MenuScreenExitTest(unittest.TestCase):
     def test_helpers_frames_and_halfword_cells(self):
         root=Path(__file__).resolve().parents[2]
-        bodies="\n".join((root/p).read_text() for p in [
+        bodies="\n".join(read_c_source(root/p) for p in [
             'src/main/PAL/func_80036068.c','src/main/PAL/func_8003CAB4.c',
             'src/overlays/PAL/660/func_8011712C.c','src/overlays/PAL/661/func_80114AA0.c'])
         source=r'''

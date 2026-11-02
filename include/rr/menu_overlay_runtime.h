@@ -85,11 +85,8 @@ extern RrMenuTextRow60 D_800FFC48[];
 extern s32 D_80107190;
 extern s16 D_8010C134;
 
-typedef struct {
-    RrGpuScratchPointers pointers;
-    u8 reserved08[0x70];
-    s32 field78;
-} RrOvl659Scratch;
+#include "rr/race_frame_scratch.h"
+typedef RrRaceFrameScratch RrOvl659Scratch;
 #ifndef RR_659_SCRATCH
 #define RR_659_SCRATCH ((RrOvl659Scratch *)0x1F800000U)
 #endif
@@ -184,7 +181,8 @@ s32 func_8003B12C(void);
 s32 func_8003B47C(void);
 s32 func_8003BAB0(void);
 s32 func_8003BEA8(s32);
-void func_8003BFC8(void);
+/* Original callers use both the legacy no-argument entry and an explicit pause flag. */
+void func_8003BFC8();
 void func_8003C254(RrRaceVehicle *);
 void func_8003C96C(void);
 void func_8003CAB4(void);

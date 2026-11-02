@@ -52,15 +52,15 @@ static unsigned scenario,mutation,overlay;
 #define D_800F4C64 w->state.match
 #define D_800F4C80 w->state.standings
 #define D_800AC1A0 w->state.first
-#define ovl660_D_80117910 w->state.first660
-#define ovl660_D_80117938 w->state.second660
-#define ovl660_D_80117820 w->state.labels660
+#define ovl660_race_record_rank w->state.first660
+#define ovl660_lap_record_rank w->state.second660
+#define ovl660_result_labels w->state.labels660
 #define D_800F3A48 w->state.uiMode
-#define ovl660_D_80117930 w->state.screenFlag
+#define ovl660_result_transition w->state.screenFlag
 #define D_800AC64A w->state.selection
 #define D_800AC5E0 w->state.mode
 #define D_800F3914 w->state.gameMode
-#define ovl660_D_80117918 w->state.flash
+#define ovl660_result_kind w->state.flash
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static s16 half(u32 n){u16 bits=(u16)n;s16 v;memcpy(&v,&bits,2);return v;}
 static s32 event(s32 kind,s32 a,s32 b,s32 c,s32 d,s32 e) {

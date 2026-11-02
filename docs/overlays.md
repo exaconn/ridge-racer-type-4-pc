@@ -236,3 +236,22 @@ Historical per-function headers forward to the canonical module interface.
 Native fixtures select the actual definition from its owning TU, rather than
 keeping duplicate C bodies. Native regressions use UBSan and compare behavior
 with independent state oracles or original MIPS service traces.
+
+## Overlay 660/669 translation units
+
+All fourteen matched functions now belong to four contiguous code translation
+units: `course_menu.c`, `results.c`, `preview.c`, and `race.c`. The 660 manifest
+records function ownership and local-global addresses. It is a code-layout
+manifest; complete-image builders remain available for 659, 663 and 666.
+
+`rr/overlay660.h` is the module interface. Historical per-function headers
+forward to it. Resident objects use the shared menu runtime types, including
+full frame storage, course records, selection storage and race vehicles.
+Module-local declarations have descriptive names and one declaration per
+symbol. The retry selector retains the caller's explicit, unused zero argument.
+
+GPU scratch pointer types live in `gpu_scratch_types.h`; the common race
+scratch prefix is defined once in `race_frame_scratch.h` and shared by 659 and
+660. The race-state gate reads the existing steering `count22` field through
+its control-record type instead of a raw byte offset. The course controller
+uses one ordinary loop counter in place of four forced argument registers.

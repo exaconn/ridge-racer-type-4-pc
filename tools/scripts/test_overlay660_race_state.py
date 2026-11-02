@@ -1,3 +1,4 @@
+from overlay_units import read_c_source
 """Race-state gate over real vehicle views, wrapped negation and real fade body."""
 from pathlib import Path
 import re
@@ -9,7 +10,7 @@ import unittest
 class OverlayRaceStateTest(unittest.TestCase):
     def test_state_gate_and_fade_publication(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/660/func_80117084.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/660/func_80117084.c')
         fade = (root / 'src/main/PAL/func_8004FC18.c').read_text()
         fade = re.sub(r'^extern[^\n]*;\n', '', fade, flags=re.M)
         source = r'''

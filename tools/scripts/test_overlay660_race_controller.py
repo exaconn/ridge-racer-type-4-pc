@@ -1,3 +1,4 @@
+from overlay_units import read_c_source
 """Overlay660 frame controller: original MIPS/native service-state oracle.
 
 Usage: python test_overlay660_race_controller.py [source.c [case_count]]
@@ -14,7 +15,8 @@ if not (root/'assets/PAL/main.exe').is_file():root=Path(__file__).resolve().pare
 os.chdir(root)
 P=Path(os.environ.get('RR_TEST_DIR','build/tests/overlay660_race_controller'));P.mkdir(parents=True,exist_ok=True)
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/660/func_8011718C.c')
-body=source.read_text().split('\n',1)[1]
+body=read_c_source(source)
+if body.startswith('#include'):body=body.split('\n',1)[1]
 globals=sorted(set(re.findall(r'\b(?:ovl660_)?D_[0-9A-F]{8}\b',body)))
 aliases={'D_800AC0E2':'half1EA','D_800AC0E6':'half1EE'}
 globals=[x for x in globals if x not in aliases]
@@ -34,7 +36,8 @@ head=head.replace('__RR_CONTROLLER_HEADER__',os.environ.get('RR_CONTROLLER_HEADE
 pre=subprocess.check_output(['cc','-E','-Iinclude','-I'+str(source.parent),'-I'+str(P),str(P/'native_header.c')],text=True)
 protos={}
 for name in functions:
- m=re.search(r'([\w *]+)\b'+name+r'\(([^;{}]*)\);',pre)
+ matches=list(re.finditer(r'([\w *]+)\b'+name+r'\(([^;{}]*)\);',pre))
+ m=matches[-1] if matches else None
  assert m,name
  protos[name]=(m[1].strip().split('\n')[-1],m[2])
 # Each object retains its public declared type. Frames and pointer owners remain full-sized.

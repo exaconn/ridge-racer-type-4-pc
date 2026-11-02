@@ -643,3 +643,12 @@ The entry stays in original assembly because both stock GCC versions emit
 argument-home stores for a variadic C definition. It is excluded from recovered
 C coverage. Do not use a no-argument C definition with argument-bearing calls,
 or invent function-pointer parameters for those string addresses.
+
+## Hand-written asm (`hasm`)
+`configs/PAL/hasm.txt` lists functions that are certainly hand-written (evidence per line: trapping
+add/addi/sub/neg, cop0, syscall, $k0/$k1, stores of $at, BIOS A0/B0/C0 trampolines, or an interior
+label entered from other hand-written code). `gen_config.py` turns them into splat `hasm` segments
+(contiguous runs share one segment so cross-function local labels resolve); splat generates their
+`.s` into the untracked `asm/` tree, so no assembly is committed. `code_coverage.py` excludes them
+from the C-coverage denominator. Do not attempt them; add a function only with hard evidence
+(GTE/cop2 use alone is not evidence: C reaches it through inline macros).

@@ -6,6 +6,7 @@ import re
 import subprocess
 
 from elftools.elf.elffile import ELFFile
+from c_functions import source_owners
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -65,6 +66,11 @@ def resolve_c_source_path(path):
         return path
     match = re.search(r'src/overlays/PAL/(\d+)/func_([0-9A-Fa-f]{8})\.c$', str(path))
     if not match:
+        main = re.search(r'src/main/PAL/(func_[0-9A-Fa-f]{8})\.c$', str(path))
+        if main:
+            owner = source_owners(ROOT / 'src/main/PAL').get(main[1])
+            if owner is not None:
+                return owner
         raise FileNotFoundError(path)
     return function_owner(int(match[1]), int(match[2], 16))[0]
 
@@ -79,10 +85,13 @@ def read_c_source(path):
     path = Path(path)
     if path.exists():
         return path.read_text()
-    match = re.search(r'src/overlays/PAL/(\d+)/func_([0-9A-Fa-f]{8})\.c$', str(path))
-    if not match:
-        raise FileNotFoundError(path)
-    owner, symbol = function_owner(int(match[1]), int(match[2], 16))
+    owner = resolve_c_source_path(path)
+    match = re.search(r'src/main/PAL/(func_[0-9A-Fa-f]{8})\.c$', str(path))
+    if match:
+        symbol = match[1]
+    else:
+        match = re.search(r'src/overlays/PAL/(\d+)/func_([0-9A-Fa-f]{8})\.c$', str(path))
+        _, symbol = function_owner(int(match[1]), int(match[2], 16))
     source = owner.read_text()
     start, end = function_extent(source, symbol)
     return source[start:end] + '\n'

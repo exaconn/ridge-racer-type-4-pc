@@ -9,6 +9,8 @@
 #   store-at        stores the assembler temporary $at to memory
 #   shared-entry    has an interior label entered by jumps from other hand-written
 #                   functions (C cannot expose a mid-function entry point)
+#   tail-jump       frameless jump through a function pointer in a temp register
+#                   (gcc 2.7.2/2.8.1 has no tail calls; C needs goto* + a register pin)
 #   bios-trampoline li $t2,0xA0/0xB0/0xC0; jr $t2; li $t1,N  BIOS call stubs
 # GTE (cop2) use alone is NOT evidence: C reaches it through inline macros.
 # Format: <function> <evidence>[,<evidence>...]
@@ -128,6 +130,8 @@ func_800976E4 bios-trampoline
 func_800976F4 bios-trampoline
 func_80097704 bios-trampoline
 func_80097714 bios-trampoline
+func_80097724 tail-jump
+func_80097738 tail-jump
 func_8009774C trapping-arith
 func_800977C4 trapping-arith
 func_8009B9E4 bios-trampoline

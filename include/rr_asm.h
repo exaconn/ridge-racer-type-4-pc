@@ -80,7 +80,7 @@
     "lw $12, 0(%0); lw $13, 4(%0); lw $14, 8(%0); ctc2 $12, $13; ctc2 $13, $14; ctc2 $14, $15" \
     : : "r"(p) : "$12", "$13", "$14")
 #define RR_GTE_RTPT_LDV(a, b, c) do { __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0); lwc2 $2, 0(%1); lwc2 $3, 4(%1); lwc2 $4, 0(%2); lwc2 $5, 4(%2)" : : "r"(a), "r"(b), "r"(c)); __asm__ volatile ("nop; nop"); __asm__ volatile (".word 0x4A280030"); } while (0)
-#define RR_GTE_RTPS_LDV(p) do { __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(p)); __asm__ volatile ("nop; nop"); __asm__ volatile (".word 0x4A180001"); } while (0)
+#define RR_GTE_RTPS_LDV(p) { __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(p)); __asm__ volatile ("nop; nop"); __asm__ volatile (".word 0x4A180001"); }
 #define RR_GTE_SWC2_SXYZ(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
 #define RR_GTE_SWC2_SXY2(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
 /* func_80017CC0: RR_GTE_CLRTR(): TR = 0; RR_GTE_MTC2_IR1(x): mtc2 $9; RR_GTE_CTC2_FCR(x): ctc2 $21; RR_GTE_SWC2_IR1(p): swc2 $9. */
@@ -134,6 +134,8 @@
 #define RR_GTE_SETTR_AT20(p) __asm__ volatile ("lw $12, 20(%0)\n\tlw $13, 24(%0)\n\tctc2 $12, $5\n\tlw $14, 28(%0)\n\tctc2 $13, $6\n\tctc2 $14, $7" : : "r"(p) : "$12", "$13", "$14")
 #define RR_GTE_MVMVA_ROT_TR_V0(p) __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(p)); __asm__ volatile ("nop\n\tnop\n\t.word 0x4A480012")
 #define RR_GTE_STORE_FLAG(p) __asm__ volatile ("cfc2 $12, $31\n\tnop\n\tsw $12, 0(%0)" : : "r"(p) : "$12", "memory")
+#define RR_GTE_SWC2_IR0(p) __asm__ volatile ("swc2 $8, 0(%0)" : : "r"(p) : "memory")
+#define RR_GTE_STORE_SZ3_SRA2(p) __asm__ volatile ("mfc2 $12, $19\n\tnop\n\tsra $12, $12, 2\n\tsw $12, 0(%0)" : : "r"(p) : "$12", "memory")
 
 /* PsyQ libgte hand-coded matrix multiply helpers (func_80090914..func_80090F14). */
 #define RR_GTE_MASK_HI16(x) __asm__ volatile ("and %0, %0, 0xFFFF0000" : "+r"(x))

@@ -1,0 +1,194 @@
+#include "types.h"
+#include "rr_asm.h"
+
+typedef struct {
+    u32 addr: 24;
+    u32 len: 8;
+} P_TAG;
+
+typedef struct {
+    u32 addr: 24;
+    u32 len: 8;
+    u8 r0, g0, b0, code;
+    s16 x0, y0;
+    u8 u0, v0;
+    u16 clut;
+    u8 r1, g1, b1, p1;
+    s16 x1, y1;
+    u8 u1, v1;
+    u16 tpage;
+    u8 r2, g2, b2, p2;
+    s16 x2, y2;
+    u8 u2, v2;
+    u16 pad2;
+    u8 r3, g3, b3, p3;
+    s16 x3, y3;
+    u8 u3, v3;
+    u16 pad3;
+} POLY_GT4;
+
+typedef struct {
+    s16 m[3][3];
+    s16 pad;
+    s32 t[3];
+} MATRIX;
+
+typedef struct {
+    s16 vx, vy, vz, pad;
+} SVECTOR;
+
+typedef struct {
+    s32 vx, vy, vz, pad;
+} VECTOR;
+
+typedef struct {
+    POLY_GT4 *pkt00;
+    s32 unk04;
+    s32 cam_x08;
+    s32 cam_y0C;
+    s32 cam_z10;
+} Scratch;
+
+typedef struct {
+    s32 w00;
+    s16 width04;
+    s16 height06;
+    s16 step_x08;
+    s16 step_y0A;
+    s32 x0C;
+    s32 y10;
+    s32 z14;
+    s32 unk18;
+    s32 rot_z1C;
+    s32 rot_y20;
+    s32 rot_x24;
+    s32 unk28;
+    s16 count2C;
+    u8 columns2E;
+    u8 rows2F;
+    u8 u30;
+    u8 v31;
+    u8 du32;
+    u8 dv33;
+    u16 tpage34;
+    u16 clut36;
+} GridEntry;
+
+extern GridEntry *D_800F3A28;
+
+extern void func_8006E030(MATRIX *, s32);
+extern void func_8006E09C(MATRIX *, s32);
+extern void func_8006E108(MATRIX *, s32);
+extern s32 func_80090424(s32);
+extern void func_80090CA4(MATRIX *, MATRIX *);
+extern void func_80090DB4(MATRIX *, MATRIX *);
+extern void func_80090EC4(MATRIX *, SVECTOR *, VECTOR *);
+extern void func_800910B4(MATRIX *);
+extern void func_80091144(MATRIX *);
+
+void func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
+    MATRIX sp10;
+    MATRIX sp30;
+    SVECTOR sp50;
+    VECTOR sp58;
+    s32 sp68;
+    s32 sp6C;
+    Scratch *g = (Scratch *)0x1F800000;
+    s32 t;
+    s32 count;
+    /* ASM_BARRIER: pin dividend 0x600 to $a0 to match local-alloc order */
+    register s32 div_num asm("$4");
+    s32 cols_total;
+    s32 step_ang;
+    s32 *sxy_buf;
+    u8 *shade_buf;
+    s32 s6;
+    s32 s5, s2, s1;
+    POLY_GT4 *pkt;
+
+    if (arg2 != 0) {
+        D_800F3A28[arg0].w00++;
+    }
+    D_800F3A28[arg0].w00 &= 0xFF;
+    t = D_800F3A28[arg0].w00;
+    sp50.vx = D_800F3A28[arg0].x0C - g->cam_x08;
+    sp50.vy = 0x200 - g->cam_y0C;
+    sp50.vz = D_800F3A28[arg0].z14 - g->cam_z10;
+    func_80090EC4((MATRIX *)0x1F800028, &sp50, &sp58);
+    func_8006E108(&sp10, D_800F3A28[arg0].rot_z1C);
+    func_8006E030(&sp30, D_800F3A28[arg0].rot_x24);
+    func_80090CA4(&sp10, &sp30);
+    func_8006E09C(&sp30, D_800F3A28[arg0].rot_y20);
+    func_80090DB4(&sp30, &sp10);
+    func_80090DB4((MATRIX *)0x1F800028, &sp10);
+    sp10.t[0] = sp58.vx;
+    sp10.t[1] = sp58.vy;
+    sp10.t[2] = sp58.vz;
+    func_80091144(&sp10);
+    func_800910B4(&sp10);
+
+    count = D_800F3A28[arg0].count2C;
+    cols_total = D_800F3A28[arg0].columns2E * count + 1;
+    sxy_buf = (s32 *)0x1F80007C;
+    shade_buf = (u8 *)0x1F800338;
+    div_num = 0x600;
+    step_ang = div_num / count;
+    s6 = 0;
+    for (s5 = 0; s5 < D_800F3A28[arg0].rows2F + 1; s5++) {
+        sp50.vz = D_800F3A28[arg0].step_y0A * ((D_800F3A28[arg0].rows2F >> 1) - s5);
+        for (s2 = 0; s2 < cols_total; s2++) {
+            s32 s0_tmp;
+            s1 = D_800F3A28[arg0].height06;
+            sp50.vx = D_800F3A28[arg0].step_x08 * (s2 - (cols_total >> 1));
+            s0_tmp = func_80090424(D_800F3A28[arg0].width04 * t + s2 * step_ang);
+            s1 = (s1 * (s0_tmp + func_80090424(D_800F3A28[arg0].width04 * t + (s5 << 8)))) >> 12;
+            sp50.vy = s1;
+            RR_GTE_RTPS_LDV(&sp50);
+            RR_GTE_SWC2_SXY2(&sxy_buf[s6]);
+            RR_GTE_SWC2_IR0(&sp68);
+            RR_GTE_STORE_FLAG(&sp68);
+            RR_GTE_STORE_SZ3_SRA2(&sp6C);
+            shade_buf[s6] = -s1 - (u8)sp6C;
+            s6++;
+        }
+    }
+
+    pkt = *(POLY_GT4 **)0x1F800000;
+    for (s5 = 0; s5 < D_800F3A28[arg0].columns2E * D_800F3A28[arg0].rows2F * D_800F3A28[arg0].count2C; s5++) {
+        s32 v1;
+
+        s1 = s5 / (cols_total - 1);
+        s6 = s5 % D_800F3A28[arg0].columns2E;
+        pkt->len = 0xC;
+        pkt->code = 0x3C;
+        s2 = s1 + s5;
+        v1 = s2 + cols_total;
+        *(s32 *)&pkt->x0 = sxy_buf[s2];
+        *(s32 *)&pkt->x1 = sxy_buf[s2 + 1];
+        *(s32 *)&pkt->x2 = sxy_buf[v1];
+        *(s32 *)&pkt->x3 = sxy_buf[v1 + 1];
+
+        pkt->u0 = pkt->u2 = D_800F3A28[arg0].u30 + D_800F3A28[arg0].du32 * s6;
+        pkt->u1 = pkt->u3 = pkt->u0 + D_800F3A28[arg0].du32;
+
+        pkt->v0 = pkt->v1 = D_800F3A28[arg0].v31 + D_800F3A28[arg0].dv33 * s1;
+        pkt->v2 = pkt->v3 = pkt->v0 + D_800F3A28[arg0].dv33;
+
+        pkt->tpage = D_800F3A28[arg0].tpage34;
+        pkt->clut = D_800F3A28[arg0].clut36;
+
+        s1 = shade_buf[s2];
+        *(s32 *)&pkt->r0 = (s1 << 16) | (s1 << 8) | s1 | 0x3C000000;
+        s1 = shade_buf[s2 + 1];
+        *(s32 *)&pkt->r1 = (s1 << 16) | (s1 << 8) | s1;
+        s1 = shade_buf[v1];
+        *(s32 *)&pkt->r2 = (s1 << 16) | (s1 << 8) | s1;
+        s1 = shade_buf[v1 + 1];
+        *(s32 *)&pkt->r3 = (s1 << 16) | (s1 << 8) | s1;
+
+        pkt->addr = arg1->addr;
+        arg1->addr = (u32)pkt;
+        pkt++;
+    }
+    *(POLY_GT4 **)0x1F800000 = pkt;
+}

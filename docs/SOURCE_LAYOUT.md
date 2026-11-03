@@ -103,3 +103,10 @@ graph shows which units depend on each other (and therefore whether a unit bound
 
 Work list for the remaining declarations: `tools/scripts/proto_conflicts.py [dir]` prints every function that
 still has local cross-unit declarations, the spellings in use and the units involved.
+
+A frequent reason for a remaining local declaration: an older `include/rr/*.h` header already declares the
+symbol with a prototype (`s32 func_80032E9C(s32 selection);`), but a game unit only matches its original
+bytes with the K&R spelling it declares locally (`extern int func_80032E9C();`). The `rr/` prototype is a
+documentation-grade type, the local K&R declaration is what the compiler saw. Making the two agree needs
+the `rr/` header to change spelling, which in turn has to be re-checked against the overlays and host tests
+that include it; `proto_conflicts.py` lists such cases.

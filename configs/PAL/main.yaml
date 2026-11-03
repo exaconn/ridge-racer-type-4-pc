@@ -1052,7 +1052,7 @@ segments:
       - [0x6f544, c, func_8007ED44]
       - [0x6f704, c, func_8007EF04]
       - [0x6f7c0, c, func_8007EFC0]
-      - [0x6f868, asm, main_8007F068]
+      - [0x6f868, c, func_8007F068]
       - [0x6fae8, c, func_8007F2E8]
       - [0x6fb6c, c, func_8007F36C]
       - [0x6fbd0, c, func_8007F3D0]

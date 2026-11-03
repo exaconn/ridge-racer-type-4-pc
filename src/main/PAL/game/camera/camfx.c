@@ -1,4 +1,5 @@
 #include "game/camera/camview.h"
+#include "game/camera/camfx.h"
 
 extern char D_800A0D70[];
 extern char D_800A0D7C[];

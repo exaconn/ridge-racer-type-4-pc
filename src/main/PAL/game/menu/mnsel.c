@@ -1,4 +1,5 @@
 #include "rr/menu_grid.h"
+#include "game/menu/mnsel.h"
 
 typedef struct { char p[0x10]; short s10; } T3;
 
@@ -20,7 +21,6 @@ extern unsigned char D_800F4D98;
 extern char *D_800FF68C;
 extern int func_80096434();
 
-void func_800417EC();
 int func_80041A18(int a, int n);
 void func_80041A54(s32 index, s32 layout, s32 count, s32 x, s32 y);
 

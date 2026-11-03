@@ -1,5 +1,6 @@
 #define D_800AC650 D_800AC650_prefix
 #include "rr/race.h"
+#include "game/car/carspec3.h"
 #undef D_800AC650
 
 extern int func_80049228(), func_80049430(), func_80049558();

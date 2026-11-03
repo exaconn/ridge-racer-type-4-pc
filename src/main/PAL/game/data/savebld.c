@@ -1,4 +1,5 @@
 /* RODATA 0x80011458 0x48 */
+#include "game/data/savebld.h"
 typedef struct {
     int w[31];
 } Struct7C;

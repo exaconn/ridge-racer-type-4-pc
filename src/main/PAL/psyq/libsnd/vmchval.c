@@ -1,5 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/channels.h"
+#include "psyq/libsnd/vmchval.h"
 
 s32 func_80089D28(s32 input, u16 *left, u16 *right) {
     s32 channel = input;

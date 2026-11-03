@@ -1,5 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/serial.h"
+#include "psyq/libsio/siowait.h"
 
 s32 func_8009ABF8(s32 first, s32 second) {
     RrSerialReceiveRequest *state = &D_801146D8;

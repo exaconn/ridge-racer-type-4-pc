@@ -19,6 +19,7 @@
 #include "game/race/objdraw.h"
 #include "psyq/libgpu/primatt8.h"
 #include "game/gfx/sky.h"
+#include "game/data/cdfile2.h"
 #define B (*(int *)&D_800ACC18)
 
 struct A { char p[0x14]; unsigned f14; char q[0x20]; unsigned f38; };
@@ -94,21 +95,14 @@ s32 func_800127A0(void);
 s32 func_800127E8(void);
 void func_80012834(void);
 s32 func_80012860(void);
-s32 func_800128B8(void);
 s32 func_8001292C(s32 a0, s32 a1);
 s32 func_800129BC(s32 a0, s32 a1, s32 a2, s32 a3);
-s32 func_80012A58(void);
 void func_80012A68(int *a0);
 void func_80012AB4(int *a0, int a1);
 void func_80012C7C(int *a0, int a1);
 int func_80012E94(int a0, int a1, int a2, int a3, int a4);
 void func_8001301C(struct A *a0, int a1);
-int func_800131D0(int a0);
-int func_80013200(void);
 int func_80013514(int a0, int a1, int a2, int a3, int a4);
-s32 func_800135BC(void);
-int func_800137B0(void);
-int func_800137D4(void);
 void func_80013890(s32 shift);
 int func_80013904(char *a0_in, int a1_in);
 

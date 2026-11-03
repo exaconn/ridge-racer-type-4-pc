@@ -6,6 +6,7 @@
 #include "game/sound/sndvab.h"
 #include "game/system/pad.h"
 #include "game/system/pad3.h"
+#include "game/race/racesave.h"
 typedef struct { int w[200]; } B800;
 
 typedef struct {

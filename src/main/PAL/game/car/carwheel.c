@@ -6,6 +6,7 @@
 #include "game/gfx/gtepoly1.h"
 #include "psyq/libgte/gtemat3.h"
 #include "game/race/raceinit.h"
+#include "game/car/carwheel.h"
 
 #define G ((Scratch2D784 *)0x1F800000)
 

@@ -7,6 +7,7 @@
 #include "game/system/pad.h"
 #include "game/effect/spfade.h"
 #include "psyq/libgpu/gpuenv.h"
+#include "game/system/frmtask.h"
 
 extern s16 D_800AC5D0;
 extern s32 D_8010BF84;
@@ -30,7 +31,6 @@ extern s32 func_8008B154(s32);
 extern void *func_80093580(void *), *func_800933B4(void *);
 
 void func_8001E344(void);
-void func_8001E378(void);
 void func_8001E390(void);
 void func_8001E684(void);
 

@@ -1,3 +1,4 @@
+#include "game/effect/fxspr.h"
 
 extern int func_80090424();
 extern int func_800904F4();

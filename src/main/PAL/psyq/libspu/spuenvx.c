@@ -1,5 +1,6 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "psyq/libspu/spuenvx.h"
 
 extern s32 D_800A47D8;
 

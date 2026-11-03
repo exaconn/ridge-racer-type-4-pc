@@ -9,6 +9,7 @@
 #include "psyq/libgte/gtecolo3.h"
 #include "psyq/libgte/gtemat3.h"
 #include "psyq/libgte/gtemat7.h"
+#include "game/gfx/poly1.h"
 
 typedef struct { int a[8]; } S32B;
 
@@ -104,17 +105,11 @@ int func_80070464(void);
 void func_8007064C(void);
 struct P *func_800706B8(struct P *a0);
 void func_80070734(int arg0);
-void func_8007080C();
 void func_80070934(int a0, int a1, int *a2, int a3);
 void func_80070ACC(char *p);
 void func_80070BA4(char *a0, int a1, int a2);
 s32 func_80071338(void);
-void func_80071348(void);
-void func_800713C4(s32 arg0);
 s32 func_800713D0(void);
-int func_800713E0(void);
-void func_80071434(s32 arg0);
-void func_80071440(void);
 
 void func_80070400(int *a0) {
     int *p = a0 + 1;

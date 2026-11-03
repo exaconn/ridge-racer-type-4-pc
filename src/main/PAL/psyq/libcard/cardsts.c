@@ -1,5 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
+#include "psyq/libcard/cardsts.h"
 
 extern volatile int D_800ABDE4;
 extern int D_800ABDE8;
@@ -9,7 +10,6 @@ extern s32 D_800ABDF4;
 extern s32 D_800ABDF8;
 extern s32 D_80114730;
 
-int func_8009BF94();
 s32 func_8009C0A4(s32 value);
 
 int func_8009BF94(a0, a1, a2) int a0; int *a1; int *a2; {

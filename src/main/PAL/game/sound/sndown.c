@@ -1,8 +1,8 @@
 #include "types.h"
 #include "rr/audio_bank_setup.h"
+#include "game/sound/sndown.h"
 
 void func_80050BCC(RrAudioBankSetup *arg0);
-void func_80050E58(void);
 void func_80050E94(int a0, int a1, int a2, int a3);
 
 void func_80050BCC(RrAudioBankSetup *arg0)

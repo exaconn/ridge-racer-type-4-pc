@@ -5,6 +5,7 @@
 #include "types.h"
 #include "game/camera/camview.h"
 #include "game/effect/spark.h"
+#include "game/gfx/meshquad.h"
 #define RTPT() RR_GTE_RTPT_MEM()
 #define RTPS() RR_GTE_RTPS_MEM()
 #define NCLIP() RR_GTE_NCLIP_MEM()
@@ -39,7 +40,6 @@ extern struct
 } *D_800F3A08;
 extern unsigned short D_800F3A40;
 
-int func_800578D8(int a0);
 RrMeshQuadGT4 *func_80057A44(RrMeshQuadGT4 *p, s32 *s);
 RrMeshQuadG4 *func_80057C50(RrMeshQuadG4 *p, s32 *s);
 RrMeshQuadF4 *func_80057E3C(RrMeshQuadF4 *p, s32 *s);

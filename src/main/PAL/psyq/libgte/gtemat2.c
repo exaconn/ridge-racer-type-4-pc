@@ -1,4 +1,5 @@
 #include "rr_asm.h"
+#include "psyq/libgte/gtemat2.h"
 
 int *func_80090A24(unsigned short *a0, int *a1) {
     register int t0 __asm__("$8");

@@ -2,15 +2,13 @@
 /* GCC_VERSION: 2.7.2 */
 #include "psyq/libcard/cardc03.h"
 #include "psyq/libcard/cardc04.h"
+#include "psyq/libcard/cardc07.h"
 extern volatile int D_800ABDE8;
 extern int D_80114718;
 extern int D_80114728;
 extern unsigned char D_80114724;
 extern int D_800ABDF8;
 extern int D_80114730;
-
-int func_8009CA8C();
-int func_8009CB50();
 
 int func_8009CA8C() {
     switch (D_800ABDE8) {

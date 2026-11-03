@@ -1,3 +1,4 @@
+#include "game/sound/fxramp1.h"
 extern struct {
     char pad[0x288A];
     short h288A;

@@ -1,5 +1,6 @@
 #include "game/gfx/fadeset.h"
 #include "game/sound/sndvab.h"
+#include "game/gfx/fadectl.h"
 extern struct {
     char pad0[0x3E4]; int f3E4; char pad1[4]; int f3EC; char pad2[4]; int f3F4; int f3F8; char pad3[4];
     int f400; int f404; int f408; char pad4[4]; short f410, f412, f414, f416, f418, f41A; int f41C; char pad5[4];

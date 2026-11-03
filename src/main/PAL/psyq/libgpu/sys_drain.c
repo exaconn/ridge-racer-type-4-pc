@@ -1,5 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
+#include "psyq/libgpu/sys_drain.h"
 extern int func_8008B3C4(int, int);
 extern int func_8008B4E0(int);
 

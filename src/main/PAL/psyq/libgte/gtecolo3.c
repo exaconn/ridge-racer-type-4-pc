@@ -1,5 +1,6 @@
 /* Candidate module: GTE AverageZ3 / AverageZ4 wrappers, 80091498..800914B8. */
 #include "rr_asm.h"
+#include "psyq/libgte/gtecolo3.h"
 
 void func_800912E4(int *a0, int *a1);
 void func_80091308(int *a0, int a1, int *a2);

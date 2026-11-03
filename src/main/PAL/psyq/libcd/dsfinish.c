@@ -1,5 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
+#include "psyq/libcd/dsfinish.h"
 
 extern int D_800A67CC[];
 extern int D_800A67D4[];
@@ -7,7 +8,6 @@ extern int func_8008B154(), func_8008EB6C(), func_8008C0F8();
 extern s32 D_800A63F0;
 extern s32 D_800A63F4;
 
-int func_8008F090();
 s32 func_8008F194(s32 value);
 s32 func_8008F1A8(s32 value);
 

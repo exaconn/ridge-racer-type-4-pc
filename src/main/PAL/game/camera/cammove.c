@@ -1,5 +1,6 @@
 #include "rr/camera_motion.h"
 #include "rr/cpu_md_leaf.h"
+#include "game/camera/cammove.h"
 
 #define W_ADD(a,b) ((s32)((u32)(a)+(u32)(b)))
 #define W_SUB(a,b) ((s32)((u32)(a)-(u32)(b)))
@@ -15,7 +16,6 @@ extern int func_80090F74();
 extern int D_800F2FD8;
 
 void func_8005B9F4(RrCameraMotionInput14 *input);
-void func_8005C024(void);
 
 void func_8005B9F4(RrCameraMotionInput14 *input) {
     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */

@@ -1,3 +1,4 @@
+#include "game/car/carphys1.h"
 extern int func_80024BCC(), func_80025FBC(), func_800904F4();
 #define S(p, o) (*(short *)((p) + (o)))
 #define U(p, o) (*(unsigned short *)((p) + (o)))

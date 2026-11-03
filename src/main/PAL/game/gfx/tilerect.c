@@ -6,6 +6,7 @@
 #include "game/gfx/sky.h"
 #include "game/data/ldscn5.h"
 #include "game/gfx/gtemodel.h"
+#include "game/gfx/tilerect.h"
 
 #define GS ((SPD *)0x1F800000)
 #define W(o) (*(int *)(GS->cur + (o)))
@@ -162,7 +163,6 @@ void func_80019D5C(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head);
 void func_80019F20(void);
 void func_80019FC8(void);
 void func_8001A52C(int a0);
-void func_8001A8DC(int a0);
 int *func_8001AC24(S_8001AC24 *a0, int *a1, int *a2);
 
 void func_80019D5C(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head) {

@@ -1,4 +1,5 @@
 /* GCC_VERSION: 2.7.2 */
+#include "psyq/libcard/cardc09.h"
 extern volatile int D_800ABDE8;
 extern int D_80114724, D_8011472C, D_80114728;
 extern unsigned char *D_80114718;

@@ -3,8 +3,8 @@
 #include "rr/commands.h"
 #include "rr/serial.h"
 #include "psyq/libcard/cardc03.h"
+#include "psyq/libcard/cardc12.h"
 
-s32 func_8009CF94(s32 unused);
 s32 func_8009D068(s32 request, s32 parameter, s32 count);
 s32 func_8009D118(void);
 s32 func_8009D198(s32 request, s32 parameter);

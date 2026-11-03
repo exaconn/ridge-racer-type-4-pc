@@ -1,4 +1,5 @@
 /* GCC_VERSION: 970318 */
+#include "psyq/libsnd/utrtype.h"
 extern int func_80085BA4();
 extern int D_80110008[];
 void func_80085B64(short a0) {

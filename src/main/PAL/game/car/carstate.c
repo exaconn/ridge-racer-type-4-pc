@@ -2,6 +2,7 @@
 #include "rr/race.h"
 #include "game/sound/sndvab.h"
 #include "game/system/pad.h"
+#include "game/car/carstate.h"
 
 #define B(o) (*(unsigned char *)(p + (o)))
 #define S(o) (*(short *)(p + (o)))
@@ -12,7 +13,6 @@ extern int func_80025F84();
 extern int func_80090424();
 extern int D_800AD504;
 
-void func_8002C1D4();
 void func_8002C328(char *p);
 
 void func_8002C1D4(a0, a1) int a0; RrRaceVehicle *a1; {

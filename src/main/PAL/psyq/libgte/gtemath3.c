@@ -1,3 +1,4 @@
+#include "psyq/libgte/gtemath3.h"
 int func_80091734(int a0, int a1, int a2) {
     int v;
     __asm__ volatile ("mtc2 %0, $12" : : "r"(a0));

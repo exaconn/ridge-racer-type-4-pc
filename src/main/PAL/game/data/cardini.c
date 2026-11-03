@@ -9,6 +9,7 @@
 #include "psyq/libcard/cardc162.h"
 #include "psyq/libcard/init.h"
 #include "psyq/libgpu/gpuctl.h"
+#include "game/data/cardini.h"
 
 extern int func_80095C74();
 extern int func_80096F04();
@@ -48,19 +49,14 @@ extern int D_800A4094[];
 extern char D_8010EF28[];
 extern int func_80096198();
 
-void func_80077E10();
 void func_80078000(void);
 int func_800780B8(int arg);
-s32 func_80078178(void);
 void func_80078204(void);
 int func_8007825C(void);
 void func_800782F4(void);
 int func_8007834C(int a, int b);
-int func_800783C8(int a0);
 int func_80078414(int a0, unsigned char *a1);
-int func_80078490();
 int func_80078544(int a0, int a1, int a2, int a3, int a4, int a5);
-int func_80078610();
 int func_800786F8(int a0, int a1, int a2, int a3, int a4, int a5);
 int func_800787C4(int p, char *a1);
 void func_80078E1C(s32 arg0, s32 arg1);

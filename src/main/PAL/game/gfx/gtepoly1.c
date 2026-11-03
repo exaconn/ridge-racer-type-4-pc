@@ -1,6 +1,7 @@
 #include "types.h"
 #include "rr_asm.h"
 #include "m2c_macros.h"
+#include "game/gfx/gtepoly1.h"
 
 #define SP ((Scr *)s2)
 #define S4 ((Ent *)s4)

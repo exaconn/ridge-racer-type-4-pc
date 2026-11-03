@@ -2,6 +2,7 @@
 #include "rr/channels.h"
 #include "rr/library.h"
 #include "psyq/libsnd/vmchval.h"
+#include "psyq/libsnd/ssvolset.h"
 
 extern void func_800897A4(s32,s32,s32,s32);
 

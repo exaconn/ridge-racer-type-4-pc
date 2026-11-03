@@ -4,6 +4,7 @@
 #include "psyq/libgpu/gpudisp.h"
 #include "psyq/libgte/gtemat7.h"
 #include "game/menu/menutran.h"
+#include "game/gfx/scene1.h"
 
 #define addPrim(ot, p) \
     ((DrTPage *)(p))->addr = (ot)->addr; \
@@ -87,9 +88,6 @@ void func_80055300(void);
 void func_80055330(int a0, u8 a1, u8 a2, u8 a3);
 void func_8005534C(s32 arg0);
 void func_80055358(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4);
-void func_800555E0();
-void func_80055660(void);
-void func_800556B4(void);
 void func_80055700();
 void func_8005599C();
 void func_80055BF8(int a0, int *a1, u16 *a2, int *a3);

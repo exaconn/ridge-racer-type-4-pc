@@ -1,5 +1,6 @@
 #include "types.h"
 #include "rr_asm.h"
+#include "psyq/libgte/gtemat3.h"
 
 int *func_80090B14(int *a0, int *a1, int *a2_in);
 int *func_80090C74(int *a0, int *a1);

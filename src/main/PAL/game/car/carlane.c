@@ -1,6 +1,7 @@
 /* RODATA 0x80010fec 0x28 */
 #include "types.h"
 #include "game/car/carbound.h"
+#include "game/car/carlane.h"
 
 typedef struct {
     s32 f0;

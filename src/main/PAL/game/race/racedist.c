@@ -2,6 +2,7 @@
 #include "rr/trig.h"
 #include "rr/track_interpolation.h"
 #include "rr/race.h"
+#include "game/race/racedist.h"
 
 #define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -D_800A68C0[0x400 - ((x) & 0x3FF)] : -D_800A68C0[(x) & 0x3FF]) : (((x) & 0x400) ? D_800A68C0[0x400 - ((x) & 0x3FF)] : D_800A68C0[(x) & 0x3FF]))
 
@@ -28,7 +29,6 @@ extern RrRaceStandingsTable *D_800AC738;
 extern s32 D_800AC664;
 extern s16 D_800AC59C;
 
-void func_80049C68(void);
 void func_8004A080(RrRaceVehicle *input);
 
 void func_80049C68(void) {

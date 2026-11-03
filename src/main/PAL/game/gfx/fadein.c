@@ -1,5 +1,6 @@
 #include "game/gfx/fadectl.h"
 #include "game/gfx/fadeset.h"
+#include "game/gfx/fadein.h"
 extern int D_800AC650[];
 
 void func_8005C8D8(int a0) {

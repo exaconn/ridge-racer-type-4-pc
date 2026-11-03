@@ -1,13 +1,13 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/spu_init.h"
+#include "psyq/libspu/spukeyst.h"
 
 #define BANK ((RrSpuRegisterStorage *)D_800A47D8)
 #define STATUS(bank) ((bank)->halves[215])
 
 extern int D_800A4844;
 
-int func_8007EA34();
 s32 func_8007EAC4(s32 warm);
 
 /* legacy typing of shared globals in this part of the unit */

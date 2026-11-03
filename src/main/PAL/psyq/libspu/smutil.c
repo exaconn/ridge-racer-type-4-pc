@@ -1,8 +1,8 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/spu.h"
+#include "psyq/libspu/smutil.h"
 
 s32 func_8007FC54(u32 address);
-int func_8007FCD4();
 
 s32 func_8007FC54(u32 address) {
     RrSpuAllocation *initial=D_800A48C0;

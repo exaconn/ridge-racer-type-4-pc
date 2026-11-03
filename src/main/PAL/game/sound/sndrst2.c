@@ -1,4 +1,5 @@
 #include "types.h"
+#include "game/sound/sndrst2.h"
 
 extern int func_8004FE7C(), func_800857A4(), func_80085AEC();
 extern struct { char p0[4]; int f4; char p1[8]; int f10; char p2[4]; short f18; char p3[0xA]; short f24; char p4[0x1996]; unsigned short f19BC, f19BE, f19C0, f19C2; int f19C4; short f19C8; } D_800F4DB8;
@@ -6,8 +7,6 @@ extern struct { char p0[0x31]; unsigned char f31; short f32; } D_800AD528;
 extern short D_800F4D44;
 extern s16 D_800A043C[];
 
-void func_80051554(void);
-void func_800517D8(void);
 void func_800517F8(int a0, int a1, int a2, int a3);
 
 void func_80051554(void)

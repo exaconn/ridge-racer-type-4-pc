@@ -5,6 +5,7 @@
 #include "game/course/trkintp.h"
 #include "game/sound/sndown.h"
 #include "game/system/pad.h"
+#include "game/car/carphys2.h"
 
 struct A
 {

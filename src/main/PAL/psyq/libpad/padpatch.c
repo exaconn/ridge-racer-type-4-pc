@@ -3,6 +3,7 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "rr/layout.h"
+#include "psyq/libpad/padpatch.h"
 
 struct S { char pad[0x46]; unsigned char c46, c47, c48; };
 
@@ -58,7 +59,6 @@ RR_ASSERT_OFFSET(RrSlotAssignmentState, group_data, 4);
 
 void func_80098EE0();
 int func_80098F88(struct S_1 *s);
-int func_80099380();
 void func_800993E8(void *arg0);
 s32 func_80099404(RrSlotAssignmentState *state);
 

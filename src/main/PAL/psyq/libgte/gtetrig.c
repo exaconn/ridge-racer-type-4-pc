@@ -2,6 +2,7 @@
 #include "types.h"
 #include "rr/trig.h"
 #include "psyq/libgte/gtemat7.h"
+#include "psyq/libgte/gtetrig.h"
 
 /* extern */
 

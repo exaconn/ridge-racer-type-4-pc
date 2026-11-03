@@ -1,11 +1,11 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
+#include "psyq/libspu/spu3.h"
 
 extern unsigned int *D_800A47EC;
 
 void func_8007F54C(void);
-void func_8007F574(void);
 void func_8007F59C(void);
 
 void func_8007F54C(void) {

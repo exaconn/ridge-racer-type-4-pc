@@ -2,6 +2,7 @@
 #include "psyq/libgte/gtemath4.h"
 #include "psyq/libgte/gtemath5.h"
 #include "game/race/objclr.h"
+#include "game/gfx/polytri.h"
 typedef struct {
     int x;
 } __attribute__((packed)) U4;
@@ -133,7 +134,6 @@ extern S_ECB4 *D_8010ECB4;
 
 void func_80071978(InTri *a0, int a1, int a2);
 void func_80071B94(InQuad *a0, int a1, int a2);
-void func_80071E04(void);
 
 void func_80071978(InTri *a0, int a1, int a2) {
     int sp20;

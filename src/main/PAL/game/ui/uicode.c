@@ -1,5 +1,6 @@
 #include "game/ui/uicnt.h"
 #include "game/course/trkintp2.h"
+#include "game/ui/uicode.h"
 extern int func_80043104();
 void func_80043130(a0, a1) unsigned char *a0; int a1;
 {

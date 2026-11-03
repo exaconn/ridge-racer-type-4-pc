@@ -1,12 +1,11 @@
 #include "types.h"
 #include "rr/audio_loop.h"
 #include "m2c_macros.h"
+#include "game/sound/sndloop2.h"
 
 extern s32 D_800F6670;
 
 void func_800518E0(void);
-void func_80051B28(void);
-void func_80051B38(void);
 
 void func_800518E0(void) {
     RrAudioLoopState *state=&D_800F4DB8;

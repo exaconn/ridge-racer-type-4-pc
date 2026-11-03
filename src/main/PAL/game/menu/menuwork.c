@@ -2,6 +2,7 @@
 #include "m2c_macros.h"
 #include "game/system/frmtask.h"
 #include "game/gfx/meshquad.h"
+#include "game/menu/menuwork.h"
 
 #define P8(base, off) (*(unsigned char *)((char *)(base) + (off)))
 #define IDX30(base, i) (*(unsigned char *)((char *)(base) + (i) * 0x24 + 0x30))
@@ -68,7 +69,6 @@ void func_8003984C(void);
 void func_80039894(void);
 void func_8003989C(void);
 void func_80039920(void);
-void func_80039988(void);
 void func_80039ABC(void);
 void func_80039C0C(void);
 

@@ -1,6 +1,7 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
+#include "psyq/other/dpmul.h"
 
 typedef struct {
     u32 lo;

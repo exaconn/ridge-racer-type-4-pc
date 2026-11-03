@@ -1,5 +1,6 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/gfx/fadesel.h"
 
 extern struct {
     char pad0[0x3E4]; int f3E4; char pad1[0x3F4 - 0x3E8]; int f3F4; int f3F8;
@@ -7,9 +8,6 @@ extern struct {
     char pad4[0x434 - 0x420]; int f434; int f438; int f43C; int f440;
 } D_800AC650;
 extern s32 D_800ACA78;
-
-void func_8005C988();
-void func_8005CA04(void);
 
 void func_8005C988(a0)
 int a0;

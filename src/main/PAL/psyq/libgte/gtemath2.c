@@ -1,3 +1,4 @@
+#include "psyq/libgte/gtemath2.h"
 void func_80091704(int *a0, int *a1, int *a2) {
     int f;
     __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(a0));

@@ -1,5 +1,6 @@
 #include "types.h"
 #include "rr_asm.h"
+#include "game/course/trkclip.h"
 
 struct S
 {

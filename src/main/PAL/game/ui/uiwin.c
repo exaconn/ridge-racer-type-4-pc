@@ -3,6 +3,7 @@
 #include "rr/ui.h"
 #include "game/ui/uitext.h"
 #include "game/ui/uidraw.h"
+#include "game/ui/uiwin.h"
 
 typedef struct {
     short x, y;
@@ -68,7 +69,6 @@ extern int func_8001E84C();
 extern s32 func_80090424();
 
 int func_8003E13C(int arg0);
-int func_8003E8D4(int a);
 void func_8003E928(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g,s32 h,...);
 void func_8003EA04(s32 arg0, s32 arg1, s32 arg2);
 

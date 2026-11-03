@@ -7,6 +7,7 @@
 #include "game/gfx/motion1.h"
 #include "game/gfx/ring.h"
 #include "psyq/libgpu/gpudisp.h"
+#include "game/camera/camrun.h"
 
 #define W(p,o) (*(int *)((char *)(p) + (o)))
 #define Q(p,o) ((char *)*(volatile int *)((char *)(p) + (o)))
@@ -97,7 +98,6 @@ extern char D_800A1AA0[];
 extern char D_800A1B60[];
 
 void func_8005B304(void);
-void func_8005B8D8(int a0);
 
 void func_8005B304(void) {
     Scratch5B304 *g = (Scratch5B304 *)0x1F800000;

@@ -1,5 +1,6 @@
 #include "rr/geometry.h"
 #include "rr_asm.h"
+#include "psyq/libgte/gtecolo4.h"
 
 void func_800914C4(int *a0, int *a1);
 void func_800914EC(int *a0, int *a1, int a2, int *a3);
@@ -11,7 +12,6 @@ int func_800915C4(int a0, int a1, int a2);
 int func_800915E4(int a0, int a1, int a2, int a3);
 void func_80091608(int *a0, int *a1, int *a2);
 void func_80091660(int *a0, int *a1, int *a2);
-int func_800916B8(int a0);
 
 void func_800914C4(int *a0, int *a1) {
     __asm__ volatile ("lwc2 $9, 0(%0)\n\tlwc2 $10, 4(%0)\n\tlwc2 $11, 8(%0)" : : "r"(a0));

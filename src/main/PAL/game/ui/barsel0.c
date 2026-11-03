@@ -1,5 +1,6 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/ui/barsel0.h"
 
 extern int func_8002AF8C();
 extern int func_8002B12C();

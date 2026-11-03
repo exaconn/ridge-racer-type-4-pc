@@ -1,5 +1,6 @@
 #include "types.h"
 #include "game/effect/ptinit.h"
+#include "game/effect/effect.h"
 
 typedef struct {
     s32 active00;

@@ -1,6 +1,7 @@
 #include "rr/gpu_scratch_types.h"
 #include "rr_asm.h"
 #include "rr/sprite_preset.h"
+#include "game/effect/spfade.h"
 
 struct Ot { int x; int next; };
 

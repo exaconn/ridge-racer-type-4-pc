@@ -3,6 +3,7 @@
 #include "types.h"
 #include "psyq/libspu/smutil.h"
 #include "psyq/libspu/spuregs2.h"
+#include "psyq/libspu/s_crwa.h"
 
 extern s32 func_8007F068(s32 mode, ...);
 extern s32 func_80096E94(s32 event);
@@ -13,7 +14,6 @@ extern volatile s32 D_800A4810;
 extern u32 D_800A48C8[];
 extern u8 D_800A4938[];
 
-void func_8007FA94(void);
 s32 func_8007FAB4(u32 preset);
 
 void func_8007FA94(void) { func_8007F604(0); }

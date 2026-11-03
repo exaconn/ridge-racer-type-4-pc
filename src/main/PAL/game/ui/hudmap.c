@@ -1,4 +1,5 @@
 #include "game/race/objsim.h"
+#include "game/ui/hudmap.h"
 struct A { char pad[0xF0]; int idx; char p2[0xE0]; short ang; };
 
 struct B { char pad[0x12]; short x; char p2[0x28]; };

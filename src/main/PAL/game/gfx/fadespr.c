@@ -3,6 +3,7 @@
 #include "game/sound/cdmain.h"
 #include "psyq/libsnd/ssmvol.h"
 #include "game/camera/campath.h"
+#include "game/gfx/fadespr.h"
 
 struct V4 { int a[4]; };
 
@@ -18,9 +19,6 @@ extern unsigned char D_800AC650[];
 extern RrSpritePacket *func_8001FF84(u32 *, RrSpritePacket *, s32, s32,
                                   RrUiUvRect *, u16, s32);
 
-void func_8005C0C4(void);
-void func_8005C13C(int a0);
-void func_8005C26C(int a0);
 void func_8005C37C(s32 index, s32 x, s32 y, s32 intensity);
 
 void func_8005C0C4(void) {

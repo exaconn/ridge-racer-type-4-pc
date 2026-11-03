@@ -1,6 +1,7 @@
 /* GCC_VERSION: 2.7.2 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/interrupts.h"
+#include "psyq/libcard/cardirq.h"
 
 extern char *D_800ABDA8;
 extern int func_80096F04(), func_80096F14(), func_80096F94(), func_80097704(), func_80097714();
@@ -12,8 +13,6 @@ extern char D_800ABDC0[];
 extern int func_80097704();
 extern int func_8009BC3C();
 
-void func_8009BA04(void);
-void func_8009BA94();
 s32 func_8009BAD8(void);
 s32 func_8009BB18(void);
 int func_8009BB58();

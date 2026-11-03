@@ -13,6 +13,7 @@
 #include "game/sound/sndbgm3.h"
 #include "game/sound/sndvab.h"
 #include "psyq/libgte/gtemath3.h"
+#include "game/race/racemai2.h"
 
 typedef struct 
 {

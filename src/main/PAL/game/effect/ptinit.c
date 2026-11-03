@@ -2,6 +2,7 @@
 #include "rr/ui.h"
 #include "rr/ui_primitives.h"
 #include "game/course/trktext.h"
+#include "game/effect/ptinit.h"
 
 #define ADDPRIM(ot, p) \
     (p)->addr = ((PolyFT4 *)(ot))->addr; \
@@ -57,11 +58,8 @@ extern struct {
 extern u8 *D_800ACC14;
 extern RrGpuColorCommand D_800A0CF0;
 
-void func_80053E2C(void);
 int func_80053E88(void);
 void func_80053EC4();
-void func_80054128(int a0);
-void func_80054264(int a0);
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F2AB8 (*(struct { s32 a; char p[0x14]; s32 b; } (*))&D_800F2AB8)

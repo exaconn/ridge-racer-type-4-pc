@@ -2,6 +2,7 @@
 /* CC1_FLAGS: -mno-split-addresses -fno-force-mem */
 #include "rr/channels.h"
 #include "psyq/libsnd/vmchval.h"
+#include "psyq/libsnd/ssramp.h"
 void func_800897A4(s32,u16,u16,s32);
 void func_80082FC4(s32 bankInput,s32 rowInput)
 {

@@ -4,6 +4,7 @@
 #include "m2c_macros.h"
 #include "rr/draw_environment.h"
 #include "rr/gpu.h"
+#include "psyq/libgpu/gpudisp.h"
 
 #define CLAMP(v, lo, hi) ((v) < (lo) ? (lo) : ((v) > (hi) ? (hi) : (v)))
 

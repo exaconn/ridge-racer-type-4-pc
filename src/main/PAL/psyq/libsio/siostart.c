@@ -2,6 +2,7 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "rr/serial.h"
+#include "psyq/libsio/siostart.h"
 
 extern int func_80096F04();
 extern int func_80096F14();
@@ -13,7 +14,6 @@ M2C_UNK func_8009B9F4(M2C_UNK *);
 /* extern */
 extern M2C_UNK D_80012104;
 
-void func_8009A8B4(void);
 void func_8009A8F8(void);
 void func_8009A944(void);
 s32 func_8009A94C(s32 first, s32 second);

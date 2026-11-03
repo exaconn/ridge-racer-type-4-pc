@@ -13,6 +13,7 @@
 #include "psyq/libgte/gtemath2.h"
 #include "game/race/objclr.h"
 #include "game/race/objsim.h"
+#include "game/race/objdraw.h"
 
 #define SCRATCH_BASE (fp)
 #define SCRATCH_PRIM (*(s32 *)(fp + 0x00))

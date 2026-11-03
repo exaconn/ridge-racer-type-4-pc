@@ -8,6 +8,7 @@
 #include "game/data/cardini.h"
 #include "game/data/cardchk.h"
 #include "game/menu/menumode.h"
+#include "game/menu/menutra21.h"
 
 struct E { char pad[4]; unsigned char a; char b; unsigned char c; signed char d; };
 
@@ -99,9 +100,7 @@ void func_8007C848(void);
 void func_8007C8D4(void);
 void func_8007C944(void);
 int func_8007CB44();
-int func_8007CDC4();
 int func_8007CFC0();
-void func_8007D1B8();
 
 void func_8007BD18(void) {
     s32 i = D_800A4258[D_800F3A1C].i;

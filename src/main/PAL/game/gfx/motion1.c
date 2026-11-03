@@ -1,6 +1,7 @@
 /* RODATA 0x8001129c 0x30 */
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/gfx/motion1.h"
 
 struct E {
     int state; int mode; char pad8[0x44 - 8]; int x44; unsigned short h48; short h4A; unsigned short h4C;
@@ -15,10 +16,7 @@ extern struct Z *D_800ACA28;
 extern int func_8005D40C();
 extern s32 D_8010E240;
 
-void func_8005D500(s32 arg0);
 void func_8005D544(struct A *a0);
-void func_8005D820(void);
-void func_8005D858(void);
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ACA28 (*(s32 (*))&D_800ACA28)

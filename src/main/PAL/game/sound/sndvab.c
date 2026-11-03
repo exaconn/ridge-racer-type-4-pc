@@ -2,6 +2,7 @@
 #include "m2c_macros.h"
 #include "rr/audio_pan.h"
 #include "psyq/libsnd/utrev3.h"
+#include "game/sound/sndvab.h"
 
 extern int func_8008A674();
 extern short func_8008AA74();
@@ -15,14 +16,10 @@ extern int func_80086554();
 extern s32 D_800F7650;
 
 void func_8004ED38(int *arg0, int arg1, int arg2);
-void func_8004EE08(void);
-void func_8004EE60(s32 arg0);
 void func_8004EE90(int a0, int a1);
 void func_8004EF04(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void func_8004F218(int a0, s16 a1, s16 a2, int a3);
 void func_8004F24C(int a0);
-void func_8004F274(s32 arg0);
-void func_8004F2A0(void);
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_8008AEC4 ((short (*)())func_8008AEC4)

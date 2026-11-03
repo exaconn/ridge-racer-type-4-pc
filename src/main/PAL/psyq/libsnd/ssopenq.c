@@ -1,5 +1,6 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
+#include "psyq/libsnd/ssopenq.h"
 extern int func_8001E84C(), func_80081EB4();
 extern char D_800116E8[];
 extern int D_8010EFC8[];

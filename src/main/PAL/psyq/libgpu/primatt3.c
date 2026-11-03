@@ -1,5 +1,6 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "psyq/libgpu/primatt3.h"
 
 void func_80095B74(void *arg0) {
     M2C_FIELD(arg0, s8 *, 3) = 7;

@@ -3,6 +3,7 @@
 #include "rr/text_sprites.h"
 #include "m2c_macros.h"
 #include "rr/gpu.h"
+#include "game/course/trktext.h"
 
 typedef struct { char p0; unsigned char f1; char p2[6]; unsigned short f8; char pa[0x52]; } T;
 
@@ -14,7 +15,6 @@ extern s32 func_800924D4(s32 z, s32 x);
 extern unsigned char D_800A017C[];
 extern int func_80096434();
 
-int func_8004C370(int i);
 s32 func_8004C454(s32 node, s32 lane);
 void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank);
 int func_8004C73C(int a0, int a1, unsigned char *s, int a3, int a4);

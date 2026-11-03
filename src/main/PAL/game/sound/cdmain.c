@@ -3,6 +3,7 @@
 #include "rr/audio_cd_controller.h"
 #include "psyq/libsnd/ssmvol.h"
 #include "psyq/libsnd/ssvolset.h"
+#include "game/sound/cdmain.h"
 
 struct S { char pad[0x2864]; s16 a; char p[0x2888 - 0x2866]; s16 b; };
 
@@ -11,8 +12,6 @@ extern void func_8007F910(int);
 extern int func_80096434();
 
 void func_800534D8(void);
-void func_80053A18(u8 a0);
-void func_80053A80(void);
 void func_80053A9C(s16 a0);
 void func_80053AF4(int a0, int a1);
 

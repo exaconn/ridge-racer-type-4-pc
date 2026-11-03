@@ -1,4 +1,5 @@
 #include "types.h"
+#include "game/sound/sndlis2.h"
 extern int func_80052024();
 extern int func_8005007C();
 struct A { char p[0x5A]; u16 x5A, x5C; char q[4]; s32 x64, x68; char r[1568 - 0x6C]; };

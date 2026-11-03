@@ -6,6 +6,7 @@
 #include "psyq/libpad/padopen.h"
 #include "psyq/libpad/padpatch.h"
 #include "psyq/libpad/padstat2.h"
+#include "psyq/libpad/padctl.h"
 
 struct E { unsigned char n; char pad[3]; unsigned char *p; };
 
@@ -14,16 +15,10 @@ struct S { char pad[8]; struct E *e; char pad2[0xde]; unsigned char c; };
 extern int D_800ABCB4;
 
 void func_80097834();
-void func_80097854();
 void func_80097874();
 int func_80097894();
-int func_800978E0();
-int func_800979AC();
-int func_80097AA4();
 int func_80097B78();
-void func_80097C20();
 void func_80097C58(s32 selector, s32 first, s32 second);
-void func_80097CA0();
 
 void func_80097834() { func_80098030(); }
 

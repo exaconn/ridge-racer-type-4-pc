@@ -1,5 +1,6 @@
 /* CC1_FLAGS: -fno-schedule-insns */
 #include "rr_asm.h"
+#include "game/gfx/light2.h"
 extern int func_80090424();
 void func_8001B688(a0) int a0;
 {

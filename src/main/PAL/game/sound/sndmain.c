@@ -1,6 +1,7 @@
 /* CC1_FLAGS: -fno-schedule-insns */
 #include "game/sound/sndlis2.h"
 #include "game/sound/sndevt.h"
+#include "game/sound/sndmain.h"
 typedef struct { int a, b, c, d; } V4;
 extern char D_800F4DB8[];
 extern char D_800ABEF8[];

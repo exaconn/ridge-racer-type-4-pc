@@ -1,4 +1,5 @@
 #include "types.h"
+#include "game/sound/sndchan.h"
 
 typedef struct {
     u32 flags00;
@@ -49,7 +50,6 @@ extern void func_8004FE7C();
 extern int func_80084E74();
 extern struct E D_800F4DB8[];
 
-void func_800501BC(int a0);
 int func_80050744(int a0, int x, int a2, int a3);
 
 void func_800501BC(int a0) {

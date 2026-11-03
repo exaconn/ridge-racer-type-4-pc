@@ -1,4 +1,5 @@
 #include "rr/library.h"
+#include "psyq/libsnd/ssresume.h"
 extern RrLibStateB0 *D_8010F068[];
 extern s32 func_80089E1C();
 void func_800831D4(s32 a0, s32 a1) {

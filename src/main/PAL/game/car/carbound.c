@@ -4,6 +4,7 @@
 #include "m2c_macros.h"
 #include "game/gfx/gtepoly1.h"
 #include "game/race/raceinit.h"
+#include "game/car/carbound.h"
 
 #define I(o) (*(int *)(a0 + (o)))
 #define U(o) (*(unsigned short *)(a0 + (o)))
@@ -43,7 +44,6 @@ void func_8002E394(RrRaceVehicle *a);
 void func_8002E4F4(RrRaceVehicle *a);
 void func_8002E5A0();
 void func_8002E828(s32 arg0, void *arg1);
-void func_8002E868();
 
 void func_8002E0D8(a0) int a0; {
     int z; 

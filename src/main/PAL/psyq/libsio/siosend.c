@@ -1,6 +1,7 @@
 /* GCC_VERSION: 2.7.2 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "psyq/libsio/siorecv.h"
+#include "psyq/libsio/siosend.h"
 
 typedef struct {
     volatile unsigned char data;

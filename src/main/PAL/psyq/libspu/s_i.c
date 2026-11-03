@@ -2,6 +2,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "rr/spu_tick_control.h"
+#include "psyq/libspu/s_i.h"
 
 /* Anchors originate in the complete timer object. Signed native-width
  * offset differences keep every scalar access within that object. */
@@ -15,7 +16,6 @@ extern void (*D_800A4D40)(void);
 
 void func_800829F4(short a, short b);
 void func_80082A44(s32 direct);
-void func_80082C74(void);
 void func_80082C94(void);
 void func_80082CB4(void);
 void func_80082D00(void);

@@ -1,5 +1,6 @@
 /* RODATA 0x8001104c 0x18 */
 #include "rr/color_conversion.h"
+#include "game/gfx/color.h"
 
 typedef struct { char pad[0x1C]; short f1c; char pad2[0x3E]; } T;
 
@@ -12,7 +13,6 @@ extern short D_800AD55A;
 extern char D_800F4DB8[];
 
 void func_8004C098(int i);
-void func_8004C0EC(void);
 void func_8004C138(const RrHsvColor input,RrRgbColor output);
 
 void func_8004C098(int i) {

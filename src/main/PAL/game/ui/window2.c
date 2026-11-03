@@ -5,6 +5,7 @@
 #include "rr/trig.h"
 #include "rr/hud_number.h"
 #include "m2c_macros.h"
+#include "game/ui/window2.h"
 
 struct W3G0A { char *p0; char *p4; short s8, sA, sC, sE, s10, s12; char *p14; char *p18; short s1C, s1E, s20, s22, s24, s26; };
 

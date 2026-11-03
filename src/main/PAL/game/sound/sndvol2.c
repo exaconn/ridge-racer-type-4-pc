@@ -1,4 +1,5 @@
 #include "types.h"
+#include "game/sound/sndvol2.h"
 
 typedef struct {
     char pad[0x22];

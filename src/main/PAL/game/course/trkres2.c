@@ -2,6 +2,7 @@
 #include "rr/steering.h"
 #include "rr/track_resources.h"
 #include "m2c_macros.h"
+#include "game/course/trkres2.h"
 
 extern s32 D_800ACB90;
 
@@ -13,7 +14,6 @@ void func_8004D58C(RrTrackLaneOffset8 *offsets);
 void func_8004D598(s32 *startNode);
 void func_8004D5A4(u8 *workspace);
 void func_8004D5CC(RrTrackResourceFile *file);
-void func_8004D61C(s32 arg0);
 
 /* Build a two-phase rate curve in twelve-bit fixed-point units. */
 void func_8004D354(RrCurve24 *curve, s32 displacement, s32 duration, s32 initialRate)

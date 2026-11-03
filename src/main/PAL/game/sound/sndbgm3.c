@@ -1,4 +1,5 @@
 #include "types.h"
+#include "game/sound/sndbgm3.h"
 
 struct EE { s32 a, b, c; s16 d, e; s32 f; };
 
@@ -14,10 +15,7 @@ extern int func_8004FE7C();
 extern int func_800857A4();
 extern int func_80085AEC();
 
-void func_80051248(int a0);
 void func_800512C4(int a0, int a1, int a2);
-void func_80051378();
-void func_800514FC(void);
 void func_80051538(int a0, s16 a1, s16 a2);
 
 void func_80051248(int a0) {

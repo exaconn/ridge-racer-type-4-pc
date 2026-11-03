@@ -2,13 +2,12 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "rr/spu.h"
+#include "psyq/libsnd/vmsel.h"
 
 /* $at as the %hi() base: with $1 allocatable cc1 2.8.1 emits lui $1,%hi / sw %lo($1) and its reorg fills the jr/jal delay slot with the sw (see DECOMP_GUIDE "delay-slot store"). */
 extern short D_801100E8;
 
 s32 func_8008A564(s32 bank,s32 program);
-void func_8008A624(void);
-void func_8008A634();
 
 s32 func_8008A564(s32 bank,s32 program) {
     /* ASM_BARRIER: Retain full selectors until publishing their low bytes. */

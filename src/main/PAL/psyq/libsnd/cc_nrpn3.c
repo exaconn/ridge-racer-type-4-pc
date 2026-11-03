@@ -1,12 +1,12 @@
 #include "types.h"
 #include "rr/library.h"
 #include "m2c_macros.h"
+#include "psyq/libsnd/cc_nrpn3.h"
 
 typedef struct { unsigned short s0, s2, s4, s6, s8; short sA, sC, sE, s10; } S;
 
 void func_80080E54();
 void func_80080F04(s32 arg0, u32 arg1, void *arg2);
-void func_80080F60();
 void func_80081004();
 
 void func_80080E54(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; RrLibBlock24Fields s; u8 c; {

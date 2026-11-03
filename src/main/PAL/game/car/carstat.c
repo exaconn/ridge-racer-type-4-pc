@@ -1,6 +1,7 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "psyq/libpad/padctl.h"
+#include "game/car/carstat.h"
 
 extern int func_80096434();
 extern int func_80099CD4();
@@ -14,7 +15,6 @@ extern unsigned short D_800F2F78[][3][8];
 extern unsigned short D_800F4BF8[][2][8];
 extern M2C_UNK D_800AD528;
 
-void func_8004A55C(void);
 void func_8004A5C0(int a, int b, int c, int d);
 void func_8004A678(void);
 

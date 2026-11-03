@@ -2,6 +2,7 @@
 #include "rr/race.h"
 #include "game/car/carspec3.h"
 #include "game/race/racedist.h"
+#include "game/car/carai.h"
 
 typedef struct { char p0[0x54]; unsigned short s54, s56; char p1[4]; short s5C; unsigned short s5E; short s60; } W;
 typedef struct { char p0[0x1E4]; short s1E4; } V;

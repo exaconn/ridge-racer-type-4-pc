@@ -1,12 +1,12 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/channels.h"
+#include "psyq/libsnd/vmkoff.h"
 
 extern signed char D_80110100[];
 extern char *D_801100F8;
 
 void func_80089E1C(s32 input);
-unsigned char func_80089ED4();
 
 void func_80089E1C(s32 input) {
     register s32 maximum=D_801100FC;

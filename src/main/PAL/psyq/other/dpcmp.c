@@ -1,5 +1,6 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/softfloat.h"
+#include "psyq/other/dpcmp.h"
 
 s32 func_8007E2D4(u64 left, u64 right) {
     /* ASM_BARRIER: Keep the left and right word pairs in their original registers. */

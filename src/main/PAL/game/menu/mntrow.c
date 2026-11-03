@@ -4,6 +4,7 @@
 #include "game/menu/mnsel.h"
 #include "game/ui/barsel1.h"
 #include "game/gfx/fontdraw.h"
+#include "game/menu/mntrow.h"
 
 #define ROW(i) ((RrRow60 *)((s32)D_800FFC14 + (i) * 0x3C))
 
@@ -76,10 +77,8 @@ extern int D_8009FDA4;
 extern int D_800F3A60;
 extern char *D_800F4D80;
 
-void func_80040CB4(s32 a0);
 void func_800411D4();
 void func_80041320();
-void func_8004139C();
 void func_800413E0(void);
 void func_80041434(void);
 void func_80041588();

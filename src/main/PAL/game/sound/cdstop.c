@@ -1,6 +1,7 @@
 /* RODATA 0x80011178 0x14 */
 #include "types.h"
 #include "game/sound/cdclose.h"
+#include "game/sound/cdstop.h"
 
 extern struct {
     char pad0[0x2670];
@@ -20,7 +21,6 @@ extern int func_8008C140();
 extern int func_80096434();
 
 void func_80053384();
-int func_800534B4(void);
 
 void func_80053384()
 {

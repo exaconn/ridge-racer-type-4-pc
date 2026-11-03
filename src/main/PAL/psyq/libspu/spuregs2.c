@@ -1,4 +1,5 @@
 /* CC1_FLAGS: -mno-split-addresses */
+#include "psyq/libspu/spuregs2.h"
 extern int func_8007EAC4();
 extern int func_8007F3D0();
 extern int func_8007F6EC();

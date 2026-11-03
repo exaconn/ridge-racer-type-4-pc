@@ -3,6 +3,7 @@
 #include "game/data/savedat.h"
 #include "game/data/savebld.h"
 #include "game/system/modeinit.h"
+#include "game/menu/savemenu.h"
 typedef struct {
     char b[0x4000];
 } Struct4000;

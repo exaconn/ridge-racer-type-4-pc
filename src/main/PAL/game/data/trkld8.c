@@ -5,6 +5,7 @@
 #include "psyq/libcd/s_1.h"
 #include "psyq/libspu/s_i.h"
 #include "game/data/trkld1.h"
+#include "game/data/trkld8.h"
 extern int func_8001223C();
 extern int func_8001292C();
 extern int func_80012A58();
@@ -25,9 +26,6 @@ extern int func_80084004();
 extern int func_80096434();
 extern int func_80055300();
 extern int func_80052800();
-
-int func_8004EA8C(void);
-void func_8004EC28();
 
 int func_8004EA8C(void) {
     int v;

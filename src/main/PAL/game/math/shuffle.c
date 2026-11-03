@@ -1,3 +1,4 @@
+#include "game/math/shuffle.h"
 extern int D_800ABEAC;
 extern struct { int p; int a[8]; } D_8010E240;
 extern int D_8010E264;

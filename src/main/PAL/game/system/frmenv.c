@@ -14,6 +14,7 @@
 #include "psyq/libspu/sinit2.h"
 #include "game/data/ldscn1.h"
 #include "game/menu/menusave.h"
+#include "game/system/frmenv.h"
 
 extern int func_8001E84C();
 extern int func_8008BE44();
@@ -67,7 +68,6 @@ extern char *D_800F3B20;
 extern void func_800912B4(s32,s32),func_800912D4(s32);
 extern void *func_800928E4(void *,s32,s32,s32,s32),*func_80092998(void *,s32,s32,s32,s32);
 
-void func_8001E988(void);
 void func_8001ECE0(s32 bank);
 void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags);
 

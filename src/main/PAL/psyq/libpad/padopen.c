@@ -3,6 +3,7 @@
 #include "psyq/libpad/padpoll.h"
 #include "psyq/libpad/padwait.h"
 #include "psyq/libpad/padenab.h"
+#include "psyq/libpad/padopen.h"
 struct HW { unsigned char b0; char p1[3]; volatile unsigned short s4; short p6; volatile short s8; volatile unsigned short sA; char pC[2]; volatile short sE; };
 
 struct A { char p0[0xC]; char *f0C; char p1[0x27]; unsigned char b37; char p2[0x18]; unsigned char b50; char p3[0x97]; unsigned char bE8; };
@@ -17,7 +18,6 @@ extern struct W D_800ABCC0[];
 extern void (*D_800ABC88)();
 extern void (*D_800ABC8C)();
 
-void func_80098110();
 int func_80098154();
 
 void func_80098110() { func_80096F04(); func_80096F94(3, 1); func_80097714(2, &D_80114418); func_80096F14(); }

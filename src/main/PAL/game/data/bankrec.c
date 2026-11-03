@@ -3,13 +3,11 @@
 #include "rr/record_banks.h"
 #include "game/data/ldscn1.h"
 #include "game/menu/menu13.h"
+#include "game/data/bankrec.h"
 
 extern int D_800F39C8[];
 extern s32 D_800F4D90;
 
-void func_80029358();
-void func_800293AC();
-void func_800293C4(s32 arg0);
 void func_800293D0(s32 layout,s32 mode);
 
 void func_80029358(a) char *a; {

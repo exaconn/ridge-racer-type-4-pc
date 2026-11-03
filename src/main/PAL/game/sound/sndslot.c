@@ -10,6 +10,7 @@
 #include "game/sound/sndrst2.h"
 #include "game/sound/sndvol2.h"
 #include "game/data/trkld6.h"
+#include "game/sound/sndslot.h"
 
 typedef struct { short pad[0xC]; short o; short n; short c; short to; short from; } T;
 
@@ -41,7 +42,6 @@ void func_8004FD80(void);
 void func_8004FE7C(s32 a0, int a1, int a2);
 void func_8004FED4(void);
 void func_8004FF34(int a0);
-void func_8004FFA4(int arg0);
 void func_80050028(int a0, int a1);
 void func_8005007C(int a0, int a1, int a2);
 void func_800500A8();

@@ -7,6 +7,7 @@
 #include "game/course/trktext.h"
 #include "game/race/racemai2.h"
 #include "game/sound/sndbgm3.h"
+#include "game/car/carsetup.h"
 
 #define H(p, o) (*(unsigned short *)((char *)(p) + (o)))
 #define W(b, o) (*(int *)((char *)(b) + (o)))
@@ -32,7 +33,6 @@ extern int func_80026F5C();
 extern int func_8002C638();
 
 void func_80022888(char *a0);
-void func_80022980();
 void func_80022B64(char *a0, int a1);
 void func_80022C90(s32 arg0);
 void func_80022CD4(RrRaceVehicle *arg0);

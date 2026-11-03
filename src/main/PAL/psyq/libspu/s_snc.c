@@ -1,4 +1,5 @@
 /* CC1_FLAGS: -mno-split-addresses */
+#include "psyq/libspu/s_snc.h"
 extern int D_800A47D8;
 int func_80088D14(a0) int a0; {
     /* ASM_BARRIER: pin the clamp result to $a1 to match the original register allocation */

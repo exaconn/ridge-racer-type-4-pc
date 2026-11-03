@@ -1,4 +1,5 @@
 #include "game/gfx/meshquad.h"
+#include "game/gfx/ring2.h"
 extern int func_8005599C();
 extern int func_80090F74();
 extern int func_8006EE3C();

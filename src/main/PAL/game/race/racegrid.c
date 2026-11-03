@@ -3,6 +3,7 @@
 #include "m2c_macros.h"
 #include "game/system/pad.h"
 #include "game/ui/hudmap.h"
+#include "game/race/racegrid.h"
 
 typedef struct { int a, b, c, d; } w3g2V;
 
@@ -108,11 +109,7 @@ void func_800347BC(void);
 void func_80034844(int a0);
 void func_800348E8(int arg0);
 void func_800349F4(int a0, int a1);
-void func_80034E14(void);
-int func_80034E3C(void);
 int func_80034E70(int a0, unsigned int a1);
-void func_80034E84(void);
-void func_80034F18(void);
 void func_80034F80(void);
 int func_80034FC0(void);
 int func_80035024(int a0);

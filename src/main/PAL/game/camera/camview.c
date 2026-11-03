@@ -3,6 +3,7 @@
 #include "game/gfx/gfxdraw.h"
 #include "game/gfx/meshquad.h"
 #include "game/gfx/scene1.h"
+#include "game/camera/camview.h"
 
 struct E { s16 a, h; };
 
@@ -21,10 +22,8 @@ extern void func_800701C4();
 extern void func_80090DB4();
 extern short D_800A0D64[];
 
-void func_80055C84(void);
 int func_80055FD8(struct E *p, int a1);
 s32 func_8005602C(RrPairS16 *t, s32 idx, s32 x);
-int func_800560CC(int a0);
 
 void func_80055C84(void)
 {

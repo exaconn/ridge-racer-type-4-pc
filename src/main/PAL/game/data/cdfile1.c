@@ -7,6 +7,7 @@
 #include "rr/cd.h"
 #include "psyq/libcd/dsfinish.h"
 #include "psyq/libcd/s_1.h"
+#include "game/data/cdfile1.h"
 
 typedef struct {RrCdLocation location; s32 size; u8 name[16];} SearchResult;
 
@@ -29,11 +30,8 @@ extern int D_8009DFA4;
 extern struct P { int w0, w4; short x0, y0; int c1; short x1, y1; int c2; short x2, y2; } D_80109400[];
 extern struct P *D_80109438;
 
-s32 func_80012208(s32 arg0);
 int func_80012210(int a0, int a1, int a2, int a3);
 int func_8001223C(int a0, int a1);
-void func_80012290(void);
-void func_800123D4(void);
 void func_80012408(void);
 
 s32 func_80012208(s32 arg0) {

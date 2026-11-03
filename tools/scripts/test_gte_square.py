@@ -48,7 +48,7 @@ void store(RrVec3i *p) {stored=p;trace[count++]=3;p->x=mac[0];p->y=mac[1];p->z=m
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'));cls.functions=[]
-        for name,shift in [('func_80091574',12),('func_8009159C',0)]:
+        for name,shift in [('Square12',12),('Square0',0)]:
             f=getattr(cls.lib,name);f.argtypes=[C.POINTER(Vec),C.POINTER(Vec)];f.restype=C.c_void_p
             cls.functions.append((f,shift))
         cls.trace=(C.c_int32*4).in_dll(cls.lib,'trace');cls.count=C.c_int32.in_dll(cls.lib,'count')

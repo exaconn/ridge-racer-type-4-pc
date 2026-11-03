@@ -129,7 +129,7 @@ host tests.
 ## Symbol names
 Auto names (`func_XXXXXXXX`) are replaced by real names when the name is certain. `configs/PAL/sym.main.txt`
 is the registry (`Name = 0xADDR; // type:func`); `tools/scripts/rename_symbols.py` applies it to sources, headers,
-tests and configs, and `make split` regenerates the asm with the same names. 68 PsyQ library functions have their
+tests and configs, and `make split` regenerates the asm with the same names. 76 PsyQ library functions have their
 real names (`DrawSync`, `SetDispMask`, `CdControl`, `SetDrawEnv`, ...): a name is registered only if it exists as a
 symbol in the reference PsyQ decompilation and the hint list has exactly one address for it. Names that the hint list
 repeats at several addresses (`InterruptCallback`, `Menu_RebuildSelectableMask`, ...) or that are tool-made labels

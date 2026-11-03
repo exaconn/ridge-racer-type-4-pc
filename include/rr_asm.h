@@ -137,7 +137,7 @@
 #define RR_GTE_SWC2_IR0(p) __asm__ volatile ("swc2 $8, 0(%0)" : : "r"(p) : "memory")
 #define RR_GTE_STORE_SZ3_SRA2(p) __asm__ volatile ("mfc2 $12, $19\n\tnop\n\tsra $12, $12, 2\n\tsw $12, 0(%0)" : : "r"(p) : "$12", "memory")
 
-/* PsyQ libgte hand-coded matrix multiply helpers (func_80090914..func_80090F14). */
+/* PsyQ libgte hand-coded matrix multiply helpers (func_80090914..ApplyMatrixSV). */
 #define RR_GTE_MASK_HI16(x) __asm__ volatile ("and %0, %0, 0xFFFF0000" : "+r"(x))
 #define RR_GTE_MVMVA_ROT_V0_1NOP() __asm__ volatile ("nop\n\t.word 0x4A486012")
 #define RR_GTE_SW_AT(val, base, idx) __asm__ volatile ("sw %0, " #idx "*4(%1)" : : "r"(val), "r"(base))

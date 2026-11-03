@@ -3,15 +3,15 @@
 #include "psyq/libgte/gtecolo4.h"
 
 void func_800914C4(int *a0, int *a1);
-void func_800914EC(int *a0, int *a1, int a2, int *a3);
-void func_80091514(int *a0, int *a1, int *a2, int a3, int * volatile a4, int * volatile a5, int * volatile a6);
-void func_80091550(int *a0, int a1, int *a2);
-RrVec3i *func_80091574(const RrVec3i *input,RrVec3i *output);
-RrVec3i *func_8009159C(const RrVec3i *input,RrVec3i *output);
+void DpqColorLight(int *a0, int *a1, int a2, int *a3);
+void DpqColor3(int *a0, int *a1, int *a2, int a3, int * volatile a4, int * volatile a5, int * volatile a6);
+void Intpl(int *a0, int a1, int *a2);
+RrVec3i *Square12(const RrVec3i *input,RrVec3i *output);
+RrVec3i *Square0(const RrVec3i *input,RrVec3i *output);
 int func_800915C4(int a0, int a1, int a2);
 int func_800915E4(int a0, int a1, int a2, int a3);
 void OuterProduct12(int *a0, int *a1, int *a2);
-void func_80091660(int *a0, int *a1, int *a2);
+void OuterProduct0(int *a0, int *a1, int *a2);
 
 void func_800914C4(int *a0, int *a1) {
     __asm__ volatile ("lwc2 $9, 0(%0)\n\tlwc2 $10, 4(%0)\n\tlwc2 $11, 8(%0)" : : "r"(a0));
@@ -19,7 +19,7 @@ void func_800914C4(int *a0, int *a1) {
     __asm__ volatile ("swc2 $9, 0(%0)\n\tswc2 $10, 4(%0)\n\tswc2 $11, 8(%0)" : : "r"(a1));
 }
 
-void func_800914EC(int *a0, int *a1, int a2, int *a3) {
+void DpqColorLight(int *a0, int *a1, int a2, int *a3) {
     __asm__ volatile ("lwc2 $9, 0(%0)\n\tlwc2 $10, 4(%0)\n\tlwc2 $11, 8(%0)" : : "r"(a0));
     __asm__ volatile ("lwc2 $6, 0(%0)" : : "r"(a1));
     __asm__ volatile ("mtc2 %0, $8" : : "r"(a2));
@@ -27,7 +27,7 @@ void func_800914EC(int *a0, int *a1, int a2, int *a3) {
     __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(a3));
 }
 
-void func_80091514(int *a0, int *a1, int *a2, int a3, int * volatile a4, int * volatile a5, int * volatile a6) {
+void DpqColor3(int *a0, int *a1, int *a2, int a3, int * volatile a4, int * volatile a5, int * volatile a6) {
     register int *t0 __asm__("$8");
     register int *t1 __asm__("$9");
     register int *t2 __asm__("$10");
@@ -45,14 +45,14 @@ void func_80091514(int *a0, int *a1, int *a2, int a3, int * volatile a4, int * v
     __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(t2));
 }
 
-void func_80091550(int *a0, int a1, int *a2) {
+void Intpl(int *a0, int a1, int *a2) {
     __asm__ volatile ("lwc2 $9, 0(%0)\n\tlwc2 $10, 4(%0)\n\tlwc2 $11, 8(%0)" : : "r"(a0));
     __asm__ volatile ("mtc2 %0, $8" : : "r"(a1));
     __asm__ volatile ("nop\n\t.word 0x4A980011");
     __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(a2));
 }
 
-RrVec3i *func_80091574(const RrVec3i *input,RrVec3i *output) {
+RrVec3i *Square12(const RrVec3i *input,RrVec3i *output) {
     RR_GTE_LWC2_IR(input);
     /* ASM_BARRIER: Leave the original GTE input-load pipeline gap before SQR. */
     RR_NOP_DEP();
@@ -63,7 +63,7 @@ RrVec3i *func_80091574(const RrVec3i *input,RrVec3i *output) {
     return output;
 }
 
-RrVec3i *func_8009159C(const RrVec3i *input,RrVec3i *output) {
+RrVec3i *Square0(const RrVec3i *input,RrVec3i *output) {
     RR_GTE_LWC2_IR(input);
     /* ASM_BARRIER: Leave the original GTE input-load pipeline gap before SQR. */
     RR_NOP_DEP();
@@ -119,7 +119,7 @@ void OuterProduct12(int *a0, int *a1, int *a2) {
     __asm__ volatile ("ctc2 %0, $4" : : "r"(t7));
 }
 
-void func_80091660(int *a0, int *a1, int *a2) {
+void OuterProduct0(int *a0, int *a1, int *a2) {
     register int t0 __asm__("$8");
     register int t1 __asm__("$9");
     register int t2 __asm__("$10");

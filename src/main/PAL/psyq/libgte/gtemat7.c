@@ -5,7 +5,7 @@ void SetTransMatrix(int *a0);
 void func_80091164(int *a0);
 void func_80091174(int *a0);
 void func_80091184(int *a0);
-void func_80091194(int *a0, int *a1, int *a2);
+void SetVertexTri(int *a0, int *a1, int *a2);
 void func_800911B4(int *a0, int *a1, int *a2);
 void func_800911C8(int a0, int a1, int a2);
 void func_800911DC(int a0);
@@ -99,7 +99,7 @@ void func_80091184(int *a0) {
     __asm__ volatile ("lwc2 $4, 0(%0)\n\tlwc2 $5, 4(%0)" : : "r"(a0));
 }
 
-void func_80091194(int *a0, int *a1, int *a2) {
+void SetVertexTri(int *a0, int *a1, int *a2) {
     __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(a0));
     __asm__ volatile ("lwc2 $2, 0(%0)\n\tlwc2 $3, 4(%0)" : : "r"(a1));
     __asm__ volatile ("lwc2 $4, 0(%0)\n\tlwc2 $5, 4(%0)" : : "r"(a2));

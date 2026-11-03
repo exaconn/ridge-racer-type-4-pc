@@ -21,8 +21,8 @@ typedef struct {
 
 /* SQR hardware helpers return MAC1..MAC3, with shift 12 and shift 0 respectively.
  * Input and output may overlap. GTE IR/MAC registers and FLAG are also modified. */
-RrVec3i *func_80091574(const RrVec3i *input, RrVec3i *output);
-RrVec3i *func_8009159C(const RrVec3i *input, RrVec3i *output);
+RrVec3i *Square12(const RrVec3i *input, RrVec3i *output);
+RrVec3i *Square0(const RrVec3i *input, RrVec3i *output);
 
 RR_ASSERT_SIZE(RrVec3i, 12);
 RR_ASSERT_SIZE(RrVector, 16);

@@ -25,7 +25,7 @@ void ovl668_func_80115554(void);
 void ovl668_func_801156FC(void);
 extern RrRaceVehicle D_800ABEF8[2];
 u16 *func_80091844(s16 *rotation,u16 *matrix);
-void *func_80090F14(const RrMatrixWords32 *matrix,const s16 *vector,RrPreviewVector8 *output);
+void *ApplyMatrixSV(const RrMatrixWords32 *matrix,const s16 *vector,RrPreviewVector8 *output);
 void func_8006E1AC(void);
 void ovl668_func_80115850(void);
 /* Explicit legacy position argument, ignored by the current body. */

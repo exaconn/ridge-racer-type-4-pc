@@ -68,7 +68,7 @@ void func_80047610(const RrTrackSample3C *a,const RrTrackSample3C *b,s32 lateral
 s32 func_8006E368(s32 y,s32 x){Event *e=event(2);s32 result=(s32)(next()%4097)-1024;e->a[0]=y;e->a[1]=x;e->a[2]=result;effect();return result;}
 s32 func_80090758(s32 squared){Event *e=event(3);s32 result=(s32)(next()&0x7fffffffU);assert(squared>=0);e->a[0]=squared;e->a[1]=result;effect();return result;}
 u16 *func_80091844(s16 *angles,u16 *matrix){Event *e=event(4);unsigned i;assert(((uintptr_t)matrix&3)==0);for(i=0;i<3;i++)e->a[i]=angles[i];for(i=0;i<16;i++)matrix[i]=(u16)next();effect();return matrix;}
-void *func_80090F14(const RrMatrixWords32 *matrix,const s16 *offset,RrPreviewVector8 *output){
+void *ApplyMatrixSV(const RrMatrixWords32 *matrix,const s16 *offset,RrPreviewVector8 *output){
  Event *e=event(5);u32 words[8];unsigned i;assert(offset==w->s.camera.offset488);memcpy(words,matrix,32);
  for(i=0;i<8;i++)e->a[3]^=word(words[i]);for(i=0;i<3;i++)e->a[i]=offset[i];
  output->x=half((s32)offset[0]+(s32)(words[0]&65535));output->y=half((s32)offset[1]+(s32)(words[1]&65535));output->z=half((s32)offset[2]+(s32)(words[2]&65535));effect();return output;
@@ -96,7 +96,7 @@ static void expected(unsigned kind){RrReplayCameraContextPrefix *c=&w->s.camera;
   w->s.scratch[6]=c->pitch460;w->s.scratch[7]=c->yaw462;w->s.scratch[8]=c->roll464;
   for(i=0;i<3;i++)w->s.scratch[2+i]=c->position450[i];
   vector.x=half(w->s.scratch[6]);vector.y=half(w->s.scratch[7]);vector.z=half(w->s.scratch[8]);
-  func_80091844(&vector.x,matrix.halves);func_80090F14(&matrix.matrix,c->offset488,&vector);
+  func_80091844(&vector.x,matrix.halves);ApplyMatrixSV(&matrix.matrix,c->offset488,&vector);
   w->s.vehicles[0].pos20[0]=c->position450[0]/4+vector.x;w->s.vehicles[0].pos20[1]=c->position450[1]/4+vector.y;w->s.vehicles[0].pos20[2]=c->position450[2]/4+vector.z;
   w->s.vehicles[0].rot50=(s32)c->pitch460+c->angle490;w->s.vehicles[0].rot54=c->yaw462;w->s.vehicles[0].rot58=c->roll464;func_8006E1AC();
  }

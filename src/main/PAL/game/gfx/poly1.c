@@ -79,7 +79,7 @@ extern short D_80107180[];
 extern int func_8006E030();
 extern int func_80090CA4();
 extern M D_800F39A8;
-extern int func_80090F14();
+extern int ApplyMatrixSV();
 extern int func_8006DB0C();
 extern int func_80090884();
 extern int func_8006E368();
@@ -385,7 +385,7 @@ void func_80070BA4(char *a0, int a1, int a2) {
             func_80090DB4(sp40, sp20);
             func_8006E030(sp40, func_80096464() & 0xFFF);
             func_80090DB4(sp40, sp20);
-            func_80090F14(sp20, sp60, s0->c10);
+            ApplyMatrixSV(sp20, sp60, s0->c10);
             *(U8 *)s0->c18 = *(U8 *)s0->c10;
             s1->f10 = s1->f10 + 1;
         }

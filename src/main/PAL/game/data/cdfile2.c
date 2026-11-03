@@ -11,6 +11,13 @@
 #include "game/data/cdfile1.h"
 #include "game/gfx/poly1.h"
 #include "psyq/libcd/dsfinish.h"
+#include "game/car/carmove1.h"
+#include "game/data/bankrec.h"
+#include "game/data/cdfile1.h"
+#include "game/gfx/model.h"
+#include "game/gfx/poly1.h"
+#include "game/race/objdraw.h"
+#include "psyq/libgpu/primatt8.h"
 #define B (*(int *)&D_800ACC18)
 
 struct A { char p[0x14]; unsigned f14; char q[0x20]; unsigned f38; };
@@ -45,7 +52,6 @@ extern s32 D_80109488;
 extern RrCdLocation D_80109464;
 extern u8 D_80109498;
 extern RrCdFileEntry D_801094A8[];
-extern int func_80095C14();
 extern unsigned char D_8009DFD8[];
 extern unsigned char D_8009DFEC[];
 extern int func_80096434();
@@ -56,23 +62,15 @@ extern int D_8009DF98;
 extern int D_8010943C;
 extern int D_8010BF68;
 extern int D_8010BF60;
-extern int func_80012208();
-extern void func_800292A8();
-extern void func_800293C4();
 extern void func_800436E8();
-extern void func_800700AC();
 extern void func_80070108();
 extern void func_8007026C();
-extern void func_800713C4();
-extern void func_80071434();
-extern int func_80077D08();
 extern int D_80109440;
 extern int D_80109444;
 extern int D_80109448;
 extern int D_8010944C;
 extern int D_80109450;
 extern int D_80109454;
-extern int func_80012210();
 void func_80092D50(s32);
 void func_80092FFC(s16 *, void *);
 extern s32 D_80109468[];

@@ -4,5 +4,7 @@
 #include "types.h"
 
 void func_80053E2C(void);
+void func_80054128(int a0);
+void func_80054264(int a0);
 
 #endif /* RR_GAME_EFFECT_PTINIT_H */

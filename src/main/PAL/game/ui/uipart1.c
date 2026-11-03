@@ -4,6 +4,8 @@
 #include "rr/geometry.h"
 #include "rr/gpu.h"
 #include "rr/race.h"
+#include "game/sound/sndvab.h"
+#include "game/ui/window1.h"
 
 typedef struct { unsigned char c[4]; } B4;
 
@@ -85,7 +87,6 @@ extern char D_80010460[];
 extern s32 func_8002071C();
 extern s32 D_8009FDA4;
 extern int func_8004F24C();
-extern int func_80020CD4();
 extern char D_8009F008[];
 extern int D_800F3A30;
 extern int D_800F4C74;
@@ -93,12 +94,10 @@ extern int D_800F4C80[];
 extern int func_80095A44();
 extern char D_8009F014[];
 extern unsigned short D_8009F01C[];
-extern int func_80020E2C();
 extern char D_8009F020[];
 extern int D_800AD504;
 extern int func_80025F84();
 extern int func_800904F4();
-extern int func_8004F218();
 
 void func_8002A344();
 void func_8002A604(void);

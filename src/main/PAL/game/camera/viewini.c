@@ -1,5 +1,7 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/gfx/model.h"
+#include "game/gfx/poly1.h"
 
 typedef struct { int a, b, c, d, e, f, g, h; } w3g6_32;
 
@@ -20,7 +22,6 @@ extern int D_800F4D68;
 extern int D_800F4D84;
 extern int D_80107194;
 extern int D_801093F8;
-extern int func_80070934();
 extern int D_8010718C;
 extern int D_800AD5B8;
 extern char D_800F4C38[];
@@ -28,7 +29,6 @@ extern unsigned int *D_800ADAD0;
 extern int D_800F2EB4;
 extern unsigned int D_8010E290[];
 extern unsigned int *D_8010E690;
-extern unsigned int *func_8006F288();
 
 void func_8006E63C(void);
 void func_8006E794(void);

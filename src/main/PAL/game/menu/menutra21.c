@@ -5,6 +5,7 @@
 #include "game/data/cardchk.h"
 #include "game/data/cardini.h"
 #include "game/menu/loadmenu.h"
+#include "game/data/cardini.h"
 
 struct E { char pad[4]; unsigned char a; char b; unsigned char c; signed char d; };
 
@@ -79,8 +80,6 @@ extern u8 D_8010B2DC[];
 extern char *D_800ACC0C;
 extern int D_8010EFA8;
 extern int func_8002B75C();
-extern int func_80078414();
-extern int func_80078544();
 extern short D_800A45BC;
 extern short D_800A45BE;
 extern unsigned char D_800ACBCC;

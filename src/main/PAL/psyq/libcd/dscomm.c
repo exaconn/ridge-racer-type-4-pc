@@ -3,6 +3,9 @@
 #include "rr/library.h"
 #include "rr/cd_read_request.h"
 #include "rr/cd_read_stop.h"
+#include "psyq/libcd/s_1.h"
+#include "psyq/libcd/s_2.h"
+#include "psyq/libcd/s_3.h"
 
 #define RR_READ_OWNER_OFFSET \
     (sizeof(RrLibReadRequestState)-sizeof(RrLibReadRestoreTail))
@@ -14,18 +17,11 @@
 #define RR_PAIR_PENDING(pair) (RR_PAIR_REQUEST(pair)->finished24)
 
 extern s32 func_8008B154(s32);
-extern RrLibCompletionCallback func_8008C118(RrLibCompletionCallback);
-extern RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback);
 extern RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback);
-extern s32 func_8008C53C(u8 *,u32);
-extern void func_8008C580(s32);
 extern s32 func_8008C6A4(void *);
 extern s32 func_800963DC(const char *,...);
 extern const char D_80011D28[];
 extern void func_8008EA9C(void),func_8008E7F4(void);
-extern u8 func_8008BF94(void);
-extern s32 func_8008BFA4(void);
-extern u8 *func_8008BFC4(void);
 extern void func_8008C03C(void);
 extern const char D_80011D40[];
 extern const char D_80011D58[];

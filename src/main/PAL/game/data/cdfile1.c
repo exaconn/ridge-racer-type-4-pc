@@ -6,6 +6,7 @@
  * The disc supplies count + 1 valid offsets; sector arithmetic must fit s32. */
 #include "rr/cd.h"
 #include "psyq/libcd/dsfinish.h"
+#include "psyq/libcd/s_1.h"
 
 typedef struct {RrCdLocation location; s32 size; u8 name[16];} SearchResult;
 
@@ -20,7 +21,6 @@ extern const char D_80010054[];
 extern const char D_80010068[];
 extern u32 *D_800102F0;
 extern RrCdFileEntry D_801094A8[];
-extern int func_8008C05C();
 extern s32 D_800ACC18;
 extern int func_80090424();
 extern int func_800904F4();

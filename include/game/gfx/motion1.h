@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+void func_8005D500(s32 arg0);
 void func_8005D820(void);
 void func_8005D858(void);
 

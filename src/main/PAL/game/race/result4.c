@@ -2,6 +2,8 @@
 #include "types.h"
 #include "rr/ui.h"
 #include "m2c_macros.h"
+#include "game/menu/menuwork.h"
+#include "game/ui/barsel0.h"
 
 typedef struct { short a, b; } X;
 
@@ -30,9 +32,7 @@ extern s16 D_800F4C6A;
 extern s16 D_800F4D8A;
 extern int func_8001E84C();
 extern int func_8002AF8C();
-extern int func_80036C08();
 extern void func_80036D40(void);
-extern int func_80039988();
 extern int func_8003A1B4();
 extern int func_8003AE4C();
 extern int func_8003EC88();

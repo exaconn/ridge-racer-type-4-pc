@@ -2,11 +2,10 @@
 #include "types.h"
 #include "rr_asm.h"
 #include "psyq/libcd/dsmedia2.h"
+#include "psyq/libcd/dsstrm4.h"
+#include "psyq/libgte/geo_.h"
 
 extern s32 func_8008C0F8(s32, u8 *);
-extern void func_8008F814(s32, s32);
-extern void func_80090250(void *, s32, s32, s32);
-extern void func_8009027C(s32, void *, s32, s32, s32, s32, s32);
 
 typedef struct {
     u32 x;

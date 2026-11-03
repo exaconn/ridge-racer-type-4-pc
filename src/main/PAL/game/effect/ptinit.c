@@ -1,6 +1,7 @@
 #include "types.h"
 #include "rr/ui.h"
 #include "rr/ui_primitives.h"
+#include "game/course/trktext.h"
 
 #define ADDPRIM(ot, p) \
     (p)->addr = ((PolyFT4 *)(ot))->addr; \
@@ -55,7 +56,6 @@ extern struct {
 } D_800AC650;
 extern u8 *D_800ACC14;
 extern RrGpuColorCommand D_800A0CF0;
-extern void func_8004CD88();
 
 void func_80053E2C(void);
 int func_80053E88(void);

@@ -3,6 +3,7 @@
 /* CC1_FLAGS: -fsigned-char -mhard-float */
 #include "rr/library.h"
 #include "psyq/libcd/dsread.h"
+#include "psyq/libcd/dsfile.h"
 
 typedef struct {
     unsigned char pos[4];
@@ -31,7 +32,6 @@ extern const char D_80011B6C[];
 extern const char D_80011B88[];
 extern const char D_80011BA8[];
 extern const char D_80011BB4[];
-extern int func_8008E4E4(int);
 extern int func_8001E84C();
 extern int func_80096414();
 extern int D_800A67A0;

@@ -1,5 +1,5 @@
 /* GCC_VERSION: 2.7.2 */
-extern int func_800879F4();
+#include "psyq/libsnd/vmreset.h"
 extern unsigned short D_800A4904[], D_800A4914[];
 extern int D_8010F05C, D_8010F060, D_8010F064;
 extern int D_8010F0E8[32][16];

@@ -1,6 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/library.h"
-extern void func_80087DE4(s32, s32, s32, s32, s32, s32);
+#include "psyq/libsnd/vmmain.h"
 extern void func_80088340(s32, s32, s32, s32);
 void func_80081CB4(s32 bank, s32 row, s32 value, s32 mode) {
     /* ASM_BARRIER: Retain the original register across the bank lookup and callback dispatch. */

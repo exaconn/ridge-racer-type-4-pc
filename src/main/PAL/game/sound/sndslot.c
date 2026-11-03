@@ -1,6 +1,14 @@
 #include "types.h"
 #include "rr/audio_loop.h"
 #include "m2c_macros.h"
+#include "game/sound/fxramp1.h"
+#include "game/sound/sndbgm3.h"
+#include "game/sound/sndchan.h"
+#include "game/sound/sndcmd.h"
+#include "game/sound/sndctrl.h"
+#include "game/sound/sndmain.h"
+#include "game/sound/sndrst2.h"
+#include "game/sound/sndvol2.h"
 
 typedef struct { short pad[0xC]; short o; short n; short c; short to; short from; } T;
 
@@ -23,15 +31,7 @@ typedef struct {
     short h5DC[(0x620 - 0x5DC) / 2];
 } W;
 
-extern int func_8004FB00();
 extern int func_800534D8();
-extern int func_80053D24();
-extern int func_80052548();
-extern int func_800501BC();
-extern int func_80050EC4();
-extern int func_80051378();
-extern int func_80051554();
-extern int func_8004F418();
 extern s32 D_800ACBC8;
 extern s32 D_800F4DC8;
 extern struct S D_800F4DF0[];

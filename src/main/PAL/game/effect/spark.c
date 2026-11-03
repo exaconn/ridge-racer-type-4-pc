@@ -1,7 +1,7 @@
 #include "game/effect/carfx.h"
+#include "game/effect/carfx.h"
 extern short D_800A0F9C[];
 extern char *D_800AC89C;
-extern int func_80057138();
 
 void func_80057750() {
     int a0, a1, lo, l1, l2, a2, a3;

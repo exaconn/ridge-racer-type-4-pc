@@ -1,10 +1,10 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/ui/window2.h"
 
 struct S { char pad[0x2AA]; short f; char pad2[0x320 - 0x2AC]; };
 
 extern s32 func_8001FCC8();
-extern s32 func_800215F4();
 extern s32 D_800F4BF0;
 extern char D_8010BF88[];
 extern int D_800ACC14;

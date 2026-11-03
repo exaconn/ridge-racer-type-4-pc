@@ -5,6 +5,8 @@
 #include "game/data/cdfile2.h"
 #include "game/system/frmenv.h"
 #include "game/system/pad.h"
+#include "game/effect/spfade.h"
+#include "psyq/libgpu/gpuenv.h"
 
 extern s16 D_800AC5D0;
 extern s32 D_8010BF84;
@@ -20,12 +22,10 @@ extern int func_800436E8();
 extern int func_8002AF8C();
 extern int func_800207D4();
 extern int func_80052B8C();
-extern int func_8001B754();
 extern int func_8001BAF8();
 extern int func_8001E1F0();
 extern int func_8002A344();
 extern void func_80092CB8(s32),func_8004FD80(void),func_80092D50(s32);
-extern u32 *func_8009323C(u32 *,s32);
 extern s32 func_8008B154(s32);
 extern void *func_80093580(void *), *func_800933B4(void *);
 

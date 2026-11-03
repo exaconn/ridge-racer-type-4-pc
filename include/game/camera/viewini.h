@@ -1,0 +1,10 @@
+#ifndef RR_GAME_CAMERA_VIEWINI_H
+#define RR_GAME_CAMERA_VIEWINI_H
+
+#include "types.h"
+
+void func_8006E834(void);
+void func_8006E8F8();
+int func_8006E9D4();
+
+#endif /* RR_GAME_CAMERA_VIEWINI_H */

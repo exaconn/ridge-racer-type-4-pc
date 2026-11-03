@@ -1,31 +1,30 @@
 #include "rr/frame_environment.h"
 #include "rr/frame_loop.h"
+#include "game/car/carstat.h"
+#include "game/data/cardini.h"
+#include "game/data/cdfile1.h"
+#include "game/data/trkld8.h"
+#include "game/gfx/fadespr.h"
+#include "game/gfx/model.h"
+#include "game/menu/menu8.h"
+#include "game/race/racesamp.h"
+#include "game/race/ranking.h"
+#include "psyq/libgpu/gpuenv.h"
+#include "psyq/libsio/siostart.h"
+#include "psyq/libspu/sinit2.h"
 
 extern int func_8001E84C();
 extern int func_8008BE44();
-extern int func_800123D4();
-extern int func_8007FA54();
-extern int func_8004EC28();
 extern int func_80052800();
 extern int func_800929D4();
-extern int func_80092B48();
 extern int func_80092CB8();
 extern int func_800907FC();
-extern int func_80077E10();
-extern int func_8004A55C();
-extern int func_8005C0C4();
 extern int func_8004A678();
-extern int func_8009A8B4();
 extern int func_8009AEAC();
 extern int func_80013890();
 extern int func_80096434();
 extern int func_8002B75C();
 extern int func_8003A1B4();
-extern int func_8001EEE4();
-extern int func_8001F194();
-extern int func_8006F5F0();
-extern int func_80031DB0();
-extern int func_800373DC();
 extern int D_800102F0;
 extern char D_800102F4[];
 extern char D_80010300[];

@@ -1,5 +1,6 @@
 /* RODATA 0x800117b8 0x3c */
 /* CC1_FLAGS: -mno-split-addresses */
+#include "psyq/libsnd/vmpitch.h"
 typedef struct {
     short left;
     short right;
@@ -40,7 +41,6 @@ extern char D_8010F91E[];
 extern signed char D_801100FC;
 extern short D_80110118;
 extern int func_8007F414(int, int);
-extern short func_80084C74(unsigned int, int, unsigned int, int);
 extern volatile unsigned short *D_800A47D8;
 extern unsigned short D_800A4874[];
 

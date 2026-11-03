@@ -5,6 +5,10 @@
 #include "rr/serial.h"
 #include "rr/interrupts.h"
 #include "m2c_macros.h"
+#include "psyq/libsio/siorecv.h"
+#include "psyq/libsio/siosend.h"
+#include "psyq/libsio/siostart.h"
+#include "psyq/libsio/siowait.h"
 
 /* ASM_BARRIER: retain a constant data base in a register so its fields use base offsets. */
 #define KEEP_BASE(p) __asm__ volatile("" : "=r"(p) : "0"(p))
@@ -22,10 +26,6 @@ extern s32 func_80096E64(u32, s32);
 extern void func_80097704(), func_80097714();
 extern char D_800ABD20[];
 extern u16 D_801146CA;
-extern int func_8009A94C();
-extern int func_8009A9A4();
-extern int func_8009ABF8();
-extern int func_8009AC50();
 
 s32 func_8009AEAC(u32 arg0, u32 arg1, u32 arg2);
 s32 func_8009B380(void);

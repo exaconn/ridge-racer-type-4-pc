@@ -1,8 +1,7 @@
 /* GCC_VERSION: 2.7.2 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
-
-extern int func_800916B8();
+#include "psyq/libgte/gtecolo4.h"
 
 s32 func_80090604(s32 arg0);
 int func_80090758();

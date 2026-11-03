@@ -1,6 +1,6 @@
+#include "game/gfx/fadeset.h"
 extern int D_800AC650[];
 extern short D_800F4DB8[];
-extern void func_80054D30();
 extern void func_8008A674();
 
 void func_8005CA14(void) {

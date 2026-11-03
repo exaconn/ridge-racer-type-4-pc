@@ -1,10 +1,10 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/race/ranking.h"
 
 extern int func_8003EC88();
 extern char *D_800F4D80;
 extern short D_800FFC18;
-extern int func_8001F400();
 extern int func_8001FD20();
 extern char D_80011680[];
 extern char D_80011688[];

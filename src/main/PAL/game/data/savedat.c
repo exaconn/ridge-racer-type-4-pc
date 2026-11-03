@@ -1,5 +1,6 @@
 /* RODATA 0x800114a0 0xc4 */
 #include "game/gfx/color.h"
+#include "psyq/libc/printf.h"
 typedef struct {
     int w[31];
 } Struct7C;
@@ -80,7 +81,6 @@ extern StructC D_8010C088[];
 extern StructC D_80118420[];
 extern Struct48 D_80118458[2];
 extern int D_801272F0[];
-extern int func_80096484();
 extern int func_8009305C();
 extern int func_80092D50();
 extern char D_80011564[];

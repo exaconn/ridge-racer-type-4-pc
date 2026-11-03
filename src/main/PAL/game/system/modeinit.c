@@ -1,10 +1,17 @@
 /* RODATA 0x800104c4 0x2c */
 #include "rr/ui.h"
+#include "game/data/ldscn1.h"
+#include "game/gfx/fadectl.h"
+#include "game/gfx/fadein.h"
+#include "game/gfx/fadesel.h"
+#include "game/menu/menutran.h"
+#include "game/race/racegrid.h"
+#include "game/race/ranking.h"
+#include "game/system/modepad.h"
 
 typedef struct { char p0[2]; short s2; char p4[4]; short s8; short sA; char pC[4]; short s10; } W7C0_F;
 
 extern int func_8001E84C();
-extern int func_8001F254();
 extern int func_80053CB0();
 extern int func_80092CB8();
 extern int func_8009AEAC();
@@ -31,7 +38,6 @@ extern char D_800F4D98[];
 extern short D_800FF688;
 extern int D_8010BFB8;
 extern int func_8001ECE8();
-extern int func_8002F8E4();
 extern int func_8003D228();
 extern char D_800104B0[];
 extern int D_800ABEB0;
@@ -49,18 +55,10 @@ extern int D_800F3A60;
 extern unsigned short D_800F3A40;
 extern unsigned short D_800F4C5C;
 extern int D_8010BFBC;
-extern int func_8002F0E0();
-extern void func_8002F100();
-extern int func_8002F1BC();
 extern void func_80032A14();
-extern void func_80034E14();
 extern void func_8003A198();
-extern int func_8003A9E8();
 extern void func_8003D6F0();
 extern void func_8004F24C();
-extern void func_8005C7A4();
-extern void func_8005C8D8();
-extern void func_8005CA04();
 extern void func_8005D974();
 
 void func_8002E9B0();

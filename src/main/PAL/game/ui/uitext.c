@@ -1,5 +1,8 @@
 /* RODATA 0x80010938 0x24c */
 #include "types.h"
+#include "game/ui/hudmap.h"
+#include "game/ui/uiwin.h"
+#include "psyq/libgpu/addprim.h"
 
 typedef struct {
     s32 prim;
@@ -59,7 +62,6 @@ extern s32 func_8001FC28();
 extern s32 func_8001FCC8();
 extern s32 func_8001FD20();
 extern s32 func_8001FF84();
-extern void func_8003EA04();
 extern s32 func_80090424();
 extern s32 func_800904F4();
 extern char D_80010924[];
@@ -82,13 +84,11 @@ extern s32 D_800F3A30;
 extern UiElem24 *D_800F4D80;
 extern s32 D_80119754;
 extern s32 D_80119758;
-extern int func_80022694();
 extern int func_80096434();
 extern int D_800ACC24;
 extern int D_800F2AB0;
 extern Q D_8009F9FC[];
 extern int func_8003DCEC();
-extern unsigned short func_80095A24();
 extern int func_80020074();
 extern int func_8002039C();
 

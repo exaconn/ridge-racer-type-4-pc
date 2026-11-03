@@ -1,5 +1,12 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/camera/viewini.h"
+#include "game/car/aipath.h"
+#include "game/gfx/poly1.h"
+#include "game/math/rotmat.h"
+#include "psyq/libgte/gtemat3.h"
+#include "psyq/libgte/gtemat7.h"
+#include "psyq/libgte/gtetrig.h"
 
 #define G ((Scratch_8006EF8C *)0x1F800000)
 
@@ -26,20 +33,11 @@ typedef struct {
 
 typedef struct { char pad[0xF0]; int f; char pad2[0x320 - 0xF4]; } S;
 
-extern int func_8006E300();
-extern int func_80090B14();
 extern int func_80090F74();
-extern int func_8006E9D4();
 extern int D_8010E690;
-extern int func_80091144();
-extern int func_800910B4();
 extern struct S8 D_800FF690;
 extern struct S8 D_800F39A8;
-extern int func_80090594();
 extern int func_800910E4();
-extern int func_80091114();
-extern int func_80091274();
-extern int func_80091294();
 extern s32 D_800ABE98;
 extern M2C_UNK D_800AD570;
 extern s32 D_800F4D48;
@@ -49,16 +47,11 @@ extern s32 D_80107194;
 extern s32 D_801093F8;
 extern char D_800ABF48[];
 extern short D_800F3914;
-extern void func_8006E834();
-extern void func_80071348();
 extern void func_80060C70();
-extern int func_8006E8F8();
-extern int func_800713E0();
 extern unsigned short D_8010E280;
 extern unsigned int D_8010E290;
 extern int func_80090EC4();
 extern int func_80091AD4();
-extern int func_80090C74();
 extern short D_800ABED0[][3];
 extern char D_800F38F8[][8];
 extern unsigned short D_800AD5BC[];
@@ -80,7 +73,6 @@ extern void func_80093B14(s32);
 extern void func_80095A44(s32, s32);
 extern int D_8010718C;
 extern S D_800ABEF8[];
-extern int func_80026998();
 
 void func_8006E9E8(int a0, int *a1);
 void func_8006EAC8(void);

@@ -1,11 +1,10 @@
+#include "psyq/libgte/gtemat7.h"
 typedef struct { unsigned short a, b, c, d; } W8;
 
 typedef struct { unsigned short a, b, c; } W6;
 
 typedef struct { unsigned char a, b, c, d; } B4;
 
-extern int func_80091114();
-extern int func_80091274();
 extern unsigned char D_8009F924[];
 extern B4 D_8009F928[];
 extern W8 D_8009F934[];

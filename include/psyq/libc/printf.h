@@ -1,0 +1,8 @@
+#ifndef RR_PSYQ_LIBC_PRINTF_H
+#define RR_PSYQ_LIBC_PRINTF_H
+
+#include "types.h"
+
+int func_80096484();
+
+#endif /* RR_PSYQ_LIBC_PRINTF_H */

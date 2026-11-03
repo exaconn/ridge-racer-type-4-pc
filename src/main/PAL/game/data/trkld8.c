@@ -1,9 +1,12 @@
 /* RODATA 0x800110c0 0x18 */
+#include "game/data/cdfile2.h"
+#include "game/gfx/motion1.h"
+#include "game/sound/cdpos.h"
+#include "psyq/libcd/s_1.h"
+#include "psyq/libspu/s_i.h"
 extern int func_8001223C();
 extern int func_8001292C();
 extern int func_80012A58();
-extern int func_800131D0();
-extern int func_80013200();
 extern int func_800436E8();
 extern int func_8004D4BC();
 extern int D_800A021C;
@@ -16,18 +19,13 @@ extern int D_8010C1F0;
 extern char D_800F74B0[];
 extern char D_800AC650[];
 extern struct { char pad[0x24]; short h[8]; char pad2[0x2860 - 0x34]; short a, b; } D_800F4DB8;
-extern int func_8008BFD0();
 extern int func_800825B4();
 extern int func_80083CD4();
 extern int func_80083DE4();
 extern int func_80084004();
-extern int func_80082C74();
-extern int func_800829F4();
 extern int func_80096434();
 extern int func_80055300();
-extern int func_8005D858();
 extern int func_80052800();
-extern int func_80052760();
 
 int func_8004EA8C(void);
 void func_8004EC28();

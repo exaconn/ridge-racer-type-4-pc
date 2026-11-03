@@ -1,5 +1,11 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/course/trkintp2.h"
+#include "game/demo/opening.h"
+#include "game/gfx/gfxdraw.h"
+#include "game/sound/sndbgm3.h"
+#include "game/sound/sndslot.h"
+#include "psyq/libgpu/gpuenv.h"
 
 typedef struct { unsigned addr : 24; unsigned len : 8; } P_TAG;
 
@@ -51,34 +57,25 @@ extern int D_800F2FD8;
 extern struct DB *D_800ACC14;
 extern short D_8009FE60[];
 extern short D_800F3914;
-extern void func_80044920();
 extern void func_8006EE3C();
-extern int func_80044B24();
-extern void func_8009323C();
 extern void func_800701C4();
 extern void func_8005F0D0();
-extern void func_80044BA0();
 extern void func_8006E1AC();
 extern void func_80090EC4();
 extern void func_800912D4();
 extern void func_80091D64();
 extern void func_800172DC();
-extern void func_80044B5C();
 extern int D_800AC6B0;
 extern Elem28 (*D_800ACBA4)[16];
 extern short D_800F4D44;
 extern int func_80096434();
 extern M2C_UNK D_800AC6D8;
 extern void func_800207D4();
-extern void func_800439BC();
 extern void func_8004FED4();
-extern void func_80050028();
-extern void func_80051538();
 extern void func_800528A8();
 extern void func_80052A30();
 extern void func_80052B8C();
 extern void func_80059E40();
-extern void func_8005A90C();
 extern int func_80096464();
 extern int D_800A0C9C[];
 extern int D_800AC6EC;

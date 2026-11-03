@@ -1,5 +1,5 @@
 /* GCC_VERSION: 2.7.2 */
-extern int func_80083AF4();
+#include "psyq/libsnd/sstick3.h"
 
 void func_80083C74(short a);
 void func_80083C9C(short a, short b);

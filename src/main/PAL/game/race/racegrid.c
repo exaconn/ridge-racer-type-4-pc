@@ -1,6 +1,8 @@
 /* RODATA 0x800105d0 0x30 */
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/system/pad.h"
+#include "game/ui/hudmap.h"
 
 typedef struct { int a, b, c, d; } w3g2V;
 
@@ -67,7 +69,6 @@ extern s32 D_800FF6B0;
 extern int func_8004F2D8();
 extern int D_800ABEC0;
 extern short D_800AC5D0;
-extern int func_8004B864();
 extern int func_8004BAD4();
 extern int func_8004F24C();
 extern unsigned char D_8009F6DC[];
@@ -84,7 +85,6 @@ extern short D_800F4C6A;
 extern short D_800F4D8A;
 extern int func_8001FEC0();
 extern int func_8002071C();
-extern void func_80022694();
 extern unsigned char D_8009F71C[][4];
 extern int func_8009AEAC();
 extern int func_80096F24();

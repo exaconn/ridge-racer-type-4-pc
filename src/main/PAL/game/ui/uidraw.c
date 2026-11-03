@@ -1,4 +1,5 @@
 /* RODATA 0x80010884 0x54 */
+#include "game/ui/hudmap.h"
 #define EP ((E_2 *)((a0 * 16) + D_800ACC00))
 
 typedef struct {
@@ -19,7 +20,6 @@ extern int func_8001E84C();
 extern int D_800AC540;
 extern int D_800ACC00;
 extern int D_80010874[];
-extern int func_80022694();
 extern unsigned char D_8009F9C0[];
 extern unsigned char D_8009F9CC[];
 extern int D_800ACC14;

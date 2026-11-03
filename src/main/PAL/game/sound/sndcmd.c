@@ -1,5 +1,12 @@
 /* RODATA 0x80011108 0x10 */
 #include "types.h"
+#include "game/sound/sndbgm3.h"
+#include "game/sound/sndctrl.h"
+#include "game/sound/sndown.h"
+#include "game/sound/sndrst2.h"
+#include "game/sound/sndvab.h"
+#include "psyq/libsnd/vmvinit.h"
+#include "psyq/libspu/spukeyst.h"
 
 extern short D_800F4D44;
 extern struct 
@@ -24,20 +31,9 @@ extern struct
   unsigned char b31;
   short h32;
 } D_800AD528;
-extern int func_8007EA34();
 extern int func_800857A4();
-extern int func_80084534();
 extern int func_8008A674();
 extern int func_8008A644();
-extern int func_8004FBF0();
-extern int func_80050E58();
-extern int func_80051248();
-extern int func_800514FC();
-extern int func_8004F2A0();
-extern int func_800517D8();
-extern int func_8004EE08();
-extern int func_8004FB00();
-extern int func_8004F82C();
 extern int func_80055300();
 extern int func_80055330();
 extern int func_8005534C();

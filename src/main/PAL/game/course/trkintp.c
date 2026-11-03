@@ -2,9 +2,9 @@
 #include "rr/track_sample_types.h"
 #include "rr/race_types.h"
 #include "m2c_macros.h"
+#include "game/car/carphys2.h"
+#include "game/course/trknode.h"
 
-extern int func_80025C94();
-extern int func_80025D0C();
 extern s16 D_800AD522;
 
 void func_80025EB0(int a, int b);

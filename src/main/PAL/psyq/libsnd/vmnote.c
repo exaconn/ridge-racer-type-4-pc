@@ -1,8 +1,8 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
 #include "m2c_macros.h"
+#include "psyq/libsnd/vmmain.h"
 
-extern int func_80087DE4();
 extern int func_80088340();
 
 void func_800884A8();

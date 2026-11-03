@@ -1,5 +1,6 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "psyq/libgte/gtemat7.h"
 
 extern short func_80090424();
 extern short func_800904F4();
@@ -10,7 +11,6 @@ extern char D_800FF6B8[];
 extern char D_800FF6D8[];
 extern void func_80090914();
 extern void func_80090DB4();
-extern void func_800910B4();
 extern short D_800A22E4[];
 
 void func_8006E030(short *a0, int a1);

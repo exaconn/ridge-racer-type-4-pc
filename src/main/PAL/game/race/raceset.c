@@ -1,12 +1,12 @@
 #include "rr/race_types.h"
 #include "rr/menu_choice.h"
+#include "game/ui/uipart1.h"
 
 typedef struct { int key; short idx; } W10_Q;
 
 typedef struct { char p[0x184]; int a; int b; char q[0x62]; short n; } W10_O;
 
 void func_800295B8(s32);
-s32 func_8002B574(s32, s32);
 void *func_8004F2D8(s32, s32);
 void func_8004FC18(s16, s16);
 s32 func_80096464(void);

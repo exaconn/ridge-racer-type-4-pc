@@ -1,7 +1,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses -fno-force-mem */
 #include "rr/channels.h"
-s32 func_80089D28(s32,u16 *,u16 *);
+#include "psyq/libsnd/vmchval.h"
 void func_800897A4(s32,u16,u16,s32);
 void func_80082FC4(s32 bankInput,s32 rowInput)
 {

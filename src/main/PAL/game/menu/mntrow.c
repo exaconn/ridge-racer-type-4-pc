@@ -1,6 +1,8 @@
 #include "types.h"
 #include "rr/gpu.h"
 #include "m2c_macros.h"
+#include "game/menu/mnsel.h"
+#include "game/ui/barsel1.h"
 
 #define ROW(i) ((RrRow60 *)((s32)D_800FFC14 + (i) * 0x3C))
 
@@ -70,8 +72,6 @@ extern char D_800F4D98;
 extern T *D_800FF68C;
 extern int func_8002A344();
 extern int func_8003EC88();
-extern int func_800416B4();
-extern int func_800417EC();
 extern int D_8009FDA4;
 extern int D_800F3A60;
 extern char *D_800F4D80;

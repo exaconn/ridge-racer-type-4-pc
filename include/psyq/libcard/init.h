@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+int func_80095D04();
 void func_80095D70(void);
 void func_80095DA8(void);
 

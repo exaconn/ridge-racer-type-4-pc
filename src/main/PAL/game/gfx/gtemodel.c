@@ -1,4 +1,5 @@
 #include "rr_asm.h"
+#include "game/menu/mnsel.h"
 
 typedef struct { int a, b, c, d; } V16;
 
@@ -10,7 +11,6 @@ extern int D_800FF6A4[];
 extern int D_8009E46C[];
 extern int D_800ABEB0;
 extern int func_80013890();
-extern int func_80041A18();
 extern int func_80041A54();
 extern int func_80090F14();
 extern int func_80091844();

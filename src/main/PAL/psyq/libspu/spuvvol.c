@@ -1,8 +1,7 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/spu.h"
-
-extern int func_80086B84();
+#include "psyq/libspu/spuvget.h"
 
 int func_800869B4(unsigned short a0);
 s32 func_800869F0(s32 voice, s32 left, s32 right);

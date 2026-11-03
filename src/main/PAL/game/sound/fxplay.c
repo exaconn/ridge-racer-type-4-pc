@@ -3,11 +3,12 @@
 #include "game/camera/campath.h"
 #include "game/sound/sndvab.h"
 #include "psyq/libsnd/ssopenq.h"
+#include "game/sound/fxramp2.h"
+#include "game/sound/sndvab.h"
+#include "psyq/libsnd/sspause.h"
+#include "psyq/libsnd/sspause2.h"
+#include "psyq/libspu/smalloc2.h"
 
-extern int func_8007FD64();
-extern int func_80053DE8();
-extern int func_8004EE60();
-extern int func_80082324();
 extern int func_80053A9C();
 extern int func_80096434();
 extern struct { s32 a, b, c; } D_800A0CD8[];
@@ -18,9 +19,7 @@ extern struct {
     char p4[0x287C - 0x2870]; s32 x287C;
 } D_800F4DB8;
 extern int func_80053AF4();
-extern int func_800822D0();
 extern s16 D_800F761C;
-extern int func_80082440();
 
 void func_80053BB4(int a0);
 void func_80053CB0(void);

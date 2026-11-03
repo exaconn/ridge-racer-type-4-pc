@@ -1,8 +1,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/library.h"
 #include "rr/channel_stream.h"
-
-extern void func_800835E4(s32, s32);
+#include "psyq/libsnd/sstick.h"
 
 void func_800832A4(s32 bank, s32 row);
 void func_800833A0(s32 bankInput,s32 rowInput);

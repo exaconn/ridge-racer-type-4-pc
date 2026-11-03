@@ -2,6 +2,9 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "m2c_macros.h"
+#include "psyq/libsnd/vmkoff.h"
+#include "psyq/libsnd/vmnote2.h"
+#include "psyq/libsnd/vmupd.h"
 
 typedef struct {
     unsigned char *c0;
@@ -53,12 +56,9 @@ extern SvmCur D_80110100;
 extern SvmVoice D_8010F908[];
 extern int func_8008A564();
 extern int func_80088340();
-extern unsigned char func_80089ED4();
 extern unsigned char func_80086BE4();
 extern void func_80086E74();
 extern void func_80088794();
-extern unsigned short func_800885D4();
-extern void func_80088E74();
 
 void func_80087DA4(s32 mode);
 s32 func_80087DCC(void);

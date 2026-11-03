@@ -5,8 +5,11 @@
 #include "psyq/libcard/cardirq.h"
 #include "psyq/libcard/cardsts.h"
 #include "psyq/libcard/init.h"
+#include "psyq/libc/printf.h"
+#include "psyq/libcard/cardc162.h"
+#include "psyq/libcard/init.h"
+#include "psyq/libgpu/gpuctl.h"
 
-extern int func_80095D04();
 extern int func_80095C74();
 extern int func_80096F04();
 extern int func_80096E74();
@@ -28,7 +31,6 @@ extern int func_80096EA4();
 extern int D_8010ECC0[];
 extern char D_800113D8[];
 extern char D_8010ECD0[];
-extern int func_80096484();
 extern char *func_80096F74();
 extern int func_80096F24();
 extern int func_80096F44();
@@ -38,8 +40,6 @@ extern int D_8010EF78;
 extern int func_80096F34();
 extern int func_80096F54();
 extern int func_80095C84();
-extern int func_8009D700();
-extern int func_80095CA4();
 extern int func_80095C94();
 extern int D_8010ECB8[];
 extern int D_8010ECC8[];

@@ -1,12 +1,12 @@
 /* RODATA 0x80011198 0x18 */
 #include "types.h"
 #include "rr/audio_cd_controller.h"
+#include "psyq/libsnd/ssmvol.h"
+#include "psyq/libsnd/ssvolset.h"
 
 struct S { char pad[0x2864]; s16 a; char p[0x2888 - 0x2866]; s16 b; };
 
-extern int func_800841E4();
 extern u8 D_800AD558;
-extern int func_80083C74();
 extern void func_8007F910(int);
 extern int func_80096434();
 

@@ -1,5 +1,14 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/camera/viewcam.h"
+#include "game/gfx/model.h"
+#include "psyq/libgpu/addprim3.h"
+#include "psyq/libgpu/addprim4.h"
+#include "psyq/libgpu/primatt5.h"
+#include "psyq/libgpu/primatt7.h"
+#include "psyq/libgte/gtecolo3.h"
+#include "psyq/libgte/gtemat3.h"
+#include "psyq/libgte/gtemat7.h"
 
 typedef struct { int a[8]; } S32B;
 
@@ -49,15 +58,11 @@ extern V3 D_800FF690;
 extern int D_800FF6B0;
 extern V3 D_800FF6B8;
 extern S32B D_8010E710;
-extern int func_80095BB4(a0);
 extern int func_80095A44();
 extern int func_8002E0D8();
 extern int func_80036FD4();
-extern int func_8006EDA4();
 extern int func_8006EF8C();
 extern int func_800747EC();
-extern int func_80095AC4();
-extern int func_80095BF4();
 extern int D_8010E738;
 extern int D_8010E740[];
 extern int D_8010E768[];
@@ -66,17 +71,12 @@ extern int func_8008B154();
 extern int func_80096474();
 extern short D_80107180[];
 extern int func_8006E030();
-extern int func_80090B14();
 extern int func_80090CA4();
-extern int func_800910B4();
-extern int func_80091144();
 extern M D_800F39A8;
 extern int func_80096454();
 extern int func_80096464();
 extern int func_80090F14();
-extern int func_80091308();
 extern int func_8006DB0C();
-extern int func_80095A84();
 extern int func_80090884();
 extern int func_8006E368();
 extern int D_800F4BF0;
@@ -85,8 +85,6 @@ extern short D_80107184;
 extern struct { short m[3][3]; int t[3]; } D_800AD570;
 extern struct { short a, b, c, d; } D_800F38F8[];
 extern s32 D_800F39A4;
-extern int func_8006F1EC();
-extern int func_8006F260();
 extern short *D_8010E790;
 extern unsigned short D_800AD5B8;
 extern unsigned char *D_8010E798;

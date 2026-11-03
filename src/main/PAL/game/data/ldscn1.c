@@ -5,6 +5,10 @@
 #include "game/data/trkld6.h"
 #include "game/menu/mntrow.h"
 #include "game/sound/sndcmd.h"
+#include "game/car/carmove1.h"
+#include "game/data/cdfile2.h"
+#include "game/data/trkld1.h"
+#include "game/menu/menuslot.h"
 typedef struct { char p[7]; char b; } Z;
 
 extern int func_8004E008();
@@ -21,9 +25,7 @@ extern short D_800F4D2C;
 extern short D_800F4D44;
 extern int func_8003A1B4();
 extern int D_800F4D74;
-extern int func_800131D0();
 extern short D_800F3914;
-extern int func_80013514();
 extern int func_8001E854();
 extern struct { short a; short b; } D_800ACBD0[];
 extern char *D_800F3B24;
@@ -35,10 +37,8 @@ extern int func_8005AF5C();
 extern int func_8005B2D4();
 extern int D_800ACC1C;
 extern int D_800AC5A0;
-extern int func_800129BC();
 extern int D_800F4C1C;
 extern int func_80053BB4();
-extern int func_80032914();
 extern int func_80043608();
 extern struct { char pad[4]; signed char f4; char pad2[0x1B]; int f20; } *D_800FF68C;
 extern int D_800F4CA8;
@@ -48,12 +48,10 @@ extern unsigned char D_800AD4F4;
 extern signed char *D_800ACBFC;
 extern char D_80104DB0[];
 extern Z *D_800AC590;
-extern void func_800292A8();
 extern char *D_800ABEA4;
 extern int D_800ABECC;
 extern char *D_800F2EC4;
 extern int D_8010BFC8;
-extern int func_8004E03C();
 extern char D_8010C220[];
 
 int func_8003A79C(void);

@@ -1,12 +1,11 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/sequencer_dispatch.h"
 #include "psyq/libsnd/vmtick2.h"
-extern void func_80083274(s16,s16);
-extern void func_80082FC4(s32,s32);
+#include "psyq/libsnd/ssramp.h"
+#include "psyq/libsnd/ssresum2.h"
+#include "psyq/libsnd/ssresume.h"
+#include "psyq/libsnd/sstick3.h"
 extern void func_80084314(s32,s32);
-extern void func_800831D4(s32,s32);
-extern void func_80083A94(s32,s16);
-extern void func_80083AF4(s32,s32);
 void func_80082D54(void) {
     s32 bank, offset, signed_row;
     s32 row;

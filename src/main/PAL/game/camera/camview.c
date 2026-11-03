@@ -1,5 +1,8 @@
 #include "types.h"
 #include "rr/geometry.h"
+#include "game/gfx/gfxdraw.h"
+#include "game/gfx/meshquad.h"
+#include "game/gfx/scene1.h"
 
 struct E { s16 a, h; };
 
@@ -9,10 +12,7 @@ extern int D_800ACC14;
 extern int D_800F2FD8;
 extern void func_8002CC88();
 extern void func_8002E5A0();
-extern int func_80044B24();
 extern void func_8005599C();
-extern void func_80055BF8();
-extern void func_80058038();
 extern void func_8005F0D0();
 extern void func_8006E09C();
 extern void func_8006E108();

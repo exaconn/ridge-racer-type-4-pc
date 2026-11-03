@@ -8,6 +8,11 @@
 #include "game/car/carstate.h"
 #include "game/course/trkseek2.h"
 #include "game/ui/uipart1.h"
+#include "game/car/carsetup.h"
+#include "game/race/racesave.h"
+#include "game/sound/sndbgm3.h"
+#include "game/sound/sndvab.h"
+#include "psyq/libgte/gtemath3.h"
 
 typedef struct 
 {
@@ -123,20 +128,14 @@ extern char D_800ABEF8[];
 extern short D_800AC59C;
 extern unsigned short D_800F3914;
 extern C *D_800FFC20[];
-extern int func_80022B64();
 extern int func_80025F84();
-extern int func_80029660();
 extern int func_800904F4();
-extern int func_80091734();
 extern void func_8002C11C(CarCollision *, s32, s32);
-extern void func_8004F218(s32, s32, s16, s32);
 extern s32 func_8006E368(s32, s32);
 extern s32 func_80090424(s32);
 extern s32 D_800AD504;
 extern s32 D_800F2EB8;
 extern s16 D_800F4D44;
-extern void func_8004EE60(s32 value);
-extern int func_800512C4();
 extern char *D_800ABEA4;
 extern int D_800ABEC0;
 extern short D_800AD522;

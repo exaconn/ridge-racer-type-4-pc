@@ -4,6 +4,8 @@
 #include "m2c_macros.h"
 #include "game/car/carmove1.h"
 #include "game/menu/menu8.h"
+#include "game/course/trkintp.h"
+#include "game/ui/uipart1.h"
 
 typedef struct { char x[0x320]; } S;
 
@@ -135,10 +137,8 @@ extern S D_80106E78[];
 extern S D_80107198[];
 extern short D_800AC59C;
 extern short D_800AD508;
-extern int func_8002BEF8();
 extern int func_80026A74();
 extern int func_8006E368();
-extern int func_80026004();
 extern int func_800244B0();
 extern int func_80022888();
 extern int func_80026F5C();

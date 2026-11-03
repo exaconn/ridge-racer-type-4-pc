@@ -1,4 +1,5 @@
 #include "types.h"
+#include "game/effect/ptinit.h"
 
 typedef struct {
     s32 active00;
@@ -23,8 +24,6 @@ extern u8 *D_800ACC14;
 void func_80053EC4(void);
 s32 func_80096464(void);
 void func_80093C24(u32 *, s32, s32, s32, s32);
-void func_80054128(s32);
-void func_80054264(s32);
 
 void func_80054D50(void) {
     u32 *p;

@@ -5,11 +5,11 @@
 #include "rr/menu_text_rows.h"
 #include "rr/frame_storage_types.h"
 #include "rr/gpu_scratch_types.h"
+#include "game/menu/mntrow.h"
 
 #define RR_TEXT_GPU_SCRATCH ((RrGpuScratchPointers *)0x1F800000U)
 
 void *func_8001FCC8(u32 *ordering, void *cursor, u16 mode);
-extern void func_80040CB4(s32);
 s32 func_80090424(s32 angle);
 s32 func_800904F4(s32 angle);
 void func_80095A44(u32 *ordering, void *packet);

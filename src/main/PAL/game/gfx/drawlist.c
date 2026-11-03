@@ -8,6 +8,8 @@
 #include "game/gfx/light2.h"
 #include "game/gfx/skyrot1.h"
 #include "game/sound/cdstop.h"
+#include "game/effect/spfade.h"
+#include "game/gfx/skyrot1.h"
 
 #define G D_8010BF78
 #define H D_800F3AFC
@@ -95,15 +97,7 @@ struct OT { int x; union H h; };
 extern int func_8001223C();
 extern int func_8001292C();
 extern int func_80012A68();
-extern int func_8001B754();
-extern int func_8001B7C8();
-extern int func_8001B83C();
-extern int func_8001B8B0();
 extern int func_8001BAF8();
-extern int func_8001BBC4();
-extern int func_8001BC84();
-extern int func_8001BD40();
-extern int func_8001BFA8();
 extern int func_800207D4();
 extern int func_8002A344();
 extern int func_8002A604();

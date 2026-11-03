@@ -1,6 +1,7 @@
 #include "rr/gpu.h"
 #include "rr/line_emit.h"
 #include "game/camera/camfx.h"
+#include "game/gfx/gfxotag.h"
 
 typedef struct {
     int vx, vy, vz, pad;
@@ -56,7 +57,6 @@ typedef struct {
     int r20;
 } Scratch;
 
-extern int func_800451E4();
 extern int func_8006E1AC();
 extern int func_80090EC4();
 extern int func_800912D4();

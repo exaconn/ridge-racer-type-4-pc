@@ -1,5 +1,6 @@
 #include "types.h"
 #include "rr_asm.h"
+#include "psyq/libgte/gtemat7.h"
 
 typedef struct {
     u32 addr: 24;
@@ -83,8 +84,6 @@ extern s32 func_80090424(s32);
 extern void func_80090CA4(MATRIX *, MATRIX *);
 extern void func_80090DB4(MATRIX *, MATRIX *);
 extern void func_80090EC4(MATRIX *, SVECTOR *, VECTOR *);
-extern void func_800910B4(MATRIX *);
-extern void func_80091144(MATRIX *);
 
 void func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
     MATRIX sp10;

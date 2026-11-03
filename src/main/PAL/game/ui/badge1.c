@@ -2,6 +2,7 @@
 #include "rr/badge_rows.h"
 #include "rr/draw_environment.h"
 #include "m2c_macros.h"
+#include "psyq/libgpu/primatt5.h"
 
 struct P12 { int a, b, c; };
 
@@ -11,7 +12,6 @@ extern int func_80093B14();
 extern int func_80095A44();
 extern char D_800ADAF0[];
 extern int D_800F4BF0;
-extern int func_80095BB4();
 
 void *func_8001FC28(u32 *a0, void *cursor, int a2, int a3, int a4, int a5);
 T *func_8001FCC8(u32 *a0, T *a1, unsigned short a2);

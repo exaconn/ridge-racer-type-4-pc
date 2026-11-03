@@ -1,5 +1,5 @@
 /* CC1_FLAGS: -mno-split-addresses */
-extern int func_8008F914();
+#include "psyq/libcd/dsstrm23.h"
 extern int D_801102D0, D_801102D8, D_801102E0, D_801102E8, D_80110300, D_80112760, D_80112764;
 extern short D_801102D4;
 void func_8008F6D4(int a, int b, int c, int d, int e) {

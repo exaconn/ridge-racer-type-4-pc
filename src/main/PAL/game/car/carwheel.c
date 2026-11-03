@@ -1,6 +1,10 @@
 #include "types.h"
 #include "rr/lookup.h"
 #include "rr_asm.h"
+#include "game/data/cdfile2.h"
+#include "game/gfx/gfxmtx.h"
+#include "game/gfx/gtepoly1.h"
+#include "psyq/libgte/gtemat3.h"
 
 #define G ((Scratch2D784 *)0x1F800000)
 
@@ -119,8 +123,6 @@ typedef struct {
     s32 col78;
 } Scratch2D784;
 
-s32 func_80014A98(Vec4 *, Mat8 *, s32, s32);
-void func_8003CF34(s32);
 void func_8005F0D0(s32, s32, s32, s32);
 void func_8006E030(Mat8 *, s32);
 void func_8006E09C(Mat8 *, s32);
@@ -137,13 +139,10 @@ extern u8 D_8009F044[];
 extern s16 D_800ABED0[];
 extern s32 D_800F2FD8;
 extern Bounds2CC88 *D_800F3A08[];
-s32 func_80013904(Vehicle2D1B4 *, s32);
-void func_80015F68(Vehicle2D1B4 *, Vec4 *, Mat8 *, Mat8 *, s32, s32, s32);
 s32 func_80039494(Vehicle2D1B4 *);
 extern s32 D_800ABEC4;
 extern u16 D_800ABEF0;
 extern LightEntry2C *D_800F4D90;
-void func_80090B14(s32, Vec4 *, Vec4 *);
 extern LodDist6 D_8009F04C[];
 
 int func_8002CBC0(char *a, int b);

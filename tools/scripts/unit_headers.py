@@ -61,10 +61,25 @@ def proto_of(func_text):
     return re.sub(r'\s+', ' ', h) + ';'
 
 
+def type_ids(proto, name):
+    """identifiers used as types: parameter names are not counted"""
+    head, _, rest = proto.partition('(')
+    ids = set(re.findall(r'[A-Za-z_]\w*', head)) - {name}
+    params = rest.rsplit(')', 1)[0]
+    for prm in params.split(','):
+        prm = re.sub(r'\[[^\]]*\]', '', prm)
+        toks = re.findall(r'[A-Za-z_]\w*|\*|\.\.\.', prm)
+        words = [t for t in toks if t not in ('*', '...')]
+        if len(words) > 1 and words[-1] not in KEYWORDS:
+            words = words[:-1]                      # the parameter name
+        ids |= set(words)
+    return ids
+
+
 def usable(proto, name, known):
     if proto.startswith('static'):
         return False
-    ids = set(re.findall(r'[A-Za-z_]\w*', proto)) - {name}
+    ids = type_ids(proto, name)
     ids -= {i for i in ids if FUNC.match(i) or re.fullmatch(r'D_[0-9A-Fa-f]{8}', i)}
     return ids <= (known | KEYWORDS)
 
@@ -72,8 +87,36 @@ def usable(proto, name, known):
 def fd_ok(p):
     r = subprocess.run([str(ROOT / '.venv/bin/python'), str(ROOT / 'tools/scripts/fd.py'), str(p), '--no-asm'],
                        capture_output=True, text=True, cwd=ROOT)
-    ds = re.findall(r'Levenshtein: (\d+)', r.stdout + r.stderr)
-    return r.returncode == 0 and bool(ds) and all(d == '0' for d in ds)
+    out = r.stdout + r.stderr
+    ds = re.findall(r'Levenshtein: (\d+)', out)
+    bad = re.search(r'conflicting types|error:|\berror\b.*\n|previous declaration|undeclared', out)
+    _, items = parse(Path(p).read_text())
+    nfunc = sum(1 for k, _, _ in items if k == 'func')
+    return r.returncode == 0 and not bad and len(ds) >= nfunc and all(d == '0' for d in ds)
+
+
+def multi_declared(items):
+    """names that appear in a declaration with several declarators (`extern int a(), b();`)"""
+    out = set()
+    for kind, t, name in items:
+        if kind != 'decl':
+            continue
+        core = strip_comments(t)
+        depth = 0
+        commas = 0
+        for ch in core:
+            depth += ch in '([{'
+            depth -= ch in ')]}'
+            if ch == ',' and depth == 0:
+                commas += 1
+        if commas:
+            out |= set(re.findall(r'func_[0-9A-Fa-f]{8}', core))
+    return out
+
+
+def norm_decl(core):
+    core = re.sub(r'\s+', ' ', strip_comments(core)).strip()
+    return re.sub(r'^extern\s+', '', core)
 
 
 def main():
@@ -86,56 +129,91 @@ def main():
         text = p.read_text()
         _, items = parse(text)
         units[p] = (text, items)
+    blocked = set()
+    for p, (_, items) in units.items():
+        blocked |= multi_declared(items)
     owner = {}
     for p, (_, items) in units.items():
         for kind, t, name in items:
-            if kind == 'func' and name and FUNC.match(name):
+            if kind == 'func' and name and FUNC.match(name) and name not in blocked:
                 proto = proto_of(t)
                 if usable(proto, name, known) and not re.search(r'\b' + name + r'\b', existing):
                     owner[name] = (p, proto)
-    users = defaultdict(lambda: defaultdict(list))        # owner unit -> caller -> [(name, core)]
+    edges = defaultdict(list)                 # caller -> [(name, core, [candidate forms])]
+    forms = defaultdict(list)
     for p, (_, items) in units.items():
         for kind, t, name in items:
             if kind != 'decl' or name not in owner or owner[name][0] == p:
                 continue
             core = lead_free(t)
             if re.search(r'\b' + name + r'\s*\(', strip_comments(core)) and not core.startswith(('typedef', 'static')):
-                users[owner[name][0]][p].append((name, core))
-    exported = defaultdict(set)
-    for u, callers in users.items():
-        for c, ds in callers.items():
-            for n, _ in ds:
-                exported[u].add(n)
-    print('units exporting', len(exported), 'functions', sum(len(v) for v in exported.values()),
-          'caller edges', sum(len(c) for c in users.values()))
+                edges[p].append((name, core))
+                f = norm_decl(core)
+                if f not in forms[name] and usable(f, name, known):
+                    forms[name].append(f if f.endswith(';') else f + ';')
+    cands = {n: [owner[n][1]] + [f for f in forms[n] if f != owner[n][1]] for n in {e[0] for v in edges.values() for e in v}}
+    print('functions with callers', len(cands), 'caller edges', sum(len(v) for v in edges.values()))
     if dry:
         return
 
     def hpath(u):
         return INC / u.relative_to(SRC).with_suffix('.h')
 
-    def addr(n):
-        return int(n[5:], 16)
-    for u, names in exported.items():
-        h = hpath(u)
-        h.parent.mkdir(parents=True, exist_ok=True)
-        guard = 'RR_' + re.sub(r'\W', '_', str(u.relative_to(SRC).with_suffix(''))).upper() + '_H'
-        body = [f'#ifndef {guard}', f'#define {guard}', '', '#include "types.h"', '']
-        body += [owner[n][1] for n in sorted(names, key=addr)]
-        body += ['', f'#endif /* {guard} */', '']
-        h.write_text('\n'.join(body))
+    def test_caller(c):
+        """for every function declared in caller c find the candidate indexes that keep distance 0"""
+        text = units[c][0]
+        ok = {}
+        for name, core in edges[c]:
+            for ci, cand in enumerate(cands[name][:4]):
+                i = text.find(core)
+                if i < 0:
+                    break
+                t2 = text[:i] + cand + text[i + len(core):]
+                c.write_text(t2)
+                if fd_ok(c):
+                    ok.setdefault(name, set()).add(ci)
+        c.write_text(text)
+        return c, ok
 
-    callers = defaultdict(list)                           # caller -> [owner units]
-    for u, cs in users.items():
-        for c in cs:
-            callers[c].append(u)
-    orig = {c: units[c][0] for c in callers}
+    with ThreadPoolExecutor(jobs) as ex:
+        res = dict(ex.map(test_caller, list(edges)))
+    chosen = {}
+    for name in cands:
+        sets = [res[c].get(name, set()) for c in edges if any(e[0] == name for e in edges[c])]
+        common = set.intersection(*sets) if sets else set()
+        if common:
+            chosen[name] = min(common)
+    print('functions with a form accepted by all callers', len(chosen), 'of', len(cands))
 
-    def rewrite(c):
-        text = orig[c]
-        drop = []
-        for u in callers[c]:
-            for n, core in users[u][c]:
+    banned = set()
+    base_hdr = {hpath(owner[n][0]): (hpath(owner[n][0]).read_text() if hpath(owner[n][0]).exists() else '') for n in chosen}
+    for rnd in range(6):
+        active = {n: cands[n][i] for n, i in chosen.items() if n not in banned}
+        byunit = defaultdict(list)
+        for n, f in active.items():
+            byunit[owner[n][0]].append((n, f))
+        for u, lst in byunit.items():
+            h = hpath(u)
+            h.parent.mkdir(parents=True, exist_ok=True)
+            guard = 'RR_' + re.sub(r'\W', '_', str(u.relative_to(SRC).with_suffix(''))).upper() + '_H'
+            body = [f'#ifndef {guard}', f'#define {guard}', '', '#include "types.h"', '']
+            old = {}
+            if base_hdr.get(h):
+                for l in base_hdr[h].splitlines():
+                    m = re.search(r'func_[0-9A-Fa-f]{8}', l)
+                    if m and not l.startswith(('#', '/*')):
+                        old[m.group(0)] = l
+            old.update({n: f for n, f in lst})
+            body += [old[n] for n in sorted(old)]
+            body += ['', f'#endif /* {guard} */', '']
+            h.write_text('\n'.join(body))
+        changed = {}
+        for c, ds in edges.items():
+            text = units[c][0]
+            owners_used = set()
+            for name, core in ds:
+                if name not in active:
+                    continue
                 i = text.find(core)
                 if i < 0:
                     continue
@@ -143,32 +221,39 @@ def main():
                 if j < len(text) and text[j] == '\n':
                     j += 1
                 text = text[:i] + text[j:]
-            drop.append(u)
-        inc = ''.join(f'#include "{hpath(u).relative_to(INC).as_posix()}"\n' for u in sorted(drop))
-        last = None
-        for m in re.finditer(r'^#include[^\n]*\n', text, re.M):
-            last = m
-        if last:
-            text = text[:last.end()] + inc + text[last.end():]
-        else:
-            m = re.match(r'(?:/\*[^\n]*\*/\n)*', text)
-            text = text[:m.end()] + inc + text[m.end():]
-        return re.sub(r'\n{3,}', '\n\n', text)
-
-    for c in callers:
-        c.write_text(rewrite(c))
-    with ThreadPoolExecutor(jobs) as ex:
-        res = list(ex.map(lambda c: (c, fd_ok(c)), list(callers)))
-    bad = [c for c, ok in res if not ok]
-    for c in bad:
-        c.write_text(orig[c])
-    used = {u for c in callers if c not in bad for u in callers[c]}
-    for u in exported:
-        if u not in used:
-            hpath(u).unlink(missing_ok=True)
-    print('callers rewritten', len(callers) - len(bad), 'restored', len(bad))
-    for c in bad:
-        print('  restored', c.relative_to(SRC))
+                owners_used.add(owner[name][0])
+            if not owners_used:
+                continue
+            inc = ''.join(f'#include "{hpath(u).relative_to(INC).as_posix()}"\n' for u in sorted(owners_used))
+            last = None
+            for m in re.finditer(r'^#include[^\n]*\n', text, re.M):
+                last = m
+            if last:
+                text = text[:last.end()] + inc + text[last.end():]
+            else:
+                m = re.match(r'(?:/\*[^\n]*\*/\n)*', text)
+                text = text[:m.end()] + inc + text[m.end():]
+            changed[c] = re.sub(r'\n{3,}', '\n\n', text)
+        for c, t in changed.items():
+            c.write_text(t)
+        with ThreadPoolExecutor(jobs) as ex:
+            r = list(ex.map(lambda c: (c, fd_ok(c)), list(changed)))
+        bad = [c for c, ok in r if not ok]
+        for c in changed:
+            c.write_text(units[c][0])
+        if not bad:
+            for c, t in changed.items():
+                c.write_text(t)
+            print('round', rnd, 'callers rewritten', len(changed))
+            return
+        for c in bad:
+            banned |= {n for n, _ in edges[c]}
+        for h, t in base_hdr.items():
+            if t:
+                h.write_text(t)
+            else:
+                h.unlink(missing_ok=True)
+        print('round', rnd, 'failed callers', len(bad), 'banned functions', len(banned))
 
 
 if __name__ == '__main__':

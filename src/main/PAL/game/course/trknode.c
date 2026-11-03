@@ -1,3 +1,4 @@
+#include "game/car/carphys2.h"
 #define W(p,o) (*(int *)((char *)(p) + (o)))
 #define H(p,o) (*(short *)((char *)(p) + (o)))
 
@@ -5,7 +6,6 @@ struct S { char pad[0x12]; short x; char pad2[0x3C-0x14]; };
 
 extern struct S *D_800ABEA4;
 extern int D_800ABECC;
-extern int func_80025C94();
 
 void func_80025D0C(int a, int b);
 void func_80025D98();

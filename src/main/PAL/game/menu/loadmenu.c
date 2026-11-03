@@ -4,9 +4,9 @@
 #include "m2c_macros.h"
 #include "game/data/cardini.h"
 #include "game/menu/menustep.h"
+#include "game/data/cardini.h"
+#include "game/data/savedat.h"
 
-extern int func_80078544();
-extern int func_800797E0();
 extern short D_800A41EC;
 extern short D_800A41EE;
 extern int D_800ACC0C;

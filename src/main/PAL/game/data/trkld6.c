@@ -3,7 +3,7 @@
 #include "game/data/cdfile2.h"
 #include "game/data/trkld1.h"
 #include "game/data/trkld5.h"
-extern int func_8004E3B0();
+#include "game/data/trkld5.h"
 extern struct { char pad[0x56C]; int a, b, c, d; } D_800AC650;
 extern struct { char pad[0x10]; int f10; char pad2[0x19CC - 0x14]; int f19cc; } D_800F4DB8;
 extern short D_800F4D44;

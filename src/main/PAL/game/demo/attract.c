@@ -3,6 +3,9 @@
 #include "game/gfx/fadesel.h"
 #include "game/math/shuffle.h"
 #include "game/sound/sndctrl.h"
+#include "game/gfx/fadein.h"
+#include "game/gfx/fadespr.h"
+#include "game/ui/hudmap2.h"
 
 extern int D_8010E240[];
 extern char D_800ACB0C[];
@@ -26,9 +29,6 @@ extern char D_800AC650[];
 extern short D_800AD50A;
 extern int func_80096434();
 extern int func_80096464();
-extern int func_80059314();
-extern int func_8005C8D8();
-extern int func_8005C13C();
 extern int func_80055300();
 extern int func_8004C138();
 extern int func_80055330();

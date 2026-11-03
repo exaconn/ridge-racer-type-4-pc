@@ -1,6 +1,8 @@
 #include "types.h"
 #include "rr_asm.h"
 #include "m2c_macros.h"
+#include "game/gfx/sky.h"
+#include "psyq/libgte/gtemat2.h"
 
 struct V8 { unsigned char c[8]; };
 
@@ -8,14 +10,12 @@ struct M { int a[8]; };
 
 extern int func_800701C4();
 extern int func_80091844();
-extern int func_80090A24();
 extern int func_8006EE3C();
 extern int func_8005F0D0();
 extern char D_8001013C[];
 extern int D_800F2FD8;
 extern struct V8 D_800101E4;
 extern struct { char pad[0xA8]; unsigned short v; } *D_8010BF78;
-extern int func_800197C8();
 extern int func_80091FF4();
 extern int func_80092194();
 extern int func_80092334();

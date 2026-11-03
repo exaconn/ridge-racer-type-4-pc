@@ -4,6 +4,10 @@
 #include "m2c_macros.h"
 #include "game/race/racegrid.h"
 #include "game/sound/sndcmd.h"
+#include "game/system/pad.h"
+#include "game/system/pad3.h"
+#include "game/ui/hudmap.h"
+#include "game/ui/uipart1.h"
 
 typedef struct { int k; short f; } E;
 
@@ -22,7 +26,6 @@ extern short D_800F3A26;
 extern short D_800F4C6A;
 extern short D_800F4D8A;
 extern short D_800FF688;
-extern int func_80022694();
 extern int func_8002A344();
 extern int func_8002AF8C();
 extern int func_80034FC0();
@@ -48,8 +51,6 @@ extern short D_800AC5D0;
 extern int D_800F3A60;
 extern char D_80010694[];
 extern char D_800106A4[];
-extern int func_8004B864();
-extern int func_8004BB54();
 extern int func_8004FC18();
 extern s32 D_800F2EC8;
 extern int func_801150CC();
@@ -61,7 +62,6 @@ extern int D_8010C0E0;
 extern char D_800ACC68;
 extern short D_800F4D44;
 extern int func_8003A198();
-extern int func_8002B574();
 extern signed char D_800AD4D8[];
 extern signed char D_800AD4EF;
 extern E *D_800F2DE8[];

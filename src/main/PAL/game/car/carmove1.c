@@ -1,6 +1,7 @@
 #include "types.h"
 #include "rr_asm.h"
 #include "game/car/carstate.h"
+#include "game/car/carwheel.h"
 
 #define W9C w8c[4]
 #define WAC w8c[8]
@@ -185,7 +186,6 @@ extern s32 D_800ABEA4;
 extern s32 D_800ABECC;
 extern s32 func_80090424(s16);
 extern s32 func_800904F4(s16);
-extern int func_8002CBC0();
 extern short func_8006E368();
 extern char *D_800ACBE8;
 extern short D_800AC53C;

@@ -1,8 +1,7 @@
 /* CC1_FLAGS: -fno-schedule-insns */
 #include "game/sound/sndlis2.h"
+#include "game/sound/sndevt.h"
 typedef struct { int a, b, c, d; } V4;
-extern int func_80051BD4();
-extern int func_800523C8();
 extern char D_800F4DB8[];
 extern char D_800ABEF8[];
 #define W(o) (*(int *)(b + (o)))

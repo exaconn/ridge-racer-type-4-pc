@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+int func_80098AC4();
 int func_80098B64();
 
 #endif /* RR_PSYQ_LIBPAD_PADSTAT2_H */

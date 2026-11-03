@@ -2,6 +2,7 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "game/data/cdfile2.h"
+#include "game/course/trkres2.h"
 
 extern int D_800A0220;
 extern int D_800A02BC;
@@ -11,7 +12,6 @@ extern short D_800F4D44;
 extern int func_8001223C();
 extern int func_8001292C();
 extern int func_8004D4BC();
-extern int func_8004D61C();
 extern int func_8001223C(), func_8001292C(), func_80012A58(), func_8004D4BC(), func_80070108(), func_800436E8(), func_80043608(), func_80012A68();
 extern short D_8009FE60[];
 extern int func_8001223C(), func_8001292C(), func_80012A58(), func_8004D4BC(), func_80070108(), func_800436E8();

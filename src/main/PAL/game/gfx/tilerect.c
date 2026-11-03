@@ -2,6 +2,8 @@
 #include "rr/tiled_rectangle.h"
 #include "rr_asm.h"
 #include "game/data/cdfile2.h"
+#include "game/effect/spfade.h"
+#include "game/gfx/sky.h"
 
 #define GS ((SPD *)0x1F800000)
 #define W(o) (*(int *)(GS->cur + (o)))
@@ -143,10 +145,7 @@ extern int func_8001223C();
 extern int func_8001292C();
 extern int func_80012A68();
 extern int func_80013890();
-extern int func_800197C8();
 extern int func_80019C90();
-extern int func_8001B754();
-extern int func_8001B83C();
 extern int func_8001BAF8();
 extern int func_8003A198();
 extern int func_80043608();

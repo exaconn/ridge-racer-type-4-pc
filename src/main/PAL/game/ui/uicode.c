@@ -1,7 +1,5 @@
-extern int func_800430D8();
+#include "game/ui/uicnt.h"
 extern int func_80043104();
-extern int func_80043080();
-extern int func_8004309C();
 extern unsigned char D_8009FE2C[];
 void func_80043130(a0, a1) unsigned char *a0; int a1;
 {

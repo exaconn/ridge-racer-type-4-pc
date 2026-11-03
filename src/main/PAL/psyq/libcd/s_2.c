@@ -6,8 +6,7 @@
 /* Contiguous CD control variants share command metadata and callback state.
  * This grouping does not establish the original compiler unit boundary. */
 #include "rr/library.h"
-
-extern int func_8008D5D4();
+#include "psyq/libcd/bios_1.h"
 
 s32 func_8008C140(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer);
 s32 func_8008C27C(s32 requested_command,const u8 *parameter_buffer);

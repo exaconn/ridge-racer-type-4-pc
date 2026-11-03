@@ -3,6 +3,7 @@
 #include "game/data/ldscn1.h"
 #include "game/gfx/poly1.h"
 #include "game/menu/menutra21.h"
+#include "game/demo/splash.h"
 
 typedef struct {
     char name[10];
@@ -49,7 +50,6 @@ extern s16 D_800F4D8A;
 extern s16 D_800FFC18;
 extern s32 D_8010BFBC;
 extern int func_8004FA98();
-extern int func_80071570();
 extern s16 D_800AD55A;
 
 void func_8001EEE4(void);

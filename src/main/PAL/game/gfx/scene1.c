@@ -1,6 +1,8 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "rr/matrix_words.h"
+#include "psyq/libgpu/gpudisp.h"
+#include "psyq/libgte/gtemat7.h"
 
 #define addPrim(ot, p) \
     ((DrTPage *)(p))->addr = (ot)->addr; \
@@ -58,7 +60,6 @@ extern s32 D_800AC724;
 extern Db *D_800ACC14;
 extern Rect D_800A0D04[];
 extern Rect D_800A0D24[][4];
-extern void func_80093BFC(void *, s32);
 extern int D_800F4BF0;
 extern u16 D_800F3A40;
 extern int func_80014A8C();
@@ -80,8 +81,6 @@ extern int func_80090CA4();
 extern int func_80090DB4();
 extern int func_80090F74();
 extern int func_800910E4();
-extern int func_80091114();
-extern int func_80091274();
 extern int func_80090EC4();
 
 void func_80055300(void);

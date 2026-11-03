@@ -6,6 +6,8 @@
 #include "rr/gpu.h"
 #include "rr/library.h"
 #include "rr/draw_environment.h"
+#include "psyq/libgpu/addprim.h"
+#include "psyq/libgpu/gpubase2.h"
 
 typedef struct { short a,b,c,d,e,f,g,h; char i,j,k,l; } W3L2_A;
 
@@ -15,8 +17,6 @@ typedef struct { int a, b, c; } B;
 
 typedef struct { char pad[0x1C]; unsigned w; } W3L2_P;
 
-extern unsigned short func_800959E4();
-extern unsigned short func_80095A24();
 extern int func_8008BDF8();
 extern unsigned char D_800ABAC1[];
 extern int D_80011E50[];

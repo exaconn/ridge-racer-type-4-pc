@@ -1,8 +1,8 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
+#include "psyq/libspu/spuwait.h"
 
 extern s32 D_800A4848;
-extern int func_8008B0A4();
 
 void func_8008B044(s32 mode);
 short func_8008B074(short a0);

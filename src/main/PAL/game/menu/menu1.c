@@ -2,6 +2,7 @@
 #include "m2c_macros.h"
 #include "game/menu/menu8.h"
 #include "game/menu/menutran.h"
+#include "game/menu/mnsel.h"
 
 typedef struct { char p[0x17]; signed char b; char q[0x2C - 0x18]; } T;
 
@@ -35,7 +36,6 @@ extern int func_8001FDD4();
 extern int func_80031E3C();
 extern int func_8003A198();
 extern int func_8003A1B4();
-extern int func_80041A18();
 extern int func_80041A54();
 extern int func_80096434();
 extern int D_800ACC18;

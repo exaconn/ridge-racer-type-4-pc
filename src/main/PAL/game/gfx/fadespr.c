@@ -1,12 +1,12 @@
 #include "rr/fade_sprite.h"
 #include "game/effect/ptinit.h"
 #include "game/sound/cdmain.h"
+#include "psyq/libsnd/ssmvol.h"
 
 struct V4 { int a[4]; };
 
 extern char D_800AD528[];
 extern int func_80096434();
-extern int func_80083C74();
 extern void func_8007F910(int);
 extern int func_8008A674(t);
 extern char D_800ACA30[];

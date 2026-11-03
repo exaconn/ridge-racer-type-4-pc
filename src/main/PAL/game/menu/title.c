@@ -1,3 +1,11 @@
+#include "game/course/trkintp2.h"
+#include "game/course/trktext.h"
+#include "game/gfx/gfxdraw.h"
+#include "game/gfx/scene1.h"
+#include "game/sound/cdstop.h"
+#include "game/sound/sndslot.h"
+#include "game/ui/hudmap2.h"
+#include "psyq/libc/printf.h"
 
 extern int func_80014A8C();
 extern int func_800172DC();
@@ -7,32 +15,22 @@ extern int func_8002D784();
 extern int func_8002E0D8();
 extern int func_80036FD4();
 extern int func_80037D88();
-extern int func_800437D8();
-extern int func_8004417C();
 extern int func_8004C138();
 extern int func_8004C5A4();
-extern int func_8004C894();
 extern int func_8004C928();
 extern int func_8004FC18();
-extern int func_80050028();
 extern int func_800528A8();
 extern int func_80052A30();
 extern int func_80052B8C();
-extern int func_800534B4();
 extern int func_80055330();
 extern int func_8005534C();
-extern int func_800555E0();
-extern int func_80055660();
-extern int func_800556B4();
 extern int func_80059168();
-extern int func_80059B1C();
 extern int func_8006E1AC();
 extern int func_8006ECE8();
 extern int func_8006EF8C();
 extern int func_800735D8();
 extern int func_800747EC();
 extern int func_80092CB8();
-extern int func_80096484();
 extern char D_800112CC[];
 extern char D_800112D4[];
 extern char D_800A095C[];

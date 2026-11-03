@@ -1,13 +1,11 @@
 /* RODATA 0x8001140C 0x4c */
+#include "game/data/cardini.h"
 extern int D_8010EF88[];
 extern int D_8010EF90[];
 extern unsigned char D_800A409C[];
 extern unsigned char D_800F3A24[];
 extern unsigned char D_8010B2DC[];
 extern unsigned char D_800ACBCC[];
-extern int func_800787C4();
-extern int func_8007834C();
-extern int func_800783C8();
 
 void func_80078E40(a0, a1, a2)
 int a0; int a1; int a2;

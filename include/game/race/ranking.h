@@ -3,10 +3,10 @@
 
 #include "types.h"
 
-void func_8001EEE4(void);
+int func_8001EEE4();
 void func_8001F194(void);
-void func_8001F254(void);
+int func_8001F254();
 void func_8001F290(void);
-void func_8001F400(void);
+int func_8001F400();
 
 #endif /* RR_GAME_RACE_RANKING_H */

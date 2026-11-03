@@ -1,5 +1,6 @@
 /* RODATA 0x800100e4 0x20 */
 #include "rr_asm.h"
+#include "psyq/libgpu/gpudisp.h"
 
 #define GS ((SPD *)0x1F800000)
 #define W(o) (*(int *)(GS->cur + (o)))
@@ -145,7 +146,6 @@ extern char D_8009E248[];
 extern int D_800AC64C;
 extern int func_800912B4();
 extern int func_80093B14();
-extern int func_80093B94();
 
 SkyTri *func_80017310(SkyTri *a0, SkyCtx *a1, int a2);
 SkyQuad17528 *func_80017528(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2);

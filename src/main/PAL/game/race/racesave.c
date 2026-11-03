@@ -2,6 +2,10 @@
 #include "game/gfx/scene1.h"
 #include "game/sound/sndcmd.h"
 #include "game/ui/hudmap2.h"
+#include "game/gfx/gfxdraw.h"
+#include "game/sound/sndvab.h"
+#include "game/system/pad.h"
+#include "game/system/pad3.h"
 typedef struct { int w[200]; } B800;
 
 typedef struct {
@@ -107,10 +111,6 @@ extern int func_8002E0D8();
 extern int func_8003660C();
 extern int func_80036FD4();
 extern int func_80037D88();
-extern int func_8004417C();
-extern int func_8004B864();
-extern int func_8004BB54();
-extern int func_8004EE60();
 extern int func_8005007C();
 extern int func_80052A30();
 extern int func_8006E1AC();

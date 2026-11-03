@@ -1,3 +1,6 @@
+#include "game/car/aipath.h"
+#include "psyq/libgte/gtemath4.h"
+#include "psyq/libgte/gtemath5.h"
 typedef struct {
     int x;
 } __attribute__((packed)) U4;
@@ -86,9 +89,7 @@ typedef struct {
     int f28;
 } S_ECB4;
 
-extern int func_80091764();
 extern void func_80095A44();
-extern int func_800917C4();
 /* size 0x2C */
 typedef struct {
     int f0;
@@ -120,7 +121,6 @@ typedef struct {
     int f4;
     int f8;
 } S_SP7C;
-extern int func_80026998(int, int);
 extern S_ABEF8 D_800ABEF8[];
 extern int D_800AD504;
 extern short D_800AD522;

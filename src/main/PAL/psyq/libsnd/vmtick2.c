@@ -2,6 +2,7 @@
 /* GCC_VERSION: 2.7.2 */
 /* CC1_FLAGS: -mhard-float */
 #include "types.h"
+#include "psyq/libspu/spuenvx.h"
 
 typedef struct {
     short left;
@@ -66,7 +67,6 @@ extern void func_80084674(SpuVoiceAttr *);
 extern void func_800874F4(s32, s32);
 extern void func_800877E4(s32, s32);
 extern void func_80087814(s32, s32);
-extern void func_800879D4(s32, u16 *);
 
 void func_80087054(void);
 void func_80087064(void);

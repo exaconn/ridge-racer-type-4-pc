@@ -2,6 +2,9 @@
 #include "types.h"
 #include "game/course/trkintp2.h"
 #include "game/gfx/dispenv.h"
+#include "game/course/trkintp2.h"
+#include "game/gfx/dispenv.h"
+#include "psyq/libgte/gtemat7.h"
 
 typedef struct {
     int x, y, z, f0C;
@@ -57,10 +60,6 @@ extern short D_800F4D44;
 extern int D_8010718C;
 extern void func_800172DC(int, int);
 extern void func_80033BE4(void *);
-extern void func_800439BC(void *, short *, int *);
-extern void func_80043ED4(unsigned short *, int, int *);
-extern void func_80043F5C(unsigned short *, int, int *);
-extern short func_80043FC0(CamNode *, int);
 extern void func_8006E1AC(void);
 extern int func_8006E368(int, int);
 extern int func_80090758(int);
@@ -75,8 +74,6 @@ extern int func_80090CA4();
 extern int func_80090DB4();
 extern int func_80090F74();
 extern int func_800910E4();
-extern int func_80091114();
-extern int func_80091274();
 extern V4 D_80010F1C;
 extern int func_800916D4();
 extern B D_800D0DD8[];

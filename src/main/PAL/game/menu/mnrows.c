@@ -4,14 +4,14 @@
 #include "rr/selection.h"
 #include "m2c_macros.h"
 #include "rr/menu_transition.h"
+#include "game/gfx/gfxmtx.h"
+#include "game/ui/hudmap2.h"
+#include "game/ui/uidraw.h"
+#include "game/ui/uitext.h"
+#include "game/ui/uiwin.h"
 
 extern s32 D_800ABEB0;
 extern int func_8001E84C();
-extern int func_8003D1D4();
-extern int func_8003DC50();
-extern int func_8003DFEC();
-extern int func_8003E8D4();
-extern int func_8003FAA0();
 extern int D_800102F0;
 extern char D_8001075C[];
 extern int D_800AC540;
@@ -26,7 +26,6 @@ extern int D_800F4D70[];
 extern int func_8001ECE8();
 extern int func_80036068();
 extern int func_8002A604();
-extern int func_80059314();
 extern int D_800AC5DC;
 extern int D_800F4D40;
 extern short D_800F3826;

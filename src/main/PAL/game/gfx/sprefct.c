@@ -3,6 +3,9 @@
 #include "rr/textured_triangle.h"
 #include "m2c_macros.h"
 #include "rr/sprite_emit.h"
+#include "psyq/libgpu/primatt2.h"
+#include "psyq/libgpu/primatt3.h"
+#include "psyq/libgpu/primatt6.h"
 
 struct P { int tag; unsigned char r, g, b, code; short x, y, w, h; };
 
@@ -13,9 +16,6 @@ void func_80095AF4(void *, s32);
 /* extern */
 void func_80095B24(void *, M2C_UNK);
 /* extern */
-void func_80095B74(void *);
-extern int func_80095BD4();
-void func_80095B54(void *);
 
 u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg);
 struct S32 *func_8002039C(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9);

@@ -1,10 +1,9 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
 #include "rr/trig.h"
+#include "psyq/libgte/gtemat7.h"
 
-int func_8009125C(s32);
 /* extern */
-int func_80091268(int);
 
 s32 func_800904F4(s32 angle);
 void func_80090594(s32 arg0, s32 arg1);

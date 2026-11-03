@@ -3,6 +3,10 @@
 #include "game/camera/campath.h"
 #include "game/gfx/motion1.h"
 #include "game/gfx/ring2.h"
+#include "game/camera/campath.h"
+#include "game/gfx/motion1.h"
+#include "game/gfx/ring.h"
+#include "psyq/libgpu/gpudisp.h"
 
 #define W(p,o) (*(int *)((char *)(p) + (o)))
 #define Q(p,o) ((char *)*(volatile int *)((char *)(p) + (o)))
@@ -80,18 +84,14 @@ extern DbEnv *D_800ACC14;
 extern s16 D_800F7488;
 extern s16 D_800F7624;
 extern void func_8002E828(s32, s32);
-extern void func_8005ABAC(s32);
 extern void func_8005AC0C(s16 *);
 extern void func_8005B9F4(s16 *);
-extern void func_8005D500(s32);
 extern void func_8005D544(s16 *);
-extern void func_8005ECD4(s32);
 extern void func_8005ED34(s16 *);
 extern void func_8006E1AC(void);
 extern void func_8006EF8C(s32);
 extern void func_800912B4(s32, s32);
 extern void func_800912D4(s32);
-extern void func_80093BFC(void *, s32);
 extern int func_80096434();
 extern char D_800A1AA0[];
 extern char D_800A1B60[];

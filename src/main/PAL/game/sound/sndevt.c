@@ -1,5 +1,6 @@
 #include "types.h"
 #include "rr_asm.h"
+#include "game/sound/sndown.h"
 
 #define REC(b, i, o) (*(s32 *)((b) + (i) * 28 + (o)))
 #define RECH(b, i, o) (*(s16 *)((b) + (i) * 28 + (o)))
@@ -60,7 +61,6 @@ extern s32 D_800AC660;
 extern Vehicle320 D_80107198[];
 extern s32 D_800F6748;
 extern s32 func_80090758(s32);
-extern void func_80050E94(s32, s32, s32, s32);
 extern w3t1_E D_800ABEF8[];
 extern s32 D_800AC66C;
 extern s32 func_80091844();

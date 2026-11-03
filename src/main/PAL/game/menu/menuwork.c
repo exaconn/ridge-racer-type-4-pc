@@ -1,6 +1,7 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "game/system/frmtask.h"
+#include "game/gfx/meshquad.h"
 
 #define P8(base, off) (*(unsigned char *)((char *)(base) + (off)))
 #define IDX30(base, i) (*(unsigned char *)((char *)(base) + (i) * 0x24 + 0x30))
@@ -42,7 +43,6 @@ extern int func_8002E828();
 extern int func_8003FBA8();
 extern int func_80052B8C();
 extern int func_80053BB4();
-extern int func_800578D8();
 extern int func_8006E1AC();
 extern int func_8006EF8C();
 extern unsigned char D_8009F818[];

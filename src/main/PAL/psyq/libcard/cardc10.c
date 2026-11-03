@@ -3,8 +3,7 @@
 #include "rr/commands.h"
 #include "rr/serial.h"
 #include "psyq/libcard/cardc11.h"
-
-extern s32 func_8009CF94(s32);
+#include "psyq/libcard/cardc12.h"
 
 s32 func_8009CCF0(s32 value);
 s32 func_8009CDFC(s32 request, s32 parameter, u8 *buffer, u8 *first);

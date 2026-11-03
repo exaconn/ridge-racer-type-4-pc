@@ -6,6 +6,7 @@
 int func_8004D628();
 int func_8004D7D8();
 int func_8004D994();
+int func_8004E03C(char *a0);
 s32 func_8004E184(void);
 int func_8004E194(void);
 

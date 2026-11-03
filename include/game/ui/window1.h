@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_80020CD4();
+int func_80020CD4();
 void func_80020E2C();
 void func_80020F20();
 

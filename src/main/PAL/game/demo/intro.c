@@ -5,6 +5,9 @@
 #include "game/effect/effect.h"
 #include "game/effect/fxspr.h"
 #include "game/gfx/fadesel.h"
+#include "game/gfx/fadeset.h"
+#include "game/gfx/fadespr.h"
+#include "game/sound/sndvab.h"
 
 struct Entry {
     int frame;
@@ -57,14 +60,10 @@ extern struct {
     int f43C;
     int f440;
 } D_800AC650;
-extern void func_80054D30(int, int, int);
-extern void func_8004F274(int);
 extern void func_8005C37C(int, int, int, int);
 extern int func_80090424(int);
-extern void func_8005C26C(int);
 extern int func_8001FDD4(char *, int, int, int, int, int, int, int, int);
 extern int func_8004E008();
-extern int func_8005C13C();
 extern int func_80092CB8();
 extern int func_80096434();
 extern s32 D_800102F0;

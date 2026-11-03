@@ -1,9 +1,9 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/channels.h"
 #include "rr/library.h"
+#include "psyq/libsnd/vmchval.h"
 
 extern void func_800897A4(s32,s32,s32,s32);
-extern int func_80089D28();
 
 void func_80084154(s32 bank,s32 row,s32 left,s32 right);
 void func_800841E4(s16 bank, s32 left, s32 right);

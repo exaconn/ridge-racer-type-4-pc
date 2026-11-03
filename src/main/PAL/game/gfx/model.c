@@ -1,6 +1,12 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "rr_asm.h"
+#include "game/camera/viewcam.h"
+#include "game/course/trkclip.h"
+#include "psyq/libmath/muldf1.h"
+#include "psyq/other/dpadd.h"
+#include "psyq/other/dpcmp.h"
+#include "psyq/other/dpmul.h"
 
 #define G ((Scratch *)0x1F800000)
 #define S16(p, o) (*(s16 *)((char *)(p) + (o)))
@@ -33,16 +39,10 @@ typedef struct {
 
 extern int D_8010718C;
 extern short D_800F4C58;
-extern int func_8006F188();
-extern int func_80026A20();
 extern int D_800F3820;
-extern s64 func_8007D7D4(s64, s64);
-extern s64 func_8007DCC4(s64, s64);
 extern s32 func_8007E0B4(s64);
 extern s64 func_8007E1B4(s32);
-extern s32 func_8007E2D4(s64, s64);
 extern s32 func_8007E3B4(s64, s64);
-extern s64 func_8007E504(s64, s64);
 extern s64 func_8007E904(s64);
 extern s64 func_8007E944(s64, s64);
 extern void func_8005F0D0(s32, s32, s32, s32);

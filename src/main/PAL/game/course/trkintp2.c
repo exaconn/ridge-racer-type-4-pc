@@ -1,13 +1,11 @@
 #include "rr/track_interpolation.h"
 #include "game/ui/uicode.h"
+#include "game/ui/uicnt.h"
 
 typedef struct { int x, y, z, w; } V4;
 
 typedef struct { int a, b, c, d; } V;
 
-extern unsigned char func_80043080();
-extern int func_800430BC();
-extern int func_800430D8();
 extern unsigned char func_80043104();
 extern unsigned char D_8009FE2C[];
 extern int func_80096424();

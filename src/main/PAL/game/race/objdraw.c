@@ -1,6 +1,16 @@
 /* RODATA 0x80011364 0x74 */
 #include "types.h"
 #include "rr_asm.h"
+#include "game/car/aipath.h"
+#include "game/gfx/gtemodel.h"
+#include "game/gfx/poly1.h"
+#include "game/gfx/tilerect.h"
+#include "game/sound/sndbgm3.h"
+#include "game/sound/sndrst2.h"
+#include "game/sound/sndvab.h"
+#include "psyq/libgte/gtemat3.h"
+#include "psyq/libgte/gtemat7.h"
+#include "psyq/libgte/gtemath2.h"
 
 #define SCRATCH_BASE (fp)
 #define SCRATCH_PRIM (*(s32 *)(fp + 0x00))
@@ -111,17 +121,10 @@ typedef struct { int a[8]; } M;
 typedef struct { unsigned short h[16]; } MH;
 
 extern void func_8001A52C(s32);
-extern void func_8001A8DC(s32);
 extern void func_8001ADA0(s32, s32);
-extern void func_8001AFB8(s32, s32);
-extern s32 func_80026998(s32, s32);
-extern void func_8004F218(s32, s32, s32, s32);
-extern void func_80051538(s32, s32, s32);
-extern void func_800517F8(s32, s32, s32, s32);
 extern void func_8005F0D0(void *, s32, s32, s32);
 extern void func_8005FCCC(void *, s32);
 extern void func_800701C4(s32);
-extern void func_80070BA4(void *, s32, s32);
 extern void func_80071978(Poly38 *, s32, s32);
 extern void func_80071B94(Poly48 *, s32, s32);
 extern s32 func_80090424(s32);
@@ -129,11 +132,7 @@ extern s32 func_800904F4(s32);
 extern s32 func_80090758(s32);
 extern void func_80090914(Mat32 *, Mat32 *, Mat32 *);
 extern void func_80090EC4(void *, SVec *, Vec16 *);
-extern void func_800910B4(Mat32 *);
 extern void func_800910E4(Mat32 *);
-extern void func_80091114(Mat32 *);
-extern void func_80091274(u8, u8, u8);
-extern void func_80091704(SVec *, Vec16 *, s32 *);
 extern void func_80091844(SVec *, Mat32 *);
 extern s32 func_800924D4(s32, s32);
 extern void func_80093C24(s32, s32, s32, s32, s32);
@@ -166,7 +165,6 @@ extern int func_8006E030();
 extern int func_8006E09C();
 extern int func_8006E108();
 extern int func_80090DB4();
-extern int func_80090C74();
 extern int D_800FF690[];
 extern int func_80096434();
 extern int *D_8010E8D8;

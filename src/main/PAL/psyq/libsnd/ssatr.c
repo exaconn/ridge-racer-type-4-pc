@@ -1,6 +1,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
+#include "psyq/libsnd/vmupd.h"
 extern signed char D_801100FC; extern short D_80110114;
-extern short func_80089344(); extern int func_8008A564();
+ extern int func_8008A564();
 int func_80089540(a0, a1, a2, a3) int a0; int a1; int a2; int a3; {
   register int s asm("$16");
   short i;

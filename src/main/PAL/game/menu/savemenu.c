@@ -1,6 +1,7 @@
 /* RODATA 0x80011570 0x18 */
 #include "game/data/cardini.h"
 #include "game/data/savedat.h"
+#include "game/data/savebld.h"
 typedef struct {
     char b[0x4000];
 } Struct4000;
@@ -9,7 +10,6 @@ typedef struct {
     char b[0x2C];
 } Struct2C;
 
-extern int func_80079200();
 extern int func_80096434();
 
 extern Struct4000 *D_800102F0;

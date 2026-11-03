@@ -2,16 +2,16 @@
 #include "rr/line_emit.h"
 #include "m2c_macros.h"
 #include "game/ui/hudmap2.h"
+#include "game/course/trktext.h"
+#include "game/ui/hudmap2.h"
+#include "psyq/libc/printf.h"
 
 extern void func_8004C5A4(s32, s32, const char *, s32, s32);
 extern s32 func_8004C73C(s32, s32, char *, s32, s32);
-extern s32 func_8004C7E8(s32, s32, char *, s32, s32);
 extern void func_8004C928(s32);
 extern void func_80059700(s16 *, s32, s32);
-extern void func_80059B1C(u8 *, s32, s32, s32);
 extern void func_80059C28(s32, u8);
 extern void func_80059D34(s32, u8);
-extern void func_80096484(char *, const char *, s32);
 extern const char D_80011228[];
 extern const char D_8001122C[];
 extern const char D_80011230[];

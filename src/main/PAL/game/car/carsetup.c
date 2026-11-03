@@ -4,6 +4,9 @@
 #include "m2c_macros.h"
 #include "game/car/aipath.h"
 #include "game/car/carparam.h"
+#include "game/course/trktext.h"
+#include "game/race/racemai2.h"
+#include "game/sound/sndbgm3.h"
 
 #define H(p, o) (*(unsigned short *)((char *)(p) + (o)))
 #define W(b, o) (*(int *)((char *)(b) + (o)))
@@ -22,10 +25,7 @@ extern short D_800AD508;
 extern char D_800ABEF8[];
 extern short func_80022848(void);
 extern void func_800394B8();
-extern void func_800394E4();
-extern void func_800512C4();
 extern void func_800172DC();
-extern int func_8004C370();
 extern int func_800244B0();
 extern int func_8002648C();
 extern int func_80026F5C();

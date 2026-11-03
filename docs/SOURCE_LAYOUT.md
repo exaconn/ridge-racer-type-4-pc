@@ -13,7 +13,7 @@ src/main/PAL/
     course/    track data and geometry   car/    vehicle state, physics, AI
     race/      race flow, rules, replay  camera/ effect/ math/ demo/
   psyq/        Sony PsyQ SDK (compiled with the library compiler, see DECOMP_GUIDE "Third compiler")
-    libapi/ libc/ libcard/ libcd/ libgpu/ libgte/ libpad/ libsio/ libsnd/ libspu/ other/
+    libapi/ libc/ libcard/ libcd/ libetc/ libgpu/ libgte/ libmath/ libpad/ libsio/ libsnd/ libspu/ other/
   func_XXXXXXXX.c   (top level only) a freshly matched function that has not been placed yet
 ```
 

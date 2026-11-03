@@ -216,7 +216,7 @@ def header_decls(root, includes, seen=None, out=None):
     return out
 
 
-def merge(paths, markers_out, policy=None, fwd_mode='proto', alias=False, root=None):
+def merge(paths, markers_out, policy=None, fwd_mode='proto', alias=False, root=None, canon_pick=None):
     """paths in address order; markers_out: list of marker lines for the merged file.
     policy: dict name -> index of the variant to keep when declarations conflict (default 0)."""
     policy = policy or {}
@@ -234,6 +234,11 @@ def merge(paths, markers_out, policy=None, fwd_mode='proto', alias=False, root=N
                         new_items.append([kind, q, _declname(q) if q is not text else name])
                 else: new_items.append([kind, text, name])
             items = new_items
+        seen_func = False
+        for it_ in items:
+            if it_[0] == 'func': seen_func = True
+            elif it_[0] == 'pp' and ('legacy typing of shared globals' in it_[1] or re.match(r'\s*#\s*undef\b', it_[1])): it_[0] = 'fpp'
+            elif it_[0] == 'pp' and seen_func and re.match(r'(?:/\*.*?\*/\s*)*#\s*(?:define|undef)\b', it_[1].strip(), re.S): it_[0] = 'fpp'
         # local type / static-function names that collide with a different earlier definition are renamed
         ren = {}
         for kind, text, name in items:
@@ -273,6 +278,8 @@ def merge(paths, markers_out, policy=None, fwd_mode='proto', alias=False, root=N
                 is_extern = bool(re.match(r'\s*(?:/\*.*?\*/\s*)*extern\b', text, re.S)) or bool(
                     re.search(r'\)\s*;\s*$', norm(text) and text)) and not text.lstrip().startswith(('typedef', 'struct', 'union', 'enum'))
                 (types if text.lstrip().startswith(('typedef', 'struct', 'union', 'enum')) else externs).append((name, text))
+            elif kind == 'fpp':
+                funcs.append((None, text, p))
             else:
                 funcs.append((name, text, p))
     for name, b in seen.items():
@@ -291,7 +298,11 @@ def merge(paths, markers_out, policy=None, fwd_mode='proto', alias=False, root=N
     def _score(v):
         t = v[1]
         return (('Rr' in t or 'struct' in t or 'union' in t) * 2 + ('[' not in t and '(' not in t), -seen_order.get(v[0], 0))
-    def canon_of(n_): return hdr[n_][0] if n_ in hdr else max(seen[n_], key=_score)[0]
+    canon_pick = canon_pick or {}
+    def canon_of(n_):
+        if n_ in canon_pick and n_ not in hdr:
+            v_ = seen[n_]; return v_[min(canon_pick[n_], len(v_) - 1)][0]
+        return hdr[n_][0] if n_ in hdr else max(seen[n_], key=_score)[0]
     def pick(entries):
         out = []; used = set()
         for name, text in entries:
@@ -306,12 +317,13 @@ def merge(paths, markers_out, policy=None, fwd_mode='proto', alias=False, root=N
             out.append(text)
         return out
     # externs for names defined in this TU: replace by a forward declaration taken from the definition
-    defined = {f[0]: f[1] for f in funcs}
+    defined = {f[0]: f[1] for f in funcs if f[0]}
     fwd = []
     for name, text in list(externs):
         pass
     externs = [(n_, t_) for n_, t_ in externs if n_ not in defined]
     for name, text, _ in funcs:
+        if name is None: continue
         h = re.sub(r'/\*.*?\*/|//[^\n]*', '', text, flags=re.S).strip()
         if KNR.match(h) or fwd_mode == 'knr':
             h = h[:h.index('(')].strip() + '()'
@@ -352,4 +364,4 @@ def merge(paths, markers_out, policy=None, fwd_mode='proto', alias=False, root=N
     else:
         for _, t, _ in funcs: body.append(t.strip())
     head = '\n'.join(parts)
-    return (head + '\n' if head else '') + '\n\n'.join(body) + '\n', conflicts, ro, [f[0] for f in funcs]
+    return (head + '\n' if head else '') + '\n\n'.join(body) + '\n', conflicts, ro, [f[0] for f in funcs if f[0]]

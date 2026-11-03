@@ -28,7 +28,7 @@ class Overlay665VisualTest(unittest.TestCase):
 
     def test_visual_initialization_and_full_pointer_scratch(self):
         root=Path(__file__).resolve().parents[2]
-        reset=re.sub(r'^extern[^\n]*;\n','',(root/'build/legacy/func_8003A198.c').read_text(),flags=re.M)
+        reset=re.sub(r'^extern[^\n]*;\n','',(root/'tools/scripts/fixtures/legacy/func_8003A198.c').read_text(),flags=re.M)
         body=(root/'src/overlays/PAL/665/func_80114918.c').read_text()
         source=PREFIX+r'''
 typedef struct {u32 guard[4];RrOverlay665VisualState visual;RrProjectionScratchPrefix scratch;s32 counter;s8 flag1,flag2;s32 mode;u16 selector;s16 scene,phase;u32 tail[4];} State;
@@ -87,7 +87,7 @@ int main(void){unsigned k,i;
         exe=(root/'assets/PAL/main.exe').read_bytes()
         table=struct.unpack_from('<4097h',exe,0x800+0x800A50C0-0x80010000)
         self.assertEqual((min(table[3072:]),max(table[3072:])),(0,4096))
-        trig=(root/'src/main/PAL/psyq/libgte/gtemem.c').read_text()+(root/'build/legacy/func_800904F4.c').read_text()
+        trig=(root/'tools/scripts/fixtures/legacy/trig_sine.c').read_text()+(root/'tools/scripts/fixtures/legacy/func_800904F4.c').read_text()
         body=(root/'src/overlays/PAL/665/func_801169BC.c').read_text()
         source=PREFIX+r'''
 typedef struct {u16 points[4];u8 rgb[3];u8 pad;const u8 *color;s32 blend,depth;RrOverlay665VisualState before;} Event;
@@ -107,7 +107,7 @@ static s32 sine_reference(u32 phase){unsigned quadrant=(phase&4095U)/1024U,at=ph
 static void effect(struct World *v,const u16 points[4]){Event *e=&v->event;assert(v->calls==0);v->calls++;memset(e,0,sizeof(*e));memcpy(e->points,points,8);memcpy(e->rgb,v->color,3);e->color=world.color;e->blend=0;e->depth=0;memcpy(&e->before,&v->visual,sizeof(v->visual));
  v->visual.centerX38^=0xA55A;v->visual.centerY3A^=0x5AA5;((u8*)&v->visual.scale3C)[0]^=0xEF;v->color[0]^=0x31;v->color[1]^=0x73;v->color[2]^=0xA7;
 }
-void func_8004D290(u16 points[4],u8 rgb[3],s32 blend,s32 depth){assert(rgb==world.color && blend==0 && depth==0);assert((uintptr_t)points>UINT32_MAX && (uintptr_t)rgb>UINT32_MAX);effect(&world,points);}
+void func_8004D290(const s16 points[4],const u8 rgb[3],s32 blend,s32 depth){assert(rgb==world.color && blend==0 && depth==0);assert((uintptr_t)points>UINT32_MAX && (uintptr_t)rgb>UINT32_MAX);effect(&world,(u16 *)points);}
 static void reference(s32 angle){u16 points[4];int64_t sine=sine_reference((u32)angle&4095U),cosine=sine_reference(((u32)angle+1024U)&4095U),x=expected.visual.centerX38,y=expected.visual.centerY3A;
  assert(sine>=-4096 && sine<=4096 && cosine>=-4096 && cosine<=4096);
  points[0]=(u16)(x+sine/128);points[1]=(u16)(y-cosine/64);points[2]=(u16)(x+sine*40/8192);points[3]=(u16)(y-cosine*40/4096);effect(&expected,points);

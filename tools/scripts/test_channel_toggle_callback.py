@@ -22,7 +22,7 @@ class ChannelToggleCallbackTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         root = Path(__file__).resolve().parents[2]
         directory = Path(cls.temp.name)
-        body = (root / 'build/legacy/func_80082D00.c').read_text()
+        body = (root / 'tools/scripts/fixtures/legacy/func_80082D00.c').read_text()
         body = body.replace('#include "types.h"', '')
         body = body.replace('extern s32 D_800A4D4C;', '').replace('extern void (*D_800A4D40)(void);', '')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)

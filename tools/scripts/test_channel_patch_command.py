@@ -44,7 +44,7 @@ unsigned long test_size(void) {return sizeof(RrChannelPatchCommand);}
 unsigned long test_argument_offset(void) {return offsetof(RrChannelPatchCommand,argument);}
 '''
         for name in ('func_800994CC','channel_patch_handlers','func_80097C58'):
-            body=(root/('build/legacy/'+name+'.c')).read_text()
+            body=(root/('tools/scripts/fixtures/legacy/'+name+'.c')).read_text()
             body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
             body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
             body=re.sub(r'"\$[0-9]+",\s*','',body)

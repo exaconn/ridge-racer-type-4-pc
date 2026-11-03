@@ -49,7 +49,7 @@ RrLibQueueRecord32 *test_queue;
                  + ['func_80087DA4', 'func_8008B044', 'func_8008BE14', 'func_8009A7F4',
                     'func_8009C0A4'])
         for name in names:
-            body = (root / 'build/legacy' / (name + '.c')).read_text()
+            body = (root / 'tools/scripts/fixtures/legacy' / (name + '.c')).read_text()
             body = body.replace('#include "types.h"', '')
             body = body.replace('#include "rr/library.h"', '')
 

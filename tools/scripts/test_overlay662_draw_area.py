@@ -9,10 +9,10 @@ class Overlay662DrawAreaTest(unittest.TestCase):
     def test_geometry_shift_links_and_real_constructor(self):
         root=Path(__file__).resolve().parents[2]
         body=(root/'src/overlays/PAL/662/func_8011ABB4.c').read_text()
-        resident=(root/'src/main/PAL/psyq/libgpu/gpucmd.c').read_text()
+        resident=(root/'tools/scripts/fixtures/legacy/gpu_coordinates.c').read_text()
         resident=re.sub(r' __asm__\("\$[0-9]+"\)','',resident)
         resident=re.sub(r'^.*__asm__.*\n','',resident,flags=re.M)
-        constructor=re.sub(r'^extern[^\n]*;\n','',(root/'build/legacy/func_80093B14.c').read_text(),flags=re.M)
+        constructor=re.sub(r'^extern[^\n]*;\n','',(root/'tools/scripts/fixtures/legacy/func_80093B14.c').read_text(),flags=re.M)
         source=r'''
 #include <assert.h>
 #include <stdint.h>

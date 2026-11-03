@@ -13,6 +13,7 @@ import struct
 import subprocess
 
 from elftools.elf.elffile import ELFFile
+from analyze_overlays import padding_spans
 from levenshtein import levenshtein
 from overlay_units import function_owner, link_unit
 
@@ -390,6 +391,10 @@ def run(*args):
 
 def main():
     blob = (ROOT / 'disc/PAL/R4.BIN').read_bytes()
+    padding = padding_spans(blob)
+    for index, address, size in SAMPLES + EXTRA_FUNCTIONS:
+        assert all(address + size <= a or b <= address
+                   for a, b in padding.get(index, [])), (index, hex(address))
     sectors = struct.unpack_from('<951I', blob, 4)
     reconstructed = bytearray(blob)
     results = []

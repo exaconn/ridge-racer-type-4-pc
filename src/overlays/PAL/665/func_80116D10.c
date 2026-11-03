@@ -1,3 +1,4 @@
+#include "rr/line_emit.h"
 #include "types.h"
 
 /* Car / course setup controller (one player). */
@@ -140,7 +141,6 @@ extern void func_8002A604();
 extern void func_8003D228(s32, s32, s32, s32, s32, s32, s32);
 extern void func_8002AF8C(s32, s32, s32);
 extern s32 func_80090424(s32);
-extern void func_8004D290(void *, void *, s32, s32);
 extern void func_8004BB84(s32, s32);
 extern void ovl665_func_801169BC(s32);
 extern void func_8003D6F0(s32);
@@ -539,12 +539,12 @@ void ovl665_func_80116D10(s32 player) {
             line.x0 = 148;
             line.x1 = 172;
             line.y0 = line.y1 = ST.view38.y02;
-            func_8004D290(&line, ovl665_D_8011973C, 0, 0);
+            func_8004D290((const s16 *)&line, ovl665_D_8011973C, 0, 0);
             if (D_800AD528.b[player].h[4] > 0) {
                 line.y0 = line.y1 = ST.view38.y02 + ovl665_D_80119724[D_800AD528.b[player].h[4] - 1];
-                func_8004D290(&line, ovl665_D_8011973C, 0, 0);
+                func_8004D290((const s16 *)&line, ovl665_D_8011973C, 0, 0);
                 line.y0 = line.y1 = ST.view38.y02 - ovl665_D_80119724[D_800AD528.b[player].h[4] - 1];
-                func_8004D290(&line, ovl665_D_8011973C, 0, 0);
+                func_8004D290((const s16 *)&line, ovl665_D_8011973C, 0, 0);
             }
             cursor = CURSOR;
             if (D_800AD528.b[player].h[4] > 0) {

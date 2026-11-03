@@ -1,11 +1,11 @@
 #include "types.h"
+#include "rr/line_emit.h"
 #include "m2c_macros.h"
 
 extern void func_8004C5A4(s32, s32, const char *, s32, s32);
 extern s32 func_8004C73C(s32, s32, char *, s32, s32);
 extern s32 func_8004C7E8(s32, s32, char *, s32, s32);
 extern void func_8004C928(s32);
-extern void func_8004D290(s16 *, u8 *, s32, s32);
 extern void func_80059700(s16 *, s32, s32);
 extern void func_80059904(s16 *, s32, s32);
 extern void func_80059B1C(u8 *, s32, s32, s32);

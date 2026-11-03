@@ -78,9 +78,9 @@ s32 func_8009DF14(s32 mode, s32 value) {
     return test_validation_results[index];
 }
 ''' + callbacks
-        owners = source_owners(root / 'src/main/PAL')
+        owners = {n: root / 'tools/scripts/fixtures/legacy' / (n + '.c') for n in [f'func_{r[0]}' for r in CASES] + ['func_8009C490', 'func_8009C978', 'func_8009C768', 'func_8009D118', 'func_8009CF94', 'func_8009C91C', 'func_8009C6F8', 'func_8009CCF0']}
         sources = dict.fromkeys([owners['func_' + row[0]] for row in CASES] + [owners[n] for n in ('func_8009C490', 'func_8009C978', 'func_8009C768', 'func_8009D118', 'func_8009CF94', 'func_8009C91C', 'func_8009C6F8', 'func_8009CCF0')])
-        for path in sources:
+        for path in {q.read_text(): q for q in sources}.values():
             body = path.read_text()
             body = body.replace('#include "rr_asm.h"', '')
             body = body.replace('#include "rr/commands.h"', '').replace('#include "rr/serial.h"', '')

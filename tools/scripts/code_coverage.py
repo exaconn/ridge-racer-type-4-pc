@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 import sys
 import yaml
-from analyze_overlays import BASE, SPANS
+from analyze_overlays import BASE, SPANS, padding_spans
 from c_functions import source_owners
 from overlay_units import function_owner, function_extent
 
@@ -52,6 +52,23 @@ def coverage(ledger_path, target_percent=40):
     assert not set(hasm) & owners.keys()
     resident_hasm = sum(spans[n][1] for n in hasm)
     resident_total -= resident_hasm
+    resident_padding = 0
+    original = (ROOT/'assets/PAL/main.exe').read_bytes()
+    layout = yaml.safe_load((ROOT/'configs/PAL/code_layout.yaml').read_text())
+    subsegments = image['subsegments']
+    for segment, following in zip(subsegments, subsegments[1:]):
+        if not isinstance(segment,list) or segment[1] != 'pad':
+            continue
+        start, end = segment[0], following[0]
+        a = image['vram'] + start - image['start']
+        b = a + end - start
+        assert text_start <= a < b <= text_end
+        assert all(b <= fa or fa + size <= a for fa,size in spans.values())
+        assert all(b <= da or db <= a for da,db in layout['resident_data'])
+        data = original[start:end]
+        assert len(data) == end - start and not any(data)
+        resident_padding += end - start
+    resident_total -= resident_padding
     overlay_c=0
     intervals={}
     for row in report['functions']:
@@ -69,15 +86,20 @@ def coverage(ledger_path, target_percent=40):
         assert BASE+start <= a and a+size <= BASE+end
         intervals.setdefault(index,[]).append((a,a+size))
         overlay_hasm+=size
+    overlay_padding = 0
+    for index, ranges in padding_spans((ROOT/'disc/PAL/R4.BIN').read_bytes()).items():
+        intervals.setdefault(index,[]).extend(ranges)
+        overlay_padding += sum(b-a for a,b in ranges)
     for values in intervals.values():
         values.sort();assert all(a[1] <= b[0] for a,b in zip(values,values[1:]))
-    total=resident_total+sum(b-a for a,b in SPANS.values())-overlay_hasm
+    total=resident_total+sum(b-a for a,b in SPANS.values())-overlay_hasm-overlay_padding
     recovered=resident_c+overlay_c
     threshold=(total*target_percent+99)//100
-    return dict(scope='PAL resident .text plus nine unique candidate overlay text spans, both excluding hand-written hasm; aliases excluded',
-                denominator_provisional=True, denominator_source='configs/PAL/main.yaml and analyze_overlays.SPANS',
+    return dict(scope='PAL resident .text plus nine unique candidate overlay text spans, excluding hand-written hasm and declared NOP padding; aliases excluded',
+                denominator_provisional=True, denominator_source='configs/PAL/main.yaml, configs/PAL/code_layout.yaml and analyze_overlays.SPANS',
                 total_code_bytes=total,resident_text_bytes=resident_total,
                 resident_hasm_bytes=resident_hasm,resident_hasm_functions=len(hasm),
+                resident_padding_bytes=resident_padding,overlay_padding_bytes=overlay_padding,
                 resident_c_bytes=resident_c,verified_overlay_c_bytes=overlay_c,
                 overlay_hasm_bytes=overlay_hasm,recovered_c_bytes=recovered,coverage_percent=100*recovered/total,
                 target_percent=target_percent,target_c_bytes=threshold,remaining_c_bytes=max(0,threshold-recovered),

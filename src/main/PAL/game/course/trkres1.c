@@ -1,29 +1,51 @@
 #include "types.h"
+
 #include "m2c_macros.h"
+
 #include "rr/gpu.h"
+
 #include "rr/steering.h"
+
 #include "rr/track_resources.h"
 
 extern int D_800ACC14;
+
 extern int func_80096434();
+
 extern s32 D_800ACB90;
 
 void func_8004C928(int a0);
+
 void *func_8004C998(char *a0);
+
 void func_8004CBDC(char *p);
+
 void func_8004CC1C(void *arg0, void *arg1, void *arg2, s32 arg3);
+
 void func_8004CD88(unsigned short *a0, int a1, unsigned char *a2, unsigned char *a3, int a4);
+
 void func_8004CFB0(void *arg0, void *arg1, void *arg2, s32 arg3);
+
 void func_8004D11C(unsigned short *a0, unsigned char *a1, unsigned char *a2, unsigned char *a3, unsigned char *a4, int a5);
+
 void func_8004D290(unsigned short *a0, unsigned char *a1, int a2, int a3);
+
 void func_8004D354(RrCurve24 *curve, s32 displacement, s32 duration, s32 initialRate);
+
 s32 func_8004D420(const RrCurve24 *curve, s32 time, s32 *output);
+
 int func_8004D4BC(int a);
+
 void func_8004D4DC(RrLookupTables32 *tables);
+
 void func_8004D58C(RrTrackLaneOffset8 *offsets);
+
 void func_8004D598(s32 *startNode);
+
 void func_8004D5A4(u8 *workspace);
+
 void func_8004D5CC(RrTrackResourceFile *file);
+
 void func_8004D61C(s32 arg0);
 
 void func_8004C928(int a0) {
@@ -190,181 +212,4 @@ void func_8004CD88(unsigned short *a0, int a1, unsigned char *a2, unsigned char 
     *(volatile int *)&a[0x70 / 4] = (a[0x70 / 4] & 0xFF000000) | ((int)p & 0xFFFFFF);
     p++;
     *(RrPolyG4Packet **)0x1F800000 = p;
-}
-
-void func_8004CFB0(void *arg0, void *arg1, void *arg2, s32 arg3) {
-    void *temp_a3;
-    void *temp_t0;
-
-    temp_t0 = *(void **)0x1F800000;
-    M2C_FIELD(temp_t0, s8 *, 3) = 8;
-    M2C_FIELD(temp_t0, s8 *, 7) = 0x3A;
-    M2C_FIELD(temp_t0, u16 *, 8) = (u16) M2C_FIELD(arg0, u16 *, 0);
-    M2C_FIELD(temp_t0, u16 *, 0xA) = (u16) M2C_FIELD(arg0, u16 *, 2);
-    M2C_FIELD(temp_t0, s16 *, 0x10) = (s16) (M2C_FIELD(arg0, u16 *, 0) + M2C_FIELD(arg0, u16 *, 4));
-    M2C_FIELD(temp_t0, u16 *, 0x12) = (u16) M2C_FIELD(arg0, u16 *, 2);
-    M2C_FIELD(temp_t0, u16 *, 0x18) = (u16) M2C_FIELD(arg0, u16 *, 0);
-    M2C_FIELD(temp_t0, s16 *, 0x1A) = (s16) (M2C_FIELD(arg0, u16 *, 2) + M2C_FIELD(arg0, u16 *, 6));
-    M2C_FIELD(temp_t0, s16 *, 0x20) = (s16) (M2C_FIELD(arg0, u16 *, 0) + M2C_FIELD(arg0, u16 *, 4));
-    M2C_FIELD(temp_t0, s16 *, 0x22) = (s16) (M2C_FIELD(arg0, u16 *, 2) + M2C_FIELD(arg0, u16 *, 6));
-    M2C_FIELD(temp_t0, u8 *, 4) = (u8) M2C_FIELD(arg1, u8 *, 0);
-    M2C_FIELD(temp_t0, u8 *, 5) = (u8) M2C_FIELD(arg1, u8 *, 1);
-    M2C_FIELD(temp_t0, u8 *, 6) = (u8) M2C_FIELD(arg1, u8 *, 2);
-    M2C_FIELD(temp_t0, u8 *, 0xC) = (u8) M2C_FIELD(arg1, u8 *, 0);
-    M2C_FIELD(temp_t0, u8 *, 0xD) = (u8) M2C_FIELD(arg1, u8 *, 1);
-    M2C_FIELD(temp_t0, u8 *, 0xE) = (u8) M2C_FIELD(arg1, u8 *, 2);
-    M2C_FIELD(temp_t0, u8 *, 0x14) = (u8) M2C_FIELD(arg2, u8 *, 0);
-    M2C_FIELD(temp_t0, u8 *, 0x15) = (u8) M2C_FIELD(arg2, u8 *, 1);
-    M2C_FIELD(temp_t0, u8 *, 0x16) = (u8) M2C_FIELD(arg2, u8 *, 2);
-    M2C_FIELD(temp_t0, u8 *, 0x1C) = (u8) M2C_FIELD(arg2, u8 *, 0);
-    M2C_FIELD(temp_t0, u8 *, 0x1D) = (u8) M2C_FIELD(arg2, u8 *, 1);
-    M2C_FIELD(temp_t0, u8 *, 0x1E) = (u8) M2C_FIELD(arg2, u8 *, 2);
-    temp_a3 = (arg3 * 4) + D_800ACC14;
-    M2C_FIELD(temp_t0, s32 *, 0) = (s32) ((M2C_FIELD(temp_t0, s32 *, 0) & 0xFF000000) | (M2C_FIELD(temp_a3, s32 *, 0x70) & 0xFFFFFF));
-    M2C_FIELD(temp_a3, s32 *, 0x70) = (s32) ((M2C_FIELD(temp_a3, s32 *, 0x70) & 0xFF000000) | ((s32) temp_t0 & 0xFFFFFF));
-    *(void **)0x1F800000 = temp_t0 + 0x24;
-}
-
-void func_8004D11C(unsigned short *a0, unsigned char *a1, unsigned char *a2, unsigned char *a3, unsigned char *a4, int a5) {
-    unsigned char *p = *(unsigned char **)0x1F800000;
-    int *a;
-    p[3] = 8;
-    p[7] = 0x3A;
-    *(unsigned short *)(p + 8) = a0[0];
-    *(unsigned short *)(p + 10) = a0[1];
-    *(short *)(p + 0x10) = a0[0] + a0[2];
-    *(unsigned short *)(p + 0x12) = a0[1];
-    *(unsigned short *)(p + 0x18) = a0[0];
-    *(short *)(p + 0x1A) = a0[1] + a0[3];
-    *(short *)(p + 0x20) = a0[0] + a0[2];
-    *(short *)(p + 0x22) = a0[1] + a0[3];
-    p[4] = a1[0];
-    p[5] = a1[1];
-    p[6] = a1[2];
-    p[0xC] = a2[0];
-    p[0xD] = a2[1];
-    p[0xE] = a2[2];
-    p[0x14] = a3[0];
-    p[0x15] = a3[1];
-    p[0x16] = a3[2];
-    p[0x1C] = a4[0];
-    p[0x1D] = a4[1];
-    p[0x1E] = a4[2];
-    a = (int *)(a5 * 4 + D_800ACC14);
-    *(int *)p = (*(int *)p & 0xFF000000) | (a[0x70 / 4] & 0xFFFFFF);
-    *(volatile int *)&a[0x70 / 4] = (a[0x70 / 4] & 0xFF000000) | ((int)p & 0xFFFFFF);
-    p += 0x24;
-    *(unsigned char **)0x1F800000 = p;
-}
-
-void func_8004D290(unsigned short *a0, unsigned char *a1, int a2, int a3) {
-    unsigned char *p = *(unsigned char **)0x1F800000;
-    int *a;
-    int w;
-    p[3] = 3;
-    p[7] = 0x40;
-    p[7] = a2 ? 0x42 : 0x40;
-    w = *(int *)p;
-    p[4] = a1[0];
-    p[5] = a1[1];
-    p[6] = a1[2];
-    *(unsigned short *)(p + 8) = a0[0];
-    *(unsigned short *)(p + 10) = a0[1];
-    *(unsigned short *)(p + 12) = a0[2];
-    *(unsigned short *)(p + 14) = a0[3];
-    a = (int *)(a3 * 4 + D_800ACC14);
-    *(int *)p = (w & 0xFF000000) | (a[0x70 / 4] & 0xFFFFFF);
-    *(volatile int *)&a[0x70 / 4] = (a[0x70 / 4] & 0xFF000000) | ((int)p & 0xFFFFFF);
-    p += 16;
-    *(unsigned char **)0x1F800000 = p;
-}
-
-/* Build a two-phase rate curve in twelve-bit fixed-point units. */
-void func_8004D354(RrCurve24 *curve, s32 displacement, s32 duration, s32 initialRate)
-{
-    s32 half = duration / 2;
-    s32 scaledDisplacement = displacement * 4096;
-    s32 middleRate;
-    s32 scaledInitialRate = initialRate * 4096;
-    curve->initialRate = scaledInitialRate;
-    middleRate = scaledDisplacement / half - (initialRate * 2048);
-    curve->displacement = scaledDisplacement;
-    curve->duration = duration;
-    curve->middleRate = middleRate;
-    curve->firstAcceleration = (middleRate - curve->initialRate) / half;
-    curve->secondAcceleration = -middleRate / half;
-}
-
-s32 func_8004D420(const RrCurve24 *curve, s32 time, s32 *output)
-{
-    s32 half;
-    s32 rate;
-    if (time >= curve->duration) {
-        *output = -(curve->secondAcceleration / 2);
-        return -1;
-    }
-    half = curve->duration / 2;
-    if (time < half) {
-        rate = curve->initialRate + curve->firstAcceleration / 2 + curve->firstAcceleration * time;
-    } else {
-        time -= half;
-        rate = curve->middleRate + curve->secondAcceleration / 2 + curve->secondAcceleration * time;
-    }
-    *output = rate;
-    return 0;
-}
-
-int func_8004D4BC(int a) {
-    int v = a;
-    int r = v & 3;
-    if (r != 0) {
-        v += 4 - r;
-    }
-    return v;
-}
-
-void func_8004D4DC(RrLookupTables32 *tables)
-{
-    D_800AC650.lookupTables = tables;
-    tables->auxiliary10 = (void *)((unsigned long)tables->auxiliary10 + (unsigned long)tables);
-    D_800AC650.lookupTables->auxiliary14 = (void *)((unsigned long)D_800AC650.lookupTables->auxiliary14 + (unsigned long)tables);
-    D_800AC650.lookupTables->table0 = (RrTrackEventEntry *)((unsigned long)D_800AC650.lookupTables->table0 + (unsigned long)tables);
-    D_800AC650.lookupTables->table1 = (RrTrackEventEntry *)((unsigned long)D_800AC650.lookupTables->table1 + (unsigned long)tables);
-    D_800AC650.lookupTables->table2 = (RrTrackEventEntry *)((unsigned long)D_800AC650.lookupTables->table2 + (unsigned long)tables);
-    D_800AC650.lookupTables->table3 = (RrTrackEventEntry *)((unsigned long)D_800AC650.lookupTables->table3 + (unsigned long)tables);
-    D_800AC650.lookupTables->auxiliary28 = (void *)((unsigned long)D_800AC650.lookupTables->auxiliary28 + (unsigned long)tables);
-}
-
-void func_8004D58C(RrTrackLaneOffset8 *offsets)
-{
-    D_800ACB9C = offsets;
-}
-
-void func_8004D598(s32 *startNode)
-{
-    D_800ACB8C = startNode;
-}
-
-void func_8004D5A4(u8 *workspace)
-{
-    RrTrackResourceContext *context = &D_800AC650;
-    context->workspace554 = workspace;
-    workspace += 0xA00;
-    context->workspace558 = workspace;
-    workspace += 0x20;
-    context->workspace55C = workspace;
-    workspace += 0x200;
-    context->cameraNodes550 = workspace;
-}
-
-void func_8004D5CC(RrTrackResourceFile *file)
-{
-    func_8004D4DC((RrLookupTables32 *)((u8 *)file + file->lookupOffset04));
-    func_8004D58C((RrTrackLaneOffset8 *)((u8 *)file + file->laneOffset08));
-    func_8004D598((s32 *)((u8 *)file + file->startNodeOffset0C));
-    func_8004D5A4((u8 *)file + file->workspaceOffset10);
-}
-
-void func_8004D61C(s32 arg0) {
-    D_800ACB90 = arg0;
 }

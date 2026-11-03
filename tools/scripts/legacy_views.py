@@ -11,6 +11,7 @@ from c_functions import source_owners
 from tumerge import parse
 
 ROOT = Path(__file__).resolve().parents[2]
+STRIP_INCLUDES = False
 
 
 IDENT = re.compile(r"\b(?:Rr\w+|D_[0-9A-Fa-f]{8}|func_\w+|[A-Z]\w*[a-z]\w*|[A-Z][A-Z0-9_]{3,})\b")
@@ -82,7 +83,10 @@ def views(root=ROOT):
     count = 0
     for name, path in source_owners(root / "src/main/PAL").items():
         marks, items = parse(path.read_text())
-        (out / f"{name}.c").write_text(view(root, name, marks, items))
+        text = view(root, name, marks, items)
+        if STRIP_INCLUDES:
+            text = re.sub(r"^#include[^\n]*\n\n?", "", text, flags=re.M)
+        (out / f"{name}.c").write_text(text)
         count += 1
     return count
 

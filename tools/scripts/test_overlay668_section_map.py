@@ -3,7 +3,7 @@ from pathlib import Path
 import struct
 import unittest
 
-from analyze_overlays import BASE, SPANS
+from analyze_overlays import BASE, SPANS, padding_spans
 
 
 class StrSectionMapTest(unittest.TestCase):
@@ -11,6 +11,8 @@ class StrSectionMapTest(unittest.TestCase):
     def setUpClass(cls):
         root = Path(__file__).resolve().parents[2]
         image = (root / 'disc/PAL/R4.BIN').read_bytes()
+        cls.image = image
+        cls.padding = padding_spans(image).get(668, [])
         sectors = struct.unpack_from('<951I', image, 4)
         cls.module = image[sectors[668] * 2048:sectors[669] * 2048]
 
@@ -65,6 +67,24 @@ class StrSectionMapTest(unittest.TestCase):
             if BASE <= target < BASE + len(self.module):
                 self.assertTrue(BASE + start <= target < BASE + end,
                                 (hex(address), hex(target)))
+                self.assertFalse(any(a <= target < b for a,b in self.padding),
+                                 (hex(address), hex(target)))
+
+    def test_padding_is_between_functions(self):
+        from verify_overlay_samples import SAMPLES, EXTRA_FUNCTIONS
+        self.assertEqual(self.padding, [(0x80116920, 0x80116928)])
+        for index, address, size in SAMPLES + EXTRA_FUNCTIONS:
+            if index == 668:
+                self.assertTrue(all(address + size <= a or b <= address
+                                    for a,b in self.padding))
+
+    def test_nonzero_padding_is_rejected(self):
+        image = bytearray(self.image)
+        sectors = struct.unpack_from('<951I', image, 4)
+        offset = sectors[668] * 2048 + self.padding[0][0] - BASE
+        struct.pack_into('<I', image, offset, 0x03E00008)
+        with self.assertRaises(AssertionError):
+            padding_spans(image)
 
 
 if __name__ == '__main__':

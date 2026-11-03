@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import struct
 import subprocess
+import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 BASE = 0x80114878
@@ -24,6 +25,27 @@ SPANS = {
     668: (0x98, 0x2430),
 }
 ALIASES = {669: 660, 670: 659, 671: 661, 672: 667}
+
+
+def padding_spans(blob):
+    """Read declared NOP gaps, checking their extent and original contents."""
+    config = yaml.safe_load((ROOT / 'configs/PAL/code_layout.yaml').read_text())['overlay_padding']
+    sectors = struct.unpack_from('<951I', blob, 4)
+    result = {}
+    for index, ranges in config.items():
+        start, end = SPANS[index]
+        result[index] = []
+        previous = BASE + start
+        for a, b in ranges:
+            assert previous <= a < b <= BASE + end and a % 4 == b % 4 == 0
+            for site in [index] + [alias for alias, canonical in ALIASES.items()
+                                    if canonical == index]:
+                offset = sectors[site] * 2048 + a - BASE
+                data = blob[offset:offset + b - a]
+                assert len(data) == b - a and not any(data), (index, hex(a))
+            result[index].append((a, b))
+            previous = b
+    return result
 
 
 def main():

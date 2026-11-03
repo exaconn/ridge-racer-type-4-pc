@@ -1,4 +1,5 @@
 #include "rr/gpu.h"
+#include "rr/line_emit.h"
 
 typedef struct {
     int vx, vy, vz, pad;
@@ -72,7 +73,6 @@ extern short *D_800A0F20[];
 extern short *D_800A0F8C[];
 extern char *D_800AC89C;
 extern short D_800AD520;
-extern int func_8004D290();
 
 int func_8005642C(CarState *arg0, int arg1, int arg2, int *arg3);
 void func_80056F04(int a0, int a1, int a2, int a3, int a4);
@@ -347,8 +347,8 @@ void func_800572A8(a0, a1)
 int a0;
 int a1;
 {
-  unsigned short v[4];
-  char w[3];
+  s16 v[4];
+  u8 w[3];
   short *s1;
   int i;
   int c;

@@ -74,6 +74,19 @@ prove absence of compressed code or code without standard returns elsewhere.
 
 ## Effect on coverage
 
+### NOP alignment (2026-11-03)
+
+`gen_config.py` emits `pad` subsegments in `main.yaml` for gaps between known
+functions only when the entire original range is zero. Instructions within
+functions, including NOP delay slots, remain part of those functions.
+`configs/PAL/code_layout.yaml` records zero-filled resident data that must remain
+outside padding (the kernel descriptor reset image at `0x80096044..0x80096050`)
+and the equivalent overlay padding ranges as
+half-open VRAM intervals: module 668 has alignment at `0x80116920..0x80116928`
+before `DecDCTvlcSize`. Coverage excludes these declared padding ranges alongside
+hand-written assembly. Coverage and overlay verification validate the original
+padding contents; padding must not overlap implemented functions.
+
 ### STR section-map correction (2026-11-02)
 
 The original return-word scan overestimated module 668's text extent. Its last

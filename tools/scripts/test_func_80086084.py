@@ -25,7 +25,7 @@ class MaskedSpuWriteTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         header = (root / 'include/rr/spu.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        source = (root / 'build/legacy/func_80086084.c').read_text()
+        source = (root / 'tools/scripts/fixtures/legacy/func_80086084.c').read_text()
         source = source.replace('#include "rr/spu.h"', '''#include <stdint.h>
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -33,7 +33,7 @@ typedef int16_t s16;
 typedef uint32_t u32;
 typedef int32_t s32;
 ''' + header)
-        source += (root / 'build/legacy/func_80086B84.c').read_text().replace(
+        source += (root / 'tools/scripts/fixtures/legacy/func_80086B84.c').read_text().replace(
             '#include "rr/spu.h"', '')
         source += '\nRrSpuRegisterBank *D_800A47D8;\n'
         (directory / 'function.c').write_text(source)

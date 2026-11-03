@@ -59,10 +59,10 @@ s32 test_page[0x4000];
 s32 (*test_counter)(u32,u32);
 s32 func_80096E64(u32 counter,u32 mode) { return test_counter(counter,mode); }
 '''
-        owners = source_owners(root / 'src/main/PAL')
+        owners = {'func_'+n: root / 'tools/scripts/fixtures/legacy' / ('func_'+n+'.c') for n in ('8007DB54', '8007DC04', '8007E9C4', '8007DFA4', '8007DFF4', '8007E1B4', '8007E904', '8007E494', '8007E818')}
         sources = dict.fromkeys(owners['func_' + name] for name in
                                 ('8007DB54', '8007DC04', '8007E9C4', '8007DFA4', '8007DFF4', '8007E1B4', '8007E904', '8007E494', '8007E818'))
-        for path in sources:
+        for path in {q.read_text(): q for q in sources}.values():
             body = path.read_text()
             body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
             body = body.replace('extern s32 D_800A47D0, D_800A47D4;', '')

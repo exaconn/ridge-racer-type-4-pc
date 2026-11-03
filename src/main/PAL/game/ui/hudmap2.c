@@ -1,4 +1,5 @@
 /* RODATA 0x80011200 0x1c */
+#include "rr/line_emit.h"
 #include "types.h"
 
 #define ADDPRIM(ot, p) \
@@ -55,7 +56,6 @@ typedef struct {
 
 extern u8 *D_800ACC14;
 extern void func_80093C24();
-extern int func_8004D290();
 extern s32 D_800A101C;
 extern UvRect D_800A1020[];
 extern UvRect D_800A1028;

@@ -145,7 +145,7 @@ def norm(t):
     return re.sub(r'\s+', '', t)
 
 
-def merge(paths, markers_out, policy=None):
+def merge(paths, markers_out, policy=None, fwd_mode='proto'):
     """paths in address order; markers_out: list of marker lines for the merged file.
     policy: dict name -> index of the variant to keep when declarations conflict (default 0)."""
     policy = policy or {}
@@ -215,7 +215,7 @@ def merge(paths, markers_out, policy=None):
     externs = [(n_, t_) for n_, t_ in externs if n_ not in defined]
     for name, text, _ in funcs:
         h = re.sub(r'/\*.*?\*/|//[^\n]*', '', text, flags=re.S).strip()
-        if KNR.match(h):
+        if KNR.match(h) or fwd_mode == 'knr':
             h = h[:h.index('(')].strip() + '()'
         else:
             h = h[:h.index('{')].strip()
@@ -231,7 +231,7 @@ def merge(paths, markers_out, policy=None):
     for t in pick(types): body.append(t.strip())
     ex = pick(externs)
     if ex: body.append('\n'.join(s.strip() for s in ex))
-    if fwd: body.append('\n'.join(fwd))
+    if fwd and fwd_mode != 'none': body.append('\n'.join(fwd))
     for _, t, _ in funcs: body.append(t.strip())
     head = '\n'.join(parts)
     return (head + '\n' if head else '') + '\n\n'.join(body) + '\n', conflicts, ro, [f[0] for f in funcs]

@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 import subprocess
 
 sources = ['800940E0', '8009424C', '80093C24', '80095B94', '80095B24', '80095AF4', '8001FF84', '8001FCC8']
-body = '\n'.join(Path(f'build/legacy/func_{a}.c').read_text().replace('register int v0 asm("$2");', 'int v0;') for a in sources)
+body = '\n'.join(Path(f'tools/scripts/fixtures/legacy/func_{a}.c').read_text().replace('register int v0 asm("$2");', 'int v0;') for a in sources)
 source = r'''
 #include <assert.h>
 #include <stdint.h>

@@ -5,6 +5,7 @@ A C unit is src/main/<V>/**/*.c (segment name = path below src/main/<V>, e.g. ga
 must be one contiguous run. Usage: gen_config.py [VERSION]"""
 import re, sys
 from pathlib import Path
+import yaml
 from c_functions import function_definitions
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -70,15 +71,29 @@ hasm_count = sum(1 for u in units if u[3] == "hasm")
 units = merged
 
 off = lambda v: v - BASE_VRAM + FILE_OFF
+original = (ROOT / f"assets/{V}/main.exe").read_bytes()
+layout = yaml.safe_load((ROOT / f"configs/{V}/code_layout.yaml").read_text())
 lines = []
+
+
+def add_gap(start, end):
+    # Only gaps outside known functions qualify; a zero instruction inside a
+    # function (including a delay slot) is still part of that function.
+    data = original[off(start):off(end)]
+    assert len(data) == end - start
+    contains_data = any(start < b and a < end for a,b in layout['resident_data'])
+    kind = "asm" if any(data) or contains_data else "pad"
+    lines.append(f"      - [{off(start):#x}, {kind}, main_{start:08X}]")
+
+
 pos = TEXT_START
 for a, e, n, kind in units:
     if a > pos:
-        lines.append(f"      - [{off(pos):#x}, asm, main_{pos:08X}]")
+        add_gap(pos, a)
     lines.append(f"      - [{off(a):#x}, {kind}, {n}]")
     pos = e
 if pos < TEXT_END:
-    lines.append(f"      - [{off(pos):#x}, asm, main_{pos:08X}]")
+    add_gap(pos, TEXT_END)
 
 RO_START, RO_END = 0x80010000, 0x80012208
 ro_units.sort()

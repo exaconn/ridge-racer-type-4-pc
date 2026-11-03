@@ -1,4 +1,5 @@
 /* RODATA 0x80011270 0x2c */
+#include "rr/line_emit.h"
 #include "types.h"
 #include "m2c_macros.h"
 
@@ -58,7 +59,6 @@ extern void func_8005C4E0(void);
 extern void func_80054D50(void);
 extern void func_8004F274(int);
 extern void func_8005C37C(int, int, int, int);
-extern void func_8004D290(short *, unsigned char *, int, int);
 extern int func_80090424(int);
 extern void func_8005C26C(int);
 extern int func_8001FDD4(char *, int, int, int, int, int, int, int, int);

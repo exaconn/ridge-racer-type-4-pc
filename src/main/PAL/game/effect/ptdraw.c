@@ -1,13 +1,9 @@
-#include "rr/gpu.h"
-
-typedef struct {
-    u8 r, g, b, cd;
-} RrCVector;
+#include "rr/ui_primitives.h"
 
 typedef struct {
     s32 active00, state04, timer08;
     s16 x0C, y0E;
-    RrCVector c10;
+    RrGpuColorCommand c10;
     s16 s14;
     u16 u16;
     s16 s18, s1A, s1C, s1E;
@@ -44,18 +40,16 @@ extern struct {
     s32 f3E8;
 } D_800AC650;
 extern u8 *D_800ACC14;
-extern RrCVector D_800A0CF0;
+extern RrGpuColorCommand D_800A0CF0;
 
 #define ADDPRIM(ot, p) \
     (p)->addr = ((PolyFT4 *)(ot))->addr; \
     ((PolyFT4 *)(ot))->addr = (u32)(p)
 
 extern void func_8004CD88();
-extern void func_8004CFB0();
-extern void func_8004D11C();
 
 void func_80054264(int a0) {
-    RrCVector c[4];
+    RrGpuColorCommand c[4];
     RrGpuRectangleFields rect;
     RrParticle20 *e;
     PolyFT4 *p;

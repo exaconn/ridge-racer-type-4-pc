@@ -31,28 +31,28 @@ void ovl665_func_80116AA4(const RrStrokeStep4 *const *paths,s32 factor) {
                 case 0:
                     xy[2]=xy[0];
                     xy[3]=(u32)xy[1]-(u32)n;
-                    func_8004D290(xy,color.bytes,0,0);
+                    func_8004D290((const s16 *)xy,color.bytes,0,0);
                     break;
                 case 1:
                     xy[2]=xy[0];
                     xy[3]=(u32)xy[1]+(u32)n;
-                    func_8004D290(xy,color.bytes,0,0);
+                    func_8004D290((const s16 *)xy,color.bytes,0,0);
                     break;
                 case 2:
                     xy[2]=(u32)xy[0]-(u32)n;
                     xy[3]=xy[1];
-                    func_8004D290(xy,color.bytes,0,0);
+                    func_8004D290((const s16 *)xy,color.bytes,0,0);
                     xy[1]++;
                     xy[3]++;
-                    func_8004D290(xy,color.bytes,0,0);
+                    func_8004D290((const s16 *)xy,color.bytes,0,0);
                     break;
                 case 3:
                     xy[2]=(u32)xy[0]+(u32)n;
                     xy[3]=xy[1];
-                    func_8004D290(xy,color.bytes,0,0);
+                    func_8004D290((const s16 *)xy,color.bytes,0,0);
                     xy[1]++;
                     xy[3]++;
-                    func_8004D290(xy,color.bytes,0,0);
+                    func_8004D290((const s16 *)xy,color.bytes,0,0);
                     break;
                 }
                 xy[0]=xy[2];

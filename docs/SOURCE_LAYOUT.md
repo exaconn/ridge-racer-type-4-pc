@@ -20,7 +20,14 @@ src/main/PAL/
 Overlay code stays in `src/overlays/PAL/<n>/` and is described in `docs/overlays.md`.
 
 ## File naming
-Namco/PsyQ-era style: lower case, at most 8 characters, a noun or noun+verb abbreviation
+PsyQ files take the name of the real library member where the symbol evidence identifies it
+(`configs/PAL/psyq_hints.parasite.txt` against the member lists of the PsyQ 4.x decompilation
+https://github.com/software-factory-vibe-city/psyq-decompilation): `libgpu/sys01.c`..`sys29.c`
+are consecutive slices of the one `sys` member, `libcd/bios_1*`, `libspu/spu*`, `libetc/intr*`
+likewise. A member is one object file in the original; it is split here only because the slices
+declare the same globals with different local types and cannot yet share one compilation unit.
+
+Game files use Namco/PsyQ-era style: lower case, at most 8 characters, a noun or noun+verb abbreviation
 (`carmove1.c`, `cdread.c`, `sprite.c`, `vmchval.c`). Where a PsyQ library file name is known
 (`utgpa`, `ccadsr`, `midi*`) it is used. Many names are descriptive guesses; they carry no
 information about the real original file names.
@@ -43,6 +50,8 @@ where the merged text no longer compiled or matched. Treat the boundaries as edi
   (`game/car/carmove1`), so moving or renaming a file is just a `git mv` followed by `make split`.
 * `tools/scripts/tumerge.py` – parser/merger used to build the TUs (dedupes includes, typedefs and
   externs, renames colliding local types, emits prototypes for functions defined in the TU).
+* `tools/scripts/fixtures/legacy/` freezes ~100 pre-merge single-function sources for the few
+  unit tests that depend on their exact include layout.
 * `make views` writes `build/legacy/<func>.c`, the single-function view of every function that
   older unit tests expect; `make test` regenerates it and runs all `tools/scripts/test_*.py`.
 * New matches: write `src/main/PAL/func_XXXXXXXX.c`, check with `fd.py`, then move it into the

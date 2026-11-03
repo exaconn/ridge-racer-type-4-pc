@@ -27,7 +27,7 @@ static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static s16 half(u16 n){s16 v;memcpy(&v,&n,2);return v;}
 static u32 next(void){u32 n=w->s.rng;n^=n<<13;n^=n>>17;n^=n<<5;return w->s.rng=n;}
 static void sync(void){unsigned i;for(i=0;i<5;i++){assert(w->s.selected[i]<10);w->paths[i]=w->s.banks[w->s.selected[i]];}}
-void func_8004D290(u16 *xy,u8 *rgb,s32 blend,s32 depth){Event *e;unsigned i,slot,bank,row;assert(w->count<80);assert(blend==0&&depth==0);
+void func_8004D290(const s16 *points,const u8 *color,s32 blend,s32 depth){u16 *xy=(u16*)points;u8 *rgb=(u8*)color;Event *e;unsigned i,slot,bank,row;assert(w->count<80);assert(blend==0&&depth==0);
  e=&w->events[w->count++];memset(e,0,sizeof(*e));e->before=w->s;memcpy(e->xy,xy,8);memcpy(e->rgba,rgb,4);e->blend=blend;e->depth=depth;
  if(mutation){
   for(i=0;i<4;i++){xy[i]=(u16)next();rgb[i]=(u8)next();w->s.color.bytes[i]=(u8)next();}
@@ -47,8 +47,8 @@ static void expected(s32 factor){RrStrokeColor4 color=w->s.color;unsigned path,r
    nextUsed=word((u32)used+(u32)(s32)step.length);
    if(limit>=nextUsed){n=step.length;used=nextUsed;seen[3]++;}else{n=word((u32)limit-(u32)used);used=word((u32)used+(u32)n);seen[4]++;}
    xy[2]=xy[0];xy[3]=xy[1];
-   if(dir<2){xy[3]=(u16)((u32)xy[1]+(dir?(u32)n:0U-(u32)n));func_8004D290(xy,color.bytes,0,0);seen[5]++;}
-   else{xy[2]=(u16)((u32)xy[0]+(dir==3?(u32)n:0U-(u32)n));func_8004D290(xy,color.bytes,0,0);xy[1]=(u16)(xy[1]+1U);xy[3]=(u16)(xy[3]+1U);func_8004D290(xy,color.bytes,0,0);seen[6]++;}
+   if(dir<2){xy[3]=(u16)((u32)xy[1]+(dir?(u32)n:0U-(u32)n));func_8004D290((const s16 *)xy,color.bytes,0,0);seen[5]++;}
+   else{xy[2]=(u16)((u32)xy[0]+(dir==3?(u32)n:0U-(u32)n));func_8004D290((const s16 *)xy,color.bytes,0,0);xy[1]=(u16)(xy[1]+1U);xy[3]=(u16)(xy[3]+1U);func_8004D290((const s16 *)xy,color.bytes,0,0);seen[6]++;}
    xy[0]=xy[2];xy[1]=xy[3];
   }
   assert(row<9);if(!row)seen[7]++;

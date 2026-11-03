@@ -32,7 +32,7 @@ u8 test_data_page[65536];
 s32 (*test_poll)(void);
 s32 func_8008C724(void) {return test_poll();}
 '''
-        body = (root / 'build/legacy/func_8008DDAC.c').read_text()
+        body = (root / 'tools/scripts/fixtures/legacy/func_8008DDAC.c').read_text()
         body = body.replace('#include "rr/library.h"', '')
         if body.count('(u8 *)0x80110000U') != 2:
             raise AssertionError('Expected exactly two data-page adapters')

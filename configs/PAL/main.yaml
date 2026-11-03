@@ -1324,7 +1324,7 @@ segments:
       - [0x79d40, c, func_80089540]
       - [0x79e1c, asm, main_8008961C]
       - [0x79e24, c, spu_program]
-      - [0x79fa4, asm, main_800897A4]
+      - [0x79fa4, c, func_800897A4]
       - [0x7a528, c, channel_values]
       - [0x7a61c, c, func_80089E1C]
       - [0x7a6d4, c, func_80089ED4]

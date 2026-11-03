@@ -217,7 +217,7 @@ segments:
       - [0x5f7c, c, func_8001577C]
       - [0x6118, c, func_80015918]
       - [0x6500, c, func_80015D00]
-      - [0x6768, asm, main_80015F68]
+      - [0x6768, c, func_80015F68]
       - [0x7adc, c, func_800172DC]
       - [0x7b10, c, func_80017310]
       - [0x7d28, c, func_80017528]

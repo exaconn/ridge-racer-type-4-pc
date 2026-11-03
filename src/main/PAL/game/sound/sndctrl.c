@@ -18,7 +18,6 @@
 
 struct E { char pad[0x38]; u32 flags; char r[1568 - 0x3C]; };
 
-extern void func_8007F910(int);
 extern int func_8008A674();
 extern struct {
     char pad00[0x24];

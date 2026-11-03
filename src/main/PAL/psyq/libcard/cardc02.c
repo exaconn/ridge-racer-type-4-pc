@@ -1,8 +1,8 @@
 /* GCC_VERSION: 970318 */
 #include "rr/commands.h"
 #include "psyq/libcard/cardc03.h"
+#include "psyq/libcard/cardc02.h"
 
-s32 func_8009C400(s32 value);
 s32 func_8009C490(s32 request, s32 parameter, u8 *buffer);
 
 s32 func_8009C400(s32 value) {

@@ -1,8 +1,6 @@
 #include "rr/library.h"
 #include "psyq/libsnd/cc_nrpn3.h"
-
-void func_80081394();
-void func_80081444();
+#include "psyq/libsnd/ccadsr4.h"
 
 void func_80081394(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; RrLibBlock24Fields s; u8 c; {
     register s32 cc = c;

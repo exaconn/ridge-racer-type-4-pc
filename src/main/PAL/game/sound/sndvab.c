@@ -13,7 +13,6 @@ extern int func_800963C4();
 extern int func_8001E84C();
 extern char D_800110D8[];
 extern char D_800110F0[];
-extern int func_800865E4();
 extern s32 D_800F7650;
 
 void func_8004ED38(int *arg0, int arg1, int arg2);

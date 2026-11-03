@@ -1,6 +1,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "psyq/libspu/smutil.h"
 #include "psyq/libspu/spuregs2.h"
+#include "psyq/libsnd/utrev.h"
 struct S { char pad[0x1AA]; unsigned short f; };
 extern struct S *D_800A47D8;
 extern int D_800A4854;

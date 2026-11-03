@@ -10,7 +10,6 @@
 struct S { char pad[0x2AA]; short f; char pad2[0x320 - 0x2AC]; };
 
 extern s32 func_8001FCC8();
-extern s32 D_800F4BF0;
 extern int D_800ABEB0;
 extern short D_80107178;
 extern short D_800AC59C;

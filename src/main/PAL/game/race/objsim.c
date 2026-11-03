@@ -114,7 +114,6 @@ typedef struct {
     int pad[10];
 } S_ABEA4;
 /* size 0x3C */
-extern int func_8006E368();
 extern int D_800A4090;
 extern int D_800F2DE4;
 extern short D_800F3914;

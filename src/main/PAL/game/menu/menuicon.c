@@ -1,5 +1,6 @@
 #include "game/menu/menucalc.h"
 #include "game/menu/menustat.h"
+#include "game/menu/menuicon.h"
 extern int func_8003D228();
 extern int func_8003D6F0();
 extern int func_8001FC28();

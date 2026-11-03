@@ -2,6 +2,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/library.h"
 #include "rr/channel_stream.h"
+#include "psyq/libsnd/cc_6.h"
 
 /* libsnd _SsContDataEntry (cc_6.o): SEQ control change 6, data entry.
  * Same source as bashalarmistdecomp/eternal-silver-sssc-decomp libsnd_cc_6.c. */

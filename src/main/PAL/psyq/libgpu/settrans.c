@@ -1,5 +1,6 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "psyq/libgpu/settrans.h"
 
 void func_80095AF4(void *arg0, s32 arg1) {
     u8 var_v0;

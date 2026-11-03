@@ -19,6 +19,7 @@
 #include "rr/relative_file.h"
 #include "rr/frame_environment.h"
 #include "game/demo/splash.h"
+#include "rr/animated_glyph.h"
 
 typedef struct { int a[8]; } S32B;
 
@@ -64,7 +65,6 @@ extern V3 D_800FF690;
 extern int D_800FF6B0;
 extern V3 D_800FF6B8;
 extern S32B D_8010E710;
-extern int func_80095A44();
 extern int func_8002E0D8();
 extern int func_80036FD4();
 extern int func_8006EF8C();

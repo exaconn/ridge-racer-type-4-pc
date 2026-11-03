@@ -1,6 +1,7 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "game/race/ranking.h"
+#include "game/menu/menutra22.h"
 
 extern int func_8003EC88();
 extern char *D_800F4D80;
@@ -14,7 +15,6 @@ extern int D_800ACC14;
 void func_8007D448(int a0, int a1);
 void func_8007D558(void);
 void func_8007D560(int a0, int a1);
-void func_8007D65C(int a0);
 void func_8007D710(void);
 
 void func_8007D448(int a0, int a1) {

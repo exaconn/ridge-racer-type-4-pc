@@ -3,10 +3,10 @@
 #include "types.h"
 #include "rr/spu_tick_control.h"
 #include "rr/timing.h"
+#include "psyq/libapi/vsyncini.h"
 
 extern s32 *D_800A6394;
 
-int *func_8008BA24(void);
 void func_8008BA7C();
 void func_8008BAE8(s32 slot,RrSpuTickCallback callback);
 void func_8008BB14();

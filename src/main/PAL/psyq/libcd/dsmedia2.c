@@ -9,8 +9,8 @@
 #include "psyq/libcd/dsmedia2.h"
 #include "psyq/libcd/dsstrm32.h"
 #include "rr/cd.h"
+#include "rr/overlay668_stream.h"
 
-extern int D_801102DC;
 extern s32 func_8008C55C();
 extern s32 func_80096F04();
 extern s32 func_80096F14();

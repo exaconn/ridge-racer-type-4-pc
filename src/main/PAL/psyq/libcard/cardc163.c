@@ -3,8 +3,6 @@
 #include "psyq/libcard/cardc163.h"
 #include "rr/commands.h"
 extern volatile int D_800ABDE8;
-extern int D_800ABDF8;
-extern int D_80114730;
 
 int func_8009D7A0() {
  register int r asm("$2") = 0x5A; int d; d = D_800ABDE8; if (d != 2) r = 0; return r;

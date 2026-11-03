@@ -1,5 +1,6 @@
 #include "rr/library.h"
 #include "psyq/libsnd/cc_nrpn3.h"
+#include "psyq/libsnd/cc_rpn.h"
 void func_800814F4(a0, a1, a2, s, c)
     s16 a0, a1, a2;
     RrLibBlock24Fields s;

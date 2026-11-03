@@ -1,4 +1,5 @@
 /* GCC_VERSION: 2.7.2 */
+#include "psyq/libpad/padintr.h"
 struct R { int a, b; };
 extern struct R *D_800ABCC8;
 extern int (*D_800ABC90)();

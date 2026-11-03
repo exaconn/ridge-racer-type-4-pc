@@ -1,5 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/library.h"
+#include "psyq/libsnd/midiread.h"
 void func_80080034(s16 bank, s16 row) {
     /* ASM_BARRIER: Retain the original table/record register across the update call. */
     register RrLibStateB0 **table __asm__("$16");

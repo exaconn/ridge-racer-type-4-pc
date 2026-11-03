@@ -22,7 +22,6 @@
 #include "rr/bios_devices.h"
 
 extern int func_80052800();
-extern int func_800929D4();
 extern int func_800907FC();
 extern int func_8004A678();
 extern int func_80013890();

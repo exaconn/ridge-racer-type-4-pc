@@ -1,5 +1,6 @@
 #define D_800AC650 D_800AC650_prefix
 #include "rr/race.h"
+#include "game/car/carspec1.h"
 #undef D_800AC650
 
 extern char D_8010738C[];

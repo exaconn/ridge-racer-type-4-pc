@@ -2,6 +2,7 @@
 #include "game/data/trkld1.h"
 #include "game/menu/menuicon.h"
 #include "game/ui/barsel0.h"
+#include "game/menu/menustat.h"
 typedef struct { char pad[0x14]; unsigned char b14; char p15, p16; signed char b17; char p18[2]; short h1A; } S4D8;
 
 extern int func_80052800();
@@ -29,7 +30,6 @@ extern unsigned char D_8009F074[];
 extern signed char D_8009F108[];
 
 void func_800302C0();
-int func_8003069C();
 
 void func_800302C0()
 {

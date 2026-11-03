@@ -7,6 +7,7 @@
 #include "game/data/ldscn1.h"
 #include "game/gfx/gfxotag.h"
 #include "game/menu/menu8.h"
+#include "game/menu/menucalc.h"
 
 extern int func_80020074();
 extern unsigned char D_8009F074[][4];

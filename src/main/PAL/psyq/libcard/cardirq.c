@@ -15,8 +15,6 @@ extern int func_80096F94();
 extern int func_80097714();
 extern int func_80096F14();
 extern int D_800ABDB0;
-extern int D_800ABDE8;
-extern int D_800ABDE4;
 extern int func_80097704();
 
 int func_8009BB58();

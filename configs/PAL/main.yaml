@@ -918,7 +918,7 @@ segments:
       - [0x5ee3c, c, func_8006E63C]
       - [0x5ef94, c, func_8006E794]
       - [0x5f034, c, func_8006E834]
-      - [0x5f0f8, asm, main_8006E8F8]
+      - [0x5f0f8, c, func_8006E8F8]
       - [0x5f1cc, c, func_8006E9CC]
       - [0x5f1d4, c, func_8006E9D4]
       - [0x5f1e8, c, func_8006E9E8]

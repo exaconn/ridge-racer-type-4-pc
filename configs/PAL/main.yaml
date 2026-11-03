@@ -193,7 +193,7 @@ segments:
       - [0x39d0, c, func_800131D0]
       - [0x3a00, c, func_80013200]
       - [0x3d14, c, func_80013514]
-      - [0x3dbc, asm, main_800135BC]
+      - [0x3dbc, c, func_800135BC]
       - [0x3fb0, c, func_800137B0]
       - [0x3fd4, c, func_800137D4]
       - [0x4090, c, func_80013890]

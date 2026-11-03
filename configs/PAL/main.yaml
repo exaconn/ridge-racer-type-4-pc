@@ -1393,7 +1393,7 @@ segments:
       - [0x7df30, c, func_8008D730]
       - [0x7e020, c, func_8008D820]
       - [0x7e06c, c, func_8008D86C]
-      - [0x7e24c, asm, main_8008DA4C]
+      - [0x7e24c, c, func_8008DA4C]
       - [0x7e3b4, c, func_8008DBB4]
       - [0x7e4b4, c, func_8008DCB4]
       - [0x7e5a0, c, func_8008DDA0]

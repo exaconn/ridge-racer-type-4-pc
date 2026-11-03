@@ -219,7 +219,7 @@ segments:
       - [0xc03c, c, func_8001B83C]
       - [0xc0b0, asm, main_8001B8B0]
       - [0xc2f8, c, func_8001BAF8]
-      - [0xc3c4, asm, main_8001BBC4]
+      - [0xc3c4, c, func_8001BBC4]
       - [0xc484, c, func_8001BC84]
       - [0xc540, c, func_8001BD40]
       - [0xc6f8, c, func_8001BEF8]

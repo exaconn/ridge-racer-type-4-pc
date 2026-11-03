@@ -1,8 +1,6 @@
-#include "types.h"
-#include "m2c_macros.h"
+#include "rr/track_lateral.h"
 
-extern s32 D_800ACB9C;
-
-void func_8004D58C(s32 arg0) {
-    D_800ACB9C = arg0;
+void func_8004D58C(RrTrackLaneOffset8 *offsets)
+{
+    D_800ACB9C = offsets;
 }

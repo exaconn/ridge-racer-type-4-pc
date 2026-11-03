@@ -1,8 +1,9 @@
+#include "rr/track_lateral.h"
 #include "types.h"
 #include "m2c_macros.h"
 
 extern int func_8004D4DC();
-extern int func_8004D58C();
+
 extern int func_8004D598();
 extern int func_8004D5A4();
 

@@ -1,35 +1,31 @@
-typedef struct { int a, b, c, d; int e[11]; } S3C;
-typedef struct { short x, y; int z; } P8;
-extern S3C *D_800ABEA4;
-extern int D_800ABECC;
-extern P8 *D_800ACB9C;
-extern int func_800924D4();
+#include "rr/track_lateral.h"
 
-short func_8004C454(a0, a1)
-int a0; int a1;
+extern s32 func_800924D4(s32 z, s32 x);
+
+s32 func_8004C454(s32 node, s32 lane)
 {
-    int sp[6];
-    int i;
-    P8 *p0, *p1;
-    int o0, o1;
-    S3C *s0, *s1;
-    i = (a0 - 1) % D_800ABECC;
-    if (i < 0) i += D_800ABECC;
-    switch (a1) {
+    int delta[6];
+    int previous;
+    RrTrackLaneOffset8 *currentOffset, *previousOffset;
+    int previousOffsetBytes, currentOffsetBytes;
+    RrTrackSample3C *previousSample, *currentSample;
+    previous = (node - 1) % D_800ABECC;
+    if (previous < 0) previous += D_800ABECC;
+    switch (lane) {
     case 0:
-        p0 = D_800ACB9C + a0;
-        p1 = D_800ACB9C + i;
-        o0 = i * 60;
-        o1 = a0 * 60;
-        s0 = (S3C *)(o0 + (int)D_800ABEA4);
-        s1 = (S3C *)(o1 + (int)D_800ABEA4);
-        sp[2] = s0->c + p1->x - (s1->c + p0->x);
-        sp[3] = s0->d + p1->y - (s1->d + p0->y);
+        currentOffset = D_800ACB9C + node;
+        previousOffset = D_800ACB9C + previous;
+        previousOffsetBytes = previous * (s32)sizeof(RrTrackSample3C);
+        currentOffsetBytes = node * (s32)sizeof(RrTrackSample3C);
+        previousSample = (RrTrackSample3C *)(previousOffsetBytes + (unsigned long)D_800ABEA4);
+        currentSample = (RrTrackSample3C *)(currentOffsetBytes + (unsigned long)D_800ABEA4);
+        delta[2] = previousSample->x08 + previousOffset->x - (currentSample->x08 + currentOffset->x);
+        delta[3] = previousSample->z0C + previousOffset->z - (currentSample->z0C + currentOffset->z);
         break;
     case 10:
-        sp[2] = D_800ABEA4[i].c - D_800ABEA4[a0].c;
-        sp[3] = D_800ABEA4[i].d - D_800ABEA4[a0].d;
+        delta[2] = D_800ABEA4[previous].x08 - D_800ABEA4[node].x08;
+        delta[3] = D_800ABEA4[previous].z0C - D_800ABEA4[node].z0C;
         break;
     }
-    return func_800924D4(sp[3], sp[2]);
+    return (s16)func_800924D4(delta[3], delta[2]);
 }

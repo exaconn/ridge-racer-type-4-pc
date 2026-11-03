@@ -1,10 +1,11 @@
+#include "rr/track_projection.h"
 
 #include "types.h"
 #include "rr/race.h"
 
 extern int func_800469A4();
 extern int func_80046B1C();
-extern int func_8004638C();
+
 extern RrRaceStandingsTable *D_800AC738;
 extern int D_800AC664;
 extern short D_800AC59C;

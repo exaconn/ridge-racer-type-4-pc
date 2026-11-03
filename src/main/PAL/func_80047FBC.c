@@ -1,9 +1,4 @@
-typedef struct {
-    char pad0[0x1C];
-    short unk1C;
-    char pad1E[0x1E];
-} S3C;
-
+#include "rr/track_lateral.h"
 typedef struct {
     char pad0[0x38];
     short unk38;
@@ -39,10 +34,8 @@ typedef struct {
     Sub1F4 sub1F4;
 } Arg0;
 
-extern int func_8004C454();
+
 extern void func_8004D354();
-extern S3C *D_800ABEA4;
-extern int D_800ABECC;
 
 void func_80047FBC(Arg0 *a0) {
     int s0;
@@ -115,7 +108,7 @@ void func_80047FBC(Arg0 *a0) {
         }
         if (!fp) {
             s4 = s1;
-            s3 += D_800ABEA4[s4].unk1C;
+            s3 += D_800ABEA4[s4].segmentLength1C;
             s1 = s4 - 1;
             if (s1 < 0) {
                 s1 += D_800ABECC;

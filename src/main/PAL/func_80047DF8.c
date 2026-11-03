@@ -1,6 +1,5 @@
-extern int func_8004C454();
-extern int D_800ABEA4;
-extern int D_800ABECC;
+#include "rr/track_lateral.h"
+
 int func_80047DF8(a0, a1, a2, a3, a4) char *a0; int a1; int *a2; int *a3; int *a4;
 {
     int v0, v1, s0, s1, s2, s3, s4, s5, r0;
@@ -37,7 +36,7 @@ int func_80047DF8(a0, a1, a2, a3, a4) char *a0; int a1; int *a2; int *a3; int *a
             s0 -= 1;
             s1 = r0;
             if (s0 < 0) s0 += D_800ABECC;
-            s2 -= *(short *)(s0 * 0x3C + D_800ABEA4 + 0x1C);
+            s2 -= D_800ABEA4[s0].segmentLength1C;
         } while (s2 > 0);
     }
     *a2 = s5 << 12;

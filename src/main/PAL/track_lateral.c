@@ -106,14 +106,6 @@ void func_80047610(const RrTrackSample3C *first, const RrTrackSample3C *second,
     result[2] = (secondPoint[2] - firstPoint[2]) * fraction / 1024 + firstPoint[2];
 }
 
-typedef struct {
-    short x, y;
-    int z;
-} TrackLaneOffset;
-
-extern TrackLaneOffset *D_800ACB9C;
-
-
 void func_80047A50(RrRaceVehicle *vehicle) {
     int firstPoint[4];
     int secondPoint[4];
@@ -124,8 +116,8 @@ void func_80047A50(RrRaceVehicle *vehicle) {
     int secondNode;
     RrTrackSample3C *firstSample;
     RrTrackSample3C *secondSample;
-    TrackLaneOffset *firstOffset;
-    TrackLaneOffset *secondOffset;
+    RrTrackLaneOffset8 *firstOffset;
+    RrTrackLaneOffset8 *secondOffset;
     int delta;
 
     control = (RrRaceVehicleControl *)((u8 *)vehicle + RR_RACE_CONTROL_OFFSET);
@@ -148,10 +140,10 @@ void func_80047A50(RrRaceVehicle *vehicle) {
         case 0:
             firstOffset = &D_800ACB9C[firstNode];
             firstPoint[0] = firstSample->x08 + firstOffset->x;
-            firstPoint[2] = firstSample->z0C + firstOffset->y;
+            firstPoint[2] = firstSample->z0C + firstOffset->z;
             secondOffset = &D_800ACB9C[secondNode];
             secondPoint[0] = secondSample->x08 + secondOffset->x;
-            secondPoint[2] = secondSample->z0C + secondOffset->y;
+            secondPoint[2] = secondSample->z0C + secondOffset->z;
             target[0] = (secondPoint[0] - firstPoint[0]) * fraction / 1024 + firstPoint[0];
             target[2] = (secondPoint[2] - firstPoint[2]) * fraction / 1024 + firstPoint[2];
             break;

@@ -5,7 +5,7 @@ from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN
 from unicorn.mips_const import *
 P=Path(__file__).resolve().parent
 ROOT=next(p for p in P.parents if (p/'tools/scripts/cc.sh').is_file())
-SOURCE=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else ROOT/'build/legacy/func_8002F5BC.c'
+SOURCE=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else ROOT/'tools/scripts/fixtures/views/func_8002F5BC.c'
 source=SOURCE.read_text();body=source[source.index('void func_8002F5BC'):]
 fixture='''#include "types.h"
 #include <string.h>

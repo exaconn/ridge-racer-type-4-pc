@@ -17,7 +17,7 @@ class UiRowInitializationTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         header = (root/'include/rr/ui.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        body = (root/'build/legacy/func_8003E928.c').read_text()
+        body = (root/'tools/scripts/fixtures/views/func_8003E928.c').read_text()
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         assert body.count('page=(u8*)0x800F0000U;') == 1
@@ -36,7 +36,7 @@ unsigned long test_row_size(void) {return sizeof(RrUiRow24);}
 ''' + body
         directory = Path(cls.temp.name)
         (directory/'row.c').write_text(source)
-        result = subprocess.run(['cc', '-shared', '-fPIC', '-O2', '-Wall', '-Werror',
+        result = subprocess.run(['cc', '-shared', '-fPIC', '-O2', '-Wall', '-Werror','-Wno-error=deprecated-non-prototype',
                                  str(directory/'row.c'), '-o', str(directory/'row.so')],
                                 capture_output=True, text=True)
         if result.returncode:

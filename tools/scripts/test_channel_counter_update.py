@@ -20,7 +20,7 @@ class ChannelCounterUpdateTest(unittest.TestCase):
         header = (root / 'include/rr/library.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
         header = header.replace('u8 *c0;', 'u32 c0;').replace('u8 *c8;', 'u32 c8;').replace('u8 *p10;', 'u32 p10;')  # unused pointer: preserve PSX record stride
-        body = (root / 'build/legacy/func_800832A4.c').read_text().replace('#include "rr/library.h"', '')
+        body = (root / 'tools/scripts/fixtures/views/func_800832A4.c').read_text().replace('#include "rr/library.h"', '')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
         body = body.replace('(RrLibStateB0 **)0x80110000U', '(test_table + 0x1000)')

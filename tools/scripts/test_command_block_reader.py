@@ -40,7 +40,7 @@ void test_reset(void) {
 }
 '''
         for name in ('8009D978', '8009DB18', '8009D8B0'):
-            body = (root/('build/legacy/func_'+name+'.c')).read_text()
+            body = (root/('tools/scripts/fixtures/views/func_'+name+'.c')).read_text()
             body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r'"\$[0-9]+",\s*', '', body)

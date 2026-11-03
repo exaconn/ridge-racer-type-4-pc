@@ -15,7 +15,7 @@ class OverlapByteCopyTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         directory = Path(cls.temp.name)
         header = (root / 'include/rr/memory.h').read_text().replace('#include "types.h"', '')
-        body = (root / 'build/legacy/func_80096D34.c').read_text()
+        body = (root / 'tools/scripts/fixtures/views/func_80096D34.c').read_text()
         body = body.replace('#include "rr/memory.h"', '')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)

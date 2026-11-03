@@ -152,6 +152,6 @@ int main(void){unsigned raw,r,b,i;uint64_t cases=0;s32 phase;
 '''
   with TemporaryDirectory() as temp:
    path=Path(temp);(path/'test.c').write_text(code)
-   subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-unused-function','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(path/'test.c'),'-o',str(path/'test')],check=True)
+   subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-Wno-unused-function','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(path/'test.c'),'-o',str(path/'test')],check=True)
    subprocess.run([str(path/'test')],check=True)
 if __name__=='__main__':unittest.main()

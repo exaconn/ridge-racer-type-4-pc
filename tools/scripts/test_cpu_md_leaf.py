@@ -29,7 +29,7 @@ source.write_text(C)
 subprocess.run(['tools/scripts/cc.sh',str(source),str(obj)],check=True,capture_output=True)
 ld.write_text('SECTIONS {.text 0x80020000 : SUBALIGN(4) {*(.text)}}\n')
 subprocess.run(['tools/toolchain/bin/mipsel-none-elf-ld','-EL','-T',str(ld),'-o',str(elf),str(obj)],check=True,capture_output=True)
-subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude',str(source),'-o',str(native_exe)],check=True)
+subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude',str(source),'-o',str(native_exe)],check=True)
 rng=random.Random(0x48494C4F);limits=[0,1,0xFFFFFFFF,0x7FFFFFFF,0x80000000,2,0xFFFFFFFE,0x10000,0xFFFF,0x51EB851F,100,0x80000001]
 mask=0xFFFFFFFF;sign=lambda x:x-(1<<32) if x&(1<<31) else x
 cases=[];expected=[]

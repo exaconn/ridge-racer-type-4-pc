@@ -47,7 +47,7 @@ for serial in range(serials):
 print(count,'cases;', 'compiled MIPS' if os.getenv('RR_COMPILED_ELF') else 'original MIPS','versus full native pointer owners')
 
 if os.getenv('RR_AUDIT_JSON'):
- source=Path(sys.argv[1]) if len(sys.argv)>1 else root/'build/legacy/func_8005AC0C.c'
+ source=Path(sys.argv[1]) if len(sys.argv)>1 else root/'tools/scripts/fixtures/views/func_8005AC0C.c'
  sha=lambda f:hashlib.sha256(Path(f).read_bytes()).hexdigest()
  report=dict(source=str(source),source_sha256=sha(source),test_sha256=sha(__file__),fixture_sha256=sha(fixture),header_sha256=sha(root/'include/rr/game_motion.h'),cases=count,serial_cases=serials,engine='compiled MIPS' if os.getenv('RR_COMPILED_ELF') else 'original MIPS',full_host_pointers=True,guarded_controller=True,unchanged_clock_and_key=True,poisoned_caller_saved_and_hi_lo=True,sanitizers=['undefined','bounds'])
  if os.getenv('RR_COMPILED_ELF'):report['elf_sha256']=sha(os.environ['RR_COMPILED_ELF'])

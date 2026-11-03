@@ -6,7 +6,7 @@ def header(name):
  s=(ROOT/'include/rr'/name).read_text()
  s=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',s,flags=re.M)
  return re.sub(r'extern[^;]*;','',s)
-body=(ROOT/'build/legacy/func_8005C37C.c').read_text()
+body=(ROOT/'tools/scripts/fixtures/views/func_8005C37C.c').read_text()
 body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
 body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
 body=re.sub(r',?\s*"\$\d+"','',body)

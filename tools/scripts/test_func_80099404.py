@@ -32,7 +32,7 @@ class SlotAssignmentTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         directory = Path(cls.temp.name)
         root = Path(__file__).resolve().parents[2]
-        source = (root / 'build/legacy/func_80099404.c').read_text()
+        source = (root / 'tools/scripts/fixtures/views/func_80099404.c').read_text()
         source = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', source, flags=re.M)
         source = '#include <stdint.h>\ntypedef uint8_t u8;\ntypedef int32_t s32;\n' + source
         (directory / 'function.c').write_text(source)

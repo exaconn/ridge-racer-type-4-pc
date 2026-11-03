@@ -12,7 +12,7 @@ class StandingsTextSetupTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         body = read_c_source(root / 'src/overlays/PAL/659/func_801150CC.c')
         body = re.sub(r'^extern[^\n]*\n', '', body, flags=re.M)
-        reset = read_c_source(root / 'build/legacy/func_800402F4.c')
+        reset = read_c_source(root / 'tools/scripts/fixtures/views/func_800402F4.c')
         source = r'''
 #include <assert.h>
 #include <stddef.h>

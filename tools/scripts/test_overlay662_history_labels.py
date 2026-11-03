@@ -10,7 +10,7 @@ class HistoryLabelsTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         bodies = '\n'.join((root / f'src/overlays/PAL/662/func_{a}.c').read_text()
                            for a in ('80117654', '80117AA4', '80117C98', '80117DFC'))
-        formatter = (root / 'build/legacy/func_8002B814.c').read_text()
+        formatter = (root / 'tools/scripts/fixtures/views/func_8002B814.c').read_text()
         source = r'''
 #include <assert.h>
 #include <stdint.h>

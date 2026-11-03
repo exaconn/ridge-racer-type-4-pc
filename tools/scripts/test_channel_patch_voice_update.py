@@ -81,7 +81,7 @@ void test_prepare(s32 bank,s32 row,const u8 *input,u32 length,u32 accumulator) {
                                      cls.handler, 'D_8010EFEC=func_800805D4'))
         for name in ('80080434', '800805D4', '800806C4', '80080774', '80080804', '80080904', '80081E04', '800818B4',
                      '80087044', '80087054', '80086554'):
-            body = (root / ('build/legacy/func_' + name + '.c')).read_text()
+            body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
             body = body.replace('#include "rr_asm.h"', '')
             body = body.replace('#include "rr/library.h"', '').replace('#include "types.h"', '')
             body = body.replace('extern short D_801100A0;', '')

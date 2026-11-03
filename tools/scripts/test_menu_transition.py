@@ -10,12 +10,12 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class MenuTransitionTest(unittest.TestCase):
     def test_actual_body_and_rectangle_wrapper(self):
-        source = (ROOT / 'build/legacy/func_8003A544.c').read_text()
+        source = (ROOT / 'tools/scripts/fixtures/views/func_8003A544.c').read_text()
         source = re.sub(r'^#include.*\n', '', source, flags=re.M)
         # The sole literal is the existing scratchpad cursor owner.
         self.assertEqual(source.count('*(void **)0x1F800000'), 2)
         source = source.replace('*(void **)0x1F800000', 'w->cursor')
-        helper = (ROOT / 'build/legacy/func_8001FDD4.c').read_text()
+        helper = (ROOT / 'tools/scripts/fixtures/views/func_8001FDD4.c').read_text()
         helper = re.sub(r'^#include.*\n', '', helper, flags=re.M)
         prefix = r'''
 #include <assert.h>

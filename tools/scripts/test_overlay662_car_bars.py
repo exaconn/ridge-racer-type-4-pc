@@ -65,5 +65,5 @@ int main(void){assert(sizeof(void*)==8);
 '''
 with TemporaryDirectory() as d:
  c=Path(d)/'test.c';exe=Path(d)/'test';c.write_text(source)
- subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-fsanitize=undefined','-fno-sanitize-recover=all','-Iinclude',str(c),'-o',str(exe)],check=True)
+ subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined','-fno-sanitize-recover=all','-Iinclude',str(c),'-o',str(exe)],check=True)
  subprocess.run([str(exe)],check=True)

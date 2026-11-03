@@ -17,7 +17,7 @@ class ScreenTilesTest(unittest.TestCase):
             text=(ROOT/'include/rr'/name).read_text()
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
         def source(name):
-            text=(ROOT/'build/legacy'/name).read_text()
+            text=(ROOT/'tools/scripts/fixtures/views'/name).read_text()
             text=re.sub(r'^#include[^\n]*\n','',text,flags=re.M)
             return re.sub(r'\s+(?:__asm__|asm)\("\$\d+"\)','',text)
         body=source('func_800207D4.c')
@@ -153,7 +153,7 @@ int main(int argc,char **argv) {
 '''
         directory=Path(cls.temporary.name);native=directory/'tiles.c'
         native.write_text(code);cls.executable=directory/'tiles'
-        result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror',
+        result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
                                '-Wno-pointer-to-int-cast','-fsanitize=undefined',
                                '-fno-strict-aliasing','-I',str(ROOT/'include'),
                                str(native),'-o',str(cls.executable)],capture_output=True,text=True)

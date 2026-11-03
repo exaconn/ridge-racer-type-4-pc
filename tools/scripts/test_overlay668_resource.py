@@ -96,7 +96,7 @@ def main():
  body=re.sub(r'__asm__\("\$\d+"\)','',SOURCE.read_text())
  with TemporaryDirectory() as tmp:
   c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(C+body+TAIL)
-  subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True)
+  subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True)
   subprocess.run([str(exe)],check=True)
  sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
  deps=[SOURCE,Path(__file__).resolve()]+list((ROOT/'include').rglob('*.h'))

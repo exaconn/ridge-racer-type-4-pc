@@ -10,7 +10,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class ChannelStreamEndTest(unittest.TestCase):
  def test_signed_byte_boundaries_and_callback_mutations(self):
-  body=(ROOT/'build/legacy/func_800833A0.c').read_text()
+  body=(ROOT/'tools/scripts/fixtures/views/func_800833A0.c').read_text()
   body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
   body=re.sub(r'__asm__\(""[^;]*;', '',body)
   code=r'''

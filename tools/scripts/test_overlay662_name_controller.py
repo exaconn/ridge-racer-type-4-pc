@@ -2,7 +2,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import re,subprocess
 body=Path('src/overlays/PAL/662/func_80118A30.c').read_text();body=re.sub(r'^extern .*\n','',body,flags=re.M)
-copy=Path('build/legacy/func_8002B75C.c').read_text().replace('func_8002B75C','actual_tail_copy')
+copy=Path('tools/scripts/fixtures/views/func_8002B75C.c').read_text().replace('func_8002B75C','actual_tail_copy')
 source=r'''
 #include <assert.h>
 #include <stdint.h>

@@ -2,7 +2,7 @@
 from pathlib import Path
 import re,subprocess,tempfile,unittest
 ROOT=Path(__file__).resolve().parents[2]
-s=(ROOT/'build/legacy/func_800293D0.c').read_text()
+s=(ROOT/'tools/scripts/fixtures/views/func_800293D0.c').read_text()
 s=re.sub(r'^#include[^\n]*\n|extern[^;]*;','',s,flags=re.M)
 s=re.sub(r'\s+__asm__\("\$\d+"\)','',s);s=re.sub(r',?\s*"\$\d+"','',s)
 s,n=re.subn(r'\(u8\s*\*\)0x800B0000U','((u8*)&actual+offsetof(World,count_record)+offsetof(RrBankRecord320,value1E4)+0x3A64)',s);assert n==1

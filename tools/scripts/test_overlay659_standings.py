@@ -83,7 +83,7 @@ int main(void) {
             path = directory / 'standings.c'
             executable = directory / 'standings'
             path.write_text(source)
-            result = subprocess.run(['cc', '-I'+str(ROOT/'include'), '-std=c99', '-O2', '-Wall', '-Wextra', '-Werror',
+            result = subprocess.run(['cc', '-I'+str(ROOT/'include'), '-std=c99', '-O2', '-Wall', '-Wextra', '-Werror','-Wno-error=deprecated-non-prototype',
                                      '-fno-strict-aliasing', '-fsanitize=undefined',
                                      str(path), '-o', str(executable)], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)

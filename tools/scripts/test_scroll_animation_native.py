@@ -4,7 +4,7 @@ import ctypes as C,subprocess,sys,os,re,struct,random,json,hashlib
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN
 from unicorn.mips_const import *
 P=Path(__file__).resolve().parent;ROOT=next(x for x in P.parents if (x/'Makefile').exists());os.chdir(ROOT)
-source=Path(sys.argv[1]if len(sys.argv)>1 else ROOT/'build/legacy/func_8005ED34.c').resolve();count=int(sys.argv[2])if len(sys.argv)>2 else 131072
+source=Path(sys.argv[1]if len(sys.argv)>1 else ROOT/'tools/scripts/fixtures/views/func_8005ED34.c').resolve();count=int(sys.argv[2])if len(sys.argv)>2 else 131072
 body=source.read_text();body=body[body.index('void func_8005ED34'):];body=re.sub(r'\s+(?:asm|__asm__)\s*\("\$\d+"\)','',body)
 class Key(C.Structure):_fields_=[('glyph',C.c_int16),('timing',C.c_uint16)]
 class Channel(C.Structure):_fields_=[('glyph',C.c_int16),('offset',C.c_uint16)]

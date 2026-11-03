@@ -22,7 +22,7 @@ class ChannelSlotDispatchTest(unittest.TestCase):
         # c0 is unused by this function. Retain its target four-byte storage
         # so native record offsets and stride remain exactly those of the PSX.
         header = header.replace('u8 *c0;', 'u32 c0;').replace('u8 *c8;', 'u32 c8;').replace('u8 *p10;', 'u32 p10;')
-        body = (root / 'build/legacy/func_80081CB4.c').read_text().replace('#include "rr/library.h"', '')
+        body = (root / 'tools/scripts/fixtures/views/func_80081CB4.c').read_text().replace('#include "rr/library.h"', '')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*,\s*"memory"', ': "memory"', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)

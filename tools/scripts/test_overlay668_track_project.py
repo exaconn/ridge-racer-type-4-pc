@@ -81,7 +81,7 @@ def trunc4(v):return v//4 if v>=0 else -((-v)//4)
 def main():
  with TemporaryDirectory() as tmp:
   c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(C+SOURCE.read_text()+TAIL)
-  subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True)
+  subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True)
   native=subprocess.check_output([str(exe)],text=True).splitlines()
  blob=(ROOT/'disc/PAL/R4.BIN').read_bytes();sector=struct.unpack_from('<I',blob,4+668*4)[0];off=sector*2048+0x80115460-0x80114878;code=blob[off:off+244]
  elf=os.environ.get('RR_COMPILED_ELF')

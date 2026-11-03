@@ -16,7 +16,7 @@ class ChannelSelectedResetTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         header = (root / 'include/rr/channels.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        body = (root / 'build/legacy/func_80085AEC.c').read_text()
+        body = (root / 'tools/scripts/fixtures/views/func_80085AEC.c').read_text()
         body = body.replace('#include "rr/channels.h"', '')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r' : "\$[0-9]+"', '', body)

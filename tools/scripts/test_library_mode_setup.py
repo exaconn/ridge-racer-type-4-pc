@@ -35,7 +35,7 @@ void func_8008C12C(RrLibCompletionCallback c) { test_second(c); }
 void func_8008F5E4(void) { test_unexpected++; }
 void func_8008F248(void) { test_unexpected++; }
 '''
-        body = (root / 'build/legacy/func_8008F1C4.c').read_text()
+        body = (root / 'tools/scripts/fixtures/views/func_8008F1C4.c').read_text()
         body = body.replace('#include "rr/library.h"', '')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'"\$[0-9]+", ', '', body)

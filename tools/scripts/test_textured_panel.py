@@ -16,7 +16,7 @@ class TexturedPanelTest(unittest.TestCase):
         def header(name):
             text=(ROOT/'include/rr'/name).read_text()
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
-        body=(ROOT/'build/legacy/func_8005D40C.c').read_text()
+        body=(ROOT/'tools/scripts/fixtures/views/func_8005D40C.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
         assert body.count('(RrGpuScratchPointers*)0x1F800000U')==1

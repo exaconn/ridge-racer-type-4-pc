@@ -10,11 +10,11 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class DrawFillEnvironmentTest(unittest.TestCase):
     def test_actual_body_and_window_helper(self):
-        source=(ROOT/'build/legacy/func_80093E70.c').read_text()
+        source=(ROOT/'tools/scripts/fixtures/views/func_80093E70.c').read_text()
         source=re.sub(r'^#include.*\n','',source,flags=re.M)
         source=re.sub(r' asm\("\$\d+"\)','',source)
         source=re.sub(r'__asm__\(""[^;]*;',';',source)
-        helper=(ROOT/'build/legacy/func_8009424C.c').read_text()
+        helper=(ROOT/'tools/scripts/fixtures/views/func_8009424C.c').read_text()
         helper=re.sub(r'^#include.*\n','',helper,flags=re.M)
         prefix=r'''
 #include <assert.h>

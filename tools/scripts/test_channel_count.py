@@ -16,7 +16,7 @@ class ChannelCountTest(unittest.TestCase):
         directory = Path(cls.temp.name)
         header = (root / 'include/rr/channels.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        body = (root / 'build/legacy/func_8008A644.c').read_text().replace('#include "rr/channels.h"', '')
+        body = (root / 'tools/scripts/fixtures/views/func_8008A644.c').read_text().replace('#include "rr/channels.h"', '')
         source = '''#include <stdint.h>
 typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;

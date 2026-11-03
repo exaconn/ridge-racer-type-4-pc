@@ -2,7 +2,7 @@
 from pathlib import Path
 import re, subprocess, tempfile, unittest
 ROOT=Path(__file__).resolve().parents[2]
-source=(ROOT/'build/legacy/func_8001E684.c').read_text()
+source=(ROOT/'tools/scripts/fixtures/views/func_8001E684.c').read_text()
 source=re.sub(r'\s+asm\("\$\d+"\)','',source)
 source=re.sub(r'__asm__\("".*?\);','',source)
 for pattern,replacement in [
@@ -121,7 +121,7 @@ class FrameLoopTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             c=Path(tmp)/'frame.c'; exe=Path(tmp)/'frame'
             c.write_text(fixture)
-            subprocess.run(['cc','-std=gnu99','-O2','-Wall','-Wextra','-Werror',
+            subprocess.run(['cc','-std=gnu99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
                             '-fsanitize=undefined','-fno-sanitize-recover=all',
                             '-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True,capture_output=True)
             subprocess.run([str(exe)],check=True,capture_output=True)

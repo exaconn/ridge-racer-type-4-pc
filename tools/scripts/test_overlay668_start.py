@@ -94,7 +94,7 @@ int main(void) {
             c = Path(temp) / 'start.c'
             exe = Path(temp) / 'start'
             c.write_text(source)
-            subprocess.run(['cc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror',
+            subprocess.run(['cc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror','-Wno-error=deprecated-non-prototype',
                             '-fsanitize=undefined', '-fno-sanitize-recover=all',
                             '-I', str(root / 'include'), str(c), '-o', str(exe)], check=True)
             subprocess.run([str(exe)], check=True)

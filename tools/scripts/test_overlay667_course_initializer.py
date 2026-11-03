@@ -23,7 +23,7 @@ static u32 next(void){rng=rng*1664525u+1013904223u;return rng;}
 static void hit(int tag,int x,int y,int z){if(checking){assert(!memcmp(w,&trace[step],sizeof(*w)));assert(args[step][0]==tag&&args[step][1]==x&&args[step][2]==y&&args[step][3]==z);}else{trace[step]=*w;args[step][0]=tag;args[step][1]=x;args[step][2]=y;args[step][3]=z;}step++;w->base=(next()&1)*2;w->flag=next()&1;w->courses[0][0].glyph=(s16)next();for(int i=0;i<4;i++)ovl667_D_80118E00[i]=str[next()%4];}
 void func_80092CB8(s32 x){hit(1,x,0,0);}void func_8001ECE8(s32 x,s32 y,s16 z,u32 q){assert(q==2);hit(2,x,y,z);}s32 func_80035024(s32 x){hit(3,x,0,0);return 19;}void func_8002A604(void){hit(4,0,0,0);}
 '''
-copy=Path('build/legacy/func_8002B75C.c').read_text().replace('func_8002B75C','actual_copy');decode=Path('build/legacy/func_80037040.c').read_text().replace('func_80037040','actual_decode')
+copy=Path('tools/scripts/fixtures/views/func_8002B75C.c').read_text().replace('func_8002B75C','actual_copy');decode=Path('tools/scripts/fixtures/views/func_80037040.c').read_text().replace('func_80037040','actual_decode')
 helpers='''void func_8002B75C(char*d,char*s){int di=d-(char*)w,si=0;while(str[si]!=s)si++;hit(5,di,si,0);actual_copy(d,s);}void ovl667_func_801161A8(s32 x){hit(6,x,0,0);}void func_80037040(s8*d,s32 x){hit(7,(u8*)d-(u8*)w,x,0);actual_decode(d,x);}void func_80053BB4(s32 x){hit(8,x,0,0);}void func_8002AF8C(s32 x,s32 y,s32 z){hit(9,x,y,z);}
 '''
 macros=''.join('#define '+k+' w->'+v+'\n' for k,v in fields.items())

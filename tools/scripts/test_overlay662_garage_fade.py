@@ -68,7 +68,7 @@ def main():
  body=re.sub(r' __asm__\("\$\d+"\)','',SOURCE.read_text())
  with TemporaryDirectory() as tmp:
   c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(C+body+TAIL)
-  subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True)
+  subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True)
   native=iter(subprocess.check_output([str(exe)],text=True).splitlines())
  blob=(ROOT/'disc/PAL/R4.BIN').read_bytes();sector=struct.unpack_from('<I',blob,4+662*4)[0];off=sector*2048+0x8011DA90-0x80114878;code=blob[off:off+328]
  elf=os.environ.get('RR_COMPILED_ELF')

@@ -43,7 +43,7 @@ s32 func_80096404(const char *name, const char *entry_name) {
     return strcmp(name, entry_name);
 }
 '''
-        body = (root / 'build/legacy/func_8008E440.c').read_text()
+        body = (root / 'tools/scripts/fixtures/views/func_8008E440.c').read_text()
         body = body.replace('#include "rr/library.h"', '')
         body = body.replace('extern char D_8011095C[];', '')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)

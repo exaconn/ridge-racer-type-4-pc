@@ -10,7 +10,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class SpuAllocationCleanupTest(unittest.TestCase):
     def test_actual_body_and_complete_table_owner(self):
-        s=(ROOT/'build/legacy/func_8008A774.c').read_text()
+        s=(ROOT/'tools/scripts/fixtures/views/func_8008A774.c').read_text()
         s=re.sub(r'^#include.*\n','',s,flags=re.M)
         s=re.sub(r' asm\("\$\d+"\)','',s)
         s=re.sub(r'__asm__\(""[^;]*;', ';',s)

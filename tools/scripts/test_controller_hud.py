@@ -4,7 +4,7 @@ import os,re,sys,subprocess,struct,ctypes as C,json,hashlib
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN,UC_HOOK_CODE
 from unicorn.mips_const import *
 ROOT=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file());os.chdir(ROOT);P=Path(os.getenv('RR_TEST_DIR',str(ROOT/'build/native_tests/controller_hud')));P.mkdir(parents=True,exist_ok=True)
-source=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'build/legacy/func_80022098.c';body=source.read_text().split('\n',1)[1];body=re.sub(r' __asm__\("\$\d+"\)','',body)
+source=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'tools/scripts/fixtures/views/func_80022098.c';body=source.read_text().split('\n',1)[1];body=re.sub(r' __asm__\("\$\d+"\)','',body)
 head=r'''
 #include <stdint.h>
 #include <stddef.h>

@@ -27,14 +27,14 @@ class OverlayTextRowsTest(unittest.TestCase):
             c = Path(temp) / 'rows.c'
             exe = Path(temp) / 'rows'
             c.write_text(source)
-            subprocess.run(['cc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror',
+            subprocess.run(['cc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror','-Wno-error=deprecated-non-prototype',
                             '-fsanitize=undefined', '-fno-sanitize-recover=all',
                             '-I', str(root / 'include'), str(c), '-o', str(exe)], check=True)
             subprocess.run([str(exe)], check=True)
 
     def test_resident_clear_keeps_full_pointer_and_captured_count(self):
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'build/legacy/func_800402F4.c')
+        body = read_c_source(root / 'tools/scripts/fixtures/views/func_800402F4.c')
         self.run_source(r'''
 #include <assert.h>
 #include <stdint.h>

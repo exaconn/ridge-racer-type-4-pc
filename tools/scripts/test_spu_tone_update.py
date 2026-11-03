@@ -15,7 +15,7 @@ class SpuToneUpdateTest(unittest.TestCase):
         cls.addClassCleanup(cls.temporary.cleanup)
         header=(ROOT/'include/rr/spu.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(ROOT/'build/legacy/func_800867E4.c').read_text()
+        body=(ROOT/'tools/scripts/fixtures/views/func_800867E4.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
         body=re.sub(r',?\s*"\$\d+"','',body)
@@ -136,7 +136,7 @@ int main(int argc,char **argv) {
 '''
         directory=Path(cls.temporary.name);source=directory/'update.c'
         source.write_text(code);cls.executable=directory/'update'
-        result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror',
+        result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
                                '-fsanitize=undefined','-fno-strict-aliasing',
                                '-I',str(ROOT/'include'),str(source),'-o',str(cls.executable)],
                               capture_output=True,text=True)

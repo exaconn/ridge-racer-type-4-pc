@@ -3,9 +3,9 @@ from pathlib import Path
 import re,subprocess,tempfile,unittest
 root=Path(__file__).resolve().parents[2]
 header=(root/'include/rr/hud_number.h').read_text();header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-body=(root/'build/legacy/func_800217D0.c').read_text();body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M);body=re.sub(r' asm\("\$\d+"\)','',body);body=re.sub(r'__asm__\("".*?\);',';',body)
+body=(root/'tools/scripts/fixtures/views/func_800217D0.c').read_text();body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M);body=re.sub(r' asm\("\$\d+"\)','',body);body=re.sub(r'__asm__\("".*?\);',';',body)
 body,n=re.subn(r'\(RrGpuScratchPointers \*\)0x1F800000U','&scratch',body);assert n==2
-helper=(root/'build/legacy/func_80021568.c').read_text().replace('func_80021568','native_glyph').replace('(s32) arg1','(uintptr_t) arg1')
+helper=(root/'tools/scripts/fixtures/views/func_80021568.c').read_text().replace('func_80021568','native_glyph').replace('(s32) arg1','(uintptr_t) arg1')
 assert helper.count('(uintptr_t) arg1')==1
 def h(name):return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',(root/'include/rr'/name).read_text(),flags=re.M)
 code=r'''

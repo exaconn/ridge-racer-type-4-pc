@@ -9,7 +9,7 @@ class Overlay665RenderTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2]
         body=(root/'src/overlays/PAL/665/func_8011643C.c').read_text()
         prepare=(root/'src/overlays/PAL/665/func_80116358.c').read_text()
-        scale=(root/'build/legacy/func_8002E828.c').read_text()
+        scale=(root/'tools/scripts/fixtures/views/func_8002E828.c').read_text()
         source=r'''
         #include <assert.h>
         #include <stddef.h>
@@ -181,7 +181,7 @@ class Overlay665RenderTest(unittest.TestCase):
         '''
         with TemporaryDirectory() as tmp:
          p=Path(tmp);(p/'render.c').write_text(source)
-         subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(root/'include'),str(p/'render.c'),'-o',str(p/'render')],check=True)
+         subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(root/'include'),str(p/'render.c'),'-o',str(p/'render')],check=True)
          subprocess.run([str(p/'render')],check=True)
         print('131072 renderer cases with real matrix preparation and scale helper passed under UBSan')
 

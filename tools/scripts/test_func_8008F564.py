@@ -16,7 +16,7 @@ class ShutdownTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         directory = Path(cls.temp.name)
         root = Path(__file__).resolve().parents[2]
-        source = (root / 'build/legacy/func_8008F564.c').read_text()
+        source = (root / 'tools/scripts/fixtures/views/func_8008F564.c').read_text()
         source = source.replace('#include "types.h"', '''#include <stdint.h>
 typedef int8_t s8;
 typedef int32_t s32;''')

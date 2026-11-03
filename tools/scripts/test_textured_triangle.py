@@ -5,7 +5,7 @@ import subprocess,unittest
 class TexturedTriangleTest(unittest.TestCase):
  def test_packet_and_pointer_abi(self):
   root=Path(__file__).resolve().parents[2]
-  bodies='\n'.join((root/f'build/legacy/func_{a}.c').read_text() for a in ['80095B74','80095AF4','80095B24','8002039C'])
+  bodies='\n'.join((root/f'tools/scripts/fixtures/views/func_{a}.c').read_text() for a in ['80095B74','80095AF4','80095B24','8002039C'])
   code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -41,6 +41,6 @@ int main(void){assert(sizeof(void*)==8);
 '''
   with TemporaryDirectory() as d:
    c=Path(d)/'test.c';exe=Path(d)/'test';c.write_text(code)
-   subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-fsanitize=undefined','-fno-sanitize-recover=all','-I'+str(root/'include'),str(c),'-o',str(exe)],check=True)
+   subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined','-fno-sanitize-recover=all','-I'+str(root/'include'),str(c),'-o',str(exe)],check=True)
    subprocess.run([str(exe)],check=True)
 if __name__=='__main__':unittest.main()

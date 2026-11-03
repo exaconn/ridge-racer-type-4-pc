@@ -6,7 +6,7 @@ import sys
 root=next(parent for parent in Path(__file__).resolve().parents if (parent/'Makefile').exists() and (parent/'tools/scripts').exists())
 body_path=Path(sys.argv[1]) if len(sys.argv)>1 else root/'src/overlays/PAL/663/func_801151B8.c'
 body=read_c_source(body_path);body=body[body.index('void ovl663_update_selection'):]
-mapper=read_c_source(root/'build/legacy/func_80032E9C.c').replace('func_80032E9C','actual_mapper');decode=read_c_source(root/'build/legacy/func_80037040.c').replace('func_80037040','actual_decode')
+mapper=read_c_source(root/'tools/scripts/fixtures/views/func_80032E9C.c').replace('func_80032E9C','actual_mapper');decode=read_c_source(root/'tools/scripts/fixtures/views/func_80037040.c').replace('func_80037040','actual_decode')
 src=r'''
 #include <stdint.h>
 #include <stddef.h>

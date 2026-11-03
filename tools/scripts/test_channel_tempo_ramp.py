@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class ChannelTempoRampTest(unittest.TestCase):
  def test_signed_intervals_wrap_and_full_stream_owners(self):
-  body=(ROOT/'build/legacy/func_80084314.c').read_text()
+  body=(ROOT/'tools/scripts/fixtures/views/func_80084314.c').read_text()
   body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
   body=re.sub(r' __asm__\("\$\d+"\)','',body)
   body=re.sub(r'__asm__\(""[^;]*;', '',body)

@@ -15,7 +15,7 @@ class RootCounterReadTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2]
         header=(root/'include/rr/counters.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(root/'build/legacy/func_80097040.c').read_text().replace('#include "rr/counters.h"','')
+        body=(root/'tools/scripts/fixtures/views/func_80097040.c').read_text().replace('#include "rr/counters.h"','')
         assert body.count('D_800ABC34[index].count')==1
         observed=body.replace('func_80097040','observed_read').replace('D_800ABC34[index].count','test_read(index)')
         code='''#include <stdint.h>

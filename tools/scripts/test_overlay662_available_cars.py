@@ -6,7 +6,7 @@ class AvailableCarsTest(unittest.TestCase):
  def test_progress_and_live_records(self):
   root=Path(__file__).resolve().parents[2]
   body=(root/'src/overlays/PAL/662/func_80116960.c').read_text()
-  codecs=(root/'build/legacy/func_80037040.c').read_text().replace('func_80037040','actual_decode')+'\n'+(root/'build/legacy/func_8003708C.c').read_text().replace('func_8003708C','actual_encode')
+  codecs=(root/'tools/scripts/fixtures/views/func_80037040.c').read_text().replace('func_80037040','actual_decode')+'\n'+(root/'tools/scripts/fixtures/views/func_8003708C.c').read_text().replace('func_8003708C','actual_encode')
   code=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -109,6 +109,6 @@ int main(void){assert(sizeof(void*)==8&&(uintptr_t)resources>UINT32_MAX);memset(
 '''
   with TemporaryDirectory() as d:
    c=Path(d)/'test.c';exe=Path(d)/'test';c.write_text(code)
-   subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-fsanitize=undefined','-fno-sanitize-recover=all','-I'+str(root/'include'),str(c),'-o',str(exe)],check=True)
+   subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined','-fno-sanitize-recover=all','-I'+str(root/'include'),str(c),'-o',str(exe)],check=True)
    subprocess.run([str(exe)],check=True)
 if __name__=='__main__':unittest.main()

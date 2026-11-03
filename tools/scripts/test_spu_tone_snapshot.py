@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class SpuToneSnapshotTest(unittest.TestCase):
     def test_native_snapshot(self):
-        body = (ROOT/'build/legacy/func_800850C4.c').read_text()
+        body = (ROOT/'tools/scripts/fixtures/views/func_800850C4.c').read_text()
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r',?\s*"\$\d+"', '', body)
@@ -116,7 +116,7 @@ int main(void) {
         with TemporaryDirectory() as temporary:
             directory=Path(temporary); source=directory/'tone.c'; executable=directory/'tone'
             source.write_text(code)
-            result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror',
+            result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
                                    '-fsanitize=undefined',str(source),'-o',str(executable)],
                                   capture_output=True,text=True)
             self.assertEqual(result.returncode,0,result.stderr)

@@ -10,7 +10,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class GpuFillPacketsTest(unittest.TestCase):
     def test_actual_body_and_packet_mutations(self):
-        source=(ROOT/'build/legacy/func_800943C4.c').read_text()
+        source=(ROOT/'tools/scripts/fixtures/views/func_800943C4.c').read_text()
         source=re.sub(r'^#include.*\n','',source,flags=re.M)
         source=re.sub(r'^extern u32 D_80112788.*\n','',source,flags=re.M)
         source=re.sub(r' asm\("\$\d+"\)','',source)

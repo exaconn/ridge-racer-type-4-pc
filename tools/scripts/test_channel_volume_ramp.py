@@ -10,7 +10,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class ChannelVolumeRampTest(unittest.TestCase):
  def test_wrapping_ramps_and_mutable_table_roots(self):
-  body=(ROOT/'build/legacy/func_80082FC4.c').read_text()
+  body=(ROOT/'tools/scripts/fixtures/views/func_80082FC4.c').read_text()
   body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
   body=re.sub(r' __asm__\("\$\d+"\)','',body)
   body=re.sub(r'__asm__\(""[^;]*;', '',body)

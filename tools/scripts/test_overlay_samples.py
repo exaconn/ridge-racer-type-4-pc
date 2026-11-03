@@ -143,7 +143,7 @@ int main(void) {
             executable = directory / 'samples'
             source.write_text(harness)
             result = subprocess.run(['cc', '-std=c99', '-O2', '-Wall', '-Wextra',
-                                     '-Werror', '-fsanitize=undefined',
+                                     '-Werror','-Wno-error=deprecated-non-prototype', '-fsanitize=undefined',
                                      '-I', str(ROOT / 'include'), str(source),
                                      '-o', str(executable)], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)

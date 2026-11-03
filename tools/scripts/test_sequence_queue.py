@@ -15,7 +15,7 @@ class SequenceQueueTest(unittest.TestCase):
         cls.addClassCleanup(cls.temporary.cleanup)
         header=(ROOT/'include/rr/sequence_queue.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(ROOT/'build/legacy/func_8004F2D8.c').read_text()
+        body=(ROOT/'tools/scripts/fixtures/views/func_8004F2D8.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
         assert body.count('(u8*)0x800F0000U')==1
@@ -121,7 +121,7 @@ int main(int argc,char **argv) {
 '''
         directory=Path(cls.temporary.name);source=directory/'queue.c'
         source.write_text(code);cls.executable=directory/'queue'
-        result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror',
+        result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
                                '-fsanitize=undefined','-fno-strict-aliasing',
                                '-I',str(ROOT/'include'),str(source),'-o',str(cls.executable)],
                               capture_output=True,text=True)

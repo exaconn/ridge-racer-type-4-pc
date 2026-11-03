@@ -19,7 +19,7 @@ class SpuAllocationScanTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2];d=Path(cls.temp.name)
         header=(root/'include/rr/spu.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(root/'build/legacy/func_8007FC54.c').read_text().replace('#include "rr/spu.h"','')
+        body=(root/'tools/scripts/fixtures/views/func_8007FC54.c').read_text().replace('#include "rr/spu.h"','')
         body=re.sub(r' : "\$[0-9]+"','',body)
         assert body.count('value=p->address_flags;')==1 and body.count('value+p->size')==1
         observed=body.replace('func_8007FC54','observed_scan').replace('value=p->address_flags;','value=read_flags(p);').replace('value+p->size','value+read_size(p)')

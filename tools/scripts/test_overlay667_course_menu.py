@@ -6,7 +6,7 @@ import subprocess
 root=Path(__file__).resolve().parents[2]
 body=(root/'src/overlays/PAL/667/func_80117FA8.c').read_text()
 body=body[body.index('void ovl667_func_80117FA8'):]
-mapper=(root/'build/legacy/func_80032E9C.c').read_text().replace('func_80032E9C','actual_mapper')
+mapper=(root/'tools/scripts/fixtures/views/func_80032E9C.c').read_text().replace('func_80032E9C','actual_mapper')
 source=r'''
 #include <assert.h>
 #include <stdint.h>

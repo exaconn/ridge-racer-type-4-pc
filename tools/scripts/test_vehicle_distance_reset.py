@@ -4,7 +4,7 @@ import subprocess
 root=Path(__file__).resolve().parents[2]
 import os
 os.chdir(root)
-p=Path('include');body=Path('build/legacy/func_80022CD4.c').read_text()
+p=Path('include');body=Path('tools/scripts/fixtures/views/func_80022CD4.c').read_text()
 s=r'''
 #include <assert.h>
 #include <stdint.h>

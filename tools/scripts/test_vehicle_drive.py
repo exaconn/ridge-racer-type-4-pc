@@ -10,7 +10,7 @@ import hashlib,json,os,re,struct,subprocess,sys
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN
 from elftools.elf.elffile import ELFFile
 sys.path.insert(0,'tools/scripts');from mips_preview_engine import Mips,signed
-ROOT=Path(__file__).resolve().parents[2];SOURCE=ROOT/'build/legacy/func_800486C4.c';CASES=4096
+ROOT=Path(__file__).resolve().parents[2];SOURCE=ROOT/'tools/scripts/fixtures/views/func_800486C4.c';CASES=4096
 C=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -64,7 +64,7 @@ def main():
  body=SOURCE.read_text();body=body[body.index('void func_800486C4'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
  with TemporaryDirectory() as tmp:
   c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(C+body+TAIL)
-  subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True)
+  subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True)
   native=iter(subprocess.check_output([str(exe)],text=True).splitlines())
  code=(ROOT/'assets/PAL/main.exe').read_bytes()[0x38EC4:0x3926C];elf=os.environ.get('RR_COMPILED_ELF')
  if elf:

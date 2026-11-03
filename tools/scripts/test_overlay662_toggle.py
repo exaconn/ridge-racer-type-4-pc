@@ -9,7 +9,7 @@ class OverlayToggleTest(unittest.TestCase):
     def test_control_flag_and_post_sound_selector(self):
         root = Path(__file__).resolve().parents[2]
         body = (root / 'src/overlays/PAL/662/func_801256D4.c').read_text()
-        resident = (root / 'build/legacy/func_8004F24C.c').read_text()
+        resident = (root / 'tools/scripts/fixtures/views/func_8004F24C.c').read_text()
         source = r'''
 #include <assert.h>
 #include <stdint.h>

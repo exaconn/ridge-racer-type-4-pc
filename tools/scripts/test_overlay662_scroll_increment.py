@@ -13,7 +13,7 @@ class Overlay662ScrollIncrementTest(unittest.TestCase):
         rows=[struct.unpack_from('<8h',blob,sector*2048+0x80126F88-0x80114878+16*i) for i in range(46)]
         self.assertEqual(sorted(r[6] for r in rows),list(range(46)))
         data='static const RrGarageButton original[46]={\n'+',\n'.join('{{'+','.join(map(str,r[:4]))+'},'+','.join(map(str,r[4:]))+'}' for r in rows)+'\n};\n'
-        paths=['src/overlays/PAL/662/func_'+a+'.c' for a in ['8011E6C8','8011E7C0','8011E7DC','801230C4','80123338']]+['build/legacy/func_8004F218.c','build/legacy/func_8004F24C.c']
+        paths=['src/overlays/PAL/662/func_'+a+'.c' for a in ['8011E6C8','8011E7C0','8011E7DC','801230C4','80123338']]+['tools/scripts/fixtures/views/func_8004F218.c','tools/scripts/fixtures/views/func_8004F24C.c']
         bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',(root/p).read_text(),flags=re.M) for p in paths)
         source=r'''
 #include <assert.h>

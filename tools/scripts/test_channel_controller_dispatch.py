@@ -54,7 +54,7 @@ void test_prepare(s32 bank,s32 row,const u8 *bytes,u32 count,u32 accumulator) {
 '''
         source += '\n'.join('RrLibControllerCallback ' + name + ';' for name in ROUTES.values()) + '\n'
         for name in ('800818B4', '80081E04'):
-            body = (root / ('build/legacy/func_' + name + '.c')).read_text()
+            body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
             body = body.replace('#include "rr_asm.h"', '')
             body = body.replace('#include "rr/library.h"', '')
             body = body.replace('extern RrLibStateB0 *D_8010F068[];', '')

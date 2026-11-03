@@ -38,7 +38,7 @@ void test_initialize(void) {
  for(bank=-4;bank<=4;bank++) test_table[0x4000-0xF98/4+bank]=&test_records[bank+4][8];
 }
 '''
-        body = (root / 'build/legacy/func_80084154.c').read_text()
+        body = (root / 'tools/scripts/fixtures/views/func_80084154.c').read_text()
         body = body.replace('#include "rr/channels.h"', '')
         body = body.replace('(RrChannelValueRecordB0 **)0x80110000U', '(test_table + 0x4000)')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)

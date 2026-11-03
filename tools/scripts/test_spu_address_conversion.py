@@ -9,7 +9,7 @@ import unittest
 class SpuAddressConversionTest(unittest.TestCase):
     def test_rounding_selectors_and_complete_register_owner(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'build/legacy/func_8007F414.c').read_text()
+        body = (root / 'tools/scripts/fixtures/views/func_8007F414.c').read_text()
         # Target register-allocation annotations have no host equivalent.
         body = re.sub(r' __asm__\("\$[23]"\)', '', body)
         source = r'''

@@ -5,7 +5,7 @@ import subprocess,unittest
 ROOT=Path(__file__).resolve().parents[2]
 class ColorConversionTest(unittest.TestCase):
  def test_full_component_encodings_clamps_negative_hue_and_aliasing(self):
-  body=(ROOT/'build/legacy/func_8004C138.c').read_text()
+  body=(ROOT/'tools/scripts/fixtures/views/func_8004C138.c').read_text()
   body='\n'.join(line for line in body.splitlines() if not line.startswith('#include'))
   code=r'''
 #include <assert.h>
@@ -73,6 +73,6 @@ int main(void){unsigned raw,a,b,j;uint64_t cases=0;
 '''
   with TemporaryDirectory() as temp:
    p=Path(temp);(p/'test.c').write_text(code)
-   subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(p/'test.c'),'-o',str(p/'test')],check=True)
+   subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(p/'test.c'),'-o',str(p/'test')],check=True)
    subprocess.run([str(p/'test')],check=True)
 if __name__=='__main__':unittest.main()

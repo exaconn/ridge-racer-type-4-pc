@@ -23,7 +23,7 @@ typedef uint32_t u32;
 typedef int32_t s32;
 """ + header
         for name in ('8009A94C', '8009ABF8'):
-            body = (root / ('build/legacy/func_' + name + '.c')).read_text()
+            body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
             source += body.replace('#include "rr/serial.h"', '')
         source += '\nvolatile RrSerialRequest D_801146E8;\nRrSerialReceiveRequest D_801146D8;\nRrSerialPortRegisters *D_800ABD18;\n'
         (directory / 'function.c').write_text(source)

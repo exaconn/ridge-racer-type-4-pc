@@ -1,0 +1,27 @@
+#include "types.h"
+
+#define G ((Scratch *)0x1F800000)
+
+#define S16(p, o) (*(s16 *)((char *)(p) + (o)))
+
+#define S32(p, o) (*(s32 *)((char *)(p) + (o)))
+
+#define VEC(p, o) (*(VECTOR *)((char *)(p) + (o)))
+
+extern s32 D_800F2FD8;
+
+extern int *D_8010E698[];
+
+void func_800701C4(int a0) {
+    int *v = D_8010E698[a0];
+    int *w;
+    int a2;
+    int *g = (int *)0x1F800000;
+    /* ASM_BARRIER: legacy, reason not recorded (forces reg copy/CSE/scheduling); retire & retest with fd.py */
+    __asm__("" : "=r"(w) : "0"(v));
+    a2 = v[0];
+    g[0x15] = w[1];
+    g[0x16] = D_8010E698[a0][2];
+    D_800F2FD8 = a2;
+    g[0x14] = (int)D_8010E698[a0] + 0xC;
+}

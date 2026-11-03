@@ -12,7 +12,7 @@ class SpuVoiceCacheTest(unittest.TestCase):
     def test_actual_body_with_overlapping_tone_and_program_sources(self):
         with TemporaryDirectory() as temporary:
             p=Path(temporary)
-            s=(ROOT/'build/legacy/func_80086E74.c').read_text()
+            s=(ROOT/'tools/scripts/fixtures/views/func_80086E74.c').read_text()
             s=re.sub(r'^#include.*\n','',s,flags=re.M)
             s=re.sub(r'^extern .*;\n','',s,flags=re.M)
             s=re.sub(r' asm\("\$\d+"\)','',s)

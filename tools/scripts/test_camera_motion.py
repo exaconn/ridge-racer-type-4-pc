@@ -7,7 +7,7 @@ from elftools.elf.elffile import ELFFile
 from unicorn.mips_const import *
 sys.path.insert(0,'tools/scripts');from mips_preview_engine import Mips,signed
 ROOT=Path(__file__).resolve().parents[2];os.chdir(ROOT)
-p=ROOT/'include/rr';src=ROOT/'build/legacy/func_8005B9F4.c';rng=random.Random(0x5B9F4);cases=[];profiles={}
+p=ROOT/'include/rr';src=ROOT/'tools/scripts/fixtures/views/func_8005B9F4.c';rng=random.Random(0x5B9F4);cases=[];profiles={}
 for i in range(8192):
  b=bytearray(rng.randbytes(1484));base=16;motion=base+0x74
  put=lambda off,fmt,v:struct.pack_into('<'+fmt,b,off,v)
@@ -64,7 +64,7 @@ int main(void){u8 data[1484],before[sizeof(World)],allowed[sizeof(World)];RrCame
 '''
 with TemporaryDirectory() as tmp:
  c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(c_head+'\n'+__import__('re').sub(r' __asm__\("\$\d+"\)','',src.read_text())+c_tail)
- subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-Wno-implicit-fallthrough','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude','-I'+str(p),str(c),'-o',str(exe)],check=True)
+ subprocess.run(['cc','-std=gnu11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-Wno-implicit-fallthrough','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude','-I'+str(p),str(c),'-o',str(exe)],check=True)
  r=subprocess.run([str(exe)],input=b''.join(cases),capture_output=True)
  assert r.returncode==0,r.stderr.decode();native=r.stdout
 assert len(native)==8192*1416

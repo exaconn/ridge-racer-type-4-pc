@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class AudioPanTest(unittest.TestCase):
     def test_actual_body_with_full_width_inputs_and_mutating_helpers(self):
-        source = (ROOT / 'build/legacy/func_8004EF04.c').read_text()
+        source = (ROOT / 'tools/scripts/fixtures/views/func_8004EF04.c').read_text()
         source = re.sub(r'^#include.*\n', '', source, flags=re.M)
         source = re.sub(r' asm\("\$\d+"\)', '', source)
         source = re.sub(r'__asm__\(""[^;]*;', ';', source)

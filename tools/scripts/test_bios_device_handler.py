@@ -54,7 +54,7 @@ void test_initialize(u32 bytes) {
 void test_replace_kernel_table(void) {test_kernel_table=test_other_devices;test_kernel_bytes=0;}
 void test_select_other_table(u32 count) {test_kernel_table=test_other_devices;test_kernel_bytes=count*sizeof(RrBiosDevice);}
 '''
-        body = (root / 'build/legacy/func_800972B0.c').read_text()
+        body = (root / 'tools/scripts/fixtures/views/func_800972B0.c').read_text()
         body = body.replace('#include "rr/bios_devices.h"', '')
         sites = ('*(RrBiosDevice **)0x150', '*(u32 *)0x154', '(char *)0x80110000U')
         for site in sites:
@@ -65,7 +65,7 @@ void test_select_other_table(u32 count) {test_kernel_table=test_other_devices;te
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
         source += body
-        first = (root / 'build/legacy/func_80097114.c').read_text()
+        first = (root / 'tools/scripts/fixtures/views/func_80097114.c').read_text()
         first = first.replace('#include "rr/bios_devices.h"', '')
         for site, replacement in zip(sites[:2], ('test_kernel_table', 'test_kernel_bytes')):
             if first.count(site) != 2:

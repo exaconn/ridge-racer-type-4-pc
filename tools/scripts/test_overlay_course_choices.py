@@ -13,8 +13,8 @@ class CourseChoicesTest(unittest.TestCase):
         bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/{i}/func_{a}.c')
                            for i,a in ((660,'801163C4'),(661,'80115F8C'),(667,'80116BB4')))
         bodies = re.sub(r'^extern[^\n]*\n', '', bodies, flags=re.M)
-        glyph = read_c_source(root / 'build/legacy/func_80037040.c')
-        count = read_c_source(root / 'build/legacy/func_800370BC.c')
+        glyph = read_c_source(root / 'tools/scripts/fixtures/views/func_80037040.c')
+        count = read_c_source(root / 'tools/scripts/fixtures/views/func_800370BC.c')
         source = r'''
 #include <assert.h>
 #include <stddef.h>

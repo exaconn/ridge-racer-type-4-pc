@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class SteeringTransitionTest(unittest.TestCase):
  def test_modes_arithmetic_and_mutable_services(self):
-  body = (ROOT/'build/legacy/func_80048DB0.c').read_text().split('#define CONTROL_VOL', 1)[1]
+  body = (ROOT/'tools/scripts/fixtures/views/func_80048DB0.c').read_text().split('#define CONTROL_VOL', 1)[1]
   body = '#define CONTROL_VOL'+body
   body = re.sub(r' __asm__\("\$[0-9]+"\)', '', body)
   source = r'''

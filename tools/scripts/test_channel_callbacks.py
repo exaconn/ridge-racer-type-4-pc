@@ -48,7 +48,7 @@ s32 test_second_status(void *channel) { return D_800ABC84(channel); }
 void test_update(void *channel) { D_800ABC88(channel); }
 '''
         for name in ('func_8009A334', 'func_8009A7BC'):
-            body = (root / 'build/legacy' / (name + '.c')).read_text()
+            body = (root / 'tools/scripts/fixtures/views' / (name + '.c')).read_text()
             body = body.replace('#include "rr/channels.h"', '')
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r'"\$[0-9]+", ', '', body)

@@ -44,7 +44,7 @@ void func_80087044(void) { test_second(); }
 s32 func_80081E04(s32 bank, s32 row) { return test_update(bank, row); }
 '''
         for name in ('80080A44', '80080AB4', '80081D94', '80080B24', '80080504'):
-            body = (root / ('build/legacy/func_' + name + '.c')).read_text()
+            body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
             body = body.replace('#include "rr/library.h"', '')
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r'"\$[0-9]+", ', '', body)

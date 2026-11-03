@@ -16,7 +16,7 @@ class SequencerInitTest(unittest.TestCase):
         def header(name):
             text=(ROOT/'include/rr'/name).read_text()
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
-        body=(ROOT/'build/legacy/func_80083DE4.c').read_text()
+        body=(ROOT/'tools/scripts/fixtures/views/func_80083DE4.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
         code=r'''
@@ -97,7 +97,7 @@ int main(int argc,char **argv) {
 '''
         directory=Path(cls.temporary.name);source=directory/'init.c'
         source.write_text(code);cls.executable=directory/'init'
-        result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror',
+        result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
                                '-fsanitize=undefined','-fno-strict-aliasing',
                                '-I',str(ROOT/'include'),str(source),'-o',str(cls.executable)],
                               capture_output=True,text=True)

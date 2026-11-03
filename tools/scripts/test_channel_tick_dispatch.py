@@ -25,7 +25,7 @@ class ChannelTickDispatchTest(unittest.TestCase):
         for name in ('channels.h','serial.h'):
             h=(root/'include/rr'/name).read_text()
             header+=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',h,flags=re.M)+'\n'
-        body=native_body((root/'build/legacy/func_80097EA0.c').read_text())
+        body=native_body((root/'tools/scripts/fixtures/views/func_80097EA0.c').read_text())
         assert body.count('(s32 *)0x800B0000U')==1
         body=body.replace('(s32 *)0x800B0000U','ram+0x4330/4')
         observed=body.replace('func_80097EA0','observed_tick')

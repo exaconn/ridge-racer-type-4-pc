@@ -50,7 +50,7 @@ void test_reset(void) {
  D_800ABDD0=&test_ports[0];D_800ABDD4=&test_irq[0];
 }
 '''
-        body = (root/'build/legacy/func_8009BE18.c').read_text()
+        body = (root/'tools/scripts/fixtures/views/func_8009BE18.c').read_text()
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'"\$[0-9]+",\s*', '', body)

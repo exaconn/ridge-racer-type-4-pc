@@ -51,7 +51,7 @@ unsigned long test_argument_offset(void) {return offsetof(RrChannelPatchCommand,
             body=re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?=\))','',body)
             source+=body
         directory=Path(cls.temp.name);(directory/'command.c').write_text(source)
-        result=subprocess.run(['cc','-shared','-fPIC','-O2','-Wall','-Werror',
+        result=subprocess.run(['cc','-shared','-fPIC','-O2','-Wall','-Werror','-Wno-error=deprecated-non-prototype',
                                str(directory/'command.c'),'-o',str(directory/'command.so')],
                               capture_output=True,text=True)
         if result.returncode:raise AssertionError(result.stderr)

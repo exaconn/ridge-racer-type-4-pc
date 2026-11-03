@@ -43,7 +43,7 @@ s32 func_80096E74(u32 first,s32 second,s32 third,RrLibInterruptCallback fourth) 
 s32 func_80096EB4(s32 event) {return test_system(4,(u32)event,0,0,0);}
 '''
         for name in ('8008B3C4', '8007F764', '8007F6EC'):
-            body = (root / ('build/legacy/func_'+name+'.c')).read_text()
+            body = (root / ('tools/scripts/fixtures/views/func_'+name+'.c')).read_text()
             body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
             body = body.replace('extern s32 D_800A48A8,D_800A4840;', '')
             if name == '8007F6EC':

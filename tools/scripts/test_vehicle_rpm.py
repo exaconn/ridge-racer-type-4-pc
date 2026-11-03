@@ -8,7 +8,7 @@ from unicorn import *
 from unicorn.mips_const import *
 from elftools.elf.elffile import ELFFile
 root=Path(__file__).resolve().parents[2];os.chdir(root)
-part=root/'include/rr';source=root/'build/legacy/func_800483D8.c'
+part=root/'include/rr';source=root/'tools/scripts/fixtures/views/func_800483D8.c'
 body=source.read_text();body=body[body.index('void func_800483D8'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
 prefix='''
 #include <stddef.h>
@@ -48,7 +48,7 @@ for i in range(8192):
  cases.append(bytes(data));key=(gear==0,gear==count-1,hold==0,shift>0,mode==3);counts[str(key)]=counts.get(str(key),0)+1
 with TemporaryDirectory() as tmp:
  c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(prefix+body+tail)
- subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude','-I'+str(part),str(c),'-o',str(exe)],check=True)
+ subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude','-I'+str(part),str(c),'-o',str(exe)],check=True)
  native=subprocess.run([str(exe)],input=b''.join(cases),capture_output=True,check=True).stdout
 assert len(native)==832*len(cases)
 def verify(code,label):

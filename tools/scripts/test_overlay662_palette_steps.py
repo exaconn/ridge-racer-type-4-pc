@@ -10,7 +10,7 @@ class Overlay662PaletteStepsTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2]
         paths=['8011E6C8','8011E7C0','8011E7DC','8011D120','8012349C','801235F4','80123750','801238AC','80123A0C','80123B68']
         bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',(root/f'src/overlays/PAL/662/func_{a}.c').read_text(),flags=re.M) for a in paths)
-        bodies+='\n'+re.sub(r'^extern[^\n]*;\n','',(root/'build/legacy/func_8004F218.c').read_text(),flags=re.M)+'\n'+re.sub(r'^extern[^\n]*;\n','',(root/'build/legacy/func_8004F24C.c').read_text(),flags=re.M)
+        bodies+='\n'+re.sub(r'^extern[^\n]*;\n','',(root/'tools/scripts/fixtures/views/func_8004F218.c').read_text(),flags=re.M)+'\n'+re.sub(r'^extern[^\n]*;\n','',(root/'tools/scripts/fixtures/views/func_8004F24C.c').read_text(),flags=re.M)
         source=r'''
 #include <assert.h>
 #include <stdint.h>

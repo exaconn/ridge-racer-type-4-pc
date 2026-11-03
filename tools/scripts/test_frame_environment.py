@@ -2,11 +2,11 @@
 from pathlib import Path
 import re,subprocess,tempfile,unittest
 root=Path(__file__).resolve().parents[2]
-src=(root/'build/legacy/func_8001ECE8.c').read_text();src=re.sub(r'^#include[^\n]*\n|extern[^;]*;','',src,flags=re.M)
+src=(root/'tools/scripts/fixtures/views/func_8001ECE8.c').read_text();src=re.sub(r'^#include[^\n]*\n|extern[^;]*;','',src,flags=re.M)
 src=re.sub(r' asm\("\$\d+"\)','',src);src=re.sub(r'__asm__\("".*?\);','',src)
-draw=(root/'build/legacy/func_800928E4.c').read_text().replace('func_800928E4','native_draw')
-disp=(root/'build/legacy/func_80092998.c').read_text().replace('func_80092998','native_display')
-hook=(root/'build/legacy/func_8001ECE0.c').read_text();hook=re.sub(r'^#include[^\n]*\n','',hook,flags=re.M).replace('func_8001ECE0','native_bank_hook')
+draw=(root/'tools/scripts/fixtures/views/func_800928E4.c').read_text().replace('func_800928E4','native_draw')
+disp=(root/'tools/scripts/fixtures/views/func_80092998.c').read_text().replace('func_80092998','native_display')
+hook=(root/'tools/scripts/fixtures/views/func_8001ECE0.c').read_text();hook=re.sub(r'^#include[^\n]*\n','',hook,flags=re.M).replace('func_8001ECE0','native_bank_hook')
 fixture=r'''
 #include <assert.h>
 #include <stdint.h>

@@ -3,7 +3,7 @@ import re,subprocess,tempfile,unittest
 root=Path(__file__).resolve().parents[2]
 header=''.join((root/'include/rr'/n).read_text() for n in ['tables.h','runtime_settings.h','menu_pulse.h'])
 header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-body=(root/'build/legacy/func_8004B8A8.c').read_text();body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M);body=re.sub(r' asm\("\$\d+"\)','',body)
+body=(root/'tools/scripts/fixtures/views/func_8004B8A8.c').read_text();body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M);body=re.sub(r' asm\("\$\d+"\)','',body)
 body=re.sub(r'__asm__(?: volatile)?\("".*?\);',';',body)
 code=r'''
 #include <assert.h>

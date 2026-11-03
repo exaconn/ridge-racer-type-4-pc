@@ -9,7 +9,7 @@ import unittest
 class CdInitializationTest(unittest.TestCase):
     def test_native_reset_retries_irq_and_command_failures(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'build/legacy/func_8008D86C.c').read_text()
+        body = (root / 'tools/scripts/fixtures/views/func_8008D86C.c').read_text()
         body = re.sub(r' __asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'__asm__(?:\s+volatile)?\(""[^;]*;','',body)
         source = r'''

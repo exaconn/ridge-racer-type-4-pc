@@ -6,10 +6,10 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class SpuTickTest(unittest.TestCase):
  def test_modes_system_words_and_complete_timer_owner(self):
-  body=(ROOT/'build/legacy/func_80084004.c').read_text()
+  body=(ROOT/'tools/scripts/fixtures/views/func_80084004.c').read_text()
   body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
   body=re.sub(r' __asm__\("\$\d+"\)','',body)
-  getter=(ROOT/'build/legacy/func_8008BDF8.c').read_text()
+  getter=(ROOT/'tools/scripts/fixtures/views/func_8008BDF8.c').read_text()
   getter=re.sub(r'^#include[^\n]*\n|^extern[^\n]*\n','',getter,flags=re.M).replace('func_8008BDF8','actual_system')
   code=r'''
 #include <assert.h>

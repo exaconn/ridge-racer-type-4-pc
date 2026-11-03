@@ -1,0 +1,50 @@
+#include "types.h"
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4DB8 (*(struct { char pad[4]; s32 x4; char p2[4]; s32 xC; char p3[0x24-0x10]; s16 v[1]; char p4[0x2868-0x26]; s32 x2868; } (*))&D_800F4DB8)
+
+#undef D_800F4DB8
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4DB8 (*(struct { char p0[0x4]; s32 x4; char p1[0x4]; s32 xC; s32 x10; char p2[0x44]; s16 x58; char p3[0x61E]; s16 x678; char p4[0x61E]; s16 xC98; char p5[0x61E]; s16 x12B8; } (*))&D_800F4DB8)
+
+#undef D_800F4DB8
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4DB8 (*(struct { char pad[4]; s32 a; char p[4]; s32 b; s32 c; } (*))&D_800F4DB8)
+
+#undef D_800F4DB8
+
+extern struct 
+{
+  char pad0[0x2C];
+  short h2C;
+  char pad2E[0x19D0 - 0x2E];
+  int f19D0;
+  int f19D4;
+  int f19D8;
+  int f19DC;
+  int f19E0;
+  unsigned short h19E4;
+  short h19E6;
+  short arr[1];
+  char pad19EA[0x1A28 - 0x19EA];
+  int f1A28;
+} D_800F4DB8;
+
+extern int func_80084534();
+
+extern int func_8008A644();
+
+extern int func_8004F82C();
+
+extern s32 D_800AC66C;
+
+void func_8004F7E0(void) {
+    func_80084534(0);
+    func_8008A644(4);
+    D_800F4DB8.b = 1;
+    D_800F4DB8.a = 0;
+    func_8004F82C(D_800F4DB8.c, 0);
+    D_800AC66C = 0;
+}

@@ -77,7 +77,7 @@ void test_reset(void) {
             body = re.sub(r'"\$[0-9]+",\s*', '', body)
             return re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?=\))', '', body)
         for name in ('8008B4E0', '80095360', '80095394'):
-            body = native((root/('build/legacy/func_' + name + '.c')).read_text())
+            body = native((root/('tools/scripts/fixtures/views/func_' + name + '.c')).read_text())
             if name == '80095394':
                 assert body.count('*gpu') == 3  # One pointer declaration and two real status reads.
                 body = body.replace('        *gpu;', '        test_read(gpu);')

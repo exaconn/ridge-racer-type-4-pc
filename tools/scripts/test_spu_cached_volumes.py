@@ -39,7 +39,7 @@ struct { RrSpuVolumeCache cache; u8 extra[0x200]; } test_holder;
 #define D_8010FE18 test_holder.cache
 '''
         for name in ('800869F0', '80086B00'):
-            body = (root / ('build/legacy/func_' + name + '.c')).read_text()
+            body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
             body = body.replace('#include "rr/spu.h"', '')
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r'"\$[0-9]+", ', '', body)

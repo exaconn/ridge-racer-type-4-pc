@@ -2,7 +2,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import re,subprocess,sys,os,json,hashlib
 root=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file());stage=Path(__file__).resolve().parent
-path=Path(sys.argv[1]) if len(sys.argv)>1 else root/'build/legacy/func_8005AC0C.c'
+path=Path(sys.argv[1]) if len(sys.argv)>1 else root/'tools/scripts/fixtures/views/func_8005AC0C.c'
 body=path.read_text();body=body[body.index('void func_8005AC0C'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
 src=r'''
 #include <assert.h>

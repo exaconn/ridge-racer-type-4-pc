@@ -12,7 +12,7 @@ class ChannelVoiceChoiceTest(unittest.TestCase):
     def test_actual_body_and_complete_control_row_owner(self):
         with TemporaryDirectory() as temporary:
             p=Path(temporary)
-            s=(ROOT/'build/legacy/func_80086BE4.c').read_text()
+            s=(ROOT/'tools/scripts/fixtures/views/func_80086BE4.c').read_text()
             s=re.sub(r'^#include.*\n','',s,flags=re.M)
             s=re.sub(r' asm\(\s*"\$\d+"\s*\)','',s)
             s=re.sub(r'__asm__\(""[^;]*;', ';',s)

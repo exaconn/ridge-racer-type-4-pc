@@ -41,7 +41,7 @@ u32 test_read_clock(void) {
 }
 void test_reset(void) {test_calls=test_clock_reads=0;memset(test_events,0,sizeof(test_events));}
 '''
-        body = (root / 'build/legacy/func_8008B2CC.c').read_text()
+        body = (root / 'tools/scripts/fixtures/views/func_8008B2CC.c').read_text()
         body = body.replace('#include "rr/timing.h"', '')
         if body.count('(char *)0x80010000U') != 1:
             raise AssertionError('Expected exactly one fixed message page')

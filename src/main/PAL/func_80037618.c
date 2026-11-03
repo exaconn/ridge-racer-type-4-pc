@@ -1,3 +1,5 @@
+#include "rr/track_sample_types.h"
+
 typedef struct {
     int a, b, c, d;
 } Vec4;
@@ -9,15 +11,6 @@ typedef struct {
         int x, z;
     } pos[8];
 } Grid53C;
-
-typedef struct {
-    char pad0[8];
-    int x08;
-    int z0C;
-    short y10;
-    short heading12;
-    char pad14[0x3C - 0x14];
-} TrackSample3C;
 
 typedef struct {
     unsigned short w0;
@@ -125,9 +118,6 @@ extern int func_80028B30();
 
 extern short D_800F4D44;
 extern short D_800AD522;
-extern int *D_800ACB8C;
-extern int D_800ABECC;
-extern TrackSample3C *D_800ABEA4;
 extern struct {
     char pad[0x53C];
     Grid53C *p53C;

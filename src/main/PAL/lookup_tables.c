@@ -1,9 +1,8 @@
-/* Candidate module: contiguous functions 80054EF4..80055250.
- * Shared layouts reconciled from all seven original per-function views. */
+/* Track event tables are sorted in descending key order. */
 #include "rr/lookup.h"
 
 extern s32 D_800ABECC;
-extern RrLookupOwner D_800AC650;
+extern RrTrackResourceContext D_800AC650;
 extern RrLookupTables16 *D_800ACBB8;
 
 s32 func_80054EF4(s32 key, s32 sel) {
@@ -56,26 +55,26 @@ neg:
 }
 
 s32 func_80055040(s32 a0) {
-    s32 r = func_80054FA4((s32)D_800AC650.q->table0, D_800AC650.q->count0, a0);
-    if (r >= 0) return D_800AC650.q->table0[r].value;
+    s32 r = func_80054FA4((s32)D_800AC650.lookupTables->table0, D_800AC650.lookupTables->count0, a0);
+    if (r >= 0) return D_800AC650.lookupTables->table0[r].value;
     return -1;
 }
 
 s32 func_800550A0(s32 a0) {
-    s32 r = func_80054FA4((s32)D_800AC650.q->table1, D_800AC650.q->count1, a0);
-    if (r >= 0) return D_800AC650.q->table1[r].value;
+    s32 r = func_80054FA4((s32)D_800AC650.lookupTables->table1, D_800AC650.lookupTables->count1, a0);
+    if (r >= 0) return D_800AC650.lookupTables->table1[r].value;
     return -1;
 }
 
 s32 func_80055100(s32 a0) {
-    s32 r = func_80054FA4((s32)D_800AC650.q->table2, D_800AC650.q->count2, a0);
-    if (r >= 0) return D_800AC650.q->table2[r].value;
+    s32 r = func_80054FA4((s32)D_800AC650.lookupTables->table2, D_800AC650.lookupTables->count2, a0);
+    if (r >= 0) return D_800AC650.lookupTables->table2[r].value;
     return -1;
 }
 
 s32 func_80055160(s32 a0) {
-    s32 r = func_80054FA4((s32)D_800AC650.q->table3, D_800AC650.q->count3, a0);
-    if (r >= 0) return D_800AC650.q->table3[r].value;
+    s32 r = func_80054FA4((s32)D_800AC650.lookupTables->table3, D_800AC650.lookupTables->count3, a0);
+    if (r >= 0) return D_800AC650.lookupTables->table3[r].value;
     return -1;
 }
 

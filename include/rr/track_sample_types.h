@@ -24,6 +24,7 @@ typedef struct {
 extern RrTrackSample3C *D_800ABEA4;
 extern RrTrackLaneOffset8 *D_800ACB9C;
 extern s32 D_800ABECC;
+extern s32 *D_800ACB8C;
 
 RR_ASSERT_SIZE(RrTrackSample3C, 0x3C);
 RR_ASSERT_OFFSET(RrTrackSample3C,x08,0x08);

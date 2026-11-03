@@ -14,7 +14,6 @@ void func_80047610(const RrTrackSample3C *first, const RrTrackSample3C *second,
 void func_80047A50(RrRaceVehicle *vehicle);
 /* The PAL caller ABI uses a full word, normalized to signed sixteen bits. */
 s32 func_8004C454(s32 node, s32 lane);
-void func_8004D58C(RrTrackLaneOffset8 *offsets);
 
 RR_ASSERT_OFFSET(RrRaceVehicle, trackFraction170, 0x170);
 RR_ASSERT_OFFSET(RrRaceVehicle, pathDeltaX224, 0x224);

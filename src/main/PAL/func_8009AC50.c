@@ -1,4 +1,4 @@
-/* GCC_VERSION: 2.7.2 */
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 
 typedef struct {
@@ -33,11 +33,8 @@ int func_8009AC50(int first, int second) {
     int s0 = 0;
     int s1;
     int s5;
-    /* ASM_BARRIER: retain the request base in $v1 before the loop. */
     volatile RrSerialReceiveRequest *p1 = &D_801146D8;
 
-    /* ASM_BARRIER: keep $v1 live for the pre-loop stores and load. */
-    __asm__("" : "=r"(p1) : "0"(p1));
 
     if (p1->request.active != 0) {
         return -1;
@@ -53,8 +50,7 @@ int func_8009AC50(int first, int second) {
         do {
             if ((D_800ABD18->status & 5) != 5) {
                 int five;
-                /* ASM_BARRIER: hoist constant 5 into $s2 for the inner wait loop. */
-                __asm__("" : "=r"(five) : "0"(5));
+                five = 5;
                 do {
                     if (D_801146D0 != 0) {
                         if (D_801146D0(2, s0++) == 0) {
@@ -74,8 +70,7 @@ int func_8009AC50(int first, int second) {
             if (s1 == s5) {
                 if ((D_800ABD18->status & 0x80) == b->receive_status) {
                     volatile unsigned int *rs;
-                    /* ASM_BARRIER: hoist receive_status address into $s1 for the inner wait loop. */
-                    __asm__("" : "=r"(rs) : "0"(&D_801146D8.receive_status));
+                    rs = &D_801146D8.receive_status;
                     do {
                         if (D_801146D0 != 0) {
                             if (D_801146D0(2, s0++) == 0) {

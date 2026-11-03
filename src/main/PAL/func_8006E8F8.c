@@ -14,8 +14,6 @@ void func_8006E8F8() {
     t1 = (int *)D_8010E690;
     t2 = *t1;
     off = t2 << 2;
-    /* ASM_BARRIER: prevent fold from reassociating (t2 << 2) + 4 with pointer addition */
-    __asm__("" : "+r"(off));
     t1 = (int *)((char *)t1 + (off + 4));
     for (t0 = 0; t0 < D_800F4C38[0]; t0++) {
         v = D_800F2EB4 + (pb = D_800F4C38 + t0)[1] * 0x50;

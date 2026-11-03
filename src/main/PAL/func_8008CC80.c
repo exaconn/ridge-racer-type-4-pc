@@ -1,5 +1,5 @@
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* CC1_FLAGS: -mno-split-addresses */
 
 #include "types.h"
 
@@ -74,8 +74,6 @@ s32 func_8008CC80(s32 mode, u8 *result) {
     volatile u8 *st1;
 
     s32 t = func_8008B154(-1);
-    /* ASM_BARRIER: Set allocno priorities for s6..s8 (mode, result, ac). */
-    __asm__("" : : "r"(mode), "r"(result));
     D_80110330 = t + 0x3C0;
     D_80110334 = 0;
     D_80110338[0] = D_80011A9C;

@@ -108,8 +108,6 @@ void func_800879F4(s32 arg0) {
 
     i = 0;
     p = D_8010FE38;
-    /* ASM_BARRIER: keep D_8010FE38 base address in a register across the clear loop */
-    __asm__("" : "=r"(p) : "0"(p));
     do {
         p[i] = 0;
         i++;

@@ -1,5 +1,5 @@
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* CC1_FLAGS: -mno-split-addresses */
 
 #include "types.h"
 
@@ -102,8 +102,6 @@ s32 func_8008CF00(s32 mode, u8 *result) {
             }
             return ret;
         }
-        /* ASM_BARRIER: Keep result live across first copy block and set allocno priorities for s3..s7. */
-        __asm__("" : : "r"(result), "r"(result), "r"(st2), "r"(sc), "r"(st1), "r"(mode));
         ret = st2[-1];
         if (ret != 0) {
             st[1] = 0;

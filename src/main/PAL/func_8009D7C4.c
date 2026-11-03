@@ -1,4 +1,4 @@
-/* GCC_VERSION: 2.7.2 */
+/* GCC_VERSION: 970318 */
 /* RODATA 0x800121a0 0x3c */
 extern int D_800ABDF8;
 extern int D_80114730;
@@ -35,8 +35,7 @@ int func_8009D7C4(a0) int a0; {
         D_80114718[v - 5] = a0;
         break;
     }
-    /* ASM_BARRIER: opaque zero so the fall-through arm keeps its own addu v0,0 before the shared jr */
-    __asm__("" : "=r"(r) : "0"(0));
+    r = 0;
 out:
     return r;
 }

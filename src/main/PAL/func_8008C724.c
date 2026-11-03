@@ -70,8 +70,7 @@ s32 func_8008C724(void) {
     *D_800A6758 = 7;
     *D_800A6754 = 7;
     {
-        /* ASM_BARRIER: Force SImode register move so combine simplify_set strips zero_extendqisi2 on volatile u8 intr. */
-        register s32 t __asm__("$3") = intr;
+        s32 t = intr;
         if (t != 3 || D_800A664C[D_800A64A5] != 0) {
             if ((D_800A6494 & 0x10) == 0 && (res[0] & 0x10) != 0) {
                 D_800A649C++;
@@ -82,8 +81,7 @@ s32 func_8008C724(void) {
         }
     }
     {
-        /* ASM_BARRIER: Force SImode register move so combine simplify_set strips zero_extendqisi2 on volatile u8 intr. */
-        register s32 t __asm__("$3") = intr;
+        s32 t = intr;
         if (t == 5) {
             if (D_800A6490 > 0) {
                 func_8001E84C(D_80011A40);
@@ -118,10 +116,7 @@ s32 func_8008C724(void) {
         }
         {
             u8 v = err ? 5 : 1;
-            /* ASM_BARRIER: Keep D_800A6764 base in $v0 so store uses offset 1 and value uses $v1. */
-            register volatile u8 *p __asm__("$2") = D_800A6764;
-            /* ASM_BARRIER: Prevent CSE from folding +1 into D_800A6764 symbol_ref. */
-            __asm__("" : "+r"(p));
+            volatile u8 *p = D_800A6764;
             p[1] = v;
         }
         COPY8(D_80110320, res);
@@ -131,8 +126,6 @@ s32 func_8008C724(void) {
     case 4:
         {
             volatile u8 *p = D_800A6764;
-            /* ASM_BARRIER: Keep D_800A6764 base in register so stores use offsets 2 and 1. */
-            __asm__("" : "+r"(p));
             p[1] = p[2] = 4;
         }
         COPY8(D_80110328, res);

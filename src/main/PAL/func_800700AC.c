@@ -3,8 +3,8 @@ extern int D_800F2EC0;
 void func_800700AC(int *a0) {
     int *a1 = a0 + 1;
     int i = 0;
-    register int n __asm__("$3") = a0[0];
-    register int lim __asm__("$7");
+    int n = a0[0];
+    int lim;
     int *p;
     *(int *)0x1F800048 = (int)a1;
     D_800F2EC0 = n;

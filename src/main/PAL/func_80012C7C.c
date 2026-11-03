@@ -6,10 +6,8 @@ void func_80012C7C(int *a0, int a1) {
     int x = (a1 << 6) + 0x180;
     int tp_x = (x & 0x3FF) >> 6;
     int clut_x = (x >> 4) & 0x3F;
-    /* ASM_BARRIER: keep ~0x1F and ~0x403C masks in $t3 and $t2 before loop entry test */
-    register int m1 asm("t3") = ~0x1F;
-    /* ASM_BARRIER: keep ~0x403C mask in $t2 before loop entry test */
-    register int m2 asm("t2") = ~0x403C;
+    int m1 = ~0x1F;
+    int m2 = ~0x403C;
 
     while (n-- > 0) {
         char *p = *(char **)(list + 8);

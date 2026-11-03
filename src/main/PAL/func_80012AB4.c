@@ -5,8 +5,7 @@ void func_80012AB4(int *a0, int a1) {
     int tp_x = (x & 0x3FF) >> 6;
     int clut_x = (x >> 4) & 0x3F;
     int u_add = a1 << 6;
-    /* ASM_BARRIER: keep ~0xC0 mask in $t2 initialized before clut2 */
-    register int u_mask asm("t2") = ~0xC0;
+    int u_mask = ~0xC0;
     int clut2 = a1 + 0x1028;
     int t, z;
 

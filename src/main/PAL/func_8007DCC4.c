@@ -1,3 +1,4 @@
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 
@@ -75,8 +76,6 @@ u64 func_8007DCC4(u64 a_in, u64 b_in) {
         if (s1 >= 0) {
             s0 = 1;
             sp28.hi = 0;
-            /* ASM_BARRIER: Keep s1 increment immediate instead of reusing s0 via post-reload CSE. */
-            __asm__("" : "+r"(s0));
             *(volatile u32 *)&sp28.lo = s0;
             sp18 = func_8007DB54(sp18, sp28);
             s1++;

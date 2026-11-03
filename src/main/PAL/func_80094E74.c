@@ -38,7 +38,7 @@ int func_80094E74(void) {
             func_8008B3C4(2, 0);
         }
         while ((m1 = 0x04000000, (*D_800ABBC8 & m1) == 0))
-            ;
+;
         D_801128D8[D_800ABBEC].op(D_801128D8[D_800ABBEC].p0, D_801128D8[D_800ABBEC].p1);
         D_800ABBEC = (D_800ABBEC + 1) & 0x3F;
     }
@@ -47,8 +47,6 @@ int func_80094E74(void) {
         void (*fn)();
         if (D_800ABAC0.unk8 != 0 && (fn = D_800ABAC0.unkC) != 0) {
             struct GpuSys *sys = &D_800ABAC0;
-            /* ASM_BARRIER: materialize base pointer from offset pointer before clearing unk8 */
-            __asm__("" : "+r"(sys));
             *(volatile int *)&sys->unk8 = 0;
             fn();
         }

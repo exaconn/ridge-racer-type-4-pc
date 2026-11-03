@@ -1,5 +1,5 @@
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* GCC_VERSION: 2.7.2 */
 #include "rr/layout.h"
 
 typedef struct Rec8009991C {
@@ -81,9 +81,7 @@ s32 func_8009991C(Rec8009991C *arg0) {
             ptr = &D_800ABC9C[idx].unk0C[D_800ABCC0[idx]] - 1;
             D_800ABC88(ptr);
             {
-                /* ASM_BARRIER: kill $a0 after the call so reorg sees it dead at the switch */
-                register void *a0r __asm__("$4");
-                __asm__ volatile("" : : "r"(a0r));
+                void *a0r;
             }
         }
         switch (D_800ABCC0[idx]) {

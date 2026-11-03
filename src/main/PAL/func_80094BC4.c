@@ -1,4 +1,4 @@
-/* GCC_VERSION: 2.7.2 */
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 extern void func_80095360(void);
 extern int func_80095394(void);
@@ -33,8 +33,7 @@ typedef int (*GpuOpFunc)();
 
 int func_80094BC4(GpuOpFunc op, int *p0, int len, int p1) {
     int i;
-    /* ASM_BARRIER: Keep the system state base address in a0 across the queue status checks. */
-    register struct GpuSys *sys __asm__("$4");
+    struct GpuSys *sys;
 
     func_80095360();
     while (((D_800ABBE8 + 1) & 0x3F) == D_800ABBEC) {
@@ -45,12 +44,10 @@ int func_80094BC4(GpuOpFunc op, int *p0, int len, int p1) {
     }
     D_800ABBF0 = func_8008B4E0(0);
     sys = &D_800ABAC0;
-    /* ASM_BARRIER: Materialize the system state base pointer before reading/updating fields. */
-    __asm__("" : "=r"(sys) : "0"(sys));
     sys->unk8 = 1;
     if (sys->enabled == 0 || (D_800ABBE8 == D_800ABBEC && (*D_800ABBD4 & 0x01000000) == 0 && sys->unkC == 0)) {
         while ((*D_800ABBC8 & 0x04000000) == 0)
-            ;
+;
         op(p0, p1);
         func_8008B4E0(D_800ABBF0);
         return 0;

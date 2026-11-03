@@ -77,8 +77,6 @@ s32 func_80046B1C(RrRaceVehicle *arg0, s32 arg1) {
     s1->unk7C = func_80047DF8(arg0, 10, &s1->unk84, &sp18, &sp1C);
     temp_v0 = func_80047CE0(arg0);
     s1->unk6E = temp_v0;
-    /* ASM_BARRIER: keep sh 0x6E(s1) before the shift sequence */
-    __asm__ volatile("");
     v1_2 = temp_v0 << 12;
 
     if (s0 > 0) {

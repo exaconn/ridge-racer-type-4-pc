@@ -12,11 +12,7 @@ s32 func_8007FC54(u32 address) {
         result=0;goto out;
     }
     end=0x40000000U;
-    /* ASM_BARRIER: Preserve the end-mask setup before the two-instruction address mask. */
-    __asm__("" : : "r"(end));
     low=0x0FFFFFFFU;
-    /* ASM_BARRIER: Materialize scan masks before starting the traversal cursor. */
-    __asm__("" : : "r"(skip), "r"(end), "r"(low) : "$5");
     p=initial;
     for(;;p++) {
         value=p->address_flags;

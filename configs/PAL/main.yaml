@@ -1438,7 +1438,7 @@ segments:
       - [0x80130, asm, main_8008F930]
       - [0x80134, c, func_8008F934]
       - [0x80a50, c, func_80090250]
-      - [0x80a7c, asm, main_8009027C]
+      - [0x80a7c, c, func_8009027C]
       - [0x80c24, c, trig_sine]
       - [0x80cf0, asm, main_800904F0]
       - [0x80cf4, c, func_800904F4]

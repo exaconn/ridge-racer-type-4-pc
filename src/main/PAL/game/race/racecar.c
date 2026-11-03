@@ -4,10 +4,10 @@
 #include "rr/overlay662_distance.h"
 #include "game/car/aipath.h"
 #include "game/car/carphys2.h"
+#include "game/car/aipath2.h"
+#include "game/car/carsteer.h"
 extern int func_80025FBC();
-extern int func_80026F5C();
 extern int func_80027C54();
-extern int func_8002C638();
 extern int func_8006E368();
 extern int func_80090424();
 extern int func_800904F4();

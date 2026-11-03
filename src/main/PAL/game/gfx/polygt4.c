@@ -1,6 +1,7 @@
 #include "types.h"
 #include "rr_asm.h"
 #include "psyq/libgte/gtemat7.h"
+#include "game/gfx/polygt4.h"
 
 typedef struct {
     u32 addr: 24;

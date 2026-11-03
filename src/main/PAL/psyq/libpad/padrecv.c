@@ -3,6 +3,7 @@
 #include "rr_asm.h"
 #include "psyq/libpad/padpoll.h"
 #include "psyq/libpad/padtm22.h"
+#include "psyq/libpad/padrecv.h"
 
 typedef struct {
     char pad0[0x3C];

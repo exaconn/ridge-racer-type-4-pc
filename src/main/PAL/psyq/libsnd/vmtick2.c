@@ -4,6 +4,8 @@
 #include "types.h"
 #include "psyq/libspu/spuenvx.h"
 #include "psyq/libsnd/vmtick2.h"
+#include "psyq/libspu/spukeyx2.h"
+#include "psyq/libspu/spurvoic.h"
 
 typedef struct {
     short left;
@@ -65,8 +67,6 @@ extern u16 D_80110002;
 extern s8 D_801100FC;
 extern s8 D_80110130;
 extern void func_80084674(SpuVoiceAttr *);
-extern void func_800874F4(s32, s32);
-extern void func_800877E4(s32, s32);
 extern void func_80087814(s32, s32);
 
 void func_80087054(void) {

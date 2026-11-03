@@ -1,6 +1,6 @@
 /* GCC_VERSION: 970318 */
 #include "rr/library.h"
-extern int func_80085BA4();
+#include "psyq/libspu/srevattr.h"
 extern int D_80110008[];
 void func_80086554(int raw_left, int raw_right) {
  short a0 = raw_left;

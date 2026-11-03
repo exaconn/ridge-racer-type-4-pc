@@ -25,9 +25,9 @@
 #include "rr/library.h"
 #include "rr/sequencer_init.h"
 #include "rr/sequencer_tempo.h"
+#include "psyq/libsnd/cc_98.h"
 extern char D_800116E8[];
 extern int D_8010EFC8[];
-extern int func_80080C74();
 short func_8007FD94(a0, a1) int a0; int a1; {
     /* ASM_BARRIER: pin t0 to match original register allocation */
     register int t0 asm("t0");

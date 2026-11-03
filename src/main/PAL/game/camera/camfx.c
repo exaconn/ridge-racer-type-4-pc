@@ -2,6 +2,7 @@
 #include "game/camera/camfx.h"
 #include "game/camera/camview.h"
 #include "rr/menu_overlay_runtime.h"
+#include "game/camera/camview.h"
 
 extern char D_800A0D70[];
 extern char D_800A0D7C[];
@@ -37,7 +38,6 @@ extern struct
   char pad[0x24C];
   Q *p;
 } D_800AC650;
-extern int func_80055FD8();
 void func_80056258(a0)
 int a0;
 {

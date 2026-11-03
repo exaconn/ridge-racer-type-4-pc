@@ -1,8 +1,7 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/spu_allocation.h"
-
-extern int func_8008AAE4();
+#include "psyq/libsnd/ssvab.h"
 
 short func_8008AA74(int a0, short a1, int a2);
 short func_8008AAA8(int a0, short a1, int a2);

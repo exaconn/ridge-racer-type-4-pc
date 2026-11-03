@@ -19,6 +19,7 @@
 #include "rr/memory.h"
 #include "game/gfx/gfxotag.h"
 #include "game/gfx/model.h"
+#include "game/gfx/polygt4.h"
 
 #define G D_8010BF78
 #define H D_800F3AFC
@@ -111,7 +112,6 @@ extern int func_8003A1B4();
 extern int func_8003B934();
 extern int func_8003D228();
 extern int func_8003D6F0();
-extern int func_80041BF0();
 extern int func_80043608();
 extern int func_80052800();
 extern int func_800528A8();

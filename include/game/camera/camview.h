@@ -4,6 +4,7 @@
 #include "types.h"
 
 void func_80055C84(void);
+int func_80055FD8();
 int func_8005602C();
 int func_800560CC();
 

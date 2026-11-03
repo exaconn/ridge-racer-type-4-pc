@@ -1,6 +1,6 @@
 #include "game/car/carphys1.h"
 #include "rr/menu_overlay_runtime.h"
-extern int func_80024BCC();
+#include "game/car/carphys2.h"
 extern int func_80025FBC();
 #define S(p, o) (*(short *)((p) + (o)))
 #define U(p, o) (*(unsigned short *)((p) + (o)))

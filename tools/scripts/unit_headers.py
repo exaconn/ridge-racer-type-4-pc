@@ -152,8 +152,8 @@ def main():
         for kind, t, name in items:
             if kind == 'func' and name and FUNC.match(name) and name not in blocked:
                 proto = proto_of(t)
-                if usable(proto, name, known) and not re.search(r'\b' + name + r'\b', existing):
-                    owner[name] = (p, proto)
+                if not re.search(r'\b' + name + r'\b', existing):
+                    owner[name] = (p, proto if usable(proto, name, known) else None)
     edges = defaultdict(list)                 # caller -> [(name, core, [candidate forms])]
     forms = defaultdict(list)
     for p, (_, items) in units.items():
@@ -215,7 +215,7 @@ def main():
     def synth(n):
         """extra spellings: every return type seen x every parameter list seen"""
         rets, pars = [], []
-        for f in [owner[n][1]] + forms[n]:
+        for f in ([owner[n][1]] if owner[n][1] else []) + forms[n]:
             m = re.match(r'^\s*(.*?)\b' + n + r'\s*\((.*)\)\s*;?\s*$', f)
             if not m:
                 continue
@@ -231,7 +231,7 @@ def main():
         return [f'{r} {n}({pr});' for r in rets for pr in pars]
     cands = {}
     for n in {e[0] for v in edges.values() for e in v}:
-        lst = [owner[n][1]] + [f for f in forms[n] if f != owner[n][1]]
+        lst = ([owner[n][1]] if owner[n][1] else []) + [f for f in forms[n] if f != owner[n][1]]
         if FUNC.match(n):
             lst += [c for c in synth(n) if c not in lst and usable(c, n, known)]
         cands[n] = lst

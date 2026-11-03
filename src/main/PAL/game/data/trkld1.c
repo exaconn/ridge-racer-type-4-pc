@@ -10,6 +10,7 @@
 #include "game/data/cdfile2.h"
 #include "rr/course_choices.h"
 #include "game/gfx/model.h"
+#include "game/sound/sndsys.h"
 
 extern int D_800A02BC;
 extern int D_800A029C[];
@@ -19,7 +20,6 @@ extern int func_80043608();
 extern int func_800436E8();
 extern int func_80050BCC();
 extern struct { int a, b, c, d; } D_8010C200;
-extern int func_80050978();
 extern int func_8004ED38();
 extern int D_800A0228[];
 extern struct { char pad[0x2858]; char *p[1]; } D_800F4DB8;

@@ -8,6 +8,7 @@
 #include "game/gfx/meshquad.h"
 #include "rr/overlay665_render.h"
 #include "game/gfx/gfxotag.h"
+#include "game/effect/carfx.h"
 #define RTPT() RR_GTE_RTPT_MEM()
 #define RTPS() RR_GTE_RTPS_MEM()
 #define NCLIP() RR_GTE_NCLIP_MEM()
@@ -23,7 +24,6 @@ struct Q
   int f108;
 };
 
-extern int func_8005642C();
 extern struct 
 {
   char pad[0x24C];

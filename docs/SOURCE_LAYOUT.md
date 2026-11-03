@@ -22,7 +22,7 @@ Overlay code stays in `src/overlays/PAL/<n>/` and is described in `docs/overlays
 ## File naming
 PsyQ files take the name of the real library member where the symbol evidence identifies it
 (`configs/PAL/psyq_hints.parasite.txt` against the member lists of the PsyQ 4.x decompilation
-https://github.com/software-factory-vibe-city/psyq-decompilation): `libgpu/sys01.c`..`sys29.c`
+https://github.com/software-factory-vibe-city/psyq-decompilation): `libgpu/sys1.c`..`sys9.c`
 are consecutive slices of the one `sys` member, `libcd/bios_1*`, `libspu/spu*`, `libetc/intr*`
 likewise. A member is one object file in the original; it is split here only because the slices
 declare the same globals with different local types and cannot yet share one compilation unit.
@@ -30,7 +30,12 @@ declare the same globals with different local types and cannot yet share one com
 Game files use Namco/PsyQ-era style: lower case, at most 8 characters, a noun or noun+verb abbreviation
 (`carmove1.c`, `cdread.c`, `sprite.c`, `vmchval.c`). Where a PsyQ library file name is known
 (`utgpa`, `ccadsr`, `midi*`) it is used. Many names are descriptive guesses; they carry no
-information about the real original file names.
+information about the real original file names. A trailing digit (`menu1`, `race01`) only orders
+units of one topic that sit next to each other in the address space; it is not an original name.
+
+Current state: 462 translation units (`game/` and `psyq/`), `make check` reports `main.exe: OK`,
+all unit tests pass. Open: the 9 `libgpu/sys*` slices (one PsyQ member, waiting for type unification
+of shared globals) and the descriptive-guess game names.
 
 ## How the TUs were formed (reconstructed, not recovered)
 The original TU boundaries are not stored in the executable. The current grouping is a

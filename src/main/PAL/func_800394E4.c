@@ -1,5 +1,5 @@
 extern int func_800512C4();
-extern int func_80055250();
+#include "rr/lookup.h"
 extern int func_800904F4();
 extern char *D_800ABEA4;
 

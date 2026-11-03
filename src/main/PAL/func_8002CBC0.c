@@ -1,4 +1,4 @@
-extern int func_80055250();
+#include "rr/lookup.h"
 int func_8002CBC0(char *a, int b)
 {
     char *p;

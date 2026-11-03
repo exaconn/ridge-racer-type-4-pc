@@ -1,18 +1,20 @@
 #ifndef RR_LOOKUP_H
 #define RR_LOOKUP_H
 
-#include "rr/geometry.h"
+#include "rr/layout.h"
 
 /* Track-event tables associate ordered keys with values and node thresholds. */
 typedef struct {
     s16 key, threshold;
-    s16 value, pad06;
-} RrLookupEntry16;
+    union {
+        s32 word;
+        s16 half;
+    } value;
+} RrTrackEventEntry;
 
 typedef struct {
-    s16 key, threshold;
-    s32 value;
-} RrLookupEntry32;
+    s16 key, value;
+} RrTrackEventPair;
 
 typedef struct {
     char pad00[4];
@@ -20,10 +22,10 @@ typedef struct {
     s32 reserved0C;
     void *auxiliary10;
     void *auxiliary14;
-    RrLookupEntry32 *table0;
-    RrLookupEntry32 *table1;
-    RrLookupEntry32 *table2;
-    RrLookupEntry16 *table3;
+    RrTrackEventEntry *table0;
+    RrTrackEventEntry *table1;
+    RrTrackEventEntry *table2;
+    RrTrackEventEntry *table3;
     void *auxiliary28;
 } RrLookupTables32;
 
@@ -32,10 +34,10 @@ typedef struct {
     char pad04[8];
     s16 count2;
     char pad0E[2];
-    RrPairS16 *table0;
-    RrPairS16 *table1;
+    RrTrackEventPair *table0;
+    RrTrackEventPair *table1;
     char pad18[0x10];
-    RrPairS16 *table2;
+    RrTrackEventPair *table2;
 } RrLookupTables16;
 
 typedef struct {
@@ -48,10 +50,23 @@ typedef struct {
     RrLookupTables32 *lookupTables;
 } RrTrackResourceContext;
 
-RR_ASSERT_SIZE(RrLookupEntry16, 8);
-RR_ASSERT_SIZE(RrLookupEntry32, 8);
-RR_ASSERT_OFFSET(RrLookupEntry16, value, 4);
-RR_ASSERT_OFFSET(RrLookupEntry32, value, 4);
+extern RrTrackResourceContext D_800AC650;
+extern RrLookupTables16 *D_800ACBB8;
+
+s32 func_80054EF4(s32 key, s32 selection);
+/* A terminal threshold of sampleCount - 1 denotes a range wrapping to zero. */
+s32 func_80054FA4(const RrTrackEventEntry *entries, s32 count, s32 key);
+s32 func_80055040(s32 key);
+s32 func_800550A0(s32 key);
+s32 func_80055100(s32 key);
+s32 func_80055160(s32 key);
+s32 func_800551C0(s32 key);
+/* selection is one of the seven track-event tables (0..6). */
+s32 func_80055250(s32 selection, s32 key);
+
+RR_ASSERT_SIZE(RrTrackEventEntry, 8);
+RR_ASSERT_SIZE(RrTrackEventPair, 4);
+RR_ASSERT_OFFSET(RrTrackEventEntry, value, 4);
 RR_ASSERT_SIZE(RrLookupTables32, 0x2C);
 RR_ASSERT_OFFSET(RrLookupTables32, count0, 4);
 RR_ASSERT_OFFSET(RrLookupTables32, count3, 0xA);

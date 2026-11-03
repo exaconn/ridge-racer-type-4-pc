@@ -13,8 +13,6 @@ typedef struct {
     u32 workspaceOffset10;
 } RrTrackResourceFile;
 
-extern RrTrackResourceContext D_800AC650;
-
 void func_8004D4DC(RrLookupTables32 *tables);
 void func_8004D58C(RrTrackLaneOffset8 *offsets);
 void func_8004D598(s32 *startNode);

@@ -1,9 +1,9 @@
-#include "types.h"
-#include "m2c_macros.h"
+#include "rr/lookup.h"
+#include "rr/race_types.h"
 
-extern int func_8004EE60();
-extern int func_80055250();
+extern void func_8004EE60(s32 value);
 
-void func_800394B8(void *arg0) {
-    func_8004EE60(func_80055250(2, M2C_FIELD(arg0, s32 *, 0xF0)));
+void func_800394B8(RrRaceVehicle *vehicle)
+{
+    func_8004EE60(func_80055250(2, vehicle->trackNodeF0));
 }

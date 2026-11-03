@@ -2,7 +2,7 @@
 
 > **BARRIER RULE:** every empty-asm barrier / `register asm` pin must have a `/* ASM_BARRIER: <reason> */` comment (same line or <=3 lines above). See docs/BARRIERS.md; audit with tools/scripts/list_barriers.py.
 
-> **RULE (supersedes everything below): only STOCK tools — stock maspsx (tools/maspsx, unmodified upstream) and stock gcc 2.7.2 / 2.8.1 cc1 (flags only, e.g. -mno-split-addresses via /* NOSPLIT */). NO assembler emulation (MASPSX_FILL / aspsx_fill.py), NO post-processing of cc1 output, NO gas27 pipeline. The `/* FILL */` marker and all "delay-slot fill emulation" notes below are obsolete and removed from the toolchain. Matches must come from C source alone.**
+> **RULE (supersedes everything below): only STOCK tools — stock maspsx (tools/maspsx, unmodified upstream) and stock gcc 2.7.2 / 2.8.1 cc1 or the gcc-970318 snapshot cc1 built by tools/gcc-970318/build.sh (flags only, e.g. -mno-split-addresses via /* NOSPLIT */). NO assembler emulation (MASPSX_FILL / aspsx_fill.py), NO post-processing of cc1 output, NO gas27 pipeline. The `/* FILL */` marker and all "delay-slot fill emulation" notes below are obsolete and removed from the toolchain. Matches must come from C source alone.**
 
 # Decompiling a function (PAL, Ridge Racer Type 4)
 
@@ -136,6 +136,16 @@ Compiler: gcc 2.8.1 (PSX) `-O2 -G0 -mips1 -mcpu=3000 -funsigned-char` via `tools
 The PsyQ library region (libapi/libcard-like code, ~0x80097000+) matches **gcc 2.7.2**, game code matches 2.8.1.
 Put `/* GCC_VERSION: 2.7.2 */` as the first line of a C file to compile it with `tools/toolchain/gcc-2.7.2/cc1` (cc.sh and fd.py honour it).
 Tell-tale for 2.7.2: jump tables loaded through `lui $at`, `jr; nop` with unfilled delay slots. Try both compilers on library functions.
+
+### Third compiler: gcc-970318 (PsyQ 4.5+ library build)
+Sony's later SDK libraries (libsnd's `_SsContDataEntry` = func_800800B4) were built with a GCC development snapshot of
+1997-03-18, between 2.7.2 and 2.8.0: GCC 2.8's 4-byte reload spill slots (consecutive `sw` spills at 4-byte steps; stock
+2.7.2 rounds every spill slot to 8) with a 1996 loop.c that hoists loop invariants differently from both releases.
+Build it once with `tools/gcc-970318/build.sh` (-> `tools/toolchain/gcc-970318/cc1`; source hashes are checked; needs
+docker or bison >= 3.6 for the parsers), then mark the file `/* GCC_VERSION: 970318 */`; cc.sh adds Sony's library flags
+`-mhard-float -fno-exceptions`. The only change to the compiler is `mips_split_addresses = 0` (it has no
+`-mno-split-addresses` yet). Try it when a library function is far off under both 2.7.2 and 2.8.1, especially if spill
+slots / hoisting are the difference. Calls through SsFCALL-style tables match with an unprototyped `void (*tbl[])()`.
 maspsx cannot emulate the original assembler's delay-slot filling (`lui $at; sw` expanded before `jr`/`jal`), so such functions cannot match.
 
 ## Delay-slot filling (library code)

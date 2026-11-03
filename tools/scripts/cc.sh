@@ -12,11 +12,20 @@ CC1="${CC1:-$TC/gcc-2.8.1/cc1}"
 if [ -z "${CC1_FORCE:-}" ] && grep -q 'GCC_VERSION:[[:space:]]*2\.7\.2' "$IN"; then
     CC1="$TC/gcc-2.7.2/cc1"
 fi
+# PsyQ 4.5+ library compiler (marker: /* GCC_VERSION: 970318 */): GCC development snapshot of
+# 1997-03-18 (between 2.7.2 and 2.8.0), built by tools/gcc-970318/build.sh. Sony's library
+# objects were built with -mhard-float -fno-exceptions, so the marker implies both.
+SNAP_FLAGS=""
+if [ -z "${CC1_FORCE:-}" ] && grep -q 'GCC_VERSION:[[:space:]]*970318' "$IN"; then
+    CC1="$TC/gcc-970318/cc1"
+    [ -x "$CC1" ] || { echo "$IN: $CC1 missing; build it with tools/gcc-970318/build.sh" >&2; exit 1; }
+    SNAP_FLAGS="-mhard-float -fno-exceptions"
+fi
 AS="${AS:-$TC/bin/mipsel-none-elf-as}"
 PYTHON="${PYTHON:-$ROOT/.venv/bin/python}"
 
 CPP_FLAGS="-undef -D__GNUC__=2 -D__OPTIMIZE__ -Dmips -D__mips__ -D__LITTLE_ENDIAN__ -I$ROOT/include $*"
-CC1_FLAGS="-w -O2 -G0 -funsigned-char -mips1 -mcpu=3000"
+CC1_FLAGS="-w -O2 -G0 -funsigned-char -mips1 -mcpu=3000 $SNAP_FLAGS"
 # Generic per-file cc1 flags: first-line style comment `/* CC1_FLAGS: -mno-split-addresses */` (any stock cc1 options, appended to CC1_FLAGS)
 EXTRA=$(sed -n 's|^/\* CC1_FLAGS:[[:space:]]*\(.*[^[:space:]]\)[[:space:]]*\*/.*$|\1|p' "$IN" | head -1)
 if [ -n "$EXTRA" ]; then CC1_FLAGS="$CC1_FLAGS $EXTRA"; fi

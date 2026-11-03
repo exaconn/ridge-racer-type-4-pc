@@ -73,7 +73,7 @@ void initialize(u32 mask,u32 control,u32 configuration) {
  memset(test_log,0xA5,sizeof(test_log));
 }
 '''
-        body = (root / 'build/legacy/func_8009B85C.c').read_text()
+        body = (root / 'tools/scripts/fixtures/legacy/func_8009B85C.c').read_text()
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?:,\s*"memory")?', '', body)

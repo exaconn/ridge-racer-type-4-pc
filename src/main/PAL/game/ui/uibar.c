@@ -1,4 +1,5 @@
 #include "rr/ui_bar.h"
+#include "rr/ui_panel.h"
 
 typedef struct 
 {
@@ -15,15 +16,15 @@ typedef struct
 } E;
 
 extern int D_800F2ECC;
-extern E *D_800F3AFC;
-/* Caller-facing O32 arguments retain full register words; the existing helpers
- * narrow coordinates and packet fields when writing the GPU representation. */
-extern RrSpritePacket *func_8001FF84(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32);
-extern RrSpritePacket *func_8001FEC0(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32);
-extern void *func_8001FD20(u32*,void*,s32,s32,s32,s32,s32,s32,s32);
 
 void func_8003D228();
 RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 style);
+void func_8003D474(s32 index);
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3AFC (*(E *(*))&D_800F3AFC)
+#define func_8001FF84 (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32))&func_8001FF84)
+#define func_8001FEC0 (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32))&func_8001FEC0)
 
 void func_8003D228(a0, a1, a2, a3, a4, a5, a6)
 int a0;
@@ -122,4 +123,70 @@ RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 
     __asm__("" : "+r"(out_order), "+r"(out_cursor), "+r"(x_stage), "+r"(y_stage) : : "$2");
     width=offset-4;
     return func_8001FD20(out_order,out_cursor,x_stage,y_stage,width,2,255,255,255);
+}
+
+#undef D_800F3AFC
+#undef func_8001FF84
+#undef func_8001FEC0
+
+void func_8003D474(s32 index) {
+    /* ASM_BARRIER: retain the selected index across helper and callback calls. */
+    register s32 which asm("$23")=index;
+    s32 high_raw;
+    s32 offset=which*sizeof(RrBadgeRow1C);
+    RrBadgeRow1C *row=(RrBadgeRow1C *)((unsigned long)offset+(unsigned long)D_800F3AFC);
+    u32 raw;
+    s32 status;
+    /* ASM_BARRIER: retain the byte offset for the two fresh table captures. */
+    __asm__("" : "+r"(offset));
+    raw=row->status00;
+
+    high_raw=(u32)raw<<16;
+
+    status=high_raw>>16;
+    if(status!=-1) {
+        s32 y;
+        s32 x;
+        s32 width;
+        u32 *order;
+        RrPanelContext *context;
+        s32 zero6;
+        s32 zero7;
+        s32 extent;
+        s32 height;
+        s32 callback;
+        void *cursor;
+        s32 white=255;
+        RrGpuScratchPointers *scratch=(RrGpuScratchPointers *)0x1F800000U;
+        zero6=0;
+
+        zero7=zero6;
+        y=row->y06;x=row->x04;width=row->width0C;extent=row->extent0E;
+        
+        context=(RrPanelContext *)D_800ACC14;
+        
+        order=&context->head74;
+        height=extent-22;
+        cursor=func_8001FC28(order,scratch->cursor,zero6,zero7,320,512);
+        cursor=func_8001FCC8(order,cursor,37);
+        callback=high_raw>>24;
+        {
+            void *call_cursor=cursor;
+            
+            if(callback)call_cursor=D_8009F984[callback-1](order,call_cursor,which);
+            cursor=call_cursor;
+        }
+        cursor=func_8003D2C4(order,cursor,x,y,status&255);
+        y=y+22;
+        row=(RrBadgeRow1C *)((unsigned long)offset+(unsigned long)D_800F3AFC);
+        cursor=func_8001FD20(order,cursor,x,row->y0A+height+20,width,2,white,white,white);
+        cursor=func_8001FD20(order,cursor,x,y,width,2,white,white,white);
+        cursor=func_8001FD20(order,cursor,x,y,1,height,white,white,white);
+        cursor=func_8001FD20(order,cursor,x+width-1,y,1,height,white,white,white);
+        white=74;
+        cursor=func_8001FD20(order,cursor,x,y,width,height,white,white,white);
+        cursor=func_8001FCC8(order,cursor,37);
+        row=(RrBadgeRow1C *)((unsigned long)offset+(unsigned long)D_800F3AFC);
+        scratch->cursor=func_8001FC28(order,cursor,row->x14,row->y16,row->w18,row->h1A);
+    }
 }

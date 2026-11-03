@@ -17,8 +17,8 @@ class OverlayDecodeTest(unittest.TestCase):
                            for name in ('80116298', '801162CC', '80116358', '801163F0', '80116534'))
         import re
         bodies = re.sub(r'\s+(?:asm|__asm__)\("\$\d+"\)', '', bodies)
-        resident = (root / 'build/legacy/func_8008B3C4.c').read_text()
-        resident += '\n' + (root / 'build/legacy/func_8008B364.c').read_text()
+        resident = (root / 'tools/scripts/fixtures/legacy/func_8008B3C4.c').read_text()
+        resident += '\n' + (root / 'tools/scripts/fixtures/legacy/func_8008B364.c').read_text()
         resident = resident.replace('#include "rr/library.h"', '')
         source = r'''
 #include <assert.h>

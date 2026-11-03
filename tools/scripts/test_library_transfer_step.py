@@ -55,7 +55,7 @@ void func_8008E7F4(void) { test_unexpected_calls++; }
 void test_callback_first(void) { test_unexpected_calls++; }
 void test_callback_second(void) { test_unexpected_calls++; }
 '''
-        body = (root / 'build/legacy/func_8008EA9C.c').read_text()
+        body = (root / 'tools/scripts/fixtures/legacy/func_8008EA9C.c').read_text()
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'"\$[0-9]+", ', '', body)

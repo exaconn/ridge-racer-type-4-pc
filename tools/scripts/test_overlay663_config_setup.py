@@ -10,7 +10,7 @@ class Overlay663ConfigSetupTest(unittest.TestCase):
     def test_word_mode_and_fresh_second_badge(self):
         root=Path(__file__).resolve().parents[2]
         body=read_c_source(root/'src/overlays/PAL/663/func_80115028.c')
-        clear=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'build/legacy/func_8002A604.c'),flags=re.M)
+        clear=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'tools/scripts/fixtures/legacy/func_8002A604.c'),flags=re.M)
         source=r'''
 #include <assert.h>
 #include <stddef.h>

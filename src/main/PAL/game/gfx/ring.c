@@ -2,18 +2,24 @@
 #include "rr/game_motion.h"
 #include "rr_asm.h"
 
+/* RTPT projects the inner endpoint twice; the last two SXY stores share a slot. */
+#define RING_STORE_SXY_PAIR(outer, inner) \
+    __asm__ volatile( \
+        "swc2 $12,0(%0); swc2 $13,0(%1); swc2 $14,0(%1)" \
+        : : "r"(outer), "r"(inner) : "memory")
+
 void func_8005599C(char *view, char *lighting, RrMatrixWords32 *first, RrMatrixWords32 *second);
 s32 *func_80090F74(s32 *matrix, s32 *scale);
 void func_8006EE3C(s16 *output, s16 *view, s32 *matrix);
 s32 func_800916D4(s32 *point, s32 *screen, s32 *interpolation, s32 *flags);
 s32 func_80090424(s32 angle);
 s32 func_800904F4(s32 angle);
+extern int D_800A1CD0[];
+extern void func_80096434();
 
-/* RTPT projects the inner endpoint twice; the last two SXY stores share a slot. */
-#define RING_STORE_SXY_PAIR(outer, inner) \
-    __asm__ volatile( \
-        "swc2 $12,0(%0); swc2 $13,0(%1); swc2 $14,0(%1)" \
-        : : "r"(outer), "r"(inner) : "memory")
+void func_8005E900(s32 *position, s32 radius);
+void func_8005ECD4(int a0);
+
 static __inline__ s32 project_ring_origin(s32 *position, s32 radius,
     RrRingScratch48 *scratch, RrRingVertex8 *point, s32 *output)
 {
@@ -35,6 +41,7 @@ static __inline__ s32 project_ring_origin(s32 *position, s32 radius,
   RR_GTE_SWC2_SXY2(&scratch->screen[1]);
   return depth;
 }
+
 void func_8005E900(s32 *position, s32 radius)
 {
   s32 scale[3];
@@ -113,3 +120,15 @@ void func_8005E900(s32 *position, s32 radius)
   while (segment < 33);
   *((RrRingPacket24 **) 0x1F800000) = packet;
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACA28 (*(int (*))&D_800ACA28)
+
+void func_8005ECD4(int a0) {
+    int *p = (int *)(D_800ACA28 + 0x134);
+    func_80096434(p, 0x28);
+    p[1] = 0;
+    p[5] = D_800A1CD0[a0];
+}
+
+#undef D_800ACA28

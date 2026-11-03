@@ -41,6 +41,13 @@ reconstruction that obeys everything that is *hard evidence*:
 * hand-written assembly (`configs/PAL/hasm.txt`) is never inside a C TU;
 * every TU compiles as a whole and every function stays at relocated Levenshtein distance 0.
 
+Globals that different original files typed differently (a header's declaration, `char *` in one
+file, a struct pointer in another) are reconciled by `tumerge.py` alias mode: the header's (or the
+richest) declaration is canonical and a part of the unit that needs another view wraps its
+functions in a scoped `#define NAME (*(T *)&NAME)` / `#undef NAME` block labelled
+`legacy typing of shared globals`. Those blocks mark places where the type is still to be unified.
+`tools/scripts/tu_coalesce.py` repeats the greedy merge of adjacent units in one directory.
+
 Between those constraints functions were grouped thematically (shared callees and data,
 TextTiling over the call/data reference profile), then each group was cut at the first point
 where the merged text no longer compiled or matched. Treat the boundaries as editable.

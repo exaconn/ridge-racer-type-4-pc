@@ -1,4 +1,7 @@
-/* RODATA 0x800108e8 0x28 */
+/* RODATA 0x800108e8 0x3c */
+#include "types.h"
+#include "rr/ui.h"
+
 typedef struct {
     short x, y;
     unsigned short page, clut;
@@ -26,6 +29,28 @@ typedef struct {
     int f18;
 } MenuRow1C;
 
+typedef struct {
+    u8 b0;
+    u8 b1;
+    u8 b2;
+    u8 b3;
+    s16 s4;
+    s16 s6;
+    s16 s8;
+    s16 sA;
+    s8 c0C[8];
+    u8 b14;
+    u8 b15;
+    u8 b16;
+    u8 b17;
+    s16 s18;
+    s16 s1A;
+    s16 s1C;
+    s16 s1E;
+    s16 s20;
+    u8 pad22[2];
+} UiElem24;
+
 extern int func_8001FCC8();
 extern void *func_8001FD20();
 extern void *func_80020074();
@@ -38,12 +63,17 @@ extern int D_800ACC14;
 extern MenuRow1C *D_800F4D8C;
 extern int func_80096434();
 extern int func_8001E84C();
-extern int D_800F4BEC;
-extern int D_800F4D80;
 extern char D_800108D8[];
+extern void func_8003F920();
+extern s32 func_80090424();
 
 int func_8003E13C(int arg0);
 int func_8003E8D4(int a);
+void func_8003E928(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g,s32 h,...);
+void func_8003EA04(s32 arg0, s32 arg1, s32 arg2);
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4D80 (*(int (*))&D_800F4D80)
 
 int func_8003E13C(int arg0) {
     SpriteDesc sp30;
@@ -208,3 +238,118 @@ int func_8003E8D4(int a) {
     func_8001E84C(D_800108D8, sz);
     return sz;
 }
+
+#undef D_800F4D80
+
+void func_8003E928(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g,s32 h,...) {
+ register s32 i;
+ u32 offset;
+ register RrUiRow24 *tail;
+ /* ASM_BARRIER: Keep the real PAL pointer page in its shared address register. */
+ register u8 *page __asm__("$9");
+ if(index<D_800F4BEC) {
+  /* Pointer storage is re-read after byte/halfword stores that can alias it. */
+  page=(u8*)0x800F0000U;
+  /* Preserve PAL offset wrapping while widening the signed offset for host pointers. */
+  offset=(u32)index*sizeof(RrUiRow24);
+  ((RrUiRow24 *)((unsigned long)(long)(s32)offset+(unsigned long)*(RrUiRow24 *volatile *)(page+0x4D80)))->byte15=g;
+  ((RrUiRow24 *)((unsigned long)(long)(s32)offset+(unsigned long)*(RrUiRow24 *volatile *)(page+0x4D80)))->byte16=h;
+  ((RrUiRow24 *)((unsigned long)(long)(s32)offset+(unsigned long)*(RrUiRow24 *volatile *)(page+0x4D80)))->byte01=f;
+  ((RrUiRow24 *)((unsigned long)(long)(s32)offset+(unsigned long)*(RrUiRow24 *volatile *)(page+0x4D80)))->byte14=e;
+  {
+   RrUiRow24 *row=(RrUiRow24 *)((unsigned long)(long)(s32)offset+(unsigned long)*(RrUiRow24 *volatile *)(page+0x4D80));
+   row->byte02=count;
+   /* Capture this fresh base before the halfword stores, as in the original. */
+   tail=*(RrUiRow24 *volatile *)(page+0x4D80);
+
+   row->half04=a;row->half06=b;row->half08=c;row->half0A=d;
+  }
+  ((RrUiRow24 *)((unsigned long)(long)(s32)offset+(unsigned long)tail))->byte17=0;
+  i=0;
+  ((RrUiRow24 *)((unsigned long)(long)(s32)offset+(unsigned long)*(RrUiRow24 *volatile *)(page+0x4D80)))->half20=0;
+  if(count>0) {
+   register u8 *loop_page=page;
+   register u32 clear_offset;
+   clear_offset=offset;
+   do {
+    *(u8 *)((unsigned long)(long)(s32)clear_offset+(unsigned long)*(RrUiRow24 *volatile *)(loop_page+0x4D80)+i+RR_FIELD_OFFSET(RrUiRow24,cells))=0;
+    i++;
+   }while(i<count);
+  }
+ }
+}
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4D80 (*(UiElem24 *(*))&D_800F4D80)
+#define func_8001FD20 ((s32 (*)())func_8001FD20)
+#define func_80020074 ((s32 (*)())func_80020074)
+
+void func_8003EA04(s32 arg0, s32 arg1, s32 arg2) {
+    s32 pad[8];
+    s32 s0;
+    s32 s1;
+    s32 s3;
+    s32 s5;
+    /* ASM_BARRIER: Allocate s6 to $s6 so s5 gets $s5 in global-alloc */
+    register s32 s6 asm("s6");
+    s32 a0;
+    s32 v;
+    s32 t;
+    s32 b;
+    s32 d;
+    s32 c;
+    UiElem24 *p;
+
+    if (D_800F4D80[arg0].b2 == 0) {
+        *(s32 *)0x1F800000 = func_8001FD20(D_800ACC14 + 0x70, *(s32 *)0x1F800000, arg1, arg2, 1, D_800F4D80[arg0].sA, 0xFF, 0xFF, 0xFF);
+    } else {
+        s1 = 0;
+        s3 = *(s32 *)0x1F800000;
+        s5 = ((D_800F4D80[arg0].b17 - 0x80) << 4) & 0xFFF;
+        if ((b = D_800F4D80[arg0].b2) != 0) {
+            do {
+                switch (D_800F4D80[arg0].c0C[s1]) {
+                default:
+                case 0:
+                    a0 = 0xC00;
+                    s0 = 0;
+                    break;
+                case 2:
+                    a0 = s5;
+                    s0 = 0;
+                    break;
+                case 1:
+                    a0 = 0xC00;
+                    s0 = 3;
+                    break;
+                case 3:
+                case 4:
+                    a0 = s5;
+                    s0 = 3;
+                    break;
+                }
+                s6 = arg1 + s1 * 10 + 4;
+                c = 0x1E;
+                v = func_80090424(a0);
+                t = s0 + 1;
+                s0 = ((t + v / 0x801) << 3) + 0xD0;
+                s3 = func_80020074(D_800ACC14 + 0x70, s3, s6, arg2 + 8, 8, 0x10, s0, 0x10, c, 0x7F3A, 0, 0x80);
+                s1++;
+            } while (s1 < D_800F4D80[arg0].b2);
+        }
+        D_800F4D80[arg0].b17 += 8;
+        p = D_800F4D80;
+        /* ASM_BARRIER: Prevent sched1/sched2 from hoisting reloads above b17 += 8 store */
+        __asm__ volatile("");
+        d = arg1 - 12;
+        b = p[arg0].b17;
+        /* ASM_BARRIER: Keep unused b17 load live and reload D_800F4D80 without a branch basic-block boundary */
+        __asm__("" : "=m"(D_800F4D80) : "r"(b), "r"(d));
+        *(s32 *)0x1F800000 = s3;
+        func_8003F920(arg1, arg2, s6 - d, D_800F4D80[arg0].sA, 0xCE, 0xCE, 0xCE);
+    }
+}
+
+#undef D_800F4D80
+#undef func_8001FD20
+#undef func_80020074

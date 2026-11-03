@@ -1,11 +1,73 @@
 /* RODATA 0x80011200 0x1c */
-#include "rr/line_emit.h"
 #include "types.h"
+#include "rr/line_emit.h"
+#include "rr/glyph_list.h"
+#include "rr/gpu.h"
+#include "rr/icon_sprites.h"
 
 #define ADDPRIM(ot, p) \
     (p)->addr = ((SPRT *)(ot))->addr; \
     ((SPRT *)(ot))->addr = (u32)(p)
 #define SCRATCH ((Scratch *)0x1F800000)
+/* The two original entries differ only in the sprite's vertical position. */
+#define RR_ICON_SPRITE_BODY(Y) \
+    RrSpritePacket *p; \
+    RrGpuScratchPointers *scratch; \
+    RrIconSpriteContext *context; \
+    u32 low=0xFFFFFFU; \
+    /* ASM_BARRIER: reuse the consumed color argument for the tag length mask. */ \
+    register u32 high __asm__("$5"); \
+    u32 u; \
+    u16 clut; \
+    u32 offset; \
+    /* ASM_BARRIER: retain the sprite length until its first byte store. */ \
+    register s32 length __asm__("$2"); \
+    u32 command; \
+    /* ASM_BARRIER: retain the context-slot page across both packet insertions. */ \
+    register u8 *context_page __asm__("$8"); \
+    /* ASM_BARRIER: finish the low-address mask before forming packet arguments. */ \
+    __asm__("" : "+r"(low), "+r"(index)); \
+    command=0xE1000000U; \
+    /* ASM_BARRIER: stage the command page before the scratch base and length. */ \
+    __asm__("" : "+r"(command) : : "$9", "$2"); \
+    scratch=(RrGpuScratchPointers*)0x1F800000U; \
+    length=4; \
+    /* ASM_BARRIER: prepare the scratch capture and length before indexing. */ \
+    __asm__("" : "+r"(scratch), "+r"(length)); \
+    offset=(u32)index*2U; \
+    u=(offset+(u32)index)*8U+112U; \
+    p=(RrSpritePacket*)scratch->cursor; \
+    /* ASM_BARRIER: finish UV/cursor capture before the context-slot page. */ \
+    __asm__("" : "+r"(u), "+r"(p)); \
+    context_page=(u8*)0x800B0000U; \
+    /* ASM_BARRIER: materialize the context-slot page before packet fields. */ \
+    __asm__("" : "+r"(context_page)); \
+    ((u8*)p)[3]=length; \
+    p->code=0x66; \
+    p->x=148; \
+    p->y=Y; \
+    p->w=24; \
+    p->h=16; \
+    clut=*(u16*)((u8*)D_8001121C+offset); \
+    p->r=color; \
+    p->g=color; \
+    p->b=color; \
+    p->u=u; \
+    p->v=172; \
+    context=*(RrIconSpriteContext**)(context_page-0x33EC); \
+    high=0xFF000000U; \
+    p->clut=clut; \
+    *(u32*)p=(*(u32*)p&high)|(context->head70&low); \
+    context->head70=(context->head70&high)|((u32)(unsigned long)p&low); \
+    p++; \
+    scratch->cursor=(u8*)p; \
+    ((u8*)p)[3]=1; \
+    context=*(RrIconSpriteContext**)(context_page-0x33EC); \
+    command|=0x23EU; \
+    *((u32*)p+1)=command; \
+    *(u32*)p=(*(u32*)p&high)|(context->head70&low); \
+    context->head70=(context->head70&high)|((u32)(unsigned long)p&low); \
+    scratch->cursor=(u8*)p+sizeof(RrGpuSingleCommandPacket);
 
 typedef struct {
     u32 addr: 24;
@@ -54,7 +116,6 @@ typedef struct {
     void *p;
 } Scratch;
 
-extern u8 *D_800ACC14;
 extern void func_80093C24();
 extern s32 D_800A101C;
 extern UvRect D_800A1020[];
@@ -78,9 +139,7 @@ extern int D_800A0C9C[];
 extern int D_800F3970;
 extern int D_800F765C;
 extern int D_800F7660;
-extern char D_800A1158[];
 extern void func_8004F9C8(void);
-extern u8 D_800A1090[];
 extern s16 D_800A1818[];
 extern s16 D_800A1824[];
 extern s16 *D_800A18F0[];
@@ -120,6 +179,16 @@ void func_800590DC(void);
 void func_80059168();
 void func_80059284(short *a0, int a1);
 void func_80059314(s32 arg0, s32 arg1);
+void func_80059700(s16 *stream,s32 color,s32 bank);
+void func_80059904();
+void func_80059B1C(unsigned char *a0x, int a1, int a2, int a3);
+void func_80059C28(s32 index,s32 color);
+void func_80059D34(s32 index,s32 color);
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACC14 (*(u8 *(*))&D_800ACC14)
+#define D_800A1158 (*(char (*)[])&D_800A1158)
+#define D_800A1090 (*(u8 (*)[])&D_800A1090)
 
 void func_800587E4(s32 arg0, u8 *arg1, s32 *arg2) {
     SPRT *sprt;
@@ -469,4 +538,197 @@ void func_80059314(s32 arg0, s32 arg1) {
     for (i = 0; i < 8; i++) {
         func_80059284(D_800A19C0[i], D_800A1158);
     }
+}
+
+#undef D_800ACC14
+#undef D_800A1158
+#undef D_800A1090
+
+void func_80059700(s16 *stream,s32 color,s32 bank)
+{
+    s32 x, y, defaultPage, clut, page, offset, gap;
+    u32 cachedGlyph;
+    
+    s32 basePage;
+    s32 spriteCode;
+    u8 *cursor;
+    RrUiUvRect *uv;
+    x = *stream++;
+    y = *stream++;
+    if (bank == 0) { clut = 0x7F78; defaultPage = 0x3E; } else { clut = 0x7E38; defaultPage = 0x25; }
+    cachedGlyph = *(u16 *)stream;
+    if (*stream >= 0) {
+        basePage = defaultPage & 0xFFFF;
+        do {
+            s32 glyph;
+            cursor = RR_GLYPH_SCRATCH->cursor;
+            page = defaultPage;
+            if (basePage == 0x3E) {
+                if ((s16)cachedGlyph >= 0x400) page = 0x25;
+            }
+            cachedGlyph = *(u16 *)stream;
+            glyph = *stream++;
+            if (glyph >= 0x400) {
+                offset = (s32)((cachedGlyph - 0x400U) << 16) >> 14;
+                uv = (RrUiUvRect*)((u8 *)D_800A1158 + offset);
+            } else {
+                offset = glyph * 4;
+                if (bank == 0) uv = (RrUiUvRect*)((u8 *)D_800A1090 + offset);
+                else uv = (RrUiUvRect*)((u8 *)D_800A1158 + offset);
+            }
+            spriteCode = 0x66;
+            ((RrSpritePacketSignedClut*)cursor)->len = 4;
+            ((RrSpritePacketSignedClut*)cursor)->code = spriteCode;
+            ((RrSpritePacketSignedClut*)cursor)->r = color; ((RrSpritePacketSignedClut*)cursor)->g = color; ((RrSpritePacketSignedClut*)cursor)->b = color;
+            ((RrSpritePacketSignedClut*)cursor)->x = x;
+            ((RrSpritePacketSignedClut*)cursor)->y = y;
+            ((RrSpritePacketSignedClut*)cursor)->w = uv->w;
+            ((RrSpritePacketSignedClut*)cursor)->h = uv->h;
+            ((RrSpritePacketSignedClut*)cursor)->u = uv->u;
+            ((RrSpritePacketSignedClut*)cursor)->v = uv->v;
+            ((RrSpritePacketSignedClut*)cursor)->clut = clut;
+            ((RrSpritePacketSignedClut*)cursor)->addr = (D_800ACC14->head70&0xFFFFFFU);
+            D_800ACC14->head70 = (D_800ACC14->head70 & 0xFF000000) | ((u32)(unsigned long)cursor & 0xFFFFFF);
+            cursor+=20;
+            RR_GLYPH_SCRATCH->cursor=cursor;
+            ((RrGlyphCommand8*)cursor)->len=1;
+            ((RrGlyphCommand8*)cursor)->command=(page&0x9FF)|0xE1000200;
+            ((RrGlyphCommand8*)cursor)->addr=D_800ACC14->head70;
+            D_800ACC14->head70=(D_800ACC14->head70&0xFF000000U)|((u32)(unsigned long)cursor&0xFFFFFFU);
+            RR_GLYPH_SCRATCH->cursor=cursor+8;
+            gap = *stream++;
+            x=(s32)((u32)x+(u32)(uv->w+gap));
+            cachedGlyph = *(u16 *)stream;
+        } while (*stream >= 0);
+    }
+}
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800A1090 (*(char (*)[])&D_800A1090)
+#define D_800A1158 (*(char (*)[])&D_800A1158)
+#define D_800ACC14 (*(char *(*))&D_800ACC14)
+
+void func_80059904(t1, a1, a2)
+s16 *t1;
+s32 a1;
+s32 a2;
+{
+    s32 t5, s4, t6 = 0, t7, t8, t3, v, w;
+    u32 a;
+    
+    s32 m;
+    s32 k;
+    RrSpritePacketSignedClut *p;
+    u8 *t0;
+    t5 = *t1++;
+    s4 = *t1++;
+    if (a2 == 0) { t8 = 0x7F78; t7 = 0x3E; } else { t8 = 0x7E38; t7 = 0x25; }
+    a = *(u16 *)t1;
+    if (*t1 >= 0) {
+        m = t7 & 0xFFFF;
+        do {
+            s32 e;
+            p = *(RrSpritePacketSignedClut **)0x1F800000;
+            t3 = t7;
+            if (m == 0x3E) {
+                if ((s16)a >= 0x400) t3 = 0x25;
+            }
+            a = *(u16 *)t1;
+            e = *t1++;
+            if (e >= 0x400) {
+                v = (s32)((a - 0x400) << 16) >> 14;
+                t0 = (u8 *)D_800A1158 + v;
+            } else {
+                v = e * 4;
+                if (a2 == 0) t0 = (u8 *)D_800A1090 + v;
+                else t0 = (u8 *)D_800A1158 + v;
+            }
+            k = 0x66;
+            p->len = 4;
+            p->code = k;
+            p->r = a1; p->g = a1; p->b = a1;
+            p->x = t5;
+            p->y = s4 + t6;
+            p->w = t0[2];
+            p->h = t0[3];
+            p->u = t0[0];
+            p->v = t0[1];
+            p->clut = t8;
+            t6++;
+            p->addr = ((RrSpritePacketSignedClut *)(D_800ACC14 + 0x70))->addr;
+            *(u32 *)(D_800ACC14 + 0x70) = (*(u32 *)(D_800ACC14 + 0x70) & 0xFF000000) | ((u32)p & 0xFFFFFF);
+            p++;
+            *(RrSpritePacketSignedClut **)0x1F800000 = p;
+            p->len = 1;
+            *((u32 *)p + 1) = (t3 & 0x9FF) | 0xE1000200;
+            p->addr = ((RrSpritePacketSignedClut *)(D_800ACC14 + 0x70))->addr;
+            *(u32 *)(D_800ACC14 + 0x70) = (*(u32 *)(D_800ACC14 + 0x70) & 0xFF000000) | ((u32)p & 0xFFFFFF);
+            *(RrSpritePacketSignedClut **)0x1F800000 = (RrSpritePacketSignedClut *)((u32 *)p + 2);
+            w = *t1++;
+            t5 += t0[2] + w;
+            a = *(u16 *)t1;
+        } while (*t1 >= 0);
+    }
+}
+
+void func_80059B1C(unsigned char *a0x, int a1, int a2, int a3) {
+    register unsigned char *p asm("$10");
+    int *g;
+    unsigned hi;
+    unsigned cmd;
+    register unsigned char *q asm("$2");
+    int t;
+    unsigned t3;
+    register unsigned lo asm("$5");
+    register int v1 asm("$3");
+    register char *d asm("$4");
+    p = *(unsigned char **)0x1F800000;
+    p[3] = 4;
+    p[7] = 0x64;
+    if (a3 < 0xFF) {
+        p[7] = 0x66;
+    } else {
+        p[7] = 0x65;
+    }
+    v1 = a1;
+    lo = 0xFFFFFF;
+    cmd = 0xE100023E;
+    p[4] = a3;
+    p[5] = a3;
+    p[6] = a3;
+    *(short *)(p + 8) = v1;
+    *(short *)(p + 0xA) = a2;
+    *(short *)(p + 0x10) = a0x[2];
+    *(short *)(p + 0x12) = a0x[3];
+    p[0xC] = a0x[0];
+    t = a0x[1];
+    *(short *)(p + 0xE) = 0x7F78;
+    p[0xD] = t;
+    hi = 0xFF000000;
+    g = (int *)0x1F800000;
+    d = D_800ACC14;
+    *(unsigned int *)p = (*(unsigned int *)p & hi) | (*(unsigned int *)(d + 0x70) & lo);
+    *(unsigned int *)(d + 0x70) = (*(unsigned int *)(d + 0x70) & hi) | ((unsigned int)p & lo);
+    p += 0x14;
+    *g = (int)p;
+    p[3] = 1;
+    d = D_800ACC14;
+    t3 = *(unsigned int *)p;
+    *(unsigned int *)(p + 4) = cmd;
+    *(unsigned int *)p = (t3 & hi) | (*(unsigned int *)(d + 0x70) & lo);
+    *(unsigned int *)(d + 0x70) = (*(unsigned int *)(d + 0x70) & hi) | ((unsigned int)p & lo);
+    q = p + 8;
+    *g = (int)q;
+}
+
+#undef D_800A1090
+#undef D_800A1158
+#undef D_800ACC14
+
+void func_80059C28(s32 index,s32 color) {
+    RR_ICON_SPRITE_BODY(120)
+}
+
+void func_80059D34(s32 index,s32 color) {
+    RR_ICON_SPRITE_BODY(128)
 }

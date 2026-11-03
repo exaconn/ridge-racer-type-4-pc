@@ -10,11 +10,11 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class AudioLoopTest(unittest.TestCase):
     def test_actual_loop_and_promoted_volume_wrapper(self):
-        s=(ROOT/'build/legacy/func_800518E0.c').read_text()
+        s=(ROOT/'tools/scripts/fixtures/legacy/func_800518E0.c').read_text()
         s=re.sub(r'^#include.*\n','',s,flags=re.M)
         s=re.sub(r' asm\("\$\d+"\)','',s)
         s=re.sub(r'__asm__\(""[^;]*;',';',s)
-        helper=(ROOT/'build/legacy/func_8004FE7C.c').read_text()
+        helper=(ROOT/'tools/scripts/fixtures/legacy/func_8004FE7C.c').read_text()
         helper=re.sub(r'^#include.*\n','',helper,flags=re.M)
         prefix=r'''
 #include <assert.h>

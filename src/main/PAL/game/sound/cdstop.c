@@ -1,4 +1,6 @@
 /* RODATA 0x80011178 0x14 */
+#include "types.h"
+
 extern struct {
     char pad0[0x2670];
     int f2670;
@@ -16,6 +18,9 @@ extern int func_80052B48();
 extern int func_8008C0D8();
 extern int func_8008C140();
 extern int func_80096434();
+
+void func_80053384();
+int func_800534B4(void);
 
 void func_80053384()
 {
@@ -49,3 +54,13 @@ void func_80053384()
         break;
     }
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4DB8 (*(struct { char pad[0x269C]; s32 a; char pad2[0x50]; s32 b; } (*))&D_800F4DB8)
+
+int func_800534B4(void) {
+    if (D_800F4DB8.a == 1) return D_800F4DB8.b;
+    return -1;
+}
+
+#undef D_800F4DB8

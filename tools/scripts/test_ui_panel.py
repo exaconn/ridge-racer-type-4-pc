@@ -10,7 +10,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class UiPanelTest(unittest.TestCase):
     def test_actual_body_callbacks_and_complete_owners(self):
-        s=(ROOT/'build/legacy/func_8003D474.c').read_text()
+        s=(ROOT/'tools/scripts/fixtures/legacy/func_8003D474.c').read_text()
         s=re.sub(r'^#include.*\n','',s,flags=re.M)
         s=re.sub(r' asm\("\$\d+"\)','',s)
         s=re.sub(r'__asm__\(""[^;]*;',';',s)

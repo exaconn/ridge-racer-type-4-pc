@@ -1,4 +1,4 @@
-/* RODATA 0x80010938 0x228 */
+/* RODATA 0x80010938 0x24c */
 #include "types.h"
 
 typedef struct {
@@ -36,6 +36,24 @@ typedef struct {
     u8 b3;
 } FontGlyph4;
 
+typedef struct { char f0, f1, f2, f3; unsigned short s[6]; unsigned char b0, b1; char pad[2]; } E;
+
+typedef struct { unsigned short s[6]; unsigned char b0, b1, pad[2]; } Q;
+
+typedef struct {
+    signed char f0, f1;
+    unsigned char f2, f3;
+    char pad[16];
+} E_1;
+
+typedef struct {
+    char f0, f1, f2, f3;
+    short x, y;
+    unsigned short u, v, cx, cy;
+    unsigned char b0, b1;
+    char pad[2];
+} E_2;
+
 extern s32 func_8001F5B4();
 extern s32 func_8001FC28();
 extern s32 func_8001FCC8();
@@ -68,10 +86,18 @@ extern int func_80022694();
 extern int func_80096434();
 extern int D_800ACC24;
 extern int D_800F2AB0;
+extern Q D_8009F9FC[];
+extern int func_8003DCEC();
+extern unsigned short func_80095A24();
+extern int func_80020074();
+extern int func_8002039C();
 
 s32 func_8003EC88(s32 arg0);
 int func_8003F920();
 int func_8003FAA0(int a);
+void func_8003FAE4(int i, char a, char b, int j);
+int func_8003FBA8(int a0);
+void func_8003FE78(int a0, int a1, int a2, int a3);
 
 s32 func_8003EC88(s32 arg0) {
     RectS16 sp28;
@@ -374,3 +400,155 @@ int func_8003FAA0(int a) {
     func_80096434(a, sz);
     return sz;
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F2AB0 (*(E *(*))&D_800F2AB0)
+
+void func_8003FAE4(int i, char a, char b, int j) {
+    if (i < D_800ACC24) {
+        Q *q;
+        E *p;
+        D_800F2AB0[i].f1 = a;
+        D_800F2AB0[i].f3 = b;
+        p = (E *)(i * 20 + (int)D_800F2AB0);
+        q = &D_8009F9FC[j];
+        p->s[0] = q->s[0];
+        p->s[1] = q->s[1];
+        p->s[2] = q->s[2];
+        p->s[3] = q->s[3];
+        p->s[4] = q->s[4];
+        p->s[5] = q->s[5];
+        p->b0 = q->b0;
+        D_800F2AB0[i].b1 = q->b1;
+    }
+}
+
+#undef D_800F2AB0
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F2AB0 (*(E_1 *(*))&D_800F2AB0)
+
+int func_8003FBA8(int a0) {
+    int s1;
+    int s2;
+    int state;
+    unsigned short val;
+    int pad[16];
+
+    s2 = 0;
+    state = D_800F2AB0[a0].f1;
+    s1 = D_800F2AB0[a0].f2;
+    switch (state) {
+    case -1:
+        if (func_8003DCEC(D_800F2AB0[a0].f3) == 1) {
+            D_800F2AB0[a0].f1 = 0;
+        }
+        break;
+    case 0:
+        D_800F2AB0[a0].f2 = 0;
+        D_800F2AB0[a0].f1 = 1;
+    case 1:
+        s2 = 1;
+        val = (s1 << 7) / 30;
+        func_8003FE78(a0, 0, val, 0);
+        if (s1 >= 30) {
+            D_800F2AB0[a0].f2 = 0;
+            D_800F2AB0[a0].f1 = 2;
+        } else {
+            D_800F2AB0[a0].f2++;
+        }
+        break;
+    case 2:
+    case 4:
+    default:
+        s2 = 2;
+        func_8003FE78(a0, 0, 0x80, 0);
+        break;
+    case 3:
+        val = func_800904F4((s1 << 10) / 30) / 32;
+        func_8003FE78(a0, 1, val, 0);
+        if (s1 >= 30) {
+            D_800F2AB0[a0].f1 = 5;
+            D_800F2AB0[a0].f2 = 0;
+        } else {
+            D_800F2AB0[a0].f2++;
+        }
+        break;
+    case 5:
+        break;
+    case 6:
+        s2 = 1;
+        val = ((30 - s1) << 7) / 30;
+        func_8003FE78(a0, 0, val, 0);
+        if (s1 >= 30) {
+            D_800F2AB0[a0].f2 = 0;
+            D_800F2AB0[a0].f1 = 7;
+        } else {
+            D_800F2AB0[a0].f2++;
+        }
+        break;
+    case 7:
+        s2 = 1;
+        func_8003FE78(a0, 0, 0, 0);
+        break;
+    }
+    return s2;
+}
+
+#undef D_800F2AB0
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F2AB0 (*(E_2 *(*))&D_800F2AB0)
+
+void func_8003FE78(int a0, int a1, int a2, int a3) {
+    int i, j, k;
+    int tx, ty;
+    int x[4], y[4], u[4], v[4];
+    unsigned short tpage, clut;
+    int s2;
+
+    s2 = *(int *)0x1F800000;
+    for (i = 0; i < 18; i++) {
+        tx = D_800F2AB0[a0].u + (i % 9) * 24;
+        ty = D_800F2AB0[a0].v + (i / 9) * 96;
+        tpage = ((ty & 0x100) >> 4) | 0x80 | ((tx & 0x3FF) >> 6);
+        clut = func_80095A24(D_800F2AB0[a0].cx, D_800F2AB0[a0].cy + i / 2);
+        for (j = 0; j < 4; j++) {
+            if (a1 == 0) {
+                u[0] = (tx % 64) * 2 + (j & 1) * 24;
+                v[0] = (i / 9) * 96;
+                if (j >= 2) {
+                    v[0] += 48;
+                }
+                x[0] = D_800F2AB0[a0].x + (i % 6) * 48 + (j & 1) * 24;
+                y[0] = D_800F2AB0[a0].y + (i / 6) * 96;
+                if (j >= 2) {
+                    y[0] += 48;
+                }
+                s2 = func_80020074(D_800ACC14 + 0xB48, s2, x[0], y[0], 24, 48, u[0], v[0], tpage, clut, a3, a2);
+            } else if (a1 == 1) {
+                for (k = 0; k < 4; k++) {
+                    x[k] = D_800F2AB0[a0].x + (i % 6) * 48 + (k & 1) * 48;
+                    y[k] = D_800F2AB0[a0].y + (i / 6) * 96 + j * 24;
+                    if (k >= 2) {
+                        y[k] += 24;
+                    }
+                    u[k] = (tx % 64) * 2 + (k & 1) * 48;
+                    v[k] = (i / 9) * 96 + j * 24;
+                    if (k >= 2) {
+                        v[k] += 24;
+                    }
+                }
+                y[0] = -(a2 * 12) / 128 + y[0] + 12;
+                y[1] = -(a2 * 12) / 128 + y[1] + 12;
+                y[2] = (a2 * 12) / 128 + y[2] - 12;
+                y[3] = (a2 * 12) / 128 + y[3] - 12;
+                s2 = func_8002039C(D_800ACC14 + 0xB48, s2, &x[0], &y[0], &u[0], &v[0], tpage, clut, 0, a2);
+                s2 = func_8002039C(D_800ACC14 + 0xB48, s2, &x[1], &y[1], &u[1], &v[1], tpage, clut, 0, a2);
+            }
+        }
+    }
+    *(int *)0x1F800000 = s2;
+}
+
+#undef D_800F2AB0

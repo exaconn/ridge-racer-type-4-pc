@@ -1,10 +1,15 @@
 #define NULL 0
 
 typedef signed char s8;
+
 typedef unsigned char u8;
+
 typedef signed short s16;
+
 typedef unsigned short u16;
+
 typedef signed int s32;
+
 typedef unsigned int u32;
 
 typedef struct {
@@ -48,19 +53,40 @@ typedef struct {
     u8 rem[12];
 } Settings;
 
+typedef struct { char pad[0x54]; int f54; char pad2[4]; } T;
+
+typedef struct { short s[8]; short t[2]; short u[2]; } T_1;
+
+typedef struct { short s0, s2, s4, s6, s8, sA, sC, sE, s10, s12, s14, s16; } T_2;
+
+typedef struct { short s0, s2, s4, s6, s8, sA, sC, sE, s10, s12, s14, s16; } T_3;
+
 extern Settings D_800AD528;
 extern Pad D_800F3A38[2];
 extern Port D_8010C1A0[2];
-extern s32 D_800FFC08[2], D_800AD590[2], D_800F4CD8[2];
-extern s16 D_8009FFB8[4], D_8009FFC0[6];
-extern s32 D_8009FFCC[8], D_800A016C[8];
+extern s32 D_800FFC08[2];
+extern s32 D_800AD590[2];
+extern s32 D_800F4CD8[2];
+extern s16 D_8009FFB8[4];
+extern s16 D_8009FFC0[6];
+extern s32 D_8009FFCC[8];
+extern s32 D_800A016C[8];
 extern s32 D_800AC5DC;
 extern s16 D_800F3824;
-
 int abs(int);
 void func_8004B8A8(void);
 void func_8004BC5C(void);
 void func_8004BE4C(s32);
+extern T_1 D_8010C170[];
+extern char D_80011014[];
+extern char D_80011030[];
+extern int func_8001E84C();
+
+void func_8004A6C4(void);
+int func_8004B70C(int i);
+void func_8004B738(unsigned a, unsigned b, short c, short d);
+void func_8004B7E0(int i, int k, int v);
+void func_8004B864(int i);
 
 void func_8004A6C4(void) {
     Port *ports[2];
@@ -345,3 +371,62 @@ void func_8004A6C4(void) {
         func_8004BE4C(i);
     }
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3A38 (*(T (*)[])&D_800F3A38)
+
+int func_8004B70C(int i) {
+    return D_800F3A38[i].f54;
+}
+
+void func_8004B738(unsigned a, unsigned b, short c, short d) {
+    T_1 *t;
+    if (a >= 2) {
+        func_8001E84C(D_80011014, a);
+    }
+    if (b >= 2) {
+        func_8001E84C(D_80011030, b);
+    }
+    t = &D_8010C170[a];
+    t->t[b] = d;
+    t->s[b] = c;
+    t->u[0] = 0;
+    t->u[1] = 0;
+}
+
+void func_8004B7E0(int i, int k, int v) {
+    T_2 *t = &D_8010C170[i];
+    switch (k) {
+    case 0:
+        t->s4 = 0;
+        return;
+    case 1:
+        t->s4 = v + 1;
+        t->s8 = 0;
+        t->sC = 0;
+        t->s14 = 0;
+        return;
+    case 2:
+        t->s6 = v + 1;
+        t->sA = 0;
+        t->sE = 0;
+        t->s14 = 0;
+        return;
+    }
+}
+
+void func_8004B864(int i) {
+    T_3 *t = &D_8010C170[i];
+    t->s10 = 0;
+    t->s0 = 0;
+    t->s12 = 0;
+    t->s2 = 0;
+    t->s4 = 0;
+    t->s6 = 0;
+    t->s8 = 0;
+    t->sA = 0;
+    t->sC = 0;
+    t->sE = 0;
+}
+
+#undef D_800F3A38

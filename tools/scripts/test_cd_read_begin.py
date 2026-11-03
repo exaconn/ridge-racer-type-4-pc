@@ -18,13 +18,13 @@ class CdReadBeginTest(unittest.TestCase):
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '',
                           (ROOT/'include/rr'/name).read_text(), flags=re.M)
 
-        body = (ROOT/'build/legacy/func_8008EB6C.c').read_text()
+        body = (ROOT/'tools/scripts/fixtures/legacy/func_8008EB6C.c').read_text()
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$\d+"\)', '', body)
         body = re.sub(r',?\s*"\$\d+"', '', body)
         # Global PAL aliases address members of the same full native record.
         body = body.replace('extern volatile u32 D_800A67BC;', '')
-        decoder = (ROOT/'build/legacy/func_8008C6A4.c').read_text()
+        decoder = (ROOT/'tools/scripts/fixtures/legacy/func_8008C6A4.c').read_text()
         decoder = re.sub(r'^#include[^\n]*\n', '', decoder, flags=re.M)
         decoder = decoder.replace('func_8008C6A4', 'actual_decode')
         code = r'''

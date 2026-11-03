@@ -1,17 +1,39 @@
-/* RODATA 0x80010884 0x30 */
+/* RODATA 0x80010884 0x54 */
+#define EP ((E_2 *)((a0 * 16) + D_800ACC00))
+
 typedef struct {
     short p0, f2, f4, f6, f8, fA, fC, fE, f10, f12, f14, f16, f18, f1A;
 } E;
+
+typedef struct { short f0, f2, f4, f6, f8, fA, fC, fE; } E_1;
+
+typedef struct {
+    short s0, s2, x, y, w, h, st, cnt;
+} E_2;
 
 extern int func_8003D474(), func_80090424(), func_800904F4();
 extern E *D_800F3AFC;
 extern int D_800F2ECC;
 extern int func_80096434();
 extern int func_8001E84C();
-extern int D_800AC540, D_800ACC00, D_80010874[];
+extern int D_800AC540;
+extern int D_800ACC00;
+extern int D_80010874[];
+extern int func_80022694();
+extern unsigned char D_8009F9C0[];
+extern unsigned char D_8009F9CC[];
+extern int D_800ACC14;
+extern int D_800F4C1C;
+extern int D_800F4D8C;
+extern char D_800108D8[];
+extern char D_8009F9D4[];
 
 void func_8003D6F0();
 int func_8003DC50(int a0);
+void func_8003DC9C(int i, short a, short b, short c, short d, short e, short f);
+int func_8003DCEC(int a0);
+int func_8003DFEC(int a);
+void func_8003E040();
 
 void func_8003D6F0(a0) int a0; {
     int s2;
@@ -120,4 +142,157 @@ int func_8003DC50(int a0) {
     func_80096434(a0, n);
     func_8001E84C(D_80010874, n);
     return n;
+}
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACC00 (*(E_1 *(*))&D_800ACC00)
+
+void func_8003DC9C(int i, short a, short b, short c, short d, short e, short f) {
+    if (i < D_800AC540) {
+        E_1 *p = (E_1 *)((i << 4) + (int)D_800ACC00);
+        p->f0 = f;
+        p->f2 = 0;
+        p->f4 = a;
+        p->f6 = b;
+        p->f8 = c;
+        p->fA = d;
+        p->fC = e;
+    }
+}
+
+#undef D_800ACC00
+
+int func_8003DCEC(int a0) {
+    int lx[4];
+    int ly[4];
+    int lv[4];
+    int r;
+    int hh;
+    int v;
+    int k;
+    int a1, a3;
+    E_2 *e0, *e1, *e2, *e3, *e4, *e5;
+    unsigned char *p;
+    int *q;
+    int *q2;
+    int *xs, *ys;
+    unsigned char *tb;
+
+    v = a0 < D_800AC540;
+    if (v != 0) {
+        r = 0;
+        e0 = EP;
+        a1 = e0->st;
+        a3 = e0->cnt;
+        k = 3;
+        q = &lv[3];
+        do {
+            *q = 0;
+            k--;
+            q--;
+        } while (k >= 0);
+        e1 = EP;
+        lx[0] = e1->x;
+        ly[0] = e1->y;
+        lx[1] = e1->x + e1->w - 1;
+        ly[1] = e1->y;
+        lx[2] = e1->x;
+        ly[2] = e1->y + e1->h - 1;
+        lx[3] = e1->x + e1->w - 1;
+        ly[3] = e1->y + e1->h - 1;
+        switch (a1) {
+        case 0:
+            e2 = EP;
+            e2->st = 1;
+            e2->cnt = 0;
+            break;
+        case 5:
+            r = 1;
+            hh = 0x100;
+            k = 3;
+            q2 = &lv[3];
+            do {
+                *q2 = hh;
+                k--;
+                q2--;
+            } while (k >= 0);
+            break;
+        case 4:
+            lv[2] = 0x100;
+        case 3:
+            lv[1] = 0x100;
+        case 2:
+            lv[0] = 0x100;
+        case 1:
+            lv[a1 - 1] = (a3 << 8) / 6;
+            if (a3 < 6) {
+                e3 = EP;
+                e3->cnt = e3->cnt + 1;
+            } else {
+                e4 = EP;
+                e4->cnt = 0;
+                e4->st = e4->st + 1;
+            }
+            break;
+        case 8:
+            e5 = EP;
+            if (e5->s2 != 0) {
+                e5->st = 1;
+            }
+            break;
+        default:
+            break;
+        }
+        k = 0;
+        xs = lx;
+        ys = ly;
+        tb = D_8009F9CC;
+        p = D_8009F9C0;
+    loop:
+        func_80022694(D_800ACC14 + 0x70, *(int *)((char *)xs + (p[0] << 2)), *(int *)((char *)ys + (p[0] << 2)), *(int *)((char *)xs + (p[1] << 2)), *(int *)((char *)ys + (p[1] << 2)), lv[*(unsigned char *)(k + (int)tb)], 1, 8, 8, 8, -1);
+        p += 2;
+        k++;
+        if (k < 6) goto loop;
+        v = r;
+    }
+    return v;
+}
+
+int func_8003DFEC(int a) {
+    int sz = D_800F4C1C * 28;
+    D_800F4D8C = a;
+    func_80096434(a, sz);
+    func_8001E84C(D_800108D8, sz);
+    return sz;
+}
+
+void func_8003E040(a0, a1, a2, a3)
+int a0;
+int a1;
+int a2;
+int a3;
+{
+  char *s;
+  char *new_var;
+  char *q;
+  if (a0 < D_800F4C1C)
+  {
+    *((char *) (((a0 * 0x1C) + ((int) D_800F4D8C)) + 2)) = a1;
+    *((char *) (((a0 * 0x1C) + ((int) D_800F4D8C)) + 7)) = a2;
+    s = D_8009F9D4 + (a3 * 0x14);
+    new_var = (char *) ((a0 * 0x1C) + ((int) D_800F4D8C));
+    q = new_var;
+    *((short *) (q + 8)) = *((short *) (s + 0));
+    *((short *) (q + 0xA)) = *((short *) (s + 2));
+    *((short *) (q + 0xC)) = *((short *) (s + 4));
+    *((short *) (q + 0xE)) = *((short *) (s + 6));
+    q[1] = s[0xE];
+    *((char *) (((a0 * 0x1C) + ((int) D_800F4D8C)) + 5)) = s[0xF];
+    *((char *) (((a0 * 0x1C) + ((int) D_800F4D8C)) + 6)) = s[0x10];
+    q = (char *) ((a0 * 0x1C) + ((int) D_800F4D8C));
+    *((short *) (q + 0x10)) = *((short *) (s + 8));
+    *((short *) (q + 0x12)) = *((short *) (s + 0xA));
+    q[0x14] = s[0xC];
+    *((char *) (((a0 * 0x1C) + ((int) D_800F4D8C)) + 0x15)) = s[0xD];
+  }
 }

@@ -2,12 +2,16 @@
 #include "rr/sprite_effect.h"
 #include "rr/textured_triangle.h"
 #include "m2c_macros.h"
+#include "rr/sprite_emit.h"
 
 struct P { int tag; unsigned char r, g, b, code; short x, y, w, h; };
 
+struct P *func_80020588(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
+
+struct P *func_8002064C(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
+
 extern void func_80095B94(void *),func_80095AF4(void *,s32),func_80095A44(u32 *,u32 *);
 extern s32 func_80096464(void);
-extern u8 *func_8001FCC8(u32 *,u8 *,u16);
 /* extern */
 void func_80095AF4(void *, s32);
 /* extern */
@@ -15,12 +19,17 @@ void func_80095B24(void *, M2C_UNK);
 /* extern */
 void func_80095B74(void *);
 extern int func_80095BD4();
+void func_80095B54(void *);
 
 u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg);
 struct S32 *func_8002039C(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9);
 void *func_80020508(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
 struct P *func_80020588(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
 struct P *func_8002064C(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
+RrPolyF3Packet *func_8002071C(u32 *ordering,RrPolyF3Packet *packet,s32 xy0,s32 xy1,s32 xy2,const u8 *rgb,s32 flags);
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_8001FCC8 (*(u8 *(*)(u32 *,u8 *,u16))&func_8001FCC8)
 
 u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg) {
     /* ASM_BARRIER: retain the loop bound in callee-saved S5 across helpers. */
@@ -174,3 +183,23 @@ struct P *func_8002064C(int a0, struct P *a1, short a2, short a3, int a4, int a5
     func_80095A44(a0, a1++);
     return a1;
 }
+
+#undef func_8001FCC8
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_80095A44 ((void (*)(u32 *,u32 *))func_80095A44)
+
+RrPolyF3Packet *func_8002071C(u32 *ordering,RrPolyF3Packet *packet,s32 xy0,s32 xy1,s32 xy2,const u8 *rgb,s32 flags){
+ func_80095B54(packet);
+ func_80095AF4(packet,flags);
+ packet->xy0=xy0;
+ packet->xy1=xy1;
+ packet->xy2=xy2;
+ packet->r=rgb[0];
+ packet->g=rgb[1];
+ packet->b=rgb[2];
+ func_80095A44(ordering,(u32*)packet++);
+ return packet;
+}
+
+#undef func_80095A44

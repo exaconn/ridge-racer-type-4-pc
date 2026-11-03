@@ -15,10 +15,14 @@ extern int D_800ACC24;
 extern char *D_800F2AB0;
 extern int D_800F2ECC;
 extern char *D_800F3AFC;
+extern int func_80096434();
+extern int func_8001E84C();
+extern int D_80010874[];
 
 void func_8003CF34(int a0);
 void func_8003D01C();
 int func_8003D108();
+int func_8003D1D4(int a0);
 
 void func_8003CF34(int a0)
 {
@@ -128,3 +132,16 @@ int func_8003D108(a0) int a0;
     }
     return r;
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3AFC (*(int (*))&D_800F3AFC)
+
+int func_8003D1D4(int a0) {
+    int n = D_800F2ECC * 28;
+    D_800F3AFC = a0;
+    func_80096434(a0, n);
+    func_8001E84C(D_80010874, n);
+    return n;
+}
+
+#undef D_800F3AFC

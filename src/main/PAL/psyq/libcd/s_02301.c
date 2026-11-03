@@ -1,15 +1,68 @@
+/* RODATA 0x80011a88 0x14 */
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "m2c_macros.h"
 
+#define COPY8(dst_arr, src_arr) \
+    { \
+        u8 *d = (dst_arr); \
+        u8 *s = (src_arr); \
+        s32 n; \
+        if (d != 0) { \
+            for (n = 7; n != -1; n--) { \
+                *d++ = *s++; \
+            } \
+        } \
+    }
+
 extern int func_8008DCB4();
 extern int func_8008B3C4();
 extern int func_8008DA4C();
+extern s32 func_8001E84C();
+extern s32 func_800963DC(const char *);
+extern const char D_80011A40[];
+extern const char D_80011A4C[];
+extern const char D_80011A68[];
+extern const char D_80011A7C[];
+extern s32 D_800A6490;
+extern s32 D_800A6494;
+extern s32 D_800A6498;
+extern s32 D_800A649C;
+extern u8 D_800A64A5;
+extern char *D_800A64AC[];
+extern s32 D_800A654C[];
+extern s32 D_800A664C[];
+extern volatile u8 *D_800A674C;
+extern volatile u8 *D_800A6750;
+extern volatile u8 *D_800A6754;
+extern volatile u8 *D_800A6758;
+extern volatile u8 D_800A6764[];
+extern u8 D_80110318[];
+extern u8 D_80110320[];
+extern u8 D_80110328[];
+extern s32 func_8008B154(s32);
+extern s32 func_8008B4B8(void);
+extern void func_8008D65C(void);
+extern const char D_80011A14[];
+extern const char D_80011A24[];
+extern const char D_80011A9C[];
+extern void (*D_800A6488)(u8, u8 *);
+extern void (*D_800A648C)(u8, u8 *);
+extern char *D_800A652C[];
+extern s32 D_80110330;
+extern s32 D_80110334;
+extern const char *D_80110338[];
+extern const char D_80011AA4[];
 
 s32 func_8008C53C(void);
 void func_8008C55C(a0);
 void func_8008C580();
+unsigned char *func_8008C5A0();
+s32 func_8008C6A4(void *arg0);
+s32 func_8008C724(void);
+s32 func_8008CC80(s32 mode, u8 *result);
+s32 func_8008CF00(s32 mode, u8 *result);
 
 s32 func_8008C53C(void) {
     return func_8008DCB4() == 0;
@@ -18,3 +71,299 @@ s32 func_8008C53C(void) {
 void func_8008C55C(a0) { func_8008B3C4(3, a0); }
 
 void func_8008C580() { func_8008DA4C(); }
+
+unsigned char *func_8008C5A0(i, p)
+int i;
+unsigned char *p;
+{
+  int a;
+  int b;
+  int c;
+  int new_var;
+  i += 150;
+  a = i / 75;
+  b = i % 75;
+  new_var = a / 60;
+  c = a % 60;
+  p[2] = ((b / 10) * 16) + (b % 10);
+  p[1] = ((c / 10) * 16) + (c % 10);
+  p[0] = ((new_var / 10) * 16) + (new_var % 10);
+  return p;
+}
+
+s32 func_8008C6A4(void *arg0) {
+    u8 temp_a1;
+    u8 temp_a2;
+    u8 temp_v1;
+
+    temp_v1 = M2C_FIELD(arg0, u8 *, 0);
+    temp_a2 = M2C_FIELD(arg0, u8 *, 1);
+    temp_a1 = M2C_FIELD(arg0, u8 *, 2);
+    return (((((((temp_v1 >> 4) * 0xA) + (temp_v1 & 0xF)) * 0x3C) + (((temp_a2 >> 4) * 0xA) + (temp_a2 & 0xF))) * 0x4B) + (((temp_a1 >> 4) * 0xA) + (temp_a1 & 0xF))) - 0x96;
+}
+
+s32 func_8008C724(void) {
+    volatile u8 intr;
+    u8 res[8];
+    s32 i;
+    s32 j;
+    s32 err;
+
+    *D_800A674C = 1;
+    err = 0;
+    if ((intr = *D_800A6758 & 7) == 0) {
+        return 0;
+    }
+    while (intr != (*D_800A6758 & 7)) {
+        intr = *D_800A6758 & 7;
+    }
+    for (i = 0; i < 8; i++) {
+        if ((*D_800A674C & 0x20) == 0) {
+            break;
+        }
+        res[i] = *D_800A6750;
+    }
+    for (j = i; j < 8; j++) {
+        res[j] = 0;
+    }
+    *D_800A674C = 1;
+    *D_800A6758 = 7;
+    *D_800A6754 = 7;
+    {
+        s32 t = intr;
+        if (t != 3 || D_800A664C[D_800A64A5] != 0) {
+            if ((D_800A6494 & 0x10) == 0 && (res[0] & 0x10) != 0) {
+                D_800A649C++;
+            }
+            D_800A6494 = *(volatile u8 *)res;
+            err = D_800A6494 & 0x1D;
+            D_800A6498 = res[1];
+        }
+    }
+    {
+        s32 t = intr;
+        if (t == 5) {
+            if (D_800A6490 > 0) {
+                func_8001E84C(D_80011A40);
+            }
+            if (D_800A6490 > 0) {
+                func_8001E84C(D_80011A4C, D_800A64AC[D_800A64A5], D_800A6494, D_800A6498);
+            }
+        }
+    }
+    switch (intr) {
+    case 3:
+        if (err) {
+            D_800A6764[0] = 5;
+            COPY8(D_80110318, res);
+            return 2;
+        }
+        if (D_800A654C[D_800A64A5]) {
+            D_800A6764[0] = 3;
+            COPY8(D_80110318, res);
+            return 1;
+        }
+        D_800A6764[0] = 2;
+        COPY8(D_80110318, res);
+        return 2;
+    case 2:
+        D_800A6764[0] = err ? 5 : 2;
+        COPY8(D_80110318, res);
+        return 2;
+    case 1:
+        if (err && i == 1) {
+            err = 0;
+        }
+        {
+            u8 v = err ? 5 : 1;
+            volatile u8 *p = D_800A6764;
+            p[1] = v;
+        }
+        COPY8(D_80110320, res);
+        *D_800A674C = 0;
+        *D_800A6758 = 0;
+        return 4;
+    case 4:
+        {
+            volatile u8 *p = D_800A6764;
+            p[1] = p[2] = 4;
+        }
+        COPY8(D_80110328, res);
+        COPY8(D_80110320, res);
+        return 4;
+    case 5:
+        D_800A6764[0] = D_800A6764[1] = 5;
+        COPY8(D_80110318, res);
+        COPY8(D_80110320, res);
+        return 6;
+    default:
+        func_800963DC(D_80011A68);
+        func_8001E84C(D_80011A7C, intr);
+        return 0;
+    }
+}
+
+static inline int check_alarm(char **ac, char **sc, volatile u8 *st) {
+    if (func_8008B154(-1) > D_80110330 || D_80110334++ > 0x3C0000) {
+        func_800963DC(D_80011A14);
+        {
+            u8 s0_ = st[0];
+            u8 s1_ = st[1];
+            char *x5 = sc[s1_];
+            func_8001E84C(
+                D_80011A24,
+                D_80110338[0],
+                ac[D_800A64A5],
+                sc[s0_],
+                x5
+            );
+        }
+        func_8008D65C();
+        return -1;
+    }
+    return 0;
+}
+
+static inline void cd_poll_cb(volatile u8 *st, volatile u8 *st1) {
+    u8 saved = *D_800A674C & 3;
+    s32 res;
+    while ((res = func_8008C724()) != 0) {
+        if ((res & 4) && D_800A648C != 0) {
+            D_800A648C(*st1, D_80110320);
+        }
+        if ((res & 2) && D_800A6488 != 0) {
+            D_800A6488(*st, D_80110318);
+        }
+    }
+    *D_800A674C = saved;
+}
+
+s32 func_8008CC80(s32 mode, u8 *result) {
+    s32 ret;
+    u8 *src;
+    u8 *dst;
+    s32 i;
+    char **ac;
+    char **sc;
+    volatile u8 *st;
+    volatile u8 *st1;
+
+    s32 t = func_8008B154(-1);
+    D_80110330 = t + 0x3C0;
+    D_80110334 = 0;
+    D_80110338[0] = D_80011A9C;
+    ac = D_800A64AC;
+    sc = D_800A652C;
+    st = D_800A6764;
+    st1 = st + 1;
+    do {
+        if (check_alarm(ac, sc, st) != 0) {
+            return -1;
+        }
+        if (func_8008B4B8() != 0) {
+            cd_poll_cb(st, st1);
+        }
+        ret = *st;
+        if (ret == 2 || ret == 5) {
+            *st = 2;
+            dst = result;
+            src = D_80110318;
+            if (dst != 0) {
+                for (i = 7; i != -1; i--) {
+                    *dst++ = *src++;
+                }
+            }
+            return ret;
+        }
+    } while (mode == 0);
+    return 0;
+}
+
+static inline int check_alarm_1(char **ac, char **sc, volatile u8 *st) {
+    if (func_8008B154(-1) > D_80110330 || D_80110334++ > 0x3C0000) {
+        func_800963DC(D_80011A14);
+        {
+            u8 s0_ = st[0];
+            u8 s1_ = st[1];
+            char *x5 = sc[s1_];
+            func_8001E84C(
+                D_80011A24,
+                D_80110338[0],
+                ac[D_800A64A5],
+                sc[s0_],
+                x5
+            );
+        }
+        func_8008D65C();
+        return -1;
+    }
+    return 0;
+}
+
+static inline void cd_poll_cb_1(volatile u8 *st, volatile u8 *st1) {
+    u8 saved = *D_800A674C & 3;
+    s32 res;
+    while ((res = func_8008C724()) != 0) {
+        if ((res & 4) && D_800A648C != 0) {
+            D_800A648C(*st1, D_80110320);
+        }
+        if ((res & 2) && D_800A6488 != 0) {
+            D_800A6488(*st, D_80110318);
+        }
+    }
+    *D_800A674C = saved;
+}
+
+s32 func_8008CF00(s32 mode, u8 *result) {
+    s32 ret;
+    u8 *src;
+    u8 *dst;
+    s32 i;
+    char **ac;
+    char **sc;
+    volatile u8 *st;
+    volatile u8 *st1;
+    volatile u8 *st2;
+
+    D_80110330 = func_8008B154(-1) + 0x3C0;
+    D_80110334 = 0;
+    D_80110338[0] = D_80011AA4;
+    ac = D_800A64AC;
+    sc = D_800A652C;
+    st = D_800A6764;
+    st1 = st + 1;
+    st2 = st + 2;
+    do {
+        if (check_alarm_1(ac, sc, st) != 0) {
+            return -1;
+        }
+        if (func_8008B4B8() != 0) {
+            cd_poll_cb_1(st, st1);
+        }
+        ret = *st2;
+        if (ret != 0) {
+            st[2] = 0;
+            src = D_80110328;
+            if (result != 0) {
+                dst = result;
+                for (i = 7; i != -1; i--) {
+                    *dst++ = *src++;
+                }
+            }
+            return ret;
+        }
+        ret = st2[-1];
+        if (ret != 0) {
+            st[1] = 0;
+            dst = result;
+            src = D_80110320;
+            if (dst != 0) {
+                for (i = 7; i != -1; i--) {
+                    *dst++ = *src++;
+                }
+            }
+            return ret;
+        }
+    } while (mode == 0);
+    return 0;
+}

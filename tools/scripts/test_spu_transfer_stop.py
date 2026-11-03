@@ -47,7 +47,7 @@ void test_callback(void) {
 }
 s32 func_80096E64(u32 first,s32 second) {record(5,first,(u32)second);return -1;}
 '''
-        delay = (root / 'build/legacy/func_8007F59C.c').read_text()
+        delay = (root / 'tools/scripts/fixtures/legacy/func_8007F59C.c').read_text()
         delay = delay.replace('#include "types.h"', '').replace('func_8007F59C', 'test_actual_delay')
         delay = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', delay)
         source += delay + '''
@@ -64,7 +64,7 @@ void test_initialize(u32 initial,u32 active,u32 callback,u32 busy) {
  test_busy=busy;memset(test_log,0xA5,sizeof(test_log));
 }
 '''
-        body = (root / 'build/legacy/func_8007EF04.c').read_text()
+        body = (root / 'tools/scripts/fixtures/legacy/func_8007EF04.c').read_text()
         body = body.replace('#include "rr/spu.h"', '')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?:,\s*"memory")?', '', body)

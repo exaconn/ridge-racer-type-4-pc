@@ -1,9 +1,19 @@
 /* GCC_VERSION: 2.7.2 */
+#include "rr/serial.h"
+
 struct R { short a; short b; unsigned short c; short d; short e; unsigned short f; };
+
 struct Q { int a, b; };
+
 extern struct Q *D_800ABCC8;
-extern struct R *D_800ABCCC;
-extern int func_8009A814();
+
+int func_80098A00();
+void func_80098A90(void);
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABCCC (*(struct R *(*))&D_800ABCCC)
+#define func_8009A814 ((int (*)())func_8009A814)
+
 int func_80098A00() {
     D_800ABCC8->a = -0x81;
     if (D_800ABCCC->c & 0x80) {
@@ -13,4 +23,16 @@ int func_80098A00() {
     }
     D_800ABCCC->f |= 0x10;
     return 1;
+}
+
+#undef D_800ABCCC
+#undef func_8009A814
+
+void func_80098A90(void) {
+    RrSerialPortRegisters *port = D_800ABCCC;
+
+    /* ASM_BARRIER: keep the pointer's load delay before the polling loop label. */
+    __asm__ volatile("nop");
+    do {
+    } while (!(port->status & 2));
 }

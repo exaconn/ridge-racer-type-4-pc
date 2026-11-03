@@ -9,9 +9,9 @@ import unittest
 class OverlayShutdownTest(unittest.TestCase):
     def test_shutdown_order_callbacks_ports_and_state(self):
         root = Path(__file__).resolve().parents[2]
-        paths = ['build/legacy/func_8008B3C4.c',
+        paths = ['tools/scripts/fixtures/legacy/func_8008B3C4.c',
                  'src/overlays/PAL/668/func_80116534.c',
-                 'build/legacy/func_8008F564.c',
+                 'tools/scripts/fixtures/legacy/func_8008F564.c',
                  'src/overlays/PAL/668/func_80114DF4.c']
         bodies = '\n'.join(re.sub(r'^extern[^\n]*;\n', '', (root / p).read_text(), flags=re.M)
                            for p in paths)

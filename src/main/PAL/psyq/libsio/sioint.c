@@ -1,11 +1,15 @@
 /* RODATA 0x80012108 0x4c */
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
+#include "types.h"
 #include "rr/serial.h"
 #include "rr/interrupts.h"
+#include "m2c_macros.h"
 
 /* ASM_BARRIER: retain a constant data base in a register so its fields use base offsets. */
 #define KEEP_BASE(p) __asm__ volatile("" : "=r"(p) : "0"(p))
+
+typedef struct { short p0, p2, p4, p6, w8; unsigned short wA; short pC; unsigned short wE; } W5A;
 
 extern s32 func_800929D4(s32);
 extern s32 func_80096F04(void);
@@ -15,10 +19,23 @@ extern volatile s32 D_801146D0;
 extern s16 D_800ABD34[];
 extern volatile s32 *D_800ABD1C;
 extern s32 func_80096E64(u32, s32);
+extern void func_80097704(), func_80097714();
+extern char D_800ABD20[];
+extern u16 D_801146CA;
+extern int func_8009A94C();
+extern int func_8009A9A4();
+extern int func_8009ABF8();
+extern int func_8009AC50();
 
 s32 func_8009AEAC(u32 arg0, u32 arg1, u32 arg2);
 s32 func_8009B380(void);
 s32 func_8009B3FC(void);
+int func_8009B758(void);
+s32 func_8009B84C(void);
+s32 func_8009B854(void);
+s32 func_8009B85C(void);
+int func_8009B8EC();
+s32 func_8009B9D4(void);
 
 s32 func_8009AEAC(u32 arg0, u32 arg1, u32 arg2) {
     s32 ret = 0;
@@ -310,3 +327,141 @@ s32 func_8009B3FC(void) {
     D_800ABD18->control |= 0x10;
     return 0;
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_801146C0 (*(W5A (*))&D_801146C0)
+#define D_800ABD18 (*(W5A *(*))&D_800ABD18)
+#define D_800ABD30 (*(volatile int *(*))&D_800ABD30)
+#define D_801146E8 (*(int (*)[3])&D_801146E8)
+#define D_801146D8 (*(int (*)[3])&D_801146D8)
+
+int func_8009B758(void) {
+    W5A *a = &D_801146C0;
+    volatile W5A *b = D_800ABD18;
+    char *s;
+    int r;
+    int t;
+    volatile int *d;
+    volatile int *e;
+    a->wA = 5;
+    a->w8 = 0xCE;
+    a->wE = 0xD8;
+    b->wA = 0x50;
+    b->w8 = a->w8;
+    b->wE = a->wE;
+    b->wA |= 0x10;
+    ((W5A *)b)->wA = a->wA;
+    s = D_800ABD20;
+    func_80097714(3, s);
+    func_80097704(3, s);
+    D_800ABD30[1] |= 0x100;
+    e = D_801146E8;
+    d = D_801146D8;
+    e[0] = 0;
+    d[0] = e[0];
+    e[1] = 0;
+    d[1] = e[1];
+    e[2] = 0;
+    t = e[2];
+    D_801146D0 = 0;
+    /* ASM_BARRIER: return constant 0 through a register (original li v0,0 after the last store) */
+    __asm__ volatile("" : "=r"(r) : "0"(0));
+    d[2] = t;
+    return r;
+}
+
+s32 func_8009B84C(void) {
+    return 0;
+}
+
+s32 func_8009B854(void) {
+    return 0;
+}
+
+#undef D_801146C0
+#undef D_800ABD18
+#undef D_800ABD30
+#undef D_801146E8
+#undef D_801146D8
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABD20 (*(u8 (*)[])&D_800ABD20)
+#define func_80097714 ((s32 (*)(s32,void *))func_80097714)
+
+s32 func_8009B85C(void) {
+    RrInterruptRegisters *interrupts=D_800ABD30;
+    RrSerialPortRegisters *port;
+    volatile u16 *control;
+    interrupts->mask &= ~0x100U;
+    port=D_800ABD18;
+    port->control |= 0x50;
+    control=&D_801146CA;
+    /* The final control write occupies the original call's delay slot. */
+    *(u16 *)&port->control=*control;
+    func_80097714(3,D_800ABD20);
+    {
+        /* Share the request bases across the store/reload pairs. */
+        register volatile RrSerialRequest *send=&D_801146E8;
+        register RrSerialReceiveRequest *receive;
+        /* ASM_BARRIER: Reload request words through the original value register. */
+        register s32 active __asm__("$3");
+        /* ASM_BARRIER: Keep zero in the shared return register after the sender base expires. */
+        register s32 result __asm__("$2");
+        /* ASM_BARRIER: Retain the request base across both store/reload pairs. */
+        __asm__("" : "=r"(send) : "0"(send));
+        send->active=0;
+        active=send->active;
+        /* ASM_BARRIER: Finish the active reload before materializing the receiver base. */
+        __asm__ volatile("" : : "r"(active) : "$4", "memory");
+        receive=&D_801146D8;
+        /* ASM_BARRIER: Materialize the receive prefix before publishing its reloaded fields. */
+        __asm__("" : "=r"(receive) : "0"(receive));
+        receive->request.active=active;
+        send->second=0;
+        active=send->second;
+        result=0;
+        receive->request.second=active;
+        /* ASM_BARRIER: Keep the zero result before the shared return instruction. */
+        __asm__ volatile("" : : "r"(result));
+        return result;
+    }
+}
+
+int func_8009B8EC(a0, a1)
+    int *a0;
+    int a1;
+{
+    int v;
+    a0[6] = 0;
+    if (a1 == 1) {
+        if (a0[0] & 0x8000) {
+            if (func_8009A94C(a0[2], a0[3]) != 0) {
+                a0[6] = 0x10;
+                return -1;
+            }
+            return 0;
+        }
+        v = func_8009A9A4(a0[2], a0[3]);
+        if (v < 0) a0[6] = 5;
+        return v;
+    }
+    if (a1 == 2) {
+        if (a0[0] & 0x8000) {
+            if (func_8009ABF8(a0[2], a0[3]) == 0) return 0;
+            a0[6] = 0x10;
+            return -1;
+        }
+        v = func_8009AC50(a0[2], a0[3]);
+        if (v < 0) a0[6] = 5;
+        return v;
+    }
+    a0[6] = 0x16;
+    return -1;
+}
+
+s32 func_8009B9D4(void) {
+    return 0;
+}
+
+#undef D_800ABD20
+#undef func_80097714

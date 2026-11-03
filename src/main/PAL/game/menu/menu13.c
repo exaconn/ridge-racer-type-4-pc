@@ -1,6 +1,7 @@
 /* RODATA 0x800105b0 0x18 */
 #include "types.h"
 #include "m2c_macros.h"
+#include "rr/menu_selection.h"
 
 typedef struct {
     unsigned short *p;
@@ -24,9 +25,12 @@ extern unsigned short *D_800F2ED0[];
 extern int D_800F3A60;
 extern char *D_800F3AFC;
 extern char *D_800FF68C;
+extern int func_80020074();
 
 void func_80032A14(int a0, int a1, S *s);
 void func_80032DF0(void *arg0);
+s32 func_80032E9C(s32 a0);
+void func_80032EC8();
 
 void func_80032A14(int a0, int a1, S *s) {
     unsigned short *p;
@@ -170,4 +174,16 @@ void func_80032DF0(void *arg0) {
             }
         }
     }
+}
+
+s32 func_80032E9C(s32 a0) {
+    D_800AD522 = a0 >= 8;
+    return D_8009F64C[a0 & 7];
+}
+
+void func_80032EC8(a0, a1, a2, a3, a4) int a0, a1, a2, a3, a4;
+{
+    int m = (a4 << 5) % 256;
+    unsigned short s = (a4 << 6) + 0x3828;
+    func_80020074(a0, a1, a2, a3, 0x20, 0x40, m, 0xC0, 0x9A, s, 0, 0x80);
 }

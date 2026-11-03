@@ -1,6 +1,9 @@
 #include "types.h"
 #include "m2c_macros.h"
 
+#define W(p,o) (*(int *)((char *)(p) + (o)))
+#define Q(p,o) ((char *)*(volatile int *)((char *)(p) + (o)))
+
 typedef struct {
     s32 v[4];
 } Vec4;
@@ -78,7 +81,6 @@ extern void func_8002E828(s32, s32);
 extern void func_8005AA2C(void);
 extern void func_8005ABAC(s32);
 extern void func_8005AC0C(s16 *);
-extern void func_8005B8D8(s32);
 extern void func_8005B9F4(s16 *);
 extern void func_8005C024(void);
 extern void func_8005D500(s32);
@@ -92,11 +94,15 @@ extern void func_8006EF8C(s32);
 extern void func_800912B4(s32, s32);
 extern void func_800912D4(s32);
 extern void func_80093BFC(void *, s32);
+extern int func_80096434();
+extern char D_800A1AA0[];
+extern char D_800A1B60[];
 
 void func_8005B2D4(s32 arg0);
 void func_8005B2E4(s32 arg0);
 void func_8005B2F4(s32 arg0);
 void func_8005B304(void);
+void func_8005B8D8(int a0);
 
 void func_8005B2D4(s32 arg0) {
     M2C_FIELD(D_800ACA28, s32 *, 0x54) = arg0;
@@ -235,3 +241,42 @@ void func_8005B304(void) {
         g->p04 = (s32)&D_800ACC14->ot_b70;
     }
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800AC650 (*(char (*)[])&D_800AC650)
+
+void func_8005B8D8(int a0) {
+    char *s1 = D_800AC650;
+    char *a;
+    register char *t asm("$2");
+    int v;
+    char *t0;
+    func_80096434(Q(s1, 0x3D8) + 0x74, 0x70);
+    if (a0 < 4) {
+        W(Q(s1, 0x3D8), 0x78) = 0;
+        W(Q(s1, 0x3D8), 0x80) = (int)(D_800A1AA0 + a0 * 0x30);
+    } else {
+        a0 -= 4;
+        W(Q(s1, 0x3D8), 0x78) = 1;
+        W(Q(s1, 0x3D8), 0x80) = (int)(D_800A1B60 + (a0 << 5));
+    }
+    a = D_800AC650;
+    t0 = Q(a, 0x3D8);
+    W(t0, 0xE0) = 0x2D0;
+    t = Q(a, 0x3D8);
+    v = W(W(t, 0x80), 0);
+    W(t, 0xB4) = v;
+    W(t, 0x84) = v;
+    t = Q(a, 0x3D8);
+    v = W(W(t, 0x80), 4);
+    W(t, 0xB8) = v;
+    W(t, 0x88) = v;
+    t = Q(a, 0x3D8);
+    v = W(W(t, 0x80), 8);
+    W(t, 0xBC) = v;
+    W(t, 0x8C) = v;
+    t0 = Q(a, 0x3D8);
+    W(t0, 0x7C) = 1;
+}
+
+#undef D_800AC650

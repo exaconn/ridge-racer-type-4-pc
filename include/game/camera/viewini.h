@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+void func_8006E794(void);
 void func_8006E834(void);
 void func_8006E8F8();
 int func_8006E9D4();

@@ -2,7 +2,6 @@
 #define RR_PSYQ_LIBCARD_CARDC04_H
 
 #include "types.h"
-#include "rr/lookup.h"
 
 extern unsigned char D_80114726;
 extern unsigned char D_80114727;

@@ -9,5 +9,6 @@ extern int D_801102F4;
 extern int D_801102F8;
 extern int D_80110300;
 extern int D_80110308;
+void func_8008F934(void);
 
 #endif /* RR_PSYQ_LIBCD_DSSTRM32_H */

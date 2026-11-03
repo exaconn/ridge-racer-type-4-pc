@@ -3,6 +3,7 @@
 #include "rr/channels.h"
 #include "rr/channel_advance.h"
 #include "rr/bios_devices.h"
+#include "psyq/libpad/padchk.h"
 extern u8 D_80114448[],D_80114490[];
 extern s32 D_800ABCB4;
 extern u32 (*D_800ABC70)(const RrChannelTransferView *);
@@ -10,7 +11,6 @@ extern RrChannelUpdateCallback D_800ABC74;
 extern s32 (*D_800ABC78)(void *);
 extern void (*D_800ABC8C)(RrChannelTransferView *);
 void func_80099E34(void *);
-void func_8009A05C(void *);
 s32 func_8009A2D8(void *);
 void *func_8009A310(s32);
 void func_8009A334(void),func_80097E0C(void);

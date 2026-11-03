@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+void func_8003989C(void);
+void func_80039920(void);
 void func_80039988(void);
 
 #endif /* RR_GAME_MENU_MENUWORK_H */

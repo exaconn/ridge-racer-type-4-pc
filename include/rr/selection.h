@@ -4,6 +4,7 @@
 #include "rr/layout.h"
 
 #include "rr/selection_types.h"
+#include "game/menu/menuwork.h"
 
 typedef struct {
     u8 pad00[0x1E];
@@ -25,7 +26,6 @@ extern s8 D_800AD4D8[];
 extern u8 D_800AD4EC;
 extern u8 D_8009F81C[];
 extern s8 D_8009F82C[];
-void func_8003989C(void);
 /* Positive phases update rank/parameter and publish both history and rows.
  * History receives the old parameter; the displayed rows receive the new one.
  * Signed choices and group indices must select readable table addresses. */

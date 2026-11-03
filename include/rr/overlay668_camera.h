@@ -4,6 +4,7 @@
 #include "rr/track_lateral.h"
 #include "rr/race_types.h"
 #include "rr/overlay665_matrix.h"
+#include "psyq/libgte/gtecord.h"
 typedef struct {
  u8 pad00[0xB0];s32 flagB0;u8 padB4[0x390];s32 counter444,step448,state44C;
  s32 position450[3],reserved45C;s16 pitch460,yaw462,roll464,reserved466;
@@ -16,7 +17,6 @@ extern RrReplayCameraContextPrefix D_800AC650;
 extern RrTrackSample3C *D_800ABEA4;
 extern s32 D_800ABECC;
 s32 func_8006E368(s32,s32);
-s32 func_80090758(s32);
 /* Node and its single-wrapped neighbours select accessible track samples.
  * Position and interpolation results use wrapping32 arithmetic. Fraction is
  *0..1023; sample count is at least4. Services may replace the sample table and

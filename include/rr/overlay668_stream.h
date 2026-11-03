@@ -2,6 +2,7 @@
 #define RR_OVERLAY668_STREAM_H
 #include "rr/overlay668_display.h"
 #include "rr/overlay668_control.h"
+#include "psyq/libcd/dsstrm32.h"
 /* The shared live allocation, including the display configuration at0x24. */
 typedef struct {
     s32 width00,height04;
@@ -20,7 +21,6 @@ s32 func_8008B154(s32);
 s32 ovl668_func_801150D8(RrStrDisplayConfig *);
 void ovl668_func_801153F0(u8 *location);
 void ovl668_func_80114B2C(u8 *resource);
-void func_8008F934(void);
 void func_80092FFC(const RrGpuRectangleFields *rectangle,const void *pixels);
 void ovl668_func_80114F48(void);
 /* Both selectors are0..1. The full playback state remains live across callbacks.

@@ -6,14 +6,12 @@ void func_80013890(s32);
 void func_80014A8C(s32);
 void func_800209C4(s32);
 void func_80021084(s32);
-void func_80037B3C(s32);
 void func_80045830(void);
 void func_8004A678(void);
 void func_8004BB00(s32);
 void func_8004F7E0(void);
 void func_80059168(void);
 void func_8006E1AC(void);
-void func_8006E794(void);
 void func_80070440(void);
 void func_80077D90(s32);
 void func_80092D50(s32);
@@ -46,13 +44,14 @@ extern s32 D_8010C12C;
 extern s16 D_8010C134;
 extern s32 D_8010C13C;
 #include "rr/race_setup_types.h"
+#include "game/camera/viewini.h"
+#include "game/race/raceinit.h"
 extern RrRaceSetupPair4 D_800F4C70,D_800F2AB4;
 extern RrRaceVehicle D_800ABEF8[2];
 extern s32 D_8010C0F8[3],D_8010C120[3],D_8010C140[3];
 extern s32 D_800F3838[48],D_800ACC28[16],D_800F3B00[8];
 extern u8 D_8009F900[16];
 extern s32 D_800F4BA8[10];
-
 
 /* The vector owner is flat48 words, logically [2][8][3]. The scalar and
  * participant tables are complete16-element owners, logically [2][8].

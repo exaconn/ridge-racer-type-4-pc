@@ -6,6 +6,7 @@
 
 /* Byte-aligned records deliberately use the original unaligned word transfers. */
 #include "rr/menu_state_types.h"
+#include "game/menu/menuwork.h"
 
 extern s32 D_8009FDA4, D_800F3A60;
 extern void *D_800ACC18, *D_800F4D40;
@@ -17,7 +18,6 @@ extern RrMenuChoice4 D_800F4D98;
 extern u8 D_800F4D99; /* Alias of D_800F4D98.bytes[1]. */
 extern u8 *D_800FF68C;
 void func_8004F24C(s32 mode);
-void func_80039920(void);
 void func_8003A198(void);
 void func_8002AF8C(s32 first, s32 second, s32 third);
 

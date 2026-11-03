@@ -86,6 +86,15 @@ extern s32 D_80107190;
 extern s16 D_8010C134;
 
 #include "rr/race_frame_scratch.h"
+#include "game/data/ldscn5.h"
+#include "game/gfx/sprpkt.h"
+#include "game/menu/menusave.h"
+#include "game/menu/mntext.h"
+#include "game/race/raceai2.h"
+#include "game/race/racecar.h"
+#include "game/race/raceset.h"
+#include "game/sound/sndctrl.h"
+#include "game/ui/hudctrl.h"
 typedef RrRaceFrameScratch RrOvl659Scratch;
 #ifndef RR_659_SCRATCH
 #define RR_659_SCRATCH ((RrOvl659Scratch *)0x1F800000U)
@@ -129,7 +138,6 @@ void func_800219BC(s32, s32);
 void func_80021A7C(s32, s32);
 void func_80021C00(s32);
 void func_80021C94(s32, s32);
-void func_80021E2C(s32);
 void func_80022098(void *, s32);
 void func_800225DC(s32);
 void func_80022CD4(RrRaceVehicle *);
@@ -149,13 +157,11 @@ void func_8002E0D8(s32);
 void func_8002E394(RrRaceVehicle *);
 void func_8002E4F4(RrRaceVehicle *);
 void func_8002E5A0(RrRaceVehicle *);
-void func_8002F958(void);
 s32 func_80032E9C(s32 selection);
 void *func_80032EC8(u32 *, void *, s32, s32, s32);
 void func_80032F44(s32, s32);
 void func_80033368(s32, s32);
 void func_80033474(RrRaceVehicle *, s32);
-void func_80033808(RrRaceVehicle *);
 void func_80033A74(s32);
 void func_80033BE4(struct w3g2p *);
 void func_80033F3C(void *, u32);
@@ -163,7 +169,6 @@ void func_80034630(s32);
 void func_80034844(s32);
 void func_800348E8(s32);
 void func_800349F4(void *, s32);
-void func_80036030(void);
 void func_80036068(void);
 void func_8003660C(void);
 void func_8003662C(s32);
@@ -180,12 +185,8 @@ s32 func_8003AE4C(s32, s32);
 s32 func_8003B12C(void);
 s32 func_8003B47C(void);
 s32 func_8003BAB0(void);
-s32 func_8003BEA8(s32);
 /* Original callers use both the legacy no-argument entry and an explicit pause flag. */
-void func_8003BFC8();
 void func_8003C254(RrRaceVehicle *);
-void func_8003C96C(void);
-void func_8003CAB4(void);
 void func_8003D228(s32 index, s32 first, s16 x, s32 y, u16 width, u16 mode, u16 flags);
 void func_8003D6F0(s32);
 void func_8003DC9C(s32 index, s16 a, s16 b, s16 c, s16 d, s16 e, s16 f);
@@ -195,7 +196,6 @@ void func_8003E928(s32 index, s32 a, s32 b, s32 c, s32 d, s32 e, s32 f, s32 coun
                    ...);
 void func_8003EC88(s32);
 s32 func_8003FBA8(s32);
-s32 func_800402F4(RrMenuTextRow60 *rows);
 void func_80040338(s32 row, s32 position, s32 group, s32 mode, s32 label);
 void func_80040858(s32);
 void func_800411D4(void);
@@ -203,8 +203,6 @@ void func_80041320(s32 row, s32 first, s32 second);
 void func_80045868(RrRaceVehicle *);
 void func_8004F24C(s32);
 void *func_8004F2D8(s32, s32);
-void func_8004FA04(void);
-void func_8004FA50(void);
 void func_8004FC18(s16, s16);
 void func_8004FED4(void);
 void func_8005007C(s32, s32, s32);

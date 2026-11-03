@@ -9,5 +9,7 @@ extern s16 D_8010C104;
 extern s32 D_8010C108;
 extern s32 D_8010C10C;
 extern s32 D_8010C114;
+void func_8003C96C(void);
+void func_8003CAB4(void);
 
 #endif /* RR_GAME_RACE_RACESET_H */

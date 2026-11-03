@@ -1,5 +1,7 @@
 /* RODATA 0x80011088 0x14 */
 #include "rr/track_resources.h"
+#include "game/data/cdfile2.h"
+#include "game/data/trkld1.h"
 
 typedef struct { unsigned char a, b, c, d; } T;
 
@@ -11,10 +13,7 @@ extern short D_800F3914;
 extern u8 *D_8010C1F0;
 extern int func_8001223C();
 extern int func_8001292C();
-extern int func_80012A58();
 extern int func_8004D4BC();
-extern int func_8004D628();
-extern int func_8004D994();
 extern T D_800F4D98[];
 
 int func_8004E260();

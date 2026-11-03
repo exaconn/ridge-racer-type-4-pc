@@ -1,7 +1,7 @@
 /* RODATA 0x8001085c 0x18 */
+#include "game/data/cdfile2.h"
 extern int func_8001223C();
 extern int func_8001292C();
-extern int func_80012A58();
 extern void func_800436E8();
 extern void func_80012A68();
 extern char D_8009F8FC;

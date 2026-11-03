@@ -1,6 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/library.h"
-extern void func_800867A4(void), func_80087044(void);
+#include "psyq/libsnd/vmtick.h"
 void func_80080B24(s32 raw_bank, s32 raw_row) {
     s16 bank = raw_bank;
     s16 row = raw_row;

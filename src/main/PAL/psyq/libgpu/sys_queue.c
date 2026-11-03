@@ -1,5 +1,6 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
+#include "psyq/libgpu/sys_drain.h"
 struct GpuSys {
     unsigned char pad0;
     unsigned char enabled;
@@ -19,7 +20,6 @@ typedef int (*GpuOpFunc)();
 
 extern void func_80095360(void);
 extern int func_80095394(void);
-extern int func_80094E74(void);
 extern int func_8008B4E0(int);
 extern int func_8008B3C4(int, int (*)());
 extern struct GpuSys D_800ABAC0;

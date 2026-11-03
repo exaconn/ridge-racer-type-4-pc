@@ -2,6 +2,7 @@
 /* GCC_VERSION: 2.7.2 */
 /* CC1_FLAGS: -fsigned-char -mhard-float */
 #include "rr/library.h"
+#include "psyq/libcd/dsread.h"
 
 typedef struct {
     unsigned char pos[4];
@@ -43,7 +44,6 @@ extern const char D_80011C28[];
 extern const char D_80011C4C[];
 extern const char D_80011C6C[];
 extern const char D_80011C80[];
-extern int func_8008E780(int, int, void *);
 extern void func_80096444(char *, void *, int);
 extern char D_8011095C[];
 extern s32 func_80096404(const char *, const char *);

@@ -2,13 +2,12 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/commands.h"
+#include "psyq/libcard/cardc07.h"
 
 extern s32 func_8009DF14(s32, s32);
 extern unsigned char D_80114725;
 extern unsigned char D_80114726;
 extern unsigned char D_80114727;
-extern s32 func_8009CA8C(void);
-extern s32 func_8009CB50(s32);
 
 s32 func_8009C638(s32 request, u8 *buffer);
 int func_8009C6D8();

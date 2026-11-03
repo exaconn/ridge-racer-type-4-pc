@@ -1,6 +1,8 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
+#include "psyq/libsnd/vmtick2.h"
+#include "psyq/libspu/sminit.h"
 
 typedef struct {
     short left;
@@ -69,8 +71,6 @@ typedef struct {
 } Unk80110008;
 
 extern void func_80084674(SpuVoiceAttr *);
-extern void func_80087064(void);
-extern void func_80087D44(s32, void *);
 extern void func_80087DA4(s32);
 extern void func_80088DA4(s32);
 

@@ -2,6 +2,9 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "rr/menu_selection.h"
+#include "game/gfx/fontdraw.h"
+#include "game/menu/menu8.h"
+#include "game/menu/menuslot.h"
 
 typedef struct {
     unsigned short *p;
@@ -15,10 +18,6 @@ typedef struct {
     int arr[0xC8];
 } S;
 
-extern int func_8001FA48();
-extern int func_80031DA0();
-extern int func_80031DA8();
-extern int func_80032964();
 extern int func_8004F24C();
 extern unsigned char *D_800ACC20;
 extern unsigned short *D_800F2ED0[];

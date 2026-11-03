@@ -1,8 +1,7 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/commands.h"
-
-extern s32 func_8009DE30(void);
+#include "psyq/libcard/cardc192.h"
 
 s32 func_8009D978(void);
 s32 func_8009DB18(s32 input);

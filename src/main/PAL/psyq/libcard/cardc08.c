@@ -1,7 +1,7 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/commands.h"
+#include "psyq/libcard/cardc09.h"
 
-extern s32 func_8009CC44(void);
 extern s32 func_8009CCF0(s32);
 
 s32 func_8009CB84(s32 request, s32 parameter, u8 *buffer, u8 *first) {

@@ -1,6 +1,7 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "rr/audio_pan.h"
+#include "psyq/libsnd/utrev3.h"
 
 extern int func_8008A674();
 extern short func_8008AA74();
@@ -9,9 +10,7 @@ extern int func_800963C4();
 extern int func_8001E84C();
 extern char D_800110D8[];
 extern char D_800110F0[];
-extern int func_800867A4();
 extern int func_800865E4();
-extern int func_800867C4();
 extern int func_80086554();
 extern s32 D_800F7650;
 

@@ -2,6 +2,8 @@
 #include "types.h"
 #include "rr/track_sample_types.h"
 #include "m2c_macros.h"
+#include "game/car/carmove1.h"
+#include "game/menu/menu8.h"
 
 typedef struct { char x[0x320]; } S;
 
@@ -126,7 +128,6 @@ extern unsigned char D_8009F7D8[];
 extern unsigned char D_8009F7DC[];
 extern struct { char pad[0x1D2]; short h1D2; char pad2[0x1F]; unsigned char b1F3; } *D_800F39C8[];
 extern unsigned char D_800F4D98[][4];
-extern int func_80031DEC();
 extern S *D_800FFC20[];
 extern S D_800ABEF8[];
 extern S D_80106B58[];
@@ -142,7 +143,6 @@ extern int func_800244B0();
 extern int func_80022888();
 extern int func_80026F5C();
 extern int func_80027C54();
-extern int func_80028B30();
 extern short D_800F4D44;
 extern short D_800AD522;
 extern struct {

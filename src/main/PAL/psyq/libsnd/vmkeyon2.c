@@ -1,6 +1,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
+#include "psyq/libsnd/vmnote2.h"
 
 typedef struct {
     s8 f00, f01, f02, f03, f04;
@@ -56,7 +57,6 @@ extern SvmCur D_80110100;
 extern s32 func_8008A564(s16, s16);
 extern void func_80086E74(void);
 extern void func_80088794(u8);
-extern u16 func_80088608(s32, s32);
 extern void func_80088E74(u8, u16);
 
 s16 func_800857A4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, u16 arg4_in, u16 arg5_in, s16 arg6, s16 arg7) {

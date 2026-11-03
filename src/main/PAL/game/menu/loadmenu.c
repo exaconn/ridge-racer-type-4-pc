@@ -2,16 +2,15 @@
 #include "types.h"
 #include "rr/mode_menu_state.h"
 #include "m2c_macros.h"
+#include "game/data/cardini.h"
+#include "game/menu/menustep.h"
 
-extern int func_80078178();
-extern int func_80078490();
 extern int func_80078544();
 extern int func_800797E0();
 extern short D_800A41EC;
 extern short D_800A41EE;
 extern int D_800ACC0C;
 extern int func_8003D6F0();
-extern int func_8007B460();
 
 int func_8007A9CC();
 void func_8007AB8C(int arg0);

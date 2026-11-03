@@ -1,5 +1,7 @@
 #include "rr/track_projection.h"
 #include "rr/race.h"
+#include "game/car/carspec3.h"
+#include "game/race/racedist.h"
 
 typedef struct { char p0[0x54]; unsigned short s54, s56; char p1[4]; short s5C; unsigned short s5E; short s60; } W;
 typedef struct { char p0[0x1E4]; short s1E4; } V;
@@ -8,8 +10,6 @@ extern char D_80107198[];
 extern int D_800F4DEC;
 extern int D_800FF6B0;
 extern struct { char pad[0x34]; int s34; } D_800F4DB8;
-extern int func_80049C68();
-extern int func_80049A60();
 
 extern int func_80046DB8();
 extern int func_80047A50();

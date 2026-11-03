@@ -2,6 +2,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channels.h"
 #include "rr/spu.h"
+#include "psyq/libsnd/vmnote2.h"
 
 typedef struct {
     s8 f00, f01, f02, f03, f04;
@@ -30,7 +31,6 @@ extern u16 D_80110000;
 extern u16 D_80110002;
 extern s16 D_801100E8;
 extern SvmCur D_80110100;
-extern short func_80088608();
 extern char D_8010F916[];
 extern char D_8010F918[];
 extern char D_8010F91C[];

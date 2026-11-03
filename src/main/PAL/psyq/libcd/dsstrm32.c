@@ -1,9 +1,9 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
 #include "rr_asm.h"
+#include "psyq/libcd/dsmedia2.h"
 
 extern s32 func_8008C0F8(s32, u8 *);
-extern void func_8008F5E4(void);
 extern void func_8008F814(s32, s32);
 extern void func_80090250(void *, s32, s32, s32);
 extern void func_8009027C(s32, void *, s32, s32, s32, s32, s32);

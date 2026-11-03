@@ -5,12 +5,12 @@
 /* Read the two-sector R4 directory, then convert relative boundaries to entries.
  * The disc supplies count + 1 valid offsets; sector arithmetic must fit s32. */
 #include "rr/cd.h"
+#include "psyq/libcd/dsfinish.h"
 
 typedef struct {RrCdLocation location; s32 size; u8 name[16];} SearchResult;
 
 extern s32 func_8008DE84(SearchResult *, const char *);
 extern s32 func_8008EEF4(s32, void *, s32);
-extern s32 func_8008F090(s32, void *);
 extern s32 func_8008C6A4(const RrCdLocation *);
 extern void func_800963C4(s32);
 extern void func_8001E84C(const char *, ...);

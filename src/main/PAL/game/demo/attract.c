@@ -1,5 +1,8 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/gfx/fadesel.h"
+#include "game/math/shuffle.h"
+#include "game/sound/sndctrl.h"
 
 extern int D_8010E240[];
 extern char D_800ACB0C[];
@@ -21,18 +24,15 @@ extern int D_800F765C;
 extern int D_800F2EC8;
 extern char D_800AC650[];
 extern short D_800AD50A;
-extern int func_8005D868();
 extern int func_80096434();
 extern int func_80096464();
 extern int func_80059314();
 extern int func_8005C8D8();
 extern int func_8005C13C();
-extern int func_8005C988();
 extern int func_80055300();
 extern int func_8004C138();
 extern int func_80055330();
 extern int func_8005534C();
-extern int func_8004F9C8();
 extern int func_80077D90();
 extern int func_8003A198();
 extern int func_80092CB8();

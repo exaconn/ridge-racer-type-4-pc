@@ -2,6 +2,9 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "rr/frame_loop.h"
+#include "game/data/cdfile2.h"
+#include "game/system/frmenv.h"
+#include "game/system/pad.h"
 
 extern s16 D_800AC5D0;
 extern s32 D_8010BF84;
@@ -10,7 +13,6 @@ extern int D_800ACC18;
 extern int D_800F3A60;
 extern int func_8001223C();
 extern int func_8001292C();
-extern int func_80012A58();
 extern int func_80052800();
 extern int func_800528A8();
 extern int func_80052A30();
@@ -22,13 +24,10 @@ extern int func_8001B754();
 extern int func_8001BAF8();
 extern int func_8001E1F0();
 extern int func_8002A344();
-extern void func_8007D710(void),func_8008B364(void),func_80096E54(s32),func_8001E988(void);
-extern s32 func_8008BDE4(s32),func_800128B8(void);
 extern void func_80092CB8(s32),func_8004FD80(void),func_80092D50(s32);
 extern u32 *func_8009323C(u32 *,s32);
 extern s32 func_8008B154(s32);
 extern void *func_80093580(void *), *func_800933B4(void *);
-extern void func_80093344(void *),func_8004A6C4(void);
 
 void func_8001E344(void);
 void func_8001E378(void);

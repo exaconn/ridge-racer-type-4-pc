@@ -1,8 +1,8 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "psyq/libpad/padctl.h"
 
 extern int func_80096434();
-extern int func_80097854();
 extern int func_80099CD4();
 extern int D_800F3A38[];
 extern char D_8010C170[];

@@ -2,6 +2,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "m2c_macros.h"
+#include "psyq/libapi/pad1.h"
 
 extern int func_80095DD4();
 extern int func_80095E9C();
@@ -10,7 +11,6 @@ extern int func_80095FA0();
 extern int func_80096F04();
 extern int func_80096F14();
 extern int func_80096F84();
-extern int func_800973D0();
 int func_80095DE4();
 int func_80095DF4();
 /* extern */

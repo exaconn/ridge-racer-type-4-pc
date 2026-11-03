@@ -1,8 +1,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/spu.h"
 #include "rr/channel_pitch.h"
-
-extern u16 func_80088608(s32 first, s32 second);
+#include "psyq/libsnd/vmnote2.h"
 
 u32 func_80084C74(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 u32 func_80084D44(s32 first,s32 second,u32 pitch);

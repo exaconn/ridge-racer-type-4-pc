@@ -1,5 +1,7 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
+#include "psyq/libpad/padpoll.h"
+#include "psyq/libpad/padwait.h"
 struct HW { unsigned char b0; char p1[3]; volatile unsigned short s4; short p6; volatile short s8; volatile unsigned short sA; char pC[2]; volatile short sE; };
 
 struct A { char p0[0xC]; char *f0C; char p1[0x27]; unsigned char b37; char p2[0x18]; unsigned char b50; char p3[0x97]; unsigned char bE8; };
@@ -14,8 +16,6 @@ extern int D_800ABCA8;
 extern struct W D_800ABCC0[];
 extern void (*D_800ABC88)();
 extern void (*D_800ABC8C)();
-extern int func_8009A814(), func_80098A00();
-extern void func_8009A7F4(), func_80098A90();
 
 void func_80098110();
 int func_80098154();

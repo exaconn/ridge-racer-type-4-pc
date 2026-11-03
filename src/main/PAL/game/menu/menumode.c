@@ -1,9 +1,11 @@
+#include "game/data/cardchk.h"
+#include "game/menu/loadmenu.h"
+#include "game/menu/savemenu.h"
 struct E { char pad[4]; unsigned char a; char b; unsigned char c; signed char d; };
 
 extern int func_8002B330();
 extern int func_8002B75C();
 extern int func_8004F24C();
-extern int func_80078E40();
 extern short D_800FFC18;
 extern short D_800FFC00;
 extern short D_800AC594;
@@ -26,8 +28,6 @@ extern unsigned short D_80109458;
 extern short D_80109478[];
 extern short D_8010948E;
 extern int func_80078414();
-extern int func_8007A310();
-extern int func_8007A9CC();
 extern unsigned char D_800A44D8[][4];
 extern unsigned char D_800ACBCC[];
 extern short D_80109490;

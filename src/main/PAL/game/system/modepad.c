@@ -1,11 +1,12 @@
 /* RODATA 0x800104f4 0x1c */
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/race/racegrid.h"
+#include "game/race/ranking.h"
 
 typedef struct { char pad0[0xC]; char b0C; char pad1[7]; unsigned char b14; char pad2[0xB]; short s20; char pad3[2]; } W7C0_E;
 
 extern int func_8005CA88();
-extern int func_80034E3C();
 extern int func_8003EC88();
 extern int D_800F3A38[];
 extern short D_800F4CD0;
@@ -23,9 +24,7 @@ extern short D_800F4D44;
 extern short D_800FFC10;
 extern void func_8002B330();
 extern void func_8004F24C();
-extern void func_80034E14();
 extern unsigned func_8009AEAC();
-extern void func_8001F290();
 
 void func_8002F0E0(void);
 void func_8002F100();

@@ -1,10 +1,10 @@
 /* RODATA 0x8001083c 0x1c */
+#include "game/data/cdfile2.h"
+#include "game/data/trkld6.h"
 extern int func_8001223C();
 extern int func_8001292C();
-extern int func_80012A58();
 extern void func_800436E8();
 extern void func_8004E008();
-extern int func_8004E990();
 extern int func_80096464();
 extern void func_8005C13C();
 extern char D_8009F8FC;

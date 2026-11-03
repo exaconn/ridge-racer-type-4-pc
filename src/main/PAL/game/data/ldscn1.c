@@ -1,14 +1,18 @@
 /* RODATA 0x800107c4 0x74 */
+#include "game/data/bankrec.h"
+#include "game/data/cdfile2.h"
+#include "game/data/trkld1.h"
+#include "game/data/trkld6.h"
+#include "game/menu/mntrow.h"
+#include "game/sound/sndcmd.h"
 typedef struct { char p[7]; char b; } Z;
 
 extern int func_8004E008();
-extern int func_8004E5E8();
 extern char D_8009F8FC;
 extern short D_800AC650[];
 extern unsigned char D_800F4D7C;
 extern int func_8001223C();
 extern int func_8001292C();
-extern int func_80012A58();
 extern int D_800102F0;
 extern int D_800ACC18;
 extern int D_800F4D40;
@@ -16,14 +20,10 @@ extern int D_800F4D70;
 extern short D_800F4D2C;
 extern short D_800F4D44;
 extern int func_8003A1B4();
-extern int func_8004E184();
-extern int func_8004F600();
 extern int D_800F4D74;
 extern int func_800131D0();
-extern int func_80013200();
 extern short D_800F3914;
 extern int func_80013514();
-extern int func_800135BC();
 extern int func_8001E854();
 extern struct { short a; short b; } D_800ACBD0[];
 extern char *D_800F3B24;
@@ -31,19 +31,14 @@ extern char D_800F3B28[];
 extern unsigned char D_800F4D98[][4];
 extern int func_800436E8();
 extern char D_800FFC48[];
-extern int func_800137B0();
-extern int func_800137D4();
-extern int func_8004E70C();
 extern int func_8005AF5C();
 extern int func_8005B2D4();
 extern int D_800ACC1C;
 extern int D_800AC5A0;
 extern int func_800129BC();
-extern int func_8004139C();
 extern int D_800F4C1C;
 extern int func_80053BB4();
 extern int func_80032914();
-extern int func_80029358();
 extern int func_80043608();
 extern struct { char pad[4]; signed char f4; char pad2[0x1B]; int f20; } *D_800FF68C;
 extern int D_800F4CA8;

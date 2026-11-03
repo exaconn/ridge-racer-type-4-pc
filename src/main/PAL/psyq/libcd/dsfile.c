@@ -1,6 +1,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* GCC_VERSION: 2.7.2 */
 /* CC1_FLAGS: -fsigned-char */
+#include "psyq/libcd/dsread.h"
 
 typedef struct {
     int x;
@@ -36,7 +37,6 @@ extern char D_80011CE6;
 extern const char D_80011CE8[];
 extern const char D_80011D04[];
 
-extern int func_8008E780(int, int, void *);
 extern int func_8001E84C();
 extern void func_8008C5A0(int, void *);
 extern void func_80096444(char *, void *, int);

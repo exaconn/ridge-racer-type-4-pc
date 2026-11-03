@@ -1,4 +1,7 @@
 /* RODATA 0x80010420 0x20 */
+#include "game/gfx/scene1.h"
+#include "game/sound/sndcmd.h"
+#include "game/ui/hudmap2.h"
 typedef struct { int w[200]; } B800;
 
 typedef struct {
@@ -89,8 +92,6 @@ extern int D_800F2EB8;
 extern int D_800F3A30;
 extern int D_800F3A60;
 extern int func_8004FC18();
-extern int func_8004F720();
-extern int func_800590DC();
 extern int func_800207D4();
 extern int func_800293D0();
 extern int func_80077D90();
@@ -112,8 +113,6 @@ extern int func_8004BB54();
 extern int func_8004EE60();
 extern int func_8005007C();
 extern int func_80052A30();
-extern int func_800555E0();
-extern int func_800556B4();
 extern int func_8006E1AC();
 extern void func_8006ECE8(s32);
 extern int func_8006EF8C();

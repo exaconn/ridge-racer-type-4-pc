@@ -1,6 +1,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channels.h"
 #include "rr_asm.h"
+#include "psyq/libpad/padpoll.h"
 
 typedef struct {
     char pad0[0x3C];
@@ -25,7 +26,6 @@ typedef struct {
 } Q;
 
 extern void func_8009A7F4(s32);
-extern s32 func_80098A00(void);
 extern int func_8009A814();
 extern Q *D_800ABCC8;
 extern H *D_800ABCCC;

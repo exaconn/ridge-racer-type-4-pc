@@ -1,5 +1,6 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/system/frmtask.h"
 
 #define P8(base, off) (*(unsigned char *)((char *)(base) + (off)))
 #define IDX30(base, i) (*(unsigned char *)((char *)(base) + (i) * 0x24 + 0x30))
@@ -14,7 +15,6 @@ typedef struct { char pad[2]; short s2; char pad2[0xC]; short s10; } W7C0_F;
 
 extern unsigned char D_8009F7E4[];
 extern int func_8002B330();
-extern int func_8001E378();
 extern int func_8002A344();
 extern s32 D_800F2DE4;
 extern s16 D_800F3A26;

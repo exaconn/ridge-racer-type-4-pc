@@ -1,0 +1,8 @@
+#ifndef RR_PSYQ_LIBAPI_PAD1_H
+#define RR_PSYQ_LIBAPI_PAD1_H
+
+#include "types.h"
+
+s32 func_800973D0(void);
+
+#endif /* RR_PSYQ_LIBAPI_PAD1_H */

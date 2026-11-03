@@ -1,4 +1,5 @@
 #include "rr/race.h"
+#include "game/ui/window1.h"
 
 struct T { int pad[2]; int a; int b; int pad2[11]; };
 
@@ -21,7 +22,6 @@ extern int func_8001FF84();
 extern int func_8001FCC8();
 extern int func_8001FD20();
 extern int func_8002B814();
-extern int func_80020F20();
 extern char *func_8002BDB4();
 extern int func_80032EC8();
 extern int func_800587E4();

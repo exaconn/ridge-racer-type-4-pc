@@ -2,15 +2,15 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/channels.h"
+#include "psyq/libpad/padenab.h"
+#include "psyq/libpad/padopen.h"
+#include "psyq/libpad/padpatch.h"
 
 struct E { unsigned char n; char pad[3]; unsigned char *p; };
 
 struct S { char pad[8]; struct E *e; char pad2[0xde]; unsigned char c; };
 
-extern int func_80098030();
-extern int func_80098110();
 extern int D_800ABCB4;
-extern int func_80099380();
 extern int func_80098AC4();
 
 void func_80097834();

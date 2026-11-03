@@ -2,6 +2,9 @@
 /* Candidate module: menu transitions, 8007BD18..8007BFF4.
  * Contiguous functions indexed by the same menu state and entry table. */
 #include "rr/tables.h"
+#include "game/data/cardchk.h"
+#include "game/data/cardini.h"
+#include "game/menu/loadmenu.h"
 
 struct E { char pad[4]; unsigned char a; char b; unsigned char c; signed char d; };
 
@@ -22,8 +25,6 @@ typedef struct
   short chk;
 } W10_H;
 
-extern s32 func_8004F24C(), func_80078E1C(), func_80078E40();
-extern s32 func_8007A310(), func_8007A9CC();
 extern RrEntry800A4258 D_800A4258[];
 extern RrMenuChoice D_800A44F4[];
 extern s32 D_800A4510[];
@@ -78,7 +79,6 @@ extern u8 D_8010B2DC[];
 extern char *D_800ACC0C;
 extern int D_8010EFA8;
 extern int func_8002B75C();
-extern int func_80078178();
 extern int func_80078414();
 extern int func_80078544();
 extern short D_800A45BC;

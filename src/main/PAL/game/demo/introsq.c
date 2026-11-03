@@ -1,10 +1,10 @@
 #include "rr/textured_panel.h"
+#include "game/data/trkld8.h"
 
 extern int D_800AC650[];
 extern short D_800F3A26;
 extern short D_800F4C6A;
 extern short D_800F4D8A;
-extern int func_8004EA8C();
 extern void func_80052800();
 extern void func_800528A8();
 extern void func_8005CA14();

@@ -1,10 +1,10 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/library.h"
 #include "rr_asm.h"
+#include "psyq/libsnd/ssatr.h"
 
 typedef RrLibControllerCallback Control;
 
-extern s32 func_80089540(s32, s32, s32, s32);
 extern RrLibStateB0 *D_8010F068[];
 
 void func_80081804(s32 bank, s32 row);

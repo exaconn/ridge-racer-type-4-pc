@@ -1,14 +1,14 @@
 #include "rr/fade_sprite.h"
+#include "game/effect/ptinit.h"
+#include "game/sound/cdmain.h"
 
 struct V4 { int a[4]; };
 
 extern char D_800AD528[];
 extern int func_80096434();
-extern int func_80053E2C();
 extern int func_80083C74();
 extern void func_8007F910(int);
 extern int func_8008A674(t);
-extern int func_80053A80();
 extern char D_800ACA30[];
 extern int D_800F7620;
 extern struct V4 D_80011260;

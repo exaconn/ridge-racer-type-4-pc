@@ -2,6 +2,8 @@
 #include "types.h"
 #include "rr/player_status.h"
 #include "m2c_macros.h"
+#include "game/race/racegrid.h"
+#include "game/sound/sndcmd.h"
 
 typedef struct { int k; short f; } E;
 
@@ -27,8 +29,6 @@ extern int func_80034FC0();
 extern int func_80035024();
 extern s32 D_800ACC14;
 extern s16 D_800F4BE8;
-extern int func_80034E84();
-extern int func_80034F18();
 extern char D_800ABEBE[];
 extern char D_800AC648[];
 extern char D_800ACBD8[];
@@ -52,7 +52,6 @@ extern int func_8004B864();
 extern int func_8004BB54();
 extern int func_8004FC18();
 extern s32 D_800F2EC8;
-extern int func_8004F600();
 extern int func_801150CC();
 extern int func_80117C78();
 extern int func_801154D8();

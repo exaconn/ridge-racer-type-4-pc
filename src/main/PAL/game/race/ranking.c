@@ -1,5 +1,8 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/data/ldscn1.h"
+#include "game/gfx/poly1.h"
+#include "game/menu/menutra21.h"
 
 typedef struct {
     char name[10];
@@ -29,9 +32,7 @@ extern unsigned char D_800F2FE0[];
 extern unsigned char D_800F3B28[];
 M2C_UNK func_8001E84C(M2C_UNK *);
 /* extern */
-M2C_UNK func_80071440();
 /* extern */
-M2C_UNK func_8007CDC4(M2C_UNK);
 /* extern */
 M2C_UNK func_80092CB8(M2C_UNK);
 /* extern */
@@ -47,7 +48,6 @@ extern s8 D_800F4D7C;
 extern s16 D_800F4D8A;
 extern s16 D_800FFC18;
 extern s32 D_8010BFBC;
-extern int func_8003BBBC();
 extern int func_8004FA98();
 extern int func_80071570();
 extern s16 D_800AD55A;

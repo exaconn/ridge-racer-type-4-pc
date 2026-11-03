@@ -1,5 +1,6 @@
 /* RODATA 0x8001134c 0x14 */
 #include "types.h"
+#include "game/gfx/polytri.h"
 
 #define B4 ((S_ECB4 *)(i * 0x2C + (int)D_8010ECB4))
 #define B0 ((S_ECB0 *)(i * 0x30 + (int)D_8010ECB0))
@@ -108,7 +109,6 @@ typedef struct {
 /* size 0x3C */
 extern int func_8006E368();
 extern int func_80070934();
-extern int func_80071E04();
 extern int func_80090758();
 extern int func_80096464();
 extern int D_800A4090;

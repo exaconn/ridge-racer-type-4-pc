@@ -1,5 +1,7 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/menu/menu8.h"
+#include "game/menu/menutran.h"
 
 typedef struct { char p[0x17]; signed char b; char q[0x2C - 0x18]; } T;
 
@@ -7,9 +9,7 @@ typedef struct { char p0[0xC]; unsigned char a; char p1[7]; unsigned char b; cha
 
 extern int func_80092CB8();
 extern int func_8001ECE8();
-extern int func_80031DB0();
 extern int func_8002A604();
-extern int func_8002F688();
 extern void func_8003E928(int,int,int,int,int,int,int,int,int,int,...);
 extern int func_8002AF8C();
 extern int D_800ABEB0;

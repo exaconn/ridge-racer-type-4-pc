@@ -2,6 +2,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "rr/library.h"
+#include "psyq/libcd/s_4.h"
 
 extern int D_801102F8;
 extern int D_801102F4;
@@ -12,7 +13,6 @@ extern short D_801102D4;
 extern void func_8008F814();
 extern s32 func_8008C12C();
 extern s32 func_8008C55C();
-extern s32 func_80096DB8();
 extern s32 func_80096DE0();
 extern s32 func_80096F04();
 extern s32 func_80096F14();

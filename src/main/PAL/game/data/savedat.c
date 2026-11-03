@@ -1,4 +1,5 @@
 /* RODATA 0x800114a0 0xc4 */
+#include "game/gfx/color.h"
 typedef struct {
     int w[31];
 } Struct7C;
@@ -56,7 +57,6 @@ typedef struct {
 typedef struct { char b[0x80]; } B;
 
 extern int func_8002B75C();
-extern int func_8004C0EC();
 extern Struct48 D_800ABE08;
 extern int D_800AC5D4;
 extern SaveBuf *D_800ACC0C;

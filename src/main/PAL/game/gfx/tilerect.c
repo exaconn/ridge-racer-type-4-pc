@@ -1,6 +1,7 @@
 /* RODATA 0x8001011c 0x20 */
 #include "rr/tiled_rectangle.h"
 #include "rr_asm.h"
+#include "game/data/cdfile2.h"
 
 #define GS ((SPD *)0x1F800000)
 #define W(o) (*(int *)(GS->cur + (o)))
@@ -140,7 +141,6 @@ extern int D_800F3A60;
 extern S_8010BF70 *D_8010BF70;
 extern int func_8001223C();
 extern int func_8001292C();
-extern int func_80012A58();
 extern int func_80012A68();
 extern int func_80013890();
 extern int func_800197C8();

@@ -1,5 +1,5 @@
+#include "psyq/libsnd/utrev3.h"
 typedef struct { char a, b, c, d; } W;
-extern int func_800850C4(), func_800867E4(), func_800867A4(), func_800867C4();
 void func_80080C74(short a0, short a1, short a2, W a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, int a12) {
     int x0 = a0;
     int x1 = a1;

@@ -2,6 +2,7 @@
 /* GCC_VERSION: 2.7.2 */
 /* CC1_FLAGS: -fno-rerun-cse-after-loop */
 #include "rr/spu.h"
+#include "psyq/libspu/smutil.h"
 
 typedef struct {
     u32 mask;
@@ -27,7 +28,6 @@ extern RrSpuRegisterPatch D_800A4E78[];
 
 extern void func_8007F3D0();
 extern s32 func_8007FAB4();
-extern s32 func_8007FCD4();
 extern void func_80086084();
 
 /* Byte copy of one reverb register preset (inlined at each use). */

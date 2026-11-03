@@ -2,8 +2,7 @@
 #include "rr_asm.h"
 #include "rr/commands.h"
 #include "rr/serial.h"
-
-extern s32 func_8009C610(s32);
+#include "psyq/libcard/cardc03.h"
 
 s32 func_8009CF94(s32 unused);
 s32 func_8009D068(s32 request, s32 parameter, s32 count);

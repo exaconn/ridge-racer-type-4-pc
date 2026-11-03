@@ -1,6 +1,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
+#include "psyq/libsnd/vmmain.h"
 
 typedef struct {
     u32 form;
@@ -31,7 +32,6 @@ typedef struct {
     u16 reserved2;
 } ProgAtr;
 
-extern s32 func_80087DCC(void);
 extern void func_80087DA4(s32);
 
 extern ProgAtr *D_80110020[];

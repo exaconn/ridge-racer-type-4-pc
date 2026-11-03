@@ -1,6 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/sequencer_dispatch.h"
-extern void func_80087064(void);
+#include "psyq/libsnd/vmtick2.h"
 extern void func_80083274(s16,s16);
 extern void func_80082FC4(s32,s32);
 extern void func_80084314(s32,s32);

@@ -1,6 +1,6 @@
+#include "game/gfx/fadectl.h"
 extern int D_800AC650[];
 extern void func_80054D30();
-extern void func_8005C7A4();
 
 void func_8005C8D8(int a0) {
     if (D_800AC650[0x41C / 4] == 0) {

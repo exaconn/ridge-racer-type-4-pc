@@ -1,7 +1,7 @@
 #include "rr/gpu.h"
+#include "game/ui/uipart1.h"
 struct O { char pad[0x70]; u32 addr:24; u32 len:8; };
 extern RrSpritePacket *func_8001FEC0();
-extern s32 func_8002B5D0();
 extern s32 func_8004F2D8();
 extern struct O *D_800ACC14;
 extern s16 D_800F4D44;

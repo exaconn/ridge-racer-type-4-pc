@@ -3,6 +3,7 @@
 #include "types.h"
 #include "rr/library.h"
 #include "m2c_macros.h"
+#include "psyq/libgpu/sys_drain.h"
 
 extern char D_80011F38[];
 extern struct { char p[0x18]; int (*f18)(); } *D_800ABAB8;
@@ -10,7 +11,6 @@ extern volatile unsigned *D_800ABBD4;
 extern volatile unsigned *D_800ABBC8;
 extern int D_800ABBFC;
 extern int D_800ABC00;
-extern void func_80094E74(void);
 
 int func_80095894();
 void func_80095990(void);

@@ -1,5 +1,7 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/car/carphys1.h"
+#include "game/course/trknode.h"
 
 struct A
 {
@@ -112,14 +114,12 @@ typedef struct {
     char p3[0xE4 - 0x58]; short sE4; short sE6; char p4[0x1D4 - 0xE8]; short s1D4; char p5[2]; unsigned short s1D8;
 } P;
 
-extern int func_80025D98();
 extern s32 func_80025EB0();
 extern u32 func_80025FBC();
 extern s32 func_8006E368();
 extern s32 func_80090424();
 extern s32 func_800904F4();
 extern s32 D_800ABECC;
-extern int func_800247FC();
 extern int func_80025F84();
 extern int func_80050E94();
 extern char D_800ABEF8[];

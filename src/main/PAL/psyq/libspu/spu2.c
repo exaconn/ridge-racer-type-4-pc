@@ -1,10 +1,10 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/spu.h"
+#include "psyq/libspu/spu3.h"
 
 struct H { char p[0x1A6]; volatile unsigned short f1A6; char q[2]; volatile unsigned short f1AA; };
 
-extern int func_8007F54C(), func_8007F574();
 extern int *D_800A47DC;
 extern int *D_800A47E0;
 extern int *D_800A47E4;

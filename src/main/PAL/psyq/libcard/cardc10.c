@@ -2,8 +2,8 @@
 #include "rr_asm.h"
 #include "rr/commands.h"
 #include "rr/serial.h"
+#include "psyq/libcard/cardc11.h"
 
-extern s32 func_8009CEBC(void);
 extern s32 func_8009CF94(s32);
 
 s32 func_8009CCF0(s32 value);

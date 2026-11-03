@@ -4,6 +4,7 @@
 #include "rr/glyph_list.h"
 #include "rr/gpu.h"
 #include "rr/icon_sprites.h"
+#include "game/sound/sndctrl.h"
 
 #define ADDPRIM(ot, p) \
     (p)->addr = ((SPRT *)(ot))->addr; \
@@ -139,7 +140,6 @@ extern int D_800A0C9C[];
 extern int D_800F3970;
 extern int D_800F765C;
 extern int D_800F7660;
-extern void func_8004F9C8(void);
 extern s16 D_800A1818[];
 extern s16 D_800A1824[];
 extern s16 *D_800A18F0[];

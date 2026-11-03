@@ -1,6 +1,8 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/layout.h"
+#include "psyq/libpad/padpoll.h"
+#include "psyq/libpad/padwait.h"
 
 typedef struct { char pad[0x3C]; char *f3c; } T;
 
@@ -44,7 +46,6 @@ typedef struct {
 RR_ASSERT_SIZE(RrTransferState, 0x40);
 RR_ASSERT_OFFSET(RrTransferState, flag37, 0x37);
 extern s32 (*D_800ABC70)(RrTransferState *, s32);
-extern s32 func_80098788(RrTransferState *, u8);
 extern void (*D_800ABC68)(s32);
 extern void (*D_800ABC74)(Rec8009991C *);
 extern void (*D_800ABC88)(Rec8009991C *);
@@ -52,8 +53,6 @@ extern void (*D_800ABC8C)(Rec8009991C *);
 extern Rec8009991C *D_800ABC9C;
 extern s32 D_800ABCC0[];
 extern Unk800ABCE4 *D_800ABCE4;
-extern s32 func_80098A00(void);
-extern void func_80098A90(void);
 extern void func_8009A7F4(s32);
 
 void func_800996C4(T *a0);

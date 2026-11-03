@@ -1,15 +1,15 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/camera/campath.h"
+#include "game/sound/sndvab.h"
+#include "psyq/libsnd/ssopenq.h"
 
-extern int func_8007FD94();
 extern int func_8007FD64();
 extern int func_80053DE8();
-extern int func_8004EE08();
 extern int func_8004EE60();
 extern int func_80082324();
 extern int func_80053A9C();
 extern int func_80096434();
-extern int func_8005B190();
 extern struct { s32 a, b, c; } D_800A0CD8[];
 extern struct {
     char pad[0x24]; s16 h[1];

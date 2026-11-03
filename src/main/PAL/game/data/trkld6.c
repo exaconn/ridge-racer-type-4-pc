@@ -1,5 +1,8 @@
 /* RODATA 0x800110a0 0x1c */
 /* CC1_FLAGS: -fno-strength-reduce */
+#include "game/data/cdfile2.h"
+#include "game/data/trkld1.h"
+#include "game/data/trkld5.h"
 extern int func_8004E3B0();
 extern struct { char pad[0x56C]; int a, b, c, d; } D_800AC650;
 extern struct { char pad[0x10]; int f10; char pad2[0x19CC - 0x14]; int f19cc; } D_800F4DB8;
@@ -9,8 +12,6 @@ extern short D_800AD508;
 extern int D_800F6784;
 extern int D_800ACBC8;
 extern int D_800F4DC8;
-extern int func_8004E194();
-extern int func_8004E260();
 extern int D_800A0218;
 extern int D_800A021C;
 extern int D_800A0220;
@@ -27,7 +28,6 @@ extern char *D_800ACBB4;
 extern char D_8010C210[];
 extern int func_8001223C();
 extern int func_8001292C();
-extern int func_80012A58();
 extern int D_800A0270[];
 extern int func_8004ED38();
 

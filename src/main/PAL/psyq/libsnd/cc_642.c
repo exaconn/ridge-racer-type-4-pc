@@ -1,6 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/library.h"
-extern void func_80087044(void), func_80087054(void);
+#include "psyq/libsnd/vmtick2.h"
 void func_800806C4(s32 bank, s32 row, s32 raw_value) {
     /* ASM_BARRIER: Preserve the original register through selector calculation and call argument preparation. */
     register u32 raw_bank __asm__("$17") = bank;

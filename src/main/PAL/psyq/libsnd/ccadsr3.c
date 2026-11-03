@@ -1,6 +1,5 @@
 #include "rr/library.h"
-
-extern void func_800850C4(), func_800867E4(), func_80080F04(), func_80080F60();
+#include "psyq/libsnd/cc_nrpn3.h"
 
 void func_80081224();
 void func_800812D4();

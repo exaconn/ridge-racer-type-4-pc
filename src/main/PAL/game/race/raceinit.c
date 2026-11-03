@@ -1,7 +1,7 @@
 /* RODATA 0x80010720 0x1c */
+#include "game/car/carsetup.h"
 typedef struct { char pad[0x320]; } E;
 extern int func_800373DC();
-extern int func_80022980();
 extern int func_80045F48();
 extern int func_800293D0();
 extern int func_80096434();

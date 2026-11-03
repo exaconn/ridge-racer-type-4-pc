@@ -1,8 +1,8 @@
 #include "rr/library.h"
+#include "psyq/libsnd/vmtick.h"
 
 extern RrLibStateB0 *D_8010F068[];
 extern void func_80089E1C(s16, s32, s32, s32);
-extern void func_80087044(void);
 
 void func_80083A94(s32 a0, s16 a1);
 void func_80083AF4(s32 a0, s32 a1);

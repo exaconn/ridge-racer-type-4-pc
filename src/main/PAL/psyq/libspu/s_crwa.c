@@ -1,10 +1,10 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
+#include "psyq/libspu/smutil.h"
+#include "psyq/libspu/spuregs2.h"
 
-extern void func_8007F604();
 extern s32 func_8007F068(s32 mode, ...);
-extern s32 func_8007FCD4(u32 address);
 extern s32 func_80096E94(s32 event);
 extern s32 D_800A47F4;
 extern s32 D_800A4800;

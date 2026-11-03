@@ -3,6 +3,8 @@
 
 /* Candidate module: mesh quad packet builders (GT4, G4, F4), 80057A44..80058038. */
 #include "types.h"
+#include "game/camera/camview.h"
+#include "game/effect/spark.h"
 #define RTPT() RR_GTE_RTPT_MEM()
 #define RTPS() RR_GTE_RTPS_MEM()
 #define NCLIP() RR_GTE_NCLIP_MEM()
@@ -19,9 +21,7 @@ struct Q
 };
 
 extern int func_8005642C();
-extern int func_80057750();
 extern int func_8002E828();
-extern int func_80055C84();
 extern struct 
 {
   char pad[0x24C];

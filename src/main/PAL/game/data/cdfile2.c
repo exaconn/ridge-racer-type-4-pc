@@ -7,6 +7,10 @@
  * Adjacent matching functions share one directory and location definition.
  * This grouping does not establish the original compiler unit boundary. */
 #include "rr/cd.h"
+#include "game/data/bankrec.h"
+#include "game/data/cdfile1.h"
+#include "game/gfx/poly1.h"
+#include "psyq/libcd/dsfinish.h"
 #define B (*(int *)&D_800ACC18)
 
 struct A { char p[0x14]; unsigned f14; char q[0x20]; unsigned f38; };
@@ -29,8 +33,6 @@ typedef struct {
     s32 p4, p8, pC, p10, p14;
 } Resource;
 
-extern s32 func_80012290();
-extern s32 func_8008C6A4(), func_8008EEF4(), func_8008F090();
 extern s32 D_8009DF90;
 extern s32 D_8009DF94;
 extern s32 D_8009DF9C;
@@ -61,7 +63,6 @@ extern void func_800436E8();
 extern void func_800700AC();
 extern void func_80070108();
 extern void func_8007026C();
-extern void func_8007080C();
 extern void func_800713C4();
 extern void func_80071434();
 extern int func_80077D08();
@@ -72,7 +73,6 @@ extern int D_8010944C;
 extern int D_80109450;
 extern int D_80109454;
 extern int func_80012210();
-void func_800293AC(void *, s32);
 void func_80092D50(s32);
 void func_80092FFC(s16 *, void *);
 extern s32 D_80109468[];

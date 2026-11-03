@@ -2,6 +2,8 @@
 #include "rr/race_types.h"
 #include "rr_asm.h"
 #include "m2c_macros.h"
+#include "game/car/aipath.h"
+#include "game/car/carparam.h"
 
 #define H(p, o) (*(unsigned short *)((char *)(p) + (o)))
 #define W(b, o) (*(int *)((char *)(b) + (o)))
@@ -19,9 +21,6 @@ extern int D_800AC538;
 extern short D_800AD508;
 extern char D_800ABEF8[];
 extern short func_80022848(void);
-extern void func_80026800();
-extern void func_80022D50();
-extern void func_8002367C();
 extern void func_800394B8();
 extern void func_800394E4();
 extern void func_800512C4();

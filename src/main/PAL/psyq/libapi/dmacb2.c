@@ -1,6 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/library.h"
-extern void func_8008F504(void);
+#include "psyq/libcd/dsmedia2.h"
 void func_8008BE14(RrLibQueueRecord32 *first, s32 second) {
     /* ASM_BARRIER: preserve the original assembler temporary for the mapped store. */
     register s32 *base __asm__("$1");

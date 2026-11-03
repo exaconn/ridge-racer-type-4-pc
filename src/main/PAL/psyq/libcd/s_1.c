@@ -3,12 +3,11 @@
 #include "types.h"
 #include "rr/cd.h"
 #include "m2c_macros.h"
+#include "psyq/libcd/bios_1.h"
 
 extern u8 D_800A64A4;
 extern u8 D_800A64A5;
 extern M2C_UNK D_800A64A0;
-extern int func_8008D730();
-extern int func_8008D820();
 extern int func_8008D86C();
 extern int func_8008D65C();
 extern s32 D_800A6490;

@@ -1,6 +1,7 @@
 #include "types.h"
 #include "rr/game_motion.h"
 #include "m2c_macros.h"
+#include "game/demo/opening.h"
 
 typedef struct {
     s16 vx, vy, vz, p0;
@@ -30,7 +31,6 @@ extern s32 func_8005599C();
 extern s32 func_80090F74();
 extern s32 func_8006EE3C();
 extern s32 func_8005A91C();
-extern s32 func_8005A9C4();
 extern char D_800A1CE0[];
 extern void func_80096434();
 extern int func_8005B8D8();

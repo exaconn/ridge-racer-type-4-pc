@@ -1,5 +1,6 @@
 /* RODATA 0x80010fec 0x28 */
 #include "types.h"
+#include "game/car/carbound.h"
 
 typedef struct {
     s32 f0;
@@ -76,7 +77,6 @@ extern u16 D_8009FE76;
 extern void func_80096434(void *, s32);
 extern void func_8002E4F4(ComCar *);
 extern s32 func_80026A74(s32 *, s32);
-extern void func_8002E868(ComCar *);
 extern void func_800468F0(ComCar *);
 extern void func_8001E84C(const char *, s32);
 

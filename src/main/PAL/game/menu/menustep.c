@@ -1,6 +1,6 @@
 /* RODATA 0x800115ec 0x20 */
-extern int func_80078E40();
-extern int func_8007D1B8();
+#include "game/data/cardchk.h"
+#include "game/menu/menutra21.h"
 extern struct 
 {
   unsigned short a;

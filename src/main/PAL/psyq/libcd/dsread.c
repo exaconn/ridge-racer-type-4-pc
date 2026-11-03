@@ -1,4 +1,4 @@
-extern int func_8008C5A0(), func_8008C140(), func_8008EEF4(), func_8008F090();
+#include "psyq/libcd/dsfinish.h"
 int func_8008E780(a, b, c) int a; int b; int c; {
     int buf[2];
     int z, r;

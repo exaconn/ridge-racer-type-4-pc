@@ -1,6 +1,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channels.h"
 #include "rr/spu.h"
+#include "psyq/libspu/s_snc.h"
 
 extern u16 D_8010F8F8;
 extern u16 D_8010F8FA;
@@ -18,7 +19,6 @@ extern s16 D_801100E8;
 extern s8 D_80110105;
 extern s8 D_8011010B;
 extern u8 D_80110112;
-extern s32 func_80088D14(s32);
 
 void func_80088794(s32 arg0) {
     /* ASM_BARRIER: keep arg0 in s3 */

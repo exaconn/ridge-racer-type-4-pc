@@ -4,6 +4,10 @@
 #include "m2c_macros.h"
 #include "rr/lookup.h"
 #include "rr/sequence_queue.h"
+#include "game/car/carai.h"
+#include "game/car/carstate.h"
+#include "game/course/trkseek2.h"
+#include "game/ui/uipart1.h"
 
 typedef struct 
 {
@@ -122,10 +126,6 @@ extern C *D_800FFC20[];
 extern int func_80022B64();
 extern int func_80025F84();
 extern int func_80029660();
-extern int func_8002BF34();
-extern int func_8002C1D4();
-extern int func_8004A170();
-extern int func_8004A474();
 extern int func_800904F4();
 extern int func_80091734();
 extern void func_8002C11C(CarCollision *, s32, s32);

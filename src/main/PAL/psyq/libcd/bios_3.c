@@ -4,6 +4,7 @@
 #include "rr_asm.h"
 #include "rr/cd.h"
 #include "rr/library.h"
+#include "psyq/libcd/s_3.h"
 
 extern s32 func_8001E84C();
 extern s32 func_8008B154(s32);
@@ -21,7 +22,6 @@ extern s32 D_80110334;
 extern const char *D_80110338[];
 /* $at as the %hi() base: with $1 allocatable cc1 2.8.1 emits lui $1,%hi / sw %lo($1) and its reorg fills the jr/jal delay slot with the sw (see DECOMP_GUIDE "delay-slot store"). */
 extern int D_800A6730;
-extern s32 func_8008C724(void);
 
 s32 func_8008DA4C(s32 mode);
 s32 func_8008DBB4(u8 *a0, u32 a1);

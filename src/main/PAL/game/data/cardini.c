@@ -2,11 +2,12 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "rr/bios_devices.h"
+#include "psyq/libcard/cardirq.h"
+#include "psyq/libcard/cardsts.h"
+#include "psyq/libcard/init.h"
 
 extern int func_80095D04();
-extern int func_80095D70();
 extern int func_80095C74();
-extern int func_8009BA04();
 extern int func_80096F04();
 extern int func_80096E74();
 extern int func_80096F14();
@@ -22,9 +23,7 @@ extern int D_8010EF74;
 extern unsigned char D_800F3A24[];
 extern int D_800ACC0C;
 extern char D_800FFC48[];
-extern int func_80095DA8();
 extern int func_80096E84();
-extern int func_8009BA94();
 extern int func_80096EA4();
 extern int D_8010ECC0[];
 extern char D_800113D8[];
@@ -40,7 +39,6 @@ extern int func_80096F34();
 extern int func_80096F54();
 extern int func_80095C84();
 extern int func_8009D700();
-extern int func_8009BF94();
 extern int func_80095CA4();
 extern int func_80095C94();
 extern int D_8010ECB8[];

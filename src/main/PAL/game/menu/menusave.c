@@ -2,8 +2,8 @@
 #include "rr/save_progress.h"
 #include "rr/menu_choice.h"
 #include "rr/course_choice_types.h"
+#include "game/menu/menutran.h"
 
-extern s32 func_8002F8E4(void);
 extern void func_80037040(s8 *, s32);
 extern s32 func_8003708C(void *);
 

@@ -1,5 +1,7 @@
 /* RODATA 0x80010f00 0x1c */
 #include "types.h"
+#include "game/course/trkintp2.h"
+#include "game/gfx/dispenv.h"
 
 typedef struct {
     int x, y, z, f0C;
@@ -55,10 +57,7 @@ extern short D_800F4D44;
 extern int D_8010718C;
 extern void func_800172DC(int, int);
 extern void func_80033BE4(void *);
-extern int func_80043730(void *);
 extern void func_800439BC(void *, short *, int *);
-extern int func_80043C14(void *, CamNode *);
-extern void func_80043DE4(void *, int *, CamNode *);
 extern void func_80043ED4(unsigned short *, int, int *);
 extern void func_80043F5C(unsigned short *, int, int *);
 extern short func_80043FC0(CamNode *, int);

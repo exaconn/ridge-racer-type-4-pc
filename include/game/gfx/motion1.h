@@ -1,0 +1,9 @@
+#ifndef RR_GAME_GFX_MOTION1_H
+#define RR_GAME_GFX_MOTION1_H
+
+#include "types.h"
+
+void func_8005D820(void);
+void func_8005D858(void);
+
+#endif /* RR_GAME_GFX_MOTION1_H */

@@ -1,9 +1,9 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/commands.h"
+#include "psyq/libcard/cardc07.h"
+#include "psyq/libcard/cardc161.h"
 
 extern int func_8009C87C(), func_8009C91C();
-extern int func_8009CA8C(), func_8009CB50();
-extern s32 func_8009D65C(void);
 extern s32 func_8009D680(s32);
 
 int func_8009D424();

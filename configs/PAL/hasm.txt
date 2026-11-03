@@ -79,6 +79,8 @@ func_8006CE24 store-at
 func_8006D138 store-at
 func_800907FC cop0
 func_80090884 trapping-arith
+func_80092654 bios-trampoline
+func_80092700 cop0,k0k1,store-at
 func_80095C74 bios-trampoline
 func_80095C84 bios-trampoline
 func_80095C94 bios-trampoline

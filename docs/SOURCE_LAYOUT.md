@@ -31,7 +31,7 @@ https://github.com/software-factory-vibe-city/psyq-decompilation): `libcd/bios_1
 Game files use Namco/PsyQ-era style: lower case, at most 8 characters, a noun or noun+verb abbreviation
 (`carmove1.c`, `cdread.c`, `sprite.c`, `vmchval.c`). Where a PsyQ library file name is known
 (`utgpa`, `ccadsr`, `midi*`) it is used. Many names are descriptive guesses; they carry no
-information about the real original file names. A trailing digit (`menu1`, `race01`) only orders
+information about the real original file names. A trailing digit (`menu1`, `raceinit`) only orders
 units of one topic that sit next to each other in the address space; it is not an original name.
 
 Current state: 462 translation units (`game/` and `psyq/`), `make check` reports `main.exe: OK`,

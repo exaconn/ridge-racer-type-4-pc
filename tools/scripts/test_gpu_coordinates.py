@@ -15,7 +15,7 @@ class GpuCoordinatesTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2];d=Path(cls.temp.name)
         header=(root/'include/rr/gpu.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(root/'src/main/PAL/psyq/libgpu/sys15.c').read_text().replace('#include "rr/gpu.h"','')
+        body=(root/'tools/scripts/fixtures/legacy/gpu_coordinates.c').read_text().replace('#include "rr/gpu.h"','')
         body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
         body=re.sub(r' : "\$[0-9]+"','',body)
         observed=body.replace('func_80094100','observed_top_left').replace('func_80094198','observed_bottom_right')

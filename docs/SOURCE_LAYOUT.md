@@ -36,6 +36,10 @@ Game files use Namco/PsyQ-era style: lower case, at most 8 characters, a noun or
 information about the real original file names. A trailing digit (`menu1`, `raceinit`) only orders
 units of one topic that sit next to each other in the address space; it is not an original name.
 
+Names chosen from code content alone (guesses): `gfxmtx` (3x3 short matrices), `menuwork` (menu work
+area), `menustat` (menu state machine), `menuslot` (0x24-byte menu slots), `barsel0/1` (bar selection
+variants), `uicode` (code table lookup), `badgeprim`/`badgespr`, `menuicon`, `raceinit`, `trktext`.
+
 Current state: 462 translation units (`game/` and `psyq/`), `make check` reports `main.exe: OK`,
 all unit tests pass. Open: the descriptive-guess game names.
 

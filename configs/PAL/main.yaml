@@ -1301,6 +1301,8 @@ segments:
       - [0x7a61c, c, func_80089E1C]
       - [0x7a6d4, c, func_80089ED4]
       - [0x7a798, asm, main_80089F98]
+      - [0x7a7a4, c, func_80089FA4]
+      - [0x7ad5c, asm, main_8008A55C]
       - [0x7ad64, c, func_8008A564]
       - [0x7ae24, c, func_8008A624]
       - [0x7ae34, c, func_8008A634]

@@ -774,7 +774,7 @@ segments:
       - [0x45b00, c, func_80055300]
       - [0x45b30, c, func_80055330]
       - [0x45b4c, c, func_8005534C]
-      - [0x45b58, asm, main_80055358]
+      - [0x45b58, c, func_80055358]
       - [0x45de0, c, func_800555E0]
       - [0x45e60, c, func_80055660]
       - [0x45eb4, c, func_800556B4]

@@ -216,7 +216,7 @@ segments:
       - [0x84c0, c, func_80017CC0]
       - [0x8784, asm, main_80017F84]
       - [0x91ac, c, func_800189AC]
-      - [0x9544, asm, main_80018D44]
+      - [0x9544, c, func_80018D44]
       - [0x9944, c, func_80019144]
       - [0x9cbc, c, func_800194BC]
       - [0x9dbc, c, func_800195BC]

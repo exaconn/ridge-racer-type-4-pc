@@ -549,7 +549,7 @@ segments:
       - [0x33020, c, func_80042820]
       - [0x33528, c, func_80042D28]
       - [0x335bc, c, func_80042DBC]
-      - [0x33758, asm, main_80042F58]
+      - [0x33758, c, func_80042F58]
       - [0x33880, c, func_80043080]
       - [0x3389c, c, func_8004309C]
       - [0x338bc, c, func_800430BC]

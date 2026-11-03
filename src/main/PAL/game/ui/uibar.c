@@ -1,5 +1,6 @@
 #include "rr/ui_bar.h"
 #include "rr/ui_panel.h"
+#include "game/ui/uidraw.h"
 
 typedef struct 
 {
@@ -14,8 +15,6 @@ typedef struct
   short i;
   char pad[10];
 } E;
-
-extern int D_800F2ECC;
 
 void func_8003D228();
 RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 style);

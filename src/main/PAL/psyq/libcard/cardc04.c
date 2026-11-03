@@ -3,11 +3,10 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/commands.h"
 #include "psyq/libcard/cardc07.h"
+#include "psyq/libcard/cardc03.h"
+#include "psyq/libcard/cardc04.h"
 
 extern s32 func_8009DF14(s32, s32);
-extern unsigned char D_80114725;
-extern unsigned char D_80114726;
-extern unsigned char D_80114727;
 
 s32 func_8009C638(s32 request, u8 *buffer);
 int func_8009C6D8();

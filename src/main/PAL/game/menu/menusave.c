@@ -3,6 +3,7 @@
 #include "rr/menu_choice.h"
 #include "rr/course_choice_types.h"
 #include "game/menu/menutran.h"
+#include "game/menu/menusave.h"
 
 extern void func_80037040(s8 *, s32);
 extern s32 func_8003708C(void *);
@@ -10,7 +11,6 @@ extern s32 func_8003708C(void *);
 extern RrCourseChoice4 D_800ABE08[2][9];
 extern u8 D_800AD4F4[];
 extern u8 D_800AD4F8[][4];
-extern u16 D_800F4BE0;
 
 void func_8002F958(void) {
     u8 sp10[4];

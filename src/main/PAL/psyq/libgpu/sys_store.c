@@ -2,9 +2,8 @@
 #include "rr/gpu.h"
 #include "rr/library.h"
 #include "rr/timing.h"
+#include "psyq/libgpu/gpuenv.h"
 
-extern char D_80011EF0[];
-extern char D_80011EFC[];
 extern RrLibGraphicsDriverPrefix *D_800ABAB8;
 
 int func_80095664();

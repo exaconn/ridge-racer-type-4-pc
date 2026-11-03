@@ -1,6 +1,6 @@
 #include "game/ui/uicnt.h"
+#include "game/course/trkintp2.h"
 extern int func_80043104();
-extern unsigned char D_8009FE2C[];
 void func_80043130(a0, a1) unsigned char *a0; int a1;
 {
     int s5, s2, s1, s0, t;

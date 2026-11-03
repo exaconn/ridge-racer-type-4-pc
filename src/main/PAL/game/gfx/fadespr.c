@@ -2,6 +2,7 @@
 #include "game/effect/ptinit.h"
 #include "game/sound/cdmain.h"
 #include "psyq/libsnd/ssmvol.h"
+#include "game/camera/campath.h"
 
 struct V4 { int a[4]; };
 
@@ -10,7 +11,6 @@ extern int func_80096434();
 extern void func_8007F910(int);
 extern int func_8008A674(t);
 extern char D_800ACA30[];
-extern int D_800F7620;
 extern struct V4 D_80011260;
 extern struct { char pad[0x24]; short s[4]; char pad2[0x2864 - 0x2C]; int i; } D_800F4DB8;
 extern unsigned char D_800A1FC4[];

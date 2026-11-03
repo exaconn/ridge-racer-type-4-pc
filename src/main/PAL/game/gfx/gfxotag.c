@@ -6,6 +6,8 @@
 #include "game/sound/sndbgm3.h"
 #include "game/sound/sndslot.h"
 #include "psyq/libgpu/gpuenv.h"
+#include "game/gfx/gfxotag.h"
+#include "game/ui/hudmap2.h"
 
 typedef struct { unsigned addr : 24; unsigned len : 8; } P_TAG;
 
@@ -55,7 +57,6 @@ extern short D_800AD520;
 extern int D_800F4BF0;
 extern int D_800F2FD8;
 extern struct DB *D_800ACC14;
-extern short D_8009FE60[];
 extern short D_800F3914;
 extern void func_8006EE3C();
 extern void func_800701C4();
@@ -77,13 +78,11 @@ extern void func_80052A30();
 extern void func_80052B8C();
 extern void func_80059E40();
 extern int func_80096464();
-extern int D_800A0C9C[];
 extern int D_800AC6EC;
 extern int D_800ACBF8;
 extern signed char D_800AD4D8[];
 extern signed char D_800AD528[];
 extern unsigned short D_800F3A40;
-extern int D_800F765C;
 extern int D_8010718C;
 
 void func_80044EC4(void);

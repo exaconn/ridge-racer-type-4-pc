@@ -2,6 +2,7 @@
 #include "game/menu/loadmenu.h"
 #include "game/menu/savemenu.h"
 #include "game/data/cardini.h"
+#include "game/menu/menumode.h"
 struct E { char pad[4]; unsigned char a; char b; unsigned char c; signed char d; };
 
 extern int func_8002B330();
@@ -13,24 +14,19 @@ extern short D_800AC594;
 extern short D_800F3A1C;
 extern short D_800F4D3C;
 extern short D_800F3AF8;
-extern short D_801094A0;
 extern char D_800F4D50[];
 extern char D_800A45A0[];
 extern char D_800A457C[];
-extern int D_800A4594[];
 extern struct { char a[4]; unsigned char b; char c[3]; } D_800A4258[];
 extern unsigned char D_800A448C[][4];
 extern struct { char pad[0x28]; int x28; int x2c; char pad2[0x2C]; } D_800F3A38[];
-extern unsigned char D_800A44A8[][4];
 extern unsigned char D_800F3A24[];
 extern char *D_800F4D80;
 extern unsigned short D_800F4D8A;
-extern unsigned short D_80109458;
 extern short D_80109478[];
 extern short D_8010948E;
 extern unsigned char D_800A44D8[][4];
 extern unsigned char D_800ACBCC[];
-extern short D_80109490;
 
 void func_8007B774(void);
 void func_8007B954();

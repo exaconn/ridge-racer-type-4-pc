@@ -2,6 +2,7 @@
 #include "game/data/cardini.h"
 #include "game/data/savedat.h"
 #include "game/data/savebld.h"
+#include "game/system/modeinit.h"
 typedef struct {
     char b[0x4000];
 } Struct4000;
@@ -23,7 +24,6 @@ extern char D_800A4648[][0x80];
 extern Struct4000 *D_800ACC0C;
 extern Struct2C D_800AD4D8;
 extern Struct2C D_800F2E30[3];
-extern int D_800F3970;
 extern short D_800F3AF8;
 extern short D_800F4D3C;
 extern char D_800F4D50[];

@@ -3,9 +3,9 @@
 #include "rr/menu_choice.h"
 #include "m2c_macros.h"
 #include "game/car/aipath.h"
+#include "game/menu/title.h"
 
 extern int func_80017CC0();
-extern int D_800ABFE8;
 extern int D_800AC308;
 extern int D_8010718C;
 

@@ -18,6 +18,7 @@
 #include "game/gfx/poly1.h"
 #include "game/race/objdraw.h"
 #include "psyq/libgpu/primatt8.h"
+#include "game/gfx/sky.h"
 #define B (*(int *)&D_800ACC18)
 
 struct A { char p[0x14]; unsigned f14; char q[0x20]; unsigned f38; };
@@ -60,7 +61,6 @@ extern int *D_800F3A08[];
 extern struct E D_8010B2E0[];
 extern int D_8009DF98;
 extern int D_8010943C;
-extern int D_8010BF68;
 extern int D_8010BF60;
 extern void func_800436E8();
 extern void func_80070108();

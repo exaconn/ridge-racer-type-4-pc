@@ -4,6 +4,8 @@
 #include "game/data/cdfile2.h"
 #include "game/effect/spfade.h"
 #include "game/gfx/sky.h"
+#include "game/data/ldscn5.h"
+#include "game/gfx/gtemodel.h"
 
 #define GS ((SPD *)0x1F800000)
 #define W(o) (*(int *)(GS->cur + (o)))
@@ -136,7 +138,6 @@ extern int D_8010BF74;
 extern struct B8 D_8001010C;
 extern struct B8 D_80010114;
 extern int D_8009E268;
-extern char *D_800AC64C;
 extern char *D_800ACC18;
 extern unsigned char D_800AD4EA;
 extern int D_800F3A60;
@@ -153,7 +154,6 @@ extern int func_800436E8();
 extern int func_8006E1AC();
 extern int func_80091844();
 extern int func_80096454();
-extern int D_800FF6A4[];
 extern int D_8009E26C[];
 extern int D_800ABEB0;
 extern int D_8009E36C[];

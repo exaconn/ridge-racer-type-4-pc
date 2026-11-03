@@ -1,3 +1,4 @@
+#include "game/race/objsim.h"
 struct A { char pad[0xF0]; int idx; char p2[0xE0]; short ang; };
 
 struct B { char pad[0x12]; short x; char p2[0x28]; };
@@ -6,7 +7,6 @@ extern int func_8001FC28(), func_8002B5D0(), func_8002B814(), func_8004C73C(), f
 extern char D_800103FC[];
 extern char D_80010408[];
 extern char D_80010414[];
-extern short D_800AC0E6;
 extern short D_800AC1A0;
 extern char *D_800ACC14;
 extern int D_800F3A30;

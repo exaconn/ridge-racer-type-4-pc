@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+extern short D_800ABD48[];
 int func_8009AC50(int first, int second);
 
 #endif /* RR_PSYQ_LIBSIO_SIORECV_H */

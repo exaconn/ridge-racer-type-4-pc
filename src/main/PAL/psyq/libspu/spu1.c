@@ -2,12 +2,10 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/spu.h"
 #include "psyq/libspu/spu3.h"
+#include "psyq/libspu/spu1.h"
+#include "psyq/libspu/spu2.h"
 
 extern s32 func_80096E64(u32,s32);
-extern s32 D_800A4828;
-extern volatile int *D_800A47DC;
-extern volatile int *D_800A47E0;
-extern volatile int *D_800A47E4;
 
 void func_8007EF04(void);
 void func_8007EFC0(int a0, int a1, int a2);

@@ -1,5 +1,6 @@
 #include "rr/gpu.h"
 #include "game/ui/uipart1.h"
+#include "game/race/raceset.h"
 struct O { char pad[0x70]; u32 addr:24; u32 len:8; };
 extern RrSpritePacket *func_8001FEC0();
 extern s32 func_8004F2D8();
@@ -8,10 +9,6 @@ extern s16 D_800F4D44;
 extern s32 D_800FF6B0;
 extern s32 D_8010C0F8[];
 extern s32 D_8010C120[];
-extern s16 D_8010C104;
-extern s32 D_8010C108;
-extern s32 D_8010C10C;
-extern s32 D_8010C114;
 extern s32 D_8010C12C;
 void func_8003BFC8(a0) s32 a0;
 {

@@ -1,5 +1,6 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
+#include "psyq/libpad/padtm22.h"
 struct HW { volatile unsigned char b0; char p1[3]; volatile unsigned short s4; short p6; short s8; unsigned short sA; char pC[2]; volatile short sE; };
 
 struct Q { int a; };
@@ -14,8 +15,6 @@ extern int func_8009A7F4(), func_8009A814();
 extern int D_800ABCAC;
 extern struct HW *D_800ABCCC;
 extern struct Q *D_800ABCC8;
-extern unsigned D_801146B8;
-extern unsigned D_801146BC;
 
 int func_80098788();
 int func_80098A00();

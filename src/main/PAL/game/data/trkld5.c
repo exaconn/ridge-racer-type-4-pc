@@ -2,15 +2,14 @@
 #include "rr/track_resources.h"
 #include "game/data/cdfile2.h"
 #include "game/data/trkld1.h"
+#include "game/data/trkld1.h"
 
 typedef struct { unsigned char a, b, c, d; } T;
 
-extern unsigned int D_800A021C;
 extern short D_800ABEC8;
 extern void *D_800ACC18;
 extern short D_800AD520;
 extern short D_800F3914;
-extern u8 *D_8010C1F0;
 extern int func_8001223C();
 extern int func_8001292C();
 extern int func_8004D4BC();

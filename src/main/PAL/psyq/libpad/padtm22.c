@@ -1,8 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
-
-extern s32 D_801146BC;
-extern unsigned int D_801146B8;
+#include "psyq/libpad/padtm22.h"
 
 void func_8009A7F4(s32 limit);
 int func_8009A814();

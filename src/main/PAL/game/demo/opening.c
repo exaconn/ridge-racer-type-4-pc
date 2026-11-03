@@ -5,6 +5,8 @@
 #include "game/course/trktext.h"
 #include "game/ui/hudmap2.h"
 #include "psyq/libc/printf.h"
+#include "game/demo/opening.h"
+#include "game/ui/hudmap2.h"
 
 extern void func_8004C5A4(s32, s32, const char *, s32, s32);
 extern s32 func_8004C73C(s32, s32, char *, s32, s32);
@@ -17,14 +19,7 @@ extern const char D_8001122C[];
 extern const char D_80011230[];
 extern const char D_80011234[];
 extern const char D_8001123C[];
-extern char D_800A095C[];
-extern s32 D_800A0C9C[];
 extern char D_800A1830[];
-extern s16 *D_800A18F0[];
-extern s16 *D_800A1910[];
-extern s16 *D_800A1930[];
-extern s16 *D_800A1970[];
-extern s16 *D_800A19A4[];
 extern u8 D_800A1A60[];
 extern u8 D_800A1A68[];
 extern u32 D_800A1A70[];
@@ -38,11 +33,6 @@ extern struct {
     s32 w28a8;
     s32 w28ac;
 } D_800F4DB8;
-extern s32 D_8010E228;
-extern s32 D_8010E22C;
-extern s32 D_8010E230;
-extern s32 D_8010E234;
-extern s32 D_8010E238;
 
 s32 func_80059E40(s32 arg0);
 void func_8005A90C(void);

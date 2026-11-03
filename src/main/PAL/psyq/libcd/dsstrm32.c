@@ -4,6 +4,8 @@
 #include "psyq/libcd/dsmedia2.h"
 #include "psyq/libcd/dsstrm4.h"
 #include "psyq/libgte/geo_.h"
+#include "psyq/libcd/dsmedia2.h"
+#include "psyq/libcd/dsstrm32.h"
 
 extern s32 func_8008C0F8(s32, u8 *);
 
@@ -24,7 +26,6 @@ typedef struct {
     Packed32 headm;
 } StHeader;
 
-extern volatile u8 *D_800A6870;
 extern volatile u8 *D_800A6878;
 extern volatile u8 *D_800A687C;
 extern volatile s32 *D_800A6880;
@@ -32,24 +33,18 @@ extern volatile s32 *D_800A6884;
 extern volatile s32 *D_800A6890;
 extern volatile s32 *D_800A68A0;
 extern s32 D_800A68B8;
-extern u32 D_801102D0;
-extern s16 D_801102D4;
 extern s32 D_801102D8;
 extern s32 D_801102DC;
 extern s32 D_801102E0;
 extern s32 D_801102E4;
 extern s32 D_801102E8;
-extern s32 D_801102EC;
 extern s32 D_801102F0;
-extern s32 D_801102F4;
-extern s32 D_801102F8;
 extern s32 D_80110300;
 extern u32 D_80110304;
 extern s32 D_80110308;
 extern void *D_8011030C;
 extern StHeader *D_80110310;
 extern s32 D_80110314;
-extern s32 D_80110348;
 extern void (*D_80112764)(void);
 extern StHeader *D_80112768;
 

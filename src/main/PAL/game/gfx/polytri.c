@@ -1,6 +1,7 @@
 #include "game/car/aipath.h"
 #include "psyq/libgte/gtemath4.h"
 #include "psyq/libgte/gtemath5.h"
+#include "game/race/objclr.h"
 typedef struct {
     int x;
 } __attribute__((packed)) U4;
@@ -127,7 +128,6 @@ extern short D_800AD522;
 extern int D_800F2EB8;
 extern int D_800F3A30;
 extern short D_800F4D44;
-extern int D_8010ECA8;
 extern S_ECB0 *D_8010ECB0;
 extern S_ECB4 *D_8010ECB4;
 

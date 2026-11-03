@@ -8,6 +8,8 @@
 #include "game/race/racegrid.h"
 #include "game/race/ranking.h"
 #include "game/system/modepad.h"
+#include "game/menu/menusave.h"
+#include "game/system/modeinit.h"
 
 typedef struct { char p0[2]; short s2; char p4[4]; short s8; short sA; char pC[4]; short s10; } W7C0_F;
 
@@ -47,10 +49,8 @@ extern int D_800AC5DC;
 extern short D_800AC64A;
 extern short D_800AD50A;
 extern int D_800F2DE4;
-extern int D_800F3970;
 extern short *D_800F3AFC;
 extern short D_800F4D2C;
-extern short D_800F4BE0;
 extern int D_800F3A60;
 extern unsigned short D_800F3A40;
 extern unsigned short D_800F4C5C;

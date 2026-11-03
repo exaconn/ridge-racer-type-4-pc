@@ -1,10 +1,9 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "rr/record_banks.h"
+#include "game/data/ldscn1.h"
+#include "game/menu/menu13.h"
 
-extern void *D_800ACBFC;
-extern void *D_800ACC20;
-extern void *D_800F2ED0[];
 extern int D_800F39C8[];
 extern s32 D_800F4D90;
 

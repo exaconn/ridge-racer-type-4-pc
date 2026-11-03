@@ -1,5 +1,6 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
+#include "psyq/libsio/siorecv.h"
 
 typedef struct {
     volatile unsigned char data;
@@ -26,7 +27,6 @@ extern volatile RrSerialReceiveRequest D_801146D8;
 extern RrSerialPortRegisters *D_800ABD18;
 extern RrSerialPortRegisters D_801146C0;
 extern int (*D_801146D0)(int, int);
-extern short D_800ABD48[];
 extern int func_80096E64(unsigned int, int);
 
 int func_8009AC50(int first, int second) {
@@ -34,7 +34,6 @@ int func_8009AC50(int first, int second) {
     int s1;
     int s5;
     volatile RrSerialReceiveRequest *p1 = &D_801146D8;
-
 
     if (p1->request.active != 0) {
         return -1;

@@ -2,6 +2,8 @@
 #include "game/ui/window1.h"
 #include "game/ui/hudmap2.h"
 #include "game/ui/uipart1.h"
+#include "game/data/ldscn1.h"
+#include "game/race/raceinfo.h"
 
 struct T { int pad[2]; int a; int b; int pad2[11]; };
 
@@ -28,8 +30,6 @@ extern int func_80032EC8();
 extern struct T *D_800ABEA4;
 extern int D_800ABECC;
 extern short D_800AD522;
-extern int D_800F2EC4;
-extern int D_8010BFC8;
 extern char D_800AD528[];
 extern short D_8010BFD0[];
 extern void func_800172DC();

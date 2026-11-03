@@ -2,6 +2,7 @@
 #include "rr_asm.h"
 #include "rr/race.h"
 #include "m2c_macros.h"
+#include "game/car/carmove1.h"
 
 typedef struct T16 {
     s32 a;
@@ -75,7 +76,6 @@ extern s32 D_800ABECC;
 extern short D_800AD522;
 extern struct E *D_800ABEA4;
 extern K D_800ADAD8[];
-extern short *D_800ACBE8;
 extern int func_80026A74();
 
 s32 func_800261BC(s32 *pos, s32 startIdx);

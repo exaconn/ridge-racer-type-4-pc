@@ -2,6 +2,8 @@
 /* GCC_VERSION: 2.7.2 */
 /* CC1_FLAGS: -fsigned-char */
 #include "psyq/libcd/dsread.h"
+#include "psyq/libcd/cdfile.h"
+#include "psyq/libcd/dsfile.h"
 
 typedef struct {
     int x;
@@ -24,10 +26,8 @@ struct DirPath {
     char name[32];
 };
 
-extern int D_800A67A0;
 extern int D_800A6490;
 extern struct DirPath D_8011092C[];
-extern unsigned char D_80111F50[];
 extern CdlFILE D_80110350[];
 extern const char D_80011CA4[];
 extern const char D_80011CC4[];

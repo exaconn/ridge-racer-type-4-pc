@@ -2,6 +2,7 @@
 #include "rr/channels.h"
 #include "rr_asm.h"
 #include "psyq/libpad/padpoll.h"
+#include "psyq/libpad/padtm22.h"
 
 typedef struct {
     char pad0[0x3C];
@@ -29,8 +30,6 @@ extern void func_8009A7F4(s32);
 extern int func_8009A814();
 extern Q *D_800ABCC8;
 extern H *D_800ABCCC;
-extern int D_801146B8;
-extern int D_801146BC;
 
 void func_80098488(RrChannelRecordF0 *channel);
 int func_80098578(S *a0, int a1);

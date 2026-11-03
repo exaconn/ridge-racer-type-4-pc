@@ -3,6 +3,7 @@
 #include "rr/matrix_words.h"
 #include "psyq/libgpu/gpudisp.h"
 #include "psyq/libgte/gtemat7.h"
+#include "game/menu/menutran.h"
 
 #define addPrim(ot, p) \
     ((DrTPage *)(p))->addr = (ot)->addr; \
@@ -70,7 +71,6 @@ extern unsigned short D_800AC006;
 extern int D_800ACBF8;
 extern short D_800F3826;
 extern struct { char pad[8]; short x8; } *D_800F3A08;
-extern short D_800F4C28;
 extern Q16 D_800111D4;
 extern short D_800ABED0[][3];
 extern int func_8006E030();

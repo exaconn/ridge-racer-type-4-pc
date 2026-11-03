@@ -5,6 +5,7 @@
 #include "game/gfx/gfxmtx.h"
 #include "game/gfx/gtepoly1.h"
 #include "psyq/libgte/gtemat3.h"
+#include "game/race/raceinit.h"
 
 #define G ((Scratch2D784 *)0x1F800000)
 
@@ -140,7 +141,6 @@ extern s16 D_800ABED0[];
 extern s32 D_800F2FD8;
 extern Bounds2CC88 *D_800F3A08[];
 s32 func_80039494(Vehicle2D1B4 *);
-extern s32 D_800ABEC4;
 extern u16 D_800ABEF0;
 extern LightEntry2C *D_800F4D90;
 extern LodDist6 D_8009F04C[];

@@ -11,6 +11,8 @@
 #include "psyq/libgte/gtemat3.h"
 #include "psyq/libgte/gtemat7.h"
 #include "psyq/libgte/gtemath2.h"
+#include "game/race/objclr.h"
+#include "game/race/objsim.h"
 
 #define SCRATCH_BASE (fp)
 #define SCRATCH_PRIM (*(s32 *)(fp + 0x00))
@@ -145,7 +147,6 @@ extern SVec D_800A3FC8[];
 extern CVec D_800A4088[];
 extern S_ABEA4 *D_800ABEA4;
 extern Mat32 D_800ABED0;
-extern s16 D_800AC1A2;
 extern s32 D_800AD504;
 extern s32 D_800F2DE4;
 extern s16 D_800F3914;
@@ -157,7 +158,6 @@ extern s32 D_8010E840;
 extern s32 D_8010E848[];
 extern Vec16 D_8010E8C8;
 extern Vec16 D_8010E8E8[];
-extern s32 D_8010ECA8;
 extern S_ECAC *D_8010ECAC;
 extern S_ECB0 *D_8010ECB0;
 extern S_ECB4 *D_8010ECB4;

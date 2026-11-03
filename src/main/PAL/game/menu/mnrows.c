@@ -9,18 +9,15 @@
 #include "game/ui/uidraw.h"
 #include "game/ui/uitext.h"
 #include "game/ui/uiwin.h"
+#include "game/menu/mnrows.h"
+#include "game/ui/uidraw.h"
 
 extern s32 D_800ABEB0;
 extern int func_8001E84C();
 extern int D_800102F0;
 extern char D_8001075C[];
-extern int D_800AC540;
 extern int D_800ACC18;
-extern int D_800ACC1C;
-extern int D_800ACC24;
-extern int D_800F2ECC;
 extern int D_800F4BEC;
-extern int D_800F4C1C;
 extern int D_800F4D30;
 extern int D_800F4D70[];
 extern int func_8001ECE8();

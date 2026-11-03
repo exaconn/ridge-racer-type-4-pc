@@ -1,6 +1,7 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "game/ui/window2.h"
+#include "game/race/objsim.h"
 
 struct S { char pad[0x2AA]; short f; char pad2[0x320 - 0x2AC]; };
 
@@ -12,7 +13,6 @@ extern int D_800ABEB0;
 extern short D_800F4D44;
 extern short D_80107178;
 extern short D_800AC59C;
-extern short D_800AC0E6;
 extern signed char D_800AD4EF;
 extern unsigned char D_8009EE40[];
 extern unsigned char D_8009EE44[];

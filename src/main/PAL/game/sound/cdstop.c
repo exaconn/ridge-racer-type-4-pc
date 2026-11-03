@@ -1,5 +1,6 @@
 /* RODATA 0x80011178 0x14 */
 #include "types.h"
+#include "game/sound/cdclose.h"
 
 extern struct {
     char pad0[0x2670];
@@ -13,7 +14,6 @@ extern struct {
     char pad4[0x26D0 - 0x26C0];
     char blk[0x1C];
 } D_800F4DB8;
-extern unsigned int D_800F7430;
 extern int func_80052B48();
 extern int func_8008C0D8();
 extern int func_8008C140();

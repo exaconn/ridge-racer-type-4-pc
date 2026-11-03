@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+extern short D_8009FE60[];
 void func_800451E4(int *a);
 
 #endif /* RR_GAME_GFX_GFXOTAG_H */

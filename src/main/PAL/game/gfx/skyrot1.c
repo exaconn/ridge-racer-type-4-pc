@@ -3,6 +3,7 @@
 #include "m2c_macros.h"
 #include "game/gfx/sky.h"
 #include "psyq/libgte/gtemat2.h"
+#include "game/gfx/skyrot1.h"
 
 struct V8 { unsigned char c[8]; };
 
@@ -26,7 +27,6 @@ extern s32 D_800AC5DC;
 extern s16 D_800F3A26;
 extern s16 D_800F4C6A;
 extern s16 D_800F4D8A;
-extern s32 D_8010BF7C;
 
 int func_8001BD40(int a0, int a1);
 void func_8001BEF8(void);

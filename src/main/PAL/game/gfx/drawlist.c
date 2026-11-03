@@ -10,6 +10,8 @@
 #include "game/sound/cdstop.h"
 #include "game/effect/spfade.h"
 #include "game/gfx/skyrot1.h"
+#include "game/data/ldscn5.h"
+#include "game/gfx/skyrot1.h"
 
 #define G D_8010BF78
 #define H D_800F3AFC
@@ -120,7 +122,6 @@ extern int func_80096454();
 extern struct GS *D_8010BF78;
 extern struct HS *D_800F3AFC;
 extern struct KS *D_800AC590;
-extern int D_8010BF7C;
 extern short D_800AC5D0;
 extern int D_800ACC14;
 extern char *D_800ACC18;
@@ -133,7 +134,6 @@ extern int D_800F4CA8;
 extern short D_800F4D8A;
 extern short D_8009E4EC;
 extern char *D_800102F0;
-extern char *D_800AC64C;
 extern char D_800101EC[];
 extern char D_8009E510[];
 extern char D_8009E520[];

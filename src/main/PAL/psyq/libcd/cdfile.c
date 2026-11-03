@@ -4,6 +4,8 @@
 #include "rr/library.h"
 #include "psyq/libcd/dsread.h"
 #include "psyq/libcd/dsfile.h"
+#include "psyq/libcd/cdfile.h"
+#include "psyq/libcd/dsfile.h"
 
 typedef struct {
     unsigned char pos[4];
@@ -34,9 +36,7 @@ extern const char D_80011BA8[];
 extern const char D_80011BB4[];
 extern int func_8001E84C();
 extern int func_80096414();
-extern int D_800A67A0;
 extern struct DirPath D_80110950[];
-extern unsigned char D_80111F50[];
 extern const char D_80011BC4[];
 extern const char D_80011BF0[];
 extern const char D_80011BF8[];

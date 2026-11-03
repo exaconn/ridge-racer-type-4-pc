@@ -1,10 +1,10 @@
 /* CC1_FLAGS: -mno-split-addresses */
+#include "psyq/libapi/intrdisp.h"
 extern int func_8008B5D0(), func_8008BA00(), func_8008BA24(), func_8008BB44(), func_800963F4(), func_80096E3C(), func_80096EF4(), func_80096F14();
 extern unsigned short D_800A52C8;
 extern char D_800A5304[];
 extern int *D_800A6350;
 extern unsigned short *D_800A6354, *D_800A6358;
-extern int *D_800A635C;
 char *func_8008B4F8()
 {
     char *p, *r;

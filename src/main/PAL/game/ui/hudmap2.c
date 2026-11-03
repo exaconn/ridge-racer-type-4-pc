@@ -5,6 +5,10 @@
 #include "rr/gpu.h"
 #include "rr/icon_sprites.h"
 #include "game/sound/sndctrl.h"
+#include "game/demo/opening.h"
+#include "game/sound/cdpos.h"
+#include "game/system/modeinit.h"
+#include "game/ui/hudmap2.h"
 
 #define ADDPRIM(ot, p) \
     (p)->addr = ((SPRT *)(ot))->addr; \
@@ -136,21 +140,12 @@ extern short D_800AD520;
 extern short D_800F4D44;
 extern int func_80052800();
 extern signed char D_800AD4D8[];
-extern int D_800A0C9C[];
-extern int D_800F3970;
-extern int D_800F765C;
 extern int D_800F7660;
 extern s16 D_800A1818[];
 extern s16 D_800A1824[];
-extern s16 *D_800A18F0[];
-extern s16 *D_800A1910[];
-extern s16 *D_800A1930[];
 extern s16 *D_800A1950[];
-extern s16 *D_800A1970[];
 extern s16 *D_800A1984[];
-extern s16 *D_800A19A4[];
 extern s16 *D_800A19C0[];
-extern s32 D_800A19E0[];
 extern s32 D_800A1A00[];
 extern s32 D_800A1A20[];
 extern s32 D_800A1A40[];
@@ -166,12 +161,6 @@ extern struct {
     s32 w28a8;
     s32 w28ac;
 } D_800F4DB8;
-extern s32 D_8010E220;
-extern s32 D_8010E228;
-extern s32 D_8010E22C;
-extern s32 D_8010E230;
-extern s32 D_8010E234;
-extern s32 D_8010E238;
 
 void func_800587E4(s32 arg0, u8 *arg1, s32 *arg2);
 void func_80058A3C(s32 *arg0);

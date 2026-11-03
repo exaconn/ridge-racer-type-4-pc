@@ -1,11 +1,11 @@
 /* RODATA 0x8001085c 0x18 */
 #include "game/data/cdfile2.h"
+#include "game/data/ldscn4.h"
+#include "game/data/ldscn5.h"
 extern int func_8001223C();
 extern int func_8001292C();
 extern void func_800436E8();
 extern void func_80012A68();
-extern char D_8009F8FC;
-extern int D_800AC64C;
 extern int D_800ACC18;
 extern unsigned char D_800F4D7C;
 

@@ -8,6 +8,7 @@
 #include "rr/draw_environment.h"
 #include "psyq/libgpu/addprim.h"
 #include "psyq/libgpu/gpubase2.h"
+#include "psyq/libgpu/gpuenv.h"
 
 typedef struct { short a,b,c,d,e,f,g,h; char i,j,k,l; } W3L2_A;
 
@@ -30,13 +31,10 @@ extern char D_80011ECC[];
 extern char D_80011ED8[];
 /* extern */
 extern M2C_UNK D_80011EE4;
-extern char D_80011EF0[];
-extern char D_80011EFC[];
 extern char D_80011F08[];
 extern char D_800ABB6C[];
 extern int D_800ABB80;
 extern char D_80011F20[];
-extern const char D_80011F38[];
 extern int func_80096444();
 extern char D_80011F4C[];
 extern char D_80011F64[];

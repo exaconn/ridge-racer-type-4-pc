@@ -2,8 +2,8 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/channels.h"
 #include "rr/spu.h"
+#include "psyq/libspu/sminit.h"
 
-extern s32 D_800A48B8;
 extern void func_8008A774(void);
 
 s32 func_8008A644(u32 count);

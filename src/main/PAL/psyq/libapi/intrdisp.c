@@ -2,9 +2,9 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/interrupt_dispatch.h"
 #include "rr/library.h"
+#include "psyq/libapi/intrdisp.h"
 
 extern s32 func_80096F84(s32),func_80096F94(s32,s32);
-extern int *D_800A635C;
 extern void func_80096F04(), func_80096EE4();
 extern void func_80096EF4(void *data);
 extern void func_80096F14(void);

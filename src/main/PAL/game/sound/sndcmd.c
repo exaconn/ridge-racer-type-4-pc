@@ -7,6 +7,7 @@
 #include "game/sound/sndvab.h"
 #include "psyq/libsnd/vmvinit.h"
 #include "psyq/libspu/spukeyst.h"
+#include "game/sound/sndcmd.h"
 
 extern short D_800F4D44;
 extern struct 
@@ -40,7 +41,6 @@ extern int func_8005534C();
 extern int func_8004FED4();
 extern int D_800F2EC8;
 extern struct { char p0[0x1C]; s32 x1C; char p1[0x28]; s32 x48; s32 x4C; char p2[0x38C]; s32 x3DC; } D_800AC650;
-extern s32 D_800AC66C;
 
 void func_8004F418();
 void func_8004F600(void);

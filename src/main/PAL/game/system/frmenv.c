@@ -12,6 +12,8 @@
 #include "psyq/libgpu/gpuenv.h"
 #include "psyq/libsio/siostart.h"
 #include "psyq/libspu/sinit2.h"
+#include "game/data/ldscn1.h"
+#include "game/menu/menusave.h"
 
 extern int func_8001E84C();
 extern int func_8008BE44();
@@ -41,7 +43,6 @@ extern char D_80010398[];
 extern char D_800103A0[];
 extern char D_800103AC[];
 extern char D_800ABEF8[];
-extern int D_800AC5A0;
 extern int D_800ACC18;
 extern int D_800AD568;
 extern signed char D_800AD4D8[];
@@ -61,7 +62,6 @@ extern int D_800F4C24;
 extern int D_800F4C2C;
 extern int D_800F4CA8;
 extern int D_800F4D40;
-extern short D_800F4BE0;
 extern short D_800F4D44;
 extern char *D_800F3B20;
 extern void func_800912B4(s32,s32),func_800912D4(s32);

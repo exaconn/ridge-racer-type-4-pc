@@ -6,6 +6,8 @@
 #include "game/data/cardini.h"
 #include "game/menu/loadmenu.h"
 #include "game/data/cardini.h"
+#include "game/data/cardchk.h"
+#include "game/menu/menumode.h"
 
 struct E { char pad[4]; unsigned char a; char b; unsigned char c; signed char d; };
 
@@ -38,7 +40,6 @@ extern s16 D_800F3A1C;
 extern u8 D_800F3A24[];
 extern RrMenuItemState5C D_800F3A38[];
 extern s16 D_800FFC00;
-extern u16 D_80109458;
 extern s16 D_8010948C;
 extern unsigned char D_800A4524[][4];
 extern unsigned short D_800F3AF8;
@@ -46,7 +47,6 @@ extern unsigned short D_800F4D8A;
 extern unsigned short D_800FFC18;
 extern short D_80109478[];
 extern short D_8010948E;
-extern short D_801094A0;
 extern int func_8002B330();
 extern int func_8004F24C();
 extern int func_80053AF4();
@@ -74,9 +74,7 @@ extern int D_800AC5D4;
 extern int D_800F4CA8;
 extern short D_800F4D3C;
 extern int D_801272F0[];
-extern unsigned char D_800A44A8[];
 extern s16 D_800A4540[][2];
-extern u8 D_8010B2DC[];
 extern char *D_800ACC0C;
 extern int D_8010EFA8;
 extern int func_8002B75C();
@@ -87,9 +85,7 @@ extern char D_800A457C[];
 extern char D_800F4D50[];
 extern int D_800A45C0;
 extern int D_800A45C4;
-extern char *D_800A4594[];
 extern unsigned char D_800A4478[];
-extern short D_80109490;
 extern int func_80032A14(), func_8007D448(), func_8007D560(), func_8007D65C();
 
 void func_8007BD18(void);

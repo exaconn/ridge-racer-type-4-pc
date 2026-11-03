@@ -1,5 +1,6 @@
 #include "rr_asm.h"
 #include "game/menu/mnsel.h"
+#include "game/gfx/gtemodel.h"
 
 typedef struct { int a, b, c, d; } V16;
 
@@ -7,7 +8,6 @@ typedef struct { int a, b; } __attribute__((packed)) V8;
 
 extern int func_8001AC24(), func_80092334();
 extern int D_800FF690[];
-extern int D_800FF6A4[];
 extern int D_8009E46C[];
 extern int D_800ABEB0;
 extern int func_80013890();

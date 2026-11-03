@@ -1,8 +1,8 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/interrupts.h"
+#include "psyq/libapi/pad1.h"
 
 extern int func_80096F04(), func_80096F14(), func_80097714();
-extern int D_801143E8;
 extern volatile short *D_800ABC54;
 
 int func_800975E0();

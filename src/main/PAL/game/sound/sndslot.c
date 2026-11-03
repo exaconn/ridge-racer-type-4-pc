@@ -9,6 +9,7 @@
 #include "game/sound/sndmain.h"
 #include "game/sound/sndrst2.h"
 #include "game/sound/sndvol2.h"
+#include "game/data/trkld6.h"
 
 typedef struct { short pad[0xC]; short o; short n; short c; short to; short from; } T;
 
@@ -32,8 +33,6 @@ typedef struct {
 } W;
 
 extern int func_800534D8();
-extern s32 D_800ACBC8;
-extern s32 D_800F4DC8;
 extern struct S D_800F4DF0[];
 extern int func_80096454();
 

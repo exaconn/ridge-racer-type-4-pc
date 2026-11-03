@@ -151,6 +151,52 @@ def main():
                 f = norm_decl(core)
                 if f not in forms[name] and usable(f, name, known):
                     forms[name].append(f if f.endswith(';') else f + ';')
+    # ---- shared global variables: owner inferred from the monotonic data layout ----
+    import bisect
+    VAR = re.compile(r'D_[0-9A-Fa-f]{8}$')
+    unit_addr = {}
+    for p, (_, items) in units.items():
+        a = [int(n[5:], 16) for k, _, n in items if k == 'func' and n and FUNC.match(n)]
+        if a:
+            unit_addr[p] = min(a)
+    rank = {p: i for i, p in enumerate(sorted(unit_addr, key=unit_addr.get))}
+    vusers = defaultdict(dict)
+    for p, (_, items) in units.items():
+        for kind, t, name in items:
+            if kind != 'decl' or not name or not VAR.match(name) or name in blocked or p not in rank or re.search(r'\b' + name + r'\b', existing):
+                continue
+            core = lead_free(t)
+            if core.startswith('extern') and '(' not in core and ',' not in strip_comments(core):
+                vusers[name][p] = core
+    anchors = sorted((int(n[2:], 16), rank[next(iter(u))]) for n, u in vusers.items() if len(u) == 1)
+    akeys = [a for a, _ in anchors]
+
+    def interp(addr):
+        i = bisect.bisect_left(akeys, addr)
+        lo = anchors[max(i - 1, 0)][1]
+        hi = anchors[min(i, len(anchors) - 1)][1]
+        return (lo + hi) / 2
+    vedges = defaultdict(list)
+    for name, us in vusers.items():
+        if len(us) < 2:
+            continue
+        want = interp(int(name[2:], 16))
+        own = min(us, key=lambda q: abs(rank[q] - want))
+        fl = []
+        for q, core in us.items():
+            f = norm_decl(core)
+            f = f if f.endswith(';') else f + ';'
+            f = 'extern ' + f
+            if f not in fl and usable(f, name, known):
+                fl.append(f)
+        if not fl:
+            continue
+        owner[name] = (own, fl[0])
+        forms[name] = fl
+        for q, core in us.items():
+            vedges[q].append((name, core))
+    for q, v in vedges.items():
+        edges[q].extend(v)
     cands = {n: [owner[n][1]] + [f for f in forms[n] if f != owner[n][1]] for n in {e[0] for v in edges.values() for e in v}}
     print('functions with callers', len(cands), 'caller edges', sum(len(v) for v in edges.values()))
     if dry:
@@ -200,11 +246,11 @@ def main():
             old = {}
             if base_hdr.get(h):
                 for l in base_hdr[h].splitlines():
-                    m = re.search(r'func_[0-9A-Fa-f]{8}', l)
+                    m = re.search(r'(?:func|D)_[0-9A-Fa-f]{8}', l)
                     if m and not l.startswith(('#', '/*')):
                         old[m.group(0)] = l
             old.update({n: f for n, f in lst})
-            body += [old[n] for n in sorted(old)]
+            body += [old[n] for n in sorted(old, key=lambda x: (x.startswith('func_'), int(x.split('_')[1], 16)))]
             body += ['', f'#endif /* {guard} */', '']
             h.write_text('\n'.join(body))
         changed = {}

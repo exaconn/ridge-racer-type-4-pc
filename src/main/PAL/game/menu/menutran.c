@@ -1,5 +1,6 @@
 /* RODATA 0x80010514 0x24 */
 #include "rr/menu_transition.h"
+#include "game/menu/menutran.h"
 
 typedef struct { int a; short b; char c; char d; } S8;
 
@@ -14,7 +15,6 @@ extern short D_800AC648;
 extern short D_800AD520;
 extern short D_800F3826;
 extern short D_800F3914;
-extern short D_800F4C28;
 extern signed char D_800AD4D8[];
 extern signed char D_800AD4EF;
 extern unsigned char D_800AD4F0;

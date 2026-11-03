@@ -9,10 +9,13 @@
 #include "game/data/cdfile2.h"
 #include "game/data/trkld1.h"
 #include "game/menu/menuslot.h"
+#include "game/data/ldscn1.h"
+#include "game/data/ldscn4.h"
+#include "game/menu/mnrows.h"
+#include "game/race/raceinfo.h"
 typedef struct { char p[7]; char b; } Z;
 
 extern int func_8004E008();
-extern char D_8009F8FC;
 extern short D_800AC650[];
 extern unsigned char D_800F4D7C;
 extern int func_8001223C();
@@ -35,9 +38,6 @@ extern int func_800436E8();
 extern char D_800FFC48[];
 extern int func_8005AF5C();
 extern int func_8005B2D4();
-extern int D_800ACC1C;
-extern int D_800AC5A0;
-extern int D_800F4C1C;
 extern int func_80053BB4();
 extern int func_80043608();
 extern struct { char pad[4]; signed char f4; char pad2[0x1B]; int f20; } *D_800FF68C;
@@ -45,13 +45,10 @@ extern int D_800F4CA8;
 extern struct { char pad[0x17]; signed char f17; char pad2[2]; short f1A; unsigned char f1C; } D_800AD4D8;
 extern int D_800AD564;
 extern unsigned char D_800AD4F4;
-extern signed char *D_800ACBFC;
 extern char D_80104DB0[];
 extern Z *D_800AC590;
 extern char *D_800ABEA4;
 extern int D_800ABECC;
-extern char *D_800F2EC4;
-extern int D_8010BFC8;
 extern char D_8010C220[];
 
 int func_8003A79C(void);

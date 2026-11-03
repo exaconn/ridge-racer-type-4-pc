@@ -3,20 +3,18 @@
 #include "m2c_macros.h"
 #include "game/data/cdfile2.h"
 #include "game/course/trkres2.h"
+#include "game/data/trkld1.h"
+#include "game/gfx/gfxotag.h"
 
-extern int D_800A0220;
 extern int D_800A02BC;
-extern int D_8010C1F0;
 extern int D_800A029C[];
 extern short D_800F4D44;
 extern int func_8001223C();
 extern int func_8001292C();
 extern int func_8004D4BC();
 extern int func_8001223C(), func_8001292C(), func_80012A58(), func_8004D4BC(), func_80070108(), func_800436E8(), func_80043608(), func_80012A68();
-extern short D_8009FE60[];
 extern int func_8001223C(), func_8001292C(), func_80012A58(), func_8004D4BC(), func_80070108(), func_800436E8();
 extern int func_80050BCC();
-extern int D_800A0224;
 extern struct { int a, b, c, d; } D_8010C200;
 extern int func_80050978();
 extern int func_8004ED38();
@@ -24,8 +22,6 @@ extern int D_800A0228[];
 extern struct { char pad[0x2858]; char *p[1]; } D_800F4DB8;
 extern char *D_8010C210[2];
 extern int D_8010C218;
-extern s32 D_800A0218;
-extern s32 D_800A021C;
 extern s32 D_800ACC18;
 extern int D_800AC650[];
 extern int D_800ACBBC;

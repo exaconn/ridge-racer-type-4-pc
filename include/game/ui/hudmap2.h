@@ -3,6 +3,16 @@
 
 #include "types.h"
 
+extern s32 D_800A0C9C[];
+extern s16 *D_800A1970[];
+extern s16 *D_800A19A4[];
+extern int D_800A19E0[];
+extern int D_800F765C;
+extern s32 D_8010E228;
+extern s32 D_8010E22C;
+extern s32 D_8010E230;
+extern s32 D_8010E234;
+extern s32 D_8010E238;
 void func_800587E4(s32 arg0, u8 *arg1, s32 *arg2);
 void func_800590DC(void);
 void func_80059314(s32 arg0, s32 arg1);

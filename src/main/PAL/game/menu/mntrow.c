@@ -3,6 +3,7 @@
 #include "m2c_macros.h"
 #include "game/menu/mnsel.h"
 #include "game/ui/barsel1.h"
+#include "game/gfx/fontdraw.h"
 
 #define ROW(i) ((RrRow60 *)((s32)D_800FFC14 + (i) * 0x3C))
 
@@ -47,7 +48,6 @@ typedef struct { char pad[4]; char f4; char pad2[2]; char f7; } T;
 extern RrSpritePacket *func_8001FCC8();
 extern s32 func_80090424();
 extern s32 func_800904F4();
-extern u8 D_8009ED38[];
 extern struct O *D_800ACC14;
 extern RrRow60 *D_800FFC14;
 extern unsigned short D_8009FDA0[];

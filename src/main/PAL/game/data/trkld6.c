@@ -4,22 +4,17 @@
 #include "game/data/trkld1.h"
 #include "game/data/trkld5.h"
 #include "game/data/trkld5.h"
+#include "game/data/trkld1.h"
+#include "game/data/trkld6.h"
 extern struct { char pad[0x56C]; int a, b, c, d; } D_800AC650;
 extern struct { char pad[0x10]; int f10; char pad2[0x19CC - 0x14]; int f19cc; } D_800F4DB8;
 extern short D_800F4D44;
 extern short D_800F3826;
 extern short D_800AD508;
 extern int D_800F6784;
-extern int D_800ACBC8;
-extern int D_800F4DC8;
-extern int D_800A0218;
-extern int D_800A021C;
-extern int D_800A0220;
-extern int D_800A0224;
 extern unsigned short D_800A02C0;
 extern int D_800ACC18;
 extern short D_800F3914;
-extern int D_8010C1F0;
 extern int func_8001223C(), func_8001292C(), func_80012A58(), func_80012A68(), func_800436E8();
 extern char *func_8004D4BC();
 extern int func_8004ED38(), func_8004F600(), func_80070108();

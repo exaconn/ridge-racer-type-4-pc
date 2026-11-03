@@ -1,4 +1,7 @@
 #include "psyq/libgte/gtemat7.h"
+#include "game/gfx/gfxmtx.h"
+#include "game/menu/mnrows.h"
+#include "game/ui/uidraw.h"
 typedef struct { unsigned short a, b, c, d; } W8;
 
 typedef struct { unsigned short a, b, c; } W6;
@@ -10,13 +13,10 @@ extern B4 D_8009F928[];
 extern W8 D_8009F934[];
 extern W6 D_800ABED0[];
 extern char *D_800F4D90;
-extern int D_800ACC24;
 extern char *D_800F2AB0;
-extern int D_800F2ECC;
 extern char *D_800F3AFC;
 extern int func_80096434();
 extern int func_8001E84C();
-extern int D_80010874[];
 
 void func_8003CF34(int a0);
 void func_8003D01C();

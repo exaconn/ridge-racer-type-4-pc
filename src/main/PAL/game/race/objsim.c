@@ -2,6 +2,8 @@
 #include "types.h"
 #include "game/gfx/polytri.h"
 #include "game/gfx/poly1.h"
+#include "game/race/objclr.h"
+#include "game/race/objsim.h"
 
 #define B4 ((S_ECB4 *)(i * 0x2C + (int)D_8010ECB4))
 #define B0 ((S_ECB0 *)(i * 0x30 + (int)D_8010ECB0))
@@ -114,8 +116,6 @@ extern int func_80096464();
 extern int D_800A4090;
 extern S_ABEA4 *D_800ABEA4;
 extern int D_800ABECC;
-extern short D_800AC0E6;
-extern short D_800AC1A2;
 extern int D_800F2DE4;
 extern short D_800F3914;
 extern unsigned short D_800F3A38[];
@@ -128,7 +128,6 @@ extern int D_8010E7B4;
 extern int D_8010E7B8;
 extern int D_8010E7C8[];
 extern S_E8E8 D_8010E8E8[];
-extern int D_8010ECA8;
 
 s32 func_80072358(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
 void func_800735D8(void);

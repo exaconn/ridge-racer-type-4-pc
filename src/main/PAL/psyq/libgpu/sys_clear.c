@@ -4,8 +4,8 @@
 #include "rr/library.h"
 #include "m2c_macros.h"
 #include "psyq/libgpu/sys_drain.h"
+#include "psyq/libgpu/gpuenv.h"
 
-extern char D_80011F38[];
 extern struct { char p[0x18]; int (*f18)(); } *D_800ABAB8;
 extern volatile unsigned *D_800ABBD4;
 extern volatile unsigned *D_800ABBC8;

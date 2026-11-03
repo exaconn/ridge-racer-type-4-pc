@@ -1,5 +1,5 @@
 /* CC1_FLAGS: -fno-strength-reduce */
-extern int D_8010ECA8;
+#include "game/race/objclr.h"
 extern int *D_8010ECB0;
 extern int *D_8010ECB4;
 void func_80077D90(a0) int a0; {

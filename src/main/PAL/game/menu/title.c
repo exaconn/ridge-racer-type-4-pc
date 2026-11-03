@@ -6,6 +6,10 @@
 #include "game/sound/sndslot.h"
 #include "game/ui/hudmap2.h"
 #include "psyq/libc/printf.h"
+#include "game/demo/attract.h"
+#include "game/demo/opening.h"
+#include "game/menu/title.h"
+#include "game/ui/hudmap2.h"
 
 extern int func_80014A8C();
 extern int func_800172DC();
@@ -33,10 +37,7 @@ extern int func_800747EC();
 extern int func_80092CB8();
 extern char D_800112CC[];
 extern char D_800112D4[];
-extern char D_800A095C[];
 extern char D_800A1A6C[];
-extern int D_800A0C9C[];
-extern int D_800ABFE8;
 extern short D_800AC5D0;
 extern int D_800ACA2C;
 extern int D_800ACB0C;
@@ -46,16 +47,13 @@ extern int D_800ACC14;
 extern int D_800F2A64;
 extern int D_800F2EC8;
 extern short D_800F3A26;
-extern unsigned short D_800F3A3A;
 extern unsigned short D_800F3A40;
 extern int D_800F3A60;
 extern int D_800F3A68;
 extern int D_800F3A6C;
 extern short D_800F4C6A;
 extern short D_800F4D8A;
-extern int D_800F765C;
 extern int D_8010718C;
-extern int D_8010E270[];
 extern int D_800FFC20[];
 typedef struct 
 {

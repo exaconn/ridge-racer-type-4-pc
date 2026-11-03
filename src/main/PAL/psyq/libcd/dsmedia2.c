@@ -6,13 +6,10 @@
 #include "psyq/libcd/dsstrm4.h"
 #include "psyq/libcd/s_1.h"
 #include "psyq/libcd/s_4.h"
+#include "psyq/libcd/dsmedia2.h"
+#include "psyq/libcd/dsstrm32.h"
 
-extern int D_801102F8;
-extern int D_801102F4;
-extern int D_801102EC;
 extern int D_801102DC;
-extern int D_801102D0;
-extern short D_801102D4;
 extern s32 func_8008C55C();
 extern s32 func_80096F04();
 extern s32 func_80096F14();
@@ -22,7 +19,6 @@ extern s8 *D_800A680C;
 extern s32 D_80112754;
 extern RrLibPackedWord D_80112750;
 extern void (*D_80112760)(void);
-extern int D_80110348;
 extern int func_8008C6A4(), func_8008C5A0();
 
 void func_8008F504(void);

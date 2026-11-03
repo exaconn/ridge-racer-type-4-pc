@@ -5,6 +5,7 @@
 #include "game/gfx/fontdraw.h"
 #include "game/menu/menu8.h"
 #include "game/menu/menuslot.h"
+#include "game/menu/menu13.h"
 
 typedef struct {
     unsigned short *p;
@@ -19,8 +20,6 @@ typedef struct {
 } S;
 
 extern int func_8004F24C();
-extern unsigned char *D_800ACC20;
-extern unsigned short *D_800F2ED0[];
 extern int D_800F3A60;
 extern char *D_800F3AFC;
 extern char *D_800FF68C;

@@ -6,24 +6,23 @@
 #include "game/gfx/fadein.h"
 #include "game/gfx/fadespr.h"
 #include "game/ui/hudmap2.h"
+#include "game/demo/attract.h"
+#include "game/menu/title.h"
+#include "game/ui/hudmap2.h"
 
 extern int D_8010E240[];
 extern char D_800ACB0C[];
 extern int D_800A2124[];
-extern int D_8010E270[];
 extern unsigned char D_800F4D98[];
 extern short D_800F3914;
-extern unsigned short D_800F3A3A;
 extern unsigned short D_800A2134;
 extern unsigned short D_800A2138[];
-extern int D_800A19E0[];
 extern short D_800F4D44;
 extern short D_800FFC10;
 extern short D_800F4BE8;
 extern short D_800F4C6A;
 extern short D_800F3A26;
 extern short D_800F4D8A;
-extern int D_800F765C;
 extern int D_800F2EC8;
 extern char D_800AC650[];
 extern short D_800AD50A;

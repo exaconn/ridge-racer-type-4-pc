@@ -2,6 +2,7 @@
 #include "rr/channels.h"
 #include "rr/spu.h"
 #include "psyq/libspu/s_snc.h"
+#include "psyq/libsnd/vmrow.h"
 
 extern u16 D_8010F8F8;
 extern u16 D_8010F8FA;
@@ -10,7 +11,6 @@ extern u16 D_8010F8FE;
 extern u16 D_8010F900;
 extern u16 D_8010F902;
 extern u16 D_8010F90C[];
-extern u8 D_8010F925[];
 extern s16 D_8010FE38[];
 extern s16 D_8010FE3A[];
 extern u16 D_80110000;

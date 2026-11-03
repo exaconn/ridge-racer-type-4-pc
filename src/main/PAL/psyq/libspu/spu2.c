@@ -2,13 +2,11 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/spu.h"
 #include "psyq/libspu/spu3.h"
+#include "psyq/libspu/spu1.h"
+#include "psyq/libspu/spu2.h"
 
 struct H { char p[0x1A6]; volatile unsigned short f1A6; char q[2]; volatile unsigned short f1AA; };
 
-extern int *D_800A47DC;
-extern int *D_800A47E0;
-extern int *D_800A47E4;
-extern int D_800A4828;
 extern int D_800A482C;
 extern int D_800A4830;
 extern unsigned int *D_800A47E8;

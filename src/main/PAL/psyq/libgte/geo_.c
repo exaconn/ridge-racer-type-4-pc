@@ -2,9 +2,9 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "rr/trig.h"
+#include "psyq/libcd/dsstrm32.h"
 
 extern const char D_80011D98[];
-extern volatile u8 *D_800A6870;
 extern volatile s32 *D_800A6888;
 extern volatile s32 *D_800A688C;
 extern void func_8001E84C(const char *, ...);

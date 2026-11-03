@@ -1,6 +1,7 @@
 #include "types.h"
 #include "game/sound/cdmain.h"
 #include "psyq/libcd/s_1.h"
+#include "game/sound/cdpos.h"
 
 extern int func_8008C3B0();
 extern int func_8008DE84();
@@ -10,7 +11,6 @@ extern char D_800A07C4[];
 extern struct { char p0[0x2634]; s32 x2634; s32 x2638; char p1[0x4]; s32 x2640; } D_800F4DB8;
 extern int func_80083CD4();
 extern int func_80052ADC();
-extern int D_8010E220;
 
 void func_80052760(void);
 void func_80052800(void);

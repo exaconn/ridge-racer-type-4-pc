@@ -1,6 +1,8 @@
 /* RODATA 0x800100e4 0x20 */
 #include "rr_asm.h"
 #include "psyq/libgpu/gpudisp.h"
+#include "game/data/ldscn5.h"
+#include "game/gfx/sky.h"
 
 #define GS ((SPD *)0x1F800000)
 #define W(o) (*(int *)(GS->cur + (o)))
@@ -141,9 +143,7 @@ extern char D_800100D0[];
 extern short *D_8009E1D4[];
 extern short *D_8009E224[];
 extern short D_800F3914;
-extern int *D_8010BF68;
 extern char D_8009E248[];
-extern int D_800AC64C;
 extern int func_800912B4();
 extern int func_80093B14();
 

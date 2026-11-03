@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+extern char *D_800AC89C;
 void func_80057750();
 
 #endif /* RR_GAME_EFFECT_SPARK_H */

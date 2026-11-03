@@ -4,18 +4,17 @@
 #include "game/sound/cdpos.h"
 #include "psyq/libcd/s_1.h"
 #include "psyq/libspu/s_i.h"
+#include "game/data/trkld1.h"
 extern int func_8001223C();
 extern int func_8001292C();
 extern int func_80012A58();
 extern int func_800436E8();
 extern int func_8004D4BC();
-extern int D_800A021C;
 extern int D_800ACC18;
 extern short D_800AD520;
 extern int D_800AD564;
 extern short D_800F3914;
 extern int D_800F4D40;
-extern int D_8010C1F0;
 extern char D_800F74B0[];
 extern char D_800AC650[];
 extern struct { char pad[0x24]; short h[8]; char pad2[0x2860 - 0x34]; short a, b; } D_800F4DB8;

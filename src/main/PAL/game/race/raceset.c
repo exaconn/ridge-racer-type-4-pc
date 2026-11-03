@@ -1,6 +1,7 @@
 #include "rr/race_types.h"
 #include "rr/menu_choice.h"
 #include "game/ui/uipart1.h"
+#include "game/race/raceset.h"
 
 typedef struct { int key; short idx; } W10_Q;
 
@@ -28,10 +29,6 @@ extern s32 D_800F4CE8[2][8];
 extern s16 D_800F4D44;
 extern s32 D_800FF6B0;
 extern s32 D_8010C0F8[3];
-extern u16 D_8010C104;
-extern s32 D_8010C108;
-extern s32 D_8010C10C;
-extern s32 D_8010C114;
 extern s32 D_8010C120[3];
 extern s32 D_8010C12C;
 extern s16 D_8010C134;

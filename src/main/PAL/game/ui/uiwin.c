@@ -2,6 +2,7 @@
 #include "types.h"
 #include "rr/ui.h"
 #include "game/ui/uitext.h"
+#include "game/ui/uidraw.h"
 
 typedef struct {
     short x, y;
@@ -64,7 +65,6 @@ extern int D_800ACC14;
 extern MenuRow1C *D_800F4D8C;
 extern int func_80096434();
 extern int func_8001E84C();
-extern char D_800108D8[];
 extern s32 func_80090424();
 
 int func_8003E13C(int arg0);

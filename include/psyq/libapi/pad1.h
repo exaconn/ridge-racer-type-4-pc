@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+extern int D_801143E8;
 s32 func_800973D0(void);
 
 #endif /* RR_PSYQ_LIBAPI_PAD1_H */

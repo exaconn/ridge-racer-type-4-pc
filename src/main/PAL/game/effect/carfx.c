@@ -2,6 +2,7 @@
 #include "rr/line_emit.h"
 #include "game/camera/camfx.h"
 #include "game/gfx/gfxotag.h"
+#include "game/effect/spark.h"
 
 typedef struct {
     int vx, vy, vz, pad;
@@ -70,7 +71,6 @@ extern unsigned char D_800A0DC8[][4];
 extern u16 D_800111FE;
 extern short *D_800A0F20[];
 extern short *D_800A0F8C[];
-extern char *D_800AC89C;
 extern short D_800AD520;
 extern int func_80096464();
 extern struct { char pad[0x24C]; struct { char pad[0x140]; int v; } *p; } D_800AC650;

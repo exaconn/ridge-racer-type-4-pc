@@ -3,6 +3,7 @@
 #include "rr/race.h"
 #include "m2c_macros.h"
 #include "game/gfx/gtepoly1.h"
+#include "game/race/raceinit.h"
 
 #define I(o) (*(int *)(a0 + (o)))
 #define U(o) (*(unsigned short *)(a0 + (o)))
@@ -24,7 +25,6 @@ extern short D_800F4D44;
 extern short D_800AC59C;
 extern short D_80107178;
 extern short D_800AD508;
-extern int D_800ABEC4;
 extern int func_8002D1B4();
 extern int func_8002D784();
 extern RrVehicleBounds08 *D_800F3A08[];

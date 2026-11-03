@@ -2,6 +2,7 @@
 #include "m2c_macros.h"
 #include "game/ui/window2.h"
 #include "game/race/objsim.h"
+#include "psyq/libgpu/primattr.h"
 
 struct S { char pad[0x2AA]; short f; char pad2[0x320 - 0x2AC]; };
 
@@ -17,7 +18,6 @@ extern signed char D_800AD4EF;
 extern unsigned char D_8009EE40[];
 extern unsigned char D_8009EE44[];
 extern int func_80090424();
-extern int func_80095B24();
 extern struct S D_800ABEF8[];
 extern int D_800F3A30;
 

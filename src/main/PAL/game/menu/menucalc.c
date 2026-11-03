@@ -1,7 +1,8 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "game/gfx/gfxmtx.h"
+#include "game/menu/menustat.h"
 
-extern int func_8003069C();
 extern int func_80020074();
 extern unsigned char D_8009F074[][4];
 extern signed char D_8009F108[][8];
@@ -21,7 +22,6 @@ extern int D_800F2DE4;
 extern int func_8002A344();
 extern int func_8002AF8C();
 extern int func_8003B588();
-extern int func_8003D108();
 extern int func_8003D228();
 extern int func_8003D6F0();
 extern int func_8003DC9C();

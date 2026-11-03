@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+void func_80022888(char *a0);
 void func_80022980();
 void func_80022B64(char *a0, int a1);
 

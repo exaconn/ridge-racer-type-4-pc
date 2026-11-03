@@ -7,6 +7,9 @@
 #include "game/data/ldscn5.h"
 #include "game/gfx/gtemodel.h"
 #include "game/gfx/tilerect.h"
+#include "game/data/cdfile1.h"
+#include "game/data/cdfile2.h"
+#include "psyq/libgpu/gpuenv.h"
 
 #define GS ((SPD *)0x1F800000)
 #define W(o) (*(int *)(GS->cur + (o)))
@@ -129,7 +132,6 @@ extern struct B8 D_80010104;
 extern int func_8002A344();
 extern int func_8002AF8C();
 extern int func_8003A1B4();
-extern int func_80092F64();
 extern short D_800AC5D0;
 extern int D_800AC5DC;
 extern short D_800F3A26;
@@ -143,9 +145,6 @@ extern char *D_800ACC18;
 extern unsigned char D_800AD4EA;
 extern int D_800F3A60;
 extern S_8010BF70 *D_8010BF70;
-extern int func_8001223C();
-extern int func_8001292C();
-extern int func_80012A68();
 extern int func_80013890();
 extern int func_80019C90();
 extern int func_8001BAF8();

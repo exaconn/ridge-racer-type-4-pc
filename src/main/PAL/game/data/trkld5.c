@@ -4,6 +4,9 @@
 #include "game/data/trkld1.h"
 #include "game/data/trkld1.h"
 #include "game/data/trkld5.h"
+#include "game/course/trkres2.h"
+#include "game/data/cdfile1.h"
+#include "game/data/cdfile2.h"
 
 typedef struct { unsigned char a, b, c, d; } T;
 
@@ -11,9 +14,6 @@ extern short D_800ABEC8;
 extern void *D_800ACC18;
 extern short D_800AD520;
 extern short D_800F3914;
-extern int func_8001223C();
-extern int func_8001292C();
-extern int func_8004D4BC();
 extern T D_800F4D98[];
 
 int func_8004E260()

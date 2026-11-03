@@ -1,4 +1,5 @@
 /* CC1_FLAGS: -mno-split-addresses */
+#include "psyq/libpad/padintr.h"
 extern int (*D_800ABC6C)();
 extern int D_800ABC9C;
 extern int D_800ABCA0;
@@ -7,7 +8,6 @@ extern int D_800ABCBC;
 extern int D_80114428;
 extern int D_8011442C;
 extern int func_80097EA0();
-extern int func_80097E38();
 extern int D_8011441C[];
 
 int func_80097CF4(int a0);

@@ -1,9 +1,9 @@
 #include "rr/gpu.h"
 #include "rr/animated_glyph.h"
 #include "game/gfx/fontdraw.h"
+#include "psyq/libgpu/primattr.h"
+#include "psyq/libgpu/settrans.h"
 
-extern s32 func_80095AF4();
-extern s32 func_80095B24();
 extern unsigned char D_8009EDF8[];
 
 void func_8001F40C();

@@ -1,6 +1,6 @@
 #include "rr/sprite_emit.h"
+#include "psyq/libgpu/primattr.h"
 void func_80095B94(void *);
-void func_80095B24(void *,s32);
 void func_80095A44(u32 *,u32 *);
 RrSpritePacketSignedClut *func_8001FEC0(u32 *a0, RrSpritePacketSignedClut *a1, s32 a2, s32 a3, int a4, int a5, int a6, int a7, int a8) {
     func_80095B94(a1);

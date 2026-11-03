@@ -13,13 +13,13 @@
 #include "game/data/ldscn4.h"
 #include "game/menu/mnrows.h"
 #include "game/race/raceinfo.h"
+#include "game/data/cdfile1.h"
+#include "game/data/cdfile2.h"
 typedef struct { char p[7]; char b; } Z;
 
 extern int func_8004E008();
 extern short D_800AC650[];
 extern unsigned char D_800F4D7C;
-extern int func_8001223C();
-extern int func_8001292C();
 extern int D_800102F0;
 extern int D_800ACC18;
 extern int D_800F4D40;

@@ -1,8 +1,9 @@
 #include "types.h"
+#include "psyq/libgpu/primattr.h"
+#include "psyq/libgpu/settrans.h"
 struct R { unsigned char u, v, w, h; };
 struct P { int link; unsigned char r, g, b, code; short x, y; unsigned char u, v; unsigned short clut; short w, h; };
-void func_80095B94(void*);void func_80095B24(void*,s32);void func_80095AF4(void*,s32);
-void func_80095A44(u32 *,u32 *);
+void func_80095B94(void*);void func_80095A44(u32 *,u32 *);
 
 struct P *func_8001FF84(u32 *a0, struct P *a1, int a2, int a3, struct R *a4, unsigned short a5, int a6)
 {

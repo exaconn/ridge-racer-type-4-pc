@@ -1,14 +1,12 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "psyq/libspu/spuregs2.h"
+#include "psyq/libspu/spuregs2.h"
 extern int func_8007EAC4();
 extern int func_8007F3D0();
 extern int func_8007F6EC();
 extern int func_8008B364();
 extern int D_800A47F4;
 extern int D_800A4844;
-extern int D_800A4848;
-extern int D_800A484C;
-extern int D_800A4850;
 extern int D_800A4854;
 extern struct { int a; short b, c; int d, e; } D_800A485C;
 extern int D_800A4870; extern int D_800A486C;

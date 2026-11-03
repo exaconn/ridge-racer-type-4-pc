@@ -5,25 +5,16 @@
 #include "game/course/trkres2.h"
 #include "game/data/trkld1.h"
 #include "game/gfx/gfxotag.h"
+#include "game/course/trkres2.h"
+#include "game/data/cdfile1.h"
+#include "game/data/cdfile2.h"
 
 extern int D_800A02BC;
 extern int D_800A029C[];
 extern short D_800F4D44;
-extern int func_8001223C();
-extern int func_8001292C();
-extern int func_8004D4BC();
-extern int func_8001223C();
-extern int func_8001292C();
-extern int func_80012A58();
-extern int func_8004D4BC();
 extern int func_80070108();
 extern int func_800436E8();
 extern int func_80043608();
-extern int func_80012A68();
-extern int func_8001223C();
-extern int func_8001292C();
-extern int func_80012A58();
-extern int func_8004D4BC();
 extern int func_80070108();
 extern int func_800436E8();
 extern int func_80050BCC();

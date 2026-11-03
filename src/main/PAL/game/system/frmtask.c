@@ -8,14 +8,16 @@
 #include "game/effect/spfade.h"
 #include "psyq/libgpu/gpuenv.h"
 #include "game/system/frmtask.h"
+#include "game/data/cdfile1.h"
+#include "game/data/cdfile2.h"
+#include "game/sound/sndslot.h"
+#include "psyq/libgpu/gpuenv.h"
 
 extern s16 D_800AC5D0;
 extern s32 D_8010BF84;
 extern short *D_8010BF80;
 extern int D_800ACC18;
 extern int D_800F3A60;
-extern int func_8001223C();
-extern int func_8001292C();
 extern int func_80052800();
 extern int func_800528A8();
 extern int func_80052A30();
@@ -27,11 +29,9 @@ extern int func_8001BAF8();
 extern int func_8001E1F0();
 extern int func_8002A344();
 extern void func_80092CB8(s32);
-extern void func_8004FD80(void);
 extern void func_80092D50(s32);
 extern s32 func_8008B154(s32);
 extern void *func_80093580(void *);
-extern void *func_800933B4(void *);
 
 void func_8001E344(void);
 void func_8001E390(void);

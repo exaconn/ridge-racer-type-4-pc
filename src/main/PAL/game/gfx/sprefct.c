@@ -6,17 +6,16 @@
 #include "psyq/libgpu/primatt2.h"
 #include "psyq/libgpu/primatt3.h"
 #include "psyq/libgpu/primatt6.h"
+#include "psyq/libgpu/primattr.h"
+#include "psyq/libgpu/settrans.h"
 
 struct P { int tag; unsigned char r, g, b, code; short x, y, w, h; };
 
 extern void func_80095B94(void *);
-extern void func_80095AF4(void *,s32);
 extern void func_80095A44(u32 *,u32 *);
 extern s32 func_80096464(void);
 /* extern */
-void func_80095AF4(void *, s32);
 /* extern */
-void func_80095B24(void *, M2C_UNK);
 /* extern */
 
 u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg);

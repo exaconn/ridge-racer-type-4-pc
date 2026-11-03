@@ -6,6 +6,7 @@
 #include "psyq/libcd/s_1.h"
 #include "psyq/libcd/s_2.h"
 #include "psyq/libcd/s_3.h"
+#include "psyq/libcd/dsread2.h"
 
 #define RR_READ_OWNER_OFFSET \
     (sizeof(RrLibReadRequestState)-sizeof(RrLibReadRestoreTail))
@@ -22,7 +23,6 @@ extern s32 func_8008C6A4(void *);
 extern s32 func_800963DC(const char *,...);
 extern const char D_80011D28[];
 extern void func_8008EA9C(void);
-extern void func_8008E7F4(void);
 extern void func_8008C03C(void);
 extern const char D_80011D40[];
 extern const char D_80011D58[];

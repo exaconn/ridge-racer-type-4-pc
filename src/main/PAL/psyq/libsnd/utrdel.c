@@ -2,9 +2,9 @@
 #include "types.h"
 #include "rr/library.h"
 #include "m2c_macros.h"
+#include "psyq/libsnd/utrev.h"
 
 extern s32 func_80085BA4(s32 *);
-extern s32 func_80086694(s32);
 extern int D_80110008[];
 extern s16 D_8011000C;
 

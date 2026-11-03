@@ -1,17 +1,16 @@
+#include "game/menu/menucalc.h"
+#include "game/menu/menustat.h"
 extern int func_8003D228();
 extern int func_8003D6F0();
 extern int func_8001FC28();
 extern int func_8001FD20();
 extern int func_80020074();
 extern int func_80030BEC();
-extern int func_8003069C();
-extern int func_80030F64();
 extern int func_8006E1AC();
 extern int func_8002E828();
 extern int func_800912B4();
 extern int func_800912D4();
 extern int func_80041BF0();
-extern int func_80030D9C();
 extern short D_8009F1A0[];
 extern short D_8009F1B0[];
 extern short D_8009F1C0[];

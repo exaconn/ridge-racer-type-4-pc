@@ -1,12 +1,12 @@
-extern int func_80022888();
-extern int func_800244B0();
+#include "game/car/carmove1.h"
+#include "game/car/carparam.h"
+#include "game/car/carsetup.h"
 extern int func_80024A88();
 extern int func_80025FBC();
 extern int func_8002648C();
 extern int func_8002679C();
 extern int func_80026F5C();
 extern int func_80027C54();
-extern int func_80028B30();
 extern int func_8002C638();
 extern int func_8006E368();
 extern int func_80090424();

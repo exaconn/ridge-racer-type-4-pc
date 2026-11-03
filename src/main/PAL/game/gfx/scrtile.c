@@ -1,7 +1,7 @@
 /* CC1_FLAGS: -fno-strength-reduce */
 #include "rr/screen_tiles.h"
 #include "psyq/libgpu/primatt5.h"
-extern void func_80095AF4(void *,s32);
+#include "psyq/libgpu/settrans.h"
 extern void func_80095A44(u32 *,u32 *);
 extern u8 *func_8001FCC8(u32 *,u8 *,u16);
 void func_800207D4(u32 *ordering,s32 intensity,u32 mode) {

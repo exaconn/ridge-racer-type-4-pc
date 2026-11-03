@@ -1,10 +1,8 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "psyq/libcd/dsstrm23.h"
 #include "psyq/libcd/dsmedia2.h"
+#include "psyq/libcd/dsstrm2.h"
 extern int D_801102D0;
-extern int D_801102D8;
-extern int D_801102E0;
-extern int D_801102E8;
 extern int D_80110300;
 extern int D_80112760;
 extern int D_80112764;

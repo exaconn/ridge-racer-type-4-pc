@@ -3,8 +3,7 @@
 #include "rr/library.h"
 #include "psyq/libsnd/vmchval.h"
 #include "psyq/libsnd/ssvolset.h"
-
-extern void func_800897A4(s32,s32,s32,s32);
+#include "psyq/libsnd/ssatr2.h"
 
 void func_80084154(s32 bank,s32 row,s32 left,s32 right);
 void func_800841E4(s16 bank, s32 left, s32 right);

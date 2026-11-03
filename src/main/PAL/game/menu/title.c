@@ -10,6 +10,7 @@
 #include "game/demo/opening.h"
 #include "game/menu/title.h"
 #include "game/ui/hudmap2.h"
+#include "game/course/trktext.h"
 
 extern int func_80014A8C();
 extern int func_800172DC();
@@ -21,7 +22,6 @@ extern int func_80036FD4();
 extern int func_80037D88();
 extern int func_8004C138();
 extern int func_8004C5A4();
-extern int func_8004C928();
 extern int func_8004FC18();
 extern int func_800528A8();
 extern int func_80052A30();

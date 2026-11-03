@@ -6,6 +6,8 @@
 #include "game/menu/menu8.h"
 #include "game/course/trkintp.h"
 #include "game/ui/uipart1.h"
+#include "game/car/carparam.h"
+#include "game/car/carsetup.h"
 
 typedef struct { char x[0x320]; } S;
 
@@ -139,8 +141,6 @@ extern short D_800AC59C;
 extern short D_800AD508;
 extern int func_80026A74();
 extern int func_8006E368();
-extern int func_800244B0();
-extern int func_80022888();
 extern int func_80026F5C();
 extern int func_80027C54();
 extern short D_800F4D44;

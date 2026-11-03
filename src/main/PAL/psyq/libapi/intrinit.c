@@ -1,8 +1,8 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "psyq/libapi/intrdisp.h"
+#include "psyq/libapi/intrdisp.h"
+#include "psyq/libapi/vsyncini.h"
 extern int func_8008B5D0();
-extern int func_8008BA00();
-extern int func_8008BA24();
 extern int func_8008BB44();
 extern int func_800963F4();
 extern int func_80096E3C();

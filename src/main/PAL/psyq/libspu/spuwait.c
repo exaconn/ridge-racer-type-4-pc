@@ -1,8 +1,8 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "psyq/libspu/spuwait.h"
-extern int D_800A4848;
+#include "psyq/libspu/s_crwa.h"
+#include "psyq/libspu/spuregs2.h"
 extern int D_800A480C;
-extern int D_800A4840;
 extern int func_80096EA4();
 int func_8008B0A4(int a0) {
   int r;

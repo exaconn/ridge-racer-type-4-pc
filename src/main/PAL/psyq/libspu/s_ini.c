@@ -1,8 +1,8 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/library.h"
 #include "rr/spu.h"
+#include "psyq/libspu/s_crwa.h"
 extern s32 D_800A48A8;
-extern s32 D_800A4840;
 extern s32 func_80096F04(void);
 extern s32 func_80096F14(void);
 extern s32 func_80096E74(u32,s32,s32,RrLibInterruptCallback);

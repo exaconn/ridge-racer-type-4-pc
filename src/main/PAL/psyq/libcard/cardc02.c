@@ -1,8 +1,6 @@
 /* GCC_VERSION: 970318 */
 #include "rr/commands.h"
-
-extern s32 func_8009C55C(void);
-extern s32 func_8009C610(s32);
+#include "psyq/libcard/cardc03.h"
 
 s32 func_8009C400(s32 value);
 s32 func_8009C490(s32 request, s32 parameter, u8 *buffer);

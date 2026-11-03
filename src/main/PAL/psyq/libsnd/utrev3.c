@@ -1,6 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 #include "psyq/libsnd/utrev3.h"
-extern int func_80086694();
+#include "psyq/libsnd/utrev.h"
 
 void func_800867A4() { func_80086694(0); }
 

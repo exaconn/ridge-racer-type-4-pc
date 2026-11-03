@@ -4,6 +4,7 @@
 #include "m2c_macros.h"
 #include "psyq/libapi/pad2.h"
 #include "psyq/libapi/pad1.h"
+#include "psyq/libapi/pad2.h"
 
 extern s32 D_800ABC50;
 extern int func_80096F04();
@@ -15,7 +16,6 @@ extern int func_800977C4();
 extern int func_800976C4();
 extern int func_800976D4();
 extern int func_80097724();
-extern int func_800975E0();
 extern int func_800976E4();
 extern int func_80097738();
 extern int func_80096F04();

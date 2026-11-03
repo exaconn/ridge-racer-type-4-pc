@@ -20,6 +20,7 @@
 #include "psyq/libgpu/primatt8.h"
 #include "game/gfx/sky.h"
 #include "game/data/cdfile2.h"
+#include "game/data/cdfile1.h"
 #define B (*(int *)&D_800ACC18)
 
 struct A { char p[0x14]; unsigned f14; char q[0x20]; unsigned f38; };
@@ -75,7 +76,6 @@ extern int D_80109454;
 void func_80092D50(s32);
 void func_80092FFC(s16 *, void *);
 extern s32 D_80109468[];
-extern int func_8001223C();
 extern short D_800F3914;
 extern short D_8009E02C[];
 extern char *D_800F4D90;

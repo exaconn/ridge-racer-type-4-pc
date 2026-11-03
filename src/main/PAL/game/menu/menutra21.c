@@ -9,6 +9,7 @@
 #include "game/data/cardchk.h"
 #include "game/menu/menumode.h"
 #include "game/menu/menutra21.h"
+#include "game/menu/menutra22.h"
 
 struct E { char pad[4]; unsigned char a; char b; unsigned char c; signed char d; };
 
@@ -88,9 +89,6 @@ extern int D_800A45C0;
 extern int D_800A45C4;
 extern unsigned char D_800A4478[];
 extern int func_80032A14();
-extern int func_8007D448();
-extern int func_8007D560();
-extern int func_8007D65C();
 
 void func_8007BD18(void);
 void func_8007BDF8(void);

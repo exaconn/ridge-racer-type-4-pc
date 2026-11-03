@@ -1,13 +1,30 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "psyq/libsnd/ssopenq.h"
+#include "psyq/libsnd/cc_0.h"
+#include "psyq/libsnd/cc_6.h"
+#include "psyq/libsnd/cc_91.h"
+#include "psyq/libsnd/cc_912.h"
+#include "psyq/libsnd/cc_nrpn.h"
+#include "psyq/libsnd/cc_nrpn2.h"
+#include "psyq/libsnd/cc_nrpn3.h"
+#include "psyq/libsnd/cc_rpn.h"
+#include "psyq/libsnd/cc_rpn2.h"
+#include "psyq/libsnd/cc_rpn3.h"
+#include "psyq/libsnd/cc_rpn4.h"
+#include "psyq/libsnd/ccadsr.h"
+#include "psyq/libsnd/ccadsr2.h"
+#include "psyq/libsnd/ccadsr3.h"
+#include "psyq/libsnd/ccadsr4.h"
+#include "psyq/libsnd/midinote.h"
+#include "psyq/libsnd/midipro2.h"
+#include "psyq/libsnd/midiprog.h"
+#include "psyq/libsnd/midiread.h"
+#include "psyq/libsnd/seqinit.h"
 extern int func_8001E84C();
-extern int func_80081EB4();
 extern char D_800116E8[];
 extern int D_8010EFC8[];
 extern int D_8010F060;
-extern int func_80080034();
-extern int func_800800B4();
 extern int func_80080434();
 extern int func_80080504();
 extern int func_800805D4();
@@ -18,30 +35,10 @@ extern int func_80080904();
 extern int func_80080A44();
 extern int func_80080AB4();
 extern int func_80080B24();
-extern int func_80080BE4();
 extern int func_80080C74();
-extern int func_80080D34();
-extern int func_80080DC4();
-extern int func_80080E54();
-extern int func_80081004();
-extern int func_800810C4();
-extern int func_80081174();
-extern int func_80081224();
-extern int func_800812D4();
-extern int func_80081394();
-extern int func_80081444();
-extern int func_800814F4();
-extern int func_800815D4();
-extern int func_80081674();
-extern int func_80081714();
-extern int func_80081744();
-extern int func_80081774();
-extern int func_800817A4();
-extern int func_800817D4();
 extern int func_80081804();
 extern int func_800818B4();
 extern int func_80081AE4();
-extern int func_80081CB4();
 extern int func_80081D94();
 short func_8007FD94(a0, a1) int a0; int a1; {
     /* ASM_BARRIER: pin t0 to match original register allocation */

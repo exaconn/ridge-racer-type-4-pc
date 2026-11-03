@@ -6,6 +6,10 @@
 #include "game/data/trkld5.h"
 #include "game/data/trkld1.h"
 #include "game/data/trkld6.h"
+#include "game/course/trkres2.h"
+#include "game/data/cdfile1.h"
+#include "game/data/cdfile2.h"
+#include "game/sound/sndcmd.h"
 extern struct { char pad[0x56C]; int a, b, c, d; } D_800AC650;
 extern struct { char pad[0x10]; int f10; char pad2[0x19CC - 0x14]; int f19cc; } D_800F4DB8;
 extern short D_800F4D44;
@@ -15,20 +19,12 @@ extern int D_800F6784;
 extern unsigned short D_800A02C0;
 extern int D_800ACC18;
 extern short D_800F3914;
-extern int func_8001223C();
-extern int func_8001292C();
-extern int func_80012A58();
-extern int func_80012A68();
 extern int func_800436E8();
-extern char *func_8004D4BC();
 extern int func_8004ED38();
-extern int func_8004F600();
 extern int func_80070108();
 extern char D_800A0234[];
 extern char *D_800ACBB4;
 extern char D_8010C210[];
-extern int func_8001223C();
-extern int func_8001292C();
 extern int D_800A0270[];
 extern int func_8004ED38();
 

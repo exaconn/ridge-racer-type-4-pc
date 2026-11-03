@@ -15,6 +15,7 @@
 #include "game/data/ldscn1.h"
 #include "game/menu/menusave.h"
 #include "game/system/frmenv.h"
+#include "psyq/libgpu/gpuenv.h"
 
 extern int func_8001E84C();
 extern int func_8008BE44();
@@ -67,7 +68,6 @@ extern short D_800F4D44;
 extern char *D_800F3B20;
 extern void func_800912B4(s32,s32);
 extern void func_800912D4(s32);
-extern void *func_800928E4(void *,s32,s32,s32,s32);
 extern void *func_80092998(void *,s32,s32,s32,s32);
 
 void func_8001ECE0(s32 bank);

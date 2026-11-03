@@ -12,6 +12,8 @@
 #include "game/gfx/skyrot1.h"
 #include "game/data/ldscn5.h"
 #include "game/gfx/skyrot1.h"
+#include "game/data/cdfile1.h"
+#include "game/data/cdfile2.h"
 
 #define G D_8010BF78
 #define H D_800F3AFC
@@ -96,9 +98,6 @@ struct P { union H h; int w[4]; };
 
 struct OT { int x; union H h; };
 
-extern int func_8001223C();
-extern int func_8001292C();
-extern int func_80012A68();
 extern int func_8001BAF8();
 extern int func_800207D4();
 extern int func_8002A344();

@@ -3,8 +3,8 @@
 #include "game/data/trkld6.h"
 #include "game/gfx/fadespr.h"
 #include "game/data/ldscn4.h"
-extern int func_8001223C();
-extern int func_8001292C();
+#include "game/data/cdfile1.h"
+#include "game/data/cdfile2.h"
 extern void func_800436E8();
 extern void func_8004E008();
 extern int func_80096464();

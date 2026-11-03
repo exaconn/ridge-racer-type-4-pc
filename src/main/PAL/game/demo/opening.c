@@ -7,10 +7,9 @@
 #include "psyq/libc/printf.h"
 #include "game/demo/opening.h"
 #include "game/ui/hudmap2.h"
+#include "game/course/trktext.h"
 
 extern void func_8004C5A4(s32, s32, const char *, s32, s32);
-extern s32 func_8004C73C(s32, s32, char *, s32, s32);
-extern void func_8004C928(s32);
 extern void func_80059700(s16 *, s32, s32);
 extern void func_80059C28(s32, u8);
 extern void func_80059D34(s32, u8);

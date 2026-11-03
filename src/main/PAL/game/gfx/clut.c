@@ -1,7 +1,7 @@
+#include "psyq/libgpu/gpuenv.h"
 struct R { short x, y, w, h; };
 
 extern int func_80092D50();
-extern int func_80092F64();
 extern int func_80092FFC();
 
 int func_8001E84C(void);

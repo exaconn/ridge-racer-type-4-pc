@@ -3,8 +3,11 @@
 #include "rr/layout.h"
 
 /* Six-word interpolation record, shared by the constructor and evaluator. */
-typedef struct {s32 f0,f4,f8,fC,f10,f14;} RrCurve24Fields;
-typedef union {s32 words[6];RrCurve24Fields fields;} RrCurve24;
+typedef struct {
+ s32 displacement, duration;
+ s32 initialRate, middleRate;
+ s32 firstAcceleration, secondAcceleration;
+} RrCurve24;
 /* Lane-change / steering transition state at vehicle offset 0x288. */
 typedef struct {
  s16 mode00,timer02;

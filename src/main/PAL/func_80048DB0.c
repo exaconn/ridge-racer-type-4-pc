@@ -46,7 +46,7 @@ void func_80048DB0(RrRaceVehicle *vehicle) {
         vehicle->rot54 = (s32) vehicle->heading1D4;
         break;
     case 1:
-        func_8004D420(&vehicle->steering288.primary34.fields, CONTROL(steering288.timer02), &stepOutput);
+        func_8004D420(&vehicle->steering288.primary34, CONTROL(steering288.timer02), &stepOutput);
         workingStep=stepOutput;
         angle = (s32)((u32)CONTROL(steering288.angle0C) - (u32)workingStep);
         CONTROL(steering288.angle0C) = angle; asm("" : : "m"(CONTROL(steering288.angle0C)));
@@ -75,14 +75,14 @@ void func_80048DB0(RrRaceVehicle *vehicle) {
                 if (normalizedMotion < 0) {
                     normalizedMotion += 0xFF;
                 }
-                func_8004D354(vehicle->steering288.secondary4C.words, (normalizedMotion >> 8) * 2, duration - quarterDuration, 0);
+                func_8004D354(&vehicle->steering288.secondary4C, (normalizedMotion >> 8) * 2, duration - quarterDuration, 0);
                 CONTROL(steering288.lateral24) = (s32) ((s32)((u32)(vehicle->lateralMotion178 / 256) << 12));
                 CONTROL(steering288.phase28) = (s32) mode;
             }
         }
         phase = CONTROL(steering288.phase28);
         if (phase > 0) {
-            func_8004D420(&CONTROL(steering288.secondary4C).fields, phase - 1, &stepOutput);
+            func_8004D420(&CONTROL(steering288.secondary4C), phase - 1, &stepOutput);
             workingStep=CONTROL(steering288.lateral24);  lateral = (s32)((u32)workingStep - (u32)stepOutput);
             CONTROL(steering288.lateral24) = lateral;
             if (lateral < 0) {

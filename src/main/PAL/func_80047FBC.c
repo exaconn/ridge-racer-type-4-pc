@@ -1,4 +1,5 @@
 #include "rr/track_lateral.h"
+#include "rr/steering.h"
 typedef struct {
     char pad0[0x38];
     short unk38;
@@ -18,7 +19,7 @@ typedef struct {
     char padB8[0x4];
     int unkBC;
     char padC0[0x8];
-    int unkC8[6];
+    RrCurve24 primaryC8;
 } Sub1F4;
 
 typedef struct {
@@ -35,7 +36,6 @@ typedef struct {
 } Arg0;
 
 
-extern void func_8004D354();
 
 void func_80047FBC(Arg0 *a0) {
     int s0;
@@ -153,7 +153,7 @@ void func_80047FBC(Arg0 *a0) {
             s0 |= ~0xFFF;
         }
         s2->unkA0 = s0 << 12;
-        func_8004D354(s2->unkC8, s2->unk9C, s2->unk98, -s2->unk8C);
+        func_8004D354(&s2->primaryC8, s2->unk9C, s2->unk98, -s2->unk8C);
         /* ASM_BARRIER: extend s0 live range across call to keep s0 in callee-saved register */
         __asm__("" : : "r"(s0));
         s2->unk94 = 1;

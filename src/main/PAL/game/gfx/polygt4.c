@@ -85,7 +85,7 @@ extern void func_80090CA4(MATRIX *, MATRIX *);
 extern void func_80090DB4(MATRIX *, MATRIX *);
 extern void func_80090EC4(MATRIX *, SVECTOR *, VECTOR *);
 
-void func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
+int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
     MATRIX sp10;
     MATRIX sp30;
     SVECTOR sp50;

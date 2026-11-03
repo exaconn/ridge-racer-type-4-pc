@@ -19,7 +19,7 @@ extern struct S *D_800ABEA4;
 extern s32 D_800ABECC;
 
 void func_80026A20(int a, int b, short *c);
-s32 func_80026A74(s32 *pos, s32 startIdx, s32 maxIter);
+int func_80026A74(s32 *pos, s32 startIdx, s32 maxIter);
 
 void func_80026A20(int a, int b, short *c)
 {

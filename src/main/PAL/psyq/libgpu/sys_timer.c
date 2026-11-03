@@ -11,7 +11,7 @@ void func_80095360(void) {
     D_800ABC00 = 0;
 }
 
-s32 func_80095394(void) {
+int func_80095394(void) {
     s32 old,result;
     s32 saved;
     if(D_800ABBFC>=func_8008B154(-1)) {

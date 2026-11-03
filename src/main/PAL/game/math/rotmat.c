@@ -17,7 +17,7 @@ void func_8006E09C(void *arg0, M2C_UNK arg1);
 void func_8006E108(void *arg0, M2C_UNK arg1);
 void func_8006E174(void *arg0);
 void func_8006E300(int *a0);
-int func_8006E368(int a0, int a1);
+s32 func_8006E368(int a0, int a1);
 
 void func_8006E030(short *a0, int a1) {
     short s = func_80090424(a1);

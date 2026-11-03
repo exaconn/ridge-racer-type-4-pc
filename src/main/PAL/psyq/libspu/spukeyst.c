@@ -68,7 +68,7 @@ int a0;
 
 #undef D_800A47D8
 
-s32 func_8007EAC4(s32 warm)
+int func_8007EAC4(s32 warm)
 {
     register RrSpuRegisterStorage *bank __asm__("$2");
     u32 count;

@@ -59,7 +59,7 @@ extern s32 func_8008A564(s16, s16);
 extern void func_80086E74(void);
 extern void func_80088794(u8);
 
-s16 func_800857A4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, u16 arg4_in, u16 arg5_in, s16 arg6, s16 arg7) {
+int func_800857A4(s16 arg0, s16 arg1, s16 arg2, s16 arg3, u16 arg4_in, u16 arg5_in, s16 arg6, s16 arg7) {
     s16 tone_idx;
     VagAtr *vag;
     s32 temp_a0;

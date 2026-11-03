@@ -1,7 +1,7 @@
 /* GCC_VERSION: 2.7.2 */
 typedef struct { int mask; int pad[3]; short l0, r0; int pad2[2]; short l1, r1; int pad3[2]; } w3l0S;
 extern void func_80082674(w3l0S *, int);
-void func_80083CD4(signed char a0, int a1, int a2) {
+int func_80083CD4(signed char a0, int a1, int a2) {
     w3l0S s;
     short x = a1, y = a2;
     if (a0 == 0) {

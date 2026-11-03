@@ -93,7 +93,7 @@ extern int func_8003DCEC();
 extern int func_80020074();
 extern int func_8002039C();
 
-s32 func_8003EC88(s32 arg0);
+int func_8003EC88(s32 arg0);
 void func_8003FAE4(int i, char a, char b, int j);
 int func_8003FBA8(int a0);
 void func_8003FE78(int a0, int a1, int a2, int a3);

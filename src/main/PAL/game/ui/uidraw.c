@@ -31,7 +31,7 @@ extern char D_8009F9D4[];
 void func_8003D6F0();
 int func_8003DC50(int a0);
 void func_8003DC9C(int i, short a, short b, short c, short d, short e, short f);
-int func_8003DCEC(int a0);
+s32 func_8003DCEC(int a0);
 int func_8003DFEC(int a);
 void func_8003E040();
 

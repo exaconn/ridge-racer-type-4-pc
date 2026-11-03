@@ -3,7 +3,7 @@
 
 #include "rr/cd_init.h"
 
-s32 func_8008D86C(void) {
+int func_8008D86C(void) {
     volatile u8 *statusBytes;
     s32 command;
     const u8 *parameters;

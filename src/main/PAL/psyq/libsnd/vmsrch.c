@@ -1,6 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channels.h"
-s32 func_80088340(s32 a,s32 b,s32 c,u32 group) {
+int func_80088340(s32 a,s32 b,s32 c,u32 group) {
     register s32 maximum=D_801100FC;
     register u32 index;
     register s32 count;

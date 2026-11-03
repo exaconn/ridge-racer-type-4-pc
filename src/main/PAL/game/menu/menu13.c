@@ -27,7 +27,7 @@ extern int func_80020074();
 
 void func_80032A14(int a0, int a1, S *s);
 void func_80032DF0(void *arg0);
-s32 func_80032E9C(s32 a0);
+int func_80032E9C(s32 a0);
 void func_80032EC8();
 
 void func_80032A14(int a0, int a1, S *s) {

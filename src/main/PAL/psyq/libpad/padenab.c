@@ -12,7 +12,7 @@ extern s32 func_80097704(s32,void *);
 
 s32 func_80098030(void);
 
-s32 func_80097EA0(void) {
+int func_80097EA0(void) {
     s32 first,condition,enabled;
     u32 shifted;
     RrSerialPortRegisters *port=D_800ABCCC;

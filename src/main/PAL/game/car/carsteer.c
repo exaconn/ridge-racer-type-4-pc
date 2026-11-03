@@ -53,7 +53,7 @@ extern s32 func_8006E368(s16, s32);
 extern s32 func_80090424(s32);
 extern UnkF3A08 *D_800F3A08[];
 
-void func_8002C638(CarState *arg0) {
+int func_8002C638(CarState *arg0) {
     s32 s1;
     s32 s2;
     s32 s3;

@@ -100,3 +100,6 @@ graph shows which units depend on each other (and therefore whether a unit bound
 * Tools: `split_decls.py` (one declaration per symbol), `unit_headers.py` (create headers, rewrite
   callers), `own_includes.py` (units include their own header), `dedupe_rr.py` (drop local copies of
   symbols that an `rr/` header already declares). Both verify every touched unit with `fd.py` and restore any that stops matching.
+
+Work list for the remaining declarations: `tools/scripts/proto_conflicts.py [dir]` prints every function that
+still has local cross-unit declarations, the spellings in use and the units involved.

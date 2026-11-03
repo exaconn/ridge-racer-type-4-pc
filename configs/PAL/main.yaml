@@ -1460,6 +1460,7 @@ segments:
       - [0x81220, asm, main_80090A20]
       - [0x81224, c, func_80090A24]
       - [0x81308, asm, main_80090B08]
+      - [0x81314, c, func_80090B14]
       - [0x81474, c, func_80090C74]
       - [0x814a4, c, func_80090CA4]
       - [0x815b0, asm, main_80090DB0]

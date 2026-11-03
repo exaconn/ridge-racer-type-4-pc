@@ -110,3 +110,9 @@ bytes with the K&R spelling it declares locally (`extern int func_80032E9C();`).
 documentation-grade type, the local K&R declaration is what the compiler saw. Making the two agree needs
 the `rr/` header to change spelling, which in turn has to be re-checked against the overlays and host tests
 that include it; `proto_conflicts.py` lists such cases.
+
+Tried and rejected: respelling the `rr/` prototypes to the callers' K&R form (`tools/scripts/rr_respell.py`).
+It gave 116 matching respellings in the EXE, but it broke `make check` in one unit and 72 host/overlay tests,
+because those tests compile the `rr/` headers on the host against their own definitions. The `rr/` headers are
+therefore a second consumer with their own contract; they stay as they are and the units keep the K&R
+spelling. Do not run the tool without extending its verification to the whole test suite.

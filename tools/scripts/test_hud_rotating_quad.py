@@ -5,13 +5,13 @@ import math,re,struct,subprocess,unittest
 ROOT=Path(__file__).resolve().parents[2]
 class HudRotatingQuadTest(unittest.TestCase):
  def test_phase_wrapping_native_roots_and_overlapping_tag(self):
-  body=(ROOT/'build/legacy/func_80021350.c').read_text()
+  body=(ROOT/'tools/scripts/fixtures/legacy/func_80021350.c').read_text()
   body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
   body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
   body=re.sub(r'__asm__\(""[^;]*;','',body)
   helpers=''
-  for name in ['func_80090424.c','func_80090460.c','func_800904F4.c']:
-   text=(ROOT/'build/legacy'/name).read_text();helpers+=re.sub(r'^#include[^\n]*\n','',text,flags=re.M)+'\n'
+  for name in ['trig_sine.c','func_800904F4.c']:
+   text=(ROOT/'tools/scripts/fixtures/legacy'/name).read_text();helpers+=re.sub(r'^#include[^\n]*\n','',text,flags=re.M)+'\n'
   for old,new in [('func_80090424','real_sin'),('func_80090460','real_lookup'),('func_800904F4','real_cos')]:helpers=helpers.replace(old,new)
   exe=(ROOT/'assets/PAL/main.exe').read_bytes();start=0x800+0x800A50C0-0x80010000
   rom=struct.unpack('<4097h',exe[start:start+8194]);sine=[round(4096*math.sin(i*math.tau/4096)) for i in range(4096)]

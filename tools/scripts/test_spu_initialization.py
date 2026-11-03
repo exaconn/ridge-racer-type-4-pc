@@ -10,7 +10,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class SpuInitializationTest(unittest.TestCase):
  def test_all_status_words_modes_and_poll_boundaries(self):
-  body=(ROOT/'build/legacy/func_8007EAC4.c').read_text()
+  body=(ROOT/'tools/scripts/fixtures/legacy/func_8007EAC4.c').read_text()
   body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
   body=re.sub(r' __asm__\("\$\d+"\)','',body)
   body=re.sub(r'__asm__\(""[^;]*;',';',body)

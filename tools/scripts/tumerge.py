@@ -122,6 +122,15 @@ def parse(text):
 def _declname(body):
     b = re.sub(r'/\*.*?\*/|//[^\n]*', '', body, flags=re.S)
     b = re.sub(r'\s+', ' ', b).strip()
+    if not b.startswith('typedef') and re.match(r'(?:extern\s+)?(?:struct|union)\s*[A-Za-z_]*\s*\{', b):
+        d_ = 0; e_ = None
+        for i_, c_ in enumerate(b):                       # drop the member list: `extern struct {..} *name;`
+            if c_ == '{': d_ += 1
+            elif c_ == '}':
+                d_ -= 1
+                if d_ == 0: e_ = i_; break
+        if e_ is not None and re.search(r'[A-Za-z_]', b[e_ + 1:]):
+            b = b[:b.index('{')] + b[e_ + 1:]
     m = re.match(r'typedef\b', b)
     if m:
         # function pointer typedef or ordinary typedef: last identifier before ';' (or inside (*name))

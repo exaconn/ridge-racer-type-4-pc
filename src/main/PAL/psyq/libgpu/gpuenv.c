@@ -1,6 +1,8 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
+#include "types.h"
 #include "rr/gpu_reset.h"
+#include "m2c_macros.h"
 
 typedef struct { short a,b,c,d,e,f,g,h; char i,j,k,l; } W3L2_A;
 
@@ -8,6 +10,8 @@ extern int func_80092FFC();
 extern unsigned short func_800959E4();
 extern unsigned short func_80095A24();
 extern int func_8008BDF8();
+extern unsigned char D_800ABAC1[];
+extern int D_80011E50[];
 
 int func_80092734(int *pix, int tp, int abr, int x, int y, int w, int h);
 int func_8009281C(int a, int b, int c);
@@ -15,6 +19,9 @@ int func_80092880(int a, int b, int c);
 char *func_800928E4(char *p, int a, int b, int c, int d);
 W3L2_A *func_80092998(W3L2_A *p, int a, int b, int c, int d);
 s32 func_800929D4(s32 mode);
+s32 func_80092B48(s32 enabled);
+int func_80092BA4();
+u8 func_80092C48(void);
 
 int func_80092734(int *pix, int tp, int abr, int x, int y, int w, int h) {
     short sp[4];
@@ -123,3 +130,62 @@ s32 func_800929D4(s32 mode)
         return D_800ABAB8->reset34(1);
     }
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABAC2 (*(u8 (*)[])&D_800ABAC2)
+#define D_800ABABC (*(void (*(*))(const char *, s32, s32, s32))&D_800ABABC)
+
+s32 func_80092B48(s32 enabled) {
+    u8 *state = D_800ABAC2;
+    s32 previous;
+    previous = state[0];
+    state[0] = enabled;
+    if (enabled & 0xFF) {
+        const char *format;
+        void (*callback)(const char *, s32, s32, s32) = D_800ABABC;
+        s32 first = state[0], second = state[-2], third = state[1];
+        /* ASM_BARRIER: read the callback and state bytes before materializing the format page. */
+        __asm__ volatile("" : : "r"(callback), "r"(first), "r"(second), "r"(third) : "$4");
+        /* PAL read-only mapping: format + 0x1E24 is D_80011E24. */
+        format = (const char *)0x80010000U;
+        /* ASM_BARRIER: expose the page-relative addition in the indirect-call delay slot. */
+        __asm__("" : "=r"(format) : "0"(format));
+        callback(format + 0x1E24, first, second, third);
+        return previous;
+    }
+    return previous;
+}
+
+#undef D_800ABAC2
+#undef D_800ABABC
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABABC (*(int (*(*))())&D_800ABABC)
+#define D_800ABAB8 (*(int *(*))&D_800ABAB8)
+#define func_8008B3C4 ((int (*)())func_8008B3C4)
+#define D_800ABAC2 (*(u8 (*))&D_800ABAC2)
+
+int func_80092BA4(a0) int a0; {
+    register unsigned char *p __asm__("$17"); /* ASM_BARRIER: original keeps the pointer in s1 and a0 in s0 */
+    int old;
+    p = D_800ABAC1;
+    old = p[0];
+    if (p[1] >= 2) {
+        D_800ABABC(D_80011E50, a0);
+    }
+    if (a0 != p[0]) {
+        ((int (*)())D_800ABAB8[0x34 / 4])(1);
+        p[0] = a0;
+        func_8008B3C4(2, 0);
+    }
+    return old;
+}
+
+u8 func_80092C48(void) {
+    return D_800ABAC2;
+}
+
+#undef D_800ABABC
+#undef D_800ABAB8
+#undef func_8008B3C4
+#undef D_800ABAC2

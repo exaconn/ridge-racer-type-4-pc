@@ -41,12 +41,24 @@ def try_merge(paths, marks, tag):
         o = OUT / f'{tag}.c'; o.write_text(txt)
         if fd(o): return txt
     return None
+G = '/* GCC_VERSION: 970318 */'; U = '/* GCC_VERSION: 2.7.2 */'; N = '/* MASPSX_FLAGS: --assembler-profile=gnu */'
+NS = '/* CC1_FLAGS: -mno-split-addresses */'
+def candidates(a, b, lib):
+    out = []
+    for c in ([a, b] + ([(G, N), (G,), (U, N), (U,), ()] if lib else [(), (NS,), (NS, N)])):
+        c = tuple(c)
+        if c not in out: out.append(c)
+    return out
 def run_dir(items):
-    d, us = items; res = []; cur = None; k = 0
+    d, us = items; res = []; cur = None; k = 0; lib = 'psyq' in d.parts
     for u in us:
         if cur is None: cur = dict(paths=[u['path']], hi=u['hi'], marks=u['marks'], nfn=len(u['funcs']), txt=None); continue
-        ok = u['lo'] == cur['hi'] and u['marks'] == cur['marks'] and cur['nfn'] + len(u['funcs']) <= MAXFN
-        txt = try_merge(cur['paths'] + [u['path']], cur['marks'], f'{d.name}_{k}') if ok else None
+        ok = u['lo'] == cur['hi'] and cur['nfn'] + len(u['funcs']) <= MAXFN
+        txt = None
+        if ok:
+            for mk in candidates(cur['marks'], u['marks'], lib):
+                txt = try_merge(cur['paths'] + [u['path']], mk, f'{d.name}_{k}')
+                if txt: cur['marks'] = mk; break
         k += 1
         if txt:
             cur['paths'].append(u['path']); cur['hi'] = u['hi']; cur['nfn'] += len(u['funcs']); cur['txt'] = txt

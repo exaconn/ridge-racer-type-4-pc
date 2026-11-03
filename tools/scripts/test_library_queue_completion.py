@@ -59,7 +59,7 @@ _Static_assert(offsetof(__typeof__(test_page), callback) == 0x2760, "callback of
 #define D_80112754 test_page.value
 #define D_80112760 test_page.callback
 '''
-        body = (root / 'build/legacy/func_8008F5E4.c').read_text()
+        body = (root / 'tools/scripts/fixtures/legacy/func_8008F5E4.c').read_text()
         body = body.replace('#include "rr/library.h"', '')
         body = re.sub(r'^extern[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)

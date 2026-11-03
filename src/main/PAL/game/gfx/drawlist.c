@@ -1,43 +1,18 @@
 /* RODATA 0x800101f4 0xd8 */
+/* CC1_FLAGS: -fno-strength-reduce */
 #include "types.h"
 #include "rr_asm.h"
-extern int func_8001223C();
-extern int func_8001292C();
-extern int func_80012A58();
-extern int func_80012A68();
-extern int func_8001B308();
-extern int func_8001B640();
-extern int func_8001B688();
-extern int func_8001B754();
-extern int func_8001B7C8();
-extern int func_8001B83C();
-extern int func_8001B8B0();
-extern int func_8001BAF8();
-extern int func_8001BBC4();
-extern int func_8001BC84();
-extern int func_8001BD40();
-extern int func_8001BEF8();
-extern int func_8001BFA8();
-extern int func_800207D4();
-extern int func_8002A344();
-extern int func_8002A604();
-extern int func_80032A14();
-extern int func_8003A198();
-extern int func_8003A1B4();
-extern int func_8003B934();
-extern int func_8003D228();
-extern int func_8003D6F0();
-extern int func_80041BF0();
-extern int func_80043608();
-extern int func_80052800();
-extern int func_800528A8();
-extern int func_80052A30();
-extern int func_80052B8C();
-extern int func_800534B4();
-extern int func_8006EF8C();
-extern int func_80070108();
-extern int func_800912B4();
-extern int func_80096454();
+#include "rr/animated_sprite_grid.h"
+
+#define G D_8010BF78
+#define H D_800F3AFC
+#define K D_800AC590
+#define SPP (*(struct P **)0x1F800000)
+#define SPO (*(struct P **)0x1F800004)
+#define SPAD ((int *)0x1F800000)
+#define CURSOR (scratch->cursor)
+#define ORDER (order_page->order)
+
 struct GS {
     char pad0[0x40];
     short *p40;
@@ -97,22 +72,61 @@ struct GS {
     short sAE;
     short sB0;
 };
+
 struct V16 { int w[4]; };
+
 struct SPD { struct P *cur; struct OT *ot; };
+
 struct HS { short s0; short s2; short s4; short s6; };
+
 struct KS { char pad[4]; unsigned char b4; };
-extern struct GS *D_8010BF78;
-#define G D_8010BF78
-extern struct HS *D_800F3AFC;
-#define H D_800F3AFC
-extern struct KS *D_800AC590;
-#define K D_800AC590
+
 union H { struct P *p; struct { char pad[3]; unsigned char len; } b; };
+
 struct P { union H h; int w[4]; };
+
 struct OT { int x; union H h; };
-#define SPP (*(struct P **)0x1F800000)
-#define SPO (*(struct P **)0x1F800004)
-#define SPAD ((int *)0x1F800000)
+
+extern int func_8001223C();
+extern int func_8001292C();
+extern int func_80012A58();
+extern int func_80012A68();
+extern int func_8001B308();
+extern int func_8001B640();
+extern int func_8001B688();
+extern int func_8001B754();
+extern int func_8001B7C8();
+extern int func_8001B83C();
+extern int func_8001B8B0();
+extern int func_8001BAF8();
+extern int func_8001BBC4();
+extern int func_8001BC84();
+extern int func_8001BD40();
+extern int func_8001BEF8();
+extern int func_8001BFA8();
+extern int func_800207D4();
+extern int func_8002A344();
+extern int func_8002A604();
+extern int func_80032A14();
+extern int func_8003A198();
+extern int func_8003A1B4();
+extern int func_8003B934();
+extern int func_8003D228();
+extern int func_8003D6F0();
+extern int func_80041BF0();
+extern int func_80043608();
+extern int func_80052800();
+extern int func_800528A8();
+extern int func_80052A30();
+extern int func_80052B8C();
+extern int func_800534B4();
+extern int func_8006EF8C();
+extern int func_80070108();
+extern int func_800912B4();
+extern int func_80096454();
+extern struct GS *D_8010BF78;
+extern struct HS *D_800F3AFC;
+extern struct KS *D_800AC590;
 extern int D_8010BF7C;
 extern short D_800AC5D0;
 extern int D_800ACC14;
@@ -128,7 +142,13 @@ extern short D_8009E4EC;
 extern char *D_800102F0;
 extern char *D_800AC64C;
 extern char D_800101EC[];
-extern char D_8009E510[], D_8009E520[], D_8009E530[], D_8009E540[];
+extern char D_8009E510[];
+extern char D_8009E520[];
+extern char D_8009E530[];
+extern char D_8009E540[];
+
+void func_8001C14C();
+void func_8001E1F0(u32 intensity,RrSpriteGridClock *state);
 
 void func_8001C14C() {
     int temp_s5;
@@ -1310,3 +1330,81 @@ block_248:
     }
 }
 
+void func_8001E1F0(u32 intensity,RrSpriteGridClock *state) {
+    s32 row;
+    /* ASM_BARRIER: retain the horizontal position counter in a3. */
+    register s32 x __asm__("$7");
+    s32 phase;
+    s32 index;
+    u32 hi;
+    u32 middle;
+    u32 size;
+    u32 uv;
+    s32 limit;
+    s32 length;
+    s32 quotient;
+    /* ASM_BARRIER: materialize the packed row step only after each sprite row. */
+    register u32 row_step __asm__("$2");
+    u32 mode_command;
+    u32 y;
+    /* ASM_BARRIER: keep the raw/color word in its original temporary. */
+    register u32 color __asm__("$9")=intensity;
+    RrGpuScratchPointers *order_page;
+    RrGpuScratchPointers *scratch;
+    u8 *packet;
+    u8 *fields;
+    hi=color<<16;
+    middle=color<<8;
+    middle|=0x66000000U;
+    hi|=middle;
+    color|=hi;
+    /* ASM_BARRIER: finish color packing before initializing loop constants. */
+    __asm__("" : "+r"(color) : : "$15");
+    row=0;
+    /* ASM_BARRIER: keep the row counter distinct from later coordinate zero. */
+    __asm__("" : "+r"(row));
+    limit=15;size=0x180010;uv=0x2F29A400U;
+    order_page=(RrGpuScratchPointers*)0x1F800000U;
+    /* ASM_BARRIER: stage the scratch page before the packed-y constant. */
+    __asm__("" : "+r"(order_page) : : "$8");
+    length=4;
+    y=0xB00000;
+    packet=*(u8**)0x1F800000U;
+    state->tick0E++;
+    phase=state->tick0E;
+    /* ASM_BARRIER: capture tick phase before starting the horizontal counter. */
+    __asm__("" : "+r"(phase) : : "$7");
+    x=0;
+    do {
+        fields=packet+3;
+        do {
+            quotient=phase;
+            if(phase<0)quotient=phase+3;
+            index=(quotient>>2)&15;
+            if(index==limit)index=0;
+            *(u32*)(fields+5)=y|(x+172);
+            *(u32*)(fields+1)=color;
+            *(u32*)(fields+13)=size;
+            *(u32*)(fields+9)=index*16+uv;
+            phase+=5;x+=26;
+            *(u32*)packet=*ORDER;
+            fields[0]=length;
+            fields+=sizeof(RrSpritePacket);
+            *ORDER=(u32)(unsigned long)packet;
+            ((u8*)ORDER)[3]=0;
+            packet+=sizeof(RrSpritePacket);
+        }while(x<130);
+        row_step=0x300000;
+        y+=row_step;
+        row+=48;x=0;
+    }while(row<144);
+    mode_command=0xE100022A;
+    scratch=(RrGpuScratchPointers*)0x1F800000U;
+    CURSOR=packet;
+    *(u32*)(packet+4)=mode_command;
+    *(u32*)CURSOR=*scratch->order;
+    CURSOR[3]=1;
+    *scratch->order=(u32)(unsigned long)CURSOR;
+    ((u8*)scratch->order)[3]=0;
+    CURSOR+=sizeof(RrGpuSingleCommandPacket);
+}

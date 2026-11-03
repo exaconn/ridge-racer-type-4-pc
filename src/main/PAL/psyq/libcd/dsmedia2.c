@@ -3,7 +3,11 @@
 #include "types.h"
 #include "rr/library.h"
 
-extern int D_80110314, D_801102FC, D_801102F8, D_801102F4, D_801102EC, D_801102DC, D_801102D0;
+extern int D_801102F8;
+extern int D_801102F4;
+extern int D_801102EC;
+extern int D_801102DC;
+extern int D_801102D0;
 extern short D_801102D4;
 extern void func_8008F814();
 extern s32 func_8008C12C();
@@ -15,14 +19,16 @@ extern s32 func_80096F14();
 extern s32 D_800A64A8;
 extern s8 *D_800A6800;
 extern s8 *D_800A680C;
-extern s32 D_801102EC, D_801102F4, D_801102F8, D_80112754;
-extern RrLibQueueRecord32 *D_80110310;
+extern s32 D_80112754;
 extern RrLibPackedWord D_80112750;
 extern void (*D_80112760)(void);
+extern int D_80110348;
+extern int func_8008C6A4(), func_8008C5A0();
 
 void func_8008F504(void);
 void func_8008F564(void);
 void func_8008F5E4(void);
+int func_8008F670(int a);
 
 void func_8008F504(void) {
     int a = D_80110314;
@@ -83,3 +89,19 @@ void func_8008F5E4(void)
     if (callback != 0) callback();
     D_801102EC = 0;
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_80112750 (*(char (*)[])&D_80112750)
+
+int func_8008F670(int a) {
+    int r;
+    if (D_80110348 == 0) {
+        func_8008C5A0(func_8008C6A4(D_80112750) + 1, a);
+        r = D_80112754;
+    } else {
+        r = -1;
+    }
+    return r;
+}
+
+#undef D_80112750

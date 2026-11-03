@@ -45,7 +45,7 @@ void func_80096F04(void) { test_save_begin(); }
 void func_80096EE4(void) { test_save_end(); }
 '''
         for name in ('8008B988', '8008B8E8'):
-            body = (root / ('build/legacy/func_' + name + '.c')).read_text()
+            body = (root / ('tools/scripts/fixtures/legacy/func_' + name + '.c')).read_text()
             body = body.replace('#include "rr/library.h"', '')
             body = body.replace('__asm__ volatile("nop");', '')
             source += body

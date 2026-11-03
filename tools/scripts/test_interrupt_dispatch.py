@@ -10,7 +10,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class InterruptDispatchTest(unittest.TestCase):
  def test_callback_reloads_ack_order_and_stall_counter(self):
-  body=(ROOT/'build/legacy/func_8008B5D0.c').read_text()
+  body=(ROOT/'tools/scripts/fixtures/legacy/func_8008B5D0.c').read_text()
   body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
   body=re.sub(r' __asm__\("\$\d+"\)','',body)
   body=re.sub(r'__asm__\(""[^;]*;', '',body)

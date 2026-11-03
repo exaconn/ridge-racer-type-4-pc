@@ -1,124 +1,115 @@
 #include "rr/track_lateral.h"
+#include "rr/geometry.h"
+
+static __inline__ s32 extend_track_edge(s32 edge, s32 width, s32 extension)
+{
+    return edge * (width + extension) / width;
+}
 
 /* Interpolate the lateral road position in the horizontal plane. */
 void func_80047230(const RrTrackSample3C *first, const RrTrackSample3C *second,
     s32 lateral, s32 fraction, s32 *output)
 {
-    int firstPoint[4];
-    int secondPoint[4];
+    RrVector firstPoint;
+    RrVector secondPoint;
     /* ASM_BARRIER: retain the lateral magnitude in t1. */
-    register int offset __asm__("$9");
-    /* ASM_BARRIER: retain the intermediate component in v1. */
-    register int component __asm__("$3");
+    register s32 offset __asm__("$9");
+    /* ASM_BARRIER: retain the shared Z edge component in v1. */
+    register s32 edgeZ __asm__("$3");
     const RrTrackSample3C *sample;
-    int *result;
 
-    result = output;
     offset = lateral;
     if (lateral < 0) offset = -offset;
     sample = first;
     if (lateral < 0) {
-        component = sample->leftOffsetX04 * (sample->leftWidth18 + sample->leftExtension2E) / sample->leftWidth18;
-        firstPoint[0] = component;
-        firstPoint[0] = (component * offset) / 1024 + sample->x08;
-        component = sample->leftOffsetZ06 * (sample->leftWidth18 + sample->leftExtension2E) / sample->leftWidth18;
-        firstPoint[2] = component;
-        firstPoint[2] = (component * offset) / 1024 + sample->z0C;
-        component = second->leftOffsetX04 * (second->leftWidth18 + second->leftExtension2E) / second->leftWidth18;
-        secondPoint[0] = component;
-        secondPoint[0] = (component * offset) / 1024 + second->x08;
-        component = second->leftOffsetZ06 * (second->leftWidth18 + second->leftExtension2E) / second->leftWidth18;
+        firstPoint.x = extend_track_edge(sample->leftOffsetX04, sample->leftWidth18, sample->leftExtension2E);
+        firstPoint.x = (firstPoint.x * offset) / 1024 + sample->x08;
+        firstPoint.z = extend_track_edge(sample->leftOffsetZ06, sample->leftWidth18, sample->leftExtension2E);
+        firstPoint.z = (firstPoint.z * offset) / 1024 + sample->z0C;
+        secondPoint.x = extend_track_edge(second->leftOffsetX04, second->leftWidth18, second->leftExtension2E);
+        secondPoint.x = (secondPoint.x * offset) / 1024 + second->x08;
+        edgeZ = extend_track_edge(second->leftOffsetZ06, second->leftWidth18, second->leftExtension2E);
     } else {
         /* ASM_BARRIER: retain a separate base for the first sample. */
         __asm__ volatile ("" : "=r"(sample) : "0"(sample));
-        component = sample->rightOffsetX00 * (sample->rightWidth1A + sample->rightExtension2C) / sample->rightWidth1A;
-        firstPoint[0] = component;
-        firstPoint[0] = (component * offset) / 1024 + sample->x08;
-        component = sample->rightOffsetZ02 * (sample->rightWidth1A + sample->rightExtension2C) / sample->rightWidth1A;
-        firstPoint[2] = component;
-        firstPoint[2] = (component * offset) / 1024 + sample->z0C;
-        component = second->rightOffsetX00 * (second->rightWidth1A + second->rightExtension2C) / second->rightWidth1A;
-        secondPoint[0] = component;
-        secondPoint[0] = (component * offset) / 1024 + second->x08;
-        component = second->rightOffsetZ02 * (second->rightWidth1A + second->rightExtension2C) / second->rightWidth1A;
+        firstPoint.x = extend_track_edge(sample->rightOffsetX00, sample->rightWidth1A, sample->rightExtension2C);
+        firstPoint.x = (firstPoint.x * offset) / 1024 + sample->x08;
+        firstPoint.z = extend_track_edge(sample->rightOffsetZ02, sample->rightWidth1A, sample->rightExtension2C);
+        firstPoint.z = (firstPoint.z * offset) / 1024 + sample->z0C;
+        secondPoint.x = extend_track_edge(second->rightOffsetX00, second->rightWidth1A, second->rightExtension2C);
+        secondPoint.x = (secondPoint.x * offset) / 1024 + second->x08;
+        edgeZ = extend_track_edge(second->rightOffsetZ02, second->rightWidth1A, second->rightExtension2C);
     }
 
-    secondPoint[2] = component;
-    secondPoint[2] = (component * offset) / 1024 + second->z0C;
-    /* ASM_BARRIER: keep final firstPoint/secondPoint reloads after the secondPoint[2] store */
+    secondPoint.z = edgeZ;
+    secondPoint.z = (secondPoint.z * offset) / 1024 + second->z0C;
+    /* ASM_BARRIER: keep final firstPoint/secondPoint reloads after the secondPoint.z store */
     __asm__ volatile ("");
-    result[0] = (secondPoint[0] - firstPoint[0]) * fraction / 1024 + firstPoint[0];
-    result[2] = (secondPoint[2] - firstPoint[2]) * fraction / 1024 + firstPoint[2];
+    output[0] = (secondPoint.x - firstPoint.x) * fraction / 1024 + firstPoint.x;
+    output[2] = (secondPoint.z - firstPoint.z) * fraction / 1024 + firstPoint.z;
 }
 
 /* The camera path also needs the height of the centre line. */
 void func_80047610(const RrTrackSample3C *first, const RrTrackSample3C *second,
     s32 lateral, s32 fraction, s32 *output)
 {
-    int firstPoint[4];
-    int secondPoint[4];
+    RrVector firstPoint;
+    RrVector secondPoint;
     /* ASM_BARRIER: retain the lateral magnitude in t1. */
-    register int offset __asm__("$9");
-    register int component __asm__("$3");
+    register s32 offset __asm__("$9");
+    /* ASM_BARRIER: retain the shared Z edge component in v1. */
+    register s32 edgeZ __asm__("$3");
     const RrTrackSample3C *sample;
-    int *result;
 
-    result = output;
     offset = lateral;
     if (lateral < 0) offset = -offset;
     sample = first;
     if (lateral < 0) {
-        component = sample->leftOffsetX04 * (sample->leftWidth18 + sample->leftExtension2E) / sample->leftWidth18;
-        firstPoint[0] = component;
-        firstPoint[0] = (component * offset) / 1024 + sample->x08;
-        firstPoint[1] = sample->y10;
-        component = sample->leftOffsetZ06 * (sample->leftWidth18 + sample->leftExtension2E) / sample->leftWidth18;
-        firstPoint[2] = component;
-        firstPoint[2] = (component * offset) / 1024 + sample->z0C;
-        component = second->leftOffsetX04 * (second->leftWidth18 + second->leftExtension2E) / second->leftWidth18;
-        secondPoint[0] = component;
-        secondPoint[0] = (component * offset) / 1024 + second->x08;
-        secondPoint[1] = second->y10;
-        component = second->leftOffsetZ06 * (second->leftWidth18 + second->leftExtension2E) / second->leftWidth18;
+        firstPoint.x = extend_track_edge(sample->leftOffsetX04, sample->leftWidth18, sample->leftExtension2E);
+        firstPoint.x = (firstPoint.x * offset) / 1024 + sample->x08;
+        firstPoint.y = sample->y10;
+        firstPoint.z = extend_track_edge(sample->leftOffsetZ06, sample->leftWidth18, sample->leftExtension2E);
+        firstPoint.z = (firstPoint.z * offset) / 1024 + sample->z0C;
+        secondPoint.x = extend_track_edge(second->leftOffsetX04, second->leftWidth18, second->leftExtension2E);
+        secondPoint.x = (secondPoint.x * offset) / 1024 + second->x08;
+        secondPoint.y = second->y10;
+        edgeZ = extend_track_edge(second->leftOffsetZ06, second->leftWidth18, second->leftExtension2E);
     } else {
         /* ASM_BARRIER: retain a separate base for the first sample. */
         __asm__ volatile ("" : "=r"(sample) : "0"(sample));
-        component = sample->rightOffsetX00 * (sample->rightWidth1A + sample->rightExtension2C) / sample->rightWidth1A;
-        firstPoint[0] = component;
-        firstPoint[0] = (component * offset) / 1024 + sample->x08;
-        firstPoint[1] = sample->y10;
-        component = sample->rightOffsetZ02 * (sample->rightWidth1A + sample->rightExtension2C) / sample->rightWidth1A;
-        firstPoint[2] = component;
-        firstPoint[2] = (component * offset) / 1024 + sample->z0C;
-        component = second->rightOffsetX00 * (second->rightWidth1A + second->rightExtension2C) / second->rightWidth1A;
-        secondPoint[0] = component;
-        secondPoint[0] = (component * offset) / 1024 + second->x08;
-        secondPoint[1] = second->y10;
-        component = second->rightOffsetZ02 * (second->rightWidth1A + second->rightExtension2C) / second->rightWidth1A;
+        firstPoint.x = extend_track_edge(sample->rightOffsetX00, sample->rightWidth1A, sample->rightExtension2C);
+        firstPoint.x = (firstPoint.x * offset) / 1024 + sample->x08;
+        firstPoint.y = sample->y10;
+        firstPoint.z = extend_track_edge(sample->rightOffsetZ02, sample->rightWidth1A, sample->rightExtension2C);
+        firstPoint.z = (firstPoint.z * offset) / 1024 + sample->z0C;
+        secondPoint.x = extend_track_edge(second->rightOffsetX00, second->rightWidth1A, second->rightExtension2C);
+        secondPoint.x = (secondPoint.x * offset) / 1024 + second->x08;
+        secondPoint.y = second->y10;
+        edgeZ = extend_track_edge(second->rightOffsetZ02, second->rightWidth1A, second->rightExtension2C);
     }
 
-    secondPoint[2] = component;
-    secondPoint[2] = (component * offset) / 1024 + second->z0C;
-    /* ASM_BARRIER: keep final firstPoint/secondPoint reloads after the secondPoint[2] store */
+    secondPoint.z = edgeZ;
+    secondPoint.z = (secondPoint.z * offset) / 1024 + second->z0C;
+    /* ASM_BARRIER: keep final firstPoint/secondPoint reloads after the secondPoint.z store */
     __asm__ volatile ("");
-    result[0] = (secondPoint[0] - firstPoint[0]) * fraction / 1024 + firstPoint[0];
-    result[1] = (secondPoint[1] - firstPoint[1]) * fraction / 1024 + firstPoint[1];
-    result[2] = (secondPoint[2] - firstPoint[2]) * fraction / 1024 + firstPoint[2];
+    output[0] = (secondPoint.x - firstPoint.x) * fraction / 1024 + firstPoint.x;
+    output[1] = (secondPoint.y - firstPoint.y) * fraction / 1024 + firstPoint.y;
+    output[2] = (secondPoint.z - firstPoint.z) * fraction / 1024 + firstPoint.z;
 }
 
 void func_80047A50(RrRaceVehicle *vehicle) {
-    int firstPoint[4];
-    int secondPoint[4];
-    int target[4];
+    RrVector firstPoint;
+    RrVector secondPoint;
+    RrVector target;
     RrRaceVehicleControl *control;
-    int fraction;
-    int firstNode;
-    int secondNode;
+    s32 fraction;
+    s32 firstNode;
+    s32 secondNode;
     RrTrackSample3C *firstSample;
     RrTrackSample3C *secondSample;
     RrTrackLaneOffset8 *firstOffset;
     RrTrackLaneOffset8 *secondOffset;
-    int delta;
+    s32 delta;
 
     control = (RrRaceVehicleControl *)((u8 *)vehicle + RR_RACE_CONTROL_OFFSET);
     fraction = 0x400 - vehicle->trackFraction170;
@@ -139,16 +130,16 @@ void func_80047A50(RrRaceVehicle *vehicle) {
         switch (control->laneTimer38) {
         case 0:
             firstOffset = &D_800ACB9C[firstNode];
-            firstPoint[0] = firstSample->x08 + firstOffset->x;
-            firstPoint[2] = firstSample->z0C + firstOffset->z;
+            firstPoint.x = firstSample->x08 + firstOffset->x;
+            firstPoint.z = firstSample->z0C + firstOffset->z;
             secondOffset = &D_800ACB9C[secondNode];
-            secondPoint[0] = secondSample->x08 + secondOffset->x;
-            secondPoint[2] = secondSample->z0C + secondOffset->z;
-            target[0] = (secondPoint[0] - firstPoint[0]) * fraction / 1024 + firstPoint[0];
-            target[2] = (secondPoint[2] - firstPoint[2]) * fraction / 1024 + firstPoint[2];
+            secondPoint.x = secondSample->x08 + secondOffset->x;
+            secondPoint.z = secondSample->z0C + secondOffset->z;
+            target.x = (secondPoint.x - firstPoint.x) * fraction / 1024 + firstPoint.x;
+            target.z = (secondPoint.z - firstPoint.z) * fraction / 1024 + firstPoint.z;
             break;
         case 10:
-            func_80047230(firstSample, secondSample, control->laneStart3A, fraction, target);
+            func_80047230(firstSample, secondSample, control->laneStart3A, fraction, (s32 *)&target);
             break;
         }
     } else {
@@ -180,8 +171,8 @@ void func_80047A50(RrRaceVehicle *vehicle) {
             }
             control->laneDelta6C = control->laneTarget3C - control->laneStart3A;
         }
-        func_80047230(firstSample, secondSample, control->laneStart3A, fraction, target);
+        func_80047230(firstSample, secondSample, control->laneStart3A, fraction, (s32 *)&target);
     }
-    vehicle->pathDeltaX224 = target[0] - vehicle->pos20[0];
-    vehicle->pathDeltaZ228 = target[2] - vehicle->pos20[2];
+    vehicle->pathDeltaX224 = target.x - vehicle->pos20[0];
+    vehicle->pathDeltaZ228 = target.z - vehicle->pos20[2];
 }

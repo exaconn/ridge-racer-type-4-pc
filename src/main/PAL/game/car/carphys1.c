@@ -1,5 +1,7 @@
 #include "game/car/carphys1.h"
-extern int func_80024BCC(), func_80025FBC(), func_800904F4();
+extern int func_80024BCC();
+extern int func_80025FBC();
+extern int func_800904F4();
 #define S(p, o) (*(short *)((p) + (o)))
 #define U(p, o) (*(unsigned short *)((p) + (o)))
 #define W(p, o) (*(int *)((p) + (o)))

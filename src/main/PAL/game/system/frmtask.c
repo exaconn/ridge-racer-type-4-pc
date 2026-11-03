@@ -26,9 +26,12 @@ extern int func_80052B8C();
 extern int func_8001BAF8();
 extern int func_8001E1F0();
 extern int func_8002A344();
-extern void func_80092CB8(s32),func_8004FD80(void),func_80092D50(s32);
+extern void func_80092CB8(s32);
+extern void func_8004FD80(void);
+extern void func_80092D50(s32);
 extern s32 func_8008B154(s32);
-extern void *func_80093580(void *), *func_800933B4(void *);
+extern void *func_80093580(void *);
+extern void *func_800933B4(void *);
 
 void func_8001E344(void);
 void func_8001E390(void);

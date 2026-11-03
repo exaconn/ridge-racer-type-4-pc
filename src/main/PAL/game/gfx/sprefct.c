@@ -9,7 +9,9 @@
 
 struct P { int tag; unsigned char r, g, b, code; short x, y, w, h; };
 
-extern void func_80095B94(void *),func_80095AF4(void *,s32),func_80095A44(u32 *,u32 *);
+extern void func_80095B94(void *);
+extern void func_80095AF4(void *,s32);
+extern void func_80095A44(u32 *,u32 *);
 extern s32 func_80096464(void);
 /* extern */
 void func_80095AF4(void *, s32);

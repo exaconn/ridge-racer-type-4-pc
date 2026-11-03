@@ -87,7 +87,10 @@ extern char D_800F4D50[];
 extern int D_800A45C0;
 extern int D_800A45C4;
 extern unsigned char D_800A4478[];
-extern int func_80032A14(), func_8007D448(), func_8007D560(), func_8007D65C();
+extern int func_80032A14();
+extern int func_8007D448();
+extern int func_8007D560();
+extern int func_8007D65C();
 
 void func_8007BD18(void);
 void func_8007BDF8(void);

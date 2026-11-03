@@ -1,7 +1,15 @@
 #include "game/menu/menu8.h"
 #include "game/menu/menuslot.h"
-extern int func_800207D4(), func_8002A344(), func_8002B330(), func_80032A14(), func_8003A198();
-extern int func_8003B398(), func_8003B934(), func_8003D6F0(), func_8003EC88(), func_8004F24C();
+extern int func_800207D4();
+extern int func_8002A344();
+extern int func_8002B330();
+extern int func_80032A14();
+extern int func_8003A198();
+extern int func_8003B398();
+extern int func_8003B934();
+extern int func_8003D6F0();
+extern int func_8003EC88();
+extern int func_8004F24C();
 extern short D_800AC5D0;
 extern short D_800AC64A;
 extern short D_800F3A26;

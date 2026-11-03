@@ -4,7 +4,8 @@
 #include "psyq/libcard/cardc161.h"
 #include "psyq/libcard/cardc162.h"
 
-extern int func_8009C87C(), func_8009C91C();
+extern int func_8009C87C();
+extern int func_8009C91C();
 
 int func_8009D424();
 int func_8009D4E0();

@@ -19,7 +19,8 @@ extern s8 *D_800A680C;
 extern s32 D_80112754;
 extern RrLibPackedWord D_80112750;
 extern void (*D_80112760)(void);
-extern int func_8008C6A4(), func_8008C5A0();
+extern int func_8008C6A4();
+extern int func_8008C5A0();
 
 void func_8008F504(void);
 void func_8008F564(void);

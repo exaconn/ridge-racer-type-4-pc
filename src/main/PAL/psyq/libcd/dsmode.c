@@ -3,7 +3,8 @@
 
 extern s32 func_8008C140(s32 command, const u8 *parameters, u8 *result);
 extern void func_8008C55C(RrLibCompletionCallback);
-extern void func_8008F5E4(void), func_8008F248(void);
+extern void func_8008F5E4(void);
+extern void func_8008F248(void);
 
 void func_8008F1C4(s32 flags) {
     u8 buf[8];

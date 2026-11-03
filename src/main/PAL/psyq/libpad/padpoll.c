@@ -12,7 +12,8 @@ struct R { short a; short b; unsigned short c; short d; short e; unsigned short 
 
 struct Q_1 { int a, b; };
 
-extern int func_8009A7F4(), func_8009A814();
+extern int func_8009A7F4();
+extern int func_8009A814();
 extern int D_800ABCAC;
 extern struct HW *D_800ABCCC;
 extern struct Q *D_800ABCC8;

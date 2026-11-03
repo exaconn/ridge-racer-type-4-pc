@@ -53,7 +53,12 @@ extern struct
   char pad[0x58];
 } D_800F3A38[];
 extern short func_80025FBC();
-extern int func_8006E030(), func_8006E09C(), func_8006E108(), func_80090CA4(), func_80090DB4(), func_80090EC4();
+extern int func_8006E030();
+extern int func_8006E09C();
+extern int func_8006E108();
+extern int func_80090CA4();
+extern int func_80090DB4();
+extern int func_80090EC4();
 extern int D_8010718C;
 extern s32 func_8001FC28();
 extern s32 func_8001FCC8();

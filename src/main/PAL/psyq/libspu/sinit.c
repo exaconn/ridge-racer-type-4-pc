@@ -1,8 +1,11 @@
 /* GCC_VERSION: 2.7.2 */
 #include "psyq/libsnd/vmreset.h"
 #include "psyq/libspu/sinit.h"
-extern unsigned short D_800A4904[], D_800A4914[];
-extern int D_8010F05C, D_8010F060, D_8010F064;
+extern unsigned short D_800A4904[];
+extern unsigned short D_800A4914[];
+extern int D_8010F05C;
+extern int D_8010F060;
+extern int D_8010F064;
 extern int D_8010F0E8[32][16];
 void func_8007F964(void) {
     unsigned short *d, *s, *p; int i, j;

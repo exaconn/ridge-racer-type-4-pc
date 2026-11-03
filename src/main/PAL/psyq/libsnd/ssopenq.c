@@ -1,11 +1,48 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "psyq/libsnd/ssopenq.h"
-extern int func_8001E84C(), func_80081EB4();
+extern int func_8001E84C();
+extern int func_80081EB4();
 extern char D_800116E8[];
 extern int D_8010EFC8[];
 extern int D_8010F060;
-extern int func_80080034(), func_800800B4(), func_80080434(), func_80080504(), func_800805D4(), func_800806C4(), func_80080774(), func_80080804(), func_80080904(), func_80080A44(), func_80080AB4(), func_80080B24(), func_80080BE4(), func_80080C74(), func_80080D34(), func_80080DC4(), func_80080E54(), func_80081004(), func_800810C4(), func_80081174(), func_80081224(), func_800812D4(), func_80081394(), func_80081444(), func_800814F4(), func_800815D4(), func_80081674(), func_80081714(), func_80081744(), func_80081774(), func_800817A4(), func_800817D4(), func_80081804(), func_800818B4(), func_80081AE4(), func_80081CB4(), func_80081D94();
+extern int func_80080034();
+extern int func_800800B4();
+extern int func_80080434();
+extern int func_80080504();
+extern int func_800805D4();
+extern int func_800806C4();
+extern int func_80080774();
+extern int func_80080804();
+extern int func_80080904();
+extern int func_80080A44();
+extern int func_80080AB4();
+extern int func_80080B24();
+extern int func_80080BE4();
+extern int func_80080C74();
+extern int func_80080D34();
+extern int func_80080DC4();
+extern int func_80080E54();
+extern int func_80081004();
+extern int func_800810C4();
+extern int func_80081174();
+extern int func_80081224();
+extern int func_800812D4();
+extern int func_80081394();
+extern int func_80081444();
+extern int func_800814F4();
+extern int func_800815D4();
+extern int func_80081674();
+extern int func_80081714();
+extern int func_80081744();
+extern int func_80081774();
+extern int func_800817A4();
+extern int func_800817D4();
+extern int func_80081804();
+extern int func_800818B4();
+extern int func_80081AE4();
+extern int func_80081CB4();
+extern int func_80081D94();
 short func_8007FD94(a0, a1) int a0; int a1; {
     /* ASM_BARRIER: pin t0 to match original register allocation */
     register int t0 asm("t0");

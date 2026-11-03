@@ -1,6 +1,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
-extern s32 D_800A47D0, D_800A47D4;
+extern s32 D_800A47D0;
+extern s32 D_800A47D4;
 extern s32 func_80096E64(u32, u32);
 s32 func_8007E9C4(s32 mode, s32 parameter) {
     /* ASM_BARRIER: Keep the final parameter store in the original PAL address register. */

@@ -3,7 +3,9 @@
 #include "psyq/libapi/pad1.h"
 #include "psyq/libapi/pad2.h"
 
-extern int func_80096F04(), func_80096F14(), func_80097714();
+extern int func_80096F04();
+extern int func_80096F14();
+extern int func_80097714();
 extern volatile short *D_800ABC54;
 
 int func_800975E0();

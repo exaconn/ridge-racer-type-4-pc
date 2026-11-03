@@ -15,7 +15,9 @@ typedef struct {
     short s0, s2, x, y, w, h, st, cnt;
 } E_2;
 
-extern int func_8003D474(), func_80090424(), func_800904F4();
+extern int func_8003D474();
+extern int func_80090424();
+extern int func_800904F4();
 extern E *D_800F3AFC;
 extern int func_80096434();
 extern int func_8001E84C();

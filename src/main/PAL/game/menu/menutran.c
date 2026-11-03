@@ -8,7 +8,8 @@ typedef struct { int x; } __attribute__((packed)) U4;
 
 extern s16 D_800F4D2C;
 extern s16 D_800FFC18;
-extern int func_80096434(), func_80032E9C();
+extern int func_80096434();
+extern int func_80032E9C();
 extern unsigned char D_8009F06C[];
 extern short D_800ABEC8;
 extern short D_800AC648;

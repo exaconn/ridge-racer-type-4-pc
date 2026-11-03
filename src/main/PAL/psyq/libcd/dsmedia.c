@@ -1,6 +1,7 @@
 #include "rr/cd.h"
 
-extern int func_8008C3B0(), func_8008B154();
+extern int func_8008C3B0();
+extern int func_8008B154();
 extern s32 func_80096414(const void *,const void *,u32);
 extern s32 func_8001E84C(const char *,...);
 extern char D_80011D78[];

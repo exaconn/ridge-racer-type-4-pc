@@ -12,7 +12,8 @@ extern volatile unsigned *D_800A525C;
 extern volatile unsigned D_800A5260;
 extern volatile unsigned D_800A5264;
 extern s32 func_800963DC(const char *, ...);
-extern s32 func_80096F84(s32), func_80096F94(s32,s32);
+extern s32 func_80096F84(s32);
+extern s32 func_80096F94(s32,s32);
 extern u16 D_800A52CA;
 extern u16 *D_800A6358;
 

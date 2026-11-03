@@ -6,13 +6,17 @@
 
 void func_8002B814(char *output, s32 value, s32 digits);
 void func_8002B934(char *output, s32 time);
-extern char D_80010BF0[], D_80010E0C[];
+extern char D_80010BF0[];
+extern char D_80010E0C[];
 extern u8 *D_8009FD04[];
-extern char *D_8009FD8C[], *D_8009FD9C;
+extern char *D_8009FD8C[];
+extern char *D_8009FD9C;
 extern RrMenuSettings2C D_800AD4D8;
 extern s8 D_800AD4F1;
-extern s16 D_800AD522, D_800F3914;
-extern RrTimeRecord16 D_800AD5C8[2][8][5], D_800FF700[2][8][5];
+extern s16 D_800AD522;
+extern s16 D_800F3914;
+extern RrTimeRecord16 D_800AD5C8[2][8][5];
+extern RrTimeRecord16 D_800FF700[2][8][5];
 extern u8 *D_800F39C8[];
 extern s32 D_800F4C64;
 

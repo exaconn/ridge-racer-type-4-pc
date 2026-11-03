@@ -14,7 +14,8 @@ extern int func_80093B14();
 extern int D_800ACC14;
 extern int D_800F4BF0;
 extern s32 func_80093C24();
-extern int func_80095B24(), func_80095AF4();
+extern int func_80095B24();
+extern int func_80095AF4();
 
 void func_80020920(unsigned char *a0, unsigned char *a1);
 void func_800209C4(int a0);

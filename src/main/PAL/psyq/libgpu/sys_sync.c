@@ -1,7 +1,11 @@
 /* CC1_FLAGS: -mno-split-addresses */
-extern int D_800ABBE8, D_800ABBEC;
-extern volatile int *D_800ABBD4, *D_800ABBC8;
-extern int func_80095360(), func_80094E74(), func_80095394();
+extern int D_800ABBE8;
+extern int D_800ABBEC;
+extern volatile int *D_800ABBD4;
+extern volatile int *D_800ABBC8;
+extern int func_80095360();
+extern int func_80094E74();
+extern int func_80095394();
 int func_80095224(a0) int a0; {
     int s;
     int v;

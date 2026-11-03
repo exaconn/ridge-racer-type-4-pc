@@ -27,7 +27,8 @@ struct S_1 { char pad[0xE3]; unsigned char a; char pad1[5]; unsigned char b; cha
 
 typedef struct { int f0; int f4; int f8; char p0[8]; int f14; int f18; char p1[0x2A]; char f46; char f47; char p2[1]; char f49; char p3[0x99]; unsigned char fE3; char p4[5]; unsigned char fE9; } O;
 
-extern int func_80098EE0(), func_80098F88();
+extern int func_80098EE0();
+extern int func_80098F88();
 
 void func_80098AC4(void *arg0, s32 arg1, s8 arg2);
 void func_80098AD0(void *arg0, s8 arg1, s32 arg2, s8 arg3);

@@ -5,7 +5,8 @@
 #define P ((RrLibStateB0 *)(offset + (unsigned long)*q))
 
 extern RrLibStateB0 *D_8010F068[];
-extern void func_800897A4(s32,s32,s32,s32), func_80089E1C(s32);
+extern void func_800897A4(s32,s32,s32,s32);
+extern void func_80089E1C(s32);
 extern u32 D_8010F060;
 extern short D_8010F8EA;
 

@@ -1,7 +1,13 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "psyq/libcd/dsstrm23.h"
 #include "psyq/libcd/dsmedia2.h"
-extern int D_801102D0, D_801102D8, D_801102E0, D_801102E8, D_80110300, D_80112760, D_80112764;
+extern int D_801102D0;
+extern int D_801102D8;
+extern int D_801102E0;
+extern int D_801102E8;
+extern int D_80110300;
+extern int D_80112760;
+extern int D_80112764;
 void func_8008F6D4(int a, int b, int c, int d, int e) {
     func_8008F914(1);
     D_80110300 = 0;

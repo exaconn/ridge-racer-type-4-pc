@@ -6,7 +6,8 @@ extern int D_800ABCB8;
 extern int D_800ABCBC;
 extern int D_80114428;
 extern int D_8011442C;
-extern int func_80097EA0(), func_80097E38();
+extern int func_80097EA0();
+extern int func_80097E38();
 extern int D_8011441C[];
 
 int func_80097CF4(int a0);

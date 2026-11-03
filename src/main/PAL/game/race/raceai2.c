@@ -13,7 +13,8 @@ typedef struct { int k; short f; } E;
 
 struct w3g2s { char pad[0x17]; signed char a; char b; signed char c; short d; };
 
-extern int func_80096F44(), func_80096F54();
+extern int func_80096F44();
+extern int func_80096F54();
 extern int D_800F2AA8;
 extern int D_800F2AAC;
 extern int func_8001ECE8();

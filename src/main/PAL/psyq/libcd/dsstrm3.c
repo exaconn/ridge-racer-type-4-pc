@@ -1,5 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
-extern int D_801102FC, D_80110314;
+extern int D_801102FC;
+extern int D_80110314;
 extern char *D_80110310;
 int func_8008F764(int a) {
     int i, j, k;

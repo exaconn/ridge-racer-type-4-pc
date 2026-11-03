@@ -1,7 +1,9 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/spu.h"
 extern s32 func_8001E84C(const char *,...);
-extern char D_80011698[],D_800116B8[],D_800116CC[];
+extern char D_80011698[];
+extern char D_800116B8[];
+extern char D_800116CC[];
 void func_8007ED44(const u16 *source,u32 size) {
     register RrSpuRegisterBank *port=D_800A47D8;
     /* ASM_BARRIER: Retain the transfer-address halfword while capturing device status. */

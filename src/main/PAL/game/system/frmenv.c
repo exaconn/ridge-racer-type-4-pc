@@ -65,8 +65,10 @@ extern int D_800F4CA8;
 extern int D_800F4D40;
 extern short D_800F4D44;
 extern char *D_800F3B20;
-extern void func_800912B4(s32,s32),func_800912D4(s32);
-extern void *func_800928E4(void *,s32,s32,s32,s32),*func_80092998(void *,s32,s32,s32,s32);
+extern void func_800912B4(s32,s32);
+extern void func_800912D4(s32);
+extern void *func_800928E4(void *,s32,s32,s32,s32);
+extern void *func_80092998(void *,s32,s32,s32,s32);
 
 void func_8001ECE0(s32 bank);
 void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags);

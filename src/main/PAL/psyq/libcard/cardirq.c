@@ -4,8 +4,15 @@
 #include "psyq/libcard/cardirq.h"
 
 extern char *D_800ABDA8;
-extern int func_80096F04(), func_80096F14(), func_80096F94(), func_80097704(), func_80097714();
-extern int func_80096F04(), func_80096F94(), func_80097714(), func_80096F14();
+extern int func_80096F04();
+extern int func_80096F14();
+extern int func_80096F94();
+extern int func_80097704();
+extern int func_80097714();
+extern int func_80096F04();
+extern int func_80096F94();
+extern int func_80097714();
+extern int func_80096F14();
 extern int D_800ABDB0;
 extern int D_800ABDE8;
 extern int D_800ABDE4;

@@ -1,9 +1,13 @@
 /* CC1_FLAGS: -mno-split-addresses */
-extern int func_8008B4E0(), func_800954D8(), func_800959B8();
+extern int func_8008B4E0();
+extern int func_800954D8();
+extern int func_800959B8();
 #include "rr/gpu.h"
-extern int D_800ABBE8, D_800ABBF8;
+extern int D_800ABBE8;
+extern int D_800ABBF8;
 extern int D_800ABBEC;
-extern char D_801127D0[], D_801128D8[];
+extern char D_801127D0[];
+extern char D_801128D8[];
 int func_800950D4(a0)
 int a0;
 {

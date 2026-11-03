@@ -38,7 +38,10 @@ struct S_1 {
     unsigned short sc, se;
 };
 
-extern int func_8009964C(), func_8009966C(), func_8009968C(), func_800996AC();
+extern int func_8009964C();
+extern int func_8009966C();
+extern int func_8009968C();
+extern int func_800996AC();
 extern unsigned char *D_80114438;
 extern int (*D_800ABC84)();
 /* Partial layout: six input slot IDs, per-group limits, six output IDs. */

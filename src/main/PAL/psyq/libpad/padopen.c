@@ -10,7 +10,10 @@ struct A { char p0[0xC]; char *f0C; char p1[0x27]; unsigned char b37; char p2[0x
 
 struct W { int x; };
 
-extern int func_80096F04(), func_80096F94(), func_80097714(), func_80096F14();
+extern int func_80096F04();
+extern int func_80096F94();
+extern int func_80097714();
+extern int func_80096F14();
 extern struct HW *D_800ABCCC;
 extern volatile int *D_800ABCC8;
 extern int D_800ABCA8;

@@ -4,7 +4,9 @@
 
 extern int D_800A67CC[];
 extern int D_800A67D4[];
-extern int func_8008B154(), func_8008EB6C(), func_8008C0F8();
+extern int func_8008B154();
+extern int func_8008EB6C();
+extern int func_8008C0F8();
 extern s32 D_800A63F0;
 extern s32 D_800A63F4;
 

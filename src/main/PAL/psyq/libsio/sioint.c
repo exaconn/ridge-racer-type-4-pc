@@ -23,7 +23,8 @@ extern volatile s32 D_801146D0;
 extern s16 D_800ABD34[];
 extern volatile s32 *D_800ABD1C;
 extern s32 func_80096E64(u32, s32);
-extern void func_80097704(), func_80097714();
+extern void func_80097704();
+extern void func_80097714();
 extern char D_800ABD20[];
 extern u16 D_801146CA;
 

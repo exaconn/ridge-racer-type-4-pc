@@ -1,5 +1,6 @@
 #include "rr/memory.h"
-extern void func_80095DF4(void),func_80095E74(void);
+extern void func_80095DF4(void);
+extern void func_80095E74(void);
 void func_80095FA0(void) {
     /* ASM_BARRIER: Retain the kernel destination in the original cursor register. */
     register unsigned long destination __asm__("$2")=0xDF80U;

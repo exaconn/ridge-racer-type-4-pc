@@ -342,7 +342,7 @@ segments:
       - [0x1bfb4, c, func_8002B7B4]
       - [0x1c014, c, func_8002B814]
       - [0x1c134, c, func_8002B934]
-      - [0x1c228, asm, main_8002BA28]
+      - [0x1c228, c, func_8002BA28]
       - [0x1c388, c, func_8002BB88]
       - [0x1c47c, c, func_8002BC7C]
       - [0x1c518, c, func_8002BD18]

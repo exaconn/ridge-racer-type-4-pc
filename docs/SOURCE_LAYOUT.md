@@ -90,12 +90,13 @@ graph shows which units depend on each other (and therefore whether a unit bound
   spellings found in the sources (definition first) in every caller and keeps one only if every caller
   still matches at relocated Levenshtein distance 0. Symbols with no such spelling keep their local
   declaration (or the scoped alias block).
-* What stays local, and why: about 830 cross-unit prototypes and most single-unit `extern`s. For
+* What stays local, and why: 855 cross-unit prototypes, 275 externs shared by several units and 748 externs used by one unit. For
   these no single spelling keeps every caller at distance 0 (callers need `int f();` where the
   definition is `void f(int, int)`, or a different pointer type). That is itself evidence: such callers
   were compiled against their own local declaration, not against one shared header, so the original
   code probably declared them locally too. They are left as they are instead of being forced into a
   header the original did not have.
 * Forward prototypes of a unit's own functions stay where the definition order needs them.
-* Tools: `unit_headers.py` (create headers, rewrite callers), `own_includes.py` (units include their
-  own header). Both verify every touched unit with `fd.py` and restore any that stops matching.
+* Tools: `split_decls.py` (one declaration per symbol), `unit_headers.py` (create headers, rewrite
+  callers), `own_includes.py` (units include their own header), `dedupe_rr.py` (drop local copies of
+  symbols that an `rr/` header already declares). Both verify every touched unit with `fd.py` and restore any that stops matching.

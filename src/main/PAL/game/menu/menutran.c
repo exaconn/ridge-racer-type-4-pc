@@ -5,12 +5,20 @@ typedef struct { int a; short b; char c; char d; } S8;
 
 typedef struct { int x; } __attribute__((packed)) U4;
 
-extern s16 D_800F4D2C,D_800FFC18;
+extern s16 D_800F4D2C;
+extern s16 D_800FFC18;
 extern int func_80096434(), func_80032E9C();
 extern unsigned char D_8009F06C[];
-extern short D_800ABEC8, D_800AC648, D_800AD520, D_800F3826, D_800F3914, D_800F4C28;
-extern signed char D_800AD4D8[], D_800AD4EF;
-extern unsigned char D_800AD4F0, D_800F3981;
+extern short D_800ABEC8;
+extern short D_800AC648;
+extern short D_800AD520;
+extern short D_800F3826;
+extern short D_800F3914;
+extern short D_800F4C28;
+extern signed char D_800AD4D8[];
+extern signed char D_800AD4EF;
+extern unsigned char D_800AD4F0;
+extern unsigned char D_800F3981;
 extern S8 D_800F2A68[];
 extern unsigned char D_800F4D98[];
 extern int D_800F3920[];
@@ -97,6 +105,9 @@ void func_8002F688() {
     }
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3920 (*(char (*)[])&D_800F3920)
+
 int func_8002F8E4() {
     int b, off, i;
     /* ASM_BARRIER: pin reproduces original register assignment */
@@ -123,3 +134,5 @@ int func_8002F8E4() {
     } while (a < 4);
     return n;
 }
+
+#undef D_800F3920

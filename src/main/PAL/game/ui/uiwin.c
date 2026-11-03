@@ -72,9 +72,6 @@ int func_8003E8D4(int a);
 void func_8003E928(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g,s32 h,...);
 void func_8003EA04(s32 arg0, s32 arg1, s32 arg2);
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800F4D80 (*(int (*))&D_800F4D80)
-
 int func_8003E13C(int arg0) {
     SpriteDesc sp30;
     SpriteDesc sp40;
@@ -231,6 +228,9 @@ int func_8003E13C(int arg0) {
     return s7 >= 0;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4D80 (*(int (*))&D_800F4D80)
+
 int func_8003E8D4(int a) {
     int sz = D_800F4BEC * 36;
     D_800F4D80 = a;
@@ -280,7 +280,7 @@ void func_8003E928(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4D80 (*(UiElem24 *(*))&D_800F4D80)
+#define D_800F4D80 ((UiElem24 *)D_800F4D80)
 #define func_8001FD20 ((s32 (*)())func_8001FD20)
 #define func_80020074 ((s32 (*)())func_80020074)
 

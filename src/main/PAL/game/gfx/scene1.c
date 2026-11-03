@@ -115,6 +115,8 @@ void func_80055330(int a0, u8 a1, u8 a2, u8 a3) {
     D_800AC650.d = a3;
 }
 
+#undef D_800AC650
+
 void func_8005534C(s32 arg0) {
     D_800AC724 = arg0;
 }
@@ -182,12 +184,9 @@ void func_80055358(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
     }
 }
 
-#undef D_800AC650
-
 /* legacy typing of shared globals in this part of the unit */
 #define func_80093BFC ((int (*)())func_80093BFC)
-#define D_800ACC14 (*(S *(*))&D_800ACC14)
-#define D_800AC650 (*(struct { char pad[0xD4]; s32 a, b, c, d; u8 e[4]; } (*))&D_800AC650)
+#define D_800ACC14 ((S *)D_800ACC14)
 
 void func_800555E0()
 {
@@ -203,14 +202,18 @@ void func_800555E0()
   *((unsigned int **) 0x1F800000) = (p = new_var2 + 3);
 }
 
+#undef func_80093BFC
+#undef D_800ACC14
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800AC650 (*(struct { char pad[0xD4]; s32 a, b, c, d; u8 e[4]; } (*))&D_800AC650)
+
 void func_80055660(void) {
     if (D_800AC650.a != 0) {
         func_80055358(D_800F4BF0, D_800AC650.b, D_800AC650.e, D_800AC650.c, D_800AC650.d);
     }
 }
 
-#undef func_80093BFC
-#undef D_800ACC14
 #undef D_800AC650
 
 /* legacy typing of shared globals in this part of the unit */
@@ -285,6 +288,8 @@ int a0, a1;
     D_800ACBF8 = 0;
 }
 
+#undef D_800AC650
+
 void func_8005599C(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
     M32 s10, s30, s50;
     S70 s70;
@@ -331,5 +336,3 @@ void func_80055BF8(int a0, int *a1, u16 *a2, int *a3) {
     a3[1] += a1[1];
     a3[2] += a1[2];
 }
-
-#undef D_800AC650

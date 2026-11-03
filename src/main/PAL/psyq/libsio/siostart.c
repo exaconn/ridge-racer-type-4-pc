@@ -1,5 +1,4 @@
-/* GCC_VERSION: 970318 */
-/* MASPSX_FLAGS: --assembler-profile=gnu */
+/* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
 #include "m2c_macros.h"
 #include "rr/serial.h"
@@ -29,6 +28,9 @@ void func_8009A8B4(void) {
     }
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_80096F14 ((M2C_UNK (*)())func_80096F14)
+
 void func_8009A8F8(void) {
     s32 temp_s0;
 
@@ -39,6 +41,8 @@ void func_8009A8F8(void) {
         func_80096F14();
     }
 }
+
+#undef func_80096F14
 
 void func_8009A944(void) {
 }

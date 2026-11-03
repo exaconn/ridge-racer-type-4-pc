@@ -1,5 +1,4 @@
 /* GCC_VERSION: 970318 */
-/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/commands.h"
 
 extern s32 func_8009C55C(void), func_8009C610(s32);

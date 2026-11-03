@@ -379,6 +379,8 @@ int func_8004B70C(int i) {
     return D_800F3A38[i].f54;
 }
 
+#undef D_800F3A38
+
 void func_8004B738(unsigned a, unsigned b, short c, short d) {
     T_1 *t;
     if (a >= 2) {
@@ -393,6 +395,9 @@ void func_8004B738(unsigned a, unsigned b, short c, short d) {
     t->u[0] = 0;
     t->u[1] = 0;
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_8010C170 (*(T_2 (*)[])&D_8010C170)
 
 void func_8004B7E0(int i, int k, int v) {
     T_2 *t = &D_8010C170[i];
@@ -415,6 +420,11 @@ void func_8004B7E0(int i, int k, int v) {
     }
 }
 
+#undef D_8010C170
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_8010C170 (*(T_3 (*)[])&D_8010C170)
+
 void func_8004B864(int i) {
     T_3 *t = &D_8010C170[i];
     t->s10 = 0;
@@ -429,4 +439,4 @@ void func_8004B864(int i) {
     t->sE = 0;
 }
 
-#undef D_800F3A38
+#undef D_8010C170

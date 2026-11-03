@@ -16,8 +16,6 @@ typedef struct {
 
 typedef struct { int a[8]; } M;
 
-struct P *func_800706B8(struct P *a0);
-
 typedef struct { unsigned char c[4]; } U4;
 
 typedef struct { int x, y; } __attribute__((packed)) U8;
@@ -179,6 +177,9 @@ void func_8007064C(void) {
     *(S32B *)0x1F800028 = D_8010E710;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4CE0 (*(unsigned short (*))&D_800F4CE0)
+
 struct P *func_800706B8(struct P *a0) {
     
     int s1 = *(int *)0x1F800004;
@@ -193,6 +194,8 @@ struct P *func_800706B8(struct P *a0) {
     func_80095A44(s1, a0++);
     return a0;
 }
+
+#undef D_800F4CE0
 
 void func_80070734(int arg0) {
     if (arg0 >= 0x169) {
@@ -271,6 +274,9 @@ void func_8007080C(a0)
     } while (s3 < 9);
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_8010E78C ((char *)D_8010E78C)
+
 void func_80070934(int a0, int a1, int *a2, int a3) {
     Q *t = (Q *)(D_8010E78C + a0 * 0xF8);
     int f;
@@ -323,6 +329,8 @@ void func_80070934(int a0, int a1, int *a2, int a3) {
     }
 }
 
+#undef D_8010E78C
+
 void func_80070ACC(char *p) {
     M m10, m30;
     int v[3];
@@ -341,7 +349,7 @@ void func_80070ACC(char *p) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010E78C (*(O *(*))&D_8010E78C)
+#define D_8010E78C ((O *)D_8010E78C)
 
 void func_80070BA4(char *a0, int a1, int a2) {
     int sp10[3];
@@ -477,6 +485,8 @@ void func_80070BA4(char *a0, int a1, int a2) {
     }
 }
 
+#undef D_8010E78C
+
 s32 func_80071338(void) {
     return D_800F39A4 * 0x10;
 }
@@ -501,9 +511,14 @@ void func_80071348(void) {
     g[0x2E] = v;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_8010E790 (*(s32 (*))&D_8010E790)
+
 void func_800713C4(s32 arg0) {
     D_8010E790 = arg0;
 }
+
+#undef D_8010E790
 
 s32 func_800713D0(void) {
     return D_800F39A4 * 8;
@@ -514,9 +529,14 @@ int func_800713E0(void) {
     return (D_8010E798 + a * 8)[func_8006F260(0x1F800008)];
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_8010E798 (*(s32 (*))&D_8010E798)
+
 void func_80071434(s32 arg0) {
     D_8010E798 = arg0;
 }
+
+#undef D_8010E798
 
 void func_80071440(void) {
     struct S a, b, c, d, e, f;
@@ -531,5 +551,3 @@ void func_80071440(void) {
     D_800AC5DC = 0x80;
     D_8010E7A4 = 0;
 }
-
-#undef D_8010E78C

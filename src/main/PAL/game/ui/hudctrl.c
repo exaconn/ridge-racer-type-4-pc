@@ -169,7 +169,7 @@ drawNeedle:
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(struct O *(*))&D_800ACC14)
+#define D_800ACC14 ((struct O *)D_800ACC14)
 
 void func_80022390(int a0)
 {

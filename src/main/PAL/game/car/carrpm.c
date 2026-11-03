@@ -1,26 +1,6 @@
 #include "rr/vehicle_rpm.h"
 #include "rr/cpu_md_leaf.h"
 #include "rr_asm.h"
-
-extern char *D_800ABEA4;
-extern int D_800ABECC;
-
-int func_80048384(int a0, int a1);
-void func_800483D8(RrRaceVehicle *vehicle);
-
-int func_80048384(int a0, int a1) {
-    if (a1 > 0) {
-        int n = D_800ABECC;
-        char *p = D_800ABEA4;
-        do {
-            a0--;
-            if (a0 < 0) a0 += n;
-            a1 -= *(short *)(p + a0 * 60 + 0x1C);
-        } while (a1 > 0);
-    }
-    return a0;
-}
-
 void func_800483D8(RrRaceVehicle *vehicle) {
     /* ASM_BARRIER: retain actual values and pointers in their original register phases. */
     register RrDriveVehicleView *body __asm__("$11")=(RrDriveVehicleView *)vehicle;

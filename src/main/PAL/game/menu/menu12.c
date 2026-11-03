@@ -1,8 +1,15 @@
 extern int func_800207D4(), func_8002A344(), func_8002B330(), func_80032A14(), func_8003A198();
 extern int func_8003B398(), func_8003B934(), func_8003D6F0(), func_8003EC88(), func_8004F24C();
-extern short D_800AC5D0, D_800AC64A, D_800F3A26, D_800F4C6A;
+extern short D_800AC5D0;
+extern short D_800AC64A;
+extern short D_800F3A26;
+extern short D_800F4C6A;
 extern unsigned short D_800F4D8A;
-extern int D_800ACC14, D_800ACC18, D_800F2DE4, D_800F3A60, D_800F4D74;
+extern int D_800ACC14;
+extern int D_800ACC18;
+extern int D_800F2DE4;
+extern int D_800F3A60;
+extern int D_800F4D74;
 extern struct { char pad[8]; short s8, sA; char padC[4]; short s10; } *D_800F3AFC;
 extern struct w3g2e { char pad[0xC]; char c; char pad2[7]; unsigned char b14; char pad3[0x23]; char b38; } *D_800F4D80;
 extern struct { char pad[4]; char b4; char pad5[2]; char b7; } *D_800FF68C;
@@ -14,7 +21,6 @@ extern int func_8001FF84();
 extern int func_80090424();
 extern char D_8009F648[];
 extern int D_800ABEB0;
-extern int D_800ACC14;
 
 void func_80032600(void);
 void func_80032914(signed char *a0);

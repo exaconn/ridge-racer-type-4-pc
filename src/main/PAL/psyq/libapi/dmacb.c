@@ -1,4 +1,3 @@
-/* GCC_VERSION: 970318 */
 #include "types.h"
 #include "m2c_macros.h"
 

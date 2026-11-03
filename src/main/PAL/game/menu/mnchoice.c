@@ -5,7 +5,9 @@
 
 extern int func_80017CC0();
 extern int func_80026998();
-extern int D_800ABFE8, D_800AC308, D_8010718C;
+extern int D_800ABFE8;
+extern int D_800AC308;
+extern int D_8010718C;
 
 void func_80036D40(void);
 void func_80036FD4(int a0);

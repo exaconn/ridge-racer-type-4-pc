@@ -1,5 +1,4 @@
-/* GCC_VERSION: 970318 */
-/* MASPSX_FLAGS: --assembler-profile=gnu */
+/* CC1_FLAGS: -mno-split-addresses */
 extern int (*D_800ABC6C)();
 extern int D_800ABC9C;
 extern int D_800ABCA0;

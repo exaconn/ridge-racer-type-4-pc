@@ -1,6 +1,5 @@
-
+/* RODATA 0x800115ec 0x20 */
 extern int func_80078E40();
-extern int func_8007B654();
 extern int func_8007D1B8();
 extern struct 
 {
@@ -21,6 +20,12 @@ extern short D_800FFC00;
 extern unsigned short D_800FFC18;
 extern short D_80109478[];
 extern short D_8010948E;
+extern short D_800AC594;
+extern struct { char pad[0x28]; int x28; int x2c; char pad2[0x2C]; } D_800F3A38[];
+
+void func_8007B460();
+int func_8007B654();
+
 static inline int w4c7_nz(int arg0)
 {
   return arg0 != 0;
@@ -99,3 +104,57 @@ void func_8007B460()
     }
   }
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800FFC18 (*(short (*))&D_800FFC18)
+
+int func_8007B654()
+{
+    int a1;
+    int a2;
+    int v;
+    a2 = -1;
+    switch (D_800FFC18) {
+    case 0:
+        a1 = 0;
+        break;
+    case 1:
+    case 5:
+        a1 = 0x20;
+        break;
+    case 2:
+        a1 = 0x21;
+        break;
+    case 3:
+        a1 = 0x17;
+        break;
+    case 6:
+    case 7:
+        a1 = 0x29;
+        break;
+    case 4:
+        break;
+    }
+    v = D_800F3A24[D_800FFC00];
+    switch (v) {
+    case 0x28:
+    case 0x3C:
+    case 0x1E:
+        if (D_800F3A38[D_800AC594].x28 != 0 || D_800F3A38[D_800AC594].x2c != 0) {
+            D_800F3A1C = a1;
+        }
+        break;
+    case 0x14:
+    case 0x32:
+        a2 = 1;
+        break;
+    case 0x5A:
+        break;
+    default:
+        a2 = 1;
+        break;
+    }
+    return a2;
+}
+
+#undef D_800FFC18

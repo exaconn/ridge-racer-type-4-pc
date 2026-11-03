@@ -32,7 +32,8 @@ extern int D_800ABCB8;
 extern int D_800ABCA4;
 extern int (*D_800ABC98)();
 extern int (*D_800ABC94)();
-extern int func_80098788();
+extern int D_800ABCB4;
+extern int D_800ABCE0;
 /* Partial transfer state; field purposes beyond this routine are still unknown. */
 typedef struct {
     u8 pad00[0x37];
@@ -43,14 +44,13 @@ typedef struct {
 RR_ASSERT_SIZE(RrTransferState, 0x40);
 RR_ASSERT_OFFSET(RrTransferState, flag37, 0x37);
 extern s32 (*D_800ABC70)(RrTransferState *, s32);
+extern s32 func_80098788(RrTransferState *, u8);
 extern void (*D_800ABC68)(s32);
 extern void (*D_800ABC74)(Rec8009991C *);
 extern void (*D_800ABC88)(Rec8009991C *);
 extern void (*D_800ABC8C)(Rec8009991C *);
 extern Rec8009991C *D_800ABC9C;
-extern s32 D_800ABCB4;
 extern s32 D_800ABCC0[];
-extern s32 D_800ABCE0;
 extern Unk800ABCE4 *D_800ABCE4;
 extern s32 func_80098A00(void);
 extern void func_80098A90(void);
@@ -71,7 +71,7 @@ void func_800996C4(T *a0) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80098578 ((s32 (*)(Rec8009991C *, u8))func_80098578)
+#define func_80098788 ((int (*)())func_80098788)
 
 void func_8009970C(o) O *o; {
     if (D_800ABCA8 == D_800ABCB8) {
@@ -86,6 +86,11 @@ void func_8009970C(o) O *o; {
     }
     if (o->f37 == 0) func_80098788(o, 0x42); else func_80098788(o, o->f37);
 }
+
+#undef func_80098788
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_80098788 ((int (*)())func_80098788)
 
 int func_800997E4(a0) unsigned char *a0; {
   int a1, v, t;
@@ -103,6 +108,8 @@ int func_800997E4(a0) unsigned char *a0; {
   return 0;
 }
 
+#undef func_80098788
+
 s32 func_80099890(RrTransferState *state) {
     s32 mode = 0;
     s32 result;
@@ -114,6 +121,11 @@ s32 func_80099890(RrTransferState *state) {
     if (result == 0x5A || result == 0 || result < 0) return result;
     return -4;
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABC70 (*(s32 (*(*))(Rec8009991C *, s32))&D_800ABC70)
+#define func_80098578 ((s32 (*)(Rec8009991C *, u8))func_80098578)
+#define func_80098788 ((s32 (*)(Rec8009991C *, u8))func_80098788)
 
 s32 func_8009991C(Rec8009991C *arg0) {
     s32 i;
@@ -210,4 +222,6 @@ end:
     return res;
 }
 
+#undef D_800ABC70
 #undef func_80098578
+#undef func_80098788

@@ -145,7 +145,7 @@ int func_8003DC50(int a0) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC00 (*(E_1 *(*))&D_800ACC00)
+#define D_800ACC00 ((E_1 *)D_800ACC00)
 
 void func_8003DC9C(int i, short a, short b, short c, short d, short e, short f) {
     if (i < D_800AC540) {
@@ -266,6 +266,9 @@ int func_8003DFEC(int a) {
     return sz;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4D8C ((char *)D_800F4D8C)
+
 void func_8003E040(a0, a1, a2, a3)
 int a0;
 int a1;
@@ -296,3 +299,5 @@ int a3;
     *((char *) (((a0 * 0x1C) + ((int) D_800F4D8C)) + 0x15)) = s[0xD];
   }
 }
+
+#undef D_800F4D8C

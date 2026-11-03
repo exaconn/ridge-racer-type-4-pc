@@ -4,7 +4,6 @@
 #include "rr/spu.h"
 
 extern s32 D_800A48B8;
-extern RrSpuAllocation *D_800A48C0;
 extern void func_8008A774(void);
 
 s32 func_8008A644(u32 count);

@@ -77,8 +77,8 @@ int main(void){unsigned k;static const s32 edges[]={26,27,28,INT32_MAX,INT32_MIN
 
     def test_first_arena_and_full_signed_glyph_components(self):
         root=Path(__file__).resolve().parents[2]
-        reset=re.sub(r'^extern[^\n]*;\n','',(root/'build/legacy/func_8003A198.c').read_text(),flags=re.M)
-        encoder=(root/'build/legacy/func_80037040.c').read_text()
+        reset=re.sub(r'^extern[^\n]*;\n','',(root/'tools/scripts/fixtures/legacy/func_8003A198.c').read_text(),flags=re.M)
+        encoder=(root/'tools/scripts/fixtures/legacy/func_80037040.c').read_text()
         body=(root/'src/overlays/PAL/662/func_80115474.c').read_text()
         source=PREFIX+r'''
 static struct World {u32 guard[4];RrMenuArenas arenas;void *published;RrMenuChoice4 choice;s16 glyph;u8 *mode;u8 backing[3][2];s32 counter;s8 flag1,flag2;u32 tail[4];} world,expected;

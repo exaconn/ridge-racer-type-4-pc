@@ -175,11 +175,18 @@ void func_8002A344(a0) int a0; {
     }
 }
 
+#undef D_800F4CB0
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACC68 (*(M2C_UNK (*))&D_800ACC68)
+#define D_800F4CB0 (*(M2C_UNK (*))&D_800F4CB0)
+
 void func_8002A604(void) {
     func_80096434(&D_800F4CB0, 0x20);
     func_80096434(&D_800ACC68, 0xC);
 }
 
+#undef D_800ACC68
 #undef D_800F4CB0
 
 /* legacy typing of shared globals in this part of the unit */
@@ -388,13 +395,10 @@ void func_8002A63C(int arg0) {
 #undef D_800ACC68
 #undef D_800F4CB0
 
+void func_8002AF8C(a, b, c) short a; int b; int c; { D_800F4CB0.c = a; D_800F4CB0.a = b; D_800F4CB0.b = c; }
+
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ACC14 (*(s32 (*))&D_800ACC14)
-#define func_8001FD20 ((s32 (*)())func_8001FD20)
-#define D_800F3A38 (*(E (*)[])&D_800F3A38)
-#define D_800ABEF8 (*(S_800ABEF8 (*)[])&D_800ABEF8)
-
-void func_8002AF8C(a, b, c) short a; int b; int c; { D_800F4CB0.c = a; D_800F4CB0.a = b; D_800F4CB0.b = c; }
 
 void func_8002AFA4(a0, a1, a2, a3, a4, a5) s32 a0; s32 a1; s32 a2; s32 a3; s32 a4; s32 a5; {
     s32 i, j, k, t0, sel, sg, off;
@@ -434,6 +438,12 @@ L1:
     if (i < 2) goto L0;
     *(s32 *)0x1F800000 = t0;
 }
+
+#undef D_800ACC14
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACC14 (*(s32 (*))&D_800ACC14)
+#define func_8001FD20 ((s32 (*)())func_8001FD20)
 
 void func_8002B12C(p0, p1, p2, p3, p4, a5, a6) s32 p0; s32 p1; s32 p2; s32 p3; s32 p4; s32 a5; s32 a6; {
     s32 i, k, t0, g, sel, sg;
@@ -496,6 +506,12 @@ B14:
         *(s32 *)0x1F800000 = func_8001FD20(D_800ACC14 + 0x70, t0, a0, a1 - 0xC, a3, 0x18, 0xFF, 0xFF, 0xFF);
     }
 }
+
+#undef D_800ACC14
+#undef func_8001FD20
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3A38 (*(E (*)[])&D_800F3A38)
 
 void func_8002B330(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4; {
     int s0;
@@ -580,6 +596,8 @@ M:
     case -1: *(char *)a2 = s0; break;
     }
 }
+
+#undef D_800F3A38
 
 int func_8002B574(int a, int b)
 {
@@ -690,6 +708,9 @@ s = b / 1000; m = s / 60; r = s % 60; t = b % 1000;
   a[8] = 0x2D; a[7] = 0x2D; a[6] = 0x2D; a[4] = 0x2D; a[3] = 0x2D; a[1] = 0x2D; a[0] = 0x2D;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABEF8 (*(S_800ABEF8 (*)[])&D_800ABEF8)
+
 void func_8002BA28(int a0) {
     /* ASM_BARRIER: pin &D_800ABEF8[a0] base pointer to $a0 */
     register S_800ABEF8 *p0 asm("a0");
@@ -746,6 +767,8 @@ void func_8002BA28(int a0) {
     func_8002B5D0(0xF0, 0x1C, D_800F4C74, s3, 0);
 }
 
+#undef D_800ABEF8
+
 char *func_8002BB88(a) int a; {
     if (a >= 0) {
         int s = a / 25;
@@ -771,11 +794,6 @@ void func_8002BC7C(int a)
     func_80020E2C(D_800ACC14 + 0x70, 0x111, s, r, t);
     *(short *)(p + 0xA) = s;
 }
-
-#undef D_800ACC14
-#undef func_8001FD20
-#undef D_800F3A38
-#undef D_800ABEF8
 
 void func_8002BD18(int a, int b)
 {

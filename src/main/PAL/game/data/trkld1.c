@@ -12,7 +12,6 @@ extern int func_8001292C();
 extern int func_80012A58();
 extern int func_8004D4BC();
 extern int func_8004D61C();
-extern struct { char pad[0x24C]; char *p; char pad2[0x560 - 0x250]; char *r560; } D_800AC650;
 extern int func_8001223C(), func_8001292C(), func_80012A58(), func_8004D4BC(), func_80070108(), func_800436E8(), func_80043608(), func_80012A68();
 extern short D_8009FE60[];
 extern int func_8001223C(), func_8001292C(), func_80012A58(), func_8004D4BC(), func_80070108(), func_800436E8();
@@ -28,6 +27,8 @@ extern int D_8010C218;
 extern s32 D_800A0218;
 extern s32 D_800A021C;
 extern s32 D_800ACC18;
+extern int D_800AC650[];
+extern int D_800ACBBC;
 
 int func_8004D628();
 void func_8004D7B4(s32 arg0);
@@ -39,6 +40,10 @@ int func_8004DCCC(int a0);
 int func_8004DDF8();
 int func_8004DEBC(int a0, int a1);
 void func_8004E008(void);
+int func_8004E03C(char *a0);
+s32 func_8004E184(void);
+s32 func_8004E18C(void);
+int func_8004E194(void);
 
 int func_8004D628(a0, a1, a2)
 int a0;
@@ -110,7 +115,8 @@ s32 func_8004D7C8(void) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010C1F0 (*(int *(*))&D_8010C1F0)
+#define D_8010C1F0 ((int *)D_8010C1F0)
+#define D_800AC650 (*(struct { char pad[0x24C]; char *p; char pad2[0x560 - 0x250]; char *r560; } (*))&D_800AC650)
 
 int func_8004D7D8(a0, a1) int a0, a1;
 {
@@ -154,6 +160,7 @@ out:
 }
 
 #undef D_8010C1F0
+#undef D_800AC650
 
 int func_8004D994(a0, a1) int a0, a1;
 {
@@ -217,6 +224,9 @@ out:
     return v;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_8010C1F0 ((char *)D_8010C1F0)
+
 int func_8004DB94(int a0, int a1) {
     int v;
     if (a0 < 0) return 1;
@@ -245,6 +255,11 @@ int func_8004DB94(int a0, int a1) {
         return 0;
     }
 }
+
+#undef D_8010C1F0
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_8010C1F0 ((char *)D_8010C1F0)
 
 int func_8004DCCC(int a0) {
     int v;
@@ -275,6 +290,8 @@ int func_8004DCCC(int a0) {
     }
 }
 
+#undef D_8010C1F0
+
 int func_8004DDF8(a0, a1, a2)
 int a0, a1, a2;
 {
@@ -298,6 +315,9 @@ int a0, a1, a2;
     }
     return 0;
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_8010C1F0 ((char *)D_8010C1F0)
 
 int func_8004DEBC(int a0, int a1) {
     int s0 = 0;
@@ -334,10 +354,86 @@ int func_8004DEBC(int a0, int a1) {
     }
 }
 
+#undef D_8010C1F0
+
 void func_8004E008(void) {
     D_800A021C = 0;
     D_800A0220 = 0;
     D_800A0224 = 0;
     D_800A0218 = 0;
     D_8010C1F0 = D_800ACC18;
+}
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_8010C1F0 ((char *)D_8010C1F0)
+#define D_8010C210 (*(int (*)[2])&D_8010C210)
+
+int func_8004E03C(char *a0) {
+    int v;
+    int *t = D_800A0228;
+    switch (D_800A021C) {
+    case 0:
+        v = func_8001292C(func_8001223C(2, 0x11), a0);
+        if (v != 0) {
+            D_800A021C += 1;
+    case 1:
+            if (func_80012A58() != 0) {
+                D_800A021C += 1;
+            }
+            v = 0;
+        }
+        return v;
+    case 2:
+        v = func_8001292C(func_8001223C(2, 0x12), D_8010C1F0);
+        if (v != 0) {
+            D_800A021C += 1;
+    case 3:
+            if (func_80012A58() != 0) {
+                D_8010C210[0] = (int)a0;
+                D_8010C210[1] = (int)D_8010C1F0;
+                func_8004ED38(D_8010C210, t[1], t[2]);
+                D_800A021C = 0;
+                return 1;
+            }
+            v = 0;
+        }
+        return v;
+    default:
+        return 0;
+    }
+}
+
+#undef D_8010C1F0
+#undef D_8010C210
+
+s32 func_8004E184(void) {
+    return 1;
+}
+
+s32 func_8004E18C(void) {
+    return 1;
+}
+
+int func_8004E194(void) {
+    switch (D_800A021C) {
+    case 0:
+        if (func_8004DEBC(3, 0) != 0) {
+            D_800A021C += 1;
+        }
+        return 0;
+    case 1:
+        if (func_8004DEBC(D_800ACBBC, 0) != 0) {
+            D_800A021C += 1;
+        }
+        return 0;
+    case 2:
+        if (func_8004DDF8(D_800AC650[0x570 / 4], D_800AC650[0x574 / 4], D_800AC650[0x578 / 4]) != 0) {
+            D_800A021C = 0;
+            D_800ACC18 = D_8010C1F0;
+            return 1;
+        }
+        return 0;
+    default:
+        return 0;
+    }
 }

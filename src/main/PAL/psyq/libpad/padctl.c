@@ -1,17 +1,17 @@
 /* RODATA 0x800120d8 0x14 */
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
+#include "rr/channels.h"
+
 struct E { unsigned char n; char pad[3]; unsigned char *p; };
 
 struct S { char pad[8]; struct E *e; char pad2[0xde]; unsigned char c; };
 
 extern int func_80098030();
-extern int func_80098044();
 extern int func_80098110();
 extern int D_800ABCB4;
-extern char *D_800ABC9C;
-extern char *(*D_800ABC7C)();
 extern int func_80099380();
+extern int func_80098AC4();
 
 void func_80097834();
 void func_80097854();
@@ -22,12 +22,22 @@ int func_800979AC();
 int func_80097AA4();
 int func_80097B78();
 void func_80097C20();
+void func_80097C58(s32 selector, s32 first, s32 second);
+void func_80097CA0();
 
 void func_80097834() { func_80098030(); }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_80098044 ((int (*)())func_80098044)
+
 void func_80097854() { func_80098044(); }
 
+#undef func_80098044
+
 void func_80097874() { func_80098110(); }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABC9C ((char *)D_800ABC9C)
 
 int func_80097894(a0) int a0; {
     if (D_800ABCB4) {
@@ -36,6 +46,11 @@ int func_80097894(a0) int a0; {
     }
     return 0;
 }
+
+#undef D_800ABC9C
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABC7C (*(char *(*(*))())&D_800ABC7C)
 
 int func_800978E0() {
   char *p = D_800ABC7C();
@@ -54,6 +69,11 @@ int func_800978E0() {
   return p[0x49];
 }
 
+#undef D_800ABC7C
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABC7C (*(char *(*(*))())&D_800ABC7C)
+
 int func_800979AC(a0, a1, a2) int a0, a1, a2; {
   char *p = D_800ABC7C();
   switch (a1) {
@@ -68,6 +88,11 @@ int func_800979AC(a0, a1, a2) int a0, a1, a2; {
   }
   return 0;
 }
+
+#undef D_800ABC7C
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABC7C (*(unsigned char *(*(*))())&D_800ABC7C)
 
 int func_80097AA4(a0, a1, a2) int a0, a1, a2; {
   unsigned char *p = D_800ABC7C();
@@ -86,6 +111,11 @@ int func_80097AA4(a0, a1, a2) int a0, a1, a2; {
   return 0;
 }
 
+#undef D_800ABC7C
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABC7C (*(struct S *(*(*))())&D_800ABC7C)
+
 int func_80097B78(a0, a1, a2) int a0, a1, a2; {
     struct S *s = D_800ABC7C();
     struct E *e;
@@ -97,4 +127,22 @@ int func_80097B78(a0, a1, a2) int a0, a1, a2; {
     return e->p[a2];
 }
 
+#undef D_800ABC7C
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABC7C (*(int (*(*))())&D_800ABC7C)
+
 void func_80097C20(a0, a1) int a0, a1; { func_80099380(D_800ABC7C(), a1); }
+
+#undef D_800ABC7C
+
+void func_80097C58(s32 selector, s32 first, s32 second) {
+    func_800994CC(D_800ABC7C(selector), first & 0xFF, second & 0xFF);
+}
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABC7C (*(int (*(*))())&D_800ABC7C)
+
+void func_80097CA0(a0, a1, a2) int a0, a1, a2; { func_80098AC4(D_800ABC7C(), a1, a2); }
+
+#undef D_800ABC7C

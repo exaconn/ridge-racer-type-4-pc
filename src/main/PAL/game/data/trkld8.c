@@ -2,21 +2,17 @@
 extern int func_8001223C();
 extern int func_8001292C();
 extern int func_80012A58();
-extern int func_800436E8();
-extern int func_80070108();
-extern int D_800A021C;
-extern char *D_8010C1F0;
-extern int D_800A0270[];
-extern int *D_800ACC18;
-extern int D_8010C210[];
-extern int func_8004ED38();
 extern int func_800131D0();
 extern int func_80013200();
+extern int func_800436E8();
 extern int func_8004D4BC();
+extern int D_800A021C;
+extern int D_800ACC18;
 extern short D_800AD520;
 extern int D_800AD564;
 extern short D_800F3914;
 extern int D_800F4D40;
+extern int D_8010C1F0;
 extern char D_800F74B0[];
 extern char D_800AC650[];
 extern struct { char pad[0x24]; short h[8]; char pad2[0x2860 - 0x34]; short a, b; } D_800F4DB8;
@@ -33,71 +29,8 @@ extern int func_8005D858();
 extern int func_80052800();
 extern int func_80052760();
 
-int func_8004E8CC(void);
-int func_8004E990();
 int func_8004EA8C(void);
 void func_8004EC28();
-
-int func_8004E8CC(void) {
-    int v;
-    switch (D_800A021C) {
-    case 0:
-        v = func_8001292C(func_8001223C(2, 2), D_8010C1F0);
-        if (v != 0) {
-            D_800A021C += 1;
-    case 1:
-            if (func_80012A58() != 0) {
-                func_80070108(D_8010C1F0 + *(int *)(D_8010C1F0 + 4), 8);
-                func_800436E8(D_8010C1F0 + *(int *)(D_8010C1F0 + 8));
-                D_800A021C = 0;
-                return 1;
-            }
-            v = 0;
-        }
-        return v;
-    default:
-        return 0;
-    }
-}
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_8010C1F0 (*(int *(*))&D_8010C1F0)
-
-int func_8004E990()
-{
-    int r;
-    int *q;
-    switch (D_800A021C) {
-    case 0:
-        r = func_8001292C(func_8001223C(2, 0), D_8010C1F0);
-        if (r != 0) {
-            D_800A021C++;
-    case 1:
-            if (func_80012A58()) {
-                q = D_800A0270;
-                D_8010C210[0] = (int)D_8010C1F0 + D_8010C1F0[1];
-                D_8010C210[1] = (int)D_8010C1F0 + D_8010C1F0[2];
-                func_8004ED38(D_8010C210, q[1], q[2]);
-                func_800436E8((int)D_8010C1F0 + D_8010C1F0[3]);
-                D_800A021C = 0;
-                D_8010C1F0 = (int *)((int)D_8010C1F0 + D_8010C1F0[2]);
-                D_800ACC18 = D_8010C1F0;
-                return 1;
-            }
-            r = 0;
-        }
-        break;
-    default:
-        r = 0;
-    }
-    return r;
-}
-
-#undef D_8010C1F0
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ACC18 (*(int (*))&D_800ACC18)
-#define D_8010C1F0 (*(int (*))&D_8010C1F0)
 
 int func_8004EA8C(void) {
     int v;
@@ -187,6 +120,3 @@ void func_8004EC28() {
     func_80052800();
     func_80052760();
 }
-
-#undef D_800ACC18
-#undef D_8010C1F0

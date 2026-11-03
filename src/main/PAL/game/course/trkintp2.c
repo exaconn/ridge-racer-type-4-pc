@@ -16,7 +16,6 @@ extern char D_8010C158[];
 extern char D_8010C168[];
 extern void func_80092FFC();
 extern void func_80092D50();
-extern int D_800ABECC;
 extern char *D_800ACBA0;
 extern int func_8006E030();
 extern int func_8006E09C();
@@ -105,6 +104,10 @@ int func_8004342C(a0, a1, a2, a3, a4, a5) int a0; int a1; int a2; int a3; int a4
     return 0;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_80096424 ((void (*)())func_80096424)
+#define D_8010C168 (*(unsigned char (*)[])&D_8010C168)
+
 int func_80043508(int *a, int *b, int *c, int *d, int *e, int f) {
     unsigned t;
     func_80096424(D_8010C158, f);
@@ -119,6 +122,9 @@ int func_80043508(int *a, int *b, int *c, int *d, int *e, int f) {
     }
     return -1;
 }
+
+#undef func_80096424
+#undef D_8010C168
 
 void func_80043608(int *p) {
     short r[4];
@@ -214,6 +220,14 @@ void func_800437D8(a0, a1) char *a0; int *a1;
     func_800912D4(a1[10]);
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_8006E030 ((void (*)())func_8006E030)
+#define func_8006E09C ((void (*)())func_8006E09C)
+#define func_8006E108 ((void (*)())func_8006E108)
+#define func_80090CA4 ((void (*)())func_80090CA4)
+#define func_80090DB4 ((void (*)())func_80090DB4)
+#define func_80090EC4 ((void (*)())func_80090EC4)
+
 void func_800439BC(char *a, int b, int *c) {
     int m1[8];
     int m2[10];
@@ -229,6 +243,13 @@ void func_800439BC(char *a, int b, int *c) {
     c[1] = c[1] + t[1];
     c[2] = c[2] + t[2];
 }
+
+#undef func_8006E030
+#undef func_8006E09C
+#undef func_8006E108
+#undef func_80090CA4
+#undef func_80090DB4
+#undef func_80090EC4
 
 void func_80043AB0(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
     s16 current_y;

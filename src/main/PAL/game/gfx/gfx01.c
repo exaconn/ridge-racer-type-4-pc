@@ -49,6 +49,9 @@ void func_8003CF34(int a0)
     func_80091114(sp);
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABED0 (*(unsigned short (*)[])&D_800ABED0)
+
 void func_8003D01C(a0) int a0;
 {
     short sp[14];
@@ -85,6 +88,8 @@ L:
     }
     func_80091114(s0);
 }
+
+#undef D_800ABED0
 
 int func_8003D108(a0) int a0;
 {

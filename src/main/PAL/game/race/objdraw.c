@@ -873,6 +873,9 @@ void func_800747EC(s32 arg0) {
     }
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_80090914 ((int (*)())func_80090914)
+
 void func_80077A34(int unused, short *p, M *out, int flag) {
     M m10, m30, m50, m70;
     M m90;
@@ -894,6 +897,11 @@ void func_80077A34(int unused, short *p, M *out, int flag) {
     func_80090DB4(&m70, &m10);
     *out = m10;
 }
+
+#undef func_80090914
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_8010ECB4 ((char *)D_8010ECB4)
 
 void func_80077BAC(int a0, int *a1, int a2)
 {
@@ -923,6 +931,13 @@ void func_80077BAC(int a0, int *a1, int a2)
   RR_GTE_SETROT(a1);
 }
 
+#undef D_8010ECB4
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_8010ECAC ((int *)D_8010ECAC)
+#define D_8010ECB0 ((int *)D_8010ECB0)
+#define D_8010ECB4 (*(int (*))&D_8010ECB4)
+
 int func_80077D08(int *a, int b) {
     int n = *a;
     int s;
@@ -939,3 +954,7 @@ int func_80077D08(int *a, int b) {
     func_80096434(b, s);
     return s;
 }
+
+#undef D_8010ECAC
+#undef D_8010ECB0
+#undef D_8010ECB4

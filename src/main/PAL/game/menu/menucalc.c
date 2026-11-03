@@ -143,9 +143,9 @@ next:
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2AB0 (*(char *(*))&D_800F2AB0)
+#define D_800F2AB0 ((char *)D_800F2AB0)
 #define D_800F2DE4 (*(unsigned int (*))&D_800F2DE4)
-#define D_800F3AFC (*(short *(*))&D_800F3AFC)
+#define D_800F3AFC ((short *)D_800F3AFC)
 
 void func_80031064(void)
 {
@@ -182,16 +182,16 @@ void func_80031064(void)
     }
 }
 
+#undef D_800F2AB0
+#undef D_800F2DE4
+#undef D_800F3AFC
+
 void func_800311FC(void) {
     func_8001ECE8(0, 0, 0, 2);
     D_800F2DE4 = 0;
     D_800AC5DC = 0x80;
     D_800AD50A = 0x10C;
 }
-
-#undef D_800F2AB0
-#undef D_800F2DE4
-#undef D_800F3AFC
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
@@ -270,10 +270,10 @@ done:
     func_8002A344(0x1000A);
 }
 
+#undef D_800F4D8A
+
 void func_8003153C(void) {
     int *g = (int *)0x1F800000;
     int b = *g;
     *g = func_8001FD20(D_800ACC14 + 0xB6C, b, 0, 0, 0x140, 0x200, 0x20, 0x20, 0x20);
 }
-
-#undef D_800F4D8A

@@ -13,7 +13,8 @@ extern int func_80090758();
 extern struct S D_800AC650;
 /* same symbol under a 2nd C name: cse cannot reuse the earlier address, so the else arm re-materialises lui/addiu like the original */
 extern struct S D_800AC650b __asm__("D_800AC650");
-extern int D_800AC690, D_800AC694;
+extern int D_800AC690;
+extern int D_800AC694;
 extern int func_80047610();
 extern int D_800ABEA4;
 extern int D_800ABECC;

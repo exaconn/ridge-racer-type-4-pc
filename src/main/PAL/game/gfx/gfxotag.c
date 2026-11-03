@@ -248,18 +248,18 @@ int func_800452CC(Arg0Struct *a0, int a1, int a2) {
     return 0;
 }
 
+#undef D_800AC650
+
 void func_80045830(void) {
     func_80096434(&D_800AC6D8, 0x20);
     M2C_FIELD(&D_800AC6D8, s32 *, 0x1C) = -1;
 }
 
-#undef D_800AC650
-
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AC650 (*(int (*)[])&D_800AC650)
 #define D_800AC6B0 (*(char (*)[])&D_800AC6B0)
 #define D_800AC6D8 (*(int (*))&D_800AC6D8)
-#define D_800ACC14 (*(char *(*))&D_800ACC14)
+#define D_800ACC14 ((char *)D_800ACC14)
 
 int func_80045868(char *arg0)
 {

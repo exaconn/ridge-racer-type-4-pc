@@ -73,6 +73,9 @@ void func_8004BAD4(int i, short a, char b) {
     t->f49 = b;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3A38 (*(T_1 (*)[])&D_800F3A38)
+
 void func_8004BB00(int i) {
     T_1 *t = &D_800F3A38[i];
     t->f50 = 1;
@@ -80,12 +83,22 @@ void func_8004BB00(int i) {
     t->f49 = 0xF;
 }
 
+#undef D_800F3A38
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3A38 (*(T_2 (*)[])&D_800F3A38)
+
 void func_8004BB54(int i) {
     T_2 *t = &D_800F3A38[i];
     t->f50 = 0;
     t->f49 = 0;
     t->f52 = 0;
 }
+
+#undef D_800F3A38
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3A38 (*(T_3 (*)[])&D_800F3A38)
 
 void func_8004BB84(int i, int flags) {
     T_3 *t = &D_800F3A38[i];
@@ -112,6 +125,11 @@ void func_8004BB84(int i, int flags) {
         }
     }
 }
+
+#undef D_800F3A38
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3A38 (*(Pad4BC5C (*)[])&D_800F3A38)
 
 void func_8004BC5C(void) {
     s32 i;
@@ -171,6 +189,11 @@ void func_8004BC5C(void) {
         t->f44 = t0 | a0;
     }
 }
+
+#undef D_800F3A38
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3A38 (*(W10_T (*)[])&D_800F3A38)
 
 void func_8004BE4C(a0)
 int a0;
@@ -259,3 +282,5 @@ B:
     ((unsigned char *)s1)[0x1B] = 1;
   }
 }
+
+#undef D_800F3A38

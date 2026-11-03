@@ -1,5 +1,6 @@
 #include "types.h"
 #include "rr/game_motion.h"
+#include "m2c_macros.h"
 
 typedef struct {
     s16 vx, vy, vz, p0;
@@ -45,10 +46,12 @@ void func_8005ABAC(int a0);
 void func_8005AC0C(RrMotionClock20 *clock);
 void func_8005AF5C(void);
 void func_8005B190(void);
+void func_8005B2D4(s32 arg0);
+void func_8005B2E4(s32 arg0);
+void func_8005B2F4(s32 arg0);
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AC650 (*(char (*)[])&D_800AC650)
-#define D_800ACA28 (*(int (*))&D_800ACA28)
 
 void func_8005AA2C(void) {
     w3t1_F f;
@@ -97,6 +100,11 @@ void func_8005AA2C(void) {
     func_8005A9C4();
 }
 
+#undef D_800AC650
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACA28 (*(int (*))&D_800ACA28)
+
 void func_8005ABAC(int a0) {
     int *p = (int *)(D_800ACA28 + 0x15C);
     func_80096434(p, 0x2C);
@@ -105,11 +113,7 @@ void func_8005ABAC(int a0) {
     p[7] = 0x1000;
 }
 
-#undef D_800AC650
 #undef D_800ACA28
-
-/* legacy typing of shared globals in this part of the unit */
-#define func_80096434 ((int (*)())func_80096434)
 
 void func_8005AC0C(RrMotionClock20 *clock) {
     s16 counter, next;
@@ -216,6 +220,9 @@ void func_8005AC0C(RrMotionClock20 *clock) {
     }
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_80096434 ((int (*)())func_80096434)
+
 void func_8005AF5C(void) {
     D_800AC650.q = (struct Q *)((char *)&D_800AC650 + 0x250);
     func_80096434(D_800AC650.q, 0x188);
@@ -261,6 +268,11 @@ void func_8005AF5C(void) {
     }
 }
 
+#undef func_80096434
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800AC650 (*(struct { char pad[0x3D8]; struct Q_1 *q; } (*))&D_800AC650)
+
 void func_8005B190(void) {
     D_800AC650.q->f68 = 0;
     D_800AC650.q->f6a = 0;
@@ -284,4 +296,31 @@ void func_8005B190(void) {
     }
 }
 
-#undef func_80096434
+#undef D_800AC650
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACA28 ((void *)D_800ACA28)
+
+void func_8005B2D4(s32 arg0) {
+    M2C_FIELD(D_800ACA28, s32 *, 0x54) = arg0;
+}
+
+#undef D_800ACA28
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACA28 ((void *)D_800ACA28)
+
+void func_8005B2E4(s32 arg0) {
+    M2C_FIELD(D_800ACA28, s32 *, 0x50) = arg0;
+}
+
+#undef D_800ACA28
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACA28 ((void *)D_800ACA28)
+
+void func_8005B2F4(s32 arg0) {
+    M2C_FIELD(D_800ACA28, s32 *, 0x58) = arg0;
+}
+
+#undef D_800ACA28

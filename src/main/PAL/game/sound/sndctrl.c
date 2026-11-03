@@ -6,7 +6,6 @@ struct E { char pad[0x38]; u32 flags; char r[1568 - 0x3C]; };
 
 extern int func_8004EE08();
 extern int func_8004F2A0();
-extern int func_8004FBF0();
 extern int func_80050E58();
 extern int func_80051248();
 extern int func_800514FC();
@@ -46,6 +45,7 @@ extern int func_80051538();
 extern int func_800517F8();
 extern int func_80052AB8();
 extern int func_80051B38();
+extern void func_80052B8C(int, short);
 
 void func_8004F82C(int a0, int a1);
 void func_8004F9C8(void);
@@ -53,6 +53,8 @@ void func_8004FA04(void);
 void func_8004FA50(void);
 void func_8004FA98(int a0);
 void func_8004FB00(void);
+void func_8004FBF0(void);
+void func_8004FC18(short arg0, short arg1);
 
 void func_8004F82C(int a0, int a1) {
     int a[3] = { 2, 3, 7 };
@@ -165,6 +167,44 @@ void func_8004FB00(void) {
     func_8004F9C8();
     func_80051B38();
     D_800F4DBC = 1;
+}
+
+#undef D_800F4DB8
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4DB8 (*(struct { char pad[0x18]; s16 a, b, c, d, e, f; } (*))&D_800F4DB8)
+
+void func_8004FBF0(void) {
+    D_800F4DB8.a = 0x80;
+    D_800F4DB8.b = 0;
+    D_800F4DB8.c = 0;
+    D_800F4DB8.d = 0;
+    D_800F4DB8.e = 0;
+    D_800F4DB8.f = 0;
+}
+
+#undef D_800F4DB8
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4DB8 (*(struct { char pad[0x18]; unsigned short a; short b; short c; unsigned short d; unsigned short e; } (*))&D_800F4DB8)
+
+void func_8004FC18(short arg0, short arg1) {
+    if (arg1 >= 2) {
+        D_800F4DB8.b = arg1;
+        D_800F4DB8.c = 0;
+        D_800F4DB8.d = arg0;
+        D_800F4DB8.e = D_800F4DB8.a;
+    } else {
+        D_800F4DB8.a = arg0;
+        D_800F4DB8.b = 0;
+        D_800F4DB8.c = 0;
+        D_800F4DB8.d = 0;
+        D_800F4DB8.e = 0;
+        if (arg0 == 0) {
+            func_8004FB00();
+        }
+    }
+    func_80052B8C(arg0 & 0xFFFF, arg1);
 }
 
 #undef D_800F4DB8

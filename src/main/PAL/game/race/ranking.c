@@ -179,6 +179,10 @@ void func_8001F2D4(void) {
     D_800F4D8A = 0;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_8007CDC4 ((int (*)())func_8007CDC4)
+#define D_800F4C5C (*(u16 (*))&D_800F4C5C)
+
 void func_8001F374(void) {
     s32 temp_v0;
 
@@ -193,6 +197,9 @@ void func_8001F374(void) {
         }
     }
 }
+
+#undef func_8007CDC4
+#undef D_800F4C5C
 
 void func_8001F400(void){ int a[6];
 /* ASM_BARRIER: empty-frame function needs jr/addiu sp delay-slot epilogue form */

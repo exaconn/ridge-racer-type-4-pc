@@ -22,9 +22,7 @@ RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 
 void func_8003D474(s32 index);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3AFC (*(E *(*))&D_800F3AFC)
-#define func_8001FF84 (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32))&func_8001FF84)
-#define func_8001FEC0 (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32))&func_8001FEC0)
+#define D_800F3AFC ((E *)D_800F3AFC)
 
 void func_8003D228(a0, a1, a2, a3, a4, a5, a6)
 int a0;
@@ -64,6 +62,12 @@ unsigned short a6;
     D_800F3AFC[a0].i = a5;
   }
 }
+
+#undef D_800F3AFC
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_8001FF84 (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32))&func_8001FF84)
+#define func_8001FEC0 (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32))&func_8001FEC0)
 
 RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 style) {
     /* ASM_BARRIER: keep the ordering pointer live across every helper call. */
@@ -125,7 +129,6 @@ RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 
     return func_8001FD20(out_order,out_cursor,x_stage,y_stage,width,2,255,255,255);
 }
 
-#undef D_800F3AFC
 #undef func_8001FF84
 #undef func_8001FEC0
 

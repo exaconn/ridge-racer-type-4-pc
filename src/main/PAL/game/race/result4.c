@@ -49,10 +49,6 @@ void func_8003687C(int a0);
 void func_800369E8(void);
 void func_80036A44(void);
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800F3AFC (*(X *(*))&D_800F3AFC)
-#define D_800FF68C (*(Y *(*))&D_800FF68C)
-
 void func_8003662C(a0)
 int a0;
 {
@@ -168,6 +164,10 @@ int a0;
   *((int *) 0x1F800000) = func_8001FCC8(D_800ACC14 + 0x70, a1, 0x2E);
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3AFC ((X *)D_800F3AFC)
+#define D_800FF68C ((Y *)D_800FF68C)
+
 void func_8003687C(int a0) {
     int i = 0;
     int a;
@@ -192,6 +192,9 @@ void func_8003687C(int a0) {
     D_800ACC18 = D_800F4D40;
 }
 
+#undef D_800F3AFC
+#undef D_800FF68C
+
 void func_800369E8(void) {
     func_8002A344(0x10006);
     func_8003687C(0);
@@ -201,9 +204,6 @@ void func_800369E8(void) {
     D_800F3A26 = 0xA;
     D_800F4D8A = 0;
 }
-
-#undef D_800F3AFC
-#undef D_800FF68C
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F2DE4 (*(unsigned (*))&D_800F2DE4)

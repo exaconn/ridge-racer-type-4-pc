@@ -1,4 +1,3 @@
-/* GCC_VERSION: 970318 */
 #include "rr_asm.h"
 
 int *func_80090EC4(int *a0, int *a1, int *a2);

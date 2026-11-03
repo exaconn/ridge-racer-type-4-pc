@@ -1,21 +1,6 @@
 #include "types.h"
 
 typedef struct {
-    int f0;
-    short h4;
-    short pad6;
-    int f8;
-    int fC;
-    int pad10;
-    int f14;
-    char pad18[0x28 - 0x18];
-    short h28;
-    short h2A;
-    char pad2C[0x5DC - 0x2C];
-    short h5DC[(0x620 - 0x5DC) / 2];
-} W;
-
-typedef struct {
     u32 flags00;
     s16 bank04;
     u16 reserved06;
@@ -46,10 +31,11 @@ typedef struct {
     } pitch5F8[10];
 } RrSlot620;
 
-extern struct { u32 flags; char pad[1568 - 4]; } D_800F4DF0[];
-extern struct { char pad[0x48]; struct { s32 a, b; char pad[1568 - 8]; } e[1]; } D_800F4DB8;
-extern int func_80096454();
-extern int func_800857A4();
+struct T { s32 k[9]; s32 v[9]; };
+
+struct E { char pad[0x74]; struct T t[2][10]; char r[12]; };
+
+extern RrSlot620 D_800F4DF0[];
 extern u16 D_800A053C[];
 extern s16 D_800A043C[];
 extern struct {
@@ -58,51 +44,13 @@ extern struct {
     s16 mono32;
 } D_800AD528;
 extern s16 D_800F4DD0;
-extern int func_80050744();
+extern int func_800857A4();
 extern void func_8004FE7C();
 extern int func_80084E74();
+extern struct E D_800F4DB8[];
 
-void func_80050028(int a0, int a1);
-void func_8005007C(int a0, int a1, int a2);
-void func_800500A8();
 void func_800501BC(int a0);
-
-void func_80050028(int a0, int a1) {
-    u32 *p = &D_800F4DF0[a0].flags;
-    if (a1 == 1) *p |= 4;
-    else *p &= ~4;
-}
-
-void func_8005007C(int a0, int a1, int a2) {
-    D_800F4DB8.e[a2].a = a0;
-    D_800F4DB8.e[a2].b = a1;
-}
-
-void func_800500A8(a0)
-int a0;
-{
-    int s[4];
-    W *w = &D_800F4DF0[a0];
-    unsigned short *q;
-    int i;
-    int k;
-    int t;
-    func_80096454(s, 0, 0x10);
-    s[3] = 2;
-    k = w->f8;
-    i = 0;
-    if (w->fC > 0) {
-        q = (unsigned short *)((int)s + a0 * 4);
-        do {
-            func_800857A4((short)k, w->h4, w->h5DC[w->f14 * 5 + i], 0, (short)(*q + 0x3C), 0, 0, 0);
-            k++;
-            i++;
-        } while (i < w->fC);
-    }
-    t = *(unsigned short *)&s[a0];
-    w->h2A = 0;
-    w->h28 = t + 0x3C;
-}
+int func_80050744(int a0, int x, int a2, int a3);
 
 void func_800501BC(int a0) {
     RrSlot620 *s0 = &D_800F4DF0[a0];
@@ -198,4 +146,17 @@ void func_800501BC(int a0) {
             func_80084E74((s16)s3, s0->bank04, (s16)s0->programs5DC[s0->program14][i], s0->group28, 0, (s16)c, t0);
         }
     }
+}
+
+int func_80050744(int a0, int x, int a2, int a3) {
+    int i, lo, vlo, vhi, klo, khi;
+    for (i = 1; i < 9; i++) {
+        if (x < D_800F4DB8[a3].t[a2][a0].k[i]) break;
+    }
+    lo = i - 1;
+    vlo = D_800F4DB8[a3].t[a2][a0].v[lo];
+    vhi = D_800F4DB8[a3].t[a2][a0].v[i];
+    klo = D_800F4DB8[a3].t[a2][a0].k[lo];
+    khi = D_800F4DB8[a3].t[a2][a0].k[i];
+    return (vhi - vlo) * (x - klo) / (khi - klo) + vlo;
 }

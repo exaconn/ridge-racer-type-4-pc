@@ -71,9 +71,9 @@ typedef struct
   unsigned char b;
 } K;
 
-extern s32 D_800ABEA4;
 extern s32 D_800ABECC;
 extern short D_800AD522;
+extern struct E *D_800ABEA4;
 extern K D_800ADAD8[];
 extern short *D_800ACBE8;
 extern int func_80026A74();
@@ -83,6 +83,9 @@ void func_8002648C(RrRaceVehicle *p);
 void func_8002679C(void *arg0);
 void func_80026800();
 void func_80026998(int a0, int a1);
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABEA4 (*(s32 (*))&D_800ABEA4)
 
 s32 func_800261BC(s32 *pos, s32 startIdx) {
     SP *g = (SP *)0x1F800080;
@@ -158,6 +161,8 @@ s32 func_800261BC(s32 *pos, s32 startIdx) {
     }
     return g->s150[0];
 }
+
+#undef D_800ABEA4
 
 void func_8002648C(RrRaceVehicle *p)
 {

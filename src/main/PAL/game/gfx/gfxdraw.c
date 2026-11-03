@@ -307,6 +307,8 @@ void func_80044B5C(void) {
     }
 }
 
+#undef D_800AC650
+
 u8 *func_80044BA0(s32 a0) {
     w3t1_G *g = (w3t1_G *)0x1F80007C;
     u8 *p = *(u8 **)0x1F800000;
@@ -379,5 +381,3 @@ u8 *func_80044BA0(s32 a0) {
         return r;
     }
 }
-
-#undef D_800AC650

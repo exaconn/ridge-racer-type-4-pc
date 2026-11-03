@@ -87,6 +87,8 @@ int func_80053E88(void) {
     return -1;
 }
 
+#undef D_800F2AB8
+
 void func_80053EC4()
 {
     RrUiParticle20 *s0;
@@ -145,6 +147,9 @@ void func_80053EC4()
     }
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F2AE4 (*(E (*)[])&D_800F2AE4)
+
 void func_80054128(int a0) {
     E *e = &D_800F2AE4[a0];
     int st = e->st;
@@ -188,7 +193,7 @@ void func_80054128(int a0) {
     e->u1e = e->u1e + 1;
 }
 
-#undef D_800F2AB8
+#undef D_800F2AE4
 
 void func_80054264(int a0) {
     RrGpuColorCommand c[4];

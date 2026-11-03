@@ -128,6 +128,9 @@ LC0:
     }
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACC14 ((char *)D_800ACC14)
+
 void func_80020CD4(a0, a1, a2, a3)
 s32 a0;
 s32 a1;
@@ -176,6 +179,11 @@ s32 a3;
     *(RrSpritePacketSignedClut **)0x1F800000 = (RrSpritePacketSignedClut *)((char *)p + 0xC);
 }
 
+#undef D_800ACC14
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_8001FCC8 ((s32 (*)())func_8001FCC8)
+
 void func_80020E2C(a0, a1, a2, a3, a4)
 RrSpritePacket *a0; s32 a1; s32 a2; u8 *a3; s32 a4;
 {
@@ -207,6 +215,11 @@ RrSpritePacket *a0; s32 a1; s32 a2; u8 *a3; s32 a4;
     }
     *(s32 *)0x1F800000 = func_8001FCC8(a0, p, 5);
 }
+
+#undef func_8001FCC8
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_8001FCC8 ((int (*)())func_8001FCC8)
 
 void func_80020F20(a0, a1, a2, a3)
 struct P *a0; int a1; int a2; unsigned char *a3;
@@ -243,3 +256,5 @@ struct P *a0; int a1; int a2; unsigned char *a3;
     }
     *(int *)0x1F800000 = func_8001FCC8(a0, p, 0x59);
 }
+
+#undef func_8001FCC8

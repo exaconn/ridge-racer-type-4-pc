@@ -204,8 +204,7 @@ void func_80040CB4(s32 a0) {
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_8001FCC8 (*(unsigned *(*)())&func_8001FCC8)
-#define D_800ACC14 (*(char *(*))&D_800ACC14)
-#define D_800FFC14 (*(E *(*))&D_800FFC14)
+#define D_800ACC14 ((char *)D_800ACC14)
 
 void func_800411D4()
 {
@@ -238,6 +237,12 @@ void func_800411D4()
     *(unsigned **)0x1F800000 = func_8001FCC8(d + 0x98, a1, 0xE, a3);
 }
 
+#undef func_8001FCC8
+#undef D_800ACC14
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800FFC14 ((E *)D_800FFC14)
+
 void func_80041320(a0, a1, a2)
 int a0;
 int a1;
@@ -267,8 +272,6 @@ int a2;
 
 }
 
-#undef func_8001FCC8
-#undef D_800ACC14
 #undef D_800FFC14
 
 void func_8004139C(a0, a1)
@@ -297,7 +300,7 @@ void func_800413E0(void) {
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_8001ECE8 ((void (*)())func_8001ECE8)
-#define D_800F4D8C (*(char *(*))&D_800F4D8C)
+#define D_800F4D8C ((char *)D_800F4D8C)
 
 void func_80041434(void) {
     int i;
@@ -327,8 +330,8 @@ void func_80041434(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AD520 (*(unsigned char (*))&D_800AD520)
 #define D_800F2DE4 (*(unsigned (*))&D_800F2DE4)
-#define D_800F3AFC (*(char *(*))&D_800F3AFC)
-#define D_800FF68C (*(signed char *(*))&D_800FF68C)
+#define D_800F3AFC ((char *)D_800F3AFC)
+#define D_800FF68C ((signed char *)D_800FF68C)
 
 void func_80041588()
 {

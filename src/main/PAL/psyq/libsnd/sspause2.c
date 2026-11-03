@@ -1,4 +1,4 @@
-/* GCC_VERSION: 970318 */
+/* GCC_VERSION: 2.7.2 */
 typedef struct { unsigned char *c0; int c4, c8, cC; char p10[4]; unsigned char b14; char p15[2]; unsigned char b17, b18, b19, b1a, b1b, b1c, b1d, b1e, b1f, b20, b21; char p22[4]; signed char b26; unsigned char b27[0x10]; unsigned char b37[0x10]; char p47[1]; short h48[8]; short h58[4]; unsigned short h60[0x10]; short h80; char p82[6]; int w88; int w8c; int w90; char p94[4]; int w98; int w9c; char pa0[0x10]; } Ch;
 
 typedef struct { unsigned char *c0; int c4, c8, cC; char p10[4]; unsigned char b14; char p15[2]; unsigned char b17, b18, b19, b1a, b1b, b1c, b1d, b1e, b1f, b20, b21; char p22[4]; signed char b26; unsigned char b27[0x10]; unsigned char b37[0x10]; char p47[1]; short h48[8]; unsigned short h58[4]; unsigned short h60[0x10]; short h80; char p82[6]; int w88; int w8c; int w90; char p94[4]; int w98; int w9c; char pa0[0x10]; } Ch_1;
@@ -31,6 +31,9 @@ void func_80082440(short a) { func_800823A4(a, 0); }
 
 void func_80082468(short a, short b) { func_800823A4(a, b); }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_8010F068 (*(Ch_1 *(*)[])&D_8010F068)
+
 void func_80082494(int a0, short a1, int a2, signed char a3) {
     int t = a0 << 16;
     Ch_1 **b = D_8010F068;
@@ -53,3 +56,5 @@ void func_80082494(int a0, short a1, int a2, signed char a3) {
         ((Ch_1 *)(a1 * 0xB0 + (int)*q))->w98 |= 2;
     }
 }
+
+#undef D_8010F068

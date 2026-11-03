@@ -1,9 +1,10 @@
-/* GCC_VERSION: 970318 */
-/* MASPSX_FLAGS: --assembler-profile=gnu */
+/* GCC_VERSION: 2.7.2 */
 extern volatile int D_800ABDE8;
-extern unsigned char D_80114724, D_80114725;
+extern unsigned char D_80114724;
+extern unsigned char D_80114725;
 extern unsigned char *D_80114718;
-extern int D_800ABDF8, D_80114730;
+extern int D_800ABDF8;
+extern int D_80114730;
 
 int func_8009C55C();
 int func_8009C610();

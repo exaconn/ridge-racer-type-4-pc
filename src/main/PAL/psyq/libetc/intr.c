@@ -112,9 +112,21 @@ void func_8008B3F4(RrSpuTickCallback callback)
 
 void func_8008B428() { D_800A6350[5](); }
 
+#undef D_800A6350
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800A6350 (*(int (**(*))())&D_800A6350)
+
 void func_8008B458() { D_800A6350[4](); }
 
+#undef D_800A6350
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800A6350 (*(int (**(*))())&D_800A6350)
+
 void func_8008B488() { D_800A6350[6](); }
+
+#undef D_800A6350
 
 u16 func_8008B4B8(void) {
     return D_800A52CA;
@@ -129,5 +141,3 @@ s32 func_8008B4E0(s32 value) {
     *D_800A6358=value;
     return previous;
 }
-
-#undef D_800A6350

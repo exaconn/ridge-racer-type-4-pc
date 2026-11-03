@@ -1,5 +1,4 @@
-/* GCC_VERSION: 970318 */
-/* MASPSX_FLAGS: --assembler-profile=gnu */
+/* CC1_FLAGS: -mno-split-addresses */
 #include "rr/spu.h"
 #include "rr/channel_pitch.h"
 

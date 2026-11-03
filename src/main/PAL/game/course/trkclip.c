@@ -31,6 +31,9 @@ void func_80026A20(int a, int b, short *c)
   c[0] = q;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABEA4 (*(s32 (*))&D_800ABEA4)
+
 s32 func_80026A74(s32 *pos, s32 startIdx, s32 maxIter) {
     StackFrame sp;
     s32 idx;
@@ -93,3 +96,5 @@ s32 func_80026A74(s32 *pos, s32 startIdx, s32 maxIter) {
     }
     return idx;
 }
+
+#undef D_800ABEA4

@@ -269,6 +269,9 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     }
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3A08 (*(Bounds2D1B4 *(*)[])&D_800F3A08)
+
 void func_8002D1B4(Vehicle2D1B4 *arg0) {
     Mat8 sp20;
     Mat8 sp40;
@@ -374,6 +377,14 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
         }
     }
 }
+
+#undef D_800F3A08
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_80013904 ((s32 (*)(Vehicle2D784 *, s32))func_80013904)
+#define func_80015F68 ((void (*)(Vehicle2D784 *, Vec4 *, Mat8 *, Mat8 *, s32, s32, s32))func_80015F68)
+#define func_80039494 ((s32 (*)(Vehicle2D784 *))func_80039494)
+#define D_800F3A08 (*(Bounds2D784 *(*)[])&D_800F3A08)
 
 void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
     Mat8 sp20;
@@ -553,3 +564,8 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
     }
     func_80015F68(arg0, 0, 0, 0, slot_idx, 0, 0);
 }
+
+#undef func_80013904
+#undef func_80015F68
+#undef func_80039494
+#undef D_800F3A08

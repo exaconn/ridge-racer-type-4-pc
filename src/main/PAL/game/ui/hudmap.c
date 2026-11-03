@@ -3,10 +3,14 @@ struct A { char pad[0xF0]; int idx; char p2[0xE0]; short ang; };
 struct B { char pad[0x12]; short x; char p2[0x28]; };
 
 extern int func_8001FC28(), func_8002B5D0(), func_8002B814(), func_8004C73C(), func_8004C928();
-extern char D_800103FC[], D_80010408[], D_80010414[];
-extern short D_800AC0E6, D_800AC1A0;
+extern char D_800103FC[];
+extern char D_80010408[];
+extern char D_80010414[];
+extern short D_800AC0E6;
+extern short D_800AC1A0;
 extern char *D_800ACC14;
-extern int D_800F3A30, D_800F4C64;
+extern int D_800F3A30;
+extern int D_800F4C64;
 extern int D_800F4C80[];
 extern int func_8001FCC8();
 extern int func_8001FF84();
@@ -85,6 +89,9 @@ void func_800225DC(int a0) {
     }
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACC14 (*(int (*))&D_800ACC14)
+
 void func_80022694(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10)
 {
     int d1, d2, x, y, r, t;
@@ -110,6 +117,8 @@ void func_80022694(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a
         *(int *)0x1F800000 = r;
     }
 }
+
+#undef D_800ACC14
 
 int func_80022848(struct A *a0) {
     int t = 0x800 - D_800ABEA4[a0->idx].x;

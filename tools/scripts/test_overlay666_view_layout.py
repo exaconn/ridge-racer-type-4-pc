@@ -10,7 +10,7 @@ class Overlay666ViewLayoutTest(unittest.TestCase):
     def test_fresh_glyph_and_selected_value_after_layout_calls(self):
         root=Path(__file__).resolve().parents[2]
         body=read_c_source(root/'src/overlays/PAL/666/func_801148D4.c')
-        reset=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'build/legacy/func_8003A198.c'),flags=re.M)
+        reset=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'tools/scripts/fixtures/legacy/func_8003A198.c'),flags=re.M)
         source=r'''
 #include <assert.h>
 #include <stddef.h>

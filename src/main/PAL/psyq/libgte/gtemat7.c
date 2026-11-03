@@ -1,4 +1,3 @@
-/* GCC_VERSION: 970318 */
 void func_800910B4(int *a0);
 void func_800910E4(int *a0);
 void func_80091114(int *a0);

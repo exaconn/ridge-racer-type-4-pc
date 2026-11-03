@@ -12,9 +12,8 @@ s32 func_8009D5B4(s32 request, u32 *first, u32 *second);
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_80114718 (*(int (*))&D_80114718)
-#define D_80114734 (*(int *(*))&D_80114734)
-#define D_80114738 (*(int *(*))&D_80114738)
-#define D_8011472C (*(char (*))&D_8011472C)
+#define D_80114734 ((int *)D_80114734)
+#define D_80114738 ((int *)D_80114738)
 
 int func_8009D424(a0,a1) int a0; int a1; {
     int r;
@@ -38,6 +37,16 @@ int func_8009D424(a0,a1) int a0; int a1; {
     D_800ABDE4 = 2;
     return 1;
 }
+
+#undef D_80114718
+#undef D_80114734
+#undef D_80114738
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_8011472C (*(char (*))&D_8011472C)
+#define D_80114718 ((char *)D_80114718)
+#define D_80114734 ((int *)D_80114734)
+#define D_80114738 ((int *)D_80114738)
 
 int func_8009D4E0(a0, a1) int a0; int a1; {
     int r;
@@ -69,10 +78,10 @@ int func_8009D4E0(a0, a1) int a0; int a1; {
     return 1;
 }
 
+#undef D_8011472C
 #undef D_80114718
 #undef D_80114734
 #undef D_80114738
-#undef D_8011472C
 
 s32 func_8009D5B4(s32 request, u32 *first, u32 *second) {
     s32 result;

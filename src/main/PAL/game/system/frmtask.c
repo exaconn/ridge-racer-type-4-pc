@@ -38,7 +38,6 @@ void func_8001E684(void);
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3A26 (*(s16 (*))&D_800F3A26)
 #define D_800F4C6A (*(s16 (*))&D_800F4C6A)
-#define D_800ACC14 (*(int (*))&D_800ACC14)
 
 void func_8001E344(void) {
     D_8010BF84 = 0;
@@ -48,10 +47,18 @@ void func_8001E344(void) {
     D_800F4D8A = 0;
 }
 
+#undef D_800F3A26
+#undef D_800F4C6A
+
 void func_8001E378(void) {
     D_8010BF84 = 0;
     D_800AC5D0 = -1;
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACC14 (*(int (*))&D_800ACC14)
+#define D_800F4C6A (*(short (*))&D_800F4C6A)
+#define D_800F3A26 (*(short (*))&D_800F3A26)
 
 void func_8001E390(void) {
     short *p;
@@ -143,9 +150,9 @@ void func_8001E390(void) {
     }
 }
 
-#undef D_800F3A26
-#undef D_800F4C6A
 #undef D_800ACC14
+#undef D_800F4C6A
+#undef D_800F3A26
 
 void func_8001E684(void) {
     s32 threshold;

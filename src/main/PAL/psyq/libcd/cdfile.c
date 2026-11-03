@@ -1,6 +1,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* GCC_VERSION: 2.7.2 */
 /* CC1_FLAGS: -fsigned-char -mhard-float */
+#include "rr/library.h"
 
 typedef struct {
     unsigned char pos[4];
@@ -8,23 +9,49 @@ typedef struct {
     char name[16];
 } CdlFILE;
 
+typedef struct {
+    int x;
+} __attribute__((packed)) U4;
+
+struct DirPath {
+    int a;
+    int b;
+    int c;
+    char name[32];
+};
+
 extern int D_800A67A4;
 extern int D_800A649C;
 extern int D_800A6490;
 extern CdlFILE D_80110350[];
-
 extern const char D_80011B38[];
 extern const char D_80011B54[];
 extern const char D_80011B6C[];
 extern const char D_80011B88[];
 extern const char D_80011BA8[];
 extern const char D_80011BB4[];
-
-extern int func_8008E17C(void);
-extern int func_8008E440(int, char *);
 extern int func_8008E4E4(int);
-extern int func_8008E15C(char *, char *);
 extern int func_8001E84C();
+extern int func_80096414();
+extern int D_800A67A0;
+extern struct DirPath D_80110950[];
+extern unsigned char D_80111F50[];
+extern const char D_80011BC4[];
+extern const char D_80011BF0[];
+extern const char D_80011BF8[];
+extern const char D_80011C28[];
+extern const char D_80011C4C[];
+extern const char D_80011C6C[];
+extern const char D_80011C80[];
+extern int func_8008E780(int, int, void *);
+extern void func_80096444(char *, void *, int);
+extern char D_8011095C[];
+extern s32 func_80096404(const char *, const char *);
+
+CdlFILE *func_8008DE84(CdlFILE *fp, char *name);
+int func_8008E15C(int a, int b);
+int func_8008E17C(void);
+s32 func_8008E440(s32 key, const char *name);
 
 CdlFILE *func_8008DE84(CdlFILE *fp, char *name) {
     char buf[16];
@@ -96,4 +123,111 @@ done:
     if (D_800A6490 > 0)
         func_8001E84C(D_80011BB4, buf);
     return 0;
+}
+
+int func_8008E15C(int a, int b) { return func_80096414(a, b, 12) == 0; }
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_80096414 ((int (*)(void *, const char *, int))func_80096414)
+
+int func_8008E17C(void) {
+    int sp18;
+    unsigned char *p;
+    int i;
+    unsigned char *p8c;
+    int pad;
+    int dummy;
+
+    if (func_8008E780(1, 0x10, D_80111F50) != 1) {
+        if (D_800A6490 > 0) {
+            func_8001E84C(D_80011BC4);
+        }
+        return 0;
+    }
+    if (func_80096414(D_80111F50 + 1, D_80011BF0, 5) != 0) {
+        if (D_800A6490 > 0) {
+            func_8001E84C(D_80011BF8);
+        }
+        return 0;
+    }
+    p8c = D_80111F50;
+    /* ASM_BARRIER: prevent cse2 from folding s0+0x8C back to symbol+0x8C */
+    __asm__ volatile("" : "=r"(p8c) : "0"(p8c));
+    *(U4 *)&sp18 = *(U4 *)(p8c + 0x8C);
+    if (func_8008E780(1, sp18, p8c) != 1) {
+        if (D_800A6490 > 0) {
+            func_8001E84C(D_80011C28, sp18);
+        }
+        return 0;
+    }
+    p = p8c;
+    if (D_800A6490 >= 2) {
+        func_8001E84C(D_80011C4C);
+    }
+    i = 0;
+    while (p < p8c + 0x800) {
+        if (p[0] == 0) {
+            break;
+        }
+        *(U4 *)&D_80110950[i].c = *(U4 *)(p + 2);
+        D_80110950[i].b = p[6];
+        D_80110950[i].a = i + 1;
+        func_80096444(D_80110950[i].name, p + 8, p[0]);
+        dummy = (p < p8c + 0x800);
+        D_80110950[i].name[p[0]] = 0;
+        pad = (p[0] & 1) + 8;
+        p += p[0] + pad;
+        if (D_800A6490 >= 2) {
+            func_8001E84C(
+                D_80011C6C,
+                D_80110950[i].c,
+                D_80110950[i].a,
+                D_80110950[i].b,
+                D_80110950[i].name
+            );
+        }
+        i++;
+        if (i >= 0x80) {
+            break;
+        }
+    }
+    if (i < 0x80) {
+        D_80110950[i].b = 0;
+    }
+    D_800A67A0 = 0;
+    if (D_800A6490 >= 2) {
+        func_8001E84C(D_80011C80, i);
+    }
+    return 1;
+}
+
+#undef func_80096414
+
+s32 func_8008E440(s32 key, const char *name) {
+    s32 i = 0;
+    register char *entry_name;
+    /* ASM_BARRIER: Retain the original table-offset register across comparisons. */
+    register s32 offset __asm__("$17");
+    /* ASM_BARRIER: Keep independently initialized scan count and byte offset without folding their zeros. */
+    __asm__("" : "=r"(i) : "0"(i) : "$18");
+    entry_name = D_8011095C;
+    offset = 0;
+    do {
+        register u8 *page;
+        s32 entry_key;
+        /* PAL mapping: page + offset + 0x954 addresses D_80110954[i]. */
+        page = (u8 *)0x80110000U;
+        /* ASM_BARRIER: Expose the PAL page without folding its table offset into a macro load. */
+        __asm__("" : "=r"(page) : "0"(page));
+        page += offset;
+        entry_key = ((RrLibNamedEntry *)(page + 0x954))->key;
+        if (entry_key == 0) break;
+        if (entry_key == key) {
+            if (func_80096404(name, entry_name) == 0) return i + 1;
+        }
+        entry_name += 0x2C;
+        offset += 0x2C;
+        i++;
+    } while (i < 128);
+    return -1;
 }

@@ -10,7 +10,7 @@ class OverlayArenaTest(unittest.TestCase):
     def test_live_arena_publication(self):
         root = Path(__file__).resolve().parents[2]
         body = (root / 'src/overlays/PAL/662/func_80116148.c').read_text()
-        reset = (root / 'build/legacy/func_8003A198.c').read_text()
+        reset = (root / 'tools/scripts/fixtures/legacy/func_8003A198.c').read_text()
         reset = re.sub(r'^extern[^\n]*;\n', '', reset, flags=re.M)
         reset = reset.replace('func_8003A198', 'rr_real_reset')
         source = r'''

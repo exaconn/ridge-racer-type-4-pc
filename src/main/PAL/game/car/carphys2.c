@@ -391,6 +391,11 @@ void func_80024CD8(C *c) {
     c->i54 = c->i54 & 0xFFF;
 }
 
+#undef func_80025FBC
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_80025FBC ((int (*)())func_80025FBC)
+
 void func_800252EC(C_1 *c0) {
     register C_1 *c __asm__("$18"); /* ASM_BARRIER: match saved reg assignment of original */
     D_1 *d;
@@ -532,6 +537,12 @@ void func_800252EC(C_1 *c0) {
     c->s1D4 = c->s1D4 & 0xFFF;
 }
 
+#undef func_80025FBC
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3A08 (*(int *(*)[])&D_800F3A08)
+#define func_80025FBC ((int (*)())func_80025FBC)
+
 void func_80025954(a0) P *a0; {
     Q *q = (Q *)((char *)a0 + 0x1F4);
     int t, a1, a2, a3, v;
@@ -606,6 +617,9 @@ void func_80025954(a0) P *a0; {
     }
 }
 
+#undef D_800F3A08
+#undef func_80025FBC
+
 int func_80025C94(int a0, int a1, int a2) {
     int d;
     a0 &= 0xFFF;
@@ -618,5 +632,3 @@ int func_80025C94(int a0, int a1, int a2) {
     }
     return ((a0 * d + a1 * a2) / 1024) & 0xFFF;
 }
-
-#undef func_80025FBC

@@ -3,7 +3,8 @@
 #include "rr/library.h"
 
 extern int D_800A63C4;
-extern char D_80011878[], D_80011894[];
+extern char D_80011878[];
+extern char D_80011894[];
 extern void func_8001E84C();
 
 RrLibInterruptExchange func_8008BB44(void);

@@ -35,6 +35,10 @@ void func_8006E030(short *a0, int a1) {
     a0[8] = 0x1000;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_80090424 ((int (*)())func_80090424)
+#define func_800904F4 ((int (*)())func_800904F4)
+
 void func_8006E09C(void *arg0, M2C_UNK arg1) {
     s16 temp_s1;
     s16 temp_v0;
@@ -52,6 +56,13 @@ void func_8006E09C(void *arg0, M2C_UNK arg1) {
     M2C_FIELD(arg0, s16 *, 0x10) = temp_v0;
 }
 
+#undef func_80090424
+#undef func_800904F4
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_80090424 ((int (*)())func_80090424)
+#define func_800904F4 ((int (*)())func_800904F4)
+
 void func_8006E108(void *arg0, M2C_UNK arg1) {
     s16 temp_s1;
     s16 temp_v0;
@@ -68,6 +79,9 @@ void func_8006E108(void *arg0, M2C_UNK arg1) {
     M2C_FIELD(arg0, s16 *, 0xE) = temp_s1;
     M2C_FIELD(arg0, s16 *, 0x10) = temp_v0;
 }
+
+#undef func_80090424
+#undef func_800904F4
 
 void func_8006E174(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0) = 0x1000;

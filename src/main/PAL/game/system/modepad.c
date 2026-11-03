@@ -51,7 +51,7 @@ void func_8002F100() {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4D80 (*(W7C0_E *(*))&D_800F4D80)
+#define D_800F4D80 ((W7C0_E *)D_800F4D80)
 
 int func_8002F1BC(void)
 {

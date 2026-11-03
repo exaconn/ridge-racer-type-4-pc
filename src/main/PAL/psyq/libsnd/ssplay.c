@@ -1,5 +1,6 @@
 /* RODATA 0x80011758 0x40 */
 /* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/spu_common.h"
 
 #define SPU(index) (((RrSpuRegisterStorage*)D_800A47D8)->halves[index])

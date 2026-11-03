@@ -3,8 +3,6 @@
 #include "rr/text_sprites.h"
 #include "m2c_macros.h"
 #include "rr/gpu.h"
-#include "rr/steering.h"
-#include "rr/track_resources.h"
 
 typedef struct { char p0; unsigned char f1; char p2[6]; unsigned short f8; char pa[0x52]; } T;
 
@@ -15,12 +13,6 @@ extern U D_800F2F78[];
 extern s32 func_800924D4(s32 z, s32 x);
 extern unsigned char D_800A017C[];
 extern int func_80096434();
-extern s32 D_800ACB90;
-void func_8004CFB0(void *arg0, void *arg1, void *arg2, s32 arg3);
-void func_8004D11C(unsigned short *a0, unsigned char *a1, unsigned char *a2, unsigned char *a3, unsigned char *a4, int a5);
-void func_8004D290(unsigned short *a0, unsigned char *a1, int a2, int a3);
-int func_8004D4BC(int a);
-void func_8004D61C(s32 arg0);
 
 int func_8004C370(int i);
 s32 func_8004C454(s32 node, s32 lane);
@@ -47,9 +39,6 @@ int func_8004C370(int i) {
         return t->f8 & D_800F2F78[i].c[6];
     }
 }
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800A01DC (*(unsigned char (*)[])&D_800A01DC)
 
 s32 func_8004C454(s32 node, s32 lane)
 {
@@ -163,6 +152,9 @@ void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
     ((RrGpuScratchPointers *)0x1F800000U)->cursor = (u8 *)packet;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800A01DC (*(unsigned char (*)[])&D_800A01DC)
+
 int func_8004C73C(int a0, int a1, unsigned char *s, int a3, int a4) {
     int sum = 0;
     unsigned char *s0 = s;
@@ -181,6 +173,11 @@ int func_8004C73C(int a0, int a1, unsigned char *s, int a3, int a4) {
     return sum;
 }
 
+#undef D_800A01DC
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800A01DC (*(unsigned char (*)[])&D_800A01DC)
+
 int func_8004C7E8(int a0, int a1, unsigned char *s, int a3, int a4) {
     int sum = 0;
     unsigned char *s0 = s;
@@ -198,6 +195,11 @@ int func_8004C7E8(int a0, int a1, unsigned char *s, int a3, int a4) {
     func_8004C5A4(a0 + (0xA0 - sum / 2), a1, s0, a3, a4);
     return sum;
 }
+
+#undef D_800A01DC
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800A01DC (*(unsigned char (*)[])&D_800A01DC)
 
 void func_8004C894(int a0, int a1, unsigned char *s, int a3, int a4) {
     int sum = 0;
@@ -236,6 +238,11 @@ void func_8004C928(int a0) {
     q[0x70/4] = (q[0x70/4] & 0xFF000000) | ((int)p & lo);
     g[0] = (int)(p + 2);
 }
+
+#undef D_800ACC14
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACC14 (*(int (*))&D_800ACC14)
 
 void *func_8004C998(char *a0)
 {
@@ -303,6 +310,8 @@ void *func_8004C998(char *a0)
   return p;
 }
 
+#undef D_800ACC14
+
 void func_8004CBDC(char *p) {
     func_80096434(p, 0x2C);
     *(int *)(p + 4) = 1;
@@ -310,6 +319,9 @@ void func_8004CBDC(char *p) {
     p[0x11] = 0x80;
     p[0x12] = 0x80;
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACC14 (*(s32 (*))&D_800ACC14)
 
 void func_8004CC1C(void *arg0, void *arg1, void *arg2, s32 arg3) {
     void *temp_a3;
@@ -343,6 +355,11 @@ void func_8004CC1C(void *arg0, void *arg1, void *arg2, s32 arg3) {
     M2C_FIELD(temp_a3, s32 *, 0x70) = (s32) ((M2C_FIELD(temp_a3, s32 *, 0x70) & 0xFF000000) | ((s32) temp_t0 & 0xFFFFFF));
     *(void **)0x1F800000 = temp_t0 + 0x24;
 }
+
+#undef D_800ACC14
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACC14 (*(int (*))&D_800ACC14)
 
 void func_8004CD88(unsigned short *a0, int a1, unsigned char *a2, unsigned char *a3, int a4) {
     RrPolyG4Packet *p = *(RrPolyG4Packet **)0x1F800000;

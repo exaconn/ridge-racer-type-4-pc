@@ -330,8 +330,8 @@ s32 func_8009B3FC(void) {
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_801146C0 (*(W5A (*))&D_801146C0)
-#define D_800ABD18 (*(W5A *(*))&D_800ABD18)
-#define D_800ABD30 (*(volatile int *(*))&D_800ABD30)
+#define D_800ABD18 ((W5A *)D_800ABD18)
+#define D_800ABD30 ((volatile int *)D_800ABD30)
 #define D_801146E8 (*(int (*)[3])&D_801146E8)
 #define D_801146D8 (*(int (*)[3])&D_801146D8)
 
@@ -370,6 +370,12 @@ int func_8009B758(void) {
     return r;
 }
 
+#undef D_801146C0
+#undef D_800ABD18
+#undef D_800ABD30
+#undef D_801146E8
+#undef D_801146D8
+
 s32 func_8009B84C(void) {
     return 0;
 }
@@ -377,12 +383,6 @@ s32 func_8009B84C(void) {
 s32 func_8009B854(void) {
     return 0;
 }
-
-#undef D_801146C0
-#undef D_800ABD18
-#undef D_800ABD30
-#undef D_801146E8
-#undef D_801146D8
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABD20 (*(u8 (*)[])&D_800ABD20)
@@ -427,6 +427,9 @@ s32 func_8009B85C(void) {
     }
 }
 
+#undef D_800ABD20
+#undef func_80097714
+
 int func_8009B8EC(a0, a1)
     int *a0;
     int a1;
@@ -462,6 +465,3 @@ int func_8009B8EC(a0, a1)
 s32 func_8009B9D4(void) {
     return 0;
 }
-
-#undef D_800ABD20
-#undef func_80097714

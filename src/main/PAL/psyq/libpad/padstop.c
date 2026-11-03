@@ -1,4 +1,4 @@
-/* GCC_VERSION: 970318 */
+/* GCC_VERSION: 2.7.2 */
 extern char D_801144D8[];
 
 int func_8009A2D8();

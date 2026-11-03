@@ -6,10 +6,6 @@
 #include "rr/hud_number.h"
 #include "m2c_macros.h"
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_8010BF88 (*(char (*)[])&D_8010BF88)
-#undef D_8010BF88
-
 struct W3G0A { char *p0; char *p4; short s8, sA, sC, sE, s10, s12; char *p14; char *p18; short s1C, s1E, s20, s22, s24, s26; };
 
 extern char D_800ADB60[];
@@ -69,6 +65,8 @@ w3g0b:
     D_8010BF88.s26 = 0xE8;
 }
 
+#undef D_8010BF88
+
 void func_800211A4(a0)
 int a0;
 {
@@ -122,8 +120,6 @@ int a0;
     }
     *(int *)0x1F800000 = func_8001FCC8(s2, s0, 5);
 }
-
-#undef D_8010BF88
 
 void func_80021350(s32 phase,s32 index) {
     RrHudQuadColor colors[4];
@@ -212,6 +208,9 @@ void *func_800215F4(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg
     return arg1 + 0x14;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_8010BF88 (*(char (*)[])&D_8010BF88)
+
 void func_80021684(int a0, int a1)
 {
     char *b = D_8010BF88;
@@ -226,3 +225,5 @@ void func_80021684(int a0, int a1)
     on = a0 % 10;
     *(int *)0x1F800000 = func_8001FCC8(s1, func_80021568(s1, func_80021568(s1, func_80021568(s1, *(int *)0x1F800000, x, y, h, 0x7EFA), x + 8, y, tn, 0x7EFA), x + 0x10, y, on, 0x7EFA), 5);
 }
+
+#undef D_8010BF88

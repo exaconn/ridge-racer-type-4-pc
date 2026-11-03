@@ -1,6 +1,24 @@
 #include "types.h"
 #include "rr_asm.h"
 
+#define W9C w8c[4]
+#define WAC w8c[8]
+#define WBC w8c[12]
+
+typedef struct T16 { s32 a; s32 pa; s32 c; s32 pc; } T16;
+
+typedef struct SP {
+    char p0[8]; s32 idx;
+    char p1[0x34 - 0xC]; s32 w34; s32 cnt; s32 r3c; s32 r40;
+    char p2[0x64 - 0x44];
+    u16 h64, h66, h68, h6a, h6c, h6e, h70, h72, h74, h76;
+    s32 w78;
+    char p3[0x80 - 0x7C]; s32 w80;
+    char p4[0x110 - 0x84];
+    T16 t110[4];
+    s16 s150[16];
+} SP;
+
 struct Q4 {
     s32 w[4];
 };
@@ -14,10 +32,16 @@ typedef struct Car {
     s32 w14;
     s32 w18;
     s32 w1C;
-    s32 w20;
-    s32 w24;
-    s32 w28;
-    char pad2C[0x88 - 0x2C];
+    union {
+        struct Q4 q20;
+        struct {
+            s32 w20;
+            s32 w24;
+            s32 w28;
+            s32 w2C;
+        } s;
+    } u20;
+    char pad30[0x88 - 0x30];
     struct Q4 q88;
     struct Q4 q98;
     struct Q4 qA8;
@@ -25,51 +49,57 @@ typedef struct Car {
     char padC8[0xF0 - 0xC8];
     s32 wF0;
     s32 wF4;
-    char padF8[0x170 - 0xF8];
-    s16 s170;
-    s16 s172;
-    char pad174[0x184 - 0x174];
-    s32 w184;
-    s32 w188;
-    s32 w18C;
-    s32 w190;
-    s16 s194;
-    char pad196[0x1A0 - 0x196];
-    s16 s1A0;
-    char pad1A2[0x1EC - 0x1A2];
-    s16 s1EC;
+    s16 sF8[4];
+    char pad100[0x10C - 0x100];
+    s16 s10C;
+    char pad10E[0x1F0 - 0x10E];
+    union {
+        s32 w1F0;
+        u8 b1F0[4];
+    } u1F0;
 } Car;
 
-typedef struct Node {
-    char pad0[8];
-    s32 w8;
-    s32 wC;
-    char pad10[2];
+typedef struct Z52 {
+    s32 w0;
+    s32 w4;
+    s16 s8;
+    s16 sA;
+    s16 sC;
+    s16 sE;
+    s16 s10;
     s16 s12;
-    char pad14[4];
+    s16 s14;
+    s16 s16;
     s16 s18;
     s16 s1A;
-    s16 s1C;
-    s16 s1E;
-    s16 s20;
-    s16 s22;
-    s32 w24;
-    char pad28[4];
-    s16 s2C;
-    s16 s2E;
-    char pad30[0x3C - 0x30];
+    s32 w1C;
+    struct {
+        u8 b0;
+        u8 b1;
+    } a20[2];
+    s16 s24[2];
+    s16 s28[2];
+    s16 s2C[2];
+    s16 s30[2];
+} Z52;
+
+typedef struct Node {
+    s32 pad0[2];
+    Z52 z8;
 } Node;
 
-typedef struct T16 {
+typedef struct T16_1 {
     s32 a;
     s32 b;
     s32 c;
     s32 d;
-} T16;
+} T16_1;
 
-typedef struct SP {
+typedef struct SP_1 {
     Car *p0;
-    char pad4[0x10 - 0x04];
+    s32 w4;
+    s32 w8;
+    s32 wC;
     s32 w10;
     s32 w14;
     s32 w18;
@@ -95,7 +125,15 @@ typedef struct SP {
     s16 sC4;
     s16 sC6;
     s16 sC8;
-    char padCA[0xF8 - 0xCA];
+    char padCA[0xDA - 0xCA];
+    s16 sDA;
+    s16 sDC;
+    s16 sDE;
+    s16 sE0;
+    s16 sE2;
+    s16 sE4;
+    s16 sE6;
+    char padE8[0xF8 - 0xE8];
     s16 sF8;
     s16 sFA;
     s16 sFC;
@@ -103,190 +141,65 @@ typedef struct SP {
     s32 w100;
     s32 w104;
     s32 w108;
-    char pad10C[4];
-    T16 t110[4];
-    char pad150[0x15A - 0x150];
+    s32 w10C;
+    T16_1 t110[4];
+    s16 s150[4];
+    s16 s158;
     s16 s15A;
     s16 s15C;
-    char pad15E[2];
+    s16 s15E;
     s16 s160;
     s16 s162;
-    char pad164[0x174 - 0x164];
+    s16 s164;
+    s16 s166;
+    s16 s168;
+    s16 s16A;
+    s16 s16C;
+    s16 s16E;
+    s16 s170;
+    s16 s172;
     s16 s174;
     s16 s176;
-} SP;
-
-typedef struct T16_1 { s32 a; s32 pa; s32 c; s32 pc; } T16_1;
-
-typedef struct SP_1 {
-    char p0[8]; s32 idx;
-    char p1[0x34 - 0xC]; s32 w34; s32 cnt; s32 r3c; s32 r40;
-    char p2[0x64 - 0x44];
-    u16 h64, h66, h68, h6a, h6c, h6e, h70, h72, h74, h76;
-    s32 w78;
-    char p3[0x80 - 0x7C]; s32 w80;
-    char p4[0x110 - 0x84];
-    T16_1 t110[4];
-    s16 s150[16];
+    char pad178[8];
+    Z52 z180[4];
+    s16 s250[2][4];
 } SP_1;
 
+typedef struct { char p0[8]; int s8; char p1[0x34 - 0xC]; int w34, w38, w3c, w40; char p2[0x114 - 0x44]; int w114[3][4]; int w144[3]; short h150[4]; char p3[0x250 - 0x158]; short h250[64]; } T;
+
+typedef struct {
+    char p0[0x10]; int w10, w14, w18; char p1[0x20 - 0x1C]; int w20, w24, w28;
+    char p2[0x40 - 0x2C]; int w40, w44, w48; char p3[0x50 - 0x4C]; int w50; unsigned short h54; short h56; int w58;
+    char p5[0x70 - 0x5C]; int w70, w74, w78; char p6[0x80 - 0x7C]; short h80; short h82; short h84; char p7[0x8C - 0x86];
+    int w8c[13]; char p8[0xC8 - 0xC0]; int wc8, wcc, wd0;
+    char p9[0xF8 - 0xD4]; unsigned short hf8[4]; unsigned short h100[4]; char pa[0x10C - 0x108]; short h10c, h10e;
+    char pb[0x124 - 0x110]; short h124[16]; short h144[16]; unsigned short h164, h166, h168, h16a; int w16c;
+    char pc[0x1A8 - 0x170]; unsigned short h1a8, h1aa, h1ac, h1ae;
+    char pd[0x1B8 - 0x1B0]; unsigned short h1b8, h1ba; unsigned short h1bc[4]; short h1c4[4]; short h1cc[4];
+} A;
+
+struct B4 { char b[4]; };
+
+extern s32 D_800ABEA4;
+extern s32 D_800ABECC;
 extern s32 func_80090424(s16);
 extern s32 func_800904F4(s16);
-extern Node *D_800ABEA4;
-extern s32 D_800ABECC;
-extern s16 D_800AD522;
-extern s32 D_800F2EB8;
+extern int func_8002C1D4();
+extern int func_8002CBC0();
+extern short func_8006E368();
+extern char *D_800ACBE8;
+extern short D_800AC53C;
+extern short D_800ACC74;
+extern int D_800F2EB8;
 
-void func_80026F5C(Car *arg0);
 void func_80027998(void);
-
-void func_80026F5C(Car *arg0) {
-    SP *g = (SP *)0x1F800080;
-    s32 idx, next_idx;
-    Node *s1, *s2;
-    s32 i;
-    s16 c, s;
-
-    g->p0 = arg0;
-    *(struct Q4 *)0x1F800190 = arg0->q88;
-    *(struct Q4 *)0x1F8001A0 = arg0->q98;
-    *(struct Q4 *)0x1F8001B0 = arg0->qA8;
-    *(struct Q4 *)0x1F8001C0 = arg0->qB8;
-    g->p0->s1A0 = 0;
-    g->w2C = 0;
-    g->sC0 = 0;
-    g->sBA = 0;
-    g->sC8 = 0;
-    g->sC6 = 0;
-    g->sC4 = 0;
-    idx = g->p0->wF0;
-    next_idx = (idx + 1) % D_800ABECC;
-    s1 = &D_800ABEA4[idx];
-    g->s174 = s1->s22;
-    g->s176 = s1->s20;
-    s2 = &D_800ABEA4[next_idx];
-    g->s24 = func_80090424(g->s174);
-    g->s26 = func_800904F4(g->s174);
-    g->s28 = func_80090424(g->s176);
-    g->s2A = func_800904F4(g->s176);
-    if (g->s174 != g->s176) {
-        g->w38 = 1;
-        g->s162 = s1->s1C;
-        g->w3C = g->s162;
-        g->s160 = s1->s12 + 0x400;
-    } else {
-        g->w38 = 0;
-        g->s162 = (s1->s1C * g->s26) >> 12;
-        g->w3C = g->s162;
-        g->w40 = (g->s24 * s1->s1C) >> 12;
-        g->s160 = s1->s1E + 0x400;
-    }
-    g->sF8 = g->p0->w20 - s1->w8;
-    g->sFC = g->p0->w28 - s1->wC;
-    g->sFA = 0;
-    g->w20 = func_800904F4(g->s160);
-    g->w1C = func_80090424(g->s160);
-    c = g->w20;
-    s = g->w1C;
-    g->sB8 = g->sC2 = c;
-    g->sBE = -s;
-    g->sBC = s;
-    RR_GTE_SETROT(&g->sB8);
-    RR_GTE_MVMVA_ROT_V0_NOCV(&g->sF8);
-    g->s15C = (s2->s18 + s2->s2E) - (s1->s18 + s1->s2E);
-    g->s15A = (s2->s1A + s2->s2C) - (s1->s1A + s1->s2C);
-    RR_GTE_STORE_IR(&g->w100);
-    g->w14 = g->w100;
-    g->w18 = g->w104;
-    if (g->w38 == 1) {
-        g->w40 = (g->w18 * g->s24) / g->s26;
-        g->w14 -= g->w40;
-        g->w3C -= g->w40;
-        g->w3C += (g->w18 * g->s28) / g->s2A;
-        g->w14 = (g->w14 * g->s162) / g->w3C;
-    } else {
-        g->w18 -= (g->w40 * g->w14) / g->s162;
-    }
-    if (g->w14 < 0) {
-        g->w14 = 0;
-    } else if (g->w14 > g->s162) {
-        g->w14 = g->s162;
-    }
-    g->w3C = 0;
-    g->w40 = 0;
-    g->s24 = 0;
-    g->s26 = 0;
-    g->w10 = (g->w14 << 10) / g->s162;
-    for (i = 0; i < 4; i++) {
-        g->w100 = g->sF8 + (g->t110[i].a >> 2);
-        g->w108 = g->sFC + (g->t110[i].c >> 2);
-        g->w30 = (-g->w1C * g->w100 + g->w20 * g->w108) >> 12;
-        if (g->w30 > g->w3C) {
-            g->w3C = g->w30;
-            g->s24 = i + 1;
-        } else if (g->w30 < g->w40) {
-            g->w40 = g->w30;
-            g->s26 = i + 1;
-        }
-    }
-    g->s15C = ((g->s15C * g->w10) >> 10) + (s1->s18 + s1->s2E);
-    g->s15A = ((g->s15A * g->w10) >> 10) + (s1->s1A + s1->s2C);
-    if (g->w40 < -g->s15C) {
-        g->sFC = g->w40 + g->s15C;
-        g->w18 -= g->sFC;
-        g->w2C = g->s26;
-    } else if (g->w3C > g->s15A) {
-        g->sFC = g->w3C - g->s15A;
-        g->w18 -= g->sFC;
-        g->w2C = g->s24;
-    }
-    if (g->w2C > 0) {
-        g->sF8 = 0;
-        g->sFA = 0;
-        g->sB8 = g->w20;
-        g->sBA = 0;
-        g->sBC = -(s16)g->w1C;
-        g->sBE = 0;
-        g->sC0 = 0x1000;
-        g->sC2 = 0;
-        g->sC4 = g->w1C;
-        g->sC6 = 0;
-        g->sC8 = g->w20;
-        RR_GTE_SETROT(&g->sB8);
-        RR_GTE_MVMVA_ROT_V0_NOCV(&g->sF8);
-        RR_GTE_STORE_IR(&g->w100);
-        g->p0->w0 -= g->w100 << 8;
-        g->p0->w8 -= g->w108 << 8;
-        g->p0->w10 = g->p0->w0 >> 6;
-        g->p0->w18 = g->p0->w8 >> 6;
-    }
-    g->s160 = s2->s12 - s1->s12;
-    if (g->s160 > 0x400) {
-        g->s160 -= 0x1000;
-    } else if (g->s160 < -0x400) {
-        g->s160 = -0x1000 - g->s160;
-    }
-    g->p0->s1EC = s1->s12 + ((g->s160 * g->w14) >> 10);
-    g->p0->s170 = (g->w14 << 10) / g->s162;
-    if (g->w18 < 0) {
-        g->p0->s172 = (g->w18 << 10) / g->s15C;
-    } else {
-        g->p0->s172 = (g->w18 << 10) / g->s15A;
-    }
-    g->p0->wF4 = g->w18;
-    g->p0->w188 = (D_800AD522 != 0) ? g->w14 : (g->s162 - g->w14);
-    g->p0->w190 = g->p0->w18C;
-    g->p0->w18C = (g->p0->w184 + g->p0->w188 + D_800F2EB8) % D_800F2EB8;
-    if (g->p0->w18C < 0) {
-        g->p0->w18C += D_800F2EB8;
-    }
-    g->p0->s194 = (s1->w24 + g->w14) >> 4;
-    g->p0->s1A0 = g->w2C;
-}
+void func_80027C54(Car *arg0);
+void func_80028B30();
+void func_800292A8(char *a);
 
 void func_80027998(void)
 {
-    SP_1 *g = (SP_1 *)0x1F800080;
+    SP *g = (SP *)0x1F800080;
     s32 a, n, t, x;
     char *p, *q;
     s32 junk[2];
@@ -326,3 +239,320 @@ void func_80027998(void)
         g->s150[g->idx] = ((n & 1) ? x + n : x - n) % D_800ABECC;
     }
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABEA4 ((Node *)D_800ABEA4)
+
+void func_80027C54(Car *arg0) {
+    SP_1 *g = (SP_1 *)0x1F800080;
+    register s32 t0 asm("$8"); /* ASM_BARRIER: pin inner loop counter to $t0 */
+    register s32 *q asm("$19"); /* ASM_BARRIER: pin 0x1F80007C pointer to $s3 */
+
+    arg0->u1F0.w1F0 = 0;
+    arg0->u20.s.w20 = arg0->w10 >> 2;
+    arg0->u20.s.w28 = arg0->w18 >> 2;
+    *(struct Q4 *)0x1F800190 = arg0->q88;
+    *(struct Q4 *)0x1F8001A0 = arg0->q98;
+    *(struct Q4 *)0x1F8001B0 = arg0->qA8;
+    *(struct Q4 *)0x1F8001C0 = arg0->qB8;
+    g->sC0 = 0;
+    g->sBA = 0;
+    g->sC8 = 0;
+    g->sC6 = 0;
+    g->sC4 = 0;
+    g->sE6 = 0;
+    g->sE4 = 0;
+    g->sE2 = 0;
+    g->sDE = 0;
+    g->sDC = 0;
+    g->sDA = 0;
+    *(struct Q4 *)0x1F800180 = arg0->u20.q20;
+    q = (s32 *)0x1F80007C;
+    {
+        s32 a0 = arg0->wF0;
+        s32 v0 = a0 - 2;
+        s32 v1 = (v0 + D_800ABECC) % D_800ABECC;
+        g->w14 = a0;
+        g->w30 = arg0->s10C;
+        g->w8 = 0;
+        g->w20 = v1;
+    }
+    do {
+        g->t110[g->w8].a = g->w100 + (g->t110[g->w8].a >> 2);
+        g->t110[g->w8].c = g->w108 + (g->t110[g->w8].c >> 2);
+        g->t110[g->w8 + 1].a = g->w100 + (g->t110[g->w8 + 1].a >> 2);
+        g->t110[g->w8 + 1].c = g->w108 + (g->t110[g->w8 + 1].c >> 2);
+        g->s150[g->w8] = arg0->sF8[g->w8];
+        func_80027998();
+        g->z180[g->w8] = D_800ABEA4[g->s150[g->w8]].z8;
+        g->z180[g->w8 + 1] = D_800ABEA4[(g->s150[g->w8] + 1) % D_800ABECC].z8;
+        arg0->sF8[g->w8 + 1] = arg0->sF8[g->w8] = g->s150[g->w8];
+        g->w8 += 2;
+    } while (g->w8 < 3);
+    g->w8 = 0;
+    do {
+        s32 a0 = g->w8;
+        g->wC = a0;
+        if (g->s150[0] != g->s150[2] || g->w8 < 2) {
+            g->s174 = g->z180[a0].s1A;
+            g->s176 = g->z180[g->wC].s18;
+            g->s24 = func_80090424(g->s174);
+            g->s26 = func_800904F4(g->s174);
+            g->s28 = func_80090424(g->s176);
+            g->s2A = func_800904F4(g->s176);
+            if (g->s174 != g->s176) {
+                g->w38 = 1;
+                g->s174 = g->s162 = g->z180[g->wC].s14;
+                g->s160 = g->z180[g->wC].sA + 0x400;
+            } else {
+                g->w38 = 0;
+                g->s174 = g->s162 = (g->z180[g->wC].s14 * g->s26) >> 12;
+                g->s160 = g->z180[g->wC].s16 + 0x400;
+                g->s176 = (g->s24 * g->z180[g->wC].s14) >> 12;
+            }
+            g->sB8 = g->sC2 = func_800904F4(g->s160);
+            {
+                s16 s = func_80090424(g->s160);
+                g->sBE = -s;
+                g->sBC = s;
+            }
+            RR_GTE_SETROT(&g->sB8);
+            g->s16C = g->z180[g->wC + 1].s8 - g->z180[g->wC].s8;
+            g->s168 = g->z180[g->wC + 1].sE - g->z180[g->wC].sE;
+            g->s164 = g->z180[g->wC + 1].s12 - g->z180[g->wC].s12;
+            g->s166 = g->z180[g->wC + 1].s10 - g->z180[g->wC].s10;
+        }
+        for (t0 = 0; t0 < 2; t0++) {
+            g->sF8 = g->t110[g->w8 + t0].a - g->z180[g->wC].w0;
+            g->sFC = g->t110[g->w8 + t0].c - g->z180[g->wC].w4;
+            RR_GTE_MVMVA_ROT_V0_NOCV(&g->sF8);
+            g->w34 = 0;
+            g->s16E = 0;
+            g->w3C = g->s174;
+            g->w40 = g->s176;
+            RR_GTE_STORE_IR(&g->w14);
+            __asm__ volatile("" : : : "memory"); /* ASM_BARRIER: RR_GTE_STORE_IR writes g->w14..w1C in memory */
+            if (g->w38 == 1) {
+                g->w40 = (g->w18 * g->s24) / g->s26;
+                g->w14 -= g->w40;
+                g->w3C -= g->w40;
+                g->w3C += (g->w18 * g->s28) / g->s2A;
+                g->w14 = (g->w14 * g->s162) / g->w3C;
+            } else {
+                g->w18 -= (g->w40 * g->w14) / g->s162;
+            }
+            g->w10 = (g->w14 << 10) / g->s162;
+            g->s158 = ((g->s168 * g->w10) >> 10) + g->z180[g->wC].sE;
+            g->s15A = ((g->s164 * g->w10) >> 10) + g->z180[g->wC].s12;
+            g->s15C = ((g->s166 * g->w10) >> 10) + g->z180[g->wC].s10;
+            if (g->w18 > g->s15A) {
+                g->s16A = g->w18 - g->s15A;
+                g->w34 = 1;
+                g->w18 = g->s15A;
+            } else if (g->w18 < -g->s15C) {
+                g->s16A = -(g->w18 + g->s15C);
+                g->w34 = 2;
+                g->w18 = -g->s15C;
+            }
+            if (g->w34 > 0) {
+                g->w34--;
+                g->s164 = g->z180[g->wC + 1].s2C[g->w34] - g->z180[g->wC].s2C[g->w34];
+                g->s164 = ((g->s164 * g->w10) >> 10) + g->z180[g->wC].s2C[g->w34];
+                g->s170 = g->z180[g->wC + 1].s30[g->w34] - g->z180[g->wC].s30[g->w34];
+                g->s170 = ((g->s170 * g->w10) >> 10) + g->z180[g->wC].s30[g->w34];
+                if (g->s16A < g->s164) {
+                    g->s172 = g->s16A;
+                    g->s16A = 0;
+                } else {
+                    g->s16A -= (g->s172 = g->s164);
+                    g->s16E = g->z180[g->wC + 1].s28[g->w34] - g->z180[g->wC].s28[g->w34];
+                    g->s16E = ((g->s16E * g->w10) >> 10) + g->z180[g->wC].s28[g->w34];
+                    {
+                        s32 v = (g->w34 != 0) ? -(((g->s16E * g->s16A) << 11) >> 16) : (((g->s16E * g->s16A) << 11) >> 16);
+                        g->s16E = v;
+                    }
+                    arg0->u1F0.b1F0[g->w8 + t0] = g->z180[g->wC].a20[g->w34].b0;
+                }
+                {
+                    s32 v = (g->w34 != 0) ? -(((g->s170 * g->s172) << 11) >> 16) : (((g->s170 * g->s172) << 11) >> 16);
+                    g->s16E += (g->s170 = v);
+                }
+            }
+            g->s250[*q][g->w8 + t0] = g->s16E + ((((g->s16C * g->w10) >> 10) + g->z180[g->wC].s8) + ((g->s158 * g->w18) >> 5));
+        }
+        g->w8 += 2;
+    } while (g->w8 < 4);
+}
+
+#undef D_800ABEA4
+
+void func_80028B30(a)
+A *a;
+{
+    int *q7c = (int *)0x1F80007C;
+    T *SC = (T *)0x1F800080;
+    int t, t2, t3, v;
+    A *p2;
+    int *pw;
+    SC->s8 = 0;
+    do {
+        t = SC->s8;
+        SC->w114[t][0] = *(short *)((char *)SC + (*q7c * 8 + t * 2) + 0x250);
+        if ((short)a->h100[SC->s8] != (short)a->hf8[SC->s8]) {
+            if ((short)a->h1bc[SC->s8] == 0) {
+                if (func_8002CBC0(a, SC->s8) != 0)
+                    a->h1cc[SC->s8] = SC->w114[SC->s8][0];
+            }
+        }
+        t2 = *(volatile int *)&SC->s8;
+        p2 = (A *)((char *)a + t2 * 2);
+        /* ASM_BARRIER: pin c to a0 */
+        {
+            register int c asm("a0") = (short)p2->h1bc[0];
+            if (c > 0) {
+                int lo = p2->h1c4[0] * c;
+            a->w8c[t2 * 4] = p2->h1cc[0] + lo + ((c * c << 11) / 900);
+            t3 = SC->s8;
+            v = SC->w114[t3][0];
+            if (a->w8c[t3 * 4] >= v) {
+                if ((short)a->h1bc[t3] >= 2) {
+                    a->w8c[t3 * 4] = v;
+                    if (SC->s8 == 0) {
+                        a->h1ba = a->h1bc[0];
+                        func_8002C1D4(1, a);
+                    }
+                    a->h1bc[SC->s8] = 0;
+                    a->h1b8 ^= 1 << SC->s8;
+                } else goto b11;
+            } else {
+b11:
+                a->h1bc[SC->s8]++;
+            }
+            SC->h150[SC->s8] = a->w8c[SC->s8 * 4] - SC->w114[SC->s8][0];
+            } else {
+                a->w8c[t2 * 4] = SC->w114[t2][0];
+                SC->h150[SC->s8] = 0;
+            }
+        }
+        a->h100[SC->s8] = a->hf8[SC->s8];
+    } while (++SC->s8 < 4);
+    a->h1a8 += func_8006E368(a->h10e, (SC->h150[0] + SC->h150[1] - (SC->h150[2] + SC->h150[3])) >> 3);
+    {
+        short r = func_8006E368(a->h10c, (SC->h150[0] + SC->h150[2] - (SC->h150[1] + SC->h150[3])) >> 3);
+        int wac = a->w8c[8];
+        int wbc = a->w8c[12];
+        int m = (wac + wbc) >> 1;
+        a->w14 = m;
+        a->h1aa += r;
+        a->w14 = ((((a->w8c[0] + a->w8c[4]) - (a->w8c[8] + a->w8c[12])) >> 1) * 0x14) / a->h10e + m;
+        /* ASM_BARRIER: keep wbc live past h1aa update so local-alloc picks a2 */
+        __asm__ volatile("" : : "r"(wbc));
+    }
+    {
+        int m = (SC->w114[2][0] + SC->w114[3][0]) >> 1;
+        int v, d;
+        a->wcc = m;
+        d = ((((SC->w114[0][0] + SC->w114[1][0]) - (SC->w114[2][0] + SC->w114[3][0])) >> 1) * 0x14) / a->h10e;
+        v = a->w16c & 0xF;
+        a->wcc = d + m;
+        a->w16c = v;
+        SC->w34 = v;
+        SC->w38 = (v + 6) & 0xF;
+        SC->w3c = (SC->w34 + 0xC) & 0xF;
+        SC->w40 = (SC->w34 + 2) & 0xF;
+    }
+    a->h124[SC->w34] = func_8006E368(a->h10e, (a->w8c[0] + a->w8c[4] - (a->w8c[8] + a->w8c[12])) >> 3);
+    a->h144[SC->w34] = func_8006E368(a->h10c, (a->w8c[0] + a->w8c[8] - (a->w8c[4] + a->w8c[12])) >> 3);
+    a->h164 += a->h124[SC->w34];
+    a->h166 += a->h144[SC->w34];
+    a->h164 = a->h164 - a->h124[SC->w38];
+    a->h166 = a->h166 - a->h144[SC->w38];
+    a->w50 = (short)((short)a->h164 / 10);
+    a->w58 = (short)((short)a->h166 / 10);
+    a->h168 += a->h124[SC->w3c];
+    a->h16a += a->h144[SC->w3c];
+    a->h168 -= a->h124[SC->w40];
+    a->h16a -= a->h144[SC->w40];
+    a->h80 = (short)a->h168 / 10 + ((short)a->h1ac >> 1);
+    a->h82 = a->h54;
+    a->h84 = a->h1ae + (short)a->h16a / 10;
+    a->w70 += a->w10;
+    a->w74 += a->w14;
+    a->w78 += a->w18;
+    a->w10 += a->w40;
+    a->w14 += a->w44;
+    a->w18 += a->w48;
+    a->w70 += a->w40;
+    a->w74 += a->w44;
+    {
+        /* ASM_BARRIER: pin w78 to v0 */
+        register int w78 asm("v0") = a->w78;
+        /* ASM_BARRIER: pin w48 to a0 */
+        register int w48 asm("a0") = a->w48;
+        int w10 = a->w10;
+        int w18 = a->w18;
+        /* ASM_BARRIER: pin wcc to v1 */
+        register int wcc asm("v1");
+        /* ASM_BARRIER: pin w44 to a1 */
+        register int w44 asm("a1") = a->w44;
+        /* ASM_BARRIER: pin v2 to v1 */
+        register int v2 asm("v1");
+        /* ASM_BARRIER: schedule w10/w18 loads before wcc load */
+        __asm__ volatile("" : "+r"(w78) : "r"(w10), "r"(w18), "r"(w48), "r"(w44));
+        wcc = a->wcc;
+        w78 += w48;
+        wcc += w44;
+        /* ASM_BARRIER: schedule both addu before w78 store */
+        __asm__ volatile("" : "+r"(w78), "+r"(wcc));
+        a->w78 = w78;
+        /* ASM_BARRIER: schedule w78 store before wcc store */
+        __asm__ volatile("" : "+r"(wcc));
+        a->wcc = wcc;
+        v2 = w10;
+        /* ASM_BARRIER: force addu v1, a2, zero */
+        __asm__ volatile("" : "+r"(v2));
+        v2 >>= 2;
+        a->w20 = v2;
+        a->w16c += 1;
+        v2 = w18;
+        /* ASM_BARRIER: force addu v1, a3, zero */
+        __asm__ volatile("" : "+r"(v2));
+        v2 >>= 2;
+        a->wc8 = w10;
+        a->wd0 = w18;
+        a->w28 = v2;
+        a->w24 = a->w14 >> 2;
+        /* ASM_BARRIER: keep w48 and w44 live across tail so local-alloc picks a2/a3 for w10/w18 */
+        __asm__ volatile("" : : "r"(w48));
+    }
+}
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABEA4 ((char *)D_800ABEA4)
+
+void func_800292A8(char *a)
+{
+    struct B4 sp;
+    int i = 0;
+    int n;
+    register char *p asm("$8");
+    D_800ACBE8 = a + 4;
+    sp = *(struct B4 *)a;
+    n = *(int *)(a + 0x804);
+    D_800ABEA4 = p = a + 0x808;
+    D_800F2EB8 = 0;
+    D_800ABECC = n;
+    if (n > 0) {
+        int m = n;
+        register char *q asm("$4") = p;
+        do {
+            D_800F2EB8 += *(short *)(q + 0x1C);
+            q += 0x3C;
+            i++;
+        } while (i < m);
+    }
+    D_800AC53C = D_800F2EB8 / 1024;
+    D_800ACC74 = (D_800F2EB8 >> 8) + 1;
+}
+
+#undef D_800ABEA4

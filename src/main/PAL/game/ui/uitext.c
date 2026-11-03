@@ -402,7 +402,7 @@ int func_8003FAA0(int a) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2AB0 (*(E *(*))&D_800F2AB0)
+#define D_800F2AB0 ((E *)D_800F2AB0)
 
 void func_8003FAE4(int i, char a, char b, int j) {
     if (i < D_800ACC24) {
@@ -426,7 +426,7 @@ void func_8003FAE4(int i, char a, char b, int j) {
 #undef D_800F2AB0
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2AB0 (*(E_1 *(*))&D_800F2AB0)
+#define D_800F2AB0 ((E_1 *)D_800F2AB0)
 
 int func_8003FBA8(int a0) {
     int s1;
@@ -498,7 +498,7 @@ int func_8003FBA8(int a0) {
 #undef D_800F2AB0
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2AB0 (*(E_2 *(*))&D_800F2AB0)
+#define D_800F2AB0 ((E_2 *)D_800F2AB0)
 
 void func_8003FE78(int a0, int a1, int a2, int a3) {
     int i, j, k;

@@ -7,19 +7,19 @@ typedef struct { int k; short f; } E;
 
 struct w3g2s { char pad[0x17]; signed char a; char b; signed char c; short d; };
 
-extern unsigned func_8009AEAC();
-extern short D_800FF688;
 extern int func_80096F44(), func_80096F54();
 extern int D_800F2AA8;
 extern int D_800F2AAC;
 extern int func_8001ECE8();
 extern int func_8002A604();
 extern int func_80092CB8();
+extern int func_8009AEAC();
 extern int D_800AC5DC;
 extern int D_800F2DE4;
 extern short D_800F3A26;
 extern short D_800F4C6A;
 extern short D_800F4D8A;
+extern short D_800FF688;
 extern int func_80022694();
 extern int func_8002A344();
 extern int func_8002AF8C();
@@ -70,7 +70,6 @@ extern int D_800F39C8;
 extern int D_800F4C64;
 extern unsigned char D_8009F72C[];
 
-int func_800353E4(void);
 void func_80035478(s32 mode);
 int func_800356A4();
 void func_80035768(void);
@@ -89,20 +88,6 @@ void func_80036538(void);
 void func_800365BC(void);
 void func_800365E4(void);
 void func_8003660C(void);
-
-int func_800353E4(void) {
-    int r = 0;
-    int t = (func_8009AEAC(0, 0, 0) >> 7) & 3;
-    if (t == 0 || t == 3) {
-        D_800FF688 = -1;
-        r = -1;
-    } else if (t == 1) {
-        D_800FF688 = t;
-    } else if (t == 2) {
-        if (D_800FF688 == 3) r = 1;
-    }
-    return r;
-}
 
 void func_80035478(s32 mode) {
     u8 text[4];
@@ -155,8 +140,6 @@ void func_80035478(s32 mode) {
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AD508 (*(short (*))&D_800AD508)
-#define func_8009AEAC ((int (*)())func_8009AEAC)
-#define D_800ABEBC (*(char (*)[])&D_800ABEBC)
 
 int func_800356A4(a0, a1, a2, a3) int a0, a1, a2, a3;
 {
@@ -181,6 +164,11 @@ neg:
 zero:
     return 0;
 }
+
+#undef D_800AD508
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABEBC (*(char (*)[])&D_800ABEBC)
 
 void func_80035768(void) {
     unsigned a;
@@ -208,13 +196,10 @@ void func_80035768(void) {
     }
 }
 
-#undef D_800AD508
-#undef func_8009AEAC
 #undef D_800ABEBC
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AD508 (*(s16 (*))&D_800AD508)
-#define func_8009AEAC ((int (*)())func_8009AEAC)
 
 void func_80035844(void) {
     D_800F2DE4 += 1;
@@ -232,6 +217,8 @@ void func_80035844(void) {
         func_8002A344(0x1003E);
     }
 }
+
+#undef D_800AD508
 
 void func_8003597C(void) {
     int s = D_800FF688;
@@ -279,11 +266,7 @@ other:
     D_800F4D8A = 0;
 }
 
-#undef D_800AD508
-#undef func_8009AEAC
-
 /* legacy typing of shared globals in this part of the unit */
-#define func_8009AEAC ((int (*)())func_8009AEAC)
 #define D_800F2DE4 (*(unsigned int (*))&D_800F2DE4)
 #define D_800F3A26 (*(unsigned short (*))&D_800F3A26)
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
@@ -345,6 +328,14 @@ void func_80035B84()
 
 }
 
+#undef D_800F2DE4
+#undef D_800F3A26
+#undef D_800F4D8A
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
+#define D_800F2DE4 (*(unsigned int (*))&D_800F2DE4)
+
 void func_80035E28(void)
 {
   int s = D_800F4D8A;
@@ -397,6 +388,9 @@ void func_80035E28(void)
 
 }
 
+#undef D_800F4D8A
+#undef D_800F2DE4
+
 void func_80036030(void) {
     func_8004BB54(0);
     func_8004BB54(1);
@@ -409,11 +403,6 @@ void func_80036068(void) {
     func_80036030();
     D_800F2EC8 = 0;
 }
-
-#undef func_8009AEAC
-#undef D_800F2DE4
-#undef D_800F3A26
-#undef D_800F4D8A
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
@@ -434,6 +423,8 @@ void func_80036098(void) {
     }
     *(int *)0x1F800000 = func_8001FD20(D_800ACC14 + 0x70, *(int *)0x1F800000, 0, 0, 0x140, 0x100, 8, 8, 8);
 }
+
+#undef D_800F4D8A
 
 void func_80036174(void) {
     func_8001ECE8(0, 0, 0, 2);
@@ -470,8 +461,6 @@ void func_80036174(void) {
     }
 }
 
-#undef D_800F4D8A
-
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F2DE4 (*(u32 (*))&D_800F2DE4)
 
@@ -504,6 +493,8 @@ block_5:
         }
     }
 }
+
+#undef D_800F2DE4
 
 void func_80036330(void) {
     int a2;
@@ -562,6 +553,9 @@ void func_8003645C(void) {
     }
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800AD4D8 (*(struct w3g2s (*))&D_800AD4D8)
+
 void func_80036538(void) {
     struct w3g2s *p;
     if (D_800F4D44 == 1) {
@@ -573,6 +567,8 @@ void func_80036538(void) {
     D_800F3A26 = 0x17;
     D_800F4D8A = 0;
 }
+
+#undef D_800AD4D8
 
 void func_800365BC(void) {
     func_8003645C();
@@ -587,5 +583,3 @@ void func_800365E4(void) {
 void func_8003660C(void) {
     func_800365E4();
 }
-
-#undef D_800F2DE4

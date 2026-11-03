@@ -34,7 +34,7 @@ void func_8001BFA8(int a0, int a1, int a2);
 void func_8001C0F8(void);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010BF78 (*(char *(*))&D_8010BF78)
+#define D_8010BF78 ((char *)D_8010BF78)
 
 int func_8001BD40(int a0, int a1)
 {
@@ -84,7 +84,7 @@ void func_8001BEF8(void)
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010BF78 (*(char *(*))&D_8010BF78)
+#define D_8010BF78 ((char *)D_8010BF78)
 
 void func_8001BFA8(int a0, int a1, int a2)
 {
@@ -101,6 +101,8 @@ void func_8001BFA8(int a0, int a1, int a2)
     func_8005F0D0(0x1F800000, a0 < D_800F2FD8 ? a0 : 1, 0, 0);
 }
 
+#undef D_8010BF78
+
 void func_8001C0F8(void) {
     D_800AC5DC = 0x80;
     D_800AC5D0 = 0;
@@ -110,5 +112,3 @@ void func_8001C0F8(void) {
     D_800F3A26 = 2;
     D_800F4D8A = 0;
 }
-
-#undef D_8010BF78

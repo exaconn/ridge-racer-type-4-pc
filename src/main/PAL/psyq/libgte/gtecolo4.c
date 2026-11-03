@@ -1,4 +1,3 @@
-/* GCC_VERSION: 970318 */
 #include "rr/geometry.h"
 #include "rr_asm.h"
 

@@ -261,6 +261,10 @@ int arg2;
   return arg1;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_8002B814 ((void (*)())func_8002B814)
+#define D_8009FA1C (*(R4_1 (*)[])&D_8009FA1C)
+
 int func_80042820(arg0, arg1, arg2)
 int arg0;
 int arg1;
@@ -337,6 +341,12 @@ int arg2;
     return arg1;
 }
 
+#undef func_8002B814
+#undef D_8009FA1C
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_8002B814 ((void (*)())func_8002B814)
+
 char *func_80042D28(int a, int b, int c) {
     int i = 7;
     char *p = D_8010C150 + i;
@@ -350,6 +360,8 @@ char *func_80042D28(int a, int b, int c) {
     func_8002B814(D_8010C150 + c + 2, b, c);
     return D_8010C150;
 }
+
+#undef func_8002B814
 
 void func_80042DBC(a0, a1, a2)
 int a0;

@@ -1,65 +1,94 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-#include "types.h"
-#include "rr/channels.h"
-#include "rr/interrupts.h"
+struct HW { unsigned char b0; char p1[3]; volatile unsigned short s4; short p6; volatile short s8; volatile unsigned short sA; char pC[2]; volatile short sE; };
 
-extern s32 D_800ABCD0;
-extern s32 D_80114428[2];
-extern u32 D_80114418[4];
-extern s32 func_80096F04(void),func_80096F94(s32,s32);
-extern void func_80096F14(void);
-extern s32 func_80097714(s32,void *),func_80097704(s32,void *);
+struct A { char p0[0xC]; char *f0C; char p1[0x27]; unsigned char b37; char p2[0x18]; unsigned char b50; char p3[0x97]; unsigned char bE8; };
 
-s32 func_80098030(void);
-void func_80098044(void);
+struct W { int x; };
+
+extern int func_80096F04(), func_80096F94(), func_80097714(), func_80096F14();
+extern int D_80114418;
+extern struct HW *D_800ABCCC;
+extern volatile int *D_800ABCC8;
+extern int D_800ABCA8;
+extern struct W D_800ABCC0[];
+extern void (*D_800ABC88)();
+extern void (*D_800ABC8C)();
+extern int func_8009A814(), func_80098A00();
+extern void func_8009A7F4(), func_80098A90();
+
 void func_80098110();
-
-s32 func_80098030(void) {
-    s32 previous = D_800ABCD0;
-    /* ASM_BARRIER: use the original assembler temporary for the store address. */
-    register s32 *base __asm__("$1");
-    /* ASM_BARRIER: load the prior value before materializing the store address. */
-    __asm__ volatile("" : "=r"(previous) : "0"(previous) : "$1");
-    /* PAL RAM mapping: D_800ABCD0 is base plus the signed offset below. */
-    base = (s32 *)0x800B0000U;
-    /* ASM_BARRIER: expose a register-relative store so it can occupy the return slot. */
-    __asm__("" : "=r"(base) : "0"(base));
-    base[(-0x4330) / 4] = 0;
-    return previous;
-}
-
-void func_80098044(void) {
-    RrInterruptRegisters *p;
-    u32 mask;
-    s32 *counters;
-    {
-        /* ASM_BARRIER: Keep the initial enable-state address in the assembler temporary. */
-        register s32 *page __asm__("$1");
-        /* ASM_BARRIER: Expose the initial state store in the critical-section call's delay slot. */
-        __asm__ volatile("" : : : "$1", "memory");
-        page=(s32 *)0x800B0000U;
-        /* ASM_BARRIER: Preserve the PAL page-relative enable-state store. */
-        __asm__("" : "+r"(page));
-        page[-0x4360/4]=0;
-    }
-    func_80096F04();
-    func_80097714(2,D_80114418);
-    func_80097704(2,D_80114418);
-    p=D_800ABCC8;
-    p->pending=0xFFFFFFFEU;
-    mask=p->mask;
-    /* Ordinary final write view permits the original call-delay store. */
-    *(u32 *)((u8 *)p+RR_FIELD_OFFSET(RrInterruptRegisters,mask))=mask|1;
-    func_80096F94(3,0);
-    func_80096F14();
-    D_800ABC6C(D_800ABC9C);
-    D_800ABC6C(D_800ABC9C+1);
-    counters=D_80114428;
-    counters[1]=0;counters[0]=0;
-    D_800ABCA0=1;
-    /* ASM_BARRIER: Restore saved registers only after publishing the enabled state. */
-    __asm__ volatile("" : : : "$16", "$31", "memory");
-}
+int func_80098154();
 
 void func_80098110() { func_80096F04(); func_80096F94(3, 1); func_80097714(2, &D_80114418); func_80096F14(); }
+
+int func_80098154(a0) struct A *a0; {
+    struct W *p;
+    struct HW *hw;
+    int v;
+    int t;
+    int cur;
+    D_800ABCCC->sA = 0x40;
+    D_800ABCCC->sA = 0;
+    D_800ABCCC->s8 = 0xD;
+    D_800ABCCC->sE = 0x88;
+    func_8009A7F4(a0->bE8 == 8 ? 0x50 : 0x91);
+    hw = D_800ABCCC;
+    t = 0x1003;
+    if (D_800ABCA8 != 0) t = 0x3003;
+    hw->sA = t;
+    if ((cur = (&D_800ABCC0[D_800ABCA8])->x) >= 0) {
+        struct W *base;
+        if (cur > 0) {
+            base = D_800ABCC0;
+        lp:
+            v = base[D_800ABCA8].x - 1;
+            base[D_800ABCA8].x = v;
+            D_800ABC88(a0->f0C + v * 0xF0);
+            if (base[D_800ABCA8].x > 0) goto lp;
+        }
+        p = &D_800ABCC0[D_800ABCA8];
+        if (p->x == 0) {
+            p->x = -1;
+            D_800ABC88(a0);
+            D_800ABC8C(a0);
+        }
+    }
+    if (D_800ABCCC->s4 & 0x200) {
+        D_800ABCCC->sA |= 0x10;
+        if (D_800ABCCC->s4 & 0x200) {
+            while (func_8009A814() == 0);
+            D_800ABCCC->b0 = 1;
+            func_8009A7F4(0x64);
+            if (func_80098A00() == 0) return 0;
+            func_80098A90();
+            *(volatile unsigned char *)&D_800ABCCC->b0;
+            func_8009A7F4(0x1AE);
+            goto l1;
+        l1b:
+            if (func_8009A814() != 0) return 0;
+        l1:
+            if (!(*D_800ABCC8 & 0x80)) goto l1b;
+            D_800ABCCC->b0 = 0x42;
+            func_8009A7F4(0x3C);
+            if (func_80098A00() == 0) return 0;
+            func_80098A90();
+            *(volatile unsigned char *)&D_800ABCCC->b0;
+            func_8009A7F4(0x1AE);
+            goto l2;
+        l2b:
+            if (func_8009A814() != 0) return 0;
+        l2:
+            if (!(*D_800ABCC8 & 0x80)) goto l2b;
+            D_800ABCCC->b0 = 1;
+            func_8009A7F4(0x3C);
+            if (func_80098A00() == 0) return 0;
+            func_80098A90();
+            *(volatile unsigned char *)&D_800ABCCC->b0;
+            return 0;
+        }
+        *D_800ABCC8 = -0x81;
+    }
+    if (a0->b50 != 0 && a0->b37 != 0) return 0;
+    return 1;
+}

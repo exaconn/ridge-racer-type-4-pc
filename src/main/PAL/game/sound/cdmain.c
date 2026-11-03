@@ -243,6 +243,11 @@ void func_80053A80(void) {
     D_800F4DB8.d = 0;
 }
 
+#undef D_800F4DB8
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4DB8 (*(struct S (*))&D_800F4DB8)
+
 void func_80053A9C(s16 a0) {
     struct S *p = &D_800F4DB8;
     s16 v;

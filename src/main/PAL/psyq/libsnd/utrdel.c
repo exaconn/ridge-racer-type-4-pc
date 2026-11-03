@@ -1,5 +1,4 @@
-/* GCC_VERSION: 970318 */
-/* MASPSX_FLAGS: --assembler-profile=gnu */
+/* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
 #include "rr/library.h"
 #include "m2c_macros.h"

@@ -94,8 +94,8 @@ s32 func_80089754(s16 bank, s16 program) {
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_8010FE18 (*(u8 (*)[])&D_8010FE18)
-#define D_801100EC (*(SpuProgram10 *(*))&D_801100EC)
-#define D_801100F8 (*(SpuTone20 *(*))&D_801100F8)
+#define D_801100EC ((SpuProgram10 *)D_801100EC)
+#define D_801100F8 ((SpuTone20 *)D_801100F8)
 #define func_8008A564 ((s32 (*)(s16 bank, s16 program))func_8008A564)
 
 s16 func_800897A4(s16 a0, u16 a1, u16 a2) {

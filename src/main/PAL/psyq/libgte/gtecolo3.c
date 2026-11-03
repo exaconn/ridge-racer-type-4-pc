@@ -1,4 +1,3 @@
-/* GCC_VERSION: 970318 */
 /* Candidate module: GTE AverageZ3 / AverageZ4 wrappers, 80091498..800914B8. */
 #include "rr_asm.h"
 

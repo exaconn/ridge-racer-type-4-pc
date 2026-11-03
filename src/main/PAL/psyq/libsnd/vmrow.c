@@ -1,10 +1,12 @@
-/* GCC_VERSION: 970318 */
+/* GCC_VERSION: 2.7.2 */
 #include "rr/channels.h"
 
-extern RrChannelControlRow36 D_8010F908[];
-extern u16 D_80110000, D_80110002, D_8010F8F8, D_8010F8FA;
-/* Symbol views of flags1D, value04 and value00 in the shared control rows. */
-extern u8 D_8010F925[], D_8010F90C[];
+extern u16 D_80110000;
+extern u16 D_80110002;
+extern u16 D_8010F8F8;
+extern u16 D_8010F8FA;
+extern u8 D_8010F925[];
+extern u8 D_8010F90C[];
 
 void func_80088D64(u8 index);
 void func_80088DA4(s32 unused_mode);

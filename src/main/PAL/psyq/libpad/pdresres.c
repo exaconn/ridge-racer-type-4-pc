@@ -1,4 +1,4 @@
-/* GCC_VERSION: 970318 */
+/* GCC_VERSION: 2.7.2 */
 #include "rr/channels.h"
 
 void func_80099564(void *raw);

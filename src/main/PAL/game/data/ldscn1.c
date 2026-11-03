@@ -37,6 +37,7 @@ extern int func_8004E70C();
 extern int func_8005AF5C();
 extern int func_8005B2D4();
 extern int D_800ACC1C;
+extern int D_800AC5A0;
 extern int func_800129BC();
 extern int func_8004139C();
 extern int D_800F4C1C;
@@ -44,7 +45,6 @@ extern int func_80053BB4();
 extern int func_80032914();
 extern int func_80029358();
 extern int func_80043608();
-extern int D_800AC5A0;
 extern struct { char pad[4]; signed char f4; char pad2[0x1B]; int f20; } *D_800FF68C;
 extern int D_800F4CA8;
 extern struct { char pad[0x17]; signed char f17; char pad2[2]; short f1A; unsigned char f1C; } D_800AD4D8;
@@ -105,6 +105,9 @@ int func_8003A79C(void) {
     return r;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
+
 int func_8003A874(void) {
     int r = 0;
     int v;
@@ -145,6 +148,8 @@ int func_8003A874(void) {
     return r;
 }
 
+#undef D_8009F8FC
+
 /* legacy typing of shared globals in this part of the unit */
 #define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
 #define D_800F4D2C (*(unsigned char (*))&D_800F4D2C)
@@ -178,6 +183,9 @@ int func_8003A9E8(void) {
     return r;
 }
 
+#undef D_8009F8FC
+#undef D_800F4D2C
+
 int func_8003AAE8(void) {
     int r = 0;
     switch (D_800F4D7C) {
@@ -200,9 +208,6 @@ int func_8003AAE8(void) {
     return r;
 }
 
-#undef D_8009F8FC
-#undef D_800F4D2C
-
 int func_8003ABA4(void) {
     int r = 0;
     switch (D_800F4D7C) {
@@ -223,6 +228,9 @@ int func_8003ABA4(void) {
     }
     return r;
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
 
 int func_8003AC50(void) {
     int s0;
@@ -278,6 +286,11 @@ l5:
     return s1;
 }
 
+#undef D_8009F8FC
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
+
 int func_8003AE4C(int arg0, int arg1) {
     int r;
     int q4 = 0;
@@ -329,6 +342,11 @@ int func_8003AE4C(int arg0, int arg1) {
     return q4;
 }
 
+#undef D_8009F8FC
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
+
 int func_8003B040(void) {
     int r = 0;
     switch (D_800F4D7C) {
@@ -352,6 +370,8 @@ int func_8003B040(void) {
     }
     return r;
 }
+
+#undef D_8009F8FC
 
 int func_8003B12C(void) {
     int r = 0;
@@ -401,6 +421,9 @@ s7:
     return r;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3B24 (*(int (*))&D_800F3B24)
+
 int func_8003B294(void) {
     int r = 0;
     switch (D_800F4D7C) {
@@ -427,6 +450,8 @@ int func_8003B294(void) {
     }
     return r;
 }
+
+#undef D_800F3B24
 
 int func_8003B398(void) {
     int r = 0;
@@ -479,6 +504,9 @@ int func_8003B47C(void) {
     }
     return r;
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
 
 int func_8003B588(void) {
     int s3 = 0;
@@ -585,6 +613,8 @@ int func_8003B588(void) {
     return s3;
 }
 
+#undef D_8009F8FC
+
 int func_8003B934(void) {
     int r = 0;
     char *s;
@@ -657,6 +687,11 @@ int func_8003BAB0(void) {
     return r;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_800436E8 ((void (*)())func_800436E8)
+#define func_8004E008 ((void (*)())func_8004E008)
+#define func_8004F600 ((void (*)())func_8004F600)
+
 int func_8003BBBC(void) {
     int r = 0;
     int t;
@@ -701,3 +736,7 @@ int func_8003BBBC(void) {
     }
     return r;
 }
+
+#undef func_800436E8
+#undef func_8004E008
+#undef func_8004F600

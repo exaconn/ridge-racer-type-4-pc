@@ -1,5 +1,6 @@
-/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
+/* GCC_VERSION: 2.7.2 */
+/* CC1_FLAGS: -mhard-float */
 #include "types.h"
 
 typedef struct {

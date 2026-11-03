@@ -1,4 +1,4 @@
-/* GCC_VERSION: 970318 */
+/* GCC_VERSION: 2.7.2 */
 #include "types.h"
 #include "rr/counters.h"
 
@@ -51,6 +51,9 @@ int func_80097078(a0) unsigned int a0; {
   return v < 3;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABC30 ((u32 *)D_800ABC30)
+
 s32 func_800970A8(u32 index) {
     u32 offset = (u32)(u16)index * 4;
     u32 *state;
@@ -71,6 +74,8 @@ s32 func_800970A8(u32 index) {
     }
     return 1;
 }
+
+#undef D_800ABC30
 
 int func_800970DC(a0) unsigned int a0; {
   int v = a0 & 0xFFFF;

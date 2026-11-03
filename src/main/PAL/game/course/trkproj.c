@@ -7,13 +7,13 @@
 #include "rr/race.h"
 #include "rr/track_lateral.h"
 
-#define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -D_800A68C0[0x400 - ((x) & 0x3FF)] : -D_800A68C0[(x) & 0x3FF]) : (((x) & 0x400) ? D_800A68C0[0x400 - ((x) & 0x3FF)] : D_800A68C0[(x) & 0x3FF]))
 /* Keep the original table-relative cursors, while using the canonical native
  * record stride and array offset (the pointer-bearing row grows on a host). */
 #define RR_STANDING_PREFIX_SIZE \
     (sizeof(RrRaceStandingsTable)-sizeof(((RrRaceStandingsTable*)0)->entries18))
 #define RR_STANDING_ROW(base) \
     ((RrRaceStandingEntry0C*)((base)+RR_STANDING_PREFIX_SIZE))
+#define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -D_800A68C0[0x400 - ((x) & 0x3FF)] : -D_800A68C0[(x) & 0x3FF]) : (((x) & 0x400) ? D_800A68C0[0x400 - ((x) & 0x3FF)] : D_800A68C0[(x) & 0x3FF]))
 
 typedef struct {
     u8 pad00[0x58];
@@ -44,9 +44,6 @@ void func_80046DB8(RrRaceVehicle *p);
 void func_80047230(const RrTrackSample3C *first, const RrTrackSample3C *second, s32 lateral, s32 fraction, s32 *output);
 void func_80047610(const RrTrackSample3C *first, const RrTrackSample3C *second, s32 lateral, s32 fraction, s32 *output);
 void func_80047A50(RrRaceVehicle *vehicle);
-
-/* legacy typing of shared globals in this part of the unit */
-#define func_80047CE0 ((s32 (*)())func_80047CE0)
 
 void func_8004638C(RrRaceVehicle *vehicle)
 {
@@ -103,6 +100,8 @@ void func_8004638C(RrRaceVehicle *vehicle)
         control->laneTarget3C = control->laneCurrent3E;
     }
 }
+
+#define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -D_800A68C0[0x400 - ((x) & 0x3FF)] : -D_800A68C0[(x) & 0x3FF]) : (((x) & 0x400) ? D_800A68C0[0x400 - ((x) & 0x3FF)] : D_800A68C0[(x) & 0x3FF]))
 
 void func_800464E8(RrTrackOffsetArgument offsetX, RrTrackOffsetArgument offsetZ, s32 node, s16 *fraction, s16 *lateral, s32 *remaining) {
     s32 nextNode;
@@ -243,6 +242,9 @@ lookup:
     return best;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_80047CE0 ((s32 (*)())func_80047CE0)
+
 s32 func_80046B1C(RrRaceVehicle *arg0, s32 arg1) {
     s32 sp18;
     s32 sp1C;
@@ -304,6 +306,8 @@ s32 func_80046B1C(RrRaceVehicle *arg0, s32 arg1) {
     }
     return s0;
 }
+
+#undef func_80047CE0
 
 void func_80046DB8(RrRaceVehicle *p)
 {
@@ -538,8 +542,6 @@ void func_80046DB8(RrRaceVehicle *p)
     }
   }
 }
-
-#undef func_80047CE0
 
 static __inline__ s32 extend_track_edge(s32 edge, s32 width, s32 extension)
 {

@@ -1,5 +1,4 @@
 #include "types.h"
-#include "m2c_macros.h"
 
 #define W(p,o) (*(int *)((char *)(p) + (o)))
 #define Q(p,o) ((char *)*(volatile int *)((char *)(p) + (o)))
@@ -68,7 +67,6 @@ typedef struct {
     s32 f60;
 } Scratch5B304;
 
-extern void *D_800ACA28;
 extern struct {
     char pad[0x3D8];
     CamQ *q;
@@ -98,23 +96,8 @@ extern int func_80096434();
 extern char D_800A1AA0[];
 extern char D_800A1B60[];
 
-void func_8005B2D4(s32 arg0);
-void func_8005B2E4(s32 arg0);
-void func_8005B2F4(s32 arg0);
 void func_8005B304(void);
 void func_8005B8D8(int a0);
-
-void func_8005B2D4(s32 arg0) {
-    M2C_FIELD(D_800ACA28, s32 *, 0x54) = arg0;
-}
-
-void func_8005B2E4(s32 arg0) {
-    M2C_FIELD(D_800ACA28, s32 *, 0x50) = arg0;
-}
-
-void func_8005B2F4(s32 arg0) {
-    M2C_FIELD(D_800ACA28, s32 *, 0x58) = arg0;
-}
 
 void func_8005B304(void) {
     Scratch5B304 *g = (Scratch5B304 *)0x1F800000;

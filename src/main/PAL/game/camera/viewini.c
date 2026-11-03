@@ -102,6 +102,9 @@ void func_8006E834(void) {
     }
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4C38 (*(unsigned char (*)[])&D_800F4C38)
+
 void func_8006E8F8() {
     int *t1;
     int v;
@@ -130,6 +133,8 @@ void func_8006E8F8() {
     }
     *D_8010E690 = t2;
 }
+
+#undef D_800F4C38
 
 void func_8006E9CC(void) {
 }

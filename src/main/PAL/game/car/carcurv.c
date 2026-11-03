@@ -1,5 +1,6 @@
 #include "rr/track_lateral.h"
 #include "rr/steering.h"
+
 typedef struct {
     char pad0[0x38];
     short unk38;
@@ -35,7 +36,8 @@ typedef struct {
     Sub1F4 sub1F4;
 } Arg0;
 
-
+void func_80047FBC(Arg0 *a0);
+int func_80048384(int a0, int a1);
 
 void func_80047FBC(Arg0 *a0) {
     int s0;
@@ -163,3 +165,21 @@ void func_80047FBC(Arg0 *a0) {
         s2->unkB4 = -s2->unk9C / 24;
     }
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABEA4 ((char *)D_800ABEA4)
+
+int func_80048384(int a0, int a1) {
+    if (a1 > 0) {
+        int n = D_800ABECC;
+        char *p = D_800ABEA4;
+        do {
+            a0--;
+            if (a0 < 0) a0 += n;
+            a1 -= *(short *)(p + a0 * 60 + 0x1C);
+        } while (a1 > 0);
+    }
+    return a0;
+}
+
+#undef D_800ABEA4

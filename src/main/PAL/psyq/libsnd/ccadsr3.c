@@ -1,5 +1,3 @@
-/* GCC_VERSION: 970318 */
-/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/library.h"
 
 extern void func_800850C4(), func_800867E4(), func_80080F04(), func_80080F60();

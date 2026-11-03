@@ -148,8 +148,8 @@ out:
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A6358 (*(u16 *(*))&D_800A6358)
-#define D_800A6354 (*(unsigned short *(*))&D_800A6354)
+#define D_800A6358 ((unsigned short *)D_800A6358)
+#define D_800A6354 ((unsigned short *)D_800A6354)
 
 RrLibSavedState *func_8008B8E8(void) {
   RrLibSavedState *p = &D_800A52C8;
@@ -169,6 +169,12 @@ RrLibSavedState *func_8008B8E8(void) {
   p->active = 0;
   return p; }
 
+#undef D_800A6358
+#undef D_800A6354
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800A6358 ((u16 *)D_800A6358)
+
 RrLibSavedState *func_8008B988(void) {
     RrLibSavedState *state = &D_800A52C8;
     if (state->active != 0) return 0;
@@ -186,9 +192,8 @@ RrLibSavedState *func_8008B988(void) {
     return state;
 }
 
+#undef D_800A6358
+
 void func_8008BA00(p, n) int *p; int n; {
     while (n--) *p++ = 0;
 }
-
-#undef D_800A6358
-#undef D_800A6354

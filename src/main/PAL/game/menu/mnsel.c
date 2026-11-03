@@ -24,9 +24,6 @@ void func_800417EC();
 int func_80041A18(int a, int n);
 void func_80041A54(s32 index, s32 layout, s32 count, s32 x, s32 y);
 
-/* legacy typing of shared globals in this part of the unit */
-#define D_800F3A28 (*(int (*))&D_800F3A28)
-
 void func_800417EC()
 {
     int s0;
@@ -82,6 +79,9 @@ L_54:
         }
     }
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3A28 (*(int (*))&D_800F3A28)
 
 int func_80041A18(int a, int n) {
     int sz = n * 56;

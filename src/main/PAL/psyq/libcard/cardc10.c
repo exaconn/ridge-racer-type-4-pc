@@ -1,5 +1,4 @@
 /* GCC_VERSION: 970318 */
-/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr_asm.h"
 #include "rr/commands.h"
 #include "rr/serial.h"

@@ -4,30 +4,12 @@
 #include "m2c_macros.h"
 #include "rr/layout.h"
 
-#define VQ (*(struct S2 * volatile *)&a0->q)
+struct S { char pad[0x46]; unsigned char c46, c47, c48; };
 
-struct S2 { char p0[2]; unsigned char b2, b3, b4, b5, b6, b7; };
-
-struct S {
-    char p0[0x3C];
-    struct S2 *q;
-    char p1[6];
-    unsigned char st, cnt;
-    char p2[1];
-    unsigned char f49;
-    char p3[0x99];
-    unsigned char c3, c4;
-    unsigned short s6;
-    char p4[1];
-    unsigned char c9, ca, cb;
-    unsigned short sc, se;
+struct S2 {
+    char p0[2];
+    unsigned char b2, b3, b4, b5, b6, b7;
 };
-
-struct S_1 { char pad[0xE3]; unsigned char a; char pad1[5]; unsigned char b; char pad2[2]; unsigned short c; };
-
-typedef struct { int f0; int f4; int f8; char p0[8]; int f14; int f18; char p1[0x2A]; char f46; char f47; char p2[1]; char f49; char p3[0x99]; unsigned char fE3; char p4[5]; unsigned char fE9; } O;
-
-struct S_2 { char pad[0x46]; unsigned char c46, c47, c48; };
 
 struct E4 {
     unsigned char b0, b1, b2, b3, b4;
@@ -39,7 +21,7 @@ struct E8 {
     unsigned char *p4;
 };
 
-struct S_3 {
+struct S_1 {
     unsigned short *f0;
     struct E4 *f4;
     struct E8 *f8;
@@ -55,10 +37,9 @@ struct S_3 {
     unsigned short sc, se;
 };
 
-extern void (*D_800ABC6C)(struct S *);
-extern int (*D_800ABC84)();
 extern int func_8009964C(), func_8009966C(), func_8009968C(), func_800996AC();
 extern unsigned char *D_80114438;
+extern int (*D_800ABC84)();
 /* Partial layout: six input slot IDs, per-group limits, six output IDs. */
 typedef struct {
     char pad0[4];
@@ -75,114 +56,13 @@ typedef struct {
 RR_ASSERT_SIZE(RrSlotAssignmentState, 0xEC);
 RR_ASSERT_OFFSET(RrSlotAssignmentState, group_data, 4);
 
-int func_80098B64();
-int func_80098DD4();
-int func_80098E0C();
 void func_80098EE0();
-int func_80098F88(struct S_3 *s);
+int func_80098F88(struct S_1 *s);
 int func_80099380();
 void func_800993E8(void *arg0);
 s32 func_80099404(RrSlotAssignmentState *state);
 
-int func_80098B64(a0) struct S *a0; {
-    struct S2 *q;
-    int t, n;
-    /* ASM_BARRIER: pin b4 to $v1 so the load/add chain takes the original register allocation */
-    register int b __asm__("$3");
-    switch (a0->st) {
-    case 2:
-        q = a0->q;
-        if (q->b7 != 0) goto r0;
-        if (a0->c3 == q->b3 && a0->c4 == q->b4 && a0->c9 == q->b5 && a0->ca == q->b6) {
-            a0->se = 0;
-        } else {
-            a0->se = 0xFFFF;
-        }
-        a0->c3 = VQ->b3;
-        a0->c4 = VQ->b4;
-        a0->s6 = 0;
-        a0->c9 = VQ->b5;
-        a0->ca = VQ->b6;
-        a0->sc = 0;
-        if (a0->se != 0) goto r0;
-        a0->cb = 0;
-        goto r1;
-    case 3:
-        if (a0->q->b2 != 0) goto r0;
-        if (a0->q->b3 != 0) goto r0;
-        t = a0->q->b5 + (a0->q->b4 << 8);
-        a0->s6 = t;
-        if (a0->se == (t & 0xFFFF)) goto eq;
-        a0->se = t;
-    r0:
-        return 0;
-    eq:
-        a0->se = 0xFFFF;
-        a0->cb = 0;
-        a0->cnt = 0;
-        goto r1;
-    case 4:
-        if (a0->q->b2 != 0) goto r0;
-        if (a0->q->b3 != 0) goto r0;
-        t = a0->sc;
-        b = a0->q->b4;
-        t += 8;
-        t += (b + 3) & 0x1FC;
-        n = a0->cnt + 1;
-        a0->cnt = n;
-        a0->sc = t;
-        if ((unsigned char)n < a0->ca) goto r0;
-        if (func_80098DD4(a0) >= 0x81) {
-            D_800ABC6C(a0);
-            a0->st = 0xFE;
-            a0->f49 = 2;
-            goto r0;
-        }
-        if (a0->se != a0->sc) {
-            a0->se = a0->sc;
-            a0->cnt = 0;
-            a0->sc = 0;
-            return 0;
-        }
-        a0->se = 0;
-        a0->cb = 0;
-        a0->st = 0xFF;
-        func_80098E0C(a0, (char *)a0 + 0x63);
-        a0->st = 2;
-        goto r0;
-    default:
-        return 1;
-    }
-r1:
-    return 1;
-}
-
-int func_80098DD4(s) struct S_1 *s; {
-    int a = s->a, b = s->b, c = s->c;
-    int x = ((a + 1) >> 1) * 4;
-    int y = ((b * 5 + 3) & 0xFFC) + 4;
-    return x + y + c;
-}
-
-int func_80098E0C(o, a1) O *o; int a1; {
-    int r;
-    if (a1 != 0) {
-        if (o->f4 != 0) return 0;
-        if (D_800ABC84() != 0) return 0;
-    } else return 0;
-    /* ASM_BARRIER: return value 1 must be a separate li (not CSE'd with the constant 1 used by the stores/shift) */
-    asm volatile("" : "=r"(r) : "0"(1));
-    o->f49 = 4;
-    o->f0 = (a1 + 3) >> 2 << 2;
-    o->f4 = o->f0 + ((o->fE3 + 1) >> 1 << 2); o->f8 = o->f4 + ((o->fE9 * 5 + 3) & 0xFFC);
-    o->f46 = 1;
-    o->f14 = (int)func_80098EE0;
-    o->f47 = 0;
-    o->f18 = (int)func_80098F88;
-    return r;
-}
-
-void func_80098EE0(s) struct S_2 *s; {
+void func_80098EE0(s) struct S *s; {
     switch (s->c46) {
     case 2: func_8009964C(s, s->c47); break;
     case 3: func_8009966C(s, s->c47); break;
@@ -193,7 +73,7 @@ void func_80098EE0(s) struct S_2 *s; {
     }
 }
 
-int func_80098F88(struct S_3 *s) {
+int func_80098F88(struct S_1 *s) {
     struct S2 *q;
     struct E4 *p5;
     struct E8 *e8;

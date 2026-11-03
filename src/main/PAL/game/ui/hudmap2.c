@@ -186,9 +186,7 @@ void func_80059C28(s32 index,s32 color);
 void func_80059D34(s32 index,s32 color);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(u8 *(*))&D_800ACC14)
-#define D_800A1158 (*(char (*)[])&D_800A1158)
-#define D_800A1090 (*(u8 (*)[])&D_800A1090)
+#define D_800ACC14 ((u8 *)D_800ACC14)
 
 void func_800587E4(s32 arg0, u8 *arg1, s32 *arg2) {
     SPRT *sprt;
@@ -236,6 +234,11 @@ void func_800587E4(s32 arg0, u8 *arg1, s32 *arg2) {
     ((struct { void *p; } *)0x1F800000)->p = (DR_MODE *)sprt + 1;
     func_80058A3C(arg2);
 }
+
+#undef D_800ACC14
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACC14 ((u8 *)D_800ACC14)
 
 void func_80058A3C(s32 *arg0) {
     SVECTOR sp10;
@@ -386,9 +389,14 @@ void func_80058A3C(s32 *arg0) {
     SCRATCH->p = drmode;
 }
 
+#undef D_800ACC14
+
 void func_800590DC(void) {
  int r, a1; if (D_800F4D44 == 1) { if (D_800F3914 == 7) { a1 = D_800AD520 + 0x20; func_800528A8(0, a1); return; } } r = func_80096464(); a1 = r % 6 + 0x1A; func_800528A8(0, a1);
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_800528A8 ((int (*)())func_800528A8)
 
 void func_80059168() {
     int a0, a1, v;
@@ -414,6 +422,11 @@ void func_80059168() {
         func_800528A8(0, a1);
     }
 }
+
+#undef func_800528A8
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800A1158 (*(char (*)[])&D_800A1158)
 
 void func_80059284(short *a0, int a1)
 {
@@ -452,6 +465,12 @@ void func_80059284(short *a0, int a1)
   }
   a0[0] = 0xA0 - (sum / 2);
 }
+
+#undef D_800A1158
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800A1090 (*(u8 (*)[])&D_800A1090)
+#define D_800A1158 (*(u8 (*)[])&D_800A1158)
 
 void func_80059314(s32 arg0, s32 arg1) {
     s32 i;
@@ -540,9 +559,8 @@ void func_80059314(s32 arg0, s32 arg1) {
     }
 }
 
-#undef D_800ACC14
-#undef D_800A1158
 #undef D_800A1090
+#undef D_800A1158
 
 void func_80059700(s16 *stream,s32 color,s32 bank)
 {
@@ -606,7 +624,7 @@ void func_80059700(s16 *stream,s32 color,s32 bank)
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A1090 (*(char (*)[])&D_800A1090)
 #define D_800A1158 (*(char (*)[])&D_800A1158)
-#define D_800ACC14 (*(char *(*))&D_800ACC14)
+#define D_800ACC14 ((char *)D_800ACC14)
 
 void func_80059904(t1, a1, a2)
 s16 *t1;
@@ -671,6 +689,13 @@ s32 a2;
     }
 }
 
+#undef D_800A1090
+#undef D_800A1158
+#undef D_800ACC14
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACC14 ((char *)D_800ACC14)
+
 void func_80059B1C(unsigned char *a0x, int a1, int a2, int a3) {
     register unsigned char *p asm("$10");
     int *g;
@@ -721,8 +746,6 @@ void func_80059B1C(unsigned char *a0x, int a1, int a2, int a3) {
     *g = (int)q;
 }
 
-#undef D_800A1090
-#undef D_800A1158
 #undef D_800ACC14
 
 void func_80059C28(s32 index,s32 color) {

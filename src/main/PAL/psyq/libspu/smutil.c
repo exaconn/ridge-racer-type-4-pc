@@ -32,7 +32,7 @@ out:
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A48C0 (*(unsigned int *(*))&D_800A48C0)
+#define D_800A48C0 ((unsigned int *)D_800A48C0)
 
 int func_8007FCD4(a0)
 unsigned int a0;

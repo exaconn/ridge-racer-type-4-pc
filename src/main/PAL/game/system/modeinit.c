@@ -153,9 +153,9 @@ void func_8002EAF8()
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABEB0 (*(unsigned (*))&D_800ABEB0)
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
-#define D_800F3AFC (*(W7C0_F *(*))&D_800F3AFC)
-#define D_800AC590 (*(unsigned char *(*))&D_800AC590)
-#define D_800F4D80 (*(unsigned char *(*))&D_800F4D80)
+#define D_800F3AFC ((W7C0_F *)D_800F3AFC)
+#define D_800AC590 ((unsigned char *)D_800AC590)
+#define D_800F4D80 ((unsigned char *)D_800F4D80)
 #define func_8003D228 ((void (*)())func_8003D228)
 #define func_8009AEAC ((void (*)())func_8009AEAC)
 

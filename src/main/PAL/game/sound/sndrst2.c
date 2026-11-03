@@ -1,34 +1,14 @@
 #include "types.h"
 
-extern struct { char pad[0x19BC]; s16 a[2]; s16 b[2]; s32 c, d; } D_800F4DB8;
 extern int func_8004FE7C(), func_800857A4(), func_80085AEC();
+extern struct { char p0[4]; int f4; char p1[8]; int f10; char p2[4]; short f18; char p3[0xA]; short f24; char p4[0x1996]; unsigned short f19BC, f19BE, f19C0, f19C2; int f19C4; short f19C8; } D_800F4DB8;
 extern struct { char p0[0x31]; unsigned char f31; short f32; } D_800AD528;
 extern short D_800F4D44;
 extern s16 D_800A043C[];
 
-void func_800514FC(void);
-void func_80051538(int a0, s16 a1, s16 a2);
 void func_80051554(void);
 void func_800517D8(void);
 void func_800517F8(int a0, int a1, int a2, int a3);
-
-void func_800514FC(void) {
-    int i;
-    for (i = 0; i < 2; i++) {
-        D_800F4DB8.a[i] = 0;
-        D_800F4DB8.b[i] = 0;
-    }
-    D_800F4DB8.c = 0;
-    D_800F4DB8.d = 5;
-}
-
-void func_80051538(int a0, s16 a1, s16 a2) {
-    D_800F4DB8.a[a0] = a1;
-    D_800F4DB8.b[a0] = a2;
-}
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char p0[4]; int f4; char p1[8]; int f10; char p2[4]; short f18; char p3[0xA]; short f24; char p4[0x1996]; unsigned short f19BC, f19BE, f19C0, f19C2; int f19C4; short f19C8; } (*))&D_800F4DB8)
 
 void func_80051554(void)
 {
@@ -86,8 +66,6 @@ void func_80051554(void)
         D_800F4DB8.f19C4 = 0;
     }
 }
-
-#undef D_800F4DB8
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F4DB8 (*(struct { char pad[0x19F8]; s16 a, b; s32 c, d, e; } (*))&D_800F4DB8)

@@ -72,6 +72,8 @@ void func_80052ADC(u16 a0) {
     }
 }
 
+#undef D_800F4DB8
+
 void func_80052B48(s32 arg0) {
     s32 var_a0;
     u32 temp_a1;
@@ -83,8 +85,6 @@ void func_80052B48(s32 arg0) {
     temp_a1 = (u32) var_a0 >> 4;
     func_80083CD4(0, temp_a1, temp_a1);
 }
-
-#undef D_800F4DB8
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F4DB8 (*(struct { char p0[0x2670]; s32 x2670; char p1[0x4]; s32 x2678; char p2[0x20]; s32 x269C; char p3[0x8]; s32 x26A8; char p4[0x4]; s32 x26B0; s32 x26B4; char p5[0xC]; u16 x26C4; s16 x26C6; s16 x26C8; u16 x26CA; u16 x26CC; u16 x26CE; } (*))&D_800F4DB8)

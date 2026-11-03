@@ -1,4 +1,4 @@
-/* GCC_VERSION: 970318 */
+/* GCC_VERSION: 2.7.2 */
 #include "types.h"
 
 extern volatile int D_800ABDE4;
@@ -47,6 +47,9 @@ int func_8009BF94(a0, a1, a2) int a0; int *a1; int *a2; {
     }
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABDE4 (*(s32 (*))&D_800ABDE4)
+
 s32 func_8009C0A4(s32 value) {
     s32 result;
     if (!(D_800ABDE4 & 1)) return 0;
@@ -68,3 +71,5 @@ s32 func_8009C0A4(s32 value) {
     }
     return result;
 }
+
+#undef D_800ABDE4

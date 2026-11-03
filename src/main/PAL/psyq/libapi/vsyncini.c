@@ -40,6 +40,8 @@ void func_8008BA7C() {
     } while (i < 8);
 }
 
+#undef D_800A6370
+
 void func_8008BAE8(s32 slot,RrSpuTickCallback callback)
 {
     RrSpuTickCallback *base=D_800A6370;
@@ -50,5 +52,3 @@ void func_8008BAE8(s32 slot,RrSpuTickCallback callback)
 void func_8008BB14(p, n) int *p; int n; {
     while (n--) *p++ = 0;
 }
-
-#undef D_800A6370

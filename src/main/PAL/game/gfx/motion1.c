@@ -112,6 +112,9 @@ void func_8005D544(struct A *a0) {
     }
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ACA28 ((void *)D_800ACA28)
+
 void func_8005D820(void) {
     s32 temp_a0;
 
@@ -120,6 +123,8 @@ void func_8005D820(void) {
         func_8005D40C(temp_a0 - 1);
     }
 }
+
+#undef D_800ACA28
 
 void func_8005D858(void) {
     D_8010E240 = -1;

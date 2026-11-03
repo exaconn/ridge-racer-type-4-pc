@@ -637,6 +637,12 @@ void func_80038654(CarCollision *arg0) {
     }
 }
 
+#undef func_80025F84
+#undef func_8002C1D4
+#undef func_800904F4
+#undef D_800ABEF8
+#undef D_800FFC20
+
 void func_80039494(RrRaceVehicle *vehicle)
 {
     func_80055250(3, vehicle->trackNodeF0);
@@ -718,9 +724,3 @@ void func_800396E4(RrRaceVehicle *vehicle)
         }
     }
 }
-
-#undef func_80025F84
-#undef func_8002C1D4
-#undef func_800904F4
-#undef D_800ABEF8
-#undef D_800FFC20

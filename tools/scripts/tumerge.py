@@ -184,13 +184,17 @@ def split_declarators(text, name_of=None):
     return [pieces[0].strip() + ';'] + [f'{base} {q.strip()};' for q in pieces[1:]]
 
 
-def alias_macro(name, text):
+def alias_macro(name, text, style='auto'):
     """#define NAME (*(T *)&NAME) (variable) or ((T)NAME) (function) with T from the variant declaration"""
     d = re.sub(r'/\*.*?\*/|//[^\n]*', '', text, flags=re.S).strip().rstrip(';')
     d = re.sub(r'^extern\s+', '', d)
     isfunc = re.search(r'(?<![*(\w])\b' + re.escape(name) + r'\s*\(', d) is not None and not re.search(r'\(\s*\*\s*' + re.escape(name), d)
     ty = re.sub(r'(?<!\w)' + re.escape(name) + r'(?!\w)', '(*)', d, count=1)
-    return f'#define {name} ((' + ty + ')' + name + ')' if isfunc else f'#define {name} (*({ty})&{name})'
+    if isfunc: return f'#define {name} ((' + ty + ')' + name + ')'
+    ptr = re.search(r'\*\s*$', d[:d.rindex(name)].rstrip()) is not None and '[' not in d and '(' not in d
+    if ptr and style == 'auto':                       # read-only view of a pointer variable: no address-of, so no hoisting
+        return f'#define {name} (({d[:d.rindex(name)].strip()}){name})'
+    return f'#define {name} (*({ty})&{name})'
 
 
 def header_decls(root, includes, seen=None, out=None):
@@ -216,7 +220,7 @@ def header_decls(root, includes, seen=None, out=None):
     return out
 
 
-def merge(paths, markers_out, policy=None, fwd_mode='proto', alias=False, root=None, canon_pick=None):
+def merge(paths, markers_out, policy=None, fwd_mode='proto', alias=False, root=None, canon_pick=None, alias_style='auto'):
     """paths in address order; markers_out: list of marker lines for the merged file.
     policy: dict name -> index of the variant to keep when declarations conflict (default 0)."""
     policy = policy or {}
@@ -356,7 +360,7 @@ def merge(paths, markers_out, policy=None, fwd_mode='proto', alias=False, root=N
             macros = []
             for n_, (k_, text_) in file_ext.get(f_, {}).items():
                 if n_ and k_ != canon.get(n_) and n_ not in defined and re.search(r'(?<![\w$])' + re.escape(n_) + r'(?![\w$])', joined):
-                    macros.append((n_, alias_macro(n_, text_)))
+                    macros.append((n_, alias_macro(n_, text_, alias_style)))
             if macros:
                 body.append('/* legacy typing of shared globals in this part of the unit */\n' + '\n'.join(m for _, m in macros))
             for t_ in ts: body.append(t_.strip())

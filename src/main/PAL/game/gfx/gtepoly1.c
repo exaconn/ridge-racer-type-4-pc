@@ -1957,6 +1957,9 @@ void func_80015110(s32 *a0_in, char *a1_in) {
     *(char **)0x1F800000 = t1;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_80096464 ((int (*)())func_80096464)
+
 void func_800153FC(a0, a1) char *a0; char *a1;
 {
     int s0;
@@ -2016,6 +2019,8 @@ void func_800153FC(a0, a1) char *a0; char *a1;
     RR_GTE_SETTR(a1 + 0xAC);
     func_80014F34(*(int *)a0 + 0x58, a1);
 }
+
+#undef func_80096464
 
 void func_800155D8(char *a0, char *a1) {
     int otz;

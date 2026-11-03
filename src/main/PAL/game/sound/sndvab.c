@@ -74,10 +74,15 @@ void func_8004EE08(void) {
     func_80086554(0, 0);
 }
 
+#undef D_800F4DB8
+
 void func_8004EE60(s32 arg0) {
     D_800F7650 = arg0;
     func_80086554((s16) arg0, (s16) arg0);
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4DB8 (*(struct { char pad[0x2894]; s32 a, b, c; } (*))&D_800F4DB8)
 
 void func_8004EE90(int a0, int a1) {
     func_800867A4();

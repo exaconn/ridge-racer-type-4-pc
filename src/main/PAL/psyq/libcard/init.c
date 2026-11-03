@@ -36,6 +36,9 @@ void func_80095D04(s32 arg0) {
     func_80096F14();
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_80096F84 ((int (*)(int))func_80096F84)
+
 /* extern */
 void func_80095D70(void) {
     func_80096F04();
@@ -43,6 +46,8 @@ void func_80095D70(void) {
     func_80096F84(0);
     func_80096F14();
 }
+
+#undef func_80096F84
 
 /* extern */
 void func_80095DA8(void) {

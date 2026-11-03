@@ -1,6 +1,6 @@
 /* RODATA 0x80011270 0x2c */
-#include "rr/line_emit.h"
 #include "types.h"
+#include "rr/line_emit.h"
 #include "m2c_macros.h"
 
 struct Entry {

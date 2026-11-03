@@ -172,10 +172,6 @@ void func_8008EA9C(void) {
 #undef func_8008C118
 #undef func_8008E7F4
 
-/* legacy typing of shared globals in this part of the unit */
-#define func_8008E7F4 ((void (*)(void))func_8008E7F4)
-#define func_8008C3B0 ((s32 (*)(s32,const u8*,u8*))func_8008C3B0)
-
 s32 func_8008EB6C(s32 restart) {
     u8 mode_byte;
     register u32 requested;
@@ -266,6 +262,9 @@ failed:
     return ((volatile RrLibReadRequestState *)state)->remaining14;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_8008E7F4 ((void (*)(void))func_8008E7F4)
+
 void func_8008ED54(void) {
     volatile RrLibReadRequestState *root;
     /* ASM_BARRIER: form the completion-publication address in its original temporary. */
@@ -342,6 +341,11 @@ second_poll:
 done:
     return;
 }
+
+#undef func_8008E7F4
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_8008C3B0 ((s32 (*)(s32,const u8*,u8*))func_8008C3B0)
 
 s32 func_8008EEF4(s32 sectors,u8 *buffer,u32 mode) {
     s32 count=sectors;
@@ -436,5 +440,4 @@ timeout:
     return result;
 }
 
-#undef func_8008E7F4
 #undef func_8008C3B0

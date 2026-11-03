@@ -1,4 +1,4 @@
-/* GCC_VERSION: 970318 */
+/* CC1_FLAGS: -mno-split-addresses */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 struct C { char p0[0x14]; int f14; int (*f18)(); char p1c[0x14]; unsigned char *f30; char p34[8]; unsigned char *f3c; char p40[4]; unsigned char f44, f45, f46, f47, f48, f49, f4a; char p4b[5]; unsigned char f50; char p51[0x97]; unsigned char fE8; };
 

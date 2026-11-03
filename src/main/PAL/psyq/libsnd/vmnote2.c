@@ -1,4 +1,4 @@
-/* GCC_VERSION: 970318 */
+/* CC1_FLAGS: -mno-split-addresses */
 extern signed char D_80110102[];
 extern struct { signed char a; char p[4]; signed char b; } D_80110107;
 extern char *D_801100F8;

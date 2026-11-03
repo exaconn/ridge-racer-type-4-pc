@@ -184,7 +184,7 @@ void func_80039ABC(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABEF8 (*(char (*)[])&D_800ABEF8)
 #define D_800AD4D8 (*(char (*)[])&D_800AD4D8)
-#define D_800F2AB0 (*(W7C0_S *(*))&D_800F2AB0)
+#define D_800F2AB0 ((W7C0_S *)D_800F2AB0)
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 #define func_8002A344 ((void (*)())func_8002A344)
 #define func_8002AF8C ((void (*)())func_8002AF8C)

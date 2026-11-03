@@ -190,8 +190,8 @@ L814:
 #undef func_80039F98
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3AFC (*(Struct800F3AFC *(*))&D_800F3AFC)
-#define D_800FF68C (*(Struct800FF68C *(*))&D_800FF68C)
+#define D_800F3AFC ((Struct800F3AFC *)D_800F3AFC)
+#define D_800FF68C ((Struct800FF68C *)D_800FF68C)
 
 void func_8003189C(void) {
     s32 var_a1;
@@ -288,7 +288,7 @@ void func_8003189C(void) {
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3AFC (*(s32 (*))&D_800F3AFC)
-#define D_800FF68C (*(void *(*))&D_800FF68C)
+#define D_800FF68C ((void *)D_800FF68C)
 
 void func_80031CE4(void) {
     void *temp_v0;
@@ -302,6 +302,9 @@ void func_80031CE4(void) {
     func_8003D6F0(M2C_FIELD(D_800FF68C, s16 *, 0x16));
 }
 
+#undef D_800F3AFC
+#undef D_800FF68C
+
 void func_80031DA0(void) {
 }
 
@@ -314,6 +317,10 @@ void func_80031DB0() {
     struct S *p = D_800F2A68;
     do { p->a = 0; p->b = i; *q++ = p; i++; p++; } while (i < 8);
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F2A68 (*(struct E (*)[])&D_800F2A68)
+#define D_800F2DE8 (*(struct E *(*)[])&D_800F2DE8)
 
 void func_80031DEC(void) {
     int i = 0;
@@ -334,6 +341,9 @@ void func_80031DEC(void) {
         } while (i < n);
     }
 }
+
+#undef D_800F2A68
+#undef D_800F2DE8
 
 void func_80031E3C(void) {
     s32 a2 = 0;
@@ -403,11 +413,8 @@ void func_80031E3C(void) {
     } while (a2 < 7);
 }
 
-#undef D_800F3AFC
-#undef D_800FF68C
-
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3AFC (*(void *(*))&D_800F3AFC)
+#define D_800F3AFC ((void *)D_800F3AFC)
 
 void func_80031F1C(void) {
     func_8002A604();
@@ -503,6 +510,9 @@ void func_80031FE8(void) {
     }
 }
 
+#undef D_800AD4D8
+#undef D_800F4D8A
+
 void func_8003244C(void) {
     if (D_800F3A42 & 0x1000) {
         D_8010BFC0 = D_8010BFC0 - 1;
@@ -521,6 +531,9 @@ void func_8003244C(void) {
     }
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3AFC ((void *)D_800F3AFC)
+
 void func_800324F8(void) {
     D_800F2DE4 = 0;
     D_800FFC00 = 0;
@@ -536,5 +549,4 @@ void func_800324F8(void) {
     func_8002A344(0x10086);
 }
 
-#undef D_800AD4D8
-#undef D_800F4D8A
+#undef D_800F3AFC

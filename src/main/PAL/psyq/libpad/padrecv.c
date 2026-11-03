@@ -1,5 +1,4 @@
-/* GCC_VERSION: 970318 */
-/* MASPSX_FLAGS: --assembler-profile=gnu */
+/* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channels.h"
 #include "rr_asm.h"
 
@@ -30,7 +29,8 @@ extern s32 func_80098A00(void);
 extern int func_8009A814();
 extern Q *D_800ABCC8;
 extern H *D_800ABCCC;
-extern int D_801146B8, D_801146BC;
+extern int D_801146B8;
+extern int D_801146BC;
 
 void func_80098488(RrChannelRecordF0 *channel);
 int func_80098578(S *a0, int a1);

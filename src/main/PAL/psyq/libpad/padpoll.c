@@ -1,13 +1,25 @@
-/* CC1_FLAGS: -mno-split-addresses */
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
+struct HW { volatile unsigned char b0; char p1[3]; volatile unsigned short s4; short p6; short s8; unsigned short sA; char pC[2]; volatile short sE; };
+
+struct Q { int a; };
+
+struct W { char p[0x3C]; unsigned char *f3c; char p2[4]; unsigned char f44, f45; char p3[0xE8 - 0x46]; unsigned char fE8; };
+
+struct R { short a; short b; unsigned short c; short d; short e; unsigned short f; };
+
+struct Q_1 { int a, b; };
+
 extern int func_8009A7F4(), func_8009A814();
 extern int D_800ABCAC;
-struct HW { volatile unsigned char b0; char p1[3]; volatile unsigned short s4; short p6; short s8; unsigned short sA; char pC[2]; volatile short sE; };
-struct Q { int a; };
 extern struct HW *D_800ABCCC;
 extern struct Q *D_800ABCC8;
-extern unsigned D_801146B8, D_801146BC;
-struct W { char p[0x3C]; unsigned char *f3c; char p2[4]; unsigned char f44, f45; char p3[0xE8 - 0x46]; unsigned char fE8; };
+extern unsigned D_801146B8;
+extern unsigned D_801146BC;
+
+int func_80098788();
+int func_80098A00();
+
 int func_80098788(a0, a1) struct W *a0; int a1; {
     int s1;
     int s2;
@@ -69,3 +81,23 @@ int func_80098788(a0, a1) struct W *a0; int a1; {
     a0->f44++;
     return s2;
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800ABCC8 ((struct Q_1 *)D_800ABCC8)
+#define D_800ABCCC ((struct R *)D_800ABCCC)
+#define func_8009A814 ((int (*)())func_8009A814)
+
+int func_80098A00() {
+    D_800ABCC8->a = -0x81;
+    if (D_800ABCCC->c & 0x80) {
+        do {
+            if (func_8009A814()) return 0;
+        } while (D_800ABCCC->c & 0x80);
+    }
+    D_800ABCCC->f |= 0x10;
+    return 1;
+}
+
+#undef D_800ABCC8
+#undef D_800ABCCC
+#undef func_8009A814

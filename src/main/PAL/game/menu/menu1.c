@@ -187,7 +187,7 @@ END:
 #undef D_800F4C6A
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(char *(*))&D_800ACC14)
+#define D_800ACC14 ((char *)D_800ACC14)
 
 void func_8003016C(void)
 {

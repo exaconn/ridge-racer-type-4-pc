@@ -20,8 +20,6 @@ void func_8007B3A0(void);
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F4D50 (*(char (*)[])&D_800F4D50)
-#define D_800F3A26 (*(short (*))&D_800F3A26)
-#define D_800F4D8A (*(short (*))&D_800F4D8A)
 
 int func_8007A9CC(a0, a1)
 short a0;
@@ -86,6 +84,12 @@ int a1;
     return D_800A41EC;
 }
 
+#undef D_800F4D50
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F3A26 (*(short (*))&D_800F3A26)
+#define D_800F4D8A (*(short (*))&D_800F4D8A)
+
 void func_8007AB8C(int arg0) {
     if (arg0 == -1) {
         D_800F4C6A = 1;
@@ -97,7 +101,6 @@ void func_8007AB8C(int arg0) {
     D_800F4D8A = 0;
 }
 
-#undef D_800F4D50
 #undef D_800F3A26
 #undef D_800F4D8A
 

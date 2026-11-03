@@ -2,7 +2,6 @@
 #include "rr/commands.h"
 
 extern s32 func_8009C3BC(void), func_8009C400(s32);
-extern int D_800ABDE8;
 
 s32 func_8009C310(s32 a0, u32 *a1);
 int func_8009C3BC();

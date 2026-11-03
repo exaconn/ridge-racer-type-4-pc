@@ -284,6 +284,13 @@ void func_80052024(s32 idx) {
     REC(B3, idx, 0x1904) = c;
 }
 
+#undef D_800F4DB8
+#undef D_80107198
+#undef func_80090758
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800F4DB8 (*(char (*)[])&D_800F4DB8)
+
 void func_800523C8(int arg0) {
  int k = arg0 * 3; int t = arg0 + 2; char *v, *s, *b;
  func_80052024(t); b = D_800F4DB8; s = b + (((k << 4) + arg0) << 5); v = b + t * 0x1C;
@@ -294,5 +301,3 @@ void func_800523C8(int arg0) {
 }
 
 #undef D_800F4DB8
-#undef D_80107198
-#undef func_80090758

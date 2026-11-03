@@ -1,4 +1,4 @@
-/* GCC_VERSION: 970318 */
+/* GCC_VERSION: 2.7.2 */
 #include "types.h"
 
 extern s32 D_801146BC;
@@ -21,6 +21,9 @@ void func_8009A7F4(s32 limit) {
     __asm__("" : "=r"(base) : "0"(base));
     base[0x46B8 / 4] = counter;
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_801146BC (*(unsigned int (*))&D_801146BC)
 
 int func_8009A814() {
     unsigned int a0;
@@ -47,3 +50,5 @@ int func_8009A814() {
     }
     return v0 >= lim;
 }
+
+#undef D_801146BC

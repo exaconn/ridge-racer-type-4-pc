@@ -6,10 +6,6 @@
 
 struct P { int tag; unsigned char r, g, b, code; short x, y, w, h; };
 
-struct P *func_80020588(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
-
-struct P *func_8002064C(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
-
 extern void func_80095B94(void *),func_80095AF4(void *,s32),func_80095A44(u32 *,u32 *);
 extern s32 func_80096464(void);
 /* extern */
@@ -110,6 +106,11 @@ u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,
     return (u8 *)sprite;
 }
 
+#undef func_8001FCC8
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_80095A44 ((void (*)(u32 *, u32 *))func_80095A44)
+
 /* extern */
 struct S32 *func_8002039C(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9) {
     func_80095B74(arg1);
@@ -140,6 +141,8 @@ struct S32 *func_8002039C(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, v
     return arg1;
 }
 
+#undef func_80095A44
+
 void *func_80020508(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
     M2C_FIELD(arg1, s8 *, 3) = 3;
     M2C_FIELD(arg1, s16 *, 8) = arg2;
@@ -155,6 +158,10 @@ void *func_80020508(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg
     return arg1 + 0x10;
 }
 
+/* legacy typing of shared globals in this part of the unit */
+#define func_80095A44 ((int (*)())func_80095A44)
+#define func_80095B24 ((int (*)())func_80095B24)
+
 struct P *func_80020588(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8) {
     func_80095BD4(a1);
     func_80095B24(a1, 1);
@@ -168,6 +175,13 @@ struct P *func_80020588(int a0, struct P *a1, short a2, short a3, int a4, int a5
     func_80095A44(a0, a1++);
     return a1;
 }
+
+#undef func_80095A44
+#undef func_80095B24
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_80095A44 ((int (*)())func_80095A44)
+#define func_80095B24 ((int (*)())func_80095B24)
 
 struct P *func_8002064C(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8) {
     func_80095BD4(a1);
@@ -184,7 +198,8 @@ struct P *func_8002064C(int a0, struct P *a1, short a2, short a3, int a4, int a5
     return a1;
 }
 
-#undef func_8001FCC8
+#undef func_80095A44
+#undef func_80095B24
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_80095A44 ((void (*)(u32 *,u32 *))func_80095A44)

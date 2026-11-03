@@ -1,16 +1,13 @@
-/* RODATA 0x800115ec 0x20 */
 struct E { char pad[4]; unsigned char a; char b; unsigned char c; signed char d; };
 
-extern short D_800FFC18;
-extern short D_800FFC00;
-extern short D_800AC594;
-extern short D_800F3A1C;
-extern unsigned char D_800F3A24[];
-extern struct { char pad[0x28]; int x28; int x2c; char pad2[0x2C]; } D_800F3A38[];
 extern int func_8002B330();
 extern int func_8002B75C();
 extern int func_8004F24C();
 extern int func_80078E40();
+extern short D_800FFC18;
+extern short D_800FFC00;
+extern short D_800AC594;
+extern short D_800F3A1C;
 extern short D_800F4D3C;
 extern short D_800F3AF8;
 extern short D_801094A0;
@@ -20,7 +17,9 @@ extern char D_800A457C[];
 extern int D_800A4594[];
 extern struct { char a[4]; unsigned char b; char c[3]; } D_800A4258[];
 extern unsigned char D_800A448C[][4];
+extern struct { char pad[0x28]; int x28; int x2c; char pad2[0x2C]; } D_800F3A38[];
 extern unsigned char D_800A44A8[][4];
+extern unsigned char D_800F3A24[];
 extern char *D_800F4D80;
 extern unsigned short D_800F4D8A;
 extern unsigned short D_80109458;
@@ -33,59 +32,9 @@ extern unsigned char D_800A44D8[][4];
 extern unsigned char D_800ACBCC[];
 extern short D_80109490;
 
-int func_8007B654();
 void func_8007B774(void);
 void func_8007B954();
 void func_8007BB9C();
-
-int func_8007B654()
-{
-    int a1;
-    int a2;
-    int v;
-    a2 = -1;
-    switch (D_800FFC18) {
-    case 0:
-        a1 = 0;
-        break;
-    case 1:
-    case 5:
-        a1 = 0x20;
-        break;
-    case 2:
-        a1 = 0x21;
-        break;
-    case 3:
-        a1 = 0x17;
-        break;
-    case 6:
-    case 7:
-        a1 = 0x29;
-        break;
-    case 4:
-        break;
-    }
-    v = D_800F3A24[D_800FFC00];
-    switch (v) {
-    case 0x28:
-    case 0x3C:
-    case 0x1E:
-        if (D_800F3A38[D_800AC594].x28 != 0 || D_800F3A38[D_800AC594].x2c != 0) {
-            D_800F3A1C = a1;
-        }
-        break;
-    case 0x14:
-    case 0x32:
-        a2 = 1;
-        break;
-    case 0x5A:
-        break;
-    default:
-        a2 = 1;
-        break;
-    }
-    return a2;
-}
 
 void func_8007B774(void) {
     /* ASM_BARRIER: pins value to s3 as in the original */
@@ -130,6 +79,10 @@ void func_8007B774(void) {
     D_800F3A1C = s3;
     func_80078E40(D_800FFC00, 0, 1);
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800A4258 (*(struct E (*)[])&D_800A4258)
+#define D_800F3A38 (*(char (*)[])&D_800F3A38)
 
 void func_8007B954()
 {
@@ -200,6 +153,9 @@ void func_8007B954()
         D_800F4D8A = 0;
     }
 }
+
+#undef D_800A4258
+#undef D_800F3A38
 
 void func_8007BB9C()
 {

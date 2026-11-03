@@ -116,6 +116,7 @@ void func_80034F18(void);
 void func_80034F80(void);
 int func_80034FC0(void);
 int func_80035024(int a0);
+int func_800353E4(void);
 
 void func_80033A74(int a)
 {
@@ -409,6 +410,9 @@ void func_800347BC(void) {
     }
 }
 
+#undef D_800ABEF8
+#undef D_800F3A38
+
 void func_80034844(int a0) {
     if (D_800F3A40 & 0x1000) {
         if (D_800F2FDC > 0) {
@@ -565,9 +569,6 @@ int func_80034FC0(void) {
     }
     return 0;
 }
-
-#undef D_800ABEF8
-#undef D_800F3A38
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_8009AEAC ((unsigned int (*)())func_8009AEAC)
@@ -769,3 +770,22 @@ int func_80035024(int a0)
 #undef func_8009AEAC
 #undef D_800F3A38
 #undef D_800FF688
+
+/* legacy typing of shared globals in this part of the unit */
+#define func_8009AEAC ((unsigned (*)())func_8009AEAC)
+
+int func_800353E4(void) {
+    int r = 0;
+    int t = (func_8009AEAC(0, 0, 0) >> 7) & 3;
+    if (t == 0 || t == 3) {
+        D_800FF688 = -1;
+        r = -1;
+    } else if (t == 1) {
+        D_800FF688 = t;
+    } else if (t == 2) {
+        if (D_800FF688 == 3) r = 1;
+    }
+    return r;
+}
+
+#undef func_8009AEAC

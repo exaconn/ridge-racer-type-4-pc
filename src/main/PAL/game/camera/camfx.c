@@ -1,5 +1,6 @@
 #include "game/camera/camview.h"
 #include "game/camera/camfx.h"
+#include "game/camera/camview.h"
 
 extern char D_800A0D70[];
 extern char D_800A0D7C[];
@@ -37,7 +38,6 @@ extern struct
   Q *p;
 } D_800AC650;
 extern int func_80055FD8();
-extern int func_8005602C();
 void func_80056258(a0)
 int a0;
 {

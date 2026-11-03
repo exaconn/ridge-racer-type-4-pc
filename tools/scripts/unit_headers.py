@@ -21,7 +21,7 @@ from tumerge import parse, KNR
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / 'src/main/PAL'
 INC = ROOT / 'include'
-KEYWORDS = {'extern', 'const', 'volatile', 'unsigned', 'signed', 'char', 'short', 'int', 'long', 'void',
+KEYWORDS = {'struct', 'union', 'enum', 'extern', 'const', 'volatile', 'unsigned', 'signed', 'char', 'short', 'int', 'long', 'void',
             'float', 'double'}
 FUNC = re.compile(r'func_[0-9A-Fa-f]{8}$')
 
@@ -41,6 +41,20 @@ def lead_free(text):
 def known_types():
     t = strip_comments((INC / 'types.h').read_text())
     return set(re.findall(r'\b(\w+)\s*;', t)) | {'M2C_UNK'}
+
+
+def type_providers():
+    """typedef / struct names defined by existing headers -> header path (relative to include/)"""
+    out = {}
+    for h in sorted((INC / 'rr').glob('*.h')):
+        t = strip_comments(h.read_text())
+        for m in re.finditer(r'\}\s*(\w+)\s*;', t):
+            out.setdefault(m.group(1), h)
+        for m in re.finditer(r'typedef\s+[^;{}]*?\b(\w+)\s*;', t):
+            out.setdefault(m.group(1), h)
+        for m in re.finditer(r'\bstruct\s+(\w+)\s*\{', t):
+            out.setdefault('struct ' + m.group(1), h)
+    return out
 
 
 def header_text():
@@ -122,7 +136,8 @@ def norm_decl(core):
 def main():
     dry = '--dry-run' in sys.argv
     jobs = int(sys.argv[sys.argv.index('--jobs') + 1]) if '--jobs' in sys.argv else 8
-    known = known_types()
+    prov = {k.split()[-1]: v for k, v in type_providers().items()}
+    known = known_types() | set(prov)
     existing = header_text()
     units = {}
     for p in sorted(SRC.rglob('*.c')):
@@ -250,7 +265,11 @@ def main():
                     if m and not l.startswith(('#', '/*')):
                         old[m.group(0)] = l
             old.update({n: f for n, f in lst})
-            body += [old[n] for n in sorted(old, key=lambda x: (x.startswith('func_'), int(x.split('_')[1], 16)))]
+            lines = [old[n] for n in sorted(old, key=lambda x: (x.startswith('func_'), int(x.split('_')[1], 16)))]
+            used = {t for l in lines for t in re.findall(r'[A-Za-z_]\w*', l)} & set(prov)
+            incs = sorted({prov[t].relative_to(INC).as_posix() for t in used})
+            body = body[:4] + [f'#include "{i}"' for i in incs] + body[4:]
+            body += lines
             body += ['', f'#endif /* {guard} */', '']
             h.write_text('\n'.join(body))
         changed = {}
@@ -282,8 +301,13 @@ def main():
             changed[c] = re.sub(r'\n{3,}', '\n\n', text)
         for c, t in changed.items():
             c.write_text(t)
+        touched = {hpath(owner[n][0]).relative_to(INC).as_posix() for n in active}
+        verify = set(changed)
+        for q in units:
+            if q not in changed and any(f'#include "{h}"' in units[q][0] for h in touched):
+                verify.add(q)
         with ThreadPoolExecutor(jobs) as ex:
-            r = list(ex.map(lambda c: (c, fd_ok(c)), list(changed)))
+            r = list(ex.map(lambda c: (c, fd_ok(c)), list(verify)))
         bad = [c for c, ok in r if not ok]
         for c in changed:
             c.write_text(units[c][0])
@@ -293,7 +317,9 @@ def main():
             print('round', rnd, 'callers rewritten', len(changed))
             return
         for c in bad:
-            banned |= {n for n, _ in edges[c]}
+            incl = {m for m in re.findall(r'#include "([^"]+)"', changed.get(c, units[c][0]))}
+            banned |= {n for n, _ in edges.get(c, [])}
+            banned |= {n for n in active if hpath(owner[n][0]).relative_to(INC).as_posix() in incl}
         for h, t in base_hdr.items():
             if t:
                 h.write_text(t)

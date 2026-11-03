@@ -4,6 +4,7 @@
 #include "types.h"
 
 void func_80055C84(void);
+int func_8005602C();
 int func_800560CC();
 
 #endif /* RR_GAME_CAMERA_CAMVIEW_H */

@@ -9,7 +9,7 @@ import re
 class Overlay666PreviewTest(unittest.TestCase):
     def test_initialization_and_fresh_selection_roots(self):
         root=Path(__file__).resolve().parents[2]
-        paths=['src/main/PAL/func_8003A198.c','src/main/PAL/func_80037040.c','src/overlays/PAL/666/func_80115A88.c']
+        paths=['build/legacy/func_8003A198.c','build/legacy/func_80037040.c','src/overlays/PAL/666/func_80115A88.c']
         bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',read_c_source(root/p),flags=re.M) for p in paths)
         source=r'''
 #include <assert.h>

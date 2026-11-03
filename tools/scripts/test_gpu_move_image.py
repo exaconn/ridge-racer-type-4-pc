@@ -80,7 +80,7 @@ void test_reset(void){
 void *test_packet_address(void){return packet.prefix;}
 '''
         for name in ('8008B3C4', '80095990', '80094B28', '80095750'):
-            body = (root/('src/main/PAL/func_' + name + '.c')).read_text()
+            body = (root/('build/legacy/func_' + name + '.c')).read_text()
             body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r'"\$[0-9]+",\s*', '', body)

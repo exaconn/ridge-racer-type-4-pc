@@ -15,7 +15,7 @@ class OverlayControlTest(unittest.TestCase):
         bodies = '\n'.join((root / f'src/overlays/PAL/668/func_{name}.c').read_text()
                            .replace('#include "rr/overlay668_control.h"', '')
                            for name in ('801163FC', '80116478', '80116498', '801164D4', '80116510'))
-        resident = (root / 'src/main/PAL/func_8008B3C4.c').read_text()
+        resident = (root / 'build/legacy/func_8008B3C4.c').read_text()
         resident = resident.replace('#include "rr/library.h"', '')
         query = (root / 'src/overlays/PAL/668/func_8011688C.c').read_text()
         query = query.replace('#include "types.h"', '').replace('ovl668_func_8011688C', 'rr_real_status')

@@ -10,7 +10,7 @@ class ProgressLabelTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         bodies = '\n'.join((root / f'src/overlays/PAL/662/func_{a}.c').read_text()
                            for a in ('80117854',))
-        formatter = (root / 'src/main/PAL/func_8002B814.c').read_text() + '\n' + (root / 'src/main/PAL/func_80042D28.c').read_text()
+        formatter = (root / 'build/legacy/func_8002B814.c').read_text() + '\n' + (root / 'build/legacy/func_80042D28.c').read_text()
         source = r'''
 #include <assert.h>
 #include <stdint.h>

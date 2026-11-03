@@ -2,12 +2,12 @@
 from pathlib import Path
 import re,subprocess,tempfile,unittest
 root=Path(__file__).resolve().parents[2]
-s=(root/'src/main/PAL/func_80039F98.c').read_text();s=re.sub(r'^#include[^\n]*\n|extern[^;]*;','',s,flags=re.M)
+s=(root/'build/legacy/func_80039F98.c').read_text();s=re.sub(r'^#include[^\n]*\n|extern[^;]*;','',s,flags=re.M)
 s=re.sub(r' asm\("\$\d+"\)','',s);s=re.sub(r'__asm__\("".*?\);','',s)
 s,n=re.subn(r'\(u8 \*\)0x800B0000U','(actual+0x2B28)',s);assert n==3,n
 s,n=re.subn(r'\(u8 \*\)0x800F0000U','((u8*)&row_owner)',s);assert n==1,n
 s=s.replace('void func_80039F98(void)', 'void candidate(void)')
-helper=(root/'src/main/PAL/func_8003989C.c').read_text();helper=re.sub(r'extern[^;]*;','',helper)
+helper=(root/'build/legacy/func_8003989C.c').read_text();helper=re.sub(r'extern[^;]*;','',helper)
 code=r'''
 #include <assert.h>
 #include <stdint.h>

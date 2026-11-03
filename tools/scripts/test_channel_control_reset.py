@@ -33,7 +33,7 @@ u16 D_80110118;
 #define D_80110000 test_masks[0x10000 / 2]
 #define D_80110002 test_masks[0x10002 / 2]
 '''
-        body = (root / 'src/main/PAL/func_80088DA4.c').read_text()
+        body = (root / 'build/legacy/func_80088DA4.c').read_text()
         body = body.replace('#include "rr/channels.h"', '')
         body = re.sub(r'^extern[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)

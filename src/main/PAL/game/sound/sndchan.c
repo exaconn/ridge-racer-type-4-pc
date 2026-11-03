@@ -1,0 +1,201 @@
+#include "types.h"
+
+typedef struct {
+    int f0;
+    short h4;
+    short pad6;
+    int f8;
+    int fC;
+    int pad10;
+    int f14;
+    char pad18[0x28 - 0x18];
+    short h28;
+    short h2A;
+    char pad2C[0x5DC - 0x2C];
+    short h5DC[(0x620 - 0x5DC) / 2];
+} W;
+
+typedef struct {
+    u32 flags00;
+    s16 bank04;
+    u16 reserved06;
+    s32 voice08;
+    s32 count0C;
+    s32 level10;
+    s32 program14;
+    s32 previous18;
+    s32 reserved1C;
+    s16 level20;
+    s16 gain22;
+    s16 pan24;
+    s16 reserved26;
+    s16 group28;
+    s16 reserved2A;
+    s16 spatial2C;
+    s16 reserved2E;
+    s32 filter30;
+    u8 reserved34[0x5DC - 0x34];
+    u16 programs5DC[2][5];
+    u16 duration5F0;
+    u16 gain5F2;
+    u16 spread5F4;
+    u16 reserved5F6;
+    struct {
+        u16 coarse;
+        u16 fine;
+    } pitch5F8[10];
+} RrSlot620;
+
+extern struct { u32 flags; char pad[1568 - 4]; } D_800F4DF0[];
+extern struct { char pad[0x48]; struct { s32 a, b; char pad[1568 - 8]; } e[1]; } D_800F4DB8;
+extern int func_80096454();
+extern int func_800857A4();
+extern u16 D_800A053C[];
+extern s16 D_800A043C[];
+extern struct {
+    char pad[0x31];
+    u8 volume31;
+    s16 mono32;
+} D_800AD528;
+extern s16 D_800F4DD0;
+extern int func_80050744();
+extern void func_8004FE7C();
+extern int func_80084E74();
+
+void func_80050028(int a0, int a1);
+void func_8005007C(int a0, int a1, int a2);
+void func_800500A8();
+void func_800501BC(int a0);
+
+void func_80050028(int a0, int a1) {
+    u32 *p = &D_800F4DF0[a0].flags;
+    if (a1 == 1) *p |= 4;
+    else *p &= ~4;
+}
+
+void func_8005007C(int a0, int a1, int a2) {
+    D_800F4DB8.e[a2].a = a0;
+    D_800F4DB8.e[a2].b = a1;
+}
+
+void func_800500A8(a0)
+int a0;
+{
+    int s[4];
+    W *w = &D_800F4DF0[a0];
+    unsigned short *q;
+    int i;
+    int k;
+    int t;
+    func_80096454(s, 0, 0x10);
+    s[3] = 2;
+    k = w->f8;
+    i = 0;
+    if (w->fC > 0) {
+        q = (unsigned short *)((int)s + a0 * 4);
+        do {
+            func_800857A4((short)k, w->h4, w->h5DC[w->f14 * 5 + i], 0, (short)(*q + 0x3C), 0, 0, 0);
+            k++;
+            i++;
+        } while (i < w->fC);
+    }
+    t = *(unsigned short *)&s[a0];
+    w->h2A = 0;
+    w->h28 = t + 0x3C;
+}
+
+void func_800501BC(int a0) {
+    RrSlot620 *s0 = &D_800F4DF0[a0];
+    u16 fp = 0;
+    int s3, i;
+    u16 sp20;
+    int sp28;
+    int s5;
+    int v1;
+
+    if (s0->program14 != s0->previous18) {
+        s3 = s0->voice08;
+        for (i = 0; i < s0->count0C; i++, s3++) {
+            if (s0->programs5DC[0][i] != s0->programs5DC[1][i]) {
+                func_800857A4((s16)s3, s0->bank04, (s16)s0->programs5DC[s0->program14][i], 0, s0->group28, 0, 0, 0);
+            }
+        }
+        s0->previous18 = s0->program14;
+    }
+
+    if ((s0->flags00 & 4) == 0) {
+        sp28 = s0->level20;
+    } else {
+        sp28 = 0;
+    }
+
+    s5 = (s0->level10 * 0x2800) / s0->duration5F0;
+    s3 = s0->voice08;
+    if (s5 > 0x2800) {
+        s5 = 0x2800;
+    }
+
+    v1 = 0x11A800 / (0x2350 - s0->filter30);
+    v1 -= 0x4D;
+    if (v1 < 0) {
+        v1 = 0;
+    }
+    if (v1 >= 0x120) {
+        v1 = 0x11F;
+    }
+    sp20 = D_800A053C[v1];
+
+    for (i = 0; i < s0->count0C; i++, s3++) {
+        int s6 = func_80050744(i * 2, s5, s0->program14, a0);
+        int a1 = func_80050744(i * 2 + 1, s5, s0->program14, a0) * sp28;
+        int a2;
+        if (a1 < 0) {
+            a1 += 0x7F;
+        }
+        a1 >>= 7;
+        a2 = (D_800A043C[s0->pan24] * a1) / 16129;
+        a1 = (D_800A043C[(s16)(0x7F - s0->pan24)] * a1) / 16129;
+
+        if (a0 >= 2 && i == 2) {
+            int t = D_800A043C[s0->spatial2C];
+            fp = s0->spread5F4;
+            a2 = (t * a2) / 16129;
+            a1 = (t * a1) / 16129;
+            a2 = -a2;
+            a1 = -a1;
+        }
+
+        a2 = (a2 * s0->level20 * s0->gain22) / 16384;
+        a1 = (a1 * s0->level20 * s0->gain22) / 16384;
+        a2 = (a2 * s0->gain5F2) / 128;
+        a1 = (a1 * s0->gain5F2) / 128;
+
+        if (D_800AD528.mono32 != 0) {
+            a2 = (a2 + a1) / 2;
+            a1 = a2;
+        }
+
+        a1 = (a1 * D_800F4DD0) / 128;
+        a2 = (a2 * D_800F4DD0) / 128;
+        a2 = (a2 * D_800AD528.volume31) / 16;
+        a1 = (a1 * D_800AD528.volume31) / 16;
+
+        func_8004FE7C(s3, a1, a2);
+
+        {
+            int off = (s0->program14 * 5 + i) * 4;
+            RrSlot620 *p = (RrSlot620 *)((char *)s0 + off);
+            s16 v;
+            int t1;
+            s16 t0;
+            int c;
+            v = (p->pitch5F8[0].fine * s6) / 128;
+            v += sp20;
+            v += fp;
+            t0 = v % 128;
+            t1 = v / 128;
+            c = p->pitch5F8[0].coarse + t1;
+            func_80084E74((s16)s3, s0->bank04, (s16)s0->programs5DC[s0->program14][i], s0->group28, 0, (s16)c, t0);
+        }
+    }
+}

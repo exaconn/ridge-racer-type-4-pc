@@ -20,7 +20,7 @@ class SelectionRowsTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2];d=Path(cls.temp.name)
         header=(root/'include/rr/selection_types.h').read_text() + (root/'include/rr/selection.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(root/'src/main/PAL/func_80031E3C.c').read_text().replace('#include "rr/selection.h"','')
+        body=(root/'build/legacy/func_80031E3C.c').read_text().replace('#include "rr/selection.h"','')
         body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
         body=re.sub(r' : "\$[0-9]+"','',body)
         adapters={'(unsigned char *)0x800F0000U':('test_ram',1),'(unsigned char *)0x800A0000U':('(test_rom+0x10000)',2),'(unsigned char *)0x800B0000U':('(test_config+0x10000)',1)}

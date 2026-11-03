@@ -10,9 +10,9 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class SoftfloatToIntTest(unittest.TestCase):
  def test_all_exponents_signs_and_mantissa_boundaries(self):
-  body=(ROOT/'src/main/PAL/func_8007E0B4.c').read_text()
+  body=(ROOT/'build/legacy/func_8007E0B4.c').read_text()
   body=re.sub(r' __asm__\("\$\d+"\)','',body)
-  helper=(ROOT/'src/main/PAL/func_8007DC04.c').read_text()
+  helper=(ROOT/'build/legacy/func_8007DC04.c').read_text()
   helper=re.sub(r' asm\("\$\d+"\)','',helper).replace('func_8007DC04','actual_shift')
   code=r'''
 #include <assert.h>

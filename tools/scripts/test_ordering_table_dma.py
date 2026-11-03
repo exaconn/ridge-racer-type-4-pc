@@ -15,10 +15,10 @@ class OrderingTableDmaTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2];d=Path(cls.temp.name)
         header=(root/'include/rr/gpu.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=native_body((root/'src/main/PAL/func_800942E4.c').read_text())
+        body=native_body((root/'build/legacy/func_800942E4.c').read_text())
         assert body.count('*D_800ABBE0 &')==2
         body=body.replace('*D_800ABBE0 &','test_control(D_800ABBE0) &')
-        timer=native_body((root/'src/main/PAL/func_80095360.c').read_text())
+        timer=native_body((root/'build/legacy/func_80095360.c').read_text())
         code='''#include <stdint.h>
 typedef uint8_t u8;typedef uint16_t u16;typedef int16_t s16;typedef uint32_t u32;typedef int32_t s32;
 '''+header+'''

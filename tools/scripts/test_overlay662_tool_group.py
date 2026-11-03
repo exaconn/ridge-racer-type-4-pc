@@ -9,7 +9,7 @@ class Overlay662ToolGroupTest(unittest.TestCase):
     def test_all_five_actions_modes_and_byte_transitions(self):
         root=Path(__file__).resolve().parents[2]
         names=['80120004','8012019C','8012031C','8012049C','80120648']
-        paths=['src/overlays/PAL/662/func_8011E734.c','src/overlays/PAL/662/func_8011E694.c','src/main/PAL/func_8004F218.c','src/main/PAL/func_8004F24C.c']+[f'src/overlays/PAL/662/func_{n}.c' for n in names]
+        paths=['src/overlays/PAL/662/func_8011E734.c','src/overlays/PAL/662/func_8011E694.c','build/legacy/func_8004F218.c','build/legacy/func_8004F24C.c']+[f'src/overlays/PAL/662/func_{n}.c' for n in names]
         bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',(root/p).read_text(),flags=re.M) for p in paths)
         source=r'''
 #include <assert.h>

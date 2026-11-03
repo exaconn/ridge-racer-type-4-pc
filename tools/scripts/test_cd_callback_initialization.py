@@ -44,7 +44,7 @@ int func_80096E64(int kind,int spec) {
 }
 '''
         for name in ('func_8008BE44','func_8008BED4','func_8008BF10','func_8008BF38','func_8008BF60'):
-            body=(root/'src/main/PAL'/f'{name}.c').read_text()
+            body=(root/'build/legacy'/f'{name}.c').read_text()
             body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
             body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
             body=re.sub(r'"\$[0-9]+", ','',body)

@@ -38,7 +38,7 @@ s32 test_handler_calls;
 void func_8008DDAC(void) { test_handler_calls++; }
 '''
         for name in ('8008B364', '8008B394', '8008D820'):
-            body = (root / ('src/main/PAL/func_' + name + '.c')).read_text()
+            body = (root / ('build/legacy/func_' + name + '.c')).read_text()
             body = body.replace('#include "rr/library.h"', '')
             body = re.sub(r'^extern s32 D_[^\n]*\n', '', body, flags=re.M)
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)

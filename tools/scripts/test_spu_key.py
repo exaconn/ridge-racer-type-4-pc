@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class SpuKeyTest(unittest.TestCase):
  def test_direct_and_queued_masks_with_complete_bank_owners(self):
-  body=(ROOT/'src/main/PAL/func_80087814.c').read_text()
+  body=(ROOT/'build/legacy/func_80087814.c').read_text()
   body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
   body=re.sub(r'__asm__(?: volatile)?\(""[^;]*;', '',body)
   code=r'''

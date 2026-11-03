@@ -8,7 +8,7 @@ from unicorn import *
 from unicorn.mips_const import *
 from elftools.elf.elffile import ELFFile
 root=Path(__file__).resolve().parents[2];os.chdir(root)
-part=root/'include/rr';source=root/'src/main/PAL/func_800483D8.c'
+part=root/'include/rr';source=root/'build/legacy/func_800483D8.c'
 body=source.read_text();body=body[body.index('void func_800483D8'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
 prefix='''
 #include <stddef.h>

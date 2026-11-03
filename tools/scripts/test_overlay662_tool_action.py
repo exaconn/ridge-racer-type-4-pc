@@ -8,7 +8,7 @@ import unittest
 class Overlay662ToolActionTest(unittest.TestCase):
     def test_modes_snapshot_fresh_cursor_and_final_distance_store(self):
         root=Path(__file__).resolve().parents[2]
-        paths=['src/overlays/PAL/662/func_8011E734.c','src/overlays/PAL/662/func_8011E694.c','src/main/PAL/func_8004F218.c','src/main/PAL/func_8004F24C.c','src/overlays/PAL/662/func_8011DBD8.c','src/overlays/PAL/662/func_8011F4C0.c']
+        paths=['src/overlays/PAL/662/func_8011E734.c','src/overlays/PAL/662/func_8011E694.c','build/legacy/func_8004F218.c','build/legacy/func_8004F24C.c','src/overlays/PAL/662/func_8011DBD8.c','src/overlays/PAL/662/func_8011F4C0.c']
         bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',(root/p).read_text(),flags=re.M) for p in paths)
         source=r'''
 #include <assert.h>

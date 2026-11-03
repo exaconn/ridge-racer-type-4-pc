@@ -3,7 +3,7 @@ from pathlib import Path
 import re,subprocess,tempfile,unittest
 root=Path(__file__).resolve().parents[2]
 header=(root/'include/rr/channels.h').read_text();header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-body=(root/'src/main/PAL/func_8009A05C.c').read_text();body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M);body=re.sub(r' asm\("\$\d+"\)','',body);body=re.sub(r'__asm__\("".*?\);',';',body)
+body=(root/'build/legacy/func_8009A05C.c').read_text();body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M);body=re.sub(r' asm\("\$\d+"\)','',body);body=re.sub(r'__asm__\("".*?\);',';',body)
 body,n=re.subn(r'\(s32 \*\)0x800B0000U','(s32 *)(native_budget_page.bytes+0x4350)',body);assert n==2
 code=r'''
 #include <assert.h>

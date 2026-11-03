@@ -64,10 +64,10 @@ void test_reset(u32 info,u32 control,u32 readback) {
 }
 '''
         for name in ('800954D8', '80097680', '8009BAD8', '8009BB18', '8009B380'):
-            path = root / ('src/main/PAL/func_'+name+'.c')
+            path = root / ('build/legacy/func_'+name+'.c')
             if name in ('8009BAD8', '8009BB18'):
                 # Each actual definition is extracted from the shared, contiguous TU.
-                tu = (root / 'src/main/PAL/interrupt_queries.c').read_text()
+                tu = (root / 'src/main/PAL/psyq/libcard/cardirq.c').read_text()
                 start = tu.index('s32 func_' + name + '(')
                 finish = tu.find('\ns32 func_', start + 1)
                 body = tu[start:finish if finish >= 0 else len(tu)]

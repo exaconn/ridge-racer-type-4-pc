@@ -18,7 +18,7 @@ class CourseInitializersTest(unittest.TestCase):
             body = body.replace('#include "rr/overlay666_preview.h"',
                                 '#include "rr/course_choice_types.h"')
             bodies.append(body)
-        helpers = '\n'.join(read_c_source(root / f'src/main/PAL/func_{a}.c')
+        helpers = '\n'.join(read_c_source(root / f'build/legacy/func_{a}.c')
                             for a in ('8002B75C','80037040'))
         source = r'''
 #include <assert.h>

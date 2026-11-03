@@ -60,7 +60,7 @@ void test_reset(void) {
  D_800ABDE0=&test_ports[0];
 }
 '''
-        body = (root/'src/main/PAL/func_8009C0F4.c').read_text()
+        body = (root/'build/legacy/func_8009C0F4.c').read_text()
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'"\$[0-9]+",\s*', '', body)

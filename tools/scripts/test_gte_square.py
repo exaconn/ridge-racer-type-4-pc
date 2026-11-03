@@ -23,7 +23,7 @@ class GteSquareTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2];d=Path(cls.temp.name)
         header=(root/'include/rr/geometry.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(root/'src/main/PAL/gte_square.c').read_text()
+        body=(root/'src/main/PAL/psyq/libgte/gtecolo4.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         assert body.count('__asm__("" : : "r"(output) : "$2");')==2
         body=body.replace('__asm__("" : : "r"(output) : "$2");','')

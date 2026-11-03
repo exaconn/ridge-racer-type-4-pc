@@ -63,7 +63,7 @@ void test_reset(void) {
 '''
         mapped_tables=mapped_modes=0
         for name in ('8008AEC4','8008B044','80087DA4','8008AFE4','8008AF84','8007F2E8'):
-            body=(root/('src/main/PAL/func_'+name+'.c')).read_text()
+            body=(root/('build/legacy/func_'+name+'.c')).read_text()
             body=re.sub(r'^#include[^\n]*\n|^extern[^\n]*\n','',body,flags=re.M)
             body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
             body=re.sub(r'"\$[0-9]+",\s*','',body)

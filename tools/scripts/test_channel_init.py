@@ -9,8 +9,8 @@ def native_source(text):
 def header(name):
     text=(ROOT/'include/rr'/name).read_text()
     return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
-body=native_source((ROOT/'src/main/PAL/func_80099CD4.c').read_text())
-registrar=native_source((ROOT/'src/main/PAL/func_8009A334.c').read_text()).replace('func_8009A334','native_registrar')
+body=native_source((ROOT/'build/legacy/func_80099CD4.c').read_text())
+registrar=native_source((ROOT/'build/legacy/func_8009A334.c').read_text()).replace('func_8009A334','native_registrar')
 registrar,n=re.subn(r'\(u8 \*\)0x800B0000U','(callback_page.bytes+0x4380)',registrar)
 assert n==1
 code=r'''

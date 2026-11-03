@@ -4,7 +4,7 @@ import ctypes as C,subprocess,sys,os,re,struct,random,json,hashlib
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN,UC_HOOK_CODE
 from unicorn.mips_const import *
 ROOT=Path(__file__).resolve().parents[2];P=ROOT/'include/rr';os.chdir(ROOT)
-source=Path(sys.argv[1]if len(sys.argv)>1 else ROOT/'src/main/PAL/func_80050BCC.c').resolve();count=int(sys.argv[2])if len(sys.argv)>2 else 4096
+source=Path(sys.argv[1]if len(sys.argv)>1 else ROOT/'build/legacy/func_80050BCC.c').resolve();count=int(sys.argv[2])if len(sys.argv)>2 else 4096
 body=source.read_text();body=body[body.index('void func_80050BCC'):];body=re.sub(r'\s+(?:__asm__|asm)\s*\("\$\d+"\)','',body)
 # Make implicit read/write register inputs explicit for host diagnostics.
 body=re.sub(r'((?:__asm__|asm)\(""\s*:\s*"\+r"\((\w+)\))',lambda m:'asm("" : : "r"('+m[2]+'));'+m[1],body)

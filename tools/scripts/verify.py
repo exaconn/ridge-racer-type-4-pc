@@ -33,7 +33,7 @@ def main():
             continue
         a = (ROOT / "assets/PAL/main.exe").read_bytes(); b = (ROOT / "build/PAL/main.exe").read_bytes()
         if a == b:
-            print("MATCH: build/PAL/main.exe is byte-identical;", len(list((ROOT / "src/main/PAL").glob("*.c"))), "C files"); return
+            print("MATCH: build/PAL/main.exe is byte-identical;", len(list((ROOT / "src/main/PAL").rglob("*.c"))), "C files"); return
         diffs = [i for i in range(min(len(a), len(b))) if a[i] != b[i]]
         print(f"MISMATCH: {len(diffs)} differing bytes, first at file offset {diffs[0]:#x}, sizes {len(a)} vs {len(b)}")
         bad = set()
@@ -44,7 +44,7 @@ def main():
         print("functions with differing bytes:", sorted(bad)[:40])
         if not prune: sys.exit(1)
         moved = 0
-        for p in (ROOT / "src/main/PAL").glob("*.c"):
+        for p in (ROOT / "src/main/PAL").rglob("*.c"):
             names = set(function_definitions(p.read_text()))
             if names & bad:
                 (ROOT / "src/failed/PAL").mkdir(parents=True, exist_ok=True)

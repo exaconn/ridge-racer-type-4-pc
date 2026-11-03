@@ -5,7 +5,7 @@ import subprocess,re,sys
 import os
 os.chdir(Path(__file__).resolve().parents[2])
 p=Path('build/goal_50/parallel666_preview');body=read_c_source(Path(sys.argv[1] if len(sys.argv)>1 else Path('src/overlays/PAL/666/func_80115C5C.c')));body=body[body.index('void ovl666_update_preview'):];body=re.sub(r' __asm__\("\$\d+"\)', '', body)
-encode=read_c_source(Path('src/main/PAL/func_8003708C.c')).replace('func_8003708C','actual_encode');decode=read_c_source(Path('src/main/PAL/func_80037040.c')).replace('func_80037040','actual_decode')
+encode=read_c_source(Path('build/legacy/func_8003708C.c')).replace('func_8003708C','actual_encode');decode=read_c_source(Path('build/legacy/func_80037040.c')).replace('func_80037040','actual_decode')
 src=r'''
 #include <stdint.h>
 #include <stddef.h>
@@ -73,7 +73,7 @@ static u8 buffers[3][32];
 #define D_800ACC18 w->published
 #define D_800F4D70 w->arenas
 #define D_800F2AB0 (w->modes[w->modeRoot])
-'''+body+encode+decode+read_c_source(Path('src/main/PAL/func_80032E9C.c')).replace('func_80032E9C','actual_course')+r'''
+'''+body+encode+decode+read_c_source(Path('build/legacy/func_80032E9C.c')).replace('func_80032E9C','actual_course')+r'''
 static struct Event {unsigned kind;s32 a[8];struct State before;}events[48];
 static unsigned scenario,profile,serial,count,seen,coverage[24],actions[7],colors[2],exits[4],changed[2],completed[2];static int referenceRun;
 static s16 half(u16 v){s16 r;memcpy(&r,&v,2);return r;}static s32 word(u32 v){s32 r;memcpy(&r,&v,4);return r;}

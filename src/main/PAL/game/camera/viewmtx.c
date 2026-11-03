@@ -1,0 +1,217 @@
+#include "types.h"
+#include "m2c_macros.h"
+
+#define G ((Scratch_8006EF8C *)0x1F800000)
+
+typedef struct {
+    s16 f0;
+    s16 f2;
+    s16 f4;
+    s16 f6;
+} S_800A3C20;
+
+typedef struct {
+    s32 f00;
+    s32 f04;
+    s32 pad08[23];
+    s32 f64;
+    s32 f68;
+    u16 f6C;
+    u16 f6E;
+    u16 f70;
+    u16 f72;
+} Scratch_8006EF8C;
+
+typedef struct { char pad[0xF0]; int f; char pad2[0x320 - 0xF4]; } S;
+
+extern char D_800ABF48[];
+extern int D_8010E690;
+extern short D_800F3914;
+extern void func_8006E834();
+extern void func_80071348();
+extern void func_8006EC64();
+extern void func_8006E9E8();
+extern void func_8006EAC8();
+extern void func_80060C70();
+extern int func_8006E8F8();
+extern int func_800713E0();
+extern unsigned short D_8010E280;
+extern unsigned int D_8010E290;
+extern int func_80090EC4();
+extern int func_800910B4();
+extern int func_80091144();
+extern int func_80091AD4();
+extern int func_80090C74();
+extern short D_800ABED0[][3];
+extern char D_800F38F8[][8];
+extern unsigned short D_800AD5BC[];
+extern s16 D_800A3BA4[];
+extern s16 D_800A3BB4[];
+extern s32 D_800A3BC4[];
+extern u16 D_800A3BE0[];
+extern s16 D_800A3BF0[];
+extern u16 D_800A3C00[];
+extern s16 D_800A3C10[];
+extern S_800A3C20 D_800A3C20[][7];
+extern s32 D_800AC5D8;
+extern s32 D_800ACC14;
+extern s32 D_800F4BF0;
+extern s32 D_800F4CE0;
+extern void func_800912B4(s32, s32);
+extern void func_800912D4(s32);
+extern void func_80093B14(s32);
+extern void func_80095A44(s32, s32);
+extern int D_8010718C;
+extern S D_800ABEF8[];
+extern int func_80026998();
+
+void func_8006ECE8(int ignoredPlayer);
+void func_8006ED4C(void);
+void func_8006EDA4(void);
+void func_8006EE3C(short *a0, short *a1, int *a2);
+void func_8006EED8(void);
+void func_8006EF8C(s32 a0);
+int func_8006F188(int *a0, int a1);
+
+void func_8006ECE8(int ignoredPlayer) {
+    char *p = D_800ABF48;
+    func_8006E834();
+    func_80071348();
+    func_8006EC64();
+    func_8006E9E8(p, p - 0x30);
+    func_8006EAC8();
+    func_80060C70(0x1F800000, D_8010E690, D_800F3914);
+}
+
+void func_8006ED4C(void) {
+    func_8006E834();
+    func_8006E8F8();
+    func_80071348();
+    func_8006EC64();
+    func_8006EAC8();
+    func_80060C70(0x1F800000, D_8010E690, D_800F3914);
+}
+
+void func_8006EDA4(void) {
+    short *g = (short *)0x1F800000;
+    unsigned int v; int pad[12];
+    D_8010E280 = (unsigned short)g[0x2E];
+    g[0x2E] = -1;
+    func_8006E834();
+    v = func_800713E0();
+    if (v < D_8010E290) {
+        D_8010E290 = v;
+    }
+    func_8006EC64();
+    func_8006EAC8();
+    func_80060C70(g, D_8010E690, D_800F3914);
+    g[0x2E] = (short)D_8010E280;
+}
+
+void func_8006EE3C(short *a0, short *a1, int *a2) {
+    short *g = (short *)0x1F800000;
+    a0[0] = a1[0] - g[4];
+    a0[1] = a1[2] - g[6];
+    a0[2] = a1[4] - g[8];
+    func_80090EC4(0x1F800028, a0, a0 + 4);
+    *(int *)(a0 + 0x16) = *(int *)(a0 + 4);
+    *(int *)(a0 + 0x18) = *(int *)(a0 + 6);
+    *(int *)(a0 + 0x1A) = *(int *)(a0 + 8);
+    func_800910B4(a2);
+    func_80091144(a0 + 12);
+}
+
+void func_8006EED8(void) {
+    int i;
+    int m[8];
+    struct { short a, b, c, d; } s;
+    struct { short x, p0, y, p1, z, p2, q[2]; } r;
+    s.b = 0;
+    s.a = 0;
+    for (i = 0; i < 3; i++) {
+        s.c = -D_800AD5BC[i];
+        func_80091AD4(D_800F38F8[i], m);
+        func_800910B4(m);
+        func_80090C74(&s, &r);
+        D_800ABED0[i][0] = r.x;
+        D_800ABED0[i][1] = r.y;
+        D_800ABED0[i][2] = r.z;
+    }
+}
+
+void func_8006EF8C(s32 a0) {
+    /* ASM_BARRIER: Keep scratchpad base pointer in $s2 initialized in prologue. */
+    register Scratch_8006EF8C *s2 asm("$18") = G;
+    /* ASM_BARRIER: Keep s3 in $s3 so s3 += 0xC modifies $s3 in place before storing to 0x1F800000. */
+    register s32 s3 asm("$19");
+    s32 s1;
+    s32 s5;
+    s32 v1;
+    S_800A3C20 *p;
+    /* ASM_BARRIER: Keep a0_val in $a0 in the s5 != 0 branch so p is allocated to $a1. */
+    register s32 a0_val asm("$4");
+    /* ASM_BARRIER: Keep a2_val in $a2 in the s5 != 0 branch so p is allocated to $a1. */
+    register s32 a2_val asm("$6");
+
+    /* ASM_BARRIER: Materialize $s2 = 0x1F800000 at start of prologue. */
+    __asm__("" : "=r"(s2) : "0"(s2));
+    s3 = s2->f00;
+    D_800AC5D8 = a0;
+    s1 = (a0 == 1);
+    func_800912B4(D_800A3BA4[a0], D_800A3BB4[a0]);
+    s5 = (a0 == 1);
+    func_800912D4(D_800A3BC4[a0]);
+    s2->f6C = D_800A3BE0[a0];
+    v1 = D_800A3BF0[a0];
+    if (s1) {
+        v1 += D_800F4CE0;
+    }
+    s2->f6E = v1;
+    s2->f70 = D_800A3C00[a0];
+    v1 = D_800A3C10[a0];
+    if (s1) {
+        v1 += D_800F4CE0;
+    }
+    s2->f72 = v1;
+    p = &D_800A3C20[D_800F4BF0][a0];
+    if (!s5) {
+        s2->f64 = 0;
+    } else {
+        s2->f64 = 1;
+        a0_val = D_800F4CE0;
+        if (a0_val < 0) {
+            a0_val = 0;
+        }
+        p->f2 = a0_val;
+        a2_val = s2->f72;
+        /* ASM_BARRIER: Prevent combine from folding lhu into lh + duplicate lhu. */
+        __asm__("" : "=r"(a2_val) : "0"(a2_val));
+        if ((s16)a0_val < (s16)a2_val) {
+            a0_val = a2_val - a0_val;
+        } else {
+            a0_val = 0;
+        }
+        p->f6 = a0_val;
+        v1 = p->f2;
+        if (D_800F4BF0 != 0) {
+            v1 += 0x100;
+        }
+        p->f2 = v1;
+    }
+    if (a0 & 1) {
+        s2->f04 = D_800ACC14 + 0xB70;
+    } else {
+        s2->f04 = D_800ACC14 + 0x70;
+    }
+    func_80093B14(s3);
+    func_80095A44(s2->f04 + 0xAFC, s3);
+    s3 += 0xC;
+    G->f00 = s3;
+}
+
+int func_8006F188(int *a0, int a1) {
+    if (D_8010718C == 0) {
+        return func_80026998(a0[0], a0[2]);
+    }
+    return D_800ABEF8[a1].f;
+}

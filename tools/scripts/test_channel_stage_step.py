@@ -18,7 +18,7 @@ class ChannelStageStepTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2];d=Path(cls.temp.name)
         h=(root/'include/rr/channels.h').read_text()
         h=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',h,flags=re.M)
-        body=native_body((root/'src/main/PAL/func_80098488.c').read_text())
+        body=native_body((root/'build/legacy/func_80098488.c').read_text())
         assert body.count('(s32 *)0x800B0000U')==1
         body=body.replace('(s32 *)0x800B0000U','ram+0x4354/4')
         code='''#include <stdint.h>

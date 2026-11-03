@@ -1,0 +1,79 @@
+/* GCC_VERSION: 970318 */
+#include "types.h"
+#include "rr/counters.h"
+
+extern int *D_800ABC30;
+extern int D_800ABC38[];
+
+int func_80096FA4(unsigned a0, unsigned short a1, int a2);
+s32 func_80097040(u32 id);
+int func_80097078();
+s32 func_800970A8(u32 index);
+int func_800970DC();
+
+int func_80096FA4(unsigned a0, unsigned short a1, int a2) {
+    int t = a0 & 0xFFFF;
+    int a3 = 0x48;
+    char *p;
+    if (t >= 3) return 0;
+    p = (char *)(t * 16 + (unsigned long)D_800ABC34);
+    *(short *)(p + 4) = 0;
+    *(volatile short *)(p + 8) = a1;
+    if ((unsigned)t < 2) {
+        if (a2 & 0x10) a3 = 0x49;
+        if (!(a2 & 1)) a3 |= 0x100;
+    } else {
+        if (t == 2) {
+            if (!(a2 & 1)) a3 = 0x248;
+        }
+    }
+    if (a2 & 0x1000) a3 |= 0x10;
+    *(short *)(t * 16 + (unsigned long)D_800ABC34 + 4) = a3;
+    return 1;
+}
+
+s32 func_80097040(u32 id) {
+    s32 index=id & 0xFFFF;
+    s32 result;
+    if(index<3) {
+        u16 count=D_800ABC34[index].count;
+        /* ASM_BARRIER: Preserve the zero-extended halfword load as the return word. */
+        __asm__("" : "=r"(result) : "0"(count));
+    }
+    else result=0;
+    return result;
+}
+
+int func_80097078(a0) unsigned int a0; {
+  int v = a0 & 0xFFFF;
+  int *p = D_800ABC30;
+  p[1] |= D_800ABC38[v];
+  return v < 3;
+}
+
+s32 func_800970A8(u32 index) {
+    u32 offset = (u32)(u16)index * 4;
+    u32 *state;
+    u8 *base;
+    state = D_800ABC30;
+    /* ASM_BARRIER: load the register pointer before materializing the mask table base. */
+    __asm__ volatile("" : : "r"(state), "r"(offset) : "$2");
+    /* PAL RAM mapping: D_800ABC38 is base minus 0x43C8. */
+    base = (u8 *)0x800B0000U;
+    /* ASM_BARRIER: preserve the explicit base-plus-offset table load. */
+    __asm__("" : "=r"(base) : "0"(base));
+    base += offset;
+    {
+        /* ASM_BARRIER: reuse v0 for the mask, its complement and the return value. */
+        register u32 mask __asm__("$2") = *(u32 *)(base - 0x43C8);
+        mask = ~mask;
+        state[1] &= mask;
+    }
+    return 1;
+}
+
+int func_800970DC(a0) unsigned int a0; {
+  int v = a0 & 0xFFFF;
+  if (v >= 3) return 0;
+  *(short *)((u8 *)D_800ABC34 + v * 16) = 0; return 1;
+}

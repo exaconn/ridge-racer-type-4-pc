@@ -3,7 +3,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import re,subprocess,sys,unittest
 ROOT=Path(__file__).resolve().parents[2]
-target=ROOT/'src/main/PAL/func_8003CAF4.c'
+target=ROOT/'build/legacy/func_8003CAF4.c'
 class MainControllerTest(unittest.TestCase):
  def test_all_modes_and_mutable_services(self):
   code=target.read_text();_,body=code.split('void func_8003CAF4(void)',1)

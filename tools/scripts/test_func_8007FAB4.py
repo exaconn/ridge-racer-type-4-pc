@@ -22,7 +22,7 @@ class ChunkedTransferTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         directory = Path(cls.temp.name)
         root = Path(__file__).resolve().parents[2]
-        source = (root / 'src/main/PAL/func_8007FAB4.c').read_text()
+        source = (root / 'build/legacy/func_8007FAB4.c').read_text()
         source = source.replace('#include "types.h"', '''#include <stdint.h>
 #include <stdarg.h>
 typedef uint8_t u8;

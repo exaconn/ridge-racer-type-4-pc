@@ -1,0 +1,200 @@
+/* RODATA 0x80010488 0x1c */
+#include "rr/race.h"
+
+#define I(o) (*(int *)(a0 + (o)))
+#define U(o) (*(unsigned short *)(a0 + (o)))
+#define S(o) (*(short *)(a0 + (o)))
+
+typedef struct { char pad[0x1E4]; unsigned short f1E4; short f1E6; short f1E8; } T;
+
+typedef struct {
+    unsigned short halfW00, pad02, halfL04;
+    s16 height06;
+} RrVehicleBounds08;
+
+struct V { int a, b, c, d; };
+
+typedef struct { int a, b, c, d; } V4;
+
+extern T *D_800FFC20[];
+extern short D_800F4D44;
+extern short D_800AC59C;
+extern short D_80107178;
+extern short D_800AD508;
+extern int D_800ABEC4;
+extern int func_8002D1B4();
+extern int func_8002D784();
+extern int func_80015F68();
+extern RrVehicleBounds08 *D_800F3A08[];
+extern int func_80096434();
+extern int func_8006E09C();
+extern int func_8006E108();
+extern int func_8006E030();
+extern int func_80090CA4();
+extern int func_80090DB4();
+extern int func_80090EC4();
+
+void func_8002E0D8();
+void func_8002E394(RrRaceVehicle *a);
+void func_8002E4F4(RrRaceVehicle *a);
+void func_8002E5A0();
+
+void func_8002E0D8(a0) int a0; {
+    int z; 
+    int i, s2, y;
+    T **p;
+    D_800ABEC4 = 0;
+    switch (a0) {
+    case 0:
+        z = 0;
+        if (!(D_800FFC20[0]->f1E4 & 0x100)) {
+            func_8002D1B4(D_800FFC20[0], z);
+        } else {
+            __asm__("" : "=r"(y) : "0"(z)); /* ASM_BARRIER: hide that z==0 from cse so the else-arm copies a1 (move a2,a1) while the then-arm keeps the single hoisted a1=0 */
+            func_80015F68(D_800FFC20[0], y, y, y, 0, 0, 0);
+        }
+    case 1:
+        if (D_800F4D44 != 4) {
+            for (i = 1; i < D_800AC59C; i++) {
+                if (D_800FFC20[i]->f1E8 != -1) func_8002D784(D_800FFC20[i], a0);
+            }
+        } else {
+            if (D_80107178 == 2) {
+                { char *bb = (char *)D_800FFC20; func_8002D784(*(T **)(bb + (D_800AD508 << 3)), a0); }
+            }
+        }
+        break;
+    case 3:
+    case 5:
+        D_800ABEC4 = 1;
+    case 2:
+    case 4:
+        s2 = 3;
+        if (D_800F4D44 == 4) s2 = 4;
+        if (D_80107178 == 2) s2 = 0;
+        if (D_800AC59C > 0) {
+            i = 0;
+            p = D_800FFC20;
+            do {
+                if (p[0]->f1E8 != -1) {
+                    if (a0 - 2 == i) {
+                        z = 0;
+                        if (!(p[0]->f1E4 & 0x100)) {
+                            func_8002D1B4(p[0], z);
+                        } else {
+                            __asm__("" : "=r"(y) : "0"(z)); /* ASM_BARRIER: hide that z==0 from cse so the else-arm copies a1 (move a2,a1) while the then-arm keeps the single hoisted a1=0 */
+                            func_80015F68(p[0], y, y, y, p[0]->f1E6 + D_800ABEC4, 0, 0);
+                        }
+                    } else {
+                        func_8002D784(p[0], s2);
+                    }
+                }
+                p++;
+                i++;
+            } while (i < D_800AC59C);
+        }
+        break;
+    case 6:
+        if (D_800AC59C > 0) {
+            i = 0;
+            do {
+                if (D_800FFC20[i]->f1E8 != -1) func_8002D784(D_800FFC20[i], 2);
+                i++;
+            } while (i < D_800AC59C);
+        }
+        break;
+    }
+}
+
+void func_8002E394(RrRaceVehicle *a)
+{
+    int n;
+    RrVehicleBounds08 **pp;
+    int b;
+    if (D_800AD508 != 0) {
+        n = a != D_800ABEF8;
+    } else {
+        n = 3;
+        if (a == D_800ABEF8) {
+            n = 2;
+        }
+    }
+    a->slotIndex1E6 = n * 2;
+    b = (int)D_800F3A08;
+    pp = (RrVehicleBounds08 **)(b + n * 4);
+    a->height108 = (*pp)->height06 * 4;
+    a->width10C = ((short)(*pp)->halfW00 + 5) * 2;
+    a->halfSpan10E = 0x28 - (*pp)->halfL04;
+    a->corner110 = -(((*pp)->halfW00 + 5) * 4);
+    a->corner112 = -(((*pp)->halfL04 - 0x14) * 4);
+    a->corner114 = ((*pp)->halfW00 + 5) * 4;
+    a->corner116 = -(((*pp)->halfL04 - 0x14) * 4);
+    a->corner118 = -(((*pp)->halfW00 + 5) * 4);
+    a->corner11A = -0x50;
+    a->corner11C = ((*pp)->halfW00 + 5) * 4;
+    a->corner11E = -0x50;
+}
+
+void func_8002E4F4(RrRaceVehicle *a)
+{
+    int *p = (int *)a;
+    func_80096434(a, sizeof(RrRaceVehicle));
+    func_8002E394(a);
+    a->ang80 = (unsigned short)a->rot50;
+    a->ang82 = (unsigned short)a->rot54;
+    a->ang84 = (unsigned short)a->rot58;
+    *(struct V *)a->ir70 = *(struct V *)a->pos20;
+    p[0] = p[8] << 8;
+    p[1] = p[9] << 8;
+    p[2] = p[10] << 8;
+    *(struct V *)a->savedRotC8 = *(struct V *)&a->rot50;
+}
+
+void func_8002E5A0(a0) char *a0; {
+    struct { int m1[8]; int m2[8]; short v[3]; } L;
+    int t1, t2;
+    unsigned short u1, u2, u3;
+    I(0x10) = I(0x20) * 4;
+    I(0x14) = I(0x24) * 4;
+    I(0x18) = I(0x28) * 4;
+    U(0x80) = U(0x50);
+    U(0x82) = U(0x54);
+    U(0x84) = U(0x58);
+    func_8006E09C(L.m1, 0x800 - I(0x54));
+    func_8006E108(L.m2, I(0x50));
+    func_80090CA4(L.m1, L.m2);
+    func_8006E030(L.m2, I(0x58));
+    func_80090DB4(L.m1, L.m2);
+    L.v[0] = 0;
+    L.v[1] = -U(0x108);
+    L.v[2] = (S(0x10E) * 4) / 3;
+    func_80090EC4(L.m2, L.v, a0 + 0x40);
+    func_8006E09C(L.m1, 0x800 - S(0x82));
+    func_8006E108(L.m2, S(0x80));
+    func_80090CA4(L.m1, L.m2);
+    func_8006E030(L.m2, S(0x84));
+    func_80090DB4(L.m1, L.m2);
+    L.v[0] = 0;
+    L.v[1] = (S(0xE8) + S(0xEA)) >> 7;
+    L.v[2] = 0;
+    func_80090EC4(L.m2, L.v, a0 + 0x70);
+    L.v[0] = 0;
+    L.v[1] = -((S(0xE0) + S(0xE2)) >> 3);
+    L.v[2] = 0;
+    func_80090EC4(L.m2, L.v, a0 + 0x60);
+    I(0x70) = I(0x70) + I(0x10);
+    I(0x74) = I(0x74) + I(0x14);
+    I(0x78) = I(0x78) + I(0x18);
+    U(0x80) = U(0x50);
+    U(0x82) = U(0x54);
+    U(0x84) = U(0x58);
+    I(0x14) = I(0x14) + I(0x44);
+    I(0x10) = I(0x10) + I(0x40);
+    U(0x80) = U(0x80) + U(0x1AC);
+    U(0x84) = U(0x84) + U(0x1AE);
+    I(0x74) = I(0x74) + I(0x44);
+    I(0x70) = I(0x70) + I(0x40);
+    I(0x18) = I(0x18) + I(0x48);
+    I(0x78) = I(0x78) + I(0x48);
+    *(V4 *)(a0 + 0xC8) = *(V4 *)(a0 + 0x10);
+}

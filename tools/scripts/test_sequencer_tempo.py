@@ -13,7 +13,7 @@ class SequencerTempoTest(unittest.TestCase):
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
         bodies = []
         for name in ('80081AE4', '80081E04'):
-            body = (root / f'src/main/PAL/func_{name}.c').read_text()
+            body = (root / f'build/legacy/func_{name}.c').read_text()
             body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
             body = re.sub(r'\s+(?:__asm__|asm)\("\$\d+"\)', '', body)
             body = re.sub(r'__asm__\(""[^;]*;', '', body)

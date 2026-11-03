@@ -26,7 +26,7 @@ def function_definitions(source):
 def source_owners(directory):
     """Index functions by their owning TU, independently of the filename."""
     owners = {}
-    for source in sorted(Path(directory).glob("*.c")):
+    for source in sorted(Path(directory).rglob("*.c")):
         for name in function_definitions(source.read_text()):
             if name in owners:
                 raise ValueError(f"{name}: defined in both {owners[name]} and {source}")

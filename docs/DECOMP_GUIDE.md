@@ -13,7 +13,7 @@ Compiler: gcc 2.8.1 (PSX) `-O2 -G0 -mips1 -mcpu=3000 -funsigned-char` via `tools
 ## Per-function loop
 1. Original asm: `build/baseline/asm/nonmatchings/<func>/<func>.s`
 2. First draft: `tools/scripts/m2c.sh <func>` (needs cleanup: `M2C_FIELD(...)` -> real struct/array syntax, `M2C_UNK` -> int, etc.)
-3. Write `src/main/PAL/<func>.c` (one function per file, file name = function name; includes `"types.h"` if you use s32/u8...).
+3. Write `src/main/PAL/<func>.c` while working (one function per file; once matched it is folded into its translation unit, see `docs/SOURCE_LAYOUT.md`; includes `"types.h"` if you use s32/u8...).
    Declare callees K&R style (`extern int func_80093C24();`) and data as `extern int D_800F2ECC;` / arrays / structs.
    Keep the symbol names exactly as in the asm (`func_XXXXXXXX`, `D_XXXXXXXX`).
 4. Check: `.venv/bin/python tools/scripts/fd.py src/main/PAL/<func>.c`

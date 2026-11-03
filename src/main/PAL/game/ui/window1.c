@@ -1,0 +1,245 @@
+/* RODATA 0x800103c0 0x1c */
+#include "rr/gpu.h"
+
+struct P { unsigned addr:24; unsigned len:8; unsigned char r, g, b, code; short x; unsigned short y; unsigned char u, v; unsigned short clut; short w, h; };
+
+extern int func_80095A44();
+extern char D_8009EBBC[];
+extern char D_8009EB1C[];
+extern char D_8009EC48[];
+extern char D_800D0160[];
+extern short D_80107178;
+extern int *func_8001FCC8();
+extern int func_80093B14();
+extern int D_800ACC14;
+extern int D_800F4BF0;
+extern s32 func_80093C24();
+extern int func_80095B24(), func_80095AF4();
+
+void func_80020920(unsigned char *a0, unsigned char *a1);
+void func_800209C4(int a0);
+void func_80020B10();
+void func_80020CD4();
+void func_80020E2C();
+void func_80020F20();
+
+void func_80020920(unsigned char *a0, unsigned char *a1) {
+    a0[3] = 4;
+    a0[7] = 0x64;
+    *(unsigned short *)(a0 + 8) = *(unsigned short *)(a1 + 0);
+    *(unsigned short *)(a0 + 0xA) = *(unsigned short *)(a1 + 2);
+    *(unsigned short *)(a0 + 0x10) = *(unsigned short *)(a1 + 4);
+    *(unsigned short *)(a0 + 0x12) = *(unsigned short *)(a1 + 6);
+    a0[0xC] = a1[8];
+    a0[0xD] = a1[0xA];
+    *(unsigned short *)(a0 + 0xE) = *(unsigned short *)(a1 + 0xC);
+    if (*(int *)(a1 + 0x10) != 0) {
+        a0[7] |= 2;
+    } else {
+        a0[7] &= 0xFD;
+    }
+    a0[7] |= 1;
+}
+
+void func_800209C4(int a0)
+{
+    int n, i, j, a, b;
+    char *tab;
+    char *base;
+    char *s1;
+    char *s0;
+    switch (a0) {
+    case 0:
+    case 5:
+    default:
+        n = 4;
+        tab = D_8009EBBC;
+        break;
+    case 1:
+        n = 8;
+        tab = D_8009EB1C;
+        break;
+    case 2:
+    case 3:
+    case 4:
+    case 6:
+        if (D_80107178 == 2 && a0 == 4) goto l60;
+        if (a0 != 6) { n = 12; goto l64; }
+    l60:
+        n = 6;
+    l64:
+        tab = D_8009EC48;
+        break;
+    }
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < 2; j++) {
+            s1 = D_800D0160 + j * 0x22778;
+            s0 = s1 + (i * 0x14 + 0x18);
+            func_80020920(s0, tab + i * 0x14);
+            if (i != 0) func_80095A44(s1 + (i * 0x14 + 4), s0);
+        }
+    }
+}
+
+void func_80020B10(a0) int a0;
+{
+    short sp[4];
+    int *s0;
+    int a1, d, t;
+    int *v;
+    int *s1;
+    if (a0 == 1) goto L68;
+    if (a0 < 2) goto L58;
+    if (a0 < 5) goto L7C;
+L58:
+    a1 = 4;
+    s0 = (int *)(D_800ACC14 + 0x70);
+    goto LC0;
+L68:
+    a1 = 8;
+    s0 = (int *)(D_800ACC14 + 0x70);
+    goto LC0;
+L7C:
+    if (D_80107178 != 2 || a0 != 3) {
+        if (a0 != 4) goto Lb4;
+    }
+    a1 = 6;
+    s0 = (int *)(D_800ACC14 + 0x70);
+    goto LC0;
+Lb4:
+    a1 = 0xC;
+    s0 = (int *)(D_800ACC14 + 0xB70);
+LC0:
+    d = D_800ACC14;
+    v = (int *)(a1 * 0x14 + d + 0x22674);
+    *v = (*v & 0xFF000000) | (*s0 & 0xFFFFFF);
+    *s0 = (*s0 & 0xFF000000) | ((d + 0x22688) & 0xFFFFFF);
+    s1 = func_8001FCC8(s0, *(int **)0x1F800000, 5);
+    *(int **)0x1F800000 = s1;
+    if (a0 >= 2) {
+        sp[2] = 0x140;
+        sp[0] = 0;
+        sp[3] = 0x100;
+        t = D_800F4BF0; sp[1] = t << 8;
+        func_80093B14(s1, sp);
+        *s1 = (*s1 & 0xFF000000) | (*s0 & 0xFFFFFF);
+        *s0 = (*s0 & 0xFF000000) | ((int)s1 & 0xFFFFFF);
+        *(int **)0x1F800000 = s1 + 3;
+    }
+}
+
+void func_80020CD4(a0, a1, a2, a3)
+s32 a0;
+s32 a1;
+u8 *a2;
+s32 a3;
+{
+    RrSpritePacketSignedClut *p = *(RrSpritePacketSignedClut **)0x1F800000;
+    s32 t;
+    s32 kb;
+    s16 c;
+    kb = 0xA8;
+    if (*a2 != 0) {
+        do {
+            s32 ch = *a2;
+            a2++;
+            p->len = 4;
+            p->code = 0x64;
+            p->x = a0;
+            t = ch - 0x30;
+            p->y = a1;
+            if (t >= 0xD) {
+                c = ch * 8 - 0x14C;
+                p->w = 4;
+                p->h = 8;
+                if (t == 0xF)
+                    a0 += 5;
+                else
+                    a0 += 4;
+            } else {
+                c = t * 12;
+                a0 += 10;
+                p->w = 12;
+                p->h = 12;
+            }
+            p->u = c;
+            p->v = kb;
+            p->code |= 1;
+            p->clut = a3;
+            p->addr = ((RrSpritePacketSignedClut *)(D_800ACC14 + 0x70))->addr;
+            ((RrSpritePacketSignedClut *)(D_800ACC14 + 0x70))->addr = (u32)p;
+            p++;
+        } while (*a2 != 0);
+    }
+    func_80093C24(p, 0, 1, 5, 0);
+    func_80095A44(D_800ACC14 + 0x70, p);
+    *(RrSpritePacketSignedClut **)0x1F800000 = (RrSpritePacketSignedClut *)((char *)p + 0xC);
+}
+
+void func_80020E2C(a0, a1, a2, a3, a4)
+RrSpritePacket *a0; s32 a1; s32 a2; u8 *a3; s32 a4;
+{
+    RrSpritePacket *p = *(RrSpritePacket **)0x1F800000;
+    s32 c, u;
+    s32 kb;
+    kb = 0xB4;
+    if (*a3 != 0) {
+        do {
+            c = *a3;
+            a3++;
+            p->len = 4;
+            p->code = 0x64;
+            p->x = a1;
+            p->y = a2;
+            p->w = 8;
+            p->h = 8;
+            c -= 0x30;
+            u = c * 8 + 0x6C;
+            if (c >= 10) a1 += 3; else a1 += 7;
+            p->u = u;
+            p->v = kb;
+            p->code |= 1;
+            p->clut = a4;
+            p->addr = a0->addr;
+            a0->addr = (u32)p;
+            p++;
+        } while (*a3 != 0);
+    }
+    *(s32 *)0x1F800000 = func_8001FCC8(a0, p, 5);
+}
+
+void func_80020F20(a0, a1, a2, a3)
+struct P *a0; int a1; int a2; unsigned char *a3;
+{
+    struct P *p = *(struct P **)0x1F800000;
+    int c, u, kh;
+    if (*a3 != 0) {
+        kh = 0x10;
+        do {
+            c = *a3;
+            a3++;
+            p->len = 4;
+            p->code = 0x64;
+            p->x = (short)a1;
+            p->y = (unsigned short)a2;
+            c -= 0x30;
+            u = c * 8;
+            if (c < 10) {
+                a1 += 5;
+                p->w = 8;
+                p->h = kh;
+            } else {
+                a1 += 3;
+                p->w = 4;
+                p->h = kh;
+            }
+            func_80095B24(p, 1);
+            func_80095AF4(p, 1);
+            { int v58 = 0x58; p->u = u; p->v = v58; p->clut = 0x7FA4; }
+            p->addr = a0->addr;
+            a0->addr = (unsigned)p;
+            p++;
+        } while (*a3 != 0);
+    }
+    *(int *)0x1F800000 = func_8001FCC8(a0, p, 0x59);
+}

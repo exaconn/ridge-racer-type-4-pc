@@ -50,7 +50,7 @@ void test_initialize(void) {
 }
 '''
         for name in ('8009C400', '8009D680', '8009C310', '8009D5B4', '8009DE54', '8009DD88'):
-            body = (root / ('src/main/PAL/func_' + name + '.c')).read_text()
+            body = (root / ('build/legacy/func_' + name + '.c')).read_text()
             body = body.replace('#include "rr/commands.h"', '')
             body = body.replace('#include "rr_asm.h"', '')
             body = body.replace('RR_NOP_DEP_ON(word);', '(void)word;')

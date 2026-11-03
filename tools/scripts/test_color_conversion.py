@@ -5,7 +5,7 @@ import subprocess,unittest
 ROOT=Path(__file__).resolve().parents[2]
 class ColorConversionTest(unittest.TestCase):
  def test_full_component_encodings_clamps_negative_hue_and_aliasing(self):
-  body=(ROOT/'src/main/PAL/func_8004C138.c').read_text()
+  body=(ROOT/'build/legacy/func_8004C138.c').read_text()
   body='\n'.join(line for line in body.splitlines() if not line.startswith('#include'))
   code=r'''
 #include <assert.h>

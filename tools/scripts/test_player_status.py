@@ -14,7 +14,7 @@ class PlayerStatusTest(unittest.TestCase):
    offset=address-0x80010000+0x800;data=image[offset:offset+size]
    self.assertEqual(len(data),size);self.assertIn(0,data)
    declarations.append(f'u8 D_{address:08X}[{size}]={{'+','.join(map(str,data))+'};')
-  body=(ROOT/'src/main/PAL/func_80035478.c').read_text().split('void func_80035478',1)[1]
+  body=(ROOT/'build/legacy/func_80035478.c').read_text().split('void func_80035478',1)[1]
   code=r'''
 #include <assert.h>
 #include <stdint.h>

@@ -41,7 +41,7 @@ _Static_assert(offsetof(__typeof__(test_page), addresses) == 0x180, "address off
 void (*test_free)(u32 address);
 void func_8008A6F4(u32 address) { test_free(address); }
 '''
-        body = (root / 'src/main/PAL/func_8008A674.c').read_text()
+        body = (root / 'build/legacy/func_8008A674.c').read_text()
         body = body.replace('#include "rr/spu.h"', '')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'"\$[0-9]+", ', '', body)

@@ -20,7 +20,7 @@ class LibraryQueueAcquireTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2];d=Path(cls.temp.name)
         header=(root/'include/rr/library.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(root/'src/main/PAL/func_8008F854.c').read_text().replace('#include "rr/library.h"','')
+        body=(root/'build/legacy/func_8008F854.c').read_text().replace('#include "rr/library.h"','')
         body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
         body=re.sub(r' : "\$[0-9]+"','',body)
         assert body.count('(s32 *)0x80110000U')==1

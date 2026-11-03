@@ -7,7 +7,7 @@ import unittest
 class Overlay662NameInitTest(unittest.TestCase):
     def test_real_string_copy_and_mutating_badge_roots(self):
         root=Path(__file__).resolve().parents[2]
-        copy=(root/'src/main/PAL/func_8002B75C.c').read_text()
+        copy=(root/'build/legacy/func_8002B75C.c').read_text()
         body=(root/'src/overlays/PAL/662/func_80118930.c').read_text()
         source=r'''
 #include <assert.h>

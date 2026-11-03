@@ -9,7 +9,7 @@ import unittest
 class RelativeFileRelocationTest(unittest.TestCase):
     def test_native_owner_and_wrapped_counts(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/main/PAL/func_8007026C.c').read_text().replace('#include "rr/relative_file.h"','')
+        body=(root/'build/legacy/func_8007026C.c').read_text().replace('#include "rr/relative_file.h"','')
         body=re.sub(r'\s+(?:asm|__asm__)\("\$\d+"\)', '', body)
         body=re.sub(r'__asm__\(""[^;]*;','',body)
         names=['D_800F29E0','D_800F4D34','D_800ADAE8','D_800F4D28','D_800F4C60','D_800ABEA8','D_800F4C20','D_800ABE9C','D_800FFC40','D_800F4C30','D_800ABEA0','D_800F4C78','D_800ABEB8','D_800F4C6C','D_800ABEB4','D_800ACC04']

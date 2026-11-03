@@ -1,0 +1,535 @@
+#include "types.h"
+#include "rr/track_projection.h"
+#include "rr/geometry.h"
+#include "rr/trig.h"
+#include "rr/race_front_search.h"
+#include "rr/track_interpolation.h"
+#include "rr/race.h"
+
+#define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -D_800A68C0[0x400 - ((x) & 0x3FF)] : -D_800A68C0[(x) & 0x3FF]) : (((x) & 0x400) ? D_800A68C0[0x400 - ((x) & 0x3FF)] : D_800A68C0[(x) & 0x3FF]))
+/* Keep the original table-relative cursors, while using the canonical native
+ * record stride and array offset (the pointer-bearing row grows on a host). */
+#define RR_STANDING_PREFIX_SIZE \
+    (sizeof(RrRaceStandingsTable)-sizeof(((RrRaceStandingsTable*)0)->entries18))
+#define RR_STANDING_ROW(base) \
+    ((RrRaceStandingEntry0C*)((base)+RR_STANDING_PREFIX_SIZE))
+
+typedef struct {
+    u8 pad00[0x58];
+    s32 unk58;
+    u8 pad5C[0x6E - 0x5C];
+    s16 unk6E;
+    s32 unk70;
+    s32 unk74;
+    s32 unk78;
+    s32 unk7C;
+    s32 unk80;
+    s32 unk84;
+} Control1F4;
+
+extern RrRaceStandingsTable *D_800AC738;
+extern s8 D_80010F2C[][16];
+extern s8 D_80010F8C[][16];
+extern s16 D_800F4D44;
+extern s32 func_80047DF8();
+extern s32 func_80047CE0();
+extern int D_800AC664;
+extern short D_800AC59C;
+
+void func_8004638C(RrRaceVehicle *vehicle);
+void func_800464E8(RrTrackOffsetArgument offsetX, RrTrackOffsetArgument offsetZ, s32 node, s16 *fraction, s16 *lateral, s32 *remaining);
+void func_800468F0(RrRaceVehicle *vehicle);
+s32 func_800469A4(RrRaceVehicle *vehicle);
+s32 func_80046B1C(RrRaceVehicle *arg0, s32 arg1);
+void func_80046DB8(RrRaceVehicle *p);
+
+void func_8004638C(RrRaceVehicle *vehicle)
+{
+    struct {
+        RrTrackOffsetArgument a;
+        RrTrackOffsetArgument b;
+        RrVector first;
+        RrVector second;
+        s16 fraction;
+        int remaining;
+    } line;
+    int distance = 0x400 - vehicle->trackFraction170;
+    int rounded = distance;
+    int firstNode;
+    int secondNode;
+    int fraction;
+    RrTrackLaneOffset8 *offset;
+    RrTrackLaneOffset8 *sample;
+    RrRaceVehicleControl *control = (RrRaceVehicleControl *)((u8 *)vehicle + RR_RACE_CONTROL_OFFSET);
+    if (rounded < 0) {
+        rounded += 0x3FF;
+    }
+    firstNode = vehicle->trackNodeF0 - (rounded >> 10);
+    if (firstNode < 0) {
+        firstNode += D_800ABECC;
+    }
+    secondNode = firstNode - 1;
+    if (secondNode < 0) {
+        secondNode += D_800ABECC;
+    }
+    offset = D_800ACB9C + firstNode;
+    sample = offset;
+    line.first.x = sample->x;
+    line.first.z = sample->z;
+    sample = D_800ACB9C + secondNode;
+    line.second.x = sample->x;
+    line.second.z = sample->z;
+    fraction = distance & 0x3FF;
+    {
+        int dx = (line.second.x - line.first.x) * fraction;
+        int dz;
+        if (dx < 0) {
+            dx += 0x3FF;
+        }
+        dz = (line.second.z - line.first.z) * fraction;
+        line.a.value = line.first.x + (dx >> 10);
+        if (dz < 0) {
+            dz += 0x3FF;
+        }
+        line.b.value = line.first.z + (dz >> 10);
+    }
+    func_800464E8(line.a, line.b, vehicle->trackNodeF0, &line.fraction, &vehicle->laneCurrent232, &line.remaining);
+    if (control->laneTimer38 == 0) {
+        control->laneTarget3C = control->laneCurrent3E;
+    }
+}
+
+void func_800464E8(RrTrackOffsetArgument offsetX, RrTrackOffsetArgument offsetZ, s32 node, s16 *fraction, s16 *lateral, s32 *remaining) {
+    s32 nextNode;
+    RrTrackSample3C *sample;
+    RrTrackSample3C *nextSample;
+    s32 angle;
+    s32 cosine;
+    s32 along;
+    s32 across;
+    s32 position;
+    s32 width;
+    s32 nextWidth;
+
+    nextNode = (node + 1) % D_800ABECC;
+    sample = &D_800ABEA4[node];
+    nextSample = &D_800ABEA4[nextNode];
+
+    angle = sample->heading12 + 0x800;
+    node = sample->heading12 + 0x400;
+
+    across = SIN(angle);
+    cosine = SIN(node);
+
+    along = (across * offsetX.value + cosine * offsetZ.value) / 4096;
+    across = (-cosine * offsetX.value + across * offsetZ.value) / 4096;
+
+    if (along < 0) {
+        along = 0;
+    }
+
+    node = nextSample->heading12 - sample->heading12;
+    node = sample->segmentLength1C - ((across * SIN(node)) / 4096);
+    if (along > node) {
+        along = node;
+    }
+
+    position = (along << 10) / node;
+    *fraction = position;
+    *remaining = node - ((node * (s16)position) >> 10);
+
+    if (across < 0) {
+        width = sample->leftWidth18 + sample->leftExtension2E;
+        nextWidth = nextSample->leftWidth18 + nextSample->leftExtension2E;
+        node = width - nextWidth;
+        if (node == 0) {
+            *lateral = (across << 10) / width;
+        } else {
+            node = ((node * *fraction) / 1024) + nextWidth;
+            *lateral = (across << 10) / node;
+        }
+    } else {
+        width = sample->rightWidth1A + sample->rightExtension2C;
+        nextWidth = nextSample->rightWidth1A + nextSample->rightExtension2C;
+        node = width - nextWidth;
+        if (node == 0) {
+            *lateral = (across << 10) / width;
+        } else {
+            node = ((node * *fraction) / 1024) + nextWidth;
+            *lateral = (across << 10) / node;
+        }
+    }
+}
+
+void func_800468F0(RrRaceVehicle *vehicle)
+{
+    struct { RrTrackOffsetArgument x, z; } offset;
+    offset.x.value = vehicle->pos20[0] - D_800ABEA4[vehicle->trackNodeF0].x08;
+    offset.z.value = vehicle->pos20[2] - D_800ABEA4[vehicle->trackNodeF0].z0C;
+    func_800464E8(offset.x, offset.z, vehicle->trackNodeF0,
+        &vehicle->trackFraction170, &vehicle->lateralOffset172, &vehicle->second);
+}
+
+s32 func_800469A4(RrRaceVehicle *vehicle) {
+    s32 best=-1,index=0,selected,limit,count,fresh_count,id;
+    s32 first_count,second_count,distance,half,negative_half;
+    /* ASM_BARRIER: keep the captured track length in the consumed mode register. */
+    register s32 circumference __asm__("$5");
+    RrRaceStandingsTable *table;
+    /* ASM_BARRIER: retain the second pass's table-relative cursor. */
+    register u8 *cursor __asm__("$9");
+    u8 *reference;
+    RrRaceDistanceContextPrefix *context;
+    s32 flags;
+    /* ASM_BARRIER: retain context mode until the initial identifier is formed. */
+    register s32 mode __asm__("$5");
+    s32 input;
+    u8 *lookup_cursor;
+    context=&D_800AC650;
+    flags=vehicle->flags1E4;
+    mode=context->mode;
+    input=vehicle->input;
+    table=(RrRaceStandingsTable*)context->result;
+    flags=(flags&15)+best;
+    input++;
+    limit=input*16;
+    count=D_800AC59C;
+    selected=(s32)((u32)flags+(u32)mode);
+    if(count>0) {
+        first_count=count;
+        lookup_cursor=(u8*)table;
+lookup:
+        if(selected==RR_STANDING_ROW(lookup_cursor)->unk00)selected=index;
+        else {
+            index++;
+            lookup_cursor+=sizeof(RrRaceStandingEntry0C);
+            if(index<first_count)goto lookup;
+        }
+    }
+    /* ASM_BARRIER: preserve the original second count capture after lookup. */
+    __asm__("" : : : "memory");
+    index=0;
+    fresh_count=D_800AC59C;
+    if(fresh_count>0) {
+        reference=(u8*)table+selected*sizeof(RrRaceStandingEntry0C);
+        second_count=fresh_count;
+        circumference=D_800F2EB8;
+        cursor=(u8*)table;
+        half=circumference/2;
+        negative_half=(s32)(0U-(u32)circumference)/2;
+        do {
+            if(index!=selected) {
+                id=RR_STANDING_ROW(cursor)->unk00;
+                distance=table->entries18[id].totalDist04;
+                distance=(s32)((u32)distance-(u32)RR_STANDING_ROW(reference)->totalDist04);
+                distance%=circumference;
+                if(distance>=half)distance=(s32)((u32)distance-(u32)circumference);
+                if(distance<negative_half)distance=(s32)((u32)distance+(u32)circumference);
+                if(distance>0&&distance<limit) {
+                    best=id;
+                    limit=distance;
+                    table->gap14=distance;
+                }
+            }
+            index++;
+            cursor+=sizeof(RrRaceStandingEntry0C);
+        }while(index<second_count);
+    }
+    return best;
+}
+
+s32 func_80046B1C(RrRaceVehicle *arg0, s32 arg1) {
+    s32 sp18;
+    s32 sp1C;
+    s32 s0;
+    Control1F4 *s1;
+    RrRaceStandingsTable *t;
+    RrRaceVehicle *other;
+    s32 i;
+    s32 v1;
+    s32 a2;
+    s32 a1;
+    s16 temp_v0;
+    s32 v1_2;
+
+    s0 = 0;
+    t = D_800AC738;
+    s1 = (Control1F4 *)((char *)arg0 + 0x1F4);
+    other = t->entries18[arg1].vehicle08;
+
+    i = -other->heading1D4 + 0x400;
+    i -= D_800ABEA4[other->trackNodeF0].heading12;
+    v1 = -((SIN(i) * other->input) / 4096);
+    a1 = t->gap14;
+    a2 = s1->unk58 - v1;
+    a1 /= 100;
+    if (a1 >= 16) {
+        a1 = 15;
+    }
+
+    for (i = 0; i < 2; i++) {
+        s0 += D_80010F2C[i][a1];
+    }
+
+    a2 = (a2 * 160) / 1168;
+    if (a2 > 0) {
+        if (a2 >= 80) {
+            a2 = 79;
+        }
+        a2 /= 5;
+        if (D_800F4D44 != 5) {
+            s0 += D_80010F2C[2][a2];
+        } else {
+            s0 += D_80010F8C[2][a2];
+        }
+    } else {
+        s0 -= 8;
+    }
+
+    s1->unk70 = func_80047DF8(arg0, 0, &s1->unk80, &s1->unk74, &s1->unk78);
+    s1->unk7C = func_80047DF8(arg0, 10, &s1->unk84, &sp18, &sp1C);
+    temp_v0 = func_80047CE0(arg0);
+    s1->unk6E = temp_v0;
+    v1_2 = temp_v0 << 12;
+
+    if (s0 > 0) {
+        if (v1_2 < s1->unk7C) {
+            s0 = 0;
+        }
+    }
+    return s0;
+}
+
+void func_80046DB8(RrRaceVehicle *p)
+{
+  RrRaceVehicleControl *q;
+  RrRaceStandingsTable *s5;
+  RrRaceVehicle *s1;
+  int x8;
+  int u1;
+  int u2;
+  int t8;
+  int ab;
+  int w1;
+  int cnt;
+  int flg;
+  int n;
+  int ab2;
+  int th2;
+  int c0;
+  int e1;
+  int e2;
+  int e3;
+  int s2;
+  int s4;
+  int s6;
+  int a0;
+  int v0;
+  int v1;
+  int k;
+  int tt;
+  s6 = 0;
+  s4 = -1;
+  s5 = D_800AC738;
+  q = (RrRaceVehicleControl *)((char *)p + 0x1F4);
+  s2 = func_800469A4(p);
+  if (s2 >= 0)
+  {
+    k = s2 * 12;
+    s1 = ((RrRaceStandingsTable *)((char *)s5 + k))->entries18[0].vehicle08;
+    if ((func_80046B1C(p, s2) > 0) && (q->boostTimer44 == 0))
+    {
+      if (q->laneActive6A == 0)
+      {
+        e1 = (u16)q->laneTarget3C;
+        q->laneTimer38 = 10;
+        q->laneActive6A = 1;
+        q->laneMode88 = 0;
+        q->laneStart3A = e1;
+        ab = s5->gap14;
+        if (ab < 0)
+        {
+          ab = -ab;
+        }
+        e3 = (short)((u16)p->halfSpan10E);
+        e3 = e3 + (e3 / 2);
+        if (ab < e3)
+        {
+          e1 = s1->lateralOffset172;
+          if (e1 < p->lateralOffset172)
+          {
+            e2 = (e1 + 0x400) / 2;
+          }
+          else
+          {
+            tt = e1 - 0x400; tt = tt + ((unsigned)tt >> 31);
+            __asm__ volatile("" : "=r"(tt) : "0"(tt)); /* ASM_BARRIER: keep the two /2 arms from being cross-jumped */
+            e2 = tt >> 1;
+          }
+        }
+        else
+        {
+          e2 = s1->lateralOffset172;
+          e1 = (u16)s1->lateralOffset172;
+          if (e2 > 0)
+          {
+            e2 = e1 - 0x200;
+          }
+          else
+          {
+            e2 = e1 + 0x200;
+          }
+        }
+        *(volatile s16 *)&q->laneTarget3C = e2;
+        if (q->laneTarget3C < (-0x220))
+        {
+          q->laneTarget3C = -0x220;
+        }
+        if (q->laneTarget3C > 0x220)
+        {
+          q->laneTarget3C = 0x220;
+        }
+        q->laneDelta6C = ((u16)q->laneTarget3C) - ((u16)q->laneStart3A);
+      }
+    }
+    else
+    {
+      s2 = -1;
+    }
+  }
+  if (D_800AC664 > 0)
+  {
+    x8 = s5->dist08;
+    if ((x8 < 0) && (q->metric12A < x8))
+    {
+      s4 = 0;
+    }
+    if (D_800AC664 == 2)
+    {
+      if ((s5->dist08 < s5->dist0C) && (q->metric12A < s5->dist0C))
+      {
+        s4 = 1;
+      }
+    }
+    if (s4 >= 0)
+    {
+      if ((q->laneActive6A == 0) && (q->laneMode88 == 0))
+      {
+        s1 = &D_800ABEF8[s4];
+        w1 = q->relDist74 + q->relDist78;
+        if (w1 < 0)
+        {
+          if (s1->lateralOffset172 < p->lateralOffset172)
+          {
+            cnt = 0;
+            u1 = (u16)q->laneTarget3C;
+            q->laneTimer38 = 10;
+            q->laneActive6A = 1;
+            q->laneMode88 = 2;
+            q->laneStart3A = u1;
+          }
+        }
+        else
+        {
+          t8 = s1->lateralOffset172;
+          if (p->lateralOffset172 < t8)
+          {
+            u2 = (u16)q->laneTarget3C;
+            q->laneTimer38 = 10;
+            q->laneActive6A = 1;
+            q->laneMode88 = 1;
+            q->laneStart3A = u2;
+          }
+        }
+        s2 = 0;
+      }
+    }
+    else
+    {
+      q->laneMode88 = 0;
+    }
+  }
+  else
+  {
+    q->laneMode88 = 0;
+  }
+  if (s2 < 0)
+  {
+    cnt = 0;
+    n = D_800AC59C;
+    flg = cnt;
+    if (n > 0)
+    {
+      do
+      {
+        s1 = s5->entries18[cnt].vehicle08;
+        if (s1 != p)
+        {
+          ab2 = s5->entries18[cnt].totalDist04 - (p->first + p->second);
+          if (ab2 < 0)
+          {
+            ab2 = -ab2;
+          }
+          th2 = (short)((u16)p->halfSpan10E);
+          th2 = th2 + (th2 / 2);
+          if (ab2 < th2)
+          {
+            c0 = q->laneCurrent3E;
+            if (c0 < q->laneStart3A)
+            {
+              if (s1->lateralOffset172 > (c0 - 0x100))
+              {
+                s6 = 1;
+              }
+            }
+            else
+            {
+              if (s1->lateralOffset172 < (c0 + 0x100))
+              {
+                s6 = 1;
+              }
+            }
+          }
+        }
+        cnt++;
+      }
+      while (cnt < D_800AC59C);
+    }
+    switch (q->laneMode88)
+    {
+      case 1:
+        if (q->laneStart3A < q->laneCurrent3E)
+      {
+        flg = 1;
+      }
+        break;
+
+      case 2:
+        if (q->laneCurrent3E < q->laneStart3A)
+      {
+        flg = 1;
+      }
+        break;
+
+    }
+
+    if (((s6 == 0) && (q->laneTimer38 != 0)) && (flg == 0))
+    {
+      v0 = q->laneCooldown40;
+      if (v0 > 0)
+      {
+        q->laneCooldown40 = v0 - 1;
+      }
+      else
+      {
+        q->laneTimer38 = 0;
+        q->laneActive6A = 1;
+        func_8004638C(p);
+        v1 = (u16)q->laneTarget3C;
+        a0 = (u16)q->laneStart3A;
+        q->laneMode88 = 3;
+        q->laneDelta6C = v1 - a0;
+      }
+    }
+  }
+}

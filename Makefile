@@ -55,3 +55,10 @@ debt:
 debt-check:
 	.venv/bin/python tools/scripts/crutch_debt.py --check
 .PHONY: debt debt-check
+
+views:
+	.venv/bin/python tools/scripts/legacy_views.py
+# Unit tests written against single-function files read build/legacy/<func>.c
+test: views
+	@for t in tools/scripts/test_*.py; do .venv/bin/python $$t >/dev/null 2>&1 || echo "FAIL $$t"; done
+.PHONY: views test

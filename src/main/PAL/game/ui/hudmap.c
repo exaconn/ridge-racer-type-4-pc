@@ -1,0 +1,117 @@
+struct A { char pad[0xF0]; int idx; char p2[0xE0]; short ang; };
+
+struct B { char pad[0x12]; short x; char p2[0x28]; };
+
+extern int func_8001FC28(), func_8002B5D0(), func_8002B814(), func_8004C73C(), func_8004C928();
+extern char D_800103FC[], D_80010408[], D_80010414[];
+extern short D_800AC0E6, D_800AC1A0;
+extern char *D_800ACC14;
+extern int D_800F3A30, D_800F4C64;
+extern int D_800F4C80[];
+extern int func_8001FCC8();
+extern int func_8001FF84();
+extern char D_8009EE6C[];
+extern int D_800FF6B0;
+extern int func_80020588();
+extern int func_8002064C();
+extern struct B *D_800ABEA4;
+
+void func_80022448(void);
+void func_800225DC(int a0);
+void func_80022694(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10);
+int func_80022848(struct A *a0);
+
+void func_80022448(void) {
+    char sp18[8];
+    int i;
+    int y;
+    int *q;
+    char *b;
+    int col, v;
+    int sel;
+    *(int *)0x1F800000 = func_8001FC28(D_800ACC14 + 0x70, *(int *)0x1F800000, 0, 0, 0x140, 0x100);
+    i = 0;
+    sel = D_800AC1A0;
+    if (D_800F3A30 > 0) {
+        y = 0x86;
+        q = D_800F4C80;
+    L1:
+        v = *q;
+        col = 0x7EF8;
+        if (i == sel) {
+            /* ASM_BARRIER: hide the known value of col so the then-arm reload is kept */
+            __asm__ volatile("" : "=r"(col));
+            col = 0x7EF8;
+        }
+        func_8002B5D0(0x78, y, v, col, 1);
+        y += 0xA;
+        q += 1;
+        if (++i < D_800F3A30) goto L1;
+    }
+    func_8002B5D0(0x78, 0x5E, D_800F4C64, 0x7EF8, 1);
+    func_8004C73C(0x78, 0x50, D_800103FC, 0x80, 0);
+    func_8004C73C(0x78, 0x78, D_80010408, 0x80, 0);
+    i = 7;
+    b = sp18 + 7;
+    do {
+        *b = 0;
+        i -= 1;
+        b -= 1;
+    } while (i >= 0);
+    func_8002B814(sp18, D_800AC0E6 + 1, 1);
+    func_8004C73C(0x78, 0x3C, sp18, 0x80, 0);
+    func_8004C73C(0x78, 0xC8, D_80010414, 0x80, 0);
+    func_8004C928(0);
+}
+
+void func_800225DC(int a0) {
+    int a3;
+    char *s0;
+    void *p;
+    if ((unsigned)(D_800FF6B0 - 1) < 3U) {
+        p = *(void **)0x1F800000;
+        if (a0 > 0) {
+            a3 = ((a0 - 1) << 7) + 0x38;
+            if (a0 == 1) {
+                s0 = D_800ACC14 + 0x70;
+            } else {
+                s0 = D_800ACC14 + 0xB70;
+            }
+        } else {
+            a3 = 0x78;
+            s0 = D_800ACC14 + 0x70;
+        }
+        *(int *)0x1F800000 = func_8001FCC8(s0, func_8001FF84(s0, p, 0x6A, a3, D_8009EE6C, 0x7EF8, 0), 0x3E);
+    }
+}
+
+void func_80022694(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10)
+{
+    int d1, d2, x, y, r, t;
+    if (a5 > 0) {
+        d1 = a3 - a1;
+        d2 = a4 - a2;
+        if (a5 >= 0x100) a5 = 0x100;
+        r = *(int *)0x1F800000;
+        x = a1 + ((d1 * a5) >> 8);
+        y = a2 + ((d2 * a5) >> 8);
+        if (a10 >= 0) {
+            r = func_8002064C(a0, r, a1, a2, x, y, a7, a8, a9);
+            if (a6 != 0) {
+                r = func_8002064C(a0, r, a1, a2 + 1, x, y + 1, a7, a8, a9);
+            }
+            r = func_8001FCC8(D_800ACC14 + 0x70, r, ((a10 & 3) << 5) | 5);
+        } else {
+            r = func_80020588(a0, r, a1, a2, x, y, a7, a8, a9);
+            if (a6 != 0) {
+                r = func_80020588(a0, r, a1, a2 + 1, x, y + 1, a7, a8, a9);
+            }
+        }
+        *(int *)0x1F800000 = r;
+    }
+}
+
+int func_80022848(struct A *a0) {
+    int t = 0x800 - D_800ABEA4[a0->idx].x;
+    return (unsigned)(((a0->ang - t) & 0xFFF) - 0x401) < 0x7FF;
+}

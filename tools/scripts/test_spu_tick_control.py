@@ -9,7 +9,7 @@ import re, subprocess, unittest
 ROOT=Path(__file__).resolve().parents[2]
 
 def native_body(name, rename=None):
- s=(ROOT/f'src/main/PAL/func_{name}.c').read_text()
+ s=(ROOT/f'build/legacy/func_{name}.c').read_text()
  s=re.sub(r'^#include[^\n]*\n','',s,flags=re.M)
  s=re.sub(r' __asm__\("\$\d+"\)','',s)
  s=re.sub(r'__asm__\(""[^;]*;',';',s)

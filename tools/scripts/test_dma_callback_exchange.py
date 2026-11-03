@@ -21,7 +21,7 @@ class DmaCallbackExchangeTest(unittest.TestCase):
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
         bodies={}
         for name in ('func_8008BD10','func_8008BDBC','func_8008BB44'):
-            body=(root/'src/main/PAL'/f'{name}.c').read_text().replace('#include "rr/library.h"','')
+            body=(root/'build/legacy'/f'{name}.c').read_text().replace('#include "rr/library.h"','')
             body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
             bodies[name]=body
         observed=bodies['func_8008BD10'].replace('func_8008BD10','observed_exchange')

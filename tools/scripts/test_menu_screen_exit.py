@@ -9,7 +9,7 @@ class MenuScreenExitTest(unittest.TestCase):
     def test_helpers_frames_and_halfword_cells(self):
         root=Path(__file__).resolve().parents[2]
         bodies="\n".join(read_c_source(root/p) for p in [
-            'src/main/PAL/func_80036068.c','src/main/PAL/func_8003CAB4.c',
+            'build/legacy/func_80036068.c','build/legacy/func_8003CAB4.c',
             'src/overlays/PAL/660/func_8011712C.c','src/overlays/PAL/661/func_80114AA0.c'])
         source=r'''
 #include <assert.h>

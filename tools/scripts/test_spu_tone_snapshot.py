@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class SpuToneSnapshotTest(unittest.TestCase):
     def test_native_snapshot(self):
-        body = (ROOT/'src/main/PAL/func_800850C4.c').read_text()
+        body = (ROOT/'build/legacy/func_800850C4.c').read_text()
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r',?\s*"\$\d+"', '', body)

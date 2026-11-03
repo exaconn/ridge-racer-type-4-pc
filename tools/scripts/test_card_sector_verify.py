@@ -35,7 +35,7 @@ void func_80096434(void *buffer,s32 size){memset(buffer,0,size);test_operation(3
 char D_80011FD8[64];
 s32 func_8001E84C(const char *format,...){return test_operation(5,0,0,(void *)format,0);}
 '''
-        body = (root/'src/main/PAL/func_80096054.c').read_text()
+        body = (root/'build/legacy/func_80096054.c').read_text()
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'"\$[0-9]+",\s*', '', body)

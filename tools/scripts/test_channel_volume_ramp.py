@@ -10,11 +10,11 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class ChannelVolumeRampTest(unittest.TestCase):
  def test_wrapping_ramps_and_mutable_table_roots(self):
-  body=(ROOT/'src/main/PAL/func_80082FC4.c').read_text()
+  body=(ROOT/'build/legacy/func_80082FC4.c').read_text()
   body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
   body=re.sub(r' __asm__\("\$\d+"\)','',body)
   body=re.sub(r'__asm__\(""[^;]*;', '',body)
-  getter=(ROOT/'src/main/PAL/channel_values.c').read_text().split('s32 func_80089D8C')[0]
+  getter=(ROOT/'src/main/PAL/psyq/libsnd/vmchval.c').read_text().split('s32 func_80089D8C')[0]
   getter=re.sub(r'^#include[^\n]*\n','',getter,flags=re.M)
   getter=re.sub(r' __asm__\("\$\d+"\)','',getter)
   getter=re.sub(r'__asm__(?: volatile)?\(""[^;]*;', '',getter)

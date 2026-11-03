@@ -2,7 +2,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess,sys
 ROOT=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file());P=Path(__file__).resolve().parent
-source=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'src/main/PAL/func_80059700.c'
+source=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'build/legacy/func_80059700.c'
 body=source.read_text();body=body[body.index('void func_80059700'):]
 fixture=r'''
 #include <assert.h>

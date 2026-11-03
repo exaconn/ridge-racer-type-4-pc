@@ -9,8 +9,8 @@ import unittest
 class OverlayMenuInitializersTest(unittest.TestCase):
     def test_resource_publication_and_ordered_layout_boundaries(self):
         root=Path(__file__).resolve().parents[2]
-        clear=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'src/main/PAL/func_8002A604.c'),flags=re.M)
-        reset=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'src/main/PAL/func_8003A198.c'),flags=re.M)
+        clear=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'build/legacy/func_8002A604.c'),flags=re.M)
+        reset=re.sub(r'^extern[^\n]*;\n','',read_c_source(root/'build/legacy/func_8003A198.c'),flags=re.M)
         bodies='\n'.join(read_c_source(root/f'src/overlays/PAL/{idx}/func_{addr}.c') for idx,addr in [(663,'801148D8'),(665,'80114FD8')])
         source=r'''
 #include <assert.h>

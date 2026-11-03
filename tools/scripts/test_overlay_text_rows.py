@@ -34,7 +34,7 @@ class OverlayTextRowsTest(unittest.TestCase):
 
     def test_resident_clear_keeps_full_pointer_and_captured_count(self):
         root = Path(__file__).resolve().parents[2]
-        body = read_c_source(root / 'src/main/PAL/func_800402F4.c')
+        body = read_c_source(root / 'build/legacy/func_800402F4.c')
         self.run_source(r'''
 #include <assert.h>
 #include <stdint.h>

@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[2]
 pat = re.compile(r'__?asm__?\s*(?:volatile\s*)?\(\s*""')
 only_bad = "--undocumented" in sys.argv
 tot = bad = 0
-for f in sorted((ROOT / "src/main/PAL").glob("*.c")):
+for f in sorted((ROOT / "src/main/PAL").rglob("*.c")):
     lines = f.read_text().splitlines()
     for i, l in enumerate(lines):
         if pat.search(l):

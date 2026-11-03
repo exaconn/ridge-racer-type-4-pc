@@ -16,7 +16,7 @@ class DiagnosticFlagTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         directory = Path(cls.temp.name)
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/main/PAL/func_80092B48.c').read_text()
+        body = (root / 'build/legacy/func_80092B48.c').read_text()
         body = body.replace('#include "types.h"', '''#include <stdint.h>
 typedef uint8_t u8; typedef int32_t s32;
 u8 test_state[64];

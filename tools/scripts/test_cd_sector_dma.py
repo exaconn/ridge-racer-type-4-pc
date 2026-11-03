@@ -36,7 +36,7 @@ u32 test_control(volatile u32 *p){
 #define RR_NOP_DEP() ((void)0)
 '''
         for name in ('func_8008DBB4','func_8008DCB4','func_8008C51C'):
-            body=native_body((root/'src/main/PAL'/f'{name}.c').read_text())
+            body=native_body((root/'build/legacy'/f'{name}.c').read_text())
             if name=='func_8008DBB4':
                 assert body.count('*p & 0x40')==1 and body.count('*D_800A6790 & 0x01000000')==2
                 body=body.replace('*p & 0x40','test_status(p) & 0x40').replace('*D_800A6790 & 0x01000000','test_control(D_800A6790) & 0x01000000')

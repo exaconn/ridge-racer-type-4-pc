@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class GpuResetTest(unittest.TestCase):
     def test_modes_debug_levels_and_mutable_services(self):
-        body = (ROOT / 'src/main/PAL/func_800929D4.c').read_text()
+        body = (ROOT / 'build/legacy/func_800929D4.c').read_text()
         body = '\n'.join(line for line in body.splitlines() if not line.startswith('#include'))
         code = r'''
 #include <assert.h>

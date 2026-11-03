@@ -22,7 +22,7 @@ typedef uint8_t u8; typedef uint32_t u32; typedef int32_t s32;
 u32 test_source[34];
 u32 test_destination[34];
 '''
-        body = (root / 'src/main/PAL/func_80095FA0.c').read_text()
+        body = (root / 'build/legacy/func_80095FA0.c').read_text()
         body = body.replace('#include "rr/memory.h"', '')
         replacements = {
             '0xDF80U': '(unsigned long)(test_destination+2)',

@@ -19,13 +19,13 @@ class CdReadCallbackTest(unittest.TestCase):
             s=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',s,flags=re.M)
             return re.sub(r'extern[^;]*;','',s)
 
-        body=(ROOT/'src/main/PAL/func_8008E828.c').read_text()
+        body=(ROOT/'build/legacy/func_8008E828.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
         body=re.sub(r',?\s*"\$\d+"','',body)
         body,n=re.subn(r'\(u8\s*\*\)0x800A0000U','native_page.bytes',body)
         assert n==1, 'native callback page must replace exactly one PAL page'
-        decoder=(ROOT/'src/main/PAL/func_8008C6A4.c').read_text()
+        decoder=(ROOT/'build/legacy/func_8008C6A4.c').read_text()
         decoder=re.sub(r'^#include[^\n]*\n','',decoder,flags=re.M)
         decoder=decoder.replace('func_8008C6A4','actual_decode')
         code=r'''

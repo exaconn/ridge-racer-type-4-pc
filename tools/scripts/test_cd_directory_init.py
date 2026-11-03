@@ -15,7 +15,7 @@ class CdDirectoryInitTest(unittest.TestCase):
         cls.addClassCleanup(cls.temporary.cleanup)
         header = (ROOT/'include/rr/cd.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        body = (ROOT/'src/main/PAL/func_80012290.c').read_text()
+        body = (ROOT/'build/legacy/func_80012290.c').read_text()
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$\d+"\)', '', body)
         # Only the physical PAL diagnostic page is mapped to a native object.

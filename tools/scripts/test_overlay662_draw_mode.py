@@ -9,11 +9,11 @@ class GarageDrawModeTest(unittest.TestCase):
     def test_actual_helpers_and_live_packet_words(self):
         root=Path(__file__).resolve().parents[2]
         mode=(root/'src/overlays/PAL/662/func_8011AC94.c').read_text()
-        page=(root/'src/main/PAL/func_800940E0.c').read_text()
+        page=(root/'build/legacy/func_800940E0.c').read_text()
         # Register allocation metadata has no native architectural equivalent.
         page=re.sub(r' asm\("\$\d+"\)','',page)
-        window=(root/'src/main/PAL/func_8009424C.c').read_text()
-        builder=(root/'src/main/PAL/func_80093C24.c').read_text()
+        window=(root/'build/legacy/func_8009424C.c').read_text()
+        builder=(root/'build/legacy/func_80093C24.c').read_text()
         source=r'''
 #include <assert.h>
 #include <stddef.h>

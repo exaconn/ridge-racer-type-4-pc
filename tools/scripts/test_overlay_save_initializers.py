@@ -14,7 +14,7 @@ class SaveInitializersTest(unittest.TestCase):
                            for i,a in ((660,'80114C40'),(662,'80114B9C'),(663,'80114A60')))
         bodies = re.sub(r'^extern[^\n]*\n', '', bodies, flags=re.M)
         helpers = '\n'.join(re.sub(r'^extern[^\n]*\n','',
-                           read_c_source(root / f'src/main/PAL/func_{a}.c'),flags=re.M)
+                           read_c_source(root / f'build/legacy/func_{a}.c'),flags=re.M)
                            for a in ('8002B75C','80037040','80014A8C'))
         source = r'''
 #include <assert.h>

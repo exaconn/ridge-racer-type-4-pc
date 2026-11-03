@@ -57,7 +57,7 @@ void test_initialize(void) {
 }
 '''
         for name in ('80093344', '80094B28'):
-            body = (root / ('src/main/PAL/func_' + name + '.c')).read_text()
+            body = (root / ('build/legacy/func_' + name + '.c')).read_text()
             body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)

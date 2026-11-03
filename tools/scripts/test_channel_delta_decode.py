@@ -61,7 +61,7 @@ void test_prepare(s32 bank, s32 row, const u8 *input, u32 length, u32 accumulato
     test_records[bank + 4][row + 8].w88 = accumulator;
 }
 '''
-        body = '\n'.join((root / ('src/main/PAL/func_' + name + '.c')).read_text()
+        body = '\n'.join((root / ('build/legacy/func_' + name + '.c')).read_text()
                          for name in ('80081E04', '8008424C', '80080034', '80081804'))
         body = body.replace('#include "rr/library.h"', '')
         body = body.replace('extern RrLibStateB0 *D_8010F068[];', '')

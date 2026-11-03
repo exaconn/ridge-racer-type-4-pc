@@ -22,7 +22,7 @@ class ChannelTransferByteTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2];d=Path(cls.temp.name)
         header=(root/'include/rr/channels.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(root/'src/main/PAL/channel_transfer.c').read_text().replace('#include "rr/channels.h"','')
+        body=(root/'src/main/PAL/psyq/libpad/padlist.c').read_text().replace('#include "rr/channels.h"','')
         body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
         code='''#include <stdint.h>
 #include <stddef.h>

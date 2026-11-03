@@ -10,8 +10,8 @@ class Overlay661ChoiceInitTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2]
         body=(root/'src/overlays/PAL/661/func_80117350.c').read_text()
         fixed=(root/'src/overlays/PAL/667/func_80117EF8.c').read_text()
-        lookup=(root/'src/main/PAL/func_80032E9C.c').read_text()
-        reset=re.sub(r'^extern[^\n]*;\n','',(root/'src/main/PAL/func_8003A198.c').read_text(),flags=re.M)
+        lookup=(root/'build/legacy/func_80032E9C.c').read_text()
+        reset=re.sub(r'^extern[^\n]*;\n','',(root/'build/legacy/func_8003A198.c').read_text(),flags=re.M)
         exe=(root/'assets/PAL/main.exe').read_bytes();table=exe[0x800+0x8009F64C-0x80010000:0x800+0x8009F64C-0x80010000+8]
         source=r'''
 #include <assert.h>

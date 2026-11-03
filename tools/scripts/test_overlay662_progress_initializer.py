@@ -9,7 +9,7 @@ class Overlay662ProgressInitializerTest(unittest.TestCase):
     def test_counts_and_fresh_resource_publication(self):
         root=Path(__file__).resolve().parents[2]
         body=(root/'src/overlays/PAL/662/func_80114998.c').read_text()
-        reset=re.sub(r'^extern[^\n]*;\n','',(root/'src/main/PAL/func_8003A198.c').read_text(),flags=re.M)
+        reset=re.sub(r'^extern[^\n]*;\n','',(root/'build/legacy/func_8003A198.c').read_text(),flags=re.M)
         source=r'''
 #include <assert.h>
 #include <stddef.h>

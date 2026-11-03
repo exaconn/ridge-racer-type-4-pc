@@ -16,7 +16,7 @@ class TrackInterpolationTest(unittest.TestCase):
         def header(name):
             text=(ROOT/'include/rr'/name).read_text()
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
-        body=(ROOT/'src/main/PAL/func_80043AB0.c').read_text()
+        body=(ROOT/'build/legacy/func_80043AB0.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
         assert body.count('(u8*)0x800B0000U')==1

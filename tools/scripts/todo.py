@@ -5,7 +5,7 @@ from pathlib import Path
 from c_functions import function_definitions
 ROOT = Path(__file__).resolve().parents[2]
 done = set()
-for c in (ROOT / "src/main/PAL").glob("*.c"):
+for c in (ROOT / "src/main/PAL").rglob("*.c"):
     done.update(function_definitions(c.read_text()))
 rows = []
 for l in (ROOT / "configs/PAL/functions.txt").read_text().splitlines():

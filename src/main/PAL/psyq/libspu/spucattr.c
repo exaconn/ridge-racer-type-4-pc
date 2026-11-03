@@ -1,0 +1,136 @@
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
+#include "types.h"
+#include "rr/spu_tick_control.h"
+
+/* Anchors originate in the complete timer object. Signed native-width
+ * offset differences keep every scalar access within that object. */
+#define FIELD(p,type,member) (*(type *)((p)+((long)RR_FIELD_OFFSET(RrSpuTickState20,member)-(long)RR_FIELD_OFFSET(RrSpuTickState20,flags))))
+#define FLAG(p,member) (*(s8 *)((p)+(long)RR_FIELD_OFFSET(RrSpuTickFlags4,member)))
+
+extern int func_80082674();
+extern void (*D_800A4D44[])();
+extern s32 D_800A4D4C;
+extern void (*D_800A4D40)(void);
+
+void func_800829F4(short a, short b);
+void func_80082A44(s32 direct);
+void func_80082C74(void);
+void func_80082C94(void);
+void func_80082CB4(void);
+void func_80082D00(void);
+
+void func_800829F4(short a, short b) {
+    struct { int x; short y, z; int pad[8]; } s;
+    s.x = 3; s.y = a * 0x81; s.z = b * 0x81;
+    func_80082674(&s);
+}
+
+void func_80082A44(s32 direct)
+{
+    s32 wait=999;
+    u32 counter;
+    register s32 period __asm__("$17");
+    RrSpuTickCallback callback;
+    register s32 interrupt __asm__("$4");
+    u8 *setup;
+    u8 *state;
+    do {wait--;} while(wait>=0);
+    counter=0xF2000002;
+    period=0x44E8;
+    setup=(u8 *)&D_800A4D38+RR_FIELD_OFFSET(RrSpuTickState20,flags);
+    FLAG(setup,interrupt)=6;
+    FLAG(setup,direct)=0;
+    FLAG(setup,divided)=0;
+    FIELD(setup,RrSpuTickCallback,previous)=0;
+    switch(FIELD(setup,s32,selector)) {
+    case 0:FLAG(setup,interrupt)=127;return;
+    case 5:
+        FLAG(setup,interrupt)=0;
+        if(direct==0) FLAG(setup,direct)=1;
+        else {counter=0xF2000003;period=1;}
+        break;
+    case 2:break;
+    case 3:period=0x89D0;break;
+    default:
+        {
+        register u8 *active=(u8 *)&D_800A4D38+RR_FIELD_OFFSET(RrSpuTickState20,active);
+        if(*(s32 *)active!=0) return;
+        {
+            register s32 frequency=*(s32 *)(active-4);
+            register u8 *parent=active-4;
+            if(frequency<70) {
+                register s32 quotient=0x204CC0/frequency;
+                /* ASM_BARRIER: Capture the initialized quotient before the flag phase. */
+                __asm__("" : : "r"(quotient));
+                parent[RR_FIELD_OFFSET(RrSpuTickState20,flags)+1]++;
+                /* ASM_BARRIER: Publish the divided flag before assigning the period. */
+                __asm__("" : : "m"(parent[RR_FIELD_OFFSET(RrSpuTickState20,flags)+1]), "r"(quotient) : "$17");
+                period=quotient;
+            } else { register s32 quotient __asm__("$2")=0x409980/frequency;  period=quotient; }
+        }
+        }
+    }
+    state=(u8 *)&D_800A4D38+RR_FIELD_OFFSET(RrSpuTickState20,flags);
+    if(FLAG(state,direct)) {
+        func_80096F04();
+        func_8008B3F4(FIELD(state,RrSpuTickCallback,callback));
+    } else {
+        func_80096F04();
+        func_800970DC(counter);
+        func_80096FA4(counter,(u16)period,0x1000);
+        interrupt=FLAG(state,interrupt);
+        if(interrupt==0) {
+            interrupt=0;
+            /* ASM_BARRIER: Keep the initialized IRQ argument distinct from null. */
+            __asm__("" : "+r"(interrupt));
+            FIELD(state,RrSpuTickCallback,previous)=func_8008B394(interrupt,0);
+            interrupt=FLAG(state,interrupt);
+            callback=func_80082CB4;
+        } else {
+            callback=func_80082D00;
+            if(FLAG(state,divided)==0) callback=FIELD(state,RrSpuTickCallback,callback);
+        }
+        func_8008B394(interrupt,callback);
+    }
+    func_80096F14();
+}
+
+void func_80082C74(void) { func_80082A44(1); }
+
+void func_80082C94(void) { func_80082A44(0); }
+
+void func_80082CB4(void) {
+ void (**p)() = D_800A4D44;
+ /* ASM_BARRIER: keeps D_800A4D44 address in one register (lui+addiu) so p[-1] uses a negative offset */
+ __asm__("" : "=r"(p) : "0"(p));
+ if (p[0] != 0) p[0]();
+ p[-1]();
+}
+
+void func_80082D00(void) {
+    if (D_800A4D4C == 0) {
+        /* ASM_BARRIER: Retain the assembler temporary for the state publication. */
+        register u8 *page __asm__("$1");
+        s32 one = 1;
+        /* ASM_BARRIER: Materialize the state value before its store address. */
+        __asm__ volatile("" : : "r"(one) : "$1", "memory");
+        /* PAL mapping: page + 0x4D4C is &D_800A4D4C. */
+        page = (u8 *)0x800A0000U;
+        /* ASM_BARRIER: Expose the PAL store so it can fill the epilogue jump delay slot. */
+        __asm__("" : "=r"(page) : "0"(page));
+        *(s32 *)(page + 0x4D4C) = one;
+    } else {
+        /* ASM_BARRIER: Retain the assembler temporary for the state publication. */
+        register u8 *page __asm__("$1");
+        void (*callback)(void) = D_800A4D40;
+        /* ASM_BARRIER: Snapshot the callback before materializing the state-store address. */
+        __asm__ volatile("" : : "r"(callback) : "$1", "memory");
+        /* PAL mapping: page + 0x4D4C is &D_800A4D4C. */
+        page = (u8 *)0x800A0000U;
+        /* ASM_BARRIER: Expose the PAL store so it can fill the callback call delay slot. */
+        __asm__("" : "=r"(page) : "0"(page));
+        *(s32 *)(page + 0x4D4C) = 0;
+        callback();
+    }
+}

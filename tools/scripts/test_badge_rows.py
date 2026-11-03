@@ -12,7 +12,7 @@ class BadgeRowsTest(unittest.TestCase):
         def header(name):
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',
                           (ROOT/'include/rr'/name).read_text(),flags=re.M)
-        body=(ROOT/'src/main/PAL/func_80030BEC.c').read_text()
+        body=(ROOT/'build/legacy/func_80030BEC.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r' asm\("\$\d+"\)','',body)
         body=re.sub(r'__asm__\("".*?\);',';',body)
@@ -21,7 +21,7 @@ class BadgeRowsTest(unittest.TestCase):
         # The shifted anchors preserve the target's signed displacements.
         body=body.replace('(u8 *)0x800B0000U','(actual->context_page.bytes+0x346C)')
         body=body.replace('(u8 *)0x800F0000U','(actual->row_page.bytes+4)')
-        helper=(ROOT/'src/main/PAL/func_80020074.c').read_text()
+        helper=(ROOT/'build/legacy/func_80020074.c').read_text()
         helper=re.sub(r'^#include[^\n]*\n','',helper,flags=re.M)
         helper=helper.replace('void *func_80020074(', 'void *native_sprite(')
         # Give the existing unprototyped helper boundaries pointer-safe native

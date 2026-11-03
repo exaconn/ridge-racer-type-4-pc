@@ -9,8 +9,8 @@ class Overlay662SelectionTest(unittest.TestCase):
     def test_flags_priorities_and_full_signed_callback_selection(self):
         root=Path(__file__).resolve().parents[2]
         body=(root/'src/overlays/PAL/662/func_80116690.c').read_text()
-        bridge=(root/'src/main/PAL/func_8004F218.c').read_text().replace('#include "rr/audio_pan.h"','')
-        sound=re.sub(r'^extern[^\n]*;\n','',(root/'src/main/PAL/func_8004F24C.c').read_text(),flags=re.M)
+        bridge=(root/'build/legacy/func_8004F218.c').read_text().replace('#include "rr/audio_pan.h"','')
+        sound=re.sub(r'^extern[^\n]*;\n','',(root/'build/legacy/func_8004F24C.c').read_text(),flags=re.M)
         source=r'''
 #include <assert.h>
 #include <stddef.h>

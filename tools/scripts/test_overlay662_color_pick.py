@@ -8,7 +8,7 @@ import unittest
 class Overlay662ColorPickTest(unittest.TestCase):
     def test_all_pixels_color_pairs_zoom_and_gates(self):
         root=Path(__file__).resolve().parents[2]
-        paths=['src/overlays/PAL/662/func_8011E6C8.c','src/main/PAL/func_8004F218.c','src/main/PAL/func_8004F24C.c','src/overlays/PAL/662/func_80125370.c']
+        paths=['src/overlays/PAL/662/func_8011E6C8.c','build/legacy/func_8004F218.c','build/legacy/func_8004F24C.c','src/overlays/PAL/662/func_80125370.c']
         bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',(root/p).read_text(),flags=re.M) for p in paths)
         source=r'''
 #include <assert.h>

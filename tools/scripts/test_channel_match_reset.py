@@ -53,7 +53,7 @@ void test_reset(void) {
 }
 '''
         for name in ('80088D64','80088DA4','8008A644','80088340','80089E1C'):
-            body = (root/('src/main/PAL/func_'+name+'.c')).read_text()
+            body = (root/('build/legacy/func_'+name+'.c')).read_text()
             body = re.sub(r'^#include[^\n]*\n|^extern[^\n]*\n', '', body, flags=re.M)
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r'"\$[0-9]+",\s*', '', body)

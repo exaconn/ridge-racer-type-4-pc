@@ -9,7 +9,7 @@ import re,subprocess,unittest
 ROOT=Path(__file__).resolve().parents[2]
 class SpuCommonTest(unittest.TestCase):
  def test_all_masks_modes_volumes_and_control_words(self):
-  body=(ROOT/'src/main/PAL/func_80082674.c').read_text().split('#define SPU(index)',1)[1]
+  body=(ROOT/'build/legacy/func_80082674.c').read_text().split('#define SPU(index)',1)[1]
   body='#define SPU(index)'+body
   body=re.sub(r' __asm__\("\$[0-9]+"\)','',body)
   code=r'''

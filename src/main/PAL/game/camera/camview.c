@@ -1,0 +1,157 @@
+#include "types.h"
+#include "rr/geometry.h"
+
+struct E { s16 a, h; };
+
+extern struct { char pad[0x24C]; char *p24c; char pad2[0x560 - 0x250]; int v560; } D_800AC650;
+extern int D_800ABEF8;
+extern int D_800ACC14;
+extern int D_800F2FD8;
+extern void func_8002CC88();
+extern void func_8002E5A0();
+extern int func_80044B24();
+extern void func_8005599C();
+extern void func_80055BF8();
+extern void func_80058038();
+extern void func_8005F0D0();
+extern void func_8006E09C();
+extern void func_8006E108();
+extern void func_8006EE3C();
+extern void func_800701C4();
+extern void func_80090DB4();
+extern short D_800A0D64[];
+
+void func_80055C84(void);
+int func_80055FD8(struct E *p, int a1);
+s32 func_8005602C(RrPairS16 *t, s32 idx, s32 x);
+int func_800560CC(int a0);
+
+void func_80055C84(void)
+{
+    struct { char m18[0x20]; char m38[0x20]; char m58[0x28]; char v80[0x10]; char c90[4]; char pad[24]; } L;
+    int *g = (int *)0x1F800000;
+    int s6;
+    int a1;
+    int *a3;
+    register char *a0 __asm__("$4");
+    register unsigned m __asm__("$6");
+    unsigned hm;
+    int d;
+    int t;
+
+    s6 = g[0x18];
+    g[0x18] = 3;
+    func_8005599C(D_800AC650.p24c, D_800AC650.p24c + 0x78, L.m18, L.m38);
+    func_800701C4(8);
+    func_8006EE3C(0x1F80007C, D_800AC650.p24c, L.m18);
+    g[0x1E] = 0;
+    func_8005F0D0(0x1F800000, D_800F2FD8 < 1, 0, 0);
+    func_8006EE3C(0x1F80007C, D_800AC650.p24c, L.m18);
+    func_80058038(D_800AC650.v560, 0, 0);
+    func_80055BF8(L.m38, D_800AC650.p24c, D_800AC650.p24c + 0x18, L.v80, L.m58);
+    func_8006E09C(L.m58, -*(short *)(D_800AC650.p24c + 0x2A));
+    func_80090DB4(L.m18, L.m58);
+    func_8006EE3C(0x1F80007C, L.v80, L.m58);
+    g[0x1E] = 0;
+    func_8005F0D0(0x1F800000, 1, 0, 0);
+    func_80055BF8(L.m38, D_800AC650.p24c, D_800AC650.p24c + 0x30, L.v80, L.m58);
+    func_8006E09C(L.m58, -*(short *)(D_800AC650.p24c + 0x42));
+    func_80090DB4(L.m18, L.m58);
+    func_8006EE3C(0x1F80007C, L.v80, L.m58);
+    a1 = 1;
+    g[0x1E] = 0;
+    if (D_800F2FD8 >= 3)
+        a1 = 2;
+    func_8005F0D0(0x1F800000, a1, 0, 0);
+    func_80055BF8(L.m38, D_800AC650.p24c, D_800AC650.p24c + 0x60, L.v80, L.m58);
+    func_8006E108(L.m58, -*(short *)(D_800AC650.p24c + 0x70));
+    func_80090DB4(L.m18, L.m58);
+    func_8006EE3C(0x1F80007C, L.v80, L.m58);
+    func_80058038(D_800AC650.v560, 2, 0);
+    func_80055BF8(L.m38, D_800AC650.p24c, D_800AC650.p24c + 0x48, L.v80, L.m58);
+    func_8006E09C(L.m58, -*(short *)(D_800AC650.p24c + 0x5A));
+    func_80090DB4(L.m18, L.m58);
+    func_8006EE3C(0x1F80007C, L.v80, L.m58);
+    func_80058038(D_800AC650.v560, *(int *)(D_800AC650.p24c + 0xA4) * 2 | 1, 0);
+    g[0x18] = s6;
+    L.c90[0] = 0x80;
+    L.c90[1] = 0x80;
+    L.c90[2] = 0x80;
+    g[1] = D_800ACC14 + 0xB70;
+    func_8002E5A0(&D_800ABEF8);
+    func_8002CC88(&D_800ABEF8, *(int *)L.c90, 0x80, 1);
+    t = func_80044B24(L.m18, (char *)&D_800ABEF8 + 0x20);
+    t = (t >> 3) + 0x64;
+    m = 0xFFFFFF;
+    t = t << 2;
+    a0 = (char *)t;
+    hm = 0xFF000000;
+    d = D_800ACC14;
+    a3 = (int *)g[1];
+    a0 = a0 + d;
+    *a3 = (*a3 & hm) | (*(unsigned *)(a0 + 0x70) & m);
+    *(unsigned *)(a0 + 0x70) = (*(unsigned *)(a0 + 0x70) & hm) | ((g[1] + 0xAFC) & m);
+    g[1] = d + 0x70;
+}
+
+int func_80055FD8(struct E *p, int a1) {
+    int t = a1 / 10;
+    int i = 0;
+    while (p[i].h >= 0) {
+        if (t < p[i].h) break;
+        i++;
+    }
+    return i;
+}
+
+s32 func_8005602C(RrPairS16 *t, s32 idx, s32 x) {
+    RrPairS16 *p;
+    if (idx == 0) return t[0].a;
+    p = (RrPairS16 *)(idx * 4 + (s32)t);
+    if (p->b < 0) return p->a;
+    return (p->a - p[-1].a) * (x - p[-1].b * 10) / ((p->b - p[-1].b) * 10) + p[-1].a;
+}
+
+int func_800560CC(int a0)
+{
+  int pad[2];
+  int i;
+  int r;
+  int q;
+  short *p;
+  int v1;
+  int a1;
+  int a2;
+  int a3;
+  int d;
+  int h;
+  i = func_80055FD8(D_800A0D64, a0);
+  if (i == 0)
+  {
+    return D_800A0D64[0];
+  }
+  p = (short *) ((i * 4) + ((int) D_800A0D64));
+  if (p[1] < 0)
+  {
+    return p[0];
+  }
+  v1 = p[-1];
+  a3 = p[0];
+  a1 = p[1] - v1;
+  a1 = a1 * 10;
+  d = a0 - (v1 * 10);
+  a2 = a3 - p[-2];
+  h = a1 >> 1;
+  if (d < h)
+  {
+    r = (((d * d) * a2) / 2) / (h * h);
+  }
+  else
+  {
+    d = a1 - d;
+    q = (((d * d) * a2) / 2) / (h * h);
+    r = a3 - q;
+  }
+  q = r;
+  return q;
+}

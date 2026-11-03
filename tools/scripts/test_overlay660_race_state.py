@@ -11,7 +11,7 @@ class OverlayRaceStateTest(unittest.TestCase):
     def test_state_gate_and_fade_publication(self):
         root = Path(__file__).resolve().parents[2]
         body = read_c_source(root / 'src/overlays/PAL/660/func_80117084.c')
-        fade = (root / 'src/main/PAL/func_8004FC18.c').read_text()
+        fade = (root / 'build/legacy/func_8004FC18.c').read_text()
         fade = re.sub(r'^extern[^\n]*;\n', '', fade, flags=re.M)
         source = r'''
 #include <assert.h>

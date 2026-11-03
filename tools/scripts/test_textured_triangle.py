@@ -5,7 +5,7 @@ import subprocess,unittest
 class TexturedTriangleTest(unittest.TestCase):
  def test_packet_and_pointer_abi(self):
   root=Path(__file__).resolve().parents[2]
-  bodies='\n'.join((root/f'src/main/PAL/func_{a}.c').read_text() for a in ['80095B74','80095AF4','80095B24','8002039C'])
+  bodies='\n'.join((root/f'build/legacy/func_{a}.c').read_text() for a in ['80095B74','80095AF4','80095B24','8002039C'])
   code=r'''
 #include <assert.h>
 #include <stdint.h>

@@ -8,7 +8,7 @@ import unittest
 class Overlay662UndoToolTest(unittest.TestCase):
     def test_navigation_and_fresh_pointer_pair_swaps(self):
         root=Path(__file__).resolve().parents[2]
-        paths=['src/overlays/PAL/662/func_8011E734.c','src/overlays/PAL/662/func_8011E694.c','src/overlays/PAL/662/func_8011D120.c','src/main/PAL/func_8004F218.c','src/main/PAL/func_8004F24C.c','src/overlays/PAL/662/func_801207C8.c']
+        paths=['src/overlays/PAL/662/func_8011E734.c','src/overlays/PAL/662/func_8011E694.c','src/overlays/PAL/662/func_8011D120.c','build/legacy/func_8004F218.c','build/legacy/func_8004F24C.c','src/overlays/PAL/662/func_801207C8.c']
         bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',(root/p).read_text(),flags=re.M) for p in paths)
         bodies=re.sub(r' __asm__\("\$[0-9]+"\)', '', bodies)
         source=r'''

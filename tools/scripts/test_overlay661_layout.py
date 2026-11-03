@@ -12,7 +12,7 @@ class Overlay661LayoutTest(unittest.TestCase):
         bodies = (root / 'src/overlays/PAL/661/func_80115598.c').read_text()
         bodies = re.sub(r'__asm__\("\$2"\)', '', bodies)
         helpers = '\n'.join(re.sub(r'^extern[^\n]*\n','',
-                            (root / f'src/main/PAL/func_{a}.c').read_text(),flags=re.M)
+                            (root / f'build/legacy/func_{a}.c').read_text(),flags=re.M)
                             for a in ('8003A198','80037040','800370BC'))
         helpers = helpers.replace("void func_80037040(", "void real_glyph(")
         source = r'''

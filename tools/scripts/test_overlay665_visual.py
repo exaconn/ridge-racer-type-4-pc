@@ -28,7 +28,7 @@ class Overlay665VisualTest(unittest.TestCase):
 
     def test_visual_initialization_and_full_pointer_scratch(self):
         root=Path(__file__).resolve().parents[2]
-        reset=re.sub(r'^extern[^\n]*;\n','',(root/'src/main/PAL/func_8003A198.c').read_text(),flags=re.M)
+        reset=re.sub(r'^extern[^\n]*;\n','',(root/'build/legacy/func_8003A198.c').read_text(),flags=re.M)
         body=(root/'src/overlays/PAL/665/func_80114918.c').read_text()
         source=PREFIX+r'''
 typedef struct {u32 guard[4];RrOverlay665VisualState visual;RrProjectionScratchPrefix scratch;s32 counter;s8 flag1,flag2;s32 mode;u16 selector;s16 scene,phase;u32 tail[4];} State;
@@ -87,7 +87,7 @@ int main(void){unsigned k,i;
         exe=(root/'assets/PAL/main.exe').read_bytes()
         table=struct.unpack_from('<4097h',exe,0x800+0x800A50C0-0x80010000)
         self.assertEqual((min(table[3072:]),max(table[3072:])),(0,4096))
-        trig=(root/'src/main/PAL/trig_sine.c').read_text()+(root/'src/main/PAL/func_800904F4.c').read_text()
+        trig=(root/'src/main/PAL/psyq/libgte/gtemem.c').read_text()+(root/'build/legacy/func_800904F4.c').read_text()
         body=(root/'src/overlays/PAL/665/func_801169BC.c').read_text()
         source=PREFIX+r'''
 typedef struct {u16 points[4];u8 rgb[3];u8 pad;const u8 *color;s32 blend,depth;RrOverlay665VisualState before;} Event;

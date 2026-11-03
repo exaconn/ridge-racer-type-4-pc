@@ -13,7 +13,7 @@ class Overlay662ColorsSevenFifteenTest(unittest.TestCase):
         rows=[struct.unpack_from('<8h',blob,sector*2048+0x80126F88-0x80114878+16*i) for i in range(46)]
         self.assertEqual(sorted(r[6] for r in rows),list(range(46)))
         data='static const RrGarageButton original[46]={\n'+',\n'.join('{{'+','.join(map(str,r[:4]))+'},'+','.join(map(str,r[4:]))+'}' for r in rows)+'\n};\n'
-        paths=['src/overlays/PAL/662/func_8011E734.c','src/overlays/PAL/662/func_8011E694.c','src/main/PAL/func_8004F218.c','src/main/PAL/func_8004F24C.c','src/overlays/PAL/662/func_80122188.c','src/overlays/PAL/662/func_80122310.c','src/overlays/PAL/662/func_801224AC.c','src/overlays/PAL/662/func_80122638.c','src/overlays/PAL/662/func_801227C4.c','src/overlays/PAL/662/func_80122954.c','src/overlays/PAL/662/func_80122AEC.c','src/overlays/PAL/662/func_80122C74.c','src/overlays/PAL/662/func_80122E14.c']
+        paths=['src/overlays/PAL/662/func_8011E734.c','src/overlays/PAL/662/func_8011E694.c','build/legacy/func_8004F218.c','build/legacy/func_8004F24C.c','src/overlays/PAL/662/func_80122188.c','src/overlays/PAL/662/func_80122310.c','src/overlays/PAL/662/func_801224AC.c','src/overlays/PAL/662/func_80122638.c','src/overlays/PAL/662/func_801227C4.c','src/overlays/PAL/662/func_80122954.c','src/overlays/PAL/662/func_80122AEC.c','src/overlays/PAL/662/func_80122C74.c','src/overlays/PAL/662/func_80122E14.c']
         bodies='\n'.join(re.sub(r'^extern[^\n]*;\n','',(root/p).read_text(),flags=re.M) for p in paths)
         source=r'''
 #include <assert.h>

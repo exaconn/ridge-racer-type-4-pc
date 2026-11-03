@@ -16,7 +16,7 @@ class OverlayMenuActionsTest(unittest.TestCase):
                    (667, '801187DC'), (662, '8011662C')]
         bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/{i}/func_{a}.c')
                            for i, a in entries)
-        resident = read_c_source(root / 'src/main/PAL/func_8004F24C.c')
+        resident = read_c_source(root / 'build/legacy/func_8004F24C.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

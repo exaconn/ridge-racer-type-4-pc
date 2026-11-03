@@ -17,7 +17,7 @@ class UiRowInitializationTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         header = (root/'include/rr/ui.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        body = (root/'src/main/PAL/func_8003E928.c').read_text()
+        body = (root/'build/legacy/func_8003E928.c').read_text()
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         assert body.count('page=(u8*)0x800F0000U;') == 1

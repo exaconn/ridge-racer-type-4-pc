@@ -49,7 +49,7 @@ void initialize(void) {
 void replace_bank(s32 bank) {D_8010F068[bank]=replacement;}
 '''
         for name in ('8007F794', '8007F910', '8007F934'):
-            body = (root / f'src/main/PAL/func_{name}.c').read_text()
+            body = (root / f'build/legacy/func_{name}.c').read_text()
             body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)

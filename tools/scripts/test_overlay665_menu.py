@@ -13,7 +13,7 @@ class ReplayMenuTest(unittest.TestCase):
                            for a in ('80114A24', '80114C4C'))
         bodies = re.sub(r'__asm__\("\$6"\)', '', bodies)
         reset = re.sub(r'^extern[^\n]*\n','',
-                       (root / 'src/main/PAL/func_8003A198.c').read_text(),flags=re.M)
+                       (root / 'build/legacy/func_8003A198.c').read_text(),flags=re.M)
         classifier = (root / 'src/overlays/PAL/665/func_8011629C.c').read_text()
         classifier = classifier.replace('ovl665_func_8011629C','real_classify')
         source = r'''

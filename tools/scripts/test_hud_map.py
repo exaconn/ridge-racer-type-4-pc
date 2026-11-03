@@ -5,7 +5,7 @@ from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN,UC_HOOK
 from unicorn.mips_const import *
 root=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file());os.chdir(root)
 P=Path(os.getenv('RR_TEST_DIR','build/tests/hud_map'));P.mkdir(parents=True,exist_ok=True)
-source=Path(sys.argv[1]) if len(sys.argv)>1 else root/'src/main/PAL/func_80021E2C.c';body=source.read_text().split('\n',1)[1];body=re.sub(r' __asm__\("\$\d+"\)','',body)
+source=Path(sys.argv[1]) if len(sys.argv)>1 else root/'build/legacy/func_80021E2C.c';body=source.read_text().split('\n',1)[1];body=re.sub(r' __asm__\("\$\d+"\)','',body)
 head=r'''
 #include <stdint.h>
 #include <stddef.h>

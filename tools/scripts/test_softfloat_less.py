@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class SoftfloatLessTest(unittest.TestCase):
  def test_all_exponent_pairs_and_encoding_boundaries(self):
-  body=(ROOT/'src/main/PAL/func_8007E3B4.c').read_text()
+  body=(ROOT/'build/legacy/func_8007E3B4.c').read_text()
   body=re.sub(r' __asm__\("\$\d+"\)','',body)
   body=re.sub(r'__asm__\(""[^;]*;', '',body)
   code=r'''

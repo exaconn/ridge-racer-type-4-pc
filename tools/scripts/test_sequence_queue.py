@@ -15,7 +15,7 @@ class SequenceQueueTest(unittest.TestCase):
         cls.addClassCleanup(cls.temporary.cleanup)
         header=(ROOT/'include/rr/sequence_queue.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(ROOT/'src/main/PAL/func_8004F2D8.c').read_text()
+        body=(ROOT/'build/legacy/func_8004F2D8.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
         assert body.count('(u8*)0x800F0000U')==1

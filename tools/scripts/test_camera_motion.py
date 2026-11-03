@@ -7,7 +7,7 @@ from elftools.elf.elffile import ELFFile
 from unicorn.mips_const import *
 sys.path.insert(0,'tools/scripts');from mips_preview_engine import Mips,signed
 ROOT=Path(__file__).resolve().parents[2];os.chdir(ROOT)
-p=ROOT/'include/rr';src=ROOT/'src/main/PAL/func_8005B9F4.c';rng=random.Random(0x5B9F4);cases=[];profiles={}
+p=ROOT/'include/rr';src=ROOT/'build/legacy/func_8005B9F4.c';rng=random.Random(0x5B9F4);cases=[];profiles={}
 for i in range(8192):
  b=bytearray(rng.randbytes(1484));base=16;motion=base+0x74
  put=lambda off,fmt,v:struct.pack_into('<'+fmt,b,off,v)

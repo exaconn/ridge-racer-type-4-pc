@@ -10,7 +10,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class MenuChoiceTest(unittest.TestCase):
     def test_actual_body_and_complete_mutable_owners(self):
-        s=(ROOT/'src/main/PAL/func_80036D40.c').read_text()
+        s=(ROOT/'build/legacy/func_80036D40.c').read_text()
         s=re.sub(r'^#include.*\n','',s,flags=re.M)
         prefix=r'''
 #include <assert.h>

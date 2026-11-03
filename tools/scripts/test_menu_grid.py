@@ -11,7 +11,7 @@ class MenuGridTest(unittest.TestCase):
     def test_native_grid(self):
         header=(ROOT/'include/rr/menu_grid.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(ROOT/'src/main/PAL/func_80041A54.c').read_text()
+        body=(ROOT/'build/legacy/func_80041A54.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r' asm\("\$\d+"\)','',body)
         body=re.sub(r'__asm__\("".*?\);',';',body)

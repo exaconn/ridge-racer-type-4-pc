@@ -10,7 +10,7 @@ import hashlib,json,os,re,struct,subprocess,sys
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN
 from elftools.elf.elffile import ELFFile
 sys.path.insert(0,'tools/scripts');from mips_preview_engine import Mips,signed
-ROOT=Path(__file__).resolve().parents[2];SOURCE=ROOT/'src/main/PAL/func_800486C4.c';CASES=4096
+ROOT=Path(__file__).resolve().parents[2];SOURCE=ROOT/'build/legacy/func_800486C4.c';CASES=4096
 C=r'''
 #include <assert.h>
 #include <stddef.h>

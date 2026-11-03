@@ -18,14 +18,14 @@ class InterruptCallbackExchangeTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2];d=Path(cls.temp.name)
         header=(root/'include/rr/library.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(root/'src/main/PAL/func_8008B7A0.c').read_text().replace('#include "rr/library.h"','')
+        body=(root/'build/legacy/func_8008B7A0.c').read_text().replace('#include "rr/library.h"','')
         body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
         observed=body.replace('func_8008B7A0','observed_exchange')
         sites={'raw=*D_800A6358;':'raw=test_read(D_800A6358);','*D_800A6358=0;':'test_write(D_800A6358,0);','*D_800A6358=saved;':'test_write(D_800A6358,saved);'}
         for old,new in sites.items():
             assert observed.count(old)==1
             observed=observed.replace(old,new)
-        wrapper=(root/'src/main/PAL/func_8008B394.c').read_text().replace('#include "rr/library.h"','')
+        wrapper=(root/'build/legacy/func_8008B394.c').read_text().replace('#include "rr/library.h"','')
         code='''#include <stdint.h>
 #include <stddef.h>
 typedef uint8_t u8; typedef int8_t s8; typedef uint16_t u16; typedef int16_t s16;

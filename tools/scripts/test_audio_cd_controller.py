@@ -3,7 +3,7 @@ import ctypes as C,struct,re,subprocess,os,sys,random,json,hashlib
 from elftools.elf.elffile import ELFFile
 from unicorn import *
 from unicorn.mips_const import *
-P=Path(os.getenv("RR_TEST_DIR","build/goal_50/part32/native"));P.mkdir(parents=True,exist_ok=True);source=Path(sys.argv[1]) if len(sys.argv)>1 else Path("src/main/PAL/func_800534D8.c");count=int(sys.argv[2]) if len(sys.argv)>2 else 8192
+P=Path(os.getenv("RR_TEST_DIR","build/goal_50/part32/native"));P.mkdir(parents=True,exist_ok=True);source=Path(sys.argv[1]) if len(sys.argv)>1 else Path("build/legacy/func_800534D8.c");count=int(sys.argv[2]) if len(sys.argv)>2 else 8192
 body=source.read_text().split('\n',1)[1];body=re.sub(r' __asm__\("[a-z0-9$]+"\)','',body)
 services=[('func_80052F2C','void',[]),('func_80053120','void',[]),('func_80053254','void',[]),('func_80053384','void',[]),('func_80053300','void',[]),('func_80052DA8','void',[]),('func_8008C0D8','s32',['s32','u8*']),('func_8008C5A0','u8*',['s32','u8*']),('func_8008C27C','s32',['s32','const u8*']),('func_8008F274','s32',['s32']),('func_8008C03C','void',[]),('func_80052AB8','void',[]),('func_80052C70','void',[]),('func_8001E84C','s32',['const char*','RrAudioState*']),('func_80052B48','void',['s32']),('func_80052E6C','void',[]),('func_8008BFB4','s32',[]),('func_8008C6A4','s32',['const u8*']),('func_80052ADC','void',['u16'])]
 head='''#include <stdint.h>

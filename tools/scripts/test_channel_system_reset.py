@@ -28,7 +28,7 @@ class ChannelSystemResetTest(unittest.TestCase):
         for name in ('channels.h','interrupts.h'):
             h=(root/'include/rr'/name).read_text()
             headers+=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',h,flags=re.M)
-        body=(root/'src/main/PAL/func_80098044.c').read_text()
+        body=(root/'build/legacy/func_80098044.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
         body=re.sub(r'"\$[0-9]+", ','',body)

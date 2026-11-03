@@ -10,7 +10,7 @@ class CarChoiceTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         bodies = '\n'.join((root / f'src/overlays/PAL/662/func_{a}.c').read_text()
                            for a in ('801153B0', '80118E6C'))
-        helpers = '\n'.join((root / f'src/main/PAL/func_{a}.c').read_text()
+        helpers = '\n'.join((root / f'build/legacy/func_{a}.c').read_text()
                             for a in ('8002B75C', '80037040'))
         source = r'''
 #include <assert.h>

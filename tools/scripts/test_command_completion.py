@@ -63,7 +63,7 @@ void test_reset(void) {
 }
 '''
         for name in ('8009C0A4', '8009BC3C'):
-            body = (root / ('src/main/PAL/func_' + name + '.c')).read_text()
+            body = (root / ('build/legacy/func_' + name + '.c')).read_text()
             body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
             body = re.sub(r'^extern s32 D_[^\n]*\n', '', body, flags=re.M)
             body = body.replace('(s32 *)0x800B0000U', '(test_ram+0x4000)')

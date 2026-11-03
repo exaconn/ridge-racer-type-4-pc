@@ -1,6 +1,0 @@
-void func_800913E8(int *a0, int *a1, int *a2) {
-    __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(a0));
-    __asm__ volatile ("lwc2 $6, 0(%0)" : : "r"(a1));
-    __asm__ volatile ("nop\n\t.word 0x4B08041B");
-    __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(a2));
-}

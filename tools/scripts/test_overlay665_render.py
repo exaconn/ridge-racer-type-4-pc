@@ -9,7 +9,7 @@ class Overlay665RenderTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2]
         body=(root/'src/overlays/PAL/665/func_8011643C.c').read_text()
         prepare=(root/'src/overlays/PAL/665/func_80116358.c').read_text()
-        scale=(root/'src/main/PAL/func_8002E828.c').read_text()
+        scale=(root/'build/legacy/func_8002E828.c').read_text()
         source=r'''
         #include <assert.h>
         #include <stddef.h>

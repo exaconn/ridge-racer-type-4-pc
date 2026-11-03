@@ -2,7 +2,7 @@
 from pathlib import Path
 import re, subprocess, tempfile, unittest
 ROOT=Path(__file__).resolve().parents[2]
-source=(ROOT/'src/main/PAL/func_8001E684.c').read_text()
+source=(ROOT/'build/legacy/func_8001E684.c').read_text()
 source=re.sub(r'\s+asm\("\$\d+"\)','',source)
 source=re.sub(r'__asm__\("".*?\);','',source)
 for pattern,replacement in [

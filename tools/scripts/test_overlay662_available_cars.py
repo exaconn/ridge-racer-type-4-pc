@@ -6,7 +6,7 @@ class AvailableCarsTest(unittest.TestCase):
  def test_progress_and_live_records(self):
   root=Path(__file__).resolve().parents[2]
   body=(root/'src/overlays/PAL/662/func_80116960.c').read_text()
-  codecs=(root/'src/main/PAL/func_80037040.c').read_text().replace('func_80037040','actual_decode')+'\n'+(root/'src/main/PAL/func_8003708C.c').read_text().replace('func_8003708C','actual_encode')
+  codecs=(root/'build/legacy/func_80037040.c').read_text().replace('func_80037040','actual_decode')+'\n'+(root/'build/legacy/func_8003708C.c').read_text().replace('func_8003708C','actual_encode')
   code=r'''
 #include <assert.h>
 #include <stddef.h>

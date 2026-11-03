@@ -10,7 +10,7 @@ class OverlayPulseTest(unittest.TestCase):
     def test_pulse_with_real_sine_and_full_word_phases(self):
         root = Path(__file__).resolve().parents[2]
         body = (root / 'src/overlays/PAL/662/func_8011D208.c').read_text()
-        trig = (root / 'src/main/PAL/trig_sine.c').read_text()
+        trig = (root / 'src/main/PAL/psyq/libgte/gtemem.c').read_text()
         exe = (root / 'assets/PAL/main.exe').read_bytes()
         offset = 0x800 + 0x800A50C0 - 0x80010000
         table = struct.unpack_from('<4097h', exe, offset)

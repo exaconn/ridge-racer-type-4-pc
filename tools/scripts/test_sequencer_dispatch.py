@@ -16,7 +16,7 @@ class SequencerDispatchTest(unittest.TestCase):
         def header(name):
             text=(ROOT/'include/rr'/name).read_text()
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
-        body=(ROOT/'src/main/PAL/func_80082D54.c').read_text()
+        body=(ROOT/'build/legacy/func_80082D54.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         code=r'''
 #include <assert.h>

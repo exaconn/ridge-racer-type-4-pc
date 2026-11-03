@@ -33,7 +33,7 @@ u32 *D_800ABC30;
 u32 *D_800ABBC8;
 ''' + header + '\nRrChannelControlRow36 test_rows[320];\n'
         for name in ('func_80094AD4', 'func_800970A8', 'func_80094AB0', 'func_80088D64'):
-            body = (root / 'src/main/PAL' / (name + '.c')).read_text()
+            body = (root / 'build/legacy' / (name + '.c')).read_text()
             body = body.replace('#include "types.h"', '')
             body = body.replace('#include "rr/channels.h"', '')
             body = body.replace('extern RrChannelControlRow36 D_8010F908[];', '#define D_8010F908 test_rows')

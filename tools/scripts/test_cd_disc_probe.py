@@ -20,7 +20,7 @@ class CdDiscProbeTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2];d=Path(cls.temp.name)
         header=(root/'include/rr/cd.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=native_body((root/'src/main/PAL/func_8008F3B0.c').read_text())
+        body=native_body((root/'build/legacy/func_8008F3B0.c').read_text())
         assert body.count('(const char *)0x80010000U')==1
         body=body.replace('(const char *)0x80010000U','message_page')
         code='''#include <stdint.h>
@@ -62,7 +62,7 @@ s32 func_8001E84C(const char *message,...){
 }
 '''+body
         for name in ('func_8008C0F8','func_8008C51C','func_8008C5A0'):
-            code+='\n'+native_body((root/'src/main/PAL'/f'{name}.c').read_text())
+            code+='\n'+native_body((root/'build/legacy'/f'{name}.c').read_text())
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'));cls.f=cls.lib.func_8008F3B0;cls.f.argtypes=[];cls.f.restype=C.c_int32

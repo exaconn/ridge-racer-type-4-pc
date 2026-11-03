@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate configs/<V>/main.yaml from main.base.yaml by cutting C units out of the asm text segment.
 
-A C unit is src/main/<V>/*.c; the functions it defines (func_XXXXXXXX, sizes from functions.txt)
+A C unit is src/main/<V>/**/*.c (segment name = path below src/main/<V>, e.g. game/car/carmove); the functions it defines (func_XXXXXXXX, sizes from functions.txt)
 must be one contiguous run. Usage: gen_config.py [VERSION]"""
 import re, sys
 from pathlib import Path
@@ -19,7 +19,7 @@ for l in (ROOT / f"configs/{V}/functions.txt").read_text().splitlines():
 
 units = []
 ro_units = []
-for c in sorted((ROOT / f"src/main/{V}").glob("*.c")):
+for c in sorted((ROOT / f"src/main/{V}").rglob("*.c")):
     names = function_definitions(c.read_text())
     if not names:
         sys.exit(f"{c.name}: no function definitions found")
@@ -32,15 +32,16 @@ for c in sorted((ROOT / f"src/main/{V}").glob("*.c")):
     for (a, s), (a2, _) in zip(rng, rng[1:]):
         if a + s != a2:
             sys.exit(f"{c.name}: functions not contiguous at {a + s:#x} vs {a2:#x}")
-    units.append((rng[0][0], rng[-1][0] + rng[-1][1], c.stem))
+    seg = c.relative_to(ROOT / f"src/main/{V}").with_suffix("").as_posix()
+    units.append((rng[0][0], rng[-1][0] + rng[-1][1], seg))
     for m in re.finditer(r"RODATA\s+(0x[0-9A-Fa-f]+)\s+(0x[0-9A-Fa-f]+)", c.read_text()):
-        ro_units.append((int(m[1], 16), int(m[1], 16) + int(m[2], 16), c.stem))
+        ro_units.append((int(m[1], 16), int(m[1], 16) + int(m[2], 16), seg))
 units = [(a, e, n, "c") for a, e, n in units]
 # Hand-written assembly (configs/<V>/hasm.txt): own splat `hasm` segments, so they
 # are reported apart from not-yet-decompiled `asm` and excluded from C coverage.
 hasm_path = ROOT / f"configs/{V}/hasm.txt"
 if hasm_path.exists():
-    c_names = {n for c in (ROOT / f"src/main/{V}").glob("*.c")
+    c_names = {n for c in (ROOT / f"src/main/{V}").rglob("*.c")
                for n in function_definitions(c.read_text())}
     for line in hasm_path.read_text().splitlines():
         line = line.split("#", 1)[0].strip()

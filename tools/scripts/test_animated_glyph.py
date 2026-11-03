@@ -5,7 +5,7 @@ from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN,UC_HOOK
 from unicorn.mips_const import *
 root=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file());os.chdir(root)
 P=Path(os.getenv('RR_TEST_DIR','build/tests/animated_glyph'));P.mkdir(parents=True,exist_ok=True)
-source=Path(sys.argv[1]) if len(sys.argv)>1 else root/'src/main/PAL/func_8001F808.c'
+source=Path(sys.argv[1]) if len(sys.argv)>1 else root/'build/legacy/func_8001F808.c'
 n=int(sys.argv[2]) if len(sys.argv)>2 else 65536
 s=r'''
 #include <stdint.h>

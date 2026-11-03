@@ -10,7 +10,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 class GpuUploadTest(unittest.TestCase):
     def test_actual_body_and_mmio_trace(self):
-        source=(ROOT/'src/main/PAL/func_800945F4.c').read_text()
+        source=(ROOT/'build/legacy/func_800945F4.c').read_text()
         source=re.sub(r'^#include.*\n','',source,flags=re.M)
         source=re.sub(r' asm\("\$\d+"\)','',source)
         source=re.sub(r'__asm__\s*(?:volatile\s*)?\(""[^;]*;',';',source)

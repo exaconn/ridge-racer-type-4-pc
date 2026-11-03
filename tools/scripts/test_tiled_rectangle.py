@@ -12,7 +12,7 @@ class TiledRectangleTest(unittest.TestCase):
         def header(name):
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',
                           (ROOT/'include/rr'/name).read_text(),flags=re.M)
-        body=(ROOT/'src/main/PAL/func_80019D5C.c').read_text()
+        body=(ROOT/'build/legacy/func_80019D5C.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r' asm\("\$\d+"\)','',body)
         body=re.sub(r'__asm__\("".*?\);',';',body)

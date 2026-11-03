@@ -34,7 +34,7 @@ s32 func_80085BA4(s32 *command) {return test_sink(command);}
 s32 test_unexpected_probe_calls;
 s32 func_8007FCD4(s32 ignored) {test_unexpected_probe_calls++;return 0;}
 '''
-        reset = (root / 'src/main/PAL/func_80086694.c').read_text()
+        reset = (root / 'build/legacy/func_80086694.c').read_text()
         reset = reset.replace('func_80086694', 'test_actual_reset')
         source += reset + '''
 struct S test_device;
@@ -47,7 +47,7 @@ void test_initialize(void) {
  D_800A4850=7;D_800A4854=-123;test_unexpected_probe_calls=0;
 }
 '''
-        body = (root / 'src/main/PAL/func_800865E4.c').read_text()
+        body = (root / 'build/legacy/func_800865E4.c').read_text()
         body = body.replace('#include "rr/library.h"', '')
         body = body.replace('extern int D_80110008[];', '')
         if body.count('(s32 *)0x80110000U') != 1:

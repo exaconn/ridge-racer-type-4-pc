@@ -10,9 +10,9 @@ class OverlayGarageActionsTest(unittest.TestCase):
     def test_priorities_and_live_callback_table(self):
         root = Path(__file__).resolve().parents[2]
         body = (root / 'src/overlays/PAL/662/func_8011DCDC.c').read_text()
-        sound = (root / 'src/main/PAL/func_8004F24C.c').read_text()
+        sound = (root / 'build/legacy/func_8004F24C.c').read_text()
         sound = re.sub(r'^extern[^\n]*;\n', '', sound, flags=re.M)
-        bridge = (root / 'src/main/PAL/func_8004F218.c').read_text()
+        bridge = (root / 'build/legacy/func_8004F218.c').read_text()
         bridge = bridge.replace('#include "rr/audio_pan.h"', '')
         source = r'''
 #include <assert.h>

@@ -9,7 +9,7 @@ class Overlay662ScreenInitTest(unittest.TestCase):
     def test_real_reset_and_mutating_setup(self):
         root=Path(__file__).resolve().parents[2]
         body=(root/'src/overlays/PAL/662/func_80118ED8.c').read_text()
-        reset=re.sub(r'^extern[^\n]*;\n','',(root/'src/main/PAL/func_8003A198.c').read_text(),flags=re.M)
+        reset=re.sub(r'^extern[^\n]*;\n','',(root/'build/legacy/func_8003A198.c').read_text(),flags=re.M)
         source=r'''
 #include <assert.h>
 #include <stdint.h>

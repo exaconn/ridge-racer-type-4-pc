@@ -5,7 +5,7 @@ import shutil, subprocess, sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
-files = sorted((ROOT / "src/main/PAL").glob("*.c"))
+files = sorted((ROOT / "src/main/PAL").rglob("*.c"))
 def run(f):
     r = subprocess.run([str(ROOT / ".venv/bin/python"), str(ROOT / "tools/scripts/fd.py"), str(f), "--no-asm"], capture_output=True, text=True, errors="replace")
     return f, r.returncode, r.stdout

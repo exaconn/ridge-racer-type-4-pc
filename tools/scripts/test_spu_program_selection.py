@@ -78,9 +78,9 @@ void test_reset(void) {
  D_801100F4=test_data[0];D_801100EC=test_programs+32768;D_801100F8=test_tones[0];
 }
 '''
-        body = ((root/'src/main/PAL/func_8008A564.c').read_text() +
-                (root/'src/main/PAL/spu_program.c').read_text() +
-                (root/'src/main/PAL/func_80084FB4.c').read_text())
+        body = ((root/'build/legacy/func_8008A564.c').read_text() +
+                (root/'src/main/PAL/psyq/libsnd/ssatr2.c').read_text() +
+                (root/'build/legacy/func_80084FB4.c').read_text())
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'"\$[0-9]+",\s*', '', body)

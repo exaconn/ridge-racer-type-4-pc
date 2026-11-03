@@ -7,7 +7,7 @@ stage=root/'tools/scripts'
 source_path=Path(sys.argv[1]) if len(sys.argv)>1 else root/'src/overlays/PAL/667/func_801161A8.c'
 body=source_path.read_text();macro='\n'.join(l for l in body.splitlines() if l.startswith('#define KEEP_GLYPH'))
 body=body[body.index('void ovl667_func_801161A8'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
-encoder=(root/'src/main/PAL/func_80037040.c').read_text().replace('void func_80037040','static void encode_original')
+encoder=(root/'build/legacy/func_80037040.c').read_text().replace('void func_80037040','static void encode_original')
 source=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -127,6 +127,6 @@ with TemporaryDirectory() as d:
  subprocess.run([str(exe)],check=True)
 
 if os.environ.get('RR_AUDIT_JSON'):
- deps=[source_path,Path(__file__),root/'include/rr/selection_initializer.h',root/'src/main/PAL/func_80037040.c']+sorted((root/'include/rr').glob('*.h'))
+ deps=[source_path,Path(__file__),root/'include/rr/selection_initializer.h',root/'build/legacy/func_80037040.c']+sorted((root/'include/rr').glob('*.h'))
  a=dict(cases=524288,engine='independent expected state model/native C',service_kinds=8,ui_rows=24,full_guarded_state=True,mutating_callbacks=True,full_host_pointers=True,sanitizers=['undefined','bounds'],source_sha256=hashlib.sha256(source_path.read_bytes()).hexdigest(),dependencies={str(f):hashlib.sha256(f.read_bytes()).hexdigest() for f in deps})
  Path(os.environ['RR_AUDIT_JSON']).write_text(json.dumps(a,indent=2)+'\n')

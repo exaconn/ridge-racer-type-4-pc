@@ -41,7 +41,7 @@ class VehicleResponseTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         header = (root/'include/rr/race_types.h').read_text() + (root/'include/rr/race.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        body = (root/'src/main/PAL/func_80047CE0.c').read_text()
+        body = (root/'build/legacy/func_80047CE0.c').read_text()
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'"\$[0-9]+",\s*', '', body)

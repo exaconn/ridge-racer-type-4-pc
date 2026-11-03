@@ -13,7 +13,7 @@ class ExtraLabelsTest(unittest.TestCase):
         bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/{o}/func_{a}.c')
                            for o,a in ((663,'80116744'),(662,'80118238')))
         bodies = re.sub(r'__asm__\("\$2"\)', '', bodies)
-        formatter = read_c_source(root / 'src/main/PAL/func_8002B814.c')
+        formatter = read_c_source(root / 'build/legacy/func_8002B814.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

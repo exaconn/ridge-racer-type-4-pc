@@ -873,7 +873,7 @@ segments:
       - [0x4e174, c, func_8005D974]
       - [0x4e58c, c, func_8005DD8C]
       - [0x4e5f4, c, func_8005DDF4]
-      - [0x4f100, asm, main_8005E900]
+      - [0x4f100, c, func_8005E900]
       - [0x4f4d4, c, func_8005ECD4]
       - [0x4f534, c, func_8005ED34]
       - [0x4f7bc, c, func_8005EFBC]

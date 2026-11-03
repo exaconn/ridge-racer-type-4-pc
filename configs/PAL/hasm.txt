@@ -14,7 +14,13 @@
 #   bios-trampoline li $t2,0xA0/0xB0/0xC0; jr $t2; li $t1,N  BIOS call stubs
 #   branch-to-next  conditional branch whose target is the instruction right after its
 #                   delay slot (gcc's jump pass always deletes such branches)
-#   store-ra        stores $ra to a global (C only spills $ra into its own frame)
+#   store-ra        stores $ra (or $sp/$gp) to memory outside its own frame
+#   ra-in-temp      copies $ra into a temp register and returns through it after calls
+#                   (C keeps $ra across calls only in its stack frame)
+#   at-as-gpr       computes in the assembler temporary $at (gcc never allocates $1)
+#   custom-abi      reads $t*/$v* on entry before writing them and is reached only from
+#                   hand-written code (C callers never pass values in those registers)
+#   falls-through   has no return and runs into the next hand-written function
 # GTE (cop2) use alone is NOT evidence: C reaches it through inline macros.
 # Format: <function> <evidence>[,<evidence>...]
 func_80058118 shared-entry
@@ -34,52 +40,136 @@ func_8005F82C trapping-arith
 func_8005F894 trapping-arith
 func_8005F920 trapping-arith
 func_8005FAA4 trapping-arith
+func_8005FC74 store-ra
+func_8005FCCC store-ra
 func_8005FD24 trapping-arith
 func_8005FE54 trapping-arith
+func_80060C70 store-ra
 func_80060D54 trapping-arith
 func_800611B0 store-at
+func_80061384 custom-abi
+func_800613C4 custom-abi
+func_80061414 custom-abi
+func_80061468 ra-in-temp
 func_800614C4 store-at
+func_80061868 at-as-gpr,custom-abi
 func_80061910 trapping-arith
 func_80061E44 store-at
+func_80062018 custom-abi
+func_80062058 custom-abi
+func_800620A8 custom-abi
+func_800620FC ra-in-temp
 func_80062158 store-at
+func_800624FC at-as-gpr,custom-abi
 func_800625A4 trapping-arith
 func_8006298C store-at
+func_80062B20 custom-abi
+func_80062B60 custom-abi
+func_80062BB0 custom-abi
+func_80062C04 ra-in-temp
 func_80062C60 store-at
+func_80062F78 at-as-gpr,custom-abi
 func_80063020 trapping-arith
 func_800634AC store-at
+func_80063640 custom-abi
+func_80063680 custom-abi
+func_800636D0 custom-abi
+func_80063724 ra-in-temp
 func_80063780 store-at
+func_80063A98 at-as-gpr,custom-abi
 func_80063B40 trapping-arith
 func_80063FC4 store-at
+func_80064198 custom-abi
+func_800641D8 custom-abi
+func_80064228 custom-abi
+func_8006427C ra-in-temp
 func_800642D8 store-at
+func_8006469C at-as-gpr,custom-abi
 func_80064744 trapping-arith
 func_80064CAC store-at
+func_80064E80 custom-abi
+func_80064EC0 custom-abi
+func_80064F10 custom-abi
+func_80064F64 ra-in-temp
 func_80064FC0 store-at
+func_80065378 at-as-gpr,custom-abi
 func_80065420 trapping-arith
 func_80065830 store-at
+func_800659C4 custom-abi
+func_80065A04 custom-abi
+func_80065A54 custom-abi
+func_80065AA8 ra-in-temp
 func_80065B04 store-at
+func_80065E30 at-as-gpr,custom-abi
 func_80065ED8 trapping-arith
 func_8006638C store-at
+func_80066520 custom-abi
+func_80066560 custom-abi
+func_800665B0 custom-abi
+func_80066604 ra-in-temp
 func_80066660 store-at
+func_8006698C at-as-gpr,custom-abi
+func_80066A34 at-as-gpr
+func_80066E50 at-as-gpr
 func_80066F18 trapping-arith
+func_80067318 custom-abi
+func_800678A8 custom-abi
+func_800678F8 custom-abi
+func_8006794C store-ra,custom-abi
+func_80067A0C at-as-gpr,custom-abi
 func_80067A94 trapping-arith
+func_80067F6C custom-abi
+func_800684FC custom-abi
+func_8006854C custom-abi
+func_800685A0 store-ra,custom-abi
+func_80068660 at-as-gpr,custom-abi
 func_800686E8 trapping-arith,store-at
 func_80068E8C store-at
 func_80069134 store-at
+func_800693FC at-as-gpr,custom-abi
+func_800694A4 store-ra,custom-abi
 func_80069630 trapping-arith,store-at
 func_80069E60 store-at
 func_8006A108 store-at
+func_8006A3D0 at-as-gpr,custom-abi
+func_8006A478 store-ra,custom-abi
 func_8006A604 trapping-arith
 func_8006AA30 store-at
+func_8006ABC4 custom-abi
+func_8006AC04 custom-abi
+func_8006AC54 custom-abi
+func_8006ACA8 ra-in-temp
 func_8006AD04 store-at
+func_8006B020 at-as-gpr,custom-abi
 func_8006B0C8 trapping-arith
 func_8006B59C store-at
+func_8006B730 custom-abi
+func_8006B770 custom-abi
+func_8006B7C0 custom-abi
+func_8006B814 ra-in-temp
 func_8006B870 store-at
+func_8006BB88 at-as-gpr,custom-abi
 func_8006BC30 trapping-arith
 func_8006C0D0 store-at
+func_8006C2A4 custom-abi
+func_8006C2E4 custom-abi
+func_8006C334 custom-abi
+func_8006C388 ra-in-temp
 func_8006C3E4 store-at
+func_8006C7D8 at-as-gpr,custom-abi
 func_8006C880 trapping-arith,store-at
 func_8006CE24 store-at
+func_8006CFF8 custom-abi
+func_8006D038 custom-abi
+func_8006D088 custom-abi
+func_8006D0DC ra-in-temp
 func_8006D138 store-at
+func_8006D4FC at-as-gpr,custom-abi
+func_8006D5A4 at-as-gpr
+func_8006DA44 at-as-gpr
+func_8006DB0C store-ra,at-as-gpr
+func_800717AC falls-through
+func_800717D0 custom-abi
 func_800907FC cop0
 func_80090884 trapping-arith
 func_80091844 branch-to-next

@@ -307,7 +307,7 @@ segments:
       - [0x16784, c, func_80025F84]
       - [0x167bc, c, func_80025FBC]
       - [0x16804, c, func_80026004]
-      - [0x169bc, asm, main_800261BC]
+      - [0x169bc, c, func_800261BC]
       - [0x16c8c, c, func_8002648C]
       - [0x16f9c, c, func_8002679C]
       - [0x17000, c, func_80026800]

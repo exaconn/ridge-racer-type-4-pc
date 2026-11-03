@@ -1292,7 +1292,7 @@ segments:
       - [0x795a4, c, func_80088DA4]
       - [0x79670, asm, main_80088E70]
       - [0x79674, c, func_80088E74]
-      - [0x79b44, asm, main_80089344]
+      - [0x79b44, c, func_80089344]
       - [0x79d40, c, func_80089540]
       - [0x79e1c, asm, main_8008961C]
       - [0x79e24, c, spu_program]

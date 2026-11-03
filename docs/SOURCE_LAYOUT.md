@@ -90,7 +90,7 @@ graph shows which units depend on each other (and therefore whether a unit bound
   spellings found in the sources (definition first) in every caller and keeps one only if every caller
   still matches at relocated Levenshtein distance 0. Symbols with no such spelling keep their local
   declaration (or the scoped alias block).
-* What stays local, and why: 855 cross-unit prototypes, 275 externs shared by several units and 748 externs used by one unit. For
+* What stays local, and why: 833 cross-unit prototypes (281 distinct functions), 263 externs shared by several units and 749 externs used by one unit. For
   these no single spelling keeps every caller at distance 0 (callers need `int f();` where the
   definition is `void f(int, int)`, or a different pointer type). That is itself evidence: such callers
   were compiled against their own local declaration, not against one shared header, so the original

@@ -75,3 +75,21 @@ where the merged text no longer compiled or matched. Treat the boundaries as edi
 * New matches: write `src/main/PAL/func_XXXXXXXX.c`, check with `fd.py`, then move it into the
   TU it belongs to (same compiler markers, address-contiguous with its neighbours) or leave it at
   top level until a neighbour is matched. `make check` is the final judge.
+
+## Headers
+Every translation unit that exports a function or a global gets its own header, mirrored under
+`include/` (`src/main/PAL/game/car/carmove1.c` -> `include/game/car/carmove1.h`). There is no
+catch-all header: a caller includes the header of the unit that defines the symbol, so the include
+graph shows which units depend on each other (and therefore whether a unit boundary is right).
+
+* Functions: the owner is the unit that defines them.
+* Globals (`D_…`): the data sections follow the order of the units, so a shared global is assigned to
+  the unit whose rank matches its address (interpolated from globals used by only one unit). The owner
+  only decides which header carries the declaration; it does not affect the bytes.
+* Types are unified without touching the bytes: for each symbol `tools/scripts/unit_headers.py` tries the
+  spellings found in the sources (definition first) in every caller and keeps one only if every caller
+  still matches at relocated Levenshtein distance 0. Symbols with no such spelling keep their local
+  declaration (or the scoped alias block).
+* Not done yet: prototypes that need project-local struct types (types must first move into headers),
+  forward prototypes of a unit's own functions (the unit should include its own header), and globals
+  used by a single unit.

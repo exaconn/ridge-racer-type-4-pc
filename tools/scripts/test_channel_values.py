@@ -51,7 +51,7 @@ void test_initialize(void) {
     D_80110114 = -123;
 }
 '''
-        body = (root / 'src/main/PAL/psyq/libsnd/vmchval.c').read_text()
+        body = (root / 'tools/scripts/fixtures/legacy/vmchval.c').read_text()
         body = body.replace('#include "rr/channels.h"', '')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'"\$[0-9]+", ', '', body)

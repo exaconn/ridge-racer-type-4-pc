@@ -199,7 +199,7 @@ segments:
       - [0x5298, c, func_80014A98]
       - [0x543c, asm, main_80014C3C]
       - [0x5734, c, func_80014F34]
-      - [0x5910, asm, main_80015110]
+      - [0x5910, c, func_80015110]
       - [0x5bfc, c, func_800153FC]
       - [0x5dd8, c, func_800155D8]
       - [0x5f7c, asm, main_8001577C]

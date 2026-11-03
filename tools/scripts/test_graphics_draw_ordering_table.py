@@ -66,7 +66,7 @@ void test_initialize(void) {
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.lib = C.CDLL(str(directory / 'function.so'))
-        cls.function = cls.lib.func_80093344
+        cls.function = cls.lib.DrawOTag
         cls.function.argtypes = [C.c_int32]
         cls.function.restype = None
         cls.configure = cls.lib.test_configure

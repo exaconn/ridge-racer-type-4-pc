@@ -2,7 +2,7 @@
 void ovl665_func_80118EB8(void) {
  switch(ovl665_D_80119768.scene00) {
  case 0:
-  func_80092CB8(0);ovl665_func_80114A24();
+  SetDispMask(0);ovl665_func_80114A24();
   ovl665_D_80119768.scene00=(s32)((u32)ovl665_D_80119768.scene00+1U);
   func_8005AF5C();func_8005B2D4(1);func_80053BB4(0);break;
  case 1:ovl665_func_80114C4C();break;

@@ -8,7 +8,7 @@ void ovl667_func_80114AF8(unsigned long configuration) {
     unsigned long first;
     unsigned long second;
     unsigned long third;
-    func_80092CB8(0);
+    SetDispMask(0);
     func_8009AEAC(1,3,configuration);
     func_8009AEAC(1,4,4);
     func_8009AEAC(4,0,(unsigned long)ovl667_func_8011492C);

@@ -772,7 +772,7 @@ segments:
       - [0x86698, pad, main_80095E98]
       - [0x8669c, hasm, func_80095E9C]
       - [0x867a0, c, psyq/libapi/kcopy]
-      - [0x867d4, hasm, func_80095FD4]
+      - [0x867d4, hasm, _ExitCard]
       - [0x86844, asm, main_80096044]
       - [0x86854, c, psyq/libcard/cardsect]
       - [0x86998, c, psyq/libcard/cardfmt]

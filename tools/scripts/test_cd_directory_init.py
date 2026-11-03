@@ -66,7 +66,7 @@ void func_8001E84C(const char *format, ...) {
     }
     logs++;va_end(ap);
 }
-s32 func_8008C140(s32 command,const u8 *parameters,u8 *result) {
+s32 CdControl(s32 command,const u8 *parameters,u8 *result) {
     assert(command==2 && result==0 && memcmp(parameters,&location,4)==0);
     assert(controls==reads);controls++;
     if(scenario==1 && controls==2)D_800102F0=directory_b;
@@ -80,12 +80,12 @@ s32 func_8008F090(s32 mode,void *result) {
     assert(mode==1 && !result && status_index<status_count);
     polls++;return statuses[status_index++];
 }
-s32 func_8008C6A4(const RrCdLocation *value) {
+s32 CdPosToInt(const RrCdLocation *value) {
     assert(logs==2 && !memcmp(value,&location,4));
     if(scenario==3)D_800102F0=directory_b;
     return base;
 }
-u8 *func_8008C5A0(s32 sector,u8 *out) {
+u8 *CdIntToPos(s32 sector,u8 *out) {
     assert(conversions<expected_count);
     assert(out==D_801094A8[conversions].location.c);
     assert(sector==base+2+conversions*3);

@@ -19,11 +19,11 @@
 #undef D_800F3A08
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80092D50 ((int (*)())func_80092D50)
+#define DrawSync ((int (*)())DrawSync)
 
 #define func_80092FFC ((int (*)())func_80092FFC)
 
-#undef func_80092D50
+#undef DrawSync
 
 #undef func_80092FFC
 

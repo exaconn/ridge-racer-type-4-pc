@@ -35,7 +35,7 @@ extern void func_8007F3D0();
 
 extern s32 func_8007FAB4();
 
-extern s32 func_8007FCD4();
+extern s32 _SpuIsInAllocateArea_();
 
 extern void func_80086084();
 
@@ -78,7 +78,7 @@ s32 func_80085BA4(SpuReverbAttr *attr) {
             return -1;
         }
         tbl = D_800A48C8;
-        if (func_8007FCD4(*(s32 *)((u8 *)D_800A48C8 + (mode << 2))) != 0) {
+        if (_SpuIsInAllocateArea_(*(s32 *)((u8 *)D_800A48C8 + (mode << 2))) != 0) {
             return -1;
         }
         mode_set = 1;

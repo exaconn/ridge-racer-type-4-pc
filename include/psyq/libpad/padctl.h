@@ -5,9 +5,9 @@
 
 void func_80097854();
 int func_800978E0();
-int func_800979AC();
+int PadInfoMode();
 int func_80097AA4();
-void func_80097C20();
-void func_80097CA0();
+void PadSetActAlign();
+void PadSetAct();
 
 #endif /* RR_PSYQ_LIBPAD_PADCTL_H */

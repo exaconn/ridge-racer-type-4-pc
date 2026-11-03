@@ -54,33 +54,33 @@ static void change(void){unsigned i,j;RrStrPlaybackState *p=w==&actual?players:e
   for(j=0;j<2;j++){p[i].commands10[j]=headers+next()%6;p[i].buffers18[j]=pixels[next()%6];}
  }
 }
-void func_80092CB8(s32 mode){event(1)->args[0]=mode;change();}
+void SetDispMask(s32 mode){event(1)->args[0]=mode;change();}
 void ovl668_func_801163FC(RrStrCommandHeader *p,u32 flags){Event *e=event(2);assert(p>=headers&&p<headers+6);e->args[0]=p-headers;e->args[1]=word(flags);change();}
 void ovl668_func_80116478(void *p,u32 words){uintptr_t n=(uintptr_t)p,start=(uintptr_t)pixels;Event *e=event(3);assert(n>UINT32_MAX&&n>=start&&n<start+sizeof(pixels)&&(n-start)%sizeof(pixels[0])==0);e->args[0]=(n-start)/sizeof(pixels[0]);e->args[1]=word(words);change();}
 s32 ovl668_func_801150D8(RrStrDisplayConfig *p){Event *e=event(4);s32 result;unsigned limit=scenario%8;
  e->args[0]=displayIndex(p);w->queries++;result=w->queries<=limit?-1:(scenario&8?INT32_MIN:0);e->args[1]=result;change();return result;
 }
-s32 func_8008F670(const RrCdLocation *p){Event *e=event(5);s32 frame=(scenario&32)?(s32)(w->queries%2):frames[(scenario+w->queries)%8];assert(p==&D_800AC650.currentC0);memcpy(&e->args[0],p,4);e->args[1]=frame;change();return frame;}
+s32 StGetBackloc(const RrCdLocation *p){Event *e=event(5);s32 frame=(scenario&32)?(s32)(w->queries%2):frames[(scenario+w->queries)%8];assert(p==&D_800AC650.currentC0);memcpy(&e->args[0],p,4);e->args[1]=frame;change();return frame;}
 s32 func_8001E84C(const char *format,...){va_list args;u32 frame;Event *e=event(6);assert(format==ovl668_D_8011487C);va_start(args,format);frame=va_arg(args,u32);va_end(args);e->args[0]=word(frame);change();return 1;}
 void ovl668_func_801153F0(u8 *p){Event *e=event(7);assert(p==D_800AC650.currentC0.c);memcpy(&e->args[0],p,4);change();}
 void ovl668_func_8011535C(RrStrDisplayConfig *p,s32 mode){Event *e=event(8);e->args[0]=displayIndex(p);e->args[1]=mode;assert(mode==0);change();}
-void func_80092D50(s32 mode){event(9)->args[0]=mode;change();}
+void DrawSync(s32 mode){event(9)->args[0]=mode;change();}
 void ovl668_func_80116298(s32 mode){event(10)->args[0]=mode;change();}
 void func_80083CD4(s8 a,s32 b,s32 c){Event *e=event(11);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
 ''' + body + r'''
 static void expected(void){RrStrPlaybackState *p;RrCdLocation *location=&D_800AC650.currentC0;s32 result;u32 frame;
- w->s.timer=word((u32)w->s.timer+1U);if(w->s.timer==4){seen[0]++;func_80092CB8(1);}else seen[1]++;
+ w->s.timer=word((u32)w->s.timer+1U);if(w->s.timer==4){seen[0]++;SetDispMask(1);}else seen[1]++;
  p=active();ovl668_func_801163FC(p->commands10[p->display24.word00],3);
  p=active();ovl668_func_80116478(p->buffers18[p->display24.word08],(u32)((int64_t)p->display24.rectangles[2].w*p->display24.rectangles[2].h/2));
  for(;;){p=active();result=ovl668_func_801150D8(&p->display24);if(result!=-1){seen[2]++;break;}
-  frame=(u32)func_8008F670(location);func_8001E84C(ovl668_D_8011487C,frame);
+  frame=(u32)StGetBackloc(location);func_8001E84C(ovl668_D_8011487C,frame);
   thresholdSeen[(frame>=D_800AC650.thresholdC8)*2+(word(frame)<=0)]++;
   if(frame>=D_800AC650.thresholdC8){D_800AC650.stopD0=1;seen[3]++;break;}
   if(word(frame)<=0){memcpy(location->c,D_800AC650.locationBC.c,4);seen[4]++;}else seen[5]++;
   ovl668_func_801153F0(location->c);
  }
  assert(w->queries>=1&&w->queries<=8);querySeen[w->queries-1]++;
- ovl668_func_8011535C(&active()->display24,0);func_80092D50(0);ovl668_func_80116298(1);
+ ovl668_func_8011535C(&active()->display24,0);DrawSync(0);ovl668_func_80116298(1);
  if(D_800AC650.stopD0==1){D_800AC650.phaseB4=2;func_80083CD4(0,0,0);seen[6]++;}else seen[7]++;
  if(w->s.controllers[0].buttons08&2048){func_80083CD4(0,0,0);D_800AC650.phaseB4=2;seen[8]++;}else seen[9]++;
 }

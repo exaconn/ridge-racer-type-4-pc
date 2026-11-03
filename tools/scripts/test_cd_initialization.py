@@ -107,13 +107,13 @@ void func_8008B364(void){
  service(3,0,0);
 }
 RrLibInterruptCallback func_8008B394(s32 channel,RrLibInterruptCallback callback){assert(channel==2 && callback==func_8008DDAC);service(4,channel,0);return 0;}
-s32 func_8008D1C8(s32 command,const u8 *params,u8 *result,s32 mode){
+s32 CD_cw(s32 command,const u8 *params,u8 *result,s32 mode){
  unsigned plan=(scenario>>1)%4;assert(params==0 && result==0 && mode==0);service(5,command,0);
  if(command==1){w->s.status.word=(scenario*0x1234567U&~16U)|((scenario&1)?16U:0U);return -1;}
  if(command==10)return plan==0?-1:0;
  assert(command==12);return plan==1?1:0;
 }
-s32 func_8008CC80(s32 mode,u8 *status){assert(mode==0 && status==0);service(6,0,0);return ((scenario>>1)%4)==2?2:3;}
+s32 CD_sync(s32 mode,u8 *status){assert(mode==0 && status==0);service(6,0,0);return ((scenario>>1)%4)==2?2:3;}
 ''' + body + r'''
 static s32 reference(void){
  func_800963DC(D_80011B08);func_8001E84C(D_80011B14,(u32)(uintptr_t)&D_800A6768);
@@ -123,17 +123,17 @@ static s32 reference(void){
  while(read8(w->s.irqPort)&7){write8(w->s.indexPort,1);write8(w->s.irqPort,7);write8(w->s.enablePort,7);}
  w->s.response[2]=0;w->s.response[1]=0;w->s.response[0]=2;
  write8(w->s.indexPort,0);write8(w->s.irqPort,0);write32(w->s.controlPort,0x1325);
- (void)func_8008D1C8(1,0,0,0);
- if(w->s.status.word&16)(void)func_8008D1C8(1,0,0,0);
- if(func_8008D1C8(10,0,0,0)!=0)return -1;
- if(func_8008D1C8(12,0,0,0)!=0)return -1;
- return func_8008CC80(0,0)==2?0:-1;
+ (void)CD_cw(1,0,0,0);
+ if(w->s.status.word&16)(void)CD_cw(1,0,0,0);
+ if(CD_cw(10,0,0,0)!=0)return -1;
+ if(CD_cw(12,0,0,0)!=0)return -1;
+ return CD_sync(0,0)==2?0:-1;
 }
 int main(void){unsigned i;s32 got,want;
  for(scenario=0;scenario<65536;scenario++)for(mutation=0;mutation<2;mutation++){
   memset(&initial,0,sizeof(initial));w=&initial;w->s.pending=(scenario>>4)%4;effect(9);
   for(i=0;i<4;i++){w->s.guard[i]=0x12345678U+i;w->s.tail[i]=0x87654321U-i;}
-  actual=initial;expected=initial;w=&actual;got=func_8008D86C();w=&expected;want=reference();
+  actual=initial;expected=initial;w=&actual;got=CD_init();w=&expected;want=reference();
   assert(got==want && memcmp(&actual,&expected,sizeof(actual))==0);
  }
  return 0;

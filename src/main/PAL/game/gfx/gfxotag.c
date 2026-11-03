@@ -103,7 +103,7 @@ void func_80044EC4(void) {
     func_8006EE3C(0x1F80007C, s2, sp10);
     s1 = func_80044B24(sp10, s2);
     if (s1 > 0) {
-        func_8009323C(D_800AC650.f50[D_800F4BF0], 0x15F);
+        ClearOTagR(D_800AC650.f50[D_800F4BF0], 0x15F);
         g[1] = D_800AC650.f50[D_800F4BF0];
         g[0x18] = s1 >> 7;
         if (s1 >> 7 >= 6) {
@@ -127,7 +127,7 @@ void func_80044EC4(void) {
         func_8006EE3C(0x1F80007C, s2, sp10);
         s1 = func_80044B24(sp10, s2);
         if (s1 > 0) {
-            func_8009323C(D_800AC650.f58[D_800F4BF0], 0x15F);
+            ClearOTagR(D_800AC650.f58[D_800F4BF0], 0x15F);
             g[1] = D_800AC650.f58[D_800F4BF0];
             g[0x18] = s1 >> 7;
             if (s1 >> 7 >= 6) {

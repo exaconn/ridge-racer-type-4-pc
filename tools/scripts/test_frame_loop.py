@@ -48,8 +48,8 @@ s32 func_8008BDE4(s32 n) {expect(1);assert(n==1);return INT_MIN;}
 void func_8008B364(void) {expect(2);}
 void func_80096E54(s32 n) {expect(3);assert(n==2);}
 void func_8001E988(void) {expect(4);D_800ABEAC=42;D_800F2DE4=77;D_800F4C6A=0;D_800F3A26=0;D_800F4D8A=-2;}
-void func_80092CB8(s32 n) {expect(5);assert(n==0 && D_800AC5DC==128);D_800ABEAC=0xFFFFFFFFU;}
-u32 *func_8009323C(u32 *p,s32 n) {
+void SetDispMask(s32 n) {expect(5);assert(n==0 && D_800AC5DC==128);D_800ABEAC=0xFFFFFFFFU;}
+u32 *ClearOTagR(u32 *p,s32 n) {
  assert(n==704);
  if(stage==6) {
   u32 bank=expected_counter&1;u8 *base=D_800ADAF0[bank].bytes;
@@ -63,7 +63,7 @@ u32 *func_8009323C(u32 *p,s32 n) {
 }
 s32 func_800128B8(void) {expect(8);D_800F4C6A=65534;D_800F3A26=65534;return -1;}
 void func_8004FD80(void) {expect(9);D_800F4C6A=selector_a;D_800F3A26=selector_b;}
-void func_80092D50(s32 n) {expect(11);assert(n==0);D_800AC5DC=threshold;}
+void DrawSync(s32 n) {expect(11);assert(n==0);D_800AC5DC=threshold;}
 s32 func_8008B154(s32 mode) {
  if(mode==1) {
   assert(stage==12);ticks++;D_800AC5DC=threshold==INT_MAX?INT_MIN:INT_MAX;
@@ -74,9 +74,9 @@ s32 func_8008B154(s32 mode) {
  expect(13);assert(mode==0);assert(ticks==(threshold==INT_MIN?1:3));
  D_800ACC14=alternate[4].bytes;return INT_MIN;
 }
-void *func_80093580(void *p) {expect(14);assert(p==alternate[4].bytes+0x5C);D_800ACC14=alternate[5].bytes;return p;}
-void *func_800933B4(void *p) {expect(15);assert(p==alternate[5].bytes);D_800ACC14=alternate[6].bytes;return p;}
-void func_80093344(void *p) {
+void *PutDispEnv(void *p) {expect(14);assert(p==alternate[4].bytes+0x5C);D_800ACC14=alternate[5].bytes;return p;}
+void *PutDrawEnv(void *p) {expect(15);assert(p==alternate[5].bytes);D_800ACC14=alternate[6].bytes;return p;}
+void DrawOTag(void *p) {
  if(stage==16) {
   expect(16);assert(p==alternate[6].bytes+0xB6C);D_800ACC14=alternate[7].bytes;
   /* Flag is observed after the first draw, including negative nonzero values. */

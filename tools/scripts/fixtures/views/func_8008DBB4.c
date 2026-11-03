@@ -11,7 +11,7 @@
 
 #undef D_800A6764
 
-s32 func_8008DBB4(u8 *a0, u32 a1) {
+s32 CD_getsector(u8 *a0, u32 a1) {
     volatile unsigned char *p;
     *D_800A674C = 0;
     *D_800A6758 = 0x80;

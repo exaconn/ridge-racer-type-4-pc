@@ -54,10 +54,10 @@ extern s32 D_800AC5DC;
 extern char D_8009FFDC[];
 extern char D_8009FFE4[];
 extern int func_800978E0();
-extern int func_800979AC();
+extern int PadInfoMode();
 extern int func_80097AA4();
-extern int func_80097C20();
-extern int func_80097CA0();
+extern int PadSetActAlign();
+extern int PadSetAct();
 extern int func_80096434();
 
 void func_8004BAD4(int i, short a, char b);
@@ -212,7 +212,7 @@ int a0;
     s1->w10 = -1;
     return;
   }
-  if (func_800979AC(s2, 2, 0) == 0)
+  if (PadInfoMode(s2, 2, 0) == 0)
     s1->h1C = 0;
   else
     s1->h1C = 1;
@@ -240,14 +240,14 @@ B:
   }
   if (s0 != 6)
     return;
-  { int t = func_800979AC(s2, 1, 0); v1 = func_800979AC(s2, 2, 0); s0 = t; }
+  { int t = PadInfoMode(s2, 1, 0); v1 = PadInfoMode(s2, 2, 0); s0 = t; }
   if (s0 == 0xE && v1 == 0x300)
   {
     func_80096434((char *)s1 + 0x40, 0x1C);
     s1->c40 = 1;
     s1->w10 = 2;
-    func_80097CA0(s2, (char *)s1 + 0x44, 1);
-    if (func_80097C20(s2, D_8009FFE4) != 0)
+    PadSetAct(s2, (char *)s1 + 0x44, 1);
+    if (PadSetActAlign(s2, D_8009FFE4) != 0)
     {
       ((unsigned char *)s1)[0x1B] = 1;
       s1->h1E = 0;
@@ -269,8 +269,8 @@ B:
       if (w11_r == 4 && v1 == 3)
         s1->c40 = s3;
     }
-    func_80097CA0(s2, (char *)s1 + 0x19, 2);
-    if (func_80097C20(s2, D_8009FFDC) == 0)
+    PadSetAct(s2, (char *)s1 + 0x19, 2);
+    if (PadSetActAlign(s2, D_8009FFDC) == 0)
       return;
     ((unsigned char *)s1)[0x1B] = 1;
     s1->h1E = 0;

@@ -1,7 +1,7 @@
 /* CC1_FLAGS: -fno-strength-reduce */
 #include "rr/frame_loop.h"
 extern void func_800912B4(s32,s32),func_800912D4(s32);
-extern void *func_800928E4(void *,s32,s32,s32,s32),*func_80092998(void *,s32,s32,s32,s32);
+extern void *SetDefDrawEnv(void *,s32,s32,s32,s32),*SetDefDispEnv(void *,s32,s32,s32,s32);
 void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags) {
     /* ASM_BARRIER: keep flags in S0 until the arena replaces their dead value. */
     register u32 input asm("$16")=flags;
@@ -54,10 +54,10 @@ void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags) {
     saved_flags=input;
     if(wide)width=480;
     env=D_800ADAF0;
-    func_800928E4(env,0,0,width,height);
-    func_800928E4(&D_800D0268,0,other_y,width,height);
-    func_80092998(&env->environment.display,0,other_y,width,height);
-    func_80092998(&D_800D02C4,0,0,width,height);
+    SetDefDrawEnv(env,0,0,width,height);
+    SetDefDrawEnv(&D_800D0268,0,other_y,width,height);
+    SetDefDispEnv(&env->environment.display,0,other_y,width,height);
+    SetDefDispEnv(&D_800D02C4,0,0,width,height);
     i=0;
     rgb24=saved_flags&1;
     one=1;

@@ -7,7 +7,7 @@
 
 #undef D_800ABC30
 
-s32 func_80097040(u32 id) {
+s32 GetRCnt(u32 id) {
     s32 index=id & 0xFFFF;
     s32 result;
     if(index<3) {

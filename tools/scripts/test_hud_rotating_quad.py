@@ -12,7 +12,7 @@ class HudRotatingQuadTest(unittest.TestCase):
   helpers=''
   for name in ['trig_sine.c','func_800904F4.c']:
    text=(ROOT/'tools/scripts/fixtures/legacy'/name).read_text();helpers+=re.sub(r'^#include[^\n]*\n','',text,flags=re.M)+'\n'
-  for old,new in [('func_80090424','real_sin'),('func_80090460','real_lookup'),('func_800904F4','real_cos')]:helpers=helpers.replace(old,new)
+  for old,new in [('func_80090424','real_sin'),('sin_1','real_lookup'),('func_800904F4','real_cos')]:helpers=helpers.replace(old,new)
   exe=(ROOT/'assets/PAL/main.exe').read_bytes();start=0x800+0x800A50C0-0x80010000
   rom=struct.unpack('<4097h',exe[start:start+8194]);sine=[round(4096*math.sin(i*math.tau/4096)) for i in range(4096)]
   code=r'''

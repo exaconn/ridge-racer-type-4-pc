@@ -168,7 +168,7 @@
 
 extern M2C_UNK D_80011E94;
 
-void func_80092D50(s32 arg0) {
+void DrawSync(s32 arg0) {
     if ((u8) D_800ABAC2 >= 2U) {
         D_800ABABC(&D_80011E94, arg0);
     }

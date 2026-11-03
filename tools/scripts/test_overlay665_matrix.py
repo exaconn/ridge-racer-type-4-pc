@@ -54,7 +54,7 @@ static s32 *multiply(s32 *basis,u16 *matrix) {
  return (s32*)matrix;
 }
 s32 *func_80090DB4(s32 *basis,u16 *matrix){return multiply(basis,matrix);}
-void func_800910E4(s32 *matrix) {
+void SetLightMatrix(s32 *matrix) {
  assert(w->calls++==1);assert(((uintptr_t)matrix&3)==0);
  memcpy(w->installed,matrix,20);
 }
@@ -82,7 +82,7 @@ static void reference(void) {
   for(row=0;row<3;row++)pair[1].halves[row*3+column]=(u16)((unsigned)input->bytes[column*4+row]*16);
  }
  (void)multiply((s32*)w->basis.matrix.words,pair[0].halves);
- func_800910E4((s32*)pair[0].words);
+ SetLightMatrix((s32*)pair[0].words);
 }
 static u32 rng=0x16358;
 static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}

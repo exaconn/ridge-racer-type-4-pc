@@ -125,3 +125,13 @@ defines the function includes that `rr/` header itself and would then see the un
 callers. Cases (a)-(c) are the same disagreement seen from three sides: the `rr/` prototype is a documentation-grade
 type, the units carry the spelling the original compiler saw. They cannot be merged without changing bytes or the
 host tests.
+
+## Symbol names
+Auto names (`func_XXXXXXXX`) are replaced by real names when the name is certain. `configs/PAL/sym.main.txt`
+is the registry (`Name = 0xADDR; // type:func`); `tools/scripts/rename_symbols.py` applies it to sources, headers,
+tests and configs, and `make split` regenerates the asm with the same names. 68 PsyQ library functions have their
+real names (`DrawSync`, `SetDispMask`, `CdControl`, `SetDrawEnv`, ...): a name is registered only if it exists as a
+symbol in the reference PsyQ decompilation and the hint list has exactly one address for it. Names that the hint list
+repeats at several addresses (`InterruptCallback`, `Menu_RebuildSelectableMask`, ...) or that are tool-made labels
+(`Gpu_*`, `CardObj_*`) are not registered. Fixture files keep their address-based file names (tests build the paths
+from the address); only their contents use the new names.

@@ -319,7 +319,7 @@ int func_8005CA88(void) {
 }
 
 void func_8005D2A0(void) {
-    func_80092CB8(0);
+    SetDispMask(0);
     func_80096434(&D_800ACA94, 0x78);
     func_8005C13C(0);
     func_8005C988(0);

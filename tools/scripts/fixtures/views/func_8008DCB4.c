@@ -9,7 +9,7 @@
 
 #undef D_800A6764
 
-s32 func_8008DCB4(u8 *a, u32 b) {
+s32 CD_getsector2(u8 *a, u32 b) {
     volatile int x;
     *D_800A674C = 0;
     *D_800A6758 = 0x80;

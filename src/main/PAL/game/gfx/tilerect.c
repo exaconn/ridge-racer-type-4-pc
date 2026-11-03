@@ -302,7 +302,7 @@ void func_80019F20(void) {
     func_8002AF8C(0, 1, 0);
     func_8002A344(0x1000C);
     sp10 = D_80010104;
-    func_80092F64(&sp10, 0, 0, 0);
+    ClearImage2(&sp10, 0, 0, 0);
     D_800AC5D0 = 0;
     D_8010BF74 = 0;
     D_800F4C6A = 0;

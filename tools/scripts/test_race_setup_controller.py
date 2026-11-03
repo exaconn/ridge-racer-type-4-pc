@@ -53,7 +53,7 @@ static Event *event(s32 kind){Event *e;assert(w->count<24);e=&w->events[w->count
 static void change(void){if(mutation)fill();}
 s32 func_80114988(void){event(1);change();return -123;}
 void func_80114AF8(unsigned long n){assert(n==0x7E900UL);event(2)->args[0]=(s32)n;change();}
-void func_80092D50(s32 n){event(3)->args[0]=n;change();}
+void DrawSync(s32 n){event(3)->args[0]=n;change();}
 void func_8004A678(void){event(4);change();}
 void func_80037B3C(s32 n){event(5)->args[0]=n;change();}
 void func_8004BB00(s32 n){assert(n==0||n==1);event(6)->args[0]=n;change();}
@@ -71,7 +71,7 @@ void func_80014A8C(s32 n){event(17)->args[0]=n;change();}
 '''+body+r'''
 static void expected(void){unsigned i,index,course,group;int enabled;int64_t third;static const u8 special[8]={0,0,1,1,1,0,0,1};
  if(D_800F4D44==4){seen[0]++;func_80114988();func_80114AF8(0x7E900UL);}else seen[1]++;
- func_80092D50(0);func_8004A678();func_80037B3C(D_800F4D44);
+ DrawSync(0);func_8004A678();func_80037B3C(D_800F4D44);
  enabled=D_800F4D44<2||D_800F4D44==6||(D_800F4D44==4&&D_80107178==2);D_800FF6F8=enabled;seen[2+enabled]++;
  if(D_800F4D44==4)seen[20+(D_80107178==2)]++;
  if(D_800F4D44!=5){seen[4]++;for(i=0;i<2;i++){

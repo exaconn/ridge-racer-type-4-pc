@@ -44,9 +44,9 @@
 #undef func_8008E7F4
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8008C3B0 ((s32 (*)(s32,const u8*,u8*))func_8008C3B0)
+#define CdControlB ((s32 (*)(s32,const u8*,u8*))CdControlB)
 
-#undef func_8008C3B0
+#undef CdControlB
 
 extern s32 func_8008B154(s32);
 
@@ -143,7 +143,7 @@ timeout:
         parameters=0;
         /* ASM_BARRIER: form the command and parameter arguments independently. */
         __asm__("" : "+r"(parameters) : "r"(command));
-        func_8008C3B0(command,parameters,0);
+        CdControlB(command,parameters,0);
     }
     result=func_8008EB6C(0)>0;
     /* ASM_BARRIER: finish the Boolean result before restoring saved temporaries. */

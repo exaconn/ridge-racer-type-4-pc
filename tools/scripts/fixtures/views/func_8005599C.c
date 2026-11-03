@@ -65,11 +65,11 @@ extern int func_80090DB4();
 
 extern int func_80090F74();
 
-extern int func_800910E4();
+extern int SetLightMatrix();
 
-extern int func_80091114();
+extern int SetColorMatrix();
 
-extern int func_80091274();
+extern int SetBackColor();
 
 void func_8005599C(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
     M32 s10, s30, s50;
@@ -100,9 +100,9 @@ void func_8005599C(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
         n++;
     } while (n < 3);
     func_80090914(D_800ABED0, &s10, &s30);
-    func_800910E4(&s30);
-    func_80091114(&s70);
-    func_80091274((unsigned char)a1[0x24], (unsigned char)a1[0x25], (unsigned char)a1[0x26]);
+    SetLightMatrix(&s30);
+    SetColorMatrix(&s70);
+    SetBackColor((unsigned char)a1[0x24], (unsigned char)a1[0x25], (unsigned char)a1[0x26]);
     func_80090F74(&s10, &s90);
     *a2 = s10;
 }

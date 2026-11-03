@@ -17,5 +17,5 @@ s32 func_800963DC(const char *message);
 #define RR_CD_WRITE8(port,value) (*(port)=(value))
 #define RR_CD_WRITE32(port,value) (*(port)=(value))
 #endif
-s32 func_8008D86C(void);
+s32 CD_init(void);
 #endif

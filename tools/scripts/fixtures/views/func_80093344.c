@@ -166,7 +166,7 @@
 
 extern const char D_80011F38[];
 
-void func_80093344(s32 ordering_table) {
+void DrawOTag(s32 ordering_table) {
     /* ASM_BARRIER: Keep the third dispatch argument distinct from the final constant zero. */
     register s32 second;
     register s32 third;

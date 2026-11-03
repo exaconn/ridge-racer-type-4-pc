@@ -27,7 +27,7 @@ class CdReadCallbackTest(unittest.TestCase):
         assert n==1, 'native callback page must replace exactly one PAL page'
         decoder=(ROOT/'tools/scripts/fixtures/legacy/func_8008C6A4.c').read_text()
         decoder=re.sub(r'^#include[^\n]*\n','',decoder,flags=re.M)
-        decoder=decoder.replace('func_8008C6A4','actual_decode')
+        decoder=decoder.replace('CdPosToInt','actual_decode')
         code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -211,11 +211,11 @@ RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback c){return set(0,2,
 s32 func_8008C51C(u8 *p,u32 n){return read_data(0,0,p,n);}
 s32 func_8008C53C(u8 *p,u32 n){return read_data(0,1,p,n);}
 void func_8008C580(s32 mode){sync_transfer(0,mode);}
-s32 func_8008C6A4(void *p){return decode(0,p);}
+s32 CdPosToInt(void *p){return decode(0,p);}
 s32 func_800963DC(const char *s,...){return diagnostic(0,s);}
 s32 func_8008B154(s32 mode){return clock_tick(0,mode);}
 s32 func_8008EB6C(s32 mode){return restart(0,mode);}
-s32 func_8008C27C(s32 c,const u8 *p){return command(0,c,p);}
+s32 CdControlF(s32 c,const u8 *p){return command(0,c,p);}
 void func_8008EA9C(void){completion_effect^=8;}
 void func_8008E7F4(void){completion_effect^=16;}
 static void reference(s32 event,u8 *data) {

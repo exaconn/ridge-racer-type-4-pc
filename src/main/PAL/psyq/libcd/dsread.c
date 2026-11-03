@@ -3,8 +3,8 @@
 int func_8008E780(a, b, c) int a; int b; int c; {
     int buf[2];
     int z, r;
-    func_8008C5A0(b, buf);
-    func_8008C140(2, buf, 0);
+    CdIntToPos(b, buf);
+    CdControl(2, buf, 0);
     func_8008EEF4(a, c, 0x80);
     /* ASM_BARRIER: stops cse turning the second zero argument into a copy of a0 */
     __asm__("" : "=r"(z) : "0"(0));

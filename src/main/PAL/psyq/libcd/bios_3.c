@@ -8,7 +8,7 @@
 
 extern s32 func_8001E84C();
 extern s32 func_8008B154(s32);
-extern void func_8008D65C(void);
+extern void CD_flush(void);
 extern s32 func_800963DC(const char *);
 extern const char D_80011A14[];
 extern const char D_80011A24[];
@@ -23,9 +23,9 @@ extern const char *D_80110338[];
 /* $at as the %hi() base: with $1 allocatable cc1 2.8.1 emits lui $1,%hi / sw %lo($1) and its reorg fills the jr/jal delay slot with the sw (see DECOMP_GUIDE "delay-slot store"). */
 extern int D_800A6730;
 
-s32 func_8008DA4C(s32 mode);
-s32 func_8008DBB4(u8 *a0, u32 a1);
-s32 func_8008DCB4(u8 *a, u32 b);
+s32 CD_datasync(s32 mode);
+s32 CD_getsector(u8 *a0, u32 a1);
+s32 CD_getsector2(u8 *a, u32 b);
 void func_8008DDA0(int a);
 void func_8008DDAC(void);
 
@@ -44,13 +44,13 @@ static inline int check_alarm(s32 limit, char **ac, volatile u8 *st, char **sc) 
                 x5
             );
         }
-        func_8008D65C();
+        CD_flush();
         return -1;
     }
     return 0;
 }
 
-s32 func_8008DA4C(s32 mode) {
+s32 CD_datasync(s32 mode) {
     s32 limit;
     char **ac;
     volatile u8 *st;
@@ -77,7 +77,7 @@ s32 func_8008DA4C(s32 mode) {
     return 1;
 }
 
-s32 func_8008DBB4(u8 *a0, u32 a1) {
+s32 CD_getsector(u8 *a0, u32 a1) {
     volatile unsigned char *p;
     *D_800A674C = 0;
     *D_800A6758 = 0x80;
@@ -101,7 +101,7 @@ s32 func_8008DBB4(u8 *a0, u32 a1) {
     return 0;
 }
 
-s32 func_8008DCB4(u8 *a, u32 b) {
+s32 CD_getsector2(u8 *a, u32 b) {
     volatile int x;
     *D_800A674C = 0;
     *D_800A6758 = 0x80;

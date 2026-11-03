@@ -14,9 +14,9 @@ extern int func_80052800();
 
 extern int func_800929D4();
 
-extern int func_80092B48();
+extern int SetGraphDebug();
 
-extern int func_80092CB8();
+extern int SetDispMask();
 
 extern int func_800907FC();
 
@@ -144,8 +144,8 @@ void func_8001E988(void)
     func_8004EC28();
     func_80052800();
     func_800929D4(0);
-    func_80092B48(0);
-    func_80092CB8(0);
+    SetGraphDebug(0);
+    SetDispMask(0);
     func_800907FC();
     func_80077E10(1);
     func_8004A55C();

@@ -41,7 +41,7 @@ static u32 *output(World *w){switch(alias){
  case 6:return &w->audio.sector2634;
  default:return (u32*)&w->context.prefix.counterC4;
 }}
-u8 *func_8008C5A0(s32 sector,u8 *location){
+u8 *CdIntToPos(s32 sector,u8 *location){
  unsigned i;u32 value=(actual.archives[bank].entries[id].position&0x0fffffffU)+actual.audio.sector2634;
  assert(calls++==0 && (u32)sector==value && location==actual.file.location.c);
  assert((uintptr_t)location>UINT32_MAX && (uintptr_t)actual.audio.archive2638>UINT32_MAX);

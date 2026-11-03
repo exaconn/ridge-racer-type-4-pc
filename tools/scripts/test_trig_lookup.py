@@ -32,7 +32,7 @@ s16 test_rom[4097];
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'))
-        cls.sin=cls.lib.func_80090424;cls.cos=cls.lib.func_800904F4;cls.lookup=cls.lib.func_80090460
+        cls.sin=cls.lib.func_80090424;cls.cos=cls.lib.func_800904F4;cls.lookup=cls.lib.sin_1
         for f in (cls.sin,cls.cos,cls.lookup):f.argtypes=[C.c_int32];f.restype=C.c_int32
         cls.rom=(C.c_int16*4097).in_dll(cls.lib,'test_rom')
         exe=(root/'assets/PAL/main.exe').read_bytes();offset=0x800+0x800A50C0-0x80010000

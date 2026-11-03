@@ -170,7 +170,7 @@ extern int func_80096444();
 
 extern char D_80011F4C[];
 
-int func_800933B4(int *a0) {
+int PutDrawEnv(int *a0) {
     unsigned char *p = &D_800ABAC2;
     if (*p >= 2) {
         D_800ABABC(D_80011F4C, a0);

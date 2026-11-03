@@ -56,7 +56,7 @@ extern s32 func_8008B154(s32);
 
 extern s32 func_8008B4B8(void);
 
-extern s32 func_8008CC80(s32, u8 *);
+extern s32 CD_sync(s32, u8 *);
 
 extern const char D_80011AB0[];
 
@@ -109,7 +109,7 @@ static inline int check_alarm(char **ac, char ** sc, volatile u8 *st) {
             sc[s0_],
             x5
         ); }
-        func_8008D65C();
+        CD_flush();
         return -1;
     }
     return 0;
@@ -129,7 +129,7 @@ static inline void cd_poll_cb(volatile u8 *st, volatile u8 *st1) {
     *D_800A674C = saved;
 }
 
-s32 func_8008D1C8(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
+s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     s32 i;
     u8 *src;
     u8 *dst;
@@ -150,7 +150,7 @@ s32 func_8008D1C8(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
         register s32 a0_zero __asm__("$4") = 0;
         /* ASM_BARRIER: Invalidate reload_cse_regs tracking on $a0 so $a1=0 stays move $a1,$zero. */
         __asm__("" : "+r"(a0_zero));
-        func_8008CC80(a0_zero, 0);
+        CD_sync(a0_zero, 0);
     }
     if (arg0 == 2) {
         for (i = 0; i < 4; i++) {

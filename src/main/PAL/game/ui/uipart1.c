@@ -154,7 +154,7 @@ void func_8002A344(a0) int a0; {
             st->b = 0;
         } else {
             if (t == 2) {
-                if (D_800F4CB0 == 0) func_80092CB8(1);
+                if (D_800F4CB0 == 0) SetDispMask(1);
             }
             D_800ACC68.b = D_800ACC68.b + 1;
         }

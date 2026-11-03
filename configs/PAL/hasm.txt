@@ -192,7 +192,7 @@ func_80095E30 tail-jump
 func_80095E74 tail-jump
 func_80095E9C bios-trampoline,store-ra
 func_80095F30 bios-trampoline,store-ra
-func_80095FD4 bios-trampoline,store-ra
+_ExitCard bios-trampoline,store-ra
 func_800963A4 bios-trampoline
 func_800963B4 bios-trampoline
 func_800963DC bios-trampoline

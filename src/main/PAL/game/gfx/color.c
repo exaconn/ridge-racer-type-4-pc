@@ -17,7 +17,7 @@ void func_8004C138(const RrHsvColor input,RrRgbColor output);
 
 void func_8004C098(int i) {
     if (D_800F3A38[i].f1c != 0) {
-        func_80097C58(i * 16, 1, 0);
+        PadSetMainMode(i * 16, 1, 0);
     }
 }
 

@@ -126,7 +126,7 @@ RrLibCompletionCallback func_8008C118(RrLibCompletionCallback c){return setter(0
 RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback c){return setter(0,1,c);}
 RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback c){return setter(0,2,c);}
 u8 func_8008BF94(void){return status(0);}
-s32 func_8008C3B0(s32 c,const u8 *p,u8 *r){return command(0,c,p,r);}
+s32 CdControlB(s32 c,const u8 *p,u8 *r){return command(0,c,p,r);}
 s32 func_8008EB6C(s32 arg){return begin(0,arg);}
 static s32 reference(s32 sectors,u8 *buffer,u32 mode) {
     if(expected.state.finished24) {

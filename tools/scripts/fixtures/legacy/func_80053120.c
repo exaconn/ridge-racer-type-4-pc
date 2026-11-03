@@ -16,7 +16,7 @@ extern struct {
 extern unsigned int D_800F7430;
 extern int func_80052ADC();
 extern int func_8008C0D8();
-extern int func_8008C140();
+extern int CdControl();
 
 void func_80053120()
 {
@@ -30,7 +30,7 @@ void func_80053120()
         if (func_8008C0D8(1, 0) == 0) break;
         D_800F4DB8.f2678 = D_800F4DB8.f2678 + 1;
     case 2:
-        if (func_8008C140(9, 0, 0) == 0) break;
+        if (CdControl(9, 0, 0) == 0) break;
         goto inc;
     case 3:
         r = func_8008C0D8(1, 0);

@@ -27,8 +27,8 @@ void func_800973C4(s32 value);
 s32 func_800973D0(void);
 void func_800973E0();
 void func_80097470();
-s32 func_80097500(void);
-void func_80097530();
+s32 StartPAD(void);
+void StopPAD();
 int func_80097568(void);
 
 void func_800973C4(s32 value) {
@@ -65,14 +65,14 @@ void func_80097470(a0, a1, a2, a3) int a0; int a1; int a2; int a3; {
     __asm__ volatile ("" : : : "memory");
 }
 
-s32 func_80097500(void) {
+s32 StartPAD(void) {
     func_800976D4();
     func_80096F84(0);
     func_80097724();
     return 1;
 }
 
-void func_80097530() { func_80097738(); func_800976E4(); func_800975E0(); D_800ABC50 = 0; }
+void StopPAD() { func_80097738(); func_800976E4(); func_800975E0(); D_800ABC50 = 0; }
 
 int func_80097568(void) {
     int *p;

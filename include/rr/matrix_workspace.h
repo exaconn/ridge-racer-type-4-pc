@@ -8,6 +8,6 @@
 typedef union {u32 words[8];u16 halves[16];RrMatrixWords32 matrix;} RrPreviewMatrixWorkspace;
 extern RrPreviewMatrixWorkspace D_800ABED0;
 s32 *func_80090DB4(s32 *basis,u16 *matrix);
-void func_800910E4(s32 *matrix);
+void SetLightMatrix(s32 *matrix);
 RR_ASSERT_SIZE(RrPreviewMatrixWorkspace,32);
 #endif

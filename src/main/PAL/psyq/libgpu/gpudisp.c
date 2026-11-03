@@ -58,16 +58,16 @@ extern u8 D_800ABBBC[5];
 extern u32 D_80112788[10];
 extern u32 D_801127B0[4];
 
-DISPENV_T *func_80093580(DISPENV_T *env);
+DISPENV_T *PutDispEnv(DISPENV_T *env);
 int func_80093A78(int a);
 u32 func_80093AAC(void);
-void func_80093ADC(void *arg0, M2C_UNK arg1);
-void func_80093B14(void *arg0, void *arg1);
+void SetTexWindow(void *arg0, M2C_UNK arg1);
+void SetDrawArea(void *arg0, void *arg1);
 void func_80093B94(void *arg0, void *arg1);
 void func_80093BD4(void *arg0, s32 arg1, s32 arg2);
 void func_80093BFC(char *p, int a);
 void func_80093C24(void *arg0, s32 arg1, s32 arg2, s32 arg3, RrGpuRectangleFields *arg4);
-void func_80093C78(u32 *arg0, RrFrameEnvironment *arg1);
+void SetDrawEnv(u32 *arg0, RrFrameEnvironment *arg1);
 void func_80093E70(u32 *arg0, RrFrameEnvironment *arg1);
 int func_800940E0(int a0, int a1, int a2);
 u32 func_80094100(s32 a0, s32 a1);
@@ -82,7 +82,7 @@ void func_80094AB0(u32 command);
 s32 func_80094AD4(s32 index);
 int func_80094AE8(int *a, int n);
 
-DISPENV_T *func_80093580(DISPENV_T *env) {
+DISPENV_T *PutDispEnv(DISPENV_T *env) {
     u32 mode;
     /* ASM_BARRIER: keep p in $s2 so env gets $s1 */
     register u8 *p asm("$18");
@@ -212,13 +212,13 @@ u32 func_80093AAC(void) {
 
 #undef D_800ABAB8
 
-void func_80093ADC(void *arg0, M2C_UNK arg1) {
+void SetTexWindow(void *arg0, M2C_UNK arg1) {
     M2C_FIELD(arg0, s8 *, 3) = 2;
     M2C_FIELD(arg0, s32 *, 4) = func_8009424C(arg1);
     M2C_FIELD(arg0, s32 *, 8) = 0;
 }
 
-void func_80093B14(void *arg0, void *arg1) {
+void SetDrawArea(void *arg0, void *arg1) {
     M2C_FIELD(arg0, s8 *, 3) = 2;
     M2C_FIELD(arg0, s32 *, 4) = func_80094100(M2C_FIELD(arg1, s16 *, 0), M2C_FIELD(arg1, s16 *, 2));
     M2C_FIELD(arg0, s32 *, 8) = func_80094198((s16) (((u16) M2C_FIELD(arg1, s16 *, 0) + M2C_FIELD(arg1, u16 *, 4)) - 1), (s16) (((u16) M2C_FIELD(arg1, s16 *, 2) + M2C_FIELD(arg1, u16 *, 6)) - 1));
@@ -250,7 +250,7 @@ void func_80093C24(void *arg0, s32 arg1, s32 arg2, s32 arg3, RrGpuRectangleField
     M2C_FIELD(arg0, s32 *, 8) = func_8009424C(arg4);
 }
 
-void func_80093C78(u32 *arg0, RrFrameEnvironment *arg1) {
+void SetDrawEnv(u32 *arg0, RrFrameEnvironment *arg1) {
     register RrFrameEnvironment *env=arg1;
     register u32 *output=arg0;
     /* ASM_BARRIER: retain this arithmetic or packet-address phase. */

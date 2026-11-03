@@ -45,7 +45,7 @@ void ovl660_func_80114C40(void)
 {
     s32 val;
 
-    func_80092CB8(0);
+    SetDispMask(0);
     func_8002A604();
     ovl660_preview_bank = 0;
     ovl660_preview_selection = 0;

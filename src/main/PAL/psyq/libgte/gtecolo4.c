@@ -10,7 +10,7 @@ RrVec3i *func_80091574(const RrVec3i *input,RrVec3i *output);
 RrVec3i *func_8009159C(const RrVec3i *input,RrVec3i *output);
 int func_800915C4(int a0, int a1, int a2);
 int func_800915E4(int a0, int a1, int a2, int a3);
-void func_80091608(int *a0, int *a1, int *a2);
+void OuterProduct12(int *a0, int *a1, int *a2);
 void func_80091660(int *a0, int *a1, int *a2);
 
 void func_800914C4(int *a0, int *a1) {
@@ -95,7 +95,7 @@ int func_800915E4(int a0, int a1, int a2, int a3) {
     return v;
 }
 
-void func_80091608(int *a0, int *a1, int *a2) {
+void OuterProduct12(int *a0, int *a1, int *a2) {
     register int t0 __asm__("$8");
     register int t1 __asm__("$9");
     register int t2 __asm__("$10");

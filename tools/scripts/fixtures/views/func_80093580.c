@@ -81,7 +81,7 @@ extern HRANGE D_800ABB94[2][5];
 
 extern u8 D_800ABBBC[5];
 
-DISPENV_T *func_80093580(DISPENV_T *env) {
+DISPENV_T *PutDispEnv(DISPENV_T *env) {
     u32 mode;
     /* ASM_BARRIER: keep p in $s2 so env gets $s1 */
     register u8 *p asm("$18");

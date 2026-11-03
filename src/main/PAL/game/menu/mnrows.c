@@ -185,7 +185,7 @@ void func_8003A1B4()
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80092CB8 ((int (*)())func_80092CB8)
+#define SetDispMask ((int (*)())SetDispMask)
 #define func_8005CA88 ((int (*)())func_8005CA88)
 #define D_800F4D70 (*(int (*))&D_800F4D70)
 #define D_800F4C6A (*(short (*))&D_800F4C6A)
@@ -213,7 +213,7 @@ void func_8003A2D4() {
         D_800FFC10 = 0;
         goto l428;
     case 6:
-        func_80092CB8(0);
+        SetDispMask(0);
         func_80036068();
         a3 = 1;
     case 1:
@@ -231,7 +231,7 @@ l418:
 l428:
     func_8003A198();
     if (D_800FFC10 == 1) {
-        func_80092CB8(0);
+        SetDispMask(0);
         a1 = 0;
         switch (D_800F4D44) {
         case 0: a0 = 8; break;
@@ -258,7 +258,7 @@ l428:
     D_800F4D8A = 0;
 }
 
-#undef func_80092CB8
+#undef SetDispMask
 #undef func_8005CA88
 #undef D_800F4D70
 #undef D_800F4C6A
@@ -274,7 +274,7 @@ void func_8003A544(void) {
     next_frame = (s32)((u32)D_800F2DE4 + 1U);
     D_800F2DE4 = next_frame;
     if (next_frame == 2) {
-        func_80092CB8(1);
+        SetDispMask(1);
     }
     if (D_800F4D44 == 4) {
         func_80035024(1);

@@ -56,7 +56,7 @@ void func_8008DDAC(void) { test_handler_calls++; }
         cls.current = C.c_void_p.in_dll(cls.library, 'D_800A6350')
         cls.handler_calls = C.c_int32.in_dll(cls.library, 'test_handler_calls')
         cls.handler = C.cast(cls.library.func_8008DDAC, C.c_void_p).value
-        cls.initialize = cls.library.func_8008D820
+        cls.initialize = cls.library.CD_initintr
         cls.initialize.argtypes = []
         cls.initialize.restype = None
         cls.reset = cls.library.func_8008B364

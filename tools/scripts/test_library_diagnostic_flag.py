@@ -35,7 +35,7 @@ char test_format[0x10000];
         cls.library = C.CDLL(str(directory / 'function.so'))
         cls.state = (C.c_uint8 * 64).in_dll(cls.library, 'test_state')
         cls.format = (C.c_char * 0x10000).in_dll(cls.library, 'test_format')
-        cls.function = cls.library.func_80092B48
+        cls.function = cls.library.SetGraphDebug
         cls.function.argtypes = [C.c_int32]
         cls.function.restype = C.c_int32
 

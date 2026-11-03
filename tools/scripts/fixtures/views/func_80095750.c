@@ -35,7 +35,7 @@ extern char D_80011EFC[];
 
 extern RrLibGraphicsDriverPrefix *D_800ABAB8;
 
-s32 func_80095750(RrGpuRectangle *rect,s32 x,s32 y) {
+s32 MoveImage2(RrGpuRectangle *rect,s32 x,s32 y) {
     /* ASM_BARRIER: Keep each DMA status read in the original polling temporary. */
     register u32 status __asm__("$2");
     func_80092DB8(D_80011EFC,rect);

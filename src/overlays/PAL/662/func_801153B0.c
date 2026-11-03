@@ -1,7 +1,7 @@
 #include "rr/overlay662_car_choice.h"
 
 void ovl662_func_801153B0(void) {
-    func_80092CB8(0);
+    SetDispMask(0);
     ovl662_D_801272E4 = 0;
     func_8002B75C(ovl662_D_801272C8, D_800F3920.prefix.progress.prefix00.fields.name);
     ovl662_func_8011512C();

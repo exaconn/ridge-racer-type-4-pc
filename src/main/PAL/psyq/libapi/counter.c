@@ -7,8 +7,8 @@ extern int *D_800ABC30;
 extern int D_800ABC38[];
 
 int func_80096FA4(unsigned a0, unsigned short a1, int a2);
-int func_80097078();
-s32 func_800970A8(u32 index);
+int StartRCnt();
+s32 StopRCnt(u32 index);
 
 int func_80096FA4(unsigned a0, unsigned short a1, int a2) {
     int t = a0 & 0xFFFF;
@@ -31,7 +31,7 @@ int func_80096FA4(unsigned a0, unsigned short a1, int a2) {
     return 1;
 }
 
-s32 func_80097040(u32 id) {
+s32 GetRCnt(u32 id) {
     s32 index=id & 0xFFFF;
     s32 result;
     if(index<3) {
@@ -43,7 +43,7 @@ s32 func_80097040(u32 id) {
     return result;
 }
 
-int func_80097078(a0) unsigned int a0; {
+int StartRCnt(a0) unsigned int a0; {
   int v = a0 & 0xFFFF;
   int *p = D_800ABC30;
   p[1] |= D_800ABC38[v];
@@ -53,7 +53,7 @@ int func_80097078(a0) unsigned int a0; {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC30 ((u32 *)D_800ABC30)
 
-s32 func_800970A8(u32 index) {
+s32 StopRCnt(u32 index) {
     u32 offset = (u32)(u16)index * 4;
     u32 *state;
     u8 *base;
@@ -76,7 +76,7 @@ s32 func_800970A8(u32 index) {
 
 #undef D_800ABC30
 
-int func_800970DC(a0) unsigned int a0; {
+int ResetRCnt(a0) unsigned int a0; {
   int v = a0 & 0xFFFF;
   if (v >= 3) return 0;
   *(short *)((u8 *)D_800ABC34 + v * 16) = 0; return 1;

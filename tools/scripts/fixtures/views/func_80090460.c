@@ -4,7 +4,7 @@
 
 #include "rr/trig.h"
 
-s32 func_80090460(s32 a) {
+s32 sin_1(s32 a) {
     if (a < 0x801) {
         if (a < 0x401) return D_800A68C0[a];
         return D_800A68C0[0x800 - a];

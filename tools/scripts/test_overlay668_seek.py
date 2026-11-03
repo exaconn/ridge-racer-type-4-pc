@@ -19,7 +19,7 @@ static u8 location[4], before[4], *modeAddress;
 static unsigned scenario,roundIndex,stage,attempt,events;
 static u8 expectedMode;
 static unsigned retries(unsigned which){return (scenario>>(which*2))&3;}
-s32 func_8008C140(s32 command,const u8 *parameters,u8 *result){
+s32 CdControl(s32 command,const u8 *parameters,u8 *result){
  assert(result==0);assert(stage<2);events++;
  if(stage==0){assert(command==2);assert(parameters==location);}
  else{assert(command==14);assert(parameters!=location);assert(*parameters==expectedMode);

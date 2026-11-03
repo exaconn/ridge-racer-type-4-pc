@@ -26,15 +26,15 @@ extern void func_8007D710(void),func_8008B364(void),func_80096E54(s32),func_8001
 
 extern s32 func_8008BDE4(s32),func_800128B8(void);
 
-extern void func_80092CB8(s32),func_8004FD80(void),func_80092D50(s32);
+extern void SetDispMask(s32),func_8004FD80(void),DrawSync(s32);
 
-extern u32 *func_8009323C(u32 *,s32);
+extern u32 *ClearOTagR(u32 *,s32);
 
 extern s32 func_8008B154(s32);
 
-extern void *func_80093580(void *), *func_800933B4(void *);
+extern void *PutDispEnv(void *), *PutDrawEnv(void *);
 
-extern void func_80093344(void *),func_8004A6C4(void);
+extern void DrawOTag(void *),func_8004A6C4(void);
 
 void func_8001E684(void) {
     s32 threshold;
@@ -48,7 +48,7 @@ void func_8001E684(void) {
     func_80096E54(2);
     func_8001E988();
     D_800AC5DC=128;
-    func_80092CB8(0);
+    SetDispMask(0);
     D_800F2DE4=0;
     D_800F4C6A=1;
     D_800F3A26=1;
@@ -78,20 +78,20 @@ void func_8001E684(void) {
             scratch=(u8 **)0x1F800000;
             scratch[1]=(u8 *)ordering;
             scratch[0]=frame+0x1670;
-            func_8009323C(ordering,length);
+            ClearOTagR(ordering,length);
         }
-        func_8009323C((u32 *)(D_800ACC14+0xB70),0x2C0);
+        ClearOTagR((u32 *)(D_800ACC14+0xB70),0x2C0);
         func_800128B8();
         func_8004FD80();
         D_8009E9F0[D_800F4C6A][D_800F3A26]();
-        func_80092D50(0);
+        DrawSync(0);
         threshold=D_800AC5DC;
         do {} while (func_8008B154(1)<threshold);
         func_8008B154(0);
-        func_80093580(D_800ACC14+0x5C);
-        func_800933B4(D_800ACC14);
-        func_80093344(D_800ACC14+0xB6C);
-        if(D_800ACBF8) func_80093344(D_800ACC14+0x166C);
+        PutDispEnv(D_800ACC14+0x5C);
+        PutDrawEnv(D_800ACC14);
+        DrawOTag(D_800ACC14+0xB6C);
+        if(D_800ACBF8) DrawOTag(D_800ACC14+0x166C);
         func_8004A6C4();
         D_800ABEAC++;
     }

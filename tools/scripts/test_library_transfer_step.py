@@ -50,7 +50,7 @@ s32 test_unexpected_calls;
 void func_8008C12C(RrLibCompletionCallback callback) { test_first(callback); }
 void func_8008C55C(RrLibCompletionCallback callback) { test_second(callback); }
 void func_8008C118(RrLibCompletionCallback callback) { test_control(callback); }
-s32 func_8008C27C(s32 command, const u8 *value) { test_command(command, (s32)(unsigned long)value); return 0; }
+s32 CdControlF(s32 command, const u8 *value) { test_command(command, (s32)(unsigned long)value); return 0; }
 void func_8008E7F4(void) { test_unexpected_calls++; }
 void test_callback_first(void) { test_unexpected_calls++; }
 void test_callback_second(void) { test_unexpected_calls++; }

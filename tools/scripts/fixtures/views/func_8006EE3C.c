@@ -29,7 +29,7 @@
 
 #undef func_80060C70
 
-extern int func_80091144();
+extern int SetTransMatrix();
 
 extern int func_800910B4();
 
@@ -45,5 +45,5 @@ void func_8006EE3C(short *a0, short *a1, int *a2) {
     *(int *)(a0 + 0x18) = *(int *)(a0 + 6);
     *(int *)(a0 + 0x1A) = *(int *)(a0 + 8);
     func_800910B4(a2);
-    func_80091144(a0 + 12);
+    SetTransMatrix(a0 + 12);
 }

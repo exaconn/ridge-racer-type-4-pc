@@ -450,7 +450,7 @@ void func_8008F934(void) {
         __asm__("" : "=r"(page_8011) : "0"(page_8011));
         page_8011[0x2F4 / 4] = f2f4;
         if (f300 != 0 && D_801102EC != 0) {
-            func_8008F5E4();
+            data_ready_callback();
         }
     }
 }

@@ -2,12 +2,12 @@
 
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 
-extern int func_8008D86C();
+extern int CD_init();
 
-extern int func_8008D730();
+extern int CD_initvol();
 
 int func_8008BED4() {
     int r;
-    if (func_8008D86C() == 0) { r = func_8008D730() == 0; } else r = 0;
+    if (CD_init() == 0) { r = CD_initvol() == 0; } else r = 0;
     return r;
 }

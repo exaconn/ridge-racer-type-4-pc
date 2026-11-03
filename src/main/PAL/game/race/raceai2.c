@@ -170,7 +170,7 @@ zero:
 
 void func_80035768(void) {
     unsigned a;
-    func_80092CB8(0);
+    SetDispMask(0);
     func_8001ECE8(0, 0, 0, 2);
     D_800ABEBC[0] = 1;
     D_800ABEBC[1] = 0;
@@ -228,7 +228,7 @@ void func_8003597C(void) {
     if (s == 2) goto st2;
     goto other;
 st0:
-    func_80092CB8(0);
+    SetDispMask(0);
     func_80034E84();
     func_8009AEAC(3, 0, 0);
     func_8009AEAC(5, 0, 0);
@@ -245,7 +245,7 @@ st1:
     if (func_800356A4(D_800F3A30, D_800F3A30, 4, 0) == -1) { D_800FF688 = 3; return; }
     D_800FF688 = 2;
     func_80034F18();
-    func_80092CB8(1);
+    SetDispMask(1);
     return;
 st2:
     func_8009AEAC(3, 0, 0);
@@ -258,7 +258,7 @@ st2:
     return;
 other:
     func_80034F18();
-    func_80092CB8(1);
+    SetDispMask(1);
     D_800F4C6A = 1;
     D_800F3A26 = 0x2C;
     D_800F4D8A = 0;
@@ -277,7 +277,7 @@ void func_80035B84()
   switch (s3)
   {
     case 0:
-      func_80092CB8(0);
+      SetDispMask(0);
       func_8001ECE8(0, 0, 0, 3);
       D_800AC5DC = 0x80;
       func_80036068();
@@ -286,7 +286,7 @@ void func_80035B84()
       return;
 
     case 1:
-      func_80092CB8(1);
+      SetDispMask(1);
       D_800F4D8A += 1;
       return;
 
@@ -341,7 +341,7 @@ void func_80035E28(void)
   switch (s)
   {
     case 0:
-      func_80092CB8(0);
+      SetDispMask(0);
       func_8001ECE8(0, 0, 0, 3);
       D_800AC5DC = 0x80;
       D_800F2DE4 = 0;
@@ -349,7 +349,7 @@ void func_80035E28(void)
       return;
 
     case 1:
-      func_80092CB8(1);
+      SetDispMask(1);
       D_800F4D8A++;
       return;
 
@@ -407,7 +407,7 @@ void func_80036068(void) {
 
 void func_80036098(void) {
     if (D_800F4D8A == 0) {
-        func_80092CB8(0);
+        SetDispMask(0);
         func_80036068();
         D_800AC5DC = 0x80;
         D_800F4D8A = 1;

@@ -21,7 +21,7 @@ extern RrLibPackedWord D_80112750;
 
 extern void (*D_80112760)(void);
 
-void func_8008F5E4(void)
+void data_ready_callback(void)
 {
     s32 value;
     /* ASM_BARRIER: Keep the next queue index in the original register until publication. */

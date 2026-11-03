@@ -161,7 +161,7 @@ void func_8001F2CC(void) {
 
 void func_8001F2D4(void) {
     int pad[6];
-    func_80092CB8(0);
+    SetDispMask(0);
     func_8001E84C(&D_800103B8);
     D_800ACC18 = D_800102F0;
     func_80071440();

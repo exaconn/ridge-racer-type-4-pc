@@ -164,7 +164,7 @@
 
 extern int func_8008BDF8();
 
-char *func_800928E4(char *p, int a, int b, int c, int d) {
+char *SetDefDrawEnv(char *p, int a, int b, int c, int d) {
     int t = func_8008BDF8();
     *(short *)p = a;
     *(short *)(p + 2) = b;

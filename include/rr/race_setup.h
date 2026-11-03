@@ -14,7 +14,7 @@ void func_80059168(void);
 void func_8006E1AC(void);
 void func_80070440(void);
 void func_80077D90(s32);
-void func_80092D50(s32);
+void DrawSync(s32);
 s32 func_80114988(void);
 void func_80114AF8(unsigned long);
 extern s32 D_800ABEB0;

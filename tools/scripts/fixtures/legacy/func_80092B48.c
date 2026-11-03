@@ -4,7 +4,7 @@
 extern u8 D_800ABAC2[];
 extern void (*D_800ABABC)(const char *, s32, s32, s32);
 
-s32 func_80092B48(s32 enabled) {
+s32 SetGraphDebug(s32 enabled) {
     u8 *state = D_800ABAC2;
     s32 previous;
     previous = state[0];

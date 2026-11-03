@@ -196,7 +196,7 @@ void func_80052DA8(void) {
     case 0:
         sp[0] = 1;
         sp[1] = D_800F4DB8.a;
-        if (func_8008C140(0xD, sp, 0) != 0) {
+        if (CdControl(0xD, sp, 0) != 0) {
             D_800F4DB8.c++;
             return;
         }

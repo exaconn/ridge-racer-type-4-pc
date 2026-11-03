@@ -10,13 +10,13 @@ int func_8008F3B0(void) {
     struct { u32 a[2]; u8 buf[0x800],st[8]; } L;
     int i, r, v, c;
     s32 sector;
-    func_8008C140(1, 0, L.st);
+    CdControl(1, 0, L.st);
     if (L.st[0] & 0x10) return 0x10;
     sector=0x10;
     /* ASM_BARRIER: Keep the sector number independent of the equal stack-buffer offset. */
     __asm__("" : "+r"(sector));
-    func_8008C5A0(sector, (u8 *)L.a);
-    func_8008C140(0x1B, (u8 *)L.a, 0);
+    CdIntToPos(sector, (u8 *)L.a);
+    CdControl(0x1B, (u8 *)L.a, 0);
     i = 0;
     c = 1;
     do {
@@ -25,7 +25,7 @@ int func_8008F3B0(void) {
         i++;
         if (v == c) break;
         if (i >= 10) break;
-        func_8008C140(0x1B, (u8 *)L.a, 0);
+        CdControl(0x1B, (u8 *)L.a, 0);
     } while (1);
     if (v != 1) {
         v = L.st[0];
@@ -50,7 +50,7 @@ int func_8008F3B0(void) {
         const u8 *parameters;
         /* ASM_BARRIER: Keep the two null command pointers independent. */
         __asm__("" : "=r"(parameters) : "0"(0));
-        func_8008C140(9, parameters, 0);
+        CdControl(9, parameters, 0);
     }
     func_8008C51C(L.buf, 0x200);
     v = func_80096414(L.buf + 1, D_80011D88, 5);

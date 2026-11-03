@@ -44,25 +44,25 @@ extern char D_800ABAD0[];
 int func_80092734(int *pix, int tp, int abr, int x, int y, int w, int h);
 int func_8009281C(int a, int b, int c);
 int func_80092880(int a, int b, int c);
-char *func_800928E4(char *p, int a, int b, int c, int d);
-W3L2_A *func_80092998(W3L2_A *p, int a, int b, int c, int d);
-s32 func_80092B48(s32 enabled);
-int func_80092BA4();
+char *SetDefDrawEnv(char *p, int a, int b, int c, int d);
+W3L2_A *SetDefDispEnv(W3L2_A *p, int a, int b, int c, int d);
+s32 SetGraphDebug(s32 enabled);
+int SetGraphQueue();
 u8 func_80092C48(void);
-int func_80092C58();
-void func_80092D50(s32 arg0);
+int DrawSyncCallback();
+void DrawSync(s32 arg0);
 void func_80092DB8(const char *name,RrGpuRectangle *rectangle);
-void func_80092ED4(int a, int b, int c, int d);
-void func_80092F64(int a, int b, int c, int d);
+void ClearImage(int a, int b, int c, int d);
+void ClearImage2(int a, int b, int c, int d);
 void func_80092FFC(s32 arg0, M2C_UNK arg1);
 void func_8009305C(int a, int b);
-int func_800930BC();
-int *func_80093174();
-unsigned *func_8009323C(unsigned *a, int b);
-void func_800932E8(char *a0);
-void func_80093344(s32 ordering_table);
-int func_800933B4(int *a0);
-void func_80093474(int a, W3L2_P *b);
+int MoveImage();
+int *ClearOTag();
+unsigned *ClearOTagR(unsigned *a, int b);
+void DrawPrim(char *a0);
+void DrawOTag(s32 ordering_table);
+int PutDrawEnv(int *a0);
+void DrawOTagEnv(int a, W3L2_P *b);
 int func_8009354C(int a);
 
 int func_80092734(int *pix, int tp, int abr, int x, int y, int w, int h) {
@@ -122,7 +122,7 @@ int func_80092880(int a, int b, int c) {
 
 #undef func_80095A24
 
-char *func_800928E4(char *p, int a, int b, int c, int d) {
+char *SetDefDrawEnv(char *p, int a, int b, int c, int d) {
     int t = func_8008BDF8();
     *(short *)p = a;
     *(short *)(p + 2) = b;
@@ -144,7 +144,7 @@ char *func_800928E4(char *p, int a, int b, int c, int d) {
     return p;
 }
 
-W3L2_A *func_80092998(W3L2_A *p, int a, int b, int c, int d) {
+W3L2_A *SetDefDispEnv(W3L2_A *p, int a, int b, int c, int d) {
     p->a = a; p->b = b; p->c = c;
     p->e = 0; p->f = 0; p->g = 0; p->h = 0;
     p->j = 0; p->i = 0; p->l = 0; p->k = 0;
@@ -182,7 +182,7 @@ s32 func_800929D4(s32 mode)
 #define D_800ABAC2 (*(u8 (*)[])&D_800ABAC2)
 #define D_800ABABC (*(void (*(*))(const char *, s32, s32, s32))&D_800ABABC)
 
-s32 func_80092B48(s32 enabled) {
+s32 SetGraphDebug(s32 enabled) {
     u8 *state = D_800ABAC2;
     s32 previous;
     previous = state[0];
@@ -211,7 +211,7 @@ s32 func_80092B48(s32 enabled) {
 #define D_800ABAB8 ((int *)D_800ABAB8)
 #define func_8008B3C4 ((int (*)())func_8008B3C4)
 
-int func_80092BA4(a0) int a0; {
+int SetGraphQueue(a0) int a0; {
     register unsigned char *p __asm__("$17"); /* ASM_BARRIER: original keeps the pointer in s1 and a0 in s0 */
     int old;
     p = D_800ABAC1;
@@ -244,7 +244,7 @@ u8 func_80092C48(void) {
 #define D_800ABAC2 (*(unsigned char (*)[])&D_800ABAC2)
 #define D_800ABABC (*(void (*(*))())&D_800ABABC)
 
-int func_80092C58(a0) int a0; {
+int DrawSyncCallback(a0) int a0; {
  int o;
  if (D_800ABAC2[0] >= 2) D_800ABABC(D_80011E64, a0);
  o = *(int *)(D_800ABAC2 + 0xA);
@@ -260,7 +260,7 @@ int func_80092C58(a0) int a0; {
 #define D_800ABAB8 (*(struct { char pad[0x10]; int (*f)(); } *(*))&D_800ABAB8)
 #define func_800959B8 ((int (*)())func_800959B8)
 
-void func_80092CB8(a0) int a0; {
+void SetDispMask(a0) int a0; {
  unsigned char *p = D_800ABAC2;
  if (*p >= 2) D_800ABABC(D_80011E80, a0);
  if (a0 == 0) func_800959B8(p + 0x6A, -1, 0x14);
@@ -276,7 +276,7 @@ void func_80092CB8(a0) int a0; {
 #define D_800ABABC (*(M2C_UNK (*(*))(M2C_UNK *, s32))&D_800ABABC)
 #define D_800ABAC2 (*(u8 (*))&D_800ABAC2)
 
-void func_80092D50(s32 arg0) {
+void DrawSync(s32 arg0) {
     if ((u8) D_800ABAC2 >= 2U) {
         D_800ABABC(&D_80011E94, arg0);
     }
@@ -342,7 +342,7 @@ report:
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((char *)D_800ABAB8)
 
-void func_80092ED4(int a, int b, int c, int d)
+void ClearImage(int a, int b, int c, int d)
 {
 int v; char nv; nv = b & 0xFF; func_80092DB8(D_80011ECC, a); v = (((d & 0xFF) << 16) | ((c & 0xFF) << 8)) | nv; (*(int (**)())(D_800ABAB8 + 8))(*(int *)(D_800ABAB8 + 0xC), a, 8, v);
 }
@@ -352,7 +352,7 @@ int v; char nv; nv = b & 0xFF; func_80092DB8(D_80011ECC, a); v = (((d & 0xFF) <<
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((char *)D_800ABAB8)
 
-void func_80092F64(int a, int b, int c, int d)
+void ClearImage2(int a, int b, int c, int d)
 {
 int v; char nv; int t, u, k; nv = b & 0xFF; func_80092DB8(D_80011ED8, a); u = (d & 0xFF) << 16; t = (c & 0xFF) << 8; k = 0x80000000; v = (u | (t | k)) | nv; (*(int (**)())(D_800ABAB8 + 8))(*(int *)(D_800ABAB8 + 0xC), a, 8, v);
 }
@@ -383,7 +383,7 @@ void func_8009305C(int a, int b) {
 #define D_800ABB60 (*(B (*))&D_800ABB60)
 #define D_800ABAB8 ((int *)D_800ABAB8)
 
-int func_800930BC(a0, a1, a2)
+int MoveImage(a0, a1, a2)
 A *a0; int a1; int a2;
 {
     B *p;
@@ -410,7 +410,7 @@ A *a0; int a1; int a2;
 #define D_800ABABC (*(int (*(*))())&D_800ABABC)
 #define D_800ABAC2 (*(unsigned char (*))&D_800ABAC2)
 
-int *func_80093174(a0, a1) int *a0; int a1; {
+int *ClearOTag(a0, a1) int *a0; int a1; {
     /* ASM_BARRIER: pins p->$16, n->$17 to match original s-reg assignment */
     register int *p asm("$16") = a0;
     int n = a1;
@@ -440,7 +440,7 @@ int *func_80093174(a0, a1) int *a0; int a1; {
 #define D_800ABABC (*(int (*(*))())&D_800ABABC)
 #define D_800ABAC2 (*(unsigned char (*))&D_800ABAC2)
 
-unsigned *func_8009323C(unsigned *a, int b) {
+unsigned *ClearOTagR(unsigned *a, int b) {
     int *q;
     if (D_800ABAC2 >= 2) D_800ABABC(D_80011F20, a, b);
     (*(int (**)())(D_800ABAB8 + 0x2C))(a, b);
@@ -457,7 +457,7 @@ unsigned *func_8009323C(unsigned *a, int b) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((char *)D_800ABAB8)
 
-void func_800932E8(char *a0)
+void DrawPrim(char *a0)
 {
     int t = a0[3];
     (*(int (**)())(D_800ABAB8 + 0x3C))(0);
@@ -469,7 +469,7 @@ void func_800932E8(char *a0)
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((RrLibGraphicsDriverPrefix *)D_800ABAB8)
 
-void func_80093344(s32 ordering_table) {
+void DrawOTag(s32 ordering_table) {
     /* ASM_BARRIER: Keep the third dispatch argument distinct from the final constant zero. */
     register s32 second;
     register s32 third;
@@ -492,7 +492,7 @@ void func_80093344(s32 ordering_table) {
 #define D_800ABABC (*(int (*(*))())&D_800ABABC)
 #define D_800ABAC2 (*(unsigned char (*))&D_800ABAC2)
 
-int func_800933B4(int *a0) {
+int PutDrawEnv(int *a0) {
     unsigned char *p = &D_800ABAC2;
     if (*p >= 2) {
         D_800ABABC(D_80011F4C, a0);
@@ -513,7 +513,7 @@ int func_800933B4(int *a0) {
 #define D_800ABABC (*(int (*(*))())&D_800ABABC)
 #define D_800ABAC2 (*(unsigned char (*)[])&D_800ABAC2)
 
-void func_80093474(int a, W3L2_P *b) {
+void DrawOTagEnv(int a, W3L2_P *b) {
     char *t;
     if (D_800ABAC2[0] >= 2) D_800ABABC(D_80011F64, a, b);
     t = (char *)b + 0x1C;

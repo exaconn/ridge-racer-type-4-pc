@@ -35,7 +35,7 @@ s32 func_80096F14(void) { return test_helper(5, 0); }
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
-        cls.function = cls.library.func_8008F564
+        cls.function = cls.library.StUnSetRing
         cls.function.argtypes = []
         cls.function.restype = None
 

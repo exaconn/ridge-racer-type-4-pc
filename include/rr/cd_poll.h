@@ -12,8 +12,8 @@ extern u32 D_80110334;
 extern const char *D_80110338;
 extern const char D_80011A14[],D_80011A24[],D_80011B20[];
 s32 func_800963DC(const char *message);
-void func_8008D65C(void);
+void CD_flush(void);
 /* Mode0 waits; a nonzero mode polls once. Returns-1 on timeout,0 when idle,
  * and1 when a nonblocking poll finds DMA busy. Counters wrap in32 bits. */
-s32 func_8008DA4C(s32 mode);
+s32 CD_datasync(s32 mode);
 #endif

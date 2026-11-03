@@ -7,7 +7,7 @@
 
 #undef D_800A48C0
 
-int func_8007FCD4(a0)
+int _SpuIsInAllocateArea_(a0)
 unsigned int a0;
 {
     unsigned int *p, *q;

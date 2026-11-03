@@ -17,7 +17,7 @@ void ovl668_func_80114910(s32 arg0, RrStrCdFileInfo *arg1, u32 *arg2) {
     offset = (s32)((u32)arg0 * 8U + 0x130U);
     __asm__("" : "=r"(offset) : "0"(offset));
     entry = (RrStrArchiveEntry *)(base->archive2638 + offset);
-    func_8008C5A0((s32)((entry->position & mask) + base->sector2634), arg1->location.c);
+    CdIntToPos((s32)((entry->position & mask) + base->sector2634), arg1->location.c);
     arg1->byteSize = entry->sectors << 11;
     *arg2 = entry->sectors;
     D_800AC650.locationBC = arg1->location;

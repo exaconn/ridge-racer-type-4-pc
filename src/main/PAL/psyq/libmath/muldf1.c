@@ -10,7 +10,7 @@ typedef union {
 extern s32 func_8007E9C4(s32 category, s32 operation);
 
 RrWide64 *func_8007E494(RrWide64 *result,RrWide64 x);
-double func_8007E504(double a_in, double b_in);
+double __muldf3(double a_in, double b_in);
 
 RrWide64 *func_8007E494(RrWide64 *result,RrWide64 x) {
     RrWide64 one;
@@ -31,7 +31,7 @@ RrWide64 *func_8007E494(RrWide64 *result,RrWide64 x) {
     return result;
 }
 
-double func_8007E504(double a_in, double b_in) {
+double __muldf3(double a_in, double b_in) {
     RrWide64 sp18;
     RrWide64 sp20;
     RrWide64 sp28;
@@ -68,20 +68,20 @@ double func_8007E504(double a_in, double b_in) {
     sp30.hi = (b.s.hi & 0xFFFFF) | 0x100000;
     sp30.lo = b.s.lo;
 
-    func_8007DFF4(&sp38, 1, sp28, 0x15);
+    _dbl_shift_us(&sp38, 1, sp28, 0x15);
     s6 = sp38.lo;
-    func_8007DFF4(&sp38, 1, sp30, 0x15);
+    _dbl_shift_us(&sp38, 1, sp30, 0x15);
     s2 = sp38.lo;
 
     s0 = sp28.lo & 0x1FFFFF;
     s1 = sp30.lo & 0x1FFFFF;
 
-    func_8007E818(&sp18, s6, s2);
-    func_8007E818(&sp40, s0, s2);
-    func_8007DFF4(&sp38, 1, sp40, 0x15);
+    _mul_mant_d(&sp18, s6, s2);
+    _mul_mant_d(&sp40, s0, s2);
+    _dbl_shift_us(&sp38, 1, sp40, 0x15);
     func_8007DB54(&sp18, sp18, sp38);
-    func_8007E818(&sp40, s1, s6);
-    func_8007DFF4(&sp38, 1, sp40, 0x15);
+    _mul_mant_d(&sp40, s1, s6);
+    _dbl_shift_us(&sp38, 1, sp40, 0x15);
     func_8007DB54(&sp18, sp18, sp38);
 
     {
@@ -90,15 +90,15 @@ double func_8007E504(double a_in, double b_in) {
             sp20.hi = 0;
             sp20.lo = 0x400;
             func_8007DB54(&sp18, sp18, sp20);
-            func_8007DFF4(&sp18, 1, sp18, 0xB);
+            _dbl_shift_us(&sp18, 1, sp18, 0xB);
         } else {
             sp20.hi = 0;
             sp20.lo = 0x200;
             func_8007DB54(&sp18, sp18, sp20);
             if (sp18.hi & sign_mask) {
-                func_8007DFF4(&sp18, 1, sp18, 0xB);
+                _dbl_shift_us(&sp18, 1, sp18, 0xB);
             } else {
-                func_8007DFF4(&sp18, 1, sp18, 0xA);
+                _dbl_shift_us(&sp18, 1, sp18, 0xA);
                 s7--;
             }
         }

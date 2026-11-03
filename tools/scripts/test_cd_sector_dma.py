@@ -35,12 +35,12 @@ u32 test_control(volatile u32 *p){
 }
 #define RR_NOP_DEP() ((void)0)
 '''
-        for name in ('func_8008DBB4','func_8008DCB4','func_8008C51C'):
+        for name in ('CD_getsector','CD_getsector2','func_8008C51C'):
             body=native_body((root/'tools/scripts/fixtures/views'/f'{name}.c').read_text())
-            if name=='func_8008DBB4':
+            if name=='CD_getsector':
                 assert body.count('*p & 0x40')==1 and body.count('*D_800A6790 & 0x01000000')==2
                 body=body.replace('*p & 0x40','test_status(p) & 0x40').replace('*D_800A6790 & 0x01000000','test_control(D_800A6790) & 0x01000000')
-            elif name=='func_8008DCB4':
+            elif name=='CD_getsector2':
                 assert body.count('*D_800A674C & 0x40')==1 and body.count('x = *D_800A6790;')==1
                 body=body.replace('*D_800A674C & 0x40','test_status(D_800A674C) & 0x40').replace('x = *D_800A6790;','x = test_control(D_800A6790);')
             code+=body+'\n'
@@ -50,7 +50,7 @@ u32 test_control(volatile u32 *p){
         cls.regs=(C.c_uint32*8).in_dll(cls.lib,'regs');cls.ports=(C.c_uint8*6).in_dll(cls.lib,'ports')
         cls.address=C.c_void_p.in_dll(cls.lib,'address');cls.status_port=C.c_void_p.in_dll(cls.lib,'D_800A674C')
         cls.values={n:C.c_int32.in_dll(cls.lib,n) for n in ('status_reads','control_reads','status_ready','control_ready','swap_status')}
-        for name in ('func_8008DBB4','func_8008DCB4','func_8008C51C'):
+        for name in ('CD_getsector','CD_getsector2','func_8008C51C'):
             f=getattr(cls.lib,name);f.argtypes=[C.c_void_p,C.c_uint32];f.restype=C.c_int32
 
     def reset(self):
@@ -64,7 +64,7 @@ u32 test_control(volatile u32 *p){
     def test_raw_and_boolean_wrapper_preserve_native_addresses_and_word_masks(self):
         buffer=(C.c_uint8*32)(*range(32));before=bytes(buffer)
         if C.sizeof(C.c_void_p)>4:self.assertGreater(C.addressof(buffer),0xFFFFFFFF)
-        for name,expected in [('func_8008DBB4',0),('func_8008C51C',1)]:
+        for name,expected in [('CD_getsector',0),('func_8008C51C',1)]:
             for words in (0,1,512,65535,0x80000000,0xFFFF0000,0xFFFFFFFF):
                 self.reset();self.assertEqual(getattr(self.lib,name)(buffer,words),expected)
                 self.assertEqual(self.address.value,C.addressof(buffer))
@@ -79,7 +79,7 @@ u32 test_control(volatile u32 *p){
         buffer=(C.c_uint8*4)(1,2,3,4)
         for words in (0,512,0xFFFFFFFF):
             self.reset();self.values['control_ready'].value=10
-            self.assertEqual(self.lib.func_8008DCB4(buffer,words),0)
+            self.assertEqual(self.lib.CD_getsector2(buffer,words),0)
             self.assertEqual(self.address.value,C.addressof(buffer))
             self.assertEqual(list(self.regs),[0xCAFE1234,0x1325,0x21020843,0x12348001,words|0x10000,0x11400100,0xDEADBEEF,0x5A5A5A5A])
             self.assertEqual((self.values['status_reads'].value,self.values['control_reads'].value),(3,1))
@@ -87,7 +87,7 @@ u32 test_control(volatile u32 *p){
 
     def test_blocking_captures_status_pointer_other_variant_reloads_it(self):
         buffer=(C.c_uint8*4)()
-        for name,ports in [('func_8008DBB4',[0,0,0]),('func_8008DCB4',[0,1,1])]:
+        for name,ports in [('CD_getsector',[0,0,0]),('CD_getsector2',[0,1,1])]:
             self.reset();self.values['swap_status'].value=1
             self.assertEqual(getattr(self.lib,name)(buffer,1),0)
             self.assertEqual(list((C.c_int32*16).in_dll(self.lib,'status_ports'))[:3],ports)

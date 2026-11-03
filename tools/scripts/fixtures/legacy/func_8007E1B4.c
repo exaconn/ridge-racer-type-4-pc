@@ -31,7 +31,7 @@ u64 func_8007E1B4(s32 a0)
         }
         t.hi = a0;
         t.lo = 0;
-        func_8007DFF4(&t, 1, t, 10);
+        _dbl_shift_us(&t, 1, t, 10);
         t.hi &= 0xFFEFFFFF;
         r.s.hi = t.hi | s3;
         r.s.hi |= (u32)s2 << 20;

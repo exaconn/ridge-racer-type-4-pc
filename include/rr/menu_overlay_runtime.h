@@ -222,6 +222,6 @@ void func_800747EC(s32);
 s32 func_80090424(s32);
 s32 func_800904F4(s32);
 u16 *func_80091844(s16 *rotation, u16 *matrix);
-void func_80092CB8(s32);
+void SetDispMask(s32);
 
 #endif

@@ -4,7 +4,7 @@ extern s32 D_801102EC, D_801102F4, D_801102F8, D_80112754;
 extern RrLibQueueRecord32 *D_80110310;
 extern RrLibPackedWord D_80112750;
 extern void (*D_80112760)(void);
-void func_8008F5E4(void)
+void data_ready_callback(void)
 {
     s32 value;
     /* ASM_BARRIER: Keep the next queue index in the original register until publication. */

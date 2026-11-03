@@ -123,7 +123,7 @@ typedef struct {
 
 typedef void *(*RrChannelRecordCallback)(s32 selector);
 extern RrChannelRecordCallback D_800ABC7C;
-void func_80097C58(s32 selector, s32 first, s32 second);
+void PadSetMainMode(s32 selector, s32 first, s32 second);
 s32 func_800994CC(RrChannelPatchCommand *channel, s32 first, s32 second);
 void func_80099564(void *channel);
 s32 func_800995B8(void *channel);

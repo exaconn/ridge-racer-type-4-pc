@@ -8,14 +8,14 @@
 #include "rr/library.h"
 #include "psyq/libcd/bios_1.h"
 
-s32 func_8008C140(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer);
-s32 func_8008C27C(s32 requested_command,const u8 *parameter_buffer);
-s32 func_8008C3B0(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer);
+s32 CdControl(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer);
+s32 CdControlF(s32 requested_command,const u8 *parameter_buffer);
+s32 CdControlB(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer);
 s32 func_8008C4FC(void);
 s32 func_8008C51C(u8 *buffer, u32 words);
 s32 func_8008C53C(void);
 
-s32 func_8008C140(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer) {
+s32 CdControl(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer) {
     /* ASM_BARRIER: Retain the original full command across device calls. */
     register s32 command __asm__("$20");
     const u8 *parameters=parameter_buffer;
@@ -60,17 +60,17 @@ loop:
             __asm__("" : "=r"(parameter_zero) : "0"(0));
             /* ASM_BARRIER: Materialize each zero independently before the status call. */
             __asm__("" : "=r"(result_zero) : "0"(0));
-            func_8008D1C8(status_command, parameter_zero, result_zero, 0);
+            CD_cw(status_command, parameter_zero, result_zero, 0);
         }
     }
     }
     if (parameters != 0) {
         if (*metadata != 0) {
-            if (func_8008D1C8(2, parameters, result, 0) != 0) goto retry;
+            if (CD_cw(2, parameters, result, 0) != 0) goto retry;
         }
     }
     D_800A6488 = saved;
-    if (func_8008D1C8(command & 0xFF, parameters, result, 0) == 0) goto done;
+    if (CD_cw(command & 0xFF, parameters, result, 0) == 0) goto done;
 retry:
     remaining--;
     if (remaining != terminal) goto loop;
@@ -81,7 +81,7 @@ done:
     }
 }
 
-s32 func_8008C27C(s32 requested_command,const u8 *parameter_buffer) {
+s32 CdControlF(s32 requested_command,const u8 *parameter_buffer) {
     /* ASM_BARRIER: Retain the original full command across device calls. */
     register s32 command __asm__("$19");
     const u8 *parameters=parameter_buffer;
@@ -135,7 +135,7 @@ loop:
             __asm__("" : "=r"(parameter_zero) : "0"(0));
             /* ASM_BARRIER: Materialize each zero independently before the status call. */
             __asm__("" : "=r"(result_zero) : "0"(0));
-            func_8008D1C8(status_command, parameter_zero, result_zero, 0);
+            CD_cw(status_command, parameter_zero, result_zero, 0);
         }
     }
     }
@@ -145,12 +145,12 @@ loop:
                 u8 *result_zero;
                 /* ASM_BARRIER: Prepare the null result separately from mode zero. */
                 __asm__("" : "=r"(result_zero) : "0"(0));
-                if (func_8008D1C8(2, parameters, result_zero, 0) != 0) goto retry;
+                if (CD_cw(2, parameters, result_zero, 0) != 0) goto retry;
             }
         }
     }
     D_800A6488 = saved;
-    if (func_8008D1C8(command & 0xFF, parameters, 0, 1) == 0) goto done;
+    if (CD_cw(command & 0xFF, parameters, 0, 1) == 0) goto done;
 retry:
     remaining--;
     if (remaining != terminal) goto loop;
@@ -161,7 +161,7 @@ done:
     }
 }
 
-s32 func_8008C3B0(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer) {
+s32 CdControlB(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer) {
     /* ASM_BARRIER: Retain the original full command across device calls. */
     register s32 command __asm__("$20");
     const u8 *parameters=parameter_buffer;
@@ -205,17 +205,17 @@ loop:
             __asm__("" : "=r"(parameter_zero) : "0"(0));
             /* ASM_BARRIER: Materialize each zero independently before the status call. */
             __asm__("" : "=r"(result_zero) : "0"(0));
-            func_8008D1C8(status_command, parameter_zero, result_zero, 0);
+            CD_cw(status_command, parameter_zero, result_zero, 0);
         }
     }
     }
     if (parameters != 0) {
         if (*metadata != 0) {
-            if (func_8008D1C8(2, parameters, result, 0) != 0) goto retry;
+            if (CD_cw(2, parameters, result, 0) != 0) goto retry;
         }
     }
     D_800A6488 = saved;
-    if (func_8008D1C8(command & 0xFF, parameters, result, 0) != 0) {
+    if (CD_cw(command & 0xFF, parameters, result, 0) != 0) {
 retry:
         remaining--;
         outcome=-1;
@@ -223,7 +223,7 @@ retry:
         D_800A6488=saved;
     } else outcome=0;
     if(outcome==0) {
-        outcome=func_8008CC80(0,result)==2;
+        outcome=CD_sync(0,result)==2;
     } else {
         outcome=0;
     }
@@ -237,14 +237,14 @@ s32 func_8008C4FC(void) {
 }
 
 s32 func_8008C51C(u8 *buffer, u32 words) {
-    return func_8008DBB4(buffer, words) == 0;
+    return CD_getsector(buffer, words) == 0;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8008DCB4 ((int (*)())func_8008DCB4)
+#define CD_getsector2 ((int (*)())CD_getsector2)
 
 s32 func_8008C53C(void) {
-    return func_8008DCB4() == 0;
+    return CD_getsector2() == 0;
 }
 
-#undef func_8008DCB4
+#undef CD_getsector2

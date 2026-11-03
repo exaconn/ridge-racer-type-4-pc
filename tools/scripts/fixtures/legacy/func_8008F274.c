@@ -1,12 +1,12 @@
-extern int func_8008C3B0(), func_8008B154();
+extern int CdControlB(), func_8008B154();
 int func_8008F274(a0)
 int a0;
 {
     unsigned char sp10[8];
     int r, i;
-    func_8008C3B0(1, 0, sp10);
+    CdControlB(1, 0, sp10);
     if (sp10[0] & 0x10) return 0x10;
-    r = func_8008C3B0(0x13, 0, sp10);
+    r = CdControlB(0x13, 0, sp10);
     if (a0 == 1) {
         if (sp10[0] == 2 && r != 0) return 2;
         return 5;
@@ -16,13 +16,13 @@ int a0;
             if (sp10[0] == 2 && r != 0) return 2;
             while (1) {
                 func_8008B154(0x1E);
-                r = func_8008C3B0(0x13, 0, sp10);
+                r = CdControlB(0x13, 0, sp10);
                 if (sp10[0] & 0x10) return 0x10;
                 if (sp10[0] == 2 && r != 0) return 2;
             }
         }
         func_8008B154(0x1E);
-        r = func_8008C3B0(0x13, 0, sp10);
+        r = CdControlB(0x13, 0, sp10);
         if (sp10[0] & 0x10) return 0x10;
     }
     return 5;

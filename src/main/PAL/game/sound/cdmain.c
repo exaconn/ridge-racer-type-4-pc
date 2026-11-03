@@ -67,8 +67,8 @@ void func_800534D8(void) {
                 goto timeout;
     case 1:
 seek:
-        func_8008C5A0(D_800F4DB8.sector2664, location.c);
-        func_8008C27C(0x15, location.c);
+        CdIntToPos(D_800F4DB8.sector2664, location.c);
+        CdControlF(0x15, location.c);
         D_800F4DB8.phase2674 = (s32) ((u32) D_800F4DB8.phase2674 + 1U);
         goto block_34;
     case 2:
@@ -77,7 +77,7 @@ seek:
             if (temp_v0_2 == ready) {
                 filter[0] = 1;
                 filter[1] = (u8) D_800F4DB8.filter266C;
-                if (func_8008C27C(0xD, filter) != 0) {
+                if (CdControlF(0xD, filter) != 0) {
                     D_800F4DB8.phase2674 = (s32) ((u32) D_800F4DB8.phase2674 + 1U);
                 }
             } else if (temp_v0_2 == 5) {
@@ -189,12 +189,12 @@ block_34:
             break;
         case 2:
             if (func_8008BFB4() == 0x11) {
-                temp_v0_6 = func_8008C6A4(&D_800F4DB8.status265C[5]);
+                temp_v0_6 = CdPosToInt(&D_800F4DB8.status265C[5]);
                 if (temp_v0_6 > 0) {
                     D_800F4DB8.position2688 = temp_v0_6;
                 }
             }
-            func_8008C27C(0x11, 0);
+            CdControlF(0x11, 0);
             return;
         case 5:
             if (D_800F4DB8.state269C == 2) {

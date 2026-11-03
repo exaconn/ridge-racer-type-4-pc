@@ -2,7 +2,7 @@
 #include "types.h"
 /* SDK view of the interrupt registers at 0x1F801070. */
 extern u32 *D_800ABC30;
-s32 func_800970A8(u32 index) {
+s32 StopRCnt(u32 index) {
     u32 offset = (u32)(u16)index * 4;
     u32 *state;
     u8 *base;

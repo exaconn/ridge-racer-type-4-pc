@@ -1,7 +1,7 @@
 #include "rr/matrix_workspace.h"
 void func_800910B4(int *a0);
-void func_80091114(int *a0);
-void func_80091144(int *a0);
+void SetColorMatrix(int *a0);
+void SetTransMatrix(int *a0);
 void func_80091164(int *a0);
 void func_80091174(int *a0);
 void func_80091184(int *a0);
@@ -17,8 +17,8 @@ void func_8009123C(int a0, int a1, int a2);
 void func_80091250(int a0);
 void func_8009125C(int a0);
 void func_80091268(int a0);
-void func_80091274(int a0, int a1, int a2);
-void func_80091294(int a0, int a1, int a2);
+void SetBackColor(int a0, int a1, int a2);
+void SetFarColor(int a0, int a1, int a2);
 void func_800912B4(int a0, int a1);
 
 void func_800910B4(int *a0) {
@@ -39,7 +39,7 @@ void func_800910B4(int *a0) {
     __asm__ volatile ("ctc2 %0, $4" : : "r"(t4));
 }
 
-void func_800910E4(int *a0) {
+void SetLightMatrix(int *a0) {
     register int t0 __asm__("$8");
     register int t1 __asm__("$9");
     register int t2 __asm__("$10");
@@ -57,7 +57,7 @@ void func_800910E4(int *a0) {
     __asm__ volatile ("ctc2 %0, $12" : : "r"(t4));
 }
 
-void func_80091114(int *a0) {
+void SetColorMatrix(int *a0) {
     register int t0 __asm__("$8");
     register int t1 __asm__("$9");
     register int t2 __asm__("$10");
@@ -75,7 +75,7 @@ void func_80091114(int *a0) {
     __asm__ volatile ("ctc2 %0, $20" : : "r"(t4));
 }
 
-void func_80091144(int *a0) {
+void SetTransMatrix(int *a0) {
     register int t0 __asm__("$8");
     register int t1 __asm__("$9");
     register int t2 __asm__("$10");
@@ -164,14 +164,14 @@ void func_80091268(int a0) {
     __asm__ volatile ("ctc2 %0, $28" : : "r"(a0));
 }
 
-void func_80091274(int a0, int a1, int a2) {
+void SetBackColor(int a0, int a1, int a2) {
     a0 <<= 4; a1 <<= 4; a2 <<= 4;
     __asm__ volatile ("ctc2 %0, $13" : : "r"(a0));
     __asm__ volatile ("ctc2 %0, $14" : : "r"(a1));
     __asm__ volatile ("ctc2 %0, $15" : : "r"(a2));
 }
 
-void func_80091294(int a0, int a1, int a2) {
+void SetFarColor(int a0, int a1, int a2) {
     a0 <<= 4; a1 <<= 4; a2 <<= 4;
     __asm__ volatile ("ctc2 %0, $21" : : "r"(a0));
     __asm__ volatile ("ctc2 %0, $22" : : "r"(a1));

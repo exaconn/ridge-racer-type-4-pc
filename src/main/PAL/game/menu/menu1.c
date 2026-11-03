@@ -55,7 +55,7 @@ void func_8002FCEC() {
     int a0, a1;
     short v;
     T *p;
-    func_80092CB8(0);
+    SetDispMask(0);
     func_8001ECE8(0, 0, 0, 3);
     D_800F2DE4 = 0;
     D_800ABEB0 = 0;

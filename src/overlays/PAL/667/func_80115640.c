@@ -104,7 +104,7 @@ extern void func_8006EF8C();
 extern void func_80070734();
 extern void func_800735D8();
 extern void func_800747EC();
-extern void func_80092CB8();
+extern void SetDispMask();
 extern void func_8009AEAC();
 extern void ovl667_func_80114A40(void);
 extern void ovl667_func_80115068(void);
@@ -131,9 +131,9 @@ void ovl667_func_80115640(void) {
         frame = D_800ACC14 + 0xB70;
     }
     if (D_800F2DE4 < 2) {
-        func_80092CB8(0);
+        SetDispMask(0);
     } else {
-        func_80092CB8(1);
+        SetDispMask(1);
     }
     func_80014A8C(-1);
     if (ovl667_D_80118ED4 == 2) {

@@ -58,7 +58,7 @@ static void effect(State *s,unsigned step){unsigned i;
 static void observe(struct World *v,s32 kind,s32 a,s32 b,s32 c,s32 d){Event *e;unsigned step=v->calls;assert(step<3);e=&v->events[v->calls++];memset(e,0,sizeof(*e));e->kind=kind;e->args[0]=a;e->args[1]=b;e->args[2]=c;e->args[3]=d;e->buffer=kind==2?(void*)&world.s.visual:0;memcpy(&e->state,&v->s,sizeof(v->s));
  if(kind==2)memset(&v->s.visual,0,160);else effect(&v->s,step+1);
 }
-void func_80092CB8(s32 mode){assert(world.calls==0 && mode==0);observe(&world,0,mode,0,0,0);}
+void SetDispMask(s32 mode){assert(world.calls==0 && mode==0);observe(&world,0,mode,0,0,0);}
 void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags){assert(world.calls==1 && r==0 && g==0 && b==0 && flags==2);observe(&world,1,r,g,b,(s32)flags);}
 void func_80096434(void *buffer,s32 size){assert(world.calls==2 && buffer==&world.s.visual && size==160);observe(&world,2,size,0,0,0);}
 static void reference(void){unsigned i,j;State *s=&expected.s;static const s16 directions[3][3]={{4500,-4096,-8000},{8000,8000,-8000},{-2637,1602,2694}};static const u8 colors[3]={192,128,0};

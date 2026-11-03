@@ -16,7 +16,7 @@ u32 func_8007F2E8(const u16 *a0, u32 a1);
 u32 func_8007F36C(u16 *a0, u32 a1);
 void func_8007F3D0(int a0, unsigned int a1, int a2);
 s32 func_8007F414(s32 index, s32 value);
-int func_8007F4B8(int a0, int a1);
+int _spu_FgetRXXa(int a0, int a1);
 void func_8007F4F4(int a0);
 
 /* legacy typing of shared globals in this part of the unit */
@@ -167,7 +167,7 @@ out:
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A47D8 ((unsigned short *)D_800A47D8)
 
-int func_8007F4B8(int a0, int a1) {
+int _spu_FgetRXXa(int a0, int a1) {
     unsigned short v = D_800A47D8[a0];
     if (a1 == -1) return v;
     return v << D_800A4800;

@@ -13,14 +13,14 @@ extern volatile unsigned *D_800ABBC8;
 extern int D_800ABBFC;
 extern int D_800ABC00;
 
-int func_80095894();
+int DrawOTag2();
 void func_800959B8(s8 *arg0, s8 arg1, s32 arg2);
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAC2 (*(unsigned char (*))&D_800ABAC2)
 #define D_800ABABC (*(int (*(*))())&D_800ABABC)
 
-int func_80095894(a0) int a0; {
+int DrawOTag2(a0) int a0; {
     if (D_800ABAC2 >= 2) D_800ABABC(D_80011F38, a0);
     D_800ABBFC = func_8008B154(-1) + 0xF0;
     D_800ABC00 = 0;

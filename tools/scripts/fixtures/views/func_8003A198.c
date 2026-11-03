@@ -3,7 +3,7 @@
 #include "rr/menu_transition.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80092CB8 ((int (*)())func_80092CB8)
+#define SetDispMask ((int (*)())SetDispMask)
 
 #define func_8005CA88 ((int (*)())func_8005CA88)
 
@@ -11,7 +11,7 @@
 
 #define D_800F4C6A (*(short (*))&D_800F4C6A)
 
-#undef func_80092CB8
+#undef SetDispMask
 
 #undef func_8005CA88
 

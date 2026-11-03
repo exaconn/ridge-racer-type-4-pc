@@ -7,7 +7,7 @@
 extern RrLibGraphicsDriverPrefix *D_800ABAB8;
 
 int func_80095664();
-s32 func_80095750(RrGpuRectangle *rect,s32 x,s32 y);
+s32 MoveImage2(RrGpuRectangle *rect,s32 x,s32 y);
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((int *)D_800ABAB8)
@@ -39,7 +39,7 @@ int a1;
 #undef func_80095394
 #undef func_80095990
 
-s32 func_80095750(RrGpuRectangle *rect,s32 x,s32 y) {
+s32 MoveImage2(RrGpuRectangle *rect,s32 x,s32 y) {
     /* ASM_BARRIER: Keep each DMA status read in the original polling temporary. */
     register u32 status __asm__("$2");
     func_80092DB8(D_80011EFC,rect);

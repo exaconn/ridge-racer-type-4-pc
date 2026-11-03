@@ -94,7 +94,7 @@ static void reference(void){
  }
  ((u8*)out)[3]=(u8)length;
 }
-void func_80093C78(u32 *,RrFrameEnvironment *);
+void SetDrawEnv(u32 *,RrFrameEnvironment *);
 int main(void){
  assert(real_window(NULL)==0);
  for(unsigned k=0;k<524288;k++){
@@ -104,7 +104,7 @@ int main(void){
   initial.env.rgb24=((k>>16)&1)?(u8)(k|1U):0;mutate=(k>>17)&1;embedded=(k>>18)&1;
   initial.env.window.w=(s16)(u16)k;initial.env.window.h=(s16)(u16)(k*31337U+0x3456U);
   actual=expected=initial;w=&actual;count=0;memset(entries,0,sizeof(entries));
-  func_80093C78(packet(w),&w->env);assert(count==5);memcpy(saved,entries,sizeof(saved));
+  SetDrawEnv(packet(w),&w->env);assert(count==5);memcpy(saved,entries,sizeof(saved));
   w=&expected;count=0;memset(entries,0,sizeof(entries));reference();
   assert(!memcmp(saved,entries,sizeof(saved)));assert(!memcmp(&actual,&expected,sizeof(actual)));
  }

@@ -32,12 +32,12 @@ s32 primary[5],secondary[5],attempts,secondary_calls,prints,events;
 u32 event_class[8],event_spec[8];
 const char *printed;
 void (*on_probe)(s32);
-s32 func_8008D86C(void) {
+s32 CD_init(void) {
     s32 n=attempts++;
     if(on_probe) on_probe(n);
     return n<5 ? primary[n] : -99;
 }
-s32 func_8008D730(void) {secondary_calls++;return secondary[attempts-1];}
+s32 CD_initvol(void) {secondary_calls++;return secondary[attempts-1];}
 s32 func_8001E84C(const char *format,...) {prints++;printed=format;return -123;}
 int func_80096E64(int kind,int spec) {
     event_class[events]=(u32)kind;event_spec[events++]=(u32)spec;return -999;

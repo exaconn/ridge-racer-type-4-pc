@@ -86,7 +86,7 @@ void func_8004EC28() {
     char *s1;
     register char *s0 asm("$16");
     int i; int n; short m;
-    func_8008BFD0(1);
+    CdReset(1);
     func_800825B4(0, 0, 1);
     func_80083CD4(0, 0x7F, 0x7F);
     s0 = D_800F74B0;

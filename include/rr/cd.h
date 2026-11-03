@@ -22,22 +22,22 @@ typedef union {u32 word;struct {u8 status,reserved[3];} bytes;} RrCdDriveStatus;
 extern RrCdDriveStatus D_800A6494;
 RR_ASSERT_SIZE(RrCdDriveStatus,4);
 /* Raw command dispatch: zero means success. Control retries up to four times. */
-s32 func_8008D1C8(s32 command, const u8 *parameters, u8 *result, s32 mode);
-s32 func_8008C140(s32 command, const u8 *parameters, u8 *result);
+s32 CD_cw(s32 command, const u8 *parameters, u8 *result, s32 mode);
+s32 CdControl(s32 command, const u8 *parameters, u8 *result);
 /* Main dispatch uses mode1 and a null result buffer. Same four-attempt policy. */
-s32 func_8008C27C(s32 command, const u8 *parameters);
+s32 CdControlF(s32 command, const u8 *parameters);
 /* Mode0 dispatch followed by completion; only completion result2 succeeds. */
-s32 func_8008C3B0(s32 command, const u8 *parameters, u8 *result);
-s32 func_8008CC80(s32 mode, u8 *status);
+s32 CdControlB(s32 command, const u8 *parameters, u8 *result);
+s32 CD_sync(s32 mode, u8 *status);
 s32 func_8008C0D8(s32 mode, u8 *status);
 
 /* Command completion, raw sector transfer and disc-type probe. */
-s32 func_8008CF00(s32 mode, u8 *status);
+s32 CD_ready(s32 mode, u8 *status);
 s32 func_8008C0F8(s32 mode, u8 *status);
-s32 func_8008DBB4(u8 *buffer, u32 words);
-s32 func_8008DCB4(u8 *buffer, u32 words);
+s32 CD_getsector(u8 *buffer, u32 words);
+s32 CD_getsector2(u8 *buffer, u32 words);
 s32 func_8008C51C(u8 *buffer, u32 words);
-u8 *func_8008C5A0(s32 sector, u8 *location);
+u8 *CdIntToPos(s32 sector, u8 *location);
 s32 func_8008F3B0(void);
 extern volatile u8 *D_800A674C, *D_800A6758;
 extern volatile u32 *D_800A675C, *D_800A6780, *D_800A6784;

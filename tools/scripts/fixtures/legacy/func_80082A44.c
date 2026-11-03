@@ -54,10 +54,10 @@ void func_80082A44(s32 direct)
     state=(u8 *)&D_800A4D38+RR_FIELD_OFFSET(RrSpuTickState20,flags);
     if(FLAG(state,direct)) {
         func_80096F04();
-        func_8008B3F4(FIELD(state,RrSpuTickCallback,callback));
+        VSyncCallback(FIELD(state,RrSpuTickCallback,callback));
     } else {
         func_80096F04();
-        func_800970DC(counter);
+        ResetRCnt(counter);
         func_80096FA4(counter,(u16)period,0x1000);
         interrupt=FLAG(state,interrupt);
         if(interrupt==0) {

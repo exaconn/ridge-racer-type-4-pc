@@ -66,7 +66,7 @@ extern short D_800F4D44;
 extern char *D_800F3B20;
 extern void func_800912B4(s32,s32);
 extern void func_800912D4(s32);
-extern void *func_80092998(void *,s32,s32,s32,s32);
+extern void *SetDefDispEnv(void *,s32,s32,s32,s32);
 
 void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags);
 
@@ -86,8 +86,8 @@ void func_8001E988(void)
     func_8004EC28();
     func_80052800();
     func_800929D4(0);
-    func_80092B48(0);
-    func_80092CB8(0);
+    SetGraphDebug(0);
+    SetDispMask(0);
     func_800907FC();
     func_80077E10(1);
     func_8004A55C();
@@ -225,10 +225,10 @@ void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags) {
     saved_flags=input;
     if(wide)width=480;
     env=D_800ADAF0;
-    func_800928E4(env,0,0,width,height);
-    func_800928E4(&D_800D0268,0,other_y,width,height);
-    func_80092998(&env->environment.display,0,other_y,width,height);
-    func_80092998(&D_800D02C4,0,0,width,height);
+    SetDefDrawEnv(env,0,0,width,height);
+    SetDefDrawEnv(&D_800D0268,0,other_y,width,height);
+    SetDefDispEnv(&env->environment.display,0,other_y,width,height);
+    SetDefDispEnv(&D_800D02C4,0,0,width,height);
     i=0;
     rgb24=saved_flags&1;
     one=1;

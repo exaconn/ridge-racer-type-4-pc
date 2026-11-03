@@ -145,7 +145,7 @@ extern short *D_8009E1D4[];
 extern short *D_8009E224[];
 extern char D_8009E248[];
 extern int func_800912B4();
-extern int func_80093B14();
+extern int SetDrawArea();
 
 SkyTri *func_80017310(SkyTri *a0, SkyCtx *a1, int a2);
 SkyQuad17528 *func_80017528(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2);
@@ -1283,7 +1283,7 @@ void func_800197C8(int a0, int a1, short *a2, int a3) {
     sp10[0] = 0;
     sp10[1] = 0;
     sp10[3] = 0x1E0;
-    func_80093B14(GS->cur, sp10);
+    SetDrawArea(GS->cur, sp10);
     LNK(2, 0x10);
     GS->cur = GS->cur + 0xC;
     func_80093B94(GS->cur, sp10);
@@ -1334,7 +1334,7 @@ void func_800197C8(int a0, int a1, short *a2, int a3) {
     GS->cur = (char *)p;
     sp10[2] = a2[2];
     sp10[3] = a2[3];
-    func_80093B14(p, sp10);
+    SetDrawArea(p, sp10);
     LNK(2, 0xAF0);
     GS->cur = GS->cur + 0xC;
     func_80093B94(GS->cur, sp10);

@@ -51,7 +51,7 @@ s32 func_8008F854(u8 **data,RrLibQueueRecord32 **header){unsigned n=world.polls+
  *data=packets[(scenario+n)%3]+(scenario+n)%32;*header=world.s.headers+(scenario+n)%2;
  return n<busy?-1:0;
 }
-void func_80092ED4(const RrGpuRectangleFields *rect,u8 r,u8 g,u8 b){assert(!r&&!g&&!b);assert(world.clears++==0);world.clear=*rect;world.beforeClear=hash();if(mutation)effect(2017,1);}
+void ClearImage(const RrGpuRectangleFields *rect,u8 r,u8 g,u8 b){assert(!r&&!g&&!b);assert(world.clears++==0);world.clear=*rect;world.beforeClear=hash();if(mutation)effect(2017,1);}
 ''' + body + r'''
 static u8 *expected(RrStrDisplayConfig *config){u8 *data;RrLibQueueRecord32 *header;unsigned i;RrStrPlaybackState *s;int found=0;RrGpuRectangleFields rect;
  for(i=0;i<2000;i++)if(!func_8008F854(&data,&header)){found=1;break;}
@@ -64,7 +64,7 @@ static u8 *expected(RrStrDisplayConfig *config){u8 *data;RrLibQueueRecord32 *hea
   ((RrStrPlaybackState*)world.s.context.activeB8)->height04=header->height12;
   s=world.s.context.activeB8;
   rect.x=rect.y=0;rect.w=half(word((u32)s->width00*3U)/2);rect.h=512;
-  func_80092ED4(&rect,0,0,0);
+  ClearImage(&rect,0,0,0);
  }
  s=world.s.context.activeB8;
  config->rectangles[0].y=half(world.frames[0].environment.display.y+word(256U-(u32)s->height04)/2);

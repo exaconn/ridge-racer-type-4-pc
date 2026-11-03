@@ -5,7 +5,7 @@ extern RrLibCompletionCallback func_8008C118(RrLibCompletionCallback);
 extern RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback);
 extern RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback);
 extern u8 func_8008BF94(void);
-extern s32 func_8008C3B0(s32,const u8*,u8*);
+extern s32 CdControlB(s32,const u8*,u8*);
 extern s32 func_8008EB6C(s32);
 
 s32 func_8008EEF4(s32 sectors,u8 *buffer,u32 mode) {
@@ -93,7 +93,7 @@ timeout:
         parameters=0;
         /* ASM_BARRIER: form the command and parameter arguments independently. */
         __asm__("" : "+r"(parameters) : "r"(command));
-        func_8008C3B0(command,parameters,0);
+        CdControlB(command,parameters,0);
     }
     result=func_8008EB6C(0)>0;
     /* ASM_BARRIER: finish the Boolean result before restoring saved temporaries. */

@@ -1,7 +1,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "psyq/libspu/s_snc.h"
 #include "rr/spu.h"
-int func_80088D14(a0) int a0; {
+int SpuSetNoiseClock(a0) int a0; {
     /* ASM_BARRIER: pin the clamp result to $a1 to match the original register allocation */
     int v;
     int r;

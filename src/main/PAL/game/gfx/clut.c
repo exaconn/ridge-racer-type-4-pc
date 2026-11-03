@@ -2,7 +2,7 @@
 #include "rr/overlay662_palette_refresh.h"
 struct R { short x, y, w, h; };
 
-extern int func_80092D50();
+extern int DrawSync();
 
 int func_8001E84C(void);
 void func_8001E854(int a0, int a1, int a2);
@@ -23,7 +23,7 @@ void func_8001E854(int a0, int a1, int a2)
         r.y = 0x40;
         r.w = 0x10;
         r.h = 1;
-        func_80092F64(&r, 0, 0, 0);
+        ClearImage2(&r, 0, 0, 0);
         goto done;
     }
     a0 += a1 * 0x840;
@@ -37,7 +37,7 @@ void func_8001E854(int a0, int a1, int a2)
         r.w = s[4];
         r.h = s[5];
         func_80092FFC(&r, (char *)s + 0xC);
-        func_80092D50(0);
+        DrawSync(0);
         a0 = (int)s + ((*(unsigned *)s >> 2) << 2);
     }
     s = (unsigned short *)a0;
@@ -49,7 +49,7 @@ void func_8001E854(int a0, int a1, int a2)
         if (r.h > 0) {
             func_80092FFC(&r, (char *)s + 0xC);
 done:
-            func_80092D50(0);
+            DrawSync(0);
         }
     }
 }

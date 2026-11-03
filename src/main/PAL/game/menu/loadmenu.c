@@ -123,7 +123,7 @@ void func_8007ABCC(void) {
     phase = D_800F4D8A;
     switch (phase) {
     case 0:
-        func_80092CB8(0);
+        SetDispMask(0);
         func_8001ECE8(0x20, 0x20, 0x20, 2);
         D_800F2DE4 = 0;
         D_800F4D3C = 0;
@@ -228,11 +228,11 @@ void func_8007ABCC(void) {
     case 1:
         D_800F2DE4 = (s32)((u32)D_800F2DE4 + 1U);
         if (D_800F3A26 == phase) {
-            func_80092CB8(1);
+            SetDispMask(1);
         }
         ready = func_8003B934();
         if (ready == phase) {
-            func_80092CB8(1);
+            SetDispMask(1);
             D_800F4C6A = ready;
             D_800F3A26 = 0x48;
             D_800F4D8A = 0;

@@ -6,7 +6,7 @@
 
 extern s32 func_8007F068(s32 mode, ...);
 
-extern s32 func_8007FCD4(u32 address);
+extern s32 _SpuIsInAllocateArea_(u32 address);
 
 extern s32 func_80096E94(s32 event);
 
@@ -33,7 +33,7 @@ s32 func_8007FAB4(u32 preset) {
     if (preset >= 10) return -1;
     base = (unsigned long)D_800A48C8;
     preset_address = (u32 *)(preset * 4 + base);
-    if (func_8007FCD4(*preset_address) != 0) return -1;
+    if (_SpuIsInAllocateArea_(*preset_address) != 0) return -1;
 
     /* The data initializer and func_8007EAC4 both set the shift to 3. */
     if (preset == 0) {

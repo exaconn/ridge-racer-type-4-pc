@@ -4,7 +4,7 @@
 
 #include "rr/cd_init.h"
 
-s32 func_8008D86C(void) {
+s32 CD_init(void) {
     volatile u8 *statusBytes;
     s32 command;
     const u8 *parameters;
@@ -39,16 +39,16 @@ s32 func_8008D86C(void) {
     RR_CD_WRITE8(indexPort, 0);
     RR_CD_WRITE8(D_800A6758, 0);
     RR_CD_WRITE32(D_800A675C, 0x1325);
-    func_8008D1C8(command, parameters, 0, 0);
+    CD_cw(command, parameters, 0, 0);
     if (D_800A6494.word & 0x10) {
-        func_8008D1C8(1, 0, 0, 0);
+        CD_cw(1, 0, 0, 0);
     }
-    if (func_8008D1C8(0xA, 0, 0, 0) == 0) {
-        if (func_8008D1C8(0xC, 0, 0, 0) == 0) {
+    if (CD_cw(0xA, 0, 0, 0) == 0) {
+        if (CD_cw(0xC, 0, 0, 0) == 0) {
             {
             s32 result;
             s32 expected;
-            command=func_8008CC80(0,0);
+            command=CD_sync(0,0);
             expected=2;
             if(command==expected){
                 result=0;

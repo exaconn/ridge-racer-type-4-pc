@@ -58,7 +58,7 @@ extern volatile u8 *D_800A6754;
 
 extern unsigned char *D_800A6758;
 
-int func_8008D730(void) {
+int CD_initvol(void) {
     unsigned char b[4];
     if (R(0x1B8) == 0 && R(0x1BA) == 0) {
         R(0x180) = 0x3FFF;

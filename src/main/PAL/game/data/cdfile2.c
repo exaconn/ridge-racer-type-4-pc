@@ -73,7 +73,7 @@ extern int D_80109448;
 extern int D_8010944C;
 extern int D_80109450;
 extern int D_80109454;
-void func_80092D50(s32);
+void DrawSync(s32);
 void func_80092FFC(s16 *, void *);
 extern s32 D_80109468[];
 extern short D_800F3914;
@@ -109,7 +109,7 @@ int func_80013904(char *a0_in, int a1_in);
 s32 func_80012578(void) {
     s32 var_v0;
 
-    func_8008C3B0(1, 0, &D_80109498);
+    CdControlB(1, 0, &D_80109498);
     var_v0 = D_80109498 & 0x10;
     if (var_v0 != 0) {
         D_8009DF90 = 5;
@@ -119,7 +119,7 @@ s32 func_80012578(void) {
 }
 
 s32 func_800125C8(void) {
-    func_8008C27C(0x13, 0);
+    CdControlF(0x13, 0);
     D_8009DF90 = 2;
     return 0;
 }
@@ -136,7 +136,7 @@ s32 func_800125F8(void) {
 
 s32 func_80012640(void) {
     D_80109498 = 0x80;
-    func_8008C27C(0xE, &D_80109498);
+    CdControlF(0xE, &D_80109498);
     D_8009DF90 = 4;
     D_8009DF94 = 0;
     return 0;
@@ -159,7 +159,7 @@ s32 func_80012684(void) {
 }
 
 s32 func_800126F0(void) {
-    func_8008C3B0(1, 0, &D_80109498);
+    CdControlB(1, 0, &D_80109498);
     if (!(D_80109498 & 0x10)) {
         D_8009DF90 = 1;
     }
@@ -167,7 +167,7 @@ s32 func_800126F0(void) {
 }
 
 s32 func_80012740(void) {
-    func_8008C27C(2, &D_80109464);
+    CdControlF(2, &D_80109464);
     D_8009DF90 = 7;
     return 0;
 }
@@ -208,7 +208,7 @@ void func_80012834(void) {
 
 s32 func_80012860(void)
 {
-    func_8008C3B0(1, 0, &D_80109498);
+    CdControlB(1, 0, &D_80109498);
     if (D_80109498 & 0x10) {
         D_8009DF90 = 5;
         return 0;
@@ -245,7 +245,7 @@ s32 func_800129BC(s32 a0, s32 a1, s32 a2, s32 a3) {
     D_8009DF9C = a0;
     D_8009DF90 = 6;
     D_8010945C = a1;
-    func_8008C5A0(func_8008C6A4(&D_801094A8[a0]) + a1, D_80109464.c);
+    CdIntToPos(CdPosToInt(&D_801094A8[a0]) + a1, D_80109464.c);
     D_80109460 = a2;
     D_80109484 = 0;
     return 1;
@@ -665,7 +665,7 @@ s32 func_800135BC(void) {
             rect[0] = x;
         }
         func_80092FFC(rect, s2);
-        func_80092D50(0);
+        DrawSync(0);
         D_800ACC18 = s2;
         func_8001301C(D_80109468[D_80109444], D_80109444);
         if (D_80109454 != 0) {
@@ -686,7 +686,7 @@ int func_800137B0(void) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80092D50 ((int (*)())func_80092D50)
+#define DrawSync ((int (*)())DrawSync)
 #define func_80092FFC ((int (*)())func_80092FFC)
 
 int func_800137D4(void) {
@@ -702,7 +702,7 @@ int func_800137D4(void) {
         sp[1] = 0;
         sp[3] = 0xB4;
         func_80092FFC(sp, D_800ACC18);
-        func_80092D50(0);
+        DrawSync(0);
         D_8009DF98 = 0;
         return 1;
     default:
@@ -710,7 +710,7 @@ int func_800137D4(void) {
     }
 }
 
-#undef func_80092D50
+#undef DrawSync
 #undef func_80092FFC
 
 void func_80013890(s32 shift) {

@@ -19,7 +19,7 @@
 #define RR_PAIR_PENDING(pair) (RR_PAIR_REQUEST(pair)->finished24)
 
 extern RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback);
-extern s32 func_8008C6A4(void *);
+extern s32 CdPosToInt(void *);
 extern s32 func_800963DC(const char *,...);
 extern const char D_80011D28[];
 extern void func_8008EA9C(void);
@@ -62,7 +62,7 @@ void func_8008E828(s32 event,u8 *data) {
                 } else {
                     func_8008C51C(header,3);
                 }
-                now=func_8008C6A4(header);
+                now=CdPosToInt(header);
                 completed=&D_800A67D0;
                 /* ASM_BARRIER: capture the complete counter address before load. */
                 __asm__("" : "+r"(completed));
@@ -120,7 +120,7 @@ void func_8008E828(s32 event,u8 *data) {
             func_8008C55C(state->restore.saved30);
         }
         func_8008C118(func_8008E7F4);
-        func_8008C27C(9,0);
+        CdControlF(9,0);
         /* PAL page+0x63F0 contains the data notification function pointer. */
         notify_page=(u8 *)0x800A0000U;
         notify=*(RrCdDataNotify *)(notify_page+0x63F0);
@@ -151,7 +151,7 @@ void func_8008EA9C(void) {
         func_8008C12C(state->restore2C);
         if (D_800A63F4 & 1) func_8008C55C(state->restore30);
         func_8008C118(func_8008E7F4);
-        func_8008C27C(9, 0);
+        CdControlF(9, 0);
         /* PAL mapping: page + 0x63F0 is &D_800A63F0. */
         page = (u8 *)0x800A0000U;
         callback = *(RrLibNotificationCallback *)(page + 0x63F0);
@@ -194,7 +194,7 @@ s32 func_8008EB6C(s32 restart) {
         if (!(func_8008B154(-1) & 63)) {
             func_800963DC(D_80011D40);
         }
-        func_8008C27C(1, 0);
+        CdControlF(1, 0);
         timestamp = func_8008B154(-1);
         shell_state = &D_800A67B0;
         shell_state->start1C = timestamp;
@@ -210,8 +210,8 @@ s32 func_8008EB6C(s32 restart) {
         parameters = 0;
         /* ASM_BARRIER: stage the null parameter after the command value. */
         __asm__("" : "+r"(parameters) : "r"(command));
-        func_8008C140(command, parameters, 0);
-        if (!func_8008C140(2, func_8008BFC4(), 0)) {
+        CdControl(command, parameters, 0);
+        if (!CdControl(2, func_8008BFC4(), 0)) {
             goto failed;
         }
     }
@@ -225,7 +225,7 @@ s32 func_8008EB6C(s32 restart) {
     mode_byte = requested;
     requested &= 255;
     if (requested != func_8008BFA4() || retry != 0) {
-        if (!func_8008C140(14, &mode_byte, 0)) {
+        if (!CdControl(14, &mode_byte, 0)) {
 failed:
             /* ASM_BARRIER: retain one shared failure block with fresh state
              * publication and reload, rather than duplicating address setup. */
@@ -235,7 +235,7 @@ failed:
             return failed_state->remaining14;
         }
     }
-    completed = func_8008C6A4(func_8008BFC4());
+    completed = CdPosToInt(func_8008BFC4());
     /* ASM_BARRIER: the success-state address is formed after decoding. */
     __asm__("" : : : "$16");
     callback = (RrLibCompletionCallback)func_8008E828;
@@ -251,7 +251,7 @@ failed:
         command = 6;
     }
     state->position08 = state->buffer04;
-    func_8008C27C(command, 0);
+    CdControlF(command, 0);
     state->remaining14 = state->sectors00;
     ((volatile RrLibReadRequestState *)state)->retry18 = func_8008B154(-1);
     return ((volatile RrLibReadRequestState *)state)->remaining14;
@@ -320,7 +320,7 @@ after_first_wait:
         func_8008C12C(RR_PAIR_TAIL(pair)->saved2C);
         if(D_800A63F4&1)func_8008C55C(RR_PAIR_TAIL(pair)->saved30);
         func_8008C118(func_8008E7F4);
-        func_8008C27C(9,0);
+        CdControlF(9,0);
         publish=(RrLibReadRequestState*)((u8*)pair-RR_PAIR_OWNER_OFFSET);
         ((volatile RrLibReadRequestState*)publish)->finished24=1;
         if(RR_PAIR_PENDING(pair)!=0) {
@@ -340,7 +340,7 @@ done:
 #undef func_8008E7F4
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8008C3B0 ((s32 (*)(s32,const u8*,u8*))func_8008C3B0)
+#define CdControlB ((s32 (*)(s32,const u8*,u8*))CdControlB)
 
 s32 func_8008EEF4(s32 sectors,u8 *buffer,u32 mode) {
     s32 count=sectors;
@@ -427,7 +427,7 @@ timeout:
         parameters=0;
         /* ASM_BARRIER: form the command and parameter arguments independently. */
         __asm__("" : "+r"(parameters) : "r"(command));
-        func_8008C3B0(command,parameters,0);
+        CdControlB(command,parameters,0);
     }
     result=func_8008EB6C(0)>0;
     /* ASM_BARRIER: finish the Boolean result before restoring saved temporaries. */
@@ -435,4 +435,4 @@ timeout:
     return result;
 }
 
-#undef func_8008C3B0
+#undef CdControlB

@@ -13,7 +13,7 @@ u8 *ovl668_func_80115164(RrStrDisplayConfig *config) {
   rectangle.x=0;rectangle.y=0;
   rectangle.w=(s32)((u32)playback->width00*3U)/2;
   rectangle.h=512;
-  func_80092ED4(&rectangle,0,0,0);
+  ClearImage(&rectangle,0,0,0);
  }
  config->rectangles[0].y=D_800ADAF0[0].environment.display.y+(s32)(256U-(u32)((RrStrPlaybackState*)D_800AC650.activeB8)->height04)/2;
  config->rectangles[1].y=D_800ADAF0[1].environment.display.y+(s32)(256U-(u32)((RrStrPlaybackState*)D_800AC650.activeB8)->height04)/2;

@@ -210,7 +210,7 @@ int a5;
     D_8010EF98[1] = a3;
     D_8010EF98[3] = 1;
     func_8009305C(D_8010EF98, a0 + 0x60);
-    func_80092D50(0);
+    DrawSync(0);
     i = 0;
     do {
         D_8010EF98[0] = a4;
@@ -219,7 +219,7 @@ int a5;
         D_8010EF98[3] = 0x10;
         /* (new_var = &a4) is a dead address-of that keeps gcc from hoisting the li 0x10 out of the loop (found by permuter) */
         func_8009305C(D_8010EF98, a0 + 0x80 + (*(new_var = &a4), i) * 0x80);
-        func_80092D50(0);
+        DrawSync(0);
         i++;
         a4 += 4;
     } while (i < 3);
@@ -248,7 +248,7 @@ B *a6;
     D_8010EFA0[1] = a3;
     D_8010EFA0[3] = 1;
     func_8009305C(D_8010EFA0, a0 + 0x60);
-    func_80092D50(0);
+    DrawSync(0);
     i = 0;
     do {
         D_8010EFA0[0] = a4;
@@ -256,7 +256,7 @@ B *a6;
         D_8010EFA0[2] = 4;
         D_8010EFA0[3] = 0x10;
         func_8009305C(D_8010EFA0, a0 + 0x80 + i * 0x80);
-        func_80092D50(0);
+        DrawSync(0);
         i++;
         a4 += 4;
     } while (i <= 0);

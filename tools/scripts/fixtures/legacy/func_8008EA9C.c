@@ -21,7 +21,7 @@ void func_8008EA9C(void) {
         func_8008C12C(state->restore2C);
         if (D_800A63F4 & 1) func_8008C55C(state->restore30);
         func_8008C118(func_8008E7F4);
-        func_8008C27C(9, 0);
+        CdControlF(9, 0);
         /* PAL mapping: page + 0x63F0 is &D_800A63F0. */
         page = (u8 *)0x800A0000U;
         callback = *(RrLibNotificationCallback *)(page + 0x63F0);

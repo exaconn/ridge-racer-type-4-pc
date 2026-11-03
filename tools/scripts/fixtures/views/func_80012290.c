@@ -15,7 +15,7 @@ extern s32 func_8008EEF4(s32, void *, s32);
 
 extern s32 func_8008F090(s32, void *);
 
-extern s32 func_8008C6A4(const RrCdLocation *);
+extern s32 CdPosToInt(const RrCdLocation *);
 
 extern void func_800963C4(s32);
 
@@ -56,19 +56,19 @@ void func_80012290(void)
     /* ASM_BARRIER: keep the saved count and address opaque to constant folding. */
     __asm__("" : "+r"(sectors), "+r"(message_page));
     do {
-        func_8008C140(2,(const u8 *)&file.location,0);
+        CdControl(2,(const u8 *)&file.location,0);
         func_8008EEF4(sectors,D_800102F0,0x80);
         do { status=func_8008F090(1,0); } while(status>0);
     } while(status);
     func_8001E84C((const char *)(message_page+0x68),sectors);
-    base=func_8008C6A4(&file.location);
+    base=CdPosToInt(&file.location);
     directory=D_800102F0;
     i=0;
     count=*directory++;
     sector=base+*directory++;
     entry=D_801094A8;
     while(i<count) {
-        func_8008C5A0(sector,entry->location.c);
+        CdIntToPos(sector,entry->location.c);
         next=base+*directory++;
         entry->sectors=next-sector;
         sector=next;

@@ -59,7 +59,7 @@ void func_80078E1C(s32 arg0, s32 arg1);
 void func_80077E10()
 {
     func_80095D04();
-    func_80095D70();
+    StartCARD();
     func_80095C74();
     func_8009BA04();
     func_80096F04();

@@ -4,7 +4,7 @@ func_8003E928
 func_80058768
 func_80060C70
 func_8007D1B8
-func_8007DFA4
+_comp_mant
 func_8007E3B4
 func_8007E944
 func_8007ED44
@@ -30,8 +30,8 @@ func_8008A674
 func_8008AEC4
 func_8008B5D0
 func_8008BD10
-func_8008C3B0
-func_8008D820
+CdControlB
+CD_initintr
 func_8008DDAC
 func_8008E4E4
 func_8008EB6C
@@ -41,11 +41,11 @@ func_80090884
 func_80091AD4
 func_80092334
 func_800929D4
-func_80093344
+DrawOTag
 func_80094198
 func_80094830
 func_800954D8
-func_80095FD4
+_ExitCard
 func_80097114
 func_800977C4
 func_80098488

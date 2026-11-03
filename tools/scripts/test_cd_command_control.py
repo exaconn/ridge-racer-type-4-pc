@@ -21,7 +21,7 @@ class CdCommandControlTest(unittest.TestCase):
             header=(root/'include/rr'/file).read_text()
             headers+=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)+'\n'
         owners=source_owners(root/'src/main/PAL')
-        paths=dict.fromkeys(owners[name] for name in ('func_8008C140','func_8008C0D8'))
+        paths=dict.fromkeys(owners[name] for name in ('CdControl','func_8008C0D8'))
         body='\n'.join(path.read_text() for path in paths)
         assert body.count('(RrLibDataCallback *)0x800A0000U')==2
         body=body.replace('(RrLibDataCallback *)0x800A0000U','callback_page')
@@ -39,21 +39,21 @@ RrLibDataCallback callback_page[0x10000/sizeof(RrLibDataCallback)];
 #define D_800A6488 callback_page[0x6488/sizeof(RrLibDataCallback)]
 s32 (*on_call)(s32,const u8 *,u8 *,s32);
 s32 (*on_sync)(s32,u8 *);
-s32 func_8008CC80(s32 mode,u8 *status){return on_sync(mode,status);}
+s32 CD_sync(s32 mode,u8 *status){return on_sync(mode,status);}
 s32 called[3];
 void callback_a(s32 code,u8 *data){called[0]++;}
 void callback_b(s32 code,u8 *data){called[1]++;}
 void callback_c(s32 code,u8 *data){called[2]++;}
-s32 func_8008D1C8(s32 command,const u8 *parameters,u8 *result,s32 mode){
+s32 CD_cw(s32 command,const u8 *parameters,u8 *result,s32 mode){
     return on_call(command,parameters,result,mode);
 }
 '''+body
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'))
-        cls.f=cls.lib.func_8008C140;cls.f.argtypes=[C.c_int32,C.c_void_p,C.c_void_p];cls.f.restype=C.c_int32
-        cls.g=cls.lib.func_8008C27C;cls.g.argtypes=[C.c_int32,C.c_void_p];cls.g.restype=C.c_int32
-        cls.h=cls.lib.func_8008C3B0;cls.h.argtypes=[C.c_int32,C.c_void_p,C.c_void_p];cls.h.restype=C.c_int32
+        cls.f=cls.lib.CdControl;cls.f.argtypes=[C.c_int32,C.c_void_p,C.c_void_p];cls.f.restype=C.c_int32
+        cls.g=cls.lib.CdControlF;cls.g.argtypes=[C.c_int32,C.c_void_p];cls.g.restype=C.c_int32
+        cls.h=cls.lib.CdControlB;cls.h.argtypes=[C.c_int32,C.c_void_p,C.c_void_p];cls.h.restype=C.c_int32
         cls.wrapper=cls.lib.func_8008C0D8;cls.wrapper.argtypes=[C.c_int32,C.c_void_p];cls.wrapper.restype=C.c_int32
         cls.table=(C.c_uint32*34).in_dll(cls.lib,'D_800A6400');cls.status=C.c_uint8.in_dll(cls.lib,'D_800A6494')
         cls.slot=C.c_void_p.from_address(C.addressof((C.c_void_p*(0x10000//C.sizeof(C.c_void_p))).in_dll(cls.lib,'callback_page'))+0x6488);cls.hook=C.c_void_p.in_dll(cls.lib,'on_call')

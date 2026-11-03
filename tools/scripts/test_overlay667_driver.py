@@ -40,7 +40,7 @@ s32 func_8009AEAC(s32 command,s32 operation,unsigned long argument){
  record(&world,5,command,operation,argument);world.phase=5;world.active=0;return world.ignored_disable;
 }
 s32 func_8008B154(s32 mode){assert(world.phase==5 && world.active==0);record(&world,6,mode,0,0);world.phase=6;return world.ignored_wait;}
-void func_80092CB8(s32 mode){assert(world.phase==6);record(&world,7,mode,0,0);world.phase=7;}
+void SetDispMask(s32 mode){assert(world.phase==6);record(&world,7,mode,0,0);world.phase=7;}
 ''' + body + r'''
 static u32 seed=0x15494;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}

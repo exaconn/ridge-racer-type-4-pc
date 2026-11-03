@@ -20,7 +20,7 @@ extern char D_800F7414[];
 extern unsigned int D_800F7430;
 extern int func_80052B48();
 extern int func_8008C0D8();
-extern int func_8008C140();
+extern int CdControl();
 extern int func_8008F274();
 
 void func_80052F2C()
@@ -34,7 +34,7 @@ void func_80052F2C()
         if (D_800F4DB8.f269C != -1) break;
         D_800F4DB8.f2678 = D_800F4DB8.f2678 + 1;
     case 1:
-        if (func_8008C140(0x1B, 0, 0)) {
+        if (CdControl(0x1B, 0, 0)) {
             D_800F4DB8.f2678 = D_800F4DB8.f2678 + 1;
             break;
         }
@@ -55,7 +55,7 @@ void func_80052F2C()
         }
         break;
     case 3:
-        func_8008C140(1, 0, D_800F7414);
+        CdControl(1, 0, D_800F7414);
         p = (B *)(D_800F7414 - 0x265C);
         if (*((unsigned char *)p + 0x265C) & 0x20) {
             p->f2678 = p->f2678 + 1;

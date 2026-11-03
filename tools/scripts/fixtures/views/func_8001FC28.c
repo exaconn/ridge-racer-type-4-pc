@@ -7,7 +7,7 @@
 
 struct P12 { int a, b, c; };
 
-extern int func_80093B14();
+extern int SetDrawArea();
 
 extern int func_80095A44();
 
@@ -29,7 +29,7 @@ void *func_8001FC28(u32 *a0, void *cursor, int a2, int a3, int a4, int a5) {
     }
     sp[2] = a4;
     sp[3] = a5;
-    func_80093B14(a1, sp);
+    SetDrawArea(a1, sp);
     func_80095A44(a0, a1++);
     return a1;
 }

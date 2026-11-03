@@ -12,7 +12,7 @@ int func_80086694(int a0) {
         D_800A47D8->f &= 0xFF7F;
         break;
     case 1:
-        if (D_800A4850 != a0 && func_8007FCD4(D_800A4854)) {
+        if (D_800A4850 != a0 && _SpuIsInAllocateArea_(D_800A4854)) {
             D_800A484C = 0;
             D_800A47D8->f &= 0xFF7F;
         } else {

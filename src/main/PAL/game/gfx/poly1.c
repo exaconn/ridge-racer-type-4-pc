@@ -90,7 +90,7 @@ extern struct { short a, b, c, d; } D_800F38F8[];
 extern short *D_8010E790;
 extern unsigned short D_800AD5B8;
 extern unsigned char *D_8010E798;
-extern int func_80092CB8();
+extern int SetDispMask();
 extern int D_800AC5DC;
 extern struct S D_80011324;
 extern struct S D_8001132C;
@@ -334,7 +334,7 @@ void func_80070ACC(char *p) {
     m10.a[5] = (D_800F39A8.a[5] + v[0]) >> 1;
     m10.a[6] = (D_800F39A8.a[6] + v[1]) >> 1;
     m10.a[7] = (D_800F39A8.a[7] + v[2]) >> 1;
-    func_80091144(&m10);
+    SetTransMatrix(&m10);
     func_80090CA4(&m10, &D_800F39A8);
     func_800910B4(&m10);
 }
@@ -537,7 +537,7 @@ void func_80071440(void) {
     d = D_80011334;
     e = D_8001133C;
     f = D_80011344;
-    func_80092CB8(0);
+    SetDispMask(0);
     func_8001ECE8(0, 0, 0, 3);
     D_800AC5DC = 0x80;
     D_8010E7A4 = 0;

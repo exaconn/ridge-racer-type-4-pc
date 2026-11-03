@@ -17,7 +17,7 @@
     }
 
 extern int func_8008B3C4();
-extern int func_8008DA4C();
+extern int CD_datasync();
 extern s32 func_8001E84C();
 extern s32 func_800963DC(const char *);
 extern const char D_80011A40[];
@@ -42,7 +42,7 @@ extern u8 D_80110320[];
 extern u8 D_80110328[];
 extern s32 func_8008B154(s32);
 extern s32 func_8008B4B8(void);
-extern void func_8008D65C(void);
+extern void CD_flush(void);
 extern const char D_80011A14[];
 extern const char D_80011A24[];
 extern const char D_80011A9C[];
@@ -56,17 +56,17 @@ extern const char D_80011AA4[];
 
 void func_8008C55C(a0);
 void func_8008C580();
-unsigned char *func_8008C5A0();
-s32 func_8008C6A4(void *arg0);
+unsigned char *CdIntToPos();
+s32 CdPosToInt(void *arg0);
 s32 func_8008C724(void);
-s32 func_8008CC80(s32 mode, u8 *result);
-s32 func_8008CF00(s32 mode, u8 *result);
+s32 CD_sync(s32 mode, u8 *result);
+s32 CD_ready(s32 mode, u8 *result);
 
 void func_8008C55C(a0) { func_8008B3C4(3, a0); }
 
-void func_8008C580() { func_8008DA4C(); }
+void func_8008C580() { CD_datasync(); }
 
-unsigned char *func_8008C5A0(i, p)
+unsigned char *CdIntToPos(i, p)
 int i;
 unsigned char *p;
 {
@@ -85,7 +85,7 @@ unsigned char *p;
   return p;
 }
 
-s32 func_8008C6A4(void *arg0) {
+s32 CdPosToInt(void *arg0) {
     u8 temp_a1;
     u8 temp_a2;
     u8 temp_v1;
@@ -212,7 +212,7 @@ static inline int check_alarm(char **ac, char **sc, volatile u8 *st) {
                 x5
             );
         }
-        func_8008D65C();
+        CD_flush();
         return -1;
     }
     return 0;
@@ -232,7 +232,7 @@ static inline void cd_poll_cb(volatile u8 *st, volatile u8 *st1) {
     *D_800A674C = saved;
 }
 
-s32 func_8008CC80(s32 mode, u8 *result) {
+s32 CD_sync(s32 mode, u8 *result) {
     s32 ret;
     u8 *src;
     u8 *dst;
@@ -288,7 +288,7 @@ static inline int check_alarm_1(char **ac, char **sc, volatile u8 *st) {
                 x5
             );
         }
-        func_8008D65C();
+        CD_flush();
         return -1;
     }
     return 0;
@@ -308,7 +308,7 @@ static inline void cd_poll_cb_1(volatile u8 *st, volatile u8 *st1) {
     *D_800A674C = saved;
 }
 
-s32 func_8008CF00(s32 mode, u8 *result) {
+s32 CD_ready(s32 mode, u8 *result) {
     s32 ret;
     u8 *src;
     u8 *dst;

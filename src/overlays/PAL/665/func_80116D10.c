@@ -122,7 +122,7 @@ extern s16 D_8009FFC0[];
 extern s32 D_8009FFCC[];
 
 extern s32 func_800978E0(s32);
-extern void func_80097C58(s32, s32, s32);
+extern void PadSetMainMode(s32, s32, s32);
 extern s32 func_8004E8CC(void);
 extern s32 ovl665_func_8011629C(s32);
 extern void func_8005B2D4(s32);
@@ -212,7 +212,7 @@ void ovl665_func_80116D10(s32 player) {
                 if (ST.ready2C == 0) {
                     if (D_800F3A38[player].course01 != 0xE3) {
                         if (func_800978E0(player << 4) == 6) {
-                            func_80097C58(player << 4, 1, 0);
+                            PadSetMainMode(player << 4, 1, 0);
                         }
                     } else {
                         ST.ready2C = 1;

@@ -103,7 +103,7 @@ static void event(s32 service,s32 a,s32 b,s32 c,s32 d){
  w->events[n].service=service;w->events[n].args[0]=a;w->events[n].args[1]=b;w->events[n].args[2]=c;w->events[n].args[3]=d;w->events[n].hash=h;
  w->calls++;if(mutation && service!=7)effect(n);
 }
-void func_80092CB8(s32 mode){assert(mode==0);event(1,mode,0,0,0);}
+void SetDispMask(s32 mode){assert(mode==0);event(1,mode,0,0,0);}
 void func_8002A604(void){event(2,0,0,0,0);}
 void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags){event(3,r,g,b,(s32)flags);}
 void ovl661_func_80115598(s32 mode){assert(mode==0);event(4,mode,0,0,0);}
@@ -125,7 +125,7 @@ static void reference_glyph(s8 *destination,s32 glyph){
  destination[0]=(s8)(glyph/160);destination[1]=(s8)(glyph/40-(glyph/160)*4);destination[2]=(s8)(glyph%40);
 }
 static void reference(void){unsigned i,j,k;
- func_80092CB8(0);func_8002A604();
+ SetDispMask(0);func_8002A604();
  if(kind==0){
   for(i=0;i<2;i++)w->s.selections[i]=w->s.rows[i]=w->s.columns[i]=0;
   w->s.clearABEC8=0;w->s.clearAC648=0;w->s.clearF3914=0;w->s.laps=3;w->s.modeAC59C=2;

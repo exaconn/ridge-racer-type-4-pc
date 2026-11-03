@@ -17,7 +17,7 @@ void func_80097834();
 void func_80097874();
 int func_80097894();
 int func_80097B78();
-void func_80097C58(s32 selector, s32 first, s32 second);
+void PadSetMainMode(s32 selector, s32 first, s32 second);
 
 void func_80097834() { func_80098030(); }
 
@@ -68,7 +68,7 @@ int func_800978E0() {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC7C (*(char *(*(*))())&D_800ABC7C)
 
-int func_800979AC(a0, a1, a2) int a0, a1, a2; {
+int PadInfoMode(a0, a1, a2) int a0, a1, a2; {
   char *p = D_800ABC7C();
   switch (a1) {
   case 1: return *(unsigned char *)(p + 0xE8);
@@ -126,17 +126,17 @@ int func_80097B78(a0, a1, a2) int a0, a1, a2; {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC7C (*(int (*(*))())&D_800ABC7C)
 
-void func_80097C20(a0, a1) int a0, a1; { func_80099380(D_800ABC7C(), a1); }
+void PadSetActAlign(a0, a1) int a0, a1; { func_80099380(D_800ABC7C(), a1); }
 
 #undef D_800ABC7C
 
-void func_80097C58(s32 selector, s32 first, s32 second) {
+void PadSetMainMode(s32 selector, s32 first, s32 second) {
     func_800994CC(D_800ABC7C(selector), first & 0xFF, second & 0xFF);
 }
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC7C (*(int (*(*))())&D_800ABC7C)
 
-void func_80097CA0(a0, a1, a2) int a0, a1, a2; { func_80098AC4(D_800ABC7C(), a1, a2); }
+void PadSetAct(a0, a1, a2) int a0, a1, a2; { func_80098AC4(D_800ABC7C(), a1, a2); }
 
 #undef D_800ABC7C

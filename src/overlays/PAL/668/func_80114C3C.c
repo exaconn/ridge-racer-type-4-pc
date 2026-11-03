@@ -13,7 +13,7 @@ void ovl668_func_80114C3C(void)
 
     timer = (s32)((u32)D_800F2DE4 + 1U);
     D_800F2DE4 = timer;
-    if (timer == 4) func_80092CB8(1);
+    if (timer == 4) SetDispMask(1);
     initialContext = &D_800AC650;
     ovl668_func_801163FC(STR_STATE->commands10[STR_STATE->display24.word00], 3);
     pixels = STR_STATE->display24.rectangles[2].w * STR_STATE->display24.rectangles[2].h;
@@ -22,7 +22,7 @@ void ovl668_func_80114C3C(void)
     ovl668_func_80116478(STR_STATE->buffers18[STR_STATE->display24.word08], pixels / 2);
 retry:
     if (ovl668_func_801150D8(&((RrStrPlaybackState *)context->activeB8)->display24) == -1) {
-        frame = (u32)func_8008F670(location);
+        frame = (u32)StGetBackloc(location);
         func_8001E84C(ovl668_D_8011487C, frame);
         if (frame >= context->thresholdC8) {
             context->stopD0 = 1;
@@ -34,7 +34,7 @@ retry:
     }
 complete:
     ovl668_func_8011535C(&((RrStrPlaybackState *)D_800AC650.activeB8)->display24, 0);
-    func_80092D50(0);
+    DrawSync(0);
     ovl668_func_80116298(1);
     if (D_800AC650.stopD0 == 1) {
         D_800AC650.phaseB4 = 2;

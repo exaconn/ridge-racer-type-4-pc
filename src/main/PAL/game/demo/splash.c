@@ -13,7 +13,7 @@ int func_80071570(int a0) {
     D_8010E7A4 = D_8010E7A4 + 1;
     if (D_8010E7A4 >= 3) {
         if (D_8010E7A4 == 3) {
-            func_80092CB8(1);
+            SetDispMask(1);
             D_8010E7A0 = 0;
         }
         s5 = D_800ACC14 + 0x70;

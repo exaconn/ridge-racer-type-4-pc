@@ -1,6 +1,6 @@
 
 
-unsigned char *func_8008C5A0(i, p)
+unsigned char *CdIntToPos(i, p)
 int i;
 unsigned char *p;
 {

@@ -5,7 +5,7 @@ void ovl667_func_80116918(void){
  register u8 *repeat __asm__("$5");
  u8 *destBase;
  u8 *sourceBase;
- func_80092CB8(0);
+ SetDispMask(0);
  func_8001ECE8(0,0,0,2);
  func_80035024(1);
  i=0;

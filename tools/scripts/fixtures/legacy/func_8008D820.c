@@ -4,7 +4,7 @@
 extern s32 D_800A6498;
 extern void func_8008DDAC(void);
 
-void func_8008D820(void) {
+void CD_initintr(void) {
     D_800A648C = 0;
     D_800A6488 = 0;
     D_800A6498 = 0;

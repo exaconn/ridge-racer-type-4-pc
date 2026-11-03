@@ -32,7 +32,7 @@ u32 test_ram[0x14000];
 u32 *D_800ABC30;
 u32 *D_800ABBC8;
 ''' + header + '\nRrChannelControlRow36 test_rows[320];\n'
-        for name in ('func_80094AD4', 'func_800970A8', 'func_80094AB0', 'func_80088D64'):
+        for name in ('func_80094AD4', 'StopRCnt', 'func_80094AB0', 'func_80088D64'):
             body = (root / 'tools/scripts/fixtures/legacy' / (name + '.c')).read_text()
             body = body.replace('#include "types.h"', '')
             body = body.replace('#include "rr/channels.h"', '')
@@ -54,7 +54,7 @@ u32 *D_800ABBC8;
         cls.get = cls.library.func_80094AD4
         cls.get.argtypes = [C.c_int32]
         cls.get.restype = C.c_int32
-        cls.clear = cls.library.func_800970A8
+        cls.clear = cls.library.StopRCnt
         cls.clear.argtypes = [C.c_uint32]
         cls.clear.restype = C.c_int32
         cls.write = cls.library.func_80094AB0

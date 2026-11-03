@@ -13,10 +13,10 @@ extern int func_80096F84();
 int func_80095DE4();
 int func_80095DF4();
 /* extern */
-int func_80095FD4();
+int _ExitCard();
 
 void func_80095D04(s32 arg0);
-void func_80095D70(void);
+void StartCARD(void);
 void func_80095DA8(void);
 
 void func_80095D04(s32 arg0) {
@@ -39,7 +39,7 @@ void func_80095D04(s32 arg0) {
 #define func_80096F84 ((int (*)(int))func_80096F84)
 
 /* extern */
-void func_80095D70(void) {
+void StartCARD(void) {
     func_80096F04();
     func_80095DE4();
     func_80096F84(0);
@@ -51,5 +51,5 @@ void func_80095D70(void) {
 /* extern */
 void func_80095DA8(void) {
     func_80095DF4();
-    func_80095FD4();
+    _ExitCard();
 }

@@ -100,7 +100,7 @@ RrLibInterruptCallback func_8008B3C4(s32 channel, RrLibInterruptCallback callbac
     return D_800A6350->exchange(channel,callback);
 }
 
-void func_8008B3F4(RrSpuTickCallback callback)
+void VSyncCallback(RrSpuTickCallback callback)
 {
     ((RrSpuTickInterruptDriver20 *)D_800A6350)->install14(4,callback);
 }

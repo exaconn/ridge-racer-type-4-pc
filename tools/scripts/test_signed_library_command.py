@@ -32,7 +32,7 @@ s32 (*test_sink)(s32 *);
 void (*test_reset_hook)(void);
 s32 func_80085BA4(s32 *command) {return test_sink(command);}
 s32 test_unexpected_probe_calls;
-s32 func_8007FCD4(s32 ignored) {test_unexpected_probe_calls++;return 0;}
+s32 _SpuIsInAllocateArea_(s32 ignored) {test_unexpected_probe_calls++;return 0;}
 '''
         reset = (root / 'tools/scripts/fixtures/views/func_80086694.c').read_text()
         reset = reset.replace('func_80086694', 'test_actual_reset')

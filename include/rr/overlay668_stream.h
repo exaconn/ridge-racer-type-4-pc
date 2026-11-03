@@ -14,7 +14,7 @@ typedef struct {
 } RrStrPlaybackState;
 extern s32 D_801102DC,D_800AC5DC,D_800F2DE4;
 extern u8 D_800AD558;
-void func_80092CB8(s32);
+void SetDispMask(s32);
 void func_800825B4(s8,s8,s8);
 void func_80083CD4(s8,s32,s32);
 s32 func_8008B154(s32);

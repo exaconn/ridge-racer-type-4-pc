@@ -14,7 +14,7 @@ extern int func_80096424();
 extern int func_80096464();
 extern char D_8010C158[];
 extern char D_8010C168[];
-extern void func_80092D50();
+extern void DrawSync();
 extern char *D_800ACBA0;
 extern int func_8006E030();
 extern int func_8006E09C();
@@ -135,7 +135,7 @@ void func_80043608(int *p) {
         r[2] = h[4];
         r[3] = h[5];
         func_80092FFC(r, h + 6);
-        func_80092D50(0);
+        DrawSync(0);
         p = (int *)((char *)h + (*(unsigned *)h >> 2 << 2));
     }
     h = (unsigned short *)p;
@@ -145,7 +145,7 @@ void func_80043608(int *p) {
     r[3] = h[5];
     if (r[2] > 0 && r[3] > 0) {
         func_80092FFC(r, h + 6);
-        func_80092D50(0);
+        DrawSync(0);
     }
 }
 

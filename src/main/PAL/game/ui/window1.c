@@ -14,7 +14,7 @@ extern char D_8009EB1C[];
 extern char D_8009EC48[];
 extern char D_800D0160[];
 extern int *func_8001FCC8();
-extern int func_80093B14();
+extern int SetDrawArea();
 extern int D_800ACC14;
 
 void func_80020920(unsigned char *a0, unsigned char *a1);
@@ -121,7 +121,7 @@ LC0:
         sp[0] = 0;
         sp[3] = 0x100;
         t = D_800F4BF0; sp[1] = t << 8;
-        func_80093B14(s1, sp);
+        SetDrawArea(s1, sp);
         *s1 = (*s1 & 0xFF000000) | (*s0 & 0xFFFFFF);
         *s0 = (*s0 & 0xFF000000) | ((int)s1 & 0xFFFFFF);
         *(int **)0x1F800000 = s1 + 3;

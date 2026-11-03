@@ -138,7 +138,7 @@ extern s32 func_80090424(s32);
 extern s32 func_800904F4(s32);
 extern void func_80090914(Mat32 *, Mat32 *, Mat32 *);
 extern void func_80090EC4(void *, SVec *, Vec16 *);
-extern void func_800910E4(Mat32 *);
+extern void SetLightMatrix(Mat32 *);
 extern void func_80091844(SVec *, Mat32 *);
 extern s32 func_800924D4(s32, s32);
 extern void func_80093C24(s32, s32, s32, s32, s32);
@@ -252,10 +252,10 @@ void func_800747EC(s32 arg0) {
                     sp78.m[2][j] = D_800A3FC8[D_800F3914 * 3 + j].vz;
                 }
             }
-            func_80091274(D_800F4D90->ambient.r, D_800F4D90->ambient.g, D_800F4D90->ambient.b);
-            func_80091114(&sp78);
+            SetBackColor(D_800F4D90->ambient.r, D_800F4D90->ambient.g, D_800F4D90->ambient.b);
+            SetColorMatrix(&sp78);
             func_80090914(&D_800ABED0, &sp18, &sp58);
-            func_800910E4(&sp58);
+            SetLightMatrix(&sp58);
             func_80077BAC(i, &sp18, 0);
             func_800701C4(4);
             func_8005F0D0(SCRATCH_BASE, D_8010ECB0[i].f00, 0, 0);
@@ -317,7 +317,7 @@ void func_800747EC(s32 arg0) {
             sp118.vz = D_8010ECB4[i].rot.vz;
             func_80077A34(i, &sp118, &sp18, 0);
             func_80090914(&sp38, &sp18, &sp58);
-            func_800910E4(&sp58);
+            SetLightMatrix(&sp58);
             func_80077BAC(i, &sp18, 0);
             func_800701C4(4);
             func_8005F0D0(SCRATCH_BASE, 1, 0, 0);

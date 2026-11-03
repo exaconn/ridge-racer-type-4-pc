@@ -119,7 +119,7 @@ void func_8005DDF4()
   int *ip;
   if (D_800AC650.w4bc == 0)
   {
-    func_80092CB8(0);
+    SetDispMask(0);
     func_8001ECE8(0, 0, 0, 1);
     func_80059168();
     func_80052A30(0);
@@ -148,7 +148,7 @@ void func_8005DDF4()
   {
     if (D_800AC650.w4bc == 4)
     {
-      func_80092CB8(1);
+      SetDispMask(1);
       func_8001ECE8(0, 0, 0, 0);
     }
   }

@@ -43,9 +43,9 @@ void func_8003CF34(int a0)
         int y = D_8009F924[1] * a0;
         x >>= 8;
         y >>= 8;
-        func_80091274(x, y, (D_8009F924[2] * a0) >> 8);
+        SetBackColor(x, y, (D_8009F924[2] * a0) >> 8);
     }
-    func_80091114(sp);
+    SetColorMatrix(sp);
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -83,9 +83,9 @@ L:
     {
         char *b2 = D_800F4D90;
         unsigned char *q = (unsigned char *)(a0 * 0x2C + (int)b2);
-        func_80091274(q[0x28], q[0x29], q[0x2A], a3);
+        SetBackColor(q[0x28], q[0x29], q[0x2A], a3);
     }
-    func_80091114(s0);
+    SetColorMatrix(s0);
 }
 
 #undef D_800ABED0

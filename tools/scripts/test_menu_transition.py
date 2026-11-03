@@ -65,7 +65,7 @@ static void record(int kind,intptr_t a,intptr_t b,intptr_t c,intptr_t d,intptr_t
   w->scripts[w->scene][(unsigned)(u8)((u8)w->step+1U)^128U]=(count&1)?-7:2;
  }
 }
-void func_80092CB8(s32 arg){record(0,arg,0,0,0,0,0,0,0,0);}
+void SetDispMask(s32 arg){record(0,arg,0,0,0,0,0,0,0,0);}
 int func_80035024(int arg){record(1,arg,0,0,0,0,0,0,0,0);return -77;}
 s32 func_80059E40(s32 frame){record(2,frame,0,0,0,0,0,0,0,0);return status;}
 s32 func_8005CA88(void){record(3,0,0,0,0,0,0,0,0,0);return status;}

@@ -11,7 +11,7 @@ void func_80053BB4(s32 mode);
 extern const char ovl662_D_8011487C[];
 void func_80014A8C(s32 mode);
 void ovl662_func_80114B9C(void) {
-    func_80092CB8(0);
+    SetDispMask(0);
     func_8002A604();
     ovl662_func_80114998();
     func_8001ECE8(0, 0, 0, 2);

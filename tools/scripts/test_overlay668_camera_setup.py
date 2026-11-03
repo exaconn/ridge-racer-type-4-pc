@@ -74,7 +74,7 @@ static void call11(s32 enabled){assert(enabled==1);service(11);}
 #define D_800AD564 (actual.bank)
 #define D_800AD520 (actual.row)
 #define ovl668_D_80116CC0 (actual.lookup)
-#define func_80092CB8 call0
+#define SetDispMask call0
 #define func_8001ECE8 call1
 #define func_8006E794 call2
 #define func_80013890 call3

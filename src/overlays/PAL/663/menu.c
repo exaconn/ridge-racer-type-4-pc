@@ -25,7 +25,7 @@ void ovl663_init_scene(void) {
     s32 i;
     s32 val;
 
-    func_80092CB8(0);
+    SetDispMask(0);
     func_8001ECE8(0, 0, 0, 2);
     D_800F4C6A = 1;
     D_800F3A26 = 74;

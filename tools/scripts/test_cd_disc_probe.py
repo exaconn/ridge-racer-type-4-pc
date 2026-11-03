@@ -32,7 +32,7 @@ char message_page[0x1D78+16],D_80011D88[]="CD001";
 s32 initial_status,final_status,second_status,ready_attempt,poll_error,sector_return;
 s32 polls,command_count,commands[16],diagnostics,transfers,comparisons,sector_words,layout_ok;
 u8 sector[2048];u8 *status_pointer,*parameter_pointer,*sector_pointer;
-s32 func_8008C140(s32 command,const u8 *parameters,u8 *result){
+s32 CdControl(s32 command,const u8 *parameters,u8 *result){
     commands[command_count++]=command;
     if(command==1){memset(result,0xA5,8);result[0]=initial_status;status_pointer=result;}
     else if(command==0x1B){
@@ -42,12 +42,12 @@ s32 func_8008C140(s32 command,const u8 *parameters,u8 *result){
     }else if(command==9 && (parameters!=0 || result!=0))layout_ok=0;
     return -123;
 }
-s32 func_8008CF00(s32 mode,u8 *status){
+s32 CD_ready(s32 mode,u8 *status){
     polls++;if(mode!=0 || status!=status_pointer)layout_ok=0;
     status[0]=final_status;status[1]=second_status;
     return polls==ready_attempt?1:poll_error;
 }
-s32 func_8008DBB4(u8 *buffer,u32 words){
+s32 CD_getsector(u8 *buffer,u32 words){
     transfers++;sector_words=words;sector_pointer=buffer;
     if(buffer+2048!=status_pointer || parameter_pointer+8!=buffer || (uintptr_t)buffer%4)layout_ok=0;
     memcpy(buffer,sector,2048);return sector_return;
@@ -61,7 +61,7 @@ s32 func_8001E84C(const char *message,...){
     return -456;
 }
 '''+body
-        for name in ('func_8008C0F8','func_8008C51C','func_8008C5A0'):
+        for name in ('func_8008C0F8','func_8008C51C','CdIntToPos'):
             code+='\n'+native_body((root/'tools/scripts/fixtures/views'/f'{name}.c').read_text())
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)

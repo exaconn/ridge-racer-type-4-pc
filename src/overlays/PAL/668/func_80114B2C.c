@@ -3,7 +3,7 @@
 
 void ovl668_func_80114B2C(u8 *arg0) {
     s32 vol;
-    func_80092CB8(0);
+    SetDispMask(0);
     STR_STATE->width00 = 320;
     STR_STATE->height04 = 240;
     func_800825B4(0, 0, 1);

@@ -38,7 +38,7 @@ extern const char D_80011CE8[];
 extern const char D_80011D04[];
 
 extern int func_8001E84C();
-extern void func_8008C5A0(int, void *);
+extern void CdIntToPos(int, void *);
 extern void func_80096444(char *, void *, int);
 
 int func_8008E4E4(int dir) {
@@ -66,7 +66,7 @@ int func_8008E4E4(int dir) {
             break;
         }
         *(U4 *)&sp18 = *(U4 *)(p + 2);
-        func_8008C5A0(sp18, D_80110350[i].pos);
+        CdIntToPos(sp18, D_80110350[i].pos);
         *(U4 *)&D_80110350[i].size = *(U4 *)(p + 10);
         switch (i) {
         case 0:

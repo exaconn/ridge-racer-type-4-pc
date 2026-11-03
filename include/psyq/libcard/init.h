@@ -4,7 +4,7 @@
 #include "types.h"
 
 int func_80095D04();
-void func_80095D70(void);
+void StartCARD(void);
 void func_80095DA8(void);
 
 #endif /* RR_PSYQ_LIBCARD_INIT_H */

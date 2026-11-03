@@ -68,7 +68,7 @@ void func_8002E9B0() {
     short *a0;
     char *a1;
     int a2;
-    func_80092CB8(0);
+    SetDispMask(0);
     func_80053CB0();
     a2 = 0;
     a1 = D_800F4D98;

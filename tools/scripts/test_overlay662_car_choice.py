@@ -60,12 +60,12 @@ static void event(s32 op,s32 arg){size_t i;u32 hash=2166136261U;Event *e;assert(
  e=&w->events[w->calls++];e->op=op;e->arg=arg;e->hash=hash;
  if(mutation&&op!=3)change();
 }
-void func_80092CB8(s32 mode){assert(mode==0);event(1,mode);}
+void SetDispMask(s32 mode){assert(mode==0);event(1,mode);}
 void ovl662_func_8011512C(void){event(2,0);}
 void ovl662_func_80118ED8(void){event(4,0);}
 s32 func_8001E84C(const char *message,...){assert(message==format);event(3,0);return 1;}
 static void expected(unsigned kind){
- if(!kind){unsigned n=0,i;s32 glyph;func_80092CB8(0);w->s.index=0;
+ if(!kind){unsigned n=0,i;s32 glyph;SetDispMask(0);w->s.index=0;
   while(w->s.save.prefix.progress.prefix00.fields.name[n])n++;
   for(i=0;i<n;i++)w->s.name[i]=w->s.save.prefix.progress.prefix00.fields.name[i];
   while(w->s.name[n])w->s.name[n++]=0;

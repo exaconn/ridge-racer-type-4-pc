@@ -73,7 +73,7 @@ _Static_assert(offsetof(__typeof__(test_page), callback) == 0x2760, "callback of
         cls.library = C.CDLL(str(directory / 'function.so'))
         cls.records = (Record * 16).in_dll(cls.library, 'test_records')
         cls.page = Page.in_dll(cls.library, 'test_page')
-        cls.function = cls.library.func_8008F5E4
+        cls.function = cls.library.data_ready_callback
         cls.function.argtypes = []
         cls.function.restype = None
 

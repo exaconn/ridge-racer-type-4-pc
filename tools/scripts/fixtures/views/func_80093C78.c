@@ -37,7 +37,7 @@
 
 #undef D_800ABBC8
 
-void func_80093C78(u32 *arg0, RrFrameEnvironment *arg1) {
+void SetDrawEnv(u32 *arg0, RrFrameEnvironment *arg1) {
     register RrFrameEnvironment *env=arg1;
     register u32 *output=arg0;
     /* ASM_BARRIER: retain this arithmetic or packet-address phase. */

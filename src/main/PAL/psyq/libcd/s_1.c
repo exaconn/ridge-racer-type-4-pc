@@ -8,8 +8,8 @@
 extern u8 D_800A64A4;
 extern u8 D_800A64A5;
 extern M2C_UNK D_800A64A0;
-extern int func_8008D86C();
-extern int func_8008D65C();
+extern int CD_init();
+extern int CD_flush();
 extern s32 D_800A6490;
 extern int D_800A64AC[];
 extern char D_800118C8[];
@@ -21,7 +21,7 @@ u8 func_8008BF94(void);
 u8 func_8008BFA4(void);
 u8 func_8008BFB4(void);
 M2C_UNK *func_8008BFC4(void);
-int func_8008BFD0();
+int CdReset();
 void func_8008C03C();
 s32 func_8008C05C(s32 value);
 char *func_8008C070(unsigned char a0);
@@ -47,22 +47,22 @@ M2C_UNK *func_8008BFC4(void) {
     return &D_800A64A0;
 }
 
-int func_8008BFD0(a0)
+int CdReset(a0)
     int a0;
 {
     if (a0 == 2) {
-        func_8008D820();
+        CD_initintr();
         return 1;
     }
-    if (func_8008D86C() != 0) return 0;
+    if (CD_init() != 0) return 0;
     if (a0 == 1) {
-        int r = func_8008D730();
+        int r = CD_initvol();
         if (r != 0) return 0;
     }
     return 1;
 }
 
-void func_8008C03C() { func_8008D65C(); }
+void func_8008C03C() { CD_flush(); }
 
 s32 func_8008C05C(s32 value) {
     s32 previous = D_800A6490;
@@ -83,11 +83,11 @@ char *func_8008C070(unsigned char a0) { char *r; if (a0 < 0x1C) r = (char *)D_80
 char *func_8008C0A4(unsigned char a0) { char *r; if (a0 < 7) r = (char *)D_800A652C[a0]; else r = D_800118C8; return r; }
 
 s32 func_8008C0D8(s32 mode,u8 *status) {
-    return func_8008CC80(mode,status);
+    return CD_sync(mode,status);
 }
 
 s32 func_8008C0F8(s32 mode, u8 *status) {
-    return func_8008CF00(mode, status);
+    return CD_ready(mode, status);
 }
 
 s32 func_8008C118(s32 value) {

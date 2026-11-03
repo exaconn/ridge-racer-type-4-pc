@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80088D14();
+int SpuSetNoiseClock();
 
 #endif /* RR_PSYQ_LIBSPU_S_SNC_H */

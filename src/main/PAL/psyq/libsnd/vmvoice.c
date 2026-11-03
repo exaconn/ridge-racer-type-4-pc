@@ -144,7 +144,7 @@ void func_80088794(s32 arg0) {
         left = (left * left) / 16383U;
         right = (right * right) / 16383U;
     }
-    func_80088D14((p2[-0x12] - p2[-0x4]) & 0x3F);
+    SpuSetNoiseClock((p2[-0x12] - p2[-0x4]) & 0x3F);
     s0 = s3 & 0xFF;
     D_8010FE3A[s0 * 8] = right;
     {

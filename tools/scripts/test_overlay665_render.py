@@ -92,7 +92,7 @@ class Overlay665RenderTest(unittest.TestCase):
          for(i=0;i<5;i++){u32 v=(b[i]^m[i])+scenario+i*0x11111111U;memcpy(matrix+i*2,&v,4);}
          return (s32*)matrix;
         }
-        void func_800910E4(s32 *matrix){(void)event(8,0,0,0,matrix,0);}
+        void SetLightMatrix(s32 *matrix){(void)event(8,0,0,0,matrix,0);}
         void func_8006EE3C(s16 *output,s16 *view,s32 *matrix) {
          unsigned i;u32 m[8];memcpy(m,matrix,32);
          assert(output==w->s.scratch.tail7C.projection.halves);

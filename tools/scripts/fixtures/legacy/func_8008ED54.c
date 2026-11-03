@@ -78,7 +78,7 @@ after_first_wait:
         func_8008C12C(RR_PAIR_TAIL(pair)->saved2C);
         if(D_800A63F4&1)func_8008C55C(RR_PAIR_TAIL(pair)->saved30);
         func_8008C118(func_8008E7F4);
-        func_8008C27C(9,0);
+        CdControlF(9,0);
         publish=(RrLibReadRequestState*)((u8*)pair-RR_PAIR_OWNER_OFFSET);
         ((volatile RrLibReadRequestState*)publish)->finished24=1;
         if(RR_PAIR_PENDING(pair)!=0) {

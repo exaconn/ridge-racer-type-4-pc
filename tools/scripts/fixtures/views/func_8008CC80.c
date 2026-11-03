@@ -51,7 +51,7 @@ static inline int check_alarm(char **ac, char **sc, volatile u8 *st) {
                 x5
             );
         }
-        func_8008D65C();
+        CD_flush();
         return -1;
     }
     return 0;
@@ -71,7 +71,7 @@ static inline void cd_poll_cb(volatile u8 *st, volatile u8 *st1) {
     *D_800A674C = saved;
 }
 
-s32 func_8008CC80(s32 mode, u8 *result) {
+s32 CD_sync(s32 mode, u8 *result) {
     s32 ret;
     u8 *src;
     u8 *dst;

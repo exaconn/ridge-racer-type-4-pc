@@ -6,7 +6,7 @@ void ovl665_func_80114918(void)
 {
     RrOverlay665VisualState *state;
     RrProjectionScratchPrefix *scratch;
-    func_80092CB8(0);
+    SetDispMask(0);
     func_8001ECE8(0,0,0,2);
     state=&ovl665_D_80119768;
     func_80096434(state,160);

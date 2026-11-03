@@ -3,7 +3,7 @@
 #include "rr/menu_transition.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80092CB8 ((int (*)())func_80092CB8)
+#define SetDispMask ((int (*)())SetDispMask)
 
 #define func_8005CA88 ((int (*)())func_8005CA88)
 
@@ -11,7 +11,7 @@
 
 #define D_800F4C6A (*(short (*))&D_800F4C6A)
 
-#undef func_80092CB8
+#undef SetDispMask
 
 #undef func_8005CA88
 
@@ -30,7 +30,7 @@ void func_8003A544(void) {
     next_frame = (s32)((u32)D_800F2DE4 + 1U);
     D_800F2DE4 = next_frame;
     if (next_frame == 2) {
-        func_80092CB8(1);
+        SetDispMask(1);
     }
     if (D_800F4D44 == 4) {
         func_80035024(1);

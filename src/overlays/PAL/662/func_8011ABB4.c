@@ -11,7 +11,7 @@ u8 *ovl662_func_8011ABB4(u32 *ordering, u32 *pkt, u32 x, u32 y, u16 w, u16 h) {
     }
     rect.w = w;
     rect.h = h;
-    func_80093B14(pkt, &rect);
+    SetDrawArea(pkt, &rect);
     *pkt = (*pkt & 0xFF000000) | (*ordering & 0xFFFFFF);
     *ordering = (*ordering & 0xFF000000) | ((unsigned long)pkt & 0xFFFFFF);
     return (u8 *)(pkt + 3);

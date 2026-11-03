@@ -5,8 +5,8 @@
 #include "rr/tables.h"
 extern RrMenuItemState5C D_800F3A38[];
 extern const char ovl668_D_8011487C[];
-s32 func_8008F670(const RrCdLocation *location);
-void func_80092D50(s32 mode);
+s32 StGetBackloc(const RrCdLocation *location);
+void DrawSync(s32 mode);
 /* activeB8 addresses a complete playback owner, and command/display selectors
  * word00/word08 are0..1 at each use. Owners and currentC0 remain live across
  * services, which may replace activeB8 and change thresholds, state or input.

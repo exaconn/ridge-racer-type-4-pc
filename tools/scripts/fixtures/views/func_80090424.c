@@ -7,9 +7,9 @@
 s32 func_80090424(s32 a) {
     int r;
     if (a >= 0) {
-        r = func_80090460(a & 0xFFF);
+        r = sin_1(a & 0xFFF);
     } else {
-        r = -func_80090460((0U - (u32)a) & 0xFFFU);
+        r = -sin_1((0U - (u32)a) & 0xFFFU);
     }
     return r;
 }

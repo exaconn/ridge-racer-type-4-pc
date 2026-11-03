@@ -6,7 +6,7 @@
 u8 func_8008BF94(void);
 s32 func_8008BFA4(void);
 u8 *func_8008BFC4(void);
-int func_8008BFD0();
+int CdReset();
 s32 func_8008C05C(s32 value);
 int func_8008C118();
 s32 func_8008C12C(s32 value);

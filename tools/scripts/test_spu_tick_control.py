@@ -13,7 +13,10 @@ def native_body(name, rename=None):
  s=re.sub(r'^#include[^\n]*\n','',s,flags=re.M)
  s=re.sub(r' __asm__\("\$\d+"\)','',s)
  s=re.sub(r'__asm__\(""[^;]*;',';',s)
- if rename:s=s.replace('func_'+name,rename)
+ if rename:
+  import re as _re
+  names=['func_'+name]+[m.group(1) for l in open(ROOT/'configs/PAL/sym.main.txt') for m in [_re.match(r'^(\w+)\s*=\s*0x'+name+r';',l,_re.I)] if m]
+  for nm in names:s=s.replace(nm,rename)
  return s
 
 class SpuTickControlTest(unittest.TestCase):
@@ -72,14 +75,14 @@ static void direct(unsigned driver,s32 slot,RrSpuTickCallback callback){assert(g
  if(g->reference)g->data.callbacks.values[slot]=callback;else func_8008BAE8(slot,callback);
 }
 static void direct0(s32 n,RrSpuTickCallback c){direct(0,n,c);}static void direct1(s32 n,RrSpuTickCallback c){direct(1,n,c);}
-void func_8008B3F4(RrSpuTickCallback callback){actual_direct(callback);}
+void VSyncCallback(RrSpuTickCallback callback){actual_direct(callback);}
 static s32 model_reset(u32 selector){u32 n=selector&65535;if(n>=3)return 0;g->data.counters.records[n].count=0;return 1;}
 static s32 model_set(u32 selector,u16 target,s32 mode){u32 n=selector&65535;u16 result=0x48;
  if(n>=3)return 0;
  if(n<2){if(mode&16)result=0x49;if(!(mode&1))result|=0x100;}else if(!(mode&1))result=0x248;
  if(mode&4096)result|=16;g->data.counters.records[n].mode=result;g->data.counters.records[n].target=target;return 1;
 }
-s32 func_800970DC(u32 selector){s32 result;assert(g->data.critical);event(2,selector,0,0,0);result=g->reference?model_reset(selector):actual_reset_counter(selector);assert(result==((selector&65535)<3));return result;}
+s32 ResetRCnt(u32 selector){s32 result;assert(g->data.critical);event(2,selector,0,0,0);result=g->reference?model_reset(selector):actual_reset_counter(selector);assert(result==((selector&65535)<3));return result;}
 s32 func_80096FA4(u32 selector,u16 target,s32 mode){s32 result;assert(g->data.critical);event(3,selector,target,(u32)mode,0);result=g->reference?model_set(selector,target,mode):actual_set_counter(selector,target,mode);assert(result==((selector&65535)<3));return result;}
 '''+body+r'''
 static void model(s32 argument){RrSpuTickState20 *t=&g->data.timer.value;u32 counter=0xF2000002;u16 period=17640;int direct;s32 index;RrSpuTickCallback callback,old;
@@ -92,7 +95,7 @@ static void model(s32 argument){RrSpuTickState20 *t=&g->data.timer.value;u32 cou
  direct=t->flags.direct!=0;func_80096F04();
  if(direct){unsigned selected=g->data.driver;event(5,4,selected,0,t->callback);chosen[selected]++;g->data.callbacks.values[4]=t->callback;}
  else{
-  func_800970DC(counter);func_80096FA4(counter,period,4096);index=t->flags.interrupt;
+  ResetRCnt(counter);func_80096FA4(counter,period,4096);index=t->flags.interrupt;
   if(!index){old=exchange(g->data.driver,0,0);t->previous=old;index=t->flags.interrupt;callback=func_80082CB4;}
   else{divided[t->flags.divided!=0]++;callback=t->flags.divided?func_80082D00:t->callback;}
   exchange(g->data.driver,index,callback);
@@ -140,6 +143,6 @@ int main(void){static const s32 edges[16]={INT32_MIN,INT32_MAX,-1,-70,-69,1,4,6,
 '''
   with TemporaryDirectory() as tmp:
    p=Path(tmp);(p/'test.c').write_text(code)
-   r=subprocess.run(['cc','-std=gnu11','-O2','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(p/'test.c'),'-o',str(p/'test')],capture_output=True,text=True)
+   r=subprocess.run(['cc','-std=gnu11','-O2','-fsanitize=undefined','-fno-sanitize-recover=all','-Wno-deprecated-non-prototype','-I',str(ROOT/'include'),str(p/'test.c'),'-o',str(p/'test')],capture_output=True,text=True)
    self.assertEqual(r.returncode,0,r.stderr);subprocess.run([str(p/'test')],check=True)
 if __name__=='__main__':unittest.main()

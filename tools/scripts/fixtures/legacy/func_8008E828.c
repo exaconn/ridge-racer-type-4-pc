@@ -7,7 +7,7 @@ extern RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback);
 extern RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback);
 extern s32 func_8008C53C(u8 *,u32);
 extern void func_8008C580(s32);
-extern s32 func_8008C6A4(void *);
+extern s32 CdPosToInt(void *);
 extern s32 func_800963DC(const char *,...);
 extern const char D_80011D28[];
 extern void func_8008EA9C(void),func_8008E7F4(void);
@@ -41,7 +41,7 @@ void func_8008E828(s32 event,u8 *data) {
                 } else {
                     func_8008C51C(header,3);
                 }
-                now=func_8008C6A4(header);
+                now=CdPosToInt(header);
                 completed=&D_800A67D0;
                 /* ASM_BARRIER: capture the complete counter address before load. */
                 __asm__("" : "+r"(completed));
@@ -99,7 +99,7 @@ void func_8008E828(s32 event,u8 *data) {
             func_8008C55C(state->restore.saved30);
         }
         func_8008C118(func_8008E7F4);
-        func_8008C27C(9,0);
+        CdControlF(9,0);
         /* PAL page+0x63F0 contains the data notification function pointer. */
         notify_page=(u8 *)0x800A0000U;
         notify=*(RrCdDataNotify *)(notify_page+0x63F0);

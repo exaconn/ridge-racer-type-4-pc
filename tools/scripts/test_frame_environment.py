@@ -4,8 +4,8 @@ import re,subprocess,tempfile,unittest
 root=Path(__file__).resolve().parents[2]
 src=(root/'tools/scripts/fixtures/views/func_8001ECE8.c').read_text();src=re.sub(r'^#include[^\n]*\n|extern[^;]*;','',src,flags=re.M)
 src=re.sub(r' asm\("\$\d+"\)','',src);src=re.sub(r'__asm__\("".*?\);','',src)
-draw=(root/'tools/scripts/fixtures/views/func_800928E4.c').read_text().replace('func_800928E4','native_draw')
-disp=(root/'tools/scripts/fixtures/views/func_80092998.c').read_text().replace('func_80092998','native_display')
+draw=(root/'tools/scripts/fixtures/views/func_800928E4.c').read_text().replace('SetDefDrawEnv','native_draw')
+disp=(root/'tools/scripts/fixtures/views/func_80092998.c').read_text().replace('SetDefDispEnv','native_display')
 hook=(root/'tools/scripts/fixtures/views/func_8001ECE0.c').read_text();hook=re.sub(r'^#include[^\n]*\n','',hook,flags=re.M).replace('func_8001ECE0','native_bank_hook')
 fixture=r'''
 #include <assert.h>
@@ -29,13 +29,13 @@ static int func_8008BDF8(void) {return video;}
 ''' + draw+disp+hook+r'''
 void func_800912B4(s32 x,s32 y) {assert(step++==0 && x==160 && y==(s32)((((input_flags>>1)&1)+1)*128));}
 void func_800912D4(s32 z) {assert(step++==1 && z==290);}
-void *func_800928E4(void *e,s32 x,s32 y,s32 w,s32 h) {
+void *SetDefDrawEnv(void *e,s32 x,s32 y,s32 w,s32 h) {
  int index=step-2;assert(index>=0 && index<2);step++;
  assert(e==&actual[index]);assert(x==0 && y==(index?(s32)((1-((input_flags>>1)&1))*256):0));
  assert(w==((input_flags&4)?480:320) && h==(s32)((((input_flags>>1)&1)+1)*256));
  return native_draw(e,x,y,w,h);
 }
-void *func_80092998(void *e,s32 x,s32 y,s32 w,s32 h) {
+void *SetDefDispEnv(void *e,s32 x,s32 y,s32 w,s32 h) {
  int index=step-4;assert(index>=0 && index<2);step++;
  assert(e==&actual[index].environment.display);assert(x==0 && y==(index?0:(s32)((1-((input_flags>>1)&1))*256)));
  assert(w==((input_flags&4)?480:320) && h==(s32)((((input_flags>>1)&1)+1)*256));

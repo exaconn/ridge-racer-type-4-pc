@@ -68,7 +68,7 @@ s32 func_80096DB8(s32 a){channel_effect(&world,4,a);return 0;}
 s32 func_8008C55C(s32 a){channel_effect(&world,5,a);return 0;}
 s32 func_8008C12C(s32 a){channel_effect(&world,6,a);return 0;}
 s32 func_80096F14(void){assert(*world.port0==0 && *world.port1==0);unlock_effect(&world);return 0;}
-s32 func_8008C3B0(s32 command,const u8 *parameters,u8 *result){
+s32 CdControlB(s32 command,const u8 *parameters,u8 *result){
  assert(command==9 && parameters==0 && result==0);cd_effect(&world);return -1;
 }
 ''' + bodies + r'''

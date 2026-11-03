@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_8007FCD4();
+int _SpuIsInAllocateArea_();
 
 #endif /* RR_PSYQ_LIBSPU_SMUTIL_H */

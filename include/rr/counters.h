@@ -15,7 +15,7 @@ typedef struct {
 
 extern RrRootCounterRegisters *D_800ABC34;
 /* The selector is its unsigned low halfword; selectors outside 0..2 return 0. */
-s32 func_80097040(u32 selector);
+s32 GetRCnt(u32 selector);
 
 RR_ASSERT_SIZE(RrRootCounterRegisters, 0x10);
 RR_ASSERT_OFFSET(RrRootCounterRegisters, mode, 4);

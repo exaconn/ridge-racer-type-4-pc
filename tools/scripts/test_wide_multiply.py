@@ -9,7 +9,7 @@ class WideMultiplyTest(ArithmeticFixture, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.multiply = cls.lib.func_8007E818
+        cls.multiply = cls.lib._mul_mant_d
         cls.multiply.argtypes = [C.c_void_p, C.c_uint32, C.c_uint32]
         cls.multiply.restype = C.c_void_p
 

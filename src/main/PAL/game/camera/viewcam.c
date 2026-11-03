@@ -38,7 +38,7 @@ extern int func_80090F74();
 extern int D_8010E690;
 extern struct S8 D_800FF690;
 extern struct S8 D_800F39A8;
-extern int func_800910E4();
+extern int SetLightMatrix();
 extern s32 D_800ABE98;
 extern M2C_UNK D_800AD570;
 extern s32 D_800F4D48;
@@ -69,7 +69,7 @@ extern s32 D_800ACC14;
 extern s32 D_800F4CE0;
 extern void func_800912B4(s32, s32);
 extern void func_800912D4(s32);
-extern void func_80093B14(s32);
+extern void SetDrawArea(s32);
 extern void func_80095A44(s32, s32);
 extern int D_8010718C;
 extern S D_800ABEF8[];
@@ -127,7 +127,7 @@ void func_8006EAC8(void) {
     h[15] = w[0];
     h[16] = w[1];
     h[17] = w[2];
-    func_80091144(0x1F800028);
+    SetTransMatrix(0x1F800028);
     x[2] = 0x4000;
     x[1] = 0x4000;
     x[0] = 0x4000;
@@ -139,11 +139,11 @@ void func_8006EAC8(void) {
 #define D_800ABED0 (*(M2C_UNK (*))&D_800ABED0)
 
 void func_8006EC64(void) {
-    func_80091114(&D_800AD570);
+    SetColorMatrix(&D_800AD570);
     func_8006EED8();
-    func_800910E4(&D_800ABED0);
-    func_80091274(D_800ABE98, D_801093F8, D_80107194);
-    func_80091294(D_800F4D84, D_800F4D68, D_800F4D48);
+    SetLightMatrix(&D_800ABED0);
+    SetBackColor(D_800ABE98, D_801093F8, D_80107194);
+    SetFarColor(D_800F4D84, D_800F4D68, D_800F4D48);
     func_80090594(0x4E20, 0x122);
 }
 
@@ -210,7 +210,7 @@ void func_8006EE3C(short *a0, short *a1, int *a2) {
     *(int *)(a0 + 0x18) = *(int *)(a0 + 6);
     *(int *)(a0 + 0x1A) = *(int *)(a0 + 8);
     func_800910B4(a2);
-    func_80091144(a0 + 12);
+    SetTransMatrix(a0 + 12);
 }
 
 void func_8006EED8(void) {
@@ -295,7 +295,7 @@ void func_8006EF8C(s32 a0) {
     } else {
         s2->f04 = D_800ACC14 + 0x70;
     }
-    func_80093B14(s3);
+    SetDrawArea(s3);
     func_80095A44(s2->f04 + 0xAFC, s3);
     s3 += 0xC;
     G->f00 = s3;

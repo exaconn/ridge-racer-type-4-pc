@@ -98,7 +98,7 @@ void *test_packet_address(void){return packet.prefix;}
         if result.returncode:
             raise AssertionError(result.stderr.decode())
         cls.lib = C.CDLL(str(directory/'function.so'))
-        cls.move = cls.lib.func_80095750
+        cls.move = cls.lib.MoveImage2
         cls.move.argtypes = [C.POINTER(Rect), C.c_int32, C.c_int32]
         cls.move.restype = C.c_int32
         cls.ports = (C.c_uint32 * 8).in_dll(cls.lib, 'ports')

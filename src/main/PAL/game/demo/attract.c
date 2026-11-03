@@ -184,7 +184,7 @@ void func_8005D974(int a0) {
 }
 
 void func_8005DD8C(void) {
-    func_80092CB8(0);
+    SetDispMask(0);
     func_8003A198();
     D_800F4BE8 = 8;
     D_800F4C6A = 1;

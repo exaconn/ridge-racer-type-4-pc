@@ -4,7 +4,7 @@
 #include "types.h"
 
 int func_8008D5D4();
-int func_8008D730(void);
-void func_8008D820(void);
+int CD_initvol(void);
+void CD_initintr(void);
 
 #endif /* RR_PSYQ_LIBCD_BIOS_1_H */

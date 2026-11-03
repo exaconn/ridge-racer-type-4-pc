@@ -54,7 +54,7 @@ extern void func_8006EE3C(s32, void *, MATRIX *);
 extern void func_80090914(void *, MATRIX *, MATRIX *);
 extern void func_80090CA4(MATRIX *, MATRIX *);
 extern void func_80090DB4(MATRIX *, MATRIX *);
-extern void func_800910E4(MATRIX *);
+extern void SetLightMatrix(MATRIX *);
 extern s32 D_800ABED0[];
 extern s32 D_800F2FD8;
 extern s16 *D_800F3A08[];
@@ -109,7 +109,7 @@ int func_8006F288(int a0) {
 
 void func_8006F2E0(s32 a0, s32 a1, s32 a2) {
     s64 d2, d0, d1, d6, t0, d4, d2_out;
-    /* ASM_BARRIER: Move d2 into $a0/$a1 so $s0/$s1 is freed for 1.0 constant before func_8007E504. */
+    /* ASM_BARRIER: Move d2 into $a0/$a1 so $s0/$s1 is freed for 1.0 constant before __muldf3. */
     register s64 a0_d2 asm("$4");
     /* ASM_BARRIER: Load constant into $a2/$a3 before $s0/$s1 constant setup. */
     register s64 a2_c asm("$6");
@@ -123,12 +123,12 @@ void func_8006F2E0(s32 a0, s32 a1, s32 a2) {
     a0_d2 = d2;
     a2_c = 0x40F0000000000000LL;
     c1 = 0x3FF0000000000000LL;
-    /* ASM_BARRIER: Materialize 1.0 in $s0/$s1 after $a0..$a3 setup and before func_8007E504. */
+    /* ASM_BARRIER: Materialize 1.0 in $s0/$s1 after $a0..$a3 setup and before __muldf3. */
     __asm__("" : "=r"(c1), "=r"(a0_d2), "=r"(a2_c) : "0"(c1), "1"(a0_d2), "2"(a2_c));
-    d6 = func_8007E504(a0_d2, a2_c);
-    d4 = func_8007DCC4(0x4170000000000000LL, func_8007E504(d6, func_8007E944(func_8007DCC4(c1, d1), func_8007DCC4(c1, d0))));
+    d6 = __muldf3(a0_d2, a2_c);
+    d4 = func_8007DCC4(0x4170000000000000LL, __muldf3(d6, func_8007E944(func_8007DCC4(c1, d1), func_8007DCC4(c1, d0))));
     t0 = func_8007DCC4(d6, d0);
-    d2_out = func_8007E504(t0, func_8007E904(d4));
+    d2_out = __muldf3(t0, func_8007E904(d4));
     a2_c = 0x40DFFFC000000000LL;
     /* ASM_BARRIER: Load 0x40DFFFC000000000LL into $a2/$a3 before moving d4 to $a0/$a1. */
     __asm__("" : "=r"(a2_c) : "0"(a2_c), "r"(d2_out));
@@ -144,17 +144,17 @@ void func_8006F2E0(s32 a0, s32 a1, s32 a2) {
         } else {
             d4 = 0xC0E0000000000000LL;
         }
-        d2_out = func_8007E504(t0, func_8007E904(d4));
-        func_8007D7D4(d2_out, func_8007E504(d4, func_8007DCC4(d6, d1)));
+        d2_out = __muldf3(t0, func_8007E904(d4));
+        func_8007D7D4(d2_out, __muldf3(d4, func_8007DCC4(d6, d1)));
         /* ASM_BARRIER: Bind $v0/$v1 from func_8007D7D4. */
         __asm__("" : "=r"(v0_lo), "=r"(v1_hi));
         a0_lo = v0_lo;
         a2_c = 0x3F30000000000000LL;
         c4096 = 0x40B0000000000000LL;
-        /* ASM_BARRIER: Materialize 4096.0 in $s0/$s1 before func_8007E504 while leaving $a1 = $v1 for the call delay slot. */
+        /* ASM_BARRIER: Materialize 4096.0 in $s0/$s1 before __muldf3 while leaving $a1 = $v1 for the call delay slot. */
         __asm__("" : "=r"(c4096), "=r"(a0_lo), "=r"(a2_c), "=r"(v1_hi) : "0"(c4096), "1"(a0_lo), "2"(a2_c), "3"(v1_hi));
-        t_mul = ((s64 (*)(s32, s32, s64))func_8007E504)(a0_lo, v1_hi, a2_c);
-        d2_out = func_8007D7D4(d2_out, func_8007E504(func_8007E944(c4096, t_mul), c4096));
+        t_mul = ((s64 (*)(s32, s32, s64))__muldf3)(a0_lo, v1_hi, a2_c);
+        d2_out = func_8007D7D4(d2_out, __muldf3(func_8007E944(c4096, t_mul), c4096));
     }
     c_max = 0x41DFFFFFFFC00000LL;
     /* ASM_BARRIER: Materialize INT_MAX double constant before argument setup. */
@@ -251,7 +251,7 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         func_8006E030(&m70, -S32(arg0, 0x58));
         func_80090DB4(&m50, &m70);
         func_80090914(D_800ABED0, &m70, &mB0);
-        func_800910E4(&mB0);
+        SetLightMatrix(&mB0);
         func_8006E09C(&m10, -S32(arg0, 0x54));
         func_80090DB4((MATRIX *)0x1F800028, &m10);
         func_8006E108(&mD8[0], S16(arg0, 0x1A8) - S32(arg0, 0x50));
@@ -363,7 +363,7 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         func_8006E030(&m70, -S32(arg0, 0x58));
         func_80090DB4(&m50, &m70);
         func_80090914(D_800ABED0, &m70, &mB0);
-        func_800910E4(&mB0);
+        SetLightMatrix(&mB0);
         func_8006E09C(&m10, -S32(arg0, 0x54));
         func_80090DB4((MATRIX *)0x1F800028, &m10);
         func_8006E108(&mD8[0], S16(arg0, 0x1A8) - S32(arg0, 0x50));
@@ -397,7 +397,7 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         func_8006E108(&m90, -S32(arg0, 0x50));
         func_80090DB4(&m50, &m90);
         func_80090914(D_800ABED0, &m90, &mB0);
-        func_800910E4(&mB0);
+        SetLightMatrix(&mB0);
         func_8006E030(&m50, -S32(arg0, 0x58));
         func_80090DB4(&m90, &m50);
         func_80090DB4((MATRIX *)0x1F800028, &m50);

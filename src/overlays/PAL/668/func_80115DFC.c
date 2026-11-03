@@ -4,7 +4,7 @@ void ovl668_func_80115DFC(void) {
     s32 i;
     RrTrackSample3C *p;
 
-    func_80092CB8(0);
+    SetDispMask(0);
     func_8001ECE8(0, 0, 0, 1);
     D_800AC5DC = 384;
     func_8006E794();

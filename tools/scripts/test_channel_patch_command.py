@@ -43,7 +43,7 @@ RrChannelRecordCallback D_800ABC7C;
 unsigned long test_size(void) {return sizeof(RrChannelPatchCommand);}
 unsigned long test_argument_offset(void) {return offsetof(RrChannelPatchCommand,argument);}
 '''
-        for name in ('func_800994CC','channel_patch_handlers','func_80097C58'):
+        for name in ('func_800994CC','channel_patch_handlers','PadSetMainMode'):
             body=(root/('tools/scripts/fixtures/legacy/'+name+'.c')).read_text()
             body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
             body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
@@ -58,7 +58,7 @@ unsigned long test_argument_offset(void) {return offsetof(RrChannelPatchCommand,
         cls.lib=C.CDLL(str(directory/'command.so'))
         cls.start=cls.lib.func_800994CC
         cls.start.argtypes=[C.POINTER(Command),C.c_int32,C.c_int32];cls.start.restype=C.c_int32
-        cls.lib.func_80097C58.argtypes=[C.c_int32]*3;cls.lib.func_80097C58.restype=None
+        cls.lib.PadSetMainMode.argtypes=[C.c_int32]*3;cls.lib.PadSetMainMode.restype=None
         cls.update_address=C.cast(cls.lib.func_80099564,C.c_void_p).value
         cls.complete_address=C.cast(cls.lib.func_800995B8,C.c_void_p).value
         for name in ('test_size','test_argument_offset'):getattr(cls.lib,name).restype=C.c_ulong
@@ -152,7 +152,7 @@ unsigned long test_argument_offset(void) {return offsetof(RrChannelPatchCommand,
         for selector in (-2**31,-257,-1,0,15,16,255,2**31-1):
             self.record.argument=3
             self.on_ready=lambda:setattr(self.record,'argument',254)
-            self.lib.func_80097C58(selector,-258,0x12345)
+            self.lib.PadSetMainMode(selector,-258,0x12345)
             self.assertEqual(self.selector,selector)
             self.assertEqual((self.record.first,self.record.second,self.record.equal),(254,0x45,1))
             self.assertEqual(bytes(self.storage),self.expected(self.after_ready,update=self.update_address,

@@ -170,7 +170,7 @@ extern int D_800ABB80;
 
 extern char D_80011F20[];
 
-unsigned *func_8009323C(unsigned *a, int b) {
+unsigned *ClearOTagR(unsigned *a, int b) {
     int *q;
     if (D_800ABAC2 >= 2) D_800ABABC(D_80011F20, a, b);
     (*(int (**)())(D_800ABAB8 + 0x2C))(a, b);

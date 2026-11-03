@@ -1,5 +1,5 @@
 #include "rr/wide.h"
-RrWide64 *func_8007E818(RrWide64 *out,u32 a,u32 b) {
+RrWide64 *_mul_mant_d(RrWide64 *out,u32 a,u32 b) {
     RrWide64 r,t;
     u32 low_a=a&65535;
     /* ASM_BARRIER: Retain the output address across both additions. */

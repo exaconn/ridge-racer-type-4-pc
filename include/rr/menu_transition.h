@@ -24,7 +24,7 @@ int func_80035024(int);
 s32 func_80059E40(s32);
 void func_8005CA14(void);
 s32 func_8005CA88(void);
-void func_80092CB8(s32);
+void SetDispMask(s32);
 void func_8003A544(void);
 
 #endif

@@ -15,10 +15,10 @@ typedef struct {
 } RrSpuTickInterruptDriver20;
 extern RrSpuTickCallback D_800A6370[8];
 void func_8008BAE8(s32 slot,RrSpuTickCallback callback);
-void func_8008B3F4(RrSpuTickCallback callback);
+void VSyncCallback(RrSpuTickCallback callback);
 void func_80096F04(void);
 void func_80096F14(void);
-s32 func_800970DC(u32 selector);
+s32 ResetRCnt(u32 selector);
 s32 func_80096FA4(u32 selector,u16 target,s32 mode);
 void func_80082CB4(void);
 void func_80082D00(void);

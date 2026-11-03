@@ -60,7 +60,7 @@ static void effect(void){if(mutation)change();}
 void func_8008F934(void){event(1,0,0,0,0,0);effect();}
 void ovl668_func_80116478(void *output,u32 words){unsigned i,j;int found=-1;for(i=0;i<3;i++)for(j=0;j<2;j++)if(output==pixels[i][j])found=i*2+j;assert(found>=0);event(2,found,(s32)words,0,0,0);effect();}
 void func_80092FFC(const RrGpuRectangleFields *rect,const void *image){unsigned i,j;int found=-1;Event *e;for(i=0;i<3;i++)for(j=0;j<2;j++)if(image==pixels[i][j])found=i*2+j;assert(found>=0);e=event(3,found,0,0,0,0);e->rect=*rect;effect();}
-void func_80092CB8(s32 mode){event(4,mode,0,0,0,0);effect();}
+void SetDispMask(s32 mode){event(4,mode,0,0,0,0);effect();}
 void func_800825B4(s8 a,s8 b,s8 c){event(5,a,b,c,0,0);effect();}
 void func_80083CD4(s8 a,s32 l,s32 r){event(6,a,l,r,0,0);effect();}
 void ovl668_func_80114E48(u8 *base){assert(base==resource);event(7,0,0,0,0,0);effect();}
@@ -70,7 +70,7 @@ s32 ovl668_func_801150D8(RrStrDisplayConfig *config){s32 r=w->queries++<(scenari
 void ovl668_func_801153F0(u8 *location){assert(location==D_800AC650.currentC0.c);event(11,0,0,0,0,0);D_800AC650.currentC0.c[0]++;effect();}
 s32 func_8008B154(s32 mode){event(12,mode,0,0,0,0);effect();return -1;}
 static void expected(unsigned kind){
- if(kind){s32 volume;func_80092CB8(0);w->s.players[w->s.active].width00=320;w->s.players[w->s.active].height04=240;func_800825B4(0,0,1);volume=w->s.volume*127/16;func_80083CD4(0,volume,volume);w->s.setting=128;
+ if(kind){s32 volume;SetDispMask(0);w->s.players[w->s.active].width00=320;w->s.players[w->s.active].height04=240;func_800825B4(0,0,1);volume=w->s.volume*127/16;func_80083CD4(0,volume,volume);w->s.setting=128;
   ovl668_func_80114E48(resource);ovl668_func_80114E90(&w->s.players[w->s.active].display24,0,24,0,264);ovl668_func_80114EE8(ovl668_func_80114F48);
   for(;;){if(ovl668_func_801150D8(&w->s.players[w->s.active].display24)!=-1)break;ovl668_func_801153F0(D_800AC650.currentC0.c);}
   D_800AC650.phaseB4=1;D_800AC650.counterC4=0;w->s.frame=0;func_8008B154(0);

@@ -91,10 +91,10 @@ s32 func_80096E64(u32 counter,u32 mode) { return test_counter(counter,mode); }
         cls.alias = cls.lib.test_alias
         cls.alias.argtypes = [C.c_int32, Wide, Wide]
         cls.alias.restype = C.POINTER(Wide)
-        cls.compare = cls.lib.func_8007DFA4
+        cls.compare = cls.lib._comp_mant
         cls.compare.argtypes = [Wide, Wide]
         cls.compare.restype = C.c_int32
-        cls.logical_shift = cls.lib.func_8007DFF4
+        cls.logical_shift = cls.lib._dbl_shift_us
         cls.logical_shift.argtypes = [C.POINTER(Wide), C.c_int32, Wide, C.c_int32]
         cls.logical_shift.restype = C.POINTER(Wide)
         cls.integer_to_binary64 = cls.lib.func_8007E1B4

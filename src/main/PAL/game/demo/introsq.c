@@ -17,7 +17,7 @@ void func_8005D310(void) {
     int s1 = func_8005CA88();
     switch (D_800AC650[0x444 / 4]) {
     case 0:
-        func_80092CB8(1);
+        SetDispMask(1);
         D_800AC650[0x444 / 4]++;
     case 1:
         if (func_8004EA8C() != 0) {
@@ -29,7 +29,7 @@ void func_8005D310(void) {
         break;
     case 2:
         if (s1 == D_800AC650[0x444 / 4]) {
-            func_80092CB8(0);
+            SetDispMask(0);
             D_800F4C6A = s1;
             D_800F3A26 = 7;
             D_800AC650[0x444 / 4] = 0;

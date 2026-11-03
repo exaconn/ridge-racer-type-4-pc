@@ -9,7 +9,7 @@ extern void func_8008C03C(void);
 extern RrLibCompletionCallback func_8008C118(RrLibCompletionCallback);
 extern RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback);
 extern RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback);
-extern s32 func_8008C6A4(void *);
+extern s32 CdPosToInt(void *);
 extern s32 func_800963DC(const char *, ...);
 extern const char D_80011D40[], D_80011D58[];
 extern volatile u32 D_800A67BC;
@@ -43,7 +43,7 @@ s32 func_8008EB6C(s32 restart) {
         if (!(func_8008B154(-1) & 63)) {
             func_800963DC(D_80011D40);
         }
-        func_8008C27C(1, 0);
+        CdControlF(1, 0);
         timestamp = func_8008B154(-1);
         shell_state = &D_800A67B0;
         shell_state->start1C = timestamp;
@@ -59,8 +59,8 @@ s32 func_8008EB6C(s32 restart) {
         parameters = 0;
         /* ASM_BARRIER: stage the null parameter after the command value. */
         __asm__("" : "+r"(parameters) : "r"(command));
-        func_8008C140(command, parameters, 0);
-        if (!func_8008C140(2, func_8008BFC4(), 0)) {
+        CdControl(command, parameters, 0);
+        if (!CdControl(2, func_8008BFC4(), 0)) {
             goto failed;
         }
     }
@@ -74,7 +74,7 @@ s32 func_8008EB6C(s32 restart) {
     mode_byte = requested;
     requested &= 255;
     if (requested != func_8008BFA4() || retry != 0) {
-        if (!func_8008C140(14, &mode_byte, 0)) {
+        if (!CdControl(14, &mode_byte, 0)) {
 failed:
             /* ASM_BARRIER: retain one shared failure block with fresh state
              * publication and reload, rather than duplicating address setup. */
@@ -84,7 +84,7 @@ failed:
             return failed_state->remaining14;
         }
     }
-    completed = func_8008C6A4(func_8008BFC4());
+    completed = CdPosToInt(func_8008BFC4());
     /* ASM_BARRIER: the success-state address is formed after decoding. */
     __asm__("" : : : "$16");
     callback = (RrLibCompletionCallback)func_8008E828;
@@ -100,7 +100,7 @@ failed:
         command = 6;
     }
     state->position08 = state->buffer04;
-    func_8008C27C(command, 0);
+    CdControlF(command, 0);
     state->remaining14 = state->sectors00;
     ((volatile RrLibReadRequestState *)state)->retry18 = func_8008B154(-1);
     return ((volatile RrLibReadRequestState *)state)->remaining14;

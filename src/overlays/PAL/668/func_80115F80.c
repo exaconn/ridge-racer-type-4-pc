@@ -14,7 +14,7 @@ RrReplayCameraContextPrefix *ctx;
         ovl668_func_80115DFC();
         goto increment;
     case 4:
-        func_80092CB8(1);
+        SetDispMask(1);
     case 1: case 2: case 3:
  increment:
         D_800AC650.counter444=(u32)D_800AC650.counter444+1;

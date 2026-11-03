@@ -10,7 +10,7 @@ extern char ovl661_D_80118420[24],ovl661_D_8011487C[];
 extern const char ovl661_D_80114888[];
 extern u16 D_800F4C6A;
 extern s16 D_800F3A26,D_800F4D8A;
-void func_80092CB8(s32 mode);
+void SetDispMask(s32 mode);
 void func_8002A604(void);
 void func_8002B75C(char *destination,char *source);
 void ovl661_func_80115598(s32 mode);
@@ -23,7 +23,7 @@ void ovl661_func_80115DB8(void)
     s32 i;
     s32 j;
 
-    func_80092CB8(0);
+    SetDispMask(0);
     func_8002A604();
     for (i = 0; i < 2; i++) {
         ovl661_D_80118450[i] = 0;

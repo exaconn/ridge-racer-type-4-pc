@@ -5,7 +5,7 @@ from unicorn import *
 from unicorn.mips_const import *
 P=Path(os.getenv("RR_TEST_DIR","build/goal_50/part32/native"));P.mkdir(parents=True,exist_ok=True);source=Path(sys.argv[1]) if len(sys.argv)>1 else Path("tools/scripts/fixtures/legacy/func_800534D8.c");count=int(sys.argv[2]) if len(sys.argv)>2 else 8192
 body=source.read_text().split('\n',1)[1];body=re.sub(r' __asm__\("[a-z0-9$]+"\)','',body)
-services=[('func_80052F2C','void',[]),('func_80053120','void',[]),('func_80053254','void',[]),('func_80053384','void',[]),('func_80053300','void',[]),('func_80052DA8','void',[]),('func_8008C0D8','s32',['s32','u8*']),('func_8008C5A0','u8*',['s32','u8*']),('func_8008C27C','s32',['s32','const u8*']),('func_8008F274','s32',['s32']),('func_8008C03C','void',[]),('func_80052AB8','void',[]),('func_80052C70','void',[]),('func_8001E84C','s32',['const char*','RrAudioState*']),('func_80052B48','void',['s32']),('func_80052E6C','void',[]),('func_8008BFB4','s32',[]),('func_8008C6A4','s32',['const u8*']),('func_80052ADC','void',['u16'])]
+services=[('func_80052F2C','void',[]),('func_80053120','void',[]),('func_80053254','void',[]),('func_80053384','void',[]),('func_80053300','void',[]),('func_80052DA8','void',[]),('func_8008C0D8','s32',['s32','u8*']),('CdIntToPos','u8*',['s32','u8*']),('CdControlF','s32',['s32','const u8*']),('func_8008F274','s32',['s32']),('func_8008C03C','void',[]),('func_80052AB8','void',[]),('func_80052C70','void',[]),('func_8001E84C','s32',['const char*','RrAudioState*']),('func_80052B48','void',['s32']),('func_80052E6C','void',[]),('func_8008BFB4','s32',[]),('CdPosToInt','s32',['const u8*']),('func_80052ADC','void',['u16'])]
 head='''#include <stdint.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -57,8 +57,8 @@ case=0;events=[];observed=[];errors=[];coverage=set();phases=set();actions=set()
 edges=[0,1,-1,2,3,5,16,29,30,360,361,32767,-32768,0x7fffffff,-0x80000000,0x40000000]
 def service(i,args,native):
  name,ret,types=services[i];norm=[ptr(v,native) if '*' in t else v&0xffffffff for v,t in zip(args,types)];local=b''
- if name=='func_8008C27C' and args[1]:local=rd(args[1],2 if args[0]==13 else 3,native)
- if name=='func_8008C6A4':local=rd(args[0],3,native)
+ if name=='CdControlF' and args[1]:local=rd(args[1],2 if args[0]==13 else 3,native)
+ if name=='CdPosToInt':local=rd(args[0],3,native)
  records=observed if native else events;records.append((i,norm,local,snap(native)));step=len(records);seed=case*13+step*17+i*7
  coverage.add(name)
  if case&32:
@@ -74,11 +74,11 @@ def service(i,args,native):
  if name=='func_8008C0D8':
   if args[1]:wr(args[1],bytes((seed+k*19)&255 for k in range(8)),native)
   return [0,1,2,5,-1,0x1000002][(case+step)%6]
- if name=='func_8008C5A0':wr(args[1],bytes((seed+k*7)&255 for k in range(3)),native);return args[1]
- if name=='func_8008C27C':return [0,1,0x80000000][(case+step)%3]
+ if name=='CdIntToPos':wr(args[1],bytes((seed+k*7)&255 for k in range(3)),native);return args[1]
+ if name=='CdControlF':return [0,1,0x80000000][(case+step)%3]
  if name=='func_8008F274':return [0,16,-1][case%3]
  if name=='func_8008BFB4':return 17 if case&1 else 0
- if name=='func_8008C6A4':return edges[(case+step)%len(edges)]&0xffffffff
+ if name=='CdPosToInt':return edges[(case+step)%len(edges)]&0xffffffff
  if name=='func_8001E84C':return 1
  return 0
 CB=C.CFUNCTYPE(C.c_size_t,C.c_uint,C.POINTER(C.c_size_t))
@@ -87,7 +87,14 @@ def callback(i,args):
  try:return service(i,[args[j] for j in range(len(services[i][2]))],True)&0xffffffffffffffff
  except BaseException as e:errors.append(e);return 0
 lib.set_callback(callback)
-addrs={int(name[-8:],16):i for i,(name,_,_) in enumerate(services)};resume=None
+def _addr(name):
+ import re as _re
+ if _re.fullmatch(r'func_[0-9A-F]{8}',name):return int(name[-8:],16)
+ for l in open(__import__('pathlib').Path(__file__).resolve().parents[2]/'configs/PAL/sym.main.txt'):
+  m=_re.match(r'^'+name+r'\s*=\s*0x([0-9A-Fa-f]+);',l)
+  if m:return int(m.group(1),16)
+ raise KeyError(name)
+addrs={_addr(name):i for i,(name,_,_) in enumerate(services)};resume=None
 for a in addrs:u.mem_write(a&0x1fffffff,struct.pack('<3I',0,0x03e00008,0))
 def hook(uc,a,n,d):
  global resume

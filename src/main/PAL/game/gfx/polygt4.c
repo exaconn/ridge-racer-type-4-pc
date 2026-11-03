@@ -124,7 +124,7 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
     sp10.t[0] = sp58.vx;
     sp10.t[1] = sp58.vy;
     sp10.t[2] = sp58.vz;
-    func_80091144(&sp10);
+    SetTransMatrix(&sp10);
     func_800910B4(&sp10);
 
     count = D_800F3A28[arg0].count2C;

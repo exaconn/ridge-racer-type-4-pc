@@ -10,6 +10,6 @@ extern s16 D_800A50C0[], D_800A58C0[], D_800A60C0[], D_800A68C0[];
 s32 func_80090424(s32 angle);
 s32 func_800904F4(s32 angle);
 /* Internal nonnegative sine lookup: angle must be in 0..4095. */
-s32 func_80090460(s32 angle);
+s32 sin_1(s32 angle);
 
 #endif

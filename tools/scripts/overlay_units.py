@@ -31,6 +31,10 @@ def function_owner(index, address, root=ROOT):
 def symbol_addresses(root=ROOT):
     """Link descriptive C symbols to the original overlay ABI addresses."""
     result = {}
+    for line in (root / 'configs/PAL/sym.main.txt').read_text().splitlines():
+        m = re.match(r'^(\w+)\s*=\s*0x([0-9A-Fa-f]+);', line)
+        if m:
+            result[m.group(1)] = int(m.group(2), 16)
     for path in (root / 'configs/PAL/overlays').glob('*.json'):
         config = json.loads(path.read_text())
         for function in config.get('functions', []):

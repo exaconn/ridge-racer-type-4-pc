@@ -17,7 +17,7 @@ class RootCounterReadTest(unittest.TestCase):
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
         body=(root/'tools/scripts/fixtures/views/func_80097040.c').read_text().replace('#include "rr/counters.h"','')
         assert body.count('D_800ABC34[index].count')==1
-        observed=body.replace('func_80097040','observed_read').replace('D_800ABC34[index].count','test_read(index)')
+        observed=body.replace('GetRCnt','observed_read').replace('D_800ABC34[index].count','test_read(index)')
         code='''#include <stdint.h>
 typedef uint8_t u8; typedef uint16_t u16; typedef uint32_t u32; typedef int32_t s32;
 '''+header+'''
@@ -38,7 +38,7 @@ u16 test_read(s32 index) {
         cls.pointer=C.c_void_p.in_dll(cls.lib,'D_800ABC34')
         cls.reads=C.c_int.in_dll(cls.lib,'read_count')
         cls.last=C.c_int.in_dll(cls.lib,'last_index')
-        for name in ('func_80097040','observed_read'):
+        for name in ('GetRCnt','observed_read'):
             f=getattr(cls.lib,name);f.argtypes=[C.c_uint32];f.restype=C.c_int32
 
     def setUp(self):
@@ -50,9 +50,9 @@ u16 test_read(s32 index) {
         for index in range(3):
             for value in range(65536):
                 self.ram[index*8]=value
-                self.assertEqual(self.lib.func_80097040(index),value)
+                self.assertEqual(self.lib.GetRCnt(index),value)
         before=bytes(self.ram)
-        for index in range(3):self.assertEqual(self.lib.func_80097040(index),65535)
+        for index in range(3):self.assertEqual(self.lib.GetRCnt(index),65535)
         self.assertEqual(bytes(self.ram),before)
 
     def test_selector_low_halfword_and_invalid_null_base(self):
@@ -64,7 +64,7 @@ u16 test_read(s32 index) {
                 else:
                     self.pointer.value=None
                     expected=0
-                self.assertEqual(self.lib.func_80097040((high<<16)|low),expected)
+                self.assertEqual(self.lib.GetRCnt((high<<16)|low),expected)
 
     def test_exactly_one_read_on_valid_indices_and_none_on_invalid(self):
         for high in (0,0xABCD,0xFFFF):

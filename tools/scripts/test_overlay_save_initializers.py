@@ -99,7 +99,7 @@ static void event(s32 service,s32 a,s32 b,s32 c,s32 d){
  w->events[n].service=service;w->events[n].arg[0]=a;w->events[n].arg[1]=b;w->events[n].arg[2]=c;w->events[n].arg[3]=d;w->events[n].hash=hash;
  w->calls++;if(mutation && service!=7)effect(n);
 }
-void func_80092CB8(s32 mode){assert(mode==0);event(1,mode,0,0,0);}
+void SetDispMask(s32 mode){assert(mode==0);event(1,mode,0,0,0);}
 void func_8002A604(void){event(2,0,0,0,0);}
 void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags){event(3,r,g,b,(s32)flags);}
 void ovl660_func_80114920(void){event(4,0,0,0,0);}
@@ -113,7 +113,7 @@ void func_80053BB4(s32 mode){assert(mode==0);event(8,mode,0,0,0);}
 ''' + helpers + bodies + r'''
 static void copy_name(char *destination,const char *source){unsigned n=0,j;while(source[n])n++;for(j=0;j<n;j++)destination[j]=source[j];while(destination[n])destination[n++]=0;}
 static void reference(void){
- unsigned i,n;s32 flags;func_80092CB8(0);
+ unsigned i,n;s32 flags;SetDispMask(0);
  if(kind==0){
   func_8002A604();w->s.row=0;w->s.col=0;w->s.local=0;
   copy_name(w->s.name,w->s.save.prefix.progress.prefix00.fields.name);func_8001ECE8(0,0,0,2);

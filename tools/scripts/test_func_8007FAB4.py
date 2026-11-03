@@ -37,7 +37,7 @@ u8 D_800A4938[0x400];
 s32 (*test_validate)(u32);
 void (*test_transfer)(s32, u32, void *, u32);
 s32 (*test_wait)(s32);
-s32 func_8007FCD4(u32 address) { return test_validate(address); }
+s32 _SpuIsInAllocateArea_(u32 address) { return test_validate(address); }
 s32 func_80096E94(s32 event) { return test_wait(event); }
 s32 func_8007F068(s32 mode, ...) {
     va_list args;

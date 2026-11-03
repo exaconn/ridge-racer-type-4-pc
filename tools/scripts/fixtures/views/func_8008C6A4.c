@@ -16,7 +16,7 @@
         } \
     }
 
-s32 func_8008C6A4(void *arg0) {
+s32 CdPosToInt(void *arg0) {
     u8 temp_a1;
     u8 temp_a2;
     u8 temp_v1;

@@ -20,12 +20,12 @@ extern s8 *D_800A680C;
 extern s32 D_80112754;
 extern RrLibPackedWord D_80112750;
 extern void (*D_80112760)(void);
-extern int func_8008C6A4();
+extern int CdPosToInt();
 
 void func_8008F504(void);
-void func_8008F564(void);
-void func_8008F5E4(void);
-int func_8008F670(int a);
+void StUnSetRing(void);
+void data_ready_callback(void);
+int StGetBackloc(int a);
 
 void func_8008F504(void) {
     int a = D_80110314;
@@ -39,7 +39,7 @@ void func_8008F504(void) {
     D_801102D0 = 0;
 }
 
-void func_8008F564(void) {
+void StUnSetRing(void) {
     func_80096F04();
     if (D_800A64A8 == 1) {
         func_80096DE0(0);
@@ -58,7 +58,7 @@ void func_8008F564(void) {
     func_80096F14();
 }
 
-void func_8008F5E4(void)
+void data_ready_callback(void)
 {
     s32 value;
     /* ASM_BARRIER: Keep the next queue index in the original register until publication. */
@@ -90,10 +90,10 @@ void func_8008F5E4(void)
 /* legacy typing of shared globals in this part of the unit */
 #define D_80112750 (*(char (*)[])&D_80112750)
 
-int func_8008F670(int a) {
+int StGetBackloc(int a) {
     int r;
     if (D_80110348 == 0) {
-        func_8008C5A0(func_8008C6A4(D_80112750) + 1, a);
+        CdIntToPos(CdPosToInt(D_80112750) + 1, a);
         r = D_80112754;
     } else {
         r = -1;

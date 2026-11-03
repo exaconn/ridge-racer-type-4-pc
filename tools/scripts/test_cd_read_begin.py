@@ -26,7 +26,7 @@ class CdReadBeginTest(unittest.TestCase):
         body = body.replace('extern volatile u32 D_800A67BC;', '')
         decoder = (ROOT/'tools/scripts/fixtures/legacy/func_8008C6A4.c').read_text()
         decoder = re.sub(r'^#include[^\n]*\n', '', decoder, flags=re.M)
-        decoder = decoder.replace('func_8008C6A4', 'actual_decode')
+        decoder = decoder.replace('CdPosToInt', 'actual_decode')
         code = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -192,11 +192,11 @@ u8 func_8008BF94(void){return status(0);}
 s32 func_8008B154(s32 a){return clock_tick(0,a);}
 s32 func_800963DC(const char *s,...){return diagnostic(0,s);}
 u8 *func_8008BFC4(void){return packet(0);}
-s32 func_8008C140(s32 c,const u8 *p,u8 *r){return control(0,c,p,r);}
+s32 CdControl(s32 c,const u8 *p,u8 *r){return control(0,c,p,r);}
 void func_8008C03C(void){reset(0);}
 s32 func_8008BFA4(void){return mode_query(0);}
-s32 func_8008C6A4(void *p){return decode(0,p);}
-s32 func_8008C27C(s32 c,const u8 *p){return transfer(0,c,p);}
+s32 CdPosToInt(void *p){return decode(0,p);}
+s32 CdControlF(s32 c,const u8 *p){return transfer(0,c,p);}
 void func_8008E828(s32 a,u8 *p){callback_effect^=(u32)a+(p!=0);}
 void func_8008EA9C(void){callback_effect^=8;}
 static s32 reference(s32 restart) {

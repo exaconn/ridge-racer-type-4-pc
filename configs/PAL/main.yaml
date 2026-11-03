@@ -1810,7 +1810,7 @@ segments:
       - [0x8ab30, asm, main_8009A330]
       - [0x8ab34, c, func_8009A334]
       - [0x8ab68, c, func_8009A368]
-      - [0x8ac78, asm, main_8009A478]
+      - [0x8ac78, c, func_8009A478]
       - [0x8aedc, c, func_8009A6DC]
       - [0x8afbc, c, func_8009A7BC]
       - [0x8afe8, asm, main_8009A7E8]

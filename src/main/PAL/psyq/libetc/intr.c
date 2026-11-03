@@ -1,14 +1,20 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
+#include "types.h"
 #include "rr/timing.h"
 #include "rr/library.h"
 #include "rr/spu_tick_control.h"
+#include "m2c_macros.h"
+#include "rr/interrupts.h"
 
 extern volatile unsigned *D_800A5258;
 extern volatile unsigned *D_800A525C;
-extern volatile unsigned D_800A5260, D_800A5264;
+extern volatile unsigned D_800A5260;
+extern volatile unsigned D_800A5264;
 extern s32 func_800963DC(const char *, ...);
 extern s32 func_80096F84(s32), func_80096F94(s32,s32);
+extern u16 D_800A52CA;
+extern u16 *D_800A6358;
 
 int func_8008B154();
 void func_8008B2CC(s32 a0, s32 a1);
@@ -16,6 +22,12 @@ void func_8008B364(void);
 RrLibInterruptCallback func_8008B394(s32 channel, RrLibInterruptCallback callback);
 RrLibInterruptCallback func_8008B3C4(s32 channel, RrLibInterruptCallback callback);
 void func_8008B3F4(RrSpuTickCallback callback);
+void func_8008B428();
+void func_8008B458();
+void func_8008B488();
+u16 func_8008B4B8(void);
+u16 func_8008B4C8(void);
+s32 func_8008B4E0(s32 value);
 
 int func_8008B154(a0) int a0; {
     volatile unsigned t;
@@ -94,3 +106,28 @@ void func_8008B3F4(RrSpuTickCallback callback)
 {
     ((RrSpuTickInterruptDriver20 *)D_800A6350)->install14(4,callback);
 }
+
+/* legacy typing of shared globals in this part of the unit */
+#define D_800A6350 (*(int (**(*))())&D_800A6350)
+
+void func_8008B428() { D_800A6350[5](); }
+
+void func_8008B458() { D_800A6350[4](); }
+
+void func_8008B488() { D_800A6350[6](); }
+
+u16 func_8008B4B8(void) {
+    return D_800A52CA;
+}
+
+u16 func_8008B4C8(void) {
+    return *D_800A6358;
+}
+
+s32 func_8008B4E0(s32 value) {
+    s32 previous=*D_800A6358;
+    *D_800A6358=value;
+    return previous;
+}
+
+#undef D_800A6350

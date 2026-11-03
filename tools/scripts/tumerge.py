@@ -145,16 +145,86 @@ def norm(t):
     return re.sub(r'\s+', '', t)
 
 
-def merge(paths, markers_out, policy=None, fwd_mode='proto'):
+
+SYN = [(r'\bu8\b|\bU8\b', 'unsignedchar'), (r'\bs8\b', 'signedchar'), (r'\bu16\b', 'unsignedshort'),
+       (r'\bs16\b', 'short'), (r'\bu32\b', 'unsignedint'), (r'\bs32\b', 'int')]
+
+
+def key(text):
+    t = re.sub(r'/\*.*?\*/|//[^\n]*', '', text, flags=re.S)
+    for a, b in SYN: t = re.sub(a, b, t)
+    t = re.sub(r'\s+', '', t).replace('unsignedint', 'unsigned').replace('unsignedlong', 'unsignedlong')
+    return re.sub(r'^extern', '', t)
+
+
+def split_declarators(text, name_of=None):
+    """`extern volatile int *a, *b;` -> two single declarations (simple cases only)."""
+    body = re.sub(r'/\*.*?\*/', '', text, flags=re.S).strip().rstrip(';')
+    if '=' in body or '{' in body or body.lstrip().startswith(('typedef', 'struct', 'union', 'enum')):
+        return [text]
+    depth = 0; cuts = []
+    for i, c in enumerate(body):
+        if c in '([': depth += 1
+        elif c in ')]': depth -= 1
+        elif c == ',' and depth == 0: cuts.append(i)
+    if not cuts: return [text]
+    pieces = [body[a:b] for a, b in zip([0] + [c + 1 for c in cuts], cuts + [len(body)])]
+    m = re.match(r'^(.*?)([*\s(]*)([A-Za-z_]\w*)\s*(\[[^\]]*\])?\s*(\)\s*\(.*)?$', pieces[0].strip(), re.S)
+    if not m: return [text]
+    base = m.group(1).strip()
+    return [pieces[0].strip() + ';'] + [f'{base} {q.strip()};' for q in pieces[1:]]
+
+
+def alias_macro(name, text):
+    """#define NAME (*(T *)&NAME) (variable) or ((T)NAME) (function) with T from the variant declaration"""
+    d = re.sub(r'/\*.*?\*/|//[^\n]*', '', text, flags=re.S).strip().rstrip(';')
+    d = re.sub(r'^extern\s+', '', d)
+    isfunc = re.search(r'(?<![*(\w])\b' + re.escape(name) + r'\s*\(', d) is not None and not re.search(r'\(\s*\*\s*' + re.escape(name), d)
+    ty = re.sub(r'(?<!\w)' + re.escape(name) + r'(?!\w)', '(*)', d, count=1)
+    return f'#define {name} ((' + ty + ')' + name + ')' if isfunc else f'#define {name} (*({ty})&{name})'
+
+
+def header_decls(root, includes, seen=None, out=None):
+    """name -> (key, text) for every extern declaration visible through the given #include lines."""
+    seen = seen if seen is not None else set(); out = out if out is not None else {}
+    for inc in includes:
+        m = re.search(r'"([^"]+)"', inc)
+        if not m or m[1] in seen: continue
+        seen.add(m[1])
+        for base in (root / 'include', root / 'include/rr'):
+            path = base / m[1]
+            if path.exists():
+                try: marks, items = parse(path.read_text())
+                except Exception: break
+                for kind, text, name in items:
+                    if kind == 'pp' and '#include' in text:
+                        header_decls(root, [text], seen, out)
+                    elif kind == 'decl' and not text.lstrip().startswith(('typedef', 'struct', 'union', 'enum', 'static')):
+                        for q in split_declarators(text):
+                            n_ = _declname(q)
+                            if n_: out.setdefault(n_, (key(q), q))
+                break
+    return out
+
+
+def merge(paths, markers_out, policy=None, fwd_mode='proto', alias=False, root=None):
     """paths in address order; markers_out: list of marker lines for the merged file.
     policy: dict name -> index of the variant to keep when declarations conflict (default 0)."""
     policy = policy or {}
     pp, types, externs, funcs = [], [], [], []
-    seen_pp = set(); seen = {}; conflicts = {}
+    seen_pp = set(); seen = {}; conflicts = {}; file_ext = {}
     ro = []; seen_types = {}; seen_types_ct = {}; seen_funcs = set(); seen_funcs_ct = {}
     for p in paths:
         t = Path(p).read_text()
         marks, items = parse(t)
+        if alias:
+            new_items = []
+            for kind, text, name in items:
+                if kind == 'decl' and not text.lstrip().startswith(('typedef', 'struct', 'union', 'enum')):
+                    for q in split_declarators(text):
+                        new_items.append([kind, q, _declname(q) if q is not text else name])
+                else: new_items.append([kind, text, name])
+            items = new_items
         # local type / static-function names that collide with a different earlier definition are renamed
         ren = {}
         for kind, text, name in items:
@@ -186,7 +256,8 @@ def merge(paths, markers_out, policy=None, fwd_mode='proto'):
                 if k in seen_pp: continue
                 seen_pp.add(k); pp.append(text)
             elif kind == 'decl':
-                k = norm(text)
+                k = key(text) if alias else norm(text)
+                file_ext.setdefault(p, {})[name] = (k, text)
                 bucket = seen.setdefault(name, [])
                 if any(b[0] == k for b in bucket): continue
                 bucket.append((k, text, p))
@@ -197,11 +268,29 @@ def merge(paths, markers_out, policy=None, fwd_mode='proto'):
                 funcs.append((name, text, p))
     for name, b in seen.items():
         if len(b) > 1: conflicts[name] = [x[2] for x in b]
+    hdr = {}
+    if alias and root is not None:
+        hdr = header_decls(root, [x for x in pp if x.lstrip().startswith('#include')])
+        for n_, (k_, t_) in hdr.items():
+            if n_ in seen:
+                seen[n_].insert(0, (k_, t_, '<header>'))
+                file_ext.setdefault('<header>', {})[n_] = (k_, t_)
     # choose variants for conflicting declarations
+    seen_order = {}
+    for name_, b_ in seen.items():
+        for i_, v_ in enumerate(b_): seen_order[v_[0]] = i_
+    def _score(v):
+        t = v[1]
+        return (('Rr' in t or 'struct' in t or 'union' in t) * 2 + ('[' not in t and '(' not in t), -seen_order.get(v[0], 0))
+    def canon_of(n_): return hdr[n_][0] if n_ in hdr else max(seen[n_], key=_score)[0]
     def pick(entries):
         out = []; used = set()
         for name, text in entries:
-            if name in conflicts and name is not None:
+            if alias and name in hdr:
+                continue
+            if alias and name in conflicts and name is not None:
+                if key(text) != canon_of(name): continue
+            elif name in conflicts and name is not None:
                 cands = [e for e in entries if e[0] == name]
                 keep = cands[min(policy.get(name, 0), len(cands) - 1)]
                 if keep[1] is not text: continue
@@ -232,6 +321,26 @@ def merge(paths, markers_out, policy=None, fwd_mode='proto'):
     ex = pick(externs)
     if ex: body.append('\n'.join(s.strip() for s in ex))
     if fwd and fwd_mode != 'none': body.append('\n'.join(fwd))
-    for _, t, _ in funcs: body.append(t.strip())
+    if alias:
+        def score(v):
+            t = v[1]
+            return (('Rr' in t or 'struct' in t or 'union' in t) * 2 + ('[' not in t and '(' not in t), -seen_order.get(v[0], 0))
+        canon = {n: canon_of(n) for n in seen if n}
+        by_file = []
+        for n_, t_, f_ in funcs:
+            if by_file and by_file[-1][0] == f_: by_file[-1][1].append(t_)
+            else: by_file.append((f_, [t_]))
+        for f_, ts in by_file:
+            joined = '\n'.join(ts)
+            macros = []
+            for n_, (k_, text_) in file_ext.get(f_, {}).items():
+                if n_ and k_ != canon.get(n_) and n_ not in defined and re.search(r'(?<![\w$])' + re.escape(n_) + r'(?![\w$])', joined):
+                    macros.append((n_, alias_macro(n_, text_)))
+            if macros:
+                body.append('/* legacy typing of shared globals in this part of the unit */\n' + '\n'.join(m for _, m in macros))
+            for t_ in ts: body.append(t_.strip())
+            if macros: body.append('\n'.join(f'#undef {n_}' for n_, _ in macros))
+    else:
+        for _, t, _ in funcs: body.append(t.strip())
     head = '\n'.join(parts)
     return (head + '\n' if head else '') + '\n\n'.join(body) + '\n', conflicts, ro, [f[0] for f in funcs]

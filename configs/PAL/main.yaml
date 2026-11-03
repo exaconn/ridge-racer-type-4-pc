@@ -1212,6 +1212,7 @@ segments:
       - [0x74d34, c, func_80084534]
       - [0x74e74, c, func_80084674]
       - [0x7546c, asm, main_80084C6C]
+      - [0x75474, c, func_80084C74]
       - [0x75544, c, func_80084D44]
       - [0x75674, c, func_80084E74]
       - [0x757ac, asm, main_80084FAC]

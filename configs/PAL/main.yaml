@@ -200,7 +200,7 @@ segments:
       - [0x4104, asm, main_80013904]
       - [0x528c, c, func_80014A8C]
       - [0x5298, c, func_80014A98]
-      - [0x543c, asm, main_80014C3C]
+      - [0x543c, c, func_80014C3C]
       - [0x5734, c, func_80014F34]
       - [0x5910, c, func_80015110]
       - [0x5bfc, c, func_800153FC]

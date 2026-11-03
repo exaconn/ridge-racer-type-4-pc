@@ -378,7 +378,7 @@ segments:
       - [0x1cb28, c, func_8002C328]
       - [0x1ce38, c, func_8002C638]
       - [0x1d3c0, c, func_8002CBC0]
-      - [0x1d488, asm, main_8002CC88]
+      - [0x1d488, c, func_8002CC88]
       - [0x1d9b4, c, func_8002D1B4]
       - [0x1df84, c, func_8002D784]
       - [0x1e8d8, c, func_8002E0D8]

@@ -116,3 +116,12 @@ It gave 116 matching respellings in the EXE, but it broke `make check` in one un
 because those tests compile the `rr/` headers on the host against their own definitions. The `rr/` headers are
 therefore a second consumer with their own contract; they stay as they are and the units keep the K&R
 spelling. Do not run the tool without extending its verification to the whole test suite.
+
+Splitting the `rr/` headers (`tools/scripts/split_rr.py`): prototypes are moved from an `rr/` header into the header
+of the unit that defines the function, and the `rr/` header includes it, so host tests and overlays see the same
+declarations. Only 24 prototypes could be moved safely. A prototype stays in `rr/` when (a) it disagrees with the
+definition (return type or parameter count), (b) some unit declares the symbol differently, or (c) the unit that
+defines the function includes that `rr/` header itself and would then see the unit-header spellings that suit the
+callers. Cases (a)-(c) are the same disagreement seen from three sides: the `rr/` prototype is a documentation-grade
+type, the units carry the spelling the original compiler saw. They cannot be merged without changing bytes or the
+host tests.

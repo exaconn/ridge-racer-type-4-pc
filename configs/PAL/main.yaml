@@ -226,6 +226,8 @@ segments:
       - [0xa55c, c, func_80019D5C]
       - [0xa720, c, func_80019F20]
       - [0xa7c8, asm, main_80019FC8]
+      - [0xad2c, c, func_8001A52C]
+      - [0xb0dc, asm, main_8001A8DC]
       - [0xb424, c, func_8001AC24]
       - [0xb5a0, c, func_8001ADA0]
       - [0xb7b8, c, func_8001AFB8]

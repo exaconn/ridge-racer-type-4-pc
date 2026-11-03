@@ -62,7 +62,7 @@
 #define RR_GTE_MVMVA_LDV0(p) do { __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(p)); __asm__ volatile ("nop; nop"); __asm__ volatile (".word 0x4A080012"); } while (0)
 #define RR_GTE_STORE_IR(p) __asm__ volatile ("swc2 $9, 0(%0); swc2 $10, 4(%0); swc2 $11, 8(%0)" : : "r"(p))
 /* func_8001ADA0: MVMVA sf=1 mx=LLM v=V0 cv=BK lm=0 on the vector at p (lwc2 $0/$1); RR_GTE_SWC2_IR3(p): swc2 $11; RR_GTE_TR_FROM_IR(): TR = IR1..IR3. */
-#define RR_GTE_MVMVA_LLM_BK_LDV0(p) do { __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(p)); __asm__ volatile ("nop; nop"); __asm__ volatile (".word 0x4A0A2012"); } while (0)
+#define RR_GTE_MVMVA_LLM_BK_LDV0(p) do { __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(p)); __asm__ volatile ("nop; nop"); __asm__ volatile (".word 0x4A4A2012"); } while (0)
 #define RR_GTE_SWC2_IR3(p) __asm__ volatile ("swc2 $11, 0(%0)" : : "r"(p) : "memory")
 #define RR_GTE_TR_FROM_IR() __asm__ volatile ("mfc2 $12, $9; mfc2 $13, $10; mfc2 $14, $11; ctc2 $12, $5; ctc2 $13, $6; ctc2 $14, $7" : : : "$12", "$13", "$14")
 /* func_8001C14C: RR_GTE_LWC2_IR(p): load IR1..IR3 ($9-$11) from 3 words at p; RR_GTE_INTPL(): two nops then INTPL. */

@@ -1466,6 +1466,8 @@ segments:
       - [0x816c4, c, func_80090EC4]
       - [0x81714, c, func_80090F14]
       - [0x81770, asm, main_80090F70]
+      - [0x81774, c, func_80090F74]
+      - [0x818ac, asm, main_800910AC]
       - [0x818b4, c, func_800910B4]
       - [0x818e4, c, func_800910E4]
       - [0x81914, c, func_80091114]

@@ -1,7 +1,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* GCC_VERSION: 2.7.2 */
 #include "rr/library.h"
-extern RrLibStateB0 *D_8010F068[];
+#include "rr/channel_stream.h"
 s32 func_80081E04(s32 raw_bank, s32 raw_row) {
     s16 bank = raw_bank;
     s16 row = raw_row;

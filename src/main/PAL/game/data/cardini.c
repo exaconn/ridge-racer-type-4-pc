@@ -10,12 +10,14 @@
 #include "psyq/libcard/init.h"
 #include "psyq/libgpu/gpuctl.h"
 #include "game/data/cardini.h"
+#include "rr/bios_events.h"
+#include "rr/serial_handles.h"
+#include "rr/overlay667_packet.h"
+#include "rr/card_format.h"
 
 extern int func_80095C74();
 extern int func_80096F04();
-extern int func_80096E74();
 extern int func_80096F14();
-extern int func_80096EB4();
 extern int D_8010EF58;
 extern int D_8010EF5C;
 extern int D_8010EF60;
@@ -27,19 +29,13 @@ extern int D_8010EF74;
 extern unsigned char D_800F3A24[];
 extern int D_800ACC0C;
 extern char D_800FFC48[];
-extern int func_80096E84();
-extern int func_80096EA4();
 extern int D_8010ECC0[];
 extern char D_800113D8[];
 extern char D_8010ECD0[];
 extern char *func_80096F74();
-extern int func_80096F24();
-extern int func_80096F44();
-extern int func_80096F64();
 extern char D_800113E4[];
 extern int D_8010EF78;
 extern int func_80096F34();
-extern int func_80096F54();
 extern int func_80095C84();
 extern int func_80095C94();
 extern int D_8010ECB8[];
@@ -47,7 +43,6 @@ extern int D_8010ECC8[];
 extern int D_8010EF80[];
 extern int D_800A4094[];
 extern char D_8010EF28[];
-extern int func_80096198();
 
 void func_80078000(void);
 int func_800780B8(int arg);

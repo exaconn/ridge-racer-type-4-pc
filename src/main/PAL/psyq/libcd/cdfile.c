@@ -6,6 +6,7 @@
 #include "psyq/libcd/dsfile.h"
 #include "psyq/libcd/cdfile.h"
 #include "psyq/libcd/dsfile.h"
+#include "rr/audio_cd_controller.h"
 
 typedef struct {
     unsigned char pos[4];
@@ -34,7 +35,6 @@ extern const char D_80011B6C[];
 extern const char D_80011B88[];
 extern const char D_80011BA8[];
 extern const char D_80011BB4[];
-extern int func_8001E84C();
 extern int func_80096414();
 extern struct DirPath D_80110950[];
 extern const char D_80011BC4[];

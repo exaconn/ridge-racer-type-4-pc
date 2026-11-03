@@ -9,6 +9,8 @@
 #include "game/sound/cdpos.h"
 #include "game/system/modeinit.h"
 #include "game/ui/hudmap2.h"
+#include "rr/draw_environment.h"
+#include "rr/race_setup.h"
 
 #define ADDPRIM(ot, p) \
     (p)->addr = ((SPRT *)(ot))->addr; \
@@ -121,7 +123,6 @@ typedef struct {
     void *p;
 } Scratch;
 
-extern void func_80093C24();
 extern s32 D_800A101C;
 extern UvRect D_800A1020[];
 extern UvRect D_800A1028;
@@ -165,7 +166,6 @@ extern struct {
 void func_800587E4(s32 arg0, u8 *arg1, s32 *arg2);
 void func_80058A3C(s32 *arg0);
 void func_800590DC(void);
-void func_80059168();
 void func_80059284(short *a0, int a1);
 void func_80059314(s32 arg0, s32 arg1);
 void func_80059700(s16 *stream,s32 color,s32 bank);

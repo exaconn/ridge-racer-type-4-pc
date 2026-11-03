@@ -1,14 +1,10 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/channels.h"
 
-void func_80099564(void *raw);
-s32 func_800995B8(void *raw);
 void func_80099618(void *channel, s32 value);
-void func_80099638(void *channel);
 void func_8009964C(void *channel, s32 value);
 void func_8009966C(void *channel, s32 value);
 void func_8009968C(void *channel, s32 value);
-void func_800996AC(void *channel);
 
 void func_80099564(void *raw) {
     RrChannelPatchCommand *a0=raw;

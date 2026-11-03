@@ -2,9 +2,9 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "psyq/libgte/gtecolo4.h"
+#include "rr/overlay662_distance.h"
 
 s32 func_80090604(s32 arg0);
-int func_80090758();
 
 s32 func_80090604(s32 arg0) {
     s32 x[8];

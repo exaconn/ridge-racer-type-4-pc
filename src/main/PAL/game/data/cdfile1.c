@@ -8,6 +8,7 @@
 #include "psyq/libcd/dsfinish.h"
 #include "psyq/libcd/s_1.h"
 #include "game/data/cdfile1.h"
+#include "rr/course_choices.h"
 
 typedef struct {RrCdLocation location; s32 size; u8 name[16];} SearchResult;
 
@@ -22,7 +23,6 @@ extern const char D_80010054[];
 extern const char D_80010068[];
 extern u32 *D_800102F0;
 extern RrCdFileEntry D_801094A8[];
-extern s32 D_800ACC18;
 extern int func_80090424();
 extern int func_800904F4();
 extern int D_8009DFA0;

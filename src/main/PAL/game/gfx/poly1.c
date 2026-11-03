@@ -10,6 +10,14 @@
 #include "psyq/libgte/gtemat3.h"
 #include "psyq/libgte/gtemat7.h"
 #include "game/gfx/poly1.h"
+#include "rr/race_setup.h"
+#include "rr/matrix_workspace.h"
+#include "rr/audio_loop.h"
+#include "rr/memory.h"
+#include "rr/overlay661_init.h"
+#include "rr/hud_number.h"
+#include "rr/relative_file.h"
+#include "rr/frame_environment.h"
 
 typedef struct { int a[8]; } S32B;
 
@@ -44,17 +52,13 @@ typedef struct {
 struct S { unsigned char c[8]; };
 
 extern int *D_800AC598;
-extern s16 D_800AD50C;
 extern s32 D_800F4CE0;
 extern s32 D_8010E730;
 extern int func_8006E09C();
 extern int func_8006E108();
 extern int func_80090914();
-extern int func_80090DB4();
 extern short D_800AC0A4;
-extern int D_800AC538;
 extern S32B D_800AD598;
-extern short D_800F4D44;
 extern V3 D_800FF690;
 extern int D_800FF6B0;
 extern V3 D_800FF6B8;
@@ -74,23 +78,18 @@ extern short D_80107180[];
 extern int func_8006E030();
 extern int func_80090CA4();
 extern M D_800F39A8;
-extern int func_80096454();
-extern int func_80096464();
 extern int func_80090F14();
 extern int func_8006DB0C();
 extern int func_80090884();
 extern int func_8006E368();
-extern int D_800F4BF0;
 extern short D_80107182;
 extern short D_80107184;
 extern struct { short m[3][3]; int t[3]; } D_800AD570;
 extern struct { short a, b, c, d; } D_800F38F8[];
-extern s32 D_800F39A4;
 extern short *D_8010E790;
 extern unsigned short D_800AD5B8;
 extern unsigned char *D_8010E798;
 extern int func_80092CB8();
-extern int func_8001ECE8();
 extern int D_800AC5DC;
 extern int D_8010E7A4;
 extern struct S D_80011324;
@@ -100,7 +99,6 @@ extern struct S D_8001133C;
 extern struct S D_80011344;
 
 void func_80070400(int *a0);
-void func_80070440(void);
 int func_80070464(void);
 void func_8007064C(void);
 struct P *func_800706B8(struct P *a0);

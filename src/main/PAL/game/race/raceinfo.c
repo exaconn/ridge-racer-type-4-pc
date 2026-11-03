@@ -4,6 +4,8 @@
 #include "game/ui/uipart1.h"
 #include "game/data/ldscn1.h"
 #include "game/race/raceinfo.h"
+#include "rr/overlay662_distance.h"
+#include "rr/matrix_workspace.h"
 
 struct T { int pad[2]; int a; int b; int pad2[11]; };
 
@@ -39,9 +41,7 @@ extern void func_8006E108();
 extern int func_8006E368();
 extern int func_80090424();
 extern int func_800904F4();
-extern int func_80090758();
 extern void func_80090CA4();
-extern void func_80090DB4();
 extern void func_80090EC4();
 
 void func_80032F44(int arg0, int arg1);

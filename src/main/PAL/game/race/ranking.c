@@ -4,6 +4,9 @@
 #include "game/gfx/poly1.h"
 #include "game/menu/menutra21.h"
 #include "game/demo/splash.h"
+#include "rr/bios_devices.h"
+#include "rr/audio_cd_controller.h"
+#include "rr/driver_control.h"
 
 typedef struct {
     char name[10];
@@ -26,16 +29,13 @@ extern int D_800F3838[2][8][3];
 extern int D_800F3B00[8];
 extern int D_800F4CE8[2][8];
 extern Struct10 D_800FF700[2][8][5];
-extern int func_80096434();
 extern char D_800ABE08[];
 extern unsigned short D_8009EA80[];
 extern unsigned char D_800F2FE0[];
 extern unsigned char D_800F3B28[];
-M2C_UNK func_8001E84C(M2C_UNK *);
 /* extern */
 /* extern */
 /* extern */
-M2C_UNK func_80092CB8(M2C_UNK);
 /* extern */
 extern s32 D_800102F0;
 extern M2C_UNK D_800103B8;

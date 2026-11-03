@@ -3,6 +3,8 @@
 #include "game/gfx/gfxmtx.h"
 #include "game/menu/mnrows.h"
 #include "game/ui/uidraw.h"
+#include "rr/bios_devices.h"
+#include "rr/audio_cd_controller.h"
 #define EP ((E_2 *)((a0 * 16) + D_800ACC00))
 
 typedef struct {
@@ -19,8 +21,6 @@ extern int func_8003D474();
 extern int func_80090424();
 extern int func_800904F4();
 extern E *D_800F3AFC;
-extern int func_80096434();
-extern int func_8001E84C();
 extern int D_800ACC00;
 extern unsigned char D_8009F9C0[];
 extern unsigned char D_8009F9CC[];

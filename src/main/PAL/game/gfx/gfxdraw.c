@@ -5,6 +5,9 @@
 #include "game/course/trkintp2.h"
 #include "game/gfx/dispenv.h"
 #include "psyq/libgte/gtemat7.h"
+#include "rr/audio_loop.h"
+#include "rr/overlay662_distance.h"
+#include "rr/fade_sprite.h"
 
 typedef struct {
     int x, y, z, f0C;
@@ -56,13 +59,11 @@ typedef struct {
 
 extern Context650 D_800AC650;
 extern int D_800AC698;
-extern short D_800F4D44;
 extern int D_8010718C;
 extern void func_800172DC(int, int);
 extern void func_80033BE4(void *);
 extern void func_8006E1AC(void);
 extern int func_8006E368(int, int);
-extern int func_80090758(int);
 extern void func_800912D4(int);
 extern int *D_800ABEA4;
 extern int D_800AC548[];
@@ -80,7 +81,6 @@ extern B D_800D0DD8[];
 extern B D_800AE660[];
 extern s32 func_80090424();
 extern s32 func_800904F4();
-extern s32 *D_800ACC14;
 
 void func_8004417C(int arg0, void *arg1);
 void func_800448EC(void);

@@ -1,7 +1,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/spu.h"
+#include "rr/spu_init.h"
 extern s32 func_8001E84C(const char *,...);
-extern char D_80011698[];
 extern char D_800116B8[];
 extern char D_800116CC[];
 void func_8007ED44(const u16 *source,u32 size) {

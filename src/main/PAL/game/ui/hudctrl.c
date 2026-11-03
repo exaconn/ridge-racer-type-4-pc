@@ -4,7 +4,6 @@ struct P { unsigned w0; char b4, b5, b6, b7; short x, y, w, h; };
 
 struct O { char pad[0xB70]; unsigned t; };
 
-void func_80021E2C(s32 arg0);
 void func_80022098(u32 *ordering, s32 layout);
 void func_80022390(int a0);
 

@@ -1,21 +1,13 @@
 #include "rr/camera_motion.h"
 #include "rr/cpu_md_leaf.h"
 #include "game/camera/cammove.h"
+#include "rr/overlay665_render.h"
 
 #define W_ADD(a,b) ((s32)((u32)(a)+(u32)(b)))
 #define W_SUB(a,b) ((s32)((u32)(a)-(u32)(b)))
 /* Constant products below expand to shifts/adds; variable MD operations use
  * the typed HI/LO interface with an independent native arithmetic reference. */
 #define W_MUL(a,b) ((s32)((u32)(a)*(u32)(b)))
-
-extern int func_8005599C();
-extern int func_80058768();
-extern int func_8006EE3C();
-extern int func_800701C4();
-extern int func_80090F74();
-extern int D_800F2FD8;
-
-void func_8005B9F4(RrCameraMotionInput14 *input);
 
 void func_8005B9F4(RrCameraMotionInput14 *input) {
     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */

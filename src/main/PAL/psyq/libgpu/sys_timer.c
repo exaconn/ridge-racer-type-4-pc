@@ -6,10 +6,6 @@
 extern s32 func_8001E84C(const char *format,...);
 extern char D_80011F98[];
 
-void func_80095360(void);
-s32 func_80095394(void);
-s32 func_800954D8(s32 a);
-
 void func_80095360(void) {
     D_800ABBFC = (u32)func_8008B154(-1) + 0xF0;
     D_800ABC00 = 0;

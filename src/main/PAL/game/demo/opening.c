@@ -8,6 +8,7 @@
 #include "game/demo/opening.h"
 #include "game/ui/hudmap2.h"
 #include "game/course/trktext.h"
+#include "rr/menu_overlay_runtime.h"
 
 extern void func_8004C5A4(s32, s32, const char *, s32, s32);
 extern void func_80059700(s16 *, s32, s32);
@@ -23,9 +24,7 @@ extern u8 D_800A1A60[];
 extern u8 D_800A1A68[];
 extern u32 D_800A1A70[];
 extern u32 D_800A1A88[];
-extern s16 D_800F3914;
 extern u16 D_800F3A40;
-extern s32 D_800F3A60;
 extern struct {
     char pad[0x28A4];
     s32 w28a4;

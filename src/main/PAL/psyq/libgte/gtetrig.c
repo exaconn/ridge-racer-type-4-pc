@@ -3,10 +3,10 @@
 #include "rr/trig.h"
 #include "psyq/libgte/gtemat7.h"
 #include "psyq/libgte/gtetrig.h"
+#include "rr/menu_overlay_runtime.h"
 
 /* extern */
 
-s32 func_800904F4(s32 angle);
 void func_80090594(s32 arg0, s32 arg1);
 
 s32 func_800904F4(s32 angle) {

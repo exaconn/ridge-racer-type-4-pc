@@ -2,6 +2,8 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "game/gfx/motion1.h"
+#include "rr/bios_devices.h"
+#include "rr/textured_panel.h"
 
 struct E {
     int state; int mode; char pad8[0x44 - 8]; int x44; unsigned short h48; short h4A; unsigned short h4C;
@@ -11,9 +13,7 @@ struct Z { char pad[0x4C]; unsigned short h4C; char pad2[0xE4 - 0x4E]; struct E 
 
 struct A { short h0; char pad2[0xE]; unsigned int i10; };
 
-extern int func_80096434();
 extern struct Z *D_800ACA28;
-extern int func_8005D40C();
 extern s32 D_8010E240;
 
 void func_8005D544(struct A *a0);

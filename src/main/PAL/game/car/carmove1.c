@@ -3,6 +3,8 @@
 #include "game/car/carstate.h"
 #include "game/car/carwheel.h"
 #include "game/car/carmove1.h"
+#include "rr/menu_overlay_runtime.h"
+#include "rr/overlay668_camera.h"
 
 #define W9C w8c[4]
 #define WAC w8c[8]
@@ -183,14 +185,8 @@ typedef struct {
 
 struct B4 { char b[4]; };
 
-extern s32 D_800ABEA4;
-extern s32 D_800ABECC;
-extern s32 func_80090424(s16);
-extern s32 func_800904F4(s16);
-extern short func_8006E368();
 extern short D_800AC53C;
 extern short D_800ACC74;
-extern int D_800F2EB8;
 
 void func_80027998(void);
 void func_80027C54(Car *arg0);

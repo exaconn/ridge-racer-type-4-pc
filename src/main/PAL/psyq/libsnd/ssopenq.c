@@ -21,25 +21,13 @@
 #include "psyq/libsnd/midiprog.h"
 #include "psyq/libsnd/midiread.h"
 #include "psyq/libsnd/seqinit.h"
-extern int func_8001E84C();
+#include "rr/audio_cd_controller.h"
+#include "rr/library.h"
+#include "rr/sequencer_init.h"
+#include "rr/sequencer_tempo.h"
 extern char D_800116E8[];
 extern int D_8010EFC8[];
-extern int D_8010F060;
-extern int func_80080434();
-extern int func_80080504();
-extern int func_800805D4();
-extern int func_800806C4();
-extern int func_80080774();
-extern int func_80080804();
-extern int func_80080904();
-extern int func_80080A44();
-extern int func_80080AB4();
-extern int func_80080B24();
 extern int func_80080C74();
-extern int func_80081804();
-extern int func_800818B4();
-extern int func_80081AE4();
-extern int func_80081D94();
 short func_8007FD94(a0, a1) int a0; int a1; {
     /* ASM_BARRIER: pin t0 to match original register allocation */
     register int t0 asm("t0");

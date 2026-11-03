@@ -5,8 +5,6 @@
 
 extern s32 D_800F6670;
 
-void func_800518E0(void);
-
 void func_800518E0(void) {
     RrAudioLoopState *state=&D_800F4DB8;
     RrAudioSettings *settings=&D_800AD528.audio;

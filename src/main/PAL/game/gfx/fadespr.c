@@ -4,12 +4,12 @@
 #include "psyq/libsnd/ssmvol.h"
 #include "game/camera/campath.h"
 #include "game/gfx/fadespr.h"
+#include "rr/bios_devices.h"
+#include "rr/library.h"
 
 struct V4 { int a[4]; };
 
 extern char D_800AD528[];
-extern int func_80096434();
-extern void func_8007F910(int);
 extern int func_8008A674(t);
 extern char D_800ACA30[];
 extern struct V4 D_80011260;

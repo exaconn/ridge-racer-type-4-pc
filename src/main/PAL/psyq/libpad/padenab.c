@@ -4,16 +4,13 @@
 #include "rr/serial.h"
 #include "rr/interrupts.h"
 #include "psyq/libpad/padenab.h"
+#include "rr/spu_tick_control.h"
 
-extern s32 func_80096F04(void);
 extern s32 func_80096F94(s32,s32);
-extern void func_80096F14(void);
 extern s32 func_80097714(s32,void *);
 extern s32 func_80097704(s32,void *);
 
-s32 func_80097EA0(void);
 s32 func_80098030(void);
-void func_80098044(void);
 
 s32 func_80097EA0(void) {
     s32 first,condition,enabled;

@@ -3,22 +3,19 @@
 #include "types.h"
 #include "rr/spu_tick_control.h"
 #include "psyq/libspu/s_i.h"
+#include "rr/spu_common.h"
 
 /* Anchors originate in the complete timer object. Signed native-width
  * offset differences keep every scalar access within that object. */
 #define FIELD(p,type,member) (*(type *)((p)+((long)RR_FIELD_OFFSET(RrSpuTickState20,member)-(long)RR_FIELD_OFFSET(RrSpuTickState20,flags))))
 #define FLAG(p,member) (*(s8 *)((p)+(long)RR_FIELD_OFFSET(RrSpuTickFlags4,member)))
 
-extern int func_80082674();
 extern void (*D_800A4D44[])();
 extern s32 D_800A4D4C;
 extern void (*D_800A4D40)(void);
 
 void func_800829F4(short a, short b);
-void func_80082A44(s32 direct);
 void func_80082C94(void);
-void func_80082CB4(void);
-void func_80082D00(void);
 
 void func_800829F4(short a, short b) {
     struct { int x; short y, z; int pad[8]; } s;

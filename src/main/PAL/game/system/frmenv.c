@@ -16,17 +16,16 @@
 #include "game/menu/menusave.h"
 #include "game/system/frmenv.h"
 #include "psyq/libgpu/gpuenv.h"
+#include "rr/audio_cd_controller.h"
+#include "rr/library.h"
+#include "rr/driver_control.h"
+#include "rr/bios_devices.h"
 
-extern int func_8001E84C();
-extern int func_8008BE44();
 extern int func_80052800();
 extern int func_800929D4();
-extern int func_80092CB8();
 extern int func_800907FC();
 extern int func_8004A678();
-extern int func_8009AEAC();
 extern int func_80013890();
-extern int func_80096434();
 extern int func_8002B75C();
 extern int func_8003A1B4();
 extern int D_800102F0;
@@ -70,7 +69,6 @@ extern void func_800912B4(s32,s32);
 extern void func_800912D4(s32);
 extern void *func_80092998(void *,s32,s32,s32,s32);
 
-void func_8001ECE0(s32 bank);
 void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags);
 
 void func_8001E988(void)

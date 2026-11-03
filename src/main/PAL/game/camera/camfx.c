@@ -1,12 +1,12 @@
 #include "game/camera/camview.h"
 #include "game/camera/camfx.h"
 #include "game/camera/camview.h"
+#include "rr/menu_overlay_runtime.h"
 
 extern char D_800A0D70[];
 extern char D_800A0D7C[];
 extern char D_800A0D88[];
 extern char D_800A0D94[];
-extern char D_800ABEF8[];
 typedef struct Q
 {
   char pad0[0x2A];

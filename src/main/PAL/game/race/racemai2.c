@@ -14,6 +14,7 @@
 #include "game/sound/sndvab.h"
 #include "psyq/libgte/gtemath3.h"
 #include "game/race/racemai2.h"
+#include "rr/steering.h"
 
 typedef struct 
 {
@@ -129,7 +130,6 @@ extern char D_800ABEF8[];
 extern short D_800AC59C;
 extern unsigned short D_800F3914;
 extern C *D_800FFC20[];
-extern int func_80025F84();
 extern int func_800904F4();
 extern void func_8002C11C(CarCollision *, s32, s32);
 extern s32 func_8006E368(s32, s32);

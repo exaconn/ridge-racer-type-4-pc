@@ -6,6 +6,7 @@
 #include "rr/spu_tick_control.h"
 #include "m2c_macros.h"
 #include "rr/interrupts.h"
+#include "rr/overlay668_stream.h"
 
 extern volatile unsigned *D_800A5258;
 extern volatile unsigned *D_800A525C;
@@ -17,18 +18,14 @@ extern s32 func_80096F94(s32,s32);
 extern u16 D_800A52CA;
 extern u16 *D_800A6358;
 
-int func_8008B154();
 void func_8008B2CC(s32 a0, s32 a1);
-void func_8008B364(void);
 RrLibInterruptCallback func_8008B394(s32 channel, RrLibInterruptCallback callback);
 RrLibInterruptCallback func_8008B3C4(s32 channel, RrLibInterruptCallback callback);
-void func_8008B3F4(RrSpuTickCallback callback);
 void func_8008B428();
 void func_8008B458();
 void func_8008B488();
 u16 func_8008B4B8(void);
 u16 func_8008B4C8(void);
-s32 func_8008B4E0(s32 value);
 
 int func_8008B154(a0) int a0; {
     volatile unsigned t;

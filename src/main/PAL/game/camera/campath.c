@@ -7,6 +7,7 @@
 #include "game/gfx/motion1.h"
 #include "game/gfx/ring.h"
 #include "game/camera/campath.h"
+#include "rr/bios_devices.h"
 
 typedef struct {
     s16 vx, vy, vz, p0;
@@ -36,14 +37,12 @@ extern s32 func_8005599C();
 extern s32 func_80090F74();
 extern s32 func_8006EE3C();
 extern char D_800A1CE0[];
-extern void func_80096434();
 extern struct { char pad[0x250]; char pad2[0x3D8 - 0x250]; struct Q *q; } D_800AC650;
 extern short D_800A1E60[];
 extern int *D_800A1F88[];
 
 void func_8005AA2C(void);
 void func_8005ABAC(int a0);
-void func_8005AC0C(RrMotionClock20 *clock);
 void func_8005AF5C(void);
 void func_8005B190(void);
 void func_8005B2D4(s32 arg0);

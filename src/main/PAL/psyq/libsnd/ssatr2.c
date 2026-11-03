@@ -3,6 +3,7 @@
 /* CC1_FLAGS: -mhard-float */
 #include "types.h"
 #include "rr/spu.h"
+#include "rr/channel_stream.h"
 
 typedef struct {
     u8 value00, value01, value02, value03, value04, pad05;
@@ -57,7 +58,6 @@ typedef struct {
     u8 pad0C[4];
 } SpuCachedVolume10;
 
-extern ChannelRecordB0 *D_8010F068[];
 extern ControlRow36 D_8010F908[];
 extern SpuCachedVolume10 D_8010FE38[];
 extern s16 D_801100E8;

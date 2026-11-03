@@ -8,6 +8,9 @@
 #include "psyq/libgpu/gpuenv.h"
 #include "game/gfx/gfxotag.h"
 #include "game/ui/hudmap2.h"
+#include "rr/hud_number.h"
+#include "rr/bios_devices.h"
+#include "rr/race_setup.h"
 
 typedef struct { unsigned addr : 24; unsigned len : 8; } P_TAG;
 
@@ -54,7 +57,6 @@ extern struct {
     char *f55C;
 } D_800AC650;
 extern short D_800AD520;
-extern int D_800F4BF0;
 extern int D_800F2FD8;
 extern struct DB *D_800ACC14;
 extern short D_800F3914;
@@ -69,7 +71,6 @@ extern void func_800172DC();
 extern int D_800AC6B0;
 extern Elem28 (*D_800ACBA4)[16];
 extern short D_800F4D44;
-extern int func_80096434();
 extern M2C_UNK D_800AC6D8;
 extern void func_800207D4();
 extern void func_8004FED4();
@@ -79,7 +80,6 @@ extern void func_80052B8C();
 extern void func_80059E40();
 extern int func_80096464();
 extern int D_800AC6EC;
-extern int D_800ACBF8;
 extern signed char D_800AD4D8[];
 extern signed char D_800AD528[];
 extern unsigned short D_800F3A40;
@@ -88,7 +88,6 @@ extern int D_8010718C;
 void func_80044EC4(void);
 void func_800451E4(int *a);
 int func_800452CC(Arg0Struct *a0, int a1, int a2);
-void func_80045830(void);
 int func_80045868(char *arg0);
 
 void func_80044EC4(void) {

@@ -1,5 +1,7 @@
 #include "types.h"
 #include "game/sound/sndvol2.h"
+#include "rr/channels.h"
+#include "rr/channel_pitch.h"
 
 typedef struct {
     char pad[0x22];
@@ -46,10 +48,8 @@ extern struct {
     s16 mono32;
 } D_800AD528;
 
-extern int func_80085AEC();
 extern int func_800857A4();
 extern int func_8004FE7C();
-extern int func_80084E74();
 
 void func_80050EC4(void) {
     int i;

@@ -2,17 +2,13 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/library.h"
 #include "psyq/libsnd/ssatr2.h"
+#include "rr/channel_stream.h"
 
 #define P ((RrLibStateB0 *)(offset + (unsigned long)*q))
 
-extern RrLibStateB0 *D_8010F068[];
-extern void func_80089E1C(s32);
 extern u32 D_8010F060;
 extern short D_8010F8EA;
 
-void func_8007F794(s32 raw_bank);
-void func_8007F910(s32 bank);
-void func_8007F934(s32 bank);
 
 void func_8007F794(s32 raw_bank) {
     /* The bank selects one of the 32 entries in D_8010F068. */

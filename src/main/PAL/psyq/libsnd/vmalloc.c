@@ -2,9 +2,6 @@
 #include "rr/channel_voice_choice.h"
 #include "rr/spu_voice_cache.h"
 
-s32 func_80086BE4(void);
-void func_80086E74(void);
-
 s32 func_80086BE4(void) {
     register u32 chosen;
     /* ASM_BARRIER: retain the captured selection accumulator in its original temporary. */

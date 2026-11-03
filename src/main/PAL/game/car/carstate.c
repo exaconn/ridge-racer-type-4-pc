@@ -3,6 +3,7 @@
 #include "game/sound/sndvab.h"
 #include "game/system/pad.h"
 #include "game/car/carstate.h"
+#include "rr/menu_overlay_runtime.h"
 
 #define B(o) (*(unsigned char *)(p + (o)))
 #define S(o) (*(short *)(p + (o)))
@@ -10,7 +11,6 @@
 #define I(o) (*(int *)(p + (o)))
 
 extern int func_80025F84();
-extern int func_80090424();
 extern int D_800AD504;
 
 void func_8002C328(char *p);

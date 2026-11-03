@@ -5,10 +5,10 @@
 #include "psyq/libapi/pad2.h"
 #include "psyq/libapi/pad1.h"
 #include "psyq/libapi/pad2.h"
+#include "rr/interrupts.h"
+#include "rr/spu_tick_control.h"
 
 extern s32 D_800ABC50;
-extern int func_80096F04();
-extern int func_80096F14();
 extern int func_80096F84();
 extern int func_800976F4();
 extern int func_8009774C();
@@ -18,12 +18,9 @@ extern int func_800976D4();
 extern int func_80097724();
 extern int func_800976E4();
 extern int func_80097738();
-extern int func_80096F04();
-extern int func_80096F14();
 extern int func_80097704();
 extern int func_80097714();
 extern int D_801143F4;
-extern int func_80097680();
 extern int D_801143EC[];
 
 void func_800973C4(s32 value);

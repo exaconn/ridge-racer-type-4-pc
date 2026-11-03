@@ -1,5 +1,5 @@
 #include "game/math/shuffle.h"
-extern int D_800ABEAC;
+#include "rr/frame_loop.h"
 extern struct { int p; int a[8]; } D_8010E240;
 extern int D_8010E264;
 extern int func_80096464();

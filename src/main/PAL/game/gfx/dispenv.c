@@ -1,5 +1,6 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "rr/overlay662_distance.h"
 
 struct S {
     char p0[0x1C];
@@ -9,7 +10,6 @@ struct S {
 };
 
 extern int func_80043AB0();
-extern int func_80090758();
 extern struct S D_800AC650;
 /* same symbol under a 2nd C name: cse cannot reuse the earlier address, so the else arm re-materialises lui/addiu like the original */
 extern struct S D_800AC650b __asm__("D_800AC650");

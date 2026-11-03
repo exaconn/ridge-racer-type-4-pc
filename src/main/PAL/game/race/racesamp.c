@@ -8,6 +8,7 @@
 #include "game/ui/uipart1.h"
 #include "game/car/carparam.h"
 #include "game/car/carsetup.h"
+#include "rr/audio_loop.h"
 
 typedef struct { char x[0x320]; } S;
 
@@ -143,7 +144,6 @@ extern int func_80026A74();
 extern int func_8006E368();
 extern int func_80026F5C();
 extern int func_80027C54();
-extern short D_800F4D44;
 extern short D_800AD522;
 extern struct {
     char pad[0x53C];

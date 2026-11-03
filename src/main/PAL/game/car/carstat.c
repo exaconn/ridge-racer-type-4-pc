@@ -2,9 +2,11 @@
 #include "m2c_macros.h"
 #include "psyq/libpad/padctl.h"
 #include "game/car/carstat.h"
+#include "rr/bios_devices.h"
+#include "rr/channel_init.h"
+#include "rr/runtime_settings.h"
+#include "rr/race_setup.h"
 
-extern int func_80096434();
-extern int func_80099CD4();
 extern int D_800F3A38[];
 extern char D_8010C170[];
 extern char D_8010C1A0[];
@@ -13,10 +15,8 @@ extern unsigned short D_800A006C[][8];
 extern unsigned short D_800A00EC[][8];
 extern unsigned short D_800F2F78[][3][8];
 extern unsigned short D_800F4BF8[][2][8];
-extern M2C_UNK D_800AD528;
 
 void func_8004A5C0(int a, int b, int c, int d);
-void func_8004A678(void);
 
 void func_8004A55C(void) {
     func_80096434(D_800F3A38, 0xB8);

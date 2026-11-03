@@ -5,6 +5,8 @@
 #include "game/ui/barsel1.h"
 #include "game/gfx/fontdraw.h"
 #include "game/menu/mntrow.h"
+#include "rr/frame_environment.h"
+#include "rr/menu_background.h"
 
 #define ROW(i) ((RrRow60 *)((s32)D_800FFC14 + (i) * 0x3C))
 
@@ -53,7 +55,6 @@ extern struct O *D_800ACC14;
 extern RrRow60 *D_800FFC14;
 extern unsigned short D_8009FDA0[];
 extern E_1 *D_800F4D8C;
-extern int func_8001ECE8();
 extern s32 D_800AC5DC;
 extern s16 D_800F3A26;
 extern s16 D_800F4C6A;
@@ -71,7 +72,6 @@ extern short D_800F3826;
 extern U *D_800F3AFC;
 extern char D_800F4D98;
 extern T *D_800FF68C;
-extern int func_8002A344();
 extern int func_8003EC88();
 extern int D_8009FDA4;
 extern int D_800F3A60;

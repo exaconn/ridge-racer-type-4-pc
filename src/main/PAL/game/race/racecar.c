@@ -1,6 +1,7 @@
 #include "game/car/carmove1.h"
 #include "game/car/carparam.h"
 #include "game/car/carsetup.h"
+#include "rr/overlay662_distance.h"
 extern int func_80024A88();
 extern int func_80025FBC();
 extern int func_8002648C();
@@ -11,7 +12,6 @@ extern int func_8002C638();
 extern int func_8006E368();
 extern int func_80090424();
 extern int func_800904F4();
-extern int func_80090758();
 extern int D_8010718C;
 extern struct w3g2o { int pad0[4]; int f10, f14, f18, f1C; char pad1[0x10]; int f30; int pad34; int f38; char pad2[0x18]; int f54; } D_800ABEF8;
 typedef struct { int a, b, c, d; } w3g2V;

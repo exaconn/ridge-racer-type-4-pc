@@ -11,27 +11,25 @@
 #include "game/ui/uiwin.h"
 #include "game/menu/mnrows.h"
 #include "game/ui/uidraw.h"
+#include "rr/audio_cd_controller.h"
+#include "rr/ui.h"
+#include "rr/menu_text_rows.h"
+#include "rr/frame_environment.h"
 
 extern s32 D_800ABEB0;
-extern int func_8001E84C();
 extern int D_800102F0;
 extern char D_8001075C[];
 extern int D_800ACC18;
-extern int D_800F4BEC;
-extern int D_800F4D30;
 extern int D_800F4D70[];
-extern int func_8001ECE8();
 extern int func_80036068();
 extern int func_8002A604();
 extern int D_800AC5DC;
 extern int D_800F4D40;
 extern short D_800F3826;
 
-void func_80039F98(void);
 void func_8003A198(void);
 void func_8003A1B4();
 void func_8003A2D4();
-void func_8003A544(void);
 
 void func_80039F98(void) {
  register u8 *first_page=(u8 *)0x800B0000U;

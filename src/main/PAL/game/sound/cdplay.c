@@ -1,13 +1,13 @@
 /* CC1_FLAGS: -fno-schedule-insns */
 #include "types.h"
+#include "rr/frame_loop.h"
+#include "rr/bios_devices.h"
 
 #define W(p,o) (*(int*)((char*)(p)+(o)))
 
-extern int D_800ABEAC;
 extern int D_800A099C[][3];
 extern int D_800A0904[];
 extern int func_80052B48();
-extern int func_80096434();
 extern int func_80096474();
 extern int func_80052ADC();
 extern struct { char pad[0x2664]; s32 a; char p0[4]; s32 b, c, d, e; char p1[8]; s32 g; char p3[0x14]; s32 h; char p2[0x26CE - 0x26A0]; u16 i; } D_800F4DB8;

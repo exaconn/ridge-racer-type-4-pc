@@ -2,6 +2,8 @@
 #include "m2c_macros.h"
 #include "game/gfx/model.h"
 #include "game/gfx/poly1.h"
+#include "rr/menu_overlay_runtime.h"
+#include "rr/overlay668_camera.h"
 
 typedef struct { int a, b, c, d, e, f, g, h; } w3g6_32;
 
@@ -16,7 +18,6 @@ extern int D_800ABE98;
 extern w3g6_32 D_800AD570;
 extern short D_800AD5BC[];
 extern w3g6_U D_800F38F8[];
-extern short D_800F3914;
 extern int D_800F4D48;
 extern int D_800F4D68;
 extern int D_800F4D84;
@@ -31,7 +32,6 @@ extern unsigned int D_8010E290[];
 extern unsigned int *D_8010E690;
 
 void func_8006E63C(void);
-void func_8006E794(void);
 void func_8006E834(void);
 void func_8006E8F8();
 void func_8006E9CC(void);

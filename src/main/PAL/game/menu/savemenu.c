@@ -4,6 +4,7 @@
 #include "game/data/savebld.h"
 #include "game/system/modeinit.h"
 #include "game/menu/savemenu.h"
+#include "rr/bios_devices.h"
 typedef struct {
     char b[0x4000];
 } Struct4000;
@@ -12,7 +13,6 @@ typedef struct {
     char b[0x2C];
 } Struct2C;
 
-extern int func_80096434();
 
 extern Struct4000 *D_800102F0;
 extern char D_800A40A8[][0x40];

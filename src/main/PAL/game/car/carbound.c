@@ -5,6 +5,10 @@
 #include "game/gfx/gtepoly1.h"
 #include "game/race/raceinit.h"
 #include "game/car/carbound.h"
+#include "rr/audio_loop.h"
+#include "rr/race_setup.h"
+#include "rr/bios_devices.h"
+#include "rr/matrix_workspace.h"
 
 #define I(o) (*(int *)(a0 + (o)))
 #define U(o) (*(unsigned short *)(a0 + (o)))
@@ -22,19 +26,15 @@ struct V { int a, b, c, d; };
 typedef struct { int a, b, c, d; } V4;
 
 extern T *D_800FFC20[];
-extern short D_800F4D44;
 extern short D_800AC59C;
-extern short D_80107178;
 extern short D_800AD508;
 extern int func_8002D1B4();
 extern int func_8002D784();
 extern RrVehicleBounds08 *D_800F3A08[];
-extern int func_80096434();
 extern int func_8006E09C();
 extern int func_8006E108();
 extern int func_8006E030();
 extern int func_80090CA4();
-extern int func_80090DB4();
 extern int func_80090EC4();
 extern unsigned char D_800F4D98[];
 extern int func_80037618();

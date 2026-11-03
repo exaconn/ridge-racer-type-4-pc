@@ -4,9 +4,6 @@
 
 typedef struct { unsigned char b0; char p0[3]; unsigned short h4; char p1[4]; unsigned short hA; } S;
 
-int func_8009BD44();
-s32 func_8009BE18(s32 value);
-
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABDD0 ((S *)D_800ABDD0)
 #define D_800ABDD4 ((int *)D_800ABDD4)

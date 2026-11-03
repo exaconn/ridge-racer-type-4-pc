@@ -14,6 +14,9 @@
 #include "game/gfx/skyrot1.h"
 #include "game/data/cdfile1.h"
 #include "game/data/cdfile2.h"
+#include "rr/sprite_preset.h"
+#include "rr/menu_background.h"
+#include "rr/memory.h"
 
 #define G D_8010BF78
 #define H D_800F3AFC
@@ -98,9 +101,7 @@ struct P { union H h; int w[4]; };
 
 struct OT { int x; union H h; };
 
-extern int func_8001BAF8();
 extern int func_800207D4();
-extern int func_8002A344();
 extern int func_8002A604();
 extern int func_80032A14();
 extern int func_8003A198();
@@ -117,7 +118,6 @@ extern int func_80052B8C();
 extern int func_8006EF8C();
 extern int func_80070108();
 extern int func_800912B4();
-extern int func_80096454();
 extern struct GS *D_8010BF78;
 extern struct HS *D_800F3AFC;
 extern struct KS *D_800AC590;

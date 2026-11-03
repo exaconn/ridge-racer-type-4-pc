@@ -31,7 +31,6 @@ extern int func_8009A814();
 extern Q *D_800ABCC8;
 extern H *D_800ABCCC;
 
-void func_80098488(RrChannelRecordF0 *channel);
 int func_80098578(S *a0, int a1);
 
 void func_80098488(RrChannelRecordF0 *channel) {

@@ -4,6 +4,12 @@
 #include "game/system/pad.h"
 #include "game/ui/hudmap.h"
 #include "game/race/racegrid.h"
+#include "rr/menu_selection.h"
+#include "rr/matrix_workspace.h"
+#include "rr/audio_loop.h"
+#include "rr/driver_control.h"
+#include "rr/bios_events.h"
+#include "rr/serial_handles.h"
 
 typedef struct { int a, b, c, d; } w3g2V;
 
@@ -45,7 +51,6 @@ extern struct
   int v;
   char pad2[0x320 - 0x17C];
 } D_800ABEF8[];
-extern int D_800AC5D4;
 extern struct 
 {
   short a;
@@ -57,7 +62,6 @@ extern int func_8006E030();
 extern int func_8006E09C();
 extern int func_8006E108();
 extern int func_80090CA4();
-extern int func_80090DB4();
 extern int func_80090EC4();
 extern int D_8010718C;
 extern s32 func_8001FC28();
@@ -70,7 +74,6 @@ extern u8 D_8009F6D8[];
 extern u8 D_8009F6DA;
 extern u8 D_8009F6DB;
 extern s32 D_800ACC14;
-extern s16 D_800F4D44;
 extern s32 D_800FF6B0;
 extern int func_8004F2D8();
 extern int D_800ABEC0;
@@ -92,12 +95,9 @@ extern short D_800F4D8A;
 extern int func_8001FEC0();
 extern int func_8002071C();
 extern unsigned char D_8009F71C[][4];
-extern int func_8009AEAC();
-extern int func_80096F24();
 extern int D_800105C8[];
 extern int D_800F2AAC;
 extern int D_800F2AA8;
-extern int func_80096F64();
 extern s16 D_800FF688;
 extern int D_8009F728;
 extern signed char D_800ABEBC[];

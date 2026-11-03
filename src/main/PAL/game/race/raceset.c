@@ -2,6 +2,9 @@
 #include "rr/menu_choice.h"
 #include "game/ui/uipart1.h"
 #include "game/race/raceset.h"
+#include "rr/overlay661_init.h"
+#include "rr/audio_loop.h"
+#include "rr/menu_transition.h"
 
 typedef struct { int key; short idx; } W10_Q;
 
@@ -10,7 +13,6 @@ typedef struct { char p[0x184]; int a; int b; char q[0x62]; short n; } W10_O;
 void func_800295B8(s32);
 void *func_8004F2D8(s32, s32);
 void func_8004FC18(s16, s16);
-s32 func_80096464(void);
 extern u8 D_8009F910[];
 extern s32 D_800AC5B0[];
 extern s16 D_800AC5D0;
@@ -26,7 +28,6 @@ extern s32 D_800F4C64;
 extern s32 D_800F4C74;
 extern s32 D_800F4C80[];
 extern s32 D_800F4CE8[2][8];
-extern s16 D_800F4D44;
 extern s32 D_800FF6B0;
 extern s32 D_8010C0F8[3];
 extern s32 D_8010C120[3];
@@ -38,7 +39,6 @@ extern W10_Q *D_800F2DE8[];
 extern W10_O *D_800FFC20[];
 extern void func_8003CAF4();
 extern unsigned short D_8009F914[];
-extern unsigned short D_800AD50A;
 
 void func_8003C254(RrRaceVehicle *arg0);
 void func_8003C96C(void);

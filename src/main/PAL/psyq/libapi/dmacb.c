@@ -1,10 +1,10 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "rr/spu_tick.h"
 
 extern s32 D_800A63D0;
 
 s32 func_8008BDE4(s32 value);
-s32 func_8008BDF8(void);
 
 s32 func_8008BDE4(s32 value) {
     s32 previous = D_800A63D0;

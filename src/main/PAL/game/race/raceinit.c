@@ -3,13 +3,13 @@
 #include "game/car/carlane.h"
 #include "game/race/racesamp.h"
 #include "game/race/raceinit.h"
+#include "rr/bios_devices.h"
+#include "rr/overlay667_course_initializer.h"
 typedef struct { char pad[0x320]; } E;
 extern int func_800293D0();
-extern int func_80096434();
 extern E D_800ABEF8[];
 extern short D_800AC3FC;
 extern short D_800AC59C;
-extern signed char D_800ABEBC[];
 extern int D_800FFC20[];
 extern int D_800F2EB8;
 extern short D_80107178;

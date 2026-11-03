@@ -2,8 +2,8 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "rr/spu_tick_control.h"
+#include "rr/timing.h"
 
-extern s32 D_800A6390;
 extern s32 *D_800A6394;
 
 int *func_8008BA24(void);

@@ -10,6 +10,8 @@
 #include "game/menu/menumode.h"
 #include "game/menu/menutra21.h"
 #include "game/menu/menutra22.h"
+#include "rr/course_choices.h"
+#include "rr/menu_selection.h"
 
 struct E { char pad[4]; unsigned char a; char b; unsigned char c; signed char d; };
 
@@ -52,7 +54,6 @@ extern short D_8010948E;
 extern int func_8002B330();
 extern int func_8004F24C();
 extern int func_80053AF4();
-extern int func_8003A198();
 extern int func_800207D4();
 extern int func_8003B934();
 extern int func_8002A604();
@@ -72,7 +73,6 @@ extern short D_800FF688;
 extern unsigned short D_800F3A1E;
 extern unsigned short D_800F4D44;
 extern int D_800ACC14;
-extern int D_800AC5D4;
 extern int D_800F4CA8;
 extern short D_800F4D3C;
 extern int D_801272F0[];

@@ -2,8 +2,7 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "psyq/libsnd/vmmain.h"
-
-extern int func_80088340();
+#include "rr/channels.h"
 
 void func_800884A8();
 int func_80088594(int a0, int a1, unsigned short a2);

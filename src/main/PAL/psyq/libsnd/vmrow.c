@@ -8,9 +8,6 @@ extern u16 D_8010F8F8;
 extern u16 D_8010F8FA;
 extern u8 D_8010F90C[];
 
-void func_80088D64(u8 index);
-void func_80088DA4(s32 unused_mode);
-
 void func_80088D64(u8 index) {
     s32 offset = index * 54;
     /* ASM_BARRIER: retain the original assembler temporary for the final field store. */

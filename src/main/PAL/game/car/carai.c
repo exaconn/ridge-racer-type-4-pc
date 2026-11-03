@@ -4,6 +4,8 @@
 #include "game/race/racedist.h"
 #include "game/car/carai.h"
 #include "game/course/trkproj.h"
+#include "rr/track_lateral.h"
+#include "rr/vehicle_drive.h"
 
 typedef struct { char p0[0x54]; unsigned short s54, s56; char p1[4]; short s5C; unsigned short s5E; short s60; } W;
 typedef struct { char p0[0x1E4]; short s1E4; } V;
@@ -13,8 +15,6 @@ extern int D_800F4DEC;
 extern int D_800FF6B0;
 extern struct { char pad[0x34]; int s34; } D_800F4DB8;
 
-extern int func_80047A50();
-extern int func_800486C4();
 extern int func_80048DB0();
 extern int func_80048A6C();
 extern int func_80096464();

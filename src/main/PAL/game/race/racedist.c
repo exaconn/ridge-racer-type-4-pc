@@ -29,7 +29,6 @@ extern RrRaceStandingsTable *D_800AC738;
 extern s32 D_800AC664;
 extern s16 D_800AC59C;
 
-void func_8004A080(RrRaceVehicle *input);
 
 void func_80049C68(void) {
     int i, j;

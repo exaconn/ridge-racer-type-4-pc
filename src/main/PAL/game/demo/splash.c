@@ -1,10 +1,10 @@
 #include "game/demo/splash.h"
+#include "rr/driver_control.h"
 extern int D_800ACC14;
 extern int D_8010E7A0;
 extern int D_8010E7A4;
 extern int func_8001FDD4();
 extern int func_80020074();
-extern int func_80092CB8();
 
 int func_80071570(int a0) {
     int s5, cur;

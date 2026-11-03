@@ -1,8 +1,8 @@
 #include "psyq/libgpu/gpuenv.h"
+#include "rr/overlay662_palette_refresh.h"
 struct R { short x, y, w, h; };
 
 extern int func_80092D50();
-extern int func_80092FFC();
 
 int func_8001E84C(void);
 void func_8001E854(int a0, int a1, int a2);

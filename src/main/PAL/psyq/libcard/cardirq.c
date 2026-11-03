@@ -2,6 +2,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/interrupts.h"
 #include "psyq/libcard/cardirq.h"
+#include "rr/commands.h"
 
 extern char *D_800ABDA8;
 extern int func_80096F04();
@@ -16,12 +17,8 @@ extern int func_80096F14();
 extern int D_800ABDB0;
 extern int D_800ABDE8;
 extern int D_800ABDE4;
-extern char D_800ABDC0[];
 extern int func_80097704();
-extern int func_8009BC3C();
 
-s32 func_8009BAD8(void);
-s32 func_8009BB18(void);
 int func_8009BB58();
 
 /* legacy typing of shared globals in this part of the unit */

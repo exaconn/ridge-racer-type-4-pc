@@ -8,9 +8,9 @@
 #include "psyq/libsnd/sspause.h"
 #include "psyq/libsnd/sspause2.h"
 #include "psyq/libspu/smalloc2.h"
+#include "rr/bios_devices.h"
 
 extern int func_80053A9C();
-extern int func_80096434();
 extern struct { s32 a, b, c; } D_800A0CD8[];
 extern struct {
     char pad[0x24]; s16 h[1];

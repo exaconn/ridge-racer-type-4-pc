@@ -9,6 +9,8 @@
 #include "psyq/libgpu/addprim.h"
 #include "psyq/libgpu/gpubase2.h"
 #include "psyq/libgpu/gpuenv.h"
+#include "rr/spu_tick.h"
+#include "rr/driver_control.h"
 
 typedef struct { short a,b,c,d,e,f,g,h; char i,j,k,l; } W3L2_A;
 
@@ -18,7 +20,6 @@ typedef struct { int a, b, c; } B;
 
 typedef struct { char pad[0x1C]; unsigned w; } W3L2_P;
 
-extern int func_8008BDF8();
 extern unsigned char D_800ABAC1[];
 extern int D_80011E50[];
 extern char D_80011E64[];
@@ -45,12 +46,10 @@ int func_8009281C(int a, int b, int c);
 int func_80092880(int a, int b, int c);
 char *func_800928E4(char *p, int a, int b, int c, int d);
 W3L2_A *func_80092998(W3L2_A *p, int a, int b, int c, int d);
-s32 func_800929D4(s32 mode);
 s32 func_80092B48(s32 enabled);
 int func_80092BA4();
 u8 func_80092C48(void);
 int func_80092C58();
-void func_80092CB8();
 void func_80092D50(s32 arg0);
 void func_80092DB8(const char *name,RrGpuRectangle *rectangle);
 void func_80092ED4(int a, int b, int c, int d);

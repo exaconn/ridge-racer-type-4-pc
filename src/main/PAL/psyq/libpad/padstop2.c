@@ -1,8 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channels.h"
-
-void func_8009A334(void);
-s32 func_8009A368(void *a0);
+#include "rr/channel_init.h"
 
 void func_8009A334(void) {
     /* ASM_BARRIER: reuse v0 for each callback address in source order. */

@@ -9,11 +9,6 @@ extern s32 D_800ACB90;
 void func_8004D354(RrCurve24 *curve, s32 displacement, s32 duration, s32 initialRate);
 s32 func_8004D420(const RrCurve24 *curve, s32 time, s32 *output);
 int func_8004D4BC(int a);
-void func_8004D4DC(RrLookupTables32 *tables);
-void func_8004D58C(RrTrackLaneOffset8 *offsets);
-void func_8004D598(s32 *startNode);
-void func_8004D5A4(u8 *workspace);
-void func_8004D5CC(RrTrackResourceFile *file);
 
 /* Build a two-phase rate curve in twelve-bit fixed-point units. */
 void func_8004D354(RrCurve24 *curve, s32 displacement, s32 duration, s32 initialRate)

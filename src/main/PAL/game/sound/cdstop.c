@@ -2,6 +2,8 @@
 #include "types.h"
 #include "game/sound/cdclose.h"
 #include "game/sound/cdstop.h"
+#include "rr/cd.h"
+#include "rr/bios_devices.h"
 
 extern struct {
     char pad0[0x2670];
@@ -16,9 +18,6 @@ extern struct {
     char blk[0x1C];
 } D_800F4DB8;
 extern int func_80052B48();
-extern int func_8008C0D8();
-extern int func_8008C140();
-extern int func_80096434();
 
 void func_80053384();
 

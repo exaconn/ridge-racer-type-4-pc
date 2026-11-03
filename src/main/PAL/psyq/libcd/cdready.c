@@ -2,12 +2,11 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/library.h"
 #include "psyq/libcd/bios_1.h"
+#include "rr/cd_init.h"
 
 extern s32 func_8001E84C(const char *, ...);
-extern int func_8008D86C();
 int func_80096E64(int, int);
 
-s32 func_8008BE44(void);
 int func_8008BED4();
 void func_8008BF10(s32 selector, u8 *data);
 void func_8008BF38(s32 selector, u8 *data);

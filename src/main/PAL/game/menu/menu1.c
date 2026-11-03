@@ -3,13 +3,16 @@
 #include "game/menu/menu8.h"
 #include "game/menu/menutran.h"
 #include "game/menu/mnsel.h"
+#include "rr/driver_control.h"
+#include "rr/frame_environment.h"
+#include "rr/menu_background.h"
+#include "rr/selection.h"
+#include "rr/bios_devices.h"
 
 typedef struct { char p[0x17]; signed char b; char q[0x2C - 0x18]; } T;
 
 typedef struct { char p0[0xC]; unsigned char a; char p1[7]; unsigned char b; char p2[0xF]; } E;
 
-extern int func_80092CB8();
-extern int func_8001ECE8();
 extern int func_8002A604();
 extern void func_8003E928(int,int,int,int,int,int,int,int,int,int,...);
 extern int func_8002AF8C();
@@ -23,7 +26,6 @@ extern T D_800F2E30[];
 extern short D_800F3A26;
 extern short D_800F4C6A;
 extern short D_800F4D8A;
-extern int func_8002A344();
 extern int func_8003EC88();
 extern E *D_800F4D80;
 extern short D_800FFC18;
@@ -33,11 +35,9 @@ extern int func_8002B330();
 extern int func_8004F24C();
 extern int func_800207D4();
 extern int func_8001FDD4();
-extern int func_80031E3C();
 extern int func_8003A198();
 extern int func_8003A1B4();
 extern int func_80041A54();
-extern int func_80096434();
 extern int D_800ACC18;
 extern short D_800AD4F2;
 extern int *D_800F3A28;

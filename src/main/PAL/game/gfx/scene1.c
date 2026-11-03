@@ -5,6 +5,8 @@
 #include "psyq/libgte/gtemat7.h"
 #include "game/menu/menutran.h"
 #include "game/gfx/scene1.h"
+#include "rr/hud_number.h"
+#include "rr/bios_devices.h"
 
 #define addPrim(ot, p) \
     ((DrTPage *)(p))->addr = (ot)->addr; \
@@ -62,10 +64,8 @@ extern s32 D_800AC724;
 extern Db *D_800ACC14;
 extern Rect D_800A0D04[];
 extern Rect D_800A0D24[][4];
-extern int D_800F4BF0;
 extern u16 D_800F3A40;
 extern int func_80014A8C();
-extern int func_80096434();
 extern short D_800A0D7C;
 extern int D_800A0FB0[];
 extern unsigned short D_800AC006;

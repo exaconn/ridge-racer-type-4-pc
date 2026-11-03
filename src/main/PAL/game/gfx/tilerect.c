@@ -10,6 +10,10 @@
 #include "game/data/cdfile1.h"
 #include "game/data/cdfile2.h"
 #include "psyq/libgpu/gpuenv.h"
+#include "rr/menu_background.h"
+#include "rr/sprite_preset.h"
+#include "rr/memory.h"
+#include "rr/controller_hud.h"
 
 #define GS ((SPD *)0x1F800000)
 #define W(o) (*(int *)(GS->cur + (o)))
@@ -129,7 +133,6 @@ typedef struct {
 } S_8001AC24;
 
 extern struct B8 D_80010104;
-extern int func_8002A344();
 extern int func_8002AF8C();
 extern int func_8003A1B4();
 extern short D_800AC5D0;
@@ -147,15 +150,12 @@ extern int D_800F3A60;
 extern S_8010BF70 *D_8010BF70;
 extern int func_80013890();
 extern int func_80019C90();
-extern int func_8001BAF8();
 extern int func_8003A198();
 extern int func_80043608();
 extern int func_800436E8();
 extern int func_8006E1AC();
 extern int func_80091844();
-extern int func_80096454();
 extern int D_8009E26C[];
-extern int D_800ABEB0;
 extern int D_8009E36C[];
 
 void func_80019D5C(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head);

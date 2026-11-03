@@ -18,7 +18,6 @@ typedef struct
 
 void func_8003D228();
 RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 style);
-void func_8003D474(s32 index);
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3AFC ((E *)D_800F3AFC)

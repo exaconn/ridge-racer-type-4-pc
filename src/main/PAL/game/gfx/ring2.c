@@ -1,9 +1,9 @@
 #include "game/gfx/meshquad.h"
 #include "game/gfx/ring2.h"
+#include "rr/ring_renderer.h"
 extern int func_8005599C();
 extern int func_80090F74();
 extern int func_8006EE3C();
-extern int func_8005E900();
 struct Q { char pad[0x20]; char q20[0x544]; int h564; };
 extern struct { char pad[0x3D8]; struct Q *q; char pad2[0x188]; int i564; } D_800AC650;
 struct A { int x, y, z, pad; short rx, ry, rz; };

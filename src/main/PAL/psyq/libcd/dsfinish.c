@@ -1,14 +1,12 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
 #include "psyq/libcd/dsfinish.h"
+#include "rr/cd.h"
+#include "rr/cd_read_request.h"
+#include "rr/library.h"
+#include "rr/overlay668_stream.h"
 
 extern int D_800A67CC[];
-extern int D_800A67D4[];
-extern int func_8008B154();
-extern int func_8008EB6C();
-extern int func_8008C0F8();
-extern s32 D_800A63F0;
-extern s32 D_800A63F4;
 
 s32 func_8008F194(s32 value);
 s32 func_8008F1A8(s32 value);

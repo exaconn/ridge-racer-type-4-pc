@@ -4,6 +4,7 @@
 #include "m2c_macros.h"
 #include "rr/gpu.h"
 #include "game/course/trktext.h"
+#include "rr/bios_devices.h"
 
 typedef struct { char p0; unsigned char f1; char p2[6]; unsigned short f8; char pa[0x52]; } T;
 
@@ -13,7 +14,6 @@ extern T D_800F3A38[];
 extern U D_800F2F78[];
 extern s32 func_800924D4(s32 z, s32 x);
 extern unsigned char D_800A017C[];
-extern int func_80096434();
 
 s32 func_8004C454(s32 node, s32 lane);
 void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank);

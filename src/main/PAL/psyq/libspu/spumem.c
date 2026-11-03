@@ -4,7 +4,6 @@
 
 extern int func_8008AAE4();
 
-void func_8008A774(void);
 short func_8008AA74(int a0, short a1, int a2);
 short func_8008AAA8(int a0, short a1, int a2);
 int func_8008AADC(a0, a1);

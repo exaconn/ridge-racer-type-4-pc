@@ -1,8 +1,6 @@
 #include "rr/race.h"
 #include "rr/track_lateral.h"
-
-s32 func_80047CE0(RrRaceVehicle *input);
-int func_80047DF8();
+#include "rr/vehicle_drive.h"
 
 s32 func_80047CE0(RrRaceVehicle *input) {
     register RrRaceVehicle *vehicle=input;

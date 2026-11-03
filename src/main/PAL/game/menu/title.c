@@ -11,16 +11,17 @@
 #include "game/menu/title.h"
 #include "game/ui/hudmap2.h"
 #include "game/course/trktext.h"
+#include "rr/frame_environment.h"
+#include "rr/color_conversion.h"
+#include "rr/driver_control.h"
 
 extern int func_80014A8C();
 extern int func_800172DC();
-extern int func_8001ECE8();
 extern int func_800207D4();
 extern int func_8002D784();
 extern int func_8002E0D8();
 extern int func_80036FD4();
 extern int func_80037D88();
-extern int func_8004C138();
 extern int func_8004C5A4();
 extern int func_8004FC18();
 extern int func_800528A8();
@@ -34,7 +35,6 @@ extern int func_8006ECE8();
 extern int func_8006EF8C();
 extern int func_800735D8();
 extern int func_800747EC();
-extern int func_80092CB8();
 extern char D_800112CC[];
 extern char D_800112D4[];
 extern char D_800A1A6C[];

@@ -6,6 +6,9 @@
 #include "game/sound/sndown.h"
 #include "game/system/pad.h"
 #include "game/car/carphys2.h"
+#include "rr/steering.h"
+#include "rr/audio_loop.h"
+#include "rr/overlay661_init.h"
 
 struct A
 {
@@ -123,12 +126,9 @@ extern s32 func_8006E368();
 extern s32 func_80090424();
 extern s32 func_800904F4();
 extern s32 D_800ABECC;
-extern int func_80025F84();
 extern char D_800ABEF8[];
 extern E *D_800F3A08[];
-extern short D_800F4D44;
 extern int D_800F2DE4;
-extern int func_80096464();
 
 void func_80024A88(void *arg0);
 int func_80024BCC(struct A *a);

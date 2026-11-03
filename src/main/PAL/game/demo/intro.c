@@ -8,6 +8,9 @@
 #include "game/gfx/fadeset.h"
 #include "game/gfx/fadespr.h"
 #include "game/sound/sndvab.h"
+#include "rr/driver_control.h"
+#include "rr/bios_devices.h"
+#include "rr/course_choices.h"
 
 struct Entry {
     int frame;
@@ -64,11 +67,8 @@ extern void func_8005C37C(int, int, int, int);
 extern int func_80090424(int);
 extern int func_8001FDD4(char *, int, int, int, int, int, int, int, int);
 extern int func_8004E008();
-extern int func_80092CB8();
-extern int func_80096434();
 extern s32 D_800102F0;
 extern M2C_UNK D_800ACA94;
-extern s32 D_800ACC18;
 extern s16 D_800F3A26;
 extern s16 D_800F4C6A;
 extern s16 D_800F4D8A;

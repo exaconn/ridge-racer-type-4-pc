@@ -10,13 +10,13 @@
 #include "game/system/modepad.h"
 #include "game/menu/menusave.h"
 #include "game/system/modeinit.h"
+#include "rr/audio_cd_controller.h"
+#include "rr/driver_control.h"
+#include "rr/frame_environment.h"
 
 typedef struct { char p0[2]; short s2; char p4[4]; short s8; short sA; char pC[4]; short s10; } W7C0_F;
 
-extern int func_8001E84C();
 extern int func_80053CB0();
-extern int func_80092CB8();
-extern int func_8009AEAC();
 extern int D_800102F0;
 extern char D_800104A4[];
 extern short D_800AC5D0;
@@ -39,7 +39,6 @@ extern short D_800F4D8A;
 extern char D_800F4D98[];
 extern short D_800FF688;
 extern int D_8010BFB8;
-extern int func_8001ECE8();
 extern int func_8003D228();
 extern char D_800104B0[];
 extern int D_800ABEB0;

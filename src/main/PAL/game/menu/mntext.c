@@ -3,6 +3,7 @@
 #include "rr/menu_state_types.h"
 #include "rr/time_record_types.h"
 #include "rr/string_tail_copy.h"
+#include "rr/menu_choice.h"
 
 void func_8002B814(char *output, s32 value, s32 digits);
 void func_8002B934(char *output, s32 time);
@@ -11,7 +12,6 @@ extern char D_80010E0C[];
 extern u8 *D_8009FD04[];
 extern char *D_8009FD8C[];
 extern char *D_8009FD9C;
-extern RrMenuSettings2C D_800AD4D8;
 extern s8 D_800AD4F1;
 extern s16 D_800AD522;
 extern s16 D_800F3914;

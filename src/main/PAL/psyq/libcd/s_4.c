@@ -2,11 +2,11 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "psyq/libcd/s_4.h"
+#include "rr/library.h"
 
 extern int D_801143A8[];
 extern int D_801143AC[];
 extern int D_801143B0[];
-extern int func_8008B3C4();
 
 int func_80096DA4();
 int func_80096DCC();

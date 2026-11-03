@@ -3,6 +3,8 @@
 #include "psyq/libgte/gtemath5.h"
 #include "game/race/objclr.h"
 #include "game/gfx/polytri.h"
+#include "rr/animated_glyph.h"
+#include "rr/audio_loop.h"
 typedef struct {
     int x;
 } __attribute__((packed)) U4;
@@ -91,7 +93,6 @@ typedef struct {
     int f28;
 } S_ECB4;
 
-extern void func_80095A44();
 /* size 0x2C */
 typedef struct {
     int f0;
@@ -128,7 +129,6 @@ extern int D_800AD504;
 extern short D_800AD522;
 extern int D_800F2EB8;
 extern int D_800F3A30;
-extern short D_800F4D44;
 extern S_ECB0 *D_8010ECB0;
 extern S_ECB4 *D_8010ECB4;
 

@@ -1,8 +1,8 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
+#include "rr/spu.h"
 
-extern volatile u16 *D_800A47D8;
 extern volatile u32 D_800A4870;
 extern volatile u32 D_800A48A4;
 extern volatile u16 D_8010EE28[];

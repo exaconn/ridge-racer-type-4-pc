@@ -7,12 +7,11 @@
 #include "psyq/libpad/padpatch.h"
 #include "psyq/libpad/padstat2.h"
 #include "psyq/libpad/padctl.h"
+#include "rr/channel_init.h"
 
 struct E { unsigned char n; char pad[3]; unsigned char *p; };
 
 struct S { char pad[8]; struct E *e; char pad2[0xde]; unsigned char c; };
-
-extern int D_800ABCB4;
 
 void func_80097834();
 void func_80097874();

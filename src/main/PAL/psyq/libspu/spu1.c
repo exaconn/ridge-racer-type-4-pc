@@ -7,7 +7,6 @@
 
 extern s32 func_80096E64(u32,s32);
 
-void func_8007EF04(void);
 void func_8007EFC0(int a0, int a1, int a2);
 
 void func_8007EF04(void) {

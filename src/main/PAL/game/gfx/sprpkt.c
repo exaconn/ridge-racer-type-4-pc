@@ -1,15 +1,14 @@
 #include "rr/gpu.h"
 #include "game/ui/uipart1.h"
 #include "game/race/raceset.h"
+#include "rr/sprite_emit.h"
+#include "rr/fade_sprite.h"
+#include "rr/audio_loop.h"
+#include "rr/race_setup.h"
 struct O { char pad[0x70]; u32 addr:24; u32 len:8; };
-extern RrSpritePacket *func_8001FEC0();
 extern s32 func_8004F2D8();
-extern struct O *D_800ACC14;
-extern s16 D_800F4D44;
 extern s32 D_800FF6B0;
-extern s32 D_8010C0F8[];
 extern s32 D_8010C120[];
-extern s32 D_8010C12C;
 void func_8003BFC8(a0) s32 a0;
 {
     s32 s1, s2, s3, s4, s5, t;

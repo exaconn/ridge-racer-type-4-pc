@@ -1,4 +1,7 @@
 #include "types.h"
+#include "rr/bios_devices.h"
+#include "rr/spu.h"
+#include "rr/spu_tone_snapshot.h"
 
 struct B { char b[0x5BC]; };
 
@@ -45,11 +48,8 @@ typedef struct {
 extern struct { char pad[0x614]; volatile u16 m[1][5]; char r[2]; } D_800F4DB8[];
 extern struct E D_800F4E2C[];
 extern void func_8008A674();
-extern void func_80096434();
 extern s32 func_8008AA74();
-extern s32 func_8008AEC4();
 extern void func_8008B074();
-extern void func_800850C4();
 
 void func_80050844(int a0, int a1, int a2, int a3);
 void func_80050894(struct B *a0, int a1);

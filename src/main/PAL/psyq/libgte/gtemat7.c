@@ -1,5 +1,5 @@
+#include "rr/matrix_workspace.h"
 void func_800910B4(int *a0);
-void func_800910E4(int *a0);
 void func_80091114(int *a0);
 void func_80091144(int *a0);
 void func_80091164(int *a0);

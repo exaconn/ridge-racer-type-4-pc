@@ -7,6 +7,7 @@
 #include "psyq/other/dpadd.h"
 #include "psyq/other/dpcmp.h"
 #include "psyq/other/dpmul.h"
+#include "rr/overlay662_palette_refresh.h"
 
 #define G ((Scratch *)0x1F800000)
 #define S16(p, o) (*(s16 *)((char *)(p) + (o)))
@@ -61,7 +62,6 @@ extern int D_800F2EC0;
 extern int *D_8010E698[];
 extern int D_8010E6D8[];
 extern char D_800A3C90[];
-extern void func_80092FFC();
 
 int func_8006F1EC();
 s32 func_8006F260(void *arg0);

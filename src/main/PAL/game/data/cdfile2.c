@@ -21,6 +21,8 @@
 #include "game/gfx/sky.h"
 #include "game/data/cdfile2.h"
 #include "game/data/cdfile1.h"
+#include "rr/bios_devices.h"
+#include "rr/relative_file.h"
 #define B (*(int *)&D_800ACC18)
 
 struct A { char p[0x14]; unsigned f14; char q[0x20]; unsigned f38; };
@@ -57,7 +59,6 @@ extern u8 D_80109498;
 extern RrCdFileEntry D_801094A8[];
 extern unsigned char D_8009DFD8[];
 extern unsigned char D_8009DFEC[];
-extern int func_80096434();
 extern int D_800ACC18;
 extern int *D_800F3A08[];
 extern struct E D_8010B2E0[];
@@ -66,7 +67,6 @@ extern int D_8010943C;
 extern int D_8010BF60;
 extern void func_800436E8();
 extern void func_80070108();
-extern void func_8007026C();
 extern int D_80109440;
 extern int D_80109444;
 extern int D_80109448;

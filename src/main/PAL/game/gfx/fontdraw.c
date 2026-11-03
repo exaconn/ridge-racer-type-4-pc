@@ -3,10 +3,10 @@
 #include "game/gfx/fontdraw.h"
 #include "psyq/libgpu/primattr.h"
 #include "psyq/libgpu/settrans.h"
+#include "rr/player_status.h"
 
 extern unsigned char D_8009EDF8[];
 
-void func_8001F40C();
 char *func_8001F5B4();
 void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation);
 void func_8001FA48();

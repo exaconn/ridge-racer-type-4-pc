@@ -4,6 +4,10 @@
 #include "game/gfx/poly1.h"
 #include "game/race/objclr.h"
 #include "game/race/objsim.h"
+#include "rr/overlay662_distance.h"
+#include "rr/overlay661_init.h"
+#include "rr/overlay668_camera.h"
+#include "rr/audio_loop.h"
 
 #define B4 ((S_ECB4 *)(i * 0x2C + (int)D_8010ECB4))
 #define B0 ((S_ECB0 *)(i * 0x30 + (int)D_8010ECB0))
@@ -111,15 +115,10 @@ typedef struct {
 } S_ABEA4;
 /* size 0x3C */
 extern int func_8006E368();
-extern int func_80090758();
-extern int func_80096464();
 extern int D_800A4090;
-extern S_ABEA4 *D_800ABEA4;
-extern int D_800ABECC;
 extern int D_800F2DE4;
 extern short D_800F3914;
 extern unsigned short D_800F3A38[];
-extern short D_800F4D44;
 extern int D_800FF6B0;
 extern int D_8010E7A8;
 extern int D_8010E7AC;

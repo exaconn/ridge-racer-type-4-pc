@@ -5,6 +5,8 @@
 #include "psyq/libgpu/addprim.h"
 #include "game/menu/mnrows.h"
 #include "game/ui/uitext.h"
+#include "rr/bios_devices.h"
+#include "rr/course_choices.h"
 
 typedef struct {
     s32 prim;
@@ -86,8 +88,6 @@ extern s32 D_800F3A30;
 extern UiElem24 *D_800F4D80;
 extern s32 D_80119754;
 extern s32 D_80119758;
-extern int func_80096434();
-extern int D_800F2AB0;
 extern Q D_8009F9FC[];
 extern int func_8003DCEC();
 extern int func_80020074();

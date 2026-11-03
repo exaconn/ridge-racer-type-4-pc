@@ -8,26 +8,26 @@
 #include "game/system/pad3.h"
 #include "game/ui/hudmap.h"
 #include "game/ui/uipart1.h"
+#include "rr/bios_events.h"
+#include "rr/frame_environment.h"
+#include "rr/driver_control.h"
+#include "rr/menu_background.h"
+#include "rr/audio_loop.h"
 
 typedef struct { int k; short f; } E;
 
 struct w3g2s { char pad[0x17]; signed char a; char b; signed char c; short d; };
 
-extern int func_80096F44();
 extern int func_80096F54();
 extern int D_800F2AA8;
 extern int D_800F2AAC;
-extern int func_8001ECE8();
 extern int func_8002A604();
-extern int func_80092CB8();
-extern int func_8009AEAC();
 extern int D_800AC5DC;
 extern int D_800F2DE4;
 extern short D_800F3A26;
 extern short D_800F4C6A;
 extern short D_800F4D8A;
 extern short D_800FF688;
-extern int func_8002A344();
 extern int func_8002AF8C();
 extern int func_80034FC0();
 extern int func_80035024();
@@ -61,7 +61,6 @@ extern int func_80118634();
 extern int func_80115388();
 extern int D_8010C0E0;
 extern char D_800ACC68;
-extern short D_800F4D44;
 extern int func_8003A198();
 extern signed char D_800AD4D8[];
 extern signed char D_800AD4EF;
@@ -70,7 +69,6 @@ extern int D_800F39C8;
 extern int D_800F4C64;
 extern unsigned char D_8009F72C[];
 
-void func_80035478(s32 mode);
 int func_800356A4();
 void func_80035768(void);
 void func_80035844(void);

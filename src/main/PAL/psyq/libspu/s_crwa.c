@@ -5,12 +5,11 @@
 #include "psyq/libspu/spuregs2.h"
 #include "psyq/libspu/s_crwa.h"
 #include "psyq/libspu/s_crwa.h"
+#include "rr/spu.h"
 
 extern s32 func_8007F068(s32 mode, ...);
 extern s32 func_80096E94(s32 event);
-extern s32 D_800A47F4;
 extern s32 D_800A4800;
-extern volatile s32 D_800A4810;
 extern u32 D_800A48C8[];
 extern u8 D_800A4938[];
 

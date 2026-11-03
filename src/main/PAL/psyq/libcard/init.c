@@ -3,13 +3,12 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "psyq/libapi/pad1.h"
+#include "rr/memory.h"
+#include "rr/spu_tick_control.h"
 
 extern int func_80095DD4();
 extern int func_80095E9C();
 extern int func_80095F30();
-extern int func_80095FA0();
-extern int func_80096F04();
-extern int func_80096F14();
 extern int func_80096F84();
 int func_80095DE4();
 int func_80095DF4();

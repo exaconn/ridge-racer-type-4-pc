@@ -2,6 +2,9 @@
 #include "rr/gpu.h"
 #include "psyq/libgpu/primattr.h"
 #include "psyq/libgpu/settrans.h"
+#include "rr/race_setup.h"
+#include "rr/hud_number.h"
+#include "rr/draw_environment.h"
 
 struct P { unsigned addr:24; unsigned len:8; unsigned char r, g, b, code; short x; unsigned short y; unsigned char u, v; unsigned short clut; short w, h; };
 
@@ -10,15 +13,11 @@ extern char D_8009EBBC[];
 extern char D_8009EB1C[];
 extern char D_8009EC48[];
 extern char D_800D0160[];
-extern short D_80107178;
 extern int *func_8001FCC8();
 extern int func_80093B14();
 extern int D_800ACC14;
-extern int D_800F4BF0;
-extern s32 func_80093C24();
 
 void func_80020920(unsigned char *a0, unsigned char *a1);
-void func_800209C4(int a0);
 void func_80020B10();
 void func_80020CD4();
 void func_80020E2C();

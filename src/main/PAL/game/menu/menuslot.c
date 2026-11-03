@@ -1,9 +1,10 @@
 #include "game/menu/menu8.h"
 #include "game/menu/menuslot.h"
+#include "rr/menu_background.h"
+#include "rr/menu_text_state.h"
+#include "rr/bios_devices.h"
 extern int func_800207D4();
-extern int func_8002A344();
 extern int func_8002B330();
-extern int func_80032A14();
 extern int func_8003A198();
 extern int func_8003B398();
 extern int func_8003B934();
@@ -23,7 +24,6 @@ extern int D_800F4D74;
 extern struct { char pad[8]; short s8, sA; char padC[4]; short s10; } *D_800F3AFC;
 extern struct w3g2e { char pad[0xC]; char c; char pad2[7]; unsigned char b14; char pad3[0x23]; char b38; } *D_800F4D80;
 extern struct { char pad[4]; char b4; char pad5[2]; char b7; } *D_800FF68C;
-extern int func_80096434();
 extern int D_800F4CA8;
 extern int func_8001FCC8();
 extern int func_8001FF84();

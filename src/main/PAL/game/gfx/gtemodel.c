@@ -2,6 +2,8 @@
 #include "game/menu/mnsel.h"
 #include "game/gfx/gtemodel.h"
 #include "psyq/libgpu/gpuenv.h"
+#include "rr/memory.h"
+#include "rr/course_choices.h"
 
 typedef struct { int a, b, c, d; } V16;
 
@@ -16,13 +18,11 @@ extern int func_80013890();
 extern int func_80041A54();
 extern int func_80090F14();
 extern int func_80091844();
-extern int func_80096454();
 extern V8 D_800101BC;
 extern V16 D_800101C4;
 extern V16 D_800101D4;
 extern V16 D_8009E540;
 extern int D_800FFC48;
-extern char *D_800ACC18;
 extern char *D_800F3A28;
 extern char *D_8010BF78;
 extern void func_8006E1AC();

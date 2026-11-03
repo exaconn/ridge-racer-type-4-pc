@@ -32,7 +32,6 @@ extern int func_80098F88();
 
 void func_80098AC4(void *arg0, s32 arg1, s8 arg2);
 void func_80098AD0(void *arg0, s8 arg1, s32 arg2, s8 arg3);
-void func_80098AE0(u8 *channel);
 int func_80098B64();
 int func_80098DD4();
 int func_80098E0C();

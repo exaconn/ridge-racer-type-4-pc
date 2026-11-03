@@ -3,6 +3,9 @@
 #include "rr/ui_primitives.h"
 #include "game/course/trktext.h"
 #include "game/effect/ptinit.h"
+#include "rr/frame_environment.h"
+#include "rr/bios_devices.h"
+#include "rr/frame_loop.h"
 
 #define ADDPRIM(ot, p) \
     (p)->addr = ((PolyFT4 *)(ot))->addr; \
@@ -44,9 +47,6 @@ typedef struct {
     u16 pad2;
 } PolyFT4;
 
-extern int func_8001ECE8();
-extern int func_80096434();
-extern int D_800AC5DC;
 extern int func_80096464();
 extern RrUiParticle20 D_800F2AE4[];
 extern unsigned char D_800A0CF4[];

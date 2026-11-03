@@ -5,11 +5,11 @@
 #include "game/data/ldscn4.h"
 #include "game/data/cdfile1.h"
 #include "game/data/cdfile2.h"
+#include "rr/course_choices.h"
 extern void func_800436E8();
 extern void func_8004E008();
 extern int func_80096464();
 extern int D_800102F0;
-extern int D_800ACC18;
 extern int D_800F4D40;
 extern unsigned char D_800F4D7C;
 

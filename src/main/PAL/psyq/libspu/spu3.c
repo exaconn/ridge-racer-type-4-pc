@@ -2,11 +2,11 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "psyq/libspu/spu3.h"
+#include "rr/spu.h"
 
 extern unsigned int *D_800A47EC;
 
 void func_8007F54C(void);
-void func_8007F59C(void);
 
 void func_8007F54C(void) {
     *D_800A47EC = (*D_800A47EC & 0xF0FFFFFF) | 0x20000000;

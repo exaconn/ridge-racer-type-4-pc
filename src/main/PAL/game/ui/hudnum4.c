@@ -3,15 +3,15 @@
 #include "game/ui/window2.h"
 #include "game/race/objsim.h"
 #include "psyq/libgpu/primattr.h"
+#include "rr/hud_number.h"
+#include "rr/fade_sprite.h"
+#include "rr/audio_loop.h"
 
 struct S { char pad[0x2AA]; short f; char pad2[0x320 - 0x2AC]; };
 
 extern s32 func_8001FCC8();
 extern s32 D_800F4BF0;
-extern char D_8010BF88[];
-extern int D_800ACC14;
 extern int D_800ABEB0;
-extern short D_800F4D44;
 extern short D_80107178;
 extern short D_800AC59C;
 extern signed char D_800AD4EF;

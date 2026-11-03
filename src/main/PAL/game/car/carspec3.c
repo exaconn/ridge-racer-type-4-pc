@@ -3,11 +3,11 @@
 #include "game/car/carspec3.h"
 #include "game/car/carspec1.h"
 #include "game/car/carspec2.h"
+#include "rr/audio_loop.h"
 #undef D_800AC650
 
 extern int func_80049558();
 extern struct { char pad[0x14]; int mode; char pad2[0x528]; RrRaceSpecEntry30 *tab; } D_800AC650;
-extern short D_800F4D44;
 void func_80049A60(a0) RrRaceVehicle *a0; {
     int s0 = 0;
     RrRaceSpecEntry30 *s2;

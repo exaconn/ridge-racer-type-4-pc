@@ -4,8 +4,8 @@
 #include "game/data/ldscn5.h"
 #include "game/data/cdfile1.h"
 #include "game/data/cdfile2.h"
+#include "rr/course_choices.h"
 extern void func_800436E8();
-extern int D_800ACC18;
 extern unsigned char D_800F4D7C;
 
 int func_8003BEA8(int a) {

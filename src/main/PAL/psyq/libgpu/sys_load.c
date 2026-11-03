@@ -1,6 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
+#include "rr/library.h"
 extern int func_8008B154();
-extern void func_8008B3C4();
 extern void func_80092DB8();
 extern void func_80095990();
 extern int func_80095394();

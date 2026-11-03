@@ -3,6 +3,7 @@
 #include "rr/layout.h"
 #include "psyq/libpad/padpoll.h"
 #include "psyq/libpad/padwait.h"
+#include "rr/serial.h"
 
 typedef struct { char pad[0x3C]; char *f3c; } T;
 
@@ -53,7 +54,6 @@ extern void (*D_800ABC8C)(Rec8009991C *);
 extern Rec8009991C *D_800ABC9C;
 extern s32 D_800ABCC0[];
 extern Unk800ABCE4 *D_800ABCE4;
-extern void func_8009A7F4(s32);
 
 void func_800996C4(T *a0);
 void func_8009970C();

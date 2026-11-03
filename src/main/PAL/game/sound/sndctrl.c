@@ -13,6 +13,8 @@
 #include "psyq/libsnd/utrev3.h"
 #include "psyq/libsnd/vmsel.h"
 #include "psyq/libsnd/vmvinit.h"
+#include "rr/library.h"
+#include "rr/overlay665_audio_options.h"
 
 struct E { char pad[0x38]; u32 flags; char r[1568 - 0x3C]; };
 
@@ -31,8 +33,6 @@ extern struct {
     int f2864;
     int f2868;
 } D_800F4DB8;
-extern int func_80086554();
-extern int func_800865E4();
 extern int func_80052C70();
 extern s32 D_800F4DBC;
 extern int func_80052AB8();
@@ -42,7 +42,6 @@ void func_8004F82C(int a0, int a1);
 void func_8004F9C8(void);
 void func_8004FA04(void);
 void func_8004FA50(void);
-void func_8004FA98(int a0);
 void func_8004FB00(void);
 void func_8004FBF0(void);
 void func_8004FC18(short arg0, short arg1);

@@ -7,6 +7,7 @@
 #include "psyq/libcd/s_2.h"
 #include "psyq/libcd/s_3.h"
 #include "psyq/libcd/dsread2.h"
+#include "rr/overlay668_stream.h"
 
 #define RR_READ_OWNER_OFFSET \
     (sizeof(RrLibReadRequestState)-sizeof(RrLibReadRestoreTail))
@@ -17,7 +18,6 @@
     ((volatile RrLibReadRequestState*)((u8*)(pair)-RR_PAIR_OWNER_OFFSET))
 #define RR_PAIR_PENDING(pair) (RR_PAIR_REQUEST(pair)->finished24)
 
-extern s32 func_8008B154(s32);
 extern RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback);
 extern s32 func_8008C6A4(void *);
 extern s32 func_800963DC(const char *,...);
@@ -31,8 +31,6 @@ extern RrLibCompletionCallback volatile D_800A67DC;
 
 void func_8008E828(s32 event,u8 *data);
 void func_8008EA9C(void);
-s32 func_8008EB6C(s32 restart);
-void func_8008ED54(void);
 s32 func_8008EEF4(s32 sectors,u8 *buffer,u32 mode);
 
 void func_8008E828(s32 event,u8 *data) {

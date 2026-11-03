@@ -1,5 +1,7 @@
 #include "types.h"
 #include "rr_asm.h"
+#include "rr/menu_overlay_runtime.h"
+#include "rr/overlay668_camera.h"
 
 typedef struct T16 { u16 a; u16 pa[3]; u16 c; u16 pc[3]; } T16;
 
@@ -129,13 +131,6 @@ typedef struct SP_1 {
     s16 s174;
     s16 s176;
 } SP_1;
-
-extern s32 D_800ABEA4;
-extern s32 D_800ABECC;
-extern s32 func_80090424(s16);
-extern s32 func_800904F4(s16);
-extern s16 D_800AD522;
-extern s32 D_800F2EB8;
 
 void func_80026C80(void);
 void func_80026F5C(Car *arg0);

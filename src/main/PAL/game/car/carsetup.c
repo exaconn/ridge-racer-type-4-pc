@@ -10,6 +10,8 @@
 #include "game/car/carsetup.h"
 #include "game/race/racemai2.h"
 #include "game/car/carparam.h"
+#include "rr/bios_devices.h"
+#include "rr/controller_hud.h"
 
 #define H(p, o) (*(unsigned short *)((char *)(p) + (o)))
 #define W(b, o) (*(int *)((char *)(b) + (o)))
@@ -20,12 +22,10 @@ extern void func_80091844();
 extern char *D_800F39C8[];
 extern unsigned char D_800F4D98[][4];
 extern int D_800FF6B0;
-extern int func_80096434();
 extern int func_80037618();
 extern int D_800FF6F8;
 extern int D_800AD504;
 extern int D_800AC538;
-extern short D_800AD508;
 extern char D_800ABEF8[];
 extern short func_80022848(void);
 extern void func_800172DC();

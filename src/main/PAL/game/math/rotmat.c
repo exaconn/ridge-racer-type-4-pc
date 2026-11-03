@@ -1,23 +1,21 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "psyq/libgte/gtemat7.h"
+#include "rr/matrix_workspace.h"
+#include "rr/menu_overlay_runtime.h"
 
-extern short func_80090424();
-extern short func_800904F4();
 extern short D_800AC0A4;
 extern unsigned short D_800AD598[];
 extern char D_800FF690[];
 extern char D_800FF6B8[];
 extern char D_800FF6D8[];
 extern void func_80090914();
-extern void func_80090DB4();
 extern short D_800A22E4[];
 
 void func_8006E030(short *a0, int a1);
 void func_8006E09C(void *arg0, M2C_UNK arg1);
 void func_8006E108(void *arg0, M2C_UNK arg1);
 void func_8006E174(void *arg0);
-void func_8006E1AC(void);
 void func_8006E300(int *a0);
 int func_8006E368(int a0, int a1);
 

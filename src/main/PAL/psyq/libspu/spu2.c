@@ -4,12 +4,12 @@
 #include "psyq/libspu/spu3.h"
 #include "psyq/libspu/spu1.h"
 #include "psyq/libspu/spu2.h"
+#include "rr/spu_init.h"
 
 struct H { char p[0x1A6]; volatile unsigned short f1A6; char q[2]; volatile unsigned short f1AA; };
 
 extern int D_800A482C;
 extern int D_800A4830;
-extern unsigned int *D_800A47E8;
 
 int func_8007F068(int a0, ...);
 u32 func_8007F2E8(const u16 *a0, u32 a1);

@@ -2,8 +2,8 @@
 #include "types.h"
 #include "psyq/libspu/spuwait.h"
 #include "psyq/libspu/spuregs2.h"
+#include "rr/spu.h"
 
-void func_8008B044(s32 mode);
 short func_8008B074(short a0);
 
 void func_8008B044(s32 mode) {

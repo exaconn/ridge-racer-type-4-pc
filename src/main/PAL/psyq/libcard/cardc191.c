@@ -3,8 +3,6 @@
 #include "rr/commands.h"
 #include "psyq/libcard/cardc192.h"
 
-s32 func_8009D978(void);
-s32 func_8009DB18(s32 input);
 s32 func_8009DD88(s32 request, u32 *first, u32 *second);
 
 s32 func_8009D978(void) {

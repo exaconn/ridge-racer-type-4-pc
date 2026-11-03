@@ -4,8 +4,7 @@
 #include "m2c_macros.h"
 #include "game/car/carphys2.h"
 #include "game/course/trknode.h"
-
-extern s16 D_800AD522;
+#include "rr/menu_overlay_runtime.h"
 
 void func_80025EB0(int a, int b);
 int func_80025F84(int a0, int a1);

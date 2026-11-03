@@ -4,6 +4,7 @@
 #include "game/gfx/meshquad.h"
 #include "game/gfx/scene1.h"
 #include "game/camera/camview.h"
+#include "rr/matrix_workspace.h"
 
 struct E { s16 a, h; };
 
@@ -19,7 +20,6 @@ extern void func_8006E09C();
 extern void func_8006E108();
 extern void func_8006EE3C();
 extern void func_800701C4();
-extern void func_80090DB4();
 extern short D_800A0D64[];
 
 int func_80055FD8(struct E *p, int a1);

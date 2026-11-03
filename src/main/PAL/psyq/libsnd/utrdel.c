@@ -8,7 +8,6 @@ extern s32 func_80085BA4(s32 *);
 extern int D_80110008[];
 extern s16 D_8011000C;
 
-s32 func_800865E4(s32 a0);
 s16 func_80086680(void);
 
 s32 func_800865E4(s32 a0) {

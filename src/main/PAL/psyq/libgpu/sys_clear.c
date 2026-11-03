@@ -5,6 +5,7 @@
 #include "m2c_macros.h"
 #include "psyq/libgpu/sys_drain.h"
 #include "psyq/libgpu/gpuenv.h"
+#include "rr/gpu.h"
 
 extern struct { char p[0x18]; int (*f18)(); } *D_800ABAB8;
 extern volatile unsigned *D_800ABBD4;
@@ -13,7 +14,6 @@ extern int D_800ABBFC;
 extern int D_800ABC00;
 
 int func_80095894();
-void func_80095990(void);
 void func_800959B8(s8 *arg0, s8 arg1, s32 arg2);
 
 /* legacy typing of shared globals in this part of the unit */

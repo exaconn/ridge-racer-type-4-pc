@@ -6,6 +6,12 @@
 #include "rr/race.h"
 #include "game/sound/sndvab.h"
 #include "game/ui/window1.h"
+#include "rr/driver_control.h"
+#include "rr/bios_devices.h"
+#include "rr/menu_selection.h"
+#include "rr/sprite_emit.h"
+#include "rr/race_setup.h"
+#include "rr/menu_background.h"
 
 typedef struct { unsigned char c[4]; } B4;
 
@@ -63,8 +69,6 @@ extern short D_800F4D2C;
 extern int func_8001FDD4();
 extern int func_8005B2D4();
 extern int func_8005B304();
-extern int func_80092CB8();
-extern int func_80096434();
 extern unsigned short D_80010440[];
 extern R4 D_8009EE70[];
 extern R4 D_8009EEC8;
@@ -72,7 +76,6 @@ extern signed char D_8009EF3C[][4];
 extern short D_8009EFD8[];
 extern short D_8009EFE8[];
 extern R4 D_8009EFF8;
-extern int D_800AC5D4;
 extern S_F3A38 D_800F3A38[];
 extern void *func_8001FC28();
 extern void *func_8001FCC8();
@@ -84,12 +87,10 @@ extern int func_80090424();
 extern struct { char pad[0xC]; unsigned char a; unsigned char b; short c; } D_800F4CB0;
 extern s8 D_8009EFFC[];
 extern char D_80010460[];
-extern s32 func_8002071C();
 extern s32 D_8009FDA4;
 extern int func_8004F24C();
 extern char D_8009F008[];
 extern int D_800F3A30;
-extern int D_800F4C74;
 extern int D_800F4C80[];
 extern int func_80095A44();
 extern char D_8009F014[];
@@ -99,7 +100,6 @@ extern int D_800AD504;
 extern int func_80025F84();
 extern int func_800904F4();
 
-void func_8002A344();
 void func_8002A604(void);
 void func_8002A63C(int arg0);
 void func_8002AF8C();

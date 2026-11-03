@@ -7,6 +7,7 @@
 #include "psyq/libgte/gtemat3.h"
 #include "psyq/libgte/gtemat7.h"
 #include "psyq/libgte/gtetrig.h"
+#include "rr/hud_number.h"
 
 #define G ((Scratch_8006EF8C *)0x1F800000)
 
@@ -65,7 +66,6 @@ extern s16 D_800A3C10[];
 extern S_800A3C20 D_800A3C20[][7];
 extern s32 D_800AC5D8;
 extern s32 D_800ACC14;
-extern s32 D_800F4BF0;
 extern s32 D_800F4CE0;
 extern void func_800912B4(s32, s32);
 extern void func_800912D4(s32);

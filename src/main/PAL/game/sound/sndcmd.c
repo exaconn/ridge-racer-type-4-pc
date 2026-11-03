@@ -8,6 +8,8 @@
 #include "psyq/libsnd/vmvinit.h"
 #include "psyq/libspu/spukeyst.h"
 #include "game/sound/sndcmd.h"
+#include "rr/channels.h"
+#include "rr/race_setup.h"
 
 extern short D_800F4D44;
 extern struct 
@@ -34,7 +36,6 @@ extern struct
 } D_800AD528;
 extern int func_800857A4();
 extern int func_8008A674();
-extern int func_8008A644();
 extern int func_80055300();
 extern int func_80055330();
 extern int func_8005534C();
@@ -45,7 +46,6 @@ extern struct { char p0[0x1C]; s32 x1C; char p1[0x28]; s32 x48; s32 x4C; char p2
 void func_8004F418();
 void func_8004F600(void);
 void func_8004F720(void);
-void func_8004F7E0(void);
 
 void func_8004F418()
 {

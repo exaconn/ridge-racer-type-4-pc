@@ -8,6 +8,7 @@
 #include "game/gfx/ring.h"
 #include "psyq/libgpu/gpudisp.h"
 #include "game/camera/camrun.h"
+#include "rr/bios_devices.h"
 
 #define W(p,o) (*(int *)((char *)(p) + (o)))
 #define Q(p,o) ((char *)*(volatile int *)((char *)(p) + (o)))
@@ -93,7 +94,6 @@ extern void func_8006E1AC(void);
 extern void func_8006EF8C(s32);
 extern void func_800912B4(s32, s32);
 extern void func_800912D4(s32);
-extern int func_80096434();
 extern char D_800A1AA0[];
 extern char D_800A1B60[];
 

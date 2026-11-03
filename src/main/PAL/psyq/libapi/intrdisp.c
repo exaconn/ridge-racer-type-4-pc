@@ -3,15 +3,13 @@
 #include "rr/interrupt_dispatch.h"
 #include "rr/library.h"
 #include "psyq/libapi/intrdisp.h"
+#include "rr/spu_tick_control.h"
 
 extern s32 func_80096F84(s32);
 extern s32 func_80096F94(s32,s32);
-extern void func_80096F04();
 extern void func_80096EE4();
 extern void func_80096EF4(void *data);
-extern void func_80096F14(void);
 
-void func_8008B5D0(void);
 RrLibInterruptCallback func_8008B7A0(s32 id,RrLibInterruptCallback callback);
 RrLibSavedState *func_8008B8E8(void);
 RrLibSavedState *func_8008B988(void);

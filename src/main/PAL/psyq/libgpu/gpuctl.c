@@ -1,9 +1,7 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "psyq/libgpu/gpuctl.h"
-
-extern int func_80095CE4();
-extern int func_80095CF4();
+#include "rr/bios_devices.h"
 
 void func_80095CA4(s32 arg0) {
     func_80095CF4();

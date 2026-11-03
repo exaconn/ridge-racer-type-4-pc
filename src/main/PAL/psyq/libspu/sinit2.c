@@ -2,7 +2,7 @@
 #include "psyq/libspu/s_crwa.h"
 #include "psyq/libspu/sinit.h"
 #include "psyq/libspu/sinit2.h"
-extern void func_8008B364();
+#include "rr/library.h"
 extern void func_8007FAB4();
 void func_8007FA54(void) {
     func_8008B364();

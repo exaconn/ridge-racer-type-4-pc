@@ -2,10 +2,9 @@
 #include "rr/library.h"
 #include "rr_asm.h"
 #include "psyq/libsnd/ssatr.h"
+#include "rr/channel_stream.h"
 
 typedef RrLibControllerCallback Control;
-
-extern RrLibStateB0 *D_8010F068[];
 
 void func_80081804(s32 bank, s32 row);
 void func_800818B4(s32 bank, s32 row, s32 control);

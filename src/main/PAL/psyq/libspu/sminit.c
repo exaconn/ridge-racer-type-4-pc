@@ -1,8 +1,8 @@
 /* GCC_VERSION: 2.7.2 */
 #include "psyq/libspu/sminit.h"
+#include "rr/spu.h"
+#include "rr/spu_allocation.h"
 extern int D_800A4800;
-extern int *D_800A48C0;
-extern int D_800A48BC;
 int func_80087D44(a0, a1) int a0; int *a1; {
     if (a0 > 0) {
         int sh = D_800A4800;

@@ -12,11 +12,15 @@
 #include "game/data/cdfile2.h"
 #include "game/sound/sndslot.h"
 #include "psyq/libgpu/gpuenv.h"
+#include "rr/course_choices.h"
+#include "rr/menu_background.h"
+#include "rr/driver_control.h"
+#include "rr/overlay668_playback_step.h"
+#include "rr/overlay668_stream.h"
 
 extern s16 D_800AC5D0;
 extern s32 D_8010BF84;
 extern short *D_8010BF80;
-extern int D_800ACC18;
 extern int D_800F3A60;
 extern int func_80052800();
 extern int func_800528A8();
@@ -27,15 +31,10 @@ extern int func_800207D4();
 extern int func_80052B8C();
 extern int func_8001BAF8();
 extern int func_8001E1F0();
-extern int func_8002A344();
-extern void func_80092CB8(s32);
-extern void func_80092D50(s32);
-extern s32 func_8008B154(s32);
 extern void *func_80093580(void *);
 
 void func_8001E344(void);
 void func_8001E390(void);
-void func_8001E684(void);
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3A26 (*(s16 (*))&D_800F3A26)

@@ -4,6 +4,8 @@
 #include "game/ui/uitext.h"
 #include "game/ui/uidraw.h"
 #include "game/ui/uiwin.h"
+#include "rr/bios_devices.h"
+#include "rr/audio_cd_controller.h"
 
 typedef struct {
     short x, y;
@@ -64,8 +66,6 @@ extern int func_8003DCEC();
 extern void func_80043608();
 extern int D_800ACC14;
 extern MenuRow1C *D_800F4D8C;
-extern int func_80096434();
-extern int func_8001E84C();
 extern s32 func_80090424();
 
 int func_8003E13C(int arg0);

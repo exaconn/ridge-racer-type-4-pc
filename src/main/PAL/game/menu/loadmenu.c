@@ -14,7 +14,6 @@ extern int D_800ACC0C;
 extern int func_8003D6F0();
 
 void func_8007AB8C(int arg0);
-void func_8007ABCC(void);
 void func_8007B3A0(void);
 
 /* legacy typing of shared globals in this part of the unit */

@@ -2,18 +2,18 @@
 #include "game/sound/cdmain.h"
 #include "psyq/libcd/s_1.h"
 #include "game/sound/cdpos.h"
+#include "rr/cd.h"
+#include "rr/overlay668_stream.h"
+#include "rr/menu_overlay_runtime.h"
 
-extern int func_8008C3B0();
 extern int func_8008DE84();
 extern int func_8008C6A4();
 extern char D_800A0784[];
 extern char D_800A07C4[];
 extern struct { char p0[0x2634]; s32 x2634; s32 x2638; char p1[0x4]; s32 x2640; } D_800F4DB8;
-extern int func_80083CD4();
 extern int func_80052ADC();
 
 void func_80052760(void);
-void func_80052800(void);
 
 void func_80052760(void) {
     struct { u8 pad[8]; u8 b[8]; u8 c[24]; } L;

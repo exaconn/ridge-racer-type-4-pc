@@ -2,6 +2,8 @@
 #include "rr_asm.h"
 #include "m2c_macros.h"
 #include "game/gfx/gtepoly1.h"
+#include "rr/fade_sprite.h"
+#include "rr/audio_cd_controller.h"
 
 #define SP ((Scr *)s2)
 #define S4 ((Ent *)s4)
@@ -94,9 +96,7 @@ typedef struct {
 } TrailEntry8;
 
 extern int D_800F2EC8;
-extern short *D_800ACC14;
 extern s32 D_8009E0AC;
-extern int func_8001E84C();
 extern int func_8006EE3C();
 extern int D_800100B8;
 extern s32 func_80096464(void);

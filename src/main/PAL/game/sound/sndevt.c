@@ -2,6 +2,8 @@
 #include "rr_asm.h"
 #include "game/sound/sndown.h"
 #include "game/sound/sndcmd.h"
+#include "rr/bios_devices.h"
+#include "rr/overlay662_distance.h"
 
 #define REC(b, i, o) (*(s32 *)((b) + (i) * 28 + (o)))
 #define RECH(b, i, o) (*(s16 *)((b) + (i) * 28 + (o)))
@@ -47,7 +49,6 @@ typedef struct { s16 vx, vy, vz, pad; } w3t1_SV;
 
 typedef struct { s32 d[3]; s32 pad0; s32 m[8]; w3t1_SV sv; s32 pad1[2]; w3t1_SV rot; s32 fl; } w3t1_F;
 
-extern void func_80096434();
 extern struct {
     char pad0[0x18C0]; short a; short b; char pad1[0x28];
     int c; char pad2[0x18]; int d; char pad3[0x18]; int e; short f; char pad4[0x16]; int g; short h;
@@ -61,7 +62,6 @@ extern struct {
 extern s32 D_800AC660;
 extern Vehicle320 D_80107198[];
 extern s32 D_800F6748;
-extern s32 func_80090758(s32);
 extern w3t1_E D_800ABEF8[];
 extern s32 func_80091844();
 extern s32 func_800924D4();

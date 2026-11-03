@@ -4,9 +4,6 @@
 #include "rr/channels.h"
 
 void func_80099E34();
-void func_80099E9C(s32 command);
-void func_80099F90(RrChannelTransferView *channel);
-u32 func_80099FA0(const RrChannelTransferView *channel);
 
 void func_80099E34(a0) unsigned char *a0; {
   int i;

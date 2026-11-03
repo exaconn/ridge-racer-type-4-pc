@@ -1,14 +1,12 @@
 #include "rr/cd.h"
+#include "rr/overlay668_stream.h"
 
-extern int func_8008C3B0();
-extern int func_8008B154();
 extern s32 func_80096414(const void *,const void *,u32);
 extern s32 func_8001E84C(const char *,...);
 extern char D_80011D78[];
 extern char D_80011D88[];
 
 int func_8008F274();
-int func_8008F3B0(void);
 
 int func_8008F274(a0)
 int a0;

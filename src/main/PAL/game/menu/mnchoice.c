@@ -9,7 +9,6 @@ extern int func_80017CC0();
 extern int D_800AC308;
 extern int D_8010718C;
 
-void func_80036D40(void);
 void func_80036FD4(int a0);
 void func_80037040(signed char *a0, int a1);
 s32 func_8003708C(void *arg0);

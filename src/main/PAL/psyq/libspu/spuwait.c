@@ -2,8 +2,8 @@
 #include "psyq/libspu/spuwait.h"
 #include "psyq/libspu/s_crwa.h"
 #include "psyq/libspu/spuregs2.h"
+#include "rr/bios_events.h"
 extern int D_800A480C;
-extern int func_80096EA4();
 int func_8008B0A4(int a0) {
   int r;
   if (D_800A4848 == 1 || D_800A480C == 1) return 1;

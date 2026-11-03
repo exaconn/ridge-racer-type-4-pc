@@ -9,8 +9,11 @@
 #include "game/course/trkres2.h"
 #include "game/data/cdfile1.h"
 #include "game/data/cdfile2.h"
+#include "rr/course_choices.h"
+#include "rr/sequencer_init.h"
+#include "rr/spu_tick.h"
+#include "rr/bios_devices.h"
 extern int func_800436E8();
-extern int D_800ACC18;
 extern short D_800AD520;
 extern int D_800AD564;
 extern short D_800F3914;
@@ -20,9 +23,6 @@ extern char D_800AC650[];
 extern struct { char pad[0x24]; short h[8]; char pad2[0x2860 - 0x34]; short a, b; } D_800F4DB8;
 extern int func_800825B4();
 extern int func_80083CD4();
-extern int func_80083DE4();
-extern int func_80084004();
-extern int func_80096434();
 extern int func_80055300();
 extern int func_80052800();
 

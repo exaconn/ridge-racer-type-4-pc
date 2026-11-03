@@ -9,6 +9,11 @@
 #include "game/demo/attract.h"
 #include "game/menu/title.h"
 #include "game/ui/hudmap2.h"
+#include "rr/audio_loop.h"
+#include "rr/bios_devices.h"
+#include "rr/color_conversion.h"
+#include "rr/race_setup.h"
+#include "rr/driver_control.h"
 
 extern int D_8010E240[];
 extern char D_800ACB0C[];
@@ -17,7 +22,6 @@ extern unsigned char D_800F4D98[];
 extern short D_800F3914;
 extern unsigned short D_800A2134;
 extern unsigned short D_800A2138[];
-extern short D_800F4D44;
 extern short D_800FFC10;
 extern short D_800F4BE8;
 extern short D_800F4C6A;
@@ -26,16 +30,11 @@ extern short D_800F4D8A;
 extern int D_800F2EC8;
 extern char D_800AC650[];
 extern short D_800AD50A;
-extern int func_80096434();
 extern int func_80096464();
 extern int func_80055300();
-extern int func_8004C138();
 extern int func_80055330();
 extern int func_8005534C();
-extern int func_80077D90();
 extern int func_8003A198();
-extern int func_80092CB8();
-extern s32 D_800ACBF8;
 
 void func_8005D974(int a0);
 void func_8005DD8C(void);

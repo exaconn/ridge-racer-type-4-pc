@@ -8,8 +8,6 @@
 
 extern int D_800A4844;
 
-s32 func_8007EAC4(s32 warm);
-
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A47D8 ((char *)D_800A47D8)
 

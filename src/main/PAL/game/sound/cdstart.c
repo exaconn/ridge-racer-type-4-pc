@@ -1,5 +1,7 @@
 #include "types.h"
 #include "m2c_macros.h"
+#include "rr/overlay668_stream.h"
+#include "rr/cd.h"
 
 #define D D_800F4DB8
 
@@ -27,9 +29,6 @@ typedef struct {
 } S;
 
 extern struct { char p0[0x2670]; s32 x2670; char p1[0x4]; s32 x2678; char p2[0x20]; s32 x269C; s32 x26A0; char p3[0x4]; s32 x26A8; char p4[0x4]; s32 x26B0; s32 x26B4; char p5[0x4]; s32 x26BC; u16 x26C0; char p6[0xC]; u16 x26CE; } D_800F4DB8;
-extern int func_80083CD4();
-extern u8 D_800AD558;
-extern int func_8008C140();
 extern int func_8008F274();
 
 void func_80052A30(int a0);

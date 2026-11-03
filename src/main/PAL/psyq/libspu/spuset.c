@@ -1,8 +1,8 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
+#include "rr/spu.h"
 
 extern s32 func_8007F414(s32, s32);
-extern volatile u16 D_800A47F0;
 extern s32 D_800A4800;
 
 u32 func_8008AFE4(s32 value) {

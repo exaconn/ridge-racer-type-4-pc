@@ -2,6 +2,10 @@
 #include "types.h"
 #include "game/car/carbound.h"
 #include "game/car/carlane.h"
+#include "rr/audio_loop.h"
+#include "rr/menu_choice.h"
+#include "rr/menu_setup.h"
+#include "rr/track_projection.h"
 
 typedef struct {
     s32 f0;
@@ -69,16 +73,12 @@ typedef struct {
 
 extern ContextAC650 D_800AC650;
 extern ComCar D_80107198[];
-extern u16 D_800F4D44;
-extern s16 D_800F3826;
-extern s16 D_800AD520;
 extern Spec30 *D_800ACB94;
 extern u16 D_8009FE76;
 
 extern void func_80096434(void *, s32);
 extern void func_8002E4F4(ComCar *);
 extern s32 func_80026A74(s32 *, s32);
-extern void func_800468F0(ComCar *);
 extern void func_8001E84C(const char *, s32);
 
 void func_80045F48(s32 count) {

@@ -1,9 +1,7 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
 #include "psyq/libpad/padtm22.h"
-
-void func_8009A7F4(s32 limit);
-int func_8009A814();
+#include "rr/serial.h"
 
 void func_8009A7F4(s32 limit) {
     /* ASM_BARRIER: keep the zero-extended timer read in its original register. */

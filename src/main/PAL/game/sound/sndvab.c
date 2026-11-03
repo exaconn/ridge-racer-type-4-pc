@@ -3,6 +3,8 @@
 #include "rr/audio_pan.h"
 #include "psyq/libsnd/utrev3.h"
 #include "game/sound/sndvab.h"
+#include "rr/library.h"
+#include "rr/menu_choice.h"
 
 extern int func_8008A674();
 extern short func_8008AA74();
@@ -12,14 +14,12 @@ extern int func_8001E84C();
 extern char D_800110D8[];
 extern char D_800110F0[];
 extern int func_800865E4();
-extern int func_80086554();
 extern s32 D_800F7650;
 
 void func_8004ED38(int *arg0, int arg1, int arg2);
 void func_8004EE90(int a0, int a1);
 void func_8004EF04(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void func_8004F218(int a0, s16 a1, s16 a2, int a3);
-void func_8004F24C(int a0);
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_8008AEC4 ((short (*)())func_8008AEC4)

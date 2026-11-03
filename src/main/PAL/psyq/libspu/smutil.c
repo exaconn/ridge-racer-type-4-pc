@@ -2,8 +2,6 @@
 #include "rr/spu.h"
 #include "psyq/libspu/smutil.h"
 
-s32 func_8007FC54(u32 address);
-
 s32 func_8007FC54(u32 address) {
     RrSpuAllocation *initial=D_800A48C0;
     RrSpuAllocation *p;

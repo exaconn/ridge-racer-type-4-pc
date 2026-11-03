@@ -4,6 +4,7 @@
 #include "game/gfx/sky.h"
 #include "psyq/libgte/gtemat2.h"
 #include "game/gfx/skyrot1.h"
+#include "rr/driver_control.h"
 
 struct V8 { unsigned char c[8]; };
 
@@ -21,7 +22,6 @@ extern int func_80091FF4();
 extern int func_80092194();
 extern int func_80092334();
 extern char D_8009E88C[];
-extern int func_80092CB8();
 extern s16 D_800AC5D0;
 extern s32 D_800AC5DC;
 extern s16 D_800F3A26;

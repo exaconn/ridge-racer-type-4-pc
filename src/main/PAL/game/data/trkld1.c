@@ -8,6 +8,7 @@
 #include "game/course/trkres2.h"
 #include "game/data/cdfile1.h"
 #include "game/data/cdfile2.h"
+#include "rr/course_choices.h"
 
 extern int D_800A02BC;
 extern int D_800A029C[];
@@ -25,7 +26,6 @@ extern int D_800A0228[];
 extern struct { char pad[0x2858]; char *p[1]; } D_800F4DB8;
 extern char *D_8010C210[2];
 extern int D_8010C218;
-extern s32 D_800ACC18;
 extern int D_800AC650[];
 extern int D_800ACBBC;
 

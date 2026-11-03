@@ -11,6 +11,8 @@
 #include "game/sound/sndvol2.h"
 #include "game/data/trkld6.h"
 #include "game/sound/sndslot.h"
+#include "rr/memory.h"
+#include "rr/menu_overlay_runtime.h"
 
 typedef struct { short pad[0xC]; short o; short n; short c; short to; short from; } T;
 
@@ -35,12 +37,10 @@ typedef struct {
 
 extern int func_800534D8();
 extern struct S D_800F4DF0[];
-extern int func_80096454();
 
 void func_8004FCB4(void);
 void func_8004FD80(void);
 void func_8004FE7C(s32 a0, int a1, int a2);
-void func_8004FED4(void);
 void func_8004FF34(int a0);
 void func_80050028(int a0, int a1);
 void func_8005007C(int a0, int a1, int a2);

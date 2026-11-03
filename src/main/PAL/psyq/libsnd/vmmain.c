@@ -5,6 +5,7 @@
 #include "psyq/libsnd/vmkoff.h"
 #include "psyq/libsnd/vmnote2.h"
 #include "psyq/libsnd/vmupd.h"
+#include "rr/channel_stream.h"
 
 typedef struct {
     unsigned char *c0;
@@ -47,7 +48,6 @@ typedef struct {
 } SvmVoice;
 
 extern s32 D_800A480C;
-extern Ch *D_8010F068[];
 extern Prog *D_801100EC;
 extern VabHdr *D_801100F4;
 extern Tone *D_801100F8;

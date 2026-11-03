@@ -1,6 +1,8 @@
 #include "types.h"
 #include "rr/vehicle_drive.h"
 #include "rr_asm.h"
+#include "rr/menu_overlay_runtime.h"
+#include "rr/track_projection.h"
 
 #define I(p, o) (*(s32 *)((char *)(p) + (o)))
 #define H(p, o) (*(s16 *)((char *)(p) + (o)))
@@ -10,10 +12,6 @@ typedef struct { s16 vx, vy, vz, pad; } w3t1_SV;
 
 typedef struct { s32 m[8]; w3t1_SV sv; w3t1_SV out; w3t1_SV rot; } w3t1_F;
 
-extern s32 func_80091844();
-extern s32 func_800468F0();
-
-void func_800486C4(RrDriveVehicleView *arg0);
 void func_80048A6C(char *a0);
 
 void func_800486C4(RrDriveVehicleView *arg0) {

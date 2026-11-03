@@ -1,6 +1,7 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/library.h"
+#include "rr/channel_stream.h"
 
 /* libsnd _SsContDataEntry (cc_6.o): SEQ control change 6, data entry.
  * Same source as bashalarmistdecomp/eternal-silver-sssc-decomp libsnd_cc_6.c. */
@@ -19,7 +20,7 @@ typedef struct {
 RR_ASSERT_SIZE(VagAtr, 0x20);
 RR_ASSERT_SIZE(ProgAtr, 0x10);
 
-extern RrLibStateB0 *D_8010F068[];  /* _ss_score */
+  /* _ss_score */
 extern void (*D_8010F00C[])();      /* SsFCALL.ccentry: _SsSetNrpnVabAttr0.. */
 extern void func_800850C4(s16 vab, s16 prog, s16 tone, VagAtr *atr); /* SsUtGetVagAtr */
 extern void func_800867E4(s16 vab, s16 prog, s16 tone, VagAtr *atr); /* SsUtSetVagAtr */

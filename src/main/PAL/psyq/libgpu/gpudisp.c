@@ -5,6 +5,7 @@
 #include "rr/draw_environment.h"
 #include "rr/gpu.h"
 #include "psyq/libgpu/gpudisp.h"
+#include "rr/spu_tick.h"
 
 #define CLAMP(v, lo, hi) ((v) < (lo) ? (lo) : ((v) > (hi) ? (hi) : (v)))
 
@@ -41,7 +42,6 @@ typedef char RrGpuUploadAddressFitsPointer[
 typedef char RrGpuDownloadAddressFitsPointer[
     sizeof(unsigned long) >= sizeof(void *) ? 1 : -1];
 
-extern u8 func_8008BDF8(void);
 extern void func_80096444(void *, void *, s32);
 extern char D_80011F80[];
 extern struct {
@@ -73,7 +73,6 @@ int func_800940E0(int a0, int a1, int a2);
 u32 func_80094100(s32 a0, s32 a1);
 u32 func_80094198(s32 a0, s32 a1);
 unsigned func_80094230(int a, int b);
-u32 func_8009424C(RrGpuRectangleFields *a0);
 s32 func_800942CC(void);
 s32 func_800942E4(u8 *address, s32 count);
 s32 func_800943C4(RrGpuRectangle *arg0, u32 arg1);
@@ -82,8 +81,6 @@ s32 func_80094830(RrGpuRectangle *arg0,u32 *arg1);
 void func_80094AB0(u32 command);
 s32 func_80094AD4(s32 index);
 int func_80094AE8(int *a, int n);
-void func_80094B28(unsigned long address);
-s32 func_80094B70(s32 a);
 
 DISPENV_T *func_80093580(DISPENV_T *env) {
     u32 mode;

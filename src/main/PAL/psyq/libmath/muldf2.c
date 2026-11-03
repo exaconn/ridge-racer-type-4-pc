@@ -1,7 +1,6 @@
 #include "rr/wide.h"
 
 RrWide64 *func_8007E818(RrWide64 *out,u32 a,u32 b);
-u64 func_8007E904(u64 value);
 
 RrWide64 *func_8007E818(RrWide64 *out,u32 a,u32 b) {
     RrWide64 r,t;

@@ -6,6 +6,7 @@
 #include "game/camera/camview.h"
 #include "game/effect/spark.h"
 #include "game/gfx/meshquad.h"
+#include "rr/overlay665_render.h"
 #define RTPT() RR_GTE_RTPT_MEM()
 #define RTPS() RR_GTE_RTPS_MEM()
 #define NCLIP() RR_GTE_NCLIP_MEM()
@@ -22,7 +23,6 @@ struct Q
 };
 
 extern int func_8005642C();
-extern int func_8002E828();
 extern struct 
 {
   char pad[0x24C];

@@ -2,9 +2,9 @@
 #include "game/sound/sndlis2.h"
 #include "game/sound/sndevt.h"
 #include "game/sound/sndmain.h"
+#include "rr/menu_overlay_runtime.h"
 typedef struct { int a, b, c, d; } V4;
 extern char D_800F4DB8[];
-extern char D_800ABEF8[];
 #define W(o) (*(int *)(b + (o)))
 #define A(o) (*(int *)(c + (o)))
 #define S16(o) (*(short *)(b + (o)))

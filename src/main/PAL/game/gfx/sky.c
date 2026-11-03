@@ -3,6 +3,8 @@
 #include "psyq/libgpu/gpudisp.h"
 #include "game/data/ldscn5.h"
 #include "game/gfx/sky.h"
+#include "rr/audio_cd_controller.h"
+#include "rr/menu_overlay_runtime.h"
 
 #define GS ((SPD *)0x1F800000)
 #define W(o) (*(int *)(GS->cur + (o)))
@@ -138,11 +140,9 @@ typedef struct {
 
 typedef struct { char *cur; char *ot; } SPD;
 
-extern int func_8001E84C();
 extern char D_800100D0[];
 extern short *D_8009E1D4[];
 extern short *D_8009E224[];
-extern short D_800F3914;
 extern char D_8009E248[];
 extern int func_800912B4();
 extern int func_80093B14();

@@ -1,3 +1,4 @@
+#include "rr/overlay661_init.h"
 typedef struct { char p[0xF8]; int f0, f4; unsigned short a[6]; unsigned short b[6]; short c, d; char pad[0x320 - 0x11C]; } T;
 
 typedef struct {
@@ -48,7 +49,6 @@ extern int D_800AD504;
 extern short D_800F4D44;
 extern GlobalF4DB8 D_800F4DB8;
 extern int D_800FF6B0;
-extern int func_80096464();
 extern void func_8004F2D8();
 
 void func_80049430(int x, int y, int z);

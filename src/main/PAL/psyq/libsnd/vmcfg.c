@@ -3,12 +3,10 @@
 #include "rr/channels.h"
 #include "rr/spu.h"
 #include "psyq/libspu/sminit.h"
+#include "rr/spu_allocation.h"
 
-extern void func_8008A774(void);
 
-s32 func_8008A644(u32 count);
 void func_8008A674(u16 channel);
-void func_8008A6F4(u32 address);
 
 s32 func_8008A644(u32 count) {
     s32 result;

@@ -1,8 +1,9 @@
 /* CC1_FLAGS: -mno-split-addresses */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "psyq/libgpu/sys_drain.h"
+#include "rr/interrupts.h"
+#include "rr/gpu.h"
 extern int func_8008B3C4(int, int);
-extern int func_8008B4E0(int);
 
 struct GpuSys {
     unsigned char pad0;
@@ -24,7 +25,6 @@ extern int D_800ABACC;
 extern volatile unsigned int *D_800ABBC8;
 extern volatile unsigned int *D_800ABBD4;
 extern volatile int D_800ABBE8;
-extern volatile int D_800ABBEC;
 extern int D_800ABBF4;
 extern volatile struct GpuQueue D_801128D8[];
 

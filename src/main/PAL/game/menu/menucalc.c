@@ -2,6 +2,8 @@
 #include "m2c_macros.h"
 #include "game/gfx/gfxmtx.h"
 #include "game/menu/menustat.h"
+#include "rr/menu_background.h"
+#include "rr/frame_environment.h"
 
 extern int func_80020074();
 extern unsigned char D_8009F074[][4];
@@ -19,7 +21,6 @@ extern int func_80090424();
 extern unsigned char D_8009F1EC[];
 extern signed char D_800AD4EF;
 extern int D_800F2DE4;
-extern int func_8002A344();
 extern int func_8002AF8C();
 extern int func_8003B588();
 extern int func_8003D228();
@@ -33,7 +34,6 @@ extern short D_800F4C6A;
 extern int D_800F4CA8;
 extern unsigned char *D_800F4D80;
 extern short D_800F4D8A;
-extern int func_8001ECE8();
 extern s32 D_800AC5DC;
 extern s16 D_800AD50A;
 extern int func_800207D4();

@@ -1,5 +1,6 @@
 #include "rr/textured_panel.h"
 #include "game/data/trkld8.h"
+#include "rr/driver_control.h"
 
 extern int D_800AC650[];
 extern short D_800F3A26;
@@ -9,10 +10,8 @@ extern void func_80052800();
 extern void func_800528A8();
 extern void func_8005CA14();
 extern int func_8005CA88();
-extern void func_80092CB8();
 
 void func_8005D310(void);
-void func_8005D40C(s32 index);
 
 void func_8005D310(void) {
     int s1 = func_8005CA88();

@@ -1,15 +1,14 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
 #include "rr/counters.h"
+#include "rr/spu_tick_control.h"
 
 extern int *D_800ABC30;
 extern int D_800ABC38[];
 
 int func_80096FA4(unsigned a0, unsigned short a1, int a2);
-s32 func_80097040(u32 id);
 int func_80097078();
 s32 func_800970A8(u32 index);
-int func_800970DC();
 
 int func_80096FA4(unsigned a0, unsigned short a1, int a2) {
     int t = a0 & 0xFFFF;

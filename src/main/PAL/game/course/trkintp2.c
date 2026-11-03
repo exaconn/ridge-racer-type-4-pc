@@ -2,6 +2,8 @@
 #include "game/ui/uicode.h"
 #include "game/ui/uicnt.h"
 #include "game/course/trkintp2.h"
+#include "rr/overlay662_palette_refresh.h"
+#include "rr/matrix_workspace.h"
 
 typedef struct { int x, y, z, w; } V4;
 
@@ -12,14 +14,12 @@ extern int func_80096424();
 extern int func_80096464();
 extern char D_8010C158[];
 extern char D_8010C168[];
-extern void func_80092FFC();
 extern void func_80092D50();
 extern char *D_800ACBA0;
 extern int func_8006E030();
 extern int func_8006E09C();
 extern int func_8006E108();
 extern int func_80090CA4();
-extern int func_80090DB4();
 extern int func_80090EC4();
 extern int func_800912D4();
 

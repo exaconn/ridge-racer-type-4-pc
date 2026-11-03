@@ -4,6 +4,8 @@
 #include "m2c_macros.h"
 #include "game/menu/menuwork.h"
 #include "game/ui/barsel0.h"
+#include "rr/audio_loop.h"
+#include "rr/menu_background.h"
 
 typedef struct { short a, b; } X;
 
@@ -16,7 +18,6 @@ extern unsigned char D_8009F790[];
 extern unsigned short D_800AC648;
 extern int D_800ACC14;
 extern signed char D_800AD4EF;
-extern short D_800F4D44;
 extern int func_8003D228();
 extern int func_8003DC9C();
 extern int func_8003E040();
@@ -25,7 +26,6 @@ extern int D_800F2DE4;
 extern int D_800F4D40;
 extern signed char D_800F4D7C;
 extern int D_800F4D8C;
-extern int func_8002A344();
 extern s32 D_800AC5DC;
 extern s16 D_800F3A26;
 extern s16 D_800F4C6A;

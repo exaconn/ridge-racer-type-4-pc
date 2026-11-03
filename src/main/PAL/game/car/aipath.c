@@ -3,6 +3,7 @@
 #include "rr/race.h"
 #include "m2c_macros.h"
 #include "game/car/carmove1.h"
+#include "rr/menu_overlay_runtime.h"
 
 typedef struct T16 {
     s32 a;
@@ -73,7 +74,6 @@ typedef struct
 } K;
 
 extern s32 D_800ABECC;
-extern short D_800AD522;
 extern struct E *D_800ABEA4;
 extern K D_800ADAD8[];
 extern int func_80026A74();

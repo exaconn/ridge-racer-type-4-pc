@@ -1,11 +1,11 @@
 /* RODATA 0x8001104c 0x18 */
 #include "rr/color_conversion.h"
 #include "game/gfx/color.h"
+#include "rr/channels.h"
 
 typedef struct { char pad[0x1C]; short f1c; char pad2[0x3E]; } T;
 
 extern T D_800F3A38[];
-extern int func_80097C58();
 extern int func_8004FA98();
 extern int func_80052B48();
 extern int func_80053A9C();

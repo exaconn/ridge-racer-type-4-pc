@@ -29,12 +29,10 @@ extern char D_800ABD20[];
 extern u16 D_801146CA;
 
 s32 func_8009AEAC(u32 arg0, u32 arg1, u32 arg2);
-s32 func_8009B380(void);
 s32 func_8009B3FC(void);
 int func_8009B758(void);
 s32 func_8009B84C(void);
 s32 func_8009B854(void);
-s32 func_8009B85C(void);
 int func_8009B8EC();
 s32 func_8009B9D4(void);
 

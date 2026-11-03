@@ -3,8 +3,7 @@
 #include "rr/gpu_scratch_types.h"
 #include "rr/frame_environment.h"
 #include "rr/ui_primitives.h"
-
-extern RrFrameOrderingPrefix *D_800ACC14;
+#include "rr/fade_sprite.h"
 
 enum { ORDERING_TABLE_WORD = RR_FIELD_OFFSET(RrFrameOrderingPrefix, ordering70) / sizeof(u32) };
 

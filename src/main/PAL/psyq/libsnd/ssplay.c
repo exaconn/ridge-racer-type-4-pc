@@ -6,7 +6,6 @@
 #define SPU(index) (((RrSpuRegisterStorage*)D_800A47D8)->halves[index])
 
 void func_800825B4(signed char a0, signed char a1, signed char a2);
-void func_80082674(RrSpuCommonAttributes28 *attributes);
 
 void func_800825B4(signed char a0, signed char a1, signed char a2) {
     struct { int x; int p[4]; int v24, v28; int pad; int v30, v34; } s;

@@ -91,7 +91,6 @@ void func_80031DA0(void);
 void func_80031DA8(void);
 void func_80031DB0();
 void func_80031DEC(void);
-void func_80031E3C(void);
 void func_80031F1C(void);
 void func_80031FE8(void);
 void func_8003244C(void);

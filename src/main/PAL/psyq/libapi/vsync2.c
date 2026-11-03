@@ -1,14 +1,12 @@
 /* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/library.h"
+#include "rr/audio_cd_controller.h"
 
 extern int D_800A63C4;
 extern char D_80011878[];
 extern char D_80011894[];
-extern void func_8001E84C();
 
-RrLibInterruptExchange func_8008BB44(void);
-void func_8008BB90(void);
 RrLibInterruptCallback func_8008BD10(s32 channel,RrLibInterruptCallback callback);
 void func_8008BDBC(RrLibInterruptCallback *callbacks, s32 count);
 

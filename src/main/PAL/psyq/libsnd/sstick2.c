@@ -1,5 +1,5 @@
 #include "rr/library.h"
-extern RrLibStateB0 *D_8010F068[];
+#include "rr/channel_stream.h"
 void func_80083994(s32 a0, s16 a1) {
     s32 t = a0 << 16;
     RrLibStateB0 **b = D_8010F068;

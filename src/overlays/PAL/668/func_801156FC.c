@@ -4,8 +4,9 @@ void ovl668_func_801156FC(void) {
     s32 sp18[4];
     s32 sp28[4];
     s32 sp38[4];
+    s32 unused[2];
     s32 idx;
-    /* Keep the neighbour index in v1 across the two sample calculations. */
+    /* ASM_BARRIER: Keep the neighbour index in v1 across the two sample calculations. */
     register s32 next __asm__("$3");
     s32 dx;
     s32 dz;

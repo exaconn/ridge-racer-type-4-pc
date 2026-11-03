@@ -1,6 +1,7 @@
 #include "rr/overlay668_camera.h"
 
 void ovl668_func_80115554(void) {
+    s32 unused[4];
     s32 var_a3;
     s32 idx1;
     s32 idx2;

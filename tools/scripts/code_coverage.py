@@ -21,8 +21,12 @@ def coverage(ledger_path, target_percent=40):
     if not isinstance(target_percent, int) or not 1 <= target_percent <= 100:
         raise ValueError("Target percentage must be an integer from1 to100")
     ledger = json.loads(ledger_path.read_text())
-    report = json.loads((ROOT / ledger['overlay_report']).read_text())
-    verified = set(ledger['overlay_owners'])
+    if 'functions' in ledger:  # a verify_overlay_samples.py report used directly
+        report = ledger
+        verified = {r['symbol'] for r in report['functions']}
+    else:
+        report = json.loads((ROOT / ledger['overlay_report']).read_text())
+        verified = set(ledger['overlay_owners'])
     assert verified == {r['symbol'] for r in report['functions']}
     assert all(r['levenshtein'] == 0 for r in report['functions'])
     assert report['full_exe_identical'] and report['reconstructed_r4_identical']
@@ -57,17 +61,25 @@ def coverage(ledger_path, target_percent=40):
         function_extent(source.read_text(), symbol)
         intervals.setdefault(index,[]).append((a,a+size))
         overlay_c+=size
+    overlay_hasm=0
+    for line in (ROOT/'configs/PAL/overlay_hasm.txt').read_text().splitlines():
+        line=line.split('#',1)[0].split()
+        if not line: continue
+        index,a,size=int(line[0]),int(line[1],16),int(line[2],16);start,end=SPANS[index]
+        assert BASE+start <= a and a+size <= BASE+end
+        intervals.setdefault(index,[]).append((a,a+size))
+        overlay_hasm+=size
     for values in intervals.values():
         values.sort();assert all(a[1] <= b[0] for a,b in zip(values,values[1:]))
-    total=resident_total+sum(b-a for a,b in SPANS.values())
+    total=resident_total+sum(b-a for a,b in SPANS.values())-overlay_hasm
     recovered=resident_c+overlay_c
     threshold=(total*target_percent+99)//100
-    return dict(scope='PAL resident .text (excluding hand-written hasm) plus nine unique candidate overlay text spans; aliases excluded',
+    return dict(scope='PAL resident .text plus nine unique candidate overlay text spans, both excluding hand-written hasm; aliases excluded',
                 denominator_provisional=True, denominator_source='configs/PAL/main.yaml and analyze_overlays.SPANS',
                 total_code_bytes=total,resident_text_bytes=resident_total,
                 resident_hasm_bytes=resident_hasm,resident_hasm_functions=len(hasm),
                 resident_c_bytes=resident_c,verified_overlay_c_bytes=overlay_c,
-                recovered_c_bytes=recovered,coverage_percent=100*recovered/total,
+                overlay_hasm_bytes=overlay_hasm,recovered_c_bytes=recovered,coverage_percent=100*recovered/total,
                 target_percent=target_percent,target_c_bytes=threshold,remaining_c_bytes=max(0,threshold-recovered),
                 main_functions=len(owners),verified_overlay_functions=len(verified),
                 overlay_ledger=str(ledger_path.relative_to(ROOT)))
@@ -75,7 +87,8 @@ def coverage(ledger_path, target_percent=40):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--ledger',type=Path,default=ROOT/'build/goal_1401/part61/verified.json')
+    p.add_argument('--ledger',type=Path,default=ROOT/'build/overlays/samples/verified.json',
+                   help='verify_overlay_samples.py report (default) or an older ledger pointing at one')
     p.add_argument('--output',type=Path)
     p.add_argument('--target-percent',type=int,default=40)
     args=p.parse_args();result=coverage(args.ledger.resolve(),args.target_percent)

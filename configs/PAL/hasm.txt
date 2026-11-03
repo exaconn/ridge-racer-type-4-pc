@@ -1,7 +1,7 @@
 # Hand-written assembly in the PAL main EXE (splat segment type `hasm`).
 # These functions are linked from splat-generated asm (asm/ is not tracked) and are
 # excluded from the C-coverage denominator. Only certain cases are listed, i.e. code
-# no stock gcc 2.7.2/2.8.1 can emit from C:
+# no stock gcc (2.7.2, 970318, 2.8.1) can emit from C:
 #   trapping-arith  add/addi/sub/neg (gcc only emits addu/addiu/subu/negu)
 #   cop0            mfc0/mtc0/rfe
 #   syscall         syscall instruction
@@ -12,6 +12,9 @@
 #   tail-jump       frameless jump through a function pointer in a temp register
 #                   (gcc 2.7.2/2.8.1 has no tail calls; C needs goto* + a register pin)
 #   bios-trampoline li $t2,0xA0/0xB0/0xC0; jr $t2; li $t1,N  BIOS call stubs
+#   branch-to-next  conditional branch whose target is the instruction right after its
+#                   delay slot (gcc's jump pass always deletes such branches)
+#   store-ra        stores $ra to a global (C only spills $ra into its own frame)
 # GTE (cop2) use alone is NOT evidence: C reaches it through inline macros.
 # Format: <function> <evidence>[,<evidence>...]
 func_80058118 shared-entry
@@ -79,6 +82,12 @@ func_8006CE24 store-at
 func_8006D138 store-at
 func_800907FC cop0
 func_80090884 trapping-arith
+func_80091844 branch-to-next
+func_80091AD4 branch-to-next
+func_80091D64 branch-to-next
+func_80091FF4 branch-to-next
+func_80092194 branch-to-next
+func_80092334 branch-to-next
 func_80092654 bios-trampoline
 func_80092700 cop0,k0k1,store-at
 func_80095C74 bios-trampoline
@@ -88,6 +97,12 @@ func_80095CE4 bios-trampoline
 func_80095CF4 bios-trampoline
 func_80095DD4 bios-trampoline
 func_80095DE4 bios-trampoline
+func_80095DF4 bios-trampoline
+func_80095E30 tail-jump
+func_80095E74 tail-jump
+func_80095E9C bios-trampoline,store-ra
+func_80095F30 bios-trampoline,store-ra
+func_80095FD4 bios-trampoline,store-ra
 func_800963A4 bios-trampoline
 func_800963B4 bios-trampoline
 func_800963DC bios-trampoline

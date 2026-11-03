@@ -20,13 +20,15 @@ src/main/PAL/
 Overlay code stays in `src/overlays/PAL/<n>/` and is described in `docs/overlays.md`.
 
 ## File naming
-PsyQ files take the name of the real library member where the symbol evidence identifies it
-(`configs/PAL/psyq_hints.parasite.txt` against the member lists of the PsyQ 4.x decompilation
-https://github.com/software-factory-vibe-city/psyq-decompilation): `libcd/bios_1*`, `libspu/spu*`,
-`libetc/intr*`. The former `libgpu/sys1..9` slices need three different compilers (gcc 2.8.1, 970318,
-2.7.2), so they cannot be one object file; they are separate units named after what they do
-(`gpudisp`, `gpuqueue`, `gpudrain`, `gpureset`, `drawsync`, `gputimer`, `loadimg`, `storeimg`,
-`clearimg`).
+PsyQ files take the name of the real library member. Three real source names are preserved
+verbatim in `$Id:` strings of the executable (see `FOUND_NAMES.md`): `intr.c` (libetc), `bios.c`
+(libcd) and `sys.c` (libgpu). Hence `libetc/intr*`, `libcd/bios_*` and `libgpu/sys_*` (`sys_reset`,
+`sys_queue`, `sys_drain`, `sys_sync`, `sys_timer`, `sys_load`, `sys_store`, `sys_clear`) are slices of
+those members. The slices are separate units because the verified compiler configuration differs
+between them (gcc 2.8.1, 970318, 2.7.2), so they cannot yet be proven to be one translation unit; the
+suffix after `sys_` is a descriptive guess. `libgpu/gpudisp` (display environment) is not tied to
+`sys.c`. Other PsyQ names come from `configs/PAL/psyq_hints.parasite.txt` against the member lists of
+https://github.com/software-factory-vibe-city/psyq-decompilation.
 
 Game files use Namco/PsyQ-era style: lower case, at most 8 characters, a noun or noun+verb abbreviation
 (`carmove1.c`, `cdread.c`, `sprite.c`, `vmchval.c`). Where a PsyQ library file name is known

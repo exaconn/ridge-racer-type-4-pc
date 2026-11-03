@@ -14,9 +14,4 @@ extern s16 D_800AD522;
  * additions and the final x/z scale must fit s32. Output may overlap samples. */
 void func_80043AB0(RrRaceVehicle *vehicle, s32 *output, s32 distance);
 
-RR_ASSERT_SIZE(RrTrackSample3C, 0x3C);
-RR_ASSERT_OFFSET(RrTrackSample3C, x08, 8);
-RR_ASSERT_OFFSET(RrTrackSample3C, z0C, 0xC);
-RR_ASSERT_OFFSET(RrTrackSample3C, y10, 0x10);
-
 #endif

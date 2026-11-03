@@ -18,7 +18,8 @@ enum {RR_RACE_CONTROL_OFFSET=0x1F4};
 
 /* Sub-record at offset 0x1F4 of RrRaceVehicle (used by AI, lane-change and gearbox routines). */
 typedef struct {
-    u8 pad00[0x38];
+    u8 pad00[0x30];
+    s16 pathDeltaX30, reserved32, pathDeltaZ34, reserved36;
     s16 laneTimer38, laneStart3A, laneTarget3C, laneCurrent3E;
     s32 laneCooldown40;
     s16 boostTimer44, dragFlag46, holdFlag48, pad4A;
@@ -76,7 +77,8 @@ typedef struct RrRaceVehicle {
     s32 height108;
     s16 width10C, halfSpan10E;
     s16 corner110, corner112, corner114, corner116, corner118, corner11A, corner11C, corner11E;
-    u8 pad120[0x172 - 0x120];
+    u8 pad120[0x170 - 0x120];
+    s16 trackFraction170;
     s16 lateralOffset172;
     u8 pad174[4];
     s32 lateralMotion178;
@@ -98,7 +100,8 @@ typedef struct RrRaceVehicle {
     s16 half1EE;
     u8 pad1F0[0x218 - 0x1F0];
     s32 playerFlags218;
-    u8 pad21C[0x22C - 0x21C];
+    u8 pad21C[0x224 - 0x21C];
+    s16 pathDeltaX224, reserved226, pathDeltaZ228, reserved22A;
     s16 laneTimer22C, laneStart22E, laneTarget230, laneCurrent232;
     s32 laneCooldown234;
     s16 blend, dragFlag23A, holdFlag23C, pad23E;

@@ -11,7 +11,7 @@ void func_80043AB0(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
     RrTrackSample3C *current;
 
     if (D_800AD522 == 0) {
-        index = vehicle->trackNodeF0 - ((s32) (distance - *(s16 *)&vehicle->pad120[0x50]) >> 0xA);
+        index = vehicle->trackNodeF0 - ((s32) (distance - vehicle->trackFraction170) >> 0xA);
         neighbour = index - 1;
         if (index < 0) {
             index += D_800ABECC;
@@ -25,7 +25,7 @@ void func_80043AB0(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
         /* ASM_BARRIER: preserve the page base for the signed count displacement. */
         __asm__("" : "+r"(page));
         length=*(s32*)(page-0x4134);
-        index = vehicle->trackNodeF0 + ((s32) (distance - *(s16 *)&vehicle->pad120[0x50]) >> 0xA);
+        index = vehicle->trackNodeF0 + ((s32) (distance - vehicle->trackFraction170) >> 0xA);
         neighbour = index + 1;
         if (index >= length) {
             index -= length;
@@ -38,7 +38,7 @@ void func_80043AB0(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
     }
     current = D_800ABEA4 + index;
     next = D_800ABEA4 + neighbour;
-    fraction = (distance - *(s16 *)&vehicle->pad120[0x50]) & 0x3FF;
+    fraction = (distance - vehicle->trackFraction170) & 0x3FF;
     output[0] = (s32) ((((s32) ((next->x08 - current->x08) * fraction) / 1024) + current->x08) * 4);
     current_y = current->y10;
     output[1] = (s32) (((s32) ((next->y10 - current_y) * fraction) / 1024) + current_y);

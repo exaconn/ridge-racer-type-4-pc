@@ -1,6 +1,7 @@
 #ifndef RR_OVERLAY668_CAMERA_H
 #define RR_OVERLAY668_CAMERA_H
 #include "rr/track_sample_types.h"
+#include "rr/track_lateral.h"
 #include "rr/race_types.h"
 #include "rr/overlay665_matrix.h"
 typedef struct {
@@ -14,7 +15,6 @@ typedef struct {
 extern RrReplayCameraContextPrefix D_800AC650;
 extern RrTrackSample3C *D_800ABEA4;
 extern s32 D_800ABECC;
-void func_80047610(const RrTrackSample3C *,const RrTrackSample3C *,s32,s32,s32 *);
 s32 func_8006E368(s32,s32);
 s32 func_80090758(s32);
 /* Node and its single-wrapped neighbours select accessible track samples.

@@ -10,6 +10,7 @@
 #include "rr/driver_control.h"
 #include "rr/bios_events.h"
 #include "rr/serial_handles.h"
+#include "game/gfx/gfxotag.h"
 
 typedef struct { int a, b, c, d; } w3g2V;
 
@@ -82,7 +83,6 @@ extern int func_8004BAD4();
 extern int func_8004F24C();
 extern unsigned char D_8009F6DC[];
 extern signed char D_800F2FDC;
-extern unsigned short D_800F3A40;
 extern int func_8003660C();
 extern int D_8009F6E4[];
 extern char D_800AD4D8[];

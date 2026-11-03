@@ -17,6 +17,8 @@
 #include "rr/sprite_preset.h"
 #include "rr/menu_background.h"
 #include "rr/memory.h"
+#include "game/gfx/gfxotag.h"
+#include "game/gfx/model.h"
 
 #define G D_8010BF78
 #define H D_800F3AFC
@@ -116,7 +118,6 @@ extern int func_800528A8();
 extern int func_80052A30();
 extern int func_80052B8C();
 extern int func_8006EF8C();
-extern int func_80070108();
 extern int func_800912B4();
 extern struct GS *D_8010BF78;
 extern struct HS *D_800F3AFC;
@@ -126,7 +127,6 @@ extern int D_800ACC14;
 extern char *D_800ACC18;
 extern char D_800ACC68;
 extern short D_800F3A26;
-extern unsigned short D_800F3A40;
 extern short D_800F4BE8;
 extern short D_800F4C6A;
 extern int D_800F4CA8;

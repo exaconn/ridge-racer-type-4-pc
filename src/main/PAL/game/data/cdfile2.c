@@ -23,6 +23,7 @@
 #include "game/data/cdfile1.h"
 #include "rr/bios_devices.h"
 #include "rr/relative_file.h"
+#include "game/gfx/model.h"
 #define B (*(int *)&D_800ACC18)
 
 struct A { char p[0x14]; unsigned f14; char q[0x20]; unsigned f38; };
@@ -66,7 +67,6 @@ extern int D_8009DF98;
 extern int D_8010943C;
 extern int D_8010BF60;
 extern void func_800436E8();
-extern void func_80070108();
 extern int D_80109440;
 extern int D_80109444;
 extern int D_80109448;

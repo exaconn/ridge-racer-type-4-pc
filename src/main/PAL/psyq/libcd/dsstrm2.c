@@ -2,8 +2,8 @@
 #include "psyq/libcd/dsstrm23.h"
 #include "psyq/libcd/dsmedia2.h"
 #include "psyq/libcd/dsstrm2.h"
+#include "psyq/libcd/dsstrm32.h"
 extern int D_801102D0;
-extern int D_80110300;
 extern int D_80112760;
 extern int D_80112764;
 void func_8008F6D4(int a, int b, int c, int d, int e) {

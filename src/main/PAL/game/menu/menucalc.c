@@ -4,6 +4,9 @@
 #include "game/menu/menustat.h"
 #include "rr/menu_background.h"
 #include "rr/frame_environment.h"
+#include "game/data/ldscn1.h"
+#include "game/gfx/gfxotag.h"
+#include "game/menu/menu8.h"
 
 extern int func_80020074();
 extern unsigned char D_8009F074[][4];
@@ -22,7 +25,6 @@ extern unsigned char D_8009F1EC[];
 extern signed char D_800AD4EF;
 extern int D_800F2DE4;
 extern int func_8002AF8C();
-extern int func_8003B588();
 extern int func_8003D228();
 extern int func_8003D6F0();
 extern int func_8003DC9C();
@@ -37,10 +39,7 @@ extern short D_800F4D8A;
 extern s32 D_800AC5DC;
 extern s16 D_800AD50A;
 extern int func_800207D4();
-extern int func_8003189C();
-extern int func_80031CE4();
 extern int func_8003A198();
-extern int func_8003B398();
 extern int func_8004F24C();
 extern int func_80053AF4();
 extern int func_80053CB0();
@@ -49,7 +48,6 @@ extern unsigned short D_800AC5D0;
 extern int D_800ACC18;
 extern struct { char pad[1]; signed char b1; } *D_800F2AB0;
 extern struct { char pad[8]; unsigned short h8; char pad2[0x1E]; int w28; } D_800F3A38;
-extern unsigned short D_800F3A40;
 extern struct { char pad[0x10]; short h10; char pad2[10]; } *D_800F3AFC;
 extern unsigned short D_800F4C5C;
 extern int D_800F4D74;

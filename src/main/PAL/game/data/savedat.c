@@ -5,6 +5,7 @@
 #include "rr/menu_selection.h"
 #include "rr/overlay662_frame_step.h"
 #include "rr/overlay668_playback_step.h"
+#include "game/race/raceset.h"
 typedef struct {
     int w[31];
 } Struct7C;
@@ -73,7 +74,6 @@ extern Struct840 *D_800F3910;
 extern Struct840 *D_800F3918;
 extern Struct7C D_800F3920;
 extern int D_800F3B28[];
-extern int D_800F4CE8[2][8];
 extern short D_800F4D3C;
 extern short D_800F4D44;
 extern Struct10 D_800FF700[2][8][5];

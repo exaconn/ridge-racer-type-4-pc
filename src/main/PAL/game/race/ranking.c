@@ -7,6 +7,9 @@
 #include "rr/bios_devices.h"
 #include "rr/audio_cd_controller.h"
 #include "rr/driver_control.h"
+#include "game/gfx/color.h"
+#include "game/race/raceset.h"
+#include "game/system/modeinit.h"
 
 typedef struct {
     char name[10];
@@ -22,12 +25,10 @@ typedef struct {
 extern int D_8009EA04[2][8];
 extern StructC D_8009EA44[5];
 extern unsigned char D_8009F900[2][8];
-extern int D_800AC5B0[8];
 extern int D_800ACC28[2][8];
 extern Struct10 D_800AD5C8[2][8][5];
 extern int D_800F3838[2][8][3];
 extern int D_800F3B00[8];
-extern int D_800F4CE8[2][8];
 extern Struct10 D_800FF700[2][8][5];
 extern char D_800ABE08[];
 extern unsigned short D_8009EA80[];
@@ -48,9 +49,7 @@ extern s16 D_800F4C6A;
 extern s8 D_800F4D7C;
 extern s16 D_800F4D8A;
 extern s16 D_800FFC18;
-extern s32 D_8010BFBC;
 extern int func_8004FA98();
-extern s16 D_800AD55A;
 
 void func_8001EEE4(void);
 void func_8001F194(void);

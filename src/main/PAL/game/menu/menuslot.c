@@ -3,10 +3,10 @@
 #include "rr/menu_background.h"
 #include "rr/menu_text_state.h"
 #include "rr/bios_devices.h"
+#include "game/data/ldscn1.h"
 extern int func_800207D4();
 extern int func_8002B330();
 extern int func_8003A198();
-extern int func_8003B398();
 extern int func_8003B934();
 extern int func_8003D6F0();
 extern int func_8003EC88();

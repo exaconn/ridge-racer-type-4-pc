@@ -1,6 +1,7 @@
 /* RODATA 0x80010538 0x18 */
 #include "game/data/trkld1.h"
 #include "game/menu/menuicon.h"
+#include "game/ui/barsel0.h"
 typedef struct { char pad[0x14]; unsigned char b14; char p15, p16; signed char b17; char p18[2]; short h1A; } S4D8;
 
 extern int func_80052800();
@@ -21,7 +22,6 @@ extern int D_800F3A60;
 extern unsigned short D_800AC5D0;
 extern unsigned char D_800F4D98[];
 extern char *D_800ACC14;
-extern short D_800AD4F2;
 extern short D_800F4C6A;
 extern short D_800F3A26;
 extern int func_80020074();

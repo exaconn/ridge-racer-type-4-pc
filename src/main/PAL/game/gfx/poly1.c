@@ -18,6 +18,7 @@
 #include "rr/hud_number.h"
 #include "rr/relative_file.h"
 #include "rr/frame_environment.h"
+#include "game/demo/splash.h"
 
 typedef struct { int a[8]; } S32B;
 
@@ -91,7 +92,6 @@ extern unsigned short D_800AD5B8;
 extern unsigned char *D_8010E798;
 extern int func_80092CB8();
 extern int D_800AC5DC;
-extern int D_8010E7A4;
 extern struct S D_80011324;
 extern struct S D_8001132C;
 extern struct S D_80011334;

@@ -7,6 +7,7 @@
 #include "game/effect/spark.h"
 #include "game/gfx/meshquad.h"
 #include "rr/overlay665_render.h"
+#include "game/gfx/gfxotag.h"
 #define RTPT() RR_GTE_RTPT_MEM()
 #define RTPS() RR_GTE_RTPS_MEM()
 #define NCLIP() RR_GTE_NCLIP_MEM()
@@ -38,7 +39,6 @@ extern struct
   char pad[8];
   short f8;
 } *D_800F3A08;
-extern unsigned short D_800F3A40;
 
 RrMeshQuadGT4 *func_80057A44(RrMeshQuadGT4 *p, s32 *s);
 RrMeshQuadG4 *func_80057C50(RrMeshQuadG4 *p, s32 *s);

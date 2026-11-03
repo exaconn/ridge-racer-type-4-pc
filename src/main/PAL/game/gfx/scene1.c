@@ -7,6 +7,7 @@
 #include "game/gfx/scene1.h"
 #include "rr/hud_number.h"
 #include "rr/bios_devices.h"
+#include "game/gfx/gfxotag.h"
 
 #define addPrim(ot, p) \
     ((DrTPage *)(p))->addr = (ot)->addr; \
@@ -64,7 +65,6 @@ extern s32 D_800AC724;
 extern Db *D_800ACC14;
 extern Rect D_800A0D04[];
 extern Rect D_800A0D24[][4];
-extern u16 D_800F3A40;
 extern int func_80014A8C();
 extern short D_800A0D7C;
 extern int D_800A0FB0[];

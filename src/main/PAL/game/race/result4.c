@@ -6,6 +6,7 @@
 #include "game/ui/barsel0.h"
 #include "rr/audio_loop.h"
 #include "rr/menu_background.h"
+#include "game/ui/barsel0.h"
 
 typedef struct { short a, b; } X;
 
@@ -39,7 +40,6 @@ extern int func_8003EC88();
 extern char D_800106EC[];
 extern char D_800106F8[];
 extern int D_8009FDA4;
-extern short D_800AD4F2;
 extern int D_800F3A60;
 extern struct { char pad[0x10]; short h10; } *D_800F3AFC;
 extern struct { char pad[4]; signed char b4; char b5; signed char b6; } *D_800FF68C;

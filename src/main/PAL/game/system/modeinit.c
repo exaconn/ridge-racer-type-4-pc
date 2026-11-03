@@ -13,6 +13,9 @@
 #include "rr/audio_cd_controller.h"
 #include "rr/driver_control.h"
 #include "rr/frame_environment.h"
+#include "game/data/ldscn1.h"
+#include "game/gfx/gfxotag.h"
+#include "game/system/modeinit.h"
 
 typedef struct { char p0[2]; short s2; char p4[4]; short s8; short sA; char pC[4]; short s10; } W7C0_F;
 
@@ -49,11 +52,8 @@ extern short D_800AC64A;
 extern short D_800AD50A;
 extern int D_800F2DE4;
 extern short *D_800F3AFC;
-extern short D_800F4D2C;
 extern int D_800F3A60;
-extern unsigned short D_800F3A40;
 extern unsigned short D_800F4C5C;
-extern int D_8010BFBC;
 extern void func_80032A14();
 extern void func_8003A198();
 extern void func_8003D6F0();

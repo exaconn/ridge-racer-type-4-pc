@@ -2,6 +2,10 @@
 #include "types.h"
 #include "m2c_macros.h"
 #include "rr/selection.h"
+#include "game/data/ldscn1.h"
+#include "game/gfx/gfxotag.h"
+#include "game/menu/menutran.h"
+#include "game/ui/barsel0.h"
 
 typedef struct {
     u8 pad0[0x16];
@@ -27,7 +31,6 @@ struct E { int a; short b; short c; };
 typedef struct { char b[0x17]; signed char b17; char r[0x2C - 0x18]; } w3g2S;
 
 extern signed char D_800AD4EF;
-extern short D_800AD4F2;
 extern unsigned char D_800AD4F5;
 extern short D_800F4C5C;
 extern signed char *D_800FF68C;
@@ -60,10 +63,8 @@ extern int func_800207D4();
 extern int func_8002A344();
 extern int func_8002AF8C();
 extern int func_8002B330();
-extern int func_8002F688();
 extern int func_80032A14();
 extern int func_8003A198();
-extern int func_8003B398();
 extern int func_8003D6F0();
 extern int func_8004F24C();
 extern struct { char pad[4]; char b4; char pad5; signed char b6; char pad2[0xC - 7]; } *D_800AC590;
@@ -75,7 +76,6 @@ extern w3g2S D_800F2E30[];
 extern struct { char pad[0x28]; int w28, w2C; } D_800F3A38;
 extern struct { char pad[8]; short s8, sA; char padC[4]; short s10; char pad12[0x2C - 0x12]; short s2C; } *D_800F3AFC;
 extern char *D_800F4D80;
-extern unsigned short D_800F3A40;
 extern unsigned short D_800F3A42;
 extern int D_8010BFC0;
 extern int func_8002A344();

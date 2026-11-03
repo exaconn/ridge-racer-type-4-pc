@@ -6,6 +6,7 @@
 #include "game/race/raceinfo.h"
 #include "rr/overlay662_distance.h"
 #include "rr/matrix_workspace.h"
+#include "game/race/raceset.h"
 
 struct T { int pad[2]; int a; int b; int pad2[11]; };
 
@@ -19,9 +20,7 @@ extern unsigned char D_8009F900[];
 extern int D_800F3A30;
 extern short D_8009F678[];
 extern int D_800F3B00[];
-extern int D_800AC5B0[];
 extern int D_800ACC28[][8];
-extern int D_800F4CE8[][8];
 extern short D_800AC59C;
 extern short D_800ABEC8;
 extern int func_8001FF84();

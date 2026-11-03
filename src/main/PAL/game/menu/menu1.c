@@ -8,6 +8,7 @@
 #include "rr/menu_background.h"
 #include "rr/selection.h"
 #include "rr/bios_devices.h"
+#include "game/ui/barsel0.h"
 
 typedef struct { char p[0x17]; signed char b; char q[0x2C - 0x18]; } T;
 
@@ -39,7 +40,6 @@ extern int func_8003A198();
 extern int func_8003A1B4();
 extern int func_80041A54();
 extern int D_800ACC18;
-extern short D_800AD4F2;
 extern int *D_800F3A28;
 extern short D_800F4CB0;
 extern int D_800F4D40;

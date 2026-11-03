@@ -16,6 +16,7 @@
 #include "game/data/cdfile1.h"
 #include "game/data/cdfile2.h"
 #include "rr/audio_loop.h"
+#include "game/data/ldscn1.h"
 typedef struct { char p[7]; char b; } Z;
 
 extern int func_8004E008();
@@ -25,7 +26,6 @@ extern int D_800102F0;
 extern int D_800ACC18;
 extern int D_800F4D40;
 extern int D_800F4D70;
-extern short D_800F4D2C;
 extern int func_8003A1B4();
 extern int D_800F4D74;
 extern short D_800F3914;

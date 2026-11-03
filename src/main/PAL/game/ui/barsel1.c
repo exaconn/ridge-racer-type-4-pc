@@ -2,6 +2,7 @@
 #include "m2c_macros.h"
 #include "game/ui/barsel1.h"
 #include "rr/badge_rows.h"
+#include "game/ui/barsel0.h"
 
 extern int func_8002AF8C();
 extern int func_8002B12C();
@@ -9,7 +10,6 @@ extern int func_80032A14();
 extern int func_80032DF0();
 extern int func_8003D6F0();
 extern int func_8003E13C();
-extern s16 D_800AD4F2;
 extern s16 D_800AD520;
 extern u8 D_800F4D98;
 extern void *D_800FF68C;

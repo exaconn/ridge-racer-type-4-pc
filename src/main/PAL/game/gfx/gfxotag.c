@@ -11,6 +11,7 @@
 #include "rr/hud_number.h"
 #include "rr/bios_devices.h"
 #include "rr/race_setup.h"
+#include "game/gfx/gfxotag.h"
 
 typedef struct { unsigned addr : 24; unsigned len : 8; } P_TAG;
 
@@ -82,7 +83,6 @@ extern int func_80096464();
 extern int D_800AC6EC;
 extern signed char D_800AD4D8[];
 extern signed char D_800AD528[];
-extern unsigned short D_800F3A40;
 extern int D_8010718C;
 
 void func_80044EC4(void);

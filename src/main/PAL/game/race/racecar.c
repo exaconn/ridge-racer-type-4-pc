@@ -2,10 +2,9 @@
 #include "game/car/carparam.h"
 #include "game/car/carsetup.h"
 #include "rr/overlay662_distance.h"
-extern int func_80024A88();
+#include "game/car/aipath.h"
+#include "game/car/carphys2.h"
 extern int func_80025FBC();
-extern int func_8002648C();
-extern int func_8002679C();
 extern int func_80026F5C();
 extern int func_80027C54();
 extern int func_8002C638();

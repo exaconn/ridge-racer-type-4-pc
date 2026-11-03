@@ -212,7 +212,29 @@ def main():
             vedges[q].append((name, core))
     for q, v in vedges.items():
         edges[q].extend(v)
-    cands = {n: [owner[n][1]] + [f for f in forms[n] if f != owner[n][1]] for n in {e[0] for v in edges.values() for e in v}}
+    def synth(n):
+        """extra spellings: every return type seen x every parameter list seen"""
+        rets, pars = [], []
+        for f in [owner[n][1]] + forms[n]:
+            m = re.match(r'^\s*(.*?)\b' + n + r'\s*\((.*)\)\s*;?\s*$', f)
+            if not m:
+                continue
+            r, pr = m.group(1).strip(), m.group(2).strip()
+            if r.startswith('extern '):
+                r = r[7:]
+            if r not in rets:
+                rets.append(r)
+            if pr not in pars:
+                pars.append(pr)
+        if '' not in pars:
+            pars.append('')
+        return [f'{r} {n}({pr});' for r in rets for pr in pars]
+    cands = {}
+    for n in {e[0] for v in edges.values() for e in v}:
+        lst = [owner[n][1]] + [f for f in forms[n] if f != owner[n][1]]
+        if FUNC.match(n):
+            lst += [c for c in synth(n) if c not in lst and usable(c, n, known)]
+        cands[n] = lst
     print('functions with callers', len(cands), 'caller edges', sum(len(v) for v in edges.values()))
     if dry:
         return
@@ -225,7 +247,7 @@ def main():
         text = units[c][0]
         ok = {}
         for name, core in edges[c]:
-            for ci, cand in enumerate(cands[name][:4]):
+            for ci, cand in enumerate(cands[name][:16]):
                 i = text.find(core)
                 if i < 0:
                     break
@@ -272,12 +294,11 @@ def main():
             body += lines
             body += ['', f'#endif /* {guard} */', '']
             h.write_text('\n'.join(body))
-        changed = {}
-        for c, ds in edges.items():
+        def build(c, names):
             text = units[c][0]
             owners_used = set()
-            for name, core in ds:
-                if name not in active:
+            for name, core in edges[c]:
+                if name not in names:
                     continue
                 i = text.find(core)
                 if i < 0:
@@ -288,7 +309,7 @@ def main():
                 text = text[:i] + text[j:]
                 owners_used.add(owner[name][0])
             if not owners_used:
-                continue
+                return None
             inc = ''.join(f'#include "{hpath(u).relative_to(INC).as_posix()}"\n' for u in sorted(owners_used))
             last = None
             for m in re.finditer(r'^#include[^\n]*\n', text, re.M):
@@ -298,7 +319,12 @@ def main():
             else:
                 m = re.match(r'(?:/\*[^\n]*\*/\n)*', text)
                 text = text[:m.end()] + inc + text[m.end():]
-            changed[c] = re.sub(r'\n{3,}', '\n\n', text)
+            return re.sub(r'\n{3,}', '\n\n', text)
+        changed = {}
+        for c in edges:
+            t = build(c, set(active))
+            if t is not None:
+                changed[c] = t
         for c, t in changed.items():
             c.write_text(t)
         touched = {hpath(owner[n][0]).relative_to(INC).as_posix() for n in active}
@@ -318,8 +344,19 @@ def main():
             return
         for c in bad:
             incl = {m for m in re.findall(r'#include "([^"]+)"', changed.get(c, units[c][0]))}
-            banned |= {n for n, _ in edges.get(c, [])}
-            banned |= {n for n in active if hpath(owner[n][0]).relative_to(INC).as_posix() in incl}
+            culprits = set()
+            for n in [n for n, _ in edges.get(c, []) if n in active]:
+                t = build(c, {n})
+                if t is None:
+                    continue
+                c.write_text(t)
+                if not fd_ok(c):
+                    culprits.add(n)
+                c.write_text(units[c][0])
+            if not culprits:
+                culprits = {n for n, _ in edges.get(c, [])} | {
+                    n for n in active if hpath(owner[n][0]).relative_to(INC).as_posix() in incl}
+            banned |= culprits
         for h, t in base_hdr.items():
             if t:
                 h.write_text(t)

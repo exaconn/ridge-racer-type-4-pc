@@ -4,6 +4,7 @@
 #include "game/race/racegrid.h"
 #include "game/race/ranking.h"
 #include "rr/audio_loop.h"
+#include "game/data/ldscn1.h"
 
 typedef struct { char pad0[0xC]; char b0C; char pad1[7]; unsigned char b14; char pad2[0xB]; short s20; char pad3[2]; } W7C0_E;
 
@@ -20,7 +21,6 @@ extern short D_800F4BE8;
 extern int D_800F4BEC;
 extern short D_800F4C5C;
 extern int D_800F4CA8;
-extern unsigned short D_800F4D2C;
 extern short D_800FFC10;
 extern void func_8002B330();
 extern void func_8004F24C();

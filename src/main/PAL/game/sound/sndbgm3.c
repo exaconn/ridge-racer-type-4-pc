@@ -1,6 +1,7 @@
 #include "types.h"
 #include "game/sound/sndbgm3.h"
 #include "rr/channels.h"
+#include "game/gfx/color.h"
 
 struct EE { s32 a, b, c; s16 d, e; s32 f; };
 
@@ -10,7 +11,6 @@ extern struct {
     char pad[0x26]; s16 h; char p1[0x1994 - 0x28]; s32 f1;
     struct EE e[2];
 } D_800F4DB8;
-extern s16 D_800AD55A;
 extern char D_800AD528[];
 extern int func_8004FE7C();
 extern int func_800857A4();

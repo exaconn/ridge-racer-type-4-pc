@@ -9,14 +9,13 @@
 #include "game/data/cdfile1.h"
 #include "game/data/cdfile2.h"
 #include "rr/course_choices.h"
+#include "game/gfx/model.h"
 
 extern int D_800A02BC;
 extern int D_800A029C[];
 extern short D_800F4D44;
-extern int func_80070108();
 extern int func_800436E8();
 extern int func_80043608();
-extern int func_80070108();
 extern int func_800436E8();
 extern int func_80050BCC();
 extern struct { int a, b, c, d; } D_8010C200;

@@ -7,6 +7,7 @@
 #include "psyq/libcd/dsmedia2.h"
 #include "psyq/libcd/dsstrm32.h"
 #include "psyq/libcd/dsstrm2.h"
+#include "psyq/libcd/dsstrm32.h"
 
 extern s32 func_8008C0F8(s32, u8 *);
 
@@ -37,9 +38,7 @@ extern s32 D_800A68B8;
 extern s32 D_801102DC;
 extern s32 D_801102E4;
 extern s32 D_801102F0;
-extern s32 D_80110300;
 extern u32 D_80110304;
-extern s32 D_80110308;
 extern void *D_8011030C;
 extern StHeader *D_80110310;
 extern s32 D_80110314;

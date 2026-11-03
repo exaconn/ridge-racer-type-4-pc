@@ -12,6 +12,7 @@
 #include "game/car/carparam.h"
 #include "rr/bios_devices.h"
 #include "rr/controller_hud.h"
+#include "game/car/aipath.h"
 
 #define H(p, o) (*(unsigned short *)((char *)(p) + (o)))
 #define W(b, o) (*(int *)((char *)(b) + (o)))
@@ -29,7 +30,6 @@ extern int D_800AC538;
 extern char D_800ABEF8[];
 extern short func_80022848(void);
 extern void func_800172DC();
-extern int func_8002648C();
 extern int func_80026F5C();
 extern int func_8002C638();
 

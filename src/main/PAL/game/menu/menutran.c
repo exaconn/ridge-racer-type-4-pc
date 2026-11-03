@@ -1,12 +1,12 @@
 /* RODATA 0x80010514 0x24 */
 #include "rr/menu_transition.h"
 #include "game/menu/menutran.h"
+#include "game/data/ldscn1.h"
 
 typedef struct { int a; short b; char c; char d; } S8;
 
 typedef struct { int x; } __attribute__((packed)) U4;
 
-extern s16 D_800F4D2C;
 extern s16 D_800FFC18;
 extern int func_80096434();
 extern int func_80032E9C();

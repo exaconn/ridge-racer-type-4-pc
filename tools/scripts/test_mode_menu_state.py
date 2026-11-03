@@ -69,7 +69,9 @@ macros+='#define D_800F3AFC badgeRoot\n'
 functions=[]
 signatures=[('s32','func_80035024',['s32']),('s32','func_8009AEAC',['s32','s32','unsigned long']),('void','func_80092CB8',['s32']),('void','func_8001ECE8',['s32','s32','s16','u32']),('void','func_8002A604',[]),('void','func_8003E928',['s32']*10),('void','func_80053BB4',['s32']),('void','func_8003D228',['s32','s32','s16','s32','u16','u16','u16']),('void','func_8003A198',[]),('s32','func_8003B934',[]),('void','func_8002A344',['s32']),('void','func_8002AF8C',['s32']*3)]
 for event,(ret,name,types) in enumerate(signatures,1):
- params=','.join(t+' a'+str(i) for i,t in enumerate(types)) or 'void';args=','.join('(u32)a'+str(i) for i in range(len(types))) or '0'
+ params=','.join(t+' a'+str(i) for i,t in enumerate(types)) or 'void'
+ params+=',...' if name=='func_8003E928' else ''
+ args=','.join('(u32)a'+str(i) for i in range(len(types))) or '0'
  functions.append(f'{ret} {name}({params}){{u32 args[10]={{{args}}};service({event},args);'+('return (s32)active.words[4];' if ret=='s32' else '')+'}')
 head=r'''
 #include <assert.h>

@@ -19,7 +19,7 @@ code=r'''
 #include <stdlib.h>
 #include <string.h>
 #include "types.h"
-''' + ''.join(header(n) for n in ['gpu.h','ui_bar.h','animated_sprite_grid.h','fade_sprite.h'])+r'''
+''' + ''.join(header(n) for n in ['gpu_scratch_types.h','gpu.h','ui_bar.h','animated_sprite_grid.h','fade_sprite.h'])+r'''
 typedef struct {
  u8 guard0[32];
  RrGpuScratchPointers scratch;

@@ -12,7 +12,7 @@ class TextSpritesTest(unittest.TestCase):
         def header(name):
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '',
                           (ROOT/'include/rr'/name).read_text(), flags=re.M)
-        body = (ROOT/'build/legacy/func_8004C5A4.c').read_text()
+        body = (ROOT/'tools/scripts/fixtures/legacy/func_8004C5A4.c').read_text()
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r' asm\("\$\d+"\)', '', body)
         body = re.sub(r'__asm__\("".*?\);', ';', body)
@@ -30,7 +30,7 @@ class TextSpritesTest(unittest.TestCase):
 #include <stdlib.h>
 #include <string.h>
 #include "types.h"
-''' + ''.join(header(n) for n in ['gpu.h','animated_sprite_grid.h','icon_sprites.h','text_sprites.h']) + r'''
+''' + ''.join(header(n) for n in ['gpu_scratch_types.h','gpu.h','animated_sprite_grid.h','icon_sprites.h','text_sprites.h']) + r'''
 typedef struct {
  RrGpuScratchPointers scratch;
  RrIconSpriteContext *context;

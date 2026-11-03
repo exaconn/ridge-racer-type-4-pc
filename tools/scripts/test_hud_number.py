@@ -15,7 +15,7 @@ code=r'''
 #include <string.h>
 #include <stdio.h>
 #include "types.h"
-'''+h('gpu.h')+h('animated_sprite_grid.h')+header+helper+r'''
+'''+h('gpu_scratch_types.h')+h('gpu.h')+h('animated_sprite_grid.h')+header+helper+r'''
 typedef struct {RrNumberTarget rows[4];u32 heads[4];u32 arena[96];u8 guard[32];} World;
 static World actual,expected;
 static RrGpuScratchPointers scratch;

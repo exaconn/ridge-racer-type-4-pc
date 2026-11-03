@@ -11,8 +11,10 @@ typedef struct {
     s32 word78;
 } RrRaceFrameScratch;
 
+#if defined(mips)
 RR_ASSERT_SIZE(RrRaceFrameScratch, 0x7C);
 RR_ASSERT_OFFSET(RrRaceFrameScratch, pointers, 0);
 RR_ASSERT_OFFSET(RrRaceFrameScratch, word78, 0x78);
+#endif
 
 #endif

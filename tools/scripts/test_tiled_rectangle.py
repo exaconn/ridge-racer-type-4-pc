@@ -28,7 +28,7 @@ class TiledRectangleTest(unittest.TestCase):
 #include <stdlib.h>
 #include <string.h>
 #include "types.h"
-'''+''.join(header(n) for n in ['gpu.h','animated_sprite_grid.h','tiled_rectangle.h'])+r'''
+'''+''.join(header(n) for n in ['gpu_scratch_types.h','gpu.h','animated_sprite_grid.h','tiled_rectangle.h'])+r'''
 enum {MAX_TILES=129*129,WORDS=1024+MAX_TILES*6+16};
 typedef struct {
  u8 guard0[32];RrGpuScratchPointers scratch;RrGpuRectangleFields rectangle;

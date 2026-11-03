@@ -30,7 +30,7 @@ class AnimatedSpriteGridTest(unittest.TestCase):
 #include <stdlib.h>
 #include <string.h>
 #include "types.h"
-''' + header('gpu.h') + header('animated_sprite_grid.h') + r'''
+''' + header('gpu_scratch_types.h') + header('gpu.h') + header('animated_sprite_grid.h') + r'''
 typedef struct {
     u8 prefix[32];
     RrGpuScratchPointers scratch;

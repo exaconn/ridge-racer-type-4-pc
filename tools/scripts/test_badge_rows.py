@@ -44,7 +44,7 @@ class BadgeRowsTest(unittest.TestCase):
 #include <stdlib.h>
 #include <string.h>
 #include "types.h"
-'''+''.join(header(n) for n in ['gpu.h','ui_bar.h','animated_sprite_grid.h','icon_sprites.h','badge_rows.h'])+r'''
+'''+''.join(header(n) for n in ['gpu_scratch_types.h','gpu.h','ui_bar.h','animated_sprite_grid.h','icon_sprites.h','badge_row_types.h','badge_rows.h'])+r'''
 typedef union {u8 bytes[0x4000];struct {u8 pad[0x80];RrIconSpriteContext *value;} slot;} ContextPage;
 typedef union {u8 bytes[0x4000];struct {u8 pad[0x3B00];RrBadgeRow1C *value;} slot;} RowPage;
 typedef struct {int kind;u32 *head;void *cursor;s32 args[10];} Call;

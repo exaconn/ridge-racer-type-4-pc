@@ -16,7 +16,7 @@ class IconSpritesTest(unittest.TestCase):
         def header(name):
             text=(ROOT/'include/rr'/name).read_text()
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
-        body=(ROOT/'src/main/PAL/game/ui/hudmap2.c').read_text()
+        body=(ROOT/'tools/scripts/fixtures/legacy/icon_sprites.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
         body=re.sub(r',?\s*"\$\d+"','',body)
@@ -33,7 +33,7 @@ class IconSpritesTest(unittest.TestCase):
 #include <stdlib.h>
 #include <string.h>
 #include "types.h"
-''' + header('gpu.h') + header('animated_sprite_grid.h') + header('icon_sprites.h') + r'''
+''' + header('gpu_scratch_types.h')+header('gpu.h') + header('animated_sprite_grid.h') + header('icon_sprites.h') + r'''
 typedef struct {
     RrGpuScratchPointers scratch;
     u8 guard[32];

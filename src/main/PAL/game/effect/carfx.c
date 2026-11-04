@@ -1,3 +1,4 @@
+#include "game/car/car.h"
 #include "scratchpad.h"
 #include "rr/gpu.h"
 #include "rr/line_emit.h"
@@ -45,13 +46,6 @@ typedef struct {
 } Context650;
 
 typedef struct {
-    char pad0[0x20];
-    int f20;
-    int f24;
-    int f28;
-} CarState;
-
-typedef struct {
     int pad0[2];
     VECTOR vec08;
     int r18;
@@ -66,7 +60,7 @@ extern int func_80091844();
 extern VECTOR D_800A0FC0;
 extern SVECTOR D_800A0FD0;
 extern int D_800A0FD8;
-extern CarState D_800ABEF8;
+extern Car D_800ABEF8;
 extern char *D_800ACC14;
 extern unsigned char D_800A0DC8[][4];
 extern u16 D_800111FE;
@@ -76,7 +70,7 @@ extern short D_800AD520;
 extern int func_80096464();
 extern struct { char pad[0x24C]; struct { char pad[0x140]; int v; } *p; } D_800AC650;
 
-int func_8005642C(CarState *arg0, int arg1, int arg2, int *arg3);
+int func_8005642C(Car *arg0, int arg1, int arg2, int *arg3);
 void func_80056F04(int a0, int a1, int a2, int a3, int a4);
 void func_80057040();
 void func_80057138(int a0, int a1);
@@ -86,7 +80,7 @@ void func_8005748C();
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AC650 (*(Context650 (*))&D_800AC650)
 
-int func_8005642C(CarState *arg0, int arg1, int arg2, int *arg3) {
+int func_8005642C(Car *arg0, int arg1, int arg2, int *arg3) {
     VECTOR sp10;
     VECTOR sp20;
     VECTOR sp30;
@@ -121,9 +115,9 @@ int func_8005642C(CarState *arg0, int arg1, int arg2, int *arg3) {
         sp68.vz = D_800A0FC0.vz;
         func_80091844(&sp60, &sp40);
         func_80090EC4(&sp40, &sp68, &sp70);
-        sp70.vx += D_800ABEF8.f20 * 4;
-        sp70.vy += D_800ABEF8.f24 * 4;
-        sp70.vz += D_800ABEF8.f28 * 4;
+        sp70.vx += D_800ABEF8.u20.s.w20 * 4;
+        sp70.vy += D_800ABEF8.u20.s.w24 * 4;
+        sp70.vz += D_800ABEF8.u20.s.w28 * 4;
         s5->vec08.vx = sp70.vx;
         s5->vec08.vy = sp70.vy;
         s5->vec08.vz = sp70.vz;
@@ -148,17 +142,17 @@ int func_8005642C(CarState *arg0, int arg1, int arg2, int *arg3) {
     s4 = arg1 - s6[s3].f24 * 10;
 
     if (s6[s3].f18 == 0) {
-        sp20.vx = arg0->f20 * 4;
-        sp20.vy = arg0->f24 * 4;
-        sp20.vz = arg0->f28 * 4;
+        sp20.vx = arg0->u20.s.w20 * 4;
+        sp20.vy = arg0->u20.s.w24 * 4;
+        sp20.vz = arg0->u20.s.w28 * 4;
     } else {
         sp20 = s6[s3].vec;
     }
 
     if (s6[s0].f18 == 0) {
-        sp30.vx = arg0->f20 * 4;
-        sp30.vy = arg0->f24 * 4;
-        sp30.vz = arg0->f28 * 4;
+        sp30.vx = arg0->u20.s.w20 * 4;
+        sp30.vy = arg0->u20.s.w24 * 4;
+        sp30.vz = arg0->u20.s.w28 * 4;
     } else {
         sp30 = s6[s0].vec;
     }
@@ -191,9 +185,9 @@ int func_8005642C(CarState *arg0, int arg1, int arg2, int *arg3) {
     sp68.vz = D_800A0FC0.vz;
     func_80091844(&sp60, &sp40);
     func_80090EC4(&sp40, &sp68, &sp70);
-    sp70.vx += D_800ABEF8.f20 * 4;
-    sp70.vy += D_800ABEF8.f24 * 4;
-    sp70.vz += D_800ABEF8.f28 * 4;
+    sp70.vx += D_800ABEF8.u20.s.w20 * 4;
+    sp70.vy += D_800ABEF8.u20.s.w24 * 4;
+    sp70.vz += D_800ABEF8.u20.s.w28 * 4;
 
     if (s2 > 0) {
         D_800AC650.sub60.vec.vx = sp20.vx;

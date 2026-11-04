@@ -1,59 +1,16 @@
-typedef signed char s8;
-typedef unsigned char u8;
-typedef signed short s16;
-typedef unsigned short u16;
-typedef signed int s32;
-typedef unsigned int u32;
-
-typedef struct {
-    char pad0[0xA];
-    s16 unkA;
-} Unk210;
+#include "game/car/car.h"
 
 typedef struct {
     char pad0[0xB];
     u8 unkB;
 } UnkF3A08;
 
-typedef struct {
-    char pad0[0x54];
-    s32 unk54;
-    char pad58[0x84];
-    s16 unkDC[4];
-    s16 unkE4[4];
-    char padEC[0x1C];
-    s32 unk108;
-    s16 unk10C;
-    s16 unk10E;
-    char pad110[0x98];
-    s16 unk1A8;
-    s16 unk1AA;
-    s16 unk1AC;
-    s16 unk1AE;
-    char pad1B0[0xC];
-    s16 unk1BC[4];
-    char pad1C4[0x10];
-    s16 unk1D4;
-    s16 unk1D6;
-    s16 unk1D8;
-    s16 unk1DA;
-    s16 unk1DC;
-    s16 unk1DE;
-    char pad1E0[0x4];
-    u16 unk1E4;
-    u16 unk1E6;
-    char pad1E8[0x28];
-    Unk210 *unk210;
-    char pad214[0x34];
-    s32 unk248;
-} CarState;
-
 extern s32 func_80025FBC(s16, s32);
 extern s32 func_8006E368(s16, s32);
 extern s32 func_80090424(s32);
 extern UnkF3A08 *D_800F3A08[];
 
-int func_8002C638(CarState *arg0) {
+int func_8002C638(Car *arg0) {
     s32 s1;
     s32 s2;
     s32 s3;
@@ -120,7 +77,7 @@ int func_8002C638(CarState *arg0) {
     }
 
     arg0->unk1AC = func_8006E368(arg0->unk10E, ((arg0->unkE4[0] + arg0->unkE4[1]) - (arg0->unkE4[2] + arg0->unkE4[3])) >> 4) >> 3;
-    arg0->unk1AE = (s16)(func_8006E368(arg0->unk10C, ((arg0->unkE4[0] + arg0->unkE4[2]) - (arg0->unkE4[1] + arg0->unkE4[3])) >> 4) >> 2) / s1;
+    arg0->unk1AE = (s16)(func_8006E368(arg0->s10C, ((arg0->unkE4[0] + arg0->unkE4[2]) - (arg0->unkE4[1] + arg0->unkE4[3])) >> 4) >> 2) / s1;
 
     if (arg0->unk1AE > 0x20) {
         arg0->unkDC[0] += arg0->unk1DC / 20;
@@ -140,5 +97,5 @@ int func_8002C638(CarState *arg0) {
     }
 
     arg0->unk1A8 = func_8006E368(arg0->unk10E, ((arg0->unkDC[0] + arg0->unkDC[1]) - (arg0->unkDC[2] + arg0->unkDC[3])) >> 5);
-    arg0->unk1AA = func_8006E368(arg0->unk10C, ((arg0->unkDC[0] + arg0->unkDC[2]) - (arg0->unkDC[1] + arg0->unkDC[3])) >> 5);
+    arg0->unk1AA = func_8006E368(arg0->s10C, ((arg0->unkDC[0] + arg0->unkDC[2]) - (arg0->unkDC[1] + arg0->unkDC[3])) >> 5);
 }

@@ -9,6 +9,11 @@ struct Q4 {
     s32 w[4];
 };
 
+typedef struct {
+    char pad0[0xA];
+    s16 unkA;
+} Unk210;
+
 typedef struct Car {
     s32 w0;
     s32 w4;
@@ -27,18 +32,25 @@ typedef struct Car {
             s32 w2C;
         } s;
     } u20;
-    char pad30[0x88 - 0x30];
+    char pad30[0x54 - 0x30];
+    s32 unk54;
+    char pad58[0x88 - 0x58];
     struct Q4 q88;
     struct Q4 q98;
     struct Q4 qA8;
     struct Q4 qB8;
-    char padC8[0xF0 - 0xC8];
+    char padC8[0xDC - 0xC8];
+    s16 unkDC[4];
+    s16 unkE4[4];
+    char padEC[0xF0 - 0xEC];
     s32 wF0;
     s32 wF4;
     s16 sF8[4];
-    char pad100[0x10C - 0x100];
+    char pad100[0x108 - 0x100];
+    s32 unk108;
     s16 s10C;
-    char pad10E[0x170 - 0x10E];
+    s16 unk10E;
+    char pad110[0x170 - 0x110];
     s16 s170;
     s16 s172;
     char pad174[0x184 - 0x174];
@@ -49,13 +61,34 @@ typedef struct Car {
     s16 s194;
     char pad196[0x1A0 - 0x196];
     s16 s1A0;
-    char pad1A2[0x1EC - 0x1A2];
+    char pad1A2[0x1A8 - 0x1A2];
+    s16 unk1A8;
+    s16 unk1AA;
+    s16 unk1AC;
+    s16 unk1AE;
+    char pad1B0[0x1BC - 0x1B0];
+    s16 unk1BC[4];
+    char pad1C4[0x1D4 - 0x1C4];
+    s16 unk1D4;
+    s16 unk1D6;
+    s16 unk1D8;
+    s16 unk1DA;
+    s16 unk1DC;
+    s16 unk1DE;
+    char pad1E0[0x1E4 - 0x1E0];
+    u16 unk1E4;
+    u16 unk1E6;
+    char pad1E8[0x1EC - 0x1E8];
     s16 s1EC;
     char pad1EE[0x1F0 - 0x1EE];
     union {
         s32 w1F0;
         u8 b1F0[4];
     } u1F0;
+    char pad1F4[0x210 - 0x1F4];
+    Unk210 *unk210;
+    char pad214[0x248 - 0x214];
+    s32 unk248;
 } Car;
 
 #endif

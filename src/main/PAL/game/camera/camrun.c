@@ -161,7 +161,7 @@ void func_8005B304(void) {
         if (D_800AC650.q->f50 == 0) {
             func_8006EF8C(6);
             func_800912B4(0xA0, 0xE8);
-            func_8002E828(2, (SCRATCHPAD + 0x28));
+            func_8002E828(2, SCRATCH_ROT_MATRIX);
         }
         g->f60 = 5;
         g->p04 = (s32)&D_800ACC14->ot_b70;

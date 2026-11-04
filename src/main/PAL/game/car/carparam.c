@@ -899,7 +899,7 @@ void func_800244B0(char *p) {
     int s3;
     int v1, v0, a1, a0, m1, m2;
 
-    s5 = (char *)(SCRATCHPAD + 0x80);
+    s5 = (char *)SCRATCH_CAR_WORK;
     if ((U(p, 0x1E4) & 0x10) == 0) {
         m1 = S(p, 0x10E) * S(p, 0x1D8);
         I(p, 0x30) = I(p, 0x30) << 8;

@@ -195,7 +195,7 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     RR_GTE_SETLLM(&sp50);
 
     func_8006E09C(&sp10, -arg0->rot54);
-    func_80090DB4((Mat8 *)(SCRATCHPAD + 0x28), &sp10);
+    func_80090DB4((Mat8 *)SCRATCH_ROT_MATRIX, &sp10);
     func_8006E108(&sp98[0], arg0->unk1A8 - arg0->rot50);
     func_8006E030(&sp50, arg0->unk1AA - arg0->rot58);
     func_80090CA4(&sp98[0], &sp50);
@@ -300,7 +300,7 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
     func_80090914(D_800ABED0, &sp80, &sp60);
     RR_GTE_SETLLM(&sp60);
     func_8006E09C(&sp20, -arg0->rot54);
-    func_80090DB4((Mat8 *)(SCRATCHPAD + 0x28), &sp20);
+    func_80090DB4((Mat8 *)SCRATCH_ROT_MATRIX, &sp20);
     func_8006E108(&spA8[0], arg0->unk1A8 - arg0->rot50);
     func_8006E030(&sp60, arg0->unk1AA - arg0->rot58);
     func_80090CA4(&spA8[0], &sp60);
@@ -413,7 +413,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
     sp168[0].x = (arg0->x10 - G->x08) >> 2;
     sp168[0].y = 0;
     sp168[0].z = (arg0->z18 - G->z10) >> 2;
-    func_80090B14((SCRATCHPAD + 0x28), &sp168[0], &sp168[1]);
+    func_80090B14(SCRATCH_ROT_MATRIX, &sp168[0], &sp168[1]);
     if (sp168[0].x < 0) {
         sp168[0].x = -sp168[0].x;
     }
@@ -450,7 +450,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
         RR_GTE_SETLLM(&sp60);
         if (i < D_8009F04C[arg1].d0) {
             func_8006E09C(&sp20, -arg0->rot54);
-            func_80090DB4((Mat8 *)(SCRATCHPAD + 0x28), &sp20);
+            func_80090DB4((Mat8 *)SCRATCH_ROT_MATRIX, &sp20);
             func_8006E108(&spA8[0], arg0->unk1A8 - arg0->rot50);
             func_8006E030(&sp60, arg0->unk1AA - arg0->rot58);
             func_80090CA4(&spA8[0], &sp60);
@@ -520,7 +520,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
             return;
         } else if (i < D_8009F04C[arg1].d2) {
             func_8006E09C(&sp20, -arg0->rot54);
-            func_80090DB4((Mat8 *)(SCRATCHPAD + 0x28), &sp20);
+            func_80090DB4((Mat8 *)SCRATCH_ROT_MATRIX, &sp20);
             func_8006E108(&spA8[0], arg0->unk1A8 - arg0->rot50);
             func_8006E030(&sp60, arg0->unk1AA - arg0->rot58);
             func_80090CA4(&spA8[0], &sp60);
@@ -548,7 +548,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
             }
             return;
         } else if (i < D_8009F04C[arg1].d4) {
-            func_80090914((void *)(SCRATCHPAD + 0x28), &sp80, &spA8[0]);
+            func_80090914((void *)SCRATCH_ROT_MATRIX, &sp80, &spA8[0]);
             sp168[0].x = arg0->x10;
             sp168[0].y = arg0->y14;
             sp168[0].z = arg0->z18;

@@ -55,7 +55,7 @@ int func_8001BD40(int a0, int a1)
     RR_GTE_SETROT(D_8010BF78);
     func_80090A24((char *)s3 + 8, (char *)s3 + 0x28);
     RR_GTE_SETLLM((char *)s3 + 0x28);
-    RR_GTE_SETROT((SCRATCHPAD + 0x28));
+    RR_GTE_SETROT(SCRATCH_ROT_MATRIX);
     func_80090A24((char *)s3 + 8, t);
     func_8006EE3C((SCRATCHPAD + 0x7C), D_8001013C + a0 * 16, t);
     *(int *)(SCRATCHPAD + 0x78) = 0;
@@ -95,7 +95,7 @@ void func_8001BFA8(int a0, int a1, int a2)
     RR_GTE_SETROT(D_8010BF78 + 0x20);
     func_80090A24((SCRATCHPAD + 0x84), (SCRATCHPAD + 0xA4));
     RR_GTE_SETLLM((SCRATCHPAD + 0xA4));
-    RR_GTE_SETROT((SCRATCHPAD + 0x28));
+    RR_GTE_SETROT(SCRATCH_ROT_MATRIX);
     func_80090A24((SCRATCHPAD + 0x84), t);
     func_8006EE3C((SCRATCHPAD + 0x7C), a2, t);
     *(int *)(SCRATCHPAD + 0x78) = 0;

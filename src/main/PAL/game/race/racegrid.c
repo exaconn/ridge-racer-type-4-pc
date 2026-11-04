@@ -141,8 +141,8 @@ void func_80033A74(int a)
   func_8006E1AC(g, q);
   {
     int t;
-    t = (SCRATCHPAD + 0x28);
-    /* ASM_BARRIER: forces the (SCRATCHPAD + 0x28) li to be scheduled before the li a0,2 (original delay-slot layout) */
+    t = SCRATCH_ROT_MATRIX;
+    /* ASM_BARRIER: forces the SCRATCH_ROT_MATRIX li to be scheduled before the li a0,2 (original delay-slot layout) */
     asm volatile("" : "=r"(t) : "0"(t));
     func_8002E828(2, t);
   }

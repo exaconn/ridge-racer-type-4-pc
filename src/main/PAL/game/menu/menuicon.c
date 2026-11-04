@@ -68,7 +68,7 @@ void func_800307B4(a0) int a0;
     if (D_800AD4EF >= 4) {
         *(int *)SCRATCHPAD = s1;
         func_8006E1AC();
-        func_8002E828(2, (SCRATCHPAD + 0x28));
+        func_8002E828(2, SCRATCH_ROT_MATRIX);
         func_800912B4(0xA0, 0x100);
         func_800912D4(0x100);
         func_80041BF0(0, D_800ACC14 + 0x74, 1);

@@ -164,7 +164,7 @@ void func_80039ABC(void) {
         }
     } else {
         func_8006E1AC();
-        func_8002E828(2, (SCRATCHPAD + 0x28));
+        func_8002E828(2, SCRATCH_ROT_MATRIX);
         func_8002E5A0(D_800ABEF8);
         func_8002CC88(D_800ABEF8, 0, 0x100, 1);
         func_8003FBA8(0);

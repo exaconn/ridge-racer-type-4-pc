@@ -54,7 +54,7 @@ int func_800578D8(int a0)
   D_800AC650.p->f100 = (D_800AC650.p->fA0 - s1) - (D_800F3A08->f8 + ((short) (((short) D_800ABEF8.f10E) / 3)));
   s1 = func_8005642C(&D_800ABEF8, D_800AC650.p->f104, a0, sp10);
   func_80057750();
-  func_8002E828(2, (SCRATCHPAD + 0x28));
+  func_8002E828(2, SCRATCH_ROT_MATRIX);
   func_80055C84();
   D_800AC650.p->f104 = D_800AC650.p->f104 + 1;
   D_800AC650.p->f108 = D_800AC650.p->f108 + 1;

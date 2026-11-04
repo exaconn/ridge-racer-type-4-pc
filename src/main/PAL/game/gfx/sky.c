@@ -609,7 +609,7 @@ void func_80017CC0(a0) int a0; {
     int *s0;
     s0 = (int *)(SCRATCHPAD + 0x7C);
     s4 = D_8010BF68;
-    RR_GTE_SETROT((int *)(SCRATCHPAD + 0x28));
+    RR_GTE_SETROT((int *)SCRATCH_ROT_MATRIX);
     RR_GTE_CLRTR();
     a1 = D_8009E1D4[D_800F3914];
     if (a1 != 0) {
@@ -1238,7 +1238,7 @@ void func_800195BC(char *a0, volatile unsigned short *a1)
     RR_GTE_MV3_COL(a1 + 1);
     RR_GTE_ST3_COL((unsigned short *)(SCRATCHPAD + 0x7E));
     RR_GTE_MV3_COL(a1 + 2);
-    RR_GTE_ST3_COL((unsigned short *)(SCRATCHPAD + 0x80));
+    RR_GTE_ST3_COL((unsigned short *)SCRATCH_CAR_WORK);
     RR_GTE_SETLLM(p);
     p[0] = a1[0];
     p[1] = a1[1];

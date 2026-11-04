@@ -110,13 +110,13 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
     sp50.vx = D_800F3A28[arg0].x0C - g->cam_x08;
     sp50.vy = 0x200 - g->cam_y0C;
     sp50.vz = D_800F3A28[arg0].z14 - g->cam_z10;
-    func_80090EC4((MATRIX *)(SCRATCHPAD + 0x28), &sp50, &sp58);
+    func_80090EC4((MATRIX *)SCRATCH_ROT_MATRIX, &sp50, &sp58);
     func_8006E108(&sp10, D_800F3A28[arg0].rot_z1C);
     func_8006E030(&sp30, D_800F3A28[arg0].rot_x24);
     func_80090CA4(&sp10, &sp30);
     func_8006E09C(&sp30, D_800F3A28[arg0].rot_y20);
     func_80090DB4(&sp30, &sp10);
-    func_80090DB4((MATRIX *)(SCRATCHPAD + 0x28), &sp10);
+    func_80090DB4((MATRIX *)SCRATCH_ROT_MATRIX, &sp10);
     sp10.t[0] = sp58.vx;
     sp10.t[1] = sp58.vy;
     sp10.t[2] = sp58.vz;

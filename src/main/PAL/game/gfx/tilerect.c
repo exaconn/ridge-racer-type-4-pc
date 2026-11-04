@@ -503,7 +503,7 @@ void func_8001A52C(int a0) {
     a3->rot[3] = 0;
     a3->rot[1] = 0;
     RR_GTE_SETROT(a3);
-    RR_GTE_SETLLM((int *)(SCRATCHPAD + 0x28));
+    RR_GTE_SETLLM((int *)SCRATCH_ROT_MATRIX);
     RR_GTE_SETBK_P(D_800FF6A4);
 
     g = (int *)SCRATCHPAD;
@@ -610,7 +610,7 @@ void func_8001A8DC(int a0) {
     int t7;
     int v0, v1_tmp, a1, a2, off, g64;
 
-    RR_GTE_SETROT((int *)(SCRATCHPAD + 0x28));
+    RR_GTE_SETROT((int *)SCRATCH_ROT_MATRIX);
     RR_GTE_SETTR((int *)(SCRATCHPAD + 0x3C));
 
     off = a0 * 12;

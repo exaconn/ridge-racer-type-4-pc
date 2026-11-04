@@ -295,7 +295,7 @@ void func_8005599C(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
     int n;
     s90 = D_800111D4;
     func_8006E09C(&s50, -*(short *)(a0 + 0x12));
-    func_80090DB4((SCRATCHPAD + 0x28), &s50);
+    func_80090DB4(SCRATCH_ROT_MATRIX, &s50);
     func_8006E108(&s10, -*(short *)(a0 + 0x10));
     func_8006E030(&s30, -*(short *)(a0 + 0x14));
     func_80090CA4(&s10, &s30);

@@ -31,7 +31,7 @@ void func_80026F5C(Car *arg0);
 
 void func_80026C80(void)
 {
-    SP *g = (SP *)(SCRATCHPAD + 0x80);
+    SP *g = (SP *)SCRATCH_CAR_WORK;
     s32 a, n, t, x;
     char *p, *q;
     s32 junk[2];
@@ -81,7 +81,7 @@ void func_80026C80(void)
 #define D_800ABEA4 ((Node *)D_800ABEA4)
 
 void func_80026F5C(Car *arg0) {
-    SP_1 *g = (SP_1 *)(SCRATCHPAD + 0x80);
+    SP_1 *g = (SP_1 *)SCRATCH_CAR_WORK;
     s32 idx, next_idx;
     Node *s1, *s2;
     s32 i;

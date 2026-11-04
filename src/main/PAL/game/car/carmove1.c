@@ -43,7 +43,7 @@ void func_800292A8(char *a);
 
 void func_80027998(void)
 {
-    SP *g = (SP *)(SCRATCHPAD + 0x80);
+    SP *g = (SP *)SCRATCH_CAR_WORK;
     s32 a, n, t, x;
     char *p, *q;
     s32 junk[2];
@@ -88,7 +88,7 @@ void func_80027998(void)
 #define D_800ABEA4 ((Node *)D_800ABEA4)
 
 void func_80027C54(Car *arg0) {
-    SP_1 *g = (SP_1 *)(SCRATCHPAD + 0x80);
+    SP_1 *g = (SP_1 *)SCRATCH_CAR_WORK;
     register s32 t0 asm("$8"); /* ASM_BARRIER: pin inner loop counter to $t0 */
     register s32 *q asm("$19"); /* ASM_BARRIER: pin (SCRATCHPAD + 0x7C) pointer to $s3 */
 
@@ -234,7 +234,7 @@ void func_80028B30(a)
 A *a;
 {
     int *q7c = (int *)(SCRATCHPAD + 0x7C);
-    T *SC = (T *)(SCRATCHPAD + 0x80);
+    T *SC = (T *)SCRATCH_CAR_WORK;
     int t, t2, t3, v;
     A *p2;
     int *pw;

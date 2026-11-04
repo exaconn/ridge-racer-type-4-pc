@@ -256,7 +256,7 @@ void func_80044920(a0, a1) A0 *a0; V8 *a1;
     int a3;
     b0 = D_80010F1C;
     func_8006E09C(&s.m50, -*(short *)((char *)a0 + 0x12));
-    func_80090DB4((int *)(SCRATCHPAD + 0x28), &s.m50);
+    func_80090DB4((int *)SCRATCH_ROT_MATRIX, &s.m50);
     func_8006E108(&s.m10, -*(short *)((char *)a0 + 0x10));
     func_8006E030(&s.m30, -*(short *)((char *)a0 + 0x14));
     func_80090CA4(&s.m10, &s.m30);

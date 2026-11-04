@@ -883,7 +883,7 @@ void func_80077A34(int unused, short *p, M *out, int flag) {
     func_8006E030(q, -p[2]);
     func_8006E108(&m30, -p[0]);
     if (flag == 2) {
-        m90 = *(M *)(SCRATCHPAD + 0x28);
+        m90 = *(M *)SCRATCH_ROT_MATRIX;
         func_8006E09C(&m50, -p[1] - 0x800);
         ((unsigned short *)&m90)[6] = -((unsigned short *)&m90)[6];
         ((unsigned short *)&m90)[7] = -((unsigned short *)&m90)[7];
@@ -891,7 +891,7 @@ void func_80077A34(int unused, short *p, M *out, int flag) {
         func_80090DB4(&m90, q);
     } else {
         func_8006E09C(&m50, -p[1]);
-        func_80090DB4((int *)(SCRATCHPAD + 0x28), q);
+        func_80090DB4((int *)SCRATCH_ROT_MATRIX, q);
     }
     func_80090914(&m30, &m50, &m10);
     func_80090DB4(&m70, &m10);

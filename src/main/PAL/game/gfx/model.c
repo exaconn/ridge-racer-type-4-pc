@@ -249,7 +249,7 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         func_80090914(D_800ABED0, &m70, &mB0);
         SetLightMatrix(&mB0);
         func_8006E09C(&m10, -S32(arg0, 0x54));
-        func_80090DB4((MATRIX *)(SCRATCHPAD + 0x28), &m10);
+        func_80090DB4((MATRIX *)SCRATCH_ROT_MATRIX, &m10);
         func_8006E108(&mD8[0], S16(arg0, 0x1A8) - S32(arg0, 0x50));
         func_8006E030(&m50, S16(arg0, 0x1AA) - S32(arg0, 0x58));
         func_80090CA4(&mD8[0], &m50);
@@ -361,7 +361,7 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         func_80090914(D_800ABED0, &m70, &mB0);
         SetLightMatrix(&mB0);
         func_8006E09C(&m10, -S32(arg0, 0x54));
-        func_80090DB4((MATRIX *)(SCRATCHPAD + 0x28), &m10);
+        func_80090DB4((MATRIX *)SCRATCH_ROT_MATRIX, &m10);
         func_8006E108(&mD8[0], S16(arg0, 0x1A8) - S32(arg0, 0x50));
         func_8006E030(&m50, S16(arg0, 0x1AA) - S32(arg0, 0x58));
         func_80090CA4(&mD8[0], &m50);
@@ -396,7 +396,7 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         SetLightMatrix(&mB0);
         func_8006E030(&m50, -S32(arg0, 0x58));
         func_80090DB4(&m90, &m50);
-        func_80090DB4((MATRIX *)(SCRATCHPAD + 0x28), &m50);
+        func_80090DB4((MATRIX *)SCRATCH_ROT_MATRIX, &m50);
         func_8006EE3C((SCRATCHPAD + 0x7C), arg0 + 0x20, &m50);
         a1 = 1;
         G->col78 = 0;

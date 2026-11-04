@@ -113,7 +113,7 @@ void func_8006EAC8(void) {
     v[0] = 0x8000 - (g[0] >> 2);
     v[1] = -(g[1] >> 2);
     v[2] = 0x8000 - (g[2] >> 2);
-    func_80090B14((SCRATCHPAD + 0x28), v, w);
+    func_80090B14(SCRATCH_ROT_MATRIX, v, w);
     D_800FF690.w[5] = w[0];
     D_800FF690.w[6] = w[1];
     D_800FF690.w[7] = w[2];
@@ -124,16 +124,16 @@ void func_8006EAC8(void) {
     D_800F39A8.w[5] >>= 1;
     D_800F39A8.w[6] >>= 1;
     D_800F39A8.w[7] >>= 1;
-    func_80090B14((SCRATCHPAD + 0x28), v, w);
+    func_80090B14(SCRATCH_ROT_MATRIX, v, w);
     h[15] = w[0];
     h[16] = w[1];
     h[17] = w[2];
-    SetTransMatrix((SCRATCHPAD + 0x28));
+    SetTransMatrix(SCRATCH_ROT_MATRIX);
     x[2] = 0x4000;
     x[1] = 0x4000;
     x[0] = 0x4000;
-    func_80090F74((SCRATCHPAD + 0x28), x);
-    func_800910B4((SCRATCHPAD + 0x28));
+    func_80090F74(SCRATCH_ROT_MATRIX, x);
+    func_800910B4(SCRATCH_ROT_MATRIX);
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -206,7 +206,7 @@ void func_8006EE3C(short *a0, short *a1, int *a2) {
     a0[0] = a1[0] - g[4];
     a0[1] = a1[2] - g[6];
     a0[2] = a1[4] - g[8];
-    func_80090EC4((SCRATCHPAD + 0x28), a0, a0 + 4);
+    func_80090EC4(SCRATCH_ROT_MATRIX, a0, a0 + 4);
     *(int *)(a0 + 0x16) = *(int *)(a0 + 4);
     *(int *)(a0 + 0x18) = *(int *)(a0 + 6);
     *(int *)(a0 + 0x1A) = *(int *)(a0 + 8);

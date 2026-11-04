@@ -2669,7 +2669,7 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
         SP->h[0x65] = arg1[1] - g[3];
         SP->h[0x66] = arg1[2] - g[4];
     }
-    RR_GTE_SETROT((void *)(SCRATCHPAD + 0x28));
+    RR_GTE_SETROT((void *)SCRATCH_ROT_MATRIX);
     RR_GTE_MVMVA_ROT_V0_NOCV(s2 + 0xC8);
     RR_GTE_SWC2_MAC123(s2 + 0x14);
     GTE_SETROT_AND_SAVE(arg2, s2);
@@ -3109,7 +3109,7 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
             register s32 nvert __asm__("$3");
             s32 s0;
             s32 s1;
-            RR_GTE_SETROT((void *)(SCRATCHPAD + 0x28));
+            RR_GTE_SETROT((void *)SCRATCH_ROT_MATRIX);
             {
                 char *t = s2 + 0x1A0;
                 s32 *g;

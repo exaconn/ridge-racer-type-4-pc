@@ -166,7 +166,7 @@ int func_80070464(void) {
 void func_8007064C(void) {
     int *sp = (int *)SCRATCHPAD;
     sp[7] -= 0x800;
-    *(S32B *)(SCRATCHPAD + 0x28) = D_8010E710;
+    *(S32B *)SCRATCH_ROT_MATRIX = D_8010E710;
 }
 
 /* legacy typing of shared globals in this part of the unit */

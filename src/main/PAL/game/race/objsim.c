@@ -1,5 +1,6 @@
 /* RODATA 0x8001134c 0x14 */
 #include "types.h"
+#include "game/race/objrec.h"
 #include "game/gfx/polytri.h"
 #include "game/gfx/poly1.h"
 #include "game/race/objclr.h"
@@ -51,40 +52,9 @@ typedef struct {
     s32 f28;
 } Node2C;
 
-typedef struct {
-    int f0;
-    int f4;
-    int f8;
-    int fC;
-    int f10;
-    int f14;
-    int f18;
-    unsigned short f1C;
-    unsigned short f1E;
-    unsigned short f20;
-    unsigned short f22;
-    int f24;
-    int f28;
-} S_ECB4;
-
 extern Node24 *D_8010ECAC;
 extern Node30 *D_8010ECB0;
 extern Node2C *D_8010ECB4;
-/* size 0x2C */
-typedef struct {
-    int f0;
-    int f4;
-    int f8;
-    int fC;
-    int f10;
-    int f14;
-    int f18;
-    int f1C;
-    int f20;
-    int f24;
-    int f28;
-    int f2C;
-} S_ECB0;
 /* size 0x30 */
 typedef struct {
     int f0;

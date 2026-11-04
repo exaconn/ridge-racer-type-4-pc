@@ -1,3 +1,4 @@
+#include "game/race/objrec.h"
 #include "game/car/aipath.h"
 #include "psyq/libgte/gtemath4.h"
 #include "psyq/libgte/gtemath5.h"
@@ -77,37 +78,6 @@ typedef struct {
     U4 sxy3;
 } PolyG4;
 
-typedef struct {
-    int f0;
-    int f4;
-    int f8;
-    int fC;
-    int f10;
-    int f14;
-    int f18;
-    unsigned short f1C;
-    unsigned short f1E;
-    unsigned short f20;
-    unsigned short f22;
-    int f24;
-    int f28;
-} S_ECB4;
-
-/* size 0x2C */
-typedef struct {
-    int f0;
-    int f4;
-    int f8;
-    int fC;
-    int f10;
-    int f14;
-    int f18;
-    int f1C;
-    int f20;
-    int f24;
-    int f28;
-    int f2C;
-} S_ECB0;
 /* size 0x30 */
 typedef struct {
     char pad0[0x184];

@@ -126,6 +126,22 @@ callers. Cases (a)-(c) are the same disagreement seen from three sides: the `rr/
 type, the units carry the spelling the original compiler saw. They cannot be merged without changing bytes or the
 host tests.
 
+## Shared types and constants
+Several units used to carry private copies of the same struct. Where one view is a superset of the others, or the
+definitions are byte-identical, the definition lives in one header that every user includes:
+
+* `include/game/car/car.h` – `Car` (offset-named fields; used by carmove1, aipath2, carsteer, carfx), `Q4`, `Unk210`
+* `include/game/car/carsp.h` – scratchpad work area of the car physics (`SP`, `SP_1`, `T16_1`, `Z52`)
+* `include/game/car/grid.h`, `include/game/course/control.h`, `include/game/race/objrec.h`,
+  `include/game/data/savetype.h`, `include/game/system/modeslot.h`
+* `include/psyq/libgte/libgte.h`, `libspu/libspu.h`, `libsnd/libsnd.h` – PsyQ types (`VECTOR`, `SVECTOR`, `Spu*`, `VagAtr`, `ProgAtr`),
+  named after the SDK headers; `tools/scripts/psyq_types.py` moves further byte-identical ones
+* `include/scratchpad.h` – `SCRATCHPAD`, `SCRATCH_ROT_MATRIX`, `SCRATCH_CAR_WORK` instead of bare `0x1F8xxxxx`
+
+Views that cannot be merged without changing code stay local: `S_ECB4` (objsim reads `u16 f1C..f22`, objdraw reads
+`s16 rot.vx..vz`), `RrSlot620` (sndchan/sndsys use different field types), `UiElem24`, `RrParticleSys`, and `Vehicle320`
+(its `Control12C` at +0x1F4 overlaps fields of `Car`; `flags1E4` is `s16` there and `u16` in `Car`).
+
 ## Symbol names
 Auto names (`func_XXXXXXXX`) are replaced by real names when the name is certain. `configs/PAL/sym.main.txt`
 is the registry (`Name = 0xADDR; // type:func`); `tools/scripts/rename_symbols.py` applies it to sources, headers,

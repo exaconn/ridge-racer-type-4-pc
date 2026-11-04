@@ -1,4 +1,5 @@
 #include "types.h"
+#include "game/system/modeslot.h"
 #include "scratchpad.h"
 #include "m2c_macros.h"
 #include "game/system/frmtask.h"
@@ -11,11 +12,7 @@
 
 typedef struct { int x; } __attribute__((packed)) W7C0_U;
 
-typedef struct { char pad[0x24]; } W7C0_E;
-
 typedef struct { char p0; signed char b1; unsigned char b2; } W7C0_S;
-
-typedef struct { char pad[2]; short s2; char pad2[0xC]; short s10; } W7C0_F;
 
 extern unsigned char D_8009F7E4[];
 extern int func_8002B330();

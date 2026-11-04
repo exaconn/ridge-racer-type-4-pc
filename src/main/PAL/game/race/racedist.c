@@ -1,4 +1,5 @@
 #include "types.h"
+#include "game/course/control.h"
 #include "rr/trig.h"
 #include "rr/track_interpolation.h"
 #include "rr/race.h"
@@ -17,11 +18,6 @@ typedef struct {
     s16 flags1E4;
     u8 pad1E6[0x320 - 0x1E6];
 } Vehicle320;
-
-typedef struct {
-    u8 pad00[0x58];
-    s32 unk58;
-} Control1F4;
 
 extern Vehicle320 D_80107198[];
 extern Vehicle320 *D_800FFC20[];

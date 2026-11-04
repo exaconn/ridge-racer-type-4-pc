@@ -1,4 +1,5 @@
 #include "types.h"
+#include "game/course/control.h"
 #include "rr/track_projection.h"
 #include "rr/geometry.h"
 #include "rr/trig.h"
@@ -14,19 +15,6 @@
 #define RR_STANDING_ROW(base) \
     ((RrRaceStandingEntry0C*)((base)+RR_STANDING_PREFIX_SIZE))
 #define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -D_800A68C0[0x400 - ((x) & 0x3FF)] : -D_800A68C0[(x) & 0x3FF]) : (((x) & 0x400) ? D_800A68C0[0x400 - ((x) & 0x3FF)] : D_800A68C0[(x) & 0x3FF]))
-
-typedef struct {
-    u8 pad00[0x58];
-    s32 unk58;
-    u8 pad5C[0x6E - 0x5C];
-    s16 unk6E;
-    s32 unk70;
-    s32 unk74;
-    s32 unk78;
-    s32 unk7C;
-    s32 unk80;
-    s32 unk84;
-} Control1F4;
 
 extern RrRaceStandingsTable *D_800AC738;
 extern s8 D_80010F2C[][16];

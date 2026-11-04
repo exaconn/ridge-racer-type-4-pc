@@ -1,12 +1,11 @@
 /* RODATA 0x800104f4 0x1c */
 #include "types.h"
+#include "game/system/modeslot.h"
 #include "m2c_macros.h"
 #include "game/race/racegrid.h"
 #include "game/race/ranking.h"
 #include "rr/audio_loop.h"
 #include "game/data/ldscn1.h"
-
-typedef struct { char pad0[0xC]; char b0C; char pad1[7]; unsigned char b14; char pad2[0xB]; short s20; char pad3[2]; } W7C0_E;
 
 extern int func_8005CA88();
 extern int func_8003EC88();

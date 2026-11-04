@@ -1,20 +1,12 @@
 /* RODATA 0x80010fec 0x28 */
 #include "types.h"
+#include "game/car/grid.h"
 #include "game/car/carbound.h"
 #include "game/car/carlane.h"
 #include "rr/audio_loop.h"
 #include "rr/menu_choice.h"
 #include "rr/menu_setup.h"
 #include "rr/track_projection.h"
-
-typedef struct {
-    s32 f0;
-    s32 pad[3];
-    struct {
-        s32 x, z;
-    } pos[8];
-    s16 rot[8];
-} Grid53C;
 
 typedef struct {
     s32 baseSpeed00, gearCount04;

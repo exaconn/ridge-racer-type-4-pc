@@ -1,3 +1,4 @@
+#include "game/system/modeslot.h"
 /* RODATA 0x800104c4 0x2c */
 #include "rr/ui.h"
 #include "game/data/ldscn1.h"
@@ -16,8 +17,6 @@
 #include "game/data/ldscn1.h"
 #include "game/gfx/gfxotag.h"
 #include "game/system/modeinit.h"
-
-typedef struct { char p0[2]; short s2; char p4[4]; short s8; short sA; char pC[4]; short s10; } W7C0_F;
 
 extern int func_80053CB0();
 extern int D_800102F0;

@@ -1,5 +1,6 @@
 /* RODATA 0x80010700 0x1c */
 #include "types.h"
+#include "game/car/grid.h"
 #include "scratchpad.h"
 #include "rr/track_sample_types.h"
 #include "m2c_macros.h"
@@ -17,14 +18,6 @@ typedef struct { char x[0x320]; } S;
 typedef struct {
     int a, b, c, d;
 } Vec4;
-
-typedef struct {
-    int f0;
-    int pad[3];
-    struct {
-        int x, z;
-    } pos[8];
-} Grid53C;
 
 typedef struct {
     unsigned short w0;

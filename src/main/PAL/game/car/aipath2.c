@@ -25,62 +25,6 @@ typedef struct Node {
     char pad30[0x3C - 0x30];
 } Node;
 
-typedef struct T16_1 {
-    s32 a;
-    s32 b;
-    s32 c;
-    s32 d;
-} T16_1;
-
-typedef struct SP_1 {
-    Car *p0;
-    char pad4[0x10 - 0x04];
-    s32 w10;
-    s32 w14;
-    s32 w18;
-    s32 w1C;
-    s32 w20;
-    s16 s24;
-    s16 s26;
-    s16 s28;
-    s16 s2A;
-    s32 w2C;
-    s32 w30;
-    s32 w34;
-    s32 w38;
-    s32 w3C;
-    s32 w40;
-    char pad44[0xB8 - 0x44];
-    s16 sB8;
-    s16 sBA;
-    s16 sBC;
-    s16 sBE;
-    s16 sC0;
-    s16 sC2;
-    s16 sC4;
-    s16 sC6;
-    s16 sC8;
-    char padCA[0xF8 - 0xCA];
-    s16 sF8;
-    s16 sFA;
-    s16 sFC;
-    char padFE[2];
-    s32 w100;
-    s32 w104;
-    s32 w108;
-    char pad10C[4];
-    T16_1 t110[4];
-    char pad150[0x15A - 0x150];
-    s16 s15A;
-    s16 s15C;
-    char pad15E[2];
-    s16 s160;
-    s16 s162;
-    char pad164[0x174 - 0x164];
-    s16 s174;
-    s16 s176;
-} SP_1;
-
 void func_80026C80(void);
 void func_80026F5C(Car *arg0);
 

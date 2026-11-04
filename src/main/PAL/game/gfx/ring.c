@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "rr/ring_renderer.h"
 #include "rr/game_motion.h"
 #include "rr_asm.h"
@@ -50,7 +51,7 @@ void func_8005E900(s32 *position, s32 radius)
   RrMatrixWords32 camera;
   RrRingVertex8 point;
   s32 transformed;
-  RrRingScratch48 *scratch = (RrRingScratch48 *) 0x1F80007C;
+  RrRingScratch48 *scratch = (RrRingScratch48 *) (SCRATCHPAD + 0x7C);
   RrRingPacket24 *packet;
   s32 segment;
   s32 angle;
@@ -78,7 +79,7 @@ void func_8005E900(s32 *position, s32 radius)
   segment = 0;
   inner = radius - 128;
   orderOffset = depth * 4;
-  packet = *((RrRingPacket24 **) 0x1F800000);
+  packet = *((RrRingPacket24 **) SCRATCHPAD);
   do
   {
     angle = segment << 7;
@@ -109,16 +110,16 @@ void func_8005E900(s32 *position, s32 radius)
     packet->blue = scratch->blue;
     packet->tag.raw = (packet->tag.raw & 0xFF000000) |
         ((RrRingGpuTag *)(orderOffset +
-            (unsigned long)((RrRingGpuSlots *)0x1F800000)->order.pointer))->bits.addr;
+            (unsigned long)((RrRingGpuSlots *)SCRATCHPAD)->order.pointer))->bits.addr;
     head = (u32 *)(orderOffset +
-        (unsigned long)((RrRingGpuSlots *)0x1F800000)->order.pointer);
+        (unsigned long)((RrRingGpuSlots *)SCRATCHPAD)->order.pointer);
     ((RrRingGpuTag *)head)->bits.addr = (unsigned long)packet & 0xFFFFFF;
     scratch->screen[0] = scratch->screen[2];
     scratch->screen[1] = scratch->screen[3];
     packet++;
   }
   while (segment < 33);
-  *((RrRingPacket24 **) 0x1F800000) = packet;
+  *((RrRingPacket24 **) SCRATCHPAD) = packet;
 }
 
 /* legacy typing of shared globals in this part of the unit */

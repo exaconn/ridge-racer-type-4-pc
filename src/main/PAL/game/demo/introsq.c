@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "rr/textured_panel.h"
 #include "game/data/trkld8.h"
 #include "rr/driver_control.h"
@@ -52,7 +53,7 @@ void func_8005D40C(s32 index) {
     s32 clut,length;
     /* ASM_BARRIER: right edge becomes the right texture coordinate after the division. */
     register s32 right __asm__("$3");
-    scratch=(RrGpuScratchPointers*)0x1F800000U;
+    scratch=(RrGpuScratchPointers*)SCRATCHPAD;
     length=9;
     left=32;
     /* ASM_BARRIER: stage the scratch page and packet constants before capture. */

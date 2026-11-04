@@ -1,5 +1,6 @@
 /* RODATA 0x80010ea0 0x2c */
 /* CC1_FLAGS: -fno-strength-reduce */
+#include "scratchpad.h"
 #include "rr/gpu.h"
 
 #include "rr/menu_text_rows.h"
@@ -8,7 +9,7 @@
 #include "game/menu/mntrow.h"
 #include "rr/menu_overlay_runtime.h"
 
-#define RR_TEXT_GPU_SCRATCH ((RrGpuScratchPointers *)0x1F800000U)
+#define RR_TEXT_GPU_SCRATCH ((RrGpuScratchPointers *)SCRATCHPAD)
 
 void *func_8001FCC8(u32 *ordering, void *cursor, u16 mode);
 void func_80095A44(u32 *ordering, void *packet);

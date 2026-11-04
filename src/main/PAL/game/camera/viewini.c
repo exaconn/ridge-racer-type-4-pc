@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "m2c_macros.h"
 #include "game/gfx/model.h"
 #include "game/gfx/poly1.h"
@@ -63,7 +64,7 @@ void func_8006E63C(void)
 void func_8006E794(void) {
     int i;
     char *p;
-    char *g = (char *)0x1F800000;
+    char *g = (char *)SCRATCHPAD;
     func_8006E63C();
     D_8010718C = 1;
     D_800AD5B8 = 0x1400;
@@ -140,5 +141,5 @@ void func_8006E9CC(void) {
 }
 
 void func_8006E9D4(void) {
-    *(s32 *)0x1F800128 = 0x1F;
+    *(s32 *)(SCRATCHPAD + 0x128) = 0x1F;
 }

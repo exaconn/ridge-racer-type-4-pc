@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "rr/gpu.h"
 #include "game/ui/uipart1.h"
 #include "game/race/raceset.h"
@@ -37,7 +38,7 @@ void func_8003BFC8(a0) s32 a0;
                     c = 0x16;
                 }
                 if (D_8010C114 == 0x3B && s2 < 2 && a0 == 0) func_8004F2D8(c, 0);
-                *(RrSpritePacket **)0x1F800000 = func_8001FEC0((char *)D_800ACC14 + 0x70, *(RrSpritePacket **)0x1F800000, 0x70, 0x60, 0xC, 0xC, s5, 0xA8, 0x7EF8);
+                *(RrSpritePacket **)SCRATCHPAD = func_8001FEC0((char *)D_800ACC14 + 0x70, *(RrSpritePacket **)SCRATCHPAD, 0x70, 0x60, 0xC, 0xC, s5, 0xA8, 0x7EF8);
                 func_8002B5D0(0x80, 0x60, s1, 0x7EF8, 1);
             } else {
                 s3 = D_8010C0F8[D_8010C12C];
@@ -46,7 +47,7 @@ void func_8003BFC8(a0) s32 a0;
         }
         func_8002B5D0(0x14, 0x1C, s3, 0x7EF8, 0);
         func_8002B5D0(0x14, 0x26, s4, 0x7EF8, 0);
-        p = *(RrSpritePacket **)0x1F800000;
+        p = *(RrSpritePacket **)SCRATCHPAD;
         p->len = 4;
         p->code = 0x64;
         p->x = 0xA;
@@ -59,8 +60,8 @@ void func_8003BFC8(a0) s32 a0;
         p->code |= 1;
         p->addr = ((struct O *)D_800ACC14)->addr;
         ((struct O *)D_800ACC14)->addr = (u32)p++;
-        /* ASM_BARRIER: keeps the 0x1F800000 pointer store after the bitfield store (original order) */
+        /* ASM_BARRIER: keeps the SCRATCHPAD pointer store after the bitfield store (original order) */
         __asm__ volatile("" : : : "memory");
-        *(RrSpritePacket **)0x1F800000 = p;
+        *(RrSpritePacket **)SCRATCHPAD = p;
     }
 }

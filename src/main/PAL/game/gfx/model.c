@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "psyq/libgte/libgte.h"
 #include "m2c_macros.h"
 #include "rr_asm.h"
@@ -11,7 +12,7 @@
 #include "rr/overlay662_palette_refresh.h"
 #include "psyq/other/dpsub.h"
 
-#define G ((Scratch *)0x1F800000)
+#define G ((Scratch *)SCRATCHPAD)
 #define S16(p, o) (*(s16 *)((char *)(p) + (o)))
 #define S32(p, o) (*(s32 *)((char *)(p) + (o)))
 #define VEC(p, o) (*(VECTOR *)((char *)(p) + (o)))
@@ -98,8 +99,8 @@ s32 func_8006F260(void *arg0) {
 }
 
 int func_8006F288(int a0) {
-    int t = func_8006F1EC(0x1F800008, a0);
-    return *(int *)(((t * 8) + func_8006F260(0x1F800008)) * 4 + D_800F3820);
+    int t = func_8006F1EC((SCRATCHPAD + 0x8), a0);
+    return *(int *)(((t * 8) + func_8006F260((SCRATCHPAD + 0x8))) * 4 + D_800F3820);
 }
 
 void func_8006F2E0(s32 a0, s32 a1, s32 a2) {
@@ -248,7 +249,7 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         func_80090914(D_800ABED0, &m70, &mB0);
         SetLightMatrix(&mB0);
         func_8006E09C(&m10, -S32(arg0, 0x54));
-        func_80090DB4((MATRIX *)0x1F800028, &m10);
+        func_80090DB4((MATRIX *)(SCRATCHPAD + 0x28), &m10);
         func_8006E108(&mD8[0], S16(arg0, 0x1A8) - S32(arg0, 0x50));
         func_8006E030(&m50, S16(arg0, 0x1AA) - S32(arg0, 0x58));
         func_80090CA4(&mD8[0], &m50);
@@ -295,58 +296,58 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
             v198[i + 3].vy += v198[2].vy;
             v198[i + 3].vz += v198[2].vz;
         }
-        func_8006EE3C(0x1F80007C, &v198[0], &mD8[0]);
+        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[0], &mD8[0]);
         a1 = 1;
         G->col78 = 0x05000000;
         if (D_800F2FD8 >= 4) {
             a1 = 3;
         }
-        func_8005F0D0(0x1F800000, a1, 0, s5);
-        func_8006EE3C(0x1F80007C, &v198[1], &mD8[1]);
+        func_8005F0D0(SCRATCHPAD, a1, 0, s5);
+        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[1], &mD8[1]);
         G->col78 = 0x05000000;
-        func_8005F0D0(0x1F800000, D_800F2FD8 < 1, arg6, s5);
-        func_8006EE3C(0x1F80007C, &v198[2], &mD8[2]);
+        func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, arg6, s5);
+        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[2], &mD8[2]);
         a1 = 1;
         G->col78 = 0x05000000;
         if (D_800F2FD8 >= 10) {
             a1 = 9;
         }
-        func_8005F0D0(0x1F800000, a1, 0, s5);
-        func_8006EE3C(0x1F80007C, &v198[2], &mD8[3]);
+        func_8005F0D0(SCRATCHPAD, a1, 0, s5);
+        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[2], &mD8[3]);
         a1 = 1;
         G->col78 = 0x05000000;
         if (D_800F2FD8 >= 7) {
             a1 = 6;
         }
-        func_8005F0D0(0x1F800000, a1, arg6, s5);
-        func_8006EE3C(0x1F80007C, &v198[3], &mD8[4]);
+        func_8005F0D0(SCRATCHPAD, a1, arg6, s5);
+        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[3], &mD8[4]);
         a1 = 1;
         G->col78 = 0x05000000;
         if (D_800F2FD8 >= 9) {
             a1 = 8;
         }
-        func_8005F0D0(0x1F800000, a1, 0, s5);
-        func_8006EE3C(0x1F80007C, &v198[4], &mD8[4]);
+        func_8005F0D0(SCRATCHPAD, a1, 0, s5);
+        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[4], &mD8[4]);
         a1 = 1;
         G->col78 = 0x05000000;
         if (D_800F2FD8 >= 8) {
             a1 = 7;
         }
-        func_8005F0D0(0x1F800000, a1, 0, s5);
-        func_8006EE3C(0x1F80007C, &v198[3], &mD8[5]);
+        func_8005F0D0(SCRATCHPAD, a1, 0, s5);
+        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[3], &mD8[5]);
         a1 = 1;
         G->col78 = 0x05000000;
         if (D_800F2FD8 >= 6) {
             a1 = 5;
         }
-        func_8005F0D0(0x1F800000, a1, arg6, s5);
-        func_8006EE3C(0x1F80007C, &v198[4], &mD8[5]);
+        func_8005F0D0(SCRATCHPAD, a1, arg6, s5);
+        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[4], &mD8[5]);
         a1 = 1;
         G->col78 = 0x05000000;
         if (D_800F2FD8 >= 5) {
             a1 = 4;
         }
-        func_8005F0D0(0x1F800000, a1, arg6, s5);
+        func_8005F0D0(SCRATCHPAD, a1, arg6, s5);
     } else if (i < arg4) {
         s5 = 0;
         if (G->flag64 != 0) {
@@ -360,7 +361,7 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         func_80090914(D_800ABED0, &m70, &mB0);
         SetLightMatrix(&mB0);
         func_8006E09C(&m10, -S32(arg0, 0x54));
-        func_80090DB4((MATRIX *)0x1F800028, &m10);
+        func_80090DB4((MATRIX *)(SCRATCHPAD + 0x28), &m10);
         func_8006E108(&mD8[0], S16(arg0, 0x1A8) - S32(arg0, 0x50));
         func_8006E030(&m50, S16(arg0, 0x1AA) - S32(arg0, 0x58));
         func_80090CA4(&mD8[0], &m50);
@@ -373,16 +374,16 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         func_8006E030(&m50, -S16(arg0, 0x84));
         func_80090CA4(&mD8[1], &m50);
         func_80090DB4(&m10, &mD8[1]);
-        func_8006EE3C(0x1F80007C, &v198[0], &mD8[0]);
+        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[0], &mD8[0]);
         a1 = 1;
         G->col78 = 0;
         if (D_800F2FD8 >= 4) {
             a1 = 3;
         }
-        func_8005F0D0(0x1F800000, a1, 0, s5);
-        func_8006EE3C(0x1F80007C, &v198[1], &mD8[1]);
+        func_8005F0D0(SCRATCHPAD, a1, 0, s5);
+        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[1], &mD8[1]);
         G->col78 = 0;
-        func_8005F0D0(0x1F800000, 1, arg6, s5);
+        func_8005F0D0(SCRATCHPAD, 1, arg6, s5);
     } else if (i < arg5) {
         s5 = 0;
         if (G->flag64 != 0) {
@@ -395,14 +396,14 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         SetLightMatrix(&mB0);
         func_8006E030(&m50, -S32(arg0, 0x58));
         func_80090DB4(&m90, &m50);
-        func_80090DB4((MATRIX *)0x1F800028, &m50);
-        func_8006EE3C(0x1F80007C, arg0 + 0x20, &m50);
+        func_80090DB4((MATRIX *)(SCRATCHPAD + 0x28), &m50);
+        func_8006EE3C((SCRATCHPAD + 0x7C), arg0 + 0x20, &m50);
         a1 = 1;
         G->col78 = 0;
         if (D_800F2FD8 >= 3) {
             a1 = 2;
         }
-        func_8005F0D0(0x1F800000, a1, 0, s5);
+        func_8005F0D0(SCRATCHPAD, a1, 0, s5);
     }
     return dist;
 }
@@ -413,7 +414,7 @@ void func_800700AC(int *a0) {
     int n = a0[0];
     int lim;
     int *p;
-    *(int *)0x1F800048 = (int)a1;
+    *(int *)(SCRATCHPAD + 0x48) = (int)a1;
     D_800F2EC0 = n;
     if (n > 0) {
         lim = n;
@@ -462,7 +463,7 @@ void func_800701C4(int a0) {
     int *v = D_8010E698[a0];
     int *w;
     int a2;
-    int *g = (int *)0x1F800000;
+    int *g = (int *)SCRATCHPAD;
     /* ASM_BARRIER: legacy, reason not recorded (forces reg copy/CSE/scheduling); retire & retest with fd.py */
     __asm__("" : "=r"(w) : "0"(v));
     a2 = v[0];

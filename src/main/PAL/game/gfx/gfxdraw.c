@@ -1,5 +1,6 @@
 /* RODATA 0x80010f00 0x1c */
 #include "types.h"
+#include "scratchpad.h"
 #include "game/course/trkintp2.h"
 #include "game/gfx/dispenv.h"
 #include "game/course/trkintp2.h"
@@ -103,7 +104,7 @@ void func_8004417C(int arg0, void *arg1) {
 
     s2 = D_800AC650.f550;
     a0 = func_80043730(arg1);
-    scratch = (int *)0x1F800000;
+    scratch = (int *)SCRATCHPAD;
     if (arg0 >= 2) {
         s2 = D_800AC650.f550;
         s2 += a0;
@@ -255,7 +256,7 @@ void func_80044920(a0, a1) A0 *a0; V8 *a1;
     int a3;
     b0 = D_80010F1C;
     func_8006E09C(&s.m50, -*(short *)((char *)a0 + 0x12));
-    func_80090DB4((int *)0x1F800028, &s.m50);
+    func_80090DB4((int *)(SCRATCHPAD + 0x28), &s.m50);
     func_8006E108(&s.m10, -*(short *)((char *)a0 + 0x10));
     func_8006E030(&s.m30, -*(short *)((char *)a0 + 0x14));
     func_80090CA4(&s.m10, &s.m30);
@@ -306,8 +307,8 @@ void func_80044B5C(void) {
 #undef D_800AC650
 
 u8 *func_80044BA0(s32 a0) {
-    w3t1_G *g = (w3t1_G *)0x1F80007C;
-    u8 *p = *(u8 **)0x1F800000;
+    w3t1_G *g = (w3t1_G *)(SCRATCHPAD + 0x7C);
+    u8 *p = *(u8 **)SCRATCHPAD;
     s32 i;
     s32 t;
     g->c0[0] = 0x50;
@@ -373,7 +374,7 @@ u8 *func_80044BA0(s32 a0) {
         u8 *r;
         /* ASM_BARRIER: forces p+8 computed after final stores (return value copy) */
         __asm__ volatile ("" : "=r"(r) : "0"(p + 8));
-        *(u8 **)0x1F800000 = r;
+        *(u8 **)SCRATCHPAD = r;
         return r;
     }
 }

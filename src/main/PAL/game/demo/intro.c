@@ -1,5 +1,6 @@
 /* RODATA 0x80011270 0x2c */
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/line_emit.h"
 #include "m2c_macros.h"
 #include "game/effect/effect.h"
@@ -276,7 +277,7 @@ int func_8005CA88(void) {
     }
 
     func_8005C26C(D_800AC650.f3EC);
-    *(int *)0x1F800000 = func_8001FDD4(D_800ACC14 + 0xB6C, *(int *)0x1F800000, 0, 0, 0x140, 0x200,
+    *(int *)SCRATCHPAD = func_8001FDD4(D_800ACC14 + 0xB6C, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x200,
                                        D_800AC650.f3F0, D_800AC650.f3F1, D_800AC650.f3F2);
     for (i = 0; i < 2; i++) {
         D_800ADAF0[i].r = D_800AC650.f3F0;

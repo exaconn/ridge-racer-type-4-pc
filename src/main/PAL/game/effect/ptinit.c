@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/ui.h"
 #include "rr/ui_primitives.h"
 #include "game/course/trktext.h"
@@ -229,7 +230,7 @@ void func_80054264(int a0) {
         c[i].b = (c[i].b * e->s1A) / 256;
     }
 
-    p = *(PolyFT4 **)0x1F800000;
+    p = *(PolyFT4 **)SCRATCHPAD;
     if (e->s1E >= 4) {
         p->len = 9;
         p->code = 0x2E;
@@ -311,7 +312,7 @@ void func_80054264(int a0) {
         ADDPRIM(D_800ACC14 + 0x188, p);
         p++;
     }
-    *(PolyFT4 **)0x1F800000 = p;
+    *(PolyFT4 **)SCRATCHPAD = p;
     /* ASM_BARRIER: keep scratchpad packet pointer store before s18 clamp */
     __asm__ volatile("");
 

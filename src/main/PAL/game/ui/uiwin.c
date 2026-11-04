@@ -1,5 +1,6 @@
 /* RODATA 0x800108e8 0x3c */
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/ui.h"
 #include "game/ui/uitext.h"
 #include "game/ui/uidraw.h"
@@ -129,9 +130,9 @@ int func_8003E13C(int arg0) {
         }
         break;
     case -1:
-        a1 = *(void **)0x1F800000;
+        a1 = *(void **)SCRATCHPAD;
         v0 = ((unsigned short)s5 * 0x7C) / 10;
-        *(void **)0x1F800000 = (void *)func_8001FCC8(
+        *(void **)SCRATCHPAD = (void *)func_8001FCC8(
             D_800ACC14 + 0x74,
             func_80020508(D_800ACC14 + 0x74, a1, D_800F4D8C[arg0].x, D_800F4D8C[arg0].y, D_800F4D8C[arg0].w, D_800F4D8C[arg0].h, v0, v0, v0),
             0x45
@@ -145,11 +146,11 @@ int func_8003E13C(int arg0) {
         func_8003DCEC(D_800F4D8C[arg0].f07);
         break;
     case 0:
-        a1 = *(void **)0x1F800000;
+        a1 = *(void **)SCRATCHPAD;
         if ((unsigned short)s5 >= 3) {
             a1 = func_8002018C(D_800ACC14 + 0x70, a1, &sp30, 1, 0xFF, 3);
         }
-        *(void **)0x1F800000 = func_8001FD20(
+        *(void **)SCRATCHPAD = func_8001FD20(
             D_800ACC14 + 0x74,
             a1,
             D_800F4D8C[arg0].x,
@@ -169,9 +170,9 @@ int func_8003E13C(int arg0) {
         }
         break;
     case 1:
-        a1 = func_8002018C(D_800ACC14 + 0x70, *(void **)0x1F800000, &sp30, 1, (0x80 - s5) * 2, 2);
+        a1 = func_8002018C(D_800ACC14 + 0x70, *(void **)SCRATCHPAD, &sp30, 1, (0x80 - s5) * 2, 2);
         a1 = func_8002018C(D_800ACC14 + 0x70, a1, &sp40, 1, s5, 1);
-        *(void **)0x1F800000 = func_8001FD20(
+        *(void **)SCRATCHPAD = func_8001FD20(
             D_800ACC14 + 0x7C,
             a1,
             D_800F4D8C[arg0].x,
@@ -189,7 +190,7 @@ int func_8003E13C(int arg0) {
         break;
     case 2:
     default:
-        a1 = *(void **)0x1F800000;
+        a1 = *(void **)SCRATCHPAD;
         if (D_800F4D8C[arg0].f00 >= 0) {
             a1 = func_80020074(
                 D_800ACC14 + 0x70,
@@ -206,7 +207,7 @@ int func_8003E13C(int arg0) {
                 0x80
             );
         }
-        *(void **)0x1F800000 = func_8001FD20(
+        *(void **)SCRATCHPAD = func_8001FD20(
             D_800ACC14 + 0x74,
             a1,
             D_800F4D8C[arg0].x,
@@ -301,10 +302,10 @@ void func_8003EA04(s32 arg0, s32 arg1, s32 arg2) {
     UiElem24 *p;
 
     if (D_800F4D80[arg0].b2 == 0) {
-        *(s32 *)0x1F800000 = func_8001FD20(D_800ACC14 + 0x70, *(s32 *)0x1F800000, arg1, arg2, 1, D_800F4D80[arg0].sA, 0xFF, 0xFF, 0xFF);
+        *(s32 *)SCRATCHPAD = func_8001FD20(D_800ACC14 + 0x70, *(s32 *)SCRATCHPAD, arg1, arg2, 1, D_800F4D80[arg0].sA, 0xFF, 0xFF, 0xFF);
     } else {
         s1 = 0;
-        s3 = *(s32 *)0x1F800000;
+        s3 = *(s32 *)SCRATCHPAD;
         s5 = ((D_800F4D80[arg0].b17 - 0x80) << 4) & 0xFFF;
         if ((b = D_800F4D80[arg0].b2) != 0) {
             do {
@@ -345,7 +346,7 @@ void func_8003EA04(s32 arg0, s32 arg1, s32 arg2) {
         b = p[arg0].b17;
         /* ASM_BARRIER: Keep unused b17 load live and reload D_800F4D80 without a branch basic-block boundary */
         __asm__("" : "=m"(D_800F4D80) : "r"(b), "r"(d));
-        *(s32 *)0x1F800000 = s3;
+        *(s32 *)SCRATCHPAD = s3;
         func_8003F920(arg1, arg2, s6 - d, D_800F4D80[arg0].sA, 0xCE, 0xCE, 0xCE);
     }
 }

@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "m2c_macros.h"
 #include "rr/overlay662_distance.h"
 
@@ -100,7 +101,7 @@ void func_80043ED4(short *a, short b, int c) {
     int m[8];
     unsigned short v[3];
     short r[3];
-    int *s = (int *)0x1F800000;
+    int *s = (int *)SCRATCHPAD;
     s[6] = -a[0];
     s[7] = a[1];
     s[8] = a[2];

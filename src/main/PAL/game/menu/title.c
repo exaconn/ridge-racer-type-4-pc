@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "game/course/trkintp2.h"
 #include "game/course/trktext.h"
 #include "game/gfx/gfxdraw.h"
@@ -503,7 +504,7 @@ void func_8005DDF4()
     }
     while (i_s1 < 7);
   }
-  *((int *) 0x1F800078) = D_800F2A64;
+  *((int *) (SCRATCHPAD + 0x78)) = D_800F2A64;
   func_8006ECE8(0);
   func_800747EC(0);
   func_80036FD4(0);

@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "rr_asm.h"
 #include "rr/race.h"
 #include "m2c_macros.h"
@@ -88,7 +89,7 @@ void func_80026998(int a0, int a1);
 #define D_800ABEA4 (*(s32 (*))&D_800ABEA4)
 
 s32 func_800261BC(s32 *pos, s32 startIdx) {
-    SP *g = (SP *)0x1F800080;
+    SP *g = (SP *)(SCRATCHPAD + 0x80);
     s32 a, n, t, x;
     s32 r;
     /* ASM_BARRIER: keep g->s150[0] load in $v0 across g->cnt increment */

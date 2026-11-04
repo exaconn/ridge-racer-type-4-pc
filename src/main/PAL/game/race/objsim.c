@@ -1,5 +1,6 @@
 /* RODATA 0x8001134c 0x14 */
 #include "types.h"
+#include "scratchpad.h"
 #include "game/race/objrec.h"
 #include "game/gfx/polytri.h"
 #include "game/gfx/poly1.h"
@@ -101,7 +102,7 @@ s32 func_80072358(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s3
 void func_800735D8(void);
 
 s32 func_80072358(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7) {
-    s32 *sp = (s32 *)0x1F80007C;
+    s32 *sp = (s32 *)(SCRATCHPAD + 0x7C);
     s32 d1, w, d2;
 
     sp[14] = arg2;
@@ -169,7 +170,7 @@ s32 func_80072358(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s3
 void func_800735D8(void) {
     int i;
     int s0;
-    int *sp = (int *)0x1F80007C;
+    int *sp = (int *)(SCRATCHPAD + 0x7C);
     int v1, a0, a2;
     int t0, t1;
     int r1, r2, r3, r5, r6;
@@ -224,7 +225,7 @@ void func_800735D8(void) {
                         func_80070934(B0->f0, 7, &B4->fC, r4);
                         B4->f0 = 0;
                     } else if (B4->f0 == 0x3C) {
-                        hw = (int *)0x1F800000;
+                        hw = (int *)SCRATCHPAD;
                         sp[0] = (B4->fC - hw[2]) >> 10;
                         sp[1] = (B4->f14 - hw[4]) >> 10;
                         sp[2] = func_80090758((sp[0] * sp[0] + sp[1] * sp[1]) >> 8) >> 4;

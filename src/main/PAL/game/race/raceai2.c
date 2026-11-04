@@ -1,5 +1,6 @@
 /* RODATA 0x800106b0 0x1c */
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/player_status.h"
 #include "m2c_macros.h"
 #include "game/race/racegrid.h"
@@ -293,7 +294,7 @@ void func_80035B84()
     case 2:
       D_800F2DE4 += 1;
       func_8009AEAC(1, 1, 0);
-      g = (int *) 0x1F800000;
+      g = (int *) SCRATCHPAD;
       new_var = *g;
       *g = func_8001FCC8(D_800ACC14 + 0x70, func_8001FD20(D_800ACC14 + 0x70, func_8001F5B4(D_800ACC14 + 0x70, func_8001F5B4(D_800ACC14 + 0x70, new_var, 0x78, 0x100, D_80010678, 0x7F38, 0, 1), 0x78, 0x114, D_80010684, 0x7F38, 0, 1), 0, 0, 0x140, 0x200, 0x80, 0, 0), 0x5E);
       if (D_800F3A60 == 0)
@@ -313,7 +314,7 @@ void func_80035B84()
       D_800AC5D0 = ((unsigned short) D_800AC5D0) - 1;
     }
       func_800207D4(D_800ACC14 + 0x70, (0x20 - D_800AC5D0) * 8, 0x45);
-      *((int *) 0x1F800000) = func_8001FD20(D_800ACC14 + 0x74, *((int *) 0x1F800000), 0, 0, 0x140, 0x200, (0x20 - D_800AC5D0) * 4, 0, 0);
+      *((int *) SCRATCHPAD) = func_8001FD20(D_800ACC14 + 0x74, *((int *) SCRATCHPAD), 0, 0, 0x140, 0x200, (0x20 - D_800AC5D0) * 4, 0, 0);
       if (D_800AC5D0 <= 0)
     {
       D_800F4C6A = 1;
@@ -355,8 +356,8 @@ void func_80035E28(void)
 
     case 2:
       D_800F2DE4++;
-      new_var = *((int *) 0x1F800000);
-      *((int *) 0x1F800000) = func_8001FCC8(D_800ACC14 + 0x70, func_8001F5B4(D_800ACC14 + 0x70, func_8001F5B4(D_800ACC14 + 0x70, new_var, 0x78, 0x100, D_80010694, 0x7F38, 0, 1), 0x78, 0x114, D_800106A4, 0x7F38, 0, 1), 0x3E);
+      new_var = *((int *) SCRATCHPAD);
+      *((int *) SCRATCHPAD) = func_8001FCC8(D_800ACC14 + 0x70, func_8001F5B4(D_800ACC14 + 0x70, func_8001F5B4(D_800ACC14 + 0x70, new_var, 0x78, 0x100, D_80010694, 0x7F38, 0, 1), 0x78, 0x114, D_800106A4, 0x7F38, 0, 1), 0x3E);
       if (D_800F3A60 == 0)
     {
       if (D_800F2DE4 < 0xFB)
@@ -419,7 +420,7 @@ void func_80036098(void) {
         D_800F3A26 = 0x23;
         D_800F4D8A = 0;
     }
-    *(int *)0x1F800000 = func_8001FD20(D_800ACC14 + 0x70, *(int *)0x1F800000, 0, 0, 0x140, 0x100, 8, 8, 8);
+    *(int *)SCRATCHPAD = func_8001FD20(D_800ACC14 + 0x70, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x100, 8, 8, 8);
 }
 
 #undef D_800F4D8A

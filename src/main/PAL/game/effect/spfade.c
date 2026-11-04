@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "rr/gpu_scratch_types.h"
 #include "rr_asm.h"
 #include "rr/sprite_preset.h"
@@ -139,7 +140,7 @@ low:
         r_t5 = r_t4 - r_t3;
         r_t0 = r_t6 + 0x88;
         r_t2 = 0x006C0020U;
-        scratch = (RrGpuScratchPointers *)0x1F800000U;
+        scratch = (RrGpuScratchPointers *)SCRATCHPAD;
         /* ASM_BARRIER: stage scratch pointer at 8001B938 */
         __asm__("" : "+r"(scratch));
         r_a3 = r_a2 | 0x64000000U;
@@ -278,7 +279,7 @@ low:
             if(value<0)clamped=0;
         }
         value=clamped;
-        scratch=(RrGpuScratchPointers*)0x1F800000U;
+        scratch=(RrGpuScratchPointers*)SCRATCHPAD;
         /* ASM_BARRIER: stage the scratch page before packing the RGB command. */
         __asm__("" : "+r"(scratch));
         hi=(u32)value<<16;
@@ -336,7 +337,7 @@ low:
             if (value < 0) clamped = 0;
         }
         value = clamped;
-        scratch = (RrGpuScratchPointers *)0x1F800000U;
+        scratch = (RrGpuScratchPointers *)SCRATCHPAD;
         /* ASM_BARRIER: stage the scratch page before packing the RGB command */
         __asm__("" : "+r"(scratch));
         hi = (u32)value << 16;
@@ -360,7 +361,7 @@ low:
 
 void func_8001BC84(int a0, int a1)
 {
-    struct Pk *p = *(struct Pk **)0x1F800000;
+    struct Pk *p = *(struct Pk **)SCRATCHPAD;
     int col = (((-a1) >> 3) & 3) | 0x1BA4F0D0;
     short *t = D_8009E874;
     int i = 11;
@@ -368,7 +369,7 @@ void func_8001BC84(int a0, int a1)
     do {
         if (a0 & 1) {
             p->a = 0x65000000; p->b = *t | 0xA80000; p->d = 0x100004; p->c = col;
-            g = (int *)0x1F800000;
+            g = (int *)SCRATCHPAD;
             *(int *)p = ((struct Ot *)g[1])->next;
             p->len = 4;
             ((struct Ot *)g[1])->next = (int)p;
@@ -379,5 +380,5 @@ void func_8001BC84(int a0, int a1)
         i--;
         t++;
     } while (i > 0);
-    *(struct Pk **)0x1F800000 = p;
+    *(struct Pk **)SCRATCHPAD = p;
 }

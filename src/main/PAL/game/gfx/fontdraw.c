@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "rr/gpu.h"
 #include "rr/animated_glyph.h"
 #include "game/gfx/fontdraw.h"
@@ -23,7 +24,7 @@ u8 *a2;
 {
     RrSpritePacket *s3, *s2;
     s32 c, a, v, row, col, u, vv;
-    s3 = *(RrSpritePacket **)0x1F800000;
+    s3 = *(RrSpritePacket **)SCRATCHPAD;
     s2 = s3;
     for (; *a2 != 0; a0 += 10) {
             a = *a2 - 0x20;
@@ -50,7 +51,7 @@ u8 *a2;
     }
     func_80093C24(s3, 0, 1, 0x58, 0);
     func_80095A44(D_800ACC14 + 0x70, s3);
-    *(char **)0x1F800000 = (char *)s3 + 0xC;
+    *(char **)SCRATCHPAD = (char *)s3 + 0xC;
 }
 
 #undef func_80093C24

@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "rr_asm.h"
 #include "m2c_macros.h"
 #include "game/gfx/gtepoly1.h"
@@ -211,8 +212,8 @@ void *func_80013D48(char *a0_in, int *a1_in, int a2_in) {
     /* ASM_BARRIER: load fourth vertex words before storing 0x44 */
     __asm__ volatile("" : "+r"(t1), "+r"(r_v0));
     r_a1[0x44 / 4] = r_v0;
-    r_v0 = 0x1F800000;
-    /* ASM_BARRIER: load 0x1F800000 into $v0 before storing 0x38..0x40 */
+    r_v0 = SCRATCHPAD;
+    /* ASM_BARRIER: load SCRATCHPAD into $v0 before storing 0x38..0x40 */
     __asm__ volatile("" : "+r"(r_v0));
     r_a1[0x38 / 4] = r_a3;
     r_a1[0x3C / 4] = t0;
@@ -377,7 +378,7 @@ void *func_80013D48(char *a0_in, int *a1_in, int a2_in) {
             t7 += 0x18;
         } while (r_a2-- > 0);
     }
-    *(char **)0x1F800000 = t4;
+    *(char **)SCRATCHPAD = t4;
     return t7;
 }
 
@@ -470,8 +471,8 @@ void *func_80014068(char *a0_in, int *a1_in, int a2_in) {
     /* ASM_BARRIER: load fourth vertex words before storing 0x44 */
     __asm__ volatile("" : "+r"(t1), "+r"(r_v0));
     t2[0x44 / 4] = r_v0;
-    r_v0 = 0x1F800000;
-    /* ASM_BARRIER: load 0x1F800000 into $v0 before storing 0x38..0x40 */
+    r_v0 = SCRATCHPAD;
+    /* ASM_BARRIER: load SCRATCHPAD into $v0 before storing 0x38..0x40 */
     __asm__ volatile("" : "+r"(r_v0));
     t2[0x38 / 4] = r_a1;
     t2[0x3C / 4] = r_a3;
@@ -682,7 +683,7 @@ void *func_80014068(char *a0_in, int *a1_in, int a2_in) {
             t8 += 0x18;
         } while (r_a2-- > 0);
     }
-    *(char **)0x1F800000 = t6;
+    *(char **)SCRATCHPAD = t6;
     return t8;
 }
 
@@ -783,7 +784,7 @@ void *func_8001446C(char *a0_in, int *a1_in, int a2_in) {
     /* ASM_BARRIER: materialize %hi(D_800F2EC8) before storing r_a0 to 0x3C(t0) */
     __asm__("" : "+r"(r_a0) : "m"(D_800F2EC8));
     *(int *)((char *)t0 + 0x3C) = r_a0;
-    r_a0 = 0x1F800000;
+    r_a0 = SCRATCHPAD;
     *(int *)((char *)t0 + 0x38) = r_v1;
     *(int *)((char *)t0 + 0x40) = r_a1;
     r_v0 = D_800F2EC8;
@@ -1179,7 +1180,7 @@ void *func_8001446C(char *a0_in, int *a1_in, int a2_in) {
             s0 += 0x20;
         } while (t9-- > 0);
     }
-    *(char **)0x1F800000 = t3;
+    *(char **)SCRATCHPAD = t3;
     return s0;
 }
 
@@ -1189,7 +1190,7 @@ void func_80014A8C(s32 arg0) {
 
 int func_80014A98(int a0, int a1, int a2, int a3)
 {
-  int *s0 = (int *) 0x1F80007C;
+  int *s0 = (int *) (SCRATCHPAD + 0x7C);
   int *p;
   int *g;
   int w;
@@ -1204,7 +1205,7 @@ int func_80014A98(int a0, int a1, int a2, int a3)
   {
     return 0;
   }
-  func_8006EE3C(0x1F80007C, a0, a1);
+  func_8006EE3C((SCRATCHPAD + 0x7C), a0, a1);
   new_var = 3;
   s0[2] = a3;
   a = D_8009E0AC & 0xF;
@@ -1215,7 +1216,7 @@ int func_80014A98(int a0, int a1, int a2, int a3)
   new_var3 = b >> 4;
   new_var2 = (a >> 6) | 0x20;
   s0[4] = (new_var3 | new_var2) << 16;
-  g = (int *) 0x1F800000;
+  g = (int *) SCRATCHPAD;
   s0[0] = g[0x54 / 4];
   s0[1] = g[0x58 / 4];
   s0[5] = g[1] + 0x200;
@@ -1301,7 +1302,7 @@ void func_80014C3C(char *a0_in, char *a1_in, s32 a2_in) {
 
     a3 = 0xE1000220;
     fp = 0x10;
-    v0 = 0x1F800000;
+    v0 = SCRATCHPAD;
     /* ASM_BARRIER: order setup before sp[2] store and scratchpad loads */
     __asm__ volatile("" : "+r"(a3), "+r"(fp), "+r"(v0));
     sp[2] = a3;
@@ -1501,7 +1502,7 @@ L_next:
         s7 += 0x10;
     } while (fp > 0);
 
-    *(char **)0x1F800000 = s4;
+    *(char **)SCRATCHPAD = s4;
 }
 
 void func_80014F34(s32 *a0_in, char *a1_in) {
@@ -1554,7 +1555,7 @@ void func_80014F34(s32 *a0_in, char *a1_in) {
     RR_GTE14_SWC2_OTZ(a3 + 0x70);
 
     v1 = *(s32 *)(a3 + 0x70);
-    t1 = (s32 *)0x1F800000;
+    t1 = (s32 *)SCRATCHPAD;
     if (v1 <= 0) {
         return;
     }
@@ -1773,12 +1774,12 @@ void func_80015110(s32 *a0_in, char *a1_in) {
     __asm__ volatile("" : "+r"(t6));
 
     v0 = a0[2];
-    a0 = (s32 *)0x1F800000;
+    a0 = (s32 *)SCRATCHPAD;
     /* ASM_BARRIER: order v0 load and a0 lui before t3/t2 setup */
     __asm__ volatile("" : "+r"(v0), "+r"(a0));
     t3 = (char *)v0 + 4;
     t2 = *(u16 *)((char *)v0 + 2);
-    /* ASM_BARRIER: order t3 and t2 before 0x1F800060 load */
+    /* ASM_BARRIER: order t3 and t2 before (SCRATCHPAD + 0x60) load */
     __asm__ volatile("" : "+r"(t3), "+r"(t2), "+r"(a0));
     v0 = a0[0x60 / 4];
     v1 = *(s32 *)(t0 + 0xA0);
@@ -1801,7 +1802,7 @@ void func_80015110(s32 *a0_in, char *a1_in) {
     /* ASM_BARRIER: join after t4 selection */
     __asm__ volatile("" : "+r"(t4), "+r"(t5));
 
-    t1 = (char *)0x1F800000;
+    t1 = (char *)SCRATCHPAD;
     /* ASM_BARRIER: force lui $t1, 0x1F80 */
     __asm__ volatile("" : "+r"(t1));
     t1 = *(char **)t1;
@@ -1955,7 +1956,7 @@ void func_80015110(s32 *a0_in, char *a1_in) {
             t2--;
         } while (v0 > 0);
     }
-    *(char **)0x1F800000 = t1;
+    *(char **)SCRATCHPAD = t1;
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -2046,7 +2047,7 @@ void func_800155D8(char *a0, char *a1) {
     /* ASM_BARRIER: read GTE IR3 ($11) with pipeline delay nop */
     __asm__ volatile("mfc2 %0, $11\n\tnop" : "=r"(otz));
     if (otz >= 0) {
-        otz >>= *(int *)0x1F800060 + 2;
+        otz >>= *(int *)(SCRATCHPAD + 0x60) + 2;
         if (otz < 0x1C0) {
             /* ASM_BARRIER: set identity GTE rotation matrix ($0..$4) and clear VXY/VZ ($1,$3,$5) */
             __asm__ volatile(
@@ -2085,7 +2086,7 @@ void func_800155D8(char *a0, char *a1) {
             dst = (int *)(a1 + 0x1A4);
             i = 0x10;
             col = *(int *)(a0 + 8);
-            spd = (int *)0x1F800000;
+            spd = (int *)SCRATCHPAD;
             t = 0x32000000;
             sxy0 = *(int *)(a1 + 0x1A0);
             pkt = (int *)spd[0];
@@ -2107,14 +2108,14 @@ void func_800155D8(char *a0, char *a1) {
                 pkt += 8;
                 ((char *)ot)[3] = 0;
             } while (i > 0);
-            *(int **)0x1F800000 = pkt;
+            *(int **)SCRATCHPAD = pkt;
         }
     }
 }
 
 int *func_8001577C(int *a0, int a1, char *a2) {
     int verts = (int)(a2 + 0x1A0);
-    volatile int *hw = (volatile int *)0x1F800000;
+    volatile int *hw = (volatile int *)SCRATCHPAD;
     int shift = hw[0x60 / 4] + 4;
     int *pkt = (int *)hw[0];
     int xor_val = *(int *)(a2 + 0xBC);
@@ -2173,12 +2174,12 @@ int *func_8001577C(int *a0, int a1, char *a2) {
         }
         a0 += 7;
     }
-    *(int **)0x1F800000 = pkt;
+    *(int **)SCRATCHPAD = pkt;
     return a0;
 }
 
 void func_80015918(Tri0C *a0, int a1, char *a2) {
-    int *spd = (int *)0x1F800000;
+    int *spd = (int *)SCRATCHPAD;
     int *pkt = (int *)spd[0];
     int c160 = *(int *)(a2 + 0x160) | 0x3A000000;
     int shift = spd[0x18] + 3;
@@ -2285,7 +2286,7 @@ void func_80015918(Tri0C *a0, int a1, char *a2) {
         }
         a0++;
     }
-    *(int **)0x1F800000 = pkt;
+    *(int **)SCRATCHPAD = pkt;
 }
 
 char *func_80015D00(char *a0_in, s32 a1_in, char *a2_in) {
@@ -2347,7 +2348,7 @@ char *func_80015D00(char *a0_in, s32 a1_in, char *a2_in) {
 
     t2 = a2 + 0x1A0;
     t1 = a1;
-    v0 = 0x1F800000;
+    v0 = SCRATCHPAD;
     /* ASM_BARRIER: order pre-loop pointer/count setup */
     __asm__ volatile("" : "+r"(t2), "+r"(t1), "+r"(v0));
     v0 = *(s32 *)(v0 + 0x60);
@@ -2441,7 +2442,7 @@ L_next:
     RR_GTE_SETROT(v0);
 
     s0 = 0xE1000220;
-    a0 = 0x1F800000;
+    a0 = SCRATCHPAD;
     /* ASM_BARRIER: order s0 and a0 setup */
     __asm__ volatile("" : "+r"(s0), "+r"(a0));
     a0 = *(s32 *)a0;
@@ -2542,12 +2543,12 @@ L_next:
         __asm__ volatile("" : "+r"(t2));
     }
 
-    *(s32 *)0x1F800000 = a0;
+    *(s32 *)SCRATCHPAD = a0;
     return t8;
 }
 
 void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6) {
-    char *s2 = (char *)0x1F80007C;
+    char *s2 = (char *)(SCRATCHPAD + 0x7C);
     char *s4 = (char *)&D_8010B2E0[arg4 * 0x190];
     s32 s0;
     s32 a0;
@@ -2558,14 +2559,14 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
     s32 vcnt;
 
     SP->w[0x23] = arg5;
-    if (*(s32 *)0x1F800064 != 0) {
+    if (*(s32 *)(SCRATCHPAD + 0x64) != 0) {
         s4 += 0xC8;
         SP->w[0x2F] = 0x80000000;
     } else {
         SP->w[0x2F] = 0;
     }
     SP->p[0x24] = arg0;
-    SP->w[0x1B] = *(s32 *)0x1F800004 + 0x200 + arg6 * 4;
+    SP->w[0x1B] = *(s32 *)(SCRATCHPAD + 0x4) + 0x200 + arg6 * 4;
     SP->p[0x25] = D_800F3A08[arg4 / 2];
 
     if (arg1 == 0 || (SP->w[0x23] & 1) == 0) {
@@ -2663,12 +2664,12 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
     SP->w[0xF] = arg1[1];
     SP->w[0x10] = arg1[2] - 0x8000;
     {
-        s32 *g = (s32 *)0x1F800000;
+        s32 *g = (s32 *)SCRATCHPAD;
         SP->h[0x64] = arg1[0] - g[2];
         SP->h[0x65] = arg1[1] - g[3];
         SP->h[0x66] = arg1[2] - g[4];
     }
-    RR_GTE_SETROT((void *)0x1F800028);
+    RR_GTE_SETROT((void *)(SCRATCHPAD + 0x28));
     RR_GTE_MVMVA_ROT_V0_NOCV(s2 + 0xC8);
     RR_GTE_SWC2_MAC123(s2 + 0x14);
     GTE_SETROT_AND_SAVE(arg2, s2);
@@ -3108,7 +3109,7 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
             register s32 nvert __asm__("$3");
             s32 s0;
             s32 s1;
-            RR_GTE_SETROT((void *)0x1F800028);
+            RR_GTE_SETROT((void *)(SCRATCHPAD + 0x28));
             {
                 char *t = s2 + 0x1A0;
                 s32 *g;
@@ -3116,7 +3117,7 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
                 do {
                     m = -0x8000;
                 } while (0);
-                g = (s32 *)0x1F800000;
+                g = (s32 *)SCRATCHPAD;
                 SP->p[0x34] = t;
                 SP->h[0x64] = S4->w[0x1D] + m - g[2];
                 SP->h[0x65] = S4->w[0x1E] - g[3];

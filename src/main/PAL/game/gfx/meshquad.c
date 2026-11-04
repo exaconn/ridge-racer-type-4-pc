@@ -3,6 +3,7 @@
 
 /* Candidate module: mesh quad packet builders (GT4, G4, F4), 80057A44..80058038. */
 #include "types.h"
+#include "scratchpad.h"
 #include "game/camera/camview.h"
 #include "game/effect/spark.h"
 #include "game/gfx/meshquad.h"
@@ -53,7 +54,7 @@ int func_800578D8(int a0)
   D_800AC650.p->f100 = (D_800AC650.p->fA0 - s1) - (D_800F3A08->f8 + ((short) (((short) D_800ABEF8.f10E) / 3)));
   s1 = func_8005642C(&D_800ABEF8, D_800AC650.p->f104, a0, sp10);
   func_80057750();
-  func_8002E828(2, 0x1F800028);
+  func_8002E828(2, (SCRATCHPAD + 0x28));
   func_80055C84();
   D_800AC650.p->f104 = D_800AC650.p->f104 + 1;
   D_800AC650.p->f108 = D_800AC650.p->f108 + 1;
@@ -76,7 +77,7 @@ int func_800578D8(int a0)
 }
 
 RrMeshQuadGT4 *func_80057A44(RrMeshQuadGT4 *p, s32 *s) {
-    s32 *g = (s32 *)0x1F800000;
+    s32 *g = (s32 *)SCRATCHPAD;
     RrPolyGT4WordPacket *out = (RrPolyGT4WordPacket *)g[0];
     s32 sh = g[0x18];
     u8 *verts = (u8 *)s[0];
@@ -149,12 +150,12 @@ RrMeshQuadGT4 *func_80057A44(RrMeshQuadGT4 *p, s32 *s) {
             p++;
         } while (n-- > 0);
     }
-    *(s32 *)0x1F800000 = (s32)t1;
+    *(s32 *)SCRATCHPAD = (s32)t1;
     return p;
 }
 
 RrMeshQuadG4 *func_80057C50(RrMeshQuadG4 *p, s32 *s) {
-    s32 *g = (s32 *)0x1F800000;
+    s32 *g = (s32 *)SCRATCHPAD;
     RrPolyG4WordPacket *out = (RrPolyG4WordPacket *)g[0];
     s32 sh = g[0x18];
     u8 *verts = (u8 *)s[0];
@@ -217,12 +218,12 @@ RrMeshQuadG4 *func_80057C50(RrMeshQuadG4 *p, s32 *s) {
             p++;
         } while (n-- > 0);
     }
-    *(s32 *)0x1F800000 = (s32)t1;
+    *(s32 *)SCRATCHPAD = (s32)t1;
     return p;
 }
 
 RrMeshQuadF4 *func_80057E3C(RrMeshQuadF4 *p, s32 *s) {
-    s32 *g = (s32 *)0x1F800000;
+    s32 *g = (s32 *)SCRATCHPAD;
     RrPolyF4Packet *out = (RrPolyF4Packet *)g[0];
     s32 sh = g[0x18];
     u8 *verts = (u8 *)s[0];
@@ -282,17 +283,17 @@ RrMeshQuadF4 *func_80057E3C(RrMeshQuadF4 *p, s32 *s) {
             p++;
         } while (n-- > 0);
     }
-    *(s32 *)0x1F800000 = (s32)t1;
+    *(s32 *)SCRATCHPAD = (s32)t1;
     return p;
 }
 
 void func_80058038(int arg0, int arg1, int arg2) {
-    int *g = (int *)0x1F80007C;
+    int *g = (int *)(SCRATCHPAD + 0x7C);
     int *a;
     int v;
     int t;
     g[0x54 / 4] = arg2;
-    g[0x58 / 4] = *(int *)0x1F800004;
+    g[0x58 / 4] = *(int *)(SCRATCHPAD + 0x4);
     t = arg0 + arg1 * 0xC;
     g[0] = *(int *)(t + 4);
     a = *(int **)(t + 0xC);

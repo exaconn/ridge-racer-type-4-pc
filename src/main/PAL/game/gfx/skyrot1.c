@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "rr_asm.h"
 #include "m2c_macros.h"
 #include "game/gfx/sky.h"
@@ -39,7 +40,7 @@ void func_8001C0F8(void);
 int func_8001BD40(int a0, int a1)
 {
     int t[8];
-    short *s3 = (short *)0x1F80007C;
+    short *s3 = (short *)(SCRATCHPAD + 0x7C);
     int s2;
     func_800701C4(4);
     s2 = *(short *)(D_8010BF78 + (a0 << 1) + 0xAA);
@@ -54,11 +55,11 @@ int func_8001BD40(int a0, int a1)
     RR_GTE_SETROT(D_8010BF78);
     func_80090A24((char *)s3 + 8, (char *)s3 + 0x28);
     RR_GTE_SETLLM((char *)s3 + 0x28);
-    RR_GTE_SETROT(0x1F800028);
+    RR_GTE_SETROT((SCRATCHPAD + 0x28));
     func_80090A24((char *)s3 + 8, t);
-    func_8006EE3C(0x1F80007C, D_8001013C + a0 * 16, t);
-    *(int *)0x1F800078 = 0;
-    func_8005F0D0(0x1F800000, D_800F2FD8 < 1, 0, 0);
+    func_8006EE3C((SCRATCHPAD + 0x7C), D_8001013C + a0 * 16, t);
+    *(int *)(SCRATCHPAD + 0x78) = 0;
+    func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, 0, 0);
     return s2;
 }
 
@@ -90,15 +91,15 @@ void func_8001BFA8(int a0, int a1, int a2)
 {
     int t[8];
     func_800701C4(4);
-    func_80091844(a1, 0x1F800084);
+    func_80091844(a1, (SCRATCHPAD + 0x84));
     RR_GTE_SETROT(D_8010BF78 + 0x20);
-    func_80090A24(0x1F800084, 0x1F8000A4);
-    RR_GTE_SETLLM(0x1F8000A4);
-    RR_GTE_SETROT(0x1F800028);
-    func_80090A24(0x1F800084, t);
-    func_8006EE3C(0x1F80007C, a2, t);
-    *(int *)0x1F800078 = 0;
-    func_8005F0D0(0x1F800000, a0 < D_800F2FD8 ? a0 : 1, 0, 0);
+    func_80090A24((SCRATCHPAD + 0x84), (SCRATCHPAD + 0xA4));
+    RR_GTE_SETLLM((SCRATCHPAD + 0xA4));
+    RR_GTE_SETROT((SCRATCHPAD + 0x28));
+    func_80090A24((SCRATCHPAD + 0x84), t);
+    func_8006EE3C((SCRATCHPAD + 0x7C), a2, t);
+    *(int *)(SCRATCHPAD + 0x78) = 0;
+    func_8005F0D0(SCRATCHPAD, a0 < D_800F2FD8 ? a0 : 1, 0, 0);
 }
 
 #undef D_8010BF78

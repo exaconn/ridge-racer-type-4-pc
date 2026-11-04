@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/track_lateral.h"
 #include "rr/text_sprites.h"
 #include "m2c_macros.h"
@@ -91,7 +92,7 @@ void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
     s32 missing, command;
     u32 low, high;
     const u8 *lookup;
-    packet = (RrSpritePacket *)((RrGpuScratchPointers *)0x1F800000U)->cursor;
+    packet = (RrSpritePacket *)((RrGpuScratchPointers *)SCRATCHPAD)->cursor;
     current_x = x;
     yy = y;
     selected = bank;
@@ -149,7 +150,7 @@ void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
             }
         } while (*text != 0);
     }
-    ((RrGpuScratchPointers *)0x1F800000U)->cursor = (u8 *)packet;
+    ((RrGpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)packet;
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -224,7 +225,7 @@ void func_8004C894(int a0, int a1, unsigned char *s, int a3, int a4) {
 #define D_800ACC14 (*(int (*))&D_800ACC14)
 
 void func_8004C928(int a0) {
-    register int *g asm("$8") = (int *)0x1F800000;
+    register int *g asm("$8") = (int *)SCRATCHPAD;
     int lo;
     int *p = (int *)g[0];
     int *q;
@@ -249,7 +250,7 @@ void *func_8004C998(char *a0)
   unsigned short *new_var;
   char *new_var2;
   int new_var3;
-  char *p = *((char **) 0x1F800000);
+  char *p = *((char **) SCRATCHPAD);
   unsigned short a1;
   int v;
   char *d;
@@ -306,7 +307,7 @@ void *func_8004C998(char *a0)
   d = (char *) (((*((unsigned int *) (((char *) a0) + 0))) * 4) + dd);
   *((unsigned int *) (((char *) d) + 0x70)) = ((*((unsigned int *) (((char *) d) + 0x70))) & 0xFF000000) | (((unsigned int) p) & 0xFFFFFF);
   p += 0x28;
-  *((char **) 0x1F800000) = p;
+  *((char **) SCRATCHPAD) = p;
   return p;
 }
 
@@ -327,7 +328,7 @@ void func_8004CC1C(void *arg0, void *arg1, void *arg2, s32 arg3) {
     void *temp_a3;
     void *temp_t0;
 
-    temp_t0 = *(void **)0x1F800000;
+    temp_t0 = *(void **)SCRATCHPAD;
     M2C_FIELD(temp_t0, s8 *, 3) = 8;
     M2C_FIELD(temp_t0, s8 *, 7) = 0x38;
     M2C_FIELD(temp_t0, u16 *, 8) = (u16) M2C_FIELD(arg0, u16 *, 0);
@@ -353,7 +354,7 @@ void func_8004CC1C(void *arg0, void *arg1, void *arg2, s32 arg3) {
     temp_a3 = (arg3 * 4) + D_800ACC14;
     M2C_FIELD(temp_t0, s32 *, 0) = (s32) ((M2C_FIELD(temp_t0, s32 *, 0) & 0xFF000000) | (M2C_FIELD(temp_a3, s32 *, 0x70) & 0xFFFFFF));
     M2C_FIELD(temp_a3, s32 *, 0x70) = (s32) ((M2C_FIELD(temp_a3, s32 *, 0x70) & 0xFF000000) | ((s32) temp_t0 & 0xFFFFFF));
-    *(void **)0x1F800000 = temp_t0 + 0x24;
+    *(void **)SCRATCHPAD = temp_t0 + 0x24;
 }
 
 #undef D_800ACC14
@@ -362,7 +363,7 @@ void func_8004CC1C(void *arg0, void *arg1, void *arg2, s32 arg3) {
 #define D_800ACC14 (*(int (*))&D_800ACC14)
 
 void func_8004CD88(unsigned short *a0, int a1, unsigned char *a2, unsigned char *a3, int a4) {
-    RrPolyG4Packet *p = *(RrPolyG4Packet **)0x1F800000;
+    RrPolyG4Packet *p = *(RrPolyG4Packet **)SCRATCHPAD;
     int *a;
     p->len = 8;
     p->code = 0x3A;
@@ -401,7 +402,7 @@ void func_8004CD88(unsigned short *a0, int a1, unsigned char *a2, unsigned char 
     *(int *)p = (*(int *)p & 0xFF000000) | (a[0x70 / 4] & 0xFFFFFF);
     *(volatile int *)&a[0x70 / 4] = (a[0x70 / 4] & 0xFF000000) | ((int)p & 0xFFFFFF);
     p++;
-    *(RrPolyG4Packet **)0x1F800000 = p;
+    *(RrPolyG4Packet **)SCRATCHPAD = p;
 }
 
 #undef D_800ACC14

@@ -1,4 +1,5 @@
 /* RODATA 0x800103c0 0x1c */
+#include "scratchpad.h"
 #include "rr/gpu.h"
 #include "psyq/libgpu/primattr.h"
 #include "psyq/libgpu/settrans.h"
@@ -114,8 +115,8 @@ LC0:
     v = (int *)(a1 * 0x14 + d + 0x22674);
     *v = (*v & 0xFF000000) | (*s0 & 0xFFFFFF);
     *s0 = (*s0 & 0xFF000000) | ((d + 0x22688) & 0xFFFFFF);
-    s1 = func_8001FCC8(s0, *(int **)0x1F800000, 5);
-    *(int **)0x1F800000 = s1;
+    s1 = func_8001FCC8(s0, *(int **)SCRATCHPAD, 5);
+    *(int **)SCRATCHPAD = s1;
     if (a0 >= 2) {
         sp[2] = 0x140;
         sp[0] = 0;
@@ -124,7 +125,7 @@ LC0:
         SetDrawArea(s1, sp);
         *s1 = (*s1 & 0xFF000000) | (*s0 & 0xFFFFFF);
         *s0 = (*s0 & 0xFF000000) | ((int)s1 & 0xFFFFFF);
-        *(int **)0x1F800000 = s1 + 3;
+        *(int **)SCRATCHPAD = s1 + 3;
     }
 }
 
@@ -137,7 +138,7 @@ s32 a1;
 u8 *a2;
 s32 a3;
 {
-    RrSpritePacketSignedClut *p = *(RrSpritePacketSignedClut **)0x1F800000;
+    RrSpritePacketSignedClut *p = *(RrSpritePacketSignedClut **)SCRATCHPAD;
     s32 t;
     s32 kb;
     s16 c;
@@ -176,7 +177,7 @@ s32 a3;
     }
     func_80093C24(p, 0, 1, 5, 0);
     func_80095A44(D_800ACC14 + 0x70, p);
-    *(RrSpritePacketSignedClut **)0x1F800000 = (RrSpritePacketSignedClut *)((char *)p + 0xC);
+    *(RrSpritePacketSignedClut **)SCRATCHPAD = (RrSpritePacketSignedClut *)((char *)p + 0xC);
 }
 
 #undef D_800ACC14
@@ -187,7 +188,7 @@ s32 a3;
 void func_80020E2C(a0, a1, a2, a3, a4)
 RrSpritePacket *a0; s32 a1; s32 a2; u8 *a3; s32 a4;
 {
-    RrSpritePacket *p = *(RrSpritePacket **)0x1F800000;
+    RrSpritePacket *p = *(RrSpritePacket **)SCRATCHPAD;
     s32 c, u;
     s32 kb;
     kb = 0xB4;
@@ -213,7 +214,7 @@ RrSpritePacket *a0; s32 a1; s32 a2; u8 *a3; s32 a4;
             p++;
         } while (*a3 != 0);
     }
-    *(s32 *)0x1F800000 = func_8001FCC8(a0, p, 5);
+    *(s32 *)SCRATCHPAD = func_8001FCC8(a0, p, 5);
 }
 
 #undef func_8001FCC8
@@ -224,7 +225,7 @@ RrSpritePacket *a0; s32 a1; s32 a2; u8 *a3; s32 a4;
 void func_80020F20(a0, a1, a2, a3)
 struct P *a0; int a1; int a2; unsigned char *a3;
 {
-    struct P *p = *(struct P **)0x1F800000;
+    struct P *p = *(struct P **)SCRATCHPAD;
     int c, u, kh;
     if (*a3 != 0) {
         kh = 0x10;
@@ -254,7 +255,7 @@ struct P *a0; int a1; int a2; unsigned char *a3;
             p++;
         } while (*a3 != 0);
     }
-    *(int *)0x1F800000 = func_8001FCC8(a0, p, 0x59);
+    *(int *)SCRATCHPAD = func_8001FCC8(a0, p, 0x59);
 }
 
 #undef func_8001FCC8

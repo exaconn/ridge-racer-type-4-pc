@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/course_choice_types.h"
 #include "rr/menu_choice.h"
 #include "m2c_macros.h"
@@ -109,7 +110,7 @@ void func_80036FD4(int a0) {
             v = D_800AC308;
         }
     } else {
-        int *p = (int *)0x1F800000;
+        int *p = (int *)SCRATCHPAD;
         v = func_80026998(p[2], p[4]);
     }
     func_80017CC0(v);

@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 typedef struct { int x; } __attribute__((packed)) U4;
 extern int func_8001FF84();
 extern int func_8001FCC8();
@@ -17,7 +18,7 @@ int a0; int a1;
         s4 = D_800ACC14 + 0xB70;
         s5 = ((a0 - 1) << 7) + 0xC;
     }
-    a = *(int *)0x1F800000;
+    a = *(int *)SCRATCHPAD;
     i = 0;
     do {
         buf = D_8009EE4C[i];
@@ -39,5 +40,5 @@ int a0; int a1;
         a = func_8001FF84(s4, a, 0x118 + i * 0x14, s5, &buf, 0x7EF8, 0);
         i++;
     } while (i < 2);
-    *(int *)0x1F800000 = func_8001FCC8(s4, a, 0x25);
+    *(int *)SCRATCHPAD = func_8001FCC8(s4, a, 0x25);
 }

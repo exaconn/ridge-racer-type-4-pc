@@ -1,5 +1,6 @@
 /* RODATA 0x8001007c 0x3c */
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/renderer_setup.h"
 #include "rr_asm.h"
 
@@ -407,10 +408,10 @@ int func_80012E94(int a0, int a1, int a2, int a3, int a4)
     int a, b, x;
     char *s0, *p0, *p1;
     char * volatile *g;
-    /* ASM_BARRIER: keeps 0x1F80007C pointer in a1 ($5) */
+    /* ASM_BARRIER: keeps (SCRATCHPAD + 0x7C) pointer in a1 ($5) */
     register short *sp asm("$5");
 
-    sp = (short *)0x1F80007C;
+    sp = (short *)(SCRATCHPAD + 0x7C);
     if (a0 == 2 && b1 == 0 && a2 == 0x13)
         return 0x13;
     t = D_8009DFEC[b1 * 16 + a3];
@@ -427,7 +428,7 @@ int func_80012E94(int a0, int a1, int a2, int a3, int a4)
         else
             b += 0x3C;
     }
-    g = (char * *)0x1F800000;
+    g = (char * *)SCRATCHPAD;
     s0 = g[0];
     sp[0] = xx;
     sp[1] = b;
@@ -716,8 +717,8 @@ int func_800137D4(void) {
 void func_80013890(s32 shift) {
     /* ASM_BARRIER: reuse the incoming argument register for the scratch base. */
     register RrRendererScratch *scratch __asm__("$4");
-    *(s32*)0x1F800060U=shift;
-    scratch=(RrRendererScratch*)0x1F800000U;
+    *(s32*)(SCRATCHPAD + 0x60)=shift;
+    scratch=(RrRendererScratch*)SCRATCHPAD;
     scratch->renderFlags64=D_800AD568;
     D_800F3A20.b=128;
     D_800F3A20.g=128;
@@ -757,13 +758,13 @@ int func_80013904(char *a0_in, int a1_in) {
     register int t2 __asm__("$10");
     /* ASM_BARRIER: keep a1_in copy in $t3 */
     register int t3 __asm__("$11");
-    /* ASM_BARRIER: keep scratchpad 0x1F80007C base in $t7 */
+    /* ASM_BARRIER: keep scratchpad (SCRATCHPAD + 0x7C) base in $t7 */
     register int *t7 __asm__("$15");
     /* ASM_BARRIER: keep destination pointer in $t8 */
     register short *t8 __asm__("$24");
 
     t3 = a1;
-    t7 = (int *)0x1F80007C;
+    t7 = (int *)(SCRATCHPAD + 0x7C);
     /* ASM_BARRIER: order t3 and t7 setup */
     __asm__ volatile("" : "+r"(t3), "+r"(t7));
     t7[0] = t3;
@@ -1038,7 +1039,7 @@ int func_80013904(char *a0_in, int a1_in) {
         : "r"(a0)
     );
 
-    t8 = (short *)0x1F8000B4;
+    t8 = (short *)(SCRATCHPAD + 0xB4);
     a3 = *(int *)(v1 + 0x8);
     a0 = *(int *)(a1 + 0x8);
     /* ASM_BARRIER: load color pair at +0x8 */
@@ -1069,7 +1070,7 @@ int func_80013904(char *a0_in, int a1_in) {
         : "r"(a0)
     );
 
-    t8 = (short *)0x1F8000B6;
+    t8 = (short *)(SCRATCHPAD + 0xB6);
     a3 = *(int *)(v1 + 0xC);
     a0 = *(int *)(a1 + 0xC);
     /* ASM_BARRIER: load color pair at +0xC */
@@ -1100,12 +1101,12 @@ int func_80013904(char *a0_in, int a1_in) {
         : "r"(a0)
     );
 
-    t8 = (short *)0x1F8000B8;
-    /* ASM_BARRIER: stage 0x1F8000B8 in $t8 */
+    t8 = (short *)(SCRATCHPAD + 0xB8);
+    /* ASM_BARRIER: stage (SCRATCHPAD + 0xB8) in $t8 */
     __asm__ volatile("" : "+r"(t8));
     RR_GTE_ST3_COL(t8);
-    t8 = (short *)0x1F8000B4;
-    /* ASM_BARRIER: stage 0x1F8000B4 in $t8 */
+    t8 = (short *)(SCRATCHPAD + 0xB4);
+    /* ASM_BARRIER: stage (SCRATCHPAD + 0xB4) in $t8 */
     __asm__ volatile("" : "+r"(t8));
     RR_GTE_SETLCM(t8);
     return t7[1];

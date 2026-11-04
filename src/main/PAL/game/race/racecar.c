@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "game/car/carmove1.h"
 #include "game/car/carparam.h"
 #include "game/car/carsetup.h"
@@ -20,8 +21,8 @@ struct w3g2q { int pad0[4]; int f10, f14, f18, f1C; char pad1[0x10]; int f30; in
 void func_80033808(struct w3g2q *p) {
     int sp[3];
     int v, t, u, v2, v3, v4;
-    int *g = (int *)0x1F800000;
-    int *q = (int *)0x1F80007C;
+    int *g = (int *)SCRATCHPAD;
+    int *q = (int *)(SCRATCHPAD + 0x7C);
     D_8010718C = 0;
     u = p->s1D8;
     p->s1D8 = (unsigned short)p->s1D8 - (u * 6) / 100;
@@ -51,7 +52,7 @@ void func_80033808(struct w3g2q *p) {
     v4 = func_800904F4(D_800ABEF8.f54);
     if (v4 < 0) v4 += 0x7F;
     sp[2] = D_800ABEF8.f18 + (v4 >> 7) - g[4];
-    *(w3g2V *)0x1F800008 = *(w3g2V *)&p->f10;
+    *(w3g2V *)(SCRATCHPAD + 0x8) = *(w3g2V *)&p->f10;
     g[3] -= 0x100;
     g[7] = 0x400 - func_8006E368(sp[0], sp[2]);
     g[6] = 0x400 - func_8006E368(sp[1], func_80090758(sp[0] * sp[0] + sp[2] * sp[2]) >> 6);

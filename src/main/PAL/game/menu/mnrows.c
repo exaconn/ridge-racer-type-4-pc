@@ -1,6 +1,7 @@
 /* RODATA 0x80010774 0x4c */
 /* CC1_FLAGS: -fno-strength-reduce */
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/selection.h"
 #include "m2c_macros.h"
 #include "rr/menu_transition.h"
@@ -313,6 +314,6 @@ void func_8003A544(void) {
         }
     }
     if (D_800F4C6A != 1) {
-        *(void **)0x1F800000 = func_8001FDD4((u32 *)((u8 *)D_800ACC14 + 0xB6C), *(void **)0x1F800000, 0, 0, 0x140, 0x200, 0, 0, 0);
+        *(void **)SCRATCHPAD = func_8001FDD4((u32 *)((u8 *)D_800ACC14 + 0xB6C), *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200, 0, 0, 0);
     }
 }

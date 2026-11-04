@@ -1,4 +1,5 @@
 /* RODATA 0x8001011c 0x20 */
+#include "scratchpad.h"
 #include "rr/tiled_rectangle.h"
 #include "rr_asm.h"
 #include "game/data/cdfile2.h"
@@ -15,7 +16,7 @@
 #include "rr/memory.h"
 #include "rr/controller_hud.h"
 
-#define GS ((SPD *)0x1F800000)
+#define GS ((SPD *)SCRATCHPAD)
 #define W(o) (*(int *)(GS->cur + (o)))
 #define LNK(n, t) \
     W(0) = *(int *)(GS->ot + (t)); \
@@ -206,7 +207,7 @@ clamp_low:
     /* ASM_BARRIER: stage E6000000 before forming the high color byte. */
     __asm__("" : : "r"(command));
     high = (u32)shade<<16;
-    packet = *(u8 **)0x1F800000U;
+    packet = *(u8 **)SCRATCHPAD;
     *(u32 *)(packet+4) = command;
     /* ASM_BARRIER: publish the first mask command before completing color packing. */
     __asm__("" : "+r"(shade) : : "memory");
@@ -286,7 +287,7 @@ clamp_low:
             y+=tile_h;
         } while (height > 0);
     }
-    scratch = (RrGpuScratchPointers *)0x1F800000U;
+    scratch = (RrGpuScratchPointers *)SCRATCHPAD;
     *(u32 *)(packet+4) = 0xE6000001U;
     *(u32 *)packet = scratch->order[703];
     packet[3] = 1;
@@ -482,7 +483,7 @@ void func_80019FC8(void) {
 }
 
 void func_8001A52C(int a0) {
-    Ctx1A52C *a3 = (Ctx1A52C *)0x1F80007C;
+    Ctx1A52C *a3 = (Ctx1A52C *)(SCRATCHPAD + 0x7C);
     /* ASM_BARRIER: pin scratchpad base pointer to $a1 ($5) to match original pre-loop CSE */
     register int *g asm("$5");
     int *v1;
@@ -502,11 +503,11 @@ void func_8001A52C(int a0) {
     a3->rot[3] = 0;
     a3->rot[1] = 0;
     RR_GTE_SETROT(a3);
-    RR_GTE_SETLLM((int *)0x1F800028);
+    RR_GTE_SETLLM((int *)(SCRATCHPAD + 0x28));
     RR_GTE_SETBK_P(D_800FF6A4);
 
-    g = (int *)0x1F800000;
-    /* ASM_BARRIER: keep 0x1F800000 base pointer in $a1 and mark t2 global across basic blocks */
+    g = (int *)SCRATCHPAD;
+    /* ASM_BARRIER: keep SCRATCHPAD base pointer in $a1 and mark t2 global across basic blocks */
     __asm__("" : "+r"(g), "=r"(t2));
     v1 = (int *)((char *)g[0x48 / 4] - 4);
     pkt = (int *)g[0];
@@ -591,11 +592,11 @@ void func_8001A52C(int a0) {
         }
         t3++;
     }
-    *(int **)0x1F800000 = pkt;
+    *(int **)SCRATCHPAD = pkt;
 }
 
 void func_8001A8DC(int a0) {
-    Ctx1A8DC *a3 = (Ctx1A8DC *)0x1F80007C;
+    Ctx1A8DC *a3 = (Ctx1A8DC *)(SCRATCHPAD + 0x7C);
     /* ASM_BARRIER: pin scratchpad base pointer to $a1 ($5) to match original pre-loop CSE */
     register int *g asm("$5");
     int *v1;
@@ -609,12 +610,12 @@ void func_8001A8DC(int a0) {
     int t7;
     int v0, v1_tmp, a1, a2, off, g64;
 
-    RR_GTE_SETROT((int *)0x1F800028);
-    RR_GTE_SETTR((int *)0x1F80003C);
+    RR_GTE_SETROT((int *)(SCRATCHPAD + 0x28));
+    RR_GTE_SETTR((int *)(SCRATCHPAD + 0x3C));
 
     off = a0 * 12;
-    g = (int *)0x1F800000;
-    /* ASM_BARRIER: keep 0x1F800000 base pointer in $a1 and finish a0*12 before v1 load so v1 gets $a0 */
+    g = (int *)SCRATCHPAD;
+    /* ASM_BARRIER: keep SCRATCHPAD base pointer in $a1 and finish a0*12 before v1 load so v1 gets $a0 */
     __asm__("" : "+r"(g) : "r"(off));
     v1 = (int *)((char *)g[0x48 / 4] - 4);
     pkt = (int *)g[0];
@@ -695,7 +696,7 @@ void func_8001A8DC(int a0) {
         }
         t1++;
     }
-    *(int **)0x1F800000 = pkt;
+    *(int **)SCRATCHPAD = pkt;
 }
 
 int *func_8001AC24(S_8001AC24 *a0, int *a1, int *a2) {

@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "rr/fade_sprite.h"
 #include "game/effect/ptinit.h"
 #include "game/sound/cdmain.h"
@@ -143,7 +144,7 @@ void func_8005C37C(s32 index, s32 x, s32 y, s32 intensity) {
     if (product < 0) {
         scale = (s32)((u32)product + 255U) >> 8;
     }
-    scratch = (RrGpuScratchPointers *)0x1F800000U;
+    scratch = (RrGpuScratchPointers *)SCRATCHPAD;
     if (scale > 0) {
         cursor = (RrSpritePacket *)scratch->cursor;
         slot = &D_800ACC14;

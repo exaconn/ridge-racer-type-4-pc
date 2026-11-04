@@ -1,5 +1,6 @@
 /* RODATA 0x80010740 0x1c */
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/race_types.h"
 #include "m2c_macros.h"
 #include "rr/lookup.h"
@@ -164,7 +165,7 @@ unsigned int arg0;
   int new_var;
   C *c;
   int *g;
-  g = (int *) 0x1F80007C;
+  g = (int *) (SCRATCHPAD + 0x7C);
   s6 = 0;
   s5 = ((int) (D_800F3914 << 16)) >> 17;
   switch (arg0)
@@ -336,7 +337,7 @@ u32 func_800384B4(void *arg0, M2C_UNK arg1) {
 void func_80038550(s32 arg0) {
     void *temp_v0;
 
-    temp_v0 = (arg0 * 0x24) + 0x1F800080;
+    temp_v0 = (arg0 * 0x24) + (SCRATCHPAD + 0x80);
     M2C_FIELD(temp_v0, s16 *, 0x54) = (s16) ((s32) (M2C_FIELD(temp_v0, s16 *, 0x44) + M2C_FIELD(temp_v0, s16 *, 0x48)) >> 1);
     M2C_FIELD(temp_v0, s16 *, 0x56) = (s16) ((s32) (M2C_FIELD(temp_v0, s16 *, 0x46) + M2C_FIELD(temp_v0, s16 *, 0x4A)) >> 1);
     M2C_FIELD(temp_v0, s16 *, 0x58) = (s16) ((s32) (M2C_FIELD(temp_v0, s16 *, 0x44) + M2C_FIELD(temp_v0, s16 *, 0x4C)) >> 1);
@@ -357,7 +358,7 @@ void func_80038550(s32 arg0) {
 #define D_800FFC20 (*(CarCollision *(*)[])&D_800FFC20)
 
 void func_80038654(CarCollision *arg0) {
-    ScratchpadCollision *sp = (ScratchpadCollision *)0x1F800080;
+    ScratchpadCollision *sp = (ScratchpadCollision *)(SCRATCHPAD + 0x80);
     CarCollision *cars[2];
     s32 rx[2];
     s32 ry[2];

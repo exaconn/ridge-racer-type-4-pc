@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "m2c_macros.h"
 #include "game/menu/menu8.h"
 #include "game/menu/menutran.h"
@@ -191,11 +192,11 @@ END:
 
 void func_8003016C(void)
 {
-    int *sp = (int *)0x1F800000;
+    int *sp = (int *)SCRATCHPAD;
     int *p;
     func_80041A18(D_800FFC48, 1);
     func_80041A54(0, 0, 3, 0xF0, 0xA0);
-    func_80096434(0x1F800008, 0x20);
+    func_80096434((SCRATCHPAD + 0x8), 0x20);
     p = D_800F3A28;
     p[7] = 0x60;
     p[8] = -0x110;

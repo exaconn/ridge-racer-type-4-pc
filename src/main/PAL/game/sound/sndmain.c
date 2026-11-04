@@ -1,4 +1,5 @@
 /* CC1_FLAGS: -fno-schedule-insns */
+#include "scratchpad.h"
 #include "game/sound/sndlis2.h"
 #include "game/sound/sndevt.h"
 #include "game/sound/sndmain.h"
@@ -19,7 +20,7 @@ void func_80052548(void)
     char *b = D_800F4DB8;
     char *c;
     char *e;
-    g = (int *)0x1F800000;
+    g = (int *)SCRATCHPAD;
     if (W(0x18B8) != 0) {
         switch (U16(0x18C0)) {
         case 0:
@@ -48,7 +49,7 @@ void func_80052548(void)
                 if (q5 < 0) q5 += 3;
                 v0 = q5 >> 2;
                 W(0x18CC) = v0;
-                *(V4 *)(b + 0x18D4) = *(V4 *)0x1F800018;
+                *(V4 *)(b + 0x18D4) = *(V4 *)(SCRATCHPAD + 0x18);
                 func_80051BD4(1);
                 func_800523C8(0);
             } else {
@@ -63,7 +64,7 @@ void func_80052548(void)
                 if (q5 < 0) q5 += 3;
                 v0 = q5 >> 2;
                 W(0x18CC) = v0;
-                *(V4 *)(b + 0x18D4) = *(V4 *)0x1F800018;
+                *(V4 *)(b + 0x18D4) = *(V4 *)(SCRATCHPAD + 0x18);
                 func_800523C8(0);
                 func_800523C8(1);
 neg:

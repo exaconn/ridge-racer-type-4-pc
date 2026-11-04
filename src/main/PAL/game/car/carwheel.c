@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/lookup.h"
 #include "rr_asm.h"
 #include "game/data/cdfile2.h"
@@ -9,7 +10,7 @@
 #include "game/car/carwheel.h"
 #include "rr/race_setup.h"
 
-#define G ((Scratch2D784 *)0x1F800000)
+#define G ((Scratch2D784 *)SCRATCHPAD)
 
 typedef struct {
     s32 m[8];
@@ -194,7 +195,7 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     RR_GTE_SETLLM(&sp50);
 
     func_8006E09C(&sp10, -arg0->rot54);
-    func_80090DB4((Mat8 *)0x1F800028, &sp10);
+    func_80090DB4((Mat8 *)(SCRATCHPAD + 0x28), &sp10);
     func_8006E108(&sp98[0], arg0->unk1A8 - arg0->rot50);
     func_8006E030(&sp50, arg0->unk1AA - arg0->rot58);
     func_80090CA4(&sp98[0], &sp50);
@@ -258,13 +259,13 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     for (i = 0; i < 8; i++) {
         u8 s0_mode = D_8009F034[i];
         if (s0_mode != 1 || func_80014A98(&sp158[D_8009F03C[i]], &sp98[D_8009F044[i]], D_8009F02C[i], 0) != s0_mode) {
-            func_8006EE3C(0x1F80007C, &sp158[D_8009F03C[i]], &sp98[D_8009F044[i]]);
-            *(s32 *)0x1F800078 = 0;
+            func_8006EE3C((SCRATCHPAD + 0x7C), &sp158[D_8009F03C[i]], &sp98[D_8009F044[i]]);
+            *(s32 *)(SCRATCHPAD + 0x78) = 0;
             a1_val = 1;
             if (D_8009F02C[i] < D_800F2FD8) {
                 a1_val = D_8009F02C[i];
             }
-            func_8005F0D0(0x1F800000, a1_val, i != 0, 0);
+            func_8005F0D0(SCRATCHPAD, a1_val, i != 0, 0);
         }
     }
 }
@@ -299,7 +300,7 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
     func_80090914(D_800ABED0, &sp80, &sp60);
     RR_GTE_SETLLM(&sp60);
     func_8006E09C(&sp20, -arg0->rot54);
-    func_80090DB4((Mat8 *)0x1F800028, &sp20);
+    func_80090DB4((Mat8 *)(SCRATCHPAD + 0x28), &sp20);
     func_8006E108(&spA8[0], arg0->unk1A8 - arg0->rot50);
     func_8006E030(&sp60, arg0->unk1AA - arg0->rot58);
     func_80090CA4(&spA8[0], &sp60);
@@ -367,13 +368,13 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
     for (i = 0; i < 8; i++) {
         u8 s0_mode = D_8009F034[i];
         if (s0_mode != 1 || func_80014A98(&sp168[D_8009F03C[i]], &spA8[D_8009F044[i]], D_8009F02C[i], 0) != s0_mode) {
-            func_8006EE3C(0x1F80007C, &sp168[D_8009F03C[i]], &spA8[D_8009F044[i]]);
-            *(s32 *)0x1F800078 = 0;
+            func_8006EE3C((SCRATCHPAD + 0x7C), &sp168[D_8009F03C[i]], &spA8[D_8009F044[i]]);
+            *(s32 *)(SCRATCHPAD + 0x78) = 0;
             a1_val = 1;
             if (D_8009F02C[i] < D_800F2FD8) {
                 a1_val = D_8009F02C[i];
             }
-            func_8005F0D0(0x1F800000, a1_val, i != 0, 0);
+            func_8005F0D0(SCRATCHPAD, a1_val, i != 0, 0);
         }
     }
 }
@@ -412,7 +413,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
     sp168[0].x = (arg0->x10 - G->x08) >> 2;
     sp168[0].y = 0;
     sp168[0].z = (arg0->z18 - G->z10) >> 2;
-    func_80090B14(0x1F800028, &sp168[0], &sp168[1]);
+    func_80090B14((SCRATCHPAD + 0x28), &sp168[0], &sp168[1]);
     if (sp168[0].x < 0) {
         sp168[0].x = -sp168[0].x;
     }
@@ -449,7 +450,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
         RR_GTE_SETLLM(&sp60);
         if (i < D_8009F04C[arg1].d0) {
             func_8006E09C(&sp20, -arg0->rot54);
-            func_80090DB4((Mat8 *)0x1F800028, &sp20);
+            func_80090DB4((Mat8 *)(SCRATCHPAD + 0x28), &sp20);
             func_8006E108(&spA8[0], arg0->unk1A8 - arg0->rot50);
             func_8006E030(&sp60, arg0->unk1AA - arg0->rot58);
             func_80090CA4(&spA8[0], &sp60);
@@ -507,19 +508,19 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
             for (i = 0; i < 8; i++) {
                 u8 s0_mode = D_8009F034[i];
                 if (s0_mode != 1 || func_80014A98(&sp168[D_8009F03C[i]], &spA8[D_8009F044[i]], D_8009F02C[i], fp_val) != s0_mode) {
-                    func_8006EE3C(0x1F80007C, &sp168[D_8009F03C[i]], &spA8[D_8009F044[i]]);
-                    *(s32 *)0x1F800078 = fp_val;
+                    func_8006EE3C((SCRATCHPAD + 0x7C), &sp168[D_8009F03C[i]], &spA8[D_8009F044[i]]);
+                    *(s32 *)(SCRATCHPAD + 0x78) = fp_val;
                     a1_val = 1;
                     if (D_8009F02C[i] < D_800F2FD8) {
                         a1_val = D_8009F02C[i];
                     }
-                    func_8005F0D0(0x1F800000, a1_val, i != 0, 0);
+                    func_8005F0D0(SCRATCHPAD, a1_val, i != 0, 0);
                 }
             }
             return;
         } else if (i < D_8009F04C[arg1].d2) {
             func_8006E09C(&sp20, -arg0->rot54);
-            func_80090DB4((Mat8 *)0x1F800028, &sp20);
+            func_80090DB4((Mat8 *)(SCRATCHPAD + 0x28), &sp20);
             func_8006E108(&spA8[0], arg0->unk1A8 - arg0->rot50);
             func_8006E030(&sp60, arg0->unk1AA - arg0->rot58);
             func_80090CA4(&spA8[0], &sp60);
@@ -533,32 +534,32 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
             func_80090CA4(&spA8[1], &sp60);
             func_80090DB4(&sp20, &spA8[1]);
             func_80015F68(arg0, &sp168[1], &spA8[1], &sp80, slot_idx, s5_val, s7_val);
-            func_8006EE3C(0x1F80007C, &sp168[0], &spA8[0]);
+            func_8006EE3C((SCRATCHPAD + 0x7C), &sp168[0], &spA8[0]);
             G->col78 = 0;
             a1_val = 1;
             if (D_800F2FD8 >= 4) {
                 a1_val = 3;
             }
-            func_8005F0D0(0x1F800000, a1_val, 0, s7_val);
+            func_8005F0D0(SCRATCHPAD, a1_val, 0, s7_val);
             if (func_80014A98(&sp168[1], &spA8[1], 1, fp_val) == 0) {
-                func_8006EE3C(0x1F80007C, &sp168[1], &spA8[1]);
+                func_8006EE3C((SCRATCHPAD + 0x7C), &sp168[1], &spA8[1]);
                 G->col78 = fp_val;
-                func_8005F0D0(0x1F800000, 1, 1, s7_val);
+                func_8005F0D0(SCRATCHPAD, 1, 1, s7_val);
             }
             return;
         } else if (i < D_8009F04C[arg1].d4) {
-            func_80090914((void *)0x1F800028, &sp80, &spA8[0]);
+            func_80090914((void *)(SCRATCHPAD + 0x28), &sp80, &spA8[0]);
             sp168[0].x = arg0->x10;
             sp168[0].y = arg0->y14;
             sp168[0].z = arg0->z18;
             func_80015F68(arg0, &sp168[0], &spA8[0], &sp80, slot_idx, s5_val, s7_val);
-            func_8006EE3C(0x1F80007C, &sp168[0], &spA8[0]);
-            *(s32 *)0x1F800078 = fp_val;
+            func_8006EE3C((SCRATCHPAD + 0x7C), &sp168[0], &spA8[0]);
+            *(s32 *)(SCRATCHPAD + 0x78) = fp_val;
             a1_val = 1;
             if (D_800F2FD8 >= 3) {
                 a1_val = 2;
             }
-            func_8005F0D0(0x1F800000, a1_val, 1, s7_val);
+            func_8005F0D0(SCRATCHPAD, a1_val, 1, s7_val);
             return;
         }
     }

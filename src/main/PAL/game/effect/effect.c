@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "game/effect/ptinit.h"
 #include "game/effect/effect.h"
 
@@ -39,14 +40,14 @@ void func_80054D50(void) {
         func_80053EC4();
         D_800F2AB8.f04 = (func_80096464() % 16) * 2 + 8;
     }
-    p = *(u32 **)0x1F800000;
+    p = *(u32 **)SCRATCHPAD;
     D_800F2AB8.f04--;
     func_80093C24(p, 0, 1, 0xA0, 0);
     ot = (u32 *)(D_800ACC14 + 0x19C);
     *p = (*p & 0xFF000000) | (*ot & 0x00FFFFFF);
     *ot = (*ot & 0xFF000000) | ((u32)p & 0x00FFFFFF);
     p += 3;
-    *(u32 **)0x1F800000 = p;
+    *(u32 **)SCRATCHPAD = p;
     for (i = 0; i < 0x18; i++) {
         if (D_800F2AB8.e[i].active00 & 1) {
             func_80054128(i);

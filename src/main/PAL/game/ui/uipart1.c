@@ -1,5 +1,6 @@
 /* RODATA 0x80010448 0x18 */
 #include "types.h"
+#include "scratchpad.h"
 #include "m2c_macros.h"
 #include "rr/geometry.h"
 #include "rr/gpu.h"
@@ -164,8 +165,8 @@ void func_8002A344(a0) int a0; {
         break;
     }
     {
-        int t = *(int *)0x1F800000;
-        *(int *)0x1F800000 = func_8001FDD4(D_800ACC14 + 0xB6C, t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
+        int t = *(int *)SCRATCHPAD;
+        *(int *)SCRATCHPAD = func_8001FDD4(D_800ACC14 + 0xB6C, t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
     }
     func_8002A63C(a0 >> 2);
     if (D_800F4D2C != 6 && D_800F4D2C != 8) {
@@ -288,7 +289,7 @@ void func_8002A63C(int arg0) {
 
     pc = D_80010440;
     sp40 = (((sp38 + 1) & 3) << 5) | 0x1E;
-    a1 = func_8001FC28(D_800ACC14 + 0x70, *(void **)0x1F800000, 0, 0, 0x140, 0x200);
+    a1 = func_8001FC28(D_800ACC14 + 0x70, *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200);
     a1 = func_80020074(D_800ACC14 + 0x70, a1, 0x10, 0x24, 0x20, 0x10, 0, 0x20, sp40, 0x7F38, 1, (unsigned short)s7);
     s1 = 0;
     s4 = 0x30;
@@ -387,7 +388,7 @@ void func_8002A63C(int arg0) {
         /* ASM_BARRIER: extend live range of d so global-alloc assigns %hi(D_800ACC14) to $s5 */
         __asm__ volatile("" : : "r"(d));
         a1 = func_8001FC28(D_800ACC14 + 0x70, a1, D_800F4CB0.s18, D_800F4CB0.s1A, D_800F4CB0.s1C, D_800F4CB0.s1E);
-        *(void **)0x1F800000 = func_8001FCC8(D_800ACC14 + 0x70, a1, sp40);
+        *(void **)SCRATCHPAD = func_8001FCC8(D_800ACC14 + 0x70, a1, sp40);
     }
 }
 
@@ -409,7 +410,7 @@ void func_8002AFA4(a0, a1, a2, a3, a4, a5) s32 a0; s32 a1; s32 a2; s32 a3; s32 a
     i = 0;
     bp = w.v;
     tb = D_8009EFFC;
-    t0 = *(s32 *)0x1F800000;
+    t0 = *(s32 *)SCRATCHPAD;
     w.u = *(B8 *)D_80010460;
 L0:
     j = 0;
@@ -435,7 +436,7 @@ L1:
     if (j < 2) goto L1;
     i = s1;
     if (i < 2) goto L0;
-    *(s32 *)0x1F800000 = t0;
+    *(s32 *)SCRATCHPAD = t0;
 }
 
 #undef D_800ACC14
@@ -460,7 +461,7 @@ void func_8002B12C(p0, p1, p2, p3, p4, a5, a6) s32 p0; s32 p1; s32 p2; s32 p3; s
     bp = w.v;
     one = 1;
     a4 = p4;
-    t0 = *(s32 *)0x1F800000;
+    t0 = *(s32 *)SCRATCHPAD;
     g = D_8009FDA4;
     nv = D_8009EFFC;
     w.u = *(B8 *)D_80010460;
@@ -500,9 +501,9 @@ B14:
     }
     i++;
     if (i < 2) goto L0;
-    *(s32 *)0x1F800000 = t0;
+    *(s32 *)SCRATCHPAD = t0;
     if (a3 == 1) {
-        *(s32 *)0x1F800000 = func_8001FD20(D_800ACC14 + 0x70, t0, a0, a1 - 0xC, a3, 0x18, 0xFF, 0xFF, 0xFF);
+        *(s32 *)SCRATCHPAD = func_8001FD20(D_800ACC14 + 0x70, t0, a0, a1 - 0xC, a3, 0x18, 0xFF, 0xFF, 0xFF);
     }
 }
 
@@ -746,7 +747,7 @@ void func_8002BA28(int a0) {
             v = D_800F4C80[i];
             y = i * 10 + 0x2C;
             func_8002B5D0(0xF0, y, v, s3, 0);
-            p = *(RrSpritePacket **)0x1F800000;
+            p = *(RrSpritePacket **)SCRATCHPAD;
             p->len = 4;
             p->code = 0x64;
             p->x = 0xE7;
@@ -759,7 +760,7 @@ void func_8002BA28(int a0) {
             p->h = 0xC;
             func_80095A44(D_800ACC14 + 0x70, p);
             p++;
-            *(RrSpritePacket **)0x1F800000 = p;
+            *(RrSpritePacket **)SCRATCHPAD = p;
             i++;
         } while (i < D_800F3A30);
     }

@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "game/camera/cammove.h"
 #include "game/camera/campath.h"
 #include "game/gfx/motion1.h"
@@ -100,7 +101,7 @@ extern char D_800A1B60[];
 void func_8005B304(void);
 
 void func_8005B304(void) {
-    Scratch5B304 *g = (Scratch5B304 *)0x1F800000;
+    Scratch5B304 *g = (Scratch5B304 *)SCRATCHPAD;
     s32 a2 = 0;
     s16 *s0;
 
@@ -160,7 +161,7 @@ void func_8005B304(void) {
         if (D_800AC650.q->f50 == 0) {
             func_8006EF8C(6);
             func_800912B4(0xA0, 0xE8);
-            func_8002E828(2, 0x1F800028);
+            func_8002E828(2, (SCRATCHPAD + 0x28));
         }
         g->f60 = 5;
         g->p04 = (s32)&D_800ACC14->ot_b70;
@@ -184,7 +185,7 @@ void func_8005B304(void) {
             ((DrStp *)g->p04)->addr = D_800ACC14->ot_b68.addr;
             D_800ACC14->ot_b68.addr = g->p04 + 0xAFC;
         } else {
-            DrStp *s5 = ((Scratch5B304 *)0x1F800000)->p00;
+            DrStp *s5 = ((Scratch5B304 *)SCRATCHPAD)->p00;
             DrStp *s0_p;
 
             func_80093BFC(s5, 0);
@@ -192,15 +193,15 @@ void func_8005B304(void) {
             s5->addr = D_800ACC14->ot_b6c.addr;
             D_800ACC14->ot_b6c.addr = (u32)s5;
             s5++;
-            ((Scratch5B304 *)0x1F800000)->p00 = s5;
+            ((Scratch5B304 *)SCRATCHPAD)->p00 = s5;
             ((DrStp *)g->p04)->addr = D_800ACC14->ot_b6c.addr;
             D_800ACC14->ot_b6c.addr = g->p04 + 0xAFC;
-            s5 = ((Scratch5B304 *)0x1F800000)->p00;
+            s5 = ((Scratch5B304 *)SCRATCHPAD)->p00;
             func_80093BFC(s5, 0);
             s5->addr = D_800ACC14->ot_b6c.addr;
             D_800ACC14->ot_b6c.addr = (u32)s5;
             s5++;
-            ((Scratch5B304 *)0x1F800000)->p00 = s5;
+            ((Scratch5B304 *)SCRATCHPAD)->p00 = s5;
             ((TilePrim *)s5)->len = 3;
             ((TilePrim *)s5)->code = 0x60;
             ((TilePrim *)s5)->r0 = 0;
@@ -213,13 +214,13 @@ void func_8005B304(void) {
             s5->addr = D_800ACC14->ot_b6c.addr;
             D_800ACC14->ot_b6c.addr = (u32)s5;
             s0_p = (DrStp *)((TilePrim *)s5 + 1);
-            ((Scratch5B304 *)0x1F800000)->p00 = s0_p;
+            ((Scratch5B304 *)SCRATCHPAD)->p00 = s0_p;
             func_80093BFC(s0_p, 1);
             __asm__ volatile("" : "+r"(s0_p)); /* ASM_BARRIER: prevent CSE from folding s0_p + 1 into s5 + 28 */
             s5 = s0_p + 1;
             s0_p->addr = D_800ACC14->ot_b6c.addr;
             D_800ACC14->ot_b6c.addr = (u32)s0_p;
-            ((Scratch5B304 *)0x1F800000)->p00 = s5;
+            ((Scratch5B304 *)SCRATCHPAD)->p00 = s5;
         }
         g->p04 = (s32)&D_800ACC14->ot_b70;
     }

@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "rr/track_interpolation.h"
 #include "game/ui/uicode.h"
 #include "game/ui/uicnt.h"
@@ -206,12 +207,12 @@ void func_800437D8(a0, a1) char *a0; int *a1;
     s.d[1] = 0;
     s.d[2] = *(unsigned short *)(a0 + 0x84);
     func_80090EC4(s.n, s.d, &s.f);
-    *(V4 *)0x1F800018 = s.f;
-    g = (int *)0x1F800000;
+    *(V4 *)(SCRATCHPAD + 0x18) = s.f;
+    g = (int *)SCRATCHPAD;
     g[7] = *(short *)(a0 + 0x82) + a1[5];
     g[6] += a1[4];
     g[8] += a1[6];
-    *(V4 *)0x1F800008 = *(V4 *)(a0 + 0x70);
+    *(V4 *)(SCRATCHPAD + 0x8) = *(V4 *)(a0 + 0x70);
     g[2] += s.e.x;
     g[3] += s.e.y;
     g[4] += s.e.z;

@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "m2c_macros.h"
 #include "game/course/trkintp2.h"
 #include "game/demo/opening.h"
@@ -92,7 +93,7 @@ int func_80045868(char *arg0);
 
 void func_80044EC4(void) {
     int sp10[8];
-    int *g = (int *)0x1F800000;
+    int *g = (int *)SCRATCHPAD;
     int s5;
     char *s2;
     int s1;
@@ -100,7 +101,7 @@ void func_80044EC4(void) {
     s5 = g[0x18];
     s2 = D_800AC650.f55C + (D_800AD520 << 7);
     func_80044920(s2, sp10);
-    func_8006EE3C(0x1F80007C, s2, sp10);
+    func_8006EE3C((SCRATCHPAD + 0x7C), s2, sp10);
     s1 = func_80044B24(sp10, s2);
     if (s1 > 0) {
         ClearOTagR(D_800AC650.f50[D_800F4BF0], 0x15F);
@@ -110,9 +111,9 @@ void func_80044EC4(void) {
             g[0x18] = 5;
         }
         func_800701C4(8);
-        func_8006EE3C(0x1F80007C, s2, sp10);
+        func_8006EE3C((SCRATCHPAD + 0x7C), s2, sp10);
         g[0x1E] = 0;
-        func_8005F0D0(0x1F800000, D_800F2FD8 < 1, 0, 0);
+        func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, 0, 0);
         s1 >>= s5;
         s1 += 0x6E;
         if (s1 > 0) {
@@ -124,7 +125,7 @@ void func_80044EC4(void) {
     if (D_8009FE60[D_800F3914] == 7) {
         s2 = D_800AC650.f55C + (D_800AD520 << 7) + 0x40;
         func_80044920(s2, sp10);
-        func_8006EE3C(0x1F80007C, s2, sp10);
+        func_8006EE3C((SCRATCHPAD + 0x7C), s2, sp10);
         s1 = func_80044B24(sp10, s2);
         if (s1 > 0) {
             ClearOTagR(D_800AC650.f58[D_800F4BF0], 0x15F);
@@ -134,9 +135,9 @@ void func_80044EC4(void) {
                 g[0x18] = 5;
             }
             func_800701C4(9);
-            func_8006EE3C(0x1F80007C, s2, sp10);
-            *(int *)0x1F800078 = 0;
-            func_8005F0D0(0x1F800000, D_800F2FD8 < 1, 0, 0);
+            func_8006EE3C((SCRATCHPAD + 0x7C), s2, sp10);
+            *(int *)(SCRATCHPAD + 0x78) = 0;
+            func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, 0, 0);
             s1 >>= s5;
             s1 += 0x6E;
             if (s1 > 0) {
@@ -155,7 +156,7 @@ void func_800451E4(int *a) {
     unsigned short v[3];
     short r[3];
     int t[3];
-    int *s = (int *)0x1F800000;
+    int *s = (int *)SCRATCHPAD;
     s[6] = -*(short *)((char *)a + 0x10);
     s[7] = *(short *)((char *)a + 0x12);
     s[8] = *(short *)((char *)a + 0x14);
@@ -353,7 +354,7 @@ int func_80045868(char *arg0)
       int w, low, high;
       low = 0xFFFFFF;
       high = 0xFF000000;
-      pk = *((char **) 0x1F800000);
+      pk = *((char **) SCRATCHPAD);
       pk[3] = 3;
       pk[7] = 0x62;
       pk[4] = s0;
@@ -369,7 +370,7 @@ int func_80045868(char *arg0)
       *((int *) pk) = (w & high) | ((*((int *) (ot + 0x70))) & low);
       *((int *) (ot + 0x70)) = ((*((int *) (ot + 0x70))) & high) | (((int) pk) & low);
       pk += 0x10;
-      *((char **) 0x1F800000) = pk;
+      *((char **) SCRATCHPAD) = pk;
       pk[3] = 1;
       ot2 = D_800ACC14;
       __asm__("" : "+r"(pk) : "r"(ot2)); /* ASM_BARRIER: order ot2 load before pk load */
@@ -377,7 +378,7 @@ int func_80045868(char *arg0)
       *((int *) (pk + 4)) = 0xE1000245;
       *((int *) pk) = (w & high) | ((*((int *) (ot2 + 0x70))) & low);
       *((int *) (ot2 + 0x70)) = ((*((int *) (ot2 + 0x70))) & high) | (((int) pk) & low);
-      *((char **) 0x1F800000) = pk + 8;
+      *((char **) SCRATCHPAD) = pk + 8;
     }
   }
   gC = D_800AC650;

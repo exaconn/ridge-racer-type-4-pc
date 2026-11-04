@@ -1,5 +1,6 @@
 /* RODATA 0x80010014 0x14 */
 #include "types.h"
+#include "scratchpad.h"
 #include "m2c_macros.h"
 
 /* Read the two-sector R4 directory, then convert relative boundaries to entries.
@@ -131,7 +132,7 @@ void func_80012408(void)
     D_80109438->y2 = (func_800904F4(D_8009DFA0 - 0x555) >> 7) + 0x80;
     w = 0x300000FF;
     m = 0xFFFFFF;
-    g = (unsigned **)0x1F800000;
+    g = (unsigned **)SCRATCHPAD;
     h = 0xFF000000;
     D_80109438->c1 = 0xFF00;
     D_80109438->c2 = 0xFF0000;

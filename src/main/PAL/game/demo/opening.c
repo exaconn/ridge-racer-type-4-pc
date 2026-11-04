@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/line_emit.h"
 #include "m2c_macros.h"
 #include "game/ui/hudmap2.h"
@@ -285,7 +286,7 @@ void func_8005A90C(void) {
 
 void func_8005A91C(int a0, int a1, int a2)
 {
-    int *g = (int *)0x1F800000;
+    int *g = (int *)SCRATCHPAD;
     char *p = (char *)g[0];
     int *o;
     int off = a2 * 4;
@@ -306,7 +307,7 @@ void func_8005A91C(int a0, int a1, int a2)
 
 void func_8005A9C4(void)
 {
-    int *g = (int *)0x1F800000;
+    int *g = (int *)SCRATCHPAD;
     char *p = (char *)g[0];
     int *o;
     p[3] = 1;

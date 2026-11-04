@@ -1,4 +1,5 @@
 /* RODATA 0x80010420 0x20 */
+#include "scratchpad.h"
 #include "game/gfx/scene1.h"
 #include "game/sound/sndcmd.h"
 #include "game/ui/hudmap2.h"
@@ -438,7 +439,7 @@ void func_8002A008(void) {
         }
     }
     if (func_80090424((D_800AC5A8 << 7) & 0xF80) > 0) {
-        { int tt = *(int *)0x1F800000; *(int *)0x1F800000 = func_80020074(D_800ACC14 + 0x70, tt, 0x10, 0x10, 0x4C, 0xC, 0x64, 0xC0, 5, 0x7FF8, 0, 0x80); }
+        { int tt = *(int *)SCRATCHPAD; *(int *)SCRATCHPAD = func_80020074(D_800ACC14 + 0x70, tt, 0x10, 0x10, 0x4C, 0xC, 0x64, 0xC0, 5, 0x7FF8, 0, 0x80); }
     }
     for (i = 0; i < D_800AC59C; i++) {
         if (D_800FFC20[i]->f1e4 >= 0x10) {
@@ -460,7 +461,7 @@ void func_8002A008(void) {
     func_800735D8(0);
     func_8006E1AC();
     func_8002E0D8(6);
-    *(int *)0x1F800078 = D_800F2A64;
+    *(int *)(SCRATCHPAD + 0x78) = D_800F2A64;
     func_8006ECE8(0);
     func_800747EC(0);
     func_80036FD4(0);

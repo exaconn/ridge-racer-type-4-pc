@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/gpu.h"
 #include "m2c_macros.h"
 #include "game/menu/mnsel.h"
@@ -99,7 +100,7 @@ void func_80040CB4(s32 a0) {
     s16 d34;
     s32 v1;
 
-    s4 = *(RrSpritePacket **)0x1F800000;
+    s4 = *(RrSpritePacket **)SCRATCHPAD;
     fp = ROW(a0)->unk38;
     sp1C = ROW(a0)->unk1C;
     sp10 = ROW(a0)->unk3A;
@@ -198,7 +199,7 @@ void func_80040CB4(s32 a0) {
             }
         }
     }
-    *(RrSpritePacket **)0x1F800000 = func_8001FCC8((char *)D_800ACC14 + 0x70, s4, 0x2E);
+    *(RrSpritePacket **)SCRATCHPAD = func_8001FCC8((char *)D_800ACC14 + 0x70, s4, 0x2E);
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -212,7 +213,7 @@ void func_800411D4()
     unsigned char *q;
     char *d;
     unsigned t;
-    a1 = func_8001FCC8(D_800ACC14 + 0x98, *(int *)0x1F800000, 5);
+    a1 = func_8001FCC8(D_800ACC14 + 0x98, *(int *)SCRATCHPAD, 5);
     q = (unsigned char *)a1 + 7;
     a3 = 0;
     do {
@@ -233,7 +234,7 @@ void func_800411D4()
         *(unsigned *)(d + 0x98) = (*(unsigned *)(d + 0x98) & 0xFF000000) | t;
         a1 += 5;
     } while (a3 < 0xF2);
-    *(unsigned **)0x1F800000 = func_8001FCC8(d + 0x98, a1, 0xE, a3);
+    *(unsigned **)SCRATCHPAD = func_8001FCC8(d + 0x98, a1, 0xE, a3);
 }
 
 #undef func_8001FCC8

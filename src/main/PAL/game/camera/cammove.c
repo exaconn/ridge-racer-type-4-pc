@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "rr/camera_motion.h"
 #include "rr/cpu_md_leaf.h"
 #include "game/camera/cammove.h"
@@ -316,9 +317,9 @@ void func_8005C024(void)
     sp50[0] = v;
     func_80090F74(sp10, sp50);
     func_800701C4(7);
-    func_8006EE3C(0x1F80007C, D_800AC650.p + 0xC8, sp10);
-    *(int *)0x1F800078 = 0;
-    func_80058768(0x1F800000, D_800F2FD8 < 1, 0, 0x100);
+    func_8006EE3C((SCRATCHPAD + 0x7C), D_800AC650.p + 0xC8, sp10);
+    *(int *)(SCRATCHPAD + 0x78) = 0;
+    func_80058768(SCRATCHPAD, D_800F2FD8 < 1, 0, 0x100);
 }
 
 #undef D_800AC650

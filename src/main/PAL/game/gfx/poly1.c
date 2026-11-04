@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "m2c_macros.h"
 #include "game/camera/viewcam.h"
 #include "game/gfx/model.h"
@@ -132,7 +133,7 @@ void func_80070440(void) {
 int func_80070464(void) {
     char sp[32];
     int r = 0;
-    int *s = (int *)0x1F800000;
+    int *s = (int *)SCRATCHPAD;
     if (D_8010E730 != 0) {
         if (D_800AD50C != 0) {
             if (D_800AC538 == 0) {
@@ -163,9 +164,9 @@ int func_80070464(void) {
 }
 
 void func_8007064C(void) {
-    int *sp = (int *)0x1F800000;
+    int *sp = (int *)SCRATCHPAD;
     sp[7] -= 0x800;
-    *(S32B *)0x1F800028 = D_8010E710;
+    *(S32B *)(SCRATCHPAD + 0x28) = D_8010E710;
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -173,7 +174,7 @@ void func_8007064C(void) {
 
 struct P *func_800706B8(struct P *a0) {
     
-    int s1 = *(int *)0x1F800004;
+    int s1 = *(int *)(SCRATCHPAD + 0x4);
     func_80095BB4(a0);
     a0->a = 0x60;
     a0->c = 0x80;
@@ -201,7 +202,7 @@ void func_80070734(int arg0) {
             D_800F4CE0 -= 1;
         }
         if (func_80070464() != 0) {
-            *(int *)0x1F800000 = func_800706B8(*(int *)0x1F800000);
+            *(int *)SCRATCHPAD = func_800706B8(*(int *)SCRATCHPAD);
             func_8006EF8C(1);
             func_80036FD4(0);
             func_8006EDA4(0);
@@ -354,7 +355,7 @@ void func_80070BA4(char *a0, int a1, int a2) {
     int s2; /*D*/
     int s3; /*D*/
     int s7; /*D*/
-    int *g = (int *)0x1F800008; /*D*/
+    int *g = (int *)(SCRATCHPAD + 0x8); /*D*/
     int a; /*D*/
     int b; /*D*/
     int c; /*D*/
@@ -488,8 +489,8 @@ void func_80071348(void) {
     short v;
     int base;
     register short *g __asm__("$17");
-    a = func_8006F1EC(0x1F800008, 0);
-    b = func_8006F260(0x1F800008);
+    a = func_8006F1EC((SCRATCHPAD + 0x8), 0);
+    b = func_8006F260((SCRATCHPAD + 0x8));
     base = (int)D_8010E790;
     p = (short *)(b * 2 + ((a << 4) + base));
     if (*p >= 0) {
@@ -498,7 +499,7 @@ void func_80071348(void) {
         v = D_800AD5B8;
     }
     /* ASM_BARRIER: legacy, reason not recorded (forces reg copy/CSE/scheduling); retire & retest with fd.py */
-    __asm__("" : "=r"(g) : "0"(0x1F800000));
+    __asm__("" : "=r"(g) : "0"(SCRATCHPAD));
     g[0x2E] = v;
 }
 
@@ -516,8 +517,8 @@ s32 func_800713D0(void) {
 }
 
 int func_800713E0(void) {
-    int a = func_8006F1EC(0x1F800008, 0);
-    return (D_8010E798 + a * 8)[func_8006F260(0x1F800008)];
+    int a = func_8006F1EC((SCRATCHPAD + 0x8), 0);
+    return (D_8010E798 + a * 8)[func_8006F260((SCRATCHPAD + 0x8))];
 }
 
 /* legacy typing of shared globals in this part of the unit */

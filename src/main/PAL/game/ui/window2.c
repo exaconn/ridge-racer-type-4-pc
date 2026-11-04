@@ -1,6 +1,7 @@
 /* RODATA 0x800103e0 0x1c */
 /* CC1_FLAGS: -fno-strength-reduce */
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/hud_rotating_quad.h"
 #include "rr/trig.h"
 #include "rr/hud_number.h"
@@ -81,7 +82,7 @@ int a0;
     unsigned m2;
     unsigned h2;
 
-    s0 = *(unsigned **)0x1F800000;
+    s0 = *(unsigned **)SCRATCHPAD;
     if (a0 >= 2) {
         s2 = (unsigned *)(D_800ACC14 + 0xB70);
         s5 = 4;
@@ -119,7 +120,7 @@ int a0;
             s0 += 5;
         } while (s3 < 3);
     }
-    *(int *)0x1F800000 = func_8001FCC8(s2, s0, 5);
+    *(int *)SCRATCHPAD = func_8001FCC8(s2, s0, 5);
 }
 
 void func_80021350(s32 phase,s32 index) {
@@ -224,7 +225,7 @@ void func_80021684(int a0, int a1)
     h = a0 / 100;
     tn = (a0 / 10) - h * 10;
     on = a0 % 10;
-    *(int *)0x1F800000 = func_8001FCC8(s1, func_80021568(s1, func_80021568(s1, func_80021568(s1, *(int *)0x1F800000, x, y, h, 0x7EFA), x + 8, y, tn, 0x7EFA), x + 0x10, y, on, 0x7EFA), 5);
+    *(int *)SCRATCHPAD = func_8001FCC8(s1, func_80021568(s1, func_80021568(s1, func_80021568(s1, *(int *)SCRATCHPAD, x, y, h, 0x7EFA), x + 8, y, tn, 0x7EFA), x + 0x10, y, on, 0x7EFA), 5);
 }
 
 #undef D_8010BF88

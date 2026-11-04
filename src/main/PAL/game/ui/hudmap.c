@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "game/race/objsim.h"
 #include "game/ui/hudmap.h"
 #include "game/course/trktext.h"
@@ -37,7 +38,7 @@ void func_80022448(void) {
     char *b;
     int col, v;
     int sel;
-    *(int *)0x1F800000 = func_8001FC28(D_800ACC14 + 0x70, *(int *)0x1F800000, 0, 0, 0x140, 0x100);
+    *(int *)SCRATCHPAD = func_8001FC28(D_800ACC14 + 0x70, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x100);
     i = 0;
     sel = D_800AC1A0;
     if (D_800F3A30 > 0) {
@@ -77,7 +78,7 @@ void func_800225DC(int a0) {
     char *s0;
     void *p;
     if ((unsigned)(D_800FF6B0 - 1) < 3U) {
-        p = *(void **)0x1F800000;
+        p = *(void **)SCRATCHPAD;
         if (a0 > 0) {
             a3 = ((a0 - 1) << 7) + 0x38;
             if (a0 == 1) {
@@ -89,7 +90,7 @@ void func_800225DC(int a0) {
             a3 = 0x78;
             s0 = D_800ACC14 + 0x70;
         }
-        *(int *)0x1F800000 = func_8001FCC8(s0, func_8001FF84(s0, p, 0x6A, a3, D_8009EE6C, 0x7EF8, 0), 0x3E);
+        *(int *)SCRATCHPAD = func_8001FCC8(s0, func_8001FF84(s0, p, 0x6A, a3, D_8009EE6C, 0x7EF8, 0), 0x3E);
     }
 }
 
@@ -103,7 +104,7 @@ void func_80022694(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a
         d1 = a3 - a1;
         d2 = a4 - a2;
         if (a5 >= 0x100) a5 = 0x100;
-        r = *(int *)0x1F800000;
+        r = *(int *)SCRATCHPAD;
         x = a1 + ((d1 * a5) >> 8);
         y = a2 + ((d2 * a5) >> 8);
         if (a10 >= 0) {
@@ -118,7 +119,7 @@ void func_80022694(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a
                 r = func_80020588(a0, r, a1, a2 + 1, x, y + 1, a7, a8, a9);
             }
         }
-        *(int *)0x1F800000 = r;
+        *(int *)SCRATCHPAD = r;
     }
 }
 

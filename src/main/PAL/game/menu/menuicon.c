@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "game/menu/menucalc.h"
 #include "game/menu/menustat.h"
 #include "game/menu/menuicon.h"
@@ -29,7 +30,7 @@ void func_800307B4(a0) int a0;
     int s0, s1, t0;
     char *p;
     int one;
-    s1 = *(int *)0x1F800000;
+    s1 = *(int *)SCRATCHPAD;
     if (a0 < 2 && D_800F4D8A == 0) {
         s0 = 0;
         do {
@@ -65,18 +66,18 @@ void func_800307B4(a0) int a0;
     s1 = func_80030F64(D_800ACC14 + 0x70, s1);
     s1 = func_8001FC28(D_800ACC14 + 0x70, s1, G->h30, G->h32, G->h34, G->h36);
     if (D_800AD4EF >= 4) {
-        *(int *)0x1F800000 = s1;
+        *(int *)SCRATCHPAD = s1;
         func_8006E1AC();
-        func_8002E828(2, 0x1F800028);
+        func_8002E828(2, (SCRATCHPAD + 0x28));
         func_800912B4(0xA0, 0x100);
         func_800912D4(0x100);
         func_80041BF0(0, D_800ACC14 + 0x74, 1);
-        s1 = *(int *)0x1F800000;
+        s1 = *(int *)SCRATCHPAD;
         s1 = func_8001FC28(D_800ACC14 + 0x74, s1, *(short *)(D_800F3AFC + 0xD8), *(short *)(D_800F3AFC + 0xDA), *(short *)(D_800F3AFC + 0xDC), *(short *)(D_800F3AFC + 0xDE));
     }
     if (a0 >= 0x3D) {
         s1 = func_80030D9C(s1, G->h10 == 3 ? (a0 - 0x3C) * 2 : 0);
     }
 end:
-    *(int *)0x1F800000 = s1;
+    *(int *)SCRATCHPAD = s1;
 }

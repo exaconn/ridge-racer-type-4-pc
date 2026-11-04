@@ -1,5 +1,6 @@
 /* RODATA 0x80011364 0x74 */
 #include "types.h"
+#include "scratchpad.h"
 #include "rr_asm.h"
 #include "game/car/aipath.h"
 #include "game/gfx/gtemodel.h"
@@ -202,8 +203,8 @@ void func_800747EC(s32 arg0) {
     s32 q;
 
     func_80096454(&sp98, 0, 8);
-    s3 = (s32 *)0x1F80007C;
-    fp = (u8 *)0x1F800000;
+    s3 = (s32 *)(SCRATCHPAD + 0x7C);
+    fp = (u8 *)SCRATCHPAD;
     for (i = 0; i < D_8010ECA8; i++) {
         if (D_8010ECB4[i].f24 != 1) {
             continue;
@@ -882,7 +883,7 @@ void func_80077A34(int unused, short *p, M *out, int flag) {
     func_8006E030(q, -p[2]);
     func_8006E108(&m30, -p[0]);
     if (flag == 2) {
-        m90 = *(M *)0x1F800028;
+        m90 = *(M *)(SCRATCHPAD + 0x28);
         func_8006E09C(&m50, -p[1] - 0x800);
         ((unsigned short *)&m90)[6] = -((unsigned short *)&m90)[6];
         ((unsigned short *)&m90)[7] = -((unsigned short *)&m90)[7];
@@ -890,7 +891,7 @@ void func_80077A34(int unused, short *p, M *out, int flag) {
         func_80090DB4(&m90, q);
     } else {
         func_8006E09C(&m50, -p[1]);
-        func_80090DB4((int *)0x1F800028, q);
+        func_80090DB4((int *)(SCRATCHPAD + 0x28), q);
     }
     func_80090914(&m30, &m50, &m10);
     func_80090DB4(&m70, &m10);
@@ -906,7 +907,7 @@ void func_80077BAC(int a0, int *a1, int a2)
 {
   short sp10[4];
   int sp18[4];
-  int *sp = (int *) 0x1F800000;
+  int *sp = (int *) SCRATCHPAD;
   char *p;
   int v;
   RR_GTE_SETROT(D_800FF690);

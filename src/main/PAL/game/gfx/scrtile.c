@@ -1,4 +1,5 @@
 /* CC1_FLAGS: -fno-strength-reduce */
+#include "scratchpad.h"
 #include "rr/screen_tiles.h"
 #include "psyq/libgpu/primatt5.h"
 #include "psyq/libgpu/settrans.h"
@@ -16,7 +17,7 @@ void func_800207D4(u32 *ordering,s32 intensity,u32 mode) {
     RrGpuRectangle *rectangle;
     if(intensity<0)intensity=0;
     else if(intensity>=256)intensity=255;
-    next=*(u8**)0x1F800000U;
+    next=*(u8**)SCRATCHPAD;
     index=0;
     fields=next+RR_FIELD_OFFSET(RrGpuTilePacket16,b);
     do {
@@ -39,6 +40,6 @@ void func_800207D4(u32 *ordering,s32 intensity,u32 mode) {
         func_80095A44(link_order,(u32*)packet);
         fields+=sizeof(RrGpuTilePacket16);
     }while(index<4);
-    *(u8**)0x1F800000U=next;
-    *(u8**)0x1F800000U=func_8001FCC8(ordering,next,(u16)mode);
+    *(u8**)SCRATCHPAD=next;
+    *(u8**)SCRATCHPAD=func_8001FCC8(ordering,next,(u16)mode);
 }

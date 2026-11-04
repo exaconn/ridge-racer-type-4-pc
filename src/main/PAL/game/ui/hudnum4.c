@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "m2c_macros.h"
 #include "game/ui/window2.h"
 #include "game/race/objsim.h"
@@ -34,11 +35,11 @@ void func_800219BC(s32 arg0, s32 arg1) {
     b = D_8010BF88;
     temp_v1 = arg1 * 0x14;
     temp_a3 = b + temp_v1;
-    cur = *(s32 *)0x1F800000;
+    cur = *(s32 *)SCRATCHPAD;
     temp_s0 = *(s32 *)(D_800F4BF0 * 4 + temp_v1 + b);
     m = a % 10;
     r = func_800215F4(temp_s0, cur, M2C_FIELD(temp_a3, s16 *, 0xC), M2C_FIELD(temp_a3, s16 *, 0xE), m, 0x7EFB);
-    *(s32 *)0x1F800000 = func_8001FCC8(temp_s0, r, 5);
+    *(s32 *)SCRATCHPAD = func_8001FCC8(temp_s0, r, 5);
 }
 
 void func_80021A7C(a0, a1) int a0; int a1; {

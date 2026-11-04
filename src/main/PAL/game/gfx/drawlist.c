@@ -1,6 +1,7 @@
 /* RODATA 0x800101f4 0xd8 */
 /* CC1_FLAGS: -fno-strength-reduce */
 #include "types.h"
+#include "scratchpad.h"
 #include "rr_asm.h"
 #include "rr/animated_sprite_grid.h"
 #include "game/data/cdfile2.h"
@@ -24,9 +25,9 @@
 #define G D_8010BF78
 #define H D_800F3AFC
 #define K D_800AC590
-#define SPP (*(struct P **)0x1F800000)
-#define SPO (*(struct P **)0x1F800004)
-#define SPAD ((int *)0x1F800000)
+#define SPP (*(struct P **)SCRATCHPAD)
+#define SPO (*(struct P **)(SCRATCHPAD + 0x4))
+#define SPAD ((int *)SCRATCHPAD)
 #define CURSOR (scratch->cursor)
 #define ORDER (order_page->order)
 
@@ -313,7 +314,7 @@ block_23:
     if ((u32) ((u16) G->s46 - 0xA0) >= 0xAAU) {
         goto block_25;
     }
-    sp1 = (int *)0x1F800000;
+    sp1 = (int *)SCRATCHPAD;
     sp1[2] = sp1[2] + 3;
 block_25:
     temp_a0 = G->s46;
@@ -346,11 +347,11 @@ case 0x6:
     if (G->s44 < 0x20) {
         goto block_197;
     }
-    func_80096454(0x1F800018, 0, 0x10);
+    func_80096454((SCRATCHPAD + 0x18), 0, 0x10);
     src = D_8009E540;
     st = &D_8010BF7C;
     __asm__ volatile("" ::: "$8", "$9"); /* ASM_BARRIER: reserve $t0-$t1 so sp2 allocates to $t5 */
-    sp2 = (int *)0x1F800008;
+    sp2 = (int *)(SCRATCHPAD + 0x8);
     RR_COPY16_T(sp2, src, 16);
     g = G;
     *st = 7;
@@ -995,7 +996,7 @@ case 0x2F:
     g_a0 = G;
     __asm__ volatile("" : "+r"(g_a0) :: "$8", "$9"); /* ASM_BARRIER: emit G reload before state lui and reserve $t0-$t1 for sp2 in $t5 */
     st_v1 = &D_8010BF7C;
-    sp2 = (int *)0x1F800008;
+    sp2 = (int *)(SCRATCHPAD + 0x8);
     RR_COPY16_T(sp2, src, 128);
     *st_v1 = 0x30;
     g_a0->s44 = 0;
@@ -1022,7 +1023,7 @@ case 0x32:
     if (G->s44 < 0x20) {
         goto block_219;
     }
-    sp4 = (int *)0x1F800000;
+    sp4 = (int *)SCRATCHPAD;
     sp4[6] = 0x400;
     sp4[7] = 0;
     sp4[8] = 0;
@@ -1031,7 +1032,7 @@ case 0x32:
     g_v1 = G;
     __asm__ volatile("" : "+r"(src), "+r"(g_v1) :: "$8", "$9"); /* ASM_BARRIER: emit src and G reload before state lui and reserve $t0-$t1 for sp2 in $t5 */
     st = &D_8010BF7C;
-    sp2 = (int *)0x1F800008;
+    sp2 = (int *)(SCRATCHPAD + 0x8);
     RR_COPY16_T(sp2, src, 144);
     *st = 0x33;
     __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: keep *st = 0x33 before c8 = 8 */
@@ -1158,7 +1159,7 @@ block_224:
 block_225:
     G->s44 = (s16) ((u16) G->s44 + 1);
     G->s46 = (s16) ((u16) G->s46 + 1);
-    spd = (struct SPD *)0x1F800000;
+    spd = (struct SPD *)SCRATCHPAD;
     spd->cur->w[0] = 0xE1000229;
     spd->cur->h.p = spd->ot->h.p;
     spd->cur->h.b.len = 1;
@@ -1200,7 +1201,7 @@ block_225:
     RR_GTE_SETFC_P(tabr);
     RR_GTE_INTPL();
     __asm__ volatile("" ::: "$8", "$9"); /* ASM_BARRIER: reserve $t0-$t1 so sp3 allocates to $t5 */
-    sp3 = (int *)0x1F800008;
+    sp3 = (int *)(SCRATCHPAD + 0x8);
     RR_GTE_STORE_IR(sp3);
 block_227:
     func_8001B640();
@@ -1298,8 +1299,8 @@ block_clamp:
     c80 |= var_v0_4;
     c80 |= temp_t0;
     temp_t1->w[1] = c80;
-    __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: keep w[1] store before loading 0x1F800000 into $v1 */
-    spd2 = (struct SPD *)0x1F800000;
+    __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: keep w[1] store before loading SCRATCHPAD into $v1 */
+    spd2 = (struct SPD *)SCRATCHPAD;
     temp_t1->w[2] = c_800060;
     temp_t1->w[3] = c_800080;
     temp_t1->w[0] = c_e1000240;
@@ -1356,12 +1357,12 @@ void func_8001E1F0(u32 intensity,RrSpriteGridClock *state) {
     /* ASM_BARRIER: keep the row counter distinct from later coordinate zero. */
     __asm__("" : "+r"(row));
     limit=15;size=0x180010;uv=0x2F29A400U;
-    order_page=(RrGpuScratchPointers*)0x1F800000U;
+    order_page=(RrGpuScratchPointers*)SCRATCHPAD;
     /* ASM_BARRIER: stage the scratch page before the packed-y constant. */
     __asm__("" : "+r"(order_page) : : "$8");
     length=4;
     y=0xB00000;
-    packet=*(u8**)0x1F800000U;
+    packet=*(u8**)SCRATCHPAD;
     state->tick0E++;
     phase=state->tick0E;
     /* ASM_BARRIER: capture tick phase before starting the horizontal counter. */
@@ -1391,7 +1392,7 @@ void func_8001E1F0(u32 intensity,RrSpriteGridClock *state) {
         row+=48;x=0;
     }while(row<144);
     mode_command=0xE100022A;
-    scratch=(RrGpuScratchPointers*)0x1F800000U;
+    scratch=(RrGpuScratchPointers*)SCRATCHPAD;
     CURSOR=packet;
     *(u32*)(packet+4)=mode_command;
     *(u32*)CURSOR=*scratch->order;

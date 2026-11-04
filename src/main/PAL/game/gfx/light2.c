@@ -1,4 +1,5 @@
 /* CC1_FLAGS: -fno-schedule-insns */
+#include "scratchpad.h"
 #include "rr_asm.h"
 #include "game/gfx/light2.h"
 #include "rr/menu_overlay_runtime.h"
@@ -10,7 +11,7 @@ void func_8001B688(a0) int a0;
     register int a asm("$19"); /* ASM_BARRIER: pin to s-reg like the original saves */
     int v0, v1, z;
     x = a0;
-    p = (int *)0x1F80007C;
+    p = (int *)(SCRATCHPAD + 0x7C);
     if (x < 0) a0 = x + 3;
     a = a0 >> 2;
     s2 = func_80090424(a - 0x400) + 0x1000;

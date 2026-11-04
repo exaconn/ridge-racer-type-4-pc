@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/geometry.h"
 #include "game/gfx/gfxdraw.h"
 #include "game/gfx/meshquad.h"
@@ -28,7 +29,7 @@ s32 func_8005602C(RrPairS16 *t, s32 idx, s32 x);
 void func_80055C84(void)
 {
     struct { char m18[0x20]; char m38[0x20]; char m58[0x28]; char v80[0x10]; char c90[4]; char pad[24]; } L;
-    int *g = (int *)0x1F800000;
+    int *g = (int *)SCRATCHPAD;
     int s6;
     int a1;
     int *a3;
@@ -42,35 +43,35 @@ void func_80055C84(void)
     g[0x18] = 3;
     func_8005599C(D_800AC650.p24c, D_800AC650.p24c + 0x78, L.m18, L.m38);
     func_800701C4(8);
-    func_8006EE3C(0x1F80007C, D_800AC650.p24c, L.m18);
+    func_8006EE3C((SCRATCHPAD + 0x7C), D_800AC650.p24c, L.m18);
     g[0x1E] = 0;
-    func_8005F0D0(0x1F800000, D_800F2FD8 < 1, 0, 0);
-    func_8006EE3C(0x1F80007C, D_800AC650.p24c, L.m18);
+    func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, 0, 0);
+    func_8006EE3C((SCRATCHPAD + 0x7C), D_800AC650.p24c, L.m18);
     func_80058038(D_800AC650.v560, 0, 0);
     func_80055BF8(L.m38, D_800AC650.p24c, D_800AC650.p24c + 0x18, L.v80, L.m58);
     func_8006E09C(L.m58, -*(short *)(D_800AC650.p24c + 0x2A));
     func_80090DB4(L.m18, L.m58);
-    func_8006EE3C(0x1F80007C, L.v80, L.m58);
+    func_8006EE3C((SCRATCHPAD + 0x7C), L.v80, L.m58);
     g[0x1E] = 0;
-    func_8005F0D0(0x1F800000, 1, 0, 0);
+    func_8005F0D0(SCRATCHPAD, 1, 0, 0);
     func_80055BF8(L.m38, D_800AC650.p24c, D_800AC650.p24c + 0x30, L.v80, L.m58);
     func_8006E09C(L.m58, -*(short *)(D_800AC650.p24c + 0x42));
     func_80090DB4(L.m18, L.m58);
-    func_8006EE3C(0x1F80007C, L.v80, L.m58);
+    func_8006EE3C((SCRATCHPAD + 0x7C), L.v80, L.m58);
     a1 = 1;
     g[0x1E] = 0;
     if (D_800F2FD8 >= 3)
         a1 = 2;
-    func_8005F0D0(0x1F800000, a1, 0, 0);
+    func_8005F0D0(SCRATCHPAD, a1, 0, 0);
     func_80055BF8(L.m38, D_800AC650.p24c, D_800AC650.p24c + 0x60, L.v80, L.m58);
     func_8006E108(L.m58, -*(short *)(D_800AC650.p24c + 0x70));
     func_80090DB4(L.m18, L.m58);
-    func_8006EE3C(0x1F80007C, L.v80, L.m58);
+    func_8006EE3C((SCRATCHPAD + 0x7C), L.v80, L.m58);
     func_80058038(D_800AC650.v560, 2, 0);
     func_80055BF8(L.m38, D_800AC650.p24c, D_800AC650.p24c + 0x48, L.v80, L.m58);
     func_8006E09C(L.m58, -*(short *)(D_800AC650.p24c + 0x5A));
     func_80090DB4(L.m18, L.m58);
-    func_8006EE3C(0x1F80007C, L.v80, L.m58);
+    func_8006EE3C((SCRATCHPAD + 0x7C), L.v80, L.m58);
     func_80058038(D_800AC650.v560, *(int *)(D_800AC650.p24c + 0xA4) * 2 | 1, 0);
     g[0x18] = s6;
     L.c90[0] = 0x80;

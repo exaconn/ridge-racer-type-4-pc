@@ -1,5 +1,6 @@
 /* RODATA 0x800106d0 0x1c */
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/ui.h"
 #include "m2c_macros.h"
 #include "game/menu/menuwork.h"
@@ -73,7 +74,7 @@ int a0;
   {
     s4 = a0 * 2;
   }
-  a1 = *((int *) 0x1F800000);
+  a1 = *((int *) SCRATCHPAD);
   s3 = 0x50;
   s1 = 0;
   do
@@ -161,7 +162,7 @@ int a0;
     }
     while (s1 < s0);
   }
-  *((int *) 0x1F800000) = func_8001FCC8(D_800ACC14 + 0x70, a1, 0x2E);
+  *((int *) SCRATCHPAD) = func_8001FCC8(D_800ACC14 + 0x70, a1, 0x2E);
 }
 
 /* legacy typing of shared globals in this part of the unit */

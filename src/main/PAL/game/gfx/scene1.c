@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "m2c_macros.h"
 #include "rr/matrix_words.h"
 #include "psyq/libgpu/gpudisp.h"
@@ -124,7 +125,7 @@ void func_80055358(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
     Sprt *s2;
     DrStp *s0;
     s16 y, x;
-    /* ASM_BARRIER: Keep 0x1F800000 in $s1 inside loop without hoisting */
+    /* ASM_BARRIER: Keep SCRATCHPAD in $s1 inside loop without hoisting */
     register DrStp **p1f80 asm("$17");
     s32 base;
     s32 c;
@@ -132,7 +133,7 @@ void func_80055358(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
 
     base = (s32)D_800A0D24;
     for (i = 0; i < 4; i++) {
-        s2 = *(Sprt **)0x1F800000;
+        s2 = *(Sprt **)SCRATCHPAD;
         s2->len = 4;
         c = 0x64;
         /* ASM_BARRIER: Keep 0x64 after s2->len = 4 */
@@ -171,7 +172,7 @@ void func_80055358(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
         x = uv->w;
         ((DrTPage *)s2)->code[0] = 0xE1000200 | (((a3 & 3) << 5) | 0x100 | ((s16)((y & 0x100) >> 4)) | ((x & 0x3FF) >> 6) | ((s16)(y & 0x200) << 2));
         addPrim(&D_800ACC14->ot, s2);
-        p1f80 = (DrStp **)0x1F800000;
+        p1f80 = (DrStp **)SCRATCHPAD;
         *p1f80 = s0;
         func_80093BFC(s0, 0);
         addPrim(&D_800ACC14->ot, s0);
@@ -188,7 +189,7 @@ void func_80055358(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
 void func_800555E0()
 {
   int new_var;
-  unsigned int *p = *((unsigned int **) 0x1F800000);
+  unsigned int *p = *((unsigned int **) SCRATCHPAD);
   unsigned int *new_var2;
   unsigned int *ot;
   func_80093BFC(p, 1);
@@ -196,7 +197,7 @@ void func_800555E0()
   *p = (new_var = ((*p) & 0xFF000000) | ((*ot) & 0xFFFFFF));
   *ot = ((*ot) & 0xFF000000) | (((unsigned int) p) & 0xFFFFFF);
   new_var2 = p;
-  *((unsigned int **) 0x1F800000) = (p = new_var2 + 3);
+  *((unsigned int **) SCRATCHPAD) = (p = new_var2 + 3);
 }
 
 #undef func_80093BFC
@@ -294,7 +295,7 @@ void func_8005599C(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
     int n;
     s90 = D_800111D4;
     func_8006E09C(&s50, -*(short *)(a0 + 0x12));
-    func_80090DB4(0x1F800028, &s50);
+    func_80090DB4((SCRATCHPAD + 0x28), &s50);
     func_8006E108(&s10, -*(short *)(a0 + 0x10));
     func_8006E030(&s30, -*(short *)(a0 + 0x14));
     func_80090CA4(&s10, &s30);

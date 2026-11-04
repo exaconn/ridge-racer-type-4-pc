@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "rr/race.h"
 #include "game/ui/window1.h"
 #include "game/ui/hudmap2.h"
@@ -54,7 +55,7 @@ void func_80032F44(int arg0, int arg1) {
     int p;
     char *b;
 
-    p = *(int *)0x1F800000;
+    p = *(int *)SCRATCHPAD;
     for (i = 0; i < 4; i++) {
         int v = D_8009F688[i + (arg1 << 2)];
         int y;
@@ -72,7 +73,7 @@ void func_80032F44(int arg0, int arg1) {
     arg0 &= 7;
     p = func_8001FF84(D_800ACC14 + 0x70, p, 0x3A, 0x104, &D_8009F66C[s4], s4 + 0x75E4, 0);
     p = func_8001FCC8(D_800ACC14 + 0x70, p, 0x59);
-    *(int *)0x1F800000 = func_8001FD20(D_800ACC14 + 0x70, p, 0x10, 0xE0, 2, 0x88, 0x4C, 0x4C, 0x4C);
+    *(int *)SCRATCHPAD = func_8001FD20(D_800ACC14 + 0x70, p, 0x10, 0xE0, 2, 0x88, 0x4C, 0x4C, 0x4C);
 
     if (D_800F4D44 < 2) {
         D_800F3A30 = D_8009F900[D_800F3914 + (D_800F4D44 == 1 ? 8 : 0)];
@@ -132,7 +133,7 @@ void func_80032F44(int arg0, int arg1) {
         }
     }
 
-    *(int *)0x1F800000 = func_80032EC8(D_800ACC14 + 0x70, *(int *)0x1F800000, 0x16, 0xE4, arg0);
+    *(int *)SCRATCHPAD = func_80032EC8(D_800ACC14 + 0x70, *(int *)SCRATCHPAD, 0x16, 0xE4, arg0);
 }
 
 void func_80033368(int unusedSelection,int unusedMode) {
@@ -161,7 +162,7 @@ void func_80033474(RrRaceVehicle *a0, int a1)
   int sp10[3];
   char m20[0x20];
   char m40[0x20];
-  int *g = (int *) 0x1F800000;
+  int *g = (int *) SCRATCHPAD;
   int s0;
   int v0;
   int v1;

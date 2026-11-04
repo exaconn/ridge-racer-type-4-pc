@@ -1,5 +1,6 @@
 /* RODATA 0x80010700 0x1c */
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/track_sample_types.h"
 #include "m2c_macros.h"
 #include "game/car/carmove1.h"
@@ -195,7 +196,7 @@ void func_80037198(int arg0) {
         v[7] = 0x1E;
     }
     s0 = 0;
-    a1 = *(int *)0x1F800000;
+    a1 = *(int *)SCRATCHPAD;
     buf[2] = 0x10;
     buf[3] = 0x20;
     do {
@@ -205,7 +206,7 @@ void func_80037198(int arg0) {
         a1 = func_8001FF84(D_800ACC14 + 0x70, a1, (s0 % 3) * 0x14 + 0xF0, (s0 / 3) * 0x28 + 0x58, buf, 0x7FA4, 1);
         s0++;
     } while (s0 < 9);
-    *(int *)0x1F800000 = func_8001FCC8(D_800ACC14 + 0x70, a1, 0x39);
+    *(int *)SCRATCHPAD = func_8001FCC8(D_800ACC14 + 0x70, a1, 0x39);
 }
 
 void func_800373DC(int a) {
@@ -283,7 +284,7 @@ void func_800373DC(int a) {
 void func_80037618(Car37618 *p, int arg1) {
     int i;
     int t;
-    int *g = (int *)0x1F80007C;
+    int *g = (int *)(SCRATCHPAD + 0x7C);
 
     func_8002BEF8();
     if (D_800F4D44 == 0 && D_800AD522 == 1) {

@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "rr/ui_bar.h"
 #include "rr/ui_panel.h"
 #include "game/ui/uidraw.h"
@@ -158,7 +159,7 @@ void func_8003D474(s32 index) {
         s32 callback;
         void *cursor;
         s32 white=255;
-        RrGpuScratchPointers *scratch=(RrGpuScratchPointers *)0x1F800000U;
+        RrGpuScratchPointers *scratch=(RrGpuScratchPointers *)SCRATCHPAD;
         zero6=0;
 
         zero7=zero6;

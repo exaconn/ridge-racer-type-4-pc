@@ -1,5 +1,6 @@
 /* RODATA 0x80011200 0x1c */
 #include "types.h"
+#include "scratchpad.h"
 #include "psyq/libgte/libgte.h"
 #include "rr/line_emit.h"
 #include "rr/glyph_list.h"
@@ -16,7 +17,7 @@
 #define ADDPRIM(ot, p) \
     (p)->addr = ((SPRT *)(ot))->addr; \
     ((SPRT *)(ot))->addr = (u32)(p)
-#define SCRATCH ((Scratch *)0x1F800000)
+#define SCRATCH ((Scratch *)SCRATCHPAD)
 /* The two original entries differ only in the sprite's vertical position. */
 #define RR_ICON_SPRITE_BODY(Y) \
     RrSpritePacket *p; \
@@ -38,7 +39,7 @@
     command=0xE1000000U; \
     /* ASM_BARRIER: stage the command page before the scratch base and length. */ \
     __asm__("" : "+r"(command) : : "$9", "$2"); \
-    scratch=(RrGpuScratchPointers*)0x1F800000U; \
+    scratch=(RrGpuScratchPointers*)SCRATCHPAD; \
     length=4; \
     /* ASM_BARRIER: prepare the scratch capture and length before indexing. */ \
     __asm__("" : "+r"(scratch), "+r"(length)); \
@@ -184,7 +185,7 @@ void func_800587E4(s32 arg0, u8 *arg1, s32 *arg2) {
     u8 val;
     
     base_idx = ((0x100 - (arg2[2] + 0x200) / 256) << 8) + (0x100 - (arg2[0] + 0x200) / 256);
-    sprt = *(SPRT **)0x1F800000;
+    sprt = *(SPRT **)SCRATCHPAD;
     for (i = 0; i < 24; i++) {
         x0 = (i + 24) * 4 + 0x6C;
         y0 = (i - 24) * 4 + 0xD0;
@@ -218,7 +219,7 @@ void func_800587E4(s32 arg0, u8 *arg1, s32 *arg2) {
     func_80093C24(sprt, 0, 1, 0x19, 0);
     (sprt)->addr = ((SPRT *)(D_800ACC14 + 0x9C))->addr;
     ((SPRT *)(D_800ACC14 + 0x9C))->addr = (u32)(sprt);
-    ((struct { void *p; } *)0x1F800000)->p = (DR_MODE *)sprt + 1;
+    ((struct { void *p; } *)SCRATCHPAD)->p = (DR_MODE *)sprt + 1;
     func_80058A3C(arg2);
 }
 
@@ -633,7 +634,7 @@ s32 a2;
         m = t7 & 0xFFFF;
         do {
             s32 e;
-            p = *(RrSpritePacketSignedClut **)0x1F800000;
+            p = *(RrSpritePacketSignedClut **)SCRATCHPAD;
             t3 = t7;
             if (m == 0x3E) {
                 if ((s16)a >= 0x400) t3 = 0x25;
@@ -663,12 +664,12 @@ s32 a2;
             p->addr = ((RrSpritePacketSignedClut *)(D_800ACC14 + 0x70))->addr;
             *(u32 *)(D_800ACC14 + 0x70) = (*(u32 *)(D_800ACC14 + 0x70) & 0xFF000000) | ((u32)p & 0xFFFFFF);
             p++;
-            *(RrSpritePacketSignedClut **)0x1F800000 = p;
+            *(RrSpritePacketSignedClut **)SCRATCHPAD = p;
             p->len = 1;
             *((u32 *)p + 1) = (t3 & 0x9FF) | 0xE1000200;
             p->addr = ((RrSpritePacketSignedClut *)(D_800ACC14 + 0x70))->addr;
             *(u32 *)(D_800ACC14 + 0x70) = (*(u32 *)(D_800ACC14 + 0x70) & 0xFF000000) | ((u32)p & 0xFFFFFF);
-            *(RrSpritePacketSignedClut **)0x1F800000 = (RrSpritePacketSignedClut *)((u32 *)p + 2);
+            *(RrSpritePacketSignedClut **)SCRATCHPAD = (RrSpritePacketSignedClut *)((u32 *)p + 2);
             w = *t1++;
             t5 += t0[2] + w;
             a = *(u16 *)t1;
@@ -694,7 +695,7 @@ void func_80059B1C(unsigned char *a0x, int a1, int a2, int a3) {
     register unsigned lo asm("$5");
     register int v1 asm("$3");
     register char *d asm("$4");
-    p = *(unsigned char **)0x1F800000;
+    p = *(unsigned char **)SCRATCHPAD;
     p[3] = 4;
     p[7] = 0x64;
     if (a3 < 0xFF) {
@@ -717,7 +718,7 @@ void func_80059B1C(unsigned char *a0x, int a1, int a2, int a3) {
     *(short *)(p + 0xE) = 0x7F78;
     p[0xD] = t;
     hi = 0xFF000000;
-    g = (int *)0x1F800000;
+    g = (int *)SCRATCHPAD;
     d = D_800ACC14;
     *(unsigned int *)p = (*(unsigned int *)p & hi) | (*(unsigned int *)(d + 0x70) & lo);
     *(unsigned int *)(d + 0x70) = (*(unsigned int *)(d + 0x70) & hi) | ((unsigned int)p & lo);

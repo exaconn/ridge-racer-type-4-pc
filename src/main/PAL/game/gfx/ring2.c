@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "game/gfx/meshquad.h"
 #include "game/gfx/ring2.h"
 #include "rr/ring_renderer.h"
@@ -28,7 +29,7 @@ void func_8005EFBC(void) {
             l.s.x = 0x800;
             func_80090F74(l.m, &l.s);
             if (*(short *)((char *)e + i * 4 + 0x18) < 0x18) {
-                func_8006EE3C(0x1F80007C, &l.a, l.m);
+                func_8006EE3C((SCRATCHPAD + 0x7C), &l.a, l.m);
                 func_80058038(D_800AC650.i564, *(short *)((char *)e + i * 4 + 0x18) + 1, 0);
             } else {
                 func_8005E900(&l.a, 0x300);

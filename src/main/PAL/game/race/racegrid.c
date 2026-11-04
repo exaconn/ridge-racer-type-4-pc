@@ -1,5 +1,6 @@
 /* RODATA 0x800105d0 0x30 */
 #include "types.h"
+#include "scratchpad.h"
 #include "m2c_macros.h"
 #include "game/system/pad.h"
 #include "game/ui/hudmap.h"
@@ -129,7 +130,7 @@ void func_80033A74(int a)
   int i;
   /* ASM_BARRIER: pin scratchpad base to $a0 like the original */
   register int *g asm("$4");
-  g = (int *) 0x1F800000;
+  g = (int *) SCRATCHPAD;
   g[2] = p[0];
   g[3] = p[1];
   g[4] = p[2];
@@ -140,8 +141,8 @@ void func_80033A74(int a)
   func_8006E1AC(g, q);
   {
     int t;
-    t = 0x1F800028;
-    /* ASM_BARRIER: forces the 0x1F800028 li to be scheduled before the li a0,2 (original delay-slot layout) */
+    t = (SCRATCHPAD + 0x28);
+    /* ASM_BARRIER: forces the (SCRATCHPAD + 0x28) li to be scheduled before the li a0,2 (original delay-slot layout) */
     asm volatile("" : "=r"(t) : "0"(t));
     func_8002E828(2, t);
   }
@@ -169,7 +170,7 @@ void func_80033A74(int a)
 
 void func_80033BE4(struct w3g2p *p) {
     struct { char a[0x20]; char b[0x20]; short v[3]; short pad; int w[3]; } s;
-    int *g = (int *)0x1F800000;
+    int *g = (int *)SCRATCHPAD;
     int r;
     short t;
     unsigned short a1, a2;
@@ -185,10 +186,10 @@ void func_80033BE4(struct w3g2p *p) {
         if (p->f108 < 0x28) s.v[1] = (unsigned short)p->f108 - 0x8C;
         s.v[2] = 0;
         func_80090EC4(s.b, s.v, s.w);
-        *(w3g2V *)0x1F800008 = *(w3g2V *)&p->f10;
+        *(w3g2V *)(SCRATCHPAD + 0x8) = *(w3g2V *)&p->f10;
         g[2] -= p->f40;
         g[4] -= p->f48;
-        *(w3g2V *)0x1F800018 = *(w3g2V *)&p->f50;
+        *(w3g2V *)(SCRATCHPAD + 0x18) = *(w3g2V *)&p->f50;
         g[6] += p->s1AC * 2;
         a1 = p->u1B6;
         a2 = p->u1AE;
@@ -214,7 +215,7 @@ void func_80033BE4(struct w3g2p *p) {
     if (p->f108 < 0x28) s.v[1] = (unsigned short)p->f108 - 0x122;
     s.v[2] = 0x2D0;
     func_80090EC4(s.b, s.v, s.w);
-    *(w3g2V *)0x1F800008 = *(w3g2V *)&p->f10;
+    *(w3g2V *)(SCRATCHPAD + 0x8) = *(w3g2V *)&p->f10;
     g[8] = p->f58 - p->s1AA;
     g[2] += s.w[0];
     g[3] += s.w[1];
@@ -242,10 +243,10 @@ void func_80033F3C(s32 arg0, s32 arg1) {
                 s4 = -(s5 << 7) / 25;
             }
         } else {
-            *(s32 *)0x1F800000 = func_8001FC28(arg0, *(s32 *)0x1F800000, 0, 0, 0x140, 0x100);
+            *(s32 *)SCRATCHPAD = func_8001FC28(arg0, *(s32 *)SCRATCHPAD, 0, 0, 0x140, 0x100);
             s4 = 0x40;
         }
-        a1 = func_8001FCC8(arg0, *(s32 *)0x1F800000, 5);
+        a1 = func_8001FCC8(arg0, *(s32 *)SCRATCHPAD, 5);
         if (s3 == 1) {
             fp = ((s5 << 6) / 25) + 0x40;
         } else if (s3 >= 4) {
@@ -336,7 +337,7 @@ void func_80033F3C(s32 arg0, s32 arg1) {
         }
         a1 = func_8001FF84(arg0, a1, 0x68, s4 + 0x1A, &D_8009F6AC[1], D_8009F6CC[s3 >= 4], (fp << 1) | 1);
         a1 = func_8001FF84(arg0, a1, 0x60, s4, &D_8009F6AC[0], 0x797C, 0);
-        *(s32 *)0x1F800000 = func_8001FCC8(arg0, a1, 0x3F);
+        *(s32 *)SCRATCHPAD = func_8001FCC8(arg0, a1, 0x3F);
         if (arg0 == D_800ACC14 + 0xB70) {
             s32 y;
             if (s3 == 6) {
@@ -345,7 +346,7 @@ void func_80033F3C(s32 arg0, s32 arg1) {
                 fp = 0x18;
             }
             y = (0x18 - fp) / 2 + 0x34;
-            *(s32 *)0x1F800000 = func_8001FC28(arg0, *(s32 *)0x1F800000, 0x70, s4 + y, 0x60, fp);
+            *(s32 *)SCRATCHPAD = func_8001FC28(arg0, *(s32 *)SCRATCHPAD, 0x70, s4 + y, 0x60, fp);
         }
     }
 }
@@ -472,7 +473,7 @@ void func_800349F4(int a0, int a1) {
     unsigned char (*base)[4];
     unsigned char *t;
 
-    p = func_8001FEC0(a0, *(int *)0x1F800000, 0x90, 0x5C, 0x1C, 8, 0x60, 0xA0, 0x7FF8);
+    p = func_8001FEC0(a0, *(int *)SCRATCHPAD, 0x90, 0x5C, 0x1C, 8, 0x60, 0xA0, 0x7FF8);
     p = func_8001FEC0(a0, p, 0x90, 0x6A, 0x20, 8, 0xC4, 0xA0, 0x7FF8);
     if (D_800F4D44 == 1) {
         p = func_8001FEC0(a0, p, 0x90, 0x74, 0x1C, 8, 0x7C, 0xA0, 0x7FF8);
@@ -504,7 +505,7 @@ void func_800349F4(int a0, int a1) {
         rgb[1] = 0xFF;
         p = func_8002071C(a0, p, v[t[1]], v[t[2]], v[t[3]], rgb, 1);
     }
-    *(int *)0x1F800000 = func_8001FCC8(a0, p, 5);
+    *(int *)SCRATCHPAD = func_8001FCC8(a0, p, 5);
 
     for (j = 0; j < 4; j++) {
         if (j == 1 || j == 2) {

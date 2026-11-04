@@ -1,5 +1,6 @@
 /* RODATA 0x80010938 0x24c */
 #include "types.h"
+#include "scratchpad.h"
 #include "game/ui/hudmap.h"
 #include "game/ui/uiwin.h"
 #include "psyq/libgpu/addprim.h"
@@ -122,7 +123,7 @@ s32 func_8003EC88(s32 arg0) {
     FontGlyph4 *glyph;
 
     fp = 0;
-    s3_init = ((Scratchpad *)0x1F800000)->prim;
+    s3_init = ((Scratchpad *)SCRATCHPAD)->prim;
     sp38 = D_800F4D80[arg0].s4;
     s2 = zero;
     sp30 = D_800F4D80[arg0].b14;
@@ -347,9 +348,9 @@ s32 func_8003EC88(s32 arg0) {
         break;
     }
 
-    ((Scratchpad *)0x1F800000)->prim = func_8001FCC8(D_800ACC14 + 0x70, s3, 0x38);
+    ((Scratchpad *)SCRATCHPAD)->prim = func_8001FCC8(D_800ACC14 + 0x70, s3, 0x38);
     func_8003F920(sp38, s7, D_800F4D80[arg0].s8, D_800F4D80[arg0].sA, 0x4A, 0x4A, 0x4A);
-    ((Scratchpad *)0x1F800000)->prim = func_8001FC28(D_800ACC14 + 0x70, ((Scratchpad *)0x1F800000)->prim, sp28.x, sp28.y, sp28.w, sp28.h);
+    ((Scratchpad *)SCRATCHPAD)->prim = func_8001FC28(D_800ACC14 + 0x70, ((Scratchpad *)SCRATCHPAD)->prim, sp28.x, sp28.y, sp28.w, sp28.h);
     sp38 += D_800F4D80[arg0].rect18.w;
     if ((u32)(sp30 - 4) >= 3U) {
         func_8003EA04(arg0, sp38, s7);
@@ -389,8 +390,8 @@ int func_8003F920(a0, a1, a2, a3, a4, a5, a6) int a0; int a1; int a2; int a3; in
     } while (i < 4);
     x[0] = x[1] - x[3];
     y[0] = y[3] - y[1];
-    g = *(int *)0x1F800000;
-    *(int *)0x1F800000 = func_8001FD20(D_800ACC14 + 0x70, g, a0, a1, x[0], y[0], a4, a5, a6);
+    g = *(int *)SCRATCHPAD;
+    *(int *)SCRATCHPAD = func_8001FD20(D_800ACC14 + 0x70, g, a0, a1, x[0], y[0], a4, a5, a6);
 }
 
 int func_8003FAA0(int a) {
@@ -506,7 +507,7 @@ void func_8003FE78(int a0, int a1, int a2, int a3) {
     unsigned short tpage, clut;
     int s2;
 
-    s2 = *(int *)0x1F800000;
+    s2 = *(int *)SCRATCHPAD;
     for (i = 0; i < 18; i++) {
         tx = D_800F2AB0[a0].u + (i % 9) * 24;
         ty = D_800F2AB0[a0].v + (i / 9) * 96;
@@ -547,7 +548,7 @@ void func_8003FE78(int a0, int a1, int a2, int a3) {
             }
         }
     }
-    *(int *)0x1F800000 = s2;
+    *(int *)SCRATCHPAD = s2;
 }
 
 #undef D_800F2AB0

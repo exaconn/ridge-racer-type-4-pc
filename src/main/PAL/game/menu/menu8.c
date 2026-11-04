@@ -1,5 +1,6 @@
 /* RODATA 0x80010550 0x60 */
 #include "types.h"
+#include "scratchpad.h"
 #include "m2c_macros.h"
 #include "rr/selection.h"
 #include "game/data/ldscn1.h"
@@ -227,8 +228,8 @@ void func_8003189C(void) {
         break;
     case -1:
         {
-            s32 a1 = *(s32 *)0x1F800000;
-            *(s32 *)0x1F800000 = func_8001FCC8(
+            s32 a1 = *(s32 *)SCRATCHPAD;
+            *(s32 *)SCRATCHPAD = func_8001FCC8(
                 D_800ACC14 + 0x74,
                 func_80020508(D_800ACC14 + 0x74, a1, 0x78, 0x60, 0x50, 0xB4, (u16)temp_s2, (u16)temp_s2, (u16)temp_s2),
                 0x45);
@@ -243,11 +244,11 @@ void func_8003189C(void) {
         }
         break;
     case 0:
-        var_a1 = *(s32 *)0x1F800000;
+        var_a1 = *(s32 *)SCRATCHPAD;
         if ((u16)temp_s2 >= 3) {
             var_a1 = func_8002018C(D_800ACC14 + 0x70, var_a1, D_8009F3F8, 1, 0xFF, 2);
         }
-        *(s32 *)0x1F800000 = func_8001FD20(D_800ACC14 + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
+        *(s32 *)SCRATCHPAD = func_8001FD20(D_800ACC14 + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
         if ((u16)temp_s2 >= 0x15) {
             D_800FF68C->unk1E = 1;
             D_800FF68C->unk1F = 0;
@@ -264,11 +265,11 @@ void func_8003189C(void) {
     case 1:
         {
             s32 two = 2;
-            *(s32 *)0x1F800000 = func_8001FD20(
+            *(s32 *)SCRATCHPAD = func_8001FD20(
                 D_800ACC14 + 0x7C,
                 func_8002018C(
                     D_800ACC14 + 0x70,
-                    func_8002018C(D_800ACC14 + 0x70, *(s32 *)0x1F800000, D_8009F404, 1, temp_s2, 1),
+                    func_8002018C(D_800ACC14 + 0x70, *(s32 *)SCRATCHPAD, D_8009F404, 1, temp_s2, 1),
                     D_8009F3F8, 1, (0x80 - temp_s2) * 2, two),
                 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
             if ((u32)temp_s2 >= 0x80U) {
@@ -281,11 +282,11 @@ void func_8003189C(void) {
         break;
     case 2:
     default:
-        var_a1 = *(s32 *)0x1F800000;
+        var_a1 = *(s32 *)SCRATCHPAD;
         if (D_800FF68C->unk1C >= 0) {
             var_a1 = func_8002018C(D_800ACC14 + 0x70, var_a1, D_8009F404, 0, 0x80, 1);
         }
-        *(s32 *)0x1F800000 = func_8001FD20(D_800ACC14 + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
+        *(s32 *)SCRATCHPAD = func_8001FD20(D_800ACC14 + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
         break;
     }
 }

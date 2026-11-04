@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "rr/game_motion.h"
 #include "m2c_macros.h"
 #include "game/demo/opening.h"
@@ -71,7 +72,7 @@ void func_8005AA2C(void) {
     f.e1 = v;
     f.e0 = v;
     func_80090F74(f.m1, &f.e0);
-    func_8006EE3C(0x1F80007C, &f.z0, f.m1);
+    func_8006EE3C((SCRATCHPAD + 0x7C), &f.z0, f.m1);
     row = D_800A1F90; i = 0; y = -0x438;
     do {
         j = 0;

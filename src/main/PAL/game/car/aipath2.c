@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "game/car/car.h"
 #include "game/car/carsp.h"
 #include "rr_asm.h"
@@ -30,7 +31,7 @@ void func_80026F5C(Car *arg0);
 
 void func_80026C80(void)
 {
-    SP *g = (SP *)0x1F800080;
+    SP *g = (SP *)(SCRATCHPAD + 0x80);
     s32 a, n, t, x;
     char *p, *q;
     s32 junk[2];
@@ -80,17 +81,17 @@ void func_80026C80(void)
 #define D_800ABEA4 ((Node *)D_800ABEA4)
 
 void func_80026F5C(Car *arg0) {
-    SP_1 *g = (SP_1 *)0x1F800080;
+    SP_1 *g = (SP_1 *)(SCRATCHPAD + 0x80);
     s32 idx, next_idx;
     Node *s1, *s2;
     s32 i;
     s16 c, s;
 
     g->p0 = arg0;
-    *(struct Q4 *)0x1F800190 = arg0->q88;
-    *(struct Q4 *)0x1F8001A0 = arg0->q98;
-    *(struct Q4 *)0x1F8001B0 = arg0->qA8;
-    *(struct Q4 *)0x1F8001C0 = arg0->qB8;
+    *(struct Q4 *)(SCRATCHPAD + 0x190) = arg0->q88;
+    *(struct Q4 *)(SCRATCHPAD + 0x1A0) = arg0->q98;
+    *(struct Q4 *)(SCRATCHPAD + 0x1B0) = arg0->qA8;
+    *(struct Q4 *)(SCRATCHPAD + 0x1C0) = arg0->qB8;
     g->p0->s1A0 = 0;
     g->w2C = 0;
     g->sC0 = 0;

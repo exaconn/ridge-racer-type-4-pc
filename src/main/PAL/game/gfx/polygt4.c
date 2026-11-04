@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "psyq/libgte/libgte.h"
 #include "rr_asm.h"
 #include "psyq/libgte/gtemat7.h"
@@ -88,7 +89,7 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
     VECTOR sp58;
     s32 sp68;
     s32 sp6C;
-    Scratch *g = (Scratch *)0x1F800000;
+    Scratch *g = (Scratch *)SCRATCHPAD;
     s32 t;
     s32 count;
     /* ASM_BARRIER: pin dividend 0x600 to $a0 to match local-alloc order */
@@ -109,13 +110,13 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
     sp50.vx = D_800F3A28[arg0].x0C - g->cam_x08;
     sp50.vy = 0x200 - g->cam_y0C;
     sp50.vz = D_800F3A28[arg0].z14 - g->cam_z10;
-    func_80090EC4((MATRIX *)0x1F800028, &sp50, &sp58);
+    func_80090EC4((MATRIX *)(SCRATCHPAD + 0x28), &sp50, &sp58);
     func_8006E108(&sp10, D_800F3A28[arg0].rot_z1C);
     func_8006E030(&sp30, D_800F3A28[arg0].rot_x24);
     func_80090CA4(&sp10, &sp30);
     func_8006E09C(&sp30, D_800F3A28[arg0].rot_y20);
     func_80090DB4(&sp30, &sp10);
-    func_80090DB4((MATRIX *)0x1F800028, &sp10);
+    func_80090DB4((MATRIX *)(SCRATCHPAD + 0x28), &sp10);
     sp10.t[0] = sp58.vx;
     sp10.t[1] = sp58.vy;
     sp10.t[2] = sp58.vz;
@@ -124,8 +125,8 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
 
     count = D_800F3A28[arg0].count2C;
     cols_total = D_800F3A28[arg0].columns2E * count + 1;
-    sxy_buf = (s32 *)0x1F80007C;
-    shade_buf = (u8 *)0x1F800338;
+    sxy_buf = (s32 *)(SCRATCHPAD + 0x7C);
+    shade_buf = (u8 *)(SCRATCHPAD + 0x338);
     div_num = 0x600;
     step_ang = div_num / count;
     s6 = 0;
@@ -148,7 +149,7 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
         }
     }
 
-    pkt = *(POLY_GT4 **)0x1F800000;
+    pkt = *(POLY_GT4 **)SCRATCHPAD;
     for (s5 = 0; s5 < D_800F3A28[arg0].columns2E * D_800F3A28[arg0].rows2F * D_800F3A28[arg0].count2C; s5++) {
         s32 v1;
 
@@ -185,5 +186,5 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
         arg1->addr = (u32)pkt;
         pkt++;
     }
-    *(POLY_GT4 **)0x1F800000 = pkt;
+    *(POLY_GT4 **)SCRATCHPAD = pkt;
 }

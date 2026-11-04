@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "game/effect/fxspr.h"
 
 extern int func_80090424();
@@ -44,7 +45,7 @@ void func_8005C4E0(void)
 
   h[0] = (func_80096464() % 16) - 8;
   h[1] = (func_80096464() % 6) - 3;
-  p = *((unsigned char **) 0x1F800000);
+  p = *((unsigned char **) SCRATCHPAD);
   for (i = 0; i < 2; i++)
   {
     for (j = 0; j < 4; j++)
@@ -57,11 +58,11 @@ void func_8005C4E0(void)
   }
 
   w = D_80011258;
-  *((unsigned char **) 0x1F800000) = p;
+  *((unsigned char **) SCRATCHPAD) = p;
   p[3] = 1;
   d = D_800ACC14;
   *((unsigned int *) (p + 4)) = (w & 0x9FF) | 0xE1000200;
   *((unsigned int *) p) = ((*((unsigned int *) p)) & 0xFF000000) | ((*((unsigned int *) (d + 0x98))) & 0xFFFFFF);
   *((unsigned int *) (d + 0x98)) = ((*((unsigned int *) (d + 0x98))) & 0xFF000000) | (((unsigned int) p) & 0xFFFFFF);
-  *((unsigned char **) 0x1F800000) = p + 8;
+  *((unsigned char **) SCRATCHPAD) = p + 8;
 }

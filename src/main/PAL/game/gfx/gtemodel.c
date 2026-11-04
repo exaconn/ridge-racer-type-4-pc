@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "rr_asm.h"
 #include "game/menu/mnsel.h"
 #include "game/gfx/gtemodel.h"
@@ -34,13 +35,13 @@ void func_8001B640(void);
 
 void func_8001ADA0(a0, a1) int a0; int a1;
 {
-    int *m = (int *)0x1F80007C;
+    int *m = (int *)(SCRATCHPAD + 0x7C);
     int *g;
     /* ASM_BARRIER: keep v pointer in $v0 */
     register int *v __asm__("$2");
     /* ASM_BARRIER: keep a1*12 offset and v[3]/v[1] temp in $v1 */
     register int v1 __asm__("$3");
-    /* ASM_BARRIER: keep 0x1F800000 / 0x1F80007C arg in $a1 */
+    /* ASM_BARRIER: keep SCRATCHPAD / (SCRATCHPAD + 0x7C) arg in $a1 */
     register int r_a1 __asm__("$5");
     char *a3;
     int s2, s4, s5, a2, cnt;
@@ -50,8 +51,8 @@ void func_8001ADA0(a0, a1) int a0; int a1;
     int g20, g1, pt1, pt2;
 
     v1 = a1 * 3;
-    r_a1 = 0x1F800000;
-    /* ASM_BARRIER: load 0x1F800000 into $a1 after a1*3 before shifting by 2 */
+    r_a1 = SCRATCHPAD;
+    /* ASM_BARRIER: load SCRATCHPAD into $a1 after a1*3 before shifting by 2 */
     __asm__("" : "+r"(r_a1), "+r"(v1));
     g = (int *)r_a1;
     /* ASM_BARRIER: copy $a1 to $s3 before shifting v1 by 2 */
@@ -138,13 +139,13 @@ void func_8001ADA0(a0, a1) int a0; int a1;
             s0 += 8;
         } while (s2-- > 0);
     }
-    *(int *)0x1F800000 = a2;
+    *(int *)SCRATCHPAD = a2;
 }
 
 void func_8001AFB8(int a0, int a1) {
-    /* ASM_BARRIER: keep scratch pointer 0x1F80007C in $a2 */
-    register int *m __asm__("$6") = (int *)0x1F80007C;
-    /* ASM_BARRIER: keep 0x1F800000 base / index temp in $a1 */
+    /* ASM_BARRIER: keep scratch pointer (SCRATCHPAD + 0x7C) in $a2 */
+    register int *m __asm__("$6") = (int *)(SCRATCHPAD + 0x7C);
+    /* ASM_BARRIER: keep SCRATCHPAD base / index temp in $a1 */
     register int r_a1 __asm__("$5");
     /* ASM_BARRIER: keep temp/count/vertex ptr in $a0 */
     register int r_a0 __asm__("$4");
@@ -168,8 +169,8 @@ void func_8001AFB8(int a0, int a1) {
     int x0, x1, x2, x3, y0, y1, y2, y3, cval;
 
     m[0x54 / 4] = a1;
-    r_a1 = 0x1F800000;
-    /* ASM_BARRIER: load 0x1F800000 into $a1 after storing a1 */
+    r_a1 = SCRATCHPAD;
+    /* ASM_BARRIER: load SCRATCHPAD into $a1 after storing a1 */
     __asm__ volatile("" : "+r"(r_a1));
     r_v0 = a0 * 12;
     r_v1 = ((int *)r_a1)[0x48 / 4];
@@ -337,13 +338,13 @@ void func_8001AFB8(int a0, int a1) {
             t2 += 0x20;
         } while (t8-- > 0);
     }
-    *(int *)0x1F800000 = (int)t7;
+    *(int *)SCRATCHPAD = (int)t7;
 }
 
 void func_8001B308(void) {
     V8 sp18;
-    short *a = (short *)0x1F80007C;
-    short *b = (short *)0x1F800084;
+    short *a = (short *)(SCRATCHPAD + 0x7C);
+    short *b = (short *)(SCRATCHPAD + 0x84);
     short *p, *q;
     int i;
 
@@ -352,8 +353,8 @@ void func_8001B308(void) {
     func_80013890(1);
     sp18 = D_800101BC;
     ClearImage2(&sp18, 0, 0, 0);
-    *(V16 *)0x1F800018 = D_800101C4;
-    *(V16 *)0x1F800008 = D_8009E540;
+    *(V16 *)(SCRATCHPAD + 0x18) = D_800101C4;
+    *(V16 *)(SCRATCHPAD + 0x8) = D_8009E540;
     *(int *)(D_8010BF78 + 0x24) = 0xFAAB;
     *(int *)(D_8010BF78 + 0x28) = 0xFAAB0000;
     *(int *)(D_8010BF78 + 0x20) = 0;
@@ -365,18 +366,18 @@ void func_8001B308(void) {
     a[0] = -0x200;
     a[1] = 0x200;
     a[2] = 0;
-    func_80091844(0x1F80007C, 0x1F80008C);
-    ApplyMatrixSV(0x1F80008C, 0x1F800084, D_8010BF78);
+    func_80091844((SCRATCHPAD + 0x7C), (SCRATCHPAD + 0x8C));
+    ApplyMatrixSV((SCRATCHPAD + 0x8C), (SCRATCHPAD + 0x84), D_8010BF78);
     a[0] = 0x400;
     a[1] = 0x400;
     a[2] = 0;
-    func_80091844(0x1F80007C, 0x1F80008C);
-    ApplyMatrixSV(0x1F80008C, 0x1F800084, D_8010BF78 + 6);
+    func_80091844((SCRATCHPAD + 0x7C), (SCRATCHPAD + 0x8C));
+    ApplyMatrixSV((SCRATCHPAD + 0x8C), (SCRATCHPAD + 0x84), D_8010BF78 + 6);
     a[0] = 0x400;
     a[1] = 0x400;
     a[2] = 0;
-    func_80091844(0x1F80007C, 0x1F80008C);
-    ApplyMatrixSV(0x1F80008C, 0x1F800084, D_8010BF78 + 0xC);
+    func_80091844((SCRATCHPAD + 0x7C), (SCRATCHPAD + 0x8C));
+    ApplyMatrixSV((SCRATCHPAD + 0x8C), (SCRATCHPAD + 0x84), D_8010BF78 + 0xC);
     p = (short *)D_8010BF78;
     i = 7;
     q = p + 7;
@@ -444,7 +445,7 @@ void func_8001B640(void)
 {
     unsigned short *g;
     func_8006E1AC();
-    g = (unsigned short *)0x1F800000;
+    g = (unsigned short *)SCRATCHPAD;
     g[0x17] <<= 1;
     g[0x18] <<= 1;
     g[0x19] <<= 1;

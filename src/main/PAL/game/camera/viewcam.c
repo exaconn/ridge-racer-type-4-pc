@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "m2c_macros.h"
 #include "game/camera/viewini.h"
 #include "game/car/aipath.h"
@@ -9,7 +10,7 @@
 #include "psyq/libgte/gtetrig.h"
 #include "rr/hud_number.h"
 
-#define G ((Scratch_8006EF8C *)0x1F800000)
+#define G ((Scratch_8006EF8C *)SCRATCHPAD)
 
 struct S8 { int w[8]; };
 
@@ -87,32 +88,32 @@ int func_8006F188(int *a0, int a1);
 
 void func_8006E9E8(int a0, int *a1) {
     int v[4], w[4], x[4];
-    int *g = (int *)0x1F80007C;
+    int *g = (int *)(SCRATCHPAD + 0x7C);
     if (a0) {
         func_8006E300();
         v[0] = (0x8000 - a1[0]) << 2;
         v[1] = (0x60 - a1[1]) << 2;
         v[2] = (0x8000 - a1[2]) << 2;
-        func_80090B14(0x1F800108, v, w);
+        func_80090B14((SCRATCHPAD + 0x108), v, w);
         x[2] = 0x4000;
         x[1] = 0x4000;
         x[0] = 0x4000;
         g[0x28] = w[0];
         g[0x29] = w[1];
         g[0x2A] = w[2];
-        func_80090F74(0x1F800108, x);
+        func_80090F74((SCRATCHPAD + 0x108), x);
         func_8006E9D4(D_8010E690, a0, a1);
     }
 }
 
 void func_8006EAC8(void) {
     int v[4], w[4], x[4];
-    int *h = (int *)0x1F800000;
-    int *g = (int *)0x1F800008;
+    int *h = (int *)SCRATCHPAD;
+    int *g = (int *)(SCRATCHPAD + 0x8);
     v[0] = 0x8000 - (g[0] >> 2);
     v[1] = -(g[1] >> 2);
     v[2] = 0x8000 - (g[2] >> 2);
-    func_80090B14(0x1F800028, v, w);
+    func_80090B14((SCRATCHPAD + 0x28), v, w);
     D_800FF690.w[5] = w[0];
     D_800FF690.w[6] = w[1];
     D_800FF690.w[7] = w[2];
@@ -123,16 +124,16 @@ void func_8006EAC8(void) {
     D_800F39A8.w[5] >>= 1;
     D_800F39A8.w[6] >>= 1;
     D_800F39A8.w[7] >>= 1;
-    func_80090B14(0x1F800028, v, w);
+    func_80090B14((SCRATCHPAD + 0x28), v, w);
     h[15] = w[0];
     h[16] = w[1];
     h[17] = w[2];
-    SetTransMatrix(0x1F800028);
+    SetTransMatrix((SCRATCHPAD + 0x28));
     x[2] = 0x4000;
     x[1] = 0x4000;
     x[0] = 0x4000;
-    func_80090F74(0x1F800028, x);
-    func_800910B4(0x1F800028);
+    func_80090F74((SCRATCHPAD + 0x28), x);
+    func_800910B4((SCRATCHPAD + 0x28));
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -156,7 +157,7 @@ void func_8006ECE8(int ignoredPlayer) {
     func_8006EC64();
     func_8006E9E8(p, p - 0x30);
     func_8006EAC8();
-    func_80060C70(0x1F800000, D_8010E690, D_800F3914);
+    func_80060C70(SCRATCHPAD, D_8010E690, D_800F3914);
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -170,7 +171,7 @@ void func_8006ED4C(void) {
     func_80071348();
     func_8006EC64();
     func_8006EAC8();
-    func_80060C70(0x1F800000, D_8010E690, D_800F3914);
+    func_80060C70(SCRATCHPAD, D_8010E690, D_800F3914);
 }
 
 #undef func_80060C70
@@ -182,7 +183,7 @@ void func_8006ED4C(void) {
 #define func_80060C70 ((int (*)())func_80060C70)
 
 void func_8006EDA4(void) {
-    short *g = (short *)0x1F800000;
+    short *g = (short *)SCRATCHPAD;
     unsigned int v; int pad[12];
     D_8010E280 = (unsigned short)g[0x2E];
     g[0x2E] = -1;
@@ -201,11 +202,11 @@ void func_8006EDA4(void) {
 #undef func_80060C70
 
 void func_8006EE3C(short *a0, short *a1, int *a2) {
-    short *g = (short *)0x1F800000;
+    short *g = (short *)SCRATCHPAD;
     a0[0] = a1[0] - g[4];
     a0[1] = a1[2] - g[6];
     a0[2] = a1[4] - g[8];
-    func_80090EC4(0x1F800028, a0, a0 + 4);
+    func_80090EC4((SCRATCHPAD + 0x28), a0, a0 + 4);
     *(int *)(a0 + 0x16) = *(int *)(a0 + 4);
     *(int *)(a0 + 0x18) = *(int *)(a0 + 6);
     *(int *)(a0 + 0x1A) = *(int *)(a0 + 8);
@@ -234,7 +235,7 @@ void func_8006EED8(void) {
 void func_8006EF8C(s32 a0) {
     /* ASM_BARRIER: Keep scratchpad base pointer in $s2 initialized in prologue. */
     register Scratch_8006EF8C *s2 asm("$18") = G;
-    /* ASM_BARRIER: Keep s3 in $s3 so s3 += 0xC modifies $s3 in place before storing to 0x1F800000. */
+    /* ASM_BARRIER: Keep s3 in $s3 so s3 += 0xC modifies $s3 in place before storing to SCRATCHPAD. */
     register s32 s3 asm("$19");
     s32 s1;
     s32 s5;
@@ -245,7 +246,7 @@ void func_8006EF8C(s32 a0) {
     /* ASM_BARRIER: Keep a2_val in $a2 in the s5 != 0 branch so p is allocated to $a1. */
     register s32 a2_val asm("$6");
 
-    /* ASM_BARRIER: Materialize $s2 = 0x1F800000 at start of prologue. */
+    /* ASM_BARRIER: Materialize $s2 = SCRATCHPAD at start of prologue. */
     __asm__("" : "=r"(s2) : "0"(s2));
     s3 = s2->f00;
     D_800AC5D8 = a0;

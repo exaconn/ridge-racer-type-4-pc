@@ -1,4 +1,5 @@
 #include "types.h"
+#include "scratchpad.h"
 #include "game/car/car.h"
 #include "game/car/carsp.h"
 #include "rr_asm.h"
@@ -42,7 +43,7 @@ void func_800292A8(char *a);
 
 void func_80027998(void)
 {
-    SP *g = (SP *)0x1F800080;
+    SP *g = (SP *)(SCRATCHPAD + 0x80);
     s32 a, n, t, x;
     char *p, *q;
     s32 junk[2];
@@ -87,17 +88,17 @@ void func_80027998(void)
 #define D_800ABEA4 ((Node *)D_800ABEA4)
 
 void func_80027C54(Car *arg0) {
-    SP_1 *g = (SP_1 *)0x1F800080;
+    SP_1 *g = (SP_1 *)(SCRATCHPAD + 0x80);
     register s32 t0 asm("$8"); /* ASM_BARRIER: pin inner loop counter to $t0 */
-    register s32 *q asm("$19"); /* ASM_BARRIER: pin 0x1F80007C pointer to $s3 */
+    register s32 *q asm("$19"); /* ASM_BARRIER: pin (SCRATCHPAD + 0x7C) pointer to $s3 */
 
     arg0->u1F0.w1F0 = 0;
     arg0->u20.s.w20 = arg0->w10 >> 2;
     arg0->u20.s.w28 = arg0->w18 >> 2;
-    *(struct Q4 *)0x1F800190 = arg0->q88;
-    *(struct Q4 *)0x1F8001A0 = arg0->q98;
-    *(struct Q4 *)0x1F8001B0 = arg0->qA8;
-    *(struct Q4 *)0x1F8001C0 = arg0->qB8;
+    *(struct Q4 *)(SCRATCHPAD + 0x190) = arg0->q88;
+    *(struct Q4 *)(SCRATCHPAD + 0x1A0) = arg0->q98;
+    *(struct Q4 *)(SCRATCHPAD + 0x1B0) = arg0->qA8;
+    *(struct Q4 *)(SCRATCHPAD + 0x1C0) = arg0->qB8;
     g->sC0 = 0;
     g->sBA = 0;
     g->sC8 = 0;
@@ -109,8 +110,8 @@ void func_80027C54(Car *arg0) {
     g->sDE = 0;
     g->sDC = 0;
     g->sDA = 0;
-    *(struct Q4 *)0x1F800180 = arg0->u20.q20;
-    q = (s32 *)0x1F80007C;
+    *(struct Q4 *)(SCRATCHPAD + 0x180) = arg0->u20.q20;
+    q = (s32 *)(SCRATCHPAD + 0x7C);
     {
         s32 a0 = arg0->wF0;
         s32 v0 = a0 - 2;
@@ -232,8 +233,8 @@ void func_80027C54(Car *arg0) {
 void func_80028B30(a)
 A *a;
 {
-    int *q7c = (int *)0x1F80007C;
-    T *SC = (T *)0x1F800080;
+    int *q7c = (int *)(SCRATCHPAD + 0x7C);
+    T *SC = (T *)(SCRATCHPAD + 0x80);
     int t, t2, t3, v;
     A *p2;
     int *pw;

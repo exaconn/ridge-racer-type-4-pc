@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "rr/track_projection.h"
 #include "rr/race.h"
 #include "game/car/carspec3.h"
@@ -27,7 +28,7 @@ void func_8004A170(void) {
     register int r __asm__("$2");
     int q;
 
-    D_800AC738 = 0x1F80007C;
+    D_800AC738 = (SCRATCHPAD + 0x7C);
     func_80049C68();
     switch (D_800FF6B0) {
     case 0:

@@ -1,4 +1,5 @@
 /* RODATA 0x80010538 0x18 */
+#include "scratchpad.h"
 #include "game/data/trkld1.h"
 #include "game/menu/menuicon.h"
 #include "game/ui/barsel0.h"
@@ -79,7 +80,7 @@ void func_800302C0()
     case 5:
         D_800AC5D0--;
         func_800207D4(D_800ACC14 + 0x70, (0x20 - (short)D_800AC5D0) << 3, 0x45);
-        *(int *)0x1F800000 = func_8001FC28(D_800ACC14 + 0x70, *(int *)0x1F800000, 0, 0, 0x140, 0x200);
+        *(int *)SCRATCHPAD = func_8001FC28(D_800ACC14 + 0x70, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x200);
         if ((short)D_800AC5D0 <= 0) {
             if (D_800AD4F2 == 6) {
                 func_8003A1B4();
@@ -112,7 +113,7 @@ tail:
         sp[1] = 0xBD;
         sp[2] = 0;
     }
-    *(int *)0x1F800000 = func_8001FDD4(D_800ACC14 + 0xB6C, *(int *)0x1F800000, 0, 0, 0x140, 0x200, sp[0], sp[1], sp[2]);
+    *(int *)SCRATCHPAD = func_8001FDD4(D_800ACC14 + 0xB6C, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x200, sp[0], sp[1], sp[2]);
 }
 
 int func_8003069C(a, p, x, y, w, z) int a; int p; int x; int y; int w; int z; {

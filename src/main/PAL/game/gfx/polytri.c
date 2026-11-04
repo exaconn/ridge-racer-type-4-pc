@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "game/race/objrec.h"
 #include "game/car/aipath.h"
 #include "psyq/libgte/gtemath4.h"
@@ -112,9 +113,9 @@ void func_80071978(InTri *a0, int a1, int a2) {
     int otz;
     unsigned int *ot;
     unsigned int *ot_base;
-    int *hw = (int *)0x1F800000;
+    int *hw = (int *)SCRATCHPAD;
     PolyG3 *pkt = (PolyG3 *)hw[0];
-    Sp7C *sp = (Sp7C *)0x1F80007C;
+    Sp7C *sp = (Sp7C *)(SCRATCHPAD + 0x7C);
 
     for (i = 0; i < a1; i++, a0++) {
         sp->v0[0] = a0->v0[0];
@@ -159,9 +160,9 @@ void func_80071B94(InQuad *a0, int a1, int a2) {
     int otz;
     unsigned int *ot;
     unsigned int *ot_base;
-    int *hw = (int *)0x1F800000;
+    int *hw = (int *)SCRATCHPAD;
     PolyG4 *pkt = (PolyG4 *)hw[0];
-    Sp7C_1 *sp = (Sp7C_1 *)0x1F80007C;
+    Sp7C_1 *sp = (Sp7C_1 *)(SCRATCHPAD + 0x7C);
 
     for (i = 0; i < a1; i++, a0++) {
         sp->v0[0] = a0->v0[0];
@@ -206,8 +207,8 @@ void func_80071B94(InQuad *a0, int a1, int a2) {
 
 void func_80071E04(void) {
     int i;
-    S_SP7C *sp = (S_SP7C *)0x1F80007C;
-    int *hw = (int *)0x1F800000;
+    S_SP7C *sp = (S_SP7C *)(SCRATCHPAD + 0x7C);
+    int *hw = (int *)SCRATCHPAD;
 
 #define b0 (&D_8010ECB0[i])
 #define b4 (&D_8010ECB4[i])

@@ -1,4 +1,5 @@
 /* RODATA 0x800100e4 0x20 */
+#include "scratchpad.h"
 #include "rr_asm.h"
 #include "psyq/libgpu/gpudisp.h"
 #include "game/data/ldscn5.h"
@@ -6,7 +7,7 @@
 #include "rr/audio_cd_controller.h"
 #include "rr/menu_overlay_runtime.h"
 
-#define GS ((SPD *)0x1F800000)
+#define GS ((SPD *)SCRATCHPAD)
 #define W(o) (*(int *)(GS->cur + (o)))
 #define LNK(n, t) \
     W(0) = *(int *)(GS->ot + (t)); \
@@ -173,7 +174,7 @@ SkyTri *func_80017310(SkyTri *a0, SkyCtx *a1, int a2) {
     a1->v0 = verts + (v0 << 3);
     a1->v1 = verts + (v1 << 3);
     a1->v2 = verts + (a3 << 3);
-    pkt = ((Scratch17310 *)0x1F800000)->pkt;
+    pkt = ((Scratch17310 *)SCRATCHPAD)->pkt;
     do {
         /* ASM_BARRIER: load V0..V2 from a1->v0..v2 into GTE $0..$5 */
         __asm__ volatile(
@@ -239,7 +240,7 @@ SkyTri *func_80017310(SkyTri *a0, SkyCtx *a1, int a2) {
                         : "r"(a1), "r"(v0), "r"(v1), "r"(a3), "r"(pkt)
                         : "memory"
                     );
-                    g = (int *)0x1F800000;
+                    g = (int *)SCRATCHPAD;
                     pkt[0] = *(int *)((a0->b7 << 2) + g[1] + 0xAF8);
                     ((char *)pkt)[3] = 6;
                     *(int *)((a0->b7 << 2) + g[1] + 0xAF8) = (int)pkt;
@@ -251,7 +252,7 @@ SkyTri *func_80017310(SkyTri *a0, SkyCtx *a1, int a2) {
         a0++;
         a2--;
     } while (a2 > 0);
-    *(int **)0x1F800000 = pkt;
+    *(int **)SCRATCHPAD = pkt;
     return a0;
 }
 
@@ -271,7 +272,7 @@ SkyQuad17528 *func_80017528(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2) {
     a1->v1 = verts + (t0 << 3);
     a1->v2 = verts + (a3 << 3);
     a1->v3 = (int *)(verts + (t1 << 3));
-    pkt = ((Scratch17528 *)0x1F800000)->pkt;
+    pkt = ((Scratch17528 *)SCRATCHPAD)->pkt;
     do {
         /* ASM_BARRIER: load V0..V2 from a1->v0..v2 into GTE $0..$5 and run RTPT */
         __asm__ volatile(
@@ -360,7 +361,7 @@ SkyQuad17528 *func_80017528(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2) {
                         : "memory"
                     );
                     RR_GTE14_SWC2_RGB2(pkt + 7);
-                    g = (int *)0x1F800000;
+                    g = (int *)SCRATCHPAD;
                     pkt[0] = *(int *)((a0->b19 << 2) + g[1] + 0xAF8);
                     ((char *)pkt)[3] = 8;
                     *(int *)((a0->b19 << 2) + g[1] + 0xAF8) = (int)pkt;
@@ -372,7 +373,7 @@ SkyQuad17528 *func_80017528(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2) {
         a0++;
         a2--;
     } while (a2 > 0);
-    *(int **)0x1F800000 = pkt;
+    *(int **)SCRATCHPAD = pkt;
     return a0;
 }
 
@@ -393,7 +394,7 @@ SkyQuad177E4 *func_800177E4(SkyQuad177E4 *a0, SkyCtxQuad *a1, int a2) {
     a1->v1 = verts + (t0 << 3);
     a1->v2 = verts + (a3 << 3);
     a1->v3 = (int *)(verts + (t1 << 3));
-    pkt = ((Scratch177E4 *)0x1F800000)->pkt;
+    pkt = ((Scratch177E4 *)SCRATCHPAD)->pkt;
     do {
         /* ASM_BARRIER: load V0..V2 from a1->v0..v2 into GTE $0..$5 and run RTPT */
         __asm__ volatile(
@@ -479,7 +480,7 @@ SkyQuad177E4 *func_800177E4(SkyQuad177E4 *a0, SkyCtxQuad *a1, int a2) {
                         : "memory"
                     );
                     RR_GTE14_SWC2_RGB2(pkt + 1);
-                    g = (int *)0x1F800000;
+                    g = (int *)SCRATCHPAD;
                     pkt[0] = *(int *)((a0->b19 << 2) + g[1] + 0xAF8);
                     ((char *)pkt)[3] = 9;
                     *(int *)((a0->b19 << 2) + g[1] + 0xAF8) = (int)pkt;
@@ -491,7 +492,7 @@ SkyQuad177E4 *func_800177E4(SkyQuad177E4 *a0, SkyCtxQuad *a1, int a2) {
         a0++;
         a2--;
     } while (a2 > 0);
-    *(int **)0x1F800000 = pkt;
+    *(int **)SCRATCHPAD = pkt;
     return a0;
 }
 
@@ -507,7 +508,7 @@ SkyTri17A90 *func_80017A90(SkyTri17A90 *a0, SkyCtx *a1, int a2) {
     a1->v0 = verts + (v0 << 3);
     a1->v1 = verts + (v1 << 3);
     a1->v2 = verts + (a3 << 3);
-    pkt = ((Scratch17A90 *)0x1F800000)->pkt;
+    pkt = ((Scratch17A90 *)SCRATCHPAD)->pkt;
     do {
         /* ASM_BARRIER: load V0..V2 from a1->v0..v2 into GTE $0..$5 */
         __asm__ volatile(
@@ -579,7 +580,7 @@ SkyTri17A90 *func_80017A90(SkyTri17A90 *a0, SkyCtx *a1, int a2) {
                         : "r"(a1), "r"(v0), "r"(v1), "r"(a3), "r"(pkt)
                         : "memory"
                     );
-                    g = (int *)0x1F800000;
+                    g = (int *)SCRATCHPAD;
                     pkt[0] = *(int *)((a0->u1C.b.b1F << 2) + g[1] + 0xAF8);
                     ((char *)pkt)[3] = 9;
                     *(int *)((a0->u1C.b.b1F << 2) + g[1] + 0xAF8) = (int)pkt;
@@ -591,7 +592,7 @@ SkyTri17A90 *func_80017A90(SkyTri17A90 *a0, SkyCtx *a1, int a2) {
         a0++;
         a2--;
     } while (a2 > 0);
-    *(int **)0x1F800000 = pkt;
+    *(int **)SCRATCHPAD = pkt;
     return a0;
 }
 
@@ -606,9 +607,9 @@ void func_80017CC0(a0) int a0; {
     int r;
     int k;
     int *s0;
-    s0 = (int *)0x1F80007C;
+    s0 = (int *)(SCRATCHPAD + 0x7C);
     s4 = D_8010BF68;
-    RR_GTE_SETROT((int *)0x1F800028);
+    RR_GTE_SETROT((int *)(SCRATCHPAD + 0x28));
     RR_GTE_CLRTR();
     a1 = D_8009E1D4[D_800F3914];
     if (a1 != 0) {
@@ -682,7 +683,7 @@ char *func_80017F84(char *a0, char *a1) {
     *(int *)(a1 + 0xF4) = 0x34808080;
     RR_GTE14_LWC2_RGB(a1 + 0xF4);
 
-    hw = (volatile int *)0x1F800000;
+    hw = (volatile int *)SCRATCHPAD;
     n = *(int *)(a1 + 0xE4);
     pkt = (int *)hw[0];
     shift = hw[0x60 / 4];
@@ -783,7 +784,7 @@ char *func_80017F84(char *a0, char *a1) {
                             z = *(int *)(a1 + 0xE8) >> shift;
                             if (z > 0) {
                                 if (z < 0x1C0) {
-                                    volatile int *g = (volatile int *)0x1F800000;
+                                    volatile int *g = (volatile int *)SCRATCHPAD;
                                     pkt[0] = *(int *)((*(signed char *)(a0 + 0x11) << 2) + ((z << 2) + g[1]) + 0x200);
                                     ((char *)pkt)[3] = 9;
                                     *(int *)((*(signed char *)(a0 + 0x11) << 2) + ((z << 2) + g[1]) + 0x200) = (int)pkt;
@@ -801,7 +802,7 @@ char *func_80017F84(char *a0, char *a1) {
 
     /* ASM_BARRIER: extend live ranges of n and a0 past loop for register allocation priority */
     __asm__("" : : "r"(n), "r"(n), "r"(n), "r"(a0), "r"(a0), "r"(a0));
-    *(int **)0x1F800000 = pkt;
+    *(int **)SCRATCHPAD = pkt;
     return a0;
 }
 
@@ -815,7 +816,7 @@ char *func_800183EC(char *a0, char *a1) {
     *(int *)(a1 + 0xF4) = 0x3C808080;
     RR_GTE14_LWC2_RGB(a1 + 0xF4);
 
-    hw = (volatile int *)0x1F800000;
+    hw = (volatile int *)SCRATCHPAD;
     n = *(int *)(a1 + 0xE4);
     pkt = (int *)hw[0];
     shift = hw[0x60 / 4];
@@ -945,7 +946,7 @@ char *func_800183EC(char *a0, char *a1) {
                             z = *(int *)(a1 + 0xE8) >> shift;
                             if (z > 0) {
                                 if (z < 0x1C0) {
-                                    volatile int *g = (volatile int *)0x1F800000;
+                                    volatile int *g = (volatile int *)SCRATCHPAD;
                                     pkt[0] = *(int *)((*(signed char *)(a0 + 0x15) << 2) + ((z << 2) + g[1]) + 0x200);
                                     ((char *)pkt)[3] = 0xC;
                                     *(int *)((*(signed char *)(a0 + 0x15) << 2) + ((z << 2) + g[1]) + 0x200) = (int)pkt;
@@ -963,12 +964,12 @@ char *func_800183EC(char *a0, char *a1) {
 
     /* ASM_BARRIER: extend live range of n past loop for register allocation priority */
     __asm__("" : : "r"(n), "r"(n), "r"(n));
-    *(int **)0x1F800000 = pkt;
+    *(int **)SCRATCHPAD = pkt;
     return a0;
 }
 
 char *func_800189AC(char *a0, char *a1) {
-    volatile int *hw = (volatile int *)0x1F800000;
+    volatile int *hw = (volatile int *)SCRATCHPAD;
     int n = *(int *)(a1 + 0xE4);
     int *pkt = (int *)hw[0];
     int shift = hw[0x60 / 4];
@@ -1005,7 +1006,7 @@ char *func_800189AC(char *a0, char *a1) {
                         int z = *(int *)(a1 + 0xE8) >> shift;
                         if (z > 0) {
                             if (z < 0x1C0) {
-                                volatile int *g = (volatile int *)0x1F800000;
+                                volatile int *g = (volatile int *)SCRATCHPAD;
                                 RR_GTE14_LWC2_RGB(a0 + 0x10);
                                 RR_GTE14_LWC2_V0_V1_V2(
                                     *(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 8) << 3),
@@ -1036,12 +1037,12 @@ char *func_800189AC(char *a0, char *a1) {
     }
     /* ASM_BARRIER: boost a0 ref count and extend verts live range past loop so a0 gets $t4 and verts gets $t5 */
     __asm__("" : : "r"(a0), "r"(a0), "r"(a0), "r"(verts));
-    *(int **)0x1F800000 = pkt;
+    *(int **)SCRATCHPAD = pkt;
     return a0;
 }
 
 char *func_80018D44(char *a0, char *a1) {
-    volatile int *hw = (volatile int *)0x1F800000;
+    volatile int *hw = (volatile int *)SCRATCHPAD;
     int n = *(int *)(a1 + 0xE4);
     int *pkt = (int *)hw[0];
     int shift = hw[0x60 / 4];
@@ -1083,7 +1084,7 @@ char *func_80018D44(char *a0, char *a1) {
                         z = *(int *)(a1 + 0xE8) >> shift;
                         if (z > 0) {
                             if (z < 0x1C0) {
-                                volatile int *g = (volatile int *)0x1F800000;
+                                volatile int *g = (volatile int *)SCRATCHPAD;
                                 RR_GTE14_LWC2_RGB(a0 + 0x10);
                                 RR_GTE14_LWC2_V0_V1_V2(
                                     *(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 8) << 3),
@@ -1119,12 +1120,12 @@ char *func_80018D44(char *a0, char *a1) {
     }
     /* ASM_BARRIER: boost a0 ref count and extend verts live range past loop */
     __asm__("" : : "r"(a0), "r"(a0), "r"(a0), "r"(verts));
-    *(int **)0x1F800000 = pkt;
+    *(int **)SCRATCHPAD = pkt;
     return a0;
 }
 
 char *func_80019144(char *a0, char *a1) {
-    volatile int *hw = (volatile int *)0x1F800000;
+    volatile int *hw = (volatile int *)SCRATCHPAD;
     int n = *(int *)(a1 + 0xE4);
     int *pkt = (int *)hw[0];
     int shift = hw[0x60 / 4];
@@ -1166,7 +1167,7 @@ char *func_80019144(char *a0, char *a1) {
                         z = *(int *)(a1 + 0xE8) >> shift;
                         if (z > 0) {
                             if (z < 0x1C0) {
-                                volatile int *g = (volatile int *)0x1F800000;
+                                volatile int *g = (volatile int *)SCRATCHPAD;
                                 RR_GTE14_LWC2_RGB(a0 + 0x10);
                                 RR_GTE14_LWC2_V0(*(char **)(a1 + 0x70) + (*(unsigned short *)(a0 + 8) << 3));
                                 RR_GTE14_NOP2();
@@ -1189,13 +1190,13 @@ char *func_80019144(char *a0, char *a1) {
     }
     /* ASM_BARRIER: extend verts live range after loop so pkt=$t0, n=$t1, a0=$t2, verts=$t3 */
     __asm__("" : : "r"(pkt), "r"(n), "r"(a0), "r"(verts));
-    *(int **)0x1F800000 = pkt;
+    *(int **)SCRATCHPAD = pkt;
     return a0;
 }
 
 void func_800194BC(char *a0, int a1)
 {
-    int *s = (int *)0x1F80007C;
+    int *s = (int *)(SCRATCHPAD + 0x7C);
     int w, v;
     int *p;
     a0 += a1 * 12;
@@ -1230,14 +1231,14 @@ void func_800194BC(char *a0, int a1)
 
 void func_800195BC(char *a0, volatile unsigned short *a1)
 {
-    volatile unsigned short *p = (unsigned short *)0x1F80007C;
+    volatile unsigned short *p = (unsigned short *)(SCRATCHPAD + 0x7C);
     RR_GTE_SETROT(D_8009E248);
     RR_GTE_MV3_COL(a1);
     RR_GTE_ST3_COL(p);
     RR_GTE_MV3_COL(a1 + 1);
-    RR_GTE_ST3_COL((unsigned short *)0x1F80007E);
+    RR_GTE_ST3_COL((unsigned short *)(SCRATCHPAD + 0x7E));
     RR_GTE_MV3_COL(a1 + 2);
-    RR_GTE_ST3_COL((unsigned short *)0x1F800080);
+    RR_GTE_ST3_COL((unsigned short *)(SCRATCHPAD + 0x80));
     RR_GTE_SETLLM(p);
     p[0] = a1[0];
     p[1] = a1[1];

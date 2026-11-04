@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "rr/gpu.h"
 #include "rr/line_emit.h"
 #include "game/camera/camfx.h"
@@ -93,7 +94,7 @@ int func_8005642C(CarState *arg0, int arg1, int arg2, int *arg3) {
     SVECTOR sp60;
     SVECTOR sp68;
     VECTOR sp70;
-    Scratch *s5 = (Scratch *)0x1F800000;
+    Scratch *s5 = (Scratch *)SCRATCHPAD;
     int s0 = -1;
     int s3;
     int i;
@@ -253,7 +254,7 @@ void func_80056F04(int a0, int a1, int a2, int a3, int a4)
     sp[0] = a1;
     sp[1] = a2;
   }
-  g = (int *) 0x1F800000;
+  g = (int *) SCRATCHPAD;
   p = *((unsigned char **) g);
   p[3] = 4;
   p[7] = 0x66;
@@ -288,7 +289,7 @@ void func_80056F04(int a0, int a1, int a2, int a3, int a4)
 void func_80057040(a0, a1, a2, a3) s32 a0; s32 a1; s32 a2; s32 a3; {
     RrSpritePacketSignedClut *p;
     s32 k;
-    p = *(RrSpritePacketSignedClut **)0x1F800000;
+    p = *(RrSpritePacketSignedClut **)SCRATCHPAD;
     k = 0x66;
     p->len = 4;
     p->code = k;
@@ -303,12 +304,12 @@ void func_80057040(a0, a1, a2, a3) s32 a0; s32 a1; s32 a2; s32 a3; {
     p->addr = ((RrSpritePacketSignedClut *)(D_800ACC14 + 0x70))->addr;
     *(u32 *)(D_800ACC14 + 0x70) = (*(u32 *)(D_800ACC14 + 0x70) & 0xFF000000) | ((u32)p & 0xFFFFFF);
     p++;
-    *(RrSpritePacketSignedClut **)0x1F800000 = p;
+    *(RrSpritePacketSignedClut **)SCRATCHPAD = p;
     p->len = 1;
     *((u32 *)p + 1) = (D_800111FE & 0x9FF) | 0xE1000200;
     p->addr = ((RrSpritePacketSignedClut *)(D_800ACC14 + 0x70))->addr;
     *(u32 *)(D_800ACC14 + 0x70) = (*(u32 *)(D_800ACC14 + 0x70) & 0xFF000000) | ((u32)p & 0xFFFFFF);
-    *(RrSpritePacketSignedClut **)0x1F800000 = (RrSpritePacketSignedClut *)((u32 *)p + 2);
+    *(RrSpritePacketSignedClut **)SCRATCHPAD = (RrSpritePacketSignedClut *)((u32 *)p + 2);
 }
 
 void func_80057138(int a0, int a1) {

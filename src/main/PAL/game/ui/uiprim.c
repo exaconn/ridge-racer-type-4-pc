@@ -1,3 +1,4 @@
+#include "scratchpad.h"
 #include "rr/gouraud_quad.h"
 #include "rr/gpu_line.h"
 #include "rr/gpu_scratch_types.h"
@@ -9,7 +10,7 @@ enum { ORDERING_TABLE_WORD = RR_FIELD_OFFSET(RrFrameOrderingPrefix, ordering70) 
 
 void func_8004CFB0(RrGpuRectangleFields *rect, RrGpuColorCommand *top, RrGpuColorCommand *bottom, s32 depth)
 {
-    RrPolyG4Storage *primitive = (RrPolyG4Storage *)((RrGpuScratchPointers *)0x1F800000)->cursor;
+    RrPolyG4Storage *primitive = (RrPolyG4Storage *)((RrGpuScratchPointers *)SCRATCHPAD)->cursor;
     u32 *ordering;
     primitive->packet.len = 8;
     primitive->packet.code = 0x3A;
@@ -37,13 +38,13 @@ void func_8004CFB0(RrGpuRectangleFields *rect, RrGpuColorCommand *top, RrGpuColo
     primitive->words[0] = (primitive->words[0] & 0xFF000000U) | (ordering[ORDERING_TABLE_WORD] & 0xFFFFFFU);
     ordering[ORDERING_TABLE_WORD] = (ordering[ORDERING_TABLE_WORD] & 0xFF000000U) | ((unsigned long)primitive & 0xFFFFFFU);
     primitive++;
-    ((RrGpuScratchPointers *)0x1F800000)->cursor = (u8 *)primitive;
+    ((RrGpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)primitive;
 }
 
 void func_8004D11C(RrGpuRectangleFields *rect, RrGpuColorCommand *color0, RrGpuColorCommand *color1,
     RrGpuColorCommand *color2, RrGpuColorCommand *color3, s32 depth)
 {
-    RrPolyG4Storage *primitive = (RrPolyG4Storage *)((RrGpuScratchPointers *)0x1F800000)->cursor;
+    RrPolyG4Storage *primitive = (RrPolyG4Storage *)((RrGpuScratchPointers *)SCRATCHPAD)->cursor;
     u32 *ordering;
     primitive->packet.len = 8;
     primitive->packet.code = 0x3A;
@@ -71,12 +72,12 @@ void func_8004D11C(RrGpuRectangleFields *rect, RrGpuColorCommand *color0, RrGpuC
     primitive->words[0] = (primitive->words[0] & 0xFF000000U) | (ordering[ORDERING_TABLE_WORD] & 0xFFFFFFU);
     ordering[ORDERING_TABLE_WORD] = (ordering[ORDERING_TABLE_WORD] & 0xFF000000U) | ((unsigned long)primitive & 0xFFFFFFU);
     primitive++;
-    ((RrGpuScratchPointers *)0x1F800000)->cursor = (u8 *)primitive;
+    ((RrGpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)primitive;
 }
 
 void func_8004D290(const s16 coordinates[4], const u8 rgb[3], s32 blend, s32 depth)
 {
-    RrGpuLineF2Packet *primitive = (RrGpuLineF2Packet *)((RrGpuScratchPointers *)0x1F800000)->cursor;
+    RrGpuLineF2Packet *primitive = (RrGpuLineF2Packet *)((RrGpuScratchPointers *)SCRATCHPAD)->cursor;
     u32 *ordering;
     u32 tag;
     primitive->tag.bytes.length = 3;
@@ -94,5 +95,5 @@ void func_8004D290(const s16 coordinates[4], const u8 rgb[3], s32 blend, s32 dep
     primitive->tag.word = (tag & 0xFF000000U) | (ordering[ORDERING_TABLE_WORD] & 0xFFFFFFU);
     ordering[ORDERING_TABLE_WORD] = (ordering[ORDERING_TABLE_WORD] & 0xFF000000U) | ((unsigned long)primitive & 0xFFFFFFU);
     primitive++;
-    ((RrGpuScratchPointers *)0x1F800000)->cursor = (u8 *)primitive;
+    ((RrGpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)primitive;
 }

@@ -1,5 +1,6 @@
 /* RODATA 0x800102cc 0x24 */
 #include "types.h"
+#include "scratchpad.h"
 #include "m2c_macros.h"
 #include "rr/frame_loop.h"
 #include "game/data/cdfile2.h"
@@ -137,7 +138,7 @@ void func_8001E390(void) {
         func_8001BAF8(D_8010BF80[2], 0x30);
         p = D_8010BF80;
         func_8001E1F0(p[3]);
-        g = (int *)0x1F800000;
+        g = (int *)SCRATCHPAD;
         *(int *)(g[0] + 4) = 0xE100022A;
         s_ = (int *)g[1];
         d_ = (int *)g[0];
@@ -145,7 +146,7 @@ void func_8001E390(void) {
         *(char *)(g[0] + 3) = 1;
         *(int *)g[1] = g[0];
         *(char *)(g[1] + 3) = 0;
-        *(int *)0x1F800000 += 8;
+        *(int *)SCRATCHPAD += 8;
         func_8002A344(0x1000C);
         D_8010BF80[0]++;
     }
@@ -194,7 +195,7 @@ void func_8001E684(void) {
             ordering=(u32 *)(frame+0x70);
             D_800ACC14=frame;
             *(s32 *)(bank_page+0x4BF0)=bank;
-            scratch=(u8 **)0x1F800000;
+            scratch=(u8 **)SCRATCHPAD;
             scratch[1]=(u8 *)ordering;
             scratch[0]=frame+0x1670;
             ClearOTagR(ordering,length);

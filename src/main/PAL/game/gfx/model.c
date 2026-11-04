@@ -1,4 +1,5 @@
 #include "types.h"
+#include "psyq/libgte/libgte.h"
 #include "m2c_macros.h"
 #include "rr_asm.h"
 #include "game/camera/viewcam.h"
@@ -20,13 +21,7 @@ typedef struct {
     s32 t[3];
 } MATRIX;
 
-typedef struct {
-    s32 vx, vy, vz, pad;
-} VECTOR;
 
-typedef struct {
-    s16 vx, vy, vz, pad;
-} SVECTOR;
 
 typedef struct {
     s32 pad00[2];

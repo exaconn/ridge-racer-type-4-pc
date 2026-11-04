@@ -1,6 +1,8 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
+#include "psyq/libsnd/libsnd.h"
+#include "psyq/libspu/libspu.h"
 #include "psyq/libsnd/vmnote2.h"
 #include "psyq/libsnd/vmupd.h"
 
@@ -17,37 +19,8 @@ typedef struct {
     s16 f14, f16, f18;
 } SvmCur;
 
-typedef struct {
-    u8 f00, f01, f02, f03, f04, pad05[11];
-} ProgAtr;
 
-typedef struct {
-    u8 f00, f01, f02, f03, f04, f05;
-    u8 pad06[0x16 - 0x06];
-    u16 f16;
-    u8 pad18[0x20 - 0x18];
-} VagAtr;
 
-typedef struct {
-    s16 f00;
-    s16 f02;
-    s16 f04;
-    s16 f06;
-    s16 f08;
-    s8 f0A;
-    s8 f0B;
-    s16 f0C;
-    s16 f0E;
-    s16 f10;
-    s16 f12;
-    s16 f14;
-    s16 f16;
-    s16 f18;
-    s16 f1A;
-    s8 f1C;
-    s8 f1D;
-    u8 pad1E[0x36 - 0x1E];
-} SpuVoice;
 
 extern s32 D_8010F05C;
 extern SpuVoice D_8010F908[];

@@ -1,34 +1,8 @@
+#include "psyq/libspu/libspu.h"
 /* RODATA 0x800117b8 0x3c */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "psyq/libsnd/vmpitch.h"
-typedef struct {
-    short left;
-    short right;
-} SpuVolume;
 
-typedef struct {
-    unsigned int voice;
-    unsigned int mask;
-    SpuVolume volume;
-    SpuVolume volmode;
-    SpuVolume volumex;
-    unsigned short pitch;
-    unsigned short note;
-    unsigned short sample_note;
-    short envx;
-    unsigned int addr;
-    unsigned int loop_addr;
-    int a_mode;
-    int s_mode;
-    int r_mode;
-    unsigned short ar;
-    unsigned short dr;
-    unsigned short sr;
-    unsigned short rr;
-    unsigned short sl;
-    unsigned short adsr1;
-    unsigned short adsr2;
-} SpuVoiceAttr;
 
 extern void func_80088DA4(int unused_mode);
 extern int D_800A48F8;

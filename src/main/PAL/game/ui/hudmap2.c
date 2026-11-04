@@ -1,5 +1,6 @@
 /* RODATA 0x80011200 0x1c */
 #include "types.h"
+#include "psyq/libgte/libgte.h"
 #include "rr/line_emit.h"
 #include "rr/glyph_list.h"
 #include "rr/gpu.h"
@@ -92,9 +93,6 @@ typedef struct {
     u32 code[2];
 } DR_MODE;
 
-typedef struct {
-    s16 vx, vy, vz, pad;
-} SVECTOR;
 
 typedef struct {
     u32 addr: 24;

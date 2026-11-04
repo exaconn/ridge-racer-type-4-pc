@@ -1,4 +1,5 @@
 #include "types.h"
+#include "psyq/libgte/libgte.h"
 #include "rr_asm.h"
 #include "psyq/libgte/gtemat7.h"
 #include "game/gfx/polygt4.h"
@@ -35,13 +36,7 @@ typedef struct {
     s32 t[3];
 } MATRIX;
 
-typedef struct {
-    s16 vx, vy, vz, pad;
-} SVECTOR;
 
-typedef struct {
-    s32 vx, vy, vz, pad;
-} VECTOR;
 
 typedef struct {
     POLY_GT4 *pkt00;

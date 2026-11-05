@@ -2,18 +2,18 @@
 #include "rr_asm.h"
 #include "psyq/libgte/gtecolo4.h"
 
-void func_800914C4(int *a0, int *a1);
+void LightColor(int *a0, int *a1);
 void DpqColorLight(int *a0, int *a1, int a2, int *a3);
 void DpqColor3(int *a0, int *a1, int *a2, int a3, int * volatile a4, int * volatile a5, int * volatile a6);
 void Intpl(int *a0, int a1, int *a2);
 RrVec3i *Square12(const RrVec3i *input,RrVec3i *output);
 RrVec3i *Square0(const RrVec3i *input,RrVec3i *output);
-int func_800915C4(int a0, int a1, int a2);
-int func_800915E4(int a0, int a1, int a2, int a3);
+int AverageZ3(int a0, int a1, int a2);
+int AverageZ4(int a0, int a1, int a2, int a3);
 void OuterProduct12(int *a0, int *a1, int *a2);
 void OuterProduct0(int *a0, int *a1, int *a2);
 
-void func_800914C4(int *a0, int *a1) {
+void LightColor(int *a0, int *a1) {
     __asm__ volatile ("lwc2 $9, 0(%0)\n\tlwc2 $10, 4(%0)\n\tlwc2 $11, 8(%0)" : : "r"(a0));
     __asm__ volatile ("nop\n\t.word 0x4A4DA412");
     __asm__ volatile ("swc2 $9, 0(%0)\n\tswc2 $10, 4(%0)\n\tswc2 $11, 8(%0)" : : "r"(a1));
@@ -74,7 +74,7 @@ RrVec3i *Square0(const RrVec3i *input,RrVec3i *output) {
     return output;
 }
 
-int func_800915C4(int a0, int a1, int a2) {
+int AverageZ3(int a0, int a1, int a2) {
     int v;
     __asm__ volatile ("mtc2 %0, $17" : : "r"(a0));
     __asm__ volatile ("mtc2 %0, $18" : : "r"(a1));
@@ -84,7 +84,7 @@ int func_800915C4(int a0, int a1, int a2) {
     return v;
 }
 
-int func_800915E4(int a0, int a1, int a2, int a3) {
+int AverageZ4(int a0, int a1, int a2, int a3) {
     int v;
     __asm__ volatile ("mtc2 %0, $16" : : "r"(a0));
     __asm__ volatile ("mtc2 %0, $17" : : "r"(a1));

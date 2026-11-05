@@ -133,9 +133,9 @@ void func_8006E09C(Mat8 *, s32);
 void func_8006E108(Mat8 *, s32);
 void func_8006EE3C(s32, Vec4 *, Mat8 *);
 void func_800701C4(s32);
-void func_80090914(void *, Mat8 *, Mat8 *);
-void func_80090CA4(Mat8 *, Mat8 *);
-void func_80090DB4(Mat8 *, Mat8 *);
+void MulMatrix0(void *, Mat8 *, Mat8 *);
+void MulMatrix(Mat8 *, Mat8 *);
+void MulMatrix2(Mat8 *, Mat8 *);
 extern u8 D_8009F02C[];
 extern u8 D_8009F034[];
 extern u8 D_8009F03C[];
@@ -189,17 +189,17 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     func_8006E09C(&sp70, -arg0->rot54);
     func_8006E108(&sp30, -arg0->rot50);
     func_8006E030(&sp50, -arg0->rot58);
-    func_80090CA4(&sp30, &sp50);
-    func_80090CA4(&sp70, &sp30);
-    func_80090914(D_800ABED0, &sp70, &sp50);
+    MulMatrix(&sp30, &sp50);
+    MulMatrix(&sp70, &sp30);
+    MulMatrix0(D_800ABED0, &sp70, &sp50);
     RR_GTE_SETLLM(&sp50);
 
     func_8006E09C(&sp10, -arg0->rot54);
-    func_80090DB4((Mat8 *)SCRATCH_ROT_MATRIX, &sp10);
+    MulMatrix2((Mat8 *)SCRATCH_ROT_MATRIX, &sp10);
     func_8006E108(&sp98[0], arg0->unk1A8 - arg0->rot50);
     func_8006E030(&sp50, arg0->unk1AA - arg0->rot58);
-    func_80090CA4(&sp98[0], &sp50);
-    func_80090DB4(&sp10, &sp98[0]);
+    MulMatrix(&sp98[0], &sp50);
+    MulMatrix2(&sp10, &sp98[0]);
 
     sp158[0] = arg0->rotC8;
     sp158[1].x = arg0->x70 + arg0->x60;
@@ -208,8 +208,8 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
 
     func_8006E108(&sp98[1], -arg0->ang80);
     func_8006E030(&sp50, -arg0->ang84);
-    func_80090CA4(&sp98[1], &sp50);
-    func_80090DB4(&sp10, &sp98[1]);
+    MulMatrix(&sp98[1], &sp50);
+    MulMatrix2(&sp10, &sp98[1]);
 
     sp158[2].x = arg0->x10 + arg0->x60;
     sp158[2].y = arg0->y14 + arg0->y64;
@@ -232,12 +232,12 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     }
 
     sp98[2] = sp30;
-    func_80090DB4(&sp10, &sp98[2]);
-    func_80090DB4(&sp98[2], &sp98[3]);
+    MulMatrix2(&sp10, &sp98[2]);
+    MulMatrix2(&sp98[2], &sp98[3]);
     func_8006E09C(&sp98[4], arg0->lat178 / 12);
     func_8006E108(&sp98[5], s4_val);
-    func_80090DB4(&sp98[2], &sp98[4]);
-    func_80090DB4(&sp98[4], &sp98[5]);
+    MulMatrix2(&sp98[2], &sp98[4]);
+    MulMatrix2(&sp98[4], &sp98[5]);
 
     RR_GTE_SETROT(&sp70);
     for (i = 0; i < 2; i++) {
@@ -295,24 +295,24 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
     func_8006E09C(&sp80, -arg0->rot54);
     func_8006E108(&sp40, -arg0->rot50);
     func_8006E030(&sp60, -arg0->rot58);
-    func_80090CA4(&sp40, &sp60);
-    func_80090CA4(&sp80, &sp40);
-    func_80090914(D_800ABED0, &sp80, &sp60);
+    MulMatrix(&sp40, &sp60);
+    MulMatrix(&sp80, &sp40);
+    MulMatrix0(D_800ABED0, &sp80, &sp60);
     RR_GTE_SETLLM(&sp60);
     func_8006E09C(&sp20, -arg0->rot54);
-    func_80090DB4((Mat8 *)SCRATCH_ROT_MATRIX, &sp20);
+    MulMatrix2((Mat8 *)SCRATCH_ROT_MATRIX, &sp20);
     func_8006E108(&spA8[0], arg0->unk1A8 - arg0->rot50);
     func_8006E030(&sp60, arg0->unk1AA - arg0->rot58);
-    func_80090CA4(&spA8[0], &sp60);
-    func_80090DB4(&sp20, &spA8[0]);
+    MulMatrix(&spA8[0], &sp60);
+    MulMatrix2(&sp20, &spA8[0]);
     sp168[0] = arg0->rotC8;
     sp168[1].x = arg0->x70 + arg0->x60;
     sp168[1].y = arg0->y74 + arg0->y64;
     sp168[1].z = arg0->z78 + arg0->z68;
     func_8006E108(&spA8[1], -arg0->ang80);
     func_8006E030(&sp60, -arg0->ang84);
-    func_80090CA4(&spA8[1], &sp60);
-    func_80090DB4(&sp20, &spA8[1]);
+    MulMatrix(&spA8[1], &sp60);
+    MulMatrix2(&sp20, &spA8[1]);
     sp168[2].x = arg0->x10 + arg0->x60;
     sp168[2].y = arg0->y14 + arg0->y64;
     sp168[2].z = arg0->z18 + arg0->z68;
@@ -332,12 +332,12 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
         func_8006E108(&spA8[3], s4_val);
     }
     spA8[2] = sp40;
-    func_80090DB4(&sp20, &spA8[2]);
-    func_80090DB4(&spA8[2], &spA8[3]);
+    MulMatrix2(&sp20, &spA8[2]);
+    MulMatrix2(&spA8[2], &spA8[3]);
     func_8006E09C(&spA8[4], arg0->lat178 / 12);
     func_8006E108(&spA8[5], s4_val);
-    func_80090DB4(&spA8[2], &spA8[4]);
-    func_80090DB4(&spA8[4], &spA8[5]);
+    MulMatrix2(&spA8[2], &spA8[4]);
+    MulMatrix2(&spA8[4], &spA8[5]);
     RR_GTE_SETROT(&sp80);
     for (i = 0; i < 2; i++) {
         /* ASM_BARRIER: pin v0_w to v0 to match branch delay slot and load scheduling */
@@ -444,25 +444,25 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
         func_8006E09C(&sp80, -arg0->rot54);
         func_8006E108(&sp40, -arg0->rot50);
         func_8006E030(&sp60, -arg0->rot58);
-        func_80090CA4(&sp40, &sp60);
-        func_80090CA4(&sp80, &sp40);
-        func_80090914(D_800ABED0, &sp80, &sp60);
+        MulMatrix(&sp40, &sp60);
+        MulMatrix(&sp80, &sp40);
+        MulMatrix0(D_800ABED0, &sp80, &sp60);
         RR_GTE_SETLLM(&sp60);
         if (i < D_8009F04C[arg1].d0) {
             func_8006E09C(&sp20, -arg0->rot54);
-            func_80090DB4((Mat8 *)SCRATCH_ROT_MATRIX, &sp20);
+            MulMatrix2((Mat8 *)SCRATCH_ROT_MATRIX, &sp20);
             func_8006E108(&spA8[0], arg0->unk1A8 - arg0->rot50);
             func_8006E030(&sp60, arg0->unk1AA - arg0->rot58);
-            func_80090CA4(&spA8[0], &sp60);
-            func_80090DB4(&sp20, &spA8[0]);
+            MulMatrix(&spA8[0], &sp60);
+            MulMatrix2(&sp20, &spA8[0]);
             sp168[0] = arg0->rotC8;
             sp168[1].x = arg0->x70 + arg0->x60;
             sp168[1].y = arg0->y74 + arg0->y64;
             sp168[1].z = arg0->z78 + arg0->z68;
             func_8006E108(&spA8[1], -arg0->ang80);
             func_8006E030(&sp60, -arg0->ang84);
-            func_80090CA4(&spA8[1], &sp60);
-            func_80090DB4(&sp20, &spA8[1]);
+            MulMatrix(&spA8[1], &sp60);
+            MulMatrix2(&sp20, &spA8[1]);
             sp168[2].x = arg0->x10 + arg0->x60;
             sp168[2].y = arg0->y14 + arg0->y64;
             sp168[2].z = arg0->z18 + arg0->z68;
@@ -482,12 +482,12 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
                 func_8006E108(&spA8[3], s4_val);
             }
             spA8[2] = sp40;
-            func_80090DB4(&sp20, &spA8[2]);
-            func_80090DB4(&spA8[2], &spA8[3]);
+            MulMatrix2(&sp20, &spA8[2]);
+            MulMatrix2(&spA8[2], &spA8[3]);
             func_8006E09C(&spA8[4], arg0->lat178 / 12);
             func_8006E108(&spA8[5], s4_val);
-            func_80090DB4(&spA8[2], &spA8[4]);
-            func_80090DB4(&spA8[4], &spA8[5]);
+            MulMatrix2(&spA8[2], &spA8[4]);
+            MulMatrix2(&spA8[4], &spA8[5]);
             RR_GTE_SETROT(&sp80);
             for (i = 0; i < 2; i++) {
                 /* ASM_BARRIER: pin v0_w to v0 to match branch delay slot and load scheduling */
@@ -520,19 +520,19 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
             return;
         } else if (i < D_8009F04C[arg1].d2) {
             func_8006E09C(&sp20, -arg0->rot54);
-            func_80090DB4((Mat8 *)SCRATCH_ROT_MATRIX, &sp20);
+            MulMatrix2((Mat8 *)SCRATCH_ROT_MATRIX, &sp20);
             func_8006E108(&spA8[0], arg0->unk1A8 - arg0->rot50);
             func_8006E030(&sp60, arg0->unk1AA - arg0->rot58);
-            func_80090CA4(&spA8[0], &sp60);
-            func_80090DB4(&sp20, &spA8[0]);
+            MulMatrix(&spA8[0], &sp60);
+            MulMatrix2(&sp20, &spA8[0]);
             sp168[0] = arg0->rotC8;
             sp168[1].x = arg0->x70 + arg0->x60;
             sp168[1].y = arg0->y74 + arg0->y64;
             sp168[1].z = arg0->z78 + arg0->z68;
             func_8006E108(&spA8[1], -arg0->ang80);
             func_8006E030(&sp60, -arg0->ang84);
-            func_80090CA4(&spA8[1], &sp60);
-            func_80090DB4(&sp20, &spA8[1]);
+            MulMatrix(&spA8[1], &sp60);
+            MulMatrix2(&sp20, &spA8[1]);
             func_80015F68(arg0, &sp168[1], &spA8[1], &sp80, slot_idx, s5_val, s7_val);
             func_8006EE3C((SCRATCHPAD + 0x7C), &sp168[0], &spA8[0]);
             G->col78 = 0;
@@ -548,7 +548,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
             }
             return;
         } else if (i < D_8009F04C[arg1].d4) {
-            func_80090914((void *)SCRATCH_ROT_MATRIX, &sp80, &spA8[0]);
+            MulMatrix0((void *)SCRATCH_ROT_MATRIX, &sp80, &spA8[0]);
             sp168[0].x = arg0->x10;
             sp168[0].y = arg0->y14;
             sp168[0].z = arg0->z18;

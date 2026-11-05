@@ -1,5 +1,5 @@
 #include "rr/matrix_workspace.h"
-void func_800910B4(int *a0);
+void SetRotMatrix(int *a0);
 void SetColorMatrix(int *a0);
 void SetTransMatrix(int *a0);
 void func_80091164(int *a0);
@@ -21,7 +21,7 @@ void SetBackColor(int a0, int a1, int a2);
 void SetFarColor(int a0, int a1, int a2);
 void func_800912B4(int a0, int a1);
 
-void func_800910B4(int *a0) {
+void SetRotMatrix(int *a0) {
     register int t0 __asm__("$8");
     register int t1 __asm__("$9");
     register int t2 __asm__("$10");

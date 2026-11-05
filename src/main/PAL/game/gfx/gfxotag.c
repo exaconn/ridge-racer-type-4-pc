@@ -66,7 +66,7 @@ extern void func_8006EE3C();
 extern void func_800701C4();
 extern void func_8005F0D0();
 extern void func_8006E1AC();
-extern void func_80090EC4();
+extern void ApplyMatrix();
 extern void func_800912D4();
 extern void func_80091D64();
 extern void func_800172DC();
@@ -167,7 +167,7 @@ void func_800451E4(int *a) {
     r[1] = 0;
     r[2] = -*(unsigned short *)((char *)a + 0x1C);
     func_80091D64(v, m);
-    func_80090EC4(m, r, t);
+    ApplyMatrix(m, r, t);
     s[2] = a[0] + t[0];
     s[3] = a[1] + t[1];
     s[4] = a[2] + t[2];

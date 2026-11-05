@@ -52,7 +52,7 @@ extern short D_800F3914;
 extern void func_80060C70();
 extern unsigned short D_8010E280;
 extern unsigned int D_8010E290;
-extern int func_80090EC4();
+extern int ApplyMatrix();
 extern int func_80091AD4();
 extern short D_800ABED0[][3];
 extern char D_800F38F8[][8];
@@ -71,7 +71,7 @@ extern s32 D_800F4CE0;
 extern void func_800912B4(s32, s32);
 extern void func_800912D4(s32);
 extern void SetDrawArea(s32);
-extern void func_80095A44(s32, s32);
+extern void AddPrim(s32, s32);
 extern int D_8010718C;
 extern S D_800ABEF8[];
 
@@ -133,7 +133,7 @@ void func_8006EAC8(void) {
     x[1] = 0x4000;
     x[0] = 0x4000;
     func_80090F74(SCRATCH_ROT_MATRIX, x);
-    func_800910B4(SCRATCH_ROT_MATRIX);
+    SetRotMatrix(SCRATCH_ROT_MATRIX);
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -206,11 +206,11 @@ void func_8006EE3C(short *a0, short *a1, int *a2) {
     a0[0] = a1[0] - g[4];
     a0[1] = a1[2] - g[6];
     a0[2] = a1[4] - g[8];
-    func_80090EC4(SCRATCH_ROT_MATRIX, a0, a0 + 4);
+    ApplyMatrix(SCRATCH_ROT_MATRIX, a0, a0 + 4);
     *(int *)(a0 + 0x16) = *(int *)(a0 + 4);
     *(int *)(a0 + 0x18) = *(int *)(a0 + 6);
     *(int *)(a0 + 0x1A) = *(int *)(a0 + 8);
-    func_800910B4(a2);
+    SetRotMatrix(a2);
     SetTransMatrix(a0 + 12);
 }
 
@@ -224,7 +224,7 @@ void func_8006EED8(void) {
     for (i = 0; i < 3; i++) {
         s.c = -D_800AD5BC[i];
         func_80091AD4(D_800F38F8[i], m);
-        func_800910B4(m);
+        SetRotMatrix(m);
         func_80090C74(&s, &r);
         D_800ABED0[i][0] = r.x;
         D_800ABED0[i][1] = r.y;
@@ -297,7 +297,7 @@ void func_8006EF8C(s32 a0) {
         s2->f04 = D_800ACC14 + 0x70;
     }
     SetDrawArea(s3);
-    func_80095A44(s2->f04 + 0xAFC, s3);
+    AddPrim(s2->f04 + 0xAFC, s3);
     s3 += 0xC;
     G->f00 = s3;
 }

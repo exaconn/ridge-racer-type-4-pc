@@ -14,7 +14,7 @@ class TexturedTriangleTest(unittest.TestCase):
 #include "rr/textured_triangle.h"
 static struct World {u32 guard[4];union {u32 words[24];struct S32 packets[3];} arena;s32 x[3],y[3],u[3],v[3];u32 head,tail[4];} world,expected;
 static u32 *expected_head,*expected_packet;static unsigned calls;
-void func_80095A44(u32 *head,u32 *packet){assert(calls++==0&&head==expected_head&&packet==expected_packet);assert((uintptr_t)head>UINT32_MAX&&(uintptr_t)packet>UINT32_MAX);assert(memcmp(&world,&expected,sizeof(world))==0);*packet=(*packet&0xFF000000U)|(*head&0xFFFFFFU);*head=(*head&0xFF000000U)|((uintptr_t)packet&0xFFFFFFU);}
+void AddPrim(u32 *head,u32 *packet){assert(calls++==0&&head==expected_head&&packet==expected_packet);assert((uintptr_t)head>UINT32_MAX&&(uintptr_t)packet>UINT32_MAX);assert(memcmp(&world,&expected,sizeof(world))==0);*packet=(*packet&0xFF000000U)|(*head&0xFFFFFFU);*head=(*head&0xFF000000U)|((uintptr_t)packet&0xFFFFFFU);}
 '''+bodies+r'''
 static u32 seed=0x2039c;static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 static s32 bits(u32 b){s32 r;memcpy(&r,&b,4);return r;}

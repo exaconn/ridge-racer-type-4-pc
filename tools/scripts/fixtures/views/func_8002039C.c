@@ -8,34 +8,34 @@
 #undef func_8001FCC8
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80095A44 ((void (*)(u32 *, u32 *))func_80095A44)
+#define AddPrim ((void (*)(u32 *, u32 *))AddPrim)
 
-#undef func_80095A44
+#undef AddPrim
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80095A44 ((int (*)())func_80095A44)
+#define AddPrim ((int (*)())AddPrim)
 
 #define func_80095B24 ((int (*)())func_80095B24)
 
-#undef func_80095A44
+#undef AddPrim
 
 #undef func_80095B24
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80095A44 ((int (*)())func_80095A44)
+#define AddPrim ((int (*)())AddPrim)
 
 #define func_80095B24 ((int (*)())func_80095B24)
 
-#undef func_80095A44
+#undef AddPrim
 
 #undef func_80095B24
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80095A44 ((void (*)(u32 *,u32 *))func_80095A44)
+#define AddPrim ((void (*)(u32 *,u32 *))AddPrim)
 
-#undef func_80095A44
+#undef AddPrim
 
-extern void func_80095B94(void *),func_80095AF4(void *,s32),func_80095A44(u32 *,u32 *);
+extern void func_80095B94(void *),func_80095AF4(void *,s32),AddPrim(u32 *,u32 *);
 
 /* extern */
 void func_80095AF4(void *, s32);
@@ -72,6 +72,6 @@ struct S32 *func_8002039C(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, v
     }
     M2C_FIELD(arg1, u16 *, 0x16) = arg6;
     M2C_FIELD(arg1, u16 *, 0xE) = arg7;
-    func_80095A44(arg0, (u32 *)arg1++);
+    AddPrim(arg0, (u32 *)arg1++);
     return arg1;
 }

@@ -1,5 +1,5 @@
 #include "rr/sprite_effect.h"
-extern void func_80095B94(void *),func_80095AF4(void *,s32),func_80095A44(u32 *,u32 *);
+extern void func_80095B94(void *),func_80095AF4(void *,s32),AddPrim(u32 *,u32 *);
 extern s32 func_80096464(void);
 extern u8 *func_8001FCC8(u32 *,u8 *,u16);
 u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg) {
@@ -66,7 +66,7 @@ u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,
         /* ASM_BARRIER: move intensity to A1 after division and before the RGB stores. */
         { register s32 color asm("$5")=level;  sprite->r=color;sprite->g=color;sprite->b=color; }
         sprite->clut=descriptor->clut;
-        func_80095A44(saved_ordering,(u32 *)sprite++);
+        AddPrim(saved_ordering,(u32 *)sprite++);
         {
             u32 page;
             /* ASM_BARRIER: supply the advanced cursor in A1 to the mode helper. */

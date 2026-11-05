@@ -41,8 +41,8 @@ extern void func_8006E108();
 extern int func_8006E368();
 extern int func_80090424();
 extern int func_800904F4();
-extern void func_80090CA4();
-extern void func_80090EC4();
+extern void MulMatrix();
+extern void ApplyMatrix();
 
 void func_80032F44(int arg0, int arg1);
 void func_80033368(int unusedSelection,int unusedMode);
@@ -219,10 +219,10 @@ void func_80033474(RrRaceVehicle *a0, int a1)
   }
   func_8006E09C(m20, 0x800 - a0->rot54);
   func_8006E108(m40, a0->rot50);
-  func_80090CA4(m20, m40);
+  MulMatrix(m20, m40);
   func_8006E030(m40, a0->rot58);
-  func_80090DB4(m20, m40);
-  func_80090EC4(m40, D_8010BFD0, sp10);
+  MulMatrix2(m20, m40);
+  ApplyMatrix(m40, D_8010BFD0, sp10);
   g[2] = a0->pos10[0] + sp10[0];
   g[3] = a0->pos10[1] + sp10[1];
   g[4] = a0->pos10[2] + sp10[2];

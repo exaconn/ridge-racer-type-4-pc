@@ -25,6 +25,6 @@ void ovl665_func_80116358(const RrPreviewMatrixWorkspace *arg0, const RrPreviewL
         arg1+=4;
         dst2++;
     } while (i<3);
-    func_80090DB4((s32 *)D_800ABED0.words,mat[0].halves);
+    MulMatrix2((s32 *)D_800ABED0.words,mat[0].halves);
     SetLightMatrix((s32 *)mat[0].words);
 }

@@ -59,7 +59,7 @@ extern s32 D_800F4CE0;
 extern s32 D_8010E730;
 extern int func_8006E09C();
 extern int func_8006E108();
-extern int func_80090914();
+extern int MulMatrix0();
 extern short D_800AC0A4;
 extern S32B D_800AD598;
 extern V3 D_800FF690;
@@ -78,7 +78,7 @@ extern int func_8008B154();
 extern int func_80096474();
 extern short D_80107180[];
 extern int func_8006E030();
-extern int func_80090CA4();
+extern int MulMatrix();
 extern M D_800F39A8;
 extern int ApplyMatrixSV();
 extern int func_8006DB0C();
@@ -148,11 +148,11 @@ int func_80070464(void) {
         *(S32B *)(s + 10) = D_800AD598;
         s[7] += 0x800;
         func_8006E09C(sp, 0x800);
-        func_80090914(sp, &D_800FF690, &D_800FF690);
-        func_80090914(sp, &D_800FF6B8, &D_800FF6B8);
+        MulMatrix0(sp, &D_800FF690, &D_800FF690);
+        MulMatrix0(sp, &D_800FF6B8, &D_800FF6B8);
         func_8006E108(sp, D_800AC0A4 * 2);
-        func_80090DB4(sp, &D_800FF690);
-        func_80090DB4(sp, &D_800FF6B8);
+        MulMatrix2(sp, &D_800FF690);
+        MulMatrix2(sp, &D_800FF6B8);
         D_800FF690.x = -D_800FF690.x;
         D_800FF690.y = -D_800FF690.y;
         D_800FF690.z = -D_800FF690.z;
@@ -183,7 +183,7 @@ struct P *func_800706B8(struct P *a0) {
     ((char *)a0)[6] = 0;
     a0->d = 0x20;
     a0->b = D_800F4CE0 - 2;
-    func_80095A44(s1, a0++);
+    AddPrim(s1, a0++);
     return a0;
 }
 
@@ -328,16 +328,16 @@ void func_80070ACC(char *p) {
     int v[3];
     func_8006E09C(&m10, *(int *)(p + 0xDC));
     func_8006E108(&m30, *(int *)(p + 0xD8));
-    func_80090DB4(&m30, &m10);
+    MulMatrix2(&m30, &m10);
     func_8006E030(&m30, *(int *)(p + 0xE0));
-    func_80090DB4(&m30, &m10);
+    MulMatrix2(&m30, &m10);
     func_80090B14(&D_800F39A8, p + 0xC8, v);
     m10.a[5] = (D_800F39A8.a[5] + v[0]) >> 1;
     m10.a[6] = (D_800F39A8.a[6] + v[1]) >> 1;
     m10.a[7] = (D_800F39A8.a[7] + v[2]) >> 1;
     SetTransMatrix(&m10);
-    func_80090CA4(&m10, &D_800F39A8);
-    func_800910B4(&m10);
+    MulMatrix(&m10, &D_800F39A8);
+    SetRotMatrix(&m10);
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -383,9 +383,9 @@ void func_80070BA4(char *a0, int a1, int a2) {
             func_8006E09C(sp20, func_80096464() & 0xFFF);
             a1++;
             func_8006E108(sp40, func_80096464() & 0xFFF);
-            func_80090DB4(sp40, sp20);
+            MulMatrix2(sp40, sp20);
             func_8006E030(sp40, func_80096464() & 0xFFF);
-            func_80090DB4(sp40, sp20);
+            MulMatrix2(sp40, sp20);
             ApplyMatrixSV(sp20, sp60, s0->c10);
             *(U8 *)s0->c18 = *(U8 *)s0->c10;
             s1->f10 = s1->f10 + 1;

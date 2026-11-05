@@ -33,20 +33,20 @@ void *func_8001FC28(u32 *a0, void *cursor, int a2, int a3, int a4, int a5) {
     sp[2] = a4;
     sp[3] = a5;
     SetDrawArea(a1, sp);
-    func_80095A44(a0, a1++);
+    AddPrim(a0, a1++);
     return a1;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80095A44 ((void (*)(u32 *,u32 *))func_80095A44)
+#define AddPrim ((void (*)(u32 *,u32 *))AddPrim)
 
 T *func_8001FCC8(u32 *a0, T *a1, unsigned short a2) {
     func_80093C24(a1, 0, 1, a2, 0);
-    func_80095A44(a0, (u32 *)a1++);
+    AddPrim(a0, (u32 *)a1++);
     return a1;
 }
 
-#undef func_80095A44
+#undef AddPrim
 
 void *func_8001FD20(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
     func_80095BB4(arg1);
@@ -57,7 +57,7 @@ void *func_8001FD20(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg
     M2C_FIELD(arg1, s8 *, 4) = (s8) arg6;
     M2C_FIELD(arg1, s8 *, 5) = (s8) arg7;
     M2C_FIELD(arg1, s8 *, 6) = (s8) arg8;
-    func_80095A44(arg0, arg1);
+    AddPrim(arg0, arg1);
     return arg1 + 0x10;
 }
 

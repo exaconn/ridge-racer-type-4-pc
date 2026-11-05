@@ -142,7 +142,7 @@ void func_80071978(InTri *a0, int a1, int a2) {
             pkt->tag = 0x06000000;
             ((char *)pkt)[7] = 0x32;
             ot = ot_base + (otz + 0x80);
-            func_80095A44(ot, pkt++);
+            AddPrim(ot, pkt++);
             pkt->c0 = 0xE1000220;
             pkt->tag = *ot;
             ((char *)pkt)[3] = 1;
@@ -194,7 +194,7 @@ void func_80071B94(InQuad *a0, int a1, int a2) {
             pkt->tag = 0x08000000;
             ((char *)pkt)[7] = 0x3A;
             ot = ot_base + (otz + 0x80);
-            func_80095A44(ot, pkt++);
+            AddPrim(ot, pkt++);
             pkt->c0 = 0xE1000220;
             pkt->tag = *ot;
             ((char *)pkt)[3] = 1;

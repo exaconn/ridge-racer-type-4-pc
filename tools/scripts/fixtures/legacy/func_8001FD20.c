@@ -2,7 +2,7 @@
 #include "types.h"
 #include "m2c_macros.h"
 
-extern int func_80095A44();
+extern int AddPrim();
 extern int func_80095BB4();
 
 void *func_8001FD20(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
@@ -14,6 +14,6 @@ void *func_8001FD20(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg
     M2C_FIELD(arg1, s8 *, 4) = (s8) arg6;
     M2C_FIELD(arg1, s8 *, 5) = (s8) arg7;
     M2C_FIELD(arg1, s8 *, 6) = (s8) arg8;
-    func_80095A44(arg0, arg1);
+    AddPrim(arg0, arg1);
     return arg1 + 0x10;
 }

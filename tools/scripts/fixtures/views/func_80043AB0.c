@@ -16,11 +16,11 @@
 
 #define func_8006E108 ((void (*)())func_8006E108)
 
-#define func_80090CA4 ((void (*)())func_80090CA4)
+#define MulMatrix ((void (*)())MulMatrix)
 
-#define func_80090DB4 ((void (*)())func_80090DB4)
+#define MulMatrix2 ((void (*)())MulMatrix2)
 
-#define func_80090EC4 ((void (*)())func_80090EC4)
+#define ApplyMatrix ((void (*)())ApplyMatrix)
 
 #undef func_8006E030
 
@@ -28,11 +28,11 @@
 
 #undef func_8006E108
 
-#undef func_80090CA4
+#undef MulMatrix
 
-#undef func_80090DB4
+#undef MulMatrix2
 
-#undef func_80090EC4
+#undef ApplyMatrix
 
 void func_80043AB0(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
     s16 current_y;

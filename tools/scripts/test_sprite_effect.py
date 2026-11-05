@@ -73,7 +73,7 @@ void func_80095AF4(void *p,s32 mode) {
  assert(sprite->len==4 && sprite->code==0x64);
  native_semi(p,mode);phase=3;mutate(2);expected_color=strength;
 }
-void func_80095A44(u32 *ot,u32 *p) {
+void AddPrim(u32 *ot,u32 *p) {
  RrSpritePacket *sprite=(RrSpritePacket *)p;
  assert(phase==(count==1?3:4) && ot==expected_ordering && p==(u32 *)expected_cursor);
  assert(sprite->r==(u8)expected_color && sprite->g==(u8)expected_color && sprite->b==(u8)expected_color);

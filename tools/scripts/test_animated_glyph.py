@@ -40,7 +40,7 @@ void func_80095B94(void *output){
  assert(calls++==0);assert(output==initialCursor);
  ((u8*)output)[3]=4;((u8*)output)[7]=0x64;mutate(1);
 }
-void func_80095A44(u32 *ordering,u32 *output){
+void AddPrim(u32 *ordering,u32 *output){
  assert(calls==1||calls==3);assert(ordering==&D_800ACC14->head70);
  assert((u8*)output==initialCursor+(calls==1?0:20));
  u32 tag;memcpy(&tag,output,4);tag=(tag&0xFF000000U)|(*ordering&0xFFFFFFU);memcpy(output,&tag,4);

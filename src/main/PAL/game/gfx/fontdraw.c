@@ -14,7 +14,7 @@ void func_8001FA48();
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_80093C24 ((s32 (*)())func_80093C24)
-#define func_80095A44 ((s32 (*)())func_80095A44)
+#define AddPrim ((s32 (*)())AddPrim)
 #define func_80095B94 ((s32 (*)())func_80095B94)
 #define D_800ACC14 ((char *)D_800ACC14)
 
@@ -45,22 +45,22 @@ u8 *a2;
                 s2->u = u;
                 s2->v = vv;
                 s2->clut = 0x5B20;
-                func_80095A44(D_800ACC14 + 0x70, s2++);
+                AddPrim(D_800ACC14 + 0x70, s2++);
                 s3++;
             }
     }
     func_80093C24(s3, 0, 1, 0x58, 0);
-    func_80095A44(D_800ACC14 + 0x70, s3);
+    AddPrim(D_800ACC14 + 0x70, s3);
     *(char **)SCRATCHPAD = (char *)s3 + 0xC;
 }
 
 #undef func_80093C24
-#undef func_80095A44
+#undef AddPrim
 #undef func_80095B94
 #undef D_800ACC14
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80095A44 ((void (*)())func_80095A44)
+#define AddPrim ((void (*)())AddPrim)
 #define func_80095AF4 ((void (*)())func_80095AF4)
 #define func_80095B24 ((void (*)())func_80095B24)
 #define func_80095B94 ((void (*)())func_80095B94)
@@ -116,7 +116,7 @@ int arg7;
         q = p;
         p += 0x14;
         arg1 += 0x14;
-        func_80095A44(arg0, q);
+        AddPrim(arg0, q);
       }
       if (arg6 == 1)
       {
@@ -137,7 +137,7 @@ int arg7;
   return arg1;
 }
 
-#undef func_80095A44
+#undef AddPrim
 #undef func_80095AF4
 #undef func_80095B24
 #undef func_80095B94
@@ -222,7 +222,7 @@ void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
         sprites->h = 0x18;
         sprites->clut = clut;
         sprites++;
-        func_80095A44(&D_800ACC14->head70, (u32 *)linkPacket);
+        AddPrim(&D_800ACC14->head70, (u32 *)linkPacket);
         pass++;
     } while (pass <= 0);
     drawV = (s16) tileV;
@@ -230,7 +230,7 @@ void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
         drawV += 0xFF;
     }
     func_80093C24(cursor, 0, 1, ((s32) (drawV & 0x100) >> 4) | 0x2F, 0);
-    func_80095A44(&D_800ACC14->head70, (u32 *)cursor);
+    AddPrim(&D_800ACC14->head70, (u32 *)cursor);
     RR_GLYPH_ANIMATION_SCRATCH->cursor = cursor + 0xC;
 }
 

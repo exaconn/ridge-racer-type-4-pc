@@ -12,7 +12,7 @@
 #define RR_TEXT_GPU_SCRATCH ((RrGpuScratchPointers *)SCRATCHPAD)
 
 void *func_8001FCC8(u32 *ordering, void *cursor, u16 mode);
-void func_80095A44(u32 *ordering, void *packet);
+void AddPrim(u32 *ordering, void *packet);
 void func_80095B94(void *packet);
 
 extern RrFrameStorage *D_800ACC14;
@@ -69,7 +69,7 @@ void func_80040858(s32 row) {
                 sprite->g = brightness;
                 sprite->b = brightness;
                 sprite->clut = 0x2678;
-                func_80095A44(D_800ACC14->ordering.ordering70, sprite);
+                AddPrim(D_800ACC14->ordering.ordering70, sprite);
                 glyph++;
                 x[0] += 0xD;
             }

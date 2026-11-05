@@ -93,7 +93,7 @@ extern int func_8004F24C();
 extern char D_8009F008[];
 extern int D_800F3A30;
 extern int D_800F4C80[];
-extern int func_80095A44();
+extern int AddPrim();
 extern char D_8009F014[];
 extern unsigned short D_8009F01C[];
 extern char D_8009F020[];
@@ -758,7 +758,7 @@ void func_8002BA28(int a0) {
             p->code |= 1;
             p->w = 0xC;
             p->h = 0xC;
-            func_80095A44(D_800ACC14 + 0x70, p);
+            AddPrim(D_800ACC14 + 0x70, p);
             p++;
             *(RrSpritePacket **)SCRATCHPAD = p;
             i++;

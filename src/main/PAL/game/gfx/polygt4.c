@@ -78,9 +78,9 @@ extern void func_8006E030(MATRIX *, s32);
 extern void func_8006E09C(MATRIX *, s32);
 extern void func_8006E108(MATRIX *, s32);
 extern s32 func_80090424(s32);
-extern void func_80090CA4(MATRIX *, MATRIX *);
-extern void func_80090DB4(MATRIX *, MATRIX *);
-extern void func_80090EC4(MATRIX *, SVECTOR *, VECTOR *);
+extern void MulMatrix(MATRIX *, MATRIX *);
+extern void MulMatrix2(MATRIX *, MATRIX *);
+extern void ApplyMatrix(MATRIX *, SVECTOR *, VECTOR *);
 
 int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
     MATRIX sp10;
@@ -110,18 +110,18 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
     sp50.vx = D_800F3A28[arg0].x0C - g->cam_x08;
     sp50.vy = 0x200 - g->cam_y0C;
     sp50.vz = D_800F3A28[arg0].z14 - g->cam_z10;
-    func_80090EC4((MATRIX *)SCRATCH_ROT_MATRIX, &sp50, &sp58);
+    ApplyMatrix((MATRIX *)SCRATCH_ROT_MATRIX, &sp50, &sp58);
     func_8006E108(&sp10, D_800F3A28[arg0].rot_z1C);
     func_8006E030(&sp30, D_800F3A28[arg0].rot_x24);
-    func_80090CA4(&sp10, &sp30);
+    MulMatrix(&sp10, &sp30);
     func_8006E09C(&sp30, D_800F3A28[arg0].rot_y20);
-    func_80090DB4(&sp30, &sp10);
-    func_80090DB4((MATRIX *)SCRATCH_ROT_MATRIX, &sp10);
+    MulMatrix2(&sp30, &sp10);
+    MulMatrix2((MATRIX *)SCRATCH_ROT_MATRIX, &sp10);
     sp10.t[0] = sp58.vx;
     sp10.t[1] = sp58.vy;
     sp10.t[2] = sp58.vz;
     SetTransMatrix(&sp10);
-    func_800910B4(&sp10);
+    SetRotMatrix(&sp10);
 
     count = D_800F3A28[arg0].count2C;
     cols_total = D_800F3A28[arg0].columns2E * count + 1;

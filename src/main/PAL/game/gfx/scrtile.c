@@ -3,7 +3,7 @@
 #include "rr/screen_tiles.h"
 #include "psyq/libgpu/primatt5.h"
 #include "psyq/libgpu/settrans.h"
-extern void func_80095A44(u32 *,u32 *);
+extern void AddPrim(u32 *,u32 *);
 extern u8 *func_8001FCC8(u32 *,u8 *,u16);
 void func_800207D4(u32 *ordering,s32 intensity,u32 mode) {
     u8 *next,*fields,*packet;
@@ -37,7 +37,7 @@ void func_800207D4(u32 *ordering,s32 intensity,u32 mode) {
         index++;
         fields[-2]=intensity;fields[-1]=intensity;fields[0]=intensity;
         *(s16*)(fields+8)=(s16)last_height/2;
-        func_80095A44(link_order,(u32*)packet);
+        AddPrim(link_order,(u32*)packet);
         fields+=sizeof(RrGpuTilePacket16);
     }while(index<4);
     *(u8**)SCRATCHPAD=next;

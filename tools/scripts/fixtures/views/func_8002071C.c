@@ -6,34 +6,34 @@
 #undef func_8001FCC8
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80095A44 ((void (*)(u32 *, u32 *))func_80095A44)
+#define AddPrim ((void (*)(u32 *, u32 *))AddPrim)
 
-#undef func_80095A44
+#undef AddPrim
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80095A44 ((int (*)())func_80095A44)
+#define AddPrim ((int (*)())AddPrim)
 
 #define func_80095B24 ((int (*)())func_80095B24)
 
-#undef func_80095A44
+#undef AddPrim
 
 #undef func_80095B24
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80095A44 ((int (*)())func_80095A44)
+#define AddPrim ((int (*)())AddPrim)
 
 #define func_80095B24 ((int (*)())func_80095B24)
 
-#undef func_80095A44
+#undef AddPrim
 
 #undef func_80095B24
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80095A44 ((void (*)(u32 *,u32 *))func_80095A44)
+#define AddPrim ((void (*)(u32 *,u32 *))AddPrim)
 
-#undef func_80095A44
+#undef AddPrim
 
-extern void func_80095B94(void *),func_80095AF4(void *,s32),func_80095A44(u32 *,u32 *);
+extern void func_80095B94(void *),func_80095AF4(void *,s32),AddPrim(u32 *,u32 *);
 
 /* extern */
 void func_80095AF4(void *, s32);
@@ -49,6 +49,6 @@ RrPolyF3Packet *func_8002071C(u32 *ordering,RrPolyF3Packet *packet,s32 xy0,s32 x
  packet->r=rgb[0];
  packet->g=rgb[1];
  packet->b=rgb[2];
- func_80095A44(ordering,(u32*)packet++);
+ AddPrim(ordering,(u32*)packet++);
  return packet;
 }

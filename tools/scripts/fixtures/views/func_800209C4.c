@@ -13,7 +13,7 @@
 
 #undef func_8001FCC8
 
-extern int func_80095A44();
+extern int AddPrim();
 
 extern char D_8009EBBC[];
 
@@ -60,7 +60,7 @@ void func_800209C4(int a0)
             s1 = D_800D0160 + j * 0x22778;
             s0 = s1 + (i * 0x14 + 0x18);
             func_80020920(s0, tab + i * 0x14);
-            if (i != 0) func_80095A44(s1 + (i * 0x14 + 4), s0);
+            if (i != 0) AddPrim(s1 + (i * 0x14 + 4), s0);
         }
     }
 }

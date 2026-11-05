@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_800910B4(int *a0);
+void SetRotMatrix(int *a0);
 void SetColorMatrix(int *a0);
 void SetTransMatrix(int *a0);
 void func_8009125C(int a0);

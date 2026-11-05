@@ -3,7 +3,7 @@
 /* legacy typing of shared globals in this part of the unit */
 #define func_80093C24 ((s32 (*)())func_80093C24)
 
-#define func_80095A44 ((s32 (*)())func_80095A44)
+#define AddPrim ((s32 (*)())AddPrim)
 
 #define func_80095B94 ((s32 (*)())func_80095B94)
 
@@ -11,14 +11,14 @@
 
 #undef func_80093C24
 
-#undef func_80095A44
+#undef AddPrim
 
 #undef func_80095B94
 
 #undef D_800ACC14
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80095A44 ((void (*)())func_80095A44)
+#define AddPrim ((void (*)())AddPrim)
 
 #define func_80095AF4 ((void (*)())func_80095AF4)
 
@@ -26,7 +26,7 @@
 
 #define func_80095B94 ((void (*)())func_80095B94)
 
-#undef func_80095A44
+#undef AddPrim
 
 #undef func_80095AF4
 
@@ -93,7 +93,7 @@ int arg7;
         q = p;
         p += 0x14;
         arg1 += 0x14;
-        func_80095A44(arg0, q);
+        AddPrim(arg0, q);
       }
       if (arg6 == 1)
       {

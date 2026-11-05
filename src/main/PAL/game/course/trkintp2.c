@@ -20,8 +20,8 @@ extern char *D_800ACBA0;
 extern int func_8006E030();
 extern int func_8006E09C();
 extern int func_8006E108();
-extern int func_80090CA4();
-extern int func_80090EC4();
+extern int MulMatrix();
+extern int ApplyMatrix();
 extern int func_800912D4();
 
 int func_8004326C(unsigned char *a0, unsigned char *a1);
@@ -191,22 +191,22 @@ void func_800437D8(a0, a1) char *a0; int *a1;
     int *g;
     func_8006E09C(s.m, 0x800 - *(short *)(a0 + 0x82));
     func_8006E108(s.n, *(short *)(a0 + 0x80));
-    func_80090CA4(s.m, s.n);
+    MulMatrix(s.m, s.n);
     func_8006E030(s.n, *(short *)(a0 + 0x84));
-    func_80090DB4(s.m, s.n);
+    MulMatrix2(s.m, s.n);
     s.c[0] = a1[0] * 4;
     s.c[1] = a1[1] * 4;
     s.c[2] = a1[2] * 4;
-    func_80090EC4(s.n, s.c, &s.e);
+    ApplyMatrix(s.n, s.c, &s.e);
     func_8006E09C(s.m, a1[5]);
     func_8006E108(s.n, *(short *)(a0 + 0x80));
-    func_80090CA4(s.m, s.n);
+    MulMatrix(s.m, s.n);
     func_8006E030(s.n, *(short *)(a0 + 0x84));
-    func_80090DB4(s.m, s.n);
+    MulMatrix2(s.m, s.n);
     s.d[0] = *(unsigned short *)(a0 + 0x80);
     s.d[1] = 0;
     s.d[2] = *(unsigned short *)(a0 + 0x84);
-    func_80090EC4(s.n, s.d, &s.f);
+    ApplyMatrix(s.n, s.d, &s.f);
     *(V4 *)(SCRATCHPAD + 0x18) = s.f;
     g = (int *)SCRATCHPAD;
     g[7] = *(short *)(a0 + 0x82) + a1[5];
@@ -223,9 +223,9 @@ void func_800437D8(a0, a1) char *a0; int *a1;
 #define func_8006E030 ((void (*)())func_8006E030)
 #define func_8006E09C ((void (*)())func_8006E09C)
 #define func_8006E108 ((void (*)())func_8006E108)
-#define func_80090CA4 ((void (*)())func_80090CA4)
-#define func_80090DB4 ((void (*)())func_80090DB4)
-#define func_80090EC4 ((void (*)())func_80090EC4)
+#define MulMatrix ((void (*)())MulMatrix)
+#define MulMatrix2 ((void (*)())MulMatrix2)
+#define ApplyMatrix ((void (*)())ApplyMatrix)
 
 void func_800439BC(char *a, int b, int *c) {
     int m1[8];
@@ -233,10 +233,10 @@ void func_800439BC(char *a, int b, int *c) {
     int t[3];
     func_8006E09C(m1, 0x800 - *(short *)(a + 0x82));
     func_8006E108(m2, *(short *)(a + 0x80));
-    func_80090CA4(m1, m2);
+    MulMatrix(m1, m2);
     func_8006E030(m2, *(short *)(a + 0x84));
-    func_80090DB4(m1, m2);
-    func_80090EC4(m2, b, t);
+    MulMatrix2(m1, m2);
+    ApplyMatrix(m2, b, t);
     *(V *)c = *(V *)(a + 0x10);
     c[0] = c[0] + t[0];
     c[1] = c[1] + t[1];
@@ -246,9 +246,9 @@ void func_800439BC(char *a, int b, int *c) {
 #undef func_8006E030
 #undef func_8006E09C
 #undef func_8006E108
-#undef func_80090CA4
-#undef func_80090DB4
-#undef func_80090EC4
+#undef MulMatrix
+#undef MulMatrix2
+#undef ApplyMatrix
 
 void func_80043AB0(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
     s16 current_y;

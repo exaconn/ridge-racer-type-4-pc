@@ -78,12 +78,12 @@ extern short D_800ABED0[][3];
 extern int func_8006E030();
 extern int func_8006E09C();
 extern int func_8006E108();
-extern int func_80090914();
-extern int func_80090CA4();
-extern int func_80090DB4();
+extern int MulMatrix0();
+extern int MulMatrix();
+extern int MulMatrix2();
 extern int func_80090F74();
 extern int SetLightMatrix();
-extern int func_80090EC4();
+extern int ApplyMatrix();
 
 void func_80055300(void);
 void func_80055330(int a0, u8 a1, u8 a2, u8 a3);
@@ -295,16 +295,16 @@ void func_8005599C(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
     int n;
     s90 = D_800111D4;
     func_8006E09C(&s50, -*(short *)(a0 + 0x12));
-    func_80090DB4(SCRATCH_ROT_MATRIX, &s50);
+    MulMatrix2(SCRATCH_ROT_MATRIX, &s50);
     func_8006E108(&s10, -*(short *)(a0 + 0x10));
     func_8006E030(&s30, -*(short *)(a0 + 0x14));
-    func_80090CA4(&s10, &s30);
-    func_80090DB4(&s50, &s10);
+    MulMatrix(&s10, &s30);
+    MulMatrix2(&s50, &s10);
     func_8006E09C(&s50, *(short *)(a0 + 0x12));
     func_8006E108(&s30, *(short *)(a0 + 0x10));
-    func_80090CA4(&s50, &s30);
+    MulMatrix(&s50, &s30);
     func_8006E030(&s30, *(short *)(a0 + 0x14));
-    func_80090DB4(&s50, &s30);
+    MulMatrix2(&s50, &s30);
     *a3 = s30;
     n = 0;
     do {
@@ -316,7 +316,7 @@ void func_8005599C(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
         s70.m[2][n] = (unsigned char)a1[n * 4 + 2] * 16;
         n++;
     } while (n < 3);
-    func_80090914(D_800ABED0, &s10, &s30);
+    MulMatrix0(D_800ABED0, &s10, &s30);
     SetLightMatrix(&s30);
     SetColorMatrix(&s70);
     SetBackColor((unsigned char)a1[0x24], (unsigned char)a1[0x25], (unsigned char)a1[0x26]);
@@ -329,7 +329,7 @@ void func_80055BF8(int a0, int *a1, u16 *a2, int *a3) {
     t[0] = a2[0];
     t[1] = a2[2];
     t[2] = a2[4];
-    func_80090EC4(a0, t, a3);
+    ApplyMatrix(a0, t, a3);
     a3[0] += a1[0];
     a3[1] += a1[1];
     a3[2] += a1[2];

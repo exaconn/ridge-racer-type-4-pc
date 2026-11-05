@@ -1,15 +1,15 @@
 #include "rr/badge_rows.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80095A44 ((void (*)(u32 *,u32 *))func_80095A44)
+#define AddPrim ((void (*)(u32 *,u32 *))AddPrim)
 
-#undef func_80095A44
+#undef AddPrim
 
 struct P12 { int a, b, c; };
 
 extern int SetDrawArea();
 
-extern int func_80095A44();
+extern int AddPrim();
 
 extern char D_800ADAF0[];
 
@@ -30,6 +30,6 @@ void *func_8001FC28(u32 *a0, void *cursor, int a2, int a3, int a4, int a5) {
     sp[2] = a4;
     sp[3] = a5;
     SetDrawArea(a1, sp);
-    func_80095A44(a0, a1++);
+    AddPrim(a0, a1++);
     return a1;
 }

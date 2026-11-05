@@ -19,7 +19,7 @@ static u32 ordering, *expected_packet;
 static unsigned calls;
 static unsigned char expected[20];
 static size_t packet_size;
-void func_80095A44(u32 *head,u32 *packet) {
+void AddPrim(u32 *head,u32 *packet) {
  assert(head==&ordering && packet==expected_packet);
  assert((uintptr_t)head>UINT32_MAX && (uintptr_t)packet>UINT32_MAX);
  assert(memcmp(packet,expected,packet_size)==0);

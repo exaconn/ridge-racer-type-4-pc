@@ -107,7 +107,7 @@ extern void func_80025954();
 extern int func_8006E09C();
 extern int func_8006E108();
 extern int func_8006E030();
-extern int func_80090CA4();
+extern int MulMatrix();
 
 void func_80022D50();
 void func_8002367C();
@@ -922,15 +922,15 @@ void func_800244B0(char *p) {
     func_8006E09C(s2, a1);
     s0 = s5 + 4;
     func_8006E108(s0, I(p, 0x50));
-    func_80090CA4(s2, s0);
+    MulMatrix(s2, s0);
     func_8006E030(s0, I(p, 0x58));
-    func_80090CA4(s2, s0);
+    MulMatrix(s2, s0);
     s1 = s5 + 0x44;
     func_8006E09C(s1, s3 - S(p, 0x82));
     func_8006E108(s0, S(p, 0x80));
-    func_80090CA4(s1, s0);
+    MulMatrix(s1, s0);
     func_8006E030(s0, S(p, 0x84));
-    func_80090CA4(s1, s0);
+    MulMatrix(s1, s0);
     S(s5, 0x64) = 0;
     S(s5, 0x66) = -U(p, 0x108);
     RR_GTE_SETROT(s2);

@@ -78,7 +78,7 @@ extern void func_800912D4(s32);
 
 extern void SetDrawArea(s32);
 
-extern void func_80095A44(s32, s32);
+extern void AddPrim(s32, s32);
 
 void func_8006EF8C(s32 a0) {
     /* ASM_BARRIER: Keep scratchpad base pointer in $s2 initialized in prologue. */
@@ -145,7 +145,7 @@ void func_8006EF8C(s32 a0) {
         s2->f04 = D_800ACC14 + 0x70;
     }
     SetDrawArea(s3);
-    func_80095A44(s2->f04 + 0xAFC, s3);
+    AddPrim(s2->f04 + 0xAFC, s3);
     s3 += 0xC;
     G->f00 = s3;
 }

@@ -1,7 +1,7 @@
 #include "rr_asm.h"
 #include "psyq/libgte/gtemat2.h"
 
-int *func_80090A24(unsigned short *a0, int *a1) {
+int *MulRotMatrix0(unsigned short *a0, int *a1) {
     register int t0 __asm__("$8");
     register int t1 __asm__("$9");
     register int t2 __asm__("$10");

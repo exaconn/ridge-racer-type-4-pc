@@ -25,7 +25,7 @@ class ScreenTilesTest(unittest.TestCase):
         body=body.replace('(u8**)0x1F800000U','&cursor')
         helpers=source('func_80095BB4.c').replace('func_80095BB4','actual_tile')
         helpers+=source('func_80095AF4.c').replace('func_80095AF4','actual_semitransparency')
-        helpers+=source('func_80095A44.c').replace('func_80095A44','actual_link')
+        helpers+=source('AddPrim.c').replace('AddPrim','actual_link')
         code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -60,7 +60,7 @@ void func_80095AF4(void *packet,s32 enabled) {
      * body above still supplies every packet operation. */
     if(scenario==2||scenario==3)D_800ACC14=&contexts[frame];
 }
-void func_80095A44(u32 *table,u32 *packet) {
+void AddPrim(u32 *table,u32 *packet) {
     assert(table==&ordering&&(u8*)packet==pool+16+frame*16);
     trace(3);actual_link(table,packet);
     frame++;

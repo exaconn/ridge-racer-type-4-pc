@@ -54,7 +54,7 @@ typedef struct {
 } Scratch;
 
 extern int func_8006E1AC();
-extern int func_80090EC4();
+extern int ApplyMatrix();
 extern int func_800912D4();
 extern int func_80091844();
 extern VECTOR D_800A0FC0;
@@ -114,7 +114,7 @@ int func_8005642C(Car *arg0, int arg1, int arg2, int *arg3) {
         sp68.vy = D_800A0FC0.vy;
         sp68.vz = D_800A0FC0.vz;
         func_80091844(&sp60, &sp40);
-        func_80090EC4(&sp40, &sp68, &sp70);
+        ApplyMatrix(&sp40, &sp68, &sp70);
         sp70.vx += D_800ABEF8.u20.s.w20 * 4;
         sp70.vy += D_800ABEF8.u20.s.w24 * 4;
         sp70.vz += D_800ABEF8.u20.s.w28 * 4;
@@ -184,7 +184,7 @@ int func_8005642C(Car *arg0, int arg1, int arg2, int *arg3) {
     sp68.vy = D_800A0FC0.vy;
     sp68.vz = D_800A0FC0.vz;
     func_80091844(&sp60, &sp40);
-    func_80090EC4(&sp40, &sp68, &sp70);
+    ApplyMatrix(&sp40, &sp68, &sp70);
     sp70.vx += D_800ABEF8.u20.s.w20 * 4;
     sp70.vy += D_800ABEF8.u20.s.w24 * 4;
     sp70.vz += D_800ABEF8.u20.s.w28 * 4;

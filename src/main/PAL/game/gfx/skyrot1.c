@@ -53,10 +53,10 @@ int func_8001BD40(int a0, int a1)
     s3[1] = -s2;
     func_80091844(s3, (char *)s3 + 8);
     RR_GTE_SETROT(D_8010BF78);
-    func_80090A24((char *)s3 + 8, (char *)s3 + 0x28);
+    MulRotMatrix0((char *)s3 + 8, (char *)s3 + 0x28);
     RR_GTE_SETLLM((char *)s3 + 0x28);
     RR_GTE_SETROT(SCRATCH_ROT_MATRIX);
-    func_80090A24((char *)s3 + 8, t);
+    MulRotMatrix0((char *)s3 + 8, t);
     func_8006EE3C((SCRATCHPAD + 0x7C), D_8001013C + a0 * 16, t);
     *(int *)(SCRATCHPAD + 0x78) = 0;
     func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, 0, 0);
@@ -93,10 +93,10 @@ void func_8001BFA8(int a0, int a1, int a2)
     func_800701C4(4);
     func_80091844(a1, (SCRATCHPAD + 0x84));
     RR_GTE_SETROT(D_8010BF78 + 0x20);
-    func_80090A24((SCRATCHPAD + 0x84), (SCRATCHPAD + 0xA4));
+    MulRotMatrix0((SCRATCHPAD + 0x84), (SCRATCHPAD + 0xA4));
     RR_GTE_SETLLM((SCRATCHPAD + 0xA4));
     RR_GTE_SETROT(SCRATCH_ROT_MATRIX);
-    func_80090A24((SCRATCHPAD + 0x84), t);
+    MulRotMatrix0((SCRATCHPAD + 0x84), t);
     func_8006EE3C((SCRATCHPAD + 0x7C), a2, t);
     *(int *)(SCRATCHPAD + 0x78) = 0;
     func_8005F0D0(SCRATCHPAD, a0 < D_800F2FD8 ? a0 : 1, 0, 0);

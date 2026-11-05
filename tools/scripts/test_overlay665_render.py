@@ -85,7 +85,7 @@ class Overlay665RenderTest(unittest.TestCase):
         }
         void func_800912D4(s32 depth){(void)event(5,depth,0,0,0,0);}
         void func_800701C4(s32 object){assert(object==8);(void)event(6,object,0,0,0,0);}
-        s32 *func_80090DB4(s32 *basis,u16 *matrix) {
+        s32 *MulMatrix2(s32 *basis,u16 *matrix) {
          unsigned i;u32 b[8],m[8];memcpy(b,basis,32);memcpy(m,matrix,32);
          assert(((uintptr_t)basis&3)==0 && ((uintptr_t)matrix&3)==0);
          (void)event(7,basis==(s32*)w->s.basis.words,0,0,basis,matrix);
@@ -150,15 +150,15 @@ class Overlay665RenderTest(unittest.TestCase):
            func_80058768(&w->s.scratch,object,0,0);
           } else if(kind==2) {
            func_8006E108(second.halves,w->s.visual.view74.rotation18);
-           (void)func_80090DB4((s32*)first.words,second.halves);light(&second);project(&second);draw(3,2);
+           (void)MulMatrix2((s32*)first.words,second.halves);light(&second);project(&second);draw(3,2);
            if(w->s.visual.layout0C>=2 && w->s.visual.detail10>=2){project(&second);draw(7,6);}
            func_8006E108(second.halves,w->s.visual.view74.rotation20);
-           (void)func_80090DB4((s32*)first.words,second.halves);light(&second);project(&second);draw(4,3);
+           (void)MulMatrix2((s32*)first.words,second.halves);light(&second);project(&second);draw(4,3);
            if(w->s.visual.layout0C>=2 && w->s.visual.detail10>=2){project(&second);draw(8,7);}
           } else {
            project(&first);draw(5,4);
            func_8006E030((s16*)second.halves,(s32)w->s.visual.view74.rotation1C+1024);
-           (void)func_80090DB4((s32*)first.words,second.halves);light(&second);project(&second);draw(6,5);
+           (void)MulMatrix2((s32*)first.words,second.halves);light(&second);project(&second);draw(6,5);
            if(w->s.visual.layout0C>=2 && w->s.visual.detail10>=2 && w->s.visual.detail10<4){project(&second);draw(9,8);}
           }
          }

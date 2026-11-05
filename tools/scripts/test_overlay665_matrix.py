@@ -53,7 +53,7 @@ static s32 *multiply(s32 *basis,u16 *matrix) {
  for(i=0;i<5;i++)pair[0].words[i]=(b[i]^m[i])+(scenario*0x9E3779B9U+i*0x1234567U);
  return (s32*)matrix;
 }
-s32 *func_80090DB4(s32 *basis,u16 *matrix){return multiply(basis,matrix);}
+s32 *MulMatrix2(s32 *basis,u16 *matrix){return multiply(basis,matrix);}
 void SetLightMatrix(s32 *matrix) {
  assert(w->calls++==1);assert(((uintptr_t)matrix&3)==0);
  memcpy(w->installed,matrix,20);

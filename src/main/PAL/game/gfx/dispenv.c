@@ -19,7 +19,7 @@ extern int D_800AC694;
 extern int func_80047610();
 extern int D_800ABEA4;
 extern int D_800ABECC;
-extern void func_80090EC4();
+extern void ApplyMatrix();
 extern void func_80091D64();
 extern void *D_800ACBA0;
 extern int func_80055330();
@@ -112,7 +112,7 @@ void func_80043ED4(short *a, short b, int c) {
     r[1] = 0;
     r[2] = -b;
     func_80091D64(v, m);
-    func_80090EC4(m, r, c);
+    ApplyMatrix(m, r, c);
 }
 
 void func_80043F5C(short *a, short b, int c) {
@@ -126,7 +126,7 @@ void func_80043F5C(short *a, short b, int c) {
     r[1] = 0;
     r[2] = -b;
     func_80091D64(v, m);
-    func_80090EC4(m, r, c);
+    ApplyMatrix(m, r, c);
 }
 
 short func_80043FC0(short *p, int t) {

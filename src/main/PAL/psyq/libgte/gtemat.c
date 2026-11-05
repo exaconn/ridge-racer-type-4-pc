@@ -1,6 +1,6 @@
 #include "rr_asm.h"
 
-int *func_80090914(int *a0, unsigned short *a1, int *a2) {
+int *MulMatrix0(int *a0, unsigned short *a1, int *a2) {
     register int t0 __asm__("$8");
     register int t1 __asm__("$9");
     register int t2 __asm__("$10");

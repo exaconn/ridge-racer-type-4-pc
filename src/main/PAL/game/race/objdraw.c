@@ -137,13 +137,13 @@ extern void func_80071978(Poly38 *, s32, s32);
 extern void func_80071B94(Poly48 *, s32, s32);
 extern s32 func_80090424(s32);
 extern s32 func_800904F4(s32);
-extern void func_80090914(Mat32 *, Mat32 *, Mat32 *);
-extern void func_80090EC4(void *, SVec *, Vec16 *);
+extern void MulMatrix0(Mat32 *, Mat32 *, Mat32 *);
+extern void ApplyMatrix(void *, SVec *, Vec16 *);
 extern void SetLightMatrix(Mat32 *);
 extern void func_80091844(SVec *, Mat32 *);
 extern s32 func_800924D4(s32, s32);
 extern void func_80093C24(s32, s32, s32, s32, s32);
-extern void func_80095A44(s32, s32);
+extern void AddPrim(s32, s32);
 extern void func_80096454(void *, s32, s32);
 extern s32 D_800A3CDC[];
 extern s32 D_800A3D18[];
@@ -167,7 +167,7 @@ extern S_ECB4 *D_8010ECB4;
 extern int func_8006E030();
 extern int func_8006E09C();
 extern int func_8006E108();
-extern int func_80090DB4();
+extern int MulMatrix2();
 extern int D_800FF690[];
 extern int *D_8010E8D8;
 extern int *D_8010E8DC;
@@ -255,7 +255,7 @@ void func_800747EC(s32 arg0) {
             }
             SetBackColor(D_800F4D90->ambient.r, D_800F4D90->ambient.g, D_800F4D90->ambient.b);
             SetColorMatrix(&sp78);
-            func_80090914(&D_800ABED0, &sp18, &sp58);
+            MulMatrix0(&D_800ABED0, &sp18, &sp58);
             SetLightMatrix(&sp58);
             func_80077BAC(i, &sp18, 0);
             func_800701C4(4);
@@ -286,7 +286,7 @@ void func_800747EC(s32 arg0) {
                 }
                 func_80070BA4(SCRATCH_BASE, D_8010ECB0[i].f00, D_800F4C68 == 0);
                 func_80093C24(SCRATCH_PRIM, 0, 1, 0x2A, 0);
-                func_80095A44(SCRATCH_OT + 0x900, SCRATCH_PRIM);
+                AddPrim(SCRATCH_OT + 0x900, SCRATCH_PRIM);
                 SCRATCH_PRIM += 0xC;
             }
             continue;
@@ -317,7 +317,7 @@ void func_800747EC(s32 arg0) {
             sp118.vy = (D_8010ECB4[i].f00 * 0x188) % 0x1000;
             sp118.vz = D_8010ECB4[i].rot.vz;
             func_80077A34(i, &sp118, &sp18, 0);
-            func_80090914(&sp38, &sp18, &sp58);
+            MulMatrix0(&sp38, &sp18, &sp58);
             SetLightMatrix(&sp58);
             func_80077BAC(i, &sp18, 0);
             func_800701C4(4);
@@ -594,7 +594,7 @@ void func_800747EC(s32 arg0) {
                     sp1D8[j + 4].c2.b = (k * 3) >> 3;
                 }
                 func_80077A34(i, &D_8010ECB4[i].rot, &sp18, arg0);
-                func_800910B4(&sp18);
+                SetRotMatrix(&sp18);
                 func_80071978(sp1D8, 12, 1);
                 for (j = 0; j < 8; j++) {
                     sp638[j].v0.vx = (spA0[j].vx >> 1);
@@ -667,7 +667,7 @@ void func_800747EC(s32 arg0) {
             sp120.vx = -SCRATCH_CAMX >> 3;
             sp120.vy = -SCRATCH_CAMY >> 3;
             sp120.vz = -SCRATCH_CAMZ >> 3;
-            func_80090EC4(SCRATCH_MAT, &sp120, &sp1C8);
+            ApplyMatrix(SCRATCH_MAT, &sp120, &sp1C8);
             sp38.t[0] = sp1C8.vx;
             sp38.t[1] = sp1C8.vy;
             sp38.t[2] = sp1C8.vz;
@@ -723,7 +723,7 @@ void func_800747EC(s32 arg0) {
             sp120.vx = -SCRATCH_CAMX >> 3;
             sp120.vy = -SCRATCH_CAMY >> 3;
             sp120.vz = -SCRATCH_CAMZ >> 3;
-            func_80090EC4(SCRATCH_MAT, &sp120, &sp1C8);
+            ApplyMatrix(SCRATCH_MAT, &sp120, &sp1C8);
             sp38.t[0] = sp1C8.vx;
             sp38.t[1] = sp1C8.vy;
             sp38.t[2] = sp1C8.vz;
@@ -860,7 +860,7 @@ void func_800747EC(s32 arg0) {
                 sp120.vx = -SCRATCH_CAMX >> 3;
                 sp120.vy = -SCRATCH_CAMY >> 3;
                 sp120.vz = -SCRATCH_CAMZ >> 3;
-                func_80090EC4(SCRATCH_MAT, &sp120, &sp1C8);
+                ApplyMatrix(SCRATCH_MAT, &sp120, &sp1C8);
                 sp38.t[0] = sp1C8.vx;
                 sp38.t[1] = sp1C8.vy;
                 sp38.t[2] = sp1C8.vz;
@@ -874,7 +874,7 @@ void func_800747EC(s32 arg0) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80090914 ((int (*)())func_80090914)
+#define MulMatrix0 ((int (*)())MulMatrix0)
 
 void func_80077A34(int unused, short *p, M *out, int flag) {
     M m10, m30, m50, m70;
@@ -888,17 +888,17 @@ void func_80077A34(int unused, short *p, M *out, int flag) {
         ((unsigned short *)&m90)[6] = -((unsigned short *)&m90)[6];
         ((unsigned short *)&m90)[7] = -((unsigned short *)&m90)[7];
         ((unsigned short *)&m90)[8] = -((unsigned short *)&m90)[8];
-        func_80090DB4(&m90, q);
+        MulMatrix2(&m90, q);
     } else {
         func_8006E09C(&m50, -p[1]);
-        func_80090DB4((int *)SCRATCH_ROT_MATRIX, q);
+        MulMatrix2((int *)SCRATCH_ROT_MATRIX, q);
     }
-    func_80090914(&m30, &m50, &m10);
-    func_80090DB4(&m70, &m10);
+    MulMatrix0(&m30, &m50, &m10);
+    MulMatrix2(&m70, &m10);
     *out = m10;
 }
 
-#undef func_80090914
+#undef MulMatrix0
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_8010ECB4 ((char *)D_8010ECB4)

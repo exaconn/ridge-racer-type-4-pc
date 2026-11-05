@@ -22,7 +22,7 @@ void func_80095B94(void*p){uintptr_t a[2]={(uintptr_t)p};cb(0,a);((u8*)p)[3]=4;(
 void func_80095B54(void*p){uintptr_t a[2]={(uintptr_t)p};cb(0,a);((u8*)p)[3]=4;((u8*)p)[7]=0x20;}
 void func_80095B24(void*p,s32 flags){uintptr_t a[2]={(uintptr_t)p,(u32)flags};cb(1,a);((u8*)p)[7]=flags?((u8*)p)[7]|1:((u8*)p)[7]&0xFE;}
 void func_80095AF4(void*p,s32 flags){uintptr_t a[2]={(uintptr_t)p,(u32)flags};cb(1,a);((u8*)p)[7]=flags?((u8*)p)[7]|2:((u8*)p)[7]&0xFD;}
-void func_80095A44(u32*ordering,u32*p){uintptr_t a[2]={(uintptr_t)ordering,(uintptr_t)p};cb(2,a);*p=(*p&0xFF000000U)|(*ordering&0xFFFFFFU);*ordering=(*ordering&0xFF000000U)|((uintptr_t)p&0xFFFFFFU);}
+void AddPrim(u32*ordering,u32*p){uintptr_t a[2]={(uintptr_t)ordering,(uintptr_t)p};cb(2,a);*p=(*p&0xFF000000U)|(*ordering&0xFFFFFFU);*ordering=(*ordering&0xFF000000U)|((uintptr_t)p&0xFFFFFFU);}
 '''.replace('HEADER',header)
 file=P/(source.stem+'_native.c');file.write_text(head+body)
 subprocess.run(['cc','-std=gnu11','-O2','-funsigned-char','-shared','-fPIC','-Iinclude','-I'+str(source.parent),'-fsanitize=undefined,bounds','-fno-sanitize-recover=all',str(file),'-o',str(file.with_suffix('.dylib'))],check=True)

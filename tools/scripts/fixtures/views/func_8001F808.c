@@ -5,7 +5,7 @@
 /* legacy typing of shared globals in this part of the unit */
 #define func_80093C24 ((s32 (*)())func_80093C24)
 
-#define func_80095A44 ((s32 (*)())func_80095A44)
+#define AddPrim ((s32 (*)())AddPrim)
 
 #define func_80095B94 ((s32 (*)())func_80095B94)
 
@@ -13,14 +13,14 @@
 
 #undef func_80093C24
 
-#undef func_80095A44
+#undef AddPrim
 
 #undef func_80095B94
 
 #undef D_800ACC14
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80095A44 ((void (*)())func_80095A44)
+#define AddPrim ((void (*)())AddPrim)
 
 #define func_80095AF4 ((void (*)())func_80095AF4)
 
@@ -28,7 +28,7 @@
 
 #define func_80095B94 ((void (*)())func_80095B94)
 
-#undef func_80095A44
+#undef AddPrim
 
 #undef func_80095AF4
 
@@ -116,7 +116,7 @@ void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
         sprites->h = 0x18;
         sprites->clut = clut;
         sprites++;
-        func_80095A44(&D_800ACC14->head70, (u32 *)linkPacket);
+        AddPrim(&D_800ACC14->head70, (u32 *)linkPacket);
         pass++;
     } while (pass <= 0);
     drawV = (s16) tileV;
@@ -124,6 +124,6 @@ void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
         drawV += 0xFF;
     }
     func_80093C24(cursor, 0, 1, ((s32) (drawV & 0x100) >> 4) | 0x2F, 0);
-    func_80095A44(&D_800ACC14->head70, (u32 *)cursor);
+    AddPrim(&D_800ACC14->head70, (u32 *)cursor);
     RR_GLYPH_ANIMATION_SCRATCH->cursor = cursor + 0xC;
 }

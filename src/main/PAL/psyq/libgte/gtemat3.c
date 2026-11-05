@@ -4,7 +4,7 @@
 
 int *func_80090B14(int *a0, int *a1, int *a2_in);
 int *func_80090C74(int *a0, int *a1);
-int *func_80090CA4(int *a0, unsigned short *a1);
+int *MulMatrix(int *a0, unsigned short *a1);
 
 int *func_80090B14(int *a0, int *a1, int *a2_in) {
     /* ASM_BARRIER: pin $zero ($0) to emit PC-relative beq $0, $0 (b) instead of j */
@@ -258,7 +258,7 @@ int *func_80090C74(int *a0, int *a1) {
     return r;
 }
 
-int *func_80090CA4(int *a0, unsigned short *a1) {
+int *MulMatrix(int *a0, unsigned short *a1) {
     register int t0 __asm__("$8");
     register int t1 __asm__("$9");
     register int t2 __asm__("$10");

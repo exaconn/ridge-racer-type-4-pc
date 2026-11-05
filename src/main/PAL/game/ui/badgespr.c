@@ -25,6 +25,6 @@ void *func_80020074(u32 *a0, void *a1, int a2, int a3, int a4, int a5, int a6, i
         func_80095B24(p, 1);
     }
     p->clut = a9;
-    func_80095A44(a0, p++);
+    AddPrim(a0, p++);
     return func_8001FCC8(a0, p, a8);
 }

@@ -9,7 +9,7 @@
 
 struct P { unsigned addr:24; unsigned len:8; unsigned char r, g, b, code; short x; unsigned short y; unsigned char u, v; unsigned short clut; short w, h; };
 
-extern int func_80095A44();
+extern int AddPrim();
 extern char D_8009EBBC[];
 extern char D_8009EB1C[];
 extern char D_8009EC48[];
@@ -77,7 +77,7 @@ void func_800209C4(int a0)
             s1 = D_800D0160 + j * 0x22778;
             s0 = s1 + (i * 0x14 + 0x18);
             func_80020920(s0, tab + i * 0x14);
-            if (i != 0) func_80095A44(s1 + (i * 0x14 + 4), s0);
+            if (i != 0) AddPrim(s1 + (i * 0x14 + 4), s0);
         }
     }
 }
@@ -176,7 +176,7 @@ s32 a3;
         } while (*a2 != 0);
     }
     func_80093C24(p, 0, 1, 5, 0);
-    func_80095A44(D_800ACC14 + 0x70, p);
+    AddPrim(D_800ACC14 + 0x70, p);
     *(RrSpritePacketSignedClut **)SCRATCHPAD = (RrSpritePacketSignedClut *)((char *)p + 0xC);
 }
 

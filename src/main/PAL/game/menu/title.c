@@ -1,4 +1,5 @@
 #include "scratchpad.h"
+#include "game/car/car.h"
 #include "game/course/trkintp2.h"
 #include "game/course/trktext.h"
 #include "game/gfx/gfxdraw.h"
@@ -56,15 +57,7 @@ extern short D_800F4C6A;
 extern short D_800F4D8A;
 extern int D_8010718C;
 extern int CarTable[];
-typedef struct 
-{
-  char pad[0xF0];
-  int wF0;
-  char padF4[0x318 - 0xF4];
-  short h318;
-  char pad2[0x320 - 0x31A];
-} T320;
-extern T320 D_80107198[];
+extern Car D_80107198[];
 extern struct 
 {
   char pad[0x28A4];
@@ -116,7 +109,7 @@ void func_8005DDF4()
   int vv;
   AC *p;
   int c8;
-  T320 *tp;
+  Car *tp;
   int *ip;
   if (D_800AC650.w4bc == 0)
   {
@@ -129,11 +122,11 @@ void func_8005DDF4()
     {
       if (D_8010E270[i & 3] < 2)
       {
-        D_80107198[i].h318 = 1;
+        D_80107198[i].sub1F4.unk124 = 1;
       }
       else
       {
-        D_80107198[i].h318 = 0;
+        D_80107198[i].sub1F4.unk124 = 0;
       }
     }
 

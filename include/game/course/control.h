@@ -33,7 +33,9 @@ typedef struct {
     u8 padB8[0xC0 - 0xB8];
     s32 unkC0;
     s32 unkC4;
-    u8 padC8[0x12C - 0xC8];
+    u8 padC8[0x124 - 0xC8];
+    s16 unk124;
+    u8 pad126[0x12C - 0x126];
 } Control;
 
 #endif

@@ -66,7 +66,7 @@ unsigned short a6;
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_8001FF84 (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32))&func_8001FF84)
-#define func_8001FEC0 (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32))&func_8001FEC0)
+#define GameQueueSprite (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32))&GameQueueSprite)
 
 RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 style) {
     /* ASM_BARRIER: keep the ordering pointer live across every helper call. */
@@ -104,10 +104,10 @@ RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 
     /* ASM_BARRIER: consume the returned cursor before reusing v0 for width. */
     __asm__("" : "+r"(out_order), "+r"(out_cursor), "+r"(x_stage), "+r"(y_stage));
     width=offset;
-    cursor=func_8001FEC0(out_order,out_cursor,x_stage,y_stage,width,24,20,72,0x7E3B);
+    cursor=GameQueueSprite(out_order,out_cursor,x_stage,y_stage,width,24,20,72,0x7E3B);
     if(descriptor->count>0) {
         do {
-            cursor=func_8001FEC0(ordering,cursor,(s32)((u32)xpos+(u32)offset),
+            cursor=GameQueueSprite(ordering,cursor,(s32)((u32)xpos+(u32)offset),
                                 ypos,8,24,24,72,0x7E3B);
             sampled=descriptor->count;
             /* ASM_BARRIER: sample the updated count before incrementing the index. */
@@ -116,7 +116,7 @@ RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 
             offset+=8;
         }while(index<sampled);
     }
-    cursor=func_8001FEC0(ordering,cursor,(s32)((u32)xpos+(u32)offset),
+    cursor=GameQueueSprite(ordering,cursor,(s32)((u32)xpos+(u32)offset),
                         ypos,8,24,32,72,0x7E3B);
     out_order=ordering;
     out_cursor=cursor;
@@ -129,7 +129,7 @@ RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 
 }
 
 #undef func_8001FF84
-#undef func_8001FEC0
+#undef GameQueueSprite
 
 void func_8003D474(s32 index) {
     /* ASM_BARRIER: retain the selected index across helper and callback calls. */

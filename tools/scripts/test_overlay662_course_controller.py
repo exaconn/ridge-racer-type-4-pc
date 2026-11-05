@@ -57,7 +57,7 @@ code+='default:abort();}}\n'
 subprocess.run(['cc','-std=gnu11','-O2','-funsigned-char','-shared','-fPIC','-Iinclude','-I'+str(P),'-I'+str(source.parent),'-fsanitize=undefined,bounds','-fno-sanitize-recover=all',str(P/'native.c'),'-o',str(P/'native.dylib')],check=True)
 lib=C.CDLL(str(P/'native.dylib'));lib.object.restype=C.c_void_p;lib.size.restype=C.c_size_t
 N={name:(lib.object(i),lib.size(i)) for i,(cname,name) in enumerate(objects)}
-addr=lambda name:int(name[-8:],16)
+addr=lambda name:__import__('c_functions').address_of(name)
 pointers={'D_800ACC14','D_800ACC18','D_800F4D80','D_800F3AFC','D_800F2AB0','D_800F4D70'}
 regions=[(name,p,addr(name),size) for name,(p,size) in N.items() if name in names and name not in pointers]
 extra_addr={'frame0':0x80180000,'frame1':0x801a2778,'rows0':0x801d0000,'rows1':0x801d05a0,'badge0':0x801d1000,'badge1':0x801d101c,'mode0':0x801d2000,'mode1':0x801d2038,'arena0':0x80200000,'arena1':0x80201000,'arena2':0x80202000}

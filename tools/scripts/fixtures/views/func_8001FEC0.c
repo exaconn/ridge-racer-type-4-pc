@@ -6,7 +6,7 @@ void func_80095B24(void *,s32);
 
 void AddPrim(u32 *,u32 *);
 
-RrSpritePacketSignedClut *func_8001FEC0(u32 *a0, RrSpritePacketSignedClut *a1, s32 a2, s32 a3, int a4, int a5, int a6, int a7, int a8) {
+RrSpritePacketSignedClut *GameQueueSprite(u32 *a0, RrSpritePacketSignedClut *a1, s32 a2, s32 a3, int a4, int a5, int a6, int a7, int a8) {
     func_80095B94(a1);
     func_80095B24(a1, 1);
     a1->x = a2;

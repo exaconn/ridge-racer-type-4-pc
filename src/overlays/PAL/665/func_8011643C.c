@@ -87,7 +87,7 @@ temp_s4 = &ovl665_D_80119768.view74;
         func_80090F74(sp10.words, scale);
         func_800912D4(ovl665_D_80119768.depth40);
         func_800701C4(8);
-        func_8006E108(sp30.halves, ovl665_D_80119768.view74.rotation18);
+        BuildRotMatrixX(sp30.halves, ovl665_D_80119768.view74.rotation18);
         MulMatrix2((s32 *)sp10.words, sp30.halves);
         ovl665_func_80116358(&sp30, &temp_s0_3->matrix);
         func_8006EE3C(RR_PREVIEW_RENDER_SCRATCH->tail7C.projection.halves, temp_s4->position00.halves, (s32 *)sp30.words);
@@ -108,7 +108,7 @@ temp_s4 = &ovl665_D_80119768.view74;
                 func_80058768(RR_PREVIEW_RENDER_SCRATCH, var_a1_5, 0, 0);
             }
         }
-        func_8006E108(sp30.halves, ovl665_D_80119768.view74.rotation20);
+        BuildRotMatrixX(sp30.halves, ovl665_D_80119768.view74.rotation20);
         MulMatrix2((s32 *)sp10.words, sp30.halves);
         ovl665_func_80116358(&sp30, &ovl665_D_80119768.lighting4C.matrix);
         temp_s5_2 = &ovl665_D_80119768.view74;
@@ -152,7 +152,7 @@ temp_s5 = &ovl665_D_80119768.view74;
                 var_a1_2 = 4;
             }
             func_80058768(scratch, var_a1_2, 0, 0);
-            func_8006E030((s16 *)sp30.halves, ovl665_D_80119768.view74.rotation1C + 0x400);
+            BuildRotMatrixZ((s16 *)sp30.halves, ovl665_D_80119768.view74.rotation1C + 0x400);
             MulMatrix2((s32 *)sp10.words, sp30.halves);
             ovl665_func_80116358(&sp30, &temp_s0_2->matrix);
             func_8006EE3C(scratch->tail7C.projection.halves, temp_s5->position00.halves, (s32 *)sp30.words);

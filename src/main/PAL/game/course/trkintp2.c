@@ -17,9 +17,9 @@ extern char D_8010C158[];
 extern char D_8010C168[];
 extern void DrawSync();
 extern char *D_800ACBA0;
-extern int func_8006E030();
-extern int func_8006E09C();
-extern int func_8006E108();
+extern int BuildRotMatrixZ();
+extern int BuildRotMatrixY();
+extern int BuildRotMatrixX();
 extern int MulMatrix();
 extern int ApplyMatrix();
 extern int func_800912D4();
@@ -189,19 +189,19 @@ void func_800437D8(a0, a1) char *a0; int *a1;
 {
     struct { int m[16]; int n[8]; short c[4]; short d[4]; V4 e; V4 f; } s;
     int *g;
-    func_8006E09C(s.m, 0x800 - *(short *)(a0 + 0x82));
-    func_8006E108(s.n, *(short *)(a0 + 0x80));
+    BuildRotMatrixY(s.m, 0x800 - *(short *)(a0 + 0x82));
+    BuildRotMatrixX(s.n, *(short *)(a0 + 0x80));
     MulMatrix(s.m, s.n);
-    func_8006E030(s.n, *(short *)(a0 + 0x84));
+    BuildRotMatrixZ(s.n, *(short *)(a0 + 0x84));
     MulMatrix2(s.m, s.n);
     s.c[0] = a1[0] * 4;
     s.c[1] = a1[1] * 4;
     s.c[2] = a1[2] * 4;
     ApplyMatrix(s.n, s.c, &s.e);
-    func_8006E09C(s.m, a1[5]);
-    func_8006E108(s.n, *(short *)(a0 + 0x80));
+    BuildRotMatrixY(s.m, a1[5]);
+    BuildRotMatrixX(s.n, *(short *)(a0 + 0x80));
     MulMatrix(s.m, s.n);
-    func_8006E030(s.n, *(short *)(a0 + 0x84));
+    BuildRotMatrixZ(s.n, *(short *)(a0 + 0x84));
     MulMatrix2(s.m, s.n);
     s.d[0] = *(unsigned short *)(a0 + 0x80);
     s.d[1] = 0;
@@ -220,9 +220,9 @@ void func_800437D8(a0, a1) char *a0; int *a1;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8006E030 ((void (*)())func_8006E030)
-#define func_8006E09C ((void (*)())func_8006E09C)
-#define func_8006E108 ((void (*)())func_8006E108)
+#define BuildRotMatrixZ ((void (*)())BuildRotMatrixZ)
+#define BuildRotMatrixY ((void (*)())BuildRotMatrixY)
+#define BuildRotMatrixX ((void (*)())BuildRotMatrixX)
 #define MulMatrix ((void (*)())MulMatrix)
 #define MulMatrix2 ((void (*)())MulMatrix2)
 #define ApplyMatrix ((void (*)())ApplyMatrix)
@@ -231,10 +231,10 @@ void func_800439BC(char *a, int b, int *c) {
     int m1[8];
     int m2[10];
     int t[3];
-    func_8006E09C(m1, 0x800 - *(short *)(a + 0x82));
-    func_8006E108(m2, *(short *)(a + 0x80));
+    BuildRotMatrixY(m1, 0x800 - *(short *)(a + 0x82));
+    BuildRotMatrixX(m2, *(short *)(a + 0x80));
     MulMatrix(m1, m2);
-    func_8006E030(m2, *(short *)(a + 0x84));
+    BuildRotMatrixZ(m2, *(short *)(a + 0x84));
     MulMatrix2(m1, m2);
     ApplyMatrix(m2, b, t);
     *(V *)c = *(V *)(a + 0x10);
@@ -243,9 +243,9 @@ void func_800439BC(char *a, int b, int *c) {
     c[2] = c[2] + t[2];
 }
 
-#undef func_8006E030
-#undef func_8006E09C
-#undef func_8006E108
+#undef BuildRotMatrixZ
+#undef BuildRotMatrixY
+#undef BuildRotMatrixX
 #undef MulMatrix
 #undef MulMatrix2
 #undef ApplyMatrix

@@ -77,7 +77,7 @@ RrSpritePacket *func_8001FF84(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,
                             RrUiUvRect *glyph,u16 clut,s32 mode) {
     return append(0,0,order,cursor,glyph,x,y,clut,mode,0,0,0);
 }
-RrSpritePacket *func_8001FEC0(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,
+RrSpritePacket *GameQueueSprite(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,
                             s32 width,s32 height,s32 u,s32 v,s32 clut) {
     return append(0,1,order,cursor,0,x,y,width,height,u,v,clut);
 }

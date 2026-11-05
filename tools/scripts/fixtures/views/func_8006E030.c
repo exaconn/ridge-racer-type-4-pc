@@ -22,7 +22,7 @@ extern short func_80090424();
 
 extern short func_800904F4();
 
-void func_8006E030(short *a0, int a1) {
+void BuildRotMatrixZ(short *a0, int a1) {
     short s = func_80090424(a1);
     short c = func_800904F4(a1);
     a0[1] = -s;

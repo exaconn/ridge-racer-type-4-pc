@@ -61,7 +61,7 @@ if os.getenv('RR_COMPILED_ELF'):
    if sec:u.mem_write(sec['sh_addr']&0x1fffffff,sec.data())
 read=lambda a,n:bytes(u.mem_read(a&0x1fffffff,n))
 def write(a,b):u.mem_write(a&0x1fffffff,b)
-addr=lambda n:SYMBOL_ADDRESSES[n] if n in SYMBOL_ADDRESSES else int(n[-8:],16)
+addr=lambda n:SYMBOL_ADDRESSES[n] if n in SYMBOL_ADDRESSES else __import__('c_functions').address_of(n)
 regions=[(n,p,addr(n),s) for n,(p,s) in N.items() if n not in ['D_800ACC14','D_800FFC14']]
 regions += [('frames',frame,0x800ADAE0,frame_size),('texts',text,0x8018FFF0,text_size)]
 mappings=[(p,a,s) for n,p,a,s in regions]

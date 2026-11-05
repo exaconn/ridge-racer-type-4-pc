@@ -8,11 +8,11 @@
 /* legacy typing of shared globals in this part of the unit */
 #define func_8001FF84 (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32))&func_8001FF84)
 
-#define func_8001FEC0 (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32))&func_8001FEC0)
+#define GameQueueSprite (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32))&GameQueueSprite)
 
 #undef func_8001FF84
 
-#undef func_8001FEC0
+#undef GameQueueSprite
 
 extern int D_800F2ECC;
 

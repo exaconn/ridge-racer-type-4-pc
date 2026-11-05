@@ -46,3 +46,15 @@ def source_owners(directory):
                 raise ValueError(f"{name}: defined in both {owners[name]} and {source}")
             owners[name] = source
     return owners
+
+
+def address_of(name):
+    """address of a function by auto name (func_XXXXXXXX) or registered name; lets tests keep working when a name is registered later"""
+    import re
+    if re.fullmatch(r'func_[0-9A-Fa-f]{8}', name):
+        return int(name[-8:], 16)
+    for line in (Path(__file__).resolve().parents[2] / 'configs/PAL/functions.txt').read_text().splitlines():
+        p = line.split()
+        if p and p[0] == name:
+            return int(p[1], 16)
+    return int(name[-8:], 16)   # overlay names such as ovl659_func_80123456

@@ -60,7 +60,7 @@ void func_80021E2C(s32 arg0) {
             if (var_s0_2 <= 0) {
                 var_v0 = var_s4 + 0xBE;
             }
-            var_a1 = func_8001FEC0(var_s3, var_a1, originX, var_v0, 0x34, 0x34, 0x4C, 0x6C, 0x1BD6);
+            var_a1 = GameQueueSprite(var_s3, var_a1, originX, var_v0, 0x34, 0x34, 0x4C, 0x6C, 0x1BD6);
             var_s0_2 += 1;
         } while (var_s0_2 < (arg0 + 1));
     }

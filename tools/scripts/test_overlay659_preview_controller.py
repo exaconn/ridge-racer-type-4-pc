@@ -70,7 +70,7 @@ subprocess.run(['cc','-std=gnu11','-O2','-shared','-fPIC','-Iinclude','-fsanitiz
 lib=C.CDLL(str(P/'native.dylib'));lib.object.restype=C.c_void_p;lib.object_size.restype=C.c_size_t
 N={n:(lib.object(i),lib.object_size(i)) for i,(c,n) in enumerate(objects)};assert all(p>0xffffffff for p,s in N.values())
 assert N['D_800ABEF8'][1]==1600 and N['D_800F3A38'][1]==184 and N['D_800AD4D8'][1]==44 and N['D_800F4D98'][1]==32
-addr=lambda n:SYMBOL_ADDRESSES[n] if n in SYMBOL_ADDRESSES else int(n[-8:],16)
+addr=lambda n:SYMBOL_ADDRESSES[n] if n in SYMBOL_ADDRESSES else __import__('c_functions').address_of(n)
 pointers={'D_800ACC14','D_800F4D80','D_800F3AFC','D_800F2AB0'}
 regions=[(n,p,addr(n),size) for n,(p,size) in N.items() if n in names and n not in pointers]
 extra_addr={'frame0':0x80180000,'frame1':0x801A2778,'rows0':0x801D0000,'rows1':0x801D0200,'badge0':0x801D1000,'badge1':0x801D101C,'mode0':0x801D2000,'mode1':0x801D2038}
@@ -146,7 +146,7 @@ def callback(event,args):
 cb=CB(callback);lib.set_callback(cb)
 argregs=[UC_MIPS_REG_A0,UC_MIPS_REG_A1,UC_MIPS_REG_A2,UC_MIPS_REG_A3]
 volatile_regs=[UC_MIPS_REG_V1]+argregs+[globals()[f'UC_MIPS_REG_T{i}'] for i in range(10)]
-service_map={int(n[-8:],16):i for i,n in enumerate(functions)}
+service_map={__import__('c_functions').address_of(n):i for i,n in enumerate(functions)}
 def service_return(item):
  event,args,ra=item;result=service(event,args,False)
  for r in volatile_regs:u.reg_write(r,0xA5A55A5A)

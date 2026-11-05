@@ -60,9 +60,9 @@ extern struct
   char pad[0x58];
 } D_800F3A38[];
 extern short func_80025FBC();
-extern int func_8006E030();
-extern int func_8006E09C();
-extern int func_8006E108();
+extern int BuildRotMatrixZ();
+extern int BuildRotMatrixY();
+extern int BuildRotMatrixX();
 extern int MulMatrix();
 extern int ApplyMatrix();
 extern int D_8010718C;
@@ -93,7 +93,7 @@ extern short D_800F3A26;
 extern int D_800F4C64;
 extern short D_800F4C6A;
 extern short D_800F4D8A;
-extern int func_8001FEC0();
+extern int GameQueueSprite();
 extern int func_8002071C();
 extern unsigned char D_8009F71C[][4];
 extern int D_800105C8[];
@@ -176,10 +176,10 @@ void func_80033BE4(struct w3g2p *p) {
     unsigned short a1, a2;
     D_8010718C = 1;
     if (p->u1E4 & 0x100) {
-        func_8006E09C(s.a, 0x800 - p->f54);
-        func_8006E108(s.b, p->f50);
+        BuildRotMatrixY(s.a, 0x800 - p->f54);
+        BuildRotMatrixX(s.b, p->f50);
         MulMatrix(s.a, s.b);
-        func_8006E030(s.b, p->f58);
+        BuildRotMatrixZ(s.b, p->f58);
         MulMatrix2(s.a, s.b);
         s.v[0] = 0;
         s.v[1] = -0x64;
@@ -205,10 +205,10 @@ void func_80033BE4(struct w3g2p *p) {
     g[6] += s.v[0];
     s.v[1] = t;
     g[7] += t;
-    func_8006E09C(s.a, 0x800 - g[7], g[7]);
-    func_8006E108(s.b, g[6]);
+    BuildRotMatrixY(s.a, 0x800 - g[7], g[7]);
+    BuildRotMatrixX(s.b, g[6]);
     MulMatrix(s.a, s.b);
-    func_8006E030(s.b, g[8]);
+    BuildRotMatrixZ(s.b, g[8]);
     MulMatrix2(s.a, s.b);
     s.v[0] = 0;
     s.v[1] = -0xFA;
@@ -473,15 +473,15 @@ void func_800349F4(int a0, int a1) {
     unsigned char (*base)[4];
     unsigned char *t;
 
-    p = func_8001FEC0(a0, *(int *)SCRATCHPAD, 0x90, 0x5C, 0x1C, 8, 0x60, 0xA0, 0x7FF8);
-    p = func_8001FEC0(a0, p, 0x90, 0x6A, 0x20, 8, 0xC4, 0xA0, 0x7FF8);
+    p = GameQueueSprite(a0, *(int *)SCRATCHPAD, 0x90, 0x5C, 0x1C, 8, 0x60, 0xA0, 0x7FF8);
+    p = GameQueueSprite(a0, p, 0x90, 0x6A, 0x20, 8, 0xC4, 0xA0, 0x7FF8);
     if (D_800F4D44 == 1) {
-        p = func_8001FEC0(a0, p, 0x90, 0x74, 0x1C, 8, 0x7C, 0xA0, 0x7FF8);
+        p = GameQueueSprite(a0, p, 0x90, 0x74, 0x1C, 8, 0x7C, 0xA0, 0x7FF8);
     } else {
-        p = func_8001FEC0(a0, p, 0x90, 0x74, 0x24, 8, 0x9C, 0xA0, 0x7FF8);
-        p = func_8001FEC0(a0, p, 0x90, 0x7E, 0x1C, 8, 0x7C, 0xA0, 0x7FF8);
+        p = GameQueueSprite(a0, p, 0x90, 0x74, 0x24, 8, 0x9C, 0xA0, 0x7FF8);
+        p = GameQueueSprite(a0, p, 0x90, 0x7E, 0x1C, 8, 0x7C, 0xA0, 0x7FF8);
     }
-    p = func_8001FEC0(a0, p, 0x88, a1 * 10 + 0x6A, 8, 8, 0xE4, 0xA0, 0x7FF8);
+    p = GameQueueSprite(a0, p, 0x88, a1 * 10 + 0x6A, 8, 8, 0xE4, 0xA0, 0x7FF8);
 
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 4; j++) {

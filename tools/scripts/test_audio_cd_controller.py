@@ -89,7 +89,7 @@ def callback(i,args):
 lib.set_callback(callback)
 def _addr(name):
  import re as _re
- if _re.fullmatch(r'func_[0-9A-F]{8}',name):return int(name[-8:],16)
+ if _re.fullmatch(r'func_[0-9A-F]{8}',name):return __import__('c_functions').address_of(name)
  for l in open(__import__('pathlib').Path(__file__).resolve().parents[2]/'configs/PAL/sym.main.txt'):
   m=_re.match(r'^'+name+r'\s*=\s*0x([0-9A-Fa-f]+);',l)
   if m:return int(m.group(1),16)

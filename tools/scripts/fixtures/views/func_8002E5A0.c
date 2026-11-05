@@ -8,11 +8,11 @@
 
 typedef struct { int a, b, c, d; } V4;
 
-extern int func_8006E09C();
+extern int BuildRotMatrixY();
 
-extern int func_8006E108();
+extern int BuildRotMatrixX();
 
-extern int func_8006E030();
+extern int BuildRotMatrixZ();
 
 extern int MulMatrix();
 
@@ -30,19 +30,19 @@ void func_8002E5A0(a0) char *a0; {
     U(0x80) = U(0x50);
     U(0x82) = U(0x54);
     U(0x84) = U(0x58);
-    func_8006E09C(L.m1, 0x800 - I(0x54));
-    func_8006E108(L.m2, I(0x50));
+    BuildRotMatrixY(L.m1, 0x800 - I(0x54));
+    BuildRotMatrixX(L.m2, I(0x50));
     MulMatrix(L.m1, L.m2);
-    func_8006E030(L.m2, I(0x58));
+    BuildRotMatrixZ(L.m2, I(0x58));
     MulMatrix2(L.m1, L.m2);
     L.v[0] = 0;
     L.v[1] = -U(0x108);
     L.v[2] = (S(0x10E) * 4) / 3;
     ApplyMatrix(L.m2, L.v, a0 + 0x40);
-    func_8006E09C(L.m1, 0x800 - S(0x82));
-    func_8006E108(L.m2, S(0x80));
+    BuildRotMatrixY(L.m1, 0x800 - S(0x82));
+    BuildRotMatrixX(L.m2, S(0x80));
     MulMatrix(L.m1, L.m2);
-    func_8006E030(L.m2, S(0x84));
+    BuildRotMatrixZ(L.m2, S(0x84));
     MulMatrix2(L.m1, L.m2);
     L.v[0] = 0;
     L.v[1] = (S(0xE8) + S(0xEA)) >> 7;

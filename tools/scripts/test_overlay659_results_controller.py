@@ -83,7 +83,7 @@ if os.getenv('RR_COMPILED_ELF'):
    if sec:u.mem_write(sec['sh_addr']&0x1fffffff,sec.data())
 read=lambda a,n:bytes(u.mem_read(a&0x1fffffff,n))
 def write(a,b):u.mem_write(a&0x1fffffff,b)
-addr=lambda n:SYMBOL_ADDRESSES[n] if n in SYMBOL_ADDRESSES else int(n[-8:],16)
+addr=lambda n:SYMBOL_ADDRESSES[n] if n in SYMBOL_ADDRESSES else __import__('c_functions').address_of(n)
 regions=[(n,p,addr(n),s) for n,(p,s) in N.items() if n not in ['D_800ACC14','D_800FFC14']]
 regions += [('frames',frame,0x800ADAE0,frame_size),('texts',text,0x8018FFF0,text_size)]
 mappings=[(p,a,s) for n,p,a,s in regions]
@@ -162,7 +162,7 @@ def callback(event,args):
 cb=CB(callback);lib.set_callback(cb)
 argregs=[UC_MIPS_REG_A0,UC_MIPS_REG_A1,UC_MIPS_REG_A2,UC_MIPS_REG_A3]
 volatile_regs=[UC_MIPS_REG_V1]+argregs+[globals()[f'UC_MIPS_REG_T{i}'] for i in range(10)]
-service_map={int(n[-8:],16):i for i,n in enumerate(functions)}
+service_map={__import__('c_functions').address_of(n):i for i,n in enumerate(functions)}
 def hook(uc,address,size,data):
  event=service_map[address];argc=len(protos[functions[event]][1]);args=[uc.reg_read(r)&0xffffffff for r in argregs[:min(argc,4)]]
  if argc>4:args+=list(struct.unpack('<'+'I'*(argc-4),read(uc.reg_read(UC_MIPS_REG_SP)+16,4*(argc-4))))

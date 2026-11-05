@@ -10,11 +10,11 @@
 #undef D_8010C168
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8006E030 ((void (*)())func_8006E030)
+#define BuildRotMatrixZ ((void (*)())BuildRotMatrixZ)
 
-#define func_8006E09C ((void (*)())func_8006E09C)
+#define BuildRotMatrixY ((void (*)())BuildRotMatrixY)
 
-#define func_8006E108 ((void (*)())func_8006E108)
+#define BuildRotMatrixX ((void (*)())BuildRotMatrixX)
 
 #define MulMatrix ((void (*)())MulMatrix)
 
@@ -22,11 +22,11 @@
 
 #define ApplyMatrix ((void (*)())ApplyMatrix)
 
-#undef func_8006E030
+#undef BuildRotMatrixZ
 
-#undef func_8006E09C
+#undef BuildRotMatrixY
 
-#undef func_8006E108
+#undef BuildRotMatrixX
 
 #undef MulMatrix
 

@@ -51,11 +51,11 @@ extern Q16 D_800111D4;
 
 extern short D_800ABED0[][3];
 
-extern int func_8006E030();
+extern int BuildRotMatrixZ();
 
-extern int func_8006E09C();
+extern int BuildRotMatrixY();
 
-extern int func_8006E108();
+extern int BuildRotMatrixX();
 
 extern int MulMatrix0();
 
@@ -77,16 +77,16 @@ void func_8005599C(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
     Q16 s90;
     int n;
     s90 = D_800111D4;
-    func_8006E09C(&s50, -*(short *)(a0 + 0x12));
+    BuildRotMatrixY(&s50, -*(short *)(a0 + 0x12));
     MulMatrix2(0x1F800028, &s50);
-    func_8006E108(&s10, -*(short *)(a0 + 0x10));
-    func_8006E030(&s30, -*(short *)(a0 + 0x14));
+    BuildRotMatrixX(&s10, -*(short *)(a0 + 0x10));
+    BuildRotMatrixZ(&s30, -*(short *)(a0 + 0x14));
     MulMatrix(&s10, &s30);
     MulMatrix2(&s50, &s10);
-    func_8006E09C(&s50, *(short *)(a0 + 0x12));
-    func_8006E108(&s30, *(short *)(a0 + 0x10));
+    BuildRotMatrixY(&s50, *(short *)(a0 + 0x12));
+    BuildRotMatrixX(&s30, *(short *)(a0 + 0x10));
     MulMatrix(&s50, &s30);
-    func_8006E030(&s30, *(short *)(a0 + 0x14));
+    BuildRotMatrixZ(&s30, *(short *)(a0 + 0x14));
     MulMatrix2(&s50, &s30);
     *a3 = s30;
     n = 0;

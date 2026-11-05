@@ -4,7 +4,7 @@
 /* Caller-facing O32 arguments retain full register words; the existing helpers
  * narrow coordinates and packet fields when writing the GPU representation. */
 extern RrSpritePacket *func_8001FF84(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32);
-extern RrSpritePacket *func_8001FEC0(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32);
+extern RrSpritePacket *GameQueueSprite(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32);
 extern void *func_8001FD20(u32*,void*,s32,s32,s32,s32,s32,s32,s32);
 
 RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 style) {
@@ -43,10 +43,10 @@ RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 
     /* ASM_BARRIER: consume the returned cursor before reusing v0 for width. */
     __asm__("" : "+r"(out_order), "+r"(out_cursor), "+r"(x_stage), "+r"(y_stage));
     width=offset;
-    cursor=func_8001FEC0(out_order,out_cursor,x_stage,y_stage,width,24,20,72,0x7E3B);
+    cursor=GameQueueSprite(out_order,out_cursor,x_stage,y_stage,width,24,20,72,0x7E3B);
     if(descriptor->count>0) {
         do {
-            cursor=func_8001FEC0(ordering,cursor,(s32)((u32)xpos+(u32)offset),
+            cursor=GameQueueSprite(ordering,cursor,(s32)((u32)xpos+(u32)offset),
                                 ypos,8,24,24,72,0x7E3B);
             sampled=descriptor->count;
             /* ASM_BARRIER: sample the updated count before incrementing the index. */
@@ -55,7 +55,7 @@ RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 
             offset+=8;
         }while(index<sampled);
     }
-    cursor=func_8001FEC0(ordering,cursor,(s32)((u32)xpos+(u32)offset),
+    cursor=GameQueueSprite(ordering,cursor,(s32)((u32)xpos+(u32)offset),
                         ypos,8,24,32,72,0x7E3B);
     out_order=ordering;
     out_cursor=cursor;

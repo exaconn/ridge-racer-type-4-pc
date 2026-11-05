@@ -13,14 +13,14 @@ extern char D_800FF6D8[];
 extern void MulMatrix0();
 extern short D_800A22E4[];
 
-void func_8006E030(short *a0, int a1);
-void func_8006E09C(void *arg0, M2C_UNK arg1);
-void func_8006E108(void *arg0, M2C_UNK arg1);
+void BuildRotMatrixZ(short *a0, int a1);
+void BuildRotMatrixY(void *arg0, M2C_UNK arg1);
+void BuildRotMatrixX(void *arg0, M2C_UNK arg1);
 void func_8006E174(void *arg0);
 void func_8006E300(int *a0);
 s32 func_8006E368(int a0, int a1);
 
-void func_8006E030(short *a0, int a1) {
+void BuildRotMatrixZ(short *a0, int a1) {
     short s = func_80090424(a1);
     short c = func_800904F4(a1);
     a0[1] = -s;
@@ -38,7 +38,7 @@ void func_8006E030(short *a0, int a1) {
 #define func_80090424 ((int (*)())func_80090424)
 #define func_800904F4 ((int (*)())func_800904F4)
 
-void func_8006E09C(void *arg0, M2C_UNK arg1) {
+void BuildRotMatrixY(void *arg0, M2C_UNK arg1) {
     s16 temp_s1;
     s16 temp_v0;
 
@@ -62,7 +62,7 @@ void func_8006E09C(void *arg0, M2C_UNK arg1) {
 #define func_80090424 ((int (*)())func_80090424)
 #define func_800904F4 ((int (*)())func_800904F4)
 
-void func_8006E108(void *arg0, M2C_UNK arg1) {
+void BuildRotMatrixX(void *arg0, M2C_UNK arg1) {
     s16 temp_s1;
     s16 temp_v0;
 
@@ -100,21 +100,21 @@ void func_8006E174(void *arg0) {
 void func_8006E1AC(void) {
     char sp10[32];
     int *g = (int *)SCRATCHPAD;
-    func_8006E09C(SCRATCH_ROT_MATRIX, g[7]);
-    func_8006E09C(D_800FF690, g[7]);
+    BuildRotMatrixY(SCRATCH_ROT_MATRIX, g[7]);
+    BuildRotMatrixY(D_800FF690, g[7]);
     func_8006E174(D_800FF6B8);
-    func_8006E09C(D_800FF6D8, g[7]);
-    func_8006E108(sp10, g[6]);
+    BuildRotMatrixY(D_800FF6D8, g[7]);
+    BuildRotMatrixX(sp10, g[6]);
     MulMatrix2(sp10, SCRATCH_ROT_MATRIX);
     MulMatrix2(sp10, D_800FF690);
     MulMatrix2(sp10, D_800FF6B8);
-    func_8006E030(sp10, g[8]);
+    BuildRotMatrixZ(sp10, g[8]);
     MulMatrix2(sp10, SCRATCH_ROT_MATRIX);
     MulMatrix2(sp10, D_800FF690);
     MulMatrix2(sp10, D_800FF6B8);
-    func_8006E09C(sp10, 0x800);
+    BuildRotMatrixY(sp10, 0x800);
     MulMatrix0(sp10, SCRATCH_ROT_MATRIX, D_800AD598);
-    func_8006E108(sp10, D_800AC0A4 * 2);
+    BuildRotMatrixX(sp10, D_800AC0A4 * 2);
     MulMatrix2(sp10, D_800AD598);
     D_800AD598[0] = -D_800AD598[0];
     D_800AD598[1] = -D_800AD598[1];
@@ -124,10 +124,10 @@ void func_8006E1AC(void) {
 
 void func_8006E300(int *a0) {
     char sp10[32];
-    func_8006E09C((SCRATCHPAD + 0x108), a0[1]);
-    func_8006E108(sp10, a0[0]);
+    BuildRotMatrixY((SCRATCHPAD + 0x108), a0[1]);
+    BuildRotMatrixX(sp10, a0[0]);
     MulMatrix2(sp10, (SCRATCHPAD + 0x108));
-    func_8006E030(sp10, a0[2]);
+    BuildRotMatrixZ(sp10, a0[2]);
     MulMatrix2(sp10, (SCRATCHPAD + 0x108));
 }
 

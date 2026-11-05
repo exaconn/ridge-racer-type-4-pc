@@ -21,7 +21,7 @@ extern int func_8001FCC8();
 extern int func_8001FF84();
 extern char D_8009EE6C[];
 extern int D_800FF6B0;
-extern int func_80020588();
+extern int GameQueueTileTrans();
 extern int func_8002064C();
 extern struct B *D_800ABEA4;
 
@@ -114,9 +114,9 @@ void func_80022694(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a
             }
             r = func_8001FCC8(D_800ACC14 + 0x70, r, ((a10 & 3) << 5) | 5);
         } else {
-            r = func_80020588(a0, r, a1, a2, x, y, a7, a8, a9);
+            r = GameQueueTileTrans(a0, r, a1, a2, x, y, a7, a8, a9);
             if (a6 != 0) {
-                r = func_80020588(a0, r, a1, a2 + 1, x, y + 1, a7, a8, a9);
+                r = GameQueueTileTrans(a0, r, a1, a2 + 1, x, y + 1, a7, a8, a9);
             }
         }
         *(int *)SCRATCHPAD = r;

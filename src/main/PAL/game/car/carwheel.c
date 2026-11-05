@@ -128,9 +128,9 @@ typedef struct {
 } Scratch2D784;
 
 void func_8005F0D0(s32, s32, s32, s32);
-void func_8006E030(Mat8 *, s32);
-void func_8006E09C(Mat8 *, s32);
-void func_8006E108(Mat8 *, s32);
+void BuildRotMatrixZ(Mat8 *, s32);
+void BuildRotMatrixY(Mat8 *, s32);
+void BuildRotMatrixX(Mat8 *, s32);
 void func_8006EE3C(s32, Vec4 *, Mat8 *);
 void func_800701C4(s32);
 void MulMatrix0(void *, Mat8 *, Mat8 *);
@@ -186,18 +186,18 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     func_800701C4(slot_half);
     func_8003CF34(arg2);
 
-    func_8006E09C(&sp70, -arg0->rot54);
-    func_8006E108(&sp30, -arg0->rot50);
-    func_8006E030(&sp50, -arg0->rot58);
+    BuildRotMatrixY(&sp70, -arg0->rot54);
+    BuildRotMatrixX(&sp30, -arg0->rot50);
+    BuildRotMatrixZ(&sp50, -arg0->rot58);
     MulMatrix(&sp30, &sp50);
     MulMatrix(&sp70, &sp30);
     MulMatrix0(D_800ABED0, &sp70, &sp50);
     RR_GTE_SETLLM(&sp50);
 
-    func_8006E09C(&sp10, -arg0->rot54);
+    BuildRotMatrixY(&sp10, -arg0->rot54);
     MulMatrix2((Mat8 *)SCRATCH_ROT_MATRIX, &sp10);
-    func_8006E108(&sp98[0], arg0->unk1A8 - arg0->rot50);
-    func_8006E030(&sp50, arg0->unk1AA - arg0->rot58);
+    BuildRotMatrixX(&sp98[0], arg0->unk1A8 - arg0->rot50);
+    BuildRotMatrixZ(&sp50, arg0->unk1AA - arg0->rot58);
     MulMatrix(&sp98[0], &sp50);
     MulMatrix2(&sp10, &sp98[0]);
 
@@ -206,8 +206,8 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     sp158[1].y = arg0->y74 + arg0->y64;
     sp158[1].z = arg0->z78 + arg0->z68;
 
-    func_8006E108(&sp98[1], -arg0->ang80);
-    func_8006E030(&sp50, -arg0->ang84);
+    BuildRotMatrixX(&sp98[1], -arg0->ang80);
+    BuildRotMatrixZ(&sp50, -arg0->ang84);
     MulMatrix(&sp98[1], &sp50);
     MulMatrix2(&sp10, &sp98[1]);
 
@@ -226,16 +226,16 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
         s4_val = -s4_val;
     }
     if (D_800F3A08[slot_half]->bA == 1) {
-        func_8006E09C(&sp98[3], s4_val);
+        BuildRotMatrixY(&sp98[3], s4_val);
     } else {
-        func_8006E108(&sp98[3], s4_val);
+        BuildRotMatrixX(&sp98[3], s4_val);
     }
 
     sp98[2] = sp30;
     MulMatrix2(&sp10, &sp98[2]);
     MulMatrix2(&sp98[2], &sp98[3]);
-    func_8006E09C(&sp98[4], arg0->lat178 / 12);
-    func_8006E108(&sp98[5], s4_val);
+    BuildRotMatrixY(&sp98[4], arg0->lat178 / 12);
+    BuildRotMatrixX(&sp98[5], s4_val);
     MulMatrix2(&sp98[2], &sp98[4]);
     MulMatrix2(&sp98[4], &sp98[5]);
 
@@ -292,25 +292,25 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
     slot_half = arg0->slot1E6 >> 1;
     func_800701C4(slot_half);
     s5_val = func_80013904(arg0, func_80039494(arg0));
-    func_8006E09C(&sp80, -arg0->rot54);
-    func_8006E108(&sp40, -arg0->rot50);
-    func_8006E030(&sp60, -arg0->rot58);
+    BuildRotMatrixY(&sp80, -arg0->rot54);
+    BuildRotMatrixX(&sp40, -arg0->rot50);
+    BuildRotMatrixZ(&sp60, -arg0->rot58);
     MulMatrix(&sp40, &sp60);
     MulMatrix(&sp80, &sp40);
     MulMatrix0(D_800ABED0, &sp80, &sp60);
     RR_GTE_SETLLM(&sp60);
-    func_8006E09C(&sp20, -arg0->rot54);
+    BuildRotMatrixY(&sp20, -arg0->rot54);
     MulMatrix2((Mat8 *)SCRATCH_ROT_MATRIX, &sp20);
-    func_8006E108(&spA8[0], arg0->unk1A8 - arg0->rot50);
-    func_8006E030(&sp60, arg0->unk1AA - arg0->rot58);
+    BuildRotMatrixX(&spA8[0], arg0->unk1A8 - arg0->rot50);
+    BuildRotMatrixZ(&sp60, arg0->unk1AA - arg0->rot58);
     MulMatrix(&spA8[0], &sp60);
     MulMatrix2(&sp20, &spA8[0]);
     sp168[0] = arg0->rotC8;
     sp168[1].x = arg0->x70 + arg0->x60;
     sp168[1].y = arg0->y74 + arg0->y64;
     sp168[1].z = arg0->z78 + arg0->z68;
-    func_8006E108(&spA8[1], -arg0->ang80);
-    func_8006E030(&sp60, -arg0->ang84);
+    BuildRotMatrixX(&spA8[1], -arg0->ang80);
+    BuildRotMatrixZ(&sp60, -arg0->ang84);
     MulMatrix(&spA8[1], &sp60);
     MulMatrix2(&sp20, &spA8[1]);
     sp168[2].x = arg0->x10 + arg0->x60;
@@ -327,15 +327,15 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
         s4_val = -s4_val;
     }
     if (D_800F3A08[slot_half]->bA == 1) {
-        func_8006E09C(&spA8[3], s4_val);
+        BuildRotMatrixY(&spA8[3], s4_val);
     } else {
-        func_8006E108(&spA8[3], s4_val);
+        BuildRotMatrixX(&spA8[3], s4_val);
     }
     spA8[2] = sp40;
     MulMatrix2(&sp20, &spA8[2]);
     MulMatrix2(&spA8[2], &spA8[3]);
-    func_8006E09C(&spA8[4], arg0->lat178 / 12);
-    func_8006E108(&spA8[5], s4_val);
+    BuildRotMatrixY(&spA8[4], arg0->lat178 / 12);
+    BuildRotMatrixX(&spA8[5], s4_val);
     MulMatrix2(&spA8[2], &spA8[4]);
     MulMatrix2(&spA8[4], &spA8[5]);
     RR_GTE_SETROT(&sp80);
@@ -441,26 +441,26 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
         __asm__ volatile("" : "+r"(s5_val));
         /* ASM_BARRIER: second reference boost so floor_log2(n_refs) reaches 4 */
         __asm__ volatile("" : "+r"(s5_val));
-        func_8006E09C(&sp80, -arg0->rot54);
-        func_8006E108(&sp40, -arg0->rot50);
-        func_8006E030(&sp60, -arg0->rot58);
+        BuildRotMatrixY(&sp80, -arg0->rot54);
+        BuildRotMatrixX(&sp40, -arg0->rot50);
+        BuildRotMatrixZ(&sp60, -arg0->rot58);
         MulMatrix(&sp40, &sp60);
         MulMatrix(&sp80, &sp40);
         MulMatrix0(D_800ABED0, &sp80, &sp60);
         RR_GTE_SETLLM(&sp60);
         if (i < D_8009F04C[arg1].d0) {
-            func_8006E09C(&sp20, -arg0->rot54);
+            BuildRotMatrixY(&sp20, -arg0->rot54);
             MulMatrix2((Mat8 *)SCRATCH_ROT_MATRIX, &sp20);
-            func_8006E108(&spA8[0], arg0->unk1A8 - arg0->rot50);
-            func_8006E030(&sp60, arg0->unk1AA - arg0->rot58);
+            BuildRotMatrixX(&spA8[0], arg0->unk1A8 - arg0->rot50);
+            BuildRotMatrixZ(&sp60, arg0->unk1AA - arg0->rot58);
             MulMatrix(&spA8[0], &sp60);
             MulMatrix2(&sp20, &spA8[0]);
             sp168[0] = arg0->rotC8;
             sp168[1].x = arg0->x70 + arg0->x60;
             sp168[1].y = arg0->y74 + arg0->y64;
             sp168[1].z = arg0->z78 + arg0->z68;
-            func_8006E108(&spA8[1], -arg0->ang80);
-            func_8006E030(&sp60, -arg0->ang84);
+            BuildRotMatrixX(&spA8[1], -arg0->ang80);
+            BuildRotMatrixZ(&sp60, -arg0->ang84);
             MulMatrix(&spA8[1], &sp60);
             MulMatrix2(&sp20, &spA8[1]);
             sp168[2].x = arg0->x10 + arg0->x60;
@@ -477,15 +477,15 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
                 s4_val = -s4_val;
             }
             if (D_800F3A08[slot_half]->bA == 1) {
-                func_8006E09C(&spA8[3], s4_val);
+                BuildRotMatrixY(&spA8[3], s4_val);
             } else {
-                func_8006E108(&spA8[3], s4_val);
+                BuildRotMatrixX(&spA8[3], s4_val);
             }
             spA8[2] = sp40;
             MulMatrix2(&sp20, &spA8[2]);
             MulMatrix2(&spA8[2], &spA8[3]);
-            func_8006E09C(&spA8[4], arg0->lat178 / 12);
-            func_8006E108(&spA8[5], s4_val);
+            BuildRotMatrixY(&spA8[4], arg0->lat178 / 12);
+            BuildRotMatrixX(&spA8[5], s4_val);
             MulMatrix2(&spA8[2], &spA8[4]);
             MulMatrix2(&spA8[4], &spA8[5]);
             RR_GTE_SETROT(&sp80);
@@ -519,18 +519,18 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
             }
             return;
         } else if (i < D_8009F04C[arg1].d2) {
-            func_8006E09C(&sp20, -arg0->rot54);
+            BuildRotMatrixY(&sp20, -arg0->rot54);
             MulMatrix2((Mat8 *)SCRATCH_ROT_MATRIX, &sp20);
-            func_8006E108(&spA8[0], arg0->unk1A8 - arg0->rot50);
-            func_8006E030(&sp60, arg0->unk1AA - arg0->rot58);
+            BuildRotMatrixX(&spA8[0], arg0->unk1A8 - arg0->rot50);
+            BuildRotMatrixZ(&sp60, arg0->unk1AA - arg0->rot58);
             MulMatrix(&spA8[0], &sp60);
             MulMatrix2(&sp20, &spA8[0]);
             sp168[0] = arg0->rotC8;
             sp168[1].x = arg0->x70 + arg0->x60;
             sp168[1].y = arg0->y74 + arg0->y64;
             sp168[1].z = arg0->z78 + arg0->z68;
-            func_8006E108(&spA8[1], -arg0->ang80);
-            func_8006E030(&sp60, -arg0->ang84);
+            BuildRotMatrixX(&spA8[1], -arg0->ang80);
+            BuildRotMatrixZ(&sp60, -arg0->ang84);
             MulMatrix(&spA8[1], &sp60);
             MulMatrix2(&sp20, &spA8[1]);
             func_80015F68(arg0, &sp168[1], &spA8[1], &sp80, slot_idx, s5_val, s7_val);

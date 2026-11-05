@@ -131,7 +131,7 @@ typedef struct { unsigned short h[16]; } MH;
 extern void func_8001A52C(s32);
 extern void func_8001ADA0(s32, s32);
 extern void func_8005F0D0(void *, s32, s32, s32);
-extern void func_8005FCCC(void *, s32);
+extern void SubmitCourseModel2(void *, s32);
 extern void func_800701C4(s32);
 extern void func_80071978(Poly38 *, s32, s32);
 extern void func_80071B94(Poly48 *, s32, s32);
@@ -164,9 +164,9 @@ extern Vec16 D_8010E8E8[];
 extern S_ECAC *D_8010ECAC;
 extern S_ECB0 *D_8010ECB0;
 extern S_ECB4 *D_8010ECB4;
-extern int func_8006E030();
-extern int func_8006E09C();
-extern int func_8006E108();
+extern int BuildRotMatrixZ();
+extern int BuildRotMatrixY();
+extern int BuildRotMatrixX();
 extern int MulMatrix2();
 extern int D_800FF690[];
 extern int *D_8010E8D8;
@@ -221,13 +221,13 @@ void func_800747EC(s32 arg0) {
                 s3[0x00 / 4] = D_8010ECB4[i].f08 + (D_800F3914 % 4) * 3 - 11;
                 s3[0x04 / 4] = (D_8010ECB4[i].f00 / 6) % D_800A3CDC[s3[0x00 / 4]];
                 s3[0x08 / 4] = D_800A3D18[s3[0x00 / 4] * 12 + s3[0x04 / 4]];
-                func_8005FCCC(SCRATCH_BASE, D_8010ECB0[i].f00 + s3[0x08 / 4]);
+                SubmitCourseModel2(SCRATCH_BASE, D_8010ECB0[i].f00 + s3[0x08 / 4]);
                 continue;
             }
             if ((u32)((D_8010ECB4[i].f04 / 100) - 1) < 2U) {
-                func_8005FCCC(SCRATCH_BASE, D_8010ECB0[i].f00 + (D_8010ECB4[i].f04 % 100));
+                SubmitCourseModel2(SCRATCH_BASE, D_8010ECB0[i].f00 + (D_8010ECB4[i].f04 % 100));
             } else {
-                func_8005FCCC(SCRATCH_BASE, D_8010ECB0[i].f00);
+                SubmitCourseModel2(SCRATCH_BASE, D_8010ECB0[i].f00);
             }
             break;
 
@@ -351,14 +351,14 @@ void func_800747EC(s32 arg0) {
             sp118.vz = 0;
             func_80077A34(i, &sp118, &sp18, arg0);
             func_80077BAC(i, &sp18, arg0);
-            func_8005FCCC(SCRATCH_BASE, 2);
+            SubmitCourseModel2(SCRATCH_BASE, 2);
             break;
 
         case 3:
             sp118.vx = sp118.vy = sp118.vz = 0;
             func_80077A34(i, &sp118, &sp18, arg0);
             func_80077BAC(i, &sp18, arg0);
-            func_8005FCCC(SCRATCH_BASE, 2);
+            SubmitCourseModel2(SCRATCH_BASE, 2);
             break;
 
         case 4:
@@ -368,11 +368,11 @@ void func_800747EC(s32 arg0) {
             func_80077BAC(i, &sp18, 0);
             if (D_8010ECB0[i].f08 == 4) {
                 for (j = 2; j < 6; j++) {
-                    func_8005FCCC(SCRATCH_BASE, j);
+                    SubmitCourseModel2(SCRATCH_BASE, j);
                 }
             } else {
                 for (j = 0x2F; j < 0x33; j++) {
-                    func_8005FCCC(SCRATCH_BASE, j);
+                    SubmitCourseModel2(SCRATCH_BASE, j);
                 }
             }
             break;
@@ -880,17 +880,17 @@ void func_80077A34(int unused, short *p, M *out, int flag) {
     M m10, m30, m50, m70;
     M m90;
     M *q = &m70;
-    func_8006E030(q, -p[2]);
-    func_8006E108(&m30, -p[0]);
+    BuildRotMatrixZ(q, -p[2]);
+    BuildRotMatrixX(&m30, -p[0]);
     if (flag == 2) {
         m90 = *(M *)SCRATCH_ROT_MATRIX;
-        func_8006E09C(&m50, -p[1] - 0x800);
+        BuildRotMatrixY(&m50, -p[1] - 0x800);
         ((unsigned short *)&m90)[6] = -((unsigned short *)&m90)[6];
         ((unsigned short *)&m90)[7] = -((unsigned short *)&m90)[7];
         ((unsigned short *)&m90)[8] = -((unsigned short *)&m90)[8];
         MulMatrix2(&m90, q);
     } else {
-        func_8006E09C(&m50, -p[1]);
+        BuildRotMatrixY(&m50, -p[1]);
         MulMatrix2((int *)SCRATCH_ROT_MATRIX, q);
     }
     MulMatrix0(&m30, &m50, &m10);

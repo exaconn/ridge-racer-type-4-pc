@@ -151,3 +151,11 @@ symbol in the reference PsyQ decompilation and the hint list has exactly one add
 repeats at several addresses (`InterruptCallback`, `Menu_RebuildSelectableMask`, ...) or that are tool-made labels
 (`Gpu_*`, `CardObj_*`) are not registered. Fixture files keep their address-based file names (tests build the paths
 from the address); only their contents use the new names.
+
+### Where names come from
+* PsyQ: the reference PsyQ decompilation (unique match by code and library order).
+* Game, graphics layer: 14 functions have a byte-equivalent in the Rage Racer decompilation (`~/Projects/rage-pc`);
+  they carry its names (`SubmitModelFaces`, `EmitPolyF4`, `TransformCourseModel`, `GameQueueSprite`, `BuildRotMatrixX/Y/Z`, ...).
+  Those are reconstructions of the same kind as ours, not names from Namco's source.
+* Fields: `tools/scripts/emu_probe.py` drives the emulator; `Car.posX/posY/posZ` were identified by moving the car
+  through memory (the car and camera jump), `posX6/posZ6` by the code that refreshes them from the position (`>> 6`).

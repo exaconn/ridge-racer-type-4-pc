@@ -80,7 +80,7 @@ if os.getenv('RR_COMPILED_ELF'):
  with open(os.environ['RR_COMPILED_ELF'],'rb') as file:u.mem_write(0x116730,ELFFile(file).get_section_by_name('.text').data())
 def read(a,n):return bytes(u.mem_read(a&0x1fffffff,n))
 def write(a,b):u.mem_write(a&0x1fffffff,b)
-addr=lambda name:SYMBOL_ADDRESSES[name] if name in SYMBOL_ADDRESSES else int(name[-8:],16)
+addr=lambda name:SYMBOL_ADDRESSES[name] if name in SYMBOL_ADDRESSES else __import__('c_functions').address_of(name)
 regions=[(name,p,addr(name),size) for name,(p,size) in N.items() if name not in ['D_800ACC14','D_800ADAF0']]
 mappings=[(p,a,size) for name,p,a,size in regions]+[(frame,0x800ADAF0,frameSize*2),(streams,0x80190000,12288)]
 def palpointer(p):

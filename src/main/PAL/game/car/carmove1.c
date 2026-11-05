@@ -93,8 +93,8 @@ void func_80027C54(Car *arg0) {
     register s32 *q asm("$19"); /* ASM_BARRIER: pin (SCRATCHPAD + 0x7C) pointer to $s3 */
 
     arg0->u1F0.w1F0 = 0;
-    arg0->u20.s.w20 = arg0->w10 >> 2;
-    arg0->u20.s.w28 = arg0->w18 >> 2;
+    arg0->u20.s.w20 = arg0->posX6 >> 2;
+    arg0->u20.s.w28 = arg0->posZ6 >> 2;
     *(struct Q4 *)(SCRATCHPAD + 0x190) = arg0->q88;
     *(struct Q4 *)(SCRATCHPAD + 0x1A0) = arg0->q98;
     *(struct Q4 *)(SCRATCHPAD + 0x1B0) = arg0->qA8;

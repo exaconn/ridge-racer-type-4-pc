@@ -64,11 +64,11 @@ void func_8003CF34(s32);
 
 void func_8005F0D0(s32, s32, s32, s32);
 
-void func_8006E030(Mat8 *, s32);
+void BuildRotMatrixZ(Mat8 *, s32);
 
-void func_8006E09C(Mat8 *, s32);
+void BuildRotMatrixY(Mat8 *, s32);
 
-void func_8006E108(Mat8 *, s32);
+void BuildRotMatrixX(Mat8 *, s32);
 
 void func_8006EE3C(s32, Vec4 *, Mat8 *);
 
@@ -111,18 +111,18 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     func_800701C4(slot_half);
     func_8003CF34(arg2);
 
-    func_8006E09C(&sp70, -arg0->rot54);
-    func_8006E108(&sp30, -arg0->rot50);
-    func_8006E030(&sp50, -arg0->rot58);
+    BuildRotMatrixY(&sp70, -arg0->rot54);
+    BuildRotMatrixX(&sp30, -arg0->rot50);
+    BuildRotMatrixZ(&sp50, -arg0->rot58);
     MulMatrix(&sp30, &sp50);
     MulMatrix(&sp70, &sp30);
     MulMatrix0(D_800ABED0, &sp70, &sp50);
     RR_GTE_SETLLM(&sp50);
 
-    func_8006E09C(&sp10, -arg0->rot54);
+    BuildRotMatrixY(&sp10, -arg0->rot54);
     MulMatrix2((Mat8 *)0x1F800028, &sp10);
-    func_8006E108(&sp98[0], arg0->unk1A8 - arg0->rot50);
-    func_8006E030(&sp50, arg0->unk1AA - arg0->rot58);
+    BuildRotMatrixX(&sp98[0], arg0->unk1A8 - arg0->rot50);
+    BuildRotMatrixZ(&sp50, arg0->unk1AA - arg0->rot58);
     MulMatrix(&sp98[0], &sp50);
     MulMatrix2(&sp10, &sp98[0]);
 
@@ -131,8 +131,8 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     sp158[1].y = arg0->y74 + arg0->y64;
     sp158[1].z = arg0->z78 + arg0->z68;
 
-    func_8006E108(&sp98[1], -arg0->ang80);
-    func_8006E030(&sp50, -arg0->ang84);
+    BuildRotMatrixX(&sp98[1], -arg0->ang80);
+    BuildRotMatrixZ(&sp50, -arg0->ang84);
     MulMatrix(&sp98[1], &sp50);
     MulMatrix2(&sp10, &sp98[1]);
 
@@ -151,16 +151,16 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
         s4_val = -s4_val;
     }
     if (D_800F3A08[slot_half]->bA == 1) {
-        func_8006E09C(&sp98[3], s4_val);
+        BuildRotMatrixY(&sp98[3], s4_val);
     } else {
-        func_8006E108(&sp98[3], s4_val);
+        BuildRotMatrixX(&sp98[3], s4_val);
     }
 
     sp98[2] = sp30;
     MulMatrix2(&sp10, &sp98[2]);
     MulMatrix2(&sp98[2], &sp98[3]);
-    func_8006E09C(&sp98[4], arg0->lat178 / 12);
-    func_8006E108(&sp98[5], s4_val);
+    BuildRotMatrixY(&sp98[4], arg0->lat178 / 12);
+    BuildRotMatrixX(&sp98[5], s4_val);
     MulMatrix2(&sp98[2], &sp98[4]);
     MulMatrix2(&sp98[4], &sp98[5]);
 

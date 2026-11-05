@@ -15,13 +15,13 @@ typedef struct {
 } Unk210;
 
 typedef struct Car {
-    s32 w0;
-    s32 w4;
-    s32 w8;
+    s32 posX;
+    s32 posY;
+    s32 posZ;
     s32 wC;
-    s32 w10;
+    s32 posX6;   /* posX >> 6 (aipath2 refreshes it from posX) */
     s32 w14;
-    s32 w18;
+    s32 posZ6;   /* posZ >> 6 */
     s32 w1C;
     union {
         struct Q4 q20;

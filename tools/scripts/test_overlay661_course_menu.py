@@ -63,7 +63,7 @@ if os.getenv('RR_COMPILED_ELF'):
  with open(os.environ['RR_COMPILED_ELF'],'rb') as f:u.mem_write(0x117430,ELFFile(f).get_section_by_name('.text').data())
 def read(a,n):return bytes(u.mem_read(a&0x1fffffff,n))
 def write(a,b):u.mem_write(a&0x1fffffff,b)
-def addr(name):return int(name[-8:],16)
+def addr(name):return __import__('c_functions').address_of(name)
 pointerNames={'D_800ACC14','D_800ACC18','D_800F4D80','D_800F4D70'}
 regions=[(name,p,addr(name),size) for name,(p,size) in N.items() if name not in pointerNames]
 regions+=[('ui',ui,0x801A0000,US*2),('arenas',arenas,0x801B0000,3072)]
@@ -145,7 +145,7 @@ def callback(event,args):
  except BaseException as e:errors.append(e);return 0
 cb=CB(callback);lib.set_callback(cb)
 regs=[UC_MIPS_REG_A0,UC_MIPS_REG_A1,UC_MIPS_REG_A2,UC_MIPS_REG_A3]
-serviceMap={int(n[-8:],16):i for i,n in enumerate(functions)}
+serviceMap={__import__('c_functions').address_of(n):i for i,n in enumerate(functions)}
 def hook(uc,a,size,data):
  event=serviceMap[a];argc=len(protos[functions[event]][1]);args=[uc.reg_read(r)&0xffffffff for r in regs[:min(argc,4)]]
  if argc>4:args+=list(struct.unpack('<'+'I'*(argc-4),read(uc.reg_read(UC_MIPS_REG_SP)+16,(argc-4)*4)))

@@ -35,9 +35,9 @@ extern short D_800AD522;
 extern char D_800AD528[];
 extern short D_8010BFD0[];
 extern void func_800172DC();
-extern void func_8006E030();
-extern void func_8006E09C();
-extern void func_8006E108();
+extern void BuildRotMatrixZ();
+extern void BuildRotMatrixY();
+extern void BuildRotMatrixX();
 extern int func_8006E368();
 extern int func_80090424();
 extern int func_800904F4();
@@ -217,10 +217,10 @@ void func_80033474(RrRaceVehicle *a0, int a1)
     s5[2] = v0 >> 12;
     s5[1] = ((a1 << 8) / 75) - 0x200;
   }
-  func_8006E09C(m20, 0x800 - a0->rot54);
-  func_8006E108(m40, a0->rot50);
+  BuildRotMatrixY(m20, 0x800 - a0->rot54);
+  BuildRotMatrixX(m40, a0->rot50);
   MulMatrix(m20, m40);
-  func_8006E030(m40, a0->rot58);
+  BuildRotMatrixZ(m40, a0->rot58);
   MulMatrix2(m20, m40);
   ApplyMatrix(m40, D_8010BFD0, sp10);
   g[2] = a0->pos10[0] + sp10[0];

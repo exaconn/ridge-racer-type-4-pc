@@ -54,7 +54,7 @@ void func_80022098(u32 *ordering, s32 layout) {
 drawWarning:
                 modeCursor = func_8001FCC8(ordering, RR_HUD_SCRATCH->cursor, 0x25);
                 RR_HUD_SCRATCH->cursor = modeCursor;
-                spriteCursor = func_8001FEC0(ordering, (RrSpritePacketSignedClut *)RR_HUD_SCRATCH->cursor, 0x80, baselineY - 0xA, 0x44, 8, 0x80, 0x40, 0x1B16);
+                spriteCursor = GameQueueSprite(ordering, (RrSpritePacketSignedClut *)RR_HUD_SCRATCH->cursor, 0x80, baselineY - 0xA, 0x44, 8, 0x80, 0x40, 0x1B16);
                 RR_HUD_SCRATCH->cursor = spriteCursor;
                 RR_HUD_SCRATCH->cursor = func_8001FCC8(ordering, spriteCursor, 0x25);
             }

@@ -84,7 +84,7 @@ with TemporaryDirectory(prefix='rr50bcc-')as td:
  def callback(i,p):
   try:return service(i,[p[j]for j in range(len(services[i][2]))],True)
   except BaseException as e:errors.append(e);return 0
- cb=C.CFUNCTYPE(C.c_uint64,C.c_uint,C.POINTER(C.c_uint64))(callback);lib.set_callback(cb);targets={int(n[-8:],16):i for i,(n,_,_)in enumerate(services)}
+ cb=C.CFUNCTYPE(C.c_uint64,C.c_uint,C.POINTER(C.c_uint64))(callback);lib.set_callback(cb);targets={__import__('c_functions').address_of(n):i for i,(n,_,_)in enumerate(services)}
  def hook(uc,pc,size,data):
   if pc not in targets:return
   i=targets[pc];regs=[UC_MIPS_REG_A0,UC_MIPS_REG_A1,UC_MIPS_REG_A2,UC_MIPS_REG_A3];args=[u.reg_read(r)for r in regs[:len(services[i][2])]];ra=u.reg_read(UC_MIPS_REG_RA);result=service(i,args,False)

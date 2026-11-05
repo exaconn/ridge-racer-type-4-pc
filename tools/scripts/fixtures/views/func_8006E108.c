@@ -22,7 +22,7 @@ extern short func_80090424();
 
 extern short func_800904F4();
 
-void func_8006E108(void *arg0, M2C_UNK arg1) {
+void BuildRotMatrixX(void *arg0, M2C_UNK arg1) {
     s16 temp_s1;
     s16 temp_v0;
 

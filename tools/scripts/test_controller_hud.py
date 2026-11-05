@@ -26,7 +26,7 @@ _Static_assert(sizeof(RrHudTriangle)==12,"triangle");
 typedef uintptr_t (*Callback)(unsigned,uintptr_t*);static Callback cb;void set_callback(Callback c){cb=c;}
 s32 func_8004B70C(s32 n){uintptr_t a[9]={(u32)n};return cb(0,a);}
 void *func_8001FCC8(u32*h,void*p,u16 page){uintptr_t a[9]={(uintptr_t)h,(uintptr_t)p,page};return(void*)cb(1,a);}
-RrSpritePacketSignedClut *func_8001FEC0(u32*h,RrSpritePacketSignedClut*p,s32 x,s32 y,s32 w,s32 he,s32 u,s32 v,s32 c){uintptr_t a[9]={(uintptr_t)h,(uintptr_t)p,(u32)x,(u32)y,(u32)w,(u32)he,(u32)u,(u32)v,(u32)c};return(RrSpritePacketSignedClut*)cb(2,a);}
+RrSpritePacketSignedClut *GameQueueSprite(u32*h,RrSpritePacketSignedClut*p,s32 x,s32 y,s32 w,s32 he,s32 u,s32 v,s32 c){uintptr_t a[9]={(uintptr_t)h,(uintptr_t)p,(u32)x,(u32)y,(u32)w,(u32)he,(u32)u,(u32)v,(u32)c};return(RrSpritePacketSignedClut*)cb(2,a);}
 void *func_8001FD20(u32*h,void*p,s32 x,s32 y,s32 w,s32 he,s32 r,s32 g,s32 b){uintptr_t a[9]={(uintptr_t)h,(uintptr_t)p,(u32)x,(u32)y,(u32)w,(u32)he,(u32)r,(u32)g,(u32)b};return(void*)cb(3,a);}
 RrPolyF3Packet *func_8002071C(u32*h,RrPolyF3Packet*p,s32 a,s32 b,s32 c,const u8*rgb,s32 f){uintptr_t args[9]={(uintptr_t)h,(uintptr_t)p,(u32)a,(u32)b,(u32)c,(uintptr_t)rgb,(u32)f};return(RrPolyF3Packet*)cb(4,args);}
 void *object(unsigned n){switch(n){case 0:return D_800F3A38;case 1:return streams;case 2:return D_8009EE5C;case 3:return D_8009EE64;case 4:return D_8009EE68;case 5:return &D_800ABEB0;case 6:return &scratch;default:abort();}}
@@ -63,7 +63,7 @@ def snap(native):
  if native:ptrs=[pal(C.c_void_p.from_address(N[obj][0]+j*8).value) for obj,count in [(6,2)] for j in range(count)]
  else:ptrs=[struct.unpack('<I',read(addresses[obj]+j*4,4))[0] for obj,count in [(6,2)] for j in range(count)]
  return b''.join(parts)+struct.pack('<2I',*ptrs)
-names=['func_8004B70C','func_8001FCC8','func_8001FEC0','func_8001FD20','func_8002071C'];counts=[1,3,9,9,7];ptrargs=[set(),{0,1},{0,1},{0,1},{0,1,5}];events=[];observed=[];case=0;errors=[];coverage=[0]*5;connection_results=set()
+names=['func_8004B70C','func_8001FCC8','GameQueueSprite','func_8001FD20','func_8002071C'];counts=[1,3,9,9,7];ptrargs=[set(),{0,1},{0,1},{0,1},{0,1,5}];events=[];observed=[];case=0;errors=[];coverage=[0]*5;connection_results=set()
 def service(e,args,native):
  arr=[pal(x) if native and j in ptrargs[e] else x&0xffffffff for j,x in enumerate(args)]
  trace=observed if native else events;trace.append((e,arr,snap(native)));serial=len(trace)
@@ -89,7 +89,7 @@ def callback(e,args):
  try:return service(e,list(args[:counts[e]]),True)
  except BaseException as err:errors.append(err);return 0
 cb=CB(callback);lib.set_callback(cb)
-regs=[UC_MIPS_REG_A0,UC_MIPS_REG_A1,UC_MIPS_REG_A2,UC_MIPS_REG_A3];services={int(n[-8:],16):i for i,n in enumerate(names)}
+regs=[UC_MIPS_REG_A0,UC_MIPS_REG_A1,UC_MIPS_REG_A2,UC_MIPS_REG_A3];services={__import__('c_functions').address_of(n):i for i,n in enumerate(names)}
 def hook(uc,a,size,data):
  e=services[a];count=counts[e];args=[uc.reg_read(r)&0xffffffff for r in regs[:min(count,4)]]
  if count>4:args+=list(struct.unpack('<'+'I'*(count-4),read(uc.reg_read(UC_MIPS_REG_SP)+16,4*(count-4))))

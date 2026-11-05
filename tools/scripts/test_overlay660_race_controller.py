@@ -83,7 +83,7 @@ if os.getenv('RR_COMPILED_ELF'):
  with open(os.environ['RR_COMPILED_ELF'],'rb') as file:u.mem_write(0x11718C,ELFFile(file).get_section_by_name('.text').data())
 def read(a,n):return bytes(u.mem_read(a&0x1fffffff,n))
 def write(a,b):u.mem_write(a&0x1fffffff,b)
-addr=lambda name:int(name[-8:],16)
+addr=lambda name:__import__('c_functions').address_of(name)
 regions=[(name,p,addr(name),size) for name,(p,size) in N.items() if name not in ['D_800ACC14','D_800ADAF0']]
 regions += [('scratchTail',scratch+16,0x1F800008,0x74)]
 mappings=[(p,a,size) for name,p,a,size in regions]+[(frame,0x800ADAF0,frameSize*2),(streams,0x80190000,12288)]
@@ -172,7 +172,7 @@ def hook(uc,a,size,data):
  event=serviceMap[a];count=len(protos[functions[event]][1]);args=[uc.reg_read(r)&0xffffffff for r in regs[:min(count,4)]]
  if count>4:args+=list(struct.unpack('<'+'I'*(count-4),read(uc.reg_read(UC_MIPS_REG_SP)+16,4*(count-4))))
  value=service(event,args,False);uc.reg_write(UC_MIPS_REG_V0,value);uc.reg_write(UC_MIPS_REG_PC,uc.reg_read(UC_MIPS_REG_RA))
-serviceMap={int(name[-8:],16):i for i,name in enumerate(functions)}
+serviceMap={__import__('c_functions').address_of(name):i for i,name in enumerate(functions)}
 for a in serviceMap:u.hook_add(UC_HOOK_CODE,hook,begin=a,end=a)
 def initialize(n,native):
  for name,p,a,size in regions:

@@ -21,7 +21,7 @@ extern s32 func_80096464(void);
 u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg);
 struct S32 *func_8002039C(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9);
 void *func_80020508(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
-struct P *func_80020588(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
+struct P *GameQueueTileTrans(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
 struct P *func_8002064C(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
 RrPolyF3Packet *func_8002071C(u32 *ordering,RrPolyF3Packet *packet,s32 xy0,s32 xy1,s32 xy2,const u8 *rgb,s32 flags);
 
@@ -163,7 +163,7 @@ void *func_80020508(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg
 #define AddPrim ((int (*)())AddPrim)
 #define func_80095B24 ((int (*)())func_80095B24)
 
-struct P *func_80020588(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8) {
+struct P *GameQueueTileTrans(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8) {
     func_80095BD4(a1);
     func_80095B24(a1, 1);
     a1->x = a2;

@@ -42,6 +42,7 @@ def main():
         except UnicodeDecodeError:
             continue
         t2 = pat.sub(lambda m: m.group(0) if t[max(0, m.start() - 24):m.start()].endswith(('fixtures/legacy/', 'fixtures/views/'))
+                     or t[m.end():m.end() + 3] in ("'.c" , '".c') or t[m.end():m.end() + 2] == ".c" and t[m.end() + 2:m.end() + 3] in ("'", '"')
                      else reg[m.group(1)], t)
         if t2 != t:
             n += 1

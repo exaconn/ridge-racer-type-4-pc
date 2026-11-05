@@ -195,10 +195,10 @@ void func_80026F5C(Car *arg0) {
         RR_GTE_SETROT(&g->sB8);
         RR_GTE_MVMVA_ROT_V0_NOCV(&g->sF8);
         RR_GTE_STORE_IR(&g->w100);
-        g->p0->w0 -= g->w100 << 8;
-        g->p0->w8 -= g->w108 << 8;
-        g->p0->w10 = g->p0->w0 >> 6;
-        g->p0->w18 = g->p0->w8 >> 6;
+        g->p0->posX -= g->w100 << 8;
+        g->p0->posZ -= g->w108 << 8;
+        g->p0->posX6 = g->p0->posX >> 6;
+        g->p0->posZ6 = g->p0->posZ >> 6;
     }
     g->s160 = s2->s12 - s1->s12;
     if (g->s160 > 0x400) {

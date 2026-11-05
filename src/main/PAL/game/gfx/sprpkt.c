@@ -38,7 +38,7 @@ void func_8003BFC8(a0) s32 a0;
                     c = 0x16;
                 }
                 if (D_8010C114 == 0x3B && s2 < 2 && a0 == 0) func_8004F2D8(c, 0);
-                *(RrSpritePacket **)SCRATCHPAD = func_8001FEC0((char *)D_800ACC14 + 0x70, *(RrSpritePacket **)SCRATCHPAD, 0x70, 0x60, 0xC, 0xC, s5, 0xA8, 0x7EF8);
+                *(RrSpritePacket **)SCRATCHPAD = GameQueueSprite((char *)D_800ACC14 + 0x70, *(RrSpritePacket **)SCRATCHPAD, 0x70, 0x60, 0xC, 0xC, s5, 0xA8, 0x7EF8);
                 func_8002B5D0(0x80, 0x60, s1, 0x7EF8, 1);
             } else {
                 s3 = D_8010C0F8[D_8010C12C];

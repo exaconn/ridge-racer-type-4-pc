@@ -16,8 +16,8 @@ u32 *func_80090F74(u32 *matrix,s32 scale[3]);
 void func_800912D4(s32 depth);
 void func_800701C4(s32 object);
 void func_8006EE3C(s16 *output,s16 *view,s32 *matrix);
-void func_8006E030(s16 *matrix,s32 angle);
-void func_8006E108(void *matrix,s32 angle);
+void BuildRotMatrixZ(s16 *matrix,s32 angle);
+void BuildRotMatrixX(void *matrix,s32 angle);
 void func_80058768(RrPreviewRenderScratch *scratch,s32 object,s32 blend,s32 depth);
 void ovl665_func_8011643C(void);
 #endif

@@ -74,9 +74,9 @@ typedef struct {
 
 extern GridEntry *D_800F3A28;
 
-extern void func_8006E030(MATRIX *, s32);
-extern void func_8006E09C(MATRIX *, s32);
-extern void func_8006E108(MATRIX *, s32);
+extern void BuildRotMatrixZ(MATRIX *, s32);
+extern void BuildRotMatrixY(MATRIX *, s32);
+extern void BuildRotMatrixX(MATRIX *, s32);
 extern s32 func_80090424(s32);
 extern void MulMatrix(MATRIX *, MATRIX *);
 extern void MulMatrix2(MATRIX *, MATRIX *);
@@ -111,10 +111,10 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
     sp50.vy = 0x200 - g->cam_y0C;
     sp50.vz = D_800F3A28[arg0].z14 - g->cam_z10;
     ApplyMatrix((MATRIX *)SCRATCH_ROT_MATRIX, &sp50, &sp58);
-    func_8006E108(&sp10, D_800F3A28[arg0].rot_z1C);
-    func_8006E030(&sp30, D_800F3A28[arg0].rot_x24);
+    BuildRotMatrixX(&sp10, D_800F3A28[arg0].rot_z1C);
+    BuildRotMatrixZ(&sp30, D_800F3A28[arg0].rot_x24);
     MulMatrix(&sp10, &sp30);
-    func_8006E09C(&sp30, D_800F3A28[arg0].rot_y20);
+    BuildRotMatrixY(&sp30, D_800F3A28[arg0].rot_y20);
     MulMatrix2(&sp30, &sp10);
     MulMatrix2((MATRIX *)SCRATCH_ROT_MATRIX, &sp10);
     sp10.t[0] = sp58.vx;

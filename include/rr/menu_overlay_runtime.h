@@ -80,7 +80,7 @@ extern RrCurrentSelection D_800F4D98;
 extern s32 D_800FF6B0;
 extern RrTimeRecord16 D_800FF700[2][8][5];
 extern RrMenuTextRow60 *D_800FFC14;
-extern RrRaceVehicle *D_800FFC20[8];
+extern RrRaceVehicle *CarTable[8];
 extern RrMenuTextRow60 D_800FFC48[];
 extern s32 D_80107190;
 extern s16 D_8010C134;

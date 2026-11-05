@@ -128,7 +128,7 @@ extern unsigned char D_8009F7D8[];
 extern unsigned char D_8009F7DC[];
 extern struct { char pad[0x1D2]; short h1D2; char pad2[0x1F]; unsigned char b1F3; } *D_800F39C8[];
 extern unsigned char D_800F4D98[][4];
-extern S *D_800FFC20[];
+extern S *CarTable[];
 extern S D_800ABEF8[];
 extern S D_80106B58[];
 extern S D_80106E78[];
@@ -214,26 +214,26 @@ void func_800373DC(int a) {
         i = 0;
         for (; i < D_800AC59C; i++) {
             if (i == 0) {
-                D_800FFC20[0] = D_800ABEF8;
+                CarTable[0] = D_800ABEF8;
             } else {
-                D_800FFC20[i] = D_80106E78 + i;
+                CarTable[i] = D_80106E78 + i;
             }
         }
         break;
     case 2:
         D_800AC59C = 2;
-        D_800FFC20[0] = D_800ABEF8;
-        D_800FFC20[1] = D_800ABEF8 + 1;
+        CarTable[0] = D_800ABEF8;
+        CarTable[1] = D_800ABEF8 + 1;
         break;
     case 3:
         i = 2;
-        D_800FFC20[0] = D_800ABEF8;
-        D_800FFC20[1] = D_800ABEF8 + 1;
+        CarTable[0] = D_800ABEF8;
+        CarTable[1] = D_800ABEF8 + 1;
         v = D_800AC59C;
         if (i < v) {
             n = v;
             do {
-                D_800FFC20[i] = D_80106B58 + i;
+                CarTable[i] = D_80106B58 + i;
                 i++;
             } while (i < n);
         }
@@ -241,15 +241,15 @@ void func_800373DC(int a) {
     case 4:
         D_800AC59C = 4;
         if (D_800AD508 == 1) {
-            D_800FFC20[0] = D_800ABEF8;
-            D_800FFC20[1] = D_800ABEF8 + 1;
-            D_800FFC20[2] = D_80107198;
-            D_800FFC20[3] = D_80107198 + 1;
+            CarTable[0] = D_800ABEF8;
+            CarTable[1] = D_800ABEF8 + 1;
+            CarTable[2] = D_80107198;
+            CarTable[3] = D_80107198 + 1;
         } else {
-            D_800FFC20[2] = D_800ABEF8;
-            D_800FFC20[3] = D_800ABEF8 + 1;
-            D_800FFC20[0] = D_80107198;
-            D_800FFC20[1] = D_80107198 + 1;
+            CarTable[2] = D_800ABEF8;
+            CarTable[3] = D_800ABEF8 + 1;
+            CarTable[0] = D_80107198;
+            CarTable[1] = D_80107198 + 1;
         }
         break;
     case 5:
@@ -257,17 +257,17 @@ void func_800373DC(int a) {
         i = 0;
         n = 7;
         for (; i < n; i++) {
-            D_800FFC20[i] = D_80107198 + i;
+            CarTable[i] = D_80107198 + i;
         }
         break;
     default:
     case 0:
-        D_800FFC20[0] = D_800ABEF8;
+        CarTable[0] = D_800ABEF8;
         D_800AC59C = 1;
         break;
     case 6:
-        D_800FFC20[0] = D_800ABEF8;
-        D_800FFC20[1] = D_80107198;
+        CarTable[0] = D_800ABEF8;
+        CarTable[1] = D_80107198;
         D_800AC59C = 2;
         break;
     }

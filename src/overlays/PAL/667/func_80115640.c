@@ -48,7 +48,7 @@ extern s16 D_800F4C70[];
 extern s16 D_800F2AB4[];
 extern u16 D_8010C0C8[];
 extern Ovl667Vehicle D_800ABEF8[];
-extern Ovl667Vehicle *D_800FFC20[];
+extern Ovl667Vehicle *CarTable[];
 extern Ovl667FrameStorage D_800ADAF0[2];
 
 extern s32 ovl667_D_80118ED4;
@@ -150,7 +150,7 @@ void ovl667_func_80115640(void) {
     } else if (D_800FF6B0 == 1) {
         if (D_800F2DE4 >= 176) {
             for (i = 0; i < 4; i++) {
-                func_80022CD4(D_800FFC20[i]);
+                func_80022CD4(CarTable[i]);
             }
             D_800FF6B0 = 2;
             func_80052A30(1);
@@ -170,7 +170,7 @@ void ovl667_func_80115640(void) {
                 ovl667_func_80114A40();
             }
             for (i = 0; i < D_800AC59C; i++) {
-                D_8010C0C8[i] = D_800FFC20[i]->rank1EE;
+                D_8010C0C8[i] = CarTable[i]->rank1EE;
             }
             func_8003660C();
             func_8009AEAC(1, 1, 3);
@@ -183,7 +183,7 @@ void ovl667_func_80115640(void) {
     }
 
     for (i = 0; i < D_800AC59C; i++) {
-        ovl667_func_80115508(D_800FFC20[i]);
+        ovl667_func_80115508(CarTable[i]);
     }
     func_8003C96C();
 

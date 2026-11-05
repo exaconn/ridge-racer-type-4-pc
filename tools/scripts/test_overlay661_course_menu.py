@@ -12,7 +12,7 @@ source=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'src/overlays/PAL/661/func
 source=source.resolve()
 full=source.read_text();start=full.index('void ovl661_func_80117430(void) {');body=full[start:];header=full[:start]
 body=re.sub(r' __asm__\("\$\d+"\)','',body)
-globals=sorted(set(re.findall(r'\b(?:ovl661_)?D_[0-9A-F]{8}\b',body))-{'D_800F3A60'})
+globals=sorted(set(re.findall(r'\b(?:ovl661_)?(?:D_[0-9A-F]{8}|CarTable)\b',body))-{'D_800F3A60'})
 functions=sorted(set(re.findall(r'\b(?:ovl661_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl661_func_80117430'})
 head='''#include <stdint.h>
 #include <stdlib.h>

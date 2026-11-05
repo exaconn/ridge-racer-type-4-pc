@@ -13,7 +13,7 @@ ROOT=Path(__file__).resolve().parents[2];os.chdir(ROOT)
 P=Path(os.getenv('RR_TEST_DIR','build/tests/overlay659_preview_controller'));P.mkdir(parents=True,exist_ok=True)
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/659/func_80115CE4.c')
 body=read_c_source(source);body=body[body.index('void ovl659_update_preview'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
-names=sorted(set(re.findall(r'\b(?:D_[0-9A-F]{8}|ovl659_[a-z][a-z0-9_]*)\b',body)))
+names=sorted(set(re.findall(r'\b(?:(?:D_[0-9A-F]{8}|CarTable)|ovl659_[a-z][a-z0-9_]*)\b',body)))
 names=[n for n in names if not re.search(r"\b"+n+r"\s*\(",body)]
 functions=sorted(set(re.findall(r'\b(?:ovl659_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl659_update_preview'})
 head='''#include <stdint.h>

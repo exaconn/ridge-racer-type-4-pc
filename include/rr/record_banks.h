@@ -14,7 +14,7 @@ typedef struct {
 } RrBankRecord320;
 extern s32 D_800AC5A8,D_800AD504,D_800ADAC8,D_80107188;
 extern s16 D_800AC59C;
-extern RrBankRecord320 *D_800AC570[],*D_800FFC20[];
+extern RrBankRecord320 *D_800AC570[],*CarTable[];
 extern u8 D_800FFC48[];
 extern u8 *D_800AD510[];
 

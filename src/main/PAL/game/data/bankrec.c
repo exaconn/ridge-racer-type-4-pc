@@ -56,7 +56,7 @@ void func_800293D0(s32 layout,s32 mode) {
         i=0;
         if (*(s16 *)(read_page-0x3A64)>0) {
             bound_page=read_page;
-            restore_dest=D_800FFC20;
+            restore_dest=CarTable;
             restore_source=D_800AC570;
             do {
                 **restore_dest=**restore_source;

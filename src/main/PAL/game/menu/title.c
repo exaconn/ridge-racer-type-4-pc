@@ -55,7 +55,7 @@ extern int D_800F3A6C;
 extern short D_800F4C6A;
 extern short D_800F4D8A;
 extern int D_8010718C;
-extern int D_800FFC20[];
+extern int CarTable[];
 typedef struct 
 {
   char pad[0xF0];
@@ -488,7 +488,7 @@ void func_8005DDF4()
   else
   {
     register int i_s1 asm("s1") = 1; /* ASM_BARRIER: pin loop counter to s1 */
-    register int *ip_v0 asm("v0") = D_800FFC20; /* ASM_BARRIER: load base address into v0 before adding 4 into s0 */
+    register int *ip_v0 asm("v0") = CarTable; /* ASM_BARRIER: load base address into v0 before adding 4 into s0 */
     register int *ip_s0 asm("s0"); /* ASM_BARRIER: pin array pointer to s0 */
     __asm__ volatile("" : "+r"(ip_v0)); /* ASM_BARRIER: prevent folding +1 into address lo */
     ip_s0 = ip_v0 + 1;

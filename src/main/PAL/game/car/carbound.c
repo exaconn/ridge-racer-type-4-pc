@@ -26,7 +26,7 @@ struct V { int a, b, c, d; };
 
 typedef struct { int a, b, c, d; } V4;
 
-extern T *D_800FFC20[];
+extern T *CarTable[];
 extern short D_800AC59C;
 extern short D_800AD508;
 extern int func_8002D1B4();
@@ -53,20 +53,20 @@ void func_8002E0D8(a0) int a0; {
     switch (a0) {
     case 0:
         z = 0;
-        if (!(D_800FFC20[0]->f1E4 & 0x100)) {
-            func_8002D1B4(D_800FFC20[0], z);
+        if (!(CarTable[0]->f1E4 & 0x100)) {
+            func_8002D1B4(CarTable[0], z);
         } else {
             __asm__("" : "=r"(y) : "0"(z)); /* ASM_BARRIER: hide that z==0 from cse so the else-arm copies a1 (move a2,a1) while the then-arm keeps the single hoisted a1=0 */
-            func_80015F68(D_800FFC20[0], y, y, y, 0, 0, 0);
+            func_80015F68(CarTable[0], y, y, y, 0, 0, 0);
         }
     case 1:
         if (D_800F4D44 != 4) {
             for (i = 1; i < D_800AC59C; i++) {
-                if (D_800FFC20[i]->f1E8 != -1) func_8002D784(D_800FFC20[i], a0);
+                if (CarTable[i]->f1E8 != -1) func_8002D784(CarTable[i], a0);
             }
         } else {
             if (D_80107178 == 2) {
-                { char *bb = (char *)D_800FFC20; func_8002D784(*(T **)(bb + (D_800AD508 << 3)), a0); }
+                { char *bb = (char *)CarTable; func_8002D784(*(T **)(bb + (D_800AD508 << 3)), a0); }
             }
         }
         break;
@@ -80,7 +80,7 @@ void func_8002E0D8(a0) int a0; {
         if (D_80107178 == 2) s2 = 0;
         if (D_800AC59C > 0) {
             i = 0;
-            p = D_800FFC20;
+            p = CarTable;
             do {
                 if (p[0]->f1E8 != -1) {
                     if (a0 - 2 == i) {
@@ -104,7 +104,7 @@ void func_8002E0D8(a0) int a0; {
         if (D_800AC59C > 0) {
             i = 0;
             do {
-                if (D_800FFC20[i]->f1E8 != -1) func_8002D784(D_800FFC20[i], 2);
+                if (CarTable[i]->f1E8 != -1) func_8002D784(CarTable[i], 2);
                 i++;
             } while (i < D_800AC59C);
         }

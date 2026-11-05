@@ -19,6 +19,10 @@ def registry():
         m = re.match(r'^(\w+)\s*=\s*0x([0-9A-Fa-f]+);\s*//\s*type:func', l)
         if m and not re.fullmatch(r'func_[0-9A-F]{8}', m.group(1)):
             out[f'func_{int(m.group(2), 16):08X}'] = m.group(1)
+    for l in (ROOT / 'configs/PAL/sym.main.txt').read_text().splitlines():     # data: D_<ADDR> -> Name
+        m = re.match(r'^(\w+)\s*=\s*0x([0-9A-Fa-f]+);\s*//\s*type:(?!func)', l)
+        if m and not re.fullmatch(r'D_[0-9A-F]{8}', m.group(1)):
+            out[f'D_{int(m.group(2), 16):08X}'] = m.group(1)
     return out
 
 

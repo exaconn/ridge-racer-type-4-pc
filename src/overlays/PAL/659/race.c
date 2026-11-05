@@ -81,7 +81,7 @@ void ovl659_update_race(void) {
     } else if (D_800FF6B0 >= 4) {
         s32 a2;
         if (D_800AC5D0 < 25) {
-            if (D_800FFC20[0]->half1EE <= ovl659_finish_rank_limits[D_800AD4D8.phase17 >> 1]) {
+            if (CarTable[0]->half1EE <= ovl659_finish_rank_limits[D_800AD4D8.phase17 >> 1]) {
                 a2 = 37;
             } else {
                 a2 = 69;

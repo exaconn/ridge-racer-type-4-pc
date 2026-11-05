@@ -10,7 +10,7 @@ extern int func_800293D0();
 extern E D_800ABEF8[];
 extern short D_800AC3FC;
 extern short D_800AC59C;
-extern int D_800FFC20[];
+extern int CarTable[];
 extern int D_800F2EB8;
 extern short D_80107178;
 extern int D_800ADAC8;
@@ -54,7 +54,7 @@ void func_80037B3C(int a0)
         s2 = 0;
         if (D_800AC59C > 0) {
             s3 = D_800ABEBC;
-            s0 = D_800FFC20;
+            s0 = CarTable;
             do {
                 if (*(signed char *)(s1 + (int)s3) == 1) {
                     func_80022980(*s0, s1, s2);

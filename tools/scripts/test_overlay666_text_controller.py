@@ -13,7 +13,7 @@ ROOT=Path(__file__).resolve().parents[2];os.chdir(ROOT)
 P=Path(os.getenv('RR_TEST_DIR','build/tests/overlay666_text_controller'));P.mkdir(parents=True,exist_ok=True)
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/666/func_80115590.c')
 body=read_c_source(source);body=body[body.index('void ovl666_update_results'):]
-global_names=sorted(set(re.findall(r'\b(?:D_[0-9A-F]{8}|ovl666_[a-z][a-z0-9_]*)\b',body)))
+global_names=sorted(set(re.findall(r'\b(?:(?:D_[0-9A-F]{8}|CarTable)|ovl666_[a-z][a-z0-9_]*)\b',body)))
 global_names=[n for n in global_names if not re.search(r"\b"+n+r"\s*\(",body)]
 functions=sorted(set(re.findall(r'\b(?:func_[0-9A-F]{8}|ovl666_[a-z][a-z0-9_]*)(?=\()',body))-{'ovl666_update_results'})
 head='#include <stdint.h>\n#include <stddef.h>\n#include <stdlib.h>\n#include "rr/overlay666_text_controller.h"\n'

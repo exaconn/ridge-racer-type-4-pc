@@ -126,7 +126,7 @@ extern int D_800F2A64;
 extern short D_800F2AB4[];
 extern int D_800F2DE4;
 extern short D_800F4C70[];
-extern struct { char pad[0x1E4]; short f1e4; } *D_800FFC20[];
+extern struct { char pad[0x1E4]; short f1e4; } *CarTable[];
 
 void func_800295B8(int unused);
 void func_80029660(char *arg0, int arg1);
@@ -135,7 +135,7 @@ void func_80029F34();
 void func_8002A008(void);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800FFC20 (*(B800 *(*)[])&D_800FFC20)
+#define CarTable (*(B800 *(*)[])&CarTable)
 
 /* Callers explicitly supply this legacy argument; the body ignores it. */
 void func_800295B8(int unused)
@@ -145,12 +145,12 @@ void func_800295B8(int unused)
   {
     D_800ADAC8 = D_800FF6B0;
     for (i = 0; i < D_800AC59C; i++)
-      *D_800AC570[i] = *D_800FFC20[i];
+      *D_800AC570[i] = *CarTable[i];
     D_800AD504 = 1;
   }
 }
 
-#undef D_800FFC20
+#undef CarTable
 
 void func_80029660(char *arg0, int arg1) {
     SA0 *a0;
@@ -442,8 +442,8 @@ void func_8002A008(void) {
         { int tt = *(int *)SCRATCHPAD; *(int *)SCRATCHPAD = func_80020074(D_800ACC14 + 0x70, tt, 0x10, 0x10, 0x4C, 0xC, 0x64, 0xC0, 5, 0x7FF8, 0, 0x80); }
     }
     for (i = 0; i < D_800AC59C; i++) {
-        if (D_800FFC20[i]->f1e4 >= 0x10) {
-            func_80029E0C(D_800FFC20[i]);
+        if (CarTable[i]->f1e4 >= 0x10) {
+            func_80029E0C(CarTable[i]);
         }
     }
     func_80037D88(D_800F4D44);

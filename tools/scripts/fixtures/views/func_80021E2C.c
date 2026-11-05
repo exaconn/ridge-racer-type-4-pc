@@ -41,7 +41,7 @@ void func_80021E2C(s32 arg0) {
         s32 yBase;RrUiUvRect *const glyph=&D_8009EE58;
         do {
             temp_hi = (s32) (var_s2 + var_s0) % (s16) D_800AC59C;
-            temp_a0 = D_800FFC20[temp_hi];
+            temp_a0 = CarTable[temp_hi];
             if ((u16)temp_a0->value1E4 & 0x10) {
                 u16 clut=(temp_hi<<6)+0x1A16;
                 s32 yNumerator=temp_a0->y28; s32 xNumerator=temp_a0->x20;

@@ -100,3 +100,4 @@ GameQueueTileTrans = 0x80020588; // type:func
 BuildRotMatrixZ = 0x8006E030; // type:func
 BuildRotMatrixY = 0x8006E09C; // type:func
 BuildRotMatrixX = 0x8006E108; // type:func
+CarTable = 0x800FFC20; // type:u32

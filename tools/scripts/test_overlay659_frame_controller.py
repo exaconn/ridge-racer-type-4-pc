@@ -13,7 +13,7 @@ ROOT=Path(__file__).resolve().parents[2];os.chdir(ROOT)
 P=Path(os.getenv('RR_TEST_DIR','build/tests/overlay659_frame_controller'));P.mkdir(parents=True,exist_ok=True)
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/659/func_80114908.c')
 body=read_c_source(source);body=body[body.index('void ovl659_update_race'):]
-names=sorted(set(re.findall(r'\b(?:D_[0-9A-F]{8}|ovl659_[a-z][a-z0-9_]*)\b',body)))
+names=sorted(set(re.findall(r'\b(?:(?:D_[0-9A-F]{8}|CarTable)|ovl659_[a-z][a-z0-9_]*)\b',body)))
 names=[n for n in names if not re.search(r"\b"+n+r"\s*\(",body)]
 assert 'D_800AD4EF' not in names
 functions=sorted(set(re.findall(r'\b(?:ovl659_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl659_update_race'})
@@ -69,14 +69,14 @@ code+=f'case {G}:return sizeof(scratch);case {G+1}:return sizeof(extraBlock.data
 code+='''
 size_t scratch_offset(void){return offsetof(RrOvl659Scratch,word78);}
 void pointers(unsigned f,unsigned c){D_800ACC14=(void*)&D_800ADAF0[f];scratch.pointers.cursor=(void*)streamBlock.data[c];scratch.pointers.order=streamBlock.data[(c+2)%3];}
-void npc(unsigned slot,unsigned record){D_800FFC20[slot]=record<2?&D_800ABEF8[record]:&extraBlock.data[record-2];}
+void npc(unsigned slot,unsigned record){CarTable[slot]=record<2?&D_800ABEF8[record]:&extraBlock.data[record-2];}
 '''
 native=P/'native.c';native.write_text(code)
 subprocess.run(['cc','-std=gnu11','-O2','-shared','-fPIC','-Iinclude','-fsanitize=undefined,bounds','-fno-sanitize-recover=all',str(native),'-o',str(P/'native.dylib')],check=True)
 lib=C.CDLL(str(P/'native.dylib'));lib.object.restype=C.c_void_p;lib.object_size.restype=C.c_size_t;lib.scratch_offset.restype=C.c_size_t
 N={n:(lib.object(i),lib.object_size(i)) for i,n in enumerate(names)}
 scratch=lib.object(G);scratch_size=lib.object_size(G);scratch_field=lib.scratch_offset();extra=lib.object(G+1);streams=lib.object(G+2)
-frame=N['D_800ADAF0'][0];frame_size=N['D_800ADAF0'][1];assert frame_size==0x44EF0 and N['D_800ABEF8'][1]==0x640 and N['D_800FFC20'][1]==64
+frame=N['D_800ADAF0'][0];frame_size=N['D_800ADAF0'][1];assert frame_size==0x44EF0 and N['D_800ABEF8'][1]==0x640 and N['CarTable'][1]==64
 assert min(scratch,extra,streams,frame)>0xffffffff and scratch_field==0x80 and scratch_size==0x88
 u=Uc(UC_ARCH_MIPS,UC_MODE_MIPS32|UC_MODE_LITTLE_ENDIAN);u.mem_map(0,0x400000);u.mem_map(0x1F7FF000,0x2000)
 u.mem_write(0x10000,Path('assets/PAL/main.exe').read_bytes()[0x800:])
@@ -93,7 +93,7 @@ def write(a,b):u.mem_write(a&0x1fffffff,b)
 addr=lambda n:SYMBOL_ADDRESSES[n] if n in SYMBOL_ADDRESSES else __import__('c_functions').address_of(n)
 regions=[]
 for n,(p,size) in N.items():
- if n in ['D_800ACC14','D_800FFC20']:continue
+ if n in ['D_800ACC14','CarTable']:continue
  if n in guarded:regions.append((n,p-16,addr(n)-16,size+32))
  else:regions.append((n,p,addr(n),size))
 regions += [('extra',extra-16,0x8017FFF0,8*0x320+32),('streams',streams-16,0x8018FFF0,12288+32)]
@@ -123,7 +123,7 @@ def npc(slot,record,native):
 def snapshot(native):
  parts=[C.string_at(p,s) if native else read(a,s) for n,p,a,s in regions]
  if native:
-  ptrs=[palpointer(C.c_void_p.from_address(N['D_800ACC14'][0]).value)]+[palpointer(C.c_void_p.from_address(N['D_800FFC20'][0]+j*8).value) for j in range(8)]
+  ptrs=[palpointer(C.c_void_p.from_address(N['D_800ACC14'][0]).value)]+[palpointer(C.c_void_p.from_address(N['CarTable'][0]+j*8).value) for j in range(8)]
   cur=palpointer(C.c_void_p.from_address(scratch).value);order=palpointer(C.c_void_p.from_address(scratch+8).value)
   tail=C.string_at(scratch+16,0x70)+C.string_at(scratch+scratch_field,4)
   assert C.string_at(scratch+scratch_field+4,4)==b'\xA5'*4,'native tail padding'

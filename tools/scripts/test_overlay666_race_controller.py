@@ -15,7 +15,7 @@ os.chdir(Path(__file__).resolve().parents[2])
 P=Path(os.environ.get('RR_TEST_DIR','build/tests/overlay666_race_controller'));P.mkdir(parents=True,exist_ok=True)
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/666/func_80116730.c')
 body=read_c_source(source)
-globals=sorted(set(re.findall(r'\b(?:D_[0-9A-F]{8}|ovl666_[a-z][a-z0-9_]*)\b',body)))
+globals=sorted(set(re.findall(r'\b(?:(?:D_[0-9A-F]{8}|CarTable)|ovl666_[a-z][a-z0-9_]*)\b',body)))
 globals=[n for n in globals if not re.search(r"\b"+n+r"\s*\(",body)]
 aliases={'D_800AC0E2':'half1EA','D_800AC0E6':'half1EE'}
 globals=[x for x in globals if x not in aliases]

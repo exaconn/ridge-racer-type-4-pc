@@ -36,7 +36,7 @@ static World actual,expected;
 #define D_80107188 actual.limit
 #define D_800AC59C actual.count_record.value1E4
 #define D_800AC570 actual.sources
-#define D_800FFC20 actual.destinations
+#define CarTable actual.destinations
 #define D_800FFC48 actual.arena.bytes
 #define D_800AD510 actual.banks
 ''' + body + r'''

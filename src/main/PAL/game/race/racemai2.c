@@ -131,7 +131,7 @@ extern unsigned char D_8009F7E0[];
 extern char D_800ABEF8[];
 extern short D_800AC59C;
 extern unsigned short D_800F3914;
-extern C *D_800FFC20[];
+extern C *CarTable[];
 extern int func_800904F4();
 extern s32 func_8006E368(s32, s32);
 extern s32 func_80090424(s32);
@@ -203,13 +203,13 @@ unsigned int arg0;
     case 4:
       for (i = 0; i < D_800AC59C; i++)
       {
-        func_80029660(D_800FFC20[i], i);
+        func_80029660(CarTable[i], i);
       }
       for (i = 0; i < D_800AC59C; i++)
       {
-        if (D_800FFC20[i]->s1E8 != (-1))
+        if (CarTable[i]->s1E8 != (-1))
         {
-          func_80022B64(D_800FFC20[i], i);
+          func_80022B64(CarTable[i], i);
         }
       }
       break;
@@ -224,25 +224,25 @@ unsigned int arg0;
   {
     for (*g = 0; *g < D_800AC59C; (*g)++)
     {
-      if (D_800FFC20[*g]->s1E8 != (-1))
+      if (CarTable[*g]->s1E8 != (-1))
       {
-        D_8009F7A0[i](D_800FFC20[*g]);
+        D_8009F7A0[i](CarTable[*g]);
       }
     }
   }
   for (i = 0; i < D_800AC59C; i++)
   {
-    if (D_800FFC20[i]->s1E8 != (-1))
+    if (CarTable[i]->s1E8 != (-1))
     {
-      if (D_800FFC20[i]->s1A0 & 7)
+      if (CarTable[i]->s1A0 & 7)
       {
-        func_8002C1D4(2, D_800FFC20[i]);
-        func_8002BF34(D_800FFC20[i], (short) D_800FFC20[i]->s1A0);
+        func_8002C1D4(2, CarTable[i]);
+        func_8002BF34(CarTable[i], (short) CarTable[i]->s1A0);
       }
-      if (((short) D_800FFC20[i]->s1A0) != 0)
+      if (((short) CarTable[i]->s1A0) != 0)
       {
-        s4 = ((func_80025F84(0x800 - D_800FFC20[i]->s1EC, D_800FFC20[i]->s1D4) - 0x400) * 3) / 5;
-        c = D_800FFC20[i];
+        s4 = ((func_80025F84(0x800 - CarTable[i]->s1EC, CarTable[i]->s1D4) - 0x400) * 3) / 5;
+        c = CarTable[i];
         if (c->s1D8 >= 0xA1)
         {
           if (c->s1E4 & 0x10)
@@ -250,12 +250,12 @@ unsigned int arg0;
             if (c->s1D8 >= 0x2F9)
             {
               c->s224 = 0x80;
-              c = D_800FFC20[i];
+              c = CarTable[i];
             }
             s0 = (c->s1D8 * 0x3A) / (c->s28C + 1);
             c->s24C -= 0x1388;
             new_var = func_800904F4(s4, c);
-            c = D_800FFC20[i];
+            c = CarTable[i];
             c->s294 = (c->s294 * (0x64 - ((s0 * new_var) >> 12))) / 100;
           }
           else
@@ -263,26 +263,26 @@ unsigned int arg0;
             s0 = (c->s1D8 * 0x1E) / ((c->s2EC >> 8) + 1);
           }
           new_var = func_800904F4(s4, c);
-          c = D_800FFC20[i];
+          c = CarTable[i];
           c->s1D8 = (c->s1D8 * (0x64 - ((s0 * new_var) / 4096))) / 100;
         }
       }
-      if (D_800FFC20[i]->s1D8 >= 0x321)
+      if (CarTable[i]->s1D8 >= 0x321)
       {
-        if (D_800FFC20[i]->s1B8 == 0)
+        if (CarTable[i]->s1B8 == 0)
         {
           for (j = 0; j < 4; j++)
           {
-            if (D_800FFC20[i]->s1F0[j] != 0)
+            if (CarTable[i]->s1F0[j] != 0)
             {
-              D_800FFC20[i]->s1D8 -= D_8009F7E0[s5];
-              if (D_800FFC20[i]->s1F0[j] == 2)
+              CarTable[i]->s1D8 -= D_8009F7E0[s5];
+              if (CarTable[i]->s1F0[j] == 2)
               {
-                D_800FFC20[i]->s1D8 += D_8009F7E0[s5];
+                CarTable[i]->s1D8 += D_8009F7E0[s5];
               }
-              if (s5 == 2 || D_800FFC20[i]->s1A7 == 0)
+              if (s5 == 2 || CarTable[i]->s1A7 == 0)
               {
-                D_800FFC20[i]->s1A7 = 0xA;
+                CarTable[i]->s1A7 = 0xA;
               }
             }
           }
@@ -294,9 +294,9 @@ unsigned int arg0;
   {
     for (*g = 0; *g < D_800AC59C; (*g)++)
     {
-      if (D_800FFC20[*g]->s1E8 != (-1))
+      if (CarTable[*g]->s1E8 != (-1))
       {
-        D_8009F7A0[i](D_800FFC20[*g]);
+        D_8009F7A0[i](CarTable[*g]);
       }
     }
   }
@@ -355,7 +355,7 @@ void func_80038550(s32 arg0) {
 #define func_8002C1D4 ((void (*)(s32, CarCollision *))func_8002C1D4)
 #define func_800904F4 ((s32 (*)(s32))func_800904F4)
 #define D_800ABEF8 (*(CarCollision (*)[2])&D_800ABEF8)
-#define D_800FFC20 (*(CarCollision *(*)[])&D_800FFC20)
+#define CarTable (*(CarCollision *(*)[])&CarTable)
 
 void func_80038654(CarCollision *arg0) {
     ScratchpadCollision *sp = (ScratchpadCollision *)SCRATCH_CAR_WORK;
@@ -402,7 +402,7 @@ void func_80038654(CarCollision *arg0) {
     arg0_24 = arg0->pos20[1];
 
     for (; i < D_800AC59C; i++) {
-        other = D_800FFC20[i];
+        other = CarTable[i];
         if (other != arg0 && other->unk1E8 != -1) {
             s32 diffF4;
             s32 diff18C;
@@ -642,7 +642,7 @@ void func_80038654(CarCollision *arg0) {
 #undef func_8002C1D4
 #undef func_800904F4
 #undef D_800ABEF8
-#undef D_800FFC20
+#undef CarTable
 
 void func_80039494(RrRaceVehicle *vehicle)
 {

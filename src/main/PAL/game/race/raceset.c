@@ -35,7 +35,7 @@ extern s16 D_8010C134;
 extern s32 D_8010C140[3];
 extern short D_800AC59C;
 extern W10_Q *D_800F2DE8[];
-extern W10_O *D_800FFC20[];
+extern W10_O *CarTable[];
 extern void func_8003CAF4();
 extern unsigned short D_8009F914[];
 
@@ -193,7 +193,7 @@ void func_8003C96C(void)
     for (i = 0; i < D_800AC59C; i++)
     {
       W10_Q *q = D_800F2DE8[i];
-      W10_O **o = &D_800FFC20[q->idx];
+      W10_O **o = &CarTable[q->idx];
       q->key = (*o)->a + (*o)->b;
       (*o)->n = i;
     }

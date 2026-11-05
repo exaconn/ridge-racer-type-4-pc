@@ -17,7 +17,7 @@ P=Path(os.environ.get('RR_TEST_DIR','build/tests/overlay660_race_controller'));P
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/660/func_8011718C.c')
 body=read_c_source(source)
 if body.startswith('#include'):body=body.split('\n',1)[1]
-globals=sorted(set(re.findall(r'\b(?:ovl660_)?D_[0-9A-F]{8}\b',body)))
+globals=sorted(set(re.findall(r'\b(?:ovl660_)?(?:D_[0-9A-F]{8}|CarTable)\b',body)))
 aliases={'D_800AC0E2':'half1EA','D_800AC0E6':'half1EE'}
 globals=[x for x in globals if x not in aliases]
 functions=sorted(set(re.findall(r'\b(?:ovl660_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl660_func_8011718C'})

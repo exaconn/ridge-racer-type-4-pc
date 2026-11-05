@@ -20,7 +20,7 @@ typedef struct {
 } Vehicle320;
 
 extern Vehicle320 D_80107198[];
-extern Vehicle320 *D_800FFC20[];
+extern Vehicle320 *CarTable[];
 extern RrRaceStandingsTable *D_800AC738;
 extern s32 D_800AC664;
 extern s16 D_800AC59C;
@@ -60,7 +60,7 @@ void func_80049C68(void) {
     }
 
     for (i = 0; i < D_800AC59C; i++) {
-        v = D_800FFC20[i];
+        v = CarTable[i];
         t->entries18[i].unk00 = i;
         t->entries18[i].totalDist04 = v->first + v->second;
         t->entries18[i].vehicle08 = (RrRaceVehicle *)v;

@@ -59,7 +59,7 @@ extern s32 D_800F4BA8[10];
  * mode values are supported. Helpers may change later-read globals, tables,
  * current/future vehicle flags and output state; both whole vehicles stay live.
  * The 8011 hooks are the overlay entry points used when entering mode4. */
-void func_8003CAF4(void);
+void func_8003CAF4();
 RR_ASSERT_SIZE(RrRaceSetupPair4,4);
 RR_ASSERT_OFFSET(RrRaceSetupPair4,second,2);
 #endif

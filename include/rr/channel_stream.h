@@ -22,7 +22,7 @@ typedef struct {
     u32 targetTempoAC;
 } RrChannelStreamB0;
 extern RrChannelStreamB0 *D_8010F068[];
-void func_800833A0(s32 bank,s32 row);
+void func_800833A0();
 void func_80083994(s32,s16);
 void func_80089E1C(s32);
 RR_ASSERT_SIZE(RrChannelStreamB0,0xB0);

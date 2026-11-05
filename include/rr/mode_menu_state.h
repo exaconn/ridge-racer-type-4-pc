@@ -14,7 +14,7 @@ extern u16 D_800F3A26, D_800F4D8A;
 extern RrMenuSettings2C D_800F2E30[3], D_8010B258[3];
 
 void func_8002B75C(char *destination, char *source);
-s32 func_80035024(s32 mode);
+int func_80035024();
 void func_80053BB4(s32 mode);
 s32 func_8003B934(void);
 void func_8002A344(s32 layout);

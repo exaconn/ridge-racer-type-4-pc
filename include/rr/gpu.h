@@ -39,7 +39,7 @@ typedef struct {
 /* The DMA packet header occupies the eight bytes preceding this payload. */
 extern RrGpuMovePayload D_800ABB60;
 void func_80092DB8(const char *name, RrGpuRectangle *rectangle);
-void func_80095990(void);
+void func_80095990();
 void func_80094B28(unsigned long address);
 s32 MoveImage2(RrGpuRectangle *rectangle, s32 x, s32 y);
 /* Uploads ceil(width*height/2) packed pixel words, using a CPU tail and DMA

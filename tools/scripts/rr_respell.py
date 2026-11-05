@@ -30,6 +30,24 @@ def verify():
     return True
 
 
+NARROW = re.compile(r'\b(s8|u8|s16|u16|char|short|float|double|bool)\b')
+
+
+def host_compatible(old, new):
+    """The rr/ headers are also compiled by the host tests against definitions with full prototypes. A K&R
+    `f()` is compatible with such a definition only when the return type is the same and no parameter is
+    narrower than int (default argument promotions)."""
+    om = LINE.match(old.strip())
+    if not om:
+        return False
+    odecl = om.group('decl')
+    name = om.group('name')
+    oret = re.sub(r'\s+', ' ', odecl[:odecl.index(name)]).strip()
+    oparams = odecl[odecl.index('(') + 1:odecl.rindex(')')]
+    nret = re.sub(r'\s+', ' ', new[:new.index(name)]).strip()
+    return oret == nret and not NARROW.search(oparams)
+
+
 def main():
     units, defs, local = {}, {}, defaultdict(list)
     for p in sorted(U.SRC.rglob('*.c')):
@@ -83,6 +101,7 @@ def main():
         for n, f in ex.map(best, targets):
             if f:
                 chosen[n] = f
+    chosen = {n: f for n, f in chosen.items() if host_compatible(rr[n][0][1], f)}
     print('names with an accepted spelling', len(chosen))
 
     def apply(names):

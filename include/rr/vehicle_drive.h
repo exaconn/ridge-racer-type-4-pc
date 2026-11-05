@@ -41,7 +41,7 @@ RR_ASSERT_OFFSET(RrDriveControlView,gearRatios100,0x100);
 s32 func_80047DF8(char *vehicle,s32 lane,s32 *,s32 *,s32 *);
 void func_80047FBC(RrRaceVehicle *vehicle,s32 speed);
 void func_800483D8(RrRaceVehicle *vehicle);
-s32 func_800924D4(s32 x,s32 z);
+s32 func_800924D4();
 /* Gear after a pending shift addresses one of six ratios. Pure angle/response
  * services retain the vehicle; road sampling writes its three output words.
  * Lane and final drive updates can change the complete live vehicle. Response

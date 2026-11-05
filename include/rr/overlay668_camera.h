@@ -16,7 +16,7 @@ typedef struct {
 extern RrReplayCameraContextPrefix D_800AC650;
 extern RrTrackSample3C *D_800ABEA4;
 extern s32 D_800ABECC;
-s32 func_8006E368(s32,s32);
+s32 func_8006E368();
 /* Node and its single-wrapped neighbours select accessible track samples.
  * Position and interpolation results use wrapping32 arithmetic. Fraction is
  *0..1023; sample count is at least4. Services may replace the sample table and

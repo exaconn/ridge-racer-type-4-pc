@@ -1,3 +1,4 @@
+#include "game/car/car.h"
 #include "types.h"
 #include "scratchpad.h"
 #include "m2c_macros.h"
@@ -33,7 +34,6 @@ typedef struct {
     u16 f72;
 } Scratch_8006EF8C;
 
-typedef struct { char pad[0xF0]; int f; char pad2[0x320 - 0xF4]; } S;
 
 extern int func_80090F74();
 extern int D_8010E690;
@@ -73,7 +73,7 @@ extern void func_800912D4(s32);
 extern void SetDrawArea(s32);
 extern void AddPrim(s32, s32);
 extern int D_8010718C;
-extern S D_800ABEF8[];
+extern Car D_800ABEF8[];
 
 void func_8006E9E8(int a0, int *a1);
 void func_8006EAC8(void);
@@ -306,5 +306,5 @@ int func_8006F188(int *a0, int a1) {
     if (D_8010718C == 0) {
         return func_80026998(a0[0], a0[2]);
     }
-    return D_800ABEF8[a1].f;
+    return D_800ABEF8[a1].wF0;
 }

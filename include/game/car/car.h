@@ -74,7 +74,8 @@ typedef struct Car {
     s32 unk1E0;
     s16 unk1E4;
     u16 unk1E6;
-    char pad1E8[0x1EC - 0x1E8];
+    char pad1E8[0x1EA - 0x1E8];
+    s16 unk1EA;
     s16 s1EC;
     char pad1EE[0x1F0 - 0x1EE];
     union {

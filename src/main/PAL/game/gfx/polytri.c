@@ -79,23 +79,14 @@ typedef struct {
     U4 sxy3;
 } PolyG4;
 
-/* size 0x30 */
-typedef struct {
-    char pad0[0x184];
-    int f184;
-    char pad1[0x1EA - 0x188];
-    short f1EA;
-    char pad2[0x2AA - 0x1EC];
-    short f2AA;
-    char pad3[0x320 - 0x2AC];
-} S_ABEF8;
+#include "game/car/car.h"
 /* size 0x320 */
 typedef struct {
     int f0;
     int f4;
     int f8;
 } S_SP7C;
-extern S_ABEF8 D_800ABEF8[];
+extern Car D_800ABEF8[];
 extern int D_800AD504;
 extern short D_800AD522;
 extern int D_800F2EB8;
@@ -215,7 +206,7 @@ void func_80071E04(void) {
 
     sp->f0 = func_80026998(hw[2], hw[4]);
     for (i = 0; i < D_8010ECA8; i++) {
-        if (b0->f18 >= 0 && b0->f18 != D_800ABEF8[0].f2AA) {
+        if (b0->f18 >= 0 && b0->f18 != D_800ABEF8[0].sub1F4.unkB6) {
             if (b0->f10 > 0) {
                 b4->f24 = 0;
             }
@@ -260,7 +251,7 @@ void func_80071E04(void) {
         sp->f8 = b0->f20;
         if (b0->f10 > 0) {
             if (b0->f18 == -3) {
-                if ((D_800ABEF8[0].f2AA < 6 && (D_800F2EB8 * 4 + ((D_800F2EB8 * 59) >> 6)) >= D_800ABEF8[0].f184) ||
+                if ((D_800ABEF8[0].sub1F4.unkB6 < 6 && (D_800F2EB8 * 4 + ((D_800F2EB8 * 59) >> 6)) >= D_800ABEF8[0].w184) ||
                     (sp->f4 < sp->f0 && sp->f0 <= sp->f8)) {
                     b4->f24 = 0;
                     b4->f8 = 0;
@@ -285,13 +276,13 @@ void func_80071E04(void) {
                 b4->f24 = 0;
                 continue;
             }
-        } else if (b0->f14 > 0 && b4->f24 == 0 && sp->f4 == sp->f0 && D_800ABEF8[0].f1EA == 0 && D_800AD522 == 0) {
+        } else if (b0->f14 > 0 && b4->f24 == 0 && sp->f4 == sp->f0 && D_800ABEF8[0].unk1EA == 0 && D_800AD522 == 0) {
             b4->f24 = 1;
         }
         if (D_800F4D44 == 2 || D_800F4D44 == 3) {
             if (b0->f0 == 0 && (b0->f4 % 10) == 0) {
-                if (D_800ABEF8[0].f2AA == 0) {
-                    if (D_800ABEF8[1].f2AA == 0) {
+                if (D_800ABEF8[0].sub1F4.unkB6 == 0) {
+                    if (D_800ABEF8[1].sub1F4.unkB6 == 0) {
                         b4->f24 = 1;
                     } else {
                         b4->f24 = 0;
@@ -300,8 +291,8 @@ void func_80071E04(void) {
                     b4->f24 = 0;
                 }
             } else if (b0->f0 == 1 && (b0->f4 % 10) == 0) {
-                if (((D_800F3A30 - 1) * D_800F2EB8 + ((D_800F2EB8 * 29) >> 5)) < D_800ABEF8[0].f184 ||
-                    ((D_800F3A30 - 1) * D_800F2EB8 + ((D_800F2EB8 * 29) >> 5)) < D_800ABEF8[1].f184) {
+                if (((D_800F3A30 - 1) * D_800F2EB8 + ((D_800F2EB8 * 29) >> 5)) < D_800ABEF8[0].w184 ||
+                    ((D_800F3A30 - 1) * D_800F2EB8 + ((D_800F2EB8 * 29) >> 5)) < D_800ABEF8[1].w184) {
                     b4->f24 = 1;
                 } else {
                     b4->f24 = 0;
@@ -313,7 +304,7 @@ void func_80071E04(void) {
                     b0->fC == 4)) {
             b4->f24 = 0;
         } else if (b0->f0 == 1 && (b0->f4 % 10) == 0) {
-            if (((D_800F3A30 - 1) * D_800F2EB8 + ((D_800F2EB8 * 29) >> 5)) > D_800ABEF8[0].f184) {
+            if (((D_800F3A30 - 1) * D_800F2EB8 + ((D_800F2EB8 * 29) >> 5)) > D_800ABEF8[0].w184) {
                 b4->f24 = 0;
             }
         }

@@ -1,5 +1,6 @@
 /* RODATA 0x80010700 0x1c */
 #include "types.h"
+#include "game/car/car.h"
 #include "game/car/grid.h"
 #include "scratchpad.h"
 #include "rr/track_sample_types.h"
@@ -12,8 +13,6 @@
 #include "game/car/carsetup.h"
 #include "rr/audio_loop.h"
 #include "game/car/aipath2.h"
-
-typedef struct { char x[0x320]; } S;
 
 typedef struct {
     int a, b, c, d;
@@ -128,11 +127,11 @@ extern unsigned char D_8009F7D8[];
 extern unsigned char D_8009F7DC[];
 extern struct { char pad[0x1D2]; short h1D2; char pad2[0x1F]; unsigned char b1F3; } *D_800F39C8[];
 extern unsigned char D_800F4D98[][4];
-extern S *CarTable[];
-extern S D_800ABEF8[];
-extern S D_80106B58[];
-extern S D_80106E78[];
-extern S D_80107198[];
+extern Car *CarTable[];
+extern Car D_800ABEF8[];
+extern Car D_80106B58[];
+extern Car D_80106E78[];
+extern Car D_80107198[];
 extern short D_800AC59C;
 extern short D_800AD508;
 extern int func_80026A74();
@@ -206,8 +205,8 @@ void func_800373DC(int a) {
     int i;
     int n;
     int v;
-    S **p;
-    S *q;
+    Car **p;
+    Car *q;
     switch (a) {
     case 1:
         D_800AC59C = 8;

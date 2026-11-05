@@ -1,5 +1,6 @@
 /* RODATA 0x800105d0 0x30 */
 #include "types.h"
+#include "game/car/car.h"
 #include "scratchpad.h"
 #include "m2c_macros.h"
 #include "game/system/pad.h"
@@ -29,8 +30,6 @@ typedef struct {
 } Glyph4;
 
 typedef struct { char pad[0x50]; short f; char pad2[0xA]; } S1;
-
-typedef struct { char pad[0x1E4]; short f; char pad2[0x13A]; } S2;
 
 typedef struct {
     short x, y;
@@ -398,7 +397,7 @@ void func_80034630(int a0) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEF8 (*(S2 (*)[])&D_800ABEF8)
+#define D_800ABEF8 (*(Car (*)[])&D_800ABEF8)
 #define D_800F3A38 (*(S1 (*)[])&D_800F3A38)
 
 void func_800347BC(void) {
@@ -406,7 +405,7 @@ void func_800347BC(void) {
     func_8004B864(0);
     func_8004B864(1);
     for (i = 0; i < 2; i++) {
-        if (D_800ABEF8[i].f != 0) {
+        if (D_800ABEF8[i].unk1E4 != 0) {
             D_800F3A38[i].f = 1;
             func_8004BAD4(i, 0, 0xF);
         }

@@ -1,3 +1,4 @@
+#include "game/car/car.h"
 /* RODATA 0x80010720 0x1c */
 #include "game/car/carsetup.h"
 #include "game/car/carlane.h"
@@ -5,9 +6,8 @@
 #include "game/race/raceinit.h"
 #include "rr/bios_devices.h"
 #include "rr/overlay667_course_initializer.h"
-typedef struct { char pad[0x320]; } E;
 extern int func_800293D0();
-extern E D_800ABEF8[];
+extern Car D_800ABEF8[];
 extern short D_800AC3FC;
 extern short D_800AC59C;
 extern int CarTable[];

@@ -25,7 +25,7 @@ class ScreenTilesTest(unittest.TestCase):
         body=body.replace('(u8**)0x1F800000U','&cursor')
         helpers=source('func_80095BB4.c').replace('func_80095BB4','actual_tile')
         helpers+=source('func_80095AF4.c').replace('func_80095AF4','actual_semitransparency')
-        helpers+=source('AddPrim.c').replace('AddPrim','actual_link')
+        helpers+=source('func_80095A44.c').replace('AddPrim','actual_link')
         code=r'''
 #include <assert.h>
 #include <stdint.h>

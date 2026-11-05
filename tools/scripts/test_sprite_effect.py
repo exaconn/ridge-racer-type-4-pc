@@ -7,7 +7,7 @@ src=re.sub(r' asm\("\$\d+"\)','',src);src=re.sub(r'__asm__\("".*?\);','',src)
 header=''
 helpers=''
 for n,new in [('80095B94','native_init'),('80095AF4','native_semi'),('80095A44','native_link')]:
- s=(root/f'tools/scripts/fixtures/legacy/func_{n}.c').read_text().replace('func_'+n,new)
+ s=(root/f'tools/scripts/fixtures/legacy/func_{n}.c').read_text().replace('func_'+n,new).replace({'80095A44':'AddPrim'}.get(n,'func_'+n),new)
  s=re.sub(r' asm\("\$\d+"\)','',s)
  # This is the actual serializer's intentional low24 packet tag, not a pointer reconstruction.
  s=s.replace('(unsigned)p','(uintptr_t)p')

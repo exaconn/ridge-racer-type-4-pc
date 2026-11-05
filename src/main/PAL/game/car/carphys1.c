@@ -15,7 +15,7 @@ char *a0;
     int t;
     s2 = a0 + 0x1F4;
     s1 = *(char **)(s2 + 0x1C);
-    v1 = W(a0, 0x1E0) * func_800904F4(S(a0, 0x1D4) - W(a0, 0x54));
+    v1 = W(a0, 0x1E0) * rcos(S(a0, 0x1D4) - W(a0, 0x54));
     if (v1 < 0) v1 += 0xFFF;
     U(a0, 0x1D8) = U(a0, 0x1D8) + (v1 >> 12);
     if (S(s1, 0xA) == 0) {

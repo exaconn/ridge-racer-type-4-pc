@@ -94,7 +94,7 @@ void func_8006E9E8(int a0, int *a1) {
         v[0] = (0x8000 - a1[0]) << 2;
         v[1] = (0x60 - a1[1]) << 2;
         v[2] = (0x8000 - a1[2]) << 2;
-        func_80090B14((SCRATCHPAD + 0x108), v, w);
+        ApplyMatrixLV((SCRATCHPAD + 0x108), v, w);
         x[2] = 0x4000;
         x[1] = 0x4000;
         x[0] = 0x4000;
@@ -113,7 +113,7 @@ void func_8006EAC8(void) {
     v[0] = 0x8000 - (g[0] >> 2);
     v[1] = -(g[1] >> 2);
     v[2] = 0x8000 - (g[2] >> 2);
-    func_80090B14(SCRATCH_ROT_MATRIX, v, w);
+    ApplyMatrixLV(SCRATCH_ROT_MATRIX, v, w);
     D_800FF690.w[5] = w[0];
     D_800FF690.w[6] = w[1];
     D_800FF690.w[7] = w[2];
@@ -124,7 +124,7 @@ void func_8006EAC8(void) {
     D_800F39A8.w[5] >>= 1;
     D_800F39A8.w[6] >>= 1;
     D_800F39A8.w[7] >>= 1;
-    func_80090B14(SCRATCH_ROT_MATRIX, v, w);
+    ApplyMatrixLV(SCRATCH_ROT_MATRIX, v, w);
     h[15] = w[0];
     h[16] = w[1];
     h[17] = w[2];

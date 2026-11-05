@@ -123,8 +123,8 @@ typedef struct {
 
 extern u32 func_80025FBC();
 extern s32 func_8006E368();
-extern s32 func_80090424();
-extern s32 func_800904F4();
+extern s32 rsin();
+extern s32 rcos();
 extern s32 D_800ABECC;
 extern char D_800ABEF8[];
 extern E *D_800F3A08[];
@@ -158,12 +158,12 @@ void func_80024A88(void *arg0) {
     temp_s0 = temp_hi;
     func_80025D98(temp_hi, sp, M2C_FIELD(arg0, s16 *, 0x170));
     temp_s0_2 = 0x800 - func_80025EB0(temp_hi, M2C_FIELD(arg0, s16 *, 0x170));
-    var_v1_2 = func_800904F4(temp_s0_2) * temp_s2;
+    var_v1_2 = rcos(temp_s0_2) * temp_s2;
     if (var_v1_2 < 0) {
         var_v1_2 += 0xFFF;
     }
     sp[0] += var_v1_2 >> 0xC;
-    temp_a1 = sp[2] - ((s32) (func_80090424(temp_s0_2) * temp_s2) / 4096);
+    temp_a1 = sp[2] - ((s32) (rsin(temp_s0_2) * temp_s2) / 4096);
     sp[2] = temp_a1;
     temp_v0 = func_80025FBC(M2C_FIELD(arg0, s16 *, 0x1D4), 0x400 - func_8006E368(sp[0] - M2C_FIELD(arg0, s32 *, 0x20), temp_a1 - M2C_FIELD(arg0, s32 *, 0x28)));
     M2C_FIELD(arg0, s16 *, 0x1D4) = (s16) ((u16) M2C_FIELD(arg0, s16 *, 0x1D4) + ((s32) ((temp_v0 >> 0x1F) + temp_v0) >> 1));
@@ -197,8 +197,8 @@ int func_80024BCC(struct A *a)
   t = func_80025EB0(s0, a->f170);
   c = 0x800;
   s0 = c - t;
-  sp[0] += (func_800904F4(s0) * a->fF4) >> 12;
-  sp[2] -= (func_80090424(s0) * a->fF4) >> 12;
+  sp[0] += (rcos(s0) * a->fF4) >> 12;
+  sp[2] -= (rsin(s0) * a->fF4) >> 12;
   return 0x400 - func_8006E368(sp[0] - a->f20, sp[2] - a->f28);
 }
 
@@ -235,8 +235,8 @@ void func_80024CD8(C *c) {
         d->s3C = 0;
     }
     func_800247FC(c);
-    c->i30 = (c->s1D8 * func_80090424(c->s1D4)) >> 8;
-    v0 = func_800904F4(c->s1D4);
+    c->i30 = (c->s1D8 * rsin(c->s1D4)) >> 8;
+    v0 = rcos(c->s1D4);
     v1 = c->s1D8;
     c->i38 = (v1 * v0) >> 8;
     if (t->sA == 0) {
@@ -498,8 +498,8 @@ void func_800252EC(C_1 *c0) {
         c->s1D4 = c->s1D4 + y;
     }
     c->u1D8 = c->u1D8 - s0i / 256;
-    c->i30 = ((short)c->u1D8 * func_80090424(c->s1D4)) >> 8;
-    c->i38 = ((short)c->u1D8 * func_800904F4(c->s1D4)) >> 8;
+    c->i30 = ((short)c->u1D8 * rsin(c->s1D4)) >> 8;
+    c->i38 = ((short)c->u1D8 * rcos(c->s1D4)) >> 8;
     c->i54 = c->i54 + d->i60 / (d->s5E + s5 / 2);
     if ((short)c->u1D8 < 0x348) {
         s0i = (0x348 - (short)c->u1D8) * 8;
@@ -556,8 +556,8 @@ void func_80025954(a0) P *a0; {
     t = func_80025FBC(a0->s1D4, a1);
     a0->s1D4 = a0->s1D4 + t / 10;
     a0->s1D8 = (short)a0->s1D8 / 10;
-    a0->s30 = ((short)a0->s1D8 * func_80090424(a0->s1D4)) >> 8;
-    a0->s38 = ((short)a0->s1D8 * func_800904F4(a0->s1D4)) >> 8;
+    a0->s30 = ((short)a0->s1D8 * rsin(a0->s1D4)) >> 8;
+    a0->s38 = ((short)a0->s1D8 * rcos(a0->s1D4)) >> 8;
     a2 = q->s74;
     if (a2 >= 0x3D) a2 = 0x3C;
     else if (a2 < 0) a2 = 0;

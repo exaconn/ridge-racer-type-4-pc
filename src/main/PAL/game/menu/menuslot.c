@@ -28,7 +28,7 @@ extern struct { char pad[4]; char b4; char pad5[2]; char b7; } *D_800FF68C;
 extern int D_800F4CA8;
 extern int func_8001FCC8();
 extern int func_8001FF84();
-extern int func_80090424();
+extern int rsin();
 extern char D_8009F648[];
 extern int D_800ABEB0;
 
@@ -109,7 +109,7 @@ void func_80032964(a0, a1)
 int a0;
 int a1;
 {
-  int v = func_80090424((D_800ABEB0 << 6) & 0xFC0);
+  int v = rsin((D_800ABEB0 << 6) & 0xFC0);
   int new_var;
   if (v < 0)
   {

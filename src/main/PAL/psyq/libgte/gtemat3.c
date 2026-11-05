@@ -2,11 +2,11 @@
 #include "rr_asm.h"
 #include "psyq/libgte/gtemat3.h"
 
-int *func_80090B14(int *a0, int *a1, int *a2_in);
+int *ApplyMatrixLV(int *a0, int *a1, int *a2_in);
 int *func_80090C74(int *a0, int *a1);
 int *MulMatrix(int *a0, unsigned short *a1);
 
-int *func_80090B14(int *a0, int *a1, int *a2_in) {
+int *ApplyMatrixLV(int *a0, int *a1, int *a2_in) {
     /* ASM_BARRIER: pin $zero ($0) to emit PC-relative beq $0, $0 (b) instead of j */
     register int zero __asm__("$0");
     /* ASM_BARRIER: keep third argument pointer in $a2 ($6) */

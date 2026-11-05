@@ -46,7 +46,7 @@ static Event *event(s32 op,void *cursor){Event *e;unsigned i;u32 h=2166136261U;
  for(i=0;i<sizeof(w->s);i++)h=(h^((u8*)&w->s)[i])*16777619U;e->hash=h;
  if(cursor){assert((uintptr_t)cursor>UINT32_MAX);e->cursor=(u8*)cursor-arena;assert(e->cursor<sizeof(arena));}return e;
 }
-s32 func_800904F4(s32 angle){Event *e=event(1,0);unsigned n=(scenario+w->count)%9;s32 v=sineValues[n];
+s32 rcos(s32 angle){Event *e=event(1,0);unsigned n=(scenario+w->count)%9;s32 v=sineValues[n];
  e->args[0]=angle;e->args[1]=v;sineSeen[n]++;change();return v;
 }
 void *func_8001F5B4(u32 *ot,void *p,s32 x,s32 y,const char *text,s32 clut,s32 spacing,s32 color){
@@ -65,7 +65,7 @@ void *func_8001FCC8(u32 *ot,void *p,u16 mode){Event *e=event(5,p);assert(ot==ord
 ''' + body + r'''
 static void pulse(unsigned selected,s32 *clut,s32 *color){
  *clut=32760;*color=0;
- if(selected){s32 v=func_800904F4(word((u32)w->s.tick*128U-682U));
+ if(selected){s32 v=rcos(word((u32)w->s.tick*128U-682U));
   if(v<0)*clut=32761;else *color=(s32)(((int64_t)v/64+100)*2);
  }
 }

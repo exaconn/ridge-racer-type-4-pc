@@ -61,7 +61,7 @@ static Event *event(s32 kind){unsigned i;u32 hash=2166136261U;Event *e;assert(w-
 }
 static void change(void){if(mutation)effect(w->calls);}
 static void *render(Event *e,u32 *order,void *cursor){assert(order==heads);assert((uintptr_t)cursor>UINT32_MAX);assert((u8*)cursor>=(u8*)arena&&(u8*)cursor<(u8*)(arena+4096));e->cursor=(u8*)cursor-(u8*)arena;change();return (u8*)cursor+4*(w->calls%7+1);}
-s32 func_800904F4(s32 angle){Event *e=event(1);e->args[0]=angle;change();return (u32)angle&128?-4096:4096;}
+s32 rcos(s32 angle){Event *e=event(1);e->args[0]=angle;change();return (u32)angle&128?-4096:4096;}
 void *func_8001FF84(u32 *o,void *p,s32 x,s32 y,RrUiUvRect *glyph,u16 clut,s32 color){Event *e=event(2);unsigned i,id=99;
  for(i=0;i<5;i++)if(glyph==w->s.glyphs+i)id=i;for(i=0;i<2;i++)if(glyph==w->s.footer+i)id=5+i;assert(id<7);
  e->args[0]=x;e->args[1]=y;e->args[2]=id;e->args[3]=clut;e->args[4]=color;memcpy(e->data,glyph,4);if(id<5)seenClut|=1U<<(clut-32760);return render(e,o,p);}
@@ -78,7 +78,7 @@ static char *format(s32 value){int64_t v=value,minutes=v/60000,seconds=v/1000%60
 static void *expected(unsigned row,void *cursor){State *s=&w->s;unsigned g=s->group>=8,i;int x=0,y=s->badges[s->root][row].y06+40,rowY;
  seenTracks|=1U<<(g*8+s->track);
  for(i=0;i<5;i++){
-  int clut=32760;if((s32)i==s->selected){int angle=word((u32)s->tick*128U-682U);if(func_800904F4(angle)<0)clut=32761;}
+  int clut=32760;if((s32)i==s->selected){int angle=word((u32)s->tick*128U-682U);if(rcos(angle)<0)clut=32761;}
   x=s->badges[s->root][row].x04+8;cursor=func_8001FF84(heads,cursor,x,y,s->glyphs+i,clut,0);
   x+=s->widths[bank][0];cursor=func_8001FD20(heads,cursor,x,y-2,1,20,255,255,255);
   x+=s->widths[bank][1];cursor=func_8001F5B4(heads,cursor,x,y,format(s->banks[bank][g][s->track][i].time),clut,0,0);

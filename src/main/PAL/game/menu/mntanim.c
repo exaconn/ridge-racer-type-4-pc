@@ -49,9 +49,9 @@ void func_80040858(s32 row) {
             v[2] = v[3] = 0x7F;
             y[2] = y[0] + 0x18;
             if (mode == 1) {
-                brightness = func_80090424((tick << 10) / 30);
+                brightness = rsin((tick << 10) / 30);
             } else {
-                brightness = func_800904F4((tick << 10) / 30);
+                brightness = rcos((tick << 10) / 30);
             }
             brightness /= 32;
             cursor = (RrSpritePacket *)RR_TEXT_GPU_SCRATCH->cursor;

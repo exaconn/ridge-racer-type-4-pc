@@ -57,7 +57,7 @@ static Event *event(s32 op,void *cursor){
  e->op=op;if(cursor)e->cursor=(u8*)cursor-arena;
  return e;
 }
-s32 func_80090424(s32 angle){Event *e=event(1,0);s32 v=(s32)(next()%3)-1;e->a=angle;e->b=v;change();return v;}
+s32 rsin(s32 angle){Event *e=event(1,0);s32 v=(s32)(next()%3)-1;e->a=angle;e->b=v;change();return v;}
 void *func_8001FF84(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
  Event *e=event(2,p);assert(ot==ordering);e->x=x;e->y=y;e->a=clut;e->b=color;memcpy(e->data,uv,4);change();return (u8*)p+20;
 }
@@ -76,7 +76,7 @@ static void expected(unsigned kind,u32 *ot,void *p,s32 row){
   for(i=0;i<4;i++){
    RrSelectionRow h=w->s.save.history6C[i];
    if(w->s.choice.bytes[0]==h.selection&&w->s.choice.bytes[1]==h.variant&&(kind||w->s.choice.bytes[2]==h.parameter)){
-    flag=func_80090424((s32)(((u32)w->s.tick*128-682U)&4094U))<0;break;
+    flag=rsin((s32)(((u32)w->s.tick*128-682U)&4094U))<0;break;
    }
   }
  }

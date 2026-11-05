@@ -34,7 +34,7 @@ static void service(unsigned id,const u32 *args,u8 *cursor,u32 *head){struct Wor
  else{assert(seen<count);struct Event *e=&events[seen++];assert(e->id==id&&e->cursor==cursor&&e->head==head&&memcmp(e->args,args,48)==0&&memcmp(w,&e->before,sizeof(*w))==0);}
  effect(w,id);
 }
-s32 func_80090424(s32 angle){u32 a[12]={(u32)angle};service(1,a,0,0);assert(sineIndex<2);return sineReturns[sineIndex++];}
+s32 rsin(s32 angle){u32 a[12]={(u32)angle};service(1,a,0,0);assert(sineIndex<2);return sineReturns[sineIndex++];}
 struct S32 *func_8002039C(u32 *head,struct S32 *packet,void *x,void *y,void *u,void *v,u16 tp,u16 clut,u16 mode,u16 shade){
  s32 *arrays[4]={x,y,u,v};u32 a[12];for(unsigned i=0;i<4;i++)for(unsigned j=0;j<3;j++)a[3*i+j]=(u32)arrays[i][j];
  /* Constant material arguments are separately checked;event payload holds all coordinates. */

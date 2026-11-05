@@ -9,7 +9,7 @@
 
 void func_80090594(s32 arg0, s32 arg1);
 
-s32 func_800904F4(s32 angle) {
+s32 rcos(s32 angle) {
     s32 a=angle;
     s32 result;
     if(a<0) a=(s32)(0U-(u32)a);

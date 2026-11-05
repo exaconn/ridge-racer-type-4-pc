@@ -67,7 +67,7 @@ extern int func_8003DCEC();
 extern void func_80043608();
 extern int D_800ACC14;
 extern MenuRow1C *D_800F4D8C;
-extern s32 func_80090424();
+extern s32 rsin();
 
 int func_8003E13C(int arg0);
 void func_8003E928(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g,s32 h,...);
@@ -331,7 +331,7 @@ void func_8003EA04(s32 arg0, s32 arg1, s32 arg2) {
                 }
                 s6 = arg1 + s1 * 10 + 4;
                 c = 0x1E;
-                v = func_80090424(a0);
+                v = rsin(a0);
                 t = s0 + 1;
                 s0 = ((t + v / 0x801) << 3) + 0xD0;
                 s3 = func_80020074(D_800ACC14 + 0x70, s3, s6, arg2 + 8, 8, 0x10, s0, 0x10, c, 0x7F3A, 0, 0x80);

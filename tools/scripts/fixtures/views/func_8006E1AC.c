@@ -1,22 +1,22 @@
 #include "types.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80090424 ((int (*)())func_80090424)
+#define rsin ((int (*)())rsin)
 
-#define func_800904F4 ((int (*)())func_800904F4)
+#define rcos ((int (*)())rcos)
 
-#undef func_80090424
+#undef rsin
 
-#undef func_800904F4
+#undef rcos
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80090424 ((int (*)())func_80090424)
+#define rsin ((int (*)())rsin)
 
-#define func_800904F4 ((int (*)())func_800904F4)
+#define rcos ((int (*)())rcos)
 
-#undef func_80090424
+#undef rsin
 
-#undef func_800904F4
+#undef rcos
 
 extern short D_800AC0A4;
 

@@ -66,7 +66,7 @@ extern void func_8004F274(int);
 
 extern void func_8005C37C(int, int, int, int);
 
-extern int func_80090424(int);
+extern int rsin(int);
 
 extern void func_8005C26C(int);
 
@@ -248,7 +248,7 @@ int func_8005CA88(void) {
         v = (v * D_800AC650.f404) / 256;
         func_8005C37C(2, 0x68, 0x13C, v);
         if (D_800AC650.f428 == 0) {
-            v = (func_80090424((D_800ABEAC << 7) & 0xF80) * v) / 4096;
+            v = (rsin((D_800ABEAC << 7) & 0xF80) * v) / 4096;
         }
         func_8005C37C(1, 0x68, 0x13C, v);
     }

@@ -160,6 +160,6 @@ from the address); only their contents use the new names.
   Those are reconstructions of the same kind as ours, not names from Namco's source.
 * Fields: `tools/scripts/emu_probe.py` drives the emulator; `Car.posX/posY/posZ` were identified by moving the car
   through memory (the car and camera jump), `posX6/posZ6` by the code that refreshes them from the position (`>> 6`).
-* Globals: `CarTable` (was `D_800FFC20`) is the table of pointers to the race vehicle records. Seen in the running game:
+* Globals: `CarTable` (was `CarTable`) is the table of pointers to the race vehicle records. Seen in the running game:
   eight consecutive pointers with a constant 0x320 stride, the first one equal to the `Car` that `func_80027C54` receives.
   `rename_symbols.py` also registers data names (`Name = 0xADDR; // type:u32` renames `D_ADDR`).

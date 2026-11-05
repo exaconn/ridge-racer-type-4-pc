@@ -1,8 +1,8 @@
 #include "scratchpad.h"
 #include "game/effect/fxspr.h"
 
-extern int func_80090424();
-extern int func_800904F4();
+extern int rsin();
+extern int rcos();
 extern int func_80096464();
 extern unsigned char *func_8001F5B4();
 extern int D_800ABEAC;
@@ -31,9 +31,9 @@ void func_8005C4E0(void)
   int new_var;
   unsigned char *p;
   char *d;
-  x = (D_800AC650.f440 / 4) + (func_80090424(D_800ABEAC << 7) / 128);
+  x = (D_800AC650.f440 / 4) + (rsin(D_800ABEAC << 7) / 128);
   l[0] = (x - 16) / 4;
-  y = (D_800AC650.f440 / 2) + (func_800904F4(D_800ABEAC << 7) / 128);
+  y = (D_800AC650.f440 / 2) + (rcos(D_800ABEAC << 7) / 128);
   l[1] = (y - 16) / 4;
   for (i = 0; i < 2; i++)
   {

@@ -84,7 +84,7 @@ extern void *func_8001FD20();
 extern void *func_8001FF84();
 extern void *func_80020074();
 extern void *func_80020508();
-extern int func_80090424();
+extern int rsin();
 extern struct { char pad[0xC]; unsigned char a; unsigned char b; short c; } D_800F4CB0;
 extern s8 D_8009EFFC[];
 extern char D_80010460[];
@@ -99,7 +99,7 @@ extern unsigned short D_8009F01C[];
 extern char D_8009F020[];
 extern int D_800AD504;
 extern int func_80025F84();
-extern int func_800904F4();
+extern int rcos();
 
 void func_8002A604(void);
 void func_8002A63C(int arg0);
@@ -233,7 +233,7 @@ void func_8002A63C(int arg0) {
         }
         break;
     case 1:
-        D_800F4CB0.s14 = D_800F4CB0.s1C = (func_80090424((s0 << 10) / 30) * 0x140) / 0x1000;
+        D_800F4CB0.s14 = D_800F4CB0.s1C = (rsin((s0 << 10) / 30) * 0x140) / 0x1000;
         if (s0 >= 30) {
             D_800F4CB0.s0 = 2;
             D_800F4CB0.s2 = 0;
@@ -242,7 +242,7 @@ void func_8002A63C(int arg0) {
         }
         break;
     case 2:
-        v = (func_80090424((s0 << 10) / 20) * 0x20) / 0x1000;
+        v = (rsin((s0 << 10) / 20) * 0x20) / 0x1000;
         D_800F4CB0.s16 = D_800F4CB0.s1E = v * 2 + 2;
         D_800F4CB0.s12 = 0x38 - v;
         D_800F4CB0.s1A = 0x1B8 - v;
@@ -862,26 +862,26 @@ void func_8002BF34(a0, a1) RrRaceVehicle *a0; int a1; {
         if (v1 > 0x320) {
             su = 0x708;
             if (v1 < 0x709) su = (unsigned short)a0->input;
-            w = (short)su * func_80090424((short)func_80025F84(tv, a0->heading1D4));
+            w = (short)su * rsin((short)func_80025F84(tv, a0->heading1D4));
             s0 = w / 65536 + 4;
         } else {
             s0 = 0xC;
             if (v1 < 0xF0) s0 = 0x1E;
         }
-        sx = (func_80090424(s1) * s0) >> 4;
-        sy = (func_800904F4(s1) * s0) >> 4;
+        sx = (rsin(s1) * s0) >> 4;
+        sy = (rcos(s1) * s0) >> 4;
         sc = 0x64;
         a0->shakeTimer19E = 0x1E;
     } else {
-        sx = (func_80090424(s1) * 8) >> 4;
-        sy = (func_800904F4(s1) * 8) >> 4;
+        sx = (rsin(s1) * 8) >> 4;
+        sy = (rcos(s1) * 8) >> 4;
         a0->shakeTimer19E = 0xF;
         sc = 0x32;
     }
     a0->shakeX198 = sx;
     a0->shakeY19A = sy;
     if (a0->flags1E4 & 0x10) {
-        w2 = func_800904F4(func_80025F84(tv, a0->heading1D4)) >> 6;
+        w2 = rcos(func_80025F84(tv, a0->heading1D4)) >> 6;
         if (a0->lateralVelF4 < 0) w2 = -w2;
         z = w2 + 0x40;
         if (a0 == &D_800ABEF8[0] || a0 == &D_800ABEF8[1]) {

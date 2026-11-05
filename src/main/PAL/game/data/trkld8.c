@@ -94,7 +94,7 @@ void func_8004EC28() {
     func_80084004(1);
     s1 = s0 - 0x26F8;
     func_80082C74();
-    func_800829F4(0x7F, 0x7F);
+    SsSetMVol(0x7F, 0x7F);
     func_80096434(s1, 0xA8D0);
     func_80096434(D_800AC650, 0x57C);
     s0 -= 0x1498;

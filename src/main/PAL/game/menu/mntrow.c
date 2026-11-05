@@ -50,8 +50,8 @@ typedef struct { short f0, f2; } U;
 typedef struct { char pad[4]; char f4; char pad2[2]; char f7; } T;
 
 extern RrSpritePacket *func_8001FCC8();
-extern s32 func_80090424();
-extern s32 func_800904F4();
+extern s32 rsin();
+extern s32 rcos();
 extern struct O *D_800ACC14;
 extern RrRow60 *D_800FFC14;
 extern unsigned short D_8009FDA0[];
@@ -129,7 +129,7 @@ void func_80040CB4(s32 a0) {
                             sp20 = 0x2638;
                             s5 = 0x2639;
                         }
-                        if (func_80090424(s1 << 6) > 0) {
+                        if (rsin(s1 << 6) > 0) {
                             a3 = s1 * 4;
                         } else {
                             a3 = 0xFF - (s1 - 0x20) * 4;
@@ -141,21 +141,21 @@ void func_80040CB4(s32 a0) {
                     } else if (d34 == 3) {
                         sp20 = 0x2639;
                         s5 = 0x2638;
-                        a3 = (func_800904F4(((s1 << 5) - s2 * 0x61) & 0xFFF) * 0x4A) / 4096 + 0x4A;
+                        a3 = (rcos(((s1 << 5) - s2 * 0x61) & 0xFFF) * 0x4A) / 4096 + 0x4A;
                         if (s1 >= 0x80) {
                             ROW(a0)->unk4[s2] = 0;
                         }
                         ROW(a0)->unk4[s2]++;
                     } else if (d34 == 2) {
                         s5 = 0x2638;
-                        a3 = (func_800904F4(((s1 << 5) - s2 * 0x61) & 0xFFF) * 0x4A) / 4096 + 0x4A;
+                        a3 = (rcos(((s1 << 5) - s2 * 0x61) & 0xFFF) * 0x4A) / 4096 + 0x4A;
                         if (s1 >= 0x80) {
                             ROW(a0)->unk4[s2] = 0;
                         }
                         ROW(a0)->unk4[s2]++;
                     } else if (d34 >= 0) {
                         s0 = d34 >> 8;
-                        v1 = func_80090424(ROW(a0)->unk0 << 6) / 256;
+                        v1 = rsin(ROW(a0)->unk0 << 6) / 256;
                         a3 = v1 + 0x80;
                         if (s0 - 1 == s2) {
                             a3 = v1 + 0xE4;
@@ -163,7 +163,7 @@ void func_80040CB4(s32 a0) {
                         } else {
                             s5 = ROW(a0)->unk36;
                             if (s1 < 0x15) {
-                                a3 = (func_80090424((s1 * 0x555) / 20) * 0x94) / 4096;
+                                a3 = (rsin((s1 * 0x555) / 20) * 0x94) / 4096;
                                 ROW(a0)->unk4[s2]++;
                             }
                         }

@@ -74,7 +74,7 @@ void func_8002C328(char *p) {
         }
         a1 = B(0x1A5);
         s1 = (a1 * S(0x1A2)) / 128;
-        v = func_80090424((a1 * 0x3000) / 30);
+        v = rsin((a1 * 0x3000) / 30);
         s2 = (v * s1) / 2048;
         switch (B(0x1A4)) {
         case 1:
@@ -112,7 +112,7 @@ void func_8002C328(char *p) {
         s1 = (short)U(0x1D8) >> 2;
         a1 = B(0x1A7);
         s1 = (a1 * s1) / 128;
-        v = func_80090424((a1 * 0x3000) / 30);
+        v = rsin((a1 * 0x3000) / 30);
         s2 = (v * s1) / 2048;
         if (S(0x1B8) == 0) S(0x1B6) = s2;
         U(0x1AE) = U(0x1AE) + U(0x1B6);

@@ -15,7 +15,7 @@ source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/659/func
 body=read_c_source(source);body=body[body.index('void ovl659_update_results'):]
 global_names=sorted(set(re.findall(r'\b(?:(?:D_[0-9A-F]{8}|CarTable)|ovl659_[a-z][a-z0-9_]*)\b',body)))
 global_names=[n for n in global_names if not re.search(r"\b"+n+r"\s*\(",body)]
-functions=sorted(set(re.findall(r'\b(?:ovl659_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl659_update_results'})
+functions=sorted(set(re.findall(r'\b(?:(?:ovl659_)?func_[0-9A-F]{8}|rsin|rcos|SquareRoot0|ApplyMatrixLV|SsSetMVol)(?=\()',body))-{'ovl659_update_results'})
 head='''#include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -151,9 +151,9 @@ def service(event,args,native):
   mutations.add(name)
  if case&128:roots((case+serial)&1,((case//2)+serial)&1,native)
  result=0
- if name=='func_80090424':result=[0xffffffff,0,1,0x80000000,0x7fffffff][(case//7)%5]
+ if name=='rsin':result=[0xffffffff,0,1,0x80000000,0x7fffffff][(case//7)%5]
  if name=='func_8003B12C':result=[0,1,2,0xffffffff,0x10001,0x80000000][(case//7)%6]
- if name in ['func_80090424','func_8003B12C']:returns.add((name,result))
+ if name in ['rsin','func_8003B12C']:returns.add((name,result))
  return result
 CB=C.CFUNCTYPE(C.c_size_t,C.c_uint,C.POINTER(C.c_size_t))
 def callback(event,args):

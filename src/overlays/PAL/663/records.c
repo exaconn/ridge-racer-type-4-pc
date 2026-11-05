@@ -21,7 +21,7 @@ void *ovl663_draw_race_records(u32 *ordering, void *cursor, s32 row) {
     y = D_800F3AFC[row].y06 + 40;
     do {
         if (i == ovl663_selected_record) {
-            if (func_800904F4((s32)(((u32)D_800ABEB0 << 7) - 682U)) < 0)
+            if (rcos((s32)(((u32)D_800ABEB0 << 7) - 682U)) < 0)
                 clut = 32761;
             else
                 clut = 32760;
@@ -61,7 +61,7 @@ void *ovl663_draw_lap_records(u32 *ordering, void *cursor, s32 row) {
     y = D_800F3AFC[row].y06 + 40;
     do {
         if (i == ovl663_selected_record) {
-            if (func_800904F4((s32)(((u32)D_800ABEB0 << 7) - 682U)) < 0)
+            if (rcos((s32)(((u32)D_800ABEB0 << 7) - 682U)) < 0)
                 clut = 32761;
             else
                 clut = 32760;

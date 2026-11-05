@@ -236,7 +236,7 @@ active:
 void ovl666_draw_selection_pulse(s32 x, s32 y) {
     RrGpuScratchPointers *scratch = RR_GPU_SCRATCH;
     u8 *cursor = scratch->cursor;
-    s32 wave = func_80090424(((u32)D_800ABEB0 << 5) & 0xFE0) / 32;
+    s32 wave = rsin(((u32)D_800ABEB0 << 5) & 0xFE0) / 32;
     u16 mode = 57;
     if (wave < 0) {
         mode = 89;

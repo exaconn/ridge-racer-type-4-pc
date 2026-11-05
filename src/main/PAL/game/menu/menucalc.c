@@ -22,7 +22,7 @@ extern struct
   unsigned char v;
 } D_800AD4D8;
 extern int func_8001FD20();
-extern int func_80090424();
+extern int rsin();
 extern unsigned char D_8009F1EC[];
 extern signed char D_800AD4EF;
 extern int D_800F2DE4;
@@ -126,7 +126,7 @@ int func_80030F64(int a0, int a1) {
     do {
         s0 += D_8009F1EC[i];
         if (sel == i) {
-            v = func_80090424((D_800F2DE4 << 6) & 0xFC0) / 64 + 0xBF;
+            v = rsin((D_800F2DE4 << 6) & 0xFC0) / 64 + 0xBF;
         } else if (i < sel) {
             v = 0x80;
         } else {

@@ -11,7 +11,7 @@ extern void func_8001E84C(const char *, ...);
 
 void func_80090250(int *d, int *s, unsigned n);
 void func_8009027C(s32 ch, s32 madr, s32 bcr_hi, s32 bcr_lo, volatile s32 chcr, u8 flag_in);
-s32 func_80090424(s32 a);
+s32 rsin(s32 a);
 
 void func_80090250(int *d, int *s, unsigned n) {
     unsigned i;
@@ -104,7 +104,7 @@ after_loop:
     dummy = *p;
 }
 
-s32 func_80090424(s32 a) {
+s32 rsin(s32 a) {
     int r;
     if (a >= 0) {
         r = sin_1(a & 0xFFF);

@@ -14,10 +14,10 @@ extern void (*D_800A4D44[])();
 extern s32 D_800A4D4C;
 extern void (*D_800A4D40)(void);
 
-void func_800829F4(short a, short b);
+void SsSetMVol(short a, short b);
 void func_80082C94(void);
 
-void func_800829F4(short a, short b) {
+void SsSetMVol(short a, short b) {
     struct { int x; short y, z; int pad[8]; } s;
     s.x = 3; s.y = a * 0x81; s.z = b * 0x81;
     func_80082674(&s);

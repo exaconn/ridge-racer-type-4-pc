@@ -21,8 +21,8 @@ void func_8006E300(int *a0);
 s32 func_8006E368(int a0, int a1);
 
 void BuildRotMatrixZ(short *a0, int a1) {
-    short s = func_80090424(a1);
-    short c = func_800904F4(a1);
+    short s = rsin(a1);
+    short c = rcos(a1);
     a0[1] = -s;
     a0[0] = c;
     a0[4] = c;
@@ -35,15 +35,15 @@ void BuildRotMatrixZ(short *a0, int a1) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80090424 ((int (*)())func_80090424)
-#define func_800904F4 ((int (*)())func_800904F4)
+#define rsin ((int (*)())rsin)
+#define rcos ((int (*)())rcos)
 
 void BuildRotMatrixY(void *arg0, M2C_UNK arg1) {
     s16 temp_s1;
     s16 temp_v0;
 
-    temp_s1 = func_80090424(arg1);
-    temp_v0 = func_800904F4(arg1);
+    temp_s1 = rsin(arg1);
+    temp_v0 = rcos(arg1);
     M2C_FIELD(arg0, s16 *, 4) = (s16) -temp_s1;
     M2C_FIELD(arg0, s16 *, 0) = temp_v0;
     M2C_FIELD(arg0, s16 *, 2) = 0;
@@ -55,19 +55,19 @@ void BuildRotMatrixY(void *arg0, M2C_UNK arg1) {
     M2C_FIELD(arg0, s16 *, 0x10) = temp_v0;
 }
 
-#undef func_80090424
-#undef func_800904F4
+#undef rsin
+#undef rcos
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80090424 ((int (*)())func_80090424)
-#define func_800904F4 ((int (*)())func_800904F4)
+#define rsin ((int (*)())rsin)
+#define rcos ((int (*)())rcos)
 
 void BuildRotMatrixX(void *arg0, M2C_UNK arg1) {
     s16 temp_s1;
     s16 temp_v0;
 
-    temp_s1 = func_80090424(arg1);
-    temp_v0 = func_800904F4(arg1);
+    temp_s1 = rsin(arg1);
+    temp_v0 = rcos(arg1);
     M2C_FIELD(arg0, s16 *, 0) = 0x1000;
     M2C_FIELD(arg0, s16 *, 2) = 0;
     M2C_FIELD(arg0, s16 *, 4) = 0;
@@ -79,8 +79,8 @@ void BuildRotMatrixX(void *arg0, M2C_UNK arg1) {
     M2C_FIELD(arg0, s16 *, 0x10) = temp_v0;
 }
 
-#undef func_80090424
-#undef func_800904F4
+#undef rsin
+#undef rcos
 
 void func_8006E174(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0) = 0x1000;

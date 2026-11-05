@@ -1,30 +1,30 @@
 #include "types.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80090424 ((int (*)())func_80090424)
+#define rsin ((int (*)())rsin)
 
-#define func_800904F4 ((int (*)())func_800904F4)
+#define rcos ((int (*)())rcos)
 
-#undef func_80090424
+#undef rsin
 
-#undef func_800904F4
+#undef rcos
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80090424 ((int (*)())func_80090424)
+#define rsin ((int (*)())rsin)
 
-#define func_800904F4 ((int (*)())func_800904F4)
+#define rcos ((int (*)())rcos)
 
-#undef func_80090424
+#undef rsin
 
-#undef func_800904F4
+#undef rcos
 
-extern short func_80090424();
+extern short rsin();
 
-extern short func_800904F4();
+extern short rcos();
 
 void BuildRotMatrixZ(short *a0, int a1) {
-    short s = func_80090424(a1);
-    short c = func_800904F4(a1);
+    short s = rsin(a1);
+    short c = rcos(a1);
     a0[1] = -s;
     a0[0] = c;
     a0[4] = c;

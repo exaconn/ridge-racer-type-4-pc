@@ -67,8 +67,8 @@ extern s32 func_8001FC28();
 extern s32 func_8001FCC8();
 extern s32 func_8001FD20();
 extern s32 func_8001FF84();
-extern s32 func_80090424();
-extern s32 func_800904F4();
+extern s32 rsin();
+extern s32 rcos();
 extern char D_80010924[];
 extern char D_80010928[];
 extern char D_8001092C[];
@@ -144,7 +144,7 @@ s32 func_8003EC88(s32 arg0) {
         D_800F4D80[arg0].c0C = 0;
         break;
     case 1:
-        D_800F4D80[arg0].rect18.w = (func_80090424((u16)a0_byte << 6) * D_800F4D80[arg0].s8) / 4096;
+        D_800F4D80[arg0].rect18.w = (rsin((u16)a0_byte << 6) * D_800F4D80[arg0].s8) / 4096;
         if ((u16)a0_byte >= 16) {
             D_800F4D80[arg0].b0 = 0;
             D_800F4D80[arg0].b14 = 2;
@@ -155,7 +155,7 @@ s32 func_8003EC88(s32 arg0) {
     case 2:
         if (D_800F4D80[arg0].b2 == 1) {
             if (D_800F4D80[arg0].c0C & 2) {
-                s2 = func_800904F4((D_800F4D80[arg0].b17 << 4) - 0x2AA);
+                s2 = rcos((D_800F4D80[arg0].b17 << 4) - 0x2AA);
                 fp = (u32)s2 >> 31;
                 if (s2 >= 0) {
                     s2 = ((s2 >> 6) + 100) << 1;
@@ -169,7 +169,7 @@ s32 func_8003EC88(s32 arg0) {
         }
         break;
     case 3:
-        D_800F4D80[arg0].rect18.w = (func_800904F4((u16)a0_byte << 6) * D_800F4D80[arg0].s8) / 4096;
+        D_800F4D80[arg0].rect18.w = (rcos((u16)a0_byte << 6) * D_800F4D80[arg0].s8) / 4096;
         if ((u16)a0_byte >= 16) {
             D_800F4D80[arg0].b0 = 0;
             D_800F4D80[arg0].b14 = 4;
@@ -465,7 +465,7 @@ int func_8003FBA8(int a0) {
         func_8003FE78(a0, 0, 0x80, 0);
         break;
     case 3:
-        val = func_800904F4((s1 << 10) / 30) / 32;
+        val = rcos((s1 << 10) / 30) / 32;
         func_8003FE78(a0, 1, val, 0);
         if (s1 >= 30) {
             D_800F2AB0[a0].f1 = 5;

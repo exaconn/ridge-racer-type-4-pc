@@ -30,8 +30,8 @@ void func_80021350(s32 phase,s32 index) {
     colors[3].rgb.g=6;
     colors[3].rgb.b=12;
     angle=(s32)((u32)phase*0xA00U)/10000+0xE00;
-    sine=func_80090424(angle);
-    cosine=func_800904F4(angle);
+    sine=rsin(angle);
+    cosine=rcos(angle);
     i=0;color=colors;corner=D_8009EE38;
     base=&D_8010BF88;
     row=(unsigned long)index*sizeof(RrNumberTarget);

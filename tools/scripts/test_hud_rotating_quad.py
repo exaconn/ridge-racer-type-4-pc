@@ -12,7 +12,7 @@ class HudRotatingQuadTest(unittest.TestCase):
   helpers=''
   for name in ['trig_sine.c','func_800904F4.c']:
    text=(ROOT/'tools/scripts/fixtures/legacy'/name).read_text();helpers+=re.sub(r'^#include[^\n]*\n','',text,flags=re.M)+'\n'
-  for old,new in [('func_80090424','real_sin'),('sin_1','real_lookup'),('func_800904F4','real_cos')]:helpers=helpers.replace(old,new)
+  for old,new in [('rsin','real_sin'),('sin_1','real_lookup'),('rcos','real_cos')]:helpers=helpers.replace(old,new)
   exe=(ROOT/'assets/PAL/main.exe').read_bytes();start=0x800+0x800A50C0-0x80010000
   rom=struct.unpack('<4097h',exe[start:start+8194]);sine=[round(4096*math.sin(i*math.tau/4096)) for i in range(4096)]
   code=r'''
@@ -81,8 +81,8 @@ static s32 call_cos(s32 angle){return math_call(angle,1);}
 #define D_8009EE38 (actual.corners)
 #undef RR_HUD_QUAD_SCRATCH
 #define RR_HUD_QUAD_SCRATCH (&actual.scratch)
-#define func_80090424 call_sin
-#define func_800904F4 call_cos
+#define rsin call_sin
+#define rcos call_cos
 '''+body+r'''
 static void put16(size_t offset,u16 value){memcpy(reference+offset,&value,2);}
 static void put32(size_t offset,u32 value){memcpy(reference+offset,&value,4);}

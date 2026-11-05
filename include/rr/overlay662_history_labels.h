@@ -10,7 +10,7 @@ extern u16 ovl662_D_801272D8[4],ovl662_D_801272FC;
 extern s8 ovl662_D_80126218[3],ovl662_D_80126224[3];
 extern s8 ovl662_D_80126228[3],ovl662_D_8012622C[4];
 extern s16 ovl662_D_80127328[4][4],ovl662_D_801272BC,ovl662_D_801272BE;
-s32 func_80090424(s32 angle);
+s32 rsin(s32 angle);
 /* Row index and nonnegative glyph keys name accessible table entries. Numeric
  * values fit two decimal digits. Services return full native arena pointers.
  * Ordering and cursor remain pointers throughout; each helper may change globals.

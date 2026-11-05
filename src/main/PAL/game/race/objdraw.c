@@ -135,8 +135,8 @@ extern void SubmitCourseModel2(void *, s32);
 extern void func_800701C4(s32);
 extern void func_80071978(Poly38 *, s32, s32);
 extern void func_80071B94(Poly48 *, s32, s32);
-extern s32 func_80090424(s32);
-extern s32 func_800904F4(s32);
+extern s32 rsin(s32);
+extern s32 rcos(s32);
 extern void MulMatrix0(Mat32 *, Mat32 *, Mat32 *);
 extern void ApplyMatrix(void *, SVec *, Vec16 *);
 extern void SetLightMatrix(Mat32 *);
@@ -472,7 +472,7 @@ void func_800747EC(s32 arg0) {
             sp120.vz = sp1C8.vz;
             func_80091704(&sp120, &sp1C8, &sp1CB8);
             s3[0x1C / 4] = func_800924D4(-sp1C8.vz, sp1C8.vx);
-            pan = (func_800904F4(s3[0x1C / 4]) / 64) + 0x40;
+            pan = (rcos(s3[0x1C / 4]) / 64) + 0x40;
             if (pan >= 0x80) {
                 pan = 0x7F;
             }
@@ -550,8 +550,8 @@ void func_800747EC(s32 arg0) {
             sp1CB8 = func_80026998(D_8010ECB4[i].f0C, D_8010ECB4[i].f14);
             for (j = 0; j < 8; j++) {
                 spA0[j].vy = (D_800ABEA4[sp1CB8].f10 - D_8010ECB4[i].f10) >> 2;
-                spA0[j].vx = (((spA0[j].vy >> 1)) * func_800904F4(D_8010ECB4[i].f00 * 57 + j * 512)) / 4096;
-                spA0[j].vz = (((spA0[j].vy >> 1)) * func_80090424(D_8010ECB4[i].f00 * 57 + j * 512)) / 4096 + (((spA0[j].vy >> 1)) + 250) * s3[0x20 / 4];
+                spA0[j].vx = (((spA0[j].vy >> 1)) * rcos(D_8010ECB4[i].f00 * 57 + j * 512)) / 4096;
+                spA0[j].vz = (((spA0[j].vy >> 1)) * rsin(D_8010ECB4[i].f00 * 57 + j * 512)) / 4096 + (((spA0[j].vy >> 1)) + 250) * s3[0x20 / 4];
                 sp128[j].b = 0;
                 sp128[j].g = 0;
                 sp128[j].r = 0;
@@ -750,7 +750,7 @@ void func_800747EC(s32 arg0) {
                 for (j = 0; j < 2; j++) {
                     spA0[j].vx = 0;
                     spA0[j].vy = -1000 - s3[0x00 / 4];
-                    { s32 t = ((((s3[0x00 / 4] - 500) * 3 >> 2) + 900) * func_80090424(D_8010ECB4[i].f08) >> 12) - 400; spA0[j].vz = j * (((s3[0x00 / 4] - 500) / 7) + 400) + t; }
+                    { s32 t = ((((s3[0x00 / 4] - 500) * 3 >> 2) + 900) * rsin(D_8010ECB4[i].f08) >> 12) - 400; spA0[j].vz = j * (((s3[0x00 / 4] - 500) / 7) + 400) + t; }
                     sp128[j].b = 0;
                     sp128[j].g = 0;
                     sp128[j].r = 0;
@@ -794,7 +794,7 @@ void func_800747EC(s32 arg0) {
                 for (j = 0; j < 2; j++) {
                     spA0[j].vx = 0;
                     spA0[j].vy = -1000 - s3[0x00 / 4];
-                    { s32 t = ((((s3[0x00 / 4] - 500) * 3 >> 2) + 900) * func_80090424(D_8010ECB4[i].f08) >> 12) - 400; spA0[j].vz = j * (((s3[0x00 / 4] - 500) / 7) + 400) + t; }
+                    { s32 t = ((((s3[0x00 / 4] - 500) * 3 >> 2) + 900) * rsin(D_8010ECB4[i].f08) >> 12) - 400; spA0[j].vz = j * (((s3[0x00 / 4] - 500) / 7) + 400) + t; }
                     sp128[j].b = 0;
                     sp128[j].g = 0;
                     sp128[j].r = 0;
@@ -823,7 +823,7 @@ void func_800747EC(s32 arg0) {
                 for (j = 0; j < 2; j++) {
                     spA0[j].vx = 0;
                     spA0[j].vy = -350 - (s3[0x00 / 4] >> 1);
-                    { s32 t = ((func_80090424(D_8010ECB4[i].f08) * 3000) >> 12) - 400; spA0[j].vz = j * 800 + t; }
+                    { s32 t = ((rsin(D_8010ECB4[i].f08) * 3000) >> 12) - 400; spA0[j].vz = j * 800 + t; }
                     sp128[j].b = 0;
                     sp128[j].g = 0;
                     sp128[j].r = 0;

@@ -17,7 +17,7 @@ extern short D_800AC59C;
 extern signed char D_800AD4EF;
 extern unsigned char D_8009EE40[];
 extern unsigned char D_8009EE44[];
-extern int func_80090424();
+extern int rsin();
 extern struct S D_800ABEF8[];
 extern int D_800F3A30;
 
@@ -64,7 +64,7 @@ void func_80021A7C(a0, a1) int a0; int a1; {
         s1 = 0;
         if (D_800AC0E6 <= D_8009EE40[D_800AD4EF / 2]) {
             s1 = 1;
-            v = func_80090424((D_800ABEB0 & 0x3F) << 6);
+            v = rsin((D_800ABEB0 & 0x3F) << 6);
             if (v < 0) v += 0x3F;
             s0 = v >> 6;
             if (s0 < 0) {

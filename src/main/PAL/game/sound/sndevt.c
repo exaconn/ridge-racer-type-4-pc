@@ -47,8 +47,8 @@ extern s32 D_800F6748;
 extern w3t1_E D_800ABEF8[];
 extern s32 func_80091844();
 extern s32 func_800924D4();
-extern s32 func_800904F4();
-extern s32 func_80090424();
+extern s32 rcos();
+extern s32 rsin();
 
 void func_80051B44(short arg0, short arg1);
 void func_80051BD4(s32 arg0);
@@ -241,9 +241,9 @@ void func_80052024(s32 idx) {
     RR_GTE_SWC2_MAC123(f.d);
     RR_GTE_STORE_FLAG(&f.fl);
     ang = func_800924D4(-f.d[2], f.d[0]);
-    s2 = func_800904F4(ang) / 64 + 0x40;
+    s2 = rcos(ang) / 64 + 0x40;
     if (s2 >= 0x80) s2 = 0x7F;
-    c = func_80090424(ang) / 64 + 0x40;
+    c = rsin(ang) / 64 + 0x40;
     if (c >= 0x80) c = 0x7F;
     t2 = REC(B2, idx, 0x18F4);
     if (t2 > 0x2800) {

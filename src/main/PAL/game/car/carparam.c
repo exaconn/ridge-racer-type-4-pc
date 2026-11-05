@@ -90,7 +90,7 @@ typedef struct
 
 extern int func_80025FBC();
 extern int func_8004BAD4();
-extern int func_800904F4();
+extern int rcos();
 extern int func_80096464();
 extern char D_800ABEF8[];
 extern int D_800AD568;
@@ -305,7 +305,7 @@ int arg1;
     t5 = (*((short *) (((char *) arg0) + 0x1EA))) << 0xB;
     t5 += 0x800;
     s0_else = func_80025FBC(*((int *) (((char *) arg0) + 0x54)), t5 - (*((short *) (((char *) arg0) + 0x1EC)))) << 8;
-    a0 = 0x1000 - func_800904F4(((*((int *) (((char *) arg0) + 0xF4))) << 8) / 96);
+    a0 = 0x1000 - rcos(((*((int *) (((char *) arg0) + 0xF4))) << 8) / 96);
     if ((*((short *) (((char *) arg0) + 0x1D8))) < 0x320)
     {
       a0 = a0 * 8;
@@ -436,7 +436,7 @@ int arg1;
       {
         s0 = -0x200;
       }
-      s2 = (s2 * func_800904F4(s0 * 2)) / 0x1000;
+      s2 = (s2 * rcos(s0 * 2)) / 0x1000;
     }
     s0 = 2;
     if (s2 <= 0)
@@ -802,7 +802,7 @@ P *a0;
   else
     if (((unsigned) (q->sA4 - 1)) < 2)
   {
-    n2 = 0x1000 - func_800904F4(func_80025F84(a0->s1D4, a0->s54));
+    n2 = 0x1000 - rcos(func_80025F84(a0->s1D4, a0->s54));
     x = (n2 * 100) >> 12;
     k3 = r->sE;
     k3 = k3 + 9000;

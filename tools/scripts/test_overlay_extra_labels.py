@@ -50,7 +50,7 @@ static void change(void){unsigned i;D_800F3AFC=w->s.rows+next()%4;
  w->s.uv.u=next();w->s.uv.v=next();w->s.uv.w=next();w->s.uv.h=next();
 }
 static Event *event(s32 op,void *p){Event *e;assert(w->count<32);e=&w->events[w->count++];memset(e,0,sizeof(*e));e->op=op;e->before=hash();if(p)e->cursor=(u8*)p-arena;return e;}
-s32 func_800904F4(s32 angle){Event *e=event(1,0);s32 v=(s32)(next()%3)-1;e->a=angle;e->b=v;change();return v;}
+s32 rcos(s32 angle){Event *e=event(1,0);s32 v=(s32)(next()%3)-1;e->a=angle;e->b=v;change();return v;}
 void *func_8001FF84(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){Event *e=event(2,p);assert(ot==ordering);e->x=x;e->y=y;e->a=clut;e->b=color;memcpy(e->data,uv,4);change();return (u8*)p+20;}
 void *func_8001F5B4(u32 *ot,void *p,s32 x,s32 y,const char *text,s32 clut,s32 spacing,s32 color){Event *e=event(3,p);size_t n=strlen(text);assert(n<8&&ot==ordering);e->x=x;e->y=y;e->a=clut;e->b=spacing;e->c=color;memcpy(e->data,text,n+1);change();return (u8*)p+20*n;}
 void *func_8001FD20(u32 *ot,void *p,s32 x,s32 y,s32 width,s32 height,s32 r,s32 g,s32 b){Event *e=event(4,p);assert(ot==ordering);e->x=x;e->y=y;e->a=width;e->b=height;e->c=r;e->d=g;e->e=b;change();return (u8*)p+16;}
@@ -60,7 +60,7 @@ static void *expected(unsigned kind,s32 row){
  if(!kind){char text[8]={0};int n;p=func_8001FF84(ordering,p,x,y,&w->s.uv,32760,0);x+=w->s.uv.w;n=w->s.counts[w->s.index];text[0]='0'+n/10;text[1]='0'+n%10;p=func_8001F5B4(ordering,p,x,y,text,32760,0,0);}
  else {int i;for(i=0;i<8;i++){
   char text[4]={(char)w->s.letters[i],0,0,0};int color=255,clut=32760;
-  if(i==w->s.selected){int v=func_800904F4((s32)((u32)w->s.tick*128U-682U));if(v<0){color=8;clut=32761;}}
+  if(i==w->s.selected){int v=rcos((s32)((u32)w->s.tick*128U-682U));if(v<0){color=8;clut=32761;}}
   p=func_8001FD20(ordering,p,x+i*12,y,8,2,color,color,color);
   p=func_8001F5B4(ordering,p,x+i*12+2,y-20,text,clut,0,0);
  }}

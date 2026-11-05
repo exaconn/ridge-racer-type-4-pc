@@ -82,7 +82,7 @@ extern int MulMatrix();
 extern M D_800F39A8;
 extern int ApplyMatrixSV();
 extern int func_8006DB0C();
-extern int func_80090884();
+extern int SquareRoot0();
 extern int func_8006E368();
 extern short D_80107182;
 extern short D_80107184;
@@ -331,7 +331,7 @@ void func_80070ACC(char *p) {
     MulMatrix2(&m30, &m10);
     BuildRotMatrixZ(&m30, *(int *)(p + 0xE0));
     MulMatrix2(&m30, &m10);
-    func_80090B14(&D_800F39A8, p + 0xC8, v);
+    ApplyMatrixLV(&D_800F39A8, p + 0xC8, v);
     m10.a[5] = (D_800F39A8.a[5] + v[0]) >> 1;
     m10.a[6] = (D_800F39A8.a[6] + v[1]) >> 1;
     m10.a[7] = (D_800F39A8.a[7] + v[2]) >> 1;
@@ -469,7 +469,7 @@ void func_80070BA4(char *a0, int a1, int a2) {
             sp10[0] = (sp10[0] >> 1) - s1->fC8;
             sp10[1] = (sp10[1] >> 1) - s1->fCC;
             sp10[2] = (sp10[2] >> 1) - s1->fD0;
-            D_800F38F8[a1].a = -func_8006E368(func_80090884((sp10[0] >> 4) * (sp10[0] >> 4) + (sp10[2] >> 4) * (sp10[2] >> 4)), sp10[1] >> 4) & 0xFFF;
+            D_800F38F8[a1].a = -func_8006E368(SquareRoot0((sp10[0] >> 4) * (sp10[0] >> 4) + (sp10[2] >> 4) * (sp10[2] >> 4)), sp10[1] >> 4) & 0xFFF;
             D_800F38F8[a1].b = (0x400 - func_8006E368(sp10[0], sp10[2])) & 0xFFF;
             D_800F38F8[a1].c = 0;
         }

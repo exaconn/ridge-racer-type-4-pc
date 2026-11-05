@@ -219,8 +219,8 @@ void func_8006EF8C(s32);
 void func_80070734(s32);
 void func_800735D8(s32);
 void func_800747EC(s32);
-s32 func_80090424(s32);
-s32 func_800904F4(s32);
+s32 rsin(s32);
+s32 rcos(s32);
 u16 *func_80091844(s16 *rotation, u16 *matrix);
 void SetDispMask(s32);
 

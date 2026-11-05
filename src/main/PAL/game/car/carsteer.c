@@ -7,7 +7,7 @@ typedef struct {
 
 extern s32 func_80025FBC(s16, s32);
 extern s32 func_8006E368(s16, s32);
-extern s32 func_80090424(s32);
+extern s32 rsin(s32);
 extern UnkF3A08 *D_800F3A08[];
 
 int func_8002C638(Car *arg0) {
@@ -22,7 +22,7 @@ int func_8002C638(Car *arg0) {
     if (arg0->unk1E4 & 0x10) {
         s1 = func_80025FBC(arg0->unk1D4, arg0->unk54) * 4;
         if (arg0->sub1F4.unk1C->unkA != 0) {
-            s3 = (func_80090424((arg0->sub1F4.unk54 << 5) & 0xFE0) * arg0->unk1DE) / 8128;
+            s3 = (rsin((arg0->sub1F4.unk54 << 5) & 0xFE0) * arg0->unk1DE) / 8128;
         }
     } else {
         s1 = func_80025FBC(arg0->unk1D6, arg0->unk54) * 4;

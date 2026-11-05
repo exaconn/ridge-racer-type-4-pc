@@ -14,7 +14,7 @@ typedef struct {
     short p0, f2, f4, f6, f8, fA, fC, fE, f10, f12, f14, f16, f18, f1A;
 } E;
 
-extern int func_8003D474(), func_80090424(), func_800904F4();
+extern int func_8003D474(), rsin(), rcos();
 
 extern E *D_800F3AFC;
 
@@ -36,7 +36,7 @@ void func_8003D6F0(a0) int a0; {
             D_800F3AFC[a0].f16 = (D_800F3AFC[a0].fA + D_800F3AFC[a0].fE) - 2;
             break;
         case 1:
-            D_800F3AFC[a0].f18 = ((D_800F3AFC[a0].fC + 2) * func_80090424((s2 << 10) / 15)) / 4096;
+            D_800F3AFC[a0].f18 = ((D_800F3AFC[a0].fC + 2) * rsin((s2 << 10) / 15)) / 4096;
             if (s2 < 0xF) {
                 D_800F3AFC[a0].f12++;
             } else {
@@ -45,7 +45,7 @@ void func_8003D6F0(a0) int a0; {
             }
             break;
         case 2:
-            D_800F3AFC[a0].f1A = (D_800F3AFC[a0].fE * func_80090424((s2 << 10) / 15)) / 4096;
+            D_800F3AFC[a0].f1A = (D_800F3AFC[a0].fE * rsin((s2 << 10) / 15)) / 4096;
             D_800F3AFC[a0].f16 = (D_800F3AFC[a0].fA + D_800F3AFC[a0].fE) - D_800F3AFC[a0].f1A;
             D_800F3AFC[a0].f6 = D_800F3AFC[a0].f16;
             if (s2 < 0xF) {
@@ -64,7 +64,7 @@ void func_8003D6F0(a0) int a0; {
             D_800F3AFC[a0].f1A = D_800F3AFC[a0].fE;
             break;
         case 4:
-            D_800F3AFC[a0].f1A = (D_800F3AFC[a0].fE * func_800904F4((s2 << 10) / 15)) / 4096;
+            D_800F3AFC[a0].f1A = (D_800F3AFC[a0].fE * rcos((s2 << 10) / 15)) / 4096;
             D_800F3AFC[a0].f16 = D_800F3AFC[a0].fA + (D_800F3AFC[a0].fE - D_800F3AFC[a0].f1A);
             D_800F3AFC[a0].f6 = D_800F3AFC[a0].f16;
             if (s2 < 0xF) {
@@ -75,7 +75,7 @@ void func_8003D6F0(a0) int a0; {
             }
             break;
         case 5:
-            D_800F3AFC[a0].f18 = ((D_800F3AFC[a0].fC + 2) * func_800904F4((s2 << 10) / 15)) / 4096;
+            D_800F3AFC[a0].f18 = ((D_800F3AFC[a0].fC + 2) * rcos((s2 << 10) / 15)) / 4096;
             if (s2 < 0xF) {
                 D_800F3AFC[a0].f12++;
             } else {
@@ -89,7 +89,7 @@ void func_8003D6F0(a0) int a0; {
             }
             break;
         case 7:
-            D_800F3AFC[a0].f18 = ((D_800F3AFC[a0].fC + 2) * func_80090424((s2 << 10) / 15)) / 4096;
+            D_800F3AFC[a0].f18 = ((D_800F3AFC[a0].fC + 2) * rsin((s2 << 10) / 15)) / 4096;
             D_800F3AFC[a0].f1A = D_800F3AFC[a0].fE;
             D_800F3AFC[a0].f14 = D_800F3AFC[a0].f8;
             D_800F3AFC[a0].f16 = D_800F3AFC[a0].fA;
@@ -106,7 +106,7 @@ void func_8003D6F0(a0) int a0; {
             break;
         case 8:
             D_800F3AFC[a0].f18 = D_800F3AFC[a0].fC + 2;
-            D_800F3AFC[a0].f1A = (D_800F3AFC[a0].fE * func_80090424((s2 << 10) / 15)) / 4096;
+            D_800F3AFC[a0].f1A = (D_800F3AFC[a0].fE * rsin((s2 << 10) / 15)) / 4096;
             D_800F3AFC[a0].f14 = D_800F3AFC[a0].f8;
             D_800F3AFC[a0].f16 = D_800F3AFC[a0].fA + ((D_800F3AFC[a0].fE / 2) - (D_800F3AFC[a0].f1A / 2));
             if (s2 < 0xF) {

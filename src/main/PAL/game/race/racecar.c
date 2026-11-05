@@ -10,8 +10,8 @@
 extern int func_80025FBC();
 extern int func_80027C54();
 extern int func_8006E368();
-extern int func_80090424();
-extern int func_800904F4();
+extern int rsin();
+extern int rcos();
 extern int D_8010718C;
 extern struct w3g2o { int pad0[4]; int f10, f14, f18, f1C; char pad1[0x10]; int f30; int pad34; int f38; char pad2[0x18]; int f54; } D_800ABEF8;
 typedef struct { int a, b, c, d; } w3g2V;
@@ -27,10 +27,10 @@ void func_80033808(struct w3g2q *p) {
     u = p->s1D8;
     p->s1D8 = (unsigned short)p->s1D8 - (u * 6) / 100;
     p->s1D8 = p->s1D8 + p->u1E0;
-    v = p->s1D8 * func_80090424(p->s1D4 + (p->s1EA << 11));
+    v = p->s1D8 * rsin(p->s1D4 + (p->s1EA << 11));
     if (v < 0) v += 0xFF;
     p->f30 = v >> 8;
-    v2 = p->s1D8 * func_800904F4(p->s1D4 + (p->s1EA << 11));
+    v2 = p->s1D8 * rcos(p->s1D4 + (p->s1EA << 11));
     if (v2 < 0) v2 += 0xFF;
     p->f38 = v2 >> 8;
     func_80024A88(p);
@@ -45,11 +45,11 @@ void func_80033808(struct w3g2q *p) {
     func_80026F5C(p);
     func_80027C54(p);
     func_80028B30(p);
-    v3 = func_80090424(D_800ABEF8.f54);
+    v3 = rsin(D_800ABEF8.f54);
     if (v3 < 0) v3 += 0x7F;
     sp[0] = D_800ABEF8.f10 + (v3 >> 7) - g[2];
     sp[1] = D_800ABEF8.f14 - g[3];
-    v4 = func_800904F4(D_800ABEF8.f54);
+    v4 = rcos(D_800ABEF8.f54);
     if (v4 < 0) v4 += 0x7F;
     sp[2] = D_800ABEF8.f18 + (v4 >> 7) - g[4];
     *(w3g2V *)(SCRATCHPAD + 0x8) = *(w3g2V *)&p->f10;

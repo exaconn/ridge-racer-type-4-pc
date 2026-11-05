@@ -140,7 +140,7 @@ extern void ovl665_func_80114A24(void);
 extern void func_8002A604();
 extern void func_8003D228(s32, s32, s32, s32, s32, s32, s32);
 extern void func_8002AF8C(s32, s32, s32);
-extern s32 func_80090424(s32);
+extern s32 rsin(s32);
 extern void func_8004BB84(s32, s32);
 extern void ovl665_func_801169BC(s32);
 extern void func_8003D6F0(s32);
@@ -521,7 +521,7 @@ void ovl665_func_80116D10(s32 player) {
             if (old != D_800AD528.b[player].h[4]) {
                 D_800AC590->b4 = D_800AD528.b[player].h[4] + 10;
             }
-            value = func_80090424(ST.phase20) * ovl665_D_80119740[D_800AD528.b[player].h[4]] / 512;
+            value = rsin(ST.phase20) * ovl665_D_80119740[D_800AD528.b[player].h[4]] / 512;
             ST.offset8C = value;
             ST.offset94 = -value;
             phase = ST.phase20;
@@ -561,7 +561,7 @@ void ovl665_func_80116D10(s32 player) {
             if (old != D_800AD528.b[player].h[5]) {
                 D_800AC590->b4 = D_800AD528.b[player].h[5] + 14;
             }
-            value = func_80090424(ST.phase20) * D_8009FFB8[D_800AD528.b[player].h[5]] / 512;
+            value = rsin(ST.phase20) * D_8009FFB8[D_800AD528.b[player].h[5]] / 512;
             ST.offset8C = value;
             ST.offset94 = -value;
             phase = ST.phase20;
@@ -626,7 +626,7 @@ void ovl665_func_80116D10(s32 player) {
             if (old != D_800AD528.b[player].h[4]) {
                 D_800AC590->b4 = D_800AD528.c[player].c[0] + 10;
             }
-            value = func_80090424(ST.phase20) * D_8009FFCC[D_800AD528.c[player].c[0]] / 128;
+            value = rsin(ST.phase20) * D_8009FFCC[D_800AD528.c[player].c[0]] / 128;
             ST.offset90 = value;
             phase = ST.phase20;
             ST.phase20 = phase + 32;
@@ -658,7 +658,7 @@ void ovl665_func_80116D10(s32 player) {
             if (old != D_800AD528.c[player].c[1]) {
                 D_800AC590->b4 = D_800AD528.c[player].c[1] + 18;
             }
-            value = func_80090424(ST.phase20) * D_8009FFC0[D_800AD528.c[player].c[1]] / 256;
+            value = rsin(ST.phase20) * D_8009FFC0[D_800AD528.c[player].c[1]] / 256;
             ST.offset90 = value;
             phase = ST.phase20;
             ST.phase20 = phase + 32;
@@ -686,7 +686,7 @@ void ovl665_func_80116D10(s32 player) {
             if (old != D_800AD528.c[player].c[2]) {
                 D_800AC590->b4 = D_800AD528.c[player].c[2] + 23;
             }
-            wave = func_80090424(ST.phase20) * 21;
+            wave = rsin(ST.phase20) * 21;
             value = wave * D_800AD528.c[player].c[2] / 256;
             ST.offset90 = value;
             phase = ST.phase20;

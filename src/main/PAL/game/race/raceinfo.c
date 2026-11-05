@@ -39,8 +39,8 @@ extern void BuildRotMatrixZ();
 extern void BuildRotMatrixY();
 extern void BuildRotMatrixX();
 extern int func_8006E368();
-extern int func_80090424();
-extern int func_800904F4();
+extern int rsin();
+extern int rcos();
 extern void MulMatrix();
 extern void ApplyMatrix();
 
@@ -202,14 +202,14 @@ void func_80033474(RrRaceVehicle *a0, int a1)
   else
   {
     s0 = (a1 << 11) / 75;
-    v0 = func_80090424(s0);
+    v0 = rsin(s0);
     s5 = D_8010BFD0;
     if (v0 < 0)
     {
       v0 += 7;
     }
     s5[0] = v0 >> 3;
-    v0 = -(func_800904F4(s0) << 9);
+    v0 = -(rcos(s0) << 9);
     if (v0 < 0)
     {
       v0 += 0xFFF;
@@ -226,14 +226,14 @@ void func_80033474(RrRaceVehicle *a0, int a1)
   g[2] = a0->pos10[0] + sp10[0];
   g[3] = a0->pos10[1] + sp10[1];
   g[4] = a0->pos10[2] + sp10[2];
-  v1 = func_80090424(i = a0->rot54) * 0x60;
+  v1 = rsin(i = a0->rot54) * 0x60;
   if (v1 < 0)
   {
     v1 += 0xFFF;
   }
   sp10[0] = (a0->pos10[0] + (v1 >> 12)) - g[2];
   sp10[1] = a0->pos10[1] - g[3];
-  v1 = func_800904F4(a0->rot54) * 0x60;
+  v1 = rcos(a0->rot54) * 0x60;
   if (v1 < 0)
   {
     v1 += 0xFFF;

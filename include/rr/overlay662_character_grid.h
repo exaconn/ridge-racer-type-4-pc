@@ -4,7 +4,7 @@
 extern u8 D_8009F7E4[];
 extern s8 ovl662_D_80126230[3];
 extern s32 ovl662_D_801273B4;
-s32 func_800904F4(s32 angle);
+s32 rcos(s32 angle);
 /* Row names a complete badge. Character bytes1..40 and the three nonnegative
  * UV keys must be readable. Drawing services return full-width arena pointers
  * and may change selection, tick, row root and glyph widths between calls. */

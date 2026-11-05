@@ -9,7 +9,7 @@ void ovl662_func_80117854(u32 *order, void *cursor, s32 row)
     y = D_800F3AFC[row].y06 + 32;
     for (i = 0; i < 4; i++) {
         if (D_800F4D98.bytes[0] == D_800F3920.history6C[i].selection) {
-            flag = func_80090424(
+            flag = rsin(
                 ((s32)(((u32)D_800ABEB0 << 7) - 682U)) & 0xFFE) < 0;
             break;
         }

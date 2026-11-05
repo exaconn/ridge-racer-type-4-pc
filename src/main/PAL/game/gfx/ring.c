@@ -13,8 +13,8 @@ void func_8005599C(char *view, char *lighting, RrMatrixWords32 *first, RrMatrixW
 s32 *func_80090F74(s32 *matrix, s32 *scale);
 void func_8006EE3C(s16 *output, s16 *view, s32 *matrix);
 s32 func_800916D4(s32 *point, s32 *screen, s32 *interpolation, s32 *flags);
-s32 func_80090424(s32 angle);
-s32 func_800904F4(s32 angle);
+s32 rsin(s32 angle);
+s32 rcos(s32 angle);
 extern int D_800A1CD0[];
 extern void func_80096434();
 
@@ -83,11 +83,11 @@ void func_8005E900(s32 *position, s32 radius)
   do
   {
     angle = segment << 7;
-    scratch->vectors[2].x = (func_80090424(angle) * radius) / 4096;
-    scratch->vectors[2].y = (func_800904F4(angle) * radius) / 4096;
+    scratch->vectors[2].x = (rsin(angle) * radius) / 4096;
+    scratch->vectors[2].y = (rcos(angle) * radius) / 4096;
     scratch->vectors[2].z = position[2];
-    scratch->vectors[3].x = (func_80090424(angle) * inner) / 4096;
-    scratch->vectors[3].y = (func_800904F4(angle) * inner) / 4096;
+    scratch->vectors[3].x = (rsin(angle) * inner) / 4096;
+    scratch->vectors[3].y = (rcos(angle) * inner) / 4096;
     /* One word cursor serves the GTE input and then its projected output. */
     gteWords = (u32 *)&scratch->vectors[2];
     scratch->vectors[3].z = position[2];

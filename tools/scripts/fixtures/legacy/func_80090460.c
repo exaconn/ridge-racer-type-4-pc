@@ -1,7 +1,7 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/trig.h"
 
-s32 func_80090424(s32 a) {
+s32 rsin(s32 a) {
     int r;
     if (a >= 0) {
         r = sin_1(a & 0xFFF);

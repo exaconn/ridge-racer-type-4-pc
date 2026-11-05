@@ -37,7 +37,7 @@ func_8008E4E4
 func_8008EB6C
 func_8008F3B0
 func_8009027C
-func_80090884
+SquareRoot0
 func_80091AD4
 func_80092334
 func_800929D4

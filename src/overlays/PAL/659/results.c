@@ -56,7 +56,7 @@ void ovl659_update_results(void) {
         }
         lapOffset = 0;
         if (D_800F3914 == 7) {
-            if (func_80090424((D_800F2DE4 & 0xFF) << 4) > 0) {
+            if (rsin((D_800F2DE4 & 0xFF) << 4) > 0) {
                 lapOffset = 3;
             }
         }

@@ -132,9 +132,9 @@ extern char D_800ABEF8[];
 extern short D_800AC59C;
 extern unsigned short D_800F3914;
 extern C *CarTable[];
-extern int func_800904F4();
+extern int rcos();
 extern s32 func_8006E368(s32, s32);
-extern s32 func_80090424(s32);
+extern s32 rsin(s32);
 extern s32 D_800AD504;
 extern s32 D_800F2EB8;
 extern s16 D_800F4D44;
@@ -254,7 +254,7 @@ unsigned int arg0;
             }
             s0 = (c->s1D8 * 0x3A) / (c->s28C + 1);
             c->s24C -= 0x1388;
-            new_var = func_800904F4(s4, c);
+            new_var = rcos(s4, c);
             c = CarTable[i];
             c->s294 = (c->s294 * (0x64 - ((s0 * new_var) >> 12))) / 100;
           }
@@ -262,7 +262,7 @@ unsigned int arg0;
           {
             s0 = (c->s1D8 * 0x1E) / ((c->s2EC >> 8) + 1);
           }
-          new_var = func_800904F4(s4, c);
+          new_var = rcos(s4, c);
           c = CarTable[i];
           c->s1D8 = (c->s1D8 * (0x64 - ((s0 * new_var) / 4096))) / 100;
         }
@@ -353,7 +353,7 @@ void func_80038550(s32 arg0) {
 /* legacy typing of shared globals in this part of the unit */
 #define func_80025F84 ((s32 (*)(s16, s16))func_80025F84)
 #define func_8002C1D4 ((void (*)(s32, CarCollision *))func_8002C1D4)
-#define func_800904F4 ((s32 (*)(s32))func_800904F4)
+#define rcos ((s32 (*)(s32))rcos)
 #define D_800ABEF8 (*(CarCollision (*)[2])&D_800ABEF8)
 #define CarTable (*(CarCollision *(*)[])&CarTable)
 
@@ -457,8 +457,8 @@ void func_80038654(CarCollision *arg0) {
                             if (j == 0) {
                                 cars[0] = arg0;
                                 cars[1] = other;
-                                sinVal = func_80090424(-cars[0]->rot54);
-                                cosVal = func_800904F4(-cars[0]->rot54);
+                                sinVal = rsin(-cars[0]->rot54);
+                                cosVal = rcos(-cars[0]->rot54);
                                 ang = (sp->dx30 * cosVal + sp->dy34 * sinVal) / 4096;
                                 rz0 = (-sp->dx30 * sinVal + sp->dy34 * cosVal) / 4096;
                                 offZ = 0;
@@ -466,8 +466,8 @@ void func_80038654(CarCollision *arg0) {
                             } else {
                                 cars[0] = other;
                                 cars[1] = arg0;
-                                sinVal = func_80090424(-cars[0]->rot54);
-                                cosVal = func_800904F4(-cars[0]->rot54);
+                                sinVal = rsin(-cars[0]->rot54);
+                                cosVal = rcos(-cars[0]->rot54);
                                 ang = -((sp->dx30 + sp->dy34) * cosVal) / 4096;
                                 rz0 = -((sp->dy34 - sp->dx30) * sinVal) / 4096;
                             }
@@ -487,8 +487,8 @@ void func_80038654(CarCollision *arg0) {
                             } else {
                                 ang = -func_8006E368(-sp->dx30, -sp->dy34) + 0xC00;
                             }
-                            sp->dx30 = func_80090424(ang) << 4;
-                            sp->dy34 = func_800904F4(ang) << 4;
+                            sp->dx30 = rsin(ang) << 4;
+                            sp->dy34 = rcos(ang) << 4;
 
                             dx[1] = (sp->pts40[j_xor_1][k].pt.x - (sp->dx30 >> 6)) - offX;
                             dy[1] = (sp->pts40[j_xor_1][k].pt.y - (sp->dy34 >> 6)) - offZ;
@@ -543,7 +543,7 @@ void func_80038654(CarCollision *arg0) {
                                 sp->dy34 >>= 6;
                             }
 
-                            ang = func_800904F4(func_80025F84(cars[0]->unk1D4, cars[1]->unk1D4));
+                            ang = rcos(func_80025F84(cars[0]->unk1D4, cars[1]->unk1D4));
                             cars[1]->pos00[0] -= sp->dx30;
                             cars[1]->pos00[2] -= sp->dy34;
                             cars[1]->pos10[0] -= sp->dx30 >> 6;
@@ -640,7 +640,7 @@ void func_80038654(CarCollision *arg0) {
 
 #undef func_80025F84
 #undef func_8002C1D4
-#undef func_800904F4
+#undef rcos
 #undef D_800ABEF8
 #undef CarTable
 
@@ -685,15 +685,15 @@ void func_800394E4(char *p, int b) {
             p = (char *)(t & 0xFFF);
             if (s0 < 0) {
                 if ((a1 & 1) > 0) {
-                    s2 = -(s0 + s0 * func_800904F4(p) / 4096);
-                    s3 = -(s0 + -s0 * func_800904F4(p) / 4096);
+                    s2 = -(s0 + s0 * rcos(p) / 4096);
+                    s3 = -(s0 + -s0 * rcos(p) / 4096);
                 } else goto l16;
             } else {
 l16:
                 if (s0 > 0) {
                     if ((a1 & 2) > 0) {
-                        s3 = s0 + s0 * func_800904F4(p) / 4096;
-                        s2 = s0 + -s0 * func_800904F4(p) / 4096;
+                        s3 = s0 + s0 * rcos(p) / 4096;
+                        s2 = s0 + -s0 * rcos(p) / 4096;
                     }
                 }
             }

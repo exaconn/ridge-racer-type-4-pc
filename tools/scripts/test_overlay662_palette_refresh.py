@@ -55,7 +55,7 @@ static void change(void){unsigned i,j;RrPalette16 *p=w==&actual?palettes:expecte
  for(i=0;i<9;i++)for(j=0;j<16;j++)p[i].entries[j]=(u16)next();
  for(i=0;i<5;i++){w->s.rectangles[i].x=(s16)next();w->s.rectangles[i].y=(s16)next();}
 }
-s32 func_80090424(s32 angle){unsigned index=(scenario+(w->count*2731U))%8193;Event *e=event(1);s32 result=(s32)index-4096;
+s32 rsin(s32 angle){unsigned index=(scenario+(w->count*2731U))%8193;Event *e=event(1);s32 result=(s32)index-4096;
  assert(angle>=-4095&&angle<=4095);e->arg=angle;e->result=result;sineSeen[index]++;change();return result;
 }
 void func_80092FFC(const RrGpuRectangleFields *rectangle,const void *pixels){unsigned index=(unsigned)(rectangle-w->s.rectangles);Event *e=event(2);
@@ -69,7 +69,7 @@ static void expected(void){RrGarageSelectionPrefix *g=&w->s.garage;unsigned acti
  RrPalette16 *p=owner(capturedPalette),*s=owner(capturedScratch),*b=owner(capturedBackup);s32 angle,result;u32 component;
  p->entries[0]=0;s->entries[0]=32768;
  for(i=0;i<3;i++){
-  s32 phase=word((u32)w->s.phase+85U*i);angle=(s32)((int64_t)phase%4096);result=func_80090424(angle);
+  s32 phase=word((u32)w->s.phase+85U*i);angle=(s32)((int64_t)phase%4096);result=rsin(angle);
   component=(u32)((result/128+32)/8);s->entries[0]=(u16)(s->entries[0]|(component<<(5*i)));
  }
  w->s.phase=word((u32)w->s.phase+32U);

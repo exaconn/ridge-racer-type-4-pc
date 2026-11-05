@@ -665,7 +665,7 @@ segments:
       - [0x80ff0, asm, main_800907F0]
       - [0x80ffc, hasm, func_800907FC]
       - [0x8107c, pad, main_8009087C]
-      - [0x81084, hasm, func_80090884]
+      - [0x81084, hasm, SquareRoot0]
       - [0x81108, pad, main_80090908]
       - [0x81114, c, psyq/libgte/gtemat]
       - [0x81220, pad, main_80090A20]

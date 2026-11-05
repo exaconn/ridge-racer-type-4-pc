@@ -56,7 +56,7 @@ static Event *event(s32 op,void *cursor){
  e->op=op;if(cursor){assert((uintptr_t)cursor>UINT32_MAX);e->cursor=(u8*)cursor-arena;assert(e->cursor<sizeof(arena));}
  return e;
 }
-s32 func_80090424(s32 angle){Event *e=event(1,0);s32 v=(s32)(next()%3)-1;e->a=angle;e->b=v;change();return v;}
+s32 rsin(s32 angle){Event *e=event(1,0);s32 v=(s32)(next()%3)-1;e->a=angle;e->b=v;change();return v;}
 void *func_8001FF84(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
  Event *e=event(2,p);assert(ot==ordering);e->x=x;e->y=y;e->a=clut;e->b=color;memcpy(e->data,uv,4);change();return (u8*)p+20;
 }
@@ -73,7 +73,7 @@ void *func_8001FD20(u32 *ot,void *p,s32 x,s32 y,s32 a,s32 b,s32 r,s32 g,s32 blue
 static void decimal(char *p,unsigned n,unsigned digits){while(digits){p[--digits]='0'+n%10;n/=10;}}
 static void expected(u32 *ot,void *p,s32 row){
  int x=D_800F3AFC[row].x04+8,y=D_800F3AFC[row].y06+32,flag=0,i;
- for(i=0;i<4;i++)if(w->s.choice.bytes[0]==w->s.save.history6C[i].selection){flag=func_80090424((s32)(((u32)w->s.tick*128-682U)&4094U))<0;break;}
+ for(i=0;i<4;i++)if(w->s.choice.bytes[0]==w->s.save.history6C[i].selection){flag=rsin((s32)(((u32)w->s.tick*128-682U)&4094U))<0;break;}
  for(i=0;i<7;i++){
   int key=ovl662_D_8012621C[i];
   if(key<0){

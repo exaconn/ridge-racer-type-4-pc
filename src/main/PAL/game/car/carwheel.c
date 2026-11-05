@@ -413,7 +413,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
     sp168[0].x = (arg0->x10 - G->x08) >> 2;
     sp168[0].y = 0;
     sp168[0].z = (arg0->z18 - G->z10) >> 2;
-    func_80090B14(SCRATCH_ROT_MATRIX, &sp168[0], &sp168[1]);
+    ApplyMatrixLV(SCRATCH_ROT_MATRIX, &sp168[0], &sp168[1]);
     if (sp168[0].x < 0) {
         sp168[0].x = -sp168[0].x;
     }

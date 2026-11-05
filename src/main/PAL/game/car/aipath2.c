@@ -105,10 +105,10 @@ void func_80026F5C(Car *arg0) {
     g->s174 = s1->s22;
     g->s176 = s1->s20;
     s2 = &D_800ABEA4[next_idx];
-    g->s24 = func_80090424(g->s174);
-    g->s26 = func_800904F4(g->s174);
-    g->s28 = func_80090424(g->s176);
-    g->s2A = func_800904F4(g->s176);
+    g->s24 = rsin(g->s174);
+    g->s26 = rcos(g->s174);
+    g->s28 = rsin(g->s176);
+    g->s2A = rcos(g->s176);
     if (g->s174 != g->s176) {
         g->w38 = 1;
         g->s162 = s1->s1C;
@@ -124,8 +124,8 @@ void func_80026F5C(Car *arg0) {
     g->sF8 = g->p0->u20.s.w20 - s1->w8;
     g->sFC = g->p0->u20.s.w28 - s1->wC;
     g->sFA = 0;
-    g->w20 = func_800904F4(g->s160);
-    g->w1C = func_80090424(g->s160);
+    g->w20 = rcos(g->s160);
+    g->w1C = rsin(g->s160);
     c = g->w20;
     s = g->w1C;
     g->sB8 = g->sC2 = c;

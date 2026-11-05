@@ -24,11 +24,11 @@ void ovl662_func_80119898(s32 mode) {
   v++;u++;y++;i++;x++;
  }while(i<4);
  if(mode==1){
-  amount=func_80090424(amount*8)/64;
+  amount=rsin(amount*8)/64;
   quad.y[0]+=amount;quad.y[1]=quad.y[0];
   quad.y[2]-=amount;quad.y[3]=quad.y[2];amount=0;
  }
- color=64-func_80090424((s32)((u32)D_800ABEB0*64U))/64;
+ color=64-rsin((s32)((u32)D_800ABEB0*64U))/64;
  cursor=RR_GPU_SCRATCH->cursor;
  if(amount>0){
   cursor=func_8002039C(&D_800ACC14->head70,cursor,quad.x,quad.y,quad.u,quad.v,42,0x1028,0,(u16)amount);

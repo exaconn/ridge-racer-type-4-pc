@@ -140,10 +140,10 @@ void func_80027C54(Car *arg0) {
         if (g->s150[0] != g->s150[2] || g->w8 < 2) {
             g->s174 = g->z180[a0].s1A;
             g->s176 = g->z180[g->wC].s18;
-            g->s24 = func_80090424(g->s174);
-            g->s26 = func_800904F4(g->s174);
-            g->s28 = func_80090424(g->s176);
-            g->s2A = func_800904F4(g->s176);
+            g->s24 = rsin(g->s174);
+            g->s26 = rcos(g->s174);
+            g->s28 = rsin(g->s176);
+            g->s2A = rcos(g->s176);
             if (g->s174 != g->s176) {
                 g->w38 = 1;
                 g->s174 = g->s162 = g->z180[g->wC].s14;
@@ -154,9 +154,9 @@ void func_80027C54(Car *arg0) {
                 g->s160 = g->z180[g->wC].s16 + 0x400;
                 g->s176 = (g->s24 * g->z180[g->wC].s14) >> 12;
             }
-            g->sB8 = g->sC2 = func_800904F4(g->s160);
+            g->sB8 = g->sC2 = rcos(g->s160);
             {
-                s16 s = func_80090424(g->s160);
+                s16 s = rsin(g->s160);
                 g->sBE = -s;
                 g->sBC = s;
             }

@@ -36,8 +36,8 @@ func_8008DE84
 func_8008E780
 func_8008ED54
 StUnSetRing
-func_800904F4
-func_80090B14
+rcos
+ApplyMatrixLV
 func_80091D64
 func_800924D4
 SetGraphDebug

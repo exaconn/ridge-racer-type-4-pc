@@ -1,33 +1,33 @@
 #include "m2c_macros.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80090424 ((int (*)())func_80090424)
+#define rsin ((int (*)())rsin)
 
-#define func_800904F4 ((int (*)())func_800904F4)
+#define rcos ((int (*)())rcos)
 
-#undef func_80090424
+#undef rsin
 
-#undef func_800904F4
+#undef rcos
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80090424 ((int (*)())func_80090424)
+#define rsin ((int (*)())rsin)
 
-#define func_800904F4 ((int (*)())func_800904F4)
+#define rcos ((int (*)())rcos)
 
-#undef func_80090424
+#undef rsin
 
-#undef func_800904F4
+#undef rcos
 
-extern short func_80090424();
+extern short rsin();
 
-extern short func_800904F4();
+extern short rcos();
 
 void BuildRotMatrixX(void *arg0, M2C_UNK arg1) {
     s16 temp_s1;
     s16 temp_v0;
 
-    temp_s1 = func_80090424(arg1);
-    temp_v0 = func_800904F4(arg1);
+    temp_s1 = rsin(arg1);
+    temp_v0 = rcos(arg1);
     M2C_FIELD(arg0, s16 *, 0) = 0x1000;
     M2C_FIELD(arg0, s16 *, 2) = 0;
     M2C_FIELD(arg0, s16 *, 4) = 0;

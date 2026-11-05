@@ -21,8 +21,8 @@ int func_8002C638(Car *arg0) {
     s2 = (arg0->unk1DA - arg0->unk1D8) * 4;
     if (arg0->unk1E4 & 0x10) {
         s1 = func_80025FBC(arg0->unk1D4, arg0->unk54) * 4;
-        if (arg0->unk210->unkA != 0) {
-            s3 = (func_80090424((arg0->unk248 << 5) & 0xFE0) * arg0->unk1DE) / 8128;
+        if (arg0->sub1F4.unk1C->unkA != 0) {
+            s3 = (func_80090424((arg0->sub1F4.unk54 << 5) & 0xFE0) * arg0->unk1DE) / 8128;
         }
     } else {
         s1 = func_80025FBC(arg0->unk1D6, arg0->unk54) * 4;

@@ -2,17 +2,13 @@
 #define RR_GAME_CAR_CAR_H
 
 #include "types.h"
+#include "game/course/control.h"
 
 /* Vehicle state record. Only the members the game code touches are named (by
  * offset); the gaps are padding. One definition for every unit that walks it. */
 struct Q4 {
     s32 w[4];
 };
-
-typedef struct {
-    char pad0[0xA];
-    s16 unkA;
-} Unk210;
 
 typedef struct Car {
     s32 posX;
@@ -76,7 +72,7 @@ typedef struct Car {
     s16 unk1DC;
     s16 unk1DE;
     char pad1E0[0x1E4 - 0x1E0];
-    u16 unk1E4;
+    s16 unk1E4;
     u16 unk1E6;
     char pad1E8[0x1EC - 0x1E8];
     s16 s1EC;
@@ -85,10 +81,7 @@ typedef struct Car {
         s32 w1F0;
         u8 b1F0[4];
     } u1F0;
-    char pad1F4[0x210 - 0x1F4];
-    Unk210 *unk210;
-    char pad214[0x248 - 0x214];
-    s32 unk248;
+    Control sub1F4;
 } Car;
 
 #endif

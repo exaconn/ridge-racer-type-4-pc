@@ -1,4 +1,5 @@
 #include "types.h"
+#include "game/car/car.h"
 #include "rr_asm.h"
 #include "game/sound/sndown.h"
 #include "game/sound/sndcmd.h"
@@ -24,25 +25,6 @@ typedef struct {
     Rec1C rec[2];
 } State800F4DB8;
 
-typedef struct {
-    char pad0[0x94];
-    s16 unk94;
-    char pad1[0xC0 - 0x96];
-    s32 unkC0;
-    s32 unkC4;
-    char pad2[0x12C - 0xC8];
-} Control12C;
-
-typedef struct {
-    char pad0[0x20];
-    s32 pos20[3];
-    char pad1[0x184 - 0x2C];
-    s32 first184;
-    s32 second188;
-    char pad2[0x1F4 - 0x18C];
-    Control12C sub1F4;
-} Vehicle320;
-
 typedef struct { char pad[0x20]; s32 p[3]; char pad2[0x320 - 0x2C]; } w3t1_E;
 
 typedef struct { s16 vx, vy, vz, pad; } w3t1_SV;
@@ -60,7 +42,7 @@ extern struct {
     s32 count10;
 } D_800AC650;
 extern s32 D_800AC660;
-extern Vehicle320 D_80107198[];
+extern Car D_80107198[];
 extern s32 D_800F6748;
 extern w3t1_E D_800ABEF8[];
 extern s32 func_80091844();
@@ -108,8 +90,8 @@ void func_80051BD4(s32 arg0) {
     s32 i;
     s32 dist;
     /* ASM_BARRIER: allocate car pointer to v1 to match original register allocation */
-    register Vehicle320 *car asm("$3");
-    Control12C *sub;
+    register Car *car asm("$3");
+    Control *sub;
 
     prev_idx[0] = D_800F4DB8.rec[0].unk04;
     prev_idx[1] = D_800F4DB8.rec[1].unk04;
@@ -122,7 +104,7 @@ void func_80051BD4(s32 arg0) {
         min_dist[0] = D_800F2EB8;
         for (i = 0; i < D_800AC660; i++) {
             car = &D_80107198[i];
-            dist = (car->first184 + car->second188) - D_800F4DB8.unk18E4;
+            dist = (car->w184 + car->w188) - D_800F4DB8.unk18E4;
             dist %= D_800F2EB8;
             if (dist >= D_800F2EB8 / 2) {
                 dist -= D_800F2EB8;
@@ -150,9 +132,9 @@ void func_80051BD4(s32 arg0) {
         min_idx[1] = -1;
         min_idx[0] = -1;
         for (i = 0; i < D_800AC650.count10; i++) {
-            d[0] = (D_80107198[i].pos20[0] - D_800F4DB8.pos18C4[0]) / 16;
-            d[1] = (D_80107198[i].pos20[1] - D_800F4DB8.pos18C4[1]) / 16;
-            d[2] = (D_80107198[i].pos20[2] - D_800F4DB8.pos18C4[2]) / 16;
+            d[0] = (D_80107198[i].u20.s.w20 - D_800F4DB8.pos18C4[0]) / 16;
+            d[1] = (D_80107198[i].u20.s.w24 - D_800F4DB8.pos18C4[1]) / 16;
+            d[2] = (D_80107198[i].u20.s.w28 - D_800F4DB8.pos18C4[2]) / 16;
             dist = func_80090758(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
             if (dist < min_dist[0]) {
                 min_dist[1] = min_dist[0];

@@ -138,9 +138,10 @@ definitions are byte-identical, the definition lives in one header that every us
   named after the SDK headers; `tools/scripts/psyq_types.py` moves further byte-identical ones
 * `include/scratchpad.h` – `SCRATCHPAD`, `SCRATCH_ROT_MATRIX`, `SCRATCH_CAR_WORK` instead of bare `0x1F8xxxxx`
 
+The car record is one struct now: `Car` (0x320 bytes, size taken from the stride of `CarTable` in the running game) with the course-tracking block `Control` at +0x1F4 (`include/game/course/control.h`); the former `Vehicle320`, `CarState`, `Control1F4`, `Control12C` views are gone.
+
 Views that cannot be merged without changing code stay local: `S_ECB4` (objsim reads `u16 f1C..f22`, objdraw reads
-`s16 rot.vx..vz`), `RrSlot620` (sndchan/sndsys use different field types), `UiElem24`, `RrParticleSys`, and `Vehicle320`
-(its `Control12C` at +0x1F4 overlaps fields of `Car`; `flags1E4` is `s16` there and `u16` in `Car`).
+`s16 rot.vx..vz`), `RrSlot620` (sndchan/sndsys use different field types), `UiElem24` and `RrParticleSys`.
 
 ## Symbol names
 Auto names (`func_XXXXXXXX`) are replaced by real names when the name is certain. `configs/PAL/sym.main.txt`

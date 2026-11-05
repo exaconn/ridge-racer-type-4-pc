@@ -237,7 +237,7 @@ s32 func_80046B1C(RrRaceVehicle *arg0, s32 arg1) {
     s32 sp18;
     s32 sp1C;
     s32 s0;
-    Control1F4 *s1;
+    Control *s1;
     RrRaceStandingsTable *t;
     RrRaceVehicle *other;
     s32 i;
@@ -249,7 +249,7 @@ s32 func_80046B1C(RrRaceVehicle *arg0, s32 arg1) {
 
     s0 = 0;
     t = D_800AC738;
-    s1 = (Control1F4 *)((char *)arg0 + 0x1F4);
+    s1 = (Control *)((char *)arg0 + 0x1F4);
     other = t->entries18[arg1].vehicle08;
 
     i = -other->heading1D4 + 0x400;

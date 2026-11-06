@@ -11,6 +11,7 @@
 #include "game/menu/menucalc.h"
 #include "game/data/globals.h"
 #include "game/gfx/drawbuf.h"
+#include "game/data/d800abeb0.h"
 
 extern int func_80020074();
 extern unsigned char D_8009F074[][4];
@@ -45,7 +46,6 @@ extern int func_8003A198();
 extern int func_8004F24C();
 extern int func_80053AF4();
 extern int func_80053CB0();
-extern int D_800ABEB0;
 extern unsigned short D_800AC5D0;
 extern int D_800ACC18;
 extern struct { char pad[1]; signed char b1; } *D_800F2AB0;

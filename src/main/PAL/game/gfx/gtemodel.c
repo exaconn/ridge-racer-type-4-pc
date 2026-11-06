@@ -5,6 +5,7 @@
 #include "psyq/libgpu/gpuenv.h"
 #include "rr/memory.h"
 #include "rr/course_choices.h"
+#include "game/data/d800abeb0.h"
 
 typedef struct { int a, b, c, d; } V16;
 
@@ -14,7 +15,6 @@ extern int func_8001AC24();
 extern int func_80092334();
 extern int D_800FF690[];
 extern int D_8009E46C[];
-extern int D_800ABEB0;
 extern int func_80013890();
 extern int func_80041A54();
 extern int ApplyMatrixSV();

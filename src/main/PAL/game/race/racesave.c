@@ -9,6 +9,7 @@
 #include "game/system/pad3.h"
 #include "game/race/racesave.h"
 #include "game/gfx/drawbuf.h"
+#include "game/data/d800abeb0.h"
 typedef struct { int w[200]; } B800;
 
 typedef struct {
@@ -121,7 +122,6 @@ extern int func_8006EF8C();
 extern int func_800735D8();
 extern int func_800747EC();
 extern int rsin();
-extern int D_800ABEB0;
 extern int D_800F2A64;
 extern short D_800F2AB4[];
 extern int D_800F2DE4;

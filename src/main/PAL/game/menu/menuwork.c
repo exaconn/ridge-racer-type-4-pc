@@ -8,6 +8,7 @@
 #include "rr/menu_background.h"
 #include "game/data/globals.h"
 #include "game/data/selection.h"
+#include "game/data/d800abeb0.h"
 
 #define P8(base, off) (*(unsigned char *)((char *)(base) + (off)))
 #define IDX30(base, i) (*(unsigned char *)((char *)(base) + (i) * 0x24 + 0x30))
@@ -33,7 +34,6 @@ extern int func_80033A74();
 extern int func_80037110();
 extern int func_8003A198();
 extern void func_8003E928(int,int,int,int,int,int,int,int,int,int,...);
-extern s32 D_800ABEB0;
 extern M2C_UNK D_800ABEF8;
 extern s32 D_800AC5DC;
 extern s16 D_800AD50A;

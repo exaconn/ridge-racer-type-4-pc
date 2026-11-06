@@ -19,6 +19,7 @@
 #include "game/system/modeinit.h"
 #include "game/data/globals.h"
 #include "game/data/selection.h"
+#include "game/data/d800abeb0.h"
 
 extern int func_80053CB0();
 extern int D_800102F0;
@@ -43,7 +44,6 @@ extern short D_800FF688;
 extern int D_8010BFB8;
 extern int func_8003D228();
 extern char D_800104B0[];
-extern int D_800ABEB0;
 extern char D_800ABEBC[];
 extern char *D_800AC590;
 extern int D_800AC5DC;

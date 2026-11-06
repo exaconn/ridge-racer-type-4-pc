@@ -16,8 +16,8 @@
 #include "rr/ui.h"
 #include "rr/menu_text_rows.h"
 #include "rr/frame_environment.h"
+#include "game/data/d800abeb0.h"
 
-extern s32 D_800ABEB0;
 extern int D_800102F0;
 extern char D_8001075C[];
 extern int D_800ACC18;

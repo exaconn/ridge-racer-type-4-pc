@@ -13,6 +13,7 @@
 #include "rr/course_choices.h"
 #include "rr/menu_selection.h"
 #include "game/gfx/drawbuf.h"
+#include "game/data/menuvars.h"
 
 struct E { char pad[4]; unsigned char a; char b; unsigned char c; signed char d; };
 
@@ -68,7 +69,6 @@ extern w8c5S D_8010B258[];
 extern struct { char pad[0x500]; unsigned char b500; } *D_800F4D80;
 extern struct { char pad[0x10]; short h10; char pad2[0x1A]; short h2C; } *D_800F3AFC;
 extern short D_800AC5D0;
-extern short D_800F4C6A;
 extern short D_800F3A26;
 extern short D_800FF688;
 extern unsigned short D_800F3A1E;

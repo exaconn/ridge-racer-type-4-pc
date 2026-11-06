@@ -6,6 +6,7 @@
 #include "rr/fade_sprite.h"
 #include "rr/audio_cd_controller.h"
 #include "game/data/globals.h"
+#include "game/data/d800abeb0.h"
 
 #define SP ((Scr *)s2)
 #define S4 ((Ent *)s4)
@@ -103,7 +104,6 @@ extern int func_8006EE3C();
 extern int D_800100B8;
 extern s32 func_80096464(void);
 extern signed char D_800F4C68;
-extern int D_800ABEB0;
 extern int D_8009E0B0[];
 extern int D_8009E0E0[];
 extern char D_8009E124[];

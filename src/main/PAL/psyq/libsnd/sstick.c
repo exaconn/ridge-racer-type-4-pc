@@ -1,8 +1,8 @@
 /* CC1_FLAGS: -mno-split-addresses */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/library.h"
+#include "rr/channel_stream.h"
 
-extern RrLibStateB0 *D_8010F068[];
 typedef struct {
     void (*noteOn)();
     void (*program)();
@@ -11,7 +11,6 @@ typedef struct {
     void (*control)();
 } SeqHandlers;
 extern SeqHandlers D_8010EFC8;
-extern void func_800833A0();
 
 s32 func_800835E4(s16 a0, s16 a1) {
     s32 i = a0;

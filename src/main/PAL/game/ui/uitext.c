@@ -8,6 +8,7 @@
 #include "game/ui/uitext.h"
 #include "rr/bios_devices.h"
 #include "rr/course_choices.h"
+#include "game/gfx/drawbuf.h"
 
 typedef struct {
     s32 prim;
@@ -81,7 +82,6 @@ extern FontGlyph4 D_8009FCDC[];
 extern s8 D_8009FD00[];
 extern s16 D_800ABEC8;
 extern s16 D_800AC59C;
-extern s32 D_800ACC14;
 extern s16 D_800AD522;
 extern s16 D_800F3826;
 extern u8 D_800F3920[];

@@ -1,9 +1,9 @@
 #include "scratchpad.h"
+#include "game/gfx/drawbuf.h"
 typedef struct { int x; } __attribute__((packed)) U4;
 extern int func_8001FF84();
 extern int func_8001FCC8();
 extern U4 D_8009EE4C[];
-extern int D_800ACC14;
 extern int D_800F3A30;
 
 void func_80021C94(a0, a1)

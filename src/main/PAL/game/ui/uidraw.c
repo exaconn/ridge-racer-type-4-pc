@@ -5,6 +5,7 @@
 #include "game/ui/uidraw.h"
 #include "rr/bios_devices.h"
 #include "rr/audio_cd_controller.h"
+#include "game/gfx/drawbuf.h"
 #define EP ((E_2 *)((a0 * 16) + D_800ACC00))
 
 typedef struct {
@@ -24,7 +25,6 @@ extern E *D_800F3AFC;
 extern int D_800ACC00;
 extern unsigned char D_8009F9C0[];
 extern unsigned char D_8009F9CC[];
-extern int D_800ACC14;
 extern int D_800F4D8C;
 extern char D_8009F9D4[];
 

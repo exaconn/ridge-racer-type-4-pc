@@ -11,6 +11,7 @@
 #include "psyq/libgte/gtetrig.h"
 #include "rr/hud_number.h"
 #include "game/data/globals.h"
+#include "game/gfx/drawbuf.h"
 
 #define G ((Scratch_8006EF8C *)SCRATCHPAD)
 
@@ -60,7 +61,6 @@ extern s16 D_800A3BF0[];
 extern u16 D_800A3C00[];
 extern s16 D_800A3C10[];
 extern S_800A3C20 D_800A3C20[][7];
-extern s32 D_800ACC14;
 extern void func_800912B4(s32, s32);
 extern void func_800912D4(s32);
 extern void SetDrawArea(s32);

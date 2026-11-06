@@ -21,6 +21,7 @@
 #include "game/gfx/gfxotag.h"
 #include "game/gfx/model.h"
 #include "game/gfx/polygt4.h"
+#include "game/gfx/drawbuf.h"
 
 #define G D_8010BF78
 #define H D_800F3AFC
@@ -124,7 +125,6 @@ extern struct GS *D_8010BF78;
 extern struct HS *D_800F3AFC;
 extern struct KS *D_800AC590;
 extern short D_800AC5D0;
-extern int D_800ACC14;
 extern char *D_800ACC18;
 extern char D_800ACC68;
 extern short D_800F3A26;

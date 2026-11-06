@@ -6,12 +6,12 @@
 #include "game/gfx/scene1.h"
 #include "game/camera/camview.h"
 #include "rr/matrix_workspace.h"
+#include "game/gfx/drawbuf.h"
 
 struct E { s16 a, h; };
 
 extern struct { char pad[0x24C]; char *p24c; char pad2[0x560 - 0x250]; int v560; } D_800AC650;
 extern int D_800ABEF8;
-extern int D_800ACC14;
 extern int D_800F2FD8;
 extern void func_8002CC88();
 extern void func_8002E5A0();

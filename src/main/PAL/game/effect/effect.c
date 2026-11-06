@@ -2,6 +2,7 @@
 #include "scratchpad.h"
 #include "game/effect/ptinit.h"
 #include "game/effect/effect.h"
+#include "game/gfx/drawbuf.h"
 
 typedef struct {
     s32 active00;
@@ -21,7 +22,6 @@ typedef struct {
 } RrParticleSys;
 
 extern RrParticleSys D_800F2AB8;
-extern u8 *D_800ACC14;
 
 void func_80053EC4(void);
 s32 func_80096464(void);

@@ -2,7 +2,7 @@
 #include "game/demo/splash.h"
 #include "rr/driver_control.h"
 #include "game/demo/splash.h"
-extern int D_800ACC14;
+#include "game/gfx/drawbuf.h"
 extern int D_8010E7A0;
 extern int func_8001FDD4();
 extern int func_80020074();

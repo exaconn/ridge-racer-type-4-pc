@@ -5,6 +5,7 @@
 #include "game/camera/camfx.h"
 #include "game/gfx/gfxotag.h"
 #include "game/effect/spark.h"
+#include "game/gfx/drawbuf.h"
 
 typedef struct {
     int vx, vy, vz, pad;
@@ -61,7 +62,6 @@ extern VECTOR D_800A0FC0;
 extern SVECTOR D_800A0FD0;
 extern int D_800A0FD8;
 extern Car D_800ABEF8;
-extern char *D_800ACC14;
 extern unsigned char D_800A0DC8[][4];
 extern u16 D_800111FE;
 extern short *D_800A0F20[];

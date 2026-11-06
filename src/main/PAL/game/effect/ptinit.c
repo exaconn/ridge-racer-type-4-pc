@@ -7,6 +7,7 @@
 #include "rr/frame_environment.h"
 #include "rr/bios_devices.h"
 #include "rr/frame_loop.h"
+#include "game/gfx/drawbuf.h"
 
 #define ADDPRIM(ot, p) \
     (p)->addr = ((PolyFT4 *)(ot))->addr; \
@@ -56,7 +57,6 @@ extern struct {
     char pad[0x3E8];
     s32 f3E8;
 } D_800AC650;
-extern u8 *D_800ACC14;
 extern RrGpuColorCommand D_800A0CF0;
 
 int func_80053E88(void);

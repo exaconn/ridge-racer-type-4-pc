@@ -9,6 +9,7 @@
 #include "rr/hud_number.h"
 #include "rr/bios_devices.h"
 #include "game/gfx/gfxotag.h"
+#include "game/gfx/drawbuf.h"
 
 #define addPrim(ot, p) \
     ((DrTPage *)(p))->addr = (ot)->addr; \
@@ -44,11 +45,6 @@ typedef struct {
     s16 x, y, w, h;
 } Rect;
 
-typedef struct {
-    char pad[0x70];
-    DrTPage ot;
-} Db;
-
 typedef struct 
 {
   char pad[0xB6C];
@@ -63,7 +59,6 @@ typedef struct { short m[3][3]; short pad[7]; } S70;
 
 extern struct { char pad[0xD4]; s32 a, b, c, d; u8 e, f, g; } D_800AC650;
 extern s32 D_800AC724;
-extern Db *D_800ACC14;
 extern Rect D_800A0D04[];
 extern Rect D_800A0D24[][4];
 extern int func_80014A8C();
@@ -164,18 +159,18 @@ void func_80055358(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
         uv = (Rect *)(offset + base);
         s2->u0 = uv->x;
         s2->v0 = uv->y;
-        addPrim(&D_800ACC14->ot, s2);
+        addPrim(&DRAWBUF->ot[0], s2);
         s2++;
         s0 = (DrStp *)((DrTPage *)s2 + 1);
         ((DrTPage *)s2)->len = 1;
         y = uv->h;
         x = uv->w;
         ((DrTPage *)s2)->code[0] = 0xE1000200 | (((a3 & 3) << 5) | 0x100 | ((s16)((y & 0x100) >> 4)) | ((x & 0x3FF) >> 6) | ((s16)(y & 0x200) << 2));
-        addPrim(&D_800ACC14->ot, s2);
+        addPrim(&DRAWBUF->ot[0], s2);
         p1f80 = (DrStp **)SCRATCHPAD;
         *p1f80 = s0;
         func_80093BFC(s0, 0);
-        addPrim(&D_800ACC14->ot, s0);
+        addPrim(&DRAWBUF->ot[0], s0);
         *p1f80 = s0 + 1;
         /* ASM_BARRIER: Keep p1f80 multi-set during loop_optimize; deleted as dead by flow */
         __asm__("" : "=r"(p1f80));

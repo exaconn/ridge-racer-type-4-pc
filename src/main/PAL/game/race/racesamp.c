@@ -14,6 +14,7 @@
 #include "rr/audio_loop.h"
 #include "game/car/aipath2.h"
 #include "game/data/selection.h"
+#include "game/gfx/drawbuf.h"
 
 typedef struct {
     int a, b, c, d;
@@ -120,7 +121,6 @@ extern int func_8003FAE4();
 extern s32 D_800F2EC8;
 extern int func_8001FCC8();
 extern int func_8001FF84();
-extern int D_800ACC14;
 extern unsigned char D_8009F7CC[];
 extern unsigned char D_8009F7D0[];
 extern unsigned char D_8009F7D4[];

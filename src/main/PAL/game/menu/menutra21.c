@@ -12,6 +12,7 @@
 #include "game/menu/menutra22.h"
 #include "rr/course_choices.h"
 #include "rr/menu_selection.h"
+#include "game/gfx/drawbuf.h"
 
 struct E { char pad[4]; unsigned char a; char b; unsigned char c; signed char d; };
 
@@ -72,7 +73,6 @@ extern short D_800F3A26;
 extern short D_800FF688;
 extern unsigned short D_800F3A1E;
 extern unsigned short D_800F4D44;
-extern int D_800ACC14;
 extern int D_800F4CA8;
 extern short D_800F4D3C;
 extern int D_801272F0[];

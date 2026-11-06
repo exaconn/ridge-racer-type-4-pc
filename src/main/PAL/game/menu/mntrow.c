@@ -9,6 +9,7 @@
 #include "rr/frame_environment.h"
 #include "rr/menu_background.h"
 #include "game/data/selection.h"
+#include "game/gfx/drawbuf.h"
 
 #define ROW(i) ((RrRow60 *)((s32)D_800FFC14 + (i) * 0x3C))
 
@@ -24,12 +25,6 @@ typedef struct {
     s16 unk38;
     s16 unk3A;
 } RrRow60;
-
-struct O {
-    char pad[0x70];
-    u32 addr:24;
-    u32 len:8;
-};
 
 typedef struct 
 {
@@ -53,7 +48,6 @@ typedef struct { char pad[4]; char f4; char pad2[2]; char f7; } T;
 extern RrSpritePacket *func_8001FCC8();
 extern s32 rsin();
 extern s32 rcos();
-extern struct O *D_800ACC14;
 extern RrRow60 *D_800FFC14;
 extern unsigned short D_8009FDA0[];
 extern E_1 *D_800F4D8C;
@@ -191,8 +185,8 @@ void func_80040CB4(s32 a0) {
                 s4->g = a3;
                 s4->b = a3;
                 s4->code |= 2;
-                s4->addr = D_800ACC14->addr;
-                D_800ACC14->addr = (u32)s4;
+                s4->addr = DRAWBUF->ot[0].addr;
+                DRAWBUF->ot[0].addr = (u32)s4;
                 s4++;
                 /* ASM_BARRIER: count one more reg in inner loop so loop_optimize does not hoist 0x64 */
                 __asm__("" : "=r"(v1));

@@ -17,6 +17,7 @@
 #include "rr/color_conversion.h"
 #include "rr/driver_control.h"
 #include "game/gfx/gfxotag.h"
+#include "game/gfx/drawbuf.h"
 
 extern int func_80014A8C();
 extern int func_800172DC();
@@ -46,7 +47,6 @@ extern int D_800ACA2C;
 extern int D_800ACB0C;
 extern int D_800ACB28;
 extern int D_800ACB2C;
-extern int D_800ACC14;
 extern int D_800F2A64;
 extern int D_800F2EC8;
 extern short D_800F3A26;

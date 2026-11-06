@@ -1,12 +1,12 @@
 #include "scratchpad.h"
 #include "game/effect/fxspr.h"
+#include "game/gfx/drawbuf.h"
 
 extern int rsin();
 extern int rcos();
 extern int func_80096464();
 extern unsigned char *func_8001F5B4();
 extern int D_800ABEAC;
-extern char *D_800ACC14;
 extern int D_800A2098[];
 extern int D_800A1FC8[];
 extern unsigned int D_80011258;

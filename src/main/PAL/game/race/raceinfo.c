@@ -8,10 +8,10 @@
 #include "rr/overlay662_distance.h"
 #include "rr/matrix_workspace.h"
 #include "game/race/raceset.h"
+#include "game/gfx/drawbuf.h"
 
 struct T { int pad[2]; int a; int b; int pad2[11]; };
 
-extern int D_800ACC14;
 extern signed char D_8009F688[];
 extern int D_8009F654[];
 extern int D_8009F66C[];

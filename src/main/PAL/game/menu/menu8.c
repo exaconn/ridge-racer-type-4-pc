@@ -8,6 +8,7 @@
 #include "game/menu/menutran.h"
 #include "game/ui/barsel0.h"
 #include "game/data/globals.h"
+#include "game/gfx/drawbuf.h"
 
 typedef struct {
     u8 pad0[0x16];
@@ -44,7 +45,6 @@ extern s32 func_8003DCEC(s32);
 extern void func_80043608(s32);
 extern u8 D_8009F3F8[];
 extern u8 D_8009F404[];
-extern s32 D_800ACC14;
 extern int func_8002AF8C();
 extern int func_80032A14();
 extern int func_80032DF0();

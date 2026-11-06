@@ -7,6 +7,7 @@
 #include "game/ui/uiwin.h"
 #include "rr/bios_devices.h"
 #include "rr/audio_cd_controller.h"
+#include "game/gfx/drawbuf.h"
 
 typedef struct {
     short x, y;
@@ -65,7 +66,6 @@ extern void *func_80020508();
 extern void func_8003DC9C();
 extern int func_8003DCEC();
 extern void func_80043608();
-extern int D_800ACC14;
 extern MenuRow1C *D_800F4D8C;
 extern s32 rsin();
 

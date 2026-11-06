@@ -13,6 +13,7 @@
 #include "rr/bios_events.h"
 #include "rr/serial_handles.h"
 #include "game/gfx/gfxotag.h"
+#include "game/gfx/drawbuf.h"
 
 typedef struct { int a, b, c, d; } w3g2V;
 
@@ -74,7 +75,6 @@ extern u16 D_8009F6D0[];
 extern u8 D_8009F6D8[];
 extern u8 D_8009F6DA;
 extern u8 D_8009F6DB;
-extern s32 D_800ACC14;
 extern s32 D_800FF6B0;
 extern int func_8004F2D8();
 extern int D_800ABEC0;

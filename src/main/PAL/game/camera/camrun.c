@@ -10,6 +10,7 @@
 #include "psyq/libgpu/gpudisp.h"
 #include "game/camera/camrun.h"
 #include "rr/bios_devices.h"
+#include "game/gfx/drawbuf.h"
 
 #define W(p,o) (*(int *)((char *)(p) + (o)))
 #define Q(p,o) ((char *)*(volatile int *)((char *)(p) + (o)))
@@ -48,13 +49,6 @@ typedef struct {
 } PTag;
 
 typedef struct {
-    char pad[0xB68];
-    PTag ot_b68;
-    PTag ot_b6c;
-    PTag ot_b70;
-} DbEnv;
-
-typedef struct {
     u32 addr : 24;
     u32 len : 8;
     u32 code;
@@ -83,7 +77,6 @@ extern struct {
     CamQ *q;
 } D_800AC650;
 extern s32 D_800AC5DC;
-extern DbEnv *D_800ACC14;
 extern s16 D_800F7488;
 extern s16 D_800F7624;
 extern void func_8002E828(s32, s32);
@@ -164,7 +157,7 @@ void func_8005B304(void) {
             func_8002E828(2, SCRATCH_ROT_MATRIX);
         }
         g->f60 = 5;
-        g->p04 = (s32)&D_800ACC14->ot_b70;
+        g->p04 = (s32)&DRAWBUF->tailB70;
         if (D_800AC650.q->f54 != 0) {
             switch (D_800AC650.q->f6c) {
             case 0:
@@ -182,24 +175,24 @@ void func_8005B304(void) {
             }
         }
         if (D_800AC650.q->f58 == 0) {
-            ((DrStp *)g->p04)->addr = D_800ACC14->ot_b68.addr;
-            D_800ACC14->ot_b68.addr = g->p04 + 0xAFC;
+            ((DrStp *)g->p04)->addr = DRAWBUF->tailB68.addr;
+            DRAWBUF->tailB68.addr = g->p04 + 0xAFC;
         } else {
             DrStp *s5 = ((Scratch5B304 *)SCRATCHPAD)->p00;
             DrStp *s0_p;
 
             func_80093BFC(s5, 0);
             s5->code |= 2;
-            s5->addr = D_800ACC14->ot_b6c.addr;
-            D_800ACC14->ot_b6c.addr = (u32)s5;
+            s5->addr = DRAWBUF->tailB6C.addr;
+            DRAWBUF->tailB6C.addr = (u32)s5;
             s5++;
             ((Scratch5B304 *)SCRATCHPAD)->p00 = s5;
-            ((DrStp *)g->p04)->addr = D_800ACC14->ot_b6c.addr;
-            D_800ACC14->ot_b6c.addr = g->p04 + 0xAFC;
+            ((DrStp *)g->p04)->addr = DRAWBUF->tailB6C.addr;
+            DRAWBUF->tailB6C.addr = g->p04 + 0xAFC;
             s5 = ((Scratch5B304 *)SCRATCHPAD)->p00;
             func_80093BFC(s5, 0);
-            s5->addr = D_800ACC14->ot_b6c.addr;
-            D_800ACC14->ot_b6c.addr = (u32)s5;
+            s5->addr = DRAWBUF->tailB6C.addr;
+            DRAWBUF->tailB6C.addr = (u32)s5;
             s5++;
             ((Scratch5B304 *)SCRATCHPAD)->p00 = s5;
             ((TilePrim *)s5)->len = 3;
@@ -211,18 +204,18 @@ void func_8005B304(void) {
             ((TilePrim *)s5)->y0 = 0;
             ((TilePrim *)s5)->w = 0x140;
             ((TilePrim *)s5)->h = 0xF0;
-            s5->addr = D_800ACC14->ot_b6c.addr;
-            D_800ACC14->ot_b6c.addr = (u32)s5;
+            s5->addr = DRAWBUF->tailB6C.addr;
+            DRAWBUF->tailB6C.addr = (u32)s5;
             s0_p = (DrStp *)((TilePrim *)s5 + 1);
             ((Scratch5B304 *)SCRATCHPAD)->p00 = s0_p;
             func_80093BFC(s0_p, 1);
             __asm__ volatile("" : "+r"(s0_p)); /* ASM_BARRIER: prevent CSE from folding s0_p + 1 into s5 + 28 */
             s5 = s0_p + 1;
-            s0_p->addr = D_800ACC14->ot_b6c.addr;
-            D_800ACC14->ot_b6c.addr = (u32)s0_p;
+            s0_p->addr = DRAWBUF->tailB6C.addr;
+            DRAWBUF->tailB6C.addr = (u32)s0_p;
             ((Scratch5B304 *)SCRATCHPAD)->p00 = s5;
         }
-        g->p04 = (s32)&D_800ACC14->ot_b70;
+        g->p04 = (s32)&DRAWBUF->tailB70;
     }
 }
 

@@ -10,13 +10,13 @@
 #include "game/menu/menu8.h"
 #include "game/menu/menucalc.h"
 #include "game/data/globals.h"
+#include "game/gfx/drawbuf.h"
 
 extern int func_80020074();
 extern unsigned char D_8009F074[][4];
 extern signed char D_8009F108[][8];
 extern unsigned char D_8009F1E0[];
 extern unsigned char D_8009F1E4[];
-extern int D_800ACC14;
 extern struct 
 {
   char pad[0x17];

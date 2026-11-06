@@ -12,6 +12,7 @@
 #include "rr/driver_control.h"
 #include "rr/bios_devices.h"
 #include "rr/course_choices.h"
+#include "game/gfx/drawbuf.h"
 
 struct Entry {
     int frame;
@@ -28,7 +29,6 @@ struct Buf {
 
 extern struct Entry D_800A20CC[];
 extern int D_800ABEAC;
-extern char *D_800ACC14;
 extern struct Buf D_800ADAF0[];
 extern struct {
     char pad0[0x3E0];

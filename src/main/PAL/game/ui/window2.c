@@ -9,6 +9,7 @@
 #include "game/ui/window2.h"
 #include "game/ui/window1.h"
 #include "rr/race_setup.h"
+#include "game/gfx/drawbuf.h"
 
 struct W3G0A { char *p0; char *p4; short s8, sA, sC, sE, s10, s12; char *p14; char *p18; short s1C, s1E, s20, s22, s24, s26; };
 
@@ -19,7 +20,6 @@ extern char D_800D0DD8[];
 extern int func_8001FCC8();
 extern char D_8009EA90[];
 extern char D_8009EACC[];
-extern char *D_800ACC14;
 
 void func_800211A4();
 void func_80021350(s32 phase,s32 index);

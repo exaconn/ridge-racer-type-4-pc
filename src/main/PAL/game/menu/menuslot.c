@@ -5,6 +5,7 @@
 #include "rr/menu_text_state.h"
 #include "rr/bios_devices.h"
 #include "game/data/ldscn1.h"
+#include "game/gfx/drawbuf.h"
 extern int func_800207D4();
 extern int func_8002B330();
 extern int func_8003A198();
@@ -17,7 +18,6 @@ extern short D_800AC64A;
 extern short D_800F3A26;
 extern short D_800F4C6A;
 extern unsigned short D_800F4D8A;
-extern int D_800ACC14;
 extern int D_800ACC18;
 extern int D_800F2DE4;
 extern int D_800F3A60;

@@ -10,6 +10,7 @@
 #include "rr/selection.h"
 #include "rr/bios_devices.h"
 #include "game/ui/barsel0.h"
+#include "game/gfx/drawbuf.h"
 
 typedef struct { char p[0x17]; signed char b; char q[0x2C - 0x18]; } T;
 
@@ -31,7 +32,6 @@ extern short D_800F4D8A;
 extern int func_8003EC88();
 extern E *D_800F4D80;
 extern short D_800FFC18;
-extern int D_800ACC14;
 extern struct { int p[10]; int a28; int a2c; } D_800F3A38;
 extern int func_8002B330();
 extern int func_8004F24C();

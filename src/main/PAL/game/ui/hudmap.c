@@ -3,6 +3,7 @@
 #include "game/ui/hudmap.h"
 #include "game/course/trktext.h"
 #include "game/ui/uipart1.h"
+#include "game/gfx/drawbuf.h"
 struct A { char pad[0xF0]; int idx; char p2[0xE0]; short ang; };
 
 struct B { char pad[0x12]; short x; char p2[0x28]; };
@@ -13,7 +14,6 @@ extern char D_800103FC[];
 extern char D_80010408[];
 extern char D_80010414[];
 extern short D_800AC1A0;
-extern char *D_800ACC14;
 extern int D_800F3A30;
 extern int D_800F4C64;
 extern int D_800F4C80[];

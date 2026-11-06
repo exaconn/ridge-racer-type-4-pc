@@ -14,6 +14,7 @@
 #include "rr/race_setup.h"
 #include "rr/menu_background.h"
 #include "game/data/ldscn1.h"
+#include "game/gfx/drawbuf.h"
 
 typedef struct { unsigned char c[4]; } B4;
 
@@ -66,7 +67,6 @@ typedef struct {
 
 extern S D_800ACC68;
 extern B4 D_8009EFD0[];
-extern char *D_800ACC14;
 extern int func_8001FDD4();
 extern int func_8005B2D4();
 extern int func_8005B304();

@@ -13,10 +13,10 @@
 #include "rr/bios_devices.h"
 #include "rr/race_setup.h"
 #include "game/gfx/gfxotag.h"
+#include "game/gfx/drawbuf.h"
 
 typedef struct { unsigned addr : 24; unsigned len : 8; } P_TAG;
 
-struct DB { char pad[0x70]; unsigned int ot[1]; };
 
 typedef struct {
     int x, y, z, w;
@@ -60,7 +60,6 @@ extern struct {
 } D_800AC650;
 extern short D_800AD520;
 extern int D_800F2FD8;
-extern struct DB *D_800ACC14;
 extern short D_800F3914;
 extern void func_8006EE3C();
 extern void func_800701C4();
@@ -118,8 +117,8 @@ void func_80044EC4(void) {
         s1 += 0x6E;
         if (s1 > 0) {
             func_80044BA0(s1 + 1);
-            ((P_TAG *)g[1])->addr = ((P_TAG *)&D_800ACC14->ot[s1])->addr;
-            ((P_TAG *)&D_800ACC14->ot[s1])->addr = g[1] + 0x578;
+            ((P_TAG *)g[1])->addr = ((P_TAG *)&DRAWBUF->ot[s1])->addr;
+            ((P_TAG *)&DRAWBUF->ot[s1])->addr = g[1] + 0x578;
         }
     }
     if (D_8009FE60[D_800F3914] == 7) {
@@ -142,8 +141,8 @@ void func_80044EC4(void) {
             s1 += 0x6E;
             if (s1 > 0) {
                 func_80044BA0(s1 + 1);
-                ((P_TAG *)g[1])->addr = ((P_TAG *)&D_800ACC14->ot[s1])->addr;
-                ((P_TAG *)&D_800ACC14->ot[s1])->addr = g[1] + 0x578;
+                ((P_TAG *)g[1])->addr = ((P_TAG *)&DRAWBUF->ot[s1])->addr;
+                ((P_TAG *)&DRAWBUF->ot[s1])->addr = g[1] + 0x578;
             }
         }
     }

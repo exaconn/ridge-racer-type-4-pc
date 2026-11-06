@@ -6,6 +6,7 @@
 #include "rr/race_setup.h"
 #include "rr/hud_number.h"
 #include "rr/draw_environment.h"
+#include "game/gfx/drawbuf.h"
 
 struct P { unsigned addr:24; unsigned len:8; unsigned char r, g, b, code; short x; unsigned short y; unsigned char u, v; unsigned short clut; short w, h; };
 
@@ -16,7 +17,6 @@ extern char D_8009EC48[];
 extern char D_800D0160[];
 extern int *func_8001FCC8();
 extern int SetDrawArea();
-extern int D_800ACC14;
 
 void func_80020920(unsigned char *a0, unsigned char *a1);
 void func_80020B10();

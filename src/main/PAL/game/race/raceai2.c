@@ -15,6 +15,7 @@
 #include "rr/menu_background.h"
 #include "rr/audio_loop.h"
 #include "game/data/globals.h"
+#include "game/gfx/drawbuf.h"
 
 typedef struct { int k; short f; } E;
 
@@ -33,7 +34,6 @@ extern short D_800FF688;
 extern int func_8002AF8C();
 extern int func_80034FC0();
 extern int func_80035024();
-extern s32 D_800ACC14;
 extern s16 D_800F4BE8;
 extern char D_800ABEBE[];
 extern char D_800AC648[];

@@ -3,6 +3,7 @@
 #include "m2c_macros.h"
 #include "game/race/ranking.h"
 #include "game/menu/menutra22.h"
+#include "game/gfx/drawbuf.h"
 
 extern int func_8003EC88();
 extern char *D_800F4D80;
@@ -11,7 +12,6 @@ extern int func_8001FD20();
 extern char D_80011680[];
 extern char D_80011688[];
 extern char D_80011690[];
-extern int D_800ACC14;
 
 void func_8007D448(int a0, int a1);
 void func_8007D558(void);

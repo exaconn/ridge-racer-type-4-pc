@@ -14,11 +14,11 @@
 #include "rr/color_conversion.h"
 #include "rr/race_setup.h"
 #include "rr/driver_control.h"
+#include "game/data/selection.h"
 
 extern int D_8010E240[];
 extern char D_800ACB0C[];
 extern int D_800A2124[];
-extern unsigned char D_800F4D98[];
 extern short D_800F3914;
 extern unsigned short D_800A2134;
 extern unsigned short D_800A2138[];

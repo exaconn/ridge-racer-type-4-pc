@@ -10,6 +10,7 @@
 #include "rr/bios_devices.h"
 #include "rr/matrix_workspace.h"
 #include "game/race/racesamp.h"
+#include "game/data/selection.h"
 
 #define I(o) (*(int *)(a0 + (o)))
 #define U(o) (*(unsigned short *)(a0 + (o)))
@@ -37,7 +38,6 @@ extern int BuildRotMatrixX();
 extern int BuildRotMatrixZ();
 extern int MulMatrix();
 extern int ApplyMatrix();
-extern unsigned char D_800F4D98[];
 
 void func_8002E0D8();
 void func_8002E394(RrRaceVehicle *a);

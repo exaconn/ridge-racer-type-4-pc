@@ -8,6 +8,7 @@
 #include "game/menu/mntrow.h"
 #include "rr/frame_environment.h"
 #include "rr/menu_background.h"
+#include "game/data/selection.h"
 
 #define ROW(i) ((RrRow60 *)((s32)D_800FFC14 + (i) * 0x3C))
 
@@ -71,7 +72,6 @@ extern short D_800AD520;
 extern int D_800F2DE4;
 extern short D_800F3826;
 extern U *D_800F3AFC;
-extern char D_800F4D98;
 extern T *D_800FF68C;
 extern int func_8003EC88();
 extern int D_8009FDA4;
@@ -310,7 +310,7 @@ void func_80041434(void) {
         func_8003E040(i, -2, 0, 0);
     }
     D_800AD520 = 2;
-    D_800F4D98 = 2;
+    D_800F4D98[0] = 2;
     D_800F3826 = 0;
     func_80053BB4(0);
     func_8003DC9C(*(unsigned char *)(D_800F4D8C + 7), *(short *)(D_800F4D8C + 8), *(short *)(D_800F4D8C + 0xA), *(short *)(D_800F4D8C + 0xC), *(short *)(D_800F4D8C + 0xE), 0, 0);

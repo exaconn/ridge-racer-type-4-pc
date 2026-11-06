@@ -3,6 +3,7 @@
 #include "game/menu/menutran.h"
 #include "game/data/ldscn1.h"
 #include "game/data/globals.h"
+#include "game/data/selection.h"
 
 typedef struct { int a; short b; char c; char d; } S8;
 
@@ -21,7 +22,6 @@ extern signed char D_800AD4D8[];
 extern unsigned char D_800AD4F0;
 extern unsigned char D_800F3981;
 extern S8 D_800F2A68[];
-extern unsigned char D_800F4D98[];
 extern int D_800F3920[];
 
 void func_8002F5BC(void);

@@ -1,6 +1,7 @@
 #include "rr/menu_grid.h"
 #include "game/menu/mnsel.h"
 #include "rr/bios_devices.h"
+#include "game/data/selection.h"
 
 typedef struct { char p[0x10]; short s10; } T3;
 
@@ -18,7 +19,6 @@ extern short D_800F4C6A;
 extern char *D_800F4D80;
 extern short D_800F4D8A;
 extern signed char *D_800F4D8C;
-extern unsigned char D_800F4D98;
 extern char *D_800FF68C;
 
 int func_80041A18(int a, int n);
@@ -28,7 +28,7 @@ void func_800417EC()
 {
     int s0;
     char *q; char *r;
-    int t = D_800F4D98;
+    int t = D_800F4D98[0];
     D_800AD520 = t;
     D_800F4D80[t + 0xC] = 0;
     if (D_800F3A42 & 0x2000) {
@@ -54,7 +54,7 @@ L_a8:
     } else if (D_800AD520 >= 4) {
         D_800AD520 = 3;
     }
-    D_800F4D98 = D_800AD520;
+    D_800F4D98[0] = D_800AD520;
     D_800FF68C[4] = (unsigned char)D_800AD520 + 0x22;
     D_800F4D8C[D_800AD520 * 0x1C + 2] = -6;
     D_800F4D8C[D_800AD520 * 0x1C] = 0;
@@ -70,7 +70,7 @@ L_54:
             func_8003A198();
             r = D_800AD4D8;
             *(short *)(r + 0x1A) = 1;
-            r[0x1C] = D_800F4D98;
+            r[0x1C] = D_800F4D98[0];
             D_800F3AFC->s10 = 4;
             D_800F4D80[0x14] = s0;
             D_800F4C6A = 1;

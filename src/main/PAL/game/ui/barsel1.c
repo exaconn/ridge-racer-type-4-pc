@@ -3,6 +3,7 @@
 #include "game/ui/barsel1.h"
 #include "rr/badge_rows.h"
 #include "game/ui/barsel0.h"
+#include "game/data/selection.h"
 
 extern int func_8002AF8C();
 extern int func_8002B12C();
@@ -11,7 +12,6 @@ extern int func_80032DF0();
 extern int func_8003D6F0();
 extern int func_8003E13C();
 extern s16 D_800AD520;
-extern u8 D_800F4D98;
 extern void *D_800FF68C;
 
 s32 func_800416B4(void) {
@@ -34,7 +34,7 @@ s32 func_800416B4(void) {
 block_6:
             if (M2C_FIELD(D_800F3AFC, s16 *, 0x10) < 4) {
                 func_8002B12C(0xA0, 0xCC, 0x30, 0, (s32) D_800AD520, 0, 4);
-                var_s2 = func_8003E13C(D_800F4D98);
+                var_s2 = func_8003E13C(D_800F4D98[0]);
             }
         }
     }

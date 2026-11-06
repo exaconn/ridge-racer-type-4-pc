@@ -13,6 +13,7 @@
 #include "game/car/carsetup.h"
 #include "rr/audio_loop.h"
 #include "game/car/aipath2.h"
+#include "game/data/selection.h"
 
 typedef struct {
     int a, b, c, d;
@@ -126,7 +127,6 @@ extern unsigned char D_8009F7D4[];
 extern unsigned char D_8009F7D8[];
 extern unsigned char D_8009F7DC[];
 extern struct { char pad[0x1D2]; short h1D2; char pad2[0x1F]; unsigned char b1F3; } *D_800F39C8[];
-extern unsigned char D_800F4D98[][4];
 extern Car *CarTable[];
 extern Car D_800ABEF8[];
 extern Car D_80106B58[];

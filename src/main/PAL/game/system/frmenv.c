@@ -20,6 +20,7 @@
 #include "rr/library.h"
 #include "rr/driver_control.h"
 #include "rr/bios_devices.h"
+#include "game/data/selection.h"
 
 extern int func_80052800();
 extern int func_800907FC();
@@ -52,7 +53,6 @@ extern char D_800F2FE0[];
 extern char D_800F3920[];
 extern char D_800F39D8[];
 extern char D_800F3B28[];
-extern char D_800F4D98[];
 extern signed char D_800F2E30[];
 extern int D_800F2DE8[];
 extern int D_800F2E08[];

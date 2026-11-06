@@ -18,6 +18,7 @@
 #include "game/gfx/gfxotag.h"
 #include "game/system/modeinit.h"
 #include "game/data/globals.h"
+#include "game/data/selection.h"
 
 extern int func_80053CB0();
 extern int D_800102F0;
@@ -38,7 +39,6 @@ extern int D_800F4CA8;
 extern int D_800F4D40;
 extern unsigned short D_800F4D44;
 extern short D_800F4D8A;
-extern char D_800F4D98[];
 extern short D_800FF688;
 extern int D_8010BFB8;
 extern int func_8003D228();

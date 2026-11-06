@@ -7,6 +7,7 @@
 #include "game/course/trkres2.h"
 #include "game/data/cdfile1.h"
 #include "game/data/cdfile2.h"
+#include "game/data/selection.h"
 
 typedef struct { unsigned char a, b, c, d; } T;
 
@@ -14,7 +15,6 @@ extern short D_800ABEC8;
 extern void *D_800ACC18;
 extern short D_800AD520;
 extern short D_800F3914;
-extern T D_800F4D98[];
 
 int func_8004E260()
 {

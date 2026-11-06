@@ -6,7 +6,7 @@
 /* Four fullword coordinate/UV arrays;two three-vertex windows share this
  * complete owner. GPU material uses the low16/8 bits of each entry. */
 typedef struct {s32 x[4],y[4],u[4],v[4];} RrGarageFadeGeometry;
-extern s32 D_800ABEB0;
+extern s32 ScreenFrame;
 extern s16 ovl662_D_80127398;
 /* Mode1 moves top/bottom vertices by sine(clampedPhase*8)/64 and emits only
  * the black backdrop. Other modes emit two textured triangles while captured

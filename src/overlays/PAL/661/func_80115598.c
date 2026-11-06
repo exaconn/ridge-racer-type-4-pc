@@ -6,7 +6,7 @@ void ovl661_func_80115598(s32 mode) {
     void *arena;
     register s32 rotation __asm__("$2");
     D_800F2DE4=0;
-    D_800ABEB0=0;
+    ScreenFrame=0;
     D_800AC64A=0;
     D_800AC5E0=3;
     func_8003A198();

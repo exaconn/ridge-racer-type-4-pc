@@ -162,7 +162,7 @@ void func_8003CAF4(void)
     func_8006E1AC();
     func_800209C4(D_800F4D44);
     func_80021084(D_800F4D44);
-    D_800ABEB0 = 0;
+    ScreenFrame = 0;
     D_800F2DE4 = 0;
     D_800AC5D0 = 0;
     D_800F4C68 = 0;

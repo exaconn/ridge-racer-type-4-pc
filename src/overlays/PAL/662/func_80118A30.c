@@ -9,7 +9,7 @@ void ovl662_func_80118A30(void) {
     phase = (u16)D_800F4D8A;
     D_800F2DE4=(u32)D_800F2DE4+1;
     cancel = 0;
-    D_800ABEB0=(u32)D_800ABEB0+1;
+    ScreenFrame=(u32)ScreenFrame+1;
     if (phase == 0) {
         func_8002AF8C(1, 1, 1);
         if (D_800F3A38[0].b != 0) {cancel=1;goto normalizeColumn;}

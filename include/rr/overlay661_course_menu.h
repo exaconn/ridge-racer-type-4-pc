@@ -6,7 +6,7 @@
 #include "rr/selection_types.h"
 #include "rr/menu_selection_word.h"
 #include "rr/menu_arena_types.h"
-extern s32 D_800ABEB0,D_800F2DE4,D_800F3A30,D_800F4CB8,ovl661_D_80118414;
+extern s32 ScreenFrame,D_800F2DE4,D_800F3A30,D_800F4CB8,ovl661_D_80118414;
 extern s16 D_800AC648,D_800AC64A,D_800AC5E0,D_800AC5D0,D_800F3914,D_800F3A26,D_800F4BE8,D_800F4C6A,D_800F4D44;
 extern s16 ovl661_D_80118448[2];
 extern s16 D_800ABEC8;

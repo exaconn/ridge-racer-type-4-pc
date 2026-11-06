@@ -28,7 +28,7 @@ static struct World {
 } world,expected;
 static unsigned scenario;
 #define D_800F2DE4 world.frame
-#define D_800ABEB0 world.counter
+#define ScreenFrame world.counter
 #define ovl662_D_801273B4 world.local
 #define ovl662_D_801273A2 world.a
 #define ovl662_D_801273A3 world.b

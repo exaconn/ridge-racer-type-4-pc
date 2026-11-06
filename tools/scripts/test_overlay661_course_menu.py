@@ -12,7 +12,7 @@ source=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'src/overlays/PAL/661/func
 source=source.resolve()
 full=source.read_text();start=full.index('void ovl661_func_80117430(void) {');body=full[start:];header=full[:start]
 body=re.sub(r' __asm__\("\$\d+"\)','',body)
-globals=sorted(set(re.findall(r'\b(?:ovl661_)?(?:D_[0-9A-F]{8}|CarTable)\b',body))-{'D_800F3A60'})
+globals=sorted(set(re.findall(r'\b(?:ovl661_)?(?:D_[0-9A-F]{8}|CarTable|ScreenFrame)\b',body))-{'D_800F3A60'})
 functions=sorted(set(re.findall(r'\b(?:ovl661_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl661_func_80117430'})
 head='''#include <stdint.h>
 #include <stdlib.h>
@@ -162,7 +162,7 @@ def initialize(n,native):
  if native:C.memmove(frame,framebytes,len(framebytes));lib.pointers(n&1)
  else:
   write(0x800ADAF0,framebytes);write(0x800ACC14,struct.pack('<I',0x800ADAF0+(n&1)*FS));write(0x800F4D80,struct.pack('<I',0x801A0000+(n&1)*US));write(0x800ACC18,struct.pack('<I',0x801B0000+((n&1)+2)%3*1024));write(0x800F4D70,struct.pack('<2I',0x801B0000+(n&1)*1024,0x801B0000+((n&1)+1)%3*1024))
- values={'D_800F4D8A':n%9,'D_800F2DE4':[0,1,0x7fffffff,0xffffffff][(n//9)%4],'D_800ABEB0':[0xffffffff,0x7fffffff,0x80000000,0][(n//36)%4],'D_800AC648':(n//4)%10,'D_800AC64A':(n//9)%(2 if n%9==5 else 4),'D_800AC5E0':4,'ovl661_D_80118414':10,'D_800ABEC8':(n//13)%4,'D_800AC59C':0xA5A50000|([0,1,2,3,4,5,0x8000,0xffff][(n//7)%8]),'D_800AC5D0':[-32768,-1,0,1,24,64,32767][(n//11)%7],'D_800F3A60':(n//7)&1}
+ values={'D_800F4D8A':n%9,'D_800F2DE4':[0,1,0x7fffffff,0xffffffff][(n//9)%4],'ScreenFrame':[0xffffffff,0x7fffffff,0x80000000,0][(n//36)%4],'D_800AC648':(n//4)%10,'D_800AC64A':(n//9)%(2 if n%9==5 else 4),'D_800AC5E0':4,'ovl661_D_80118414':10,'D_800ABEC8':(n//13)%4,'D_800AC59C':0xA5A50000|([0,1,2,3,4,5,0x8000,0xffff][(n//7)%8]),'D_800AC5D0':[-32768,-1,0,1,24,64,32767][(n//11)%7],'D_800F3A60':(n//7)&1}
  for name,v in values.items():setscalar(name,v,native)
  for bank in range(2):
   base=0x801A0000+bank*US

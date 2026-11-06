@@ -45,7 +45,7 @@ RrIconSpriteContext *D_800ACC14;RrUiRow24 *D_800F4D80;RrMenuTextState *D_800AC59
 #define D_800102F0 w->s.resource
 #define D_800ACC18 w->s.published
 #define D_800AC5D0 w->s.fade
-#define D_800ABEB0 w->s.pulse
+#define ScreenFrame w->s.pulse
 #define D_800F3A2C w->s.clear1
 #define D_800F4D7C w->s.clear2
 ''' + reset + classifier + bodies + r'''

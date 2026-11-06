@@ -33,7 +33,7 @@ static unsigned scenario,calls,reference_calls;static u8 arenas[3][64],packets[6
 #define D_800F4D40 world.base
 #define D_800ACC18 world.published
 #define D_800F2DE4 world.frame
-#define D_800ABEB0 world.pulse
+#define ScreenFrame world.pulse
 #define ovl666_selected_course world.index
 #define ovl666_preview_phase world.local
 #define D_800F3826 world.row

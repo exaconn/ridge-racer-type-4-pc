@@ -13,7 +13,7 @@ ROOT=Path(__file__).resolve().parents[2];os.chdir(ROOT)
 P=Path(os.getenv('RR_TEST_DIR','build/tests/overlay659_frame_controller'));P.mkdir(parents=True,exist_ok=True)
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/659/func_80114908.c')
 body=read_c_source(source);body=body[body.index('void ovl659_update_race'):]
-names=sorted(set(re.findall(r'\b(?:(?:D_[0-9A-F]{8}|CarTable)|ovl659_[a-z][a-z0-9_]*)\b',body)))
+names=sorted(set(re.findall(r'\b(?:(?:D_[0-9A-F]{8}|CarTable|ScreenFrame)|ovl659_[a-z][a-z0-9_]*)\b',body)))
 names=[n for n in names if not re.search(r"\b"+n+r"\s*\(",body)]
 assert 'D_800AD4EF' not in names
 functions=sorted(set(re.findall(r'\b(?:ovl659_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl659_update_race'})
@@ -152,7 +152,7 @@ def service(event,args,native):
   if name=='func_8004FA04':changes['D_800F2FDC']=[-128,-1,0,1,127][case%5]
   if name in ['func_8003C254','func_8005007C','func_80036030']:
    changes['D_800FF6B0']=[0,1,2,3,4,5,6,7,-1,0x7fffffff,0x80000000][(case//3+serial)%11]
-  if name=='func_8003C96C':changes.update(D_800AC5A4=words[case%5],D_800ABEB0=words[(case//5)%5])
+  if name=='func_8003C96C':changes.update(D_800AC5A4=words[case%5],ScreenFrame=words[(case//5)%5])
   if name in ['func_80022CD4','func_80052A30','func_8004FED4','func_800396E4','func_800207D4']:
    half(0x1EE,halves[case%5],native);half(0x1EA,(case//7)%2,native);half(0x1D8,halves[(case//5)%5],native);half(0x27A,halves[(case//25)%5],native)
   for n,v in changes.items():scalar(n,v,native)
@@ -203,7 +203,7 @@ def initialize(n,native):
  'D_800FF6B0':[0,1,2,3,4,5,6,7,-1,0x7fffffff,0x80000000][(n//17)%11],
  'D_800AC5D0':[-32768,-1,0,1,14,15,24,25,37,75,32767][(n//187)%11],
  'D_800F4C68':[-128,-1,0,1,127][(n//3)%5],'D_800F2FDC':[-128,-1,0,1,2,127][(n//11)%6],
- 'D_800AC5A4':words[n%5],'D_800ABEB0':words[(n//5)%5], 'D_800AC6EC':[0,1,-1][(n//11)%3],
+ 'D_800AC5A4':words[n%5],'ScreenFrame':words[(n//5)%5], 'D_800AC6EC':[0,1,-1][(n//11)%3],
  'D_800F2EB8':words[(n//7)%5], 'D_80107190':heights[(n//11)%len(heights)],'D_800AD522':halves[(n//13)%5]}
  for name,v in values.items():scalar(name,v,native)
  field('D_800AD4D8',0x17,bytes([n%8]),native)

@@ -31,7 +31,7 @@ static struct World {u32 guard[4];s32 frame,counter,c4,c8,condition;s16 selectio
  * a synthetic PAL address. Constructors must not modify this backing memory. */
 static u8 resources[3][0x2D100],original_resources[3][0x2D100];
 #define D_800F2DE4 world.frame
-#define D_800ABEB0 world.counter
+#define ScreenFrame world.counter
 #define D_800AC64A world.selection
 #define D_800AC5E0 world.limit
 #define D_800F4D7C world.flag1

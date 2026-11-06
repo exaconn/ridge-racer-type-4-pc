@@ -50,7 +50,7 @@ static u8 resources[3][0x2D100],arenas[3][128],packets[128];static u32 orders[32
 #define D_800ACBD0 w->s.grid
 #define D_800ABE08 w->s.table
 #define D_800F2DE4 w->s.frame
-#define D_800ABEB0 w->s.pulse
+#define ScreenFrame w->s.pulse
 #define D_800AC648 w->s.selection
 #define D_800AC64A w->s.flag
 #define D_800AC5E0 w->s.mode

@@ -2,7 +2,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess,re
 root=Path(__file__).resolve().parents[2];body=(root/'src/overlays/PAL/662/func_80119898.c').read_text();body=re.sub(r'__asm__\("(?:v0|v1)"\)','',body)
-body=body.replace('extern s32 D_800ABEB0;','').replace('extern s16 ovl662_D_80127398;','')
+body=body.replace('extern s32 ScreenFrame;','').replace('extern s16 ovl662_D_80127398;','')
 source=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -19,7 +19,7 @@ static struct World {u32 guard[4];RrGpuScratchPointers scratch;RrIconSpriteConte
 static struct Event {unsigned id;u32 args[12];u8 *cursor;u32 *head;struct World before;} events[5];
 static unsigned count,seen,scenario;static int ref;static s32 sineReturns[2];static unsigned sineIndex;static s32 geometry[4][4];static u16 expectedShade;
 #define D_800ACC14 world.context
-#define D_800ABEB0 world.clock
+#define ScreenFrame world.clock
 #define ovl662_D_80127398 world.phase
 #define RR_GPU_SCRATCH (&world.scratch)
 '''+body+r'''

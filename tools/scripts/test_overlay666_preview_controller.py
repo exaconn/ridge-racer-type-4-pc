@@ -60,7 +60,7 @@ static u8 buffers[3][32];
 #define D_800AC648 w->limitAlias
 #define D_800F4D44 w->d44
 #define D_800F4BE8 w->be8
-#define D_800ABEB0 w->player
+#define ScreenFrame w->player
 #define D_800F4D40 w->arenas.second
 #define D_800ABEF8 w->vehicles
 #define D_800F3A38 w->input

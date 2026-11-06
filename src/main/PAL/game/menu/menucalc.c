@@ -11,7 +11,7 @@
 #include "game/menu/menucalc.h"
 #include "game/data/globals.h"
 #include "game/gfx/drawbuf.h"
-#include "game/data/d800abeb0.h"
+#include "game/data/screenframe.h"
 
 extern int func_80020074();
 extern unsigned char D_8009F074[][4];
@@ -200,7 +200,7 @@ void func_80031244(void) {
     void *tab;
     int a1;
     D_800F2DE4 += 1;
-    D_800ABEB0 += 1;
+    ScreenFrame += 1;
     if (func_8003FBA8(0) > 0) {
         func_8003189C();
     }

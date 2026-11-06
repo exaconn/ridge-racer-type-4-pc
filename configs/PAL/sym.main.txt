@@ -106,3 +106,4 @@ rcos = 0x800904F4; // type:func
 SquareRoot0 = 0x80090884; // type:func
 ApplyMatrixLV = 0x80090B14; // type:func
 SsSetMVol = 0x800829F4; // type:func
+ScreenFrame = 0x800ABEB0; // type:u32

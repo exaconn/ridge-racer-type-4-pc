@@ -24,7 +24,7 @@ static struct World {u32 guard[4];s32 frame,clock;s16 phase,pick,count,row,layou
 static struct Event {unsigned id;u32 args[10];struct World before;} events[350];
 static unsigned count,seen,serial,n,profile;static int reference_run;
 #define D_800F2DE4 world.frame
-#define D_800ABEB0 world.clock
+#define ScreenFrame world.clock
 #define ovl662_D_801272D4 world.phase
 #define ovl662_D_801272E4 world.pick
 #define ovl662_D_801272E0 world.count

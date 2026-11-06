@@ -4,7 +4,7 @@ void ovl666_init_preview(void) {
     RrProjectionScratchPrefix *sp;
 
     D_800F2DE4 = 0;
-    D_800ABEB0 = 0;
+    ScreenFrame = 0;
     ovl666_selected_course.word = 0;
     ovl666_preview_phase = 0;
     D_800AC64A = 0;
@@ -51,7 +51,7 @@ void ovl666_update_preview(void) {
 
     D_800F2DE4 = (u32)D_800F2DE4 + 1;
     modelReady = 0;
-    D_800ABEB0 = (u32)D_800ABEB0 + 1;
+    ScreenFrame = (u32)ScreenFrame + 1;
     D_800ABEF8[0].rot54 = ((u32)D_800ABEF8[0].rot54 + 8) & 0xFFF;
     func_80033A74(1);
     func_8006EF8C(6);

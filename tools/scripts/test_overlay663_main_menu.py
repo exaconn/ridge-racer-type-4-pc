@@ -22,7 +22,7 @@ static RrFrameStorage contexts[2];static u8 buffers[3][32];
 static struct State{u32 guard[4];s32 frame,tick,mode,available,table[9];s16 menu,timer,scene;u16 state,enable;
  RrUiRow24 rows[2][4];RrMenuItemState5C input[2];RrFrameStorage *context;void *published,*buffer;unsigned root;u32 tail[4];}actual,reference,*w;
 #define D_800F2DE4 w->frame
-#define D_800ABEB0 w->tick
+#define ScreenFrame w->tick
 #define D_800F4D8A w->state
 #define D_800F4C6A w->enable
 #define D_800F3A26 w->scene

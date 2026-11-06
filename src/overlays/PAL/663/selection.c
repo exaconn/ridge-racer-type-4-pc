@@ -10,7 +10,7 @@ void ovl663_update_selection(void) {
     s32 glyphIndex;
 
     D_800F2DE4 = (u32)D_800F2DE4 + 1;
-    D_800ABEB0 = (u32)D_800ABEB0 + 1;
+    ScreenFrame = (u32)ScreenFrame + 1;
     switch ((u16)D_800F4D8A) {
     case 0:
         i = 0;

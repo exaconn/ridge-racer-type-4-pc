@@ -33,7 +33,7 @@ u8 D_8009F7E4[]=" 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!?&@";
 s8 ovl662_D_80126230[3]={0,1,2};
 RrBadgeRow1C *D_800F3AFC;
 #define D_8009FA1C w->s.uv
-#define D_800ABEB0 w->s.tick
+#define ScreenFrame w->s.tick
 #define ovl662_D_801273B4 w->s.selection
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static u32 next(void){u32 x=w->s.rng;x^=x<<13;x^=x>>17;x^=x<<5;return w->s.rng=x;}

@@ -49,11 +49,11 @@ void ovl659_update_race(void) {
         func_8006ECE8(0);
         func_800747EC(0);
         func_80036FD4(0);
-        func_80070734(D_800ABEB0);
+        func_80070734(ScreenFrame);
         return;
     }
 
-    D_800ABEB0 = (u32)D_800ABEB0 + 1;
+    ScreenFrame = (u32)ScreenFrame + 1;
     if (((u32)D_800FF6B0 - 2) < 2U) {
         if ((D_800AC5A4 = (u32)D_800AC5A4 - 1) <= 0) {
             D_800FF6B0 = 5;
@@ -65,7 +65,7 @@ void ovl659_update_race(void) {
     }
 
     if (D_800AC6EC != 0 && D_800FF6B0 == 0) {
-        D_800ABEB0 = 75;
+        ScreenFrame = 75;
         D_800F2DE4 = 75;
         func_8004FED4();
         D_800FF6B0 = 1;
@@ -141,7 +141,7 @@ void ovl659_update_race(void) {
     func_8006ECE8(0);
     func_800747EC(0);
     func_80036FD4(0);
-    func_80070734(D_800ABEB0);
+    func_80070734(ScreenFrame);
     if (D_800FF6B0 == 0) {
         RR_659_SCRATCH->pointers.cursor = func_8001FC28(
             D_800ACC14->ordering.ordering70 + 2, RR_659_SCRATCH->pointers.cursor, 0, 0, 320, 256);

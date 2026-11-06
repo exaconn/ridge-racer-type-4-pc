@@ -34,7 +34,7 @@ typedef struct {
 } State;
 static State actual,reference,*w;
 #define D_800F2DE4 w->frame
-#define D_800ABEB0 w->tick
+#define ScreenFrame w->tick
 #define D_800AC64A w->selection
 #define D_800AC5E0 w->mode
 #define D_800F3A26 w->scene

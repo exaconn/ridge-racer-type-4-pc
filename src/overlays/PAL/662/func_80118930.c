@@ -1,7 +1,7 @@
 #include "rr/overlay662_name_init.h"
 void ovl662_func_80118930(void) {
     D_800F2DE4 = 0;
-    D_800ABEB0 = 0;
+    ScreenFrame = 0;
     ovl662_D_801273A2 = 0;
     ovl662_D_801273A3 = 0;
     ovl662_D_801273A0 = 0;

@@ -17,7 +17,7 @@ P=Path(os.environ.get('RR_TEST_DIR','build/tests/overlay660_race_controller'));P
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/660/func_8011718C.c')
 body=read_c_source(source)
 if body.startswith('#include'):body=body.split('\n',1)[1]
-globals=sorted(set(re.findall(r'\b(?:ovl660_)?(?:D_[0-9A-F]{8}|CarTable)\b',body)))
+globals=sorted(set(re.findall(r'\b(?:ovl660_)?(?:D_[0-9A-F]{8}|CarTable|ScreenFrame)\b',body)))
 aliases={'D_800AC0E2':'half1EA','D_800AC0E6':'half1EE'}
 globals=[x for x in globals if x not in aliases]
 functions=sorted(set(re.findall(r'\b(?:ovl660_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl660_func_8011718C'})
@@ -139,7 +139,7 @@ def service(event,args,native):
   if name=='func_8004FA04':changes['D_800F2FDC']=[-128,-1,0,1,127][case%5]
   if name in ['func_8005007C','func_80036030']:changes['D_800FF6B0']=[0,1,4,5,6,-1,0x80000000,0x7fffffff][case%8]
   if name=='func_8003C96C':
-   changes={'D_800AC5A4':[0,1,0x80000000,0x7fffffff][case%4],'D_800ABEB0':[0xffffffff,0x7fffffff,0x80000000,0][case%4]}
+   changes={'D_800AC5A4':[0,1,0x80000000,0x7fffffff][case%4],'ScreenFrame':[0xffffffff,0x7fffffff,0x80000000,0][case%4]}
   if name in ['func_80022CD4','func_80052A30','func_8004FED4','func_800396E4','func_8003C254','ovl660_func_80117084']:
    # Both aliases are in the same actual vehicle owner.
    sethalf(0x1ee,[0,-1,1,32767,-32768][case%5],native)
@@ -189,7 +189,7 @@ def initialize(n,native):
  'D_800F4C64':[-1,0,1,0x80000000][n%4],'D_800F4C68':[-128,-1,0,1,127][(n//3)%5],
  'D_800F2FDC':[-128,-1,0,1,2,127][(n//11)%6],
  'D_800AC5A4':[0,1,2,0x80000000,0x7fffffff][n%5],
- 'D_800ABEB0':[0,1,0xffffffff,0x7fffffff,0x80000000][(n//5)%5], 'D_800F2A64':[0,1,0xffffffff,0x7fffffff,0x80000000][(n//7)%5], 'D_800AD522':[-32768,-1,0,1,32767][n%5]}
+ 'ScreenFrame':[0,1,0xffffffff,0x7fffffff,0x80000000][(n//5)%5], 'D_800F2A64':[0,1,0xffffffff,0x7fffffff,0x80000000][(n//7)%5], 'D_800AD522':[-32768,-1,0,1,32767][n%5]}
  for name,v in values.items():
   if name in N:setscalar(name,v,native)
  sethalf(0x1ee,[0,-1,1,32767,-32768][n%5],native);sethalf(0x1ea,(n//7)%2,native)

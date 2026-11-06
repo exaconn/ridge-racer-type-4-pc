@@ -46,7 +46,7 @@ void func_80022098(u32 *ordering, s32 layout) {
         }
         i = func_8004B70C(player);
         if (i > 0) {
-            if ((u32) (D_800ABEB0 & 3) < 2U) {
+            if ((u32) (ScreenFrame & 3) < 2U) {
                 if (i == status) {
                     goto drawWarning;
                 }

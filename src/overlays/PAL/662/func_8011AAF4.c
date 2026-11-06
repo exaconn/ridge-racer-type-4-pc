@@ -1,7 +1,7 @@
 #include "rr/overlay662_frame_step.h"
 
 void ovl662_func_8011AAF4(void) {
-    D_800ABEB0=(s32)((u32)D_800ABEB0+1U);
+    ScreenFrame=(s32)((u32)ScreenFrame+1U);
     if (++D_800F4D38 > 0x014996FFU) {
         D_800F4D38 = 0x014996FFU;
     }

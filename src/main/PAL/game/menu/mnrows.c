@@ -16,7 +16,7 @@
 #include "rr/ui.h"
 #include "rr/menu_text_rows.h"
 #include "rr/frame_environment.h"
-#include "game/data/d800abeb0.h"
+#include "game/data/screenframe.h"
 
 extern int D_800102F0;
 extern char D_8001075C[];
@@ -159,7 +159,7 @@ publish_state:
 void func_8003A198(void) {
     D_800F4D7C = 0;
     D_800F3A2C = 0;
-    D_800ABEB0 = 0;
+    ScreenFrame = 0;
 }
 
 void func_8003A1B4()

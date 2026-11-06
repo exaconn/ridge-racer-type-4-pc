@@ -35,7 +35,7 @@ static unsigned scenario,mutation,phaseSeen[9],branchSeen[8],timerSeen[8];
 static const s16 phases[6]={0,1,2,3,4,8};
 static const u16 timers[8]={0,1,63,64,32767,32768,65534,65535};
 #define D_800F2DE4 w->s.frame
-#define D_800ABEB0 w->s.tick
+#define ScreenFrame w->s.tick
 #define ovl662_D_801272C0 w->s.resource
 #define D_800F4D8A w->s.phase
 #define D_800F4C6A w->s.scene

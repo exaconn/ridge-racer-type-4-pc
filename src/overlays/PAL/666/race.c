@@ -98,11 +98,11 @@ void ovl666_update_race(void) {
         func_8006ECE8(0);
         func_800747EC(0);
         func_80036FD4(0);
-        func_80070734(D_800ABEB0);
+        func_80070734(ScreenFrame);
         return;
     }
 
-    D_800ABEB0 = (u32)D_800ABEB0 + 1;
+    ScreenFrame = (u32)ScreenFrame + 1;
     if (((u32)D_800FF6B0 - 2) < 2U) {
         if ((D_800AC5A4 = (u32)D_800AC5A4 - 1) <= 0) {
             D_800FF6B0 = 5;
@@ -194,7 +194,7 @@ void ovl666_update_race(void) {
     func_800735D8(0);
     func_800747EC(0);
     func_80036FD4(0);
-    func_80070734(D_800ABEB0);
+    func_80070734(ScreenFrame);
     func_8005007C(D_800F4C70.first, D_800F2AB4.first, 0);
     if (D_800FF6B0 >= 4) {
         func_80036030();

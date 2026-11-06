@@ -29,7 +29,7 @@ typedef struct {u32 *ordering;void *cursor;RrFrameStorage *context;RrUiUvRect *r
 static struct World {u32 guard[4];RrGpuScratchPointers scratch;RrFrameStorage *context;RrFrameStorage frames[3];Arena arenas[3];s32 phase;RrUiUvRect region;u32 calls;Event events[2];u32 tail[4];} world,expected;
 #define RR_GPU_SCRATCH (&world.scratch)
 #define D_800ACC14 world.context
-#define D_800ABEB0 world.phase
+#define ScreenFrame world.phase
 #define ovl666_selection_sprite world.region
 static const s16 rom[4097]={''' + ','.join(map(str,table)) + r'''};
 #include "rr/trig.h"

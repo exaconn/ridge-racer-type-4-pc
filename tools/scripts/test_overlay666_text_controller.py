@@ -13,7 +13,7 @@ ROOT=Path(__file__).resolve().parents[2];os.chdir(ROOT)
 P=Path(os.getenv('RR_TEST_DIR','build/tests/overlay666_text_controller'));P.mkdir(parents=True,exist_ok=True)
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/666/func_80115590.c')
 body=read_c_source(source);body=body[body.index('void ovl666_update_results'):]
-global_names=sorted(set(re.findall(r'\b(?:(?:D_[0-9A-F]{8}|CarTable)|ovl666_[a-z][a-z0-9_]*)\b',body)))
+global_names=sorted(set(re.findall(r'\b(?:(?:D_[0-9A-F]{8}|CarTable|ScreenFrame)|ovl666_[a-z][a-z0-9_]*)\b',body)))
 global_names=[n for n in global_names if not re.search(r"\b"+n+r"\s*\(",body)]
 functions=sorted(set(re.findall(r'\b(?:func_[0-9A-F]{8}|ovl666_[a-z][a-z0-9_]*)(?=\()',body))-{'ovl666_update_results'})
 head='#include <stdint.h>\n#include <stddef.h>\n#include <stdlib.h>\n#include "rr/overlay666_text_controller.h"\n'
@@ -105,7 +105,7 @@ def service(event,args,native):
   # Helpers can replace both live roots and all scalar state. The phase was
   # already captured by the switch; fresh timer/row reads must still agree.
   value=(case*0x9e3779b9+event*97+serial*31)&0xffffffff
-  changes={'D_800F2DE4':value,'D_800ABEB0':~value,'D_800AC5D0':timers[(case+serial)%len(timers)],'D_800F3A60':(case+serial)%3-1,'D_800F4C64':[-1,0,1][(case+serial)%3],'ovl666_result_kind':(case+serial)&1,'D_800AC64A':(case+serial)%3,'D_800F4D8A':value&65535,'D_800F4C6A':value,'D_800F3A26':value>>8,'D_800F4BE8':value>>16}
+  changes={'D_800F2DE4':value,'ScreenFrame':~value,'D_800AC5D0':timers[(case+serial)%len(timers)],'D_800F3A60':(case+serial)%3-1,'D_800F4C64':[-1,0,1][(case+serial)%3],'ovl666_result_kind':(case+serial)&1,'D_800AC64A':(case+serial)%3,'D_800F4D8A':value&65535,'D_800F4C6A':value,'D_800F3A26':value>>8,'D_800F4BE8':value>>16}
   for n,v in changes.items():scalar(n,v,native)
   for bank in range(2):
    for row,off in [(0,2),(11,2),(5,3),(38,3)]:textbyte(bank,row,off,signed_bytes[(case+serial+row)%len(signed_bytes)],native)
@@ -139,7 +139,7 @@ def initialize(n,native):
   if native:C.memmove(p,data,size)
   else:write(a,data)
  roots(n&1,(n//2)&1,native)
- values={'D_800F2DE4':[0x7fffffff,0x80000000,0xffffffff,0,17][n%5],'D_800ABEB0':[0,1,0xffffffff,0x7fffffff,0x80000000][(n//5)%5],
+ values={'D_800F2DE4':[0x7fffffff,0x80000000,0xffffffff,0,17][n%5],'ScreenFrame':[0,1,0xffffffff,0x7fffffff,0x80000000][(n//5)%5],
  'D_800F4D8A':phase_values[n%6],'D_800F4C64':[-1,0,1,0x80000000][(n//6)%4],'D_800F3A60':[0,1,-1][(n//24)%3],
  'ovl666_result_kind':(n//12)&1,'D_800AC5D0':timers[(n//6)%len(timers)],'D_800AC64A':(n//36)%3}
  for name,value in values.items():scalar(name,value,native)

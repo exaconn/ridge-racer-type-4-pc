@@ -5,7 +5,7 @@
 #include "psyq/libgpu/gpuenv.h"
 #include "rr/memory.h"
 #include "rr/course_choices.h"
-#include "game/data/d800abeb0.h"
+#include "game/data/screenframe.h"
 
 typedef struct { int a, b, c, d; } V16;
 
@@ -278,16 +278,16 @@ void func_8001AFB8(int a0, int a1) {
                     RR_GTE_RTPS_LDV(r_v0);
 
                     if (m[0x54 / 4] != 0) {
-                        cval = D_8009E46C[(D_800ABEB0 + ({
-                            /* ASM_BARRIER: extend %hi(D_800ABEB0) lifetime for loop invariant hoisting */
+                        cval = D_8009E46C[(ScreenFrame + ({
+                            /* ASM_BARRIER: extend %hi(ScreenFrame) lifetime for loop invariant hoisting */
                             __asm__ volatile("");
-                            /* ASM_BARRIER: extend %hi(D_800ABEB0) lifetime for loop invariant hoisting */
+                            /* ASM_BARRIER: extend %hi(ScreenFrame) lifetime for loop invariant hoisting */
                             __asm__ volatile("");
-                            /* ASM_BARRIER: extend %hi(D_800ABEB0) lifetime for loop invariant hoisting */
+                            /* ASM_BARRIER: extend %hi(ScreenFrame) lifetime for loop invariant hoisting */
                             __asm__ volatile("");
-                            /* ASM_BARRIER: extend %hi(D_800ABEB0) lifetime for loop invariant hoisting */
+                            /* ASM_BARRIER: extend %hi(ScreenFrame) lifetime for loop invariant hoisting */
                             __asm__ volatile("");
-                            /* ASM_BARRIER: extend %hi(D_800ABEB0) lifetime for loop invariant hoisting */
+                            /* ASM_BARRIER: extend %hi(ScreenFrame) lifetime for loop invariant hoisting */
                             __asm__ volatile("");
                             *(signed char *)(t2 + 0x18);
                         })) & 0x1F];

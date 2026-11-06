@@ -4,7 +4,7 @@ void ovl662_func_80116020(void)
 {
     s32 i;
     D_800F2DE4=0;
-    D_800ABEB0=0;
+    ScreenFrame=0;
     ovl662_D_801272D4=0;
     ovl662_D_801272C0=0;
     D_800AD520=2;

@@ -36,7 +36,7 @@ RrBadgeRow1C *D_800F3AFC;
 #define D_800F3920 w->s.save
 #define D_800F4D98 w->s.choice
 #define D_8009FA1C w->s.uv
-#define D_800ABEB0 w->s.tick
+#define ScreenFrame w->s.tick
 #define ovl662_D_80127328 w->s.counts
 #define ovl662_D_801272BC w->s.number
 #define ovl662_D_801272BE w->s.total

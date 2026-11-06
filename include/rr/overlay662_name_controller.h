@@ -8,7 +8,7 @@
 #include "rr/tables.h"
 extern RrMenuItemState5C D_800F3A38[2];
 extern s16 D_800AC5D0,D_800FFC18;
-extern s32 D_800ABEB0;
+extern s32 ScreenFrame;
 extern u8 D_8009F7E4[44];
 void func_800207D4(u32 *,s32,u32);
 void func_8003D6F0(s32);void func_8002A344(s32);

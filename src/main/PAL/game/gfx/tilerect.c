@@ -560,7 +560,7 @@ void func_8001A52C(int a0) {
                 a2 = a3->u.w.sxy0;
                 a1 = a3->u.w.sxy1;
                 t2 = a3->u.w.sxy2;
-                v0 = D_8009E26C[(D_800ABEB0 - (v1_tmp = t3->b18 - 0x40)) & 0x3F];
+                v0 = D_8009E26C[(ScreenFrame - (v1_tmp = t3->b18 - 0x40)) & 0x3F];
                 pkt[2] = a2;
                 pkt[4] = a1;
                 pkt[6] = t2;
@@ -649,7 +649,7 @@ void func_8001A8DC(int a0) {
         RR_GTE14_SWC2_MAC0(&a3->mac0);
         if ((a3->mac0 ^ t6) >= 0) {
             RR_GTE_RTPS_LDV(verts + (t1->v3 << 3));
-            a2 = D_8009E36C[(D_800ABEB0 + t1->b18) & 0x3F];
+            a2 = D_8009E36C[(ScreenFrame + t1->b18) & 0x3F];
             a1 = a3->u.w.sxy0;
             v0 = a3->u.w.sxy1;
             v1_tmp = a3->u.w.sxy2;

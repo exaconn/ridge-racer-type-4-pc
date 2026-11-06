@@ -31,7 +31,7 @@ static u32 heads[704],arena[4096];static unsigned scenario,bank,mutation,seenTra
 #define D_800F3AFC (w->s.badges[w->s.root])
 #define D_800AC648 w->s.group
 #define D_800F3914 w->s.track
-#define D_800ABEB0 w->s.tick
+#define ScreenFrame w->s.tick
 #define ovl663_selected_record w->s.selected
 #define D_8009FAA0 w->s.glyphs
 #define ovl663_record_badges w->s.footer

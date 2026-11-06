@@ -13,7 +13,7 @@ ROOT=Path(__file__).resolve().parents[2];os.chdir(ROOT)
 P=Path(os.getenv('RR_TEST_DIR','build/tests/overlay659_results_controller'));P.mkdir(parents=True,exist_ok=True)
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/659/func_80115224.c')
 body=read_c_source(source);body=body[body.index('void ovl659_update_results'):]
-global_names=sorted(set(re.findall(r'\b(?:(?:D_[0-9A-F]{8}|CarTable)|ovl659_[a-z][a-z0-9_]*)\b',body)))
+global_names=sorted(set(re.findall(r'\b(?:(?:D_[0-9A-F]{8}|CarTable|ScreenFrame)|ovl659_[a-z][a-z0-9_]*)\b',body)))
 global_names=[n for n in global_names if not re.search(r"\b"+n+r"\s*\(",body)]
 functions=sorted(set(re.findall(r'\b(?:(?:ovl659_)?func_[0-9A-F]{8}|rsin|rcos|SquareRoot0|ApplyMatrixLV|SsSetMVol)(?=\()',body))-{'ovl659_update_results'})
 head='''#include <stdint.h>

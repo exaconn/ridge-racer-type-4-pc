@@ -1,7 +1,7 @@
 #ifndef RR_MENU_SETUP_H
 #define RR_MENU_SETUP_H
 #include "rr/menu_choice.h"
-extern s32 D_800F2DE4,D_800ABEB0;
+extern s32 D_800F2DE4,ScreenFrame;
 extern s16 D_800AD520;
 /* Clear the resident32-byte and12-byte UI work buffers. */
 void func_8002A604(void);

@@ -26,7 +26,7 @@ typedef struct {s32 kind,args[10];State state;} Event;
 static struct World {State s;u32 calls;Event events[5];u32 guard[4];} world,expected;
 static u8 resources[3][0x2D100],original[3][0x2D100];
 #define D_800F2DE4 world.s.frame
-#define D_800ABEB0 world.s.counter
+#define ScreenFrame world.s.counter
 #define D_800AC64A world.s.current
 #define D_800AC5E0 world.s.limit
 #define D_800F4D7C world.s.flag1

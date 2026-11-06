@@ -37,7 +37,7 @@ static struct World {State s;u32 calls;Event events[3];u32 guard[4];} world,expe
 static u8 arenas[3][256];static u32 ordering[3][704];
 #define ovl665_D_80119768 world.s.visual
 #define RR_PROJECTION_SCRATCH (&world.s.scratch)
-#define D_800ABEB0 world.s.counter
+#define ScreenFrame world.s.counter
 #define D_800F4D7C world.s.flag1
 #define D_800F3A2C world.s.flag2
 #define D_800F4CA8 world.s.mode

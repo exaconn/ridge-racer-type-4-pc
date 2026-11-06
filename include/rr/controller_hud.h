@@ -9,7 +9,7 @@
 typedef union {s16 half[6];s32 word[3];} RrHudTriangle;
 RR_ASSERT_SIZE(RrHudTriangle,12);
 extern RrMenuItemState5C D_800F3A38[2];
-extern u32 D_800ABEB0;
+extern u32 ScreenFrame;
 extern s16 D_8009EE68[2];
 extern u8 D_8009EE5C[6],D_8009EE64[3];
 extern s16 D_800AD508;

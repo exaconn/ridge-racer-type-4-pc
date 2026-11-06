@@ -19,10 +19,10 @@
 
 #undef D_800F4C6A
 
-extern s32 D_800ABEB0;
+extern s32 ScreenFrame;
 
 void func_8003A198(void) {
     D_800F4D7C = 0;
     D_800F3A2C = 0;
-    D_800ABEB0 = 0;
+    ScreenFrame = 0;
 }

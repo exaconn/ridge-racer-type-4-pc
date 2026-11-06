@@ -5,7 +5,7 @@ void ovl662_func_801161FC(void)
     s32 ready, changed, state, i, flags;
 
     D_800F2DE4 = (s32)((u32)D_800F2DE4 + 1U);
-    D_800ABEB0 = (s32)((u32)D_800ABEB0 + 1U);
+    ScreenFrame = (s32)((u32)ScreenFrame + 1U);
     switch ((u16)D_800F4D8A) {
     case 0:
         ready = func_8003B47C();

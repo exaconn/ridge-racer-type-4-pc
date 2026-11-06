@@ -1,7 +1,7 @@
 #include "rr/overlay662_palette_initializer.h"
 void ovl662_func_80119B44(void) {
  s32 i;s16 val;RrBadgeRow1C *badge;
- D_800F2DE4=0;D_800ABEB0=0;ovl662_D_801272D4=0;ovl662_D_801272C0=0;D_800AC64A=0;
+ D_800F2DE4=0;ScreenFrame=0;ovl662_D_801272D4=0;ovl662_D_801272C0=0;D_800AC64A=0;
  D_800ACC18=D_800F4D70.second;
  if(!ovl662_D_801272E8)D_800AC5E0=2;else D_800AC5E0=1;
  func_8003DC9C(0,128,128,64,128,0,0);

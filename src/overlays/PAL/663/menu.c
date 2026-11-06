@@ -2,7 +2,7 @@
 
 void ovl663_init_menu(void) {
     D_800F2DE4 = 0;
-    D_800ABEB0 = 0;
+    ScreenFrame = 0;
     D_800AC64A = 0;
     D_800AC5E0 = 3;
     func_8002A604();
@@ -64,7 +64,7 @@ void ovl663_update_menu(void) {
     u8 rowState;
 
     D_800F2DE4 = (s32)((u32)D_800F2DE4 + 1U);
-    D_800ABEB0 = (s32)((u32)D_800ABEB0 + 1U);
+    ScreenFrame = (s32)((u32)ScreenFrame + 1U);
     switch (D_800F4D8A) {
     case 0:
         i = 0;
@@ -200,7 +200,7 @@ void ovl663_update_menu(void) {
 void ovl663_init_selection(s32 mode) {
     s32 one = 1;
     D_800F2DE4 = 0;
-    D_800ABEB0 = 0;
+    ScreenFrame = 0;
     D_800AC648 = 0;
     D_800F3914 = 0;
     D_800AC64A = 0;

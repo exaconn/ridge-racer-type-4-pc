@@ -25,7 +25,7 @@ void ovl666_init_results(void) {
     }
     func_8002AF8C(0, 1, 0);
     D_800F2DE4 = 0;
-    D_800ABEB0 = 0;
+    ScreenFrame = 0;
 }
 
 s32 ovl666_update_retry_choice(s32 mode) {
@@ -47,7 +47,7 @@ void ovl666_update_results(void) {
     RrMenuTextRow60 *rows;
 
     D_800F2DE4 = (s32)((u32)D_800F2DE4 + 1U);
-    D_800ABEB0++;
+    ScreenFrame++;
     switch (D_800F4D8A) {
     case 0:
         if (D_800F4C64 == -1) {
@@ -66,10 +66,10 @@ void ovl666_update_results(void) {
                 }
             }
             if (ovl666_result_kind == 0) {
-                D_800FFC14[7].marquee.at28[(D_800ABEB0 >> 2) % 22U] = 0x20;
-                D_800FFC14[7].marquee.at28[((D_800ABEB0 >> 2) + 1U) % 22U] = 0x5B;
-                D_800FFC14[7].marquee.at28[((D_800ABEB0 >> 2) + 2U) % 22U] = 0x5D;
-                D_800FFC14[7].marquee.at4[((D_800ABEB0 >> 2) + 2U) % 22U] = 0x40;
+                D_800FFC14[7].marquee.at28[(ScreenFrame >> 2) % 22U] = 0x20;
+                D_800FFC14[7].marquee.at28[((ScreenFrame >> 2) + 1U) % 22U] = 0x5B;
+                D_800FFC14[7].marquee.at28[((ScreenFrame >> 2) + 2U) % 22U] = 0x5D;
+                D_800FFC14[7].marquee.at4[((ScreenFrame >> 2) + 2U) % 22U] = 0x40;
             }
         }
         break;

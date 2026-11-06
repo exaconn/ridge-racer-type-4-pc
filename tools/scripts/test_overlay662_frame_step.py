@@ -23,7 +23,7 @@ static struct World{u32 head[4];RrGarageSelectionPrefix garage;u32 buffers[4][8]
 static unsigned scenario,calls;static u32 rng=0x1AAF4;
 #define ovl662_D_801276A8 world.garage
 #define D_800F4D38 world.clock
-#define D_800ABEB0 world.pulse
+#define ScreenFrame world.pulse
 #define D_800F39A0 world.image
 #define D_800F399C world.file
 '''+body+r'''

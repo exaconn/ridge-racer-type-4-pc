@@ -46,7 +46,7 @@ static unsigned scenario,mutation,overlay;
 #define D_800F3920 w->state.save
 #define D_800F4D98 w->state.choice
 #define D_800F2DE4 w->state.frame
-#define D_800ABEB0 w->state.counter
+#define ScreenFrame w->state.counter
 #define ovl666_result_kind w->state.bank666
 #define ovl666_result_labels w->state.labels666
 #define D_800F4C64 w->state.match

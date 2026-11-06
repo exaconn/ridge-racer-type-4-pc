@@ -4,7 +4,7 @@
 extern RrUiUvRect ovl663_record_label;
 extern s32 ovl663_selected_record,ovl663_course_unlock_levels[9];
 #include "rr/overlay662_name_state.h"
-extern s32 D_800ABEB0;
+extern s32 ScreenFrame;
 s32 rcos(s32);
 /* Row index names an accessible badge. The current unlock index is0..8 and
  * its count fits two digits. Eight label bytes are NUL or supported characters.

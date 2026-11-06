@@ -14,7 +14,7 @@ void ovl661_func_80117430(void) {
     RrUiRow24 *temp_v1_3;
 
     D_800F2DE4=(u32)D_800F2DE4+1;
-    D_800ABEB0=(u32)D_800ABEB0+1;
+    ScreenFrame=(u32)ScreenFrame+1;
     if ((D_800F4D8A == 3) || (func_8003BAB0() == 1)) {
         switch (D_800F4D8A) {
         case 0:

@@ -38,7 +38,7 @@ static unsigned scenario,mutation,seenMap,seenFlags;
 #define D_800F3B20 w->s.palette0
 #define D_800F3B24 w->s.palette1
 #define D_800F2DE4 w->s.frame
-#define D_800ABEB0 w->s.pulse
+#define ScreenFrame w->s.pulse
 #define D_800AC64A w->s.flag
 #define D_800AC5E0 w->s.layout
 #define ovl662_D_801272D4 w->s.current

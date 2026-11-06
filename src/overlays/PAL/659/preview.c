@@ -6,7 +6,7 @@ void ovl659_init_preview(void) {
 
     if (D_800F4D8A == 0) {
         D_800F2DE4 = 0;
-        D_800ABEB0 = 0;
+        ScreenFrame = 0;
         D_800AC64A = 0;
         D_800AC5E0 = 3;
         func_80053CB0();
@@ -74,7 +74,7 @@ void ovl659_update_preview(void) {
 
     renderMask = 0x1002E;
     D_800F2DE4 = (u32)D_800F2DE4 + 1;
-    D_800ABEB0 = (u32)D_800ABEB0 + 1;
+    ScreenFrame = (u32)ScreenFrame + 1;
     D_800ABEF8[0].rot54 = ((u32)D_800ABEF8[0].rot54 + 8) & 0xFFF;
     phase = D_800AD4D8.phase17;
     switch (D_800F4D8A) {

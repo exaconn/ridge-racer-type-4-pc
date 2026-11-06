@@ -57,4 +57,10 @@ def address_of(name):
         p = line.split()
         if p and p[0] == name:
             return int(p[1], 16)
-    return int(name[-8:], 16)   # overlay names such as ovl659_func_80123456
+    if re.fullmatch(r'(?:ovl\d+_)?(?:func|D)_[0-9A-Fa-f]{8}', name):
+        return int(name[-8:], 16)   # overlay names such as ovl659_func_80123456
+    for line in (Path(__file__).resolve().parents[2] / 'configs/PAL/sym.main.txt').read_text().splitlines():
+        m = re.match(r'^(\w+)\s*=\s*0x([0-9A-Fa-f]+);', line)   # registered data names (CarTable, ScreenFrame)
+        if m and m.group(1) == name:
+            return int(m.group(2), 16)
+    raise KeyError(name)

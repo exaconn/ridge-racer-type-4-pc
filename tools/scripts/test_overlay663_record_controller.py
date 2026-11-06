@@ -45,7 +45,7 @@ static struct State {u32 guard[4];s32 frame,tick,selected,limit,mode; s16 scene,
 static const u32 counterBits[7]={0,1,0x7FFFFFFFU,0x80000000U,0xFFFFFFFEU,0xFFFFFFFFU,0xA6A6A6A6U};
 static u8 buffers[3][32];static const s32 limits[3]={4,8,16};static const s32 modes[6]={-1,0,1,2,0x10001,(s32)0x80000001U};
 #define D_800F2DE4 w->frame
-#define D_800ABEB0 w->tick
+#define ScreenFrame w->tick
 #define D_800F4D8A w->state
 #define D_800F3A26 w->scene
 #define D_800F4C6A w->enable

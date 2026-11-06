@@ -7,7 +7,7 @@ void ovl667_func_80117EF8(void)
 {
     s32 choice;
     D_800F2DE4=0;
-    D_800ABEB0=0;
+    ScreenFrame=0;
     D_800AC64A=0;
     D_800AC5E0=3;
     D_8010C068=0;

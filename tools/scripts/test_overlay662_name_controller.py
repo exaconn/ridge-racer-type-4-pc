@@ -30,7 +30,7 @@ static struct World {u32 guard[4];RrSaveProgressRecord7C save;u8 name[12],glyphs
 #define ovl662_D_801273A3 world.row
 #define ovl662_D_801273B4 world.selected
 #define D_800F2DE4 world.frame
-#define D_800ABEB0 world.tick
+#define ScreenFrame world.tick
 #define D_800F3A60 world.accept
 #define D_800F3A38 world.input
 #define D_800AC5D0 world.timer

@@ -7,7 +7,7 @@ void ovl660_func_80114920(void) {
     s32 selection;
     s16 *result;
     D_800F2DE4=0;
-    D_800ABEB0=0;
+    ScreenFrame=0;
     D_800AC64A=0;
     D_800AC5E0=3;
     selection=func_80032E9C(D_800AC648);
@@ -88,7 +88,7 @@ void ovl660_func_80114D38(void) {
     RrUiRow24 *back;
 
     D_800F2DE4 = (s32)((u32)D_800F2DE4 + 1U);
-    D_800ABEB0 = (s32)((u32)D_800ABEB0 + 1U);
+    ScreenFrame = (s32)((u32)ScreenFrame + 1U);
     if (func_8003BAB0() == 1) {
         switch (D_800F4D8A) {
         case 0:

@@ -119,7 +119,7 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
         } while (var_s2 < 2);
         return;
     }
-    D_800ABEB0=(u32)D_800ABEB0+1;
+    ScreenFrame=(u32)ScreenFrame+1;
     if ((u32) ((u32)D_800FF6B0 - 2) < 2U) {
         temp_v0_3 = (s32)((u32)D_800AC5A4 - 1);
         D_800AC5A4 = temp_v0_3;

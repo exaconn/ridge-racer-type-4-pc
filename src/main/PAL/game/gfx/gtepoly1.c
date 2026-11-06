@@ -6,7 +6,7 @@
 #include "rr/fade_sprite.h"
 #include "rr/audio_cd_controller.h"
 #include "game/data/globals.h"
-#include "game/data/d800abeb0.h"
+#include "game/data/screenframe.h"
 
 #define SP ((Scr *)s2)
 #define S4 ((Ent *)s4)
@@ -2007,7 +2007,7 @@ void func_800153FC(a0, a1) char *a0; char *a1;
     } while (n > 0);
     a2 = *(short *)(*(int *)(a1 + 0x90) + 0x1D8);
     func_80014C3C(*(int *)(a0 + 0xC4), a1, a2 / 4);
-    t = (D_800ABEB0 & 3) * 12 + 0x64;
+    t = (ScreenFrame & 3) * 12 + 0x64;
     func_80015110(*(int *)a0 + t, a1);
     {
         int u = (func_80096464() & 3) - 1;

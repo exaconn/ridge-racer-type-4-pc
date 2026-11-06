@@ -17,7 +17,7 @@ void func_80077D90(s32);
 void DrawSync(s32);
 s32 func_80114988(void);
 void func_80114AF8(unsigned long);
-extern s32 D_800ABEB0;
+extern s32 ScreenFrame;
 extern s32 D_800ABEC0;
 extern s16 D_800ABEF0;
 extern s32 D_800AC538;

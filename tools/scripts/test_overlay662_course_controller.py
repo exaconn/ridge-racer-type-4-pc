@@ -9,7 +9,7 @@ source=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else ROOT/'src/overlays/PA
 count=int(sys.argv[2]) if len(sys.argv)>2 else 4096
 os.chdir(ROOT)
 P=Path(os.getenv('RR_TEST_DIR',str(ROOT/'build/tests/overlay662_course_controller'))).resolve();P.mkdir(parents=True,exist_ok=True)
-body=source.read_text().split('\n',1)[1];names=sorted(set(re.findall(r'\b(?:ovl662_)?(?:D_[0-9A-F]{8}|CarTable)\b',body)))
+body=source.read_text().split('\n',1)[1];names=sorted(set(re.findall(r'\b(?:ovl662_)?(?:D_[0-9A-F]{8}|CarTable|ScreenFrame)\b',body)))
 funcs=sorted(set(re.findall(r'\b(?:ovl662_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl662_func_801154C8'})
 head='''#include <stdint.h>
 #include <stdlib.h>

@@ -3,7 +3,7 @@
 void ovl666_init_menu(void) {
     s32 i;
     D_800F2DE4 = 0;
-    D_800ABEB0 = 0;
+    ScreenFrame = 0;
     D_800AC64A = 0;
     D_800AC5E0 = 3;
     func_8003A198();
@@ -69,7 +69,7 @@ void ovl666_update_menu(void) {
     s8 cellState;
 
     D_800F2DE4 = (s32)((u32)D_800F2DE4 + 1U);
-    D_800ABEB0 = (s32)((u32)D_800ABEB0 + 1U);
+    ScreenFrame = (s32)((u32)ScreenFrame + 1U);
     ready = func_8003B47C();
     if (ready == 1) {
         switch (D_800F4D8A) {
@@ -236,7 +236,7 @@ active:
 void ovl666_draw_selection_pulse(s32 x, s32 y) {
     RrGpuScratchPointers *scratch = RR_GPU_SCRATCH;
     u8 *cursor = scratch->cursor;
-    s32 wave = rsin(((u32)D_800ABEB0 << 5) & 0xFE0) / 32;
+    s32 wave = rsin(((u32)ScreenFrame << 5) & 0xFE0) / 32;
     u16 mode = 57;
     if (wave < 0) {
         mode = 89;

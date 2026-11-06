@@ -19,7 +19,7 @@
 #include "game/system/modeinit.h"
 #include "game/data/globals.h"
 #include "game/data/selection.h"
-#include "game/data/d800abeb0.h"
+#include "game/data/screenframe.h"
 
 extern int func_80053CB0();
 extern int D_800102F0;
@@ -111,7 +111,7 @@ void func_8002EAF8()
   c7 = 7;
   i = 0;
   D_800F2DE4 = 0;
-  D_800ABEB0 = 0;
+  ScreenFrame = 0;
   D_800AC5DC = 0x80;
   D_800F4D2C = 0;
   D_800AC64A = -1;
@@ -146,7 +146,7 @@ void func_8002EAF8()
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEB0 (*(unsigned (*))&D_800ABEB0)
+#define ScreenFrame (*(unsigned (*))&ScreenFrame)
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 #define D_800F3AFC ((W7C0_F *)D_800F3AFC)
 #define D_800AC590 ((unsigned char *)D_800AC590)
@@ -164,7 +164,7 @@ void func_8002EC94(void)
     W7C0_F *a0;
 
     D_800F2DE4 = D_800F2DE4 + 1;
-    D_800ABEB0 = D_800ABEB0 + 1;
+    ScreenFrame = ScreenFrame + 1;
     s0 = func_8002F0E0();
     switch (D_800F4D8A) {
     case 0:
@@ -206,12 +206,12 @@ void func_8002EC94(void)
             } else if (D_800F3AFC->s10 == 0xB) {
                 D_800F4D8A = 1;
                 D_800F4BE0 = 0;
-                D_800ABEB0 = 0;
+                ScreenFrame = 0;
                 return;
             }
         } else {
             D_800F4D8A = 1;
-            D_800ABEB0 = 0;
+            ScreenFrame = 0;
             return;
         }
         return;
@@ -228,7 +228,7 @@ void func_8002EC94(void)
             func_8003D228(0, 0x10, 0x1B6, 0x40, 0x22, 0, 0xF00);
             D_800F3AFC->s2 = 1;
         }
-        if (D_800ABEB0 >= 0x2EE)
+        if (ScreenFrame >= 0x2EE)
             D_800F4D8A = 5;
         return;
     case 2:
@@ -244,8 +244,8 @@ void func_8002EC94(void)
             }
         }
         if (s0b != D_800AC64A)
-            D_800ABEB0 = 0;
-        if (D_800ABEB0 >= 0xBB8)
+            ScreenFrame = 0;
+        if (ScreenFrame >= 0xBB8)
             D_800F4D8A = 5;
         func_8002F100();
         func_8003D6F0(0);
@@ -279,7 +279,7 @@ void func_8002EC94(void)
     }
 }
 
-#undef D_800ABEB0
+#undef ScreenFrame
 #undef D_800F4D8A
 #undef D_800F3AFC
 #undef D_800AC590

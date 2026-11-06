@@ -27,7 +27,7 @@ void ovl662_func_80116E10(void)
     shown = 0;
     D_800F2DE4++;
     vehicle = D_800ABEF8;
-    D_800ABEB0++;
+    ScreenFrame++;
     vehicle->rot54 = (vehicle->rot54 + 8) & 0xFFF;
     func_80033A74(1);
     func_8006EF8C(6);

@@ -8,7 +8,7 @@
 #include "rr/menu_background.h"
 #include "game/data/globals.h"
 #include "game/data/selection.h"
-#include "game/data/d800abeb0.h"
+#include "game/data/screenframe.h"
 
 #define P8(base, off) (*(unsigned char *)((char *)(base) + (off)))
 #define IDX30(base, i) (*(unsigned char *)((char *)(base) + (i) * 0x24 + 0x30))
@@ -137,7 +137,7 @@ void func_80039988(void) {
     func_8003E928(0, 0x18, 0x58, 0x44, 0x20, 0, 0, 1, 0, 0x53);
     func_8003E928(1, 0x74, 0x58, 0x1C, 0x20, 5, 0, 1, 0, 0x37);
     func_8003E928(2, 0x74, 0x80, 0x1C, 0x20, 5, 0, 1, 0, 0x38);
-    D_800ABEB0 = 0;
+    ScreenFrame = 0;
     D_800F2DE4 = 0;
     D_800AD50A = 0x122;
     D_800AC5DC = 0x80;

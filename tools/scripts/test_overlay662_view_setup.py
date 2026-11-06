@@ -22,7 +22,7 @@ class GarageViewSetupTest(unittest.TestCase):
 typedef struct {s32 args[10];RrMenuGlyphRow1C *glyph;RrBadgeRow1C *badge;s32 frame,counter,word;s16 half,setting,selected;u8 choice;} Event;
 static struct World {u32 guard[4];s32 frame,counter,word;s16 half,setting,selected;RrMenuChoice4 choice;RrMenuGlyphRow1C *glyph;RrBadgeRow1C *badge;RrMenuGlyphRow1C glyphs[3][4];RrBadgeRow1C badges[3];u32 calls;Event events[7];u32 tail[4];} world,expected;
 #define D_800F2DE4 world.frame
-#define D_800ABEB0 world.counter
+#define ScreenFrame world.counter
 #define ovl662_D_801272C0 world.word
 #define ovl662_D_801272D4 world.half
 #define D_800AD520 world.setting

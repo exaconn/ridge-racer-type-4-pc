@@ -29,7 +29,7 @@ typedef struct {s32 frame,counter,bank;s16 current,limit,selected,mapped,flag;Rr
 static struct World {u32 guard[4];s32 frame,counter,bank;s16 current,limit,selected,mapped,flag,modeCounter,selectionCounter;s8 flag1,flag2;RrMenuGridPoint points[4];RrMenuArenas arenas;void *published;RrProjectionScratchPrefix scratch;RrSceneStatePrefix scene;u32 calls;Event events[3];u8 arena[3][64];u32 order[16];u32 tail[4];} world,expected;
 #define RR_GPU_PROJECTION_SCRATCH (&world.scratch)
 #define D_800F2DE4 world.frame
-#define D_800ABEB0 world.counter
+#define ScreenFrame world.counter
 #define D_800AC5D4 world.bank
 #define D_800AC64A world.current
 #define D_800AC5E0 world.limit

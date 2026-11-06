@@ -30,7 +30,7 @@ extern u8 *D_800102F0;
 extern RrUiUvRect D_8009FAA0[5];
 extern s32 D_8009FDA4;
 extern RrCourseChoice4 D_800ABE08[2][9];
-extern u32 D_800ABEB0;
+extern u32 ScreenFrame;
 extern RrRaceVehicle D_800ABEF8[2];
 extern u16 D_800AC1A0;
 extern s32 D_800AC5A4;

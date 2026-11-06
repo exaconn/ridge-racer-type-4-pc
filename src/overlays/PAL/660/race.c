@@ -67,10 +67,10 @@ update_pause_timer:
         func_8006ECE8(0);
         func_800747EC(0);
         func_80036FD4(0);
-        func_80070734(D_800ABEB0);
+        func_80070734(ScreenFrame);
         return;
     }
-    D_800ABEB0 = (s32)((u32)D_800ABEB0 + 1U);
+    ScreenFrame = (s32)((u32)ScreenFrame + 1U);
     if ((u32)D_800F2DE4 >= 75U && D_800FF6B0 == 0) {
         func_8004FED4();
         D_800FF6B0=1;

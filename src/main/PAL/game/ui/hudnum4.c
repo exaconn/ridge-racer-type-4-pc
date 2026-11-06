@@ -8,7 +8,7 @@
 #include "rr/fade_sprite.h"
 #include "rr/audio_loop.h"
 #include "game/data/globals.h"
-#include "game/data/d800abeb0.h"
+#include "game/data/screenframe.h"
 
 struct S { char pad[0x2AA]; short f; char pad2[0x320 - 0x2AC]; };
 
@@ -64,7 +64,7 @@ void func_80021A7C(a0, a1) int a0; int a1; {
         s1 = 0;
         if (D_800AC0E6 <= D_8009EE40[D_800AD4EF / 2]) {
             s1 = 1;
-            v = rsin((D_800ABEB0 & 0x3F) << 6);
+            v = rsin((ScreenFrame & 0x3F) << 6);
             if (v < 0) v += 0x3F;
             s0 = v >> 6;
             if (s0 < 0) {

@@ -38,7 +38,7 @@ extern s32 D_800F4C64;
 extern s16 D_800AC5D0;
 extern s16 D_800AC59C;
 extern s32 D_800AC5A4;
-extern s32 D_800ABEB0;
+extern s32 ScreenFrame;
 extern s16 D_800AD508;
 extern u16 D_800F3A40;
 extern s8 D_800F4C68;
@@ -216,7 +216,7 @@ void ovl667_func_80115640(void) {
         }
         if (D_800F4C68 == 0) {
             D_800F2DE4++;
-            D_800ABEB0++;
+            ScreenFrame++;
             if ((u32)(D_800FF6B0 - 2) < 2) {
                 if (--D_800AC5A4 <= 0) {
                     D_800FF6B0 = 5;
@@ -311,7 +311,7 @@ void ovl667_func_80115640(void) {
             func_800747EC(0);
             func_80036FD4(i + 1);
             if (n == 1) {
-                func_80070734(D_800ABEB0);
+                func_80070734(ScreenFrame);
             }
             if (D_800FF6B0 == 0 && n == 1) {
                 D_800ADAF0[1].enable18 = n;

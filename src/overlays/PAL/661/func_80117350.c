@@ -5,7 +5,7 @@
 
 void ovl661_func_80117350(void)
 {
-    D_800F2DE4=0;D_800ABEB0=0;D_800AC64A=0;D_800AC5E0=4;
+    D_800F2DE4=0;ScreenFrame=0;D_800AC64A=0;D_800AC5E0=4;
     D_800ACBD0[2].first=(func_80096464()&3)+10;
     D_800ACBD0[3].first=(func_80096464()&3)+12;
     D_800F3914=func_80032E9C(D_800AC648);

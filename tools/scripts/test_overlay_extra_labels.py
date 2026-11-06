@@ -39,7 +39,7 @@ RrBadgeRow1C *D_800F3AFC;
 #define ovl663_course_unlock_levels w->s.counts
 #define ovl662_D_801273A8 w->s.letters
 #define ovl662_D_801273A0 w->s.selected
-#define D_800ABEB0 w->s.tick
+#define ScreenFrame w->s.tick
 ''' + bodies + formatter + r'''
 static u32 next(void){u32 x=w->s.rng;x^=x<<13;x^=x>>17;x^=x<<5;return w->s.rng=x;}
 static u32 hash(void){const u8 *p=(const u8*)&w->s;u32 h=2166136261U;size_t i;for(i=0;i<sizeof(w->s);i++)h=(h^p[i])*16777619U;return h;}

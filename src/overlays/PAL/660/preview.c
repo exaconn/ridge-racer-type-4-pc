@@ -6,7 +6,7 @@ void ovl660_func_801163C4(void)
     RrProjectionScratchPrefix *scratch;
 
     D_800F2DE4 = 0;
-    D_800ABEB0 = 0;
+    ScreenFrame = 0;
     func_80013890(5);
     D_800AC64A = 0;
     D_800AC5E0 = 3;

@@ -21,7 +21,7 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
         dx = (i % 10) * 24;
         dy = (i / 10) * 32;
         if (i == ovl662_D_801273B4) {
-            v = rcos((s32)(((u32)D_800ABEB0 << 7) - 682U));
+            v = rcos((s32)(((u32)ScreenFrame << 7) - 682U));
             if (v >= 0) {
                 clut = 32760;
                 shifted = v >> 6;
@@ -44,7 +44,7 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
         dx += 4;
         if (i < 3) {
             if (i == (s32)((u32)ovl662_D_801273B4 - 40U)) {
-                v = rcos((s32)(((u32)D_800ABEB0 << 7) - 682U));
+                v = rcos((s32)(((u32)ScreenFrame << 7) - 682U));
                 if (v >= 0) {
                     clut = 32760;
                     shifted = v >> 6;

@@ -19,7 +19,7 @@ void ovl667_func_80117FA8(void) {
     }
     waitResult = func_80035024(2);
     D_800F2DE4 = (s32)((u32)D_800F2DE4 + 1U);
-    D_800ABEB0 = (s32)((u32)D_800ABEB0 + 1U);
+    ScreenFrame = (s32)((u32)ScreenFrame + 1U);
     if ((D_800F4D8A == 3) || (func_8003BAB0() == 1)) {
         switch (D_800F4D8A) {                       /* irregular */
         case 0:

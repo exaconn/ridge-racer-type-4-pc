@@ -11,7 +11,7 @@
 #include "rr/bios_devices.h"
 #include "game/ui/barsel0.h"
 #include "game/gfx/drawbuf.h"
-#include "game/data/d800abeb0.h"
+#include "game/data/screenframe.h"
 
 typedef struct { char p[0x17]; signed char b; char q[0x2C - 0x18]; } T;
 
@@ -59,7 +59,7 @@ void func_8002FCEC() {
     SetDispMask(0);
     func_8001ECE8(0, 0, 0, 3);
     D_800F2DE4 = 0;
-    D_800ABEB0 = 0;
+    ScreenFrame = 0;
     D_800AC5D0 = 0;
     D_800AC64A = 1;
     D_800AC5DC = 0x80;
@@ -205,7 +205,7 @@ void func_8003016C(void)
     sp[6] = 0x400;
     func_8002F688();
     D_800F2DE4 = 0;
-    D_800ABEB0 = 0;
+    ScreenFrame = 0;
     D_800AC5DC = 0x80;
     func_8003A198();
     if (D_800AD4F2 == 6) {

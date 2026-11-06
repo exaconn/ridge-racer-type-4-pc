@@ -2,7 +2,7 @@
 #define RR_OVERLAY662_FRAME_STEP_H
 #include "rr/overlay662_garage.h"
 extern u32 D_800F4D38;
-extern s32 D_800ABEB0;
+extern s32 ScreenFrame;
 extern u32 *D_800F39A0;
 extern RrGarageTimBytes *D_800F399C;
 void ovl662_func_8011E070(void);

@@ -88,7 +88,7 @@ static u8 resources[3][64];
 #define D_800F4D98 world.choice
 #define D_800ABE2C world.glyph
 #define D_800F2AB0 world.mode
-#define D_800ABEB0 world.counter
+#define ScreenFrame world.counter
 #define D_800F4D7C world.flag1
 #define D_800F3A2C world.flag2
 ''' + reset + encoder + body + r'''

@@ -7,7 +7,7 @@
 #include "rr/selection_types.h"
 #include "rr/course_choice_types.h"
 #include "rr/projection_state.h"
-extern s32 D_800F2DE4,D_800ABEB0;
+extern s32 D_800F2DE4,ScreenFrame;
 extern s16 D_800AC64A,D_800AC5E0,D_8010C0B8;
 extern u8 *D_800102F0;
 extern RrMenuArenas D_800F4D70;

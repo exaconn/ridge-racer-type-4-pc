@@ -6,7 +6,7 @@
 #include "rr/bios_devices.h"
 #include "game/data/ldscn1.h"
 #include "game/gfx/drawbuf.h"
-#include "game/data/d800abeb0.h"
+#include "game/data/screenframe.h"
 #include "game/data/menuvars.h"
 extern int func_800207D4();
 extern int func_8002B330();
@@ -109,7 +109,7 @@ void func_80032964(a0, a1)
 int a0;
 int a1;
 {
-  int v = rsin((D_800ABEB0 << 6) & 0xFC0);
+  int v = rsin((ScreenFrame << 6) & 0xFC0);
   int new_var;
   if (v < 0)
   {

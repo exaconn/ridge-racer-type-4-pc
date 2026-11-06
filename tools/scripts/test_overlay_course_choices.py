@@ -58,7 +58,7 @@ static unsigned scenario,mutation;
 #define RR_COURSE_SCRATCH (&w->s.scratch.projection)
 #define RR_PROJECTION_SCRATCH RR_COURSE_SCRATCH
 #define D_800F2DE4 w->s.word2de4
-#define D_800ABEB0 w->s.wordabeb0
+#define ScreenFrame w->s.wordabeb0
 #define D_800AC64A w->s.halfc64a
 #define D_800AC5E0 w->s.halfc5e0
 #define ovl660_preview_bank w->s.row660

@@ -26,7 +26,7 @@ typedef struct {s32 kind,args[10];RrMenuArenas arenas;u8 *base;void *published;R
 static struct World {u32 guard[4];s32 frame,counter;s16 current,limit,selected;s8 flag1,flag2;RrMenuArenas arenas;u8 *base;void *published;RrMenuGlyphRow1C *glyph;RrMenuGlyphRow1C glyphs[3][4];RrUiRow24 rows[7];u32 calls;Event events[13];u32 tail[4];} world,expected;
 static u8 resources[3][0x2D100],original_resources[3][0x2D100];
 #define D_800F2DE4 world.frame
-#define D_800ABEB0 world.counter
+#define ScreenFrame world.counter
 #define D_800AC64A world.current
 #define D_800AC5E0 world.limit
 #define D_800F3826 world.selected

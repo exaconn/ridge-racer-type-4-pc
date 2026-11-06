@@ -36,7 +36,7 @@ static struct World {
 #define D_800ACC18 world.active
 #define D_800F4D7C world.flag0
 #define D_800F3A2C world.flag1
-#define D_800ABEB0 world.counter
+#define ScreenFrame world.counter
 ''' + reset + r'''
 static void event(struct World *w,s32 kind,s32 a,s32 b,s32 c,void *observed){
  Event *e;assert(w->calls<4);e=&w->events[w->calls++];e->kind=kind;e->a=a;e->b=b;e->c=c;e->observed=observed;

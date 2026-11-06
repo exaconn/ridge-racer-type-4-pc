@@ -13,7 +13,7 @@ void ovl667_func_801161A8(s32 arg0) {
     RrMenuGridPoint *temp_a3_2;
 
     D_800F2DE4 = 0;
-    D_800ABEB0 = 0;
+    ScreenFrame = 0;
     D_800AC64A = 0;
     D_800AC5E0 = 3;
     func_8003A198();

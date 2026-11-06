@@ -9,7 +9,7 @@
 #include "game/system/pad3.h"
 #include "game/race/racesave.h"
 #include "game/gfx/drawbuf.h"
-#include "game/data/d800abeb0.h"
+#include "game/data/screenframe.h"
 typedef struct { int w[200]; } B800;
 
 typedef struct {
@@ -426,7 +426,7 @@ void func_8002A008(void) {
     } else {
         func_800556B4();
     }
-    D_800ABEB0 += 1;
+    ScreenFrame += 1;
     if (D_800AC5D0 >= 0) {
         if (D_800AC5D0 == 0) {
             func_8004EE60(0);

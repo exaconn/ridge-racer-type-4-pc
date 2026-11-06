@@ -10,6 +10,7 @@
 #include "psyq/libgte/gtemat7.h"
 #include "psyq/libgte/gtetrig.h"
 #include "rr/hud_number.h"
+#include "game/data/globals.h"
 
 #define G ((Scratch_8006EF8C *)SCRATCHPAD)
 
@@ -40,13 +41,7 @@ extern int D_8010E690;
 extern struct S8 D_800FF690;
 extern struct S8 D_800F39A8;
 extern int SetLightMatrix();
-extern s32 D_800ABE98;
 extern M2C_UNK D_800AD570;
-extern s32 D_800F4D48;
-extern s32 D_800F4D68;
-extern s32 D_800F4D84;
-extern s32 D_80107194;
-extern s32 D_801093F8;
 extern char D_800ABF48[];
 extern short D_800F3914;
 extern void func_80060C70();
@@ -65,9 +60,7 @@ extern s16 D_800A3BF0[];
 extern u16 D_800A3C00[];
 extern s16 D_800A3C10[];
 extern S_800A3C20 D_800A3C20[][7];
-extern s32 D_800AC5D8;
 extern s32 D_800ACC14;
-extern s32 D_800F4CE0;
 extern void func_800912B4(s32, s32);
 extern void func_800912D4(s32);
 extern void SetDrawArea(s32);

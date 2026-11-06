@@ -3,6 +3,7 @@
 #include "game/menu/menustat.h"
 #include "game/menu/menuicon.h"
 #include "game/gfx/polygt4.h"
+#include "game/data/globals.h"
 extern int func_8003D228();
 extern int func_8003D6F0();
 extern int func_8001FC28();
@@ -19,7 +20,6 @@ extern short D_8009F1C0[];
 extern short D_8009F1D0[];
 extern unsigned short D_800F4D8A;
 extern char *D_800ACC14;
-extern signed char D_800AD4EF;
 typedef struct { short h0, h2, h4, h6, h8, ha, hc, he, h10, h12, h14, h16, h18, h1a, h1c, h1e, h20, h22, h24, h26, h28, h2a, h2c, h2e, h30, h32, h34, h36; } E1C;
 typedef struct { short h0, h2, h4, h6, h8, ha, hc, he, h10, h12, h14, h16, h18, h1a; } E28;
 extern char *D_800F3AFC;

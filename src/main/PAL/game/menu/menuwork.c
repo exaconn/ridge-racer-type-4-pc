@@ -6,6 +6,7 @@
 #include "game/gfx/meshquad.h"
 #include "game/menu/menuwork.h"
 #include "rr/menu_background.h"
+#include "game/data/globals.h"
 
 #define P8(base, off) (*(unsigned char *)((char *)(base) + (off)))
 #define IDX30(base, i) (*(unsigned char *)((char *)(base) + (i) * 0x24 + 0x30))
@@ -46,7 +47,6 @@ extern int func_8006E1AC();
 extern int func_8006EF8C();
 extern unsigned char D_8009F818[];
 extern short D_800AC5D0;
-extern signed char D_800AD4EF;
 extern signed char *D_800F2AB0;
 extern int D_800ACC18;
 extern int D_800F3A60;

@@ -6,11 +6,11 @@
 #include "game/race/ranking.h"
 #include "rr/audio_loop.h"
 #include "game/data/ldscn1.h"
+#include "game/data/globals.h"
 
 extern int func_8005CA88();
 extern int func_8003EC88();
 extern int D_800F3A38[];
-extern short D_800F4CD0;
 extern char *D_800F4D80;
 extern short D_800AC64A;
 extern short D_800AD564;
@@ -18,7 +18,6 @@ extern int D_800F3A60;
 extern int D_800F3AA4;
 extern short D_800F4BE8;
 extern int D_800F4BEC;
-extern short D_800F4C5C;
 extern int D_800F4CA8;
 extern short D_800FFC10;
 extern void func_8002B330();

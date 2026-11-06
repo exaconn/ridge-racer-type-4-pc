@@ -5,6 +5,7 @@
 #include "game/gfx/gtepoly1.h"
 #include "rr/fade_sprite.h"
 #include "rr/audio_cd_controller.h"
+#include "game/data/globals.h"
 
 #define SP ((Scr *)s2)
 #define S4 ((Ent *)s4)
@@ -106,7 +107,6 @@ extern int D_800ABEB0;
 extern int D_8009E0B0[];
 extern int D_8009E0E0[];
 extern char D_8009E124[];
-extern s32 D_800AC5D8;
 extern void *D_800F3A08[];
 extern s16 D_800F4D44;
 extern u8 D_8010B2E0[];

@@ -9,6 +9,7 @@
 #include "game/gfx/gfxotag.h"
 #include "game/menu/menu8.h"
 #include "game/menu/menucalc.h"
+#include "game/data/globals.h"
 
 extern int func_80020074();
 extern unsigned char D_8009F074[][4];
@@ -24,7 +25,6 @@ extern struct
 extern int func_8001FD20();
 extern int rsin();
 extern unsigned char D_8009F1EC[];
-extern signed char D_800AD4EF;
 extern int D_800F2DE4;
 extern int func_8002AF8C();
 extern int func_8003D228();
@@ -51,7 +51,6 @@ extern int D_800ACC18;
 extern struct { char pad[1]; signed char b1; } *D_800F2AB0;
 extern struct { char pad[8]; unsigned short h8; char pad2[0x1E]; int w28; } D_800F3A38;
 extern struct { char pad[0x10]; short h10; char pad2[10]; } *D_800F3AFC;
-extern unsigned short D_800F4C5C;
 extern int D_800F4D74;
 extern struct { char pad[6]; signed char b6; char pad2[0xF]; short h16; } *D_800FF68C;
 

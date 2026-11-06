@@ -7,6 +7,7 @@
 #include "psyq/libsnd/vmtick2.h"
 #include "psyq/libspu/spukeyx2.h"
 #include "psyq/libspu/spurvoic.h"
+#include "game/data/globals.h"
 
 
 
@@ -23,12 +24,6 @@ typedef struct {
     u8 pad2C[0x36 - 0x2C];
 } SpuVoiceRow36;
 
-extern u16 D_8010F8F8;
-extern u16 D_8010F8FA;
-extern u16 D_8010F8FC;
-extern u16 D_8010F8FE;
-extern u16 D_8010F900;
-extern u16 D_8010F902;
 extern SpuVoiceRow36 D_8010F908[];
 extern u8 D_8010FE18[];
 extern void (*D_8010FE30)(s32);
@@ -36,10 +31,7 @@ extern u16 D_8010FE38[];
 extern void (*D_8010FFB8)(s32);
 extern s32 D_8010FFBC;
 extern s32 D_8010FFC0[];
-extern u16 D_80110000;
-extern u16 D_80110002;
 extern s8 D_801100FC;
-extern s8 D_80110130;
 extern void func_80084674(SpuVoiceAttr *);
 extern void func_80087814(s32, s32);
 

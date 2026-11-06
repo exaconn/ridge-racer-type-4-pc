@@ -4,6 +4,7 @@
 #include "psyq/libspu/libspu.h"
 #include "psyq/libsnd/vmtick2.h"
 #include "psyq/libspu/sminit.h"
+#include "game/data/globals.h"
 
 
 
@@ -48,24 +49,15 @@ extern void func_80084674(SpuVoiceAttr *);
 extern void func_80087DA4(s32);
 extern void func_80088DA4(s32);
 
-extern s16 D_8010F8F8;
-extern s16 D_8010F8FA;
-extern s16 D_8010F8FC;
-extern s16 D_8010F8FE;
-extern s16 D_8010F900;
-extern s16 D_8010F902;
 extern SpuVoiceRow36 D_8010F908[];
 extern u8 D_8010FE18[];
 extern u16 D_8010FE38[];
-extern s16 D_80110000;
 extern Unk80110008 D_80110008;
 extern s16 D_801100A0;
-extern s16 D_801100E8;
 extern s16 D_801100EA;
 extern s8 D_801100FC;
 extern s16 D_80110118;
 extern u8 D_80110120[];
-extern s8 D_80110130;
 extern s16 D_80110178;
 extern u8 D_801101C8[];
 

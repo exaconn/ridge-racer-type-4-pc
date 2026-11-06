@@ -5,6 +5,7 @@
 #include "game/gfx/poly1.h"
 #include "rr/menu_overlay_runtime.h"
 #include "rr/overlay668_camera.h"
+#include "game/data/globals.h"
 
 typedef struct { int a, b, c, d, e, f, g, h; } w3g6_32;
 
@@ -15,17 +16,10 @@ extern w3g6_U D_800A3B20[];
 extern w3g6_U D_800A3B28[];
 extern w3g6_U D_800A3B30[];
 extern int D_800A3B38[];
-extern int D_800ABE98;
 extern w3g6_32 D_800AD570;
 extern short D_800AD5BC[];
 extern w3g6_U D_800F38F8[];
-extern int D_800F4D48;
-extern int D_800F4D68;
-extern int D_800F4D84;
-extern int D_80107194;
-extern int D_801093F8;
 extern int D_8010718C;
-extern int D_800AD5B8;
 extern char D_800F4C38[];
 extern unsigned int *D_800ADAD0;
 extern int D_800F2EB4;

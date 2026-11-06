@@ -17,6 +17,7 @@
 #include "game/data/ldscn1.h"
 #include "game/gfx/gfxotag.h"
 #include "game/system/modeinit.h"
+#include "game/data/globals.h"
 
 extern int func_80053CB0();
 extern int D_800102F0;
@@ -34,7 +35,6 @@ extern short D_800F3A26;
 extern short D_800F4BE8;
 extern short D_800F4C6A;
 extern int D_800F4CA8;
-extern short D_800F4CD0;
 extern int D_800F4D40;
 extern unsigned short D_800F4D44;
 extern short D_800F4D8A;
@@ -52,7 +52,6 @@ extern short D_800AD50A;
 extern int D_800F2DE4;
 extern short *D_800F3AFC;
 extern int D_800F3A60;
-extern unsigned short D_800F4C5C;
 extern void func_80032A14();
 extern void func_8003A198();
 extern void func_8003D6F0();

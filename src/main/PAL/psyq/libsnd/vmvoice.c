@@ -3,19 +3,11 @@
 #include "rr/spu.h"
 #include "psyq/libspu/s_snc.h"
 #include "psyq/libsnd/vmrow.h"
+#include "game/data/globals.h"
 
-extern u16 D_8010F8F8;
-extern u16 D_8010F8FA;
-extern u16 D_8010F8FC;
-extern u16 D_8010F8FE;
-extern u16 D_8010F900;
-extern u16 D_8010F902;
 extern u16 D_8010F90C[];
 extern s16 D_8010FE38[];
 extern s16 D_8010FE3A[];
-extern u16 D_80110000;
-extern u16 D_80110002;
-extern s16 D_801100E8;
 extern s8 D_80110105;
 extern s8 D_8011010B;
 extern u8 D_80110112;

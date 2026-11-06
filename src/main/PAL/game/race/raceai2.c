@@ -14,6 +14,7 @@
 #include "rr/driver_control.h"
 #include "rr/menu_background.h"
 #include "rr/audio_loop.h"
+#include "game/data/globals.h"
 
 typedef struct { int k; short f; } E;
 
@@ -64,7 +65,6 @@ extern int D_8010C0E0;
 extern char D_800ACC68;
 extern int func_8003A198();
 extern signed char D_800AD4D8[];
-extern signed char D_800AD4EF;
 extern E *D_800F2DE8[];
 extern int D_800F39C8;
 extern int D_800F4C64;

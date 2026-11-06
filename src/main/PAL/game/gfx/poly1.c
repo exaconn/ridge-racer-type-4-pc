@@ -21,6 +21,7 @@
 #include "rr/frame_environment.h"
 #include "game/demo/splash.h"
 #include "rr/animated_glyph.h"
+#include "game/data/globals.h"
 
 typedef struct { int a[8]; } S32B;
 
@@ -55,7 +56,6 @@ typedef struct {
 struct S { unsigned char c[8]; };
 
 extern int *D_800AC598;
-extern s32 D_800F4CE0;
 extern s32 D_8010E730;
 extern int BuildRotMatrixY();
 extern int BuildRotMatrixX();
@@ -89,7 +89,6 @@ extern short D_80107184;
 extern struct { short m[3][3]; int t[3]; } D_800AD570;
 extern struct { short a, b, c, d; } D_800F38F8[];
 extern short *D_8010E790;
-extern unsigned short D_800AD5B8;
 extern unsigned char *D_8010E798;
 extern int SetDispMask();
 extern int D_800AC5DC;

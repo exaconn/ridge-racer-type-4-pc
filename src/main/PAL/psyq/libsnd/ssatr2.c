@@ -4,6 +4,7 @@
 #include "types.h"
 #include "rr/spu.h"
 #include "rr/channel_stream.h"
+#include "game/data/globals.h"
 
 typedef struct {
     u8 value00, value01, value02, value03, value04, pad05;
@@ -60,7 +61,6 @@ typedef struct {
 
 extern ControlRow36 D_8010F908[];
 extern SpuCachedVolume10 D_8010FE38[];
-extern s16 D_801100E8;
 extern s8 D_801100FC;
 extern u32 D_800A48F8;
 

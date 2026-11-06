@@ -2,6 +2,7 @@
 #include "rr/menu_transition.h"
 #include "game/menu/menutran.h"
 #include "game/data/ldscn1.h"
+#include "game/data/globals.h"
 
 typedef struct { int a; short b; char c; char d; } S8;
 
@@ -17,7 +18,6 @@ extern short D_800AD520;
 extern short D_800F3826;
 extern short D_800F3914;
 extern signed char D_800AD4D8[];
-extern signed char D_800AD4EF;
 extern unsigned char D_800AD4F0;
 extern unsigned char D_800F3981;
 extern S8 D_800F2A68[];

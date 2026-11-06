@@ -7,10 +7,10 @@
 #include "game/data/cardini.h"
 #include "game/data/savedat.h"
 #include "game/menu/loadmenu.h"
+#include "game/data/globals.h"
 
 extern short D_800A41EC;
 extern short D_800A41EE;
-extern int D_800ACC0C;
 extern int func_8003D6F0();
 
 void func_8007AB8C(int arg0);

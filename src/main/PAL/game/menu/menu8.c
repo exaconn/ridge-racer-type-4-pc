@@ -7,6 +7,7 @@
 #include "game/gfx/gfxotag.h"
 #include "game/menu/menutran.h"
 #include "game/ui/barsel0.h"
+#include "game/data/globals.h"
 
 typedef struct {
     u8 pad0[0x16];
@@ -31,9 +32,7 @@ struct E { int a; short b; short c; };
 
 typedef struct { char b[0x17]; signed char b17; char r[0x2C - 0x18]; } w3g2S;
 
-extern signed char D_800AD4EF;
 extern unsigned char D_800AD4F5;
-extern short D_800F4C5C;
 extern signed char *D_800FF68C;
 extern short D_800FFC18;
 extern s32 func_8001FCC8(s32, s32, s32);

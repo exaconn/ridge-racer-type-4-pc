@@ -10,6 +10,7 @@
 #include "game/gfx/color.h"
 #include "game/race/raceset.h"
 #include "game/system/modeinit.h"
+#include "game/data/globals.h"
 
 typedef struct {
     char name[10];
@@ -44,7 +45,6 @@ extern s32 D_800AC5DC;
 extern s32 D_800ACC18;
 extern s32 D_800F2DE4;
 extern s16 D_800F3A26;
-extern s16 D_800F4C5C;
 extern s16 D_800F4C6A;
 extern s8 D_800F4D7C;
 extern s16 D_800F4D8A;

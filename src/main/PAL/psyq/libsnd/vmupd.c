@@ -3,6 +3,7 @@
 #include "rr/channels.h"
 #include "rr/spu.h"
 #include "psyq/libsnd/vmnote2.h"
+#include "game/data/globals.h"
 
 typedef struct {
     s8 f00, f01, f02, f03, f04;
@@ -17,19 +18,10 @@ typedef struct {
     s16 f14, f16, f18;
 } SvmCur;
 
-extern u16 D_8010F8F8;
-extern u16 D_8010F8FA;
-extern u16 D_8010F8FC;
-extern u16 D_8010F8FE;
-extern u16 D_8010F900;
-extern u16 D_8010F902;
 extern u16 D_8010F90C[];
 extern s16 D_8010FE38[];
 extern s16 D_8010FE3A[];
 extern s16 D_8010FE3C[];
-extern u16 D_80110000;
-extern u16 D_80110002;
-extern s16 D_801100E8;
 extern SvmCur D_80110100;
 extern char D_8010F916[];
 extern char D_8010F918[];

@@ -14,6 +14,7 @@
 #include "rr/serial_handles.h"
 #include "rr/overlay667_packet.h"
 #include "rr/card_format.h"
+#include "game/data/globals.h"
 
 extern int func_80095C74();
 extern int func_80096F04();
@@ -27,7 +28,6 @@ extern int D_8010EF6C;
 extern int D_8010EF70;
 extern int D_8010EF74;
 extern unsigned char D_800F3A24[];
-extern int D_800ACC0C;
 extern char D_800FFC48[];
 extern int D_8010ECC0[];
 extern char D_800113D8[];

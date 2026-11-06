@@ -7,6 +7,7 @@
 #include "rr/hud_number.h"
 #include "rr/fade_sprite.h"
 #include "rr/audio_loop.h"
+#include "game/data/globals.h"
 
 struct S { char pad[0x2AA]; short f; char pad2[0x320 - 0x2AC]; };
 
@@ -14,7 +15,6 @@ extern s32 func_8001FCC8();
 extern int D_800ABEB0;
 extern short D_80107178;
 extern short D_800AC59C;
-extern signed char D_800AD4EF;
 extern unsigned char D_8009EE40[];
 extern unsigned char D_8009EE44[];
 extern int rsin();

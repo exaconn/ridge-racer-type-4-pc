@@ -8,6 +8,7 @@
 #include "rr/audio_loop.h"
 #include "rr/menu_background.h"
 #include "game/ui/barsel0.h"
+#include "game/data/globals.h"
 
 typedef struct { short a, b; } X;
 
@@ -19,7 +20,6 @@ extern unsigned char D_8009F730[];
 extern unsigned char D_8009F790[];
 extern unsigned short D_800AC648;
 extern int D_800ACC14;
-extern signed char D_800AD4EF;
 extern int func_8003D228();
 extern int func_8003DC9C();
 extern int func_8003E040();

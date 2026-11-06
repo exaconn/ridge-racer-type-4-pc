@@ -7,7 +7,7 @@ s32 func_800940E0(s32 draw_display,s32 dither,s32 page);
 u32 func_80094230(s32 x,s32 y);
 u32 func_8009424C(RrGpuRectangleFields *window);
 /* Three-word drawing-mode packet; NULL window emits command zero. */
-void func_80093C24(void *output,s32 draw_display,s32 dither,s32 page,
+void SetDrawMode(void *output,s32 draw_display,s32 dither,s32 page,
     RrGpuRectangleFields *window);
 /* Writes drawing commands1..6 and the DMA length byte. When byte18 (the
  * existing rgb24 field) enables background fill, also writes words7..9.

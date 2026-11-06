@@ -11,7 +11,7 @@ extern s32 D_801146BC;
 
 extern unsigned int D_801146B8;
 
-void func_8009A7F4(s32 limit) {
+void setRC2wait(s32 limit) {
     /* ASM_BARRIER: keep the zero-extended timer read in its original register. */
     register s32 counter __asm__("$2") = *(volatile u16 *)0x1F801120;
     /* ASM_BARRIER: retain the original assembler temporary for the mapped store. */

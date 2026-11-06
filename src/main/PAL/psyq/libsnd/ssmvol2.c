@@ -1,6 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 typedef struct { int mask; int pad[3]; short l0, r0; int pad2[2]; short l1, r1; int pad3[2]; } w3l0S;
-extern void func_80082674(w3l0S *, int);
+extern void SpuSetCommonAttr(w3l0S *, int);
 int func_80083CD4(signed char a0, int a1, int a2) {
     w3l0S s;
     short x = a1, y = a2;
@@ -18,5 +18,5 @@ int func_80083CD4(signed char a0, int a1, int a2) {
         s.l1 = x * 0x102;
         s.r1 = y * 0x102;
     }
-    func_80082674(&s, a1);
+    SpuSetCommonAttr(&s, a1);
 }

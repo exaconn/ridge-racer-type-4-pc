@@ -15,33 +15,33 @@
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((int (*)())AddPrim)
 
-#define func_80095B24 ((int (*)())func_80095B24)
+#define SetShadeTex ((int (*)())SetShadeTex)
 
 #undef AddPrim
 
-#undef func_80095B24
+#undef SetShadeTex
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((int (*)())AddPrim)
 
-#define func_80095B24 ((int (*)())func_80095B24)
+#define SetShadeTex ((int (*)())SetShadeTex)
 
 #undef AddPrim
 
-#undef func_80095B24
+#undef SetShadeTex
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((void (*)(u32 *,u32 *))AddPrim)
 
 #undef AddPrim
 
-extern void func_80095B94(void *),func_80095AF4(void *,s32),AddPrim(u32 *,u32 *);
+extern void func_80095B94(void *),SetSemiTrans(void *,s32),AddPrim(u32 *,u32 *);
 
 /* extern */
-void func_80095AF4(void *, s32);
+void SetSemiTrans(void *, s32);
 
 /* extern */
-void func_80095B24(void *, M2C_UNK);
+void SetShadeTex(void *, M2C_UNK);
 
 /* extern */
 void func_80095B74(void *);
@@ -61,14 +61,14 @@ struct S32 *func_8002039C(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, v
     M2C_FIELD(arg1, u8 *, 0x15) = (u8) M2C_FIELD(arg5, u8 *, 4);
     M2C_FIELD(arg1, u8 *, 0x1C) = (u8) M2C_FIELD(arg4, u8 *, 8);
     M2C_FIELD(arg1, u8 *, 0x1D) = (u8) M2C_FIELD(arg5, u8 *, 8);
-    func_80095AF4(arg1, arg8 & 0xFFFF);
+    SetSemiTrans(arg1, arg8 & 0xFFFF);
     if ((arg9 & 0xFFFF) != 0x80) {
-        func_80095B24(arg1, 0);
+        SetShadeTex(arg1, 0);
         M2C_FIELD(arg1, s8 *, 4) = (s8) arg9;
         M2C_FIELD(arg1, s8 *, 5) = (s8) arg9;
         M2C_FIELD(arg1, s8 *, 6) = (s8) arg9;
     } else {
-        func_80095B24(arg1, 1);
+        SetShadeTex(arg1, 1);
     }
     M2C_FIELD(arg1, u16 *, 0x16) = arg6;
     M2C_FIELD(arg1, u16 *, 0xE) = arg7;

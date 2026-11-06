@@ -33,8 +33,8 @@ u32 test_dma_address,test_dma_size,test_input_address;const u16 *test_dma_source
 s32 test_forced_address_result;
 void (*test_mode_hook)(void),(*test_address_hook)(void),(*test_dma_hook)(void);
 void test_actual_mode(s32);
-void func_8008B044(s32 mode) {test_mode_calls++;test_actual_mode(mode);test_mode_hook();}
-s32 func_8007F414(s32 index,s32 address) {
+void SpuSetTransferMode(s32 mode) {test_mode_calls++;test_actual_mode(mode);test_mode_hook();}
+s32 _spu_FsetRXXa(s32 index,s32 address) {
  test_address_calls++;test_input_address=(u32)address;
  if(index!=-1)test_pio_calls++;
  test_address_hook();
@@ -46,7 +46,7 @@ s32 func_8007F068(s32 command,...) {
  if(command==3) {test_dma_source=va_arg(args,const u16 *);test_dma_size=va_arg(args,u32);test_dma_hook();}
  va_end(args);return -123;
 }
-void func_8007ED44(const u16 *source,u32 bytes) {test_pio_calls++;}
+void _spu_FwriteByIO(const u16 *source,u32 bytes) {test_pio_calls++;}
 void test_completion(void) {}
 void test_reset(void) {
  s32 i;memset(test_table,0xA5,sizeof(test_table));memset(test_mode_page,0x5A,sizeof(test_mode_page));
@@ -77,8 +77,8 @@ void test_reset(void) {
                 assert body.count('(s32 *)0x800A0000U')==1
                 body=body.replace('(s32 *)0x800A0000U','(s32 *)test_mode_page');mapped_modes+=1
             if name=='8008B044':
-                assert body.count('void func_8008B044(')==1
-                body=body.replace('void func_8008B044(','void test_actual_mode(')
+                assert body.count('void SpuSetTransferMode(')==1
+                body=body.replace('void SpuSetTransferMode(','void test_actual_mode(')
             source+=body
         assert (mapped_tables,mapped_modes)==(4,2)
         directory=Path(cls.temp.name);(directory/'bank.c').write_text(source)

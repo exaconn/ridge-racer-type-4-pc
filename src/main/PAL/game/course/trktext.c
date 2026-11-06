@@ -13,7 +13,7 @@ typedef struct { short a[8], b[8], c[8]; } U;
 
 extern T D_800F3A38[];
 extern U D_800F2F78[];
-extern s32 func_800924D4(s32 z, s32 x);
+extern s32 ratan2(s32 z, s32 x);
 extern unsigned char D_800A017C[];
 
 s32 func_8004C454(s32 node, s32 lane);
@@ -66,7 +66,7 @@ s32 func_8004C454(s32 node, s32 lane)
         delta[3] = D_800ABEA4[previous].z0C - D_800ABEA4[node].z0C;
         break;
     }
-    return (s16)func_800924D4(delta[3], delta[2]);
+    return (s16)ratan2(delta[3], delta[2]);
 }
 
 void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {

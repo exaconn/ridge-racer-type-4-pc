@@ -55,7 +55,7 @@ extern char D_8009FFDC[];
 extern char D_8009FFE4[];
 extern int func_800978E0();
 extern int PadInfoMode();
-extern int func_80097AA4();
+extern int PadInfoAct();
 extern int PadSetActAlign();
 extern int PadSetAct();
 extern int func_80096434();
@@ -260,11 +260,11 @@ B:
     s1->c40 = 0;
     s1->w10 = 0;
     s0 = 0;
-    s3 = func_80097AA4(s2, -1, s0);
+    s3 = PadInfoAct(s2, -1, s0);
     if (s3 == 1)
     {
-      s0 = func_80097AA4(s2, 0, 1);
-      v1 = func_80097AA4(s2, 0, 2);
+      s0 = PadInfoAct(s2, 0, 1);
+      v1 = PadInfoAct(s2, 0, 2);
       w11_r = s0;
       if (w11_r == 4 && v1 == 3)
         s1->c40 = s3;

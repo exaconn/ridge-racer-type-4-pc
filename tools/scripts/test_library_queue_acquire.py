@@ -26,7 +26,7 @@ class LibraryQueueAcquireTest(unittest.TestCase):
         assert body.count('(s32 *)0x80110000U')==1
         body=body.replace('(s32 *)0x80110000U','test_page')
         assert body.count('selected->state==1')==1 and body.count('selected->state!=2')==1
-        observed=body.replace('func_8008F854','observed_acquire').replace('selected->state==1','test_read(selected)==1').replace('selected->state!=2','test_read(selected)!=2')
+        observed=body.replace('StGetNext','observed_acquire').replace('selected->state==1','test_read(selected)==1').replace('selected->state!=2','test_read(selected)!=2')
         code='''#include <stdint.h>
 typedef uint8_t u8; typedef int8_t s8; typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
@@ -51,7 +51,7 @@ u16 test_read(RrLibQueueRecord32 *p) {
         cls.page=(C.c_int32*(0x10000//4)).in_dll(cls.lib,'test_page')
         cls.reset=C.c_int32.in_dll(cls.lib,'D_80110304');cls.count=C.c_int32.in_dll(cls.lib,'D_80110314')
         cls.reads=C.c_int32.in_dll(cls.lib,'reads');cls.change=C.c_int32.in_dll(cls.lib,'change_after_first')
-        for name in ('func_8008F854','observed_acquire'):
+        for name in ('StGetNext','observed_acquire'):
             fn=getattr(cls.lib,name);fn.argtypes=[C.POINTER(C.c_void_p),C.POINTER(C.c_void_p)];fn.restype=C.c_int32
 
     def setUp(self):
@@ -63,7 +63,7 @@ u16 test_read(RrLibQueueRecord32 *p) {
     def output(self):return Output(0x0123456789ABCDEF,0x1234,0xFEDCBA9876543210,0x5678,0xA55A5AA5A55A5AA5)
 
     def call(self,out,observed=False):
-        fn=self.lib.observed_acquire if observed else self.lib.func_8008F854
+        fn=self.lib.observed_acquire if observed else self.lib.StGetNext
         return fn(C.cast(C.byref(out,Output.data.offset),C.POINTER(C.c_void_p)),C.cast(C.byref(out,Output.header.offset),C.POINTER(C.c_void_p)))
 
     def guards(self,out):self.assertEqual((out.guard0,out.guard1,out.guard2),(0x0123456789ABCDEF,0xFEDCBA9876543210,0xA55A5AA5A55A5AA5))
@@ -112,7 +112,7 @@ u16 test_read(RrLibQueueRecord32 *p) {
             for state in (0,1,3,4,65535):
                 self.page[0x2FC//4]=index;self.reset.value=1
                 self.records[0]=0;self.records[index*16]=state
-                self.assertEqual(self.lib.func_8008F854(None,None),1)
+                self.assertEqual(self.lib.StGetNext(None,None),1)
 
     def test_second_read_observes_new_ready_state(self):
         self.page[0x2FC//4]=7;self.records[7*16]=3;self.change.value=1

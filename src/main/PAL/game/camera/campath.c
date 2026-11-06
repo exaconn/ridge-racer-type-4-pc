@@ -35,7 +35,7 @@ struct Q_1 { char pad[0x60]; int f60; int *f64; short f68, f6a; int f6c; int f70
 
 extern u16 D_800A1F90[];
 extern s32 func_8005599C();
-extern s32 func_80090F74();
+extern s32 ScaleMatrix();
 extern s32 func_8006EE3C();
 extern char D_800A1CE0[];
 extern struct { char pad[0x250]; char pad2[0x3D8 - 0x250]; struct Q *q; } D_800AC650;
@@ -71,7 +71,7 @@ void func_8005AA2C(void) {
     f.e2 = v;
     f.e1 = v;
     f.e0 = v;
-    func_80090F74(f.m1, &f.e0);
+    ScaleMatrix(f.m1, &f.e0);
     func_8006EE3C((SCRATCHPAD + 0x7C), &f.z0, f.m1);
     row = D_800A1F90; i = 0; y = -0x438;
     do {

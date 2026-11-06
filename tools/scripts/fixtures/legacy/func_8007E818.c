@@ -20,11 +20,11 @@ RrWide64 *_mul_mant_d(RrWide64 *out,u32 a,u32 b) {
     }
     cross_high=m>>16;
     t.hi=cross_high;*(volatile u32 *)&t.lo=m<<16;
-    func_8007DB54(&r,r,t);
+    _add_mant_d(&r,r,t);
     m=(u32)((s64)(s32)low_a*(s32)high_b);
     cross_high=m>>16;
     t.hi=cross_high;*(volatile u32 *)&t.lo=m<<16;
-    func_8007DB54(&r,r,t);
+    _add_mant_d(&r,r,t);
     {
         /* ASM_BARRIER: Retain the final high product in the original arithmetic temporary. */
         register u32 high_product __asm__("$3")=(u32)((s64)(s32)high_a*(s32)high_b);

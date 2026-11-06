@@ -315,7 +315,7 @@ void func_8005C024(void)
     sp50[2] = v;
     sp50[1] = v;
     sp50[0] = v;
-    func_80090F74(sp10, sp50);
+    ScaleMatrix(sp10, sp50);
     func_800701C4(7);
     func_8006EE3C((SCRATCHPAD + 0x7C), D_800AC650.p + 0xC8, sp10);
     *(int *)(SCRATCHPAD + 0x78) = 0;

@@ -15,11 +15,11 @@ int func_80095DF4();
 /* extern */
 int _ExitCard();
 
-void func_80095D04(s32 arg0);
+void InitCARD(s32 arg0);
 void StartCARD(void);
 void func_80095DA8(void);
 
-void func_80095D04(s32 arg0) {
+void InitCARD(s32 arg0) {
     s32 var_s0;
 
     var_s0 = arg0;

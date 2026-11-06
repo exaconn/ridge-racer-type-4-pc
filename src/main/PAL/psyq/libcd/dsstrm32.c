@@ -45,7 +45,7 @@ extern s32 D_80110314;
 extern void (*D_80112764)(void);
 extern StHeader *D_80112768;
 
-void func_8008F934(void) {
+void StCdInterrupt(void) {
     s32 i;
     struct {
         s16 sp20;

@@ -4,7 +4,7 @@
 
 #include "rr/library.h"
 
-RrLibInterruptCallback func_8008BD10(s32 channel,RrLibInterruptCallback callback) {
+RrLibInterruptCallback setIntrDMA(s32 channel,RrLibInterruptCallback callback) {
     s32 i=channel;
     RrLibInterruptCallback *entry=D_800A63A4;
     /* ASM_BARRIER: Retain the previous callback for the common return. */

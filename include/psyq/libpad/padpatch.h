@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80099380();
+int _padSetActAlign();
 
 #endif /* RR_PSYQ_LIBPAD_PADPATCH_H */

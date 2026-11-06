@@ -13,7 +13,7 @@ void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation);
 void func_8001FA48();
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80093C24 ((s32 (*)())func_80093C24)
+#define SetDrawMode ((s32 (*)())SetDrawMode)
 #define AddPrim ((s32 (*)())AddPrim)
 #define func_80095B94 ((s32 (*)())func_80095B94)
 #define D_800ACC14 ((char *)D_800ACC14)
@@ -38,8 +38,8 @@ u8 *a2;
                 func_80095B94(s3);
                 s2->w = 12;
                 s2->h = 24;
-                func_80095B24(s3, 1);
-                func_80095AF4(s3, 1);
+                SetShadeTex(s3, 1);
+                SetSemiTrans(s3, 1);
                 s2->x = a0;
                 s2->y = a1;
                 s2->u = u;
@@ -49,20 +49,20 @@ u8 *a2;
                 s3++;
             }
     }
-    func_80093C24(s3, 0, 1, 0x58, 0);
+    SetDrawMode(s3, 0, 1, 0x58, 0);
     AddPrim(D_800ACC14 + 0x70, s3);
     *(char **)SCRATCHPAD = (char *)s3 + 0xC;
 }
 
-#undef func_80093C24
+#undef SetDrawMode
 #undef AddPrim
 #undef func_80095B94
 #undef D_800ACC14
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((void (*)())AddPrim)
-#define func_80095AF4 ((void (*)())func_80095AF4)
-#define func_80095B24 ((void (*)())func_80095B24)
+#define SetSemiTrans ((void (*)())SetSemiTrans)
+#define SetShadeTex ((void (*)())SetShadeTex)
 #define func_80095B94 ((void (*)())func_80095B94)
 
 char *func_8001F5B4(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
@@ -97,7 +97,7 @@ int arg7;
         func_80095B94(arg1);
         if (h == 0)
         {
-          func_80095B24(arg1, 1);
+          SetShadeTex(arg1, 1);
         }
         else
         {
@@ -105,7 +105,7 @@ int arg7;
           p[5] = h;
           p[6] = h;
         }
-        func_80095AF4(arg1, arg7 & 1);
+        SetSemiTrans(arg1, arg7 & 1);
         *((short *) (p + 8)) = arg2;
         *((unsigned short *) (p + 0xA)) = arg3;
         *((short *) (p + 0x10)) = 8;
@@ -138,8 +138,8 @@ int arg7;
 }
 
 #undef AddPrim
-#undef func_80095AF4
-#undef func_80095B24
+#undef SetSemiTrans
+#undef SetShadeTex
 #undef func_80095B94
 
 void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
@@ -229,7 +229,7 @@ void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
     if (drawV < 0) {
         drawV += 0xFF;
     }
-    func_80093C24(cursor, 0, 1, ((s32) (drawV & 0x100) >> 4) | 0x2F, 0);
+    SetDrawMode(cursor, 0, 1, ((s32) (drawV & 0x100) >> 4) | 0x2F, 0);
     AddPrim(&D_800ACC14->head70, (u32 *)cursor);
     RR_GLYPH_ANIMATION_SCRATCH->cursor = cursor + 0xC;
 }

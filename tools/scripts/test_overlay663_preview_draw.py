@@ -43,7 +43,7 @@ void func_8006EF8C(s32 mode){assert(calls++==1&&mode==6);mutate(1);
  D_800ABEF8[0].rot54=input_y;
  D_800ABEF8[0].rot58=word(0xFEDC0000U|(scenario^0x9E37U));
 }
-u16 *func_80091844(s16 *rotation,u16 *output){unsigned j;int64_t wide=(int64_t)input_y+8;
+u16 *RotMatrix(s16 *rotation,u16 *output){unsigned j;int64_t wide=(int64_t)input_y+8;
  u32 wrapped=(u32)((uint64_t)wide&4095U);
  assert(calls++==2);assert(((uintptr_t)output&3)==0);
  assert(rotation[0]==half(scenario)&&rotation[1]==(s16)wrapped&&rotation[2]==half(scenario^0x9E37U));

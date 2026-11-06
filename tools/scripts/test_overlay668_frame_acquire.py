@@ -45,7 +45,7 @@ static void effect(unsigned n,unsigned clear){unsigned p,i;
  if(clear){world.s.context.activeB8=world.s.players+(scenario/8)%2;seenRoots|=1U<<((scenario/8)%2);}
  for(i=0;i<4;i++)world.s.tail[i]=scenario+n+i;
 }
-s32 func_8008F854(u8 **data,RrLibQueueRecord32 **header){unsigned n=world.polls++;
+s32 StGetNext(u8 **data,RrLibQueueRecord32 **header){unsigned n=world.polls++;
  assert(data&&header);assert((uintptr_t)data>UINT32_MAX);assert((uintptr_t)header>UINT32_MAX);
  if(mutation)effect(n,0);
  *data=packets[(scenario+n)%3]+(scenario+n)%32;*header=world.s.headers+(scenario+n)%2;
@@ -54,7 +54,7 @@ s32 func_8008F854(u8 **data,RrLibQueueRecord32 **header){unsigned n=world.polls+
 void ClearImage(const RrGpuRectangleFields *rect,u8 r,u8 g,u8 b){assert(!r&&!g&&!b);assert(world.clears++==0);world.clear=*rect;world.beforeClear=hash();if(mutation)effect(2017,1);}
 ''' + body + r'''
 static u8 *expected(RrStrDisplayConfig *config){u8 *data;RrLibQueueRecord32 *header;unsigned i;RrStrPlaybackState *s;int found=0;RrGpuRectangleFields rect;
- for(i=0;i<2000;i++)if(!func_8008F854(&data,&header)){found=1;break;}
+ for(i=0;i<2000;i++)if(!StGetNext(&data,&header)){found=1;break;}
  if(!found)return 0;
  if((u32)header->value08>=world.s.context.thresholdC8)world.s.context.stopD0=1;
  if((u32)world.s.context.counterC4>=world.s.context.budgetCC)world.s.context.stopD0=1;

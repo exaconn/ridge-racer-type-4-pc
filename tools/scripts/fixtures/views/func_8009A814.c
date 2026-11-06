@@ -11,7 +11,7 @@ extern s32 D_801146BC;
 
 extern unsigned int D_801146B8;
 
-int func_8009A814() {
+int chkRC2wait() {
     unsigned int a0;
     /* ASM_BARRIER: pin MMIO pointer to $v1 (original keeps it in v1, accumulator in a0) */
     register volatile unsigned short *p __asm__("$3");

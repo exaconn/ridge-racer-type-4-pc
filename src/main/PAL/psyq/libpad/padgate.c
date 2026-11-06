@@ -1,6 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channel_init.h"
-void func_80099CD4(u8 *first,u8 *second) {
+void PadInitDirect(u8 *first,u8 *second) {
     register RrChannelRecordF0 *record;
     /* ASM_BARRIER: preserve the first input pointer in S1 across setup helpers. */
     register u8 *input_first __asm__("$17")=first;
@@ -57,7 +57,7 @@ void func_80099CD4(u8 *first,u8 *second) {
         metadata=(RrChannelStatusView *)((u8*)metadata+sizeof(RrChannelRecordF0));
         record++;
     } while(i<2);
-    func_80097E0C();
+    _padSetVsyncParam();
     D_800ABCA0=1;
     /* ASM_BARRIER: finish ready publication before the return-register restore. */
     __asm__("" : : : "$31");

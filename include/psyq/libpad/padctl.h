@@ -6,7 +6,7 @@
 void func_80097854();
 int func_800978E0();
 int PadInfoMode();
-int func_80097AA4();
+int PadInfoAct();
 void PadSetActAlign();
 void PadSetAct();
 

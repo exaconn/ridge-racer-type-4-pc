@@ -2,7 +2,7 @@
 extern int D_801102FC;
 extern int D_80110314;
 extern char *D_80110310;
-int func_8008F764(int a) {
+int StFreeRing(int a) {
     int i, j, k;
     char *t;
     unsigned short m;

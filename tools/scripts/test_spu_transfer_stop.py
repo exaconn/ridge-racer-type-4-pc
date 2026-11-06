@@ -48,10 +48,10 @@ void test_callback(void) {
 s32 func_80096E64(u32 first,s32 second) {record(5,first,(u32)second);return -1;}
 '''
         delay = (root / 'tools/scripts/fixtures/legacy/func_8007F59C.c').read_text()
-        delay = delay.replace('#include "types.h"', '').replace('func_8007F59C', 'test_actual_delay')
+        delay = delay.replace('#include "types.h"', '').replace('_spu_Fw1ts', 'test_actual_delay')
         delay = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', delay)
         source += delay + '''
-void func_8007F59C(void) {
+void _spu_Fw1ts(void) {
  record(3,0,0);test_actual_delay();
  if(test_replace_after_delay)D_800A47D8=&test_banks[1];
 }
@@ -68,7 +68,7 @@ void test_initialize(u32 initial,u32 active,u32 callback,u32 busy) {
         body = body.replace('#include "rr/spu.h"', '')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?:,\s*"memory")?', '', body)
-        source += body.replace('func_8007EF04', 'test_native_stop')
+        source += body.replace('_spu_FiDMA', 'test_native_stop')
         if body.count('bank->spu_control') != 3:
             raise AssertionError('Adapter must cover the actual RMW plus both status-read sites')
         body = body.replace('bank->spu_control &= 0xFFCF;',
@@ -90,7 +90,7 @@ void test_initialize(u32 initial,u32 active,u32 callback,u32 busy) {
         cls.active = C.c_int32.in_dll(cls.lib, 'D_800A4828')
         cls.initialize = cls.lib.test_initialize
         cls.initialize.argtypes = [C.c_uint32]*4
-        cls.stop, cls.native_stop = cls.lib.func_8007EF04, cls.lib.test_native_stop
+        cls.stop, cls.native_stop = cls.lib._spu_FiDMA, cls.lib.test_native_stop
         for function in (cls.stop, cls.native_stop):
             function.argtypes = []
             function.restype = None

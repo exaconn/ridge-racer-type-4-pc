@@ -3,7 +3,7 @@ extern volatile unsigned *D_800A5258;
 extern volatile unsigned *D_800A525C;
 extern volatile unsigned D_800A5260, D_800A5264;
 #include "rr/timing.h"
-int func_8008B154(a0) int a0; {
+int VSync(a0) int a0; {
     volatile unsigned t;
     unsigned s0;
     unsigned s1;

@@ -74,10 +74,10 @@ extern int BuildRotMatrixX();
 extern int MulMatrix0();
 extern int MulMatrix();
 extern int MulMatrix2();
-extern int func_80090F74();
+extern int ScaleMatrix();
 extern int SetLightMatrix();
 extern V4 D_80010F1C;
-extern int func_800916D4();
+extern int RotTransPers();
 extern B D_800D0DD8[];
 extern B D_800AE660[];
 extern s32 rsin();
@@ -280,7 +280,7 @@ void func_80044920(a0, a1) A0 *a0; V8 *a1;
     SetLightMatrix(&s.m50);
     SetColorMatrix(t90.a);
     SetBackColor(a0->b3C, a0->b3D, a0->b3E);
-    func_80090F74(&s.m10, &b0);
+    ScaleMatrix(&s.m10, &b0);
     *a1 = s.m10;
 }
 
@@ -290,7 +290,7 @@ void func_80044B24(void) {
     a[0] = 0;
     a[1] = 0;
     a[2] = 0;
-    func_800916D4(a, &b, &c, &d);
+    RotTransPers(a, &b, &c, &d);
 }
 
 /* legacy typing of shared globals in this part of the unit */

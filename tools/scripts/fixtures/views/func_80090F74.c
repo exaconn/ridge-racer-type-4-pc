@@ -1,6 +1,6 @@
 #include "types.h"
 
-int *func_80090F74(int *a0_in, int *a1) {
+int *ScaleMatrix(int *a0_in, int *a1) {
     /* ASM_BARRIER: keep first argument pointer in $a0 ($4) */
     register int *a0 __asm__("$4") = a0_in;
     /* ASM_BARRIER: PsyQ hand-coded register allocation */

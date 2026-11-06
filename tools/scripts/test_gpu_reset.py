@@ -58,7 +58,7 @@ static void mutate(u32 code){unsigned i;u32 r;
 s32 func_8001E84C(const char *f,...){va_list ap;RrGpuResetDriver40 *a;RrGpuResetState80 *b;va_start(ap,f);a=va_arg(ap,RrGpuResetDriver40*);b=va_arg(ap,RrGpuResetState80*);va_end(ap);assert(f==D_80011DF0&&a==&D_800ABA78&&b==&g->data.state);event(1,0,0,0);mutate(1);return -123;}
 static s32 debug(const char *f,...){va_list ap;s32 mode;va_start(ap,f);mode=va_arg(ap,s32);va_end(ap);assert(f==D_80011E10);event(2,(u32)mode,0,0);mutate(2);return 456;}
 s32 (*D_800ABABC)(const char *,...)=debug;
-void func_800959B8(s8 *p,s8 value,s32 n){uintptr_t offset=(uintptr_t)p-(uintptr_t)&g->data.state;assert(offset<=128&&n>=0&&(unsigned)n<=128-offset);event(3,offset,(u8)value,(u32)n);memset(p,(u8)value,(size_t)n);mutate(3);}
+void GPU_memset(s8 *p,s8 value,s32 n){uintptr_t offset=(uintptr_t)p-(uintptr_t)&g->data.state;assert(offset<=128&&n>=0&&(unsigned)n<=128-offset);event(3,offset,(u8)value,(u32)n);memset(p,(u8)value,(size_t)n);mutate(3);}
 void func_8008B364(void){event(4,0,0,0);mutate(4);}
 s32 func_80096E24(unsigned long address){assert(address==((uintptr_t)g->root&0xFFFFFF));event(5,address,0,0);mutate(5);return -999;}
 s32 func_800950D4(s32 mode){u32 result=(g->seed^((u32)mode>>3))%3;event(6,(u32)mode,result,0);mutate(6);return (s32)result;}
@@ -68,14 +68,14 @@ static s32 reset1(s32 mode){assert(mode==1);event(8,mode,0,0);mutate(8);return (
 static s32 model(s32 mode){unsigned low=(u32)mode%8;u16 w,h;
  if(low==0||low==3||low==5){
   if(low!=5)func_8001E84C(D_80011DF0,&D_800ABA78,&g->data.state);
-  func_800959B8((s8*)g->data.raw,0,128);
+  GPU_memset((s8*)g->data.raw,0,128);
   func_8008B364();
   func_80096E24((uintptr_t)g->root&0xFFFFFF);
   g->data.raw[0]=(u8)func_800950D4(mode);g->data.raw[1]=1;
   w=g->widths[g->data.raw[0]].value;h=g->heights.dimensions[g->data.raw[0]].value;
   memcpy(g->data.raw+4,&w,2);memcpy(g->data.raw+6,&h,2);
-  func_800959B8((s8*)g->data.raw+16,-1,92);
-  func_800959B8((s8*)g->data.raw+108,-1,20);
+  GPU_memset((s8*)g->data.raw+16,-1,92);
+  GPU_memset((s8*)g->data.raw+108,-1,20);
   return g->data.raw[0];
  }
  if(g->data.raw[2]>=2)debug(D_80011E10,mode);
@@ -100,7 +100,7 @@ int main(void){u32 n,phase,seed=0x929D4,seen[8]={0},levels[256]={0};unsigned i;u
   actual.heights.commands0C[0]=next(&seed);actual.heights.commands0C[1]=next(&seed);
   actual.root=(n&1)?&alternate:&D_800ABA78;expected=actual;
   if(phase==0)mode=(s32)n;else if(phase==1)mode=(s32)(n|0xFFFF0000U);else mode=(s32)((next(&seed)&0xFFFF0000U)|n);
-  seen[(u32)mode&7]++;g=&expected;reference=model(mode);g=&actual;result=func_800929D4(mode);
+  seen[(u32)mode&7]++;g=&expected;reference=model(mode);g=&actual;result=ResetGraph(mode);
   assert(result==reference);assert(!memcmp(&actual,&expected,sizeof(actual)));cases++;
  }
  assert(cases==262144);for(i=0;i<8;i++)assert(seen[i]);for(i=0;i<256;i++)assert(levels[i]);return 0;

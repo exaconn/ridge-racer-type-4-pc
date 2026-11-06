@@ -2,6 +2,6 @@
 
 #include "rr/library.h"
 
-RrLibInterruptCallback func_8007F764(RrLibInterruptCallback callback) {
+RrLibInterruptCallback _SpuDataCallback(RrLibInterruptCallback callback) {
     return func_8008B3C4(4,callback);
 }

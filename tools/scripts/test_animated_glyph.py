@@ -47,7 +47,7 @@ void AddPrim(u32 *ordering,u32 *output){
  *ordering=(*ordering&0xFF000000U)|((uintptr_t)output&0xFFFFFFU);
  mutate(++calls);
 }
-void func_80093C24(void *output,s32 a,s32 b,s32 page,RrGpuRectangleFields *window){
+void SetDrawMode(void *output,s32 a,s32 b,s32 page,RrGpuRectangleFields *window){
  assert(calls++==2);assert(output==initialCursor+20&&a==0&&b==1&&window==0);
  u32 words[3]={0x02000000U,0xE1000000U|((u32)page&0xFFFFU),0};memcpy(output,words,12);mutate(3);
 }

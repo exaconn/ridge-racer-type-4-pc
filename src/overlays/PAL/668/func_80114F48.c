@@ -6,7 +6,7 @@ void ovl668_func_80114F48(void) {
     u32 prev2C;
 
     if (D_801102DC != 0) {
-        func_8008F934();
+        StCdInterrupt();
         D_801102DC = 0;
     }
     prev2C = STR_STATE->display24.word08;

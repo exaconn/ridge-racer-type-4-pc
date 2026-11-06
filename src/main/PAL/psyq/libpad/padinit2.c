@@ -152,7 +152,7 @@ s32 func_8009991C(Rec8009991C *arg0) {
             if (res < 0) {
                 return res;
             }
-            func_8009A7F4(0x3C);
+            setRC2wait(0x3C);
             if (func_80098A00() == 0) {
                 return -3;
             }
@@ -192,7 +192,7 @@ s32 func_8009991C(Rec8009991C *arg0) {
         if (res < 0) {
             return res;
         }
-        func_8009A7F4(0x3C);
+        setRC2wait(0x3C);
         if (func_80098A00() == 0) {
             return -3;
         }
@@ -205,7 +205,7 @@ s32 func_8009991C(Rec8009991C *arg0) {
             return res;
         }
         if (D_800ABCE4->unk0E != 0x22) {
-            func_8009A7F4(0x3C);
+            setRC2wait(0x3C);
             if (func_80098A00() == 0) {
                 res = -3;
                 goto end;

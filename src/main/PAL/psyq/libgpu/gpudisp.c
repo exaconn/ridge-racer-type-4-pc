@@ -59,14 +59,14 @@ extern u32 D_80112788[10];
 extern u32 D_801127B0[4];
 
 DISPENV_T *PutDispEnv(DISPENV_T *env);
-int func_80093A78(int a);
-u32 func_80093AAC(void);
+int GetDispEnv(int a);
+u32 GetODE(void);
 void SetTexWindow(void *arg0, M2C_UNK arg1);
 void SetDrawArea(void *arg0, void *arg1);
-void func_80093B94(void *arg0, void *arg1);
-void func_80093BD4(void *arg0, s32 arg1, s32 arg2);
-void func_80093BFC(char *p, int a);
-void func_80093C24(void *arg0, s32 arg1, s32 arg2, s32 arg3, RrGpuRectangleFields *arg4);
+void SetDrawOffset(void *arg0, void *arg1);
+void SetPriority(void *arg0, s32 arg1, s32 arg2);
+void SetDrawStp(char *p, int a);
+void SetDrawMode(void *arg0, s32 arg1, s32 arg2, s32 arg3, RrGpuRectangleFields *arg4);
 void SetDrawEnv(u32 *arg0, RrFrameEnvironment *arg1);
 void func_80093E70(u32 *arg0, RrFrameEnvironment *arg1);
 int func_800940E0(int a0, int a1, int a2);
@@ -199,14 +199,14 @@ DISPENV_T *PutDispEnv(DISPENV_T *env) {
 /* legacy typing of shared globals in this part of the unit */
 #define func_80096444 ((int (*)())func_80096444)
 
-int func_80093A78(int a) { func_80096444(a, D_800ABB2C, 0x14); return a; }
+int GetDispEnv(int a) { func_80096444(a, D_800ABB2C, 0x14); return a; }
 
 #undef func_80096444
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((void *)D_800ABAB8)
 
-u32 func_80093AAC(void) {
+u32 GetODE(void) {
     return M2C_FIELD(D_800ABAB8, u32 (**)(), 0x38)() >> 0x1F;
 }
 
@@ -224,13 +224,13 @@ void SetDrawArea(void *arg0, void *arg1) {
     M2C_FIELD(arg0, s32 *, 8) = func_80094198((s16) (((u16) M2C_FIELD(arg1, s16 *, 0) + M2C_FIELD(arg1, u16 *, 4)) - 1), (s16) (((u16) M2C_FIELD(arg1, s16 *, 2) + M2C_FIELD(arg1, u16 *, 6)) - 1));
 }
 
-void func_80093B94(void *arg0, void *arg1) {
+void SetDrawOffset(void *arg0, void *arg1) {
     M2C_FIELD(arg0, s8 *, 3) = 2;
     M2C_FIELD(arg0, s32 *, 4) = func_80094230(M2C_FIELD(arg1, s16 *, 0), M2C_FIELD(arg1, s16 *, 2));
     M2C_FIELD(arg0, s32 *, 8) = 0;
 }
 
-void func_80093BD4(void *arg0, s32 arg1, s32 arg2) {
+void SetPriority(void *arg0, s32 arg1, s32 arg2) {
     s32 var_v1;
 
     M2C_FIELD(arg0, s8 *, 3) = 2;
@@ -242,9 +242,9 @@ void func_80093BD4(void *arg0, s32 arg1, s32 arg2) {
     M2C_FIELD(arg0, s32 *, 8) = 0;
 }
 
-void func_80093BFC(char *p, int a) { p[3] = 2; ((int *)p)[1] = a ? 0xE6000001 : 0xE6000000; ((int *)p)[2] = 0; }
+void SetDrawStp(char *p, int a) { p[3] = 2; ((int *)p)[1] = a ? 0xE6000001 : 0xE6000000; ((int *)p)[2] = 0; }
 
-void func_80093C24(void *arg0, s32 arg1, s32 arg2, s32 arg3, RrGpuRectangleFields *arg4) {
+void SetDrawMode(void *arg0, s32 arg1, s32 arg2, s32 arg3, RrGpuRectangleFields *arg4) {
     M2C_FIELD(arg0, s8 *, 3) = 2;
     M2C_FIELD(arg0, s32 *, 4) = func_800940E0(arg1, arg2, arg3 & 0xFFFF);
     M2C_FIELD(arg0, s32 *, 8) = func_8009424C(arg4);

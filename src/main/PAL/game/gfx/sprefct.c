@@ -83,7 +83,7 @@ u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,
         {u8 v=((volatile RrSpriteEffectSource *)descriptor)->uv.v;
         s32 transparency=*(volatile s32 *)&semi;
         sprite->v=v;
-        func_80095AF4(sprite,transparency);}
+        SetSemiTrans(sprite,transparency);}
         level=strength;
         if(count!=1) {
             if(i==1)level=(s32)((u32)strength*((u32)func_80096464()&15))/24;
@@ -127,14 +127,14 @@ struct S32 *func_8002039C(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, v
     M2C_FIELD(arg1, u8 *, 0x15) = (u8) M2C_FIELD(arg5, u8 *, 4);
     M2C_FIELD(arg1, u8 *, 0x1C) = (u8) M2C_FIELD(arg4, u8 *, 8);
     M2C_FIELD(arg1, u8 *, 0x1D) = (u8) M2C_FIELD(arg5, u8 *, 8);
-    func_80095AF4(arg1, arg8 & 0xFFFF);
+    SetSemiTrans(arg1, arg8 & 0xFFFF);
     if ((arg9 & 0xFFFF) != 0x80) {
-        func_80095B24(arg1, 0);
+        SetShadeTex(arg1, 0);
         M2C_FIELD(arg1, s8 *, 4) = (s8) arg9;
         M2C_FIELD(arg1, s8 *, 5) = (s8) arg9;
         M2C_FIELD(arg1, s8 *, 6) = (s8) arg9;
     } else {
-        func_80095B24(arg1, 1);
+        SetShadeTex(arg1, 1);
     }
     M2C_FIELD(arg1, u16 *, 0x16) = arg6;
     M2C_FIELD(arg1, u16 *, 0xE) = arg7;
@@ -161,11 +161,11 @@ void *func_80020508(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((int (*)())AddPrim)
-#define func_80095B24 ((int (*)())func_80095B24)
+#define SetShadeTex ((int (*)())SetShadeTex)
 
 struct P *GameQueueTileTrans(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8) {
     func_80095BD4(a1);
-    func_80095B24(a1, 1);
+    SetShadeTex(a1, 1);
     a1->x = a2;
     a1->y = a3;
     a1->w = a4;
@@ -178,15 +178,15 @@ struct P *GameQueueTileTrans(int a0, struct P *a1, short a2, short a3, int a4, i
 }
 
 #undef AddPrim
-#undef func_80095B24
+#undef SetShadeTex
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((int (*)())AddPrim)
-#define func_80095B24 ((int (*)())func_80095B24)
+#define SetShadeTex ((int (*)())SetShadeTex)
 
 struct P *func_8002064C(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8) {
     func_80095BD4(a1);
-    func_80095B24(a1, 1);
+    SetShadeTex(a1, 1);
     a1->x = a2;
     a1->y = a3;
     a1->code |= 2;
@@ -200,14 +200,14 @@ struct P *func_8002064C(int a0, struct P *a1, short a2, short a3, int a4, int a5
 }
 
 #undef AddPrim
-#undef func_80095B24
+#undef SetShadeTex
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((void (*)(u32 *,u32 *))AddPrim)
 
 RrPolyF3Packet *func_8002071C(u32 *ordering,RrPolyF3Packet *packet,s32 xy0,s32 xy1,s32 xy2,const u8 *rgb,s32 flags){
  func_80095B54(packet);
- func_80095AF4(packet,flags);
+ SetSemiTrans(packet,flags);
  packet->xy0=xy0;
  packet->xy1=xy1;
  packet->xy2=xy2;

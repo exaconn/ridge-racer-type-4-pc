@@ -1,7 +1,7 @@
 #include "types.h"
 #include "m2c_macros.h"
 
-void func_800959B8(s8 *arg0, s8 arg1, s32 arg2) {
+void GPU_memset(s8 *arg0, s8 arg1, s32 arg2) {
     s32 var_v0;
     s8 *var_a0;
 

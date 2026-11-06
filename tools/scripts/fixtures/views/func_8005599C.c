@@ -18,11 +18,11 @@
 #undef D_800AC650
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80093BFC ((int (*)())func_80093BFC)
+#define SetDrawStp ((int (*)())SetDrawStp)
 
 #define D_800ACC14 ((S *)D_800ACC14)
 
-#undef func_80093BFC
+#undef SetDrawStp
 
 #undef D_800ACC14
 
@@ -63,7 +63,7 @@ extern int MulMatrix();
 
 extern int MulMatrix2();
 
-extern int func_80090F74();
+extern int ScaleMatrix();
 
 extern int SetLightMatrix();
 
@@ -103,6 +103,6 @@ void func_8005599C(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
     SetLightMatrix(&s30);
     SetColorMatrix(&s70);
     SetBackColor((unsigned char)a1[0x24], (unsigned char)a1[0x25], (unsigned char)a1[0x26]);
-    func_80090F74(&s10, &s90);
+    ScaleMatrix(&s10, &s90);
     *a2 = s10;
 }

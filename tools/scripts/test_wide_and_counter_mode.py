@@ -48,12 +48,12 @@ RrWide64 test_neg_left,test_neg_right;
 s32 test_neg_calls;void *test_neg_output;
 RrWide64 *test_neg_add(RrWide64 *out,RrWide64 left,RrWide64 right) {
  test_neg_calls++;test_neg_left=left;test_neg_right=right;test_neg_output=out;
- return func_8007DB54(out,left,right);
+ return _add_mant_d(out,left,right);
 }
 RrWide64 *test_alias(s32 index,RrWide64 left,RrWide64 right) {
  test_values[0]=left; test_values[1]=right;
  test_values[2].lo=0xA5A5A5A5U; test_values[2].hi=(s32)0xA5A5A5A5U;
- return func_8007DB54(&test_values[index],test_values[0],test_values[1]);
+ return _add_mant_d(&test_values[index],test_values[0],test_values[1]);
 }
 s32 test_page[0x4000];
 s32 (*test_counter)(u32,u32);
@@ -74,18 +74,18 @@ s32 func_80096E64(u32 counter,u32 mode) { return test_counter(counter,mode); }
             source += body
             if 'func_8007E494(' in body:
                 observed=body.replace('func_8007E494','test_neg_observed')
-                assert observed.count('func_8007DB54(')==1
-                source+=observed.replace('func_8007DB54(','test_neg_add(')
+                assert observed.count('_add_mant_d(')==1
+                source+=observed.replace('_add_mant_d(','test_neg_add(')
         (directory / 'function.c').write_text(source)
         result = subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                                  '-o', str(directory / 'function.so')], capture_output=True)
         if result.returncode:
             raise AssertionError(result.stderr.decode())
         cls.lib = C.CDLL(str(directory / 'function.so'))
-        cls.add = cls.lib.func_8007DB54
+        cls.add = cls.lib._add_mant_d
         cls.add.argtypes = [C.POINTER(Wide), Wide, Wide]
         cls.add.restype = C.POINTER(Wide)
-        cls.shift = cls.lib.func_8007DC04
+        cls.shift = cls.lib._dbl_shift
         cls.shift.argtypes = [C.c_int32, Wide, C.c_int32]
         cls.shift.restype = Wide
         cls.alias = cls.lib.test_alias

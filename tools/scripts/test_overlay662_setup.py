@@ -12,7 +12,7 @@ class GarageSetupTest(unittest.TestCase):
         page=re.sub(r' asm\("\$\d+"\)','',page)
         window=(root/'tools/scripts/fixtures/views/func_8009424C.c').read_text()
         builder=(root/'tools/scripts/fixtures/views/func_80093C24.c').read_text()
-        builder=builder.replace('void func_80093C24(', 'void actual_builder(')
+        builder=builder.replace('void SetDrawMode(', 'void actual_builder(')
         mode=(root/'src/overlays/PAL/662/func_8011AC94.c').read_text()
         setup=(root/'src/overlays/PAL/662/func_8011B400.c').read_text()
         source=r'''
@@ -46,7 +46,7 @@ static void change_roots(struct World *v,unsigned step){
  v->scratch.order=world.orders[(root_id+step+1)%3];
 }
 ''' + page + window + builder + r'''
-void func_80093C24(void *output,s32 display,s32 dither,s32 page,RrGpuRectangleFields *window){
+void SetDrawMode(void *output,s32 display,s32 dither,s32 page,RrGpuRectangleFields *window){
  unsigned step=world.calls;
  assert(step==1 || step==2);assert(output==cursor(step));
  assert(display==0 && dither==1 && page==11 && window==0);

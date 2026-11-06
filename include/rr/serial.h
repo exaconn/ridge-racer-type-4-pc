@@ -36,8 +36,8 @@ extern RrSerialPortRegisters *D_800ABDD0;
 s32 func_8009BD44(s32 slot);
 extern volatile u32 *D_800ABDD4;
 extern s32 D_80114700;
-void func_8009A7F4(s32 limit);
-s32 func_8009A814(void);
+void setRC2wait(s32 limit);
+s32 chkRC2wait(void);
 /* Negative input writes its complemented low byte; nonnegative input uses
  * the interrupt handshake. Returns captured data or the corresponding timeout. */
 s32 func_8009BE18(s32 value);

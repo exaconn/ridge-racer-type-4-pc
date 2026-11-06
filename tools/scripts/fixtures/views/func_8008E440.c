@@ -15,7 +15,7 @@ extern char D_8011095C[];
 
 extern s32 func_80096404(const char *, const char *);
 
-s32 func_8008E440(s32 key, const char *name) {
+s32 DS_searchdir(s32 key, const char *name) {
     s32 i = 0;
     register char *entry_name;
     /* ASM_BARRIER: Retain the original table-offset register across comparisons. */

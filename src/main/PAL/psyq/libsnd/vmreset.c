@@ -70,7 +70,7 @@ void func_800879F4(s32 arg0) {
 
     func_80087DA4(0);
     D_801100A0 = 0;
-    func_80087D44(0x20, D_801101C8);
+    SpuInitMalloc(0x20, D_801101C8);
 
     i = 0;
     p = D_8010FE38;

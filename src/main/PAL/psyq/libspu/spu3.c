@@ -16,7 +16,7 @@ void func_8007F574(void) {
     *D_800A47EC = (*D_800A47EC & 0xF0FFFFFF) | 0x22000000;
 }
 
-void func_8007F59C(void) {
+void _spu_Fw1ts(void) {
     /* Unsigned multiplication reproduces the original wrapping delay arithmetic.
      * The counter's views keep each loop load/store; its initial normal
      * store can occupy the entry jump's delay slot. */

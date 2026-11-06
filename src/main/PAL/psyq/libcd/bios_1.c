@@ -6,7 +6,7 @@
 #define R(o) (*(unsigned short *)(D_800A6760 + (o)))
 
 extern s32 func_8001E84C();
-extern s32 func_8008B154(s32);
+extern s32 VSync(s32);
 extern s32 func_8008B4B8(void);
 extern s32 func_8008C724(void);
 extern s32 CD_sync(s32, u8 *);
@@ -39,7 +39,7 @@ extern char *D_800A6760;
 extern s32 D_800A6498;
 
 s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3);
-int func_8008D5D4(unsigned char *a);
+int CD_vol(unsigned char *a);
 void CD_flush();
 int CD_initvol(void);
 void CD_initintr(void);
@@ -49,7 +49,7 @@ void CD_initintr(void);
 #define D_800A648C (*(void (*(*))(u8, u8 *))&D_800A648C)
 
 static inline int check_alarm(char **ac, char ** sc, volatile u8 *st) {
-    if (func_8008B154(-1) > D_80110330 || D_80110334++ > 0x3C0000) {
+    if (VSync(-1) > D_80110330 || D_80110334++ > 0x3C0000) {
         func_800963DC(D_80011A14);
         { u8 s0_ = st[0]; u8 s1_ = st[1]; char *x5 = sc[s1_];
         /* ASM_BARRIER: Load D_80110338 directly into $a1. */
@@ -125,7 +125,7 @@ s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     if (arg3 != 0) {
         return 0;
     }
-    D_80110330 = func_8008B154(-1) + 0x3C0;
+    D_80110330 = VSync(-1) + 0x3C0;
     D_80110334 = 0;
     D_80110338 = D_80011AC8;
     if (D_800A6764[0] == 0) {
@@ -161,7 +161,7 @@ s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
 #define D_800A6750 ((unsigned char *)D_800A6750)
 #define D_800A6754 ((unsigned char *)D_800A6754)
 
-int func_8008D5D4(unsigned char *a) {
+int CD_vol(unsigned char *a) {
     *D_800A674C = 2;
     *D_800A6754 = a[0];
     *D_800A6758 = a[1];

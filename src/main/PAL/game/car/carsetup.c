@@ -22,7 +22,7 @@
 #define H(b, o) (*(short *)((char *)(b) + (o)))
 #define UH(b, o) (*(unsigned short *)((char *)(b) + (o)))
 
-extern void func_80091844();
+extern void RotMatrix();
 extern char *D_800F39C8[];
 extern unsigned char D_800F4D98[][4];
 extern int D_800FF6B0;
@@ -47,7 +47,7 @@ void func_80022888(char *a0)
     v[0] = 0;
     v[1] = H(a0, 0x54);
     v[2] = 0;
-    func_80091844(v, m);
+    RotMatrix(v, m);
     RR_GTE_SETROT(m);
     v[0] = H(a0, 0x110);
     v[1] = H(a0, 0x8C);

@@ -1,6 +1,6 @@
 #include "rr/cd_read_request.h"
 
-extern s32 func_8008B154(s32);
+extern s32 VSync(s32);
 extern RrLibCompletionCallback func_8008C118(RrLibCompletionCallback);
 extern RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback);
 extern RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback);
@@ -35,10 +35,10 @@ s32 func_8008EEF4(s32 sectors,u8 *buffer,u32 mode) {
     busy=*pending;
     format=mode_stage;
     if(busy!=0) {
-        start=func_8008B154(-1);
+        start=VSync(-1);
         if(*pending!=0) {
 wait:
-            if((u32)func_8008B154(-1)-start>=121U)goto timeout;
+            if((u32)VSync(-1)-start>=121U)goto timeout;
             if(*pending!=0)goto wait;
         }
     }
@@ -87,7 +87,7 @@ timeout:
     state->restore.saved28=func_8008C118(zero);
     state->restore.saved2C=func_8008C12C(0);
     if(D_800A63F4&1)state->restore.saved30=func_8008C55C(0);
-    state->start1C=func_8008B154(-1);
+    state->start1C=VSync(-1);
     if(func_8008BF94()&0xE0) {
         command=9;
         parameters=0;

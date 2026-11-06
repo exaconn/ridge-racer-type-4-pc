@@ -2,7 +2,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/gpu_reset.h"
 
-s32 func_800929D4(s32 mode)
+s32 ResetGraph(s32 mode)
 {
     RrGpuResetState80 *state;
     switch(mode & 7) {
@@ -11,7 +11,7 @@ s32 func_800929D4(s32 mode)
         func_8001E84C(D_80011DF0,&D_800ABA78,&D_800ABAC0);
     case 5:
         state=&D_800ABAC0;
-        func_800959B8((s8 *)state,0,128);
+        GPU_memset((s8 *)state,0,128);
         func_8008B364();
         func_80096E24((unsigned long)D_800ABAB8 & 0xFFFFFF);
         state->kind00=func_800950D4(mode);
@@ -19,8 +19,8 @@ s32 func_800929D4(s32 mode)
         /* Preserve the explicit byte reload after the reset service. */
         state->debug02.width=D_800ABB40[*(volatile u8 *)&state->kind00].value;
         state->debug02.height=D_800ABB4C.dimensions[state->kind00].value;
-        func_800959B8((s8 *)state->queue10,-1,0x5C);
-        func_800959B8((s8 *)state->tail6C,-1,0x14);
+        GPU_memset((s8 *)state->queue10,-1,0x5C);
+        GPU_memset((s8 *)state->tail6C,-1,0x14);
         return state->kind00;
     default:
         if(D_800ABAC2.level>=2) D_800ABABC(D_80011E10,mode);

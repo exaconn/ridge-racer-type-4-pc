@@ -64,7 +64,7 @@ u32 *ClearOTagR(u32 *p,s32 n) {
 s32 func_800128B8(void) {expect(8);D_800F4C6A=65534;D_800F3A26=65534;return -1;}
 void func_8004FD80(void) {expect(9);D_800F4C6A=selector_a;D_800F3A26=selector_b;}
 void DrawSync(s32 n) {expect(11);assert(n==0);D_800AC5DC=threshold;}
-s32 func_8008B154(s32 mode) {
+s32 VSync(s32 mode) {
  if(mode==1) {
   assert(stage==12);ticks++;D_800AC5DC=threshold==INT_MAX?INT_MIN:INT_MAX;
   D_800ACC14=alternate[3].bytes;

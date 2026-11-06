@@ -189,7 +189,7 @@ RrLibCompletionCallback func_8008C118(RrLibCompletionCallback c){return set(0,0,
 RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback c){return set(0,1,c);}
 RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback c){return set(0,2,c);}
 u8 func_8008BF94(void){return status(0);}
-s32 func_8008B154(s32 a){return clock_tick(0,a);}
+s32 VSync(s32 a){return clock_tick(0,a);}
 s32 func_800963DC(const char *s,...){return diagnostic(0,s);}
 u8 *func_8008BFC4(void){return packet(0);}
 s32 CdControl(s32 c,const u8 *p,u8 *r){return control(0,c,p,r);}

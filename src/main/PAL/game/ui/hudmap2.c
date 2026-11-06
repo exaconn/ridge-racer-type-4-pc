@@ -216,7 +216,7 @@ void func_800587E4(s32 arg0, u8 *arg1, s32 *arg2) {
             y0 += 4;
         }
     }
-    func_80093C24(sprt, 0, 1, 0x19, 0);
+    SetDrawMode(sprt, 0, 1, 0x19, 0);
     (sprt)->addr = ((SPRT *)(D_800ACC14 + 0x9C))->addr;
     ((SPRT *)(D_800ACC14 + 0x9C))->addr = (u32)(sprt);
     ((struct { void *p; } *)SCRATCHPAD)->p = (DR_MODE *)sprt + 1;

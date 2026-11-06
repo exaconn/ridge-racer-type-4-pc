@@ -101,7 +101,7 @@ void func_8008E828(s32 event,u8 *data) {
     } else {
         initial->remaining14=-1;
     }
-    now=func_8008B154(-1);
+    now=VSync(-1);
     state=&D_800A67B0;
     /* ASM_BARRIER: form the complete state address after the clock returns. */
     __asm__("" : "+r"(state));
@@ -109,12 +109,12 @@ void func_8008E828(s32 event,u8 *data) {
     if (state->remaining14<0) {
         func_8008EB6C(1);
     }
-    now=func_8008B154(-1);
+    now=VSync(-1);
     if ((s32)(state->start1C+1200U)<now) {
         state->remaining14=-1;
     }
     if (state->remaining14==0 ||
-        (now=func_8008B154(-1),(s32)(state->start1C+1200U)<now)) {
+        (now=VSync(-1),(s32)(state->start1C+1200U)<now)) {
         func_8008C12C(state->restore.saved2C);
         if (D_800A63F4&1) {
             func_8008C55C(state->restore.saved30);
@@ -191,11 +191,11 @@ s32 func_8008EB6C(s32 restart) {
         func_8008C55C(0);
     }
     if (func_8008BF94() & 0x10) {
-        if (!(func_8008B154(-1) & 63)) {
+        if (!(VSync(-1) & 63)) {
             func_800963DC(D_80011D40);
         }
         CdControlF(1, 0);
-        timestamp = func_8008B154(-1);
+        timestamp = VSync(-1);
         shell_state = &D_800A67B0;
         shell_state->start1C = timestamp;
         shell_state->remaining14 = -1;
@@ -253,7 +253,7 @@ failed:
     state->position08 = state->buffer04;
     CdControlF(command, 0);
     state->remaining14 = state->sectors00;
-    ((volatile RrLibReadRequestState *)state)->retry18 = func_8008B154(-1);
+    ((volatile RrLibReadRequestState *)state)->retry18 = VSync(-1);
     return ((volatile RrLibReadRequestState *)state)->remaining14;
 }
 
@@ -302,11 +302,11 @@ second_timeout:
     root->finished24=0;
     goto done;
 begin_first_wait:
-    first_tick=func_8008B154(-1);
+    first_tick=VSync(-1);
     if(root->finished24!=0) {
         pending_a=&root->finished24;
 first_poll:
-        if((u32)func_8008B154(-1)-first_tick>=121U)goto first_timeout;
+        if((u32)VSync(-1)-first_tick>=121U)goto first_timeout;
         if(*pending_a!=0)goto first_poll;
     }
     decision=0;
@@ -324,11 +324,11 @@ after_first_wait:
         publish=(RrLibReadRequestState*)((u8*)pair-RR_PAIR_OWNER_OFFSET);
         ((volatile RrLibReadRequestState*)publish)->finished24=1;
         if(RR_PAIR_PENDING(pair)!=0) {
-            second_tick=func_8008B154(-1);
+            second_tick=VSync(-1);
             if(RR_PAIR_PENDING(pair)!=0) {
                 pending_b=&RR_PAIR_PENDING(pair);
 second_poll:
-                if((u32)func_8008B154(-1)-second_tick>=121U)goto second_timeout;
+                if((u32)VSync(-1)-second_tick>=121U)goto second_timeout;
                 if(*pending_b!=0)goto second_poll;
             }
         }
@@ -369,10 +369,10 @@ s32 func_8008EEF4(s32 sectors,u8 *buffer,u32 mode) {
     busy=*pending;
     format=mode_stage;
     if(busy!=0) {
-        start=func_8008B154(-1);
+        start=VSync(-1);
         if(*pending!=0) {
 wait:
-            if((u32)func_8008B154(-1)-start>=121U)goto timeout;
+            if((u32)VSync(-1)-start>=121U)goto timeout;
             if(*pending!=0)goto wait;
         }
     }
@@ -421,7 +421,7 @@ timeout:
     state->restore.saved28=func_8008C118(zero);
     state->restore.saved2C=func_8008C12C(0);
     if(D_800A63F4&1)state->restore.saved30=func_8008C55C(0);
-    state->start1C=func_8008B154(-1);
+    state->start1C=VSync(-1);
     if(func_8008BF94()&0xE0) {
         command=9;
         parameters=0;

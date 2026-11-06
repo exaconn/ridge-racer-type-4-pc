@@ -12,7 +12,7 @@ struct V8 { unsigned char c[8]; };
 struct M { int a[8]; };
 
 extern int func_800701C4();
-extern int func_80091844();
+extern int RotMatrix();
 extern int func_8006EE3C();
 extern int func_8005F0D0();
 extern char D_8001013C[];
@@ -20,7 +20,7 @@ extern int D_800F2FD8;
 extern struct V8 D_800101E4;
 extern struct { char pad[0xA8]; unsigned short v; } *D_8010BF78;
 extern int func_80091FF4();
-extern int func_80092194();
+extern int RotMatrixY();
 extern int func_80092334();
 extern char D_8009E88C[];
 extern s16 D_800AC5D0;
@@ -51,7 +51,7 @@ int func_8001BD40(int a0, int a1)
     s3[0] = 0;
     s3[2] = 0;
     s3[1] = -s2;
-    func_80091844(s3, (char *)s3 + 8);
+    RotMatrix(s3, (char *)s3 + 8);
     RR_GTE_SETROT(D_8010BF78);
     MulRotMatrix0((char *)s3 + 8, (char *)s3 + 0x28);
     RR_GTE_SETLLM((char *)s3 + 0x28);
@@ -78,7 +78,7 @@ void func_8001BEF8(void)
     sp18.a[1] = 0;
     t = (short)D_8010BF78->v;
     sp18.a[0] = 0x1000;
-    func_80092194(t, &sp18);
+    RotMatrixY(t, &sp18);
     func_80091FF4(0x100, &sp18);
     func_80092334(0xAA, &sp18);
     func_800197C8(D_8009E88C, &sp18, &sp10, 0xC8);
@@ -91,7 +91,7 @@ void func_8001BFA8(int a0, int a1, int a2)
 {
     int t[8];
     func_800701C4(4);
-    func_80091844(a1, (SCRATCHPAD + 0x84));
+    RotMatrix(a1, (SCRATCHPAD + 0x84));
     RR_GTE_SETROT(D_8010BF78 + 0x20);
     MulRotMatrix0((SCRATCHPAD + 0x84), (SCRATCHPAD + 0xA4));
     RR_GTE_SETLLM((SCRATCHPAD + 0xA4));

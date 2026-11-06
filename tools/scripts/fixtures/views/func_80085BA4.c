@@ -33,7 +33,7 @@ extern RrSpuRegisterPatch D_800A4E78[];
 
 extern void func_8007F3D0();
 
-extern s32 func_8007FAB4();
+extern s32 SpuClearReverbWorkArea();
 
 extern s32 _SpuIsInAllocateArea_();
 
@@ -160,7 +160,7 @@ skip:
     }
 
     if (clear_mode) {
-        func_8007FAB4(D_800A485C.mode);
+        SpuClearReverbWorkArea(D_800A485C.mode);
     }
 
     if (mode_set) {

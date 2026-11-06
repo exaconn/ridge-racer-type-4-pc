@@ -1,7 +1,7 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
 extern s32 D_800A4848;
-void func_8008B044(s32 mode) {
+void SpuSetTransferMode(s32 mode) {
     s32 selected;
     /* ASM_BARRIER: preserve the original assembler temporary for the mapped store. */
     register s32 *base __asm__("$1");

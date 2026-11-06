@@ -6,7 +6,7 @@
 
 #define SPU(index) (((RrSpuRegisterStorage*)D_800A47D8)->halves[index])
 
-void func_80082674(RrSpuCommonAttributes28 *attributes) {
+void SpuSetCommonAttr(RrSpuCommonAttributes28 *attributes) {
     RrSpuRegisterStorage *bank;
     s16 temp_a2;
     s16 temp_a3;

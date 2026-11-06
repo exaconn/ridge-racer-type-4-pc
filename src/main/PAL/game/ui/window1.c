@@ -175,7 +175,7 @@ s32 a3;
             p++;
         } while (*a2 != 0);
     }
-    func_80093C24(p, 0, 1, 5, 0);
+    SetDrawMode(p, 0, 1, 5, 0);
     AddPrim(D_800ACC14 + 0x70, p);
     *(RrSpritePacketSignedClut **)SCRATCHPAD = (RrSpritePacketSignedClut *)((char *)p + 0xC);
 }
@@ -247,8 +247,8 @@ struct P *a0; int a1; int a2; unsigned char *a3;
                 p->w = 4;
                 p->h = kh;
             }
-            func_80095B24(p, 1);
-            func_80095AF4(p, 1);
+            SetShadeTex(p, 1);
+            SetSemiTrans(p, 1);
             { int v58 = 0x58; p->u = u; p->v = v58; p->clut = 0x7FA4; }
             p->addr = a0->addr;
             a0->addr = (unsigned)p;

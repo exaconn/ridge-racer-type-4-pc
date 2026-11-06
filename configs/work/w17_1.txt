@@ -7,8 +7,8 @@ func_8007D7D4
 func_8007E0B4
 func_8007E494
 func_8007E9C4
-func_8007EF04
-func_8007F6EC
+_spu_FiDMA
+SpuStart
 _SpuIsInAllocateArea_
 func_80080434
 func_80080774
@@ -27,7 +27,7 @@ func_800884A8
 func_80088DA4
 func_80089DD4
 func_8008A6F4
-func_8008AFE4
+SpuSetTransferStartAddr
 func_8008B7A0
 func_8008BE44
 CD_sync
@@ -38,8 +38,8 @@ func_8008ED54
 StUnSetRing
 rcos
 ApplyMatrixLV
-func_80091D64
-func_800924D4
+RotMatrixZYX
+ratan2
 SetGraphDebug
 SetDrawEnv
 func_800942E4
@@ -50,7 +50,7 @@ func_800972B0
 func_80097EA0
 func_80098578
 func_80099404
-func_80099CD4
+PadInitDirect
 func_8009A368
 func_8009A9A4
 func_8009B3FC

@@ -184,7 +184,7 @@ int func_80098F88(struct S_1 *s) {
     return 1;
 }
 
-int func_80099380(a0, a1)
+int _padSetActAlign(a0, a1)
 char *a0; int a1;
 {
     int r;

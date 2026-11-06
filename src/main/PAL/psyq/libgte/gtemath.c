@@ -1,4 +1,4 @@
-int func_800916D4(int *a0, int *a1, int *a2, int *a3) {
+int RotTransPers(int *a0, int *a1, int *a2, int *a3) {
     int v, f;
     __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(a0));
     __asm__ volatile ("nop\n\t.word 0x4A180001");

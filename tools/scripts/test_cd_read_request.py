@@ -121,7 +121,7 @@ static s32 begin(int model,s32 argument) {
     if(plan.mutate)world->state.completed20^=0x87654321U;
     return plan.begin_result;
 }
-s32 func_8008B154(s32 arg){return tick(0,arg);}
+s32 VSync(s32 arg){return tick(0,arg);}
 RrLibCompletionCallback func_8008C118(RrLibCompletionCallback c){return setter(0,0,c);}
 RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback c){return setter(0,1,c);}
 RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback c){return setter(0,2,c);}

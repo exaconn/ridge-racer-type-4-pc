@@ -35,7 +35,7 @@ int func_80098154(a0) struct A *a0; {
     D_800ABCCC->sA = 0;
     D_800ABCCC->s8 = 0xD;
     D_800ABCCC->sE = 0x88;
-    func_8009A7F4(a0->bE8 == 8 ? 0x50 : 0x91);
+    setRC2wait(a0->bE8 == 8 ? 0x50 : 0x91);
     hw = D_800ABCCC;
     t = 0x1003;
     if (D_800ABCA8 != 0) t = 0x3003;
@@ -60,31 +60,31 @@ int func_80098154(a0) struct A *a0; {
     if (D_800ABCCC->s4 & 0x200) {
         D_800ABCCC->sA |= 0x10;
         if (D_800ABCCC->s4 & 0x200) {
-            while (func_8009A814() == 0);
+            while (chkRC2wait() == 0);
             D_800ABCCC->b0 = 1;
-            func_8009A7F4(0x64);
+            setRC2wait(0x64);
             if (func_80098A00() == 0) return 0;
             func_80098A90();
             *(volatile unsigned char *)&D_800ABCCC->b0;
-            func_8009A7F4(0x1AE);
+            setRC2wait(0x1AE);
             goto l1;
         l1b:
-            if (func_8009A814() != 0) return 0;
+            if (chkRC2wait() != 0) return 0;
         l1:
             if (!(*D_800ABCC8 & 0x80)) goto l1b;
             D_800ABCCC->b0 = 0x42;
-            func_8009A7F4(0x3C);
+            setRC2wait(0x3C);
             if (func_80098A00() == 0) return 0;
             func_80098A90();
             *(volatile unsigned char *)&D_800ABCCC->b0;
-            func_8009A7F4(0x1AE);
+            setRC2wait(0x1AE);
             goto l2;
         l2b:
-            if (func_8009A814() != 0) return 0;
+            if (chkRC2wait() != 0) return 0;
         l2:
             if (!(*D_800ABCC8 & 0x80)) goto l2b;
             D_800ABCCC->b0 = 1;
-            func_8009A7F4(0x3C);
+            setRC2wait(0x3C);
             if (func_80098A00() == 0) return 0;
             func_80098A90();
             *(volatile unsigned char *)&D_800ABCCC->b0;

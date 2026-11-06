@@ -58,7 +58,7 @@ void func_80082A44(s32 direct)
     } else {
         func_80096F04();
         ResetRCnt(counter);
-        func_80096FA4(counter,(u16)period,0x1000);
+        SetRCnt(counter,(u16)period,0x1000);
         interrupt=FLAG(state,interrupt);
         if(interrupt==0) {
             interrupt=0;

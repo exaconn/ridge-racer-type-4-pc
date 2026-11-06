@@ -77,7 +77,7 @@ extern u32 D_800A4804, D_800A4808;
 /* Shift is0..31; enabled rounding needs a nonzero divisor. Index is-2 (byte
  * address),-1 (low16 units), or0..255 (write units and return byte address).
  * D_800A47D8 points at registers in a complete RrSpuRegisterStorage owner. */
-s32 func_8007F414(s32 index, s32 address);
+s32 _spu_FsetRXXa(s32 index, s32 address);
 RR_ASSERT_SIZE(RrSpuRegisterStorage,0x200);
 
 /* Software volume cache: dirty flags precede the 24 voice entries. */
@@ -106,8 +106,8 @@ extern RrSpuRegisterBank *D_800A47D8;
 extern volatile u16 D_800A47F0;
 extern s32 D_800A47F4, D_800A4800, D_800A480C;
 extern void (*volatile D_800A4810)(void);
-void func_8007ED44(const u16 *source, u32 bytes);
-void func_8007F59C(void);
+void _spu_FwriteByIO(const u16 *source, u32 bytes);
+void _spu_Fw1ts(void);
 s32 func_8007F068(s32 command, ...);
 u32 func_8007F2E8(const u16 *source, u32 bytes);
 u32 func_8007F36C(u16 *destination, u32 bytes);
@@ -115,16 +115,16 @@ u32 func_8008AF84(const u16 *source, u32 bytes);
 extern u32 D_80110138[];
 /* Low16 bank values 0..16 are accepted; state2 is transferred and becomes1. */
 s32 func_8008AEC4(const u16 *source, s32 bank);
-u32 func_8008AFE4(s32 address);
-void func_8008B044(s32 mode);
+u32 SpuSetTransferStartAddr(s32 address);
+void SpuSetTransferMode(s32 mode);
 void func_80087DA4(s32 mode);
 
 extern u16 D_800A4D58[12], D_800A4D70[128];
 /* Requires nonzero low16 pitch and the fixed PAL tuning tables. Values at
  * least0x4000 saturate to0x3FFF before conversion; caller words wrap in32bits. */
 u32 func_80084D44(s32 first, s32 second, u32 pitch);
-void func_8007EF04(void);
-void func_8007F6EC(void);
+void _spu_FiDMA(void);
+void SpuStart(void);
 void func_8007EFC0(s32 address, s32 transfer_address, s32 length);
 
 RR_ASSERT_SIZE(RrSpuProgram, 0x10);

@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-unsigned short func_800959E4();
+unsigned short GetTPage();
 
 #endif /* RR_PSYQ_LIBGPU_GPUBASE2_H */

@@ -29,7 +29,7 @@ s32 D_800ABBFC,D_800ABC00;
 s32 init_calls,init_mode,timeout_calls,reads,ready_after,abort_after,abort_value;
 s32 init_swap,timeout_swap,read_ports[64];u32 read_values[64];
 u32 setup[4];u8 *setup_address;
-s32 func_8008B154(s32 mode){
+s32 VSync(s32 mode){
     init_calls++;init_mode=mode;setup[0]=ports[1];setup[1]=ports[2];setup[2]=ports[3];setup[3]=ports[4];setup_address=address;
     if(init_swap)D_800ABBE0=&ports[4];return 100;
 }

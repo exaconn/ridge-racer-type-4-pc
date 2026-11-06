@@ -10,10 +10,10 @@ extern int D_8011442C;
 extern int func_80097EA0();
 extern int D_8011441C[];
 
-int func_80097CF4(int a0);
-void func_80097E0C();
+int PadEnableCom(int a0);
+void _padSetVsyncParam();
 
-int func_80097CF4(int a0) {
+int PadEnableCom(int a0) {
     int s1;
     /* ASM_BARRIER: pins p to s2 to match original register allocation */
     register int *p __asm__("$18");
@@ -48,7 +48,7 @@ int func_80097CF4(int a0) {
     return s1;
 }
 
-void func_80097E0C() {
+void _padSetVsyncParam() {
     int *p = D_8011441C;
     p[0] = (int)func_80097EA0;
     p[1] = (int)func_80097E38;

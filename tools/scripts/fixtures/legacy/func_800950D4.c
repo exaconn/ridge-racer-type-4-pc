@@ -1,5 +1,5 @@
 /* CC1_FLAGS: -mno-split-addresses */
-extern int func_8008B4E0(), func_800954D8(), func_800959B8();
+extern int func_8008B4E0(), func_800954D8(), GPU_memset();
 #include "rr/gpu.h"
 extern int D_800ABBE8, D_800ABBF8;
 extern int D_800ABBEC;
@@ -19,8 +19,8 @@ int a0;
         *(u32 *)D_800ABBD4 = 0x401;
         *(u32 *)D_800ABBE4 |= 0x800;
         *(u32 *)D_800ABBC8 = 0;
-        func_800959B8(D_801127D0, 0, 0x100);
-        func_800959B8(D_801128D8, 0, 0x1800);
+        GPU_memset(D_801127D0, 0, 0x100);
+        GPU_memset(D_801128D8, 0, 0x1800);
         break;
     case 1:
     case 3:

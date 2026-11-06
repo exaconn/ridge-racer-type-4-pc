@@ -23,7 +23,7 @@ void func_8004A55C(void) {
     func_80096434(D_8010C170, 0x30);
     D_800F3A38[4] = -1;
     D_800F3A38[27] = -1;
-    func_80099CD4(D_8010C1A0, D_8010C1A0 + 0x28);
+    PadInitDirect(D_8010C1A0, D_8010C1A0 + 0x28);
     func_80097854();
 }
 

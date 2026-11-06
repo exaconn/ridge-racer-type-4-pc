@@ -3,7 +3,7 @@
 #include "psyq/libspu/spuregs2.h"
 extern int func_8007EAC4();
 extern int func_8007F3D0();
-extern int func_8007F6EC();
+extern int SpuStart();
 extern int func_8008B364();
 extern int D_800A47F4;
 extern int D_800A4844;
@@ -30,7 +30,7 @@ void func_8007F604(a0) int a0; {
             p--;
         } while (i >= 0);
     }
-    func_8007F6EC(c);
+    SpuStart(c);
     D_800A484C = 0;
     D_800A4850 = 0;
     q = &D_800A485C;

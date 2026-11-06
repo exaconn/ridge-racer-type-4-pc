@@ -35,7 +35,7 @@ class ChannelSystemResetTest(unittest.TestCase):
         body=re.sub(r' : "\$[0-9]+"','',body)
         assert body.count('(s32 *)0x800B0000U')==1
         body=body.replace('(s32 *)0x800B0000U','(test_state+0x10000/4)')
-        observed=body.replace('func_80098044','observed_reset')
+        observed=body.replace('_padStartCom','observed_reset')
         replacements={'p->pending=0xFFFFFFFEU;':'test_ack(p,0xFFFFFFFEU);','mask=p->mask;':'mask=test_read_mask(p);','*(u32 *)((u8 *)p+RR_FIELD_OFFSET(RrInterruptRegisters,mask))=mask|1;':'test_write_mask(p,mask|1);'}
         for old,new in replacements.items():
             assert observed.count(old)==1
@@ -82,7 +82,7 @@ void test_write_mask(RrInterruptRegisters *p,u32 value) {op(2,p,value);p->mask=v
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'))
-        for name in ('func_80098044','observed_reset'):
+        for name in ('_padStartCom','observed_reset'):
             fn=getattr(cls.lib,name);fn.argtypes=[];fn.restype=None
         cls.state=(C.c_int32*(0x10000//4+1)).in_dll(cls.lib,'test_state')
         cls.record_size=C.sizeof(ChannelRecord)
@@ -112,7 +112,7 @@ void test_write_mask(RrInterruptRegisters *p,u32 value) {op(2,p,value);p->mask=v
 
     def test_call_order_state_publication_and_ram_body_guards(self):
         state_before=bytearray(self.state);a_before=bytes(self.a);b_before=bytes(self.b);queue_before=bytes(self.queue)
-        self.lib.func_80098044()
+        self.lib._padStartCom()
         self.assertEqual(self.stages(),[0,1,2,3,4,5,5])
         self.assertTrue(all(self.trace[i].enabled==0 for i in range(7)))
         self.assertEqual([(self.trace[i].arg0,self.trace[i].arg1) for i in (1,2)],[(2,C.addressof(self.queue))]*2)
@@ -131,7 +131,7 @@ void test_write_mask(RrInterruptRegisters *p,u32 value) {op(2,p,value);p->mask=v
                 self.callback.value=self.cb_b;self.base.value=C.addressof(self.b)
                 self.counters[:]=[333,444];self.state[0xBCA0//4]=-7
         self.install(mutate)
-        self.lib.func_80098044()
+        self.lib._padStartCom()
         self.assertEqual(self.stages(),[0,1,2,3,4,5,6])
         self.assertEqual((self.units[0].pending,self.units[0].mask),(0xA5A50001,0x12340002))
         self.assertEqual((self.units[1].pending,self.units[1].mask),(0xFFFFFFFE,0x12340003))
@@ -160,8 +160,8 @@ void test_write_mask(RrInterruptRegisters *p,u32 value) {op(2,p,value);p->mask=v
         def reenter(stage):
             nonlocal nested
             if stage==5 and not nested:
-                nested=True;self.lib.func_80098044()
-        self.install(reenter);self.lib.func_80098044()
+                nested=True;self.lib._padStartCom()
+        self.install(reenter);self.lib._padStartCom()
         self.assertEqual(self.stages(),[0,1,2,3,4,5,0,1,2,3,4,5,5,5])
         self.assertEqual(self.trace[13].enabled,1)
         self.assertEqual((self.enabled(),list(self.counters)),(1,[0,0]))

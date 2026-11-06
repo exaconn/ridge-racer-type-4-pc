@@ -25,7 +25,7 @@ extern RrParticleSys D_800F2AB8;
 
 void func_80053EC4(void);
 s32 func_80096464(void);
-void func_80093C24(u32 *, s32, s32, s32, s32);
+void SetDrawMode(u32 *, s32, s32, s32, s32);
 
 void func_80054D50(void) {
     u32 *p;
@@ -42,7 +42,7 @@ void func_80054D50(void) {
     }
     p = *(u32 **)SCRATCHPAD;
     D_800F2AB8.f04--;
-    func_80093C24(p, 0, 1, 0xA0, 0);
+    SetDrawMode(p, 0, 1, 0xA0, 0);
     ot = (u32 *)(D_800ACC14 + 0x19C);
     *p = (*p & 0xFF000000) | (*ot & 0x00FFFFFF);
     *ot = (*ot & 0xFF000000) | ((u32)p & 0x00FFFFFF);

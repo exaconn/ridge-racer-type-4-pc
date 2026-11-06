@@ -7,9 +7,9 @@
 extern int func_80097714();
 extern volatile short *D_800ABC54;
 
-int func_800975E0();
+int RemovePatchPad();
 
-int func_800975E0() { func_80096F04(); func_80097714(1, &D_801143E8); func_80096F14(); return 1; }
+int RemovePatchPad() { func_80096F04(); func_80097714(1, &D_801143E8); func_80096F14(); return 1; }
 
 int func_80097618(void) {
     volatile int i; int pad[2];

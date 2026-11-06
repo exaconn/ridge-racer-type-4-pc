@@ -3,10 +3,10 @@
 #include "psyq/libspu/sinit.h"
 #include "psyq/libspu/sinit2.h"
 #include "rr/library.h"
-extern void func_8007FAB4();
+extern void SpuClearReverbWorkArea();
 void func_8007FA54(void) {
     func_8008B364();
     func_8007FA94();
-    func_8007FAB4(7);
+    SpuClearReverbWorkArea(7);
     func_8007F964();
 }

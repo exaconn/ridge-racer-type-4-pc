@@ -71,7 +71,7 @@ int main(void){unsigned k,i,where,win;u32 x,y;
   display=(k&1)?signed_word(next()):0;dither=(k&2)?signed_word(next()):0;page=signed_word(next());win=k%8;
   memcpy(&expected,&world,sizeof(world));ref_builder(display,dither,(u32)page&0xffffU,win);
   if(texture_window(&world,win))assert((uintptr_t)texture_window(&world,win)>UINT32_MAX);
-  func_80093C24(&world.storage.packets[0],display,dither,page,texture_window(&world,win));
+  SetDrawMode(&world.storage.packets[0],display,dither,page,texture_window(&world,win));
   assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  return 0;

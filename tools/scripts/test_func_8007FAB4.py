@@ -58,7 +58,7 @@ s32 func_8007F068(s32 mode, ...) {
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
-        cls.function = cls.library.func_8007FAB4
+        cls.function = cls.library.SpuClearReverbWorkArea
         cls.function.argtypes = [C.c_uint32]
         cls.function.restype = C.c_int32
 

@@ -24,13 +24,13 @@ int a0;
         if (sp10[0] & 2) {
             if (sp10[0] == 2 && r != 0) return 2;
             while (1) {
-                func_8008B154(0x1E);
+                VSync(0x1E);
                 r = CdControlB(0x13, 0, sp10);
                 if (sp10[0] & 0x10) return 0x10;
                 if (sp10[0] == 2 && r != 0) return 2;
             }
         }
-        func_8008B154(0x1E);
+        VSync(0x1E);
         r = CdControlB(0x13, 0, sp10);
         if (sp10[0] & 0x10) return 0x10;
     }

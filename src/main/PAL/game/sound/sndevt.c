@@ -45,8 +45,8 @@ extern s32 D_800AC660;
 extern Car D_80107198[];
 extern s32 D_800F6748;
 extern w3t1_E D_800ABEF8[];
-extern s32 func_80091844();
-extern s32 func_800924D4();
+extern s32 RotMatrix();
+extern s32 ratan2();
 extern s32 rcos();
 extern s32 rsin();
 
@@ -232,7 +232,7 @@ void func_80052024(s32 idx) {
     rz = *(u16 *)(B2 + 0x18DC);
     f.rot.vy = -ry;
     f.rot.vz = rz;
-    func_80091844(&f.rot, f.m);
+    RotMatrix(&f.rot, f.m);
     RR_GTE_SETROT_TR(f.m);
     f.sv.vx = f.d[0];
     f.sv.vy = f.d[1];
@@ -240,7 +240,7 @@ void func_80052024(s32 idx) {
     RR_GTE_MVMVA_ROT_TR_V0(&f.sv);
     RR_GTE_SWC2_MAC123(f.d);
     RR_GTE_STORE_FLAG(&f.fl);
-    ang = func_800924D4(-f.d[2], f.d[0]);
+    ang = ratan2(-f.d[2], f.d[0]);
     s2 = rcos(ang) / 64 + 0x40;
     if (s2 >= 0x80) s2 = 0x7F;
     c = rsin(ang) / 64 + 0x40;

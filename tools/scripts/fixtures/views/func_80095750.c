@@ -11,7 +11,7 @@
 
 #define func_80092DB8 ((int (*)())func_80092DB8)
 
-#define func_8008B154 ((int (*)())func_8008B154)
+#define VSync ((int (*)())VSync)
 
 #define func_8008B3C4 ((int (*)())func_8008B3C4)
 
@@ -23,7 +23,7 @@
 
 #undef func_80092DB8
 
-#undef func_8008B154
+#undef VSync
 
 #undef func_8008B3C4
 
@@ -39,7 +39,7 @@ s32 MoveImage2(RrGpuRectangle *rect,s32 x,s32 y) {
     /* ASM_BARRIER: Keep each DMA status read in the original polling temporary. */
     register u32 status __asm__("$2");
     func_80092DB8(D_80011EFC,rect);
-    D_800ABBFC=(u32)func_8008B154(-1)+240;
+    D_800ABBFC=(u32)VSync(-1)+240;
     D_800ABC00=0;
     status=*D_800ABBD4;
     goto test;

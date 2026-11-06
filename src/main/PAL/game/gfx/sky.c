@@ -1287,7 +1287,7 @@ void func_800197C8(int a0, int a1, short *a2, int a3) {
     SetDrawArea(GS->cur, sp10);
     LNK(2, 0x10);
     GS->cur = GS->cur + 0xC;
-    func_80093B94(GS->cur, sp10);
+    SetDrawOffset(GS->cur, sp10);
     LNK(2, 0x10);
     GS->cur = GS->cur + 0xC;
     func_800912B4((short)(unsigned short)a2[2] / 2, (short)(unsigned short)a2[3] / 2);
@@ -1338,7 +1338,7 @@ void func_800197C8(int a0, int a1, short *a2, int a3) {
     SetDrawArea(p, sp10);
     LNK(2, 0xAF0);
     GS->cur = GS->cur + 0xC;
-    func_80093B94(GS->cur, sp10);
+    SetDrawOffset(GS->cur, sp10);
     LNK(2, 0xAF0);
     GS->cur = GS->cur + 0xC;
 }

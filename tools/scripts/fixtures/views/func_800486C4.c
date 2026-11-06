@@ -31,7 +31,7 @@ void func_800486C4(RrDriveVehicleView *arg0) {
 
     temp_s1 = &arg0->control1F4;
     arg0->previous1D6 = (u16) arg0->heading1D4;
-    temp_a1 = func_800924D4(arg0->control1F4.directionX30, arg0->control1F4.directionZ34);
+    temp_a1 = ratan2(arg0->control1F4.directionX30, arg0->control1F4.directionZ34);
     temp_v1 = *(volatile u16 *)&arg0->heading1D4;
     temp_a0 = temp_v1 & 0xFFF;
     arg0->heading1D4 = temp_a0;

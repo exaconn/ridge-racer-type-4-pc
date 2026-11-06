@@ -20,8 +20,8 @@ int a0;
         *(u32 *)D_800ABBD4 = 0x401;
         *(u32 *)D_800ABBE4 |= 0x800;
         *(u32 *)D_800ABBC8 = 0;
-        func_800959B8(D_801127D0, 0, 0x100);
-        func_800959B8(D_801128D8, 0, 0x1800);
+        GPU_memset(D_801127D0, 0, 0x100);
+        GPU_memset(D_801128D8, 0, 0x1800);
         break;
     case 1:
     case 3:

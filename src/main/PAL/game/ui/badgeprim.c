@@ -11,13 +11,13 @@ struct P *func_8001FF84(u32 *a0, struct P *a1, int a2, int a3, struct R *a4, uns
     int s1 = a6 >> 1;
     func_80095B94(a1);
     if (s1 == 0) {
-        func_80095B24(a1, 1);
+        SetShadeTex(a1, 1);
     } else {
         a1->r = s1;
         a1->g = s1;
         a1->b = s1;
     }
-    func_80095AF4(a1, a6 & 1);
+    SetSemiTrans(a1, a6 & 1);
     a1->x = a2;
     a1->y = a3;
     a1->w = a4->w;

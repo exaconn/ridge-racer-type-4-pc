@@ -33,7 +33,7 @@ void global_a(void *p){
 RrChannelUpdateCallback D_800ABC6C=global_a;
 '''
         owners=source_owners(root/'src/main/PAL')
-        paths=dict.fromkeys(owners[name] for name in ('func_8009A368','func_80099618','func_80099638','func_8009964C','func_8009966C','func_8009968C','func_800996AC','func_80098AE0'))
+        paths=dict.fromkeys(owners[name] for name in ('func_8009A368','_padCmdParaMode','func_80099638','func_8009964C','func_8009966C','func_8009968C','func_800996AC','_padSendAtLoadInfo'))
         for path in paths:code+=native_body(path.read_text())+'\n'
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
@@ -46,7 +46,7 @@ RrChannelUpdateCallback D_800ABC6C=global_a;
         cls.mutate=C.c_int32.in_dll(cls.lib,'mutate');cls.next_phase=C.c_int32.in_dll(cls.lib,'next_phase')
         cls.private_a=C.cast(cls.lib.private_a,C.c_void_p).value;cls.private_b=C.cast(cls.lib.private_b,C.c_void_p).value
         cls.buffer=(C.c_uint8*8)(*range(8));cls.packet=(C.c_uint8*4)(0,0x12,0x34,0x56)
-        for name in ('func_80099618','func_8009964C','func_8009966C','func_8009968C'):
+        for name in ('_padCmdParaMode','func_8009964C','func_8009966C','func_8009968C'):
             fn=getattr(cls.lib,name);fn.argtypes=[C.c_void_p,C.c_int32];fn.restype=None
         for name in ('func_80099638','func_800996AC'):
             fn=getattr(cls.lib,name);fn.argtypes=[C.c_void_p];fn.restype=None
@@ -105,7 +105,7 @@ RrChannelUpdateCallback D_800ABC6C=global_a;
         if C.sizeof(C.c_void_p)>4:self.assertGreater(self.private_b,0xFFFFFFFF)
 
     def test_constructor_full_word_arguments_native_pointer_and_guards(self):
-        for name,code in [('func_80099618',0x43),('func_8009964C',0x4C),('func_8009966C',0x46),('func_8009968C',0x47)]:
+        for name,code in [('_padCmdParaMode',0x43),('func_8009964C',0x4C),('func_8009966C',0x46),('func_8009968C',0x47)]:
             for high in (0,0x12340000,0x80000000,0xFFFF0000):
                 for value in range(256):
                     self.reset();expected=ChannelRecord.from_buffer_copy(bytes(self.channel))

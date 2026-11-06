@@ -12,7 +12,7 @@ s32 MoveImage2(RrGpuRectangle *rect,s32 x,s32 y);
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((int *)D_800ABAB8)
 #define func_80092DB8 ((int (*)())func_80092DB8)
-#define func_8008B154 ((int (*)())func_8008B154)
+#define VSync ((int (*)())VSync)
 #define func_8008B3C4 ((int (*)())func_8008B3C4)
 #define func_80095394 ((int (*)())func_80095394)
 #define func_80095990 ((int (*)())func_80095990)
@@ -22,7 +22,7 @@ int a0;
 int a1;
 {
     func_80092DB8(D_80011EF0, a0);
-    D_800ABBFC = func_8008B154(-1) + 0xF0;
+    D_800ABBFC = VSync(-1) + 0xF0;
     D_800ABC00 = 0;
     while ((*D_800ABBD4 & 0x1000000) || (*D_800ABBC8 & 0x4000000) == 0) {
         if (func_80095394()) return -1;
@@ -34,7 +34,7 @@ int a1;
 
 #undef D_800ABAB8
 #undef func_80092DB8
-#undef func_8008B154
+#undef VSync
 #undef func_8008B3C4
 #undef func_80095394
 #undef func_80095990
@@ -43,7 +43,7 @@ s32 MoveImage2(RrGpuRectangle *rect,s32 x,s32 y) {
     /* ASM_BARRIER: Keep each DMA status read in the original polling temporary. */
     register u32 status __asm__("$2");
     func_80092DB8(D_80011EFC,rect);
-    D_800ABBFC=(u32)func_8008B154(-1)+240;
+    D_800ABBFC=(u32)VSync(-1)+240;
     D_800ABC00=0;
     status=*D_800ABBD4;
     goto test;

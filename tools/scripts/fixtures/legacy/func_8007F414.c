@@ -2,7 +2,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/spu.h"
 
-s32 func_8007F414(s32 index, s32 value) {
+s32 _spu_FsetRXXa(s32 index, s32 value) {
     u32 address = (u32)value;
     u32 units;
     /* ASM_BARRIER: Preserve the original copy of the shifted address in v1

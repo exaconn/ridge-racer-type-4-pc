@@ -4,7 +4,7 @@
 
 typedef RrWide64 U;
 
-U func_8007DC04(int dir, U v, int n) {
+U _dbl_shift(int dir, U v, int n) {
     register int i asm("$4");
     if (dir == 0) {
         if (n > 0) { i = 0; do {

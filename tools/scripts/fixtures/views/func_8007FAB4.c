@@ -22,7 +22,7 @@ extern u32 D_800A48C8[];
 
 extern u8 D_800A4938[];
 
-s32 func_8007FAB4(u32 preset) {
+s32 SpuClearReverbWorkArea(u32 preset) {
     volatile s32 saved_callback = 0;
     u32 *preset_address;
     unsigned long base;

@@ -41,7 +41,7 @@ void ovl663_draw_preview(void) {
     rot[0] = state->rot50;
     rot[1] = state->rot54;
     rot[2] = state->rot58;
-    func_80091844(rot, mat.halves);
+    RotMatrix(rot, mat.halves);
     light.x = 100;
     light.y = 80;
     light.w = 120;

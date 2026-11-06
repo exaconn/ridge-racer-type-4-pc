@@ -41,7 +41,7 @@ extern int func_8001E84C();
 extern void CdIntToPos(int, void *);
 extern void func_80096444(char *, void *, int);
 
-int func_8008E4E4(int dir) {
+int DS_cachefile(int dir) {
     int sp18;
     unsigned char *p;
     int i;

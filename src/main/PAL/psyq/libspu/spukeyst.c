@@ -82,7 +82,7 @@ int func_8007EAC4(s32 warm)
     bank->halves[192]=0;
     bank->halves[193]=0;
     bank->halves[213]=0;
-    func_8007F59C();
+    _spu_Fw1ts();
     bank=BANK;
     bank->halves[192]=0;
     bank->halves[193]=0;
@@ -137,7 +137,7 @@ int func_8007EAC4(s32 warm)
         bank->halves[219]=0;
         /* ASM_BARRIER: Finish MMIO stores before preparing the transfer length. */
         __asm__("" : : : "$5", "memory");
-        func_8007ED44(source,16);
+        _spu_FwriteByIO(source,16);
         i=0;
         {
         volatile u16 *voice=BANK->halves;
@@ -152,11 +152,11 @@ int func_8007EAC4(s32 warm)
         bank=BANK;
         bank->halves[196]=0xFFFF;
         bank->halves[197]=0xFF;
-        func_8007F59C();func_8007F59C();func_8007F59C();func_8007F59C();
+        _spu_Fw1ts();_spu_Fw1ts();_spu_Fw1ts();_spu_Fw1ts();
         bank=BANK;
         bank->halves[198]=0xFFFF;
         bank->halves[199]=0xFF;
-        func_8007F59C();func_8007F59C();func_8007F59C();func_8007F59C();
+        _spu_Fw1ts();_spu_Fw1ts();_spu_Fw1ts();_spu_Fw1ts();
     }
     { register s32 result __asm__("$2")=0;
     register RrSpuRegisterStorage *end=BANK;

@@ -51,13 +51,13 @@ RrLibInterruptCallback ovl668_func_80116534(RrLibInterruptCallback callback) {
  streams[(scenario+2)%3].queue20=&queues[(scenario+2)%3][(scenario+1)%4];
  return previous;
 }
-void func_8008BE14(RrLibQueueRecord32 *queue,s32 count) {
+void StSetRing(RrLibQueueRecord32 *queue,s32 count) {
  assert(step==2 && count==32);
  assert(queue==&queues[(scenario+2)%3][(scenario+1)%4]);
  world.events[step++]=3; world.queue=queue; world.count=count;
  D_800AC708=&streams[scenario%3];
 }
-void func_8008F6D4(s32 a,s32 b,s32 c,s32 d,s32 e) {
+void StSetStream(s32 a,s32 b,s32 c,s32 d,s32 e) {
  assert(step==3); world.events[step++]=4;
  world.args[0]=a;world.args[1]=b;world.args[2]=c;world.args[3]=d;world.args[4]=e;
 }

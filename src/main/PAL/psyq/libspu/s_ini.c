@@ -7,7 +7,7 @@ extern s32 func_80096F04(void);
 extern s32 func_80096F14(void);
 extern s32 func_80096E74(u32,s32,s32,RrLibInterruptCallback);
 extern s32 func_80096EB4(s32);
-void func_8007F6EC(void) {
+void SpuStart(void) {
     if(D_800A48A8==0) {
         {
             s32 one=1;
@@ -25,7 +25,7 @@ void func_8007F6EC(void) {
             unsigned long page=0x80080000U;
             /* ASM_BARRIER: Materialize the stop-callback page before its signed call-delay offset. */
             __asm__("" : "=r"(page) : "0"(page));
-            func_8007F764((RrLibInterruptCallback)(page-0x10FC));
+            _SpuDataCallback((RrLibInterruptCallback)(page-0x10FC));
         }
         {
             /* ASM_BARRIER: Preserve the opened event as the next call's first argument. */

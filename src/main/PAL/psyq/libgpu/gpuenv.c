@@ -41,9 +41,9 @@ extern char D_80011F4C[];
 extern char D_80011F64[];
 extern char D_800ABAD0[];
 
-int func_80092734(int *pix, int tp, int abr, int x, int y, int w, int h);
-int func_8009281C(int a, int b, int c);
-int func_80092880(int a, int b, int c);
+int LoadTPage(int *pix, int tp, int abr, int x, int y, int w, int h);
+int LoadClut(int a, int b, int c);
+int LoadClut2(int a, int b, int c);
 char *SetDefDrawEnv(char *p, int a, int b, int c, int d);
 W3L2_A *SetDefDispEnv(W3L2_A *p, int a, int b, int c, int d);
 s32 SetGraphDebug(s32 enabled);
@@ -63,9 +63,9 @@ void DrawPrim(char *a0);
 void DrawOTag(s32 ordering_table);
 int PutDrawEnv(int *a0);
 void DrawOTagEnv(int a, W3L2_P *b);
-int func_8009354C(int a);
+int GetDrawEnv(int a);
 
-int func_80092734(int *pix, int tp, int abr, int x, int y, int w, int h) {
+int LoadTPage(int *pix, int tp, int abr, int x, int y, int w, int h) {
     short sp[4];
     int r;
     sp[0] = x;
@@ -85,13 +85,13 @@ int func_80092734(int *pix, int tp, int abr, int x, int y, int w, int h) {
     func_80092FFC(sp, pix);
     /* ASM_BARRIER: boost x and abr reference counts so global-alloc assigns $s1 to x, $s2 to abr, and $s3 to y */
     __asm__ volatile("" : : "r"(x), "r"(abr));
-    r = func_800959E4(tp, abr, x, y);
+    r = GetTPage(tp, abr, x, y);
     /* ASM_BARRIER: keep andi right after the call, before the epilogue loads */
     __asm__ volatile("" : "=r"(r) : "0"(r));
     return r;
 }
 
-int func_8009281C(int a, int b, int c) {
+int LoadClut(int a, int b, int c) {
     short sp[4];
     int r;
     sp[2] = 0x100;
@@ -108,7 +108,7 @@ int func_8009281C(int a, int b, int c) {
 /* legacy typing of shared globals in this part of the unit */
 #define func_80095A24 ((int (*)())func_80095A24)
 
-int func_80092880(int a, int b, int c) {
+int LoadClut2(int a, int b, int c) {
     short sp[4];
     int r;
     sp[2] = 0x10;
@@ -152,7 +152,7 @@ W3L2_A *SetDefDispEnv(W3L2_A *p, int a, int b, int c, int d) {
     return p;
 }
 
-s32 func_800929D4(s32 mode)
+s32 ResetGraph(s32 mode)
 {
     RrGpuResetState80 *state;
     switch(mode & 7) {
@@ -161,7 +161,7 @@ s32 func_800929D4(s32 mode)
         func_8001E84C(D_80011DF0,&D_800ABA78,&D_800ABAC0);
     case 5:
         state=&D_800ABAC0;
-        func_800959B8((s8 *)state,0,128);
+        GPU_memset((s8 *)state,0,128);
         func_8008B364();
         func_80096E24((unsigned long)D_800ABAB8 & 0xFFFFFF);
         state->kind00=func_800950D4(mode);
@@ -169,8 +169,8 @@ s32 func_800929D4(s32 mode)
         /* Preserve the explicit byte reload after the reset service. */
         state->debug02.width=D_800ABB40[*(volatile u8 *)&state->kind00].value;
         state->debug02.height=D_800ABB4C.dimensions[state->kind00].value;
-        func_800959B8((s8 *)state->queue10,-1,0x5C);
-        func_800959B8((s8 *)state->tail6C,-1,0x14);
+        GPU_memset((s8 *)state->queue10,-1,0x5C);
+        GPU_memset((s8 *)state->tail6C,-1,0x14);
         return state->kind00;
     default:
         if(D_800ABAC2.level>=2) D_800ABABC(D_80011E10,mode);
@@ -258,18 +258,18 @@ int DrawSyncCallback(a0) int a0; {
 #define D_800ABAC2 (*(unsigned char (*)[])&D_800ABAC2)
 #define D_800ABABC (*(void (*(*))())&D_800ABABC)
 #define D_800ABAB8 (*(struct { char pad[0x10]; int (*f)(); } *(*))&D_800ABAB8)
-#define func_800959B8 ((int (*)())func_800959B8)
+#define GPU_memset ((int (*)())GPU_memset)
 
 void SetDispMask(a0) int a0; {
  unsigned char *p = D_800ABAC2;
  if (*p >= 2) D_800ABABC(D_80011E80, a0);
- if (a0 == 0) func_800959B8(p + 0x6A, -1, 0x14);
+ if (a0 == 0) GPU_memset(p + 0x6A, -1, 0x14);
  D_800ABAB8->f(a0 ? 0x3000000 : 0x3000001); }
 
 #undef D_800ABAC2
 #undef D_800ABABC
 #undef D_800ABAB8
-#undef func_800959B8
+#undef GPU_memset
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((void *)D_800ABAB8)
@@ -527,4 +527,4 @@ void DrawOTagEnv(int a, W3L2_P *b) {
 #undef D_800ABABC
 #undef D_800ABAC2
 
-int func_8009354C(int a) { func_80096444(a, D_800ABAD0, 0x5C); return a; }
+int GetDrawEnv(int a) { func_80096444(a, D_800ABAD0, 0x5C); return a; }

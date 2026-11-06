@@ -6,7 +6,7 @@ RrWide64 *func_8007E494(RrWide64 *result,RrWide64 x) {
     *(volatile u32 *)&one.lo=1;
     *(volatile s32 *)&x.hi=~x.hi;
     *(volatile u32 *)&x.lo=~x.lo;
-    func_8007DB54(&x,x,one);
+    _add_mant_d(&x,x,one);
     {
         u32 low=x.lo;
         s32 high=x.hi;

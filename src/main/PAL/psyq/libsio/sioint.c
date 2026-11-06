@@ -15,7 +15,7 @@
 
 typedef struct { short p0, p2, p4, p6, w8; unsigned short wA; short pC; unsigned short wE; } W5A;
 
-extern s32 func_800929D4(s32);
+extern s32 ResetGraph(s32);
 extern s32 func_80096F04(void);
 extern void func_80096F14(void);
 extern RrSerialPortRegisters D_801146C0;
@@ -203,7 +203,7 @@ s32 func_8009AEAC(u32 arg0, u32 arg1, u32 arg2) {
         break;
     case 5:
         if (arg1 == 0) {
-            func_800929D4(5);
+            ResetGraph(5);
         }
         break;
     }

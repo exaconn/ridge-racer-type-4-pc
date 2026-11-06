@@ -1,6 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/counters.h"
-int func_80096FA4(unsigned a0, unsigned short a1, int a2) {
+int SetRCnt(unsigned a0, unsigned short a1, int a2) {
     int t = a0 & 0xFFFF;
     int a3 = 0x48;
     char *p;

@@ -97,7 +97,7 @@ s32 func_8009AEAC(s32 command,s32 operation,unsigned long argument) {
  }
  return boundary(1,command,operation,argument);
 }
-s32 func_8008B154(s32 mode){assert(mode==0);return boundary(2,mode,0,0);}
+s32 VSync(s32 mode){assert(mode==0);return boundary(2,mode,0,0);}
 '''+callback+body+r'''
 static void reference(unsigned long configuration) {
  unsigned i;u32 phase;

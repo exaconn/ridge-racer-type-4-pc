@@ -27,8 +27,8 @@ typedef struct {
     volatile int a;
 } Q;
 
-extern void func_8009A7F4(s32);
-extern int func_8009A814();
+extern void setRC2wait(s32);
+extern int chkRC2wait();
 extern Q *D_800ABCC8;
 extern H *D_800ABCCC;
 
@@ -44,7 +44,7 @@ void func_80098488(RrChannelRecordF0 *channel) {
     value=D_800ABCAC;
     if(value) {
         if(value==3 && channel->status.packet[0]==0x80)goto reload;
-        func_8009A7F4(60);
+        setRC2wait(60);
         if(!func_80098A00())D_800ABC68(-3);
 reload:
         value=D_800ABCAC;
@@ -84,7 +84,7 @@ int func_80098578(S *a0, int a1) {
         s2 = tmp;
         while (!(D_800ABCCC->h4 & 1))
             ;
-        while (func_8009A814() == 0)
+        while (chkRC2wait() == 0)
             ;
         v0 = ~a1;
         /* ASM_BARRIER: compute ~a1 before loading D_800ABCCC so nor fills beqz delay slot */
@@ -119,7 +119,7 @@ int func_80098578(S *a0, int a1) {
     s2 = D_800ABCCC->b0;
     D_800ABCCC->hE = s1;
     while (!(D_800ABCC8->a & 0x80)) {
-        if (func_8009A814() != 0) {
+        if (chkRC2wait() != 0) {
             return -0x14;
         }
     }

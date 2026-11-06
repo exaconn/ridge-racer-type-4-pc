@@ -47,7 +47,7 @@ void event(u32 kind,u32 arg,u32 value){s32 i=test_event_count++;if(i<64){test_ev
 void func_80092DB8(const char *name,RrGpuRectangle *rect){
  test_debug_calls++;test_name=name;test_rect=rect;event(1,0,0);if(test_debug_hook)test_debug_hook();
 }
-s32 func_8008B154(s32 mode){event(2,(u32)mode,0);return test_now;}
+s32 VSync(s32 mode){event(2,(u32)mode,0);return test_now;}
 s32 func_80095394(void){test_timeout_calls++;event(3,0,0);return test_poll();}
 u32 test_dma_read(volatile u32 *p){event(4,p==&ports[1]?1:5,*p);return *p;}
 u32 test_gpu_read(volatile u32 *p){event(5,p==&ports[0]?0:4,*p);return *p;}

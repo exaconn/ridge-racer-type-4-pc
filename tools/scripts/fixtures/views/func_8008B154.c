@@ -27,7 +27,7 @@ extern volatile unsigned D_800A5260;
 
 extern volatile unsigned D_800A5264;
 
-int func_8008B154(a0) int a0; {
+int VSync(a0) int a0; {
     volatile unsigned t;
     unsigned s0;
     unsigned s1;

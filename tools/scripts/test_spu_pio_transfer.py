@@ -39,7 +39,7 @@ void (*test_delay_hook)(void),(*test_diagnostic_hook)(void *,void *);
 s32 test_delay_calls,test_dma_calls,test_dma_commands[8];
 u32 test_dma_address,test_dma_bytes;void *test_dma_buffer;
 void test_delay_actual(void);
-void func_8007F59C(void) {test_delay_actual();test_delay_calls++;test_delay_hook();}
+void _spu_Fw1ts(void) {test_delay_actual();test_delay_calls++;test_delay_hook();}
 u16 test_status_read(RrSpuRegisterBank *p) {return test_status_hook(p);}
 void test_data_write(RrSpuRegisterBank *p,u16 value) {
  p->transfer_data=value;test_data_hook(p,value);
@@ -74,8 +74,8 @@ void test_reset(void) {
             body=re.sub(r'"\$[0-9]+",\s*','',body)
             body=re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?=\))','',body)
             if name=='8007F59C':
-                assert body.count('func_8007F59C(')==1
-                body=body.replace('func_8007F59C(','test_delay_actual(')
+                assert body.count('_spu_Fw1ts(')==1
+                body=body.replace('_spu_Fw1ts(','test_delay_actual(')
             if name=='8007ED44':
                 substitutions={
                     'D_800A47D8->spu_status':('test_status_read(D_800A47D8)',3),
@@ -97,7 +97,7 @@ void test_reset(void) {
         cls.ports=(C.c_uint16*(3*256)).in_dll(cls.lib,'test_ports')
         cls.rom=(C.c_uint8*0x10000).in_dll(cls.lib,'test_rom')
         cls.rom[:]=(root/'assets/PAL/main.exe').read_bytes()[0x800:0x10800]
-        cls.transfer=cls.lib.func_8007ED44
+        cls.transfer=cls.lib._spu_FwriteByIO
         cls.transfer.argtypes=[C.POINTER(C.c_uint16),C.c_uint32]
         cls.transfer.restype=None
         for name in ('func_8007F2E8','func_8007F36C','func_8008AF84'):

@@ -77,7 +77,7 @@ class Overlay665RenderTest(unittest.TestCase):
          (void)event(3,0,0,0,0,0);
          for(i=0;i<8;i++){first->w[i]=word(scenario*0x1234567U+n*31+i*17);second->w[i]=word(scenario*0x7654321U+n*37+i*19);}
         }
-        u32 *func_80090F74(u32 *matrix,s32 scales[3]) {
+        u32 *ScaleMatrix(u32 *matrix,s32 scales[3]) {
          unsigned i;u32 captured[3];memcpy(captured,scales,12);
          (void)event(4,scales[0],scales[1],scales[2],matrix,0);
          for(i=0;i<5;i++)matrix[i]=(matrix[i]^captured[i%3])+scenario+i;
@@ -124,7 +124,7 @@ class Overlay665RenderTest(unittest.TestCase):
          w->s.visual.view74.rotation10=(s16)w->s.visual.rotation44;
          w->s.visual.view74.position00.words[2]=w->s.visual.position48;
          func_8005599C((char*)&w->s.visual.view74,(char*)&w->s.visual.lighting4C,&first->matrix,&second->matrix);
-         (void)func_80090F74(first->words,scales);func_800912D4(w->s.visual.depth40);
+         (void)ScaleMatrix(first->words,scales);func_800912D4(w->s.visual.depth40);
         }
         static void light(RrPreviewMatrixWorkspace *matrix){ovl665_func_80116358(matrix,&w->s.visual.lighting4C.matrix);}
         static void project(RrPreviewMatrixWorkspace *matrix){func_8006EE3C(w->s.scratch.tail7C.projection.halves,w->s.visual.view74.position00.halves,(s32*)matrix->words);}

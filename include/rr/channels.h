@@ -124,7 +124,7 @@ typedef struct {
 typedef void *(*RrChannelRecordCallback)(s32 selector);
 extern RrChannelRecordCallback D_800ABC7C;
 void PadSetMainMode(s32 selector, s32 first, s32 second);
-s32 func_800994CC(RrChannelPatchCommand *channel, s32 first, s32 second);
+s32 _padSetMainMode(RrChannelPatchCommand *channel, s32 first, s32 second);
 void func_80099564(void *channel);
 s32 func_800995B8(void *channel);
 
@@ -143,7 +143,7 @@ RR_ASSERT_OFFSET(RrChannelPatchCommand, argument, 0xE4);
 extern RrChannelRecordF0 *D_800ABC9C;
 extern RrChannelUpdateCallback D_800ABC6C;
 extern s32 D_800ABCA0;
-void func_80098044(void);
+void _padStartCom(void);
 
 typedef void (*RrChannelErrorCallback)(s32 status);
 extern RrChannelErrorCallback D_800ABC68;
@@ -161,13 +161,13 @@ extern RrChannelStatusCallback D_800ABC80, D_800ABC84;
 extern RrChannelUpdateCallback D_800ABC88;
 
 extern s32 func_8009A368(void *channel);
-void func_80099618(void *channel, s32 value);
+void _padCmdParaMode(void *channel, s32 value);
 void func_80099638(void *channel);
 void func_8009964C(void *channel, s32 value);
 void func_8009966C(void *channel, s32 value);
 void func_8009968C(void *channel, s32 value);
 void func_800996AC(void *channel);
-void func_80098AE0(u8 *channel);
+void _padSendAtLoadInfo(u8 *channel);
 extern s32 func_8009A7BC(void *channel);
 extern void func_8009A478(void *channel);
 

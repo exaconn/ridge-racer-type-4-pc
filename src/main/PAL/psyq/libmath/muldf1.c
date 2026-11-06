@@ -19,7 +19,7 @@ RrWide64 *func_8007E494(RrWide64 *result,RrWide64 x) {
     *(volatile u32 *)&one.lo=1;
     *(volatile s32 *)&x.hi=~x.hi;
     *(volatile u32 *)&x.lo=~x.lo;
-    func_8007DB54(&x,x,one);
+    _add_mant_d(&x,x,one);
     {
         u32 low=x.lo;
         s32 high=x.hi;
@@ -79,22 +79,22 @@ double __muldf3(double a_in, double b_in) {
     _mul_mant_d(&sp18, s6, s2);
     _mul_mant_d(&sp40, s0, s2);
     _dbl_shift_us(&sp38, 1, sp40, 0x15);
-    func_8007DB54(&sp18, sp18, sp38);
+    _add_mant_d(&sp18, sp18, sp38);
     _mul_mant_d(&sp40, s1, s6);
     _dbl_shift_us(&sp38, 1, sp40, 0x15);
-    func_8007DB54(&sp18, sp18, sp38);
+    _add_mant_d(&sp18, sp18, sp38);
 
     {
         u32 sign_mask = 0x80000000;
         if (sp18.hi < 0) {
             sp20.hi = 0;
             sp20.lo = 0x400;
-            func_8007DB54(&sp18, sp18, sp20);
+            _add_mant_d(&sp18, sp18, sp20);
             _dbl_shift_us(&sp18, 1, sp18, 0xB);
         } else {
             sp20.hi = 0;
             sp20.lo = 0x200;
-            func_8007DB54(&sp18, sp18, sp20);
+            _add_mant_d(&sp18, sp18, sp20);
             if (sp18.hi & sign_mask) {
                 _dbl_shift_us(&sp18, 1, sp18, 0xB);
             } else {

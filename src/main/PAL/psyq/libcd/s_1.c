@@ -24,8 +24,8 @@ M2C_UNK *func_8008BFC4(void);
 int CdReset();
 void func_8008C03C();
 s32 func_8008C05C(s32 value);
-char *func_8008C070(unsigned char a0);
-char *func_8008C0A4(unsigned char a0);
+char *CdComstr(unsigned char a0);
+char *CdIntstr(unsigned char a0);
 s32 func_8008C0D8(s32 mode,u8 *status);
 s32 func_8008C0F8(s32 mode, u8 *status);
 s32 func_8008C118(s32 value);
@@ -78,9 +78,9 @@ s32 func_8008C05C(s32 value) {
     return previous;
 }
 
-char *func_8008C070(unsigned char a0) { char *r; if (a0 < 0x1C) r = (char *)D_800A64AC[a0]; else r = D_800118C8; return r; }
+char *CdComstr(unsigned char a0) { char *r; if (a0 < 0x1C) r = (char *)D_800A64AC[a0]; else r = D_800118C8; return r; }
 
-char *func_8008C0A4(unsigned char a0) { char *r; if (a0 < 7) r = (char *)D_800A652C[a0]; else r = D_800118C8; return r; }
+char *CdIntstr(unsigned char a0) { char *r; if (a0 < 7) r = (char *)D_800A652C[a0]; else r = D_800118C8; return r; }
 
 s32 func_8008C0D8(s32 mode,u8 *status) {
     return CD_sync(mode,status);

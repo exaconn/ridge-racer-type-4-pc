@@ -1,6 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channels.h"
-s32 func_800994CC(RrChannelPatchCommand *raw,s32 first_raw,s32 second_raw) {
+s32 _padSetMainMode(RrChannelPatchCommand *raw,s32 first_raw,s32 second_raw) {
  /* ASM_BARRIER: Retain the channel and both original words across the readiness callback. */
  register RrChannelPatchCommand *channel __asm__("$16")=raw;
  register s32 first __asm__("$17")=first_raw;

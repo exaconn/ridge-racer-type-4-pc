@@ -118,7 +118,7 @@ void func_80071978(InTri *a0, int a1, int a2) {
         sp->v2[0] = a0->v2[0];
         sp->v2[1] = a0->v2[1];
         sp->v2[2] = a0->v2[2];
-        otz = func_80091764(sp->v0, sp->v1, sp->v2, &sp->sxy0, &sp->sxy1, &sp->sxy2, &sp20, &sp24) >> (hw[0x18] + a2);
+        otz = RotAverage3(sp->v0, sp->v1, sp->v2, &sp->sxy0, &sp->sxy1, &sp->sxy2, &sp20, &sp24) >> (hw[0x18] + a2);
         if (otz > 0 && otz < 0x1C0) {
             if (a2 == 2) {
                 otz = 0x1BF;
@@ -168,7 +168,7 @@ void func_80071B94(InQuad *a0, int a1, int a2) {
         sp->v3[0] = a0->v3[0];
         sp->v3[1] = a0->v3[1];
         sp->v3[2] = a0->v3[2];
-        otz = func_800917C4(sp->v0, sp->v1, sp->v2, sp->v3, &sp->sxy0, &sp->sxy1, &sp->sxy2, &sp->sxy3, &sp28, &sp2C) >> (hw[0x18] + a2);
+        otz = RotAverage4(sp->v0, sp->v1, sp->v2, sp->v3, &sp->sxy0, &sp->sxy1, &sp->sxy2, &sp->sxy3, &sp28, &sp2C) >> (hw[0x18] + a2);
         if (otz > 0 && otz < 0x1C0) {
             if (a2 == 2) {
                 otz = 0x1BF;

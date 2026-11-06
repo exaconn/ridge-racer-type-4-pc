@@ -65,11 +65,11 @@ typedef struct {
 } RrLibQueueRecord32;
 
 extern RrLibQueueRecord32 *D_80110310;
-void func_8008BE14(RrLibQueueRecord32 *first, s32 second);
-void func_8008F6D4(s32 a, s32 b, s32 c, s32 d, s32 e);
+void StSetRing(RrLibQueueRecord32 *first, s32 second);
+void StSetStream(s32 a, s32 b, s32 c, s32 d, s32 e);
 extern s32 D_801102FC, D_80110304, D_80110314;
 /* Buffer must contain the configured header table and its 0x7E0-byte payload slots. */
-s32 func_8008F854(u8 **data, RrLibQueueRecord32 **header);
+s32 StGetNext(u8 **data, RrLibQueueRecord32 **header);
 
 RR_ASSERT_SIZE(RrLibPackedWord, 4);
 RR_ASSERT_SIZE(RrLibQueueRecord32, 0x20);
@@ -111,9 +111,9 @@ typedef RrLibInterruptCallback (*RrLibInterruptExchange)(s32, RrLibInterruptCall
  * Registration has no bounds check; channel must be in 0..7. */
 extern RrLibInterruptCallback D_800A63A4[8];
 extern volatile u32 *D_800A63A0;
-RrLibInterruptCallback func_8008BD10(s32 channel, RrLibInterruptCallback callback);
-RrLibInterruptExchange func_8008BB44(void);
-void func_8008BB90(void);
+RrLibInterruptCallback setIntrDMA(s32 channel, RrLibInterruptCallback callback);
+RrLibInterruptExchange startIntrDMA(void);
+void trapIntrDMA(void);
 void func_8008BDBC(RrLibInterruptCallback *callbacks, s32 count);
 
 /* Prefix of the callback driver referenced by D_800A6350. */
@@ -127,7 +127,7 @@ typedef struct {
 extern RrLibInterruptDriverPrefix *D_800A6350;
 extern void func_8008B364(void);
 RrLibInterruptCallback func_8008B3C4(s32 channel, RrLibInterruptCallback callback);
-RrLibInterruptCallback func_8007F764(RrLibInterruptCallback callback);
+RrLibInterruptCallback _SpuDataCallback(RrLibInterruptCallback callback);
 RrLibInterruptCallback func_8008B394(s32 channel, RrLibInterruptCallback callback);
 
 RR_ASSERT_SIZE(RrLibInterruptDriverPrefix, 0x10);

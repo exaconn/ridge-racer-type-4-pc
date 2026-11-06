@@ -3,7 +3,7 @@
 #include "game/gfx/ring2.h"
 #include "rr/ring_renderer.h"
 extern int func_8005599C();
-extern int func_80090F74();
+extern int ScaleMatrix();
 extern int func_8006EE3C();
 struct Q { char pad[0x20]; char q20[0x544]; int h564; };
 extern struct { char pad[0x3D8]; struct Q *q; char pad2[0x188]; int i564; } D_800AC650;
@@ -27,7 +27,7 @@ void func_8005EFBC(void) {
             l.s.z = 0x800;
             l.s.y = 0x800;
             l.s.x = 0x800;
-            func_80090F74(l.m, &l.s);
+            ScaleMatrix(l.m, &l.s);
             if (*(short *)((char *)e + i * 4 + 0x18) < 0x18) {
                 func_8006EE3C((SCRATCHPAD + 0x7C), &l.a, l.m);
                 func_80058038(D_800AC650.i564, *(short *)((char *)e + i * 4 + 0x18) + 1, 0);

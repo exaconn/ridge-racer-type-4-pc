@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int func_80095D04();
+int InitCARD();
 void StartCARD(void);
 void func_80095DA8(void);
 

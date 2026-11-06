@@ -15,25 +15,25 @@ struct S { char pad[8]; struct E *e; char pad2[0xde]; unsigned char c; };
 
 void func_80097834();
 void func_80097874();
-int func_80097894();
-int func_80097B78();
+int PadChkMtap();
+int PadInfoComb();
 void PadSetMainMode(s32 selector, s32 first, s32 second);
 
 void func_80097834() { func_80098030(); }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80098044 ((int (*)())func_80098044)
+#define _padStartCom ((int (*)())_padStartCom)
 
-void func_80097854() { func_80098044(); }
+void func_80097854() { _padStartCom(); }
 
-#undef func_80098044
+#undef _padStartCom
 
 void func_80097874() { func_80098110(); }
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC9C ((char *)D_800ABC9C)
 
-int func_80097894(a0) int a0; {
+int PadChkMtap(a0) int a0; {
     if (D_800ABCB4) {
         int i = a0 >> 4;
         return D_800ABC9C[i * 0xF0 + 0xE8] == 8;
@@ -88,7 +88,7 @@ int PadInfoMode(a0, a1, a2) int a0, a1, a2; {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC7C (*(unsigned char *(*(*))())&D_800ABC7C)
 
-int func_80097AA4(a0, a1, a2) int a0, a1, a2; {
+int PadInfoAct(a0, a1, a2) int a0, a1, a2; {
   unsigned char *p = D_800ABC7C();
   unsigned char *q;
   if (a1 < 0) return p[0xE9];
@@ -110,7 +110,7 @@ int func_80097AA4(a0, a1, a2) int a0, a1, a2; {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC7C (*(struct S *(*(*))())&D_800ABC7C)
 
-int func_80097B78(a0, a1, a2) int a0, a1, a2; {
+int PadInfoComb(a0, a1, a2) int a0, a1, a2; {
     struct S *s = D_800ABC7C();
     struct E *e;
     if (a1 < 0) return s->c;
@@ -126,12 +126,12 @@ int func_80097B78(a0, a1, a2) int a0, a1, a2; {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC7C (*(int (*(*))())&D_800ABC7C)
 
-void PadSetActAlign(a0, a1) int a0, a1; { func_80099380(D_800ABC7C(), a1); }
+void PadSetActAlign(a0, a1) int a0, a1; { _padSetActAlign(D_800ABC7C(), a1); }
 
 #undef D_800ABC7C
 
 void PadSetMainMode(s32 selector, s32 first, s32 second) {
-    func_800994CC(D_800ABC7C(selector), first & 0xFF, second & 0xFF);
+    _padSetMainMode(D_800ABC7C(selector), first & 0xFF, second & 0xFF);
 }
 
 /* legacy typing of shared globals in this part of the unit */

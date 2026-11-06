@@ -76,7 +76,7 @@ extern int BuildRotMatrixX();
 extern int MulMatrix0();
 extern int MulMatrix();
 extern int MulMatrix2();
-extern int func_80090F74();
+extern int ScaleMatrix();
 extern int SetLightMatrix();
 extern int ApplyMatrix();
 
@@ -169,7 +169,7 @@ void func_80055358(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
         addPrim(&DRAWBUF->ot[0], s2);
         p1f80 = (DrStp **)SCRATCHPAD;
         *p1f80 = s0;
-        func_80093BFC(s0, 0);
+        SetDrawStp(s0, 0);
         addPrim(&DRAWBUF->ot[0], s0);
         *p1f80 = s0 + 1;
         /* ASM_BARRIER: Keep p1f80 multi-set during loop_optimize; deleted as dead by flow */
@@ -178,7 +178,7 @@ void func_80055358(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80093BFC ((int (*)())func_80093BFC)
+#define SetDrawStp ((int (*)())SetDrawStp)
 #define D_800ACC14 ((S *)D_800ACC14)
 
 void func_800555E0()
@@ -187,7 +187,7 @@ void func_800555E0()
   unsigned int *p = *((unsigned int **) SCRATCHPAD);
   unsigned int *new_var2;
   unsigned int *ot;
-  func_80093BFC(p, 1);
+  SetDrawStp(p, 1);
   ot = D_800ACC14->w;
   *p = (new_var = ((*p) & 0xFF000000) | ((*ot) & 0xFFFFFF));
   *ot = ((*ot) & 0xFF000000) | (((unsigned int) p) & 0xFFFFFF);
@@ -195,7 +195,7 @@ void func_800555E0()
   *((unsigned int **) SCRATCHPAD) = (p = new_var2 + 3);
 }
 
-#undef func_80093BFC
+#undef SetDrawStp
 #undef D_800ACC14
 
 /* legacy typing of shared globals in this part of the unit */
@@ -315,7 +315,7 @@ void func_8005599C(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
     SetLightMatrix(&s30);
     SetColorMatrix(&s70);
     SetBackColor((unsigned char)a1[0x24], (unsigned char)a1[0x25], (unsigned char)a1[0x26]);
-    func_80090F74(&s10, &s90);
+    ScaleMatrix(&s10, &s90);
     *a2 = s10;
 }
 

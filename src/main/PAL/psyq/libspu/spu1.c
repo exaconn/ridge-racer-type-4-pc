@@ -9,11 +9,11 @@ extern s32 func_80096E64(u32,s32);
 
 void func_8007EFC0(int a0, int a1, int a2);
 
-void func_8007EF04(void) {
+void _spu_FiDMA(void) {
     /* ASM_BARRIER: Retain the bounded poll count in its original register. */
     register u32 i;
     RrSpuRegisterBank *bank;
-    if(D_800A4828==0) func_8007F59C();
+    if(D_800A4828==0) _spu_Fw1ts();
     bank=D_800A47D8;
     bank->spu_control &= 0xFFCF;
     {
@@ -39,9 +39,9 @@ again:
 
 void func_8007EFC0(int a0, int a1, int a2) {
     D_800A47D8->transfer_address = a1;
-    func_8007F59C();
+    _spu_Fw1ts();
     D_800A47D8->spu_control |= 0x30;
-    func_8007F59C();
+    _spu_Fw1ts();
     func_8007F574();
     *D_800A47DC = a0;
     *D_800A47E0 = ((u32)a2 << 16) | 0x10;

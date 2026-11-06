@@ -34,7 +34,7 @@ s32 test_counter_at_diag;
 void event(u32 kind,u32 arg,u32 value) {
  s32 i=test_event_count++;if(i<64){test_events[i][0]=kind;test_events[i][1]=arg;test_events[i][2]=value;}
 }
-s32 func_8008B154(s32 mode) {test_time_calls++;event(1,(u32)mode,0);return test_now;}
+s32 VSync(s32 mode) {test_time_calls++;event(1,(u32)mode,0);return test_now;}
 u32 test_read(volatile u32 *p) {
  u32 value=*p;test_read_count++;event(2,p==&ports[0]?0:4,value);
  if(test_read_count==1)*p=0x89ABCDEFU;

@@ -7,19 +7,19 @@
 
 #define D_800ABCCC ((struct R *)D_800ABCCC)
 
-#define func_8009A814 ((int (*)())func_8009A814)
+#define chkRC2wait ((int (*)())chkRC2wait)
 
 #undef D_800ABCC8
 
 #undef D_800ABCCC
 
-#undef func_8009A814
+#undef chkRC2wait
 
 struct HW { volatile unsigned char b0; char p1[3]; volatile unsigned short s4; short p6; short s8; unsigned short sA; char pC[2]; volatile short sE; };
 
 struct Q { int a; };
 
-extern int func_8009A7F4(), func_8009A814();
+extern int setRC2wait(), chkRC2wait();
 
 extern struct HW *D_800ABCCC;
 
@@ -29,7 +29,7 @@ int func_80098A00() {
     D_800ABCC8->a = -0x81;
     if (D_800ABCCC->c & 0x80) {
         do {
-            if (func_8009A814()) return 0;
+            if (chkRC2wait()) return 0;
         } while (D_800ABCCC->c & 0x80);
     }
     D_800ABCCC->f |= 0x10;

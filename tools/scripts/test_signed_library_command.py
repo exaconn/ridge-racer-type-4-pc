@@ -35,13 +35,13 @@ s32 test_unexpected_probe_calls;
 s32 _SpuIsInAllocateArea_(s32 ignored) {test_unexpected_probe_calls++;return 0;}
 '''
         reset = (root / 'tools/scripts/fixtures/views/func_80086694.c').read_text()
-        reset = reset.replace('func_80086694', 'test_actual_reset')
+        reset = reset.replace('SpuSetReverb', 'test_actual_reset')
         source += reset + '''
 struct S test_device;
 struct S *D_800A47D8=&test_device;
 int D_800A484C, D_800A4850, D_800A4854;
 u16 *test_device_flags=&test_device.f;
-s32 func_80086694(s32 value) {test_reset_hook();return test_actual_reset(value);}
+s32 SpuSetReverb(s32 value) {test_reset_hook();return test_actual_reset(value);}
 void test_initialize(void) {
  memset(test_command_page,0xA5,64);test_device.f=0xFFFF;D_800A484C=99;
  D_800A4850=7;D_800A4854=-123;test_unexpected_probe_calls=0;

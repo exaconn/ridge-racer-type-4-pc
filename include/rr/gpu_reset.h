@@ -34,11 +34,11 @@ extern RrGpuHeightTable14 D_800ABB4C;
 extern const char D_80011DF0[], D_80011E10[];
 
 s32 func_8001E84C(const char *format, ...);
-void func_800959B8(s8 *destination, s8 value, s32 length);
+void GPU_memset(s8 *destination, s8 value, s32 length);
 s32 func_800950D4(s32 mode);
 /* BIOS service receives an encoded low-24-bit PAL address, not a native pointer. */
 s32 func_80096E24(unsigned long address);
-s32 func_800929D4(s32);
+s32 ResetGraph(s32);
 
 RR_ASSERT_SIZE(RrGpuResetDriver40, 0x40);
 RR_ASSERT_OFFSET(RrGpuResetDriver40, reset34, 0x34);

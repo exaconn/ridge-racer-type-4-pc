@@ -67,7 +67,7 @@ extern void func_8005F0D0();
 extern void func_8006E1AC();
 extern void ApplyMatrix();
 extern void func_800912D4();
-extern void func_80091D64();
+extern void RotMatrixZYX();
 extern void func_800172DC();
 extern int D_800AC6B0;
 extern Elem28 (*D_800ACBA4)[16];
@@ -165,7 +165,7 @@ void func_800451E4(int *a) {
     r[0] = 0;
     r[1] = 0;
     r[2] = -*(unsigned short *)((char *)a + 0x1C);
-    func_80091D64(v, m);
+    RotMatrixZYX(v, m);
     ApplyMatrix(m, r, t);
     s[2] = a[0] + t[0];
     s[3] = a[1] + t[1];

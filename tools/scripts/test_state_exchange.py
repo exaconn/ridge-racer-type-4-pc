@@ -46,10 +46,10 @@ RrLibQueueRecord32 *test_queue;
 '''
         names = ([name for name, _ in EXCHANGES] + ['func_80098030']
                  + [name for name, _, _ in SETTERS]
-                 + ['func_80087DA4', 'func_8008B044', 'func_8008BE14', 'func_8009A7F4',
+                 + ['func_80087DA4', 'SpuSetTransferMode', 'StSetRing', 'setRC2wait',
                     'func_8009C0A4'])
         for name in names:
-            body = (root / 'tools/scripts/fixtures/legacy' / (name + '.c')).read_text()
+            body = (root / 'tools/scripts/fixtures/legacy' / (name + '.c')).read_text() if (root / 'tools/scripts/fixtures/legacy' / (name + '.c')).exists() else (root / 'tools/scripts/fixtures/legacy' / ('func_%08X.c' % __import__('c_functions').address_of(name))).read_text()
             body = body.replace('#include "types.h"', '')
             body = body.replace('#include "rr/library.h"', '')
 
@@ -71,7 +71,7 @@ RrLibQueueRecord32 *test_queue;
             source += body
         source += '''
 void (*test_pair_after)(void);
-void func_8008F504(void) { test_pair_after(); }
+void StClearRing(void) { test_pair_after(); }
 '''
         (directory / 'functions.c').write_text(source)
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'functions.c'),
@@ -134,7 +134,7 @@ void func_8008F504(void) { test_pair_after(); }
             self.assert_only_write(self.words, before, 0x480C, struct.pack('<i', int(mode != 1)))
 
     def test_mode_selection_records_both_fields(self):
-        function = self.library.func_8008B044
+        function = self.library.SpuSetTransferMode
         function.argtypes = [C.c_int32]
         function.restype = None
         for mode in (-(1 << 31), -1, 0, 1, 2, (1 << 31) - 1):
@@ -146,7 +146,7 @@ void func_8008F504(void) { test_pair_after(); }
             self.assertEqual(C.string_at(C.addressof(self.words), C.sizeof(self.words)), expected)
 
     def test_pair_update_is_visible_to_the_following_call(self):
-        function = self.library.func_8008BE14
+        function = self.library.StSetRing
         function.argtypes = [C.c_void_p, C.c_int32]
         function.restype = None
         queues = [C.create_string_buffer(32) for _ in range(3)]
@@ -169,7 +169,7 @@ void func_8008F504(void) { test_pair_after(); }
             self.assert_only_write(self.pair_words, before, 0x314, struct.pack('<i', second))
 
     def test_timer_snapshot_and_limit_use_separate_full_words(self):
-        function = self.library.func_8009A7F4
+        function = self.library.setRC2wait
         function.argtypes = [C.c_int32]
         function.restype = None
         counter = C.c_uint16.in_dll(self.library, 'test_counter')

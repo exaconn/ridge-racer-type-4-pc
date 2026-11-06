@@ -8,7 +8,7 @@ extern int D_800A484C, D_800A4850, D_800A4854;
 
 extern int _SpuIsInAllocateArea_();
 
-int func_80086694(int a0) {
+int SpuSetReverb(int a0) {
     switch (a0) {
     case 0:
         D_800A484C = 0;

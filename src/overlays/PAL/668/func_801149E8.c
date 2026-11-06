@@ -13,7 +13,7 @@ void ovl668_func_801149E8(void)
     D_800AC650.activeB8 = state;
     D_800ACC18 = (u8 *)state + sizeof(*state);
     func_80096434(state, sizeof(*state));
-    func_800929D4(3);
+    ResetGraph(3);
     func_8008C0D8(0, 0);
     CdControl(9, 0, 0);
     D_800AC650.phaseB4 = 0;

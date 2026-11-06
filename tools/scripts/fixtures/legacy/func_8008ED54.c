@@ -3,7 +3,7 @@
 
 extern RrLibCompletionCallback volatile D_800A67DC;
 extern void func_8008C580(s32);
-extern s32 func_8008B154(s32);
+extern s32 VSync(s32);
 extern RrLibCompletionCallback func_8008C118(RrLibCompletionCallback);
 extern RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback);
 extern RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback);
@@ -60,11 +60,11 @@ second_timeout:
     root->finished24=0;
     goto done;
 begin_first_wait:
-    first_tick=func_8008B154(-1);
+    first_tick=VSync(-1);
     if(root->finished24!=0) {
         pending_a=&root->finished24;
 first_poll:
-        if((u32)func_8008B154(-1)-first_tick>=121U)goto first_timeout;
+        if((u32)VSync(-1)-first_tick>=121U)goto first_timeout;
         if(*pending_a!=0)goto first_poll;
     }
     decision=0;
@@ -82,11 +82,11 @@ after_first_wait:
         publish=(RrLibReadRequestState*)((u8*)pair-RR_PAIR_OWNER_OFFSET);
         ((volatile RrLibReadRequestState*)publish)->finished24=1;
         if(RR_PAIR_PENDING(pair)!=0) {
-            second_tick=func_8008B154(-1);
+            second_tick=VSync(-1);
             if(RR_PAIR_PENDING(pair)!=0) {
                 pending_b=&RR_PAIR_PENDING(pair);
 second_poll:
-                if((u32)func_8008B154(-1)-second_tick>=121U)goto second_timeout;
+                if((u32)VSync(-1)-second_tick>=121U)goto second_timeout;
                 if(*pending_b!=0)goto second_poll;
             }
         }

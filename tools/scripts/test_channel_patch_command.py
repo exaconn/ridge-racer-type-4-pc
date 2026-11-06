@@ -43,8 +43,8 @@ RrChannelRecordCallback D_800ABC7C;
 unsigned long test_size(void) {return sizeof(RrChannelPatchCommand);}
 unsigned long test_argument_offset(void) {return offsetof(RrChannelPatchCommand,argument);}
 '''
-        for name in ('func_800994CC','channel_patch_handlers','PadSetMainMode'):
-            body=(root/('tools/scripts/fixtures/legacy/'+name+'.c')).read_text()
+        for name in ('_padSetMainMode','channel_patch_handlers','PadSetMainMode'):
+            body=(root/('tools/scripts/fixtures/legacy/'+{'_padSetMainMode':'func_800994CC'}.get(name,name)+'.c')).read_text()
             body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
             body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
             body=re.sub(r'"\$[0-9]+",\s*','',body)
@@ -56,7 +56,7 @@ unsigned long test_argument_offset(void) {return offsetof(RrChannelPatchCommand,
                               capture_output=True,text=True)
         if result.returncode:raise AssertionError(result.stderr)
         cls.lib=C.CDLL(str(directory/'command.so'))
-        cls.start=cls.lib.func_800994CC
+        cls.start=cls.lib._padSetMainMode
         cls.start.argtypes=[C.POINTER(Command),C.c_int32,C.c_int32];cls.start.restype=C.c_int32
         cls.lib.PadSetMainMode.argtypes=[C.c_int32]*3;cls.lib.PadSetMainMode.restype=None
         cls.update_address=C.cast(cls.lib.func_80099564,C.c_void_p).value

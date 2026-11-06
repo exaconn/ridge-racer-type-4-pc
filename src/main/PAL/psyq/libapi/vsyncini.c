@@ -7,8 +7,8 @@
 
 extern s32 *D_800A6394;
 
-void func_8008BA7C();
-void func_8008BAE8(s32 slot,RrSpuTickCallback callback);
+void trapIntrVSync();
+void setIntrVSync(s32 slot,RrSpuTickCallback callback);
 void func_8008BB14();
 
 /* legacy typing of shared globals in this part of the unit */
@@ -19,8 +19,8 @@ int *func_8008BA24(void) {
     *D_800A6394 = 0x100;
     D_800A6390 = 0;
     func_8008BB14(&D_800A6370, 8);
-    func_8008B394(0, &func_8008BA7C);
-    return &func_8008BAE8;
+    func_8008B394(0, &trapIntrVSync);
+    return &setIntrVSync;
 }
 
 #undef func_8008B394
@@ -29,7 +29,7 @@ int *func_8008BA24(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A6370 (*(void (*(*)[8])())&D_800A6370)
 
-void func_8008BA7C() {
+void trapIntrVSync() {
     int i = 0;
     void (**p)() = D_800A6370;
     D_800A6390++;
@@ -42,7 +42,7 @@ void func_8008BA7C() {
 
 #undef D_800A6370
 
-void func_8008BAE8(s32 slot,RrSpuTickCallback callback)
+void setIntrVSync(s32 slot,RrSpuTickCallback callback)
 {
     RrSpuTickCallback *base=D_800A6370;
     RrSpuTickCallback *p=base+slot;

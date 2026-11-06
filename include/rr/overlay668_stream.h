@@ -17,7 +17,7 @@ extern u8 D_800AD558;
 void SetDispMask(s32);
 void func_800825B4(s8,s8,s8);
 void func_80083CD4(s8,s32,s32);
-s32 func_8008B154(s32);
+s32 VSync(s32);
 s32 ovl668_func_801150D8(RrStrDisplayConfig *);
 void ovl668_func_801153F0(u8 *location);
 void ovl668_func_80114B2C(u8 *resource);

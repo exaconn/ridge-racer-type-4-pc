@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80095AF4(void *arg0, s32 arg1);
+void SetSemiTrans(void *arg0, s32 arg1);
 
 #endif /* RR_PSYQ_LIBGPU_SETTRANS_H */

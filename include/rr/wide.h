@@ -10,7 +10,7 @@ typedef struct {
     s32 hi;
 } RrWide64;
 
-RrWide64 *func_8007DB54(RrWide64 *result, RrWide64 left, RrWide64 right);
+RrWide64 *_add_mant_d(RrWide64 *result, RrWide64 left, RrWide64 right);
 
 /* Repeated logical one-bit shift: direction 0 is left, nonzero is right;
  * nonpositive counts copy the input unchanged. Returns the output pointer. */

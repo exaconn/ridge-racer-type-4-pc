@@ -3,7 +3,7 @@
 #include "psyq/libpad/padtm22.h"
 #include "rr/serial.h"
 
-void func_8009A7F4(s32 limit) {
+void setRC2wait(s32 limit) {
     /* ASM_BARRIER: keep the zero-extended timer read in its original register. */
     register s32 counter __asm__("$2") = *(volatile u16 *)0x1F801120;
     /* ASM_BARRIER: retain the original assembler temporary for the mapped store. */
@@ -21,7 +21,7 @@ void func_8009A7F4(s32 limit) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_801146BC (*(unsigned int (*))&D_801146BC)
 
-int func_8009A814() {
+int chkRC2wait() {
     unsigned int a0;
     /* ASM_BARRIER: pin MMIO pointer to $v1 (original keeps it in v1, accumulator in a0) */
     register volatile unsigned short *p __asm__("$3");

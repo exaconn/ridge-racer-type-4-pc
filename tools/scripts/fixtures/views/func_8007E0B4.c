@@ -20,7 +20,7 @@ s32 func_8007E0B4(u64 value)
             mantissa.hi=(input.words.hi&0xFFFFF)|0x100000;
             mantissa.lo=input.words.lo;
             /* Retain the original initialized stack-pair argument read. */
-            mantissa=func_8007DC04(0,*(volatile RrWide64 *)&mantissa,10);
+            mantissa=_dbl_shift(0,*(volatile RrWide64 *)&mantissa,10);
             scaled=mantissa.hi;
             if((u32)(exponent-0x3FE)<32U&&scaled!=0) {
                 /* The exponent gate proves that -shift is in0..31. */

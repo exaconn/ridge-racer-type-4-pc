@@ -20,7 +20,7 @@ void func_80082C94(void);
 void SsSetMVol(short a, short b) {
     struct { int x; short y, z; int pad[8]; } s;
     s.x = 3; s.y = a * 0x81; s.z = b * 0x81;
-    func_80082674(&s);
+    SpuSetCommonAttr(&s);
 }
 
 void func_80082A44(s32 direct)
@@ -75,7 +75,7 @@ void func_80082A44(s32 direct)
     } else {
         func_80096F04();
         ResetRCnt(counter);
-        func_80096FA4(counter,(u16)period,0x1000);
+        SetRCnt(counter,(u16)period,0x1000);
         interrupt=FLAG(state,interrupt);
         if(interrupt==0) {
             interrupt=0;

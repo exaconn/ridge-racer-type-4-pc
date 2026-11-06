@@ -33,7 +33,7 @@ s32 test_ram[16384];
 RrLibInterruptDriverPrefix test_driver,test_alternate_driver;
 RrLibInterruptDriverPrefix *D_800A6350=&test_driver;
 s32 test_stop_calls;
-void func_8007EF04(void) {test_stop_calls++;}
+void _spu_FiDMA(void) {test_stop_calls++;}
 s32 (*test_system)(s32,u32,s32,s32,void *);
 s32 func_80096F04(void) {return test_system(1,0,0,0,0);}
 s32 func_80096F14(void) {return test_system(5,0,0,0,0);}
@@ -53,7 +53,7 @@ s32 func_80096EB4(s32 event) {return test_system(4,(u32)event,0,0,0);}
                 # Replace just the fixed callback page with a native address whose
                 # signed low-page subtraction still gives the actual callback.
                 body = body.replace('unsigned long page=0x80080000U;',
-                                    'unsigned long page=(unsigned long)func_8007EF04+0x10FC;')
+                                    'unsigned long page=(unsigned long)_spu_FiDMA+0x10FC;')
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r'"\$[0-9]+", ', '', body)
             body = re.sub(r' : "\$[0-9]+"', '', body)
@@ -71,14 +71,14 @@ s32 func_80096EB4(s32 event) {return test_system(4,(u32)event,0,0,0);}
         cls.alternate = Driver.in_dll(cls.lib, 'test_alternate_driver')
         cls.current = C.c_void_p.in_dll(cls.lib, 'D_800A6350')
         cls.stop_calls = C.c_int32.in_dll(cls.lib, 'test_stop_calls')
-        cls.stop = C.cast(cls.lib.func_8007EF04, C.c_void_p).value
-        cls.initialize = cls.lib.func_8007F6EC
+        cls.stop = C.cast(cls.lib._spu_FiDMA, C.c_void_p).value
+        cls.initialize = cls.lib.SpuStart
         cls.initialize.argtypes = []
         cls.initialize.restype = None
         cls.exchange = cls.lib.func_8008B3C4
         cls.exchange.argtypes = [C.c_int32, C.c_void_p]
         cls.exchange.restype = C.c_void_p
-        cls.spu_exchange = cls.lib.func_8007F764
+        cls.spu_exchange = cls.lib._SpuDataCallback
         cls.spu_exchange.argtypes = [C.c_void_p]
         cls.spu_exchange.restype = C.c_void_p
 

@@ -16,9 +16,9 @@ int func_8008F090(a0, a1) int a0, a1; {
     int *p = D_800A67CC;
     int *q = D_800A67CC + 2;
     for (;;) {
-        if (func_8008B154(-1) > p[0] + 0x4B0) {
+        if (VSync(-1) > p[0] + 0x4B0) {
             s0 = -1;
-        } else if (p[-2] < 0 || func_8008B154(-1) > p[-1] + 0x3C) {
+        } else if (p[-2] < 0 || VSync(-1) > p[-1] + 0x3C) {
             func_8008EB6C(1);
             s0 = p[-7];
         } else {

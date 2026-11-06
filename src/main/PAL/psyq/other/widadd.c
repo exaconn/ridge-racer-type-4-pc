@@ -1,6 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/wide.h"
-RrWide64 *func_8007DB54(RrWide64 *result, RrWide64 a, RrWide64 b) {
+RrWide64 *_add_mant_d(RrWide64 *result, RrWide64 a, RrWide64 b) {
     unsigned t[4];
     u32 low;
     /* ASM_BARRIER: Keep the result words in the original copy registers. */

@@ -1,7 +1,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/wide.h"
 
-extern RrWide64 *func_8007DC04(RrWide64 *result, s32 direction, RrWide64 value, s32 count);
+extern RrWide64 *_dbl_shift(RrWide64 *result, s32 direction, RrWide64 value, s32 count);
 extern s32 func_8007E9C4(s32 category, s32 operation);
 
 typedef union {
@@ -60,17 +60,17 @@ double func_8007D7D4(double a_in, double b_in) {
         func_8007E494(&sp20, sp20);
     }
 
-    func_8007DC04(&sp18, 0, sp18, 9);
-    func_8007DC04(&sp20, 0, sp20, 9);
+    _dbl_shift(&sp18, 0, sp18, 9);
+    _dbl_shift(&sp20, 0, sp20, 9);
 
     if (s6 < s4) {
-        func_8007DC04(&sp20, 1, sp20, s4 - s6);
+        _dbl_shift(&sp20, 1, sp20, s4 - s6);
     } else {
-        func_8007DC04(&sp18, 1, sp18, s6 - s4);
+        _dbl_shift(&sp18, 1, sp18, s6 - s4);
         s4 = s6;
     }
 
-    func_8007DB54(&sp18, sp18, sp20);
+    _add_mant_d(&sp18, sp18, sp20);
 
     if (sp18.hi < 0) {
         func_8007E494(&sp18, sp18);
@@ -93,7 +93,7 @@ double func_8007D7D4(double a_in, double b_in) {
             /* ASM_BARRIER: keep loop mask in s0 */
             register s32 mask_e0 asm("$16") = 0xE0000000;
             do {
-                func_8007DC04(&sp18, 0, sp18, 1);
+                _dbl_shift(&sp18, 0, sp18, 1);
                 s4--;
             } while ((sp18.hi & mask_e0) == 0);
         }
@@ -114,7 +114,7 @@ double func_8007D7D4(double a_in, double b_in) {
         cnt1 = 1;
         /* ASM_BARRIER: order stack store of cnt1 before loading sp18 into a2/a3 */
         __asm__("" : "+r"(cnt1), "+m"(sp18));
-        func_8007DC04(p18, dir1, sp18, cnt1);
+        _dbl_shift(p18, dir1, sp18, cnt1);
         s4++;
     }
 
@@ -122,7 +122,7 @@ double func_8007D7D4(double a_in, double b_in) {
     sp28.lo = (sp18.lo & 0x200) ? 0x100 : 0xFF;
     /* ASM_BARRIER: reload sp28.lo from stack while keeping sp28.hi=0 constant */
     __asm__("" : "+m"(sp28.lo));
-    func_8007DB54(&sp18, sp18, sp28);
+    _add_mant_d(&sp18, sp18, sp28);
 
     if (sp18.hi & 0x40000000) {
         /* ASM_BARRIER: materialize &sp18 in a0 for branch delay slot */
@@ -139,11 +139,11 @@ double func_8007D7D4(double a_in, double b_in) {
         cnt1 = 1;
         /* ASM_BARRIER: order stack store of cnt1 before loading sp18 into a2/a3 */
         __asm__("" : "+r"(cnt1), "+m"(sp18));
-        func_8007DC04(p18, dir1, sp18, cnt1);
+        _dbl_shift(p18, dir1, sp18, cnt1);
         s4++;
     }
 
-    func_8007DC04(&sp18, 1, sp18, 9);
+    _dbl_shift(&sp18, 1, sp18, 9);
     sp18.hi &= 0xFFEFFFFF;
 
     if (s4 >= 0x7FF) {

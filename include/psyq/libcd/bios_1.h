@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int func_8008D5D4();
+int CD_vol();
 int CD_initvol(void);
 void CD_initintr(void);
 

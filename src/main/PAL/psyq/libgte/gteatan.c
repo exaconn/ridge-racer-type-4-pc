@@ -4,7 +4,7 @@ extern short D_800AB260[]; /* ratan_tbl */
 
 /* PsyQ libgte ratan2(y, x) */
 
-long func_800924D4(long y, long x) {
+long ratan2(long y, long x) {
     long v, r, ret, c;
     int s1 = 0, s2 = 0;
 

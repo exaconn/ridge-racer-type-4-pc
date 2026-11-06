@@ -14,7 +14,7 @@ extern char D_8010F91C[];
 extern char D_8010F91E[];
 extern signed char D_801100FC;
 extern short D_80110118;
-extern int func_8007F414(int, int);
+extern int _spu_FsetRXXa(int, int);
 extern volatile unsigned short *D_800A47D8;
 extern unsigned short D_800A4874[];
 
@@ -175,10 +175,10 @@ void func_80084674(SpuVoiceAttr *s0) {
                 D_800A47D8[s3 + 1] = ua1 | a0;
             }
             if (s2 || (s1 & 0x80)) {
-                func_8007F414(s3 | 3, s0->addr);
+                _spu_FsetRXXa(s3 | 3, s0->addr);
             }
             if (s2 || (s1 & 0x10000)) {
-                func_8007F414(s3 | 7, s0->loop_addr);
+                _spu_FsetRXXa(s3 | 7, s0->loop_addr);
             }
             if (s2 || (s1 & 0x20000)) {
                 D_800A47D8[s3 + 4] = s0->adsr1;

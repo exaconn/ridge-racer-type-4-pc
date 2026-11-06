@@ -1,7 +1,7 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/library.h"
-extern void func_8008F504(void);
-void func_8008BE14(RrLibQueueRecord32 *first, s32 second) {
+extern void StClearRing(void);
+void StSetRing(RrLibQueueRecord32 *first, s32 second) {
     /* ASM_BARRIER: preserve the original assembler temporary for the mapped store. */
     register s32 *base __asm__("$1");
     D_80110310 = first;
@@ -12,5 +12,5 @@ void func_8008BE14(RrLibQueueRecord32 *first, s32 second) {
     /* ASM_BARRIER: allow the register-relative store in the branch delay slot. */
     __asm__("" : "=r"(base) : "0"(base));
     base[0x314 / 4] = second;
-    func_8008F504();
+    StClearRing();
 }

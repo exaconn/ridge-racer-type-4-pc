@@ -3,7 +3,7 @@
 #include "rr/spu.h"
 #include "rr/spu_allocation.h"
 extern int D_800A4800;
-int func_80087D44(a0, a1) int a0; int *a1; {
+int SpuInitMalloc(a0, a1) int a0; int *a1; {
     if (a0 > 0) {
         int sh = D_800A4800;
         a1[0] = 0x40001010;

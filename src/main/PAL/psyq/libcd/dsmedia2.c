@@ -22,12 +22,12 @@ extern RrLibPackedWord D_80112750;
 extern void (*D_80112760)(void);
 extern int CdPosToInt();
 
-void func_8008F504(void);
+void StClearRing(void);
 void StUnSetRing(void);
 void data_ready_callback(void);
 int StGetBackloc(int a);
 
-void func_8008F504(void) {
+void StClearRing(void) {
     int a = D_80110314;
     D_801102FC = 0;
     D_801102F8 = 0;

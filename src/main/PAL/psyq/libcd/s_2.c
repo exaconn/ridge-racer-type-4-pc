@@ -232,7 +232,7 @@ retry:
 }
 
 s32 func_8008C4FC(void) {
-    func_8008D5D4();
+    CD_vol();
     return 1;
 }
 

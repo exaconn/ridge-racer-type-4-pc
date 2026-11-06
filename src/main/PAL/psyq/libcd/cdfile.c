@@ -51,7 +51,7 @@ extern s32 func_80096404(const char *, const char *);
 CdlFILE *func_8008DE84(CdlFILE *fp, char *name);
 int func_8008E15C(int a, int b);
 int func_8008E17C(void);
-s32 func_8008E440(s32 key, const char *name);
+s32 DS_searchdir(s32 key, const char *name);
 
 CdlFILE *func_8008DE84(CdlFILE *fp, char *name) {
     char buf[16];
@@ -86,7 +86,7 @@ CdlFILE *func_8008DE84(CdlFILE *fp, char *name) {
                 goto done;
             p++;
             *d = 0;
-            if ((dir = func_8008E440(dir, buf)) == -1)
+            if ((dir = DS_searchdir(dir, buf)) == -1)
                 goto err;
             i++;
         } while (i < 8);
@@ -103,7 +103,7 @@ done:
         return 0;
     }
     *d = 0;
-    if (func_8008E4E4(dir) == 0) {
+    if (DS_cachefile(dir) == 0) {
         if (D_800A6490 > 0)
             func_8001E84C(D_80011B6C);
         return 0;
@@ -203,7 +203,7 @@ int func_8008E17C(void) {
 
 #undef func_80096414
 
-s32 func_8008E440(s32 key, const char *name) {
+s32 DS_searchdir(s32 key, const char *name) {
     s32 i = 0;
     register char *entry_name;
     /* ASM_BARRIER: Retain the original table-offset register across comparisons. */

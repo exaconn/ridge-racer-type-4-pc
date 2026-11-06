@@ -17,10 +17,10 @@ void func_800825B4(signed char a0, signed char a1, signed char a2) {
         if (a1 == 0) { s.x = 0x2000; s.v34 = a2; }
         if (a1 == 1) { s.x = 0x1000; s.v30 = a2; }
     }
-    func_80082674(&s);
+    SpuSetCommonAttr(&s);
 }
 
-void func_80082674(RrSpuCommonAttributes28 *attributes) {
+void SpuSetCommonAttr(RrSpuCommonAttributes28 *attributes) {
     RrSpuRegisterStorage *bank;
     s16 temp_a2;
     s16 temp_a3;

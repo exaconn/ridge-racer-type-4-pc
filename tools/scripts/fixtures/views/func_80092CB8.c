@@ -54,7 +54,7 @@
 
 #define D_800ABAB8 (*(struct { char pad[0x10]; int (*f)(); } *(*))&D_800ABAB8)
 
-#define func_800959B8 ((int (*)())func_800959B8)
+#define GPU_memset ((int (*)())GPU_memset)
 
 #undef D_800ABAC2
 
@@ -62,7 +62,7 @@
 
 #undef D_800ABAB8
 
-#undef func_800959B8
+#undef GPU_memset
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((void *)D_800ABAB8)
@@ -169,5 +169,5 @@ extern char D_80011E80[];
 void SetDispMask(a0) int a0; {
  unsigned char *p = D_800ABAC2;
  if (*p >= 2) D_800ABABC(D_80011E80, a0);
- if (a0 == 0) func_800959B8(p + 0x6A, -1, 0x14);
+ if (a0 == 0) GPU_memset(p + 0x6A, -1, 0x14);
  D_800ABAB8->f(a0 ? 0x3000000 : 0x3000001); }

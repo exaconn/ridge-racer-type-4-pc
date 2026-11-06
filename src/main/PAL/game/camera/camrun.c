@@ -181,7 +181,7 @@ void func_8005B304(void) {
             DrStp *s5 = ((Scratch5B304 *)SCRATCHPAD)->p00;
             DrStp *s0_p;
 
-            func_80093BFC(s5, 0);
+            SetDrawStp(s5, 0);
             s5->code |= 2;
             s5->addr = DRAWBUF->tailB6C.addr;
             DRAWBUF->tailB6C.addr = (u32)s5;
@@ -190,7 +190,7 @@ void func_8005B304(void) {
             ((DrStp *)g->p04)->addr = DRAWBUF->tailB6C.addr;
             DRAWBUF->tailB6C.addr = g->p04 + 0xAFC;
             s5 = ((Scratch5B304 *)SCRATCHPAD)->p00;
-            func_80093BFC(s5, 0);
+            SetDrawStp(s5, 0);
             s5->addr = DRAWBUF->tailB6C.addr;
             DRAWBUF->tailB6C.addr = (u32)s5;
             s5++;
@@ -208,7 +208,7 @@ void func_8005B304(void) {
             DRAWBUF->tailB6C.addr = (u32)s5;
             s0_p = (DrStp *)((TilePrim *)s5 + 1);
             ((Scratch5B304 *)SCRATCHPAD)->p00 = s0_p;
-            func_80093BFC(s0_p, 1);
+            SetDrawStp(s0_p, 1);
             __asm__ volatile("" : "+r"(s0_p)); /* ASM_BARRIER: prevent CSE from folding s0_p + 1 into s5 + 28 */
             s5 = s0_p + 1;
             s0_p->addr = DRAWBUF->tailB6C.addr;

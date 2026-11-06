@@ -1,14 +1,14 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/spu.h"
-extern void func_8007F59C(void);
+extern void _spu_Fw1ts(void);
 extern s32 func_80096E64(u32,s32);
 extern s32 D_800A4828;
 extern void (*volatile D_800A4810)(void);
-void func_8007EF04(void) {
+void _spu_FiDMA(void) {
     /* ASM_BARRIER: Retain the bounded poll count in its original register. */
     register u32 i;
     RrSpuRegisterBank *bank;
-    if(D_800A4828==0) func_8007F59C();
+    if(D_800A4828==0) _spu_Fw1ts();
     bank=D_800A47D8;
     bank->spu_control &= 0xFFCF;
     {

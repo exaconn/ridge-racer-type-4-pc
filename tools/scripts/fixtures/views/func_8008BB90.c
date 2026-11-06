@@ -12,7 +12,7 @@ extern char D_80011894[];
 
 extern void func_8001E84C();
 
-void func_8008BB90(void) {
+void trapIntrDMA(void) {
     unsigned int s1;
     int i;
     RrLibInterruptCallback *bp;

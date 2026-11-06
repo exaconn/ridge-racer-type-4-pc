@@ -28,8 +28,8 @@ s32 func_8008AEC4(const u16 *source,s32 raw) {
    /* ASM_BARRIER: Read the actual allocation page into the preserved address register. */
    __asm__("" : "+r"(allocation));
    allocation=*(u32*)(allocation+offset+0x180);
-   func_8008B044(0);
-   if(func_8008AFE4(allocation)) {
+   SpuSetTransferMode(0);
+   if(SpuSetTransferStartAddr(allocation)) {
     register u8 *sizes __asm__("$5");
     /* ASM_BARRIER: Load the size page only after successful address programming. */
     __asm__("" : : : "$5");

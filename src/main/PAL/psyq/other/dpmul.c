@@ -13,8 +13,8 @@ typedef union {
     RrWide64 s;
 } DpUnion;
 
-extern RrWide64 func_8007DB54(RrWide64 left, RrWide64 right);
-extern RrWide64 func_8007DC04(s32 direction, RrWide64 value, s32 count);
+extern RrWide64 _add_mant_d(RrWide64 left, RrWide64 right);
+extern RrWide64 _dbl_shift(s32 direction, RrWide64 value, s32 count);
 extern s32 _comp_mant(RrWide64 left, RrWide64 right);
 extern RrWide64 _dbl_shift_us(s32 direction, RrWide64 value, s32 count);
 extern RrWide64 func_8007E494(RrWide64 value);
@@ -55,7 +55,7 @@ u64 func_8007DCC4(u64 a_in, u64 b_in) {
         sp38.lo = b.s.lo;
 
         if (_comp_mant(sp30, sp38) < 0) {
-            sp30 = func_8007DC04(0, sp30, 1);
+            sp30 = _dbl_shift(0, sp30, 1);
             s1--;
         }
 
@@ -68,9 +68,9 @@ u64 func_8007DCC4(u64 a_in, u64 b_in) {
             if (_comp_mant(sp30, sp38) >= 0) {
                 sp18.hi |= sp20.hi;
                 sp18.lo |= sp20.lo;
-                sp30 = func_8007DB54(sp30, func_8007E494(sp38));
+                sp30 = _add_mant_d(sp30, func_8007E494(sp38));
             }
-            sp30 = func_8007DC04(0, sp30, 1);
+            sp30 = _dbl_shift(0, sp30, 1);
             sp20 = _dbl_shift_us(1, sp20, 1);
         } while (sp20.hi != 0 || sp20.lo != 0);
 
@@ -78,14 +78,14 @@ u64 func_8007DCC4(u64 a_in, u64 b_in) {
             s0 = 1;
             sp28.hi = 0;
             *(volatile u32 *)&sp28.lo = s0;
-            sp18 = func_8007DB54(sp18, sp28);
+            sp18 = _add_mant_d(sp18, sp28);
             s1++;
             sp18 = _dbl_shift_us(1, sp18, s0);
         } else {
             s32 n = -s1;
             sp28.hi = 0;
             *(volatile u32 *)&sp28.lo = 1 << n;
-            sp18 = func_8007DB54(sp18, sp28);
+            sp18 = _add_mant_d(sp18, sp28);
             s1 = 0;
             sp18 = _dbl_shift_us(1, sp18, n + 1);
         }

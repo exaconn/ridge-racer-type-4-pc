@@ -59,7 +59,7 @@ s32 func_80096404(const char *name, const char *entry_name) {
         cls.comparisons = C.c_int32.in_dll(cls.library, 'test_comparisons')
         cls.mutate = C.c_int32.in_dll(cls.library, 'test_mutate_next')
         cls.last_name = C.c_void_p.in_dll(cls.library, 'test_last_name')
-        cls.function = cls.library.func_8008E440
+        cls.function = cls.library.DS_searchdir
         cls.function.argtypes = [C.c_int32, C.c_char_p]
         cls.function.restype = C.c_int32
 

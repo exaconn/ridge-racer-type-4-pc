@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80091704(int *a0, int *a1, int *a2);
+void RotTrans(int *a0, int *a1, int *a2);
 
 #endif /* RR_PSYQ_LIBGTE_GTEMATH2_H */

@@ -35,7 +35,7 @@ extern const char D_80011BA8[];
 
 extern const char D_80011BB4[];
 
-extern int func_8008E4E4(int);
+extern int DS_cachefile(int);
 
 extern int func_8001E84C();
 
@@ -72,7 +72,7 @@ CdlFILE *func_8008DE84(CdlFILE *fp, char *name) {
                 goto done;
             p++;
             *d = 0;
-            if ((dir = func_8008E440(dir, buf)) == -1)
+            if ((dir = DS_searchdir(dir, buf)) == -1)
                 goto err;
             i++;
         } while (i < 8);
@@ -89,7 +89,7 @@ done:
         return 0;
     }
     *d = 0;
-    if (func_8008E4E4(dir) == 0) {
+    if (DS_cachefile(dir) == 0) {
         if (D_800A6490 > 0)
             func_8001E84C(D_80011B6C);
         return 0;

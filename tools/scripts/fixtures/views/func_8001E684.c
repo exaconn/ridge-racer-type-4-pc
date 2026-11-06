@@ -30,7 +30,7 @@ extern void SetDispMask(s32),func_8004FD80(void),DrawSync(s32);
 
 extern u32 *ClearOTagR(u32 *,s32);
 
-extern s32 func_8008B154(s32);
+extern s32 VSync(s32);
 
 extern void *PutDispEnv(void *), *PutDrawEnv(void *);
 
@@ -86,8 +86,8 @@ void func_8001E684(void) {
         D_8009E9F0[D_800F4C6A][D_800F3A26]();
         DrawSync(0);
         threshold=D_800AC5DC;
-        do {} while (func_8008B154(1)<threshold);
-        func_8008B154(0);
+        do {} while (VSync(1)<threshold);
+        VSync(0);
         PutDispEnv(D_800ACC14+0x5C);
         PutDrawEnv(D_800ACC14);
         DrawOTag(D_800ACC14+0xB6C);

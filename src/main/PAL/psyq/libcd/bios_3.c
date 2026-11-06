@@ -7,7 +7,7 @@
 #include "psyq/libcd/s_3.h"
 
 extern s32 func_8001E84C();
-extern s32 func_8008B154(s32);
+extern s32 VSync(s32);
 extern void CD_flush(void);
 extern s32 func_800963DC(const char *);
 extern const char D_80011A14[];
@@ -30,7 +30,7 @@ void func_8008DDA0(int a);
 void func_8008DDAC(void);
 
 static inline int check_alarm(s32 limit, char **ac, volatile u8 *st, char **sc) {
-    if (func_8008B154(-1) > D_80110330 || D_80110334++ > limit) {
+    if (VSync(-1) > D_80110330 || D_80110334++ > limit) {
         func_800963DC(D_80011A14);
         {
             u8 s0_ = st[0];
@@ -56,7 +56,7 @@ s32 CD_datasync(s32 mode) {
     volatile u8 *st;
     char **sc;
 
-    s32 t = func_8008B154(-1);
+    s32 t = VSync(-1);
     /* ASM_BARRIER: Set allocno priorities for s2..s4 (mode, ac, limit). */
     __asm__("" : : "r"(mode), "r"(mode));
     D_80110330 = t + 0x3C0;

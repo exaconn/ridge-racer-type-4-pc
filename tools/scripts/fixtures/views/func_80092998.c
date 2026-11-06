@@ -52,7 +52,7 @@
 
 #define D_800ABAB8 (*(struct { char pad[0x10]; int (*f)(); } *(*))&D_800ABAB8)
 
-#define func_800959B8 ((int (*)())func_800959B8)
+#define GPU_memset ((int (*)())GPU_memset)
 
 #undef D_800ABAC2
 
@@ -60,7 +60,7 @@
 
 #undef D_800ABAB8
 
-#undef func_800959B8
+#undef GPU_memset
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((void *)D_800ABAB8)

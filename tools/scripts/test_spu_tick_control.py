@@ -72,7 +72,7 @@ static RrSpuTickCallback exchange0(s32 n,RrSpuTickCallback c){return exchange(0,
 static RrSpuTickCallback exchange1(s32 n,RrSpuTickCallback c){return exchange(1,n,c);}
 '''+helpers+r'''
 static void direct(unsigned driver,s32 slot,RrSpuTickCallback callback){assert(g->data.critical&&slot==4);event(5,(u32)slot,driver,0,callback);chosen[driver]++;
- if(g->reference)g->data.callbacks.values[slot]=callback;else func_8008BAE8(slot,callback);
+ if(g->reference)g->data.callbacks.values[slot]=callback;else setIntrVSync(slot,callback);
 }
 static void direct0(s32 n,RrSpuTickCallback c){direct(0,n,c);}static void direct1(s32 n,RrSpuTickCallback c){direct(1,n,c);}
 void VSyncCallback(RrSpuTickCallback callback){actual_direct(callback);}
@@ -83,7 +83,7 @@ static s32 model_set(u32 selector,u16 target,s32 mode){u32 n=selector&65535;u16 
  if(mode&4096)result|=16;g->data.counters.records[n].mode=result;g->data.counters.records[n].target=target;return 1;
 }
 s32 ResetRCnt(u32 selector){s32 result;assert(g->data.critical);event(2,selector,0,0,0);result=g->reference?model_reset(selector):actual_reset_counter(selector);assert(result==((selector&65535)<3));return result;}
-s32 func_80096FA4(u32 selector,u16 target,s32 mode){s32 result;assert(g->data.critical);event(3,selector,target,(u32)mode,0);result=g->reference?model_set(selector,target,mode):actual_set_counter(selector,target,mode);assert(result==((selector&65535)<3));return result;}
+s32 SetRCnt(u32 selector,u16 target,s32 mode){s32 result;assert(g->data.critical);event(3,selector,target,(u32)mode,0);result=g->reference?model_set(selector,target,mode):actual_set_counter(selector,target,mode);assert(result==((selector&65535)<3));return result;}
 '''+body+r'''
 static void model(s32 argument){RrSpuTickState20 *t=&g->data.timer.value;u32 counter=0xF2000002;u16 period=17640;int direct;s32 index;RrSpuTickCallback callback,old;
  t->flags.interrupt=6;t->flags.direct=0;t->flags.divided=0;t->previous=0;
@@ -95,7 +95,7 @@ static void model(s32 argument){RrSpuTickState20 *t=&g->data.timer.value;u32 cou
  direct=t->flags.direct!=0;func_80096F04();
  if(direct){unsigned selected=g->data.driver;event(5,4,selected,0,t->callback);chosen[selected]++;g->data.callbacks.values[4]=t->callback;}
  else{
-  ResetRCnt(counter);func_80096FA4(counter,period,4096);index=t->flags.interrupt;
+  ResetRCnt(counter);SetRCnt(counter,period,4096);index=t->flags.interrupt;
   if(!index){old=exchange(g->data.driver,0,0);t->previous=old;index=t->flags.interrupt;callback=func_80082CB4;}
   else{divided[t->flags.divided!=0]++;callback=t->flags.divided?func_80082D00:t->callback;}
   exchange(g->data.driver,index,callback);
@@ -135,7 +135,7 @@ int main(void){static const s32 edges[16]={INT32_MIN,INT32_MAX,-1,-70,-69,1,4,6,
   initialize(&actual,next(&seed),0,2,0);expected=actual;g=&expected;assert(model_set(2,(u16)n,4096)==1);g=&actual;assert(actual_set_counter(2,(u16)n,4096)==1);assert(!memcmp(&actual.data,&expected.data,sizeof(actual.data)));cases++;
  }
  for(n=0;n<8;n++)for(phase=0;phase<3;phase++){
-  initialize(&actual,next(&seed),0,0,0);expected=actual;expected.data.callbacks.values[n]=pool[phase];g=&actual;func_8008BAE8((s32)n,pool[phase]);assert(!memcmp(&actual.data,&expected.data,sizeof(actual.data)));cases++;
+  initialize(&actual,next(&seed),0,0,0);expected=actual;expected.data.callbacks.values[n]=pool[phase];g=&actual;setIntrVSync((s32)n,pool[phase]);assert(!memcmp(&actual.data,&expected.data,sizeof(actual.data)));cases++;
  }
  assert(!memcmp(drivers,savedDrivers,sizeof(drivers)));
  assert(cases==589848);for(i=0;i<5;i++)assert(paths[i]);for(i=0;i<11;i++)assert(interrupts[i]);assert(chosen[0]&&chosen[1]&&divided[0]&&divided[1]);return 0;

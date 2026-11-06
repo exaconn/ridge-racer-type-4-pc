@@ -155,7 +155,7 @@ extern int func_8003A198();
 extern int func_80043608();
 extern int func_800436E8();
 extern int func_8006E1AC();
-extern int func_80091844();
+extern int RotMatrix();
 extern int D_8009E26C[];
 extern int D_8009E36C[];
 
@@ -459,7 +459,7 @@ void func_80019FC8(void) {
         register struct B8 *a2 asm("$6");
         func_80019C90(D_8010BF70->s46);
         func_8006E1AC();
-        func_80091844(&D_8010BF70->unk20, D_8010BF70);
+        RotMatrix(&D_8010BF70->unk20, D_8010BF70);
         /* ASM_BARRIER: Emit 8-byte unaligned struct copy using $8, $9, $10 without spilling $8 at earlier block move */
         __asm__(
             "addiu $6, $29, 0x10\n\t"

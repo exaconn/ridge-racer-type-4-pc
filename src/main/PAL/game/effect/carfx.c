@@ -57,7 +57,7 @@ typedef struct {
 extern int func_8006E1AC();
 extern int ApplyMatrix();
 extern int func_800912D4();
-extern int func_80091844();
+extern int RotMatrix();
 extern VECTOR D_800A0FC0;
 extern SVECTOR D_800A0FD0;
 extern int D_800A0FD8;
@@ -113,7 +113,7 @@ int func_8005642C(Car *arg0, int arg1, int arg2, int *arg3) {
         sp68.vx = D_800A0FC0.vx;
         sp68.vy = D_800A0FC0.vy;
         sp68.vz = D_800A0FC0.vz;
-        func_80091844(&sp60, &sp40);
+        RotMatrix(&sp60, &sp40);
         ApplyMatrix(&sp40, &sp68, &sp70);
         sp70.vx += D_800ABEF8.u20.s.w20 * 4;
         sp70.vy += D_800ABEF8.u20.s.w24 * 4;
@@ -183,7 +183,7 @@ int func_8005642C(Car *arg0, int arg1, int arg2, int *arg3) {
     sp68.vx = D_800A0FC0.vx;
     sp68.vy = D_800A0FC0.vy;
     sp68.vz = D_800A0FC0.vz;
-    func_80091844(&sp60, &sp40);
+    RotMatrix(&sp60, &sp40);
     ApplyMatrix(&sp40, &sp68, &sp70);
     sp70.vx += D_800ABEF8.u20.s.w20 * 4;
     sp70.vy += D_800ABEF8.u20.s.w24 * 4;

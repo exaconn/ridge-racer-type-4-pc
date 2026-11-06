@@ -37,7 +37,7 @@ typedef struct {
 } Scratch_8006EF8C;
 
 
-extern int func_80090F74();
+extern int ScaleMatrix();
 extern int D_8010E690;
 extern struct S8 D_800FF690;
 extern struct S8 D_800F39A8;
@@ -49,7 +49,7 @@ extern void func_80060C70();
 extern unsigned short D_8010E280;
 extern unsigned int D_8010E290;
 extern int ApplyMatrix();
-extern int func_80091AD4();
+extern int RotMatrixYXZ();
 extern short D_800ABED0[][3];
 extern char D_800F38F8[][8];
 extern unsigned short D_800AD5BC[];
@@ -94,7 +94,7 @@ void func_8006E9E8(int a0, int *a1) {
         g[0x28] = w[0];
         g[0x29] = w[1];
         g[0x2A] = w[2];
-        func_80090F74((SCRATCHPAD + 0x108), x);
+        ScaleMatrix((SCRATCHPAD + 0x108), x);
         func_8006E9D4(D_8010E690, a0, a1);
     }
 }
@@ -125,7 +125,7 @@ void func_8006EAC8(void) {
     x[2] = 0x4000;
     x[1] = 0x4000;
     x[0] = 0x4000;
-    func_80090F74(SCRATCH_ROT_MATRIX, x);
+    ScaleMatrix(SCRATCH_ROT_MATRIX, x);
     SetRotMatrix(SCRATCH_ROT_MATRIX);
 }
 
@@ -216,7 +216,7 @@ void func_8006EED8(void) {
     s.a = 0;
     for (i = 0; i < 3; i++) {
         s.c = -D_800AD5BC[i];
-        func_80091AD4(D_800F38F8[i], m);
+        RotMatrixYXZ(D_800F38F8[i], m);
         SetRotMatrix(m);
         func_80090C74(&s, &r);
         D_800ABED0[i][0] = r.x;

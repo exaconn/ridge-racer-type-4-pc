@@ -1,7 +1,7 @@
 #include "rr/animated_glyph.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80093C24 ((s32 (*)())func_80093C24)
+#define SetDrawMode ((s32 (*)())SetDrawMode)
 
 #define AddPrim ((s32 (*)())AddPrim)
 
@@ -9,7 +9,7 @@
 
 #define D_800ACC14 ((char *)D_800ACC14)
 
-#undef func_80093C24
+#undef SetDrawMode
 
 #undef AddPrim
 
@@ -20,23 +20,23 @@
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((void (*)())AddPrim)
 
-#define func_80095AF4 ((void (*)())func_80095AF4)
+#define SetSemiTrans ((void (*)())SetSemiTrans)
 
-#define func_80095B24 ((void (*)())func_80095B24)
+#define SetShadeTex ((void (*)())SetShadeTex)
 
 #define func_80095B94 ((void (*)())func_80095B94)
 
 #undef AddPrim
 
-#undef func_80095AF4
+#undef SetSemiTrans
 
-#undef func_80095B24
+#undef SetShadeTex
 
 #undef func_80095B94
 
-extern s32 func_80095AF4();
+extern s32 SetSemiTrans();
 
-extern s32 func_80095B24();
+extern s32 SetShadeTex();
 
 extern u8 D_8009ED38[];
 
@@ -74,7 +74,7 @@ int arg7;
         func_80095B94(arg1);
         if (h == 0)
         {
-          func_80095B24(arg1, 1);
+          SetShadeTex(arg1, 1);
         }
         else
         {
@@ -82,7 +82,7 @@ int arg7;
           p[5] = h;
           p[6] = h;
         }
-        func_80095AF4(arg1, arg7 & 1);
+        SetSemiTrans(arg1, arg7 & 1);
         *((short *) (p + 8)) = arg2;
         *((unsigned short *) (p + 0xA)) = arg3;
         *((short *) (p + 0x10)) = 8;

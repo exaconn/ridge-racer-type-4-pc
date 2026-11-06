@@ -57,7 +57,7 @@ static Event *event(s32 op,s32 a,s32 b,s32 c,s32 d,s32 e){
  assert(w->calls<32);r=&w->events[w->calls++];memset(r,0,sizeof(*r));r->op=op;r->args[0]=a;r->args[1]=b;r->args[2]=c;r->args[3]=d;r->args[4]=e;r->hash=hashbytes(&w->s,sizeof(w->s))^hashbytes(&ctx,sizeof(ctx));return r;
 }
 static void effect(void){if(mutation)change();}
-void func_8008F934(void){event(1,0,0,0,0,0);effect();}
+void StCdInterrupt(void){event(1,0,0,0,0,0);effect();}
 void ovl668_func_80116478(void *output,u32 words){unsigned i,j;int found=-1;for(i=0;i<3;i++)for(j=0;j<2;j++)if(output==pixels[i][j])found=i*2+j;assert(found>=0);event(2,found,(s32)words,0,0,0);effect();}
 void func_80092FFC(const RrGpuRectangleFields *rect,const void *image){unsigned i,j;int found=-1;Event *e;for(i=0;i<3;i++)for(j=0;j<2;j++)if(image==pixels[i][j])found=i*2+j;assert(found>=0);e=event(3,found,0,0,0,0);e->rect=*rect;effect();}
 void SetDispMask(s32 mode){event(4,mode,0,0,0,0);effect();}
@@ -68,15 +68,15 @@ void ovl668_func_80114E90(RrStrDisplayConfig *config,s32 a,s32 b,s32 c,s32 d){as
 void ovl668_func_80114EE8(RrLibInterruptCallback callback){assert(callback==ovl668_func_80114F48);event(9,0,0,0,0,0);effect();}
 s32 ovl668_func_801150D8(RrStrDisplayConfig *config){s32 r=w->queries++<(scenario%5)?-1:(s32)(scenario%3);assert(config==&w->s.players[w->s.active].display24);event(10,r,0,0,0,0);effect();return r;}
 void ovl668_func_801153F0(u8 *location){assert(location==D_800AC650.currentC0.c);event(11,0,0,0,0,0);D_800AC650.currentC0.c[0]++;effect();}
-s32 func_8008B154(s32 mode){event(12,mode,0,0,0,0);effect();return -1;}
+s32 VSync(s32 mode){event(12,mode,0,0,0,0);effect();return -1;}
 static void expected(unsigned kind){
  if(kind){s32 volume;SetDispMask(0);w->s.players[w->s.active].width00=320;w->s.players[w->s.active].height04=240;func_800825B4(0,0,1);volume=w->s.volume*127/16;func_80083CD4(0,volume,volume);w->s.setting=128;
   ovl668_func_80114E48(resource);ovl668_func_80114E90(&w->s.players[w->s.active].display24,0,24,0,264);ovl668_func_80114EE8(ovl668_func_80114F48);
   for(;;){if(ovl668_func_801150D8(&w->s.players[w->s.active].display24)!=-1)break;ovl668_func_801153F0(D_800AC650.currentC0.c);}
-  D_800AC650.phaseB4=1;D_800AC650.counterC4=0;w->s.frame=0;func_8008B154(0);
+  D_800AC650.phaseB4=1;D_800AC650.counterC4=0;w->s.frame=0;VSync(0);
  }else{
   RrStrPlaybackState *p;RrGpuRectangleFields old;unsigned previous;
-  if(w->s.flag){func_8008F934();w->s.flag=0;}
+  if(w->s.flag){StCdInterrupt();w->s.flag=0;}
   p=&w->s.players[w->s.active];previous=p->display24.word08;old=p->display24.rectangles[2];p->display24.word08=!previous;
   p->display24.rectangles[2].x=half((u32)((s32)old.x+old.w));
   if(p->display24.rectangles[2].x<(s32)p->display24.rectangles[p->display24.alternate04].x+p->display24.rectangles[p->display24.alternate04].w){

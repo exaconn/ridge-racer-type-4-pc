@@ -74,7 +74,7 @@ void func_80021A7C(a0, a1) int a0; int a1; {
         }
         s0 += 0x40;
         *(short *)(s2 + 0xE) = s1 + 0x7EF8;
-        func_80095B24(s2, 0);
+        SetShadeTex(s2, 0);
         s2[4] = s0;
         s2[5] = s0;
         s2[6] = s0;

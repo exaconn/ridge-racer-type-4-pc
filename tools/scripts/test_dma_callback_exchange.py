@@ -20,11 +20,11 @@ class DmaCallbackExchangeTest(unittest.TestCase):
         header=(root/'include/rr/library.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
         bodies={}
-        for name in ('func_8008BD10','func_8008BDBC','func_8008BB44'):
+        for name in ('setIntrDMA','func_8008BDBC','startIntrDMA'):
             body=(root/'tools/scripts/fixtures/views'/f'{name}.c').read_text().replace('#include "rr/library.h"','')
             body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
             bodies[name]=body
-        observed=bodies['func_8008BD10'].replace('func_8008BD10','observed_exchange')
+        observed=bodies['setIntrDMA'].replace('setIntrDMA','observed_exchange')
         sites={'word=*control;':'word=test_read(control);','*control=word|bit;':'test_write(control,word|bit);','*control=word&~(1U<<shift);':'test_write(control,word&~(1U<<shift));'}
         for old,new in sites.items():
             assert observed.count(old)==(2 if old=='word=*control;' else 1)
@@ -41,7 +41,7 @@ s32 called[3],io_count,io_kind[4],io_port[4];u32 io_value[4];
 RrLibInterruptCallback io_slot[4];s32 selected;
 void (*on_read)(void);
 void a(void){called[0]++;}void b(void){called[1]++;}void c(void){called[2]++;}
-void func_8008BB90(void){called[2]++;}
+void trapIntrDMA(void){called[2]++;}
 s32 setup_count,setup_selector;RrLibInterruptCallback setup_callback;
 u32 setup_word;RrLibInterruptCallback setup_slots[8];
 RrLibInterruptCallback func_8008B394(s32 selector,RrLibInterruptCallback callback){
@@ -65,10 +65,10 @@ void test_write(volatile u32 *p,u32 value){
         cls.called=(C.c_int32*3).in_dll(cls.lib,'called');cls.selected=C.c_int32.in_dll(cls.lib,'selected')
         cls.io_count=C.c_int32.in_dll(cls.lib,'io_count');cls.io_kind=(C.c_int32*4).in_dll(cls.lib,'io_kind')
         cls.io_port=(C.c_int32*4).in_dll(cls.lib,'io_port');cls.io_value=(C.c_uint32*4).in_dll(cls.lib,'io_value');cls.io_slot=(C.c_void_p*4).in_dll(cls.lib,'io_slot')
-        for name in ('func_8008BD10','observed_exchange'):
+        for name in ('setIntrDMA','observed_exchange'):
             f=getattr(cls.lib,name);f.argtypes=[C.c_int32,C.c_void_p];f.restype=C.c_void_p
         cls.lib.func_8008BDBC.argtypes=[C.POINTER(C.c_void_p),C.c_int32];cls.lib.func_8008BDBC.restype=None
-        cls.lib.func_8008BB44.argtypes=[];cls.lib.func_8008BB44.restype=C.c_void_p
+        cls.lib.startIntrDMA.argtypes=[];cls.lib.startIntrDMA.restype=C.c_void_p
 
     def setUp(self):
         self.slots[:]=[self.callbacks[0]]*8;self.called[:]=[0,0,0]
@@ -81,7 +81,7 @@ void test_write(volatile u32 *p,u32 value){
         for i in range(8):
             for callback in (None,*self.callbacks):
                 self.slots[i]=callback;before=bytes(self.slots)
-                for f in (self.lib.func_8008BD10,self.lib.observed_exchange):
+                for f in (self.lib.setIntrDMA,self.lib.observed_exchange):
                     self.assertEqual(f(i,callback),callback)
                     self.assertEqual(bytes(self.slots),before)
         self.assertEqual(self.io_count.value,0);self.assertEqual(list(self.called),[0,0,0])
@@ -89,7 +89,7 @@ void test_write(volatile u32 *p,u32 value){
     def test_enable_disable_masks_and_publication_before_hardware_read(self):
         rng=random.Random(0x8BD10)
         masks=[0,0xFFFFFFFF,0x800000,0xFF000000,0x00FFFFFF,0xAAAAAAAA,0x55555555]+[rng.getrandbits(32) for _ in range(100)]
-        for f in (self.lib.func_8008BD10,self.lib.observed_exchange):
+        for f in (self.lib.setIntrDMA,self.lib.observed_exchange):
             for i in range(8):
                 self.selected.value=i
                 for requested in (None,self.callbacks[1]):
@@ -128,11 +128,11 @@ void test_write(volatile u32 *p,u32 value){
         self.lib.func_8008BDBC(None,0)
 
     def test_setup_publishes_cleared_table_and_returns_callable_exchange(self):
-        result=self.lib.func_8008BB44()
-        self.assertEqual(result,C.cast(self.lib.func_8008BD10,C.c_void_p).value)
+        result=self.lib.startIntrDMA()
+        self.assertEqual(result,C.cast(self.lib.setIntrDMA,C.c_void_p).value)
         self.assertEqual(C.c_int32.in_dll(self.lib,'setup_count').value,1)
         self.assertEqual(C.c_int32.in_dll(self.lib,'setup_selector').value,3)
-        self.assertEqual(C.c_void_p.in_dll(self.lib,'setup_callback').value,C.cast(self.lib.func_8008BB90,C.c_void_p).value)
+        self.assertEqual(C.c_void_p.in_dll(self.lib,'setup_callback').value,C.cast(self.lib.trapIntrDMA,C.c_void_p).value)
         self.assertEqual(C.c_uint32.in_dll(self.lib,'setup_word').value,0)
         self.assertEqual(list((C.c_void_p*8).in_dll(self.lib,'setup_slots')),[None]*8)
         self.assertEqual(list(self.slots),[None]*8)

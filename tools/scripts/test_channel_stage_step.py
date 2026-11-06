@@ -45,7 +45,7 @@ RrChannelStageCallback D_800ABCEC[5]={h0,h1,h2,h3,h4};
 void error_a(s32 code){trace(3,code,0);if(on_error)on_error(0);}
 void error_b(s32 code){trace(4,code,0);if(on_error)on_error(0);}
 RrChannelErrorCallback D_800ABC68=error_a;
-void func_8009A7F4(s32 limit){trace(1,limit,0);if(on_timer)on_timer(0);}
+void setRC2wait(s32 limit){trace(1,limit,0);if(on_timer)on_timer(0);}
 s32 func_80098A00(void){trace(2,0,0);if(on_wait)on_wait(0);return wait_result;}
 '''+body
         (d/'f.c').write_text(code)

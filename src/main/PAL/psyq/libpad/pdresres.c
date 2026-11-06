@@ -1,7 +1,7 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/channels.h"
 
-void func_80099618(void *channel, s32 value);
+void _padCmdParaMode(void *channel, s32 value);
 void func_8009964C(void *channel, s32 value);
 void func_8009966C(void *channel, s32 value);
 void func_8009968C(void *channel, s32 value);
@@ -37,7 +37,7 @@ block_5:
     return 0;
 }
 
-void func_80099618(void *channel, s32 value) {
+void _padCmdParaMode(void *channel, s32 value) {
     RrChannelStatusView *state=channel;
     state->command37=0x43;
     state->data2C=&state->argument24;

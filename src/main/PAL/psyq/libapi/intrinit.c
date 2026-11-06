@@ -3,7 +3,7 @@
 #include "psyq/libapi/intrdisp.h"
 #include "psyq/libapi/vsyncini.h"
 extern int func_8008B5D0();
-extern int func_8008BB44();
+extern int startIntrDMA();
 extern int func_800963F4();
 extern int func_80096E3C();
 extern int func_80096EF4();
@@ -31,7 +31,7 @@ char *func_8008B4F8()
         func_80096EF4(p - 4);
         *(short *)(p - 0x3C) = 1;
         D_800A6350[5] = func_8008BA24();
-        D_800A6350[1] = func_8008BB44();
+        D_800A6350[1] = startIntrDMA();
         func_80096E3C(D_800A6350);
         r = p - 0x3C;
         func_80096F14();

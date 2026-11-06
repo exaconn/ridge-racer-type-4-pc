@@ -14,7 +14,7 @@ extern void func_80096F14(void);
 
 extern s32 func_80097714(s32,void *),func_80097704(s32,void *);
 
-void func_80098044(void) {
+void _padStartCom(void) {
     RrInterruptRegisters *p;
     u32 mask;
     s32 *counters;

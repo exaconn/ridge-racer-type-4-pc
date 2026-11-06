@@ -64,7 +64,7 @@ int main(void) {
         units = (u32)((uint64_t)rounded / (UINT64_C(1) << D_800A4800));
         result = index == -1 ? (u16)units : rounded;
         if (index >= 0) expected[index] = (u16)units;
-        assert((u32)func_8007F414(index, (s32)address) == result);
+        assert((u32)_spu_FsetRXXa(index, (s32)address) == result);
         for (j = 0; j < 256; ++j) assert(world.bank.halves[j] == expected[j]);
         for (j = 0; j < 8; ++j) {
             assert(world.before[j] == (seed ^ j));

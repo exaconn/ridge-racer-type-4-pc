@@ -2,20 +2,20 @@
 #include "rr_asm.h"
 #include "psyq/libgte/gtecolo3.h"
 
-void func_800912E4(int *a0, int *a1);
+void LocalLight(int *a0, int *a1);
 void func_80091308(int *a0, int a1, int *a2);
 void func_80091324(int *a0, int *a1);
-void func_80091340(int *a0, int *a1, int *a2, int *a3, int * volatile a4, int * volatile a5);
-void func_8009137C(int *a0, int *a1, int a2, int *a3);
-void func_800913A0(int *a0, int *a1, int *a2, int *a3, volatile int a4, int * volatile a5, int * volatile a6, int * volatile a7);
-void func_800913E8(int *a0, int *a1, int *a2);
-void func_80091408(int *a0, int *a1, int *a2, int *a3, int * volatile a4, int * volatile a5, int * volatile a6);
-void func_8009144C(int *a0, int *a1, int a2, int *a3);
-void func_80091474(int *a0, int *a1, int *a2);
+void NormalColor3(int *a0, int *a1, int *a2, int *a3, int * volatile a4, int * volatile a5);
+void NormalColorDpq(int *a0, int *a1, int a2, int *a3);
+void NormalColorDpq3(int *a0, int *a1, int *a2, int *a3, volatile int a4, int * volatile a5, int * volatile a6, int * volatile a7);
+void NormalColorCol(int *a0, int *a1, int *a2);
+void NormalColorCol3(int *a0, int *a1, int *a2, int *a3, int * volatile a4, int * volatile a5, int * volatile a6);
+void ColorDpq(int *a0, int *a1, int a2, int *a3);
+void ColorCol(int *a0, int *a1, int *a2);
 int func_80091498(void);
 int func_800914A8(void);
 
-void func_800912E4(int *a0, int *a1) {
+void LocalLight(int *a0, int *a1) {
     __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(a0));
     __asm__ volatile ("nop\n\t.word 0x4A4A6412");
     __asm__ volatile ("swc2 $9, 0(%0)\n\tswc2 $10, 4(%0)\n\tswc2 $11, 8(%0)" : : "r"(a1));
@@ -34,7 +34,7 @@ void func_80091324(int *a0, int *a1) {
     __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(a1));
 }
 
-void func_80091340(int *a0, int *a1, int *a2, int *a3, int * volatile a4, int * volatile a5) {
+void NormalColor3(int *a0, int *a1, int *a2, int *a3, int * volatile a4, int * volatile a5) {
     register int *t0 __asm__("$8");
     register int *t1 __asm__("$9");
     __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(a0));
@@ -48,7 +48,7 @@ void func_80091340(int *a0, int *a1, int *a2, int *a3, int * volatile a4, int * 
     __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(t1));
 }
 
-void func_8009137C(int *a0, int *a1, int a2, int *a3) {
+void NormalColorDpq(int *a0, int *a1, int a2, int *a3) {
     __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(a0));
     __asm__ volatile ("lwc2 $6, 0(%0)" : : "r"(a1));
     __asm__ volatile ("mtc2 %0, $8" : : "r"(a2));
@@ -56,7 +56,7 @@ void func_8009137C(int *a0, int *a1, int a2, int *a3) {
     __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(a3));
 }
 
-void func_800913A0(int *a0, int *a1, int *a2, int *a3, volatile int a4, int * volatile a5, int * volatile a6, int * volatile a7) {
+void NormalColorDpq3(int *a0, int *a1, int *a2, int *a3, volatile int a4, int * volatile a5, int * volatile a6, int * volatile a7) {
     register int *t0 __asm__("$8");
     register int *t1 __asm__("$9");
     register int *t2 __asm__("$10");
@@ -74,14 +74,14 @@ void func_800913A0(int *a0, int *a1, int *a2, int *a3, volatile int a4, int * vo
     __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(t2));
 }
 
-void func_800913E8(int *a0, int *a1, int *a2) {
+void NormalColorCol(int *a0, int *a1, int *a2) {
     __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(a0));
     __asm__ volatile ("lwc2 $6, 0(%0)" : : "r"(a1));
     __asm__ volatile ("nop\n\t.word 0x4B08041B");
     __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(a2));
 }
 
-void func_80091408(int *a0, int *a1, int *a2, int *a3, int * volatile a4, int * volatile a5, int * volatile a6) {
+void NormalColorCol3(int *a0, int *a1, int *a2, int *a3, int * volatile a4, int * volatile a5, int * volatile a6) {
     register int *t0 __asm__("$8");
     register int *t1 __asm__("$9");
     register int *t2 __asm__("$10");
@@ -98,7 +98,7 @@ void func_80091408(int *a0, int *a1, int *a2, int *a3, int * volatile a4, int * 
     __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(t2));
 }
 
-void func_8009144C(int *a0, int *a1, int a2, int *a3) {
+void ColorDpq(int *a0, int *a1, int a2, int *a3) {
     __asm__ volatile ("lwc2 $9, 0(%0)\n\tlwc2 $10, 4(%0)\n\tlwc2 $11, 8(%0)" : : "r"(a0));
     __asm__ volatile ("lwc2 $6, 0(%0)" : : "r"(a1));
     __asm__ volatile ("mtc2 %0, $8" : : "r"(a2));
@@ -106,7 +106,7 @@ void func_8009144C(int *a0, int *a1, int a2, int *a3) {
     __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(a3));
 }
 
-void func_80091474(int *a0, int *a1, int *a2) {
+void ColorCol(int *a0, int *a1, int *a2) {
     __asm__ volatile ("lwc2 $9, 0(%0)\n\tlwc2 $10, 4(%0)\n\tlwc2 $11, 8(%0)" : : "r"(a0));
     __asm__ volatile ("lwc2 $6, 0(%0)" : : "r"(a1));
     __asm__ volatile ("nop\n\t.word 0x4B38041C");

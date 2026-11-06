@@ -27,7 +27,7 @@ void func_8008B488();
 u16 func_8008B4B8(void);
 u16 func_8008B4C8(void);
 
-int func_8008B154(a0) int a0; {
+int VSync(a0) int a0; {
     volatile unsigned t;
     unsigned s0;
     unsigned s1;

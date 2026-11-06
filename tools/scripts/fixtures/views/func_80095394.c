@@ -13,7 +13,7 @@ extern char D_80011F98[];
 s32 func_80095394(void) {
     s32 old,result;
     s32 saved;
-    if(D_800ABBFC>=func_8008B154(-1)) {
+    if(D_800ABBFC>=VSync(-1)) {
         s32 *counter=&D_800ABC00;
         {
             s32 tick=*counter;

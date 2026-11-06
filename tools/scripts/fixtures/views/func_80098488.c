@@ -4,7 +4,7 @@
 
 #include "rr_asm.h"
 
-extern void func_8009A7F4(s32);
+extern void setRC2wait(s32);
 
 extern s32 func_80098A00(void);
 
@@ -18,7 +18,7 @@ void func_80098488(RrChannelRecordF0 *channel) {
     value=D_800ABCAC;
     if(value) {
         if(value==3 && channel->status.packet[0]==0x80)goto reload;
-        func_8009A7F4(60);
+        setRC2wait(60);
         if(!func_80098A00())D_800ABC68(-3);
 reload:
         value=D_800ABCAC;

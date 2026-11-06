@@ -1,7 +1,7 @@
 #include "types.h"
 #include "m2c_macros.h"
 
-void func_80095B24(void *arg0, s32 arg1) {
+void SetShadeTex(void *arg0, s32 arg1) {
     u8 var_v0;
 
     if (arg1 != 0) {

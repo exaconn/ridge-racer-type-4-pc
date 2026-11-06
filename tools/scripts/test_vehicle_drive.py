@@ -31,7 +31,7 @@ static const u32 returns[8]={0,1,100,1000,134217728,0x7fffffffU,0x80000000U,0xff
 static s32 word(u32 x){s32 v;memcpy(&v,&x,4);return v;}
 static s16 half(u16 x){s16 v;memcpy(&v,&x,2);return v;}
 static void dump(char tag,s32 a,s32 b){unsigned i;printf("%c %08x %08x ",tag,(u32)a,(u32)b);for(i=0;i<sizeof world;i++)printf("%02x",((u8*)&world)[i]);puts("");}
-s32 func_800924D4(s32 x,s32 z){assert(event++==0);dump('A',x,z);return (s32)(scenario*137%4096)-2048;}
+s32 ratan2(s32 x,s32 z){assert(event++==0);dump('A',x,z);return (s32)(scenario*137%4096)-2048;}
 s32 func_80047CE0(RrRaceVehicle *v){assert(v==&world.vehicle&&event++==1);dump('B',0,0);return (scenario/64)%8<7?limits[(scenario/64)%8]:half(scenario*293+0x8000);}
 s32 func_80047DF8(char *raw,s32 lane,s32 *x,s32 *y,s32 *z){
  RrRaceVehicle *v=(RrRaceVehicle *)raw;

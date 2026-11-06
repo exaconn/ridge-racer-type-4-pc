@@ -22,7 +22,7 @@ void func_800207D4(u32 *ordering,s32 intensity,u32 mode) {
     fields=next+RR_FIELD_OFFSET(RrGpuTilePacket16,b);
     do {
         func_80095BB4(next);
-        func_80095AF4(next,1);
+        SetSemiTrans(next,1);
         column=index&1;
         x=column*160;
         rectangle=D_800ACC14;

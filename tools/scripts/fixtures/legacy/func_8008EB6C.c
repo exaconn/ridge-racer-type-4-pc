@@ -1,7 +1,7 @@
 #include "rr/cd_read_request.h"
 #include "rr/cd.h"
 
-extern s32 func_8008B154(s32);
+extern s32 VSync(s32);
 extern u8 func_8008BF94(void);
 extern s32 func_8008BFA4(void);
 extern u8 *func_8008BFC4(void);
@@ -40,11 +40,11 @@ s32 func_8008EB6C(s32 restart) {
         func_8008C55C(0);
     }
     if (func_8008BF94() & 0x10) {
-        if (!(func_8008B154(-1) & 63)) {
+        if (!(VSync(-1) & 63)) {
             func_800963DC(D_80011D40);
         }
         CdControlF(1, 0);
-        timestamp = func_8008B154(-1);
+        timestamp = VSync(-1);
         shell_state = &D_800A67B0;
         shell_state->start1C = timestamp;
         shell_state->remaining14 = -1;
@@ -102,6 +102,6 @@ failed:
     state->position08 = state->buffer04;
     CdControlF(command, 0);
     state->remaining14 = state->sectors00;
-    ((volatile RrLibReadRequestState *)state)->retry18 = func_8008B154(-1);
+    ((volatile RrLibReadRequestState *)state)->retry18 = VSync(-1);
     return ((volatile RrLibReadRequestState *)state)->remaining14;
 }

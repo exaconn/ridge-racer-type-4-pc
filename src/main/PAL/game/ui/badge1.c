@@ -41,7 +41,7 @@ void *func_8001FC28(u32 *a0, void *cursor, int a2, int a3, int a4, int a5) {
 #define AddPrim ((void (*)(u32 *,u32 *))AddPrim)
 
 T *func_8001FCC8(u32 *a0, T *a1, unsigned short a2) {
-    func_80093C24(a1, 0, 1, a2, 0);
+    SetDrawMode(a1, 0, 1, a2, 0);
     AddPrim(a0, (u32 *)a1++);
     return a1;
 }

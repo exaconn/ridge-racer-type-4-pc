@@ -34,7 +34,7 @@ void func_80098AC4(void *arg0, s32 arg1, s8 arg2);
 void func_80098AD0(void *arg0, s8 arg1, s32 arg2, s8 arg3);
 int func_80098B64();
 int func_80098DD4();
-int func_80098E0C();
+int _padLoadActInfo();
 
 void func_80098AC4(void *arg0, s32 arg1, s8 arg2) {
     M2C_FIELD(arg0, s32 *, 0x28) = arg1;
@@ -47,7 +47,7 @@ void func_80098AD0(void *arg0, s8 arg1, s32 arg2, s8 arg3) {
     M2C_FIELD(arg0, s8 *, 0x36) = arg3;
 }
 
-void func_80098AE0(u8 *channel) {
+void _padSendAtLoadInfo(u8 *channel) {
     RrChannelStatusView *state=(RrChannelStatusView *)channel;
     switch(state->phase) {
     case 2:func_80099638(state);break;
@@ -122,7 +122,7 @@ int func_80098B64(a0) struct S *a0; {
         a0->se = 0;
         a0->cb = 0;
         a0->st = 0xFF;
-        func_80098E0C(a0, (char *)a0 + 0x63);
+        _padLoadActInfo(a0, (char *)a0 + 0x63);
         a0->st = 2;
         goto r0;
     default:
@@ -144,7 +144,7 @@ int func_80098DD4(s) struct S_1 *s; {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC84 (*(int (*(*))())&D_800ABC84)
 
-int func_80098E0C(o, a1) O *o; int a1; {
+int _padLoadActInfo(o, a1) O *o; int a1; {
     int r;
     if (a1 != 0) {
         if (o->f4 != 0) return 0;

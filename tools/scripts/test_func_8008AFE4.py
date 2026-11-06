@@ -25,7 +25,7 @@ typedef int32_t s32;''')
 volatile u16 D_800A47F0;
 s32 D_800A4800;
 s32 (*test_convert)(s32, s32);
-s32 func_8007F414(s32 mode, s32 value) {
+s32 _spu_FsetRXXa(s32 mode, s32 value) {
     return test_convert(mode, value);
 }
 '''
@@ -33,7 +33,7 @@ s32 func_8007F414(s32 mode, s32 value) {
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
-        cls.function = cls.library.func_8008AFE4
+        cls.function = cls.library.SpuSetTransferStartAddr
         cls.function.argtypes = [C.c_int32]
         cls.function.restype = C.c_uint32
 

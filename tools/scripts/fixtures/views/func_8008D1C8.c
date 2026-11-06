@@ -52,7 +52,7 @@
 
 extern s32 func_8001E84C();
 
-extern s32 func_8008B154(s32);
+extern s32 VSync(s32);
 
 extern s32 func_8008B4B8(void);
 
@@ -97,7 +97,7 @@ extern s32 D_80110334;
 extern const char *D_80110338;
 
 static inline int check_alarm(char **ac, char ** sc, volatile u8 *st) {
-    if (func_8008B154(-1) > D_80110330 || D_80110334++ > 0x3C0000) {
+    if (VSync(-1) > D_80110330 || D_80110334++ > 0x3C0000) {
         func_800963DC(D_80011A14);
         { u8 s0_ = st[0]; u8 s1_ = st[1]; char *x5 = sc[s1_];
         /* ASM_BARRIER: Load D_80110338 directly into $a1. */
@@ -173,7 +173,7 @@ s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     if (arg3 != 0) {
         return 0;
     }
-    D_80110330 = func_8008B154(-1) + 0x3C0;
+    D_80110330 = VSync(-1) + 0x3C0;
     D_80110334 = 0;
     D_80110338 = D_80011AC8;
     if (D_800A6764[0] == 0) {

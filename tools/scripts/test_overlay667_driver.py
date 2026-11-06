@@ -23,7 +23,7 @@ static struct World {
 static void record(struct World *w,s32 kind,s32 a,s32 b,unsigned long argument){
  Event *e;assert(w->calls<40);e=&w->events[w->calls++];e->kind=kind;e->first=a;e->second=b;e->argument=argument;
 }
-s32 func_800929D4(s32 mode){assert(world.phase==0);record(&world,1,mode,0,0);world.remaining=world.planned;world.phase=1;return world.ignored_reset;}
+s32 ResetGraph(s32 mode){assert(world.phase==0);record(&world,1,mode,0,0);world.remaining=world.planned;world.phase=1;return world.ignored_reset;}
 s32 func_8009AEAC(s32 command,s32 operation,unsigned long argument){
  if(command==3 && operation==0 && argument==1){
   assert(world.phase==1);record(&world,2,command,operation,argument);world.phase=2;world.active=1;return world.ignored_enable;
@@ -39,7 +39,7 @@ s32 func_8009AEAC(s32 command,s32 operation,unsigned long argument){
  assert(command==3 && operation==0 && argument==0 && world.phase==4);
  record(&world,5,command,operation,argument);world.phase=5;world.active=0;return world.ignored_disable;
 }
-s32 func_8008B154(s32 mode){assert(world.phase==5 && world.active==0);record(&world,6,mode,0,0);world.phase=6;return world.ignored_wait;}
+s32 VSync(s32 mode){assert(world.phase==5 && world.active==0);record(&world,6,mode,0,0);world.phase=6;return world.ignored_wait;}
 void SetDispMask(s32 mode){assert(world.phase==6);record(&world,7,mode,0,0);world.phase=7;}
 ''' + body + r'''
 static u32 seed=0x15494;

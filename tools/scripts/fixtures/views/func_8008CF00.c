@@ -24,7 +24,7 @@ extern u8 D_80110320[];
 
 extern u8 D_80110328[];
 
-extern s32 func_8008B154(s32);
+extern s32 VSync(s32);
 
 extern s32 func_8008B4B8(void);
 
@@ -39,7 +39,7 @@ extern const char *D_80110338[];
 extern const char D_80011AA4[];
 
 static inline int check_alarm_1(char **ac, char **sc, volatile u8 *st) {
-    if (func_8008B154(-1) > D_80110330 || D_80110334++ > 0x3C0000) {
+    if (VSync(-1) > D_80110330 || D_80110334++ > 0x3C0000) {
         func_800963DC(D_80011A14);
         {
             u8 s0_ = st[0];
@@ -84,7 +84,7 @@ s32 CD_ready(s32 mode, u8 *result) {
     volatile u8 *st1;
     volatile u8 *st2;
 
-    D_80110330 = func_8008B154(-1) + 0x3C0;
+    D_80110330 = VSync(-1) + 0x3C0;
     D_80110334 = 0;
     D_80110338[0] = D_80011AA4;
     ac = D_800A64AC;

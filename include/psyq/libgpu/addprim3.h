@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80095A84(unsigned *ot, unsigned p, unsigned *q);
+void AddPrims(unsigned *ot, unsigned p, unsigned *q);
 
 #endif /* RR_PSYQ_LIBGPU_ADDPRIM3_H */

@@ -1,7 +1,7 @@
 #include "rr_asm.h"
 #include "psyq/libgte/gtemath4.h"
 
-int func_80091764(int *a0, int *a1, int *a2, int *a3, int * volatile a4, int * volatile a5, int * volatile a6, int * volatile a7) {
+int RotAverage3(int *a0, int *a1, int *a2, int *a3, int * volatile a4, int * volatile a5, int * volatile a6, int * volatile a7) {
     register int *t0 __asm__("$8");
     register int *t1 __asm__("$9");
     register int *t2 __asm__("$10");

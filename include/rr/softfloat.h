@@ -5,7 +5,7 @@
 
 /* This older shift helper returns its two-word structure by value. The PAL
  * structure-result pointer is implicit; native callers retain the real C ABI. */
-RrWide64 func_8007DC04(s32 direction, RrWide64 value, s32 count);
+RrWide64 _dbl_shift(s32 direction, RrWide64 value, s32 count);
 s32 func_8007E9C4(s32 category, s32 operation);
 
 /* Binary64 bit encoding to signed32. Both zero encodings produce zero;

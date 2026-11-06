@@ -1,7 +1,7 @@
 #include "rr/cd_read_callback.h"
 #include "rr/cd.h"
 
-extern s32 func_8008B154(s32);
+extern s32 VSync(s32);
 extern RrLibCompletionCallback func_8008C118(RrLibCompletionCallback);
 extern RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback);
 extern RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback);
@@ -80,7 +80,7 @@ void func_8008E828(s32 event,u8 *data) {
     } else {
         initial->remaining14=-1;
     }
-    now=func_8008B154(-1);
+    now=VSync(-1);
     state=&D_800A67B0;
     /* ASM_BARRIER: form the complete state address after the clock returns. */
     __asm__("" : "+r"(state));
@@ -88,12 +88,12 @@ void func_8008E828(s32 event,u8 *data) {
     if (state->remaining14<0) {
         func_8008EB6C(1);
     }
-    now=func_8008B154(-1);
+    now=VSync(-1);
     if ((s32)(state->start1C+1200U)<now) {
         state->remaining14=-1;
     }
     if (state->remaining14==0 ||
-        (now=func_8008B154(-1),(s32)(state->start1C+1200U)<now)) {
+        (now=VSync(-1),(s32)(state->start1C+1200U)<now)) {
         func_8008C12C(state->restore.saved2C);
         if (D_800A63F4&1) {
             func_8008C55C(state->restore.saved30);

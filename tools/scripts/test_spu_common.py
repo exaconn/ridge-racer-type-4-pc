@@ -60,7 +60,7 @@ int main(void){unsigned n,phase,i,j;uint64_t cases=0;RrSpuCommonAttributes28 a,s
   volumeSeen[0][(u16)a.master.left]++;volumeSeen[1][(u16)a.master.right]++;
   for(i=0;i<256;i++){expected[i]=(u16)next();actual.bank.halves[i]=expected[i];}expected[213]=(u16)n;actual.bank.halves[213]=(u16)n;controlSeen[n]++;
   for(i=0;i<4;i++){guards[i]=next();tails[i]=next();actual.guard[i]=guards[i];actual.tail[i]=tails[i];}
-  root=a.mask&&!(a.mask&0x3FC3U)?0:&actual.bank.registers;D_800A47D8=root;saved=a;model(&saved);func_80082674(&a);
+  root=a.mask&&!(a.mask&0x3FC3U)?0:&actual.bank.registers;D_800A47D8=root;saved=a;model(&saved);SpuSetCommonAttr(&a);
   assert(D_800A47D8==root);assert(!memcmp(&a,&saved,sizeof(a)));assert(!memcmp(actual.guard,guards,sizeof(guards)));assert(!memcmp(actual.tail,tails,sizeof(tails)));
   for(i=0;i<256;i++)assert(actual.bank.halves[i]==expected[i]);cases++;
  }

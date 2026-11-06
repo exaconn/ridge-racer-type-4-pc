@@ -64,6 +64,6 @@ void ovl667_func_80114AF8(unsigned long configuration) {
         }
     }
     func_8009AEAC(5,0,0);
-    func_8008B154(0);
+    VSync(0);
     func_8009AEAC(3,0,0);
 }

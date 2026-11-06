@@ -19,5 +19,5 @@ void ovl668_func_80114B2C(u8 *arg0) {
     D_800AC650.phaseB4 = 1;
     D_800AC650.counterC4 = 0;
     D_800F2DE4 = 0;
-    func_8008B154(0);
+    VSync(0);
 }

@@ -15,9 +15,9 @@ int func_8007F068(int a0, ...);
 u32 func_8007F2E8(const u16 *a0, u32 a1);
 u32 func_8007F36C(u16 *a0, u32 a1);
 void func_8007F3D0(int a0, unsigned int a1, int a2);
-s32 func_8007F414(s32 index, s32 value);
+s32 _spu_FsetRXXa(s32 index, s32 value);
 int _spu_FgetRXXa(int a0, int a1);
-void func_8007F4F4(int a0);
+void _spu_FsetPCR(int a0);
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A47D8 ((struct H *)D_800A47D8)
@@ -111,7 +111,7 @@ u32 func_8007F2E8(const u16 *a0, u32 a1) {
         func_8007F068(1);
         func_8007F068(3, a0, a1);
     } else {
-        func_8007ED44(a0, a1);
+        _spu_FwriteByIO(a0, a1);
     }
     return a1;
 }
@@ -136,7 +136,7 @@ void func_8007F3D0(int a0, unsigned int a1, int a2) {
 
 #undef D_800A47D8
 
-s32 func_8007F414(s32 index, s32 value) {
+s32 _spu_FsetRXXa(s32 index, s32 value) {
     u32 address = (u32)value;
     u32 units;
     /* ASM_BARRIER: Preserve the original copy of the shifted address in v1
@@ -175,7 +175,7 @@ int _spu_FgetRXXa(int a0, int a1) {
 
 #undef D_800A47D8
 
-void func_8007F4F4(int a0) {
+void _spu_FsetPCR(int a0) {
     *D_800A47E8 &= 0xFFF8FFFF;
     if (a0) {
         *D_800A47E8 |= 0x30000;

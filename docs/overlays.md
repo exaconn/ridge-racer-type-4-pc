@@ -41,19 +41,19 @@ Runtime cache behavior has not been verified in an emulator.
 The spans below run from the first identified instruction to the final observed
 return delay slot, with an exclusive end. They are **candidate text spans**,
 not a finalized linker section map or a verified function partition.
-Role names are inferred from embedded strings and callers.
+Role names are inferred from embedded strings and callers; the registry is `configs/PAL/overlays/names.json` (aliases: 669=660, 670=659, 671=661, 672=667).
 
-| Entry | Module ID | Sector | Stored bytes | Candidate text offsets | Text span bytes | Interpretation |
-|---|---|---|---:|---|---:|---|
-| 659 | 10 | 19512 | 8192 | 0x54..0x1CB8 | 7268 | Menu module; exact role pending |
-| 660 | 11 | 19516 | 14336 | 0x98..0x2FA8 | 12048 | Time attack course selection (`job_ta_crs_info0`) |
-| 661 | 8 | 19523 | 16384 | 0xAC..0x3AE0 | 14900 | Versus selection (`PLAYER 2`, `job_vs_car_info0`) |
-| 662 | 12 | 19531 | 77824 | 0x120..0x1199C | 71804 | Garage (`garage0`, `job_garage_car_info0`) |
-| 663 | 13 | 19569 | 10240 | 0x60..0x1FF0 | 8080 | Records (`recode0`) |
-| 665 | 14 | 19582 | 20480 | 0xA0..0x47A0 | 18176 | Menu module; exact role pending |
-| 666 | 15 | 19592 | 10240 | 0x5C..0x2668 | 9740 | Extra course selection (`job_ex_crs_info0`) |
-| 667 | 9 | 19597 | 18432 | 0xB4..0x4588 | 17620 | Multiplayer / serial (`sio:`, `PLAYER 2/3/4`) |
-| 668 | 6 | 19606 | 79872 | 0x98..0x2430 | 9112 | STR playback (`strNext`, timeout diagnostics); decoder tables excluded |
+| Entry | Name | Module ID | Sector | Stored bytes | Candidate text offsets | Text span bytes | Interpretation |
+|---|---|---|---|---:|---|---:|---|
+| 659 | `race_results` | 10 | 19512 | 8192 | 0x54..0x1CB8 | 7268 | Race results, standings and preview (`ovl659_rank_standings`) |
+| 660 | `time_attack_course_select` | 11 | 19516 | 14336 | 0x98..0x2FA8 | 12048 | Time attack course selection (`job_ta_crs_info0`) |
+| 661 | `versus_select` | 8 | 19523 | 16384 | 0xAC..0x3AE0 | 14900 | Versus selection (`PLAYER 2`, `job_vs_car_info0`) |
+| 662 | `garage` | 12 | 19531 | 77824 | 0x120..0x1199C | 71804 | Garage (`garage0`, `job_garage_car_info0`) |
+| 663 | `records` | 13 | 19569 | 10240 | 0x60..0x1FF0 | 8080 | Records (`recode0`) |
+| 665 | `options` | 14 | 19582 | 20480 | 0xA0..0x47A0 | 18176 | Options: audio mono/stereo, screen calibration |
+| 666 | `extra_course_select` | 15 | 19592 | 10240 | 0x5C..0x2668 | 9740 | Extra course selection (`job_ex_crs_info0`) |
+| 667 | `serial_link` | 9 | 19597 | 18432 | 0xB4..0x4588 | 17620 | Multiplayer / serial (`sio:`, `PLAYER 2/3/4`) |
+| 668 | `movie_playback` | 6 | 19606 | 79872 | 0x98..0x2430 | 9112 | STR playback (`strNext`, timeout diagnostics); decoder tables excluded |
 
 Exact whole-entry duplicate pairs: **669 = 660**, **670 = 659**,
 **671 = 661**, **672 = 667**. Thus 13 executable entries represent 9 unique

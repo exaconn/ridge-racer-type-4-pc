@@ -72,8 +72,8 @@ static void mutate(u32 service){u32 r,i;if(!g->phase)return;r=next(&g->seed);
  g->f4=(s32)next(&g->seed);g->f8=(s32)next(&g->seed);g->fc=(s32)next(&g->seed);g->mode=(s32)next(&g->seed);g->active=(s32)next(&g->seed);g->shift=next(&g->seed);g->rounding=next(&g->seed);g->unknown=next(&g->seed);g->transfer=(u16)next(&g->seed);
  g->callback=(r&2)?callback:0;g->entries.values[r%10]=(u16)(r^service);
 }
-void func_8007F59C(void){event(1,0,0);mutate(1);}
-void func_8007ED44(const u16 *p,u32 n){assert(p==D_800A4818&&n==16);for(unsigned i=0;i<8;i++)assert(p[i]==0x707);event(2,n,0);mutate(2);}
+void _spu_Fw1ts(void){event(1,0,0);mutate(1);}
+void _spu_FwriteByIO(const u16 *p,u32 n){assert(p==D_800A4818&&n==16);for(unsigned i=0;i<8;i++)assert(p[i]==0x707);event(2,n,0);mutate(2);}
 s32 func_8001E84C(const char *f,...){va_list ap;const char *reason;va_start(ap,f);reason=va_arg(ap,const char*);va_end(ap);assert(f==D_80011698&&reason==D_800116A8);event(3,0,0);mutate(3);return -123;}
 static u16 status_read(RrSpuRegisterStorage *bank){
 #ifdef DIRECT_STATUS
@@ -88,7 +88,7 @@ static u16 status_read(RrSpuRegisterStorage *bank){
 static s32 model(s32 warm){u32 i,attempt;RrSpuRegisterStorage *b;
  *g->dmaRoot|=0xB0000;g->f4=0;g->f8=0;g->transfer=0;
  b=g->root;b->halves[192]=0;b->halves[193]=0;b->halves[213]=0;
- func_8007F59C();b=g->root;b->halves[192]=0;b->halves[193]=0;
+ _spu_Fw1ts();b=g->root;b->halves[192]=0;b->halves[193]=0;
  if(status_read(b)&2047){for(attempt=0;attempt<3840;attempt++)if(!(status_read(g->root)&2047))break;if(attempt==3840)func_8001E84C(D_80011698,D_800116A8);}
  g->fc=2;g->mode=3;g->shift=8;g->rounding=7;
  b=g->root;b->halves[214]=4;b->halves[194]=0;b->halves[195]=0;b->halves[198]=65535;b->halves[199]=65535;b->halves[204]=0;b->halves[205]=0;
@@ -96,12 +96,12 @@ static s32 model(s32 warm){u32 i,attempt;RrSpuRegisterStorage *b;
  if(!warm){
   g->transfer=512;b=g->root;
   for(i=200;i<204;i++)b->halves[i]=0;for(i=216;i<220;i++)b->halves[i]=0;
-  func_8007ED44(D_800A4818,16);b=g->root;
+  _spu_FwriteByIO(D_800A4818,16);b=g->root;
   for(i=0;i<24;i++){b->halves[8*i]=0;b->halves[8*i+1]=0;b->halves[8*i+2]=16383;b->halves[8*i+3]=512;b->halves[8*i+4]=0;b->halves[8*i+5]=0;}
   b=g->root;b->halves[196]=65535;b->halves[197]=255;
-  for(i=0;i<4;i++)func_8007F59C();
+  for(i=0;i<4;i++)_spu_Fw1ts();
   b=g->root;b->halves[198]=65535;b->halves[199]=255;
-  for(i=0;i<4;i++)func_8007F59C();
+  for(i=0;i<4;i++)_spu_Fw1ts();
  }
  b=g->root;g->active=1;b->halves[213]=49152;g->callback=0;g->unknown=0;return 0;
 }

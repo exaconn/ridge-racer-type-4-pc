@@ -9,20 +9,20 @@
 
 #define D_800ABDD4 ((int *)D_800ABDD4)
 
-#define func_8009A7F4 ((int (*)())func_8009A7F4)
+#define setRC2wait ((int (*)())setRC2wait)
 
 #undef D_800ABDD0
 
 #undef D_800ABDD4
 
-#undef func_8009A7F4
+#undef setRC2wait
 
 typedef struct { unsigned char b0; char p0[3]; unsigned short h4; char p1[4]; unsigned short hA; } S;
 
 int func_8009BD44(a0) int a0; {
     volatile S *p, *q = D_800ABDD0;
     q->hA = 0;
-    func_8009A7F4(0x91);
+    setRC2wait(0x91);
     p = D_800ABDD0;
     p->hA = a0 ? 0x3003 : 0x1003;
     if (p->h4 & 0x200) {

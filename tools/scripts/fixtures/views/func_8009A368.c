@@ -13,7 +13,7 @@ s32 func_8009A368(void *a0) {
     }
     switch(state->status.phase) {
     case 1:
-        func_80099618(state,1);
+        _padCmdParaMode(state,1);
         return 0;
     case 0xFE:goto zero;
     case 0:case 0xFF:return 0;
@@ -22,14 +22,14 @@ s32 func_8009A368(void *a0) {
 zero:
     a0=state;
 Y:
-    func_80099618(a0,0);
+    _padCmdParaMode(a0,0);
     return 0;
 other:
     if(!state->status.update14)goto fallback;
     state->status.update14(state);
     goto out;
 fallback:
-    func_80098AE0((unsigned char *)state);
+    _padSendAtLoadInfo((unsigned char *)state);
 out:
     return 0;
 }

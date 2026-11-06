@@ -12,13 +12,13 @@ extern int func_8004EC28();
 
 extern int func_80052800();
 
-extern int func_800929D4();
+extern int ResetGraph();
 
 extern int SetGraphDebug();
 
 extern int SetDispMask();
 
-extern int func_800907FC();
+extern int InitGeom();
 
 extern int func_80077E10();
 
@@ -143,10 +143,10 @@ void func_8001E988(void)
     func_8007FA54();
     func_8004EC28();
     func_80052800();
-    func_800929D4(0);
+    ResetGraph(0);
     SetGraphDebug(0);
     SetDispMask(0);
-    func_800907FC();
+    InitGeom();
     func_80077E10(1);
     func_8004A55C();
     func_8005C0C4();
@@ -225,5 +225,5 @@ void func_8001E988(void)
     D_800F3B20 = D_800F3B28;
     func_80031DB0();
     func_800373DC(1);
-    func_800929D4(3);
+    ResetGraph(3);
 }

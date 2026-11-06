@@ -1,5 +1,5 @@
 #include "rr/sprite_effect.h"
-extern void func_80095B94(void *),func_80095AF4(void *,s32),AddPrim(u32 *,u32 *);
+extern void func_80095B94(void *),SetSemiTrans(void *,s32),AddPrim(u32 *,u32 *);
 extern s32 func_80096464(void);
 extern u8 *func_8001FCC8(u32 *,u8 *,u16);
 u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg) {
@@ -57,7 +57,7 @@ u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,
         {u8 v=((volatile RrSpriteEffectSource *)descriptor)->uv.v;
         s32 transparency=*(volatile s32 *)&semi;
         sprite->v=v;
-        func_80095AF4(sprite,transparency);}
+        SetSemiTrans(sprite,transparency);}
         level=strength;
         if(count!=1) {
             if(i==1)level=(s32)((u32)strength*((u32)func_80096464()&15))/24;

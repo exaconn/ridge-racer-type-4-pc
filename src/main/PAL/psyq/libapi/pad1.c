@@ -72,7 +72,7 @@ s32 StartPAD(void) {
     return 1;
 }
 
-void StopPAD() { func_80097738(); func_800976E4(); func_800975E0(); D_800ABC50 = 0; }
+void StopPAD() { func_80097738(); func_800976E4(); RemovePatchPad(); D_800ABC50 = 0; }
 
 int func_80097568(void) {
     int *p;

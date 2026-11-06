@@ -14,7 +14,7 @@ Compiler: gcc 2.8.1 (PSX) `-O2 -G0 -mips1 -mcpu=3000 -funsigned-char` via `tools
 1. Original asm: `build/baseline/asm/nonmatchings/<func>/<func>.s`
 2. First draft: `tools/scripts/m2c.sh <func>` (needs cleanup: `M2C_FIELD(...)` -> real struct/array syntax, `M2C_UNK` -> int, etc.)
 3. Write `src/main/PAL/<func>.c` while working (one function per file; once matched it is folded into its translation unit, see `docs/SOURCE_LAYOUT.md`; includes `"types.h"` if you use s32/u8...).
-   Declare callees K&R style (`extern int func_80093C24();`) and data as `extern int D_800F2ECC;` / arrays / structs.
+   Declare callees K&R style (`extern int SetDrawMode();`) and data as `extern int D_800F2ECC;` / arrays / structs.
    Keep the symbol names exactly as in the asm (`func_XXXXXXXX`, `D_XXXXXXXX`).
 4. Check: `.venv/bin/python tools/scripts/fd.py src/main/PAL/<func>.c`
    - `MATCH` = done. Otherwise it prints original asm, our disassembly and the first differing word.
@@ -436,7 +436,7 @@ Units with inline asm are acceptable; no hand-written `.s` replacements.
 - `__asm__ volatile("" : "=r"(r) : "0"(0));` launders constants/symbol addresses against CSE.
 - Compute derived pointers (`q = p - 1`) before stores so base ptr lifetime ends before calls; never pin a pointer to a caller-saved reg across calls.
 - Split expressions into separate statements to control loop hoisting.
-- IDEA: original assembler seems to fill a branch delay slot from an earlier independent instruction, not only the immediate predecessor; aspsx_fill.py handles only the immediate predecessor. Experimental patched copy: scratchpad/w5c1/exp/maspsx/aspsx_fill.py (not adopted; func_8008AFE4 still off).
+- IDEA: original assembler seems to fill a branch delay slot from an earlier independent instruction, not only the immediate predecessor; aspsx_fill.py handles only the immediate predecessor. Experimental patched copy: scratchpad/w5c1/exp/maspsx/aspsx_fill.py (not adopted; SpuSetTransferStartAddr still off).
 
 ## More tricks (wave 5, c3)
 - Force constant return into reg: `register int r asm("$2"); __asm__("" : "=r"(r) : "0"(1));` stops constant propagation; lets `li v0,1` sit in branch delay slot. Shared fail block before success block (gotos in asm order) reproduces layout.
@@ -466,7 +466,7 @@ Units with inline asm are acceptable; no hand-written `.s` replacements.
 - Use `objdump -z` and delete old .o before recompiling (zero-run elision / stale objects hide diffs).
 
 ## Update: aspsx_fill.py now adopts the look-back rule
-Fill of a branch delay slot from an earlier independent instruction (look-back 12; never crosses label/directive/branch/load/$at use; no load-use hazard) is now in tools/maspsx/aspsx_fill.py (supersedes the "not adopted" note above). func_8008AFE4 matches (2.7.2 marker, `__asm__ volatile("" ...)`).
+Fill of a branch delay slot from an earlier independent instruction (look-back 12; never crosses label/directive/branch/load/$at use; no load-use hazard) is now in tools/maspsx/aspsx_fill.py (supersedes the "not adopted" note above). SpuSetTransferStartAddr matches (2.7.2 marker, `__asm__ volatile("" ...)`).
 
 ## Tricks (wave 6, c1 / c4)
 - `char` store of -6 compiles as 250 under -funsigned-char: declare base as `signed char *`.
@@ -547,7 +547,7 @@ Conclusion: the rd-form functions need an assembler path (GNU as fed the raw mac
 
 ## Research note: delay-slot fill classes A/B (`lui $at; jal/jr; sw %lo($at)` and `jr ra; addiu sp`) (w9a)
 
-What the pipeline does (verified on func_8008BE14 / func_8007E494):
+What the pipeline does (verified on StSetRing / func_8007E494):
 - cc1 2.7.2 (`-mgas` default; `-mmips-as`/`-mno-gas` give identical text) emits stores as one-line macros `sw $5,sym`, leaves `jal`/`j $31` delay slots EMPTY (no `.set noreorder` wrapper) unless the reorg found a 4-byte filler (a 2-insn macro store is never one), and the epilogue as text `lw $31; addu $sp,$sp,N; j $31`. So the original object = that text run through a REORDER assembler: it expands the macro (`lui $at; sw`), moves the last real insn into the slot (the `sw %lo($at)`; `addiu sp` into `jr`), and keeps a filler between `lw $ra` and `jr $ra` (load hazard) -> `lw ra; addiu sp; jr ra; nop`.
 - Stock maspsx never reorders: `.ent` -> `.set noreorder` for the whole function, `.set` lines from cc1 are only tracked (`is_reorder`) and DROPPED, every unfilled branch/jump gets an explicit `nop # DEBUG: branch/jump`, `#nop` comment lines are deleted and re-derived. GNU as therefore only ever sees noreorder. No ASPSX_VERSION / MASPSX_FLAGS value changes this (flags not known to maspsx are forwarded to as, which has no reorder switch). Inline `.set reorder` passes maspsx only with a SPACE (tab form is swallowed) but maspsx still adds its own nop -> not a stock recipe, not used.
 - cc1 2.7.2 has no `-msplit-addresses` ("Invalid option"), no stock option emits `%hi/%lo` split, so with 2.7.2 the macro-store/fill pair is UNREACHABLE: functions whose codegen is 2.7.2-only (e.g. func_8007E494 needs `lw $a3,24($sp)`; 2.8.1 gives `move $7,$2`) and all `jr ra`-slot-with-`lw ra` epilogues stay blocked (2.8.1 NEVER emits `lw ra; addiu sp; jr; nop`; it always fills the `j $31` slot, so no 2.8.1 file in src/main has it).
@@ -555,7 +555,7 @@ What the pipeline does (verified on func_8008BE14 / func_8007E494):
 What DOES work (stock): cc1 2.8.1 splits addresses itself (`lui rX,%hi; sw v,%lo(rX)`) and its reorg fills the jal/jr slot with the `sw`. The hi register is normally $2.., but `/* CC1_FLAGS: -fcall-used-$1 */` makes $1 (=$at) allocatable, so cc1 uses `$1` and the result is byte-identical to the assembler's `lui $at / sw %lo($at)` form, delay slot included. maspsx/as accept `$1` as `$at`. Recipe for leaf / simple stores with the original `lui $at,%hi(A); sw; lui $at,%hi(B); jr ra; sw %lo(B)($at)`:
     /* CC1_FLAGS: -fcall-used-$1 */      (default GCC 2.8.1, NOT the 2.7.2 marker)
   plus `-fno-schedule-insns2` when the original keeps `sw $ra` before the first lui (calls). Matched with it: func_80087044, func_8008A634, func_8008DDA0, func_8008F914.
-Still blocked (checked all failed drafts + scratch drafts with 2.8.1 x {-fcall-used-$1, +-fno-schedule-insns2, +-fno-schedule-insns, -mno-split-addresses, -fno-strength-reduce}): everything that has `lw ra; addiu sp; jr ra; nop` or 2.7.2-only codegen (func_8008BE14 top half matches with `-fcall-used-$1 -fno-schedule-insns2`, only the epilogue `lw; nop; jr; addiu` vs `lw; addiu; jr; nop` differs), func_8007E494, func_80082D00, func_8007F6EC, func_8007F59C, func_8007DB54, func_8007E9C4, func_8008F1C4, func_8008DDAC, func_8008E780, func_80080AB4, func_8007F794, func_80080804.
+Still blocked (checked all failed drafts + scratch drafts with 2.8.1 x {-fcall-used-$1, +-fno-schedule-insns2, +-fno-schedule-insns, -mno-split-addresses, -fno-strength-reduce}): everything that has `lw ra; addiu sp; jr ra; nop` or 2.7.2-only codegen (StSetRing top half matches with `-fcall-used-$1 -fno-schedule-insns2`, only the epilogue `lw; nop; jr; addiu` vs `lw; addiu; jr; nop` differs), func_8007E494, func_80082D00, SpuStart, _spu_Fw1ts, _add_mant_d, func_8007E9C4, func_8008F1C4, func_8008DDAC, func_8008E780, func_80080AB4, func_8007F794, func_80080804.
 
 ## KEY LEVER: `/* CC1_FLAGS: -fcall-used-$1 */` (stock cc1 2.8.1)
 Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and its own scheduler puts the sw in jal/jr delay slots. Matched func_80087044, 8008A634, 8008DDA0, 8008F914 (same lever parasite-pc uses for ER_retry). Try also with `-fno-schedule-insns2` / `-fno-expensive-optimizations`. Added to sweep_markers.py defaults.
@@ -577,7 +577,7 @@ Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and
 ## Wave 9 chunk 6 tricks
 - K&R params + `register int cN = aN;` copies fix order/registers of stack-arg loads (func_800884A8 near-miss).
 - `lw rd,%lo(sym)(rd)` form is only reachable via compound inline asm (`lui/addu/lw %lo`); not pure C, so NOT used in src/main (needs owner decision).
-- Near-misses: func_8007EF04 (extra `addu v1,v1,-1`, 2.7.2 reorg), func_80089E1C (back-edge delay slot), func_8008A6F4 (lui/lw scheduling).
+- Near-misses: _spu_FiDMA (extra `addu v1,v1,-1`, 2.7.2 reorg), func_80089E1C (back-edge delay slot), func_8008A6F4 (lui/lw scheduling).
 
 ## Wave 10 tricks
 - `/* CC1_FLAGS: -fno-strength-reduce */` removes second pointer register in two-pointer stride loops (func_800572A8 near-miss).

@@ -71,7 +71,7 @@ void func_80096434(void *p,s32 length) {
  /* The local arena pointer must survive an opaque helper replacing this global. */
  D_800ABC9C=&external_record;stage=2;
 }
-void func_80097E0C(void) {
+void _padSetVsyncParam(void) {
  assert(stage==2 && D_800ABCA0==-17 && D_800ABCB4==seed);
  assert(!memcmp(&actual,&expected,sizeof(actual)));
  check_callbacks();D_800ABCA0=-42;stage=3;
@@ -115,7 +115,7 @@ int main(void) {
   memcpy(&expected,&actual,sizeof(actual));first=input(a);second=input(b);
   reference(first,second);
   D_800ABCA0=123;D_800ABCB4=456;D_800ABC9C=0;
-  func_80099CD4(first,second);
+  PadInitDirect(first,second);
   assert(stage==3 && D_800ABCA0==1 && D_800ABCB4==seed);
   assert(D_800ABC9C==&external_record);
   assert(!memcmp(&actual,&expected,sizeof(actual)));

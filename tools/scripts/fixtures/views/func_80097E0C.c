@@ -4,7 +4,7 @@ extern int func_80097EA0(), func_80097E38();
 
 extern int D_8011441C[];
 
-void func_80097E0C() {
+void _padSetVsyncParam() {
     int *p = D_8011441C;
     p[0] = (int)func_80097EA0;
     p[1] = (int)func_80097E38;

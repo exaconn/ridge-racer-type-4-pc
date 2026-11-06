@@ -48,7 +48,7 @@ void ovl668_func_80116958(u8 *data,void *commands){
  assert((uintptr_t)data>UINT32_MAX&&(uintptr_t)commands>UINT32_MAX);
  change(31);D_800AC708=&streams.s[(scenario+polls+1)%3];
 }
-s32 func_8008F764(void *data){
+s32 StFreeRing(void *data){
  assert(event++==1&&data==backing[scenario%3][5]);check();change(63);
  D_800AC708=&streams.s[(scenario+polls+2)%3];return results[(scenario/36)%6];
 }

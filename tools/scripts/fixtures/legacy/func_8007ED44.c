@@ -2,7 +2,7 @@
 #include "rr/spu.h"
 extern s32 func_8001E84C(const char *,...);
 extern char D_80011698[],D_800116B8[],D_800116CC[];
-void func_8007ED44(const u16 *source,u32 size) {
+void _spu_FwriteByIO(const u16 *source,u32 size) {
     register RrSpuRegisterBank *port=D_800A47D8;
     /* ASM_BARRIER: Retain the transfer-address halfword while capturing device status. */
     register u32 address __asm__("$3")=D_800A47F0;
@@ -17,7 +17,7 @@ void func_8007ED44(const u16 *source,u32 size) {
     /* ASM_BARRIER: Publish the transfer address before preparing the saved status mask. */
     __asm__("" : "+r"(status) : : "memory");
     previous=status&0x7FF;
-    func_8007F59C();
+    _spu_Fw1ts();
     while(remaining) {
         s32 written;
         if(remaining<65)chunk=remaining;else chunk=64;
@@ -41,7 +41,7 @@ void func_8007ED44(const u16 *source,u32 size) {
             __asm__("" : "+r"(old));
             command=old&0xFFCF;
             *(u16 *)&control->spu_control=command|0x10;
-            func_8007F59C();
+            _spu_Fw1ts();
         }
         {
             register u32 count=0;
@@ -74,8 +74,8 @@ void func_8007ED44(const u16 *source,u32 size) {
             }
         }
         remaining-=chunk;
-        func_8007F59C();
-        func_8007F59C();
+        _spu_Fw1ts();
+        _spu_Fw1ts();
     }
     port=D_800A47D8;
     {

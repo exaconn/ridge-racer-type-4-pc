@@ -17,5 +17,5 @@ found:
     index = &config->word00;
     *index = *index < 1U;
     ovl668_func_80116958(data, D_800AC708->commands10[*index]);
-    return func_8008F764(data);
+    return StFreeRing(data);
 }

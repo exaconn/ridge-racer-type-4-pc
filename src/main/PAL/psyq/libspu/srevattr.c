@@ -27,7 +27,7 @@ extern s32 D_800A48C8[];
 extern RrSpuRegisterPatch D_800A4E78[];
 
 extern void func_8007F3D0();
-extern s32 func_8007FAB4();
+extern s32 SpuClearReverbWorkArea();
 extern void func_80086084();
 
 /* Byte copy of one reverb register preset (inlined at each use). */
@@ -151,7 +151,7 @@ skip:
     }
 
     if (clear_mode) {
-        func_8007FAB4(D_800A485C.mode);
+        SpuClearReverbWorkArea(D_800A485C.mode);
     }
 
     if (mode_set) {

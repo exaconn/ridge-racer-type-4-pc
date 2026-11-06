@@ -140,9 +140,9 @@ extern s32 rcos(s32);
 extern void MulMatrix0(Mat32 *, Mat32 *, Mat32 *);
 extern void ApplyMatrix(void *, SVec *, Vec16 *);
 extern void SetLightMatrix(Mat32 *);
-extern void func_80091844(SVec *, Mat32 *);
-extern s32 func_800924D4(s32, s32);
-extern void func_80093C24(s32, s32, s32, s32, s32);
+extern void RotMatrix(SVec *, Mat32 *);
+extern s32 ratan2(s32, s32);
+extern void SetDrawMode(s32, s32, s32, s32, s32);
 extern void AddPrim(s32, s32);
 extern void func_80096454(void *, s32, s32);
 extern s32 D_800A3CDC[];
@@ -285,7 +285,7 @@ void func_800747EC(s32 arg0) {
                     }
                 }
                 func_80070BA4(SCRATCH_BASE, D_8010ECB0[i].f00, D_800F4C68 == 0);
-                func_80093C24(SCRATCH_PRIM, 0, 1, 0x2A, 0);
+                SetDrawMode(SCRATCH_PRIM, 0, 1, 0x2A, 0);
                 AddPrim(SCRATCH_OT + 0x900, SCRATCH_PRIM);
                 SCRATCH_PRIM += 0xC;
             }
@@ -443,7 +443,7 @@ void func_800747EC(s32 arg0) {
             sp118.vx = SCRATCH_ROTX;
             sp118.vy = -SCRATCH_ROTY;
             sp118.vz = SCRATCH_ROTZ;
-            func_80091844(&sp118, &sp18);
+            RotMatrix(&sp118, &sp18);
             RR_GTE_SETROT_TR(&sp18);
             if ((u32)((u16)D_800F3914 - 2) < 2U && SCRATCH_CAMX <= 0x21EF7) {
                 s3[0x2C / 4] = 2;
@@ -470,8 +470,8 @@ void func_800747EC(s32 arg0) {
             sp120.vx = sp1C8.vx;
             sp120.vy = sp1C8.vy;
             sp120.vz = sp1C8.vz;
-            func_80091704(&sp120, &sp1C8, &sp1CB8);
-            s3[0x1C / 4] = func_800924D4(-sp1C8.vz, sp1C8.vx);
+            RotTrans(&sp120, &sp1C8, &sp1CB8);
+            s3[0x1C / 4] = ratan2(-sp1C8.vz, sp1C8.vx);
             pan = (rcos(s3[0x1C / 4]) / 64) + 0x40;
             if (pan >= 0x80) {
                 pan = 0x7F;

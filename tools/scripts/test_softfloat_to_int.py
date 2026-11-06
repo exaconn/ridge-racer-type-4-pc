@@ -13,7 +13,7 @@ class SoftfloatToIntTest(unittest.TestCase):
   body=(ROOT/'tools/scripts/fixtures/views/func_8007E0B4.c').read_text()
   body=re.sub(r' __asm__\("\$\d+"\)','',body)
   helper=(ROOT/'tools/scripts/fixtures/views/func_8007DC04.c').read_text()
-  helper=re.sub(r' asm\("\$\d+"\)','',helper).replace('func_8007DC04','actual_shift')
+  helper=re.sub(r' asm\("\$\d+"\)','',helper).replace('_dbl_shift','actual_shift')
   code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -26,7 +26,7 @@ static u32 seed=0x7E0B4U;
 static u32 next(void){u32 n=seed;n^=n<<13;n^=n>>17;n^=n<<5;return seed=n;}
 static s32 signed_bits(u32 n){s32 r;memcpy(&r,&n,4);return r;}
 '''+helper+r'''
-RrWide64 func_8007DC04(s32 direction,RrWide64 value,s32 count){
+RrWide64 _dbl_shift(s32 direction,RrWide64 value,s32 count){
  struct {u32 guard[4];RrWide64 value;u32 tail[4];} box;
  uint64_t bits=(uint64_t)(u32)value.hi<<32|value.lo,shifted;
  memset(&box,0xA5,sizeof(box));assert(direction==0&&count==10);shifts++;

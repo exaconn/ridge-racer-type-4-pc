@@ -74,7 +74,7 @@ extern int D_8010E738;
 extern int D_8010E740[];
 extern int D_8010E768[];
 extern int D_8010E78C;
-extern int func_8008B154();
+extern int VSync();
 extern int func_80096474();
 extern short D_80107180[];
 extern int BuildRotMatrixZ();
@@ -316,7 +316,7 @@ void func_80070934(int a0, int a1, int *a2, int a3) {
         D_80107180[0] = 0x420;
         D_80107180[1] = 0x5D0;
         D_80107180[2] = 0x610;
-        func_80096474(func_8008B154(1, a1));
+        func_80096474(VSync(1, a1));
     }
 }
 
@@ -455,7 +455,7 @@ void func_80070BA4(char *a0, int a1, int a2) {
         }
         c = s1->f0[D_800F4BF0];
         if (c != 0) {
-            func_80095A84(s7, s1->e8[D_800F4BF0], c);
+            AddPrims(s7, s1->e8[D_800F4BF0], c);
         } else if (a1 < 2) {
             D_800AD570.m[0][a1] = D_80107180[0];
             D_800AD570.m[1][a1] = D_80107180[1];

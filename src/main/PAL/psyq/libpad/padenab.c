@@ -69,7 +69,7 @@ s32 func_80098030(void) {
     return previous;
 }
 
-void func_80098044(void) {
+void _padStartCom(void) {
     RrInterruptRegisters *p;
     u32 mask;
     s32 *counters;

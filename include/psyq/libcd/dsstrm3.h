@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-s32 func_8008F764(void *data);
+s32 StFreeRing(void *data);
 
 #endif /* RR_PSYQ_LIBCD_DSSTRM3_H */

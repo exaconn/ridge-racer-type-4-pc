@@ -2,7 +2,7 @@
 
 #include "rr/library.h"
 
-extern s32 func_80085BA4(s32 *), func_80086694(s32);
+extern s32 func_80085BA4(s32 *), SpuSetReverb(s32);
 
 extern int D_80110008[];
 
@@ -23,7 +23,7 @@ s32 func_800865E4(s32 a0) {
         /* ASM_BARRIER: Retain the shifted temporary in v0 before signed narrowing. */
         __asm__("" : "+r"(shifted));
         s=(s32)shifted>>16;
-        if (s == 0) func_80086694(0);
+        if (s == 0) SpuSetReverb(0);
         {
             s32 *page;
             /* ASM_BARRIER: Finish the optional reset before preparing its shared command argument. */

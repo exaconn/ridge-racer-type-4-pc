@@ -6,7 +6,7 @@ u32 func_8007F2E8(const u16 *a0, u32 a1) {
         func_8007F068(1);
         func_8007F068(3, a0, a1);
     } else {
-        func_8007ED44(a0, a1);
+        _spu_FwriteByIO(a0, a1);
     }
     return a1;
 }

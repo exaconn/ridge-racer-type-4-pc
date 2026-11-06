@@ -3,7 +3,7 @@ u8 *ovl668_func_80115164(RrStrDisplayConfig *config) {
  RrGpuRectangleFields rectangle;
  u8 *data;RrLibQueueRecord32 *header;
  s32 retry=2000;RrStrPlaybackState *playback;
- while(func_8008F854(&data,&header)!=0) {if(--retry==0)return 0;}
+ while(StGetNext(&data,&header)!=0) {if(--retry==0)return 0;}
  if((u32)header->value08>=D_800AC650.thresholdC8)D_800AC650.stopD0=1;
  if((u32)D_800AC650.counterC4>=D_800AC650.budgetCC)D_800AC650.stopD0=1;
  if(((RrStrPlaybackState*)D_800AC650.activeB8)->width00!=header->width10 || ((RrStrPlaybackState*)D_800AC650.activeB8)->height04!=header->height12) {

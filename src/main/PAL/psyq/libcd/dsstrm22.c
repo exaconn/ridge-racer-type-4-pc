@@ -1,6 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/library.h"
-s32 func_8008F854(u8 **data,RrLibQueueRecord32 **header) {
+s32 StGetNext(u8 **data,RrLibQueueRecord32 **header) {
     RrLibQueueRecord32 *selected=D_80110310+(u32)D_801102FC;
     /* ASM_BARRIER: Keep the status word in the original common return register. */
     register s32 result __asm__("$2");

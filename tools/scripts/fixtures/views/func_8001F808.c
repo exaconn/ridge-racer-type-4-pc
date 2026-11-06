@@ -3,7 +3,7 @@
 #include "rr/animated_glyph.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80093C24 ((s32 (*)())func_80093C24)
+#define SetDrawMode ((s32 (*)())SetDrawMode)
 
 #define AddPrim ((s32 (*)())AddPrim)
 
@@ -11,7 +11,7 @@
 
 #define D_800ACC14 ((char *)D_800ACC14)
 
-#undef func_80093C24
+#undef SetDrawMode
 
 #undef AddPrim
 
@@ -22,17 +22,17 @@
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((void (*)())AddPrim)
 
-#define func_80095AF4 ((void (*)())func_80095AF4)
+#define SetSemiTrans ((void (*)())SetSemiTrans)
 
-#define func_80095B24 ((void (*)())func_80095B24)
+#define SetShadeTex ((void (*)())SetShadeTex)
 
 #define func_80095B94 ((void (*)())func_80095B94)
 
 #undef AddPrim
 
-#undef func_80095AF4
+#undef SetSemiTrans
 
-#undef func_80095B24
+#undef SetShadeTex
 
 #undef func_80095B94
 
@@ -123,7 +123,7 @@ void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
     if (drawV < 0) {
         drawV += 0xFF;
     }
-    func_80093C24(cursor, 0, 1, ((s32) (drawV & 0x100) >> 4) | 0x2F, 0);
+    SetDrawMode(cursor, 0, 1, ((s32) (drawV & 0x100) >> 4) | 0x2F, 0);
     AddPrim(&D_800ACC14->head70, (u32 *)cursor);
     RR_GLYPH_ANIMATION_SCRATCH->cursor = cursor + 0xC;
 }

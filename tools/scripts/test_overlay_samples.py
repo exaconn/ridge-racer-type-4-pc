@@ -35,32 +35,32 @@ class OverlaySamplesTest(unittest.TestCase):
 #include "rr/race_types.h"
 #include "rr/badge_row_types.h"
 #include "rr/projection_state.h"
-s16 D_800F4C6A, D_800F3A26, D_800F4D8A, D_800AD50A;
-s32 D_800F2DE4; RrRaceVehicle PlayerCars[2];
+s16 ModeGroup, D_800F3A26, D_800F4D8A, D_800AD50A;
+s32 ModeFrame; RrRaceVehicle PlayerCars[2];
 RrFrameStorage *D_800ACC14, display_buffer;
 RrBadgeRow1C first, second, *BadgeRows;
 s16 *sample665_badges;
-u8 D_800ACC68;
+u8 ScreenFadeState;
 RrGarageWorkingStorage ovl662_D_80127668;
 s32 ovl667_D_80118EE0;
 u32 *ovl668_D_80116E54;
 RrProjectionScratchPrefix test_scratch;
 #define RR_PROJECTION_SCRATCH (&test_scratch)
 static int scenario, step;
-void func_80036068(void) { assert(scenario == 666 && step++ == 0); }
+void StopRaceAudioAndRumble(void) { assert(scenario == 666 && step++ == 0); }
 void func_8003CAB4(void) {
     assert((scenario == 659 && step == 0) || (scenario == 666 && step == 1));
     step++;
-    D_800F4C6A = -8; D_800F3A26 = -9; D_800F4D8A = -10;
+    ModeGroup = -8; D_800F3A26 = -9; D_800F4D8A = -10;
     D_800ACC14 = &display_buffer;
 }
-void func_800207D4(void *a, s32 b, s32 c) {
+void AddScreenFadeTiles(void *a, s32 b, s32 c) {
     assert(scenario == 666 && step++ == 2);
     assert(a == display_buffer.ordering.ordering70 && b == 255 && c == 69);
-    assert(D_800F4C6A == 1 && D_800F3A26 == 82 && D_800F4D8A == 0);
+    assert(ModeGroup == 1 && D_800F3A26 == 82 && D_800F4D8A == 0);
 }
 void SetupRenderer(s32 a) {
-    assert(scenario == 663 && step++ == 0 && a == 5 && D_800F2DE4 == 0);
+    assert(scenario == 663 && step++ == 0 && a == 5 && ModeFrame == 0);
     memset(&test_scratch, 0xA5, sizeof(test_scratch));
 }
 void ResetCarState(void *p) {
@@ -85,14 +85,14 @@ void func_80037110(void) {
 }
 void ClearScreenOverlayState(void) {
     assert(scenario == 665 && step++ == 0);
-    D_800ACC68 = 7;
+    ScreenFadeState = 7;
 }
 void InitBadgeRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g) {
-    assert(scenario == 665 && step++ == 1 && D_800ACC68 == 2);
+    assert(scenario == 665 && step++ == 1 && ScreenFadeState == 2);
     assert(a == 0 && b == 12 && c == 304 && d == 296 && e == 88 && f == 0 && g == 0);
     BadgeRows = &second; sample665_badges=(s16 *)&second;
 }
-void func_8002AF8C(s32 a,s32 b,s32 c) {
+void SetMenuFrameOptions(s32 a,s32 b,s32 c) {
     assert(scenario == 665 && step++ == 2);
     assert(a == 1 && b == 1 && c == 0 && second.half02 == 1);
 }
@@ -100,7 +100,7 @@ void func_8002AF8C(s32 a,s32 b,s32 c) {
 int main(void) {
     scenario = 659; step = 0;
     ovl659_exit_race();
-    assert(step == 1 && D_800F4C6A == 1 && D_800F3A26 == 47 && D_800F4D8A == 0);
+    assert(step == 1 && ModeGroup == 1 && D_800F3A26 == 47 && D_800F4D8A == 0);
     ovl660_func_80114910(); assert(D_800AD50A == 0x131);
     ovl661_func_80117340(); assert(D_800AD50A == 0x137);
     for (unsigned i = 0; i < 65536; i++) {
@@ -124,7 +124,7 @@ int main(void) {
     for (int module = 663; module <= 665; module += 2) {
         scenario = module; step = 0;
         memset(&first, 0xA5, sizeof(first)); memset(&second, 0x5A, sizeof(second));
-        BadgeRows = &first; sample665_badges=(s16 *)&first; D_800F2DE4 = 99;
+        BadgeRows = &first; sample665_badges=(s16 *)&first; ModeFrame = 99;
         if (module == 663) ovl663_init_result_preview(); else ovl665_func_80115C8C();
         assert(step == 3);
         for (unsigned j = 0; j < sizeof(first); j++) {

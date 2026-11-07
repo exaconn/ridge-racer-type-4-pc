@@ -17,45 +17,45 @@
 #undef D_800ABAB8
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC8 ((s32 *)D_800ABBC8)
+#define GPU_STATUS ((s32 *)GPU_STATUS)
 
-#undef D_800ABBC8
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC8 ((u32 *)D_800ABBC8)
-
-#undef D_800ABBC8
+#undef GPU_STATUS
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC4 ((int *)D_800ABBC4)
+#define GPU_STATUS ((u32 *)GPU_STATUS)
 
-#define D_800ABBC8 ((int *)D_800ABBC8)
+#undef GPU_STATUS
 
-#undef D_800ABBC4
+/* legacy typing of shared globals in this part of the unit */
+#define GPU_DATA ((int *)GPU_DATA)
 
-#undef D_800ABBC8
+#define GPU_STATUS ((int *)GPU_STATUS)
+
+#undef GPU_DATA
+
+#undef GPU_STATUS
 
 s32 _otc(u8 *address, s32 count) {
     u32 offset;
-    u32 *configuration=D_800ABBE4;
+    u32 *configuration=DPCR;
     *configuration |= 0x08000000;
-    *D_800ABBE0 = 0;
+    *DMA6_CHCR = 0;
     offset = (u32)count * 4;
     offset -= 4;
     address=(u8 *)((unsigned long)address+(long)(s32)offset);
-    *D_800ABBD8 = address;
-    *D_800ABBDC = count;
+    *DMA6_MADR = address;
+    *DMA6_BCR = count;
     /* The final control store occupies the call delay slot in the original. */
-    *(u32 *)D_800ABBE0 = 0x11000002;
+    *(u32 *)DMA6_CHCR = 0x11000002;
     set_alarm();
-    if (*D_800ABBE0 & 0x01000000) {
+    if (*DMA6_CHCR & 0x01000000) {
         /* ASM_BARRIER: Retire the first mask and prevent hoisting the loop mask across the busy gate. */
         __asm__("" : : : "$3", "$17");
         {
             u32 mask = 0x01000000;
             do {
                 if (get_alarm() != 0) return -1;
-            } while (*D_800ABBE0 & mask);
+            } while (*DMA6_CHCR & mask);
         }
     }
     return count;

@@ -72,7 +72,7 @@ void ComputeStartDistance(char *vehicle, int direction)
     node = *TrackStartNode;
     target = *(s32 *)(vehicle + 0xF0);
     distance = 0;
-    if (D_800AD522 == 0) {
+    if (ReverseCourse == 0) {
         if (direction == 0) {
             while (1) {
                 wrapped = node % TrackNodeCount;

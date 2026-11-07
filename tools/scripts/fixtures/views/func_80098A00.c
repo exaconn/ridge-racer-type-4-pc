@@ -25,7 +25,7 @@ extern struct HW *D_800ABCCC;
 
 extern struct Q *D_800ABCC8;
 
-int func_80098A00() {
+int _padClrIntSio0() {
     D_800ABCC8->a = -0x81;
     if (D_800ABCCC->c & 0x80) {
         do {

@@ -46,7 +46,7 @@ void ovl662_func_80116C34(s32 selected)
 
     result = AddDrawModePrim(&D_800ACC14->head70, cursor, 0x39);
     RR_GPU_SCRATCH->cursor = result;
-    if (ovl662_D_80127300[(D_800F4D98.bytes[2] % 20) & 255] == 2) {
+    if (ovl662_D_80127300[(SelectionRows.bytes[2] % 20) & 255] == 2) {
         result = func_8001FF84(&D_800ACC14->head70, result, 142, 256,
                               &ovl662_D_80126214, 0x7CBB, 0);
         RR_GPU_SCRATCH->cursor = AddDrawModePrim(&D_800ACC14->head70, result, 0x38);

@@ -68,7 +68,7 @@ void SetPriority(void *arg0, s32 arg1, s32 arg2);
 void SetDrawStp(char *p, int a);
 void SetDrawMode(void *arg0, s32 arg1, s32 arg2, s32 arg3, RrGpuRectangleFields *arg4);
 void SetDrawEnv(u32 *arg0, RrFrameEnvironment *arg1);
-void func_80093E70(u32 *arg0, RrFrameEnvironment *arg1);
+void SetDrawEnv2(u32 *arg0, RrFrameEnvironment *arg1);
 int get_mode(int a0, int a1, int a2);
 u32 get_cs(s32 a0, s32 a1);
 u32 get_ce(s32 a0, s32 a1);
@@ -323,7 +323,7 @@ void SetDrawEnv(u32 *arg0, RrFrameEnvironment *arg1) {
     ((u8*)output)[3] = (s8) (word_count - 1);
 }
 
-void func_80093E70(u32 *arg0, RrFrameEnvironment *arg1) {
+void SetDrawEnv2(u32 *arg0, RrFrameEnvironment *arg1) {
     register RrFrameEnvironment *env=arg1;
     register u32 *output=arg0;
     /* ASM_BARRIER: retain the original width sign-extraction register. */
@@ -548,35 +548,35 @@ u32 get_tw(RrGpuRectangleFields *a0)
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC8 ((s32 *)D_800ABBC8)
+#define GPU_STATUS ((s32 *)GPU_STATUS)
 
 s32 _status(void) {
-    return *D_800ABBC8;
+    return *GPU_STATUS;
 }
 
-#undef D_800ABBC8
+#undef GPU_STATUS
 
 s32 _otc(u8 *address, s32 count) {
     u32 offset;
-    u32 *configuration=D_800ABBE4;
+    u32 *configuration=DPCR;
     *configuration |= 0x08000000;
-    *D_800ABBE0 = 0;
+    *DMA6_CHCR = 0;
     offset = (u32)count * 4;
     offset -= 4;
     address=(u8 *)((unsigned long)address+(long)(s32)offset);
-    *D_800ABBD8 = address;
-    *D_800ABBDC = count;
+    *DMA6_MADR = address;
+    *DMA6_BCR = count;
     /* The final control store occupies the call delay slot in the original. */
-    *(u32 *)D_800ABBE0 = 0x11000002;
+    *(u32 *)DMA6_CHCR = 0x11000002;
     set_alarm();
-    if (*D_800ABBE0 & 0x01000000) {
+    if (*DMA6_CHCR & 0x01000000) {
         /* ASM_BARRIER: Retire the first mask and prevent hoisting the loop mask across the busy gate. */
         __asm__("" : : : "$3", "$17");
         {
             u32 mask = 0x01000000;
             do {
                 if (get_alarm() != 0) return -1;
-            } while (*D_800ABBE0 & mask);
+            } while (*DMA6_CHCR & mask);
         }
     }
     return count;
@@ -638,7 +638,7 @@ s32 _clr(RrGpuRectangle *arg0, u32 arg1) {
         command=color&mask;
         command|=0x60000000U;
         packet[4]=fill;
-        status_ptr=D_800ABBC8;
+        status_ptr=GPU_STATUS;
         packet[1]=e3;packet[2]=full_area;packet[3]=e5;
         status=*status_ptr;
         high=(color>>31)<<10;
@@ -678,7 +678,7 @@ s32 _clr(RrGpuRectangle *arg0, u32 arg1) {
         /* ASM_BARRIER: prepare the fast fill opcode before reading GPU status. */
         __asm__("" : : "r"(textured));
         encoded|=textured;
-        status_ptr=D_800ABBC8;
+        status_ptr=GPU_STATUS;
         status=*status_ptr;
         high=(color>>31)<<10;
         packet[3]=encoded;
@@ -752,7 +752,7 @@ s32 _dws(RrGpuRectangle *arg0,const u32 *arg1) {
     __asm__("" : "+r"(quotient));
     scaled=quotient*16;
     remainder=count-scaled;
-    status_ptr=D_800ABBC8;
+    status_ptr=GPU_STATUS;
     blocks=quotient;
     status=*status_ptr;
     if(!(status&0x04000000U)){
@@ -762,18 +762,18 @@ s32 _dws(RrGpuRectangle *arg0,const u32 *arg1) {
         mask=0x04000000U;
         do {
             if(get_alarm())return -1;
-        }while(!(*D_800ABBC8&mask));
+        }while(!(*GPU_STATUS&mask));
     }
     command=0xA0000000U;
-    *D_800ABBC8=0x04000000U;
-    *D_800ABBC4=0x01000000U;
+    *GPU_STATUS=0x04000000U;
+    *GPU_DATA=0x01000000U;
     {
-        register volatile u32 *port=D_800ABBC4;
+        register volatile u32 *port=GPU_DATA;
         if(mode)command=0xB0000000U;
         *port=command;
     }
-    *D_800ABBC4=rect->words[0];
-    *D_800ABBC4=rect->words[1];
+    *GPU_DATA=rect->words[0];
+    *GPU_DATA=rect->words[1];
     remainder--;
     if(remainder!=-1){
         register s32 sentinel;
@@ -786,7 +786,7 @@ s32 _dws(RrGpuRectangle *arg0,const u32 *arg1) {
             __asm__ volatile("" : : : "memory");
             word=*cursor++;
             remainder--;
-            *(u32 *)D_800ABBC4=word;
+            *(u32 *)GPU_DATA=word;
         }while(remainder!=sentinel);
     }
     /* ASM_BARRIER: expose the final port write before configuring DMA. */
@@ -795,21 +795,21 @@ s32 _dws(RrGpuRectangle *arg0,const u32 *arg1) {
         register u32 dma_mode=0x04000000U;
         if(blocks){
             /* ASM_BARRIER: retain DMA register-address and word-count phases. */
-            register volatile u32 *port asm("$2")=D_800ABBC8;
+            register volatile u32 *port asm("$2")=GPU_STATUS;
             register u32 start;
             register volatile u32 *length_port;
             register u32 length asm("$2");
             dma_mode|=2U;
             *port=dma_mode;
-            port=D_800ABBCC;
+            port=DMA2_MADR;
             start=0x01000000U;
             /* DMA hardware consumes a32-bit bus-address word; keep CPU pointers full. */
             *port=(u32)(unsigned long)cursor;
             length=(u32)blocks<<16;
-            length_port=D_800ABBD0;
+            length_port=DMA2_BCR;
             length|=16U;
             *length_port=length;
-            port=D_800ABBD4;
+            port=DMA2_CHCR;
             start|=0x201U;
             *port=start;
         }
@@ -864,7 +864,7 @@ s32 _drs(RrGpuRectangle *arg0,u32 *arg1) {
     __asm__("" : "+r"(quotient));
     scaled=quotient*16;
     remainder=count-scaled;
-    status_ptr=D_800ABBC8;
+    status_ptr=GPU_STATUS;
     blocks=quotient;
     status=*status_ptr;
     if(!(status&0x04000000U)){
@@ -874,21 +874,21 @@ s32 _drs(RrGpuRectangle *arg0,u32 *arg1) {
         mask=0x04000000U;
         do {
             if(get_alarm())return -1;
-        }while(!(*D_800ABBC8&mask));
+        }while(!(*GPU_STATUS&mask));
     }
-    *D_800ABBC8=0x04000000U;
-    *D_800ABBC4=0x01000000U;
-    *D_800ABBC4=0xC0000000U;
-    *D_800ABBC4=rect->words[0];
-    *D_800ABBC4=rect->words[1];
-    if(!(*D_800ABBC8&0x08000000U)) {
+    *GPU_STATUS=0x04000000U;
+    *GPU_DATA=0x01000000U;
+    *GPU_DATA=0xC0000000U;
+    *GPU_DATA=rect->words[0];
+    *GPU_DATA=rect->words[1];
+    if(!(*GPU_STATUS&0x08000000U)) {
         u32 mask;
         /* ASM_BARRIER: materialize the receive mask after its first status test. */
         __asm__("" : : : "$3");
         mask=0x08000000U;
         do {
             if(get_alarm())return -1;
-        }while(!(*D_800ABBC8&mask));
+        }while(!(*GPU_STATUS&mask));
     }
     {
         register s32 empty;
@@ -900,7 +900,7 @@ s32 _drs(RrGpuRectangle *arg0,u32 *arg1) {
             register s32 sentinel;
             sentinel=-1;
             do {
-                u32 word=*D_800ABBC4;
+                u32 word=*GPU_DATA;
                 remainder--;
                 *cursor++=word;
             }while(remainder!=sentinel);
@@ -910,21 +910,21 @@ s32 _drs(RrGpuRectangle *arg0,u32 *arg1) {
         register u32 dma_mode=0x04000000U;
         if(blocks){
             /* ASM_BARRIER: retain DMA register-address and word-count phases. */
-            register volatile u32 *port asm("$2")=D_800ABBC8;
+            register volatile u32 *port asm("$2")=GPU_STATUS;
             register u32 start;
             register volatile u32 *length_port;
             register u32 length asm("$2");
             dma_mode|=3U;
             *port=dma_mode;
-            port=D_800ABBCC;
+            port=DMA2_MADR;
             start=0x01000000U;
             /* DMA hardware consumes a 32-bit bus address word; keep CPU pointers full. */
             *port=(u32)(unsigned long)cursor;
             length=(u32)blocks<<16;
-            length_port=D_800ABBD0;
+            length_port=DMA2_BCR;
             length|=16U;
             *length_port=length;
-            port=D_800ABBD4;
+            port=DMA2_CHCR;
             start|=0x200U;
             *port=start;
         }
@@ -933,7 +933,7 @@ s32 _drs(RrGpuRectangle *arg0,u32 *arg1) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC8 ((u32 *)D_800ABBC8)
+#define GPU_STATUS ((u32 *)GPU_STATUS)
 
 void _ctl(u32 command) {
     /* ASM_BARRIER: reuse v0 for the port pointer and then the command index. */
@@ -942,7 +942,7 @@ void _ctl(u32 command) {
     register u8 *base __asm__("$1");
     {
         /* ASM_BARRIER: keep the command-port pointer in v0 until the word is written. */
-        register u32 *port __asm__("$2") = D_800ABBC8;
+        register u32 *port __asm__("$2") = GPU_STATUS;
         *port = command;
     }
     index = command >> 24;
@@ -956,7 +956,7 @@ void _ctl(u32 command) {
     base[0x27D0] = command;
 }
 
-#undef D_800ABBC8
+#undef GPU_STATUS
 
 s32 _getctl(s32 index) {
     /* PAL RAM mapping: D_801127D0 is 0x27D0 bytes into this page. */
@@ -968,29 +968,29 @@ s32 _getctl(s32 index) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC4 ((int *)D_800ABBC4)
-#define D_800ABBC8 ((int *)D_800ABBC8)
+#define GPU_DATA ((int *)GPU_DATA)
+#define GPU_STATUS ((int *)GPU_STATUS)
 
 int _cwb(int *a, int n) {
     int i = n - 1;
-    *D_800ABBC8 = 0x04000000;
+    *GPU_STATUS = 0x04000000;
     if (n) {
-        do { int v = *a; a++; i--; *D_800ABBC4 = v; } while (i != -1);
+        do { int v = *a; a++; i--; *GPU_DATA = v; } while (i != -1);
     }
     return 0;
 }
 
-#undef D_800ABBC4
-#undef D_800ABBC8
+#undef GPU_DATA
+#undef GPU_STATUS
 
 void _cwc(unsigned long address) {
-    *D_800ABBC8=0x04000002;
-    *D_800ABBCC=(u32)address;
-    *D_800ABBD0=0;
-    *(u32 *)D_800ABBD4=0x01000401;
+    *GPU_STATUS=0x04000002;
+    *DMA2_MADR=(u32)address;
+    *DMA2_BCR=0;
+    *(u32 *)DMA2_CHCR=0x01000401;
 }
 
 s32 _param(s32 a) {
-    *D_800ABBC8 = a | 0x10000000;
-    return *D_800ABBC4 & 0xFFFFFF;
+    *GPU_STATUS = a | 0x10000000;
+    return *GPU_DATA & 0xFFFFFF;
 }

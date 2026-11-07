@@ -15,8 +15,8 @@ typedef struct {
     u8 bank, pad01[4], program, value;
 } RrSpuSelectionPrefix;
 
-extern RrSpuProgram *D_80110020[], *_svm_pg;
-extern u8 *D_80110060[], *D_801100A8[];
+extern RrSpuProgram *_svm_vab_pg[], *_svm_pg;
+extern u8 *_svm_vab_vh[], *_svm_vab_tn[];
 extern u8 *_svm_vh, *_svm_tn;
 extern s16 kMaxPrograms;
 extern RrSpuSelectionPrefix D_80110101;
@@ -96,7 +96,7 @@ typedef struct {
 /* Bank allocation state; only active banks (flag 1) are released. */
 extern u8 _svm_vab_used[];
 extern u16 _svm_vab_count;
-extern u32 D_80110180[];
+extern u32 _svm_vab_start[];
 extern void SpuFree(u32 address);
 
 extern RrSpuVolumeCache _svm_sreg_dirty;
@@ -112,7 +112,7 @@ s32 _spu_t(s32 command, ...);
 u32 _spu_Fw(const u16 *source, u32 bytes);
 u32 _spu_Fr(u16 *destination, u32 bytes);
 u32 SpuWrite(const u16 *source, u32 bytes);
-extern u32 D_80110138[];
+extern u32 _svm_vab_total[];
 /* Low16 bank values 0..16 are accepted; state2 is transferred and becomes1. */
 s32 SsVabTransBody(const u16 *source, s32 bank);
 u32 SpuSetTransferStartAddr(s32 address);

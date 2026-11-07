@@ -27,14 +27,14 @@ typedef uint32_t u32;typedef int32_t s32;
 ''' + header + '''
 RrChannelControlRow36 test_rows[320];
 u16 test_masks[0x10010/2];
-s8 spuVmMaxVoice;u16 D_80110118;u32 D_800A48F8;
+s8 spuVmMaxVoice;u16 D_80110118;u32 _snd_vmask;
 #define _svm_voice test_rows
 #define D_8010F90C ((u8 *)test_rows+4)
 #define D_8010F925 ((u8 *)test_rows+0x1D)
-#define D_8010F8F8 test_masks[0xF8F8/2]
-#define D_8010F8FA test_masks[0xF8FA/2]
-#define D_80110000 test_masks[0x10000/2]
-#define D_80110002 test_masks[0x10002/2]
+#define _svm_okon1 test_masks[0xF8F8/2]
+#define _svm_okon2 test_masks[0xF8FA/2]
+#define _svm_okof1 test_masks[0x10000/2]
+#define _svm_okof2 test_masks[0x10002/2]
 void (*test_hook)(s32,s32);
 s32 test_calls,test_indices[128],test_kinds[128];
 void test_simple(u8 index) {
@@ -48,8 +48,8 @@ void test_selected(s32 mode) {
 }
 void test_reset(void) {
  memset(test_rows,0xA5,sizeof(test_rows));memset(test_masks,0,sizeof(test_masks));
- D_8010F8F8=D_8010F8FA=0xFFFF;
- spuVmMaxVoice=24;D_80110118=31;D_800A48F8=0;test_calls=0;test_hook=0;
+ _svm_okon1=_svm_okon2=0xFFFF;
+ spuVmMaxVoice=24;D_80110118=31;_snd_vmask=0;test_calls=0;test_hook=0;
 }
 '''
         for name in ('80088D64','80088DA4','8008A644','80088340','80089E1C'):
@@ -81,7 +81,7 @@ void test_reset(void) {
         cls.rows = (C.c_uint8*(320*54)).in_dll(cls.lib,'test_rows')
         cls.masks = (C.c_uint16*(0x10010//2)).in_dll(cls.lib,'test_masks')
         cls.count = C.c_int8.in_dll(cls.lib,'spuVmMaxVoice')
-        cls.blocked = C.c_uint32.in_dll(cls.lib,'D_800A48F8')
+        cls.blocked = C.c_uint32.in_dll(cls.lib,'_snd_vmask')
         cls.selected = C.c_uint16.in_dll(cls.lib,'D_80110118')
         cls.calls = C.c_int32.in_dll(cls.lib,'test_calls')
         cls.indices = (C.c_int32*128).in_dll(cls.lib,'test_indices')

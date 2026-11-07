@@ -18,14 +18,14 @@ s32 func_8004B70C(s32 player);
 /* Layout1 selects port0 at Y112; layout2 selects port1 at Y240.
  * Other layouts select port0 at Y240. Status2 permits the warning and
  * optional steering needle. Button0x100 toggles that port's needle. */
-void func_80022098(u32 *ordering,s32 layout);
+void DrawSteeringIndicator(u32 *ordering,s32 layout);
 /* Layout0..2: layout0 uses the first frame ordering table; other layouts use the second.
  * Layout1 shifts the Y origin by128 pixels. Both full frame arenas and
  * count record-pointer slots must be accessible. Nonpositive counts skip
  * record markers; bit0x10 selects visible map records. Captures the frame
  * head, then reads fresh record fields/counts after each emitter callback.
  * CPU pointers remain full width; coordinates narrow only in GPU packets. */
-void func_80021E2C(s32 layout);
+void DrawRaceMinimap(s32 layout);
 #ifndef RR_HUD_SCRATCH
 #define RR_HUD_SCRATCH ((RrGpuScratchPointers*)0x1F800000U)
 #endif

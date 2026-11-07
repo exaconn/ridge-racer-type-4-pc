@@ -4,7 +4,7 @@
 
 #include "rr/serial.h"
 
-s32 func_80097EA0(void) {
+s32 _padIntPad(void) {
     s32 first,condition,enabled;
     u32 shifted;
     RrSerialPortRegisters *port=D_800ABCCC;

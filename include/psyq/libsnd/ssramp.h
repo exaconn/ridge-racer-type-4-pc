@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80082FC4(s32 bankInput,s32 rowInput);
+void _SsSndCrescendo(s32 bankInput,s32 rowInput);
 
 #endif /* RR_PSYQ_LIBSND_SSRAMP_H */

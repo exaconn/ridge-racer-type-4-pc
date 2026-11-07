@@ -77,7 +77,7 @@ int abs(int);
 void func_8004B8A8(void);
 void PadUpdateRumble(void);
 void PadPollPort(s32);
-extern T_1 D_8010C170[];
+extern T_1 PadPulseState[];
 extern char D_80011014[];
 extern char D_80011030[];
 extern int func_8001E84C();
@@ -85,8 +85,8 @@ extern int func_8001E84C();
 void PadUpdate(void);
 int func_8004B70C(int i);
 void PadRangeCheckSet(unsigned a, unsigned b, short c, short d);
-void func_8004B7E0(int i, int k, int v);
-void func_8004B864(int i);
+void PadStartPulse(int i, int k, int v);
+void PadClearPulse(int i);
 
 void PadUpdate(void) {
     Port *ports[2];
@@ -389,7 +389,7 @@ void PadRangeCheckSet(unsigned a, unsigned b, short c, short d) {
     if (b >= 2) {
         func_8001E84C(D_80011030, b);
     }
-    t = &D_8010C170[a];
+    t = &PadPulseState[a];
     t->t[b] = d;
     t->s[b] = c;
     t->u[0] = 0;
@@ -397,10 +397,10 @@ void PadRangeCheckSet(unsigned a, unsigned b, short c, short d) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010C170 (*(T_2 (*)[])&D_8010C170)
+#define PadPulseState (*(T_2 (*)[])&PadPulseState)
 
-void func_8004B7E0(int i, int k, int v) {
-    T_2 *t = &D_8010C170[i];
+void PadStartPulse(int i, int k, int v) {
+    T_2 *t = &PadPulseState[i];
     switch (k) {
     case 0:
         t->s4 = 0;
@@ -420,13 +420,13 @@ void func_8004B7E0(int i, int k, int v) {
     }
 }
 
-#undef D_8010C170
+#undef PadPulseState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010C170 (*(T_3 (*)[])&D_8010C170)
+#define PadPulseState (*(T_3 (*)[])&PadPulseState)
 
-void func_8004B864(int i) {
-    T_3 *t = &D_8010C170[i];
+void PadClearPulse(int i) {
+    T_3 *t = &PadPulseState[i];
     t->s10 = 0;
     t->s0 = 0;
     t->s12 = 0;
@@ -439,4 +439,4 @@ void func_8004B864(int i) {
     t->sE = 0;
 }
 
-#undef D_8010C170
+#undef PadPulseState

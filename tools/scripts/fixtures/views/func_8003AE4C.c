@@ -1,31 +1,31 @@
 /* legacy typing of shared globals in this part of the unit */
-#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
+#define LoadIndex (*(unsigned char (*))&LoadIndex)
 
-#undef D_8009F8FC
+#undef LoadIndex
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
+#define LoadIndex (*(unsigned char (*))&LoadIndex)
 
 #define D_800F4D2C (*(unsigned char (*))&D_800F4D2C)
 
-#undef D_8009F8FC
+#undef LoadIndex
 
 #undef D_800F4D2C
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
+#define LoadIndex (*(unsigned char (*))&LoadIndex)
 
-#undef D_8009F8FC
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
-
-#undef D_8009F8FC
+#undef LoadIndex
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
+#define LoadIndex (*(unsigned char (*))&LoadIndex)
 
-#undef D_8009F8FC
+#undef LoadIndex
+
+/* legacy typing of shared globals in this part of the unit */
+#define LoadIndex (*(unsigned char (*))&LoadIndex)
+
+#undef LoadIndex
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3B24 (*(int (*))&D_800F3B24)
@@ -33,34 +33,34 @@
 #undef D_800F3B24
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
+#define LoadIndex (*(unsigned char (*))&LoadIndex)
 
-#undef D_8009F8FC
+#undef LoadIndex
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_800436E8 ((void (*)())func_800436E8)
 
-#define func_8004E008 ((void (*)())func_8004E008)
+#define RaceLoadReset ((void (*)())RaceLoadReset)
 
 #define func_8004F600 ((void (*)())func_8004F600)
 
 #undef func_800436E8
 
-#undef func_8004E008
+#undef RaceLoadReset
 
 #undef func_8004F600
 
-extern char D_8009F8FC;
+extern char LoadIndex;
 
-extern unsigned char D_800F4D7C;
+extern unsigned char LoadState;
 
 extern short D_800F4D44;
 
-extern int func_80013514();
+extern int RequestCarLoad();
 
-extern int func_800135BC();
+extern int CarLoadStep();
 
-extern int func_8001E854();
+extern int UploadCarClut();
 
 extern struct { short a; short b; } D_800ACBD0[];
 
@@ -68,28 +68,28 @@ extern char *D_800F3B24;
 
 extern char D_800F3B28[];
 
-extern unsigned char D_800F4D98[][4];
+extern unsigned char SelectionRows[][4];
 
-int func_8003AE4C(int arg0, int arg1) {
+int LoadCarRangeStep(int arg0, int arg1) {
     int r;
     int q4 = 0;
     int a1;
     char *q3;
-    switch (D_800F4D7C) {
+    switch (LoadState) {
     case 0:
-        D_800F4D7C = 1;
-        D_8009F8FC = 0;
+        LoadState = 1;
+        LoadIndex = 0;
         break;
     case 1:
-        arg0 += D_8009F8FC;
-        if (func_80013514(D_800F4D98[arg0][1], D_800F4D98[arg0][0], D_800F4D98[arg0][2] % 20, D_800ACBD0[arg0].a, arg0) == 1) {
-            D_800F4D7C = 2;
+        arg0 += LoadIndex;
+        if (RequestCarLoad(SelectionRows[arg0][1], SelectionRows[arg0][0], SelectionRows[arg0][2] % 20, D_800ACBD0[arg0].a, arg0) == 1) {
+            LoadState = 2;
         }
         break;
     case 2:
-        r = func_800135BC();
+        r = CarLoadStep();
         if (r != 1) break;
-        arg0 += D_8009F8FC;
+        arg0 += LoadIndex;
         a1 = D_800ACBD0[arg0].b;
         if (a1 >= 2) {
             q3 = D_800F3B24;
@@ -103,13 +103,13 @@ int func_8003AE4C(int arg0, int arg1) {
             }
         }
         if (D_800F4D44 != 1) {
-            func_8001E854(q3, a1, arg0);
+            UploadCarClut(q3, a1, arg0);
         }
-        D_8009F8FC++;
-        if (D_8009F8FC == arg1) {
-            D_800F4D7C = 3;
+        LoadIndex++;
+        if (LoadIndex == arg1) {
+            LoadState = 3;
         } else {
-            D_800F4D7C = 1;
+            LoadState = 1;
         }
         break;
     case 3:

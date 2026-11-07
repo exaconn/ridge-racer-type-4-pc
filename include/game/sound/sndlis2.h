@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80052460(void);
+void SoundUpdateComSlots(void);
 
 #endif /* RR_GAME_SOUND_SNDLIS2_H */

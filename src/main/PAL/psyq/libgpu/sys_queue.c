@@ -22,9 +22,9 @@ typedef int (*GpuOpFunc)();
 
 extern int DMACallback(int, int (*)());
 extern struct GpuSys D_800ABAC0;
-extern volatile unsigned int *D_800ABBC8;
-extern volatile unsigned int *D_800ABBD4;
-extern volatile int D_800ABBE8;
+extern volatile unsigned int *GPU_STATUS;
+extern volatile unsigned int *DMA2_CHCR;
+extern volatile int _qin;
 extern int D_800ABBF0;
 extern volatile struct GpuQueue D_801128D8[];
 
@@ -38,7 +38,7 @@ int _addque2(GpuOpFunc op, int *p0, int len, int p1) {
     struct GpuSys *sys;
 
     set_alarm();
-    while (((D_800ABBE8 + 1) & 0x3F) == D_800ABBEC) {
+    while (((_qin + 1) & 0x3F) == _qout) {
         if (get_alarm() != 0) {
             return -1;
         }
@@ -47,8 +47,8 @@ int _addque2(GpuOpFunc op, int *p0, int len, int p1) {
     D_800ABBF0 = SetIntrMask(0);
     sys = &D_800ABAC0;
     sys->unk8 = 1;
-    if (sys->enabled == 0 || (D_800ABBE8 == D_800ABBEC && (*D_800ABBD4 & 0x01000000) == 0 && sys->unkC == 0)) {
-        while ((*D_800ABBC8 & 0x04000000) == 0)
+    if (sys->enabled == 0 || (_qin == _qout && (*DMA2_CHCR & 0x01000000) == 0 && sys->unkC == 0)) {
+        while ((*GPU_STATUS & 0x04000000) == 0)
 ;
         op(p0, p1);
         SetIntrMask(D_800ABBF0);
@@ -57,16 +57,16 @@ int _addque2(GpuOpFunc op, int *p0, int len, int p1) {
     DMACallback(2, _exeque);
     if (len != 0) {
         for (i = 0; i < len / 4; i++) {
-            D_801128D8[D_800ABBE8].buf[i] = p0[i];
+            D_801128D8[_qin].buf[i] = p0[i];
         }
-        D_801128D8[D_800ABBE8].p0 = D_801128D8[D_800ABBE8].buf;
+        D_801128D8[_qin].p0 = D_801128D8[_qin].buf;
     } else {
-        D_801128D8[D_800ABBE8].p0 = p0;
+        D_801128D8[_qin].p0 = p0;
     }
-    D_801128D8[D_800ABBE8].p1 = p1;
-    D_801128D8[D_800ABBE8].op = op;
-    D_800ABBE8 = (D_800ABBE8 + 1) & 0x3F;
+    D_801128D8[_qin].p1 = p1;
+    D_801128D8[_qin].op = op;
+    _qin = (_qin + 1) & 0x3F;
     SetIntrMask(D_800ABBF0);
     _exeque();
-    return (D_800ABBE8 - D_800ABBEC) & 0x3F;
+    return (_qin - _qout) & 0x3F;
 }

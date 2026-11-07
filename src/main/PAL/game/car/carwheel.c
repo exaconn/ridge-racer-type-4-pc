@@ -131,7 +131,7 @@ void func_8005F0D0(s32, s32, s32, s32);
 void BuildRotMatrixZ(Mat8 *, s32);
 void BuildRotMatrixY(Mat8 *, s32);
 void BuildRotMatrixX(Mat8 *, s32);
-void func_8006EE3C(s32, Vec4 *, Mat8 *);
+void SetGteObjectTransform(s32, Vec4 *, Mat8 *);
 void SelectModelBank(s32);
 void MulMatrix0(void *, Mat8 *, Mat8 *);
 void MulMatrix(Mat8 *, Mat8 *);
@@ -259,7 +259,7 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     for (i = 0; i < 8; i++) {
         u8 s0_mode = D_8009F034[i];
         if (s0_mode != 1 || func_80014A98(&sp158[D_8009F03C[i]], &sp98[D_8009F044[i]], D_8009F02C[i], 0) != s0_mode) {
-            func_8006EE3C((SCRATCHPAD + 0x7C), &sp158[D_8009F03C[i]], &sp98[D_8009F044[i]]);
+            SetGteObjectTransform((SCRATCHPAD + 0x7C), &sp158[D_8009F03C[i]], &sp98[D_8009F044[i]]);
             *(s32 *)(SCRATCHPAD + 0x78) = 0;
             a1_val = 1;
             if (D_8009F02C[i] < D_800F2FD8) {
@@ -368,7 +368,7 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
     for (i = 0; i < 8; i++) {
         u8 s0_mode = D_8009F034[i];
         if (s0_mode != 1 || func_80014A98(&sp168[D_8009F03C[i]], &spA8[D_8009F044[i]], D_8009F02C[i], 0) != s0_mode) {
-            func_8006EE3C((SCRATCHPAD + 0x7C), &sp168[D_8009F03C[i]], &spA8[D_8009F044[i]]);
+            SetGteObjectTransform((SCRATCHPAD + 0x7C), &sp168[D_8009F03C[i]], &spA8[D_8009F044[i]]);
             *(s32 *)(SCRATCHPAD + 0x78) = 0;
             a1_val = 1;
             if (D_8009F02C[i] < D_800F2FD8) {
@@ -508,7 +508,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
             for (i = 0; i < 8; i++) {
                 u8 s0_mode = D_8009F034[i];
                 if (s0_mode != 1 || func_80014A98(&sp168[D_8009F03C[i]], &spA8[D_8009F044[i]], D_8009F02C[i], fp_val) != s0_mode) {
-                    func_8006EE3C((SCRATCHPAD + 0x7C), &sp168[D_8009F03C[i]], &spA8[D_8009F044[i]]);
+                    SetGteObjectTransform((SCRATCHPAD + 0x7C), &sp168[D_8009F03C[i]], &spA8[D_8009F044[i]]);
                     *(s32 *)(SCRATCHPAD + 0x78) = fp_val;
                     a1_val = 1;
                     if (D_8009F02C[i] < D_800F2FD8) {
@@ -534,7 +534,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
             MulMatrix(&spA8[1], &sp60);
             MulMatrix2(&sp20, &spA8[1]);
             func_80015F68(arg0, &sp168[1], &spA8[1], &sp80, slot_idx, s5_val, s7_val);
-            func_8006EE3C((SCRATCHPAD + 0x7C), &sp168[0], &spA8[0]);
+            SetGteObjectTransform((SCRATCHPAD + 0x7C), &sp168[0], &spA8[0]);
             G->col78 = 0;
             a1_val = 1;
             if (D_800F2FD8 >= 4) {
@@ -542,7 +542,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
             }
             func_8005F0D0(SCRATCHPAD, a1_val, 0, s7_val);
             if (func_80014A98(&sp168[1], &spA8[1], 1, fp_val) == 0) {
-                func_8006EE3C((SCRATCHPAD + 0x7C), &sp168[1], &spA8[1]);
+                SetGteObjectTransform((SCRATCHPAD + 0x7C), &sp168[1], &spA8[1]);
                 G->col78 = fp_val;
                 func_8005F0D0(SCRATCHPAD, 1, 1, s7_val);
             }
@@ -553,7 +553,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
             sp168[0].y = arg0->y14;
             sp168[0].z = arg0->z18;
             func_80015F68(arg0, &sp168[0], &spA8[0], &sp80, slot_idx, s5_val, s7_val);
-            func_8006EE3C((SCRATCHPAD + 0x7C), &sp168[0], &spA8[0]);
+            SetGteObjectTransform((SCRATCHPAD + 0x7C), &sp168[0], &spA8[0]);
             *(s32 *)(SCRATCHPAD + 0x78) = fp_val;
             a1_val = 1;
             if (D_800F2FD8 >= 3) {

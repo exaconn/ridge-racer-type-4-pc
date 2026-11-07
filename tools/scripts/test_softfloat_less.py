@@ -23,7 +23,7 @@ static u32 next(void){u32 x=seed;x^=x<<13;x^=x>>17;x^=x<<5;return seed=x;}
  * exponent/fraction control flow. Normalize both zero encodings first. */
 static uint64_t key(uint64_t bits){if((bits&0x7fffffffffffffffULL)==0)bits=0;
  return bits>>63?~bits:bits^0x8000000000000000ULL;}
-static void check(uint64_t a,uint64_t b){s32 result=func_8007E3B4(a,b);int want=key(a)<key(b)?-1:0;
+static void check(uint64_t a,uint64_t b){s32 result=__ltdf2(a,b);int want=key(a)<key(b)?-1:0;
  assert(result==want);cases++;
  if(a==b)paths[0]++;else if(!(a&0x7fffffffffffffffULL)&&!(b&0x7fffffffffffffffULL))paths[1]++;
  else if((a^b)>>63)paths[2]++;else if((a>>52)!=(b>>52))paths[3]++;

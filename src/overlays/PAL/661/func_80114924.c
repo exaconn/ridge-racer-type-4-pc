@@ -5,8 +5,8 @@ extern s32 NumLaps;
 extern s16 D_8010C134;
 extern s32 RaceState;
 extern s16 D_800AC5D0;
-extern s32 D_800F4C64;
-extern s32 D_800ABEC0;
+extern s32 TotalRaceTime;
+extern s32 RaceVoiceFlags;
 
 extern void SaveCarSnapshots(s32);
 extern void SoundSetMasterVolume(s16, s16);
@@ -31,7 +31,7 @@ void ovl661_func_80114924(RrRaceCheckpointVehicle *vehicle) {
                     RaceState = 4;
                     D_800AC5D0 = 75;
                     SoundSetMasterVolume(0, 33);
-                    D_800F4C64 = 0;
+                    TotalRaceTime = 0;
                     SoundQueueEnqueue(19, 1);
                 }
             }
@@ -43,9 +43,9 @@ void ovl661_func_80114924(RrRaceCheckpointVehicle *vehicle) {
             if (message == 9) {
                 message = 15;
             }
-            if (!(D_800ABEC0 & (0x200U << ((u32)message - 6U)))) {
+            if (!(RaceVoiceFlags & (0x200U << ((u32)message - 6U)))) {
                 SoundQueueEnqueue(message, 0);
-                D_800ABEC0 |= 0x200U << ((u32)message - 6U);
+                RaceVoiceFlags |= 0x200U << ((u32)message - 6U);
             }
         }
         D_8010C134 = -1;

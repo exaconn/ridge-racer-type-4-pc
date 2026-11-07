@@ -29,7 +29,7 @@ RrWide64 *_mul_mant_d(RrWide64 *result, u32 left, u32 right);
 u64 __floatsidf(s32 value);
 
 /* Toggle the binary64 sign bit; both zero encodings produce positive zero. */
-u64 func_8007E904(u64 bits);
+u64 __negdf2(u64 bits);
 
 RR_ASSERT_SIZE(RrWide64, 8);
 RR_ASSERT_OFFSET(RrWide64, hi, 4);

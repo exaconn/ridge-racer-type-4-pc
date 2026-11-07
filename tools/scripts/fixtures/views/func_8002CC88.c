@@ -70,7 +70,7 @@ void BuildRotMatrixY(Mat8 *, s32);
 
 void BuildRotMatrixX(Mat8 *, s32);
 
-void func_8006EE3C(s32, Vec4 *, Mat8 *);
+void SetGteObjectTransform(s32, Vec4 *, Mat8 *);
 
 void SelectModelBank(s32);
 
@@ -184,7 +184,7 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     for (i = 0; i < 8; i++) {
         u8 s0_mode = D_8009F034[i];
         if (s0_mode != 1 || func_80014A98(&sp158[D_8009F03C[i]], &sp98[D_8009F044[i]], D_8009F02C[i], 0) != s0_mode) {
-            func_8006EE3C(0x1F80007C, &sp158[D_8009F03C[i]], &sp98[D_8009F044[i]]);
+            SetGteObjectTransform(0x1F80007C, &sp158[D_8009F03C[i]], &sp98[D_8009F044[i]]);
             *(s32 *)0x1F800078 = 0;
             a1_val = 1;
             if (D_8009F02C[i] < D_800F2FD8) {

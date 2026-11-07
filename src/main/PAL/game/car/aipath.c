@@ -76,14 +76,14 @@ typedef struct
 
 extern s32 TrackNodeCount;
 extern struct E *TrackNodes;
-extern K D_800ADAD8[];
+extern K CarInputs[];
 extern int FindTrackNode();
 
 s32 FindTrackNodeUnbounded(s32 *pos, s32 startIdx);
 void UpdateCarTrackNode(RrRaceVehicle *p);
 void func_8002679C(void *arg0);
-void func_80026800();
-void func_80026998(int a0, int a1);
+void UpdateCarGear();
+void FindTrackNodeAtXZ(int a0, int a1);
 
 /* legacy typing of shared globals in this part of the unit */
 #define TrackNodes (*(s32 (*))&TrackNodes)
@@ -185,7 +185,7 @@ void UpdateCarTrackNode(RrRaceVehicle *p)
     *(short *)&p->flags1E4 = -1;
     return;
   }
-  if (D_800AD522 == 0)
+  if (ReverseCourse == 0)
   {
     if (t != p->trackNodeF0)
     {
@@ -314,7 +314,7 @@ void func_8002679C(void *arg0) {
     }
 }
 
-void func_80026800(a0, a1)
+void UpdateCarGear(a0, a1)
 O *a0;
 int a1;
 {
@@ -324,7 +324,7 @@ int a1;
   t = q->t;
   if (q->s84 != 0)
   {
-    int v = D_800ADAD8[a1].b;
+    int v = CarInputs[a1].b;
     if (v & 4)
     {
       if (q->s86 < t->n)
@@ -390,7 +390,7 @@ int a1;
   }
 }
 
-void func_80026998(int a0, int a1)
+void FindTrackNodeAtXZ(int a0, int a1)
 {
     int sp[4];
     register int y asm("$5");

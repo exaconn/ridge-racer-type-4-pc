@@ -28,8 +28,8 @@ const char ovl667_D_8011487C[]="sio:";
 #define ovl667_D_80118EE8 world.s.pending
 #define ovl667_D_80118ED8 world.s.event0
 #define ovl667_D_80118EDC world.s.event1
-#define D_800F2AAC world.s.file0
-#define D_800F2AA8 world.s.file1
+#define LinkWriteHandle world.s.file0
+#define LinkReadHandle world.s.file1
 ''' + bodies + r'''
 static u32 seed=0x14988,scenario;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}

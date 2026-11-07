@@ -20,7 +20,7 @@
 
 #undef D_800A6358
 
-extern s32 func_80096F84(s32),ChangeClearRCnt(s32,s32);
+extern s32 ChangeClearPAD(s32),ChangeClearRCnt(s32,s32);
 
 RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback) {
     s32 selector=id;
@@ -61,7 +61,7 @@ RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback) {
     }
     if(selector==0) {
         disabled=requested==0;
-        func_80096F84(disabled);
+        ChangeClearPAD(disabled);
         ChangeClearRCnt(3,disabled);
     }
     if(selector==4)ChangeClearRCnt(0,requested==0);

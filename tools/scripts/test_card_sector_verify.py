@@ -27,10 +27,10 @@ class CardSectorVerifyTest(unittest.TestCase):
 typedef uint8_t u8;typedef uint16_t u16;typedef uint32_t u32;typedef int32_t s32;
 ''' + header + '''
 s32 (*test_operation)(s32,s32,s32,void *,s32);
-s32 func_80095CE4(s32 port,s32 sector,const u8 *buffer){return test_operation(1,port,sector,(void *)buffer,128);}
-void func_80095CF4(void){test_operation(0,0,0,0,0);}
-s32 func_800963A4(s32 port,s32 sector,u8 *buffer){return test_operation(4,port,sector,buffer,128);}
-s32 func_800963B4(s32 slot){return test_operation(2,slot,0,0,0);}
+s32 _card_write(s32 port,s32 sector,const u8 *buffer){return test_operation(1,port,sector,(void *)buffer,128);}
+void _new_card(void){test_operation(0,0,0,0,0);}
+s32 _card_read(s32 port,s32 sector,u8 *buffer){return test_operation(4,port,sector,buffer,128);}
+s32 _card_status(s32 slot){return test_operation(2,slot,0,0,0);}
 void func_80096434(void *buffer,s32 size){memset(buffer,0,size);test_operation(3,0,0,buffer,size);}
 char D_80011FD8[64];
 s32 func_8001E84C(const char *format,...){return test_operation(5,0,0,(void *)format,0);}
@@ -47,7 +47,7 @@ s32 func_8001E84C(const char *format,...){return test_operation(5,0,0,(void *)fo
         if result.returncode:
             raise AssertionError(result.stderr.decode())
         cls.lib = C.CDLL(str(directory/'function.so'))
-        cls.function = cls.lib.func_80096054
+        cls.function = cls.lib._card_sector_write
         cls.function.argtypes = [C.c_int32,C.c_int32,C.c_void_p]
         cls.function.restype = C.c_int32
         exe=(root/'assets/PAL/main.exe').read_bytes();start=0x800+0x1FD8

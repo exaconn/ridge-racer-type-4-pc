@@ -28,18 +28,18 @@ class Overlay661ChoiceInitTest(unittest.TestCase):
 typedef struct {s32 frame,counter,bank;s16 current,limit,selected,mapped,flag;RrMenuGridPoint points[4];RrMenuArenas arenas;void *published;RrProjectionScratchPrefix scratch;RrSceneStatePrefix scene;s32 args[3];} Event;
 static struct World {u32 guard[4];s32 frame,counter,bank;s16 current,limit,selected,mapped,flag,modeCounter,selectionCounter;s8 flag1,flag2;RrMenuGridPoint points[4];RrMenuArenas arenas;void *published;RrProjectionScratchPrefix scratch;RrSceneStatePrefix scene;u32 calls;Event events[3];u8 arena[3][64];u32 order[16];u32 tail[4];} world,expected;
 #define RR_GPU_PROJECTION_SCRATCH (&world.scratch)
-#define D_800F2DE4 world.frame
+#define ModeFrame world.frame
 #define ScreenFrame world.counter
 #define D_800AC5D4 world.bank
 #define MenuCursor world.current
 #define MenuItemCount world.limit
 #define D_800AC648 world.selected
 #define D_800F3914 world.mapped
-#define D_800AD522 world.flag
+#define ReverseCourse world.flag
 #define D_8010C068 world.modeCounter
 #define D_8010C0B8 world.selectionCounter
-#define D_800F4D7C world.flag1
-#define D_800F3A2C world.flag2
+#define LoadState world.flag1
+#define MenuScriptStep world.flag2
 #define D_800ACBD0 world.points
 #define D_800F4D70 world.arenas
 #define LoadCursor world.published
@@ -70,7 +70,7 @@ s32 func_80096464(void){
  else assert(world.points[2].first==(s16)((random_value[0]&3)+10));
  event(&world,0,0,0);effect(&world,step);return word(random_value[step]);
 }
-void func_8002AF8C(s32 a,s32 b,s32 c){
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){
  assert(world.calls==2 && a==0 && b==1 && c==1);
  assert(world.counter==0 && world.flag1==0 && world.flag2==0 && world.bank==0 && world.published==world.arenas.second);
  assert(world.scratch.word18==512 && world.scratch.word0C==-416 && world.scratch.word08==0 && world.scratch.word10==0 && world.scratch.word1C==0 && world.scratch.word20==0);

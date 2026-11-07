@@ -22,5 +22,5 @@ extern RrAudioSlot620 SoundSlots[4];
 s32 SsVabClose(s16);
 s32 SsVabOpenHeadSticky(const u8 *,s32,s32);
 s32 SsVabTransCompleted(s32);
-void func_80050894(RrAudioProgramData *,s32);
+void SlotLoadCurves(RrAudioProgramData *,s32);
 #endif

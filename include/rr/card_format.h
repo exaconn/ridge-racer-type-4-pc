@@ -26,7 +26,7 @@ extern RrCardFormatSector D_80114328;
  * Return1 only if all36 writes return1; stop immediately on any other status.
  * Clear/copy operations occur before each write, so failure preserves that
  * sector's prepared buffer and all prior in-memory changes. Port remains32bit. */
-s32 func_80096198(s32 port);
+s32 _card_format(s32 port);
 
 typedef char RrCardAddressWordMustHoldPointer[
     sizeof(unsigned long)>=sizeof(void*)?1:-1];

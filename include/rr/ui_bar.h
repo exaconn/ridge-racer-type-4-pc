@@ -13,7 +13,7 @@ extern RrUiBarDescriptor D_8009F968[];
  * Coordinates use wrapping32 arithmetic; helper stores narrow to wire16.
  * The supplied cursor is threaded through helper return values; the final
  * helper result is returned to the caller. */
-RrSpritePacket *func_8003D2C4(u32 *ordering,RrSpritePacket *cursor,s32 x,s32 y,s32 style);
+RrSpritePacket *DrawBadgeTitleBar(u32 *ordering,RrSpritePacket *cursor,s32 x,s32 y,s32 style);
 RR_ASSERT_SIZE(RrUiUvRect, 4);
 RR_ASSERT_SIZE(RrUiBarDescriptor, 4);
 RR_ASSERT_OFFSET(RrUiBarDescriptor, count, 2);

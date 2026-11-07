@@ -2,7 +2,7 @@
 
 #include "rr/channel_stream.h"
 
-void func_800833A0(s32 bankInput,s32 rowInput) {
+void _SsSeqGetEof(s32 bankInput,s32 rowInput) {
     s16 bank=bankInput,row=rowInput;
     s32 bits=(s32)((u32)bank<<16);
     RrChannelStreamB0 **table=_ss_score;

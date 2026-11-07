@@ -106,7 +106,7 @@ for case in range(count):
  events=[];observed=[];init(case,False);u.reg_write(UC_MIPS_REG_A0,(case//48)%3);u.reg_write(UC_MIPS_REG_SP,0x803F0000);u.reg_write(UC_MIPS_REG_RA,0x803FF800)
  try:u.emu_start(0x80021E2C,0x803FF800,count=30000)
  except Exception:print('MIPS failure',case,hex(u.reg_read(UC_MIPS_REG_PC)));raise
- expected=snap(False);init(case,True);lib.func_80021E2C((case//48)%3)
+ expected=snap(False);init(case,True);lib.DrawRaceMinimap((case//48)%3)
  if errors:raise errors[0]
  assert len(events)==len(observed),(case,len(events),len(observed))
  for j,(e,o) in enumerate(zip(events,observed)):

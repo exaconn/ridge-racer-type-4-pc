@@ -17,27 +17,27 @@
 #undef D_800ABAB8
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC8 ((s32 *)D_800ABBC8)
+#define GPU_STATUS ((s32 *)GPU_STATUS)
 
-#undef D_800ABBC8
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC8 ((u32 *)D_800ABBC8)
-
-#undef D_800ABBC8
+#undef GPU_STATUS
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC4 ((int *)D_800ABBC4)
+#define GPU_STATUS ((u32 *)GPU_STATUS)
 
-#define D_800ABBC8 ((int *)D_800ABBC8)
+#undef GPU_STATUS
 
-#undef D_800ABBC4
+/* legacy typing of shared globals in this part of the unit */
+#define GPU_DATA ((int *)GPU_DATA)
 
-#undef D_800ABBC8
+#define GPU_STATUS ((int *)GPU_STATUS)
+
+#undef GPU_DATA
+
+#undef GPU_STATUS
 
 void _cwc(unsigned long address) {
-    *D_800ABBC8=0x04000002;
-    *D_800ABBCC=(u32)address;
-    *D_800ABBD0=0;
-    *(u32 *)D_800ABBD4=0x01000401;
+    *GPU_STATUS=0x04000002;
+    *DMA2_MADR=(u32)address;
+    *DMA2_BCR=0;
+    *(u32 *)DMA2_CHCR=0x01000401;
 }

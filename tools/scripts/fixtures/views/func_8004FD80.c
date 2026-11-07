@@ -41,9 +41,9 @@
 
 extern int CdAudioUpdate();
 
-extern int func_80053D24();
+extern int SeqFadeStep();
 
-extern int func_80052548();
+extern int SoundListenerUpdate();
 
 extern int UpdateSoundSlot();
 
@@ -72,9 +72,9 @@ void SoundUpdate(void) {
     i = 0;
     SoundState.x2878 = SoundState.x2874;
     CdAudioUpdate();
-    func_80053D24();
+    SeqFadeStep();
     SoundMasterFadeStep();
-    func_80052548();
+    SoundListenerUpdate();
     for (p = (u32 *)((char *)&SoundState + 0x38); i < 4; i++, p += 0x188) {
         if (*p & 1) UpdateSoundSlot(i);
     }
@@ -82,5 +82,5 @@ void SoundUpdate(void) {
     func_80051378();
     func_80051554();
     SoundQueueUpdate();
-    func_800518E0();
+    SoundLoopUpdate();
 }

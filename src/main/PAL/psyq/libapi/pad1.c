@@ -9,7 +9,7 @@
 #include "rr/spu_tick_control.h"
 
 extern s32 D_800ABC50;
-extern int func_80096F84();
+extern int ChangeClearPAD();
 extern int PAD_init2();
 extern int _patch_pad();
 extern int _remove_ChgclrPAD();
@@ -44,7 +44,7 @@ void PAD_init(a0, a1, a2, a3) int a0, a1, a2, a3; {
     EnterCriticalSection();
     _patch_pad();
     ExitCriticalSection();
-    func_80096F84(0);
+    ChangeClearPAD(0);
     func_80097568();
     PAD_init2(a0, a1, a2, a3);
     D_800ABC50 = 1;
@@ -57,7 +57,7 @@ void InitPAD(a0, a1, a2, a3) int a0; int a1; int a2; int a3; {
     EnterCriticalSection();
     _patch_pad();
     ExitCriticalSection();
-    func_80096F84(0);
+    ChangeClearPAD(0);
     func_80097568();
     InitPAD2(a0, a1, a2, a3);
     D_800ABC50 = 1;
@@ -67,7 +67,7 @@ void InitPAD(a0, a1, a2, a3) int a0; int a1; int a2; int a3; {
 
 s32 StartPAD(void) {
     StartPAD2();
-    func_80096F84(0);
+    ChangeClearPAD(0);
     EnablePAD();
     return 1;
 }

@@ -497,7 +497,7 @@ int PutDrawEnv(int *a0) {
     if (*p >= 2) {
         GPU_printf(D_80011F4C, a0);
     }
-    func_80093E70((u32 *)(a0 + 7), (RrFrameEnvironment *)a0);
+    SetDrawEnv2((u32 *)(a0 + 7), (RrFrameEnvironment *)a0);
     a0[7] |= 0xFFFFFF;
     ((int (*)())D_800ABAB8[2])(D_800ABAB8[6], a0 + 7, 0x40, 0);
     func_80096444(p + 0xE, a0, 0x5C);
@@ -517,7 +517,7 @@ void DrawOTagEnv(int a, W3L2_P *b) {
     char *t;
     if (D_800ABAC2[0] >= 2) GPU_printf(D_80011F64, a, b);
     t = (char *)b + 0x1C;
-    func_80093E70((u32 *)t, (RrFrameEnvironment *)b);
+    SetDrawEnv2((u32 *)t, (RrFrameEnvironment *)b);
     b->w = (b->w & 0xFF000000) | (a & 0xFFFFFF);
     (*(int (**)())(D_800ABAB8 + 8))(*(int *)(D_800ABAB8 + 0x18), t, 0x40, 0);
     func_80096444(D_800ABAC2 + 0xE, b, 0x5C);

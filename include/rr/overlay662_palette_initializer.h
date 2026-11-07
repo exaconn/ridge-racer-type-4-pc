@@ -8,7 +8,7 @@ extern s16 ovl662_D_801272D4,ovl662_D_8012739A,ovl662_D_80127398,ovl662_D_801272
 extern s32 ovl662_D_801272C0,ovl662_D_801272E8;
 extern u8 ovl662_D_801272A0[25];
 extern void *D_800F3B20,*D_800F3B24;
-void func_8001E854(void *,s32,s32);
+void UploadCarClut(void *,s32,s32);
 /* Fresh course selector is0..8. Its signed second byte is at most25;
  * positive values select one of25 map slots. Palette bank1 covers25 TIMs.
  * UI and palette services may replace global roots and mutate shared state. */

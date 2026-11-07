@@ -21,7 +21,7 @@
 
 extern s32 func_800963DC(const char *, ...);
 
-extern s32 func_80096F84(s32), ChangeClearRCnt(s32,s32);
+extern s32 ChangeClearPAD(s32), ChangeClearRCnt(s32,s32);
 
 void v_wait(s32 a0, s32 a1) {
     volatile u32 cnt = (u32)a1 << 15;
@@ -36,7 +36,7 @@ loop:
             /* ASM_BARRIER: Materialize the message page before its call-delay offset. */
             __asm__("" : "=r"(page) : "0"(page));
             func_800963DC(page+0x17F8);
-            func_80096F84(0);
+            ChangeClearPAD(0);
             ChangeClearRCnt(3, 0);
             return;
         }

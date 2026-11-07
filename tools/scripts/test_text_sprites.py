@@ -41,7 +41,7 @@ typedef struct {
 } World;
 static World *actual,*expected;
 #define D_800A015C actual->mapping
-#define D_800A01DC actual->width_base
+#define FontGlyphWidths actual->width_base
 #define D_800ACC14 actual->context
 ''' + body + r'''
 static const u8 original_mapping[288]={''' + table(0x800A015C,288) + r'''};

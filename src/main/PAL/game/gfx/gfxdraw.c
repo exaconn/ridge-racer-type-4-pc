@@ -62,7 +62,7 @@ extern Context650 RaceContext;
 extern int D_800AC698;
 extern int D_8010718C;
 extern void func_800172DC(int, int);
-extern void func_80033BE4(void *);
+extern void UpdateRaceChaseCamera(void *);
 extern void BuildCameraMatrices(void);
 extern int Atan2Table(int, int);
 extern void SetGeomScreen(int);
@@ -124,7 +124,7 @@ void func_8004417C(int arg0, void *arg1) {
     }
     switch (arg0) {
     case 0:
-        func_80033BE4(arg1);
+        UpdateRaceChaseCamera(arg1);
         break;
     case 1:
         scratch[2] = s2->x * 4;

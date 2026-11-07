@@ -100,18 +100,18 @@ void _SsVmKeyOnNow(s16 arg0, s16 arg1) {
         high_mask = 1 << (_svm_cur.f18 - 0x10);
     }
     if (_svm_cur.f12 & 4) {
-        D_8010F8FC |= low_mask;
-        D_8010F8FE |= high_mask;
+        _svm_orev1 |= low_mask;
+        _svm_orev2 |= high_mask;
     } else {
-        D_8010F8FC &= ~low_mask;
-        D_8010F8FE &= ~high_mask;
+        _svm_orev1 &= ~low_mask;
+        _svm_orev2 &= ~high_mask;
     }
-    D_8010F900 &= ~low_mask;
-    D_8010F902 &= ~high_mask;
-    D_8010F8FA |= high_mask;
-    D_8010F8F8 |= low_mask;
-    D_80110000 &= ~D_8010F8F8;
-    D_80110002 &= ~D_8010F8FA;
+    _svm_onos1 &= ~low_mask;
+    _svm_onos2 &= ~high_mask;
+    _svm_okon2 |= high_mask;
+    _svm_okon1 |= low_mask;
+    _svm_okof1 &= ~_svm_okon1;
+    _svm_okof2 &= ~_svm_okon2;
 }
 
 /* legacy typing of shared globals in this part of the unit */

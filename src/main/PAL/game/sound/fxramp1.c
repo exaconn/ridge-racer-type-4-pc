@@ -6,10 +6,10 @@ extern struct {
     short h288E;
     short h2890;
 } SoundState;
-extern int func_80053A9C();
+extern int SeqSetVolume();
 extern int func_80053CB0();
 
-void func_80053D24()
+void SeqFadeStep()
 {
   int d = SoundState.h288A;
   int t;
@@ -33,7 +33,7 @@ void func_80053D24()
         v += 0xFFF;
       }
       v = (v >> 12) + from;
-      func_80053A9C((short)v, &SoundState, from);
+      SeqSetVolume((short)v, &SoundState, from);
       return;
     }
     func_80053CB0(d, &SoundState);

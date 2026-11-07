@@ -5,21 +5,21 @@
 /* legacy typing of shared globals in this part of the unit */
 #define SetDispMask ((int (*)())SetDispMask)
 
-#define func_8005CA88 ((int (*)())func_8005CA88)
+#define IntroScriptStep ((int (*)())IntroScriptStep)
 
 #define D_800F4D70 (*(int (*))&D_800F4D70)
 
-#define D_800F4C6A (*(short (*))&D_800F4C6A)
+#define ModeGroup (*(short (*))&ModeGroup)
 
 #undef SetDispMask
 
-#undef func_8005CA88
+#undef IntroScriptStep
 
 #undef D_800F4D70
 
-#undef D_800F4C6A
+#undef ModeGroup
 
-void func_8003A544(void) {
+void UpdateMenuScript(void) {
     s32 next_frame;
     s32 mode;
     s32 status;
@@ -27,34 +27,34 @@ void func_8003A544(void) {
     s8 opcode;
     s32 step;
 
-    next_frame = (s32)((u32)D_800F2DE4 + 1U);
-    D_800F2DE4 = next_frame;
+    next_frame = (s32)((u32)ModeFrame + 1U);
+    ModeFrame = next_frame;
     if (next_frame == 2) {
         SetDispMask(1);
     }
     if (D_800F4D44 == 4) {
-        func_80035024(1);
+        UpdateLinkHandshake(1);
     }
     mode=D_800FFC10;
     if (mode == 1) {
-        status = func_80059E40(D_800F2DE4);
+        status = func_80059E40(ModeFrame);
     } else {
         if (mode == 0) {
-            status = func_8005CA88();
+            status = IntroScriptStep();
         } else {
             status = 1;
         }
     }
-    step = D_800F3A2C;
+    step = MenuScriptStep;
     if (step >= 0) {
-        if (D_8009F840[D_8009F8D0[D_800F4BE8][step]]() == 1) {
-            D_800F4D7C = 0;
-            next_step = (u8) D_800F3A2C + 1;
-            D_800F3A2C = next_step;
-            opcode = D_8009F8D0[D_800F4BE8][next_step];
+        if (MenuScriptOps[MenuScripts[MenuScriptId][step]]() == 1) {
+            LoadState = 0;
+            next_step = (u8) MenuScriptStep + 1;
+            MenuScriptStep = next_step;
+            opcode = MenuScripts[MenuScriptId][next_step];
             if (opcode < 0) {
-                D_800F4BE8 = (u16) -opcode;
-                D_800F3A2C = -1;
+                MenuScriptId = (u16) -opcode;
+                MenuScriptStep = -1;
                 if (D_800FFC10 == 0) {
                     func_8005CA14();
                 }
@@ -62,13 +62,13 @@ void func_8003A544(void) {
         }
     } else {
         if((status==1 && D_800FFC10==status) || (D_800FFC10==0 && status==2) || (D_800FFC10>=2 && status==1)) {
-            D_8009F870[D_800F4BE8]();
+            MenuSceneEntries[MenuScriptId]();
             D_800F4D8A = 0;
-            D_800F4C6A = (u16) ((u16) D_800AD50A >> 8);
+            ModeGroup = (u16) ((u16) D_800AD50A >> 8);
             D_800F3A26 = D_800AD50A & 0xFF;
         }
     }
-    if (D_800F4C6A != 1) {
+    if (ModeGroup != 1) {
         *(void **)0x1F800000 = AddTileGrid2x2((u32 *)((u8 *)D_800ACC14 + 0xB6C), *(void **)0x1F800000, 0, 0, 0x140, 0x200, 0, 0, 0);
     }
 }

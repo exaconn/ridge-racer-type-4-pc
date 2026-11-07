@@ -42,7 +42,7 @@ RrWide64 *_mul_mant_d(RrWide64 *out,u32 a,u32 b) {
     return result;
 }
 
-u64 func_8007E904(u64 value) {
+u64 __negdf2(u64 value) {
     register u64 result=value;
     /* ASM_BARRIER: Retain the working words separately from the return pair. */
     register u64 bits __asm__("$6");

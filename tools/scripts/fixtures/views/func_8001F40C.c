@@ -7,7 +7,7 @@
 
 #define AddPrim ((s32 (*)())AddPrim)
 
-#define func_80095B94 ((s32 (*)())func_80095B94)
+#define SetSprt ((s32 (*)())SetSprt)
 
 #define D_800ACC14 ((char *)D_800ACC14)
 
@@ -15,7 +15,7 @@
 
 #undef AddPrim
 
-#undef func_80095B94
+#undef SetSprt
 
 #undef D_800ACC14
 
@@ -26,7 +26,7 @@
 
 #define SetShadeTex ((void (*)())SetShadeTex)
 
-#define func_80095B94 ((void (*)())func_80095B94)
+#define SetSprt ((void (*)())SetSprt)
 
 #undef AddPrim
 
@@ -34,7 +34,7 @@
 
 #undef SetShadeTex
 
-#undef func_80095B94
+#undef SetSprt
 
 extern s32 SetSemiTrans();
 
@@ -42,7 +42,7 @@ extern s32 SetShadeTex();
 
 extern u8 D_8009ED38[];
 
-void func_8001F40C(a0, a1, a2)
+void DrawBigFontString(a0, a1, a2)
 s32 a0, a1;
 u8 *a2;
 {
@@ -59,7 +59,7 @@ u8 *a2;
                 col = a % 21;
                 u = col * 12;
                 vv = row * 24 + 0x24;
-                func_80095B94(s3);
+                SetSprt(s3);
                 s2->w = 12;
                 s2->h = 24;
                 SetShadeTex(s3, 1);

@@ -86,7 +86,7 @@ typedef struct {
 } S_ABEA4;
 /* size 0x3C */
 extern int D_800A4090;
-extern int D_800F2DE4;
+extern int ModeFrame;
 extern short D_800F3914;
 extern unsigned short D_800F3A38[];
 extern int RaceState;
@@ -274,10 +274,10 @@ void UpdateTrackObjects(void) {
                         if ((unsigned short)D_800F4D44 - 2 < 3U) {
                             a2 = B4->f0;
                             B4->f0 = a2 + 1;
-                            if (D_8010E7C8[i] == D_800F2DE4) {
+                            if (D_8010E7C8[i] == ModeFrame) {
                                 B4->f0 = a2;
                             }
-                            D_8010E7C8[i] = D_800F2DE4;
+                            D_8010E7C8[i] = ModeFrame;
                         } else {
                             B4->f0++;
                         }
@@ -372,7 +372,7 @@ void UpdateTrackObjects(void) {
                                     D_8010E7AC = 0x36;
                                     D_8010E7B0 = 0x35;
                                     D_8010E7B4 = 0x20;
-                                    if (D_800F2DE4 == 0xAF) {
+                                    if (ModeFrame == 0xAF) {
                                         if (B4->f8 != 4) {
                                             B4->f24 = -1;
                                         }

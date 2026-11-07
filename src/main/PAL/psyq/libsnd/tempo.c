@@ -1,7 +1,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/sequencer_tempo.h"
-void func_80081AE4(s32 raw_bank, s32 raw_row) {
+void _SsGetMetaEvent(s32 raw_bank, s32 raw_row) {
     s16 a0 = raw_bank;
     s16 a1 = raw_row;
     register RrLibStateB0 **b = _ss_score;

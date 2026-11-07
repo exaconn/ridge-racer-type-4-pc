@@ -70,7 +70,7 @@ class Overlay665RenderTest(unittest.TestCase):
         }
         void SetupViewport(s32 mode){assert(mode==6);(void)event(1,mode,0,0,0,0);}
         void SetGeomOffset(s32 x,s32 y){(void)event(2,x,y,0,0,0);}
-        void func_8005599C(char *view,char *lighting,RrMatrixWords32 *first,RrMatrixWords32 *second) {
+        void SetupObjectLightMatrices(char *view,char *lighting,RrMatrixWords32 *first,RrMatrixWords32 *second) {
          unsigned i,n=w->calls;
          assert(view==(char*)&w->s.visual.view74 && lighting==(char*)&w->s.visual.lighting4C);
          assert((uintptr_t)first>UINT32_MAX && (uintptr_t)second>UINT32_MAX && first!=second);
@@ -93,7 +93,7 @@ class Overlay665RenderTest(unittest.TestCase):
          return (s32*)matrix;
         }
         void SetLightMatrix(s32 *matrix){(void)event(8,0,0,0,matrix,0);}
-        void func_8006EE3C(s16 *output,s16 *view,s32 *matrix) {
+        void SetGteObjectTransform(s16 *output,s16 *view,s32 *matrix) {
          unsigned i;u32 m[8];memcpy(m,matrix,32);
          assert(output==w->s.scratch.tail7C.projection.halves);
          assert(view==w->s.visual.view74.position00.halves);
@@ -123,11 +123,11 @@ class Overlay665RenderTest(unittest.TestCase):
          for(i=0;i<3;i++)scales[i]=w->s.visual.scale3C;
          w->s.visual.view74.rotation10=(s16)w->s.visual.rotation44;
          w->s.visual.view74.position00.words[2]=w->s.visual.position48;
-         func_8005599C((char*)&w->s.visual.view74,(char*)&w->s.visual.lighting4C,&first->matrix,&second->matrix);
+         SetupObjectLightMatrices((char*)&w->s.visual.view74,(char*)&w->s.visual.lighting4C,&first->matrix,&second->matrix);
          (void)ScaleMatrix(first->words,scales);SetGeomScreen(w->s.visual.depth40);
         }
         static void light(RrPreviewMatrixWorkspace *matrix){ovl665_func_80116358(matrix,&w->s.visual.lighting4C.matrix);}
-        static void project(RrPreviewMatrixWorkspace *matrix){func_8006EE3C(w->s.scratch.tail7C.projection.halves,w->s.visual.view74.position00.halves,(s32*)matrix->words);}
+        static void project(RrPreviewMatrixWorkspace *matrix){SetGteObjectTransform(w->s.scratch.tail7C.projection.halves,w->s.visual.view74.position00.halves,(s32*)matrix->words);}
         static void draw(s32 threshold,s32 object) {
          s32 chosen=w->s.meshes>=threshold?object:1;
          w->s.scratch.counter78=0;func_80058768(&w->s.scratch,chosen,0,0);

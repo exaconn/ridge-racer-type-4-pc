@@ -35,7 +35,7 @@ s32 CdRead(s32 sectors,u8 *buffer,u32 mode);
 /* Clears active callbacks, optionally repositions, captures the requested mode,
  * then starts transfer. Shell-open/command failure publishes remaining=-1.
  * Successful return reloads remaining after the clock helper completes. */
-s32 func_8008EB6C(s32 restart);
+s32 cd_read_retry(s32 restart);
 RR_ASSERT_SIZE(RrLibReadRestoreTail, 0x10);
 RR_ASSERT_OFFSET(RrLibReadRestoreTail, saved2C, 4);
 RR_ASSERT_OFFSET(RrLibReadRestoreTail, saved30, 8);

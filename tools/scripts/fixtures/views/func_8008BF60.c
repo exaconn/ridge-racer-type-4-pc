@@ -7,6 +7,6 @@
 int DeliverEvent(int, int);
 
 /* extern */
-void func_8008BF60(s32 event, s32 argument) {
+void def_cbread(s32 event, s32 argument) {
     DeliverEvent(0xF0000003, 0x40);
 }

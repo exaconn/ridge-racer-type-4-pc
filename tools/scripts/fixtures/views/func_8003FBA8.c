@@ -19,9 +19,9 @@ extern s32 rcos();
 
 extern int D_800F2AB0;
 
-extern int func_8003DCEC();
+extern int UpdateRect16Row();
 
-int func_8003FBA8(int a0) {
+int UpdateImageRow(int a0) {
     int s1;
     int s2;
     int state;
@@ -33,7 +33,7 @@ int func_8003FBA8(int a0) {
     s1 = D_800F2AB0[a0].f2;
     switch (state) {
     case -1:
-        if (func_8003DCEC(D_800F2AB0[a0].f3) == 1) {
+        if (UpdateRect16Row(D_800F2AB0[a0].f3) == 1) {
             D_800F2AB0[a0].f1 = 0;
         }
         break;
@@ -43,7 +43,7 @@ int func_8003FBA8(int a0) {
     case 1:
         s2 = 1;
         val = (s1 << 7) / 30;
-        func_8003FE78(a0, 0, val, 0);
+        DrawImageRow(a0, 0, val, 0);
         if (s1 >= 30) {
             D_800F2AB0[a0].f2 = 0;
             D_800F2AB0[a0].f1 = 2;
@@ -55,11 +55,11 @@ int func_8003FBA8(int a0) {
     case 4:
     default:
         s2 = 2;
-        func_8003FE78(a0, 0, 0x80, 0);
+        DrawImageRow(a0, 0, 0x80, 0);
         break;
     case 3:
         val = rcos((s1 << 10) / 30) / 32;
-        func_8003FE78(a0, 1, val, 0);
+        DrawImageRow(a0, 1, val, 0);
         if (s1 >= 30) {
             D_800F2AB0[a0].f1 = 5;
             D_800F2AB0[a0].f2 = 0;
@@ -72,7 +72,7 @@ int func_8003FBA8(int a0) {
     case 6:
         s2 = 1;
         val = ((30 - s1) << 7) / 30;
-        func_8003FE78(a0, 0, val, 0);
+        DrawImageRow(a0, 0, val, 0);
         if (s1 >= 30) {
             D_800F2AB0[a0].f2 = 0;
             D_800F2AB0[a0].f1 = 7;
@@ -82,7 +82,7 @@ int func_8003FBA8(int a0) {
         break;
     case 7:
         s2 = 1;
-        func_8003FE78(a0, 0, 0, 0);
+        DrawImageRow(a0, 0, 0, 0);
         break;
     }
     return s2;

@@ -3,8 +3,8 @@
 
 #include "types.h"
 
-void func_80022D50();
-void func_8002367C();
+void UpdatePlayerSteering();
+void UpdateCarEngine();
 void IntegrateCarMotion(char *p);
 
 #endif /* RR_GAME_CAR_CARPARAM_H */

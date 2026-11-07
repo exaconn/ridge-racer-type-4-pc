@@ -24,7 +24,7 @@ extern int func_800436E8();
 extern int LoadVab();
 extern char D_800A0234[];
 extern char *D_800ACBB4;
-extern char D_8010C210[];
+extern char VabLoadArgs[];
 extern int D_800A0270[];
 extern int LoadVab();
 
@@ -93,11 +93,11 @@ int func_8004E5E8(void) {
         func_8004E414();
         D_800A0218 += 1;
     case 1:
-        if (func_8004E194() != 0) {
+        if (LoadRaceSoundStep() != 0) {
             D_800A021C = 0;
-            D_800A0220 = 0;
-            D_800A0224 = 0;
-            D_8010C1F0 = LoadCursor;
+            RaceLoadState = 0;
+            RaceLoadSubState = 0;
+            RaceLoadCursor = LoadCursor;
             *(int *)&D_800A02C0 = D_800F3914;
             if (D_800F3914 >= 8) {
                 D_800F3914 = 7;
@@ -106,7 +106,7 @@ int func_8004E5E8(void) {
         }
         return 0;
     case 2:
-        if (func_8004E260() != 0) {
+        if (LoadTrackStep() != 0) {
             D_800A0218 += 1;
             D_800F3914 = D_800A02C0;
         }
@@ -121,7 +121,7 @@ int func_8004E5E8(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define LoadCursor ((char *)LoadCursor)
 #define SoundState (*(char (*)[])&SoundState)
-#define D_8010C1F0 ((char *)D_8010C1F0)
+#define RaceLoadCursor ((char *)RaceLoadCursor)
 
 int func_8004E70C(void)
 {
@@ -130,31 +130,31 @@ int func_8004E70C(void)
     char *t;
     switch (D_800A021C) {
     case 0:
-        ret = r = CdFileReadStart(GetR4FileIndex(2, 1), D_8010C1F0);
+        ret = r = CdFileReadStart(GetR4FileIndex(2, 1), RaceLoadCursor);
         if (r == 0) break;
         D_800A021C = D_800A021C + 1;
     case 1:
         if (CdFileBytesLoaded() == 0) { ret = 0; break; }
-        t = D_8010C1F0 + *(int *)(D_8010C1F0 + 4);
+        t = RaceLoadCursor + *(int *)(RaceLoadCursor + 4);
         RegisterModelBank(t, 7);
         i = 0;
-        RelocateOffsetTable(D_8010C1F0 + *(int *)(D_8010C1F0 + 8));
+        RelocateOffsetTable(RaceLoadCursor + *(int *)(RaceLoadCursor + 8));
         s3 = SoundState;
         s1 = D_800A0234;
-        D_800ACBB4 = D_8010C1F0 + *(int *)(D_8010C1F0 + 8);
+        D_800ACBB4 = RaceLoadCursor + *(int *)(RaceLoadCursor + 8);
         do {
-            *(char **)D_8010C210 = D_8010C1F0 + *(int *)(D_8010C1F0 + i * 4 + 0x14);
-            *(char **)(D_8010C210 + 4) = D_8010C1F0 + *(int *)(D_8010C1F0 + i * 4 + 0x1C);
-            LoadVab(D_8010C210, *(int *)(s1 + 4), *(int *)(s1 + 8));
+            *(char **)VabLoadArgs = RaceLoadCursor + *(int *)(RaceLoadCursor + i * 4 + 0x14);
+            *(char **)(VabLoadArgs + 4) = RaceLoadCursor + *(int *)(RaceLoadCursor + i * 4 + 0x1C);
+            LoadVab(VabLoadArgs, *(int *)(s1 + 4), *(int *)(s1 + 8));
             s1 += 0xC;
-            *(char **)(s3 + 0x2858) = D_8010C1F0 + *(int *)(D_8010C1F0 + i * 4 + 0xC);
+            *(char **)(s3 + 0x2858) = RaceLoadCursor + *(int *)(RaceLoadCursor + i * 4 + 0xC);
             s3 += 4;
             i++;
         } while (i < 2);
-        func_800436E8(D_8010C1F0 + *(int *)(D_8010C1F0 + 0x24));
-        t = AlignUp4(D_8010C1F0 + *(int *)(D_8010C1F0 + 0x1C));
+        func_800436E8(RaceLoadCursor + *(int *)(RaceLoadCursor + 0x24));
+        t = AlignUp4(RaceLoadCursor + *(int *)(RaceLoadCursor + 0x1C));
         LoadCursor = t;
-        D_8010C1F0 = t;
+        RaceLoadCursor = t;
         D_800A021C = 0;
         func_8004F600();
         ret = 1;
@@ -168,24 +168,24 @@ int func_8004E70C(void)
 
 #undef LoadCursor
 #undef SoundState
-#undef D_8010C1F0
+#undef RaceLoadCursor
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_800436E8 ((int (*)())func_800436E8)
 #define RegisterModelBank ((int (*)())RegisterModelBank)
-#define D_8010C1F0 ((char *)D_8010C1F0)
+#define RaceLoadCursor ((char *)RaceLoadCursor)
 
 int func_8004E8CC(void) {
     int v;
     switch (D_800A021C) {
     case 0:
-        v = CdFileReadStart(GetR4FileIndex(2, 2), D_8010C1F0);
+        v = CdFileReadStart(GetR4FileIndex(2, 2), RaceLoadCursor);
         if (v != 0) {
             D_800A021C += 1;
     case 1:
             if (CdFileBytesLoaded() != 0) {
-                RegisterModelBank(D_8010C1F0 + *(int *)(D_8010C1F0 + 4), 8);
-                func_800436E8(D_8010C1F0 + *(int *)(D_8010C1F0 + 8));
+                RegisterModelBank(RaceLoadCursor + *(int *)(RaceLoadCursor + 4), 8);
+                func_800436E8(RaceLoadCursor + *(int *)(RaceLoadCursor + 8));
                 D_800A021C = 0;
                 return 1;
             }
@@ -199,12 +199,12 @@ int func_8004E8CC(void) {
 
 #undef func_800436E8
 #undef RegisterModelBank
-#undef D_8010C1F0
+#undef RaceLoadCursor
 
 /* legacy typing of shared globals in this part of the unit */
 #define LoadCursor ((int *)LoadCursor)
-#define D_8010C1F0 ((int *)D_8010C1F0)
-#define D_8010C210 (*(int (*)[])&D_8010C210)
+#define RaceLoadCursor ((int *)RaceLoadCursor)
+#define VabLoadArgs (*(int (*)[])&VabLoadArgs)
 #define func_800436E8 ((int (*)())func_800436E8)
 
 int func_8004E990()
@@ -213,19 +213,19 @@ int func_8004E990()
     int *q;
     switch (D_800A021C) {
     case 0:
-        r = CdFileReadStart(GetR4FileIndex(2, 0), D_8010C1F0);
+        r = CdFileReadStart(GetR4FileIndex(2, 0), RaceLoadCursor);
         if (r != 0) {
             D_800A021C++;
     case 1:
             if (CdFileBytesLoaded()) {
                 q = D_800A0270;
-                D_8010C210[0] = (int)D_8010C1F0 + D_8010C1F0[1];
-                D_8010C210[1] = (int)D_8010C1F0 + D_8010C1F0[2];
-                LoadVab(D_8010C210, q[1], q[2]);
-                func_800436E8((int)D_8010C1F0 + D_8010C1F0[3]);
+                VabLoadArgs[0] = (int)RaceLoadCursor + RaceLoadCursor[1];
+                VabLoadArgs[1] = (int)RaceLoadCursor + RaceLoadCursor[2];
+                LoadVab(VabLoadArgs, q[1], q[2]);
+                func_800436E8((int)RaceLoadCursor + RaceLoadCursor[3]);
                 D_800A021C = 0;
-                D_8010C1F0 = (int *)((int)D_8010C1F0 + D_8010C1F0[2]);
-                LoadCursor = D_8010C1F0;
+                RaceLoadCursor = (int *)((int)RaceLoadCursor + RaceLoadCursor[2]);
+                LoadCursor = RaceLoadCursor;
                 return 1;
             }
             r = 0;
@@ -238,6 +238,6 @@ int func_8004E990()
 }
 
 #undef LoadCursor
-#undef D_8010C1F0
-#undef D_8010C210
+#undef RaceLoadCursor
+#undef VabLoadArgs
 #undef func_800436E8

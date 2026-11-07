@@ -27,7 +27,7 @@ static unsigned scenario,mutation,seenScenes,seenSelections;
 static const s32 scenes[]={0,1,2,-1,3,INT32_MIN,INT32_MAX};
 static const s32 selections[]={0,1,2,3,4,5,6,-1,7,8,INT32_MIN,INT32_MAX};
 #define ovl665_D_80119768 w->s.visual
-#define D_800F4C6A w->s.scene
+#define ModeGroup w->s.scene
 #define D_800F3A26 w->s.next
 #define D_800F4D8A w->s.phase
 static s32 word(u32 bits){s32 value;memcpy(&value,&bits,4);return value;}
@@ -37,18 +37,18 @@ static void event(s32 kind,s32 arg){unsigned i,n=w->calls;assert(n<8);w->events[
  w->s.scene=(u16)(scenario+n*51);w->s.next=(s16)(scenario+n*37);w->s.phase=(s16)(scenario+n*11);}
 }
 void SetDispMask(s32 a){event(1,a);}void ovl665_func_80114A24(void){event(2,0);}
-void func_8005AF5C(void){event(3,0);}void func_8005B2D4(s32 a){event(4,a);}void func_80053BB4(s32 a){event(5,a);}
+void InitMotionController(void){event(3,0);}void func_8005B2D4(s32 a){event(4,a);}void func_80053BB4(s32 a){event(5,a);}
 void ovl665_func_80114C4C(void){event(6,0);}void ovl665_func_80116D10(s32 a){event(7,a);}
 void ovl665_func_801151A4(void){event(8,0);}void ovl665_func_80115820(void){event(9,0);}
-void ovl665_func_80115CFC(void){event(10,0);}void func_8005D974(s32 a){event(11,a);}void func_8005B304(void){event(12,0);}
+void ovl665_func_80115CFC(void){event(10,0);}void StartAttractDemo(s32 a){event(11,a);}void func_8005B304(void){event(12,0);}
 ''' + body + r'''
 static void expected(void){s32 scene=w->s.visual.scene00;
- if(scene==0){SetDispMask(0);ovl665_func_80114A24();w->s.visual.scene00=word((u32)w->s.visual.scene00+1U);func_8005AF5C();func_8005B2D4(1);func_80053BB4(0);}
+ if(scene==0){SetDispMask(0);ovl665_func_80114A24();w->s.visual.scene00=word((u32)w->s.visual.scene00+1U);InitMotionController();func_8005B2D4(1);func_80053BB4(0);}
  else if(scene==1)ovl665_func_80114C4C();
  else if(scene==2){s32 selection=w->s.visual.selection08;
   if(selection==0||selection==1)ovl665_func_80116D10(selection);
   else if(selection==2)ovl665_func_801151A4();else if(selection==3)ovl665_func_80115820();
-  else if(selection==4)ovl665_func_80115CFC();else if(selection==5)func_8005D974(1);
+  else if(selection==4)ovl665_func_80115CFC();else if(selection==5)StartAttractDemo(1);
   else if(selection==6){w->s.scene=1;w->s.next=3;w->s.phase=0;}
  }
  func_8005B304();

@@ -139,7 +139,7 @@ extern int func_80096464();
 extern short D_800AD520;
 extern short D_800F4D44;
 extern int CdAudioInit();
-extern signed char D_800AD4D8[];
+extern signed char SelectionState[];
 extern int D_800F7660;
 extern s16 D_800A1818[];
 extern s16 D_800A1824[];
@@ -154,7 +154,7 @@ extern struct {
     u8 unk1;
     u8 unk2;
     u8 unk3;
-} D_800F4D98[];
+} SelectionRows[];
 extern struct {
     char pad[0x28A4];
     s32 w28a4;
@@ -165,10 +165,10 @@ extern struct {
 void func_800587E4(s32 arg0, u8 *arg1, s32 *arg2);
 void func_80058A3C(s32 *arg0);
 void func_800590DC(void);
-void func_80059284(short *a0, int a1);
+void CenterGlyphListX(short *a0, int a1);
 void func_80059314(s32 arg0, s32 arg1);
-void func_80059700(s16 *stream,s32 color,s32 bank);
-void func_80059904();
+void DrawGlyphList(s16 *stream,s32 color,s32 bank);
+void DrawGlyphListSloped();
 void func_80059B1C(unsigned char *a0x, int a1, int a2, int a3);
 void func_80059C28(s32 index,s32 color);
 void func_80059D34(s32 index,s32 color);
@@ -390,7 +390,7 @@ void func_80059168() {
     int a0, a1, v;
     CdAudioInit();
     if (D_800F4D44 == 1) {
-        a0 = D_800AD4D8[D_800AD4D8[0x17] + 8] < 3;
+        a0 = SelectionState[SelectionState[0x17] + 8] < 3;
     } else {
         a0 = 1;
     }
@@ -416,7 +416,7 @@ void func_80059168() {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A1158 (*(char (*)[])&D_800A1158)
 
-void func_80059284(short *a0, int a1)
+void CenterGlyphListX(short *a0, int a1)
 {
   unsigned short *p = (unsigned short *) (a0 + 2);
   int sum = 0;
@@ -468,7 +468,7 @@ void func_80059314(s32 arg0, s32 arg1) {
     D_8010E228 = -1;
     D_8010E234 = 0;
     D_8010E238 = 0;
-    func_8004F9C8();
+    SoundReverbOffAll();
 
     if (D_800F4D44 != 1) {
         D_800F765C = 0;
@@ -496,7 +496,7 @@ void func_80059314(s32 arg0, s32 arg1) {
     case 6:
         SoundState.w28a4 = SoundState.w28ac;
         for (i = 0; i < 2; i++) {
-            if (D_800F4D98[i].unk1 == 0 && D_800F4D98[i].unk0 == 2 && D_800F4D98[i].unk2 == 0x27) {
+            if (SelectionRows[i].unk1 == 0 && SelectionRows[i].unk0 == 2 && SelectionRows[i].unk2 == 0x27) {
                 SoundState.w28a4 = 0xF;
             }
         }
@@ -519,38 +519,38 @@ void func_80059314(s32 arg0, s32 arg1) {
     D_8010E220 = D_800F765C + 0xB;
 
     for (i = 0; i < 8; i++) {
-        func_80059284(D_800A18F0[i], D_800A1090);
-        func_80059284(D_800A1910[i], D_800A1090);
-        func_80059284(D_800A1930[i], D_800A1090);
-        func_80059284(D_800A1950[i], D_800A1090);
+        CenterGlyphListX(D_800A18F0[i], D_800A1090);
+        CenterGlyphListX(D_800A1910[i], D_800A1090);
+        CenterGlyphListX(D_800A1930[i], D_800A1090);
+        CenterGlyphListX(D_800A1950[i], D_800A1090);
     }
 
     for (i = 0; i < 5; i++) {
-        func_80059284(D_800A1970[i], D_800A1090);
+        CenterGlyphListX(D_800A1970[i], D_800A1090);
     }
 
     for (i = 0; i < 8; i++) {
-        func_80059284(D_800A1984[i], D_800A1158);
-        func_80059284(D_800A1984[i] + 8, D_800A1158);
-        func_80059284(D_800A1984[i] + 14, D_800A1158);
+        CenterGlyphListX(D_800A1984[i], D_800A1158);
+        CenterGlyphListX(D_800A1984[i] + 8, D_800A1158);
+        CenterGlyphListX(D_800A1984[i] + 14, D_800A1158);
     }
 
     for (i = 0; i < 7; i++) {
-        func_80059284(D_800A19A4[i], D_800A1090);
+        CenterGlyphListX(D_800A19A4[i], D_800A1090);
     }
 
-    func_80059284(D_800A1818, D_800A1158);
-    func_80059284(D_800A1824, D_800A1158);
+    CenterGlyphListX(D_800A1818, D_800A1158);
+    CenterGlyphListX(D_800A1824, D_800A1158);
 
     for (i = 0; i < 8; i++) {
-        func_80059284(D_800A19C0[i], D_800A1158);
+        CenterGlyphListX(D_800A19C0[i], D_800A1158);
     }
 }
 
 #undef D_800A1090
 #undef D_800A1158
 
-void func_80059700(s16 *stream,s32 color,s32 bank)
+void DrawGlyphList(s16 *stream,s32 color,s32 bank)
 {
     s32 x, y, defaultPage, clut, page, offset, gap;
     u32 cachedGlyph;
@@ -614,7 +614,7 @@ void func_80059700(s16 *stream,s32 color,s32 bank)
 #define D_800A1158 (*(char (*)[])&D_800A1158)
 #define D_800ACC14 ((char *)D_800ACC14)
 
-void func_80059904(t1, a1, a2)
+void DrawGlyphListSloped(t1, a1, a2)
 s16 *t1;
 s32 a1;
 s32 a2;

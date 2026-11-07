@@ -8,7 +8,7 @@ extern struct T *TrackNodes;
 
 extern int TrackNodeCount;
 
-extern short D_800AD522;
+extern short ReverseCourse;
 
 extern int D_800F2EC4;
 
@@ -19,7 +19,7 @@ void func_80033368(int unusedSelection,int unusedMode) {
     int i, r;
     struct T *t;
     int b;
-    if (D_800AD522 != 0) {
+    if (ReverseCourse != 0) {
         i = (D_8010BFC8 >> 2) % TrackNodeCount;
     } else {
         int n = TrackNodeCount;

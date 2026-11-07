@@ -10,7 +10,7 @@
 #include "psyq/libspu/smalloc2.h"
 #include "rr/bios_devices.h"
 
-extern int func_80053A9C();
+extern int SeqSetVolume();
 extern struct { s32 a, b, c; } D_800A0CD8[];
 extern struct {
     char pad[0x24]; s16 h[1];
@@ -23,8 +23,8 @@ extern s16 D_800F761C;
 
 void func_80053BB4(int a0);
 void func_80053CB0(void);
-void func_80053CD4(void);
-void func_80053CFC(void);
+void SeqMusicPause(void);
+void SeqMusicResume(void);
 
 void func_80053BB4(int a0) {
     int arr[2] = {0x6C, 0x7F};
@@ -32,14 +32,14 @@ void func_80053BB4(int a0) {
         func_80053CB0();
         SoundState.x2868 = a0;
         SoundState.x2864 = (s16)SsSeqOpen(SoundState.w[a0], SoundState.h[a0 + 2]);
-        SsSetMarkCallback((s16)SoundState.x2864, 0, func_80053DE8);
+        SsSetMarkCallback((s16)SoundState.x2864, 0, SeqMarkCallback);
         ReverbReset();
         SetReverbDepthBoth(0x32);
         SsSeqPlay((s16)SoundState.x2864, 1, 0);
-        func_80053A9C((s16)arr[a0]);
+        SeqSetVolume((s16)arr[a0]);
         func_80096434(&SoundState.x286C, 0x1C);
         SoundState.x287C = D_800A0CD8[a0].a;
-        func_8005B190();
+        RestartMotionSequence();
     }
 }
 
@@ -47,10 +47,10 @@ void func_80053CB0(void) {
     func_80053AF4(0, 0);
 }
 
-void func_80053CD4(void) {
-    func_800822D0(D_800F761C);
+void SeqMusicPause(void) {
+    SsSeqPause(D_800F761C);
 }
 
-void func_80053CFC(void) {
-    func_80082440(D_800F761C);
+void SeqMusicResume(void) {
+    SsSeqReplay(D_800F761C);
 }

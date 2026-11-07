@@ -1,34 +1,34 @@
 #include "rr/selection.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80039F98 ((int (*)())func_80039F98)
+#define UpdateSelectionRank ((int (*)())UpdateSelectionRank)
 
-#undef func_80039F98
+#undef UpdateSelectionRank
 
 /* legacy typing of shared globals in this part of the unit */
 #define BadgeRows ((Struct800F3AFC *)BadgeRows)
 
-#define D_800FF68C ((Struct800FF68C *)D_800FF68C)
+#define Dialogue ((Struct800FF68C *)Dialogue)
 
 #undef BadgeRows
 
-#undef D_800FF68C
+#undef Dialogue
 
 /* legacy typing of shared globals in this part of the unit */
 #define BadgeRows (*(s32 (*))&BadgeRows)
 
-#define D_800FF68C ((void *)D_800FF68C)
+#define Dialogue ((void *)Dialogue)
 
 #undef BadgeRows
 
-#undef D_800FF68C
+#undef Dialogue
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2A68 (*(struct E (*)[])&D_800F2A68)
+#define RankEntries (*(struct E (*)[])&RankEntries)
 
 #define RankTable (*(struct E *(*)[])&RankTable)
 
-#undef D_800F2A68
+#undef RankEntries
 
 #undef RankTable
 
@@ -38,11 +38,11 @@
 #undef BadgeRows
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AD4D8 (*(w3g2S (*))&D_800AD4D8)
+#define SelectionState (*(w3g2S (*))&SelectionState)
 
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 
-#undef D_800AD4D8
+#undef SelectionState
 
 #undef D_800F4D8A
 
@@ -51,7 +51,7 @@
 
 #undef BadgeRows
 
-void func_80031E3C(void) {
+void InitSelectionRows(void) {
     s32 a2 = 0;
     s32 a1;
     RrSelectionRow *a0;

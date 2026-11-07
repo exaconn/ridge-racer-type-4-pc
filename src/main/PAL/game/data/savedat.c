@@ -11,19 +11,19 @@ typedef struct { char b[0x80]; } B;
 
 extern int CopyStringClearTail();
 extern Struct48 D_800ABE08;
-extern SaveBuf *D_800ACC0C;
-extern int D_800ACC28[2][8];
+extern SaveBuf *SaveBuffer;
+extern int CourseBestLap[2][8];
 extern Struct40 Options;
-extern Struct10 D_800AD5C8[2][8][5];
+extern Struct10 RaceRecords[2][8][5];
 extern Struct2C D_800F2E30[3];
 extern int D_800F3838[2][8][3];
 extern Struct840 *D_800F3910;
 extern Struct840 *D_800F3918;
-extern Struct7C D_800F3920;
+extern Struct7C SaveProgress;
 extern int D_800F3B28[];
 extern short D_800F4D3C;
 extern short D_800F4D44;
-extern Struct10 D_800FF700[2][8][5];
+extern Struct10 LapRecords[2][8][5];
 extern Struct2C D_8010B258[3];
 extern Struct48 D_8010BFD8[2];
 extern StructC D_8010C088[];
@@ -36,9 +36,9 @@ extern short D_8010EF98[];
 extern char D_80011568[];
 extern short D_8010EFA0[];
 
-void func_80079ED8();
+void BuildCardHeaderAnim();
 
-int func_800797E0(int arg0) {
+int ApplySaveData(int arg0) {
     int a2 = 0;
     SaveBuf *s3;
     SaveBuf11 *p;
@@ -54,13 +54,13 @@ int func_800797E0(int arg0) {
     case 1:
     case 0x30:
     default:
-        s3 = D_800ACC0C;
+        s3 = SaveBuffer;
         a1 = 0;
         for (s0 = 0; (unsigned int)s0 < 0x6A9; s0++) {
             a1 += ((int *)s3)[s0];
         }
         if (s3->f1AA4 == a1) {
-            D_800F3920 = s3->f280;
+            SaveProgress = s3->f280;
             Options = s3->f2FC;
             for (s0 = 0; s0 < 3; s0++) {
                 if (arg0 == 0x30) {
@@ -78,11 +78,11 @@ int func_800797E0(int arg0) {
                         D_800F3838[s0][t0][k] = s3->f3E4[s0][t0][k];
                     }
                     for (k = 0; k < 5; k++) {
-                        D_800FF700[s0][t0][k] = s3->f4A4[s0][t0][k];
-                        D_800AD5C8[s0][t0][k] = s3->f9A4[s0][t0][k];
+                        LapRecords[s0][t0][k] = s3->f4A4[s0][t0][k];
+                        RaceRecords[s0][t0][k] = s3->f9A4[s0][t0][k];
                     }
-                    D_800ACC28[s0][t0] = D_800FF700[s0][t0][0].w[3];
-                    D_800F4CE8[s0][t0] = D_800AD5C8[s0][t0][0].w[3];
+                    CourseBestLap[s0][t0] = LapRecords[s0][t0][0].w[3];
+                    CourseBestTotal[s0][t0] = RaceRecords[s0][t0][0].w[3];
                 }
             }
             for (s0 = 0; s0 < 0x210; s0++) {
@@ -93,7 +93,7 @@ int func_800797E0(int arg0) {
         }
         break;
     case 2:
-        s3 = D_800ACC0C;
+        s3 = SaveBuffer;
         a1 = 0;
         for (s0 = 0; (unsigned int)s0 < 0x6A9; s0++) {
             a1 += ((int *)s3)[s0];
@@ -115,12 +115,12 @@ int func_800797E0(int arg0) {
         }
         break;
     case 0x10:
-        v10 = *(int *)D_800ACC0C;
+        v10 = *(int *)SaveBuffer;
         D_801272F0[D_800F4D3C] = v10;
         a2 = 1;
         break;
     case 0x11:
-        v11 = (p = (SaveBuf11 *)D_800ACC0C)->f280;
+        v11 = (p = (SaveBuf11 *)SaveBuffer)->f280;
         D_800F4D38 = D_801272F0[D_800F4D3C] = v11;
         for (t0 = 0; t0 < 2; t0++) {
             for (s0 = 0; s0 < 0x840; s0++) {
@@ -137,7 +137,7 @@ int func_800797E0(int arg0) {
     return a2;
 }
 
-void func_80079ED8(a0, a1, a2, a3, a4, a5)
+void BuildCardHeaderAnim(a0, a1, a2, a3, a4, a5)
 char *a0;
 int a1;
 short a2;
@@ -172,7 +172,7 @@ int a5;
     } while (i < 3);
 }
 
-void func_80079FF8(a0, a1, a2, a3, a4, a5, a6)
+void BuildCardHeaderStatic(a0, a1, a2, a3, a4, a5, a6)
 unsigned char *a0;
 int a1;
 short a2;

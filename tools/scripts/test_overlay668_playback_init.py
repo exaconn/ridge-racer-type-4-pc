@@ -30,7 +30,7 @@ static unsigned scenario,mutation,selectedSeen[3],resourceSeen[128],clearSeen;
 #define RaceContext w->s.context
 #define D_800F4D40 w->s.base
 #define LoadCursor w->s.cursor
-#define D_800F4C6A w->s.channel
+#define ModeGroup w->s.channel
 #define D_800F3A26 w->s.mode
 #define D_800F4D8A w->s.status
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
@@ -48,7 +48,7 @@ static void change(void){unsigned i;Owner *p=w==&actual?owners:expectedOwners;if
  for(i=0;i<3;i++)p[i].player.width00=word(next());
 }
 void SetDispMask(s32 mode){event(1)->args[0]=mode;change();}
-void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags){Event *e=event(2);e->args[0]=r;e->args[1]=g;e->args[2]=b;e->args[3]=word(flags);change();}
+void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags){Event *e=event(2);e->args[0]=r;e->args[1]=g;e->args[2]=b;e->args[3]=word(flags);change();}
 void func_80096434(void *p,u32 count){unsigned i=ownerIndex(p);Event *e=event(3);Owner *o=w==&actual?owners:expectedOwners;
  assert(count==sizeof(RrStrPlaybackState));assert(RaceContext.activeB8==p);assert(w->s.cursor==(u8*)p+sizeof(RrStrPlaybackState));
  e->owner=i;e->args[0]=word(count);selectedSeen[i]++;clearSeen++;memset(&o[i].player,0,count);change();
@@ -65,7 +65,7 @@ void ovl668_func_80114910(s32 resource,RrStrCdFileInfo *file,u32 *sectors){Event
 }
 ''' + body + r'''
 static void expected(void){RrStrCdFileInfo file;u32 sectors;void *captured;
- SetDispMask(0);func_8001ECE8(0,0,0,5);captured=w->s.base;
+ SetDispMask(0);SetupDrawDispEnvs(0,0,0,5);captured=w->s.base;
  w->s.cursor=captured;RaceContext.activeB8=captured;w->s.cursor=(u8*)captured+sizeof(RrStrPlaybackState);
  func_80096434(captured,sizeof(RrStrPlaybackState));ResetGraph(3);CdSync(0,0);CdControl(9,0,0);
  RaceContext.phaseB4=0;RaceContext.stopD0=0;ovl668_func_80114910(RaceContext.resourceB0,&file,&sectors);

@@ -6,17 +6,17 @@
 #include "game/data/cdfile2.h"
 #include "rr/course_choices.h"
 extern void func_800436E8();
-extern unsigned char D_800F4D7C;
+extern unsigned char LoadState;
 
 int func_8003BEA8(int a) {
     int r = 0;
-    switch (D_800F4D7C) {
+    switch (LoadState) {
     case 0:
-        D_800F4D7C = 1;
-        D_8009F8FC = 0;
+        LoadState = 1;
+        LoadIndex = 0;
     case 1:
         if (CdFileReadStart(GetR4FileIndex(0, a + 1), LoadCursor) != 0) {
-            D_800F4D7C = 2;
+            LoadState = 2;
         }
         break;
     case 2:
@@ -24,7 +24,7 @@ int func_8003BEA8(int a) {
             func_800436E8(LoadCursor);
     case 3:
             if (CdFileReadStart(GetR4FileIndex(0, a + 10), LoadCursor) != 0) {
-                D_800F4D7C = 4;
+                LoadState = 4;
             }
         }
         break;
@@ -32,7 +32,7 @@ int func_8003BEA8(int a) {
         if (CdFileBytesLoaded() != 0) {
             D_800AC64C = LoadCursor;
             RelocateOffsetTable(LoadCursor);
-            D_800F4D7C = 5;
+            LoadState = 5;
     case 5:
             r = 1;
         }

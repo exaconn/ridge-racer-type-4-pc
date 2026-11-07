@@ -5,7 +5,7 @@
 #ifndef RR_GLYPH_ANIMATION_SCRATCH
 #define RR_GLYPH_ANIMATION_SCRATCH ((RrGpuScratchPointers *)0x1F800000U)
 #endif
-void func_80095B94(void *packet);
+void SetSprt(void *packet);
 void AddPrim(u32 *ordering,u32 *packet);
 void func_8001F808(s32 x,s32 y,s32 glyph,s32 clut,s16 *animation);
 /* Each preference binds a real initialized value only for the empty constraint;

@@ -79,7 +79,7 @@ extern s16 _svm_stereo_mono;
 
 extern s8 spuVmMaxVoice;
 
-extern u32 D_800A48F8;
+extern u32 _snd_vmask;
 
 s16 _SsVmSetSeqVol(s16 a0, u16 a1, u16 a2) {
     s16 i;
@@ -104,7 +104,7 @@ s16 _SsVmSetSeqVol(s16 a0, u16 a1, u16 a2) {
         ptr->value5A = 0x7F;
     }
     for (i = 0; i < spuVmMaxVoice; i++) {
-        if (!(D_800A48F8 & (1 << i))) {
+        if (!(_snd_vmask & (1 << i))) {
             if (_svm_voice[i].match10 == a0 && _svm_voice[i].match18 == ptr->unk26) {
                 _SsVmVSetUp(_svm_voice[i].match18, _svm_voice[i].unk12);
                 v = (_svm_voice[i].unk08 * ptr->unk60[_svm_voice[i].unk0C]) / 0x7F;

@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8007F964(void);
+void _SsInit(void);
 
 #endif /* RR_PSYQ_LIBSPU_SINIT_H */

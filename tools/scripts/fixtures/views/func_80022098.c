@@ -5,7 +5,7 @@
 
 #undef D_800ACC14
 
-void func_80022098(u32 *ordering, s32 layout) {
+void DrawSteeringIndicator(u32 *ordering, s32 layout) {
     RrHudTriangle triangle;
     s16 *outputPoint;
     s32 status;

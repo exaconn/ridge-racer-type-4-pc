@@ -21,8 +21,8 @@ static struct World {
 } world,expected;
 #define ovl667_D_80118ED8 world.event0
 #define ovl667_D_80118EDC world.event1
-#define D_800F2AAC world.descriptor0
-#define D_800F2AA8 world.descriptor1
+#define LinkWriteHandle world.descriptor0
+#define LinkReadHandle world.descriptor1
 static s32 word(u32 raw){s32 value;memcpy(&value,&raw,4);return value;}
 static s32 operation(struct World *w,u32 kind,s32 a,s32 b,unsigned long argument){
  Event *e;u32 index=w->calls;assert(index<10);e=&w->events[w->calls++];

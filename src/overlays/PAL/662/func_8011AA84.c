@@ -9,7 +9,7 @@ void ovl662_func_8011AA84(void) {
     count.bits=(u32)ovl662_D_801276A8.word04+1U;
     ovl662_D_801276A8.word04=count.value;
     if (count.value >= 28) {
-        D_800F4C6A = 3;
+        ModeGroup = 3;
         D_800F3A26 = 5;
         D_800F4D8A = 0;
     }

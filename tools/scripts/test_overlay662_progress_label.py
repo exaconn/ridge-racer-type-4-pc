@@ -34,8 +34,8 @@ static World actual,reference,initial,*w;
 static unsigned numberSeen[81],totalSeen[321],clutSeen[2];
 static u8 arena[1024];static u32 ordering[4];char D_8010C150[8];
 RrBadgeRow1C *BadgeRows;
-#define D_800F3920 w->s.save
-#define D_800F4D98 w->s.choice
+#define SaveProgress w->s.save
+#define SelectionRows w->s.choice
 #define D_8009FA1C w->s.uv
 #define ScreenFrame w->s.tick
 #define ovl662_D_801272D8 w->s.counts

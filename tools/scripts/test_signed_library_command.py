@@ -27,7 +27,7 @@ typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
 s32 test_command_page[16384];
-#define D_80110008 (test_command_page+2)
+#define _svm_rattr (test_command_page+2)
 s32 (*test_sink)(s32 *);
 void (*test_reset_hook)(void);
 s32 SpuSetReverbModeParam(s32 *command) {return test_sink(command);}
@@ -49,7 +49,7 @@ void test_initialize(void) {
 '''
         body = (root / 'tools/scripts/fixtures/views/func_800865E4.c').read_text()
         body = body.replace('#include "rr/library.h"', '')
-        body = body.replace('extern int D_80110008[];', '')
+        body = body.replace('extern int _svm_rattr[];', '')
         if body.count('(s32 *)0x80110000U') != 1:
             raise AssertionError('Command page adapter must cover exactly one fixed page')
         body = body.replace('(s32 *)0x80110000U', 'test_command_page')

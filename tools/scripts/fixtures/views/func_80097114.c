@@ -52,5 +52,5 @@ void *firstfile(char *path, void *directory) {
             device++;
         } while (device < limit);
     }
-    return func_800973B4(path, directory);
+    return firstfile2(path, directory);
 }

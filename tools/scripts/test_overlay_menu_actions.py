@@ -39,7 +39,7 @@ static struct World {
 #define MenuCursor world.selection
 #define MenuItemCount world.limit
 #define D_800F3A60 world.accepted
-#define D_800F4D98 world.choice
+#define SelectionRows world.choice
 #define D_800F4D99 world.choice.bytes[1]
 static Event *event(struct World *w,s32 kind){Event *e;assert(w->calls<8);e=&w->events[w->calls++];e->kind=kind;return e;}
 static void draw(struct World *w,s32 row,s32 a,s32 b){
@@ -59,11 +59,11 @@ static void sound(struct World *w,s32 a,s32 b,s32 c,s32 d){
 void func_80041320(s32 a,s32 b,s32 c){draw(&world,a,b,c);}
 void StepMenuValue(s32 a,s32 b,char *p,s32 c,s32 d){choose(&world,a,b,p,c,d);}
 int PlaySfxVolPan(s32 a,s32 b,s32 c,s32 d){sound(&world,a,b,c,d);return -1;}
-void func_8002B12C(s32 a,s32 b,s32 c,s32 d,s32 f,s32 g,s32 h){
+void DrawMenuStepArrows(s32 a,s32 b,s32 c,s32 d,s32 f,s32 g,s32 h){
  Event *e=event(&world,4);e->args[0]=a;e->args[1]=b;e->args[2]=c;e->args[3]=d;e->args[4]=f;e->args[5]=g;e->args[6]=h;
  memcpy(world.choice.bytes,world.changed_choice,4);
 }
-s32 func_8003E13C(s32 selected){Event *e=event(&world,5);e->args[0]=selected;world.accepted^=0x12345678;return -123;}
+s32 UpdateGlyphRow(s32 selected){Event *e=event(&world,5);e->args[0]=selected;world.accepted^=0x12345678;return -123;}
 ''' + resident + bodies + r'''
 static u32 seed=0x17e10;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}

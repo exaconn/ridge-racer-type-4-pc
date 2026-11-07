@@ -10,7 +10,7 @@ typedef struct {
     void (*meta)();
     void (*control)();
 } SeqHandlers;
-extern SeqHandlers D_8010EFC8;
+extern SeqHandlers SsFCALL;
 
 s32 _SsGetSeqData(s16 a0, s16 a1) {
     s32 i = a0;
@@ -31,7 +31,7 @@ s32 _SsGetSeqData(s16 a0, s16 a1) {
     c = *p->c0++;
     if ((((RrLibStateB0 *)(o + (s32)*q))->w98 & 0x401) == 0x401) {
         if (p->c0 == p->p10 + 1) {
-            func_800833A0(a0, a1, *(p->p10 + 1));
+            _SsSeqGetEof(a0, a1, *(p->p10 + 1));
             return -1;
         }
     }
@@ -44,7 +44,7 @@ s32 _SsGetSeqData(s16 a0, s16 a1) {
             c = *p->c0++;
             c2 = *p->c0++;
             p->w90 = _SsReadDeltaValue(a0, a1);
-            D_8010EFC8.noteOn(a0, a1, c, c2);
+            SsFCALL.noteOn(a0, a1, c, c2);
             break;
         case 0xB0: {
             /* ASM_BARRIER: schedule argument sign-extension before loading stream pointer. */
@@ -56,7 +56,7 @@ s32 _SsGetSeqData(s16 a0, s16 a1) {
             p->b16 = status;
             d = *p->c0;
             p->c0++;
-            D_8010EFC8.control(r4, r5 >> 16, d);
+            SsFCALL.control(r4, r5 >> 16, d);
             break;
         }
         case 0xC0: {
@@ -69,13 +69,13 @@ s32 _SsGetSeqData(s16 a0, s16 a1) {
             p->b16 = status;
             d = *p->c0;
             p->c0++;
-            D_8010EFC8.program(r4, r5 >> 16, d);
+            SsFCALL.program(r4, r5 >> 16, d);
             break;
         }
         case 0xE0:
             p->b16 = status;
             p->c0++;
-            D_8010EFC8.bend(a0, a1);
+            SsFCALL.bend(a0, a1);
             break;
         case 0xF0:
             p->b16 = 0xFF;
@@ -97,23 +97,23 @@ s32 _SsGetSeqData(s16 a0, s16 a1) {
             c2 = *p->c0;
             p->c0++;
             p->w90 = _SsReadDeltaValue(a0, a1);
-            D_8010EFC8.noteOn(a0, a1, c, c2);
+            SsFCALL.noteOn(a0, a1, c, c2);
             break;
         case 0xB0:
-            D_8010EFC8.control(a0, a1, c);
+            SsFCALL.control(a0, a1, c);
             break;
         case 0xC0:
-            D_8010EFC8.program(a0, a1, c);
+            SsFCALL.program(a0, a1, c);
             break;
         case 0xE0:
-            D_8010EFC8.bend(a0, a1);
+            SsFCALL.bend(a0, a1);
             break;
         case 0xFF:
             status = (u8)c;
             if (status == 0x2F) {
             eot:
                 ret = 1;
-                func_800833A0(a0, a1, 0x2F);
+                _SsSeqGetEof(a0, a1, 0x2F);
             } else {
             meta: {
                 /* ASM_BARRIER: schedule argument sign-extension before loading handler. */
@@ -124,7 +124,7 @@ s32 _SsGetSeqData(s16 a0, s16 a1) {
                 register void (*fn)() __asm__("$2");
                 /* ASM_BARRIER: emit sll of r5 before loading meta handler. */
                 __asm__("" : "=r"(r5) : "0"(r5), "r"(r4));
-                fn = D_8010EFC8.meta;
+                fn = SsFCALL.meta;
                 /* ASM_BARRIER: emit sra of r5 after loading meta handler. */
                 __asm__("" : "=r"(r5) : "0"(r5), "r"(fn));
                 r5 >>= 16;

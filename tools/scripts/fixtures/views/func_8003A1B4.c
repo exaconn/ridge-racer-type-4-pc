@@ -5,19 +5,19 @@
 /* legacy typing of shared globals in this part of the unit */
 #define SetDispMask ((int (*)())SetDispMask)
 
-#define func_8005CA88 ((int (*)())func_8005CA88)
+#define IntroScriptStep ((int (*)())IntroScriptStep)
 
 #define D_800F4D70 (*(int (*))&D_800F4D70)
 
-#define D_800F4C6A (*(short (*))&D_800F4C6A)
+#define ModeGroup (*(short (*))&ModeGroup)
 
 #undef SetDispMask
 
-#undef func_8005CA88
+#undef IntroScriptStep
 
 #undef D_800F4D70
 
-#undef D_800F4C6A
+#undef ModeGroup
 
 extern int func_8001E84C();
 
@@ -29,7 +29,7 @@ extern int AllocGlyphRows();
 
 extern int AllocUiRows();
 
-extern int func_8003FAA0();
+extern int AllocImageRows();
 
 extern int CdDirectoryBuffer;
 
@@ -69,7 +69,7 @@ void InitMenuArenas()
   LoadCursor = LoadCursor + AllocBadgeRows(LoadCursor);
   LoadCursor = LoadCursor + AllocRect16Rows(LoadCursor);
   LoadCursor = LoadCursor + AllocGlyphRows(LoadCursor);
-  LoadCursor = LoadCursor + func_8003FAA0(LoadCursor);
+  LoadCursor = LoadCursor + AllocImageRows(LoadCursor);
   LoadCursor = LoadCursor + AllocUiRows(LoadCursor);
   D_800ACC1C = LoadCursor;
   D_800F4D70[1] = LoadCursor + 0x19000;

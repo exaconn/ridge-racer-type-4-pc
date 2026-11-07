@@ -17,23 +17,23 @@
 #undef D_800ABAB8
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC8 ((s32 *)D_800ABBC8)
+#define GPU_STATUS ((s32 *)GPU_STATUS)
 
-#undef D_800ABBC8
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC8 ((u32 *)D_800ABBC8)
-
-#undef D_800ABBC8
+#undef GPU_STATUS
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC4 ((int *)D_800ABBC4)
+#define GPU_STATUS ((u32 *)GPU_STATUS)
 
-#define D_800ABBC8 ((int *)D_800ABBC8)
+#undef GPU_STATUS
 
-#undef D_800ABBC4
+/* legacy typing of shared globals in this part of the unit */
+#define GPU_DATA ((int *)GPU_DATA)
 
-#undef D_800ABBC8
+#define GPU_STATUS ((int *)GPU_STATUS)
+
+#undef GPU_DATA
+
+#undef GPU_STATUS
 
 /* The small CPU tail uses compiler-fenced stores so GCC can place the final
  * write in a branch delay slot. The per-iteration and final memory fences
@@ -88,7 +88,7 @@ s32 _dws(RrGpuRectangle *arg0,const u32 *arg1) {
     __asm__("" : "+r"(quotient));
     scaled=quotient*16;
     remainder=count-scaled;
-    status_ptr=D_800ABBC8;
+    status_ptr=GPU_STATUS;
     blocks=quotient;
     status=*status_ptr;
     if(!(status&0x04000000U)){
@@ -98,18 +98,18 @@ s32 _dws(RrGpuRectangle *arg0,const u32 *arg1) {
         mask=0x04000000U;
         do {
             if(get_alarm())return -1;
-        }while(!(*D_800ABBC8&mask));
+        }while(!(*GPU_STATUS&mask));
     }
     command=0xA0000000U;
-    *D_800ABBC8=0x04000000U;
-    *D_800ABBC4=0x01000000U;
+    *GPU_STATUS=0x04000000U;
+    *GPU_DATA=0x01000000U;
     {
-        register volatile u32 *port=D_800ABBC4;
+        register volatile u32 *port=GPU_DATA;
         if(mode)command=0xB0000000U;
         *port=command;
     }
-    *D_800ABBC4=rect->words[0];
-    *D_800ABBC4=rect->words[1];
+    *GPU_DATA=rect->words[0];
+    *GPU_DATA=rect->words[1];
     remainder--;
     if(remainder!=-1){
         register s32 sentinel;
@@ -122,7 +122,7 @@ s32 _dws(RrGpuRectangle *arg0,const u32 *arg1) {
             __asm__ volatile("" : : : "memory");
             word=*cursor++;
             remainder--;
-            *(u32 *)D_800ABBC4=word;
+            *(u32 *)GPU_DATA=word;
         }while(remainder!=sentinel);
     }
     /* ASM_BARRIER: expose the final port write before configuring DMA. */
@@ -131,21 +131,21 @@ s32 _dws(RrGpuRectangle *arg0,const u32 *arg1) {
         register u32 dma_mode=0x04000000U;
         if(blocks){
             /* ASM_BARRIER: retain DMA register-address and word-count phases. */
-            register volatile u32 *port asm("$2")=D_800ABBC8;
+            register volatile u32 *port asm("$2")=GPU_STATUS;
             register u32 start;
             register volatile u32 *length_port;
             register u32 length asm("$2");
             dma_mode|=2U;
             *port=dma_mode;
-            port=D_800ABBCC;
+            port=DMA2_MADR;
             start=0x01000000U;
             /* DMA hardware consumes a32-bit bus-address word; keep CPU pointers full. */
             *port=(u32)(unsigned long)cursor;
             length=(u32)blocks<<16;
-            length_port=D_800ABBD0;
+            length_port=DMA2_BCR;
             length|=16U;
             *length_port=length;
-            port=D_800ABBD4;
+            port=DMA2_CHCR;
             start|=0x201U;
             *port=start;
         }

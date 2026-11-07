@@ -14,13 +14,13 @@
 
 #define D_800F3A38 (*(T38 (*))&D_800F3A38)
 
-#define D_800FF688 (*(unsigned short (*))&D_800FF688)
+#define LinkState (*(unsigned short (*))&LinkState)
 
 #undef _sio_control
 
 #undef D_800F3A38
 
-#undef D_800FF688
+#undef LinkState
 
 /* legacy typing of shared globals in this part of the unit */
 #define _sio_control ((unsigned (*)())_sio_control)
@@ -29,17 +29,17 @@
 
 extern short D_800F3A26;
 
-extern short D_800F4C6A;
+extern short ModeGroup;
 
 extern short D_800F4D8A;
 
 extern int _sio_control();
 
-extern s16 D_800FF688;
+extern s16 LinkState;
 
 int func_80034FC0(void) {
-    if (D_800FF688 == -1) {
-        D_800F4C6A = 1;
+    if (LinkState == -1) {
+        ModeGroup = 1;
         D_800F3A26 = 0x2D;
         D_800F4D8A = 0;
         _sio_control(1, 1, 0);

@@ -26,8 +26,8 @@ typedef struct {s32 kind,args[9];unsigned cursor;u8 data[10];u32 hash;} Event;
 typedef struct {State s;Event events[40];unsigned calls;void *result;} World;
 static World actual,reference,initial,*w;
 static u32 heads[704],arena[4096];static unsigned scenario,bank,mutation,seenTracks,seenClut;
-#define D_800AD5C8 w->s.banks[0]
-#define D_800FF700 w->s.banks[1]
+#define RaceRecords w->s.banks[0]
+#define LapRecords w->s.banks[1]
 #define BadgeRows (w->s.badges[w->s.root])
 #define D_800AC648 w->s.group
 #define D_800F3914 w->s.track

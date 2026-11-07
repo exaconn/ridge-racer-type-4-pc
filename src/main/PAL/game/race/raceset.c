@@ -16,15 +16,15 @@ void *SoundQueueEnqueue(s32, s32);
 void SoundSetMasterVolume(s16, s16);
 extern u8 D_8009F910[];
 extern s16 D_800AC5D0;
-extern s32 D_800ACC28[2][8];
-extern s16 D_800AD522;
+extern s32 CourseBestLap[2][8];
+extern s16 ReverseCourse;
 extern s32 TrackLength;
 extern s32 D_800F3838[2][8][3];
 extern s16 D_800F3914;
 extern s32 NumLaps;
 extern s32 D_800F3B00[];
-extern s32 D_800F4BA8[];
-extern s32 D_800F4C64;
+extern s32 LapFrameCounts[];
+extern s32 TotalRaceTime;
 extern s32 BestLapTime;
 extern s32 LapTimes[];
 extern s32 RaceState;
@@ -53,12 +53,12 @@ void UpdateLapTiming(RrRaceVehicle *arg0) {
     v1 = s0->steering94.count22;
     if (v1 > 0) {
         if (v1 <= NumLaps) {
-            D_800F4BA8[v1 - 1] += 1;
-            if (D_800F4BA8[s0->steering94.count22 - 1] > 0xFFFF) {
-                D_800F4BA8[s0->steering94.count22 - 1] = 0x10000;
+            LapFrameCounts[v1 - 1] += 1;
+            if (LapFrameCounts[s0->steering94.count22 - 1] > 0xFFFF) {
+                LapFrameCounts[s0->steering94.count22 - 1] = 0x10000;
             }
             LapTimes[s0->steering94.count22 - 1] = FramesToMilliseconds(
-                D_800F4BA8[s0->steering94.count22 - 1],
+                LapFrameCounts[s0->steering94.count22 - 1],
                 func_80096464() % 40
             );
             if (LapTimes[s0->steering94.count22 - 1] > 0x927BE) {
@@ -111,10 +111,10 @@ void UpdateLapTiming(RrRaceVehicle *arg0) {
                     if (D_800F4D44 == 1) {
                         /* ASM_BARRIER: clobber msg on entry to mode-1 branch so CSE retains msg = 0x13 and frees $a0 for phase17 */
                         __asm__ volatile("" : "=r"(msg));
-                        if (arg0->half1EE <= D_8009F910[D_800AD4D8.phase17 / 2]) {
+                        if (arg0->half1EE <= D_8009F910[SelectionState.phase17 / 2]) {
                             msg = 0x13;
                         } else {
-                            if (D_800AD4D8.retries08[D_800AD4D8.phase17] > 0) {
+                            if (SelectionState.retries08[SelectionState.phase17] > 0) {
                                 msg = 0x14;
                             } else {
                                 msg = -1;
@@ -126,29 +126,29 @@ void UpdateLapTiming(RrRaceVehicle *arg0) {
                     }
                     if (arg0->half1EE < 8 && D_800F4D44 < 2) {
                         msg = 0;
-                        D_800F4C64 = 0;
+                        TotalRaceTime = 0;
                         if (NumLaps > 0) {
                             do {
-                                D_800F4C64 += LapTimes[msg];
+                                TotalRaceTime += LapTimes[msg];
                                 msg++;
                             } while (msg < NumLaps);
                         }
-                        if (D_800F4C64 > 0x927BE) {
-                            D_800F4C64 = 0x927BF;
+                        if (TotalRaceTime > 0x927BE) {
+                            TotalRaceTime = 0x927BF;
                         }
                         if (D_800F4D44 == 0) {
-                            if (D_800F4CE8[D_800AD522][D_800F3914] > D_800F4C64) {
-                                D_800F4CE8[D_800AD522][D_800F3914] = D_800F4C64;
+                            if (CourseBestTotal[ReverseCourse][D_800F3914] > TotalRaceTime) {
+                                CourseBestTotal[ReverseCourse][D_800F3914] = TotalRaceTime;
                             }
-                            if (D_800ACC28[D_800AD522][D_800F3914] > BestLapTime) {
-                                D_800ACC28[D_800AD522][D_800F3914] = BestLapTime;
+                            if (CourseBestLap[ReverseCourse][D_800F3914] > BestLapTime) {
+                                CourseBestLap[ReverseCourse][D_800F3914] = BestLapTime;
                             }
-                            D_800F3838[D_800AD522][D_800F3914][0] = D_8010C0F8[0];
-                            D_800F3838[D_800AD522][D_800F3914][1] = D_8010C0F8[1];
-                            D_800F3838[D_800AD522][D_800F3914][2] = D_8010C0F8[2];
+                            D_800F3838[ReverseCourse][D_800F3914][0] = D_8010C0F8[0];
+                            D_800F3838[ReverseCourse][D_800F3914][1] = D_8010C0F8[1];
+                            D_800F3838[ReverseCourse][D_800F3914][2] = D_8010C0F8[2];
                         } else if (D_800F4D44 == 1) {
-                            if (D_800AC5B0[D_800F3914] > D_800F4C64) {
-                                D_800AC5B0[D_800F3914] = D_800F4C64;
+                            if (D_800AC5B0[D_800F3914] > TotalRaceTime) {
+                                D_800AC5B0[D_800F3914] = TotalRaceTime;
                             }
                             if (D_800F3B00[D_800F3914] > BestLapTime) {
                                 D_800F3B00[D_800F3914] = BestLapTime;

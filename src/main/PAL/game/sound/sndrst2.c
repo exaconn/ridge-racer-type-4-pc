@@ -9,7 +9,7 @@ extern struct { char p0[0x31]; unsigned char f31; short f32; } Options;
 extern short D_800F4D44;
 extern s16 PanGainTable[];
 
-void func_800517F8(int a0, int a1, int a2, int a3);
+void SoundLoopSet(int a0, int a1, int a2, int a3);
 
 void func_80051554(void)
 {
@@ -71,7 +71,7 @@ void func_80051554(void)
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(struct { char pad[0x19F8]; s16 a, b; s32 c, d, e; } (*))&SoundState)
 
-void func_800517D8(void) {
+void SoundLoopReset(void) {
     SoundState.a = 0;
     SoundState.b = 0;
     SoundState.c = 0;
@@ -85,7 +85,7 @@ void func_800517D8(void) {
 #define SsUtKeyOffV ((int (*)())SsUtKeyOffV)
 #define SoundState (*(struct { char p0[0x19F8]; s16 x19F8; s16 x19FA; s32 x19FC; s32 x1A00; s32 x1A04; } (*))&SoundState)
 
-void func_800517F8(int a0, int a1, int a2, int a3) {
+void SoundLoopSet(int a0, int a1, int a2, int a3) {
     int x = PanGainTable[(s16)a3] * (s16)a2;
     int y = PanGainTable[(s16)(0x7F - a3)] * (s16)a2;
     SoundState.x19FC = a1;

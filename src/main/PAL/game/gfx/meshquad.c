@@ -41,10 +41,10 @@ extern struct
   short f8;
 } *CarBoundsTable;
 
-RrMeshQuadGT4 *func_80057A44(RrMeshQuadGT4 *p, s32 *s);
-RrMeshQuadG4 *func_80057C50(RrMeshQuadG4 *p, s32 *s);
-RrMeshQuadF4 *func_80057E3C(RrMeshQuadF4 *p, s32 *s);
-void func_80058038(int arg0, int arg1, int arg2);
+RrMeshQuadGT4 *DrawMeshQuadGT4(RrMeshQuadGT4 *p, s32 *s);
+RrMeshQuadG4 *DrawMeshQuadG4(RrMeshQuadG4 *p, s32 *s);
+RrMeshQuadF4 *DrawMeshQuadF4(RrMeshQuadF4 *p, s32 *s);
+void DrawMeshPrimList(int arg0, int arg1, int arg2);
 
 int func_800578D8(int a0)
 {
@@ -76,7 +76,7 @@ int func_800578D8(int a0)
   return s1;
 }
 
-RrMeshQuadGT4 *func_80057A44(RrMeshQuadGT4 *p, s32 *s) {
+RrMeshQuadGT4 *DrawMeshQuadGT4(RrMeshQuadGT4 *p, s32 *s) {
     s32 *g = (s32 *)SCRATCHPAD;
     RrPolyGT4WordPacket *out = (RrPolyGT4WordPacket *)g[0];
     s32 sh = g[0x18];
@@ -154,7 +154,7 @@ RrMeshQuadGT4 *func_80057A44(RrMeshQuadGT4 *p, s32 *s) {
     return p;
 }
 
-RrMeshQuadG4 *func_80057C50(RrMeshQuadG4 *p, s32 *s) {
+RrMeshQuadG4 *DrawMeshQuadG4(RrMeshQuadG4 *p, s32 *s) {
     s32 *g = (s32 *)SCRATCHPAD;
     RrPolyG4WordPacket *out = (RrPolyG4WordPacket *)g[0];
     s32 sh = g[0x18];
@@ -222,7 +222,7 @@ RrMeshQuadG4 *func_80057C50(RrMeshQuadG4 *p, s32 *s) {
     return p;
 }
 
-RrMeshQuadF4 *func_80057E3C(RrMeshQuadF4 *p, s32 *s) {
+RrMeshQuadF4 *DrawMeshQuadF4(RrMeshQuadF4 *p, s32 *s) {
     s32 *g = (s32 *)SCRATCHPAD;
     RrPolyF4Packet *out = (RrPolyF4Packet *)g[0];
     s32 sh = g[0x18];
@@ -287,7 +287,7 @@ RrMeshQuadF4 *func_80057E3C(RrMeshQuadF4 *p, s32 *s) {
     return p;
 }
 
-void func_80058038(int arg0, int arg1, int arg2) {
+void DrawMeshPrimList(int arg0, int arg1, int arg2) {
     int *g = (int *)(SCRATCHPAD + 0x7C);
     int *a;
     int v;
@@ -304,13 +304,13 @@ void func_80058038(int arg0, int arg1, int arg2) {
             g[1] = v >> 16;
             switch (v & 0xFFFF) {
             case 0:
-                a = func_80057E3C(a, g);
+                a = DrawMeshQuadF4(a, g);
                 break;
             case 12:
-                a = func_80057A44(a, g);
+                a = DrawMeshQuadGT4(a, g);
                 break;
             case 8:
-                a = func_80057C50(a, g);
+                a = DrawMeshQuadG4(a, g);
                 break;
             }
             v = *a;

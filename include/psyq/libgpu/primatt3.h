@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80095B74(void *arg0);
+void SetPolyFT3(void *arg0);
 
 #endif /* RR_PSYQ_LIBGPU_PRIMATT3_H */

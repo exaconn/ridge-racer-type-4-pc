@@ -2,4 +2,4 @@
 
 extern void StCdInterrupt();
 
-void func_8008F248(void) { StCdInterrupt(); }
+void StCdInterrupt2(void) { StCdInterrupt(); }

@@ -9,9 +9,9 @@ void ovl666_init_results(void) {
     MenuCursor = 0;
     MenuItemCount = 3;
     if (ovl666_result_kind == 0) {
-        D_800F3920.prefix.flags5C[D_800F4D98.choice.bytes[1]] = 1;
-        D_800F3920.prefix.progress
-            .progress10[D_800F4D98.choice.bytes[0]][D_800F4D98.choice.bytes[1]] |= 0x80000;
+        SaveProgress.prefix.flags5C[SelectionRows.choice.bytes[1]] = 1;
+        SaveProgress.prefix.progress
+            .progress10[SelectionRows.choice.bytes[0]][SelectionRows.choice.bytes[1]] |= 0x80000;
     }
     base = ovl666_result_kind * 11;
     for (i = 0; i < 11; i++) {
@@ -23,8 +23,8 @@ void ovl666_init_results(void) {
     for (i = 33; i < 44; i++) {
         SetMenuTextRow(i, i - 33, 2, 0, ovl666_result_labels[i - 11]);
     }
-    func_8002AF8C(0, 1, 0);
-    D_800F2DE4 = 0;
+    SetMenuFrameOptions(0, 1, 0);
+    ModeFrame = 0;
     ScreenFrame = 0;
 }
 
@@ -46,11 +46,11 @@ void ovl666_update_results(void) {
     s32 ready;
     RrMenuTextRow60 *rows;
 
-    D_800F2DE4 = (s32)((u32)D_800F2DE4 + 1U);
+    ModeFrame = (s32)((u32)ModeFrame + 1U);
     ScreenFrame++;
     switch (D_800F4D8A) {
     case 0:
-        if (D_800F4C64 == -1) {
+        if (TotalRaceTime == -1) {
             group = 1;
             if (MenuTextRows[11].signedBytes[2] >= 2) {
                 D_800F4D8A = 3;
@@ -58,11 +58,11 @@ void ovl666_update_results(void) {
         } else {
             group = 0;
             if (MenuTextRows[5].signedBytes[3] >= 21) {
-                func_8002AF8C(1, 1, 0);
+                SetMenuFrameOptions(1, 1, 0);
                 if (D_800F3A60 != 0) {
                     PlaySfx(1);
                     D_800F4D8A = 3;
-                    func_8002AF8C(0, 1, 0);
+                    SetMenuFrameOptions(0, 1, 0);
                 }
             }
             if (ovl666_result_kind == 0) {
@@ -76,7 +76,7 @@ void ovl666_update_results(void) {
     case 3:
         group = 3;
         if (MenuTextRows[38].signedBytes[3] >= 12) {
-            func_8002AF8C(1, 1, 0);
+            SetMenuFrameOptions(1, 1, 0);
             if (ovl666_update_retry_choice(0) >= 0) {
                 ResetScreenCounters();
                 InitMenuArenas();
@@ -86,24 +86,24 @@ void ovl666_update_results(void) {
         }
         break;
     case 4:
-        func_8002AF8C(0, 1, 0);
+        SetMenuFrameOptions(0, 1, 0);
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        func_800207D4(D_800ACC14->ordering.ordering70, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (64 - timer) * 4, 69);
         group = 3;
         if (D_800AC5D0 <= 0) {
             ovl666_result_kind = 1;
-            D_800F4BE8 = 0;
-            D_800F4C6A = 1;
+            MenuScriptId = 0;
+            ModeGroup = 1;
             D_800F3A26 = 35;
             D_800F4D8A = 0;
         }
         break;
     case 5:
-        func_8002AF8C(0, 1, 0);
+        SetMenuFrameOptions(0, 1, 0);
         timer = (u16)D_800AC5D0 - 2;
         D_800AC5D0 = timer;
-        func_800207D4(D_800ACC14->ordering.ordering70, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (64 - timer) * 4, 69);
         group = 3;
         if (D_800AC5D0 <= 0) {
             group = -1;
@@ -111,13 +111,13 @@ void ovl666_update_results(void) {
         }
         break;
     case 6:
-        func_8002AF8C(0, 1, 0);
+        SetMenuFrameOptions(0, 1, 0);
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        func_800207D4(D_800ACC14->ordering.ordering70, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (64 - timer) * 4, 69);
         group = -1;
         if (D_800AC5D0 <= 0) {
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 3;
             D_800F4D8A = 0;
         }
@@ -127,7 +127,7 @@ void ovl666_update_results(void) {
         if (ready == 1) {
             func_80053BB4(0);
             ovl666_init_menu();
-            D_800F4C6A = ready;
+            ModeGroup = ready;
             D_800F3A26 = 79;
             D_800F4D8A = 0;
         }
@@ -136,11 +136,11 @@ void ovl666_update_results(void) {
         break;
     }
     UpdateScreenFade(0x1000C);
-    func_8003662C(D_800F2DE4);
+    func_8003662C(ModeFrame);
     if (group >= 0) {
         i = 0;
         do {
-            func_80040858(i + group * 11);
+            UpdateMenuTextRow(i + group * 11);
             i++;
         } while (i < 11);
     }

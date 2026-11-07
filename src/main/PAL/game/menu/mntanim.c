@@ -13,11 +13,11 @@
 
 void *AddDrawModePrim(u32 *ordering, void *cursor, u16 mode);
 void AddPrim(u32 *ordering, void *packet);
-void func_80095B94(void *packet);
+void SetSprt(void *packet);
 
 extern RrFrameStorage *D_800ACC14;
 
-void func_80040858(s32 row) {
+void UpdateMenuTextRow(s32 row) {
     s32 x[4];
     s32 y[4];
     s32 u[4];
@@ -57,7 +57,7 @@ void func_80040858(s32 row) {
             cursor = (RrSpritePacket *)RR_TEXT_GPU_SCRATCH->cursor;
             sprite = cursor;
             for (glyph = 0; glyph < 0x16; sprite++) {
-                func_80095B94(cursor);
+                SetSprt(cursor);
                 cursor++;
                 sprite->x = x[0];
                 sprite->y = y[0];
@@ -107,15 +107,15 @@ void func_80040858(s32 row) {
             } else {
                 MenuTextRows[row].rendering.tick++;
             }
-            func_80040CB4(row);
+            DrawMenuTextRow(row);
             break;
         case 4:
             MenuTextRows[row].rendering.visible = 0x16;
-            func_80040CB4(row);
+            DrawMenuTextRow(row);
             break;
         case 6:
             MenuTextRows[row].rendering.visible = 1;
-            func_80040CB4(row);
+            DrawMenuTextRow(row);
             break;
         case 9:
             break;

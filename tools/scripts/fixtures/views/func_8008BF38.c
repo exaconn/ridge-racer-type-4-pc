@@ -7,6 +7,6 @@
 int DeliverEvent(int, int);
 
 /* extern */
-void func_8008BF38(s32 selector, u8 *data) {
+void def_cbready(s32 selector, u8 *data) {
     DeliverEvent(0xF0000003, 0x40);
 }

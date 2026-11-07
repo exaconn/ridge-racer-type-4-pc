@@ -39,8 +39,8 @@ void SsSeqCalledTbyT(void) {
                             if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&1) {
                                 signed_row=row_shift>>16;
                                 _SsSndPlay(signed_bank,signed_row);
-                                if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x10)func_80082FC4(signed_bank,signed_row);
-                                if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x20)func_80082FC4(signed_bank,signed_row);
+                                if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x10)_SsSndCrescendo(signed_bank,signed_row);
+                                if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x20)_SsSndCrescendo(signed_bank,signed_row);
                                 if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x40)_SsSndTempo(signed_bank,signed_row);
                                 if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x80)_SsSndTempo(signed_bank,signed_row);
                             }

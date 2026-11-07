@@ -17,30 +17,30 @@
 #undef MenuTextRows
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8001ECE8 ((void (*)())func_8001ECE8)
+#define SetupDrawDispEnvs ((void (*)())SetupDrawDispEnvs)
 
 #define GlyphRows ((char *)GlyphRows)
 
-#undef func_8001ECE8
+#undef SetupDrawDispEnvs
 
 #undef GlyphRows
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AD520 (*(unsigned char (*))&D_800AD520)
 
-#define D_800F2DE4 (*(unsigned (*))&D_800F2DE4)
+#define ModeFrame (*(unsigned (*))&ModeFrame)
 
 #define BadgeRows ((char *)BadgeRows)
 
-#define D_800FF68C ((signed char *)D_800FF68C)
+#define Dialogue ((signed char *)Dialogue)
 
 #undef D_800AD520
 
-#undef D_800F2DE4
+#undef ModeFrame
 
 #undef BadgeRows
 
-#undef D_800FF68C
+#undef Dialogue
 
 typedef struct {
     u8 unk0;

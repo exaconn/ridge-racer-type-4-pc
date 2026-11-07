@@ -17,23 +17,23 @@
 #undef D_800ABAB8
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC8 ((s32 *)D_800ABBC8)
+#define GPU_STATUS ((s32 *)GPU_STATUS)
 
-#undef D_800ABBC8
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC8 ((u32 *)D_800ABBC8)
-
-#undef D_800ABBC8
+#undef GPU_STATUS
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC4 ((int *)D_800ABBC4)
+#define GPU_STATUS ((u32 *)GPU_STATUS)
 
-#define D_800ABBC8 ((int *)D_800ABBC8)
+#undef GPU_STATUS
 
-#undef D_800ABBC4
+/* legacy typing of shared globals in this part of the unit */
+#define GPU_DATA ((int *)GPU_DATA)
 
-#undef D_800ABBC8
+#define GPU_STATUS ((int *)GPU_STATUS)
+
+#undef GPU_DATA
+
+#undef GPU_STATUS
 
 int get_mode(int a0, int a1, int a2) {
     int v1;

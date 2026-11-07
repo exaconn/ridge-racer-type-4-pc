@@ -27,8 +27,8 @@ extern int CdAudioInit();
 extern int CdAudioSelectTrack();
 extern int CdAudioBeginPlay();
 extern int func_800436E8();
-extern int func_8002AF8C();
-extern int func_800207D4();
+extern int SetMenuFrameOptions();
+extern int AddScreenFadeTiles();
 extern int CdAudioFade();
 extern int EmitPresetSprite();
 extern int EmitSpriteGrid();
@@ -39,18 +39,18 @@ void func_8001E390(void);
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3A26 (*(s16 (*))&D_800F3A26)
-#define D_800F4C6A (*(s16 (*))&D_800F4C6A)
+#define ModeGroup (*(s16 (*))&ModeGroup)
 
 void func_8001E344(void) {
     D_8010BF84 = 0;
     D_800AC5D0 = -1;
-    D_800F4C6A = 0;
+    ModeGroup = 0;
     D_800F3A26 = 6;
     D_800F4D8A = 0;
 }
 
 #undef D_800F3A26
-#undef D_800F4C6A
+#undef ModeGroup
 
 void func_8001E378(void) {
     D_8010BF84 = 0;
@@ -59,7 +59,7 @@ void func_8001E378(void) {
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ACC14 (*(int (*))&D_800ACC14)
-#define D_800F4C6A (*(short (*))&D_800F4C6A)
+#define ModeGroup (*(short (*))&ModeGroup)
 #define D_800F3A26 (*(short (*))&D_800F3A26)
 
 void func_8001E390(void) {
@@ -112,12 +112,12 @@ void func_8001E390(void) {
         }
         D_8010BF84 = 8;
     case 8:
-        func_8002AF8C(1, 1, 0);
+        SetMenuFrameOptions(1, 1, 0);
         if (D_800AC5D0 > 0) {
             D_800AC5D0--;
-            func_800207D4(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
+            AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
             if (D_800AC5D0 == 0) {
-                D_800F4C6A = 1;
+                ModeGroup = 1;
                 D_800F3A26 = 3;
                 D_800F4D8A = 0;
             }
@@ -153,7 +153,7 @@ void func_8001E390(void) {
 }
 
 #undef D_800ACC14
-#undef D_800F4C6A
+#undef ModeGroup
 #undef D_800F3A26
 
 void MainLoop(void) {
@@ -169,8 +169,8 @@ void MainLoop(void) {
     SystemInit();
     VSyncThreshold=128;
     SetDispMask(0);
-    D_800F2DE4=0;
-    D_800F4C6A=1;
+    ModeFrame=0;
+    ModeGroup=1;
     D_800F3A26=1;
     D_800F4D8A=0;
     FrameCounter=0;
@@ -203,7 +203,7 @@ void MainLoop(void) {
         ClearOTagR((u32 *)(D_800ACC14+0xB70),0x2C0);
         CdFileStep();
         SoundUpdate();
-        ModeFuncTable[D_800F4C6A][D_800F3A26]();
+        ModeFuncTable[ModeGroup][D_800F3A26]();
         DrawSync(0);
         threshold=VSyncThreshold;
         do {} while (VSync(1)<threshold);

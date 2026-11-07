@@ -36,12 +36,12 @@ struct B4 { char b[4]; };
 extern short D_800AC53C;
 extern short D_800ACC74;
 
-void func_80027998(void);
+void FindAxleTrackNode(void);
 void FindWheelTrackNodes(Car *arg0);
 void UpdateWheelBumps();
 void SetTrackNodeData(char *a);
 
-void func_80027998(void)
+void FindAxleTrackNode(void)
 {
     SP *g = (SP *)SCRATCH_CAR_WORK;
     s32 a, n, t, x;
@@ -127,7 +127,7 @@ void FindWheelTrackNodes(Car *arg0) {
         g->t110[g->w8 + 1].a = g->w100 + (g->t110[g->w8 + 1].a >> 2);
         g->t110[g->w8 + 1].c = g->w108 + (g->t110[g->w8 + 1].c >> 2);
         g->s150[g->w8] = arg0->sF8[g->w8];
-        func_80027998();
+        FindAxleTrackNode();
         g->z180[g->w8] = TrackNodes[g->s150[g->w8]].z8;
         g->z180[g->w8 + 1] = TrackNodes[(g->s150[g->w8] + 1) % TrackNodeCount].z8;
         arg0->sF8[g->w8 + 1] = arg0->sF8[g->w8] = g->s150[g->w8];

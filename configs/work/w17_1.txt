@@ -16,7 +16,7 @@ _SsContRpn2
 _SsSetControlChange
 _SsReadDeltaValue
 func_80082D00
-func_800833A0
+_SsSeqGetEof
 _SsSndSetVol
 _spu_note2pitch
 SsUtGetVagAtr
@@ -33,8 +33,8 @@ CdInit
 CD_sync
 CD_init
 CdSearchFile
-func_8008E780
-func_8008ED54
+cd_read
+CdReadBreak
 StUnSetRing
 rcos
 ApplyMatrixLV
@@ -45,9 +45,9 @@ SetDrawEnv
 _otc
 _addque2
 MoveImage2
-func_80096054
+_card_sector_write
 func_800972B0
-func_80097EA0
+_padIntPad
 _padSioRW
 func_80099404
 PadInitDirect

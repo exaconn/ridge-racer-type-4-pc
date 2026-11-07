@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-extern char D_8009F8FC;
+extern char LoadIndex;
 
 #endif /* RR_GAME_DATA_LDSCN4_H */

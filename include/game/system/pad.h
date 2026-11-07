@@ -4,7 +4,7 @@
 #include "types.h"
 
 void PadUpdate(void);
-void func_8004B7E0(int i, int k, int v);
-void func_8004B864(int i);
+void PadStartPulse(int i, int k, int v);
+void PadClearPulse(int i);
 
 #endif /* RR_GAME_SYSTEM_PAD_H */

@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8004A55C(void);
+void InitGamePads(void);
 
 #endif /* RR_GAME_CAR_CARSTAT_H */

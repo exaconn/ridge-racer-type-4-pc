@@ -92,11 +92,11 @@ extern s16 NumCars;
 
 extern s32 D_800ACC14;
 
-extern s16 D_800AD522;
+extern s16 ReverseCourse;
 
 extern s16 D_800F3826;
 
-extern u8 D_800F3920[];
+extern u8 SaveProgress[];
 
 extern s32 NumLaps;
 
@@ -270,7 +270,7 @@ s32 DrawUiRow(s32 arg0) {
             s4 += 2 + D_8009FA1C[s0].b2;
         }
         if (s6 == 4) {
-            if (D_800AD522 == 1) {
+            if (ReverseCourse == 1) {
                 s0 = 0xD;
             } else {
                 s0 = 0xC;
@@ -332,7 +332,7 @@ s32 DrawUiRow(s32 arg0) {
         }
         break;
     case 12:
-        if (D_800F3920[D_800F3826 + 0x5C] == 1) {
+        if (SaveProgress[D_800F3826 + 0x5C] == 1) {
             s2 = 8;
         } else {
             s2 = 7;
@@ -356,7 +356,7 @@ s32 DrawUiRow(s32 arg0) {
     }
 
     ((Scratchpad *)0x1F800000)->prim = AddDrawModePrim(D_800ACC14 + 0x70, s3, 0x38);
-    func_8003F920(sp38, s7, UiRows[arg0].s8, UiRows[arg0].sA, 0x4A, 0x4A, 0x4A);
+    DrawUiBox(sp38, s7, UiRows[arg0].s8, UiRows[arg0].sA, 0x4A, 0x4A, 0x4A);
     ((Scratchpad *)0x1F800000)->prim = AddDrawAreaPrim(D_800ACC14 + 0x70, ((Scratchpad *)0x1F800000)->prim, sp28.x, sp28.y, sp28.w, sp28.h);
     sp38 += UiRows[arg0].rect18.w;
     if ((u32)(sp30 - 4) >= 3U) {

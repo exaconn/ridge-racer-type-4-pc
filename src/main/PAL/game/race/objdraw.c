@@ -152,9 +152,9 @@ extern CVec D_800A4088[];
 extern S_ABEA4 *TrackNodes;
 extern Mat32 D_800ABED0;
 extern s32 ReplayState;
-extern s32 D_800F2DE4;
+extern s32 ModeFrame;
 extern s16 D_800F3914;
-extern s8 D_800F4C68;
+extern s8 RacePaused;
 extern S_F4D90 *D_800F4D90;
 extern s32 RaceState;
 extern s32 D_8010E840;
@@ -175,7 +175,7 @@ extern int D_8010E8E0;
 
 void DrawTrackObjects(s32 arg0);
 void BuildObjectMatrix(int unused, short *p, M *out, int flag);
-void func_80077BAC(int a0, int *a1, int a2);
+void SetTrackObjectTransform(int a0, int *a1, int a2);
 int LoadTrackObjects(int *a, int b);
 
 void DrawTrackObjects(s32 arg0) {
@@ -216,7 +216,7 @@ void DrawTrackObjects(s32 arg0) {
         switch (TrackObjectDefs[i].f04 % 10) {
         case 0:
             BuildObjectMatrix(i, &TrackObjectStates[i].rot, &sp18, arg0);
-            func_80077BAC(i, &sp18, arg0);
+            SetTrackObjectTransform(i, &sp18, arg0);
             if ((TrackObjectStates[i].f08 / 10) == 1) {
                 s3[0x00 / 4] = TrackObjectStates[i].f08 + (D_800F3914 % 4) * 3 - 11;
                 s3[0x04 / 4] = (TrackObjectStates[i].f00 / 6) % D_800A3CDC[s3[0x00 / 4]];
@@ -257,7 +257,7 @@ void DrawTrackObjects(s32 arg0) {
             SetColorMatrix(&sp78);
             MulMatrix0(&D_800ABED0, &sp18, &sp58);
             SetLightMatrix(&sp58);
-            func_80077BAC(i, &sp18, 0);
+            SetTrackObjectTransform(i, &sp18, 0);
             SelectModelBank(4);
             func_8005F0D0(SCRATCH_BASE, TrackObjectDefs[i].f00, 0, 0);
             break;
@@ -280,11 +280,11 @@ void DrawTrackObjects(s32 arg0) {
             }
             if (TrackObjectStates[i].f08 != 0) {
                 if (TrackObjectStates[i].f04 + 100 == TrackObjectStates[i].f00) {
-                    if (D_800F4C68 == 0 && D_800F4D44 != 5) {
+                    if (RacePaused == 0 && D_800F4D44 != 5) {
                         PlaySfxVolPan(0x27, 0x7F, 0x40, -1);
                     }
                 }
-                func_80070BA4(SCRATCH_BASE, TrackObjectDefs[i].f00, D_800F4C68 == 0);
+                func_80070BA4(SCRATCH_BASE, TrackObjectDefs[i].f00, RacePaused == 0);
                 SetDrawMode(SCRATCH_PRIM, 0, 1, 0x2A, 0);
                 AddPrim(SCRATCH_OT + 0x900, SCRATCH_PRIM);
                 SCRATCH_PRIM += 0xC;
@@ -319,7 +319,7 @@ void DrawTrackObjects(s32 arg0) {
             BuildObjectMatrix(i, &sp118, &sp18, 0);
             MulMatrix0(&sp38, &sp18, &sp58);
             SetLightMatrix(&sp58);
-            func_80077BAC(i, &sp18, 0);
+            SetTrackObjectTransform(i, &sp18, 0);
             SelectModelBank(4);
             func_8005F0D0(SCRATCH_BASE, 1, 0, 0);
             if (TrackObjectDefs[i].f08 != 14) {
@@ -337,7 +337,7 @@ void DrawTrackObjects(s32 arg0) {
                 {
                     s32 t = ((0x4C8 - (s3[0x10 / 4] / 3)) * 0x1E00) / 1224;
                     if (s3[0x10 / 4] > -800 && s3[0x10 / 4] < 800) {
-                        func_800517F8(5, t, v, 0x40);
+                        SoundLoopSet(5, t, v, 0x40);
                     }
                 }
                 D_8010E8C8 = *(Vec16 *)(fp + 8);
@@ -350,14 +350,14 @@ void DrawTrackObjects(s32 arg0) {
             sp118.vy = 0x400;
             sp118.vz = 0;
             BuildObjectMatrix(i, &sp118, &sp18, arg0);
-            func_80077BAC(i, &sp18, arg0);
+            SetTrackObjectTransform(i, &sp18, arg0);
             SubmitCourseModel2(SCRATCH_BASE, 2);
             break;
 
         case 3:
             sp118.vx = sp118.vy = sp118.vz = 0;
             BuildObjectMatrix(i, &sp118, &sp18, arg0);
-            func_80077BAC(i, &sp18, arg0);
+            SetTrackObjectTransform(i, &sp18, arg0);
             SubmitCourseModel2(SCRATCH_BASE, 2);
             break;
 
@@ -365,7 +365,7 @@ void DrawTrackObjects(s32 arg0) {
         case 7:
             sp118.vx = sp118.vy = sp118.vz = 0;
             BuildObjectMatrix(i, &sp118, &sp18, 0);
-            func_80077BAC(i, &sp18, 0);
+            SetTrackObjectTransform(i, &sp18, 0);
             if (TrackObjectDefs[i].f08 == 4) {
                 for (j = 2; j < 6; j++) {
                     SubmitCourseModel2(SCRATCH_BASE, j);
@@ -398,8 +398,8 @@ void DrawTrackObjects(s32 arg0) {
             func_8001AFB8(TrackObjectDefs[i].f00 + 2, 0);
             if (TrackObjectDefs[i].f08 != 5) {
                 v = (0xDB6 - dist) / 13;
-                if (dist >= 0xDB7 || D_800F4C68 != 0) {
-                    func_800517F8(6, 0x1E00, 0, 0x40);
+                if (dist >= 0xDB7 || RacePaused != 0) {
+                    SoundLoopSet(6, 0x1E00, 0, 0x40);
                     v = 0;
                     if (TrackObjectStates[i].f08 == 1) {
                         TrackObjectStates[i].f08 = 2;
@@ -407,7 +407,7 @@ void DrawTrackObjects(s32 arg0) {
                 }
                 if ((v >= 0x74 && TrackObjectStates[i].f08 == 0) || TrackObjectStates[i].f08 == 1) {
                     TrackObjectStates[i].f08 = 1;
-                    func_800517F8(6, 0x1E00, v, 0x40);
+                    SoundLoopSet(6, 0x1E00, v, 0x40);
                 }
             }
             break;
@@ -422,8 +422,8 @@ void DrawTrackObjects(s32 arg0) {
 
         case 9:
             v = (0x119E - dist) / 13;
-            if (dist >= 0x119F || D_800F4C68 != 0) {
-                func_800517F8(6, 0x1E00, 0, 0x40);
+            if (dist >= 0x119F || RacePaused != 0) {
+                SoundLoopSet(6, 0x1E00, 0, 0x40);
                 v = 0;
                 if (TrackObjectStates[i].f08 == 1) {
                     TrackObjectStates[i].f08 = 2;
@@ -431,7 +431,7 @@ void DrawTrackObjects(s32 arg0) {
             }
             if ((v >= 0x22 && TrackObjectStates[i].f08 == 0) || TrackObjectStates[i].f08 == 1) {
                 TrackObjectStates[i].f08 = 1;
-                func_800517F8(6, 0x1E00, v, 0x40);
+                SoundLoopSet(6, 0x1E00, v, 0x40);
             }
             break;
 
@@ -477,13 +477,13 @@ void DrawTrackObjects(s32 arg0) {
                 pan = 0x7F;
             }
             if ((u32)((u16)D_800F4D44 - 2) < 3U) {
-                if (D_8010E848[i] == D_800F2DE4) {
+                if (D_8010E848[i] == ModeFrame) {
                     func_80051538(1, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
                 } else {
                     func_80051538(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
                     func_80051538(1, 0, 0);
                 }
-                D_8010E848[i] = D_800F2DE4;
+                D_8010E848[i] = ModeFrame;
             } else {
                 func_80051538(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
             }
@@ -507,13 +507,13 @@ void DrawTrackObjects(s32 arg0) {
                 v = 0;
             }
             if ((u32)((u16)D_800F4D44 - 2) < 3U) {
-                if (D_8010E848[i] == D_800F2DE4) {
+                if (D_8010E848[i] == ModeFrame) {
                     func_80051538(1, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
                 } else {
                     func_80051538(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
                     func_80051538(1, 0, 0);
                 }
-                D_8010E848[i] = D_800F2DE4;
+                D_8010E848[i] = ModeFrame;
             } else {
                 func_80051538(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
             }
@@ -547,7 +547,7 @@ void DrawTrackObjects(s32 arg0) {
             } else {
                 s3[0x20 / 4] = 1;
             }
-            sp1CB8 = func_80026998(TrackObjectStates[i].f0C, TrackObjectStates[i].f14);
+            sp1CB8 = FindTrackNodeAtXZ(TrackObjectStates[i].f0C, TrackObjectStates[i].f14);
             for (j = 0; j < 8; j++) {
                 spA0[j].vy = (TrackNodes[sp1CB8].f10 - TrackObjectStates[i].f10) >> 2;
                 spA0[j].vx = (((spA0[j].vy >> 1)) * rcos(TrackObjectStates[i].f00 * 57 + j * 512)) / 4096;
@@ -558,7 +558,7 @@ void DrawTrackObjects(s32 arg0) {
             }
             {
                 k = (func_80096464() % 10) + (TrackObjectStates[i].f04 % 100);
-                if (D_800F4C68 != 0) {
+                if (RacePaused != 0) {
                     k = TrackObjectStates[i].f04 % 100;
                 }
                 for (j = 0; j < 4; j++) {
@@ -739,11 +739,11 @@ void DrawTrackObjects(s32 arg0) {
                 s3[0x00 / 4] = func_80090758((dx * dx + dz * dz) >> 12);
             }
             if ((u32)((u16)D_800F4D44 - 2) < 3U) {
-                if (D_8010E848[i] != D_800F2DE4 && D_800F4C68 == 0) {
+                if (D_8010E848[i] != ModeFrame && RacePaused == 0) {
                     TrackObjectStates[i].f08 = (TrackObjectStates[i].f08 + (((i & 1) == 0) ? 0x20 : 0xFE0)) % 0x1000;
                 }
-                D_8010E848[i] = D_800F2DE4;
-            } else if (D_800F4C68 == 0) {
+                D_8010E848[i] = ModeFrame;
+            } else if (RacePaused == 0) {
                 TrackObjectStates[i].f08 = (TrackObjectStates[i].f08 + (((i & 1) == 0) ? 0x20 : 0xFE0)) % 0x1000;
             }
             if (s3[0x00 / 4] < 900) {
@@ -757,7 +757,7 @@ void DrawTrackObjects(s32 arg0) {
                 }
                 {
                     k = (func_80096464() % 10) + (TrackObjectStates[i].f04 % 100);
-                if (D_800F4C68 != 0) {
+                if (RacePaused != 0) {
                     k = TrackObjectStates[i].f04 % 100;
                 }
                     for (j = 0; j < 3; j++) {
@@ -801,7 +801,7 @@ void DrawTrackObjects(s32 arg0) {
                 }
                 {
                     k = (func_80096464() % 10) + (TrackObjectStates[i].f04 % 100);
-                if (D_800F4C68 != 0) {
+                if (RacePaused != 0) {
                     k = TrackObjectStates[i].f04 % 100;
                 }
                     sp1D8[0].v0.vy = 20;
@@ -830,7 +830,7 @@ void DrawTrackObjects(s32 arg0) {
                 }
                 {
                     k = (func_80096464() % 10) + (TrackObjectStates[i].f04 % 100);
-                if (D_800F4C68 != 0) {
+                if (RacePaused != 0) {
                     k = TrackObjectStates[i].f04 % 100;
                 }
                     if (s3[0x00 / 4] >= 5801) {
@@ -903,7 +903,7 @@ void BuildObjectMatrix(int unused, short *p, M *out, int flag) {
 /* legacy typing of shared globals in this part of the unit */
 #define TrackObjectStates ((char *)TrackObjectStates)
 
-void func_80077BAC(int a0, int *a1, int a2)
+void SetTrackObjectTransform(int a0, int *a1, int a2)
 {
   short sp10[4];
   int sp18[4];
@@ -915,7 +915,7 @@ void func_80077BAC(int a0, int *a1, int a2)
   sp10[0] = ((*((int *) ((((char *) (a0 * 0x2C)) + ((int) TrackObjectStates)) + 0xC))) - sp[2]) >> 2;
   sp10[1] = ((*((int *) ((((char *) (a0 * 0x2C)) + ((int) TrackObjectStates)) + 0x10))) - sp[3]) >> 2;
   sp10[2] = ((*((int *) ((((char *) (a0 * 0x2C)) + ((int) TrackObjectStates)) + 0x14))) - sp[4]) >> 2;
-  func_80090C74(sp10, sp18);
+  ApplyRotMatrix(sp10, sp18);
   if (a2 == 2)
   {
     v = -sp18[0];

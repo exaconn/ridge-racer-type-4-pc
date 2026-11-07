@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_8009BF94();
+int MemCardSync();
 
 #endif /* RR_PSYQ_LIBCARD_CARDSTS_H */

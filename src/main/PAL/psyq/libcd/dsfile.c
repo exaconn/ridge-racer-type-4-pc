@@ -49,7 +49,7 @@ int DS_cachefile(int dir) {
     if (dir == D_800A67A0) {
         return 1;
     }
-    if (func_8008E780(1, D_8011092C[dir].a, D_80111F50) != 1) {
+    if (cd_read(1, D_8011092C[dir].a, D_80111F50) != 1) {
         if (CD_debug > 0) {
             func_8001E84C(D_80011CA4);
             return -1;

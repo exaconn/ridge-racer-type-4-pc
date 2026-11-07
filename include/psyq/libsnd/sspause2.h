@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_80082440(short a);
+void SsSeqReplay(short a);
 int Snd_SetPlayMode();
 
 #endif /* RR_PSYQ_LIBSND_SSPAUSE2_H */

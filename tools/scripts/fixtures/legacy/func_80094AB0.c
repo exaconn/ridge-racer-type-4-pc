@@ -1,6 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
-extern u32 *D_800ABBC8;
+extern u32 *GPU_STATUS;
 void _ctl(u32 command) {
     /* ASM_BARRIER: reuse v0 for the port pointer and then the command index. */
     register u32 index __asm__("$2");
@@ -8,7 +8,7 @@ void _ctl(u32 command) {
     register u8 *base __asm__("$1");
     {
         /* ASM_BARRIER: keep the command-port pointer in v0 until the word is written. */
-        register u32 *port __asm__("$2") = D_800ABBC8;
+        register u32 *port __asm__("$2") = GPU_STATUS;
         *port = command;
     }
     index = command >> 24;

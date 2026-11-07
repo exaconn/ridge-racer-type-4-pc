@@ -39,7 +39,7 @@ extern int SsVabClose();
 extern int func_80055300();
 extern int func_80055330();
 extern int func_8005534C();
-extern int func_8004FED4();
+extern int SlotsStartForRace();
 extern int D_800F2EC8;
 extern struct { char p0[0x1C]; s32 x1C; char p1[0x28]; s32 x48; s32 x4C; char p2[0x38C]; s32 x3DC; } RaceContext;
 
@@ -136,12 +136,12 @@ void func_8004F600(void) {
     }
     SsSetReservedVoice(0x18);
     SoundState.xC = 0;
-    func_8004FBF0();
+    SoundMasterVolumeReset();
     func_80050E58();
     func_80051248(0);
     func_800514FC();
     SoundQueueClear();
-    func_800517D8();
+    SoundLoopReset();
     ReverbReset();
     SoundStopAll();
     SsUtAllKeyOff(0);
@@ -164,7 +164,7 @@ void func_8004F720(void) {
     D_800F2EC8 = 1;
     func_80055330(0, 0x90, 0x90, 0x90);
     func_8005534C(RaceContext.x3DC);
-    func_8004FED4();
+    SlotsStartForRace();
     SoundState.x58 = 0x52;
     SoundState.x678 = 0x52;
     SoundState.xC98 = 0x4E;

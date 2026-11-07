@@ -50,9 +50,9 @@ typedef struct {
 } PolyFT4;
 
 extern int func_80096464();
-extern RrUiParticle20 D_800F2AE4[];
+extern RrUiParticle20 ParticleEntries[];
 extern unsigned char D_800A0CF4[];
-extern RrParticleSys D_800F2AB8;
+extern RrParticleSys ParticleSystem;
 extern struct {
     char pad[0x3E8];
     s32 f3E8;
@@ -63,30 +63,30 @@ int FindFreeParticle(void);
 void SpawnParticlePair();
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2AB8 (*(struct { s32 a; char p[0x14]; s32 b; } (*))&D_800F2AB8)
+#define ParticleSystem (*(struct { s32 a; char p[0x14]; s32 b; } (*))&ParticleSystem)
 
 void InitParticles(void) {
-    func_8001ECE8(0, 0, 0, 3);
+    SetupDrawDispEnvs(0, 0, 0, 3);
     VSyncThreshold = 0x80;
-    D_800F2AB8.a = 0;
-    func_80096434(&D_800F2AB8, 0x32C);
-    D_800F2AB8.b = 0x100;
+    ParticleSystem.a = 0;
+    func_80096434(&ParticleSystem, 0x32C);
+    ParticleSystem.b = 0x100;
 }
 
-#undef D_800F2AB8
+#undef ParticleSystem
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2AB8 (*(struct { char pad[0x20]; struct { char p[0xC]; s32 f; char q[0x10]; } e[24]; } (*))&D_800F2AB8)
+#define ParticleSystem (*(struct { char pad[0x20]; struct { char p[0xC]; s32 f; char q[0x10]; } e[24]; } (*))&ParticleSystem)
 
 int FindFreeParticle(void) {
     int i;
     for (i = 0; i < 24; i++) {
-        if (D_800F2AB8.e[i].f == 0) return i;
+        if (ParticleSystem.e[i].f == 0) return i;
     }
     return -1;
 }
 
-#undef D_800F2AB8
+#undef ParticleSystem
 
 void SpawnParticlePair()
 {
@@ -99,7 +99,7 @@ void SpawnParticlePair()
     int s5, s2;
     v0 = FindFreeParticle();
     if (v0 >= 0) {
-        s0 = &D_800F2AE4[v0];
+        s0 = &ParticleEntries[v0];
         one = 1;
         s0->active00 = one;
         s0->state04 = 0;
@@ -125,7 +125,7 @@ void SpawnParticlePair()
         s0->scale1A = 0x100;
         v0 = FindFreeParticle();
         if (v0 >= 0) {
-            s0 = &D_800F2AE4[v0];
+            s0 = &ParticleEntries[v0];
             s0->active00 = one;
             s0->state04 = 0;
             s0->timer08 = 0;
@@ -147,10 +147,10 @@ void SpawnParticlePair()
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2AE4 (*(E (*)[])&D_800F2AE4)
+#define ParticleEntries (*(E (*)[])&ParticleEntries)
 
-void func_80054128(int a0) {
-    E *e = &D_800F2AE4[a0];
+void UpdateParticle(int a0) {
+    E *e = &ParticleEntries[a0];
     int st = e->st;
     int t, d;
     switch (st) {
@@ -192,9 +192,9 @@ void func_80054128(int a0) {
     e->u1e = e->u1e + 1;
 }
 
-#undef D_800F2AE4
+#undef ParticleEntries
 
-void func_80054264(int a0) {
+void DrawParticle(int a0) {
     RrGpuColorCommand c[4];
     RrGpuRectangleFields rect;
     RrParticle20 *e;
@@ -202,16 +202,16 @@ void func_80054264(int a0) {
     int i, v;
     int s3, sp30, s7, s1;
 
-    e = &D_800F2AB8.e[a0];
+    e = &ParticleSystem.e[a0];
     c[0] = c[1] = c[2] = c[3] = e->c10;
     for (i = 0; i < 4; i++) {
-        v = (c[i].r * D_800F2AB8.val18) / 256;
+        v = (c[i].r * ParticleSystem.val18) / 256;
         v = (v * RaceContext.f3E8) / 256;
         c[i].r = v;
-        v = (c[i].g * D_800F2AB8.val18) / 256;
+        v = (c[i].g * ParticleSystem.val18) / 256;
         v = (v * RaceContext.f3E8) / 256;
         c[i].g = v;
-        v = (c[i].b * D_800F2AB8.val18) / 256;
+        v = (c[i].b * ParticleSystem.val18) / 256;
         v = (v * RaceContext.f3E8) / 256;
         c[i].b = v;
     }

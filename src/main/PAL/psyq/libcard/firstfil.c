@@ -53,7 +53,7 @@ void *firstfile(char *path, void *directory) {
             device++;
         } while (device < limit);
     }
-    return func_800973B4(path, directory);
+    return firstfile2(path, directory);
 }
 
 s32 func_800972B0(s32 *a0,s32 a1,s32 a2) {

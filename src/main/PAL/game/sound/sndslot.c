@@ -41,10 +41,10 @@ extern struct S SoundSlots[];
 void SoundMasterFadeStep(void);
 void SoundUpdate(void);
 void SetVoiceVolumeScaled(s32 a0, int a1, int a2);
-void func_8004FF34(int a0);
+void SlotStart(int a0);
 void SlotSetPause(int a0, int a1);
-void func_8005007C(int a0, int a1, int a2);
-void func_800500A8();
+void SlotSetLevelProgram(int a0, int a1, int a2);
+void SlotKeyOn();
 
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(T (*))&SoundState)
@@ -93,9 +93,9 @@ void SoundUpdate(void) {
     i = 0;
     SoundState.x2878 = SoundState.x2874;
     CdAudioUpdate();
-    func_80053D24();
+    SeqFadeStep();
     SoundMasterFadeStep();
-    func_80052548();
+    SoundListenerUpdate();
     for (p = (u32 *)((char *)&SoundState + 0x38); i < 4; i++, p += 0x188) {
         if (*p & 1) UpdateSoundSlot(i);
     }
@@ -103,7 +103,7 @@ void SoundUpdate(void) {
     func_80051378();
     func_80051554();
     SoundQueueUpdate();
-    func_800518E0();
+    SoundLoopUpdate();
 }
 
 #undef SoundState
@@ -113,31 +113,31 @@ void SetVoiceVolumeScaled(s32 a0, int a1, int a2) {
     SsUtSetVVol((s16)a0, (s16)((s32)((u32)a1 * (u32)v) >> 7), (s16)((s32)((u32)a2 * (u32)v) >> 7));
 }
 
-void func_8004FED4(void) {
+void SlotsStartForRace(void) {
     M2C_UNK var_a0;
 
-    func_8004FF34(0);
+    SlotStart(0);
     if (D_800F4DC8 == 0) {
         if (D_800ACBC8 >= 0) {
-            func_8004FF34(2);
+            SlotStart(2);
             var_a0 = 3;
             goto block_4;
         }
     } else {
         var_a0 = 1;
 block_4:
-        func_8004FF34(var_a0);
+        SlotStart(var_a0);
     }
 }
 
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(struct E (*)[])&SoundState)
 
-void func_8004FF34(int a0) {
+void SlotStart(int a0) {
     struct E *base = SoundState;
     struct E *e = base + a0;
     e->flags |= 1;
-    func_800500A8(a0);
+    SlotKeyOn(a0);
     e->c = e->b;
     SlotSetPause(a0, 0);
 }
@@ -168,7 +168,7 @@ void SlotSetPause(int a0, int a1) {
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(struct { char pad[0x48]; struct { s32 a, b; char pad[1568 - 8]; } e[1]; } (*))&SoundState)
 
-void func_8005007C(int a0, int a1, int a2) {
+void SlotSetLevelProgram(int a0, int a1, int a2) {
     SoundState.e[a2].a = a0;
     SoundState.e[a2].b = a1;
 }
@@ -179,7 +179,7 @@ void func_8005007C(int a0, int a1, int a2) {
 #define SoundSlots (*(W (*)[])&SoundSlots)
 #define SsUtKeyOnV ((int (*)())SsUtKeyOnV)
 
-void func_800500A8(a0)
+void SlotKeyOn(a0)
 int a0;
 {
     int s[4];

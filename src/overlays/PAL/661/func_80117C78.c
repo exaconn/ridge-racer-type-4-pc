@@ -4,13 +4,13 @@
 extern s16 MenuCursor;
 extern s16 MenuItemCount;
 extern s32 ovl661_D_80118378[22];
-extern s32 D_800F4C64;
+extern s32 TotalRaceTime;
 extern s16 ovl661_D_80118448[2];
 extern s16 ovl661_D_80118410[2];
 extern s16 ovl661_D_80118418[2];
-extern s32 D_800F2DE4;
+extern s32 ModeFrame;
 
-extern void func_8002AF8C(s32, s32, s32);
+extern void SetMenuFrameOptions(s32, s32, s32);
 
 void ovl661_func_80117C78(void) {
     s32 i;
@@ -27,7 +27,7 @@ void ovl661_func_80117C78(void) {
     for (i = 33; i < 44; i++) {
         SetMenuTextRow(i, i - 33, 2, 0, ovl661_D_80118378[i - 22]);
     }
-    if (D_800F4C64 >= 0) {
+    if (TotalRaceTime >= 0) {
         if (ovl661_D_80118448[0] > ovl661_D_80118448[1]) {
             ovl661_D_80118410[0] = 1;
             ovl661_D_80118410[1] = 0;
@@ -39,6 +39,6 @@ void ovl661_func_80117C78(void) {
             ovl661_D_80118418[ovl661_D_80118410[0]]++;
         }
     }
-    D_800F2DE4 = 0;
-    func_8002AF8C(0, 1, 0);
+    ModeFrame = 0;
+    SetMenuFrameOptions(0, 1, 0);
 }

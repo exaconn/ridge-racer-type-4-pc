@@ -12,17 +12,17 @@ extern u8 *D_8009FD04[];
 
 extern char *D_8009FD8C[], *D_8009FD9C;
 
-extern RrMenuSettings2C D_800AD4D8;
+extern RrMenuSettings2C SelectionState;
 
 extern s8 D_800AD4F1;
 
-extern s16 D_800AD522, D_800F3914;
+extern s16 ReverseCourse, D_800F3914;
 
-extern RrTimeRecord16 D_800AD5C8[2][8][5], D_800FF700[2][8][5];
+extern RrTimeRecord16 RaceRecords[2][8][5], LapRecords[2][8][5];
 
 extern u8 *D_800F39C8[];
 
-extern s32 D_800F4C64;
+extern s32 TotalRaceTime;
 
 void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
     s32 templateIndex;
@@ -57,7 +57,7 @@ void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
         case 3:
             FormatDecimalDigits((char *)&MenuTextRows[row].rendering.text[4], formatKind, 0);
         case 4:
-            FormatRaceTime((char *)&MenuTextRows[row].rendering.text[7], D_800F4C64);
+            FormatRaceTime((char *)&MenuTextRows[row].rendering.text[7], TotalRaceTime);
             break;
         case 5:
         case 6:
@@ -78,11 +78,11 @@ void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
             CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[1], D_8009FD8C[suffixIndex]);
             CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[4], D_80010E0C);
             if (formatKind < 10) {
-                CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[14], D_800FF700[D_800AD522][D_800F3914][value].name);
-                FormatRaceTime((char *)&MenuTextRows[row].rendering.text[4], D_800FF700[D_800AD522][D_800F3914][value].time);
+                CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[14], LapRecords[ReverseCourse][D_800F3914][value].name);
+                FormatRaceTime((char *)&MenuTextRows[row].rendering.text[4], LapRecords[ReverseCourse][D_800F3914][value].time);
             } else {
-                CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[14], D_800AD5C8[D_800AD522][D_800F3914][value].name);
-                FormatRaceTime((char *)&MenuTextRows[row].rendering.text[4], D_800AD5C8[D_800AD522][D_800F3914][value].time);
+                CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[14], RaceRecords[ReverseCourse][D_800F3914][value].name);
+                FormatRaceTime((char *)&MenuTextRows[row].rendering.text[4], RaceRecords[ReverseCourse][D_800F3914][value].time);
             }
             break;
         case 15:
@@ -90,7 +90,7 @@ void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
             FormatDecimalDigits((char *)&MenuTextRows[row].rendering.text[12], value + 1, 0);
             break;
         case 16:
-            FormatDecimalDigits((char *)&MenuTextRows[row].rendering.text[8], D_800AD4D8.retries08[D_800AD4D8.phase17], 0);
+            FormatDecimalDigits((char *)&MenuTextRows[row].rendering.text[8], SelectionState.retries08[SelectionState.phase17], 0);
             break;
         case 17:
             value = D_800AD4F1;

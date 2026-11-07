@@ -25,12 +25,12 @@ typedef struct {
 
 extern int D_8009EA04[2][8];
 extern StructC D_8009EA44[5];
-extern unsigned char D_8009F900[2][8];
-extern int D_800ACC28[2][8];
-extern Struct10 D_800AD5C8[2][8][5];
+extern unsigned char CourseLapCounts[2][8];
+extern int CourseBestLap[2][8];
+extern Struct10 RaceRecords[2][8][5];
 extern int D_800F3838[2][8][3];
 extern int D_800F3B00[8];
-extern Struct10 D_800FF700[2][8][5];
+extern Struct10 LapRecords[2][8][5];
 extern char D_800ABE08[];
 extern unsigned short D_8009EA80[];
 extern unsigned char D_800F2FE0[];
@@ -43,33 +43,33 @@ extern s32 CdDirectoryBuffer;
 extern M2C_UNK D_800103B8;
 extern s32 VSyncThreshold;
 extern s32 LoadCursor;
-extern s32 D_800F2DE4;
+extern s32 ModeFrame;
 extern s16 D_800F3A26;
-extern s16 D_800F4C6A;
-extern s8 D_800F4D7C;
+extern s16 ModeGroup;
+extern s8 LoadState;
 extern s16 D_800F4D8A;
 extern s16 D_800FFC18;
 extern int SetCdMixMode();
 
-void func_8001EEE4(void);
+void InitDefaultTimeRecords(void);
 void func_8001F194(void);
 void func_8001F254(void);
 void func_8001F290(void);
 void func_8001F2CC(void);
-void func_8001F2D4(void);
-void func_8001F374(void);
+void SplashModeEnter(void);
+void SplashModeUpdate(void);
 void func_8001F400(void);
 
-void func_8001EEE4(void) {
+void InitDefaultTimeRecords(void) {
     int i, j, k;
 
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 8; j++) {
             int c = 0x2FD;
             D_800F3B00[j] = D_8009EA04[0][j];
-            D_800AC5B0[j] = (D_8009EA04[0][j] - 0x2FD) * D_8009F900[1][j] + (D_8009F900[1][j] * 1000 + c);
-            D_800ACC28[i][j] = D_8009EA04[1][j];
-            D_800F4CE8[i][j] = (D_8009EA04[1][j] - 0x2FD) * D_8009F900[0][j] + (D_8009F900[0][j] * 1000 + c);
+            D_800AC5B0[j] = (D_8009EA04[0][j] - 0x2FD) * CourseLapCounts[1][j] + (CourseLapCounts[1][j] * 1000 + c);
+            CourseBestLap[i][j] = D_8009EA04[1][j];
+            CourseBestTotal[i][j] = (D_8009EA04[1][j] - 0x2FD) * CourseLapCounts[0][j] + (CourseLapCounts[0][j] * 1000 + c);
             for (k = 0; k < 3; k++) {
                 D_800F3838[i][j][k] = D_8009EA04[1][j];
             }
@@ -79,17 +79,17 @@ void func_8001EEE4(void) {
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 8; j++) {
             for (k = 0; k < 5; k++) {
-                *(int *)&D_800FF700[i][j][k].name[0] = *(int *)&D_8009EA44[k].name[0];
-                *(int *)&D_800FF700[i][j][k].name[4] = *(int *)&D_8009EA44[k].name[4];
-                *(int *)&D_800AD5C8[i][j][k].name[0] = *(int *)&D_8009EA44[k].name[0];
-                *(int *)&D_800AD5C8[i][j][k].name[4] = *(int *)&D_8009EA44[k].name[4];
-                D_800FF700[i][j][k].time = D_800ACC28[i][j] + k * 3000;
+                *(int *)&LapRecords[i][j][k].name[0] = *(int *)&D_8009EA44[k].name[0];
+                *(int *)&LapRecords[i][j][k].name[4] = *(int *)&D_8009EA44[k].name[4];
+                *(int *)&RaceRecords[i][j][k].name[0] = *(int *)&D_8009EA44[k].name[0];
+                *(int *)&RaceRecords[i][j][k].name[4] = *(int *)&D_8009EA44[k].name[4];
+                LapRecords[i][j][k].time = CourseBestLap[i][j] + k * 3000;
                 {
                     int t = k * 3000;
-                    D_800AD5C8[i][j][k].time = D_800F4CE8[i][j] + t * D_8009F900[0][j];
+                    RaceRecords[i][j][k].time = CourseBestTotal[i][j] + t * CourseLapCounts[0][j];
                 }
-                D_800FF700[i][j][k].car = D_8009EA44[k].car;
-                D_800AD5C8[i][j][k].car = D_8009EA44[k].car;
+                LapRecords[i][j][k].car = D_8009EA44[k].car;
+                RaceRecords[i][j][k].car = D_8009EA44[k].car;
             }
         }
     }
@@ -159,7 +159,7 @@ void func_8001F290(void) {
 void func_8001F2CC(void) {
 }
 
-void func_8001F2D4(void) {
+void SplashModeEnter(void) {
     int pad[6];
     SetDispMask(0);
     func_8001E84C(&D_800103B8);
@@ -168,37 +168,37 @@ void func_8001F2D4(void) {
     D_800FFC18 = 0;
     func_8007CDC4(0);
     VSyncThreshold = 0x80;
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     D_800F4D8A = 0;
-    D_800F4D7C = 0;
+    LoadState = 0;
     D_8010BFBC = 0;
-    D_800F4C5C = 0x203;
-    D_800F4C6A = 1;
+    PendingModeId = 0x203;
+    ModeGroup = 1;
     D_800F3A26 = 2;
     D_800F4D8A = 0;
 }
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_8007CDC4 ((int (*)())func_8007CDC4)
-#define D_800F4C5C (*(u16 (*))&D_800F4C5C)
+#define PendingModeId (*(u16 (*))&PendingModeId)
 
-void func_8001F374(void) {
+void SplashModeUpdate(void) {
     s32 temp_v0;
 
     temp_v0 = func_8003BBBC();
     if (temp_v0 == 1) {
-        D_800F2DE4 += 1;
+        ModeFrame += 1;
         if (SplashLogoUpdate(func_8007CDC4(1) == 1) == temp_v0) {
             SetCdMixMode(D_800AD55A);
             D_800F4D8A = 0;
-            D_800F4C6A = (s16) ((u16) D_800F4C5C >> 8);
-            D_800F3A26 = D_800F4C5C & 0xFF;
+            ModeGroup = (s16) ((u16) PendingModeId >> 8);
+            D_800F3A26 = PendingModeId & 0xFF;
         }
     }
 }
 
 #undef func_8007CDC4
-#undef D_800F4C5C
+#undef PendingModeId
 
 void func_8001F400(void){ int a[6];
 /* ASM_BARRIER: empty-frame function needs jr/addiu sp delay-slot epilogue form */

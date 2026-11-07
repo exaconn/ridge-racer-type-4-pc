@@ -6,8 +6,8 @@ void ovl663_init_preview(void) {
 
     ovl663_selected_record = 0;
     ClearScreenOverlayState();
-    D_800ACC68 = 2;
-    D_800F2DE4 = 0;
+    ScreenFadeState = 2;
+    ModeFrame = 0;
     SetupRenderer(3);
     scratch = RR_PROJECTION_SCRATCH;
     scratch->word18 = 0;
@@ -57,7 +57,7 @@ void ovl663_update_preview(void) {
         switch (D_800F4D8A) {
         case 0:
             if (UiRows->byte14 == 2) {
-                func_8002AF8C(1, 1, 0);
+                SetMenuFrameOptions(1, 1, 0);
                 D_800F4D8A = 1;
             }
             break;
@@ -71,7 +71,7 @@ void ovl663_update_preview(void) {
             UiRows->cells[0] = 2;
             if (D_800F3A60) {
                 PlaySfx(1);
-                func_8002AF8C(0, 1, 0);
+                SetMenuFrameOptions(0, 1, 0);
                 D_800F4D8A = 8;
                 UiRows->cells[0] = 1;
                 D_800AC5D0 = 64;
@@ -80,10 +80,10 @@ void ovl663_update_preview(void) {
             break;
         case 8:
             D_800AC5D0--;
-            func_800207D4(D_800ACC14->ordering.ordering70, (64 - D_800AC5D0) * 4, 69);
+            AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (64 - D_800AC5D0) * 4, 69);
             if (D_800AC5D0 <= 0) {
                 ovl663_init_menu();
-                D_800F4C6A = 1;
+                ModeGroup = 1;
                 D_800F3A26 = 74;
                 D_800F4D8A = 0;
                 return;
@@ -92,7 +92,7 @@ void ovl663_update_preview(void) {
         }
     }
     if (ovl663_available_course_count >= 2)
-        func_8002B12C(160, 384, 16, 1, ovl663_selected_record, 0, ovl663_available_course_count);
+        DrawMenuStepArrows(160, 384, 16, 1, ovl663_selected_record, 0, ovl663_available_course_count);
     DrawUiRow(0);
     UpdateScreenFade(0x10058);
 }
@@ -100,7 +100,7 @@ void ovl663_update_preview(void) {
 void ovl663_init_result_preview(void) {
     RrRaceVehicle *state;
     RrProjectionScratchPrefix *scratch;
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     SetupRenderer(5);
     state = PlayerCars;
     scratch = RR_PROJECTION_SCRATCH;
@@ -122,11 +122,11 @@ void ovl663_update_result_preview(void) {
 
     RrPreviewColor color;
     s32 scale;
-    D_800F2DE4 = (s32)((u32)D_800F2DE4 + 1U);
+    ModeFrame = (s32)((u32)ModeFrame + 1U);
     switch ((u16)D_800F4D8A) {
     case 0:
         if (UiRows[3].byte14 == 2) {
-            func_8002AF8C(1, 1, 0);
+            SetMenuFrameOptions(1, 1, 0);
             D_800F4D8A = 1;
         }
         break;
@@ -134,7 +134,7 @@ void ovl663_update_result_preview(void) {
         UiRows[3].cells[0] = 2;
         if (D_800F3A60) {
             PlaySfx(1);
-            func_8002AF8C(0, 1, 0);
+            SetMenuFrameOptions(0, 1, 0);
             UiRows[3].cells[0] = 1;
             UiRows[3].byte14 = 3;
             D_800F4D8A = 2;
@@ -145,17 +145,17 @@ void ovl663_update_result_preview(void) {
     case 2:
         if (BadgeRows->state10 == 11 && ((s8 *)D_800F2AB0)[1] == 5) {
             ovl663_init_selection(ovl663_record_kind);
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 75;
             D_800F4D8A = 0;
         }
         break;
     }
     PlayerCars[0].rot54 = (s32)(((u32)PlayerCars[0].rot54 + 8U) & 4095U);
-    func_80033A74(1);
+    SetupMenuCarCamera(1);
     SetupViewport(6);
     if ((u32)D_800F2AB0[1] - 1U < 2U) {
-        RrSelectionRows *selected = &D_800F4D98.selection;
+        RrSelectionRows *selected = &SelectionRows.selection;
         selected->pad02[1] = 2;
         func_80037198(0);
         selected->pad02[1] = 0;
@@ -176,6 +176,6 @@ void ovl663_update_result_preview(void) {
     }
     DrawUiRow(3);
     UpdateBadgeRowAnim(0);
-    func_8003FBA8(0);
+    UpdateImageRow(0);
     UpdateScreenFade(0x10022);
 }

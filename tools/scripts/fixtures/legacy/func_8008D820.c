@@ -2,7 +2,7 @@
 #include "rr/library.h"
 
 extern s32 CD_status1;
-extern void func_8008DDAC(void);
+extern void CdCommandCallback(void);
 
 void CD_initintr(void) {
     CD_cbready = 0;
@@ -20,5 +20,5 @@ void CD_initintr(void) {
         base[0x6494 / 4] = 0;
     }
     ResetCallback();
-    InterruptCallback(2, func_8008DDAC);
+    InterruptCallback(2, CdCommandCallback);
 }

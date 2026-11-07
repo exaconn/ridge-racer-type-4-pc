@@ -17,11 +17,11 @@ extern int D_8009F654[];
 extern int D_8009F66C[];
 extern short D_800F4D44;
 extern short D_800F3914;
-extern unsigned char D_8009F900[];
+extern unsigned char CourseLapCounts[];
 extern int NumLaps;
 extern short D_8009F678[];
 extern int D_800F3B00[];
-extern int D_800ACC28[][8];
+extern int CourseBestLap[][8];
 extern short NumCars;
 extern short D_800ABEC8;
 extern int func_8001FF84();
@@ -31,7 +31,7 @@ extern int FormatDecimalDigits();
 extern int func_80032EC8();
 extern struct T *TrackNodes;
 extern int TrackNodeCount;
-extern short D_800AD522;
+extern short ReverseCourse;
 extern char Options[];
 extern short D_8010BFD0[];
 extern void func_800172DC();
@@ -44,11 +44,11 @@ extern int rcos();
 extern void MulMatrix();
 extern void ApplyMatrix();
 
-void func_80032F44(int arg0, int arg1);
+void DrawCourseInfoPanel(int arg0, int arg1);
 void func_80033368(int unusedSelection,int unusedMode);
-void func_80033474(RrRaceVehicle *a0, int a1);
+void UpdateRaceIntroCamera(RrRaceVehicle *a0, int a1);
 
-void func_80032F44(int arg0, int arg1) {
+void DrawCourseInfoPanel(int arg0, int arg1) {
     char sp28[8];
     int i;
     int s4;
@@ -76,7 +76,7 @@ void func_80032F44(int arg0, int arg1) {
     *(int *)SCRATCHPAD = AddTilePrim(D_800ACC14 + 0x70, p, 0x10, 0xE0, 2, 0x88, 0x4C, 0x4C, 0x4C);
 
     if (D_800F4D44 < 2) {
-        NumLaps = D_8009F900[D_800F3914 + (D_800F4D44 == 1 ? 8 : 0)];
+        NumLaps = CourseLapCounts[D_800F3914 + (D_800F4D44 == 1 ? 8 : 0)];
     }
 
     i = 7;
@@ -93,7 +93,7 @@ void func_80032F44(int arg0, int arg1) {
         } else {
             FormatDecimalDigits(sp28, D_8009F678[arg0], 3);
         }
-        func_80020F20(D_800ACC14 + 0x70, 0x2E + i * 8, 0x128 + i * 0x10, sp28);
+        DrawDigitString16(D_800ACC14 + 0x70, 0x2E + i * 8, 0x128 + i * 0x10, sp28);
     }
 
     if (arg1 == 0) {
@@ -107,12 +107,12 @@ void func_80032F44(int arg0, int arg1) {
                 }
             } else {
                 if (i == 0) {
-                    val = D_800ACC28[s4][D_800F3914];
+                    val = CourseBestLap[s4][D_800F3914];
                 } else {
-                    val = D_800F4CE8[s4][D_800F3914];
+                    val = CourseBestTotal[s4][D_800F3914];
                 }
             }
-            func_80020F20(D_800ACC14 + 0x70, 0x44 + i * 8, 0x148 + i * 0x10, FormatMillisecondsTime(val));
+            DrawDigitString16(D_800ACC14 + 0x70, 0x44 + i * 8, 0x148 + i * 0x10, FormatMillisecondsTime(val));
         }
     } else if (arg1 == 1) {
         i = 7;
@@ -129,7 +129,7 @@ void func_80032F44(int arg0, int arg1) {
             } else {
                 FormatDecimalDigits(sp28, D_800ABEC8 + 1, 0);
             }
-            func_80020F20(D_800ACC14 + 0x70, 0x3A - i * 0xC, 0x148 + i * 0x10, sp28);
+            DrawDigitString16(D_800ACC14 + 0x70, 0x3A - i * 0xC, 0x148 + i * 0x10, sp28);
         }
     }
 
@@ -141,7 +141,7 @@ void func_80033368(int unusedSelection,int unusedMode) {
     int i, r;
     struct T *t;
     int b;
-    if (D_800AD522 != 0) {
+    if (ReverseCourse != 0) {
         i = (D_8010BFC8 >> 2) % TrackNodeCount;
     } else {
         int n = TrackNodeCount;
@@ -157,7 +157,7 @@ void func_80033368(int unusedSelection,int unusedMode) {
     func_800587E4(D_800ACC14 + 0x70, D_800F2EC4, &v);
 }
 
-void func_80033474(RrRaceVehicle *a0, int a1)
+void UpdateRaceIntroCamera(RrRaceVehicle *a0, int a1)
 {
   int sp10[3];
   char m20[0x20];

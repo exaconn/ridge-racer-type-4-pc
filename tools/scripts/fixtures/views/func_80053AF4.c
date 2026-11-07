@@ -39,7 +39,7 @@ void func_80053AF4(int a0, int a1) {
         SoundState.x2890 = v;
     } else {
         int s = (s16)a0;
-        func_80053A9C(s);
+        SeqSetVolume(s);
         SoundState.x288A = 0;
         SoundState.x288C = 0;
         SoundState.x288E = 0;

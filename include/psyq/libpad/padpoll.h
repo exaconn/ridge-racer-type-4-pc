@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int func_80098788();
-int func_80098A00();
+int _padSioRW2();
+int _padClrIntSio0();
 
 #endif /* RR_PSYQ_LIBPAD_PADPOLL_H */

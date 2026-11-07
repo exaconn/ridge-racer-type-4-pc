@@ -11,7 +11,7 @@ extern s16 ovl662_D_801272D4,ovl662_D_801272E0;
 void func_80037110(void);
 void ResetCarState(RrRaceVehicle *vehicle);
 s32 CountChoiceGlyphs(const RrCourseChoice4 *choices);
-void func_8002AF8C(s32,s32,s32);
+void SetMenuFrameOptions(s32,s32,s32);
 /* Fresh choice index0..8. Vehicle setup may change published roots and choices.
  * Nine-entry course group and two complete vehicle owners remain accessible. */
 #ifndef RR_PROJECTION_SCRATCH

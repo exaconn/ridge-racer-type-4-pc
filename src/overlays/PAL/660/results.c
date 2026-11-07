@@ -6,11 +6,11 @@ void ovl660_func_801154D8(void)
     s32 off;
     s32 mode;
 
-    D_800F2DE4 = 0;
-    if (D_800F4C64 != -1) {
+    ModeFrame = 0;
+    if (TotalRaceTime != -1) {
         ovl660_func_801162D8();
         ovl660_race_record_rank = ovl660_func_80115FA8(0, LapTimes[(s16)D_800AC1A0]);
-        ovl660_lap_record_rank = ovl660_func_80115FA8(1, D_800F4C64);
+        ovl660_lap_record_rank = ovl660_func_80115FA8(1, TotalRaceTime);
     } else {
         ovl660_race_record_rank = 6;
         ovl660_lap_record_rank = 6;
@@ -39,7 +39,7 @@ void ovl660_func_801154D8(void)
         ovl660_result_kind = mode;
     }
     ovl660_result_transition = 0;
-    func_8002AF8C(0, 1, 0);
+    SetMenuFrameOptions(0, 1, 0);
 }
 
 s32 ovl660_func_801156A8(s32 reserved){
@@ -58,10 +58,10 @@ void ovl660_func_8011572C(void) {
     s16 timer;
     s32 ready;
 
-    D_800F2DE4++;
+    ModeFrame++;
     switch (D_800F4D8A) {
     case 0:
-        if (D_800F4C64 == -1) {
+        if (TotalRaceTime == -1) {
             group = 44;
             if (MenuTextRows[44].signedBytes[2] >= 2) {
                 D_800F4D8A = 3;
@@ -70,12 +70,12 @@ void ovl660_func_8011572C(void) {
         }
         group = 0;
         if (MenuTextRows[1].signedBytes[3] >= 15) {
-            func_8002AF8C(1, 1, 0);
+            SetMenuFrameOptions(1, 1, 0);
             if (D_800F3A60 != 0) {
                 PlaySfx(1);
                 ovl660_name_cursor = 0;
                 D_800F4D8A++;
-                func_8002AF8C(0, 1, 0);
+                SetMenuFrameOptions(0, 1, 0);
             }
         }
         base = 5;
@@ -104,21 +104,21 @@ void ovl660_func_8011572C(void) {
         group = 11;
         if (ovl660_race_record_rank < 5) {
             StepMenuValue(1, 4, (char *)&ovl660_name_cursor, 8, 0);
-            func_800397BC(&ovl660_record_name[ovl660_name_cursor]);
+            StepNameChar(&ovl660_record_name[ovl660_name_cursor]);
             {
                 s32 entry = ovl660_race_record_rank + 15;
                 CopyStringClearTail((char *)&MenuTextRows[entry].bytes[42], ovl660_record_name);
             }
-            CopyStringClearTail(D_800FF700[D_800AD522][D_800F3914][ovl660_race_record_rank].name, ovl660_record_name);
+            CopyStringClearTail(LapRecords[ReverseCourse][D_800F3914][ovl660_race_record_rank].name, ovl660_record_name);
             func_80041320(ovl660_race_record_rank + 15, 1, -((ovl660_name_cursor + 15) << 8));
         }
         if (MenuTextRows[15].signedBytes[3] >= 15) {
-            func_8002AF8C(1, 1, 0);
+            SetMenuFrameOptions(1, 1, 0);
             if (D_800F3A60 != 0) {
                 PlaySfx(1);
                 ovl660_name_cursor = 0;
                 D_800F4D8A++;
-                func_8002AF8C(0, 1, 0);
+                SetMenuFrameOptions(0, 1, 0);
             }
         }
         break;
@@ -126,42 +126,42 @@ void ovl660_func_8011572C(void) {
         group = 22;
         if (ovl660_lap_record_rank < 5) {
             StepMenuValue(1, 4, (char *)&ovl660_name_cursor, 8, 0);
-            func_800397BC(&ovl660_record_name[ovl660_name_cursor]);
+            StepNameChar(&ovl660_record_name[ovl660_name_cursor]);
             {
                 s32 entry = ovl660_lap_record_rank + 26;
                 CopyStringClearTail((char *)&MenuTextRows[entry].bytes[42], ovl660_record_name);
             }
-            CopyStringClearTail(D_800AD5C8[D_800AD522][D_800F3914][ovl660_lap_record_rank].name, ovl660_record_name);
+            CopyStringClearTail(RaceRecords[ReverseCourse][D_800F3914][ovl660_lap_record_rank].name, ovl660_record_name);
             func_80041320(ovl660_lap_record_rank + 26, 1, -((ovl660_name_cursor + 15) << 8));
         }
         if (MenuTextRows[15].signedBytes[3] >= 15) {
-            func_8002AF8C(1, 1, 0);
+            SetMenuFrameOptions(1, 1, 0);
             if (D_800F3A60 != 0) {
                 PlaySfx(1);
                 D_800F4D8A++;
-                func_8002AF8C(0, 1, 0);
+                SetMenuFrameOptions(0, 1, 0);
             }
         }
         break;
     case 3:
         group = 33;
         if (MenuTextRows[38].signedBytes[3] >= 17) {
-            func_8002AF8C(1, 1, 0);
+            SetMenuFrameOptions(1, 1, 0);
             if (ovl660_func_801156A8(0) >= 0) {
-                func_8002AF8C(0, 1, 0);
+                SetMenuFrameOptions(0, 1, 0);
                 ResetScreenCounters();
                 InitMenuArenas();
                 D_800AC5D0 = 64;
                 D_800F4D8A = MenuCursor + 4;
             }
         } else {
-            func_8002AF8C(0, 1, 0);
+            SetMenuFrameOptions(0, 1, 0);
         }
-        if (D_800F4C64 != -1) {
+        if (TotalRaceTime != -1) {
             if (ovl660_result_transition == 1) {
-                ready = PackChoiceGlyph((s8 *)&D_800F4D98);
+                ready = PackChoiceGlyph((s8 *)&SelectionRows);
                 MenuTextRows[42].bytes[28] = 34;
-                EncodeRecordPassword(D_800AC648, ready, D_800F4C64, ovl660_result_kind, D_800AD564,
+                EncodeRecordPassword(D_800AC648, ready, TotalRaceTime, ovl660_result_kind, D_800AD564,
                               &MenuTextRows[42].bytes[29]);
                 MenuTextRows[42].bytes[42] = 34;
                 ovl660_result_transition = 2;
@@ -173,11 +173,11 @@ void ovl660_func_8011572C(void) {
     case 4:
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        func_800207D4(&D_800ACC14->ordering.ordering70[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (64 - timer) * 4, 69);
         group = 33;
         if (D_800AC5D0 <= 0) {
-            D_800F4BE8 = 0;
-            D_800F4C6A = 1;
+            MenuScriptId = 0;
+            ModeGroup = 1;
             D_800F3A26 = 35;
             D_800F4D8A = 0;
         }
@@ -185,7 +185,7 @@ void ovl660_func_8011572C(void) {
     case 5:
         timer = (u16)D_800AC5D0 - 2;
         D_800AC5D0 = timer;
-        func_800207D4(&D_800ACC14->ordering.ordering70[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (64 - timer) * 4, 69);
         group = 33;
         if (D_800AC5D0 <= 0) {
             group = -1;
@@ -195,10 +195,10 @@ void ovl660_func_8011572C(void) {
     case 6:
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        func_800207D4(&D_800ACC14->ordering.ordering70[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (64 - timer) * 4, 69);
         group = -1;
         if (D_800AC5D0 <= 0) {
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 3;
             D_800F4D8A = 0;
         }
@@ -208,18 +208,18 @@ void ovl660_func_8011572C(void) {
         if (ready == 1) {
             func_80053BB4(0);
             ovl660_func_80114920();
-            D_800F4C6A = ready;
+            ModeGroup = ready;
             D_800F3A26 = 50;
             D_800F4D8A = 0;
         }
         return;
     }
     UpdateScreenFade(0x1000C);
-    func_8003662C(D_800F2DE4);
+    func_8003662C(ModeFrame);
     if (group >= 0) {
         i = 0;
         do {
-            func_80040858(i + group);
+            UpdateMenuTextRow(i + group);
             i++;
         } while (i < 11);
     }
@@ -240,9 +240,9 @@ s32 ovl660_func_80115FA8(s32 mode, s32 time) {
     for (i = 0; i < 5; i++) {
         order[i] = i;
         if (mode == 1) {
-            times[i] = D_800AD5C8[D_800AD522][D_800F3914][i].time;
+            times[i] = RaceRecords[ReverseCourse][D_800F3914][i].time;
         } else {
-            times[i] = D_800FF700[D_800AD522][D_800F3914][i].time;
+            times[i] = LapRecords[ReverseCourse][D_800F3914][i].time;
         }
     }
     for (i = 0; i < 5; i++) {
@@ -262,19 +262,19 @@ s32 ovl660_func_80115FA8(s32 mode, s32 time) {
         if (order[i] == 5) {
             for (j = 4; i < j; j--) {
                 if (mode == 1) {
-                    D_800AD5C8[D_800AD522][D_800F3914][j] = D_800AD5C8[D_800AD522][D_800F3914][j - 1];
+                    RaceRecords[ReverseCourse][D_800F3914][j] = RaceRecords[ReverseCourse][D_800F3914][j - 1];
                 } else {
-                    D_800FF700[D_800AD522][D_800F3914][j] = D_800FF700[D_800AD522][D_800F3914][j - 1];
+                    LapRecords[ReverseCourse][D_800F3914][j] = LapRecords[ReverseCourse][D_800F3914][j - 1];
                 }
             }
             if (mode == 1) {
-                D_800AD5C8[D_800AD522][D_800F3914][i].car = PackChoiceGlyph((s8 *)&D_800F4D98);
-                D_800AD5C8[D_800AD522][D_800F3914][i].time = times[i];
-                CopyStringClearTail(D_800AD5C8[D_800AD522][D_800F3914][i].name, ovl660_record_name);
+                RaceRecords[ReverseCourse][D_800F3914][i].car = PackChoiceGlyph((s8 *)&SelectionRows);
+                RaceRecords[ReverseCourse][D_800F3914][i].time = times[i];
+                CopyStringClearTail(RaceRecords[ReverseCourse][D_800F3914][i].name, ovl660_record_name);
             } else {
-                D_800FF700[D_800AD522][D_800F3914][i].car = PackChoiceGlyph((s8 *)&D_800F4D98);
-                D_800FF700[D_800AD522][D_800F3914][i].time = times[i];
-                CopyStringClearTail(D_800FF700[D_800AD522][D_800F3914][i].name, ovl660_record_name);
+                LapRecords[ReverseCourse][D_800F3914][i].car = PackChoiceGlyph((s8 *)&SelectionRows);
+                LapRecords[ReverseCourse][D_800F3914][i].time = times[i];
+                CopyStringClearTail(LapRecords[ReverseCourse][D_800F3914][i].name, ovl660_record_name);
             }
             return i;
         }

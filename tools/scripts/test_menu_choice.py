@@ -49,16 +49,16 @@ static int count,mutation;
 static unsigned seed;
 static uint64_t arena[32][8];
 #define D_800F4D99 (w->choice.bytes[1])
-#define D_800F4D98 (w->choice)
+#define SelectionRows (w->choice)
 #define D_800F3826 (w->selected)
 #define D_800F3A42 (w->buttons)
 #define MenuStepDirection (w->event)
 #define D_800F3A60 (w->accepted)
-#define D_800AD4D8 (w->settings)
+#define SelectionState (w->settings)
 #define BadgeRows (&w->rows[w->rowbank])
 #define UiRows ((RrUiRow24 *)w->ui[w->uibank].bytes)
 #define GlyphRows (w->slots)
-#define D_800FF68C (w->highlight[w->hintbank])
+#define Dialogue (w->highlight[w->hintbank])
 #define LoadCursor (w->current)
 #define D_800F4D40 (w->resource)
 '''
@@ -83,7 +83,7 @@ static void emit(int kind,s32 a,s32 b,s32 c){
 void PlaySfx(s32 mode){assert(mode==0||mode==1);emit(mode,mode,0,0);}
 void func_80039920(void){emit(2,0,0,0);}
 void ResetScreenCounters(void){emit(3,0,0,0);}
-void func_8002AF8C(s32 a,s32 b,s32 c){emit(4,a,b,c);}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){emit(4,a,b,c);}
 static void put16(u8 *p,u16 v){memcpy(p,&v,2);}
 static void reference(void){
  int previous=w->choice.bytes[1];w->selected=previous;

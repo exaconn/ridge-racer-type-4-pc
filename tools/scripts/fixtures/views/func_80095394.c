@@ -24,27 +24,27 @@ s32 get_alarm(void) {
         if(old<=0xF0000) goto ok;
     }
     {
-        volatile u32 *gpu=D_800ABBC8;
+        volatile u32 *gpu=GPU_STATUS;
         const char *format;
         u32 head;
         format=D_80011F98;
         *gpu;
         /* ASM_BARRIER: Keep the discarded status read before reading queue indices. */
         __asm__("" : : : "memory");
-        head=D_800ABBE8;
+        head=_qin;
         /* ASM_BARRIER: Read the queue head before preparing the remaining diagnostic operands. */
         __asm__("" : "=r"(head) : "0"(head));
-        func_8001E84C(format,(head-(u32)D_800ABBEC)&63,
-            *gpu,*D_800ABBD4,*D_800ABBCC);
+        func_8001E84C(format,(head-(u32)_qout)&63,
+            *gpu,*DMA2_CHCR,*DMA2_MADR);
     }
     saved=SetIntrMask(0);
-    D_800ABBEC=0;
+    _qout=0;
     D_800ABBF8=saved;
-    D_800ABBE8=D_800ABBEC;
-    *D_800ABBD4=0x401;
-    *D_800ABBE4|=0x800;
-    *D_800ABBC8=0x02000000;
-    *D_800ABBC8=0x01000000;
+    _qin=_qout;
+    *DMA2_CHCR=0x401;
+    *DPCR|=0x800;
+    *GPU_STATUS=0x02000000;
+    *GPU_STATUS=0x01000000;
     SetIntrMask(D_800ABBF8);
     result=-1;
     goto done;

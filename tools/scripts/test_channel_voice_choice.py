@@ -42,7 +42,7 @@ class ChannelVoiceChoiceTest(unittest.TestCase):
             static uint8_t *page;
             #define D_8011010F (*(u8 *)(page+271))
             #define spuVmMaxVoice (*(s8 *)(page+252))
-            #define D_800A48F8 (*(u32 *)(page-1900))
+            #define _snd_vmask (*(u32 *)(page-1900))
             '''
             reference=r'''
             static uint16_t read16(const void *p){uint16_t v;memcpy(&v,p,2);return v;}

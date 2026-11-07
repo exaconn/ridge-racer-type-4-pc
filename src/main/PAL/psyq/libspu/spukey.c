@@ -8,16 +8,16 @@ void SpuSetKey(s32 mode,u32 mask) {
     high=mask>>16;
     switch(mode) {
     case 1: {
-        if(D_800A48A4&1) {
-            volatile u16 *pending=D_8010EFB0;
+        if(_spu_env&1) {
+            volatile u16 *pending=_spu_RQ;
             pending[0]=mask;
             pending[1]=high;
             /* Preserve the observed ordering of queued cache updates. */
             __asm__("" : : : "memory");
-            D_800A4870|=1;
+            _spu_RQmask|=1;
             /* Preserve the observed ordering of queued cache updates. */
             __asm__("" : : : "memory");
-            D_800A486C|=mask;
+            _spu_RQvoice|=mask;
             /* Preserve the observed ordering of queued cache updates. */
             __asm__("" : : : "memory");
             if(pending[2]&mask)pending[2]&=~mask;
@@ -32,16 +32,16 @@ void SpuSetKey(s32 mode,u32 mask) {
         break;
     }
     case 0: {
-        if(D_800A48A4&1) {
-            volatile u16 *pending=D_8010EFB0;
+        if(_spu_env&1) {
+            volatile u16 *pending=_spu_RQ;
             pending[2]=mask;
             pending[3]=high;
             /* Preserve the observed ordering of queued cache updates. */
             __asm__("" : : : "memory");
-            D_800A4870|=1;
+            _spu_RQmask|=1;
             /* Preserve the observed ordering of queued cache updates. */
             __asm__("" : : : "memory");
-            D_800A486C&=~mask;
+            _spu_RQvoice&=~mask;
             /* Preserve the observed ordering of queued cache updates. */
             __asm__("" : : : "memory");
             if(pending[0]&mask)pending[0]&=~mask;

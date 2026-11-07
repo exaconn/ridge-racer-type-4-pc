@@ -52,7 +52,7 @@ s32 _SsVmAlloc(void) {
     priority=(s8)initial;
     if(count>0) {
         one=1;
-        reserved=D_800A48F8;
+        reserved=_snd_vmask;
         limit=count;
         ix=(u8)index;
         do {
@@ -202,7 +202,7 @@ s32 _SsVmAlloc(void) {
             /* ASM_BARRIER: keep the byte loop comparison separate from the next byte index. */
             __asm__("" : "+r"(index));
             one2=1;
-            mask=D_800A48F8;
+            mask=_snd_vmask;
             count2=count;
             ix=(u8)index;
             do {

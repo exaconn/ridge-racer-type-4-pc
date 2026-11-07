@@ -23,9 +23,9 @@ class GpuTimeoutResetTest(unittest.TestCase):
 typedef uint8_t u8;typedef uint16_t u16;typedef int16_t s16;typedef uint32_t u32;typedef int32_t s32;
 ''' + headers + '''
 u32 ports[8];u16 mask_storage,*D_800A6358=&mask_storage;
-volatile u32 *D_800ABBC8=&ports[0],*D_800ABBCC=&ports[1],*D_800ABBD4=&ports[2],*D_800ABBE4=&ports[3];
-s32 D_800ABBE8,D_800ABBF8,D_800ABBFC,D_800ABC00;
-volatile s32 D_800ABBEC;
+volatile u32 *GPU_STATUS=&ports[0],*DMA2_MADR=&ports[1],*DMA2_CHCR=&ports[2],*DPCR=&ports[3];
+s32 _qin,D_800ABBF8,D_800ABBFC,D_800ABC00;
+volatile s32 _qout;
 char D_80011F98[]="GPU timeout:que=%d,stat=%08x,chcr=%08x,madr=%08x\\n";
 s32 test_now,test_diag_calls,test_read_count,test_time_calls;
 s32 test_mask_calls,test_tail_reads,test_mutate_diag,test_mutate_mask,test_swap_write;
@@ -45,26 +45,26 @@ s32 func_8001E84C(const char *format,...) {
  for(i=0;i<4;i++)test_diag_args[i]=va_arg(args,u32);
  va_end(args);test_format=format;test_diag_calls++;test_counter_at_diag=D_800ABC00;
  event(3,0,0);
- if(test_mutate_diag){D_800ABBC8=&ports[4];D_800ABBD4=&ports[5];D_800ABBE4=&ports[6];}
+ if(test_mutate_diag){GPU_STATUS=&ports[4];DMA2_CHCR=&ports[5];DPCR=&ports[6];}
  return 1;
 }
 s32 test_exchange(s32 value) {
  s32 previous=SetIntrMask(value);
  test_mask_calls++;event(4,(u32)value,(u32)previous);
- if(test_mutate_mask && test_mask_calls==1){D_800ABBC8=&ports[4];D_800ABBD4=&ports[5];D_800ABBE4=&ports[6];}
+ if(test_mutate_mask && test_mask_calls==1){GPU_STATUS=&ports[4];DMA2_CHCR=&ports[5];DPCR=&ports[6];}
  return previous;
 }
-s32 test_tail(void) {test_tail_reads++;event(5,0,(u32)D_800ABBEC);return D_800ABBEC;}
+s32 test_tail(void) {test_tail_reads++;event(5,0,(u32)_qout);return _qout;}
 void test_dma(volatile u32 *p,u32 value) {*p=value;event(6,p==&ports[2]?2:5,value);}
 void test_config(volatile u32 *p) {*p|=0x800;event(7,p==&ports[3]?3:6,*p);}
 void test_gpu(volatile u32 *p,u32 value) {
  *p=value;event(8,p==&ports[0]?0:(p==&ports[4]?4:7),value);
- if(test_swap_write && value==0x02000000){D_800ABBC8=&ports[7];D_800ABBF8=0x1234;}
+ if(test_swap_write && value==0x02000000){GPU_STATUS=&ports[7];D_800ABBF8=0x1234;}
 }
 void test_reset(void) {
  u32 i;for(i=0;i<8;i++)ports[i]=0xA5000000+i;
- D_800ABBC8=&ports[0];D_800ABBCC=&ports[1];D_800ABBD4=&ports[2];D_800ABBE4=&ports[3];
- D_800ABBE8=70;D_800ABBEC=5;D_800ABBF8=-1;D_800ABBFC=100;D_800ABC00=0;
+ GPU_STATUS=&ports[0];DMA2_MADR=&ports[1];DMA2_CHCR=&ports[2];DPCR=&ports[3];
+ _qin=70;_qout=5;D_800ABBF8=-1;D_800ABBFC=100;D_800ABC00=0;
  mask_storage=0xF123;test_now=101;
  test_diag_calls=test_read_count=test_time_calls=test_mask_calls=test_tail_reads=test_event_count=0;
  test_mutate_diag=test_mutate_mask=test_swap_write=0;
@@ -81,16 +81,16 @@ void test_reset(void) {
             if name == '80095394':
                 assert body.count('*gpu') == 3  # One pointer declaration and two real status reads.
                 body = body.replace('        *gpu;', '        test_read(gpu);')
-                body = body.replace('            *gpu,*D_800ABBD4,*D_800ABBCC);',
-                                    '            test_read(gpu),*D_800ABBD4,*D_800ABBCC);')
+                body = body.replace('            *gpu,*DMA2_CHCR,*DMA2_MADR);',
+                                    '            test_read(gpu),*DMA2_CHCR,*DMA2_MADR);')
                 replacements = {
                     'saved=SetIntrMask(0);': 'saved=test_exchange(0);',
                     'SetIntrMask(D_800ABBF8);': 'test_exchange(D_800ABBF8);',
-                    'D_800ABBE8=D_800ABBEC;': 'D_800ABBE8=test_tail();',
-                    '*D_800ABBD4=0x401;': 'test_dma(D_800ABBD4,0x401);',
-                    '*D_800ABBE4|=0x800;': 'test_config(D_800ABBE4);',
-                    '*D_800ABBC8=0x02000000;': 'test_gpu(D_800ABBC8,0x02000000);',
-                    '*D_800ABBC8=0x01000000;': 'test_gpu(D_800ABBC8,0x01000000);',
+                    '_qin=_qout;': '_qin=test_tail();',
+                    '*DMA2_CHCR=0x401;': 'test_dma(DMA2_CHCR,0x401);',
+                    '*DPCR|=0x800;': 'test_config(DPCR);',
+                    '*GPU_STATUS=0x02000000;': 'test_gpu(GPU_STATUS,0x02000000);',
+                    '*GPU_STATUS=0x01000000;': 'test_gpu(GPU_STATUS,0x01000000);',
                 }
                 for old, new in replacements.items():
                     assert body.count(old) == 1, old
@@ -133,8 +133,8 @@ void test_reset(void) {
                 if not expired:
                     self.assertEqual(bytes(self.ports), before)
                     self.assertEqual(self.trace(), [(1, 0xFFFFFFFF, 0)])
-                    self.assertEqual(self.scalar('D_800ABBE8').value, 70)
-                    self.assertEqual(self.scalar('D_800ABBEC').value, 5)
+                    self.assertEqual(self.scalar('_qin').value, 70)
+                    self.assertEqual(self.scalar('_qout').value, 5)
 
     def test_diagnostic_reads_mask_reset_and_full_hardware_sequence(self):
         self.lib.test_reset()
@@ -147,7 +147,7 @@ void test_reset(void) {
             (1, 0xFFFFFFFF, 0), (2, 0, 0xA5000000), (2, 0, 0x89ABCDEF), (3, 0, 0),
             (4, 0, 0xF123), (5, 0, 0), (6, 2, 0x401), (7, 3, 0xA5000803),
             (8, 0, 0x02000000), (8, 0, 0x01000000), (4, 0xF123, 0)])
-        self.assertEqual((self.scalar('D_800ABBE8').value, self.scalar('D_800ABBEC').value), (0, 0))
+        self.assertEqual((self.scalar('_qin').value, self.scalar('_qout').value), (0, 0))
         self.assertEqual(self.scalar('D_800ABBF8').value, 0xF123)
         self.assertEqual(C.c_uint16.in_dll(self.lib, 'mask_storage').value, 0xF123)
         self.assertEqual(list(self.ports)[1:], [0xA5000001, 0x401, 0xA5000803,
@@ -182,7 +182,7 @@ void test_reset(void) {
         for head in (-0x80000000, -1, 0, 1, 63, 64, 65, 0x7FFFFFFF):
             for tail in (-0x80000000, -1, 0, 1, 63, 64, 65, 0x7FFFFFFF):
                 self.lib.test_reset()
-                self.scalar('D_800ABBE8').value = head
-                self.scalar('D_800ABBEC').value = tail
+                self.scalar('_qin').value = head
+                self.scalar('_qout').value = tail
                 self.assertEqual(self.watchdog(), -1)
                 self.assertEqual(args[0], (head-tail) & 63)

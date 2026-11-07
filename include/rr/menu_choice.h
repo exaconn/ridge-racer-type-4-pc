@@ -10,16 +10,16 @@
 
 extern s32 MenuStepDirection, D_800F3A60;
 extern void *LoadCursor, *D_800F4D40;
-extern RrMenuSettings2C D_800AD4D8;
+extern RrMenuSettings2C SelectionState;
 extern s16 D_800F3826;
 extern u16 D_800F3A42;
 extern RrMenuGlyphRow1C *GlyphRows;
-extern RrMenuChoice4 D_800F4D98;
-extern u8 D_800F4D99; /* Alias of D_800F4D98.bytes[1]. */
-extern u8 *D_800FF68C;
+extern RrMenuChoice4 SelectionRows;
+extern u8 D_800F4D99; /* Alias of SelectionRows.bytes[1]. */
+extern u8 *Dialogue;
 void PlaySfx(s32 mode);
 void ResetScreenCounters(void);
-void func_8002AF8C(s32 first, s32 second, s32 third);
+void SetMenuFrameOptions(s32 first, s32 second, s32 third);
 
 /* Current UI backing must cover byte12+the initial byte selection (up to267).
  * Movement requires four glyph rows and byte4 of the highlight buffer. Helpers

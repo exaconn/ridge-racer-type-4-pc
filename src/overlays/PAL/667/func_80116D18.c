@@ -6,7 +6,7 @@ extern s16 D_8010C0B8;
 extern s16 D_8010C0C0[2][2];
 extern s16 D_8010C0D0[2];
 extern s16 D_8010C0D8[2];
-extern s8 D_800ABEBC[];
+extern s8 LinkEntryState[];
 extern s32 UiRowCount;
 /* Resident word reached through its enclosing array object (aliases row stores). */
 extern s32 D_800F4CB8[1];
@@ -16,7 +16,7 @@ extern u8 ovl667_D_80118E10[4];
 extern s8 ovl667_D_80118E14[2][4];
 extern s8 ovl667_D_80118E1C[2][2][4];
 s32 func_80034FC0(void);
-void func_80035024(s32);
+void UpdateLinkHandshake(s32);
 void ovl667_func_80116BB4(void);
 void ovl667_func_80117EF8(void);
 
@@ -39,16 +39,16 @@ void ovl667_func_80116D18(void) {
     u8 closing;
 
     modelReady = 0;
-    D_800F2DE4++;
+    ModeFrame++;
     if (func_80034FC0() != 0) {
         func_80053CB0();
         return;
     }
-    func_80035024(2);
+    UpdateLinkHandshake(2);
     PlayerCars[D_800AC5D4 & 1].rot54 = (PlayerCars[D_800AC5D4 & 1].rot54 + 8) & 0xFFF;
-    func_80033A74(1);
+    SetupMenuCarCamera(1);
     SetupViewport(6);
-    loadResult = func_8003AE4C(D_800AC5D4, 1);
+    loadResult = LoadCarRangeStep(D_800AC5D4, 1);
     if (loadResult != 1) {
         if ((s8)D_800F2AB0[1] == 1) {
             D_800F2AB0[1] = 0;
@@ -67,16 +67,16 @@ void ovl667_func_80116D18(void) {
             D_800F4D8A = 0;
         }
     case 0:
-        func_8002AF8C(1, 1, 1);
-        previous = PackChoiceGlyph((s8 *)&D_800F4D98 + D_800AC5D4 * 4);
+        SetMenuFrameOptions(1, 1, 1);
+        previous = PackChoiceGlyph((s8 *)&SelectionRows + D_800AC5D4 * 4);
         StepMenuValue(((D_800AC5D4 & 1) * 4) | 1, 2, (char *)&D_8010C0D0[D_800AC5D4 & 1],
                       D_8010C0C0[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]], 0);
-        UnpackChoiceGlyph((s8 *)&D_800F4D98 + D_800AC5D4 * 4,
+        UnpackChoiceGlyph((s8 *)&SelectionRows + D_800AC5D4 * 4,
                       D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].glyph);
-        if (((u32)previous << 16) != ((u32)PackChoiceGlyph((s8 *)&D_800F4D98 + D_800AC5D4 * 4) << 16)) {
+        if (((u32)previous << 16) != ((u32)PackChoiceGlyph((s8 *)&SelectionRows + D_800AC5D4 * 4) << 16)) {
             ResetScreenCounters();
             LoadCursor = D_800F4D70.first;
-            UnpackChoiceGlyph((s8 *)&D_800F4D98 + D_800AC5D4 * 4,
+            UnpackChoiceGlyph((s8 *)&SelectionRows + D_800AC5D4 * 4,
                           D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].glyph);
             D_800ACBD0[D_800AC5D4].first = D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].first;
             D_800ACBD0[D_800AC5D4].second = D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].second;
@@ -166,12 +166,12 @@ void ovl667_func_80116D18(void) {
         if (state != 2) {
             break;
         }
-        UiRows[row + ((RrMenuChoice4 *)&D_800F4D98)[D_800AC5D4].bytes[3]].cells[0] = 0;
-        StepMenuValue((D_800AC5D4 & 1) * 4, 1, (char *)&((RrMenuChoice4 *)&D_800F4D98)[D_800AC5D4].bytes[3], 2, 0);
-        UiRows[row + ((RrMenuChoice4 *)&D_800F4D98)[D_800AC5D4].bytes[3]].cells[0] = state;
+        UiRows[row + ((RrMenuChoice4 *)&SelectionRows)[D_800AC5D4].bytes[3]].cells[0] = 0;
+        StepMenuValue((D_800AC5D4 & 1) * 4, 1, (char *)&((RrMenuChoice4 *)&SelectionRows)[D_800AC5D4].bytes[3], 2, 0);
+        UiRows[row + ((RrMenuChoice4 *)&SelectionRows)[D_800AC5D4].bytes[3]].cells[0] = state;
         if (D_800F3A38[D_800AC5D4 & 1].a != 0) {
             PlaySfx(1);
-            UiRows[row + ((RrMenuChoice4 *)&D_800F4D98)[D_800AC5D4].bytes[3]].cells[0] = 1;
+            UiRows[row + ((RrMenuChoice4 *)&SelectionRows)[D_800AC5D4].bytes[3]].cells[0] = 1;
             UiRows[row].byte14 = 3;
             UiRows[row + 1].byte14 = 3;
             for (i = 0; i < 4; i++) {
@@ -185,7 +185,7 @@ void ovl667_func_80116D18(void) {
             }
             modelReady = 0;
             D_800F4D70.first = LoadCursor;
-            if ((D_800AC5D4 & 1) > 0 || D_800ABEBC[(1 - D_800AD508) * 2 + 1] != 1) {
+            if ((D_800AC5D4 & 1) > 0 || LinkEntryState[(1 - D_800AD508) * 2 + 1] != 1) {
                 D_800F4D8A = 5;
                 for (i = 0; i < UiRowCount; i++) {
                     if (UiRows[i].byte14 == 2) {
@@ -207,13 +207,13 @@ void ovl667_func_80116D18(void) {
         }
         break;
     case 5:
-        func_8002AF8C(0, 1, 1);
+        SetMenuFrameOptions(0, 1, 1);
         row = ovl667_D_80118E1C[D_800AC5D4 & 1][1][3] + 1;
         closing = UiRows[row].byte14;
         if (closing == 5 && (s8)D_800F2AB0[1] == closing) {
             ResetScreenCounters();
             ovl667_func_80117EF8();
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 61;
             D_800F4D8A = 0;
         }
@@ -229,24 +229,24 @@ void ovl667_func_80116D18(void) {
         break;
     case 8:
         SetModelTexturePage(-1);
-        func_8002AF8C(0, 1, 1);
+        SetMenuFrameOptions(0, 1, 1);
         D_800AC5D0 = (u16)D_800AC5D0 - 1;
-        func_800207D4(&D_800ACC14->ordering.ordering70[0], (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             func_80053CB0();
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 3;
             D_800F4D8A = 0;
         }
         break;
     case 10:
         SetModelTexturePage(-1);
-        func_8002AF8C(0, 1, 1);
+        SetMenuFrameOptions(0, 1, 1);
         D_800AC5D0 = (u16)D_800AC5D0 - 1;
-        func_800207D4(&D_800ACC14->ordering.ordering70[0], (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             D_800FFC18 = 2;
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 71;
             D_800F4D8A = 0;
         }
@@ -307,7 +307,7 @@ draw_rows:
         }
     }
     UpdateBadgeRowAnim(0);
-    func_8003FBA8(0);
+    UpdateImageRow(0);
     D_800F4CB8[0] = D_800AC5D4 + 1;
     UpdateScreenFade(D_8010C0D8[D_800AC5D4 & 1] != 0 ? 0x10036 : 0x10032);
 }

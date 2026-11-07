@@ -1,19 +1,19 @@
 #include "rr/overlay662_name_init.h"
 void ovl662_func_80118930(void) {
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     ScreenFrame = 0;
     ovl662_D_801273A2 = 0;
     ovl662_D_801273A3 = 0;
     ovl662_D_801273A0 = 0;
     ovl662_D_801273B4 = 0;
-    CopyStringClearTail((char *)ovl662_D_801273A8, (char *)&D_800F3920);
+    CopyStringClearTail((char *)ovl662_D_801273A8, (char *)&SaveProgress);
     ClearScreenOverlayState();
     InitBadgeRow(0, 4, 172, 312, 216, 0, 0x806);
     BadgeRows[0].half02 = 1;
     InitBadgeRow(1, 208, 84, 108, 80, 0, 0x905);
     BadgeRows[1].half02 = 1;
-    func_8002AF8C(0, 1, 1);
-    D_800F4C6A = 1;
+    SetMenuFrameOptions(0, 1, 1);
+    ModeGroup = 1;
     D_800F3A26 = 28;
     D_800F4D8A = 0;
 }

@@ -89,8 +89,8 @@ extern int D_800ACBF0[];
 extern short D_800AD508;
 extern U4 *ReplayInputs[];
 extern S_AD528 Options;
-extern unsigned char D_800ADAD8[][4];
-extern S30 D_800F2F78[];
+extern unsigned char CarInputs[][4];
+extern S30 PadButtonMap[];
 extern S5C D_800F3A38[];
 extern int D_800F3AF0[];
 extern short D_800F4D44;
@@ -100,21 +100,21 @@ extern int TrackLength;
 extern int NumLaps;
 extern int D_800F3A60;
 extern int SoundSetMasterVolume();
-extern int func_800207D4();
+extern int AddScreenFadeTiles();
 extern int func_800293D0();
 extern int ClearTrackObjectStates();
 extern int SetModelTexturePage();
 extern int PlayerCars[];
 extern short D_800F3A26;
-extern short D_800F4C6A;
+extern short ModeGroup;
 extern short D_800F4D8A;
 extern int D_8010BFB0;
 extern int AddSpriteWithDrawMode();
 extern int DrawCars();
-extern int func_8003660C();
+extern int FinishRace();
 extern int func_80036FD4();
 extern int StepRaceFrame();
-extern int func_8005007C();
+extern int SlotSetLevelProgram();
 extern int CdAudioBeginPlay();
 extern int BuildCameraMatrices();
 extern void func_8006ECE8(s32);
@@ -124,15 +124,15 @@ extern int DrawTrackObjects();
 extern int rsin();
 extern int D_800F2A64;
 extern short D_800F2AB4[];
-extern int D_800F2DE4;
+extern int ModeFrame;
 extern short D_800F4C70[];
 extern struct { char pad[0x1E4]; short f1e4; } *CarTable[];
 
 void SaveCarSnapshots(int unused);
 void ReadCarInput(char *arg0, int arg1);
 void CheckRaceFinish();
-void func_80029F34();
-void func_8002A008(void);
+void ReplayModeEnter();
+void ReplayModeUpdate(void);
 
 /* legacy typing of shared globals in this part of the unit */
 #define CarTable (*(B800 *(*)[])&CarTable)
@@ -168,7 +168,7 @@ void ReadCarInput(char *arg0, int arg1) {
     if (RaceState != 0) {
         if (ReplayState == 2) {
             if (ReplayFrame < ReplayLength) {
-                *(U4 *)D_800ADAD8[arg1] = ReplayInputs[arg1][ReplayFrame];
+                *(U4 *)CarInputs[arg1] = ReplayInputs[arg1][ReplayFrame];
                 if (D_800F4D44 == 4) {
                     if (arg1 == 3) {
                         ReplayFrame += 1;
@@ -184,24 +184,24 @@ void ReadCarInput(char *arg0, int arg1) {
                 mode = D_800F3A38[idx].w10;
                 if (mode == 0) {
                     t1 = 0;
-                    if (D_800F3A38[idx].h2 & D_800F2F78[idx].h4) {
+                    if (D_800F3A38[idx].h2 & PadButtonMap[idx].h4) {
                         t1 = 0xFF;
                     }
-                    b = (D_800F3A38[idx].h2 & D_800F2F78[idx].h6) != 0;
+                    b = (D_800F3A38[idx].h2 & PadButtonMap[idx].h6) != 0;
                     {
                         register int f1 asm("v1"); /* ASM_BARRIER: pin f1 to v1 */
-                        f1 = (D_800F3A38[idx].h2 & D_800F2F78[idx].h0) != 0;
-                        if ((D_800F3A38[idx].h2 & D_800F2F78[idx].h2) > 0) {
+                        f1 = (D_800F3A38[idx].h2 & PadButtonMap[idx].h0) != 0;
+                        if ((D_800F3A38[idx].h2 & PadButtonMap[idx].h2) > 0) {
                             f1 |= 2;
                         }
-                        if ((D_800F3A38[idx].h8 & D_800F2F78[idx].h8) > 0) {
+                        if ((D_800F3A38[idx].h8 & PadButtonMap[idx].h8) > 0) {
                             f1 |= 4;
                         }
-                        if ((D_800F3A38[idx].h8 & D_800F2F78[idx].hA) > 0) {
+                        if ((D_800F3A38[idx].h8 & PadButtonMap[idx].hA) > 0) {
                             f1 |= 8;
                         }
                         f = f1;
-                        if ((D_800F3A38[idx].h8 & D_800F2F78[idx].hE) > 0) {
+                        if ((D_800F3A38[idx].h8 & PadButtonMap[idx].hE) > 0) {
                             f |= 0x10;
                         }
                     }
@@ -223,20 +223,20 @@ void ReadCarInput(char *arg0, int arg1) {
                 } else if (mode == 1) {
                     t5 = (D_800F3A38[idx].s3C * 0x7F) / D_8009FFB8[Options.sub[idx].s12];
                     t1 = 0;
-                    if (D_800F3A38[idx].h2 & D_800F2F78[idx].h14) {
+                    if (D_800F3A38[idx].h2 & PadButtonMap[idx].h14) {
                         t1 = 0xFF;
                     }
                     a1 = 0;
-                    if (D_800F3A38[idx].h2 & D_800F2F78[idx].h16) {
+                    if (D_800F3A38[idx].h2 & PadButtonMap[idx].h16) {
                         a1 = 0xFF;
                     }
                     {
                         int fm1;
-                        fm1 = ((D_800F3A38[idx].h8 & D_800F2F78[idx].h18) != 0) * 4;
-                        if ((D_800F3A38[idx].h8 & D_800F2F78[idx].h1A) > 0) {
+                        fm1 = ((D_800F3A38[idx].h8 & PadButtonMap[idx].h18) != 0) * 4;
+                        if ((D_800F3A38[idx].h8 & PadButtonMap[idx].h1A) > 0) {
                             fm1 |= 8;
                         }
-                        if ((D_800F3A38[idx].h8 & D_800F2F78[idx].h1E) > 0) {
+                        if ((D_800F3A38[idx].h8 & PadButtonMap[idx].h1E) > 0) {
                             fm1 |= 0x10;
                         }
                         t3 = fm1 | 0x40;
@@ -274,10 +274,10 @@ void ReadCarInput(char *arg0, int arg1) {
                 } else if (mode == 2) {
                     t5 = (D_800F3A38[idx].s3C * 0x7F) / 128;
                     t1 = 0;
-                    if (D_800F3A38[idx].h2 & D_800F2F78[idx].h24) {
+                    if (D_800F3A38[idx].h2 & PadButtonMap[idx].h24) {
                         t1 = 0xFF;
                     }
-                    b = (D_800F3A38[idx].h2 & D_800F2F78[idx].h26) != 0;
+                    b = (D_800F3A38[idx].h2 & PadButtonMap[idx].h26) != 0;
                     a0->sB0 += b * 4;
                     if (b == 0) {
                         a0->sB0 = 0;
@@ -291,20 +291,20 @@ void ReadCarInput(char *arg0, int arg1) {
                         register int tand asm("v1"); /* ASM_BARRIER: pin h20 mask to v1 */
                         int fb, fc;
                         u2 = D_800F3A38[idx].h2;
-                        tand = u2 & D_800F2F78[idx].h20;
+                        tand = u2 & PadButtonMap[idx].h20;
                         f = tand != 0;
-                        if ((u2 & D_800F2F78[idx].h22) > 0) {
+                        if ((u2 & PadButtonMap[idx].h22) > 0) {
                             f |= 2;
                         }
                         fb = f;
-                        if ((D_800F3A38[idx].h8 & D_800F2F78[idx].h28) > 0) {
+                        if ((D_800F3A38[idx].h8 & PadButtonMap[idx].h28) > 0) {
                             fb |= 4;
                         }
                         fc = fb;
-                        if ((D_800F3A38[idx].h8 & D_800F2F78[idx].h2A) > 0) {
+                        if ((D_800F3A38[idx].h8 & PadButtonMap[idx].h2A) > 0) {
                             fc |= 8;
                         }
-                        if ((D_800F3A38[idx].h8 & D_800F2F78[idx].h2E) > 0) {
+                        if ((D_800F3A38[idx].h8 & PadButtonMap[idx].h2E) > 0) {
                             fc |= 0x10;
                         }
                         t3 = fc | 0x60;
@@ -317,30 +317,30 @@ void ReadCarInput(char *arg0, int arg1) {
                 t1 = 0;
                 a1 = 0;
             }
-            D_800ADAD8[arg1][0] = t5;
-            D_800ADAD8[arg1][1] = t1;
-            D_800ADAD8[arg1][2] = a1;
-            D_800ADAD8[arg1][3] = t3;
+            CarInputs[arg1][0] = t5;
+            CarInputs[arg1][1] = t1;
+            CarInputs[arg1][2] = a1;
+            CarInputs[arg1][3] = t3;
             if (D_800F4D44 == 4) {
                 if (D_800AD508 != 0) {
                     if (arg1 >= 2) {
-                        *(int *)D_800ADAD8[arg1] = D_800ACBE0[t2];
+                        *(int *)CarInputs[arg1] = D_800ACBE0[t2];
                     } else {
-                        D_800F3AF0[t2] = *(int *)D_800ADAD8[arg1];
-                        *(int *)D_800ADAD8[arg1] = D_800ACBF0[t2];
+                        D_800F3AF0[t2] = *(int *)CarInputs[arg1];
+                        *(int *)CarInputs[arg1] = D_800ACBF0[t2];
                     }
                 } else {
                     if (arg1 < 2) {
-                        *(int *)D_800ADAD8[arg1] = D_800ACBE0[t2];
+                        *(int *)CarInputs[arg1] = D_800ACBE0[t2];
                     } else {
-                        D_800F3AF0[t2] = *(int *)D_800ADAD8[arg1];
-                        *(int *)D_800ADAD8[arg1] = D_800ACBF0[t2];
+                        D_800F3AF0[t2] = *(int *)CarInputs[arg1];
+                        *(int *)CarInputs[arg1] = D_800ACBF0[t2];
                     }
                 }
                 __asm__ volatile("" : : "r"(t2)); /* ASM_BARRIER: keep t2 live so t2<<2 allocates v1 */
                 if (ReplayState == 1) {
                     if (ReplayFrame < ReplayLength) {
-                        ReplayInputs[arg1][ReplayFrame] = *(U4 *)D_800ADAD8[arg1];
+                        ReplayInputs[arg1][ReplayFrame] = *(U4 *)CarInputs[arg1];
                         if (arg1 == 3) {
                             ReplayFrame += 1;
                         }
@@ -348,7 +348,7 @@ void ReadCarInput(char *arg0, int arg1) {
                 }
             } else if (ReplayState == 1) {
                 if (ReplayFrame < ReplayLength) {
-                    ReplayInputs[arg1][ReplayFrame] = *(U4 *)D_800ADAD8[arg1];
+                    ReplayInputs[arg1][ReplayFrame] = *(U4 *)CarInputs[arg1];
                     if (arg1 == 1 || D_800F4D44 < 2 || D_800F4D44 == 6) {
                         ReplayFrame += 1;
                     }
@@ -390,10 +390,10 @@ void CheckRaceFinish(a0) char *a0; {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F4D44 (*(unsigned short (*))&D_800F4D44)
 
-void func_80029F34() {
+void ReplayModeEnter() {
     func_8004F720();
     func_800590DC();
-    func_800207D4(D_800ACC14 + 0x70, 0xFF, 0x25);
+    AddScreenFadeTiles(D_800ACC14 + 0x70, 0xFF, 0x25);
     func_800293D0(0, 2);
     RaceState = SavedRaceState;
     ClearTrackObjectStates(1);
@@ -403,7 +403,7 @@ void func_80029F34() {
         if (PlayerCars[0x184 / 4] < PlayerCars[0x4A4 / 4]) D_8010BFB0 = 1;
     }
     D_800AC5D0 = -1;
-    D_800F4C6A = 1;
+    ModeGroup = 1;
     D_800F3A26 = 0x16;
     D_800F4D8A = 0;
 }
@@ -413,13 +413,13 @@ void func_80029F34() {
 /* legacy typing of shared globals in this part of the unit */
 #define PlayerCars (*(struct { char pad[0x184]; int f184; char pad2[0x320 - 0x188]; } (*)[])&PlayerCars)
 
-void func_8002A008(void) {
+void ReplayModeUpdate(void) {
     int i;
     short t;
     struct { char pad[0x1E4]; short f1e4; } **pp;
-    D_800F2DE4 += 1;
+    ModeFrame += 1;
     if (ReplayFrame < 0x1A) {
-        func_800207D4(D_800ACC14 + 0x70, (0x19 - ReplayFrame) * 10, 0x25);
+        AddScreenFadeTiles(D_800ACC14 + 0x70, (0x19 - ReplayFrame) * 10, 0x25);
         if (ReplayFrame == 10) {
             CdAudioBeginPlay(0);
         }
@@ -430,12 +430,12 @@ void func_8002A008(void) {
     if (D_800AC5D0 >= 0) {
         if (D_800AC5D0 == 0) {
             SetReverbDepthBoth(0);
-            func_8003660C();
+            FinishRace();
         }
         t = (unsigned short)D_800AC5D0 - 1;
         D_800AC5D0 = t;
         if (t < 0x19) {
-            func_800207D4(D_800ACC14 + 0x70, (0x19 - t) * 10, 0x45);
+            AddScreenFadeTiles(D_800ACC14 + 0x70, (0x19 - t) * 10, 0x45);
         }
     }
     if (rsin((ReplayFrame << 7) & 0xF80) > 0) {
@@ -468,10 +468,10 @@ void func_8002A008(void) {
     if (ReplayFrame >= 0x19) {
         QueueDrawStp();
     }
-    func_8005007C(D_800F4C70[0], D_800F2AB4[0], 0);
-    func_8005007C(D_800F4C70[1], D_800F2AB4[1], 1);
-    func_8004B864(0);
-    func_8004B864(1);
+    SlotSetLevelProgram(D_800F4C70[0], D_800F2AB4[0], 0);
+    SlotSetLevelProgram(D_800F4C70[1], D_800F2AB4[1], 1);
+    PadClearPulse(0);
+    PadClearPulse(1);
     PadRumbleStop(0);
     PadRumbleStop(1);
 }

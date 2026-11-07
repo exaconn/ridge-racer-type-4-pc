@@ -7,7 +7,7 @@ void ovl665_func_80114C4C(void) {
     case 0:
         if(D_800AC5D0>0) {
             D_800AC5D0--;
-            func_800207D4(&((RrFrameOrderingPrefix*)D_800ACC14)->ordering70[702],D_800AC5D0*4,69);
+            AddScreenFadeTiles(&((RrFrameOrderingPrefix*)D_800ACC14)->ordering70[702],D_800AC5D0*4,69);
         }
         if(UiRows[0].byte14==2 && D_800AC5D0==0) {
             UiRows[ovl665_D_80119768.selection08].cells[0]=0;
@@ -42,7 +42,7 @@ void ovl665_func_80114C4C(void) {
         break;
     case 2:
         D_800AC5D0--;
-        func_800207D4(&((RrFrameOrderingPrefix*)D_800ACC14)->ordering70[0],(64-D_800AC5D0)*4,69);
+        AddScreenFadeTiles(&((RrFrameOrderingPrefix*)D_800ACC14)->ordering70[0],(64-D_800AC5D0)*4,69);
         if(D_800AC5D0<=0) {
             func_8005B2D4(0);
             ovl665_D_80119768.exit34.word=0;

@@ -46,18 +46,18 @@ static u8 resources[3][0x2D100],arenas[3][128],packets[128];static u32 orders[32
 #define D_800F4D70 w->s.arenas
 #define D_800F4D40 w->s.base
 #define LoadCursor w->s.published
-#define D_800F4D98 w->s.choice
+#define SelectionRows w->s.choice
 #define D_800ACBD0 w->s.grid
 #define D_800ABE08 w->s.table
-#define D_800F2DE4 w->s.frame
+#define ModeFrame w->s.frame
 #define ScreenFrame w->s.pulse
 #define D_800AC648 w->s.selection
 #define MenuCursor w->s.flag
 #define MenuItemCount w->s.mode
-#define D_800AD522 w->s.selectionFlag
+#define ReverseCourse w->s.selectionFlag
 #define D_800F3914 w->s.course
-#define D_800F3A2C w->s.clear1
-#define D_800F4D7C w->s.clear2
+#define MenuScriptStep w->s.clear1
+#define LoadState w->s.clear2
 #define D_8009F64C w->s.map
 #define ovl662_D_801272E4 w->s.index
 #define ovl662_D_801272D4 w->s.local
@@ -91,7 +91,7 @@ void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){
 void SetupRenderer(s32 shift){Event *e=event(4);e->args[0]=shift;change();}
 void func_80037110(void){event(5);change();}
 void ResetCarState(RrRaceVehicle *car){Event *e=event(6);assert(car==w->s.cars||car==w->s.cars+1);e->args[0]=car-w->s.cars;assert((uintptr_t)car>UINT32_MAX);change();}
-void func_8002AF8C(s32 a,s32 b,s32 c){Event *e=event(7);e->args[0]=a;e->args[1]=b;e->args[2]=c;if(w==&actual){assert(w->s.count>=0&&w->s.count<=9);seenCounts|=1U<<w->s.count;}change();}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){Event *e=event(7);e->args[0]=a;e->args[1]=b;e->args[2]=c;if(w==&actual){assert(w->s.count>=0&&w->s.count<=9);seenCounts|=1U<<w->s.count;}change();}
 static void reset(void){w->s.clear1=0;w->s.clear2=0;w->s.pulse=0;}
 static void expected(void){unsigned i;State *s=&w->s;
  if(kind)ClearScreenOverlayState();s->frame=0;s->pulse=0;s->flag=0;s->mode=kind?4:3;
@@ -111,7 +111,7 @@ static void expected(void){unsigned i;State *s=&w->s;
   for(i=0;i<2;i++){ResetCarState(s->cars+i);s->cars[i].pos20[1]=10;s->cars[i].pos20[2]=308;s->cars[i].rot54=2048;}
   glyph=s->table[1][s->index].glyph;t=glyph/160;s->choice.bytes[0]=(u8)t;s->choice.bytes[1]=(u8)(glyph/40-4*t);s->choice.bytes[2]=(u8)(glyph%40);
   s->grid[0].first=s->table[1][s->index].first;s->grid[0].second=s->table[1][s->index].second;
-  count=0;while(count<9&&s->table[1][count].glyph!=-1){if(count==8&&s->table[1][8].glyph!=359)break;count++;}s->count=count;func_8002AF8C(0,1,1);
+  count=0;while(count<9&&s->table[1][count].glyph!=-1){if(count==8&&s->table[1][8].glyph!=359)break;count++;}s->count=count;SetMenuFrameOptions(0,1,1);
  }
 }
 int main(void){unsigned i;assert((uintptr_t)resources>UINT32_MAX);

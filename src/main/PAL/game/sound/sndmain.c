@@ -11,7 +11,7 @@ extern char SoundState[];
 #define S16(o) (*(short *)(b + (o)))
 #define U16(o) (*(unsigned short *)(b + (o)))
 
-void func_80052548(void)
+void SoundListenerUpdate(void)
 {
     int v0, v1, a1, a2, a3, t0, t1;
     int q3;
@@ -31,7 +31,7 @@ void func_80052548(void)
                 W(0x18E4) = v1 + q5;
                 *(V4 *)(b + 0x18C4) = *(V4 *)(c + 0x20);
                 *(V4 *)(b + 0x18D4) = *(V4 *)(c + 0x50);
-                func_80051BD4(0);
+                SoundFindNearestCars(0);
             } else {
                 goto neg;
             }
@@ -50,7 +50,7 @@ void func_80052548(void)
                 v0 = q5 >> 2;
                 W(0x18CC) = v0;
                 *(V4 *)(b + 0x18D4) = *(V4 *)(SCRATCHPAD + 0x18);
-                func_80051BD4(1);
+                SoundFindNearestCars(1);
                 func_800523C8(0);
             } else {
                 v0 = g[2];
@@ -73,7 +73,7 @@ neg:
             }
             break;
         }
-        func_80052460();
+        SoundUpdateComSlots();
         e = SoundState;
         if (*(int *)(e + 0x18E8) > 0) *(int *)(e + 0x18E8) = *(int *)(e + 0x18E8) - 1;
     }

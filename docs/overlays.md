@@ -30,7 +30,7 @@ Evidence:
 The loader reuses the ordinary asynchronous CD state machine:
 `LoadR4Directory` converts the R4 directory into `CdFileTable` entries;
 `CdFileReadStart` selects destination/location/sector count;
-`func_800127A0` starts the read through `CdRead`;
+`CdFileStateStartRead` starts the read through `CdRead`;
 `CdFileBytesLoaded` reports completed bytes. The callers advance their allocation
 cursor by the full sector-rounded size. Static code contains absolute resident
 and overlay addresses; there is no evidence here of a relocation pass.

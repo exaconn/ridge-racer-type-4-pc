@@ -5,17 +5,17 @@
 
 extern int RaceContext[];
 extern short D_800F3A26;
-extern short D_800F4C6A;
+extern short ModeGroup;
 extern short D_800F4D8A;
 extern void CdAudioInit();
 extern void CdAudioSelectTrack();
 extern void func_8005CA14();
-extern int func_8005CA88();
+extern int IntroScriptStep();
 
 void func_8005D310(void);
 
 void func_8005D310(void) {
-    int s1 = func_8005CA88();
+    int s1 = IntroScriptStep();
     switch (RaceContext[0x444 / 4]) {
     case 0:
         SetDispMask(1);
@@ -31,7 +31,7 @@ void func_8005D310(void) {
     case 2:
         if (s1 == RaceContext[0x444 / 4]) {
             SetDispMask(0);
-            D_800F4C6A = s1;
+            ModeGroup = s1;
             D_800F3A26 = 7;
             RaceContext[0x444 / 4] = 0;
             D_800F4D8A = 0;

@@ -30,12 +30,12 @@ static struct World {u32 guard[4];s32 frame,counter,c4,c8,condition;s16 selectio
 /* The real resource owner must contain the2D000 offset; it is never mapped at
  * a synthetic PAL address. Constructors must not modify this backing memory. */
 static u8 resources[3][0x2D100],original_resources[3][0x2D100];
-#define D_800F2DE4 world.frame
+#define ModeFrame world.frame
 #define ScreenFrame world.counter
 #define MenuCursor world.selection
 #define MenuItemCount world.limit
-#define D_800F4D7C world.flag1
-#define D_800F3A2C world.flag2
+#define LoadState world.flag1
+#define MenuScriptStep world.flag2
 #define ovl663_extra_courses_enabled world.c4
 #define ovl663_record_kind world.c8
 #define ovl663_available_course_count world.condition
@@ -43,8 +43,8 @@ static u8 resources[3][0x2D100],original_resources[3][0x2D100];
 #define CdDirectoryBuffer world.base
 #define LoadCursor world.published
 #define UiRows world.ui
-#define D_800F4CB0 world.work32.words[0]
-#define D_800ACC68 world.work12.words[0]
+#define MenuFrameState world.work32.words[0]
+#define ScreenFadeState world.work12.words[0]
 void func_80096434(void *data,s32 size);
 ''' + clear + reset + bodies + r'''
 static u32 seed=0x148d8,scenario;static unsigned variant;
@@ -95,7 +95,7 @@ void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){
  observe(&world,3,args,0);
 }
 void SetupRenderer(s32 shift){s32 a[10]={shift};assert(variant==0 && world.calls==7 && shift==5);observe(&world,4,a,0);}
-void func_8002AF8C(s32 a,s32 b,s32 c){s32 args[10]={a,b,c};assert(variant==1 && world.calls==10 && a==1 && b==1 && c==1);observe(&world,5,args,0);}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){s32 args[10]={a,b,c};assert(variant==1 && world.calls==10 && a==1 && b==1 && c==1);observe(&world,5,args,0);}
 static const s32 layout663[4][10]={{0,118,152,68,32,0,0,1,0,122},{1,118,192,68,32,0,0,1,1,16},{2,118,232,68,32,0,0,1,1,17},{3,118,272,68,32,0,0,1,0,85}};
 static const s32 layout665[8][10]={{0,12,72,68,32,0,0,1,0,86},{1,12,112,68,32,0,0,1,0,87},{2,12,152,68,32,0,0,1,0,88},{3,12,192,68,32,0,0,1,0,85},{4,100,72,98,32,0,1,1,10,89},{5,100,112,98,32,0,1,1,11,89},{6,100,152,68,32,0,1,1,0,91},{7,100,192,68,32,0,1,1,0,92}};
 static void reference(void){

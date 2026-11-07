@@ -16,7 +16,7 @@ extern struct S RaceContext;
 extern struct S D_800AC650b __asm__("RaceContext");
 extern int D_800AC690;
 extern int D_800AC694;
-extern int func_80047610();
+extern int InterpolateLanePointXYZ();
 extern int TrackNodes;
 extern int TrackNodeCount;
 extern void ApplyMatrix();
@@ -91,7 +91,7 @@ void func_80043DE4(a0, a1, a2) char *a0; int *a1; int *a2; {
     if (d < 0) d += TrackNodeCount;
     j = d + 1;
     if (TrackNodeCount < j) j -= TrackNodeCount;
-    func_80047610(TrackNodes + d * 60, TrackNodes + j * 60, a2[0], r, a1);
+    InterpolateLanePointXYZ(TrackNodes + d * 60, TrackNodes + j * 60, a2[0], r, a1);
     a1[0] = a1[0] << 2;
     a1[2] = a1[2] << 2;
     a1[1] = a1[1] + (a2[1] << 2);

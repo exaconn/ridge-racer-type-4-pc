@@ -28,7 +28,7 @@ class SelectionRowsTest(unittest.TestCase):
             assert body.count(old)==count
             body=body.replace(old,new)
         assert body.count('attribute=config->parameter;')==1
-        observed=body.replace('func_80031E3C','observed_rows').replace('attribute=config->parameter;','attribute=next_parameter(config);')
+        observed=body.replace('InitSelectionRows','observed_rows').replace('attribute=config->parameter;','attribute=next_parameter(config);')
         code='''#include <stdint.h>
 #include <stddef.h>
 typedef uint8_t u8; typedef int8_t s8; typedef uint16_t u16; typedef int16_t s16;
@@ -47,7 +47,7 @@ _Static_assert(offsetof(RrSelectionRows,rows)==4,"native row start");
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'))
-        for name in ('func_80031E3C','observed_rows'):
+        for name in ('InitSelectionRows','observed_rows'):
             f=getattr(cls.lib,name);f.argtypes=[];f.restype=None
         cls.ram=(C.c_uint8*0x10001).in_dll(cls.lib,'test_ram');cls.rom=(C.c_uint8*0x10001).in_dll(cls.lib,'test_rom');cls.config=(C.c_uint8*0x10001).in_dll(cls.lib,'test_config')
         exe=(root/'assets/PAL/main.exe').read_bytes();offset=0x800+0x80090000-0x80010000
@@ -77,7 +77,7 @@ _Static_assert(offsetof(RrSelectionRows,rows)==4,"native row start");
             for variant in range(256):
                 self.ram[FRAME+1]=variant
                 expected=self.expected(self.frame(),0xEF)
-                self.lib.func_80031E3C()
+                self.lib.InitSelectionRows()
                 self.assertEqual(self.frame(),expected)
         before_ram[FRAME:FRAME+32]=self.frame()
         self.assertEqual(bytes(self.ram),bytes(before_ram));self.assertEqual(bytes(self.rom),before_rom);self.assertEqual(bytes(self.config),before_config)
@@ -92,7 +92,7 @@ _Static_assert(offsetof(RrSelectionRows,rows)==4,"native row start");
                     for i in range(32):self.ram[FRAME+i]=(i*23+variant)&255
                     self.ram[FRAME]=primary;self.ram[FRAME+1]=variant
                     before=bytearray(self.ram);before[FRAME:FRAME+32]=self.expected(self.frame(),0xEF)
-                    self.lib.func_80031E3C();self.assertEqual(bytes(self.ram),bytes(before))
+                    self.lib.InitSelectionRows();self.assertEqual(bytes(self.ram),bytes(before))
 
     def test_random_overlapping_rom_views_and_parameter_bytes(self):
         rng=random.Random(0x31E3C)
@@ -102,7 +102,7 @@ _Static_assert(offsetof(RrSelectionRows,rows)==4,"native row start");
             parameter=rng.randrange(256);self.config[CONFIG+0x1E]=parameter
             before=bytearray(self.ram);before[FRAME:FRAME+32]=self.expected(self.frame(),parameter)
             config_before=bytes(self.config);rom_before=bytes(self.rom)
-            self.lib.func_80031E3C()
+            self.lib.InitSelectionRows()
             self.assertEqual(bytes(self.ram),bytes(before));self.assertEqual(bytes(self.config),config_before);self.assertEqual(bytes(self.rom),rom_before)
 
     def test_configuration_is_read_for_each_row(self):

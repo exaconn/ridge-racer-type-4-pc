@@ -112,7 +112,7 @@ for case in range(count):
  events=[];observed=[];init(case,False);u.reg_write(UC_MIPS_REG_A0,0x80300000+((case//4)%3)*4096);u.reg_write(UC_MIPS_REG_A1,[1,2,0,-1,-2147483648,2147483647][(case//28)%6]&0xffffffff);u.reg_write(UC_MIPS_REG_SP,0x803F0000);u.reg_write(UC_MIPS_REG_RA,0x803FF800)
  try:u.emu_start(0x80022098,0x803FF800,count=30000)
  except Exception:print('MIPS failure',case,hex(u.reg_read(UC_MIPS_REG_PC)));raise
- expected=snap(False);init(case,True);lib.func_80022098(C.c_void_p(host(0x80300000+((case//4)%3)*4096)),C.c_int([1,2,0,-1,-2147483648,2147483647][(case//28)%6]))
+ expected=snap(False);init(case,True);lib.DrawSteeringIndicator(C.c_void_p(host(0x80300000+((case//4)%3)*4096)),C.c_int([1,2,0,-1,-2147483648,2147483647][(case//28)%6]))
  if errors:raise errors[0]
  assert len(events)==len(observed),(case,len(events),len(observed))
  for j,(e,o) in enumerate(zip(events,observed)):

@@ -27,15 +27,15 @@ static struct World {
  u32 selected,marker,calls;Event events[3];u32 after[8];
 } world,expected;
 #define D_800ACC14 world.active
-#define D_800F4C6A world.screen
+#define ModeGroup world.screen
 #define D_800F3A26 world.step
 #define D_800F4D8A world.counter
 static Event *capture(struct World *w){Event *e;assert(w->calls<3);e=&w->events[w->calls++];e->context=w->active;e->screen=w->screen;e->step=w->step;e->counter=w->counter;return e;}
 static void first(struct World *w){capture(w);w->active=&world.frames[0].rectangle;w->screen^=0xffff;w->step^=0xffff;w->counter=(s16)~w->counter;}
 static void second(struct World *w){capture(w);w->active=&world.frames[w->selected].rectangle;w->screen=0x1234;w->step=0x5678;w->counter=-123;}
-void func_80036068(void){assert(world.calls==0);first(&world);}
+void StopRaceAudioAndRumble(void){assert(world.calls==0);first(&world);}
 void func_8003CAB4(void){assert(world.calls==1);second(&world);}
-void func_800207D4(u32 *ordering,s32 intensity,u32 mode){
+void AddScreenFadeTiles(u32 *ordering,s32 intensity,u32 mode){
  Event *e;assert(world.calls==2);e=capture(&world);e->ordering=ordering;e->intensity=intensity;e->mode=mode;
  assert(ordering==world.frames[world.selected].ordering70);
  *ordering=world.marker;world.active=&world.frames[!world.selected].rectangle;

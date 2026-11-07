@@ -27,7 +27,7 @@ s32 CD_datasync(s32 mode);
 s32 CD_getsector(u8 *a0, u32 a1);
 s32 CD_getsector2(u8 *a, u32 b);
 void CD_set_test_parmnum(int a);
-void func_8008DDAC(void);
+void CdCommandCallback(void);
 
 static inline int check_alarm(s32 limit, char **ac, volatile u8 *st, char **sc) {
     if (VSync(-1) > D_80110330 || D_80110334++ > limit) {
@@ -122,7 +122,7 @@ void CD_set_test_parmnum(int a) { D_800A6730 = a; }
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A6764 (*(u8 (*)[2])&D_800A6764)
 
-void func_8008DDAC(void) {
+void CdCommandCallback(void) {
     u8 *p=&D_800A6764[1];
     u8 *q=p-1;
     s32 saved=*D_800A674C & 3;

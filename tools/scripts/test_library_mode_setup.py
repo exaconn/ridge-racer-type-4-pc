@@ -33,7 +33,7 @@ s32 CdControl(s32 c, const u8 *p, u8 *r) { return test_command(c,p,r); }
 void CdDataCallback(RrLibCompletionCallback c) { test_first(c); }
 void CdReadyCallback(RrLibCompletionCallback c) { test_second(c); }
 void data_ready_callback(void) { test_unexpected++; }
-void func_8008F248(void) { test_unexpected++; }
+void StCdInterrupt2(void) { test_unexpected++; }
 '''
         body = (root / 'tools/scripts/fixtures/views/func_8008F1C4.c').read_text()
         body = body.replace('#include "rr/library.h"', '')
@@ -49,7 +49,7 @@ void func_8008F248(void) { test_unexpected++; }
         cls.function.argtypes = [C.c_int32]
         cls.function.restype = None
         cls.first = C.cast(cls.lib.data_ready_callback, C.c_void_p).value
-        cls.second = C.cast(cls.lib.func_8008F248, C.c_void_p).value
+        cls.second = C.cast(cls.lib.StCdInterrupt2, C.c_void_p).value
 
     def setUp(self):
         C.memset(C.addressof(self.page), 0x5A, C.sizeof(self.page))

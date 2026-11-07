@@ -14,13 +14,13 @@ void ovl665_func_80114A24(void) {
     InitUiRow(4,94,256,112,32,0,0,1,1,21);
     InitUiRow(5,94,296,112,32,0,0,1,1,18);
     InitUiRow(6,94,336,112,32,0,0,1,0,85);
-    func_8002AF8C(1,1,1);
+    SetMenuFrameOptions(1,1,1);
     if(RaceContext.mode18==1) {
         ovl665_D_80119768.selection08=5;
         RaceContext.mode18=0;
     }
     D_800AC5D0=64;
-    func_8004E008();
+    RaceLoadReset();
     func_80053BB4(0);
     D_800AC590->b4=-1;
 }

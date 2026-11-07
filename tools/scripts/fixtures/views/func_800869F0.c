@@ -4,7 +4,7 @@
 
 #include "rr/spu.h"
 
-s32 func_800869F0(s32 voice, s32 left, s32 right) {
+s32 SsUtSetDetVVol(s32 voice, s32 left, s32 right) {
     s32 i;
     if ((u16)voice < 24) {
         /* ASM_BARRIER: Preserve the PAL page-address register used for the cache flag load. */

@@ -1,7 +1,7 @@
 #include "rr/bios_devices.h"
 extern s32 func_8001E84C(const char *format,...);
 extern char D_80011FD8[];
-s32 func_80096054(s32 port,s32 sector,u8 *buffer) {
+s32 _card_sector_write(s32 port,s32 sector,u8 *buffer) {
     u8 readback[128];
     s32 tries=0,count;
     u8 *cursor;
@@ -33,17 +33,17 @@ s32 func_80096054(s32 port,s32 sector,u8 *buffer) {
     scratch=readback;
     for(;;) {
         if(tries>=8) return 0;
-        func_80095CF4();
-        if(func_80095CE4(port,sector,buffer)!=one) return 0;
-        while(!(func_800963B4(port>>4)&1)) {}
+        _new_card();
+        if(_card_write(port,sector,buffer)!=one) return 0;
+        while(!(_card_status(port>>4)&1)) {}
         func_80096434(scratch,128);
-        func_80095CF4();
-        if(func_800963A4(port,sector,scratch)!=one) {
+        _new_card();
+        if(_card_read(port,sector,scratch)!=one) {
             /* ASM_BARRIER: Form the failure message only after the read-result branch. */
             __asm__("" : : : "$4");
             func_8001E84C(D_80011FD8);
         } else {
-            while(!(func_800963B4(port>>4)&1)) {}
+            while(!(_card_status(port>>4)&1)) {}
         }
         cursor=readback;checksum=0;count=126;
         do {checksum^=*cursor++;} while(--count>=0);

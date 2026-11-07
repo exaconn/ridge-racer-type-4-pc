@@ -4,7 +4,7 @@
 #include "psyq/libsnd/sstick.h"
 
 void _SsSeqPlay(s32 bank, s32 row);
-void func_800833A0(s32 bankInput,s32 rowInput);
+void _SsSeqGetEof(s32 bankInput,s32 rowInput);
 
 void _SsSeqPlay(s32 bank, s32 row) {
     u32 bank_bits = (u32)bank << 16;
@@ -80,7 +80,7 @@ finish:
     }
 }
 
-void func_800833A0(s32 bankInput,s32 rowInput) {
+void _SsSeqGetEof(s32 bankInput,s32 rowInput) {
     s16 bank=bankInput,row=rowInput;
     s32 bits=(s32)((u32)bank<<16);
     RrChannelStreamB0 **table=_ss_score;

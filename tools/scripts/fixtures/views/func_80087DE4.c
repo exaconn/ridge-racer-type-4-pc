@@ -68,7 +68,7 @@ extern unsigned char _SsVmAlloc();
 
 extern void _SsVmDoAllocate();
 
-extern void func_80088794();
+extern void vmNoiseOn();
 
 extern unsigned short note2pitch();
 
@@ -154,7 +154,7 @@ int _SsVmKeyOn(short a0, short a1, short a2, short a3, int a4_in, int a5_in)
                 _svm_voice[_svm_cur.f18].f00 = _svm_cur.f16;
                 _SsVmDoAllocate();
                 if (_svm_cur.f16 == 0xFF) {
-                    func_80088794((unsigned char)_svm_cur.f18);
+                    vmNoiseOn((unsigned char)_svm_cur.f18);
                 } else {
                     _SsVmKeyOnNow(n, note2pitch());
                 }

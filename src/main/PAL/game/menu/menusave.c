@@ -12,7 +12,7 @@ extern RrCourseChoice4 D_800ABE08[2][9];
 extern u8 D_800AD4F4[];
 extern u8 D_800AD4F8[][4];
 
-void func_8002F958(void) {
+void UpdateSaveProgress(void) {
     u8 sp10[4];
     s32 old_count;
     s32 i, k;
@@ -24,30 +24,30 @@ void func_8002F958(void) {
     s32 new_mask;
     s32 g;
 
-    old_count = func_8002F8E4();
+    old_count = CountProgressFlags();
     i = 0;
 
-#define MARK_PROGRESS(c) D_800F3920.prefix.progress.progress10[(c).bytes[0]][(c).bytes[1]] |= 1 << (c).bytes[2]
-    MARK_PROGRESS(D_800AD4D8.copies[0]);
-    D_800F3920.history6C[3] = *(RrSelectionRow *)&D_800AD4D8.copies[0];
+#define MARK_PROGRESS(c) SaveProgress.prefix.progress.progress10[(c).bytes[0]][(c).bytes[1]] |= 1 << (c).bytes[2]
+    MARK_PROGRESS(SelectionState.copies[0]);
+    SaveProgress.history6C[3] = *(RrSelectionRow *)&SelectionState.copies[0];
     do {
-        settings = (RrMenuSettings2C *)((u8 *)&D_800AD4D8 + i * 4);
+        settings = (RrMenuSettings2C *)((u8 *)&SelectionState + i * 4);
         MARK_PROGRESS(settings->copies[1]);
-        D_800F3920.history6C[i] = *(RrSelectionRow *)&settings->copies[1];
+        SaveProgress.history6C[i] = *(RrSelectionRow *)&settings->copies[1];
         i++;
     } while (i < 3);
 
 #undef MARK_PROGRESS
 
-    if (old_count < func_8002F8E4()) {
+    if (old_count < CountProgressFlags()) {
         D_800F4BE0 |= 1;
     }
 
     slot = 0;
     for (k = 0; k < 8; k++) {
         g = D_800ABE08[1][k].glyph;
-        UnpackChoiceGlyph((s8 *)&D_800F4D98, g);
-        if (D_800F4D98.bytes[2] == 0x27 && slot < 4) {
+        UnpackChoiceGlyph((s8 *)&SelectionRows, g);
+        if (SelectionRows.bytes[2] == 0x27 && slot < 4) {
             do {
                 if (slot == 3) {
                     glyph = PackChoiceGlyph(D_800AD4F4);
@@ -75,33 +75,33 @@ void func_8002F958(void) {
         }
     }
 
-    i = D_800AD4D8.reserved10[3];
+    i = SelectionState.reserved10[3];
     if (i < 99) {
         i++;
     }
-    D_800F3920.unlocked60[D_800AD4D8.reserved10[2]] = i;
+    SaveProgress.unlocked60[SelectionState.reserved10[2]] = i;
 
-    D_800F3920.prefix.progress.prefix00.fields.configuration0C |= 0x100;
-    old_count = D_800F3920.prefix.reserved50.words[1];
-    D_800F3920.prefix.reserved50.words[1] = old_count | 1;
+    SaveProgress.prefix.progress.prefix00.fields.configuration0C |= 0x100;
+    old_count = SaveProgress.prefix.reserved50.words[1];
+    SaveProgress.prefix.reserved50.words[1] = old_count | 1;
     if (old_count != (old_count | 1)) {
         D_800F4BE0 |= 2;
     }
 
     for (i = 4, slot = 0; i < 8; i++) {
-        slot += D_800AD4D8.retries08[i];
+        slot += SelectionState.retries08[i];
     }
 
     for (i = 0, old_count = 0; i < 4; i++) {
-        old_count |= D_800F3920.prefix.reserved50.bytes[i + 8] << i;
+        old_count |= SaveProgress.prefix.reserved50.bytes[i + 8] << i;
     }
 
-    if (D_800AD4D8.copies[0].bytes[2] == 0x12 && slot == 12) {
-        D_800F3920.prefix.reserved50.bytes[D_800AD4D8.copies[0].bytes[0] + 8] = 1;
+    if (SelectionState.copies[0].bytes[2] == 0x12 && slot == 12) {
+        SaveProgress.prefix.reserved50.bytes[SelectionState.copies[0].bytes[0] + 8] = 1;
     }
 
     for (i = 0, new_mask = 0; i < 4; i++) {
-        new_mask |= D_800F3920.prefix.reserved50.bytes[i + 8] << i;
+        new_mask |= SaveProgress.prefix.reserved50.bytes[i + 8] << i;
     }
 
     if (new_mask != old_count) {

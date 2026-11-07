@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80095BF4(void *arg0);
+void SetLineG2(void *arg0);
 
 #endif /* RR_PSYQ_LIBGPU_PRIMATT7_H */

@@ -20,7 +20,7 @@ extern unsigned char D_8009F7DC[];
 
 extern struct { char pad[0x1D2]; short h1D2; char pad2[0x1F]; unsigned char b1F3; } *D_800F39C8[];
 
-extern unsigned char D_800F4D98[][4];
+extern unsigned char SelectionRows[][4];
 
 void func_80037198(int arg0) {
     int v[9];
@@ -29,7 +29,7 @@ void func_80037198(int arg0) {
     int a1;
     int b;
     unsigned char *t7 = D_8009F7CC;
-    unsigned char (*q)[4] = D_800F4D98;
+    unsigned char (*q)[4] = SelectionRows;
     unsigned char *p = q[arg0];
     v[0] = t7[p[1]];
     v[1] = D_8009F7D0[p[1]];

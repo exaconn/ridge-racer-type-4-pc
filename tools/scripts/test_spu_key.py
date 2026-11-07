@@ -25,10 +25,10 @@ static u32 bankGuard[2][4],bankTail[2][4];static Environment actual,expected;
 static u32 seed=0x87814;static unsigned paths[10];
 static u32 next(void){u32 x=seed;x^=x<<13;x^=x>>17;x^=x<<5;return seed=x;}
 static s32 signed32(u32 x){s32 y;memcpy(&y,&x,4);return y;}
-#define D_8010EFB0 (actual.pending)
-#define D_800A48A4 (actual.flags)
-#define D_800A4870 (actual.dirty)
-#define D_800A486C (actual.queued)
+#define _spu_RQ (actual.pending)
+#define _spu_env (actual.flags)
+#define _spu_RQmask (actual.dirty)
+#define _spu_RQvoice (actual.queued)
 #define _spu_keystat (actual.direct)
 #define _spu_RXX (actual.root)
 '''+body+r'''

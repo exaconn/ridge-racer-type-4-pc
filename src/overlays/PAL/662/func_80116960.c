@@ -8,7 +8,7 @@ void ovl662_func_80116960(void){
  s16 *status;RrGarageAvailableCar *entry;
  u8 *choice;
  RrGarageAvailableCar *captured;
- D_800F2DE4=0;ScreenFrame=0;ovl662_D_801272D4=0;ovl662_D_801272E4=0;MenuCursor=0;MenuItemCount=2;
+ ModeFrame=0;ScreenFrame=0;ovl662_D_801272D4=0;ovl662_D_801272E4=0;MenuCursor=0;MenuItemCount=2;
  ResetScreenCounters();
  arenaOffset=0x2D000;i=0;count=i;
  D_800F4D70.second=CdDirectoryBuffer+arenaOffset;
@@ -18,10 +18,10 @@ void ovl662_func_80116960(void){
  func_80037110();InitBadgeRow(1,24,192,84,34,0,0x201);SetupRenderer(5);
  status=ovl662_D_80127300;entry=ovl662_D_80127348;
  do{
-  D_800F4D98.bytes[2]=i;
-  *status=(D_800F3920.prefix.progress.progress10[D_800F4D98.bytes[0]][D_800F4D98.bytes[1]]>>i)&1;
+  SelectionRows.bytes[2]=i;
+  *status=(SaveProgress.prefix.progress.progress10[SelectionRows.bytes[0]][SelectionRows.bytes[1]]>>i)&1;
   if(*status!=0){
-   entry->value=PackChoiceGlyph(&D_800F4D98);j=0;captured=entry;choice=(u8*)&D_800ABE08;
+   entry->value=PackChoiceGlyph(&SelectionRows);j=0;captured=entry;choice=(u8*)&D_800ABE08;
    do{
     UnpackChoiceGlyph((s8*)parts,((RrCourseChoice4*)(choice+36))->glyph);
     if(parts[2]<39)parts[2]%=20;
@@ -34,8 +34,8 @@ void ovl662_func_80116960(void){
   i++;status++;
  }while(i<20);
  ovl662_D_801272E0=count;
- UnpackChoiceGlyph((s8*)&D_800F4D98,ovl662_D_80127348[0].value);
+ UnpackChoiceGlyph((s8*)&SelectionRows,ovl662_D_80127348[0].value);
  D_800ACBD0[0].first=0;D_800ACBD0[0].second=0;
- D_800F4C6A=1;D_800F3A26=67;D_800F4D8A=0;
+ ModeGroup=1;D_800F3A26=67;D_800F4D8A=0;
  LoadCursor=D_800F4D40;D_800F4D70.first=D_800F4D40;
 }

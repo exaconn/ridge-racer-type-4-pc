@@ -59,7 +59,7 @@ extern int D_800AC5D4;
 extern signed char *D_800F2AB0;
 extern char *D_800F39C8[];
 extern char *BadgeRows;
-extern R4 D_800F4D98[];
+extern R4 SelectionRows[];
 extern int func_80020508();
 extern u8 D_8009FDF4[];
 extern u8 D_8009FDF8[];
@@ -117,18 +117,18 @@ int arg2;
   x = *((short *) ((BadgeRows + (arg2 * 0x1C)) + 4));
   y = *((short *) ((BadgeRows + (arg2 * 0x1C)) + 6));
   sp30 = *((short *) ((BadgeRows + (arg2 * 0x1C)) + 0xC));
-  sp3C = (D_800F4D98[D_800AC5D4].b * 2) + 8;
-  sp38 = D_800F4D98[D_800AC5D4].a * 2;
-  sp34 = (D_800F4D98[D_800AC5D4].c ^ 0x27) == 0;
-  if ((D_800F4D98[D_800AC5D4].c ^ 0x27) == 0)
+  sp3C = (SelectionRows[D_800AC5D4].b * 2) + 8;
+  sp38 = SelectionRows[D_800AC5D4].a * 2;
+  sp34 = (SelectionRows[D_800AC5D4].c ^ 0x27) == 0;
+  if ((SelectionRows[D_800AC5D4].c ^ 0x27) == 0)
   {
-    if (D_800F4D98[D_800AC5D4].a == 2)
+    if (SelectionRows[D_800AC5D4].a == 2)
     {
       sp4C = D_8009FDC4;
     }
     else
     {
-      if (D_800F4D98[D_800AC5D4].a == 0)
+      if (SelectionRows[D_800AC5D4].a == 0)
       {
         CopyStringClearTail(D_8009FDBF, "D ");
       }
@@ -137,7 +137,7 @@ int arg2;
         CopyStringClearTail(D_8009FDBF, "G ");
       }
       q = D_8009FDC0;
-      FormatDecimalDigits(q, D_800F4D98[D_800AC5D4].b + 1, 0);
+      FormatDecimalDigits(q, SelectionRows[D_800AC5D4].b + 1, 0);
       sp4C = q - 8;
     }
   }

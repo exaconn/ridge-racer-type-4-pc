@@ -2,7 +2,7 @@
 #include "game/sound/fxramp2.h"
 #include "rr/audio_bank_setup.h"
 struct S { char pad[0x2874]; u32 a; char p[8]; s32 b; };
-void func_80053DE8(int a0, int a1, s16 a2) {
+void SeqMarkCallback(int a0, int a1, s16 a2) {
     struct S *p = &SoundState;
     int v = a2;
     p->b = v;

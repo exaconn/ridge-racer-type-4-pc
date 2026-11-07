@@ -18,13 +18,13 @@ extern char D_800D0160[];
 extern int *AddDrawModePrim();
 extern int SetDrawArea();
 
-void func_80020920(unsigned char *a0, unsigned char *a1);
+void InitHudSpritePacket(unsigned char *a0, unsigned char *a1);
 void func_80020B10();
-void func_80020CD4();
-void func_80020E2C();
-void func_80020F20();
+void DrawDigitString12();
+void DrawDigitString8();
+void DrawDigitString16();
 
-void func_80020920(unsigned char *a0, unsigned char *a1) {
+void InitHudSpritePacket(unsigned char *a0, unsigned char *a1) {
     a0[3] = 4;
     a0[7] = 0x64;
     *(unsigned short *)(a0 + 8) = *(unsigned short *)(a1 + 0);
@@ -42,7 +42,7 @@ void func_80020920(unsigned char *a0, unsigned char *a1) {
     a0[7] |= 1;
 }
 
-void func_800209C4(int a0)
+void InitRaceHudPackets(int a0)
 {
     int n, i, j, a, b;
     char *tab;
@@ -76,7 +76,7 @@ void func_800209C4(int a0)
         for (j = 0; j < 2; j++) {
             s1 = D_800D0160 + j * 0x22778;
             s0 = s1 + (i * 0x14 + 0x18);
-            func_80020920(s0, tab + i * 0x14);
+            InitHudSpritePacket(s0, tab + i * 0x14);
             if (i != 0) AddPrim(s1 + (i * 0x14 + 4), s0);
         }
     }
@@ -132,7 +132,7 @@ LC0:
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ACC14 ((char *)D_800ACC14)
 
-void func_80020CD4(a0, a1, a2, a3)
+void DrawDigitString12(a0, a1, a2, a3)
 s32 a0;
 s32 a1;
 u8 *a2;
@@ -185,7 +185,7 @@ s32 a3;
 /* legacy typing of shared globals in this part of the unit */
 #define AddDrawModePrim ((s32 (*)())AddDrawModePrim)
 
-void func_80020E2C(a0, a1, a2, a3, a4)
+void DrawDigitString8(a0, a1, a2, a3, a4)
 RrSpritePacket *a0; s32 a1; s32 a2; u8 *a3; s32 a4;
 {
     RrSpritePacket *p = *(RrSpritePacket **)SCRATCHPAD;
@@ -222,7 +222,7 @@ RrSpritePacket *a0; s32 a1; s32 a2; u8 *a3; s32 a4;
 /* legacy typing of shared globals in this part of the unit */
 #define AddDrawModePrim ((int (*)())AddDrawModePrim)
 
-void func_80020F20(a0, a1, a2, a3)
+void DrawDigitString16(a0, a1, a2, a3)
 struct P *a0; int a1; int a2; unsigned char *a3;
 {
     struct P *p = *(struct P **)SCRATCHPAD;

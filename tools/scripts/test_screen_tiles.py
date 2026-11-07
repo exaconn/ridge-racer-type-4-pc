@@ -23,7 +23,7 @@ class ScreenTilesTest(unittest.TestCase):
         body=source('func_800207D4.c')
         assert body.count('(u8**)0x1F800000U')==3
         body=body.replace('(u8**)0x1F800000U','&cursor')
-        helpers=source('func_80095BB4.c').replace('func_80095BB4','actual_tile')
+        helpers=source('func_80095BB4.c').replace('SetTile','actual_tile')
         helpers+=source('func_80095AF4.c').replace('SetSemiTrans','actual_semitransparency')
         helpers+=source('func_80095A44.c').replace('AddPrim','actual_link')
         code=r'''
@@ -49,7 +49,7 @@ static void trace(int id) {
     assert(event_count==frame*3+id-1);
     event_count++;
 }
-void func_80095BB4(void *packet) {
+void SetTile(void *packet) {
     assert(packet==pool+16+frame*16);
     trace(1);actual_tile(packet);
 }
@@ -119,7 +119,7 @@ static void one(s32 intensity,s16 height,u32 mode,int alias,int hooks) {
     u8 wanted[sizeof(pool)];memcpy(wanted,pool,sizeof(pool));
     RrGpuRectangle *wanted_context;
     u32 wanted_ordering=reference(wanted,intensity,ordering,&wanted_context);
-    func_800207D4(&ordering,intensity,mode);
+    AddScreenFadeTiles(&ordering,intensity,mode);
     assert(frame==4&&event_count==12&&final_calls==1&&cursor==pool+92);
     assert(ordering==wanted_ordering&&D_800ACC14==wanted_context);
     assert(memcmp(pool,wanted,sizeof(pool))==0);

@@ -9,7 +9,7 @@ void AddPrim(u32 *,u32 *);
 struct P *func_8001FF84(u32 *a0, struct P *a1, int a2, int a3, struct R *a4, unsigned short a5, int a6)
 {
     int s1 = a6 >> 1;
-    func_80095B94(a1);
+    SetSprt(a1);
     if (s1 == 0) {
         SetShadeTex(a1, 1);
     } else {

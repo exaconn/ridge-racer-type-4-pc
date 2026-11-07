@@ -9,7 +9,7 @@ void ovl665_func_80116070(void) {
     InitUiRow(5,128,80,52,32,0,0,1,0,106);
     InitUiRow(6,200,80,28,32,0,0,1,0,107);
     InitUiRow(7,200,120,28,32,0,0,1,0,108);
-    D_800ACC68[0]=2;
+    ScreenFadeState[0]=2;
     InitBadgeRow(0,16,96,76,40,0,0xD01);
     ovl665_D_80119760=0;
     BadgeRows[0].half02=1;
@@ -20,5 +20,5 @@ void ovl665_func_80116070(void) {
     ovl665_D_80119768.view74.rotation12=0;
     ovl665_D_80119768.view74.rotation10=0;
     ovl665_D_80119768.reset2C=0;
-    func_8002AF8C(1,1,0);
+    SetMenuFrameOptions(1,1,0);
 }

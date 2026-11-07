@@ -27,7 +27,7 @@ struct Buf {
     char pad2[0x22778 - 0x1C];
 };
 
-extern struct Entry D_800A20CC[];
+extern struct Entry IntroTimeline[];
 extern int FrameCounter;
 extern struct Buf D_800ADAF0[];
 extern struct {
@@ -67,17 +67,17 @@ extern struct {
 extern void EmitFadeSprite(int, int, int, int);
 extern int rsin(int);
 extern int AddTileGrid2x2(char *, int, int, int, int, int, int, int, int);
-extern int func_8004E008();
+extern int RaceLoadReset();
 extern s32 CdDirectoryBuffer;
 extern M2C_UNK D_800ACA94;
 extern s16 D_800F3A26;
-extern s16 D_800F4C6A;
+extern s16 ModeGroup;
 extern s16 D_800F4D8A;
 
-int func_8005CA88(void);
-void func_8005D2A0(void);
+int IntroScriptStep(void);
+void IntroInit(void);
 
-int func_8005CA88(void) {
+int IntroScriptStep(void) {
     short sp28[4];
     unsigned char sp30[4];
     int i;
@@ -86,9 +86,9 @@ int func_8005CA88(void) {
     int ret = 0;
 
     cmd = -1;
-    for (i = 0; D_800A20CC[i].frame >= 0; i++) {
-        if (D_800A20CC[i].frame == RaceContext.f3E4) {
-            cmd = D_800A20CC[i].cmd;
+    for (i = 0; IntroTimeline[i].frame >= 0; i++) {
+        if (IntroTimeline[i].frame == RaceContext.f3E4) {
+            cmd = IntroTimeline[i].cmd;
             break;
         }
     }
@@ -98,7 +98,7 @@ int func_8005CA88(void) {
         RaceContext.f3F4 = 1;
         break;
     case 1:
-        func_80054D30(0x20, 0x100, 0);
+        SetParticleBrightFade(0x20, 0x100, 0);
         break;
     case 2:
         RaceContext.f3F8 = 1;
@@ -167,7 +167,7 @@ int func_8005CA88(void) {
     }
 
     if (RaceContext.f3F4) {
-        func_80054D50();
+        UpdateParticles();
     }
 
     switch (RaceContext.f3F8) {
@@ -184,7 +184,7 @@ int func_8005CA88(void) {
             RaceContext.f3F8 = 0;
             RaceContext.f3FC = 0x10;
             if (RaceContext.f430 == 0) {
-                func_8004F274(1);
+                PlaySfxBank2(1);
                 RaceContext.f430 = 1;
             }
         }
@@ -296,12 +296,12 @@ int func_8005CA88(void) {
             if (RaceContext.f3E0 == 0) {
                 RaceContext.f408 = 2;
                 RaceContext.f3E0 = 1;
-                func_80054D30(0x20, 0, 0x100);
+                SetParticleBrightFade(0x20, 0, 0x100);
                 RaceContext.f3F4 = 1;
             } else {
                 RaceContext.f408 = 1;
                 RaceContext.f3E0 = 0;
-                func_80054D30(0x20, 0x100, 0);
+                SetParticleBrightFade(0x20, 0x100, 0);
             }
             RaceContext.f424 = 0;
         }
@@ -319,14 +319,14 @@ int func_8005CA88(void) {
     return ret;
 }
 
-void func_8005D2A0(void) {
+void IntroInit(void) {
     SetDispMask(0);
     func_80096434(&D_800ACA94, 0x78);
     func_8005C13C(0);
     func_8005C988(0);
     LoadCursor = CdDirectoryBuffer;
-    func_8004E008();
-    D_800F4C6A = 2;
+    RaceLoadReset();
+    ModeGroup = 2;
     D_800F3A26 = 6;
     D_800F4D8A = 0;
 }

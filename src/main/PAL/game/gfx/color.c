@@ -9,7 +9,7 @@ typedef struct { char pad[0x1C]; short f1c; char pad2[0x3E]; } T;
 extern T D_800F3A38[];
 extern int SetCdMixMode();
 extern int CdAudioSetVolumeRaw();
-extern int func_80053A9C();
+extern int SeqSetVolume();
 extern char SoundState[];
 
 void func_8004C098(int i);
@@ -24,7 +24,7 @@ void func_8004C098(int i) {
 void func_8004C0EC(void) {
     char *p = SoundState;
     CdAudioSetVolumeRaw(*(unsigned short *)(p + 0x26C4));
-    func_80053A9C(*(short *)(p + 0x2888));
+    SeqSetVolume(*(short *)(p + 0x2888));
     SetCdMixMode(D_800AD55A);
 }
 

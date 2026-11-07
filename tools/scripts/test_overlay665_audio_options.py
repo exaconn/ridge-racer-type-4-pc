@@ -66,7 +66,7 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
 }
 static void service(unsigned kind){const s32 args[5]={0};record(kind,args);effect(kind);}
 void ovl665_func_80114FD8(void){service(0);}
-void func_800207D4(u32 *p,s32 b,u32 c){unsigned k,slot;int found=0;for(k=0;k<2&&!found;k++)for(slot=0;slot<2;slot++)if(p==&w->frames[k].ordering70[slot?702:0]){found=1;goto selected;}
+void AddScreenFadeTiles(u32 *p,s32 b,u32 c){unsigned k,slot;int found=0;for(k=0;k<2&&!found;k++)for(slot=0;slot<2;slot++)if(p==&w->frames[k].ordering70[slot?702:0]){found=1;goto selected;}
 selected:assert(found&&(uintptr_t)p>UINT32_MAX);fadeKinds[slot]++;const s32 args[5]={k,slot,b,(s32)c};record(1,args);effect(1);}
 void func_8005B2D4(s32 a){const s32 args[5]={a};record(2,args);effect(2);}
 void StepMenuValue(s32 a,s32 b,char *p,s32 d,s32 e){unsigned kind;
@@ -82,8 +82,8 @@ void StepMenuValue(s32 a,s32 b,char *p,s32 d,s32 e){unsigned kind;
  else *p=(char)(u8)(scenario+serial);
 }
 void PlaySfx(s32 a){const s32 args[5]={a};record(4,args);effect(4);}
-void func_8002AF8C(s32 a,s32 b,s32 c){const s32 args[5]={a,b,c};record(5,args);effect(5);}
-void func_80053A9C(s16 a){const s32 args[5]={a};record(6,args);effect(6);}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){const s32 args[5]={a,b,c};record(5,args);effect(5);}
+void SeqSetVolume(s16 a){const s32 args[5]={a};record(6,args);effect(6);}
 void SetCdMixMode(s32 a){const s32 args[5]={a};record(7,args);effect(7);}
 void DrawUiRow(s32 a){const s32 args[5]={a};record(8,args);effect(8);}
 void ovl665_func_80114A24(void){service(9);}
@@ -94,23 +94,23 @@ static void expectedInput(unsigned kind,s32 mode,s32 width,s32 limit){unsigned c
 }
 static void expected(void){s32 phase=w->visual.layout0C;states[phase>=0&&phase<10?phase:10]++;
  if(phase==0){service(0);w->timer=64;w->visual.layout0C=word((u32)w->visual.layout0C+1);
- }else if(phase==1){if(w->timer>0){s16 timer=half((u16)w->timer-1);w->timer=timer;func_800207D4(&w->frames[w->frameRoot].ordering70[702],timer*4,69);fadeTaken[0]++;}
+ }else if(phase==1){if(w->timer>0){s16 timer=half((u16)w->timer-1);w->timer=timer;AddScreenFadeTiles(&w->frames[w->frameRoot].ordering70[702],timer*4,69);fadeTaken[0]++;}
   func_8005B2D4(1);if(w->rows[w->rowRoot][0].byte14==2&&w->timer==0)w->visual.layout0C=word((u32)w->visual.layout0C+1);
  }else if(phase==2){w->rows[w->rowRoot][w->visual.exit34.word].cells[0]=0;expectedInput(0,0,2,4);w->rows[w->rowRoot][w->visual.exit34.word].cells[0]=2;
-  if(w->input[0].a){PlaySfx(1);w->rows[w->rowRoot][w->visual.exit34.word].cells[0]=1;w->visual.layout0C=w->visual.exit34.word+3;func_8002AF8C(1,1,0);}
+  if(w->input[0].a){PlaySfx(1);w->rows[w->rowRoot][w->visual.exit34.word].cells[0]=1;w->visual.layout0C=w->visual.exit34.word+3;SetMenuFrameOptions(1,1,0);}
   else if(w->input[0].b){PlaySfx(2);w->timer=64;w->visual.layout0C=6;}
  }else if(phase==3||phase==4){unsigned row=phase+1;if(w->rows[w->rowRoot][row].byte14==2){w->rows[w->rowRoot][row].cells[0]=2;expectedInput(phase==3?1:2,1,-1,17);
-   if(phase==3){w->music=w->settings.bytes[48];func_80053A9C(w->gain);}else w->effects=w->settings.bytes[49];
-   if(w->input[0].a){audioTaken[phase-3]++;PlaySfx(1);w->rows[w->rowRoot][row].cells[0]=1;w->visual.layout0C=7;func_8002AF8C(1,1,1);}}
+   if(phase==3){w->music=w->settings.bytes[48];SeqSetVolume(w->gain);}else w->effects=w->settings.bytes[49];
+   if(w->input[0].a){audioTaken[phase-3]++;PlaySfx(1);w->rows[w->rowRoot][row].cells[0]=1;w->visual.layout0C=7;SetMenuFrameOptions(1,1,1);}}
   DrawUiRow(row);
  }else if(phase==5){if(w->rows[w->rowRoot][6].byte14==2){w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=0;expectedInput(3,0,2,2);w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=2;
-   if(w->input[0].a){audioTaken[2]++;PlaySfx(1);w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=1;w->visual.layout0C=7;func_8002AF8C(1,1,1);SetCdMixMode(w->settings.audio.mono32);}}
+   if(w->input[0].a){audioTaken[2]++;PlaySfx(1);w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=1;w->visual.layout0C=7;SetMenuFrameOptions(1,1,1);SetCdMixMode(w->settings.audio.mono32);}}
   DrawUiRow(6);DrawUiRow(7);
  }else if(phase==6){for(unsigned i=0;i<4;i++)if(w->rows[w->rowRoot][i].byte14==2)w->rows[w->rowRoot][i].byte14=3;w->timer=64;w->visual.layout0C=9;
  }else if(phase==7){for(unsigned i=4;i<8;i++){u8 state=w->rows[w->rowRoot][i].byte14;if(state==2)w->rows[w->rowRoot][i].byte14=3;else if(state==6)w->visual.layout0C=8;
    if(w->rows[w->rowRoot][i].byte14>=2)DrawUiRow(i);}
  }else if(phase==8){for(unsigned i=4;i<8;i++)w->rows[w->rowRoot][i].byte14=0;w->visual.layout0C=1;
- }else if(phase==9){s16 timer=half((u16)w->timer-1);w->timer=timer;func_800207D4(&w->frames[w->frameRoot].ordering70[0],(64-(s32)timer)*4,69);
+ }else if(phase==9){s16 timer=half((u16)w->timer-1);w->timer=timer;AddScreenFadeTiles(&w->frames[w->frameRoot].ordering70[0],(64-(s32)timer)*4,69);
   if(w->timer<=0){fadeTaken[1]++;service(9);w->visual.layout0C=0;w->visual.scene00=word((u32)w->visual.scene00-1);}
  }
  for(unsigned i=0;i<4;i++)DrawUiRow(i);UpdateScreenFade(0x1006A);

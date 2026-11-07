@@ -51,10 +51,10 @@ static void *sequence(s32 a,s32 b){service(2,a,b);return 0;}
 #define TrackLength (actual.length)
 #define NumLaps (actual.target)
 #define RaceState (actual.state)
-#define D_800F4C64 (actual.flag)
+#define TotalRaceTime (actual.flag)
 #define D_800AC5D0 (actual.timer)
 #define D_8010C134 (actual.pending)
-#define D_800ABEC0 (actual.latch)
+#define RaceVoiceFlags (actual.latch)
 '''+body+r'''
 static void model(void){
  int lap=expected.vehicle.control.steering94.count22;s32 target,id;

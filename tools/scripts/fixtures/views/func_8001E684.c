@@ -3,22 +3,22 @@
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3A26 (*(s16 (*))&D_800F3A26)
 
-#define D_800F4C6A (*(s16 (*))&D_800F4C6A)
+#define ModeGroup (*(s16 (*))&ModeGroup)
 
 #undef D_800F3A26
 
-#undef D_800F4C6A
+#undef ModeGroup
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ACC14 (*(int (*))&D_800ACC14)
 
-#define D_800F4C6A (*(short (*))&D_800F4C6A)
+#define ModeGroup (*(short (*))&ModeGroup)
 
 #define D_800F3A26 (*(short (*))&D_800F3A26)
 
 #undef D_800ACC14
 
-#undef D_800F4C6A
+#undef ModeGroup
 
 #undef D_800F3A26
 
@@ -49,8 +49,8 @@ void MainLoop(void) {
     SystemInit();
     VSyncThreshold=128;
     SetDispMask(0);
-    D_800F2DE4=0;
-    D_800F4C6A=1;
+    ModeFrame=0;
+    ModeGroup=1;
     D_800F3A26=1;
     D_800F4D8A=0;
     FrameCounter=0;
@@ -83,7 +83,7 @@ void MainLoop(void) {
         ClearOTagR((u32 *)(D_800ACC14+0xB70),0x2C0);
         CdFileStep();
         SoundUpdate();
-        ModeFuncTable[D_800F4C6A][D_800F3A26]();
+        ModeFuncTable[ModeGroup][D_800F3A26]();
         DrawSync(0);
         threshold=VSyncThreshold;
         do {} while (VSync(1)<threshold);

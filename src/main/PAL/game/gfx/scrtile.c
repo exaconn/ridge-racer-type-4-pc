@@ -5,7 +5,7 @@
 #include "psyq/libgpu/settrans.h"
 extern void AddPrim(u32 *,u32 *);
 extern u8 *AddDrawModePrim(u32 *,u8 *,u16);
-void func_800207D4(u32 *ordering,s32 intensity,u32 mode) {
+void AddScreenFadeTiles(u32 *ordering,s32 intensity,u32 mode) {
     u8 *next,*fields,*packet;
     s32 index;
     s16 y;
@@ -21,7 +21,7 @@ void func_800207D4(u32 *ordering,s32 intensity,u32 mode) {
     index=0;
     fields=next+RR_FIELD_OFFSET(RrGpuTilePacket16,b);
     do {
-        func_80095BB4(next);
+        SetTile(next);
         SetSemiTrans(next,1);
         column=index&1;
         x=column*160;

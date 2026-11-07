@@ -18,9 +18,9 @@ loop:
     __asm__("" : "+r"(expected));
     if(status==expected) {
         result=1;
-        CD_cbsync=func_8008BF10;
-        CD_cbready=func_8008BF38;
-        CD_cbread=func_8008BF60;
+        CD_cbsync=def_cbsync;
+        CD_cbready=def_cbready;
+        CD_cbread=def_cbread;
         {
             /* ASM_BARRIER: Preserve the assembler temporary for the final state store. */
             register u32 *page __asm__("$1");

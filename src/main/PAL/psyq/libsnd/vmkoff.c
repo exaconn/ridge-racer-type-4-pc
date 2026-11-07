@@ -25,7 +25,7 @@ void _SsVmSeqKeyOff(s32 input) {
         next=(u8)index;
 again: {
             s32 i=next;
-            if(!(D_800A48F8 & (one << i)) && _svm_voice[i].match10==wanted) {
+            if(!(_snd_vmask & (one << i)) && _svm_voice[i].match10==wanted) {
                 D_80110118=(u8)index;
                 _SsVmKeyOffNow(0);
             }

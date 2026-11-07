@@ -113,7 +113,7 @@ static RrLibCompletionCallback set(int model,int channel,RrLibCompletionCallback
     record(model,SET,channel,0,0,0,callback,0);
     RrLibCompletionCallback old=w->registered[channel];w->registered[channel]=callback;
     if(plan.mutations&1) {
-        if(channel==2&&callback==func_8008EA9C)w->flags=plan.header_flags;
+        if(channel==2&&callback==cb_data)w->flags=plan.header_flags;
         w->state.restore.notify34=actual.buffers[1]+3000;
     }
     if(plan.mutations&8) {
@@ -214,9 +214,9 @@ void CdDataSync(s32 mode){sync_transfer(0,mode);}
 s32 CdPosToInt(void *p){return decode(0,p);}
 s32 func_800963DC(const char *s,...){return diagnostic(0,s);}
 s32 VSync(s32 mode){return clock_tick(0,mode);}
-s32 func_8008EB6C(s32 mode){return restart(0,mode);}
+s32 cd_read_retry(s32 mode){return restart(0,mode);}
 s32 CdControlF(s32 c,const u8 *p){return command(0,c,p);}
-void func_8008EA9C(void){completion_effect^=8;}
+void cb_data(void){completion_effect^=8;}
 void func_8008E7F4(void){completion_effect^=16;}
 static void reference(s32 event,u8 *data) {
     expected.state.restore.notify34=data;
@@ -228,7 +228,7 @@ static void reference(s32 event,u8 *data) {
                 set(1,2,0);
                 read_data(1,1,header,3);
                 sync_transfer(1,0);
-                set(1,2,func_8008EA9C);
+                set(1,2,cb_data);
             } else read_data(1,0,header,3);
             s32 sector=decode(1,header);
             if((u32)sector!=expected.state.completed20) {
@@ -281,7 +281,7 @@ static void check(s32 event,s32 remaining,u32 step,u32 flags,u32 start,u32 seed)
     assert((uintptr_t)actual.buffers>UINT32_MAX&&(uintptr_t)notification0>UINT32_MAX);
     input_data=(seed&4)?0:actual.buffers[0]+3000;
     reference(event,input_data);
-    func_8008E828(event,input_data);
+    cb_read(event,input_data);
     assert(actual_count==expected_count);
     for(int i=0;i<actual_count;i++)if(memcmp(&actual_log[i],&expected_log[i],sizeof(Event))) {
         fprintf(stderr,"event %d kind %d/%d eventword=%d pending=%d step=%u flags=%u seed=%u mutations=%u\n",

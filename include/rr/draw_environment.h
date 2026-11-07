@@ -21,6 +21,6 @@ void SetDrawEnv(u32 *output,RrFrameEnvironment *environment);
 /* Same descriptor, output capacity, aliasing and helper-mutation contract.
  * Selects the GPU fill command when clip.x and clamped width are multiples
  * of64; otherwise emits a rectangle relative to the drawing offset. */
-void func_80093E70(u32 *output,RrFrameEnvironment *environment);
+void SetDrawEnv2(u32 *output,RrFrameEnvironment *environment);
 
 #endif

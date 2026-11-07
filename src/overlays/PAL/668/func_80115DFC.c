@@ -5,7 +5,7 @@ void ovl668_func_80115DFC(void) {
     RrTrackSample3C *p;
 
     SetDispMask(0);
-    func_8001ECE8(0, 0, 0, 1);
+    SetupDrawDispEnvs(0, 0, 0, 1);
     VSyncThreshold = 384;
     func_8006E794();
     SetupRenderer(5);

@@ -117,7 +117,7 @@ typedef struct {
 extern int SetModelTexturePage();
 extern int InitBadgeRow();
 extern int InitRect16Row();
-extern int func_8003FAE4();
+extern int InitImageRow();
 extern s32 D_800F2EC8;
 extern int AddDrawModePrim();
 extern int func_8001FF84();
@@ -137,7 +137,7 @@ extern short D_800AD508;
 extern int FindTrackNode();
 extern int Atan2Table();
 extern int FindWheelTrackNodes();
-extern short D_800AD522;
+extern short ReverseCourse;
 extern struct {
     char pad[0x53C];
     Grid53C *p53C;
@@ -146,15 +146,15 @@ extern Bounds08 *CarBoundsTable[];
 
 void func_80037110(void);
 void func_80037198(int arg0);
-void func_800373DC(int a);
-void func_80037618(Car37618 *p, int arg1);
+void InitCarTable(int a);
+void PlaceCarOnGrid(Car37618 *p, int arg1);
 
 void func_80037110(void) {
     SetModelTexturePage(0x19);
     D_800F2EC8 = 0;
     InitBadgeRow(0, 0x10, 0x158, 0x120, 0x3C, 0, 0x103);
     InitRect16Row(0, 0x10, 0x48, 0x120, 0x120, 0, 0);
-    func_8003FAE4(0, -1, 0, 1);
+    InitImageRow(0, -1, 0, 1);
 }
 
 void func_80037198(int arg0) {
@@ -164,7 +164,7 @@ void func_80037198(int arg0) {
     int a1;
     int b;
     unsigned char *t7 = D_8009F7CC;
-    unsigned char (*q)[4] = D_800F4D98;
+    unsigned char (*q)[4] = SelectionRows;
     unsigned char *p = q[arg0];
     v[0] = t7[p[1]];
     v[1] = D_8009F7D0[p[1]];
@@ -201,7 +201,7 @@ void func_80037198(int arg0) {
     *(int *)SCRATCHPAD = AddDrawModePrim(D_800ACC14 + 0x70, a1, 0x39);
 }
 
-void func_800373DC(int a) {
+void InitCarTable(int a) {
     int i;
     int n;
     int v;
@@ -270,16 +270,16 @@ void func_800373DC(int a) {
         NumCars = 2;
         break;
     }
-    func_80031DEC();
+    ResetRankEntriesForCars();
 }
 
-void func_80037618(Car37618 *p, int arg1) {
+void PlaceCarOnGrid(Car37618 *p, int arg1) {
     int i;
     int t;
     int *g = (int *)(SCRATCHPAD + 0x7C);
 
-    func_8002BEF8();
-    if (D_800F4D44 == 0 && D_800AD522 == 1) {
+    ResetVehicleShake();
+    if (D_800F4D44 == 0 && ReverseCourse == 1) {
         p->fF0 = *TrackStartNode;
         t = TrackNodeCount - 5;
         p->f20 = TrackNodes[(p->fF0 + t) % TrackNodeCount].x08;
@@ -297,7 +297,7 @@ void func_80037618(Car37618 *p, int arg1) {
     p->fF0 = FindTrackNode(&p->f20, p->fF0, TrackNodeCount + 1);
     p->sF8 = p->sFA = p->sFC = p->sFE = p->fF0;
     p->f50 = 0;
-    p->f54 = ((0x800 - TrackNodes[p->fF0].heading12) - (D_800AD522 << 11)) & 0xFFF;
+    p->f54 = ((0x800 - TrackNodes[p->fF0].heading12) - (ReverseCourse << 11)) & 0xFFF;
     p->f58 = 0;
     p->s1AE = 0;
     p->s1D4 = p->s1D6 = p->f54;

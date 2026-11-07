@@ -84,8 +84,8 @@ void func_80055300(void);
 void func_80055330(int a0, u8 a1, u8 a2, u8 a3);
 void func_8005534C(s32 arg0);
 void func_80055358(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4);
-void func_80055700();
-void func_8005599C();
+void InitCameraState();
+void SetupObjectLightMatrices();
 void TransformPoint(int a0, int *a1, u16 *a2, int *a3);
 
 void func_80055300(void) {
@@ -225,7 +225,7 @@ void func_800556B4(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define RaceContext (*(struct { char pad[0xEC]; char buf[0x160]; char *p; } (*))&RaceContext)
 
-void func_80055700(a0, a1)
+void InitCameraState(a0, a1)
 int a0, a1;
 {
     int t, one;
@@ -283,7 +283,7 @@ int a0, a1;
 
 #undef RaceContext
 
-void func_8005599C(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
+void SetupObjectLightMatrices(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
     M32 s10, s30, s50;
     S70 s70;
     Q16 s90;

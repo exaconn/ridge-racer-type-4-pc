@@ -21,11 +21,11 @@ static struct State {
  RrMenuGridPoint grid[4];u8 map[25];void *palette0,*palette1;unsigned root,badgeRoot;u32 tail[4];
 } actual,reference,*w;
 static u8 banks[3][25*0x840];
-#define D_800F2DE4 w->frame
+#define ModeFrame w->frame
 #define ScreenFrame w->tick
 #define D_800F4D8A w->state
 #define D_800F3A26 w->scene
-#define D_800F4C6A w->enable
+#define ModeGroup w->enable
 #define MenuCursor w->selection
 #define MenuItemCount w->count
 #define D_800F3A38 w->input
@@ -65,22 +65,22 @@ static void change(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
  // Keep independent gate decisions reachable after navigation services.
  if(kind==0||kind==1||kind==2){w->rows[w->root][0].byte14=((scenario>>9)&1)?2:5;w->badges[w->badgeRoot][0].state10=((scenario>>10)&1)?3:11;}
 }
-void func_8002AF8C(s32 a,s32 b,s32 c){record(0,a,b,c,0,0,0,0);change(0);}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){record(0,a,b,c,0,0,0,0);change(0);}
 void StepMenuValue(s32 a,s32 b,char *p,s32 d,s32 e){int target;
  if(p==(char*)&w->current)target=0;else{assert(p==(char*)&w->selection);target=1;}
  assert((uintptr_t)p>UINT32_MAX);record(target?2:1,a,b,target,d,e,0,0);change(target?2:1);
  // Navigation can select a different valid item, independently of later guards.
  if(target)w->selection=(scenario/2+serial)%3;else w->current=(scenario+serial)%25;
 }
-void func_8001E854(void *p,s32 a,s32 b){unsigned bank;assert((uintptr_t)p>UINT32_MAX);
+void UploadCarClut(void *p,s32 a,s32 b){unsigned bank;assert((uintptr_t)p>UINT32_MAX);
  for(bank=0;bank<3&&p!=banks[bank];bank++){}assert(bank<3&&a>=0&&a<25);
  if(!referenceRun){assert(w->key>=0&&w->key<=25);mapped[w->key]++;}
  record(3,bank,a,b,0,0,0,0);change(3);
 }
 void PlaySfx(s32 a){assert(a==1||a==2||a==4);record(4,a,0,0,0,0,0,0);change(4);}
-s32 func_8003DCEC(s32 a){record(5,a,0,0,0,0,0,0);change(5);return (scenario&1)?1:word(scenario*0x1020304U);}
+s32 UpdateRect16Row(s32 a){record(5,a,0,0,0,0,0,0);change(5);return (scenario&1)?1:word(scenario*0x1020304U);}
 void ovl662_func_80119898(s32 a){record(6,a,0,0,0,0,0,0);change(6);}
-void func_8002B12C(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){record(7,a,b,c,d,e,f,g);change(7);}
+void DrawMenuStepArrows(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){record(7,a,b,c,d,e,f,g);change(7);}
 void DrawUiRow(s32 a){assert(a>=0&&a<4);record(8,a,0,0,0,0,0,0);change(8);}
 void UpdateBadgeRowAnim(s32 a){record(9,a,0,0,0,0,0,0);change(9);}
 void UpdateScreenFade(s32 a){record(10,a,0,0,0,0,0,0);change(10);}
@@ -88,9 +88,9 @@ void ovl662_func_80118ED8(void){exitRoute[0]++;record(10,-1,0,0,0,0,0,0);change(
 static void closeRows(void){for(unsigned i=0;i<2;i++)if(w->rows[w->root][i].byte14==2)w->rows[w->root][i].byte14=3;}
 static void expected(void){unsigned state=(u16)w->state;int complete=0;
  w->frame=word((u32)w->frame+1);w->tick=word((u32)w->tick+1);
- if(state==0){func_8002AF8C(1,1,w->mode==0);s16 prior=w->current;
+ if(state==0){SetMenuFrameOptions(1,1,w->mode==0);s16 prior=w->current;
   if(w->fade>=17)StepMenuValue(1,2,(char*)&w->current,25,0);
-  if(prior!=w->current){int key=(s8)w->map[w->current];w->key=key;void *p=key?w->palette1:w->palette0;func_8001E854(p,key?key-1:0,0);w->fade=0;}
+  if(prior!=w->current){int key=(s8)w->map[w->current];w->key=key;void *p=key?w->palette1:w->palette0;UploadCarClut(p,key?key-1:0,0);w->fade=0;}
   w->rows[w->root][w->selection].cells[0]=0;StepMenuValue(0,2,(char*)&w->selection,w->count,0);
   int highlight=2;if(w->key>=25){w->rows[w->root][0].half20=1;if(w->selection==0)highlight=4;}else w->rows[w->root][0].half20=0;
   w->rows[w->root][w->selection].cells[0]=highlight;
@@ -101,15 +101,15 @@ static void expected(void){unsigned state=(u16)w->state;int complete=0;
     else if(w->selection==1){action[2]++;PlaySfx(1);w->fade=0;w->phase=rowPhase;w->badges[w->badgeRoot][0].state10=4;closeRows();w->state=4;}
    }else if(w->input[0].b&&w->mode==0){action[3]++;PlaySfx(2);w->phase=rowPhase;w->fade=0;w->badges[w->badgeRoot][0].state10=4;closeRows();w->state=4;}
   }
- }else if(state==3||state==4){func_8002AF8C(0,1,w->mode==0);
+ }else if(state==3||state==4){SetMenuFrameOptions(0,1,w->mode==0);
   if(w->rows[w->root][0].byte14==5&&w->badges[w->badgeRoot][0].state10==11){
    if(state==3)w->grid[0].second=half((u16)w->key+1);
    if(w->mode==0)ovl662_func_80118ED8();else{exitRoute[1]++;w->enable=3;w->scene=1;w->state=0;}
    complete=1;
   }
  }
- if(!complete){if(w->phase==0){s32 v=func_8003DCEC(0);readyOut[v==1]++;if(v==1)w->phase=1;}
-  else{ovl662_func_80119898(w->phase-1);func_8002B12C(160,192,48,0,w->current,0,w->total);}
+ if(!complete){if(w->phase==0){s32 v=UpdateRect16Row(0);readyOut[v==1]++;if(v==1)w->phase=1;}
+  else{ovl662_func_80119898(w->phase-1);DrawMenuStepArrows(160,192,48,0,w->current,0,w->total);}
   for(int i=0;i<w->count;i++)DrawUiRow(i);UpdateBadgeRowAnim(0);
  }
  UpdateScreenFade(0x1004A);

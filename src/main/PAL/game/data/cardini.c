@@ -16,7 +16,7 @@
 #include "rr/card_format.h"
 #include "game/data/globals.h"
 
-extern int func_80095C74();
+extern int _bu_init();
 extern int EnterCriticalSection();
 extern int ExitCriticalSection();
 extern int HwCardEvIoe;
@@ -36,8 +36,8 @@ extern char *func_80096F74();
 extern char D_800113E4[];
 extern int CardFileHandle;
 extern int FileSeek();
-extern int func_80095C84();
-extern int func_80095C94();
+extern int _card_info();
+extern int _card_load();
 extern int CardPortState[];
 extern int D_8010ECC8[];
 extern int CardPortResult[];
@@ -60,7 +60,7 @@ void CardSystemInit()
 {
     InitCARD();
     StartCARD();
-    func_80095C74();
+    _bu_init();
     func_8009BA04();
     EnterCriticalSection();
     HwCardEvIoe = OpenEvent(0xF4000001, 4, 0x2000, 0);
@@ -82,7 +82,7 @@ void CardSystemInit()
     EnableEvent(SwCardEvNew);
     D_800F3A24[1] = 0x5A;
     D_800F3A24[0] = 0x5A;
-    D_800ACC0C = (int)D_800FFC48;
+    SaveBuffer = (int)D_800FFC48;
 }
 
 void CardSystemShutdown(void) {
@@ -312,7 +312,7 @@ int CardUpdate(int p, char *a1) {
     s2 = (char *)((p << 4) + (int)a1);
     switch (CardPortState[p]) {
     case 0:
-        func_80095C84(s2);
+        _card_info(s2);
         CardPortState[p] = 1;
         CardPortTimer[p] = 0;
         D_8010ECC8[p] = 0;
@@ -357,7 +357,7 @@ int CardUpdate(int p, char *a1) {
         }
         break;
     case 3:
-        a0 = func_8009BF94(1, &sp[0], &sp[1]);
+        a0 = MemCardSync(1, &sp[0], &sp[1]);
         if (a0 != 0) {
             if (a0 > 0) {
                 a0 = sp[1];
@@ -415,7 +415,7 @@ int CardUpdate(int p, char *a1) {
         break;
     case 4:
         ClearHwCardEvents();
-        func_80095C94(s2);
+        _card_load(s2);
         CardPortState[p] = 5;
         CardPortTimer[p] = 0;
         break;
@@ -456,5 +456,5 @@ int CardUpdate(int p, char *a1) {
 }
 
 void func_80078E1C(s32 arg0, s32 arg1) {
-    func_80096198((arg0 * 0x10) + arg1);
+    _card_format((arg0 * 0x10) + arg1);
 }

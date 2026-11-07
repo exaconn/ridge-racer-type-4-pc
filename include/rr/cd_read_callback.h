@@ -18,7 +18,7 @@ extern u32 D_800A67D0;
  * 12-byte header from either transfer helper. Event is narrowed to its low byte.
  * Timers compare signed32 ticks against wrapping32(start+1200), reloading start
  * after each clock call. Notification receives the original full result pointer. */
-void func_8008E828(s32 event,u8 *result);
+void cb_read(s32 event,u8 *result);
 RR_ASSERT_SIZE(RrCdPositionView,0xC);
 RR_ASSERT_OFFSET(RrCdPositionView,step10,8);
 #endif

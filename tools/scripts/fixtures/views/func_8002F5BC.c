@@ -1,15 +1,15 @@
 #include "rr/menu_transition.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3920 (*(char (*)[])&D_800F3920)
+#define SaveProgress (*(char (*)[])&SaveProgress)
 
-#undef D_800F3920
+#undef SaveProgress
 
 extern s16 D_800F4D2C;
 
 extern s16 D_800FFC18;
 
-void func_8002F5BC(void){
+void SetNextModeByGameType(void){
  switch(D_800F4D2C){
  case 0:D_800AD50A=0x105;break;
  case 1:default:D_800AD50A=0x131;break;

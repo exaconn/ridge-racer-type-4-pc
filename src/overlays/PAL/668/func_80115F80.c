@@ -52,7 +52,7 @@ RrReplayCameraContextPrefix *ctx;
                 ctx->counter4A4 = 0xFF;
                 ctx->mode4A8 = 0;
 }
-            func_800207D4(&D_800ACC14->head70, (s32)(255U - (u32)ctx->counter4A4), 0x45);
+            AddScreenFadeTiles(&D_800ACC14->head70, (s32)(255U - (u32)ctx->counter4A4), 0x45);
             break;
         case 2:                                    
             temp_v0_2 = (u32)ctx->counter4A4 - 4;
@@ -61,12 +61,12 @@ RrReplayCameraContextPrefix *ctx;
                 ctx->counter4A4 = 0;
                 ctx->mode4A8 = 0;
                 CdAudioFade(0, 0);
-                D_800F4C6A = (s16) temp_s1;
+                ModeGroup = (s16) temp_s1;
                 D_800F3A26 = 3;
                 ctx->flagB0 = 1;
                 D_800F4D8A = 0;
             }
-            func_800207D4(&D_800ACC14->head70, (s32)(255U - (u32)ctx->counter4A4), 0x45);
+            AddScreenFadeTiles(&D_800ACC14->head70, (s32)(255U - (u32)ctx->counter4A4), 0x45);
             break;
         }
         temp_v1 = RaceContext.phase4AC;

@@ -27,7 +27,7 @@ static struct World {u32 guard[4];RrGarageSelectionPrefix garage;RrGarageWorking
 #define D_800F3A60 world.accept
 #define ovl662_D_801272E8 world.exit
 #define D_800F3A26 world.scene
-#define D_800F4C6A world.enable
+#define ModeGroup world.enable
 #define D_800F4D8A world.state
 '''+s+r'''
 static struct Event {unsigned kind;s32 a;struct World before;} events[4];

@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80036030(void);
+void StopRaceRumble(void);
 
 #endif /* RR_GAME_RACE_RACEAI2_H */

@@ -33,7 +33,7 @@ char test_name_page[65536];
 char *test_requested_path;
 void *test_directory;
 u32 test_first_calls;
-void *func_800973B4(char *path,void *directory) {
+void *firstfile2(char *path,void *directory) {
  test_requested_path=path;test_directory=directory;test_first_calls++;return directory;
 }
 RrBiosDeviceHandler D_801143B8;

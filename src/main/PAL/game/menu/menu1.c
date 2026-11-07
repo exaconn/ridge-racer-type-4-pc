@@ -19,15 +19,15 @@ typedef struct { char p0[0xC]; unsigned char a; char p1[7]; unsigned char b; cha
 
 extern int ClearScreenOverlayState();
 extern void InitUiRow(int,int,int,int,int,int,int,int,int,int,...);
-extern int func_8002AF8C();
+extern int SetMenuFrameOptions();
 extern short D_800AC5D0;
 extern int VSyncThreshold;
 extern short MenuCursor;
-extern signed char D_800AD4D8[];
-extern int D_800F2DE4;
+extern signed char SelectionState[];
+extern int ModeFrame;
 extern T D_800F2E30[];
 extern short D_800F3A26;
-extern short D_800F4C6A;
+extern short ModeGroup;
 extern short D_800F4D8A;
 extern int DrawUiRow();
 extern E *UiRows;
@@ -35,14 +35,14 @@ extern short D_800FFC18;
 extern struct { int p[10]; int a28; int a2c; } D_800F3A38;
 extern int StepMenuValue();
 extern int PlaySfx();
-extern int func_800207D4();
+extern int AddScreenFadeTiles();
 extern int AddTileGrid2x2();
 extern int ResetScreenCounters();
 extern int InitMenuArenas();
 extern int InitMenuGrid();
 extern int LoadCursor;
 extern int *MenuGridRecords;
-extern short D_800F4CB0;
+extern short MenuFrameState;
 extern int D_800F4D40;
 extern char D_800FFC48[];
 
@@ -57,15 +57,15 @@ void func_8002FCEC() {
     short v;
     T *p;
     SetDispMask(0);
-    func_8001ECE8(0, 0, 0, 3);
-    D_800F2DE4 = 0;
+    SetupDrawDispEnvs(0, 0, 0, 3);
+    ModeFrame = 0;
     ScreenFrame = 0;
     D_800AC5D0 = 0;
     MenuCursor = 1;
     VSyncThreshold = 0x80;
-    D_800AD4D8[0x17] = -1;
-    D_800AD4D8[0x19] = 9;
-    func_80031DB0();
+    SelectionState[0x17] = -1;
+    SelectionState[0x19] = 9;
+    ResetRankEntries();
     ClearScreenOverlayState();
     a1 = 0;
     a0 = 0;
@@ -78,7 +78,7 @@ void func_8002FCEC() {
     J:
     if (a1 != 0) goto B;
     func_8002F688();
-    D_800F4C6A = 0;
+    ModeGroup = 0;
     D_800F3A26 = 1;
     D_800F4D8A = 0;
     goto E2;
@@ -89,8 +89,8 @@ void func_8002FCEC() {
     InitUiRow(0, 0x6C, 0xB8, 0x44, 0x20, 0, 0, 1, 0, 0x54);
     InitUiRow(1, 0x6C, 0xE0, 0x44, 0x20, 0, 0, 1, 0, 0x67);
     InitUiRow(2, 0x6C, 0x108, 0x44, 0x20, 0, 0, 1, 0, 0x55);
-    func_8002AF8C(0, 1, 1);
-    D_800F4C6A = 1;
+    SetMenuFrameOptions(0, 1, 1);
+    ModeGroup = 1;
     D_800F3A26 = 6;
     D_800F4D8A = 0;
     E2:
@@ -112,7 +112,7 @@ void func_8002FECC(void) {
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 #define D_800AC5D0 (*(unsigned short (*))&D_800AC5D0)
 #define D_800F3A26 (*(unsigned short (*))&D_800F3A26)
-#define D_800F4C6A (*(unsigned short (*))&D_800F4C6A)
+#define ModeGroup (*(unsigned short (*))&ModeGroup)
 
 void func_8002FEFC() {
     int s;
@@ -124,7 +124,7 @@ void func_8002FEFC() {
     UiRows[MenuCursor].a = 2;
     s = UiRows->b;
     if (s != 2) goto END;
-    func_8002AF8C(1, 1, 1);
+    SetMenuFrameOptions(1, 1, 1);
     if (D_800F3A38.a28 == 0) goto L0C;
     PlaySfx(1);
     UiRows[MenuCursor].a = 1;
@@ -149,10 +149,10 @@ L0C:
     goto END;
 C1:
     if (s != 1) goto END;
-    func_8002AF8C(0, 1, 1);
+    SetMenuFrameOptions(0, 1, 1);
     t = D_800AC5D0 - 1;
     D_800AC5D0 = t;
-    func_800207D4(D_800ACC14 + 0x70, (0x40 - (short)t) * 4, 0x45);
+    AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - (short)t) * 4, 0x45);
     if ((short)D_800AC5D0 > 0) goto END;
     w = MenuCursor;
     if (w == s) goto L120;
@@ -164,18 +164,18 @@ C1:
     goto END;
 L104:
     func_8002F688();
-    D_800F4C6A = 0;
+    ModeGroup = 0;
     D_800F3A26 = s;
     D_800F4D8A = 0;
     goto END;
 L120:
     D_800FFC18 = 4;
-    D_800F4C6A = s;
+    ModeGroup = s;
     D_800F3A26 = 0xD;
     D_800F4D8A = 0;
     goto END;
 L13C:
-    D_800F4C6A = s;
+    ModeGroup = s;
     D_800F3A26 = 3;
     D_800F4D8A = 0;
 END:
@@ -185,7 +185,7 @@ END:
 #undef D_800F4D8A
 #undef D_800AC5D0
 #undef D_800F3A26
-#undef D_800F4C6A
+#undef ModeGroup
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ACC14 ((char *)D_800ACC14)
@@ -204,19 +204,19 @@ void func_8003016C(void)
     p[5] = 0x1A;
     sp[6] = 0x400;
     func_8002F688();
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     ScreenFrame = 0;
     VSyncThreshold = 0x80;
     ResetScreenCounters();
     if (D_800AD4F2 == 6) {
-        func_80031E3C();
+        InitSelectionRows();
         ClearScreenOverlayState();
         InitMenuArenas();
         LoadCursor = D_800F4D40;
     }
-    D_800F4CB0 = 0;
+    MenuFrameState = 0;
     sp[0] = AddTileGrid2x2(D_800ACC14 + 0x70, sp[0], 0, 0, 0x140, 0x200, 8, 8, 8);
-    D_800F4C6A = 1;
+    ModeGroup = 1;
     D_800F3A26 = 0x10;
     D_800F4D8A = 0;
 }

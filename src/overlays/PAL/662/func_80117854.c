@@ -8,7 +8,7 @@ void ovl662_func_80117854(u32 *order, void *cursor, s32 row)
     x = BadgeRows[row].x04 + 8;
     y = BadgeRows[row].y06 + 32;
     for (i = 0; i < 4; i++) {
-        if (D_800F4D98.bytes[0] == D_800F3920.history6C[i].selection) {
+        if (SelectionRows.bytes[0] == SaveProgress.history6C[i].selection) {
             flag = rsin(
                 ((s32)(((u32)ScreenFrame << 7) - 682U)) & 0xFFE) < 0;
             break;
@@ -18,7 +18,7 @@ void ovl662_func_80117854(u32 *order, void *cursor, s32 row)
         if (ovl662_D_8012621C[i] == -1) {
             cursor = AddTextSprites(
                 order, cursor, x, y,
-                FormatCountOfTotal((s16)ovl662_D_801272D8[D_800F4D98.bytes[0]], 80, 1),
+                FormatCountOfTotal((s16)ovl662_D_801272D8[SelectionRows.bytes[0]], 80, 1),
                 flag + 0x7FF8, 0, 0);
             x += 34;
             cursor = AddTilePrim(order, cursor, x, y - 2, 1, 20, 255, 255, 255);

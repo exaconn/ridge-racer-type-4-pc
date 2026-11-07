@@ -22,7 +22,7 @@ class Overlay659StandingsTest(unittest.TestCase):
 /* Native stand-in for resident vehicle storage, with its real size/alignment. */
 #include "rr/race_types.h"
 RrRaceVehicle PlayerCars[2];
-s32 LapTimes[10], D_800F4C64;
+s32 LapTimes[10], TotalRaceTime;
 u16 D_800AC1A0;
 ''' + body + r'''
 static u32 random_state = 0x3715A6B9U;
@@ -41,7 +41,7 @@ static void check(const s32 input[6], s32 rank, s16 count) {
     memset(PlayerCars, 0xA5, sizeof(PlayerCars));
     memcpy((u8 *)PlayerCars + 0x2AA, &count, sizeof(count));
     memcpy(expected_vehicle, PlayerCars, sizeof(expected_vehicle));
-    D_800F4C64 = rank; D_800AC1A0 = 0xBEEF;
+    TotalRaceTime = rank; D_800AC1A0 = 0xBEEF;
     u16 selected = 0xBEEF;
     if (rank == -1) {
         s16 marker = -1;
@@ -54,7 +54,7 @@ static void check(const s32 input[6], s32 rank, s16 count) {
             if (input[i] < input[selected]) selected = i;
     }
     ovl659_rank_standings();
-    assert(D_800AC1A0 == selected && D_800F4C64 == rank);
+    assert(D_800AC1A0 == selected && TotalRaceTime == rank);
     assert(memcmp(expected_times, LapTimes, sizeof(expected_times)) == 0);
     assert(memcmp(expected_vehicle, PlayerCars, sizeof(expected_vehicle)) == 0);
 }

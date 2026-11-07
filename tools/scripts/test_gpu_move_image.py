@@ -35,7 +35,7 @@ typedef uint8_t u8;typedef int8_t s8;typedef uint16_t u16;typedef int16_t s16;ty
 struct {u32 guard;u32 prefix[2];RrGpuMovePayload payload;u32 after;} packet;
 #define D_800ABB60 packet.payload
 u32 ports[8];
-volatile u32 *D_800ABBC8=&ports[0],*D_800ABBD4=&ports[1],*D_800ABBCC=&ports[2],*D_800ABBD0=&ports[3];
+volatile u32 *GPU_STATUS=&ports[0],*DMA2_CHCR=&ports[1],*DMA2_MADR=&ports[2],*DMA2_BCR=&ports[3];
 s32 D_800ABBFC,D_800ABC00;
 char D_80011EFC[]="MoveImage";
 s32 test_now,test_timeout_calls,test_debug_calls,test_exchange_calls,test_draw_calls,test_draw_driver;
@@ -71,7 +71,7 @@ u32 test_layout[]={sizeof(RrGpuRectangle),sizeof(RrGpuMovePayload),offsetof(RrLi
 void test_reset(void){
  s32 i;memset(&packet,0xA5,sizeof(packet));for(i=0;i<8;i++)ports[i]=0xA5000000+i;
  ports[0]=0x04000000;ports[1]=0;
- D_800ABBC8=&ports[0];D_800ABBD4=&ports[1];D_800ABBCC=&ports[2];D_800ABBD0=&ports[3];
+ GPU_STATUS=&ports[0];DMA2_CHCR=&ports[1];DMA2_MADR=&ports[2];DMA2_BCR=&ports[3];
  memset(drivers,0x5A,sizeof(drivers));drivers[0].draw_ordering_table=draw0;drivers[1].draw_ordering_table=draw1;D_800ABAB8=&drivers[0];
  D_800ABBFC=-1;D_800ABC00=999;test_now=100;
  test_timeout_calls=test_debug_calls=test_exchange_calls=test_draw_calls=test_event_count=0;
@@ -86,10 +86,10 @@ void *test_packet_address(void){return packet.prefix;}
             body = re.sub(r'"\$[0-9]+",\s*', '', body)
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?=\))', '', body)
             if name == '80095750':
-                assert body.count('status=*D_800ABBD4;') == 2
-                assert body.count('*D_800ABBC8&') == 1
-                body = body.replace('status=*D_800ABBD4;', 'status=test_dma_read(D_800ABBD4);')
-                body = body.replace('*D_800ABBC8&', 'test_gpu_read(D_800ABBC8)&')
+                assert body.count('status=*DMA2_CHCR;') == 2
+                assert body.count('*GPU_STATUS&') == 1
+                body = body.replace('status=*DMA2_CHCR;', 'status=test_dma_read(DMA2_CHCR);')
+                body = body.replace('*GPU_STATUS&', 'test_gpu_read(GPU_STATUS)&')
             code += body
         directory = Path(cls.temp.name)
         (directory/'function.c').write_text(code)
@@ -181,8 +181,8 @@ void *test_packet_address(void){return packet.prefix;}
             self.scalar('test_now').value=0x7FFFFFFF
             rect.w=7;rect.h=8
         def poll():
-            C.c_void_p.in_dll(self.lib,'D_800ABBD4').value=C.addressof(self.ports)+20
-            C.c_void_p.in_dll(self.lib,'D_800ABBC8').value=C.addressof(self.ports)+16
+            C.c_void_p.in_dll(self.lib,'DMA2_CHCR').value=C.addressof(self.ports)+20
+            C.c_void_p.in_dll(self.lib,'GPU_STATUS').value=C.addressof(self.ports)+16
             self.ports[5]=0;self.ports[4]=0x04000000
             return 0
         def exchange():

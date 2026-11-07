@@ -3,14 +3,14 @@
 #include "rr/spu.h"
 #include "psyq/libspu/spuvget.h"
 
-int func_800869B4(unsigned short a0);
-s32 func_800869F0(s32 voice, s32 left, s32 right);
-int func_80086A54();
+int SsUtGetDetVVol(unsigned short a0);
+s32 SsUtSetDetVVol(s32 voice, s32 left, s32 right);
+int SsUtGetVVol();
 s32 SsUtSetVVol(s32 input, s32 left, s32 right);
 
-int func_800869B4(unsigned short a0) { int r; if (a0 >= 0x18) r = -1; else { func_80086B84((short)a0); r = 0; } return r; }
+int SsUtGetDetVVol(unsigned short a0) { int r; if (a0 >= 0x18) r = -1; else { SpuGetVoiceVolume((short)a0); r = 0; } return r; }
 
-s32 func_800869F0(s32 voice, s32 left, s32 right) {
+s32 SsUtSetDetVVol(s32 voice, s32 left, s32 right) {
     s32 i;
     if ((u16)voice < 24) {
         /* ASM_BARRIER: Preserve the PAL page-address register used for the cache flag load. */
@@ -32,10 +32,10 @@ s32 func_800869F0(s32 voice, s32 left, s32 right) {
     return -1;
 }
 
-int func_80086A54(a0, a1, a2) short a0; short *a1; short *a2; {
+int SsUtGetVVol(a0, a1, a2) short a0; short *a1; short *a2; {
     short sp[2];
     if ((unsigned short)a0 < 0x18) {
-        func_80086B84(a0, &sp[0], &sp[1]);
+        SpuGetVoiceVolume(a0, &sp[0], &sp[1]);
         *a1 = sp[0] / 129;
         *a2 = sp[1] / 129;
         return 0;

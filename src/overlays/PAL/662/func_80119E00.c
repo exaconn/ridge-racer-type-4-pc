@@ -14,12 +14,12 @@ void ovl662_func_80119E00(void) {
     RrUiRow24 *closingRow;
     RrUiRow24 *cancelRow;
 
-    D_800F2DE4 = (u32)D_800F2DE4 + 1;
+    ModeFrame = (u32)ModeFrame + 1;
     ScreenFrame = (u32)ScreenFrame + 1;
     switch ((u16)D_800F4D8A) {
     case 0:
-        if (ovl662_D_801272E8 == 0) func_8002AF8C(1,1,1);
-        else func_8002AF8C(1,1,0);
+        if (ovl662_D_801272E8 == 0) SetMenuFrameOptions(1,1,1);
+        else SetMenuFrameOptions(1,1,0);
         previous = ovl662_D_801272BE;
         if (ovl662_D_80127398 >= 0x11) {
             StepMenuValue(1, 2, (char *)&ovl662_D_801272BE, 0x19, 0);
@@ -34,7 +34,7 @@ void ovl662_func_80119E00(void) {
                 palette = D_800F3B24;
                 paletteIndex = key - 1;
             }
-            func_8001E854(palette, paletteIndex, 0);
+            UploadCarClut(palette, paletteIndex, 0);
             ovl662_D_80127398 = 0;
         }
         UiRows[(s16)MenuCursor].cells[0] = 0;
@@ -110,8 +110,8 @@ closeMenu:
         }
         goto drawMenu;
     case 3:
-        if (ovl662_D_801272E8 == 0) func_8002AF8C(0,1,1);
-        else func_8002AF8C(0,1,0);
+        if (ovl662_D_801272E8 == 0) SetMenuFrameOptions(0,1,1);
+        else SetMenuFrameOptions(0,1,0);
         if ((UiRows->byte14 == 5) && (BadgeRows->state10 == 11)) {
             D_800ACBD0[0].second = (u16)ovl662_D_801272E2+1;
             if (ovl662_D_801272E8 == 0) goto enterPalette;
@@ -119,28 +119,28 @@ closeMenu:
         }
         goto drawMenu;
     case 4:
-        if (ovl662_D_801272E8 == 0) func_8002AF8C(0,1,1);
-        else func_8002AF8C(0,1,0);
+        if (ovl662_D_801272E8 == 0) SetMenuFrameOptions(0,1,1);
+        else SetMenuFrameOptions(0,1,0);
         if ((UiRows->byte14 == 5) && (BadgeRows->state10 == 11)) {
             if (ovl662_D_801272E8 != 0) goto publishScene;
 enterPalette:
             ovl662_func_80118ED8();
             break;
 publishScene:
-            D_800F4C6A=3;D_800F3A26=1;D_800F4D8A=0;
+            ModeGroup=3;D_800F3A26=1;D_800F4D8A=0;
             break;
         }
         goto drawMenu;
     default:
 drawMenu:
         if (ovl662_D_801272D4 == 0) {
-            ready = func_8003DCEC(0);
+            ready = UpdateRect16Row(0);
             if (ready == 1) {
                 ovl662_D_801272D4 = ready;
             }
         } else {
             ovl662_func_80119898(ovl662_D_801272D4 - 1);
-            func_8002B12C(0xA0, 0xC0, 0x30, 0, (s32) (s16) ovl662_D_801272BE, 0, (s32) ovl662_D_8012739A);
+            DrawMenuStepArrows(0xA0, 0xC0, 0x30, 0, (s32) (s16) ovl662_D_801272BE, 0, (s32) ovl662_D_8012739A);
         }
         index = 0;
         if (MenuItemCount > 0) {

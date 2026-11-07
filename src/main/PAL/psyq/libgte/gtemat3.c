@@ -3,7 +3,7 @@
 #include "psyq/libgte/gtemat3.h"
 
 int *ApplyMatrixLV(int *a0, int *a1, int *a2_in);
-int *func_80090C74(int *a0, int *a1);
+int *ApplyRotMatrix(int *a0, int *a1);
 int *MulMatrix(int *a0, unsigned short *a1);
 
 int *ApplyMatrixLV(int *a0, int *a1, int *a2_in) {
@@ -243,7 +243,7 @@ L80090C48:
     return a2;
 }
 
-int *func_80090C74(int *a0, int *a1) {
+int *ApplyRotMatrix(int *a0, int *a1) {
     register int t0 __asm__("$8");
     register int t1 __asm__("$9");
     int *r;

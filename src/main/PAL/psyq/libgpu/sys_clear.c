@@ -8,8 +8,8 @@
 #include "rr/gpu.h"
 
 extern struct { char p[0x18]; int (*f18)(); } *D_800ABAB8;
-extern volatile unsigned *D_800ABBD4;
-extern volatile unsigned *D_800ABBC8;
+extern volatile unsigned *DMA2_CHCR;
+extern volatile unsigned *GPU_STATUS;
 extern int D_800ABBFC;
 extern int D_800ABC00;
 
@@ -24,7 +24,7 @@ int DrawOTag2(a0) int a0; {
     if (D_800ABAC2 >= 2) GPU_printf(D_80011F38, a0);
     D_800ABBFC = VSync(-1) + 0xF0;
     D_800ABC00 = 0;
-    while ((*D_800ABBD4 & 0x1000000) || (*D_800ABBC8 & 0x4000000) == 0) {
+    while ((*DMA2_CHCR & 0x1000000) || (*GPU_STATUS & 0x4000000) == 0) {
         if (get_alarm() != 0) return -1;
     }
     DMACallback(2, func_80095990);

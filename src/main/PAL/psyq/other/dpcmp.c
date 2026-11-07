@@ -2,7 +2,7 @@
 #include "rr/softfloat.h"
 #include "psyq/other/dpcmp.h"
 
-s32 func_8007E2D4(u64 left, u64 right) {
+s32 __gtdf2(u64 left, u64 right) {
     /* ASM_BARRIER: Keep the left and right word pairs in their original registers. */
     register union {u64 bits; RrWide64 words;} a __asm__("$8"), b __asm__("$6");
     u32 magnitude = 0x7FFF0000;

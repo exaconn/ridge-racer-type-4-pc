@@ -77,50 +77,50 @@ extern u8 D_8009F6DA;
 extern u8 D_8009F6DB;
 extern s32 RaceState;
 extern int SoundQueueEnqueue();
-extern int D_800ABEC0;
+extern int RaceVoiceFlags;
 extern short D_800AC5D0;
 extern int PadSetRumbleParams();
 extern int PlaySfx();
 extern unsigned char D_8009F6DC[];
-extern signed char D_800F2FDC;
-extern int func_8003660C();
+extern signed char PauseCursor;
+extern int FinishRace();
 extern int D_8009F6E4[];
-extern char D_800AD4D8[];
-extern int D_800F2A68;
+extern char SelectionState[];
+extern int RankEntries;
 extern int TrackLength;
 extern short D_800F3A26;
-extern int D_800F4C64;
-extern short D_800F4C6A;
+extern int TotalRaceTime;
+extern short ModeGroup;
 extern short D_800F4D8A;
 extern int GameQueueSprite();
 extern int func_8002071C();
 extern unsigned char D_8009F71C[][4];
 extern int D_800105C8[];
-extern int D_800F2AAC;
-extern int D_800F2AA8;
-extern s16 D_800FF688;
+extern int LinkWriteHandle;
+extern int LinkReadHandle;
+extern s16 LinkState;
 extern int D_8009F728;
-extern signed char D_800ABEBC[];
+extern signed char LinkEntryState[];
 extern signed char D_800ABEBE;
 extern int D_800AC5A4;
 extern short D_800AD508;
 extern int D_800F3A64;
 
-void func_80033A74(int a);
-void func_80033BE4(struct w3g2p *p);
-void func_80033F3C(s32 arg0, s32 arg1);
-void func_80034630(int a0);
+void SetupMenuCarCamera(int a);
+void UpdateRaceChaseCamera(struct w3g2p *p);
+void DrawStartCountdown(s32 arg0, s32 arg1);
+void PlayStartCountdownVoice(int a0);
 void func_800347BC(void);
-void func_80034844(int a0);
-void func_800348E8(int arg0);
-void func_800349F4(int a0, int a1);
+void UpdatePauseMenu(int a0);
+void ApplyPauseMenuChoice(int arg0);
+void DrawPauseMenu(int a0, int a1);
 int func_80034E70(int a0, unsigned int a1);
 void func_80034F80(void);
 int func_80034FC0(void);
-int func_80035024(int a0);
+int UpdateLinkHandshake(int a0);
 int func_800353E4(void);
 
-void func_80033A74(int a)
+void SetupMenuCarCamera(int a)
 {
   int b1 = (int) D_8009F6A0;
   int o = a * 6;
@@ -167,7 +167,7 @@ void func_80033A74(int a)
   }
 }
 
-void func_80033BE4(struct w3g2p *p) {
+void UpdateRaceChaseCamera(struct w3g2p *p) {
     struct { char a[0x20]; char b[0x20]; short v[3]; short pad; int w[3]; } s;
     int *g = (int *)SCRATCHPAD;
     int r;
@@ -221,7 +221,7 @@ void func_80033BE4(struct w3g2p *p) {
     g[4] += s.w[2];
 }
 
-void func_80033F3C(s32 arg0, s32 arg1) {
+void DrawStartCountdown(s32 arg0, s32 arg1) {
     Glyph4 sp20;
     s32 s0;
     s32 s1;
@@ -350,22 +350,22 @@ void func_80033F3C(s32 arg0, s32 arg1) {
     }
 }
 
-void func_80034630(int a0) {
+void PlayStartCountdownVoice(int a0) {
     if (RaceState != 0 && a0 < 0x115) {
         if (a0 == 0xC3) {
             D_800AC5D0 = 0x1E;
         }
         if (a0 == 0x65) {
-            if (!(D_800ABEC0 & 1)) {
+            if (!(RaceVoiceFlags & 1)) {
                 SoundQueueEnqueue(0, 0);
-                D_800ABEC0 |= 1;
+                RaceVoiceFlags |= 1;
                 return;
             }
         }
         if (a0 == 0x7E) {
-            if (!(D_800ABEC0 & 2)) {
+            if (!(RaceVoiceFlags & 2)) {
                 SoundQueueEnqueue(1, 0);
-                D_800ABEC0 |= 2;
+                RaceVoiceFlags |= 2;
                 return;
             }
         }
@@ -374,23 +374,23 @@ void func_80034630(int a0) {
             return;
         }
         if (a0 == 0xB0) {
-            if (!(D_800ABEC0 & 4)) {
+            if (!(RaceVoiceFlags & 4)) {
                 SoundQueueEnqueue(3, 0);
-                D_800ABEC0 |= 4;
+                RaceVoiceFlags |= 4;
                 return;
             }
         }
         if (a0 == 0xE2) {
-            if (!(D_800ABEC0 & 8)) {
+            if (!(RaceVoiceFlags & 8)) {
                 SoundQueueEnqueue(0x17, 0);
-                D_800ABEC0 |= 8;
+                RaceVoiceFlags |= 8;
                 return;
             }
         }
         if (a0 == 0x114) {
-            if (!(D_800ABEC0 & 0x10)) {
+            if (!(RaceVoiceFlags & 0x10)) {
                 SoundQueueEnqueue(0x18, 0);
-                D_800ABEC0 |= 0x10;
+                RaceVoiceFlags |= 0x10;
             }
         }
     }
@@ -402,8 +402,8 @@ void func_80034630(int a0) {
 
 void func_800347BC(void) {
     int i;
-    func_8004B864(0);
-    func_8004B864(1);
+    PadClearPulse(0);
+    PadClearPulse(1);
     for (i = 0; i < 2; i++) {
         if (PlayerCars[i].unk1E4 != 0) {
             D_800F3A38[i].f = 1;
@@ -415,48 +415,48 @@ void func_800347BC(void) {
 #undef PlayerCars
 #undef D_800F3A38
 
-void func_80034844(int a0) {
+void UpdatePauseMenu(int a0) {
     if (D_800F3A40 & 0x1000) {
-        if (D_800F2FDC > 0) {
-            D_800F2FDC = D_800F2FDC - 1;
+        if (PauseCursor > 0) {
+            PauseCursor = PauseCursor - 1;
             PlaySfx(0);
         }
     }
     if (D_800F3A40 & 0x4000) {
-        if (D_800F2FDC < D_8009F6DC[a0]) {
-            D_800F2FDC = D_800F2FDC + 1;
+        if (PauseCursor < D_8009F6DC[a0]) {
+            PauseCursor = PauseCursor + 1;
             PlaySfx(0);
         }
     }
     func_800347BC();
 }
 
-void func_800348E8(int arg0) {
+void ApplyPauseMenuChoice(int arg0) {
     int *t;
     int b;
-    if (D_800F2FDC == 0) {
+    if (PauseCursor == 0) {
         D_800AC5D0 = 0x1E;
         return;
     }
-    D_800AD4D8[0x19] = 0;
-    D_800F4C64 = -1;
+    SelectionState[0x19] = 0;
+    TotalRaceTime = -1;
     if (arg0 == 1) {
-        D_800AD4D8[0x19] = 9;
+        SelectionState[0x19] = 9;
         RaceState = 6;
-        D_800F2A68 = -TrackLength;
-        if (D_800F2FDC == 2) {
+        RankEntries = -TrackLength;
+        if (PauseCursor == 2) {
             D_800F4D8A = 0;
-            D_800F4C6A = D_8009F6E4[3] >> 8;
+            ModeGroup = D_8009F6E4[3] >> 8;
             D_800F3A26 = *(unsigned char *)&D_8009F6E4[3];
             return;
         }
-        func_8003660C(D_800AD4D8, D_800F2FDC);
+        FinishRace(SelectionState, PauseCursor);
         return;
     }
     b = (int)D_8009F6E4;
     RaceState = 6;
-    t = (int *)((D_800F2FDC - 1) * 4 + arg0 * 8 + b);
-    D_800F4C6A = *t >> 8;
+    t = (int *)((PauseCursor - 1) * 4 + arg0 * 8 + b);
+    ModeGroup = *t >> 8;
     {
         int v = *(unsigned char *)t;
         D_800F4D8A = 0;
@@ -464,7 +464,7 @@ void func_800348E8(int arg0) {
     }
 }
 
-void func_800349F4(int a0, int a1) {
+void DrawPauseMenu(int a0, int a1) {
     V v[4];
     unsigned char rgb[4];
     int p;
@@ -521,7 +521,7 @@ void func_800349F4(int a0, int a1) {
 
     for (i = 0; i < 3; i++) {
         j = 0x40;
-        func_80022694(a0, v[i].x, v[i].y, v[i + 1].x, v[i + 1].y, 0x100, 0, j, j, j, -1);
+        AddPartialLine(a0, v[i].x, v[i].y, v[i + 1].x, v[i + 1].y, 0x100, 0, j, j, j, -1);
     }
 }
 
@@ -537,33 +537,33 @@ int func_80034E70(int a0, unsigned int a1) {
     return a1 <= 0x1869E;
 }
 
-void func_80034E84(void) {
+void OpenLinkSerial(void) {
     _sio_control(1, 3, 0x7E900);
     _sio_control(1, 4, 1);
-    D_800F2AAC = FileOpen(D_800105C8, 2);
-    D_800F2AA8 = FileOpen(D_800105C8, 1);
+    LinkWriteHandle = FileOpen(D_800105C8, 2);
+    LinkReadHandle = FileOpen(D_800105C8, 1);
     _sio_control(4, 0, (int)func_80034E70);
     _sio_control(2, 0, 0);
 }
 
-void func_80034F18(void) {
+void CloseLinkSerial(void) {
     _sio_control(2, 3, 0);
     _sio_control(2, 0, 0);
-    FileClose(D_800F2AAC);
-    FileClose(D_800F2AA8);
+    FileClose(LinkWriteHandle);
+    FileClose(LinkReadHandle);
     _sio_control(4, 0, 0);
 }
 
 void func_80034F80(void) {
-    if (D_800FF688 == 2) {
-        D_800FF688 = 3;
+    if (LinkState == 2) {
+        LinkState = 3;
         _sio_control(1, 1, 2);
     }
 }
 
 int func_80034FC0(void) {
-    if (D_800FF688 == -1) {
-        D_800F4C6A = 1;
+    if (LinkState == -1) {
+        ModeGroup = 1;
         D_800F3A26 = 0x2D;
         D_800F4D8A = 0;
         _sio_control(1, 1, 0);
@@ -575,9 +575,9 @@ int func_80034FC0(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define _sio_control ((unsigned int (*)())_sio_control)
 #define D_800F3A38 (*(T38 (*))&D_800F3A38)
-#define D_800FF688 (*(unsigned short (*))&D_800FF688)
+#define LinkState (*(unsigned short (*))&LinkState)
 
-int func_80035024(int a0)
+int UpdateLinkHandshake(int a0)
 {
   int r = 0;
   long new_var2;
@@ -592,7 +592,7 @@ int func_80035024(int a0)
   signed char *new_var;
   unsigned int k = (_sio_control(0, 0, 0) >> 7) & 3;
   short new_var3;
-  st = (short) (D_800FF688 + 1);
+  st = (short) (LinkState + 1);
   switch (st)
   {
     case 1:
@@ -604,7 +604,7 @@ int func_80035024(int a0)
         D_800AD508 = 0;
         D_800ABEBE = 1;
         D_8009F728 = 3;
-        D_800FF688 = 10;
+        LinkState = 10;
       }
       else
       {
@@ -616,13 +616,13 @@ int func_80035024(int a0)
       if (a0 == 0)
     {
       D_800AD508 = 1;
-      D_800ABEBC[0] = 1;
-      D_800FF688 = 1;
+      LinkEntryState[0] = 1;
+      LinkState = 1;
     }
     else
       if (k != 1)
     {
-      D_800FF688 = 1;
+      LinkState = 1;
     }
     else
     {
@@ -637,7 +637,7 @@ int func_80035024(int a0)
       D_8009F728 -= 1;
       if (k == 1)
       {
-        D_800FF688 = 2;
+        LinkState = 2;
         D_8009F728 = 0;
       }
     }
@@ -647,7 +647,7 @@ int func_80035024(int a0)
     }
       break;
       s2:
-    D_800FF688 = 2;
+    LinkState = 2;
 
       break;
 
@@ -659,7 +659,7 @@ int func_80035024(int a0)
     else
       if (k == 2)
     {
-      D_800FF688 = k;
+      LinkState = k;
       D_8009F728 = 4;
     }
       break;
@@ -677,7 +677,7 @@ int func_80035024(int a0)
     else
       if (a0 == 0)
     {
-      new_var = D_800ABEBC;
+      new_var = LinkEntryState;
       xx = D_800AD508;
       z = 3;
       new_var2 = xx * 2;
@@ -699,7 +699,7 @@ int func_80035024(int a0)
         }
         if (D_800F3A64 != 0)
         {
-          D_800ABEBC[1 - (q3 = D_800AD508)] = -1;
+          LinkEntryState[1 - (q3 = D_800AD508)] = -1;
           _sio_control(1, 1, 0, q3);
         }
       }
@@ -715,13 +715,13 @@ int func_80035024(int a0)
       D_800AC5A4 = v;
       if (v <= 0)
       {
-        D_800FF688 = 4;
+        LinkState = 4;
         _sio_control(1, 1, 2);
       }
       else
-        if (D_800ABEBC[3 - (D_800AD508 * 2)] != 0)
+        if (LinkEntryState[3 - (D_800AD508 * 2)] != 0)
       {
-        D_800FF688 = 3;
+        LinkState = 3;
         _sio_control(1, 1, 2);
       }
     }
@@ -750,7 +750,7 @@ int func_80035024(int a0)
       c5:
     if (a0 != 2)
     {
-      D_800FF688 = 0;
+      LinkState = 0;
     }
 
       r = 1;
@@ -760,7 +760,7 @@ int func_80035024(int a0)
       r = -1;
       break;
       m1:
-    *((short *) (&D_800FF688)) = -1;
+    *((short *) (&LinkState)) = -1;
 
       break;
 
@@ -771,7 +771,7 @@ int func_80035024(int a0)
 
 #undef _sio_control
 #undef D_800F3A38
-#undef D_800FF688
+#undef LinkState
 
 /* legacy typing of shared globals in this part of the unit */
 #define _sio_control ((unsigned (*)())_sio_control)
@@ -780,12 +780,12 @@ int func_800353E4(void) {
     int r = 0;
     int t = (_sio_control(0, 0, 0) >> 7) & 3;
     if (t == 0 || t == 3) {
-        D_800FF688 = -1;
+        LinkState = -1;
         r = -1;
     } else if (t == 1) {
-        D_800FF688 = t;
+        LinkState = t;
     } else if (t == 2) {
-        if (D_800FF688 == 3) r = 1;
+        if (LinkState == 3) r = 1;
     }
     return r;
 }

@@ -21,27 +21,27 @@ typedef struct {
     RrParticleEntry e[24];
 } RrParticleSys;
 
-extern RrParticleSys D_800F2AB8;
+extern RrParticleSys ParticleSystem;
 
 void SpawnParticlePair(void);
 s32 func_80096464(void);
 void SetDrawMode(u32 *, s32, s32, s32, s32);
 
-void func_80054D50(void) {
+void UpdateParticles(void) {
     u32 *p;
     u32 *ot;
     s32 i;
 
-    if (D_800F2AB8.f0C > 0) {
-        D_800F2AB8.f0C--;
-        D_800F2AB8.f18 = D_800F2AB8.f14 - ((D_800F2AB8.f14 - D_800F2AB8.f10) * D_800F2AB8.f0C) / D_800F2AB8.f08;
+    if (ParticleSystem.f0C > 0) {
+        ParticleSystem.f0C--;
+        ParticleSystem.f18 = ParticleSystem.f14 - ((ParticleSystem.f14 - ParticleSystem.f10) * ParticleSystem.f0C) / ParticleSystem.f08;
     }
-    if (D_800F2AB8.f04 <= 0) {
+    if (ParticleSystem.f04 <= 0) {
         SpawnParticlePair();
-        D_800F2AB8.f04 = (func_80096464() % 16) * 2 + 8;
+        ParticleSystem.f04 = (func_80096464() % 16) * 2 + 8;
     }
     p = *(u32 **)SCRATCHPAD;
-    D_800F2AB8.f04--;
+    ParticleSystem.f04--;
     SetDrawMode(p, 0, 1, 0xA0, 0);
     ot = (u32 *)(D_800ACC14 + 0x19C);
     *p = (*p & 0xFF000000) | (*ot & 0x00FFFFFF);
@@ -49,9 +49,9 @@ void func_80054D50(void) {
     p += 3;
     *(u32 **)SCRATCHPAD = p;
     for (i = 0; i < 0x18; i++) {
-        if (D_800F2AB8.e[i].active00 & 1) {
-            func_80054128(i);
-            func_80054264(i);
+        if (ParticleSystem.e[i].active00 & 1) {
+            UpdateParticle(i);
+            DrawParticle(i);
         }
     }
 }

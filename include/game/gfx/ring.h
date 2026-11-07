@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8005ECD4(int a0);
+void InitScrollTrack(int a0);
 
 #endif /* RR_GAME_GFX_RING_H */

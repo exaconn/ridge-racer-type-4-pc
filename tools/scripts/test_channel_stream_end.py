@@ -111,7 +111,7 @@ int main(void){unsigned n,i,bank,row,set,b,r;uint64_t cases=0;
   }
   memcpy(&expected,&actual,sizeof(actual));for(b=0;b<BANKS;b++)expected.slots[b]=expected.records[0][b];
   eventCount=eventIndex=notifications=0;model(bank,row);notifications=0;
-  func_800833A0(signed32((next()&0xffff0000U)|bank),signed32((next()&0xffff0000U)|row));
+  _SsSeqGetEof(signed32((next()&0xffff0000U)|bank),signed32((next()&0xffff0000U)|row));
   assert(eventCount==eventIndex);compare(&actual,&expected);cases++;
  }
  for(i=0;i<8;i++){assert(branches[i]);assert(mutations[i]);}printf("%llu cases\n",(unsigned long long)cases);return 0;

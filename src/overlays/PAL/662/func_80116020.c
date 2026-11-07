@@ -3,12 +3,12 @@
 void ovl662_func_80116020(void)
 {
     s32 i;
-    D_800F2DE4=0;
+    ModeFrame=0;
     ScreenFrame=0;
     ovl662_D_801272D4=0;
     ovl662_D_801272C0=0;
     D_800AD520=2;
-    D_800F4D98.bytes[0]=2;
+    SelectionRows.bytes[0]=2;
     D_800F3826=0;
     for(i=0;i<4;i++)InitGlyphRow(i,-2,0,1);
     InitRect16Row(GlyphRows->glyph07,GlyphRows->x08,GlyphRows->y0A,GlyphRows->w0C,GlyphRows->h0E,0,0);

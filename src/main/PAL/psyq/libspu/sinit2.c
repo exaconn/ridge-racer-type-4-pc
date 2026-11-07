@@ -4,9 +4,9 @@
 #include "psyq/libspu/sinit2.h"
 #include "rr/library.h"
 extern void SpuClearReverbWorkArea();
-void func_8007FA54(void) {
+void SsInit(void) {
     ResetCallback();
     SpuInit();
     SpuClearReverbWorkArea(7);
-    func_8007F964();
+    _SsInit();
 }

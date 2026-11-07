@@ -95,7 +95,7 @@ extern s32 _snd_ev_flag;
 extern void _SsVmKeyOffNow(s32 unused_mode);
 extern void vmNoiseOff(u8 index);
 extern RrChannelControlRow36 _svm_voice[];
-extern u32 D_800A48F8;
+extern u32 _snd_vmask;
 /* Uses the valid active-channel count established by SsSetReservedVoice. */
 s32 _SsVmKeyOff(s32 match10, s32 match18, s32 match14, u32 group0E);
 /* Reset all unblocked rows matching the signed low16 match10 value.
@@ -155,7 +155,7 @@ s32 _padInitSioMode(RrChannelRecordF0 *channel);
 typedef s32 (*RrChannelStageCallback)(RrChannelRecordF0 *channel);
 extern RrChannelStageCallback D_800ABCEC[5];
 void func_80098488(RrChannelRecordF0 *channel);
-s32 func_80097EA0(void);
+s32 _padIntPad(void);
 
 extern RrChannelStatusCallback D_800ABC80, D_800ABC84;
 extern RrChannelUpdateCallback D_800ABC88;

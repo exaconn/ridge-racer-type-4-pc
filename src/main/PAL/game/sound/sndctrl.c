@@ -38,11 +38,11 @@ extern int CdAudioMute();
 extern void CdAudioFade(int, short);
 
 void SoundReset(int a0, int a1);
-void func_8004F9C8(void);
+void SoundReverbOffAll(void);
 void SoundPause(void);
 void SoundResume(void);
 void SoundStopAll(void);
-void func_8004FBF0(void);
+void SoundMasterVolumeReset(void);
 void SoundSetMasterVolume(short arg0, short arg1);
 
 void SoundReset(int a0, int a1) {
@@ -62,17 +62,17 @@ void SoundReset(int a0, int a1) {
             SoundState.h24[a[i]] = -1;
         }
     }
-    func_8004FBF0();
+    SoundMasterVolumeReset();
     func_80050E58();
     func_80051248(a0);
     func_800514FC();
     SoundQueueClear();
-    func_800517D8();
+    SoundLoopReset();
     ReverbReset();
     if (a0 == 0) {
-        func_80051B44(a1 & 0xFFFF, 0);
+        SoundListenerInit(a1 & 0xFFFF, 0);
     } else {
-        func_80051B44(a1 & 0xFFFF, 1);
+        SoundListenerInit(a1 & 0xFFFF, 1);
     }
     func_80051B28();
     SsUtAllKeyOff(0);
@@ -87,7 +87,7 @@ void SoundReset(int a0, int a1) {
     SoundState.f2868 = -1;
 }
 
-void func_8004F9C8(void) {
+void SoundReverbOffAll(void) {
     SsUtAllKeyOff(0);
     SsUtReverbOff();
     SsUtSetReverbType(0);
@@ -151,9 +151,9 @@ void SoundStopAll(void) {
     for (i = 0; i < 2; i++) func_80050E94(0, 0, 0, i);
     for (i = 0; i < 2; i++) func_800512C4(i, 0, 0);
     func_80051538(0, 0, 0);
-    func_800517F8(5, 0x1E00, 0, 0x40);
+    SoundLoopSet(5, 0x1E00, 0, 0x40);
     CdAudioMute();
-    func_8004F9C8();
+    SoundReverbOffAll();
     func_80051B38();
     D_800F4DBC = 1;
 }
@@ -163,7 +163,7 @@ void SoundStopAll(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(struct { char pad[0x18]; s16 a, b, c, d, e, f; } (*))&SoundState)
 
-void func_8004FBF0(void) {
+void SoundMasterVolumeReset(void) {
     SoundState.a = 0x80;
     SoundState.b = 0;
     SoundState.c = 0;

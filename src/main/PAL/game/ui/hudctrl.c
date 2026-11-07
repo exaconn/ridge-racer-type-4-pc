@@ -5,10 +5,10 @@ struct P { unsigned w0; char b4, b5, b6, b7; short x, y, w, h; };
 
 struct O { char pad[0xB70]; unsigned t; };
 
-void func_80022098(u32 *ordering, s32 layout);
-void func_80022390(int a0);
+void DrawSteeringIndicator(u32 *ordering, s32 layout);
+void DrawSplitScreenDivider(int a0);
 
-void func_80021E2C(s32 arg0) {
+void DrawRaceMinimap(s32 arg0) {
     s32 var_s2;
     s32 temp_hi;
     void *var_a1;
@@ -70,7 +70,7 @@ void func_80021E2C(s32 arg0) {
     RR_HUD_SCRATCH->cursor = AddDrawModePrim(var_s3, var_a1, 0x25);
 }
 
-void func_80022098(u32 *ordering, s32 layout) {
+void DrawSteeringIndicator(u32 *ordering, s32 layout) {
     RrHudTriangle triangle;
     s16 *outputPoint;
     s32 status;
@@ -171,7 +171,7 @@ drawNeedle:
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ACC14 ((struct O *)D_800ACC14)
 
-void func_80022390(int a0)
+void DrawSplitScreenDivider(int a0)
 {
     struct P *p;
     struct O *o;

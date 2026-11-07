@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80098A90(void);
+void _padWaitRXready(void);
 
 #endif /* RR_PSYQ_LIBPAD_PADWAIT_H */

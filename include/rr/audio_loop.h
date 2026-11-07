@@ -30,7 +30,7 @@ s32 SsUtKeyOnV(s32 voice,s32 bank,s32 program,s32 mode,
                  s32 group,s32 unused,s32 left,s32 right);
 /* Captures scaled levels and pitch, then updates channels6/7. Bank/program and
  * active state are re-read after helpers; their return values are ignored. */
-void func_800518E0(void);
+void SoundLoopUpdate(void);
 
 RR_ASSERT_SIZE(RrAudioLoopState,0x1A08);
 RR_ASSERT_OFFSET(RrAudioLoopState,muted04,4);

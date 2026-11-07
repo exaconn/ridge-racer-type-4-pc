@@ -123,7 +123,7 @@ void func_8005B304(void) {
     switch (RaceContext.q->f6c) {
     case 0:
         if (a2 != 0) {
-            func_8005B8D8(RaceContext.q->f70);
+            InitCameraMotion(RaceContext.q->f70);
         }
         UpdateCameraMotion(s0);
         break;
@@ -135,13 +135,13 @@ void func_8005B304(void) {
         break;
     case 2:
         if (a2 != 0) {
-            func_8005ECD4(RaceContext.q->f70);
+            InitScrollTrack(RaceContext.q->f70);
         }
         UpdateScrollTrack(s0);
         break;
     case 3:
         if (a2 != 0) {
-            func_8005ABAC(RaceContext.q->f70);
+            InitMotionTrack(RaceContext.q->f70);
         }
         UpdateMotionTrack(s0);
         break;
@@ -222,7 +222,7 @@ void func_8005B304(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define RaceContext (*(char (*)[])&RaceContext)
 
-void func_8005B8D8(int a0) {
+void InitCameraMotion(int a0) {
     char *s1 = RaceContext;
     char *a;
     register char *t asm("$2");

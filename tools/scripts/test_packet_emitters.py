@@ -18,7 +18,7 @@ head=r'''
 #include "HEADER"
 static u32 arena[2048];void *memory(void){return arena;}size_t memory_size(void){return sizeof(arena);}
 typedef void (*Callback)(unsigned,uintptr_t*);static Callback cb;void set_callback(Callback c){cb=c;}
-void func_80095B94(void*p){uintptr_t a[2]={(uintptr_t)p};cb(0,a);((u8*)p)[3]=4;((u8*)p)[7]=0x64;}
+void SetSprt(void*p){uintptr_t a[2]={(uintptr_t)p};cb(0,a);((u8*)p)[3]=4;((u8*)p)[7]=0x64;}
 void SetPolyF3(void*p){uintptr_t a[2]={(uintptr_t)p};cb(0,a);((u8*)p)[3]=4;((u8*)p)[7]=0x20;}
 void SetShadeTex(void*p,s32 flags){uintptr_t a[2]={(uintptr_t)p,(u32)flags};cb(1,a);((u8*)p)[7]=flags?((u8*)p)[7]|1:((u8*)p)[7]&0xFE;}
 void SetSemiTrans(void*p,s32 flags){uintptr_t a[2]={(uintptr_t)p,(u32)flags};cb(1,a);((u8*)p)[7]=flags?((u8*)p)[7]|2:((u8*)p)[7]&0xFD;}

@@ -116,7 +116,7 @@
 #define RR_GTE_SQR0() RR_GTE_OP(0x4AA00428)
 #define RR_GTE_SWC2_MAC123(p) __asm__ volatile ("swc2 $25, 0(%0); swc2 $26, 4(%0); swc2 $27, 8(%0)" : : "r"(p) : "memory")
 
-/* Memory-clobbering GTE command barriers used by polygon packet builders (func_80057A44..func_80057E3C). */
+/* Memory-clobbering GTE command barriers used by polygon packet builders (DrawMeshQuadGT4..DrawMeshQuadF4). */
 #define RR_GTE_RTPT_MEM() __asm__ volatile (".word 0x4A280030" : : : "memory")
 #define RR_GTE_RTPS_MEM() __asm__ volatile (".word 0x4A180001" : : : "memory")
 #define RR_GTE_NCLIP_MEM() __asm__ volatile (".word 0x4B400006" : : : "memory")
@@ -129,7 +129,7 @@
 /* UpdateComCarSpeed: store IR1..IR3 ($9-$11) as contiguous 16-bit components. */
 #define RR_GTE_STORE_IR_S16(p) __asm__ volatile ("mfc2 $12, $9\n\tmfc2 $13, $10\n\tmfc2 $14, $11\n\tsh $12, 0(%0)\n\tsh $13, 2(%0)\n\tsh $14, 4(%0)" : : "r"(p) : "$12", "$13", "$14", "memory")
 
-/* func_80052024 / func_80077BAC: combined rotation + translation matrix loaders and FLAG reader. */
+/* SoundCalcCarParams / SetTrackObjectTransform: combined rotation + translation matrix loaders and FLAG reader. */
 #define RR_GTE_SETROT_TR(p) __asm__ volatile ("lw $12, 0(%0)\n\tlw $13, 4(%0)\n\tctc2 $12, $0\n\tctc2 $13, $1\n\tlw $12, 8(%0)\n\tlw $13, 12(%0)\n\tlw $14, 16(%0)\n\tctc2 $12, $2\n\tctc2 $13, $3\n\tctc2 $14, $4\n\tlw $12, 20(%0)\n\tlw $13, 24(%0)\n\tctc2 $12, $5\n\tlw $14, 28(%0)\n\tctc2 $13, $6\n\tctc2 $14, $7" : : "r"(p) : "$12", "$13", "$14")
 #define RR_GTE_SETTR_AT20(p) __asm__ volatile ("lw $12, 20(%0)\n\tlw $13, 24(%0)\n\tctc2 $12, $5\n\tlw $14, 28(%0)\n\tctc2 $13, $6\n\tctc2 $14, $7" : : "r"(p) : "$12", "$13", "$14")
 #define RR_GTE_MVMVA_ROT_TR_V0(p) __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(p)); __asm__ volatile ("nop\n\tnop\n\t.word 0x4A480012")

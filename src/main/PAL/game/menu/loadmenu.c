@@ -41,9 +41,9 @@ int a1;
         for (i = 0x1D; i >= 0; i--) {
         }
         if (D_800F3AF8 != 0x10) {
-            r = CardReadFile((short)a1, 0, D_800F4D50, D_800ACC0C, 1);
+            r = CardReadFile((short)a1, 0, D_800F4D50, SaveBuffer, 1);
         } else {
-            r = CardReadFileAt((short)a1, 0, D_800F4D50, D_800ACC0C, 0x80, 0x280);
+            r = CardReadFileAt((short)a1, 0, D_800F4D50, SaveBuffer, 0x80, 0x280);
         }
         if (r == -1) {
             if (D_800A41EE < 3) {
@@ -59,7 +59,7 @@ int a1;
         q = GetHwCardEvent();
         if (q != 0) {
             if (q == 1) {
-                if (func_800797E0(D_800F3AF8) != 0) {
+                if (ApplySaveData(D_800F3AF8) != 0) {
                     D_800A41EC = 4;
                 } else {
                     D_800A41EC = 6;
@@ -90,10 +90,10 @@ int a1;
 
 void func_8007AB8C(int arg0) {
     if (arg0 == -1) {
-        D_800F4C6A = 1;
+        ModeGroup = 1;
         D_800F3A26 = 3;
     } else {
-        D_800F4C6A = 1;
+        ModeGroup = 1;
         D_800F3A26 = 0xF;
     }
     D_800F4D8A = 0;
@@ -115,8 +115,8 @@ void func_8007ABCC(void) {
     u16 phase;
 
     if (D_800F4D44 == 4) {
-        func_80035024(2);
-        if (D_800FF688 == -1) {
+        UpdateLinkHandshake(2);
+        if (LinkState == -1) {
             _sio_control(1, 1, 0);
         }
     }
@@ -124,8 +124,8 @@ void func_8007ABCC(void) {
     switch (phase) {
     case 0:
         SetDispMask(0);
-        func_8001ECE8(0x20, 0x20, 0x20, 2);
-        D_800F2DE4 = 0;
+        SetupDrawDispEnvs(0x20, 0x20, 0x20, 2);
+        ModeFrame = 0;
         D_800F4D3C = 0;
         D_80109478[D_8010948E] = 3;
         /* ASM_BARRIER: finish the choice write before the clock read. */
@@ -226,34 +226,34 @@ void func_8007ABCC(void) {
         D_800F4D8A = 1;
         break;
     case 1:
-        D_800F2DE4 = (s32)((u32)D_800F2DE4 + 1U);
+        ModeFrame = (s32)((u32)ModeFrame + 1U);
         if (D_800F3A26 == phase) {
             SetDispMask(1);
         }
         ready = func_8003B934();
         if (ready == phase) {
             SetDispMask(1);
-            D_800F4C6A = ready;
+            ModeGroup = ready;
             D_800F3A26 = 0x48;
             D_800F4D8A = 0;
         }
         break;
     }
     UpdateScreenFade(D_800A45B8);
-    func_8002AF8C(0, 1, 1);
+    SetMenuFrameOptions(0, 1, 1);
 }
 
 /* legacy typing of shared globals in this part of the unit */
 #define UpdateScreenFade ((int (*)())UpdateScreenFade)
-#define func_8002AF8C ((int (*)())func_8002AF8C)
-#define func_80035024 ((int (*)())func_80035024)
+#define SetMenuFrameOptions ((int (*)())SetMenuFrameOptions)
+#define UpdateLinkHandshake ((int (*)())UpdateLinkHandshake)
 #define _sio_control ((int (*)())_sio_control)
 
 void func_8007B3A0(void) {
-    D_800F2DE4 += 1;
+    ModeFrame += 1;
     if (D_800F4D44 == 4) {
-        func_80035024(2);
-        if (D_800FF688 == -1) {
+        UpdateLinkHandshake(2);
+        if (LinkState == -1) {
             _sio_control(1, 1, 0);
         }
     }
@@ -272,10 +272,10 @@ block_6:
         UpdateBadgeRowAnim(1);
     }
     UpdateScreenFade(D_800A45B8);
-    func_8002AF8C(1, 1, 1);
+    SetMenuFrameOptions(1, 1, 1);
 }
 
 #undef UpdateScreenFade
-#undef func_8002AF8C
-#undef func_80035024
+#undef SetMenuFrameOptions
+#undef UpdateLinkHandshake
 #undef _sio_control

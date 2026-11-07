@@ -134,12 +134,12 @@ typedef struct {
 } S_8001AC24;
 
 extern struct B8 D_80010104;
-extern int func_8002AF8C();
+extern int SetMenuFrameOptions();
 extern int InitMenuArenas();
 extern short D_800AC5D0;
 extern int VSyncThreshold;
 extern short D_800F3A26;
-extern short D_800F4C6A;
+extern short ModeGroup;
 extern short D_800F4D8A;
 extern int D_8010BF74;
 extern struct B8 D_8001010C;
@@ -300,13 +300,13 @@ void func_80019F20(void) {
     struct B8 sp10;
     VSyncThreshold = 0x80;
     InitMenuArenas();
-    func_8002AF8C(0, 1, 0);
+    SetMenuFrameOptions(0, 1, 0);
     UpdateScreenFade(0x1000C);
     sp10 = D_80010104;
     ClearImage2(&sp10, 0, 0, 0);
     D_800AC5D0 = 0;
     D_8010BF74 = 0;
-    D_800F4C6A = 0;
+    ModeGroup = 0;
     D_800F3A26 = 4;
     D_800F4D8A = 0;
 }
@@ -320,7 +320,7 @@ void func_80019FC8(void) {
         D_800AC5D0 += 4;
         if (D_800AC5D0 >= 0x100) {
             ResetScreenCounters();
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 0xB;
             D_800F4D8A = 0;
         }
@@ -390,7 +390,7 @@ void func_80019FC8(void) {
             }
             break;
         }
-        func_8002AF8C(1, 1, 0);
+        SetMenuFrameOptions(1, 1, 0);
         D_8010BF74 = 7;
     case 7:
         if (D_800AC5D0 == 0 && D_800F3A60 != 0) {

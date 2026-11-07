@@ -13,8 +13,8 @@ typedef struct { int a, b, c, d; } V;
 extern unsigned char ChecksumBytes();
 extern int func_80096424();
 extern int func_80096464();
-extern char D_8010C158[];
-extern char D_8010C168[];
+extern char PasswordChars[];
+extern char PasswordBytes[];
 extern void DrawSync();
 extern char *D_800ACBA0;
 extern int BuildRotMatrixZ();
@@ -89,41 +89,41 @@ int EncodeRecordPassword(a0, a1, a2, a3, a4, a5) int a0; int a1; int a2; int a3;
     s0 = a1 << 4;
     a0 &= 0xF;
     s0 |= a0;
-    D_8010C168[0] = s0;
+    PasswordBytes[0] = s0;
     r = func_80096464(a0);
     a2 = a2 * 4 + a3;
-    D_8010C168[1] = (s0 >> 8) + (r & ~0x3F);
-    D_8010C168[2] = a2;
-    D_8010C168[3] = a2 >> 8;
-    D_8010C168[4] = (a2 >> 16) + (func_80096464() & ~0x3F);
-    D_8010C168[5] = a4 & 0xF;
-    EncodePasswordCode(D_8010C168, D_8010C158);
-    D_8010C158[0xD] = 0;
-    func_80096424(a5, D_8010C158);
+    PasswordBytes[1] = (s0 >> 8) + (r & ~0x3F);
+    PasswordBytes[2] = a2;
+    PasswordBytes[3] = a2 >> 8;
+    PasswordBytes[4] = (a2 >> 16) + (func_80096464() & ~0x3F);
+    PasswordBytes[5] = a4 & 0xF;
+    EncodePasswordCode(PasswordBytes, PasswordChars);
+    PasswordChars[0xD] = 0;
+    func_80096424(a5, PasswordChars);
     return 0;
 }
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_80096424 ((void (*)())func_80096424)
-#define D_8010C168 (*(unsigned char (*)[])&D_8010C168)
+#define PasswordBytes (*(unsigned char (*)[])&PasswordBytes)
 
 int DecodeRecordPassword(int *a, int *b, int *c, int *d, int *e, int f) {
     unsigned t;
-    func_80096424(D_8010C158, f);
-    if (ValidateRecordPassword(D_8010C168, D_8010C158) == 0) {
-        *a = D_8010C168[0] & 0xF;
-        *b = (D_8010C168[1] * 16 + (D_8010C168[0] >> 4)) & 0x3FF;
-        t = (D_8010C168[4] << 16) + (D_8010C168[3] << 8) + D_8010C168[2];
+    func_80096424(PasswordChars, f);
+    if (ValidateRecordPassword(PasswordBytes, PasswordChars) == 0) {
+        *a = PasswordBytes[0] & 0xF;
+        *b = (PasswordBytes[1] * 16 + (PasswordBytes[0] >> 4)) & 0x3FF;
+        t = (PasswordBytes[4] << 16) + (PasswordBytes[3] << 8) + PasswordBytes[2];
         *c = (t >> 2) & 0xFFFFF;
         *d = t & 3;
-        *e = D_8010C168[5] & 0xF;
+        *e = PasswordBytes[5] & 0xF;
         return 0;
     }
     return -1;
 }
 
 #undef func_80096424
-#undef D_8010C168
+#undef PasswordBytes
 
 void func_80043608(int *p) {
     short r[4];
@@ -260,7 +260,7 @@ void GetTrackPointAhead(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
     RrTrackSample3C *next;
     RrTrackSample3C *current;
 
-    if (D_800AD522 == 0) {
+    if (ReverseCourse == 0) {
         index = vehicle->trackNodeF0 - ((s32) (distance - vehicle->trackFraction170) >> 0xA);
         neighbour = index - 1;
         if (index < 0) {

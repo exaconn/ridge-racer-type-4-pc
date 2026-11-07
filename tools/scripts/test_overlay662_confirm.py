@@ -39,7 +39,7 @@ static unsigned scenario,family,slot,postbyte,expected_map,expected_sound,map_ca
 #define D_800FFC18 world.pending
 #define D_800F3A26 world.scene
 #define D_800F4D8A world.latch
-#define D_800F4C6A world.transition
+#define ModeGroup world.transition
 '''+data+bodies+r'''
 static u32 rng=0x1FB2C;
 static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}

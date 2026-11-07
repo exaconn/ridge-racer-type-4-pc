@@ -1,27 +1,27 @@
 #include "rr/geometry.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4CB0 (*(short (*))&D_800F4CB0)
+#define MenuFrameState (*(short (*))&MenuFrameState)
 
-#undef D_800F4CB0
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ACC68 (*(M2C_UNK (*))&D_800ACC68)
-
-#define D_800F4CB0 (*(M2C_UNK (*))&D_800F4CB0)
-
-#undef D_800ACC68
-
-#undef D_800F4CB0
+#undef MenuFrameState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC68 (*(S_ACC68 (*))&D_800ACC68)
+#define ScreenFadeState (*(M2C_UNK (*))&ScreenFadeState)
 
-#define D_800F4CB0 (*(S_F4CB0 (*))&D_800F4CB0)
+#define MenuFrameState (*(M2C_UNK (*))&MenuFrameState)
 
-#undef D_800ACC68
+#undef ScreenFadeState
 
-#undef D_800F4CB0
+#undef MenuFrameState
+
+/* legacy typing of shared globals in this part of the unit */
+#define ScreenFadeState (*(S_ACC68 (*))&ScreenFadeState)
+
+#define MenuFrameState (*(S_F4CB0 (*))&MenuFrameState)
+
+#undef ScreenFadeState
+
+#undef MenuFrameState
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ACC14 (*(s32 (*))&D_800ACC14)
@@ -61,7 +61,7 @@ extern s32 func_8002071C();
 
 extern s32 MenuStepDirection;
 
-void func_8002B12C(p0, p1, p2, p3, p4, a5, a6) s32 p0; s32 p1; s32 p2; s32 p3; s32 p4; s32 a5; s32 a6; {
+void DrawMenuStepArrows(p0, p1, p2, p3, p4, a5, a6) s32 p0; s32 p1; s32 p2; s32 p3; s32 p4; s32 a5; s32 a6; {
     s32 i, k, t0, g, sel, sg;
     register s32 one __asm__("$18"); /* ASM_BARRIER: pin s-reg order (saved reg priority) */
     s32 a3; 

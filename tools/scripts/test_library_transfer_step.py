@@ -73,7 +73,7 @@ void test_callback_second(void) { test_unexpected_calls++; }
         cls.first_address = C.cast(cls.library.test_callback_first, C.c_void_p).value
         cls.second_address = C.cast(cls.library.test_callback_second, C.c_void_p).value
         cls.control_address = C.cast(cls.library.func_8008E7F4, C.c_void_p).value
-        cls.function = cls.library.func_8008EA9C
+        cls.function = cls.library.cb_data
         cls.function.argtypes = []
         cls.function.restype = None
 

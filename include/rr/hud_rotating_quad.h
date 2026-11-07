@@ -21,7 +21,7 @@ extern RrHudQuadCorner D_8009EE38[4];
  *40 writable bytes. The live ordering head may alias this packet's tag.
  * Position/head/cursor are captured after both trig services. Advances36 bytes;
  * only low24 pointer bits are serialized into the GPU link. */
-void func_80021350(s32 phase,s32 index);
+void DrawHudRotatingQuad(s32 phase,s32 index);
 RR_ASSERT_SIZE(RrHudQuadColor,4);
 RR_ASSERT_SIZE(RrHudQuadVertex,8);
 RR_ASSERT_OFFSET(RrHudQuadVertex,color,4);

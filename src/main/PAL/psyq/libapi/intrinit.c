@@ -5,7 +5,7 @@
 extern int trapIntr();
 extern int startIntrDMA();
 extern int func_800963F4();
-extern int func_80096E3C();
+extern int _96_remove();
 extern int HookEntryInt();
 extern int ExitCriticalSection();
 extern unsigned short D_800A52C8;
@@ -32,7 +32,7 @@ char *startIntr()
         *(short *)(p - 0x3C) = 1;
         D_800A6350[5] = startIntrVSync();
         D_800A6350[1] = startIntrDMA();
-        func_80096E3C(D_800A6350);
+        _96_remove(D_800A6350);
         r = p - 0x3C;
         ExitCriticalSection();
         return r;

@@ -34,15 +34,15 @@ static RrFrameOrderingPrefix frames[2],frameSnapshot[2];
 static unsigned scenario,mutation,phaseSeen[9],branchSeen[8],timerSeen[8];
 static const s16 phases[6]={0,1,2,3,4,8};
 static const u16 timers[8]={0,1,63,64,32767,32768,65534,65535};
-#define D_800F2DE4 w->s.frame
+#define ModeFrame w->s.frame
 #define ScreenFrame w->s.tick
 #define ovl662_D_801272C0 w->s.resource
 #define D_800F4D8A w->s.phase
-#define D_800F4C6A w->s.scene
+#define ModeGroup w->s.scene
 #define D_800F3A26 w->s.nextScene
 #define D_800AC5D0 w->s.timer
 #define ovl662_D_801272D4 w->s.mode
-#define D_800F4D98 w->s.choice
+#define SelectionRows w->s.choice
 #define D_800F4D99 w->s.choice.bytes[1]
 #define D_800F3A38 w->s.controllers
 #define UiRows w->s.ui[w->s.uiRoot]
@@ -68,29 +68,29 @@ static void change(void){unsigned i,j,n=w->calls;if(!mutation)return;
  for(i=0;i<4;i++){w->s.counts[i]=(u16)next();for(j=0;j<4;j++)w->s.grid[i][j]=(u16)next();}
 }
 s32 func_8003B47C(void){static const s32 values[]={0,1,-1,65537};Event *e=event(1);s32 result=values[scenario%4];e->args[0]=result;change();return result;}
-void func_8002B12C(s32 x,s32 y,s32 width,s32 mode,s32 selected,s32 first,s32 second){
+void DrawMenuStepArrows(s32 x,s32 y,s32 width,s32 mode,s32 selected,s32 first,s32 second){
  Event *e=event(2);e->args[0]=x;e->args[1]=y;e->args[2]=width;e->args[3]=mode;e->args[4]=selected;e->args[5]=first;e->args[6]=second;change();
 }
-s32 func_8003E13C(s32 selected){static const s32 values[]={0,1,-1,65536};Event *e=event(3);s32 result=values[(scenario>>2)%4];e->args[0]=selected;e->args[1]=result;change();return result;}
-void func_8002AF8C(s32 a,s32 b,s32 c){Event *e=event(4);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
+s32 UpdateGlyphRow(s32 selected){static const s32 values[]={0,1,-1,65536};Event *e=event(3);s32 result=values[(scenario>>2)%4];e->args[0]=selected;e->args[1]=result;change();return result;}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){Event *e=event(4);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
 void ovl662_func_80116690(void){event(5);change();}
 void ovl662_func_80116808(void){event(6);change();}
 void PlaySfx(s32 sound){event(7)->args[0]=sound;change();}
 void ovl662_func_80115EC4(s32 base){event(8)->args[0]=base;change();}
 void ovl662_func_80116960(void){event(9);change();}
 void ovl662_func_80116020(void){event(10);change();}
-void func_800207D4(u32 *order,s32 fade,u32 flags){Event *e=event(11);assert((uintptr_t)order>UINT32_MAX);assert(order==frames[w->s.frameRoot].ordering70);e->args[0]=w->s.frameRoot;e->args[1]=fade;e->args[2]=flags;change();}
+void AddScreenFadeTiles(u32 *order,s32 fade,u32 flags){Event *e=event(11);assert((uintptr_t)order>UINT32_MAX);assert(order==frames[w->s.frameRoot].ordering70);e->args[0]=w->s.frameRoot;e->args[1]=fade;e->args[2]=flags;change();}
 void ovl662_func_8011512C(void){event(12);change();}
 void DrawUiRow(s32 a){event(13)->args[0]=a;change();}
 void UpdateBadgeRowAnim(s32 a){event(14)->args[0]=a;change();}
 void UpdateScreenFade(s32 flags){event(15)->args[0]=flags;change();}
 ''' + bodies + r'''
 static s32 completion(unsigned mode){s32 selected=w->s.choice.bytes[mode];
- func_8002B12C(160,204,48,0,selected,0,4);return func_8003E13C(selected);
+ DrawMenuStepArrows(160,204,48,0,selected,0,4);return UpdateGlyphRow(selected);
 }
 static void expected(void){s32 flags=65538;unsigned phase=(u16)w->s.phase;
  w->s.frame=word((u32)w->s.frame+1);w->s.tick=word((u32)w->s.tick+1);
- if(phase==0){s32 result=func_8003B47C();if(result==1){func_8002AF8C(1,1,1);w->s.phase=1;}}
+ if(phase==0){s32 result=func_8003B47C();if(result==1){SetMenuFrameOptions(1,1,1);w->s.phase=1;}}
  else if(phase==1||phase==3){s32 completed=completion(phase==3);s32 captured=w->s.badges[w->s.badgeRoot][0].state10;
   if(phase==3)flags=65542;
   if(captured==3){
@@ -113,8 +113,8 @@ static void expected(void){s32 flags=65538;unsigned phase=(u16)w->s.phase;
     ovl662_func_80116020();w->s.phase=1;w->s.mode=0;branchSeen[5]++;
    }
   }
- }else{assert(phase==8);w->s.timer=half((u16)w->s.timer-1U);func_8002AF8C(0,1,1);
-  func_800207D4(frames[w->s.frameRoot].ordering70,(64-(s32)w->s.timer)*4,69);
+ }else{assert(phase==8);w->s.timer=half((u16)w->s.timer-1U);SetMenuFrameOptions(0,1,1);
+  AddScreenFadeTiles(frames[w->s.frameRoot].ordering70,(64-(s32)w->s.timer)*4,69);
   if(w->s.timer<=0){ovl662_func_8011512C();w->s.scene=1;w->s.nextScene=64;w->s.phase=0;branchSeen[6]++;}else branchSeen[7]++;
  }
  DrawUiRow(0);UpdateBadgeRowAnim(0);UpdateScreenFade(flags);

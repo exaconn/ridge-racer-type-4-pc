@@ -41,7 +41,7 @@ extern s16 D_800A4514[];
 extern RrMenuChoice D_800A4520[];
 extern s8 *D_800AC590;
 extern s16 D_800AC594;
-extern s32 D_800F2DE4;
+extern s32 ModeFrame;
 extern s16 D_800F3A1C;
 extern u8 D_800F3A24[];
 extern RrMenuItemState5C D_800F3A38[];
@@ -56,7 +56,7 @@ extern short D_8010948E;
 extern int StepMenuValue();
 extern int PlaySfx();
 extern int func_80053AF4();
-extern int func_800207D4();
+extern int AddScreenFadeTiles();
 extern int func_8003B934();
 extern int ClearScreenOverlayState();
 extern int func_80053CB0();
@@ -70,14 +70,14 @@ extern struct { char pad[0x500]; unsigned char b500; } *UiRows;
 extern struct { char pad[0x10]; short h10; char pad2[0x1A]; short h2C; } *BadgeRows;
 extern short D_800AC5D0;
 extern short D_800F3A26;
-extern short D_800FF688;
+extern short LinkState;
 extern unsigned short D_800F3A1E;
 extern unsigned short D_800F4D44;
 extern int D_800F4CA8;
 extern short D_800F4D3C;
 extern int D_801272F0[];
 extern s16 D_800A4540[][2];
-extern char *D_800ACC0C;
+extern char *SaveBuffer;
 extern int D_8010EFA8;
 extern int CopyStringClearTail();
 extern short D_800A45BC;
@@ -88,7 +88,7 @@ extern char D_800F4D50[];
 extern int D_800A45C0;
 extern int D_800A45C4;
 extern unsigned char D_800A4478[];
-extern int func_80032A14();
+extern int UpdateDialogue();
 
 void func_8007BD18(void);
 void func_8007BDF8(void);
@@ -157,7 +157,7 @@ void func_8007BEF8(void) {
     s32 v = D_800A4514[i * 2];
     if (D_800AC590[6] == 4) {
         D_800F3A1C = v;
-        D_800F2DE4 -= 1;
+        ModeFrame -= 1;
     }
 }
 
@@ -281,7 +281,7 @@ void func_8007C308(void) {
     if (D_800AC5D0 > 0) {
         D_800AC5D0 = D_800AC5D0 - 1;
     }
-    func_800207D4(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) << 2, 0x45);
+    AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) << 2, 0x45);
     if (func_8003B934() != 1) return;
     if (D_800AC5D0 > 0) return;
     if (UiRows->b500 != 5) return;
@@ -295,7 +295,7 @@ void func_8007C308(void) {
     default:
     case 4:
         func_80053CB0();
-        D_800F4C6A = 1;
+        ModeGroup = 1;
         D_800F3A26 = 3;
         D_800F4D8A = 0;
         break;
@@ -303,52 +303,52 @@ void func_8007C308(void) {
         if (D_800F3A1E == 0x132) {
             func_80114920();
             D_800F4D8A = 0;
-            D_800F4C6A = D_800F3A1E >> 8;
+            ModeGroup = D_800F3A1E >> 8;
             D_800F3A26 = D_800F3A1E & 0xFF;
         }
         break;
     case 2:
         if ((unsigned)(D_800F4D44 - 2) < 2) {
             func_80115598(D_800AC5D4);
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 0x38;
             D_800F4D8A = 0;
         } else if ((short)D_800F4D44 == 4) {
-            if (D_800FF688 != -1) {
+            if (LinkState != -1) {
                 func_801161A8(D_800AC5D4);
-                D_800F4C6A = 1;
+                ModeGroup = 1;
                 D_800F3A26 = 0x3C;
             } else {
                 func_80053CB0();
-                D_800F4C6A = 1;
+                ModeGroup = 1;
                 D_800F3A26 = 0x2D;
             }
             D_800F4D8A = 0;
         }
         break;
     case 3:
-        D_800F4C6A = 1;
+        ModeGroup = 1;
         D_800F3A26 = 0xF;
         D_800F4D8A = 0;
         break;
     case 5:
         func_8011512C();
-        D_800F4C6A = 1;
+        ModeGroup = 1;
         D_800F3A26 = 0x40;
         D_800F4D8A = 0;
         break;
     case 6:
         if (D_8010948C != 0) {
-            D_800F4C6A = 3;
+            ModeGroup = 3;
             D_800F3A26 = 3;
         } else {
-            D_800F4C6A = 3;
+            ModeGroup = 3;
             D_800F3A26 = 2;
         }
         D_800F4D8A = 0;
         break;
     case 7:
-        D_800F4C6A = 1;
+        ModeGroup = 1;
         D_800F3A26 = 0x27;
         D_800F4D8A = 0;
         break;
@@ -454,7 +454,7 @@ void func_8007C944(void)
     {
       a1 = 0;
       v1 = 0;
-      a0 = ((char *) (t1 * 0x2C)) + ((int) D_800ACC0C);
+      a0 = ((char *) (t1 * 0x2C)) + ((int) SaveBuffer);
       do
       {
         if (v1 != new_var)
@@ -465,7 +465,7 @@ void func_8007C944(void)
         a0 = a0 + 2;
       }
       while (v1 < 0x16U);
-      a2 = ((char *) (t1 * 0x2C)) + ((int) D_800ACC0C);
+      a2 = ((char *) (t1 * 0x2C)) + ((int) SaveBuffer);
       a3 = (W10_H *) (a2 + 0x1F60);
       if (a1 == a3->chk)
       {
@@ -500,7 +500,7 @@ void func_8007C944(void)
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_80078E40 ((int (*)())func_80078E40)
-#define D_800ACC0C (*(int (*))&D_800ACC0C)
+#define SaveBuffer (*(int (*))&SaveBuffer)
 
 int func_8007CB44(a0)
 int a0;
@@ -554,7 +554,7 @@ int a0;
     case 3:
         for (i = 0x63; i >= 0; i--) {
         }
-        r = CardReadFileAt(D_800FFC00, 0, D_800F4D50, D_800ACC0C + 0x1F00, 0x100, 0x300);
+        r = CardReadFileAt(D_800FFC00, 0, D_800F4D50, SaveBuffer + 0x1F00, 0x100, 0x300);
         if (r == -1) {
             if (D_800A45BE < 3) {
                 D_800A45BE = (unsigned short)D_800A45BE + 1;
@@ -593,7 +593,7 @@ int a0;
 }
 
 #undef func_80078E40
-#undef D_800ACC0C
+#undef SaveBuffer
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_80078E40 ((int (*)())func_80078E40)
@@ -803,7 +803,7 @@ done:;
         }
         if (a0 >= 0) {
             D_800AC590[4] = a0;
-            func_80032A14(BadgeRows[4] + 10, BadgeRows[5] + 0x28, D_800AC590, a3);
+            UpdateDialogue(BadgeRows[4] + 10, BadgeRows[5] + 0x28, D_800AC590, a3);
         }
     }
     func_8007D448(a4, ((s0 & 2) > 0) & (*(short *)(D_800AC590 + 0x12) >= 6));

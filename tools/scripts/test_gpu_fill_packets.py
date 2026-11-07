@@ -42,7 +42,7 @@ static unsigned count,mutate,selection,seed=0xC35A4129;
 #define D_801127B0 (world.secondary.words)
 #define D_800ABAC4 (world.width)
 #define D_800ABAC6 (world.height)
-#define D_800ABBC8 (&world.status)
+#define GPU_STATUS (&world.status)
 _Static_assert(sizeof(Primary)==40,"primary owner");
 _Static_assert(sizeof(Secondary)==16,"secondary owner");
 _Static_assert(offsetof(Primary,odd.rectangles)==4,"odd primary view");

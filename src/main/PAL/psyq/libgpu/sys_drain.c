@@ -22,29 +22,29 @@ struct GpuQueue {
 
 extern struct GpuSys D_800ABAC0;
 extern int D_800ABACC;
-extern volatile unsigned int *D_800ABBC8;
-extern volatile unsigned int *D_800ABBD4;
-extern volatile int D_800ABBE8;
+extern volatile unsigned int *GPU_STATUS;
+extern volatile unsigned int *DMA2_CHCR;
+extern volatile int _qin;
 extern int D_800ABBF4;
 extern volatile struct GpuQueue D_801128D8[];
 
 int _exeque(void) {
     int m0, m1;
-    if (*D_800ABBD4 & 0x01000000) {
+    if (*DMA2_CHCR & 0x01000000) {
         return 1;
     }
     D_800ABBF4 = SetIntrMask(0);
-    while (D_800ABBE8 != D_800ABBEC && (m0 = 0x01000000, (*D_800ABBD4 & m0) == 0)) {
-        if (((D_800ABBEC + 1) & 0x3F) == D_800ABBE8 && D_800ABACC == 0) {
+    while (_qin != _qout && (m0 = 0x01000000, (*DMA2_CHCR & m0) == 0)) {
+        if (((_qout + 1) & 0x3F) == _qin && D_800ABACC == 0) {
             DMACallback(2, 0);
         }
-        while ((m1 = 0x04000000, (*D_800ABBC8 & m1) == 0))
+        while ((m1 = 0x04000000, (*GPU_STATUS & m1) == 0))
 ;
-        D_801128D8[D_800ABBEC].op(D_801128D8[D_800ABBEC].p0, D_801128D8[D_800ABBEC].p1);
-        D_800ABBEC = (D_800ABBEC + 1) & 0x3F;
+        D_801128D8[_qout].op(D_801128D8[_qout].p0, D_801128D8[_qout].p1);
+        _qout = (_qout + 1) & 0x3F;
     }
     SetIntrMask(D_800ABBF4);
-    if (D_800ABBE8 == D_800ABBEC && (*D_800ABBD4 & 0x01000000) == 0) {
+    if (_qin == _qout && (*DMA2_CHCR & 0x01000000) == 0) {
         void (*fn)();
         if (D_800ABAC0.unk8 != 0 && (fn = D_800ABAC0.unkC) != 0) {
             struct GpuSys *sys = &D_800ABAC0;
@@ -52,5 +52,5 @@ int _exeque(void) {
             fn();
         }
     }
-    return (D_800ABBE8 - D_800ABBEC) & 0x3F;
+    return (_qin - _qout) & 0x3F;
 }

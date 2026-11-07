@@ -35,7 +35,7 @@ RR_ASSERT_OFFSET(RrUiRow24, byte16, 0x16);
 RR_ASSERT_OFFSET(RrUiRow24, byte17, 0x17);
 RR_ASSERT_OFFSET(RrUiRow24, half20, 0x20);
 
-/* 0x20-byte UI particle record (D_800F2AE4, initialized by SpawnParticlePair). */
+/* 0x20-byte UI particle record (ParticleEntries, initialized by SpawnParticlePair). */
 typedef struct {
     s32 active00, state04, timer08;
     s16 x0C, y0E;

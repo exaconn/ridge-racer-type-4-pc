@@ -6,14 +6,14 @@
 #undef D_800F3A38
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010C170 (*(T_2 (*)[])&D_8010C170)
+#define PadPulseState (*(T_2 (*)[])&PadPulseState)
 
-#undef D_8010C170
+#undef PadPulseState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010C170 (*(T_3 (*)[])&D_8010C170)
+#define PadPulseState (*(T_3 (*)[])&PadPulseState)
 
-#undef D_8010C170
+#undef PadPulseState
 
 typedef unsigned char u8;
 

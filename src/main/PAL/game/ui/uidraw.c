@@ -31,7 +31,7 @@ extern char D_8009F9D4[];
 void UpdateBadgeRowAnim();
 int AllocRect16Rows(int a0);
 void InitRect16Row(int i, short a, short b, short c, short d, short e, short f);
-s32 func_8003DCEC(int a0);
+s32 UpdateRect16Row(int a0);
 int AllocGlyphRows(int a);
 void InitGlyphRow();
 
@@ -162,7 +162,7 @@ void InitRect16Row(int i, short a, short b, short c, short d, short e, short f) 
 
 #undef Rect16Rows
 
-int func_8003DCEC(int a0) {
+int UpdateRect16Row(int a0) {
     int lx[4];
     int ly[4];
     int lv[4];
@@ -249,7 +249,7 @@ int func_8003DCEC(int a0) {
         tb = D_8009F9CC;
         p = D_8009F9C0;
     loop:
-        func_80022694(D_800ACC14 + 0x70, *(int *)((char *)xs + (p[0] << 2)), *(int *)((char *)ys + (p[0] << 2)), *(int *)((char *)xs + (p[1] << 2)), *(int *)((char *)ys + (p[1] << 2)), lv[*(unsigned char *)(k + (int)tb)], 1, 8, 8, 8, -1);
+        AddPartialLine(D_800ACC14 + 0x70, *(int *)((char *)xs + (p[0] << 2)), *(int *)((char *)ys + (p[0] << 2)), *(int *)((char *)xs + (p[1] << 2)), *(int *)((char *)ys + (p[1] << 2)), lv[*(unsigned char *)(k + (int)tb)], 1, 8, 8, 8, -1);
         p += 2;
         k++;
         if (k < 6) goto loop;

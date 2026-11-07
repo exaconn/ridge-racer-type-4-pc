@@ -7,9 +7,9 @@
 /* Lateral and longitudinal fractions use 1024 units. The XZ variant leaves
  * output[1] alone; the XYZ variant also interpolates the centre-line height.
  * Widths must be nonzero and the original signed products must fit s32. */
-void func_80047230(const RrTrackSample3C *first, const RrTrackSample3C *second,
+void InterpolateLanePointXZ(const RrTrackSample3C *first, const RrTrackSample3C *second,
     s32 lateral, s32 fraction, s32 *output);
-void func_80047610(const RrTrackSample3C *first, const RrTrackSample3C *second,
+void InterpolateLanePointXYZ(const RrTrackSample3C *first, const RrTrackSample3C *second,
     s32 lateral, s32 fraction, s32 *output);
 void UpdateComCarTargetPoint(RrRaceVehicle *vehicle);
 /* The PAL caller ABI uses a full word, normalized to signed sixteen bits. */

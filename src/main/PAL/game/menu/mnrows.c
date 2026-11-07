@@ -22,7 +22,7 @@ extern int CdDirectoryBuffer;
 extern char D_8001075C[];
 extern int LoadCursor;
 extern int D_800F4D70[];
-extern int func_80036068();
+extern int StopRaceAudioAndRumble();
 extern int ClearScreenOverlayState();
 extern int VSyncThreshold;
 extern int D_800F4D40;
@@ -30,9 +30,9 @@ extern short D_800F3826;
 
 void ResetScreenCounters(void);
 void InitMenuArenas();
-void func_8003A2D4();
+void InitMenuScript();
 
-void func_80039F98(void) {
+void UpdateSelectionRank(void) {
  register u8 *first_page=(u8 *)0x800B0000U;
  register RrSelectionStatePrefix *first;
  /* ASM_BARRIER: reuse V0 for word intermediates whose lifetimes end before publication. */
@@ -157,8 +157,8 @@ publish_state:
 }
 
 void ResetScreenCounters(void) {
-    D_800F4D7C = 0;
-    D_800F3A2C = 0;
+    LoadState = 0;
+    MenuScriptStep = 0;
     ScreenFrame = 0;
 }
 
@@ -178,7 +178,7 @@ void InitMenuArenas()
   LoadCursor = LoadCursor + AllocBadgeRows(LoadCursor);
   LoadCursor = LoadCursor + AllocRect16Rows(LoadCursor);
   LoadCursor = LoadCursor + AllocGlyphRows(LoadCursor);
-  LoadCursor = LoadCursor + func_8003FAA0(LoadCursor);
+  LoadCursor = LoadCursor + AllocImageRows(LoadCursor);
   LoadCursor = LoadCursor + AllocUiRows(LoadCursor);
   D_800ACC1C = LoadCursor;
   D_800F4D70[1] = LoadCursor + 0x19000;
@@ -187,43 +187,43 @@ void InitMenuArenas()
 
 /* legacy typing of shared globals in this part of the unit */
 #define SetDispMask ((int (*)())SetDispMask)
-#define func_8005CA88 ((int (*)())func_8005CA88)
+#define IntroScriptStep ((int (*)())IntroScriptStep)
 #define D_800F4D70 (*(int (*))&D_800F4D70)
-#define D_800F4C6A (*(short (*))&D_800F4C6A)
+#define ModeGroup (*(short (*))&ModeGroup)
 
-void func_8003A2D4() {
+void InitMenuScript() {
     int a0, a1, a3;
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     VSyncThreshold = 0x80;
     LoadCursor = D_800F4D40;
     a3 = 0;
-    switch (D_800F4BE8) {
+    switch (MenuScriptId) {
     case 0:
-        func_8001ECE8(0, 0, 0, 1);
+        SetupDrawDispEnvs(0, 0, 0, 1);
         D_800FFC10 = 1;
         LoadCursor = D_800F4D70;
         goto l428;
     case 10:
         if (D_800F4D44 == 5) goto five;
-        func_8001ECE8(0, 0, 0, 1);
+        SetupDrawDispEnvs(0, 0, 0, 1);
         D_800FFC10 = 1;
         LoadCursor = CdDirectoryBuffer;
         goto l428;
     five:
-        func_8001ECE8(0, 0, 0, 2);
+        SetupDrawDispEnvs(0, 0, 0, 2);
         D_800FFC10 = 0;
         goto l428;
     case 6:
         SetDispMask(0);
-        func_80036068();
+        StopRaceAudioAndRumble();
         a3 = 1;
     case 1:
     case 4:
-        func_8001ECE8(8, 8, 8, a3 | 2);
+        SetupDrawDispEnvs(8, 8, 8, a3 | 2);
         D_800FFC10 = 2;
         goto l418;
     default:
-        func_8001ECE8(0, 0, 0, 2);
+        SetupDrawDispEnvs(0, 0, 0, 2);
         D_800FFC10 = 0;
     }
 l418:
@@ -237,8 +237,8 @@ l428:
         switch (D_800F4D44) {
         case 0: a0 = 8; break;
         case 1:
-            a0 = D_800AD4D8[0x17];
-            a1 = 3 - D_800AD4D8[a0 + 8];
+            a0 = SelectionState[0x17];
+            a1 = 3 - SelectionState[a0 + 8];
             break;
         case 2:
         case 3: a0 = 9; break;
@@ -252,19 +252,19 @@ l428:
         }
         if (D_800FFC10 == 1) func_80059314(a0, a1);
     } else if (D_800FFC10 == 0) {
-        func_8005CA88();
+        IntroScriptStep();
     }
-    D_800F4C6A = 1;
+    ModeGroup = 1;
     D_800F3A26 = 0x24;
     D_800F4D8A = 0;
 }
 
 #undef SetDispMask
-#undef func_8005CA88
+#undef IntroScriptStep
 #undef D_800F4D70
-#undef D_800F4C6A
+#undef ModeGroup
 
-void func_8003A544(void) {
+void UpdateMenuScript(void) {
     s32 next_frame;
     s32 mode;
     s32 status;
@@ -272,34 +272,34 @@ void func_8003A544(void) {
     s8 opcode;
     s32 step;
 
-    next_frame = (s32)((u32)D_800F2DE4 + 1U);
-    D_800F2DE4 = next_frame;
+    next_frame = (s32)((u32)ModeFrame + 1U);
+    ModeFrame = next_frame;
     if (next_frame == 2) {
         SetDispMask(1);
     }
     if (D_800F4D44 == 4) {
-        func_80035024(1);
+        UpdateLinkHandshake(1);
     }
     mode=D_800FFC10;
     if (mode == 1) {
-        status = func_80059E40(D_800F2DE4);
+        status = func_80059E40(ModeFrame);
     } else {
         if (mode == 0) {
-            status = func_8005CA88();
+            status = IntroScriptStep();
         } else {
             status = 1;
         }
     }
-    step = D_800F3A2C;
+    step = MenuScriptStep;
     if (step >= 0) {
-        if (D_8009F840[D_8009F8D0[D_800F4BE8][step]]() == 1) {
-            D_800F4D7C = 0;
-            next_step = (u8) D_800F3A2C + 1;
-            D_800F3A2C = next_step;
-            opcode = D_8009F8D0[D_800F4BE8][next_step];
+        if (MenuScriptOps[MenuScripts[MenuScriptId][step]]() == 1) {
+            LoadState = 0;
+            next_step = (u8) MenuScriptStep + 1;
+            MenuScriptStep = next_step;
+            opcode = MenuScripts[MenuScriptId][next_step];
             if (opcode < 0) {
-                D_800F4BE8 = (u16) -opcode;
-                D_800F3A2C = -1;
+                MenuScriptId = (u16) -opcode;
+                MenuScriptStep = -1;
                 if (D_800FFC10 == 0) {
                     func_8005CA14();
                 }
@@ -307,13 +307,13 @@ void func_8003A544(void) {
         }
     } else {
         if((status==1 && D_800FFC10==status) || (D_800FFC10==0 && status==2) || (D_800FFC10>=2 && status==1)) {
-            D_8009F870[D_800F4BE8]();
+            MenuSceneEntries[MenuScriptId]();
             D_800F4D8A = 0;
-            D_800F4C6A = (u16) ((u16) D_800AD50A >> 8);
+            ModeGroup = (u16) ((u16) D_800AD50A >> 8);
             D_800F3A26 = D_800AD50A & 0xFF;
         }
     }
-    if (D_800F4C6A != 1) {
+    if (ModeGroup != 1) {
         *(void **)SCRATCHPAD = AddTileGrid2x2((u32 *)((u8 *)D_800ACC14 + 0xB6C), *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200, 0, 0, 0);
     }
 }

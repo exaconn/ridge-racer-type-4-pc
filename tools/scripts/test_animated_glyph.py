@@ -36,7 +36,7 @@ static void mutate(u32 event){
  nativeScratch.order=(u32*)&frames[(x>>7)&1].bytes[0xB70];
  if(event==2 && (seed&1))animation[0]=(s16)(x>>8);
 }
-void func_80095B94(void *output){
+void SetSprt(void *output){
  assert(calls++==0);assert(output==initialCursor);
  ((u8*)output)[3]=4;((u8*)output)[7]=0x64;mutate(1);
 }

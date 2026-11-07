@@ -20,7 +20,7 @@ s32 ovl667_func_80114D30(void) {
     ovl667_D_80118F80.packet.checksum01 = csum;
     ovl667_D_80118F80.packet.status02 = RaceState;
     ovl667_D_80118F80.packet.phase03 = ovl667_D_80118EEC;
-    if (FileWrite(D_800F2AAC, &ovl667_D_80118F80, 12) != 12) {
+    if (FileWrite(LinkWriteHandle, &ovl667_D_80118F80, 12) != 12) {
         return 2;
     }
     return 1;

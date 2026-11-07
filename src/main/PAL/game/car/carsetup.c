@@ -24,7 +24,7 @@
 
 extern void RotMatrix();
 extern char *D_800F39C8[];
-extern unsigned char D_800F4D98[][4];
+extern unsigned char SelectionRows[][4];
 extern int RaceState;
 extern int D_800FF6F8;
 extern int ReplayState;
@@ -77,7 +77,7 @@ char *a0; int a1; int a2;
     s2 = a0 + 0x1F4;
     s3 = D_800F39C8[a1];
     func_80096434(a0, 0x320);
-    H(s2, 0x84) = D_800F4D98[a1][3] & 1;
+    H(s2, 0x84) = SelectionRows[a1][3] & 1;
     H(a0, 0x1E6) = a1 * 2;
     W(s2, 0x24) = a1;
     UH(a0, 0x1E4) = UH(s2, 0x24) | 0x110;
@@ -108,7 +108,7 @@ char *a0; int a1; int a2;
             p2 += 0x1E;
         } while (W(s3, 0) >= i);
     }
-    func_80037618(a0, a2, p2);
+    PlaceCarOnGrid(a0, a2, p2);
 }
 
 void UpdatePlayerCar(char *a0, int a1)
@@ -118,9 +118,9 @@ void UpdatePlayerCar(char *a0, int a1)
   if (RaceState > 0)
   {
     *((short *) (a0 + 0x1EA)) = func_80022848();
-    func_80026800(a0, a1);
-    func_80022D50(a0, a1);
-    func_8002367C(a0);
+    UpdateCarGear(a0, a1);
+    UpdatePlayerSteering(a0, a1);
+    UpdateCarEngine(a0);
     if ((a0 == PlayerCars) || (a0 == (PlayerCars + 0x320)))
     {
       if (D_800FF6F8 == 1)

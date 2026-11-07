@@ -8,7 +8,7 @@ extern struct HW *D_800ABCCC;
 extern struct Q *D_800ABCC8;
 extern unsigned D_801146B8, D_801146BC;
 struct W { char p[0x3C]; unsigned char *f3c; char p2[4]; unsigned char f44, f45; char p3[0xE8 - 0x46]; unsigned char fE8; };
-int func_80098788(a0, a1) struct W *a0; int a1; {
+int _padSioRW2(a0, a1) struct W *a0; int a1; {
     int s1;
     int s2;
     unsigned v1;

@@ -4,12 +4,12 @@ struct P { int link; unsigned char r, g, b, code; short x, y; unsigned char u, v
 
 extern struct P *AddDrawModePrim();
 
-extern int func_80095B94(), SetShadeTex(), SetSemiTrans(), AddPrim();
+extern int SetSprt(), SetShadeTex(), SetSemiTrans(), AddPrim();
 
 void *AddSpriteWithDrawMode(u32 *a0, void *a1, int a2, int a3, int a4, int a5, int a6, int a7, unsigned short a8, unsigned short a9, unsigned short a10, unsigned short a11)
 {
     struct P *p = AddDrawModePrim(a0, a1, 5);
-    func_80095B94(p);
+    SetSprt(p);
     p->x = a2;
     p->y = a3;
     p->w = a4;

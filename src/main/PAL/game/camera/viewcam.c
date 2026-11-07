@@ -42,7 +42,7 @@ extern int D_8010E690;
 extern struct S8 D_800FF690;
 extern struct S8 D_800F39A8;
 extern int SetLightMatrix();
-extern M2C_UNK D_800AD570;
+extern M2C_UNK ColorMatrix;
 extern char D_800ABF48[];
 extern short D_800F3914;
 extern void func_80060C70();
@@ -69,12 +69,12 @@ extern int D_8010718C;
 extern Car PlayerCars[];
 
 void func_8006E9E8(int a0, int *a1);
-void func_8006EAC8(void);
+void SetupViewMatrix(void);
 void SetupViewLighting(void);
 void func_8006ECE8(int ignoredPlayer);
 void func_8006ED4C(void);
 void func_8006EDA4(void);
-void func_8006EE3C(short *a0, short *a1, int *a2);
+void SetGteObjectTransform(short *a0, short *a1, int *a2);
 void BuildLightMatrix(void);
 void SetupViewport(s32 a0);
 int func_8006F188(int *a0, int a1);
@@ -99,7 +99,7 @@ void func_8006E9E8(int a0, int *a1) {
     }
 }
 
-void func_8006EAC8(void) {
+void SetupViewMatrix(void) {
     int v[4], w[4], x[4];
     int *h = (int *)SCRATCHPAD;
     int *g = (int *)(SCRATCHPAD + 0x8);
@@ -133,7 +133,7 @@ void func_8006EAC8(void) {
 #define D_800ABED0 (*(M2C_UNK (*))&D_800ABED0)
 
 void SetupViewLighting(void) {
-    SetColorMatrix(&D_800AD570);
+    SetColorMatrix(&ColorMatrix);
     BuildLightMatrix();
     SetLightMatrix(&D_800ABED0);
     SetBackColor(BackColorR, BackColorG, BackColorB);
@@ -149,7 +149,7 @@ void func_8006ECE8(int ignoredPlayer) {
     func_80071348();
     SetupViewLighting();
     func_8006E9E8(p, p - 0x30);
-    func_8006EAC8();
+    SetupViewMatrix();
     func_80060C70(SCRATCHPAD, D_8010E690, D_800F3914);
 }
 
@@ -163,7 +163,7 @@ void func_8006ED4C(void) {
     func_8006E8F8();
     func_80071348();
     SetupViewLighting();
-    func_8006EAC8();
+    SetupViewMatrix();
     func_80060C70(SCRATCHPAD, D_8010E690, D_800F3914);
 }
 
@@ -186,7 +186,7 @@ void func_8006EDA4(void) {
         D_8010E290 = v;
     }
     SetupViewLighting();
-    func_8006EAC8();
+    SetupViewMatrix();
     func_80060C70(g, D_8010E690, D_800F3914);
     g[0x2E] = (short)D_8010E280;
 }
@@ -194,7 +194,7 @@ void func_8006EDA4(void) {
 #undef func_8006E834
 #undef func_80060C70
 
-void func_8006EE3C(short *a0, short *a1, int *a2) {
+void SetGteObjectTransform(short *a0, short *a1, int *a2) {
     short *g = (short *)SCRATCHPAD;
     a0[0] = a1[0] - g[4];
     a0[1] = a1[2] - g[6];
@@ -218,7 +218,7 @@ void BuildLightMatrix(void) {
         s.c = -D_800AD5BC[i];
         RotMatrixYXZ(D_800F38F8[i], m);
         SetRotMatrix(m);
-        func_80090C74(&s, &r);
+        ApplyRotMatrix(&s, &r);
         D_800ABED0[i][0] = r.x;
         D_800ABED0[i][1] = r.y;
         D_800ABED0[i][2] = r.z;
@@ -297,7 +297,7 @@ void SetupViewport(s32 a0) {
 
 int func_8006F188(int *a0, int a1) {
     if (D_8010718C == 0) {
-        return func_80026998(a0[0], a0[2]);
+        return FindTrackNodeAtXZ(a0[0], a0[2]);
     }
     return PlayerCars[a1].wF0;
 }

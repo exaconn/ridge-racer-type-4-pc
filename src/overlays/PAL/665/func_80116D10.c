@@ -104,7 +104,7 @@ extern Ovl665Frame *D_800ACC14;
 extern s16 D_800AC5D0;
 extern s32 D_800AC5D4;
 extern s32 D_800F4CB8;
-extern u8 D_800ACC68;
+extern u8 ScreenFadeState;
 extern Ovl665View14 ovl665_D_80119698[];
 extern Ovl665Colour4 ovl665_D_8011902C[][5];
 extern Ovl665Colour4 ovl665_D_801190CC[][5];
@@ -135,16 +135,16 @@ extern void ovl665_func_80116AA4(void *, s32);
 extern void *func_8001FF84(void *, void *, s32, s32, void *, s32, s32);
 extern void ovl665_func_8011643C(void);
 extern void DrawUiRow(s32);
-extern void func_800207D4(void *, s32, s32);
+extern void AddScreenFadeTiles(void *, s32, s32);
 extern void ovl665_func_80114A24(void);
 extern void ClearScreenOverlayState();
 extern void InitBadgeRow(s32, s32, s32, s32, s32, s32, s32);
-extern void func_8002AF8C(s32, s32, s32);
+extern void SetMenuFrameOptions(s32, s32, s32);
 extern s32 rsin(s32);
 extern void PadSetRumbleFlags(s32, s32);
 extern void ovl665_func_801169BC(s32);
 extern void UpdateBadgeRowAnim(s32);
-extern void func_80032A14(s32, s32, void *);
+extern void UpdateDialogue(s32, s32, void *);
 extern void UpdateScreenFade(s32);
 
 #define ST ovl665_D_80119768
@@ -466,7 +466,7 @@ void ovl665_func_80116D10(s32 player) {
     case 2:
         timer = D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        func_800207D4(&D_800ACC14->ordering70, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&D_800ACC14->ordering70, (64 - timer) * 4, 69);
         if (D_800AC5D0 <= 0) {
             if (ST.next14 == 0) {
                 ovl665_func_80114A24();
@@ -488,10 +488,10 @@ void ovl665_func_80116D10(s32 player) {
         switch (ST.detail10) {
         case 0:
             ClearScreenOverlayState();
-            D_800ACC68 = 2;
+            ScreenFadeState = 2;
             InitBadgeRow(0, 12, 304, 296, 88, 0, 0);
             BadgeRows->h02 = 1;
-            func_8002AF8C(1, 0, 0);
+            SetMenuFrameOptions(1, 0, 0);
             ST.view38 = ovl665_D_80119698[4];
             ST.rotation86 = 0;
             ST.angle1C = 0;
@@ -512,7 +512,7 @@ void ovl665_func_80116D10(s32 player) {
                 ST.view38 = ovl665_D_80119698[5];
                 ST.phase20 = 0;
                 ST.detail10++;
-                func_8002AF8C(1, 1, 0);
+                SetMenuFrameOptions(1, 1, 0);
             }
             break;
         case 2:
@@ -598,10 +598,10 @@ void ovl665_func_80116D10(s32 player) {
         switch (ST.detail10) {
         case 0:
             ClearScreenOverlayState();
-            D_800ACC68 = 2;
+            ScreenFadeState = 2;
             InitBadgeRow(0, 12, 304, 296, 88, 0, 0);
             BadgeRows->h02 = 1;
-            func_8002AF8C(1, 0, 0);
+            SetMenuFrameOptions(1, 0, 0);
             ST.view38 = ovl665_D_80119698[6];
             ST.rotation86 = 0;
             ST.angle1C = 0;
@@ -617,7 +617,7 @@ void ovl665_func_80116D10(s32 player) {
                 D_800AC590->b4 = Options.c[player].c[0] + 10;
                 ST.phase20 = 0;
                 ST.detail10++;
-                func_8002AF8C(1, 1, 0);
+                SetMenuFrameOptions(1, 1, 0);
             }
             break;
         case 2:
@@ -727,7 +727,7 @@ void ovl665_func_80116D10(s32 player) {
     } else {
         UpdateBadgeRowAnim(0);
         if (BadgeRows->state10 == 3) {
-            func_80032A14(BadgeRows->x04 + 10, BadgeRows->y06 + 40, D_800AC590);
+            UpdateDialogue(BadgeRows->x04 + 10, BadgeRows->y06 + 40, D_800AC590);
         }
         arg = 0x83;
     }

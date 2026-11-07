@@ -40,7 +40,7 @@ static const s32 counters[8]={-1,0,1,2,3,INT32_MAX,INT32_MIN,-2};
 #define ovl662_D_8012625C w->s.stage
 #define D_800F4D8A w->s.phase
 #define D_800F3A26 w->s.nextScene
-#define D_800F4C6A w->s.scene
+#define ModeGroup w->s.scene
 #define ovl662_D_8012624C w->s.rects[0]
 #define ovl662_D_80126254 w->s.rects[1]
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}

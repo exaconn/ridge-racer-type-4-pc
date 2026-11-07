@@ -17,23 +17,23 @@
 #undef D_800ABAB8
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC8 ((s32 *)D_800ABBC8)
+#define GPU_STATUS ((s32 *)GPU_STATUS)
 
-#undef D_800ABBC8
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC8 ((u32 *)D_800ABBC8)
-
-#undef D_800ABBC8
+#undef GPU_STATUS
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC4 ((int *)D_800ABBC4)
+#define GPU_STATUS ((u32 *)GPU_STATUS)
 
-#define D_800ABBC8 ((int *)D_800ABBC8)
+#undef GPU_STATUS
 
-#undef D_800ABBC4
+/* legacy typing of shared globals in this part of the unit */
+#define GPU_DATA ((int *)GPU_DATA)
 
-#undef D_800ABBC8
+#define GPU_STATUS ((int *)GPU_STATUS)
+
+#undef GPU_DATA
+
+#undef GPU_STATUS
 
 extern u32 D_80112788[10];
 
@@ -95,7 +95,7 @@ s32 _clr(RrGpuRectangle *arg0, u32 arg1) {
         command=color&mask;
         command|=0x60000000U;
         packet[4]=fill;
-        status_ptr=D_800ABBC8;
+        status_ptr=GPU_STATUS;
         packet[1]=e3;packet[2]=full_area;packet[3]=e5;
         status=*status_ptr;
         high=(color>>31)<<10;
@@ -135,7 +135,7 @@ s32 _clr(RrGpuRectangle *arg0, u32 arg1) {
         /* ASM_BARRIER: prepare the fast fill opcode before reading GPU status. */
         __asm__("" : : "r"(textured));
         encoded|=textured;
-        status_ptr=D_800ABBC8;
+        status_ptr=GPU_STATUS;
         status=*status_ptr;
         high=(color>>31)<<10;
         packet[3]=encoded;

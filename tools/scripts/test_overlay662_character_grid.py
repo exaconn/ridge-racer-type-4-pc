@@ -29,7 +29,7 @@ static World actual,reference,initial,*w;
 static u8 arena[2048];static u32 ordering[4];static unsigned scenario,mutation;
 static unsigned selectedSeen[43],clutSeen[2],sineSeen[9];
 static const s32 sineValues[9]={INT32_MIN,-4096,-1,0,1,63,64,4096,INT32_MAX};
-u8 D_8009F7E4[]=" 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!?&@";
+u8 NameCharset[]=" 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!?&@";
 s8 ovl662_D_80126230[3]={0,1,2};
 RrBadgeRow1C *BadgeRows;
 #define D_8009FA1C w->s.uv
@@ -71,7 +71,7 @@ static void pulse(unsigned selected,s32 *clut,s32 *color){
 }
 static void expected(s32 row){s32 x=w->s.rows[row].x04+36,y=w->s.rows[row].y06+56,clut,color;unsigned i,dx=0;void *p=arena;
  for(i=0;i<40;i++){
-  char text[4]={(char)D_8009F7E4[i+1],0,0,0};pulse((u32)w->s.selection==i,&clut,&color);
+  char text[4]={(char)NameCharset[i+1],0,0,0};pulse((u32)w->s.selection==i,&clut,&color);
   p=AddTextSprites(ordering,p,x+(i%10)*24,y+(i/10)*32,text,clut,0,color);
  }
  p=AddTilePrim(ordering,p,x-16,y+136,256,2,255,255,255);

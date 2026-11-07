@@ -16,7 +16,7 @@
 /* legacy typing of shared globals in this part of the unit */
 #define PlayerCars (*(char (*)[])&PlayerCars)
 
-#define D_800AD4D8 (*(char (*)[])&D_800AD4D8)
+#define SelectionState (*(char (*)[])&SelectionState)
 
 #define D_800F2AB0 ((W7C0_S *)D_800F2AB0)
 
@@ -24,7 +24,7 @@
 
 #define UpdateScreenFade ((void (*)())UpdateScreenFade)
 
-#define func_8002AF8C ((void (*)())func_8002AF8C)
+#define SetMenuFrameOptions ((void (*)())SetMenuFrameOptions)
 
 #define StepMenuValue ((void (*)())StepMenuValue)
 
@@ -32,17 +32,17 @@
 
 #define func_8002E5A0 ((void (*)())func_8002E5A0)
 
-#define func_80033A74 ((void (*)())func_80033A74)
+#define SetupMenuCarCamera ((void (*)())SetupMenuCarCamera)
 
 #define ResetScreenCounters ((void (*)())ResetScreenCounters)
 
-#define func_8003FBA8 ((void (*)())func_8003FBA8)
+#define UpdateImageRow ((void (*)())UpdateImageRow)
 
 #define SetupViewport ((void (*)())SetupViewport)
 
 #undef PlayerCars
 
-#undef D_800AD4D8
+#undef SelectionState
 
 #undef D_800F2AB0
 
@@ -50,7 +50,7 @@
 
 #undef UpdateScreenFade
 
-#undef func_8002AF8C
+#undef SetMenuFrameOptions
 
 #undef StepMenuValue
 
@@ -58,29 +58,29 @@
 
 #undef func_8002E5A0
 
-#undef func_80033A74
+#undef SetupMenuCarCamera
 
 #undef ResetScreenCounters
 
-#undef func_8003FBA8
+#undef UpdateImageRow
 
 #undef SetupViewport
 
 extern unsigned char D_8009F810[];
 
-extern unsigned char D_800AD4D8[];
+extern unsigned char SelectionState[];
 
 extern unsigned char D_800AD4EB;
 
-extern unsigned char D_800F3920[];
+extern unsigned char SaveProgress[];
 
 void func_80039920(void) {
-    int i = D_800AD4D8[0x1C] * 2 + (D_800AD4D8[0x1D] >> 1);
+    int i = SelectionState[0x1C] * 2 + (SelectionState[0x1D] >> 1);
     int v = D_8009F810[i];
     if (v < 0) {
         v = 0;
     } else if (v >= 9) {
         v = 8;
     }
-    D_800AD4EB = D_800F3920[v + 0x60];
+    D_800AD4EB = SaveProgress[v + 0x60];
 }

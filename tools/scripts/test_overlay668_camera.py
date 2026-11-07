@@ -54,7 +54,7 @@ static Event *event(s32 op){size_t i;Event *e;u32 h=2166136261U;assert(w->calls<
  e=&w->events[w->calls++];memset(e,0,sizeof(*e));e->op=op;e->hash=h;return e;
 }
 static void effect(void){if(mutation)change();}
-void func_80047610(const RrTrackSample3C *a,const RrTrackSample3C *b,s32 lateral,s32 fraction,s32 *out){
+void InterpolateLanePointXYZ(const RrTrackSample3C *a,const RrTrackSample3C *b,s32 lateral,s32 fraction,s32 *out){
  Event *e=event(1);s32 ia=a-TrackNodes,ib=b-TrackNodes;unsigned i;
  assert(ia>=0&&ia<w->s.count&&ib>=0&&ib<w->s.count);
  e->a[0]=ia;e->a[1]=ib;e->a[2]=lateral;e->a[3]=fraction;
@@ -78,7 +78,7 @@ static void expected(unsigned kind){RrReplayCameraContextPrefix *c=&w->s.camera;
  if(kind==0){
   int fraction=c->fraction49C,a=c->node498-(3072-fraction)/1024,b;int old,newAngle,doubled,delta,velocity;int64_t product;
   if(a<0)a+=w->s.count;b=a-1;if(b<0)b+=w->s.count;
-  func_80047610(&TrackNodes[a],&TrackNodes[b],0,(1024-fraction)&1023,c->target468);
+  InterpolateLanePointXYZ(&TrackNodes[a],&TrackNodes[b],0,(1024-fraction)&1023,c->target468);
   for(a=0;a<3;a++)c->delta478[a]=wrap((int64_t)c->target468[a]-c->position450[a]/4);
   old=c->yaw462;newAngle=half(1024-Atan2Table(c->delta478[0],c->delta478[2]));
   doubled=(newAngle-old)*2;delta=(int)((u32)doubled&4095);if(doubled&2048)delta-=4096;c->yaw462=newAngle;
@@ -86,9 +86,9 @@ static void expected(unsigned kind){RrReplayCameraContextPrefix *c=&w->s.camera;
   c->roll464=half(wrap((int64_t)c->velocity4A0+c->roll464)/2);
  }else if(kind==1){
   s32 first[4],second[4],a=c->node498,b=a+1,dx,dz,height,root,angle;
-  if(b>=w->s.count)b=0;func_80047610(TrackNodes+a,TrackNodes+b,c->lateral49E,c->fraction49C,first);
+  if(b>=w->s.count)b=0;InterpolateLanePointXYZ(TrackNodes+a,TrackNodes+b,c->lateral49E,c->fraction49C,first);
   b=c->node498;a=b-1;c->position450[1]=wrap((int64_t)first[1]-120);if(a<0)a+=w->s.count;
-  func_80047610(TrackNodes+a,TrackNodes+b,c->lateral49E,c->fraction49C,second);
+  InterpolateLanePointXYZ(TrackNodes+a,TrackNodes+b,c->lateral49E,c->fraction49C,second);
   dx=wrap(((int64_t)second[0]-first[0])*4);dz=wrap(((int64_t)second[2]-first[2])*4);height=wrap((int64_t)second[1]-first[1]);
   root=func_80090758(wrap((int64_t)dx*dx+(int64_t)dz*dz));angle=Atan2Table(height,root>>6);c->pitch460=half(1024-angle);
  }else{

@@ -67,7 +67,7 @@ extern s32 _SsVmAlloc(s16);
 
 extern void _SsVmDoAllocate(void);
 
-extern void func_80088794(s32);
+extern void vmNoiseOn(s32);
 
 extern u16 note2pitch2(s32, s32);
 
@@ -142,7 +142,7 @@ s32 SsUtKeyOn(s16 arg1, s16 arg2, s16 arg3, s16 arg4_in, u16 arg5_in, s16 arg6, 
     _svm_voice[v1].f02 = 0;
     _SsVmDoAllocate();
     if (_svm_cur.f16 == 0xFF) {
-        func_80088794(voice);
+        vmNoiseOn(voice);
     } else {
         _SsVmKeyOnNow(1, note2pitch2((u16)arg4_in, arg5));
     }

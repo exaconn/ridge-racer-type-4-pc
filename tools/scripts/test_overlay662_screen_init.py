@@ -30,14 +30,14 @@ static struct World {
  unsigned calls;Event events[7];u32 tail[4];
 } world,expected;
 static unsigned scenario;
-#define D_800F2DE4 world.frame
+#define ModeFrame world.frame
 #define ScreenFrame world.word
 #define ovl662_D_801272D4 world.local
 #define MenuCursor world.setting
 #define MenuItemCount world.style
-#define D_800F4D7C world.flag0
-#define D_800F3A2C world.flag1
-#define D_800F4C6A world.mode
+#define LoadState world.flag0
+#define MenuScriptStep world.flag1
+#define ModeGroup world.mode
 #define D_800F3A26 world.scene
 #define D_800F4D8A world.counter
 #define D_800F4D70 world.arenas

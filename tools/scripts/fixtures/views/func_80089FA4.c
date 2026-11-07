@@ -89,7 +89,7 @@ extern SpuVolumeCache _svm_sreg_dirty;
 
 extern SpuCachedVoice10 _svm_sreg_buf[];
 
-extern u32 D_800A48F8;
+extern u32 _snd_vmask;
 
 extern s16 _svm_stereo_mono;
 
@@ -146,7 +146,7 @@ s32 _SsVmSetVol(s32 a0, s16 a1, s16 a2, u16 a3, u16 a4)
   if (count < spuVmMaxVoice)
   do {
     new_var = _svm_vh->unk18;
-    if (!(D_800A48F8 & (1 << i)))
+    if (!(_snd_vmask & (1 << i)))
     {
       if (((_svm_voice[i].match10 == ((s16) a0)) && (_svm_voice[i].match14 == a2)) && (_svm_voice[i].match18 == a1))
       {

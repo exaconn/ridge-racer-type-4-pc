@@ -8,7 +8,7 @@ extern unsigned char D_80114741;
 extern int D_80114870;
 
 
-int func_8009BF94(a0, a1, a2) int a0; int *a1; int *a2; {
+int MemCardSync(a0, a1, a2) int a0; int *a1; int *a2; {
     if (D_80114870 == 0 || D_800ABDE4 == 1) {
         *a2 = 0;
         *a1 = 0;

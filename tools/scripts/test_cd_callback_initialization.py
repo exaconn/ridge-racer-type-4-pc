@@ -43,7 +43,7 @@ int DeliverEvent(int kind,int spec) {
     event_class[events]=(u32)kind;event_spec[events++]=(u32)spec;return -999;
 }
 '''
-        for name in ('CdInit','func_8008BED4','func_8008BF10','func_8008BF38','func_8008BF60'):
+        for name in ('CdInit','func_8008BED4','def_cbsync','def_cbready','def_cbread'):
             body=(root/'tools/scripts/fixtures/views'/f'{name}.c').read_text()
             body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
             body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
@@ -62,7 +62,7 @@ int DeliverEvent(int kind,int spec) {
         cls.primary=(C.c_int32*5).in_dll(cls.lib,'primary')
         cls.secondary=(C.c_int32*5).in_dll(cls.lib,'secondary')
         cls.slots=[C.c_void_p.in_dll(cls.lib,name) for name in ('CD_cbsync','CD_cbready','CD_cbread')]
-        cls.expected=[C.cast(getattr(cls.lib,name),C.c_void_p).value for name in ('func_8008BF10','func_8008BF38','func_8008BF60')]
+        cls.expected=[C.cast(getattr(cls.lib,name),C.c_void_p).value for name in ('def_cbsync','def_cbready','def_cbread')]
         cls.hook=C.c_void_p.in_dll(cls.lib,'on_probe')
 
     def integer(self,name):return C.c_int32.in_dll(self.lib,name)

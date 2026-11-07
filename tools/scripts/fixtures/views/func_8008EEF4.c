@@ -145,7 +145,7 @@ timeout:
         __asm__("" : "+r"(parameters) : "r"(command));
         CdControlB(command,parameters,0);
     }
-    result=func_8008EB6C(0)>0;
+    result=cd_read_retry(0)>0;
     /* ASM_BARRIER: finish the Boolean result before restoring saved temporaries. */
     __asm__("" : "+r"(result) : : "$17", "$19");
     return result;

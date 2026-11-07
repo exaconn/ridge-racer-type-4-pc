@@ -1,6 +1,6 @@
 #include "rr/overlay662_screen_init.h"
 void ovl662_func_80118ED8(void) {
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     ScreenFrame = 0;
     ovl662_D_801272D4 = 0;
     MenuCursor = 0;
@@ -15,7 +15,7 @@ void ovl662_func_80118ED8(void) {
     func_80037110();
     InitBadgeRow(1, 24, 232, 84, 34, 0, 0x501);
     SetupRenderer(5);
-    D_800F4C6A = 1;
+    ModeGroup = 1;
     D_800F3A26 = 68;
     LoadCursor = D_800F4D70.first = D_800F4D40;
     D_800F4D8A = 0;

@@ -52,8 +52,8 @@ static s32 eventResult,queryResult,writeResult;
 #define ovl667_D_80118ED0 w->s.peer
 #define ovl667_D_80118EEC w->s.phase
 #define RaceState w->s.local
-#define D_800F2AA8 w->s.reader
-#define D_800F2AAC w->s.writer
+#define LinkReadHandle w->s.reader
+#define LinkWriteHandle w->s.writer
 #define ovl667_D_80118F08 w->s.read
 #define ovl667_D_80118F09 w->s.write
 #define ovl667_D_80118F8D w->s.selected

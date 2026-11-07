@@ -55,7 +55,7 @@ static unsigned scenario,mutation;
 #define D_800A675C w->s.controlPort
 static void callback1(s32 code,u8 *data){(void)code;(void)data;}
 static void callback2(s32 code,u8 *data){(void)code;(void)data;}
-void func_8008DDAC(void){}
+void CdCommandCallback(void){}
 static void effect(unsigned n){
  unsigned i,b=(scenario+n)%3;u32 value=scenario*0x9e3779b9U+n*47;
  w->s.active=(u8)value;w->s.command=(u8)(value+1);w->s.mode=(s32)value;w->s.status.word=value;
@@ -106,7 +106,7 @@ void ResetCallback(void){
  assert(w->s.active==0 && w->s.command==0 && w->s.callback1==0 && w->s.callback2==0 && w->s.status.word==0 && w->s.mode==0);
  service(3,0,0);
 }
-RrLibInterruptCallback InterruptCallback(s32 channel,RrLibInterruptCallback callback){assert(channel==2 && callback==func_8008DDAC);service(4,channel,0);return 0;}
+RrLibInterruptCallback InterruptCallback(s32 channel,RrLibInterruptCallback CdCommandCallback){assert(channel==2 && CdCommandCallback==CdCommandCallback);service(4,channel,0);return 0;}
 s32 CD_cw(s32 command,const u8 *params,u8 *result,s32 mode){
  unsigned plan=(scenario>>1)%4;assert(params==0 && result==0 && mode==0);service(5,command,0);
  if(command==1){w->s.status.word=(scenario*0x1234567U&~16U)|((scenario&1)?16U:0U);return -1;}
@@ -118,7 +118,7 @@ s32 CD_sync(s32 mode,u8 *status){assert(mode==0 && status==0);service(6,0,0);ret
 static s32 reference(void){
  func_800963DC(D_80011B08);func_8001E84C(D_80011B14,(u32)(uintptr_t)&D_800A6768);
  w->s.command=0;w->s.active=0;w->s.callback2=0;w->s.callback1=0;w->s.mode=0;w->s.status.word=0;
- ResetCallback();InterruptCallback(2,func_8008DDAC);
+ ResetCallback();InterruptCallback(2,CdCommandCallback);
  write8(w->s.indexPort,1);
  while(read8(w->s.irqPort)&7){write8(w->s.indexPort,1);write8(w->s.irqPort,7);write8(w->s.enablePort,7);}
  w->s.response[2]=0;w->s.response[1]=0;w->s.response[0]=2;

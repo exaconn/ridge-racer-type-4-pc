@@ -51,13 +51,13 @@ extern void *AddTilePrim();
 
 extern void *AddSpriteWithDrawMode();
 
-extern void *func_8002018C();
+extern void *AddJitterSprites();
 
 extern void *func_80020508();
 
 extern void InitRect16Row();
 
-extern int func_8003DCEC();
+extern int UpdateRect16Row();
 
 extern void func_80043608();
 
@@ -65,7 +65,7 @@ extern int D_800ACC14;
 
 extern MenuRow1C *GlyphRows;
 
-int func_8003E13C(int arg0) {
+int UpdateGlyphRow(int arg0) {
     SpriteDesc sp30;
     SpriteDesc sp40;
     MenuRow1C *base;
@@ -105,7 +105,7 @@ int func_8003E13C(int arg0) {
         GlyphRows[arg0].f02 = -5;
         break;
     case -5:
-        if (func_8003DCEC(GlyphRows[arg0].f07) != 0) {
+        if (UpdateRect16Row(GlyphRows[arg0].f07) != 0) {
             GlyphRows[arg0].f02 = -1;
         }
         break;
@@ -113,7 +113,7 @@ int func_8003E13C(int arg0) {
         GlyphRows[arg0].f03 = 0;
         GlyphRows[arg0].f02 = -7;
     case -7:
-        func_8003DCEC(GlyphRows[arg0].f07);
+        UpdateRect16Row(GlyphRows[arg0].f07);
         if (GlyphRows[arg0].f03 >= 0x14) {
             GlyphRows[arg0].f02 = -1;
             GlyphRows[arg0].f03 = 0;
@@ -135,12 +135,12 @@ int func_8003E13C(int arg0) {
         } else {
             GlyphRows[arg0].f03++;
         }
-        func_8003DCEC(GlyphRows[arg0].f07);
+        UpdateRect16Row(GlyphRows[arg0].f07);
         break;
     case 0:
         a1 = *(void **)0x1F800000;
         if ((unsigned short)s5 >= 3) {
-            a1 = func_8002018C(D_800ACC14 + 0x70, a1, &sp30, 1, 0xFF, 3);
+            a1 = AddJitterSprites(D_800ACC14 + 0x70, a1, &sp30, 1, 0xFF, 3);
         }
         *(void **)0x1F800000 = AddTilePrim(
             D_800ACC14 + 0x74,
@@ -162,8 +162,8 @@ int func_8003E13C(int arg0) {
         }
         break;
     case 1:
-        a1 = func_8002018C(D_800ACC14 + 0x70, *(void **)0x1F800000, &sp30, 1, (0x80 - s5) * 2, 2);
-        a1 = func_8002018C(D_800ACC14 + 0x70, a1, &sp40, 1, s5, 1);
+        a1 = AddJitterSprites(D_800ACC14 + 0x70, *(void **)0x1F800000, &sp30, 1, (0x80 - s5) * 2, 2);
+        a1 = AddJitterSprites(D_800ACC14 + 0x70, a1, &sp40, 1, s5, 1);
         *(void **)0x1F800000 = AddTilePrim(
             D_800ACC14 + 0x7C,
             a1,

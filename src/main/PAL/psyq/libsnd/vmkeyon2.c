@@ -30,7 +30,7 @@ extern SvmCur _svm_cur;
 
 extern s32 _SsVmVSetUp(s16, s16);
 extern void _SsVmDoAllocate(void);
-extern void func_80088794(u8);
+extern void vmNoiseOn(u8);
 
 int SsUtKeyOnV(s16 arg0, s16 arg1, s16 arg2, s16 arg3, u16 arg4_in, u16 arg5_in, s16 arg6, s16 arg7) {
     s16 tone_idx;
@@ -91,7 +91,7 @@ int SsUtKeyOnV(s16 arg0, s16 arg1, s16 arg2, s16 arg3, u16 arg4_in, u16 arg5_in,
     _svm_voice[arg0].f02 = 0;
     _SsVmDoAllocate();
     if (_svm_cur.f16 == 0xFF) {
-        func_80088794(arg0);
+        vmNoiseOn(arg0);
     } else {
         _SsVmKeyOnNow(1, note2pitch2(arg4, arg5));
     }

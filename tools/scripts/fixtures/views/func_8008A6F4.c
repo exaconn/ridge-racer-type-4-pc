@@ -4,13 +4,13 @@
 
 #include "rr/spu.h"
 
-extern s32 D_800A48B8;
+extern s32 _spu_AllocBlockNum;
 
 extern void _spu_gcSPU(void);
 
 void SpuFree(u32 address) {
     s32 visited = 0;
-    s32 count = D_800A48B8;
+    s32 count = _spu_AllocBlockNum;
     if (count > 0) {
         u32 end_marker = 0x40000000U;
         u32 freed = address | 0x80000000U;

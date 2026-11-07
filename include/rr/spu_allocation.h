@@ -8,7 +8,7 @@
  * or deleted (0x2FFFFFFF). Indices and scaled offsets must fit signed32.
  * A negative index other than INT_MIN is an empty table. Addresses stored in
  * records are numeric SPU offsets; the table pointer retains native width. */
-extern s32 D_800A48BC;
+extern s32 _spu_AllocLastNum;
 void _spu_gcSPU(void);
 
 #endif

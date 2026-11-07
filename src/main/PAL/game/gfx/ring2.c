@@ -2,9 +2,9 @@
 #include "game/gfx/meshquad.h"
 #include "game/gfx/ring2.h"
 #include "rr/ring_renderer.h"
-extern int func_8005599C();
+extern int SetupObjectLightMatrices();
 extern int ScaleMatrix();
-extern int func_8006EE3C();
+extern int SetGteObjectTransform();
 struct Q { char pad[0x20]; char q20[0x544]; int h564; };
 extern struct { char pad[0x3D8]; struct Q *q; char pad2[0x188]; int i564; } RaceContext;
 struct A { int x, y, z, pad; short rx, ry, rz; };
@@ -23,14 +23,14 @@ void func_8005EFBC(void) {
             l.a.rz = 0;
             l.a.ry = 0;
             l.a.rx = 0;
-            func_8005599C(&l.a, (char *)RaceContext.q + 0x20, l.m, l.v);
+            SetupObjectLightMatrices(&l.a, (char *)RaceContext.q + 0x20, l.m, l.v);
             l.s.z = 0x800;
             l.s.y = 0x800;
             l.s.x = 0x800;
             ScaleMatrix(l.m, &l.s);
             if (*(short *)((char *)e + i * 4 + 0x18) < 0x18) {
-                func_8006EE3C((SCRATCHPAD + 0x7C), &l.a, l.m);
-                func_80058038(RaceContext.i564, *(short *)((char *)e + i * 4 + 0x18) + 1, 0);
+                SetGteObjectTransform((SCRATCHPAD + 0x7C), &l.a, l.m);
+                DrawMeshPrimList(RaceContext.i564, *(short *)((char *)e + i * 4 + 0x18) + 1, 0);
             } else {
                 DrawRing(&l.a, 0x300);
             }

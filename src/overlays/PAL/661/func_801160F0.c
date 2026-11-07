@@ -11,13 +11,13 @@ extern s16 ovl661_D_80118450[2];          /* selected group per player */
 extern RrCourseChoice4 ovl661_D_80118458[2][2][9];
 extern s32 UiRowCount, D_800F4CB8;
 extern s16 D_800FFC18;
-void func_80033A74(s32);
+void SetupMenuCarCamera(s32);
 void SetupViewport(s32);
-s32 func_8003AE4C(s32, s32);
+s32 LoadCarRangeStep(s32, s32);
 void SetCarBounds(RrRaceVehicle *);
 void func_8002E5A0(RrRaceVehicle *);
 void func_8002CC88(RrRaceVehicle *, RrPreviewRgb3, s32, s32);
-void func_8002AF8C(s32, s32, s32);
+void SetMenuFrameOptions(s32, s32, s32);
 void StepMenuValue(s32, s32, char *, s32, s32);
 void UnpackChoiceGlyph(s8 *, s32);
 s32 PackChoiceGlyph(s8 *);
@@ -27,10 +27,10 @@ void PlaySfx(s32);
 void DrawUiRow(s32);
 void func_80037198(s32);
 void UpdateBadgeRowAnim(s32);
-s32 func_8003FBA8(s32);
-void func_8002B12C(s32, s32, s32, s32, s32, s32, s32);
+s32 UpdateImageRow(s32);
+void DrawMenuStepArrows(s32, s32, s32, s32, s32, s32, s32);
 void UpdateScreenFade(s32);
-void func_800207D4(u32 *, s32, u32);
+void AddScreenFadeTiles(u32 *, s32, u32);
 void func_80053AF4(s32, s32);
 void func_80053CB0(void);
 void ovl661_func_80115598(s32);
@@ -38,8 +38,8 @@ void ovl661_func_80115F8C(void);
 void ovl661_func_80117350(void);
 
 #define MODE (((s8 *)D_800F2AB0)[1])
-#define SELECTION ((s8 *)&D_800F4D98)
-#define ENTRIES ((RrSelectionRow *)&D_800F4D98)
+#define SELECTION ((s8 *)&SelectionRows)
+#define ENTRIES ((RrSelectionRow *)&SelectionRows)
 #define PLAYER (D_800AC5D4 & 1)
 #define GROUP_ROW(p, g, i) ovl661_D_80118364[p][g][i]
 
@@ -66,14 +66,14 @@ void ovl661_func_801160F0(void)
     RrMenuItemState5C *input;
 
     active = 0;
-    tick = &D_800F2DE4;
+    tick = &ModeFrame;
     vehicles = PlayerCars;
     vehicle = &vehicles[PLAYER];
     (*tick)++;
     vehicle->rot54 = (vehicle->rot54 + 8) & 0xFFF;
-    func_80033A74(1);
+    SetupMenuCarCamera(1);
     SetupViewport(6);
-    result = func_8003AE4C(D_800AC5D4, 1);
+    result = LoadCarRangeStep(D_800AC5D4, 1);
     if (result != 1) {
         if (MODE == 1) {
             MODE = 0;
@@ -92,7 +92,7 @@ void ovl661_func_801160F0(void)
             D_800F4D8A = 0;
         }
     case 0:
-        func_8002AF8C(1, 1, 1);
+        SetMenuFrameOptions(1, 1, 1);
         before = PackChoiceGlyph(SELECTION + D_800AC5D4 * 4);
         StepMenuValue(PLAYER * 4 | 1, 2, (char *)&ovl661_D_8011844C[PLAYER],
                       ovl661_D_80118440[PLAYER][ovl661_D_80118450[PLAYER]], 0);
@@ -241,13 +241,13 @@ void ovl661_func_801160F0(void)
         }
         break;
     case 5:
-        func_8002AF8C(0, 1, 1);
+        SetMenuFrameOptions(0, 1, 1);
         row = GROUP_ROW(PLAYER, 1, 3) + 1;
         status = UiRows[row].byte14;
         if (status == 5 && MODE == status) {
             ResetScreenCounters();
             ovl661_func_80117350();
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 0x39;
             D_800F4D8A = 0;
         }
@@ -270,25 +270,25 @@ void ovl661_func_801160F0(void)
         }
         break;
     case 8:
-        func_8002AF8C(0, 1, 1);
+        SetMenuFrameOptions(0, 1, 1);
         D_800AC5D0--;
         SetModelTexturePage(-1);
-        func_800207D4(D_800ACC14->ordering.ordering70, (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             func_80053CB0();
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 3;
             D_800F4D8A = 0;
         }
         break;
     case 10:
-        func_8002AF8C(0, 1, 1);
+        SetMenuFrameOptions(0, 1, 1);
         SetModelTexturePage(-1);
         D_800AC5D0--;
-        func_800207D4(D_800ACC14->ordering.ordering70, (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             D_800FFC18 = 2;
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 0x47;
             D_800F4D8A = 0;
         }
@@ -348,8 +348,8 @@ tail:
         }
     }
     UpdateBadgeRowAnim(0);
-    if (func_8003FBA8(0) > 0) {
-        func_8002B12C(0xA0, 0x90, 8, 1, ovl661_D_8011844C[PLAYER], 0,
+    if (UpdateImageRow(0) > 0) {
+        DrawMenuStepArrows(0xA0, 0x90, 8, 1, ovl661_D_8011844C[PLAYER], 0,
                       ovl661_D_80118440[PLAYER][ovl661_D_80118450[PLAYER]]);
     }
     D_800F4CB8 = D_800AC5D4 + 1;

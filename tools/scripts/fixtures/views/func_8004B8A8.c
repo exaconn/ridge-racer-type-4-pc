@@ -20,7 +20,7 @@ void func_8004B8A8(void) {
     small = 64;
     once = D_8009FF80;
     next_output = D_800F3A38;
-    next_state = D_8010C170;
+    next_state = PadPulseState;
     do {
         /* ASM_BARRIER: keep the per-port state cursor in A2 inside the loop. */
         register RrPulseState18 *state asm("$6") = next_state;

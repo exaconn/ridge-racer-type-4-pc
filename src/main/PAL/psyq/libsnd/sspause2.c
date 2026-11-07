@@ -5,12 +5,12 @@ typedef struct { unsigned char *c0; int c4, c8, cC; char p10[4]; unsigned char b
 
 typedef struct { unsigned char *c0; int c4, c8, cC; char p10[4]; unsigned char b14; char p15[2]; unsigned char b17, b18, b19, b1a, b1b, b1c, b1d, b1e, b1f, b20, b21; char p22[4]; signed char b26; unsigned char b27[0x10]; unsigned char b37[0x10]; char p47[1]; short h48[8]; unsigned short h58[4]; unsigned short h60[0x10]; short h80; char p82[6]; int w88; int w8c; int w90; char p94[4]; int w98; int w9c; char pa0[0x10]; } Ch_1;
 
-void func_800823A4(int a0, short a1);
-void func_80082440(short a);
-void func_80082468(short a, short b);
+void _SsSndSetReplayMode(int a0, short a1);
+void SsSeqReplay(short a);
+void SsSepReplay(short a, short b);
 void Snd_SetPlayMode(int a0, short a1, int a2, signed char a3);
 
-void func_800823A4(int a0, short a1) {
+void _SsSndSetReplayMode(int a0, short a1) {
     int t = a0 << 16;
     Ch **b = _ss_score;
     Ch **q = (Ch **)((int)b + (t >> 14));
@@ -26,9 +26,9 @@ void func_800823A4(int a0, short a1) {
     }
 }
 
-void func_80082440(short a) { func_800823A4(a, 0); }
+void SsSeqReplay(short a) { _SsSndSetReplayMode(a, 0); }
 
-void func_80082468(short a, short b) { func_800823A4(a, b); }
+void SsSepReplay(short a, short b) { _SsSndSetReplayMode(a, b); }
 
 /* legacy typing of shared globals in this part of the unit */
 #define _ss_score (*(Ch_1 *(*)[])&_ss_score)

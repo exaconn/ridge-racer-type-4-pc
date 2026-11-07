@@ -7,7 +7,7 @@
 
 extern RrTrackSample3C *TrackNodes;
 extern s32 TrackNodeCount;
-extern s16 D_800AD522;
+extern s16 ReverseCourse;
 
 /* The original performs a single wrap, including the signed neighbour index.
  * Both selected records must be accessible. Differences, interpolation products,

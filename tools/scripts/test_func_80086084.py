@@ -43,7 +43,7 @@ typedef int32_t s32;
         cls.function = cls.library._spu_setReverbAttr
         cls.function.argtypes = [C.POINTER(Patch)]
         cls.function.restype = None
-        cls.volume = cls.library.func_80086B84
+        cls.volume = cls.library.SpuGetVoiceVolume
         cls.volume.argtypes = [C.c_uint32, C.POINTER(C.c_uint16), C.POINTER(C.c_uint16)]
         cls.volume.restype = None
 

@@ -35,7 +35,7 @@ extern int SetRotMatrix();
 
 extern int ApplyMatrix();
 
-void func_8006EE3C(short *a0, short *a1, int *a2) {
+void SetGteObjectTransform(short *a0, short *a1, int *a2) {
     short *g = (short *)0x1F800000;
     a0[0] = a1[0] - g[4];
     a0[1] = a1[2] - g[6];

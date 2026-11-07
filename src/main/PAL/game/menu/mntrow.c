@@ -53,7 +53,7 @@ extern unsigned short D_8009FDA0[];
 extern E_1 *GlyphRows;
 extern s32 VSyncThreshold;
 extern s16 D_800F3A26;
-extern s16 D_800F4C6A;
+extern s16 ModeGroup;
 extern s16 D_800F4D8A;
 extern void InitBadgeRow();
 extern void InitRect16Row();
@@ -63,10 +63,10 @@ extern void func_80053BB4();
 extern short D_800AC5D0;
 extern short D_800AD50A;
 extern short D_800AD520;
-extern int D_800F2DE4;
+extern int ModeFrame;
 extern short D_800F3826;
 extern U *BadgeRows;
-extern T *D_800FF68C;
+extern T *Dialogue;
 extern int DrawUiRow();
 extern int MenuStepDirection;
 extern int D_800F3A60;
@@ -78,7 +78,7 @@ void func_800413E0(void);
 void func_80041434(void);
 void func_80041588();
 
-void func_80040CB4(s32 a0) {
+void DrawMenuTextRow(s32 a0) {
     RrSpritePacket *s4;
     s32 fp;
     s32 sp10;
@@ -268,7 +268,7 @@ int a2;
 
 #undef MenuTextRows
 
-void func_8004139C(a0, a1)
+void SetGlyphRowImageBase(a0, a1)
 int a0;
 int a1;
 {
@@ -285,53 +285,53 @@ int a1;
 }
 
 void func_800413E0(void) {
-    func_8001ECE8(0, 0, 0, 2);
+    SetupDrawDispEnvs(0, 0, 0, 2);
     VSyncThreshold = 0x80;
-    D_800F4C6A = 1;
+    ModeGroup = 1;
     D_800F3A26 = 8;
     D_800F4D8A = 0;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8001ECE8 ((void (*)())func_8001ECE8)
+#define SetupDrawDispEnvs ((void (*)())SetupDrawDispEnvs)
 #define GlyphRows ((char *)GlyphRows)
 
 void func_80041434(void) {
     int i;
-    func_8001ECE8(0, 0, 0, 2);
+    SetupDrawDispEnvs(0, 0, 0, 2);
     VSyncThreshold = 0x80;
     for (i = 0; i < 4; i++) {
         InitGlyphRow(i, -2, 0, 0);
     }
     D_800AD520 = 2;
-    D_800F4D98[0] = 2;
+    SelectionRows[0] = 2;
     D_800F3826 = 0;
     func_80053BB4(0);
     InitRect16Row(*(unsigned char *)(GlyphRows + 7), *(short *)(GlyphRows + 8), *(short *)(GlyphRows + 0xA), *(short *)(GlyphRows + 0xC), *(short *)(GlyphRows + 0xE), 0, 0);
     InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
     InitUiRow(0, 0xC, 0x48, 0xF0, 0x20, 0, 0, 4, 2, 0);
     BadgeRows->f2 = 1;
-    D_800FF68C->f4 = 1;
-    D_800FF68C->f7 = 0;
-    D_800F2DE4 = 0;
+    Dialogue->f4 = 1;
+    Dialogue->f7 = 0;
+    ModeFrame = 0;
     D_800AD50A = 0x108;
     D_800AC5D0 = 0;
 }
 
-#undef func_8001ECE8
+#undef SetupDrawDispEnvs
 #undef GlyphRows
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AD520 (*(unsigned char (*))&D_800AD520)
-#define D_800F2DE4 (*(unsigned (*))&D_800F2DE4)
+#define ModeFrame (*(unsigned (*))&ModeFrame)
 #define BadgeRows ((char *)BadgeRows)
-#define D_800FF68C ((signed char *)D_800FF68C)
+#define Dialogue ((signed char *)Dialogue)
 
 void func_80041588()
 {
     int a2;
-    D_800F2DE4 += 1;
-    if (D_800FF68C[4] >= 0x22) {
+    ModeFrame += 1;
+    if (Dialogue[4] >= 0x22) {
         DrawUiRow(0);
         UpdateScreenFade(0x10002);
     } else {
@@ -343,13 +343,13 @@ void func_80041588()
             return;
         }
     }
-    if (D_800FF68C[4] == 1) {
+    if (Dialogue[4] == 1) {
         if (D_800F3A60 == 0) {
-            if (D_800F2DE4 < 0x1F5) return;
+            if (ModeFrame < 0x1F5) return;
         }
-        a2 = D_800FF68C[6];
+        a2 = Dialogue[6];
         if (a2 == 4) {
-            D_800FF68C[4] = D_800AD520 + 0x22;
+            Dialogue[4] = D_800AD520 + 0x22;
             UiRows[0x16] = D_800AD520;
             *(short *)(BadgeRows + 0x10) = a2;
         }
@@ -357,6 +357,6 @@ void func_80041588()
 }
 
 #undef D_800AD520
-#undef D_800F2DE4
+#undef ModeFrame
 #undef BadgeRows
-#undef D_800FF68C
+#undef Dialogue

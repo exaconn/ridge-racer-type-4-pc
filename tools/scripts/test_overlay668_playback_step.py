@@ -32,7 +32,7 @@ static const s32 timers[8]={3,INT32_MAX,INT32_MIN,-1,0,4,2,5};
 static const s32 frames[8]={0,-1,INT32_MIN,1,17,INT32_MAX,-4096,4096};
 const char ovl668_D_8011487C[]="time out in strNext() %d\n";
 #define RaceContext w->s.context
-#define D_800F2DE4 w->s.timer
+#define ModeFrame w->s.timer
 #define D_800F3A38 w->s.controllers
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static u32 next(void){u32 n=w->s.rng;n^=n<<13;n^=n>>17;n^=n<<5;return w->s.rng=n;}

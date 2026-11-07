@@ -18,7 +18,7 @@ typedef struct
 } E;
 
 void InitBadgeRow();
-RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 style);
+RrSpritePacket *DrawBadgeTitleBar(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 style);
 
 /* legacy typing of shared globals in this part of the unit */
 #define BadgeRows ((E *)BadgeRows)
@@ -68,7 +68,7 @@ unsigned short a6;
 #define func_8001FF84 (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32))&func_8001FF84)
 #define GameQueueSprite (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32))&GameQueueSprite)
 
-RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 style) {
+RrSpritePacket *DrawBadgeTitleBar(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 style) {
     /* ASM_BARRIER: keep the ordering pointer live across every helper call. */
     register u32 *ordering __asm__("$21")=order;
     s32 xpos,ypos,offset,index;
@@ -178,7 +178,7 @@ void DrawBadgeRow(s32 index) {
             if(callback)call_cursor=D_8009F984[callback-1](order,call_cursor,which);
             cursor=call_cursor;
         }
-        cursor=func_8003D2C4(order,cursor,x,y,status&255);
+        cursor=DrawBadgeTitleBar(order,cursor,x,y,status&255);
         y=y+22;
         row=(RrBadgeRow1C *)((unsigned long)offset+(unsigned long)BadgeRows);
         cursor=AddTilePrim(order,cursor,x,row->y0A+height+20,width,2,white,white,white);

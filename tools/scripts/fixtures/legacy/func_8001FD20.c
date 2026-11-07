@@ -3,10 +3,10 @@
 #include "m2c_macros.h"
 
 extern int AddPrim();
-extern int func_80095BB4();
+extern int SetTile();
 
 void *AddTilePrim(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
-    func_80095BB4(arg1);
+    SetTile(arg1);
     M2C_FIELD(arg1, s16 *, 8) = arg2;
     M2C_FIELD(arg1, s16 *, 0xA) = arg3;
     M2C_FIELD(arg1, s16 *, 0xC) = (s16) arg4;

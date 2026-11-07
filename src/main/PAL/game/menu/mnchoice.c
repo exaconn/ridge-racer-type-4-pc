@@ -42,7 +42,7 @@ changed:
     PlaySfx(0);
     if(D_800F3826<0)D_800F3826=0;
     else if(D_800F3826>=4)D_800F3826=3;
-    D_800FF68C[4]=(u8)D_800F3826+34;
+    Dialogue[4]=(u8)D_800F3826+34;
     D_800F4D99=D_800F3826;
     GlyphRows[D_800F3826].control02=-6;
     GlyphRows[D_800F3826].flags00=0;
@@ -60,19 +60,19 @@ active:
         if(state==3) {
             PlaySfx(1);
             {
-                RrMenuSettings2C *settings=&D_800AD4D8;
+                RrMenuSettings2C *settings=&SelectionState;
                 RrBadgeRow1C *control=BadgeRows;
                 RrUiRow24 *ui=UiRows;
 
                 /* Four copies of the same byte-aligned source record. */
-                settings->copies[0]=D_800F4D98;
-                settings->copies[1]=D_800F4D98;
-                settings->copies[2]=D_800F4D98;
-                settings->copies[3]=D_800F4D98;
+                settings->copies[0]=SelectionRows;
+                settings->copies[1]=SelectionRows;
+                settings->copies[2]=SelectionRows;
+                settings->copies[3]=SelectionRows;
                 control->state10=4;
                 ui->byte14=state;
                 {
-                    u32 byte=D_800F4D98.bytes[1];
+                    u32 byte=SelectionRows.bytes[1];
                     s32 mode;
 
                     mode=2;
@@ -95,7 +95,7 @@ active:
                 one=1;
 
                 last=zero;
-                func_8002AF8C(zero,one,last);
+                SetMenuFrameOptions(zero,one,last);
             }
         }
     }
@@ -111,7 +111,7 @@ void func_80036FD4(int a0) {
         }
     } else {
         int *p = (int *)SCRATCHPAD;
-        v = func_80026998(p[2], p[4]);
+        v = FindTrackNodeAtXZ(p[2], p[4]);
     }
     func_80017CC0(v);
 }

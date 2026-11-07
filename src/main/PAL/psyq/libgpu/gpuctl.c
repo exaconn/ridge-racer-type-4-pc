@@ -4,6 +4,6 @@
 #include "rr/bios_devices.h"
 
 void _card_clear(s32 arg0) {
-    func_80095CF4();
-    func_80095CE4(arg0, 0x3F, 0);
+    _new_card();
+    _card_write(arg0, 0x3F, 0);
 }

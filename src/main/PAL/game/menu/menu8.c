@@ -34,42 +34,42 @@ struct E { int a; short b; short c; };
 typedef struct { char b[0x17]; signed char b17; char r[0x2C - 0x18]; } w3g2S;
 
 extern unsigned char D_800AD4F5;
-extern signed char *D_800FF68C;
+extern signed char *Dialogue;
 extern short D_800FFC18;
 extern s32 AddDrawModePrim(s32, s32, s32);
 extern s32 AddTilePrim(s32, s32, s32, s32, s32, s32, s32, s32, s32);
-extern s32 func_8002018C(s32, s32, void *, s32, s32, s32);
+extern s32 AddJitterSprites(s32, s32, void *, s32, s32, s32);
 extern s32 func_80020508(s32, s32, s32, s32, s32, s32, s32, s32, s32);
 extern void InitRect16Row(s32, s32, s32, s32, s32, s32, s32);
-extern s32 func_8003DCEC(s32);
+extern s32 UpdateRect16Row(s32);
 extern void func_80043608(s32);
 extern u8 D_8009F3F8[];
 extern u8 D_8009F404[];
-extern int func_8002AF8C();
-extern int func_80032A14();
-extern int func_80032DF0();
+extern int SetMenuFrameOptions();
+extern int UpdateDialogue();
+extern int SkipDialoguePage();
 extern int UpdateBadgeRowAnim();
-extern struct S D_800F2A68[];
+extern struct S RankEntries[];
 extern struct S *RankTable[];
 extern short NumCars;
 extern int ClearScreenOverlayState();
 extern int InitBadgeRow();
-extern s8 D_800ACC68;
+extern s8 ScreenFadeState;
 extern s16 D_800F3A26;
-extern s16 D_800F4C6A;
+extern s16 ModeGroup;
 extern s16 D_800F4D3C;
 extern s16 D_800F4D8A;
-extern int func_800207D4();
+extern int AddScreenFadeTiles();
 extern int UpdateScreenFade();
-extern int func_8002AF8C();
+extern int SetMenuFrameOptions();
 extern int StepMenuValue();
-extern int func_80032A14();
+extern int UpdateDialogue();
 extern int ResetScreenCounters();
 extern int UpdateBadgeRowAnim();
 extern int PlaySfx();
 extern struct { char pad[4]; char b4; char pad5; signed char b6; char pad2[0xC - 7]; } *D_800AC590;
 extern short D_800AC5D0;
-extern short D_800F4BE8;
+extern short MenuScriptId;
 extern int LoadCursor;
 extern int D_800F4D74;
 extern w3g2S D_800F2E30[];
@@ -81,25 +81,25 @@ extern int D_8010BFC0;
 extern int UpdateScreenFade();
 extern void InitUiRow(int,int,int,int,int,int,int,int,int,int,...);
 extern s16 MenuCursor;
-extern s32 D_800F2DE4;
+extern s32 ModeFrame;
 extern s16 D_800FFC00;
 
-void func_8003159C(int a0, int a1);
-void func_8003189C(void);
-void func_80031CE4(void);
+void SelectDialogueScript(int a0, int a1);
+void UpdateDialoguePanel(void);
+void UpdateDialogueBox(void);
 void func_80031DA0(void);
 void func_80031DA8(void);
-void func_80031DB0();
-void func_80031DEC(void);
+void ResetRankEntries();
+void ResetRankEntriesForCars(void);
 void func_80031F1C(void);
 void func_80031FE8(void);
 void func_8003244C(void);
 void func_800324F8(void);
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80039F98 ((int (*)())func_80039F98)
+#define UpdateSelectionRank ((int (*)())UpdateSelectionRank)
 
-void func_8003159C(int a0, int a1) {
+void SelectDialogueScript(int a0, int a1) {
     int sw;
     int idx, a3, v, t, r;
     signed char *P;
@@ -107,53 +107,53 @@ void func_8003159C(int a0, int a1) {
     int i, sum;
 
     sw = D_800AD4F2;
-    D_800FF68C[7] = 1;
-    *(short *)(D_800FF68C + 0x16) = 0;
-    D_800FF68C[0x1E] = -2;
+    Dialogue[7] = 1;
+    *(short *)(Dialogue + 0x16) = 0;
+    Dialogue[0x1E] = -2;
     switch (sw) {
     case 0:
-        D_800FF68C[7] = 0;
+        Dialogue[7] = 0;
     case 1:
-        D_800FF68C[4] = 0;
-        D_800F4C5C = 0x109;
+        Dialogue[4] = 0;
+        PendingModeId = 0x109;
         D_800AD4F2 = 1;
         break;
     case 2:
-        D_800FF68C[4] = D_800AD4F5 + 0x18;
-        D_800F4C5C = 0x10F;
+        Dialogue[4] = D_800AD4F5 + 0x18;
+        PendingModeId = 0x10F;
         break;
     case 4:
-        idx = D_800AD4D8[0x17];
+        idx = SelectionState[0x17];
         if (idx < 4) {
-            a3 = D_800AD4D8[idx];
+            a3 = SelectionState[idx];
         } else {
-            a3 = 3 - D_800AD4D8[idx + 8];
+            a3 = 3 - SelectionState[idx + 8];
             if (idx == 7) a3 = 0;
         }
         switch (idx) {
         case 0:
-            a1 = D_800AD4D8[idx + 8] < 3;
+            a1 = SelectionState[idx + 8] < 3;
             break;
         case 1:
         case 3:
             a1 = 4;
-            if (D_800AD4D8[idx + 8] >= 3) a1 = D_800AD4D8[idx - 1];
+            if (SelectionState[idx + 8] >= 3) a1 = SelectionState[idx - 1];
             break;
         case 2:
             a1 = 4;
-            if (D_800AD4D8[idx + 8] >= 3) a1 = (unsigned char)D_800AD4D8[0x14];
+            if (SelectionState[idx + 8] >= 3) a1 = (unsigned char)SelectionState[0x14];
             break;
         case 4:
             a1 = D_800AD4EC;
             break;
         case 5:
-            a1 = 3 - D_800AD4D8[idx + 7];
+            a1 = 3 - SelectionState[idx + 7];
             break;
         case 6:
         case 7:
             a1 = 0;
             i = 0;
-            sw = (int)D_800AD4D8;
+            sw = (int)SelectionState;
             do {
                 a1 += *(signed char *)(i + sw + 0xC);
                 i++;
@@ -163,11 +163,11 @@ void func_8003159C(int a0, int a1) {
             } else if (idx == 7) {
                 a1 = 1;
             } else {
-                a1 = 4 - D_800AD4D8[idx + 7];
+                a1 = 4 - SelectionState[idx + 7];
             }
             break;
         }
-        P = D_800FF68C;
+        P = Dialogue;
         u = a3 * 5;
         t = a1 + 4;
         P[4] = u + t;
@@ -175,52 +175,52 @@ void func_8003159C(int a0, int a1) {
         if (v == 3) goto L814;
         if (v < 4) {
             if (v == 1) goto L814;
-            D_800F4C5C = 0x10F;
+            PendingModeId = 0x10F;
         } else {
             if (v == 6) {
 L814:
                 D_800AD4F2 = 6;
-                func_80039F98(P, a1, sw, a3);
-                D_800F4C5C = 0x12A;
-            } else D_800F4C5C = 0x10F;
+                UpdateSelectionRank(P, a1, sw, a3);
+                PendingModeId = 0x12A;
+            } else PendingModeId = 0x10F;
         }
-        if (D_800AD4EF == 7) D_800F4C5C = 0x205;
+        if (D_800AD4EF == 7) PendingModeId = 0x205;
         break;
     case 6:
-        D_800FF68C[4] = 0x25 - D_800AD4EC;
-        D_800F4C5C = 0x111;
+        Dialogue[4] = 0x25 - D_800AD4EC;
+        PendingModeId = 0x111;
         D_800FFC18 = 3;
         break;
     }
 }
 
-#undef func_80039F98
+#undef UpdateSelectionRank
 
 /* legacy typing of shared globals in this part of the unit */
 #define BadgeRows ((Struct800F3AFC *)BadgeRows)
-#define D_800FF68C ((Struct800FF68C *)D_800FF68C)
+#define Dialogue ((Struct800FF68C *)Dialogue)
 
-void func_8003189C(void) {
+void UpdateDialoguePanel(void) {
     s32 var_a1;
     s32 temp_v0;
     s32 temp_s2;
 
-    temp_v0 = D_800FF68C->unk1E;
-    temp_s2 = D_800FF68C->unk1F;
+    temp_v0 = Dialogue->unk1E;
+    temp_s2 = Dialogue->unk1F;
     switch (temp_v0) {
     case -2:
-        D_800FF68C->unk1F = 0;
-        D_800FF68C->unk1E = -4;
-        D_800FF68C->unk1D = -1;
-        D_800FF68C->unk1C = -1;
+        Dialogue->unk1F = 0;
+        Dialogue->unk1E = -4;
+        Dialogue->unk1D = -1;
+        Dialogue->unk1C = -1;
         break;
     case -4:
         InitRect16Row(0, 0x78, 0x60, 0x50, 0xB4, 0, 0);
-        D_800FF68C->unk1E = -5;
+        Dialogue->unk1E = -5;
         break;
     case -5:
-        if (func_8003DCEC(0) != 0) {
-            D_800FF68C->unk1E = -1;
+        if (UpdateRect16Row(0) != 0) {
+            Dialogue->unk1E = -1;
         }
         break;
     case -3:
@@ -233,31 +233,31 @@ void func_8003189C(void) {
                 func_80020508(D_800ACC14 + 0x74, a1, 0x78, 0x60, 0x50, 0xB4, (u16)temp_s2, (u16)temp_s2, (u16)temp_s2),
                 0x45);
             if ((u16)temp_s2 >= 0x7C) {
-                D_800FF68C->unk1E = 2;
-                D_800FF68C->unk1F = 0;
-                BadgeRows[D_800FF68C->unk16].unk2 = 1;
+                Dialogue->unk1E = 2;
+                Dialogue->unk1F = 0;
+                BadgeRows[Dialogue->unk16].unk2 = 1;
             } else {
-                D_800FF68C->unk1F += 8;
+                Dialogue->unk1F += 8;
             }
-            func_8003DCEC(0);
+            UpdateRect16Row(0);
         }
         break;
     case 0:
         var_a1 = *(s32 *)SCRATCHPAD;
         if ((u16)temp_s2 >= 3) {
-            var_a1 = func_8002018C(D_800ACC14 + 0x70, var_a1, D_8009F3F8, 1, 0xFF, 2);
+            var_a1 = AddJitterSprites(D_800ACC14 + 0x70, var_a1, D_8009F3F8, 1, 0xFF, 2);
         }
         *(s32 *)SCRATCHPAD = AddTilePrim(D_800ACC14 + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
         if ((u16)temp_s2 >= 0x15) {
-            D_800FF68C->unk1E = 1;
-            D_800FF68C->unk1F = 0;
+            Dialogue->unk1E = 1;
+            Dialogue->unk1F = 0;
         } else {
-            D_800FF68C->unk1F += 1;
+            Dialogue->unk1F += 1;
         }
         if (temp_s2 == 1) {
-            u8 temp_a0 = D_800FF68C->unk1C;
+            u8 temp_a0 = Dialogue->unk1C;
             if ((u32)(temp_a0 - 1) < 5U) {
-                func_80043608(D_800FF68C->unk20 + (((s8)temp_a0 - 1) << 14));
+                func_80043608(Dialogue->unk20 + (((s8)temp_a0 - 1) << 14));
             }
         }
         break;
@@ -266,24 +266,24 @@ void func_8003189C(void) {
             s32 two = 2;
             *(s32 *)SCRATCHPAD = AddTilePrim(
                 D_800ACC14 + 0x7C,
-                func_8002018C(
+                AddJitterSprites(
                     D_800ACC14 + 0x70,
-                    func_8002018C(D_800ACC14 + 0x70, *(s32 *)SCRATCHPAD, D_8009F404, 1, temp_s2, 1),
+                    AddJitterSprites(D_800ACC14 + 0x70, *(s32 *)SCRATCHPAD, D_8009F404, 1, temp_s2, 1),
                     D_8009F3F8, 1, (0x80 - temp_s2) * 2, two),
                 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
             if ((u32)temp_s2 >= 0x80U) {
-                D_800FF68C->unk1F = 0;
-                D_800FF68C->unk1E = two;
+                Dialogue->unk1F = 0;
+                Dialogue->unk1E = two;
             } else {
-                D_800FF68C->unk1F += 8;
+                Dialogue->unk1F += 8;
             }
         }
         break;
     case 2:
     default:
         var_a1 = *(s32 *)SCRATCHPAD;
-        if (D_800FF68C->unk1C >= 0) {
-            var_a1 = func_8002018C(D_800ACC14 + 0x70, var_a1, D_8009F404, 0, 0x80, 1);
+        if (Dialogue->unk1C >= 0) {
+            var_a1 = AddJitterSprites(D_800ACC14 + 0x70, var_a1, D_8009F404, 0, 0x80, 1);
         }
         *(s32 *)SCRATCHPAD = AddTilePrim(D_800ACC14 + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
         break;
@@ -291,26 +291,26 @@ void func_8003189C(void) {
 }
 
 #undef BadgeRows
-#undef D_800FF68C
+#undef Dialogue
 
 /* legacy typing of shared globals in this part of the unit */
 #define BadgeRows (*(s32 (*))&BadgeRows)
-#define D_800FF68C ((void *)D_800FF68C)
+#define Dialogue ((void *)Dialogue)
 
-void func_80031CE4(void) {
+void UpdateDialogueBox(void) {
     void *temp_v0;
 
-    if (M2C_FIELD(((M2C_FIELD(D_800FF68C, s16 *, 0x16) * 0x1C) + BadgeRows), s16 *, 0x10) == 3) {
-        func_8002AF8C(1, 1, 0);
-        func_80032DF0(D_800FF68C);
-        temp_v0 = (M2C_FIELD(D_800FF68C, s16 *, 0x16) * 0x1C) + BadgeRows;
-        func_80032A14(M2C_FIELD(temp_v0, s16 *, 8) + 0xA, M2C_FIELD(temp_v0, s16 *, 0xA) + 0x28, D_800FF68C);
+    if (M2C_FIELD(((M2C_FIELD(Dialogue, s16 *, 0x16) * 0x1C) + BadgeRows), s16 *, 0x10) == 3) {
+        SetMenuFrameOptions(1, 1, 0);
+        SkipDialoguePage(Dialogue);
+        temp_v0 = (M2C_FIELD(Dialogue, s16 *, 0x16) * 0x1C) + BadgeRows;
+        UpdateDialogue(M2C_FIELD(temp_v0, s16 *, 8) + 0xA, M2C_FIELD(temp_v0, s16 *, 0xA) + 0x28, Dialogue);
     }
-    UpdateBadgeRowAnim(M2C_FIELD(D_800FF68C, s16 *, 0x16));
+    UpdateBadgeRowAnim(M2C_FIELD(Dialogue, s16 *, 0x16));
 }
 
 #undef BadgeRows
-#undef D_800FF68C
+#undef Dialogue
 
 void func_80031DA0(void) {
 }
@@ -318,18 +318,18 @@ void func_80031DA0(void) {
 void func_80031DA8(void) {
 }
 
-void func_80031DB0() {
+void ResetRankEntries() {
     int i = 0;
     struct S **q = RankTable;
-    struct S *p = D_800F2A68;
+    struct S *p = RankEntries;
     do { p->a = 0; p->b = i; *q++ = p; i++; p++; } while (i < 8);
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2A68 (*(struct E (*)[])&D_800F2A68)
+#define RankEntries (*(struct E (*)[])&RankEntries)
 #define RankTable (*(struct E *(*)[])&RankTable)
 
-void func_80031DEC(void) {
+void ResetRankEntriesForCars(void) {
     int i = 0;
     struct E *e;
     struct E **t;
@@ -337,7 +337,7 @@ void func_80031DEC(void) {
     if (NumCars > 0) {
         n = NumCars;
         t = RankTable;
-        e = D_800F2A68;
+        e = RankEntries;
         do {
             e->a = 0;
             e->b = i;
@@ -349,10 +349,10 @@ void func_80031DEC(void) {
     }
 }
 
-#undef D_800F2A68
+#undef RankEntries
 #undef RankTable
 
-void func_80031E3C(void) {
+void InitSelectionRows(void) {
     s32 a2 = 0;
     s32 a1;
     RrSelectionRow *a0;
@@ -425,14 +425,14 @@ void func_80031E3C(void) {
 
 void func_80031F1C(void) {
     ClearScreenOverlayState();
-    D_800ACC68 = 2;
+    ScreenFadeState = 2;
     D_800F4D3C = 0;
     InitBadgeRow(1, 0x80, 0x58, 0xA8, 0x80, 0, 0x701);
     M2C_FIELD(BadgeRows, s16 *, 0x1E) = 1;
     InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
     M2C_FIELD(BadgeRows, s16 *, 2) = 1;
-    func_8002AF8C(0, 1, 1);
-    D_800F4C6A = 1;
+    SetMenuFrameOptions(0, 1, 1);
+    ModeGroup = 1;
     D_800F3A26 = 0xE;
     D_800F4D8A = 0;
 }
@@ -440,7 +440,7 @@ void func_80031F1C(void) {
 #undef BadgeRows
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AD4D8 (*(w3g2S (*))&D_800AD4D8)
+#define SelectionState (*(w3g2S (*))&SelectionState)
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 
 void func_80031FE8(void) {
@@ -453,7 +453,7 @@ void func_80031FE8(void) {
         if (BadgeRows->s10 == 3) {
             s0 = D_800AC590->b6;
             if (s0 == 4) {
-                func_8002AF8C(1, 1, 1);
+                SetMenuFrameOptions(1, 1, 1);
                 if (D_800F3A38.w28 != 0) {
                     if (D_800F2E30[D_800F4D3C].b17 > 0) {
                         PlaySfx(1);
@@ -480,13 +480,13 @@ void func_80031FE8(void) {
         }
         goto common;
     case 1:
-        func_8002AF8C(0, 1, 1);
+        SetMenuFrameOptions(0, 1, 1);
         if (D_800AC5D0 > 0) D_800AC5D0 = D_800AC5D0 - 1;
-        func_800207D4(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             if (func_8003B398(1) == 1) {
-                D_800AD4D8 = D_800F2E30[D_800F4D3C];
-                D_800F4C6A = 1;
+                SelectionState = D_800F2E30[D_800F4D3C];
+                ModeGroup = 1;
                 D_800F3A26 = 0xF;
                 D_800F4D8A = 0;
                 return;
@@ -494,13 +494,13 @@ void func_80031FE8(void) {
         }
         goto common;
     case 2:
-        func_8002AF8C(0, 1, 1);
+        SetMenuFrameOptions(0, 1, 1);
         if (D_800AC5D0 > 0) D_800AC5D0 = D_800AC5D0 - 1;
-        func_800207D4(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             func_8002F688();
-            D_800F4BE8 = 1;
-            D_800F4C6A = 1;
+            MenuScriptId = 1;
+            ModeGroup = 1;
             D_800F3A26 = 0x23;
             D_800F4D8A = 0;
             return;
@@ -511,13 +511,13 @@ void func_80031FE8(void) {
         UpdateBadgeRowAnim(1);
         if (BadgeRows->s10 == 3) {
             D_800AC590->b4 = 0x1C;
-            func_80032A14(BadgeRows->s8 + 0xA, BadgeRows->sA + 0x28, D_800AC590);
+            UpdateDialogue(BadgeRows->s8 + 0xA, BadgeRows->sA + 0x28, D_800AC590);
         }
         UpdateScreenFade(0x10086);
     }
 }
 
-#undef D_800AD4D8
+#undef SelectionState
 #undef D_800F4D8A
 
 void func_8003244C(void) {
@@ -532,7 +532,7 @@ void func_8003244C(void) {
         D_8010BFC0 = 0;
     }
     if (D_800F3A40 & 0x800) {
-        D_800F4C6A = 1;
+        ModeGroup = 1;
         D_800F3A26 = 0xF;
         D_800F4D8A = 0;
     }
@@ -542,14 +542,14 @@ void func_8003244C(void) {
 #define BadgeRows ((void *)BadgeRows)
 
 void func_800324F8(void) {
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     D_800FFC00 = 0;
     D_800FFC18 = 3;
     MenuCursor = 0;
     InitUiRow(0, 0x8C, 0x88, 0x1C, 0x20, 0, 0, 1, 0, 0x68);
     InitUiRow(1, 0x8C, 0xB0, 0x1C, 0x20, 0, 0, 1, 0, 0x69);
     InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
-    D_800F4C6A = 1;
+    ModeGroup = 1;
     D_800F3A26 = 0x2B;
     D_800F4D8A = 0;
     M2C_FIELD(BadgeRows, s16 *, 2) = 1;

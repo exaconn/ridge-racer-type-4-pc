@@ -6,10 +6,10 @@
 
 extern int BackColorR;
 extern s32 D_800AC5D8;
-extern int D_800ACC0C;
+extern int SaveBuffer;
 extern signed char D_800AD4EF;
 extern int D_800AD5B8;
-extern unsigned short D_800F4C5C;
+extern unsigned short PendingModeId;
 extern short D_800F4CD0;
 extern s32 D_800F4CE0;
 extern int FarColorB;
@@ -17,16 +17,16 @@ extern int FarColorG;
 extern int FarColorR;
 extern int BackColorB;
 extern int BackColorG;
-extern u16 D_8010F8F8;
-extern u16 D_8010F8FA;
-extern u16 D_8010F8FC;
-extern u16 D_8010F8FE;
-extern u16 D_8010F900;
-extern u16 D_8010F902;
-extern u16 D_80110000;
-extern u16 D_80110002;
+extern u16 _svm_okon1;
+extern u16 _svm_okon2;
+extern u16 _svm_orev1;
+extern u16 _svm_orev2;
+extern u16 _svm_onos1;
+extern u16 _svm_onos2;
+extern u16 _svm_okof1;
+extern u16 _svm_okof2;
 extern s16 _svm_stereo_mono;
-extern s8 D_80110130;
+extern s8 _svm_auto_kof_mode;
 extern int D_801102E4;
 
 #endif

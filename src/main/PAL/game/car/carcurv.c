@@ -37,7 +37,7 @@ typedef struct {
 } Arg0;
 
 void PlanComCarCornerTurn(Arg0 *a0);
-int func_80048384(int a0, int a1);
+int FindTrackNodeBehind(int a0, int a1);
 
 void PlanComCarCornerTurn(Arg0 *a0) {
     int s0;
@@ -169,7 +169,7 @@ void PlanComCarCornerTurn(Arg0 *a0) {
 /* legacy typing of shared globals in this part of the unit */
 #define TrackNodes ((char *)TrackNodes)
 
-int func_80048384(int a0, int a1) {
+int FindTrackNodeBehind(int a0, int a1) {
     if (a1 > 0) {
         int n = TrackNodeCount;
         char *p = TrackNodes;

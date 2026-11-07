@@ -34,18 +34,18 @@ struct Q {
 struct Q_1 { char pad[0x60]; int f60; int *f64; short f68, f6a; int f6c; int f70; };
 
 extern u16 D_800A1F90[];
-extern s32 func_8005599C();
+extern s32 SetupObjectLightMatrices();
 extern s32 ScaleMatrix();
-extern s32 func_8006EE3C();
+extern s32 SetGteObjectTransform();
 extern char D_800A1CE0[];
 extern struct { char pad[0x250]; char pad2[0x3D8 - 0x250]; struct Q *q; } RaceContext;
 extern short D_800A1E60[];
 extern int *D_800A1F88[];
 
 void func_8005AA2C(void);
-void func_8005ABAC(int a0);
-void func_8005AF5C(void);
-void func_8005B190(void);
+void InitMotionTrack(int a0);
+void InitMotionController(void);
+void RestartMotionSequence(void);
 void func_8005B2D4(s32 arg0);
 void func_8005B2E4(s32 arg0);
 void func_8005B2F4(s32 arg0);
@@ -66,13 +66,13 @@ void func_8005AA2C(void) {
     f.r0 = *(u16 *)(c + 0x170);
     f.r1 = *(u16 *)(c + 0x172);
     f.r2 = *(u16 *)(c + 0x174);
-    func_8005599C(&f.z0, c + 0x20, f.m1, f.m2);
+    SetupObjectLightMatrices(&f.z0, c + 0x20, f.m1, f.m2);
     v = *(s32 *)(*(char **)(b + 0x3D8) + 0x178);
     f.e2 = v;
     f.e1 = v;
     f.e0 = v;
     ScaleMatrix(f.m1, &f.e0);
-    func_8006EE3C((SCRATCHPAD + 0x7C), &f.z0, f.m1);
+    SetGteObjectTransform((SCRATCHPAD + 0x7C), &f.z0, f.m1);
     row = D_800A1F90; i = 0; y = -0x438;
     do {
         j = 0;
@@ -105,7 +105,7 @@ void func_8005AA2C(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define MotionController (*(int (*))&MotionController)
 
-void func_8005ABAC(int a0) {
+void InitMotionTrack(int a0) {
     int *p = (int *)(MotionController + 0x15C);
     func_80096434(p, 0x2C);
     p[1] = 0;
@@ -223,7 +223,7 @@ void UpdateMotionTrack(RrMotionClock20 *clock) {
 /* legacy typing of shared globals in this part of the unit */
 #define func_80096434 ((int (*)())func_80096434)
 
-void func_8005AF5C(void) {
+void InitMotionController(void) {
     RaceContext.q = (struct Q *)((char *)&RaceContext + 0x250);
     func_80096434(RaceContext.q, 0x188);
     RaceContext.q->f8 = -0x1388;
@@ -254,16 +254,16 @@ void func_8005AF5C(void) {
     RaceContext.q->f70 = RaceContext.q->f64[RaceContext.q->f68 * 4 + 1];
     switch (RaceContext.q->f6c) {
     case 0:
-        func_8005B8D8(RaceContext.q->f70);
+        InitCameraMotion(RaceContext.q->f70);
         break;
     case 1:
         func_8005D500(RaceContext.q->f70);
         break;
     case 2:
-        func_8005ECD4(RaceContext.q->f70);
+        InitScrollTrack(RaceContext.q->f70);
         break;
     case 3:
-        func_8005ABAC(RaceContext.q->f70);
+        InitMotionTrack(RaceContext.q->f70);
         break;
     }
 }
@@ -273,7 +273,7 @@ void func_8005AF5C(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define RaceContext (*(struct { char pad[0x3D8]; struct Q_1 *q; } (*))&RaceContext)
 
-void func_8005B190(void) {
+void RestartMotionSequence(void) {
     RaceContext.q->f68 = 0;
     RaceContext.q->f6a = 0;
     RaceContext.q->f60 = 0;
@@ -282,16 +282,16 @@ void func_8005B190(void) {
     RaceContext.q->f70 = ((short *)RaceContext.q->f64)[RaceContext.q->f68 * 4 + 1];
     switch (RaceContext.q->f6c) {
     case 0:
-        func_8005B8D8(RaceContext.q->f70);
+        InitCameraMotion(RaceContext.q->f70);
         break;
     case 1:
         func_8005D500(RaceContext.q->f70);
         break;
     case 2:
-        func_8005ECD4(RaceContext.q->f70);
+        InitScrollTrack(RaceContext.q->f70);
         break;
     case 3:
-        func_8005ABAC(RaceContext.q->f70);
+        InitMotionTrack(RaceContext.q->f70);
         break;
     }
 }

@@ -4,7 +4,7 @@
 #include "psyq/libsnd/vmchval.h"
 #include "psyq/libsnd/ssramp.h"
 #include "psyq/libsnd/ssatr2.h"
-void func_80082FC4(s32 bankInput,s32 rowInput)
+void _SsSndCrescendo(s32 bankInput,s32 rowInput)
 {
     s16 bank=bankInput,row=rowInput;
     u16 left,right;

@@ -5,7 +5,7 @@ struct R { short x, y, w, h; };
 extern int DrawSync();
 
 int func_8001E84C(void);
-void func_8001E854(int a0, int a1, int a2);
+void UploadCarClut(int a0, int a1, int a2);
 
 /* Resident callback that reports success without changing state. */
 int func_8001E84C(void)
@@ -13,7 +13,7 @@ int func_8001E84C(void)
     return 1;
 }
 
-void func_8001E854(int a0, int a1, int a2)
+void UploadCarClut(int a0, int a1, int a2)
 {
     struct R r;
     unsigned short *s;

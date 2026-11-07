@@ -3,11 +3,11 @@
 /* legacy typing of shared globals in this part of the unit */
 #define func_80096424 ((void (*)())func_80096424)
 
-#define D_8010C168 (*(unsigned char (*)[])&D_8010C168)
+#define PasswordBytes (*(unsigned char (*)[])&PasswordBytes)
 
 #undef func_80096424
 
-#undef D_8010C168
+#undef PasswordBytes
 
 /* legacy typing of shared globals in this part of the unit */
 #define BuildRotMatrixZ ((void (*)())BuildRotMatrixZ)
@@ -44,7 +44,7 @@ void GetTrackPointAhead(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
     RrTrackSample3C *next;
     RrTrackSample3C *current;
 
-    if (D_800AD522 == 0) {
+    if (ReverseCourse == 0) {
         index = vehicle->trackNodeF0 - ((s32) (distance - vehicle->trackFraction170) >> 0xA);
         neighbour = index - 1;
         if (index < 0) {

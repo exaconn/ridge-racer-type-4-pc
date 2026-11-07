@@ -1,8 +1,8 @@
 #include "rr/sprite_effect.h"
-extern void func_80095B94(void *),SetSemiTrans(void *,s32),AddPrim(u32 *,u32 *);
+extern void SetSprt(void *),SetSemiTrans(void *,s32),AddPrim(u32 *,u32 *);
 extern s32 func_80096464(void);
 extern u8 *AddDrawModePrim(u32 *,u8 *,u16);
-u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg) {
+u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg) {
     /* ASM_BARRIER: retain the loop bound in callee-saved S5 across helpers. */
     register s32 count asm("$21")=count_arg;
     /* ASM_BARRIER: retain the full signed intensity in callee-saved S7. */
@@ -33,7 +33,7 @@ u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,
     __asm__("" : "+r"(descriptor));
     i=0;
     while(i<count) {
-        func_80095B94(sprite);
+        SetSprt(sprite);
         jitter=0;
         if(count!=1) {
             u32 random=(u32)func_80096464()&7;

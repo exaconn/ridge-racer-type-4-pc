@@ -1,7 +1,7 @@
 /* CC1_FLAGS: -fno-strength-reduce */
 #include "rr/hud_rotating_quad.h"
 #include "rr/trig.h"
-void func_80021350(s32 phase,s32 index) {
+void DrawHudRotatingQuad(s32 phase,s32 index) {
     RrHudQuadColor colors[4];
     s32 angle,sine;
     s32 cosine;
@@ -33,7 +33,7 @@ void func_80021350(s32 phase,s32 index) {
     sine=rsin(angle);
     cosine=rcos(angle);
     i=0;color=colors;corner=D_8009EE38;
-    base=&D_8010BF88;
+    base=&HudNumberTargets;
     row=(unsigned long)index*sizeof(RrNumberTarget);
     target=(RrNumberTarget *)((u8 *)base+row);
     packet=(RrHudQuadEmission *)RR_HUD_QUAD_SCRATCH->cursor;

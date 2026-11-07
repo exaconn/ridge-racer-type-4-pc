@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80054D50(void);
+void UpdateParticles(void);
 
 #endif /* RR_GAME_EFFECT_EFFECT_H */

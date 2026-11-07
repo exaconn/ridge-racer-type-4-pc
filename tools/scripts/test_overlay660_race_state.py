@@ -32,7 +32,7 @@ static struct World {
 } world,expected;
 #define RaceState world.mode
 #define TrackLength world.limit
-#define D_800AD522 world.tag
+#define ReverseCourse world.tag
 #define D_800AC5D0 world.delay
 #define SoundState world.fade
 void SoundStopAll(void){assert(0);}

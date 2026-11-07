@@ -6,7 +6,7 @@ extern RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback);
 extern RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback);
 extern u8 CdStatus(void);
 extern s32 CdControlB(s32,const u8*,u8*);
-extern s32 func_8008EB6C(s32);
+extern s32 cd_read_retry(s32);
 
 s32 CdRead(s32 sectors,u8 *buffer,u32 mode) {
     s32 count=sectors;
@@ -95,7 +95,7 @@ timeout:
         __asm__("" : "+r"(parameters) : "r"(command));
         CdControlB(command,parameters,0);
     }
-    result=func_8008EB6C(0)>0;
+    result=cd_read_retry(0)>0;
     /* ASM_BARRIER: finish the Boolean result before restoring saved temporaries. */
     __asm__("" : "+r"(result) : : "$17", "$19");
     return result;

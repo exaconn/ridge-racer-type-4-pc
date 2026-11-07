@@ -87,7 +87,7 @@ static void *emit(int kind,u32 *order,void *cursor,s32 a,s32 b,s32 c,s32 d,s32 e
 }
 void *AddDrawAreaPrim(u32 *o,void *p,s32 x,s32 y,s32 width,s32 height){return emit(0,o,p,x,y,width,height,0,0,0);}
 void *AddDrawModePrim(u32 *o,void *p,u16 mode){return emit(1,o,p,mode,0,0,0,0,0,0);}
-RrSpritePacket *func_8003D2C4(u32 *o,RrSpritePacket *p,s32 x,s32 y,s32 style){return emit(2,o,p,x,y,style,0,0,0,0);}
+RrSpritePacket *DrawBadgeTitleBar(u32 *o,RrSpritePacket *p,s32 x,s32 y,s32 style){return emit(2,o,p,x,y,style,0,0,0,0);}
 void *AddTilePrim(u32 *o,void *p,s32 x,s32 y,s32 width,s32 height,s32 r,s32 g,s32 b){return emit(3,o,p,x,y,width,height,r,g,b);}
 static void *cb0(u32 *o,void *p,s32 index){return emit(100,o,p,index,0,0,0,0,0,0);}
 static void *cb1(u32 *o,void *p,s32 index){return emit(101,o,p,index,0,0,0,0,0,0);}

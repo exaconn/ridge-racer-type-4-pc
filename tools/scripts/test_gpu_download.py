@@ -54,11 +54,11 @@ static_assert(offsetof(RrGpuRectangleFields,h)==6,"height");
 static_assert(sizeof(unsigned long)>=sizeof(void*),"full native pointers");
 #define D_800ABAC4 (world.width)
 #define D_800ABAC6 (world.height)
-#define D_800ABBC4 (&world.banks[world.selected[0]][0])
-#define D_800ABBC8 (&world.banks[world.selected[1]][1])
-#define D_800ABBCC (&world.banks[world.selected[2]][2])
-#define D_800ABBD0 (&world.banks[world.selected[3]][3])
-#define D_800ABBD4 (&world.banks[world.selected[4]][4])
+#define GPU_DATA (&world.banks[world.selected[0]][0])
+#define GPU_STATUS (&world.banks[world.selected[1]][1])
+#define DMA2_MADR (&world.banks[world.selected[2]][2])
+#define DMA2_BCR (&world.banks[world.selected[3]][3])
+#define DMA2_CHCR (&world.banks[world.selected[4]][4])
 static void record(unsigned kind,unsigned bank=0,unsigned reg=0,u32 value=0){
  assert(count<64);Entry *e=&entries[count++];std::memset(e,0,sizeof(*e));
  e->kind=kind;e->bank=bank;e->reg=reg;e->value=value;std::memcpy(&e->snapshot,&world,sizeof(world));

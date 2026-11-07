@@ -8,18 +8,18 @@ typedef struct { char p[0x10]; short s10; } T3;
 extern int ResetScreenCounters();
 extern int PlaySfx();
 extern int MenuStepDirection;
-extern char D_800AD4D8[];
+extern char SelectionState[];
 extern short D_800AD520;
-extern int D_800F2DE4;
+extern int ModeFrame;
 extern short D_800F3A26;
 extern unsigned short D_800F3A42;
 extern int D_800F3A60;
 extern T3 *BadgeRows;
-extern short D_800F4C6A;
+extern short ModeGroup;
 extern char *UiRows;
 extern short D_800F4D8A;
 extern signed char *GlyphRows;
-extern char *D_800FF68C;
+extern char *Dialogue;
 
 int AllocMenuGridRecords(int a, int n);
 void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y);
@@ -28,7 +28,7 @@ void func_800417EC()
 {
     int s0;
     char *q; char *r;
-    int t = D_800F4D98[0];
+    int t = SelectionRows[0];
     D_800AD520 = t;
     UiRows[t + 0xC] = 0;
     if (D_800F3A42 & 0x2000) {
@@ -54,8 +54,8 @@ L_a8:
     } else if (D_800AD520 >= 4) {
         D_800AD520 = 3;
     }
-    D_800F4D98[0] = D_800AD520;
-    D_800FF68C[4] = (unsigned char)D_800AD520 + 0x22;
+    SelectionRows[0] = D_800AD520;
+    Dialogue[4] = (unsigned char)D_800AD520 + 0x22;
     GlyphRows[D_800AD520 * 0x1C + 2] = -6;
     GlyphRows[D_800AD520 * 0x1C] = 0;
     UiRows[0x16] = D_800AD520;
@@ -66,14 +66,14 @@ L_54:
         s0 = BadgeRows->s10;
         if (s0 == 3) {
             PlaySfx(1);
-            D_800F2DE4 = 0;
+            ModeFrame = 0;
             ResetScreenCounters();
-            r = D_800AD4D8;
+            r = SelectionState;
             *(short *)(r + 0x1A) = 1;
-            r[0x1C] = D_800F4D98[0];
+            r[0x1C] = SelectionRows[0];
             BadgeRows->s10 = 4;
             UiRows[0x14] = s0;
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 0xB;
             D_800F4D8A = 0;
         }

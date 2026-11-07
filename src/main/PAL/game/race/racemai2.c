@@ -139,8 +139,8 @@ extern s32 ReplayState;
 extern s32 TrackLength;
 extern s16 D_800F4D44;
 extern char *TrackNodes;
-extern int D_800ABEC0;
-extern short D_800AD522;
+extern int RaceVoiceFlags;
+extern short ReverseCourse;
 extern int NumLaps;
 
 void StepRaceFrame();
@@ -237,7 +237,7 @@ unsigned int arg0;
       if (CarTable[i]->s1A0 & 7)
       {
         SetCarImpactState(2, CarTable[i]);
-        func_8002BF34(CarTable[i], (short) CarTable[i]->s1A0);
+        StartCollisionShake(CarTable[i], (short) CarTable[i]->s1A0);
       }
       if (((short) CarTable[i]->s1A0) != 0)
       {
@@ -551,8 +551,8 @@ void ResolveCarCollisions(CarCollision *arg0) {
                             cars[1]->unk1A0 |= hit << 3;
 
                             if (side < 2) {
-                                func_8002C11C(cars[0], -sp->dx30, -sp->dy34);
-                                func_8002C11C(cars[1], sp->dx30, sp->dy34);
+                                SetVehicleShake(cars[0], -sp->dx30, -sp->dy34);
+                                SetVehicleShake(cars[1], sp->dx30, sp->dy34);
                                 if (cars[side]->unk1E4 & 0x10) {
                                     if (cars[side]->unk1D8 >= 0xF1) {
                                         arg0->unk224 = 0x40;
@@ -578,8 +578,8 @@ void ResolveCarCollisions(CarCollision *arg0) {
                                     }
                                 }
                             } else {
-                                func_8002C11C(cars[0], -sp->dx30 >> 1, -sp->dy34 >> 1);
-                                func_8002C11C(cars[1], sp->dx30 >> 1, sp->dy34 >> 1);
+                                SetVehicleShake(cars[0], -sp->dx30 >> 1, -sp->dy34 >> 1);
+                                SetVehicleShake(cars[1], sp->dx30 >> 1, sp->dy34 >> 1);
                             }
 
                             side &= 1;
@@ -707,18 +707,18 @@ void CheckFinalLapEvent(RrRaceVehicle *vehicle)
     int distanceLimit;
     int courseLength;
     int flags, node;
-    if (!(D_800ABEC0 & 0x100)) {
-        if (D_800AD522 != 1) {
+    if (!(RaceVoiceFlags & 0x100)) {
+        if (ReverseCourse != 1) {
             courseLength = TrackLength;
             distanceLimit = (NumLaps - 1) * courseLength;
             if ((vehicle->second + vehicle->first) >= distanceLimit) {
                 node = vehicle->trackNodeF0;
                 if (LookupTrackEvent(6, node) == 1) {
-                    flags = D_800ABEC0 & 0x100;
-                    D_800ABEC0 = flags;
+                    flags = RaceVoiceFlags & 0x100;
+                    RaceVoiceFlags = flags;
                     if (flags == 0) {
                         SoundQueueEnqueue(0x12, 0);
-                        D_800ABEC0 |= 0x100;
+                        RaceVoiceFlags |= 0x100;
                     }
                 }
             }

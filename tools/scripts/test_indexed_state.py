@@ -30,7 +30,7 @@ u32 test_history_words[0x20000 / 4];
 #define test_history ((u8 *)test_history_words)
 u32 test_ram[0x14000];
 u32 *D_800ABC30;
-u32 *D_800ABBC8;
+u32 *GPU_STATUS;
 ''' + header + '\nRrChannelControlRow36 test_rows[320];\n'
         for name in ('_getctl', 'StopRCnt', '_ctl', 'vmNoiseOff'):
             body = (root / 'tools/scripts/fixtures/legacy' / (name + '.c')).read_text()
@@ -102,7 +102,7 @@ u32 *D_800ABBC8;
 
     def test_command_write_records_low_byte_under_the_command_index(self):
         port = (C.c_uint32 * 3)(0x12345678, 0, 0x9ABCDEF0)
-        C.c_void_p.in_dll(self.library, 'D_800ABBC8').value = C.addressof(port) + 4
+        C.c_void_p.in_dll(self.library, 'GPU_STATUS').value = C.addressof(port) + 4
         C.memset(C.addressof(self.history), 0xA5, C.sizeof(self.history))
         for index in range(256):
             for byte in (0, 1, 0x7F, 0x80, 0xFF):
@@ -118,7 +118,7 @@ u32 *D_800ABBC8;
         for index in range(1, 256, 4):
             C.memset(C.addressof(self.history), 0xA5, C.sizeof(self.history))
             offset = 0x127D0 + index
-            C.c_void_p.in_dll(self.library, 'D_800ABBC8').value = C.addressof(self.history) + offset - 1
+            C.c_void_p.in_dll(self.library, 'GPU_STATUS').value = C.addressof(self.history) + offset - 1
             expected = bytearray(bytes(self.history))
             command = (index << 24) | 0x12AB34
             struct.pack_into('<I', expected, offset - 1, command)

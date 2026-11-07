@@ -23,7 +23,7 @@ void SsVabClose(u16 channel) {
             s32 offset = index * sizeof(u32);
             /* ASM_BARRIER: Scale the allocation index before materializing its address page. */
             __asm__ volatile("" : : "r"(offset) : "$4");
-            /* PAL mapping: allocations + offset + 0x180 is &D_80110180[index]. */
+            /* PAL mapping: allocations + offset + 0x180 is &_svm_vab_start[index]. */
             allocations = (u8 *)0x80110000U;
             /* ASM_BARRIER: Expose the PAL allocation-page base for the argument load. */
             __asm__("" : "=r"(allocations) : "0"(allocations));

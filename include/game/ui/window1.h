@@ -3,9 +3,9 @@
 
 #include "types.h"
 
-void func_80020920(unsigned char *a0, unsigned char *a1);
-int func_80020CD4();
-void func_80020E2C();
-void func_80020F20();
+void InitHudSpritePacket(unsigned char *a0, unsigned char *a1);
+int DrawDigitString12();
+void DrawDigitString8();
+void DrawDigitString16();
 
 #endif /* RR_GAME_UI_WINDOW1_H */

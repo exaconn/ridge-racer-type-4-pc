@@ -4,13 +4,13 @@
 #include "rr/layout.h"
 
 /* Configured GPU data and status/control register addresses. */
-extern volatile u32 *D_800ABBC4, *D_800ABBC8;
+extern volatile u32 *GPU_DATA, *GPU_STATUS;
 s32 func_800954D8(s32 mode);
 
 /* GPU DMA channel and queue timeout state. Queue tail is interrupt-visible. */
-extern volatile u32 *D_800ABBCC, *D_800ABBD0, *D_800ABBD4;
-extern s32 D_800ABBE8, D_800ABBF8, D_800ABBFC, D_800ABC00;
-extern volatile s32 D_800ABBEC;
+extern volatile u32 *DMA2_MADR, *DMA2_BCR, *DMA2_CHCR;
+extern s32 _qin, D_800ABBF8, D_800ABBFC, D_800ABC00;
+extern volatile s32 _qout;
 
 /* Drawing limits and packed E3/E4 drawing-area coordinate commands. */
 extern s16 D_800ABAC4, D_800ABAC6;
@@ -19,8 +19,8 @@ u32 get_ce(s32 x, s32 y);
 
 /* Ordering-table DMA on channel 6. Address/count arithmetic wraps at 32 bits on PAL.
  * The supplied address is recorded after adding signed32(count*4-4). */
-extern u8 * volatile *D_800ABBD8;
-extern volatile u32 *D_800ABBDC, *D_800ABBE0, *D_800ABBE4;
+extern u8 * volatile *DMA6_MADR;
+extern volatile u32 *DMA6_BCR, *DMA6_CHCR, *DPCR;
 s32 _otc(u8 *buffer, s32 count);
 void set_alarm(void);
 s32 get_alarm(void);

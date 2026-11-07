@@ -33,14 +33,14 @@ typedef struct {
  s32 scratch[16];void *published;u8 *resource;unsigned root;u32 tail[4];
 } State;
 static State actual,reference,*w;
-#define D_800F2DE4 w->frame
+#define ModeFrame w->frame
 #define ScreenFrame w->tick
 #define MenuCursor w->selection
 #define MenuItemCount w->mode
 #define D_800F3A26 w->scene
 #define D_800F4D8A w->phase
-#define D_800F4C6A w->enable
-#define D_800AD4D8 w->settings
+#define ModeGroup w->enable
+#define SelectionState w->settings
 #define UiRows (w->rows[w->root])
 #define PlayerCars w->vehicles
 #define LoadCursor w->published
@@ -77,7 +77,7 @@ void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){
  const s32 args[10]={a,b,c,d,e,f,g,h,i,j};record(4,args);effect(4);
 }
 void ResetCarState(RrRaceVehicle *p){assert(p==w->vehicles&&(uintptr_t)p>UINT32_MAX);service(5);}
-s32 func_8003BAB0(void){static const u32 returns[]={0,1,2,0xFFFFFFFFU,0x10001,0xFFFF0001,0x80000000,0x80000001};service(6);return word(returns[scenario%8]);}
+s32 LoadTrackNodesStep(void){static const u32 returns[]={0,1,2,0xFFFFFFFFU,0x10001,0xFFFF0001,0x80000000,0x80000001};service(6);return word(returns[scenario%8]);}
 void CdAudioInit(void){service(7);}
 void CdAudioSelectTrack(s32 a,s32 b){const s32 args[10]={a,b};record(8,args);effect(8);}
 void UpdateScreenFade(s32 a){const s32 args[10]={a};record(9,args);effect(9);}
@@ -96,7 +96,7 @@ static void expected(void){unsigned phase=w->phase;paths[phase<3?phase:3]++;
   w->scratch[6]=512;w->scratch[7]=0;w->scratch[8]=0;w->scratch[2]=0;w->scratch[3]=-416;w->scratch[4]=0;
   memset(w->vehicles[1].pos20,0,sizeof(w->vehicles[1].pos20));service(5);
   w->vehicles[0].pos20[1]=10;w->vehicles[0].pos20[2]=308;w->vehicles[0].rot54=2560;w->phase=1;
- }else if(phase==1){s32 result=func_8003BAB0();completion[result==1]++;if(result==1)w->phase=2;
+ }else if(phase==1){s32 result=LoadTrackNodesStep();completion[result==1]++;if(result==1)w->phase=2;
  }else if(phase==2){service(7);const s32 args[10]={0,2};record(8,args);effect(8);w->enable=1;w->scene=18;w->phase=0;}
  const s32 args[10]={0x1002E};record(9,args);effect(9);
 }

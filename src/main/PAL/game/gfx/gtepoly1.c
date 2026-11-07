@@ -100,10 +100,10 @@ typedef struct {
 
 extern int D_800F2EC8;
 extern s32 ModelTexturePage;
-extern int func_8006EE3C();
+extern int SetGteObjectTransform();
 extern int D_800100B8;
 extern s32 func_80096464(void);
-extern signed char D_800F4C68;
+extern signed char RacePaused;
 extern int D_8009E0B0[];
 extern int D_8009E0E0[];
 extern char D_8009E124[];
@@ -1205,7 +1205,7 @@ int func_80014A98(int a0, int a1, int a2, int a3)
   {
     return 0;
   }
-  func_8006EE3C((SCRATCHPAD + 0x7C), a0, a1);
+  SetGteObjectTransform((SCRATCHPAD + 0x7C), a0, a1);
   new_var = 3;
   s0[2] = a3;
   a = ModelTexturePage & 0xF;
@@ -1973,7 +1973,7 @@ void func_800153FC(a0, a1) char *a0; char *a1;
     int t;
     int v;
     RR_GTE_SETTR(a1 + 0x14);
-    if (D_800F4C68 != 0) {
+    if (RacePaused != 0) {
         s0 = *(int *)(a0 + 0x64);
     } else {
         s0 = (*(short *)(*(int *)(a1 + 0x90) + 0x1D8) - 0x3E0) * 2;
@@ -2577,7 +2577,7 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
     }
 
     if (*(u8 *)(SP->w[0x25] + 0xA) == 3) {
-        if (D_800F4C68 == 0) {
+        if (RacePaused == 0) {
             s32 v;
             s0 = S4->w[0x18];
             if (SP->w[0x23] & 1) {
@@ -2621,7 +2621,7 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
         } else {
             a0 = 0xF0;
         }
-        if (D_800F4C68 == 0) {
+        if (RacePaused == 0) {
             s32 v1;
             s32 d = a0 - s0;
             if (SP->w[0x23] & 2) {
@@ -2713,7 +2713,7 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
         if (v1 >= -0xEC8) {
             char *a0;
             char *a1;
-            if (D_800F4C68 != 0) {
+            if (RacePaused != 0) {
                 SP->w[0x30] = S4->w[0x2];
             } else {
                 s32 a0_val;
@@ -2757,7 +2757,7 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
                 GTE_STORE_SXY_SZ(a0);
                 v1 -= 3;
             }
-            if (D_800F4C68 == 0) {
+            if (RacePaused == 0) {
                 s32 idx = S4->w[0x4];
                 s32 n = S4->w[0x3];
                 s32 off = (idx << 3) + 0x14;
@@ -2915,7 +2915,7 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
             GTE_STORE_SXY_SZ(a0);
             v1 -= 3;
         }
-        if (D_800F4C68 == 0) {
+        if (RacePaused == 0) {
             s32 idx;
             TrailEntry4 *entry;
             s32 n;
@@ -3057,7 +3057,7 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
             vcnt--;
             vdst += 8;
         }
-        if (D_800F4C68 == 0) {
+        if (RacePaused == 0) {
             S4->w[0x1A] += 1;
             if (S4->w[0x1A] == 8) {
                 S4->w[0x17] = 2;

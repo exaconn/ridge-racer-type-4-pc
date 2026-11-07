@@ -76,7 +76,7 @@ static s32 math_call(s32 angle,unsigned id){s32 value;
 }
 static s32 call_sin(s32 angle){return math_call(angle,0);}
 static s32 call_cos(s32 angle){return math_call(angle,1);}
-#define D_8010BF88 (actual.targets)
+#define HudNumberTargets (actual.targets)
 #define DrawBufIndex (actual.bank)
 #define D_8009EE38 (actual.corners)
 #undef RR_HUD_QUAD_SCRATCH
@@ -138,7 +138,7 @@ int main(void){unsigned raw,r,b,i;uint64_t cases=0;s32 phase;
   phase=sign32((u32)raw|(profile==1?0x400000U:profile==2?0x80000000U:profile==3?(next()&0xffff0000U):0));
   stress[0]=sign32(next());stress[1]=sign32(next());
   expected=actual;memcpy(reference,arena,ARENA);calls=0;model(phase);
-  func_80021350(phase,(s32)rowIndex);assert(calls==2);
+  DrawHudRotatingQuad(phase,(s32)rowIndex);assert(calls==2);
   assert(!memcmp(&actual,&expected,sizeof(actual)));
   /* Only these four genuine union-padding bytes are unspecified. The RGB
    * writes, including the next tag's three bytes at36, are all compared. */

@@ -32,7 +32,7 @@ static union {uint64_t alignment;u8 bytes[0x10000];} count_page;
 ''' + body + r'''
 RrTrackSample3C *TrackNodes;
 s32 TrackNodeCount;
-s16 D_800AD522;
+s16 ReverseCourse;
 static RrTrackSample3C actual[256], expected[256];
 static unsigned random_state=0x873AF519;
 static unsigned random_value(void) {
@@ -81,7 +81,7 @@ static void one(int count,int index,int difference,int direction,int alias) {
     s16 offset=-123;
     memcpy(&vehicle.pad120[0x50],&offset,2);
     before=vehicle;
-    TrackNodeCount=count;D_800AD522=direction;
+    TrackNodeCount=count;ReverseCourse=direction;
     memcpy(count_page.bytes+0xBECC,&count,4);
     TrackNodes=actual+128;
     int a,b;indices(index,difference,direction,count,&a,&b);

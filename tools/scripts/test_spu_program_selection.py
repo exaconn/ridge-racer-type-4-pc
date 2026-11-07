@@ -25,7 +25,7 @@ u8 test_flag_storage[65536+0x200];
 void *test_flags(void) {return test_flag_page;}
 u8 *test_data_page[0x60/sizeof(u8 *)+16];
 RrSpuProgram *test_program_page[0x20/sizeof(RrSpuProgram *)+16];
-u8 *D_801100A8[16];
+u8 *_svm_vab_tn[16];
 RrSpuProgram test_programs[65536+16];
 u8 test_data[16][8],test_tones[16][8];
 s16 kMaxPrograms;
@@ -72,7 +72,7 @@ void test_reset(void) {
   test_flag_page[0x120+i]=1;
   test_data_page[0x60/sizeof(u8 *)+i]=test_data[i];
   test_program_page[0x20/sizeof(RrSpuProgram *)+i]=test_programs+32768+i;
-  D_801100A8[i]=test_tones[i];
+  _svm_vab_tn[i]=test_tones[i];
  }
  kMaxPrograms=32767;
  _svm_vh=test_data[0];_svm_pg=test_programs+32768;_svm_tn=test_tones[0];

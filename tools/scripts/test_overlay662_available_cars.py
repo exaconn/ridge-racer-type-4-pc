@@ -23,7 +23,7 @@ static u8 resources[2][0x2D100];
 static struct World {u32 guard[4];s32 frame,clock;s16 phase,pick,count,row,layout,scene,state;u16 enabled;u8 *resource;void *ui,*screen;RrMenuArenas arenas;RrMenuChoice4 choice;RrSaveProgressRecord7C save;RrCourseChoice4 courses[2][9];s16 status[20];RrGarageAvailableCar cars[20];RrMenuGridPoint grid[4];u32 tail[4];} world,expected;
 static struct Event {unsigned id;u32 args[10];struct World before;} events[350];
 static unsigned count,seen,serial,n,profile;static int reference_run;
-#define D_800F2DE4 world.frame
+#define ModeFrame world.frame
 #define ScreenFrame world.clock
 #define ovl662_D_801272D4 world.phase
 #define ovl662_D_801272E4 world.pick
@@ -32,13 +32,13 @@ static unsigned count,seen,serial,n,profile;static int reference_run;
 #define MenuItemCount world.layout
 #define D_800F3A26 world.scene
 #define D_800F4D8A world.state
-#define D_800F4C6A world.enabled
+#define ModeGroup world.enabled
 #define CdDirectoryBuffer world.resource
 #define LoadCursor world.ui
 #define D_800F4D40 world.screen
 #define D_800F4D70 world.arenas
-#define D_800F4D98 world.choice
-#define D_800F3920 world.save
+#define SelectionRows world.choice
+#define SaveProgress world.save
 #define D_800ABE08 world.courses
 #define ovl662_D_80127300 world.status
 #define ovl662_D_80127348 world.cars

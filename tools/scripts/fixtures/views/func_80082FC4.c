@@ -8,7 +8,7 @@ s32 _SsVmGetSeqVol(s32,u16 *,u16 *);
 
 void _SsVmSetSeqVol(s32,u16,u16,s32);
 
-void func_80082FC4(s32 bankInput,s32 rowInput)
+void _SsSndCrescendo(s32 bankInput,s32 rowInput)
 {
     s16 bank=bankInput,row=rowInput;
     u16 left,right;

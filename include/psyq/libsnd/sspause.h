@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_800822D0(short a);
+void SsSeqPause(short a);
 void SsSeqPlay(short a, signed char b, short c);
 
 #endif /* RR_PSYQ_LIBSND_SSPAUSE_H */

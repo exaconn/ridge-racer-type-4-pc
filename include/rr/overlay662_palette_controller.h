@@ -6,7 +6,7 @@
 #include "rr/tables.h"
 extern RrMenuItemState5C D_800F3A38[2];
 void ovl662_func_80118ED8(void);
-s32 func_8003DCEC(s32);
+s32 UpdateRect16Row(s32);
 void DrawUiRow(s32);
 void UpdateBadgeRowAnim(s32);
 void UpdateScreenFade(s32);

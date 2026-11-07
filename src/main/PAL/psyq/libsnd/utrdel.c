@@ -5,7 +5,7 @@
 #include "psyq/libsnd/utrev.h"
 #include "psyq/libspu/srevattr.h"
 
-extern int D_80110008[];
+extern int _svm_rattr[];
 extern s16 D_8011000C;
 
 s16 SsUtGetReverbType(void);
@@ -20,9 +20,9 @@ s32 SsUtSetReverbType(s32 a0) {
     v1 = a0;
     if ((short)a0 < 0) { a1 = 1; v1 = (s32)(0U - (u32)a0); }
     if ((unsigned short)v1 < 10) {
-        D_80110008[0] = 1;
-        if (a1 != 0) D_80110008[1] = (short)(v1 | 0x100);
-        else D_80110008[1] = (short)v1;
+        _svm_rattr[0] = 1;
+        if (a1 != 0) _svm_rattr[1] = (short)(v1 | 0x100);
+        else _svm_rattr[1] = (short)v1;
         shifted=(u32)v1<<16;
         /* ASM_BARRIER: Retain the shifted temporary in v0 before signed narrowing. */
         __asm__("" : "+r"(shifted));

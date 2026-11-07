@@ -5,16 +5,16 @@
 #include "m2c_macros.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010BF88 (*(struct W3G0A (*))&D_8010BF88)
+#define HudNumberTargets (*(struct W3G0A (*))&HudNumberTargets)
 
-#undef D_8010BF88
+#undef HudNumberTargets
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010BF88 (*(char (*)[])&D_8010BF88)
+#define HudNumberTargets (*(char (*)[])&HudNumberTargets)
 
-#undef D_8010BF88
+#undef HudNumberTargets
 
-void *func_80021568(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+void *EmitHudGlyph12(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     M2C_FIELD(arg1, s8 *, 3) = 4;
     M2C_FIELD(arg1, s8 *, 7) = 0x65;
     M2C_FIELD(arg1, s16 *, 0x10) = 0xC;

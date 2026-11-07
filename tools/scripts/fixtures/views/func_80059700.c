@@ -117,7 +117,7 @@
 
 #undef D_800ACC14
 
-void func_80059700(s16 *stream,s32 color,s32 bank)
+void DrawGlyphList(s16 *stream,s32 color,s32 bank)
 {
     s32 x, y, defaultPage, clut, page, offset, gap;
     u32 cachedGlyph;

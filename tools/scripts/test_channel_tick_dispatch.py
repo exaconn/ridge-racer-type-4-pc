@@ -28,7 +28,7 @@ class ChannelTickDispatchTest(unittest.TestCase):
         body=native_body((root/'tools/scripts/fixtures/views/func_80097EA0.c').read_text())
         assert body.count('(s32 *)0x800B0000U')==1
         body=body.replace('(s32 *)0x800B0000U','ram+0x4330/4')
-        observed=body.replace('func_80097EA0','observed_tick')
+        observed=body.replace('_padIntPad','observed_tick')
         for old,new in {'port->control&2':'test_read(port)&2','*(u16 *)&port->control=0;':'test_write(port,0,0);','D_800ABCCC->baud=0x88;':'test_write(D_800ABCCC,1,0x88);'}.items():
             assert observed.count(old)==1
             observed=observed.replace(old,new)
@@ -55,7 +55,7 @@ void test_write(RrSerialPortRegisters *p,s32 baud,u16 value){s32 i=io_count++;io
 '''+body+observed
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
-        cls.lib=C.CDLL(str(d/'f.so'));cls.f=cls.lib.func_80097EA0;cls.observed=cls.lib.observed_tick
+        cls.lib=C.CDLL(str(d/'f.so'));cls.f=cls.lib._padIntPad;cls.observed=cls.lib.observed_tick
         for f in (cls.f,cls.observed):f.argtypes=[];f.restype=C.c_int32
         cls.values={n:C.c_int32.in_dll(cls.lib,n) for n in ('D_800ABCB8','D_800ABCBC','D_800ABCA0','D_800ABCA8','D_800ABCAC','D_800ABCB0','begin_result','events','io_count')}
         cls.ram=(C.c_int32*(0x4330//4+2)).in_dll(cls.lib,'ram');cls.counters=(C.c_int32*2).in_dll(cls.lib,'D_80114428')

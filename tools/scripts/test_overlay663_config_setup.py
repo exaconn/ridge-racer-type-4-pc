@@ -26,15 +26,15 @@ typedef union {u32 words[8];u8 bytes[32];} Work32;
 typedef union {u32 words[3];u8 bytes[12];} Work12;
 typedef struct {s32 kind,args[10];void *data;RrBadgeRow1C *badge;s32 frame,counter,local;s16 selected,mapped,current;} Event;
 static struct World {u32 guard[4];s32 frame,counter,local;s16 selected,mapped,current;Work32 work32;Work12 work12;RrBadgeRow1C *badge;RrBadgeRow1C badges[3][2];u32 calls;Event events[7];u32 tail[4];} world,expected;
-#define D_800F2DE4 world.frame
+#define ModeFrame world.frame
 #define ScreenFrame world.counter
 #define ovl663_selected_record world.local
 #define D_800AC648 world.selected
 #define D_800F3914 world.mapped
 #define MenuCursor world.current
 #define BadgeRows world.badge
-#define D_800F4CB0 world.work32.words[0]
-#define D_800ACC68 world.work12.words[0]
+#define MenuFrameState world.work32.words[0]
+#define ScreenFadeState world.work12.words[0]
 void func_80096434(void *data,s32 size);
 ''' + clear + body + r'''
 static u32 seed=0x15028,scenario;

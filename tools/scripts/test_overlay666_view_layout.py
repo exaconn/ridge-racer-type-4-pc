@@ -25,13 +25,13 @@ class Overlay666ViewLayoutTest(unittest.TestCase):
 typedef struct {s32 kind,args[10];RrMenuArenas arenas;u8 *base;void *published;RrMenuGlyphRow1C *glyph;s32 frame,counter;s16 current,limit,selected;s8 flag1,flag2;} Event;
 static struct World {u32 guard[4];s32 frame,counter;s16 current,limit,selected;s8 flag1,flag2;RrMenuArenas arenas;u8 *base;void *published;RrMenuGlyphRow1C *glyph;RrMenuGlyphRow1C glyphs[3][4];RrUiRow24 rows[7];u32 calls;Event events[13];u32 tail[4];} world,expected;
 static u8 resources[3][0x2D100],original_resources[3][0x2D100];
-#define D_800F2DE4 world.frame
+#define ModeFrame world.frame
 #define ScreenFrame world.counter
 #define MenuCursor world.current
 #define MenuItemCount world.limit
 #define D_800F3826 world.selected
-#define D_800F4D7C world.flag1
-#define D_800F3A2C world.flag2
+#define LoadState world.flag1
+#define MenuScriptStep world.flag2
 #define D_800F4D70 world.arenas
 #define CdDirectoryBuffer world.base
 #define LoadCursor world.published

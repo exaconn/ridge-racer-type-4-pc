@@ -2,7 +2,7 @@
 
 void ovl666_init_menu(void) {
     s32 i;
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     ScreenFrame = 0;
     MenuCursor = 0;
     MenuItemCount = 3;
@@ -29,7 +29,7 @@ void ovl666_init_scene(void) {
 
     SetDispMask(0);
     ClearScreenOverlayState();
-    func_8001ECE8(0, 0, 0, 2);
+    SetupDrawDispEnvs(0, 0, 0, 2);
     for (i = 0; i < 4; i++) {
         for (j = 0; j < 9; j++) {
             ovl666_available_courses[i][j].glyph = -1;
@@ -38,8 +38,8 @@ void ovl666_init_scene(void) {
     for (i = 0; i < 4; i++) {
         ovl666_course_counts[i] = 0;
         for (j = 0; j < 9; j++) {
-            UnpackChoiceGlyph((s8 *)&D_800F4D98, D_800ABE08[1][j].glyph);
-            if (D_800F4D98.selection.variant == i && D_800F4D98.selection.pad02[0] < 39) {
+            UnpackChoiceGlyph((s8 *)&SelectionRows, D_800ABE08[1][j].glyph);
+            if (SelectionRows.selection.variant == i && SelectionRows.selection.pad02[0] < 39) {
                 ovl666_available_courses[i][ovl666_course_counts[i]] = D_800ABE08[1][j];
                 ovl666_course_counts[i]++;
             }
@@ -49,7 +49,7 @@ void ovl666_init_scene(void) {
     D_800F3826 = 0;
     func_8001E84C(ovl666_scene_name);
     ovl666_init_menu();
-    D_800F4C6A = 1;
+    ModeGroup = 1;
     D_800F3A26 = 79;
     D_800F4D8A = 0;
     func_80053BB4(0);
@@ -68,7 +68,7 @@ void ovl666_update_menu(void) {
     s32 closing;
     s8 cellState;
 
-    D_800F2DE4 = (s32)((u32)D_800F2DE4 + 1U);
+    ModeFrame = (s32)((u32)ModeFrame + 1U);
     ScreenFrame = (s32)((u32)ScreenFrame + 1U);
     ready = func_8003B47C();
     if (ready == 1) {
@@ -83,7 +83,7 @@ void ovl666_update_menu(void) {
             D_800F4D8A = 1;
             goto title;
         case 1:
-            func_8002AF8C(1, 1, 1);
+            SetMenuFrameOptions(1, 1, 1);
             UiRows[MenuCursor].cells[0] = 0;
             StepMenuValue(0, 2, (char *)&MenuCursor, 2, 0);
             cellState = 2;
@@ -148,10 +148,10 @@ void ovl666_update_menu(void) {
             }
             goto title;
         case 3:
-            func_8002AF8C(0, 1, 1);
+            SetMenuFrameOptions(0, 1, 1);
             if (UiRows[0].byte14 == 5) {
                 ovl666_init_preview();
-                D_800F4C6A = ready;
+                ModeGroup = ready;
                 D_800F3A26 = 0x50;
                 D_800F4D8A = 0;
             } else {
@@ -159,12 +159,12 @@ void ovl666_update_menu(void) {
             }
             break;
         case 8:
-            func_8002AF8C(0, 1, 1);
+            SetMenuFrameOptions(0, 1, 1);
             timer = (u16)D_800AC5D0 - 1;
             D_800AC5D0 = (u16)timer;
-            func_800207D4(&D_800ACC14->ordering.ordering70[0], (0x40 - timer) * 4, 0x45);
+            AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (0x40 - timer) * 4, 0x45);
             if ((s16)D_800AC5D0 <= 0) {
-                D_800F4C6A = ready;
+                ModeGroup = ready;
                 D_800F3A26 = 3;
                 D_800F4D8A = 0;
                 func_80053CB0();
@@ -172,16 +172,16 @@ void ovl666_update_menu(void) {
             goto update_rows;
         default:
         title:
-            func_8002B12C(0xA0, 0xCC, 0x30, 0, (s32)D_800F3826, 0, 4);
+            DrawMenuStepArrows(0xA0, 0xCC, 0x30, 0, (s32)D_800F3826, 0, 4);
             glyphIndex = D_800F3826;
-            if ((u8)D_800F3920.prefix.flags5C[glyphIndex] != 0) {
+            if ((u8)SaveProgress.prefix.flags5C[glyphIndex] != 0) {
                 glyphBase = GlyphRows;
 
                 ovl666_draw_selection_pulse(glyphBase[glyphIndex].x08 + 0x14,
                                             glyphBase[glyphIndex].y0A + 0x28);
-                func_8003E13C(D_800F3826);
+                UpdateGlyphRow(D_800F3826);
             } else {
-                func_8003E13C(glyphIndex);
+                UpdateGlyphRow(glyphIndex);
             }
             goto update_rows;
         }

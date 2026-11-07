@@ -60,7 +60,7 @@ static void reference(s32 r,s32 g,s16 b,u32 flags) {
 static void run(s32 r,s32 g,s16 b,u32 flags,int mode,u16 sx,u16 sy) {
  memset(actual,0xA7,sizeof(actual));memcpy(expected,actual,sizeof(actual));
  input_flags=flags;step=0;video=mode;Options.halves[26]=sx;Options.halves[28]=sy;
- reference(r,g,b,flags);func_8001ECE8(r,g,b,flags);
+ reference(r,g,b,flags);SetupDrawDispEnvs(r,g,b,flags);
  assert(step==8 && !memcmp(actual,expected,sizeof(actual)));
 }
 int main(void) {

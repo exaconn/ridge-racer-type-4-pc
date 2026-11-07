@@ -5,14 +5,14 @@ from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN,UC_HOOK
 from unicorn.mips_const import *
 ROOT=Path(__file__).resolve().parents[2];P=ROOT/'include/rr';os.chdir(ROOT)
 source=Path(sys.argv[1]if len(sys.argv)>1 else ROOT/'tools/scripts/fixtures/views/func_80050BCC.c').resolve();count=int(sys.argv[2])if len(sys.argv)>2 else 4096
-body=source.read_text();body=body[body.index('void func_80050BCC'):];body=re.sub(r'\s+(?:__asm__|asm)\s*\("\$\d+"\)','',body)
+body=source.read_text();body=body[body.index('void SlotSetupBank'):];body=re.sub(r'\s+(?:__asm__|asm)\s*\("\$\d+"\)','',body)
 # Make implicit read/write register inputs explicit for host diagnostics.
 body=re.sub(r'((?:__asm__|asm)\(""\s*:\s*"\+r"\((\w+)\))',lambda m:'asm("" : : "r"('+m[2]+'));'+m[1],body)
 # Target-only dead-register clobbers have identity semantics in host C.
 body=re.sub(r'(?:__asm__|asm)\s*\(\s*""\s*:\s*:\s*:\s*"\$21"\s*,\s*"\$22"\s*,\s*"\$2"\s*,\s*"memory"\s*\)', 'asm("" : : : "memory")', body)
 # Physical MIPS FP clobber has no logical operation in the host C model.
 for reg in ['$30','$fp','fp']:body=body.replace('asm("" : : : "'+reg+'");','asm("" : : : "memory");')
-services=[('SsVabClose','s32',['s16']),('func_80096434','void',['void*','s32']),('SsVabOpenHeadSticky','s32',['const u8*','s32','s32']),('SsVabTransBody','s32',['const u16*','s32']),('SsVabTransCompleted','s32',['s32']),('func_80050894','void',['RrAudioProgramData*','s32']),('SsUtGetVagAtr','s32',['s32','s16','s32','u8*'])]
+services=[('SsVabClose','s32',['s16']),('func_80096434','void',['void*','s32']),('SsVabOpenHeadSticky','s32',['const u8*','s32','s32']),('SsVabTransBody','s32',['const u16*','s32']),('SsVabTransCompleted','s32',['s32']),('SlotLoadCurves','void',['RrAudioProgramData*','s32']),('SsUtGetVagAtr','s32',['s32','s16','s32','u8*'])]
 class Setup(C.Structure):_fields_=[('bank00',C.c_void_p),('data04',C.c_void_p),('group08',C.c_void_p),('slot0C',C.c_int32)]
 sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();pack=lambda x:struct.pack('<I',x&0xffffffff)
 with TemporaryDirectory(prefix='rr50bcc-')as td:
@@ -21,7 +21,7 @@ with TemporaryDirectory(prefix='rr50bcc-')as td:
  code=code.replace('struct {u8 a[16];RrAudioState v;u8 b[16];} state;','')
  for i,(name,ret,types)in enumerate(services):
   code+=ret+' '+name+'('+','.join(t+' a'+str(j)for j,t in enumerate(types))+'){uintptr_t a[]={'+','.join('(uintptr_t)a'+str(j)for j in range(len(types)))+'};uintptr_t r=cb('+str(i)+',a);'+('return('+ret+')r;'if ret!='void'else'')+'}\n'
- code+=body+'\nvoid *owner(int n){return n==0?(void*)&SoundState:n==1?(void*)&input.v:(void*)resources.v;}\nvoid run(void){func_80050BCC(&input.v);}\n'
+ code+=body+'\nvoid *owner(int n){return n==0?(void*)&SoundState:n==1?(void*)&input.v:(void*)resources.v;}\nvoid run(void){SlotSetupBank(&input.v);}\n'
  (d/'test.c').write_text(code);subprocess.run(['cc','-std=gnu11','-O2','-funsigned-char','-Werror=uninitialized','-shared','-fPIC','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude','-I'+str(P),str(d/'test.c'),'-o',str(d/'test.dylib')],check=True)
  lib=C.CDLL(str(d/'test.dylib'));lib.owner.restype=C.c_void_p;N=[lib.owner(i)for i in range(3)];assert all(n>0xffffffff for n in N)
  A=[0x800F4DB8,0x80180000,0x80190000];S=[0xA8D0,16,3064];u=Uc(UC_ARCH_MIPS,UC_MODE_MIPS32|UC_MODE_LITTLE_ENDIAN);u.mem_map(0,0x400000);u.mem_write(0x10000,Path('assets/PAL/main.exe').read_bytes()[0x800:]);elf=os.getenv('RR_COMPILED_ELF')
@@ -65,10 +65,10 @@ with TemporaryDirectory(prefix='rr50bcc-')as td:
    elif '*'in t:normal.append(pal(a)if native else a)
    else:normal.append(a&0xffffffff)
   if name in ['SsVabOpenHeadSticky','SsVabTransBody']:normal.append(get(normal[0],32,native))
-  if name=='func_80050894':normal.append(get(normal[0],0x5BC,native))
+  if name=='SlotLoadCurves':normal.append(get(normal[0],0x5BC,native))
   event=(i,normal,snapshot(native));(observed if native else events).append(event);coverage.add(name)
   if name=='func_80096434':assert normal[:2]==[A[0]+0x38+bankIndex*0x620,0x620];put(normal[0],b'\0'*0x620,native)
-  if name=='func_80050894':put(A[0]+0x74+normal[1]*0x620,get(normal[0],0x5BC,native),native)
+  if name=='SlotLoadCurves':put(A[0]+0x74+normal[1]*0x620,get(normal[0],0x5BC,native),native)
   # Mutations stay in the complete canonical owner and can affect subsequent reloads.
   if case&1:
    for slot in range(2):

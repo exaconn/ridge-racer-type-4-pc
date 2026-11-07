@@ -237,7 +237,7 @@ void PlaySfx(int a0) {
     PlaySfxVolPan(a0, 0x7F, 0x40, -1);
 }
 
-void func_8004F274(s32 arg0) {
+void PlaySfxBank2(s32 arg0) {
     PlaySfxVolPan(arg0 + 0x3C, 0x7F, 0x40, -1);
 }
 

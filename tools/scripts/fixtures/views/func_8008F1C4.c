@@ -6,7 +6,7 @@ extern void CdDataCallback(RrLibCompletionCallback);
 
 extern void CdReadyCallback(RrLibCompletionCallback);
 
-extern void data_ready_callback(void), func_8008F248(void);
+extern void data_ready_callback(void), StCdInterrupt2(void);
 
 void CdRead2(s32 flags) {
     u8 buf[8];
@@ -35,7 +35,7 @@ void CdRead2(s32 flags) {
             }
         }
         CdDataCallback(data_ready_callback);
-        CdReadyCallback(func_8008F248);
+        CdReadyCallback(StCdInterrupt2);
     }
     {
         const u8 *zero = 0;

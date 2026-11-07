@@ -6,7 +6,7 @@ extern int AddDrawModePrim();
 extern U4 D_8009EE4C[];
 extern int NumLaps;
 
-void func_80021C94(a0, a1)
+void DrawLapCounter(a0, a1)
 int a0; int a1;
 {
     U4 buf;

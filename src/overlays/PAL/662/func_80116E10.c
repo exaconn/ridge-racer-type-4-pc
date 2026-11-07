@@ -25,13 +25,13 @@ void ovl662_func_80116E10(void)
     RrRaceVehicle *vehicle;
 
     shown = 0;
-    D_800F2DE4++;
+    ModeFrame++;
     vehicle = PlayerCars;
     ScreenFrame++;
     vehicle->rot54 = (vehicle->rot54 + 8) & 0xFFF;
-    func_80033A74(1);
+    SetupMenuCarCamera(1);
     SetupViewport(6);
-    ready = func_8003AE4C(0, 1);
+    ready = LoadCarRangeStep(0, 1);
     if (ready != 1) {
         if ((s8)D_800F2AB0[1] == 1) {
             D_800F2AB0[1] = 0;
@@ -45,15 +45,15 @@ void ovl662_func_80116E10(void)
     shown = 1;
     switch (D_800F4D8A) {
     case 0:
-        func_8002AF8C(1, 1, 1);
-        before = PackChoiceGlyph((s8 *)&D_800F4D98);
+        SetMenuFrameOptions(1, 1, 1);
+        before = PackChoiceGlyph((s8 *)&SelectionRows);
         StepMenuValue(3, 2, (char *)&ovl662_D_801272E4, ovl662_D_801272E0, 0);
-        UnpackChoiceGlyph((s8 *)&D_800F4D98, ovl662_D_80127348[ovl662_D_801272E4].value);
-        status = ovl662_D_80127300[(D_800F4D98.entry.parameter % 20) & 0xFF];
-        if ((s16)before != (s16)PackChoiceGlyph((s8 *)&D_800F4D98)) {
+        UnpackChoiceGlyph((s8 *)&SelectionRows, ovl662_D_80127348[ovl662_D_801272E4].value);
+        status = ovl662_D_80127300[(SelectionRows.entry.parameter % 20) & 0xFF];
+        if ((s16)before != (s16)PackChoiceGlyph((s8 *)&SelectionRows)) {
             ResetScreenCounters();
             LoadCursor = D_800F4D70.first;
-            UnpackChoiceGlyph((s8 *)&D_800F4D98, ovl662_D_80127348[ovl662_D_801272E4].value);
+            UnpackChoiceGlyph((s8 *)&SelectionRows, ovl662_D_80127348[ovl662_D_801272E4].value);
             D_800F2AB0[1] = 6;
             D_800ACBD0[0].first = 0;
             D_800ACBD0[0].second = 0;
@@ -78,7 +78,7 @@ void ovl662_func_80116E10(void)
             break;
         }
         if (D_800F3A38[0].a) {
-            func_8002AF8C(0, 1, 1);
+            SetMenuFrameOptions(0, 1, 1);
             UiRows[MenuCursor].cells[0] = 1;
             if (MenuCursor == 0) {
                 if (status == 1) {
@@ -114,7 +114,7 @@ void ovl662_func_80116E10(void)
         } else if (D_800F3A38[0].b) {
             PlaySfx(2);
             SetModelTexturePage(-1);
-            func_8002AF8C(0, 1, 1);
+            SetMenuFrameOptions(0, 1, 1);
             BadgeRows[0].state10 = 4;
             BadgeRows[1].state10 = 4;
             D_800F2AB0[1] = state;
@@ -130,14 +130,14 @@ void ovl662_func_80116E10(void)
     case 3:
         D_800AC5D0--;
         steps = 64;
-        func_800207D4(D_800ACC14->ordering.ordering70, (steps - D_800AC5D0) * 4, 69);
+        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (steps - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             D_800ABE08[1][ovl662_D_801272BA].glyph = ovl662_D_80127348[ovl662_D_801272E4].value;
             D_800ABE08[1][ovl662_D_801272BA].first = 0;
             D_800ABE08[1][ovl662_D_801272BA].second = 0;
             ovl662_D_801272E4 = ovl662_D_801272BA;
             ovl662_func_8011512C();
-            D_800F4C6A = ready;
+            ModeGroup = ready;
             D_800F3A26 = steps;
             D_800F4D8A = 0;
             return;
@@ -146,11 +146,11 @@ void ovl662_func_80116E10(void)
     case 8:
         D_800AC5D0--;
         steps = 64;
-        func_800207D4(D_800ACC14->ordering.ordering70, (steps - D_800AC5D0) * 4, 69);
+        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (steps - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             ovl662_D_801272E4 = ovl662_D_801272BA;
             ovl662_func_8011512C();
-            D_800F4C6A = ready;
+            ModeGroup = ready;
             D_800F3A26 = steps;
             D_800F4D8A = 0;
             return;
@@ -167,7 +167,7 @@ common:
         DrawUiRow(i);
     }
     if (BadgeRows[1].state10 == 3) {
-        ovl662_func_80116C34(D_800F4D98.entry.parameter);
+        ovl662_func_80116C34(SelectionRows.entry.parameter);
     }
     i = shown;
     if ((u8)(D_800F2AB0[1] - 1) < 2 && i == 1) {
@@ -191,8 +191,8 @@ common:
     }
     UpdateBadgeRowAnim(0);
     UpdateBadgeRowAnim(1);
-    if (func_8003FBA8(0) > 0) {
-        func_8002B12C(160, 144, 8, 1, ovl662_D_801272E4, -1, ovl662_D_801272E0 + 1);
+    if (UpdateImageRow(0) > 0) {
+        DrawMenuStepArrows(160, 144, 8, 1, ovl662_D_801272E4, -1, ovl662_D_801272E0 + 1);
     }
     UpdateScreenFade(0x1008E);
 }

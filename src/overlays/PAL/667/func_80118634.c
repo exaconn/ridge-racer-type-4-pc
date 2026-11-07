@@ -1,23 +1,23 @@
 #include "rr/menu_text_rows.h"
 #include "rr/overlay_menu.h"
-extern s32 D_800F2DE4;
+extern s32 ModeFrame;
 extern s16 MenuCursor;
 extern s16 MenuItemCount;
 extern s32 ovl667_D_80118E2C[22];
-extern s32 D_800F4C64;
+extern s32 TotalRaceTime;
 extern s16 NumCars;
 extern s16 D_8010C070[8];
 extern s16 D_8010C080[8];
 extern s16 D_8010C0C8[8];
-extern s16 D_800FF688;
-extern void func_8002AF8C(s32, s32, s32);
+extern s16 LinkState;
+extern void SetMenuFrameOptions(s32, s32, s32);
 
 void ovl667_func_80118634(void) {
     s32 i;
 
     /* The active participant count is0..8; order entries and the preexisting
      * inverse position for participant0 are valid slots0..7. */
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     InitMenuTextRows(D_800FFC48);
     MenuCursor = 0;
     MenuItemCount = 3;
@@ -30,7 +30,7 @@ void ovl667_func_80118634(void) {
     for (i = 33; i < 44; i++) {
         SetMenuTextRow(i, i - 33, 2, 0, ovl667_D_80118E2C[i - 22]);
     }
-    if (D_800F4C64 >= 0) {
+    if (TotalRaceTime >= 0) {
         for (i = 0; i < NumCars; i++) {
             D_8010C070[D_8010C0C8[i]] = i;
         }
@@ -38,6 +38,6 @@ void ovl667_func_80118634(void) {
             D_8010C080[D_8010C070[0]]++;
         }
     }
-    D_800FF688 = 0;
-    func_8002AF8C(0, 1, 0);
+    LinkState = 0;
+    SetMenuFrameOptions(0, 1, 0);
 }

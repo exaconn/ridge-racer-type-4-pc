@@ -1,6 +1,6 @@
 /* CC1_FLAGS: -fno-strength-reduce */
 #include "rr/selection.h"
-void func_80039F98(void) {
+void UpdateSelectionRank(void) {
  register u8 *first_page=(u8 *)0x800B0000U;
  register RrSelectionStatePrefix *first;
  /* ASM_BARRIER: reuse V0 for word intermediates whose lifetimes end before publication. */

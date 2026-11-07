@@ -250,5 +250,5 @@ void CD_initintr(void) {
         base[0x6494 / 4] = 0;
     }
     ResetCallback();
-    InterruptCallback(2, func_8008DDAC);
+    InterruptCallback(2, CdCommandCallback);
 }

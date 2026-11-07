@@ -38,7 +38,7 @@ typedef struct {State s;unsigned calls;Event events[40];} World;
 static World world,initial,expected;static u16 textData[32];static unsigned scenario,mutation,kind;
 #define ovl665_D_80119768 world.s.visual
 #define ovl665_D_80119760 world.s.local
-#define D_800ACC68 world.s.work
+#define ScreenFadeState world.s.work
 #define BadgeRows world.s.badges[world.s.badgeRoot]
 #define D_800AC590 (&world.s.text[world.s.textRoot])
 #define D_800ACC14 ((RrIconSpriteContext*)&world.s.frames[world.s.frameRoot])
@@ -79,11 +79,11 @@ static void change(void){if(mutation)effect();}
 void ClearScreenOverlayState(void){event(1);change();}
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){Event *v=event(2);s32 args[]={a,b,c,d,e,f,g,h,i,j};memcpy(v->args,args,sizeof(args));change();}
 void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){Event *v=event(3);s32 args[]={a,b,c,d,e,f,g};memcpy(v->args,args,sizeof(args));change();}
-void func_8002AF8C(s32 a,s32 b,s32 c){Event *e=event(4);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){Event *e=event(4);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
 void ovl665_func_80115C8C(void){event(5);change();}
 void func_8005B2D4(s32 mode){event(6)->args[0]=mode;change();}
 void PlaySfx(s32 sound){event(7)->args[0]=sound;change();}
-void func_800207D4(u32 *head,s32 intensity,u32 mode){Event *e=event(8);assert(head==world.s.frames[world.s.frameRoot].ordering70);e->args[0]=intensity;e->args[1]=mode;*head^=(u32)intensity;change();}
+void AddScreenFadeTiles(u32 *head,s32 intensity,u32 mode){Event *e=event(8);assert(head==world.s.frames[world.s.frameRoot].ordering70);e->args[0]=intensity;e->args[1]=mode;*head^=(u32)intensity;change();}
 void ovl665_func_80114A24(void){event(9);change();}
 void *func_8001FF84(u32 *head,void *cursor,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
  Event *e=event(10);unsigned n=world.s.glyphCalls,i;GlyphStorage *p;int arena=-1;
@@ -104,7 +104,7 @@ void DrawHudDigit(s32 glyph,s32 x,s32 y,s32 color){
  world.s.pairCalls++;change();world.s.scratch.pointers.cursor=pair_cursor();
 }
 void UpdateBadgeRowAnim(s32 row){event(12)->args[0]=row;change();}
-void func_80032A14(s32 x,s32 y,RrMenuTextState *text){Event *e=event(13);assert(text==D_800AC590);e->args[0]=x;e->args[1]=y;change();}
+void UpdateDialogue(s32 x,s32 y,RrMenuTextState *text){Event *e=event(13);assert(text==D_800AC590);e->args[0]=x;e->args[1]=y;change();}
 void UpdateScreenFade(s32 flags){event(14)->args[0]=flags;change();}
 static void command(RrGpuSingleCommandPacket *p,u32 value){
  u32 *head=world.s.frames[world.s.frameRoot].ordering70;u32 old=*head;
@@ -116,13 +116,13 @@ static void reference(void){unsigned i;State *s=&world.s;
  if(!kind){static const s32 rows[8][6]={{56,160,64,0,1,22},{128,160,64,0,0,109},{200,160,64,0,1,23},{92,360,64,0,0,110},{164,360,64,0,0,111},{128,80,52,1,0,106},{200,80,28,1,0,107},{200,120,28,1,0,108}};
   ClearScreenOverlayState();for(i=0;i<8;i++)InitUiRow(i,rows[i][0],rows[i][1],rows[i][2],32,0,0,rows[i][3],rows[i][4],rows[i][5]);
   s->work[0]=2;InitBadgeRow(0,16,96,76,40,0,3329);s->local=0;BadgeRows[0].half02=1;
-  for(i=0;i<3;i++)s->visual.view74.position00.words[i]=0;s->visual.view74.rotation10=0;s->visual.view74.rotation12=0;s->visual.view74.rotation14=0;s->visual.reset2C=0;func_8002AF8C(1,1,0);return;
+  for(i=0;i<3;i++)s->visual.view74.position00.words[i]=0;s->visual.view74.rotation10=0;s->visual.view74.rotation12=0;s->visual.view74.rotation14=0;s->visual.reset2C=0;SetMenuFrameOptions(1,1,0);return;
  }
  {s32 phase=s->visual.layout0C;
   if(phase==0){ovl665_func_80115C8C();func_8005B2D4(0);s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
   else if(phase==1){if(BadgeRows[0].state10==3)s->visual.layout0C=2;}
   else if(phase==2){if(s->accept){PlaySfx(1);BadgeRows[0].state10=4;s->fade=64;s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}}
-  else if(phase==3){s->fade=half((s32)s->fade-1);func_800207D4(s->frames[s->frameRoot].ordering70,(64-(s32)s->fade)*4,69);if(s->fade<=0&&BadgeRows[0].state10==11){ovl665_func_80114A24();s->visual.layout0C=0;s->visual.scene00=wrap((int64_t)s->visual.scene00-1);return;}}
+  else if(phase==3){s->fade=half((s32)s->fade-1);AddScreenFadeTiles(s->frames[s->frameRoot].ordering70,(64-(s32)s->fade)*4,69);if(s->fade<=0&&BadgeRows[0].state10==11){ovl665_func_80114A24();s->visual.layout0C=0;s->visual.scene00=wrap((int64_t)s->visual.scene00-1);return;}}
  }
  {void *cursor=s->scratch.pointers.cursor;
   for(i=0;i<8;i++)cursor=func_8001FF84(s->frames[s->frameRoot].ordering70,cursor,24+36*i,144,&s->uv,32568,255-(i*223+6)/7);
@@ -131,7 +131,7 @@ static void reference(void){unsigned i;State *s=&world.s;
  for(i=0;i<8;i++){DrawHudDigit(0,28+36*i,192,128);DrawHudDigit(i+1,34+36*i,192,128);}
  command((RrGpuSingleCommandPacket*)s->scratch.pointers.cursor,0xE1000238U);
  D_800AC590->b4=27;UpdateBadgeRowAnim(0);
- if(BadgeRows[0].state10==3){s32 x=BadgeRows[0].x04,y=BadgeRows[0].y06;func_80032A14(x+10,y+40,D_800AC590);}
+ if(BadgeRows[0].state10==3){s32 x=BadgeRows[0].x04,y=BadgeRows[0].y06;UpdateDialogue(x+10,y+40,D_800AC590);}
  UpdateScreenFade(65660);
 }
 int main(void){unsigned i,j;

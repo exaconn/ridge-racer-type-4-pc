@@ -2,15 +2,15 @@
 
 extern void func_8004C5A4(s32, s32, const char *, s32, s32);
 
-extern s32 func_8004C73C(s32, s32, char *, s32, s32);
+extern s32 DrawFontStringCentered(s32, s32, char *, s32, s32);
 
-extern s32 func_8004C7E8(s32, s32, char *, s32, s32);
+extern s32 DrawFontStringCenteredOffset(s32, s32, char *, s32, s32);
 
 extern void func_8004C928(s32);
 
-extern void func_80059700(s16 *, s32, s32);
+extern void DrawGlyphList(s16 *, s32, s32);
 
-extern void func_80059904(s16 *, s32, s32);
+extern void DrawGlyphListSloped(s16 *, s32, s32);
 
 extern void func_80059B1C(u8 *, s32, s32, s32);
 
@@ -34,7 +34,7 @@ extern char D_800A095C[];
 
 extern s32 D_800A0C9C[];
 
-extern char D_800A1830[];
+extern char CourseNames[];
 
 extern s16 *D_800A18F0[];
 
@@ -149,13 +149,13 @@ s32 func_80059E40(s32 arg0) {
             func_8004D290(sp40, sp48, 1, 0);
         }
 
-        func_80059700(D_800A18F0[s2], sp18[1], 0);
-        func_80059700(D_800A1910[s2], sp18[1], 0);
-        func_80059700(D_800A1930[s2], sp18[2], 0);
-        func_80059904(D_800A1970[D_8010E230], sp18[2], 0);
+        DrawGlyphList(D_800A18F0[s2], sp18[1], 0);
+        DrawGlyphList(D_800A1910[s2], sp18[1], 0);
+        DrawGlyphList(D_800A1930[s2], sp18[2], 0);
+        DrawGlyphListSloped(D_800A1970[D_8010E230], sp18[2], 0);
         func_80059D34(0, sp18[3]);
         func_8004C5A4(0x9A, 0xA0, D_80011228, sp18[4], 0);
-        s0_1 = func_8004C73C(0x60, 0xB0, D_800A1830 + D_800F3914 * 0x18, sp18[4], 0) / 2;
+        s0_1 = DrawFontStringCentered(0x60, 0xB0, CourseNames + D_800F3914 * 0x18, sp18[4], 0) / 2;
         func_8004C5A4(0x9A - s0_1, 0xB0, D_8001122C, sp18[4], 0);
         func_8004C5A4(0xA2 + s0_1, 0xB0, D_80011230, sp18[4], 0);
         func_8004C928(0);
@@ -234,7 +234,7 @@ s32 func_80059E40(s32 arg0) {
         }
 
         s2 -= 8;
-        func_80059700(D_800A19A4[s2], sp18[1], 0);
+        DrawGlyphList(D_800A19A4[s2], sp18[1], 0);
 
         sp50[0] = 0x48;
         sp50[1] = 0x38;
@@ -260,7 +260,7 @@ s32 func_80059E40(s32 arg0) {
         }
 
         func_8004C5A4(0x9A, 0x48, D_80011228, sp18[2], 0);
-        s0_2 = func_8004C73C(0x60, 0x58, D_800A1830 + D_800F3914 * 0x18, sp18[2], 0) / 2;
+        s0_2 = DrawFontStringCentered(0x60, 0x58, CourseNames + D_800F3914 * 0x18, sp18[2], 0) / 2;
         func_8004C5A4(0x9A - s0_2, 0x58, D_8001122C, sp18[2], 0);
         func_8004C5A4(0xA2 + s0_2, 0x58, D_80011230, sp18[2], 0);
         func_8004C928(0);
@@ -304,7 +304,7 @@ s32 func_80059E40(s32 arg0) {
                 func_8004C5A4(0x78, 0xC8, D_8001123C, sp18[5], 0);
             }
         } else {
-            s0_3 = 0x88 - func_8004C7E8(0x14, 0xC8, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), sp18[5], 0) / 2;
+            s0_3 = 0x88 - DrawFontStringCenteredOffset(0x14, 0xC8, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), sp18[5], 0) / 2;
             func_80059B1C(D_800A1A68, s0_3, 0xC8, sp18[5]);
             func_80096484(sp30, D_80011234, SoundState.w28a4);
             func_8004C5A4(s0_3 + 0xE, 0xC8, sp30, sp18[5], 0);

@@ -99,7 +99,7 @@ done:
     for (i = 0; i < 64; i++) {
         if (D_80110350[i].name[0] == 0)
             break;
-        if (func_8008E15C(D_80110350[i].name, buf)) {
+        if (_cmp(D_80110350[i].name, buf)) {
             if (CD_debug >= 2)
                 func_8001E84C(D_80011BA8, buf);
             *fp = D_80110350[i];

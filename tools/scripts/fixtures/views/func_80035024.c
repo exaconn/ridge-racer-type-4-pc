@@ -14,13 +14,13 @@
 
 #define D_800F3A38 (*(T38 (*))&D_800F3A38)
 
-#define D_800FF688 (*(unsigned short (*))&D_800FF688)
+#define LinkState (*(unsigned short (*))&LinkState)
 
 #undef _sio_control
 
 #undef D_800F3A38
 
-#undef D_800FF688
+#undef LinkState
 
 /* legacy typing of shared globals in this part of the unit */
 #define _sio_control ((unsigned (*)())_sio_control)
@@ -45,11 +45,11 @@ extern int PlaySfx();
 
 extern int _sio_control();
 
-extern s16 D_800FF688;
+extern s16 LinkState;
 
 extern int D_8009F728;
 
-extern signed char D_800ABEBC[];
+extern signed char LinkEntryState[];
 
 extern signed char D_800ABEBE;
 
@@ -59,7 +59,7 @@ extern short D_800AD508;
 
 extern int D_800F3A64;
 
-int func_80035024(int a0)
+int UpdateLinkHandshake(int a0)
 {
   int r = 0;
   long new_var2;
@@ -74,7 +74,7 @@ int func_80035024(int a0)
   signed char *new_var;
   unsigned int k = (_sio_control(0, 0, 0) >> 7) & 3;
   short new_var3;
-  st = (short) (D_800FF688 + 1);
+  st = (short) (LinkState + 1);
   switch (st)
   {
     case 1:
@@ -86,7 +86,7 @@ int func_80035024(int a0)
         D_800AD508 = 0;
         D_800ABEBE = 1;
         D_8009F728 = 3;
-        D_800FF688 = 10;
+        LinkState = 10;
       }
       else
       {
@@ -98,13 +98,13 @@ int func_80035024(int a0)
       if (a0 == 0)
     {
       D_800AD508 = 1;
-      D_800ABEBC[0] = 1;
-      D_800FF688 = 1;
+      LinkEntryState[0] = 1;
+      LinkState = 1;
     }
     else
       if (k != 1)
     {
-      D_800FF688 = 1;
+      LinkState = 1;
     }
     else
     {
@@ -119,7 +119,7 @@ int func_80035024(int a0)
       D_8009F728 -= 1;
       if (k == 1)
       {
-        D_800FF688 = 2;
+        LinkState = 2;
         D_8009F728 = 0;
       }
     }
@@ -129,7 +129,7 @@ int func_80035024(int a0)
     }
       break;
       s2:
-    D_800FF688 = 2;
+    LinkState = 2;
 
       break;
 
@@ -141,7 +141,7 @@ int func_80035024(int a0)
     else
       if (k == 2)
     {
-      D_800FF688 = k;
+      LinkState = k;
       D_8009F728 = 4;
     }
       break;
@@ -159,7 +159,7 @@ int func_80035024(int a0)
     else
       if (a0 == 0)
     {
-      new_var = D_800ABEBC;
+      new_var = LinkEntryState;
       xx = D_800AD508;
       z = 3;
       new_var2 = xx * 2;
@@ -181,7 +181,7 @@ int func_80035024(int a0)
         }
         if (D_800F3A64 != 0)
         {
-          D_800ABEBC[1 - (q3 = D_800AD508)] = -1;
+          LinkEntryState[1 - (q3 = D_800AD508)] = -1;
           _sio_control(1, 1, 0, q3);
         }
       }
@@ -197,13 +197,13 @@ int func_80035024(int a0)
       D_800AC5A4 = v;
       if (v <= 0)
       {
-        D_800FF688 = 4;
+        LinkState = 4;
         _sio_control(1, 1, 2);
       }
       else
-        if (D_800ABEBC[3 - (D_800AD508 * 2)] != 0)
+        if (LinkEntryState[3 - (D_800AD508 * 2)] != 0)
       {
-        D_800FF688 = 3;
+        LinkState = 3;
         _sio_control(1, 1, 2);
       }
     }
@@ -232,7 +232,7 @@ int func_80035024(int a0)
       c5:
     if (a0 != 2)
     {
-      D_800FF688 = 0;
+      LinkState = 0;
     }
 
       r = 1;
@@ -242,7 +242,7 @@ int func_80035024(int a0)
       r = -1;
       break;
       m1:
-    *((short *) (&D_800FF688)) = -1;
+    *((short *) (&LinkState)) = -1;
 
       break;
 

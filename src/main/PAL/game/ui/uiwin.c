@@ -61,19 +61,19 @@ typedef struct {
 extern int AddDrawModePrim();
 extern void *AddTilePrim();
 extern void *AddSpriteWithDrawMode();
-extern void *func_8002018C();
+extern void *AddJitterSprites();
 extern void *func_80020508();
 extern void InitRect16Row();
-extern int func_8003DCEC();
+extern int UpdateRect16Row();
 extern void func_80043608();
 extern MenuRow1C *GlyphRows;
 extern s32 rsin();
 
-int func_8003E13C(int arg0);
+int UpdateGlyphRow(int arg0);
 void InitUiRow(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g,s32 h,...);
 void func_8003EA04(s32 arg0, s32 arg1, s32 arg2);
 
-int func_8003E13C(int arg0) {
+int UpdateGlyphRow(int arg0) {
     SpriteDesc sp30;
     SpriteDesc sp40;
     MenuRow1C *base;
@@ -113,7 +113,7 @@ int func_8003E13C(int arg0) {
         GlyphRows[arg0].f02 = -5;
         break;
     case -5:
-        if (func_8003DCEC(GlyphRows[arg0].f07) != 0) {
+        if (UpdateRect16Row(GlyphRows[arg0].f07) != 0) {
             GlyphRows[arg0].f02 = -1;
         }
         break;
@@ -121,7 +121,7 @@ int func_8003E13C(int arg0) {
         GlyphRows[arg0].f03 = 0;
         GlyphRows[arg0].f02 = -7;
     case -7:
-        func_8003DCEC(GlyphRows[arg0].f07);
+        UpdateRect16Row(GlyphRows[arg0].f07);
         if (GlyphRows[arg0].f03 >= 0x14) {
             GlyphRows[arg0].f02 = -1;
             GlyphRows[arg0].f03 = 0;
@@ -143,12 +143,12 @@ int func_8003E13C(int arg0) {
         } else {
             GlyphRows[arg0].f03++;
         }
-        func_8003DCEC(GlyphRows[arg0].f07);
+        UpdateRect16Row(GlyphRows[arg0].f07);
         break;
     case 0:
         a1 = *(void **)SCRATCHPAD;
         if ((unsigned short)s5 >= 3) {
-            a1 = func_8002018C(D_800ACC14 + 0x70, a1, &sp30, 1, 0xFF, 3);
+            a1 = AddJitterSprites(D_800ACC14 + 0x70, a1, &sp30, 1, 0xFF, 3);
         }
         *(void **)SCRATCHPAD = AddTilePrim(
             D_800ACC14 + 0x74,
@@ -170,8 +170,8 @@ int func_8003E13C(int arg0) {
         }
         break;
     case 1:
-        a1 = func_8002018C(D_800ACC14 + 0x70, *(void **)SCRATCHPAD, &sp30, 1, (0x80 - s5) * 2, 2);
-        a1 = func_8002018C(D_800ACC14 + 0x70, a1, &sp40, 1, s5, 1);
+        a1 = AddJitterSprites(D_800ACC14 + 0x70, *(void **)SCRATCHPAD, &sp30, 1, (0x80 - s5) * 2, 2);
+        a1 = AddJitterSprites(D_800ACC14 + 0x70, a1, &sp40, 1, s5, 1);
         *(void **)SCRATCHPAD = AddTilePrim(
             D_800ACC14 + 0x7C,
             a1,
@@ -347,7 +347,7 @@ void func_8003EA04(s32 arg0, s32 arg1, s32 arg2) {
         /* ASM_BARRIER: Keep unused b17 load live and reload UiRows without a branch basic-block boundary */
         __asm__("" : "=m"(UiRows) : "r"(b), "r"(d));
         *(s32 *)SCRATCHPAD = s3;
-        func_8003F920(arg1, arg2, s6 - d, UiRows[arg0].sA, 0xCE, 0xCE, 0xCE);
+        DrawUiBox(arg1, arg2, s6 - d, UiRows[arg0].sA, 0xCE, 0xCE, 0xCE);
     }
 }
 

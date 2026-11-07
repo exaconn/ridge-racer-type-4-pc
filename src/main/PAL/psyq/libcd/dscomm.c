@@ -22,18 +22,18 @@ extern RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback);
 extern s32 CdPosToInt(void *);
 extern s32 func_800963DC(const char *,...);
 extern const char D_80011D28[];
-extern void func_8008EA9C(void);
+extern void cb_data(void);
 extern void CdFlush(void);
 extern const char D_80011D40[];
 extern const char D_80011D58[];
 extern volatile u32 D_800A67BC;
 extern RrLibCompletionCallback volatile D_800A67DC;
 
-void func_8008E828(s32 event,u8 *data);
-void func_8008EA9C(void);
+void cb_read(s32 event,u8 *data);
+void cb_data(void);
 s32 CdRead(s32 sectors,u8 *buffer,u32 mode);
 
-void func_8008E828(s32 event,u8 *data) {
+void cb_read(s32 event,u8 *data) {
     u8 header[12];
     register volatile RrLibReadRequestState *initial=&D_800A67B0;
     register volatile RrLibReadRequestState *state;
@@ -58,7 +58,7 @@ void func_8008E828(s32 event,u8 *data) {
                     CdDataCallback(0);
                     CdGetSector2(header,3);
                     CdDataSync(0);
-                    CdDataCallback(func_8008EA9C);
+                    CdDataCallback(cb_data);
                 } else {
                     CdGetSector(header,3);
                 }
@@ -107,7 +107,7 @@ void func_8008E828(s32 event,u8 *data) {
     __asm__("" : "+r"(state));
     state->retry18=now;
     if (state->remaining14<0) {
-        func_8008EB6C(1);
+        cd_read_retry(1);
     }
     now=VSync(-1);
     if ((s32)(state->start1C+1200U)<now) {
@@ -138,7 +138,7 @@ void func_8008E828(s32 event,u8 *data) {
 #define CdSyncCallback ((void (*)(RrLibCompletionCallback))CdSyncCallback)
 #define func_8008E7F4 ((void (*)(void))func_8008E7F4)
 
-void func_8008EA9C(void) {
+void cb_data(void) {
     register volatile RrLibTransferState38 *state = &D_800A67B0;
     /* ASM_BARRIER: Keep the complete state address in its saved register. */
     __asm__("" : "=r"(state) : "0"(state));
@@ -167,7 +167,7 @@ void func_8008EA9C(void) {
 #undef CdSyncCallback
 #undef func_8008E7F4
 
-s32 func_8008EB6C(s32 restart) {
+s32 cd_read_retry(s32 restart) {
     u8 mode_byte;
     register u32 requested;
     register RrLibReadRequestState *state;
@@ -238,7 +238,7 @@ failed:
     completed = CdPosToInt(CdLastPos());
     /* ASM_BARRIER: the success-state address is formed after decoding. */
     __asm__("" : : : "$16");
-    callback = (RrLibCompletionCallback)func_8008E828;
+    callback = (RrLibCompletionCallback)cb_read;
     state = &D_800A67B0;
     /* ASM_BARRIER: stage the callback address before the state address, then
      * publish the decoded sector in the callback setter's delay slot. */
@@ -247,7 +247,7 @@ failed:
     CdReadyCallback(callback);
     command = 6;
     if (CD_read_dma_mode & 1) {
-        CdDataCallback(func_8008EA9C);
+        CdDataCallback(cb_data);
         command = 6;
     }
     state->position08 = state->buffer04;
@@ -260,7 +260,7 @@ failed:
 /* legacy typing of shared globals in this part of the unit */
 #define func_8008E7F4 ((void (*)(void))func_8008E7F4)
 
-void func_8008ED54(void) {
+void CdReadBreak(void) {
     volatile RrLibReadRequestState *root;
     /* ASM_BARRIER: form the completion-publication address in its original temporary. */
     register RrLibReadRequestState *publish __asm__("$2");
@@ -429,7 +429,7 @@ timeout:
         __asm__("" : "+r"(parameters) : "r"(command));
         CdControlB(command,parameters,0);
     }
-    result=func_8008EB6C(0)>0;
+    result=cd_read_retry(0)>0;
     /* ASM_BARRIER: finish the Boolean result before restoring saved temporaries. */
     __asm__("" : "+r"(result) : : "$17", "$19");
     return result;

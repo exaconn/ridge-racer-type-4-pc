@@ -15,6 +15,6 @@ s32 __fixdfsi(u64 bits);
 
 /* Encoding comparison: -1 when left precedes right, otherwise0. Both signed
  * zeros compare equal; NaN payloads follow the original magnitude ordering. */
-s32 func_8007E3B4(u64 left, u64 right);
+s32 __ltdf2(u64 left, u64 right);
 
 #endif

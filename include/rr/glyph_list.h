@@ -8,7 +8,7 @@ extern RrUiUvRect D_800A1090[50],D_800A1158[40];
 #ifndef RR_GLYPH_SCRATCH
 #define RR_GLYPH_SCRATCH ((RrGpuScratchPointers*)0x1F800000U)
 #endif
-void func_80059700(s16*,s32,s32);
+void DrawGlyphList(s16*,s32,s32);
 /* Readable signed16 x/y, then glyph/gap pairs and a negative terminator.
  * Bank0 selects primary glyph0..49; every nonzero bank selects0..39.
  * Glyph0x400..0x427 always selects the secondary40-entry font. Each glyph

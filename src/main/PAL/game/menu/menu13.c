@@ -22,15 +22,15 @@ typedef struct {
 extern int PlaySfx();
 extern int D_800F3A60;
 extern char *BadgeRows;
-extern char *D_800FF68C;
+extern char *Dialogue;
 extern int AddSpriteWithDrawMode();
 
-void func_80032A14(int a0, int a1, S *s);
-void func_80032DF0(void *arg0);
+void UpdateDialogue(int a0, int a1, S *s);
+void SkipDialoguePage(void *arg0);
 int DecodeCourseIndex(s32 a0);
 void func_80032EC8();
 
-void func_80032A14(int a0, int a1, S *s) {
+void UpdateDialogue(int a0, int a1, S *s) {
     unsigned short *p;
     int i;
     int v;
@@ -81,7 +81,7 @@ void func_80032A14(int a0, int a1, S *s) {
         c = s->i18;
         if (c >= e) {
             if (s->b7 == 1) {
-                func_80032964(a0 + 0x10D, a1 + 0x58);
+                DrawDialogueContinueMark(a0 + 0x10D, a1 + 0x58);
                 if (D_800F3A60 == 0) {
                     goto call1;
                 }
@@ -142,7 +142,7 @@ tail1:
             s->sE = 1;
             s->st = 1;
             if (s->b9 == (signed char)s->b8) {
-                D_800FF68C[7] = 0;
+                Dialogue[7] = 0;
             }
             break;
         }
@@ -158,7 +158,7 @@ tail1:
     }
 }
 
-void func_80032DF0(void *arg0) {
+void SkipDialoguePage(void *arg0) {
     if (M2C_FIELD(arg0, s32 *, 0x18) < M2C_FIELD(arg0, s16 *, 0xC)) {
         if (D_800F3A60 != 0) {
             if (M2C_FIELD(arg0, s8 *, 6) != 4) {
@@ -175,7 +175,7 @@ void func_80032DF0(void *arg0) {
 }
 
 s32 DecodeCourseIndex(s32 a0) {
-    D_800AD522 = a0 >= 8;
+    ReverseCourse = a0 >= 8;
     return D_8009F64C[a0 & 7];
 }
 

@@ -29,18 +29,18 @@ static unsigned scenario,calls,reference_calls;static u8 arenas[3][64],packets[6
 #define BadgeRows world.root
 #define ovl666_available_courses world.table
 #define D_800ACBD0 world.grid
-#define D_800F4D98 world.choice
+#define SelectionRows world.choice
 #define D_800F4D40 world.base
 #define LoadCursor world.published
-#define D_800F2DE4 world.frame
+#define ModeFrame world.frame
 #define ScreenFrame world.pulse
 #define ovl666_selected_course world.index
 #define ovl666_preview_phase world.local
 #define D_800F3826 world.row
 #define MenuItemCount world.mode
 #define MenuCursor world.flag
-#define D_800F3A2C world.clear1
-#define D_800F4D7C world.clear2
+#define MenuScriptStep world.clear1
+#define LoadState world.clear2
 '''+bodies+r'''
 static u32 rng=0x15A88;static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
 static s16 half(u32 x){u16 n=(u16)x;s16 v;memcpy(&v,&n,2);return v;}
@@ -60,7 +60,7 @@ void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){
 void SetupRenderer(s32 shift){assert(shift==5);boundary(2);}
 void func_80037110(void){boundary(3);}
 void ResetCarState(RrRaceVehicle*p){assert(p==world.cars);assert((uintptr_t)p>UINT32_MAX);boundary(4);}
-void func_8002AF8C(s32 a,s32 b,s32 c){assert(a==0&&b==1&&c==1);boundary(5);}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){assert(a==0&&b==1&&c==1);boundary(5);}
 static void event(void){unsigned n=reference_calls++;assert(n<6);checkpoint[n]=expected;effect(&expected,n);}
 static void reference(void){unsigned n;int glyph,t;
  expected.frame=expected.pulse=expected.index.word=expected.local=0;expected.flag=0;expected.mode=2;

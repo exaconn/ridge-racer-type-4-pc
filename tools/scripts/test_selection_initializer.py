@@ -32,7 +32,7 @@ typedef struct {
  RrCourseChoice4 table[2][2][9];s16 counts[2][2],group[2],index[2];RrMenuGridPoint point[4];u32 tail[4];
 } State;
 static State actual,reference,*w;
-#define D_800F2DE4 w->frame
+#define ModeFrame w->frame
 #define ScreenFrame w->tick
 #define D_800AC5D4 w->player
 #define MenuCursor w->selection
@@ -44,7 +44,7 @@ static State actual,reference,*w;
 #define LoadCursor w->published
 #define D_800F4D70 w->arenas
 #define PlayerCars w->vehicles
-#define D_800F4D98 w->selectionRows
+#define SelectionRows w->selectionRows
 #define D_8010BFD8 w->table
 #define D_8010C0C0 w->counts
 #define D_8010C0D8 w->group

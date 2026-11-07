@@ -5,7 +5,7 @@
 #include "psyq/libapi/intrdisp.h"
 #include "rr/spu_tick_control.h"
 
-extern s32 func_80096F84(s32);
+extern s32 ChangeClearPAD(s32);
 extern s32 ChangeClearRCnt(s32,s32);
 extern void ResetEntryInt();
 extern void HookEntryInt(void *data);
@@ -136,7 +136,7 @@ RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback) {
     }
     if(selector==0) {
         disabled=requested==0;
-        func_80096F84(disabled);
+        ChangeClearPAD(disabled);
         ChangeClearRCnt(3,disabled);
     }
     if(selector==4)ChangeClearRCnt(0,requested==0);

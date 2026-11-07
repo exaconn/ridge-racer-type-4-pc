@@ -15,7 +15,7 @@ extern RrGpuRectangle *D_800ACC14;
  * Each tile captures the current context after packet initialization. Height
  * is read after x, then again after y/width and before RGB writes. The cursor
  * is published before the final helper and replaced with its returned pointer. */
-void func_800207D4(u32 *ordering, s32 intensity, u32 mode);
+void AddScreenFadeTiles(u32 *ordering, s32 intensity, u32 mode);
 
 RR_ASSERT_SIZE(RrGpuTilePacket16, 16);
 RR_ASSERT_OFFSET(RrGpuTilePacket16, b, 6);

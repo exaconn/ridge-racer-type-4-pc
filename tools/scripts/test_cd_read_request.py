@@ -127,7 +127,7 @@ RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback c){return setter
 RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback c){return setter(0,2,c);}
 u8 CdStatus(void){return status(0);}
 s32 CdControlB(s32 c,const u8 *p,u8 *r){return command(0,c,p,r);}
-s32 func_8008EB6C(s32 arg){return begin(0,arg);}
+s32 cd_read_retry(s32 arg){return begin(0,arg);}
 static s32 reference(s32 sectors,u8 *buffer,u32 mode) {
     if(expected.state.finished24) {
         u32 started=(u32)tick(1,-1);

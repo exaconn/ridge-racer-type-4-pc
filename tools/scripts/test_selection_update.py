@@ -6,7 +6,7 @@ s=(root/'tools/scripts/fixtures/legacy/func_80039F98.c').read_text();s=re.sub(r'
 s=re.sub(r' asm\("\$\d+"\)','',s);s=re.sub(r'__asm__\("".*?\);','',s)
 s,n=re.subn(r'\(u8 \*\)0x800B0000U','(actual+0x2B28)',s);assert n==3,n
 s,n=re.subn(r'\(u8 \*\)0x800F0000U','((u8*)&row_owner)',s);assert n==1,n
-s=s.replace('void func_80039F98(void)', 'void candidate(void)')
+s=s.replace('void UpdateSelectionRank(void)', 'void candidate(void)')
 helper=(root/'tools/scripts/fixtures/legacy/func_8003989C.c').read_text();helper=re.sub(r'extern[^;]*;','',helper)
 code=r'''
 #include <assert.h>
@@ -21,9 +21,9 @@ static u8 actual[0x3000],expected[0x3000],rom[2048];
 static struct {u8 prefix[0x4D98];RrSelectionRows value;u8 guard[16];} row_owner;
 #define native_rows_value row_owner.value
 static RrSelectionRows expected_rows;
-#define D_800AD4D8 ((s8*)actual)
+#define SelectionState ((s8*)actual)
 #define D_800AD4EC actual[0x14]
-#define D_800F4D98 native_rows_value
+#define SelectionRows native_rows_value
 #define D_8009F81C (rom+128)
 #define D_8009F82C ((s8*)rom+144)
 #define D_8009F810 (rom+116)

@@ -30,14 +30,14 @@ typedef struct {State s;Event events[5];unsigned calls;} World;
 static World actual,reference,initial,*w;
 static u8 arena[3][128],palettes[3][25*0x840];
 static unsigned scenario,mutation,seenMap,seenFlags;
-#define D_800F3920 w->s.save
+#define SaveProgress w->s.save
 #define D_800ABE08 w->s.courses
 #define BadgeRows (w->s.badges[w->s.root])
 #define D_800F4D70 w->s.arenas
 #define LoadCursor w->s.published
 #define D_800F3B20 w->s.palette0
 #define D_800F3B24 w->s.palette1
-#define D_800F2DE4 w->s.frame
+#define ModeFrame w->s.frame
 #define ScreenFrame w->s.pulse
 #define MenuCursor w->s.flag
 #define MenuItemCount w->s.layout
@@ -71,7 +71,7 @@ static void change(void){if(mutation)effect(w->calls);}
 void InitRect16Row(s32 a,s16 b,s16 c,s16 d,s16 e,s16 f,s16 g){Event *v=event(1);s32 args[]={a,b,c,d,e,f,g};memcpy(v->args,args,sizeof(args));change();}
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){Event *v=event(2);s32 args[]={a,b,c,d,e,f,g,h,i,j};memcpy(v->args,args,sizeof(args));change();}
 void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){Event *v=event(3);s32 args[]={a,b,c,d,e,f,g};memcpy(v->args,args,sizeof(args));change();}
-void func_8001E854(void *bank,s32 selected,s32 destination){Event *v=event(4);unsigned i,flags=0;
+void UploadCarClut(void *bank,s32 selected,s32 destination){Event *v=event(4);unsigned i,flags=0;
  assert((uintptr_t)bank>UINT32_MAX);for(i=0;i<3&&bank!=palettes[i];i++){}assert(i<3);assert(selected>=0&&selected<25);
  v->args[0]=i;v->args[1]=selected;v->args[2]=destination;
  assert(w->s.selection>=0&&w->s.selection<=25);if(w==&actual){seenMap|=1U<<w->s.selection;for(i=0;i<4;i++)if(w->s.save.prefix.reserved50.bytes[8+i])flags|=1U<<i;seenFlags|=1U<<flags;}
@@ -87,7 +87,7 @@ static void expected(void){State *s=&w->s;unsigned i;int position;
  s->reset=0;position=s->mode==1?0:s->courses[1][s->course].second;
  s->selection=position;s->index=position>0?position-1:0;
  s->selection=(s8)s->map[s->index];
- func_8001E854(s->selection?s->palette1:s->palette0,s->selection?s->selection-1:0,0);s->current=0;
+ UploadCarClut(s->selection?s->palette1:s->palette0,s->selection?s->selection-1:0,0);s->current=0;
 }
 int main(void){unsigned i;
  for(scenario=0;scenario<65536;scenario++)for(mutation=0;mutation<2;mutation++){

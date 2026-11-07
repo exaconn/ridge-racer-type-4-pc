@@ -46,7 +46,7 @@ void DrawBadgeRow(s32 index) {
             if(callback)call_cursor=D_8009F984[callback-1](order,call_cursor,which);
             cursor=call_cursor;
         }
-        cursor=func_8003D2C4(order,cursor,x,y,status&255);
+        cursor=DrawBadgeTitleBar(order,cursor,x,y,status&255);
         y=y+22;
         row=(RrBadgeRow1C *)((unsigned long)offset+(unsigned long)BadgeRows);
         cursor=AddTilePrim(order,cursor,x,row->y0A+height+20,width,2,white,white,white);

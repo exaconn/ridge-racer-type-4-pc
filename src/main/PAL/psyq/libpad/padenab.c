@@ -12,7 +12,7 @@ extern s32 SysEnqIntRP(s32,void *);
 
 s32 _padChkVsync(void);
 
-int func_80097EA0(void) {
+int _padIntPad(void) {
     s32 first,condition,enabled;
     u32 shifted;
     RrSerialPortRegisters *port=D_800ABCCC;

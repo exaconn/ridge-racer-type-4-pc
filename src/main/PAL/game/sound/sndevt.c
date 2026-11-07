@@ -50,12 +50,12 @@ extern s32 ratan2();
 extern s32 rcos();
 extern s32 rsin();
 
-void func_80051B44(short arg0, short arg1);
-void func_80051BD4(s32 arg0);
-void func_80052024(s32 idx);
+void SoundListenerInit(short arg0, short arg1);
+void SoundFindNearestCars(s32 arg0);
+void SoundCalcCarParams(s32 idx);
 void func_800523C8(int arg0);
 
-void func_80051B44(short arg0, short arg1) {
+void SoundListenerInit(short arg0, short arg1) {
     int t;
     SoundState.a = arg0;
     SoundState.b = arg1;
@@ -81,7 +81,7 @@ void func_80051B44(short arg0, short arg1) {
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(State800F4DB8 (*))&SoundState)
 
-void func_80051BD4(s32 arg0) {
+void SoundFindNearestCars(s32 arg0) {
     s32 d[4];
     s32 min_dist[2];
     s32 min_idx[2];
@@ -191,7 +191,7 @@ void func_80051BD4(s32 arg0) {
 #define ComCars (*(w3t1_E (*)[])&ComCars)
 #define func_80090758 ((s32 (*)())func_80090758)
 
-void func_80052024(s32 idx) {
+void SoundCalcCarParams(s32 idx) {
     w3t1_F f;
     char *B = SoundState;
     char *B2, *B3;
@@ -275,7 +275,7 @@ void func_80052024(s32 idx) {
 
 void func_800523C8(int arg0) {
  int k = arg0 * 3; int t = arg0 + 2; char *v, *s, *b;
- func_80052024(t); b = SoundState; s = b + (((k << 4) + arg0) << 5); v = b + t * 0x1C;
+ SoundCalcCarParams(t); b = SoundState; s = b + (((k << 4) + arg0) << 5); v = b + t * 0x1C;
  *(int *)(s + 0x68) = *(int *)(v + 0x18FC);
  *(unsigned short *)(s + 0x5C) = *(unsigned short *)(v + 0x1900);
  *(unsigned short *)(s + 0x5A) = *(unsigned short *)(v + 0x1902);

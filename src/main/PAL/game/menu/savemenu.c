@@ -22,8 +22,8 @@ extern unsigned char D_800A41E9 __asm__("D_800A41E8+1");
 extern short D_800A41EA __asm__("D_800A41E8+2");
 extern char D_800A45C8[];
 extern char D_800A4648[][0x80];
-extern Struct4000 *D_800ACC0C;
-extern Struct2C D_800AD4D8;
+extern Struct4000 *SaveBuffer;
+extern Struct2C SelectionState;
 extern Struct2C D_800F2E30[3];
 extern short D_800F3AF8;
 extern short D_800F4D3C;
@@ -46,29 +46,29 @@ int a1;
     switch (D_800A41E8) {
     case 0:
         D_800A41EA = 0;
-        func_80096434(D_800ACC0C, 0x1AA8);
+        func_80096434(SaveBuffer, 0x1AA8);
         i = D_800F3970 != 0;
         if (a0 == 1) {
             D_800A41E9 = 1;
             if (D_800F3AF8 < 0x10) {
-                func_80079FF8(D_800ACC0C, D_800A40A8[i], 0x250, 0x1FC, 0x254, 0x1D8, D_800A45C8);
-                func_80079200(D_800F3AF8);
+                BuildCardHeaderStatic(SaveBuffer, D_800A40A8[i], 0x250, 0x1FC, 0x254, 0x1D8, D_800A45C8);
+                BuildSaveData(D_800F3AF8);
             } else if (D_800F3AF8 & 0x10) {
-                func_80079FF8(D_800ACC0C, D_800A4128[D_800F4D3C], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[D_800F4D3C]);
-                func_80079200(D_800F3AF8);
+                BuildCardHeaderStatic(SaveBuffer, D_800A4128[D_800F4D3C], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[D_800F4D3C]);
+                BuildSaveData(D_800F3AF8);
             } else if (D_800F3AF8 == 0x20) {
-                *D_800ACC0C = *CdDirectoryBuffer;
+                *SaveBuffer = *CdDirectoryBuffer;
             }
         } else if (a0 >= 2) {
             D_800A41E9 = 0;
             if (D_800F3AF8 < 0x10) {
-                func_80079FF8(D_800ACC0C, D_800A40A8[i], 0x250, 0x1FC, 0x254, 0x1D8, D_800A45C8);
-                func_80079200(D_800F3AF8);
+                BuildCardHeaderStatic(SaveBuffer, D_800A40A8[i], 0x250, 0x1FC, 0x254, 0x1D8, D_800A45C8);
+                BuildSaveData(D_800F3AF8);
             } else if (D_800F3AF8 & 0x10) {
-                func_80079FF8(D_800ACC0C, D_800A4128[D_800F4D3C], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[D_800F4D3C]);
-                func_80079200(D_800F3AF8);
+                BuildCardHeaderStatic(SaveBuffer, D_800A4128[D_800F4D3C], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[D_800F4D3C]);
+                BuildSaveData(D_800F3AF8);
             } else if (D_800F3AF8 == 0x20) {
-                *D_800ACC0C = *CdDirectoryBuffer;
+                *SaveBuffer = *CdDirectoryBuffer;
             }
         }
         D_800A41E8 = 1;
@@ -80,9 +80,9 @@ int a1;
         for (i = 0x1D; i >= 0; i--) {
         }
         if (D_800F3AF8 == 0x20) {
-            r = CardWriteFile((short)a1, 0, D_800F4D50, D_800ACC0C, 2, D_800A41E9);
+            r = CardWriteFile((short)a1, 0, D_800F4D50, SaveBuffer, 2, D_800A41E9);
         } else {
-            r = CardWriteFile((short)a1, 0, D_800F4D50, D_800ACC0C, 1, D_800A41E9);
+            r = CardWriteFile((short)a1, 0, D_800F4D50, SaveBuffer, 1, D_800A41E9);
         }
         if (r == -1) {
             if (D_800A41EA < 3) {
@@ -101,14 +101,14 @@ int a1;
                 D_800A41E8 = 4;
                 switch (D_800FFC18) {
                 case 3:
-                    D_8010B258[D_800F4D3C] = D_800AD4D8;
+                    D_8010B258[D_800F4D3C] = SelectionState;
                     for (i = 0; i < 3; i++) {
                         D_800F2E30[i] = D_8010B258[i];
                     }
                     break;
                 case 6:
                 case 7:
-                    p = D_800ACC0C;
+                    p = SaveBuffer;
                     D_801272F0[D_800F4D3C] = *(int *)((char *)p + 0x280);
                     break;
                 }

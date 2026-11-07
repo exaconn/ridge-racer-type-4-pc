@@ -5,7 +5,7 @@
 
 
 extern void _SsVmKeyOffNow(int unused_mode);
-extern int D_800A48F8;
+extern int _snd_vmask;
 extern char D_8010F90A[];
 extern char D_8010F90E[];
 extern char D_8010F918[];
@@ -53,7 +53,7 @@ void SsUtAllKeyOff(void) {
         do {
             v1 = s0;
             a1 = c1 << v1;
-            if ((D_800A48F8 & a1) == 0) {
+            if ((_snd_vmask & a1) == 0) {
                 v0 = v1 * 0x36;
                 *(short *)(D_8010F90A + v0) = c18;
                 *(short *)(D_8010F90E + v0) = 0;

@@ -115,7 +115,7 @@ int main(void){unsigned n,i,b,row,bank;uint64_t cases=0;
   memcpy(&expected,&actual,sizeof(actual));
   for(i=0;i<SLOTS;i++)expected.slots[i]=(RrChannelValueRecordB0 *)((unsigned char*)&expected+((unsigned char*)actual.slots[i]-(unsigned char*)&actual));
   eventCount=eventIndex=0;model(bank,row);
-  func_80082FC4(signed32((next()&0xffff0000U)|bank),signed32((next()&0xffff0000U)|row));
+  _SsSndCrescendo(signed32((next()&0xffff0000U)|bank),signed32((next()&0xffff0000U)|row));
   assert(eventIndex==eventCount);check(&actual,&expected);cases++;
  }
  for(i=0;i<6;i++)assert(paths[i]);printf("%llu cases\n",(unsigned long long)cases);return 0;

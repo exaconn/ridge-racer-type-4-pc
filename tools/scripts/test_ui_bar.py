@@ -113,7 +113,7 @@ static void check(int style,s16 count,s32 x,s32 y,int hook,u32 seed,int order_al
     RrSpritePacket *cursor=&actual.pool[seed%64];
     assert((uintptr_t)cursor>0xFFFFFFFFU);
     RrSpritePacket *want=reference(order,cursor,x,y,style);
-    RrSpritePacket *got=func_8003D2C4(order,cursor,x,y,style);
+    RrSpritePacket *got=DrawBadgeTitleBar(order,cursor,x,y,style);
     assert(got==want);
     assert(actual_count==expected_count);
     assert(!memcmp(actual_log,expected_log,actual_count*sizeof(Entry)));

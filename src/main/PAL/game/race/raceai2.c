@@ -22,19 +22,19 @@ typedef struct { int k; short f; } E;
 struct w3g2s { char pad[0x17]; signed char a; char b; signed char c; short d; };
 
 extern int FileWrite();
-extern int D_800F2AA8;
-extern int D_800F2AAC;
+extern int LinkReadHandle;
+extern int LinkWriteHandle;
 extern int ClearScreenOverlayState();
 extern int VSyncThreshold;
-extern int D_800F2DE4;
+extern int ModeFrame;
 extern short D_800F3A26;
-extern short D_800F4C6A;
+extern short ModeGroup;
 extern short D_800F4D8A;
-extern short D_800FF688;
-extern int func_8002AF8C();
+extern short LinkState;
+extern int SetMenuFrameOptions();
 extern int func_80034FC0();
-extern int func_80035024();
-extern s16 D_800F4BE8;
+extern int UpdateLinkHandshake();
+extern s16 MenuScriptId;
 extern char D_800ABEBE[];
 extern char D_800AC648[];
 extern char D_800ACBD8[];
@@ -47,7 +47,7 @@ extern short D_800FFC10;
 extern int AddTextSprites();
 extern int AddDrawModePrim();
 extern int AddTilePrim();
-extern int func_800207D4();
+extern int AddScreenFadeTiles();
 extern char D_80010678[];
 extern char D_80010684[];
 extern short D_800AC5D0;
@@ -62,33 +62,33 @@ extern int func_801154D8();
 extern int func_80118634();
 extern int func_80115388();
 extern int D_8010C0E0;
-extern char D_800ACC68;
+extern char ScreenFadeState;
 extern int ResetScreenCounters();
-extern signed char D_800AD4D8[];
+extern signed char SelectionState[];
 extern E *RankTable[];
 extern int D_800F39C8;
-extern int D_800F4C64;
+extern int TotalRaceTime;
 extern unsigned char D_8009F72C[];
 
-int func_800356A4();
-void func_80035768(void);
-void func_80035844(void);
+int LinkExchange();
+void LinkWaitModeEnter(void);
+void LinkWaitModeUpdate(void);
 void func_8003597C(void);
-void func_80035B84();
-void func_80035E28(void);
-void func_80036030(void);
-void func_80036068(void);
+void LinkErrorModeUpdate();
+void LinkBattleEndModeUpdate(void);
+void StopRaceRumble(void);
+void StopRaceAudioAndRumble(void);
 void func_80036098(void);
 void func_80036174(void);
 void func_80036270(void);
 void func_80036330(void);
-void func_8003645C(void);
+void SortRaceRankTable(void);
 void func_80036538(void);
 void func_800365BC(void);
 void func_800365E4(void);
-void func_8003660C(void);
+void FinishRace(void);
 
-void func_80035478(s32 mode) {
+void DrawLinkEntryScreen(s32 mode) {
     u8 text[4];
     s32 remaining,row,statusY,waitY,labelY;
     s8 status;
@@ -110,19 +110,19 @@ void func_80035478(s32 mode) {
             waitY=row*194+150;
             statusY=row*194+120;
             text[0]=row+((s32)((u32)(D_800AD508^1)<<16)>>15)+49;
-            func_8001F40C(12,labelY,D_80010600);
-            func_8001F40C(88,labelY,text);
-            status=D_800ABEBC[1-mode][row];
+            DrawBigFontString(12,labelY,D_80010600);
+            DrawBigFontString(88,labelY,text);
+            status=LinkEntryState[1-mode][row];
             switch (status) {
             case 0:
-                func_8001F40C(60,statusY,D_8001060C);
+                DrawBigFontString(60,statusY,D_8001060C);
                 break;
             case 1:
-                func_8001F40C(60,statusY,D_80010628);
-                func_8001F40C(60,waitY,D_8001063C);
+                DrawBigFontString(60,statusY,D_80010628);
+                DrawBigFontString(60,waitY,D_8001063C);
                 break;
             case -1:
-                func_8001F40C(60,statusY,D_8001064C);
+                DrawBigFontString(60,statusY,D_8001064C);
                 break;
             }
             row++;
@@ -130,24 +130,24 @@ void func_80035478(s32 mode) {
         row=D_800AC5A4/50;
         text[0]=row/10+48;
         text[1]=row%10+48;
-        func_8001F40C(44,244,text);
-        func_8001F40C(32,244,D_80010658);
+        DrawBigFontString(44,244,text);
+        DrawBigFontString(32,244,D_80010658);
         remaining=(s32)(500U-(u32)D_800AC5A4);
-        func_8001F40C(((s32)((u32)remaining<<8)/500)+32,224,D_80010674);
+        DrawBigFontString(((s32)((u32)remaining<<8)/500)+32,224,D_80010674);
     }
 }
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AD508 (*(short (*))&D_800AD508)
 
-int func_800356A4(a0, a1, a2, a3) int a0, a1, a2, a3;
+int LinkExchange(a0, a1, a2, a3) int a0, a1, a2, a3;
 {
     int r;
     if (D_800AD508 != 0) {
         r = -1;
-        if (FileWrite(D_800F2AAC) == a2) {
+        if (FileWrite(LinkWriteHandle) == a2) {
             if (a3 != 0) {
-                if (FileRead(D_800F2AA8, a0, a2) == a2) goto zero;
+                if (FileRead(LinkReadHandle, a0, a2) == a2) goto zero;
 neg:
                 return -1;
             }
@@ -155,10 +155,10 @@ neg:
         }
         return r;
     }
-    if (FileRead(D_800F2AA8, a1, a2) != a2) goto neg;
+    if (FileRead(LinkReadHandle, a1, a2) != a2) goto neg;
     if (a3 != 0) {
         r = -1;
-        if (FileWrite(D_800F2AAC, a0, a2) != a2) return r;
+        if (FileWrite(LinkWriteHandle, a0, a2) != a2) return r;
     }
 zero:
     return 0;
@@ -167,52 +167,52 @@ zero:
 #undef D_800AD508
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEBC (*(char (*)[])&D_800ABEBC)
+#define LinkEntryState (*(char (*)[])&LinkEntryState)
 
-void func_80035768(void) {
+void LinkWaitModeEnter(void) {
     unsigned a;
     SetDispMask(0);
-    func_8001ECE8(0, 0, 0, 2);
-    D_800ABEBC[0] = 1;
-    D_800ABEBC[1] = 0;
-    D_800ABEBC[2] = 1;
-    D_800ABEBC[3] = 0;
+    SetupDrawDispEnvs(0, 0, 0, 2);
+    LinkEntryState[0] = 1;
+    LinkEntryState[1] = 0;
+    LinkEntryState[2] = 1;
+    LinkEntryState[3] = 0;
     ClearScreenOverlayState();
     D_800AC5A4 = 0x1F4;
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     VSyncThreshold = 0x80;
     D_800F4D8A = 0;
-    D_800FF688 = 0;
+    LinkState = 0;
     a = ((unsigned)_sio_control(0, 0, 0) >> 7) & 3;
     if (a == 3) {
-        D_800F4C6A = 1;
+        ModeGroup = 1;
         D_800F3A26 = a;
         D_800F4D8A = 0;
     } else {
-        D_800F4C6A = 1;
+        ModeGroup = 1;
         D_800F3A26 = 0x1E;
         D_800F4D8A = 0;
     }
 }
 
-#undef D_800ABEBC
+#undef LinkEntryState
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AD508 (*(s16 (*))&D_800AD508)
 
-void func_80035844(void) {
-    D_800F2DE4 += 1;
+void LinkWaitModeUpdate(void) {
+    ModeFrame += 1;
     if (func_80034FC0() != 1) {
-        if (func_80035024(0) != 0) {
-            D_800F4BE8 = 8;
-            D_800F4C6A = 1;
+        if (UpdateLinkHandshake(0) != 0) {
+            MenuScriptId = 8;
+            ModeGroup = 1;
             D_800F3A26 = 0x23;
             D_800F4D8A = 0;
         }
-        func_80035478(D_800AD508);
-        func_80022694(D_800ACC14 + 0x70, 8, 0xF0, 0x138, 0xF0, D_800F2DE4 * 8, 1, 8, 8, 8, 0);
-        func_80022694(D_800ACC14 + 0x70, 8, 0x10C, 0x138, 0x10C, D_800F2DE4 * 8, 1, 8, 8, 8, 0);
-        func_8002AF8C(1, 1, 1);
+        DrawLinkEntryScreen(D_800AD508);
+        AddPartialLine(D_800ACC14 + 0x70, 8, 0xF0, 0x138, 0xF0, ModeFrame * 8, 1, 8, 8, 8, 0);
+        AddPartialLine(D_800ACC14 + 0x70, 8, 0x10C, 0x138, 0x10C, ModeFrame * 8, 1, 8, 8, 8, 0);
+        SetMenuFrameOptions(1, 1, 1);
         UpdateScreenFade(0x1003E);
     }
 }
@@ -220,7 +220,7 @@ void func_80035844(void) {
 #undef D_800AD508
 
 void func_8003597C(void) {
-    int s = D_800FF688;
+    int s = LinkState;
     if (s == 1) goto st1;
     if (s < 2) {
         if (s == 0) goto st0;
@@ -230,47 +230,47 @@ void func_8003597C(void) {
     goto other;
 st0:
     SetDispMask(0);
-    func_80034E84();
+    OpenLinkSerial();
     _sio_control(3, 0, 0);
     _sio_control(5, 0, 0);
     _sio_control(3, 0, 0);
-    D_800FF688 = 1;
+    LinkState = 1;
     return;
 st1:
-    if (func_800356A4(D_800ABEBE, D_800ABEBE - 2, 2, 1) == -1) { D_800FF688 = 3; return; }
-    if (func_800356A4(D_8010C0A0, D_8010C0A0 - 0x18, 0x18, 1) == -1) { D_800FF688 = 3; return; }
-    if (func_800356A4(D_800F4DA0, D_800F4DA0 - 8, 8, 1) == -1) { D_800FF688 = 3; return; }
-    if (func_800356A4(D_800ACBD8, D_800ACBD8 - 8, 8, 1) == -1) { D_800FF688 = 3; return; }
-    if (func_800356A4(D_800F3914, D_800F3914, 2, 0) == -1) { D_800FF688 = 3; return; }
-    if (func_800356A4(D_800AC648, D_800AC648, 2, 0) == -1) { D_800FF688 = 3; return; }
-    if (func_800356A4(NumLaps, NumLaps, 4, 0) == -1) { D_800FF688 = 3; return; }
-    D_800FF688 = 2;
-    func_80034F18();
+    if (LinkExchange(D_800ABEBE, D_800ABEBE - 2, 2, 1) == -1) { LinkState = 3; return; }
+    if (LinkExchange(D_8010C0A0, D_8010C0A0 - 0x18, 0x18, 1) == -1) { LinkState = 3; return; }
+    if (LinkExchange(D_800F4DA0, D_800F4DA0 - 8, 8, 1) == -1) { LinkState = 3; return; }
+    if (LinkExchange(D_800ACBD8, D_800ACBD8 - 8, 8, 1) == -1) { LinkState = 3; return; }
+    if (LinkExchange(D_800F3914, D_800F3914, 2, 0) == -1) { LinkState = 3; return; }
+    if (LinkExchange(D_800AC648, D_800AC648, 2, 0) == -1) { LinkState = 3; return; }
+    if (LinkExchange(NumLaps, NumLaps, 4, 0) == -1) { LinkState = 3; return; }
+    LinkState = 2;
+    CloseLinkSerial();
     SetDispMask(1);
     return;
 st2:
     _sio_control(3, 0, 0);
     D_800FFC10 = 0;
-    D_800F4BE8 = 0xA;
+    MenuScriptId = 0xA;
     D_800AD50A = 0x11A;
-    D_800F4C6A = 1;
+    ModeGroup = 1;
     D_800F3A26 = 0x23;
     D_800F4D8A = 0;
     return;
 other:
-    func_80034F18();
+    CloseLinkSerial();
     SetDispMask(1);
-    D_800F4C6A = 1;
+    ModeGroup = 1;
     D_800F3A26 = 0x2C;
     D_800F4D8A = 0;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2DE4 (*(unsigned int (*))&D_800F2DE4)
+#define ModeFrame (*(unsigned int (*))&ModeFrame)
 #define D_800F3A26 (*(unsigned short (*))&D_800F3A26)
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 
-void func_80035B84()
+void LinkErrorModeUpdate()
 {
   int s3 = D_800F4D8A;
   unsigned int new_var;
@@ -279,10 +279,10 @@ void func_80035B84()
   {
     case 0:
       SetDispMask(0);
-      func_8001ECE8(0, 0, 0, 3);
+      SetupDrawDispEnvs(0, 0, 0, 3);
       VSyncThreshold = 0x80;
-      func_80036068();
-      D_800F2DE4 = 0;
+      StopRaceAudioAndRumble();
+      ModeFrame = 0;
       D_800F4D8A += 1;
       return;
 
@@ -292,14 +292,14 @@ void func_80035B84()
       return;
 
     case 2:
-      D_800F2DE4 += 1;
+      ModeFrame += 1;
       _sio_control(1, 1, 0);
       g = (int *) SCRATCHPAD;
       new_var = *g;
       *g = AddDrawModePrim(D_800ACC14 + 0x70, AddTilePrim(D_800ACC14 + 0x70, AddTextSprites(D_800ACC14 + 0x70, AddTextSprites(D_800ACC14 + 0x70, new_var, 0x78, 0x100, D_80010678, 0x7F38, 0, 1), 0x78, 0x114, D_80010684, 0x7F38, 0, 1), 0, 0, 0x140, 0x200, 0x80, 0, 0), 0x5E);
       if (D_800F3A60 == 0)
     {
-      if (D_800F2DE4 < 0xFB)
+      if (ModeFrame < 0xFB)
       {
         return;
       }
@@ -313,11 +313,11 @@ void func_80035B84()
     {
       D_800AC5D0 = ((unsigned short) D_800AC5D0) - 1;
     }
-      func_800207D4(D_800ACC14 + 0x70, (0x20 - D_800AC5D0) * 8, 0x45);
+      AddScreenFadeTiles(D_800ACC14 + 0x70, (0x20 - D_800AC5D0) * 8, 0x45);
       *((int *) SCRATCHPAD) = AddTilePrim(D_800ACC14 + 0x74, *((int *) SCRATCHPAD), 0, 0, 0x140, 0x200, (0x20 - D_800AC5D0) * 4, 0, 0);
       if (D_800AC5D0 <= 0)
     {
-      D_800F4C6A = 1;
+      ModeGroup = 1;
       D_800F3A26 = s3;
       D_800F4D8A = 0;
     }
@@ -327,15 +327,15 @@ void func_80035B84()
 
 }
 
-#undef D_800F2DE4
+#undef ModeFrame
 #undef D_800F3A26
 #undef D_800F4D8A
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
-#define D_800F2DE4 (*(unsigned int (*))&D_800F2DE4)
+#define ModeFrame (*(unsigned int (*))&ModeFrame)
 
-void func_80035E28(void)
+void LinkBattleEndModeUpdate(void)
 {
   int s = D_800F4D8A;
   int new_var;
@@ -343,9 +343,9 @@ void func_80035E28(void)
   {
     case 0:
       SetDispMask(0);
-      func_8001ECE8(0, 0, 0, 3);
+      SetupDrawDispEnvs(0, 0, 0, 3);
       VSyncThreshold = 0x80;
-      D_800F2DE4 = 0;
+      ModeFrame = 0;
       D_800F4D8A++;
       return;
 
@@ -355,12 +355,12 @@ void func_80035E28(void)
       return;
 
     case 2:
-      D_800F2DE4++;
+      ModeFrame++;
       new_var = *((int *) SCRATCHPAD);
       *((int *) SCRATCHPAD) = AddDrawModePrim(D_800ACC14 + 0x70, AddTextSprites(D_800ACC14 + 0x70, AddTextSprites(D_800ACC14 + 0x70, new_var, 0x78, 0x100, D_80010694, 0x7F38, 0, 1), 0x78, 0x114, D_800106A4, 0x7F38, 0, 1), 0x3E);
       if (D_800F3A60 == 0)
     {
-      if (D_800F2DE4 < 0xFB)
+      if (ModeFrame < 0xFB)
       {
         return;
       }
@@ -374,10 +374,10 @@ void func_80035E28(void)
     {
       D_800AC5D0 = D_800AC5D0 - 1;
     }
-      func_800207D4(D_800ACC14 + 0x70, (0x20 - D_800AC5D0) * 8, 0x45);
+      AddScreenFadeTiles(D_800ACC14 + 0x70, (0x20 - D_800AC5D0) * 8, 0x45);
       if (D_800AC5D0 <= 0)
     {
-      D_800F4C6A = 1;
+      ModeGroup = 1;
       D_800F3A26 = s;
       D_800F4D8A = 0;
     }
@@ -388,18 +388,18 @@ void func_80035E28(void)
 }
 
 #undef D_800F4D8A
-#undef D_800F2DE4
+#undef ModeFrame
 
-void func_80036030(void) {
+void StopRaceRumble(void) {
     PadRumbleStop(0);
     PadRumbleStop(1);
-    func_8004B864(0);
-    func_8004B864(1);
+    PadClearPulse(0);
+    PadClearPulse(1);
 }
 
-void func_80036068(void) {
+void StopRaceAudioAndRumble(void) {
     SoundSetMasterVolume(0, 0);
-    func_80036030();
+    StopRaceRumble();
     D_800F2EC8 = 0;
 }
 
@@ -409,14 +409,14 @@ void func_80036068(void) {
 void func_80036098(void) {
     if (D_800F4D8A == 0) {
         SetDispMask(0);
-        func_80036068();
+        StopRaceAudioAndRumble();
         VSyncThreshold = 0x80;
         D_800F4D8A = 1;
     } else if (D_800F4D8A == 1) {
         D_800F4D8A = 2;
     } else if (D_800F4D8A == 2) {
-        D_800F4BE8 = 6;
-        D_800F4C6A = 1;
+        MenuScriptId = 6;
+        ModeGroup = 1;
         D_800F3A26 = 0x23;
         D_800F4D8A = 0;
     }
@@ -426,11 +426,11 @@ void func_80036098(void) {
 #undef D_800F4D8A
 
 void func_80036174(void) {
-    func_8001ECE8(0, 0, 0, 2);
+    SetupDrawDispEnvs(0, 0, 0, 2);
     VSyncThreshold = 0x80;
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     D_8010C0E0 = 0;
-    D_800ACC68 = 2;
+    ScreenFadeState = 2;
     func_8004F600();
     switch (D_800F4D44) {
     case 1:
@@ -461,14 +461,14 @@ void func_80036174(void) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2DE4 (*(u32 (*))&D_800F2DE4)
+#define ModeFrame (*(u32 (*))&ModeFrame)
 
 void func_80036270(void) {
     s32 temp_s0;
 
-    D_800F2DE4 += 1;
+    ModeFrame += 1;
     UpdateScreenFade(1);
-    if ((u32) D_800F2DE4 < 0x1C2U) {
+    if ((u32) ModeFrame < 0x1C2U) {
         if (D_800F3A60 != 0) {
             goto block_2;
         }
@@ -477,23 +477,23 @@ void func_80036270(void) {
 block_2:
     if (D_8010C0E0 <= 0) {
         D_8010C0E0 += 1;
-        D_800F2DE4 = 0;
+        ModeFrame = 0;
         return;
     }
 block_5:
     temp_s0 = D_8010C0E0;
     if (temp_s0 == 1) {
         if (D_800F3A60 != 0) {
-            D_800F2DE4 = 0;
+            ModeFrame = 0;
             ResetScreenCounters();
-            D_800F4C6A = (s16) temp_s0;
+            ModeGroup = (s16) temp_s0;
             D_800F3A26 = 0xB;
             D_800F4D8A = 0;
         }
     }
 }
 
-#undef D_800F2DE4
+#undef ModeFrame
 
 void func_80036330(void) {
     int a2;
@@ -515,11 +515,11 @@ b3:
     a0 = 0;
     do {
         if (RankTable[a0]->f == 0) {
-            D_800AD4D8[D_800AD4D8[0x17]] = a0 + 1;
+            SelectionState[SelectionState[0x17]] = a0 + 1;
             if (a0 == 0) {
                 if (a1 < 4) {
-                    if (FramesToMilliseconds(*(int *)(a2 + ((D_800AD4D8[0x17] - a1) << 2)), 0, a2) > D_800F4C64) {
-                        D_800AD4D8[D_800AD4D8[0x17]] = 0;
+                    if (FramesToMilliseconds(*(int *)(a2 + ((SelectionState[0x17] - a1) << 2)), 0, a2) > TotalRaceTime) {
+                        SelectionState[SelectionState[0x17]] = 0;
                     }
                 }
             }
@@ -527,12 +527,12 @@ b3:
         }
         a0 += 1;
     } while (a0 < 8);
-    if (D_800AD4D8[0x19] < 9) {
-        D_800AD4D8[0x19] = D_800AD4D8[D_800AD4D8[0x17]];
+    if (SelectionState[0x19] < 9) {
+        SelectionState[0x19] = SelectionState[SelectionState[0x17]];
     }
 }
 
-void func_8003645C(void) {
+void SortRaceRankTable(void) {
     int i, j;
     int t[2];
     for (i = 0; i < 7; i++) {
@@ -553,32 +553,32 @@ void func_8003645C(void) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AD4D8 (*(struct w3g2s (*))&D_800AD4D8)
+#define SelectionState (*(struct w3g2s (*))&SelectionState)
 
 void func_80036538(void) {
     struct w3g2s *p;
     if (D_800F4D44 == 1) {
-        p = &D_800AD4D8;
+        p = &SelectionState;
         if (p->c > D_8009F72C[p->a / 2]) p->d = 5;
         else p->d = 4;
     }
-    D_800F4C6A = 1;
+    ModeGroup = 1;
     D_800F3A26 = 0x17;
     D_800F4D8A = 0;
 }
 
-#undef D_800AD4D8
+#undef SelectionState
 
 void func_800365BC(void) {
-    func_8003645C();
+    SortRaceRankTable();
     func_80036538();
 }
 
 void func_800365E4(void) {
-    func_8003645C();
+    SortRaceRankTable();
     func_80036538();
 }
 
-void func_8003660C(void) {
+void FinishRace(void) {
     func_800365E4();
 }

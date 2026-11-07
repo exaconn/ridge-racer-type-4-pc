@@ -33,7 +33,7 @@
 
 #undef AddPrim
 
-extern void func_80095B94(void *),SetSemiTrans(void *,s32),AddPrim(u32 *,u32 *);
+extern void SetSprt(void *),SetSemiTrans(void *,s32),AddPrim(u32 *,u32 *);
 
 /* extern */
 void SetSemiTrans(void *, s32);

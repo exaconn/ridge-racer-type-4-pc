@@ -42,16 +42,16 @@ static _Alignas(16) u8 contexts[2][0xc00],packets[4096];
 static s8 *scripts[12];
 #define D_800ACC14 ((RrIconSpriteContext*)contexts[w->context])
 #define D_800AD50A (w->transition)
-#define D_800F2DE4 (w->frame)
+#define ModeFrame (w->frame)
 #define D_800F3A26 (w->next_timer)
-#define D_800F3A2C (w->step)
-#define D_800F4BE8 (w->scene)
-#define D_800F4C6A (w->phase)
+#define MenuScriptStep (w->step)
+#define MenuScriptId (w->scene)
+#define ModeGroup (w->phase)
 #define D_800F4D44 (w->ui_mode)
-#define D_800F4D7C (w->operation)
+#define LoadState (w->operation)
 #define D_800F4D8A (w->timer)
 #define D_800FFC10 (w->mode)
-#define D_8009F8D0 scripts
+#define MenuScripts scripts
 static void record(int kind,intptr_t a,intptr_t b,intptr_t c,intptr_t d,intptr_t e,intptr_t f,intptr_t g,intptr_t h,intptr_t j){
  assert(count<12);Entry *p=&entries[count++];memset(p,0,sizeof(*p));p->kind=kind;
  intptr_t args[9]={a,b,c,d,e,f,g,h,j};memcpy(p->args,args,sizeof(args));p->snapshot=*w;seen[kind]++;
@@ -66,9 +66,9 @@ static void record(int kind,intptr_t a,intptr_t b,intptr_t c,intptr_t d,intptr_t
  }
 }
 void SetDispMask(s32 arg){record(0,arg,0,0,0,0,0,0,0,0);}
-int func_80035024(int arg){record(1,arg,0,0,0,0,0,0,0,0);return -77;}
+int UpdateLinkHandshake(int arg){record(1,arg,0,0,0,0,0,0,0,0);return -77;}
 s32 func_80059E40(s32 frame){record(2,frame,0,0,0,0,0,0,0,0);return status;}
-s32 func_8005CA88(void){record(3,0,0,0,0,0,0,0,0,0);return status;}
+s32 IntroScriptStep(void){record(3,0,0,0,0,0,0,0,0,0);return status;}
 void func_8005CA14(void){record(4,0,0,0,0,0,0,0,0,0);}
 static s32 op0(void){record(5,0,0,0,0,0,0,0,0,0);return op_status;}
 static s32 op1(void){record(5,1,0,0,0,0,0,0,0,0);return op_status;}
@@ -78,8 +78,8 @@ static void enter0(void){record(6,0,0,0,0,0,0,0,0,0);}
 static void enter1(void){record(6,1,0,0,0,0,0,0,0,0);}
 static void enter2(void){record(6,2,0,0,0,0,0,0,0,0);}
 static void enter3(void){record(6,3,0,0,0,0,0,0,0,0);}
-RrMenuScriptOperation D_8009F840[]={op0,op1,op2,op3,op0,op1,op2,op3,op0,op1,op2,op3};
-RrMenuSceneEntry D_8009F870[]={enter0,enter1,enter2,enter3,enter0,enter1,enter2,enter3,enter0,enter1,enter2,enter3};
+RrMenuScriptOperation MenuScriptOps[]={op0,op1,op2,op3,op0,op1,op2,op3,op0,op1,op2,op3};
+RrMenuSceneEntry MenuSceneEntries[]={enter0,enter1,enter2,enter3,enter0,enter1,enter2,enter3,enter0,enter1,enter2,enter3};
 void *AddTilePrim(u32 *order,void *cursor,s32 x,s32 y,s32 width,s32 height,s32 r,s32 g,s32 b){
  record(7,(intptr_t)order,(intptr_t)cursor,x,y,width,height,r,g,b);
  return (u8*)cursor+16;
@@ -130,7 +130,7 @@ int main(void){
   int next=narrow8((u8)initial.step+1U);
   initial.scripts[initial.scene][128+next]=(k&1)?-7:3;
   mutation=(k>>8)&1;status=results[k%7];op_status=(int)((k>>2)%3);
-  actual=expected=initial;setup(&actual);func_8003A544();memcpy(saved,entries,sizeof(saved));int n=count;
+  actual=expected=initial;setup(&actual);UpdateMenuScript();memcpy(saved,entries,sizeof(saved));int n=count;
   setup(&expected);reference();assert(n==count);assert(!memcmp(saved,entries,sizeof(saved)));assert(!memcmp(&actual,&expected,sizeof(actual)));
  }
  for(int i=0;i<=7;i++)assert(seen[i]);puts("65536 native transition and real rectangle-wrapper cases passed");

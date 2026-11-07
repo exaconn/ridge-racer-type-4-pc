@@ -8,8 +8,8 @@ int SpuInitMalloc(a0, a1) int a0; int *a1; {
         int sh = _spu_mem_mode_plus;
         a1[0] = 0x40001010;
         _spu_memList = a1;
-        D_800A48BC = 0;
-        D_800A48B8 = a0;
+        _spu_AllocLastNum = 0;
+        _spu_AllocBlockNum = a0;
         a1[1] = (0x10000 << sh) - 0x1010;
         return a0;
     }

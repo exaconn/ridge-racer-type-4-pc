@@ -4,7 +4,7 @@ extern int AllocBadgeRows();
 extern int AllocRect16Rows();
 extern int AllocGlyphRows();
 extern int AllocUiRows();
-extern int func_8003FAA0();
+extern int AllocImageRows();
 extern int CdDirectoryBuffer;
 extern char D_8001075C[];
 extern int Rect16RowCount;
@@ -32,7 +32,7 @@ void InitMenuArenas()
   LoadCursor = LoadCursor + AllocBadgeRows(LoadCursor);
   LoadCursor = LoadCursor + AllocRect16Rows(LoadCursor);
   LoadCursor = LoadCursor + AllocGlyphRows(LoadCursor);
-  LoadCursor = LoadCursor + func_8003FAA0(LoadCursor);
+  LoadCursor = LoadCursor + AllocImageRows(LoadCursor);
   LoadCursor = LoadCursor + AllocUiRows(LoadCursor);
   D_800ACC1C = LoadCursor;
   D_800F4D70[1] = LoadCursor + 0x19000;

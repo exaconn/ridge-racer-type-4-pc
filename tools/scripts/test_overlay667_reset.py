@@ -31,8 +31,8 @@ static struct World {
 #define ovl667_D_80118EFC world.serial.word14
 #define ovl667_D_80118F00 world.serial.word18
 #define ovl667_D_80118F04 world.serial.word1C
-#define D_800F2DE4 world.frames
-#define D_800F4C6A world.screen
+#define ModeFrame world.frames
+#define ModeGroup world.screen
 #define D_800F3A26 world.step
 #define D_800F4D8A world.counter
 void ovl667_func_80114A40(void){

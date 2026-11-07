@@ -9,11 +9,11 @@ void ovl659_init_results(void) {
     MenuCursor = 0;
     MenuItemCount = 2;
     offset = 0;
-    if (D_800AD4D8.mode1A != 4) {
+    if (SelectionState.mode1A != 4) {
         offset = 11;
     }
     for (i = 0; i < 11; i++) {
-        if (D_800AD4D8.phase17 >= 4 && i == 4 && offset == 0) {
+        if (SelectionState.phase17 >= 4 && i == 4 && offset == 0) {
             SetMenuTextRow(i, i, 0, 0, ovl659_result_labels[22]);
         } else {
             SetMenuTextRow(i, i, 0, 0, ovl659_result_labels[i + offset]);
@@ -22,9 +22,9 @@ void ovl659_init_results(void) {
     for (i = 0; i < 11; i++) {
         SetMenuTextRow(i + 33, i, 2, 0, ovl659_result_labels[i + 23]);
     }
-    func_8002AF8C(0, 1, 0);
+    SetMenuFrameOptions(0, 1, 0);
     ovl659_preview_timer = -2;
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
 }
 
 void ovl659_update_results(void) {
@@ -35,16 +35,16 @@ void ovl659_update_results(void) {
     s16 timer;
     s32 ready;
 
-    D_800F2DE4 = (s32)((u32)D_800F2DE4 + 1U);
+    ModeFrame = (s32)((u32)ModeFrame + 1U);
     switch (D_800F4D8A) {
     case 0:
         group = 0;
         if (MenuTextRows[3].signedBytes[3] >= 16) {
-            func_8002AF8C(1, 1, 0);
+            SetMenuFrameOptions(1, 1, 0);
             if (D_800F3A60 != 0) {
-                func_8002AF8C(0, 1, 0);
+                SetMenuFrameOptions(0, 1, 0);
                 PlaySfx(1);
-                if (D_800AD4D8.mode1A == 4) {
+                if (SelectionState.mode1A == 4) {
                     InitMenuArenas();
                     ResetScreenCounters();
                     D_800F4D8A = 5;
@@ -56,12 +56,12 @@ void ovl659_update_results(void) {
         }
         lapOffset = 0;
         if (D_800F3914 == 7) {
-            if (rsin((D_800F2DE4 & 0xFF) << 4) > 0) {
+            if (rsin((ModeFrame & 0xFF) << 4) > 0) {
                 lapOffset = 3;
             }
         }
         rowOffset = 6;
-        if (D_800AD4D8.mode1A != 4) {
+        if (SelectionState.mode1A != 4) {
             rowOffset = 5;
         }
         for (i = 0; i < 3; i++) {
@@ -80,22 +80,22 @@ void ovl659_update_results(void) {
         break;
     case 3:
         group = 1;
-        if (D_800AD4D8.retries08[D_800AD4D8.phase17] == 0) {
+        if (SelectionState.retries08[SelectionState.phase17] == 0) {
             D_800F4D8A = 7;
         } else if (MenuTextRows[38].signedBytes[3] >= 14) {
-            func_8002AF8C(1, 1, 0);
+            SetMenuFrameOptions(1, 1, 0);
             func_80041320(MenuCursor + 37, 0, 0);
             StepMenuValue(0, 2, (char *)&MenuCursor, MenuItemCount, 0);
             func_80041320(MenuCursor + 37, 1, 1);
             if (D_800F3A60 != 0) {
-                func_8002AF8C(0, 1, 0);
+                SetMenuFrameOptions(0, 1, 0);
                 PlaySfx(1);
                 if (MenuCursor == 0) {
                     D_800F4D8A = 4;
                     D_800AC5D0 = 64;
-                    D_800AD4D8.retries08[D_800AD4D8.phase17]--;
+                    SelectionState.retries08[SelectionState.phase17]--;
                     FormatDecimalDigits((char *)&MenuTextRows[40].bytes[36],
-                                  D_800AD4D8.retries08[D_800AD4D8.phase17], 0);
+                                  SelectionState.retries08[SelectionState.phase17], 0);
                 } else {
                     D_800F4D8A = 7;
                 }
@@ -105,11 +105,11 @@ void ovl659_update_results(void) {
     case 4:
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        func_800207D4(&D_800ACC14->ordering.ordering70[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (64 - timer) * 4, 69);
         group = 1;
         if (D_800AC5D0 <= 0) {
-            D_800F4BE8 = 0;
-            D_800F4C6A = 1;
+            MenuScriptId = 0;
+            ModeGroup = 1;
             D_800F3A26 = 35;
             D_800F4D8A = 0;
         }
@@ -128,21 +128,21 @@ void ovl659_update_results(void) {
         }
         break;
     case 6:
-        func_8002AF8C(0, 1, 0);
+        SetMenuFrameOptions(0, 1, 0);
         group = -1;
         if (ovl659_preview_timer > 0) {
             ovl659_preview_timer--;
         }
         ready = func_8003B12C();
         if (ready == 1 && ovl659_preview_timer <= 0) {
-            if (D_800AD4D8.phase17 == 7) {
-                func_8002F958();
-                D_800F4C6A = 0;
+            if (SelectionState.phase17 == 7) {
+                UpdateSaveProgress();
+                ModeGroup = 0;
                 D_800F3A26 = 3;
             } else {
                 ResetScreenCounters();
                 func_80053BB4(1);
-                D_800F4C6A = ready;
+                ModeGroup = ready;
                 D_800F3A26 = 11;
             }
             D_800F4D8A = 0;
@@ -164,7 +164,7 @@ void ovl659_update_results(void) {
         break;
     case 8:
         InitMenuArenas();
-        D_800F4C6A = 1;
+        ModeGroup = 1;
         D_800F3A26 = 31;
         D_800F4D8A = 0;
         UpdateScreenFade(0x1000C);
@@ -174,14 +174,14 @@ void ovl659_update_results(void) {
     }
     UpdateScreenFade(0x1000C);
     if (ovl659_preview_timer == -2) {
-        func_8003662C(D_800F2DE4);
+        func_8003662C(ModeFrame);
     } else {
         func_8003662C(ovl659_preview_timer);
     }
     if (group >= 0) {
         i = 0;
         do {
-            func_80040858(i + group * 33);
+            UpdateMenuTextRow(i + group * 33);
             i++;
         } while (i < 11);
     }
@@ -234,7 +234,7 @@ void ovl659_rank_standings(void) {
             }
         }
     }
-    rank = D_800F4C64;
+    rank = TotalRaceTime;
     if (rank == -1) {
         vehicle = PlayerCars;
         vehicle->steering288.finish20 = rank;

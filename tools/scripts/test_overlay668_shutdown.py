@@ -39,7 +39,7 @@ static struct World {
 #define D_800A64A8 world.audio_mode
 #define D_800A6800 world.port0
 #define D_800A680C world.port1
-#define D_800F4C6A world.screen
+#define ModeGroup world.screen
 #define D_800F3A26 world.step
 #define D_800F4D8A world.counter
 static void callback(void) {assert(0);}

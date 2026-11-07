@@ -41,8 +41,8 @@ RrLibGraphicsDriverPrefix test_drivers[2];
 RrLibGraphicsDriverPrefix *D_800ABAB8;
 u32 test_driver_size=sizeof(RrLibGraphicsDriverPrefix);
 s32 test_gpu[4];
-s32 *D_800ABBC8=&test_gpu[0], *D_800ABBCC=&test_gpu[1];
-s32 *D_800ABBD0=&test_gpu[2], *D_800ABBD4=&test_gpu[3];
+s32 *GPU_STATUS=&test_gpu[0], *DMA2_MADR=&test_gpu[1];
+s32 *DMA2_BCR=&test_gpu[2], *DMA2_CHCR=&test_gpu[3];
 void _cwc(unsigned long);
 void test_configure(s32 index,s32 (*dispatch)(RrLibDrawOrderingTable,s32,s32,s32),
                     RrLibDrawOrderingTable draw) {

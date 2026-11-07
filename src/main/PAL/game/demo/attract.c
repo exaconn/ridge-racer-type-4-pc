@@ -23,8 +23,8 @@ extern short D_800F3914;
 extern unsigned short D_800A2134;
 extern unsigned short D_800A2138[];
 extern short D_800FFC10;
-extern short D_800F4BE8;
-extern short D_800F4C6A;
+extern short MenuScriptId;
+extern short ModeGroup;
 extern short D_800F3A26;
 extern short D_800F4D8A;
 extern int D_800F2EC8;
@@ -36,10 +36,10 @@ extern int func_80055330();
 extern int func_8005534C();
 extern int ResetScreenCounters();
 
-void func_8005D974(int a0);
+void StartAttractDemo(int a0);
 void func_8005DD8C(void);
 
-void func_8005D974(int a0) {
+void StartAttractDemo(int a0) {
     int sp[4];
     int i;
     int y;
@@ -102,7 +102,7 @@ void func_8005D974(int a0) {
     s2 = x6 - s2 * 18;
     tb = D_800A2124;
     w = D_8010E270;
-    b = (void *)D_800F4D98;
+    b = (void *)SelectionRows;
     do {
         b[i].a = sp[i];
         b[i].b = tb[sp[i]];
@@ -142,8 +142,8 @@ void func_8005D974(int a0) {
     func_80059314(0, 0);
     D_800F4D44 = 5;
     D_800FFC10 = 0;
-    D_800F4BE8 = 0xA;
-    D_800F4C6A = 1;
+    MenuScriptId = 0xA;
+    ModeGroup = 1;
     D_800F3A26 = 0x23;
     D_800F4D8A = 0;
     if (a0 == 0) {
@@ -178,7 +178,7 @@ void func_8005D974(int a0) {
     *(int *)(c2 + 0x500) = 0;
     *(int *)(c2 + 0x504) = 0;
     *(int *)(c2 + 0x514) = 0x122;
-    func_8004F9C8();
+    SoundReverbOffAll();
     ClearTrackObjectStates(0);
     D_800AD50A = 0x209;
 }
@@ -186,8 +186,8 @@ void func_8005D974(int a0) {
 void func_8005DD8C(void) {
     SetDispMask(0);
     ResetScreenCounters();
-    D_800F4BE8 = 8;
-    D_800F4C6A = 1;
+    MenuScriptId = 8;
+    ModeGroup = 1;
     D_800F3A26 = 0x23;
     D_800F4D8A = 0;
     func_8005C13C(0);

@@ -82,7 +82,7 @@ void _SsVmFlush(void) {
     if(scenario==6)reenter();
 }
 void _SsSndPlay(s16 bank,s16 row){callback(1,bank,row);}
-void func_80082FC4(s32 bank,s32 row){callback(2,bank,row);}
+void _SsSndCrescendo(s32 bank,s32 row){callback(2,bank,row);}
 void _SsSndTempo(s32 bank,s32 row){callback(3,bank,row);}
 void _SsSndPause(s32 bank,s32 row){callback(4,bank,row);}
 void _SsSndReplay(s32 bank,s16 row){callback(5,bank,row);}

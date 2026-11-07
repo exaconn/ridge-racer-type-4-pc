@@ -175,7 +175,7 @@ int PutDrawEnv(int *a0) {
     if (*p >= 2) {
         GPU_printf(D_80011F4C, a0);
     }
-    func_80093E70((u32 *)(a0 + 7), (RrFrameEnvironment *)a0);
+    SetDrawEnv2((u32 *)(a0 + 7), (RrFrameEnvironment *)a0);
     a0[7] |= 0xFFFFFF;
     ((int (*)())D_800ABAB8[2])(D_800ABAB8[6], a0 + 7, 0x40, 0);
     func_80096444(p + 0xE, a0, 0x5C);

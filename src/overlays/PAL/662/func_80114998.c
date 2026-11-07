@@ -3,7 +3,7 @@
 void ovl662_func_80114998(void)
 {
     s32 i,j,k;
-    D_800F2DE4=0; ScreenFrame=0; MenuCursor=0; MenuItemCount=3;
+    ModeFrame=0; ScreenFrame=0; MenuCursor=0; MenuItemCount=3;
     ResetScreenCounters();
     D_800F4D70.second=CdDirectoryBuffer+0x2D000;
     InitMenuArenas();
@@ -20,7 +20,7 @@ void ovl662_func_80114998(void)
         for(j=0;j<4;j++) {
             ovl662_D_80127328[i][j]=0;
             for(k=0;k<20;k++)
-                ovl662_D_80127328[i][j]+=(D_800F3920.prefix.progress.progress10[i][j]>>k)&1;
+                ovl662_D_80127328[i][j]+=(SaveProgress.prefix.progress.progress10[i][j]>>k)&1;
             ovl662_D_801272D8[i]+=ovl662_D_80127328[i][j];
         }
         ovl662_D_801272FC+=ovl662_D_801272D8[i];

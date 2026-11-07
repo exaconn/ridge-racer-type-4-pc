@@ -58,7 +58,7 @@ static void mutate_other(void *buffer,int size){
 void func_80096434(void *buffer,s32 size){
  assert(size==32||size==128);record(0,buffer,size,0,0);memset(buffer,0,(size_t)size);mutate_other(buffer,size);
 }
-s32 func_80096054(s32 port,s32 sector,u8 *buffer){
+s32 _card_sector_write(s32 port,s32 sector,u8 *buffer){
  assert(buffer==w->scratch.bytes);record(1,buffer,128,sector,port);
  unsigned checksum=0;for(int j=0;j<127;j++)checksum^=buffer[j];buffer[127]=(u8)checksum;
  mutate_other(buffer,128);
@@ -90,7 +90,7 @@ static int reference(s32 port){
  reference_clear(560,128);bytes[560]=77;bytes[561]=67;
  return reference_write(port,0)==1;
 }
-s32 func_80096198(s32);
+s32 _card_format(s32);
 int main(void){
  const s32 failures[]={0,-1,2,INT32_MIN,INT32_MAX};
  unsigned completed=0,stopped[36]={0};
@@ -100,7 +100,7 @@ int main(void){
   fail_at=(int)(k%37)-1;failure=failures[(k/37)%5];mutation=(k/185)&1;
   s32 port=(s32)random32();if(k%13==0)port=INT32_MIN;if(k%17==0)port=INT32_MAX;
   actual=expected=initial;w=&actual;count=writes=0;memset(entries,0,sizeof(entries));
-  int got=func_80096198(port),n=count,number=writes;memcpy(saved,entries,sizeof(saved));
+  int got=_card_format(port),n=count,number=writes;memcpy(saved,entries,sizeof(saved));
   w=&expected;count=writes=0;memset(entries,0,sizeof(entries));int wanted=reference(port);
   assert(got==wanted);assert(n==count);assert(number==writes);
   assert(!memcmp(saved,entries,sizeof(saved)));assert(!memcmp(&actual,&expected,sizeof(actual)));

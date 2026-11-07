@@ -36,19 +36,19 @@ typedef struct {
  unsigned rowRoot,glyphRoot,context;u32 tail[4];
 } State;
 static State actual,reference,*w;
-#define D_800F2DE4 w->frame
+#define ModeFrame w->frame
 #define ScreenFrame w->tick
 #define D_800AC5D0 w->timer
 #define MenuCursor w->selected
 #define D_800F3826 w->glyph
 #define D_800F4D8A w->phase
-#define D_800F4C6A w->enable
+#define ModeGroup w->enable
 #define D_800F3A26 w->scene
 #define ovl666_course_counts w->available
 #define UiRows w->rows[w->rowRoot]
 #define GlyphRows w->glyphs[w->glyphRoot]
 #define D_800F3A38 w->input
-#define D_800F3920 w->save
+#define SaveProgress w->save
 #define D_800ACC14 (&w->contexts[w->context])
 ''' + body + r'''
 typedef struct {unsigned kind;s32 args[7];State before;} Event;
@@ -74,17 +74,17 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
 }
 static void service(unsigned kind){const s32 args[7]={0};record(kind,args);effect(kind);}
 s32 func_8003B47C(void){static const u32 returns[]={0,1,2,0xFFFFFFFFU,0x10001,0xFFFF0001,0x80000000,0x80000001};service(0);return profile<10?1:word(returns[scenario%8]);}
-void func_8002AF8C(s32 a,s32 b,s32 c){const s32 args[7]={a,b,c};record(1,args);effect(1);}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){const s32 args[7]={a,b,c};record(1,args);effect(1);}
 void StepMenuValue(s32 a,s32 b,char *p,s32 d,s32 e){assert(p==(char*)&w->selected&&(uintptr_t)p>UINT32_MAX);const s32 args[7]={a,b,0,d,e};record(2,args);effect(2);}
 void ovl666_update_course_selection(void){service(3);}
 void PlaySfx(s32 a){const s32 args[7]={a};record(4,args);effect(4);}
 void func_80053AF4(s32 a,s32 b){const s32 args[7]={a,b};record(5,args);effect(5);}
 void ovl666_init_preview(void){service(6);}
-void func_800207D4(u32 *p,s32 b,u32 c){unsigned k;for(k=0;k<2&&p!=&w->contexts[k].ordering.ordering70;k++){}assert(k<2&&(uintptr_t)p>UINT32_MAX);const s32 args[7]={k,b,(s32)c};record(7,args);effect(7);}
+void AddScreenFadeTiles(u32 *p,s32 b,u32 c){unsigned k;for(k=0;k<2&&p!=&w->contexts[k].ordering.ordering70;k++){}assert(k<2&&(uintptr_t)p>UINT32_MAX);const s32 args[7]={k,b,(s32)c};record(7,args);effect(7);}
 void func_80053CB0(void){service(8);}
-void func_8002B12C(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){const s32 args[7]={a,b,c,d,e,f,g};record(9,args);effect(9);}
+void DrawMenuStepArrows(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){const s32 args[7]={a,b,c,d,e,f,g};record(9,args);effect(9);}
 void ovl666_draw_selection_pulse(s32 a,s32 b){const s32 args[7]={a,b};record(10,args);effect(10);}
-s32 func_8003E13C(s32 a){const s32 args[7]={a};record(11,args);effect(11);return word(scenario*0x1234567U);}
+s32 UpdateGlyphRow(s32 a){const s32 args[7]={a};record(11,args);effect(11);return word(scenario*0x1234567U);}
 void DrawUiRow(s32 a){const s32 args[7]={a};record(12,args);effect(12);}
 void UpdateScreenFade(s32 a){const s32 args[7]={a};record(13,args);effect(13);}
 static void closeRows(void){for(unsigned i=0;i<3;i++)if(w->rows[w->rowRoot][i].byte14==2)w->rows[w->rowRoot][i].byte14=3;}
@@ -92,21 +92,21 @@ static void expected(void){w->frame=word((u32)w->frame+1);w->tick=word((u32)w->t
  int ready=func_8003B47C();completion[ready==1]++;int title=0,rows=1;
  if(ready==1){unsigned phase=w->phase;states[phase==0?0:phase==1?1:phase==3?2:phase==8?3:4]++;title=1;
   if(phase==0){for(unsigned i=0;i<4;i++)w->glyphs[w->glyphRoot][i].phase18=word((u32)w->glyphs[w->glyphRoot][i].phase18+0x30000U);w->phase=1;
-  }else if(phase==1){func_8002AF8C(1,1,1);w->rows[w->rowRoot][w->selected].cells[0]=0;StepMenuValue(0,2,(char*)&w->selected,2,0);
+  }else if(phase==1){SetMenuFrameOptions(1,1,1);w->rows[w->rowRoot][w->selected].cells[0]=0;StepMenuValue(0,2,(char*)&w->selected,2,0);
    int available=w->available[w->glyph]>0;w->rows[w->rowRoot][0].half20=available?0:1;w->rows[w->rowRoot][w->selected].cells[0]=!available&&w->selected==0?4:2;
    ovl666_update_course_selection();int close=0;
    if(w->input[0].a){int selected=w->selected;if(selected==0){if(w->available[w->glyph]>0){choices[0]++;close=1;w->phase=3;PlaySfx(1);closeRows();}else{choices[1]++;PlaySfx(4);}}
     else if(selected==1){choices[2]++;close=2;PlaySfx(1);}
    }else if(w->input[0].b){choices[3]++;close=2;PlaySfx(2);}
    if(close==2){closeRows();w->phase=8;w->timer=64;func_80053AF4(0,60);}
-  }else if(phase==3){func_8002AF8C(0,1,1);if(w->rows[w->rowRoot][0].byte14==5){exits[0]++;ovl666_init_preview();w->enable=1;w->scene=80;w->phase=0;title=rows=0;}
-  }else if(phase==8){title=0;func_8002AF8C(0,1,1);s16 timer=half((u16)w->timer-1);w->timer=timer;func_800207D4(&w->contexts[w->context].ordering.ordering70,(64-(s32)timer)*4,69);
+  }else if(phase==3){SetMenuFrameOptions(0,1,1);if(w->rows[w->rowRoot][0].byte14==5){exits[0]++;ovl666_init_preview();w->enable=1;w->scene=80;w->phase=0;title=rows=0;}
+  }else if(phase==8){title=0;SetMenuFrameOptions(0,1,1);s16 timer=half((u16)w->timer-1);w->timer=timer;AddScreenFadeTiles(&w->contexts[w->context].ordering.ordering70,(64-(s32)timer)*4,69);
    if(w->timer<=0){exits[1]++;w->enable=1;w->scene=3;w->phase=0;func_80053CB0();}
   }
  }
- if(title){func_8002B12C(160,204,48,0,w->glyph,0,4);int glyph=w->glyph;int active=w->save.prefix.flags5C[glyph]!=0;pulse[active]++;
+ if(title){DrawMenuStepArrows(160,204,48,0,w->glyph,0,4);int glyph=w->glyph;int active=w->save.prefix.flags5C[glyph]!=0;pulse[active]++;
   if(active){int x=w->glyphs[w->glyphRoot][glyph].x08+20,y=w->glyphs[w->glyphRoot][glyph].y0A+40;ovl666_draw_selection_pulse(x,y);glyph=w->glyph;}
-  func_8003E13C(glyph);
+  UpdateGlyphRow(glyph);
  }
  if(rows)for(unsigned i=0;i<3;i++)DrawUiRow(i);UpdateScreenFade(0x10092);
 }

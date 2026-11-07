@@ -28,16 +28,16 @@ void ovl662_func_801154C8(void) {
     RrUiRow24 *temp_v1_6;
 
     var_s6 = 0;
-    tick = &D_800F2DE4;
+    tick = &ModeFrame;
     playerIndex = D_800AC5D4;
     vehicleBase = PlayerCars;
     temp_v0 = &vehicleBase[playerIndex&1];
     temp_a1 = ((u32)temp_v0->rot54 + 8) & 0xFFF;
     *tick=(u32)*tick+1;
     temp_v0->rot54 = temp_a1;
-    func_80033A74(1);
+    SetupMenuCarCamera(1);
     SetupViewport(6);
-    temp_v0_2 = func_8003AE4C(0, 1);
+    temp_v0_2 = LoadCarRangeStep(0, 1);
     if (temp_v0_2 != 1) {
         if ((*(s8*)(D_800F2AB0+1)) == 1) {
             (*(s8*)(D_800F2AB0+1)) = 0;
@@ -51,14 +51,14 @@ void ovl662_func_801154C8(void) {
     var_s6 = 1;
     switch ((u16)D_800F4D8A) {
     case 0:
-        func_8002AF8C(1, 1, 1);
-        temp_s0 = PackChoiceGlyph((s8*)&D_800F4D98);
+        SetMenuFrameOptions(1, 1, 1);
+        temp_s0 = PackChoiceGlyph((s8*)&SelectionRows);
         StepMenuValue(1, 2, (char*)&ovl662_D_801272E4, ovl662_D_801272E0, 0);
-        UnpackChoiceGlyph((s8*)&D_800F4D98, D_800ABE08[1][ovl662_D_801272E4].glyph);
-        if (((u32)temp_s0 << 0x10) != ((u32)PackChoiceGlyph((s8*)&D_800F4D98) << 0x10)) {
+        UnpackChoiceGlyph((s8*)&SelectionRows, D_800ABE08[1][ovl662_D_801272E4].glyph);
+        if (((u32)temp_s0 << 0x10) != ((u32)PackChoiceGlyph((s8*)&SelectionRows) << 0x10)) {
             ResetScreenCounters();
             LoadCursor = D_800F4D70.first;
-            UnpackChoiceGlyph((s8*)&D_800F4D98, D_800ABE08[1][ovl662_D_801272E4].glyph);
+            UnpackChoiceGlyph((s8*)&SelectionRows, D_800ABE08[1][ovl662_D_801272E4].glyph);
             (*(s8*)(D_800F2AB0+1)) = 6;
             temp_v1 = (u8 *)(void *)&D_800ABE08 + ovl662_D_801272E4 * sizeof(RrCourseChoice4);
             D_800ACBD0[0].first = (s16) (s8) ((RrCourseChoice4 *)(void *)(temp_v1 + sizeof(D_800ABE08[0])))->first;
@@ -67,7 +67,7 @@ void ovl662_func_801154C8(void) {
         UiRows[MenuCursor].cells[0] = 0;
         StepMenuValue(0, 2, (char*)&MenuCursor, 4, 0);
         var_a1 = 2;
-        temp_s5 = ((D_800F4D98.pad02[0] % 20) & 0xFF) == 0x13;
+        temp_s5 = ((SelectionRows.pad02[0] % 20) & 0xFF) == 0x13;
         if (temp_s5 != 0) {
             if (ovl662_D_801272E4 == 8) {
                 UiRows[0].half20 = 1;
@@ -91,7 +91,7 @@ void ovl662_func_801154C8(void) {
             temp_s1 = BadgeRows->state10;
             if (temp_s1 == 3) {
                 if (D_800F3A38[0].a != 0) {
-                    func_8002AF8C(0, 1, 1);
+                    SetMenuFrameOptions(0, 1, 1);
                     UiRows[MenuCursor].cells[0] = 1;
                     if (MenuCursor == 0) {
                         if (ovl662_D_801272E4 < 8) {
@@ -175,7 +175,7 @@ block_40:
                 } else if (D_800F3A38[0].b != 0) {
                     PlaySfx(2);
                     SetModelTexturePage(-1);
-                    func_8002AF8C(0, 1, 1);
+                    SetMenuFrameOptions(0, 1, 1);
                     var_s0 = 0;
                     if (UiRowCount > 0) {
 
@@ -199,7 +199,7 @@ block_54:
         goto block_67;
     case 3:
         if (((*(s8*)(D_800F2AB0+1)) == 5) && (BadgeRows->state10 == 0xB)) {
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 0x41;
             D_800F4D8A = 0;
             ovl662_D_801272BA = (u16) ovl662_D_801272E4;
@@ -215,9 +215,9 @@ block_54:
     case 5:
         temp_v1_7 = D_800AC5D0 - 1;
         D_800AC5D0 = (u16) temp_v1_7;
-        func_800207D4(((RrFrameStorage*)(void*)D_800ACC14)->ordering.ordering70, (0x40 - temp_v1_7) * 4, 0x45);
+        AddScreenFadeTiles(((RrFrameStorage*)(void*)D_800ACC14)->ordering.ordering70, (0x40 - temp_v1_7) * 4, 0x45);
         if ((s16) D_800AC5D0 <= 0) {
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 0x1B;
             D_800F4D8A = 0;
         }
@@ -225,9 +225,9 @@ block_54:
     case 8:
         temp_v1_8 = D_800AC5D0 - 1;
         D_800AC5D0 = (u16) temp_v1_8;
-        func_800207D4(((RrFrameStorage*)(void*)D_800ACC14)->ordering.ordering70, (0x40 - temp_v1_8) * 4, 0x45);
+        AddScreenFadeTiles(((RrFrameStorage*)(void*)D_800ACC14)->ordering.ordering70, (0x40 - temp_v1_8) * 4, 0x45);
         if ((s16) D_800AC5D0 <= 0) {
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 0x27;
             D_800F4D8A = 0;
         }
@@ -267,8 +267,8 @@ block_67:
             func_8002CC88(PlayerCars, color.rgb, var_a2_2, var_a3);
         }
         UpdateBadgeRowAnim(0);
-        if (func_8003FBA8(0) > 0) {
-            func_8002B12C(0xA0, 0x90, 8, 1, (s32) ovl662_D_801272E4, 0, (s32) ovl662_D_801272E0);
+        if (UpdateImageRow(0) > 0) {
+            DrawMenuStepArrows(0xA0, 0x90, 8, 1, (s32) ovl662_D_801272E4, 0, (s32) ovl662_D_801272E0);
         }
 done:
     UpdateScreenFade(0x1008E);

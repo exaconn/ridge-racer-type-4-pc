@@ -5,7 +5,7 @@ void ovl667_func_80116BB4(void) {
     ResetScreenCounters();
     LoadCursor = D_800F4D70.first;
     UnpackChoiceGlyph(
-        (s8 *)&D_800F4D98 + D_800AC5D4 * 4,
+        (s8 *)&SelectionRows + D_800AC5D4 * 4,
         D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].glyph
     );
     D_800ACBD0[D_800AC5D4].first = D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].first;

@@ -15,7 +15,7 @@ extern char D_80010408[];
 extern char D_80010414[];
 extern short D_800AC1A0;
 extern int NumLaps;
-extern int D_800F4C64;
+extern int TotalRaceTime;
 extern int LapTimes[];
 extern int AddDrawModePrim();
 extern int func_8001FF84();
@@ -27,7 +27,7 @@ extern struct B *TrackNodes;
 
 void func_80022448(void);
 void func_800225DC(int a0);
-void func_80022694(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10);
+void AddPartialLine(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10);
 int func_80022848(struct A *a0);
 
 void func_80022448(void) {
@@ -52,14 +52,14 @@ void func_80022448(void) {
             __asm__ volatile("" : "=r"(col));
             col = 0x7EF8;
         }
-        func_8002B5D0(0x78, y, v, col, 1);
+        DrawRaceTime(0x78, y, v, col, 1);
         y += 0xA;
         q += 1;
         if (++i < NumLaps) goto L1;
     }
-    func_8002B5D0(0x78, 0x5E, D_800F4C64, 0x7EF8, 1);
-    func_8004C73C(0x78, 0x50, D_800103FC, 0x80, 0);
-    func_8004C73C(0x78, 0x78, D_80010408, 0x80, 0);
+    DrawRaceTime(0x78, 0x5E, TotalRaceTime, 0x7EF8, 1);
+    DrawFontStringCentered(0x78, 0x50, D_800103FC, 0x80, 0);
+    DrawFontStringCentered(0x78, 0x78, D_80010408, 0x80, 0);
     i = 7;
     b = sp18 + 7;
     do {
@@ -68,8 +68,8 @@ void func_80022448(void) {
         b -= 1;
     } while (i >= 0);
     FormatDecimalDigits(sp18, D_800AC0E6 + 1, 1);
-    func_8004C73C(0x78, 0x3C, sp18, 0x80, 0);
-    func_8004C73C(0x78, 0xC8, D_80010414, 0x80, 0);
+    DrawFontStringCentered(0x78, 0x3C, sp18, 0x80, 0);
+    DrawFontStringCentered(0x78, 0xC8, D_80010414, 0x80, 0);
     func_8004C928(0);
 }
 
@@ -97,7 +97,7 @@ void func_800225DC(int a0) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ACC14 (*(int (*))&D_800ACC14)
 
-void func_80022694(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10)
+void AddPartialLine(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10)
 {
     int d1, d2, x, y, r, t;
     if (a5 > 0) {

@@ -136,7 +136,7 @@ RR_ASSERT_OFFSET(RrLibInterruptDriverPrefix, install, 8);
 RR_ASSERT_OFFSET(RrLibInterruptDriverPrefix, reset, 0xC);
 
 typedef void (*RrLibDataCallback)(s32, u8 *);
-void func_8008DDAC(void);
+void CdCommandCallback(void);
 
 typedef void (*RrLibCompletionCallback)(void);
 typedef void (*RrLibNotificationCallback)(s32, s32);
@@ -145,9 +145,9 @@ extern RrLibDataCallback CD_cbsync, CD_cbready;
 extern RrLibNotificationCallback CD_cbread;
 extern u32 CD_read_dma_mode;
 s32 CdInit(void);
-void func_8008BF10(s32 selector, u8 *data);
-void func_8008BF38(s32 selector, u8 *data);
-void func_8008BF60(s32 event, s32 argument);
+void def_cbsync(s32 selector, u8 *data);
+void def_cbready(s32 selector, u8 *data);
+void def_cbread(s32 event, s32 argument);
 
 /* Partial state updated by the multi-step library transfer callback. */
 typedef struct {

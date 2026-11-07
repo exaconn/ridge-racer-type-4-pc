@@ -7,7 +7,7 @@
 
 #define AddPrim ((s32 (*)())AddPrim)
 
-#define func_80095B94 ((s32 (*)())func_80095B94)
+#define SetSprt ((s32 (*)())SetSprt)
 
 #define D_800ACC14 ((char *)D_800ACC14)
 
@@ -15,7 +15,7 @@
 
 #undef AddPrim
 
-#undef func_80095B94
+#undef SetSprt
 
 #undef D_800ACC14
 
@@ -26,7 +26,7 @@
 
 #define SetShadeTex ((void (*)())SetShadeTex)
 
-#define func_80095B94 ((void (*)())func_80095B94)
+#define SetSprt ((void (*)())SetSprt)
 
 #undef AddPrim
 
@@ -34,7 +34,7 @@
 
 #undef SetShadeTex
 
-#undef func_80095B94
+#undef SetSprt
 
 void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
     s16 nextTimer;
@@ -71,7 +71,7 @@ void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
     sprites = (RrSpritePacketSignedClut *)cursor;
     /* The original retains a shadow branch, but runs only pass zero. */
     do {
-        func_80095B94(cursor);
+        SetSprt(cursor);
         if (pass == 1) {
             sprites->r = shadowBrightness;
             sprites->g = shadowBrightness;

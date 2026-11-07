@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int func_800373DC();
-int func_80037618();
+int InitCarTable();
+int PlaceCarOnGrid();
 
 #endif /* RR_GAME_RACE_RACESAMP_H */

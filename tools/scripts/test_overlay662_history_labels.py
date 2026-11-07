@@ -33,8 +33,8 @@ typedef struct {State s;Event events[12];unsigned count;} World;
 static World actual,reference,initial,*w;
 static u8 arena[512];static u32 ordering[4];static char ratio[8];
 RrBadgeRow1C *BadgeRows;
-#define D_800F3920 w->s.save
-#define D_800F4D98 w->s.choice
+#define SaveProgress w->s.save
+#define SelectionRows w->s.choice
 #define D_8009FA1C w->s.uv
 #define ScreenFrame w->s.tick
 #define ovl662_D_80127328 w->s.counts

@@ -6,9 +6,9 @@
 #undef D_800AD508
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEBC (*(char (*)[])&D_800ABEBC)
+#define LinkEntryState (*(char (*)[])&LinkEntryState)
 
-#undef D_800ABEBC
+#undef LinkEntryState
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AD508 (*(s16 (*))&D_800AD508)
@@ -16,13 +16,13 @@
 #undef D_800AD508
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2DE4 (*(unsigned int (*))&D_800F2DE4)
+#define ModeFrame (*(unsigned int (*))&ModeFrame)
 
 #define D_800F3A26 (*(unsigned short (*))&D_800F3A26)
 
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 
-#undef D_800F2DE4
+#undef ModeFrame
 
 #undef D_800F3A26
 
@@ -31,11 +31,11 @@
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 
-#define D_800F2DE4 (*(unsigned int (*))&D_800F2DE4)
+#define ModeFrame (*(unsigned int (*))&ModeFrame)
 
 #undef D_800F4D8A
 
-#undef D_800F2DE4
+#undef ModeFrame
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
@@ -43,16 +43,16 @@
 #undef D_800F4D8A
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2DE4 (*(u32 (*))&D_800F2DE4)
+#define ModeFrame (*(u32 (*))&ModeFrame)
 
-#undef D_800F2DE4
+#undef ModeFrame
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AD4D8 (*(struct w3g2s (*))&D_800AD4D8)
+#define SelectionState (*(struct w3g2s (*))&SelectionState)
 
-#undef D_800AD4D8
+#undef SelectionState
 
-void func_80035478(s32 mode) {
+void DrawLinkEntryScreen(s32 mode) {
     u8 text[4];
     s32 remaining,row,statusY,waitY,labelY;
     s8 status;
@@ -74,19 +74,19 @@ void func_80035478(s32 mode) {
             waitY=row*194+150;
             statusY=row*194+120;
             text[0]=row+((s32)((u32)(D_800AD508^1)<<16)>>15)+49;
-            func_8001F40C(12,labelY,D_80010600);
-            func_8001F40C(88,labelY,text);
-            status=D_800ABEBC[1-mode][row];
+            DrawBigFontString(12,labelY,D_80010600);
+            DrawBigFontString(88,labelY,text);
+            status=LinkEntryState[1-mode][row];
             switch (status) {
             case 0:
-                func_8001F40C(60,statusY,D_8001060C);
+                DrawBigFontString(60,statusY,D_8001060C);
                 break;
             case 1:
-                func_8001F40C(60,statusY,D_80010628);
-                func_8001F40C(60,waitY,D_8001063C);
+                DrawBigFontString(60,statusY,D_80010628);
+                DrawBigFontString(60,waitY,D_8001063C);
                 break;
             case -1:
-                func_8001F40C(60,statusY,D_8001064C);
+                DrawBigFontString(60,statusY,D_8001064C);
                 break;
             }
             row++;
@@ -94,9 +94,9 @@ void func_80035478(s32 mode) {
         row=D_800AC5A4/50;
         text[0]=row/10+48;
         text[1]=row%10+48;
-        func_8001F40C(44,244,text);
-        func_8001F40C(32,244,D_80010658);
+        DrawBigFontString(44,244,text);
+        DrawBigFontString(32,244,D_80010658);
         remaining=(s32)(500U-(u32)D_800AC5A4);
-        func_8001F40C(((s32)((u32)remaining<<8)/500)+32,224,D_80010674);
+        DrawBigFontString(((s32)((u32)remaining<<8)/500)+32,224,D_80010674);
     }
 }

@@ -27,7 +27,7 @@ static struct World {
  u32 calls,command;u16 observed_screen,observed_step;s16 observed_counter;
  u32 after[8];
 } world,expected;
-#define D_800F4C6A world.screen
+#define ModeGroup world.screen
 #define D_800F3A26 world.step
 #define D_800F4D8A world.counter
 void ovl662_func_80116148(void){

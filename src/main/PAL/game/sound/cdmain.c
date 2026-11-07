@@ -11,7 +11,7 @@
 struct S { char pad[0x2864]; s16 a; char p[0x2888 - 0x2866]; s16 b; };
 
 
-void func_80053A9C(s16 a0);
+void SeqSetVolume(s16 a0);
 void func_80053AF4(int a0, int a1);
 
 void CdAudioUpdate(void) {
@@ -246,7 +246,7 @@ void func_80053A80(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(struct S (*))&SoundState)
 
-void func_80053A9C(s16 a0) {
+void SeqSetVolume(s16 a0) {
     struct S *p = &SoundState;
     s16 v;
     p->b = a0;
@@ -268,7 +268,7 @@ void func_80053AF4(int a0, int a1) {
         SoundState.x2890 = v;
     } else {
         int s = (s16)a0;
-        func_80053A9C(s);
+        SeqSetVolume(s);
         SoundState.x288A = 0;
         SoundState.x288C = 0;
         SoundState.x288E = 0;

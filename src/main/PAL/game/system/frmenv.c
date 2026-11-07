@@ -46,11 +46,11 @@ extern char D_800103AC[];
 extern char PlayerCars[];
 extern int LoadCursor;
 extern int D_800AD568;
-extern signed char D_800AD4D8[];
+extern signed char SelectionState[];
 extern short D_800AD508;
-extern char D_800F2A68[];
+extern char RankEntries[];
 extern char D_800F2FE0[];
-extern char D_800F3920[];
+extern char SaveProgress[];
 extern char D_800F39D8[];
 extern char D_800F3B28[];
 extern signed char D_800F2E30[];
@@ -68,7 +68,7 @@ extern void SetGeomOffset(s32,s32);
 extern void SetGeomScreen(s32);
 extern void *SetDefDispEnv(void *,s32,s32,s32,s32);
 
-void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags);
+void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags);
 
 void SystemInit(void)
 {
@@ -82,7 +82,7 @@ void SystemInit(void)
     func_8001E84C(D_800102F4);
     CdInit();
     InitCdFileDirectory();
-    func_8007FA54();
+    SsInit();
     SoundSystemInit();
     CdAudioInit();
     ResetGraph(0);
@@ -90,7 +90,7 @@ void SystemInit(void)
     SetDispMask(0);
     InitGeom();
     CardSystemInit(1);
-    func_8004A55C();
+    InitGamePads();
     func_8005C0C4();
     func_8004A678();
     AddSIO();
@@ -102,14 +102,14 @@ void SystemInit(void)
     D_800ACBF8 = 0;
     NumLaps = 2;
     D_800AD568 = 0;
-    func_80096434(D_800F3920, 0x7C);
-    func_80096434(D_800F4D98, 0x20);
-    func_80096434(D_800AD4D8, 0x2C);
-    D_800AD4D8[0x17] = -1;
-    func_80096434(D_800F2A68, 0x40);
+    func_80096434(SaveProgress, 0x7C);
+    func_80096434(SelectionRows, 0x20);
+    func_80096434(SelectionState, 0x2C);
+    SelectionState[0x17] = -1;
+    func_80096434(RankEntries, 0x40);
     i = 7;
     do {
-        RankTable[i] = (int)(D_800F2A68 + i * 8);
+        RankTable[i] = (int)(RankEntries + i * 8);
         i--;
     } while (i >= 0);
     func_80096434(PlayerCars, 0x320);
@@ -117,7 +117,7 @@ void SystemInit(void)
     D_800F4BE0 = 0;
     i = 0;
     c5 = 5;
-    q = D_800F3920;
+    q = SaveProgress;
     do {
         *(volatile char *)(q + 0x6C) = c5;
         *(volatile char *)(q + 0x6D) = c5;
@@ -127,11 +127,11 @@ void SystemInit(void)
         q += 4;
     } while (i < 4);
     D_800AD508 = -1;
-    CopyStringClearTail(D_800F3920, D_80010300);
-    CopyStringClearTail(D_800F39D8, D_800F3920);
-    CopyStringClearTail(D_800F39D8 + 0xC, D_800F3920);
-    CopyStringClearTail(D_800F39D8 + 0x18, D_800F3920);
-    CopyStringClearTail(D_800F39D8 + 0x24, D_800F3920);
+    CopyStringClearTail(SaveProgress, D_80010300);
+    CopyStringClearTail(D_800F39D8, SaveProgress);
+    CopyStringClearTail(D_800F39D8 + 0xC, SaveProgress);
+    CopyStringClearTail(D_800F39D8 + 0x18, SaveProgress);
+    CopyStringClearTail(D_800F39D8 + 0x24, SaveProgress);
     D_800F2E08[0] = (int)D_8001030C;
     D_800F2E08[4] = (int)D_80010320;
     D_800F2E08[1] = (int)D_80010328;
@@ -159,21 +159,21 @@ void SystemInit(void)
         i--;
         r -= 0x2C;
     } while (i >= 0);
-    func_8001EEE4(k, i, r, m);
+    InitDefaultTimeRecords(k, i, r, m);
     func_8001F194();
     func_8006F5F0(D_800F3B28);
     func_8006F5F0(D_800F3B28 + 0x840);
     func_8006F5F0(D_800F2FE0);
     D_800F3B20 = D_800F3B28;
-    func_80031DB0();
-    func_800373DC(1);
+    ResetRankEntries();
+    InitCarTable(1);
     ResetGraph(3);
 }
 
 void func_8001ECE0(s32 bank) {
 }
 
-void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags) {
+void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags) {
     /* ASM_BARRIER: keep flags in S0 until the arena replaces their dead value. */
     register u32 input asm("$16")=flags;
     /* ASM_BARRIER: retain red in the original saved register across environment helpers. */

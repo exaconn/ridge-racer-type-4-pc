@@ -18,7 +18,7 @@ typedef struct {
     u8 unlocked60[9],reserved69[3];
     RrSelectionRow history6C[4];
 } RrSaveProgressRecord7C;
-extern RrSaveProgressRecord7C D_800F3920;
+extern RrSaveProgressRecord7C SaveProgress;
 RR_ASSERT_SIZE(RrSaveHeader16,16);
 RR_ASSERT_SIZE(RrSaveReserved12,12);
 RR_ASSERT_SIZE(RrSaveProgressRecord7C,0x7C);

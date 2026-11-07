@@ -4,7 +4,7 @@
 
 extern int D_800A67CC[];
 
-extern int VSync(), func_8008EB6C(), CdReady();
+extern int VSync(), cd_read_retry(), CdReady();
 
 int CdReadSync(a0, a1) int a0, a1; {
     int s0;
@@ -14,7 +14,7 @@ int CdReadSync(a0, a1) int a0, a1; {
         if (VSync(-1) > p[0] + 0x4B0) {
             s0 = -1;
         } else if (p[-2] < 0 || VSync(-1) > p[-1] + 0x3C) {
-            func_8008EB6C(1);
+            cd_read_retry(1);
             s0 = p[-7];
         } else {
             s0 = p[-2];

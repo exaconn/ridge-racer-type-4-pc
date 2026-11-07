@@ -11,5 +11,5 @@ void ovl665_func_80114FD8(void)
     InitUiRow(5,100,112,98,32,0,1,1,11,89);
     InitUiRow(6,100,152,68,32,0,1,1,0,91);
     InitUiRow(7,100,192,68,32,0,1,1,0,92);
-    func_8002AF8C(1,1,1);
+    SetMenuFrameOptions(1,1,1);
 }

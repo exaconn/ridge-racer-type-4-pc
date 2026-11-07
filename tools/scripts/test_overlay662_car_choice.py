@@ -32,11 +32,11 @@ typedef struct {
 typedef struct {s32 op,arg;u32 hash;} Event;
 typedef struct {State s;unsigned calls;Event events[4];} World;
 static World actual,reference,initial,*w;static unsigned mutation;
-#define D_800F3920 w->s.save
+#define SaveProgress w->s.save
 #define D_800ABE08 w->s.choices
 #define D_800ACBD0 w->s.points
-#define D_800F4D98 w->s.current
-#define D_800F4C6A w->s.mode
+#define SelectionRows w->s.current
+#define ModeGroup w->s.mode
 #define D_800F3A26 w->s.position
 #define D_800F4D8A w->s.timer
 #define ovl662_D_801272E4 w->s.index

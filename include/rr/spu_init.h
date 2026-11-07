@@ -8,7 +8,7 @@ extern volatile u32 *D_800A47E8;
 extern s32 D_800A47F8;
 extern volatile u32 D_800A4814;
 extern const u16 D_800A4818[8];
-extern u16 D_8010EFB0[10];
+extern u16 _spu_RQ[10];
 extern const char D_80011698[], D_800116A8[];
 s32 func_8001E84C(const char *format, ...);
 s32 _spu_init(s32 warm);

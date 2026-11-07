@@ -33,7 +33,7 @@ void CdRead2(s32 flags) {
             }
         }
         CdDataCallback(data_ready_callback);
-        CdReadyCallback(func_8008F248);
+        CdReadyCallback(StCdInterrupt2);
     }
     {
         const u8 *zero = 0;

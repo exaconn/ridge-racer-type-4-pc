@@ -43,9 +43,9 @@ struct State {
 static struct World {struct State s;unsigned calls;struct {s32 service,arg[4];u32 hash;} events[12];} actual,expected,initial,*w;
 static unsigned scenario,mutation,kind;
 static u8 seenCounts[10];
-#define D_800F3920 w->s.save
+#define SaveProgress w->s.save
 #define D_800ABE08 w->s.choices
-#define D_800F4D98 w->s.current
+#define SelectionRows w->s.current
 #define ovl660_record_name w->s.name
 #define ovl660_preview_bank w->s.row
 #define ovl660_preview_selection w->s.col
@@ -57,7 +57,7 @@ static u8 seenCounts[10];
 #define ovl663_course_unlock_levels w->s.values
 #define ovl663_available_course_count w->s.count
 #define D_800AC648 w->s.setting
-#define D_800F4C6A w->s.mode
+#define ModeGroup w->s.mode
 #define D_800F3A26 w->s.position
 #define D_800F4D8A w->s.timer
 #define ModelTexturePage w->s.driverSetting
@@ -101,7 +101,7 @@ static void event(s32 service,s32 a,s32 b,s32 c,s32 d){
 }
 void SetDispMask(s32 mode){assert(mode==0);event(1,mode,0,0,0);}
 void ClearScreenOverlayState(void){event(2,0,0,0,0);}
-void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags){event(3,r,g,b,(s32)flags);}
+void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags){event(3,r,g,b,(s32)flags);}
 void ovl660_func_80114920(void){event(4,0,0,0,0);}
 void ovl662_func_80114998(void){event(5,0,0,0,0);}
 void ovl663_init_menu(void){
@@ -116,19 +116,19 @@ static void reference(void){
  unsigned i,n;s32 flags;SetDispMask(0);
  if(kind==0){
   ClearScreenOverlayState();w->s.row=0;w->s.col=0;w->s.local=0;
-  copy_name(w->s.name,w->s.save.prefix.progress.prefix00.fields.name);func_8001ECE8(0,0,0,2);
+  copy_name(w->s.name,w->s.save.prefix.progress.prefix00.fields.name);SetupDrawDispEnvs(0,0,0,2);
   flags=w->s.save.prefix.progress.prefix00.fields.configuration0C;w->s.setting=0;
   w->s.zoom=flags>=16?8:4;if((u32)flags&256)w->s.zoom=16;
   ovl660_func_80114920();
   {s32 glyph=w->s.choices[0][0].glyph;w->s.current.bytes[0]=(u8)(glyph/160);w->s.current.bytes[1]=(u8)(glyph/40-(glyph/160)*4);w->s.current.bytes[2]=(u8)(glyph%40);}
   w->s.mode=1;w->s.position=50;w->s.timer=0;func_8001E84C(format660);func_80053BB4(0);
  }else if(kind==1){
-  ClearScreenOverlayState();ovl662_func_80114998();func_8001ECE8(0,0,0,2);w->s.driverSetting=25;
+  ClearScreenOverlayState();ovl662_func_80114998();SetupDrawDispEnvs(0,0,0,2);w->s.driverSetting=25;
   w->s.mode=1;w->s.position=40;w->s.timer=0;func_8001E84C(format662);
   if(w->s.save.prefix.reserved50.words[0]==1 && w->s.choices[1][7].glyph>=0){w->s.choices[1][8].glyph=359;w->s.choices[1][8].first=1;}
   func_80053BB4(0);
  }else{
-  func_8001ECE8(0,0,0,2);w->s.mode=1;w->s.position=74;w->s.timer=0;func_8001E84C(format663);n=0;w->s.count=0;
+  SetupDrawDispEnvs(0,0,0,2);w->s.mode=1;w->s.position=74;w->s.timer=0;func_8001E84C(format663);n=0;w->s.count=0;
   for(i=0;i<9;i++){unsigned key=w->s.order[i];u8 value=w->s.save.unlocked60[key];if(value){w->s.ids[n]=(s32)key;w->s.values[n]=value;n++;w->s.count=(s32)n;}}
   ovl663_init_menu();func_80053BB4(0);
   flags=w->s.save.prefix.progress.prefix00.fields.configuration0C;w->s.zoom=flags>=16?8:4;if((u32)flags&256)w->s.zoom=16;

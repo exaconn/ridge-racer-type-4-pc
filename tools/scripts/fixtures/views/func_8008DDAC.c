@@ -15,7 +15,7 @@ extern volatile u8 D_800A6764[];
 
 extern s32 getintr(void);
 
-void func_8008DDAC(void) {
+void CdCommandCallback(void) {
     u8 *p=&D_800A6764[1];
     u8 *q=p-1;
     s32 saved=*D_800A674C & 3;

@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_8008E780();
+int cd_read();
 
 #endif /* RR_PSYQ_LIBCD_DSREAD_H */

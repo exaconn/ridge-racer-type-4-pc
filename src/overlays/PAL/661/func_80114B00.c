@@ -31,17 +31,17 @@ void ovl661_func_80114B00(void) {
     Rr661FrameVector16 *temp_v1_4;
     Rr661FrameVector16 *temp_v1_5;
 
-    D_800F2DE4=(u32)D_800F2DE4+1;
+    ModeFrame=(u32)ModeFrame+1;
     if (((u32) ((u32)RaceState - 1) < 2U) && (D_800F3A38[0].buttons08 & 0x800)) {
         if (D_800AC5D0 <= 0) {
             D_800AC5D0 = 0xF;
-            temp_v1 = D_800F4C68 == 0;
-            D_800F4C68 = temp_v1;
+            temp_v1 = RacePaused == 0;
+            RacePaused = temp_v1;
             if (temp_v1 != 0) {
                 SoundPause();
-                D_800F2FDC = 0;
+                PauseCursor = 0;
             } else {
-                func_800348E8(D_800F4D44);
+                ApplyPauseMenuChoice(D_800F4D44);
                 SoundResume();
             }
         } else {
@@ -53,29 +53,29 @@ block_7:
             D_800AC5D0 = (u16) D_800AC5D0 - 1;
         }
     }
-    if (D_800F4C68 != 0) {
-        func_80034844(D_800F4D44);
-        D_800F2DE4=(u32)D_800F2DE4-1;
-        func_800349F4(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, D_800F2FDC);
+    if (RacePaused != 0) {
+        UpdatePauseMenu(D_800F4D44);
+        ModeFrame=(u32)ModeFrame-1;
+        DrawPauseMenu(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, PauseCursor);
         if (RaceState < 4) {
-            func_80033F3C(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, D_800F2DE4);
+            DrawStartCountdown(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, ModeFrame);
         }
         var_s2 = 0;
         if ((u32) ((u32)RaceState - 1) < 3U) {
             do {
                 
                 temp_s0 = &PlayerCars[var_s2];
-                func_80021684((temp_s0->input * 0xA0) / 1168, var_s2);
-                func_800217D0(*(s16 *)((u8 *)&D_800F4C70+var_s2*2), var_s2);
+                DrawHudNumber3((temp_s0->input * 0xA0) / 1168, var_s2);
+                DrawHudNumber5(*(s16 *)((u8 *)&D_800F4C70+var_s2*2), var_s2);
                 func_800219BC(temp_s0->half27A, var_s2);
                 func_80021A7C(temp_s0->half1EE, var_s2);
                 {register s32 playerArg __asm__("$5")=var_s2;s32 budget=D_800AC5A4;__asm__("" : : "r"(budget));{register s32 nextPlayer __asm__("$2")=playerArg+1;__asm__("" : : "r"(nextPlayer));var_s2=nextPlayer;func_8002BD18(budget,playerArg);}}
-                func_80021C94(var_s2, temp_s0->steering288.count22);
-                func_80021E2C(var_s2);
-                func_80022098(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, var_s2);
+                DrawLapCounter(var_s2, temp_s0->steering288.count22);
+                DrawRaceMinimap(var_s2);
+                DrawSteeringIndicator(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, var_s2);
                 func_80021C00(var_s2);
             } while (var_s2 < 2);
-            func_80022390(0);
+            DrawSplitScreenDivider(0);
             func_800211A4(2);
             func_80020B10(2);
         }
@@ -92,8 +92,8 @@ __asm__("" : : "r"(temp_v0),"r"(temp_v1_2));
         SetupViewport(var_s2 + 2);
             if (RaceState == 0) {
                 var_a0 = var_s2 * 2;
-                if ((u32) D_800F2DE4 < 0x4BU) {
-                    func_80033474(&PlayerCars[var_s2], D_800F2DE4);
+                if ((u32) ModeFrame < 0x4BU) {
+                    UpdateRaceIntroCamera(&PlayerCars[var_s2], ModeFrame);
                     var_v1_2 = var_s2 * 0x10;
                 } else {
                     goto block_22;
@@ -101,7 +101,7 @@ __asm__("" : : "r"(temp_v0),"r"(temp_v1_2));
             } else {
                 var_a0 = var_s2 * 2;
 block_22:
-                func_80033BE4((struct w3g2p *)((unsigned long)((((var_a0+var_s2)*8)+var_s2)<<5)+(unsigned long)PlayerCars));
+                UpdateRaceChaseCamera((struct w3g2p *)((unsigned long)((((var_a0+var_s2)*8)+var_s2)<<5)+(unsigned long)PlayerCars));
                 var_v1_2 = var_s2 * 0x10;
             }
             temp_v0_2 = (Rr661FrameVector16 *)((u8 *)D_801183D0+var_v1_2);
@@ -129,16 +129,16 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
             SoundSetMasterVolume(0,0x21);
         }
     }
-    if (((u32) D_800F2DE4 >= 0x4BU) && (RaceState == 0)) {
+    if (((u32) ModeFrame >= 0x4BU) && (RaceState == 0)) {
         RaceState = 1;
-        func_8004FED4();
+        SlotsStartForRace();
         SetModelTexturePage(-1);
         func_800172DC();
         D_800ADAF0[1].environment.rgb24 = 0;
         D_800ADAF0[0].environment.rgb24 = 0;
     } else {
         if (RaceState==1) {
-            if ((u32) D_800F2DE4 >= 0xB0U) {
+            if ((u32) ModeFrame >= 0xB0U) {
                 func_80022CD4(&PlayerCars[0]);
                 func_80022CD4(&PlayerCars[1]);
                 CdAudioBeginPlay(1);
@@ -146,31 +146,31 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
             }
         } else if (RaceState>=4) {
             var_a2 = 0x25;
-            if (D_800F4C64 == -1) {
+            if (TotalRaceTime == -1) {
                 var_a2 = 0x45;
             }
             if (D_800AC5D0 < 0x19) {
-                func_800207D4(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, (0x19 - D_800AC5D0) * 0xA, var_a2);
+                AddScreenFadeTiles(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, (0x19 - D_800AC5D0) * 0xA, var_a2);
                 RR_661_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
             }
             if (D_800AC5D0 <= 0) {
                 ovl661_D_80118448[0] = (u16) PlayerCars[0].half1EE;
                 ovl661_D_80118448[1] = (u16) PlayerCars[1].half1EE;
                 if (RaceState == 4) {
-                    D_800F4C6A = 1;
+                    ModeGroup = 1;
                     D_800F3A26 = 0x15;
                     D_800F4D8A = 0;
                 } else {
-                    func_8003660C();
+                    FinishRace();
                 }
             } else {
                 D_800AC5D0 = (u16) D_800AC5D0 - 1;
             }
         } else if (RaceState==0) {
-            if ((u32)D_800F2DE4 >= 51U) {
-                func_800207D4(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70,((u32)D_800F2DE4-50U)*10U,37);
-            } else if ((u32)D_800F2DE4 < 25U) {
-                func_800207D4(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70,(25U-(u32)D_800F2DE4)*10U,69);
+            if ((u32)ModeFrame >= 51U) {
+                AddScreenFadeTiles(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70,((u32)ModeFrame-50U)*10U,37);
+            } else if ((u32)ModeFrame < 25U) {
+                AddScreenFadeTiles(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70,(25U-(u32)ModeFrame)*10U,69);
             }
             RR_661_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
         }
@@ -187,25 +187,25 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
     }
     StepRaceFrame(D_800F4D44);
     if (RaceState < 4) {
-        func_80033F3C(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, D_800F2DE4);
-        func_80034630(D_800F2DE4);
+        DrawStartCountdown(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, ModeFrame);
+        PlayStartCountdownVoice(ModeFrame);
     }
     var_s2 = 0;
     if ((u32) ((u32)RaceState - 1) < 3U) {
         do {
             
                 temp_s0_3 = &PlayerCars[var_s2];
-            func_80021684((temp_s0_3->input * 0xA0) / 1168, var_s2);
-            func_800217D0(*(s16 *)((u8 *)&D_800F4C70+var_s2*2), var_s2);
+            DrawHudNumber3((temp_s0_3->input * 0xA0) / 1168, var_s2);
+            DrawHudNumber5(*(s16 *)((u8 *)&D_800F4C70+var_s2*2), var_s2);
             func_800219BC(temp_s0_3->half27A, var_s2);
             func_80021A7C(temp_s0_3->half1EE, var_s2);
             {register s32 playerArg __asm__("$5")=var_s2;s32 budget=D_800AC5A4;__asm__("" : : "r"(budget));{register s32 nextPlayer __asm__("$2")=playerArg+1;__asm__("" : : "r"(nextPlayer));var_s2=nextPlayer;func_8002BD18(budget,playerArg);}}
-            func_80021C94(var_s2, temp_s0_3->steering288.count22);
-            func_80021E2C(var_s2);
-            func_80022098(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, var_s2);
+            DrawLapCounter(var_s2, temp_s0_3->steering288.count22);
+            DrawRaceMinimap(var_s2);
+            DrawSteeringIndicator(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, var_s2);
             func_80021C00(var_s2);
         } while (var_s2 < 2);
-        func_80022390(0);
+        DrawSplitScreenDivider(0);
         func_800211A4(2);
         func_80020B10(2);
     }
@@ -222,8 +222,8 @@ __asm__("" : : "r"(temp_v0_4),"r"(temp_v1_4));
         SetupViewport(var_s2 + 2);
         if (RaceState == 0) {
             var_a0_2 = var_s2 * 2;
-            if ((u32) D_800F2DE4 < 0x4BU) {
-                func_80033474(&PlayerCars[var_s2], D_800F2DE4);
+            if ((u32) ModeFrame < 0x4BU) {
+                UpdateRaceIntroCamera(&PlayerCars[var_s2], ModeFrame);
                 var_v1_4 = var_s2 * 0x10;
             } else {
                 goto block_66;
@@ -231,7 +231,7 @@ __asm__("" : : "r"(temp_v0_4),"r"(temp_v1_4));
         } else {
             var_a0_2 = var_s2 * 2;
 block_66:
-            func_80033BE4((struct w3g2p *)((unsigned long)((((var_a0_2+var_s2)*8)+var_s2)<<5)+(unsigned long)PlayerCars));
+            UpdateRaceChaseCamera((struct w3g2p *)((unsigned long)((((var_a0_2+var_s2)*8)+var_s2)<<5)+(unsigned long)PlayerCars));
             var_v1_4 = var_s2 * 0x10;
         }
         temp_v0_5 = (Rr661FrameVector16 *)((u8 *)D_801183D0+var_v1_4);
@@ -256,13 +256,13 @@ __asm__("" : : "r"(temp_v0_5),"r"(temp_v1_5));
         temp_a0 = *(s16 *)((u8 *)&D_800F4C70+temp_s1);
         temp_a1_3 = *(s16 *)((u8 *)&D_800F2AB4+temp_s1);
         var_s2 = temp_s0_4;
-        func_8005007C(temp_a0,temp_a1_3,playerArg2);}
+        SlotSetLevelProgram(temp_a0,temp_a1_3,playerArg2);}
         __asm__("" : : "r"(temp_s1));
     } while (var_s2 < 2);
     if (RaceState >= 4) {
-        func_80036030();
+        StopRaceRumble();
         if (RaceState == 6) {
-            func_80036068();
+            StopRaceAudioAndRumble();
         }
     }
 }

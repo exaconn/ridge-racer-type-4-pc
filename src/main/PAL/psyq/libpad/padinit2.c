@@ -70,7 +70,7 @@ void func_800996C4(T *a0) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80098788 ((int (*)())func_80098788)
+#define _padSioRW2 ((int (*)())_padSioRW2)
 
 void func_8009970C(o) O *o; {
     if (D_800ABCA8 == D_800ABCB8) {
@@ -83,13 +83,13 @@ void func_8009970C(o) O *o; {
         D_800ABC80(o->fC);
         D_800ABC80(o->fC + 0xF0);
     }
-    if (o->f37 == 0) func_80098788(o, 0x42); else func_80098788(o, o->f37);
+    if (o->f37 == 0) _padSioRW2(o, 0x42); else _padSioRW2(o, o->f37);
 }
 
-#undef func_80098788
+#undef _padSioRW2
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80098788 ((int (*)())func_80098788)
+#define _padSioRW2 ((int (*)())_padSioRW2)
 
 int func_800997E4(a0) unsigned char *a0; {
   int a1, v, t;
@@ -99,7 +99,7 @@ int func_800997E4(a0) unsigned char *a0; {
   }
   a1 = 0;
   if (a0[0x37] == 0) a1 = D_800ABCB4;
-  v = func_80098788(a0, a1);
+  v = _padSioRW2(a0, a1);
   if (v < 0) return v;
   t = (v & 0xF) * 2;
   D_800ABCE0 = t;
@@ -107,7 +107,7 @@ int func_800997E4(a0) unsigned char *a0; {
   return 0;
 }
 
-#undef func_80098788
+#undef _padSioRW2
 
 s32 func_80099890(RrTransferState *state) {
     s32 mode = 0;
@@ -116,7 +116,7 @@ s32 func_80099890(RrTransferState *state) {
     if ((state->packet[0] >> 4) == 8) {
         mode = state->flag37 == 0;
     }
-    result = func_80098788(state, (u8)D_800ABC70(state, mode));
+    result = _padSioRW2(state, (u8)D_800ABC70(state, mode));
     if (result == 0x5A || result == 0 || result < 0) return result;
     return -4;
 }
@@ -124,7 +124,7 @@ s32 func_80099890(RrTransferState *state) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC70 (*(s32 (*(*))(Rec8009991C *, s32))&D_800ABC70)
 #define _padSioRW ((s32 (*)(Rec8009991C *, u8))_padSioRW)
-#define func_80098788 ((s32 (*)(Rec8009991C *, u8))func_80098788)
+#define _padSioRW2 ((s32 (*)(Rec8009991C *, u8))_padSioRW2)
 
 s32 func_8009991C(Rec8009991C *arg0) {
     s32 i;
@@ -148,12 +148,12 @@ s32 func_8009991C(Rec8009991C *arg0) {
             if (i >= 0) {
                 D_800ABC74(&arg0->unk0C[i]);
             }
-            res = func_80098788(arg0, (u8)D_800ABC70(arg0, 1));
+            res = _padSioRW2(arg0, (u8)D_800ABC70(arg0, 1));
             if (res < 0) {
                 return res;
             }
             setRC2wait(0x3C);
-            if (func_80098A00() == 0) {
+            if (_padClrIntSio0() == 0) {
                 return -3;
             }
         }
@@ -193,7 +193,7 @@ s32 func_8009991C(Rec8009991C *arg0) {
             return res;
         }
         setRC2wait(0x3C);
-        if (func_80098A00() == 0) {
+        if (_padClrIntSio0() == 0) {
             return -3;
         }
         D_800ABCE0--;
@@ -206,14 +206,14 @@ s32 func_8009991C(Rec8009991C *arg0) {
         }
         if (D_800ABCE4->unk0E != 0x22) {
             setRC2wait(0x3C);
-            if (func_80098A00() == 0) {
+            if (_padClrIntSio0() == 0) {
                 res = -3;
                 goto end;
             }
         }
     }
 
-    func_80098A90();
+    _padWaitRXready();
     arg0->unk3C[arg0->unk44++] = D_800ABCE4->unk00;
     D_800ABC68(0);
     res = 0;
@@ -223,4 +223,4 @@ end:
 
 #undef D_800ABC70
 #undef _padSioRW
-#undef func_80098788
+#undef _padSioRW2

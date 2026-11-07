@@ -1,10 +1,10 @@
 func_80019144
-func_80031E3C
+InitSelectionRows
 DrawHudDigit
 func_8005F0D0
 ClearTrackObjectStates
 __divdf3
-func_8007E2D4
+__gtdf2
 _mul_mant_d
 _spu_init
 _spu_FsetRXXa
@@ -15,7 +15,7 @@ _SsContNrpn2
 _SsUtBuildADSR
 _SsNoteOn
 SpuSetCommonAttr
-func_80082FC4
+_SsSndCrescendo
 SsSetTableSize
 SsSepSetVol
 SsUtChangePitch
@@ -33,7 +33,7 @@ CdControlF
 CD_flush
 CD_getsector
 DS_searchdir
-func_8008EA9C
+cb_data
 CdRead2
 StGetNext
 InitGeom
@@ -54,7 +54,7 @@ func_80099FA0
 chkRC2wait
 func_8009AC50
 func_8009BAD8
-func_8009BF94
+MemCardSync
 func_8009C400
 func_8009C6F8
 func_8009C978

@@ -24,26 +24,26 @@ extern int InitBadgeRow();
 extern int InitRect16Row();
 extern int InitGlyphRow();
 extern int LoadCursor;
-extern int D_800F2DE4;
+extern int ModeFrame;
 extern int D_800F4D40;
-extern signed char D_800F4D7C;
+extern signed char LoadState;
 extern int GlyphRows;
 extern s32 VSyncThreshold;
 extern s16 D_800F3A26;
-extern s16 D_800F4C6A;
+extern s16 ModeGroup;
 extern s16 D_800F4D8A;
 extern int func_8001E84C();
-extern int func_8002AF8C();
+extern int SetMenuFrameOptions();
 extern void func_80036D40(void);
 extern int InitMenuArenas();
-extern int func_8003AE4C();
+extern int LoadCarRangeStep();
 extern int DrawUiRow();
 extern char D_800106EC[];
 extern char D_800106F8[];
 extern int MenuStepDirection;
 extern int D_800F3A60;
 extern struct { char pad[0x10]; short h10; } *BadgeRows;
-extern struct { char pad[4]; signed char b4; char b5; signed char b6; } *D_800FF68C;
+extern struct { char pad[4]; signed char b4; char b5; signed char b6; } *Dialogue;
 
 void func_8003662C();
 void func_8003687C(int a0);
@@ -167,7 +167,7 @@ int a0;
 
 /* legacy typing of shared globals in this part of the unit */
 #define BadgeRows ((X *)BadgeRows)
-#define D_800FF68C ((Y *)D_800FF68C)
+#define Dialogue ((Y *)Dialogue)
 
 void func_8003687C(int a0) {
     int i = 0;
@@ -186,36 +186,36 @@ void func_8003687C(int a0) {
     InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
     InitUiRow(0, 0x28, 0x48, 0xC0, 0x20, 0, 0, 4, 3, 4);
     BadgeRows->b = 1;
-    D_800FF68C->a = 1;
-    D_800FF68C->d = 0;
-    D_800F2DE4 = 0;
-    D_800F4D7C = 0;
+    Dialogue->a = 1;
+    Dialogue->d = 0;
+    ModeFrame = 0;
+    LoadState = 0;
     LoadCursor = D_800F4D40;
 }
 
 #undef BadgeRows
-#undef D_800FF68C
+#undef Dialogue
 
 void func_800369E8(void) {
     UpdateScreenFade(0x10006);
     func_8003687C(0);
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     VSyncThreshold = 0x80;
-    D_800F4C6A = 1;
+    ModeGroup = 1;
     D_800F3A26 = 0xA;
     D_800F4D8A = 0;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2DE4 (*(unsigned (*))&D_800F2DE4)
+#define ModeFrame (*(unsigned (*))&ModeFrame)
 
 void func_80036A44(void) {
     int a;
     int t;
     int r;
     int s1;
-    D_800F2DE4 += 1;
-    if (D_800FF68C->b4 >= 0x22) {
+    ModeFrame += 1;
+    if (Dialogue->b4 >= 0x22) {
         DrawUiRow(0);
         a = 0x10006;
     } else {
@@ -228,26 +228,26 @@ void func_80036A44(void) {
             return;
         }
     }
-    if (D_800FF68C->b4 == 1) {
-        if (D_800F3A60 != 0 || D_800F2DE4 >= 0x1F5) {
-            t = D_800FF68C->b6;
+    if (Dialogue->b4 == 1) {
+        if (D_800F3A60 != 0 || ModeFrame >= 0x1F5) {
+            t = Dialogue->b6;
             if (t == 4) {
-                D_800FF68C->b4 = 0x22;
+                Dialogue->b4 = 0x22;
                 BadgeRows->h10 = t;
                 return;
             }
         }
     }
     if (D_800AD4F2 == 2) {
-        r = func_8003AE4C(0, 1);
+        r = LoadCarRangeStep(0, 1);
         if (r == 1) {
             if (BadgeRows->h10 == 0xB) {
-                func_8002AF8C(0, 1, 0);
+                SetMenuFrameOptions(0, 1, 0);
                 func_8001E84C(D_800106EC);
                 s1 = LoadCursor;
                 InitMenuArenas();
                 func_80039988();
-                D_800F4C6A = r;
+                ModeGroup = r;
                 D_800F3A26 = 0x22;
                 D_800F4D8A = 0;
                 LoadCursor = s1;
@@ -257,4 +257,4 @@ void func_80036A44(void) {
     }
 }
 
-#undef D_800F2DE4
+#undef ModeFrame

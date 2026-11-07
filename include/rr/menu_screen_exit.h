@@ -5,9 +5,9 @@
 #include "game/race/raceset.h"
 /* These scene exits draw through the containing frame's ordering table.
  * The first rectangle is the published screen context. */
-extern u16 D_800F4C6A;
+extern u16 ModeGroup;
 extern s16 D_800F3A26,D_800F4D8A;
-void func_80036068(void);
+void StopRaceAudioAndRumble(void);
 void ovl660_func_8011712C(void);
 void ovl661_func_80114AA0(void);
 #endif

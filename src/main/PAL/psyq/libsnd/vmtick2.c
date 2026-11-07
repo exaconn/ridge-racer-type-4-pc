@@ -26,10 +26,10 @@ typedef struct {
 
 extern SpuVoiceRow36 _svm_voice[];
 extern u8 _svm_sreg_dirty[];
-extern void (*D_8010FE30)(s32);
+extern void (*_autopan)(s32);
 extern u16 _svm_sreg_buf[];
-extern void (*D_8010FFB8)(s32);
-extern s32 D_8010FFBC;
+extern void (*_autovol)(s32);
+extern s32 _svm_envx_ptr;
 extern s32 _svm_envx_hist[];
 extern s8 spuVmMaxVoice;
 extern void SpuSetVoiceAttr(SpuVoiceAttr *);
@@ -53,22 +53,22 @@ void _SsVmFlush(void) {
     s32 *p;
     u8 hi;
 
-    D_8010FFBC = (D_8010FFBC + 1) & 0xF;
-    *(s32 *)((u8 *)_svm_envx_hist + (D_8010FFBC << 2)) = 0;
+    _svm_envx_ptr = (_svm_envx_ptr + 1) & 0xF;
+    *(s32 *)((u8 *)_svm_envx_hist + (_svm_envx_ptr << 2)) = 0;
     p = _svm_envx_hist;
 
     v = 0;
     if (spuVmMaxVoice > 0) {
         do {
-            func_800879D4(v, &_svm_voice[v].value06);
+            SpuGetVoiceEnvelope(v, &_svm_voice[v].value06);
             if (_svm_voice[v].value06 == 0) {
-                _svm_envx_hist[D_8010FFBC] |= (1 << v);
+                _svm_envx_hist[_svm_envx_ptr] |= (1 << v);
             }
             v++;
         } while (v < spuVmMaxVoice);
     }
 
-    if (D_80110130 == 0) {
+    if (_svm_auto_kof_mode == 0) {
         mask_all = -1;
         p = _svm_envx_hist;
         for (v = 0; v < 15; v++) {
@@ -95,15 +95,15 @@ void _SsVmFlush(void) {
         }
     }
 
-    D_8010F8F8 &= ~D_80110000;
-    D_8010F8FA &= ~D_80110002;
+    _svm_okon1 &= ~_svm_okof1;
+    _svm_okon2 &= ~_svm_okof2;
 
     for (v = 0; v < 24; v++) {
         if (_svm_voice[v].field1E != 0) {
-            D_8010FFB8(v);
+            _autovol(v);
         }
         if (_svm_voice[v].field2A != 0) {
-            D_8010FE30(v);
+            _autopan(v);
         }
     }
 
@@ -134,15 +134,15 @@ void _SsVmFlush(void) {
         _svm_sreg_dirty[v] = 0;
     }
 
-    SpuSetKey(0, ((u8)D_80110002 << 16) | D_80110000);
-    SpuSetKey(1, ((u8)D_8010F8FA << 16) | D_8010F8F8);
-    SpuSetReverbVoice(8, ((u8)D_8010F8FE << 16) | D_8010F8FC);
-    SpuSetNoiseVoice(8, ((u8)D_8010F902 << 16) | D_8010F900);
+    SpuSetKey(0, ((u8)_svm_okof2 << 16) | _svm_okof1);
+    SpuSetKey(1, ((u8)_svm_okon2 << 16) | _svm_okon1);
+    SpuSetReverbVoice(8, ((u8)_svm_orev2 << 16) | _svm_orev1);
+    SpuSetNoiseVoice(8, ((u8)_svm_onos2 << 16) | _svm_onos1);
 
-    D_80110000 = 0;
-    D_80110002 = 0;
-    D_8010F8F8 = 0;
-    D_8010F8FA = 0;
-    D_8010F900 = 0;
-    D_8010F902 = 0;
+    _svm_okof1 = 0;
+    _svm_okof2 = 0;
+    _svm_okon1 = 0;
+    _svm_okon2 = 0;
+    _svm_onos1 = 0;
+    _svm_onos2 = 0;
 }

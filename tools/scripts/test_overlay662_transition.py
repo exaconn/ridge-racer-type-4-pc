@@ -34,7 +34,7 @@ typedef struct {s32 kind,arg;State state;} Event;
 static struct World {State s;u32 calls;Event events[3];u32 guard[4];} world,expected;
 static u32 resources[3][16];
 #define ovl662_D_801276A8 world.s.garage
-#define D_800F4C6A world.s.mode
+#define ModeGroup world.s.mode
 #define D_800F3A26 world.s.scene
 #define D_800F4D8A world.s.phase
 ''' + bodies + r'''
@@ -85,12 +85,12 @@ static struct World {u32 guard[4];RrMenuArenas arenas;void *published;RrMenuChoi
 static u8 resources[3][64];
 #define D_800F4D70 world.arenas
 #define LoadCursor world.published
-#define D_800F4D98 world.choice
+#define SelectionRows world.choice
 #define D_800ABE2C world.glyph
 #define D_800F2AB0 world.mode
 #define ScreenFrame world.counter
-#define D_800F4D7C world.flag1
-#define D_800F3A2C world.flag2
+#define LoadState world.flag1
+#define MenuScriptStep world.flag2
 ''' + reset + encoder + body + r'''
 static u32 seed=0x15474;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}

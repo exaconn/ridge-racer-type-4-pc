@@ -35,7 +35,7 @@ u32 test_ram[0x10000 / 4];
 RrLibInterruptDriverPrefix test_driver, test_alternate_driver;
 RrLibInterruptDriverPrefix *D_800A6350;
 s32 test_handler_calls;
-void func_8008DDAC(void) { test_handler_calls++; }
+void CdCommandCallback(void) { test_handler_calls++; }
 '''
         for name in ('8008B364', '8008B394', '8008D820'):
             body = (root / ('tools/scripts/fixtures/legacy/func_' + name + '.c')).read_text()
@@ -55,7 +55,7 @@ void func_8008DDAC(void) { test_handler_calls++; }
         cls.alternate = Driver.in_dll(cls.library, 'test_alternate_driver')
         cls.current = C.c_void_p.in_dll(cls.library, 'D_800A6350')
         cls.handler_calls = C.c_int32.in_dll(cls.library, 'test_handler_calls')
-        cls.handler = C.cast(cls.library.func_8008DDAC, C.c_void_p).value
+        cls.handler = C.cast(cls.library.CdCommandCallback, C.c_void_p).value
         cls.initialize = cls.library.CD_initintr
         cls.initialize.argtypes = []
         cls.initialize.restype = None

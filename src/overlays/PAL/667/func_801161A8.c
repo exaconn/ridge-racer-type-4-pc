@@ -12,7 +12,7 @@ void ovl667_func_801161A8(s32 arg0) {
     register s32 rotation __asm__("$2");
     RrMenuGridPoint *temp_a3_2;
 
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     ScreenFrame = 0;
     MenuCursor = 0;
     MenuItemCount = 3;
@@ -91,7 +91,7 @@ void ovl667_func_801161A8(s32 arg0) {
         D_8010C0D8[temp_a0] = 0;
     }
     temp_a2 = D_800AC5D4 & 1;
-    UnpackChoiceGlyph((s8 *)&D_800F4D98 + D_800AC5D4 * 4,
+    UnpackChoiceGlyph((s8 *)&SelectionRows + D_800AC5D4 * 4,
         D_8010BFD8[temp_a2][D_8010C0D8[temp_a2]][D_8010C0D0[temp_a2]].glyph);
     temp_a2_2 = D_800AC5D4 & 1;
     temp_s0 = &D_8010C0D8[temp_a2_2];

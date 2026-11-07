@@ -1,6 +1,6 @@
 #include "rr/softfloat.h"
 
-s32 func_8007E3B4(u64 left, u64 right) {
+s32 __ltdf2(u64 left, u64 right) {
     register union {u64 bits; RrWide64 words;} a __asm__("$8"),b __asm__("$6");
     u32 magnitude=0x7FFF0000;
     s32 leftExponent;

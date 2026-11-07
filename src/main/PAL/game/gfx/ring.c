@@ -9,9 +9,9 @@
         "swc2 $12,0(%0); swc2 $13,0(%1); swc2 $14,0(%1)" \
         : : "r"(outer), "r"(inner) : "memory")
 
-void func_8005599C(char *view, char *lighting, RrMatrixWords32 *first, RrMatrixWords32 *second);
+void SetupObjectLightMatrices(char *view, char *lighting, RrMatrixWords32 *first, RrMatrixWords32 *second);
 s32 *ScaleMatrix(s32 *matrix, s32 *scale);
-void func_8006EE3C(s16 *output, s16 *view, s32 *matrix);
+void SetGteObjectTransform(s16 *output, s16 *view, s32 *matrix);
 s32 RotTransPers(s32 *point, s32 *screen, s32 *interpolation, s32 *flags);
 s32 rsin(s32 angle);
 s32 rcos(s32 angle);
@@ -19,7 +19,7 @@ extern int D_800A1CD0[];
 extern void func_80096434();
 
 void DrawRing(s32 *position, s32 radius);
-void func_8005ECD4(int a0);
+void InitScrollTrack(int a0);
 
 static __inline__ s32 project_ring_origin(s32 *position, s32 radius,
     RrRingScratch48 *scratch, RrRingVertex8 *point, s32 *output)
@@ -66,12 +66,12 @@ void DrawRing(s32 *position, s32 radius)
   transform.rz = 0;
   transform.ry = 0;
   transform.rx = 0;
-  func_8005599C((char *)&transform, (char *)MotionController + 0x20, &rotation, &camera);
+  SetupObjectLightMatrices((char *)&transform, (char *)MotionController + 0x20, &rotation, &camera);
   scale[2] = 1024;
   scale[1] = 1024;
   scale[0] = 1024;
   ScaleMatrix(rotation.w, scale);
-  func_8006EE3C(scratch->origin, (s16 *)&transform, rotation.w);
+  SetGteObjectTransform(scratch->origin, (s16 *)&transform, rotation.w);
   scratch->red = 220;
   scratch->green = 160;
   scratch->blue = 0;
@@ -125,7 +125,7 @@ void DrawRing(s32 *position, s32 radius)
 /* legacy typing of shared globals in this part of the unit */
 #define MotionController (*(int (*))&MotionController)
 
-void func_8005ECD4(int a0) {
+void InitScrollTrack(int a0) {
     int *p = (int *)(MotionController + 0x134);
     func_80096434(p, 0x28);
     p[1] = 0;

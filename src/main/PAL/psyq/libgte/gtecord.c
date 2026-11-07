@@ -4,9 +4,9 @@
 #include "psyq/libgte/gtecolo4.h"
 #include "rr/overlay662_distance.h"
 
-s32 func_80090604(s32 arg0);
+s32 csqrt_1(s32 arg0);
 
-s32 func_80090604(s32 arg0) {
+s32 csqrt_1(s32 arg0) {
     s32 x[8];
     s32 y[8];
     s32 i;
@@ -69,6 +69,6 @@ int a0;
         a = a0 << -(s * 2);
     }
     s -= 6;
-    if (s >= 0) return func_80090604(a) << s;
-    return func_80090604(a) >> -s;
+    if (s >= 0) return csqrt_1(a) << s;
+    return csqrt_1(a) >> -s;
 }

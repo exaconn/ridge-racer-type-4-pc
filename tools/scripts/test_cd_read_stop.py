@@ -185,7 +185,7 @@ static void check(int scenario,s32 pending,u32 flags,int mutate,int flip,int syn
     actual.flags=flags;timing(scenario,seed);
     plan.mutate=mutate;plan.flip_flags=flip;plan.new_flags=flags^1;plan.sync_clears=sync_clear;
     memcpy(&expected,&actual,sizeof(actual));actual_count=expected_count=0;
-    reference();func_8008ED54();
+    reference();CdReadBreak();
     assert(actual_count==expected_count);
     assert(!memcmp(actual_log,expected_log,actual_count*sizeof(Entry)));
     assert(!memcmp(&actual,&expected,sizeof(actual)));

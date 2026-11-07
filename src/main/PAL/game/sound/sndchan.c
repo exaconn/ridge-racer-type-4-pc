@@ -50,7 +50,7 @@ extern int SsUtKeyOnV();
 extern void SetVoiceVolumeScaled();
 extern struct E SoundState[];
 
-int func_80050744(int a0, int x, int a2, int a3);
+int SlotInterpCurve(int a0, int x, int a2, int a3);
 
 void UpdateSoundSlot(int a0) {
     RrSlot620 *s0 = &SoundSlots[a0];
@@ -94,8 +94,8 @@ void UpdateSoundSlot(int a0) {
     sp20 = D_800A053C[v1];
 
     for (i = 0; i < s0->count0C; i++, s3++) {
-        int s6 = func_80050744(i * 2, s5, s0->program14, a0);
-        int a1 = func_80050744(i * 2 + 1, s5, s0->program14, a0) * sp28;
+        int s6 = SlotInterpCurve(i * 2, s5, s0->program14, a0);
+        int a1 = SlotInterpCurve(i * 2 + 1, s5, s0->program14, a0) * sp28;
         int a2;
         if (a1 < 0) {
             a1 += 0x7F;
@@ -148,7 +148,7 @@ void UpdateSoundSlot(int a0) {
     }
 }
 
-int func_80050744(int a0, int x, int a2, int a3) {
+int SlotInterpCurve(int a0, int x, int a2, int a3) {
     int i, lo, vlo, vhi, klo, khi;
     for (i = 1; i < 9; i++) {
         if (x < SoundState[a3].t[a2][a0].k[i]) break;

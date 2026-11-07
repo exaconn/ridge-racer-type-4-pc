@@ -89,8 +89,8 @@ struct State {
 struct Event {s32 kind,args[5];u32 hash;};
 static struct World {struct State state;unsigned calls;struct Event events[35];} actual,expected,initial,*w;
 static unsigned scenario,mutation;
-#define D_800F2DE4 w->state.frame
-#define D_800F4C64 w->state.match
+#define ModeFrame w->state.frame
+#define TotalRaceTime w->state.match
 #define MenuCursor w->state.selection
 #define MenuItemCount w->state.mode
 #define ovl661_D_80118378 w->state.table661
@@ -102,7 +102,7 @@ static unsigned scenario,mutation;
 #define D_8010C070 w->state.ranks
 #define D_8010C080 w->state.counts
 #define D_8010C0C8 w->state.order
-#define D_800FF688 w->state.reset
+#define LinkState w->state.reset
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static s16 half(u32 n){u16 bits=(u16)n;s16 v;memcpy(&v,&bits,2);return v;}
 static void event(s32 kind,s32 a,s32 b,s32 c,s32 d,s32 e) {
@@ -143,7 +143,7 @@ void SetMenuTextRow(s32 row,s32 position,s32 group,s32 mode,s32 label) {
  assert(group==(n<22?0:2) && mode==0);
  event(1,row,position,group,mode,label);
 }
-void func_8002AF8C(s32 a,s32 b,s32 c) {
+void SetMenuFrameOptions(s32 a,s32 b,s32 c) {
  assert(w->calls==34 && a==0 && b==1 && c==0);event(2,a,b,c,0,0);
 }
 '''+bodies+r'''

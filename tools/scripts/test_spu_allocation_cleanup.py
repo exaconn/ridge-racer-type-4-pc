@@ -32,7 +32,7 @@ _Static_assert(sizeof(unsigned long)>=sizeof(void *),"full pointer arithmetic");
 typedef struct {RrSpuAllocation records[34];int32_t last;uint32_t fence[4];} World;
 static World initial,actual,expected,*world;
 static RrSpuAllocation *table;
-#define D_800A48BC (world->last)
+#define _spu_AllocLastNum (world->last)
 #define _spu_memList table
 '''
         reference=r'''

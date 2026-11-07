@@ -44,18 +44,18 @@ static u8 resources[3][0x2D100],arenas[3][128],packets[128];static u32 orders[32
 #define D_800F4D70 w->s.arenas
 #define D_800F4D40 w->s.base
 #define LoadCursor w->s.published
-#define D_800F4D98 w->s.choice
+#define SelectionRows w->s.choice
 #define D_800ACBD0 w->s.grid
 #define D_800ABE08 w->s.table
-#define D_800F2DE4 w->s.frame
+#define ModeFrame w->s.frame
 #define ScreenFrame w->s.pulse
 #define D_800AC648 w->s.selection
 #define MenuCursor w->s.flag
 #define MenuItemCount w->s.mode
-#define D_800AD522 w->s.selectionFlag
+#define ReverseCourse w->s.selectionFlag
 #define D_800F3914 w->s.course
-#define D_800F3A2C w->s.clear1
-#define D_800F4D7C w->s.clear2
+#define MenuScriptStep w->s.clear1
+#define LoadState w->s.clear2
 #define D_8009F64C w->s.map
 #define D_800AC5D4 w->s.player
 #define ovl661_D_80118438 w->s.local
@@ -95,7 +95,7 @@ void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){
 void SetupRenderer(s32 shift){Event *e=event(4);e->args[0]=shift;change();}
 void func_80037110(void){event(5);change();}
 void ResetCarState(RrRaceVehicle *car){Event *e=event(6);assert(car==w->s.cars||car==w->s.cars+1);e->args[0]=car-w->s.cars;assert((uintptr_t)car>UINT32_MAX);change();}
-void func_8002AF8C(s32 a,s32 b,s32 c){Event *e=event(7);e->args[0]=a;e->args[1]=b;e->args[2]=c;if(w==&actual){assert(w->s.count>=0&&w->s.count<=9);seenCounts|=1U<<w->s.count;}change();}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){Event *e=event(7);e->args[0]=a;e->args[1]=b;e->args[2]=c;if(w==&actual){assert(w->s.count>=0&&w->s.count<=9);seenCounts|=1U<<w->s.count;}change();}
 static void reset(void){w->s.clear1=0;w->s.clear2=0;w->s.pulse=0;}
 void UnpackChoiceGlyph(s8 *out,s32 glyph){unsigned p=w->s.player,g=w->s.groups[p],c=w->s.courses[p];assert(p<2&&g<2&&c<9);seenChoices[p][g][c]++;real_glyph(out,glyph);}
 static void expected(void){unsigned i,p,g;State *s=&w->s;

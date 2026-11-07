@@ -6,7 +6,7 @@
 
 extern void setRC2wait(s32);
 
-extern s32 func_80098A00(void);
+extern s32 _padClrIntSio0(void);
 
 void func_80098488(RrChannelRecordF0 *channel) {
     s32 *stage=&D_800ABCAC;
@@ -19,7 +19,7 @@ void func_80098488(RrChannelRecordF0 *channel) {
     if(value) {
         if(value==3 && channel->status.packet[0]==0x80)goto reload;
         setRC2wait(60);
-        if(!func_80098A00())D_800ABC68(-3);
+        if(!_padClrIntSio0())D_800ABC68(-3);
 reload:
         value=D_800ABCAC;
         /* ASM_BARRIER: Keep the reload gap before the shared saturation label. */

@@ -1,7 +1,7 @@
 #ifndef RR_OVERLAY662_CHARACTER_GRID_H
 #define RR_OVERLAY662_CHARACTER_GRID_H
 #include "rr/overlay662_history_labels.h"
-extern u8 D_8009F7E4[];
+extern u8 NameCharset[];
 extern s8 ovl662_D_80126230[3];
 extern s32 ovl662_D_801273B4;
 s32 rcos(s32 angle);

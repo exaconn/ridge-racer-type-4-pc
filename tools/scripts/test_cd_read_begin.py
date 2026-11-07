@@ -197,8 +197,8 @@ void CdFlush(void){reset(0);}
 s32 CdMode(void){return mode_query(0);}
 s32 CdPosToInt(void *p){return decode(0,p);}
 s32 CdControlF(s32 c,const u8 *p){return transfer(0,c,p);}
-void func_8008E828(s32 a,u8 *p){callback_effect^=(u32)a+(p!=0);}
-void func_8008EA9C(void){callback_effect^=8;}
+void cb_read(s32 a,u8 *p){callback_effect^=(u32)a+(p!=0);}
+void cb_data(void){callback_effect^=8;}
 static s32 reference(s32 restart) {
     set(1,0,0);set(1,1,0);
     if(expected.flags&1)set(1,2,0);
@@ -228,8 +228,8 @@ static s32 reference(s32 restart) {
         }
     }
     expected.state.completed20=(u32)decode(1,packet(1));
-    set(1,1,(RrLibCompletionCallback)func_8008E828);
-    if(expected.flags&1)set(1,2,func_8008EA9C);
+    set(1,1,(RrLibCompletionCallback)cb_read);
+    if(expected.flags&1)set(1,2,cb_data);
     expected.state.position08=expected.state.buffer04;
     transfer(1,6,0);
     expected.state.remaining14=expected.state.sectors00;
@@ -256,7 +256,7 @@ static void check(s32 restart,u8 status_byte,u32 mode,s32 queried,s32 cmd2,s32 c
     memcpy(&expected,&actual,sizeof(actual));actual_count=expected_count=0;
     assert((uintptr_t)actual.state.buffer04>UINT32_MAX);
     assert((uintptr_t)cb0>UINT32_MAX);
-    s32 wanted=reference(restart);s32 got=func_8008EB6C(restart);
+    s32 wanted=reference(restart);s32 got=cd_read_retry(restart);
     assert(got==wanted&&actual_count==expected_count);
     if(memcmp(actual_log,expected_log,actual_count*sizeof(Event))) {
         for(int i=0;i<actual_count;i++)if(memcmp(&actual_log[i],&expected_log[i],sizeof(Event))) {

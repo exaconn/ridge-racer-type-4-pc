@@ -10,12 +10,12 @@ void BuildCameraMatrices(void);
 void SetupViewport(s32);
 void SetGeomOffset(s32 x,s32 y);
 void func_8002E828(s32 scale,void *matrix);
-void func_8005599C(char *view,char *lighting,
+void SetupObjectLightMatrices(char *view,char *lighting,
     RrMatrixWords32 *first,RrMatrixWords32 *second);
 u32 *ScaleMatrix(u32 *matrix,s32 scale[3]);
 void SetGeomScreen(s32);
 void SelectModelBank();
-void func_8006EE3C(s16 *output,s16 *view,s32 *matrix);
+void SetGteObjectTransform(s16 *output,s16 *view,s32 *matrix);
 void BuildRotMatrixZ(s16 *matrix,s32 angle);
 void BuildRotMatrixX(void *matrix,s32 angle);
 void func_80058768(RrPreviewRenderScratch *scratch,s32 object,s32 blend,s32 depth);

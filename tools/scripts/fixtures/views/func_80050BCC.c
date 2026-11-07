@@ -10,7 +10,7 @@
 
 #undef SoundState
 
-void func_80050BCC(RrAudioBankSetup *arg0)
+void SlotSetupBank(RrAudioBankSetup *arg0)
 {
   register u8 *bankOwner asm("$23");
   register u8 *read asm("$18");
@@ -76,7 +76,7 @@ register s32 channelOffset asm("$4");
   }
   if (input->group08 != (RrAudioProgramData*)~0UL)
   {
-    func_80050894(input->group08, bankIndex);
+    SlotLoadCurves(input->group08, bankIndex);
   }
   slot->flags00 = 1;
   slot->levels20.halves.level = 0x4B;

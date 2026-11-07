@@ -16,7 +16,7 @@ extern w3g6_U D_800A3B20[];
 extern w3g6_U D_800A3B28[];
 extern w3g6_U D_800A3B30[];
 extern int D_800A3B38[];
-extern w3g6_32 D_800AD570;
+extern w3g6_32 ColorMatrix;
 extern short D_800AD5BC[];
 extern w3g6_U D_800F38F8[];
 extern int D_8010718C;
@@ -37,7 +37,7 @@ void InitViewLighting(void)
     int *t;
     int *b;
     int i;
-    D_800AD570 = D_800A3B00;
+    ColorMatrix = D_800A3B00;
     D_800F38F8[0] = D_800A3B20[0];
         D_800F38F8[1] = D_800A3B28[0];
     D_800F38F8[2] = D_800A3B30[0];

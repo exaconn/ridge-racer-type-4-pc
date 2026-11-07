@@ -39,14 +39,14 @@ void func_8003BFC8(a0) s32 a0;
                 }
                 if (D_8010C114 == 0x3B && s2 < 2 && a0 == 0) SoundQueueEnqueue(c, 0);
                 *(RrSpritePacket **)SCRATCHPAD = GameQueueSprite((char *)D_800ACC14 + 0x70, *(RrSpritePacket **)SCRATCHPAD, 0x70, 0x60, 0xC, 0xC, s5, 0xA8, 0x7EF8);
-                func_8002B5D0(0x80, 0x60, s1, 0x7EF8, 1);
+                DrawRaceTime(0x80, 0x60, s1, 0x7EF8, 1);
             } else {
                 s3 = D_8010C0F8[D_8010C12C];
                 s2 = D_8010C12C;
             }
         }
-        func_8002B5D0(0x14, 0x1C, s3, 0x7EF8, 0);
-        func_8002B5D0(0x14, 0x26, s4, 0x7EF8, 0);
+        DrawRaceTime(0x14, 0x1C, s3, 0x7EF8, 0);
+        DrawRaceTime(0x14, 0x26, s4, 0x7EF8, 0);
         p = *(RrSpritePacket **)SCRATCHPAD;
         p->len = 4;
         p->code = 0x64;

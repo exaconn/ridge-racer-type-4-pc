@@ -16,25 +16,25 @@ class OrderingTableDmaTest(unittest.TestCase):
         header=(root/'include/rr/gpu.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
         body=native_body((root/'tools/scripts/fixtures/views/func_800942E4.c').read_text())
-        assert body.count('*D_800ABBE0 &')==2
-        body=body.replace('*D_800ABBE0 &','test_control(D_800ABBE0) &')
+        assert body.count('*DMA6_CHCR &')==2
+        body=body.replace('*DMA6_CHCR &','test_control(DMA6_CHCR) &')
         timer=native_body((root/'tools/scripts/fixtures/views/func_80095360.c').read_text())
         code='''#include <stdint.h>
 typedef uint8_t u8;typedef uint16_t u16;typedef int16_t s16;typedef uint32_t u32;typedef int32_t s32;
 '''+header+'''
 u32 ports[6];u8 *address;
-u8 * volatile *D_800ABBD8=&address;
-volatile u32 *D_800ABBDC=&ports[2],*D_800ABBE0=&ports[3],*D_800ABBE4=&ports[1];
+u8 * volatile *DMA6_MADR=&address;
+volatile u32 *DMA6_BCR=&ports[2],*DMA6_CHCR=&ports[3],*DPCR=&ports[1];
 s32 D_800ABBFC,D_800ABC00;
 s32 init_calls,init_mode,timeout_calls,reads,ready_after,abort_after,abort_value;
 s32 init_swap,timeout_swap,read_ports[64];u32 read_values[64];
 u32 setup[4];u8 *setup_address;
 s32 VSync(s32 mode){
     init_calls++;init_mode=mode;setup[0]=ports[1];setup[1]=ports[2];setup[2]=ports[3];setup[3]=ports[4];setup_address=address;
-    if(init_swap)D_800ABBE0=&ports[4];return 100;
+    if(init_swap)DMA6_CHCR=&ports[4];return 100;
 }
 s32 get_alarm(void){
-    timeout_calls++;if(timeout_swap && timeout_calls==1)D_800ABBE0=&ports[4];
+    timeout_calls++;if(timeout_swap && timeout_calls==1)DMA6_CHCR=&ports[4];
     return abort_after && timeout_calls>=abort_after?abort_value:0;
 }
 u32 test_control(volatile u32 *p){
@@ -48,7 +48,7 @@ u32 test_control(volatile u32 *p){
         cls.lib=C.CDLL(str(d/'f.so'));cls.f=cls.lib._otc
         cls.f.argtypes=[C.c_void_p,C.c_int32];cls.f.restype=C.c_int32
         cls.ports=(C.c_uint32*6).in_dll(cls.lib,'ports');cls.address=C.c_void_p.in_dll(cls.lib,'address')
-        cls.control=C.c_void_p.in_dll(cls.lib,'D_800ABBE0')
+        cls.control=C.c_void_p.in_dll(cls.lib,'DMA6_CHCR')
         cls.values={n:C.c_int32.in_dll(cls.lib,n) for n in ('D_800ABBFC','D_800ABC00','init_calls','init_mode','timeout_calls','reads','ready_after','abort_after','abort_value','init_swap','timeout_swap')}
         cls.read_ports=(C.c_int32*64).in_dll(cls.lib,'read_ports');cls.read_values=(C.c_uint32*64).in_dll(cls.lib,'read_values')
 

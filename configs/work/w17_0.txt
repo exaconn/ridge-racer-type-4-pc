@@ -5,7 +5,7 @@ func_80058768
 func_80060C70
 func_8007D1B8
 _comp_mant
-func_8007E3B4
+__ltdf2
 __subdf3
 _spu_FwriteByIO
 _spu_Fw1ts
@@ -21,7 +21,7 @@ SsSetTickMode
 _SsSndTempo
 SsUtGetProgAtr
 SsUtKeyOnV
-func_800869F0
+SsUtSetDetVVol
 _SsVmDoAllocate
 _SsVmKeyOff
 vmNoiseOff
@@ -32,9 +32,9 @@ trapIntr
 setIntrDMA
 CdControlB
 CD_initintr
-func_8008DDAC
+CdCommandCallback
 DS_cachefile
-func_8008EB6C
+cd_read_retry
 CdGetDiskType
 dma_execute
 SquareRoot0

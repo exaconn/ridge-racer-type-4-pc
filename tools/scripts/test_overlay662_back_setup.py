@@ -31,7 +31,7 @@ struct State {u32 guard[4];RrGarageSelectionPrefix garage;s16 row,position,selec
 static struct World {struct State s;unsigned calls;struct {s32 kind,arg[10];u32 hash;} events[12];} actual,expected,initial,*w;
 static unsigned scenario,mutation,kind;
 #define ovl662_D_801276A8 w->s.garage
-#define D_800F4C6A w->s.row
+#define ModeGroup w->s.row
 #define D_800F3A26 w->s.position
 #define D_800F4D8A w->s.selection
 #define ovl662_D_801148F0 save_message

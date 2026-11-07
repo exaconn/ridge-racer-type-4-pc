@@ -38,7 +38,7 @@ typedef int32_t s32;
 ''' + header)
         source = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', source)
         source += '''
-s32 D_800A48B8;
+s32 _spu_AllocBlockNum;
 RrSpuAllocation *_spu_memList;
 void (*test_consolidate)(void);
 void _spu_gcSPU(void) { test_consolidate(); }
@@ -55,7 +55,7 @@ void _spu_gcSPU(void) { test_consolidate(); }
         if limit is None:
             limit = len(entries)
         table = (Allocation * len(entries))(*(Allocation(*entry) for entry in entries))
-        C.c_int32.in_dll(self.library, 'D_800A48B8').value = limit
+        C.c_int32.in_dll(self.library, '_spu_AllocBlockNum').value = limit
         C.c_void_p.in_dll(self.library, '_spu_memList').value = (
             C.addressof(table) if limit > 0 else None)
         expected = list(entries)

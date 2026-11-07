@@ -46,8 +46,8 @@ RrIconSpriteContext *D_800ACC14;RrUiRow24 *UiRows;RrMenuTextState *D_800AC590;
 #define LoadCursor w->s.published
 #define D_800AC5D0 w->s.fade
 #define ScreenFrame w->s.pulse
-#define D_800F3A2C w->s.clear1
-#define D_800F4D7C w->s.clear2
+#define MenuScriptStep w->s.clear1
+#define LoadState w->s.clear2
 ''' + reset + classifier + bodies + r'''
 static u32 next(void){u32 x=w->s.rng;x^=x<<13;x^=x>>17;x^=x<<5;return w->s.rng=x;}
 static s32 word(u32 x){s32 v;memcpy(&v,&x,4);return v;}
@@ -77,10 +77,10 @@ void ClearScreenOverlayState(void){event(1);change();}
 void InitMenuArenas(void){event(2);change();}
 void SetupRenderer(s32 shift){event(3)->args[0]=shift;change();}
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){Event *v=event(4);s32 args[]={a,b,c,d,e,f,g,h,i,j};memcpy(v->args,args,sizeof(args));change();}
-void func_8002AF8C(s32 a,s32 b,s32 c){Event *e=event(5);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
-void func_8004E008(void){event(6);change();}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){Event *e=event(5);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
+void RaceLoadReset(void){event(6);change();}
 void func_80053BB4(s32 mode){event(7)->args[0]=mode;change();}
-void func_800207D4(u32 *ordering,s32 intensity,u32 mode){Event *e=event(8);u32 *base=w->s.frames[w->s.frameRoot].ordering70;assert(ordering==base||ordering==base+702);e->args[0]=ordering-base;e->args[1]=intensity;e->args[2]=(s32)mode;*ordering^=(u32)intensity;change();}
+void AddScreenFadeTiles(u32 *ordering,s32 intensity,u32 mode){Event *e=event(8);u32 *base=w->s.frames[w->s.frameRoot].ordering70;assert(ordering==base||ordering==base+702);e->args[0]=ordering-base;e->args[1]=intensity;e->args[2]=(s32)mode;*ordering^=(u32)intensity;change();}
 void StepMenuValue(s32 a,s32 b,char *selection,s32 count,s32 flags){Event *e=event(9);assert(selection==(char*)&w->s.visual.selection08);e->args[0]=a;e->args[1]=b;e->args[2]=count;e->args[3]=flags;*selection=(char)(next()%8);change();}
 s32 ovl665_func_8011629C(s32 index){Event *e=event(10);s32 result=real_classify(index);e->args[0]=index;e->args[1]=result;return result;}
 void PlaySfx(s32 sound){event(11)->args[0]=sound;change();}
@@ -93,11 +93,11 @@ static void expected(void){State *s=&w->s;unsigned i;
  if(!kind){static const s32 group[]={8,9,1,1,1,1,0},label[]={19,19,25,20,21,18,85};
   ClearScreenOverlayState();s->clear1=0;s->clear2=0;s->pulse=0;s->arenas.second=s->resource+0x2D000;InitMenuArenas();s->published=s->arenas.second;SetupRenderer(5);
   for(i=0;i<7;i++)InitUiRow(i,94,96+40*i,112,32,0,0,1,group[i],label[i]);
-  func_8002AF8C(1,1,1);if(s->context.mode18==1){s->visual.selection08=5;s->context.mode18=0;}s->fade=64;func_8004E008();func_80053BB4(0);D_800AC590->b4=-1;return;
+  SetMenuFrameOptions(1,1,1);if(s->context.mode18==1){s->visual.selection08=5;s->context.mode18=0;}s->fade=64;RaceLoadReset();func_80053BB4(0);D_800AC590->b4=-1;return;
  }
  {s32 phase=s->visual.layout0C;
  if(phase==0){
-  if(s->fade>0){s->fade=half((s32)s->fade-1);func_800207D4(s->frames[s->frameRoot].ordering70+702,(s32)s->fade*4,69);}
+  if(s->fade>0){s->fade=half((s32)s->fade-1);AddScreenFadeTiles(s->frames[s->frameRoot].ordering70+702,(s32)s->fade*4,69);}
   if(UiRows[0].byte14==2&&s->fade==0){
    UiRows[s->visual.selection08].cells[0]=0;StepMenuValue(0,2,(char*)&s->visual.selection08,7,0);UiRows[s->visual.selection08].cells[0]=2;
    if(s->inputs[0].a){
@@ -112,7 +112,7 @@ static void expected(void){State *s=&w->s;unsigned i;
   if(s->visual.selection08==3||s->visual.selection08>=5)func_80053AF4(0,half((s32)s->fade-4));
   s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);
  }else if(phase==2){
-  s->fade=half((s32)s->fade-1);func_800207D4(s->frames[s->frameRoot].ordering70,(64-(s32)s->fade)*4,69);
+  s->fade=half((s32)s->fade-1);AddScreenFadeTiles(s->frames[s->frameRoot].ordering70,(64-(s32)s->fade)*4,69);
   if(s->fade<=0){func_8005B2D4(0);s->visual.exit34.word=0;s->visual.layout0C=0;s->visual.detail10=0;s->visual.scene00=wrap((int64_t)s->visual.scene00+1);if(s->visual.selection08==0||s->visual.selection08==1)ovl665_func_80116070();}
  }
  }

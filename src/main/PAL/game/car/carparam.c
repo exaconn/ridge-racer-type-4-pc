@@ -97,26 +97,26 @@ extern int D_800AD568;
 extern char *D_800F39C8[];
 extern char D_800F3A38[];
 extern int RaceState;
-extern unsigned char D_800ADAD8[][4];
+extern unsigned char CarInputs[][4];
 extern short D_800F4C70[];
 extern short D_800F2AB4[];
 extern int AngleDiffAbs();
-extern void func_80024CD8();
-extern void func_800252EC();
-extern void func_80025954();
+extern void StepCarStateNormal();
+extern void StepCarStateSlide();
+extern void StepCarStateSpinOut();
 extern int BuildRotMatrixY();
 extern int BuildRotMatrixX();
 extern int BuildRotMatrixZ();
 extern int MulMatrix();
 
-void func_80022D50();
-void func_8002367C();
+void UpdatePlayerSteering();
+void UpdateCarEngine();
 void IntegrateCarMotion(char *p);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ADAD8 (*(char (*)[])&D_800ADAD8)
+#define CarInputs (*(char (*)[])&CarInputs)
 
-void func_80022D50(arg0, arg1)
+void UpdatePlayerSteering(arg0, arg1)
 char *arg0;
 int arg1;
 {
@@ -156,7 +156,7 @@ int arg1;
   else
     if (RaceState < 4)
   {
-    q = D_800ADAD8;
+    q = CarInputs;
     a2 = (arg1 * 4) + q;
     a1 = *((u8 *) (((char *) a2) + 3));
     sw = a1 & 0xE0;
@@ -511,9 +511,9 @@ int arg1;
   }
 }
 
-#undef D_800ADAD8
+#undef CarInputs
 
-void func_8002367C(a0)
+void UpdateCarEngine(a0)
 P *a0;
 {
   Q *q;
@@ -566,8 +566,8 @@ P *a0;
   s = (S *) (((int) q->s18) + off);
   if (RaceState < 4)
   {
-    q->sAC = D_800ADAD8[q->s24][1];
-    q->sAE = D_800ADAD8[q->s24][2];
+    q->sAC = CarInputs[q->s24][1];
+    q->sAE = CarInputs[q->s24][2];
     if (q->sAC >= 0xFF)
     {
       q->sAC = 0x100;
@@ -749,7 +749,7 @@ P *a0;
   if (q->sA4 == 0)
   {
     k4 = q->sC;
-    if ((D_800ADAD8[q->s24][3] & 0xE0) != 0x20)
+    if ((CarInputs[q->s24][3] & 0xE0) != 0x20)
     {
       k4 = k4 >> 1;
     }
@@ -841,15 +841,15 @@ P *a0;
     switch (q->sA4)
     {
       case 0:
-        func_80024CD8(a0);
+        StepCarStateNormal(a0);
         break;
 
       case 2:
-        func_800252EC(a0);
+        StepCarStateSlide(a0);
         break;
 
       case 4:
-        func_80025954(a0);
+        StepCarStateSpinOut(a0);
         break;
 
     }

@@ -37,7 +37,7 @@ u32 test_info, test_control, test_readback;
 u32 test_last_data, test_last_control, test_count;
 u32 test_log[16][2];
 u32 test_ram[2];
-volatile u32 *D_800ABBC4=&test_ram[0], *D_800ABBC8=&test_ram[1];
+volatile u32 *GPU_DATA=&test_ram[0], *GPU_STATUS=&test_ram[1];
 static void test_record(u32 operation,u32 value) {
  if(test_count<16) {test_log[test_count][0]=operation; test_log[test_count][1]=value;}
  test_count++;
@@ -81,18 +81,18 @@ void test_reset(u32 info,u32 control,u32 readback) {
             source += native
             if name == '800954D8':
                 # Adapt only MMIO lvalues/reads; retain every condition, mask and return.
-                body, ordinary = re.subn(r'\*\(u32 \*\)D_800ABBC8\s*=\s*([^;]+);',
+                body, ordinary = re.subn(r'\*\(u32 \*\)GPU_STATUS\s*=\s*([^;]+);',
                                          r'test_write_control(\1);', body)
-                body, control = re.subn(r'\*D_800ABBC8\s*=\s*([^;]+);',
+                body, control = re.subn(r'\*GPU_STATUS\s*=\s*([^;]+);',
                                        r'test_write_control(\1);', body)
-                body, data = re.subn(r'\*D_800ABBC4\s*=\s*([^;]+);',
+                body, data = re.subn(r'\*GPU_DATA\s*=\s*([^;]+);',
                                     r'test_write_data(\1);', body)
                 if (ordinary, control, data) != (1, 1, 1):
                     raise AssertionError('MMIO adapter no longer covers the actual write sites')
-                if body.count('*D_800ABBC4') != 2 or body.count('*D_800ABBC8') != 1:
+                if body.count('*GPU_DATA') != 2 or body.count('*GPU_STATUS') != 1:
                     raise AssertionError('MMIO adapter no longer covers the actual read sites')
-                body = body.replace('*D_800ABBC4', 'test_read_data()')
-                body = body.replace('*D_800ABBC8', 'test_read_control()')
+                body = body.replace('*GPU_DATA', 'test_read_data()')
+                body = body.replace('*GPU_STATUS', 'test_read_control()')
             elif name == '8009B380':
                 if body.count('interrupts->mask') != 1 or body.count('interrupts->pending') != 1:
                     raise AssertionError('Receive IRQ read sites changed')

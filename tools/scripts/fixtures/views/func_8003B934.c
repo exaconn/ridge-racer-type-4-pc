@@ -1,31 +1,31 @@
 /* legacy typing of shared globals in this part of the unit */
-#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
+#define LoadIndex (*(unsigned char (*))&LoadIndex)
 
-#undef D_8009F8FC
+#undef LoadIndex
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
+#define LoadIndex (*(unsigned char (*))&LoadIndex)
 
 #define D_800F4D2C (*(unsigned char (*))&D_800F4D2C)
 
-#undef D_8009F8FC
+#undef LoadIndex
 
 #undef D_800F4D2C
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
+#define LoadIndex (*(unsigned char (*))&LoadIndex)
 
-#undef D_8009F8FC
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
-
-#undef D_8009F8FC
+#undef LoadIndex
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
+#define LoadIndex (*(unsigned char (*))&LoadIndex)
 
-#undef D_8009F8FC
+#undef LoadIndex
+
+/* legacy typing of shared globals in this part of the unit */
+#define LoadIndex (*(unsigned char (*))&LoadIndex)
+
+#undef LoadIndex
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3B24 (*(int (*))&D_800F3B24)
@@ -33,28 +33,28 @@
 #undef D_800F3B24
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8009F8FC (*(unsigned char (*))&D_8009F8FC)
+#define LoadIndex (*(unsigned char (*))&LoadIndex)
 
-#undef D_8009F8FC
+#undef LoadIndex
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_800436E8 ((void (*)())func_800436E8)
 
-#define func_8004E008 ((void (*)())func_8004E008)
+#define RaceLoadReset ((void (*)())RaceLoadReset)
 
 #define func_8004F600 ((void (*)())func_8004F600)
 
 #undef func_800436E8
 
-#undef func_8004E008
+#undef RaceLoadReset
 
 #undef func_8004F600
 
 typedef struct { char p[7]; char b; } Z;
 
-extern char D_8009F8FC;
+extern char LoadIndex;
 
-extern unsigned char D_800F4D7C;
+extern unsigned char LoadState;
 
 extern int GetR4FileIndex();
 
@@ -66,7 +66,7 @@ extern char D_800FFC48[];
 
 extern int CdFileReadRange();
 
-extern int func_80032914();
+extern int InitDialogueState();
 
 extern int func_80029358();
 
@@ -84,13 +84,13 @@ int func_8003B934(void) {
     int r = 0;
     char *s;
     int a1;
-    switch (D_800F4D7C) {
+    switch (LoadState) {
     case 0:
-        D_800F4D7C = 1;
-        D_8009F8FC = 0;
+        LoadState = 1;
+        LoadIndex = 0;
     case 1:
         if (CdFileReadStart(GetR4FileIndex(1, 0x42), D_800FFC48)) {
-            D_800F4D7C = 2;
+            LoadState = 2;
         }
         break;
     case 2:
@@ -98,9 +98,9 @@ int func_8003B934(void) {
             s = D_800FFC48;
             func_80043608(s);
             s += 0x4E20;
-            D_800F4D7C = 3;
+            LoadState = 3;
             D_800AC590 = (Z *)s;
-            func_80032914(s);
+            InitDialogueState(s);
     case 3:
             if (D_800F4CA8 == 2) {
                 a1 = 0x44;
@@ -111,14 +111,14 @@ int func_8003B934(void) {
                 a1 = 0x45;
             }
             if (CdFileReadRange(GetR4FileIndex(1, a1), D_800AD564 << 2, 4, D_80104DB0)) {
-                D_800F4D7C = 4;
+                LoadState = 4;
             }
         }
         break;
     case 4:
         if (CdFileBytesLoaded()) {
             func_80029358(D_80104DB0);
-            D_800F4D7C = 5;
+            LoadState = 5;
     case 5:
             r = 1;
         }

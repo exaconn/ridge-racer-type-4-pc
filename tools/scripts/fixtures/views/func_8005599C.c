@@ -71,7 +71,7 @@ extern int SetColorMatrix();
 
 extern int SetBackColor();
 
-void func_8005599C(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
+void SetupObjectLightMatrices(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
     M32 s10, s30, s50;
     S70 s70;
     Q16 s90;

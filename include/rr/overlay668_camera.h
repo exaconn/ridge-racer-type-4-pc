@@ -39,7 +39,7 @@ extern s32 VSyncThreshold,D_8010718C,D_800F2EC8,D_80127E90,D_80127E94,D_800AD564
 extern s16 D_800AD520;
 extern s32 ovl668_D_80116CC0[20];
 void SetDispMask(s32);
-void func_8001ECE8(s32,s32,s16,u32);
+void SetupDrawDispEnvs(s32,s32,s16,u32);
 void func_8006E794(void);
 void SetupRenderer(s32);
 void func_80055300(void);

@@ -54,7 +54,7 @@ const char D_80011698[]="timeout",D_800116A8[]="reset";
 #define _spu_inTransfer (g->active)
 #define _spu_transferCallback (g->callback)
 #define D_800A4814 (g->unknown)
-#define D_8010EFB0 (g->entries.values)
+#define _spu_RQ (g->entries.values)
 static u32 next(u32 *p){u32 n=*p;n^=n<<13;n^=n>>17;n^=n<<5;return *p=n;}
 static void callback(void){}
 static void snapshot(Snapshot *s){unsigned i,j;memset(s,0,sizeof(*s));

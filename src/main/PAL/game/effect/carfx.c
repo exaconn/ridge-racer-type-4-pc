@@ -173,7 +173,7 @@ int func_8005642C(Car *arg0, int arg1, int arg2, int *arg3) {
             RaceContext.sub60.f1C = s6[s0].f1C;
             RaceContext.sub60.f20 = s6[s0].f20;
         }
-        func_800451E4(&RaceContext.sub60);
+        ApplyCameraState(&RaceContext.sub60);
         return 0;
     }
 
@@ -198,7 +198,7 @@ int func_8005642C(Car *arg0, int arg1, int arg2, int *arg3) {
         RaceContext.sub60.rot.vz = s6[s3].rot.vz;
         RaceContext.sub60.f1C = s6[s3].f1C;
         RaceContext.sub60.f20 = s6[s3].f20;
-        func_800451E4(&RaceContext.sub60);
+        ApplyCameraState(&RaceContext.sub60);
         RaceContext.sub60.vec = s5->vec08;
         RaceContext.sub60.rot.vx = s5->r18;
         RaceContext.sub60.rot.vy = s5->r1C;

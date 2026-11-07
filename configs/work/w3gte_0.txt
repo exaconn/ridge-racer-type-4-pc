@@ -42,5 +42,5 @@ FindTrackNodeUnbounded 0x800261bc 0x2d0 gte
 FindTrackNode 0x80026a74 0x20c gte
 FindTrackNodeScratch 0x80026c80 0x2dc gte
 ConstrainCarToTrack 0x80026f5c 0xa3c gte
-func_80027998 0x80027998 0x2bc gte
+FindAxleTrackNode 0x80027998 0x2bc gte
 FindWheelTrackNodes 0x80027c54 0xedc gte

@@ -10,7 +10,7 @@ extern short D_800F4D44;
 
 extern short D_800F3914;
 
-extern unsigned char D_8009F900[];
+extern unsigned char CourseLapCounts[];
 
 extern int NumLaps;
 
@@ -20,9 +20,9 @@ extern int D_800F3B00[];
 
 extern int D_800AC5B0[];
 
-extern int D_800ACC28[][8];
+extern int CourseBestLap[][8];
 
-extern int D_800F4CE8[][8];
+extern int CourseBestTotal[][8];
 
 extern short NumCars;
 
@@ -36,13 +36,13 @@ extern int AddTilePrim();
 
 extern int FormatDecimalDigits();
 
-extern int func_80020F20();
+extern int DrawDigitString16();
 
 extern char *FormatMillisecondsTime();
 
 extern int func_80032EC8();
 
-void func_80032F44(int arg0, int arg1) {
+void DrawCourseInfoPanel(int arg0, int arg1) {
     char sp28[8];
     int i;
     int s4;
@@ -70,7 +70,7 @@ void func_80032F44(int arg0, int arg1) {
     *(int *)0x1F800000 = AddTilePrim(D_800ACC14 + 0x70, p, 0x10, 0xE0, 2, 0x88, 0x4C, 0x4C, 0x4C);
 
     if (D_800F4D44 < 2) {
-        NumLaps = D_8009F900[D_800F3914 + (D_800F4D44 == 1 ? 8 : 0)];
+        NumLaps = CourseLapCounts[D_800F3914 + (D_800F4D44 == 1 ? 8 : 0)];
     }
 
     i = 7;
@@ -87,7 +87,7 @@ void func_80032F44(int arg0, int arg1) {
         } else {
             FormatDecimalDigits(sp28, D_8009F678[arg0], 3);
         }
-        func_80020F20(D_800ACC14 + 0x70, 0x2E + i * 8, 0x128 + i * 0x10, sp28);
+        DrawDigitString16(D_800ACC14 + 0x70, 0x2E + i * 8, 0x128 + i * 0x10, sp28);
     }
 
     if (arg1 == 0) {
@@ -101,12 +101,12 @@ void func_80032F44(int arg0, int arg1) {
                 }
             } else {
                 if (i == 0) {
-                    val = D_800ACC28[s4][D_800F3914];
+                    val = CourseBestLap[s4][D_800F3914];
                 } else {
-                    val = D_800F4CE8[s4][D_800F3914];
+                    val = CourseBestTotal[s4][D_800F3914];
                 }
             }
-            func_80020F20(D_800ACC14 + 0x70, 0x44 + i * 8, 0x148 + i * 0x10, FormatMillisecondsTime(val));
+            DrawDigitString16(D_800ACC14 + 0x70, 0x44 + i * 8, 0x148 + i * 0x10, FormatMillisecondsTime(val));
         }
     } else if (arg1 == 1) {
         i = 7;
@@ -123,7 +123,7 @@ void func_80032F44(int arg0, int arg1) {
             } else {
                 FormatDecimalDigits(sp28, D_800ABEC8 + 1, 0);
             }
-            func_80020F20(D_800ACC14 + 0x70, 0x3A - i * 0xC, 0x148 + i * 0x10, sp28);
+            DrawDigitString16(D_800ACC14 + 0x70, 0x3A - i * 0xC, 0x148 + i * 0x10, sp28);
         }
     }
 

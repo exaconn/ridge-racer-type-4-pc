@@ -5,7 +5,7 @@ void ovl660_func_801163C4(void)
     RrRaceVehicle *state;
     RrProjectionScratchPrefix *scratch;
 
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     ScreenFrame = 0;
     SetupRenderer(5);
     MenuCursor = 0;
@@ -26,7 +26,7 @@ void ovl660_func_801163C4(void)
     state->pos20[2] = 308;
     state->rot54 = 2048;
     ovl660_preview_confirmation = 0;
-    UnpackChoiceGlyph((s8 *)&D_800F4D98, D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].glyph);
+    UnpackChoiceGlyph((s8 *)&SelectionRows, D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].glyph);
     D_800ACBD0[0].first = D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].first;
     D_800ACBD0[0].second = D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].second;
     ovl660_available_car_counts[0] = CountChoiceGlyphs(&D_800ABE08[0][0]);
@@ -51,11 +51,11 @@ void ovl660_func_80116530(void) {
     s8 brightness;
 
     modelReady = 0;
-    D_800F2DE4 = (u32)D_800F2DE4 + 1;
+    ModeFrame = (u32)ModeFrame + 1;
     PlayerCars[0].rot54 = ((u32)PlayerCars[0].rot54 + 8) & 0xFFF;
-    func_80033A74(1);
+    SetupMenuCarCamera(1);
     SetupViewport(6);
-    loadResult = func_8003AE4C(0, 1);
+    loadResult = LoadCarRangeStep(0, 1);
     if (loadResult != 1) {
         if (((s8 *)D_800F2AB0)[1] == 1) {
             ((s8 *)D_800F2AB0)[1] = 0;
@@ -73,16 +73,16 @@ void ovl660_func_80116530(void) {
             D_800F4D8A = 0;
         }
     case 0:
-        func_8002AF8C(1, 1, 1);
-        previousCar = PackChoiceGlyph((s8 *)&D_800F4D98);
+        SetMenuFrameOptions(1, 1, 1);
+        previousCar = PackChoiceGlyph((s8 *)&SelectionRows);
         StepMenuValue(1, 2, (char *)&ovl660_preview_selection,
                       ovl660_available_car_counts[ovl660_preview_bank], 0);
-        UnpackChoiceGlyph((s8 *)&D_800F4D98,
+        UnpackChoiceGlyph((s8 *)&SelectionRows,
                       D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].glyph);
-        if (((u32)previousCar << 16) != ((u32)PackChoiceGlyph((s8 *)&D_800F4D98) << 16)) {
+        if (((u32)previousCar << 16) != ((u32)PackChoiceGlyph((s8 *)&SelectionRows) << 16)) {
             ResetScreenCounters();
             LoadCursor = D_800F4D40;
-            UnpackChoiceGlyph((s8 *)&D_800F4D98,
+            UnpackChoiceGlyph((s8 *)&SelectionRows,
                           D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].glyph);
             D_800ACBD0[0].first = D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].first;
             D_800ACBD0[0].second = D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].second;
@@ -144,11 +144,11 @@ void ovl660_func_80116530(void) {
     case 3:
         D_800AC5D0 = (u16)D_800AC5D0 - 1;
         SetModelTexturePage(-1);
-        func_800207D4(&D_800ACC14->ordering.ordering70[0], (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             func_80053CB0();
-            D_800F4BE8 = 0;
-            D_800F4C6A = 1;
+            MenuScriptId = 0;
+            ModeGroup = 1;
             D_800F3A26 = 0x23;
             D_800F4D8A = 0;
             goto save_preview_arena;
@@ -157,13 +157,13 @@ void ovl660_func_80116530(void) {
     case 4:
         confirmationState = UiRows[10].byte14;
         if (confirmationState == 2) {
-            UiRows[D_800F4D98.selection.pad02[1] + 10].cells[0] = 0;
-            StepMenuValue(0, 1, (char *)&D_800F4D98.selection.pad02[1], 2, 0);
-            UiRows[D_800F4D98.selection.pad02[1] + 10].cells[0] = confirmationState;
+            UiRows[SelectionRows.selection.pad02[1] + 10].cells[0] = 0;
+            StepMenuValue(0, 1, (char *)&SelectionRows.selection.pad02[1], 2, 0);
+            UiRows[SelectionRows.selection.pad02[1] + 10].cells[0] = confirmationState;
             if (D_800F3A38[0].a != 0) {
                 PlaySfx(1);
-                func_8002AF8C(0, 1, 1);
-                UiRows[D_800F4D98.selection.pad02[1] + 10].cells[0] = 1;
+                SetMenuFrameOptions(0, 1, 1);
+                UiRows[SelectionRows.selection.pad02[1] + 10].cells[0] = 1;
                 UiRows[10].byte14 = 7;
                 UiRows[11].byte14 = 7;
                 D_800F4D8A = 3;
@@ -192,7 +192,7 @@ void ovl660_func_80116530(void) {
         if (closingState == 5 && ((s8 *)D_800F2AB0)[1] == closingState) {
             ResetScreenCounters();
             ovl660_func_80114920();
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 50;
             D_800F4D8A = 0;
             goto end;
@@ -256,8 +256,8 @@ draw_rows:
         func_8002CC88(PlayerCars, color.argument, scale, drawFlags);
     }
     UpdateBadgeRowAnim(0);
-    if (func_8003FBA8(0) > 0) {
-        func_8002B12C(0xA0, 0x90, 8, 1, ovl660_preview_selection, 0,
+    if (UpdateImageRow(0) > 0) {
+        DrawMenuStepArrows(0xA0, 0x90, 8, 1, ovl660_preview_selection, 0,
                       ovl660_available_car_counts[ovl660_preview_bank]);
     }
 end:

@@ -40,7 +40,7 @@ void ovl665_func_80115820(void) {
     case 3:
         timer=(u16)D_800AC5D0-1;
         D_800AC5D0=timer;
-        func_800207D4(((RrFrameOrderingPrefix *)D_800ACC14)->ordering70,(64-(s32)timer)*4,69);
+        AddScreenFadeTiles(((RrFrameOrderingPrefix *)D_800ACC14)->ordering70,(64-(s32)timer)*4,69);
         if(D_800AC5D0<=0 && BadgeRows[0].state10==11) {
             ovl665_func_80114A24();
             ovl665_D_80119768.layout0C=0;
@@ -67,6 +67,6 @@ void ovl665_func_80115820(void) {
     RR_PROJECTION_SCRATCH->pointers.cursor=(u8 *)packet;
     D_800AC590->b4=26;
     UpdateBadgeRowAnim(0);
-    if(BadgeRows[0].state10==3)func_80032A14(BadgeRows[0].x04+10,BadgeRows[0].y06+40,D_800AC590);
+    if(BadgeRows[0].state10==3)UpdateDialogue(BadgeRows[0].x04+10,BadgeRows[0].y06+40,D_800AC590);
     UpdateScreenFade(0x1007A);
 }

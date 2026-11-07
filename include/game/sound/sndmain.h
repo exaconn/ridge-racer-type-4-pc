@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80052548(void);
+void SoundListenerUpdate(void);
 
 #endif /* RR_GAME_SOUND_SNDMAIN_H */

@@ -51,7 +51,7 @@ struct { RrSpuVolumeCache cache; u8 extra[0x200]; } test_holder;
                         '-o', str(directory / 'functions.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'functions.so'))
         cls.holder = Holder.in_dll(cls.library, 'test_holder')
-        cls.functions = [cls.library.func_800869F0, cls.library.SsUtSetVVol]
+        cls.functions = [cls.library.SsUtSetDetVVol, cls.library.SsUtSetVVol]
         for function in cls.functions:
             function.argtypes = [C.c_int32] * 3
             function.restype = C.c_int32

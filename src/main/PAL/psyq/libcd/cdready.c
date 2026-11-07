@@ -8,9 +8,9 @@ extern s32 func_8001E84C(const char *, ...);
 int DeliverEvent(int, int);
 
 int func_8008BED4();
-void func_8008BF10(s32 selector, u8 *data);
-void func_8008BF38(s32 selector, u8 *data);
-void func_8008BF60(s32 event, s32 argument);
+void def_cbsync(s32 selector, u8 *data);
+void def_cbready(s32 selector, u8 *data);
+void def_cbread(s32 event, s32 argument);
 
 s32 CdInit(void) {
     s32 i=4;
@@ -24,9 +24,9 @@ loop:
     __asm__("" : "+r"(expected));
     if(status==expected) {
         result=1;
-        CD_cbsync=func_8008BF10;
-        CD_cbready=func_8008BF38;
-        CD_cbread=func_8008BF60;
+        CD_cbsync=def_cbsync;
+        CD_cbready=def_cbready;
+        CD_cbread=def_cbread;
         {
             /* ASM_BARRIER: Preserve the assembler temporary for the final state store. */
             register u32 *page __asm__("$1");
@@ -65,16 +65,16 @@ int func_8008BED4() {
 }
 
 /* extern */
-void func_8008BF10(s32 selector, u8 *data) {
+void def_cbsync(s32 selector, u8 *data) {
     DeliverEvent(0xF0000003, 0x20);
 }
 
 /* extern */
-void func_8008BF38(s32 selector, u8 *data) {
+void def_cbready(s32 selector, u8 *data) {
     DeliverEvent(0xF0000003, 0x40);
 }
 
 /* extern */
-void func_8008BF60(s32 event, s32 argument) {
+void def_cbread(s32 event, s32 argument) {
     DeliverEvent(0xF0000003, 0x40);
 }

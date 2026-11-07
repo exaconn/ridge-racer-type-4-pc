@@ -41,5 +41,5 @@ void func_8001ECE0(s32 bank);
 /* RGB uses the low eight bits; the low three flag bits select RGB24,
  * interlacing and a wide 480-pixel drawing area (320-pixel display width).
  * Settings halfwords 0x34/0x38 provide screen placement. */
-void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags);
+void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags);
 #endif

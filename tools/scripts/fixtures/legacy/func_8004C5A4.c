@@ -31,7 +31,7 @@ void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
         map = D_800A015C + 32;
         missing = 255;
         command = 0x66;
-        widths = D_800A01DC;
+        widths = FontGlyphWidths;
         low = 0xFFFFFF;
         high = 0xFF000000;
         fields = (u8 *)packet + 14;

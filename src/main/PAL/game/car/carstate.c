@@ -52,7 +52,7 @@ void SetCarImpactState(a0, a1) int a0; RrRaceVehicle *a1; {
     }
     if (a1 == &PlayerCars[0] || a1 == &PlayerCars[1]) {
         if (a2 != -1) {
-            func_8004B7E0(a1->playerFlags218 & 1, 2, a2);
+            PadStartPulse(a1->playerFlags218 & 1, 2, a2);
         }
     }
 }
@@ -107,7 +107,7 @@ void UpdateCarShake(char *p) {
         }
     } else if (B(0x1A7)) {
         if (p == PlayerCars || p == PlayerCars + 0x320) {
-            func_8004B7E0(I(0x218) & 1, 1, 1);
+            PadStartPulse(I(0x218) & 1, 1, 1);
         }
         s1 = (short)U(0x1D8) >> 2;
         a1 = B(0x1A7);
@@ -120,7 +120,7 @@ void UpdateCarShake(char *p) {
     } else {
         S(0x1B6) = 0;
         if (p == PlayerCars || p == PlayerCars + 0x320) {
-            func_8004B7E0(I(0x218) & 1, 0, 1);
+            PadStartPulse(I(0x218) & 1, 0, 1);
         }
     }
 }

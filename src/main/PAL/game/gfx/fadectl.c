@@ -14,14 +14,14 @@ void func_8005C7A4(void) {
     v = RaceContext.f408;
     if (v == 1 || (v == 0 && RaceContext.f3EC == 0)) {
         if (RaceContext.f3F4 == 0) {
-            func_80054D30(1, 0, 0x100);
+            SetParticleBrightFade(1, 0, 0x100);
             RaceContext.f3F4 = 1;
         }
     }
     w = RaceContext.f408;
     if (w == 2 || (w == 0 && RaceContext.f3EC == 0xFF)) {
         if (RaceContext.f3F4) {
-            func_80054D30(0, 0, 0);
+            SetParticleBrightFade(0, 0, 0);
             RaceContext.f3F4 = 0;
         }
     }
@@ -39,7 +39,7 @@ void func_8005C7A4(void) {
     RaceContext.f424 = 0;
     RaceContext.f41C = 1;
     if (x == 0) {
-        func_8004F274(RaceContext.f42C);
+        PlaySfxBank2(RaceContext.f42C);
         RaceContext.f430 = 1;
     }
 }

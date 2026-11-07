@@ -3,7 +3,7 @@
 extern s32 TrackLength;
 extern s32 NumLaps;
 extern s32 RaceState;
-extern s32 D_800F4C64;
+extern s32 TotalRaceTime;
 extern s16 D_800AC5D0;
 extern void SaveCarSnapshots(s32);
 extern void SoundSetMasterVolume(s16, s16);
@@ -19,7 +19,7 @@ void ovl667_func_80115508(RrRaceCheckpointVehicle *arg0) {
                 SaveCarSnapshots(0);
             } else if (sub->steering94.count22 > NumLaps) {
                 if (RaceState < 4) {
-                    D_800F4C64 = 1;
+                    TotalRaceTime = 1;
                     RaceState = 4;
                     D_800AC5D0 = 75;
                     SoundSetMasterVolume(0, 71);

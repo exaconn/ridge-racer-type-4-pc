@@ -51,7 +51,7 @@ Compiler: gcc 2.8.1 (PSX) `-O2 -G0 -mips1 -mcpu=3000 -funsigned-char` via `tools
 - Check which argument registers the asm reads: a function that uses `$a1`,`$a2` but never `$a0` needs a dummy first parameter.
 - `p[7] = 0x40; p[7] = c ? 0x42 : 0x40;` reproduces store/branch/store; two plain `if` stores do not.
 - Signed `x / 2` emits `srl/addu/sra`; two divisions of the same sum reproduce some originals.
-- Known layouts: `D_800F3A38` array of 0x5C-byte structs; `D_8010C170` 0x18-byte elements of shorts.
+- Known layouts: `D_800F3A38` array of 0x5C-byte structs; `PadPulseState` 0x18-byte elements of shorts.
 
 ## More tricks (from chunk 6)
 - In-place signed `/256`: `if (v < 0) v += 0xFF; x = v >> 8;` (plain `/ 256` adds a register copy).
@@ -116,7 +116,7 @@ Compiler: gcc 2.8.1 (PSX) `-O2 -G0 -mips1 -mcpu=3000 -funsigned-char` via `tools
 - `*(short *)&p->b = p->b;` reproduces byte load + `sh`.
 - A dead `int t[2]` stack array can reserve stack slots; bubble-sort swap `x=D[j-1]; y=D[j]; D[j]=x; D[j-1]=y;`.
 - Chained early returns `if (c) { D |= n; return; }` match repeated `return` patterns.
-- Layouts: `D_800AD4D8` byte fields 0x12..0x1E; `PlayerCars` array of 0x320-byte structs.
+- Layouts: `SelectionState` byte fields 0x12..0x1E; `PlayerCars` array of 0x320-byte structs.
 
 ## More tricks (from chunk 0)
 - Fixing m2c types often suffices: `*(void **)0x1F800000 = ...`; byte constants like `0xF0` through `s8` emit `addiu -16`, use `u8`.
@@ -349,7 +349,7 @@ Units with inline asm are acceptable; no hand-written `.s` replacements.
 ## More tricks (wave 4, c2)
 - Don't pin the loop counter with `register asm` (blocks strength reduction); use separate unpinned loop var, pin the others.
 - Pinning owner variable to $20/$21 can reproduce lui/addiu placement for constants kept in saved regs.
-- func_8002F5BC: switch head whose jump targets are sibling functions; not standalone-matchable.
+- SetNextModeByGameType: switch head whose jump targets are sibling functions; not standalone-matchable.
 
 ## More tricks (wave 4, c1)
 - Prologue addiu scheduled one slot early vs store: chain assignments `D_x = p = a + 0x808;`.
@@ -512,7 +512,7 @@ Fill of a branch delay slot from an earlier independent instruction (look-back 1
 - (w7c0) Permuter can't compile `__attribute__((packed))` typedefs: permute a plain-int copy. A copy of the loop head's first insn in the delay slot is normal gcc output.
 - (w7c3) Opaque copy `asm volatile("" : "=r"(x) : "0"(x))` forces reg copy without folding; bare `asm volatile("")` right after a store fixes its scheduling order.
 - (w7c3) Pin locally (one var), not globally: a global `$3` pin changed mflo regs elsewhere.
-- (w7c3) Pattern `t1 = a2; if (a2 < 0) t1 = -t1;` with t0/t1/t pinned $8/$9/$3 (func_80047230/610).
+- (w7c3) Pattern `t1 = a2; if (a2 < 0) t1 = -t1;` with t0/t1/t pinned $8/$9/$3 (InterpolateLanePointXZ/610).
 - (w7c1) Pin only 1-3 vars; compute through unpinned temps then assign to pinned var (`q = r/16; q = r - q*16; s0 = q - 8;`).
 - (w7c1) Unused leading param as K&R `int a0` used directly (ANSI param + copy schedules entry copy last).
 - (w7c1) Literal `1` as argument (not shared var) lets CSE reuse `li` for switch compare. Put pinned-var update after the call, not in arg list.
@@ -555,7 +555,7 @@ What the pipeline does (verified on StSetRing / _mainasu):
 What DOES work (stock): cc1 2.8.1 splits addresses itself (`lui rX,%hi; sw v,%lo(rX)`) and its reorg fills the jal/jr slot with the `sw`. The hi register is normally $2.., but `/* CC1_FLAGS: -fcall-used-$1 */` makes $1 (=$at) allocatable, so cc1 uses `$1` and the result is byte-identical to the assembler's `lui $at / sw %lo($at)` form, delay slot included. maspsx/as accept `$1` as `$at`. Recipe for leaf / simple stores with the original `lui $at,%hi(A); sw; lui $at,%hi(B); jr ra; sw %lo(B)($at)`:
     /* CC1_FLAGS: -fcall-used-$1 */      (default GCC 2.8.1, NOT the 2.7.2 marker)
   plus `-fno-schedule-insns2` when the original keeps `sw $ra` before the first lui (calls). Matched with it: _SsVmDamperOff, SsSetStereo, CD_set_test_parmnum, StSetMask.
-Still blocked (checked all failed drafts + scratch drafts with 2.8.1 x {-fcall-used-$1, +-fno-schedule-insns2, +-fno-schedule-insns, -mno-split-addresses, -fno-strength-reduce}): everything that has `lw ra; addiu sp; jr ra; nop` or 2.7.2-only codegen (StSetRing top half matches with `-fcall-used-$1 -fno-schedule-insns2`, only the epilogue `lw; nop; jr; addiu` vs `lw; addiu; jr; nop` differs), _mainasu, func_80082D00, SpuStart, _spu_Fw1ts, _add_mant_d, _err_math, CdRead2, func_8008DDAC, func_8008E780, _SsContRpn2, _SsClose, _SsContNrpn1.
+Still blocked (checked all failed drafts + scratch drafts with 2.8.1 x {-fcall-used-$1, +-fno-schedule-insns2, +-fno-schedule-insns, -mno-split-addresses, -fno-strength-reduce}): everything that has `lw ra; addiu sp; jr ra; nop` or 2.7.2-only codegen (StSetRing top half matches with `-fcall-used-$1 -fno-schedule-insns2`, only the epilogue `lw; nop; jr; addiu` vs `lw; addiu; jr; nop` differs), _mainasu, func_80082D00, SpuStart, _spu_Fw1ts, _add_mant_d, _err_math, CdRead2, CdCommandCallback, cd_read, _SsContRpn2, _SsClose, _SsContNrpn1.
 
 ## KEY LEVER: `/* CC1_FLAGS: -fcall-used-$1 */` (stock cc1 2.8.1)
 Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and its own scheduler puts the sw in jal/jr delay slots. Matched _SsVmDamperOff, 8008A634, 8008DDA0, 8008F914 (same lever parasite-pc uses for ER_retry). Try also with `-fno-schedule-insns2` / `-fno-expensive-optimizations`. Added to sweep_markers.py defaults.
@@ -582,8 +582,8 @@ Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and
 ## Wave 10 tricks
 - `/* CC1_FLAGS: -fno-strength-reduce */` removes second pointer register in two-pointer stride loops (func_800572A8 near-miss).
 - Dead `char pad[N]` + `__asm__ volatile("" : : "m"(pad[0]))` at END of function reserves stack without instructions; `int pad[2]` adds 8 frame bytes.
-- Derived induction variable (`a0 + 0x80 + i*0x80`) places init after loop-hoisted constants (func_80079ED8).
-- Dead address-of inside a call arg `(*(v = &a4), i)` stops constant hoisting (func_80079ED8; found by permuter).
+- Derived induction variable (`a0 + 0x80 + i*0x80`) places init after loop-hoisted constants (BuildCardHeaderAnim).
+- Dead address-of inside a call arg `(*(v = &a4), i)` stops constant hoisting (BuildCardHeaderAnim; found by permuter).
 - Goto loop + `char *b2 = D; q = a0*0x2C + (int)b2` (func_8003D01C); `-fno-schedule-insns` + pins (DecayCarOffset).
 - Near-misses: func_800572A8, 8004BE4C, 8007C944, 80047A50, 800211A4, 80054D50, 80042F58, 80043C14, 8004A080, 80049A60, 800217D0, 80020F20.
 - Wave 10 chunk 3: per-arm tail duplication (repeat the call in each arm so crossjump merges); `-fno-cse-skip-blocks` forces global reload across an if join (func_80059168); `__asm__("" : "=r"(x) : "0"(v))` launder keeps `& ~0x1F` out of andi narrowing, `volatile` variant keeps a constant inside its branch; separate temps per call result.
@@ -593,14 +593,14 @@ Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and
 - Pins + empty-asm launder to fix schedule order (`v2 = b<<10; asm volatile("" : "=r"(v2) : "0"(v2));`) (ApplyRubberBandSpec).
 - If-chain as gotos in original block order reproduces layout; `t = D; sp[1] = t<<8` stops lhu narrowing (func_80020B10).
 - Separate result var per rand()/call result removes `addu a0,v0,zero` copies; `one = 1` variable gives srav/sllv (SpawnParticlePair).
-- Switch + gotos with `/* RODATA addr size */` covers jump tables; `signed char *` for lb; `a1 = a0` in default arm keeps redundant copy (func_8003A2D4).
+- Switch + gotos with `/* RODATA addr size */` covers jump tables; `signed char *` for lb; `a1 = a0` in default arm keeps redundant copy (InitMenuScript).
 - `if (x) {copy} else {identical copy}` changes loop invariant hoisting; `--p->f >= 0` decrements in loaded reg; `q += 2` biv with -fno-strength-reduce keeps base (UpdateScrollTrack near-miss).
 - Pin address-holding pointers breaks `lui/addiu` hoist: pin products/scalars instead.
 
 ## Wave 12 tricks
-- Rewrite trailing do/while as `for (i=0;i<N;i++)`; use incoming param directly instead of local copy; local names must not collide with register names (s0,s3 rejected by cc1) (func_8002F1BC, 8003AE4C).
+- Rewrite trailing do/while as `for (i=0;i<N;i++)`; use incoming param directly instead of local copy; local names must not collide with register names (s0,s3 rejected by cc1) (ModeSelectMenuStep, 8003AE4C).
 - Scope products differently (function-scope x, block-scope y, inline third) to steer the last `mflo` into $v0 (func_8003CF34).
-- Launder `col` inside an if-arm to keep a redundant constant reload (func_80022448); launder after `if (t<0) t=-t` stops slti landing in bgez slot (func_80052024).
+- Launder `col` inside an if-arm to keep a redundant constant reload (func_80022448); launder after `if (t<0) t=-t` stops slti landing in bgez slot (SoundCalcCarParams).
 - Switch tables: case blocks in original order, `case 0: default:` first, shared tails, `break` not early return, `/* RODATA addr size */` (InitRaceCars).
 - Second use of a constant in a loop makes loop.c hoist it to an s-reg; plain `for` duplicates the exit test with its own lui.
 - Soft-float: `typedef long long D` with 64-bit hex literals avoids .rdata doubles / maspsx `li.d` failure.
@@ -611,26 +611,26 @@ Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and
 - Derive givs from the loop counter in a plain for (`s0 = base + i*0x320`) instead of copying `off = i` (UpdateComCars, InitPlayerCar: derive second walking pointer inside loop from the first).
 - Load through a temp to reorder loads (func_80039C0C); separate local per stanza (func_80057750).
 - Second C name for the same symbol `extern T X2 __asm__("X");` defeats CSE of lui/addiu (func_80043C14) — documented hack, can be removed if a true source form is found.
-- `short c7` declaration for the constant changed hoisting (TitleMenuInit). `k = 2;` right after `i = 0;` hoists li ahead of address loads; dead address-of `*((char*)((*(nv=&p))+0x2A)) = k;` stops folding (func_80033474).
+- `short c7` declaration for the constant changed hoisting (TitleMenuInit). `k = 2;` right after `i = 0;` hoists li ahead of address loads; dead address-of `*((char*)((*(nv=&p))+0x2A)) = k;` stops folding (UpdateRaceIntroCamera).
 - Write through `volatile short *`, read through plain `short *` to get the lh reload after a store.
-- Permuter from a near-miss draft reaches 0 more often than hand tuning (func_80035B84, 80056F04, 80047DF8).
+- Permuter from a near-miss draft reaches 0 more often than hand tuning (LinkErrorModeUpdate, 80056F04, 80047DF8).
 - `fp`/`s8` are the same register; function-level GTE macros belong in include/rr_asm.h.
 
 ## Wave 14 tricks
-- Near-miss prune: remove each inherited pin/launder one at a time and re-run fd.py; old pins often block the match (func_8005D974, 80033A74).
+- Near-miss prune: remove each inherited pin/launder one at a time and re-run fd.py; old pins often block the match (StartAttractDemo, 80033A74).
 - `perm.sh` bases must be comment-free (pycparser rejects /* */, typeof, asm); strip comments before permuting. cc1 segfaults on `struct __attribute__((packed)) V` as printed by the permuter: put the attribute after the body.
-- If a delay slot holds `sh` where original has next-arg setup, store inside both `if` arms (func_80020F20).
+- If a delay slot holds `sh` where original has next-arg setup, store inside both `if` arms (DrawDigitString16).
 - Compute `t = v >> 7` in the basic block before the following `if` so the sra does not fuse with halfword sign-extension (func_80051554) — no barrier needed.
 - `if (s) {A} else {A}` scaffold with identical arms reproduces quotient copies + `j; nop` (FormatRaceTime).
 - Packet header unions `union { unsigned w; struct { char pad[3]; unsigned char len; } b; }` stop global-pointer reloads after stores; typed struct arrays give the original index/base computation order.
 - Fresh pointer var for a second base access stops cc1 folding +offset into the symbol; `x = a/18; s = a - x*18` keeps rand %18 temps.
 
 ## Wave 15 tricks
-- Struct assignment of 16/32-byte structs gives lw t0..t3 / sw t0..t3 block moves; array-indexed loops give the original givs (func_8005599C).
+- Struct assignment of 16/32-byte structs gives lw t0..t3 / sw t0..t3 block moves; array-indexed loops give the original givs (SetupObjectLightMatrices).
 - One table pointer `s1[1..3]` instead of two walking pointers; stack data as `unsigned short v[4]` array; `do { } while (0)` wrapper fixes prologue order (func_800572A8, found by permuter).
-- Merge reused locals (original reuses few variables): rename-merge greedy search cut a large function's diff from 118 to 56 lines (func_8002367C near-miss). One variable for a clamp (`a = x; if (a > 0) a = 100; else a += 80;`).
+- Merge reused locals (original reuses few variables): rename-merge greedy search cut a large function's diff from 118 to 56 lines (UpdateCarEngine near-miss). One variable for a clamp (`a = x; if (a > 0) a = 100; else a += 80;`).
 - Tail duplication: write the store in each arm so cross-jump merges only the tail. `asm("" : "=r"(ten) : "0"(10))` keeps one pseudo for a constant across the function.
-- Sibling functions (same GTE loop) share a draft: adapt the matched sibling (func_80027998 from FindTrackNodeScratch).
+- Sibling functions (same GTE loop) share a draft: adapt the matched sibling (FindAxleTrackNode from FindTrackNodeScratch).
 - perm.sh: cpp step fails (exit 33) on drafts with RR_* macros; stub macros or strip before permuting.
 
 ## Wave 16 tricks

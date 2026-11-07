@@ -32,7 +32,7 @@ class TransferResultTest(unittest.TestCase):
         source += '''
 s32 (*D_800ABC70)(RrTransferState *, s32);
 s32 (*test_finish)(RrTransferState *, u8);
-s32 func_80098788(RrTransferState *state, u8 value) {
+s32 _padSioRW2(RrTransferState *state, u8 value) {
     return test_finish(state, value);
 }
 '''

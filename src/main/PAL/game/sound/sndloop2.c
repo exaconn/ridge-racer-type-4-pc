@@ -5,7 +5,7 @@
 
 extern s32 D_800F6670;
 
-void func_800518E0(void) {
+void SoundLoopUpdate(void) {
     RrAudioLoopState *state=&SoundState;
     RrAudioSettings *settings=&Options.audio;
     /* ASM_BARRIER: retain this phase value in its original MIPS register. */

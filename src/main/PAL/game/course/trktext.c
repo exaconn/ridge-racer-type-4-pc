@@ -12,15 +12,15 @@ typedef struct { char p0; unsigned char f1; char p2[6]; unsigned short f8; char 
 typedef struct { short a[8], b[8], c[8]; } U;
 
 extern T D_800F3A38[];
-extern U D_800F2F78[];
+extern U PadButtonMap[];
 extern s32 ratan2(s32 z, s32 x);
-extern unsigned char D_800A017C[];
+extern unsigned char FontGlyphMap[];
 
 s32 GetTrackNodeHeading(s32 node, s32 lane);
 void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank);
-int func_8004C73C(int a0, int a1, unsigned char *s, int a3, int a4);
-int func_8004C7E8(int a0, int a1, unsigned char *s, int a3, int a4);
-void func_8004C894(int a0, int a1, unsigned char *s, int a3, int a4);
+int DrawFontStringCentered(int a0, int a1, unsigned char *s, int a3, int a4);
+int DrawFontStringCenteredOffset(int a0, int a1, unsigned char *s, int a3, int a4);
+void DrawFontStringRight(int a0, int a1, unsigned char *s, int a3, int a4);
 void func_8004C928(int a0);
 void *func_8004C998(char *a0);
 void func_8004CBDC(char *p);
@@ -33,11 +33,11 @@ int func_8004C370(int i) {
     case 0x41:
     case 0x73:
     default:
-        return D_800F3A38[i].f8 & D_800F2F78[i].a[6];
+        return D_800F3A38[i].f8 & PadButtonMap[i].a[6];
     case 0x23:
-        return t->f8 & D_800F2F78[i].b[6];
+        return t->f8 & PadButtonMap[i].b[6];
     case 0xE3:
-        return t->f8 & D_800F2F78[i].c[6];
+        return t->f8 & PadButtonMap[i].c[6];
     }
 }
 
@@ -100,7 +100,7 @@ void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
         map = D_800A015C + 32;
         missing = 255;
         command = 0x66;
-        widths = D_800A01DC;
+        widths = FontGlyphWidths;
         low = 0xFFFFFF;
         high = 0xFF000000;
         fields = (u8 *)packet + 14;
@@ -154,17 +154,17 @@ void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A01DC (*(unsigned char (*)[])&D_800A01DC)
+#define FontGlyphWidths (*(unsigned char (*)[])&FontGlyphWidths)
 
-int func_8004C73C(int a0, int a1, unsigned char *s, int a3, int a4) {
+int DrawFontStringCentered(int a0, int a1, unsigned char *s, int a3, int a4) {
     int sum = 0;
     unsigned char *s0 = s;
     if (*s0 != 0) {
         do {
-            unsigned char c = D_800A017C[*s - 0x20];
+            unsigned char c = FontGlyphMap[*s - 0x20];
             s++;
             if (c != 0xFF) {
-                sum += D_800A01DC[c];
+                sum += FontGlyphWidths[c];
             } else {
                 sum += 4;
             }
@@ -174,20 +174,20 @@ int func_8004C73C(int a0, int a1, unsigned char *s, int a3, int a4) {
     return sum;
 }
 
-#undef D_800A01DC
+#undef FontGlyphWidths
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A01DC (*(unsigned char (*)[])&D_800A01DC)
+#define FontGlyphWidths (*(unsigned char (*)[])&FontGlyphWidths)
 
-int func_8004C7E8(int a0, int a1, unsigned char *s, int a3, int a4) {
+int DrawFontStringCenteredOffset(int a0, int a1, unsigned char *s, int a3, int a4) {
     int sum = 0;
     unsigned char *s0 = s;
     if (*s0 != 0) {
         do {
-            unsigned char c = D_800A017C[*s - 0x20];
+            unsigned char c = FontGlyphMap[*s - 0x20];
             s++;
             if (c != 0xFF) {
-                sum += D_800A01DC[c];
+                sum += FontGlyphWidths[c];
             } else {
                 sum += 4;
             }
@@ -197,20 +197,20 @@ int func_8004C7E8(int a0, int a1, unsigned char *s, int a3, int a4) {
     return sum;
 }
 
-#undef D_800A01DC
+#undef FontGlyphWidths
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A01DC (*(unsigned char (*)[])&D_800A01DC)
+#define FontGlyphWidths (*(unsigned char (*)[])&FontGlyphWidths)
 
-void func_8004C894(int a0, int a1, unsigned char *s, int a3, int a4) {
+void DrawFontStringRight(int a0, int a1, unsigned char *s, int a3, int a4) {
     int sum = 0;
     unsigned char *s0 = s;
     if (*s0 != 0) {
         do {
-            unsigned char c = D_800A017C[*s - 0x20];
+            unsigned char c = FontGlyphMap[*s - 0x20];
             s++;
             if (c != 0xFF) {
-                sum += D_800A01DC[c];
+                sum += FontGlyphWidths[c];
             } else {
                 sum += 4;
             }
@@ -219,7 +219,7 @@ void func_8004C894(int a0, int a1, unsigned char *s, int a3, int a4) {
     func_8004C5A4(a0 - sum, a1, s0, a3, a4);
 }
 
-#undef D_800A01DC
+#undef FontGlyphWidths
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ACC14 (*(int (*))&D_800ACC14)

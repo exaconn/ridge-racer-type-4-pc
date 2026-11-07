@@ -62,7 +62,7 @@ static void service(unsigned kind){const s32 args[8]={0};record(kind,args);effec
 void ovl665_func_80115798(void){service(0);}
 void func_8005B2D4(s32 a){const s32 args[8]={a};record(1,args);effect(1);}
 void PlaySfx(s32 a){const s32 args[8]={a};record(2,args);effect(2);}
-void func_800207D4(u32 *p,s32 a,u32 b){assert(p==world.frames[world.frameRoot].ordering.ordering70&&(uintptr_t)p>UINT32_MAX);const s32 args[8]={world.frameRoot,a,(s32)b};record(3,args);effect(3);}
+void AddScreenFadeTiles(u32 *p,s32 a,u32 b){assert(p==world.frames[world.frameRoot].ordering.ordering70&&(uintptr_t)p>UINT32_MAX);const s32 args[8]={world.frameRoot,a,(s32)b};record(3,args);effect(3);}
 void ovl665_func_80114A24(void){service(4);}
 void *func_8001FF84(u32 *head,void *cursor,s32 x,s32 y,const RrUiUvRect *region,u16 clut,s32 color){unsigned arena,which=99,n=world.sprites;u32 uv;assert(n<4&&head==world.frames[world.frameRoot].ordering.ordering70&&(uintptr_t)cursor>UINT32_MAX);
  for(arena=0;arena<3;arena++)if(cursor==&world.streams[arena].sprites[n])break;assert(arena<3);
@@ -72,7 +72,7 @@ void *func_8001FF84(u32 *head,void *cursor,s32 x,s32 y,const RrUiUvRect *region,
  world.sprites++;effect(5);return world.sprites<4?(u8*)&world.streams[(world.arena+1)%3].sprites[world.sprites]:(u8*)&world.streams[(world.arena+1)%3].command;
 }
 void UpdateBadgeRowAnim(s32 a){const s32 args[8]={a};record(6,args);effect(6);}
-void func_80032A14(s32 x,s32 y,RrMenuTextState *text){assert(text==&world.text[world.textRoot]&&(uintptr_t)text>UINT32_MAX);const s32 args[8]={x,y,world.textRoot};record(7,args);effect(7);}
+void UpdateDialogue(s32 x,s32 y,RrMenuTextState *text){assert(text==&world.text[world.textRoot]&&(uintptr_t)text>UINT32_MAX);const s32 args[8]={x,y,world.textRoot};record(7,args);effect(7);}
 void UpdateScreenFade(s32 flags){const s32 args[8]={flags};record(8,args);effect(8);}
 static void oracle(void){s32 phase=world.visual.layout0C;paths[phase>=0&&phase<4?phase:4]++;
  if(phase==0){service(0);func_8005B2D4(0);world.visual.layout0C=word((u32)world.visual.layout0C+1);}
@@ -83,7 +83,7 @@ static void oracle(void){s32 phase=world.visual.layout0C;paths[phase>=0&&phase<4
   if(world.input[0].buttons08&0x800){buttonPaths[0]++;world.settings.display.x34=0;world.settings.display.y38=16;}
   else if(world.input[0].accept30){buttonPaths[1]++;PlaySfx(1);world.badges[world.badgeRoot][0].state10=4;world.timer=64;world.visual.layout0C=word((u32)world.visual.layout0C+1);}else buttonPaths[2]++;
   for(unsigned i=0;i<2;i++){world.frames[i].environment.screen.x=half((u32)world.settings.display.x34);world.frames[i].environment.screen.y=half((u32)world.settings.display.y38);}
- }else if(phase==3){s16 timer=half((u16)world.timer-1);world.timer=timer;func_800207D4(world.frames[world.frameRoot].ordering.ordering70,(64-(s32)timer)*4,69);
+ }else if(phase==3){s16 timer=half((u16)world.timer-1);world.timer=timer;AddScreenFadeTiles(world.frames[world.frameRoot].ordering.ordering70,(64-(s32)timer)*4,69);
   if(world.timer<=0&&world.badges[world.badgeRoot][0].state10==11){exitKinds[0]++;service(4);world.visual.layout0C=0;world.visual.scene00=word((u32)world.visual.scene00-1);return;}exitKinds[1]++;
  }
  void *cursor=world.scratch.pointers.cursor;
@@ -91,7 +91,7 @@ static void oracle(void){s32 phase=world.visual.layout0C;paths[phase>=0&&phase<4
  RrGpuSingleCommandPacket *packet=cursor;world.scratch.pointers.cursor=(u8*)packet;u32 old=world.frames[world.frameRoot].ordering.ordering70[0];
  packet->tag=0x01000000U+(old&0xFFFFFFU);packet->command=0xE1000259U;world.frames[world.frameRoot].ordering.ordering70[0]=(old&0xFF000000U)+((uintptr_t)packet%0x1000000U);world.scratch.pointers.cursor=(u8*)(packet+1);
  world.text[world.textRoot].b4=26;UpdateBadgeRowAnim(0);
- if(world.badges[world.badgeRoot][0].state10==3)func_80032A14(world.badges[world.badgeRoot][0].x04+10,world.badges[world.badgeRoot][0].y06+40,&world.text[world.textRoot]);UpdateScreenFade(0x1007A);
+ if(world.badges[world.badgeRoot][0].state10==3)UpdateDialogue(world.badges[world.badgeRoot][0].x04+10,world.badges[world.badgeRoot][0].y06+40,&world.text[world.textRoot]);UpdateScreenFade(0x1007A);
 }
 int main(void){assert(sizeof(void*)==8);_Static_assert(offsetof(PacketStream,command)==80,"command object");_Static_assert(sizeof(RrFrameStorage)==0x22778,"frame owner");
  for(scenario=0;scenario<65536;scenario++)for(profile=0;profile<8;profile++){

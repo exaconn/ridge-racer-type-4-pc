@@ -3,8 +3,8 @@
 #include "types.h"
 #include "rr/spu.h"
 
-extern volatile u32 D_800A4870;
-extern volatile u32 D_800A48A4;
+extern volatile u32 _spu_RQmask;
+extern volatile u32 _spu_env;
 extern volatile u16 D_8010EE28[];
 
 u32 SpuSetAnyVoice(s32 on_off_in, u32 voice_bit_in, s32 addr1, s32 addr2) {
@@ -20,10 +20,10 @@ u32 SpuSetAnyVoice(s32 on_off_in, u32 voice_bit_in, s32 addr1, s32 addr2) {
         u32 cond;
         u32 hi;
         u32 lo;
-        /* ASM_BARRIER: keep on_off copy before D_800A48A4 load */
+        /* ASM_BARRIER: keep on_off copy before _spu_env load */
         __asm__ volatile("" : "+r"(on_off));
-        cond = D_800A48A4 & 1;
-        /* ASM_BARRIER: keep D_800A48A4 & 1 test before D_8010EE28 address load */
+        cond = _spu_env & 1;
+        /* ASM_BARRIER: keep _spu_env & 1 test before D_8010EE28 address load */
         __asm__ volatile("" : "+r"(cond));
         voice_bit = voice_bit_in;
         if (cond) {
@@ -45,12 +45,12 @@ u32 SpuSetAnyVoice(s32 on_off_in, u32 voice_bit_in, s32 addr1, s32 addr2) {
     case 1:
         /* ASM_BARRIER: recompute shifted indices per switch case */
         __asm__("" : "+r"(addr1), "+r"(addr2));
-        if (D_800A48A4 & 1) {
+        if (_spu_env & 1) {
             /* ASM_BARRIER: pin base pointer in case 1 to $a1 */
             register volatile u16 *p asm("$5") = D_8010EE28;
             p[addr1] |= voice_bit;
             p[addr2] |= (voice_bit >> 16) & 0xFF;
-            D_800A4870 |= 1 << ((addr1 - 0xC6) >> 1);
+            _spu_RQmask |= 1 << ((addr1 - 0xC6) >> 1);
         } else {
             /* ASM_BARRIER: pin base pointer in case 1 to $a1 */
             register volatile u16 *p asm("$5") = _spu_RXX;
@@ -66,12 +66,12 @@ u32 SpuSetAnyVoice(s32 on_off_in, u32 voice_bit_in, s32 addr1, s32 addr2) {
     case 0:
         /* ASM_BARRIER: recompute shifted indices per switch case */
         __asm__("" : "+r"(addr1), "+r"(addr2));
-        if (D_800A48A4 & 1) {
+        if (_spu_env & 1) {
             /* ASM_BARRIER: pin base pointer in case 0 to $a1 */
             register volatile u16 *p asm("$5") = D_8010EE28;
             p[addr1] &= ~voice_bit;
             p[addr2] &= ~((voice_bit >> 16) & 0xFF);
-            D_800A4870 |= 1 << ((addr1 - 0xC6) >> 1);
+            _spu_RQmask |= 1 << ((addr1 - 0xC6) >> 1);
         } else {
             /* ASM_BARRIER: pin base pointer in case 0 to $a1 */
             register volatile u16 *p asm("$5") = _spu_RXX;
@@ -87,12 +87,12 @@ u32 SpuSetAnyVoice(s32 on_off_in, u32 voice_bit_in, s32 addr1, s32 addr2) {
     case 8:
         /* ASM_BARRIER: recompute shifted indices per switch case */
         __asm__("" : "+r"(addr1), "+r"(addr2));
-        if (D_800A48A4 & 1) {
+        if (_spu_env & 1) {
             /* ASM_BARRIER: pin base pointer in case 8 to $a0 */
             register volatile u16 *p asm("$4") = D_8010EE28;
             p[addr1] = voice_bit;
             p[addr2] = (voice_bit >> 16) & 0xFF;
-            D_800A4870 |= 1 << ((addr1 - 0xC6) >> 1);
+            _spu_RQmask |= 1 << ((addr1 - 0xC6) >> 1);
         } else {
             /* ASM_BARRIER: pin base pointer in case 8 to $a0 */
             register volatile u16 *p asm("$4") = _spu_RXX;

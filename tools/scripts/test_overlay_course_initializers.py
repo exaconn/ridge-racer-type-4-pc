@@ -48,7 +48,7 @@ struct State {
 };
 static struct World {struct State s;unsigned calls;struct {s32 service,args[4];u32 hash;} events[12];} actual,expected,initial,*w;
 static unsigned scenario,mutation,kind;static u8 seenCounts[4][10];
-#define D_800F3920 w->s.save
+#define SaveProgress w->s.save
 #define D_800ABE08 w->s.source
 #define ovl661_D_80118458 w->s.versus
 #define ovl666_available_courses w->s.extra
@@ -67,7 +67,7 @@ static unsigned scenario,mutation,kind;static u8 seenCounts[4][10];
 #define MenuCursor w->s.flag
 #define NumLaps w->s.laps
 #define ovl661_D_80118414 w->s.marker
-#define D_800F4C6A w->s.course
+#define ModeGroup w->s.course
 #define D_800F3A26 w->s.position
 #define D_800F4D8A w->s.selected
 #define D_800F3826 w->s.clearF3826
@@ -105,18 +105,18 @@ static void event(s32 service,s32 a,s32 b,s32 c,s32 d){
 }
 void SetDispMask(s32 mode){assert(mode==0);event(1,mode,0,0,0);}
 void ClearScreenOverlayState(void){event(2,0,0,0,0);}
-void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags){event(3,r,g,b,(s32)flags);}
+void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags){event(3,r,g,b,(s32)flags);}
 void ovl661_func_80115598(s32 mode){assert(mode==0);event(4,mode,0,0,0);}
 void func_80053BB4(s32 mode){assert(mode==0);event(5,mode,0,0,0);}
-void func_8002AF8C(s32 a,s32 b,s32 c){event(6,a,b,c,0);}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){event(6,a,b,c,0);}
 s32 func_8001E84C(const char *format,...){
  unsigned i;assert(format==(kind?format666:format661));
  if(kind && w==&actual)for(i=0;i<4;i++){assert(w->s.counts[i]>=0 && w->s.counts[i]<=9);seenCounts[i][w->s.counts[i]]=1;}
  event(7,0,0,0,0);return 1;
 }
 void ovl666_init_menu(void){event(8,0,0,0,0);}
-''' + helpers + '\n#define D_800F4D98 w->s.choice.complete\n' + bodies[0] + \
-                 '\n#undef D_800F4D98\n#define D_800F4D98 w->s.choice.owner\n' + bodies[1] + r'''
+''' + helpers + '\n#define SelectionRows w->s.choice.complete\n' + bodies[0] + \
+                 '\n#undef SelectionRows\n#define SelectionRows w->s.choice.owner\n' + bodies[1] + r'''
 static void reference_copy(char *destination,const char *source){
  unsigned i=0,j;while(source[i])i++;for(j=0;j<i;j++)destination[j]=source[j];
  while(destination[i])destination[i++]=0;
@@ -131,13 +131,13 @@ static void reference(void){unsigned i,j,k;
   w->s.clearABEC8=0;w->s.clearAC648=0;w->s.clearF3914=0;w->s.laps=3;w->s.modeAC59C=2;
   for(i=0;i<2;i++)for(j=0;j<9;j++){w->s.versus[0][i][j]=w->s.source[i][j];w->s.versus[1][i][j]=w->s.source[0][j];}
   reference_copy(w->s.names,(char*)w->s.save.prefix.progress.prefix00.bytes);reference_copy(w->s.names+12,player2);
-  func_8001ECE8(0,0,0,2);ovl661_func_80115598(0);
+  SetupDrawDispEnvs(0,0,0,2);ovl661_func_80115598(0);
   reference_glyph((s8*)&w->s.choice.complete,w->s.source[0][0].glyph);
   reference_glyph((s8*)&w->s.choice.complete+4,w->s.source[0][0].glyph);
   func_80053BB4(0);w->s.marker=8;w->s.course=1;w->s.position=56;w->s.selected=0;
-  func_8001E84C(format661);func_8002AF8C(0,1,1);
+  func_8001E84C(format661);SetMenuFrameOptions(0,1,1);
  }else{
-  func_8001ECE8(0,0,0,2);
+  SetupDrawDispEnvs(0,0,0,2);
   for(i=0;i<4;i++)for(j=0;j<9;j++)w->s.extra[i][j].glyph=-1;
   for(i=0;i<4;i++){
    k=0;w->s.counts[i]=0;

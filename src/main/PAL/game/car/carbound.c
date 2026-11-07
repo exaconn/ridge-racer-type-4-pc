@@ -221,7 +221,7 @@ void func_8002E868(a0, a1, a2) int a0; int a1; unsigned char *a2; {
     p = (RrRaceVehicle *)a0; /* ASM_BARRIER: pin p to a3 */
     r = 0;
     if (D_800F4D44 == 1) {
-        a2 = D_800F4D98;
+        a2 = SelectionRows;
         t = p->flags1E4 & 7;
         c = a2[0];
         r = t < 4;
@@ -247,5 +247,5 @@ void func_8002E868(a0, a1, a2) int a0; int a1; unsigned char *a2; {
         p->slotIndex1E6 = (w % 2 + 2) << 1;
     }
     v = 0x100; p->maxSpeed2EC = v;
-    func_80037618(p, ((short)p->flags1E4 - 1) & 7, a2, p);
+    PlaceCarOnGrid(p, ((short)p->flags1E4 - 1) & 7, a2, p);
 }

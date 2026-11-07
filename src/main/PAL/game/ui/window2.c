@@ -22,15 +22,15 @@ extern char D_8009EA90[];
 extern char D_8009EACC[];
 
 void func_800211A4();
-void func_80021350(s32 phase,s32 index);
-void *func_80021568(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-void *func_800215F4(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5);
-void func_80021684(int a0, int a1);
+void DrawHudRotatingQuad(s32 phase,s32 index);
+void *EmitHudGlyph12(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+void *EmitHudGlyph12Alt(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5);
+void DrawHudNumber3(int a0, int a1);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010BF88 (*(struct W3G0A (*))&D_8010BF88)
+#define HudNumberTargets (*(struct W3G0A (*))&HudNumberTargets)
 
-void func_80021084(int a0) {
+void InitHudNumberTargets(int a0) {
     switch (a0) {
     case 0: case 1: case 5: break;
     case 2: case 3: case 4: case 6:
@@ -39,35 +39,35 @@ void func_80021084(int a0) {
             goto w3g0b;
         }
     }
-    D_8010BF88.p0 = D_800ADB60;
-    D_8010BF88.p4 = D_800D02D8;
-    D_8010BF88.s8 = 0x106;
-    D_8010BF88.sA = 0xE6;
-    D_8010BF88.sC = 0x122;
-    D_8010BF88.sE = 0xDC;
-    D_8010BF88.s10 = 0x112;
-    D_8010BF88.s12 = 0xCE;
+    HudNumberTargets.p0 = D_800ADB60;
+    HudNumberTargets.p4 = D_800D02D8;
+    HudNumberTargets.s8 = 0x106;
+    HudNumberTargets.sA = 0xE6;
+    HudNumberTargets.sC = 0x122;
+    HudNumberTargets.sE = 0xDC;
+    HudNumberTargets.s10 = 0x112;
+    HudNumberTargets.s12 = 0xCE;
     return;
 w3g0b:
-    D_8010BF88.p0 = D_800AE660;
-    D_8010BF88.p4 = D_800D0DD8;
-    D_8010BF88.s8 = 0xFC;
-    D_8010BF88.sA = 0x58;
-    D_8010BF88.sC = 0x128;
-    D_8010BF88.sE = 0x4A;
-    D_8010BF88.s10 = 0xFC;
-    D_8010BF88.s12 = 0x68;
-    D_8010BF88.p14 = D_800AE660;
-    D_8010BF88.p18 = D_800D0DD8;
-    D_8010BF88.s1C = 0xFC;
-    D_8010BF88.s1E = 0xD8;
-    D_8010BF88.s20 = 0x122;
-    D_8010BF88.s22 = 0xCA;
-    D_8010BF88.s24 = 0xFC;
-    D_8010BF88.s26 = 0xE8;
+    HudNumberTargets.p0 = D_800AE660;
+    HudNumberTargets.p4 = D_800D0DD8;
+    HudNumberTargets.s8 = 0xFC;
+    HudNumberTargets.sA = 0x58;
+    HudNumberTargets.sC = 0x128;
+    HudNumberTargets.sE = 0x4A;
+    HudNumberTargets.s10 = 0xFC;
+    HudNumberTargets.s12 = 0x68;
+    HudNumberTargets.p14 = D_800AE660;
+    HudNumberTargets.p18 = D_800D0DD8;
+    HudNumberTargets.s1C = 0xFC;
+    HudNumberTargets.s1E = 0xD8;
+    HudNumberTargets.s20 = 0x122;
+    HudNumberTargets.s22 = 0xCA;
+    HudNumberTargets.s24 = 0xFC;
+    HudNumberTargets.s26 = 0xE8;
 }
 
-#undef D_8010BF88
+#undef HudNumberTargets
 
 void func_800211A4(a0)
 int a0;
@@ -93,7 +93,7 @@ int a0;
             h1 = 0xFF000000;
             s1 = D_8009EACC;
             do {
-                func_80020920(s0, s1);
+                InitHudSpritePacket(s0, s1);
                 s1 += 0x14;
                 s3++;
                 *s0 = (*s0 & h1) | (*s2 & m1);
@@ -109,7 +109,7 @@ int a0;
         s2 = (unsigned *)(D_800ACC14 + 0x70);
         s1 = (char *)s0 + 0xA;
         do {
-            func_80020920(s0, s4);
+            InitHudSpritePacket(s0, s4);
             __asm__ volatile("" : "=r"(c3) : "0"(3)); /* ASM_BARRIER: keep li 3 inside the loop (not hoisted) */
             if (a0 == c3) *(unsigned short *)s1 -= 0x80;
             s1 += 0x14;
@@ -123,7 +123,7 @@ int a0;
     *(int *)SCRATCHPAD = AddDrawModePrim(s2, s0, 5);
 }
 
-void func_80021350(s32 phase,s32 index) {
+void DrawHudRotatingQuad(s32 phase,s32 index) {
     RrHudQuadColor colors[4];
     s32 angle,sine;
     s32 cosine;
@@ -155,7 +155,7 @@ void func_80021350(s32 phase,s32 index) {
     sine=rsin(angle);
     cosine=rcos(angle);
     i=0;color=colors;corner=D_8009EE38;
-    base=&D_8010BF88;
+    base=&HudNumberTargets;
     row=(unsigned long)index*sizeof(RrNumberTarget);
     target=(RrNumberTarget *)((u8 *)base+row);
     packet=(RrHudQuadEmission *)RR_HUD_QUAD_SCRATCH->cursor;
@@ -180,7 +180,7 @@ void func_80021350(s32 phase,s32 index) {
     RR_HUD_QUAD_SCRATCH->cursor=(u8 *)packet+36;
 }
 
-void *func_80021568(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+void *EmitHudGlyph12(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     M2C_FIELD(arg1, s8 *, 3) = 4;
     M2C_FIELD(arg1, s8 *, 7) = 0x65;
     M2C_FIELD(arg1, s16 *, 0x10) = 0xC;
@@ -195,7 +195,7 @@ void *func_80021568(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg
     return arg1 + 0x14;
 }
 
-void *func_800215F4(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5) {
+void *EmitHudGlyph12Alt(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5) {
     M2C_FIELD(arg1, s8 *, 3) = 4;
     M2C_FIELD(arg1, s8 *, 7) = 0x65;
     M2C_FIELD(arg1, s16 *, 0x10) = 0xC;
@@ -211,11 +211,11 @@ void *func_800215F4(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010BF88 (*(char (*)[])&D_8010BF88)
+#define HudNumberTargets (*(char (*)[])&HudNumberTargets)
 
-void func_80021684(int a0, int a1)
+void DrawHudNumber3(int a0, int a1)
 {
-    char *b = D_8010BF88;
+    char *b = HudNumberTargets;
     int off = a1 * 0x14;
     char *t = b + off;
     short x = *(short *)(t + 8);
@@ -225,7 +225,7 @@ void func_80021684(int a0, int a1)
     h = a0 / 100;
     tn = (a0 / 10) - h * 10;
     on = a0 % 10;
-    *(int *)SCRATCHPAD = AddDrawModePrim(s1, func_80021568(s1, func_80021568(s1, func_80021568(s1, *(int *)SCRATCHPAD, x, y, h, 0x7EFA), x + 8, y, tn, 0x7EFA), x + 0x10, y, on, 0x7EFA), 5);
+    *(int *)SCRATCHPAD = AddDrawModePrim(s1, EmitHudGlyph12(s1, EmitHudGlyph12(s1, EmitHudGlyph12(s1, *(int *)SCRATCHPAD, x, y, h, 0x7EFA), x + 8, y, tn, 0x7EFA), x + 0x10, y, on, 0x7EFA), 5);
 }
 
-#undef D_8010BF88
+#undef HudNumberTargets

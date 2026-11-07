@@ -28,12 +28,12 @@ s32 ovl667_func_80114E34(void) {
             ovl667_D_80118F09 = (ovl667_D_80118F08 + 9) & 7;
         } else ovl667_D_80118F8D = ovl667_D_80118F08;
         ovl667_D_80118F20.packets[ovl667_D_80118F08] = ovl667_D_80118F10.packet;
-        FileRead(D_800F2AA8, &ovl667_D_80118F10.packet, 12);
+        FileRead(LinkReadHandle, &ovl667_D_80118F10.packet, 12);
         return 1;
     }
     if (ovl667_D_80118EE8 != 0) return -1;
     _sio_control(2,0,0);
-    FileRead(D_800F2AA8, &ovl667_D_80118F10.packet, 12);
+    FileRead(LinkReadHandle, &ovl667_D_80118F10.packet, 12);
     ovl667_D_80118EE8 = 1;
     ovl667_D_80118EF8 = (s32)((u32)ovl667_D_80118EF8 + 1U);
     return 0;

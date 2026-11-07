@@ -7,7 +7,7 @@ extern unsigned short D_800A4904[];
 extern unsigned short D_800A4914[];
 extern int _snd_openflag;
 extern int VBLANK_MINUS;
-void func_8007F964(void) {
+void _SsInit(void) {
     unsigned short *d, *s, *p; int i, j;
     d = (unsigned short *)0x1F801C00;
     i = 0;

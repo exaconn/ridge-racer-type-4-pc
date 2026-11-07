@@ -25,7 +25,7 @@ extern char D_800D0160[];
 
 extern short D_80107178;
 
-void func_800209C4(int a0)
+void InitRaceHudPackets(int a0)
 {
     int n, i, j, a, b;
     char *tab;
@@ -59,7 +59,7 @@ void func_800209C4(int a0)
         for (j = 0; j < 2; j++) {
             s1 = D_800D0160 + j * 0x22778;
             s0 = s1 + (i * 0x14 + 0x18);
-            func_80020920(s0, tab + i * 0x14);
+            InitHudSpritePacket(s0, tab + i * 0x14);
             if (i != 0) AddPrim(s1 + (i * 0x14 + 4), s0);
         }
     }

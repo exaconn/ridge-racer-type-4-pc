@@ -12,7 +12,7 @@ u64 __subdf3(DW a, DW b) {
     if ((x.words.hi & 0x7FFFFFFF) != 0) goto add;
     sign = 0x80000000;
     if (x.words.lo != 0) goto add_sign;
-    return func_8007E904(b.bits);
+    return __negdf2(b.bits);
 add:
     sign = 0x80000000;
 add_sign:

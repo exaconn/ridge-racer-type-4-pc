@@ -11,8 +11,8 @@ void ovl668_func_80114C3C(void)
     s32 pixels;
     RrStrContextPrefix *initialContext;
 
-    timer = (s32)((u32)D_800F2DE4 + 1U);
-    D_800F2DE4 = timer;
+    timer = (s32)((u32)ModeFrame + 1U);
+    ModeFrame = timer;
     if (timer == 4) SetDispMask(1);
     initialContext = &RaceContext;
     ovl668_func_801163FC(STR_STATE->commands10[STR_STATE->display24.word00], 3);

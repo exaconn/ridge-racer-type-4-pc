@@ -8,8 +8,8 @@ extern RrFrameStorage D_800ADAF0[2];
 extern RrFrameStep *ModeFuncTable[];
 extern u8 *D_800ACC14;
 extern u32 FrameCounter;
-extern s32 VSyncThreshold, D_800ACBF8, D_800F2DE4, DrawBufIndex;
-extern u16 D_800F4C6A, D_800F3A26;
+extern s32 VSyncThreshold, D_800ACBF8, ModeFrame, DrawBufIndex;
+extern u16 ModeGroup, D_800F3A26;
 extern s16 D_800F4D8A;
 
 /* Initializes once, then runs indefinitely. Helpers may replace the current

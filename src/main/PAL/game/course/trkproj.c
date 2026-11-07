@@ -27,10 +27,10 @@ void func_8004638C(RrRaceVehicle *vehicle);
 void ProjectToTrackSegment(RrTrackOffsetArgument offsetX, RrTrackOffsetArgument offsetZ, s32 node, s16 *fraction, s16 *lateral, s32 *remaining);
 void UpdateCarTrackProjection(RrRaceVehicle *vehicle);
 s32 FindNearestCarAhead(RrRaceVehicle *vehicle);
-s32 func_80046B1C(RrRaceVehicle *arg0, s32 arg1);
+s32 ScoreOvertakeOpportunity(RrRaceVehicle *arg0, s32 arg1);
 void UpdateComCarOvertake(RrRaceVehicle *p);
-void func_80047230(const RrTrackSample3C *first, const RrTrackSample3C *second, s32 lateral, s32 fraction, s32 *output);
-void func_80047610(const RrTrackSample3C *first, const RrTrackSample3C *second, s32 lateral, s32 fraction, s32 *output);
+void InterpolateLanePointXZ(const RrTrackSample3C *first, const RrTrackSample3C *second, s32 lateral, s32 fraction, s32 *output);
+void InterpolateLanePointXYZ(const RrTrackSample3C *first, const RrTrackSample3C *second, s32 lateral, s32 fraction, s32 *output);
 void UpdateComCarTargetPoint(RrRaceVehicle *vehicle);
 
 void func_8004638C(RrRaceVehicle *vehicle)
@@ -233,7 +233,7 @@ lookup:
 /* legacy typing of shared globals in this part of the unit */
 #define CalcSteerLimit ((s32 (*)())CalcSteerLimit)
 
-s32 func_80046B1C(RrRaceVehicle *arg0, s32 arg1) {
+s32 ScoreOvertakeOpportunity(RrRaceVehicle *arg0, s32 arg1) {
     s32 sp18;
     s32 sp1C;
     s32 s0;
@@ -334,7 +334,7 @@ void UpdateComCarOvertake(RrRaceVehicle *p)
   {
     k = s2 * 12;
     s1 = ((RrRaceStandingsTable *)((char *)s5 + k))->entries18[0].vehicle08;
-    if ((func_80046B1C(p, s2) > 0) && (q->boostTimer44 == 0))
+    if ((ScoreOvertakeOpportunity(p, s2) > 0) && (q->boostTimer44 == 0))
     {
       if (q->laneActive6A == 0)
       {
@@ -537,7 +537,7 @@ static __inline__ s32 extend_track_edge(s32 edge, s32 width, s32 extension)
 }
 
 /* Interpolate the lateral road position in the horizontal plane. */
-void func_80047230(const RrTrackSample3C *first, const RrTrackSample3C *second,
+void InterpolateLanePointXZ(const RrTrackSample3C *first, const RrTrackSample3C *second,
     s32 lateral, s32 fraction, s32 *output)
 {
     RrVector firstPoint;
@@ -580,7 +580,7 @@ void func_80047230(const RrTrackSample3C *first, const RrTrackSample3C *second,
 }
 
 /* The camera path also needs the height of the centre line. */
-void func_80047610(const RrTrackSample3C *first, const RrTrackSample3C *second,
+void InterpolateLanePointXYZ(const RrTrackSample3C *first, const RrTrackSample3C *second,
     s32 lateral, s32 fraction, s32 *output)
 {
     RrVector firstPoint;
@@ -669,7 +669,7 @@ void UpdateComCarTargetPoint(RrRaceVehicle *vehicle) {
             target.z = (secondPoint.z - firstPoint.z) * fraction / 1024 + firstPoint.z;
             break;
         case 10:
-            func_80047230(firstSample, secondSample, control->laneStart3A, fraction, (s32 *)&target);
+            InterpolateLanePointXZ(firstSample, secondSample, control->laneStart3A, fraction, (s32 *)&target);
             break;
         }
     } else {
@@ -701,7 +701,7 @@ void UpdateComCarTargetPoint(RrRaceVehicle *vehicle) {
             }
             control->laneDelta6C = control->laneTarget3C - control->laneStart3A;
         }
-        func_80047230(firstSample, secondSample, control->laneStart3A, fraction, (s32 *)&target);
+        InterpolateLanePointXZ(firstSample, secondSample, control->laneStart3A, fraction, (s32 *)&target);
     }
     vehicle->pathDeltaX224 = target.x - vehicle->pos20[0];
     vehicle->pathDeltaZ228 = target.z - vehicle->pos20[2];

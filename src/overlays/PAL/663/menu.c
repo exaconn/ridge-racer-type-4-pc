@@ -1,7 +1,7 @@
 #include "rr/overlay663.h"
 
 void ovl663_init_menu(void) {
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     ScreenFrame = 0;
     MenuCursor = 0;
     MenuItemCount = 3;
@@ -26,23 +26,23 @@ void ovl663_init_scene(void) {
     s32 val;
 
     SetDispMask(0);
-    func_8001ECE8(0, 0, 0, 2);
-    D_800F4C6A = 1;
+    SetupDrawDispEnvs(0, 0, 0, 2);
+    ModeGroup = 1;
     D_800F3A26 = 74;
     D_800F4D8A = 0;
     func_8001E84C(ovl663_scene_name);
     ovl663_available_course_count = 0;
     for (i = 0; i < 9; i++) {
-        if (D_800F3920.unlocked60[ovl663_course_order[i]] != 0) {
+        if (SaveProgress.unlocked60[ovl663_course_order[i]] != 0) {
             ovl663_available_courses[ovl663_available_course_count] = ovl663_course_order[i];
             ovl663_course_unlock_levels[ovl663_available_course_count++] =
-                D_800F3920.unlocked60[ovl663_course_order[i]];
+                SaveProgress.unlocked60[ovl663_course_order[i]];
         }
     }
     ovl663_init_menu();
     func_80053BB4(0);
     ovl663_course_count = 4;
-    val = D_800F3920.prefix.progress.prefix00.fields.configuration0C;
+    val = SaveProgress.prefix.progress.prefix00.fields.configuration0C;
     if (val >= 16) {
         ovl663_course_count = 8;
     }
@@ -63,13 +63,13 @@ void ovl663_update_menu(void) {
     s32 highlight;
     u8 rowState;
 
-    D_800F2DE4 = (s32)((u32)D_800F2DE4 + 1U);
+    ModeFrame = (s32)((u32)ModeFrame + 1U);
     ScreenFrame = (s32)((u32)ScreenFrame + 1U);
     switch (D_800F4D8A) {
     case 0:
         i = 0;
         if (UiRows->byte14 == 2) {
-            func_8002AF8C(1, 1, 1);
+            SetMenuFrameOptions(1, 1, 1);
             UiRows[MenuCursor].cells[0] = 0;
             StepMenuValue(0, 2, (char *)&MenuCursor, 4, 0);
             highlight = 2;
@@ -123,7 +123,7 @@ void ovl663_update_menu(void) {
             }
         chosen:
             if (closingMode > 0) {
-                func_8002AF8C(0, 1, 1);
+                SetMenuFrameOptions(0, 1, 1);
                 D_800AC5D0 = 0x40;
                 i = 0;
 
@@ -147,13 +147,13 @@ void ovl663_update_menu(void) {
         if ((s16)D_800AC5D0 > 0) {
             D_800AC5D0 = (u16)D_800AC5D0 - 1;
         }
-        func_800207D4(D_800ACC14->ordering.ordering70, (0x40 - (s16)D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (0x40 - (s16)D_800AC5D0) * 4, 0x45);
         i = 0;
         if ((s16)D_800AC5D0 <= 0) {
             loaded = func_8003BEA8(ovl663_available_courses[0]);
             if (loaded == 1) {
                 ovl663_init_preview();
-                D_800F4C6A = loaded;
+                ModeGroup = loaded;
                 D_800F3A26 = 0x4C;
                 D_800F4D8A = 0;
                 return;
@@ -165,11 +165,11 @@ void ovl663_update_menu(void) {
     case 5:
         closingTimer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = (u16)closingTimer;
-        func_800207D4(D_800ACC14->ordering.ordering70, (0x40 - closingTimer) * 4, 0x45);
+        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (0x40 - closingTimer) * 4, 0x45);
         i = 0;
         if ((s16)D_800AC5D0 <= 0) {
             ovl663_init_selection(ovl663_record_kind);
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 75;
             D_800F4D8A = 0;
         }
@@ -177,11 +177,11 @@ void ovl663_update_menu(void) {
     case 8:
         cancelTimer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = (u16)cancelTimer;
-        func_800207D4(D_800ACC14->ordering.ordering70, (0x40 - cancelTimer) * 4, 0x45);
+        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (0x40 - cancelTimer) * 4, 0x45);
         i = 0;
         if ((s16)D_800AC5D0 <= 0) {
             func_80053CB0();
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 3;
             D_800F4D8A = 0;
         }
@@ -199,7 +199,7 @@ void ovl663_update_menu(void) {
 
 void ovl663_init_selection(s32 mode) {
     s32 one = 1;
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     ScreenFrame = 0;
     D_800AC648 = 0;
     D_800F3914 = 0;

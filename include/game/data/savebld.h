@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80079200(int arg0);
+void BuildSaveData(int arg0);
 
 #endif /* RR_GAME_DATA_SAVEBLD_H */

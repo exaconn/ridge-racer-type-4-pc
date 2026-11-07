@@ -10,9 +10,9 @@ extern void CdDataSync(s32);
 extern s32 CdPosToInt(void *);
 extern s32 func_800963DC(const char *,...);
 extern const char D_80011D28[];
-extern void func_8008EA9C(void),func_8008E7F4(void);
+extern void cb_data(void),func_8008E7F4(void);
 
-void func_8008E828(s32 event,u8 *data) {
+void cb_read(s32 event,u8 *data) {
     u8 header[12];
     register volatile RrLibReadRequestState *initial=&D_800A67B0;
     register volatile RrLibReadRequestState *state;
@@ -37,7 +37,7 @@ void func_8008E828(s32 event,u8 *data) {
                     CdDataCallback(0);
                     CdGetSector2(header,3);
                     CdDataSync(0);
-                    CdDataCallback(func_8008EA9C);
+                    CdDataCallback(cb_data);
                 } else {
                     CdGetSector(header,3);
                 }
@@ -86,7 +86,7 @@ void func_8008E828(s32 event,u8 *data) {
     __asm__("" : "+r"(state));
     state->retry18=now;
     if (state->remaining14<0) {
-        func_8008EB6C(1);
+        cd_read_retry(1);
     }
     now=VSync(-1);
     if ((s32)(state->start1C+1200U)<now) {

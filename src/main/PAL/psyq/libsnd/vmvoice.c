@@ -12,7 +12,7 @@ extern s8 D_80110105;
 extern s8 D_8011010B;
 extern u8 D_80110112;
 
-void func_80088794(s32 arg0) {
+void vmNoiseOn(s32 arg0) {
     /* ASM_BARRIER: keep arg0 in s3 */
     register s32 s3 __asm__("$19") = arg0;
     /* ASM_BARRIER: keep masked voice index in s0 */
@@ -163,7 +163,7 @@ void func_80088794(s32 arg0) {
     __asm__("" : : "r"(s0));
     D_8010F90C[(s3 & 0xFF) * 27] = 0xA;
     for (i = 0; i < spuVmMaxVoice; i++) {
-        if (!(D_800A48F8 & (1 << i))) {
+        if (!(_snd_vmask & (1 << i))) {
             /* ASM_BARRIER: keep row_off in v0 */
             register u32 row_off __asm__("$2") = i * 0x36;
             /* ASM_BARRIER: use v1 for PAL row flag load */
@@ -180,30 +180,30 @@ void func_80088794(s32 arg0) {
     D_8010F925[(s3 & 0xFF) * 0x36] = 2;
     /* ASM_BARRIER: keep s3 live so s3 & 0xFF uses v1 instead of modifying s3 in place */
     __asm__("" : : "r"(s3));
-    f8 = D_8010F8F8 | low_mask;
-    fa = D_8010F8FA | high_mask;
-    D_8010F8F8 = f8;
-    D_8010F8FA = fa;
-    D_80110000 &= ~f8;
-    D_80110002 &= ~fa;
+    f8 = _svm_okon1 | low_mask;
+    fa = _svm_okon2 | high_mask;
+    _svm_okon1 = f8;
+    _svm_okon2 = fa;
+    _svm_okof1 &= ~f8;
+    _svm_okof2 &= ~fa;
     if (D_80110112 & 4) {
         /* ASM_BARRIER: retain assembler temporary for delay-slot halfword store */
         register u16 *base __asm__("$1");
         u16 fe;
-        D_8010F8FC |= low_mask;
-        fe = D_8010F8FE | high_mask;
-        /* ASM_BARRIER: finish D_8010F8FC store before materializing D_8010F8FE base */
+        _svm_orev1 |= low_mask;
+        fe = _svm_orev2 | high_mask;
+        /* ASM_BARRIER: finish _svm_orev1 store before materializing _svm_orev2 base */
         __asm__ volatile("" : : "r"(fe) : "$1", "memory");
         base = (u16 *)0x80110000U;
         /* ASM_BARRIER: expose the final halfword store in the branch delay slot */
         __asm__("" : "=r"(base) : "0"(base));
         base[-0x702 / 2] = fe;
     } else {
-        D_8010F8FC &= ~low_mask;
-        D_8010F8FE &= ~high_mask;
+        _svm_orev1 &= ~low_mask;
+        _svm_orev2 &= ~high_mask;
     }
-    D_8010F900 = low_mask;
-    D_8010F902 = high_mask;
+    _svm_onos1 = low_mask;
+    _svm_onos2 = high_mask;
     /* ASM_BARRIER: keep epilogue after final global stores */
     __asm__ volatile("" : : : "memory");
 }

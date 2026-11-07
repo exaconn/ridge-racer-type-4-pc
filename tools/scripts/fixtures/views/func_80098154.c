@@ -20,9 +20,9 @@ extern void (*D_800ABC88)();
 
 extern void (*D_800ABC8C)();
 
-extern int chkRC2wait(), func_80098A00();
+extern int chkRC2wait(), _padClrIntSio0();
 
-extern void setRC2wait(), func_80098A90();
+extern void setRC2wait(), _padWaitRXready();
 
 int _padInitSioMode(a0) struct A *a0; {
     struct W *p;
@@ -62,8 +62,8 @@ int _padInitSioMode(a0) struct A *a0; {
             while (chkRC2wait() == 0);
             D_800ABCCC->b0 = 1;
             setRC2wait(0x64);
-            if (func_80098A00() == 0) return 0;
-            func_80098A90();
+            if (_padClrIntSio0() == 0) return 0;
+            _padWaitRXready();
             *(volatile unsigned char *)&D_800ABCCC->b0;
             setRC2wait(0x1AE);
             goto l1;
@@ -73,8 +73,8 @@ int _padInitSioMode(a0) struct A *a0; {
             if (!(*D_800ABCC8 & 0x80)) goto l1b;
             D_800ABCCC->b0 = 0x42;
             setRC2wait(0x3C);
-            if (func_80098A00() == 0) return 0;
-            func_80098A90();
+            if (_padClrIntSio0() == 0) return 0;
+            _padWaitRXready();
             *(volatile unsigned char *)&D_800ABCCC->b0;
             setRC2wait(0x1AE);
             goto l2;
@@ -84,8 +84,8 @@ int _padInitSioMode(a0) struct A *a0; {
             if (!(*D_800ABCC8 & 0x80)) goto l2b;
             D_800ABCCC->b0 = 1;
             setRC2wait(0x3C);
-            if (func_80098A00() == 0) return 0;
-            func_80098A90();
+            if (_padClrIntSio0() == 0) return 0;
+            _padWaitRXready();
             *(volatile unsigned char *)&D_800ABCCC->b0;
             return 0;
         }

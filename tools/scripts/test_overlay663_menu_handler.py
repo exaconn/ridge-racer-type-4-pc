@@ -32,7 +32,7 @@ static unsigned scenario,mutation,phaseSeen[10];
 #define ovl663_selected_record w->s.selection
 #define ovl663_available_course_count w->s.limit
 #define D_800F4D8A w->s.phase
-#define D_800F4C6A w->s.scene
+#define ModeGroup w->s.scene
 #define D_800F3A26 w->s.nextScene
 #define D_800AC5D0 w->s.timer
 #define D_800F3A60 w->s.accepted
@@ -49,14 +49,14 @@ static void change(void){unsigned n=w->calls;if(!mutation)return;
  w->s.rows[w->s.root][0].byte14=(scenario+n)%5;
 }
 s32 func_8003BEA8(s32 resource){Event *e=event(1);e->args[0]=resource;change();return scenario&1?-1:0;}
-void func_8002AF8C(s32 a,s32 b,s32 c){Event *e=event(2);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){Event *e=event(2);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
 void StepMenuValue(s32 a,s32 b,char *selection,s32 limit,s32 flags){Event *e=event(3);assert(selection==(char*)&w->s.selection);e->args[0]=a;e->args[1]=b;e->args[2]=limit;e->args[3]=flags;change();}
 void ResetScreenCounters(void){event(4);change();}
 void ovl663_draw_preview(void){event(5);change();}
 void PlaySfx(s32 a){event(6)->args[0]=a;change();}
-void func_800207D4(u32 *order,s32 fade,u32 flags){Event *e=event(7);assert(order==frames[w->s.bank].ordering.ordering70);assert((uintptr_t)order>UINT32_MAX);e->args[0]=w->s.bank;e->args[1]=fade;e->args[2]=flags;change();}
+void AddScreenFadeTiles(u32 *order,s32 fade,u32 flags){Event *e=event(7);assert(order==frames[w->s.bank].ordering.ordering70);assert((uintptr_t)order>UINT32_MAX);e->args[0]=w->s.bank;e->args[1]=fade;e->args[2]=flags;change();}
 void ovl663_init_menu(void){event(8);change();}
-void func_8002B12C(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){Event *v=event(9);s32 args[]={a,b,c,d,e,f,g};memcpy(v->args,args,sizeof(args));change();}
+void DrawMenuStepArrows(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){Event *v=event(9);s32 args[]={a,b,c,d,e,f,g};memcpy(v->args,args,sizeof(args));change();}
 void DrawUiRow(s32 a){event(10)->args[0]=a;change();}
 void UpdateScreenFade(s32 a){event(11)->args[0]=a;change();}
 ''' + body + r'''
@@ -64,17 +64,17 @@ static void expected(void){State *s=&w->s;int old;
  int loaded=func_8003BEA8(choices[s->selection]);
  if(loaded){
   unsigned phase=s->phase;if(phase<10)phaseSeen[phase]++;
-  if(phase==0){if(s->rows[s->root][0].byte14==2){func_8002AF8C(1,1,0);s->phase=1;}}
+  if(phase==0){if(s->rows[s->root][0].byte14==2){SetMenuFrameOptions(1,1,0);s->phase=1;}}
   else if(phase==1){old=s->selection;StepMenuValue(1,4,(char*)&s->selection,s->limit,0);
    if(old==s->selection)ovl663_draw_preview();else ResetScreenCounters();
    s->rows[s->root][0].cells[0]=2;
-   if(s->accepted){PlaySfx(1);func_8002AF8C(0,1,0);s->phase=8;s->rows[s->root][0].cells[0]=1;s->timer=64;s->rows[s->root][0].byte14=3;}
+   if(s->accepted){PlaySfx(1);SetMenuFrameOptions(0,1,0);s->phase=8;s->rows[s->root][0].cells[0]=1;s->timer=64;s->rows[s->root][0].byte14=3;}
   }else if(phase==8){u16 bits=(u16)s->timer-1;memcpy(&s->timer,&bits,2);
-   func_800207D4(frames[s->bank].ordering.ordering70,(64-s->timer)*4,69);
+   AddScreenFadeTiles(frames[s->bank].ordering.ordering70,(64-s->timer)*4,69);
    if(s->timer<=0){ovl663_init_menu();s->scene=1;s->nextScene=74;s->phase=0;return;}
   }
  }
- if(s->limit>=2)func_8002B12C(160,384,16,1,s->selection,0,s->limit);
+ if(s->limit>=2)DrawMenuStepArrows(160,384,16,1,s->selection,0,s->limit);
  DrawUiRow(0);UpdateScreenFade(0x10058);
 }
 int main(void){unsigned i;

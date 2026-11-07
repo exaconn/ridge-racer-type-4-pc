@@ -28,7 +28,7 @@ s32 func_800963DC(const char *message, ...) {
  u32 i=test_calls++;if(i<3) {test_events[i][0]=1;test_events[i][1]=(uintptr_t)message;}
  return -37;
 }
-s32 func_80096F84(s32 value) {
+s32 ChangeClearPAD(s32 value) {
  u32 i=test_calls++;if(i<3) {test_events[i][0]=2;test_events[i][1]=(u32)value;}
  return 99;
 }

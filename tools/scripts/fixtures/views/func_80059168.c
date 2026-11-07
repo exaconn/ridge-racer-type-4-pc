@@ -123,7 +123,7 @@ extern short D_800F4D44;
 
 extern int CdAudioInit();
 
-extern signed char D_800AD4D8[];
+extern signed char SelectionState[];
 
 extern int D_800A0C9C[];
 
@@ -137,7 +137,7 @@ void func_80059168() {
     int a0, a1, v;
     CdAudioInit();
     if (D_800F4D44 == 1) {
-        a0 = D_800AD4D8[D_800AD4D8[0x17] + 8] < 3;
+        a0 = SelectionState[SelectionState[0x17] + 8] < 3;
     } else {
         a0 = 1;
     }

@@ -6,9 +6,9 @@
 #undef D_800AD508
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEBC (*(char (*)[])&D_800ABEBC)
+#define LinkEntryState (*(char (*)[])&LinkEntryState)
 
-#undef D_800ABEBC
+#undef LinkEntryState
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AD508 (*(s16 (*))&D_800AD508)
@@ -16,13 +16,13 @@
 #undef D_800AD508
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2DE4 (*(unsigned int (*))&D_800F2DE4)
+#define ModeFrame (*(unsigned int (*))&ModeFrame)
 
 #define D_800F3A26 (*(unsigned short (*))&D_800F3A26)
 
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 
-#undef D_800F2DE4
+#undef ModeFrame
 
 #undef D_800F3A26
 
@@ -31,11 +31,11 @@
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 
-#define D_800F2DE4 (*(unsigned int (*))&D_800F2DE4)
+#define ModeFrame (*(unsigned int (*))&ModeFrame)
 
 #undef D_800F4D8A
 
-#undef D_800F2DE4
+#undef ModeFrame
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
@@ -43,21 +43,21 @@
 #undef D_800F4D8A
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2DE4 (*(u32 (*))&D_800F2DE4)
+#define ModeFrame (*(u32 (*))&ModeFrame)
 
-#undef D_800F2DE4
+#undef ModeFrame
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AD4D8 (*(struct w3g2s (*))&D_800AD4D8)
+#define SelectionState (*(struct w3g2s (*))&SelectionState)
 
-#undef D_800AD4D8
+#undef SelectionState
 
 extern int SoundSetMasterVolume();
 
 extern s32 D_800F2EC8;
 
-void func_80036068(void) {
+void StopRaceAudioAndRumble(void) {
     SoundSetMasterVolume(0, 0);
-    func_80036030();
+    StopRaceRumble();
     D_800F2EC8 = 0;
 }

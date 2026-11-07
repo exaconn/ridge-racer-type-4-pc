@@ -8,7 +8,7 @@
 #include "rr/menu_text_state.h"
 void UpdateBadgeRowAnim(s32 index);
 void DrawUiRow(s32 index);
-void func_8002AF8C(s32 first,s32 second,s32 third);
+void SetMenuFrameOptions(s32 first,s32 second,s32 third);
 /* D_ACC14 points at the first rectangle of a containing frame owner.
  * Callback writes are visible to every later flag, fade and text-root read. */
 #endif

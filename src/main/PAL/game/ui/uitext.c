@@ -82,22 +82,22 @@ extern FontGlyph4 D_8009FCDC[];
 extern s8 D_8009FD00[];
 extern s16 D_800ABEC8;
 extern s16 NumCars;
-extern s16 D_800AD522;
+extern s16 ReverseCourse;
 extern s16 D_800F3826;
-extern u8 D_800F3920[];
+extern u8 SaveProgress[];
 extern s32 NumLaps;
 extern UiElem24 *UiRows;
 extern s32 D_80119754;
 extern s32 D_80119758;
 extern Q D_8009F9FC[];
-extern int func_8003DCEC();
+extern int UpdateRect16Row();
 extern int AddSpriteWithDrawMode();
 extern int EmitPolyFT3();
 
 int DrawUiRow(s32 arg0);
-void func_8003FAE4(int i, char a, char b, int j);
-int func_8003FBA8(int a0);
-void func_8003FE78(int a0, int a1, int a2, int a3);
+void InitImageRow(int i, char a, char b, int j);
+int UpdateImageRow(int a0);
+void DrawImageRow(int a0, int a1, int a2, int a3);
 
 s32 DrawUiRow(s32 arg0) {
     RectS16 sp28;
@@ -263,7 +263,7 @@ s32 DrawUiRow(s32 arg0) {
             s4 += 2 + D_8009FA1C[s0].b2;
         }
         if (s6 == 4) {
-            if (D_800AD522 == 1) {
+            if (ReverseCourse == 1) {
                 s0 = 0xD;
             } else {
                 s0 = 0xC;
@@ -325,7 +325,7 @@ s32 DrawUiRow(s32 arg0) {
         }
         break;
     case 12:
-        if (D_800F3920[D_800F3826 + 0x5C] == 1) {
+        if (SaveProgress[D_800F3826 + 0x5C] == 1) {
             s2 = 8;
         } else {
             s2 = 7;
@@ -349,7 +349,7 @@ s32 DrawUiRow(s32 arg0) {
     }
 
     ((Scratchpad *)SCRATCHPAD)->prim = AddDrawModePrim(D_800ACC14 + 0x70, s3, 0x38);
-    func_8003F920(sp38, s7, UiRows[arg0].s8, UiRows[arg0].sA, 0x4A, 0x4A, 0x4A);
+    DrawUiBox(sp38, s7, UiRows[arg0].s8, UiRows[arg0].sA, 0x4A, 0x4A, 0x4A);
     ((Scratchpad *)SCRATCHPAD)->prim = AddDrawAreaPrim(D_800ACC14 + 0x70, ((Scratchpad *)SCRATCHPAD)->prim, sp28.x, sp28.y, sp28.w, sp28.h);
     sp38 += UiRows[arg0].rect18.w;
     if ((u32)(sp30 - 4) >= 3U) {
@@ -358,7 +358,7 @@ s32 DrawUiRow(s32 arg0) {
     return (u32)~sp30 >> 31;
 }
 
-int func_8003F920(a0, a1, a2, a3, a4, a5, a6) int a0; int a1; int a2; int a3; int a4; int a5; int a6;
+int DrawUiBox(a0, a1, a2, a3, a4, a5, a6) int a0; int a1; int a2; int a3; int a4; int a5; int a6;
 {
     int *px;
     int *py;
@@ -385,7 +385,7 @@ int func_8003F920(a0, a1, a2, a3, a4, a5, a6) int a0; int a1; int a2; int a3; in
         k >>= 2;
         k <<= 2;
         k = j - k;
-        func_80022694(t, *px, *py, x[k], y[k], 0x100, 1, 0xFF, 0xFF, 0xFF, -1);
+        AddPartialLine(t, *px, *py, x[k], y[k], 0x100, 1, 0xFF, 0xFF, 0xFF, -1);
         i++;
     } while (i < 4);
     x[0] = x[1] - x[3];
@@ -394,7 +394,7 @@ int func_8003F920(a0, a1, a2, a3, a4, a5, a6) int a0; int a1; int a2; int a3; in
     *(int *)SCRATCHPAD = AddTilePrim(D_800ACC14 + 0x70, g, a0, a1, x[0], y[0], a4, a5, a6);
 }
 
-int func_8003FAA0(int a) {
+int AllocImageRows(int a) {
     int sz = D_800ACC24 * 28;
     D_800F2AB0 = a;
     func_80096434(a, sz);
@@ -404,7 +404,7 @@ int func_8003FAA0(int a) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F2AB0 ((E *)D_800F2AB0)
 
-void func_8003FAE4(int i, char a, char b, int j) {
+void InitImageRow(int i, char a, char b, int j) {
     if (i < D_800ACC24) {
         Q *q;
         E *p;
@@ -428,7 +428,7 @@ void func_8003FAE4(int i, char a, char b, int j) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F2AB0 ((E_1 *)D_800F2AB0)
 
-int func_8003FBA8(int a0) {
+int UpdateImageRow(int a0) {
     int s1;
     int s2;
     int state;
@@ -440,7 +440,7 @@ int func_8003FBA8(int a0) {
     s1 = D_800F2AB0[a0].f2;
     switch (state) {
     case -1:
-        if (func_8003DCEC(D_800F2AB0[a0].f3) == 1) {
+        if (UpdateRect16Row(D_800F2AB0[a0].f3) == 1) {
             D_800F2AB0[a0].f1 = 0;
         }
         break;
@@ -450,7 +450,7 @@ int func_8003FBA8(int a0) {
     case 1:
         s2 = 1;
         val = (s1 << 7) / 30;
-        func_8003FE78(a0, 0, val, 0);
+        DrawImageRow(a0, 0, val, 0);
         if (s1 >= 30) {
             D_800F2AB0[a0].f2 = 0;
             D_800F2AB0[a0].f1 = 2;
@@ -462,11 +462,11 @@ int func_8003FBA8(int a0) {
     case 4:
     default:
         s2 = 2;
-        func_8003FE78(a0, 0, 0x80, 0);
+        DrawImageRow(a0, 0, 0x80, 0);
         break;
     case 3:
         val = rcos((s1 << 10) / 30) / 32;
-        func_8003FE78(a0, 1, val, 0);
+        DrawImageRow(a0, 1, val, 0);
         if (s1 >= 30) {
             D_800F2AB0[a0].f1 = 5;
             D_800F2AB0[a0].f2 = 0;
@@ -479,7 +479,7 @@ int func_8003FBA8(int a0) {
     case 6:
         s2 = 1;
         val = ((30 - s1) << 7) / 30;
-        func_8003FE78(a0, 0, val, 0);
+        DrawImageRow(a0, 0, val, 0);
         if (s1 >= 30) {
             D_800F2AB0[a0].f2 = 0;
             D_800F2AB0[a0].f1 = 7;
@@ -489,7 +489,7 @@ int func_8003FBA8(int a0) {
         break;
     case 7:
         s2 = 1;
-        func_8003FE78(a0, 0, 0, 0);
+        DrawImageRow(a0, 0, 0, 0);
         break;
     }
     return s2;
@@ -500,7 +500,7 @@ int func_8003FBA8(int a0) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F2AB0 ((E_2 *)D_800F2AB0)
 
-void func_8003FE78(int a0, int a1, int a2, int a3) {
+void DrawImageRow(int a0, int a1, int a2, int a3) {
     int i, j, k;
     int tx, ty;
     int x[4], y[4], u[4], v[4];

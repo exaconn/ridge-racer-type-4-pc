@@ -4,7 +4,7 @@ extern int SsSeqOpen();
 
 extern int SsSetMarkCallback();
 
-extern int func_80053DE8();
+extern int SeqMarkCallback();
 
 extern int ReverbReset();
 
@@ -12,11 +12,11 @@ extern int SetReverbDepthBoth();
 
 extern int SsSeqPlay();
 
-extern int func_80053A9C();
+extern int SeqSetVolume();
 
 extern int func_80096434();
 
-extern int func_8005B190();
+extern int RestartMotionSequence();
 
 extern struct { s32 a, b, c; } D_800A0CD8[];
 
@@ -33,13 +33,13 @@ void func_80053BB4(int a0) {
         func_80053CB0();
         SoundState.x2868 = a0;
         SoundState.x2864 = (s16)SsSeqOpen(SoundState.w[a0], SoundState.h[a0 + 2]);
-        SsSetMarkCallback((s16)SoundState.x2864, 0, func_80053DE8);
+        SsSetMarkCallback((s16)SoundState.x2864, 0, SeqMarkCallback);
         ReverbReset();
         SetReverbDepthBoth(0x32);
         SsSeqPlay((s16)SoundState.x2864, 1, 0);
-        func_80053A9C((s16)arr[a0]);
+        SeqSetVolume((s16)arr[a0]);
         func_80096434(&SoundState.x286C, 0x1C);
         SoundState.x287C = D_800A0CD8[a0].a;
-        func_8005B190();
+        RestartMotionSequence();
     }
 }

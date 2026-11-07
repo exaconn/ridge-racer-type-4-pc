@@ -21,7 +21,7 @@ static struct World {u32 guard[4];RrGpuScratchPointers scratch;RrIconSpriteConte
 static struct Event {unsigned kind;u32 args[8];void *cursor;u32 *head;struct World before;} events[24];
 static unsigned count,seen,scenario,profile,serial;static int reference_run;
 #define D_800ACC14 world.context
-#define D_800F4D98 world.choice
+#define SelectionRows world.choice
 #define ovl662_D_80127300 world.status
 #define ovl662_D_80126214 world.icon
 #define RR_GPU_SCRATCH (&world.scratch)

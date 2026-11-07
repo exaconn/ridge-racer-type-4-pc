@@ -17,7 +17,7 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
         --clearAddress;
     }
     for (i = 0; i < 40; i++) {
-        text[0] = D_8009F7E4[i + 1];
+        text[0] = NameCharset[i + 1];
         dx = (i % 10) * 24;
         dy = (i / 10) * 32;
         if (i == ovl662_D_801273B4) {

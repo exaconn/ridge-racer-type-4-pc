@@ -40,7 +40,7 @@ void callback_a(void) {called[0]++;}
 void callback_b(void) {called[1]++;}
 void callback_c(void) {called[2]++;}
 void invoke(RrLibInterruptCallback callback) {callback();}
-s32 func_80096F84(s32 disabled) {if(on_bios)on_bios(0,disabled,0);return -123;}
+s32 ChangeClearPAD(s32 disabled) {if(on_bios)on_bios(0,disabled,0);return -123;}
 s32 ChangeClearRCnt(s32 counter,s32 disabled) {if(on_bios)on_bios(1,counter,disabled);return -234;}
 void io(s32 kind,volatile u16 *p,u16 value) {
     s32 i=io_count++;io_kind[i]=kind;io_port[i]=p==&ports[4];io_value[i]=value;

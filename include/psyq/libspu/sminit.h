@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern int D_800A48B8;
+extern int _spu_AllocBlockNum;
 int SpuInitMalloc();
 
 #endif /* RR_PSYQ_LIBSPU_SMINIT_H */

@@ -27,16 +27,16 @@ static struct World {
  RrBadgeRow1C badges[3][2],*root;unsigned calls;Event events[4];u32 tail[4];
 } world,expected;
 static unsigned scenario;
-#define D_800F2DE4 world.frame
+#define ModeFrame world.frame
 #define ScreenFrame world.counter
 #define ovl662_D_801273B4 world.local
 #define ovl662_D_801273A2 world.a
 #define ovl662_D_801273A3 world.b
 #define ovl662_D_801273A0 world.c
-#define D_800F4C6A world.mode
+#define ModeGroup world.mode
 #define D_800F3A26 world.scene
 #define D_800F4D8A world.timer
-#define D_800F3920 world.save
+#define SaveProgress world.save
 #define ovl662_D_801273A8 world.name
 #define BadgeRows world.root
 '''+copy+body+r'''
@@ -57,7 +57,7 @@ void ClearScreenOverlayState(void){s32 a[7]={0};assert(world.calls==0);
  assert(world.frame==0&&world.counter==0&&world.local==0&&world.a==0&&world.b==0&&world.c==0);event(&world,a);
 }
 void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[7]={a,b,c,d,e,f,g};assert(world.calls==1||world.calls==2);event(&world,args);}
-void func_8002AF8C(s32 a,s32 b,s32 c){s32 args[7]={a,b,c};assert(world.calls==3);event(&world,args);}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){s32 args[7]={a,b,c};assert(world.calls==3);event(&world,args);}
 static void reference(void){unsigned j=0;
  expected.frame=expected.counter=expected.local=0;expected.a=expected.b=expected.c=0;
  while(expected.save.prefix.progress.prefix00.bytes[j]){expected.name[j]=expected.save.prefix.progress.prefix00.bytes[j];j++;}

@@ -43,7 +43,7 @@ static unsigned scenario,mutation;
 #define D_800F4D70 w->s.arenas
 #define LoadCursor w->s.current
 #define D_800F4D40 w->s.backing
-#define D_800F4D98 w->s.selection
+#define SelectionRows w->s.selection
 #define D_800ACBD0 w->s.points
 #define D_800F2AB0 w->s.ui[scenario%4]
 #define D_800ABE08 w->s.main
@@ -57,7 +57,7 @@ static unsigned scenario,mutation;
 #define PlayerCars w->s.vehicles
 #define RR_COURSE_SCRATCH (&w->s.scratch.projection)
 #define RR_PROJECTION_SCRATCH RR_COURSE_SCRATCH
-#define D_800F2DE4 w->s.word2de4
+#define ModeFrame w->s.word2de4
 #define ScreenFrame w->s.wordabeb0
 #define MenuCursor w->s.halfc64a
 #define MenuItemCount w->s.halfc5e0

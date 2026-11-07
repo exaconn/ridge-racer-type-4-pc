@@ -15,10 +15,10 @@ void func_8001FA48();
 /* legacy typing of shared globals in this part of the unit */
 #define SetDrawMode ((s32 (*)())SetDrawMode)
 #define AddPrim ((s32 (*)())AddPrim)
-#define func_80095B94 ((s32 (*)())func_80095B94)
+#define SetSprt ((s32 (*)())SetSprt)
 #define D_800ACC14 ((char *)D_800ACC14)
 
-void func_8001F40C(a0, a1, a2)
+void DrawBigFontString(a0, a1, a2)
 s32 a0, a1;
 u8 *a2;
 {
@@ -35,7 +35,7 @@ u8 *a2;
                 col = a % 21;
                 u = col * 12;
                 vv = row * 24 + 0x24;
-                func_80095B94(s3);
+                SetSprt(s3);
                 s2->w = 12;
                 s2->h = 24;
                 SetShadeTex(s3, 1);
@@ -56,14 +56,14 @@ u8 *a2;
 
 #undef SetDrawMode
 #undef AddPrim
-#undef func_80095B94
+#undef SetSprt
 #undef D_800ACC14
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((void (*)())AddPrim)
 #define SetSemiTrans ((void (*)())SetSemiTrans)
 #define SetShadeTex ((void (*)())SetShadeTex)
-#define func_80095B94 ((void (*)())func_80095B94)
+#define SetSprt ((void (*)())SetSprt)
 
 char *AddTextSprites(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 int arg0;
@@ -94,7 +94,7 @@ int arg7;
       {
         x = D_8009ED38[c * 2] << 3;
         y = D_8009ED38[(c * 2) + 1] << 4;
-        func_80095B94(arg1);
+        SetSprt(arg1);
         if (h == 0)
         {
           SetShadeTex(arg1, 1);
@@ -140,7 +140,7 @@ int arg7;
 #undef AddPrim
 #undef SetSemiTrans
 #undef SetShadeTex
-#undef func_80095B94
+#undef SetSprt
 
 void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
     s16 nextTimer;
@@ -177,7 +177,7 @@ void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
     sprites = (RrSpritePacketSignedClut *)cursor;
     /* The original retains a shadow branch, but runs only pass zero. */
     do {
-        func_80095B94(cursor);
+        SetSprt(cursor);
         if (pass == 1) {
             sprites->r = shadowBrightness;
             sprites->g = shadowBrightness;

@@ -7,7 +7,7 @@ src=re.sub(r' asm\("\$\d+"\)','',src);src=re.sub(r'__asm__\("".*?\);','',src)
 header=''
 helpers=''
 for n,new in [('80095B94','native_init'),('80095AF4','native_semi'),('80095A44','native_link')]:
- s=(root/f'tools/scripts/fixtures/legacy/func_{n}.c').read_text().replace('func_'+n,new).replace('SetSemiTrans' if n=='80095AF4' else 'func_'+n,new).replace({'80095A44':'AddPrim'}.get(n,'func_'+n),new)
+ s=(root/f'tools/scripts/fixtures/legacy/func_{n}.c').read_text().replace('func_'+n,new).replace(__import__('c_functions').name_at(n),new).replace({'80095A44':'AddPrim'}.get(n,'func_'+n),new)
  s=re.sub(r' asm\("\$\d+"\)','',s)
  # This is the actual serializer's intentional low24 packet tag, not a pointer reconstruction.
  s=s.replace('(unsigned)p','(uintptr_t)p')
@@ -41,7 +41,7 @@ static void mutate(int n) {
  descriptor.uv.u=seed;descriptor.uv.v=seed>>8;descriptor.uv.w=seed>>16;descriptor.uv.h=seed>>24;
  D_800ACC14=contexts[n&3].bytes;
 }
-void func_80095B94(void *p) {
+void SetSprt(void *p) {
  assert(phase==0 && p==expected_cursor);
  native_init(p);phase=1;mutate(0);
 }
@@ -98,7 +98,7 @@ static void run(s32 n,s32 power,s32 transparency,u32 seed,int varied) {
  expected_cursor=arena.bytes;ordering=0xAB123456U;carried_y=0x12345678;
  expected_ordering=varied/2==0?&ordering:(u32 *)(arena.bytes+(varied/2==1?0:4));
  *expected_ordering=0xAB123456U;
- result=func_8002018C(expected_ordering,arena.bytes,&descriptor,semi,strength,count);
+ result=AddJitterSprites(expected_ordering,arena.bytes,&descriptor,semi,strength,count);
  assert(result==expected_cursor && iteration==(n>0?n:0) && !phase);
  assert(rng_calls==(n>1?n*2:0));
  {
@@ -123,8 +123,8 @@ int main(void) {
  assert(sizeof(RrSpriteEffectSource)==12 && offsetof(RrSpriteEffectSource,uv)==8);
  for(i=0;i<8;i++)for(j=0;j<11;j++)for(k=0;k<5;k++)for(r=0;r<32;r++)run(counts[i],powers[j],semis[k],0x89ABC000U|r,r%6);
  /* Inactive paths must not inspect pointer arguments. */
- assert(func_8002018C(0,0,0,INT32_MIN,INT32_MAX,0)==0);
- assert(func_8002018C(0,0,0,0,0,INT32_MIN)==0);
+ assert(AddJitterSprites(0,0,0,INT32_MIN,INT32_MAX,0)==0);
+ assert(AddJitterSprites(0,0,0,0,0,INT32_MIN)==0);
  return 0;
 }
 '''

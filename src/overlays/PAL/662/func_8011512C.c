@@ -7,7 +7,7 @@ void ovl662_func_8011512C(void) {
     register s32 rotation __asm__("$2");
     void *arena;
     ClearScreenOverlayState();
-    D_800F2DE4=0;
+    ModeFrame=0;
     ScreenFrame=0;
     MenuCursor=0;
     MenuItemCount=4;
@@ -48,9 +48,9 @@ void ovl662_func_8011512C(void) {
         i++;
         vehicle++;
     } while(i<2);
-    UnpackChoiceGlyph((s8*)D_800F4D98.bytes,D_800ABE08[1][ovl662_D_801272E4].glyph);
+    UnpackChoiceGlyph((s8*)SelectionRows.bytes,D_800ABE08[1][ovl662_D_801272E4].glyph);
     D_800ACBD0[0].first=D_800ABE08[1][ovl662_D_801272E4].first;
     D_800ACBD0[0].second=D_800ABE08[1][ovl662_D_801272E4].second;
     ovl662_D_801272E0=CountChoiceGlyphs(D_800ABE08[1]);
-    func_8002AF8C(0,1,1);
+    SetMenuFrameOptions(0,1,1);
 }

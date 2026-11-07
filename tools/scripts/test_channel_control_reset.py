@@ -28,10 +28,10 @@ u16 D_80110118;
 #define _svm_voice test_rows
 #define D_8010F90C ((u8 *)&test_rows + 4)
 #define D_8010F925 ((u8 *)&test_rows + 0x1D)
-#define D_8010F8F8 test_masks[0xF8F8 / 2]
-#define D_8010F8FA test_masks[0xF8FA / 2]
-#define D_80110000 test_masks[0x10000 / 2]
-#define D_80110002 test_masks[0x10002 / 2]
+#define _svm_okon1 test_masks[0xF8F8 / 2]
+#define _svm_okon2 test_masks[0xF8FA / 2]
+#define _svm_okof1 test_masks[0x10000 / 2]
+#define _svm_okof2 test_masks[0x10002 / 2]
 '''
         body = (root / 'tools/scripts/fixtures/views/func_80088DA4.c').read_text()
         body = body.replace('#include "rr/channels.h"', '')

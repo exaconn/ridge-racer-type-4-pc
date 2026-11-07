@@ -2,7 +2,7 @@
 
 #include "rr/card_format.h"
 
-s32 func_80096198(s32 arg0){
+s32 _card_format(s32 arg0){
     register s32 port=arg0;
     register s32 i=0;
     RrCardFormatSector *scratch=&D_80114328;
@@ -54,7 +54,7 @@ s32 func_80096198(s32 arg0){
         register s32 write_port=port;
 
         next=i+1;
-        if(func_80096054(write_port,next,scratch->bytes)!=success){result=0;goto done;}
+        if(_card_sector_write(write_port,next,scratch->bytes)!=success){result=0;goto done;}
         }
         i=next;
     }while(i<15);
@@ -80,14 +80,14 @@ s32 func_80096198(s32 arg0){
         second->broken.word.value=tail;
         /* ASM_BARRIER: preserve this clear/copy/write preparation boundary. */
         __asm__("" : : "m"(second->broken.bytes[0]));
-        status=func_80096054(port,i+16,second->bytes);
+        status=_card_sector_write(port,i+16,second->bytes);
         i++;
         if(status!=one){result=0;goto done;}
         slot++;
     }while(i<20);
     func_80096434(second,128);
     second->bytes[0]='M';second->bytes[1]='C';
-    result=func_80096054(port,0,second->bytes)==1;
+    result=_card_sector_write(port,0,second->bytes)==1;
 }
 done:
     return result;

@@ -34,14 +34,14 @@ typedef struct {
 
 extern void _spu_setInTransfer(s32);
 
-extern ProgAtr *D_80110020[];
-extern u8 *D_80110060[];
-extern u8 *D_801100A8[];
+extern ProgAtr *_svm_vab_pg[];
+extern u8 *_svm_vab_vh[];
+extern u8 *_svm_vab_tn[];
 extern s16 kMaxPrograms;
 extern u8 _svm_vab_used[];
-extern u32 D_80110138[];
+extern u32 _svm_vab_total[];
 extern u16 _svm_vab_count;
-extern u32 D_80110180[];
+extern u32 _svm_vab_start[];
 
 static inline void vab_count_dec(void) {
     /* ASM_BARRIER: keep the decremented count in v1 as in the target */
@@ -98,7 +98,7 @@ s16 _SsVabOpenHeadWithMode(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
         return -1;
     }
     p = addr;
-    D_80110060[vab_id] = p;
+    _svm_vab_vh[vab_id] = p;
     p += 0x20;
     vab_h = (VabHdr *)addr;
     if ((vab_h->form >> 8) != 0x564142) {
@@ -122,7 +122,7 @@ s16 _SsVabOpenHeadWithMode(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
         vab_count_dec();
         goto err;
     }
-    D_80110020[vab_id] = (ProgAtr *)p;
+    _svm_vab_pg[vab_id] = (ProgAtr *)p;
     prog_atr = (ProgAtr *)p;
     p += kMaxPrograms * sizeof(ProgAtr);
     i = 0;
@@ -145,7 +145,7 @@ s16 _SsVabOpenHeadWithMode(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
     tot_size = 0;
     /* ASM_BARRIER: hide the zero from reload_cse so later zero inits stay separate (target has no reg copy of 0) */
     __asm__("" : "+r"(tot_size));
-    D_801100A8[vab_id] = p;
+    _svm_vab_tn[vab_id] = p;
     p += vab_h->ps << 9;
     vag_off = (u16 *)p;
     num_vags = vab_h->vs;
@@ -172,7 +172,7 @@ s16 _SsVabOpenHeadWithMode(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
         vab_count_dec();
         goto err;
     }
-    D_80110180[vab_id] = spu_alloc;
+    _svm_vab_start[vab_id] = spu_alloc;
     tot_size = 0;
     /* ASM_BARRIER: hide zero in tot_size from reload_cse */
     __asm__("" : "+r"(tot_size));
@@ -197,7 +197,7 @@ s16 _SsVabOpenHeadWithMode(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
             } while (i <= limit);
         }
     }
-    D_80110138[vab_id] = tot_size;
+    _svm_vab_total[vab_id] = tot_size;
     _svm_vab_used[vab_id] = 2;
     return vab_id;
 }

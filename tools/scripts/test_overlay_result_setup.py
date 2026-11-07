@@ -43,13 +43,13 @@ struct State {
 struct Event {s32 kind,args[5];u32 hash;};
 static struct World {struct State state;unsigned calls,draws;struct Event events[59];} actual,expected,initial,*w;
 static unsigned scenario,mutation,overlay;
-#define D_800F3920 w->state.save
-#define D_800F4D98 w->state.choice
-#define D_800F2DE4 w->state.frame
+#define SaveProgress w->state.save
+#define SelectionRows w->state.choice
+#define ModeFrame w->state.frame
 #define ScreenFrame w->state.counter
 #define ovl666_result_kind w->state.bank666
 #define ovl666_result_labels w->state.labels666
-#define D_800F4C64 w->state.match
+#define TotalRaceTime w->state.match
 #define LapTimes w->state.standings
 #define D_800AC1A0 w->state.first
 #define ovl660_race_record_rank w->state.first660
@@ -107,7 +107,7 @@ s32 ovl660_func_80115FA8(s32 selector,s32 value) {
  assert(!overlay && w->calls<2 && selector==(s32)w->calls);
  return event(3,selector,value,0,0,0);
 }
-void func_8002AF8C(s32 a,s32 b,s32 c) {
+void SetMenuFrameOptions(s32 a,s32 b,s32 c) {
  assert(a==0 && b==1 && c==0 && w->draws==(overlay?33U:55U));
  (void)event(2,a,b,c,0,0);
 }

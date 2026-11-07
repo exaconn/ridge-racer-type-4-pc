@@ -51,23 +51,23 @@ extern void SsVabClose();
 extern s32 SsVabOpenHeadSticky();
 extern void SsVabTransCompleted();
 
-void func_80050844(int a0, int a1, int a2, int a3);
-void func_80050894(struct B *a0, int a1);
-void func_80050978(RrAudioSetupArg *arg0);
+void SlotSetProgram(int a0, int a1, int a2, int a3);
+void SlotLoadCurves(struct B *a0, int a1);
+void ComSlotSetupBank(RrAudioSetupArg *arg0);
 
-void func_80050844(int a0, int a1, int a2, int a3) {
+void SlotSetProgram(int a0, int a1, int a2, int a3) {
     u16 old = SoundState[a3].m[a1][a0];
     if (a2 >= 0) SoundState[a3].m[a1][a0] = a2;
 }
 
-void func_80050894(struct B *a0, int a1) {
+void SlotLoadCurves(struct B *a0, int a1) {
     D_800F4E2C[a1].x = *a0;
 }
 
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(RrAudioOwner (*))&SoundState)
 
-void func_80050978(RrAudioSetupArg *arg0) {
+void ComSlotSetupBank(RrAudioSetupArg *arg0) {
     u8 sp10[32];
     s32 i, j, k;
 
@@ -91,8 +91,8 @@ void func_80050978(RrAudioSetupArg *arg0) {
     }
 
     if (arg0->group08 != -1) {
-        func_80050894(arg0->group08, 2);
-        func_80050894(arg0->group08, 3);
+        SlotLoadCurves(arg0->group08, 2);
+        SlotLoadCurves(arg0->group08, 3);
     }
 
     for (j = 2; j < 4; j++) {

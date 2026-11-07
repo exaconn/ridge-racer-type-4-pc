@@ -23,7 +23,7 @@ void ovl665_func_80115CFC(void) {
         break;
     case 3:
         D_800AC5D0--;
-        func_800207D4(((RrFrameOrderingPrefix*)D_800ACC14)->ordering70,(64-D_800AC5D0)*4,69);
+        AddScreenFadeTiles(((RrFrameOrderingPrefix*)D_800ACC14)->ordering70,(64-D_800AC5D0)*4,69);
         if(D_800AC5D0<=0 && BadgeRows[0].state10==11) {
             ovl665_func_80114A24();
             ovl665_D_80119768.layout0C=0;
@@ -67,7 +67,7 @@ void ovl665_func_80115CFC(void) {
     D_800AC590->b4=27;
     UpdateBadgeRowAnim(0);
     if(BadgeRows[0].state10==3) {
-        func_80032A14(BadgeRows[0].x04+10,BadgeRows[0].y06+40,D_800AC590);
+        UpdateDialogue(BadgeRows[0].x04+10,BadgeRows[0].y06+40,D_800AC590);
     }
     UpdateScreenFade(0x1007C);
 }

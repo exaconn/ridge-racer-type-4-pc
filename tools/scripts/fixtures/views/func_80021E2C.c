@@ -5,7 +5,7 @@
 
 #undef D_800ACC14
 
-void func_80021E2C(s32 arg0) {
+void DrawRaceMinimap(s32 arg0) {
     s32 var_s2;
     s32 temp_hi;
     void *var_a1;

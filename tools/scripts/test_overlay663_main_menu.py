@@ -21,10 +21,10 @@ void func_80053AF4(s32,s32);void func_80053CB0(void);void ovl663_init_preview(vo
 static RrFrameStorage contexts[2];static u8 buffers[3][32];
 static struct State{u32 guard[4];s32 frame,tick,mode,available,table[9];s16 menu,timer,scene;u16 state,enable;
  RrUiRow24 rows[2][4];RrMenuItemState5C input[2];RrFrameStorage *context;void *published,*buffer;unsigned root;u32 tail[4];}actual,reference,*w;
-#define D_800F2DE4 w->frame
+#define ModeFrame w->frame
 #define ScreenFrame w->tick
 #define D_800F4D8A w->state
-#define D_800F4C6A w->enable
+#define ModeGroup w->enable
 #define D_800F3A26 w->scene
 #define MenuCursor w->menu
 #define D_800AC5D0 w->timer
@@ -49,12 +49,12 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;u32
  for(unsigned j=0;j<2;j++)for(unsigned i=0;i<4;i++)w->rows[j][i].byte14=((scenario/256+n+i+j)&1)?2:5;
  for(unsigned i=0;i<9;i++)w->table[i]=word(v+i*0x1234567U);
 }
-void func_8002AF8C(s32 a,s32 b,s32 c){record(0,a,b,c);effect(0);}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){record(0,a,b,c);effect(0);}
 void StepMenuValue(s32 a,s32 b,char *p,s32 d,s32 e){assert(p==(char*)&w->menu&&(uintptr_t)p>UINT32_MAX&&d==4&&e==0);record(1,a,b,d);effect(1);w->menu=(scenario/2+serial)%4;}
 void PlaySfx(s32 a){record(2,a,0,0);effect(2);}
 void ResetScreenCounters(void){record(3,0,0,0);effect(3);}
 void func_80053AF4(s32 a,s32 b){record(4,a,b,0);effect(4);}
-void func_800207D4(u32 *p,s32 a,u32 b){unsigned k;for(k=0;k<2&&p!=contexts[k].ordering.ordering70;k++){}assert(k<2&&(uintptr_t)p>UINT32_MAX);record(5,k,a,b);effect(5);}
+void AddScreenFadeTiles(u32 *p,s32 a,u32 b){unsigned k;for(k=0;k<2&&p!=contexts[k].ordering.ordering70;k++){}assert(k<2&&(uintptr_t)p>UINT32_MAX);record(5,k,a,b);effect(5);}
 s32 func_8003BEA8(s32 a){record(6,a,0,0);effect(6);return ((scenario>>5)&1)?1:word(scenario*0x1234567U);}
 void ovl663_init_preview(void){record(7,0,0,0);effect(7);}
 void ovl663_init_selection(s32 a){record(8,a,0,0);effect(8);}
@@ -62,19 +62,19 @@ void func_80053CB0(void){record(9,0,0,0);effect(9);}
 void DrawUiRow(s32 a){record(10,a,0,0);effect(10);}
 void UpdateScreenFade(s32 a){record(11,a,0,0);effect(11);}
 static void expected(void){unsigned phase=w->state;w->frame=word((u32)w->frame+1);w->tick=word((u32)w->tick+1);
- if(phase==0&&w->rows[w->root][0].byte14==2){func_8002AF8C(1,1,1);w->rows[w->root][w->menu].cells[0]=0;StepMenuValue(0,2,(char*)&w->menu,4,0);
+ if(phase==0&&w->rows[w->root][0].byte14==2){SetMenuFrameOptions(1,1,1);w->rows[w->root][w->menu].cells[0]=0;StepMenuValue(0,2,(char*)&w->menu,4,0);
   w->rows[w->root][w->menu].cells[0]=(w->available==0&&w->menu==0)?4:2;int close=0;
   if(w->input[0].a){w->rows[w->root][w->menu].cells[0]=1;int selected=w->menu;
    if(selected==0){if(w->available>0){choices[0]++;PlaySfx(1);close=2;ResetScreenCounters();w->state=3;w->published=w->buffer;}else{choices[1]++;PlaySfx(4);}}
    else if(selected==1||selected==2){choices[selected+1]++;PlaySfx(1);close=2;w->mode=selected;w->state=selected+3;}
    else if(selected==3){choices[4]++;close=1;PlaySfx(1);w->state=8;}
   }else if(w->input[0].b){choices[4]++;close=1;PlaySfx(2);w->state=8;}
-  if(close){closing[close-1]++;func_8002AF8C(0,1,1);w->timer=64;
+  if(close){closing[close-1]++;SetMenuFrameOptions(0,1,1);w->timer=64;
    for(unsigned i=0;i<4;i++)if(w->rows[w->root][i].byte14==2){w->rows[w->root][i].byte14=close==2?7:3;if(close==1)func_80053AF4(0,half((u16)w->timer-4));}
   }
- }else if(phase==3){if(w->timer>0)w->timer=half((u16)w->timer-1);func_800207D4(w->context->ordering.ordering70,(64-(s32)w->timer)*4,69);
+ }else if(phase==3){if(w->timer>0)w->timer=half((u16)w->timer-1);AddScreenFadeTiles(w->context->ordering.ordering70,(64-(s32)w->timer)*4,69);
   if(w->timer<=0){s32 v=func_8003BEA8(w->table[0]);completion[v==1]++;if(v==1){exits[0]++;ovl663_init_preview();w->enable=1;w->scene=76;w->state=0;return;}}
- }else if(phase==4||phase==5||phase==8){s16 timer=half((u16)w->timer-1);w->timer=timer;func_800207D4(w->context->ordering.ordering70,(64-(s32)timer)*4,69);
+ }else if(phase==4||phase==5||phase==8){s16 timer=half((u16)w->timer-1);w->timer=timer;AddScreenFadeTiles(w->context->ordering.ordering70,(64-(s32)timer)*4,69);
   if(w->timer<=0){if(phase==8){exits[2]++;func_80053CB0();w->enable=1;w->scene=3;w->state=0;}
    else{exits[1]++;ovl663_init_selection(w->mode);w->enable=1;w->scene=75;w->state=0;}}
  }

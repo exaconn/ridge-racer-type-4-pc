@@ -1,6 +1,6 @@
 #include "psyq/libcd/dsfinish.h"
 #include "psyq/libcd/dsread.h"
-int func_8008E780(a, b, c) int a; int b; int c; {
+int cd_read(a, b, c) int a; int b; int c; {
     int buf[2];
     int z, r;
     CdIntToPos(b, buf);

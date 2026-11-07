@@ -75,7 +75,7 @@ void ovl662_func_8011A518(void)
         InitBadgeRow(0,12,304,296,88,0,0);
         InitUiRow(0,140,136,28,32,0,0,1,0,104);
         InitUiRow(1,140,176,28,32,0,0,1,0,105);
-        D_800F4C6A=stage;
+        ModeGroup=stage;
         D_800F3A26=4;
         D_800F4D8A=0;
         break;

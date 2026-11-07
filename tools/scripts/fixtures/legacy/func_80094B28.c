@@ -1,7 +1,7 @@
 #include "rr/gpu.h"
 void _cwc(unsigned long address) {
-    *D_800ABBC8=0x04000002;
-    *D_800ABBCC=(u32)address;
-    *D_800ABBD0=0;
-    *(u32 *)D_800ABBD4=0x01000401;
+    *GPU_STATUS=0x04000002;
+    *DMA2_MADR=(u32)address;
+    *DMA2_BCR=0;
+    *(u32 *)DMA2_CHCR=0x01000401;
 }

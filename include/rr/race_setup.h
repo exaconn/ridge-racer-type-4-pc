@@ -4,8 +4,8 @@
 #include "rr/standings.h"
 void SetupRenderer(s32);
 void SetModelTexturePage(s32);
-void func_800209C4(s32);
-void func_80021084(s32);
+void InitRaceHudPackets(s32);
+void InitHudNumberTargets(s32);
 void func_80045830(void);
 void func_8004A678(void);
 void PadRumbleStart(s32);
@@ -18,7 +18,7 @@ void DrawSync(s32);
 s32 func_80114988(void);
 void func_80114AF8(unsigned long);
 extern s32 ScreenFrame;
-extern s32 D_800ABEC0;
+extern s32 RaceVoiceFlags;
 extern s16 D_800ABEF0;
 extern s32 D_800AC538;
 extern s32 D_800AC5A4;
@@ -26,14 +26,14 @@ extern s16 D_800AC5D0;
 extern s32 VSyncThreshold;
 extern s32 D_800ACBF8;
 extern s16 D_800AD50C;
-extern s16 D_800AD522;
+extern s16 ReverseCourse;
 extern s32 SavedRaceState;
-extern s32 D_800F2DE4;
+extern s32 ModeFrame;
 extern s32 TrackLength;
-extern s8 D_800F2FDC;
+extern s8 PauseCursor;
 extern s16 D_800F3914;
 extern s32 NumLaps;
-extern s8 D_800F4C68;
+extern s8 RacePaused;
 extern s32 BestLapTime;
 extern s16 D_800F4D44;
 extern s32 RaceState;
@@ -49,9 +49,9 @@ extern s32 D_8010C13C;
 extern RrRaceSetupPair4 D_800F4C70,D_800F2AB4;
 extern RrRaceVehicle PlayerCars[2];
 extern s32 D_8010C0F8[3],D_8010C120[3],D_8010C140[3];
-extern s32 D_800F3838[48],D_800ACC28[16],D_800F3B00[8];
-extern u8 D_8009F900[16];
-extern s32 D_800F4BA8[10];
+extern s32 D_800F3838[48],CourseBestLap[16],D_800F3B00[8];
+extern u8 CourseLapCounts[16];
+extern s32 LapFrameCounts[10];
 
 /* The vector owner is flat48 words, logically [2][8][3]. The scalar and
  * participant tables are complete16-element owners, logically [2][8].

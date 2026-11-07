@@ -13,7 +13,7 @@ extern volatile unsigned *D_800A525C;
 extern volatile unsigned D_800A5260;
 extern volatile unsigned D_800A5264;
 extern s32 func_800963DC(const char *, ...);
-extern s32 func_80096F84(s32);
+extern s32 ChangeClearPAD(s32);
 extern s32 ChangeClearRCnt(s32,s32);
 extern u16 D_800A52CA;
 extern u16 *D_800A6358;
@@ -80,7 +80,7 @@ loop:
             /* ASM_BARRIER: Materialize the message page before its call-delay offset. */
             __asm__("" : "=r"(page) : "0"(page));
             func_800963DC(page+0x17F8);
-            func_80096F84(0);
+            ChangeClearPAD(0);
             ChangeClearRCnt(3, 0);
             return;
         }

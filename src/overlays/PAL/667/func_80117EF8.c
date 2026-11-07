@@ -6,7 +6,7 @@
 void ovl667_func_80117EF8(void)
 {
     s32 choice;
-    D_800F2DE4=0;
+    ModeFrame=0;
     ScreenFrame=0;
     MenuCursor=0;
     MenuItemCount=3;

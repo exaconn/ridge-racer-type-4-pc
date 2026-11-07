@@ -106,7 +106,7 @@ block_34:
             case 9:
                 if (ovl662_D_801276A8.fade00 == 0) {
                     D_800FFC18 = 7;
-                    D_800F4C6A = 1;
+                    ModeGroup = 1;
                     D_800F3A26 = 0x47;
                     D_800F4D8A = 0;
                     return;

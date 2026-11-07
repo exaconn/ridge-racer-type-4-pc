@@ -69,17 +69,17 @@ void SetupRace(void)
     D_8010C140[0] = third;
     vectors = (u8 *) (&D_800F3838);
     D_8010C140[1] = (s32) (third * 2);
-    vector = (s32 *) (((D_800F3914 * 12) + (D_800AD522 * 96)) + vectors);
+    vector = (s32 *) (((D_800F3914 * 12) + (ReverseCourse * 96)) + vectors);
     D_8010C0F8[0] = (s32) vector[0];
     D_8010C0F8[1] = (s32) vector[1];
     RaceState = SavedRaceState;
     D_8010C0F8[2] = (s32) vector[2];
     if (D_800F4D44 == 0)
     {
-        countRoot = (u8 *)&D_800ACC28;
+        countRoot = (u8 *)&CourseBestLap;
 
         offset0 = D_800F3914 * 4;
-        offset1 = D_800AD522 * 32;
+        offset1 = ReverseCourse * 32;
         offset0 += offset1;
         selectedCount = (s32 *)(offset0+countRoot);
         goto publish_count;
@@ -110,7 +110,7 @@ void SetupRace(void)
     {
     publish_participants:
         courseIndex = D_800F3914;
-        byteRoot = D_8009F900;
+        byteRoot = CourseLapCounts;
 
         if (D_800F4D44 == 1)
         {
@@ -125,7 +125,7 @@ void SetupRace(void)
     minusOne = -1;
 
     rank = LapTimes;
-    result = D_800F4BA8;
+    result = LapFrameCounts;
     do
     {
         *result = 0;
@@ -135,7 +135,7 @@ void SetupRace(void)
         result++;
     }
     while (resetIndex < 0xA);
-    D_800F4C64 = -1;
+    TotalRaceTime = -1;
     course = (u16) D_800F3914;
     if (((course - 2U) < 3U) || (((s16) course) == 7))
     {
@@ -160,13 +160,13 @@ void SetupRace(void)
         D_800ACBF8 = 1;
     }
     BuildCameraMatrices();
-    func_800209C4(D_800F4D44);
-    func_80021084(D_800F4D44);
+    InitRaceHudPackets(D_800F4D44);
+    InitHudNumberTargets(D_800F4D44);
     ScreenFrame = 0;
-    D_800F2DE4 = 0;
+    ModeFrame = 0;
     D_800AC5D0 = 0;
-    D_800F4C68 = 0;
-    D_800F2FDC = 0;
+    RacePaused = 0;
+    PauseCursor = 0;
     D_80107190 = 0x80;
     D_800AC5A4 = 0x3A98;
     if ((D_800F4D44 != 1) && (D_800F4D44 != 6))
@@ -179,7 +179,7 @@ void SetupRace(void)
     D_800F4C70.second = 0;
     D_800F2AB4.first = 0;
     D_800F2AB4.second = 0;
-    D_800ABEC0 = 0;
+    RaceVoiceFlags = 0;
     func_8004F7E0();
     func_80059168();
     SetModelTexturePage(0xA);

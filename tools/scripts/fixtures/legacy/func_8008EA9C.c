@@ -8,7 +8,7 @@ extern void CdDataCallback(RrLibCompletionCallback);
 extern void CdSyncCallback(RrLibCompletionCallback);
 extern void func_8008E7F4(void);
 
-void func_8008EA9C(void) {
+void cb_data(void) {
     register volatile RrLibTransferState38 *state = &D_800A67B0;
     /* ASM_BARRIER: Keep the complete state address in its saved register. */
     __asm__("" : "=r"(state) : "0"(state));

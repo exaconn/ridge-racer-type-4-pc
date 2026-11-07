@@ -25,17 +25,17 @@ typedef struct {u32 guard[4];s32 frame,counter;s16 current,limit;s8 flag1,flag2;
 typedef struct {s32 kind,args[10];State state;} Event;
 static struct World {State s;u32 calls;Event events[5];u32 guard[4];} world,expected;
 static u8 resources[3][0x2D100],original[3][0x2D100];
-#define D_800F2DE4 world.s.frame
+#define ModeFrame world.s.frame
 #define ScreenFrame world.s.counter
 #define MenuCursor world.s.current
 #define MenuItemCount world.s.limit
-#define D_800F4D7C world.s.flag1
-#define D_800F3A2C world.s.flag2
+#define LoadState world.s.flag1
+#define MenuScriptStep world.s.flag2
 #define D_800F4D70 world.s.arenas
 #define CdDirectoryBuffer world.s.base
 #define LoadCursor world.s.published
 #define D_800F4D40 world.s.saved
-#define D_800F3920 world.s.save
+#define SaveProgress world.s.save
 #define ovl662_D_80127328 world.s.counts
 #define ovl662_D_801272D8 world.s.rows
 #define ovl662_D_801272FC world.s.total

@@ -18,7 +18,7 @@ extern int D_800ABCAC;
 extern struct HW *D_800ABCCC;
 extern struct Q *D_800ABCC8;
 
-int func_80098788(a0, a1) struct W *a0; int a1; {
+int _padSioRW2(a0, a1) struct W *a0; int a1; {
     int s1;
     int s2;
     unsigned v1;
@@ -85,7 +85,7 @@ int func_80098788(a0, a1) struct W *a0; int a1; {
 #define D_800ABCCC ((struct R *)D_800ABCCC)
 #define chkRC2wait ((int (*)())chkRC2wait)
 
-int func_80098A00() {
+int _padClrIntSio0() {
     D_800ABCC8->a = -0x81;
     if (D_800ABCCC->c & 0x80) {
         do {

@@ -10,10 +10,10 @@ s32 CdFileBytesLoaded(void);
 void RelocateOffsetTable(int *a0);
 int RequestSceneLoad(int a0);
 int SceneLoadStep(void);
-int func_80013514(int a0, int a1, int a2, int a3, int a4);
-s32 func_800135BC(void);
-int func_800137B0(void);
-int func_800137D4(void);
+int RequestCarLoad(int a0, int a1, int a2, int a3, int a4);
+s32 CarLoadStep(void);
+int RequestVramImageLoad(void);
+int VramImageLoadStep(void);
 int func_80013904(char *a0_in, int a1_in);
 
 #endif /* RR_GAME_DATA_CDFILE2_H */

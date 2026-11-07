@@ -13,12 +13,12 @@ void ovl661_func_80117430(void) {
     RrUiRow24 *temp_v1;
     RrUiRow24 *temp_v1_3;
 
-    D_800F2DE4=(u32)D_800F2DE4+1;
+    ModeFrame=(u32)ModeFrame+1;
     ScreenFrame=(u32)ScreenFrame+1;
-    if ((D_800F4D8A == 3) || (func_8003BAB0() == 1)) {
+    if ((D_800F4D8A == 3) || (LoadTrackNodesStep() == 1)) {
         switch (D_800F4D8A) {
         case 0:
-            func_8002AF8C(1, 1, 1);
+            SetMenuFrameOptions(1, 1, 1);
             temp_s0 = D_800AC648;
             StepMenuValue(3, 2, (char *)&D_800AC648, ovl661_D_80118414, 0);
             if ((s16) temp_s0 != (s16) D_800AC648) {
@@ -59,7 +59,7 @@ void ovl661_func_80117430(void) {
                         } while (var_s0 < 4);
                         {
                             u8 *parameterTable = D_80118374;
-                            RrSelectionRows *choice = &D_800F4D98;
+                            RrSelectionRows *choice = &SelectionRows;
                             u8 first = choice->primary;
                             u8 second = choice->variant;
                             u8 third = choice->rows[0].selection;
@@ -77,7 +77,7 @@ void ovl661_func_80117430(void) {
                         LoadCursor = D_800F4D70.first;
                         func_80053AF4(0, 0x3C);
                         D_800F4D8A = 3;
-                        func_8002AF8C(0, 1, 1);
+                        SetMenuFrameOptions(0, 1, 1);
                     } else if ((s16) MenuCursor == 1) {
                         UiRows[23].byte14 = 0U;
                         D_800F4D8A = 4;
@@ -94,7 +94,7 @@ void ovl661_func_80117430(void) {
                     var_s2 = 1;
                 }
                 if (var_s2 == 1) {
-                    func_8002AF8C(0, 1, 1);
+                    SetMenuFrameOptions(0, 1, 1);
                     SetModelTexturePage(-1);
                     var_s0 = 0;
                     do {
@@ -114,10 +114,10 @@ void ovl661_func_80117430(void) {
             if (D_800AC5D0 > 0) {
                 D_800AC5D0 = (u16) D_800AC5D0 - 1;
             }
-            func_800207D4(&D_800ACC14->head70, (0x40 - D_800AC5D0) * 4, 0x45);
+            AddScreenFadeTiles(&D_800ACC14->head70, (0x40 - D_800AC5D0) * 4, 0x45);
             if (NumCars.halves[0] >= 3) {
                 D_800F4D44 = 3;
-                if (func_8003AE4C(2, NumCars.halves[0] - 2) == 1) {
+                if (LoadCarRangeStep(2, NumCars.halves[0] - 2) == 1) {
                     D_800F4D70.first = LoadCursor;
                     goto block_42;
                 }
@@ -127,8 +127,8 @@ block_42:
                 if (D_800AC5D0 <= 0) {
                     func_80053CB0();
                     ovl661_D_80118448[0] = -1;
-                    D_800F4BE8 = 0;
-                    D_800F4C6A = 1;
+                    MenuScriptId = 0;
+                    ModeGroup = 1;
                     D_800F3A26 = 0x23;
                     D_800F4D8A = 0;
                 }
@@ -137,7 +137,7 @@ block_42:
         case 4:
             temp_s0_3 = UiRows[23].byte14;
             if (temp_s0_3 == 2) {
-                func_8002AF8C(1, 1, 0);
+                SetMenuFrameOptions(1, 1, 0);
                 UiRows[23].cells[0] = temp_s0_3;
                 StepMenuValue(1, 4, (char *)&NumLaps, 0xA, (s32) temp_s0_3);
                 if (D_800F3A38[0].a != 0) {
@@ -153,7 +153,7 @@ block_42:
         case 5:
             temp_s1 = UiRows[24].byte14;
             if (temp_s1 == 2) {
-                func_8002AF8C(1, 1, 0);
+                SetMenuFrameOptions(1, 1, 0);
                 UiRows[24+MenuCursor].cells[0] = 0;
                 StepMenuValue(0, 2, (char *)&MenuCursor, 2, 0);
                 UiRows[24+MenuCursor].cells[0] = temp_s1;
@@ -182,7 +182,7 @@ block_59:
         case 8:
             if (UiRows[18].byte14 == 5) {
                 ovl661_func_80115598(0);
-                D_800F4C6A = 1;
+                ModeGroup = 1;
                 D_800F3A26 = 0x38;
                 D_800F4D8A = 0;
                 goto block_64;
@@ -192,7 +192,7 @@ block_59:
         }
     } else {
 block_63:
-        func_80032F44((s16) D_800AC648, 1);
+        DrawCourseInfoPanel((s16) D_800AC648, 1);
 block_64:
         var_s0 = 0;
     }
@@ -201,7 +201,7 @@ block_64:
         var_s0 += 1;
     } while (var_s0 < 5);
     if ((UiRows[18].byte14 == 2) && ((u32) (D_800F4D8A - 4) >= 2U)) {
-        func_8002B12C(0xCE, 0xD0, 0x5E, 0, (s32) (s16) D_800AC648, -1, ovl661_D_80118414 + 1);
+        DrawMenuStepArrows(0xCE, 0xD0, 0x5E, 0, (s32) (s16) D_800AC648, -1, ovl661_D_80118414 + 1);
     }
     if (D_800F4D8A == 4) {
         var_a0_3 = 0x17;

@@ -21,7 +21,7 @@
 
 extern int SetModelTexturePage();
 extern int func_800172DC();
-extern int func_800207D4();
+extern int AddScreenFadeTiles();
 extern int func_8002D784();
 extern int DrawCars();
 extern int func_80036FD4();
@@ -53,7 +53,7 @@ extern short D_800F3A26;
 extern int D_800F3A60;
 extern int D_800F3A68;
 extern int D_800F3A6C;
-extern short D_800F4C6A;
+extern short ModeGroup;
 extern short D_800F4D8A;
 extern int D_8010718C;
 extern int CarTable[];
@@ -114,7 +114,7 @@ void func_8005DDF4()
   if (RaceContext.w4bc == 0)
   {
     SetDispMask(0);
-    func_8001ECE8(0, 0, 0, 1);
+    SetupDrawDispEnvs(0, 0, 0, 1);
     func_80059168();
     CdAudioBeginPlay(0);
     RaceContext.w4dc = 0xFA;
@@ -143,7 +143,7 @@ void func_8005DDF4()
     if (RaceContext.w4bc == 4)
     {
       SetDispMask(1);
-      func_8001ECE8(0, 0, 0, 0);
+      SetupDrawDispEnvs(0, 0, 0, 0);
     }
   }
   StepRaceFrame(5);
@@ -340,18 +340,18 @@ void func_8005DDF4()
   if (D_800AC5D0 > 0)
   {
     D_800AC5D0 = D_800AC5D0 - 1;
-    func_800207D4(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
+    AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
     if (D_800AC5D0 == 0)
     {
       if (RaceContext.w4c8 == 0)
       {
-        D_800F4C6A = 1;
+        ModeGroup = 1;
         D_800F3A26 = 3;
       }
       else
       {
         RaceContext.w18 = 1;
-        D_800F4C6A = 2;
+        ModeGroup = 2;
         D_800F3A26 = 8;
       }
       D_800F4D8A = 0;
@@ -363,7 +363,7 @@ void func_8005DDF4()
   else
     if (D_800ACB0C < 0x1A)
   {
-    func_800207D4(D_800ACC14 + 0x70, (0x19 - D_800ACB0C) * 8, 0x45);
+    AddScreenFadeTiles(D_800ACC14 + 0x70, (0x19 - D_800ACB0C) * 8, 0x45);
   }
   {
     register int c8_2 asm("a2") = RaceContext.w4c8; /* ASM_BARRIER: pin w4c8 to a2 across w28a4 clamping and func_800534B4 third argument */
@@ -460,9 +460,9 @@ void func_8005DDF4()
       if (D_800ACB28 != 0)
       {
         old = 0xC8;
-        func_8004C894(0x131, old, D_800112CC, 0xFF, 0);
+        DrawFontStringRight(0x131, old, D_800112CC, 0xFF, 0);
       }
-      func_8004C894(0xFA, 0xD4, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), 0xFF, 0);
+      DrawFontStringRight(0xFA, 0xD4, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), 0xFF, 0);
       func_80059B1C(D_800A1A6C, 0xFC, 0xD4, 0xFF);
       func_80059B1C(D_800A1A6C - 4, 0x105, 0xD4, 0xFF);
       func_80096484(sp18, D_800112D4, SoundState.w28a4);

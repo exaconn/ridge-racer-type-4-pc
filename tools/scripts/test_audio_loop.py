@@ -131,7 +131,7 @@ int main(void){
   actual.audio.active1A00=k%3?((s32)seed|1):0;
   actual.settings.audio.volume31=(u8)(k*17U);actual.settings.audio.mono32=k&1?(s16)(u16)(seed|1):0;
   actual.mode=k%7?(s16)(u16)k:5;expected=actual;
-  bind(&actual);func_800518E0();int actual_count=count;assert(count>=0&&count<=5);coverage[count]++;memcpy(actual_entries,entries,sizeof(entries));
+  bind(&actual);SoundLoopUpdate();int actual_count=count;assert(count>=0&&count<=5);coverage[count]++;memcpy(actual_entries,entries,sizeof(entries));
   bind(&expected);reference();
   if(count!=actual_count||compare(k))return 1;
  }

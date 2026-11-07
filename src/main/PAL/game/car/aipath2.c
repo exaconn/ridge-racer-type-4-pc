@@ -214,7 +214,7 @@ void ConstrainCarToTrack(Car *arg0) {
         g->p0->s172 = (g->w18 << 10) / g->s15A;
     }
     g->p0->wF4 = g->w18;
-    g->p0->w188 = (D_800AD522 != 0) ? g->w14 : (g->s162 - g->w14);
+    g->p0->w188 = (ReverseCourse != 0) ? g->w14 : (g->s162 - g->w14);
     g->p0->w190 = g->p0->w18C;
     g->p0->w18C = (g->p0->w184 + g->p0->w188 + TrackLength) % TrackLength;
     if (g->p0->w18C < 0) {

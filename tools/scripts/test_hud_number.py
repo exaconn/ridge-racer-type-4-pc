@@ -5,7 +5,7 @@ root=Path(__file__).resolve().parents[2]
 header=(root/'include/rr/hud_number.h').read_text();header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
 body=(root/'tools/scripts/fixtures/views/func_800217D0.c').read_text();body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M);body=re.sub(r' asm\("\$\d+"\)','',body);body=re.sub(r'__asm__\("".*?\);',';',body)
 body,n=re.subn(r'\(RrGpuScratchPointers \*\)0x1F800000U','&scratch',body);assert n==2
-helper=(root/'tools/scripts/fixtures/views/func_80021568.c').read_text().replace('func_80021568','native_glyph').replace('(s32) arg1','(uintptr_t) arg1')
+helper=(root/'tools/scripts/fixtures/views/func_80021568.c').read_text().replace('EmitHudGlyph12','native_glyph').replace('(s32) arg1','(uintptr_t) arg1')
 assert helper.count('(uintptr_t) arg1')==1
 def h(name):return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',(root/'include/rr'/name).read_text(),flags=re.M)
 code=r'''
@@ -19,7 +19,7 @@ code=r'''
 typedef struct {RrNumberTarget rows[4];u32 heads[4];u32 arena[96];u8 guard[32];} World;
 static World actual,expected;
 static RrGpuScratchPointers scratch;
-#define D_8010BF88 actual.rows
+#define HudNumberTargets actual.rows
 s32 DrawBufIndex;
 static s32 number,x,y;static int selected,bank,iteration,variant;
 static u32 *captured_order;
@@ -35,7 +35,7 @@ static void mutate(void) {
  actual.rows[selected].heads[bank]=expected.rows[selected].heads[bank]=0;
  DrawBufIndex^=3;scratch.cursor=(u8 *)actual.arena+320;
 }
-void *func_80021568(u32 *order,void *packet,s32 px,s32 py,s32 glyph,s32 clut) {
+void *EmitHudGlyph12(u32 *order,void *packet,s32 px,s32 py,s32 glyph,s32 clut) {
  u8 *p=packet;
  RrSpritePacket *q=(RrSpritePacket *)map(p);u32 *head=(u32 *)map(captured_order);
  assert(iteration<5 && order==captured_order && p==cursor);
@@ -73,7 +73,7 @@ int main(void) {
   actual.rows[selected].heads[bank]=captured_order;
   memcpy(&expected,&actual,sizeof(actual));
   digits[0]=number>=10000;digits[1]=(number/1000)%10;digits[2]=(number/100)%10;digits[3]=(number/10)%10;digits[4]=number%10;
-  func_800217D0(number,selected);
+  DrawHudNumber5(number,selected);
   assert(iteration==5 && scratch.cursor==returned && scratch.order==actual.heads);
   assert(!memcmp(&actual,&expected,sizeof(actual)));
  }

@@ -7,7 +7,7 @@ extern int D_800ABCB8;
 extern int D_800ABCBC;
 extern int D_80114428;
 extern int D_8011442C;
-extern int func_80097EA0();
+extern int _padIntPad();
 extern int D_8011441C[];
 
 int PadEnableCom(int a0);
@@ -50,8 +50,8 @@ int PadEnableCom(int a0) {
 
 void _padSetVsyncParam() {
     int *p = D_8011441C;
-    p[0] = (int)func_80097EA0;
-    p[1] = (int)func_80097E38;
+    p[0] = (int)_padIntPad;
+    p[1] = (int)_padIsVsync;
     p[-1] = 0;
     p[2] = 0;
 }

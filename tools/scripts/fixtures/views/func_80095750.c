@@ -41,14 +41,14 @@ s32 MoveImage2(RrGpuRectangle *rect,s32 x,s32 y) {
     checkRECT(D_80011EFC,rect);
     D_800ABBFC=(u32)VSync(-1)+240;
     D_800ABC00=0;
-    status=*D_800ABBD4;
+    status=*DMA2_CHCR;
     goto test;
 wait:
     if(get_alarm()) return -1;
-    status=*D_800ABBD4;
+    status=*DMA2_CHCR;
 test:
     if(status&0x01000000) goto wait;
-    if(!(*D_800ABBC8&0x04000000)) goto wait;
+    if(!(*GPU_STATUS&0x04000000)) goto wait;
     {
         DMACallback(2,func_80095990);
         if(rect->rect.w) {

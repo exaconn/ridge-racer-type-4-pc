@@ -2,7 +2,7 @@
 
 void ovl662_func_80119DB4(void) {
     ovl662_func_80119B44();
-    D_800F4C6A = 1;
+    ModeGroup = 1;
     D_800F3A26 = 0x46;
     D_800F4D8A = 0;
     UpdateScreenFade(0x10002);

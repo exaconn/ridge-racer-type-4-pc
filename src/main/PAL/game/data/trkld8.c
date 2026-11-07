@@ -35,17 +35,17 @@ int func_8004EA8C(void) {
     int h;
     switch (D_800A021C) {
     case 0:
-        v = CdFileReadStart(GetR4FileIndex(1, 10), D_8010C1F0);
+        v = CdFileReadStart(GetR4FileIndex(1, 10), RaceLoadCursor);
         if (v != 0) {
             D_800A021C += 1;
     case 1:
             t = CdFileBytesLoaded();
             if (t != 0) {
                 u = AlignUp4(t);
-                w = D_8010C1F0 + u;
+                w = RaceLoadCursor + u;
                 D_800F3914 = 8;
                 LoadCursor = w;
-                D_8010C1F0 = w;
+                RaceLoadCursor = w;
                 D_800F4D40 = w;
                 D_800A021C += 1;
             }

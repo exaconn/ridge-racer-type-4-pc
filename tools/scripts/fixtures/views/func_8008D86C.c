@@ -20,7 +20,7 @@ s32 CD_init(void) {
     CD_status1 = 0;
     CD_status.word = 0;
     ResetCallback();
-    InterruptCallback(2, func_8008DDAC);
+    InterruptCallback(2, CdCommandCallback);
     RR_CD_WRITE8(D_800A674C, 1);
     if (RR_CD_READ8(D_800A6758) & 7) {
         do {

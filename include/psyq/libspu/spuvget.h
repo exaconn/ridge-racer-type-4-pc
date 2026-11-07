@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80086B84();
+int SpuGetVoiceVolume();
 
 #endif /* RR_PSYQ_LIBSPU_SPUVGET_H */

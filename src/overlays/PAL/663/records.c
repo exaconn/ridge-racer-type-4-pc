@@ -33,12 +33,12 @@ void *ovl663_draw_race_records(u32 *ordering, void *cursor, s32 row) {
         cursor = AddTilePrim(ordering, cursor, x, y - 2, 1, 20, 255, 255, 255);
         x += ovl663_race_column_widths[1];
         cursor = AddTextSprites(ordering, cursor, x, y,
-                               (char *)ovl663_format_time(D_800AD5C8[group][D_800F3914][i].time),
+                               (char *)ovl663_format_time(RaceRecords[group][D_800F3914][i].time),
                                clut, 0, 0);
         x += ovl663_race_column_widths[2];
         cursor = AddTilePrim(ordering, cursor, x, y - 2, 1, 20, 255, 255, 255);
         x += ovl663_race_column_widths[3];
-        cursor = AddTextSprites(ordering, cursor, x, y, D_800AD5C8[group][D_800F3914][i].name, clut,
+        cursor = AddTextSprites(ordering, cursor, x, y, RaceRecords[group][D_800F3914][i].name, clut,
                                0, 0);
         y += 24;
         i++;
@@ -73,12 +73,12 @@ void *ovl663_draw_lap_records(u32 *ordering, void *cursor, s32 row) {
         cursor = AddTilePrim(ordering, cursor, x, y - 2, 1, 20, 255, 255, 255);
         x += ovl663_lap_column_widths[1];
         cursor = AddTextSprites(ordering, cursor, x, y,
-                               (char *)ovl663_format_time(D_800FF700[group][D_800F3914][i].time),
+                               (char *)ovl663_format_time(LapRecords[group][D_800F3914][i].time),
                                clut, 0, 0);
         x += ovl663_lap_column_widths[2];
         cursor = AddTilePrim(ordering, cursor, x, y - 2, 1, 20, 255, 255, 255);
         x += ovl663_lap_column_widths[3];
-        cursor = AddTextSprites(ordering, cursor, x, y, D_800FF700[group][D_800F3914][i].name, clut,
+        cursor = AddTextSprites(ordering, cursor, x, y, LapRecords[group][D_800F3914][i].name, clut,
                                0, 0);
         y += 24;
         i++;

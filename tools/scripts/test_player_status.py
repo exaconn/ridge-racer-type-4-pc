@@ -14,7 +14,7 @@ class PlayerStatusTest(unittest.TestCase):
    offset=address-0x80010000+0x800;data=image[offset:offset+size]
    self.assertEqual(len(data),size);self.assertIn(0,data)
    declarations.append(f'u8 D_{address:08X}[{size}]={{'+','.join(map(str,data))+'};')
-  body=(ROOT/'tools/scripts/fixtures/views/func_80035478.c').read_text().split('void func_80035478',1)[1]
+  body=(ROOT/'tools/scripts/fixtures/views/func_80035478.c').read_text().split('void DrawLinkEntryScreen',1)[1]
   code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -30,7 +30,7 @@ static unsigned scenario,mutation,seen[8],flagSeen[65536],pairSeen[2][65536],bud
 static const s32 budgets[18]={INT32_MIN,INT32_MIN+1,INT32_MAX-1,INT32_MAX,-1000,-501,-500,-50,-1,0,1,49,50,99,100,499,500,501};
 static u8 *labels[7]={D_80010600,D_8001060C,D_80010628,D_8001063C,D_8001064C,D_80010658,D_80010674};
 static const unsigned sizes[7]={12,28,20,16,12,28,4};
-#define D_800ABEBC (w->s.status)
+#define LinkEntryState (w->s.status)
 #define D_800AD508 (w->s.flags)
 #define D_800AC5A4 (w->s.budget)
 static s32 word(u32 u){s32 n;memcpy(&n,&u,4);return n;}
@@ -38,28 +38,28 @@ static s16 half(u16 u){s16 n;memcpy(&n,&u,2);return n;}
 static s8 byte(u8 u){s8 n;memcpy(&n,&u,1);return n;}
 static u32 next(void){u32 n=w->s.rng;n^=n<<13;n^=n>>17;n^=n<<5;return w->s.rng=n;}
 static s32 wrap64(int64_t n){return word((u32)n);}
-void func_8001F40C(s32 x,s32 y,u8 *text){Event *e;unsigned i,j,n=4;assert(w->count<12);e=&w->events[w->count++];memset(e,0,sizeof(*e));e->before=w->s;e->x=x;e->y=y;
+void DrawBigFontString(s32 x,s32 y,u8 *text){Event *e;unsigned i,j,n=4;assert(w->count<12);e=&w->events[w->count++];memset(e,0,sizeof(*e));e->before=w->s;e->x=x;e->y=y;
  for(i=0;i<7;i++)if(text==labels[i]){e->kind=i+1;n=sizes[i];break;}
  if(!e->kind)assert((uintptr_t)text>UINT32_MAX);
  assert(n<=sizeof(e->bytes));memcpy(e->bytes,text,n);for(i=0;i<n&&text[i];i++);assert(i<n);e->length=i;
  if(mutation){for(i=0;i<2;i++)for(j=0;j<2;j++)w->s.status[i][j]=byte((u8)next());w->s.flags=(u16)next();w->s.budget=(next()%2)?budgets[next()%18]:word(next());}
 }
-void func_80035478'''+body+r'''
+void DrawLinkEntryScreen'''+body+r'''
 static void budgetCoverage(void){unsigned i;for(i=0;i<18;i++)if(w->s.budget==budgets[i])budgetSeen[i]++;}
 static void expected(s32 mode){u8 number[4]={0,0,0,0};unsigned row;int player;s8 status;s32 seconds;int64_t scaled,x;
  if(mode<0){seen[0]++;return;}assert(mode==0||mode==1);seen[1]++;
  for(row=0;row<2;row++){
   player=1-mode;number[0]=(u8)(49+(int)row+2*(int)half(w->s.flags^1U));
-  func_8001F40C(12,64+194*row,D_80010600);func_8001F40C(88,64+194*row,number);
+  DrawBigFontString(12,64+194*row,D_80010600);DrawBigFontString(88,64+194*row,number);
   status=w->s.status[player][row];
-  if(status==0){seen[2]++;func_8001F40C(60,120+194*row,D_8001060C);}
-  else if(status==1){seen[3]++;func_8001F40C(60,120+194*row,D_80010628);func_8001F40C(60,150+194*row,D_8001063C);}
-  else if(status==-1){seen[4]++;func_8001F40C(60,120+194*row,D_8001064C);}else seen[5]++;
+  if(status==0){seen[2]++;DrawBigFontString(60,120+194*row,D_8001060C);}
+  else if(status==1){seen[3]++;DrawBigFontString(60,120+194*row,D_80010628);DrawBigFontString(60,150+194*row,D_8001063C);}
+  else if(status==-1){seen[4]++;DrawBigFontString(60,120+194*row,D_8001064C);}else seen[5]++;
  }
  budgetCoverage();seconds=(s32)((int64_t)w->s.budget/50);number[0]=(u8)((int64_t)seconds/10+48);number[1]=(u8)((int64_t)seconds%10+48);
- func_8001F40C(44,244,number);func_8001F40C(32,244,D_80010658);budgetCoverage();
+ DrawBigFontString(44,244,number);DrawBigFontString(32,244,D_80010658);budgetCoverage();
  scaled=wrap64((int64_t)500-w->s.budget);scaled=wrap64(scaled*256);x=scaled/500+32;
- func_8001F40C((s32)x,224,D_80010674);
+ DrawBigFontString((s32)x,224,D_80010674);
 }
 int main(void){unsigned which,i,j;u16 pair;s32 mode;uint64_t cases=0;
  _Static_assert(sizeof(unsigned long)>=sizeof(void*),"native-width address cursor");_Static_assert(sizeof(actual.s.status)==4,"complete two-by-two status owner");
@@ -72,7 +72,7 @@ int main(void){unsigned which,i,j;u16 pair;s32 mode;uint64_t cases=0;
   mode=scenario<65536?(s32)which:(which?-1:word(next()|0x80000000U));
   for(i=0;i<4;i++){w->s.guard[i]=next();w->s.tail[i]=next();}
   if(mode>=0){pair=(u8)w->s.status[1-mode][0]|((u16)(u8)w->s.status[1-mode][1]<<8);pairSeen[which][pair]++;flagSeen[w->s.flags]++;}
-  reference.s=actual.s;w=&actual;func_80035478(mode);w=&reference;expected(mode);
+  reference.s=actual.s;w=&actual;DrawLinkEntryScreen(mode);w=&reference;expected(mode);
   assert(!memcmp(&actual.s,&reference.s,sizeof(State)));assert(actual.count==reference.count);assert(!memcmp(actual.events,reference.events,actual.count*sizeof(Event)));cases++;
  }
  assert(cases==278528);for(i=0;i<65536;i++){assert(flagSeen[i]);for(j=0;j<2;j++)assert(pairSeen[j][i]);}for(i=0;i<6;i++)assert(seen[i]);for(i=0;i<18;i++)assert(budgetSeen[i]);return 0;

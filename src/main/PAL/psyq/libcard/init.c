@@ -6,11 +6,11 @@
 #include "rr/memory.h"
 #include "rr/spu_tick_control.h"
 
-extern int func_80095DD4();
+extern int InitCARD2();
 extern int _patch_card();
 extern int _patch_card2();
-extern int func_80096F84();
-int func_80095DE4();
+extern int ChangeClearPAD();
+int StartCARD2();
 int StopCARD2();
 /* extern */
 int _ExitCard();
@@ -23,12 +23,12 @@ void InitCARD(s32 arg0) {
     s32 var_s0;
 
     var_s0 = arg0;
-    func_80096F84(0);
+    ChangeClearPAD(0);
     EnterCriticalSection();
     if (ReadInitPadFlag() == 0) {
         var_s0 = 0;
     }
-    func_80095DD4(var_s0);
+    InitCARD2(var_s0);
     _copy_memcard_patch();
     _patch_card();
     _patch_card2();
@@ -36,17 +36,17 @@ void InitCARD(s32 arg0) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80096F84 ((int (*)(int))func_80096F84)
+#define ChangeClearPAD ((int (*)(int))ChangeClearPAD)
 
 /* extern */
 void StartCARD(void) {
     EnterCriticalSection();
-    func_80095DE4();
-    func_80096F84(0);
+    StartCARD2();
+    ChangeClearPAD(0);
     ExitCriticalSection();
 }
 
-#undef func_80096F84
+#undef ChangeClearPAD
 
 /* extern */
 void StopCARD(void) {

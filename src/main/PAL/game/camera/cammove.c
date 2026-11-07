@@ -310,14 +310,14 @@ void func_8005C024(void)
     int sp50[3];
     int v;
 
-    func_8005599C(RaceContext.p + 0xC8, RaceContext.p + 0x20, sp10, sp30);
+    SetupObjectLightMatrices(RaceContext.p + 0xC8, RaceContext.p + 0x20, sp10, sp30);
     v = *(int *)(RaceContext.p + 0xE0);
     sp50[2] = v;
     sp50[1] = v;
     sp50[0] = v;
     ScaleMatrix(sp10, sp50);
     SelectModelBank(7);
-    func_8006EE3C((SCRATCHPAD + 0x7C), RaceContext.p + 0xC8, sp10);
+    SetGteObjectTransform((SCRATCHPAD + 0x7C), RaceContext.p + 0xC8, sp10);
     *(int *)(SCRATCHPAD + 0x78) = 0;
     func_80058768(SCRATCHPAD, D_800F2FD8 < 1, 0, 0x100);
 }

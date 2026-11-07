@@ -49,7 +49,7 @@ extern char D_8011095C[];
 extern s32 func_80096404(const char *, const char *);
 
 CdlFILE *CdSearchFile(CdlFILE *fp, char *name);
-int func_8008E15C(int a, int b);
+int _cmp(int a, int b);
 int DS_newmedia(void);
 s32 DS_searchdir(s32 key, const char *name);
 
@@ -113,7 +113,7 @@ done:
     for (i = 0; i < 64; i++) {
         if (D_80110350[i].name[0] == 0)
             break;
-        if (func_8008E15C(D_80110350[i].name, buf)) {
+        if (_cmp(D_80110350[i].name, buf)) {
             if (CD_debug >= 2)
                 func_8001E84C(D_80011BA8, buf);
             *fp = D_80110350[i];
@@ -125,7 +125,7 @@ done:
     return 0;
 }
 
-int func_8008E15C(int a, int b) { return func_80096414(a, b, 12) == 0; }
+int _cmp(int a, int b) { return func_80096414(a, b, 12) == 0; }
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_80096414 ((int (*)(void *, const char *, int))func_80096414)
@@ -138,7 +138,7 @@ int DS_newmedia(void) {
     int pad;
     int dummy;
 
-    if (func_8008E780(1, 0x10, D_80111F50) != 1) {
+    if (cd_read(1, 0x10, D_80111F50) != 1) {
         if (CD_debug > 0) {
             func_8001E84C(D_80011BC4);
         }
@@ -154,7 +154,7 @@ int DS_newmedia(void) {
     /* ASM_BARRIER: prevent cse2 from folding s0+0x8C back to symbol+0x8C */
     __asm__ volatile("" : "=r"(p8c) : "0"(p8c));
     *(U4 *)&sp18 = *(U4 *)(p8c + 0x8C);
-    if (func_8008E780(1, sp18, p8c) != 1) {
+    if (cd_read(1, sp18, p8c) != 1) {
         if (CD_debug > 0) {
             func_8001E84C(D_80011C28, sp18);
         }

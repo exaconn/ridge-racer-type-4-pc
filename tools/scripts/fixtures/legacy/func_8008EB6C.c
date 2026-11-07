@@ -13,10 +13,10 @@ extern s32 CdPosToInt(void *);
 extern s32 func_800963DC(const char *, ...);
 extern const char D_80011D40[], D_80011D58[];
 extern volatile u32 D_800A67BC;
-extern void func_8008E828(s32, u8 *);
-extern void func_8008EA9C(void);
+extern void cb_read(s32, u8 *);
+extern void cb_data(void);
 
-s32 func_8008EB6C(s32 restart) {
+s32 cd_read_retry(s32 restart) {
     u8 mode_byte;
     register u32 requested;
     register RrLibReadRequestState *state;
@@ -87,7 +87,7 @@ failed:
     completed = CdPosToInt(CdLastPos());
     /* ASM_BARRIER: the success-state address is formed after decoding. */
     __asm__("" : : : "$16");
-    callback = (RrLibCompletionCallback)func_8008E828;
+    callback = (RrLibCompletionCallback)cb_read;
     state = &D_800A67B0;
     /* ASM_BARRIER: stage the callback address before the state address, then
      * publish the decoded sector in the callback setter's delay slot. */
@@ -96,7 +96,7 @@ failed:
     CdReadyCallback(callback);
     command = 6;
     if (CD_read_dma_mode & 1) {
-        CdDataCallback(func_8008EA9C);
+        CdDataCallback(cb_data);
         command = 6;
     }
     state->position08 = state->buffer04;

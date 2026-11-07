@@ -13,7 +13,7 @@ struct M { int a[8]; };
 
 extern int SelectModelBank();
 extern int RotMatrix();
-extern int func_8006EE3C();
+extern int SetGteObjectTransform();
 extern int func_8005F0D0();
 extern char D_8001013C[];
 extern int D_800F2FD8;
@@ -26,7 +26,7 @@ extern char D_8009E88C[];
 extern s16 D_800AC5D0;
 extern s32 VSyncThreshold;
 extern s16 D_800F3A26;
-extern s16 D_800F4C6A;
+extern s16 ModeGroup;
 extern s16 D_800F4D8A;
 
 int func_8001BD40(int a0, int a1);
@@ -57,7 +57,7 @@ int func_8001BD40(int a0, int a1)
     RR_GTE_SETLLM((char *)s3 + 0x28);
     RR_GTE_SETROT(SCRATCH_ROT_MATRIX);
     MulRotMatrix0((char *)s3 + 8, t);
-    func_8006EE3C((SCRATCHPAD + 0x7C), D_8001013C + a0 * 16, t);
+    SetGteObjectTransform((SCRATCHPAD + 0x7C), D_8001013C + a0 * 16, t);
     *(int *)(SCRATCHPAD + 0x78) = 0;
     func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, 0, 0);
     return s2;
@@ -97,7 +97,7 @@ void func_8001BFA8(int a0, int a1, int a2)
     RR_GTE_SETLLM((SCRATCHPAD + 0xA4));
     RR_GTE_SETROT(SCRATCH_ROT_MATRIX);
     MulRotMatrix0((SCRATCHPAD + 0x84), t);
-    func_8006EE3C((SCRATCHPAD + 0x7C), a2, t);
+    SetGteObjectTransform((SCRATCHPAD + 0x7C), a2, t);
     *(int *)(SCRATCHPAD + 0x78) = 0;
     func_8005F0D0(SCRATCHPAD, a0 < D_800F2FD8 ? a0 : 1, 0, 0);
 }
@@ -109,7 +109,7 @@ void func_8001C0F8(void) {
     D_800AC5D0 = 0;
     D_8010BF7C = 0;
     SetDispMask(1);
-    D_800F4C6A = 0;
+    ModeGroup = 0;
     D_800F3A26 = 2;
     D_800F4D8A = 0;
 }

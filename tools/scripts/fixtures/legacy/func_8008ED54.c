@@ -18,7 +18,7 @@ extern void func_8008E7F4(void);
     ((volatile RrLibReadRequestState*)((u8*)(pair)-RR_PAIR_OWNER_OFFSET))
 #define RR_PAIR_PENDING(pair) (RR_PAIR_REQUEST(pair)->finished24)
 
-void func_8008ED54(void) {
+void CdReadBreak(void) {
     volatile RrLibReadRequestState *root;
     /* ASM_BARRIER: form the completion-publication address in its original temporary. */
     register RrLibReadRequestState *publish __asm__("$2");

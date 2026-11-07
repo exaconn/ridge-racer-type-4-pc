@@ -11,14 +11,14 @@
 
 struct P { int tag; unsigned char r, g, b, code; short x, y, w, h; };
 
-extern void func_80095B94(void *);
+extern void SetSprt(void *);
 extern void AddPrim(u32 *,u32 *);
 extern s32 func_80096464(void);
 /* extern */
 /* extern */
 /* extern */
 
-u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg);
+u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg);
 struct S32 *EmitPolyFT3(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9);
 void *func_80020508(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
 struct P *GameQueueTileTrans(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
@@ -28,7 +28,7 @@ RrPolyF3Packet *func_8002071C(u32 *ordering,RrPolyF3Packet *packet,s32 xy0,s32 x
 /* legacy typing of shared globals in this part of the unit */
 #define AddDrawModePrim (*(u8 *(*)(u32 *,u8 *,u16))&AddDrawModePrim)
 
-u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg) {
+u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg) {
     /* ASM_BARRIER: retain the loop bound in callee-saved S5 across helpers. */
     register s32 count asm("$21")=count_arg;
     /* ASM_BARRIER: retain the full signed intensity in callee-saved S7. */
@@ -59,7 +59,7 @@ u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,
     __asm__("" : "+r"(descriptor));
     i=0;
     while(i<count) {
-        func_80095B94(sprite);
+        SetSprt(sprite);
         jitter=0;
         if(count!=1) {
             u32 random=(u32)func_80096464()&7;
@@ -114,7 +114,7 @@ u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,
 
 /* extern */
 struct S32 *EmitPolyFT3(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9) {
-    func_80095B74(arg1);
+    SetPolyFT3(arg1);
     M2C_FIELD(arg1, u16 *, 8) = (u16) M2C_FIELD(arg2, u16 *, 0);
     M2C_FIELD(arg1, u16 *, 0xA) = (u16) M2C_FIELD(arg3, u16 *, 0);
     M2C_FIELD(arg1, u16 *, 0x10) = (u16) M2C_FIELD(arg2, u16 *, 4);
@@ -164,7 +164,7 @@ void *func_80020508(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg
 #define SetShadeTex ((int (*)())SetShadeTex)
 
 struct P *GameQueueTileTrans(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8) {
-    func_80095BD4(a1);
+    SetLineF2(a1);
     SetShadeTex(a1, 1);
     a1->x = a2;
     a1->y = a3;
@@ -185,7 +185,7 @@ struct P *GameQueueTileTrans(int a0, struct P *a1, short a2, short a3, int a4, i
 #define SetShadeTex ((int (*)())SetShadeTex)
 
 struct P *func_8002064C(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8) {
-    func_80095BD4(a1);
+    SetLineF2(a1);
     SetShadeTex(a1, 1);
     a1->x = a2;
     a1->y = a3;

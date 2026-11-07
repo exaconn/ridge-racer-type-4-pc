@@ -29,9 +29,9 @@ class BadgeRowsTest(unittest.TestCase):
         old='extern struct P *AddDrawModePrim();'
         assert helper.count(old)==1
         helper=helper.replace(old,'extern struct P *AddDrawModePrim(u32 *, void *, s32);')
-        old='extern int func_80095B94(), SetShadeTex(), SetSemiTrans(), AddPrim();'
+        old='extern int SetSprt(), SetShadeTex(), SetSemiTrans(), AddPrim();'
         assert helper.count(old)==1
-        helper=helper.replace(old,'extern int func_80095B94(void *), SetShadeTex(void *, s32), SetSemiTrans(void *, s32), AddPrim(u32 *, void *);')
+        helper=helper.replace(old,'extern int SetSprt(void *), SetShadeTex(void *, s32), SetSemiTrans(void *, s32), AddPrim(u32 *, void *);')
         exe=(ROOT/'assets/PAL/main.exe').read_bytes()
         def rom(address,size):
             start=0x800+address-0x80010000
@@ -135,7 +135,7 @@ struct P *AddDrawModePrim(u32 *head,void *cursor,s32 mode) {
  if(mode_calls++==0){assert(cursor==sprite_arena+32 && mode==5);return (struct P *)(sprite_arena+160);}
  assert(cursor==sprite_arena+180 && mode==expected_mode);return (struct P *)(sprite_arena+288);
 }
-int func_80095B94(void *p){((u8 *)p)[3]=4;((u8 *)p)[7]=0x64;return 0;}
+int SetSprt(void *p){((u8 *)p)[3]=4;((u8 *)p)[7]=0x64;return 0;}
 int SetShadeTex(void *p,s32 x){u8 *c=(u8 *)p+7;*c=x?*c|1:*c&0xFE;return 0;}
 int SetSemiTrans(void *p,s32 x){u8 *c=(u8 *)p+7;*c=x?*c|2:*c&0xFD;return 0;}
 int AddPrim(u32 *head,void *p) {

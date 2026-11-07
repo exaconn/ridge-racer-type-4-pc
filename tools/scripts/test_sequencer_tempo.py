@@ -125,7 +125,7 @@ int main(void) {
         reference(s);
         memcpy(&expected,&world,sizeof(world));
         memcpy(&world,&initial,sizeof(world));
-        func_80081AE4((s32)((random32()&0xffff0000U)|bank),
+        _SsGetMetaEvent((s32)((random32()&0xffff0000U)|bank),
                       (s32)((random32()&0xffff0000U)|(u16)(s16)((int)row-2)));
         if(memcmp(&world,&expected,sizeof(world))) {
             fprintf(stderr,"tempo mismatch iteration=%u mode=%u\n",iteration,mode);return 1;

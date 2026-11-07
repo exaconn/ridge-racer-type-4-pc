@@ -38,7 +38,7 @@ void CdAudioSetVolumeRaw(s32 arg0);
 void CdAudioFade(u16 a0, int a1);
 void CdAudioRequestPause();
 void CdAudioSetFilter(int a0);
-int func_80052D6C(void);
+int CdAudioFilterPending(void);
 void CdAudioFilterStep(void);
 
 void CdAudioBeginPlay(int a0) {
@@ -180,7 +180,7 @@ void CdAudioSetFilter(int a0) {
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(struct { char pad[0x2674]; s32 a, b; char p[4]; s32 c; } (*))&SoundState)
 
-int func_80052D6C(void) {
+int CdAudioFilterPending(void) {
     if (SoundState.a != 0 || SoundState.b != 0) return 1;
     return SoundState.c;
 }

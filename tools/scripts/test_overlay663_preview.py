@@ -31,8 +31,8 @@ static u8 packets[64];static u32 orders[32];static unsigned scenario;
 #define RR_PROJECTION_SCRATCH (&world.scratch)
 #define BadgeRows world.root
 #define ovl663_selected_record world.local
-#define D_800F2DE4 world.frame
-#define D_800ACC68 world.flag
+#define ModeFrame world.frame
+#define ScreenFadeState world.flag
 '''+body+r'''
 static u32 rng=0x157B8;
 static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}

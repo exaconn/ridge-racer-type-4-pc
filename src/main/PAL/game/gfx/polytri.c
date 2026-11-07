@@ -88,7 +88,7 @@ typedef struct {
 } S_SP7C;
 extern Car PlayerCars[];
 extern int ReplayState;
-extern short D_800AD522;
+extern short ReverseCourse;
 extern int TrackLength;
 extern int NumLaps;
 extern S_ECB0 *TrackObjectDefs;
@@ -204,7 +204,7 @@ void func_80071E04(void) {
 #define b0 (&TrackObjectDefs[i])
 #define b4 (&TrackObjectStates[i])
 
-    sp->f0 = func_80026998(hw[2], hw[4]);
+    sp->f0 = FindTrackNodeAtXZ(hw[2], hw[4]);
     for (i = 0; i < TrackObjectCount; i++) {
         if (b0->f18 >= 0 && b0->f18 != PlayerCars[0].sub1F4.unkB6) {
             if (b0->f10 > 0) {
@@ -276,7 +276,7 @@ void func_80071E04(void) {
                 b4->f24 = 0;
                 continue;
             }
-        } else if (b0->f14 > 0 && b4->f24 == 0 && sp->f4 == sp->f0 && PlayerCars[0].unk1EA == 0 && D_800AD522 == 0) {
+        } else if (b0->f14 > 0 && b4->f24 == 0 && sp->f4 == sp->f0 && PlayerCars[0].unk1EA == 0 && ReverseCourse == 0) {
             b4->f24 = 1;
         }
         if (D_800F4D44 == 2 || D_800F4D44 == 3) {

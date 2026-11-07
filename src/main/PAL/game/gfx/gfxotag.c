@@ -61,7 +61,7 @@ extern struct {
 extern short D_800AD520;
 extern int D_800F2FD8;
 extern short D_800F3914;
-extern void func_8006EE3C();
+extern void SetGteObjectTransform();
 extern void SelectModelBank();
 extern void func_8005F0D0();
 extern void BuildCameraMatrices();
@@ -73,20 +73,20 @@ extern int D_800AC6B0;
 extern Elem28 (*D_800ACBA4)[16];
 extern short D_800F4D44;
 extern M2C_UNK D_800AC6D8;
-extern void func_800207D4();
-extern void func_8004FED4();
+extern void AddScreenFadeTiles();
+extern void SlotsStartForRace();
 extern void CdAudioSelectTrack();
 extern void CdAudioBeginPlay();
 extern void CdAudioFade();
 extern void func_80059E40();
 extern int func_80096464();
 extern int D_800AC6EC;
-extern signed char D_800AD4D8[];
+extern signed char SelectionState[];
 extern signed char Options[];
 extern int D_8010718C;
 
 void func_80044EC4(void);
-void func_800451E4(int *a);
+void ApplyCameraState(int *a);
 int func_800452CC(Arg0Struct *a0, int a1, int a2);
 int func_80045868(char *arg0);
 
@@ -100,7 +100,7 @@ void func_80044EC4(void) {
     s5 = g[0x18];
     s2 = RaceContext.f55C + (D_800AD520 << 7);
     func_80044920(s2, sp10);
-    func_8006EE3C((SCRATCHPAD + 0x7C), s2, sp10);
+    SetGteObjectTransform((SCRATCHPAD + 0x7C), s2, sp10);
     s1 = func_80044B24(sp10, s2);
     if (s1 > 0) {
         ClearOTagR(RaceContext.f50[DrawBufIndex], 0x15F);
@@ -110,7 +110,7 @@ void func_80044EC4(void) {
             g[0x18] = 5;
         }
         SelectModelBank(8);
-        func_8006EE3C((SCRATCHPAD + 0x7C), s2, sp10);
+        SetGteObjectTransform((SCRATCHPAD + 0x7C), s2, sp10);
         g[0x1E] = 0;
         func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, 0, 0);
         s1 >>= s5;
@@ -124,7 +124,7 @@ void func_80044EC4(void) {
     if (D_8009FE60[D_800F3914] == 7) {
         s2 = RaceContext.f55C + (D_800AD520 << 7) + 0x40;
         func_80044920(s2, sp10);
-        func_8006EE3C((SCRATCHPAD + 0x7C), s2, sp10);
+        SetGteObjectTransform((SCRATCHPAD + 0x7C), s2, sp10);
         s1 = func_80044B24(sp10, s2);
         if (s1 > 0) {
             ClearOTagR(RaceContext.f58[DrawBufIndex], 0x15F);
@@ -134,7 +134,7 @@ void func_80044EC4(void) {
                 g[0x18] = 5;
             }
             SelectModelBank(9);
-            func_8006EE3C((SCRATCHPAD + 0x7C), s2, sp10);
+            SetGteObjectTransform((SCRATCHPAD + 0x7C), s2, sp10);
             *(int *)(SCRATCHPAD + 0x78) = 0;
             func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, 0, 0);
             s1 >>= s5;
@@ -150,7 +150,7 @@ void func_80044EC4(void) {
     g[1] = (int)D_800ACC14 + 0x70;
 }
 
-void func_800451E4(int *a) {
+void ApplyCameraState(int *a) {
     int m[8];
     unsigned short v[3];
     short r[3];
@@ -235,7 +235,7 @@ int func_800452CC(Arg0Struct *a0, int a1, int a2) {
         RaceContext.f7C = s2[s0].f1C;
         RaceContext.f80 = s2[s0].f20;
     }
-    func_800451E4(&D_800AC6B0);
+    ApplyCameraState(&D_800AC6B0);
     if (D_800F4D44 == 1) {
         func_80044B5C();
         func_80044EC4();
@@ -291,7 +291,7 @@ int func_80045868(char *arg0)
   g1 = RaceContext;
   if ((*((int *) (((char *) g1) + 0x90))) != 0)
   {
-    func_800207D4(D_800ACC14 + 0x70, (*((int *) (((char *) g1) + 0x8C))) * 10, 0x25);
+    AddScreenFadeTiles(D_800ACC14 + 0x70, (*((int *) (((char *) g1) + 0x8C))) * 10, 0x25);
     v1 = (*((int *) (((char *) g1) + 0xA0))) - 8;
     *((int *) (((char *) g1) + 0xA0)) = v1;
     if (v1 < 0)
@@ -383,7 +383,7 @@ int func_80045868(char *arg0)
   gC = RaceContext;
   if (gC[0x94 / 4] == 0)
   {
-    if ((D_800F4D44 == 1) && (D_800AD4D8[D_800AD4D8[0x17] + 8] >= 3))
+    if ((D_800F4D44 == 1) && (SelectionState[SelectionState[0x17] + 8] >= 3))
     {
       s0 = 1;
       gL = gC;
@@ -478,7 +478,7 @@ int func_80045868(char *arg0)
       *((short *) (((char *) RaceContext) + 0x74)) = 0;
       *((int *) (((char *) RaceContext) + 0x80)) = 0x1D6;
     }
-      func_800451E4(D_800AC6B0);
+      ApplyCameraState(D_800AC6B0);
       g2 = (int *) (D_800AC6B0 - 0x60);
       if (g2[0x88 / 4] >= 0x33)
     {
@@ -491,7 +491,7 @@ int func_80045868(char *arg0)
   g = RaceContext;
   if (g[0x9C / 4] != 0)
   {
-    func_8004FED4();
+    SlotsStartForRace();
     v = g[0x9C / 4];
     D_800ACBF8 = 1;
     if (v == 1)

@@ -32,13 +32,13 @@ void func_800219BC(s32 arg0, s32 arg1) {
     char *b;
     s32 cur, m, r;
     s32 a = arg0;
-    b = D_8010BF88;
+    b = HudNumberTargets;
     temp_v1 = arg1 * 0x14;
     temp_a3 = b + temp_v1;
     cur = *(s32 *)SCRATCHPAD;
     temp_s0 = *(s32 *)(DrawBufIndex * 4 + temp_v1 + b);
     m = a % 10;
-    r = func_800215F4(temp_s0, cur, M2C_FIELD(temp_a3, s16 *, 0xC), M2C_FIELD(temp_a3, s16 *, 0xE), m, 0x7EFB);
+    r = EmitHudGlyph12Alt(temp_s0, cur, M2C_FIELD(temp_a3, s16 *, 0xC), M2C_FIELD(temp_a3, s16 *, 0xE), m, 0x7EFB);
     *(s32 *)SCRATCHPAD = AddDrawModePrim(temp_s0, r, 5);
 }
 

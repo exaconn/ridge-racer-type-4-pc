@@ -27,7 +27,7 @@
 #include "rr/sequencer_tempo.h"
 #include "psyq/libsnd/cc_98.h"
 extern char D_800116E8[];
-extern int D_8010EFC8[];
+extern int SsFCALL[];
 short SsSeqOpen(a0, a1) int a0; int a1; {
     /* ASM_BARRIER: pin t0 to match original register allocation */
     register int t0 asm("t0");
@@ -110,12 +110,12 @@ short SsSeqOpen(a0, a1) int a0; int a1; {
                 x = _SsInitSoundSeq(a, x >> 16, a2, a3) << 16;
                 /* ASM_BARRIER: keep x in a1 and reserve v0 across tab setup */
                 __asm__ volatile("" : "+r"(x), "=r"(v0));
-                tab = D_8010EFC8;
+                tab = SsFCALL;
                 /* ASM_BARRIER: force lui v1, addiu v1 */
                 __asm__ volatile("" : "+r"(tab));
                 tab[0] = (int)_SsNoteOn;
                 tab[1] = (int)_SsSetProgramChange;
-                tab[3] = (int)func_80081AE4;
+                tab[3] = (int)_SsGetMetaEvent;
                 tab[2] = (int)_SsSetPitchBend;
                 tab[4] = (int)_SsSetControlChange;
                 tab[5] = (int)_SsContBankChange;

@@ -3,7 +3,7 @@ from tempfile import TemporaryDirectory
 import subprocess,sys
 ROOT=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file());P=Path(__file__).resolve().parent
 source=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'tools/scripts/fixtures/views/func_80059700.c'
-body=source.read_text();body=body[body.index('void func_80059700'):]
+body=source.read_text();body=body[body.index('void DrawGlyphList'):]
 fixture=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -60,7 +60,7 @@ static void expected(void){u32 x=(u32)(s32)script[0];s32 y=script[1];u32 old=get
  }
  putword(reference+contextOffset+0x70,old);
 }
-void run(void){func_80059700(script,color,bank);assert(scratch.cursor==frame+cursorOffset+count*28&&scratch.order==order&&D_800ACC14==(RrIconSpriteContext*)(frame+contextOffset));assert(!memcmp(script,script_before,sizeof(script)));}
+void run(void){DrawGlyphList(script,color,bank);assert(scratch.cursor==frame+cursorOffset+count*28&&scratch.order==order&&D_800ACC14==(RrIconSpriteContext*)(frame+contextOffset));assert(!memcmp(script,script_before,sizeof(script)));}
 void *get_frame(void){return frame;}void *get_script(void){return script;}void *get_order(void){return order;}void *get_primary(void){return D_800A1090;}void *get_secondary(void){return D_800A1158;}
 u32 get_count(void){return count;}u32 get_cursor(void){return cursorOffset;}u32 get_context(void){return contextOffset;}s32 get_color(void){return color;}s32 get_bank(void){return bank;}
 #ifndef RR_NATIVE_SHARED

@@ -5,8 +5,8 @@
 extern s16 MenuCursor,MenuItemCount;
 void func_80041320(s32 row,s32 first,s32 second);
 void StepMenuValue(s32 mode,s32 width,char *selection,s32 limit,s32 flags);
-void func_8002B12C(s32 x,s32 y,s32 width,s32 mode,s32 selected,s32 first,s32 second);
-s32 func_8003E13C(s32 selected);
+void DrawMenuStepArrows(s32 x,s32 y,s32 width,s32 mode,s32 selected,s32 first,s32 second);
+s32 UpdateGlyphRow(s32 selected);
 
 s32 ovl660_func_801156A8(s32 reserved);
 s32 ovl661_func_80117E10(void);

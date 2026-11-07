@@ -1,27 +1,27 @@
 #include "rr/menu_text_rows.h"
 
-extern s32 D_800F2DE4, D_800F4C64, D_800F3A60, D_800AC5D4;
+extern s32 ModeFrame, TotalRaceTime, D_800F3A60, D_800AC5D4;
 extern u16 D_800F4D8A;
-extern s16 D_800F4C6A, D_800F3A26, D_800AC5D0, MenuCursor, D_800AD508;
-extern s16 D_800FF688, D_8010C068, D_80107178;
+extern s16 ModeGroup, D_800F3A26, D_800AC5D0, MenuCursor, D_800AD508;
+extern s16 LinkState, D_8010C068, D_80107178;
 extern s16 D_8010C070[4];
 extern s16 D_8010C080[4];
 extern char D_8010C088[4][12];
 extern u8 *D_800ACC14;
 
 s32 func_80034FC0(void);
-s32 func_80035024(s32);
+s32 UpdateLinkHandshake(s32);
 void func_80034F80(void);
-void func_8002AF8C(s32, s32, s32);
+void SetMenuFrameOptions(s32, s32, s32);
 void CopyStringClearTail(char *, char *);
 void CopyStringPadSpaces(char *, char *, s32);
 void FormatDecimalDigits(char *, s32, s32);
-void func_800207D4(u32 *, s32, u32);
+void AddScreenFadeTiles(u32 *, s32, u32);
 void ResetScreenCounters(void);
 void InitMenuArenas(void);
 void UpdateScreenFade(s32);
 void func_8003662C(s32);
-void func_80040858(s32);
+void UpdateMenuTextRow(s32);
 void func_800411D4(void);
 s32 func_8003B12C(void);
 void func_80053BB4(s32);
@@ -35,17 +35,17 @@ void ovl667_func_8011885C(void) {
     s32 result;
     s32 player;
 
-    D_800F2DE4++;
+    ModeFrame++;
     if (func_80034FC0() != 0) {
         return;
     }
-    pressed = func_80035024(2);
-    if ((u32)D_800F2DE4 >= 0x08000000) {
-        D_800F2DE4 = 3;
+    pressed = UpdateLinkHandshake(2);
+    if ((u32)ModeFrame >= 0x08000000) {
+        ModeFrame = 3;
     }
     switch (D_800F4D8A) {
     case 0:
-        if (D_800F4C64 == -1) {
+        if (TotalRaceTime == -1) {
             group = 1;
             if (MenuTextRows[11].signedBytes[2] >= 2) {
                 D_800F4D8A = 3;
@@ -54,10 +54,10 @@ void ovl667_func_8011885C(void) {
         }
         group = 0;
         if (MenuTextRows[3].signedBytes[3] >= 16) {
-            func_8002AF8C(1, 1, group);
+            SetMenuFrameOptions(1, 1, group);
             if (D_800F3A60 != 0) {
                 D_800F4D8A = 3;
-                func_8002AF8C(group, 1, group);
+                SetMenuFrameOptions(group, 1, group);
             }
         }
         FormatDecimalDigits(MenuTextRows[4].marquee.at28 + 8, D_8010C070[0] + 1, 0);
@@ -78,14 +78,14 @@ void ovl667_func_8011885C(void) {
     case 3:
         group = 3;
         if (MenuTextRows[39].signedBytes[3] >= 17) {
-            func_8002AF8C(1, 1, 0);
+            SetMenuFrameOptions(1, 1, 0);
             if (ovl667_func_801187DC(0) >= 0) {
                 ResetScreenCounters();
                 InitMenuArenas();
                 D_800AC5D0 = 64;
                 D_800F4D8A = MenuCursor + 5;
                 func_80034F80();
-                func_8002AF8C(0, 1, 0);
+                SetMenuFrameOptions(0, 1, 0);
             }
         }
         break;
@@ -95,13 +95,13 @@ void ovl667_func_8011885C(void) {
             break;
         }
         D_800AC5D0--;
-        func_800207D4((u32 *)(D_800ACC14 + 0x70), (64 - D_800AC5D0) * 4, 69);
+        AddScreenFadeTiles((u32 *)(D_800ACC14 + 0x70), (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             D_8010C068 = 1;
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 41;
             D_800F4D8A = 0;
-            D_800FF688 = 0;
+            LinkState = 0;
         }
         break;
     case 5:
@@ -111,7 +111,7 @@ void ovl667_func_8011885C(void) {
             break;
         }
         D_800AC5D0 -= 2;
-        func_800207D4((u32 *)(D_800ACC14 + 0x70), (64 - D_800AC5D0) * 4, 69);
+        AddScreenFadeTiles((u32 *)(D_800ACC14 + 0x70), (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             group = -1;
             D_800F4D8A = 8;
@@ -120,9 +120,9 @@ void ovl667_func_8011885C(void) {
     case 6:
         group = -1;
         D_800AC5D0--;
-        func_800207D4((u32 *)(D_800ACC14 + 0x70), (64 - D_800AC5D0) * 4, 69);
+        AddScreenFadeTiles((u32 *)(D_800ACC14 + 0x70), (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
-            D_800F4C6A = 1;
+            ModeGroup = 1;
             D_800F3A26 = 3;
             D_800F4D8A = 0;
         }
@@ -133,19 +133,19 @@ void ovl667_func_8011885C(void) {
             return;
         }
         func_80053BB4(0);
-        D_800FF688 = 0;
+        LinkState = 0;
         D_800AC5D4 = (result - D_800AD508) * 2;
         ovl667_func_801161A8(D_800AC5D4);
-        D_800F4C6A = result;
+        ModeGroup = result;
         D_800F3A26 = 60;
         D_800F4D8A = 0;
         return;
     }
     UpdateScreenFade(0x1000C);
-    func_8003662C(D_800F2DE4);
+    func_8003662C(ModeFrame);
     if (group >= 0) {
         for (i = 0; i < 11; i++) {
-            func_80040858(i + group * 11);
+            UpdateMenuTextRow(i + group * 11);
         }
     }
     if ((u8)(MenuTextRows[0].bytes[2] - 3) < 5 || (u8)(MenuTextRows[11].bytes[2] - 3) < 5) {

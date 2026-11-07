@@ -85,25 +85,25 @@ extern short D_800ABED6[];
 extern short D_800ABEDC[];
 
 s32 func_80012578(void);
-s32 func_800125C8(void);
-s32 func_800125F8(void);
-s32 func_80012640(void);
+s32 CdFileStateGetTN(void);
+s32 CdFileStateReloadDirectory(void);
+s32 CdFileStateSetMode(void);
 s32 func_80012684(void);
-s32 func_800126F0(void);
-s32 func_80012740(void);
+s32 CdFileStateWaitShellClose(void);
+s32 CdFileStateSetloc(void);
 s32 func_80012774(void);
-s32 func_800127A0(void);
-s32 func_800127E8(void);
+s32 CdFileStateStartRead(void);
+s32 CdFileStateReadSync(void);
 void CdFileFinish(void);
-s32 func_80012860(void);
+s32 CdFileStateRetry(void);
 s32 CdFileReadStart(s32 a0, s32 a1);
 s32 CdFileReadRange(s32 a0, s32 a1, s32 a2, s32 a3);
 void RelocateOffsetTable(int *a0);
-void func_80012AB4(int *a0, int a1);
-void func_80012C7C(int *a0, int a1);
+void PatchModelBankTexPages(int *a0, int a1);
+void PatchOffsetTableTexPages(int *a0, int a1);
 int func_80012E94(int a0, int a1, int a2, int a3, int a4);
-void func_8001301C(struct A *a0, int a1);
-int func_80013514(int a0, int a1, int a2, int a3, int a4);
+void AllocCarSlotBuffers(struct A *a0, int a1);
+int RequestCarLoad(int a0, int a1, int a2, int a3, int a4);
 void SetupRenderer(s32 shift);
 int func_80013904(char *a0_in, int a1_in);
 
@@ -119,13 +119,13 @@ s32 func_80012578(void) {
     return var_v0;
 }
 
-s32 func_800125C8(void) {
+s32 CdFileStateGetTN(void) {
     CdControlF(0x13, 0);
     CdFileState = 2;
     return 0;
 }
 
-s32 func_800125F8(void) {
+s32 CdFileStateReloadDirectory(void) {
     if (CdFileSyncResult == 2) {
         LoadR4Directory();
         CdFileState = 3;
@@ -135,7 +135,7 @@ s32 func_800125F8(void) {
     return 0;
 }
 
-s32 func_80012640(void) {
+s32 CdFileStateSetMode(void) {
     D_80109498 = 0x80;
     CdControlF(0xE, &D_80109498);
     CdFileState = 4;
@@ -159,7 +159,7 @@ s32 func_80012684(void) {
     return 0;
 }
 
-s32 func_800126F0(void) {
+s32 CdFileStateWaitShellClose(void) {
     CdControlB(1, 0, &D_80109498);
     if (!(D_80109498 & 0x10)) {
         CdFileState = 1;
@@ -167,7 +167,7 @@ s32 func_800126F0(void) {
     return 0;
 }
 
-s32 func_80012740(void) {
+s32 CdFileStateSetloc(void) {
     CdControlF(2, &CdFileLocation);
     CdFileState = 7;
     return 0;
@@ -182,7 +182,7 @@ s32 func_80012774(void) {
     return 0;
 }
 
-s32 func_800127A0(void) {
+s32 CdFileStateStartRead(void) {
     if (CdRead(CdFileSectors, D_80109480, 0x80)) {
         CdFileState = 9;
     } else {
@@ -191,7 +191,7 @@ s32 func_800127A0(void) {
     return 0;
 }
 
-s32 func_800127E8(void) {
+s32 CdFileStateReadSync(void) {
     s32 r = CdReadSync(1, 0);
     if (r == 0) {
         CdFileState = 0xA;
@@ -207,7 +207,7 @@ void CdFileFinish(void) {
     CdFileBytesRead = CdFileSectors << 0xB;
 }
 
-s32 func_80012860(void)
+s32 CdFileStateRetry(void)
 {
     CdControlB(1, 0, &D_80109498);
     if (D_80109498 & 0x10) {
@@ -273,7 +273,7 @@ void RelocateOffsetTable(int *a0)
     }
 }
 
-void func_80012AB4(int *a0, int a1) {
+void PatchModelBankTexPages(int *a0, int a1) {
     int n = a0[0];
     char **list = (char **)(a0 + 3);
     int x = (a1 << 6) + 0x180;
@@ -326,7 +326,7 @@ void func_80012AB4(int *a0, int a1) {
     }
 }
 
-void func_80012C7C(int *a0, int a1) {
+void PatchOffsetTableTexPages(int *a0, int a1) {
     int n = a0[0];
     char *list = (char *)(a0 + 1);
     int x = (a1 << 6) + 0x180;
@@ -450,7 +450,7 @@ int func_80012E94(int a0, int a1, int a2, int a3, int a4)
     { int r; __asm__ volatile("" : "=r"(r) : "0"(0)); return r; }
 }
 
-void func_8001301C(struct A *a0, int a1)
+void AllocCarSlotBuffers(struct A *a0, int a1)
 {
     int s1;
     int a3, v1, t, u;
@@ -596,7 +596,7 @@ int SceneLoadStep(void)
     }
 }
 
-int func_80013514(int a0, int a1, int a2, int a3, int a4)
+int RequestCarLoad(int a0, int a1, int a2, int a3, int a4)
 {
     int r;
     register int p0 asm("$17") = a0;
@@ -622,7 +622,7 @@ int func_80013514(int a0, int a1, int a2, int a3, int a4)
 #define LoadCursor ((Resource *)LoadCursor)
 #define CarBoundsTable (*(void *(*)[])&CarBoundsTable)
 
-s32 func_800135BC(void) {
+s32 CarLoadStep(void) {
     s16 rect[4];
     void *s0;
     void *s1;
@@ -655,10 +655,10 @@ s32 func_800135BC(void) {
             RegisterModelBank(s0, D_80109444);
             /* ASM_BARRIER: preserve local-alloc priority of s0 ($s0) over s3 ($s3) */
             __asm__("" : : "r"(s0));
-            func_80012AB4(s0, D_80109444);
+            PatchModelBankTexPages(s0, D_80109444);
             D_80109468[D_80109444] = (s32)s1;
             RelocateOffsetTable(s1);
-            func_80012C7C(s1, D_80109444);
+            PatchOffsetTableTexPages(s1, D_80109444);
             rect[2] = 0x40;
             rect[1] = 0;
             rect[3] = 0x100;
@@ -668,7 +668,7 @@ s32 func_800135BC(void) {
         LoadImage(rect, s2);
         DrawSync(0);
         LoadCursor = s2;
-        func_8001301C(D_80109468[D_80109444], D_80109444);
+        AllocCarSlotBuffers(D_80109468[D_80109444], D_80109444);
         if (D_80109454 != 0) {
             func_80012E94(D_80109448, D_8010944C, D_80109450, D_80109454 - 1, D_80109444);
         }
@@ -681,7 +681,7 @@ s32 func_800135BC(void) {
 #undef LoadCursor
 #undef CarBoundsTable
 
-int func_800137B0(void) {
+int RequestVramImageLoad(void) {
     if (SceneLoadState != 0) return 0;
     return SceneLoadState = 1;
 }
@@ -690,7 +690,7 @@ int func_800137B0(void) {
 #define DrawSync ((int (*)())DrawSync)
 #define LoadImage ((int (*)())LoadImage)
 
-int func_800137D4(void) {
+int VramImageLoadStep(void) {
     short sp[4];
     switch (SceneLoadState) {
     case 1:

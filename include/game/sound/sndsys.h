@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80050978();
+int ComSlotSetupBank();
 
 #endif /* RR_GAME_SOUND_SNDSYS_H */

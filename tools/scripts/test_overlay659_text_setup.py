@@ -29,13 +29,13 @@ struct State {u32 guard[4];RrMenuSettings2C settings;RrMenuTextRow60 rows[48];
  RrMenuTextRow60 *published;s32 count,labels[34],local,frame;s16 flag,mode;u32 tail[4];};
 static struct World {struct State s;unsigned calls;struct {s32 service,a[5];u32 hash;} event[32];} actual,expected,initial,*w;
 static unsigned scenario,mutation;
-#define D_800AD4D8 w->s.settings
+#define SelectionState w->s.settings
 #define D_800FFC48 w->s.rows
 #define MenuTextRows w->s.published
 #define MenuTextRowCount w->s.count
 #define ovl659_result_labels w->s.labels
 #define ovl659_preview_timer w->s.local
-#define D_800F2DE4 w->s.frame
+#define ModeFrame w->s.frame
 #define MenuCursor w->s.flag
 #define MenuItemCount w->s.mode
 static s32 word(u32 value){s32 result;memcpy(&result,&value,4);return result;}
@@ -65,7 +65,7 @@ void SetMenuTextRow(s32 row,s32 position,s32 group,s32 mode,s32 label){
  values[0]=(u32)position;values[1]=(u32)group;values[2]=(u32)mode;values[3]=(u32)label;
  for(i=0;i<16;i++)w->s.rows[row].bytes[i]=(u8)(values[i/4]>>(8*(i%4)));
 }
-void func_8002AF8C(s32 a,s32 b,s32 c){event(4,a,b,c,0,0);}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){event(4,a,b,c,0,0);}
 ''' + reset + body + r'''
 static void reference(void){
  unsigned i;u32 bytes;s32 offset;
@@ -80,7 +80,7 @@ static void reference(void){
   SetMenuTextRow(i,i,0,0,w->s.labels[index]);
  }
  for(i=0;i<11;i++)SetMenuTextRow(i+33,i,2,0,w->s.labels[i+23]);
- func_8002AF8C(0,1,0);w->s.local=-2;w->s.frame=0;
+ SetMenuFrameOptions(0,1,0);w->s.local=-2;w->s.frame=0;
 }
 int main(void){
  unsigned i;

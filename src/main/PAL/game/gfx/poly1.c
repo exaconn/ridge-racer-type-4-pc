@@ -86,7 +86,7 @@ extern int SquareRoot0();
 extern int Atan2Table();
 extern short D_80107182;
 extern short D_80107184;
-extern struct { short m[3][3]; int t[3]; } D_800AD570;
+extern struct { short m[3][3]; int t[3]; } ColorMatrix;
 extern struct { short a, b, c, d; } D_800F38F8[];
 extern short *D_8010E790;
 extern unsigned char *D_8010E798;
@@ -174,7 +174,7 @@ void func_8007064C(void) {
 struct P *func_800706B8(struct P *a0) {
     
     int s1 = *(int *)(SCRATCHPAD + 0x4);
-    func_80095BB4(a0);
+    SetTile(a0);
     a0->a = 0x60;
     a0->c = 0x80;
     ((char *)a0)[4] = 0;
@@ -235,11 +235,11 @@ void func_8007080C(a0)
             m = m + t3;
             *(int *)(m + 0xE8) = s0;
             *(int *)(m + 0xF0) = 0;
-            func_80095BF4(s0);
+            SetLineG2(s0);
             s0 += 0x14;
             s1 = 1;
             do {
-                func_80095BF4(s0);
+                SetLineG2(s0);
                 CatPrim(s0 - 0x14, s0);
                 s1++;
                 s0 += 0x14;
@@ -444,12 +444,12 @@ void func_80070BA4(char *a0, int a1, int a2) {
                 if (s3 != s1->e8[DrawBufIndex]) s1->f0[DrawBufIndex] = s3 - 0x14;
                 else s1->f0[DrawBufIndex] = 0;
                 if (a1 < 2) {
-                    if (s1->c48[s2].c[0] * 16 > D_80107180[0]) D_800AD570.m[0][a1] = (short)s1->c48[s2].c[0] << 4;
-                    else D_800AD570.m[0][a1] = D_80107180[0];
-                    if (s1->c48[s2].c[1] * 16 > D_80107180[1]) D_800AD570.m[1][a1] = (short)s1->c48[s2].c[1] << 4;
-                    else D_800AD570.m[1][a1] = D_80107180[1];
-                    if (s1->c48[s2].c[2] * 16 > D_80107180[2]) D_800AD570.m[2][a1] = (short)s1->c48[s2].c[2] << 4;
-                    else D_800AD570.m[2][a1] = D_80107180[2];
+                    if (s1->c48[s2].c[0] * 16 > D_80107180[0]) ColorMatrix.m[0][a1] = (short)s1->c48[s2].c[0] << 4;
+                    else ColorMatrix.m[0][a1] = D_80107180[0];
+                    if (s1->c48[s2].c[1] * 16 > D_80107180[1]) ColorMatrix.m[1][a1] = (short)s1->c48[s2].c[1] << 4;
+                    else ColorMatrix.m[1][a1] = D_80107180[1];
+                    if (s1->c48[s2].c[2] * 16 > D_80107180[2]) ColorMatrix.m[2][a1] = (short)s1->c48[s2].c[2] << 4;
+                    else ColorMatrix.m[2][a1] = D_80107180[2];
                 }
             }
         }
@@ -457,9 +457,9 @@ void func_80070BA4(char *a0, int a1, int a2) {
         if (c != 0) {
             AddPrims(s7, s1->e8[DrawBufIndex], c);
         } else if (a1 < 2) {
-            D_800AD570.m[0][a1] = D_80107180[0];
-            D_800AD570.m[1][a1] = D_80107180[1];
-            D_800AD570.m[2][a1] = D_80107180[2];
+            ColorMatrix.m[0][a1] = D_80107180[0];
+            ColorMatrix.m[1][a1] = D_80107180[1];
+            ColorMatrix.m[2][a1] = D_80107180[2];
         }
         if (a1 < 2) {
             sp10[0] = (g[0] >> 2) - 0x8000;
@@ -538,7 +538,7 @@ void func_80071440(void) {
     e = D_8001133C;
     f = D_80011344;
     SetDispMask(0);
-    func_8001ECE8(0, 0, 0, 3);
+    SetupDrawDispEnvs(0, 0, 0, 3);
     VSyncThreshold = 0x80;
     D_8010E7A4 = 0;
 }

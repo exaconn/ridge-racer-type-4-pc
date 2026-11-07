@@ -13,7 +13,7 @@ void ovl662_func_80116690(void);
 void ovl662_func_80116808(void);
 void ovl662_func_80116960(void);
 void ovl662_func_8011512C(void);
-void func_800207D4(u32 *,s32,u32);
+void AddScreenFadeTiles(u32 *,s32,u32);
 void DrawUiRow(s32);
 void UpdateBadgeRowAnim(s32);
 void UpdateScreenFade(s32);

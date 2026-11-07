@@ -7,7 +7,7 @@ void ovl665_func_80114918(void)
     RrOverlay665VisualState *state;
     RrProjectionScratchPrefix *scratch;
     SetDispMask(0);
-    func_8001ECE8(0,0,0,2);
+    SetupDrawDispEnvs(0,0,0,2);
     state=&ovl665_D_80119768;
     func_80096434(state,160);
     state->lighting4C.matrix.signedHalves[6]=4500;
@@ -23,5 +23,5 @@ void ovl665_func_80114918(void)
     scratch->word08=0;scratch->word0C=0;scratch->word10=0;
     scratch->word18=0;scratch->word1C=0;scratch->word20=0;
     ResetScreenCounters();
-    D_800F4CA8=2;D_800F4C6A=2;D_800F3A26=2;D_800F4D8A=0;
+    D_800F4CA8=2;ModeGroup=2;D_800F3A26=2;D_800F4D8A=0;
 }

@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int func_8001EEE4();
+int InitDefaultTimeRecords();
 void func_8001F194(void);
 int func_8001F254();
 void func_8001F290(void);

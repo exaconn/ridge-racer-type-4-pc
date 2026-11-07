@@ -6,11 +6,11 @@
 
 extern int EnterCriticalSection();
 extern int ExitCriticalSection();
-extern int func_8009B9E4();
+extern int AddDrv();
 extern M2C_UNK D_800ABD50;
 M2C_UNK FlushCache();
 /* extern */
-M2C_UNK func_8009B9F4(M2C_UNK *);
+M2C_UNK DelDrv(M2C_UNK *);
 /* extern */
 extern M2C_UNK D_80012104;
 
@@ -22,7 +22,7 @@ void AddSIO(void) {
     s32 temp_s0;
 
     temp_s0 = EnterCriticalSection();
-    func_8009B9E4(&D_800ABD50);
+    AddDrv(&D_800ABD50);
     if (temp_s0 == 1) {
         ExitCriticalSection();
     }
@@ -35,7 +35,7 @@ void DelSIO(void) {
     s32 temp_s0;
 
     temp_s0 = EnterCriticalSection();
-    func_8009B9F4(&D_80012104);
+    DelDrv(&D_80012104);
     FlushCache();
     if (temp_s0 == 1) {
         ExitCriticalSection();

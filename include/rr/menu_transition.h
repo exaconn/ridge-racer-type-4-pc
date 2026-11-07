@@ -8,23 +8,23 @@
  * script position is reloaded after operations, which may replace the script. */
 typedef s32 (*RrMenuScriptOperation)(void);
 typedef void (*RrMenuSceneEntry)(void);
-extern RrMenuScriptOperation D_8009F840[];
-extern RrMenuSceneEntry D_8009F870[];
-extern s8 *D_8009F8D0[];
+extern RrMenuScriptOperation MenuScriptOps[];
+extern RrMenuSceneEntry MenuSceneEntries[];
+extern s8 *MenuScripts[];
 extern u16 D_800AD50A;
-extern s32 D_800F2DE4;
+extern s32 ModeFrame;
 extern s16 D_800F3A26;
-extern s8 D_800F3A2C;
-extern u16 D_800F4BE8,D_800F4C6A;
+extern s8 MenuScriptStep;
+extern u16 MenuScriptId,ModeGroup;
 extern s16 D_800F4D44;
-extern s8 D_800F4D7C;
+extern s8 LoadState;
 extern s16 D_800F4D8A;
 extern u16 D_800FFC10;
-int func_80035024();
+int UpdateLinkHandshake();
 s32 func_80059E40(s32);
 void func_8005CA14();
-s32 func_8005CA88(void);
+s32 IntroScriptStep(void);
 void SetDispMask(s32);
-void func_8003A544(void);
+void UpdateMenuScript(void);
 
 #endif

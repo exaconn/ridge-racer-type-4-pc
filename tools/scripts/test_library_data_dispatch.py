@@ -46,7 +46,7 @@ s32 getintr(void) {return test_poll();}
         if result.returncode:
             raise AssertionError(result.stderr.decode())
         cls.lib = C.CDLL(str(directory / 'dispatch.so'))
-        cls.function = cls.lib.func_8008DDAC
+        cls.function = cls.lib.CdCommandCallback
         cls.function.argtypes = []
         cls.function.restype = None
         cls.ports = (C.c_uint8 * 2).in_dll(cls.lib, 'test_ports')

@@ -11,7 +11,7 @@ void _spu_gcSPU(void) {
  register s32 i asm("$9");
  register s32 n;
  /* Merge adjacent free records, skipping deleted records. */
- n=D_800A48BC;i=0;
+ n=_spu_AllocLastNum;i=0;
  if(n>=0) {
   register u32 free_bit=0x80000000U;
   register u32 deleted=0x2FFFFFFFU;
@@ -59,7 +59,7 @@ void _spu_gcSPU(void) {
    cur++;i++;
   }while(i<=limit);
   /* Reload the last index after merging; the negative path skips this read. */
-  n=D_800A48BC;
+  n=_spu_AllocLastNum;
  }
  /* ASM_BARRIER: preserve the phase boundary and arithmetic schedule. */
  __asm__("" : : "r"(n));
@@ -74,7 +74,7 @@ void _spu_gcSPU(void) {
  }
  /* Exchange-sort live records by the numeric address. */
  {
-  register s32 limit=D_800A48BC;
+  register s32 limit=_spu_AllocLastNum;
   i=0;
   if(limit>=0) {
    register u32 end_bit=0x40000000U;
@@ -109,7 +109,7 @@ sort_loop:
     if(!check) {
      scaled=j*8;
      inner=cur;
-     bound=D_800A48BC;scan=(RrSpuAllocation *)((unsigned long)scaled+(unsigned long)base);
+     bound=_spu_AllocLastNum;scan=(RrSpuAllocation *)((unsigned long)scaled+(unsigned long)base);
 inner_loop:
       other=scan->address_flags;
       if(other&end_bit)goto inner_done;
@@ -128,14 +128,14 @@ inner_loop:
      if(j<=bound)goto inner_loop;
 inner_done:;
     }
-    limit=D_800A48BC;i++;cur++;
+    limit=_spu_AllocLastNum;i++;cur++;
     if(i<=limit)goto sort_loop;
 sort_done:;
   }
  }
  /* Move the terminal record to the first deleted slot. */
  {
-  register s32 last=D_800A48BC;
+  register s32 last=_spu_AllocLastNum;
   i=0;
   if(last>=0) {
    register u32 end_bit=0x40000000U;
@@ -153,18 +153,18 @@ compact_loop:
      u32 size;
      cur->address_flags=end->address_flags;
      size=end->size;
-     D_800A48BC=i;
+     _spu_AllocLastNum=i;
      cur->size=size;
      goto compact_done;
     }
 compact_next:
-    last=D_800A48BC;i++;cur++;
+    last=_spu_AllocLastNum;i++;cur++;
     if(i<=last)goto compact_loop;
 compact_done:;
   }
  }
  /* Fold trailing free records into the terminal record. */
- n=D_800A48BC;
+ n=_spu_AllocLastNum;
  i=(s32)((u32)n-1U);
  /* ASM_BARRIER: preserve the phase boundary and arithmetic schedule. */
  __asm__("" : "+r"(i));
@@ -190,11 +190,11 @@ tail_loop:
    flags=cur->address_flags;
    if(!(flags&free_bit))goto tail_done;
    address=flags&mask;
-   last=D_800A48BC;
+   last=_spu_AllocLastNum;
    address|=end_bit;
    cur->address_flags=address;
    size=cur->size;
-   D_800A48BC=i;
+   _spu_AllocLastNum=i;
    i--;
    cur->size=size+base[last].size;
    cur=(RrSpuAllocation *)((unsigned long)cur-sizeof(RrSpuAllocation));

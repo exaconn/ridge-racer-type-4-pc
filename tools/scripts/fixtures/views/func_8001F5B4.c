@@ -5,7 +5,7 @@
 
 #define AddPrim ((s32 (*)())AddPrim)
 
-#define func_80095B94 ((s32 (*)())func_80095B94)
+#define SetSprt ((s32 (*)())SetSprt)
 
 #define D_800ACC14 ((char *)D_800ACC14)
 
@@ -13,7 +13,7 @@
 
 #undef AddPrim
 
-#undef func_80095B94
+#undef SetSprt
 
 #undef D_800ACC14
 
@@ -24,7 +24,7 @@
 
 #define SetShadeTex ((void (*)())SetShadeTex)
 
-#define func_80095B94 ((void (*)())func_80095B94)
+#define SetSprt ((void (*)())SetSprt)
 
 #undef AddPrim
 
@@ -32,7 +32,7 @@
 
 #undef SetShadeTex
 
-#undef func_80095B94
+#undef SetSprt
 
 extern s32 SetSemiTrans();
 
@@ -71,7 +71,7 @@ int arg7;
       {
         x = D_8009ED38[c * 2] << 3;
         y = D_8009ED38[(c * 2) + 1] << 4;
-        func_80095B94(arg1);
+        SetSprt(arg1);
         if (h == 0)
         {
           SetShadeTex(arg1, 1);

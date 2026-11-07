@@ -16,14 +16,14 @@ void ovl668_func_801156FC(void) {
     if (next >= TrackNodeCount) {
         next = 0;
     }
-    func_80047610(&TrackNodes[idx], &TrackNodes[next], RaceContext.lateral49E, RaceContext.fraction49C, sp18);
+    InterpolateLanePointXYZ(&TrackNodes[idx], &TrackNodes[next], RaceContext.lateral49E, RaceContext.fraction49C, sp18);
     next = RaceContext.node498;
     idx = next - 1;
     RaceContext.position450[1] = (s32)((u32)sp18[1] - 120U);
     if (idx < 0) {
         idx += TrackNodeCount;
     }
-    func_80047610(&TrackNodes[idx], &TrackNodes[next], RaceContext.lateral49E, RaceContext.fraction49C, sp28);
+    InterpolateLanePointXYZ(&TrackNodes[idx], &TrackNodes[next], RaceContext.lateral49E, RaceContext.fraction49C, sp28);
     dx = (s32)(((u32)sp28[0] - (u32)sp18[0]) << 2);
     sp38[0] = dx;
     dz = (s32)(((u32)sp28[2] - (u32)sp18[2]) << 2);

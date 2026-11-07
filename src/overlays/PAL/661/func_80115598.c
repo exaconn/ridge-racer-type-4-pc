@@ -5,7 +5,7 @@ void ovl661_func_80115598(s32 mode) {
     RrProjectionScratchPrefix *scratch;
     void *arena;
     register s32 rotation __asm__("$2");
-    D_800F2DE4=0;
+    ModeFrame=0;
     ScreenFrame=0;
     MenuCursor=0;
     MenuItemCount=3;
@@ -76,7 +76,7 @@ void ovl661_func_80115598(s32 mode) {
     ovl661_D_80118440[1][1]=CountChoiceGlyphs(ovl661_D_80118458[1][1]);
     if(ovl661_D_80118440[mode&1][1]==0)ovl661_D_80118450[mode&1]=0;
     if(ovl661_D_8011844C[D_800AC5D4&1]>=ovl661_D_80118440[D_800AC5D4&1][ovl661_D_80118450[D_800AC5D4&1]])ovl661_D_8011844C[D_800AC5D4&1]=0;
-    UnpackChoiceGlyph((s8*)&D_800F4D98+D_800AC5D4*4,ovl661_D_80118458[D_800AC5D4&1][ovl661_D_80118450[D_800AC5D4&1]][ovl661_D_8011844C[D_800AC5D4&1]].glyph);
+    UnpackChoiceGlyph((s8*)&SelectionRows+D_800AC5D4*4,ovl661_D_80118458[D_800AC5D4&1][ovl661_D_80118450[D_800AC5D4&1]][ovl661_D_8011844C[D_800AC5D4&1]].glyph);
     D_800ACBD0[D_800AC5D4].first=ovl661_D_80118458[D_800AC5D4&1][ovl661_D_80118450[D_800AC5D4&1]][ovl661_D_8011844C[D_800AC5D4&1]].first;
     D_800ACBD0[D_800AC5D4].second=ovl661_D_80118458[D_800AC5D4&1][ovl661_D_80118450[D_800AC5D4&1]][ovl661_D_8011844C[D_800AC5D4&1]].second;
 }

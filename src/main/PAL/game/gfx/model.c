@@ -40,13 +40,13 @@ extern short D_800F4C58;
 extern int D_800F3820;
 extern s32 __fixdfsi(s64);
 extern s64 __floatsidf(s32);
-extern s32 func_8007E3B4(s64, s64);
-extern s64 func_8007E904(s64);
+extern s32 __ltdf2(s64, s64);
+extern s64 __negdf2(s64);
 extern void func_8005F0D0(s32, s32, s32, s32);
 extern void BuildRotMatrixZ(MATRIX *, s32);
 extern void BuildRotMatrixY(MATRIX *, s32);
 extern void BuildRotMatrixX(MATRIX *, s32);
-extern void func_8006EE3C(s32, void *, MATRIX *);
+extern void SetGteObjectTransform(s32, void *, MATRIX *);
 extern void MulMatrix0(void *, MATRIX *, MATRIX *);
 extern void MulMatrix(MATRIX *, MATRIX *);
 extern void MulMatrix2(MATRIX *, MATRIX *);
@@ -124,23 +124,23 @@ void SetFogNearFar(s32 a0, s32 a1, s32 a2) {
     d6 = __muldf3(a0_d2, a2_c);
     d4 = __divdf3(0x4170000000000000LL, __muldf3(d6, __subdf3(__divdf3(c1, d1), __divdf3(c1, d0))));
     t0 = __divdf3(d6, d0);
-    d2_out = __muldf3(t0, func_8007E904(d4));
+    d2_out = __muldf3(t0, __negdf2(d4));
     a2_c = 0x40DFFFC000000000LL;
     /* ASM_BARRIER: Load 0x40DFFFC000000000LL into $a2/$a3 before moving d4 to $a0/$a1. */
     __asm__("" : "=r"(a2_c) : "0"(a2_c), "r"(d2_out));
-    if (func_8007E2D4(d4, a2_c) > 0 || func_8007E3B4(d4, 0xC0E0000000000000LL) < 0) {
+    if (__gtdf2(d4, a2_c) > 0 || __ltdf2(d4, 0xC0E0000000000000LL) < 0) {
         /* ASM_BARRIER: Low word of $v0/$v1 return value for split argument setup. */
         register s32 v0_lo asm("$2");
         /* ASM_BARRIER: High word of $v0/$v1 return value for delay-slot move to $a1. */
         register s32 v1_hi asm("$3");
         /* ASM_BARRIER: Low word of $a0/$a1 argument. */
         register s32 a0_lo asm("$4");
-        if (func_8007E2D4(d4, 0LL) > 0) {
+        if (__gtdf2(d4, 0LL) > 0) {
             d4 = 0x40DFFFC000000000LL;
         } else {
             d4 = 0xC0E0000000000000LL;
         }
-        d2_out = __muldf3(t0, func_8007E904(d4));
+        d2_out = __muldf3(t0, __negdf2(d4));
         __adddf3(d2_out, __muldf3(d4, __divdf3(d6, d1)));
         /* ASM_BARRIER: Bind $v0/$v1 from __adddf3. */
         __asm__("" : "=r"(v0_lo), "=r"(v1_hi));
@@ -155,13 +155,13 @@ void SetFogNearFar(s32 a0, s32 a1, s32 a2) {
     c_max = 0x41DFFFFFFFC00000LL;
     /* ASM_BARRIER: Materialize INT_MAX double constant before argument setup. */
     __asm__ volatile("" : "=r"(c_max) : "0"(c_max) : "$4", "$5");
-    if (func_8007E2D4(d2_out, c_max) > 0) {
+    if (__gtdf2(d2_out, c_max) > 0) {
         d2_out = c_max;
     }
     c_min = 0xC1E0000000000000LL;
     /* ASM_BARRIER: Materialize INT_MIN double constant before argument setup. */
     __asm__ volatile("" : "=r"(c_min) : "0"(c_min) : "$4", "$5");
-    if (func_8007E3B4(d2_out, c_min) < 0) {
+    if (__ltdf2(d2_out, c_min) < 0) {
         d2_out = c_min;
     }
     r0 = __fixdfsi(d4);
@@ -296,52 +296,52 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
             v198[i + 3].vy += v198[2].vy;
             v198[i + 3].vz += v198[2].vz;
         }
-        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[0], &mD8[0]);
+        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[0], &mD8[0]);
         a1 = 1;
         G->col78 = 0x05000000;
         if (D_800F2FD8 >= 4) {
             a1 = 3;
         }
         func_8005F0D0(SCRATCHPAD, a1, 0, s5);
-        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[1], &mD8[1]);
+        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[1], &mD8[1]);
         G->col78 = 0x05000000;
         func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, arg6, s5);
-        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[2], &mD8[2]);
+        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[2], &mD8[2]);
         a1 = 1;
         G->col78 = 0x05000000;
         if (D_800F2FD8 >= 10) {
             a1 = 9;
         }
         func_8005F0D0(SCRATCHPAD, a1, 0, s5);
-        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[2], &mD8[3]);
+        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[2], &mD8[3]);
         a1 = 1;
         G->col78 = 0x05000000;
         if (D_800F2FD8 >= 7) {
             a1 = 6;
         }
         func_8005F0D0(SCRATCHPAD, a1, arg6, s5);
-        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[3], &mD8[4]);
+        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[3], &mD8[4]);
         a1 = 1;
         G->col78 = 0x05000000;
         if (D_800F2FD8 >= 9) {
             a1 = 8;
         }
         func_8005F0D0(SCRATCHPAD, a1, 0, s5);
-        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[4], &mD8[4]);
+        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[4], &mD8[4]);
         a1 = 1;
         G->col78 = 0x05000000;
         if (D_800F2FD8 >= 8) {
             a1 = 7;
         }
         func_8005F0D0(SCRATCHPAD, a1, 0, s5);
-        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[3], &mD8[5]);
+        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[3], &mD8[5]);
         a1 = 1;
         G->col78 = 0x05000000;
         if (D_800F2FD8 >= 6) {
             a1 = 5;
         }
         func_8005F0D0(SCRATCHPAD, a1, arg6, s5);
-        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[4], &mD8[5]);
+        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[4], &mD8[5]);
         a1 = 1;
         G->col78 = 0x05000000;
         if (D_800F2FD8 >= 5) {
@@ -374,14 +374,14 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         BuildRotMatrixZ(&m50, -S16(arg0, 0x84));
         MulMatrix(&mD8[1], &m50);
         MulMatrix2(&m10, &mD8[1]);
-        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[0], &mD8[0]);
+        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[0], &mD8[0]);
         a1 = 1;
         G->col78 = 0;
         if (D_800F2FD8 >= 4) {
             a1 = 3;
         }
         func_8005F0D0(SCRATCHPAD, a1, 0, s5);
-        func_8006EE3C((SCRATCHPAD + 0x7C), &v198[1], &mD8[1]);
+        SetGteObjectTransform((SCRATCHPAD + 0x7C), &v198[1], &mD8[1]);
         G->col78 = 0;
         func_8005F0D0(SCRATCHPAD, 1, arg6, s5);
     } else if (i < arg5) {
@@ -397,7 +397,7 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         BuildRotMatrixZ(&m50, -S32(arg0, 0x58));
         MulMatrix2(&m90, &m50);
         MulMatrix2((MATRIX *)SCRATCH_ROT_MATRIX, &m50);
-        func_8006EE3C((SCRATCHPAD + 0x7C), arg0 + 0x20, &m50);
+        SetGteObjectTransform((SCRATCHPAD + 0x7C), arg0 + 0x20, &m50);
         a1 = 1;
         G->col78 = 0;
         if (D_800F2FD8 >= 3) {

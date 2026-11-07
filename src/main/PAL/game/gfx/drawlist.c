@@ -106,9 +106,9 @@ struct P { union H h; int w[4]; };
 
 struct OT { int x; union H h; };
 
-extern int func_800207D4();
+extern int AddScreenFadeTiles();
 extern int ClearScreenOverlayState();
-extern int func_80032A14();
+extern int UpdateDialogue();
 extern int ResetScreenCounters();
 extern int InitMenuArenas();
 extern int func_8003B934();
@@ -126,10 +126,10 @@ extern struct HS *BadgeRows;
 extern struct KS *D_800AC590;
 extern short D_800AC5D0;
 extern char *LoadCursor;
-extern char D_800ACC68;
+extern char ScreenFadeState;
 extern short D_800F3A26;
-extern short D_800F4BE8;
-extern short D_800F4C6A;
+extern short MenuScriptId;
+extern short ModeGroup;
 extern int D_800F4CA8;
 extern short D_800F4D8A;
 extern short D_8009E4EC;
@@ -235,12 +235,12 @@ block_4:
         goto block_6;
     }
     D_800F4CA8 = 0;
-    D_800F4BE8 = 1;
-    D_800F4C6A = 1;
+    MenuScriptId = 1;
+    ModeGroup = 1;
     D_800F3A26 = 0x23;
     D_800F4D8A = 0;
 block_6:
-    func_800207D4(D_800ACC14 + 0x70, D_800AC5D0, 0x45);
+    AddScreenFadeTiles(D_800ACC14 + 0x70, D_800AC5D0, 0x45);
     D_800AC5D0 = (u16) D_800AC5D0 + 4;
     goto block_9;
 block_7:
@@ -256,7 +256,7 @@ block_9:
 case 0x0:
     LoadCursor = CdDirectoryBuffer;
     ClearScreenOverlayState();
-    D_800ACC68 = 2;
+    ScreenFadeState = 2;
     InitMenuArenas();
     ResetScreenCounters();
     D_800F4CA8 = 4;
@@ -1316,7 +1316,7 @@ block_247:
     H->s2 = 1;
     UpdateBadgeRowAnim(0);
     K->b4 = 0U;
-    func_80032A14(H->s4 + 0xA, H->s6 + 0x28, D_800AC590);
+    UpdateDialogue(H->s4 + 0xA, H->s6 + 0x28, D_800AC590);
     UpdateScreenFade(0x1001C);
 block_248:
     return;

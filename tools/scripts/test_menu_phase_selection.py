@@ -6,7 +6,7 @@ from unicorn.mips_const import *
 P=Path(__file__).resolve().parent
 ROOT=next(p for p in P.parents if (p/'tools/scripts/cc.sh').is_file())
 SOURCE=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else ROOT/'tools/scripts/fixtures/views/func_8002F5BC.c'
-source=SOURCE.read_text();body=source[source.index('void func_8002F5BC'):]
+source=SOURCE.read_text();body=source[source.index('void SetNextModeByGameType'):]
 fixture='''#include "types.h"
 #include <string.h>
 static union { unsigned int align; unsigned char b[16]; } phase,menu,aux;
@@ -42,7 +42,7 @@ with TemporaryDirectory(prefix='rr2f5bc-') as td:
   for r in range(UC_MIPS_REG_1,UC_MIPS_REG_31+1):u.reg_write(r,(0xA5A50000+i*31+r)&0xffffffff)
   u.reg_write(UC_MIPS_REG_SP,0x80300000);u.reg_write(UC_MIPS_REG_RA,0x802F0000)
   u.emu_start(0x8002F5BC,0x802F0000,count=200);assert u.reg_read(UC_MIPS_REG_PC)==0x802F0000
-  lib.func_8002F5BC();lib.capture(out)
+  lib.SetNextModeByGameType();lib.capture(out)
   actual=b''.join(bytes(u.mem_read(a,16)) for a in addresses)
   assert out.raw==actual==bytes(expected),(value,out.raw.hex(),actual.hex(),expected.hex())
  result={'source':str(SOURCE),'source_sha256':hashlib.sha256(SOURCE.read_bytes()).hexdigest(),'cases':count,'all_s16_inputs':count==65536,'engine':'compiled' if os.getenv('RR_COMPILED_ELF') else 'original','independent_expected_ids':expected_ids,'guards':'complete16B ownersaround each2B scalar','source_bounds':'no indexed memory or arithmetic domain restrictions'}

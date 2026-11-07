@@ -16,26 +16,26 @@ extern void *LoadCursor;
 extern short D_800AD520;
 extern short D_800F3914;
 
-int func_8004E260()
+int LoadTrackStep()
 {
     int r;
     int r2;
     int r3;
     switch (D_800A021C) {
     case 0:
-        r = CdFileReadStart(GetR4FileIndex(2, D_800F3914 + 0x16), D_8010C1F0);
+        r = CdFileReadStart(GetR4FileIndex(2, D_800F3914 + 0x16), RaceLoadCursor);
         if (r == 0) goto out;
         goto inc;
     case 1:
         r2 = CdFileBytesLoaded();
         if (r2 != 0) {
-            LoadTrackResource((RrTrackResourceFile *)D_8010C1F0);
-            D_8010C1F0 += AlignUp4(r2);
+            LoadTrackResource((RrTrackResourceFile *)RaceLoadCursor);
+            RaceLoadCursor += AlignUp4(r2);
             D_800A021C += 1;
         }
         break;
     case 2:
-        r3 = func_8004D628(D_800F3914, D_800AD520, D_800ABEC8);
+        r3 = LoadCarSpecStep(D_800F3914, D_800AD520, D_800ABEC8);
         goto chk;
     case 3:
         r3 = func_8004D994(D_800F3914, D_800AD520);
@@ -47,7 +47,7 @@ int func_8004E260()
         break;
     case 4:
         D_800A021C = 0;
-        LoadCursor = D_8010C1F0;
+        LoadCursor = RaceLoadCursor;
         return 1;
     }
     r = 0;
@@ -56,7 +56,7 @@ out:
 }
 
 int func_8004E3B0(int i) {
-    T *base = D_800F4D98;
+    T *base = SelectionRows;
     T *t = base + i;
     int r = 0;
     if (t->c != 0x27) {

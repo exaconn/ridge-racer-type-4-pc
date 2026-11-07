@@ -31,7 +31,7 @@ void ovl665_func_801151A4(void) {
         openingTimer = (u16) D_800AC5D0 - 1;
         if (signedTimer > 0) {
             D_800AC5D0 = openingTimer;
-            func_800207D4(&((RrFrameOrderingPrefix *)(void *)D_800ACC14)->ordering70[702], (s32)openingTimer*4, 0x45);
+            AddScreenFadeTiles(&((RrFrameOrderingPrefix *)(void *)D_800ACC14)->ordering70[702], (s32)openingTimer*4, 0x45);
         }
         func_8005B2D4(1);
         if (UiRows[0].byte14 == 2) {
@@ -51,7 +51,7 @@ void ovl665_func_801151A4(void) {
             PlaySfx(1);
             UiRows[ovl665_D_80119768.exit34.word].cells[0] = 1;
             ovl665_D_80119768.layout0C = (s32) (ovl665_D_80119768.exit34.word + 3);
-            func_8002AF8C(1, 1, 0);
+            SetMenuFrameOptions(1, 1, 0);
             row = 0;
         } else {
             if (D_800F3A38[0].b != 0) {
@@ -68,12 +68,12 @@ void ovl665_func_801151A4(void) {
             UiRows[4].cells[0] = musicState;
             StepMenuValue(1, -1, (char *)&Options.bytes[0x30], 0x11, 0);
             ovl665_D_80119754 = (s32) Options.bytes[0x30];
-            func_80053A9C(D_800F7640);
+            SeqSetVolume(D_800F7640);
             if (D_800F3A60 != 0) {
                 PlaySfx(1);
                 UiRows[4].cells[0] = 1U;
                 ovl665_D_80119768.layout0C = 7U;
-                func_8002AF8C(1, 1, 1);
+                SetMenuFrameOptions(1, 1, 1);
             }
         }
         DrawUiRow(4);
@@ -89,7 +89,7 @@ void ovl665_func_801151A4(void) {
                 PlaySfx(1);
                 UiRows[5].cells[0] = 1U;
                 ovl665_D_80119768.layout0C = 7U;
-                func_8002AF8C(1, 1, 1);
+                SetMenuFrameOptions(1, 1, 1);
             }
         }
         DrawUiRow(5);
@@ -105,7 +105,7 @@ void ovl665_func_801151A4(void) {
                 PlaySfx(1);
                 UiRows[Options.audio.mono32+6].cells[0] = 1;
                 ovl665_D_80119768.layout0C = 7U;
-                func_8002AF8C(1, 1, 1);
+                SetMenuFrameOptions(1, 1, 1);
                 SetCdMixMode(Options.audio.mono32);
             }
         }
@@ -162,7 +162,7 @@ void ovl665_func_801151A4(void) {
     case 9:
         closingTimer = (u16) D_800AC5D0 - 1;
         D_800AC5D0 = closingTimer;
-        func_800207D4(&((RrFrameOrderingPrefix *)(void *)D_800ACC14)->ordering70[0], (0x40 - closingTimer) * 4, 0x45);
+        AddScreenFadeTiles(&((RrFrameOrderingPrefix *)(void *)D_800ACC14)->ordering70[0], (0x40 - closingTimer) * 4, 0x45);
         row = 0;
         if (D_800AC5D0 <= 0) {
             ovl665_func_80114A24();

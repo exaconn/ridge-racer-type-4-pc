@@ -1,6 +1,6 @@
 typedef struct { char pad[0x320]; } E;
 
-extern int func_800373DC();
+extern int InitCarTable();
 
 extern int InitPlayerCar();
 
@@ -18,7 +18,7 @@ extern int D_800ABEC4;
 
 extern short NumCars;
 
-extern signed char D_800ABEBC[];
+extern signed char LinkEntryState[];
 
 extern int CarTable[];
 
@@ -28,7 +28,7 @@ extern short D_80107178;
 
 extern int SavedRaceState;
 
-extern int D_800F4C64;
+extern int TotalRaceTime;
 
 void InitRaceCars(int a0)
 {
@@ -36,7 +36,7 @@ void InitRaceCars(int a0)
     signed char *s3;
     int *s0;
     D_800AC3FC = 0;
-    func_800373DC();
+    InitCarTable();
     D_800ABEC4 = 0;
     switch (a0) {
     case 0:
@@ -67,7 +67,7 @@ void InitRaceCars(int a0)
         s1 = 0;
         s2 = 0;
         if (NumCars > 0) {
-            s3 = D_800ABEBC;
+            s3 = LinkEntryState;
             s0 = CarTable;
             do {
                 if (*(signed char *)(s1 + (int)s3) == 1) {
@@ -99,5 +99,5 @@ void InitRaceCars(int a0)
         func_800293D0(0, 0);
         break;
     }
-    D_800F4C64 = 0;
+    TotalRaceTime = 0;
 }

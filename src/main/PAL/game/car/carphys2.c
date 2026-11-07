@@ -128,13 +128,13 @@ extern s32 rcos();
 extern s32 TrackNodeCount;
 extern char PlayerCars[];
 extern E *CarBoundsTable[];
-extern int D_800F2DE4;
+extern int ModeFrame;
 
 void SteerCarTowardTrack(void *arg0);
 int GetTrackTargetHeading(struct A *a);
-void func_80024CD8(C *c);
-void func_800252EC(C_1 *c0);
-void func_80025954();
+void StepCarStateNormal(C *c);
+void StepCarStateSlide(C_1 *c0);
+void StepCarStateSpinOut();
 int LerpAngle12(int a0, int a1, int a2);
 
 void SteerCarTowardTrack(void *arg0) {
@@ -205,7 +205,7 @@ int GetTrackTargetHeading(struct A *a)
 /* legacy typing of shared globals in this part of the unit */
 #define AngleDiffSigned ((int (*)())AngleDiffSigned)
 
-void func_80024CD8(C *c) {
+void StepCarStateNormal(C *c) {
     D *d;
     T *t;
     int s2;
@@ -397,7 +397,7 @@ void func_80024CD8(C *c) {
 /* legacy typing of shared globals in this part of the unit */
 #define AngleDiffSigned ((int (*)())AngleDiffSigned)
 
-void func_800252EC(C_1 *c0) {
+void StepCarStateSlide(C_1 *c0) {
     register C_1 *c __asm__("$18"); /* ASM_BARRIER: match saved reg assignment of original */
     D_1 *d;
     short *s6;
@@ -544,7 +544,7 @@ void func_800252EC(C_1 *c0) {
 #define CarBoundsTable (*(int *(*)[])&CarBoundsTable)
 #define AngleDiffSigned ((int (*)())AngleDiffSigned)
 
-void func_80025954(a0) P *a0; {
+void StepCarStateSpinOut(a0) P *a0; {
     Q *q = (Q *)((char *)a0 + 0x1F4);
     int t, a1, a2, a3, v;
     int s0, s2;
@@ -569,7 +569,7 @@ void func_80025954(a0) P *a0; {
             a3 = q->s24;
             if (*((unsigned char *)CarBoundsTable[a3] + 0xA) == 1) a2 = 0;
             func_80050E94(1, 0x1A80, a2, a3 & 1);
-            func_8004B7E0(q->s24 & 1, 2, 1);
+            PadStartPulse(q->s24 & 1, 2, 1);
         }
         q->s74 = q->s74 - 0x30;
         q->s74 = q->s74 - q->sAE * 2;
@@ -592,10 +592,10 @@ void func_80025954(a0) P *a0; {
             int y;
             y = q->s74;
             x = y >> 10;
-            c = (unsigned)(D_800F2DE4 & 3) < 2;
+            c = (unsigned)(ModeFrame & 3) < 2;
             y = q->s9C;
             if (c) y = y - x; else y = y + x;
-            z = D_800F2DE4 & 1;
+            z = ModeFrame & 1;
             q->s9C = y;
             u = a0->sE4;
             if (z) u += 0x10;
@@ -613,7 +613,7 @@ void func_80025954(a0) P *a0; {
         q->sA4 = 0;
         if ((char *)a0 == PlayerCars || (char *)a0 == PlayerCars + 0x320) {
             func_80050E94(0, 0, 0, q->s24 & 1);
-            func_8004B7E0(q->s24 & 1, 0, 1);
+            PadStartPulse(q->s24 & 1, 0, 1);
         }
     }
 }

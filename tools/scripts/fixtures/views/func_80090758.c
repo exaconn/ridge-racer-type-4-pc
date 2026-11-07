@@ -20,6 +20,6 @@ int a0;
         a = a0 << -(s * 2);
     }
     s -= 6;
-    if (s >= 0) return func_80090604(a) << s;
-    return func_80090604(a) >> -s;
+    if (s >= 0) return csqrt_1(a) << s;
+    return csqrt_1(a) >> -s;
 }

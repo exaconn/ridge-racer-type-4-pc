@@ -22,7 +22,7 @@ int _SsVmKeyOff(s32 a,s32 b,s32 c,u32 group) {
         do {
             u32 i=(u8)index;
             u32 offset;
-            if(D_800A48F8&(one<<i))goto next;
+            if(_snd_vmask&(one<<i))goto next;
             {
                 register u32 half=i*27;
                 offset=half*2;

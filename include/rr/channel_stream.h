@@ -22,7 +22,7 @@ typedef struct {
     u32 targetTempoAC;
 } RrChannelStreamB0;
 extern RrChannelStreamB0 *_ss_score[];
-void func_800833A0();
+void _SsSeqGetEof();
 void _SsSndNextSep(s32,s16);
 void _SsVmSeqKeyOff(s32);
 RR_ASSERT_SIZE(RrChannelStreamB0,0xB0);

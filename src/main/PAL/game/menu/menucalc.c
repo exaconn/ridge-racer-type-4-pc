@@ -22,26 +22,26 @@ extern struct
 {
   char pad[0x17];
   unsigned char v;
-} D_800AD4D8;
+} SelectionState;
 extern int AddTilePrim();
 extern int rsin();
 extern unsigned char D_8009F1EC[];
-extern int D_800F2DE4;
-extern int func_8002AF8C();
+extern int ModeFrame;
+extern int SetMenuFrameOptions();
 extern int InitBadgeRow();
 extern int UpdateBadgeRowAnim();
 extern int InitRect16Row();
 extern int DrawUiRow();
-extern int func_8003FAE4();
-extern int func_8003FBA8();
+extern int InitImageRow();
+extern int UpdateImageRow();
 extern short D_800F3A26;
-extern short D_800F4C6A;
+extern short ModeGroup;
 extern int D_800F4CA8;
 extern unsigned char *UiRows;
 extern short D_800F4D8A;
 extern s32 VSyncThreshold;
 extern s16 D_800AD50A;
-extern int func_800207D4();
+extern int AddScreenFadeTiles();
 extern int ResetScreenCounters();
 extern int PlaySfx();
 extern int func_80053AF4();
@@ -52,7 +52,7 @@ extern struct { char pad[1]; signed char b1; } *D_800F2AB0;
 extern struct { char pad[8]; unsigned short h8; char pad2[0x1E]; int w28; } D_800F3A38;
 extern struct { char pad[0x10]; short h10; char pad2[10]; } *BadgeRows;
 extern int D_800F4D74;
-extern struct { char pad[6]; signed char b6; char pad2[0xF]; short h16; } *D_800FF68C;
+extern struct { char pad[6]; signed char b6; char pad2[0xF]; short h16; } *Dialogue;
 
 int func_80030D9C(int x, int a1);
 int func_80030F64(int a0, int a1);
@@ -81,7 +81,7 @@ int func_80030D9C(int x, int a1)
     {
       s2 = 0;
     }
-    s0 = ((signed char) D_800AD4D8.v) >> 1;
+    s0 = ((signed char) SelectionState.v) >> 1;
     if (s0 >= 3)
     {
       s0 = 2;
@@ -96,7 +96,7 @@ int func_80030D9C(int x, int a1)
       a = s0;
       if (i == 1)
       {
-        s0 = ((signed char) D_800AD4D8.v) + 3;
+        s0 = ((signed char) SelectionState.v) + 3;
         a = s0;
       }
     }
@@ -106,7 +106,7 @@ int func_80030D9C(int x, int a1)
     {
       unsigned char *t;
       int b = D_8009F108[s0][4];
-      s0 = D_8009F1E4[(signed char) D_800AD4D8.v] + 0x20;
+      s0 = D_8009F1E4[(signed char) SelectionState.v] + 0x20;
       new_var = D_8009F074;
       t = new_var[s0];
       x = AddSpriteWithDrawMode(D_800ACC14 + 0x70, x, b + 0x34, s3, t[2], t[3], t[0], t[1], 0x4A, 0x2E28, i, s2);
@@ -125,7 +125,7 @@ int func_80030F64(int a0, int a1) {
     do {
         s0 += D_8009F1EC[i];
         if (sel == i) {
-            v = rsin((D_800F2DE4 << 6) & 0xFC0) / 64 + 0xBF;
+            v = rsin((ModeFrame << 6) & 0xFC0) / 64 + 0xBF;
         } else if (i < sel) {
             v = 0x80;
         } else {
@@ -143,14 +143,14 @@ next:
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F2AB0 ((char *)D_800F2AB0)
-#define D_800F2DE4 (*(unsigned int (*))&D_800F2DE4)
+#define ModeFrame (*(unsigned int (*))&ModeFrame)
 #define BadgeRows ((short *)BadgeRows)
 
 void func_80031064(void)
 {
     int t;
-    if (D_800F2DE4 <= 0x7FFF) {
-        D_800F2DE4 += 1;
+    if (ModeFrame <= 0x7FFF) {
+        ModeFrame += 1;
     }
     UpdateScreenFade(0x1000B);
     if (BadgeRows[8] >= 4) {
@@ -160,34 +160,34 @@ void func_80031064(void)
         DrawUiRow(0);
     }
     if (((signed char *)D_800F2AB0)[1] >= 3) {
-        func_8003FBA8(0);
+        UpdateImageRow(0);
     }
-    if (D_800F2DE4 >= 3) {
+    if (ModeFrame >= 3) {
         D_800F4CA8 = 1;
         t = func_8003B588();
         if (t == 1) {
             if (func_8003D108(3) == 3) {
-                D_800F2DE4 = 0;
+                ModeFrame = 0;
                 InitBadgeRow(0, 0xC, 0x130, 0x128, 0x6C, 0, 0);
                 InitRect16Row(0, 0x10, 0x48, 0x120, 0x120, 0, 0);
-                func_8003FAE4(0, -1, 0, 0);
-                D_800F4C6A = t;
+                InitImageRow(0, -1, 0, 0);
+                ModeGroup = t;
                 D_800F3A26 = 0xC;
                 D_800F4D8A = 0;
             }
         }
     } else {
-        func_8002AF8C(0, 1, 0);
+        SetMenuFrameOptions(0, 1, 0);
     }
 }
 
 #undef D_800F2AB0
-#undef D_800F2DE4
+#undef ModeFrame
 #undef BadgeRows
 
 void func_800311FC(void) {
-    func_8001ECE8(0, 0, 0, 2);
-    D_800F2DE4 = 0;
+    SetupDrawDispEnvs(0, 0, 0, 2);
+    ModeFrame = 0;
     VSyncThreshold = 0x80;
     D_800AD50A = 0x10C;
 }
@@ -199,30 +199,30 @@ void func_80031244(void) {
     int s0;
     void *tab;
     int a1;
-    D_800F2DE4 += 1;
+    ModeFrame += 1;
     ScreenFrame += 1;
-    if (func_8003FBA8(0) > 0) {
-        func_8003189C();
+    if (UpdateImageRow(0) > 0) {
+        UpdateDialoguePanel();
     }
-    func_80031CE4();
-    if (D_800FF68C->b6 == 4 || (D_800F3A40 & 0x800)) {
-        s0 = BadgeRows[D_800FF68C->h16].h10;
+    UpdateDialogueBox();
+    if (Dialogue->b6 == 4 || (D_800F3A40 & 0x800)) {
+        s0 = BadgeRows[Dialogue->h16].h10;
         if (s0 == 3) {
             if (D_800F3A38.w28 != 0 || (D_800F3A38.h8 & 0x800)) {
                 PlaySfx(1);
-                func_8002AF8C(0, 1, 0);
+                SetMenuFrameOptions(0, 1, 0);
                 tab = BadgeRows;
-                ((typeof(BadgeRows))tab)[D_800FF68C->h16].h10 = 4;
+                ((typeof(BadgeRows))tab)[Dialogue->h16].h10 = 4;
                 D_800F2AB0->b1 = s0;
                 D_800AC5D0 = 0;
-                if (D_800F4C5C == 0x10F || D_800F4C5C == 0x12A || D_800F4C5C == 0x205) {
+                if (PendingModeId == 0x10F || PendingModeId == 0x12A || PendingModeId == 0x205) {
                     D_800AC5D0 = 0x40;
                     ResetScreenCounters(tab);
                     LoadCursor = D_800F4D74;
                     func_8003B398(0);
                     func_80053AF4(0, (short)(D_800AC5D0 - 4));
                     D_800F4D8A = 1;
-                } else if (D_800F4C5C == 0x111) {
+                } else if (PendingModeId == 0x111) {
                     D_800AC5D0 = 0x40;
                     func_80053AF4(0, 0x3C);
                     D_800F4D8A = 1;
@@ -234,32 +234,32 @@ void func_80031244(void) {
         if ((short)D_800AC5D0 > 0) {
             D_800AC5D0 -= 1;
         }
-        func_800207D4(D_800ACC14 + 0x70, (0x40 - (short)D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - (short)D_800AC5D0) * 4, 0x45);
     }
-    if (BadgeRows[D_800FF68C->h16].h10 == 0xB) {
+    if (BadgeRows[Dialogue->h16].h10 == 0xB) {
         if (D_800F2AB0->b1 == 5) {
-            if (D_800F4C5C == 0x10F || D_800F4C5C == 0x12A) {
+            if (PendingModeId == 0x10F || PendingModeId == 0x12A) {
                 if (func_8003B398(1) != 1) goto done;
                 func_80053CB0();
             if ((short)D_800AC5D0 <= 0) {
-                unsigned c = D_800F4C5C;
+                unsigned c = PendingModeId;
                 D_800F4D8A = 0;
-                D_800F4C6A = c >> 8;
+                ModeGroup = c >> 8;
                 D_800F3A26 = c & 0xFF;
             }
-            } else if (D_800F4C5C == 0x205) {
+            } else if (PendingModeId == 0x205) {
                 func_80053CB0();
             if ((short)D_800AC5D0 <= 0) {
-                unsigned c = D_800F4C5C;
+                unsigned c = PendingModeId;
                 D_800F4D8A = 0;
-                D_800F4C6A = c >> 8;
+                ModeGroup = c >> 8;
                 D_800F3A26 = c & 0xFF;
             }
             } else {
             if ((short)D_800AC5D0 <= 0) {
-                unsigned c = D_800F4C5C;
+                unsigned c = PendingModeId;
                 D_800F4D8A = 0;
-                D_800F4C6A = c >> 8;
+                ModeGroup = c >> 8;
                 D_800F3A26 = c & 0xFF;
             }
             }

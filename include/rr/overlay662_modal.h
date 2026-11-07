@@ -4,7 +4,7 @@
 #include "rr/menu_text_state.h"
 #include "rr/tables.h"
 extern RrMenuItemState5C D_800F3A38[2];
-extern s16 D_800F3A26,D_800F4C6A,D_800F4D8A;
+extern s16 D_800F3A26,ModeGroup,D_800F4D8A;
 extern s32 ovl662_D_801272E8;
 /* Negative modes reset the first option index. Modes1/2/4/8 configure
  * navigation; other positive modes preserve state. Mode0 enters or operates

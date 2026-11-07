@@ -15,8 +15,8 @@ typedef struct {
     s32 arr[0xC8];
 } RrMenuTextState;
 extern RrMenuTextState *D_800AC590;
-void func_80032DF0(void *state);
-void func_80032A14(s32 x,s32 y,RrMenuTextState *state);
+void SkipDialoguePage(void *state);
+void UpdateDialogue(s32 x,s32 y,RrMenuTextState *state);
 RR_ASSERT_SIZE(RrMenuTextState,0x340);
 RR_ASSERT_OFFSET(RrMenuTextState,i18,0x18);
 RR_ASSERT_OFFSET(RrMenuTextState,arr,0x20);

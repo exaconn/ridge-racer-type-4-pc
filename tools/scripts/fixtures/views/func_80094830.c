@@ -17,23 +17,23 @@
 #undef D_800ABAB8
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC8 ((s32 *)D_800ABBC8)
+#define GPU_STATUS ((s32 *)GPU_STATUS)
 
-#undef D_800ABBC8
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC8 ((u32 *)D_800ABBC8)
-
-#undef D_800ABBC8
+#undef GPU_STATUS
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABBC4 ((int *)D_800ABBC4)
+#define GPU_STATUS ((u32 *)GPU_STATUS)
 
-#define D_800ABBC8 ((int *)D_800ABBC8)
+#undef GPU_STATUS
 
-#undef D_800ABBC4
+/* legacy typing of shared globals in this part of the unit */
+#define GPU_DATA ((int *)GPU_DATA)
 
-#undef D_800ABBC8
+#define GPU_STATUS ((int *)GPU_STATUS)
+
+#undef GPU_DATA
+
+#undef GPU_STATUS
 
 s32 _drs(RrGpuRectangle *arg0,u32 *arg1) {
     register RrGpuRectangle *rect=arg0;
@@ -82,7 +82,7 @@ s32 _drs(RrGpuRectangle *arg0,u32 *arg1) {
     __asm__("" : "+r"(quotient));
     scaled=quotient*16;
     remainder=count-scaled;
-    status_ptr=D_800ABBC8;
+    status_ptr=GPU_STATUS;
     blocks=quotient;
     status=*status_ptr;
     if(!(status&0x04000000U)){
@@ -92,21 +92,21 @@ s32 _drs(RrGpuRectangle *arg0,u32 *arg1) {
         mask=0x04000000U;
         do {
             if(get_alarm())return -1;
-        }while(!(*D_800ABBC8&mask));
+        }while(!(*GPU_STATUS&mask));
     }
-    *D_800ABBC8=0x04000000U;
-    *D_800ABBC4=0x01000000U;
-    *D_800ABBC4=0xC0000000U;
-    *D_800ABBC4=rect->words[0];
-    *D_800ABBC4=rect->words[1];
-    if(!(*D_800ABBC8&0x08000000U)) {
+    *GPU_STATUS=0x04000000U;
+    *GPU_DATA=0x01000000U;
+    *GPU_DATA=0xC0000000U;
+    *GPU_DATA=rect->words[0];
+    *GPU_DATA=rect->words[1];
+    if(!(*GPU_STATUS&0x08000000U)) {
         u32 mask;
         /* ASM_BARRIER: materialize the receive mask after its first status test. */
         __asm__("" : : : "$3");
         mask=0x08000000U;
         do {
             if(get_alarm())return -1;
-        }while(!(*D_800ABBC8&mask));
+        }while(!(*GPU_STATUS&mask));
     }
     {
         register s32 empty;
@@ -118,7 +118,7 @@ s32 _drs(RrGpuRectangle *arg0,u32 *arg1) {
             register s32 sentinel;
             sentinel=-1;
             do {
-                u32 word=*D_800ABBC4;
+                u32 word=*GPU_DATA;
                 remainder--;
                 *cursor++=word;
             }while(remainder!=sentinel);
@@ -128,21 +128,21 @@ s32 _drs(RrGpuRectangle *arg0,u32 *arg1) {
         register u32 dma_mode=0x04000000U;
         if(blocks){
             /* ASM_BARRIER: retain DMA register-address and word-count phases. */
-            register volatile u32 *port asm("$2")=D_800ABBC8;
+            register volatile u32 *port asm("$2")=GPU_STATUS;
             register u32 start;
             register volatile u32 *length_port;
             register u32 length asm("$2");
             dma_mode|=3U;
             *port=dma_mode;
-            port=D_800ABBCC;
+            port=DMA2_MADR;
             start=0x01000000U;
             /* DMA hardware consumes a 32-bit bus address word; keep CPU pointers full. */
             *port=(u32)(unsigned long)cursor;
             length=(u32)blocks<<16;
-            length_port=D_800ABBD0;
+            length_port=DMA2_BCR;
             length|=16U;
             *length_port=length;
-            port=D_800ABBD4;
+            port=DMA2_CHCR;
             start|=0x200U;
             *port=start;
         }

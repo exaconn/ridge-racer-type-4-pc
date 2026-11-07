@@ -64,7 +64,7 @@ publish:
         __asm__("" : "+r"(page));
         programs=*(RrSpuProgram **)((u8 *)page+offset+0x20);
     }
-    tones=*(u8 **)((u8 *)D_801100A8+offset);
+    tones=*(u8 **)((u8 *)_svm_vab_tn+offset);
     state=&D_80110101;
     state->bank=raw_bank;
     state->program=raw_program;

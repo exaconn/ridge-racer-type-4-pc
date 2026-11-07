@@ -2,13 +2,13 @@
 
 #include "rr/channels.h"
 
-extern u16 D_80110000;
+extern u16 _svm_okof1;
 
-extern u16 D_80110002;
+extern u16 _svm_okof2;
 
-extern u16 D_8010F8F8;
+extern u16 _svm_okon1;
 
-extern u16 D_8010F8FA;
+extern u16 _svm_okon2;
 
 extern u8 D_8010F925[];
 
@@ -32,27 +32,27 @@ void _SsVmKeyOffNow(s32 unused_mode) {
     offset = index * sizeof(RrChannelControlRow36);
     D_8010F925[offset] = 0;
     {
-        u32 low = D_80110000;
-        u32 high = D_80110002;
+        u32 low = _svm_okof1;
+        u32 high = _svm_okof2;
         *(u16 *)(D_8010F90C + offset) = 0;
         _svm_voice[index].value00 = 0;
         {
-            u32 pending = D_8010F8F8;
+            u32 pending = _svm_okon1;
             low |= low_mask;
-            D_80110000 = low;
-            D_8010F8F8 = pending & ~low;
+            _svm_okof1 = low;
+            _svm_okon1 = pending & ~low;
         }
         {
-            u32 pending = D_8010F8FA;
+            u32 pending = _svm_okon2;
             high |= high_mask;
-            D_80110002 = high;
+            _svm_okof2 = high;
             {
                 /* ASM_BARRIER: retain the original assembler temporary for the final mask store. */
                 register u16 *base __asm__("$1");
                 u32 result = pending & ~high;
                 /* ASM_BARRIER: finish mask arithmetic and state updates before materializing its address. */
                 __asm__ volatile("" : : "r"(result) : "$1", "memory");
-                /* PAL mapping: base[-0x706 / 2] is D_8010F8FA. */
+                /* PAL mapping: base[-0x706 / 2] is _svm_okon2. */
                 base = (u16 *)0x80110000U;
                 /* ASM_BARRIER: expose the final halfword store in the return delay slot. */
                 __asm__("" : "=r"(base) : "0"(base));

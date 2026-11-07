@@ -59,15 +59,18 @@ def hook(uc,a,size,data):
  uc.reg_write(UC_MIPS_REG_PC,uc.reg_read(UC_MIPS_REG_RA))
 for a,_ in services:u.hook_add(UC_HOOK_CODE,hook,begin=a,end=a)
 
+import rename_symbols as _RS
+_reg=_RS.registry()
+def D(a):return _reg.get(f'D_{a:08X}',f'D_{a:08X}')
 macros=''
-for i,a in enumerate(word_addresses):macros+=f'#define D_{a:08X} (((s32 *)active.words)[{i}])\n'
+for i,a in enumerate(word_addresses):macros+=f'#define {D(a)} (((s32 *)active.words)[{i}])\n'
 for i,a in enumerate(half_addresses):
  expr=f'active.half[{i}]' if i in [2,7] else f'((s16 *)active.half)[{i}]'
- macros+=f'#define D_{a:08X} ({expr})\n'
-for name,a in [('choices',0x80109478),('name',0x800A457C),('text',0x800F4D50),('stored',0x800F2E30),('snapshot',0x8010B258),('records',0x801272F0)]:macros+=f'#define D_{a:08X} (active.{name})\n'
+ macros+=f'#define {D(a)} ({expr})\n'
+for name,a in [('choices',0x80109478),('name',0x800A457C),('text',0x800F4D50),('stored',0x800F2E30),('snapshot',0x8010B258),('records',0x801272F0)]:macros+=f'#define {D(a)} (active.{name})\n'
 macros+='#define BadgeRows badgeRoot\n'
 functions=[]
-signatures=[('s32','func_80035024',['s32']),('s32','_sio_control',['s32','s32','unsigned long']),('void','SetDispMask',['s32']),('void','func_8001ECE8',['s32','s32','s16','u32']),('void','ClearScreenOverlayState',[]),('void','InitUiRow',['s32']*10),('void','func_80053BB4',['s32']),('void','InitBadgeRow',['s32','s32','s16','s32','u16','u16','u16']),('void','ResetScreenCounters',[]),('s32','func_8003B934',[]),('void','UpdateScreenFade',['s32']),('void','func_8002AF8C',['s32']*3)]
+signatures=[('s32','UpdateLinkHandshake',['s32']),('s32','_sio_control',['s32','s32','unsigned long']),('void','SetDispMask',['s32']),('void','SetupDrawDispEnvs',['s32','s32','s16','u32']),('void','ClearScreenOverlayState',[]),('void','InitUiRow',['s32']*10),('void','func_80053BB4',['s32']),('void','InitBadgeRow',['s32','s32','s16','s32','u16','u16','u16']),('void','ResetScreenCounters',[]),('s32','func_8003B934',[]),('void','UpdateScreenFade',['s32']),('void','SetMenuFrameOptions',['s32']*3)]
 for event,(ret,name,types) in enumerate(signatures,1):
  params=','.join(t+' a'+str(i) for i,t in enumerate(types)) or 'void'
  params+=',...' if name=='InitUiRow' else ''

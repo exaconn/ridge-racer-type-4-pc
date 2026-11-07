@@ -34,8 +34,8 @@ static struct World {
 #define D_800F4D70 world.slots
 #define CdDirectoryBuffer world.base
 #define LoadCursor world.active
-#define D_800F4D7C world.flag0
-#define D_800F3A2C world.flag1
+#define LoadState world.flag0
+#define MenuScriptStep world.flag1
 #define ScreenFrame world.counter
 ''' + reset + r'''
 static void event(struct World *w,s32 kind,s32 a,s32 b,s32 c,void *observed){
@@ -52,7 +52,7 @@ static void ui_effect(struct World *w,s32 a,s32 b,s32 c){
 static void finish_effect(struct World *w){event(w,4,0,0,0,w->active);w->counter=77;}
 void ResetScreenCounters(void){rr_real_reset();assert(world.flag0==0 && world.flag1==0 && world.counter==0);reset_effect(&world);}
 void InitMenuArenas(void){load_effect(&world);}
-void func_8002AF8C(s32 a,s32 b,s32 c){ui_effect(&world,a,b,c);}
+void SetMenuFrameOptions(s32 a,s32 b,s32 c){ui_effect(&world,a,b,c);}
 void ovl662_func_80116020(void){finish_effect(&world);}
 ''' + body + r'''
 static u32 seed=0x16148;

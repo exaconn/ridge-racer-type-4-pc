@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8008F248(void);
+void StCdInterrupt2(void);
 
 #endif /* RR_PSYQ_LIBCD_DSSTOP_H */

@@ -7,13 +7,13 @@
 #include "rr/selection_types.h"
 #include "rr/course_choice_types.h"
 #include "rr/projection_state.h"
-extern s32 D_800F2DE4,ScreenFrame;
+extern s32 ModeFrame,ScreenFrame;
 extern s16 MenuCursor,MenuItemCount,D_8010C0B8;
 extern u8 *CdDirectoryBuffer;
 extern RrMenuArenas D_800F4D70;
 extern void *LoadCursor,*D_800F4D40;
 extern RrRaceVehicle PlayerCars[2];
-extern RrSelectionRows D_800F4D98;
+extern RrSelectionRows SelectionRows;
 extern RrCourseChoice4 D_8010BFD8[2][2][9];
 extern s16 D_8010C0C0[2][2],D_8010C0D8[2],D_8010C0D0[2];
 void ResetScreenCounters(void);

@@ -6,7 +6,7 @@ extern void SetGeomOffset(s32,s32),SetGeomScreen(s32);
 
 extern void *SetDefDrawEnv(void *,s32,s32,s32,s32),*SetDefDispEnv(void *,s32,s32,s32,s32);
 
-void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags) {
+void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags) {
     /* ASM_BARRIER: keep flags in S0 until the arena replaces their dead value. */
     register u32 input asm("$16")=flags;
     /* ASM_BARRIER: retain red in the original saved register across environment helpers. */

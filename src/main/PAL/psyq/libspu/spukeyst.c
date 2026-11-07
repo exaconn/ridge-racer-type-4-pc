@@ -102,7 +102,7 @@ int _spu_init(s32 warm)
     i=0;
     /* ASM_BARRIER: Keep the clear loop indexed by its initialized row count. */
     __asm__("" : "+r"(i));
-    entry=D_8010EFB0;
+    entry=_spu_RQ;
     _spu_mem_mode=2;
     _spu_mem_mode_plus=3;
     _spu_mem_mode_unit=8;

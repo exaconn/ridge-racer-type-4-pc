@@ -100,7 +100,7 @@ s32 DeliverEvent(u32 counter,u32 mode) { return test_counter(counter,mode); }
         cls.integer_to_binary64 = getattr(cls.lib, '__floatsidf')
         cls.integer_to_binary64.argtypes = [C.c_int32]
         cls.integer_to_binary64.restype = C.c_uint64
-        cls.negate_binary64 = cls.lib.func_8007E904
+        cls.negate_binary64 = getattr(cls.lib, '__negdf2')
         cls.negate_binary64.argtypes = [C.c_uint64]
         cls.negate_binary64.restype = C.c_uint64
         cls.values = (Wide * 3).in_dll(cls.lib, 'test_values')

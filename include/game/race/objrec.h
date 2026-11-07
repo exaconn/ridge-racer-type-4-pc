@@ -1,7 +1,7 @@
 #ifndef RR_GAME_RACE_OBJREC_H
 #define RR_GAME_RACE_OBJREC_H
 
-/* Records of the object pools at D_8010ECB4 (0x2C bytes) and D_8010ECB0 (0x30 bytes). */
+/* Records of the object pools at TrackObjectStates (0x2C bytes) and TrackObjectDefs (0x30 bytes). */
 
 typedef struct {
     int f0;

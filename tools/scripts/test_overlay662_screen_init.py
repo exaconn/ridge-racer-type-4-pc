@@ -33,16 +33,16 @@ static unsigned scenario;
 #define D_800F2DE4 world.frame
 #define ScreenFrame world.word
 #define ovl662_D_801272D4 world.local
-#define D_800AC64A world.setting
-#define D_800AC5E0 world.style
+#define MenuCursor world.setting
+#define MenuItemCount world.style
 #define D_800F4D7C world.flag0
 #define D_800F3A2C world.flag1
 #define D_800F4C6A world.mode
 #define D_800F3A26 world.scene
 #define D_800F4D8A world.counter
 #define D_800F4D70 world.arenas
-#define D_800102F0 world.base
-#define D_800ACC18 world.published
+#define CdDirectoryBuffer world.base
+#define LoadCursor world.published
 #define D_800F4D40 world.resource
 '''+reset+body+r'''
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
@@ -57,17 +57,17 @@ static void event(struct World *w,const s32 a[10]){unsigned n=w->calls,j;Event *
  w->arenas.second=arenas[(scenario+n)%3]+n+9;
  w->published=arenas[(scenario+n+2)%3]+n+17;w->resource=arenas[(scenario+n+1)%3]+n+29;
 }
-void func_8003A1B4(void){s32 a[10]={0};
+void InitMenuArenas(void){s32 a[10]={0};
  assert(world.calls==0);assert(world.frame==0&&world.word==0&&world.local==0&&world.setting==0&&world.style==3);
  assert(world.flag0==0&&world.flag1==0);assert(world.arenas.second==world.base+0x2D000);
  event(&world,a);
 }
-void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};
+void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};
  assert(world.calls>=1&&world.calls<=3);if(world.calls==1)assert(world.published==world.arenas.second);event(&world,args);
 }
 void func_80037110(void){s32 a[10]={37110};assert(world.calls==4);event(&world,a);}
-void func_8003D228(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[10]={a,b,c,d,e,f,g};assert(world.calls==5);event(&world,args);}
-void func_80013890(s32 shift){s32 a[10]={shift};assert(world.calls==6);event(&world,a);}
+void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[10]={a,b,c,d,e,f,g};assert(world.calls==5);event(&world,args);}
+void SetupRenderer(s32 shift){s32 a[10]={shift};assert(world.calls==6);event(&world,a);}
 static void reference(void){s32 a[10]={0};unsigned n;
  expected.frame=expected.word=0;expected.local=expected.setting=0;expected.style=3;
  expected.flag0=expected.flag1=0;expected.arenas.second=expected.base+0x2D000;

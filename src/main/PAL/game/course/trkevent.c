@@ -4,7 +4,7 @@
 
 #include "rr/track_sample_types.h"
 
-s32 func_80054EF4(s32 key, s32 selection) {
+s32 LookupTrackEventPair(s32 key, s32 selection) {
     s32 lower = 0, upper, middle;
     RrTrackEventPair *entries;
     if (selection == 0) {
@@ -24,7 +24,7 @@ s32 func_80054EF4(s32 key, s32 selection) {
     return -1;
 }
 
-s32 func_80054FA4(const RrTrackEventEntry *entries, s32 count, s32 key) {
+s32 FindTrackEventIndex(const RrTrackEventEntry *entries, s32 count, s32 key) {
     s32 index = 0;
     s32 middle;
     s32 threshold;
@@ -41,7 +41,7 @@ s32 func_80054FA4(const RrTrackEventEntry *entries, s32 count, s32 key) {
     if (index == 0) goto notFound;
     index--;
     threshold = entries[index].threshold;
-    if (threshold == D_800ABECC - 1) {
+    if (threshold == TrackNodeCount - 1) {
         if (key >= 0) return index;
 notFound:
         return -1;
@@ -50,31 +50,31 @@ notFound:
     return -1;
 }
 
-s32 func_80055040(s32 key) {
-    s32 index = func_80054FA4(D_800AC650.lookupTables->table0, D_800AC650.lookupTables->count0, key);
-    if (index >= 0) return D_800AC650.lookupTables->table0[index].value.word;
+s32 LookupTrackEventTable0(s32 key) {
+    s32 index = FindTrackEventIndex(RaceContext.lookupTables->table0, RaceContext.lookupTables->count0, key);
+    if (index >= 0) return RaceContext.lookupTables->table0[index].value.word;
     return -1;
 }
 
-s32 func_800550A0(s32 key) {
-    s32 index = func_80054FA4(D_800AC650.lookupTables->table1, D_800AC650.lookupTables->count1, key);
-    if (index >= 0) return D_800AC650.lookupTables->table1[index].value.word;
+s32 LookupTrackEventTable1(s32 key) {
+    s32 index = FindTrackEventIndex(RaceContext.lookupTables->table1, RaceContext.lookupTables->count1, key);
+    if (index >= 0) return RaceContext.lookupTables->table1[index].value.word;
     return -1;
 }
 
-s32 func_80055100(s32 key) {
-    s32 index = func_80054FA4(D_800AC650.lookupTables->table2, D_800AC650.lookupTables->count2, key);
-    if (index >= 0) return D_800AC650.lookupTables->table2[index].value.word;
+s32 LookupTrackEventTable2(s32 key) {
+    s32 index = FindTrackEventIndex(RaceContext.lookupTables->table2, RaceContext.lookupTables->count2, key);
+    if (index >= 0) return RaceContext.lookupTables->table2[index].value.word;
     return -1;
 }
 
-s32 func_80055160(s32 key) {
-    s32 index = func_80054FA4(D_800AC650.lookupTables->table3, D_800AC650.lookupTables->count3, key);
-    if (index >= 0) return D_800AC650.lookupTables->table3[index].value.half;
+s32 LookupTrackEventTable3(s32 key) {
+    s32 index = FindTrackEventIndex(RaceContext.lookupTables->table3, RaceContext.lookupTables->count3, key);
+    if (index >= 0) return RaceContext.lookupTables->table3[index].value.half;
     return -1;
 }
 
-s32 func_800551C0(s32 key) {
+s32 LookupTrackEventPair2(s32 key) {
     RrLookupTables16 *tables = D_800ACBB8;
     s32 upper = tables->count2;
     RrTrackEventPair *entries = tables->table2;
@@ -89,14 +89,14 @@ s32 func_800551C0(s32 key) {
     return -1;
 }
 
-s32 func_80055250(s32 selection, s32 key) {
+s32 LookupTrackEvent(s32 selection, s32 key) {
     switch (selection) {
-    case 0: return func_80054EF4(key, 0);
-    case 1: return func_80054EF4(key, 1);
-    case 2: return func_80055040(key);
-    case 3: return func_800550A0(key);
-    case 4: return func_80055100(key);
-    case 5: return func_80055160(key);
-    case 6: return func_800551C0(key);
+    case 0: return LookupTrackEventPair(key, 0);
+    case 1: return LookupTrackEventPair(key, 1);
+    case 2: return LookupTrackEventTable0(key);
+    case 3: return LookupTrackEventTable1(key);
+    case 4: return LookupTrackEventTable2(key);
+    case 5: return LookupTrackEventTable3(key);
+    case 6: return LookupTrackEventPair2(key);
     }
 }

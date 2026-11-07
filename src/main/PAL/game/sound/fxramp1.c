@@ -5,13 +5,13 @@ extern struct {
     unsigned short h288C;
     short h288E;
     short h2890;
-} D_800F4DB8;
+} SoundState;
 extern int func_80053A9C();
 extern int func_80053CB0();
 
 void func_80053D24()
 {
-  int d = D_800F4DB8.h288A;
+  int d = SoundState.h288A;
   int t;
   int v;
   int from;
@@ -19,23 +19,23 @@ void func_80053D24()
   int to;
   if (d > 0)
   {
-    c = D_800F4DB8.h288C;
-    if (((short) D_800F4DB8.h288C) < d)
+    c = SoundState.h288C;
+    if (((short) SoundState.h288C) < d)
     {
       t = c + 1;
-      to = D_800F4DB8.h288E;
-      from = D_800F4DB8.h2890;
+      to = SoundState.h288E;
+      from = SoundState.h2890;
       v = (to - from) << 12;
       v = (v / d) * ((short) t);
-      D_800F4DB8.h288C = t;
+      SoundState.h288C = t;
       if (v < 0)
       {
         v += 0xFFF;
       }
       v = (v >> 12) + from;
-      func_80053A9C((short)v, &D_800F4DB8, from);
+      func_80053A9C((short)v, &SoundState, from);
       return;
     }
-    func_80053CB0(d, &D_800F4DB8);
+    func_80053CB0(d, &SoundState);
   }
 }

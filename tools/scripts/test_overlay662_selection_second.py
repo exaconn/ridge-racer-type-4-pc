@@ -27,9 +27,9 @@ static struct World {u32 guard[4];s16 selection;RrMenuChoice4 choice;u16 buttons
 #define D_800F4D99 world.choice.bytes[1]
 #define D_800F4D98 world.choice
 #define D_800F3A42 world.buttons
-#define D_8009FDA4 world.direction
-#define D_800F4D80 world.ui
-#define D_800F4D8C world.glyphs
+#define MenuStepDirection world.direction
+#define UiRows world.ui
+#define GlyphRows world.glyphs
 void TriggerSfx(s32 program,s32 level,s32 pan,s32 pitch,s32 voice);
 ''' + bridge + sound + body + r'''
 static u32 seed=0x15148;

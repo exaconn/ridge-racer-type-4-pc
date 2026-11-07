@@ -3,7 +3,7 @@
 Used to find out what a field *does* instead of guessing from the code: start the game paused,
         duckstation-regtest -frames 2000000 -ai-port 5555 -gdb 5556 -start-paused -console <disc>.cue
 then `AI` (advance/buttons/vram/pause/resume) and `GDB` (memory read/write, breakpoint + registers).
-Example: gdb_break_regs(g, 0x80027C54)[4] is the Car* passed to func_80027C54 in a race/demo;
+Example: gdb_break_regs(g, 0x80027C54)[4] is the Car* passed to FindWheelTrackNodes in a race/demo;
 poking Car.posX (+0x180000) moves car and camera to another place on the track, which is how
 Car.w0 was identified as a world coordinate.  Evidence from running the game, not from the EXE alone."""
 import socket,time,struct

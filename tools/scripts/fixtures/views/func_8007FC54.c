@@ -3,12 +3,12 @@
 #include "rr/spu.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A48C0 ((unsigned int *)D_800A48C0)
+#define _spu_memList ((unsigned int *)_spu_memList)
 
-#undef D_800A48C0
+#undef _spu_memList
 
-s32 func_8007FC54(u32 address) {
-    RrSpuAllocation *initial=D_800A48C0;
+s32 _SpuIsInAllocateArea(u32 address) {
+    RrSpuAllocation *initial=_spu_memList;
     RrSpuAllocation *p;
     u32 value;
     u32 skip=0x80000000U;

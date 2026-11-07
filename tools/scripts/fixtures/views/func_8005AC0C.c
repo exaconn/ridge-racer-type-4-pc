@@ -1,14 +1,14 @@
 #include "rr/game_motion.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(char (*)[])&D_800AC650)
+#define RaceContext (*(char (*)[])&RaceContext)
 
-#undef D_800AC650
+#undef RaceContext
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACA28 (*(int (*))&D_800ACA28)
+#define MotionController (*(int (*))&MotionController)
 
-#undef D_800ACA28
+#undef MotionController
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_80096434 ((int (*)())func_80096434)
@@ -16,26 +16,26 @@
 #undef func_80096434
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(struct { char pad[0x3D8]; struct Q_1 *q; } (*))&D_800AC650)
+#define RaceContext (*(struct { char pad[0x3D8]; struct Q_1 *q; } (*))&RaceContext)
 
-#undef D_800AC650
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ACA28 ((void *)D_800ACA28)
-
-#undef D_800ACA28
+#undef RaceContext
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACA28 ((void *)D_800ACA28)
+#define MotionController ((void *)MotionController)
 
-#undef D_800ACA28
+#undef MotionController
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACA28 ((void *)D_800ACA28)
+#define MotionController ((void *)MotionController)
 
-#undef D_800ACA28
+#undef MotionController
 
-void func_8005AC0C(RrMotionClock20 *clock) {
+/* legacy typing of shared globals in this part of the unit */
+#define MotionController ((void *)MotionController)
+
+#undef MotionController
+
+void UpdateMotionTrack(RrMotionClock20 *clock) {
     s16 counter, next;
     s32 start, code, delta, units;
     s32 rate;
@@ -48,7 +48,7 @@ void func_8005AC0C(RrMotionClock20 *clock) {
     RrMotionTrack44 *track;
     RrMotionControllerPrefix *controller;
 
-    controller = D_800ACA28;
+    controller = MotionController;
     track = &controller->track;
     if (track->disabled == 0) {
         switch (controller->track.state) {

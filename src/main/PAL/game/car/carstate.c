@@ -10,12 +10,12 @@
 #define U(o) (*(unsigned short *)(p + (o)))
 #define I(o) (*(int *)(p + (o)))
 
-extern int func_80025F84();
-extern int D_800AD504;
+extern int AngleDiffAbs();
+extern int ReplayState;
 
-void func_8002C328(char *p);
+void UpdateCarShake(char *p);
 
-void func_8002C1D4(a0, a1) int a0; RrRaceVehicle *a1; {
+void SetCarImpactState(a0, a1) int a0; RrRaceVehicle *a1; {
     int a2 = -1;
     int v1;
     register int av asm("$3"); /* ASM_BARRIER: abs copy */
@@ -29,7 +29,7 @@ void func_8002C1D4(a0, a1) int a0; RrRaceVehicle *a1; {
         a1->steerAngle1A2 = a1->steerInput1BA * 8;
         break;
     case 2:
-        v1 = func_80025F84((short)a1->trackAngle1EC, a1->rot54);
+        v1 = AngleDiffAbs((short)a1->trackAngle1EC, a1->rot54);
         goto L;
     case 8:
         v1 = 0x400;
@@ -50,7 +50,7 @@ void func_8002C1D4(a0, a1) int a0; RrRaceVehicle *a1; {
         }
         break;
     }
-    if (a1 == &D_800ABEF8[0] || a1 == &D_800ABEF8[1]) {
+    if (a1 == &PlayerCars[0] || a1 == &PlayerCars[1]) {
         if (a2 != -1) {
             func_8004B7E0(a1->playerFlags218 & 1, 2, a2);
         }
@@ -58,9 +58,9 @@ void func_8002C1D4(a0, a1) int a0; RrRaceVehicle *a1; {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEF8 (*(char (*)[])&D_800ABEF8)
+#define PlayerCars (*(char (*)[])&PlayerCars)
 
-void func_8002C328(char *p) {
+void UpdateCarShake(char *p) {
     int s1, s2, a1, v;
 
     if (B(0x1A4)) {
@@ -78,8 +78,8 @@ void func_8002C328(char *p) {
         s2 = (v * s1) / 2048;
         switch (B(0x1A4)) {
         case 1:
-            if (p == D_800ABEF8 || p == D_800ABEF8 + 0x320) {
-                if (D_800AD504 != 2 && B(0x1A5) == 0x1D) {
+            if (p == PlayerCars || p == PlayerCars + 0x320) {
+                if (ReplayState != 2 && B(0x1A5) == 0x1D) {
                     a1 = S(0x1BA) * 4;
                     if (a1 > 0x64) a1 = 0x64;
                     PlaySfxVolPan(0x28, (short)a1, 0x40, -1);
@@ -106,7 +106,7 @@ void func_8002C328(char *p) {
             break;
         }
     } else if (B(0x1A7)) {
-        if (p == D_800ABEF8 || p == D_800ABEF8 + 0x320) {
+        if (p == PlayerCars || p == PlayerCars + 0x320) {
             func_8004B7E0(I(0x218) & 1, 1, 1);
         }
         s1 = (short)U(0x1D8) >> 2;
@@ -119,10 +119,10 @@ void func_8002C328(char *p) {
         B(0x1A7) = B(0x1A7) - 1;
     } else {
         S(0x1B6) = 0;
-        if (p == D_800ABEF8 || p == D_800ABEF8 + 0x320) {
+        if (p == PlayerCars || p == PlayerCars + 0x320) {
             func_8004B7E0(I(0x218) & 1, 0, 1);
         }
     }
 }
 
-#undef D_800ABEF8
+#undef PlayerCars

@@ -24,7 +24,7 @@ s32 CdControl(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer
     register s32 state __asm__("$23");
     s32 terminal;
     table=D_800A6400;
-    saved=D_800A6488;
+    saved=CD_cbsync;
     /* ASM_BARRIER: Capture the saved callback before computing the selected metadata entry. */
     __asm__("" : "+r"(saved) : "r"(table) : "$2");
     offset=code*sizeof(*table);
@@ -33,14 +33,14 @@ s32 CdControl(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer
     __asm__("" : "=r"(state) : "0"(0));
     terminal=-1;
 loop:
-    D_800A6488 = 0;
+    CD_cbsync = 0;
     {
     /* ASM_BARRIER: Keep the command-1 comparison in the original temporary. */
     register s32 one __asm__("$8")=1;
     /* ASM_BARRIER: Retain the command-1 comparison value. */
     __asm__("" : "+r"(one));
     if (code != one) {
-        if (D_800A6494.bytes.status & 0x10) {
+        if (CD_status.bytes.status & 0x10) {
             s32 status_command=1;
             const u8 *parameter_zero;
             u8 *result_zero;
@@ -57,12 +57,12 @@ loop:
             if (CD_cw(2, parameters, result, 0) != 0) goto retry;
         }
     }
-    D_800A6488 = saved;
+    CD_cbsync = saved;
     if (CD_cw(command & 0xFF, parameters, result, 0) == 0) goto done;
 retry:
     remaining--;
     if (remaining != terminal) goto loop;
-    D_800A6488 = saved;
+    CD_cbsync = saved;
     state = -1;
 done:
     return state + 1;
@@ -94,7 +94,7 @@ s32 CdControlF(s32 requested_command,const u8 *parameter_buffer) {
     one=1;
     code=command&255;
     table=D_800A6400;
-    saved=D_800A6488;
+    saved=CD_cbsync;
     /* ASM_BARRIER: Capture the saved callback before computing the selected metadata entry. */
     __asm__("" : "+r"(saved) : "r"(table) : "$2");
     offset=code*sizeof(*table);
@@ -115,7 +115,7 @@ loop:
     }
     {
     if (code != one) {
-        if (D_800A6494.bytes.status & 0x10) {
+        if (CD_status.bytes.status & 0x10) {
             s32 status_command=1;
             const u8 *parameter_zero;
             u8 *result_zero;
@@ -137,12 +137,12 @@ loop:
             }
         }
     }
-    D_800A6488 = saved;
+    CD_cbsync = saved;
     if (CD_cw(command & 0xFF, parameters, 0, 1) == 0) goto done;
 retry:
     remaining--;
     if (remaining != terminal) goto loop;
-    D_800A6488 = saved;
+    CD_cbsync = saved;
     state = -1;
 done:
     return state + 1;
@@ -170,7 +170,7 @@ s32 CdControlB(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffe
     s32 one=1;
     code=command&255;
     table=D_800A6400;
-    saved=D_800A6488;
+    saved=CD_cbsync;
     offset=code*sizeof(*table);
     metadata=(u32 *)((unsigned long)offset+(unsigned long)table);
     terminal=-1;
@@ -185,7 +185,7 @@ loop:
     }
     {
     if (code != one) {
-        if (D_800A6494.bytes.status & 0x10) {
+        if (CD_status.bytes.status & 0x10) {
             s32 status_command=1;
             const u8 *parameter_zero;
             u8 *result_zero;
@@ -202,13 +202,13 @@ loop:
             if (CD_cw(2, parameters, result, 0) != 0) goto retry;
         }
     }
-    D_800A6488 = saved;
+    CD_cbsync = saved;
     if (CD_cw(command & 0xFF, parameters, result, 0) != 0) {
 retry:
         remaining--;
         outcome=-1;
         if(remaining!=terminal) goto loop;
-        D_800A6488=saved;
+        CD_cbsync=saved;
     } else outcome=0;
     if(outcome==0) {
         outcome=CD_sync(0,result)==2;

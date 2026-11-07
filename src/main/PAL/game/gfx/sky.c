@@ -145,7 +145,7 @@ extern char D_800100D0[];
 extern short *D_8009E1D4[];
 extern short *D_8009E224[];
 extern char D_8009E248[];
-extern int func_800912B4();
+extern int SetGeomOffset();
 extern int SetDrawArea();
 
 SkyTri *func_80017310(SkyTri *a0, SkyCtx *a1, int a2);
@@ -1290,7 +1290,7 @@ void func_800197C8(int a0, int a1, short *a2, int a3) {
     SetDrawOffset(GS->cur, sp10);
     LNK(2, 0x10);
     GS->cur = GS->cur + 0xC;
-    func_800912B4((short)(unsigned short)a2[2] / 2, (short)(unsigned short)a2[3] / 2);
+    SetGeomOffset((short)(unsigned short)a2[2] / 2, (short)(unsigned short)a2[3] / 2);
     func_800195BC(a0, a1);
     c = a3 << 16;
     n = a3 << 8;

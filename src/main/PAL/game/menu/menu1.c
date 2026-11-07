@@ -17,31 +17,31 @@ typedef struct { char p[0x17]; signed char b; char q[0x2C - 0x18]; } T;
 
 typedef struct { char p0[0xC]; unsigned char a; char p1[7]; unsigned char b; char p2[0xF]; } E;
 
-extern int func_8002A604();
-extern void func_8003E928(int,int,int,int,int,int,int,int,int,int,...);
+extern int ClearScreenOverlayState();
+extern void InitUiRow(int,int,int,int,int,int,int,int,int,int,...);
 extern int func_8002AF8C();
 extern short D_800AC5D0;
-extern int D_800AC5DC;
-extern short D_800AC64A;
+extern int VSyncThreshold;
+extern short MenuCursor;
 extern signed char D_800AD4D8[];
 extern int D_800F2DE4;
 extern T D_800F2E30[];
 extern short D_800F3A26;
 extern short D_800F4C6A;
 extern short D_800F4D8A;
-extern int func_8003EC88();
-extern E *D_800F4D80;
+extern int DrawUiRow();
+extern E *UiRows;
 extern short D_800FFC18;
 extern struct { int p[10]; int a28; int a2c; } D_800F3A38;
-extern int func_8002B330();
+extern int StepMenuValue();
 extern int PlaySfx();
 extern int func_800207D4();
-extern int func_8001FDD4();
+extern int AddTileGrid2x2();
 extern int ResetScreenCounters();
-extern int func_8003A1B4();
-extern int func_80041A54();
-extern int D_800ACC18;
-extern int *D_800F3A28;
+extern int InitMenuArenas();
+extern int InitMenuGrid();
+extern int LoadCursor;
+extern int *MenuGridRecords;
 extern short D_800F4CB0;
 extern int D_800F4D40;
 extern char D_800FFC48[];
@@ -61,12 +61,12 @@ void func_8002FCEC() {
     D_800F2DE4 = 0;
     ScreenFrame = 0;
     D_800AC5D0 = 0;
-    D_800AC64A = 1;
-    D_800AC5DC = 0x80;
+    MenuCursor = 1;
+    VSyncThreshold = 0x80;
     D_800AD4D8[0x17] = -1;
     D_800AD4D8[0x19] = 9;
     func_80031DB0();
-    func_8002A604();
+    ClearScreenOverlayState();
     a1 = 0;
     a0 = 0;
     p = D_800F2E30;
@@ -86,9 +86,9 @@ void func_8002FCEC() {
     a1 = 1;
     goto J;
     B:
-    func_8003E928(0, 0x6C, 0xB8, 0x44, 0x20, 0, 0, 1, 0, 0x54);
-    func_8003E928(1, 0x6C, 0xE0, 0x44, 0x20, 0, 0, 1, 0, 0x67);
-    func_8003E928(2, 0x6C, 0x108, 0x44, 0x20, 0, 0, 1, 0, 0x55);
+    InitUiRow(0, 0x6C, 0xB8, 0x44, 0x20, 0, 0, 1, 0, 0x54);
+    InitUiRow(1, 0x6C, 0xE0, 0x44, 0x20, 0, 0, 1, 0, 0x67);
+    InitUiRow(2, 0x6C, 0x108, 0x44, 0x20, 0, 0, 1, 0, 0x55);
     func_8002AF8C(0, 1, 1);
     D_800F4C6A = 1;
     D_800F3A26 = 6;
@@ -99,13 +99,13 @@ void func_8002FCEC() {
 void func_8002FE98(void) {
     func_8002FEFC();
     func_8002FECC();
-    func_8002A344(0x10086);
+    UpdateScreenFade(0x10086);
 }
 
 void func_8002FECC(void) {
-    func_8003EC88(0);
-    func_8003EC88(1);
-    func_8003EC88(2);
+    DrawUiRow(0);
+    DrawUiRow(1);
+    DrawUiRow(2);
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -119,20 +119,20 @@ void func_8002FEFC() {
     int v, t, w;
     s = D_800F4D8A;
     if (s != 0) goto C1;
-    D_800F4D80[D_800AC64A].a = 0;
-    func_8002B330(0, 2, &D_800AC64A, 3, 0);
-    D_800F4D80[D_800AC64A].a = 2;
-    s = D_800F4D80->b;
+    UiRows[MenuCursor].a = 0;
+    StepMenuValue(0, 2, &MenuCursor, 3, 0);
+    UiRows[MenuCursor].a = 2;
+    s = UiRows->b;
     if (s != 2) goto END;
     func_8002AF8C(1, 1, 1);
     if (D_800F3A38.a28 == 0) goto L0C;
     PlaySfx(1);
-    D_800F4D80[D_800AC64A].a = 1;
+    UiRows[MenuCursor].a = 1;
     v = 3;
-    if (D_800AC64A < 2) v = 7;
-    D_800F4D80->b = v;
-    D_800F4D80[1].b = v;
-    D_800F4D80[2].b = v;
+    if (MenuCursor < 2) v = 7;
+    UiRows->b = v;
+    UiRows[1].b = v;
+    UiRows[2].b = v;
     D_800AC5D0 = 0x40;
     D_800F4D8A = 1;
     goto END;
@@ -140,10 +140,10 @@ L0C:
     if (D_800F3A38.a2c == 0) goto END;
     PlaySfx(2);
     v = 3;
-    D_800AC64A = s;
-    D_800F4D80->b = 3;
-    D_800F4D80[1].b = v;
-    D_800F4D80[2].b = v;
+    MenuCursor = s;
+    UiRows->b = 3;
+    UiRows[1].b = v;
+    UiRows[2].b = v;
     D_800AC5D0 = 0x40;
     D_800F4D8A = 1;
     goto END;
@@ -154,7 +154,7 @@ C1:
     D_800AC5D0 = t;
     func_800207D4(D_800ACC14 + 0x70, (0x40 - (short)t) * 4, 0x45);
     if ((short)D_800AC5D0 > 0) goto END;
-    w = D_800AC64A;
+    w = MenuCursor;
     if (w == s) goto L120;
     if (w < 2) {
         if (w == 0) goto L104;
@@ -194,10 +194,10 @@ void func_8003016C(void)
 {
     int *sp = (int *)SCRATCHPAD;
     int *p;
-    func_80041A18(D_800FFC48, 1);
-    func_80041A54(0, 0, 3, 0xF0, 0xA0);
+    AllocMenuGridRecords(D_800FFC48, 1);
+    InitMenuGrid(0, 0, 3, 0xF0, 0xA0);
     func_80096434((SCRATCHPAD + 0x8), 0x20);
-    p = D_800F3A28;
+    p = MenuGridRecords;
     p[7] = 0x60;
     p[8] = -0x110;
     p[9] = -0x160;
@@ -206,16 +206,16 @@ void func_8003016C(void)
     func_8002F688();
     D_800F2DE4 = 0;
     ScreenFrame = 0;
-    D_800AC5DC = 0x80;
+    VSyncThreshold = 0x80;
     ResetScreenCounters();
     if (D_800AD4F2 == 6) {
         func_80031E3C();
-        func_8002A604();
-        func_8003A1B4();
-        D_800ACC18 = D_800F4D40;
+        ClearScreenOverlayState();
+        InitMenuArenas();
+        LoadCursor = D_800F4D40;
     }
     D_800F4CB0 = 0;
-    sp[0] = func_8001FDD4(D_800ACC14 + 0x70, sp[0], 0, 0, 0x140, 0x200, 8, 8, 8);
+    sp[0] = AddTileGrid2x2(D_800ACC14 + 0x70, sp[0], 0, 0, 0x140, 0x200, 8, 8, 8);
     D_800F4C6A = 1;
     D_800F3A26 = 0x10;
     D_800F4D8A = 0;

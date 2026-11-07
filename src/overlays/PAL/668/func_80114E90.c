@@ -12,5 +12,5 @@ void ovl668_func_80114E90(RrStrDisplayConfig*p,s32 x,s32 y,s32 second_x,s32 seco
  p->rectangles[2].w=24;
  p->rectangles[2].h=240;
  p->rectangles[1].y=second_y;
- p->alternate04=~(u32)D_800F4BF0&1;
+ p->alternate04=~(u32)DrawBufIndex&1;
 }

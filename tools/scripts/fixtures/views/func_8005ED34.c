@@ -4,7 +4,7 @@
 
 #include "rr/cpu_md_leaf.h"
 
-void func_8005ED34(RrMotionClock20 *arg0)
+void UpdateScrollTrack(RrMotionClock20 *arg0)
 {
     register RrMotionClock20 *clock asm("$6");
     register RrMotionControllerPrefix *root asm("$4");
@@ -29,7 +29,7 @@ void func_8005ED34(RrMotionClock20 *arg0)
     RrScrollChannelCursor *var_a0;
     clock = arg0;
     asm("" : "+r"(clock));
-    root = D_800ACA28;
+    root = MotionController;
     temp_a1 = &root->scroll;
     asm("" : : "r"(temp_a1));
     if (temp_a1->disabled != 0)
@@ -90,7 +90,7 @@ void func_8005ED34(RrMotionClock20 *arg0)
     /* GPR aliases below occupy successive phases. Pointer values keep their
     * full native width;
     only the scalar MD inputs/results are word sized. */
-    keyGlyph=D_800ACA28->speed4C;
+    keyGlyph=MotionController->speed4C;
     keyGlyph<<=1;
     tempo=clock->tempo;
     RR_MD_MULT_S((s32)tempo,(s32)keyGlyph);
@@ -126,7 +126,7 @@ void func_8005ED34(RrMotionClock20 *arg0)
     temp_v1_3->channel.glyph=keyGlyph;
     temp_a1->hold = ((s32)(((u32)temp_a1->keys[temp_a1->index].timing)<<16)) >> 24;
     tempo=clock->tempo;
-    keyGlyph=D_800ACA28->speed4C;
+    keyGlyph=MotionController->speed4C;
     RR_MD_MULT_S((s32)tempo,(s32)keyGlyph);
     RR_MD_LO(product);
     keyGlyph=0x51EB851FU;

@@ -4,7 +4,7 @@
 
 #include "rr/spu_voice_cache.h"
 
-s32 func_80086BE4(void) {
+s32 _SsVmAlloc(void) {
     register u32 chosen;
     /* ASM_BARRIER: retain the captured selection accumulator in its original temporary. */
     register u32 best_gate asm("$12");
@@ -46,7 +46,7 @@ s32 func_80086BE4(void) {
     /* ASM_BARRIER: keep the byte loop comparison separate from the next byte index. */
     __asm__("" : "+r"(index));
     initial=D_8011010F;
-    count=D_801100FC;
+    count=spuVmMaxVoice;
     /* ASM_BARRIER: capture the priority byte and active count before narrowing priority. */
     __asm__("" : : : "memory");
     priority=(s8)initial;
@@ -189,9 +189,9 @@ s32 func_80086BE4(void) {
     if((u8)chosen==99) {
         ties_test=(u8)ties;
         chosen=best;
-        if(!ties_test)chosen=(u8)D_801100FC;
+        if(!ties_test)chosen=(u8)spuVmMaxVoice;
     }
-    count=D_801100FC;
+    count=spuVmMaxVoice;
     if((u8)chosen<count) {
         if(count>0) {
             register u32 one2;

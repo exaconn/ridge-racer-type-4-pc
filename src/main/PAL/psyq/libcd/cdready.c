@@ -5,14 +5,14 @@
 #include "rr/cd_init.h"
 
 extern s32 func_8001E84C(const char *, ...);
-int func_80096E64(int, int);
+int DeliverEvent(int, int);
 
 int func_8008BED4();
 void func_8008BF10(s32 selector, u8 *data);
 void func_8008BF38(s32 selector, u8 *data);
 void func_8008BF60(s32 event, s32 argument);
 
-s32 func_8008BE44(void) {
+s32 CdInit(void) {
     s32 i=4;
     /* ASM_BARRIER: Keep the success value in the common return register. */
     register s32 result __asm__("$2");
@@ -24,9 +24,9 @@ loop:
     __asm__("" : "+r"(expected));
     if(status==expected) {
         result=1;
-        D_800A6488=func_8008BF10;
-        D_800A648C=func_8008BF38;
-        D_800A63F0=func_8008BF60;
+        CD_cbsync=func_8008BF10;
+        CD_cbready=func_8008BF38;
+        CD_cbread=func_8008BF60;
         {
             /* ASM_BARRIER: Preserve the assembler temporary for the final state store. */
             register u32 *page __asm__("$1");
@@ -66,15 +66,15 @@ int func_8008BED4() {
 
 /* extern */
 void func_8008BF10(s32 selector, u8 *data) {
-    func_80096E64(0xF0000003, 0x20);
+    DeliverEvent(0xF0000003, 0x20);
 }
 
 /* extern */
 void func_8008BF38(s32 selector, u8 *data) {
-    func_80096E64(0xF0000003, 0x40);
+    DeliverEvent(0xF0000003, 0x40);
 }
 
 /* extern */
 void func_8008BF60(s32 event, s32 argument) {
-    func_80096E64(0xF0000003, 0x40);
+    DeliverEvent(0xF0000003, 0x40);
 }

@@ -15,8 +15,8 @@ typedef struct {
     RrCdLocation locationBC,currentC0;s32 counterC4;
     u32 thresholdC8,budgetCC;s32 stopD0;
 } RrStrContextPrefix;
-extern s32 D_800F4BF0;
-extern RrStrContextPrefix D_800AC650;
+extern s32 DrawBufIndex;
+extern RrStrContextPrefix RaceContext;
 
 /* Preserve the other configuration fields and store low16 coordinate bits. */
 void ovl668_func_80114E90(RrStrDisplayConfig *config,s32 x,s32 y,s32 second_x,s32 second_y);

@@ -28,24 +28,24 @@ typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
 s32 test_ram[16384];
-#define D_800A48A8 test_ram[0x48A8/4]
-#define D_800A4840 test_ram[0x4840/4]
+#define _spu_isCalled test_ram[0x48A8/4]
+#define _spu_EVdma test_ram[0x4840/4]
 RrLibInterruptDriverPrefix test_driver,test_alternate_driver;
 RrLibInterruptDriverPrefix *D_800A6350=&test_driver;
 s32 test_stop_calls;
 void _spu_FiDMA(void) {test_stop_calls++;}
 s32 (*test_system)(s32,u32,s32,s32,void *);
-s32 func_80096F04(void) {return test_system(1,0,0,0,0);}
-s32 func_80096F14(void) {return test_system(5,0,0,0,0);}
-s32 func_80096E74(u32 first,s32 second,s32 third,RrLibInterruptCallback fourth) {
+s32 EnterCriticalSection(void) {return test_system(1,0,0,0,0);}
+s32 ExitCriticalSection(void) {return test_system(5,0,0,0,0);}
+s32 OpenEvent(u32 first,s32 second,s32 third,RrLibInterruptCallback fourth) {
  return test_system(3,first,second,third,(void *)fourth);
 }
-s32 func_80096EB4(s32 event) {return test_system(4,(u32)event,0,0,0);}
+s32 EnableEvent(s32 event) {return test_system(4,(u32)event,0,0,0);}
 '''
         for name in ('8008B3C4', '8007F764', '8007F6EC'):
             body = (root / ('tools/scripts/fixtures/views/func_'+name+'.c')).read_text()
             body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
-            body = body.replace('extern s32 D_800A48A8,D_800A4840;', '')
+            body = body.replace('extern s32 _spu_isCalled,_spu_EVdma;', '')
             if name == '8007F6EC':
                 if body.count('(s32 *)0x800A0000U') != 2 or body.count('unsigned long page=0x80080000U;') != 1:
                     raise AssertionError('Initializer page adapters must match the two stores and callback address')
@@ -75,7 +75,7 @@ s32 func_80096EB4(s32 event) {return test_system(4,(u32)event,0,0,0);}
         cls.initialize = cls.lib.SpuStart
         cls.initialize.argtypes = []
         cls.initialize.restype = None
-        cls.exchange = cls.lib.func_8008B3C4
+        cls.exchange = cls.lib.DMACallback
         cls.exchange.argtypes = [C.c_int32, C.c_void_p]
         cls.exchange.restype = C.c_void_p
         cls.spu_exchange = cls.lib._SpuDataCallback

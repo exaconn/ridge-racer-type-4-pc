@@ -2,7 +2,7 @@
 
 #include "rr/library.h"
 
-void func_80080804(s32 bank, s32 row, s32 payload) {
+void _SsContNrpn1(s32 bank, s32 row, s32 payload) {
     /* ASM_BARRIER: Retain the original register for selector snapshots, lookup, or call scheduling. */
     register u32 raw_bank __asm__("$18") = bank;
     register u32 raw_row = row;
@@ -38,7 +38,7 @@ void func_80080804(s32 bank, s32 row, s32 payload) {
     state = base + normalized_row;
     value = payload;
     if (state->b1b == 40) {
-        callback_base = (RrLibControllerCallback *)D_8010F0E8;
+        callback_base = (RrLibControllerCallback *)_SsMarkCallback;
         callbacks = (RrLibControllerCallback *)(normalized_bank * 16 * sizeof(*callbacks) + (unsigned long)callback_base);
         callback = *(normalized_row + callbacks);
         if (callback) callback(normalized_bank, normalized_row, value & 255);
@@ -48,5 +48,5 @@ void func_80080804(s32 bank, s32 row, s32 payload) {
         state->b1c = 0;
         state->b1f++;
     }
-    state->w90 = func_80081E04((s16)raw_bank, (s16)raw_row);
+    state->w90 = _SsReadDeltaValue((s16)raw_bank, (s16)raw_row);
 }

@@ -51,7 +51,7 @@ static void run(s16 h,s16 s,s16 v,unsigned layout){unsigned i;u8 rgb[3],*out,*ex
  else {out=actual.input.bytes+4+layout-1;expectedOut=expected.input.bytes+4+layout-1;}
  if(!written&&layout==8){out=0;nullCalls++;}
  if(written)memcpy(expectedOut,rgb,3);
- func_8004C138(actual.input.halves+2,out);
+ HsvToRgb(actual.input.halves+2,out);
  assert(!memcmp(&actual,&expected,sizeof(actual)));serial++;
 }
 int main(void){unsigned raw,a,b,j;uint64_t cases=0;

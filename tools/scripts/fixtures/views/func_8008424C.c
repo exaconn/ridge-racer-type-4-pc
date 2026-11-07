@@ -2,9 +2,9 @@
 
 #include "rr/library.h"
 
-extern void func_800897A4(s32,s32,s32,s32);
+extern void _SsVmSetSeqVol(s32,s32,s32,s32);
 
-void func_8008424C(s32 bank, s32 row, s32 left, s32 right) {
+void SsSepSetVol(s32 bank, s32 row, s32 left, s32 right) {
     /* ASM_BARRIER: Preserve the original register allocation across lookup and the mode branch. */
     register s32 raw_bank __asm__("$8") = bank;
     /* ASM_BARRIER: Preserve the original register allocation across lookup and the mode branch. */
@@ -25,7 +25,7 @@ void func_8008424C(s32 bank, s32 row, s32 left, s32 right) {
     units = (s16)row * 11;
     /* ASM_BARRIER: Complete index arithmetic before materializing the PAL table page. */
     __asm__ volatile("" : : "r"(index), "r"(units) : "$3");
-    /* PAL mapping: table[-0xF98 / 4] selects D_8010F068[bank]. */
+    /* PAL mapping: table[-0xF98 / 4] selects _ss_score[bank]. */
     table = (RrLibStateB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL table page without folding its signed low offset. */
     __asm__("" : "=r"(table) : "0"(table));
@@ -41,5 +41,5 @@ void func_8008424C(s32 bank, s32 row, s32 left, s32 right) {
         return;
     }
     row_bits = (u32)row << 8;
-    func_800897A4((s16)(raw_bank | row_bits), left_value & 0xFFFF, right_value & 0xFFFF, 1);
+    _SsVmSetSeqVol((s16)(raw_bank | row_bits), left_value & 0xFFFF, right_value & 0xFFFF, 1);
 }

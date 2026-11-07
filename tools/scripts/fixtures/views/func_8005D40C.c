@@ -1,6 +1,6 @@
 #include "rr/textured_panel.h"
 
-void func_8005D40C(s32 index) {
+void EmitTexturedPanel(s32 index) {
     RrPolyFT4Packet *p;
     RrGpuScratchPointers *scratch;
     u32 *order;

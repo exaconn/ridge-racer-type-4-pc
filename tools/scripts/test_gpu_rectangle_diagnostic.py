@@ -56,7 +56,7 @@ s32 collect(s32 which,const char *format,va_list args) {
 }
 s32 test_printf1(const char *format,...){s32 r;va_list args;va_start(args,format);r=collect(1,format,args);va_end(args);return r;}
 s32 test_printf2(const char *format,...){s32 r;va_list args;va_start(args,format);r=collect(2,format,args);va_end(args);return r;}
-s32 (*D_800ABABC)(const char *,...)=test_printf1;
+s32 (*GPU_printf)(const char *,...)=test_printf1;
 '''
         for name in ('func_80092DB8.c', 'gpu_coordinates.c'):
             body = (root/('src/main/PAL/' + name)).read_text()
@@ -79,10 +79,10 @@ s32 (*D_800ABABC)(const char *,...)=test_printf1;
         cls.settings = Settings.in_dll(cls.lib, 'D_800ABAC2')
         cls.rom = (C.c_char * 0x2000).in_dll(cls.lib, 'test_rom')
         cls.rom[:] = (root/'assets/PAL/main.exe').read_bytes()[0x800:0x2800]
-        cls.function = cls.lib.func_80092DB8
+        cls.function = cls.lib.checkRECT
         cls.function.argtypes = [C.c_void_p, C.c_void_p]
         cls.function.restype = None
-        cls.coordinates = [cls.lib.func_80094100, cls.lib.func_80094198]
+        cls.coordinates = [cls.lib.get_cs, cls.lib.get_ce]
         for function in cls.coordinates:
             function.argtypes = [C.c_int32, C.c_int32]
             function.restype = C.c_uint32
@@ -102,7 +102,7 @@ s32 (*D_800ABABC)(const char *,...)=test_printf1;
             return -123
         self.report=Report(report)
         C.c_void_p.in_dll(self.lib,'test_report').value=C.cast(self.report,C.c_void_p).value
-        C.c_void_p.in_dll(self.lib,'D_800ABABC').value=C.cast(self.lib.test_printf1,C.c_void_p).value
+        C.c_void_p.in_dll(self.lib,'GPU_printf').value=C.cast(self.lib.test_printf1,C.c_void_p).value
 
     def invoke(self, rectangle):
         self.function(self.label,C.byref(rectangle) if rectangle is not None else None)
@@ -151,7 +151,7 @@ s32 (*D_800ABABC)(const char *,...)=test_printf1;
                 if kind in (0,1):
                     rect.x=-32768;rect.y=32767;rect.w=-123;rect.h=456
                     self.settings.level=0
-                    C.c_void_p.in_dll(self.lib,'D_800ABABC').value=C.cast(self.lib.test_printf2,C.c_void_p).value
+                    C.c_void_p.in_dll(self.lib,'GPU_printf').value=C.cast(self.lib.test_printf2,C.c_void_p).value
             self.hook=mutate;self.invoke(rect)
             self.assertEqual(len(self.events),2)
             self.assertEqual(self.events[1],(2,2,b'(%d,%d)-(%d,%d)\n',None,(-32768,32767,-123,456)))

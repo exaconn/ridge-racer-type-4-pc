@@ -18,10 +18,10 @@ void func_800293D0(s32 layout,s32 mode) {
     register u8 *read_page;
     u8 *bound_page;
 
-    D_800AC5A8=0;
-    D_800AD504=mode;
+    ReplayFrame=0;
+    ReplayState=mode;
     if (mode==2) {
-        /* PAL mapping: page-0x3A64 is the live signed count D_800AC59C. */
+        /* PAL mapping: page-0x3A64 is the live signed count NumCars. */
         read_page=(u8 *)0x800B0000U;
         /* ASM_BARRIER: capture the count page before testing and retaining it. */
         __asm__("" : "+r"(read_page));
@@ -29,7 +29,7 @@ void func_800293D0(s32 layout,s32 mode) {
         if (*(s16 *)(read_page-0x3A64)>0) {
             bound_page=read_page;
             restore_dest=CarTable;
-            restore_source=D_800AC570;
+            restore_source=CarSnapshots;
             do {
                 **restore_dest=**restore_source;
                 if ((*restore_dest)->value1E4>=17) {
@@ -44,16 +44,16 @@ void func_800293D0(s32 layout,s32 mode) {
             } while (i<bound);
         }
     } else {
-        D_800ADAC8=0;
+        SavedRaceState=0;
         i=0;
         if (layout==1) {
             loaded=D_800FFC48;
             base=loaded;
-            source_slots=D_800AC570;
+            source_slots=CarSnapshots;
             offset=0x5468;
-            D_80107188=2700;
-            D_800AD510[0]=base;
-            D_800AD510[1]=base+0x2A34;
+            ReplayLength=2700;
+            ReplayInputs[0]=base;
+            ReplayInputs[1]=base+0x2A34;
             do {
                 *source_slots=(RrBankRecord320 *)((unsigned long)offset+
                                                 (unsigned long)base);
@@ -62,16 +62,16 @@ void func_800293D0(s32 layout,s32 mode) {
                 offset+=0x320;
             } while (i<4);
         } else if (layout==2) {
-            D_80107188=900;
+            ReplayLength=900;
             /* ASM_BARRIER: republish zero after this branch's metadata store;
              * the previous fixed-register index value is dead at this point. */
             __asm__("" : : : "$5");
             i=0;
             factor=901;
             bankbase=D_800FFC48;
-            bank_source_slots=D_800AC570;
+            bank_source_slots=CarSnapshots;
             bank_offset=0x3850;
-            bank_slots=D_800AD510;
+            bank_slots=ReplayInputs;
             do {
                 register u32 scaled=(u32)i*4U;
                 u32 product;
@@ -87,10 +87,10 @@ void func_800293D0(s32 layout,s32 mode) {
         } else {
             loaded=D_800FFC48;
             base=loaded;
-            source_slots=D_800AC570;
+            source_slots=CarSnapshots;
             offset=0x3844;
-            D_80107188=3600;
-            D_800AD510[0]=base;
+            ReplayLength=3600;
+            ReplayInputs[0]=base;
             do {
                 *source_slots=(RrBankRecord320 *)((unsigned long)offset+
                                                 (unsigned long)base);

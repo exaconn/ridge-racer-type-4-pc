@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80052DA8(void);
+void CdAudioFilterStep(void);
 
 #endif /* RR_GAME_SOUND_CDSTART_H */

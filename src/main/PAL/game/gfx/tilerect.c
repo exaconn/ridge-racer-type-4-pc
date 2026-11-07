@@ -135,9 +135,9 @@ typedef struct {
 
 extern struct B8 D_80010104;
 extern int func_8002AF8C();
-extern int func_8003A1B4();
+extern int InitMenuArenas();
 extern short D_800AC5D0;
-extern int D_800AC5DC;
+extern int VSyncThreshold;
 extern short D_800F3A26;
 extern short D_800F4C6A;
 extern short D_800F4D8A;
@@ -145,27 +145,27 @@ extern int D_8010BF74;
 extern struct B8 D_8001010C;
 extern struct B8 D_80010114;
 extern int D_8009E268;
-extern char *D_800ACC18;
+extern char *LoadCursor;
 extern unsigned char D_800AD4EA;
 extern int D_800F3A60;
 extern S_8010BF70 *D_8010BF70;
-extern int func_80013890();
+extern int SetupRenderer();
 extern int func_80019C90();
 extern int ResetScreenCounters();
 extern int func_80043608();
 extern int func_800436E8();
-extern int func_8006E1AC();
+extern int BuildCameraMatrices();
 extern int RotMatrix();
 extern int D_8009E26C[];
 extern int D_8009E36C[];
 
-void func_80019D5C(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head);
+void EmitTiledRect(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head);
 void func_80019F20(void);
 void func_80019FC8(void);
 void func_8001A52C(int a0);
 int *func_8001AC24(S_8001AC24 *a0, int *a1, int *a2);
 
-void func_80019D5C(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head) {
+void EmitTiledRect(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head) {
     register s32 value;
     register u32 command;
     register RrGpuRectangleFields *rect = rectangle;
@@ -298,10 +298,10 @@ clamp_low:
 
 void func_80019F20(void) {
     struct B8 sp10;
-    D_800AC5DC = 0x80;
-    func_8003A1B4();
+    VSyncThreshold = 0x80;
+    InitMenuArenas();
     func_8002AF8C(0, 1, 0);
-    func_8002A344(0x1000C);
+    UpdateScreenFade(0x1000C);
     sp10 = D_80010104;
     ClearImage2(&sp10, 0, 0, 0);
     D_800AC5D0 = 0;
@@ -315,7 +315,7 @@ void func_80019FC8(void) {
     struct B8 sp10;
     int s1;
 
-    func_8002A344(0x1000C);
+    UpdateScreenFade(0x1000C);
     if (D_800AC5D0 != 0) {
         D_800AC5D0 += 4;
         if (D_800AC5D0 >= 0x100) {
@@ -328,41 +328,41 @@ void func_80019FC8(void) {
 
     switch (D_8010BF74) {
     case 0:
-        if (func_8001292C(func_8001223C(0, D_800AD4EA + 1), D_800ACC18) == 0) {
+        if (CdFileReadStart(GetR4FileIndex(0, D_800AD4EA + 1), LoadCursor) == 0) {
             return;
         }
         D_8010BF74 = 1;
     case 1:
-        if (func_80012A58() == 0) {
+        if (CdFileBytesLoaded() == 0) {
             return;
         }
-        func_800436E8(D_800ACC18);
+        func_800436E8(LoadCursor);
         D_8010BF74 = 2;
     case 2:
-        if (func_8001292C(func_8001223C(0, 0x14), D_800ACC18) == 0) {
+        if (CdFileReadStart(GetR4FileIndex(0, 0x14), LoadCursor) == 0) {
             return;
         }
         D_8010BF74 = 3;
     case 3:
-        if (func_80012A58() == 0) {
+        if (CdFileBytesLoaded() == 0) {
             return;
         }
-        func_80043608(D_800ACC18);
+        func_80043608(LoadCursor);
         D_8010BF74 = 4;
     case 4:
-        if (func_8001292C(func_8001223C(0, D_800AD4EA + 0xA), D_800ACC18) == 0) {
+        if (CdFileReadStart(GetR4FileIndex(0, D_800AD4EA + 0xA), LoadCursor) == 0) {
             return;
         }
         D_8010BF74 = 5;
     case 5:
-        s1 = func_80012A58();
+        s1 = CdFileBytesLoaded();
         if (s1 == 0) {
             return;
         }
-        func_80012A68(D_800AC64C = D_800ACC18);
-        D_8010BF70 = (S_8010BF70 *)(D_800ACC18 += s1);
-        D_800ACC18 = (char *)D_8010BF70 + 0x4C;
-        func_80013890(3);
+        RelocateOffsetTable(D_800AC64C = LoadCursor);
+        D_8010BF70 = (S_8010BF70 *)(LoadCursor += s1);
+        LoadCursor = (char *)D_8010BF70 + 0x4C;
+        SetupRenderer(3);
         D_8010BF70->unk20 = D_8001010C;
         func_80096454(D_8010BF70->unk28, 0, 0x10);
         {
@@ -446,8 +446,8 @@ void func_80019FC8(void) {
         D_8009E268 = ir2;
     }
 
-    func_8001BAF8(D_8010BF70->s3E, 0x25);
-    func_8001BAF8(D_8010BF70->s40, 0x26);
+    EmitPresetSprite(D_8010BF70->s3E, 0x25);
+    EmitPresetSprite(D_8010BF70->s40, 0x26);
 
     W(4) = 0xE1000229;
     LNK(1, 4);
@@ -458,7 +458,7 @@ void func_80019FC8(void) {
         /* ASM_BARRIER: Keep &sp10 in $a2 before unaligned struct copy */
         register struct B8 *a2 asm("$6");
         func_80019C90(D_8010BF70->s46);
-        func_8006E1AC();
+        BuildCameraMatrices();
         RotMatrix(&D_8010BF70->unk20, D_8010BF70);
         /* ASM_BARRIER: Emit 8-byte unaligned struct copy using $8, $9, $10 without spilling $8 at earlier block move */
         __asm__(

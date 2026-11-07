@@ -8,12 +8,12 @@ void ovl668_func_80115460(s32 *unused_position) {
 
     (void)unused_position;
 
-    position[0] = D_800AC650.position450[0] >> 2;
-    position[1] = D_800AC650.position450[1] >> 2;
-    position[2] = D_800AC650.position450[2] >> 2;
-    idx = func_80026A74(position, D_800AC650.node498, (s32)((u32)D_800ABECC + 1U));
-    D_800AC650.node498 = idx;
-    offsets[0].value = (D_800AC650.position450[0] / 4) - (u16)D_800ABEA4[idx].x08;
-    offsets[1].value = (D_800AC650.position450[2] / 4) - (u16)D_800ABEA4[idx].z0C;
-    func_800464E8(offsets[0], offsets[1], D_800AC650.node498, &D_800AC650.fraction49C, &D_800AC650.lateral49E, &height);
+    position[0] = RaceContext.position450[0] >> 2;
+    position[1] = RaceContext.position450[1] >> 2;
+    position[2] = RaceContext.position450[2] >> 2;
+    idx = FindTrackNode(position, RaceContext.node498, (s32)((u32)TrackNodeCount + 1U));
+    RaceContext.node498 = idx;
+    offsets[0].value = (RaceContext.position450[0] / 4) - (u16)TrackNodes[idx].x08;
+    offsets[1].value = (RaceContext.position450[2] / 4) - (u16)TrackNodes[idx].z0C;
+    ProjectToTrackSegment(offsets[0], offsets[1], RaceContext.node498, &RaceContext.fraction49C, &RaceContext.lateral49E, &height);
 }

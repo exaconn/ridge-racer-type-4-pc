@@ -1,6 +1,6 @@
 #include "rr/softfloat.h"
 
-s32 func_8007E0B4(u64 value)
+s32 __fixdfsi(u64 value)
 {
     /* Keep the input pair live across the error and shift calls. */
     register union {u64 bits;RrWide64 words;} input __asm__("$16");
@@ -13,7 +13,7 @@ s32 func_8007E0B4(u64 value)
         exponent=(input.words.hi>>20)&0x7FF;
         shift=exponent-0x41D;
         if(shift>0) {
-            func_8007E9C4(34,17);
+            _err_math(34,17);
             result=0x7FFFFFFF;
             if(input.words.hi<0) result=0x80000000;
         } else {

@@ -8,5 +8,5 @@
  * Input and destination must be halfword aligned. Destination bytes 14/15 are
  * preserved. Each byte reloads the selected pointer; the four halfwords share
  * one captured destination. Byte 7 is copied before byte 6. */
-s32 func_800867E4(s32 bank, s32 program, s32 tone, const u8 input[24]);
+s32 SsUtSetVagAtr(s32 bank, s32 program, s32 tone, const u8 input[24]);
 #endif

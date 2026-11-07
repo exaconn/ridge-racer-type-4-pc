@@ -41,9 +41,9 @@ u32 test_counter_offset = offsetof(RrLibStateB0, w90);
 u32 test_slot_offset = offsetof(RrLibStateB0, b17);
 u32 test_slot_values_offset = offsetof(RrLibStateB0, b37);
 s32 (*test_stream_update)(s32, s32, s32, s32);
-s32 func_80089540(s32 a, s32 b, s32 c, s32 d) { return test_stream_update(a,b,c,d); }
+s32 _SsVmPitchBend(s32 a, s32 b, s32 c, s32 d) { return test_stream_update(a,b,c,d); }
 void (*test_value_update)(s32, s32, s32, s32);
-void func_800897A4(s32 channel, s32 left, s32 right, s32 mode) {
+void _SsVmSetSeqVol(s32 channel, s32 left, s32 right, s32 mode) {
     test_value_update(channel, left, right, mode);
 }
 void test_initialize(void) {
@@ -64,8 +64,8 @@ void test_prepare(s32 bank, s32 row, const u8 *input, u32 length, u32 accumulato
         body = '\n'.join((root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
                          for name in ('80081E04', '8008424C', '80080034', '80081804'))
         body = body.replace('#include "rr/library.h"', '')
-        body = body.replace('extern RrLibStateB0 *D_8010F068[];', '')
-        body = body.replace('D_8010F068', '(test_table + 0x4000 - 0xF98 / 4)')
+        body = body.replace('extern RrLibStateB0 *_ss_score[];', '')
+        body = body.replace('_ss_score', '(test_table + 0x4000 - 0xF98 / 4)')
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r'"\$[0-9]+", ', '', body)
         body = re.sub(r' : "\$[0-9]+"', '', body)
@@ -82,20 +82,20 @@ void test_prepare(s32 bank, s32 row, const u8 *input, u32 length, u32 accumulato
         cls.table = (C.c_void_p * 0x4100).in_dll(cls.library, 'test_table')
         cls.prepare = cls.library.test_prepare
         cls.prepare.argtypes = [C.c_int32, C.c_int32, C.c_void_p, C.c_uint32, C.c_uint32]
-        cls.function = cls.library.func_80081E04
+        cls.function = cls.library._SsReadDeltaValue
         cls.function.argtypes = [C.c_int32, C.c_int32]
         cls.function.restype = C.c_int32
         cls.mode_offset = C.c_uint32.in_dll(cls.library, 'test_mode_offset').value
         cls.values_offset = C.c_uint32.in_dll(cls.library, 'test_values_offset').value
-        cls.set_values = cls.library.func_8008424C
+        cls.set_values = cls.library.SsSepSetVol
         cls.set_values.argtypes = [C.c_int32] * 4
         cls.set_values.restype = None
-        cls.read_event = cls.library.func_80080034
+        cls.read_event = cls.library._SsContBankChange
         cls.read_event.argtypes = [C.c_int16, C.c_int16]
         cls.read_event.restype = None
         cls.byte_offset = C.c_uint32.in_dll(cls.library, 'test_byte_offset').value
         cls.counter_offset = C.c_uint32.in_dll(cls.library, 'test_counter_offset').value
-        cls.dispatch_event = cls.library.func_80081804
+        cls.dispatch_event = cls.library._SsSetPitchBend
         cls.dispatch_event.argtypes = [C.c_int32, C.c_int32]
         cls.dispatch_event.restype = None
         cls.slot_offset = C.c_uint32.in_dll(cls.library, 'test_slot_offset').value

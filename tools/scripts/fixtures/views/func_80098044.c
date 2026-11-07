@@ -8,11 +8,11 @@
 
 extern u32 D_80114418[4];
 
-extern s32 func_80096F04(void),func_80096F94(s32,s32);
+extern s32 EnterCriticalSection(void),ChangeClearRCnt(s32,s32);
 
-extern void func_80096F14(void);
+extern void ExitCriticalSection(void);
 
-extern s32 func_80097714(s32,void *),func_80097704(s32,void *);
+extern s32 SysDeqIntRP(s32,void *),SysEnqIntRP(s32,void *);
 
 void _padStartCom(void) {
     RrInterruptRegisters *p;
@@ -28,16 +28,16 @@ void _padStartCom(void) {
         __asm__("" : "+r"(page));
         page[-0x4360/4]=0;
     }
-    func_80096F04();
-    func_80097714(2,D_80114418);
-    func_80097704(2,D_80114418);
+    EnterCriticalSection();
+    SysDeqIntRP(2,D_80114418);
+    SysEnqIntRP(2,D_80114418);
     p=D_800ABCC8;
     p->pending=0xFFFFFFFEU;
     mask=p->mask;
     /* Ordinary final write view permits the original call-delay store. */
     *(u32 *)((u8 *)p+RR_FIELD_OFFSET(RrInterruptRegisters,mask))=mask|1;
-    func_80096F94(3,0);
-    func_80096F14();
+    ChangeClearRCnt(3,0);
+    ExitCriticalSection();
     D_800ABC6C(D_800ABC9C);
     D_800ABC6C(D_800ABC9C+1);
     counters=D_80114428;

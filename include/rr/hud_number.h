@@ -5,7 +5,7 @@
 /* Four bank-specific ordering heads followed by the signed screen position. */
 typedef struct {u32 *heads[4];s16 x,y;} RrNumberTarget;
 extern RrNumberTarget D_8010BF88[];
-extern s32 D_800F4BF0;
+extern s32 DrawBufIndex;
 
 /* Writes one 12x16 glyph and advances the cursor by 20 bytes. Coordinate
  * narrowing belongs to packet serialization, after the full-word arguments. */

@@ -20,7 +20,7 @@ typedef struct {RrNumberTarget rows[4];u32 heads[4];u32 arena[96];u8 guard[32];}
 static World actual,expected;
 static RrGpuScratchPointers scratch;
 #define D_8010BF88 actual.rows
-s32 D_800F4BF0;
+s32 DrawBufIndex;
 static s32 number,x,y;static int selected,bank,iteration,variant;
 static u32 *captured_order;
 static u8 *cursor,*initial_cursor,*returned;
@@ -33,7 +33,7 @@ static void mutate(void) {
  actual.rows[selected].x=expected.rows[selected].x=(s16)(x+iteration*17);
  actual.rows[selected].y=expected.rows[selected].y=(s16)(y-iteration*19);
  actual.rows[selected].heads[bank]=expected.rows[selected].heads[bank]=0;
- D_800F4BF0^=3;scratch.cursor=(u8 *)actual.arena+320;
+ DrawBufIndex^=3;scratch.cursor=(u8 *)actual.arena+320;
 }
 void *func_80021568(u32 *order,void *packet,s32 px,s32 py,s32 glyph,s32 clut) {
  u8 *p=packet;
@@ -49,7 +49,7 @@ void *func_80021568(u32 *order,void *packet,s32 px,s32 py,s32 glyph,s32 clut) {
  assert(!memcmp(&actual,&expected,sizeof(actual)));
  cursor=p+20;iteration++;mutate();return cursor;
 }
-u8 *func_8001FCC8(u32 *order,u8 *p,u16 page) {
+u8 *AddDrawModePrim(u32 *order,u8 *p,u16 page) {
  assert(iteration==5 && order==captured_order && p==cursor && page==5);
  assert(scratch.cursor==(u8 *)actual.arena+320);
  returned=p+12+variant*4;return returned;
@@ -64,7 +64,7 @@ int main(void) {
  assert(sizeof(RrNumberTarget)==sizeof(void *)*5);
  for(n=0;n<65536;n++) {
   for(j=0;j<sizeof(actual);j++)bytes[j]=next();
-  selected=n%4;bank=(n/4)%4;variant=n&1;D_800F4BF0=bank;
+  selected=n%4;bank=(n/4)%4;variant=n&1;DrawBufIndex=bank;
   number=n<13?values[n]:(s32)next();x=n<14?positions[n%7]:(s16)next();y=n<14?positions[(n+3)%7]:(s16)next();iteration=0;
   actual.rows[selected].x=x;actual.rows[selected].y=y;
   for(j=0;j<4;j++)for(k=0;k<4;k++)actual.rows[j].heads[k]=actual.heads+k;

@@ -37,12 +37,12 @@ static State actual,reference,*w;
 #define ovl665_D_80119768 w->visual
 #define ovl665_D_80119754 w->music
 #define ovl665_D_80119758 w->effects
-#define D_800AD528 w->settings
+#define Options w->settings
 #define D_800AC5D0 w->timer
 #define D_800F7640 w->gain
 #define D_800F3A38 w->input
 #define D_800F3A60 w->input[0].a
-#define D_800F4D80 w->rows[w->rowRoot]
+#define UiRows w->rows[w->rowRoot]
 #define D_800ACC14 (&w->frames[w->frameRoot])
 ''' + body + r'''
 typedef struct {unsigned kind;s32 args[5];State before;} Event;
@@ -69,7 +69,7 @@ void ovl665_func_80114FD8(void){service(0);}
 void func_800207D4(u32 *p,s32 b,u32 c){unsigned k,slot;int found=0;for(k=0;k<2&&!found;k++)for(slot=0;slot<2;slot++)if(p==&w->frames[k].ordering70[slot?702:0]){found=1;goto selected;}
 selected:assert(found&&(uintptr_t)p>UINT32_MAX);fadeKinds[slot]++;const s32 args[5]={k,slot,b,(s32)c};record(1,args);effect(1);}
 void func_8005B2D4(s32 a){const s32 args[5]={a};record(2,args);effect(2);}
-void func_8002B330(s32 a,s32 b,char *p,s32 d,s32 e){unsigned kind;
+void StepMenuValue(s32 a,s32 b,char *p,s32 d,s32 e){unsigned kind;
  if(p==(char*)&w->visual.exit34.halves[0]){kind=0;assert(b==2&&d==4);}
  else if(p==(char*)&w->settings.bytes[48]){kind=1;assert(b==-1&&d==17);}
  else if(p==(char*)&w->settings.bytes[49]){kind=2;assert(b==-1&&d==17);}
@@ -84,10 +84,10 @@ void func_8002B330(s32 a,s32 b,char *p,s32 d,s32 e){unsigned kind;
 void PlaySfx(s32 a){const s32 args[5]={a};record(4,args);effect(4);}
 void func_8002AF8C(s32 a,s32 b,s32 c){const s32 args[5]={a,b,c};record(5,args);effect(5);}
 void func_80053A9C(s16 a){const s32 args[5]={a};record(6,args);effect(6);}
-void func_8004FA98(s32 a){const s32 args[5]={a};record(7,args);effect(7);}
-void func_8003EC88(s32 a){const s32 args[5]={a};record(8,args);effect(8);}
+void SetCdMixMode(s32 a){const s32 args[5]={a};record(7,args);effect(7);}
+void DrawUiRow(s32 a){const s32 args[5]={a};record(8,args);effect(8);}
 void ovl665_func_80114A24(void){service(9);}
-void func_8002A344(s32 a){const s32 args[5]={a};record(10,args);effect(10);}
+void UpdateScreenFade(s32 a){const s32 args[5]={a};record(10,args);effect(10);}
 static void expectedInput(unsigned kind,s32 mode,s32 width,s32 limit){unsigned char *p=kind==0?(unsigned char*)&w->visual.exit34.halves[0]:kind==3?(unsigned char*)&w->settings.audio.mono32:&w->settings.bytes[kind==1?48:49];
  const s32 args[5]={mode,width,kind,limit,0};inputKinds[kind]++;record(3,args);effect(3);
  if(kind==0)w->visual.exit34.word=(scenario+serial)&3;else if(kind==3)w->settings.audio.mono32=(scenario+serial)&1;else *p=(u8)(scenario+serial);
@@ -102,18 +102,18 @@ static void expected(void){s32 phase=w->visual.layout0C;states[phase>=0&&phase<1
  }else if(phase==3||phase==4){unsigned row=phase+1;if(w->rows[w->rowRoot][row].byte14==2){w->rows[w->rowRoot][row].cells[0]=2;expectedInput(phase==3?1:2,1,-1,17);
    if(phase==3){w->music=w->settings.bytes[48];func_80053A9C(w->gain);}else w->effects=w->settings.bytes[49];
    if(w->input[0].a){audioTaken[phase-3]++;PlaySfx(1);w->rows[w->rowRoot][row].cells[0]=1;w->visual.layout0C=7;func_8002AF8C(1,1,1);}}
-  func_8003EC88(row);
+  DrawUiRow(row);
  }else if(phase==5){if(w->rows[w->rowRoot][6].byte14==2){w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=0;expectedInput(3,0,2,2);w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=2;
-   if(w->input[0].a){audioTaken[2]++;PlaySfx(1);w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=1;w->visual.layout0C=7;func_8002AF8C(1,1,1);func_8004FA98(w->settings.audio.mono32);}}
-  func_8003EC88(6);func_8003EC88(7);
+   if(w->input[0].a){audioTaken[2]++;PlaySfx(1);w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=1;w->visual.layout0C=7;func_8002AF8C(1,1,1);SetCdMixMode(w->settings.audio.mono32);}}
+  DrawUiRow(6);DrawUiRow(7);
  }else if(phase==6){for(unsigned i=0;i<4;i++)if(w->rows[w->rowRoot][i].byte14==2)w->rows[w->rowRoot][i].byte14=3;w->timer=64;w->visual.layout0C=9;
  }else if(phase==7){for(unsigned i=4;i<8;i++){u8 state=w->rows[w->rowRoot][i].byte14;if(state==2)w->rows[w->rowRoot][i].byte14=3;else if(state==6)w->visual.layout0C=8;
-   if(w->rows[w->rowRoot][i].byte14>=2)func_8003EC88(i);}
+   if(w->rows[w->rowRoot][i].byte14>=2)DrawUiRow(i);}
  }else if(phase==8){for(unsigned i=4;i<8;i++)w->rows[w->rowRoot][i].byte14=0;w->visual.layout0C=1;
  }else if(phase==9){s16 timer=half((u16)w->timer-1);w->timer=timer;func_800207D4(&w->frames[w->frameRoot].ordering70[0],(64-(s32)timer)*4,69);
   if(w->timer<=0){fadeTaken[1]++;service(9);w->visual.layout0C=0;w->visual.scene00=word((u32)w->visual.scene00-1);}
  }
- for(unsigned i=0;i<4;i++)func_8003EC88(i);func_8002A344(0x1006A);
+ for(unsigned i=0;i<4;i++)DrawUiRow(i);UpdateScreenFade(0x1006A);
 }
 int main(void){assert(sizeof(void*)==8);u16 endian=1;assert(*(u8*)&endian==1);
  for(scenario=0;scenario<65536;scenario++)for(profile=0;profile<22;profile++){

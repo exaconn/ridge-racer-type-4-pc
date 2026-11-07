@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-extern int D_8010ECA8;
+extern int TrackObjectCount;
 
 #endif /* RR_GAME_RACE_OBJCLR_H */

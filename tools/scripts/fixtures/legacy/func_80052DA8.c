@@ -1,30 +1,30 @@
 extern int CdControl();
-extern int func_8008F274();
-extern struct { char pad[0x266C]; int a; int b; int pp; int c; int d; int e; char pad2[0x14]; int g; } D_800F4DB8;
+extern int CdDiskReady();
+extern struct { char pad[0x266C]; int a; int b; int pp; int c; int d; int e; char pad2[0x14]; int g; } SoundState;
 
-void func_80052DA8(void) {
+void CdAudioFilterStep(void) {
     char sp[8];
-    switch (D_800F4DB8.c) {
+    switch (SoundState.c) {
     case 0:
         sp[0] = 1;
-        sp[1] = D_800F4DB8.a;
+        sp[1] = SoundState.a;
         if (CdControl(0xD, sp, 0) != 0) {
-            D_800F4DB8.c++;
+            SoundState.c++;
             return;
         }
-        if (func_8008F274(1) == 0x10) {
-            D_800F4DB8.d = 1;
-            D_800F4DB8.e = -3;
-            D_800F4DB8.b = -1;
-            D_800F4DB8.c = 0;
+        if (CdDiskReady(1) == 0x10) {
+            SoundState.d = 1;
+            SoundState.e = -3;
+            SoundState.b = -1;
+            SoundState.c = 0;
             return;
         }
         return;
     case 1:
-        D_800F4DB8.b = -1;
-        D_800F4DB8.c = 0;
-        D_800F4DB8.e = 0;
-        D_800F4DB8.g = D_800F4DB8.a;
+        SoundState.b = -1;
+        SoundState.c = 0;
+        SoundState.e = 0;
+        SoundState.g = SoundState.a;
         break;
     }
 }

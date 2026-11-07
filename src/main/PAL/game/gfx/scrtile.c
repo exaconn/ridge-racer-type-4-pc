@@ -4,7 +4,7 @@
 #include "psyq/libgpu/primatt5.h"
 #include "psyq/libgpu/settrans.h"
 extern void AddPrim(u32 *,u32 *);
-extern u8 *func_8001FCC8(u32 *,u8 *,u16);
+extern u8 *AddDrawModePrim(u32 *,u8 *,u16);
 void func_800207D4(u32 *ordering,s32 intensity,u32 mode) {
     u8 *next,*fields,*packet;
     s32 index;
@@ -41,5 +41,5 @@ void func_800207D4(u32 *ordering,s32 intensity,u32 mode) {
         fields+=sizeof(RrGpuTilePacket16);
     }while(index<4);
     *(u8**)SCRATCHPAD=next;
-    *(u8**)SCRATCHPAD=func_8001FCC8(ordering,next,(u16)mode);
+    *(u8**)SCRATCHPAD=AddDrawModePrim(ordering,next,(u16)mode);
 }

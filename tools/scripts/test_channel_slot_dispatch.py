@@ -42,8 +42,8 @@ RrLibStateB0 test_records[5][5];
 RrLibStateB0 *test_table[0x1100];
 void (*test_active)(s32,s32,s32,s32,s32,s32);
 void (*test_inactive)(s32,s32,s32,s32);
-void func_80087DE4(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f) { test_active(a,b,c,d,e,f); }
-void func_80088340(s32 a,s32 b,s32 c,s32 d) { test_inactive(a,b,c,d); }
+void _SsVmKeyOn(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f) { test_active(a,b,c,d,e,f); }
+void _SsVmKeyOff(s32 a,s32 b,s32 c,s32 d) { test_inactive(a,b,c,d); }
 void test_initialize(void) {
  int bank;
  for(bank=-2;bank<=2;bank++) test_table[0x1000-0xF98/4+bank]=&test_records[bank+2][2];
@@ -55,7 +55,7 @@ void test_initialize(void) {
         cls.lib = C.CDLL(str(directory / 'function.so'))
         cls.records = (C.c_uint8 * (25 * 0xB0)).in_dll(cls.lib, 'test_records')
         cls.lib.test_initialize()
-        cls.function = cls.lib.func_80081CB4
+        cls.function = cls.lib._SsNoteOn
         cls.function.argtypes = [C.c_int32] * 4
         cls.function.restype = None
 

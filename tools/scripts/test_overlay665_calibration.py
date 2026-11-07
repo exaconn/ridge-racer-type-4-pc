@@ -27,10 +27,10 @@ typedef struct {
 static State world,initial,expected;
 #define ovl665_D_80119768 world.visual
 #define D_800AC5D0 world.timer
-#define D_800AD528 world.settings
+#define Options world.settings
 #define D_800ADAF0 world.frames
 #define D_800F3A38 world.input
-#define D_800F3AFC world.badges[world.badgeRoot]
+#define BadgeRows world.badges[world.badgeRoot]
 #define D_800AC590 (&world.text[world.textRoot])
 #define D_800ACC14 ((RrIconSpriteContext *)&world.frames[world.frameRoot])
 #define ovl665_D_80119018 world.regions[0]
@@ -71,9 +71,9 @@ void *func_8001FF84(u32 *head,void *cursor,s32 x,s32 y,const RrUiUvRect *region,
  for(unsigned i=0;i<5;i++)world.streams[arena].sprites[n].words[i]=(u32)x+(u32)y*3+(u32)color*7+uv+i;
  world.sprites++;effect(5);return world.sprites<4?(u8*)&world.streams[(world.arena+1)%3].sprites[world.sprites]:(u8*)&world.streams[(world.arena+1)%3].command;
 }
-void func_8003D6F0(s32 a){const s32 args[8]={a};record(6,args);effect(6);}
+void UpdateBadgeRowAnim(s32 a){const s32 args[8]={a};record(6,args);effect(6);}
 void func_80032A14(s32 x,s32 y,RrMenuTextState *text){assert(text==&world.text[world.textRoot]&&(uintptr_t)text>UINT32_MAX);const s32 args[8]={x,y,world.textRoot};record(7,args);effect(7);}
-void func_8002A344(s32 flags){const s32 args[8]={flags};record(8,args);effect(8);}
+void UpdateScreenFade(s32 flags){const s32 args[8]={flags};record(8,args);effect(8);}
 static void oracle(void){s32 phase=world.visual.layout0C;paths[phase>=0&&phase<4?phase:4]++;
  if(phase==0){service(0);func_8005B2D4(0);world.visual.layout0C=word((u32)world.visual.layout0C+1);}
  else if(phase==1){if(world.badges[world.badgeRoot][0].state10==3)world.visual.layout0C=2;}
@@ -90,8 +90,8 @@ static void oracle(void){s32 phase=world.visual.layout0C;paths[phase>=0&&phase<4
  for(unsigned i=0;i<4;i++)cursor=func_8001FF84(world.frames[world.frameRoot].ordering.ordering70,cursor,i<2?160:136+(i-2)*48,i<2?128+i*96:176,&world.regions[i/2][i%2],32568,255);
  RrGpuSingleCommandPacket *packet=cursor;world.scratch.pointers.cursor=(u8*)packet;u32 old=world.frames[world.frameRoot].ordering.ordering70[0];
  packet->tag=0x01000000U+(old&0xFFFFFFU);packet->command=0xE1000259U;world.frames[world.frameRoot].ordering.ordering70[0]=(old&0xFF000000U)+((uintptr_t)packet%0x1000000U);world.scratch.pointers.cursor=(u8*)(packet+1);
- world.text[world.textRoot].b4=26;func_8003D6F0(0);
- if(world.badges[world.badgeRoot][0].state10==3)func_80032A14(world.badges[world.badgeRoot][0].x04+10,world.badges[world.badgeRoot][0].y06+40,&world.text[world.textRoot]);func_8002A344(0x1007A);
+ world.text[world.textRoot].b4=26;UpdateBadgeRowAnim(0);
+ if(world.badges[world.badgeRoot][0].state10==3)func_80032A14(world.badges[world.badgeRoot][0].x04+10,world.badges[world.badgeRoot][0].y06+40,&world.text[world.textRoot]);UpdateScreenFade(0x1007A);
 }
 int main(void){assert(sizeof(void*)==8);_Static_assert(offsetof(PacketStream,command)==80,"command object");_Static_assert(sizeof(RrFrameStorage)==0x22778,"frame owner");
  for(scenario=0;scenario<65536;scenario++)for(profile=0;profile<8;profile++){

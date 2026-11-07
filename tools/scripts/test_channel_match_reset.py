@@ -27,8 +27,8 @@ typedef uint32_t u32;typedef int32_t s32;
 ''' + header + '''
 RrChannelControlRow36 test_rows[320];
 u16 test_masks[0x10010/2];
-s8 D_801100FC;u16 D_80110118;u32 D_800A48F8;
-#define D_8010F908 test_rows
+s8 spuVmMaxVoice;u16 D_80110118;u32 D_800A48F8;
+#define _svm_voice test_rows
 #define D_8010F90C ((u8 *)test_rows+4)
 #define D_8010F925 ((u8 *)test_rows+0x1D)
 #define D_8010F8F8 test_masks[0xF8F8/2]
@@ -39,17 +39,17 @@ void (*test_hook)(s32,s32);
 s32 test_calls,test_indices[128],test_kinds[128];
 void test_simple(u8 index) {
  test_indices[test_calls]=index;test_kinds[test_calls++]=0;
- func_80088D64(index);if(test_hook)test_hook(index,0);
+ vmNoiseOff(index);if(test_hook)test_hook(index,0);
 }
 void test_selected(s32 mode) {
  s32 index=D_80110118;
  test_indices[test_calls]=index;test_kinds[test_calls++]=mode+1;
- func_80088DA4(mode);if(test_hook)test_hook(index,1);
+ _SsVmKeyOffNow(mode);if(test_hook)test_hook(index,1);
 }
 void test_reset(void) {
  memset(test_rows,0xA5,sizeof(test_rows));memset(test_masks,0,sizeof(test_masks));
  D_8010F8F8=D_8010F8FA=0xFFFF;
- D_801100FC=24;D_80110118=31;D_800A48F8=0;test_calls=0;test_hook=0;
+ spuVmMaxVoice=24;D_80110118=31;D_800A48F8=0;test_calls=0;test_hook=0;
 }
 '''
         for name in ('80088D64','80088DA4','8008A644','80088340','80089E1C'):
@@ -65,11 +65,11 @@ void test_reset(void) {
                 assert body.count('(u16 *)0x80110000U') == 1
                 body = body.replace('(u16 *)0x80110000U', '(test_masks+0x10000/2)')
             if name == '80088340':
-                assert body.count('func_80088D64(') == body.count('func_80088DA4(') == 1
-                body = body.replace('func_80088D64(', 'test_simple(').replace('func_80088DA4(', 'test_selected(')
+                assert body.count('vmNoiseOff(') == body.count('_SsVmKeyOffNow(') == 1
+                body = body.replace('vmNoiseOff(', 'test_simple(').replace('_SsVmKeyOffNow(', 'test_selected(')
             if name == '80089E1C':
-                assert body.count('func_80088DA4(') == 1
-                body = body.replace('func_80088DA4(', 'test_selected(')
+                assert body.count('_SsVmKeyOffNow(') == 1
+                body = body.replace('_SsVmKeyOffNow(', 'test_selected(')
             source += body
         directory = Path(cls.temp.name)
         (directory/'function.c').write_text(source)
@@ -80,19 +80,19 @@ void test_reset(void) {
         cls.lib = C.CDLL(str(directory/'function.so'))
         cls.rows = (C.c_uint8*(320*54)).in_dll(cls.lib,'test_rows')
         cls.masks = (C.c_uint16*(0x10010//2)).in_dll(cls.lib,'test_masks')
-        cls.count = C.c_int8.in_dll(cls.lib,'D_801100FC')
+        cls.count = C.c_int8.in_dll(cls.lib,'spuVmMaxVoice')
         cls.blocked = C.c_uint32.in_dll(cls.lib,'D_800A48F8')
         cls.selected = C.c_uint16.in_dll(cls.lib,'D_80110118')
         cls.calls = C.c_int32.in_dll(cls.lib,'test_calls')
         cls.indices = (C.c_int32*128).in_dll(cls.lib,'test_indices')
         cls.kinds = (C.c_int32*128).in_dll(cls.lib,'test_kinds')
-        cls.match = cls.lib.func_80088340
+        cls.match = cls.lib._SsVmKeyOff
         cls.match.argtypes = [C.c_int32]*3+[C.c_uint32]
         cls.match.restype = C.c_int32
-        cls.group_reset = cls.lib.func_80089E1C
+        cls.group_reset = cls.lib._SsVmSeqKeyOff
         cls.group_reset.argtypes = [C.c_int32]
         cls.group_reset.restype = None
-        cls.set_count = cls.lib.func_8008A644
+        cls.set_count = cls.lib.SsSetReservedVoice
         cls.set_count.argtypes = [C.c_uint32]
         cls.set_count.restype = C.c_int32
 

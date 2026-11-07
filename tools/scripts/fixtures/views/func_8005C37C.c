@@ -3,7 +3,7 @@
 extern RrSpritePacket *func_8001FF84(u32 *, RrSpritePacket *, s32, s32,
                                   RrUiUvRect *, u16, s32);
 
-void func_8005C37C(s32 index, s32 x, s32 y, s32 intensity) {
+void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity) {
     register s32 xstage = x;
     register s32 ystage = y;
     register s32 istage = intensity;

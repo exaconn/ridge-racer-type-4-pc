@@ -31,7 +31,7 @@ s32 CdControl(s32 command,const u8 *parameters,u8 *result){
  attempt=0;stage++;return 1;
 }
 s32 VSync(s32 kind){assert(stage==2);assert(kind==3);stage=3;events++;return -123;}
-s32 func_8008F1C4(s32 timeout){assert(stage==3);assert(timeout==480);stage=0;events++;
+s32 CdRead2(s32 timeout){assert(stage==3);assert(timeout==480);stage=0;events++;
  return roundIndex++==retries(2)?-7:0;
 }
 ''' + body + r'''

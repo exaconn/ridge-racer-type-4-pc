@@ -2,13 +2,13 @@
 #include "rr/cd.h"
 
 extern s32 VSync(s32);
-extern u8 func_8008BF94(void);
-extern s32 func_8008BFA4(void);
-extern u8 *func_8008BFC4(void);
-extern void func_8008C03C(void);
-extern RrLibCompletionCallback func_8008C118(RrLibCompletionCallback);
-extern RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback);
-extern RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback);
+extern u8 CdStatus(void);
+extern s32 CdMode(void);
+extern u8 *CdLastPos(void);
+extern void CdFlush(void);
+extern RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback);
+extern RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback);
+extern RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback);
 extern s32 CdPosToInt(void *);
 extern s32 func_800963DC(const char *, ...);
 extern const char D_80011D40[], D_80011D58[];
@@ -34,12 +34,12 @@ s32 func_8008EB6C(s32 restart) {
     register s32 command __asm__("$4");
     register const u8 *parameters __asm__("$5");
 
-    func_8008C118(0);
-    func_8008C12C(0);
-    if (D_800A63F4 & 1) {
-        func_8008C55C(0);
+    CdSyncCallback(0);
+    CdReadyCallback(0);
+    if (CD_read_dma_mode & 1) {
+        CdDataCallback(0);
     }
-    if (func_8008BF94() & 0x10) {
+    if (CdStatus() & 0x10) {
         if (!(VSync(-1) & 63)) {
             func_800963DC(D_80011D40);
         }
@@ -60,11 +60,11 @@ s32 func_8008EB6C(s32 restart) {
         /* ASM_BARRIER: stage the null parameter after the command value. */
         __asm__("" : "+r"(parameters) : "r"(command));
         CdControl(command, parameters, 0);
-        if (!CdControl(2, func_8008BFC4(), 0)) {
+        if (!CdControl(2, CdLastPos(), 0)) {
             goto failed;
         }
     }
-    func_8008C03C();
+    CdFlush();
     /* ASM_BARRIER: form the captured mode address after reset returns. */
     __asm__("" : : : "$17");
     mode_slot = &D_800A67BC;
@@ -73,7 +73,7 @@ s32 func_8008EB6C(s32 restart) {
     requested = *mode_slot;
     mode_byte = requested;
     requested &= 255;
-    if (requested != func_8008BFA4() || retry != 0) {
+    if (requested != CdMode() || retry != 0) {
         if (!CdControl(14, &mode_byte, 0)) {
 failed:
             /* ASM_BARRIER: retain one shared failure block with fresh state
@@ -84,7 +84,7 @@ failed:
             return failed_state->remaining14;
         }
     }
-    completed = CdPosToInt(func_8008BFC4());
+    completed = CdPosToInt(CdLastPos());
     /* ASM_BARRIER: the success-state address is formed after decoding. */
     __asm__("" : : : "$16");
     callback = (RrLibCompletionCallback)func_8008E828;
@@ -93,10 +93,10 @@ failed:
      * publish the decoded sector in the callback setter's delay slot. */
     __asm__("" : "+r"(state) : "r"(callback));
     state->completed20 = completed;
-    func_8008C12C(callback);
+    CdReadyCallback(callback);
     command = 6;
-    if (D_800A63F4 & 1) {
-        func_8008C55C(func_8008EA9C);
+    if (CD_read_dma_mode & 1) {
+        CdDataCallback(func_8008EA9C);
         command = 6;
     }
     state->position08 = state->buffer04;

@@ -4,7 +4,7 @@
 
 #include "rr/spu.h"
 
-s32 func_8008A564(s32 bank,s32 program) {
+s32 _SsVmVSetUp(s32 bank,s32 program) {
     /* ASM_BARRIER: Retain full selectors until publishing their low bytes. */
     register s32 raw_bank __asm__("$7")=bank;
     /* ASM_BARRIER: Retain full selectors until publishing their low bytes. */
@@ -40,7 +40,7 @@ s32 func_8008A564(s32 bank,s32 program) {
         if(*(u8 *)(page+0x120)!=1) {result=-1;goto out;}
     }
     j=(s16)program;
-    if(j<D_801100EA)goto publish;
+    if(j<kMaxPrograms)goto publish;
 fail:
     result=-1;
     goto out;
@@ -68,11 +68,11 @@ publish:
     state=&D_80110101;
     state->bank=raw_bank;
     state->program=raw_program;
-    D_801100F8=tones;
+    _svm_tn=tones;
     /* ASM_BARRIER: Publish tone data before the other selected pointers. */
     __asm__("" : : : "memory");
-    D_801100F4=data;
-    D_801100EC=programs;
+    _svm_vh=data;
+    _svm_pg=programs;
     state->value=programs[j].value08;
     result=0;
 out:

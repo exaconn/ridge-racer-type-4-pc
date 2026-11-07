@@ -4,7 +4,7 @@
 extern Struct48 D_800ABE08;
 extern SaveBuf *D_800ACC0C;
 extern Struct2C D_800AD4D8;
-extern Struct40 D_800AD528;
+extern Struct40 Options;
 extern Struct10 D_800AD5C8[2][8][5];
 extern int D_800F3838[2][8][3];
 extern Struct7C D_800F3920;
@@ -34,7 +34,7 @@ void func_80079200(int arg0) {
         }
         s3 = D_800ACC0C;
         s3->f280 = D_800F3920;
-        s3->f2FC = D_800AD528;
+        s3->f2FC = Options;
         for (a3 = 0; a3 < 9; a3++) {
             s3->f33C[a3] = D_800ABE08.f24[a3];
         }

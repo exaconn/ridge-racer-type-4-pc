@@ -10,7 +10,7 @@ typedef struct { int x, y, z, w; } V4;
 
 typedef struct { int a, b, c, d; } V;
 
-extern unsigned char func_80043104();
+extern unsigned char ChecksumBytes();
 extern int func_80096424();
 extern int func_80096464();
 extern char D_8010C158[];
@@ -22,19 +22,19 @@ extern int BuildRotMatrixY();
 extern int BuildRotMatrixX();
 extern int MulMatrix();
 extern int ApplyMatrix();
-extern int func_800912D4();
+extern int SetGeomScreen();
 
-int func_8004326C(unsigned char *a0, unsigned char *a1);
-int func_8004342C();
-int func_80043508(int *a, int *b, int *c, int *d, int *e, int f);
+int ValidateRecordPassword(unsigned char *a0, unsigned char *a1);
+int EncodeRecordPassword();
+int DecodeRecordPassword(int *a, int *b, int *c, int *d, int *e, int f);
 void func_80043608(int *p);
 void func_800436E8(int *p);
 int func_80043730();
 void func_800437D8();
-void func_800439BC(char *a, int b, int *c);
-void func_80043AB0(RrRaceVehicle *vehicle, s32 *output, s32 distance);
+void CarLocalToWorld(char *a, int b, int *c);
+void GetTrackPointAhead(RrRaceVehicle *vehicle, s32 *output, s32 distance);
 
-int func_8004326C(unsigned char *a0, unsigned char *a1) {
+int ValidateRecordPassword(unsigned char *a0, unsigned char *a1) {
     unsigned char *p = a1;
     unsigned char *q;
     unsigned char *r;
@@ -43,7 +43,7 @@ int func_8004326C(unsigned char *a0, unsigned char *a1) {
     int c;
     unsigned v;
     unsigned char *tab;
-    c = func_800430BC(p[0], p[1]);
+    c = CodeCharsToByte(p[0], p[1]);
     i = 0;
     q = a0;
 L1:
@@ -52,7 +52,7 @@ L1:
         unsigned char t1 = p[3];
         p += 2;
         i++;
-        *q = func_800430BC(t0, t1);
+        *q = CodeCharsToByte(t0, t1);
         q++;
     }
     if (i < 6) goto L1;
@@ -65,13 +65,13 @@ L1:
         r = (unsigned char *)(k + (int)tab);
         t = q + i;
         k++;
-        *t = func_80043080(*t, *r, 1);
+        *t = AddOrSubtractByte(*t, *r, 1);
         if (k >= 11) k = 0;
         i++;
     } while (i < 6);
     a0[5] = a0[5] & 0xF;
-    if ((unsigned char)c != func_80043104(a0, 6)) return -1;
-    func_800430D8(a0, 6);
+    if ((unsigned char)c != ChecksumBytes(a0, 6)) return -1;
+    XorBytes37(a0, 6);
     v = (((a0[4] & 0xF) << 16) + (a0[3] << 8) + a0[2]);
     v >>= 2;
     if (v > 0x927BF) return -1;
@@ -83,7 +83,7 @@ L1:
     return 0;
 }
 
-int func_8004342C(a0, a1, a2, a3, a4, a5) int a0; int a1; int a2; int a3; int a4; int a5;
+int EncodeRecordPassword(a0, a1, a2, a3, a4, a5) int a0; int a1; int a2; int a3; int a4; int a5;
 {
     unsigned s0; int r;
     s0 = a1 << 4;
@@ -97,7 +97,7 @@ int func_8004342C(a0, a1, a2, a3, a4, a5) int a0; int a1; int a2; int a3; int a4
     D_8010C168[3] = a2 >> 8;
     D_8010C168[4] = (a2 >> 16) + (func_80096464() & ~0x3F);
     D_8010C168[5] = a4 & 0xF;
-    func_80043130(D_8010C168, D_8010C158);
+    EncodePasswordCode(D_8010C168, D_8010C158);
     D_8010C158[0xD] = 0;
     func_80096424(a5, D_8010C158);
     return 0;
@@ -107,10 +107,10 @@ int func_8004342C(a0, a1, a2, a3, a4, a5) int a0; int a1; int a2; int a3; int a4
 #define func_80096424 ((void (*)())func_80096424)
 #define D_8010C168 (*(unsigned char (*)[])&D_8010C168)
 
-int func_80043508(int *a, int *b, int *c, int *d, int *e, int f) {
+int DecodeRecordPassword(int *a, int *b, int *c, int *d, int *e, int f) {
     unsigned t;
     func_80096424(D_8010C158, f);
-    if (func_8004326C(D_8010C168, D_8010C158) == 0) {
+    if (ValidateRecordPassword(D_8010C168, D_8010C158) == 0) {
         *a = D_8010C168[0] & 0xF;
         *b = (D_8010C168[1] * 16 + (D_8010C168[0] >> 4)) & 0x3FF;
         t = (D_8010C168[4] << 16) + (D_8010C168[3] << 8) + D_8010C168[2];
@@ -135,7 +135,7 @@ void func_80043608(int *p) {
         r[1] = h[3];
         r[2] = h[4];
         r[3] = h[5];
-        func_80092FFC(r, h + 6);
+        LoadImage(r, h + 6);
         DrawSync(0);
         p = (int *)((char *)h + (*(unsigned *)h >> 2 << 2));
     }
@@ -145,7 +145,7 @@ void func_80043608(int *p) {
     r[2] = h[4];
     r[3] = h[5];
     if (r[2] > 0 && r[3] > 0) {
-        func_80092FFC(r, h + 6);
+        LoadImage(r, h + 6);
         DrawSync(0);
     }
 }
@@ -174,7 +174,7 @@ int func_80043730(a0) char *a0;
             v1 = (short)a1;
             if (v1 < a0v) v1 = a0v - v1; else v1 = v1 - a0v;
             b = v1;
-            if (D_800ABECC / 2 < v1) b = D_800ABECC - v1;
+            if (TrackNodeCount / 2 < v1) b = TrackNodeCount - v1;
             v1 = b;
             if (v1 < t1) { t2 = a3; t1 = v1; }
             a2 += 0x44;
@@ -216,7 +216,7 @@ void func_800437D8(a0, a1) char *a0; int *a1;
     g[2] += s.e.x;
     g[3] += s.e.y;
     g[4] += s.e.z;
-    func_800912D4(a1[10]);
+    SetGeomScreen(a1[10]);
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -227,7 +227,7 @@ void func_800437D8(a0, a1) char *a0; int *a1;
 #define MulMatrix2 ((void (*)())MulMatrix2)
 #define ApplyMatrix ((void (*)())ApplyMatrix)
 
-void func_800439BC(char *a, int b, int *c) {
+void CarLocalToWorld(char *a, int b, int *c) {
     int m1[8];
     int m2[10];
     int t[3];
@@ -250,7 +250,7 @@ void func_800439BC(char *a, int b, int *c) {
 #undef MulMatrix2
 #undef ApplyMatrix
 
-void func_80043AB0(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
+void GetTrackPointAhead(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
     s16 current_y;
     s32 fraction;
     s32 index, length;
@@ -264,11 +264,11 @@ void func_80043AB0(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
         index = vehicle->trackNodeF0 - ((s32) (distance - vehicle->trackFraction170) >> 0xA);
         neighbour = index - 1;
         if (index < 0) {
-            index += D_800ABECC;
+            index += TrackNodeCount;
             neighbour = index - 1;
         }
         if (neighbour < 0) {
-            neighbour += D_800ABECC;
+            neighbour += TrackNodeCount;
         }
     } else {
         page=(u8*)0x800B0000U;
@@ -286,8 +286,8 @@ void func_80043AB0(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
             neighbour -= length;
         }
     }
-    current = D_800ABEA4 + index;
-    next = D_800ABEA4 + neighbour;
+    current = TrackNodes + index;
+    next = TrackNodes + neighbour;
     fraction = (distance - vehicle->trackFraction170) & 0x3FF;
     output[0] = (s32) ((((s32) ((next->x08 - current->x08) * fraction) / 1024) + current->x08) * 4);
     current_y = current->y10;

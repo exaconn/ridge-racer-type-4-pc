@@ -85,7 +85,7 @@ class ChannelPairLevelUpdateTest(ChannelVoiceFixture, unittest.TestCase):
         self.assertEqual(self.table[0x4000 - 0xF98 // 4], replacement)
 
     def test_public_pair_setter_narrows_full_register_arguments_locally(self):
-        setter = self.lib.func_80086554
+        setter = self.lib.SsUtSetReverbDepth
         setter.argtypes = [C.c_int32, C.c_int32]
         setter.restype = None
         for left, right in [(0x12348000, 0x43217FFF), (-1, 0),

@@ -91,14 +91,14 @@ static struct World {struct State state;unsigned calls;struct Event events[35];}
 static unsigned scenario,mutation;
 #define D_800F2DE4 w->state.frame
 #define D_800F4C64 w->state.match
-#define D_800AC64A w->state.selection
-#define D_800AC5E0 w->state.mode
+#define MenuCursor w->state.selection
+#define MenuItemCount w->state.mode
 #define ovl661_D_80118378 w->state.table661
 #define ovl667_D_80118E2C w->state.table667
 #define ovl661_D_80118448 w->state.scores
 #define ovl661_D_80118410 w->state.winners
 #define ovl661_D_80118418 w->state.wins
-#define D_800AC59C w->state.participants
+#define NumCars w->state.participants
 #define D_8010C070 w->state.ranks
 #define D_8010C080 w->state.counts
 #define D_8010C0C8 w->state.order

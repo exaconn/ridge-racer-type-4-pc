@@ -11,39 +11,39 @@ typedef struct { int key; short idx; } W10_Q;
 
 typedef struct { char p[0x184]; int a; int b; char q[0x62]; short n; } W10_O;
 
-void func_800295B8(s32);
-void *func_8004F2D8(s32, s32);
-void func_8004FC18(s16, s16);
+void SaveCarSnapshots(s32);
+void *SoundQueueEnqueue(s32, s32);
+void SoundSetMasterVolume(s16, s16);
 extern u8 D_8009F910[];
 extern s16 D_800AC5D0;
 extern s32 D_800ACC28[2][8];
 extern s16 D_800AD522;
-extern s32 D_800F2EB8;
+extern s32 TrackLength;
 extern s32 D_800F3838[2][8][3];
 extern s16 D_800F3914;
-extern s32 D_800F3A30;
+extern s32 NumLaps;
 extern s32 D_800F3B00[];
 extern s32 D_800F4BA8[];
 extern s32 D_800F4C64;
-extern s32 D_800F4C74;
-extern s32 D_800F4C80[];
-extern s32 D_800FF6B0;
+extern s32 BestLapTime;
+extern s32 LapTimes[];
+extern s32 RaceState;
 extern s32 D_8010C0F8[3];
 extern s32 D_8010C120[3];
 extern s32 D_8010C12C;
 extern s16 D_8010C134;
 extern s32 D_8010C140[3];
-extern short D_800AC59C;
-extern W10_Q *D_800F2DE8[];
+extern short NumCars;
+extern W10_Q *RankTable[];
 extern W10_O *CarTable[];
-extern void func_8003CAF4();
+extern void SetupRace();
 extern unsigned short D_8009F914[];
 
-void func_8003C254(RrRaceVehicle *arg0);
-void func_8003C96C(void);
+void UpdateLapTiming(RrRaceVehicle *arg0);
+void UpdateRaceRanking(void);
 void func_8003CAB4(void);
 
-void func_8003C254(RrRaceVehicle *arg0) {
+void UpdateLapTiming(RrRaceVehicle *arg0) {
     RrRaceVehicleControl *s0;
     s16 v1;
     s32 msg;
@@ -52,25 +52,25 @@ void func_8003C254(RrRaceVehicle *arg0) {
     s0 = (RrRaceVehicleControl *)((u8 *)arg0 + 0x1F4);
     v1 = s0->steering94.count22;
     if (v1 > 0) {
-        if (v1 <= D_800F3A30) {
+        if (v1 <= NumLaps) {
             D_800F4BA8[v1 - 1] += 1;
             if (D_800F4BA8[s0->steering94.count22 - 1] > 0xFFFF) {
                 D_800F4BA8[s0->steering94.count22 - 1] = 0x10000;
             }
-            D_800F4C80[s0->steering94.count22 - 1] = func_8002B574(
+            LapTimes[s0->steering94.count22 - 1] = FramesToMilliseconds(
                 D_800F4BA8[s0->steering94.count22 - 1],
                 func_80096464() % 40
             );
-            if (D_800F4C80[s0->steering94.count22 - 1] > 0x927BE) {
-                D_800F4C80[s0->steering94.count22 - 1] = 0x927BF;
+            if (LapTimes[s0->steering94.count22 - 1] > 0x927BE) {
+                LapTimes[s0->steering94.count22 - 1] = 0x927BF;
             }
             if (D_800F4D44 == 0) {
-                D_8010C120[D_8010C12C] = D_800F4C80[s0->steering94.count22 - 1];
+                D_8010C120[D_8010C12C] = LapTimes[s0->steering94.count22 - 1];
             }
         }
     }
-    if (s0->steering94.count22 * D_800F2EB8 <= arg0->second + arg0->first) {
-        if (s0->steering94.count22 <= D_800F3A30) {
+    if (s0->steering94.count22 * TrackLength <= arg0->second + arg0->first) {
+        if (s0->steering94.count22 <= NumLaps) {
             s0->steering94.count22 = (u16)s0->steering94.count22 + 1;
             if (s0->steering94.count22 == 1) {
                 D_8010C114 = 0;
@@ -82,10 +82,10 @@ void func_8003C254(RrRaceVehicle *arg0) {
             D_8010C104 = D_8010C12C;
             D_8010C12C = 0;
             D_8010C134 = 0;
-            if (D_800F4C74 > D_800F4C80[s0->steering94.count22 - 2]) {
+            if (BestLapTime > LapTimes[s0->steering94.count22 - 2]) {
                 if (s0->steering94.count22 != 1) {
-                    func_8004F2D8(9, 0);
-                    D_800F4C74 = D_800F4C80[s0->steering94.count22 - 2];
+                    SoundQueueEnqueue(9, 0);
+                    BestLapTime = LapTimes[s0->steering94.count22 - 2];
                     s0->steering94.finish20 = (u16)s0->steering94.count22 - 2;
                     if (D_800F4D44 == 0) {
                         D_8010C0F8[0] = D_8010C120[0];
@@ -95,18 +95,18 @@ void func_8003C254(RrRaceVehicle *arg0) {
                 }
             }
             if ((u16)(D_800F3914 - 6) < 2U) {
-                target = D_800F3A30 - 1;
+                target = NumLaps - 1;
             } else {
-                target = D_800F3A30;
+                target = NumLaps;
             }
             if (s0->steering94.count22 == target) {
-                func_800295B8(0);
-            } else if (s0->steering94.count22 > D_800F3A30) {
-                if (D_800FF6B0 < 4) {
+                SaveCarSnapshots(0);
+            } else if (s0->steering94.count22 > NumLaps) {
+                if (RaceState < 4) {
                     D_8010C134 = -1;
-                    D_800FF6B0 = 4;
+                    RaceState = 4;
                     D_800AC5D0 = 0x4B;
-                    func_8004FC18(0, 0x47);
+                    SoundSetMasterVolume(0, 0x47);
                     msg = 0x13;
                     if (D_800F4D44 == 1) {
                         /* ASM_BARRIER: clobber msg on entry to mode-1 branch so CSE retains msg = 0x13 and frees $a0 for phase17 */
@@ -122,16 +122,16 @@ void func_8003C254(RrRaceVehicle *arg0) {
                         }
                     }
                     if (msg >= 0) {
-                        func_8004F2D8(msg, 1);
+                        SoundQueueEnqueue(msg, 1);
                     }
                     if (arg0->half1EE < 8 && D_800F4D44 < 2) {
                         msg = 0;
                         D_800F4C64 = 0;
-                        if (D_800F3A30 > 0) {
+                        if (NumLaps > 0) {
                             do {
-                                D_800F4C64 += D_800F4C80[msg];
+                                D_800F4C64 += LapTimes[msg];
                                 msg++;
-                            } while (msg < D_800F3A30);
+                            } while (msg < NumLaps);
                         }
                         if (D_800F4C64 > 0x927BE) {
                             D_800F4C64 = 0x927BF;
@@ -140,8 +140,8 @@ void func_8003C254(RrRaceVehicle *arg0) {
                             if (D_800F4CE8[D_800AD522][D_800F3914] > D_800F4C64) {
                                 D_800F4CE8[D_800AD522][D_800F3914] = D_800F4C64;
                             }
-                            if (D_800ACC28[D_800AD522][D_800F3914] > D_800F4C74) {
-                                D_800ACC28[D_800AD522][D_800F3914] = D_800F4C74;
+                            if (D_800ACC28[D_800AD522][D_800F3914] > BestLapTime) {
+                                D_800ACC28[D_800AD522][D_800F3914] = BestLapTime;
                             }
                             D_800F3838[D_800AD522][D_800F3914][0] = D_8010C0F8[0];
                             D_800F3838[D_800AD522][D_800F3914][1] = D_8010C0F8[1];
@@ -150,8 +150,8 @@ void func_8003C254(RrRaceVehicle *arg0) {
                             if (D_800AC5B0[D_800F3914] > D_800F4C64) {
                                 D_800AC5B0[D_800F3914] = D_800F4C64;
                             }
-                            if (D_800F3B00[D_800F3914] > D_800F4C74) {
-                                D_800F3B00[D_800F3914] = D_800F4C74;
+                            if (D_800F3B00[D_800F3914] > BestLapTime) {
+                                D_800F3B00[D_800F3914] = BestLapTime;
                             }
                         }
                     }
@@ -162,7 +162,7 @@ void func_8003C254(RrRaceVehicle *arg0) {
         }
     } else {
 check_split:
-        if (D_8010C140[D_8010C12C] + D_800F2EB8 * (s0->steering94.count22 - 1) <= arg0->second + arg0->first) {
+        if (D_8010C140[D_8010C12C] + TrackLength * (s0->steering94.count22 - 1) <= arg0->second + arg0->first) {
             if (D_800F4D44 == 0) {
                 D_8010C114 = 0x3C;
                 D_8010C104 = D_8010C12C;
@@ -173,42 +173,42 @@ check_split:
         }
     }
     if (D_8010C134 == 0) {
-        msg = 9 - (D_800F3A30 - s0->steering94.count22);
+        msg = 9 - (NumLaps - s0->steering94.count22);
         if (msg == 9) {
             msg = 0xF;
         }
         if (msg >= 6) {
-            func_8004F2D8(msg, 0);
+            SoundQueueEnqueue(msg, 0);
         }
         D_8010C134 = -1;
     }
 }
 
-void func_8003C96C(void)
+void UpdateRaceRanking(void)
 {
   int i;
   int j;
-  if (D_800FF6B0 < 4)
+  if (RaceState < 4)
   {
-    for (i = 0; i < D_800AC59C; i++)
+    for (i = 0; i < NumCars; i++)
     {
-      W10_Q *q = D_800F2DE8[i];
+      W10_Q *q = RankTable[i];
       W10_O **o = &CarTable[q->idx];
       q->key = (*o)->a + (*o)->b;
       (*o)->n = i;
     }
-    for (i = 0; i < D_800AC59C - 1; i++)
+    for (i = 0; i < NumCars - 1; i++)
     {
-      for (j = D_800AC59C - 1; i < j; j--)
+      for (j = NumCars - 1; i < j; j--)
       {
-        W10_Q *a2 = D_800F2DE8[j - 1];
-        W10_Q *a1 = D_800F2DE8[j];
+        W10_Q *a2 = RankTable[j - 1];
+        W10_Q *a1 = RankTable[j];
         int a0 = a2->key;
         int v1 = a1->key;
         if (a0 < v1 || (a0 == v1 && a1->idx == 0))
         {
-          D_800F2DE8[j] = a2;
-          D_800F2DE8[j - 1] = a1;
+          RankTable[j] = a2;
+          RankTable[j - 1] = a1;
         }
       }
     }
@@ -216,6 +216,6 @@ void func_8003C96C(void)
 }
 
 void func_8003CAB4(void) {
-    func_8003CAF4();
+    SetupRace();
     D_800AD50A = D_8009F914[D_800F4D44];
 }

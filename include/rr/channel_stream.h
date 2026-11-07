@@ -21,10 +21,10 @@ typedef struct {
     s32 tempoRemainingA8;
     u32 targetTempoAC;
 } RrChannelStreamB0;
-extern RrChannelStreamB0 *D_8010F068[];
+extern RrChannelStreamB0 *_ss_score[];
 void func_800833A0();
-void func_80083994(s32,s16);
-void func_80089E1C(s32);
+void _SsSndNextSep(s32,s16);
+void _SsVmSeqKeyOff(s32);
 RR_ASSERT_SIZE(RrChannelStreamB0,0xB0);
 RR_ASSERT_OFFSET(RrChannelStreamB0,active14,0x14);
 RR_ASSERT_OFFSET(RrChannelStreamB0,duration20,0x20);
@@ -42,8 +42,8 @@ RR_ASSERT_OFFSET(RrChannelStreamB0,restartRow23,0x23);
 RR_ASSERT_OFFSET(RrChannelStreamB0,accumulator88,0x88);
 RR_ASSERT_OFFSET(RrChannelStreamB0,accumulator90,0x90);
 
-extern u32 D_8010F064;
-void func_80084314(s32 bank,s32 row);
+extern u32 VBLANK_MINUS;
+void _SsSndTempo(s32 bank,s32 row);
 RR_ASSERT_OFFSET(RrChannelStreamB0,interval4E,0x4E);
 RR_ASSERT_OFFSET(RrChannelStreamB0,scale50,0x50);
 RR_ASSERT_OFFSET(RrChannelStreamB0,tempo94,0x94);

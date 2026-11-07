@@ -8,12 +8,12 @@
 #include "rr/course_choice_types.h"
 extern RrCourseChoice4 D_800ABE08[2][9];
 extern RrMenuArenas D_800F4D70;
-extern void *D_800ACC18;
+extern void *LoadCursor;
 extern u8 *D_800F2AB0;
 void ResetScreenCounters(void);
 /* Nine readable entries; glyph-1 terminates. The final glyph0x167 counts
  * as the ninth valid entry. */
-s32 func_800370BC(const RrCourseChoice4 *choices);
+s32 CountChoiceGlyphs(const RrCourseChoice4 *choices);
 /* Fresh player0..3, two-way group selector and course0..8 are required.
  * Scene setup may replace roots and selections before the copies are made.
  * The published UI pointer supplies at least two writable bytes. */

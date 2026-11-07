@@ -28,7 +28,7 @@
 #include "psyq/libsnd/cc_98.h"
 extern char D_800116E8[];
 extern int D_8010EFC8[];
-short func_8007FD94(a0, a1) int a0; int a1; {
+short SsSeqOpen(a0, a1) int a0; int a1; {
     /* ASM_BARRIER: pin t0 to match original register allocation */
     register int t0 asm("t0");
     /* ASM_BARRIER: pin v1 to match original register allocation */
@@ -53,10 +53,10 @@ short func_8007FD94(a0, a1) int a0; int a1; {
     /* ASM_BARRIER: force t0 = 0 first */
     __asm__("" : "+r"(t0));
     a2 = a0;
-    /* ASM_BARRIER: force a2 = a0 before D_8010F060 load */
+    /* ASM_BARRIER: force a2 = a0 before _snd_openflag load */
     __asm__("" : "+r"(a2));
     x = a1;
-    a3 = D_8010F060;
+    a3 = _snd_openflag;
     if (a3 == -1) {
     err:
         func_8001E84C(D_800116E8, x, a2, a3);
@@ -98,59 +98,59 @@ short func_8007FD94(a0, a1) int a0; int a1; {
                 /* ASM_BARRIER: force sllv v0, v0, s0 before sll a1, a1, 16 */
                 __asm__ volatile("" : "+r"(v0));
                 x <<= 16;
-                /* ASM_BARRIER: force sll a1, a1, 16 before D_8010F060 load */
+                /* ASM_BARRIER: force sll a1, a1, 16 before _snd_openflag load */
                 __asm__ volatile("" : "+r"(x));
-                v1 = D_8010F060;
-                /* ASM_BARRIER: load D_8010F060 into v1 */
+                v1 = _snd_openflag;
+                /* ASM_BARRIER: load _snd_openflag into v1 */
                 __asm__ volatile("" : "+r"(v1));
                 v1 |= v0;
                 /* ASM_BARRIER: force or v1, v1, v0 */
                 __asm__ volatile("" : "+r"(v1));
-                D_8010F060 = v1;
-                x = func_80081EB4(a, x >> 16, a2, a3) << 16;
+                _snd_openflag = v1;
+                x = _SsInitSoundSeq(a, x >> 16, a2, a3) << 16;
                 /* ASM_BARRIER: keep x in a1 and reserve v0 across tab setup */
                 __asm__ volatile("" : "+r"(x), "=r"(v0));
                 tab = D_8010EFC8;
                 /* ASM_BARRIER: force lui v1, addiu v1 */
                 __asm__ volatile("" : "+r"(tab));
-                tab[0] = (int)func_80081CB4;
-                tab[1] = (int)func_80081D94;
+                tab[0] = (int)_SsNoteOn;
+                tab[1] = (int)_SsSetProgramChange;
                 tab[3] = (int)func_80081AE4;
-                tab[2] = (int)func_80081804;
-                tab[4] = (int)func_800818B4;
-                tab[5] = (int)func_80080034;
-                tab[7] = (int)func_80080434;
-                tab[8] = (int)func_80080504;
-                tab[9] = (int)func_800805D4;
-                tab[10] = (int)func_800806C4;
-                tab[11] = (int)func_80080804;
-                tab[12] = (int)func_80080904;
-                tab[13] = (int)func_80080A44;
-                tab[14] = (int)func_80080AB4;
-                tab[15] = (int)func_80080774;
-                tab[16] = (int)func_80080B24;
-                tab[6] = (int)func_800800B4;
-                tab[17] = (int)func_80080BE4;
-                tab[18] = (int)func_80080C74;
-                tab[19] = (int)func_80080D34;
-                tab[20] = (int)func_80080DC4;
-                tab[21] = (int)func_80080E54;
-                tab[22] = (int)func_80081004;
-                tab[23] = (int)func_800810C4;
-                tab[24] = (int)func_80081174;
-                tab[25] = (int)func_80081224;
-                tab[26] = (int)func_800812D4;
-                tab[27] = (int)func_80081394;
-                tab[28] = (int)func_80081444;
-                tab[29] = (int)func_800814F4;
-                tab[30] = (int)func_800815D4;
-                tab[31] = (int)func_80081674;
-                tab[32] = (int)func_80081714;
-                tab[33] = (int)func_80081744;
-                tab[34] = (int)func_80081774;
-                tab[35] = (int)func_800817A4;
-                a = (int)func_800817D4;
-                /* ASM_BARRIER: materialize func_800817D4 in a0 before shifting x */
+                tab[2] = (int)_SsSetPitchBend;
+                tab[4] = (int)_SsSetControlChange;
+                tab[5] = (int)_SsContBankChange;
+                tab[7] = (int)_SsContMainVol;
+                tab[8] = (int)_SsContPanpot;
+                tab[9] = (int)_SsContExpression;
+                tab[10] = (int)_SsContDamper;
+                tab[11] = (int)_SsContNrpn1;
+                tab[12] = (int)_SsContNrpn2;
+                tab[13] = (int)_SsContRpn1;
+                tab[14] = (int)_SsContRpn2;
+                tab[15] = (int)_SsContExternal;
+                tab[16] = (int)_SsContResetAll;
+                tab[6] = (int)_SsContDataEntry;
+                tab[17] = (int)_SsSetNrpnVabAttr0;
+                tab[18] = (int)_SsSetNrpnVabAttr1;
+                tab[19] = (int)_SsSetNrpnVabAttr2;
+                tab[20] = (int)_SsSetNrpnVabAttr3;
+                tab[21] = (int)_SsSetNrpnVabAttr4;
+                tab[22] = (int)_SsSetNrpnVabAttr5;
+                tab[23] = (int)_SsSetNrpnVabAttr6;
+                tab[24] = (int)_SsSetNrpnVabAttr7;
+                tab[25] = (int)_SsSetNrpnVabAttr8;
+                tab[26] = (int)_SsSetNrpnVabAttr9;
+                tab[27] = (int)_SsSetNrpnVabAttr10;
+                tab[28] = (int)_SsSetNrpnVabAttr11;
+                tab[29] = (int)_SsSetNrpnVabAttr12;
+                tab[30] = (int)_SsSetNrpnVabAttr13;
+                tab[31] = (int)_SsSetNrpnVabAttr14;
+                tab[32] = (int)_SsSetNrpnVabAttr15;
+                tab[33] = (int)_SsSetNrpnVabAttr16;
+                tab[34] = (int)_SsSetNrpnVabAttr17;
+                tab[35] = (int)_SsSetNrpnVabAttr18;
+                a = (int)_SsSetNrpnVabAttr19;
+                /* ASM_BARRIER: materialize _SsSetNrpnVabAttr19 in a0 before shifting x */
                 __asm__ volatile("" : "+r"(a));
                 x >>= 16;
                 /* ASM_BARRIER: shift x before final table store */

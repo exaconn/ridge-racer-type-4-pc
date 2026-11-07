@@ -28,7 +28,7 @@ void ovl662_func_8011F888(s32 mode) {
             break;
         }
     } else if (ovl662_D_80127668.words[0] & 8) {
-        if (D_800F3AFC[0].state10 == 3) {
+        if (BadgeRows[0].state10 == 3) {
             if (ovl662_D_801276A8.fade00 < 0) {
                 ovl662_D_801276A8.flagsD1 |= 4;
                 if (D_800AC590->st == 4 && D_800F3A38[0].type01 != 0x12 && D_800F3A38[0].a != 0) {
@@ -62,7 +62,7 @@ void ovl662_func_8011F888(s32 mode) {
         D_800AC590->b5 = -1;
         D_800AC590->st = 0;
         ovl662_D_801276A8.flagsD1 = 1;
-        D_800F3AFC[0].half02 = 1;
-        D_800F3AFC[0].state10 = 0;
+        BadgeRows[0].half02 = 1;
+        BadgeRows[0].state10 = 0;
     }
 }

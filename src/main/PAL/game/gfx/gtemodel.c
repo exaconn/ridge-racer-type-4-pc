@@ -12,11 +12,11 @@ typedef struct { int a, b, c, d; } V16;
 typedef struct { int a, b; } __attribute__((packed)) V8;
 
 extern int func_8001AC24();
-extern int func_80092334();
+extern int RotMatrixZ();
 extern int D_800FF690[];
 extern int D_8009E46C[];
-extern int func_80013890();
-extern int func_80041A54();
+extern int SetupRenderer();
+extern int InitMenuGrid();
 extern int ApplyMatrixSV();
 extern int RotMatrix();
 extern V8 D_800101BC;
@@ -24,9 +24,9 @@ extern V16 D_800101C4;
 extern V16 D_800101D4;
 extern V16 D_8009E540;
 extern int D_800FFC48;
-extern char *D_800F3A28;
+extern char *MenuGridRecords;
 extern char *D_8010BF78;
-extern void func_8006E1AC();
+extern void BuildCameraMatrices();
 
 void func_8001ADA0();
 void func_8001AFB8(int a0, int a1);
@@ -78,7 +78,7 @@ void func_8001ADA0(a0, a1) int a0; int a1;
     m[0xC / 4] = 0;
     m[1] = 0;
     m[0x2C / 4] = v1;
-    func_80092334(g20, r_a1);
+    RotMatrixZ(g20, r_a1);
     RR_GTE_SETROT(m);
     p__r8 = D_800FF690;
     RR_GTE_SETLLM(p__r8);
@@ -348,9 +348,9 @@ void func_8001B308(void) {
     short *p, *q;
     int i;
 
-    D_8010BF78 = D_800ACC18;
-    D_800ACC18 += 0xBC;
-    func_80013890(1);
+    D_8010BF78 = LoadCursor;
+    LoadCursor += 0xBC;
+    SetupRenderer(1);
     sp18 = D_800101BC;
     ClearImage2(&sp18, 0, 0, 0);
     *(V16 *)(SCRATCHPAD + 0x18) = D_800101C4;
@@ -435,16 +435,16 @@ void func_8001B308(void) {
         i--;
         q--;
     } while (i >= 0);
-    func_80041A18(&D_800FFC48, 1);
-    func_80041A54(0, 1, 3, 0xB4, 0x60);
-    func_80096454(D_800F3A28 + 0x1C, 0, 0x10);
-    *(V16 *)(D_800F3A28 + 0xC) = D_800101D4;
+    AllocMenuGridRecords(&D_800FFC48, 1);
+    InitMenuGrid(0, 1, 3, 0xB4, 0x60);
+    func_80096454(MenuGridRecords + 0x1C, 0, 0x10);
+    *(V16 *)(MenuGridRecords + 0xC) = D_800101D4;
 }
 
 void func_8001B640(void)
 {
     unsigned short *g;
-    func_8006E1AC();
+    BuildCameraMatrices();
     g = (unsigned short *)SCRATCHPAD;
     g[0x17] <<= 1;
     g[0x18] <<= 1;

@@ -63,50 +63,50 @@ typedef struct {
     Spec30 *p548;
 } ContextAC650;
 
-extern ContextAC650 D_800AC650;
-extern ComCar D_80107198[];
+extern ContextAC650 RaceContext;
+extern ComCar ComCars[];
 extern Spec30 *D_800ACB94;
 extern u16 D_8009FE76;
 
 extern void func_80096434(void *, s32);
-extern void func_8002E4F4(ComCar *);
-extern s32 func_80026A74(s32 *, s32);
+extern void ResetCarState(ComCar *);
+extern s32 FindTrackNode(s32 *, s32);
 extern void func_8001E84C(const char *, s32);
 
-void func_80045F48(s32 count) {
+void InitComCars(s32 count) {
     s32 i, j, k;
     CarSub1F4 *sub;
     Spec30 *spec;
     s32 tmp;
     ComCar *car;
 
-    car = D_80107198;
-    D_800AC650.count10 = count;
+    car = ComCars;
+    RaceContext.count10 = count;
     func_80096434(car, 0x2260);
     for (i = 0; i < count; i++) {
         sub = &car->sub1F4;
-        spec = &D_800AC650.p540[i];
-        func_8002E4F4(car);
+        spec = &RaceContext.p540[i];
+        ResetCarState(car);
         car->flags1E4 = i + 1;
         for (j = 0; j < 8; j++) {
-            if (D_800AC650.grid00[j] == i + 1) {
+            if (RaceContext.grid00[j] == i + 1) {
                 k = j;
                 break;
             }
         }
-        car->pos20[0] = D_800AC650.p53C->pos[k].x;
+        car->pos20[0] = RaceContext.p53C->pos[k].x;
         car->pos20[1] = 0;
-        car->pos20[2] = D_800AC650.p53C->pos[k].z;
+        car->pos20[2] = RaceContext.p53C->pos[k].z;
         car->posScaled00[0] = car->pos20[0] << 8;
         car->posScaled00[2] = car->pos20[2] << 8;
-        car->trackNodeF0 = D_800AC650.p53C->f0;
+        car->trackNodeF0 = RaceContext.p53C->f0;
         car->rot50 = 0;
         car->rot58 = 0;
-        car->rot54 = D_800AC650.p53C->rot[k];
+        car->rot54 = RaceContext.p53C->rot[k];
         car->heading1D4 = car->rot54;
-        car->trackNodeF0 = func_80026A74(car->pos20, car->trackNodeF0);
+        car->trackNodeF0 = FindTrackNode(car->pos20, car->trackNodeF0);
         func_8002E868(car);
-        func_800468F0(car);
+        UpdateCarTrackProjection(car);
         sub->laneTimer38 = 10;
         sub->laneStart3A = car->lateralOffset172;
         sub->maxSpeedF8 = spec->baseSpeed00 << 8;
@@ -130,33 +130,33 @@ void func_80045F48(s32 count) {
     }
     switch ((s16)D_800F4D44) {
     case 6:
-        D_800AC650.mode14 = 1;
-        D_800AC650.p544 = &D_800AC650.p540[D_800F3826 + 7];
-        D_800AC650.p548 = 0;
+        RaceContext.mode14 = 1;
+        RaceContext.p544 = &RaceContext.p540[D_800F3826 + 7];
+        RaceContext.p548 = 0;
         break;
     case 1:
-        D_800AC650.mode14 = 1;
-        D_800AC650.p544 = &D_800AC650.p540[D_800AD520 + 7];
-        D_800AC650.p548 = 0;
+        RaceContext.mode14 = 1;
+        RaceContext.p544 = &RaceContext.p540[D_800AD520 + 7];
+        RaceContext.p548 = 0;
         break;
     case 2:
     case 3:
     case 4:
-        D_800AC650.mode14 = 2;
-        D_800AC650.p544 = &D_800AC650.p540[7];
-        D_800AC650.p548 = &D_800AC650.p540[7];
+        RaceContext.mode14 = 2;
+        RaceContext.p544 = &RaceContext.p540[7];
+        RaceContext.p548 = &RaceContext.p540[7];
         break;
     case 5:
     default:
-        D_800AC650.mode14 = 0;
-        D_800AC650.p544 = &D_800AC650.p540[D_800AD520 + 7];
+        RaceContext.mode14 = 0;
+        RaceContext.p544 = &RaceContext.p540[D_800AD520 + 7];
         break;
     }
     if ((s16)D_800F4D44 == 1) {
         for (i = 0; i < count; i++) {
-            sub = &D_80107198[i].sub1F4;
-            sub->metric12A = D_800AC650.p544->divisor24;
-            tmp = sub->divisor11C * D_800AC650.p544->steering2C;
+            sub = &ComCars[i].sub1F4;
+            sub->metric12A = RaceContext.p544->divisor24;
+            tmp = sub->divisor11C * RaceContext.p544->steering2C;
             if (tmp < 0) {
                 tmp += 0x3FF;
             }

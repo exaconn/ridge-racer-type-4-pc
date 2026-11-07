@@ -4,8 +4,8 @@
 #include "types.h"
 
 void func_80055C84(void);
-int func_80055FD8();
-int func_8005602C();
-int func_800560CC();
+int FindCurveSegment();
+int InterpCurveLinear();
+int InterpCurveEase();
 
 #endif /* RR_GAME_CAMERA_CAMVIEW_H */

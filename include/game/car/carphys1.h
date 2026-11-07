@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_800247FC();
+void UpdateCarHeading();
 
 #endif /* RR_GAME_CAR_CARPHYS1_H */

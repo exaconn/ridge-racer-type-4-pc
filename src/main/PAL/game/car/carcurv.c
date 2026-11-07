@@ -36,10 +36,10 @@ typedef struct {
     Sub1F4 sub1F4;
 } Arg0;
 
-void func_80047FBC(Arg0 *a0);
+void PlanComCarCornerTurn(Arg0 *a0);
 int func_80048384(int a0, int a1);
 
-void func_80047FBC(Arg0 *a0) {
+void PlanComCarCornerTurn(Arg0 *a0) {
     int s0;
     int s1;
     Sub1F4 *s2 = &a0->sub1F4;
@@ -59,7 +59,7 @@ void func_80047FBC(Arg0 *a0) {
     s2->unkA8 = s3;
     s3 = 0;
     s1 = a0->unkF0;
-    s7 = func_8004C454(s1, s2->unk38);
+    s7 = GetTrackNodeHeading(s1, s2->unk38);
     s6 = (short)-a0->unk1D4 + 0x400;
     s6 &= 0xFFF;
     s0 = s3;
@@ -69,10 +69,10 @@ void func_80047FBC(Arg0 *a0) {
     s4 = s1;
     s1 = s4 - 1;
     if (s1 < 0) {
-        s1 += D_800ABECC;
+        s1 += TrackNodeCount;
     }
     while (s3 < s2->unkA8) {
-        v1 = func_8004C454(s1, s2->unk38);
+        v1 = GetTrackNodeHeading(s1, s2->unk38);
         a0_v = v1 - s7;
         a0_v &= 0xFFF;
         s7 = v1;
@@ -110,23 +110,23 @@ void func_80047FBC(Arg0 *a0) {
         }
         if (!fp) {
             s4 = s1;
-            s3 += D_800ABEA4[s4].segmentLength1C;
+            s3 += TrackNodes[s4].segmentLength1C;
             s1 = s4 - 1;
             if (s1 < 0) {
-                s1 += D_800ABECC;
+                s1 += TrackNodeCount;
             }
         }
     }
     s1 = s4 - a0->unkF0;
-    s1 %= D_800ABECC;
-    if (s1 > D_800ABECC / 2) {
-        s1 -= D_800ABECC;
+    s1 %= TrackNodeCount;
+    if (s1 > TrackNodeCount / 2) {
+        s1 -= TrackNodeCount;
     }
     if (s1 < 0) {
         s1 = -s1;
     }
     if (s1 >= 5) {
-        s0 = func_8004C454(s4, s2->unk38);
+        s0 = GetTrackNodeHeading(s4, s2->unk38);
         s2->unkAC = s4;
         v1 = (short)-a0->unk1D4 + 0x400;
         v1 &= 0xFFF;
@@ -155,7 +155,7 @@ void func_80047FBC(Arg0 *a0) {
             s0 |= ~0xFFF;
         }
         s2->unkA0 = s0 << 12;
-        func_8004D354(&s2->primaryC8, s2->unk9C, s2->unk98, -s2->unk8C);
+        BuildRateCurve(&s2->primaryC8, s2->unk9C, s2->unk98, -s2->unk8C);
         /* ASM_BARRIER: extend s0 live range across call to keep s0 in callee-saved register */
         __asm__("" : : "r"(s0));
         s2->unk94 = 1;
@@ -167,12 +167,12 @@ void func_80047FBC(Arg0 *a0) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEA4 ((char *)D_800ABEA4)
+#define TrackNodes ((char *)TrackNodes)
 
 int func_80048384(int a0, int a1) {
     if (a1 > 0) {
-        int n = D_800ABECC;
-        char *p = D_800ABEA4;
+        int n = TrackNodeCount;
+        char *p = TrackNodes;
         do {
             a0--;
             if (a0 < 0) a0 += n;
@@ -182,4 +182,4 @@ int func_80048384(int a0, int a1) {
     return a0;
 }
 
-#undef D_800ABEA4
+#undef TrackNodes

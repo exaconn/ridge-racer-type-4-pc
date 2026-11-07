@@ -6,7 +6,7 @@ class AvailableCarsTest(unittest.TestCase):
  def test_progress_and_live_records(self):
   root=Path(__file__).resolve().parents[2]
   body=(root/'src/overlays/PAL/662/func_80116960.c').read_text()
-  codecs=(root/'tools/scripts/fixtures/views/func_80037040.c').read_text().replace('func_80037040','actual_decode')+'\n'+(root/'tools/scripts/fixtures/views/func_8003708C.c').read_text().replace('func_8003708C','actual_encode')
+  codecs=(root/'tools/scripts/fixtures/views/func_80037040.c').read_text().replace('UnpackChoiceGlyph','actual_decode')+'\n'+(root/'tools/scripts/fixtures/views/func_8003708C.c').read_text().replace('PackChoiceGlyph','actual_encode')
   code=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -28,13 +28,13 @@ static unsigned count,seen,serial,n,profile;static int reference_run;
 #define ovl662_D_801272D4 world.phase
 #define ovl662_D_801272E4 world.pick
 #define ovl662_D_801272E0 world.count
-#define D_800AC64A world.row
-#define D_800AC5E0 world.layout
+#define MenuCursor world.row
+#define MenuItemCount world.layout
 #define D_800F3A26 world.scene
 #define D_800F4D8A world.state
 #define D_800F4C6A world.enabled
-#define D_800102F0 world.resource
-#define D_800ACC18 world.ui
+#define CdDirectoryBuffer world.resource
+#define LoadCursor world.ui
 #define D_800F4D40 world.screen
 #define D_800F4D70 world.arenas
 #define D_800F4D98 world.choice
@@ -64,13 +64,13 @@ static void service(unsigned id,const u32 *a){struct World *w=reference_run?&exp
  effect(w,id,order);
 }
 void ResetScreenCounters(void){u32 a[10]={0};service(0,a);}
-void func_8003A1B4(void){u32 a[10]={0};service(1,a);}
-void func_8003E928(s32 a0,s32 a1,s32 a2,s32 a3,s32 a4,s32 a5,s32 a6,s32 a7,s32 a8,s32 a9,...){u32 a[10]={(u32)a0,(u32)a1,(u32)a2,(u32)a3,(u32)a4,(u32)a5,(u32)a6,(u32)a7,(u32)a8,(u32)a9};service(2,a);}
+void InitMenuArenas(void){u32 a[10]={0};service(1,a);}
+void InitUiRow(s32 a0,s32 a1,s32 a2,s32 a3,s32 a4,s32 a5,s32 a6,s32 a7,s32 a8,s32 a9,...){u32 a[10]={(u32)a0,(u32)a1,(u32)a2,(u32)a3,(u32)a4,(u32)a5,(u32)a6,(u32)a7,(u32)a8,(u32)a9};service(2,a);}
 void func_80037110(void){u32 a[10]={0};service(3,a);}
-void func_8003D228(s32 a0,s32 a1,s16 a2,s32 a3,u16 a4,u16 a5,u16 a6){u32 a[10]={(u32)a0,(u32)a1,(u32)(s32)a2,(u32)a3,a4,a5,a6};service(4,a);}
-void func_80013890(s32 n){u32 a[10]={(u32)n};service(5,a);}
-s32 func_8003708C(void *p){u8 bytes[3];memcpy(bytes,p,3);s32 result=actual_encode(bytes);u32 a[10]={bytes[0],bytes[1],bytes[2]};service(6,a);return result;}
-void func_80037040(s8 *p,s32 glyph){u32 a[10]={(u32)glyph};service(7,a);actual_decode(p,glyph);}
+void InitBadgeRow(s32 a0,s32 a1,s16 a2,s32 a3,u16 a4,u16 a5,u16 a6){u32 a[10]={(u32)a0,(u32)a1,(u32)(s32)a2,(u32)a3,a4,a5,a6};service(4,a);}
+void SetupRenderer(s32 n){u32 a[10]={(u32)n};service(5,a);}
+s32 PackChoiceGlyph(void *p){u8 bytes[3];memcpy(bytes,p,3);s32 result=actual_encode(bytes);u32 a[10]={bytes[0],bytes[1],bytes[2]};service(6,a);return result;}
+void UnpackChoiceGlyph(s8 *p,s32 glyph){u32 a[10]={(u32)glyph};service(7,a);actual_decode(p,glyph);}
 static s32 encode(const u8 *bytes){return bytes[0]*160+bytes[1]*40+bytes[2];}
 static void decode(u8 *p,s32 g){s32 first=g/160;p[0]=(u8)first;p[1]=(u8)(g/40-first*4);p[2]=(u8)(g%40);}
 static s32 get(const u8 *p){u32 a[10]={p[0],p[1],p[2]};s32 result=encode(p);service(6,a);return result;}

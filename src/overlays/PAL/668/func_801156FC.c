@@ -11,23 +11,23 @@ void ovl668_func_801156FC(void) {
     s32 dx;
     s32 dz;
 
-    idx = D_800AC650.node498;
+    idx = RaceContext.node498;
     next = idx + 1;
-    if (next >= D_800ABECC) {
+    if (next >= TrackNodeCount) {
         next = 0;
     }
-    func_80047610(&D_800ABEA4[idx], &D_800ABEA4[next], D_800AC650.lateral49E, D_800AC650.fraction49C, sp18);
-    next = D_800AC650.node498;
+    func_80047610(&TrackNodes[idx], &TrackNodes[next], RaceContext.lateral49E, RaceContext.fraction49C, sp18);
+    next = RaceContext.node498;
     idx = next - 1;
-    D_800AC650.position450[1] = (s32)((u32)sp18[1] - 120U);
+    RaceContext.position450[1] = (s32)((u32)sp18[1] - 120U);
     if (idx < 0) {
-        idx += D_800ABECC;
+        idx += TrackNodeCount;
     }
-    func_80047610(&D_800ABEA4[idx], &D_800ABEA4[next], D_800AC650.lateral49E, D_800AC650.fraction49C, sp28);
+    func_80047610(&TrackNodes[idx], &TrackNodes[next], RaceContext.lateral49E, RaceContext.fraction49C, sp28);
     dx = (s32)(((u32)sp28[0] - (u32)sp18[0]) << 2);
     sp38[0] = dx;
     dz = (s32)(((u32)sp28[2] - (u32)sp18[2]) << 2);
     sp38[2] = dz;
     sp38[1] = (s32)((u32)sp28[1] - (u32)sp18[1]);
-    D_800AC650.pitch460 = 1024 - func_8006E368(sp38[1], func_80090758((s32)((u32)dx * (u32)dx + (u32)dz * (u32)dz)) >> 6);
+    RaceContext.pitch460 = 1024 - Atan2Table(sp38[1], func_80090758((s32)((u32)dx * (u32)dx + (u32)dz * (u32)dz)) >> 6);
 }

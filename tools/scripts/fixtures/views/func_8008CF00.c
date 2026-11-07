@@ -16,7 +16,7 @@
         } \
     }
 
-extern char *D_800A64AC[];
+extern char *CD_comstr[];
 
 extern volatile u8 D_800A6764[];
 
@@ -26,9 +26,9 @@ extern u8 D_80110328[];
 
 extern s32 VSync(s32);
 
-extern s32 func_8008B4B8(void);
+extern s32 CheckCallback(void);
 
-extern char *D_800A652C[];
+extern char *CD_intstr[];
 
 extern s32 D_80110330;
 
@@ -62,12 +62,12 @@ static inline int check_alarm_1(char **ac, char **sc, volatile u8 *st) {
 static inline void cd_poll_cb_1(volatile u8 *st, volatile u8 *st1) {
     u8 saved = *D_800A674C & 3;
     s32 res;
-    while ((res = func_8008C724()) != 0) {
-        if ((res & 4) && D_800A648C != 0) {
-            D_800A648C(*st1, D_80110320);
+    while ((res = getintr()) != 0) {
+        if ((res & 4) && CD_cbready != 0) {
+            CD_cbready(*st1, D_80110320);
         }
-        if ((res & 2) && D_800A6488 != 0) {
-            D_800A6488(*st, D_80110318);
+        if ((res & 2) && CD_cbsync != 0) {
+            CD_cbsync(*st, D_80110318);
         }
     }
     *D_800A674C = saved;
@@ -87,8 +87,8 @@ s32 CD_ready(s32 mode, u8 *result) {
     D_80110330 = VSync(-1) + 0x3C0;
     D_80110334 = 0;
     D_80110338[0] = D_80011AA4;
-    ac = D_800A64AC;
-    sc = D_800A652C;
+    ac = CD_comstr;
+    sc = CD_intstr;
     st = D_800A6764;
     st1 = st + 1;
     st2 = st + 2;
@@ -96,7 +96,7 @@ s32 CD_ready(s32 mode, u8 *result) {
         if (check_alarm_1(ac, sc, st) != 0) {
             return -1;
         }
-        if (func_8008B4B8() != 0) {
+        if (CheckCallback() != 0) {
             cd_poll_cb_1(st, st1);
         }
         ret = *st2;

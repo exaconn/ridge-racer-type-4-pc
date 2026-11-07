@@ -3,8 +3,8 @@
 
 #include "types.h"
 
-void func_80097854();
-int func_800978E0();
+void PadStartCom();
+int PadGetState();
 int PadInfoMode();
 int PadInfoAct();
 void PadSetActAlign();

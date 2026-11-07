@@ -15,10 +15,10 @@ P=Path(os.environ.get('RR_TEST_DIR','build/tests/overlay661_frame_controller'));
 source=Path(sys.argv[1]) if len(sys.argv)>1 else root/'src/overlays/PAL/661/func_80114B00.c'
 body=source.read_text().split('\n',1)[1]
 body=re.sub(r' __asm__\("\$\d+"\)', '', body)
-globals=sorted(set(re.findall(r'\b(?:ovl661_)?(?:D_[0-9A-F]{8}|CarTable|ScreenFrame|MenuTextRows|MenuTextRowCount)\b',body)))
+globals=sorted(set(re.findall(r'\b(?:ovl661_)?(?:D_[0-9A-F]{8}|_spu_transferCallback|_spu_voice_centerNote|TrackObjectKeyframes|CdFileStateHandlers|_spu_mem_mode_unitM|_spu_rev_offsetaddr|_spu_rev_reserve_wa|CdFileIndexCurrent|SoundSequenceTable|_spu_mem_mode_plus|_spu_mem_mode_unit|_spu_rev_startaddr|CdAudioTrackTable|CdDirectoryBuffer|MenuStepDirection|TrackObjectStates|_snd_seq_tick_env|CD_read_dma_mode|CdFileSyncResult|MenuTextRowCount|ModelTexturePage|MotionController|TrackLaneOffsets|TrackObjectCount|VoiceVolumeScale|_svm_stereo_mono|CarUpdateStages|CdFileBytesRead|HwCardEvTimeout|MenuGridRecords|RubberBandCurve|SwCardEvTimeout|TrackObjectDefs|_SsMarkCallback|_spu_inTransfer|_spu_trans_mode|_svm_sreg_dirty|CarBoundsTable|CardDirEntries|CardFileHandle|CardPortResult|CdFileLocation|ModelBankTable|Rect16RowCount|SavedRaceState|SceneLoadState|TrackNodeCount|TrackStartNode|VSyncThreshold|_snd_seq_s_max|_snd_seq_t_max|_spu_transMode|_svm_envx_hist|_svm_vab_count|BadgeRowCount|CardPortState|CardPortTimer|CdFileSectors|GlyphRowCount|HwCardEvError|MenuItemCount|ModeFuncTable|RaceStandings|SwCardEvError|_snd_openflag|_spu_isCalled|_spu_mem_mode|_spu_rev_flag|_svm_sreg_buf|_svm_vab_used|spuVmMaxVoice|CarSnapshots|CarSpecTable|DrawBufIndex|FrameCounter|MenuTextRows|PanGainTable|ReplayInputs|ReplayLength|VBLANK_MINUS|_snd_ev_flag|_spu_keystat|_spu_memList|kMaxPrograms|BestLapTime|CdFileState|CdFileTable|HwCardEvIoe|HwCardEvNew|RaceContext|ReplayFrame|ReplayState|ScreenFrame|SwCardEvIoe|SwCardEvNew|TrackLength|ViewOffsetX|ViewOffsetY|ViewScreenH|_svm_damper|BackColorB|BackColorG|BackColorR|CD_cbready|CD_status1|GPU_printf|LoadCursor|MenuCursor|NumPlayers|PlayerCars|Rect16Rows|SoundSlots|SoundState|TrackNodes|UiRowCount|_spu_EVdma|_svm_voice|AtanTable|BadgeRows|CD_cbread|CD_cbsync|CD_comstr|CD_intstr|CD_status|FarColorB|FarColorG|FarColorR|GlyphRows|R4StrPath|RaceState|RankTable|_ss_score|CD_debug|CD_nopen|CarTable|LapTimes|PadPorts|SinTable|_spu_RXX|_spu_tsa|_svm_cur|ComCars|NumCars|NumLaps|Options|_svm_pg|_svm_tn|_svm_vh|CD_pos|UiRows|Vcount)\b',body)))
 aliases={'D_800AC0E2':'half1EA','D_800AC0E6':'half1EE'}
 globals=[x for x in globals if x not in aliases]
-functions=sorted(set(re.findall(r'\b(?:ovl661_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl661_func_80114B00'})
+functions=sorted(set(re.findall(r'\b(?:ovl661_)?func_[0-9A-F]{8}|InterpolateObjectKeyframe|RelocateTrackLookupTables|UpdateCarTrackProjection|ClearScreenOverlayState|GetSmoothedTrackHeading|SpuSetTransferStartAddr|UpdateComCarTargetPoint|ClearTrackObjectStates|FindTrackNodeUnbounded|FormatMillisecondsTime|LookupTrackEventTable0|LookupTrackEventTable1|LookupTrackEventTable2|LookupTrackEventTable3|SpuClearReverbWorkArea|SpuIsTransferCompleted|UpdateComCarLaneChange|ValidateRecordPassword|_SsVabOpenHeadWithMode|AddSpriteWithDrawMode|CdAudioFindStreamFile|GetTrackTargetHeading|LookupTrackEventPair2|ProjectToTrackSegment|SpuSetReverbModeParam|SsUtSetReverbFeedback|_SpuIsInAllocateArea_|_SsVmSelectToneAndVag|AllocMenuGridRecords|BuildRotMatrixAngles|CalcDistanceToPlayer|CalcRubberBandFactor|CdAudioReadyCallback|ComputeQuadMidpoints|ComputeStartDistance|DecodeRecordPassword|EncodeRecordPassword|EnterCriticalSection|FindTrackNodeScratch|FramesToMilliseconds|LookupTrackEventPair|PlanComCarCornerTurn|RelocateRelativeFile|ResolveCarCollisions|SetVoiceVolumeScaled|SoundSetMasterVolume|TransformCourseModel|UpdateComCarOvertake|_SpuIsInAllocateArea|ApplyRubberBandSpec|BuildCameraMatrices|CD_set_test_parmnum|CdAudioRequestPause|CdAudioSetVolumeRaw|ComputeWheelOffsets|ConstrainCarToTrack|CopyStringClearTail|CopyStringPadSpaces|DrawLoadingTriangle|EmitSemiTransG3List|EmitSemiTransG4List|ExitCriticalSection|FindNearestCarAhead|FindTrackEventIndex|FindWheelTrackNodes|FormatDecimalDigits|FormatFrameTimeMMSS|GetTrackNodeHeading|InitCdFileDirectory|InterpTrackPosition|RelocateOffsetTable|ResetScreenCounters|ReturnFromException|SetModelTexturePage|SetTrackLaneOffsets|SoundMasterFadeStep|SsVabOpenHeadSticky|SsVabTransCompleted|SteerCarTowardTrack|UnrelocateModelBank|UpdateRaceStandings|_SsSetControlChange|_SsSetNrpnVabAttr10|_SsSetNrpnVabAttr11|_SsSetNrpnVabAttr12|_SsSetNrpnVabAttr13|_SsSetNrpnVabAttr14|_SsSetNrpnVabAttr15|_SsSetNrpnVabAttr16|_SsSetNrpnVabAttr17|_SsSetNrpnVabAttr18|_SsSetNrpnVabAttr19|_SsSetProgramChange|_copy_memcard_patch|data_ready_callback|CardSystemShutdown|CdAudioSelectTrack|CheckFinalLapEvent|EncodePasswordCode|FormatCountOfTotal|GameQueueTileTrans|GetTrackPointAhead|IntegrateCarMotion|PadSetRumbleParams|SetReverbDepthBoth|SpuSetTransferMode|SsSetReservedVoice|SsUtSetReverbDelay|SsUtSetReverbDepth|SubmitCourseModel2|UpdateBadgeRowAnim|UpdateCameraMotion|UpdateCarTrackNode|UpdateTrackObjects|_SsSetNrpnVabAttr0|_SsSetNrpnVabAttr1|_SsSetNrpnVabAttr2|_SsSetNrpnVabAttr3|_SsSetNrpnVabAttr4|_SsSetNrpnVabAttr5|_SsSetNrpnVabAttr6|_SsSetNrpnVabAttr7|_SsSetNrpnVabAttr8|_SsSetNrpnVabAttr9|_padRecvAtLoadInfo|_padSendAtLoadInfo|_spu_getInTransfer|_spu_setInTransfer|_spu_setReverbAttr|AddOrSubtractByte|BuildObjectMatrix|CdAudioFilterStep|CdAudioResumeStep|CdFileBytesLoaded|ClearHwCardEvents|ClearSwCardEvents|CountChoiceGlyphs|DecodeCourseIndex|EmitTexturedPanel|GetTrackHeadingAt|InterpCurveLinear|InterruptCallback|LoadTrackResource|PadSetRumbleFlags|PlayTrackEventSfx|RegisterModelBank|SetCarImpactState|SetIdentityMatrix|SetTrackStartNode|SetTrackWorkspace|SetupViewLighting|SoundQueueEnqueue|SpawnParticlePair|SpuSetReverbVoice|SsSetMarkCallback|SsUtGetReverbType|SsUtSetReverbType|SubmitCourseModel|UnpackChoiceGlyph|UpdateCarSteering|UpdateComCarDrive|UpdateComCarSpeed|UpdateMotionTrack|UpdateRaceRanking|UpdateRumbleStrip|UpdateScrollTrack|_SsContBankChange|_SsContExpression|_SsReadDeltaValue|_padSetVsyncParam|_remove_ChgclrPAD|BuildLightMatrix|CdAudioBeginPlay|CdAudioPauseStep|CdAudioSetFilter|CdAudioSetTarget|CdAudioSetVolume|DrawSyncCallback|DrawTrackObjects|EmitPresetSprite|FindCurveSegment|FindFreeParticle|InitMenuTextRows|InitViewLighting|LoadTrackObjects|LookupTrackEvent|PadRangeCheckSet|PollHwCardEvents|RequestSceneLoad|SaveCarSnapshots|SetTrackNodeData|ShuffleSlotOrder|SoundQueueUpdate|SplashLogoUpdate|SpuSetCommonAttr|SpuSetNoiseClock|SpuSetNoiseVoice|SubmitModelFaces|TriggerWheelBump|UpdateCarHeading|UpdateScreenFade|UpdateWheelBumps|_SpuDataCallback|_SsContDataEntry|_SsUtResolveADSR|init_ring_status|AddDrawAreaPrim|AddDrawModePrim|AllocRect16Rows|AngleDiffSigned|BuildRotMatrixX|BuildRotMatrixY|BuildRotMatrixZ|ByteToCodeChars|CarLocalToWorld|CardWriteFileAt|CdAudioFadeStep|CdAudioLoopStep|CdAudioPlayStep|CdAudioStopStep|CdFileReadRange|CdFileReadStart|CdReadyCallback|ChangeClearRCnt|CheckRaceFinish|CodeCharsToByte|GameQueueSprite|InterpCurveEase|LoadR4Directory|NormalColorCol3|NormalColorDpq3|PackChoiceGlyph|PadUpdateRumble|ReadInitPadFlag|RestartCallback|SelectModelBank|SetCarSpecTable|Snd_SetPlayMode|SoundQueueClear|SoundSystemInit|SpuGetKeyStatus|SpuSetVoiceAttr|SsPitchFromNote|SsSeqCalledTbyT|SsSetSerialAttr|SsUtChangePitch|TitleMenuUpdate|UpdateEngineRpm|UpdateLapTiming|UpdatePlayerCar|UpdateSoundSlot|WaitSwCardEvent|_SsContExternal|_SsContResetAll|_SsInitSoundSeq|_SsSetPitchBend|_SsVmDoAllocate|_SsVmGetProgPan|_SsVmGetProgVol|_SsVmGetSeqLVol|_SsVmGetSeqRVol|_SsVmSetProgPan|_SsVmSetProgVol|_padCmdParaMode|_padInitSioMode|_padLoadActInfo|_padSetActAlign|_padSetMainMode|_spu_FsetDelayR|_spu_FsetDelayW|_spu_FwriteByIO|_spu_note2pitch|_spu_pitch2note|AddTextSprites|AddTileGrid2x2|AllocBadgeRows|AllocGlyphRows|AverageCarSpec|BuildRateCurve|CalcSteerLimit|CardFreeBlocks|CardReadFileAt|CardSystemInit|CdDataCallback|CdReadCallback|CdSyncCallback|CountCardFiles|DecayCarOffset|EmitFadeSprite|EmitPolyFT4Fog|EmitPolyFT4Raw|EmitSpriteGrid|FormatRaceTime|GetHwCardEvent|GetR4FileIndex|InitMenuArenas|NormalColorCol|NormalColorDpq|OuterProduct12|PadRumbleStart|PadSetActAlign|PadSetMainMode|PointInQuadPtr|RemovePatchPad|ScanCurveAhead|SetColorMatrix|SetInitPadFlag|SetLightMatrix|SetMenuTextRow|SetTransMatrix|SpuSetAnyVoice|SsSetSerialVol|SsSetTableSize|SsUtGetProgAtr|SsVabTransBody|StepCarPhysics|TitleModeEnter|TransformPoint|UpdateCarShake|VSyncCallbacks|_SsContMainVol|_SsUtBuildADSR|_SsVmDamperOff|_SsVmGetSeqVol|_SsVmKeyOffNow|_SsVmPitchBend|_SsVmSeqKeyOff|_SsVmSetSeqVol|_padGetActSize|_padInitDirSeq|startIntrVSync|ApplyMatrixLV|ApplyMatrixSV|CD_getsector2|CardWriteFile|CdAudioUpdate|CdGetDiskType|CheckCallback|ChecksumBytes|DpqColorLight|DrawHudSprite|EmitPolyF4Fog|EmitTiledRect|EvalRateCurve|FindTrackNode|GetGraphDebug|InitParticles|InitPlayerCar|InitRect16Row|MulRotMatrix0|OuterProduct0|PadInitDirect|PadRumbleStop|PlaySfxVolPan|ResetCallback|ResetCarState|ResetEntryInt|SceneLoadStep|SetDefDispEnv|SetDefDrawEnv|SetDrawOffset|SetFogNearFar|SetGeomOffset|SetGeomScreen|SetGraphDebug|SetGraphQueue|SetupRenderer|SetupViewport|SlotKeyOffAll|SpuInitMalloc|SsSetTickMode|SsUtAllKeyOff|SsUtGetVagAtr|SsUtReverbOff|SsUtSetVagAtr|SsVabFakeHead|StCdInterrupt|StepMenuValue|StepRaceFrame|TitleMenuInit|UpdateComCars|VSyncCallback|_SsContDamper|_SsContPanpot|_SsGetSeqData|_SsSndNextSep|_SsVmDamperOn|_SsVmKeyOnNow|_SsVmSeKeyOff|_dbl_shift_us|_spu_FgetRXXa|_spu_FsetRXXa|trapIntrVSync|AngleDiffAbs|BlendCarSpec|CD_getsector|CardReadFile|CdFileFinish|CdGetSector2|CdSearchFile|DS_cachefile|DS_searchdir|DeliverEvent|DrawBadgeRow|DrawHudDigit|GetVideoMode|HookEntryInt|InitBadgeRow|InitGlyphRow|InitMenuGrid|InitRaceCars|NormalColor3|PadEnableCom|QueueDrawStp|ReadCarInput|RotMatrixYXZ|RotMatrixZYX|RotTransPers|SetBackColor|SetCarBounds|SetCdMixMode|SetRotMatrix|SetSemiTrans|SetTexWindow|SetVertexTri|SetVideoMode|SlotSetPause|SoundStopAll|SpuSetReverb|SsUtReverbOn|StGetBackloc|StopCallback|SubmitModel2|VSync_memclr|_SsContNrpn1|_SsContNrpn2|_SsSndReplay|_SsSndSetVol|_SsVmPBVoice|_SsVmSeKeyOn|_dirFailAuto|_padChkVsync|_padStartCom|_patch_card2|_sio_control|_spu_FsetPCR|_spu_FsetRXX|setIntrVSync|startIntrDMA|AddTilePrim|AllocUiRows|ApplyMatrix|CD_datasync|CD_initintr|CardHasFile|CdAudioFade|CdAudioInit|CdAudioMute|CdDiskReady|CdGetSector|ClearImage2|DMACallback|DS_newmedia|DrawOTagEnv|EmitPolyFT3|EnableEvent|GetIntrMask|InitComCars|LerpAngle12|NormalColor|PadChkVsync|PadGetState|PadInfoComb|PadInfoMode|PadPollPort|PadStartCom|PointInQuad|ReverbReset|RotAverage3|RotAverage4|ScaleMatrix|SetDispMask|SetDrawArea|SetDrawMode|SetDrawMove|SetFarColor|SetIntrMask|SetPriority|SetSXSYfifo|SetShadeTex|SoundResume|SoundUpdate|SquareRoot0|SsSepSetVol|SsSeqGetVol|SsSeqSetVol|SsSetStereo|SsUtKeyOffV|SsUtSetVVol|StClearRing|StSetStream|StUnSetRing|StoreImage2|SysDeqIntRP|SysEnqIntRP|YawToOctant|_SsContRpn1|_SsContRpn2|_SsSndPause|_SsSndTempo|_SsVmKeyOff|_SsVmSetVol|_SsVmVSetUp|__floatsidf|_add_mant_d|_card_clear|_mul_mant_d|_padStopCom|_patch_card|dma_execute|note2pitch2|restartIntr|trapIntrDMA|Atan2Table|CD_initvol|CardUpdate|CdControlB|CdControlF|CdDataSync|CdFileStep|CdIntToPos|CdPosToInt|CdReadMode|CdReadSync|CdSetDebug|ClearImage|ClearOTagR|CloseEvent|DMA_memclr|DisablePAD|EmitPolyF4|FlushCache|GPU_memset|GetDispEnv|GetDrawEnv|KeyOnCheck|LightColor|LoadImage2|LocalLight|MoveImage2|MulMatrix0|MulMatrix2|NormalClip|PadChkMtap|PadInfoAct|PadStopCom|PutDispEnv|PutDrawEnv|ResetGraph|RotMatrixX|RotMatrixY|RotMatrixZ|SetDrawEnv|SetDrawStp|SetFogNear|SetRGBfifo|SetSZfifo3|SetSZfifo4|SetVertex0|SetVertex1|SetVertex2|SoundPause|SoundReset|SsSepClose|SsSeqClose|SsUtKeyOff|SsUtKeyOnV|SsVabClose|StFreeRing|StoreImage|SystemInit|TriggerSfx|XorBytes37|_SsSeqPlay|_SsSndPlay|_SsSndStop|_SsVmAlloc|_SsVmFlush|_SsVmKeyOn|_comp_mant|_dbl_shift|_padSetAct|_padSetCmd|_patch_gte|_patch_pad|_spu_FiDMA|_spu_Fw1ts|_spu_gcSPU|chkRC2wait|note2pitch|setIntrDMA|setRC2wait|vmNoiseOff|AverageZ3|AverageZ4|CdControl|CdLastCom|CdLastPos|ClearOTag|DpqColor3|DrawOTag2|DrawUiRow|EnablePAD|FileClose|FileWrite|InitUiRow|LoadClut2|LoadImage|LoadTPage|MoveImage|MulMatrix|OpenEvent|PAD_init2|PadSetAct|PadUpdate|ResetRCnt|RotMatrix|SetData32|SetMAC123|SetPolyF3|SetReverb|SetupRace|SpuSetKey|SsSepPlay|SsSepStop|SsSeqOpen|SsSeqPlay|SsSeqStop|SsSetMVol|SsSetMono|SsUtKeyOn|StGetNext|StSetMask|StSetRing|StartCARD|StartPAD2|StartRCnt|StopCARD2|TestEvent|VsGetAddr|WaitEvent|_ExitCard|_SsNoteOn|_SsVmInit|__fixdfsi|_err_math|_padSioRW|_spu_init|checkRECT|firstfile|get_alarm|set_alarm|startIntr|AddPrims|AlignUp4|CD_flush|CD_ready|CdComstr|CdIntstr|CdStatus|ColorCol|ColorDpq|DpqColor|DrawCars|DrawOTag|DrawPrim|DrawRing|DrawSync|FileOpen|FileRead|FileSeek|GetTPage|HsvToRgb|InitCARD|InitGeom|InitHeap|InitPAD2|LoadClut|MainLoop|PAD_init|RotTrans|SetIR123|SpuStart|SpuWrite|Square12|SsStart2|StartPAD|StopCARD|StopPAD2|StopRCnt|_SpuInit|_SsClose|_SsStart|__adddf3|__divdf3|__muldf3|__subdf3|_addque2|_mainasu|_spu_Fr_|get_mode|stopIntr|trapIntr|AddPrim|CD_init|CD_sync|CatPrim|CdFlush|CdRead2|CdReady|CdReset|GetClut|GetRCnt|InitPAD|LoadVab|PlaySfx|SetRCnt|SpuFree|SpuInit|Square0|SsStart|StopPAD|_addque|_exeque|_getctl|_spu_Fr|_spu_Fw|_status|get_ofs|getintr|mem2mem|setIntr|AddSIO|CD_vol|CdInit|CdMode|CdRead|CdSync|DelSIO|GetODE|SetDQA|SetDQB|SetIR0|SetMem|SetRii|_param|_reset|_spu_t|get_ce|get_cs|get_tw|memclr|ratan2|v_wait|CD_cw|CdMix|Intpl|VSync|_sync|sin_1|_clr|_ctl|_cwb|_cwc|_drs|_dws|_otc|rcos|rsin|Lzc(?=\()',body))-{'ovl661_func_80114B00'})
 head='''#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -71,7 +71,7 @@ lib=C.CDLL(str(P/(source.stem+'_native.dylib')));lib.object.restype=C.c_void_p;l
 print('Native compiled',len(globals),'owners',len(functions),'services',flush=True)
 G=len(globals);N={name:(lib.object(i),lib.object_size(i)) for i,name in enumerate(globals)}
 scratch=lib.object(G);streams=lib.object(G+2);frame=N['D_800ADAF0'][0];frameSize=0x22778
-assert scratch>0xffffffff and N['D_800ABEF8'][1]==0x640 and N['D_800ADAF0'][1]==0x44ef0 and lib.object_size(G)==0x68
+assert scratch>0xffffffff and N['PlayerCars'][1]==0x640 and N['D_800ADAF0'][1]==0x44ef0 and lib.object_size(G)==0x68
 u=Uc(UC_ARCH_MIPS,UC_MODE_MIPS32|UC_MODE_LITTLE_ENDIAN);u.mem_map(0,0x400000);u.mem_map(0x1F800000,0x1000)
 u.mem_write(0x10000,Path('assets/PAL/main.exe').read_bytes()[0x800:])
 r4=Path('disc/PAL/R4.BIN').read_bytes();sector=struct.unpack_from('<I',r4,4+661*4)[0];u.mem_write(0x114878,r4[sector*2048:sector*2048+0x6000])
@@ -106,7 +106,7 @@ def setscalar(name,value,native):
  else:write(addr(name),b)
 def sethalf(offset,value,native):
  b=struct.pack('<H',value&65535)
- if native:C.memmove(N['D_800ABEF8'][0]+offset,b,2)
+ if native:C.memmove(N['PlayerCars'][0]+offset,b,2)
  else:write(0x800ABEF8+offset,b)
 def setmem(a,data,native):
  if native:C.memmove(nativepointer(a),data,len(data))
@@ -121,49 +121,49 @@ def service(event,args,native):
  (observed if native else events).append((event,normalized,snapshot(native)))
  if case&64:
   changes={}
-  if name=='func_8006EF8C':
+  if name=='SetupViewport':
    # Values consumed after the first render preparation: fresh timer, phase, pause and input.
-   changes={'D_800AC5D0':[-32768,-1,0,1,32767][case%5],'D_800FF6B0':[0,1,2,3,4,5,6,-1][(case//5)%8], 'D_800F4C68':[-128,-1,0,1,127][(case//7)%5]}
+   changes={'D_800AC5D0':[-32768,-1,0,1,32767][case%5],'RaceState':[0,1,2,3,4,5,6,-1][(case//5)%8], 'D_800F4C68':[-128,-1,0,1,127][(case//7)%5]}
    setinput([0,0x800,0xffff,0x8800][case%4],native)
-  if name in ['func_80034844','func_800348E8','func_8004FA50']:
+  if name in ['func_80034844','func_800348E8','SoundResume']:
    changes['D_800F2DE4']=[0x7fffffff,0x80000000,0xffffffff,0,74][case%5]
    changes['D_800F2FDC']=[-128,-1,0,1,127][case%5]
-  if name in ['func_8002E0D8','func_8006ECE8']:
+  if name in ['DrawCars','func_8006ECE8']:
    changes['D_800F2A64']=[0,1,0xffffffff,0x80000000,0x7fffffff][case%5]
-  if name=='func_8002E0D8':
+  if name=='DrawCars':
    expected=[-32768,-1,0,1,32767][(case//7)%5]
    changes['D_800AD522']=expected
    sethalf(0x1ea,expected+(case&1),native)
-  if name in ['func_8003C254','ovl661_func_80114924','func_8004FED4']:
-   changes['D_800FF6B0']=[0,1,2,3,4,5,6,-1,0x7fffffff,0x80000000][case%10]
-  if name=='func_8004FA04':changes['D_800F2FDC']=[-128,-1,0,1,127][case%5]
-  if name in ['func_8005007C','func_80036030']:changes['D_800FF6B0']=[0,1,4,5,6,-1,0x80000000,0x7fffffff][case%8]
-  if name=='func_8003C96C':
+  if name in ['UpdateLapTiming','ovl661_func_80114924','func_8004FED4']:
+   changes['RaceState']=[0,1,2,3,4,5,6,-1,0x7fffffff,0x80000000][case%10]
+  if name=='SoundPause':changes['D_800F2FDC']=[-128,-1,0,1,127][case%5]
+  if name in ['func_8005007C','func_80036030']:changes['RaceState']=[0,1,4,5,6,-1,0x80000000,0x7fffffff][case%8]
+  if name=='UpdateRaceRanking':
    changes={'D_800AC5A4':[0,1,0x80000000,0x7fffffff][case%4],'ScreenFrame':[0xffffffff,0x7fffffff,0x80000000,0][case%4]}
-  if name in ['func_80022CD4','func_80052A30','func_8004FED4','func_800396E4','func_8003C254','ovl661_func_80114924']:
+  if name in ['func_80022CD4','CdAudioBeginPlay','func_8004FED4','CheckFinalLapEvent','UpdateLapTiming','ovl661_func_80114924']:
    # Both aliases are in the same actual vehicle owner.
    sethalf(0x1ee,[0,-1,1,32767,-32768][case%5],native)
    sethalf(0x1ea,case%2,native)
-   if name=='func_800396E4':
+   if name=='CheckFinalLapEvent':
     sethalf(0x1d8,[-32768,-1,0,1,32767][case%5],native)
     sethalf(0x27a,[-32768,-1,0,1,32767][(case//5)%5],native)
     sethalf(0x2aa,[-32768,-1,0,1,32767][(case//25)%5],native)
   for key,value in changes.items():
    if key in N:setscalar(key,value,native)
  # Fresh frame roots after services; every later head must be reread.
- if case&128 and name in ['func_800207D4','func_80022098','func_80033F3C','func_80034844','func_8003C96C']:
+ if case&128 and name in ['func_800207D4','func_80022098','func_80033F3C','func_80034844','UpdateRaceRanking']:
   root=(case+event)%2
   if native:C.c_void_p.from_address(N['D_800ACC14'][0]).value=frame+root*frameSize
   else:write(0x800ACC14,struct.pack('<I',0x800ADAF0+root*frameSize))
  # Model complete vector transformations and independent live table changes.
- if case&32 and name in ['func_8006EF8C','func_80033474','func_80033BE4']:
+ if case&32 and name in ['SetupViewport','func_80033474','func_80033BE4']:
   serial=len(observed if native else events)
-  if name!='func_8006EF8C':setmem(0x1F800008,bytes(((case*7+event*19+j*31+serial)&255) for j in range(32)),native)
+  if name!='SetupViewport':setmem(0x1F800008,bytes(((case*7+event*19+j*31+serial)&255) for j in range(32)),native)
   for table in ['D_801183D0','D_801183F0']:
    pointer,size=N[table]
    setmem(addr(table),bytes(((case*11+event*13+j*29+serial)&255) for j in range(size)),native)
  if case&32 and name=='func_8006ECE8':setmem(0x1F80005E,struct.pack('<H',(case*13+len(observed if native else events))&65535),native)
- if name=='func_8001FC28':
+ if name=='AddDrawAreaPrim':
   result=0x80190000+((case+len(observed if native else events))%3)*4096+((event*16)&1023)
   scratchresult=0x80190000+((case+1)%3)*4096
   if native:C.c_void_p.from_address(scratch).value=nativepointer(scratchresult)
@@ -194,7 +194,7 @@ def initialize(n,native):
  else:
   write(0x800ADAF0,data);write(0x800ACC14,struct.pack('<I',0x800ADAF0+(n%2)*frameSize));write(0x1F800000,struct.pack('<2I',0x80190000+(n%3)*4096,0x80190000+((n+2)%3)*4096))
  values={'D_800F2DE4':[0xffffffff,0,1,23,24,25,49,50,51,73,74,75,174,175,176,0x7fffffff,0x80000000][n%17],
- 'D_800FF6B0':[0,1,2,3,4,5,6,7,-1,0x7fffffff,0x80000000][(n//17)%11],
+ 'RaceState':[0,1,2,3,4,5,6,7,-1,0x7fffffff,0x80000000][(n//17)%11],
  'D_800AC5D0':[-32768,-1,0,1,14,15,24,25,75,32767][(n//187)%10],
  'D_800F4C64':[-1,0,1,0x80000000][n%4],'D_800F4C68':[-128,-1,0,1,127][(n//3)%5],
  'D_800F2FDC':[-128,-1,0,1,2,127][(n//11)%6],

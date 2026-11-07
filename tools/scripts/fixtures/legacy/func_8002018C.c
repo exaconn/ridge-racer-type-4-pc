@@ -1,7 +1,7 @@
 #include "rr/sprite_effect.h"
 extern void func_80095B94(void *),SetSemiTrans(void *,s32),AddPrim(u32 *,u32 *);
 extern s32 func_80096464(void);
-extern u8 *func_8001FCC8(u32 *,u8 *,u16);
+extern u8 *AddDrawModePrim(u32 *,u8 *,u16);
 u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg) {
     /* ASM_BARRIER: retain the loop bound in callee-saved S5 across helpers. */
     register s32 count asm("$21")=count_arg;
@@ -75,7 +75,7 @@ u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,
             else page=descriptor->page;
             out_cursor=(u8 *)sprite;
             i++;
-            sprite=(RrSpritePacket *)func_8001FCC8((u32 *)(D_800ACC14+0x70),out_cursor,page);
+            sprite=(RrSpritePacket *)AddDrawModePrim((u32 *)(D_800ACC14+0x70),out_cursor,page);
         }
     }
     return (u8 *)sprite;

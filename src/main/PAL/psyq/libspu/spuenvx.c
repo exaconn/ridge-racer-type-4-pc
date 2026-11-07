@@ -2,8 +2,8 @@
 #include "m2c_macros.h"
 #include "psyq/libspu/spuenvx.h"
 
-extern s32 D_800A47D8;
+extern s32 _spu_RXX;
 
 void func_800879D4(s32 arg0, u16 *arg1) {
-    *arg1 = M2C_FIELD(((arg0 * 0x10) + D_800A47D8), u16 *, 0xC);
+    *arg1 = M2C_FIELD(((arg0 * 0x10) + _spu_RXX), u16 *, 0xC);
 }

@@ -4,9 +4,9 @@ extern int D_800ACC14;
 
 extern int func_800587E4();
 
-extern struct T *D_800ABEA4;
+extern struct T *TrackNodes;
 
-extern int D_800ABECC;
+extern int TrackNodeCount;
 
 extern short D_800AD522;
 
@@ -20,14 +20,14 @@ void func_80033368(int unusedSelection,int unusedMode) {
     struct T *t;
     int b;
     if (D_800AD522 != 0) {
-        i = (D_8010BFC8 >> 2) % D_800ABECC;
+        i = (D_8010BFC8 >> 2) % TrackNodeCount;
     } else {
-        int n = D_800ABECC;
+        int n = TrackNodeCount;
         r = (D_8010BFC8 >> 2) % n;
         r++;
         i = n - r;
     }
-    b = (int)D_800ABEA4;
+    b = (int)TrackNodes;
     t = (struct T *)(i * 0x3C + b);
     v.x = t->a;
     v.z = t->b;

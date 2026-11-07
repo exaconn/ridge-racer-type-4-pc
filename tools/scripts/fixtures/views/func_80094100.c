@@ -35,7 +35,7 @@
 
 #undef D_800ABBC8
 
-u32 func_80094100(s32 a0, s32 a1) {
+u32 get_cs(s32 a0, s32 a1) {
     /* ASM_BARRIER: Preserve the original coordinate result register. */
     register s32 v __asm__("$2");
     /* ASM_BARRIER: Preserve the original clamped y value register. */

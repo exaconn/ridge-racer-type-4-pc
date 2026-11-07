@@ -4,7 +4,7 @@
 
 extern int (*D_800ABC6C)();
 
-void func_8009A6DC(a0) unsigned char *a0; {
+void _dirFailAuto(a0) unsigned char *a0; {
   int v = a0[0x46];
   unsigned int t;
   *(int *)(a0 + 0x4C) = *(int *)(a0 + 0x4C) + 1;

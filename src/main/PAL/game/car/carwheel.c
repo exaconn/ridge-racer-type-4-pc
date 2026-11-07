@@ -132,7 +132,7 @@ void BuildRotMatrixZ(Mat8 *, s32);
 void BuildRotMatrixY(Mat8 *, s32);
 void BuildRotMatrixX(Mat8 *, s32);
 void func_8006EE3C(s32, Vec4 *, Mat8 *);
-void func_800701C4(s32);
+void SelectModelBank(s32);
 void MulMatrix0(void *, Mat8 *, Mat8 *);
 void MulMatrix(Mat8 *, Mat8 *);
 void MulMatrix2(Mat8 *, Mat8 *);
@@ -142,23 +142,23 @@ extern u8 D_8009F03C[];
 extern u8 D_8009F044[];
 extern s16 D_800ABED0[];
 extern s32 D_800F2FD8;
-extern Bounds2CC88 *D_800F3A08[];
+extern Bounds2CC88 *CarBoundsTable[];
 s32 func_80039494(Vehicle2D1B4 *);
 extern LightEntry2C *D_800F4D90;
 extern LodDist6 D_8009F04C[];
 
-int func_8002CBC0(char *a, int b);
+int TriggerWheelBump(char *a, int b);
 void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2);
 void func_8002D1B4(Vehicle2D1B4 *arg0);
 void func_8002D784(Vehicle2D784 *arg0, s32 arg1);
 
-int func_8002CBC0(char *a, int b)
+int TriggerWheelBump(char *a, int b)
 {
     char *p;
     int t;
     if (*(short *)(a + 0x1D8) < 0x320) goto fail;
     p = a + b * 2;
-    t = func_80055250(*(short *)(a + 0x1EA), *(short *)(p + 0x100));
+    t = LookupTrackEvent(*(short *)(a + 0x1EA), *(short *)(p + 0x100));
     if (t == -1) {
 fail:
         return 0;
@@ -183,7 +183,7 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     u8 a1_val;
 
     slot_half = arg0->slot1E6 >> 1;
-    func_800701C4(slot_half);
+    SelectModelBank(slot_half);
     func_8003CF34(arg2);
 
     BuildRotMatrixY(&sp70, -arg0->rot54);
@@ -225,7 +225,7 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     if (s4_val & 0x1000) {
         s4_val = -s4_val;
     }
-    if (D_800F3A08[slot_half]->bA == 1) {
+    if (CarBoundsTable[slot_half]->bA == 1) {
         BuildRotMatrixY(&sp98[3], s4_val);
     } else {
         BuildRotMatrixX(&sp98[3], s4_val);
@@ -242,13 +242,13 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     RR_GTE_SETROT(&sp70);
     for (i = 0; i < 2; i++) {
         /* ASM_BARRIER: pin v0_w to v0 to match branch delay slot and load scheduling */
-        register s32 v0_w asm("v0") = D_800F3A08[slot_half]->w0;
+        register s32 v0_w asm("v0") = CarBoundsTable[slot_half]->w0;
         if (i & 1) {
             v0_w = -v0_w;
         }
         sp90[0] = v0_w * 4;
-        sp90[1] = D_800F3A08[slot_half]->w2 * 4;
-        sp90[2] = -D_800F3A08[slot_half]->w4 * 4;
+        sp90[1] = CarBoundsTable[slot_half]->w2 * 4;
+        sp90[2] = -CarBoundsTable[slot_half]->w4 * 4;
         RR_GTE_MVMVA_ROT_V0_NOCV(sp90);
         RR_GTE_STORE_IR(&sp158[i + 3]);
         sp158[i + 3].x += sp158[2].x;
@@ -271,7 +271,7 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A08 (*(Bounds2D1B4 *(*)[])&D_800F3A08)
+#define CarBoundsTable (*(Bounds2D1B4 *(*)[])&CarBoundsTable)
 
 void func_8002D1B4(Vehicle2D1B4 *arg0) {
     Mat8 sp20;
@@ -290,7 +290,7 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
     u8 a1_val;
 
     slot_half = arg0->slot1E6 >> 1;
-    func_800701C4(slot_half);
+    SelectModelBank(slot_half);
     s5_val = func_80013904(arg0, func_80039494(arg0));
     BuildRotMatrixY(&sp80, -arg0->rot54);
     BuildRotMatrixX(&sp40, -arg0->rot50);
@@ -326,7 +326,7 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
     if (s4_val & 0x1000) {
         s4_val = -s4_val;
     }
-    if (D_800F3A08[slot_half]->bA == 1) {
+    if (CarBoundsTable[slot_half]->bA == 1) {
         BuildRotMatrixY(&spA8[3], s4_val);
     } else {
         BuildRotMatrixX(&spA8[3], s4_val);
@@ -341,13 +341,13 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
     RR_GTE_SETROT(&sp80);
     for (i = 0; i < 2; i++) {
         /* ASM_BARRIER: pin v0_w to v0 to match branch delay slot and load scheduling */
-        register s32 v0_w asm("v0") = D_800F3A08[slot_half]->w0;
+        register s32 v0_w asm("v0") = CarBoundsTable[slot_half]->w0;
         if (i & 1) {
             v0_w = -v0_w;
         }
         spA0[0] = v0_w * 4;
-        spA0[1] = D_800F3A08[slot_half]->w2 * 4;
-        spA0[2] = -D_800F3A08[slot_half]->w4 * 4;
+        spA0[1] = CarBoundsTable[slot_half]->w2 * 4;
+        spA0[2] = -CarBoundsTable[slot_half]->w4 * 4;
         RR_GTE_MVMVA_ROT_V0_NOCV(spA0);
         RR_GTE_STORE_IR(&sp168[i + 3]);
         sp168[i + 3].x += sp168[2].x;
@@ -379,13 +379,13 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
     }
 }
 
-#undef D_800F3A08
+#undef CarBoundsTable
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_80013904 ((s32 (*)(Vehicle2D784 *, s32))func_80013904)
 #define func_80015F68 ((void (*)(Vehicle2D784 *, Vec4 *, Mat8 *, Mat8 *, s32, s32, s32))func_80015F68)
 #define func_80039494 ((s32 (*)(Vehicle2D784 *))func_80039494)
-#define D_800F3A08 (*(Bounds2D784 *(*)[])&D_800F3A08)
+#define CarBoundsTable (*(Bounds2D784 *(*)[])&CarBoundsTable)
 
 void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
     Mat8 sp20;
@@ -408,7 +408,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
     slot_half = arg0->slot1E6 >> 1;
     fp_val = (arg0->slot1E6 & 1) * 0x05000000;
     slot_idx = arg0->slot1E6 + D_800ABEC4;
-    func_800701C4(slot_half);
+    SelectModelBank(slot_half);
 
     sp168[0].x = (arg0->x10 - G->x08) >> 2;
     sp168[0].y = 0;
@@ -476,7 +476,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
             if (s4_val & 0x1000) {
                 s4_val = -s4_val;
             }
-            if (D_800F3A08[slot_half]->bA == 1) {
+            if (CarBoundsTable[slot_half]->bA == 1) {
                 BuildRotMatrixY(&spA8[3], s4_val);
             } else {
                 BuildRotMatrixX(&spA8[3], s4_val);
@@ -491,13 +491,13 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
             RR_GTE_SETROT(&sp80);
             for (i = 0; i < 2; i++) {
                 /* ASM_BARRIER: pin v0_w to v0 to match branch delay slot and load scheduling */
-                register s32 v0_w asm("v0") = D_800F3A08[slot_half]->w0;
+                register s32 v0_w asm("v0") = CarBoundsTable[slot_half]->w0;
                 if (i & 1) {
                     v0_w = -v0_w;
                 }
                 spA0[0] = v0_w * 4;
-                spA0[1] = D_800F3A08[slot_half]->w2 * 4;
-                spA0[2] = -D_800F3A08[slot_half]->w4 * 4;
+                spA0[1] = CarBoundsTable[slot_half]->w2 * 4;
+                spA0[2] = -CarBoundsTable[slot_half]->w4 * 4;
                 RR_GTE_MVMVA_ROT_V0_NOCV(spA0);
                 RR_GTE_STORE_IR(&sp168[i + 3]);
                 sp168[i + 3].x += sp168[2].x;
@@ -569,4 +569,4 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
 #undef func_80013904
 #undef func_80015F68
 #undef func_80039494
-#undef D_800F3A08
+#undef CarBoundsTable

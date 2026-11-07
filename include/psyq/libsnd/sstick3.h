@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_80083A94(s32 a0, s16 a1);
-int func_80083AF4();
+void _SsSndReplay(s32 a0, s16 a1);
+int _SsSndStop();
 
 #endif /* RR_PSYQ_LIBSND_SSTICK3_H */

@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80049A60();
+void ApplyRubberBandSpec();
 
 #endif /* RR_GAME_CAR_CARSPEC3_H */

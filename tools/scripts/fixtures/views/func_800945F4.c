@@ -38,7 +38,7 @@
 /* The small CPU tail uses compiler-fenced stores so GCC can place the final
  * write in a branch delay slot. The per-iteration and final memory fences
  * make every port write visible and ordered before subsequent accesses. */
-s32 func_800945F4(RrGpuRectangle *arg0,const u32 *arg1) {
+s32 _dws(RrGpuRectangle *arg0,const u32 *arg1) {
     register RrGpuRectangle *rect=arg0;
     register const u32 *cursor;
     register s32 signed_side;
@@ -60,7 +60,7 @@ s32 func_800945F4(RrGpuRectangle *arg0,const u32 *arg1) {
     cursor=arg1;
     /* ASM_BARRIER: prepare both input pointers before starting the deadline. */
     __asm__("" : "+r"(cursor) : "r"(rect));
-    func_80095360();
+    set_alarm();
     signed_side=rect->rect.w;raw_side=(u16)rect->rect.w;
     mode=0;
     if(signed_side>=0){
@@ -97,7 +97,7 @@ s32 func_800945F4(RrGpuRectangle *arg0,const u32 *arg1) {
         __asm__("" : : : "$3");
         mask=0x04000000U;
         do {
-            if(func_80095394())return -1;
+            if(get_alarm())return -1;
         }while(!(*D_800ABBC8&mask));
     }
     command=0xA0000000U;

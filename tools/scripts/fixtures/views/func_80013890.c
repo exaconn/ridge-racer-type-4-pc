@@ -1,35 +1,35 @@
 #include "rr/renderer_setup.h"
 
-#define B (*(int *)&D_800ACC18)
+#define B (*(int *)&LoadCursor)
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80070108 ((void (*)(void *, s32))func_80070108)
+#define RegisterModelBank ((void (*)(void *, s32))RegisterModelBank)
 
-#define D_800ACC18 ((Resource *)D_800ACC18)
+#define LoadCursor ((Resource *)LoadCursor)
 
-#define D_800F3A08 (*(void *(*)[])&D_800F3A08)
+#define CarBoundsTable (*(void *(*)[])&CarBoundsTable)
 
-#undef func_80070108
+#undef RegisterModelBank
 
-#undef D_800ACC18
+#undef LoadCursor
 
-#undef D_800F3A08
+#undef CarBoundsTable
 
 /* legacy typing of shared globals in this part of the unit */
 #define DrawSync ((int (*)())DrawSync)
 
-#define func_80092FFC ((int (*)())func_80092FFC)
+#define LoadImage ((int (*)())LoadImage)
 
 #undef DrawSync
 
-#undef func_80092FFC
+#undef LoadImage
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_8010BF60 ((short *)D_8010BF60)
 
 #undef D_8010BF60
 
-void func_80013890(s32 shift) {
+void SetupRenderer(s32 shift) {
     /* ASM_BARRIER: reuse the incoming argument register for the scratch base. */
     register RrRendererScratch *scratch __asm__("$4");
     *(s32*)0x1F800060U=shift;

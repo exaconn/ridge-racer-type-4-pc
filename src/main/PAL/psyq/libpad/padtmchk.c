@@ -6,7 +6,7 @@ struct C { char p0[0x14]; int f14; int (*f18)(); char p1c[0x14]; unsigned char *
 extern int (*D_800ABC6C)();
 
 void func_8009A478();
-void func_8009A6DC();
+void _dirFailAuto();
 
 void func_8009A478(a0) struct C *a0; {
     unsigned int t;
@@ -68,7 +68,7 @@ l11:
             default: {
                 /* ASM_BARRIER: keep the callback return value in $v0 across the join label. */
                 register int v asm("$2");
-                if (a0->f18 != 0) v = a0->f18(a0); else v = func_80098B64(a0);
+                if (a0->f18 != 0) v = a0->f18(a0); else v = _padRecvAtLoadInfo(a0);
                 a0->f46 += v;
                 break;
             }
@@ -77,7 +77,7 @@ l11:
     }
 }
 
-void func_8009A6DC(a0) unsigned char *a0; {
+void _dirFailAuto(a0) unsigned char *a0; {
   int v = a0[0x46];
   unsigned int t;
   *(int *)(a0 + 0x4C) = *(int *)(a0 + 0x4C) + 1;

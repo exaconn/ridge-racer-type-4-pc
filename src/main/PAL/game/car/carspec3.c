@@ -1,14 +1,14 @@
-#define D_800AC650 D_800AC650_prefix
+#define RaceContext D_800AC650_prefix
 #include "rr/race.h"
 #include "game/car/carspec3.h"
 #include "game/car/carspec1.h"
 #include "game/car/carspec2.h"
 #include "rr/audio_loop.h"
 #include "game/car/carspec2.h"
-#undef D_800AC650
+#undef RaceContext
 
-extern struct { char pad[0x14]; int mode; char pad2[0x528]; RrRaceSpecEntry30 *tab; } D_800AC650;
-void func_80049A60(a0) RrRaceVehicle *a0; {
+extern struct { char pad[0x14]; int mode; char pad2[0x528]; RrRaceSpecEntry30 *tab; } RaceContext;
+void ApplyRubberBandSpec(a0) RrRaceVehicle *a0; {
     int s0 = 0;
     RrRaceSpecEntry30 *s2;
     RrRaceVehicleControl *s3;
@@ -22,17 +22,17 @@ void func_80049A60(a0) RrRaceVehicle *a0; {
     int w;
     int v1;
     register int v2;
-    s2 = D_800AC650.tab + (a0->flags1E4 & 0xF) - 1;
+    s2 = RaceContext.tab + (a0->flags1E4 & 0xF) - 1;
     s3 = (RrRaceVehicleControl *)((char *)a0 + 0x1F4);
-    if (D_800AC650.mode == 1) {
-        s0 = func_80049558(a0, s0);
+    if (RaceContext.mode == 1) {
+        s0 = CalcRubberBandFactor(a0, s0);
         a = (a0->flags1E4 & 0xF) - 1;
-        func_80049228(a, a, s0, 0);
-    } else if (D_800AC650.mode == 2) {
-        func_80049228(0, 2, func_80049558(a0, 0), 0);
-        s0 = func_80049558(a0, 1);
-        func_80049228(1, 3, s0, 0);
-        func_80049430((a0->flags1E4 & 0xF) - 1, 2, 3);
+        BlendCarSpec(a, a, s0, 0);
+    } else if (RaceContext.mode == 2) {
+        BlendCarSpec(0, 2, CalcRubberBandFactor(a0, 0), 0);
+        s0 = CalcRubberBandFactor(a0, 1);
+        BlendCarSpec(1, 3, s0, 0);
+        AverageCarSpec((a0->flags1E4 & 0xF) - 1, 2, 3);
     }
     b = s3->boostTimer44;
     if (b > 0) {

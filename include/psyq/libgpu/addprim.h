@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-unsigned short func_80095A24();
+unsigned short GetClut();
 
 #endif /* RR_PSYQ_LIBGPU_ADDPRIM_H */

@@ -16,11 +16,11 @@ RR_ASSERT_SIZE(RrAudioBankSetup,0x10);
 RR_ASSERT_OFFSET(RrAudioBankSetup,slot0C,0x0C);
 /* Bank publication writes both the signed bank half and reserved upper half. */
 typedef s32 RrAudioBankStorage32 __attribute__((__may_alias__));
-extern RrAudioState D_800F4DB8;
+extern RrAudioState SoundState;
 /* Alias of slots38 in the same owner; never a separate allocation. */
-extern RrAudioSlot620 D_800F4DF0[4];
-s32 func_8008A674(s16);
-s32 func_8008AA74(const u8 *,s32,s32);
-s32 func_8008B074(s32);
+extern RrAudioSlot620 SoundSlots[4];
+s32 SsVabClose(s16);
+s32 SsVabOpenHeadSticky(const u8 *,s32,s32);
+s32 SsVabTransCompleted(s32);
 void func_80050894(RrAudioProgramData *,s32);
 #endif

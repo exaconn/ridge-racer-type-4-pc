@@ -50,13 +50,13 @@ static u32 observe(struct World *v,s32 kind,u32 a,u32 b,u32 c,const char *name,R
  Event *e;unsigned step=v->calls;assert(step<6);e=&v->events[v->calls++];memset(e,0,sizeof(*e));e->kind=kind;e->args[0]=a;e->args[1]=b;e->args[2]=c;e->name=name;e->callback=callback;memcpy(&e->state,&v->s,sizeof(v->s));
  if(callback)v->registered=callback;effect(v);return result(step);
 }
-RrBiosEventHandle func_80096E74(u32 eventClass,u32 specification,u32 mode,RrBiosEventCallback callback){
+RrBiosEventHandle OpenEvent(u32 eventClass,u32 specification,u32 mode,RrBiosEventCallback callback){
  assert(world.calls<2);assert(eventClass==0xF000000BU);
  return observe(&world,0,eventClass,specification,mode,0,callback);
 }
-s32 func_80096F24(const char *name,s32 mode){assert(world.calls==2 || world.calls==3);assert(name==ovl667_D_8011487C && strcmp(name,"sio:")==0);return word(observe(&world,1,(u32)mode,0,0,name,0));}
-s32 func_80096EB4(RrBiosEventHandle handle){assert(world.calls==4 || world.calls==5);return word(observe(&world,2,handle,0,0,0,0));}
-s32 func_8009AEAC(s32 command,s32 operation,unsigned long argument){assert(world.calls<2 && argument==0);return word(observe(&world,3,(u32)command,(u32)operation,0,0,0));}
+s32 FileOpen(const char *name,s32 mode){assert(world.calls==2 || world.calls==3);assert(name==ovl667_D_8011487C && strcmp(name,"sio:")==0);return word(observe(&world,1,(u32)mode,0,0,name,0));}
+s32 EnableEvent(RrBiosEventHandle handle){assert(world.calls==4 || world.calls==5);return word(observe(&world,2,handle,0,0,0,0));}
+s32 _sio_control(s32 command,s32 operation,unsigned long argument){assert(world.calls<2 && argument==0);return word(observe(&world,3,(u32)command,(u32)operation,0,0,0));}
 static void reference_setup(void){
  expected.s.event0=observe(&expected,0,0xF000000BU,0x400,0x2000,0,0);
  expected.s.event1=observe(&expected,0,0xF000000BU,0x8000,0x1000,0,ovl667_func_80114D10);

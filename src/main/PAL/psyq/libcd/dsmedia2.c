@@ -11,9 +11,9 @@
 #include "rr/cd.h"
 #include "rr/overlay668_stream.h"
 
-extern s32 func_8008C55C();
-extern s32 func_80096F04();
-extern s32 func_80096F14();
+extern s32 CdDataCallback();
+extern s32 EnterCriticalSection();
+extern s32 ExitCriticalSection();
 extern s32 D_800A64A8;
 extern s8 *D_800A6800;
 extern s8 *D_800A680C;
@@ -33,20 +33,20 @@ void StClearRing(void) {
     D_801102F8 = 0;
     D_801102F4 = 0;
     D_801102EC = 0;
-    func_8008F814(0, a);
+    init_ring_status(0, a);
     D_801102DC = 0;
     D_801102D4 = 0;
     D_801102D0 = 0;
 }
 
 void StUnSetRing(void) {
-    func_80096F04();
+    EnterCriticalSection();
     if (D_800A64A8 == 1) {
         func_80096DE0(0);
         func_80096DB8(0);
     } else {
-        func_8008C55C(0);
-        func_8008C12C(0);
+        CdDataCallback(0);
+        CdReadyCallback(0);
     }
     *D_800A6800 = 0;
     {
@@ -55,7 +55,7 @@ void StUnSetRing(void) {
         __asm__ volatile("nop" : : "r"(port));
         *port = 0;
     }
-    func_80096F14();
+    ExitCriticalSection();
 }
 
 void data_ready_callback(void)

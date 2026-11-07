@@ -2,16 +2,16 @@
 #include "rr/library.h"
 extern volatile u8 *D_800A674C;
 extern u8 D_800A6764[2];
-extern RrLibDataCallback D_800A648C,D_800A6488;
-extern s32 func_8008C724(void);
+extern RrLibDataCallback CD_cbready,CD_cbsync;
+extern s32 getintr(void);
 void func_8008DDAC(void) {
     u8 *p=&D_800A6764[1];
     u8 *q=p-1;
     s32 saved=*D_800A674C & 3;
     s32 result;
-    while((result=func_8008C724())) {
+    while((result=getintr())) {
         if(result & 4) {
-            if(D_800A648C) {
+            if(CD_cbready) {
                 /* ASM_BARRIER: Load the byte argument before preparing its data-page argument. */
                 register s32 argument=*p;
                 /* ASM_BARRIER: Retain the callback's data-page argument for its call delay slot. */
@@ -21,11 +21,11 @@ void func_8008DDAC(void) {
                 page=(u8 *)0x80110000U;
                 /* ASM_BARRIER: Keep the data-page offset separate for call scheduling. */
                 __asm__("" : "+r"(page));
-                D_800A648C(argument,page+0x320);
+                CD_cbready(argument,page+0x320);
             }
         }
         if(result & 2) {
-            if(D_800A6488) {
+            if(CD_cbsync) {
                 /* ASM_BARRIER: Load the byte argument before preparing its data-page argument. */
                 register s32 argument=*q;
                 /* ASM_BARRIER: Retain the callback's data-page argument for its call delay slot. */
@@ -35,7 +35,7 @@ void func_8008DDAC(void) {
                 page=(u8 *)0x80110000U;
                 /* ASM_BARRIER: Keep the data-page offset separate for call scheduling. */
                 __asm__("" : "+r"(page));
-                D_800A6488(argument,page+0x318);
+                CD_cbsync(argument,page+0x318);
             }
         }
     }

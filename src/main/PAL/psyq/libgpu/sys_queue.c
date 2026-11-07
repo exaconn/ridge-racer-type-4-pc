@@ -20,7 +20,7 @@ struct GpuQueue {
 
 typedef int (*GpuOpFunc)();
 
-extern int func_8008B3C4(int, int (*)());
+extern int DMACallback(int, int (*)());
 extern struct GpuSys D_800ABAC0;
 extern volatile unsigned int *D_800ABBC8;
 extern volatile unsigned int *D_800ABBD4;
@@ -28,33 +28,33 @@ extern volatile int D_800ABBE8;
 extern int D_800ABBF0;
 extern volatile struct GpuQueue D_801128D8[];
 
-void func_80094BA0(int a, int b, int c);
-int func_80094BC4(GpuOpFunc op, int *p0, int len, int p1);
+void _addque(int a, int b, int c);
+int _addque2(GpuOpFunc op, int *p0, int len, int p1);
 
-void func_80094BA0(int a, int b, int c) { func_80094BC4(a, b, 0, c); }
+void _addque(int a, int b, int c) { _addque2(a, b, 0, c); }
 
-int func_80094BC4(GpuOpFunc op, int *p0, int len, int p1) {
+int _addque2(GpuOpFunc op, int *p0, int len, int p1) {
     int i;
     struct GpuSys *sys;
 
-    func_80095360();
+    set_alarm();
     while (((D_800ABBE8 + 1) & 0x3F) == D_800ABBEC) {
-        if (func_80095394() != 0) {
+        if (get_alarm() != 0) {
             return -1;
         }
-        func_80094E74();
+        _exeque();
     }
-    D_800ABBF0 = func_8008B4E0(0);
+    D_800ABBF0 = SetIntrMask(0);
     sys = &D_800ABAC0;
     sys->unk8 = 1;
     if (sys->enabled == 0 || (D_800ABBE8 == D_800ABBEC && (*D_800ABBD4 & 0x01000000) == 0 && sys->unkC == 0)) {
         while ((*D_800ABBC8 & 0x04000000) == 0)
 ;
         op(p0, p1);
-        func_8008B4E0(D_800ABBF0);
+        SetIntrMask(D_800ABBF0);
         return 0;
     }
-    func_8008B3C4(2, func_80094E74);
+    DMACallback(2, _exeque);
     if (len != 0) {
         for (i = 0; i < len / 4; i++) {
             D_801128D8[D_800ABBE8].buf[i] = p0[i];
@@ -66,7 +66,7 @@ int func_80094BC4(GpuOpFunc op, int *p0, int len, int p1) {
     D_801128D8[D_800ABBE8].p1 = p1;
     D_801128D8[D_800ABBE8].op = op;
     D_800ABBE8 = (D_800ABBE8 + 1) & 0x3F;
-    func_8008B4E0(D_800ABBF0);
-    func_80094E74();
+    SetIntrMask(D_800ABBF0);
+    _exeque();
     return (D_800ABBE8 - D_800ABBEC) & 0x3F;
 }

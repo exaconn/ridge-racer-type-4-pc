@@ -7,13 +7,13 @@
 #define R(o) (*(unsigned short *)(D_800A6760 + (o)))
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A6488 (*(void (*(*))(u8, u8 *))&D_800A6488)
+#define CD_cbsync (*(void (*(*))(u8, u8 *))&CD_cbsync)
 
-#define D_800A648C (*(void (*(*))(u8, u8 *))&D_800A648C)
+#define CD_cbready (*(void (*(*))(u8, u8 *))&CD_cbready)
 
-#undef D_800A6488
+#undef CD_cbsync
 
-#undef D_800A648C
+#undef CD_cbready
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A674C ((unsigned char *)D_800A674C)

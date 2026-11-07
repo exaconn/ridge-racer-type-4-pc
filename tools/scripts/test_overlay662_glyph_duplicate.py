@@ -25,8 +25,8 @@ static struct World {
  s32 local;s16 selected;RrMenuChoice4 choice;unsigned calls;Event events[10];u32 tail[4];
 } world,expected;
 static unsigned scenario,base,switching;
-#define D_800F4D8C world.root
-#define D_800F3AFC world.badge
+#define GlyphRows world.root
+#define BadgeRows world.badge
 #define ovl662_D_801272C0 world.local
 #define D_800F3826 world.selected
 #define D_800F4D99 world.choice.bytes[1]
@@ -49,13 +49,13 @@ static void event(struct World *w,const s32 a[10]){unsigned n=w->calls,j,b=bank(
  }
  for(j=0;j<sizeof(w->badges);j++)((u8*)w->badges)[j]=(u8)(scenario+n+j*13);
 }
-void func_8003E040(s32 index,s32 control,s32 glyph,s32 style){s32 a[10]={index,control,glyph,style};
+void InitGlyphRow(s32 index,s32 control,s32 glyph,s32 style){s32 a[10]={index,control,glyph,style};
  assert(world.calls<8&&world.calls%2==0&&index==(s32)(base+world.calls/2));
  if(world.calls==0)assert(world.local==0&&world.selected==0&&world.choice.bytes[1]==0);event(&world,a);
 }
-void func_8003DC9C(s32 index,s16 a,s16 b,s16 c,s16 d,s16 e,s16 f){s32 args[10]={index,a,b,c,d,e,f};assert(world.calls<8&&world.calls%2==1);event(&world,args);}
-void func_8003D228(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[10]={a,b,c,d,e,f,g};assert(world.calls==8);event(&world,args);}
-void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls==9);event(&world,args);}
+void InitRect16Row(s32 index,s16 a,s16 b,s16 c,s16 d,s16 e,s16 f){s32 args[10]={index,a,b,c,d,e,f};assert(world.calls<8&&world.calls%2==1);event(&world,args);}
+void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[10]={a,b,c,d,e,f,g};assert(world.calls==8);event(&world,args);}
+void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls==9);event(&world,args);}
 static void reference(void){unsigned i,b;RrMenuGlyphRow1C *g;
  expected.local=0;expected.selected=0;expected.choice.bytes[1]=0;
  for(i=0;i<4;i++){

@@ -57,16 +57,16 @@ extern struct {
     int f58[2];
     char pad60[0x55C - 0x60];
     char *f55C;
-} D_800AC650;
+} RaceContext;
 extern short D_800AD520;
 extern int D_800F2FD8;
 extern short D_800F3914;
 extern void func_8006EE3C();
-extern void func_800701C4();
+extern void SelectModelBank();
 extern void func_8005F0D0();
-extern void func_8006E1AC();
+extern void BuildCameraMatrices();
 extern void ApplyMatrix();
-extern void func_800912D4();
+extern void SetGeomScreen();
 extern void RotMatrixZYX();
 extern void func_800172DC();
 extern int D_800AC6B0;
@@ -75,14 +75,14 @@ extern short D_800F4D44;
 extern M2C_UNK D_800AC6D8;
 extern void func_800207D4();
 extern void func_8004FED4();
-extern void func_800528A8();
-extern void func_80052A30();
-extern void func_80052B8C();
+extern void CdAudioSelectTrack();
+extern void CdAudioBeginPlay();
+extern void CdAudioFade();
 extern void func_80059E40();
 extern int func_80096464();
 extern int D_800AC6EC;
 extern signed char D_800AD4D8[];
-extern signed char D_800AD528[];
+extern signed char Options[];
 extern int D_8010718C;
 
 void func_80044EC4(void);
@@ -98,18 +98,18 @@ void func_80044EC4(void) {
     int s1;
 
     s5 = g[0x18];
-    s2 = D_800AC650.f55C + (D_800AD520 << 7);
+    s2 = RaceContext.f55C + (D_800AD520 << 7);
     func_80044920(s2, sp10);
     func_8006EE3C((SCRATCHPAD + 0x7C), s2, sp10);
     s1 = func_80044B24(sp10, s2);
     if (s1 > 0) {
-        ClearOTagR(D_800AC650.f50[D_800F4BF0], 0x15F);
-        g[1] = D_800AC650.f50[D_800F4BF0];
+        ClearOTagR(RaceContext.f50[DrawBufIndex], 0x15F);
+        g[1] = RaceContext.f50[DrawBufIndex];
         g[0x18] = s1 >> 7;
         if (s1 >> 7 >= 6) {
             g[0x18] = 5;
         }
-        func_800701C4(8);
+        SelectModelBank(8);
         func_8006EE3C((SCRATCHPAD + 0x7C), s2, sp10);
         g[0x1E] = 0;
         func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, 0, 0);
@@ -122,18 +122,18 @@ void func_80044EC4(void) {
         }
     }
     if (D_8009FE60[D_800F3914] == 7) {
-        s2 = D_800AC650.f55C + (D_800AD520 << 7) + 0x40;
+        s2 = RaceContext.f55C + (D_800AD520 << 7) + 0x40;
         func_80044920(s2, sp10);
         func_8006EE3C((SCRATCHPAD + 0x7C), s2, sp10);
         s1 = func_80044B24(sp10, s2);
         if (s1 > 0) {
-            ClearOTagR(D_800AC650.f58[D_800F4BF0], 0x15F);
-            g[1] = D_800AC650.f58[D_800F4BF0];
+            ClearOTagR(RaceContext.f58[DrawBufIndex], 0x15F);
+            g[1] = RaceContext.f58[DrawBufIndex];
             g[0x18] = s1 >> 7;
             if (s1 >> 7 >= 6) {
                 g[0x18] = 5;
             }
-            func_800701C4(9);
+            SelectModelBank(9);
             func_8006EE3C((SCRATCHPAD + 0x7C), s2, sp10);
             *(int *)(SCRATCHPAD + 0x78) = 0;
             func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, 0, 0);
@@ -170,12 +170,12 @@ void func_800451E4(int *a) {
     s[2] = a[0] + t[0];
     s[3] = a[1] + t[1];
     s[4] = a[2] + t[2];
-    func_800912D4(a[8]);
-    func_8006E1AC();
+    SetGeomScreen(a[8]);
+    BuildCameraMatrices();
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(Context650 (*))&D_800AC650)
+#define RaceContext (*(Context650 (*))&RaceContext)
 
 int func_800452CC(Arg0Struct *a0, int a1, int a2) {
     int pad[4];
@@ -200,9 +200,9 @@ int func_800452CC(Arg0Struct *a0, int a1, int a2) {
     if (s0 < 0) {
         return 1;
     }
-    if (D_800AC650.fA4 != s3) {
+    if (RaceContext.fA4 != s3) {
         func_800172DC();
-        D_800AC650.fA4 = s3;
+        RaceContext.fA4 = s3;
     }
     t1 = (s2[s0].f24 - s2[s3].f24) * 5;
     t2 = a1 - s2[s3].f24 * 5;
@@ -221,19 +221,19 @@ int func_800452CC(Arg0Struct *a0, int a1, int a2) {
         sp30 = s2[s0].f0;
     }
     if (t1 > 0) {
-        D_800AC650.f60.x = ((sp30.x - sp20.x) * t2) / t1 + sp20.x;
-        D_800AC650.f60.y = ((sp30.y - sp20.y) * t2) / t1 + sp20.y;
-        D_800AC650.f60.z = ((sp30.z - sp20.z) * t2) / t1 + sp20.z;
-        D_800AC650.f70.x = ((s2[s0].f10.x - s2[s3].f10.x) * t2) / t1 + s2[s3].f10.x;
-        D_800AC650.f70.y = ((s2[s0].f10.y - s2[s3].f10.y) * t2) / t1 + s2[s3].f10.y;
-        D_800AC650.f70.z = ((s2[s0].f10.z - s2[s3].f10.z) * t2) / t1 + s2[s3].f10.z;
-        D_800AC650.f7C = ((s2[s0].f1C - s2[s3].f1C) * t2) / t1 + s2[s3].f1C;
-        D_800AC650.f80 = ((s2[s0].f20 - s2[s3].f20) * t2) / t1 + s2[s3].f20;
+        RaceContext.f60.x = ((sp30.x - sp20.x) * t2) / t1 + sp20.x;
+        RaceContext.f60.y = ((sp30.y - sp20.y) * t2) / t1 + sp20.y;
+        RaceContext.f60.z = ((sp30.z - sp20.z) * t2) / t1 + sp20.z;
+        RaceContext.f70.x = ((s2[s0].f10.x - s2[s3].f10.x) * t2) / t1 + s2[s3].f10.x;
+        RaceContext.f70.y = ((s2[s0].f10.y - s2[s3].f10.y) * t2) / t1 + s2[s3].f10.y;
+        RaceContext.f70.z = ((s2[s0].f10.z - s2[s3].f10.z) * t2) / t1 + s2[s3].f10.z;
+        RaceContext.f7C = ((s2[s0].f1C - s2[s3].f1C) * t2) / t1 + s2[s3].f1C;
+        RaceContext.f80 = ((s2[s0].f20 - s2[s3].f20) * t2) / t1 + s2[s3].f20;
     } else {
-        D_800AC650.f60 = sp30;
-        D_800AC650.f70 = s2[s0].f10;
-        D_800AC650.f7C = s2[s0].f1C;
-        D_800AC650.f80 = s2[s0].f20;
+        RaceContext.f60 = sp30;
+        RaceContext.f70 = s2[s0].f10;
+        RaceContext.f7C = s2[s0].f1C;
+        RaceContext.f80 = s2[s0].f20;
     }
     func_800451E4(&D_800AC6B0);
     if (D_800F4D44 == 1) {
@@ -243,7 +243,7 @@ int func_800452CC(Arg0Struct *a0, int a1, int a2) {
     return 0;
 }
 
-#undef D_800AC650
+#undef RaceContext
 
 void func_80045830(void) {
     func_80096434(&D_800AC6D8, 0x20);
@@ -251,7 +251,7 @@ void func_80045830(void) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(int (*)[])&D_800AC650)
+#define RaceContext (*(int (*)[])&RaceContext)
 #define D_800AC6B0 (*(char (*)[])&D_800AC6B0)
 #define D_800AC6D8 (*(int (*))&D_800AC6D8)
 #define D_800ACC14 ((char *)D_800ACC14)
@@ -284,11 +284,11 @@ int func_80045868(char *arg0)
   s0 = 0;
   do
   {
-    func_80050028(s0, 1);
+    SlotSetPause(s0, 1);
     s0++;
   }
   while (s0 < 4);
-  g1 = D_800AC650;
+  g1 = RaceContext;
   if ((*((int *) (((char *) g1) + 0x90))) != 0)
   {
     func_800207D4(D_800ACC14 + 0x70, (*((int *) (((char *) g1) + 0x8C))) * 10, 0x25);
@@ -311,7 +311,7 @@ int func_80045868(char *arg0)
     }
     func_80051538(0, (short) (*((int *) (((char *) g1) + 0xA0))), (short) (*((int *) (((char *) g1) + 0xA0))));
   }
-  gB = D_800AC650;
+  gB = RaceContext;
   s0 = gB[0x88 / 4];
   if (s0 < 0xC)
   {
@@ -320,13 +320,13 @@ int func_80045868(char *arg0)
       func_8005A90C();
       if (gB[0x94 / 4] == s0)
       {
-        func_80052A30(0);
+        CdAudioBeginPlay(0);
       }
       {
         int two;
         s0 = 0;
         two = 2;
-        q = D_800AD528;
+        q = Options;
         p = gB;
         do
         {
@@ -380,7 +380,7 @@ int func_80045868(char *arg0)
       *((char **) SCRATCHPAD) = pk + 8;
     }
   }
-  gC = D_800AC650;
+  gC = RaceContext;
   if (gC[0x94 / 4] == 0)
   {
     if ((D_800F4D44 == 1) && (D_800AD4D8[D_800AD4D8[0x17] + 8] >= 3))
@@ -400,7 +400,7 @@ int func_80045868(char *arg0)
         r += 0x28;
       }
       while (s0 < 0x10);
-      gF = D_800AC650;
+      gF = RaceContext;
       gF[0x94 / 4] = 1;
       gF[0x98 / 4] = gF[0x98 / 4] * 5;
     }
@@ -409,7 +409,7 @@ int func_80045868(char *arg0)
       gC[0x94 / 4] = 2;
     }
   }
-  gD = D_800AC650;
+  gD = RaceContext;
   switch (gD[0x94 / 4])
   {
     case 1:
@@ -424,16 +424,16 @@ int func_80045868(char *arg0)
         }
       }
     }
-      gS = D_800AC650;
+      gS = RaceContext;
       if ((gS[0x98 / 4] - gS[0x88 / 4]) < 0x1A)
     {
       if (gS[0x90 / 4] == 0)
       {
         gS[0x90 / 4] = 1;
-        func_80052B8C(0, 8);
+        CdAudioFade(0, 8);
       }
     }
-      gT = D_800AC650;
+      gT = RaceContext;
       gT[0x88 / 4]++;
       if (gT[0x88 / 4] >= gT[0x98 / 4])
     {
@@ -452,31 +452,31 @@ int func_80045868(char *arg0)
     }
       if (gD[0x9C / 4] == 0)
     {
-      *((short *) (((char *) D_800AC650) + 0x30)) = 0;
-      *((short *) (((char *) D_800AC650) + 0x32)) = 0;
-      *((short *) (((char *) D_800AC650) + 0x34)) = -0x100;
-      func_800439BC(arg0, ((char *) D_800AC650) + 0x30, ((char *) D_800AC650) + 0x60);
-      *((short *) (((char *) D_800AC650) + 0x74)) = 0;
-      *((int *) (((char *) D_800AC650) + 0x80)) = 0x1D6;
-      *((short *) (((char *) D_800AC650) + 0x70)) = (((*((int *) (((char *) D_800AC650) + 0x88))) * 0x190) / 73) - 0x280;
-      v = (*((short *) (((char *) D_800AC650) + 0x72)) = ((-((*((int *) (((char *) D_800AC650) + 0x88))) * 0xB00)) / 73) + 0x600);
-      *((int *) (((char *) D_800AC650) + 0x7C)) = ((-((*((int *) (((char *) D_800AC650) + 0x88))) << 9)) / 73) + 0x400;
+      *((short *) (((char *) RaceContext) + 0x30)) = 0;
+      *((short *) (((char *) RaceContext) + 0x32)) = 0;
+      *((short *) (((char *) RaceContext) + 0x34)) = -0x100;
+      CarLocalToWorld(arg0, ((char *) RaceContext) + 0x30, ((char *) RaceContext) + 0x60);
+      *((short *) (((char *) RaceContext) + 0x74)) = 0;
+      *((int *) (((char *) RaceContext) + 0x80)) = 0x1D6;
+      *((short *) (((char *) RaceContext) + 0x70)) = (((*((int *) (((char *) RaceContext) + 0x88))) * 0x190) / 73) - 0x280;
+      v = (*((short *) (((char *) RaceContext) + 0x72)) = ((-((*((int *) (((char *) RaceContext) + 0x88))) * 0xB00)) / 73) + 0x600);
+      *((int *) (((char *) RaceContext) + 0x7C)) = ((-((*((int *) (((char *) RaceContext) + 0x88))) << 9)) / 73) + 0x400;
       if (((short) v) < (-0x400))
       {
-        *((short *) (((char *) D_800AC650) + 0x72)) = -0x400;
+        *((short *) (((char *) RaceContext) + 0x72)) = -0x400;
       }
     }
     else
     {
-      *((short *) (((char *) D_800AC650) + 0x30)) = 0;
-      *((short *) (((char *) D_800AC650) + 0x32)) = 0;
-      *((short *) (((char *) D_800AC650) + 0x34)) = -0x100;
-      func_800439BC(arg0, ((char *) D_800AC650) + 0x30, ((char *) D_800AC650) + 0x60);
-      *((short *) (((char *) D_800AC650) + 0x70)) = -0xF0;
-      *((short *) (((char *) D_800AC650) + 0x72)) = -0x400;
-      *((int *) (((char *) D_800AC650) + 0x7C)) = 0x200;
-      *((short *) (((char *) D_800AC650) + 0x74)) = 0;
-      *((int *) (((char *) D_800AC650) + 0x80)) = 0x1D6;
+      *((short *) (((char *) RaceContext) + 0x30)) = 0;
+      *((short *) (((char *) RaceContext) + 0x32)) = 0;
+      *((short *) (((char *) RaceContext) + 0x34)) = -0x100;
+      CarLocalToWorld(arg0, ((char *) RaceContext) + 0x30, ((char *) RaceContext) + 0x60);
+      *((short *) (((char *) RaceContext) + 0x70)) = -0xF0;
+      *((short *) (((char *) RaceContext) + 0x72)) = -0x400;
+      *((int *) (((char *) RaceContext) + 0x7C)) = 0x200;
+      *((short *) (((char *) RaceContext) + 0x74)) = 0;
+      *((int *) (((char *) RaceContext) + 0x80)) = 0x1D6;
     }
       func_800451E4(D_800AC6B0);
       g2 = (int *) (D_800AC6B0 - 0x60);
@@ -488,7 +488,7 @@ int func_80045868(char *arg0)
 
   }
 
-  g = D_800AC650;
+  g = RaceContext;
   if (g[0x9C / 4] != 0)
   {
     func_8004FED4();
@@ -500,18 +500,18 @@ int func_80045868(char *arg0)
       {
         if (D_800F765C == 0)
         {
-          func_800528A8(0, (func_80096464() % 14) + 0xB);
+          CdAudioSelectTrack(0, (func_80096464() % 14) + 0xB);
         }
         else
         {
-          func_800528A8(0, D_800A0C9C[D_800F765C - 1]);
+          CdAudioSelectTrack(0, D_800A0C9C[D_800F765C - 1]);
         }
       }
       D_800AC6EC = 2;
     }
     s0 = 0;
-    p = D_800AC650;
-    q = D_800AD528;
+    p = RaceContext;
+    q = Options;
     do
     {
       q[0x2A] = *(((unsigned char *) p) + 0xA8);
@@ -528,7 +528,7 @@ int func_80045868(char *arg0)
   return D_800AC6EC;
 }
 
-#undef D_800AC650
+#undef RaceContext
 #undef D_800AC6B0
 #undef D_800AC6D8
 #undef D_800ACC14

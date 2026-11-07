@@ -13,7 +13,7 @@ extern void (*D_800ABC8C)(RrChannelTransferView *);
 void func_80099E34(void *);
 s32 func_8009A2D8(void *);
 void *func_8009A310(s32);
-void func_8009A334(void),_padSetVsyncParam(void);
+void _padInitDirSeq(void),_padSetVsyncParam(void);
 /* Two input buffers must each permit two byte stores. They may overlap each
  * other or byte fields in the record arena; pointer slots must remain valid.
  * Clears both canonical records, installs callbacks, and publishes ready last. */

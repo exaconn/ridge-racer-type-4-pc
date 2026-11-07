@@ -8,7 +8,7 @@
 
 extern unsigned char D_8009EDF8[];
 
-char *func_8001F5B4();
+char *AddTextSprites();
 void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation);
 void func_8001FA48();
 
@@ -65,7 +65,7 @@ u8 *a2;
 #define SetShadeTex ((void (*)())SetShadeTex)
 #define func_80095B94 ((void (*)())func_80095B94)
 
-char *func_8001F5B4(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+char *AddTextSprites(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 int arg0;
 char *arg1;
 int arg2;

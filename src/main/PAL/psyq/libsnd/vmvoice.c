@@ -6,7 +6,7 @@
 #include "game/data/globals.h"
 
 extern u16 D_8010F90C[];
-extern s16 D_8010FE38[];
+extern s16 _svm_sreg_buf[];
 extern s16 D_8010FE3A[];
 extern s8 D_80110105;
 extern s8 D_8011010B;
@@ -25,7 +25,7 @@ void func_80088794(s32 arg0) {
     u16 f8, fa;
 
     {
-        /* ASM_BARRIER: keep D_801100F4 pointer in v0 */
+        /* ASM_BARRIER: keep _svm_vh pointer in v0 */
         register u8 *f4 __asm__("$2");
         /* ASM_BARRIER: keep f18 * 0x3FFF in v0 */
         register s32 v0 __asm__("$2");
@@ -50,11 +50,11 @@ void func_80088794(s32 arg0) {
 
         /* ASM_BARRIER: save arg0 in s3 before loading globals */
         __asm__("" : "+r"(s3));
-        f4 = D_801100F4;
-        /* ASM_BARRIER: load D_801100F4 into v0 before D_80110114 */
+        f4 = _svm_vh;
+        /* ASM_BARRIER: load _svm_vh into v0 before D_80110114 */
         __asm__("" : "+r"(f4), "+r"(s3));
         p = (s8 *)&D_80110114;
-        /* ASM_BARRIER: preserve D_80110114 and D_801100F4 base pointers */
+        /* ASM_BARRIER: preserve D_80110114 and _svm_vh base pointers */
         __asm__("" : "+r"(f4), "+r"(p));
         f18 = f4[0x18];
         v1 = p[-0x10];
@@ -122,7 +122,7 @@ void func_80088794(s32 arg0) {
         /* ASM_BARRIER: keep pan and a3 live across both branches */
         __asm__("" : : "r"(pan), "r"(a3));
     }
-    if (D_801100E8 == 1) {
+    if (_svm_stereo_mono == 1) {
         if (left < right) {
             left = right;
         } else {
@@ -149,8 +149,8 @@ void func_80088794(s32 arg0) {
         /* ASM_BARRIER: retain the PAL flag page for the indexed load. */
         __asm__("" : "+r"(flags_page));
         flags = *(flags_page + s0 - 0x1E8);
-        D_8010FE38[s0 * 8] = left;
-        ((u8 *)&D_8010FE18)[s0] = flags | 3;
+        _svm_sreg_buf[s0 * 8] = left;
+        ((u8 *)&_svm_sreg_dirty)[s0] = flags | 3;
     }
     if (s0 < 0x10U) {
         low_mask = 1 << s0;
@@ -162,7 +162,7 @@ void func_80088794(s32 arg0) {
     /* ASM_BARRIER: keep s0 live so s0 - 0x10 uses v1 instead of modifying s0 in place */
     __asm__("" : : "r"(s0));
     D_8010F90C[(s3 & 0xFF) * 27] = 0xA;
-    for (i = 0; i < D_801100FC; i++) {
+    for (i = 0; i < spuVmMaxVoice; i++) {
         if (!(D_800A48F8 & (1 << i))) {
             /* ASM_BARRIER: keep row_off in v0 */
             register u32 row_off __asm__("$2") = i * 0x36;

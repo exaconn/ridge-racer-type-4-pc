@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_80081224();
-void func_800812D4();
+void _SsSetNrpnVabAttr8();
+void _SsSetNrpnVabAttr9();
 
 #endif /* RR_PSYQ_LIBSND_CCADSR3_H */

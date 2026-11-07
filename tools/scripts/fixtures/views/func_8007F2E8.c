@@ -5,29 +5,29 @@
 #include "rr/spu.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A47D8 ((struct H *)D_800A47D8)
+#define _spu_RXX ((struct H *)_spu_RXX)
 
-#define D_800A47F0 (*(unsigned short (*))&D_800A47F0)
+#define _spu_tsa (*(unsigned short (*))&_spu_tsa)
 
-#undef D_800A47D8
+#undef _spu_RXX
 
-#undef D_800A47F0
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800A47D8 ((unsigned short *)D_800A47D8)
-
-#undef D_800A47D8
+#undef _spu_tsa
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A47D8 ((unsigned short *)D_800A47D8)
+#define _spu_RXX ((unsigned short *)_spu_RXX)
 
-#undef D_800A47D8
+#undef _spu_RXX
 
-u32 func_8007F2E8(const u16 *a0, u32 a1) {
-    if (D_800A47F4 == 0) {
-        func_8007F068(2, (u32)D_800A47F0 << D_800A4800);
-        func_8007F068(1);
-        func_8007F068(3, a0, a1);
+/* legacy typing of shared globals in this part of the unit */
+#define _spu_RXX ((unsigned short *)_spu_RXX)
+
+#undef _spu_RXX
+
+u32 _spu_Fw(const u16 *a0, u32 a1) {
+    if (_spu_transMode == 0) {
+        _spu_t(2, (u32)_spu_tsa << _spu_mem_mode_plus);
+        _spu_t(1);
+        _spu_t(3, a0, a1);
     } else {
         _spu_FwriteByIO(a0, a1);
     }

@@ -45,55 +45,55 @@ typedef struct {
     s16 unkA;
 } Unk80110008;
 
-extern void func_80084674(SpuVoiceAttr *);
-extern void func_80087DA4(s32);
-extern void func_80088DA4(s32);
+extern void SpuSetVoiceAttr(SpuVoiceAttr *);
+extern void _spu_setInTransfer(s32);
+extern void _SsVmKeyOffNow(s32);
 
-extern SpuVoiceRow36 D_8010F908[];
-extern u8 D_8010FE18[];
-extern u16 D_8010FE38[];
+extern SpuVoiceRow36 _svm_voice[];
+extern u8 _svm_sreg_dirty[];
+extern u16 _svm_sreg_buf[];
 extern Unk80110008 D_80110008;
-extern s16 D_801100A0;
-extern s16 D_801100EA;
-extern s8 D_801100FC;
+extern s16 _svm_damper;
+extern s16 kMaxPrograms;
+extern s8 spuVmMaxVoice;
 extern s16 D_80110118;
-extern u8 D_80110120[];
-extern s16 D_80110178;
+extern u8 _svm_vab_used[];
+extern s16 _svm_vab_count;
 extern u8 D_801101C8[];
 
-void func_800879F4(s32 arg0) {
+void _SsVmInit(s32 arg0) {
     SpuVoiceAttr attr;
     u16 i;
     u16 *p;
     s32 v;
     s32 c18, cff, cm1, c40, c1;
 
-    func_80087DA4(0);
-    D_801100A0 = 0;
+    _spu_setInTransfer(0);
+    _svm_damper = 0;
     SpuInitMalloc(0x20, D_801101C8);
 
     i = 0;
-    p = D_8010FE38;
+    p = _svm_sreg_buf;
     do {
         p[i] = 0;
         i++;
     } while (i < 0xC0);
 
     for (i = 0; i < 0x18; i++) {
-        D_8010FE18[i] = 0;
+        _svm_sreg_dirty[i] = 0;
     }
 
-    D_80110178 = 0;
+    _svm_vab_count = 0;
 
     for (i = 0; i < 0x10; i++) {
-        D_80110120[i] = 0;
+        _svm_vab_used[i] = 0;
     }
 
     v = (s8)arg0;
     if ((u32)v >= 0x18) {
-        D_801100FC = 0x18;
+        spuVmMaxVoice = 0x18;
     } else {
-        D_801100FC = v;
+        spuVmMaxVoice = v;
     }
 
     attr.mask = 0x60093;
@@ -105,41 +105,41 @@ void func_800879F4(s32 arg0) {
     attr.volume.right = 0;
     attr.adsr2 = 0x4000;
 
-    if (D_801100FC > 0) {
+    if (spuVmMaxVoice > 0) {
         c18 = 0x18;
         cff = 0xFF;
         cm1 = -1;
         c40 = 0x40;
         c1 = 1;
         do {
-            D_8010F908[i].f02 = c18;
-            D_8010F908[i].f00 = cff;
-            D_8010F908[i].f1D = 0;
-            D_8010F908[i].f04 = 0;
-            D_8010F908[i].f06 = 0;
-            D_8010F908[i].f10 = cm1;
-            D_8010F908[i].f12 = 0;
-            D_8010F908[i].f14 = 0;
-            D_8010F908[i].f16 = cff;
-            D_8010F908[i].f08 = 0;
-            D_8010F908[i].f0C = 0;
-            D_8010F908[i].f0A = c40;
-            D_8010F908[i].f1E = 0;
-            D_8010F908[i].f20 = 0;
-            D_8010F908[i].f22 = 0;
-            D_8010F908[i].f24 = 0;
-            D_8010F908[i].f2A = 0;
-            D_8010F908[i].f2C = 0;
-            D_8010F908[i].f2E = 0;
-            D_8010F908[i].f30 = 0;
-            D_8010F908[i].f32 = 0;
-            D_8010F908[i].f26 = 0;
+            _svm_voice[i].f02 = c18;
+            _svm_voice[i].f00 = cff;
+            _svm_voice[i].f1D = 0;
+            _svm_voice[i].f04 = 0;
+            _svm_voice[i].f06 = 0;
+            _svm_voice[i].f10 = cm1;
+            _svm_voice[i].f12 = 0;
+            _svm_voice[i].f14 = 0;
+            _svm_voice[i].f16 = cff;
+            _svm_voice[i].f08 = 0;
+            _svm_voice[i].f0C = 0;
+            _svm_voice[i].f0A = c40;
+            _svm_voice[i].f1E = 0;
+            _svm_voice[i].f20 = 0;
+            _svm_voice[i].f22 = 0;
+            _svm_voice[i].f24 = 0;
+            _svm_voice[i].f2A = 0;
+            _svm_voice[i].f2C = 0;
+            _svm_voice[i].f2E = 0;
+            _svm_voice[i].f30 = 0;
+            _svm_voice[i].f32 = 0;
+            _svm_voice[i].f26 = 0;
             attr.voice = c1 << i;
-            func_80084674(&attr);
+            SpuSetVoiceAttr(&attr);
             D_80110118 = i;
-            func_80088DA4(1);
+            _SsVmKeyOffNow(1);
             i++;
-        } while (i < D_801100FC);
+        } while (i < spuVmMaxVoice);
     }
 
     D_80110008.unk0 = 0;
@@ -154,7 +154,7 @@ void func_800879F4(s32 arg0) {
     D_8010F900 = 0;
     D_8010F902 = 0;
     D_80110130 = 0;
-    D_801100E8 = 0;
-    D_801100EA = 0x80;
-    func_80087064();
+    _svm_stereo_mono = 0;
+    kMaxPrograms = 0x80;
+    _SsVmFlush();
 }

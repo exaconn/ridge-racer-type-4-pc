@@ -82,7 +82,7 @@ const char D_80011D28[]="CdRead: sector mismatch\n";
 #define D_800A67B0 actual.state
 #define D_800A67B8 (*(RrCdPositionView*)&actual.state.position08)
 #define D_800A67D0 actual.state.completed20
-#define D_800A63F4 actual.flags
+#define CD_read_dma_mode actual.flags
 ''' + body + '\n' + decoder + r'''
 enum {SET,READ_IMMEDIATE,READ_DEFERRED,SYNC,DECODE,DIAGNOSTIC,CLOCK,RESTART,COMMAND,NOTIFY};
 static s32 bits(u32 word){s32 s;memcpy(&s,&word,4);return s;}
@@ -205,12 +205,12 @@ static void notify(int model,int channel,s32 event,u8 *pointer) {
 }
 static void notification0(s32 event,u8 *pointer){notify(0,0,event,pointer);}
 static void notification1(s32 event,u8 *pointer){notify(0,1,event,pointer);}
-RrLibCompletionCallback func_8008C118(RrLibCompletionCallback c){return set(0,0,c);}
-RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback c){return set(0,1,c);}
-RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback c){return set(0,2,c);}
-s32 func_8008C51C(u8 *p,u32 n){return read_data(0,0,p,n);}
-s32 func_8008C53C(u8 *p,u32 n){return read_data(0,1,p,n);}
-void func_8008C580(s32 mode){sync_transfer(0,mode);}
+RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback c){return set(0,0,c);}
+RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback c){return set(0,1,c);}
+RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback c){return set(0,2,c);}
+s32 CdGetSector(u8 *p,u32 n){return read_data(0,0,p,n);}
+s32 CdGetSector2(u8 *p,u32 n){return read_data(0,1,p,n);}
+void CdDataSync(s32 mode){sync_transfer(0,mode);}
 s32 CdPosToInt(void *p){return decode(0,p);}
 s32 func_800963DC(const char *s,...){return diagnostic(0,s);}
 s32 VSync(s32 mode){return clock_tick(0,mode);}

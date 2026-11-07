@@ -1,6 +1,6 @@
 #include "rr/sprite_preset.h"
 
-void func_8001BAF8(s32 intensity,s32 index) {
+void EmitPresetSprite(s32 intensity,s32 index) {
     s32 value=intensity;
     s32 selected=index;
     s32 clamped;

@@ -6,27 +6,27 @@
 #include "game/course/trknode.h"
 #include "rr/menu_overlay_runtime.h"
 
-void func_80025EB0(int a, int b);
-int func_80025F84(int a0, int a1);
-s32 func_80025FBC(s32 arg0, s32 arg1);
-void func_80026004(char *vehicle, int direction);
+void GetSmoothedTrackHeading(int a, int b);
+int AngleDiffAbs(int a0, int a1);
+s32 AngleDiffSigned(s32 arg0, s32 arg1);
+void ComputeStartDistance(char *vehicle, int direction);
 
-void func_80025EB0(int a, int b)
+void GetSmoothedTrackHeading(int a, int b)
 {
     int s2;
     int s0;
     int x;
-    s2 = func_80025D0C(a, b);
+    s2 = GetTrackHeadingAt(a, b);
     x = a - 2;
     if (x < 0) {
-        int d = D_800ABECC - 2;
+        int d = TrackNodeCount - 2;
         x = d + a;
     }
-    s0 = func_80025C94(s2, func_80025D0C(x, b), 0x200);
-    func_80025C94(s0, func_80025C94(s2, func_80025D0C((a + 2) % D_800ABECC, b), 0x200), 0x200);
+    s0 = LerpAngle12(s2, GetTrackHeadingAt(x, b), 0x200);
+    LerpAngle12(s0, LerpAngle12(s2, GetTrackHeadingAt((a + 2) % TrackNodeCount, b), 0x200), 0x200);
 }
 
-int func_80025F84(int a0, int a1) {
+int AngleDiffAbs(int a0, int a1) {
     int d;
     a0 &= 0xFFF;
     a1 &= 0xFFF;
@@ -35,7 +35,7 @@ int func_80025F84(int a0, int a1) {
     return d;
 }
 
-s32 func_80025FBC(s32 arg0, s32 arg1) {
+s32 AngleDiffSigned(s32 arg0, s32 arg1) {
     s32 temp_a0;
     s32 temp_v0;
     s32 var_a0;
@@ -61,7 +61,7 @@ s32 func_80025FBC(s32 arg0, s32 arg1) {
     return var_v0;
 }
 
-void func_80026004(char *vehicle, int direction)
+void ComputeStartDistance(char *vehicle, int direction)
 {
     int node;
     int target;
@@ -69,14 +69,14 @@ void func_80026004(char *vehicle, int direction)
     int wrapped;
     int previous;
     *(s32 *)(vehicle + 0x184) = 0;
-    node = *D_800ACB8C;
+    node = *TrackStartNode;
     target = *(s32 *)(vehicle + 0xF0);
     distance = 0;
     if (D_800AD522 == 0) {
         if (direction == 0) {
             while (1) {
-                wrapped = node % D_800ABECC;
-                distance -= D_800ABEA4[wrapped].segmentLength1C;
+                wrapped = node % TrackNodeCount;
+                distance -= TrackNodes[wrapped].segmentLength1C;
                 if (target == wrapped) break;
                 node++;
             }
@@ -84,10 +84,10 @@ void func_80026004(char *vehicle, int direction)
             while (1) {
                 node--;
                 previous = node;
-                if (node < 0) previous = D_800ABECC + node;
+                if (node < 0) previous = TrackNodeCount + node;
                 node = previous;
                 if (target == node) break;
-                distance += D_800ABEA4[node].segmentLength1C;
+                distance += TrackNodes[node].segmentLength1C;
             }
         }
     } else {
@@ -95,15 +95,15 @@ void func_80026004(char *vehicle, int direction)
             do {
                 node--;
                 previous = node;
-                if (node < 0) previous = D_800ABECC + node;
+                if (node < 0) previous = TrackNodeCount + node;
                 node = previous;
-                distance -= D_800ABEA4[node].segmentLength1C;
+                distance -= TrackNodes[node].segmentLength1C;
             } while (target != node);
         } else {
             while (1) {
-                if (target == node % D_800ABECC) break;
+                if (target == node % TrackNodeCount) break;
                 node++;
-                distance += D_800ABEA4[node % D_800ABECC].segmentLength1C;
+                distance += TrackNodes[node % TrackNodeCount].segmentLength1C;
             }
         }
     }

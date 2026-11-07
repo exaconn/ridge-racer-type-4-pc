@@ -57,8 +57,8 @@ void test_prepare(s32 bank,s32 row,const u8 *bytes,u32 count,u32 accumulator) {
             body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
             body = body.replace('#include "rr_asm.h"', '')
             body = body.replace('#include "rr/library.h"', '')
-            body = body.replace('extern RrLibStateB0 *D_8010F068[];', '')
-            body = body.replace('D_8010F068', '(test_table + 0x4000 - 0xF98 / 4)')
+            body = body.replace('extern RrLibStateB0 *_ss_score[];', '')
+            body = body.replace('_ss_score', '(test_table + 0x4000 - 0xF98 / 4)')
             body = body.replace('(RrLibStateB0 **)0x80110000U', '(test_table + 0x4000)')
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
@@ -73,10 +73,10 @@ void test_prepare(s32 bank,s32 row,const u8 *bytes,u32 count,u32 accumulator) {
         cls.table = (C.c_void_p * 0x4100).in_dll(cls.lib, 'test_table')
         cls.prepare = cls.lib.test_prepare
         cls.prepare.argtypes = [C.c_int32, C.c_int32, C.c_void_p, C.c_uint32, C.c_uint32]
-        cls.function = cls.lib.func_800818B4
+        cls.function = cls.lib._SsSetControlChange
         cls.function.argtypes = [C.c_int32] * 3
         cls.function.restype = None
-        cls.decoder = cls.lib.func_80081E04
+        cls.decoder = cls.lib._SsReadDeltaValue
         cls.decoder.argtypes = [C.c_int32] * 2
         cls.decoder.restype = C.c_int32
 

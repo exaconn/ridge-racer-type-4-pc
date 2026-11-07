@@ -38,10 +38,10 @@ void (*test_first)(void);
 void (*test_second)(void);
 s32 (*test_update)(s32, s32);
 void (*test_voice)(s32, s32, s32, u32, u32);
-void func_80089FA4(s32 channel, s32 device, s32 slot, u32 pitch, u32 value) { test_voice(channel, device, slot, pitch, value); }
-void func_800867A4(void) { test_first(); }
-void func_80087044(void) { test_second(); }
-s32 func_80081E04(s32 bank, s32 row) { return test_update(bank, row); }
+void _SsVmSetVol(s32 channel, s32 device, s32 slot, u32 pitch, u32 value) { test_voice(channel, device, slot, pitch, value); }
+void SsUtReverbOff(void) { test_first(); }
+void _SsVmDamperOff(void) { test_second(); }
+s32 _SsReadDeltaValue(s32 bank, s32 row) { return test_update(bank, row); }
 '''
         for name in ('80080A44', '80080AB4', '80081D94', '80080B24', '80080504'):
             body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
@@ -59,14 +59,14 @@ s32 func_80081E04(s32 bank, s32 row) { return test_update(bank, row); }
         cls.table = (C.c_void_p * 0x4100).in_dll(cls.library, 'test_table')
         cls.functions = []
         for name in ('80080A44', '80080AB4', '80081D94'):
-            fn = getattr(cls.library, 'func_' + name)
+            fn = getattr(cls.library, __import__('c_functions').name_at(name))
             fn.argtypes = [C.c_int32] * 3
             fn.restype = None
             cls.functions.append(fn)
-        cls.voice = cls.library.func_80080504
+        cls.voice = cls.library._SsContPanpot
         cls.voice.argtypes = [C.c_int32] * 3
         cls.voice.restype = None
-        cls.reset = cls.library.func_80080B24
+        cls.reset = cls.library._SsContResetAll
         cls.reset.argtypes = [C.c_int32] * 2
         cls.reset.restype = None
 

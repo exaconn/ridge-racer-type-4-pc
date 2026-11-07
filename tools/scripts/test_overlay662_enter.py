@@ -35,7 +35,7 @@ void ovl662_func_80116148(void){
  assert(world.screen==world.initial_screen && world.step==world.initial_step && world.counter==world.initial_counter);
  world.screen^=0xffff;world.step^=0xffff;world.counter=(s16)~world.counter;
 }
-void func_8002A344(s32 command){
+void UpdateScreenFade(s32 command){
  assert(world.calls++==1);world.command=command;
  world.observed_screen=world.screen;world.observed_step=world.step;world.observed_counter=world.counter;
  world.screen=world.changed_screen;world.step=world.changed_step;world.counter=world.changed_counter;

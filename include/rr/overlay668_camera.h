@@ -13,20 +13,20 @@ typedef struct {
  s32 node498;s16 fraction49C,lateral49E;s32 velocity4A0;
  s32 counter4A4,mode4A8,phase4AC,reserved4B0,counter4B4;
 } RrReplayCameraContextPrefix;
-extern RrReplayCameraContextPrefix D_800AC650;
-extern RrTrackSample3C *D_800ABEA4;
-extern s32 D_800ABECC;
-s32 func_8006E368();
+extern RrReplayCameraContextPrefix RaceContext;
+extern RrTrackSample3C *TrackNodes;
+extern s32 TrackNodeCount;
+s32 Atan2Table();
 /* Node and its single-wrapped neighbours select accessible track samples.
  * Position and interpolation results use wrapping32 arithmetic. Fraction is
  *0..1023; sample count is at least4. Services may replace the sample table and
  * camera state. The angle service returns an angle in-1024..3072. */
 void ovl668_func_80115554(void);
 void ovl668_func_801156FC(void);
-extern RrRaceVehicle D_800ABEF8[2];
+extern RrRaceVehicle PlayerCars[2];
 u16 *RotMatrix(s16 *rotation,u16 *matrix);
 void *ApplyMatrixSV(const RrMatrixWords32 *matrix,const s16 *vector,RrPreviewVector8 *output);
-void func_8006E1AC(void);
+void BuildCameraMatrices(void);
 void ovl668_func_80115850(void);
 /* Explicit legacy position argument, ignored by the current body. */
 void ovl668_func_80115460(s32 *position);
@@ -35,13 +35,13 @@ void ovl668_func_80115460(s32 *position);
  * one of the20 lookup entries. Initializes from captured sample320, advances
  * the camera sixteen times, then publishes the post-service lookup value. */
 void ovl668_func_80115DFC(void);
-extern s32 D_800AC5DC,D_8010718C,D_800F2EC8,D_80127E90,D_80127E94,D_800AD564;
+extern s32 VSyncThreshold,D_8010718C,D_800F2EC8,D_80127E90,D_80127E94,D_800AD564;
 extern s16 D_800AD520;
 extern s32 ovl668_D_80116CC0[20];
 void SetDispMask(s32);
 void func_8001ECE8(s32,s32,s16,u32);
 void func_8006E794(void);
-void func_80013890(s32);
+void SetupRenderer(s32);
 void func_80055300(void);
 void func_80055330(s32,u8,u8,u8);
 void func_8005534C(s32);

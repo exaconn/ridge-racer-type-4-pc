@@ -31,8 +31,8 @@ static struct World {u32 guard[4];s32 frame,counter,local;s16 selected,mapped,cu
 #define ovl663_selected_record world.local
 #define D_800AC648 world.selected
 #define D_800F3914 world.mapped
-#define D_800AC64A world.current
-#define D_800F3AFC world.badge
+#define MenuCursor world.current
+#define BadgeRows world.badge
 #define D_800F4CB0 world.work32.words[0]
 #define D_800ACC68 world.work12.words[0]
 void func_80096434(void *data,s32 size);
@@ -55,8 +55,8 @@ void func_80096434(void *data,s32 size){
  assert(world.frame==0 && world.counter==0 && world.local==0 && world.selected==0 && world.mapped==0 && world.current==0);
  memset(data,0,size);observe(&world,step,args,data);
 }
-void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls>=2 && world.calls<6 && a==(s32)world.calls-2);observe(&world,2,args,0);}
-void func_8003D228(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[10]={a,b,c,d,e,f,g};assert(world.calls==6);observe(&world,3,args,0);}
+void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls>=2 && world.calls<6 && a==(s32)world.calls-2);observe(&world,2,args,0);}
+void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[10]={a,b,c,d,e,f,g};assert(world.calls==6);observe(&world,3,args,0);}
 static const s32 rows[4][10]={{0,12,64,68,32,0,0,1,1,24},{1,12,104,68,32,0,0,1,0,85},{2,12,368,208,32,0,0,8,4,0},{3,24,88,68,32,0,0,1,0,83}};
 static void reference(s32 mode){
  unsigned i;s32 args[10]={32};

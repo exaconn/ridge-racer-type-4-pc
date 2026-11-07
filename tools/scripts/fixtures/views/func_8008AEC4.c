@@ -2,7 +2,7 @@
 
 #include "rr/spu.h"
 
-s32 func_8008AEC4(const u16 *source,s32 raw) {
+s32 SsVabTransBody(const u16 *source,s32 raw) {
  s32 result;
  if((u16)raw<=16) {
   s32 bank=(s16)raw;
@@ -36,7 +36,7 @@ s32 func_8008AEC4(const u16 *source,s32 raw) {
     sizes=(u8*)0x80110000U;
     /* ASM_BARRIER: Expose the fresh size load in its outgoing argument register. */
     __asm__("" : "+r"(sizes));
-    func_8008AF84(source,*(u32*)(sizes+offset+0x138));
+    SpuWrite(source,*(u32*)(sizes+offset+0x138));
     result=bank;
     /* ASM_BARRIER: Capture the returned bank before publishing its success flag. */
     __asm__("" : "+r"(result));
@@ -56,6 +56,6 @@ s32 func_8008AEC4(const u16 *source,s32 raw) {
   }
  }
  }
- func_80087DA4(0);
+ _spu_setInTransfer(0);
  return -1;
 }

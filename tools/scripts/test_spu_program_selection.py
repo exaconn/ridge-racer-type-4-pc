@@ -28,7 +28,7 @@ RrSpuProgram *test_program_page[0x20/sizeof(RrSpuProgram *)+16];
 u8 *D_801100A8[16];
 RrSpuProgram test_programs[65536+16];
 u8 test_data[16][8],test_tones[16][8];
-s16 D_801100EA;
+s16 kMaxPrograms;
 typedef union {RrSpuProgram program;struct {u8 pad[8];RrSpuSelectionPrefix state;} view;} SelectionAlias;
 typedef union {RrSpuProgram program;struct {u8 pad[8];u8 *pointer;} view;} DataAlias;
 typedef union {RrSpuProgram program;struct {u8 pad[8];RrSpuProgram *pointer;} view;} ProgramAlias;
@@ -36,13 +36,13 @@ SelectionAlias test_selection;
 DataAlias test_selected_data,test_selected_tones;
 ProgramAlias test_selected_program;
 #define D_80110101 test_selection.view.state
-#define D_801100F4 test_selected_data.view.pointer
-#define D_801100F8 test_selected_tones.view.pointer
-#define D_801100EC test_selected_program.view.pointer
+#define _svm_vh test_selected_data.view.pointer
+#define _svm_tn test_selected_tones.view.pointer
+#define _svm_pg test_selected_program.view.pointer
 void *test_current(s32 which) {
- if(which==0)return D_801100F4;
- if(which==1)return D_801100EC;
- return D_801100F8;
+ if(which==0)return _svm_vh;
+ if(which==1)return _svm_pg;
+ return _svm_tn;
 }
 void *test_expected(s32 bank,s32 which) {
  if(which==0)return test_data[bank];
@@ -56,8 +56,8 @@ void *test_alias(s32 which) {
  if(which==2)return &test_selected_program.program;
  return &test_selected_tones.program;
 }
-void test_current_table(RrSpuProgram *program) {D_801100EC=program;}
-void *test_pointer_storage(void) {return &D_801100EC;}
+void test_current_table(RrSpuProgram *program) {_svm_pg=program;}
+void *test_pointer_storage(void) {return &_svm_pg;}
 void test_table(s32 bank,RrSpuProgram *program) {
  test_program_page[0x20/sizeof(RrSpuProgram *)+bank]=program;
 }
@@ -74,8 +74,8 @@ void test_reset(void) {
   test_program_page[0x20/sizeof(RrSpuProgram *)+i]=test_programs+32768+i;
   D_801100A8[i]=test_tones[i];
  }
- D_801100EA=32767;
- D_801100F4=test_data[0];D_801100EC=test_programs+32768;D_801100F8=test_tones[0];
+ kMaxPrograms=32767;
+ _svm_vh=test_data[0];_svm_pg=test_programs+32768;_svm_tn=test_tones[0];
 }
 '''
         body = ((root/'tools/scripts/fixtures/views/func_8008A564.c').read_text() +
@@ -103,8 +103,8 @@ void test_reset(void) {
         cls.flags = (C.c_uint8*0x200).from_address(cls.flag_address)
         cls.programs = (C.c_uint8*((65536+16)*16)).in_dll(cls.lib,'test_programs')
         cls.selection = (C.c_uint8*16).in_dll(cls.lib,'test_selection')
-        cls.limit = C.c_int16.in_dll(cls.lib,'D_801100EA')
-        cls.select = cls.lib.func_8008A564
+        cls.limit = C.c_int16.in_dll(cls.lib,'kMaxPrograms')
+        cls.select = cls.lib._SsVmVSetUp
         cls.select.argtypes = [C.c_int32,C.c_int32]
         cls.select.restype = C.c_int32
         cls.lib.test_current.argtypes = [C.c_int32]
@@ -117,7 +117,7 @@ void test_reset(void) {
         cls.lib.test_current_table.argtypes=[C.c_void_p]
         cls.lib.test_current_table.restype=None
         cls.lib.test_pointer_storage.restype=C.c_void_p
-        cls.copy=cls.lib.func_80084FB4
+        cls.copy=cls.lib.SsUtGetProgAtr
         cls.copy.argtypes=[C.c_int32,C.c_int16,C.POINTER(C.c_uint8)]
         cls.copy.restype=C.c_int32
         cls.accessors = [getattr(cls.lib,'func_'+name) for name in ('80089624','80089694','800896E4','80089754')]

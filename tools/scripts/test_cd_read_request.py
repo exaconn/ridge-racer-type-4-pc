@@ -64,7 +64,7 @@ static void cb3(void){callback_effect^=8;}
 #define D_800A67B0 actual.state
 #define D_800A67D4 actual.state.finished24
 #define D_800A67D8 actual.state.restore.saved28
-#define D_800A63F4 actual.flags
+#define CD_read_dma_mode actual.flags
 ''' + body + r'''
 enum {CLOCK,SET0,SET1,SET2,STATUS,COMMAND,BEGIN};
 static s32 bits(u32 value){s32 result;memcpy(&result,&value,4);return result;}
@@ -122,10 +122,10 @@ static s32 begin(int model,s32 argument) {
     return plan.begin_result;
 }
 s32 VSync(s32 arg){return tick(0,arg);}
-RrLibCompletionCallback func_8008C118(RrLibCompletionCallback c){return setter(0,0,c);}
-RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback c){return setter(0,1,c);}
-RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback c){return setter(0,2,c);}
-u8 func_8008BF94(void){return status(0);}
+RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback c){return setter(0,0,c);}
+RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback c){return setter(0,1,c);}
+RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback c){return setter(0,2,c);}
+u8 CdStatus(void){return status(0);}
 s32 CdControlB(s32 c,const u8 *p,u8 *r){return command(0,c,p,r);}
 s32 func_8008EB6C(s32 arg){return begin(0,arg);}
 static s32 reference(s32 sectors,u8 *buffer,u32 mode) {
@@ -187,7 +187,7 @@ static void check(int scenario,s32 pending,s32 sectors,u32 mode,u32 flags,u8 con
     assert((uintptr_t)buffer>0xFFFFFFFFU);
     assert((uintptr_t)cb0>0xFFFFFFFFU);
     int wanted=reference(sectors,buffer,mode);
-    int got=func_8008EEF4(sectors,buffer,mode);
+    int got=CdRead(sectors,buffer,mode);
     assert(got==wanted&&actual_count==expected_count);
     assert(!memcmp(actual_log,expected_log,actual_count*sizeof(Entry)));
     assert(!memcmp(&actual,&expected,sizeof(actual)));

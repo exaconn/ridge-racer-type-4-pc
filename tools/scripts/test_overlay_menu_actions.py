@@ -36,8 +36,8 @@ static struct World {
  s32 first_accept,choice_accept,second_accept,sound_accept;
  u8 changed_choice[4];u32 draws,calls;Event events[8];u32 after[8];
 } world,expected;
-#define D_800AC64A world.selection
-#define D_800AC5E0 world.limit
+#define MenuCursor world.selection
+#define MenuItemCount world.limit
 #define D_800F3A60 world.accepted
 #define D_800F4D98 world.choice
 #define D_800F4D99 world.choice.bytes[1]
@@ -57,7 +57,7 @@ static void sound(struct World *w,s32 a,s32 b,s32 c,s32 d){
  w->selection=w->sound_selection;w->accepted=w->sound_accept;
 }
 void func_80041320(s32 a,s32 b,s32 c){draw(&world,a,b,c);}
-void func_8002B330(s32 a,s32 b,char *p,s32 c,s32 d){choose(&world,a,b,p,c,d);}
+void StepMenuValue(s32 a,s32 b,char *p,s32 c,s32 d){choose(&world,a,b,p,c,d);}
 int PlaySfxVolPan(s32 a,s32 b,s32 c,s32 d){sound(&world,a,b,c,d);return -1;}
 void func_8002B12C(s32 a,s32 b,s32 c,s32 d,s32 f,s32 g,s32 h){
  Event *e=event(&world,4);e->args[0]=a;e->args[1]=b;e->args[2]=c;e->args[3]=d;e->args[4]=f;e->args[5]=g;e->args[6]=h;

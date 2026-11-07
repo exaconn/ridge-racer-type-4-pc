@@ -38,7 +38,7 @@ static unsigned scenario;
 #define D_800F4D8A world.timer
 #define D_800F3920 world.save
 #define ovl662_D_801273A8 world.name
-#define D_800F3AFC world.root
+#define BadgeRows world.root
 '''+copy+body+r'''
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static void event(struct World *w,const s32 args[7]){unsigned n=w->calls,j,bank;Event *e;assert(n<4);e=&w->events[w->calls++];
@@ -53,10 +53,10 @@ static void event(struct World *w,const s32 args[7]){unsigned n=w->calls,j,bank;
  for(j=0;j<12;j++)w->name[j]=(u8)(scenario+n+j*13);
  w->root=world.badges[(scenario+n)%3];
 }
-void func_8002A604(void){s32 a[7]={0};assert(world.calls==0);
+void ClearScreenOverlayState(void){s32 a[7]={0};assert(world.calls==0);
  assert(world.frame==0&&world.counter==0&&world.local==0&&world.a==0&&world.b==0&&world.c==0);event(&world,a);
 }
-void func_8003D228(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[7]={a,b,c,d,e,f,g};assert(world.calls==1||world.calls==2);event(&world,args);}
+void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[7]={a,b,c,d,e,f,g};assert(world.calls==1||world.calls==2);event(&world,args);}
 void func_8002AF8C(s32 a,s32 b,s32 c){s32 args[7]={a,b,c};assert(world.calls==3);event(&world,args);}
 static void reference(void){unsigned j=0;
  expected.frame=expected.counter=expected.local=0;expected.a=expected.b=expected.c=0;

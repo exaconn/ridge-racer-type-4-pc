@@ -7,15 +7,15 @@
 #include "rr/audio_loop.h"
 #include "rr/race_setup.h"
 struct O { char pad[0x70]; u32 addr:24; u32 len:8; };
-extern s32 func_8004F2D8();
-extern s32 D_800FF6B0;
+extern s32 SoundQueueEnqueue();
+extern s32 RaceState;
 extern s32 D_8010C120[];
 void func_8003BFC8(a0) s32 a0;
 {
     s32 s1, s2, s3, s4, s5, t;
     s32 c;
     RrSpritePacket *p;
-    if (D_800F4D44 == 0 && D_800FF6B0 != 0 && D_800FF6B0 < 4) {
+    if (D_800F4D44 == 0 && RaceState != 0 && RaceState < 4) {
         t = D_8010C120[D_8010C12C];
         if (t < 0) {
             s3 = -1;
@@ -37,7 +37,7 @@ void func_8003BFC8(a0) s32 a0;
                 } else {
                     c = 0x16;
                 }
-                if (D_8010C114 == 0x3B && s2 < 2 && a0 == 0) func_8004F2D8(c, 0);
+                if (D_8010C114 == 0x3B && s2 < 2 && a0 == 0) SoundQueueEnqueue(c, 0);
                 *(RrSpritePacket **)SCRATCHPAD = GameQueueSprite((char *)D_800ACC14 + 0x70, *(RrSpritePacket **)SCRATCHPAD, 0x70, 0x60, 0xC, 0xC, s5, 0xA8, 0x7EF8);
                 func_8002B5D0(0x80, 0x60, s1, 0x7EF8, 1);
             } else {

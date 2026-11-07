@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_80087054(void);
-void func_80087064(void);
+void _SsVmDamperOn(void);
+void _SsVmFlush(void);
 
 #endif /* RR_PSYQ_LIBSND_VMTICK2_H */

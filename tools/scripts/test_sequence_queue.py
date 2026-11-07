@@ -29,15 +29,15 @@ class SequenceQueueTest(unittest.TestCase):
 #include "types.h"
 ''' + header + r'''
 static union {uint64_t alignment;u8 bytes[0x8000];} state_page;
-#define D_800F4DB8 (*(RrSequenceQueueState *)(state_page.bytes+0x4DB8))
+#define SoundState (*(RrSequenceQueueState *)(state_page.bytes+0x4DB8))
 ''' + body + r'''
-s16 *D_800A0374[RR_SEQUENCE_TABLE_COUNT][2];
+s16 *SoundSequenceTable[RR_SEQUENCE_TABLE_COUNT][2];
 s32 D_800F6784;
 static u8 expected[0x8000];
 static s16 values[20],other[2]={123,0};
 static int model(int id,int restart) {
     RrSequenceQueueState *state=(RrSequenceQueueState *)(expected+0x4DB8);
-    const s16 *input=D_800A0374[id][D_800F6784!=0];
+    const s16 *input=SoundSequenceTable[id][D_800F6784!=0];
     if(input==(s16*)-1)return -1;
     int used=0;
     if(!state->active19D0 || restart) {
@@ -59,18 +59,18 @@ static int model(int id,int restart) {
 }
 static void prepare(int active,int used,int length,int terminal) {
     memset(state_page.bytes,0xA5,sizeof(state_page.bytes));
-    D_800F4DB8.active19D0=active;D_800F4DB8.count19D4=used;
-    for(int i=0;i<8;i++)D_800F4DB8.items19E8[i]=100+i;
+    SoundState.active19D0=active;SoundState.count19D4=used;
+    for(int i=0;i<8;i++)SoundState.items19E8[i]=100+i;
     for(int i=0;i<length;i++)values[i]=(i&1)?32767:1+i;
     values[length]=terminal;
     for(int i=length+1;i<20;i++)values[i]=-222;
-    for(int i=0;i<RR_SEQUENCE_TABLE_COUNT;i++){D_800A0374[i][0]=other;D_800A0374[i][1]=other;}
+    for(int i=0;i<RR_SEQUENCE_TABLE_COUNT;i++){SoundSequenceTable[i][0]=other;SoundSequenceTable[i][1]=other;}
 }
 static void run(int id,int restart) {
     memcpy(expected,state_page.bytes,sizeof(expected));
     s16 saved[20];memcpy(saved,values,sizeof(saved));
     int offset=model(id,restart);
-    void *result=func_8004F2D8(id,restart);
+    void *result=SoundQueueEnqueue(id,restart);
     void *want=offset<0?(void*)-1:(void *)(state_page.bytes+0x4DB8+offset);
     assert(result==want);
     assert(memcmp(state_page.bytes,expected,sizeof(expected))==0);
@@ -92,7 +92,7 @@ int main(int argc,char **argv) {
             for(unsigned d=0;d<sizeof(directions)/sizeof(*directions);d++) {
                 prepare(active_values[a],used,length,terminals[t]);
                 D_800F6784=directions[d];
-                D_800A0374[2][D_800F6784!=0]=values;
+                SoundSequenceTable[2][D_800F6784!=0]=values;
                 run(2,restarts[r]);
             }
         }
@@ -100,21 +100,21 @@ int main(int argc,char **argv) {
         for(unsigned d=0;d<sizeof(directions)/sizeof(*directions);d++)
         for(unsigned r=0;r<sizeof(restarts)/sizeof(*restarts);r++) {
             prepare(0,-100,4,0);D_800F6784=directions[d];
-            D_800A0374[1][D_800F6784!=0]=(s16*)-1;
+            SoundSequenceTable[1][D_800F6784!=0]=(s16*)-1;
             run(1,restarts[r]);
         }
     } else {
         /* Repeated appends must preserve older entries, and a rejection is inert. */
-        prepare(0,7,2,0);D_800F6784=0;D_800A0374[0][0]=values;
-        run(0,0);assert(D_800F4DB8.count19D4==2);
-        run(0,0);assert(D_800F4DB8.count19D4==4);
-        run(0,0);assert(D_800F4DB8.count19D4==6);
-        run(0,0);assert(D_800F4DB8.count19D4==6);
+        prepare(0,7,2,0);D_800F6784=0;SoundSequenceTable[0][0]=values;
+        run(0,0);assert(SoundState.count19D4==2);
+        run(0,0);assert(SoundState.count19D4==4);
+        run(0,0);assert(SoundState.count19D4==6);
+        run(0,0);assert(SoundState.count19D4==6);
         values[0]=0;run(0,0);
-        assert(D_800F4DB8.active19D0==0&&D_800F4DB8.count19D4==6);
+        assert(SoundState.active19D0==0&&SoundState.count19D4==6);
         values[0]=32767;values[1]=-1;run(0,0);
-        assert(D_800F4DB8.active19D0==1&&D_800F4DB8.count19D4==1);
-        run(0,-7);assert(D_800F4DB8.count19D4==1&&D_800F4DB8.mode19E0==-7);
+        assert(SoundState.active19D0==1&&SoundState.count19D4==1);
+        run(0,-7);assert(SoundState.count19D4==1&&SoundState.mode19E0==-7);
     }
     return 0;
 }

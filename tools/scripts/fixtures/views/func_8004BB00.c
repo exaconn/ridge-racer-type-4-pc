@@ -29,9 +29,9 @@ typedef struct { char pad[0x49]; char f49; char pad2[6]; short f50; short f52; c
 
 extern T D_800F3A38[];
 
-void func_8004BB00(int i) {
+void PadRumbleStart(int i) {
     T_1 *t = &D_800F3A38[i];
     t->f50 = 1;
-    func_8004BB84(i, 2);
+    PadSetRumbleFlags(i, 2);
     t->f49 = 0xF;
 }

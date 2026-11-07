@@ -9,7 +9,7 @@
 #include "rr/menu_pulse.h"
 #include "rr/frame_environment.h"
 typedef struct {u8 reserved00[0x18];s32 mode18;} RrReplayMenuContextPrefix;
-extern RrReplayMenuContextPrefix D_800AC650;
+extern RrReplayMenuContextPrefix RaceContext;
 extern RrOverlay665VisualState ovl665_D_80119768;
 extern s16 D_800AC5D0;
 extern u8 D_800ACC68[12];
@@ -19,8 +19,8 @@ void func_80053BB4(s32);
 void func_800207D4(u32 *,s32,u32);
 void func_8005B2D4(s32);
 void func_80053AF4(s32,s32);
-void func_8003EC88(s32);
-void func_8002A344(s32);
+void DrawUiRow(s32);
+void UpdateScreenFade(s32);
 void ovl665_func_80116070(void);
 void ovl665_func_80114A24(void);
 void ovl665_func_80114C4C(void);

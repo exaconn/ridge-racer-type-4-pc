@@ -2,7 +2,7 @@
 #include "rr/channels.h"
 #include "psyq/libsnd/vmchval.h"
 
-s32 func_80089D28(s32 input, u16 *left, u16 *right) {
+s32 _SsVmGetSeqVol(s32 input, u16 *left, u16 *right) {
     s32 channel = input;
     u32 offset = (channel & 0xFF) * sizeof(RrChannelValueRecordB0 *);
     /* ASM_BARRIER: preserve the indexed table-address computation in v1. */
@@ -12,7 +12,7 @@ s32 func_80089D28(s32 input, u16 *left, u16 *right) {
     s16 *last;
     /* ASM_BARRIER: form the pointer-table offset before materializing its base. */
     __asm__ volatile("" : : "r"(offset) : "$3");
-    /* PAL table mapping: D_8010F068 is 0xF98 bytes below this page. */
+    /* PAL table mapping: _ss_score is 0xF98 bytes below this page. */
     table = (RrChannelValueRecordB0 **)0x80110000U;
     /* ASM_BARRIER: preserve the explicit table base through the indexed load. */
     __asm__("" : "=r"(table) : "0"(table));
@@ -28,7 +28,7 @@ s32 func_80089D28(s32 input, u16 *left, u16 *right) {
     return *last;
 }
 
-s32 func_80089D8C(s32 input) {
+s32 _SsVmGetSeqLVol(s32 input) {
     s32 channel = input;
     u32 offset = (channel & 0xFF) * sizeof(RrChannelValueRecordB0 *);
     /* ASM_BARRIER: preserve the indexed table-address computation in v1. */
@@ -38,7 +38,7 @@ s32 func_80089D8C(s32 input) {
     s32 group;
     /* ASM_BARRIER: form the pointer-table offset before materializing its base. */
     __asm__ volatile("" : : "r"(offset) : "$3");
-    /* PAL table mapping: D_8010F068 is 0xF98 bytes below this page. */
+    /* PAL table mapping: _ss_score is 0xF98 bytes below this page. */
     table = (RrChannelValueRecordB0 **)0x80110000U;
     /* ASM_BARRIER: preserve the explicit table base through the indexed load. */
     __asm__("" : "=r"(table) : "0"(table));
@@ -52,7 +52,7 @@ s32 func_80089D8C(s32 input) {
     return (s16)record->value58;
 }
 
-s32 func_80089DD4(s32 input) {
+s32 _SsVmGetSeqRVol(s32 input) {
     s32 channel = input;
     u32 offset = (channel & 0xFF) * sizeof(RrChannelValueRecordB0 *);
     /* ASM_BARRIER: preserve the indexed table-address computation in v1. */
@@ -62,7 +62,7 @@ s32 func_80089DD4(s32 input) {
     s32 group;
     /* ASM_BARRIER: form the pointer-table offset before materializing its base. */
     __asm__ volatile("" : : "r"(offset) : "$3");
-    /* PAL table mapping: D_8010F068 is 0xF98 bytes below this page. */
+    /* PAL table mapping: _ss_score is 0xF98 bytes below this page. */
     table = (RrChannelValueRecordB0 **)0x80110000U;
     /* ASM_BARRIER: preserve the explicit table base through the indexed load. */
     __asm__("" : "=r"(table) : "0"(table));

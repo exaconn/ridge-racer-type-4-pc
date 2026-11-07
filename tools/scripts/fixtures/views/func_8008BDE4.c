@@ -2,7 +2,7 @@
 
 extern s32 D_800A63D0;
 
-s32 func_8008BDE4(s32 value) {
+s32 SetVideoMode(s32 value) {
     s32 previous = D_800A63D0;
     /* ASM_BARRIER: use the original assembler temporary for the store address. */
     register s32 *base __asm__("$1");

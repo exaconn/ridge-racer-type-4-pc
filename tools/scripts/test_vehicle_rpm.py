@@ -9,7 +9,7 @@ from unicorn.mips_const import *
 from elftools.elf.elffile import ELFFile
 root=Path(__file__).resolve().parents[2];os.chdir(root)
 part=root/'include/rr';source=root/'tools/scripts/fixtures/views/func_800483D8.c'
-body=source.read_text();body=body[body.index('void func_800483D8'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
+body=source.read_text();body=body[body.index('void UpdateEngineRpm'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
 prefix='''
 #include <stddef.h>
 #include <stdio.h>
@@ -28,7 +28,7 @@ typedef struct {u8 before[16];RrRaceVehicle vehicle;u8 after[16];} World;
 tail='''
 int main(void){World w; _Static_assert(sizeof(RrDriveVehicleView)==800 && sizeof(RrDriveControlView)==0x12C,"view sizes"); _Static_assert(sizeof(w)==832,"world");_Static_assert(offsetof(RrDriveControlView,latch60)==0x60,"native latch offset");_Static_assert(sizeof(void*)==8,"full native pointer");assert((uintptr_t)&w.vehicle>UINT32_MAX);
 while(fread(&w,1,832,stdin)==832){if(fread(&D_800F3826,2,1,stdin)!=1||fread(&D_800F4D44,2,1,stdin)!=1)return 2;
-func_800483D8(&w.vehicle);if(fwrite(&w,1,832,stdout)!=832)return 3;}return 0;}
+UpdateEngineRpm(&w.vehicle);if(fwrite(&w,1,832,stdout)!=832)return 3;}return 0;}
 '''
 rng=random.Random(0x483D8);cases=[];counts={};limits=[0,1,-1,32767,-32768,6000,10240,-20];speeds=[0,256,-256,2190*256,2191*256,0x7fffffff,-0x80000000,255,-255,8500*256]
 for i in range(8192):

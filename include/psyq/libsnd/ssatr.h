@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80089540();
+int _SsVmPitchBend();
 
 #endif /* RR_PSYQ_LIBSND_SSATR_H */

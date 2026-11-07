@@ -11,31 +11,31 @@ extern int D_800AC308;
 extern int D_8010718C;
 
 void func_80036FD4(int a0);
-void func_80037040(signed char *a0, int a1);
-s32 func_8003708C(void *arg0);
-s32 func_800370BC(const RrCourseChoice4 *a0);
+void UnpackChoiceGlyph(signed char *a0, int a1);
+s32 PackChoiceGlyph(void *arg0);
+s32 CountChoiceGlyphs(const RrCourseChoice4 *a0);
 
 void func_80036D40(void) {
     s32 state;
     u32 selected=D_800F4D99;
     D_800F3826=selected;
-    ((u8 *)D_800F4D80)[12+selected]=0;
+    ((u8 *)UiRows)[12+selected]=0;
     if(D_800F3A42&0x2000) {
         if(D_800F3826<3) {
 
             D_800F3826=D_800F3826+1;
-            D_8009FDA4=2;
+            MenuStepDirection=2;
             goto changed;
         }
     }
     if(D_800F3A42&0x8000) {
         if(D_800F3826>0) {
             D_800F3826=D_800F3826-1;
-            D_8009FDA4=1;
+            MenuStepDirection=1;
             goto changed;
         }
     }
-    D_8009FDA4=0;
+    MenuStepDirection=0;
     goto active;
 changed:
     /* The sound helper can change selection and backing pointers. */
@@ -44,25 +44,25 @@ changed:
     else if(D_800F3826>=4)D_800F3826=3;
     D_800FF68C[4]=(u8)D_800F3826+34;
     D_800F4D99=D_800F3826;
-    D_800F4D8C[D_800F3826].control02=-6;
-    D_800F4D8C[D_800F3826].flags00=0;
-    D_800F4D80->byte16=(u8)D_800F3826+4;
+    GlyphRows[D_800F3826].control02=-6;
+    GlyphRows[D_800F3826].flags00=0;
+    UiRows->byte16=(u8)D_800F3826+4;
 active:
     {
-        u8 *ui=(u8 *)D_800F4D80;
+        u8 *ui=(u8 *)UiRows;
         s32 active;
 
         active=D_800F3826;
         *(u8 *)((unsigned long)ui+(unsigned long)active+12UL)=2;
     }
     if(D_800F3A60) {
-        state=D_800F3AFC->state10;
+        state=BadgeRows->state10;
         if(state==3) {
             PlaySfx(1);
             {
                 RrMenuSettings2C *settings=&D_800AD4D8;
-                RrBadgeRow1C *control=D_800F3AFC;
-                RrUiRow24 *ui=D_800F4D80;
+                RrBadgeRow1C *control=BadgeRows;
+                RrUiRow24 *ui=UiRows;
 
                 /* Four copies of the same byte-aligned source record. */
                 settings->copies[0]=D_800F4D98;
@@ -91,7 +91,7 @@ active:
                 /* Both preceding helpers may replace the resource buffer. */
                 resource=D_800F4D40;
 
-                D_800ACC18=resource;
+                LoadCursor=resource;
                 one=1;
 
                 last=zero;
@@ -116,18 +116,18 @@ void func_80036FD4(int a0) {
     func_80017CC0(v);
 }
 
-void func_80037040(signed char *a0, int a1) {
+void UnpackChoiceGlyph(signed char *a0, int a1) {
     int t = a1 / 160;
     a0[0] = t;
     a0[1] = a1 / 40 - t * 4;
     a0[2] = a1 % 40;
 }
 
-s32 func_8003708C(void *arg0) {
+s32 PackChoiceGlyph(void *arg0) {
     return (M2C_FIELD(arg0, u8 *, 0) * 0xA0) + (M2C_FIELD(arg0, u8 *, 1) * 0x28) + M2C_FIELD(arg0, u8 *, 2);
 }
 
-s32 func_800370BC(const RrCourseChoice4 *a0) {
+s32 CountChoiceGlyphs(const RrCourseChoice4 *a0) {
     int i;
     for (i = 0; i < 9; i++) {
         if (a0[i].glyph == -1) break;

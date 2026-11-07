@@ -48,11 +48,11 @@ typedef struct {
     u16 f72;
 } Scratch_8006EF8C;
 
-extern s16 D_800A3BA4[];
+extern s16 ViewOffsetX[];
 
-extern s16 D_800A3BB4[];
+extern s16 ViewOffsetY[];
 
-extern s32 D_800A3BC4[];
+extern s32 ViewScreenH[];
 
 extern u16 D_800A3BE0[];
 
@@ -68,19 +68,19 @@ extern s32 D_800AC5D8;
 
 extern s32 D_800ACC14;
 
-extern s32 D_800F4BF0;
+extern s32 DrawBufIndex;
 
 extern s32 D_800F4CE0;
 
-extern void func_800912B4(s32, s32);
+extern void SetGeomOffset(s32, s32);
 
-extern void func_800912D4(s32);
+extern void SetGeomScreen(s32);
 
 extern void SetDrawArea(s32);
 
 extern void AddPrim(s32, s32);
 
-void func_8006EF8C(s32 a0) {
+void SetupViewport(s32 a0) {
     /* ASM_BARRIER: Keep scratchpad base pointer in $s2 initialized in prologue. */
     register Scratch_8006EF8C *s2 asm("$18") = G;
     /* ASM_BARRIER: Keep s3 in $s3 so s3 += 0xC modifies $s3 in place before storing to 0x1F800000. */
@@ -99,9 +99,9 @@ void func_8006EF8C(s32 a0) {
     s3 = s2->f00;
     D_800AC5D8 = a0;
     s1 = (a0 == 1);
-    func_800912B4(D_800A3BA4[a0], D_800A3BB4[a0]);
+    SetGeomOffset(ViewOffsetX[a0], ViewOffsetY[a0]);
     s5 = (a0 == 1);
-    func_800912D4(D_800A3BC4[a0]);
+    SetGeomScreen(ViewScreenH[a0]);
     s2->f6C = D_800A3BE0[a0];
     v1 = D_800A3BF0[a0];
     if (s1) {
@@ -114,7 +114,7 @@ void func_8006EF8C(s32 a0) {
         v1 += D_800F4CE0;
     }
     s2->f72 = v1;
-    p = &D_800A3C20[D_800F4BF0][a0];
+    p = &D_800A3C20[DrawBufIndex][a0];
     if (!s5) {
         s2->f64 = 0;
     } else {
@@ -134,7 +134,7 @@ void func_8006EF8C(s32 a0) {
         }
         p->f6 = a0_val;
         v1 = p->f2;
-        if (D_800F4BF0 != 0) {
+        if (DrawBufIndex != 0) {
             v1 += 0x100;
         }
         p->f2 = v1;

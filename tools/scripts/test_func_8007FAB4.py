@@ -30,16 +30,16 @@ typedef uint32_t u32;
 typedef int32_t s32;''')
         source = source.replace('__asm__ volatile("" : : : "$2");', '')
         source += '''
-s32 D_800A47F4, D_800A4800, D_800A4840;
-volatile s32 D_800A4810;
-u32 D_800A48C8[10];
+s32 _spu_transMode, _spu_mem_mode_plus, _spu_EVdma;
+volatile s32 _spu_transferCallback;
+u32 _spu_rev_startaddr[10];
 u8 D_800A4938[0x400];
 s32 (*test_validate)(u32);
 void (*test_transfer)(s32, u32, void *, u32);
 s32 (*test_wait)(s32);
 s32 _SpuIsInAllocateArea_(u32 address) { return test_validate(address); }
-s32 func_80096E94(s32 event) { return test_wait(event); }
-s32 func_8007F068(s32 mode, ...) {
+s32 WaitEvent(s32 event) { return test_wait(event); }
+s32 _spu_t(s32 mode, ...) {
     va_list args;
     u32 address = 0, size = 0;
     void *buffer = 0;
@@ -67,12 +67,12 @@ s32 func_8007F068(s32 mode, ...) {
 
     def check_transfer(self, preset=1, address=0xFF00, mode=1, callback=123,
                        validation=0, mutate_state=False, validated_address=None):
-        table = (C.c_uint32 * 10).in_dll(self.library, 'D_800A48C8')
+        table = (C.c_uint32 * 10).in_dll(self.library, '_spu_rev_startaddr')
         table[:] = [address] * 10
-        self.global_int('D_800A4800').value = 3
-        self.global_int('D_800A47F4').value = mode
-        self.global_int('D_800A4810').value = callback
-        self.global_int('D_800A4840').value = 0x123456
+        self.global_int('_spu_mem_mode_plus').value = 3
+        self.global_int('_spu_transMode').value = mode
+        self.global_int('_spu_transferCallback').value = callback
+        self.global_int('_spu_EVdma').value = 0x123456
         buffer = (C.c_uint8 * 0x400).in_dll(self.library, 'D_800A4938')
         buffer[:] = [i & 255 for i in range(0x400)]
         before_buffer = bytes(buffer)
@@ -88,15 +88,15 @@ s32 func_8007F068(s32 mode, ...) {
         @Transfer
         def transfer(command, destination, pointer, size):
             calls.append(('transfer', command, destination, pointer, size))
-            observed_state.append((self.global_int('D_800A47F4').value,
-                                   self.global_int('D_800A4810').value))
+            observed_state.append((self.global_int('_spu_transMode').value,
+                                   self.global_int('_spu_transferCallback').value))
 
         @Wait
         def wait(event):
             calls.append(('wait', event))
             if mutate_state:
-                self.global_int('D_800A47F4').value = 55
-                self.global_int('D_800A4810').value = 66
+                self.global_int('_spu_transMode').value = 55
+                self.global_int('_spu_transferCallback').value = 66
             return -1
 
         for name, function in [('test_validate', validate), ('test_transfer', transfer),
@@ -107,8 +107,8 @@ s32 func_8007F068(s32 mode, ...) {
         if preset >= 10 or validation != 0:
             self.assertEqual(result, -1)
             self.assertEqual(calls, [] if preset >= 10 else [('validate', address)])
-            self.assertEqual(self.global_int('D_800A47F4').value, mode)
-            self.assertEqual(self.global_int('D_800A4810').value, callback)
+            self.assertEqual(self.global_int('_spu_transMode').value, mode)
+            self.assertEqual(self.global_int('_spu_transferCallback').value, callback)
         else:
             self.assertEqual(result, 0)
             start = 0xFFF0 if preset == 0 else (
@@ -128,8 +128,8 @@ s32 func_8007F068(s32 mode, ...) {
             self.assertEqual(observed_state[:3], [(0 if mode == 1 else mode, 0)] * 3)
             expected_mode = mode if mode == 1 or not mutate_state else 55
             expected_callback = callback if callback != 0 or not mutate_state else 66
-            self.assertEqual(self.global_int('D_800A47F4').value, expected_mode)
-            self.assertEqual(self.global_int('D_800A4810').value, expected_callback)
+            self.assertEqual(self.global_int('_spu_transMode').value, expected_mode)
+            self.assertEqual(self.global_int('_spu_transferCallback').value, expected_callback)
         self.assertEqual(bytes(buffer), before_buffer)
 
     def test_invalid_presets_and_validation_failure(self):

@@ -4,6 +4,6 @@
 #include "types.h"
 
 void func_80082440(short a);
-int func_80082494();
+int Snd_SetPlayMode();
 
 #endif /* RR_PSYQ_LIBSND_SSPAUSE2_H */

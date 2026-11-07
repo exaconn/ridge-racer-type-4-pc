@@ -19,14 +19,14 @@ typedef struct {
     u8 pad1A06[2];
 } RrAudioLoopState;
 
-extern RrAudioLoopState D_800F4DB8;
+extern RrAudioLoopState SoundState;
 extern s16 D_800F4D44;
-extern s32 D_800F4DC0; /* Alias of D_800F4DB8.master08. */
-s32 func_80086B00(s32 voice,s32 left,s32 right);
+extern s32 VoiceVolumeScale; /* Alias of SoundState.master08. */
+s32 SsUtSetVVol(s32 voice,s32 left,s32 right);
 /* Voice uses signed low16. Volume products wrap in32 bits before arithmetic
  * shifting and narrowing to signed16, including full-width master values. */
-void func_8004FE7C(s32 voice,s32 left,s32 right);
-s32 func_800857A4(s32 voice,s32 bank,s32 program,s32 mode,
+void SetVoiceVolumeScaled(s32 voice,s32 left,s32 right);
+s32 SsUtKeyOnV(s32 voice,s32 bank,s32 program,s32 mode,
                  s32 group,s32 unused,s32 left,s32 right);
 /* Captures scaled levels and pitch, then updates channels6/7. Bank/program and
  * active state are re-read after helpers; their return values are ignored. */

@@ -35,7 +35,7 @@ static int id(void *p) {
     assert(p==&D_801144D8[1]);return 1;
 }
 static void event(int value) {assert(trace_count<32);trace[trace_count++]=value;}
-void func_8009A6DC(u8 *channel) {
+void _dirFailAuto(u8 *channel) {
     int index=id(channel);event(10+index);
     if(scenario==1) {assert(index==0);D_800ABCA8=1;D_800ABD00=packet_b;}
     if(scenario==4) D_800ABCBC=0;
@@ -44,7 +44,7 @@ void func_80099F90(RrChannelTransferView *channel) {
     int index=id(channel);event(20+index);
     if(scenario==3) {assert(index==0);D_800ABCA8=1;D_800ABD00=packet_b;}
 }
-s32 func_80098154(RrChannelRecordF0 *channel) {
+s32 _padInitSioMode(RrChannelRecordF0 *channel) {
     int index=id(channel);event(30+index);ready_count++;
     if(scenario==2 && ready_count==1) {
         D_800ABCA8=0;D_800ABD00=packet_b;return 0;

@@ -45,32 +45,32 @@ typedef struct { short f0, f2; } U;
 
 typedef struct { char pad[4]; char f4; char pad2[2]; char f7; } T;
 
-extern RrSpritePacket *func_8001FCC8();
+extern RrSpritePacket *AddDrawModePrim();
 extern s32 rsin();
 extern s32 rcos();
 extern RrRow60 *MenuTextRows;
 extern unsigned short D_8009FDA0[];
-extern E_1 *D_800F4D8C;
-extern s32 D_800AC5DC;
+extern E_1 *GlyphRows;
+extern s32 VSyncThreshold;
 extern s16 D_800F3A26;
 extern s16 D_800F4C6A;
 extern s16 D_800F4D8A;
-extern void func_8003D228();
-extern void func_8003DC9C();
-extern void func_8003E040();
-extern void func_8003E928(int,int,int,int,int,int,int,int,int,int,...);
+extern void InitBadgeRow();
+extern void InitRect16Row();
+extern void InitGlyphRow();
+extern void InitUiRow(int,int,int,int,int,int,int,int,int,int,...);
 extern void func_80053BB4();
 extern short D_800AC5D0;
 extern short D_800AD50A;
 extern short D_800AD520;
 extern int D_800F2DE4;
 extern short D_800F3826;
-extern U *D_800F3AFC;
+extern U *BadgeRows;
 extern T *D_800FF68C;
-extern int func_8003EC88();
-extern int D_8009FDA4;
+extern int DrawUiRow();
+extern int MenuStepDirection;
 extern int D_800F3A60;
-extern char *D_800F4D80;
+extern char *UiRows;
 
 void func_800411D4();
 void func_80041320();
@@ -193,11 +193,11 @@ void func_80040CB4(s32 a0) {
             }
         }
     }
-    *(RrSpritePacket **)SCRATCHPAD = func_8001FCC8((char *)D_800ACC14 + 0x70, s4, 0x2E);
+    *(RrSpritePacket **)SCRATCHPAD = AddDrawModePrim((char *)D_800ACC14 + 0x70, s4, 0x2E);
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8001FCC8 (*(unsigned *(*)())&func_8001FCC8)
+#define AddDrawModePrim (*(unsigned *(*)())&AddDrawModePrim)
 #define D_800ACC14 ((char *)D_800ACC14)
 
 void func_800411D4()
@@ -207,7 +207,7 @@ void func_800411D4()
     unsigned char *q;
     char *d;
     unsigned t;
-    a1 = func_8001FCC8(D_800ACC14 + 0x98, *(int *)SCRATCHPAD, 5);
+    a1 = AddDrawModePrim(D_800ACC14 + 0x98, *(int *)SCRATCHPAD, 5);
     q = (unsigned char *)a1 + 7;
     a3 = 0;
     do {
@@ -228,10 +228,10 @@ void func_800411D4()
         *(unsigned *)(d + 0x98) = (*(unsigned *)(d + 0x98) & 0xFF000000) | t;
         a1 += 5;
     } while (a3 < 0xF2);
-    *(unsigned **)SCRATCHPAD = func_8001FCC8(d + 0x98, a1, 0xE, a3);
+    *(unsigned **)SCRATCHPAD = AddDrawModePrim(d + 0x98, a1, 0xE, a3);
 }
 
-#undef func_8001FCC8
+#undef AddDrawModePrim
 #undef D_800ACC14
 
 /* legacy typing of shared globals in this part of the unit */
@@ -277,7 +277,7 @@ int a1;
   for (i = 0; i < 4; i++)
   {
     new_var = i;
-    D_800F4D8C[a1 + new_var].f = a0;
+    GlyphRows[a1 + new_var].f = a0;
     new_var = 0xC000;
     a0 = a0 + new_var;
   }
@@ -286,7 +286,7 @@ int a1;
 
 void func_800413E0(void) {
     func_8001ECE8(0, 0, 0, 2);
-    D_800AC5DC = 0x80;
+    VSyncThreshold = 0x80;
     D_800F4C6A = 1;
     D_800F3A26 = 8;
     D_800F4D8A = 0;
@@ -294,23 +294,23 @@ void func_800413E0(void) {
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_8001ECE8 ((void (*)())func_8001ECE8)
-#define D_800F4D8C ((char *)D_800F4D8C)
+#define GlyphRows ((char *)GlyphRows)
 
 void func_80041434(void) {
     int i;
     func_8001ECE8(0, 0, 0, 2);
-    D_800AC5DC = 0x80;
+    VSyncThreshold = 0x80;
     for (i = 0; i < 4; i++) {
-        func_8003E040(i, -2, 0, 0);
+        InitGlyphRow(i, -2, 0, 0);
     }
     D_800AD520 = 2;
     D_800F4D98[0] = 2;
     D_800F3826 = 0;
     func_80053BB4(0);
-    func_8003DC9C(*(unsigned char *)(D_800F4D8C + 7), *(short *)(D_800F4D8C + 8), *(short *)(D_800F4D8C + 0xA), *(short *)(D_800F4D8C + 0xC), *(short *)(D_800F4D8C + 0xE), 0, 0);
-    func_8003D228(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
-    func_8003E928(0, 0xC, 0x48, 0xF0, 0x20, 0, 0, 4, 2, 0);
-    D_800F3AFC->f2 = 1;
+    InitRect16Row(*(unsigned char *)(GlyphRows + 7), *(short *)(GlyphRows + 8), *(short *)(GlyphRows + 0xA), *(short *)(GlyphRows + 0xC), *(short *)(GlyphRows + 0xE), 0, 0);
+    InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
+    InitUiRow(0, 0xC, 0x48, 0xF0, 0x20, 0, 0, 4, 2, 0);
+    BadgeRows->f2 = 1;
     D_800FF68C->f4 = 1;
     D_800FF68C->f7 = 0;
     D_800F2DE4 = 0;
@@ -319,12 +319,12 @@ void func_80041434(void) {
 }
 
 #undef func_8001ECE8
-#undef D_800F4D8C
+#undef GlyphRows
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AD520 (*(unsigned char (*))&D_800AD520)
 #define D_800F2DE4 (*(unsigned (*))&D_800F2DE4)
-#define D_800F3AFC ((char *)D_800F3AFC)
+#define BadgeRows ((char *)BadgeRows)
 #define D_800FF68C ((signed char *)D_800FF68C)
 
 void func_80041588()
@@ -332,13 +332,13 @@ void func_80041588()
     int a2;
     D_800F2DE4 += 1;
     if (D_800FF68C[4] >= 0x22) {
-        func_8003EC88(0);
-        func_8002A344(0x10002);
+        DrawUiRow(0);
+        UpdateScreenFade(0x10002);
     } else {
-        func_8002A344(0x10003);
+        UpdateScreenFade(0x10003);
     }
-    if (func_800416B4(D_8009FDA4) != 0) {
-        if (*(short *)(D_800F3AFC + 0x10) == 3) {
+    if (func_800416B4(MenuStepDirection) != 0) {
+        if (*(short *)(BadgeRows + 0x10) == 3) {
             func_800417EC();
             return;
         }
@@ -350,13 +350,13 @@ void func_80041588()
         a2 = D_800FF68C[6];
         if (a2 == 4) {
             D_800FF68C[4] = D_800AD520 + 0x22;
-            D_800F4D80[0x16] = D_800AD520;
-            *(short *)(D_800F3AFC + 0x10) = a2;
+            UiRows[0x16] = D_800AD520;
+            *(short *)(BadgeRows + 0x10) = a2;
         }
     }
 }
 
 #undef D_800AD520
 #undef D_800F2DE4
-#undef D_800F3AFC
+#undef BadgeRows
 #undef D_800FF68C

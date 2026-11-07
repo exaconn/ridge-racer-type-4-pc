@@ -4,7 +4,7 @@
 
 #define G D_8010BF78
 
-#define H D_800F3AFC
+#define H BadgeRows
 
 #define K D_800AC590
 
@@ -18,7 +18,7 @@
 
 #define ORDER (order_page->order)
 
-void func_8001E1F0(u32 intensity,RrSpriteGridClock *state) {
+void EmitSpriteGrid(u32 intensity,RrSpriteGridClock *state) {
     s32 row;
     /* ASM_BARRIER: retain the horizontal position counter in a3. */
     register s32 x __asm__("$7");

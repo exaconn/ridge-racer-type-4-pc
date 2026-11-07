@@ -6,8 +6,8 @@
 #include "game/data/menuvars.h"
 struct E { char pad[4]; unsigned char a; char b; unsigned char c; signed char d; };
 
-extern int func_8002B330();
-extern int func_8002B75C();
+extern int StepMenuValue();
+extern int CopyStringClearTail();
 extern int PlaySfx();
 extern short D_800FFC18;
 extern short D_800FFC00;
@@ -22,7 +22,7 @@ extern struct { char a[4]; unsigned char b; char c[3]; } D_800A4258[];
 extern unsigned char D_800A448C[][4];
 extern struct { char pad[0x28]; int x28; int x2c; char pad2[0x2C]; } D_800F3A38[];
 extern unsigned char D_800F3A24[];
-extern char *D_800F4D80;
+extern char *UiRows;
 extern short D_80109478[];
 extern short D_8010948E;
 extern unsigned char D_800A44D8[][4];
@@ -42,14 +42,14 @@ void func_8007B774(void) {
     case 3:
     case 6:
     case 7:
-        func_8002B330((D_800AC594 & 1) << 2, 2, &D_800F4D3C, 3, 0);
+        StepMenuValue((D_800AC594 & 1) << 2, 2, &D_800F4D3C, 3, 0);
         if (D_800F3A38[D_800AC594].x28 != 0) {
             PlaySfx(1);
             if ((unsigned short)(D_800FFC18 - 6) < 2) {
                 D_800F3AF8 = 0x11;
-                func_8002B75C(D_800F4D50, D_800A4594[D_800F4D3C]);
+                CopyStringClearTail(D_800F4D50, D_800A4594[D_800F4D3C]);
             } else {
-                func_8002B75C(D_800F4D50, D_800A457C);
+                CopyStringClearTail(D_800F4D50, D_800A457C);
             }
         } else {
             if (D_800F3A38[D_800AC594].x2c != 0) {
@@ -63,12 +63,12 @@ void func_8007B774(void) {
             if (D_800F3A1C == 0x3A) {
                 D_801094A0 = 1;
                 D_800F3AF8 = 0x20;
-                func_8002B75C(D_800F4D50, D_800A45A0);
+                CopyStringClearTail(D_800F4D50, D_800A45A0);
             } else {
-                func_8002B75C(D_800F4D50, D_800A457C);
+                CopyStringClearTail(D_800F4D50, D_800A457C);
             }
         } else {
-            func_8002B75C(D_800F4D50, D_800A457C);
+            CopyStringClearTail(D_800F4D50, D_800A457C);
         }
         break;
     }
@@ -116,8 +116,8 @@ void func_8007B954()
     s4 = q[1];
     s3 = q[2];
     if (*r < 0x10 || a == *r) {
-        if (D_800F4D80[0x56C] == 2) {
-            func_8002B330(((unsigned short)D_800AC594 & 1) << 2, 2, D_8010948E * 2 + (int)D_80109478, 2, 0);
+        if (UiRows[0x56C] == 2) {
+            StepMenuValue(((unsigned short)D_800AC594 & 1) << 2, 2, D_8010948E * 2 + (int)D_80109478, 2, 0);
             b3 = D_800F3A38;
         r2 = (unsigned char *)b3 + D_800AC594 * 0x5C;
             if (*(int *)(r2 + 0x28) != 0) {
@@ -168,13 +168,13 @@ void func_8007BB9C()
     s3 = e[3];
     if (D_800FFC18 != 0) goto l54;
     if (D_800F3A1C != 0x3D) goto l54;
-    if (func_80078414(D_800ACBCC[D_800FFC00], D_800A457C) == 0) goto l48;
+    if (CardHasFile(D_800ACBCC[D_800FFC00], D_800A457C) == 0) goto l48;
     D_80109490 = 1;
     goto l54;
 l48:
     D_80109490 = 0;
 l54:
-    if (func_80078414(D_800ACBCC[D_800FFC00], D_800F4D50) != 1) goto ca0;
+    if (CardHasFile(D_800ACBCC[D_800FFC00], D_800F4D50) != 1) goto ca0;
     D_800F3A1C = s2;
     if (s0 == 1) { a0 = 2; goto cf0; }
     func_8007A9CC(2, 0);

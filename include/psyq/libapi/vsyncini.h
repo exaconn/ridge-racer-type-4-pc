@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int *func_8008BA24(void);
+int *startIntrVSync(void);
 
 #endif /* RR_PSYQ_LIBAPI_VSYNCINI_H */

@@ -1,23 +1,23 @@
 /* CC1_FLAGS: -mno-split-addresses */
 extern signed char D_80110102[];
 extern struct { signed char a; char p[4]; signed char b; } D_80110107;
-extern char *D_801100F8;
+extern char *_svm_tn;
 extern unsigned short D_800A5128[];
 extern unsigned short D_800A5140[];
 
-int func_800885D4();
-unsigned short func_80088608();
-unsigned short func_80088670(int cen_note_high, int cen_note_low, int note_high, int note_low);
+int note2pitch();
+unsigned short note2pitch2();
+unsigned short SsPitchFromNote(int cen_note_high, int cen_note_low, int note_high, int note_low);
 
-int func_800885D4() { return func_80088670(D_80110102[0], 0, (unsigned char)D_80110102[0xE], (unsigned char)D_80110102[0xF]); }
+int note2pitch() { return SsPitchFromNote(D_80110102[0], 0, (unsigned char)D_80110102[0xE], (unsigned char)D_80110102[0xF]); }
 
-unsigned short func_80088608(a0, a1) short a0; short a1; {
+unsigned short note2pitch2(a0, a1) short a0; short a1; {
     short i = D_80110107.a * 16 + D_80110107.b;
-    char *t = (char *)(i * 32 + (int)D_801100F8);
-    return func_80088670(a0, a1, t[4], t[5]);
+    char *t = (char *)(i * 32 + (int)_svm_tn);
+    return SsPitchFromNote(a0, a1, t[4], t[5]);
 }
 
-unsigned short func_80088670(int cen_note_high, int cen_note_low, int note_high, int note_low)
+unsigned short SsPitchFromNote(int cen_note_high, int cen_note_low, int note_high, int note_low)
 {
     int fine;
     short note;

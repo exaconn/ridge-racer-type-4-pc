@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_8008F090();
+int CdReadSync();
 
 #endif /* RR_PSYQ_LIBCD_DSFINISH_H */

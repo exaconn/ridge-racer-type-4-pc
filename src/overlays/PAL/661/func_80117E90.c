@@ -2,7 +2,7 @@
 
 extern s32 D_800F2DE4, D_800F4C64, D_800F3A60;
 extern u16 D_800F4D8A;
-extern s16 D_800F4C6A, D_800F3A26, D_800AC5D0, D_800AC64A, D_800F4BE8;
+extern s16 D_800F4C6A, D_800F3A26, D_800AC5D0, MenuCursor, D_800F4BE8;
 extern s16 ovl661_D_80118410[2];
 extern s16 ovl661_D_80118418[2];
 extern char ovl661_D_80118420[2][12];
@@ -13,13 +13,13 @@ extern u8 *D_800ACC14;
 
 void func_8002AF8C(s32, s32, s32);
 void PlaySfx(s32);
-void func_8002B75C(char *, char *);
-void func_8002B7B4(char *, char *, s32);
-void func_8002B814(char *, s32, s32);
+void CopyStringClearTail(char *, char *);
+void CopyStringPadSpaces(char *, char *, s32);
+void FormatDecimalDigits(char *, s32, s32);
 void func_800207D4(u32 *, s32, u32);
 void ResetScreenCounters(void);
-void func_8003A1B4(void);
-void func_8002A344(s32);
+void InitMenuArenas(void);
+void UpdateScreenFade(s32);
 void func_8003662C(s32);
 void func_80040858(s32);
 void func_800411D4(void);
@@ -53,14 +53,14 @@ void ovl661_func_80117E90(void) {
                 func_8002AF8C(group, 1, group);
             }
         }
-        func_8002B814(MenuTextRows[4].marquee.at28 + 8, ovl661_D_80118410[0] + 1, 0);
-        func_8002B7B4(MenuTextRows[5].marquee.at28 + 1, ovl661_D_80118420[ovl661_D_80118410[0]], 9);
-        func_8002B75C(MenuTextRows[5].marquee.at28 + 10, ovl661_D_801148EC);
+        FormatDecimalDigits(MenuTextRows[4].marquee.at28 + 8, ovl661_D_80118410[0] + 1, 0);
+        CopyStringPadSpaces(MenuTextRows[5].marquee.at28 + 1, ovl661_D_80118420[ovl661_D_80118410[0]], 9);
+        CopyStringClearTail(MenuTextRows[5].marquee.at28 + 10, ovl661_D_801148EC);
         for (i = 0; i < 2; i++) {
             player = ovl661_D_80118410[i];
-            func_8002B7B4(MenuTextRows[7 + i].marquee.at28 + 5, ovl661_D_80118420[player], 9);
-            func_8002B75C(MenuTextRows[7 + i].marquee.at28 + 14, ovl661_D_801148F8);
-            func_8002B814(MenuTextRows[7 + i].marquee.at28 + 18, ovl661_D_80118418[player], 1);
+            CopyStringPadSpaces(MenuTextRows[7 + i].marquee.at28 + 5, ovl661_D_80118420[player], 9);
+            CopyStringClearTail(MenuTextRows[7 + i].marquee.at28 + 14, ovl661_D_801148F8);
+            FormatDecimalDigits(MenuTextRows[7 + i].marquee.at28 + 18, ovl661_D_80118418[player], 1);
         }
         break;
     case 3:
@@ -69,9 +69,9 @@ void ovl661_func_80117E90(void) {
             func_8002AF8C(1, 1, 0);
             if (ovl661_func_80117E10(0) >= 0) {
                 ResetScreenCounters();
-                func_8003A1B4();
+                InitMenuArenas();
                 D_800AC5D0 = 64;
-                D_800F4D8A = D_800AC64A + 4;
+                D_800F4D8A = MenuCursor + 4;
                 func_8002AF8C(0, 1, 0);
             }
         }
@@ -118,7 +118,7 @@ void ovl661_func_80117E90(void) {
         }
         return;
     }
-    func_8002A344(0x1000C);
+    UpdateScreenFade(0x1000C);
     func_8003662C(D_800F2DE4);
     if (group >= 0) {
         for (i = 0; i < 11; i++) {

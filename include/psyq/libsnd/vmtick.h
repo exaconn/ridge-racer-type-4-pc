@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80087044();
+void _SsVmDamperOff();
 
 #endif /* RR_PSYQ_LIBSND_VMTICK_H */

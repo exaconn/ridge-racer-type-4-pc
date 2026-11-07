@@ -13,12 +13,12 @@ typedef struct {
     u8 pad22[2];
 } RrUiRow24;
 
-extern s32 D_800F4BEC;
-extern RrUiRow24 *D_800F4D80;
+extern s32 UiRowCount;
+extern RrUiRow24 *UiRows;
 /* Legacy callers may append ignored words after the ten row arguments.
  * The signed upper-bound check accepts negative indices; these require a
  * readable/writable prefix. Positive count clears bytes beginning at cells. */
-void func_8003E928(s32 index, s32 a, s32 b, s32 c, s32 d, s32 e, s32 f,
+void InitUiRow(s32 index, s32 a, s32 b, s32 c, s32 d, s32 e, s32 f,
                    s32 count, s32 g, s32 h,...);
 
 RR_ASSERT_SIZE(RrUiRow24, 0x24);
@@ -35,7 +35,7 @@ RR_ASSERT_OFFSET(RrUiRow24, byte16, 0x16);
 RR_ASSERT_OFFSET(RrUiRow24, byte17, 0x17);
 RR_ASSERT_OFFSET(RrUiRow24, half20, 0x20);
 
-/* 0x20-byte UI particle record (D_800F2AE4, initialized by func_80053EC4). */
+/* 0x20-byte UI particle record (D_800F2AE4, initialized by SpawnParticlePair). */
 typedef struct {
     s32 active00, state04, timer08;
     s16 x0C, y0E;

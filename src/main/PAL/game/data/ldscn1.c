@@ -20,13 +20,13 @@
 typedef struct { char p[7]; char b; } Z;
 
 extern int func_8004E008();
-extern short D_800AC650[];
+extern short RaceContext[];
 extern unsigned char D_800F4D7C;
-extern int D_800102F0;
-extern int D_800ACC18;
+extern int CdDirectoryBuffer;
+extern int LoadCursor;
 extern int D_800F4D40;
 extern int D_800F4D70;
-extern int func_8003A1B4();
+extern int InitMenuArenas();
 extern int D_800F4D74;
 extern short D_800F3914;
 extern int func_8001E854();
@@ -47,8 +47,8 @@ extern int D_800AD564;
 extern unsigned char D_800AD4F4;
 extern char D_80104DB0[];
 extern Z *D_800AC590;
-extern char *D_800ABEA4;
-extern int D_800ABECC;
+extern char *TrackNodes;
+extern int TrackNodeCount;
 extern char D_8010C220[];
 
 int func_8003A79C(void);
@@ -82,10 +82,10 @@ int func_8003A79C(void) {
     case 2:
             i = 0;
             do {
-                D_800AC650[i] = i + 1;
+                RaceContext[i] = i + 1;
                 i++;
             } while (i < 7);
-            D_800AC650[7] = 0;
+            RaceContext[7] = 0;
             D_800F4D7C = 3;
     case 3:
             r = 1;
@@ -106,32 +106,32 @@ int func_8003A874(void) {
         if (D_800F4D44 == 4) {
             r = 1;
             D_800F4D70 = D_800F4D40;
-            D_800ACC18 = D_800F4D40;
+            LoadCursor = D_800F4D40;
             break;
         }
         if (D_800F4D44 == 5 && D_800F4D2C == 6) {
             r = 1;
-            D_800ACC18 = D_800F4D40;
+            LoadCursor = D_800F4D40;
             break;
         }
         D_800F4D7C = 1;
-        D_800ACC18 = D_800102F0;
+        LoadCursor = CdDirectoryBuffer;
         D_8009F8FC = *(unsigned char *)&D_800F4D44;
         if (*(unsigned char *)&D_800F4D44 >= 5) {
             D_8009F8FC = 0;
         }
     case 1:
-        if (func_8001292C(func_8001223C(1, D_8009F8FC + 0xB), D_800ACC18)) {
+        if (CdFileReadStart(GetR4FileIndex(1, D_8009F8FC + 0xB), LoadCursor)) {
             D_800F4D7C = 2;
         }
         break;
     case 2:
-        v = func_80012A58();
+        v = CdFileBytesLoaded();
         if (v) {
-            D_800ACC18 += v;
+            LoadCursor += v;
     case 3:
             r = 1;
-            D_800F4D40 = D_800ACC18;
+            D_800F4D40 = LoadCursor;
         }
         break;
     }
@@ -150,20 +150,20 @@ int func_8003A9E8(void) {
     switch (D_800F4D7C) {
     case 0:
         D_800F4D7C = 1;
-        D_800ACC18 = D_800102F0;
+        LoadCursor = CdDirectoryBuffer;
         D_8009F8FC = D_800F4D2C;
     case 1:
-        if (func_8001292C(func_8001223C(1, D_8009F8FC + 1), D_800ACC18)) {
+        if (CdFileReadStart(GetR4FileIndex(1, D_8009F8FC + 1), LoadCursor)) {
             D_800F4D7C = 2;
         }
         break;
     case 2:
-        v = func_80012A58();
+        v = CdFileBytesLoaded();
         if (v) {
             int t;
             D_800F4D7C = 3;
-            t = D_800ACC18 + v;
-            D_800ACC18 = t;
+            t = LoadCursor + v;
+            LoadCursor = t;
             D_800F4D40 = t;
     case 3:
             r = 1;
@@ -181,15 +181,15 @@ int func_8003AAE8(void) {
     switch (D_800F4D7C) {
     case 0:
         D_800F4D7C = 1;
-        D_800ACC18 = D_800F4D40;
+        LoadCursor = D_800F4D40;
         func_8004E008();
     case 1:
         if (func_8004E184()) {
-            D_800F4D40 = D_800ACC18;
+            D_800F4D40 = LoadCursor;
             func_8004F600();
             D_800F4D7C = 2;
-            func_8003A1B4();
-            D_800ACC18 = D_800F4D74;
+            InitMenuArenas();
+            LoadCursor = D_800F4D74;
     case 2:
             r = 1;
         }
@@ -205,12 +205,12 @@ int func_8003ABA4(void) {
         D_800F4D7C = 1;
         D_8009F8FC = 0;
     case 1:
-        if (func_800131D0(D_800F3914)) {
+        if (RequestSceneLoad(D_800F3914)) {
             D_800F4D7C = 2;
         }
         break;
     case 2:
-        if (func_80013200()) r = 1;
+        if (SceneLoadStep()) r = 1;
         break;
     case 3:
         r = 1;
@@ -268,7 +268,7 @@ l5:
         break;
     case 5:
         s1 = 1;
-        if (D_800F4D44 == 4) D_800F4D70 = D_800ACC18;
+        if (D_800F4D44 == 4) D_800F4D70 = LoadCursor;
         break;
     default:
         break;
@@ -341,17 +341,17 @@ int func_8003B040(void) {
     int r = 0;
     switch (D_800F4D7C) {
     case 0:
-        D_800ACC18 = (int)D_800FFC48;
+        LoadCursor = (int)D_800FFC48;
         D_800F4D7C = 1;
         D_8009F8FC = 0;
     case 1:
-        if (func_8001292C(func_8001223C(1, D_8009F8FC + 0x11), D_800ACC18)) {
+        if (CdFileReadStart(GetR4FileIndex(1, D_8009F8FC + 0x11), LoadCursor)) {
             D_800F4D7C = 2;
         }
         break;
     case 2:
-        if (func_80012A58()) {
-            func_800436E8(D_800ACC18);
+        if (CdFileBytesLoaded()) {
+            func_800436E8(LoadCursor);
             D_800F4D7C = 3;
     case 3:
             r = 1;
@@ -371,15 +371,15 @@ int func_8003B12C(void) {
         func_8005B2D4(0);
         D_8009F8FC = 0;
     case 1:
-        if (func_8001292C(func_8001223C(1, 0xF), D_800ACC18)) {
+        if (CdFileReadStart(GetR4FileIndex(1, 0xF), LoadCursor)) {
             D_800F4D7C = 2;
         }
         break;
     case 2:
-        if (func_80012A58()) {
-            func_800436E8(D_800ACC18);
+        if (CdFileBytesLoaded()) {
+            func_800436E8(LoadCursor);
             D_800F4D7C = 3;
-            D_800ACC18 = D_800ACC1C;
+            LoadCursor = D_800ACC1C;
             func_8004E008();
         }
         break;
@@ -423,14 +423,14 @@ int func_8003B294(void) {
         } else {
             D_800F4D7C = 1;
         }
-        D_800AC5A0 = D_800102F0 + 0xAF000;
+        D_800AC5A0 = CdDirectoryBuffer + 0xAF000;
     case 1:
-        if (func_8001292C(func_8001223C(1, 0x12), D_800AC5A0)) {
+        if (CdFileReadStart(GetR4FileIndex(1, 0x12), D_800AC5A0)) {
             D_800F4D7C = 2;
         }
         break;
     case 2:
-        if (func_80012A58()) {
+        if (CdFileBytesLoaded()) {
             D_800F4D7C = 3;
             D_800F3B24 = D_800AC5A0;
     case 3:
@@ -449,15 +449,15 @@ int func_8003B398(void) {
     case 0:
         D_8009F8FC = 0;
         D_800F4D7C = 1;
-        D_800ACC18 = D_800F4D74;
+        LoadCursor = D_800F4D74;
     case 1:
-        if (func_8001292C(func_8001223C(1, 0x13), D_800ACC18)) {
+        if (CdFileReadStart(GetR4FileIndex(1, 0x13), LoadCursor)) {
             D_800F4D7C = 2;
         }
         break;
     case 2:
-        if (func_80012A58()) {
-            func_800436E8(D_800ACC18);
+        if (CdFileBytesLoaded()) {
+            func_800436E8(LoadCursor);
             D_800F4D7C = 3;
     case 3:
             r = 1;
@@ -474,18 +474,18 @@ int func_8003B47C(void) {
     case 0:
         D_8009F8FC = 0;
         D_800F4D7C = 1;
-        D_800F4C1C = 4;
+        GlyphRowCount = 4;
     case 1:
-        if (func_800129BC(func_8001223C(1, 0x40), 0, 0xC0, D_800ACC18)) {
+        if (CdFileReadRange(GetR4FileIndex(1, 0x40), 0, 0xC0, LoadCursor)) {
             D_800F4D7C = 2;
         }
         break;
     case 2:
-        v = func_80012A58();
+        v = CdFileBytesLoaded();
         if (v) {
-            func_8004139C(D_800ACC18, 0);
+            func_8004139C(LoadCursor, 0);
             D_800F4D7C = 3;
-            D_800ACC18 += v;
+            LoadCursor += v;
         }
         break;
     case 3:
@@ -506,7 +506,7 @@ int func_8003B588(void) {
     case 0:
         k = 0xAF000;
         *(unsigned char *)&D_8009F8FC = 0;
-        D_800AC5A0 = D_800102F0 + k;
+        D_800AC5A0 = CdDirectoryBuffer + k;
         v0 = D_800AC5A0;
         D_800AC5A0 = v0;
         D_800FF68C = (void *)v0;
@@ -527,12 +527,12 @@ int func_8003B588(void) {
             s2 = 0x41;
             s1 = 4;
         }
-        if (func_800129BC(func_8001223C(1, s2), s1 * D_800AD564, s1, D_800AC5A0)) {
+        if (CdFileReadRange(GetR4FileIndex(1, s2), s1 * D_800AD564, s1, D_800AC5A0)) {
             D_800F4D7C = 2;
         }
         break;
     case 2:
-        s2 = func_80012A58();
+        s2 = CdFileBytesLoaded();
         if (s2) {
             func_80029358(D_800AC5A0);
             D_800F4D7C = 3;
@@ -541,12 +541,12 @@ int func_8003B588(void) {
         }
         break;
     case 3:
-        if (func_8001292C(func_8001223C(1, 0x42), D_800AC5A0)) {
+        if (CdFileReadStart(GetR4FileIndex(1, 0x42), D_800AC5A0)) {
             D_800F4D7C = 4;
         }
         break;
     case 4:
-        if (func_80012A58()) {
+        if (CdFileBytesLoaded()) {
             func_80043608(D_800AC5A0);
             D_800F4D7C = 5;
         }
@@ -572,7 +572,7 @@ int func_8003B588(void) {
                 s1 = 8;
                 s0 <<= 3;
             }
-            if (func_800129BC(func_8001223C(1, s2), s0, s1, D_800AC5A0)) {
+            if (CdFileReadRange(GetR4FileIndex(1, s2), s0, s1, D_800AC5A0)) {
                 D_800F4D7C = 6;
             }
         } else {
@@ -580,7 +580,7 @@ int func_8003B588(void) {
         }
         break;
     case 6:
-        s2 = func_80012A58();
+        s2 = CdFileBytesLoaded();
         if (s2) {
             if (D_8009F8FC == 0) {
                 func_800436E8(D_800AC5A0);
@@ -614,12 +614,12 @@ int func_8003B934(void) {
         D_800F4D7C = 1;
         D_8009F8FC = 0;
     case 1:
-        if (func_8001292C(func_8001223C(1, 0x42), D_800FFC48)) {
+        if (CdFileReadStart(GetR4FileIndex(1, 0x42), D_800FFC48)) {
             D_800F4D7C = 2;
         }
         break;
     case 2:
-        if (func_80012A58()) {
+        if (CdFileBytesLoaded()) {
             s = D_800FFC48;
             func_80043608(s);
             s += 0x4E20;
@@ -635,13 +635,13 @@ int func_8003B934(void) {
             } else {
                 a1 = 0x45;
             }
-            if (func_800129BC(func_8001223C(1, a1), D_800AD564 << 2, 4, D_80104DB0)) {
+            if (CdFileReadRange(GetR4FileIndex(1, a1), D_800AD564 << 2, 4, D_80104DB0)) {
                 D_800F4D7C = 4;
             }
         }
         break;
     case 4:
-        if (func_80012A58()) {
+        if (CdFileBytesLoaded()) {
             func_80029358(D_80104DB0);
             D_800F4D7C = 5;
     case 5:
@@ -660,15 +660,15 @@ int func_8003BAB0(void) {
         D_800F4D7C = 1;
         D_8010BFC8 = 0;
     case 1:
-        if (func_8001292C(func_8001223C(1, D_800F3914 + 0x38), D_800ACC18) != 0) {
+        if (CdFileReadStart(GetR4FileIndex(1, D_800F3914 + 0x38), LoadCursor) != 0) {
             D_800F4D7C = 2;
         }
         break;
     case 2:
-        if (func_80012A58() != 0) {
-            func_800292A8(D_800ACC18);
+        if (CdFileBytesLoaded() != 0) {
+            SetTrackNodeData(LoadCursor);
             D_800F4D7C = 3;
-            D_800F2EC4 = D_800ABEA4 + D_800ABECC * 60;
+            D_800F2EC4 = TrackNodes + TrackNodeCount * 60;
     case 3:
             r = 1;
         }
@@ -690,13 +690,13 @@ int func_8003BBBC(void) {
         D_800F4D7C = 1;
         D_8009F8FC = 0;
     case 1:
-        if (func_8001292C(func_8001223C(1, 0), D_800ACC18) != 0) {
+        if (CdFileReadStart(GetR4FileIndex(1, 0), LoadCursor) != 0) {
             D_800F4D7C = 2;
         }
         break;
     case 2:
-        if (func_80012A58() != 0) {
-            func_800436E8(D_800ACC18);
+        if (CdFileBytesLoaded() != 0) {
+            func_800436E8(LoadCursor);
             func_8004E008();
             D_800F4D7C = 3;
         }
@@ -705,20 +705,20 @@ int func_8003BBBC(void) {
         if (func_8004E03C(D_8010C220) != 0) {
             func_8004F600();
             D_800F4D7C = 4;
-            D_800ACC18 = D_800102F0;
+            LoadCursor = CdDirectoryBuffer;
         }
         break;
     case 4:
-        if (func_8001292C(func_8001223C(1, 10), D_800ACC18) != 0) {
+        if (CdFileReadStart(GetR4FileIndex(1, 10), LoadCursor) != 0) {
             D_800F4D7C = 5;
         }
         break;
     case 5:
-        t = func_80012A58();
+        t = CdFileBytesLoaded();
         if (t != 0) {
-            D_800ACC18 += t;
+            LoadCursor += t;
             D_800F4D7C = 6;
-            D_800F4D40 = D_800ACC18;
+            D_800F4D40 = LoadCursor;
             case 6:
             r = 1;
         }

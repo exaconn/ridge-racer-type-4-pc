@@ -35,15 +35,15 @@ typedef struct {
 static State actual,reference,*w;
 #define D_800F2DE4 w->frame
 #define ScreenFrame w->tick
-#define D_800AC64A w->selection
-#define D_800AC5E0 w->mode
+#define MenuCursor w->selection
+#define MenuItemCount w->mode
 #define D_800F3A26 w->scene
 #define D_800F4D8A w->phase
 #define D_800F4C6A w->enable
 #define D_800AD4D8 w->settings
-#define D_800F4D80 (w->rows[w->root])
-#define D_800ABEF8 w->vehicles
-#define D_800ACC18 w->published
+#define UiRows (w->rows[w->root])
+#define PlayerCars w->vehicles
+#define LoadCursor w->published
 #define D_800F4D74 w->resource
 #undef RR_MENU_PREVIEW_SCRATCH_WORDS
 #define RR_MENU_PREVIEW_SCRATCH_WORDS w->scratch
@@ -71,16 +71,16 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
 static void service(unsigned kind){const s32 args[10]={0};record(kind,args);effect(kind);}
 void func_80053CB0(void){service(0);}
 void ResetScreenCounters(void){service(1);}
-void func_8002A604(void){service(2);}
-void func_8003A1B4(void){service(3);}
-void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){
+void ClearScreenOverlayState(void){service(2);}
+void InitMenuArenas(void){service(3);}
+void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){
  const s32 args[10]={a,b,c,d,e,f,g,h,i,j};record(4,args);effect(4);
 }
-void func_8002E4F4(RrRaceVehicle *p){assert(p==w->vehicles&&(uintptr_t)p>UINT32_MAX);service(5);}
+void ResetCarState(RrRaceVehicle *p){assert(p==w->vehicles&&(uintptr_t)p>UINT32_MAX);service(5);}
 s32 func_8003BAB0(void){static const u32 returns[]={0,1,2,0xFFFFFFFFU,0x10001,0xFFFF0001,0x80000000,0x80000001};service(6);return word(returns[scenario%8]);}
-void func_80052800(void){service(7);}
-void func_800528A8(s32 a,s32 b){const s32 args[10]={a,b};record(8,args);effect(8);}
-void func_8002A344(s32 a){const s32 args[10]={a};record(9,args);effect(9);}
+void CdAudioInit(void){service(7);}
+void CdAudioSelectTrack(s32 a,s32 b){const s32 args[10]={a,b};record(8,args);effect(8);}
+void UpdateScreenFade(s32 a){const s32 args[10]={a};record(9,args);effect(9);}
 static void expected(void){unsigned phase=w->phase;paths[phase<3?phase:3]++;
  if(phase==0){w->frame=0;w->tick=0;w->selection=0;w->mode=3;
   for(unsigned kind=0;kind<4;kind++)service(kind);

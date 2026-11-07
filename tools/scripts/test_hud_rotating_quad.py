@@ -34,7 +34,7 @@ class HudRotatingQuadTest(unittest.TestCase):
 #define D_800A50C0 rom
 #define D_800A58C0 (rom+0x400)
 #define D_800A60C0 (rom+0x800)
-#define D_800A68C0 (rom+0xC00)
+#define SinTable (rom+0xC00)
 s32 real_lookup(s32);
 '''+helpers+r'''
 enum {ARENA=544,GUARD=16,ROWS=4};
@@ -77,7 +77,7 @@ static s32 math_call(s32 angle,unsigned id){s32 value;
 static s32 call_sin(s32 angle){return math_call(angle,0);}
 static s32 call_cos(s32 angle){return math_call(angle,1);}
 #define D_8010BF88 (actual.targets)
-#define D_800F4BF0 (actual.bank)
+#define DrawBufIndex (actual.bank)
 #define D_8009EE38 (actual.corners)
 #undef RR_HUD_QUAD_SCRATCH
 #define RR_HUD_QUAD_SCRATCH (&actual.scratch)

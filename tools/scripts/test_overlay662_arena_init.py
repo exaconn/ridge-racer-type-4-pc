@@ -34,7 +34,7 @@ static unsigned scenario,mutation,stageSeen[3],alignmentSeen[4];
 static const s32 counters[8]={-1,0,1,2,3,INT32_MAX,INT32_MIN,-2};
 #define ovl662_D_801276A8 w->s.garage
 #define D_800F4D74 w->s.root
-#define D_800ACC18 w->s.cursor
+#define LoadCursor w->s.cursor
 #define D_800F3918 w->s.first
 #define D_800F3910 w->s.second
 #define ovl662_D_8012625C w->s.stage
@@ -64,11 +64,11 @@ u8 *ovl662_func_8011B2D4(s32 index,u8 *cursor,s32 x,s32 y){Event *e=event(1);e->
 void ovl662_func_8011E36C(s32 mode){event(2)->args[0]=mode;change();}
 void ovl662_func_8011D278(s32 mode){event(3)->args[0]=mode;change();}
 void ovl662_func_8011A414(void){event(4);change();}
-void func_8009305C(RrGpuRectangle *rectangle,const u32 *pixels){Event *e=event(5);e->args[0]=rectangle-w->s.rects;assert(e->args[0]>=0&&e->args[0]<2);memcpy(e->args+1,rectangle,8);e->pointer=(uintptr_t)pixels;indexOf(pixels);change();}
+void StoreImage(RrGpuRectangle *rectangle,const u32 *pixels){Event *e=event(5);e->args[0]=rectangle-w->s.rects;assert(e->args[0]>=0&&e->args[0]<2);memcpy(e->args+1,rectangle,8);e->pointer=(uintptr_t)pixels;indexOf(pixels);change();}
 void ovl662_func_8011D120(void){event(6);w->s.garage.dirtyD3=1;change();}
-void func_8002A604(void){event(7);change();}
-void func_8003D228(s32 index,s32 first,s16 x,s32 y,u16 width,u16 mode,u16 flags){Event *e=event(8);e->args[0]=index;e->args[1]=first;e->args[2]=x;e->args[3]=y;e->args[4]=width;e->args[5]=mode;e->args[6]=flags;change();}
-void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e0,s32 f,s32 g,s32 h,s32 i,s32 j,...){Event *e=event(9);s32 args[10]={a,b,c,d,e0,f,g,h,i,j};memcpy(e->args,args,sizeof(args));change();}
+void ClearScreenOverlayState(void){event(7);change();}
+void InitBadgeRow(s32 index,s32 first,s16 x,s32 y,u16 width,u16 mode,u16 flags){Event *e=event(8);e->args[0]=index;e->args[1]=first;e->args[2]=x;e->args[3]=y;e->args[4]=width;e->args[5]=mode;e->args[6]=flags;change();}
+void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e0,s32 f,s32 g,s32 h,s32 i,s32 j,...){Event *e=event(9);s32 args[10]={a,b,c,d,e0,f,g,h,i,j};memcpy(e->args,args,sizeof(args));change();}
 ''' + body + r'''
 static void expected(void){s32 stage=word((u32)w->s.stage+1U);unsigned i;
  w->s.stage=stage;
@@ -84,11 +84,11 @@ static void expected(void){s32 stage=word((u32)w->s.stage+1U);unsigned i;
   g->scratch34=(u32*)(b+0x2100);w->s.cursor=b+0x2940;w->s.first=b;w->s.second=b+0x840;
   assert((uintptr_t)b>UINT32_MAX);alignmentSeen[(uintptr_t)w->s.root%4]++;stageSeen[0]++;
  }else if(stage==2){unsigned base;
-  func_8009305C(&w->s.rects[0],w->s.garage.image38[0]);func_8009305C(&w->s.rects[1],w->s.garage.palette48[0]);
+  StoreImage(&w->s.rects[0],w->s.garage.image38[0]);StoreImage(&w->s.rects[1],w->s.garage.palette48[0]);
   base=indexOf(w->s.garage.image40[0]);for(i=0;i<512;i++)expectedPool[base+i]=0;stageSeen[1]++;
- }else if(stage==3){w->s.stage=0;ovl662_func_8011D120();w->s.garage.dirtyD3=0;func_8002A604();
-  func_8003D228(0,12,304,296,88,0,0);
-  func_8003E928(0,140,136,28,32,0,0,1,0,104);func_8003E928(1,140,176,28,32,0,0,1,0,105);
+ }else if(stage==3){w->s.stage=0;ovl662_func_8011D120();w->s.garage.dirtyD3=0;ClearScreenOverlayState();
+  InitBadgeRow(0,12,304,296,88,0,0);
+  InitUiRow(0,140,136,28,32,0,0,1,0,104);InitUiRow(1,140,176,28,32,0,0,1,0,105);
   w->s.scene=3;w->s.nextScene=4;w->s.phase=0;stageSeen[2]++;
  }
 }

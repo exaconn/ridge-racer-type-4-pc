@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_80088E74(u8, u16);
-short func_80089344();
+void _SsVmKeyOnNow(u8, u16);
+short _SsVmPBVoice();
 
 #endif /* RR_PSYQ_LIBSND_VMUPD_H */

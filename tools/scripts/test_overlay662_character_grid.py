@@ -31,14 +31,14 @@ static unsigned selectedSeen[43],clutSeen[2],sineSeen[9];
 static const s32 sineValues[9]={INT32_MIN,-4096,-1,0,1,63,64,4096,INT32_MAX};
 u8 D_8009F7E4[]=" 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!?&@";
 s8 ovl662_D_80126230[3]={0,1,2};
-RrBadgeRow1C *D_800F3AFC;
+RrBadgeRow1C *BadgeRows;
 #define D_8009FA1C w->s.uv
 #define ScreenFrame w->s.tick
 #define ovl662_D_801273B4 w->s.selection
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static u32 next(void){u32 x=w->s.rng;x^=x<<13;x^=x>>17;x^=x<<5;return w->s.rng=x;}
 static void change(void){unsigned i;if(!mutation)return;
- D_800F3AFC=w->s.rows+(next()%4);w->s.selection=(s32)((scenario+w->count)%45)-1;w->s.tick=word(next());
+ BadgeRows=w->s.rows+(next()%4);w->s.selection=(s32)((scenario+w->count)%45)-1;w->s.tick=word(next());
  for(i=0;i<128;i++)w->s.uv[i].w=(u8)next();
 }
 static Event *event(s32 op,void *cursor){Event *e;unsigned i;u32 h=2166136261U;
@@ -49,7 +49,7 @@ static Event *event(s32 op,void *cursor){Event *e;unsigned i;u32 h=2166136261U;
 s32 rcos(s32 angle){Event *e=event(1,0);unsigned n=(scenario+w->count)%9;s32 v=sineValues[n];
  e->args[0]=angle;e->args[1]=v;sineSeen[n]++;change();return v;
 }
-void *func_8001F5B4(u32 *ot,void *p,s32 x,s32 y,const char *text,s32 clut,s32 spacing,s32 color){
+void *AddTextSprites(u32 *ot,void *p,s32 x,s32 y,const char *text,s32 clut,s32 spacing,s32 color){
  Event *e=event(2,p);assert(ot==ordering&&text[0]&&text[1]==0&&text[2]==0&&text[3]==0);
  assert(clut==32760||clut==32761);clutSeen[clut-32760]++;
  e->args[0]=x;e->args[1]=y;e->args[2]=clut;e->args[3]=spacing;e->args[4]=color;memcpy(e->text,text,4);change();return (u8*)p+20;
@@ -58,10 +58,10 @@ void *func_8001FF84(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s3
  Event *e=event(3,p);assert(ot==ordering&&uv>=w->s.uv&&uv<w->s.uv+128);assert(clut==32760||clut==32761);clutSeen[clut-32760]++;
  e->args[0]=x;e->args[1]=y;e->args[2]=clut;e->args[3]=color;e->args[4]=uv-w->s.uv;memcpy(e->text,uv,4);change();return (u8*)p+20;
 }
-void *func_8001FD20(u32 *ot,void *p,s32 x,s32 y,s32 a,s32 b,s32 r,s32 g,s32 blue){
+void *AddTilePrim(u32 *ot,void *p,s32 x,s32 y,s32 a,s32 b,s32 r,s32 g,s32 blue){
  Event *e=event(4,p);assert(ot==ordering);e->args[0]=x;e->args[1]=y;e->args[2]=a;e->args[3]=b;e->args[4]=r;e->args[5]=g;e->args[6]=blue;change();return (u8*)p+24;
 }
-void *func_8001FCC8(u32 *ot,void *p,u16 mode){Event *e=event(5,p);assert(ot==ordering);e->args[0]=mode;change();return (u8*)p+12;}
+void *AddDrawModePrim(u32 *ot,void *p,u16 mode){Event *e=event(5,p);assert(ot==ordering);e->args[0]=mode;change();return (u8*)p+12;}
 ''' + body + r'''
 static void pulse(unsigned selected,s32 *clut,s32 *color){
  *clut=32760;*color=0;
@@ -72,16 +72,16 @@ static void pulse(unsigned selected,s32 *clut,s32 *color){
 static void expected(s32 row){s32 x=w->s.rows[row].x04+36,y=w->s.rows[row].y06+56,clut,color;unsigned i,dx=0;void *p=arena;
  for(i=0;i<40;i++){
   char text[4]={(char)D_8009F7E4[i+1],0,0,0};pulse((u32)w->s.selection==i,&clut,&color);
-  p=func_8001F5B4(ordering,p,x+(i%10)*24,y+(i/10)*32,text,clut,0,color);
+  p=AddTextSprites(ordering,p,x+(i%10)*24,y+(i/10)*32,text,clut,0,color);
  }
- p=func_8001FD20(ordering,p,x-16,y+136,256,2,255,255,255);
+ p=AddTilePrim(ordering,p,x-16,y+136,256,2,255,255,255);
  for(i=0;i<4;i++){
-  p=func_8001FD20(ordering,p,x-12+dx,y+144,1,16,255,255,255);dx+=4;
+  p=AddTilePrim(ordering,p,x-12+dx,y+144,1,16,255,255,255);dx+=4;
   if(i!=3){unsigned key=ovl662_D_80126230[i];pulse((u32)w->s.selection==40+i,&clut,&color);
    p=func_8001FF84(ordering,p,x-12+dx,y+144,&w->s.uv[key],clut,color);dx+=4+w->s.uv[key].w;
   }
  }
- func_8001FCC8(ordering,p,56);
+ AddDrawModePrim(ordering,p,56);
 }
 int main(void){unsigned i,j;uint64_t cases=0;
  assert(sizeof(RrCharacterGridAddress)==sizeof(void*)&&(uintptr_t)arena>UINT32_MAX);
@@ -92,8 +92,8 @@ int main(void){unsigned i,j;uint64_t cases=0;
   w->s.tick=word(next());w->s.selection=(s32)(scenario%50)-3;
   if(scenario%64==0)w->s.selection=INT32_MIN;else if(scenario%64==1)w->s.selection=INT32_MAX;
   if((u32)w->s.selection<43)selectedSeen[w->s.selection]++;
-  actual=reference=initial;w=&actual;D_800F3AFC=w->s.rows;ovl662_func_80117F54(ordering,arena,scenario%4);
-  w=&reference;D_800F3AFC=w->s.rows;expected(scenario%4);
+  actual=reference=initial;w=&actual;BadgeRows=w->s.rows;ovl662_func_80117F54(ordering,arena,scenario%4);
+  w=&reference;BadgeRows=w->s.rows;expected(scenario%4);
   assert(!memcmp(&actual,&reference,sizeof(actual)));cases++;
  }
  assert(cases==65536);for(i=0;i<43;i++)assert(selectedSeen[i]);for(i=0;i<9;i++)assert(sineSeen[i]);assert(clutSeen[0]&&clutSeen[1]);return 0;

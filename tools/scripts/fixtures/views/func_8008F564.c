@@ -9,17 +9,17 @@
 
 #undef D_80112750
 
-extern s32 func_8008C12C();
+extern s32 CdReadyCallback();
 
-extern s32 func_8008C55C();
+extern s32 CdDataCallback();
 
 extern s32 func_80096DB8();
 
 extern s32 func_80096DE0();
 
-extern s32 func_80096F04();
+extern s32 EnterCriticalSection();
 
-extern s32 func_80096F14();
+extern s32 ExitCriticalSection();
 
 extern s32 D_800A64A8;
 
@@ -28,13 +28,13 @@ extern s8 *D_800A6800;
 extern s8 *D_800A680C;
 
 void StUnSetRing(void) {
-    func_80096F04();
+    EnterCriticalSection();
     if (D_800A64A8 == 1) {
         func_80096DE0(0);
         func_80096DB8(0);
     } else {
-        func_8008C55C(0);
-        func_8008C12C(0);
+        CdDataCallback(0);
+        CdReadyCallback(0);
     }
     *D_800A6800 = 0;
     {
@@ -43,5 +43,5 @@ void StUnSetRing(void) {
         __asm__ volatile("nop" : : "r"(port));
         *port = 0;
     }
-    func_80096F14();
+    ExitCriticalSection();
 }

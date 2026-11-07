@@ -8,10 +8,10 @@
 
 extern int D_800A67CC[];
 
-s32 func_8008F194(s32 value);
-s32 func_8008F1A8(s32 value);
+s32 CdReadCallback(s32 value);
+s32 CdReadMode(s32 value);
 
-int func_8008F090(a0, a1) int a0, a1; {
+int CdReadSync(a0, a1) int a0, a1; {
     int s0;
     int *p = D_800A67CC;
     int *q = D_800A67CC + 2;
@@ -30,18 +30,18 @@ int func_8008F090(a0, a1) int a0, a1; {
         }
         break;
     }
-    func_8008C0F8(1, a1);
+    CdReady(1, a1);
     if (q[0] != 0 && s0 == 0) s0 = 1;
     return s0;
 }
 
-s32 func_8008F194(s32 value) {
-    s32 previous = D_800A63F0;
+s32 CdReadCallback(s32 value) {
+    s32 previous = CD_cbread;
     /* ASM_BARRIER: use the original assembler temporary for the store address. */
     register s32 *base __asm__("$1");
     /* ASM_BARRIER: load the prior value before materializing the store address. */
     __asm__ volatile("" : "=r"(previous) : "0"(previous) : "$1");
-    /* PAL RAM mapping: D_800A63F0 is base plus the signed offset below. */
+    /* PAL RAM mapping: CD_cbread is base plus the signed offset below. */
     base = (s32 *)0x800A0000U;
     /* ASM_BARRIER: expose a register-relative store so it can occupy the return slot. */
     __asm__("" : "=r"(base) : "0"(base));
@@ -49,13 +49,13 @@ s32 func_8008F194(s32 value) {
     return previous;
 }
 
-s32 func_8008F1A8(s32 value) {
-    s32 previous = D_800A63F4;
+s32 CdReadMode(s32 value) {
+    s32 previous = CD_read_dma_mode;
     /* ASM_BARRIER: use the original assembler temporary for the store address. */
     register s32 *base __asm__("$1");
     /* ASM_BARRIER: load the prior value before materializing the store address. */
     __asm__ volatile("" : "=r"(previous) : "0"(previous) : "$1");
-    /* PAL RAM mapping: D_800A63F4 is base plus the signed offset below. */
+    /* PAL RAM mapping: CD_read_dma_mode is base plus the signed offset below. */
     base = (s32 *)0x800A0000U;
     /* ASM_BARRIER: expose a register-relative store so it can occupy the return slot. */
     __asm__("" : "=r"(base) : "0"(base));

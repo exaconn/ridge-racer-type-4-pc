@@ -1,14 +1,14 @@
 #include "rr/library.h"
 
-extern RrLibStateB0 *D_8010F068[];
+extern RrLibStateB0 *_ss_score[];
 
-extern void func_80089E1C(s16, s32, s32, s32);
+extern void _SsVmSeqKeyOff(s16, s32, s32, s32);
 
-extern void func_80087044(void);
+extern void _SsVmDamperOff(void);
 
-void func_80083AF4(s32 a0, s32 a1) {
+void _SsSndStop(s32 a0, s32 a1) {
     s32 t = a0 << 16;
-    RrLibStateB0 **b = D_8010F068;
+    RrLibStateB0 **b = _ss_score;
     RrLibStateB0 **q = (RrLibStateB0 **)((s32)b + (t >> 14));
     s32 o = (s16)a1 * 0xB0;
     s32 a;
@@ -22,8 +22,8 @@ void func_80083AF4(s32 a0, s32 a1) {
     p4 = (RrLibStateB0 *)(o + (s32)*q);
     p4->w98 &= ~0x400;
     ((RrLibStateB0 *)(o + (s32)*q))->w98 |= 4;
-    func_80089E1C(a0 | a, a, (s32)p4, -0x401);
-    func_80087044();
+    _SsVmSeqKeyOff(a0 | a, a, (s32)p4, -0x401);
+    _SsVmDamperOff();
     c->b14 = 0; c->w88 = 0; c->b1c = 0; c->b18 = 0; c->b19 = 0; c->b1e = 0; c->b1a = 0; c->b1b = 0; c->b1f = 0; c->b17 = 0; c->b21 = 0; c->b1c = 0; c->b1d = 0; c->b15 = 0; c->b16 = 0;
     c->w90 = *(s32 *)((char *)c + 0x84);
     *(s32 *)((char *)c + 0x94) = *(s32 *)((char *)c + 0x8c);

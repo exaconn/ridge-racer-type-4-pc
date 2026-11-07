@@ -5,7 +5,7 @@ import subprocess,re,sys
 import os
 os.chdir(Path(__file__).resolve().parents[2])
 p=Path('build/goal_50/parallel666_preview');body=read_c_source(Path(sys.argv[1] if len(sys.argv)>1 else Path('src/overlays/PAL/666/func_80115C5C.c')));body=body[body.index('void ovl666_update_preview'):];body=re.sub(r' __asm__\("\$\d+"\)', '', body)
-encode=read_c_source(Path('tools/scripts/fixtures/views/func_8003708C.c')).replace('func_8003708C','actual_encode');decode=read_c_source(Path('tools/scripts/fixtures/views/func_80037040.c')).replace('func_80037040','actual_decode')
+encode=read_c_source(Path('tools/scripts/fixtures/views/func_8003708C.c')).replace('PackChoiceGlyph','actual_encode');decode=read_c_source(Path('tools/scripts/fixtures/views/func_80037040.c')).replace('UnpackChoiceGlyph','actual_decode')
 src=r'''
 #include <stdint.h>
 #include <stddef.h>
@@ -30,11 +30,11 @@ src=r'''
 #include "rr/preview_rgb.h"
 #include "rr/overlay_menu.h"
 #include "rr/tables.h"
-void func_80033A74(s32);void func_8006EF8C(s32);s32 func_8003AE4C(s32,s32);s32 func_8003708C(s8 *);
-void func_8002E394(RrRaceVehicle *);void func_80014A8C(s32);void func_800207D4(u32 *,s32,u32);void func_8003EC88(s32);
+void func_80033A74(s32);void SetupViewport(s32);s32 func_8003AE4C(s32,s32);s32 PackChoiceGlyph(s8 *);
+void SetCarBounds(RrRaceVehicle *);void SetModelTexturePage(s32);void func_800207D4(u32 *,s32,u32);void DrawUiRow(s32);
 void func_80037198(s32);void func_8002E5A0(RrRaceVehicle *);void func_8002CC88(RrRaceVehicle *,RrPreviewRgb3,s32,s32);
-void func_8003D6F0(s32);s32 func_8003FBA8(s32);void func_8002A344(s32);
-void func_8002AF8C(s32,s32,s32);void func_8002B330(s32,s32,char*,s32,s32);void func_80037040(s8*,s32);void ResetScreenCounters(void);void PlaySfx(s32);void func_80053CB0(void);void func_80053AF4(s32,s32);void ovl666_init_menu(void);
+void UpdateBadgeRowAnim(s32);s32 func_8003FBA8(s32);void UpdateScreenFade(s32);
+void func_8002AF8C(s32,s32,s32);void StepMenuValue(s32,s32,char*,s32,s32);void UnpackChoiceGlyph(s8*,s32);void ResetScreenCounters(void);void PlaySfx(s32);void func_80053CB0(void);void func_80053AF4(s32,s32);void ovl666_init_menu(void);
 static struct State {u32 guard[4];s32 frame,player,rowCount; u16 state; s16 scene,timer,menu,row,course,d44,limitAlias;u16 enable,be8; s16 highCourse;u8 courseMap[8]; s32 overlayMode,ready; RrMenuSelectionWord32 selected; s16 limits[4];u16 courseTable[4][4];
  RrRaceVehicle vehicles[2];RrMenuItemState5C input[2];RrUiRow24 rows[2][7];RrBadgeRow1C badges[2][2];RrFrameStorage contexts[2];
  RrCurrentSelection choice;RrMenuGridPoint grid[4];RrCourseChoice4 courses[4][9];RrMenuArenas arenas;void *published;
@@ -43,12 +43,12 @@ static u8 buffers[3][32];
 #define D_800AD522 w->highCourse
 #define D_8009F64C w->courseMap
 #define D_800F2DE4 w->frame
-#define D_800F4BEC w->rowCount
+#define UiRowCount w->rowCount
 #define D_800F4D8A w->state
 #define D_800F3A26 w->scene
 #define D_800F4C6A w->enable
 #define D_800AC5D0 w->timer
-#define D_800AC64A w->menu
+#define MenuCursor w->menu
 #define D_800F3826 w->row
 #define ovl666_selected_course w->selected
 #define ovl666_course_counts w->limits
@@ -62,18 +62,18 @@ static u8 buffers[3][32];
 #define D_800F4BE8 w->be8
 #define ScreenFrame w->player
 #define D_800F4D40 w->arenas.second
-#define D_800ABEF8 w->vehicles
+#define PlayerCars w->vehicles
 #define D_800F3A38 w->input
-#define D_800F4D80 (w->rows[w->root])
-#define D_800F3AFC (w->badges[w->badgeRoot])
+#define UiRows (w->rows[w->root])
+#define BadgeRows (w->badges[w->badgeRoot])
 #define D_800ACC14 (&w->contexts[w->contextRoot])
 #define D_800F4D98 w->choice
 #define D_800ACBD0 w->grid
 #define D_800ABE08 w->courses
-#define D_800ACC18 w->published
+#define LoadCursor w->published
 #define D_800F4D70 w->arenas
 #define D_800F2AB0 (w->modes[w->modeRoot])
-'''+body+encode+decode+read_c_source(Path('tools/scripts/fixtures/views/func_80032E9C.c')).replace('func_80032E9C','actual_course')+r'''
+'''+body+encode+decode+read_c_source(Path('tools/scripts/fixtures/views/func_80032E9C.c')).replace('DecodeCourseIndex','actual_course')+r'''
 static struct Event {unsigned kind;s32 a[8];struct State before;}events[48];
 static unsigned scenario,profile,serial,count,seen,coverage[24],actions[7],colors[2],exits[4],changed[2],completed[2];static int referenceRun;
 static s16 half(u16 v){s16 r;memcpy(&r,&v,2);return r;}static s32 word(u32 v){s32 r;memcpy(&r,&v,4);return r;}
@@ -91,51 +91,51 @@ static void effect(unsigned k){unsigned n=serial++;if(!(profile&1))return;u32 v=
  for(unsigned j=0;j<2;j++){for(unsigned i=0;i<7;i++)w->rows[j][i].byte14=((scenario>>11)&1)?2:5;w->modes[j][1]=(scenario/4+n+j)%12;w->modes[j][2]=(u8)(scenario+7*n);}
 }
 void func_80033A74(s32 a){record(0,a,0,0,0,0,0,0,0);effect(0);}
-void func_8006EF8C(s32 a){record(1,a,0,0,0,0,0,0,0);effect(1);}
+void SetupViewport(s32 a){record(1,a,0,0,0,0,0,0,0);effect(1);}
 s32 func_8003AE4C(s32 a,s32 b){record(2,a,b,0,0,0,0,0,0);effect(2);static const u32 values[]={0,1,0x10001,1,0xFFFFFF01,1,0xFFFFFFFF,1};return word(values[scenario%8]);}
-void func_8002E394(RrRaceVehicle *p){assert(p==w->vehicles&&(uintptr_t)p>UINT32_MAX);record(3,0,0,0,0,0,0,0,0);effect(3);}
+void SetCarBounds(RrRaceVehicle *p){assert(p==w->vehicles&&(uintptr_t)p>UINT32_MAX);record(3,0,0,0,0,0,0,0,0);effect(3);}
 void func_8002AF8C(s32 a,s32 b,s32 c){record(4,a,b,c,0,0,0,0,0);effect(4);}
-s32 func_8003708C(s8 *p){assert(p==(s8*)&w->choice);record(5,0,0,0,0,0,0,0,0);if(referenceRun)return w->choice.selection.primary*160+w->choice.selection.variant*40+w->choice.selection.pad02[0];return actual_encode(p);}
-void func_8002B330(s32 a,s32 b,char *p,s32 d,s32 e){unsigned target;if(p==(char*)&w->selected.halves[0])target=0;else if(p==(char*)&w->menu)target=1;else{assert(p==(char*)&w->choice.selection.pad02[1]);target=2;}assert((uintptr_t)p>UINT32_MAX);
+s32 PackChoiceGlyph(s8 *p){assert(p==(s8*)&w->choice);record(5,0,0,0,0,0,0,0,0);if(referenceRun)return w->choice.selection.primary*160+w->choice.selection.variant*40+w->choice.selection.pad02[0];return actual_encode(p);}
+void StepMenuValue(s32 a,s32 b,char *p,s32 d,s32 e){unsigned target;if(p==(char*)&w->selected.halves[0])target=0;else if(p==(char*)&w->menu)target=1;else{assert(p==(char*)&w->choice.selection.pad02[1]);target=2;}assert((uintptr_t)p>UINT32_MAX);
  record(6,a,b,target,d,e,0,0,0);effect(6);if(target==0)w->selected.halves[0]=(scenario+serial)%9;else if(target==1)w->menu=(scenario/4+serial)%2;else w->choice.selection.pad02[1]=(scenario+serial)%2;
 }
-void func_80037040(s8 *p,s32 a){assert(p==(s8*)&w->choice);record(7,a,0,0,0,0,0,0,0);if(referenceRun){w->choice.selection.primary=a/160;w->choice.selection.variant=(a%160)/40;w->choice.selection.pad02[0]=a%40;}else actual_decode(p,a);}
+void UnpackChoiceGlyph(s8 *p,s32 a){assert(p==(s8*)&w->choice);record(7,a,0,0,0,0,0,0,0);if(referenceRun){w->choice.selection.primary=a/160;w->choice.selection.variant=(a%160)/40;w->choice.selection.pad02[0]=a%40;}else actual_decode(p,a);}
 void ResetScreenCounters(void){record(8,0,0,0,0,0,0,0,0);effect(8);}
-void func_80014A8C(s32 a){record(9,a,0,0,0,0,0,0,0);effect(9);}
+void SetModelTexturePage(s32 a){record(9,a,0,0,0,0,0,0,0);effect(9);}
 void PlaySfx(s32 a){record(10,a,0,0,0,0,0,0,0);effect(10);}
 void ovl666_init_menu(void){record(11,0,0,0,0,0,0,0,0);effect(11);}
 void func_800207D4(u32 *p,s32 a,u32 b){assert(p==&w->contexts[w->contextRoot].ordering.ordering70&&(uintptr_t)p>UINT32_MAX);record(12,w->contextRoot,a,b,0,0,0,0,0);effect(12);}
-void func_8003EC88(s32 a){record(13,a,0,0,0,0,0,0,0);effect(13);}
+void DrawUiRow(s32 a){record(13,a,0,0,0,0,0,0,0);effect(13);}
 void func_80037198(s32 a){record(14,a,0,0,0,0,0,0,0);effect(14);}
 void func_8002E5A0(RrRaceVehicle *p){assert(p==w->vehicles&&(uintptr_t)p>UINT32_MAX);record(15,0,0,0,0,0,0,0,0);effect(15);}
 void func_8002CC88(RrRaceVehicle *p,RrPreviewRgb3 c,s32 a,s32 b){assert(p==w->vehicles);record(16,c.r,c.g,c.b,a,b,0,0,0);effect(16);}
-void func_8003D6F0(s32 a){record(17,a,0,0,0,0,0,0,0);effect(17);}
+void UpdateBadgeRowAnim(s32 a){record(17,a,0,0,0,0,0,0,0);effect(17);}
 s32 func_8003FBA8(s32 a){record(18,a,0,0,0,0,0,0,0);effect(18);return half(scenario);}
 void func_8002B12C(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){record(19,a,b,c,d,e,f,g,0);effect(19);}
-void func_8002A344(s32 a){record(19,a,0,-1,0,0,0,0,0);effect(19);}
-s32 func_80032E9C(s32 a){record(20,a,0,0,0,0,0,0,0);effect(20);if(referenceRun){w->highCourse=a>=8;return w->courseMap[a&7];}return actual_course(a);}
+void UpdateScreenFade(s32 a){record(19,a,0,-1,0,0,0,0,0);effect(19);}
+s32 DecodeCourseIndex(s32 a){record(20,a,0,0,0,0,0,0,0);effect(20);if(referenceRun){w->highCourse=a>=8;return w->courseMap[a&7];}return actual_course(a);}
 void func_80053CB0(void){record(21,0,0,0,0,0,0,0,0);effect(21);}
 void func_80053AF4(s32 a,s32 b){record(22,a,b,0,0,0,0,0,0);effect(22);}
 /* Independent control flow transcribed from original overlay666 MIPS.
  * All services record complete pre-call worlds before deterministic callbacks. */
 static void closeTwo(void){for(int i=3;i<5;i++)if(w->rows[w->root][i].byte14==2)w->rows[w->root][i].byte14=3;}
 static void expected(void){int ready=0;w->frame=word((u32)w->frame+1);w->player=word((u32)w->player+1);w->vehicles[0].rot54=((u32)w->vehicles[0].rot54+8)&4095;
- func_80033A74(1);func_8006EF8C(6);
+ func_80033A74(1);SetupViewport(6);
  if(w->state!=3){int completion=func_8003AE4C(0,1);completed[completion==1]++;
   if(completion!=1){if((s8)w->modes[w->modeRoot][1]==1)w->modes[w->modeRoot][1]=0;goto footer;}
-  func_8002E394(w->vehicles);if((s8)w->modes[w->modeRoot][1]==7)w->modes[w->modeRoot][1]=1;
+  SetCarBounds(w->vehicles);if((s8)w->modes[w->modeRoot][1]==7)w->modes[w->modeRoot][1]=1;
  }
  ready=1;
  switch(w->state){
- case 0:{func_8002AF8C(1,1,1);int old=func_8003708C((s8*)&w->choice);func_8002B330(1,2,(char*)&w->selected.halves[0],w->limits[w->row],0);func_80037040((s8*)&w->choice,w->courses[w->row][w->selected.word].glyph);int current=func_8003708C((s8*)&w->choice);changed[(u16)old!=(u16)current]++;
-  if((u16)old!=(u16)current){ResetScreenCounters();w->published=w->arenas.second;func_80037040((s8*)&w->choice,w->courses[w->row][w->selected.word].glyph);w->grid[0].first=w->courses[w->row][w->selected.word].first;w->grid[0].second=w->courses[w->row][w->selected.word].second;w->modes[w->modeRoot][1]=6;}
-  w->rows[w->root][w->menu+3].cells[0]=0;func_8002B330(0,2,(char*)&w->menu,2,0);w->rows[w->root][w->menu+3].cells[0]=2;int phase=w->rows[w->root][w->menu+3].byte14;
+ case 0:{func_8002AF8C(1,1,1);int old=PackChoiceGlyph((s8*)&w->choice);StepMenuValue(1,2,(char*)&w->selected.halves[0],w->limits[w->row],0);UnpackChoiceGlyph((s8*)&w->choice,w->courses[w->row][w->selected.word].glyph);int current=PackChoiceGlyph((s8*)&w->choice);changed[(u16)old!=(u16)current]++;
+  if((u16)old!=(u16)current){ResetScreenCounters();w->published=w->arenas.second;UnpackChoiceGlyph((s8*)&w->choice,w->courses[w->row][w->selected.word].glyph);w->grid[0].first=w->courses[w->row][w->selected.word].first;w->grid[0].second=w->courses[w->row][w->selected.word].second;w->modes[w->modeRoot][1]=6;}
+  w->rows[w->root][w->menu+3].cells[0]=0;StepMenuValue(0,2,(char*)&w->menu,2,0);w->rows[w->root][w->menu+3].cells[0]=2;int phase=w->rows[w->root][w->menu+3].byte14;
   if(phase==2){if(w->input[0].a){w->rows[w->root][w->menu+3].cells[0]=1;if(w->menu==0){actions[0]++;PlaySfx(1);w->overlayMode=2;w->state=4;}else if(w->menu==1){actions[1]++;PlaySfx(1);closeTwo();w->modes[w->modeRoot][1]=3;w->state=5;w->badges[w->badgeRoot][0].state10=4;}}
    else if(w->input[0].b){actions[2]++;PlaySfx(2);closeTwo();w->modes[w->modeRoot][1]=3;w->state=5;w->badges[w->badgeRoot][0].state10=4;}}
   break;}
- case 3:{func_8002AF8C(0,1,1);if(w->timer>0)w->timer=half((u16)w->timer-1);func_80014A8C(-1);func_800207D4(&w->contexts[w->contextRoot].ordering.ordering70,(64-w->timer)*4,69);int completion=func_8003AE4C(1,1);
-  if(completion==1&&w->timer<=0){exits[0]++;w->d44=6;u16 course=w->courseTable[w->choice.selection.primary][w->choice.selection.variant];w->ready=completion;w->limitAlias=course;w->course=func_80032E9C(half(course));func_80053CB0();w->be8=0;w->enable=completion;w->scene=35;w->state=0;w->arenas.first=w->published;}break;}
- case 4:{int phase=w->rows[w->root][5].byte14;if(phase==2){w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=0;func_8002B330(0,1,(char*)&w->choice.selection.pad02[1],2,0);w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=phase;
+ case 3:{func_8002AF8C(0,1,1);if(w->timer>0)w->timer=half((u16)w->timer-1);SetModelTexturePage(-1);func_800207D4(&w->contexts[w->contextRoot].ordering.ordering70,(64-w->timer)*4,69);int completion=func_8003AE4C(1,1);
+  if(completion==1&&w->timer<=0){exits[0]++;w->d44=6;u16 course=w->courseTable[w->choice.selection.primary][w->choice.selection.variant];w->ready=completion;w->limitAlias=course;w->course=DecodeCourseIndex(half(course));func_80053CB0();w->be8=0;w->enable=completion;w->scene=35;w->state=0;w->arenas.first=w->published;}break;}
+ case 4:{int phase=w->rows[w->root][5].byte14;if(phase==2){w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=0;StepMenuValue(0,1,(char*)&w->choice.selection.pad02[1],2,0);w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=phase;
    if(w->input[0].a){actions[3]++;PlaySfx(1);func_8002AF8C(0,1,1);w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=1;w->rows[w->root][5].byte14=w->rows[w->root][6].byte14=7;
     u8 bytes[4];memcpy(bytes,&w->choice,4);memcpy(&w->choice.selection.rows[0],bytes,4);w->choice.selection.rows[0].parameter=19;w->course=0;w->state=3;ResetScreenCounters();w->timer=64;func_80053AF4(0,60);w->arenas.first=w->published;
    }else if(w->input[0].b){actions[4]++;PlaySfx(2);w->rows[w->root][5].byte14=w->rows[w->root][6].byte14=3;w->state=6;}}
@@ -144,11 +144,11 @@ static void expected(void){int ready=0;w->frame=word((u32)w->frame+1);w->player=
  case 5:func_8002AF8C(0,1,1);if(w->rows[w->root][3].byte14==5&&(s8)w->modes[w->modeRoot][1]==5){exits[1]++;ResetScreenCounters();ovl666_init_menu();w->enable=1;w->scene=79;w->state=0;goto title;}break;
  }
 footer:
- for(int i=3;i<5;i++)func_8003EC88(i);if(w->overlayMode==2){func_8003EC88(5);func_8003EC88(6);}
+ for(int i=3;i<5;i++)DrawUiRow(i);if(w->overlayMode==2){DrawUiRow(5);DrawUiRow(6);}
  if((u8)((s8)w->modes[w->modeRoot][1]-1)<2&&ready==1){func_80037198(0);func_8002E5A0(w->vehicles);RrPreviewRgb3 c;int scale,flags;
   if((s8)w->modes[w->modeRoot][1]==ready){colors[0]++;unsigned level=w->modes[w->modeRoot][2];c.r=c.g=c.b=(u8)~(level*255/30);scale=level*256/30;flags=258;}else{colors[1]++;c.r=c.g=c.b=128;scale=256;flags=1;}func_8002CC88(w->vehicles,c,scale,flags);}
- func_8003D6F0(0);if(func_8003FBA8(0)>0&&w->limits[w->row]>=2)func_8002B12C(160,144,8,1,w->selected.word,0,w->limits[w->row]);
-title:func_8002A344(0x10036);
+ UpdateBadgeRowAnim(0);if(func_8003FBA8(0)>0&&w->limits[w->row]>=2)func_8002B12C(160,144,8,1,w->selected.word,0,w->limits[w->row]);
+title:UpdateScreenFade(0x10036);
 }
 int main(void){assert(sizeof(void*)==8);for(scenario=0;scenario<65536;scenario++)for(profile=0;profile<14;profile++){
  memset(&actual,0xA6,sizeof(actual));w=&actual;static const u32 edge[]={0,0xFFFFFFFF,0x7FFFFFFF,0x80000000};w->frame=word((scenario&4)?scenario*0x1234567U:edge[scenario%4]);w->player=word((scenario&4)?scenario*0x9876543U:edge[scenario%4]);w->state=scenePhase();w->timer=half(scenario);w->menu=(scenario/4)%2;w->row=scenario%4;w->selected.word=scenario%9;for(int i=0;i<8;i++)w->courseMap[i]=(u8)(scenario+i*29);w->overlayMode=(scenario/16)%3;

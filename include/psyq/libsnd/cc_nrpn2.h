@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80080DC4();
+int _SsSetNrpnVabAttr3();
 
 #endif /* RR_PSYQ_LIBSND_CC_NRPN2_H */

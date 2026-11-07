@@ -23,7 +23,7 @@ s16 test_rom[4097];
 #define D_800A50C0 test_rom
 #define D_800A58C0 (test_rom+0x400)
 #define D_800A60C0 (test_rom+0x800)
-#define D_800A68C0 (test_rom+0xC00)
+#define SinTable (test_rom+0xC00)
 '''
         for source in ('trig_sine.c','func_800904F4.c'):
             body=(root/'tools/scripts/fixtures/views'/source).read_text()

@@ -61,11 +61,11 @@ s32 func_8001E84C(const char *message,...){
     return -456;
 }
 '''+body
-        for name in ('func_8008C0F8','func_8008C51C','CdIntToPos'):
+        for name in ('CdReady','CdGetSector','CdIntToPos'):
             code+='\n'+native_body((root/'tools/scripts/fixtures/views'/f'{name}.c').read_text())
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
-        cls.lib=C.CDLL(str(d/'f.so'));cls.f=cls.lib.func_8008F3B0;cls.f.argtypes=[];cls.f.restype=C.c_int32
+        cls.lib=C.CDLL(str(d/'f.so'));cls.f=cls.lib.CdGetDiskType;cls.f.argtypes=[];cls.f.restype=C.c_int32
         cls.values={name:C.c_int32.in_dll(cls.lib,name) for name in ('initial_status','final_status','second_status','ready_attempt','poll_error','sector_return','polls','command_count','diagnostics','transfers','comparisons','sector_words','layout_ok')}
         cls.commands=(C.c_int32*16).in_dll(cls.lib,'commands');cls.sector=(C.c_uint8*2048).in_dll(cls.lib,'sector')
         cls.page=(C.c_uint8*(0x1D78+16)).in_dll(cls.lib,'message_page')

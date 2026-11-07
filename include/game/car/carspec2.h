@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_80049430(int x, int y, int z);
-int func_80049558();
+void AverageCarSpec(int x, int y, int z);
+int CalcRubberBandFactor();
 
 #endif /* RR_GAME_CAR_CARSPEC2_H */

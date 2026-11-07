@@ -35,7 +35,7 @@
 
 #undef D_800ABBC8
 
-void func_80094B28(unsigned long address) {
+void _cwc(unsigned long address) {
     *D_800ABBC8=0x04000002;
     *D_800ABBCC=(u32)address;
     *D_800ABBD0=0;

@@ -4,21 +4,21 @@
 
 #include "types.h"
 
-extern s32 func_8007F068(s32 mode, ...);
+extern s32 _spu_t(s32 mode, ...);
 
 extern s32 _SpuIsInAllocateArea_(u32 address);
 
-extern s32 func_80096E94(s32 event);
+extern s32 WaitEvent(s32 event);
 
-extern s32 D_800A47F4;
+extern s32 _spu_transMode;
 
-extern s32 D_800A4800;
+extern s32 _spu_mem_mode_plus;
 
-extern s32 D_800A4840;
+extern s32 _spu_EVdma;
 
-extern volatile s32 D_800A4810;
+extern volatile s32 _spu_transferCallback;
 
-extern u32 D_800A48C8[];
+extern u32 _spu_rev_startaddr[];
 
 extern u8 D_800A4938[];
 
@@ -31,31 +31,31 @@ s32 SpuClearReverbWorkArea(u32 preset) {
     s32 restore_mode = 0;
 
     if (preset >= 10) return -1;
-    base = (unsigned long)D_800A48C8;
+    base = (unsigned long)_spu_rev_startaddr;
     preset_address = (u32 *)(preset * 4 + base);
     if (_SpuIsInAllocateArea_(*preset_address) != 0) return -1;
 
-    /* The data initializer and func_8007EAC4 both set the shift to 3. */
+    /* The data initializer and _spu_init both set the shift to 3. */
     if (preset == 0) {
-        remaining = 0x10U << D_800A4800;
-        destination = 0xFFF0U << D_800A4800;
+        remaining = 0x10U << _spu_mem_mode_plus;
+        destination = 0xFFF0U << _spu_mem_mode_plus;
     } else {
         u32 address = *preset_address;
-        remaining = (0x10000U - address) << D_800A4800;
-        destination = address << D_800A4800;
+        remaining = (0x10000U - address) << _spu_mem_mode_plus;
+        destination = address << _spu_mem_mode_plus;
     }
-    saved_mode = D_800A47F4;
+    saved_mode = _spu_transMode;
     if (saved_mode == 1) {
-        D_800A47F4 = 0;
+        _spu_transMode = 0;
         /* ASM_BARRIER: reload 1 instead of reusing the comparison's v0.
          * This emits no instructions and has no effect on the algorithm. */
         __asm__ volatile("" : : : "$2");
         restore_mode = 1;
     }
     more = 1;
-    if (D_800A4810 != 0) {
-        saved_callback = D_800A4810;
-        D_800A4810 = 0;
+    if (_spu_transferCallback != 0) {
+        saved_callback = _spu_transferCallback;
+        _spu_transferCallback = 0;
     }
     do {
         preset = 0x400;
@@ -63,14 +63,14 @@ s32 SpuClearReverbWorkArea(u32 preset) {
             preset = remaining;
             more = 0;
         }
-        func_8007F068(2, destination);
-        func_8007F068(1);
-        func_8007F068(3, D_800A4938, preset);
-        func_80096E94(D_800A4840);
+        _spu_t(2, destination);
+        _spu_t(1);
+        _spu_t(3, D_800A4938, preset);
+        WaitEvent(_spu_EVdma);
         remaining -= 0x400;
         destination += 0x400;
     } while (more != 0);
-    if (restore_mode != 0) D_800A47F4 = saved_mode;
-    if (saved_callback != 0) D_800A4810 = saved_callback;
+    if (restore_mode != 0) _spu_transMode = saved_mode;
+    if (saved_callback != 0) _spu_transferCallback = saved_callback;
     return 0;
 }

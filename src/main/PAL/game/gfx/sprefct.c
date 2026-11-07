@@ -19,14 +19,14 @@ extern s32 func_80096464(void);
 /* extern */
 
 u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg);
-struct S32 *func_8002039C(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9);
+struct S32 *EmitPolyFT3(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9);
 void *func_80020508(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
 struct P *GameQueueTileTrans(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
 struct P *func_8002064C(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
 RrPolyF3Packet *func_8002071C(u32 *ordering,RrPolyF3Packet *packet,s32 xy0,s32 xy1,s32 xy2,const u8 *rgb,s32 flags);
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8001FCC8 (*(u8 *(*)(u32 *,u8 *,u16))&func_8001FCC8)
+#define AddDrawModePrim (*(u8 *(*)(u32 *,u8 *,u16))&AddDrawModePrim)
 
 u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg) {
     /* ASM_BARRIER: retain the loop bound in callee-saved S5 across helpers. */
@@ -101,19 +101,19 @@ u8 *func_8002018C(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,
             else page=descriptor->page;
             out_cursor=(u8 *)sprite;
             i++;
-            sprite=(RrSpritePacket *)func_8001FCC8((u32 *)(D_800ACC14+0x70),out_cursor,page);
+            sprite=(RrSpritePacket *)AddDrawModePrim((u32 *)(D_800ACC14+0x70),out_cursor,page);
         }
     }
     return (u8 *)sprite;
 }
 
-#undef func_8001FCC8
+#undef AddDrawModePrim
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((void (*)(u32 *, u32 *))AddPrim)
 
 /* extern */
-struct S32 *func_8002039C(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9) {
+struct S32 *EmitPolyFT3(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9) {
     func_80095B74(arg1);
     M2C_FIELD(arg1, u16 *, 8) = (u16) M2C_FIELD(arg2, u16 *, 0);
     M2C_FIELD(arg1, u16 *, 0xA) = (u16) M2C_FIELD(arg3, u16 *, 0);
@@ -206,7 +206,7 @@ struct P *func_8002064C(int a0, struct P *a1, short a2, short a3, int a4, int a5
 #define AddPrim ((void (*)(u32 *,u32 *))AddPrim)
 
 RrPolyF3Packet *func_8002071C(u32 *ordering,RrPolyF3Packet *packet,s32 xy0,s32 xy1,s32 xy2,const u8 *rgb,s32 flags){
- func_80095B54(packet);
+ SetPolyF3(packet);
  SetSemiTrans(packet,flags);
  packet->xy0=xy0;
  packet->xy1=xy1;

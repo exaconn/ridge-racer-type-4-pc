@@ -2,7 +2,7 @@
 
 #include "rr/library.h"
 
-void func_80080904(s32 bank, s32 row, s32 payload) {
+void _SsContNrpn2(s32 bank, s32 row, s32 payload) {
     /* ASM_BARRIER: Retain the original register for selector snapshots, lookup, or call scheduling. */
     register u32 raw_bank __asm__("$8") = bank;
     register u32 raw_row = row;
@@ -40,7 +40,7 @@ void func_80080904(s32 bank, s32 row, s32 payload) {
     case 20:
         state->b1b = payload;
         state->b1c = 1;
-        state->w90 = func_80081E04(normalized_bank, normalized_row);
+        state->w90 = _SsReadDeltaValue(normalized_bank, normalized_row);
         state->c8 = state->c0;
         break;
     case 30:
@@ -53,11 +53,11 @@ void func_80080904(s32 bank, s32 row, s32 payload) {
         }
         if (masked_count < 127) {
             state->b1d = count - 1;
-            state->w90 = func_80081E04(normalized_bank, normalized_row);
+            state->w90 = _SsReadDeltaValue(normalized_bank, normalized_row);
             if (state->b1d) state->c0 = state->c8;
             else state->b15 = 0;
         } else {
-            func_80081E04(normalized_bank, normalized_row);
+            _SsReadDeltaValue(normalized_bank, normalized_row);
             state->w90 = 0;
             state->c0 = state->c8;
         }
@@ -70,7 +70,7 @@ void func_80080904(s32 bank, s32 row, s32 payload) {
         state->b1b = value;
         state->b1f++;
     decode:
-        state->w90 = func_80081E04(normalized_bank, normalized_row);
+        state->w90 = _SsReadDeltaValue(normalized_bank, normalized_row);
         break;
     }
 }

@@ -24,7 +24,7 @@ static void record(struct World *w,s32 kind,s32 a,s32 b,unsigned long argument){
  Event *e;assert(w->calls<40);e=&w->events[w->calls++];e->kind=kind;e->first=a;e->second=b;e->argument=argument;
 }
 s32 ResetGraph(s32 mode){assert(world.phase==0);record(&world,1,mode,0,0);world.remaining=world.planned;world.phase=1;return world.ignored_reset;}
-s32 func_8009AEAC(s32 command,s32 operation,unsigned long argument){
+s32 _sio_control(s32 command,s32 operation,unsigned long argument){
  if(command==3 && operation==0 && argument==1){
   assert(world.phase==1);record(&world,2,command,operation,argument);world.phase=2;world.active=1;return world.ignored_enable;
  }

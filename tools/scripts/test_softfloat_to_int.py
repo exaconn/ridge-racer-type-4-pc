@@ -34,7 +34,7 @@ RrWide64 _dbl_shift(s32 direction,RrWide64 value,s32 count){
  assert(box.value.lo==(u32)shifted&&(u32)box.value.hi==(u32)(shifted>>32));
  for(unsigned i=0;i<4;i++){assert(box.guard[i]==0xA5A5A5A5U);assert(box.tail[i]==0xA5A5A5A5U);}return box.value;
 }
-s32 func_8007E9C4(s32 a,s32 b){errors++;category=a;operation=b;return signed_bits(next());}
+s32 _err_math(s32 a,s32 b){errors++;category=a;operation=b;return signed_bits(next());}
 '''+body+r'''
 static s32 oracle(uint64_t bits){u32 e=(u32)(bits>>52)&2047U;uint64_t magnitude=bits&0x7FFFFFFFFFFFFFFFULL;u32 result;
  if(!magnitude)return 0;
@@ -47,7 +47,7 @@ static s32 oracle(uint64_t bits){u32 e=(u32)(bits>>52)&2047U;uint64_t magnitude=
 static uint64_t cases;static unsigned exponentSeen[2048][2],branches[5];
 static void check(uint64_t bits){struct {u32 guard[4];u64 bits;u32 tail[4];} input,saved;s32 expected,result;u32 e=(u32)(bits>>52)&2047;unsigned sign=(unsigned)(bits>>63);int zero=(bits&0x7FFFFFFFFFFFFFFFULL)==0;
  memset(&input,0x5A,sizeof(input));input.bits=bits;saved=input;errors=shifts=0;category=operation=0;
- expected=oracle(bits);result=func_8007E0B4(input.bits);
+ expected=oracle(bits);result=__fixdfsi(input.bits);
  assert(result==expected);assert(!memcmp(&input,&saved,sizeof(input)));
  assert(errors==(!zero&&e>1053));assert(shifts==(!zero&&e<=1053));if(errors){assert(category==34&&operation==17);}
  if(zero)branches[0]++;else if(e>1053)branches[1]++;else if(e<1022)branches[2]++;else if(result)branches[3]++;else branches[4]++;

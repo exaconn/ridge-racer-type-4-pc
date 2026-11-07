@@ -4,7 +4,7 @@
 
 #define CONTROL(field) (*(__typeof__(((RrRaceVehicle *)0)->field) *)(controlBase + (RR_FIELD_OFFSET(RrRaceVehicle,field) - RR_RACE_CONTROL_OFFSET)))
 
-void func_80048DB0(RrRaceVehicle *vehicle) {
+void UpdateComCarLaneChange(RrRaceVehicle *vehicle) {
     s32 stepOutput;
     register s32 workingStep __asm__("$2");
     s16 mode;
@@ -48,7 +48,7 @@ void func_80048DB0(RrRaceVehicle *vehicle) {
         vehicle->rot54 = (s32) vehicle->heading1D4;
         break;
     case 1:
-        func_8004D420(&vehicle->steering288.primary34, CONTROL(steering288.timer02), &stepOutput);
+        EvalRateCurve(&vehicle->steering288.primary34, CONTROL(steering288.timer02), &stepOutput);
         workingStep=stepOutput;
         angle = (s32)((u32)CONTROL(steering288.angle0C) - (u32)workingStep);
         CONTROL(steering288.angle0C) = angle; asm("" : : "m"(CONTROL(steering288.angle0C)));
@@ -77,14 +77,14 @@ void func_80048DB0(RrRaceVehicle *vehicle) {
                 if (normalizedMotion < 0) {
                     normalizedMotion += 0xFF;
                 }
-                func_8004D354(&vehicle->steering288.secondary4C, (normalizedMotion >> 8) * 2, duration - quarterDuration, 0);
+                BuildRateCurve(&vehicle->steering288.secondary4C, (normalizedMotion >> 8) * 2, duration - quarterDuration, 0);
                 CONTROL(steering288.lateral24) = (s32) ((s32)((u32)(vehicle->lateralMotion178 / 256) << 12));
                 CONTROL(steering288.phase28) = (s32) mode;
             }
         }
         phase = CONTROL(steering288.phase28);
         if (phase > 0) {
-            func_8004D420(&CONTROL(steering288.secondary4C), phase - 1, &stepOutput);
+            EvalRateCurve(&CONTROL(steering288.secondary4C), phase - 1, &stepOutput);
             workingStep=CONTROL(steering288.lateral24);  lateral = (s32)((u32)workingStep - (u32)stepOutput);
             CONTROL(steering288.lateral24) = lateral;
             if (lateral < 0) {
@@ -123,7 +123,7 @@ void func_80048DB0(RrRaceVehicle *vehicle) {
             CONTROL(steering288.lateral24) = smoothedMotion;
             vehicle->lateralMotion178 = smoothedMotion;
         }
-        trackCount = D_800ABECC; nodeDelta = (s32)((u32)CONTROL(steering288.targetNode18) - (u32)vehicle->trackNodeF0);  nodeDelta %= trackCount;
+        trackCount = TrackNodeCount; nodeDelta = (s32)((u32)CONTROL(steering288.targetNode18) - (u32)vehicle->trackNodeF0);  nodeDelta %= trackCount;
         if ((trackCount / 2) < nodeDelta) {
             nodeDelta -= trackCount;
         }
@@ -151,7 +151,7 @@ applyTurn:
     }
 tail:
     if (vehicle->steeringLock1B8 == 0) {
-        angleDifference = func_80025F84(vehicle->rot54, vehicle->heading1D4);
+        angleDifference = AngleDiffAbs(vehicle->rot54, vehicle->heading1D4);
         if (angleDifference < 0x201) {
             adjustedDifference = angleDifference;
             if (angleDifference < 0) {

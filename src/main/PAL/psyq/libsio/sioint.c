@@ -16,19 +16,19 @@
 typedef struct { short p0, p2, p4, p6, w8; unsigned short wA; short pC; unsigned short wE; } W5A;
 
 extern s32 ResetGraph(s32);
-extern s32 func_80096F04(void);
-extern void func_80096F14(void);
+extern s32 EnterCriticalSection(void);
+extern void ExitCriticalSection(void);
 extern RrSerialPortRegisters D_801146C0;
 extern volatile s32 D_801146D0;
 extern s16 D_800ABD34[];
 extern volatile s32 *D_800ABD1C;
-extern s32 func_80096E64(u32, s32);
-extern void func_80097704();
-extern void func_80097714();
+extern s32 DeliverEvent(u32, s32);
+extern void SysEnqIntRP();
+extern void SysDeqIntRP();
 extern char D_800ABD20[];
 extern u16 D_801146CA;
 
-s32 func_8009AEAC(u32 arg0, u32 arg1, u32 arg2);
+s32 _sio_control(u32 arg0, u32 arg1, u32 arg2);
 s32 func_8009B3FC(void);
 int func_8009B758(void);
 s32 func_8009B84C(void);
@@ -36,7 +36,7 @@ s32 func_8009B854(void);
 int func_8009B8EC();
 s32 func_8009B9D4(void);
 
-s32 func_8009AEAC(u32 arg0, u32 arg1, u32 arg2) {
+s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
     s32 ret = 0;
 
     switch (arg0) {
@@ -139,7 +139,7 @@ s32 func_8009AEAC(u32 arg0, u32 arg1, u32 arg2) {
     case 2:
         switch (arg1) {
         case 0: {
-            s32 v = func_80096F04();
+            s32 v = EnterCriticalSection();
             RrSerialPortRegisters *port = D_800ABD18;
             port->control |= 0x50;
             port->mode = D_801146C0.mode;
@@ -148,7 +148,7 @@ s32 func_8009AEAC(u32 arg0, u32 arg1, u32 arg2) {
             port->control |= 0x10;
             ret = 0;
             if (v == 1) {
-                func_80096F14();
+                ExitCriticalSection();
             }
             break;
         }
@@ -157,22 +157,22 @@ s32 func_8009AEAC(u32 arg0, u32 arg1, u32 arg2) {
             D_800ABD18->control |= 0x10;
             break;
         case 2: {
-            s32 v = func_80096F04();
+            s32 v = EnterCriticalSection();
             D_800ABD18->control &= ~0x400;
             D_801146D8.request.active = 0;
             D_801146D8.request.second = 0;
             if (v == 1) {
-                func_80096F14();
+                ExitCriticalSection();
             }
             break;
         }
         case 3: {
-            s32 v = func_80096F04();
+            s32 v = EnterCriticalSection();
             D_800ABD18->control &= ~0x820;
             D_801146E8.active = 0;
             D_801146E8.second = 0;
             if (v == 1) {
-                func_80096F14();
+                ExitCriticalSection();
             }
             break;
         }
@@ -258,7 +258,7 @@ s32 func_8009B3FC(void) {
         D_800ABD18->mode = cfg[0];
         D_800ABD18->baud = cfg[3];
         *(u16 *)&D_800ABD18->control = D_800ABD18->control | 0x10;
-        func_80096E64(0xF000000B, 0x8000);
+        DeliverEvent(0xF000000B, 0x8000);
         return 0;
     }
     {
@@ -299,7 +299,7 @@ s32 func_8009B3FC(void) {
                 if (tx->second == 0) {
                     tx->active = 0;
                     *(u16 *)&D_800ABD18->control = D_800ABD18->control & ~0x820;
-                    func_80096E64(0xF000000B, 0x400);
+                    DeliverEvent(0xF000000B, 0x400);
                 }
             }
             D_800ABD18->control ^= 2;
@@ -313,7 +313,7 @@ s32 func_8009B3FC(void) {
             ((D_800ABD18->status & 0x80) == rx->receive_status)) {
             if (rx->request.second == 0) {
                 rx->request.active = 0;
-                func_80096E64(0xF000000B, 0x800);
+                DeliverEvent(0xF000000B, 0x800);
             } else {
                 rx->receive_status ^= 0x80;
                 D_800ABD18->data = *(u8 *)D_801146D8.request.first;
@@ -351,8 +351,8 @@ int func_8009B758(void) {
     b->wA |= 0x10;
     ((W5A *)b)->wA = a->wA;
     s = D_800ABD20;
-    func_80097714(3, s);
-    func_80097704(3, s);
+    SysDeqIntRP(3, s);
+    SysEnqIntRP(3, s);
     D_800ABD30[1] |= 0x100;
     e = D_801146E8;
     d = D_801146D8;
@@ -385,7 +385,7 @@ s32 func_8009B854(void) {
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABD20 (*(u8 (*)[])&D_800ABD20)
-#define func_80097714 ((s32 (*)(s32,void *))func_80097714)
+#define SysDeqIntRP ((s32 (*)(s32,void *))SysDeqIntRP)
 
 s32 func_8009B85C(void) {
     RrInterruptRegisters *interrupts=D_800ABD30;
@@ -397,7 +397,7 @@ s32 func_8009B85C(void) {
     control=&D_801146CA;
     /* The final control write occupies the original call's delay slot. */
     *(u16 *)&port->control=*control;
-    func_80097714(3,D_800ABD20);
+    SysDeqIntRP(3,D_800ABD20);
     {
         /* Share the request bases across the store/reload pairs. */
         register volatile RrSerialRequest *send=&D_801146E8;
@@ -427,7 +427,7 @@ s32 func_8009B85C(void) {
 }
 
 #undef D_800ABD20
-#undef func_80097714
+#undef SysDeqIntRP
 
 int func_8009B8EC(a0, a1)
     int *a0;

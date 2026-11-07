@@ -21,13 +21,13 @@ class ChannelCountTest(unittest.TestCase):
 typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
-''' + header + '\ns8 D_801100FC;\n' + body
+''' + header + '\ns8 spuVmMaxVoice;\n' + body
         (directory / 'function.c').write_text(source)
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.lib = C.CDLL(str(directory / 'function.so'))
-        cls.count = C.c_int8.in_dll(cls.lib, 'D_801100FC')
-        cls.function = cls.lib.func_8008A644
+        cls.count = C.c_int8.in_dll(cls.lib, 'spuVmMaxVoice')
+        cls.function = cls.lib.SsSetReservedVoice
         cls.function.argtypes = [C.c_uint32]
         cls.function.restype = C.c_int32
 

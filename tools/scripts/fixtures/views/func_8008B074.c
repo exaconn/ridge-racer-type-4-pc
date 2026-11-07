@@ -2,6 +2,6 @@
 
 #include "types.h"
 
-extern int func_8008B0A4();
+extern int SpuIsTransferCompleted();
 
-short func_8008B074(short a0) { return func_8008B0A4(a0); }
+short SsVabTransCompleted(short a0) { return SpuIsTransferCompleted(a0); }

@@ -68,11 +68,11 @@ typedef struct {
     u8 rem[12];
 } Settings;
 
-extern Settings D_800AD528;
+extern Settings Options;
 
 extern Pad D_800F3A38[2];
 
-extern Port D_8010C1A0[2];
+extern Port PadPorts[2];
 
 extern s32 D_800FFC08[2];
 
@@ -88,7 +88,7 @@ extern s32 D_8009FFCC[8];
 
 extern s32 D_800A016C[8];
 
-extern s32 D_800AC5DC;
+extern s32 VSyncThreshold;
 
 extern s16 D_800F3824;
 
@@ -96,11 +96,11 @@ int abs(int);
 
 void func_8004B8A8(void);
 
-void func_8004BC5C(void);
+void PadUpdateRumble(void);
 
-void func_8004BE4C(s32);
+void PadPollPort(s32);
 
-void func_8004A6C4(void) {
+void PadUpdate(void) {
     Port *ports[2];
     Pad *states[2];
     s32 i;
@@ -108,8 +108,8 @@ void func_8004A6C4(void) {
     s16 val;
 
     __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: keep prologue register saves before ports array initialization */
-    ports[0] = &D_8010C1A0[0];
-    ports[1] = &D_8010C1A0[1];
+    ports[0] = &PadPorts[0];
+    ports[1] = &PadPorts[1];
     __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: schedule ports array initialization before loop preheader */
     states[0] = &D_800F3A38[0];
     states[1] = &D_800F3A38[1];
@@ -178,9 +178,9 @@ void func_8004A6C4(void) {
             states[i]->buttons02 = ~((ports[i]->data02 << 8) | ports[i]->data03);
             states[i]->released06 = states[i]->previous04 & (states[i]->buttons02 ^ states[i]->previous04);
             states[i]->steering20 = ports[i]->data04;
-            states[i]->pressure22 = ports[i]->data05 - D_800AD528.p[i].offset02;
-            states[i]->pressure24 = ports[i]->data06 - D_800AD528.p[i].offset04;
-            states[i]->pressure26 = ports[i]->data07 - D_800AD528.p[i].offset06;
+            states[i]->pressure22 = ports[i]->data05 - Options.p[i].offset02;
+            states[i]->pressure24 = ports[i]->data06 - Options.p[i].offset04;
+            states[i]->pressure26 = ports[i]->data07 - Options.p[i].offset06;
             if (states[i]->pressure22 < 0) {
                 states[i]->pressure22 = 0;
             }
@@ -250,7 +250,7 @@ void func_8004A6C4(void) {
             states[i]->action34 = states[i]->pressed08 & 0x40;
             states[i]->idleStage54 = 0;
             if (states[i]->previous04 == states[i]->buttons02) {
-                if (D_800AC5DC == 0x80) {
+                if (VSyncThreshold == 0x80) {
                     states[i]->idleTick58 += 1;
                 } else {
                     states[i]->idleTick58 += 2;
@@ -312,22 +312,22 @@ void func_8004A6C4(void) {
         }
         switch (ports[i]->type01) {
         case 0x23:
-            val = states[i]->steering20 - (D_800AD528.p[i].center00 + 0x80);
+            val = states[i]->steering20 - (Options.p[i].center00 + 0x80);
             if (val > 0) {
-                val -= D_800A016C[D_800AD528.p[i].deadzone08];
+                val -= D_800A016C[Options.p[i].deadzone08];
                 if (val < 0) {
                     val = 0;
                 }
-                if (val > D_8009FFB8[D_800AD528.p[i].range0A]) {
-                    val = D_8009FFB8[D_800AD528.p[i].range0A];
+                if (val > D_8009FFB8[Options.p[i].range0A]) {
+                    val = D_8009FFB8[Options.p[i].range0A];
                 }
             } else {
-                val += D_800A016C[D_800AD528.p[i].deadzone08];
+                val += D_800A016C[Options.p[i].deadzone08];
                 if (val > 0) {
                     val = 0;
                 }
-                if (val < -D_8009FFB8[D_800AD528.p[i].range0A]) {
-                    val = -D_8009FFB8[D_800AD528.p[i].range0A];
+                if (val < -D_8009FFB8[Options.p[i].range0A]) {
+                    val = -D_8009FFB8[Options.p[i].range0A];
                 }
             }
             states[i]->steering3C = val;
@@ -335,23 +335,23 @@ void func_8004A6C4(void) {
         case 0xE3:
             val = states[i]->steering20;
             if (val > 0) {
-                val -= D_8009FFCC[D_800AD528.w[i].deadzone00];
+                val -= D_8009FFCC[Options.w[i].deadzone00];
                 if (val < 0) {
                     val = 0;
                 }
-                if (val > D_8009FFC0[D_800AD528.w[i].range01]) {
-                    val = D_8009FFC0[D_800AD528.w[i].range01];
+                if (val > D_8009FFC0[Options.w[i].range01]) {
+                    val = D_8009FFC0[Options.w[i].range01];
                 }
             } else {
-                val += D_8009FFCC[D_800AD528.w[i].deadzone00];
+                val += D_8009FFCC[Options.w[i].deadzone00];
                 if (val > 0) {
                     val = 0;
                 }
-                if (val < -D_8009FFC0[D_800AD528.w[i].range01]) {
-                    val = -D_8009FFC0[D_800AD528.w[i].range01];
+                if (val < -D_8009FFC0[Options.w[i].range01]) {
+                    val = -D_8009FFC0[Options.w[i].range01];
                 }
             }
-            states[i]->steering3C = (val << 7) / D_8009FFC0[D_800AD528.w[i].range01];
+            states[i]->steering3C = (val << 7) / D_8009FFC0[Options.w[i].range01];
             break;
         case 0x73:
             val = states[i]->steering20 - 0x80;
@@ -378,8 +378,8 @@ void func_8004A6C4(void) {
         }
     }
     func_8004B8A8();
-    func_8004BC5C();
+    PadUpdateRumble();
     for (i = 0; i < 2; i++) {
-        func_8004BE4C(i);
+        PadPollPort(i);
     }
 }

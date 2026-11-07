@@ -10,7 +10,7 @@
     *(int *)(GS->ot + (t)) = (int)GS->cur; \
     *(char *)(GS->ot + (t) + 3) = 0
 
-void func_80019D5C(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head) {
+void EmitTiledRect(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head) {
     register s32 value;
     register u32 command;
     register RrGpuRectangleFields *rect = rectangle;

@@ -2,7 +2,7 @@
 
 #include "rr/spu_tone_snapshot.h"
 
-s32 func_800850C4(s32 a0, s16 a1, s32 a2, u8 *a3)
+s32 SsUtGetVagAtr(s32 a0, s16 a1, s32 a2, u8 *a3)
 {
     /* Byte-address arithmetic retains full native pointers; on PAL unsigned long is 32-bit. */
     int o;
@@ -27,23 +27,23 @@ s32 func_800850C4(s32 a0, s16 a1, s32 a2, u8 *a3)
     a3=incoming;
     /* The selector result is intentionally ignored; selected storage remains live. */
     if (*(u8*)(page+bank+0x120) == 1) {
-        func_8008A564(bank, a1);
+        _SsVmVSetUp(bank, a1);
         o = (s16)((u32)a2 + (u32)(s32)(s8)D_80110101.value * 16U) * 32;
-        a3[0] = ((u8 *)(o + (unsigned long)D_801100F8))[0];
-        a3[1] = ((u8 *)(o + (unsigned long)D_801100F8))[1];
-        a3[2] = ((u8 *)(o + (unsigned long)D_801100F8))[2];
-        a3[3] = ((u8 *)(o + (unsigned long)D_801100F8))[3];
-        a3[4] = ((u8 *)(o + (unsigned long)D_801100F8))[4];
-        a3[5] = ((u8 *)(o + (unsigned long)D_801100F8))[5];
-        a3[7] = ((u8 *)(o + (unsigned long)D_801100F8))[7];
-        a3[6] = ((u8 *)(o + (unsigned long)D_801100F8))[6];
-        a3[8] = ((u8 *)(o + (unsigned long)D_801100F8))[8];
-        a3[9] = ((u8 *)(o + (unsigned long)D_801100F8))[9];
-        a3[10] = ((u8 *)(o + (unsigned long)D_801100F8))[10];
-        a3[11] = ((u8 *)(o + (unsigned long)D_801100F8))[11];
-        a3[12] = ((u8 *)(o + (unsigned long)D_801100F8))[12];
-        a3[13] = ((u8 *)(o + (unsigned long)D_801100F8))[13];
-        s = (u8 *)(o + (unsigned long)D_801100F8);
+        a3[0] = ((u8 *)(o + (unsigned long)_svm_tn))[0];
+        a3[1] = ((u8 *)(o + (unsigned long)_svm_tn))[1];
+        a3[2] = ((u8 *)(o + (unsigned long)_svm_tn))[2];
+        a3[3] = ((u8 *)(o + (unsigned long)_svm_tn))[3];
+        a3[4] = ((u8 *)(o + (unsigned long)_svm_tn))[4];
+        a3[5] = ((u8 *)(o + (unsigned long)_svm_tn))[5];
+        a3[7] = ((u8 *)(o + (unsigned long)_svm_tn))[7];
+        a3[6] = ((u8 *)(o + (unsigned long)_svm_tn))[6];
+        a3[8] = ((u8 *)(o + (unsigned long)_svm_tn))[8];
+        a3[9] = ((u8 *)(o + (unsigned long)_svm_tn))[9];
+        a3[10] = ((u8 *)(o + (unsigned long)_svm_tn))[10];
+        a3[11] = ((u8 *)(o + (unsigned long)_svm_tn))[11];
+        a3[12] = ((u8 *)(o + (unsigned long)_svm_tn))[12];
+        a3[13] = ((u8 *)(o + (unsigned long)_svm_tn))[13];
+        s = (u8 *)(o + (unsigned long)_svm_tn);
         *(unsigned short *)(a3 + 16) = *(unsigned short *)(s + 16);
         *(unsigned short *)(a3 + 18) = *(unsigned short *)(s + 18);
         *(unsigned short *)(a3 + 20) = *(unsigned short *)(s + 20);

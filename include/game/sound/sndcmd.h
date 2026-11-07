@@ -4,7 +4,7 @@
 #include "types.h"
 
 extern s32 D_800AC66C;
-void func_8004F418();
+void SoundQueueUpdate();
 void func_8004F600(void);
 void func_8004F720(void);
 

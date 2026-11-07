@@ -5,7 +5,7 @@
 extern s32 ovl665_D_80119754,ovl665_D_80119758;
 extern s16 D_800F7640;
 void func_80053A9C(s16);
-void func_8004FA98(s32);
+void SetCdMixMode(s32);
 void ovl665_func_80114FD8(void);
 /* Eight complete UI rows and a full0xB70 frame context are available. The
  * word index stays0..3; its signed low half is edited by width2 input. Mono is

@@ -29,7 +29,7 @@ extern char D_801143C0[];
 s32 func_80096404(const char *first, const char *second);
 /* Install the one-shot BIOS first-file workaround, then enumerate into directory.
  * Returns the BIOS result, or NULL when the pathname's device is not registered. */
-void *func_80097114(char *path, void *directory);
+void *firstfile(char *path, void *directory);
 void *func_800973B4(char *path, void *directory);
 s32 func_800972B0(s32 *context, s32 second, s32 third);
 

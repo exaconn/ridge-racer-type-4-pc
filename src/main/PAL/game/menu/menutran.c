@@ -11,7 +11,7 @@ typedef struct { int x; } __attribute__((packed)) U4;
 
 extern s16 D_800FFC18;
 extern int func_80096434();
-extern int func_80032E9C();
+extern int DecodeCourseIndex();
 extern unsigned char D_8009F06C[];
 extern short D_800ABEC8;
 extern short D_800AC648;
@@ -94,7 +94,7 @@ void func_8002F688() {
     D_800AD520 = c0;
     D_800F3826 = D_800F4D98[1];
     D_800F4C28 = D_800F4D98[2];
-    D_800F3914 = func_80032E9C(a0, c0, a2);
+    D_800F3914 = DecodeCourseIndex(a0, c0, a2);
     D_800ABEC8 = 0;
     D_800F3920[3] |= 1 << D_800AC648;
     if (D_800F4D98[2] >= 5) {

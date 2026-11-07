@@ -17,7 +17,7 @@ void ovl662_func_801161FC(void)
         break;
     case 1:
         changed = ovl662_func_8011662C(ovl662_D_801272C0, 0);
-        state = D_800F3AFC->state10;
+        state = BadgeRows->state10;
         if (state == 3) {
             if (changed) {
                 ovl662_func_80116690();
@@ -27,8 +27,8 @@ void ovl662_func_801161FC(void)
                     PlaySfx(1);
                     D_800F2DE4 = 0;
                     D_800F4D8A = 2;
-                    D_800F4D80->byte14 = state;
-                    D_800F3AFC->state10 = 4;
+                    UiRows->byte14 = state;
+                    BadgeRows->state10 = 4;
                 } else {
                     PlaySfx(4);
                 }
@@ -36,14 +36,14 @@ void ovl662_func_801161FC(void)
                 PlaySfx(2);
                 D_800F4D8A = 8;
                 D_800AC5D0 = 64;
-                D_800F4D80->byte14 = state;
-                D_800F3AFC->state10 = 4;
+                UiRows->byte14 = state;
+                BadgeRows->state10 = 4;
             }
         }
         flags = 0x10002;
         break;
     case 2:
-        if (D_800F3AFC->state10 == 11 && D_800F4D80->byte14 == 5) {
+        if (BadgeRows->state10 == 11 && UiRows->byte14 == 5) {
             ovl662_func_80115EC4(0);
             D_800F4D8A = 3;
         }
@@ -51,7 +51,7 @@ void ovl662_func_801161FC(void)
         break;
     case 3:
         changed = ovl662_func_8011662C(ovl662_D_801272C0, 1);
-        state = D_800F3AFC->state10;
+        state = BadgeRows->state10;
         if (state == 3) {
             if (changed) {
                 ovl662_func_80116808();
@@ -61,8 +61,8 @@ void ovl662_func_801161FC(void)
                     PlaySfx(1);
                     D_800F2DE4 = 0;
                     D_800F4D8A = 4;
-                    D_800F4D80->byte14 = state;
-                    D_800F3AFC->state10 = 4;
+                    UiRows->byte14 = state;
+                    BadgeRows->state10 = 4;
                 } else {
                     PlaySfx(4);
                 }
@@ -70,21 +70,21 @@ void ovl662_func_801161FC(void)
                 PlaySfx(2);
                 ovl662_D_801272D4 = 1;
                 D_800F4D8A = 4;
-                D_800F4D80->byte14 = state;
-                D_800F3AFC->state10 = 4;
+                UiRows->byte14 = state;
+                BadgeRows->state10 = 4;
             }
         }
         flags = 0x10006;
         break;
     case 4:
-        if (D_800F3AFC->state10 == 11 && D_800F4D80->byte14 == 5) {
+        if (BadgeRows->state10 == 11 && UiRows->byte14 == 5) {
             i = 0;
             if (ovl662_D_801272D4 == 0) {
                 ovl662_func_80116960();
                 return;
             }
             for (; i < 4; i++) {
-                D_800F4D8C[i].phase18 = (s32)((u32)D_800F4D8C[i].phase18 - 0x30000U);
+                GlyphRows[i].phase18 = (s32)((u32)GlyphRows[i].phase18 - 0x30000U);
             }
             ovl662_func_80116020();
             D_800F4D8A = 1;
@@ -106,7 +106,7 @@ void ovl662_func_801161FC(void)
         flags = 0x10002;
         break;
     }
-    func_8003EC88(0);
-    func_8003D6F0(0);
-    func_8002A344(flags);
+    DrawUiRow(0);
+    UpdateBadgeRowAnim(0);
+    UpdateScreenFade(flags);
 }

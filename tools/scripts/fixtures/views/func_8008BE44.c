@@ -6,7 +6,7 @@
 
 extern s32 func_8001E84C(const char *, ...);
 
-s32 func_8008BE44(void) {
+s32 CdInit(void) {
     s32 i=4;
     /* ASM_BARRIER: Keep the success value in the common return register. */
     register s32 result __asm__("$2");
@@ -18,9 +18,9 @@ loop:
     __asm__("" : "+r"(expected));
     if(status==expected) {
         result=1;
-        D_800A6488=func_8008BF10;
-        D_800A648C=func_8008BF38;
-        D_800A63F0=func_8008BF60;
+        CD_cbsync=func_8008BF10;
+        CD_cbready=func_8008BF38;
+        CD_cbread=func_8008BF60;
         {
             /* ASM_BARRIER: Preserve the assembler temporary for the final state store. */
             register u32 *page __asm__("$1");

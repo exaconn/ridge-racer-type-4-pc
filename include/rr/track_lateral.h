@@ -11,9 +11,9 @@ void func_80047230(const RrTrackSample3C *first, const RrTrackSample3C *second,
     s32 lateral, s32 fraction, s32 *output);
 void func_80047610(const RrTrackSample3C *first, const RrTrackSample3C *second,
     s32 lateral, s32 fraction, s32 *output);
-void func_80047A50(RrRaceVehicle *vehicle);
+void UpdateComCarTargetPoint(RrRaceVehicle *vehicle);
 /* The PAL caller ABI uses a full word, normalized to signed sixteen bits. */
-s32 func_8004C454(s32 node, s32 lane);
+s32 GetTrackNodeHeading(s32 node, s32 lane);
 
 RR_ASSERT_OFFSET(RrRaceVehicle, trackFraction170, 0x170);
 RR_ASSERT_OFFSET(RrRaceVehicle, pathDeltaX224, 0x224);

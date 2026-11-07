@@ -56,18 +56,18 @@ s32 func_8001E84C(const char *format,...){
 void ovl662_func_8011A788(s32 mode){event(1,&mode,1);}
 void ovl662_func_8011D278(s32 mode){assert(mode==-1);event(2,&mode,1);}
 void ovl662_func_8011D120(void){event(3,0,0);}
-void func_8002A604(void){event(4,0,0);}
-void func_8003D228(s32 i,s32 first,s16 x,s32 y,u16 width,u16 mode,u16 flags){s32 a[]={i,first,x,y,width,mode,flags};event(5,a,7);}
-void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[]={a,b,c,d,e,f,g,h,i,j};event(6,args,10);}
+void ClearScreenOverlayState(void){event(4,0,0);}
+void InitBadgeRow(s32 i,s32 first,s16 x,s32 y,u16 width,u16 mode,u16 flags){s32 a[]={i,first,x,y,width,mode,flags};event(5,a,7);}
+void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[]={a,b,c,d,e,f,g,h,i,j};event(6,args,10);}
 ''' + bodies + r'''
 static void reference(void){
  func_8001E84C(kind?load_message:save_message);
  ovl662_func_8011A788((s32)kind);
  if(kind){ovl662_func_8011D278(-1);ovl662_func_8011D120();}
- w->s.garage.dirtyD3=0;func_8002A604();
- func_8003D228(0,12,304,296,88,0,0);
- func_8003E928(0,140,136,28,32,0,0,1,0,104);
- func_8003E928(1,140,176,28,32,0,0,1,0,105);
+ w->s.garage.dirtyD3=0;ClearScreenOverlayState();
+ InitBadgeRow(0,12,304,296,88,0,0);
+ InitUiRow(0,140,136,28,32,0,0,1,0,104);
+ InitUiRow(1,140,176,28,32,0,0,1,0,105);
  w->s.row=3;w->s.position=4;w->s.selection=0;
 }
 int main(void){unsigned i;

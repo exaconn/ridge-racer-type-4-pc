@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_800832A4();
+int _SsSeqPlay();
 
 #endif /* RR_PSYQ_LIBSND_SSDELAY_H */

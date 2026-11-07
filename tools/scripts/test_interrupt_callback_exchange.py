@@ -20,7 +20,7 @@ class InterruptCallbackExchangeTest(unittest.TestCase):
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
         body=(root/'tools/scripts/fixtures/views/func_8008B7A0.c').read_text().replace('#include "rr/library.h"','')
         body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
-        observed=body.replace('func_8008B7A0','observed_exchange')
+        observed=body.replace('setIntr','observed_exchange')
         sites={'raw=*D_800A6358;':'raw=test_read(D_800A6358);','*D_800A6358=0;':'test_write(D_800A6358,0);','*D_800A6358=saved;':'test_write(D_800A6358,saved);'}
         for old,new in sites.items():
             assert observed.count(old)==1
@@ -41,13 +41,13 @@ void callback_b(void) {called[1]++;}
 void callback_c(void) {called[2]++;}
 void invoke(RrLibInterruptCallback callback) {callback();}
 s32 func_80096F84(s32 disabled) {if(on_bios)on_bios(0,disabled,0);return -123;}
-s32 func_80096F94(s32 counter,s32 disabled) {if(on_bios)on_bios(1,counter,disabled);return -234;}
+s32 ChangeClearRCnt(s32 counter,s32 disabled) {if(on_bios)on_bios(1,counter,disabled);return -234;}
 void io(s32 kind,volatile u16 *p,u16 value) {
     s32 i=io_count++;io_kind[i]=kind;io_port[i]=p==&ports[4];io_value[i]=value;
 }
 u16 test_read(volatile u16 *p) {u16 value=*p;io(0,p,value);return value;}
 void test_write(volatile u16 *p,u16 value) {io(1,p,value);*p=value;}
-RrLibInterruptDriverPrefix driver={0,0,func_8008B7A0,0};
+RrLibInterruptDriverPrefix driver={0,0,setIntr,0};
 RrLibInterruptDriverPrefix *D_800A6350=&driver;
 unsigned long native_size=sizeof(RrLibSavedState);
 unsigned long native_offsets[]={offsetof(RrLibSavedState,callbacks),offsetof(RrLibSavedState,enabled_mask),offsetof(RrLibSavedState,callback_data)};
@@ -62,7 +62,7 @@ unsigned long native_offsets[]={offsetof(RrLibSavedState,callbacks),offsetof(RrL
         cls.callbacks=[C.cast(getattr(cls.lib,name),C.c_void_p).value for name in ('callback_a','callback_b','callback_c')]
         cls.called=(C.c_int32*3).in_dll(cls.lib,'called');cls.io_count=C.c_int32.in_dll(cls.lib,'io_count')
         cls.io_kind=(C.c_int32*32).in_dll(cls.lib,'io_kind');cls.io_port=(C.c_int32*32).in_dll(cls.lib,'io_port');cls.io_value=(C.c_uint32*32).in_dll(cls.lib,'io_value')
-        for name in ('func_8008B7A0','observed_exchange','func_8008B394'):
+        for name in ('setIntr','observed_exchange','InterruptCallback'):
             f=getattr(cls.lib,name);f.argtypes=[C.c_int32,C.c_void_p];f.restype=C.c_void_p
         cls.lib.invoke.argtypes=[C.c_void_p];cls.lib.invoke.restype=None
 
@@ -150,9 +150,9 @@ unsigned long native_offsets[]={offsetof(RrLibSavedState,callbacks),offsetof(RrL
     def test_real_driver_wrapper_returns_usable_full_native_pointer(self):
         a,b,c=self.callbacks
         if C.sizeof(C.c_void_p)>4:self.assertGreater(a,0xFFFFFFFF)
-        previous=self.lib.func_8008B394(7,b);self.assertEqual(previous,a)
+        previous=self.lib.InterruptCallback(7,b);self.assertEqual(previous,a)
         self.assertEqual(self.state.callbacks[7],b)
-        self.assertEqual(self.lib.func_8008B394(7,c),b)
-        self.assertEqual(self.lib.func_8008B394(7,None),c)
-        self.port.value=None;self.assertIsNone(self.lib.func_8008B394(7,None))
+        self.assertEqual(self.lib.InterruptCallback(7,c),b)
+        self.assertEqual(self.lib.InterruptCallback(7,None),c)
+        self.port.value=None;self.assertIsNone(self.lib.InterruptCallback(7,None))
         self.lib.invoke(previous);self.assertEqual(list(self.called),[1,0,0])

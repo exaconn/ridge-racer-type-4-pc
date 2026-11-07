@@ -35,14 +35,14 @@ static void service(unsigned id,const u32 *args,u8 *cursor,u32 *head){struct Wor
  effect(w,id);
 }
 s32 rsin(s32 angle){u32 a[12]={(u32)angle};service(1,a,0,0);assert(sineIndex<2);return sineReturns[sineIndex++];}
-struct S32 *func_8002039C(u32 *head,struct S32 *packet,void *x,void *y,void *u,void *v,u16 tp,u16 clut,u16 mode,u16 shade){
+struct S32 *EmitPolyFT3(u32 *head,struct S32 *packet,void *x,void *y,void *u,void *v,u16 tp,u16 clut,u16 mode,u16 shade){
  s32 *arrays[4]={x,y,u,v};u32 a[12];for(unsigned i=0;i<4;i++)for(unsigned j=0;j<3;j++)a[3*i+j]=(u32)arrays[i][j];
  /* Constant material arguments are separately checked;event payload holds all coordinates. */
  assert(tp==42&&clut==0x1028&&mode==0&&shade==expectedShade);service(2,a,(u8*)packet,head);
  for(unsigned i=0;i<4;i++)for(unsigned j=0;j<3;j++)arrays[i][j]=bits32((u32)arrays[i][j]+0x80000001U+i*17U+j);
  return (struct S32*)((u8*)packet+32);
 }
-void *func_8001FD20(u32 *head,void *packet,s32 x,s32 y,s32 w,s32 h,s32 r,s32 g,s32 b){u32 a[12]={(u32)x,(u32)y,(u32)w,(u32)h,(u32)r,(u32)g,(u32)b};service(3,a,packet,head);return (u8*)packet+16;}
+void *AddTilePrim(u32 *head,void *packet,s32 x,s32 y,s32 w,s32 h,s32 r,s32 g,s32 b){u32 a[12]={(u32)x,(u32)y,(u32)w,(u32)h,(u32)r,(u32)g,(u32)b};service(3,a,packet,head);return (u8*)packet+16;}
 static void reference(s32 mode){
  s32 amount=expected.phase;if(amount>128)amount=128;expectedShade=(u16)amount;
  for(unsigned i=0;i<4;i++){geometry[0][i]=128+64*(i&1);geometry[1][i]=i<2?128:256;geometry[2][i]=63*(i&1);geometry[3][i]=i<2?0:63;}

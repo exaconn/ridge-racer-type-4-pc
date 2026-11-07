@@ -121,23 +121,23 @@ typedef struct {
     char p3[0xE4 - 0x58]; short sE4; short sE6; char p4[0x1D4 - 0xE8]; short s1D4; char p5[2]; unsigned short s1D8;
 } P;
 
-extern u32 func_80025FBC();
-extern s32 func_8006E368();
+extern u32 AngleDiffSigned();
+extern s32 Atan2Table();
 extern s32 rsin();
 extern s32 rcos();
-extern s32 D_800ABECC;
-extern char D_800ABEF8[];
-extern E *D_800F3A08[];
+extern s32 TrackNodeCount;
+extern char PlayerCars[];
+extern E *CarBoundsTable[];
 extern int D_800F2DE4;
 
-void func_80024A88(void *arg0);
-int func_80024BCC(struct A *a);
+void SteerCarTowardTrack(void *arg0);
+int GetTrackTargetHeading(struct A *a);
 void func_80024CD8(C *c);
 void func_800252EC(C_1 *c0);
 void func_80025954();
-int func_80025C94(int a0, int a1, int a2);
+int LerpAngle12(int a0, int a1, int a2);
 
-void func_80024A88(void *arg0) {
+void SteerCarTowardTrack(void *arg0) {
     s32 sp[4];
     s32 temp_a1;
     s32 temp_hi;
@@ -152,12 +152,12 @@ void func_80024A88(void *arg0) {
     temp_s0 = M2C_FIELD(arg0, s32 *, 0xF0) - 2;
     var_v1 = temp_s0;
     if (temp_s0 < 0) {
-        var_v1 = D_800ABECC + temp_s0;
+        var_v1 = TrackNodeCount + temp_s0;
     }
-    temp_hi = var_v1 % (s32) D_800ABECC;
+    temp_hi = var_v1 % (s32) TrackNodeCount;
     temp_s0 = temp_hi;
-    func_80025D98(temp_hi, sp, M2C_FIELD(arg0, s16 *, 0x170));
-    temp_s0_2 = 0x800 - func_80025EB0(temp_hi, M2C_FIELD(arg0, s16 *, 0x170));
+    InterpTrackPosition(temp_hi, sp, M2C_FIELD(arg0, s16 *, 0x170));
+    temp_s0_2 = 0x800 - GetSmoothedTrackHeading(temp_hi, M2C_FIELD(arg0, s16 *, 0x170));
     var_v1_2 = rcos(temp_s0_2) * temp_s2;
     if (var_v1_2 < 0) {
         var_v1_2 += 0xFFF;
@@ -165,11 +165,11 @@ void func_80024A88(void *arg0) {
     sp[0] += var_v1_2 >> 0xC;
     temp_a1 = sp[2] - ((s32) (rsin(temp_s0_2) * temp_s2) / 4096);
     sp[2] = temp_a1;
-    temp_v0 = func_80025FBC(M2C_FIELD(arg0, s16 *, 0x1D4), 0x400 - func_8006E368(sp[0] - M2C_FIELD(arg0, s32 *, 0x20), temp_a1 - M2C_FIELD(arg0, s32 *, 0x28)));
+    temp_v0 = AngleDiffSigned(M2C_FIELD(arg0, s16 *, 0x1D4), 0x400 - Atan2Table(sp[0] - M2C_FIELD(arg0, s32 *, 0x20), temp_a1 - M2C_FIELD(arg0, s32 *, 0x28)));
     M2C_FIELD(arg0, s16 *, 0x1D4) = (s16) ((u16) M2C_FIELD(arg0, s16 *, 0x1D4) + ((s32) ((temp_v0 >> 0x1F) + temp_v0) >> 1));
 }
 
-int func_80024BCC(struct A *a)
+int GetTrackTargetHeading(struct A *a)
 {
   int sp[4];
   int s0;
@@ -192,18 +192,18 @@ int func_80024BCC(struct A *a)
   {
     s0 = t - 2;
   }
-  s0 = (s0 + D_800ABECC) % D_800ABECC;
-  func_80025D98(s0, sp, a->f170);
-  t = func_80025EB0(s0, a->f170);
+  s0 = (s0 + TrackNodeCount) % TrackNodeCount;
+  InterpTrackPosition(s0, sp, a->f170);
+  t = GetSmoothedTrackHeading(s0, a->f170);
   c = 0x800;
   s0 = c - t;
   sp[0] += (rcos(s0) * a->fF4) >> 12;
   sp[2] -= (rsin(s0) * a->fF4) >> 12;
-  return 0x400 - func_8006E368(sp[0] - a->f20, sp[2] - a->f28);
+  return 0x400 - Atan2Table(sp[0] - a->f20, sp[2] - a->f28);
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80025FBC ((int (*)())func_80025FBC)
+#define AngleDiffSigned ((int (*)())AngleDiffSigned)
 
 void func_80024CD8(C *c) {
     D *d;
@@ -223,7 +223,7 @@ void func_80024CD8(C *c) {
 
     d = &c->d;
     t = d->p1C;
-    s2 = func_80025FBC(c->i54, d->i9C);
+    s2 = AngleDiffSigned(c->i54, d->i9C);
     if (s2 < d->s48 && -d->s48 < s2) {
         c->i54 = c->i54 + (s2 >> 1);
     } else {
@@ -234,7 +234,7 @@ void func_80024CD8(C *c) {
     } else {
         d->s3C = 0;
     }
-    func_800247FC(c);
+    UpdateCarHeading(c);
     c->i30 = (c->s1D8 * rsin(c->s1D4)) >> 8;
     v0 = rcos(c->s1D4);
     v1 = c->s1D8;
@@ -348,25 +348,25 @@ void func_80024CD8(C *c) {
             } else {
                 a2 = 0x7F;
             }
-            if (c == (C *)D_800ABEF8 || c == (C *)(D_800ABEF8 + 0x320)) {
+            if (c == (C *)PlayerCars || c == (C *)(PlayerCars + 0x320)) {
                 a3 = d->i24;
-                if (D_800F3A08[a3]->bA == 1) {
+                if (CarBoundsTable[a3]->bA == 1) {
                     a2 = 0;
                 }
                 func_80050E94(1, 0x1418, a2, a3 & 1);
             }
         } else {
-            if (c == (C *)D_800ABEF8 || c == (C *)(D_800ABEF8 + 0x320)) {
+            if (c == (C *)PlayerCars || c == (C *)(PlayerCars + 0x320)) {
                 func_80050E94(0, 0, 0, d->i24 & 1);
             }
         }
-        s4 = func_80024BCC(c);
+        s4 = GetTrackTargetHeading(c);
         if (c->s1DE > 0) {
             s1 = 0x190 - c->s1DE;
         } else {
             s1 = 0x21C;
         }
-        s4 = (func_80025FBC(c->s1D4, s4) * t->s1A) / s1;
+        s4 = (AngleDiffSigned(c->s1D4, s4) * t->s1A) / s1;
         /* ASM_BARRIER: keep c->s172 and t->sA loads after the division */
         __asm__ volatile("");
         v0 = c->s172;
@@ -378,7 +378,7 @@ void func_80024CD8(C *c) {
         if (s1 > 0x400) {
             s1 = 0x400;
         }
-        s2 = func_80025F84(c->s1D4, c->i54);
+        s2 = AngleDiffAbs(c->s1D4, c->i54);
         if (s2 > 0x400) {
             s2 = 0x400;
         }
@@ -392,10 +392,10 @@ void func_80024CD8(C *c) {
     c->i54 = c->i54 & 0xFFF;
 }
 
-#undef func_80025FBC
+#undef AngleDiffSigned
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80025FBC ((int (*)())func_80025FBC)
+#define AngleDiffSigned ((int (*)())AngleDiffSigned)
 
 void func_800252EC(C_1 *c0) {
     register C_1 *c __asm__("$18"); /* ASM_BARRIER: match saved reg assignment of original */
@@ -418,7 +418,7 @@ void func_800252EC(C_1 *c0) {
     c = c0;
     d = &c->d;
     s6 = (short *)(d->p18 + (d->s86 * 0x3C + 4));
-    v = func_80025FBC(c->i54, d->i9C);
+    v = AngleDiffSigned(c->i54, d->i9C);
     if (v > 0x400) {
         d->i9C = c->i54 + 0x400;
     } else if (v < -0x400) {
@@ -431,7 +431,7 @@ void func_800252EC(C_1 *c0) {
             c->i54 = c->i54 + v / 20;
         }
     }
-    s3 = func_80025FBC(c->s1D4, c->i54);
+    s3 = AngleDiffSigned(c->s1D4, c->i54);
     if (s3 > 0x600) {
         s3 = 0x600;
         s4 = 1;
@@ -443,7 +443,7 @@ void func_800252EC(C_1 *c0) {
     }
     s4 |= c->s1B8 > 0;
     if (c->s1B8 == 0) {
-        s0i = func_80025F84(c->i54, c->s1D4);
+        s0i = AngleDiffAbs(c->i54, c->s1D4);
         s5 = s0i;
         if (s0i < 0x201) {
             a2 = s0i / 8 + 0x40;
@@ -455,15 +455,15 @@ void func_800252EC(C_1 *c0) {
         } else {
             a1 = 0x1E00;
         }
-        if (c == (C_1 *)D_800ABEF8 || c == (C_1 *)(D_800ABEF8 + 0x320)) {
+        if (c == (C_1 *)PlayerCars || c == (C_1 *)(PlayerCars + 0x320)) {
             a3 = d->i24;
-            if (D_800F3A08[a3]->bA == 1) {
+            if (CarBoundsTable[a3]->bA == 1) {
                 a2 = 0;
             }
             func_80050E94(1, a1, a2, a3 & 1);
         }
     } else {
-        if (c == (C_1 *)D_800ABEF8 || c == (C_1 *)(D_800ABEF8 + 0x320)) {
+        if (c == (C_1 *)PlayerCars || c == (C_1 *)(PlayerCars + 0x320)) {
             func_80050E94(0, 0, 0, d->i24 & 1);
         }
         s5 = 0x200;
@@ -476,7 +476,7 @@ void func_800252EC(C_1 *c0) {
             c->s1D4 = c->s1D4 + s3 / x;
         }
     }
-    s3 = func_80024BCC(c);
+    s3 = GetTrackTargetHeading(c);
     s0i = (short)((short)d->u4A >> 8);
     if (s0i < 0) {
         s0i = s0i >> 2;
@@ -491,7 +491,7 @@ void func_800252EC(C_1 *c0) {
     } else if (s0i < 0) {
         s0i = 0;
     }
-    x = func_80025FBC(c->s1D4, s3);
+    x = AngleDiffSigned(c->s1D4, s3);
     x = ((x * d->p1C->s2) >> 8) * s0i;
     y = x / 1024;
     if (s4 == 0) {
@@ -526,7 +526,7 @@ void func_800252EC(C_1 *c0) {
         d->i60 = d->i60 + (d->i60 >> 9);
     }
     if (d->i58 < 0) {
-        if (c == (C_1 *)D_800ABEF8 || c == (C_1 *)(D_800ABEF8 + 0x320)) {
+        if (c == (C_1 *)PlayerCars || c == (C_1 *)(PlayerCars + 0x320)) {
             func_80050E94(0, 0, 0, d->i24 & 1);
         }
         d->i9C = c->i54;
@@ -538,22 +538,22 @@ void func_800252EC(C_1 *c0) {
     c->s1D4 = c->s1D4 & 0xFFF;
 }
 
-#undef func_80025FBC
+#undef AngleDiffSigned
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A08 (*(int *(*)[])&D_800F3A08)
-#define func_80025FBC ((int (*)())func_80025FBC)
+#define CarBoundsTable (*(int *(*)[])&CarBoundsTable)
+#define AngleDiffSigned ((int (*)())AngleDiffSigned)
 
 void func_80025954(a0) P *a0; {
     Q *q = (Q *)((char *)a0 + 0x1F4);
     int t, a1, a2, a3, v;
     int s0, s2;
     int pad[4];
-    t = func_80025FBC(a0->s54, q->s9C);
+    t = AngleDiffSigned(a0->s54, q->s9C);
     v = t / 4;
     a1 = a0->s54 + v;
     a0->s54 = a1;
-    t = func_80025FBC(a0->s1D4, a1);
+    t = AngleDiffSigned(a0->s1D4, a1);
     a0->s1D4 = a0->s1D4 + t / 10;
     a0->s1D8 = (short)a0->s1D8 / 10;
     a0->s30 = ((short)a0->s1D8 * rsin(a0->s1D4)) >> 8;
@@ -565,9 +565,9 @@ void func_80025954(a0) P *a0; {
     if (a2 < 0) a2 += 0xFF;
     a2 = a2 >> 8;
     if (q->s74 > 0) {
-        if ((char *)a0 == D_800ABEF8 || (char *)a0 == D_800ABEF8 + 0x320) {
+        if ((char *)a0 == PlayerCars || (char *)a0 == PlayerCars + 0x320) {
             a3 = q->s24;
-            if (*((unsigned char *)D_800F3A08[a3] + 0xA) == 1) a2 = 0;
+            if (*((unsigned char *)CarBoundsTable[a3] + 0xA) == 1) a2 = 0;
             func_80050E94(1, 0x1A80, a2, a3 & 1);
             func_8004B7E0(q->s24 & 1, 2, 1);
         }
@@ -611,17 +611,17 @@ void func_80025954(a0) P *a0; {
         }
     } else {
         q->sA4 = 0;
-        if ((char *)a0 == D_800ABEF8 || (char *)a0 == D_800ABEF8 + 0x320) {
+        if ((char *)a0 == PlayerCars || (char *)a0 == PlayerCars + 0x320) {
             func_80050E94(0, 0, 0, q->s24 & 1);
             func_8004B7E0(q->s24 & 1, 0, 1);
         }
     }
 }
 
-#undef D_800F3A08
-#undef func_80025FBC
+#undef CarBoundsTable
+#undef AngleDiffSigned
 
-int func_80025C94(int a0, int a1, int a2) {
+int LerpAngle12(int a0, int a1, int a2) {
     int d;
     a0 &= 0xFFF;
     a1 &= 0xFFF;

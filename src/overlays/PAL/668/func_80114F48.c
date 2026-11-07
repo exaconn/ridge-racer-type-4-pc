@@ -1,5 +1,5 @@
 #include "rr/overlay668_stream.h"
-#define STR_STATE ((RrStrPlaybackState *)D_800AC650.activeB8)
+#define STR_STATE ((RrStrPlaybackState *)RaceContext.activeB8)
 
 void ovl668_func_80114F48(void) {
     RrGpuRectangleFields sp10;
@@ -24,5 +24,5 @@ void ovl668_func_80114F48(void) {
         STR_STATE->display24.rectangles[2].x = STR_STATE->display24.rectangles[STR_STATE->display24.alternate04].x;
         STR_STATE->display24.rectangles[2].y = STR_STATE->display24.rectangles[STR_STATE->display24.alternate04].y;
     }
-    func_80092FFC(&sp10, D_800AC708->buffers18[prev2C]);
+    LoadImage(&sp10, D_800AC708->buffers18[prev2C]);
 }

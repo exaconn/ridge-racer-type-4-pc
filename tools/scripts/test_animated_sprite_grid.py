@@ -107,7 +107,7 @@ static void one(u16 tick,u32 intensity,int alias) {
     assert(((uintptr_t)actual.packets>>32)==((uintptr_t)&actual.scratch>>32));
     expected=actual;
     reference(intensity,state);
-    func_8001E1F0(intensity,state);
+    EmitSpriteGrid(intensity,state);
     assert(memcmp(&actual,&expected,sizeof(actual))==0);
     assert(actual.scratch.cursor==actual.packets+16+15*20+8);
 }

@@ -30,8 +30,8 @@ class ChannelResetTest(unittest.TestCase):
 #include "types.h"
 ''' + header + r'''
 static union {uint64_t alignment;u8 bytes[0x4000];} ram;
-#define D_8010F908 (*(RrChannelControlRow36 (*)[24])(ram.bytes+0x1908))
-#define D_8010F05C (*(s32 *)(ram.bytes+0x105C))
+#define _svm_voice (*(RrChannelControlRow36 (*)[24])(ram.bytes+0x1908))
+#define _snd_ev_flag (*(s32 *)(ram.bytes+0x105C))
 #define D_80110118 (*(u16 *)(ram.bytes+0x2118))
 ''' + body + r'''
 static int voice,fast_calls,ordinary_calls,dynamic;
@@ -49,38 +49,38 @@ static void mutation(u8 *memory) {
     s32 changed_lock=-7;memcpy(memory+0x105C,&changed_lock,4);
 }
 static void callback(void) {
-    assert(D_8010F05C==1);
+    assert(_snd_ev_flag==1);
     if(dynamic) {
         memcpy(snapshot,ram.bytes,sizeof(snapshot));
-        assert(func_8008564C((voice+1)%24,0,0,0,0)==-1);
+        assert(SsUtKeyOff((voice+1)%24,0,0,0,0)==-1);
         assert(memcmp(snapshot,ram.bytes,sizeof(snapshot))==0);
         mutation(ram.bytes);
     }
 }
-void func_80088D64(u8 index) {assert(index==voice);fast_calls++;callback();}
-void func_80088DA4(s32 unused) {
+void vmNoiseOff(u8 index) {assert(index==voice);fast_calls++;callback();}
+void _SsVmKeyOffNow(s32 unused) {
     assert(unused==0&&D_80110118==voice);ordinary_calls++;callback();
 }
 static void prepare(int selected,int lock,s16 bank,s16 program,s16 instrument,s16 group,s16 kind,int live) {
     memset(ram.bytes,0xA5,sizeof(ram.bytes));
-    voice=selected;fast_calls=ordinary_calls=0;dynamic=live;D_8010F05C=lock;
-    D_8010F908[voice].match18=bank;D_8010F908[voice].match14=program;
-    D_8010F908[voice].group0E=group;D_8010F908[voice].value00=kind;
-    halfword(D_8010F908[voice].pad16,(u16)instrument);
+    voice=selected;fast_calls=ordinary_calls=0;dynamic=live;_snd_ev_flag=lock;
+    _svm_voice[voice].match18=bank;_svm_voice[voice].match14=program;
+    _svm_voice[voice].group0E=group;_svm_voice[voice].value00=kind;
+    halfword(_svm_voice[voice].pad16,(u16)instrument);
 }
 static void run(s32 rawvoice,s32 bank,s32 program,s32 instrument,s32 group) {
     memcpy(expected,ram.bytes,sizeof(expected));
-    int lock=D_8010F05C,valid=(u16)rawvoice<24,fast=0;
+    int lock=_snd_ev_flag,valid=(u16)rawvoice<24,fast=0;
     if(valid)assert((u16)rawvoice==voice);
     if(lock!=1) {
         if(valid) {
             s16 row_instrument;
-            memcpy(&row_instrument,D_8010F908[voice].pad16,2);
-            fast=D_8010F908[voice].match18==(s16)bank
-              &&D_8010F908[voice].match14==(s16)program
+            memcpy(&row_instrument,_svm_voice[voice].pad16,2);
+            fast=_svm_voice[voice].match18==(s16)bank
+              &&_svm_voice[voice].match14==(s16)program
               &&row_instrument==(s16)instrument
-              &&D_8010F908[voice].group0E==(s16)group
-              &&D_8010F908[voice].value00==255;
+              &&_svm_voice[voice].group0E==(s16)group
+              &&_svm_voice[voice].value00==255;
             if(!fast)halfword(expected+0x2118,voice);
             if(dynamic)mutation(expected);
             RrChannelControlRow36 *rows=(RrChannelControlRow36 *)(expected+0x1908);
@@ -88,7 +88,7 @@ static void run(s32 rawvoice,s32 bank,s32 program,s32 instrument,s32 group) {
         }
         s32 zero=0;memcpy(expected+0x105C,&zero,4);
     }
-    int result=func_8008564C(rawvoice,bank,program,instrument,group);
+    int result=SsUtKeyOff(rawvoice,bank,program,instrument,group);
     assert(result==(lock!=1&&valid?0:-1));
     assert(fast_calls==(lock!=1&&valid&&fast));
     assert(ordinary_calls==(lock!=1&&valid&&!fast));

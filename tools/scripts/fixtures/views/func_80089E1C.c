@@ -4,8 +4,8 @@
 
 #include "rr/channels.h"
 
-void func_80089E1C(s32 input) {
-    register s32 maximum=D_801100FC;
+void _SsVmSeqKeyOff(s32 input) {
+    register s32 maximum=spuVmMaxVoice;
     register u32 index;
     s32 wanted;
     u32 one;
@@ -21,14 +21,14 @@ void func_80089E1C(s32 input) {
         next=(u8)index;
 again: {
             s32 i=next;
-            if(!(D_800A48F8 & (one << i)) && D_8010F908[i].match10==wanted) {
+            if(!(D_800A48F8 & (one << i)) && _svm_voice[i].match10==wanted) {
                 D_80110118=(u8)index;
-                func_80088DA4(0);
+                _SsVmKeyOffNow(0);
             }
             index++;
         }
         {
-            s32 limit=D_801100FC;
+            s32 limit=spuVmMaxVoice;
             s32 test;
             /* ASM_BARRIER: Reload the count before the independent byte comparison. */
             __asm__("" : : "r"(limit) : "$2");

@@ -37,7 +37,7 @@
 
 #undef D_800ABBC8
 
-u32 func_8009424C(RrGpuRectangleFields *a0)
+u32 get_tw(RrGpuRectangleFields *a0)
 {
   int v[4];
   int new_var;

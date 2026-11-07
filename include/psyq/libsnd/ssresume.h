@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_800831D4(s32 a0, s32 a1);
+void _SsSndPause(s32 a0, s32 a1);
 
 #endif /* RR_PSYQ_LIBSND_SSRESUME_H */

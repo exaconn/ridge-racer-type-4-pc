@@ -6,16 +6,16 @@
 #include "rr/race.h"
 #include "game/race/racedist.h"
 
-#define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -D_800A68C0[0x400 - ((x) & 0x3FF)] : -D_800A68C0[(x) & 0x3FF]) : (((x) & 0x400) ? D_800A68C0[0x400 - ((x) & 0x3FF)] : D_800A68C0[(x) & 0x3FF]))
+#define SIN(x) (((x) & 0x800) ? (((x) & 0x400) ? -SinTable[0x400 - ((x) & 0x3FF)] : -SinTable[(x) & 0x3FF]) : (((x) & 0x400) ? SinTable[0x400 - ((x) & 0x3FF)] : SinTable[(x) & 0x3FF]))
 
-extern Car D_80107198[];
+extern Car ComCars[];
 extern Car *CarTable[];
-extern RrRaceStandingsTable *D_800AC738;
-extern s32 D_800AC664;
-extern s16 D_800AC59C;
+extern RrRaceStandingsTable *RaceStandings;
+extern s32 NumPlayers;
+extern s16 NumCars;
 
 
-void func_80049C68(void) {
+void UpdateRaceStandings(void) {
     int i, j;
     Car *v;
     Control *c;
@@ -23,39 +23,39 @@ void func_80049C68(void) {
     int a0;
     RrRaceStandingEntry0C tmp;
 
-    t = D_800AC738;
+    t = RaceStandings;
     for (i = 0; i < 0xB; i++) {
-        v = &D_80107198[i];
+        v = &ComCars[i];
         c = (Control *)((char *)v + 0x1F4);
         if (v->unk1E4 > 0) {
             a0 = -v->unk1D4 + 0x400;
-            a0 -= D_800ABEA4[v->wF0].heading12;
+            a0 -= TrackNodes[v->wF0].heading12;
             c->unk58 = -((SIN(a0) * v->unk1D8) / 4096);
         }
     }
 
-    if (D_800AC664 > 0) {
-        v = &D_800ABEF8[0];
+    if (NumPlayers > 0) {
+        v = &PlayerCars[0];
         a0 = -v->unk1D4 + 0x400;
-        a0 -= D_800ABEA4[v->wF0].heading12;
+        a0 -= TrackNodes[v->wF0].heading12;
         t->unk00 = -((SIN(a0) * v->unk1D8) / 4096);
     }
 
-    if (D_800AC664 == 2) {
-        v = &D_800ABEF8[1];
+    if (NumPlayers == 2) {
+        v = &PlayerCars[1];
         a0 = -v->unk1D4 + 0x400;
-        a0 -= D_800ABEA4[v->wF0].heading12;
+        a0 -= TrackNodes[v->wF0].heading12;
         t->unk04 = -((SIN(a0) * v->unk1D8) / 4096);
     }
 
-    for (i = 0; i < D_800AC59C; i++) {
+    for (i = 0; i < NumCars; i++) {
         v = CarTable[i];
         t->entries18[i].unk00 = i;
         t->entries18[i].totalDist04 = v->w184 + v->w188;
         t->entries18[i].vehicle08 = (RrRaceVehicle *)v;
     }
 
-    for (i = 1; i < D_800AC59C; i++) {
+    for (i = 1; i < NumCars; i++) {
         tmp = t->entries18[i];
         for (j = i - 1; j >= 0 && t->entries18[j].totalDist04 < tmp.totalDist04; j--) {
             t->entries18[j + 1] = t->entries18[j];
@@ -64,8 +64,8 @@ void func_80049C68(void) {
     }
 }
 
-void func_8004A080(RrRaceVehicle *input) {
-    register RrRaceDistanceContextPrefix *context=&D_800AC650;
+void CalcDistanceToPlayer(RrRaceVehicle *input) {
+    register RrRaceDistanceContextPrefix *context=&RaceContext;
     register s32 one=1;
     s32 mode;
     RrRaceDistanceResult *out;
@@ -79,7 +79,7 @@ void func_8004A080(RrRaceVehicle *input) {
         /* ASM_BARRIER: Retain the two reference-distance load temporaries. */
         register u32 first __asm__("$3"),second __asm__("$5");
         u32 own_first,own_second;
-        base=D_800ABEF8;
+        base=PlayerCars;
         first=base->first;second=base->second;
         own_first=current->first;own_second=current->second;
         out->second=limit|0xFFFF;out->selected=0;
@@ -89,7 +89,7 @@ void func_8004A080(RrRaceVehicle *input) {
         register s32 a __asm__("$4");
         /* ASM_BARRIER: Keep the second difference and its wrapped absolute value together. */
         register s32 b __asm__("$2");
-        register RrRaceVehicle *base=D_800ABEF8;
+        register RrRaceVehicle *base=PlayerCars;
         out->first=((u32)base[0].first+(u32)base[0].second)-((u32)current->first+(u32)current->second);
         {
             /* ASM_BARRIER: Preserve the second reference component while loading current inputs. */

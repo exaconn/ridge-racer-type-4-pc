@@ -25,9 +25,9 @@ typedef union {
 extern RrOverlay667SerialStorage ovl667_D_80118F80,ovl667_D_80118F10;
 extern RrOverlay667ChoicePair D_800F3AF0;
 extern u8 ovl667_D_80118F09,ovl667_D_80118EEF;
-extern s32 D_800FF6B0,ovl667_D_80118EEC;
+extern s32 RaceState,ovl667_D_80118EEC;
 /* BIOS B0 service35: write count bytes, returning the transferred count. */
-s32 func_80096F54(s32 descriptor,const void *buffer,s32 count);
+s32 FileWrite(s32 descriptor,const void *buffer,s32 count);
 s32 ovl667_func_80114D30(void);
 /* Eight stored serial records, from 80118F20 through 80118F7F. Ring indices
  * used for payload access must remain in0..7, including after service calls. */

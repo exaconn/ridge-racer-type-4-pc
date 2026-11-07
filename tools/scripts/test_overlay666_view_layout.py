@@ -27,15 +27,15 @@ static struct World {u32 guard[4];s32 frame,counter;s16 current,limit,selected;s
 static u8 resources[3][0x2D100],original_resources[3][0x2D100];
 #define D_800F2DE4 world.frame
 #define ScreenFrame world.counter
-#define D_800AC64A world.current
-#define D_800AC5E0 world.limit
+#define MenuCursor world.current
+#define MenuItemCount world.limit
 #define D_800F3826 world.selected
 #define D_800F4D7C world.flag1
 #define D_800F3A2C world.flag2
 #define D_800F4D70 world.arenas
-#define D_800102F0 world.base
-#define D_800ACC18 world.published
-#define D_800F4D8C world.glyph
+#define CdDirectoryBuffer world.base
+#define LoadCursor world.published
+#define GlyphRows world.glyph
 ''' + reset + body + r'''
 static u32 seed=0x148d4,scenario;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
@@ -52,10 +52,10 @@ static void observe(struct World *v,s32 kind,const s32 args[10]){
  unsigned i;Event *event;assert(v->calls<13);event=&v->events[v->calls++];event->kind=kind;
  for(i=0;i<10;i++)event->args[i]=args[i];event->arenas=v->arenas;event->base=v->base;event->published=v->published;event->glyph=v->glyph;event->frame=v->frame;event->counter=v->counter;event->current=v->current;event->limit=v->limit;event->selected=v->selected;event->flag1=v->flag1;event->flag2=v->flag2;effect(v,kind,args);
 }
-void func_8003A1B4(void){s32 args[10]={0};assert(world.calls==0 && world.frame==0 && world.counter==0 && world.current==0 && world.limit==3 && world.flag1==0 && world.flag2==0 && world.arenas.second==world.base+0x2D000);observe(&world,0,args);}
-void func_8003E040(s32 index,s32 control,s32 glyph,s32 style){s32 args[10]={index,control,glyph,style};assert(world.calls>=1 && world.calls<=4 && index==(s32)world.calls-1);if(world.calls==1)assert(world.published==world.arenas.second);observe(&world,1,args);}
-void func_8003DC9C(s32 index,s16 a,s16 b,s16 c,s16 d,s16 e,s16 f){s32 args[10]={index,a,b,c,d,e,f};assert(world.calls==5);observe(&world,2,args);}
-void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls>=6 && world.calls<13 && a==(s32)world.calls-6);observe(&world,3,args);}
+void InitMenuArenas(void){s32 args[10]={0};assert(world.calls==0 && world.frame==0 && world.counter==0 && world.current==0 && world.limit==3 && world.flag1==0 && world.flag2==0 && world.arenas.second==world.base+0x2D000);observe(&world,0,args);}
+void InitGlyphRow(s32 index,s32 control,s32 glyph,s32 style){s32 args[10]={index,control,glyph,style};assert(world.calls>=1 && world.calls<=4 && index==(s32)world.calls-1);if(world.calls==1)assert(world.published==world.arenas.second);observe(&world,1,args);}
+void InitRect16Row(s32 index,s16 a,s16 b,s16 c,s16 d,s16 e,s16 f){s32 args[10]={index,a,b,c,d,e,f};assert(world.calls==5);observe(&world,2,args);}
+void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls>=6 && world.calls<13 && a==(s32)world.calls-6);observe(&world,3,args);}
 static const s32 rows[7][10]={{0,12,64,68,32,0,0,1,0,83},{1,12,104,68,32,0,0,1,0,85},{2,12,368,248,32,0,0,4,12,0},{3,24,88,68,32,0,0,1,0,84},{4,24,128,68,32,0,0,1,0,85},{5,116,88,28,32,0,0,1,0,55},{6,116,128,28,32,0,0,1,0,56}};
 static void reference(void){
  unsigned i;RrMenuGlyphRow1C *g;s32 args[10]={0};

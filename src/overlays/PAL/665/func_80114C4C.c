@@ -9,16 +9,16 @@ void ovl665_func_80114C4C(void) {
             D_800AC5D0--;
             func_800207D4(&((RrFrameOrderingPrefix*)D_800ACC14)->ordering70[702],D_800AC5D0*4,69);
         }
-        if(D_800F4D80[0].byte14==2 && D_800AC5D0==0) {
-            D_800F4D80[ovl665_D_80119768.selection08].cells[0]=0;
-            func_8002B330(0,2,(char*)&ovl665_D_80119768.selection08,7,0);
-            D_800F4D80[ovl665_D_80119768.selection08].cells[0]=2;
+        if(UiRows[0].byte14==2 && D_800AC5D0==0) {
+            UiRows[ovl665_D_80119768.selection08].cells[0]=0;
+            StepMenuValue(0,2,(char*)&ovl665_D_80119768.selection08,7,0);
+            UiRows[ovl665_D_80119768.selection08].cells[0]=2;
             if(D_800F3A38[0].a) {
                 if(ovl665_D_80119768.selection08==1 && ovl665_func_8011629C(1)<0) {
                     PlaySfx(4);
                 } else {
                     PlaySfx(1);
-                    D_800F4D80[ovl665_D_80119768.selection08].cells[0]=1;
+                    UiRows[ovl665_D_80119768.selection08].cells[0]=1;
                     D_800AC5D0=64;
                     ovl665_D_80119768.layout0C=(s32)((u32)ovl665_D_80119768.layout0C+1U);
                 }
@@ -33,7 +33,7 @@ void ovl665_func_80114C4C(void) {
         break;
     case 1:
         for(i=0;i<8;i++) {
-            if(D_800F4D80[i].byte14==2)D_800F4D80[i].byte14=3;
+            if(UiRows[i].byte14==2)UiRows[i].byte14=3;
         }
         if(ovl665_D_80119768.selection08>=5 || ovl665_D_80119768.selection08==3) {
             func_80053AF4(0,(s16)(D_800AC5D0-4));
@@ -57,11 +57,11 @@ void ovl665_func_80114C4C(void) {
         break;
     }
     if(ovl665_func_8011629C(1)<0) {
-        D_800F4D80[1].half20=1;
-        if(ovl665_D_80119768.selection08==1)D_800F4D80[1].cells[0]=4;
+        UiRows[1].half20=1;
+        if(ovl665_D_80119768.selection08==1)UiRows[1].cells[0]=4;
     } else {
-        D_800F4D80[1].half20=0;
+        UiRows[1].half20=0;
     }
-    for(i=0;i<8;i++)func_8003EC88(i);
-    func_8002A344(0x10066);
+    for(i=0;i<8;i++)DrawUiRow(i);
+    UpdateScreenFade(0x10066);
 }

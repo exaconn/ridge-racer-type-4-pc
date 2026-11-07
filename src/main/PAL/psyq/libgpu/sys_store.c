@@ -6,55 +6,55 @@
 
 extern RrLibGraphicsDriverPrefix *D_800ABAB8;
 
-int func_80095664();
+int StoreImage2();
 s32 MoveImage2(RrGpuRectangle *rect,s32 x,s32 y);
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((int *)D_800ABAB8)
-#define func_80092DB8 ((int (*)())func_80092DB8)
+#define checkRECT ((int (*)())checkRECT)
 #define VSync ((int (*)())VSync)
-#define func_8008B3C4 ((int (*)())func_8008B3C4)
-#define func_80095394 ((int (*)())func_80095394)
+#define DMACallback ((int (*)())DMACallback)
+#define get_alarm ((int (*)())get_alarm)
 #define func_80095990 ((int (*)())func_80095990)
 
-int func_80095664(a0, a1)
+int StoreImage2(a0, a1)
 int a0;
 int a1;
 {
-    func_80092DB8(D_80011EF0, a0);
+    checkRECT(D_80011EF0, a0);
     D_800ABBFC = VSync(-1) + 0xF0;
     D_800ABC00 = 0;
     while ((*D_800ABBD4 & 0x1000000) || (*D_800ABBC8 & 0x4000000) == 0) {
-        if (func_80095394()) return -1;
+        if (get_alarm()) return -1;
     }
-    func_8008B3C4(2, func_80095990);
+    DMACallback(2, func_80095990);
     ((int (*)())D_800ABAB8[7])(a0, a1);
     return 0;
 }
 
 #undef D_800ABAB8
-#undef func_80092DB8
+#undef checkRECT
 #undef VSync
-#undef func_8008B3C4
-#undef func_80095394
+#undef DMACallback
+#undef get_alarm
 #undef func_80095990
 
 s32 MoveImage2(RrGpuRectangle *rect,s32 x,s32 y) {
     /* ASM_BARRIER: Keep each DMA status read in the original polling temporary. */
     register u32 status __asm__("$2");
-    func_80092DB8(D_80011EFC,rect);
+    checkRECT(D_80011EFC,rect);
     D_800ABBFC=(u32)VSync(-1)+240;
     D_800ABC00=0;
     status=*D_800ABBD4;
     goto test;
 wait:
-    if(func_80095394()) return -1;
+    if(get_alarm()) return -1;
     status=*D_800ABBD4;
 test:
     if(status&0x01000000) goto wait;
     if(!(*D_800ABBC8&0x04000000)) goto wait;
     {
-        func_8008B3C4(2,func_80095990);
+        DMACallback(2,func_80095990);
         if(rect->rect.w) {
             if(rect->rect.h) goto build;
         }

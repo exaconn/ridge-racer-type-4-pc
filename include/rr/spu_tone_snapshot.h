@@ -7,5 +7,5 @@
  * The selector's return value is ignored. Selected tone pointers are reloaded
  * for each byte and once before the four halfwords. Source/destination must be
  * halfword aligned. Output bytes 14/15 are preserved; byte 7 precedes byte 6. */
-s32 func_800850C4(s32 bank, s16 program, s32 tone, u8 output[24]);
+s32 SsUtGetVagAtr(s32 bank, s16 program, s32 tone, u8 output[24]);
 #endif

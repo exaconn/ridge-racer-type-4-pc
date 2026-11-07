@@ -42,12 +42,12 @@ typedef struct
   signed char c;
 } S2;
 
-extern int func_8001F5B4();
-extern int func_8001FCC8();
-extern int func_8001FD20();
+extern int AddTextSprites();
+extern int AddDrawModePrim();
+extern int AddTilePrim();
 extern int func_8001FF84();
-extern int func_8002B75C();
-extern int func_8002B814();
+extern int CopyStringClearTail();
+extern int FormatDecimalDigits();
 extern R4 D_8009FA1C[];
 extern char D_8009FDBF[];
 extern char D_8009FDC0[];
@@ -58,7 +58,7 @@ extern u8 D_8009FDE4[];
 extern int D_800AC5D4;
 extern signed char *D_800F2AB0;
 extern char *D_800F39C8[];
-extern char *D_800F3AFC;
+extern char *BadgeRows;
 extern R4 D_800F4D98[];
 extern int func_80020508();
 extern u8 D_8009FDF4[];
@@ -72,13 +72,13 @@ extern S2C D_800F2E30[];
 extern short D_800F4D3C;
 extern char D_8010C150[];
 extern unsigned char D_8009FBEC[];
-extern char D_800AD528[];
+extern char Options[];
 extern char D_800F3A38[];
 extern int D_800F4CB8;
 
 int func_80042254();
 int func_80042820();
-char *func_80042D28(int a, int b, int c);
+char *FormatCountOfTotal(int a, int b, int c);
 void func_80042DBC();
 
 int func_80042254(arg0, arg1, arg2)
@@ -114,9 +114,9 @@ int arg2;
   char *c;
   char *q;
   char *q8;
-  x = *((short *) ((D_800F3AFC + (arg2 * 0x1C)) + 4));
-  y = *((short *) ((D_800F3AFC + (arg2 * 0x1C)) + 6));
-  sp30 = *((short *) ((D_800F3AFC + (arg2 * 0x1C)) + 0xC));
+  x = *((short *) ((BadgeRows + (arg2 * 0x1C)) + 4));
+  y = *((short *) ((BadgeRows + (arg2 * 0x1C)) + 6));
+  sp30 = *((short *) ((BadgeRows + (arg2 * 0x1C)) + 0xC));
   sp3C = (D_800F4D98[D_800AC5D4].b * 2) + 8;
   sp38 = D_800F4D98[D_800AC5D4].a * 2;
   sp34 = (D_800F4D98[D_800AC5D4].c ^ 0x27) == 0;
@@ -130,14 +130,14 @@ int arg2;
     {
       if (D_800F4D98[D_800AC5D4].a == 0)
       {
-        func_8002B75C(D_8009FDBF, "D ");
+        CopyStringClearTail(D_8009FDBF, "D ");
       }
       else
       {
-        func_8002B75C(D_8009FDBF, "G ");
+        CopyStringClearTail(D_8009FDBF, "G ");
       }
       q = D_8009FDC0;
-      func_8002B814(q, D_800F4D98[D_800AC5D4].b + 1, 0);
+      FormatDecimalDigits(q, D_800F4D98[D_800AC5D4].b + 1, 0);
       sp4C = q - 8;
     }
   }
@@ -193,18 +193,18 @@ int arg2;
         }
         else
         {
-          arg1 = func_8001FD20(arg0, arg1, s2, y + 8, 0x38, 2, 0xFF, 0xFF, 0xFF);
+          arg1 = AddTilePrim(arg0, arg1, s2, y + 8, 0x38, 2, 0xFF, 0xFF, 0xFF);
         }
           break;
 
         case 3:
           if (sp34 == 0)
         {
-          arg1 = func_8001F5B4(arg0, arg1, s2, y, D_800F39C8[D_800AC5D4] + 0x1F5, 0x7FF8, 2, 0);
+          arg1 = AddTextSprites(arg0, arg1, s2, y, D_800F39C8[D_800AC5D4] + 0x1F5, 0x7FF8, 2, 0);
         }
         else
         {
-          arg1 = func_8001F5B4(arg0, arg1, s2, y, sp4C, 0x7FF8, 2, 0);
+          arg1 = AddTextSprites(arg0, arg1, s2, y, sp4C, 0x7FF8, 2, 0);
         }
           break;
 
@@ -221,8 +221,8 @@ int arg2;
         {
           s1 = sp40;
         }
-          func_8002B814(sp28, s1, s6);
-          arg1 = func_8001F5B4(arg0, arg1, s2, y, sp28, 0x7FF8, 0, 0);
+          FormatDecimalDigits(sp28, s1, s6);
+          arg1 = AddTextSprites(arg0, arg1, s2, y, sp28, 0x7FF8, 0, 0);
           break;
 
         case 11:
@@ -235,14 +235,14 @@ int arg2;
     if (i == 5)
     {
       y += 0x1C;
-      x = *((short *) ((D_800F3AFC + (arg2 * 0x1C)) + 4));
+      x = *((short *) ((BadgeRows + (arg2 * 0x1C)) + 4));
     }
   }
 
-  arg1 = func_8001FCC8(arg0, arg1, 0x38);
+  arg1 = AddDrawModePrim(arg0, arg1, 0x38);
   y = y - 8;
-  x = *((short *) ((D_800F3AFC + (arg2 * 0x1C)) + 4));
-  arg1 = func_8001FD20(arg0, arg1, x, y, sp30, 2, 0xFF, 0xFF, 0xFF);
+  x = *((short *) ((BadgeRows + (arg2 * 0x1C)) + 4));
+  arg1 = AddTilePrim(arg0, arg1, x, y, sp30, 2, 0xFF, 0xFF, 0xFF);
   for (i = 0; i < 4; i++)
   {
     v = -0x18;
@@ -255,14 +255,14 @@ int arg2;
     {
       sp30 = 0x78;
     }
-    arg1 = func_8001FD20(arg0, arg1, x + sp30, y + v, 1, 0x14, 0xFF, 0xFF, 0xFF);
+    arg1 = AddTilePrim(arg0, arg1, x + sp30, y + v, 1, 0x14, 0xFF, 0xFF, 0xFF);
   }
 
   return arg1;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8002B814 ((void (*)())func_8002B814)
+#define FormatDecimalDigits ((void (*)())FormatDecimalDigits)
 #define D_8009FA1C (*(R4_1 (*)[])&D_8009FA1C)
 
 int func_80042820(arg0, arg1, arg2)
@@ -279,9 +279,9 @@ int arg2;
     int j;
     char *p;
 
-    x = *(short *)(D_800F3AFC + arg2 * 0x1C + 4);
-    y = *(short *)(D_800F3AFC + arg2 * 0x1C + 6);
-    sp40 = *(short *)(D_800F3AFC + arg2 * 0x1C + 0xC);
+    x = *(short *)(BadgeRows + arg2 * 0x1C + 4);
+    y = *(short *)(BadgeRows + arg2 * 0x1C + 6);
+    sp40 = *(short *)(BadgeRows + arg2 * 0x1C + 0xC);
     y += 0x20;
 
     for (i = 0; i < 4; i++) {
@@ -299,9 +299,9 @@ int arg2;
 
     y -= 8;
     for (i = 0; i < 3; i++) {
-        x = *(short *)(D_800F3AFC + arg2 * 0x1C + 4) + 8;
-        func_8002B814(sp38, i + 1, 0);
-        arg1 = func_8001F5B4(arg0, arg1, x, y + D_8009FDF8[i + 1], sp38, 0x7FF8, 0, 0);
+        x = *(short *)(BadgeRows + arg2 * 0x1C + 4) + 8;
+        FormatDecimalDigits(sp38, i + 1, 0);
+        arg1 = AddTextSprites(arg0, arg1, x, y + D_8009FDF8[i + 1], sp38, 0x7FF8, 0, 0);
         if ((sp28[2] = D_800F2E30[i].b17) != -1) {
             sp28[0] = D_8009FE00[D_800F2E30[i].b1C & 3];
             sp28[1] = D_8009FE04[D_800F2E30[i].b1D & 3];
@@ -317,37 +317,37 @@ int arg2;
         } else {
             for (j = 0; j < 3; j++) {
                 x += D_8009FDF4[j + 1];
-                arg1 = func_8001FD20(arg0, arg1, x, y + D_8009FDF8[i + 1] + 8, D_8009FE0C[j], 2, 0xFF, 0xFF, 0xFF);
+                arg1 = AddTilePrim(arg0, arg1, x, y + D_8009FDF8[i + 1] + 8, D_8009FE0C[j], 2, 0xFF, 0xFF, 0xFF);
             }
         }
         if (i == D_800F4D3C) {
-            arg1 = func_80020508(arg0, arg1, *(short *)(D_800F3AFC + arg2 * 0x1C + 4), y + D_8009FDF8[i + 1] - 4, sp40, 0x18, 0x20, 0x20, 0x20);
+            arg1 = func_80020508(arg0, arg1, *(short *)(BadgeRows + arg2 * 0x1C + 4), y + D_8009FDF8[i + 1] - 4, sp40, 0x18, 0x20, 0x20, 0x20);
         }
     }
 
-    arg1 = func_8001FCC8(arg0, arg1, 0x38);
+    arg1 = AddDrawModePrim(arg0, arg1, 0x38);
     y += 0x1C;
-    x = *(short *)(D_800F3AFC + arg2 * 0x1C + 4);
-    arg1 = func_8001FD20(arg0, arg1, x, y, sp40, 2, 0xFF, 0xFF, 0xFF);
+    x = *(short *)(BadgeRows + arg2 * 0x1C + 4);
+    arg1 = AddTilePrim(arg0, arg1, x, y, sp40, 2, 0xFF, 0xFF, 0xFF);
     y -= 0x1C;
     for (i = 0; i < 4; i++) {
-        x = *(short *)(D_800F3AFC + arg2 * 0x1C + 4);
+        x = *(short *)(BadgeRows + arg2 * 0x1C + 4);
         for (j = 0; j < 3; j++) {
             x += D_8009FDF4[j + 1];
-            arg1 = func_8001FD20(arg0, arg1, x, y + D_8009FDF8[i], 2, 0x10, 0xFF, 0xFF, 0xFF);
+            arg1 = AddTilePrim(arg0, arg1, x, y + D_8009FDF8[i], 2, 0x10, 0xFF, 0xFF, 0xFF);
         }
     }
 
     return arg1;
 }
 
-#undef func_8002B814
+#undef FormatDecimalDigits
 #undef D_8009FA1C
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8002B814 ((void (*)())func_8002B814)
+#define FormatDecimalDigits ((void (*)())FormatDecimalDigits)
 
-char *func_80042D28(int a, int b, int c) {
+char *FormatCountOfTotal(int a, int b, int c) {
     int i = 7;
     char *p = D_8010C150 + i;
     do {
@@ -355,13 +355,13 @@ char *func_80042D28(int a, int b, int c) {
         i--;
         p--;
     } while (i >= 0);
-    func_8002B814(D_8010C150, a, c);
+    FormatDecimalDigits(D_8010C150, a, c);
     D_8010C150[c + 1] = 0x2F;
-    func_8002B814(D_8010C150 + c + 2, b, c);
+    FormatDecimalDigits(D_8010C150 + c + 2, b, c);
     return D_8010C150;
 }
 
-#undef func_8002B814
+#undef FormatDecimalDigits
 
 void func_80042DBC(a0, a1, a2)
 int a0;
@@ -385,7 +385,7 @@ int a2;
   char *v0;
   char *g;
   aa = a0;
-  g = D_800F3AFC;
+  g = BadgeRows;
   v0 = (char *) ((a2 * 0x1C) + ((int) g));
   x = *((short *) (v0 + 4));
   y = *((short *) (v0 + 6));
@@ -411,15 +411,15 @@ int a2;
     case 0:
 
     default:
-      s2 = *((short *) (D_800AD528 + (idx * 4)));
+      s2 = *((short *) (Options + (idx * 4)));
       break;
 
     case 1:
-      s2 = ((S1 *) ((idx * 16) + ((int) D_800AD528)))->s;
+      s2 = ((S1 *) ((idx * 16) + ((int) Options)))->s;
       break;
 
     case 2:
-      s2 = ((S2 *) ((idx * 4) + ((int) D_800AD528)))->c;
+      s2 = ((S2 *) ((idx * 4) + ((int) Options)))->c;
       break;
 
   }
@@ -427,7 +427,7 @@ int a2;
   r = func_8001FF84(aa, a1, s3, s4, D_8009FBEC, 0x7FF8, 0);
   sp[0] = s2 + 0x41;
   nv = s3 + 2;
-  func_8001FCC8(aa, func_8001F5B4(aa, r, nv + D_8009FBEC[2], s4, sp, 0x7FF8, 0, 0), 0x38);
+  AddDrawModePrim(aa, AddTextSprites(aa, r, nv + D_8009FBEC[2], s4, sp, 0x7FF8, 0, 0), 0x38);
   /* ASM_BARRIER: keeps s3 live to the end (original save-reg order) */
   __asm__ volatile("" : : "r"(s3));
 }

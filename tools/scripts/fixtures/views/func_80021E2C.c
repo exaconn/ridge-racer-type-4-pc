@@ -37,10 +37,10 @@ void func_80021E2C(s32 arg0) {
     }
     var_a1 = RR_HUD_SCRATCH->cursor;
     var_s0 = 0;
-    if (D_800AC59C > 0) {
+    if (NumCars > 0) {
         s32 yBase;RrUiUvRect *const glyph=&D_8009EE58;
         do {
-            temp_hi = (s32) (var_s2 + var_s0) % (s16) D_800AC59C;
+            temp_hi = (s32) (var_s2 + var_s0) % (s16) NumCars;
             temp_a0 = CarTable[temp_hi];
             if ((u16)temp_a0->value1E4 & 0x10) {
                 u16 clut=(temp_hi<<6)+0x1A16;
@@ -49,7 +49,7 @@ void func_80021E2C(s32 arg0) {
                 var_a1 = func_8001FF84(var_s3, var_a1, xValue, yValue-4, glyph, clut, 0);
             }
             var_s0 += 1;
-        } while (var_s0 < D_800AC59C);
+        } while (var_s0 < NumCars);
     }
     var_s0_2 = 0;
     if ((arg0 + 1) > 0) {
@@ -64,5 +64,5 @@ void func_80021E2C(s32 arg0) {
             var_s0_2 += 1;
         } while (var_s0_2 < (arg0 + 1));
     }
-    RR_HUD_SCRATCH->cursor = func_8001FCC8(var_s3, var_a1, 0x25);
+    RR_HUD_SCRATCH->cursor = AddDrawModePrim(var_s3, var_a1, 0x25);
 }

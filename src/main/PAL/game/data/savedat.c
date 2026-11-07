@@ -9,11 +9,11 @@
 #include "game/race/raceset.h"
 typedef struct { char b[0x80]; } B;
 
-extern int func_8002B75C();
+extern int CopyStringClearTail();
 extern Struct48 D_800ABE08;
 extern SaveBuf *D_800ACC0C;
 extern int D_800ACC28[2][8];
-extern Struct40 D_800AD528;
+extern Struct40 Options;
 extern Struct10 D_800AD5C8[2][8][5];
 extern Struct2C D_800F2E30[3];
 extern int D_800F3838[2][8][3];
@@ -30,7 +30,7 @@ extern StructC D_8010C088[];
 extern StructC D_80118420[];
 extern Struct48 D_80118458[2];
 extern int D_801272F0[];
-extern int func_8009305C();
+extern int StoreImage();
 extern char D_80011564[];
 extern short D_8010EF98[];
 extern char D_80011568[];
@@ -61,7 +61,7 @@ int func_800797E0(int arg0) {
         }
         if (s3->f1AA4 == a1) {
             D_800F3920 = s3->f280;
-            D_800AD528 = s3->f2FC;
+            Options = s3->f2FC;
             for (s0 = 0; s0 < 3; s0++) {
                 if (arg0 == 0x30) {
                     D_800F2E30[s0] = s3->f360[s0];
@@ -102,10 +102,10 @@ int func_800797E0(int arg0) {
             for (s0 = 0; s0 < 9; s0++) {
                 if (D_800F4D44 == 2 || D_800F4D44 == 3) {
                     D_80118458[D_800AC5D4 & 1].f24[s0] = s3->f33C[s0];
-                    func_8002B75C(&D_80118420[D_800AC5D4 & 1], &s3->f280);
+                    CopyStringClearTail(&D_80118420[D_800AC5D4 & 1], &s3->f280);
                 } else if (D_800F4D44 == 4) {
                     D_8010BFD8[D_800AC5D4 & 1].f24[s0] = s3->f33C[s0];
-                    func_8002B75C(&D_8010C088[D_800AC5D4], &s3->f280);
+                    CopyStringClearTail(&D_8010C088[D_800AC5D4], &s3->f280);
                 }
             }
             for (s0 = 0; s0 < 0x210; s0++) {
@@ -156,7 +156,7 @@ int a5;
     D_8010EF98[2] = 0x10;
     D_8010EF98[1] = a3;
     D_8010EF98[3] = 1;
-    func_8009305C(D_8010EF98, a0 + 0x60);
+    StoreImage(D_8010EF98, a0 + 0x60);
     DrawSync(0);
     i = 0;
     do {
@@ -165,7 +165,7 @@ int a5;
         D_8010EF98[2] = 4;
         D_8010EF98[3] = 0x10;
         /* (new_var = &a4) is a dead address-of that keeps gcc from hoisting the li 0x10 out of the loop (found by permuter) */
-        func_8009305C(D_8010EF98, a0 + 0x80 + (*(new_var = &a4), i) * 0x80);
+        StoreImage(D_8010EF98, a0 + 0x80 + (*(new_var = &a4), i) * 0x80);
         DrawSync(0);
         i++;
         a4 += 4;
@@ -194,7 +194,7 @@ B *a6;
     D_8010EFA0[2] = 0x10;
     D_8010EFA0[1] = a3;
     D_8010EFA0[3] = 1;
-    func_8009305C(D_8010EFA0, a0 + 0x60);
+    StoreImage(D_8010EFA0, a0 + 0x60);
     DrawSync(0);
     i = 0;
     do {
@@ -202,7 +202,7 @@ B *a6;
         D_8010EFA0[1] = a5;
         D_8010EFA0[2] = 4;
         D_8010EFA0[3] = 0x10;
-        func_8009305C(D_8010EFA0, a0 + 0x80 + i * 0x80);
+        StoreImage(D_8010EFA0, a0 + 0x80 + i * 0x80);
         DrawSync(0);
         i++;
         a4 += 4;

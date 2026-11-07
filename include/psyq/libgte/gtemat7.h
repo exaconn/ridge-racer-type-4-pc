@@ -6,8 +6,8 @@
 void SetRotMatrix(int *a0);
 void SetColorMatrix(int *a0);
 void SetTransMatrix(int *a0);
-void func_8009125C(int a0);
-void func_80091268(int a0);
+void SetDQA(int a0);
+void SetDQB(int a0);
 int SetBackColor();
 void SetFarColor(int a0, int a1, int a2);
 

@@ -28,7 +28,7 @@ static World actual,reference,initial,*w;
 static u32 heads[704],arena[4096];static unsigned scenario,bank,mutation,seenTracks,seenClut;
 #define D_800AD5C8 w->s.banks[0]
 #define D_800FF700 w->s.banks[1]
-#define D_800F3AFC (w->s.badges[w->s.root])
+#define BadgeRows (w->s.badges[w->s.root])
 #define D_800AC648 w->s.group
 #define D_800F3914 w->s.track
 #define ScreenFrame w->s.tick
@@ -65,11 +65,11 @@ s32 rcos(s32 angle){Event *e=event(1);e->args[0]=angle;change();return (u32)angl
 void *func_8001FF84(u32 *o,void *p,s32 x,s32 y,RrUiUvRect *glyph,u16 clut,s32 color){Event *e=event(2);unsigned i,id=99;
  for(i=0;i<5;i++)if(glyph==w->s.glyphs+i)id=i;for(i=0;i<2;i++)if(glyph==w->s.footer+i)id=5+i;assert(id<7);
  e->args[0]=x;e->args[1]=y;e->args[2]=id;e->args[3]=clut;e->args[4]=color;memcpy(e->data,glyph,4);if(id<5)seenClut|=1U<<(clut-32760);return render(e,o,p);}
-void *func_8001FD20(u32 *o,void *p,s32 x,s32 y,s32 width,s32 height,s32 r,s32 g,s32 b){Event *e=event(3);s32 args[]={x,y,width,height,r,g,b};memcpy(e->args,args,sizeof(args));return render(e,o,p);}
-void *func_8001F5B4(u32 *o,void *p,s32 x,s32 y,const char *text,s32 clut,s32 spacing,s32 color){Event *e=event(4);unsigned b,g,t,r,valid=0;
+void *AddTilePrim(u32 *o,void *p,s32 x,s32 y,s32 width,s32 height,s32 r,s32 g,s32 b){Event *e=event(3);s32 args[]={x,y,width,height,r,g,b};memcpy(e->args,args,sizeof(args));return render(e,o,p);}
+void *AddTextSprites(u32 *o,void *p,s32 x,s32 y,const char *text,s32 clut,s32 spacing,s32 color){Event *e=event(4);unsigned b,g,t,r,valid=0;
  if(text==(char*)w->s.text){e->args[5]=-1;valid=1;}else for(b=0;b<2;b++)for(g=0;g<2;g++)for(t=0;t<8;t++)for(r=0;r<5;r++)if(text==w->s.banks[b][g][t][r].name){e->args[5]=b;e->args[6]=g;e->args[7]=t;e->args[8]=r;valid=1;}
  assert(valid);e->args[0]=x;e->args[1]=y;e->args[2]=clut;e->args[3]=spacing;e->args[4]=color;memcpy(e->data,text,10);return render(e,o,p);}
-void *func_8001FCC8(u32 *o,void *p,u16 mode){Event *e=event(5);e->args[0]=mode;return render(e,o,p);}
+void *AddDrawModePrim(u32 *o,void *p,u16 mode){Event *e=event(5);e->args[0]=mode;return render(e,o,p);}
 void *func_80032EC8(u32 *o,void *p,s32 x,s32 y,s32 icon){Event *e=event(6);e->args[0]=x;e->args[1]=y;e->args[2]=icon;return render(e,o,p);}
 ''' + formatter + bodies + r'''
 static char *format(s32 value){int64_t v=value,minutes=v/60000,seconds=v/1000%60,millis=v%1000;u8 *s=w->s.text;
@@ -80,15 +80,15 @@ static void *expected(unsigned row,void *cursor){State *s=&w->s;unsigned g=s->gr
  for(i=0;i<5;i++){
   int clut=32760;if((s32)i==s->selected){int angle=word((u32)s->tick*128U-682U);if(rcos(angle)<0)clut=32761;}
   x=s->badges[s->root][row].x04+8;cursor=func_8001FF84(heads,cursor,x,y,s->glyphs+i,clut,0);
-  x+=s->widths[bank][0];cursor=func_8001FD20(heads,cursor,x,y-2,1,20,255,255,255);
-  x+=s->widths[bank][1];cursor=func_8001F5B4(heads,cursor,x,y,format(s->banks[bank][g][s->track][i].time),clut,0,0);
-  x+=s->widths[bank][2];cursor=func_8001FD20(heads,cursor,x,y-2,1,20,255,255,255);
-  x+=s->widths[bank][3];cursor=func_8001F5B4(heads,cursor,x,y,s->banks[bank][g][s->track][i].name,clut,0,0);y+=24;
+  x+=s->widths[bank][0];cursor=AddTilePrim(heads,cursor,x,y-2,1,20,255,255,255);
+  x+=s->widths[bank][1];cursor=AddTextSprites(heads,cursor,x,y,format(s->banks[bank][g][s->track][i].time),clut,0,0);
+  x+=s->widths[bank][2];cursor=AddTilePrim(heads,cursor,x,y-2,1,20,255,255,255);
+  x+=s->widths[bank][3];cursor=AddTextSprites(heads,cursor,x,y,s->banks[bank][g][s->track][i].name,clut,0,0);y+=24;
  }
  x+=52;rowY=s->badges[s->root][row].y06;y=rowY+40;
- cursor=func_8001FD20(heads,cursor,x,y-2,1,116,255,255,255);cursor=func_8001FCC8(heads,cursor,56);
+ cursor=AddTilePrim(heads,cursor,x,y-2,1,116,255,255,255);cursor=AddDrawModePrim(heads,cursor,56);
  x+=16;cursor=func_80032EC8(heads,cursor,x,y,(u16)s->group%8);
- cursor=func_8001FF84(heads,cursor,x+8,rowY+112,s->footer+g,30180+g,0);return func_8001FCC8(heads,cursor,89);
+ cursor=func_8001FF84(heads,cursor,x+8,rowY+112,s->footer+g,30180+g,0);return AddDrawModePrim(heads,cursor,89);
 }
 int main(void){unsigned i,row;
  for(scenario=0;scenario<4096;scenario++)for(bank=0;bank<2;bank++)for(mutation=0;mutation<2;mutation++){

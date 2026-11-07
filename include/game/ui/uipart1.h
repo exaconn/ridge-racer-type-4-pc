@@ -3,9 +3,9 @@
 
 #include "types.h"
 
-int func_8002B574();
+int FramesToMilliseconds();
 void func_8002B5D0();
-char *func_8002BDB4();
+char *FormatMillisecondsTime();
 int func_8002BEF8();
 void func_8002BF34();
 void func_8002C11C();

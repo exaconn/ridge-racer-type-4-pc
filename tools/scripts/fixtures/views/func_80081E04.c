@@ -4,9 +4,9 @@
 
 #include "rr/library.h"
 
-extern RrLibStateB0 *D_8010F068[];
+extern RrLibStateB0 *_ss_score[];
 
-s32 func_80081E04(s32 raw_bank, s32 raw_row) {
+s32 _SsReadDeltaValue(s32 raw_bank, s32 raw_row) {
     s16 bank = raw_bank;
     s16 row = raw_row;
     /* ASM_BARRIER: Preserve the original decoder register allocation and overlapping lifetimes. */
@@ -18,7 +18,7 @@ s32 func_80081E04(s32 raw_bank, s32 raw_row) {
     /* ASM_BARRIER: Preserve the original decoder register allocation and overlapping lifetimes. */
     register u32 result __asm__("$2");
     u32 value, next;
-    table = D_8010F068;
+    table = _ss_score;
     table += bank;
     bank_base = *table;
     state = bank_base + row;

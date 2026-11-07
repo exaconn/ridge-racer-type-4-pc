@@ -9,15 +9,15 @@ void ovl660_func_801154D8(void)
     D_800F2DE4 = 0;
     if (D_800F4C64 != -1) {
         ovl660_func_801162D8();
-        ovl660_race_record_rank = ovl660_func_80115FA8(0, D_800F4C80[(s16)D_800AC1A0]);
+        ovl660_race_record_rank = ovl660_func_80115FA8(0, LapTimes[(s16)D_800AC1A0]);
         ovl660_lap_record_rank = ovl660_func_80115FA8(1, D_800F4C64);
     } else {
         ovl660_race_record_rank = 6;
         ovl660_lap_record_rank = 6;
     }
     InitMenuTextRows(D_800FFC48);
-    D_800AC64A = 0;
-    D_800AC5E0 = 3;
+    MenuCursor = 0;
+    MenuItemCount = 3;
     off = 0;
     if (D_800F3914 == 7) {
         off = 11;
@@ -43,10 +43,10 @@ void ovl660_func_801154D8(void)
 }
 
 s32 ovl660_func_801156A8(s32 reserved){
- func_80041320(D_800AC64A+37,0,0);
- func_8002B330(0,2,(char*)&D_800AC64A,D_800AC5E0,0);
- func_80041320(D_800AC64A+37,1,1);
- if(D_800F3A60){PlaySfx(1);return D_800AC64A;}
+ func_80041320(MenuCursor+37,0,0);
+ StepMenuValue(0,2,(char*)&MenuCursor,MenuItemCount,0);
+ func_80041320(MenuCursor+37,1,1);
+ if(D_800F3A60){PlaySfx(1);return MenuCursor;}
  return -1;
 }
 
@@ -82,13 +82,13 @@ void ovl660_func_8011572C(void) {
         if (D_800F3914 == 7) {
             base = 3;
         }
-        for (i = 0; i < D_800F3A30; i++) {
+        for (i = 0; i < NumLaps; i++) {
             row = base + i;
-            func_8002B814((char *)&MenuTextRows[row].bytes[32], i + 1, 0);
-            func_8002B934((char *)&MenuTextRows[row].bytes[35], D_800F4C80[i]);
-            if (i == D_800ABEF8[0].steering288.finish20 && ovl660_race_record_rank < 5) {
+            FormatDecimalDigits((char *)&MenuTextRows[row].bytes[32], i + 1, 0);
+            FormatRaceTime((char *)&MenuTextRows[row].bytes[35], LapTimes[i]);
+            if (i == PlayerCars[0].steering288.finish20 && ovl660_race_record_rank < 5) {
                 func_80041320(row, 1, -1);
-                func_8002B75C((char *)&MenuTextRows[row].bytes[45], ovl660_new_record_label);
+                CopyStringClearTail((char *)&MenuTextRows[row].bytes[45], ovl660_new_record_label);
             }
         }
         base = 9;
@@ -97,19 +97,19 @@ void ovl660_func_8011572C(void) {
         }
         if (ovl660_lap_record_rank < 5) {
             func_80041320(base, 1, -1);
-            func_8002B75C((char *)&MenuTextRows[base].bytes[45], ovl660_new_record_label);
+            CopyStringClearTail((char *)&MenuTextRows[base].bytes[45], ovl660_new_record_label);
         }
         break;
     case 1:
         group = 11;
         if (ovl660_race_record_rank < 5) {
-            func_8002B330(1, 4, (char *)&ovl660_name_cursor, 8, 0);
+            StepMenuValue(1, 4, (char *)&ovl660_name_cursor, 8, 0);
             func_800397BC(&ovl660_record_name[ovl660_name_cursor]);
             {
                 s32 entry = ovl660_race_record_rank + 15;
-                func_8002B75C((char *)&MenuTextRows[entry].bytes[42], ovl660_record_name);
+                CopyStringClearTail((char *)&MenuTextRows[entry].bytes[42], ovl660_record_name);
             }
-            func_8002B75C(D_800FF700[D_800AD522][D_800F3914][ovl660_race_record_rank].name, ovl660_record_name);
+            CopyStringClearTail(D_800FF700[D_800AD522][D_800F3914][ovl660_race_record_rank].name, ovl660_record_name);
             func_80041320(ovl660_race_record_rank + 15, 1, -((ovl660_name_cursor + 15) << 8));
         }
         if (MenuTextRows[15].signedBytes[3] >= 15) {
@@ -125,13 +125,13 @@ void ovl660_func_8011572C(void) {
     case 2:
         group = 22;
         if (ovl660_lap_record_rank < 5) {
-            func_8002B330(1, 4, (char *)&ovl660_name_cursor, 8, 0);
+            StepMenuValue(1, 4, (char *)&ovl660_name_cursor, 8, 0);
             func_800397BC(&ovl660_record_name[ovl660_name_cursor]);
             {
                 s32 entry = ovl660_lap_record_rank + 26;
-                func_8002B75C((char *)&MenuTextRows[entry].bytes[42], ovl660_record_name);
+                CopyStringClearTail((char *)&MenuTextRows[entry].bytes[42], ovl660_record_name);
             }
-            func_8002B75C(D_800AD5C8[D_800AD522][D_800F3914][ovl660_lap_record_rank].name, ovl660_record_name);
+            CopyStringClearTail(D_800AD5C8[D_800AD522][D_800F3914][ovl660_lap_record_rank].name, ovl660_record_name);
             func_80041320(ovl660_lap_record_rank + 26, 1, -((ovl660_name_cursor + 15) << 8));
         }
         if (MenuTextRows[15].signedBytes[3] >= 15) {
@@ -150,18 +150,18 @@ void ovl660_func_8011572C(void) {
             if (ovl660_func_801156A8(0) >= 0) {
                 func_8002AF8C(0, 1, 0);
                 ResetScreenCounters();
-                func_8003A1B4();
+                InitMenuArenas();
                 D_800AC5D0 = 64;
-                D_800F4D8A = D_800AC64A + 4;
+                D_800F4D8A = MenuCursor + 4;
             }
         } else {
             func_8002AF8C(0, 1, 0);
         }
         if (D_800F4C64 != -1) {
             if (ovl660_result_transition == 1) {
-                ready = func_8003708C((s8 *)&D_800F4D98);
+                ready = PackChoiceGlyph((s8 *)&D_800F4D98);
                 MenuTextRows[42].bytes[28] = 34;
-                func_8004342C(D_800AC648, ready, D_800F4C64, ovl660_result_kind, D_800AD564,
+                EncodeRecordPassword(D_800AC648, ready, D_800F4C64, ovl660_result_kind, D_800AD564,
                               &MenuTextRows[42].bytes[29]);
                 MenuTextRows[42].bytes[42] = 34;
                 ovl660_result_transition = 2;
@@ -214,7 +214,7 @@ void ovl660_func_8011572C(void) {
         }
         return;
     }
-    func_8002A344(0x1000C);
+    UpdateScreenFade(0x1000C);
     func_8003662C(D_800F2DE4);
     if (group >= 0) {
         i = 0;
@@ -268,13 +268,13 @@ s32 ovl660_func_80115FA8(s32 mode, s32 time) {
                 }
             }
             if (mode == 1) {
-                D_800AD5C8[D_800AD522][D_800F3914][i].car = func_8003708C((s8 *)&D_800F4D98);
+                D_800AD5C8[D_800AD522][D_800F3914][i].car = PackChoiceGlyph((s8 *)&D_800F4D98);
                 D_800AD5C8[D_800AD522][D_800F3914][i].time = times[i];
-                func_8002B75C(D_800AD5C8[D_800AD522][D_800F3914][i].name, ovl660_record_name);
+                CopyStringClearTail(D_800AD5C8[D_800AD522][D_800F3914][i].name, ovl660_record_name);
             } else {
-                D_800FF700[D_800AD522][D_800F3914][i].car = func_8003708C((s8 *)&D_800F4D98);
+                D_800FF700[D_800AD522][D_800F3914][i].car = PackChoiceGlyph((s8 *)&D_800F4D98);
                 D_800FF700[D_800AD522][D_800F3914][i].time = times[i];
-                func_8002B75C(D_800FF700[D_800AD522][D_800F3914][i].name, ovl660_record_name);
+                CopyStringClearTail(D_800FF700[D_800AD522][D_800F3914][i].name, ovl660_record_name);
             }
             return i;
         }
@@ -297,7 +297,7 @@ void ovl660_func_801162D8(void)
     u16 index;
     n = 6;
     i = 0;
-    destination = values; source = D_800F4C80; order = indices;
+    destination = values; source = LapTimes; order = indices;
     for (; i < 6; destination++, source++, i++, order++) {
         *order = i;
         *destination = *source;

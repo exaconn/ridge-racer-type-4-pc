@@ -2,18 +2,18 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/spu_init.h"
 
-#define BANK ((RrSpuRegisterStorage *)D_800A47D8)
+#define BANK ((RrSpuRegisterStorage *)_spu_RXX)
 #define STATUS(bank) ((bank)->halves[215])
-s32 func_8007EAC4(s32 warm)
+s32 _spu_init(s32 warm)
 {
     register RrSpuRegisterStorage *bank __asm__("$2");
     u32 count;
     s32 i;
     u16 *entry;
     *D_800A47E8 |= 0xB0000;
-    D_800A47F4=0;
+    _spu_transMode=0;
     D_800A47F8=0;
-    D_800A47F0=0;
+    _spu_tsa=0;
     bank=BANK;
     bank->halves[192]=0;
     bank->halves[193]=0;
@@ -39,10 +39,10 @@ s32 func_8007EAC4(s32 warm)
     /* ASM_BARRIER: Keep the clear loop indexed by its initialized row count. */
     __asm__("" : "+r"(i));
     entry=D_8010EFB0;
-    D_800A47FC=2;
-    D_800A4800=3;
-    D_800A4804=8;
-    D_800A4808=7;
+    _spu_mem_mode=2;
+    _spu_mem_mode_plus=3;
+    _spu_mem_mode_unit=8;
+    _spu_mem_mode_unitM=7;
     /* ASM_BARRIER: Publish software configuration before capturing the bank. */
     __asm__("" : : : "memory");
     bank=BANK;
@@ -62,7 +62,7 @@ s32 func_8007EAC4(s32 warm)
         /* ASM_BARRIER: Prepare the real bounded input owner before MMIO writes. */
         __asm__("" : : "r"(source));
         bank=BANK;
-        D_800A47F0=0x200;
+        _spu_tsa=0x200;
         bank->halves[200]=0;
         bank->halves[201]=0;
         bank->halves[202]=0;
@@ -97,9 +97,9 @@ s32 func_8007EAC4(s32 warm)
     { register s32 result __asm__("$2")=0;
     register RrSpuRegisterStorage *end=BANK;
     
-    D_800A480C=1;
+    _spu_inTransfer=1;
     end->halves[213]=0xC000;
-    D_800A4810=0;
+    _spu_transferCallback=0;
     D_800A4814=0;
     /* ASM_BARRIER: Finish reset stores before the return phase. */
     __asm__("" : : "r"(result) : "memory");

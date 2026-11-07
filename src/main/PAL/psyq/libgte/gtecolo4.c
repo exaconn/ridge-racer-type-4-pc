@@ -143,7 +143,7 @@ void OuterProduct0(int *a0, int *a1, int *a2) {
     __asm__ volatile ("ctc2 %0, $4" : : "r"(t7));
 }
 
-int func_800916B8(int a0) {
+int Lzc(int a0) {
     int v;
     __asm__ volatile ("mtc2 %0, $30" : : "r"(a0));
     __asm__ volatile ("nop\n\tnop");

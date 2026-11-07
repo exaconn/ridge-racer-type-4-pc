@@ -14,16 +14,16 @@ extern volatile s32 D_800ABBEC;
 
 /* Drawing limits and packed E3/E4 drawing-area coordinate commands. */
 extern s16 D_800ABAC4, D_800ABAC6;
-u32 func_80094100(s32 x, s32 y);
-u32 func_80094198(s32 x, s32 y);
+u32 get_cs(s32 x, s32 y);
+u32 get_ce(s32 x, s32 y);
 
 /* Ordering-table DMA on channel 6. Address/count arithmetic wraps at 32 bits on PAL.
  * The supplied address is recorded after adding signed32(count*4-4). */
 extern u8 * volatile *D_800ABBD8;
 extern volatile u32 *D_800ABBDC, *D_800ABBE0, *D_800ABBE4;
-s32 func_800942E4(u8 *buffer, s32 count);
-void func_80095360(void);
-s32 func_80095394(void);
+s32 _otc(u8 *buffer, s32 count);
+void set_alarm(void);
+s32 get_alarm(void);
 
 /* RECT has both signed-coordinate and packed-word views on little-endian PAL. */
 typedef struct { s16 x,y,w,h; } RrGpuRectangleFields;
@@ -38,26 +38,26 @@ typedef struct {
 
 /* The DMA packet header occupies the eight bytes preceding this payload. */
 extern RrGpuMovePayload D_800ABB60;
-void func_80092DB8(const char *name, RrGpuRectangle *rectangle);
+void checkRECT(const char *name, RrGpuRectangle *rectangle);
 void func_80095990();
-void func_80094B28(unsigned long address);
+void _cwc(unsigned long address);
 s32 MoveImage2(RrGpuRectangle *rectangle, s32 x, s32 y);
 /* Uploads ceil(width*height/2) packed pixel words, using a CPU tail and DMA
  * blocks of16 words. Dimensions clamp against the signed configured limits
  * (inclusive), storing their low16 bits. Returns-1 for a nonpositive word
  * count or timeout, otherwise0. The source must cover the complete transfer. */
-s32 func_800945F4(RrGpuRectangle *rectangle, const u32 *pixels);
+s32 _dws(RrGpuRectangle *rectangle, const u32 *pixels);
 /* Reverse transfer with the same dimension and buffer-capacity contract.
  * Polls command readiness, requests image data, then polls receive readiness
  * before reading the CPU tail and starting DMA. Returns -1 on either timeout
  * or a nonpositive word count, otherwise 0. */
-s32 func_80094830(RrGpuRectangle *rectangle, u32 *pixels);
+s32 _drs(RrGpuRectangle *rectangle, u32 *pixels);
 /* In-place dimensions clamp against signed limit-1. Aligned X/width use the
  * fast GPU fill; other rectangles use a linked packet that restores draw state.
  * The color's high bit contributes bit10 of the drawing-mode command. */
-s32 func_800943C4(RrGpuRectangle *rectangle, u32 color);
+s32 _clr(RrGpuRectangle *rectangle, u32 color);
 /* Query a GPU state selector and return its low24 bits. */
-s32 func_80094B70(s32 selector);
+s32 _param(s32 selector);
 RR_ASSERT_SIZE(RrGpuRectangle, 8);
 RR_ASSERT_OFFSET(RrGpuRectangleFields, w, 4);
 RR_ASSERT_OFFSET(RrGpuRectangleFields, h, 6);

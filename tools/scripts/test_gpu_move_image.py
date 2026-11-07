@@ -44,14 +44,14 @@ void *test_rect;const char *test_name;unsigned long test_address;
 u32 test_payload[3];s32 test_channel;RrLibInterruptCallback test_callback;
 s32 (*test_poll)(void);void (*test_debug_hook)(void),(*test_exchange_hook)(void);
 void event(u32 kind,u32 arg,u32 value){s32 i=test_event_count++;if(i<64){test_events[i][0]=kind;test_events[i][1]=arg;test_events[i][2]=value;}}
-void func_80092DB8(const char *name,RrGpuRectangle *rect){
+void checkRECT(const char *name,RrGpuRectangle *rect){
  test_debug_calls++;test_name=name;test_rect=rect;event(1,0,0);if(test_debug_hook)test_debug_hook();
 }
 s32 VSync(s32 mode){event(2,(u32)mode,0);return test_now;}
-s32 func_80095394(void){test_timeout_calls++;event(3,0,0);return test_poll();}
+s32 get_alarm(void){test_timeout_calls++;event(3,0,0);return test_poll();}
 u32 test_dma_read(volatile u32 *p){event(4,p==&ports[1]?1:5,*p);return *p;}
 u32 test_gpu_read(volatile u32 *p){event(5,p==&ports[0]?0:4,*p);return *p;}
-void func_80094E74(void){}
+void _exeque(void){}
 RrLibInterruptCallback test_exchange(s32 channel,RrLibInterruptCallback callback){
  RrLibInterruptCallback old=test_callback;test_callback=callback;test_channel=channel;
  test_exchange_calls++;event(6,channel,0);if(test_exchange_hook)test_exchange_hook();return old;
@@ -61,7 +61,7 @@ RrLibInterruptDriverPrefix *D_800A6350=&irq_driver;
 void draw(unsigned long address,s32 driver){
  test_draw_calls++;test_address=address;test_draw_driver=driver;
  memcpy(test_payload,&packet.payload,sizeof(test_payload));event(7,driver,0);
- func_80094B28(address);
+ _cwc(address);
 }
 void draw0(unsigned long address){draw(address,0);}
 void draw1(unsigned long address){draw(address,1);}
@@ -197,7 +197,7 @@ void *test_packet_address(void){return packet.prefix;}
         callback=C.c_void_p.in_dll(self.lib,'test_callback').value
         self.assertEqual(callback,C.cast(self.lib.func_80095990,C.c_void_p).value)
         Hook(callback)()
-        self.assertEqual(C.c_void_p.in_dll(self.lib,'test_callback').value,C.cast(self.lib.func_80094E74,C.c_void_p).value)
+        self.assertEqual(C.c_void_p.in_dll(self.lib,'test_callback').value,C.cast(self.lib._exeque,C.c_void_p).value)
 
     def test_source_rectangle_may_overlap_packet_payload(self):
         self.lib.test_reset()

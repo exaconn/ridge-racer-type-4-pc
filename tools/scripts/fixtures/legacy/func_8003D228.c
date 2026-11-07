@@ -12,9 +12,9 @@ typedef struct
   short i;
   char pad[10];
 } E;
-extern int D_800F2ECC;
-extern E *D_800F3AFC;
-void func_8003D228(a0, a1, a2, a3, a4, a5, a6)
+extern int BadgeRowCount;
+extern E *BadgeRows;
+void InitBadgeRow(a0, a1, a2, a3, a4, a5, a6)
 int a0;
 int a1;
 short a2;
@@ -25,10 +25,10 @@ unsigned short a6;
 {
   int s;
   unsigned int z;
-  if (a0 < D_800F2ECC)
+  if (a0 < BadgeRowCount)
   {
-    D_800F3AFC[a0].a = a6;
-    D_800F3AFC[a0].b = 0;
+    BadgeRows[a0].a = a6;
+    BadgeRows[a0].b = 0;
     s = (short) a6;
     if (s < 0)
     {
@@ -43,12 +43,12 @@ unsigned short a6;
         a4 = 0x80;
       }
     }
-    D_800F3AFC[a0].d = a2 - a6;
-    D_800F3AFC[a0].f = a2 - a6;
-    D_800F3AFC[a0].c = a1;
-    D_800F3AFC[a0].e = a1;
-    D_800F3AFC[a0].g = a3;
-    D_800F3AFC[a0].h = a4 + a6;
-    D_800F3AFC[a0].i = a5;
+    BadgeRows[a0].d = a2 - a6;
+    BadgeRows[a0].f = a2 - a6;
+    BadgeRows[a0].c = a1;
+    BadgeRows[a0].e = a1;
+    BadgeRows[a0].g = a3;
+    BadgeRows[a0].h = a4 + a6;
+    BadgeRows[a0].i = a5;
   }
 }

@@ -14,9 +14,9 @@ struct S { char pad[0x2864]; s16 a; char p[0x2888 - 0x2866]; s16 b; };
 void func_80053A9C(s16 a0);
 void func_80053AF4(int a0, int a1);
 
-void func_800534D8(void) {
+void CdAudioUpdate(void) {
     s32 ready;
-    RrAudioState *phaseState = &D_800F4DB8;
+    RrAudioState *phaseState = &SoundState;
     u8 filter[2];
     RrCdLocation location;
     RrAudioState *var_v0;
@@ -33,58 +33,58 @@ void func_800534D8(void) {
     s32 temp_v1;
     s32 temp_v1_3;
 
-    if (D_800F4DB8.sector2664 < 0) {
-        switch (D_800F4DB8.action2670) {
+    if (SoundState.sector2664 < 0) {
+        switch (SoundState.action2670) {
         case 1:
-            func_80052F2C();
+            CdAudioPlayStep();
             break;
         case 2:
-            func_80053120();
+            CdAudioPauseStep();
             break;
         case 3:
-            func_80053254();
+            CdAudioResumeStep();
             break;
         case 4:
-            func_80053384();
+            CdAudioStopStep();
             break;
         case 5:
-            func_80053300();
+            CdAudioLoopStep();
             break;
         case 6:
-            func_80052DA8();
+            CdAudioFilterStep();
             break;
         }
         goto block_34;
     }
-    switch (D_800F4DB8.phase2674) {
+    switch (SoundState.phase2674) {
     case 0:
-                if (func_8008C0D8(1, 0) != 0) {
-                    D_800F4DB8.state269C = 0;
-                    D_800F4DB8.timer26A8 = 0;
-                    D_800F4DB8.phase2674 = (s32) ((u32) D_800F4DB8.phase2674 + 1U);
+                if (CdSync(1, 0) != 0) {
+                    SoundState.state269C = 0;
+                    SoundState.timer26A8 = 0;
+                    SoundState.phase2674 = (s32) ((u32) SoundState.phase2674 + 1U);
                     goto seek;
                 }
                 goto timeout;
     case 1:
 seek:
-        CdIntToPos(D_800F4DB8.sector2664, location.c);
+        CdIntToPos(SoundState.sector2664, location.c);
         CdControlF(0x15, location.c);
-        D_800F4DB8.phase2674 = (s32) ((u32) D_800F4DB8.phase2674 + 1U);
+        SoundState.phase2674 = (s32) ((u32) SoundState.phase2674 + 1U);
         goto block_34;
     case 2:
         ready = 2;
-            temp_v0_2 = func_8008C0D8(1, 0);
+            temp_v0_2 = CdSync(1, 0);
             if (temp_v0_2 == ready) {
                 filter[0] = 1;
-                filter[1] = (u8) D_800F4DB8.filter266C;
+                filter[1] = (u8) SoundState.filter266C;
                 if (CdControlF(0xD, filter) != 0) {
-                    D_800F4DB8.phase2674 = (s32) ((u32) D_800F4DB8.phase2674 + 1U);
+                    SoundState.phase2674 = (s32) ((u32) SoundState.phase2674 + 1U);
                 }
             } else if (temp_v0_2 == 5) {
-                D_800F4DB8.phase2674 = 1;
-                if (func_8008F274(1) == 0x10) {
+                SoundState.phase2674 = 1;
+                if (CdDiskReady(1) == 0x10) {
                     ready = -1;
-                    D_800F4DB8.flag267C = 1;
+                    SoundState.flag267C = 1;
                     goto block_27;
                 }
             } else {
@@ -95,7 +95,7 @@ timeout:
                     ready = -1;
 block_27:
                     phaseState->flag2680 = ready;
-                    func_8008C03C();
+                    CdFlush();
                     phaseState->sector2664 = ready;
                     phaseState->phase2674 = 0;
                 }
@@ -103,186 +103,186 @@ block_27:
             goto block_34;
     case 3:
         ready = 2;
-                temp_v0 = func_8008C0D8(1, 0);
+                temp_v0 = CdSync(1, 0);
                 if (temp_v0 == ready) {
-                    temp_v1 = D_800F4DB8.sector2664;
-                    D_800F4DB8.sector2664 = -1;
-                    D_800F4DB8.phase2674 = 0;
-                    D_800F4DB8.state269C = -1;
-                    D_800F4DB8.flag267C = 0;
-                    D_800F4DB8.flag2680 = 0;
-                    D_800F4DB8.sector2668 = temp_v1;
-                    D_800F4DB8.position2688 = temp_v1;
-                    D_800F4DB8.index2698 = (s32) D_800F4DB8.filter266C;
-                    if (D_800F4DB8.state26AC == temp_v0) {
-                        D_800F4DB8.state26AC = 0;
+                    temp_v1 = SoundState.sector2664;
+                    SoundState.sector2664 = -1;
+                    SoundState.phase2674 = 0;
+                    SoundState.state269C = -1;
+                    SoundState.flag267C = 0;
+                    SoundState.flag2680 = 0;
+                    SoundState.sector2668 = temp_v1;
+                    SoundState.position2688 = temp_v1;
+                    SoundState.index2698 = (s32) SoundState.filter266C;
+                    if (SoundState.state26AC == temp_v0) {
+                        SoundState.state26AC = 0;
                     }
                 } else if (temp_v0 == 5) {
-                    D_800F4DB8.phase2674 = 1;
+                    SoundState.phase2674 = 1;
                 }
                 goto block_34;
     }
 block_34:
-    var_v0 = &D_800F4DB8;
+    var_v0 = &SoundState;
     temp_a0 = var_v0->request26B4;
     if (temp_a0 != 0 && var_v0->action2670 == -1) {
         switch (temp_a0) {
-        case 1:func_80052C70();D_800F746C=0;break;
-        case 2:func_80052AB8();D_800F746C=0;break;
+        case 1:CdAudioRequestPause();D_800F746C=0;break;
+        case 2:CdAudioMute();D_800F746C=0;break;
         default:D_800F746C=0;break;
         }
     }
-    if (D_800F4DB8.state269C == 1) {
-        temp_v0_4 = D_800F4DB8.toc28C8[D_800F4DB8.bankA8CC][D_800F4DB8.index2698].position;
-        D_800F4DB8.previous26DC = (s32) D_800F4DB8.tick26D8;
-        D_800F4DB8.base26F0 = temp_v0_4;
-        rate = D_800F4DB8.rate26F4;
+    if (SoundState.state269C == 1) {
+        temp_v0_4 = SoundState.toc28C8[SoundState.bankA8CC][SoundState.index2698].position;
+        SoundState.previous26DC = (s32) SoundState.tick26D8;
+        SoundState.base26F0 = temp_v0_4;
+        rate = SoundState.rate26F4;
         __asm__("" : : "r"(rate));
         if (rate != 0) {
-            D_800F4DB8.tick26D8 = (s32) ((((u32) temp_v0_4 + 10U) * (u32) rate) / 600000U);
+            SoundState.tick26D8 = (s32) ((((u32) temp_v0_4 + 10U) * (u32) rate) / 600000U);
         } else {
-            D_800F4DB8.tick26D8 = 0;
+            SoundState.tick26D8 = 0;
         }
-        D_800F4DB8.tick26D0 = 0;
-        D_800F4DB8.half26D2 = 0;
-        temp_v1_2 = (u32) D_800F4DB8.tick26D8 - (u32) D_800F4DB8.previous26DC;
-        D_800F4DB8.quarter26D4 = 0;
+        SoundState.tick26D0 = 0;
+        SoundState.half26D2 = 0;
+        temp_v1_2 = (u32) SoundState.tick26D8 - (u32) SoundState.previous26DC;
+        SoundState.quarter26D4 = 0;
         if (temp_v1_2 == 1) {
-            temp_a1 = (u32) D_800F4DB8.tick26D8 + (u32) D_800F4DB8.offset26E8;
-            D_800F4DB8.tick26D0 = temp_v1_2;
+            temp_a1 = (u32) SoundState.tick26D8 + (u32) SoundState.offset26E8;
+            SoundState.tick26D0 = temp_v1_2;
             if (!(temp_a1 & 1)) {
-                D_800F4DB8.half26D2 = temp_v1_2;
+                SoundState.half26D2 = temp_v1_2;
             }
             if (!(temp_a1 & 3)) {
-                D_800F4DB8.quarter26D4 = temp_v1_2;
+                SoundState.quarter26D4 = temp_v1_2;
             }
         }
-        if ((u32) D_800F4DB8.position2688 > (u32) D_800F4DB8.end2690) {
-            if (D_800F4DB8.flag26A0 == 0) {
-                D_800F4DB8.action2670 = 4;
-                D_800F4DB8.step2678 = 0;
-            } else if (D_800F4DB8.action2670 != 5) {
-                D_800F4DB8.action2670 = 5;
-                D_800F4DB8.timer26A4 = 0;
-                func_8001E84C(D_8001118C, &D_800F4DB8);
+        if ((u32) SoundState.position2688 > (u32) SoundState.end2690) {
+            if (SoundState.flag26A0 == 0) {
+                SoundState.action2670 = 4;
+                SoundState.step2678 = 0;
+            } else if (SoundState.action2670 != 5) {
+                SoundState.action2670 = 5;
+                SoundState.timer26A4 = 0;
+                func_8001E84C(D_8001118C, &SoundState);
             }
-            func_80052B48(0);
+            CdAudioSetVolumeRaw(0);
         }
-            if (D_800F4DB8.previous268C != D_800F4DB8.position2688) {
-            D_800F4DB8.timer26A8 = 0;
+            if (SoundState.previous268C != SoundState.position2688) {
+            SoundState.timer26A8 = 0;
         } else {
-            D_800F4DB8.timer26A8 = (s32) ((u32) D_800F4DB8.timer26A8 + 1U);
+            SoundState.timer26A8 = (s32) ((u32) SoundState.timer26A8 + 1U);
         }
-        if (D_800F4DB8.timer26A8 >= 0x1E) {
-            D_800F4DB8.action2670 = 4;
-            D_800F4DB8.step2678 = 0;
-            D_800F4DB8.timer26A8 = 0;
+        if (SoundState.timer26A8 >= 0x1E) {
+            SoundState.action2670 = 4;
+            SoundState.step2678 = 0;
+            SoundState.timer26A8 = 0;
         }
     }
-    func_80052E6C();
-    D_800F4DB8.previous268C = (s32) D_800F4DB8.position2688;
-    if ((u32) ((u32) D_800F4DB8.state269C - 1U) < 2U) {
-        temp_v0_5 = func_8008C0D8(1, D_800F4DB8.status265C);
+    CdAudioFadeStep();
+    SoundState.previous268C = (s32) SoundState.position2688;
+    if ((u32) ((u32) SoundState.state269C - 1U) < 2U) {
+        temp_v0_5 = CdSync(1, SoundState.status265C);
         switch (temp_v0_5) {
         case 0:
         case 1:
             break;
         case 2:
-            if (func_8008BFB4() == 0x11) {
-                temp_v0_6 = CdPosToInt(&D_800F4DB8.status265C[5]);
+            if (CdLastCom() == 0x11) {
+                temp_v0_6 = CdPosToInt(&SoundState.status265C[5]);
                 if (temp_v0_6 > 0) {
-                    D_800F4DB8.position2688 = temp_v0_6;
+                    SoundState.position2688 = temp_v0_6;
                 }
             }
             CdControlF(0x11, 0);
             return;
         case 5:
-            if (D_800F4DB8.state269C == 2) {
-                func_80052ADC(D_800F4DB8.volume26CE);
+            if (SoundState.state269C == 2) {
+                CdAudioSetVolume(SoundState.volume26CE);
             }
-            temp_v1_3 = D_800F4DB8.state269C;
-            D_800F4DB8.state269C = -1;
-            D_800F4DB8.action2670 = -1;
-            D_800F4DB8.step2678 = 0;
-            D_800F4DB8.state26AC = temp_v1_3;
+            temp_v1_3 = SoundState.state269C;
+            SoundState.state269C = -1;
+            SoundState.action2670 = -1;
+            SoundState.step2678 = 0;
+            SoundState.state26AC = temp_v1_3;
             break;
         }
     }
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8008C51C ((int (*)())func_8008C51C)
-#define D_800F4DB8 (*(char (*)[])&D_800F4DB8)
+#define CdGetSector ((int (*)())CdGetSector)
+#define SoundState (*(char (*)[])&SoundState)
 
-void func_80053A18(u8 a0) {
+void CdAudioReadyCallback(u8 a0) {
     char *b;
     char *q;
     s32 *s;
     if (a0 == 1) {
-        b = D_800F4DB8;
+        b = SoundState;
         s = (s32 *)(b + 0x8000);
         q = b + 0x28C8;
-        func_8008C51C((s[0x28C8 / 4] << 11) + (int)q, 0x20);
+        CdGetSector((s[0x28C8 / 4] << 11) + (int)q, 0x20);
         s[0x28CC / 4] = s[0x28C8 / 4];
         s[0x28C8 / 4] = (s[0x28C8 / 4] + 1) & 0xF;
     }
 }
 
-#undef func_8008C51C
-#undef D_800F4DB8
+#undef CdGetSector
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x288A]; s16 a, b, c, d; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x288A]; s16 a, b, c, d; } (*))&SoundState)
 
 void func_80053A80(void) {
-    D_800F4DB8.a = 0;
-    D_800F4DB8.b = 0;
-    D_800F4DB8.c = 0;
-    D_800F4DB8.d = 0;
+    SoundState.a = 0;
+    SoundState.b = 0;
+    SoundState.c = 0;
+    SoundState.d = 0;
 }
 
-#undef D_800F4DB8
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct S (*))&D_800F4DB8)
+#define SoundState (*(struct S (*))&SoundState)
 
 void func_80053A9C(s16 a0) {
-    struct S *p = &D_800F4DB8;
+    struct S *p = &SoundState;
     s16 v;
     p->b = a0;
     v = (a0 * D_800AD558) / 16;
-    func_800841E4(p->a, v, v);
+    SsSeqSetVol(p->a, v, v);
 }
 
-#undef D_800F4DB8
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char p0[0x2864]; s32 x2864; s32 x2868; s32 x286C; char p1[0x18]; u16 x2888; s16 x288A; s16 x288C; s16 x288E; s16 x2890; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char p0[0x2864]; s32 x2864; s32 x2868; s32 x286C; char p1[0x18]; u16 x2888; s16 x288A; s16 x288C; s16 x288E; s16 x2890; } (*))&SoundState)
 
 void func_80053AF4(int a0, int a1) {
     if ((s16)a1 >= 2) {
-        u16 v = D_800F4DB8.x2888;
-        D_800F4DB8.x288A = a1;
-        D_800F4DB8.x288C = 0;
-        D_800F4DB8.x288E = a0;
-        D_800F4DB8.x2890 = v;
+        u16 v = SoundState.x2888;
+        SoundState.x288A = a1;
+        SoundState.x288C = 0;
+        SoundState.x288E = a0;
+        SoundState.x2890 = v;
     } else {
         int s = (s16)a0;
         func_80053A9C(s);
-        D_800F4DB8.x288A = 0;
-        D_800F4DB8.x288C = 0;
-        D_800F4DB8.x288E = 0;
-        D_800F4DB8.x2890 = 0;
+        SoundState.x288A = 0;
+        SoundState.x288C = 0;
+        SoundState.x288E = 0;
+        SoundState.x2890 = 0;
         if (s == 0) {
-            if (D_800F4DB8.x2864 >= 0) {
-                func_80083C74((s16)D_800F4DB8.x2864);
-                func_8007F910((s16)D_800F4DB8.x2864);
-                func_80096434(&D_800F4DB8.x286C, 0x1C);
+            if (SoundState.x2864 >= 0) {
+                SsSeqStop((s16)SoundState.x2864);
+                SsSeqClose((s16)SoundState.x2864);
+                func_80096434(&SoundState.x286C, 0x1C);
             }
-            D_800F4DB8.x2864 = -1;
-            D_800F4DB8.x2868 = -1;
+            SoundState.x2864 = -1;
+            SoundState.x2868 = -1;
         }
     }
 }
 
-#undef D_800F4DB8
+#undef SoundState

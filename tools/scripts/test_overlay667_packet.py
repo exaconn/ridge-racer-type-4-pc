@@ -22,7 +22,7 @@ class Overlay667PacketTest(unittest.TestCase):
 RrOverlay667SerialStorage ovl667_D_80118F80;
 RrOverlay667ChoicePair D_800F3AF0;
 u8 ovl667_D_80118F09,ovl667_D_80118EEF;
-s32 D_800FF6B0,ovl667_D_80118EEC,D_800F2AAC;
+s32 RaceState,ovl667_D_80118EEC,D_800F2AAC;
 static u8 expected[12],after[12],choice_after[8];
 static s32 after_words[3];
 static unsigned case_id,mode,calls;
@@ -32,21 +32,21 @@ static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static void mutate(void){unsigned j;
  for(j=0;j<12;j++)((u8*)&ovl667_D_80118F80)[j]=(u8)next();
  for(j=0;j<8;j++)((u8*)&D_800F3AF0)[j]=(u8)next();
- D_800F2AAC=word(next());D_800FF6B0=word(next());ovl667_D_80118EEC=word(next());
+ D_800F2AAC=word(next());RaceState=word(next());ovl667_D_80118EEC=word(next());
  ovl667_D_80118F09=(u8)next();ovl667_D_80118EEF=(u8)next();
 }
 static void save(void){memcpy(after,&ovl667_D_80118F80,12);memcpy(choice_after,&D_800F3AF0,8);
- after_words[0]=D_800F2AAC;after_words[1]=D_800FF6B0;after_words[2]=ovl667_D_80118EEC;}
-s32 func_8009AEAC(s32 command,s32 operation,unsigned long argument){unsigned j;u8 x=0;
+ after_words[0]=D_800F2AAC;after_words[1]=RaceState;after_words[2]=ovl667_D_80118EEC;}
+s32 _sio_control(s32 command,s32 operation,unsigned long argument){unsigned j;u8 x=0;
  static const u8 peers[]={0,1,2,255};
  assert(calls++==0);assert(command==3&&operation==1&&argument==0);
  mutate();ovl667_D_80118F09=(u8)case_id;ovl667_D_80118EEF=peers[(case_id>>8)&3];
  expected[0]=(u8)(ovl667_D_80118F09|(ovl667_D_80118EEF==1?128:0));
  for(j=0;j<8;j++){expected[4+j]=((u8*)&D_800F3AF0)[j];x^=expected[4+j];}
- expected[1]=x;expected[2]=(u8)D_800FF6B0;expected[3]=(u8)ovl667_D_80118EEC;
+ expected[1]=x;expected[2]=(u8)RaceState;expected[3]=(u8)ovl667_D_80118EEC;
  save();return mode==0?0:mode==1?-1:word(0x80000000U|case_id);
 }
-s32 func_80096F54(s32 descriptor,const void *buffer,s32 count){
+s32 FileWrite(s32 descriptor,const void *buffer,s32 count){
  static const s32 result[]={0,12,0,-1,13};
  assert(calls++==1);assert(descriptor==D_800F2AAC&&count==12);
  assert(buffer==&ovl667_D_80118F80);assert((uintptr_t)buffer>UINT32_MAX);
@@ -61,7 +61,7 @@ int main(void){
   assert(calls==(mode==0?1:2));
   assert(memcmp(&ovl667_D_80118F80,after,12)==0);
   assert(memcmp(&D_800F3AF0,choice_after,8)==0);
-  assert(D_800F2AAC==after_words[0]&&D_800FF6B0==after_words[1]&&ovl667_D_80118EEC==after_words[2]);
+  assert(D_800F2AAC==after_words[0]&&RaceState==after_words[1]&&ovl667_D_80118EEC==after_words[2]);
  }
  return 0;
 }

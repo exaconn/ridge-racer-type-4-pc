@@ -20,13 +20,13 @@ RrWide64 *_dbl_shift_us(RrWide64 *result, s32 direction, RrWide64 value, s32 cou
 s32 _comp_mant(RrWide64 left, RrWide64 right);
 
 /* Two's-complement negation modulo 2^64; returns the output pointer. */
-RrWide64 *func_8007E494(RrWide64 *result, RrWide64 value);
+RrWide64 *_mainasu(RrWide64 *result, RrWide64 value);
 
 /* Unsigned 32-by-32 multiplication, returning both product words. */
 RrWide64 *_mul_mant_d(RrWide64 *result, u32 left, u32 right);
 
 /* Signed integer to IEEE binary64 bits, returned as the PAL v0/v1 pair. */
-u64 func_8007E1B4(s32 value);
+u64 __floatsidf(s32 value);
 
 /* Toggle the binary64 sign bit; both zero encodings produce positive zero. */
 u64 func_8007E904(u64 bits);

@@ -56,7 +56,7 @@ typedef struct {
     u16 x0, x1;
 } HRANGE;
 
-extern u8 func_8008BDF8(void);
+extern u8 GetVideoMode(void);
 
 extern void func_80096444(void *, void *, s32);
 
@@ -67,7 +67,7 @@ extern struct {
     void (*f10)(u32);
 } *D_800ABAB8;
 
-extern void (*D_800ABABC)(const char *, ...);
+extern void (*GPU_printf)(const char *, ...);
 
 extern u8 D_800ABAC2[];
 
@@ -91,7 +91,7 @@ DISPENV_T *PutDispEnv(DISPENV_T *env) {
     p = D_800ABAC2;
     mode = 0x08000000;
     if (*p >= 2) {
-        D_800ABABC(D_80011F80, env);
+        GPU_printf(D_80011F80, env);
     }
     {
         /* ASM_BARRIER: keep 0x05000000 in $v0 so disp.y shift gets $v1 */
@@ -104,7 +104,7 @@ DISPENV_T *PutDispEnv(DISPENV_T *env) {
         (s16)d->y != env->disp.y ||
         (s16)d->w != env->disp.w ||
         (s16)d->h != env->disp.h) {
-        if ((env->pad0 = func_8008BDF8()) == 1) {
+        if ((env->pad0 = GetVideoMode()) == 1) {
             mode |= 0x08;
         }
         if (env->isrgb24) {
@@ -152,7 +152,7 @@ DISPENV_T *PutDispEnv(DISPENV_T *env) {
         /* ASM_BARRIER: keep i in $a2 */
         register s32 i asm("$6");
 
-        env->pad0 = func_8008BDF8();
+        env->pad0 = GetVideoMode();
         y0 = env->screen.y + (env->pad0 ? 0x13 : 0x10);
         y1 = env->screen.h ? y0 + env->screen.h : y0 + 0xF0;
         if (env->disp.w < 0x119) {

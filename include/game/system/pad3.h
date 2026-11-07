@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8004BB54(int i);
+void PadRumbleStop(int i);
 
 #endif /* RR_GAME_SYSTEM_PAD3_H */

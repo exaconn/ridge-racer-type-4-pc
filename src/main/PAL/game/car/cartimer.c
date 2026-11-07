@@ -1,7 +1,7 @@
 /* CC1_FLAGS: -fno-schedule-insns */
 typedef struct { int x0; int x4; int x8; char p0[0x198 - 0xC]; short s198, s19a, s19c, s19e; char p1[0x1E4 - 0x1A0]; unsigned short s1e4; char p2[0x224 - 0x1E6]; short s224; } W10_5A;
 
-void func_8002C138(a0) W10_5A *a0;
+void DecayCarOffset(a0) W10_5A *a0;
 {
     W10_5A *a1;
     /* ASM_BARRIER: pin copy reg */

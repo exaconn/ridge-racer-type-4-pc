@@ -11,6 +11,6 @@ extern const u16 D_800A4818[8];
 extern u16 D_8010EFB0[10];
 extern const char D_80011698[], D_800116A8[];
 s32 func_8001E84C(const char *format, ...);
-s32 func_8007EAC4(s32 warm);
+s32 _spu_init(s32 warm);
 
 #endif

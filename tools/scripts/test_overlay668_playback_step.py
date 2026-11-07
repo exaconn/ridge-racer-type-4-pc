@@ -31,13 +31,13 @@ static unsigned scenario,mutation,seen[16],querySeen[8],thresholdSeen[4];
 static const s32 timers[8]={3,INT32_MAX,INT32_MIN,-1,0,4,2,5};
 static const s32 frames[8]={0,-1,INT32_MIN,1,17,INT32_MAX,-4096,4096};
 const char ovl668_D_8011487C[]="time out in strNext() %d\n";
-#define D_800AC650 w->s.context
+#define RaceContext w->s.context
 #define D_800F2DE4 w->s.timer
 #define D_800F3A38 w->s.controllers
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static u32 next(void){u32 n=w->s.rng;n^=n<<13;n^=n>>17;n^=n<<5;return w->s.rng=n;}
 static unsigned playerIndex(const void *p){uintptr_t n=(uintptr_t)p,start=(uintptr_t)(w==&actual?players:expectedPlayers);assert(n>UINT32_MAX&&n>=start&&n<start+sizeof(players));assert((n-start)%sizeof(RrStrPlaybackState)==0);return (unsigned)((n-start)/sizeof(RrStrPlaybackState));}
-static RrStrPlaybackState *active(void){uintptr_t n=(uintptr_t)D_800AC650.activeB8,start=(uintptr_t)players;assert(n>=start&&n<start+sizeof(players)&&(n-start)%sizeof(RrStrPlaybackState)==0);return (w==&actual?players:expectedPlayers)+(n-start)/sizeof(RrStrPlaybackState);}
+static RrStrPlaybackState *active(void){uintptr_t n=(uintptr_t)RaceContext.activeB8,start=(uintptr_t)players;assert(n>=start&&n<start+sizeof(players)&&(n-start)%sizeof(RrStrPlaybackState)==0);return (w==&actual?players:expectedPlayers)+(n-start)/sizeof(RrStrPlaybackState);}
 static unsigned displayIndex(const RrStrDisplayConfig *p){return playerIndex((const u8*)p - offsetof(RrStrPlaybackState,display24));}
 static Event *event(s32 kind){unsigned i;u32 h=2166136261U;RrStrPlaybackState *p=w==&actual?players:expectedPlayers;Event *e;
  assert(w->count<64);e=&w->events[w->count++];memset(e,0,sizeof(*e));e->kind=kind;
@@ -45,9 +45,9 @@ static Event *event(s32 kind){unsigned i;u32 h=2166136261U;RrStrPlaybackState *p
  for(i=0;i<sizeof(players);i++)h=(h^((u8*)p)[i])*16777619U;e->hash=h;return e;
 }
 static void change(void){unsigned i,j;RrStrPlaybackState *p=w==&actual?players:expectedPlayers;if(!mutation)return;
- D_800AC650.activeB8=players+next()%3;D_800AC650.thresholdC8=(scenario&1)?UINT32_MAX:next();D_800AC650.stopD0=word(next()%4);D_800AC650.phaseB4=word(next());
+ RaceContext.activeB8=players+next()%3;RaceContext.thresholdC8=(scenario&1)?UINT32_MAX:next();RaceContext.stopD0=word(next()%4);RaceContext.phaseB4=word(next());
  w->s.timer=word(next());w->s.controllers[0].buttons08=(u16)next();
- for(i=0;i<4;i++){D_800AC650.currentC0.c[i]=(u8)next();D_800AC650.locationBC.c[i]=(u8)next();}
+ for(i=0;i<4;i++){RaceContext.currentC0.c[i]=(u8)next();RaceContext.locationBC.c[i]=(u8)next();}
  for(i=0;i<3;i++){
   p[i].display24.word00=next()%2;p[i].display24.word08=next()%2;
   p[i].display24.ready0C=next();p[i].display24.rectangles[2].w=(s16)next();p[i].display24.rectangles[2].h=(s16)next();
@@ -60,35 +60,35 @@ void ovl668_func_80116478(void *p,u32 words){uintptr_t n=(uintptr_t)p,start=(uin
 s32 ovl668_func_801150D8(RrStrDisplayConfig *p){Event *e=event(4);s32 result;unsigned limit=scenario%8;
  e->args[0]=displayIndex(p);w->queries++;result=w->queries<=limit?-1:(scenario&8?INT32_MIN:0);e->args[1]=result;change();return result;
 }
-s32 StGetBackloc(const RrCdLocation *p){Event *e=event(5);s32 frame=(scenario&32)?(s32)(w->queries%2):frames[(scenario+w->queries)%8];assert(p==&D_800AC650.currentC0);memcpy(&e->args[0],p,4);e->args[1]=frame;change();return frame;}
+s32 StGetBackloc(const RrCdLocation *p){Event *e=event(5);s32 frame=(scenario&32)?(s32)(w->queries%2):frames[(scenario+w->queries)%8];assert(p==&RaceContext.currentC0);memcpy(&e->args[0],p,4);e->args[1]=frame;change();return frame;}
 s32 func_8001E84C(const char *format,...){va_list args;u32 frame;Event *e=event(6);assert(format==ovl668_D_8011487C);va_start(args,format);frame=va_arg(args,u32);va_end(args);e->args[0]=word(frame);change();return 1;}
-void ovl668_func_801153F0(u8 *p){Event *e=event(7);assert(p==D_800AC650.currentC0.c);memcpy(&e->args[0],p,4);change();}
+void ovl668_func_801153F0(u8 *p){Event *e=event(7);assert(p==RaceContext.currentC0.c);memcpy(&e->args[0],p,4);change();}
 void ovl668_func_8011535C(RrStrDisplayConfig *p,s32 mode){Event *e=event(8);e->args[0]=displayIndex(p);e->args[1]=mode;assert(mode==0);change();}
 void DrawSync(s32 mode){event(9)->args[0]=mode;change();}
 void ovl668_func_80116298(s32 mode){event(10)->args[0]=mode;change();}
-void func_80083CD4(s8 a,s32 b,s32 c){Event *e=event(11);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
+void SsSetSerialVol(s8 a,s32 b,s32 c){Event *e=event(11);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
 ''' + body + r'''
-static void expected(void){RrStrPlaybackState *p;RrCdLocation *location=&D_800AC650.currentC0;s32 result;u32 frame;
+static void expected(void){RrStrPlaybackState *p;RrCdLocation *location=&RaceContext.currentC0;s32 result;u32 frame;
  w->s.timer=word((u32)w->s.timer+1U);if(w->s.timer==4){seen[0]++;SetDispMask(1);}else seen[1]++;
  p=active();ovl668_func_801163FC(p->commands10[p->display24.word00],3);
  p=active();ovl668_func_80116478(p->buffers18[p->display24.word08],(u32)((int64_t)p->display24.rectangles[2].w*p->display24.rectangles[2].h/2));
  for(;;){p=active();result=ovl668_func_801150D8(&p->display24);if(result!=-1){seen[2]++;break;}
   frame=(u32)StGetBackloc(location);func_8001E84C(ovl668_D_8011487C,frame);
-  thresholdSeen[(frame>=D_800AC650.thresholdC8)*2+(word(frame)<=0)]++;
-  if(frame>=D_800AC650.thresholdC8){D_800AC650.stopD0=1;seen[3]++;break;}
-  if(word(frame)<=0){memcpy(location->c,D_800AC650.locationBC.c,4);seen[4]++;}else seen[5]++;
+  thresholdSeen[(frame>=RaceContext.thresholdC8)*2+(word(frame)<=0)]++;
+  if(frame>=RaceContext.thresholdC8){RaceContext.stopD0=1;seen[3]++;break;}
+  if(word(frame)<=0){memcpy(location->c,RaceContext.locationBC.c,4);seen[4]++;}else seen[5]++;
   ovl668_func_801153F0(location->c);
  }
  assert(w->queries>=1&&w->queries<=8);querySeen[w->queries-1]++;
  ovl668_func_8011535C(&active()->display24,0);DrawSync(0);ovl668_func_80116298(1);
- if(D_800AC650.stopD0==1){D_800AC650.phaseB4=2;func_80083CD4(0,0,0);seen[6]++;}else seen[7]++;
- if(w->s.controllers[0].buttons08&2048){func_80083CD4(0,0,0);D_800AC650.phaseB4=2;seen[8]++;}else seen[9]++;
+ if(RaceContext.stopD0==1){RaceContext.phaseB4=2;SsSetSerialVol(0,0,0);seen[6]++;}else seen[7]++;
+ if(w->s.controllers[0].buttons08&2048){SsSetSerialVol(0,0,0);RaceContext.phaseB4=2;seen[8]++;}else seen[9]++;
 }
 int main(void){unsigned i,j;uint64_t cases=0;
  for(scenario=0;scenario<32768;scenario++)for(mutation=0;mutation<2;mutation++){
   memset(&initial,0,sizeof(initial));memset(initialPlayers,0,sizeof(initialPlayers));w=&initial;w->s.rng=0x14C3C+scenario*73;
-  for(i=0;i<4;i++){w->s.guard[i]=next();w->s.tail[i]=next();D_800AC650.currentC0.c[i]=(u8)next();D_800AC650.locationBC.c[i]=(u8)next();}
-  D_800AC650.activeB8=players+scenario%3;D_800AC650.thresholdC8=(scenario&1)?UINT32_MAX:next();D_800AC650.stopD0=scenario%4;D_800AC650.phaseB4=word(next());
+  for(i=0;i<4;i++){w->s.guard[i]=next();w->s.tail[i]=next();RaceContext.currentC0.c[i]=(u8)next();RaceContext.locationBC.c[i]=(u8)next();}
+  RaceContext.activeB8=players+scenario%3;RaceContext.thresholdC8=(scenario&1)?UINT32_MAX:next();RaceContext.stopD0=scenario%4;RaceContext.phaseB4=word(next());
   w->s.timer=(scenario&16)?timers[(scenario>>5)%8]:word(next());w->s.controllers[0].buttons08=(u16)next();
   for(i=0;i<3;i++){
    initialPlayers[i].display24.word00=next()%2;initialPlayers[i].display24.word08=next()%2;

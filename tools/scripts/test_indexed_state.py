@@ -32,15 +32,15 @@ u32 test_ram[0x14000];
 u32 *D_800ABC30;
 u32 *D_800ABBC8;
 ''' + header + '\nRrChannelControlRow36 test_rows[320];\n'
-        for name in ('func_80094AD4', 'StopRCnt', 'func_80094AB0', 'func_80088D64'):
+        for name in ('_getctl', 'StopRCnt', '_ctl', 'vmNoiseOff'):
             body = (root / 'tools/scripts/fixtures/legacy' / (name + '.c')).read_text()
             body = body.replace('#include "types.h"', '')
             body = body.replace('#include "rr/channels.h"', '')
-            body = body.replace('extern RrChannelControlRow36 D_8010F908[];', '#define D_8010F908 test_rows')
+            body = body.replace('extern RrChannelControlRow36 _svm_voice[];', '#define _svm_voice test_rows')
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r'"\$[0-9]+", ', '', body)
             body = re.sub(r' : "\$[0-9]+"', '', body)
-            page = '((u8 *)&test_rows + 0x6F8)' if name == 'func_80088D64' else '(test_history + 0x10000)'
+            page = '((u8 *)&test_rows + 0x6F8)' if name == 'vmNoiseOff' else '(test_history + 0x10000)'
             body = body.replace('(u8 *)0x80110000U', page)
             body = body.replace('(u8 *)0x800B0000U', '((u8 *)test_ram + 0x10000)')
             source += body
@@ -51,16 +51,16 @@ u32 *D_800ABBC8;
         cls.history = (C.c_uint8 * 0x20000).in_dll(cls.library, 'test_history_words')
         cls.rows = (C.c_uint8 * (320 * 0x36)).in_dll(cls.library, 'test_rows')
         cls.ram = (C.c_uint32 * 0x14000).in_dll(cls.library, 'test_ram')
-        cls.get = cls.library.func_80094AD4
+        cls.get = cls.library._getctl
         cls.get.argtypes = [C.c_int32]
         cls.get.restype = C.c_int32
         cls.clear = cls.library.StopRCnt
         cls.clear.argtypes = [C.c_uint32]
         cls.clear.restype = C.c_int32
-        cls.write = cls.library.func_80094AB0
+        cls.write = cls.library._ctl
         cls.write.argtypes = [C.c_uint32]
         cls.write.restype = None
-        cls.clear_row = cls.library.func_80088D64
+        cls.clear_row = cls.library.vmNoiseOff
         cls.clear_row.argtypes = [C.c_uint8]
         cls.clear_row.restype = None
 

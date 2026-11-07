@@ -74,7 +74,7 @@ const char D_80011D40[]="CdRead: Shell open...\n";
 const char D_80011D58[]="CdRead: retry...\n";
 #define D_800A67B0 actual.state
 #define D_800A67BC actual.state.mode0C
-#define D_800A63F4 actual.flags
+#define CD_read_dma_mode actual.flags
 ''' + body + '\n' + decoder + r'''
 enum {SET0,SET1,SET2,STATUS,CLOCK,LOG,CONTROL,RESET,MODE,PACKET,DECODE,TRANSFER};
 static s32 bits(u32 word){s32 value;memcpy(&value,&word,4);return value;}
@@ -185,16 +185,16 @@ static s32 transfer(int model,s32 command,const u8 *parameters) {
     }
     return 0; // This result is deliberately ignored, including zero.
 }
-RrLibCompletionCallback func_8008C118(RrLibCompletionCallback c){return set(0,0,c);}
-RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback c){return set(0,1,c);}
-RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback c){return set(0,2,c);}
-u8 func_8008BF94(void){return status(0);}
+RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback c){return set(0,0,c);}
+RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback c){return set(0,1,c);}
+RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback c){return set(0,2,c);}
+u8 CdStatus(void){return status(0);}
 s32 VSync(s32 a){return clock_tick(0,a);}
 s32 func_800963DC(const char *s,...){return diagnostic(0,s);}
-u8 *func_8008BFC4(void){return packet(0);}
+u8 *CdLastPos(void){return packet(0);}
 s32 CdControl(s32 c,const u8 *p,u8 *r){return control(0,c,p,r);}
-void func_8008C03C(void){reset(0);}
-s32 func_8008BFA4(void){return mode_query(0);}
+void CdFlush(void){reset(0);}
+s32 CdMode(void){return mode_query(0);}
 s32 CdPosToInt(void *p){return decode(0,p);}
 s32 CdControlF(s32 c,const u8 *p){return transfer(0,c,p);}
 void func_8008E828(s32 a,u8 *p){callback_effect^=(u32)a+(p!=0);}

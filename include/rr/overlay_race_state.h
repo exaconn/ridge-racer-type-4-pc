@@ -9,9 +9,9 @@ typedef union {
     RrRaceVehicle vehicle;
     RrRaceVehicleControlView parts;
 } RrRaceVehicleViews;
-extern s32 D_800FF6B0,D_800F2EB8;
+extern s32 RaceState,TrackLength;
 extern s16 D_800AD522,D_800AC5D0;
-void func_8004FC18(s16 first,s16 second);
+void SoundSetMasterVolume(s16 first,s16 second);
 void ovl660_func_80117084(RrRaceVehicleViews *player);
 RR_ASSERT_SIZE(RrRaceVehicleViews,0x320);
 RR_ASSERT_OFFSET(RrRaceVehicleViews,parts,0);

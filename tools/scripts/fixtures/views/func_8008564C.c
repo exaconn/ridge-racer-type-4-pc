@@ -2,8 +2,8 @@
 
 #include "rr/channel_reset.h"
 
-s32 func_8008564C(s32 voice,s32 bank,s32 program,s32 instrument,s32 group_input) {
-    s32 offset, value, locked=D_8010F05C;
+s32 SsUtKeyOff(s32 voice,s32 bank,s32 program,s32 instrument,s32 group_input) {
+    s32 offset, value, locked=_snd_ev_flag;
     /* ASM_BARRIER: keep the fifth raw argument in t0 until its signed conversion. */
     register s32 group __asm__("$8")=group_input;
     s32 program_shift;
@@ -22,7 +22,7 @@ s32 func_8008564C(s32 voice,s32 bank,s32 program,s32 instrument,s32 group_input)
     /* ASM_BARRIER: reuse v1 for each field page only after its previous read dies. */
     register u8 *page __asm__("$3");
     if(locked!=1) {
-        D_8010F05C=1;
+        _snd_ev_flag=1;
         if((u16)voice<24) {
             initial_voice=(s16)incoming;
             offset=initial_voice*sizeof(RrChannelControlRow36);
@@ -72,15 +72,15 @@ s32 func_8008564C(s32 voice,s32 bank,s32 program,s32 instrument,s32 group_input)
                 __asm__("" : "+r"(page));
                 *(s16*)(page+offset-0x6F8);
             })==marker) {
-                func_80088D64((u8)voice);
+                vmNoiseOff((u8)voice);
             }else{
 reset:
                 D_80110118=voice;
-                func_80088DA4(0);
+                _SsVmKeyOffNow(0);
             }
             result=0;
-            *(s16*)(D_8010F908[(s16)voice].pad1E+12)=0;
-            *(s16*)D_8010F908[(s16)voice].pad1E=0;
+            *(s16*)(_svm_voice[(s16)voice].pad1E+12)=0;
+            *(s16*)_svm_voice[(s16)voice].pad1E=0;
             /* ASM_BARRIER: finish both row stores before claiming at for unlock. */
             __asm__("" : : : "$1","memory");
             lock_page=(u8*)0x80110000U;
@@ -89,7 +89,7 @@ reset:
             *(s32*)(lock_page-0xFA4)=0;
             return result;
         }
-        D_8010F05C=0;
+        _snd_ev_flag=0;
     }
     return -1;
 }

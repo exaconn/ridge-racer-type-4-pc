@@ -54,9 +54,9 @@ void ovl662_func_8011CD18(void)
         source++;
     } while (i < 16);
     backup->raw = palette->raw;
-    func_80092FFC(&ovl662_D_801268A0, ovl662_D_801276A8.scratch34);
-    func_80092FFC(&ovl662_D_801268A8, ovl662_D_801276A8.image38[ovl662_D_801276A8.active21]);
-    func_80092FFC(&ovl662_D_801268B0, ovl662_D_801276A8.image40[ovl662_D_801276A8.active21]);
-    func_80092FFC(&ovl662_D_801268B8, palette);
-    func_80092FFC(&ovl662_D_801268C0, scratch);
+    LoadImage(&ovl662_D_801268A0, ovl662_D_801276A8.scratch34);
+    LoadImage(&ovl662_D_801268A8, ovl662_D_801276A8.image38[ovl662_D_801276A8.active21]);
+    LoadImage(&ovl662_D_801268B0, ovl662_D_801276A8.image40[ovl662_D_801276A8.active21]);
+    LoadImage(&ovl662_D_801268B8, palette);
+    LoadImage(&ovl662_D_801268C0, scratch);
 }

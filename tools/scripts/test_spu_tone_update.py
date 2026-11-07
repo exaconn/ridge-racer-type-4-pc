@@ -36,13 +36,13 @@ static struct {
     u8 prefix[64];
     union {u8 bytes[256];u8 *pointer;} state;
 } holder __attribute__((aligned(65536)));
-#define D_801100F8 holder.state.pointer
+#define _svm_tn holder.state.pointer
 static u8 *selected_base;
 static u8 selected_value;
 static s32 selection_result,calls,seen_bank,seen_program;
-s32 func_8008A564(s32 bank,s32 program) {
+s32 _SsVmVSetUp(s32 bank,s32 program) {
     calls++;seen_bank=bank;seen_program=program;
-    D_801100F8=selected_base;D_80110101.value=selected_value;
+    _svm_tn=selected_base;D_80110101.value=selected_value;
     return selection_result;
 }
 ''' + body + r'''
@@ -63,7 +63,7 @@ static void normal(s32 rawbank,s32 program,s32 tone,u8 flag,u8 value,s32 status)
     u8 want[48],saved_input[32];memcpy(want,destination-8,48);
     memcpy(saved_input,input,sizeof(input));
     if(flag==1)copy_reference(want+8,input);
-    assert(func_800867E4(rawbank,program,tone,input)==(flag==1?0:-1));
+    assert(SsUtSetVagAtr(rawbank,program,tone,input)==(flag==1?0:-1));
     assert(calls==(flag==1));
     if(flag==1)assert(seen_bank==bank&&seen_program==(s16)program);
     assert(memcmp(destination-8,want,48)==0);
@@ -99,7 +99,7 @@ int main(int argc,char **argv) {
             copy_reference(want+32,want+32+shift);
             selected_base=start;selected_value=0;selection_result=-1;
             flags[32768+0x120]=1;
-            assert(func_800867E4(0,0,0,start+shift)==0);
+            assert(SsUtSetVagAtr(0,0,0,start+shift)==0);
             assert(memcmp(start-32,want,128)==0);
         }
     } else {
@@ -110,25 +110,25 @@ int main(int argc,char **argv) {
         u8 representation[sizeof(redirected)];
         memcpy(representation,&redirected,sizeof(redirected));
         input[0]=representation[0];
-        D_801100F8=initial;
+        _svm_tn=initial;
         u8 want[sizeof(holder)];memcpy(want,&holder,sizeof(holder));
         want[64]=input[0];
         for(int i=1;i<14;i++)want[128+order[i]]=input[order[i]];
         for(int i=16;i<24;i++)want[128+i]=input[i];
-        assert(func_800867E4(0,0,0,input)==0);
-        assert(D_801100F8==redirected);
+        assert(SsUtSetVagAtr(0,0,0,input)==0);
+        assert(_svm_tn==redirected);
         assert(memcmp(&holder,want,sizeof(holder))==0);
 
         /* First halfword changes the global pointer; later halfwords retain
          * the destination captured before that write. */
         reset_alias();
         initial=(u8*)&holder+48;redirected=holder.state.bytes+64;
-        selected_base=initial;D_801100F8=initial;
+        selected_base=initial;_svm_tn=initial;
         memcpy(input+16,&redirected,sizeof(redirected));
         memcpy(want,&holder,sizeof(holder));
         copy_reference(want+48,input);
-        assert(func_800867E4(0,0,0,input)==0);
-        assert(D_801100F8==redirected);
+        assert(SsUtSetVagAtr(0,0,0,input)==0);
+        assert(_svm_tn==redirected);
         assert(memcmp(&holder,want,sizeof(holder))==0);
     }
     return 0;

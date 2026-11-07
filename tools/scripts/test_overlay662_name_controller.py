@@ -2,7 +2,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import re,subprocess
 body=Path('src/overlays/PAL/662/func_80118A30.c').read_text();body=re.sub(r'^extern .*\n','',body,flags=re.M)
-copy=Path('tools/scripts/fixtures/views/func_8002B75C.c').read_text().replace('func_8002B75C','actual_tail_copy')
+copy=Path('tools/scripts/fixtures/views/func_8002B75C.c').read_text().replace('CopyStringClearTail','actual_tail_copy')
 source=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -58,12 +58,12 @@ static void effect(unsigned kind,s32 a){struct World *w=reference_run?&expected:
 }
 void func_8002AF8C(s32 a,s32 b,s32 c){event(0,a,b,c,0);effect(0,a);}
 void PlaySfx(s32 a){assert(a>=0&&a<=2);event(1,a,0,0,0);effect(1,a);}
-void func_8002B75C(char *d,char *s){assert(d==world.save.prefix.progress.prefix00.fields.name&&s==(char*)world.name);event(2,0,0,0,d);
+void CopyStringClearTail(char *d,char *s){assert(d==world.save.prefix.progress.prefix00.fields.name&&s==(char*)world.name);event(2,0,0,0,d);
  if(reference_run){unsigned i=0;while(expected.name[i]){assert(i<12);expected.save.prefix.progress.prefix00.fields.name[i]=expected.name[i];i++;}while(expected.save.prefix.progress.prefix00.fields.name[i]){assert(i<12);expected.save.prefix.progress.prefix00.fields.name[i++]=0;}}
  else actual_tail_copy(d,s);
 }
 void func_800207D4(u32 *p,s32 a,u32 b){assert((uintptr_t)p>UINT32_MAX);event(3,a,b,0,p);effect(3,a);}
-void func_8003D6F0(s32 a){event(4,a,0,0,0);effect(4,a);}void func_8002A344(s32 a){event(5,a,0,0,0);effect(5,a);}
+void UpdateBadgeRowAnim(s32 a){event(4,a,0,0,0);effect(4,a);}void UpdateScreenFade(s32 a){event(5,a,0,0,0);effect(5,a);}
 static void reference(void){struct World *w=&expected;unsigned state=(u16)w->state;
  w->frame=word((u32)w->frame+1);w->tick=word((u32)w->tick+1);
  if(state==0){int cancel=0;func_8002AF8C(1,1,1);
@@ -76,12 +76,12 @@ static void reference(void){struct World *w=&expected;unsigned state=(u16)w->sta
   if(w->accept){PlaySfx(1);int selected=w->selected;if(selected>=0&&selected<46)choices[selected]++;
    if(selected<41){if(w->index<8){PlaySfx(1);assert(w->index>=0&&w->index<12&&w->selected>=0&&w->selected<=42);w->name[w->index]=w->glyphs[w->selected==40?0:w->selected+1];if(w->index<7)w->index++;}}
    else if(selected==41){if(w->index>0)w->index--;}
-   else if(selected==42){w->timer=64;w->state=1;func_8002B75C(world.save.prefix.progress.prefix00.fields.name,(char*)world.name);}
+   else if(selected==42){w->timer=64;w->state=1;CopyStringClearTail(world.save.prefix.progress.prefix00.fields.name,(char*)world.name);}
   }else if(cancel){PlaySfx(2);w->name[w->index]=w->glyphs[0];if(w->index>0)w->index--;}
  }else if(state==1){func_8002AF8C(0,1,1);s16 timer=half((u16)((u16)w->timer-1));w->timer=timer;func_800207D4(&w->context->head70,(64-(s32)timer)*4,69);
   if(w->timer<=0){outcome[0]++;w->slot=5;w->enable=1;w->scene=71;w->state=0;}else outcome[1]++;
  }
- func_8003D6F0(0);func_8003D6F0(1);func_8002A344(0x1008B);
+ UpdateBadgeRowAnim(0);UpdateBadgeRowAnim(1);UpdateScreenFade(0x1008B);
 }
 int main(void){assert(sizeof(void*)==8);
  for(scenario=0;scenario<65536;scenario++)for(profile=0;profile<8;profile++){

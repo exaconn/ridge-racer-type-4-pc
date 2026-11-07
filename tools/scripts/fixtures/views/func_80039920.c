@@ -5,16 +5,16 @@
 #define IDX30(base, i) (*(unsigned char *)((char *)(base) + (i) * 0x24 + 0x30))
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEF8 (*(char (*)[])&D_800ABEF8)
+#define PlayerCars (*(char (*)[])&PlayerCars)
 
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 
-#undef D_800ABEF8
+#undef PlayerCars
 
 #undef D_800F4D8A
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEF8 (*(char (*)[])&D_800ABEF8)
+#define PlayerCars (*(char (*)[])&PlayerCars)
 
 #define D_800AD4D8 (*(char (*)[])&D_800AD4D8)
 
@@ -22,11 +22,11 @@
 
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 
-#define func_8002A344 ((void (*)())func_8002A344)
+#define UpdateScreenFade ((void (*)())UpdateScreenFade)
 
 #define func_8002AF8C ((void (*)())func_8002AF8C)
 
-#define func_8002B330 ((void (*)())func_8002B330)
+#define StepMenuValue ((void (*)())StepMenuValue)
 
 #define func_8002CC88 ((void (*)())func_8002CC88)
 
@@ -38,9 +38,9 @@
 
 #define func_8003FBA8 ((void (*)())func_8003FBA8)
 
-#define func_8006EF8C ((void (*)())func_8006EF8C)
+#define SetupViewport ((void (*)())SetupViewport)
 
-#undef D_800ABEF8
+#undef PlayerCars
 
 #undef D_800AD4D8
 
@@ -48,11 +48,11 @@
 
 #undef D_800F4D8A
 
-#undef func_8002A344
+#undef UpdateScreenFade
 
 #undef func_8002AF8C
 
-#undef func_8002B330
+#undef StepMenuValue
 
 #undef func_8002CC88
 
@@ -64,7 +64,7 @@
 
 #undef func_8003FBA8
 
-#undef func_8006EF8C
+#undef SetupViewport
 
 extern unsigned char D_8009F810[];
 

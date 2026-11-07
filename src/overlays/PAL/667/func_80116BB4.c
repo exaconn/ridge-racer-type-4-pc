@@ -3,8 +3,8 @@ extern RrCourseChoice4 D_8010BFD8[2][2][9];
 extern s16 D_8010C0D8[2],D_8010C0D0[2];
 void ovl667_func_80116BB4(void) {
     ResetScreenCounters();
-    D_800ACC18 = D_800F4D70.first;
-    func_80037040(
+    LoadCursor = D_800F4D70.first;
+    UnpackChoiceGlyph(
         (s8 *)&D_800F4D98 + D_800AC5D4 * 4,
         D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].glyph
     );

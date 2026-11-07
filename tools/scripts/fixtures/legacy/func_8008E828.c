@@ -2,11 +2,11 @@
 #include "rr/cd.h"
 
 extern s32 VSync(s32);
-extern RrLibCompletionCallback func_8008C118(RrLibCompletionCallback);
-extern RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback);
-extern RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback);
-extern s32 func_8008C53C(u8 *,u32);
-extern void func_8008C580(s32);
+extern RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback);
+extern RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback);
+extern RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback);
+extern s32 CdGetSector2(u8 *,u32);
+extern void CdDataSync(s32);
 extern s32 CdPosToInt(void *);
 extern s32 func_800963DC(const char *,...);
 extern const char D_80011D28[];
@@ -33,13 +33,13 @@ void func_8008E828(s32 event,u8 *data) {
             if (initial->step10==512) {
                 /* ASM_BARRIER: retain flags address formation inside this arm. */
                 __asm__("" : );
-                if (D_800A63F4&1) {
-                    func_8008C55C(0);
-                    func_8008C53C(header,3);
-                    func_8008C580(0);
-                    func_8008C55C(func_8008EA9C);
+                if (CD_read_dma_mode&1) {
+                    CdDataCallback(0);
+                    CdGetSector2(header,3);
+                    CdDataSync(0);
+                    CdDataCallback(func_8008EA9C);
                 } else {
-                    func_8008C51C(header,3);
+                    CdGetSector(header,3);
                 }
                 now=CdPosToInt(header);
                 completed=&D_800A67D0;
@@ -54,20 +54,20 @@ void func_8008E828(s32 event,u8 *data) {
             }
             /* ASM_BARRIER: reload flags at the common transfer join. */
             __asm__("" : );
-            if (D_800A63F4&1) {
+            if (CD_read_dma_mode&1) {
                 /* ASM_BARRIER: keep the deferred address inside its branch. */
                 __asm__("" : );
                 deferred=&D_800A67B8;
                 /* ASM_BARRIER: form the complete window before loading arguments. */
                 __asm__("" : "+r"(deferred));
-                func_8008C53C(deferred->position08,deferred->step10);
+                CdGetSector2(deferred->position08,deferred->step10);
             } else {
                 /* ASM_BARRIER: keep the immediate address inside its branch. */
                 __asm__("" : );
                 position=&D_800A67B8;
                 /* ASM_BARRIER: retain one captured window across the transfer. */
                 __asm__("" : "+r"(position));
-                func_8008C51C(position->position08,position->step10);
+                CdGetSector(position->position08,position->step10);
                 transfer=(RrLibReadRequestState *)((u8 *)position-
                                                    RR_READ_POSITION_OWNER_OFFSET);
                 transfer->position08=position->position08+(position->step10<<2);
@@ -94,11 +94,11 @@ void func_8008E828(s32 event,u8 *data) {
     }
     if (state->remaining14==0 ||
         (now=VSync(-1),(s32)(state->start1C+1200U)<now)) {
-        func_8008C12C(state->restore.saved2C);
-        if (D_800A63F4&1) {
-            func_8008C55C(state->restore.saved30);
+        CdReadyCallback(state->restore.saved2C);
+        if (CD_read_dma_mode&1) {
+            CdDataCallback(state->restore.saved30);
         }
-        func_8008C118(func_8008E7F4);
+        CdSyncCallback(func_8008E7F4);
         CdControlF(9,0);
         /* PAL page+0x63F0 contains the data notification function pointer. */
         notify_page=(u8 *)0x800A0000U;

@@ -27,13 +27,13 @@ u8 test_flags[65536+0x200];
 u8 tone_pool[2097152] __attribute__((aligned(512)));
 struct {u8 prefix[16]; union {u8 bytes[32]; u8 *pointer;} state;} holder;
 #define selected holder.state
-#define D_801100F8 selected.pointer
+#define _svm_tn selected.pointer
 static u8 *next_base;
 static u8 next_value;
 static s32 selector_result, calls, seen_bank, seen_program;
-s32 func_8008A564(s32 bank,s32 program) {
+s32 _SsVmVSetUp(s32 bank,s32 program) {
     calls++; seen_bank=bank; seen_program=program;
-    D_801100F8=next_base; D_80110101.value=next_value;
+    _svm_tn=next_base; D_80110101.value=next_value;
     return selector_result;
 }
 ''' + body + r'''
@@ -53,7 +53,7 @@ static void normal(s32 rawbank,s16 program,s32 tone,u8 flag,u8 value,s32 status)
     next_base=tone_pool+1048576; next_value=value; selector_result=status; calls=0;
     s32 index=(s16)((u32)tone+(u32)(s32)(int8_t)value*16U);
     if(flag==1) copy_reference(expected+8,next_base+index*32);
-    s32 result=func_800850C4(rawbank,program,tone,output+8);
+    s32 result=SsUtGetVagAtr(rawbank,program,tone,output+8);
     assert(result==(flag==1?0:-1));
     assert(calls==(flag==1));
     if(flag==1) assert(seen_bank==bank && seen_program==program);
@@ -82,7 +82,7 @@ int main(void) {
         copy_reference(expected+32+shift,expected+32);
         next_base=start;next_value=0;selector_result=-1;calls=0;
         test_flags[32768+0x120]=1;
-        assert(func_800850C4(0,0,0,start+shift)==0 && calls==1);
+        assert(SsUtGetVagAtr(0,0,0,start+shift)==0 && calls==1);
         assert(memcmp(start-32,expected,128)==0);
     }
     /* Byte zero changes the selected pointer; every later byte must reload it. */
@@ -98,8 +98,8 @@ int main(void) {
     memcpy(expected,representation,sizeof(representation));
     for(int i=8;i<14;i++)expected[i]=redirected[i];
     memcpy(expected+16,redirected+16,8);
-    assert(func_800850C4(0,0,0,selected.bytes)==0);
-    assert(D_801100F8==redirected && memcmp(selected.bytes,expected,32)==0);
+    assert(SsUtGetVagAtr(0,0,0,selected.bytes)==0);
+    assert(_svm_tn==redirected && memcmp(selected.bytes,expected,32)==0);
     /* The final four halfwords share one captured source pointer. */
     memset(&holder,0xA5,sizeof(holder));
     memset(redirected+16,0xCC,8);
@@ -107,8 +107,8 @@ int main(void) {
     u8 tail_expected[sizeof(holder)]; memset(tail_expected,0xA5,sizeof(tail_expected));
     copy_reference(tail_expected,initial);
     next_base=initial; next_value=0; selector_result=-1;
-    assert(func_800850C4(0,0,0,holder.prefix)==0);
-    assert(D_801100F8==redirected);
+    assert(SsUtGetVagAtr(0,0,0,holder.prefix)==0);
+    assert(_svm_tn==redirected);
     assert(memcmp(&holder,tail_expected,sizeof(holder))==0);
     return 0;
 }

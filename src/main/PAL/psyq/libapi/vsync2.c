@@ -8,13 +8,13 @@ extern char D_80011878[];
 extern char D_80011894[];
 
 RrLibInterruptCallback setIntrDMA(s32 channel,RrLibInterruptCallback callback);
-void func_8008BDBC(RrLibInterruptCallback *callbacks, s32 count);
+void DMA_memclr(RrLibInterruptCallback *callbacks, s32 count);
 
 RrLibInterruptExchange startIntrDMA(void) {
-    func_8008BDBC(D_800A63A4, 8);
+    DMA_memclr(D_800A63A4, 8);
     /* The ordinary write view permits the original call-delay store. */
     *(u32 *)D_800A63A0 = 0;
-    func_8008B394(3, trapIntrDMA);
+    InterruptCallback(3, trapIntrDMA);
     return setIntrDMA;
 }
 
@@ -98,7 +98,7 @@ RrLibInterruptCallback setIntrDMA(s32 channel,RrLibInterruptCallback callback) {
     return result;
 }
 
-void func_8008BDBC(RrLibInterruptCallback *callbacks, s32 count) {
+void DMA_memclr(RrLibInterruptCallback *callbacks, s32 count) {
     u32 remaining=(u32)count-1;
     if(count) {
         do {

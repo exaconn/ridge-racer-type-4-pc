@@ -12,7 +12,7 @@ typedef union {
  struct {RrPulseSetting4 pulse[2];u8 remainder08[0x34];} controls;
  RrDisplaySettings3C display;
 } RrRuntimeSettings;
-extern RrRuntimeSettings D_800AD528;
+extern RrRuntimeSettings Options;
 RR_ASSERT_SIZE(RrRuntimeSettings,0x3C);
 RR_ASSERT_SIZE(RrAudioSettings,0x34);
 RR_ASSERT_OFFSET(RrDisplaySettings3C,x34,0x34);

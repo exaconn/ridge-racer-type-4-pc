@@ -2,7 +2,7 @@
 
 #include "rr/channels.h"
 
-s32 func_80089D8C(s32 input) {
+s32 _SsVmGetSeqLVol(s32 input) {
     s32 channel = input;
     u32 offset = (channel & 0xFF) * sizeof(RrChannelValueRecordB0 *);
     /* ASM_BARRIER: preserve the indexed table-address computation in v1. */
@@ -12,7 +12,7 @@ s32 func_80089D8C(s32 input) {
     s32 group;
     /* ASM_BARRIER: form the pointer-table offset before materializing its base. */
     __asm__ volatile("" : : "r"(offset) : "$3");
-    /* PAL table mapping: D_8010F068 is 0xF98 bytes below this page. */
+    /* PAL table mapping: _ss_score is 0xF98 bytes below this page. */
     table = (RrChannelValueRecordB0 **)0x80110000U;
     /* ASM_BARRIER: preserve the explicit table base through the indexed load. */
     __asm__("" : "=r"(table) : "0"(table));

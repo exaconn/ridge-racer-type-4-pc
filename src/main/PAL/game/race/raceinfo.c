@@ -18,27 +18,27 @@ extern int D_8009F66C[];
 extern short D_800F4D44;
 extern short D_800F3914;
 extern unsigned char D_8009F900[];
-extern int D_800F3A30;
+extern int NumLaps;
 extern short D_8009F678[];
 extern int D_800F3B00[];
 extern int D_800ACC28[][8];
-extern short D_800AC59C;
+extern short NumCars;
 extern short D_800ABEC8;
 extern int func_8001FF84();
-extern int func_8001FCC8();
-extern int func_8001FD20();
-extern int func_8002B814();
+extern int AddDrawModePrim();
+extern int AddTilePrim();
+extern int FormatDecimalDigits();
 extern int func_80032EC8();
-extern struct T *D_800ABEA4;
-extern int D_800ABECC;
+extern struct T *TrackNodes;
+extern int TrackNodeCount;
 extern short D_800AD522;
-extern char D_800AD528[];
+extern char Options[];
 extern short D_8010BFD0[];
 extern void func_800172DC();
 extern void BuildRotMatrixZ();
 extern void BuildRotMatrixY();
 extern void BuildRotMatrixX();
-extern int func_8006E368();
+extern int Atan2Table();
 extern int rsin();
 extern int rcos();
 extern void MulMatrix();
@@ -72,11 +72,11 @@ void func_80032F44(int arg0, int arg1) {
     s4 = arg0 >= 8;
     arg0 &= 7;
     p = func_8001FF84(D_800ACC14 + 0x70, p, 0x3A, 0x104, &D_8009F66C[s4], s4 + 0x75E4, 0);
-    p = func_8001FCC8(D_800ACC14 + 0x70, p, 0x59);
-    *(int *)SCRATCHPAD = func_8001FD20(D_800ACC14 + 0x70, p, 0x10, 0xE0, 2, 0x88, 0x4C, 0x4C, 0x4C);
+    p = AddDrawModePrim(D_800ACC14 + 0x70, p, 0x59);
+    *(int *)SCRATCHPAD = AddTilePrim(D_800ACC14 + 0x70, p, 0x10, 0xE0, 2, 0x88, 0x4C, 0x4C, 0x4C);
 
     if (D_800F4D44 < 2) {
-        D_800F3A30 = D_8009F900[D_800F3914 + (D_800F4D44 == 1 ? 8 : 0)];
+        NumLaps = D_8009F900[D_800F3914 + (D_800F4D44 == 1 ? 8 : 0)];
     }
 
     i = 7;
@@ -89,9 +89,9 @@ void func_80032F44(int arg0, int arg1) {
 
     for (i = 0; i < 2; i++) {
         if (i == 0) {
-            func_8002B814(sp28, D_800F3A30, 0);
+            FormatDecimalDigits(sp28, NumLaps, 0);
         } else {
-            func_8002B814(sp28, D_8009F678[arg0], 3);
+            FormatDecimalDigits(sp28, D_8009F678[arg0], 3);
         }
         func_80020F20(D_800ACC14 + 0x70, 0x2E + i * 8, 0x128 + i * 0x10, sp28);
     }
@@ -112,7 +112,7 @@ void func_80032F44(int arg0, int arg1) {
                     val = D_800F4CE8[s4][D_800F3914];
                 }
             }
-            func_80020F20(D_800ACC14 + 0x70, 0x44 + i * 8, 0x148 + i * 0x10, func_8002BDB4(val));
+            func_80020F20(D_800ACC14 + 0x70, 0x44 + i * 8, 0x148 + i * 0x10, FormatMillisecondsTime(val));
         }
     } else if (arg1 == 1) {
         i = 7;
@@ -125,9 +125,9 @@ void func_80032F44(int arg0, int arg1) {
 
         for (i = 0; i < 2; i++) {
             if (i == 0) {
-                func_8002B814(sp28, D_800AC59C - 2, 0);
+                FormatDecimalDigits(sp28, NumCars - 2, 0);
             } else {
-                func_8002B814(sp28, D_800ABEC8 + 1, 0);
+                FormatDecimalDigits(sp28, D_800ABEC8 + 1, 0);
             }
             func_80020F20(D_800ACC14 + 0x70, 0x3A - i * 0xC, 0x148 + i * 0x10, sp28);
         }
@@ -142,14 +142,14 @@ void func_80033368(int unusedSelection,int unusedMode) {
     struct T *t;
     int b;
     if (D_800AD522 != 0) {
-        i = (D_8010BFC8 >> 2) % D_800ABECC;
+        i = (D_8010BFC8 >> 2) % TrackNodeCount;
     } else {
-        int n = D_800ABECC;
+        int n = TrackNodeCount;
         r = (D_8010BFC8 >> 2) % n;
         r++;
         i = n - r;
     }
-    b = (int)D_800ABEA4;
+    b = (int)TrackNodes;
     t = (struct T *)(i * 0x3C + b);
     v.x = t->a;
     v.z = t->b;
@@ -182,12 +182,12 @@ void func_80033474(RrRaceVehicle *a0, int a1)
     D_8010BFD0[0] = 0;
     D_8010BFD0[2] = -0x100;
     D_8010BFD0[1] = -0x100;
-    if ((a1 == 1) && (a0 == D_800ABEF8))
+    if ((a1 == 1) && (a0 == PlayerCars))
     {
       i = 0;
       k = 2;
-      p = D_800AD528;
-      q = (char *)&D_800AC650;
+      p = Options;
+      q = (char *)&RaceContext;
       do
       {
         *((int *) (q + 0xA8)) = *((signed char *) (p + 0x2A));
@@ -240,10 +240,10 @@ void func_80033474(RrRaceVehicle *a0, int a1)
   }
   v1 >>= 12;
   sp10[2] = (a0->pos10[2] + v1) - g[4];
-  v0 = func_8006E368(sp10[0], sp10[2]);
+  v0 = Atan2Table(sp10[0], sp10[2]);
   g[7] = 0x400 - v0;
   v0 = func_80090758((sp10[0] * sp10[0]) + (sp10[2] * sp10[2]));
-  v0 = func_8006E368(sp10[1], v0 >> 6);
+  v0 = Atan2Table(sp10[1], v0 >> 6);
   g[6] = 0x400 - v0;
   g[8] = 0;
   if (a1 < 0x49)
@@ -251,11 +251,11 @@ void func_80033474(RrRaceVehicle *a0, int a1)
     return;
   }
   a0->flags1E4 |= 0x100;
-  if ((a1 == 0x49) && (a0 == D_800ABEF8))
+  if ((a1 == 0x49) && (a0 == PlayerCars))
   {
     i = 0;
-    q = (char *)&D_800AC650;
-    p = D_800AD528;
+    q = (char *)&RaceContext;
+    p = Options;
     do
     {
       *((unsigned char *) (p + 0x2A)) = *((unsigned char *) (q + 0xA8));

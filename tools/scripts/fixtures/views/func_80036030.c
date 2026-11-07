@@ -54,11 +54,11 @@
 
 extern int func_8004B864();
 
-extern int func_8004BB54();
+extern int PadRumbleStop();
 
 void func_80036030(void) {
-    func_8004BB54(0);
-    func_8004BB54(1);
+    PadRumbleStop(0);
+    PadRumbleStop(1);
     func_8004B864(0);
     func_8004B864(1);
 }

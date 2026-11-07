@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_8008C580();
-s32 func_8008C724(void);
+void CdDataSync();
+s32 getintr(void);
 
 #endif /* RR_PSYQ_LIBCD_S_3_H */

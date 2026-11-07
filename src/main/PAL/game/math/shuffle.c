@@ -4,10 +4,10 @@ extern struct { int p; int a[8]; } D_8010E240;
 extern int D_8010E264;
 extern int func_80096464();
 extern int func_80096474();
-void func_8005D868()
+void ShuffleSlotOrder()
 {
     int i, a, b, x, y, t;
-    func_80096474(D_800ABEAC);
+    func_80096474(FrameCounter);
     for (i = 7; i >= 0; i--)
         D_8010E240.a[i] = i;
     i = 0;

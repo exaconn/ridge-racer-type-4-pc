@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_800394B8(RrRaceVehicle *vehicle);
-void func_800394E4(char *p, int b);
+void PlayTrackEventSfx(RrRaceVehicle *vehicle);
+void UpdateRumbleStrip(char *p, int b);
 
 #endif /* RR_GAME_RACE_RACEMAI2_H */

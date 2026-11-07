@@ -26,7 +26,7 @@ static World actual,reference,*w;
 static unsigned scenario,mutate,seen[32],callback[4],modeSeen[65536];
 static const s32 edge[16]={INT32_MIN,INT32_MIN+1,-61441,-61440,-4097,-4096,-1,0,1,3,4095,4096,61440,61441,INT32_MAX-1,INT32_MAX};
 static const s32 phases[8]={INT32_MIN,-1,0,1,2,3,INT32_MAX-1,INT32_MAX};
-#define D_800ABECC (w->s.trackCount)
+#define TrackNodeCount (w->s.trackCount)
 #define D_800F4D44 (w->s.mode)
 #define D_800F3826 (w->s.marker)
 static s32 word(u32 u){s32 n;memcpy(&n,&u,4);return n;}
@@ -47,28 +47,28 @@ static void fill(void){unsigned i;u8 *p=(u8*)&w->s.car;RrSteeringState *s=&w->s.
 }
 static Event *event(s32 kind){Event *e;assert(w->count<4);e=&w->events[w->count++];memset(e,0,sizeof(*e));e->kind=kind;e->before=w->s;callback[kind]++;return e;}
 /* Each expression is evaluated as a MIPS word, including products and shifts. */
-s32 func_8004D420(const RrCurve24 *r,s32 time,s32 *out){RrCurve24 saved=*r;Event *e=event(1);s32 h,v;ptrdiff_t off=(u8*)r-(u8*)&w->s.car;
+s32 EvalRateCurve(const RrCurve24 *r,s32 time,s32 *out){RrCurve24 saved=*r;Event *e=event(1);s32 h,v;ptrdiff_t off=(u8*)r-(u8*)&w->s.car;
  assert(off==0x2BC||off==0x2D4);e->arg[0]=(s32)off;e->arg[1]=time;
  if(time>=saved.duration){v=-(saved.secondAcceleration/2);seen[24]++;}else{h=saved.duration/2;if(time<h){v=add(add(saved.initialRate,saved.firstAcceleration/2),mul(saved.firstAcceleration,time));seen[25]++;}else{v=add(add(saved.middleRate,saved.secondAcceleration/2),mul(saved.secondAcceleration,sub(time,h)));seen[26]++;}}
  if(mutate)fill();*out=v;return time>=saved.duration?-1:0;
 }
-void func_8004D354(RrCurve24 *record,s32 a,s32 duration,s32 b){s32 *r=(s32*)record;Event *e=event(2);s32 h,x,z;ptrdiff_t off=(u8*)r-(u8*)&w->s.car;
+void BuildRateCurve(RrCurve24 *record,s32 a,s32 duration,s32 b){s32 *r=(s32*)record;Event *e=event(2);s32 h,x,z;ptrdiff_t off=(u8*)r-(u8*)&w->s.car;
  assert(off==0x2D4&&duration>=3&&b==0);e->arg[0]=a;e->arg[1]=duration;e->arg[2]=b;
  h=duration/2;x=word((u32)a<<12);z=sub(x/h,word((u32)b<<11));
  if(mutate)fill();r[0]=x;r[1]=duration;r[2]=word((u32)b<<12);r[3]=z;r[4]=sub(z,r[2])/h;r[5]=word(0U-(u32)z)/h;
 }
-s32 func_80025F84(s32 a,s32 b){Event *e=event(3);s32 d=(a&4095)-(b&4095);e->arg[0]=a;e->arg[1]=b;if(d<0)d=-d;if(d>2048)d=4096-d;if(mutate)fill();return d;}
+s32 AngleDiffAbs(s32 a,s32 b){Event *e=event(3);s32 d=(a&4095)-(b&4095);e->arg[0]=a;e->arg[1]=b;if(d<0)d=-d;if(d>2048)d=4096-d;if(mutate)fill();return d;}
 '''+body+r'''
 static void expected(RrRaceVehicle *v){RrSteeringState *s=&v->steering288;s32 output,mode,phase,duration,q,step,delta,reverse,offset,diff,gain;u32 unsignedReverse;
  if(!v->steeringEnabled318){v->rot54=v->heading1D4;seen[0]++;return;}
  mode=s->mode00;
  if(mode==0){v->rot54=v->heading1D4;seen[1]++;}
- else if(mode==1){seen[2]++;func_8004D420(&s->primary34,s->timer02,&output);
+ else if(mode==1){seen[2]++;EvalRateCurve(&s->primary34,s->timer02,&output);
   s->angle0C=sub(s->angle0C,output);s->delta10=output;s->remaining08=sub(s->remaining08,output);v->rot54=s->angle0C/4096;
   if(!s->phase28){seen[3]++;v->lateralMotion178=s->delta10/8;duration=s->duration04;q=duration/4;
-   if(s->timer02>=q){seen[4]++;func_8004D354(&s->secondary4C,(v->lateralMotion178/256)*2,duration-q,0);s->lateral24=word((u32)(v->lateralMotion178/256)<<12);s->phase28=mode;}else seen[5]++;
+   if(s->timer02>=q){seen[4]++;BuildRateCurve(&s->secondary4C,(v->lateralMotion178/256)*2,duration-q,0);s->lateral24=word((u32)(v->lateralMotion178/256)<<12);s->phase28=mode;}else seen[5]++;
   }else seen[6]++;
-  phase=s->phase28;if(phase>0){seen[7]++;func_8004D420(&s->secondary4C,phase-1,&output);s->lateral24=sub(s->lateral24,output);v->lateralMotion178=s->lateral24/16;s->phase28=add(s->phase28,1);}else seen[8]++;
+  phase=s->phase28;if(phase>0){seen[7]++;EvalRateCurve(&s->secondary4C,phase-1,&output);s->lateral24=sub(s->lateral24,output);v->lateralMotion178=s->lateral24/16;s->phase28=add(s->phase28,1);}else seen[8]++;
   s->timer02=half((u16)((u16)s->timer02+1U));if(s->timer02>=s->duration04){s->mode00=2;seen[9]++;}else seen[10]++;
  }else if(mode==2||mode==3){
   if(mode==2){seen[11]++;s->lateral24/=16;delta=sub(v->trackNodeF0,s->targetNode18);reverse=sub(s->targetNode18,v->trackNodeF0);
@@ -82,7 +82,7 @@ static void expected(RrRaceVehicle *v){RrSteeringState *s=&v->steering288;s32 ou
    if(!step||!(step/4)){s->mode00=0;seen[17]++;}else{v->rot54=sub(v->rot54,step/4);seen[18]++;}
   }else seen[19]++;
  }else seen[20]++;
- if(!v->steeringLock1B8){seen[21]++;diff=func_80025F84(v->rot54,v->heading1D4);gain=(diff<513)?diff/8+64:127;s->gain30=mul(gain,96)/128;
+ if(!v->steeringLock1B8){seen[21]++;diff=AngleDiffAbs(v->rot54,v->heading1D4);gain=(diff<513)?diff/8+64:127;s->gain30=mul(gain,96)/128;
   if(w->s.mode==6&&!w->s.marker){s->gain30=0;seen[27]++;}else seen[28]++;
   s->range2C=(diff<513)?diff*3+6144:7680;seen[29+(diff>=513)]++;
  }else{s->gain30=0;s->range2C=0;seen[22]++;}
@@ -105,7 +105,7 @@ int main(void){unsigned i,mode;uint64_t cases=0;
   w->s.car.steering288.timer02=(s16[]){INT16_MIN,-1,0,1,2,3,4,1024,INT16_MAX}[(scenario>>5)%9];
   if(scenario>=65536&&scenario%11==0){w->s.car.steering288.targetNode18=w->s.car.trackNodeF0;w->s.car.rot54=(s32)w->s.car.heading1D4+(s32[]){0,1,3,4,2047,2048,4095}[(scenario>>3)%7];}
   for(i=0;i<4;i++){w->s.guard[i]=next();w->s.tail[i]=next();}reference.s=actual.s;
-  w=&actual;func_80048DB0(&w->s.car);w=&reference;expected(&w->s.car);
+  w=&actual;UpdateComCarLaneChange(&w->s.car);w=&reference;expected(&w->s.car);
   assert(!memcmp(&actual.s,&reference.s,sizeof(State)));assert(actual.count==reference.count);assert(!memcmp(actual.events,reference.events,actual.count*sizeof(Event)));cases++;
  }
  assert(cases==262144);for(i=0;i<32;i++){if(!seen[i])fprintf(stderr,"unvisited branch %u\n",i);assert(seen[i]);}for(i=1;i<4;i++)assert(callback[i]);for(i=0;i<65536;i++)assert(modeSeen[i]);return 0;

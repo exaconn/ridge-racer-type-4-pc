@@ -5,7 +5,7 @@
 #include "game/sound/sndmain.h"
 #include "rr/menu_overlay_runtime.h"
 typedef struct { int a, b, c, d; } V4;
-extern char D_800F4DB8[];
+extern char SoundState[];
 #define W(o) (*(int *)(b + (o)))
 #define A(o) (*(int *)(c + (o)))
 #define S16(o) (*(short *)(b + (o)))
@@ -17,7 +17,7 @@ void func_80052548(void)
     int q3;
     register int q5 asm("$5");
     int *g;
-    char *b = D_800F4DB8;
+    char *b = SoundState;
     char *c;
     char *e;
     g = (int *)SCRATCHPAD;
@@ -25,7 +25,7 @@ void func_80052548(void)
         switch (U16(0x18C0)) {
         case 0:
             if (U16(0x18C2) == 0) {
-                c = D_800ABEF8;
+                c = PlayerCars;
                 v1 = A(0x184);
                 q5 = A(0x188);
                 W(0x18E4) = v1 + q5;
@@ -74,7 +74,7 @@ neg:
             break;
         }
         func_80052460();
-        e = D_800F4DB8;
+        e = SoundState;
         if (*(int *)(e + 0x18E8) > 0) *(int *)(e + 0x18E8) = *(int *)(e + 0x18E8) - 1;
     }
 }

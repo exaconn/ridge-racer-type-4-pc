@@ -1,7 +1,7 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/spu.h"
 
-s32 func_80086B00(s32 input, s32 left, s32 right) {
+s32 SsUtSetVVol(s32 input, s32 left, s32 right) {
     register s32 voice = input;
     if ((u16)voice < 24) {
         register s32 result;
@@ -25,20 +25,20 @@ s32 func_80086B00(s32 input, s32 left, s32 right) {
 
         index = (s16)voice;
         offset = index * 16;
-        ((RrSpuCachedVolumeEntry *)((u8 *)D_8010FE18.voices + offset))->right = right_scaled;
+        ((RrSpuCachedVolumeEntry *)((u8 *)_svm_sreg_dirty.voices + offset))->right = right_scaled;
         left_value = (s16)left;
 
         left_scaled = left_value * 128;
         /* ASM_BARRIER: Preserve cache-store and flag-load scheduling and register lifetimes. */
         __asm__ volatile("" : : "r"(index), "r"(left_scaled) : "$5", "memory");
         base = (u8 *)0x80110000U;
-        /* ASM_BARRIER: Expose the PAL page base; base[-0x1E8 + voice] aliases D_8010FE18.flags. */
+        /* ASM_BARRIER: Expose the PAL page base; base[-0x1E8 + voice] aliases _svm_sreg_dirty.flags. */
         __asm__("" : "=r"(base) : "0"(base));
         base += index;
         flags = base[-0x1E8];
         left_scaled += left_value;
-        ((RrSpuCachedVolumeEntry *)((u8 *)D_8010FE18.voices + offset))->left = left_scaled;
-        D_8010FE18.flags[index] = flags | 3;
+        ((RrSpuCachedVolumeEntry *)((u8 *)_svm_sreg_dirty.voices + offset))->left = left_scaled;
+        _svm_sreg_dirty.flags[index] = flags | 3;
         return result;
     }
     return -1;

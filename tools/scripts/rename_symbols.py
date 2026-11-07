@@ -52,6 +52,13 @@ def main():
             n += 1
             if '--dry-run' not in sys.argv:
                 p.write_text(t2)
+    if '--dry-run' not in sys.argv:    # fixtures stay address-based; tests may also look one up by its new name
+        for sub in ('legacy', 'views'):
+            d = ROOT / 'tools/scripts/fixtures' / sub
+            for old, new in reg.items():
+                src, link = d / (old + '.c'), d / (new + '.c')
+                if src.exists() and not link.exists() and not link.is_symlink():
+                    link.symlink_to(src.name)
     print('renamed', len(reg), 'functions in', n, 'files (fixture file names stay address-based)')
 
 

@@ -17,7 +17,7 @@ typedef struct {s16 active;u8 pad02[14];u32 tempo;} RrMotionClock20;
 #endif
 typedef struct {u8 prefix[RR_SCROLL_CHANNEL_OFFSET];RrScrollChannel4 channel;} __attribute__((__may_alias__)) RrScrollChannelCursor;
 
-extern RrMotionControllerPrefix *D_800ACA28;
+extern RrMotionControllerPrefix *MotionController;
 /* Disabled and unknown states return without using the clock or key.
  * State0 needs an active clock to start. Its wrapped unsigned duration must
  * become nonzero; state1 needs nonzero duration and excludes INT_MIN/-1 in
@@ -26,11 +26,11 @@ extern RrMotionControllerPrefix *D_800ACA28;
  * eight-byte vector copy includes pad; completion writes only x/y/z.
  * The caller supplies a clock view within the resident audio owner.
  */
-void func_8005AC0C(RrMotionClock20 *);
+void UpdateMotionTrack(RrMotionClock20 *);
 /* Scroll channels require disjoint clock/controller/key storage and accessible
  * current and following keys. Word products and timers wrap32, offsets wrap16.
  * Clock fields use the same view supplied by the presentation dispatcher. */
-void func_8005ED34(RrMotionClock20 *);
+void UpdateScrollTrack(RrMotionClock20 *);
 RR_ASSERT_SIZE(RrScrollKey4,4);
 RR_ASSERT_SIZE(RrScrollChannel4,4);
 RR_ASSERT_SIZE(RrMotionVector8,8);

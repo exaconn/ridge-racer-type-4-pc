@@ -3,9 +3,9 @@
 #include "rr/serial.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80096F14 ((M2C_UNK (*)())func_80096F14)
+#define ExitCriticalSection ((M2C_UNK (*)())ExitCriticalSection)
 
-#undef func_80096F14
+#undef ExitCriticalSection
 
 s32 func_8009A94C(s32 first, s32 second) {
     volatile RrSerialRequest *request = &D_801146E8;

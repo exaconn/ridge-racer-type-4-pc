@@ -24,7 +24,7 @@ extern int chkRC2wait(), func_80098A00();
 
 extern void setRC2wait(), func_80098A90();
 
-int func_80098154(a0) struct A *a0; {
+int _padInitSioMode(a0) struct A *a0; {
     struct W *p;
     struct HW *hw;
     int v;

@@ -61,9 +61,9 @@ typedef struct { short s0, s2, s4, s6, s8, sA, sC, sE, s10, s12, s14, s16; } T_2
 
 typedef struct { short s0, s2, s4, s6, s8, sA, sC, sE, s10, s12, s14, s16; } T_3;
 
-extern Settings D_800AD528;
+extern Settings Options;
 extern Pad D_800F3A38[2];
-extern Port D_8010C1A0[2];
+extern Port PadPorts[2];
 extern s32 D_800FFC08[2];
 extern s32 D_800AD590[2];
 extern s32 D_800F4CD8[2];
@@ -71,24 +71,24 @@ extern s16 D_8009FFB8[4];
 extern s16 D_8009FFC0[6];
 extern s32 D_8009FFCC[8];
 extern s32 D_800A016C[8];
-extern s32 D_800AC5DC;
+extern s32 VSyncThreshold;
 extern s16 D_800F3824;
 int abs(int);
 void func_8004B8A8(void);
-void func_8004BC5C(void);
-void func_8004BE4C(s32);
+void PadUpdateRumble(void);
+void PadPollPort(s32);
 extern T_1 D_8010C170[];
 extern char D_80011014[];
 extern char D_80011030[];
 extern int func_8001E84C();
 
-void func_8004A6C4(void);
+void PadUpdate(void);
 int func_8004B70C(int i);
-void func_8004B738(unsigned a, unsigned b, short c, short d);
+void PadRangeCheckSet(unsigned a, unsigned b, short c, short d);
 void func_8004B7E0(int i, int k, int v);
 void func_8004B864(int i);
 
-void func_8004A6C4(void) {
+void PadUpdate(void) {
     Port *ports[2];
     Pad *states[2];
     s32 i;
@@ -96,8 +96,8 @@ void func_8004A6C4(void) {
     s16 val;
 
     __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: keep prologue register saves before ports array initialization */
-    ports[0] = &D_8010C1A0[0];
-    ports[1] = &D_8010C1A0[1];
+    ports[0] = &PadPorts[0];
+    ports[1] = &PadPorts[1];
     __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: schedule ports array initialization before loop preheader */
     states[0] = &D_800F3A38[0];
     states[1] = &D_800F3A38[1];
@@ -166,9 +166,9 @@ void func_8004A6C4(void) {
             states[i]->buttons02 = ~((ports[i]->data02 << 8) | ports[i]->data03);
             states[i]->released06 = states[i]->previous04 & (states[i]->buttons02 ^ states[i]->previous04);
             states[i]->steering20 = ports[i]->data04;
-            states[i]->pressure22 = ports[i]->data05 - D_800AD528.p[i].offset02;
-            states[i]->pressure24 = ports[i]->data06 - D_800AD528.p[i].offset04;
-            states[i]->pressure26 = ports[i]->data07 - D_800AD528.p[i].offset06;
+            states[i]->pressure22 = ports[i]->data05 - Options.p[i].offset02;
+            states[i]->pressure24 = ports[i]->data06 - Options.p[i].offset04;
+            states[i]->pressure26 = ports[i]->data07 - Options.p[i].offset06;
             if (states[i]->pressure22 < 0) {
                 states[i]->pressure22 = 0;
             }
@@ -238,7 +238,7 @@ void func_8004A6C4(void) {
             states[i]->action34 = states[i]->pressed08 & 0x40;
             states[i]->idleStage54 = 0;
             if (states[i]->previous04 == states[i]->buttons02) {
-                if (D_800AC5DC == 0x80) {
+                if (VSyncThreshold == 0x80) {
                     states[i]->idleTick58 += 1;
                 } else {
                     states[i]->idleTick58 += 2;
@@ -300,22 +300,22 @@ void func_8004A6C4(void) {
         }
         switch (ports[i]->type01) {
         case 0x23:
-            val = states[i]->steering20 - (D_800AD528.p[i].center00 + 0x80);
+            val = states[i]->steering20 - (Options.p[i].center00 + 0x80);
             if (val > 0) {
-                val -= D_800A016C[D_800AD528.p[i].deadzone08];
+                val -= D_800A016C[Options.p[i].deadzone08];
                 if (val < 0) {
                     val = 0;
                 }
-                if (val > D_8009FFB8[D_800AD528.p[i].range0A]) {
-                    val = D_8009FFB8[D_800AD528.p[i].range0A];
+                if (val > D_8009FFB8[Options.p[i].range0A]) {
+                    val = D_8009FFB8[Options.p[i].range0A];
                 }
             } else {
-                val += D_800A016C[D_800AD528.p[i].deadzone08];
+                val += D_800A016C[Options.p[i].deadzone08];
                 if (val > 0) {
                     val = 0;
                 }
-                if (val < -D_8009FFB8[D_800AD528.p[i].range0A]) {
-                    val = -D_8009FFB8[D_800AD528.p[i].range0A];
+                if (val < -D_8009FFB8[Options.p[i].range0A]) {
+                    val = -D_8009FFB8[Options.p[i].range0A];
                 }
             }
             states[i]->steering3C = val;
@@ -323,23 +323,23 @@ void func_8004A6C4(void) {
         case 0xE3:
             val = states[i]->steering20;
             if (val > 0) {
-                val -= D_8009FFCC[D_800AD528.w[i].deadzone00];
+                val -= D_8009FFCC[Options.w[i].deadzone00];
                 if (val < 0) {
                     val = 0;
                 }
-                if (val > D_8009FFC0[D_800AD528.w[i].range01]) {
-                    val = D_8009FFC0[D_800AD528.w[i].range01];
+                if (val > D_8009FFC0[Options.w[i].range01]) {
+                    val = D_8009FFC0[Options.w[i].range01];
                 }
             } else {
-                val += D_8009FFCC[D_800AD528.w[i].deadzone00];
+                val += D_8009FFCC[Options.w[i].deadzone00];
                 if (val > 0) {
                     val = 0;
                 }
-                if (val < -D_8009FFC0[D_800AD528.w[i].range01]) {
-                    val = -D_8009FFC0[D_800AD528.w[i].range01];
+                if (val < -D_8009FFC0[Options.w[i].range01]) {
+                    val = -D_8009FFC0[Options.w[i].range01];
                 }
             }
-            states[i]->steering3C = (val << 7) / D_8009FFC0[D_800AD528.w[i].range01];
+            states[i]->steering3C = (val << 7) / D_8009FFC0[Options.w[i].range01];
             break;
         case 0x73:
             val = states[i]->steering20 - 0x80;
@@ -366,9 +366,9 @@ void func_8004A6C4(void) {
         }
     }
     func_8004B8A8();
-    func_8004BC5C();
+    PadUpdateRumble();
     for (i = 0; i < 2; i++) {
-        func_8004BE4C(i);
+        PadPollPort(i);
     }
 }
 
@@ -381,7 +381,7 @@ int func_8004B70C(int i) {
 
 #undef D_800F3A38
 
-void func_8004B738(unsigned a, unsigned b, short c, short d) {
+void PadRangeCheckSet(unsigned a, unsigned b, short c, short d) {
     T_1 *t;
     if (a >= 2) {
         func_8001E84C(D_80011014, a);

@@ -32,7 +32,7 @@ c_head=r'''
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/camera_motion.h"
-RrCameraRootPrefix D_800AC650;
+RrCameraRootPrefix RaceContext;
 typedef struct {u8 pre[16];RrCameraObjectPrefix object;u8 remaining[0x484];u8 post[16];} World;
 static World world;
 static RrCameraKey16 keys[3];
@@ -49,10 +49,10 @@ int main(void){u8 data[1484],before[sizeof(World)],allowed[sizeof(World)];RrCame
   memcpy(&world.object.motion74,data+16+0x74,12);world.object.motion74.keys0C=keys;
   memcpy(world.object.motion74.start10,data+16+0x84,0x60);
   memcpy(world.remaining,data+16+0xE4,0x484);memcpy(world.post,data+1400,16);
-  memcpy(&input,data+1416,20);memcpy(keys,data+1436,48);D_800AC650.camera3D8=&world.object;
+  memcpy(&input,data+1416,20);memcpy(keys,data+1436,48);RaceContext.camera3D8=&world.object;
   assert((uintptr_t)&world.object>UINT32_MAX && (uintptr_t)keys>UINT32_MAX && (uintptr_t)&input>UINT32_MAX);
-  memcpy(before,&world,sizeof world);func_8005B9F4(&input);
-  assert(D_800AC650.camera3D8==&world.object && world.object.motion74.keys0C==keys);
+  memcpy(before,&world,sizeof world);UpdateCameraMotion(&input);
+  assert(RaceContext.camera3D8==&world.object && world.object.motion74.keys0C==keys);
   assert(!memcmp(&input,data+1416,20) && !memcmp(keys,data+1436,48));
   for(i=0;i<sizeof world;i++)if(!allowed[i])assert(((u8*)&world)[i]==before[i]);
   memcpy(data,world.pre,16);memcpy(data+16,&world.object,0x74);

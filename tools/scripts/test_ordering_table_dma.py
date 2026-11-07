@@ -33,7 +33,7 @@ s32 VSync(s32 mode){
     init_calls++;init_mode=mode;setup[0]=ports[1];setup[1]=ports[2];setup[2]=ports[3];setup[3]=ports[4];setup_address=address;
     if(init_swap)D_800ABBE0=&ports[4];return 100;
 }
-s32 func_80095394(void){
+s32 get_alarm(void){
     timeout_calls++;if(timeout_swap && timeout_calls==1)D_800ABBE0=&ports[4];
     return abort_after && timeout_calls>=abort_after?abort_value:0;
 }
@@ -45,7 +45,7 @@ u32 test_control(volatile u32 *p){
 '''+timer+'\n'+body
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
-        cls.lib=C.CDLL(str(d/'f.so'));cls.f=cls.lib.func_800942E4
+        cls.lib=C.CDLL(str(d/'f.so'));cls.f=cls.lib._otc
         cls.f.argtypes=[C.c_void_p,C.c_int32];cls.f.restype=C.c_int32
         cls.ports=(C.c_uint32*6).in_dll(cls.lib,'ports');cls.address=C.c_void_p.in_dll(cls.lib,'address')
         cls.control=C.c_void_p.in_dll(cls.lib,'D_800ABBE0')

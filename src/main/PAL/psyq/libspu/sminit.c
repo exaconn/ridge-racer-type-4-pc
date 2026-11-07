@@ -2,12 +2,12 @@
 #include "psyq/libspu/sminit.h"
 #include "rr/spu.h"
 #include "rr/spu_allocation.h"
-extern int D_800A4800;
+extern int _spu_mem_mode_plus;
 int SpuInitMalloc(a0, a1) int a0; int *a1; {
     if (a0 > 0) {
-        int sh = D_800A4800;
+        int sh = _spu_mem_mode_plus;
         a1[0] = 0x40001010;
-        D_800A48C0 = a1;
+        _spu_memList = a1;
         D_800A48BC = 0;
         D_800A48B8 = a0;
         a1[1] = (0x10000 << sh) - 0x1010;

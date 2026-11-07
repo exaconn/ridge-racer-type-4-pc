@@ -23,10 +23,10 @@ fixture=r'''
 #define RR_ASSERT_OFFSET(type,field,offset) _Static_assert(offsetof(type,field)==offset,"native layout")
 #include "rr/frame_loop.h"
 RrFrameStorage D_800ADAF0[2];
-RrFrameStep *D_8009E9F0[65536];
+RrFrameStep *ModeFuncTable[65536];
 u8 *D_800ACC14;
-u32 D_800ABEAC;
-s32 D_800AC5DC,D_800ACBF8,D_800F2DE4;
+u32 FrameCounter;
+s32 VSyncThreshold,D_800ACBF8,D_800F2DE4;
 u16 D_800F4C6A,D_800F3A26;
 s16 D_800F4D8A;
 static struct {u8 prefix[0x4BF0];s32 bank;} native_bank;
@@ -41,19 +41,19 @@ static s32 threshold;
 static void expect(int n) {assert(stage==n);stage++;}
 static void step(void) {
  expect(10);assert(D_800F4C6A==selector_a && D_800F3A26==selector_b);
- D_800ACC14=alternate[2].bytes;D_800AC5DC=-999;
+ D_800ACC14=alternate[2].bytes;VSyncThreshold=-999;
 }
 void func_8007D710(void) {expect(0);}
-s32 func_8008BDE4(s32 n) {expect(1);assert(n==1);return INT_MIN;}
-void func_8008B364(void) {expect(2);}
-void func_80096E54(s32 n) {expect(3);assert(n==2);}
-void func_8001E988(void) {expect(4);D_800ABEAC=42;D_800F2DE4=77;D_800F4C6A=0;D_800F3A26=0;D_800F4D8A=-2;}
-void SetDispMask(s32 n) {expect(5);assert(n==0 && D_800AC5DC==128);D_800ABEAC=0xFFFFFFFFU;}
+s32 SetVideoMode(s32 n) {expect(1);assert(n==1);return INT_MIN;}
+void ResetCallback(void) {expect(2);}
+void SetMem(s32 n) {expect(3);assert(n==2);}
+void SystemInit(void) {expect(4);FrameCounter=42;D_800F2DE4=77;D_800F4C6A=0;D_800F3A26=0;D_800F4D8A=-2;}
+void SetDispMask(s32 n) {expect(5);assert(n==0 && VSyncThreshold==128);FrameCounter=0xFFFFFFFFU;}
 u32 *ClearOTagR(u32 *p,s32 n) {
  assert(n==704);
  if(stage==6) {
   u32 bank=expected_counter&1;u8 *base=D_800ADAF0[bank].bytes;
-  assert(D_800ABEAC==expected_counter && D_800ACC14==base && native_bank.bank==(s32)bank);
+  assert(FrameCounter==expected_counter && D_800ACC14==base && native_bank.bank==(s32)bank);
   assert(p==(u32 *)(base+0x70));
   assert(native_scratch[0]==base+0x1670 && native_scratch[1]==base+0x70);
   if(!frame_no)assert(D_800F2DE4==0 && D_800F4C6A==1 && D_800F3A26==1 && D_800F4D8A==0);
@@ -61,12 +61,12 @@ u32 *ClearOTagR(u32 *p,s32 n) {
  }else {expect(7);assert(p==(u32 *)(alternate[0].bytes+0xB70));D_800ACC14=alternate[1].bytes;}
  return (u32 *)alternate[7].bytes;
 }
-s32 func_800128B8(void) {expect(8);D_800F4C6A=65534;D_800F3A26=65534;return -1;}
-void func_8004FD80(void) {expect(9);D_800F4C6A=selector_a;D_800F3A26=selector_b;}
-void DrawSync(s32 n) {expect(11);assert(n==0);D_800AC5DC=threshold;}
+s32 CdFileStep(void) {expect(8);D_800F4C6A=65534;D_800F3A26=65534;return -1;}
+void SoundUpdate(void) {expect(9);D_800F4C6A=selector_a;D_800F3A26=selector_b;}
+void DrawSync(s32 n) {expect(11);assert(n==0);VSyncThreshold=threshold;}
 s32 VSync(s32 mode) {
  if(mode==1) {
-  assert(stage==12);ticks++;D_800AC5DC=threshold==INT_MAX?INT_MIN:INT_MAX;
+  assert(stage==12);ticks++;VSyncThreshold=threshold==INT_MAX?INT_MIN:INT_MAX;
   D_800ACC14=alternate[3].bytes;
   if(threshold!=INT_MIN && ticks<3)return threshold-1;
   stage++;return threshold;
@@ -83,24 +83,24 @@ void DrawOTag(void *p) {
   D_800ACBF8=optional_mode;
  }else {expect(17);assert(optional_mode && p==alternate[7].bytes+0x166C);}
 }
-void func_8004A6C4(void) {
+void PadUpdate(void) {
  expect(optional_mode?18:17);
- assert(D_800ABEAC==expected_counter);
+ assert(FrameCounter==expected_counter);
  frame_no++;
  if(frame_no==frames_to_run)longjmp(done,1);
  /* Increment must use this fresh word and wrap at 32 bits. */
- D_800ABEAC=next_counter;expected_counter=next_counter+1U;
+ FrameCounter=next_counter;expected_counter=next_counter+1U;
  stage=6;ticks=0;D_800ACBF8=optional_mode?0:1;
 }
 ''' + source + r'''
 static void run(u32 counter,s32 wait,s32 optional,u16 a,u16 b) {
  stage=frame_no=ticks=0;frames_to_run=3;expected_counter=0;next_counter=counter;
  threshold=wait;optional_mode=optional;selector_a=a;selector_b=b;
- D_8009E9F0[a]=row;row[b]=step;
+ ModeFuncTable[a]=row;row[b]=step;
  D_800ACBF8=optional?0:1;
- if(!setjmp(done))func_8001E684();
+ if(!setjmp(done))MainLoop();
  assert(frame_no==3 && ticks==(wait==INT_MIN?1:3));
- row[b]=0;D_8009E9F0[a]=0;
+ row[b]=0;ModeFuncTable[a]=0;
 }
 int main(int argc,char **argv) {
  u32 counters[]={0,1,0x7FFFFFFFU,0x80000000U,0xFFFFFFFEU,0xFFFFFFFFU};

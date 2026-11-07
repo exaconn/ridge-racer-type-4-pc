@@ -5,17 +5,17 @@
 #include "rr/commands.h"
 
 extern char *D_800ABDA8;
-extern int func_80096F04();
-extern int func_80096F14();
-extern int func_80096F94();
-extern int func_80097704();
-extern int func_80097714();
-extern int func_80096F04();
-extern int func_80096F94();
-extern int func_80097714();
-extern int func_80096F14();
+extern int EnterCriticalSection();
+extern int ExitCriticalSection();
+extern int ChangeClearRCnt();
+extern int SysEnqIntRP();
+extern int SysDeqIntRP();
+extern int EnterCriticalSection();
+extern int ChangeClearRCnt();
+extern int SysDeqIntRP();
+extern int ExitCriticalSection();
 extern int D_800ABDB0;
-extern int func_80097704();
+extern int SysEnqIntRP();
 
 int func_8009BB58();
 
@@ -28,19 +28,19 @@ void func_8009BA04(void)
     *(short *)(D_800ABDA8 + 0xA) = 0x40;
     *(short *)(D_800ABDA8 + 0xE) = 0x88;
     *(short *)(D_800ABDA8 + 8) = 0xD;
-    func_80096F04();
-    func_80097714(2, D_800ABDB0);
-    func_80097704(2, D_800ABDB0);
+    EnterCriticalSection();
+    SysDeqIntRP(2, D_800ABDB0);
+    SysEnqIntRP(2, D_800ABDB0);
     q = D_800ABDAC;
     q->pending = ~1U;
     *(u32 *)&q->mask = q->mask | 1;
-    func_80096F94(3, 0);
-    func_80096F14();
+    ChangeClearRCnt(3, 0);
+    ExitCriticalSection();
 }
 
 #undef D_800ABDB0
 
-void func_8009BA94() { func_80096F04(); func_80096F94(3, 1); func_80097714(2, &D_800ABDB0); func_80096F14(); }
+void func_8009BA94() { EnterCriticalSection(); ChangeClearRCnt(3, 1); SysDeqIntRP(2, &D_800ABDB0); ExitCriticalSection(); }
 
 s32 func_8009BAD8(void) {
     RrInterruptRegisters *registers=D_800ABDAC;
@@ -73,7 +73,7 @@ s32 func_8009BB18(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABDAC ((unsigned int *)D_800ABDAC)
 #define D_800ABDA8 ((short *)D_800ABDA8)
-#define func_80097714 ((int (*)())func_80097714)
+#define SysDeqIntRP ((int (*)())SysDeqIntRP)
 
 int func_8009BB58() {
     volatile unsigned int *g;
@@ -86,7 +86,7 @@ int func_8009BB58() {
         g[1] &= ~0x80;
         h = D_800ABDA8;
         h[5] = 0;
-        func_80097714(1, D_800ABDC0);
+        SysDeqIntRP(1, D_800ABDC0);
         D_800ABDA8[5] = 0x40;
         D_800ABDA8[7] = 0x88;
         D_800ABDA8[4] = 0xD;
@@ -94,12 +94,12 @@ int func_8009BB58() {
         return 0;
     }
     if (D_800ABDE4 & 1) return 0;
-    func_80097714(1, D_800ABDC0);
-    func_80097704(1, D_800ABDC0);
+    SysDeqIntRP(1, D_800ABDC0);
+    SysEnqIntRP(1, D_800ABDC0);
     func_8009BC3C();
     return 0;
 }
 
 #undef D_800ABDAC
 #undef D_800ABDA8
-#undef func_80097714
+#undef SysDeqIntRP

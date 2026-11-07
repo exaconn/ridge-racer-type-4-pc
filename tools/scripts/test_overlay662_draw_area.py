@@ -28,7 +28,7 @@ _Static_assert(sizeof(RrFrameStorage)==0x22778,"real frame stride");
 _Static_assert(offsetof(RrFrameEnvironment,display.y)==0x5E,"comparison halfword");
 RrFrameStorage D_800ADAF0[2];static RrFrameStorage expected_frames[2];
 RrGarageSelectionPrefix ovl662_D_801276A8;static RrGarageSelectionPrefix saved;
-s32 D_800F4BF0;s16 D_800ABAC4,D_800ABAC6;
+s32 DrawBufIndex;s16 D_800ABAC4,D_800ABAC6;
 static struct Packets {u32 before[3],words[9],head,after[3];} actual,expected;
 '''+resident+constructor+body+r'''
 static u32 rng=0x1ABB4;
@@ -55,11 +55,11 @@ int main(void){unsigned i,shape,j;u32 x,y,w,h;uint64_t cases=0;
   D_800ADAF0[1].environment.display.y=half(i+(i&1));
   expected_frames[0].environment.display.y=D_800ADAF0[0].environment.display.y;
   expected_frames[1].environment.display.y=D_800ADAF0[1].environment.display.y;
-  D_800F4BF0=i%9==8?word(next()):clocks[i%8];
+  DrawBufIndex=i%9==8?word(next()):clocks[i%8];
   D_800ABAC4=i%3==0?1:i%3==1?320:1024;D_800ABAC6=i%3==0?512:i%3==1?256:1;
   x=next();y=next();w=(u16)i;h=(u16)(i*73U+17);
   rx=narrow((int64_t)saved.halfC8+x);ry=narrow((int64_t)saved.halfCA+y);
-  yy=ry;if(i&1)yy+=(int64_t)D_800F4BF0*256;ry=narrow(yy);
+  yy=ry;if(i&1)yy+=(int64_t)DrawBufIndex*256;ry=narrow(yy);
   for(shape=0;shape<7;shape++){
    u32 *ordering,*eorder,*pkt=actual.words+3;u8 *result;
    for(j=0;j<3;j++){actual.before[j]=next();actual.after[j]=next();}

@@ -1,31 +1,31 @@
 #include "types.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEF8 (*(S2 (*)[])&D_800ABEF8)
+#define PlayerCars (*(S2 (*)[])&PlayerCars)
 
 #define D_800F3A38 (*(S1 (*)[])&D_800F3A38)
 
-#undef D_800ABEF8
+#undef PlayerCars
 
 #undef D_800F3A38
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8009AEAC ((unsigned int (*)())func_8009AEAC)
+#define _sio_control ((unsigned int (*)())_sio_control)
 
 #define D_800F3A38 (*(T38 (*))&D_800F3A38)
 
 #define D_800FF688 (*(unsigned short (*))&D_800FF688)
 
-#undef func_8009AEAC
+#undef _sio_control
 
 #undef D_800F3A38
 
 #undef D_800FF688
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8009AEAC ((unsigned (*)())func_8009AEAC)
+#define _sio_control ((unsigned (*)())_sio_control)
 
-#undef func_8009AEAC
+#undef _sio_control
 
 typedef struct 
 {
@@ -43,7 +43,7 @@ extern struct
 
 extern int PlaySfx();
 
-extern int func_8009AEAC();
+extern int _sio_control();
 
 extern s16 D_800FF688;
 
@@ -72,15 +72,15 @@ int func_80035024(int a0)
   int q3;
   T38 *e;
   signed char *new_var;
-  unsigned int k = (func_8009AEAC(0, 0, 0) >> 7) & 3;
+  unsigned int k = (_sio_control(0, 0, 0) >> 7) & 3;
   short new_var3;
   st = (short) (D_800FF688 + 1);
   switch (st)
   {
     case 1:
-      if (func_8009AEAC(3, 1, 0) != 0)
+      if (_sio_control(3, 1, 0) != 0)
     {
-      func_8009AEAC(1, 1, 2);
+      _sio_control(1, 1, 2);
       if (a0 == 0)
       {
         D_800AD508 = 0;
@@ -94,7 +94,7 @@ int func_80035024(int a0)
       }
       break;
     }
-      func_8009AEAC(1, 1, 2);
+      _sio_control(1, 1, 2);
       if (a0 == 0)
     {
       D_800AD508 = 1;
@@ -115,7 +115,7 @@ int func_80035024(int a0)
     case 11:
       if (D_8009F728 > 0)
     {
-      func_8009AEAC(1, 1, 2);
+      _sio_control(1, 1, 2);
       D_8009F728 -= 1;
       if (k == 1)
       {
@@ -147,7 +147,7 @@ int func_80035024(int a0)
       break;
 
     case 3:
-      func_8009AEAC(1, 1, 1);
+      _sio_control(1, 1, 1);
       if (D_8009F728 > 0)
     {
       if (a0 == 0)
@@ -182,7 +182,7 @@ int func_80035024(int a0)
         if (D_800F3A64 != 0)
         {
           D_800ABEBC[1 - (q3 = D_800AD508)] = -1;
-          func_8009AEAC(1, 1, 0, q3);
+          _sio_control(1, 1, 0, q3);
         }
       }
     }
@@ -198,13 +198,13 @@ int func_80035024(int a0)
       if (v <= 0)
       {
         D_800FF688 = 4;
-        func_8009AEAC(1, 1, 2);
+        _sio_control(1, 1, 2);
       }
       else
         if (D_800ABEBC[3 - (D_800AD508 * 2)] != 0)
       {
         D_800FF688 = 3;
-        func_8009AEAC(1, 1, 2);
+        _sio_control(1, 1, 2);
       }
     }
       break;

@@ -42,17 +42,17 @@ typedef struct {
 static Environment actual,expected,*g;
 const u16 D_800A4818[8]={0x707,0x707,0x707,0x707,0x707,0x707,0x707,0x707};
 const char D_80011698[]="timeout",D_800116A8[]="reset";
-#define D_800A47D8 (&g->root->registers)
+#define _spu_RXX (&g->root->registers)
 #define D_800A47E8 (g->dmaRoot)
-#define D_800A47F0 (g->transfer)
-#define D_800A47F4 (g->f4)
+#define _spu_tsa (g->transfer)
+#define _spu_transMode (g->f4)
 #define D_800A47F8 (g->f8)
-#define D_800A47FC (g->fc)
-#define D_800A4800 (g->mode)
-#define D_800A4804 (g->shift)
-#define D_800A4808 (g->rounding)
-#define D_800A480C (g->active)
-#define D_800A4810 (g->callback)
+#define _spu_mem_mode (g->fc)
+#define _spu_mem_mode_plus (g->mode)
+#define _spu_mem_mode_unit (g->shift)
+#define _spu_mem_mode_unitM (g->rounding)
+#define _spu_inTransfer (g->active)
+#define _spu_transferCallback (g->callback)
 #define D_800A4814 (g->unknown)
 #define D_8010EFB0 (g->entries.values)
 static u32 next(u32 *p){u32 n=*p;n^=n<<13;n^=n>>17;n^=n<<5;return *p=n;}
@@ -121,7 +121,7 @@ int main(void){u32 n,phase,seed=0x7EAC4,planSeen[8]={0},modeSeen[2]={0},timeoutS
   initialize(&actual,n,phase>>1,plan,&seed);
   initialize(&expected,n,phase>>1,plan,&initialSeed);
   assert(seed==initialSeed);
-  g=&expected;assert(model(warm)==0);snapshot(&b);g=&actual;assert(func_8007EAC4(warm)==0);snapshot(&a);
+  g=&expected;assert(model(warm)==0);snapshot(&b);g=&actual;assert(_spu_init(warm)==0);snapshot(&a);
   assert(!memcmp(&a,&b,sizeof(a)));assert(actual.seed==expected.seed&&actual.reads==expected.reads&&actual.count==expected.count);assert(!memcmp(actual.events,expected.events,actual.count*sizeof(Event)));
 #ifndef DIRECT_STATUS
   assert(actual.reads>=1&&actual.reads<=3841);

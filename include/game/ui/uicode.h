@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80043130();
+void EncodePasswordCode();
 
 #endif /* RR_GAME_UI_UICODE_H */

@@ -10,17 +10,17 @@
 
 struct V4 { int a[4]; };
 
-extern char D_800AD528[];
-extern int func_8008A674(t);
+extern char Options[];
+extern int SsVabClose(t);
 extern char D_800ACA30[];
 extern struct V4 D_80011260;
-extern struct { char pad[0x24]; short s[4]; char pad2[0x2864 - 0x2C]; int i; } D_800F4DB8;
+extern struct { char pad[0x24]; short s[4]; char pad2[0x2864 - 0x2C]; int i; } SoundState;
 extern unsigned char D_800A1FC4[];
-extern unsigned char D_800AC650[];
+extern unsigned char RaceContext[];
 extern RrSpritePacket *func_8001FF84(u32 *, RrSpritePacket *, s32, s32,
                                   RrUiUvRect *, u16, s32);
 
-void func_8005C37C(s32 index, s32 x, s32 y, s32 intensity);
+void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity);
 
 void func_8005C0C4(void) {
     int i;
@@ -28,7 +28,7 @@ void func_8005C0C4(void) {
     char *q;
 
     i = 0;
-    b = D_800AD528;
+    b = Options;
     q = b;
     do {
         *(short *)(b + i * 4) = 0;
@@ -42,11 +42,11 @@ void func_8005C0C4(void) {
         b[i * 4 + 0x2B] = 0;
         i++;
     } while (i < 2);
-    D_800AD528[0x30] = 0x10;
-    D_800AD528[0x31] = 0x10;
-    *((short *) (D_800AD528 + 0x32)) = 0;
-    *((int *) (D_800AD528 + 0x34)) = 0;
-    *((int *) (D_800AD528 + 0x38)) = 0x10;
+    Options[0x30] = 0x10;
+    Options[0x31] = 0x10;
+    *((short *) (Options + 0x32)) = 0;
+    *((int *) (Options + 0x34)) = 0;
+    *((int *) (Options + 0x38)) = 0x10;
 }
 
 void func_8005C13C(int a0) {
@@ -60,18 +60,18 @@ void func_8005C13C(int a0) {
     *(int *)(p + 0x42C) = a0;
     *(int *)(p + 0x3E8) = 0x100;
     *(int *)(p + 0xB0) = 0;
-    func_80053E2C();
+    InitParticles();
     i = 0;
-    if (D_800F4DB8.i >= 0) {
-        func_80083C74(*(short *)&D_800F4DB8.i);
-        func_8007F910(*(short *)&D_800F4DB8.i);
-        D_800F4DB8.i = -1;
+    if (SoundState.i >= 0) {
+        SsSeqStop(*(short *)&SoundState.i);
+        SsSeqClose(*(short *)&SoundState.i);
+        SoundState.i = -1;
     }
     for (i = 0; i < 4; i++) {
-        t = D_800F4DB8.s[v.a[i]];
+        t = SoundState.s[v.a[i]];
         if (t >= 0) {
-            func_8008A674(t);
-            D_800F4DB8.s[v.a[i]] = -1;
+            SsVabClose(t);
+            SoundState.s[v.a[i]] = -1;
         }
     }
     func_80053A80();
@@ -80,21 +80,21 @@ void func_8005C13C(int a0) {
 
 void func_8005C26C(int a0) {
     int v1, a, v2;
-    D_800AC650[0x3F0] = (D_800A1FC4[0] * a0) / 255;
-    D_800AC650[0x3F1] = (D_800A1FC4[1] * a0) / 255;
-    v1 = D_800AC650[0x3F0] * *(int *)(D_800AC650 + 0x3E8);
-    D_800AC650[0x3F2] = (D_800A1FC4[2] * a0) / 255;
+    RaceContext[0x3F0] = (D_800A1FC4[0] * a0) / 255;
+    RaceContext[0x3F1] = (D_800A1FC4[1] * a0) / 255;
+    v1 = RaceContext[0x3F0] * *(int *)(RaceContext + 0x3E8);
+    RaceContext[0x3F2] = (D_800A1FC4[2] * a0) / 255;
     if (v1 < 0) v1 += 0xFF;
-    a = D_800AC650[0x3F1] * *(int *)(D_800AC650 + 0x3E8);
-    D_800AC650[0x3F0] = v1 >> 8;
+    a = RaceContext[0x3F1] * *(int *)(RaceContext + 0x3E8);
+    RaceContext[0x3F0] = v1 >> 8;
     if (a < 0) a += 0xFF;
-    v2 = D_800AC650[0x3F2] * *(int *)(D_800AC650 + 0x3E8);
-    D_800AC650[0x3F1] = a >> 8;
+    v2 = RaceContext[0x3F2] * *(int *)(RaceContext + 0x3E8);
+    RaceContext[0x3F1] = a >> 8;
     if (v2 < 0) v2 += 0xFF;
-    D_800AC650[0x3F2] = v2 >> 8;
+    RaceContext[0x3F2] = v2 >> 8;
 }
 
-void func_8005C37C(s32 index, s32 x, s32 y, s32 intensity) {
+void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity) {
     register s32 xstage = x;
     register s32 ystage = y;
     register s32 istage = intensity;

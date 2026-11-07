@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_8008F914();
+int StSetMask();
 
 #endif /* RR_PSYQ_LIBCD_DSSTRM23_H */

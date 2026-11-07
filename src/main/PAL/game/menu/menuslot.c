@@ -9,25 +9,25 @@
 #include "game/data/screenframe.h"
 #include "game/data/menuvars.h"
 extern int func_800207D4();
-extern int func_8002B330();
+extern int StepMenuValue();
 extern int ResetScreenCounters();
 extern int func_8003B934();
-extern int func_8003D6F0();
-extern int func_8003EC88();
+extern int UpdateBadgeRowAnim();
+extern int DrawUiRow();
 extern int PlaySfx();
 extern short D_800AC5D0;
-extern short D_800AC64A;
+extern short MenuCursor;
 extern short D_800F3A26;
 extern unsigned short D_800F4D8A;
-extern int D_800ACC18;
+extern int LoadCursor;
 extern int D_800F2DE4;
 extern int D_800F3A60;
 extern int D_800F4D74;
-extern struct { char pad[8]; short s8, sA; char padC[4]; short s10; } *D_800F3AFC;
-extern struct w3g2e { char pad[0xC]; char c; char pad2[7]; unsigned char b14; char pad3[0x23]; char b38; } *D_800F4D80;
+extern struct { char pad[8]; short s8, sA; char padC[4]; short s10; } *BadgeRows;
+extern struct w3g2e { char pad[0xC]; char c; char pad2[7]; unsigned char b14; char pad3[0x23]; char b38; } *UiRows;
 extern struct { char pad[4]; char b4; char pad5[2]; char b7; } *D_800FF68C;
 extern int D_800F4CA8;
-extern int func_8001FCC8();
+extern int AddDrawModePrim();
 extern int func_8001FF84();
 extern int rsin();
 extern char D_8009F648[];
@@ -39,22 +39,22 @@ void func_80032600(void) {
     D_800F2DE4 += 1;
     switch (D_800F4D8A) {
     case 0:
-        *((char *)D_800F4D80 + D_800AC64A * 0x24 + 0xC) = 0;
-        func_8002B330(0, 2, &D_800AC64A, 2, 0);
-        *((char *)D_800F4D80 + D_800AC64A * 0x24 + 0xC) = 2;
+        *((char *)UiRows + MenuCursor * 0x24 + 0xC) = 0;
+        StepMenuValue(0, 2, &MenuCursor, 2, 0);
+        *((char *)UiRows + MenuCursor * 0x24 + 0xC) = 2;
         if (D_800F3A60 != 0) {
-            if (D_800F4D80->b14 == 2) {
+            if (UiRows->b14 == 2) {
                 PlaySfx(1);
-                D_800F4D80->b14 = 3;
-                D_800F4D80->b38 = 3;
-                D_800F3AFC->s10 = 4;
-                *((char *)D_800F4D80 + D_800AC64A * 0x24 + 0xC) = 1;
+                UiRows->b14 = 3;
+                UiRows->b38 = 3;
+                BadgeRows->s10 = 4;
+                *((char *)UiRows + MenuCursor * 0x24 + 0xC) = 1;
                 D_800AC5D0 = 0x40;
-                D_800ACC18 = D_800F4D74;
+                LoadCursor = D_800F4D74;
                 ResetScreenCounters();
-                if (D_800AC64A == 0) {
+                if (MenuCursor == 0) {
                     D_800F4D8A = 3;
-                } else if (D_800AC64A == 1) {
+                } else if (MenuCursor == 1) {
                     D_800F4D8A = 4;
                 }
             }
@@ -85,15 +85,15 @@ void func_80032600(void) {
         }
         break;
     }
-    if (D_800F3AFC->s10 == 3) {
+    if (BadgeRows->s10 == 3) {
         D_800FF68C->b7 = 0;
         D_800FF68C->b4 = 0x26;
-        func_80032A14(D_800F3AFC->s8 + 0xA, D_800F3AFC->sA + 0x28, D_800FF68C);
+        func_80032A14(BadgeRows->s8 + 0xA, BadgeRows->sA + 0x28, D_800FF68C);
     }
-    func_8003D6F0(0);
-    func_8003EC88(0);
-    func_8003EC88(1);
-    func_8002A344(0x10084);
+    UpdateBadgeRowAnim(0);
+    DrawUiRow(0);
+    DrawUiRow(1);
+    UpdateScreenFade(0x10084);
 }
 
 void func_80032914(signed char *a0) {
@@ -116,5 +116,5 @@ int a1;
     v += 0x7F;
   }
   new_var = *((int *) SCRATCHPAD);
-  *((int *) SCRATCHPAD) = func_8001FCC8(D_800ACC14 + 0x70, func_8001FF84(D_800ACC14 + 0x70, new_var, a0, a1, D_8009F648, 0x1B56, ((v >> 7) + 0x80) * 2), 0x25);
+  *((int *) SCRATCHPAD) = AddDrawModePrim(D_800ACC14 + 0x70, func_8001FF84(D_800ACC14 + 0x70, new_var, a0, a1, D_8009F648, 0x1B56, ((v >> 7) + 0x80) * 2), 0x25);
 }

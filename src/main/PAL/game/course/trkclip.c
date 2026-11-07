@@ -15,16 +15,16 @@ typedef struct {
     s32 r1c;
 } StackFrame;
 
-extern struct S *D_800ABEA4;
-extern s32 D_800ABECC;
+extern struct S *TrackNodes;
+extern s32 TrackNodeCount;
 
 void func_80026A20(int a, int b, short *c);
-int func_80026A74(s32 *pos, s32 startIdx, s32 maxIter);
+int FindTrackNode(s32 *pos, s32 startIdx, s32 maxIter);
 
 void func_80026A20(int a, int b, short *c)
 {
   int q = a / 5;
-  int k = 0x800 - (&D_800ABEA4[a])->x;
+  int k = 0x800 - (&TrackNodes[a])->x;
   int new_var;
   new_var = k;
   k = (b - new_var) & 0xFFF;
@@ -33,9 +33,9 @@ void func_80026A20(int a, int b, short *c)
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEA4 (*(s32 (*))&D_800ABEA4)
+#define TrackNodes (*(s32 (*))&TrackNodes)
 
-s32 func_80026A74(s32 *pos, s32 startIdx, s32 maxIter) {
+s32 FindTrackNode(s32 *pos, s32 startIdx, s32 maxIter) {
     StackFrame sp;
     s32 idx;
     s32 cnt;
@@ -55,9 +55,9 @@ s32 func_80026A74(s32 *pos, s32 startIdx, s32 maxIter) {
     px = pos[0];
     pz = pos[2];
     for (;;) {
-        next = (idx + 1) % D_800ABECC;
-        p = (char *)D_800ABEA4 + idx * 0x3C;
-        q = (char *)D_800ABEA4 + next * 0x3C;
+        next = (idx + 1) % TrackNodeCount;
+        p = (char *)TrackNodes + idx * 0x3C;
+        q = (char *)TrackNodes + next * 0x3C;
         w78 = *(s32 *)(p + 8);
         w80 = *(s32 *)(p + 12);
         sp.h4 = sp.h8 = *(u16 *)(q + 8) - (u16)w78;
@@ -89,7 +89,7 @@ s32 func_80026A74(s32 *pos, s32 startIdx, s32 maxIter) {
         } else {
             idx += cnt;
         }
-        idx = (D_800ABECC + idx) % D_800ABECC;
+        idx = (TrackNodeCount + idx) % TrackNodeCount;
         if (cnt > maxIter) {
             idx = startIdx;
             break;
@@ -98,4 +98,4 @@ s32 func_80026A74(s32 *pos, s32 startIdx, s32 maxIter) {
     return idx;
 }
 
-#undef D_800ABEA4
+#undef TrackNodes

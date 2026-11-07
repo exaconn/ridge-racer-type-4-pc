@@ -9,9 +9,9 @@ void ovl667_func_80114AF8(unsigned long configuration) {
     unsigned long second;
     unsigned long third;
     SetDispMask(0);
-    func_8009AEAC(1,3,configuration);
-    func_8009AEAC(1,4,4);
-    func_8009AEAC(4,0,(unsigned long)ovl667_func_8011492C);
+    _sio_control(1,3,configuration);
+    _sio_control(1,4,4);
+    _sio_control(4,0,(unsigned long)ovl667_func_8011492C);
     work=0;
     base=ovl667_D_80118F20.words;
     third=(unsigned long)base+8;
@@ -54,16 +54,16 @@ void ovl667_func_80114AF8(unsigned long configuration) {
     D_800ACBE0.words[1]=0;
     ovl667_D_80118ED0=0;
     ovl667_D_80118ED4=0;
-    if (func_8009AEAC(3,1,0) != 0) {
-        func_8009AEAC(3,0,1);
+    if (_sio_control(3,1,0) != 0) {
+        _sio_control(3,0,1);
     } else {
-        func_8009AEAC(3,0,1);
-        while (func_8009AEAC(3,1,0)==0) {
-            work=((u32)func_8009AEAC(0,0,0)>>7)&3;
+        _sio_control(3,0,1);
+        while (_sio_control(3,1,0)==0) {
+            work=((u32)_sio_control(0,0,0)>>7)&3;
             if (work==0 || work==3) break;
         }
     }
-    func_8009AEAC(5,0,0);
+    _sio_control(5,0,0);
     VSync(0);
-    func_8009AEAC(3,0,0);
+    _sio_control(3,0,0);
 }

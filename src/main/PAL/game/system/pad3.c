@@ -48,26 +48,26 @@ typedef struct {
 typedef struct { char p0; char b1; char pad[0xE]; int w10; char pad2[8]; short h1C; short h1E; char pad3[0x20]; char c40; char pad4[0x1B]; } W10_T;
 
 extern T D_800F3A38[];
-extern Settings4BC5C D_800AD528;
+extern Settings4BC5C Options;
 extern s16 D_8009FFC0[];
-extern s32 D_800AC5DC;
+extern s32 VSyncThreshold;
 extern char D_8009FFDC[];
 extern char D_8009FFE4[];
-extern int func_800978E0();
+extern int PadGetState();
 extern int PadInfoMode();
 extern int PadInfoAct();
 extern int PadSetActAlign();
 extern int PadSetAct();
 extern int func_80096434();
 
-void func_8004BAD4(int i, short a, char b);
-void func_8004BB00(int i);
-void func_8004BB54(int i);
-void func_8004BB84(int i, int flags);
-void func_8004BC5C(void);
-void func_8004BE4C();
+void PadSetRumbleParams(int i, short a, char b);
+void PadRumbleStart(int i);
+void PadRumbleStop(int i);
+void PadSetRumbleFlags(int i, int flags);
+void PadUpdateRumble(void);
+void PadPollPort();
 
-void func_8004BAD4(int i, short a, char b) {
+void PadSetRumbleParams(int i, short a, char b) {
     T *t = &D_800F3A38[i];
     t->f52 = a;
     t->f49 = b;
@@ -76,10 +76,10 @@ void func_8004BAD4(int i, short a, char b) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3A38 (*(T_1 (*)[])&D_800F3A38)
 
-void func_8004BB00(int i) {
+void PadRumbleStart(int i) {
     T_1 *t = &D_800F3A38[i];
     t->f50 = 1;
-    func_8004BB84(i, 2);
+    PadSetRumbleFlags(i, 2);
     t->f49 = 0xF;
 }
 
@@ -88,7 +88,7 @@ void func_8004BB00(int i) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3A38 (*(T_2 (*)[])&D_800F3A38)
 
-void func_8004BB54(int i) {
+void PadRumbleStop(int i) {
     T_2 *t = &D_800F3A38[i];
     t->f50 = 0;
     t->f49 = 0;
@@ -100,7 +100,7 @@ void func_8004BB54(int i) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3A38 (*(T_3 (*)[])&D_800F3A38)
 
-void func_8004BB84(int i, int flags) {
+void PadSetRumbleFlags(int i, int flags) {
     T_3 *t = &D_800F3A38[i];
     if (flags & 1) {
         if (!(t->f44 & 0x40)) {
@@ -131,7 +131,7 @@ void func_8004BB84(int i, int flags) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3A38 (*(Pad4BC5C (*)[])&D_800F3A38)
 
-void func_8004BC5C(void) {
+void PadUpdateRumble(void) {
     s32 i;
     s32 j;
     u8 mask;
@@ -152,7 +152,7 @@ void func_8004BC5C(void) {
                     t->f48 &= ~mask;
                 }
             } else if (t->f44 & mask) {
-                s32 cond = (D_800AC5DC == 0x80) && !(t->f43 & mask);
+                s32 cond = (VSyncThreshold == 0x80) && !(t->f43 & mask);
                 if (!cond) {
                     t->f44 &= ~mask;
                     t->f46 += t->f47;
@@ -166,10 +166,10 @@ void func_8004BC5C(void) {
         if (t->f49 >= 0x10) {
             t->f49 = 0xF;
         }
-        a0 = (t->f49 * D_800AD528.w[i].f2A) / 2;
+        a0 = (t->f49 * Options.w[i].f2A) / 2;
         if (t->f50 != 0) {
             if (t->f52 != 0) {
-                if (__builtin_abs(t->f4C) < D_8009FFC0[D_800AD528.w[i].f29]) {
+                if (__builtin_abs(t->f4C) < D_8009FFC0[Options.w[i].f29]) {
                     if (a0 != 0) {
                         t0 = t1 | (1 << (t->f52 + 3));
                     }
@@ -195,7 +195,7 @@ void func_8004BC5C(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3A38 (*(W10_T (*)[])&D_800F3A38)
 
-void func_8004BE4C(a0)
+void PadPollPort(a0)
 int a0;
 {
   int w11_r;
@@ -205,7 +205,7 @@ int a0;
   register int s0 __asm__("$16");
   int v1;
   W10_T *s1 = &D_800F3A38[a0];
-  s0 = func_800978E0(s2);
+  s0 = PadGetState(s2);
   if (s0 == 0)
   {
     ((char *)s1)[1] = 0;
@@ -251,7 +251,7 @@ B:
     {
       ((unsigned char *)s1)[0x1B] = 1;
       s1->h1E = 0;
-      func_8004BB84(s3, 3);
+      PadSetRumbleFlags(s3, 3);
     }
     return;
   }

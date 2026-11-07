@@ -1,5 +1,5 @@
 extern int CdControlB(), VSync();
-int func_8008F274(a0)
+int CdDiskReady(a0)
 int a0;
 {
     unsigned char sp10[8];

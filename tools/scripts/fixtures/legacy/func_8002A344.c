@@ -5,13 +5,13 @@ extern B4 D_8009EFD0[];
 extern char *D_800ACC14;
 extern short D_800F4CB0;
 extern short D_800F4D2C;
-extern int func_8001FDD4();
+extern int AddTileGrid2x2();
 extern int func_8002A63C();
 extern int func_8005B2D4();
 extern int func_8005B304();
 extern int SetDispMask();
 
-void func_8002A344(a0) int a0; {
+void UpdateScreenFade(a0) int a0; {
     B4 sp;
     int a, t, a1;
     S *st = &D_800ACC68;
@@ -52,7 +52,7 @@ void func_8002A344(a0) int a0; {
     }
     {
         int t = *(int *)0x1F800000;
-        *(int *)0x1F800000 = func_8001FDD4(D_800ACC14 + 0xB6C, t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
+        *(int *)0x1F800000 = AddTileGrid2x2(D_800ACC14 + 0xB6C, t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
     }
     func_8002A63C(a0 >> 2);
     if (D_800F4D2C != 6 && D_800F4D2C != 8) {

@@ -21,7 +21,7 @@
 
 extern u16 *D_800A6358;
 
-s32 func_8008B4E0(s32 value) {
+s32 SetIntrMask(s32 value) {
     s32 previous=*D_800A6358;
     *D_800A6358=value;
     return previous;

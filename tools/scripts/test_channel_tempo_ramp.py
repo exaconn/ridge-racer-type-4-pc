@@ -33,8 +33,8 @@ static u32 next(void){u32 x=seed;x^=x<<13;x^=x>>17;x^=x<<5;return seed=x;}
 static s32 signed32(u32 x){s32 y;memcpy(&y,&x,4);return y;}
 static s16 signed16(u16 x){s16 y;memcpy(&y,&x,2);return y;}
 static s32 wrap(int64_t x){return signed32((u32)x);}
-#define D_8010F068 (actual.slots)
-#define D_8010F064 (actual.rate)
+#define _ss_score (actual.slots)
+#define VBLANK_MINUS (actual.rate)
 '''+body+r'''
 static void model(unsigned bank,unsigned row){RrChannelStreamB0 *r=&expected.records[bank][row];
  s32 left=wrap((int64_t)r->tempoRemainingA8-1);int step=r->interval4E;u32 tempo=r->tempo94,target=r->targetTempoAC;
@@ -108,7 +108,7 @@ int main(void){unsigned n,b,row,i,phase;uint64_t cases=0;unsigned seen[65536]={0
   if(willDivide&&(u32)((uint64_t)actual.rate*60)==0)actual.rate=1;
   memcpy(&expected,&actual,sizeof(actual));for(i=0;i<BANKS;i++)expected.slots[i]=expected.records[i];
   model(b,row);
-  func_80084314(signed32((next()&0xffff0000U)|b),signed32((next()&0xffff0000U)|row));
+  _SsSndTempo(signed32((next()&0xffff0000U)|b),signed32((next()&0xffff0000U)|row));
   compare();seen[(u16)interval]++;cases++;
  }
  for(i=0;i<65536;i++)assert(seen[i]==8);for(i=0;i<14;i++)assert(paths[i]);

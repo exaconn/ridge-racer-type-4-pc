@@ -4,14 +4,14 @@
 #undef D_800ACC14
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8001FCC8 ((s32 (*)())func_8001FCC8)
+#define AddDrawModePrim ((s32 (*)())AddDrawModePrim)
 
-#undef func_8001FCC8
+#undef AddDrawModePrim
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8001FCC8 ((int (*)())func_8001FCC8)
+#define AddDrawModePrim ((int (*)())AddDrawModePrim)
 
-#undef func_8001FCC8
+#undef AddDrawModePrim
 
 extern int AddPrim();
 

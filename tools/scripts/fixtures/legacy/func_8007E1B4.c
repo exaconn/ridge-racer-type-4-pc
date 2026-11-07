@@ -1,5 +1,5 @@
 #include "rr/wide.h"
-u64 func_8007E1B4(s32 a0)
+u64 __floatsidf(s32 a0)
 {
     unsigned s3 = 0;
     int s2;

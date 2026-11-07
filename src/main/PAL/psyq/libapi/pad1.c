@@ -10,83 +10,83 @@
 
 extern s32 D_800ABC50;
 extern int func_80096F84();
-extern int func_800976F4();
-extern int func_8009774C();
-extern int func_800977C4();
-extern int func_800976C4();
-extern int func_800976D4();
-extern int func_80097724();
-extern int func_800976E4();
-extern int func_80097738();
-extern int func_80097704();
-extern int func_80097714();
+extern int PAD_init2();
+extern int _patch_pad();
+extern int _remove_ChgclrPAD();
+extern int InitPAD2();
+extern int StartPAD2();
+extern int EnablePAD();
+extern int StopPAD2();
+extern int DisablePAD();
+extern int SysEnqIntRP();
+extern int SysDeqIntRP();
 extern int D_801143F4;
 extern int D_801143EC[];
 
-void func_800973C4(s32 value);
-s32 func_800973D0(void);
-void func_800973E0();
-void func_80097470();
+void SetInitPadFlag(s32 value);
+s32 ReadInitPadFlag(void);
+void PAD_init();
+void InitPAD();
 s32 StartPAD(void);
 void StopPAD();
 int func_80097568(void);
 
-void func_800973C4(s32 value) {
+void SetInitPadFlag(s32 value) {
     D_800ABC50 = value;
 }
 
-s32 func_800973D0(void) {
+s32 ReadInitPadFlag(void) {
     return D_800ABC50;
 }
 
-void func_800973E0(a0, a1, a2, a3) int a0, a1, a2, a3; {
-    func_800977C4();
-    func_80096F04();
-    func_8009774C();
-    func_80096F14();
+void PAD_init(a0, a1, a2, a3) int a0, a1, a2, a3; {
+    _remove_ChgclrPAD();
+    EnterCriticalSection();
+    _patch_pad();
+    ExitCriticalSection();
     func_80096F84(0);
     func_80097568();
-    func_800976F4(a0, a1, a2, a3);
+    PAD_init2(a0, a1, a2, a3);
     D_800ABC50 = 1;
     /* ASM_BARRIER: keep the final global store before the epilogue loads */
     __asm__ volatile("" : : : "memory");
 }
 
-void func_80097470(a0, a1, a2, a3) int a0; int a1; int a2; int a3; {
-    func_800977C4();
-    func_80096F04();
-    func_8009774C();
-    func_80096F14();
+void InitPAD(a0, a1, a2, a3) int a0; int a1; int a2; int a3; {
+    _remove_ChgclrPAD();
+    EnterCriticalSection();
+    _patch_pad();
+    ExitCriticalSection();
     func_80096F84(0);
     func_80097568();
-    func_800976C4(a0, a1, a2, a3);
+    InitPAD2(a0, a1, a2, a3);
     D_800ABC50 = 1;
     /* ASM_BARRIER: keeps epilogue stack loads (lw ra/s*) after the final global stores; sched2 otherwise hoists/sinks them */
     __asm__ volatile ("" : : : "memory");
 }
 
 s32 StartPAD(void) {
-    func_800976D4();
+    StartPAD2();
     func_80096F84(0);
-    func_80097724();
+    EnablePAD();
     return 1;
 }
 
-void StopPAD() { func_80097738(); func_800976E4(); RemovePatchPad(); D_800ABC50 = 0; }
+void StopPAD() { DisablePAD(); StopPAD2(); RemovePatchPad(); D_800ABC50 = 0; }
 
 int func_80097568(void) {
     int *p;
     char *s;
-    func_80096F04();
+    EnterCriticalSection();
     p = D_801143EC;
     s = (char *)p - 4;
     p[0] = (int)func_80097618;
     p[1] = (int)func_80097680;
     D_801143E8 = 0;
     D_801143F4 = 0;
-    func_80097714(1, s);
-    func_80097704(1, s);
-    func_80096F14();
+    SysDeqIntRP(1, s);
+    SysEnqIntRP(1, s);
+    ExitCriticalSection();
     /* ASM_BARRIER: keeps li v0,1 as a live constant so it is emitted before the epilogue loads (original order) */
     { int r; __asm__("" : "=r"(r) : "0"(1)); return r; }
 }

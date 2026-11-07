@@ -32,10 +32,10 @@ static s32 operation(struct World *w,u32 kind,s32 a,s32 b,unsigned long argument
  w->descriptor1=word((u32)w->descriptor1+kind);
  return w->results[index];
 }
-s32 func_8009AEAC(s32 a,s32 b,unsigned long argument){return operation(&world,1,a,b,argument);}
+s32 _sio_control(s32 a,s32 b,unsigned long argument){return operation(&world,1,a,b,argument);}
 s32 func_80096EC4(u32 event){return operation(&world,2,0,0,event);}
-s32 func_80096F64(s32 descriptor){return operation(&world,3,descriptor,0,0);}
-s32 func_80096E84(u32 event){return operation(&world,4,0,0,event);}
+s32 FileClose(s32 descriptor){return operation(&world,3,descriptor,0,0);}
+s32 CloseEvent(u32 event){return operation(&world,4,0,0,event);}
 ''' + body + r'''
 static u32 seed=0x14a40;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}

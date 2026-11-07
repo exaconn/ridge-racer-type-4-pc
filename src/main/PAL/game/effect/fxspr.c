@@ -5,8 +5,8 @@
 extern int rsin();
 extern int rcos();
 extern int func_80096464();
-extern unsigned char *func_8001F5B4();
-extern int D_800ABEAC;
+extern unsigned char *AddTextSprites();
+extern int FrameCounter;
 extern int D_800A2098[];
 extern int D_800A1FC8[];
 extern unsigned int D_80011258;
@@ -16,7 +16,7 @@ extern struct
   int f438;
   char pad2[4];
   int f440;
-} D_800AC650;
+} RaceContext;
 void func_8005C4E0(void)
 {
   int l[2];
@@ -31,9 +31,9 @@ void func_8005C4E0(void)
   int new_var;
   unsigned char *p;
   char *d;
-  x = (D_800AC650.f440 / 4) + (rsin(D_800ABEAC << 7) / 128);
+  x = (RaceContext.f440 / 4) + (rsin(FrameCounter << 7) / 128);
   l[0] = (x - 16) / 4;
-  y = (D_800AC650.f440 / 2) + (rcos(D_800ABEAC << 7) / 128);
+  y = (RaceContext.f440 / 2) + (rcos(FrameCounter << 7) / 128);
   l[1] = (y - 16) / 4;
   for (i = 0; i < 2; i++)
   {
@@ -52,7 +52,7 @@ void func_8005C4E0(void)
     {
       ax = (j / 2) + 0x9E;
       ay = ((j % 2) << 1) + 0xE4;
-      p = func_8001F5B4(D_800ACC14 + 0x98, p, ax - D_800A2098[D_800AC650.f438], h[i] + ay, D_800A1FC8 + (D_800AC650.f438 * 4), 0x7F38, new_var = 1, (l[i] << new_var) | new_var);
+      p = AddTextSprites(D_800ACC14 + 0x98, p, ax - D_800A2098[RaceContext.f438], h[i] + ay, D_800A1FC8 + (RaceContext.f438 * 4), 0x7F38, new_var = 1, (l[i] << new_var) | new_var);
     }
 
   }

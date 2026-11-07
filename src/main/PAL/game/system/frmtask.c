@@ -23,15 +23,15 @@ extern s16 D_800AC5D0;
 extern s32 D_8010BF84;
 extern short *D_8010BF80;
 extern int D_800F3A60;
-extern int func_80052800();
-extern int func_800528A8();
-extern int func_80052A30();
+extern int CdAudioInit();
+extern int CdAudioSelectTrack();
+extern int CdAudioBeginPlay();
 extern int func_800436E8();
 extern int func_8002AF8C();
 extern int func_800207D4();
-extern int func_80052B8C();
-extern int func_8001BAF8();
-extern int func_8001E1F0();
+extern int CdAudioFade();
+extern int EmitPresetSprite();
+extern int EmitSpriteGrid();
 extern void *PutDispEnv(void *);
 
 void func_8001E344(void);
@@ -73,25 +73,25 @@ void func_8001E390(void) {
 
     switch (D_8010BF84) {
     case 0:
-        v = func_8001223C(0, 0x15);
-        if (func_8001292C(v, D_800ACC18)) {
+        v = GetR4FileIndex(0, 0x15);
+        if (CdFileReadStart(v, LoadCursor)) {
             D_8010BF84 = 1;
         }
         return;
     case 1:
-        if (func_80012A58()) {
+        if (CdFileBytesLoaded()) {
             D_8010BF84 = 2;
         }
         return;
     case 2:
-        func_80052800();
-        func_800528A8(0, 0x24);
-        func_80052A30(0);
-        func_800436E8(D_800ACC18);
+        CdAudioInit();
+        CdAudioSelectTrack(0, 0x24);
+        CdAudioBeginPlay(0);
+        func_800436E8(LoadCursor);
         D_8010BF84 = 7;
-        q = (short *)D_800ACC18;
+        q = (short *)LoadCursor;
         D_8010BF80 = q;
-        D_800ACC18 = (int)q + 0x10;
+        LoadCursor = (int)q + 0x10;
         q[1] = 0;
         q[2] = 0;
         q[3] = 0;
@@ -123,7 +123,7 @@ void func_8001E390(void) {
             }
         } else if (D_800F3A60) {
             D_800AC5D0 = 0x40;
-            func_80052B8C(0, 0x40);
+            CdAudioFade(0, 0x40);
         }
     case 3: case 4: case 5: case 6:
     default:
@@ -134,10 +134,10 @@ void func_8001E390(void) {
         func_8001B754(p + 2, p + 5, 0x80);
         p = D_8010BF80;
         func_8001B754(p + 3, p + 6, 0x80);
-        func_8001BAF8(D_8010BF80[1], 0x2F);
-        func_8001BAF8(D_8010BF80[2], 0x30);
+        EmitPresetSprite(D_8010BF80[1], 0x2F);
+        EmitPresetSprite(D_8010BF80[2], 0x30);
         p = D_8010BF80;
-        func_8001E1F0(p[3]);
+        EmitSpriteGrid(p[3]);
         g = (int *)SCRATCHPAD;
         *(int *)(g[0] + 4) = 0xE100022A;
         s_ = (int *)g[1];
@@ -147,7 +147,7 @@ void func_8001E390(void) {
         *(int *)g[1] = g[0];
         *(char *)(g[1] + 3) = 0;
         *(int *)SCRATCHPAD += 8;
-        func_8002A344(0x1000C);
+        UpdateScreenFade(0x1000C);
         D_8010BF80[0]++;
     }
 }
@@ -156,24 +156,24 @@ void func_8001E390(void) {
 #undef D_800F4C6A
 #undef D_800F3A26
 
-void func_8001E684(void) {
+void MainLoop(void) {
     s32 threshold;
     register u8 *bank_page;
     u32 bank;
     u8 *frame;
     func_8007D710();
-    func_8008BDE4(1);
-    func_8008B364();
+    SetVideoMode(1);
+    ResetCallback();
     bank_page=(u8 *)0x800F0000U;
-    func_80096E54(2);
-    func_8001E988();
-    D_800AC5DC=128;
+    SetMem(2);
+    SystemInit();
+    VSyncThreshold=128;
     SetDispMask(0);
     D_800F2DE4=0;
     D_800F4C6A=1;
     D_800F3A26=1;
     D_800F4D8A=0;
-    D_800ABEAC=0;
+    FrameCounter=0;
     for (;;) {
         {
             /* ASM_BARRIER: prepare the real ordering-table length before its address. */
@@ -186,7 +186,7 @@ void func_8001E684(void) {
             /* ASM_BARRIER: keep the arena address after the length preparation. */
             __asm__("" : "+r"(length) : : "$3");
             frame_page=(u8 *)0x800B0000U;
-            bank=D_800ABEAC;
+            bank=FrameCounter;
             /* ASM_BARRIER: read the counter before completing the arena address. */
             __asm__("" : "+r"(frame_page), "+r"(bank));
             frames=(RrFrameStorage *)(frame_page-0x2510);
@@ -201,18 +201,18 @@ void func_8001E684(void) {
             ClearOTagR(ordering,length);
         }
         ClearOTagR((u32 *)(D_800ACC14+0xB70),0x2C0);
-        func_800128B8();
-        func_8004FD80();
-        D_8009E9F0[D_800F4C6A][D_800F3A26]();
+        CdFileStep();
+        SoundUpdate();
+        ModeFuncTable[D_800F4C6A][D_800F3A26]();
         DrawSync(0);
-        threshold=D_800AC5DC;
+        threshold=VSyncThreshold;
         do {} while (VSync(1)<threshold);
         VSync(0);
         PutDispEnv(D_800ACC14+0x5C);
         PutDrawEnv(D_800ACC14);
         DrawOTag(D_800ACC14+0xB6C);
         if(D_800ACBF8) DrawOTag(D_800ACC14+0x166C);
-        func_8004A6C4();
-        D_800ABEAC++;
+        PadUpdate();
+        FrameCounter++;
     }
 }

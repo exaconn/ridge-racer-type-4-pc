@@ -13,20 +13,20 @@
 #include "rr/controller_hud.h"
 #include "rr/course_choices.h"
 #include "game/gfx/model.h"
-extern struct { char pad[0x56C]; int a, b, c, d; } D_800AC650;
-extern struct { char pad[0x10]; int f10; char pad2[0x19CC - 0x14]; int f19cc; } D_800F4DB8;
+extern struct { char pad[0x56C]; int a, b, c, d; } RaceContext;
+extern struct { char pad[0x10]; int f10; char pad2[0x19CC - 0x14]; int f19cc; } SoundState;
 extern short D_800F4D44;
 extern short D_800F3826;
 extern int D_800F6784;
 extern unsigned short D_800A02C0;
 extern short D_800F3914;
 extern int func_800436E8();
-extern int func_8004ED38();
+extern int LoadVab();
 extern char D_800A0234[];
 extern char *D_800ACBB4;
 extern char D_8010C210[];
 extern int D_800A0270[];
-extern int func_8004ED38();
+extern int LoadVab();
 
 void func_8004E414(void);
 int func_8004E5E8(void);
@@ -37,49 +37,49 @@ int func_8004E990();
 void func_8004E414(void) {
     switch (D_800F4D44) {
     case 6:
-        D_800F4DB8.f19cc = 1;
-        D_800AC650.a = 5;
-        D_800AC650.b = func_8004E3B0(0);
-        D_800AC650.c = -1;
-        D_800F4DB8.f10 = 0;
-        D_800AC650.d = D_800F3826 + 1;
+        SoundState.f19cc = 1;
+        RaceContext.a = 5;
+        RaceContext.b = func_8004E3B0(0);
+        RaceContext.c = -1;
+        SoundState.f10 = 0;
+        RaceContext.d = D_800F3826 + 1;
         break;
     case 0:
-        D_800F4DB8.f19cc = 1;
-        D_800AC650.a = 5;
-        D_800AC650.b = func_8004E3B0(0);
-        D_800AC650.c = -1;
-        D_800AC650.d = -1;
-        D_800F4DB8.f10 = 0;
+        SoundState.f19cc = 1;
+        RaceContext.a = 5;
+        RaceContext.b = func_8004E3B0(0);
+        RaceContext.c = -1;
+        RaceContext.d = -1;
+        SoundState.f10 = 0;
         break;
     default:
     case 1:
     case 5:
-        D_800F4DB8.f19cc = 0;
-        D_800AC650.a = 4;
-        D_800AC650.b = func_8004E3B0(0);
-        D_800AC650.c = -1;
-        D_800AC650.d = 0;
-        D_800F4DB8.f10 = 0;
+        SoundState.f19cc = 0;
+        RaceContext.a = 4;
+        RaceContext.b = func_8004E3B0(0);
+        RaceContext.c = -1;
+        RaceContext.d = 0;
+        SoundState.f10 = 0;
         break;
     case 2:
     case 3:
-        D_800F4DB8.f19cc = 1;
-        D_800AC650.a = 5;
-        D_800AC650.b = func_8004E3B0(0);
-        D_800AC650.c = func_8004E3B0(1);
-        D_800AC650.d = -1;
-        D_800F4DB8.f10 = 1;
+        SoundState.f19cc = 1;
+        RaceContext.a = 5;
+        RaceContext.b = func_8004E3B0(0);
+        RaceContext.c = func_8004E3B0(1);
+        RaceContext.d = -1;
+        SoundState.f10 = 1;
         break;
     case 4:
         D_800F6784 = 1;
-        D_800AC650.a = 5;
+        RaceContext.a = 5;
         if (D_800AD508 != 0) {
-            D_800AC650.b = func_8004E3B0(0);
-            D_800AC650.c = func_8004E3B0(1);
+            RaceContext.b = func_8004E3B0(0);
+            RaceContext.c = func_8004E3B0(1);
         } else {
-            D_800AC650.b = func_8004E3B0(2);
-            D_800AC650.c = func_8004E3B0(3);
+            RaceContext.b = func_8004E3B0(2);
+            RaceContext.c = func_8004E3B0(3);
         }
         D_800ACBC8 = -1;
         D_800F4DC8 = 1;
@@ -97,7 +97,7 @@ int func_8004E5E8(void) {
             D_800A021C = 0;
             D_800A0220 = 0;
             D_800A0224 = 0;
-            D_8010C1F0 = D_800ACC18;
+            D_8010C1F0 = LoadCursor;
             *(int *)&D_800A02C0 = D_800F3914;
             if (D_800F3914 >= 8) {
                 D_800F3914 = 7;
@@ -119,8 +119,8 @@ int func_8004E5E8(void) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC18 ((char *)D_800ACC18)
-#define D_800F4DB8 (*(char (*)[])&D_800F4DB8)
+#define LoadCursor ((char *)LoadCursor)
+#define SoundState (*(char (*)[])&SoundState)
 #define D_8010C1F0 ((char *)D_8010C1F0)
 
 int func_8004E70C(void)
@@ -130,30 +130,30 @@ int func_8004E70C(void)
     char *t;
     switch (D_800A021C) {
     case 0:
-        ret = r = func_8001292C(func_8001223C(2, 1), D_8010C1F0);
+        ret = r = CdFileReadStart(GetR4FileIndex(2, 1), D_8010C1F0);
         if (r == 0) break;
         D_800A021C = D_800A021C + 1;
     case 1:
-        if (func_80012A58() == 0) { ret = 0; break; }
+        if (CdFileBytesLoaded() == 0) { ret = 0; break; }
         t = D_8010C1F0 + *(int *)(D_8010C1F0 + 4);
-        func_80070108(t, 7);
+        RegisterModelBank(t, 7);
         i = 0;
-        func_80012A68(D_8010C1F0 + *(int *)(D_8010C1F0 + 8));
-        s3 = D_800F4DB8;
+        RelocateOffsetTable(D_8010C1F0 + *(int *)(D_8010C1F0 + 8));
+        s3 = SoundState;
         s1 = D_800A0234;
         D_800ACBB4 = D_8010C1F0 + *(int *)(D_8010C1F0 + 8);
         do {
             *(char **)D_8010C210 = D_8010C1F0 + *(int *)(D_8010C1F0 + i * 4 + 0x14);
             *(char **)(D_8010C210 + 4) = D_8010C1F0 + *(int *)(D_8010C1F0 + i * 4 + 0x1C);
-            func_8004ED38(D_8010C210, *(int *)(s1 + 4), *(int *)(s1 + 8));
+            LoadVab(D_8010C210, *(int *)(s1 + 4), *(int *)(s1 + 8));
             s1 += 0xC;
             *(char **)(s3 + 0x2858) = D_8010C1F0 + *(int *)(D_8010C1F0 + i * 4 + 0xC);
             s3 += 4;
             i++;
         } while (i < 2);
         func_800436E8(D_8010C1F0 + *(int *)(D_8010C1F0 + 0x24));
-        t = func_8004D4BC(D_8010C1F0 + *(int *)(D_8010C1F0 + 0x1C));
-        D_800ACC18 = t;
+        t = AlignUp4(D_8010C1F0 + *(int *)(D_8010C1F0 + 0x1C));
+        LoadCursor = t;
         D_8010C1F0 = t;
         D_800A021C = 0;
         func_8004F600();
@@ -166,25 +166,25 @@ int func_8004E70C(void)
     return ret;
 }
 
-#undef D_800ACC18
-#undef D_800F4DB8
+#undef LoadCursor
+#undef SoundState
 #undef D_8010C1F0
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_800436E8 ((int (*)())func_800436E8)
-#define func_80070108 ((int (*)())func_80070108)
+#define RegisterModelBank ((int (*)())RegisterModelBank)
 #define D_8010C1F0 ((char *)D_8010C1F0)
 
 int func_8004E8CC(void) {
     int v;
     switch (D_800A021C) {
     case 0:
-        v = func_8001292C(func_8001223C(2, 2), D_8010C1F0);
+        v = CdFileReadStart(GetR4FileIndex(2, 2), D_8010C1F0);
         if (v != 0) {
             D_800A021C += 1;
     case 1:
-            if (func_80012A58() != 0) {
-                func_80070108(D_8010C1F0 + *(int *)(D_8010C1F0 + 4), 8);
+            if (CdFileBytesLoaded() != 0) {
+                RegisterModelBank(D_8010C1F0 + *(int *)(D_8010C1F0 + 4), 8);
                 func_800436E8(D_8010C1F0 + *(int *)(D_8010C1F0 + 8));
                 D_800A021C = 0;
                 return 1;
@@ -198,11 +198,11 @@ int func_8004E8CC(void) {
 }
 
 #undef func_800436E8
-#undef func_80070108
+#undef RegisterModelBank
 #undef D_8010C1F0
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC18 ((int *)D_800ACC18)
+#define LoadCursor ((int *)LoadCursor)
 #define D_8010C1F0 ((int *)D_8010C1F0)
 #define D_8010C210 (*(int (*)[])&D_8010C210)
 #define func_800436E8 ((int (*)())func_800436E8)
@@ -213,19 +213,19 @@ int func_8004E990()
     int *q;
     switch (D_800A021C) {
     case 0:
-        r = func_8001292C(func_8001223C(2, 0), D_8010C1F0);
+        r = CdFileReadStart(GetR4FileIndex(2, 0), D_8010C1F0);
         if (r != 0) {
             D_800A021C++;
     case 1:
-            if (func_80012A58()) {
+            if (CdFileBytesLoaded()) {
                 q = D_800A0270;
                 D_8010C210[0] = (int)D_8010C1F0 + D_8010C1F0[1];
                 D_8010C210[1] = (int)D_8010C1F0 + D_8010C1F0[2];
-                func_8004ED38(D_8010C210, q[1], q[2]);
+                LoadVab(D_8010C210, q[1], q[2]);
                 func_800436E8((int)D_8010C1F0 + D_8010C1F0[3]);
                 D_800A021C = 0;
                 D_8010C1F0 = (int *)((int)D_8010C1F0 + D_8010C1F0[2]);
-                D_800ACC18 = D_8010C1F0;
+                LoadCursor = D_8010C1F0;
                 return 1;
             }
             r = 0;
@@ -237,7 +237,7 @@ int func_8004E990()
     return r;
 }
 
-#undef D_800ACC18
+#undef LoadCursor
 #undef D_8010C1F0
 #undef D_8010C210
 #undef func_800436E8

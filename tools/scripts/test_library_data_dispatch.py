@@ -27,10 +27,10 @@ typedef uint32_t u32; typedef int32_t s32;
 u8 test_ports[2];
 volatile u8 *D_800A674C;
 u8 D_800A6764[2];
-RrLibDataCallback D_800A6488,D_800A648C;
+RrLibDataCallback CD_cbsync,CD_cbready;
 u8 test_data_page[65536];
 s32 (*test_poll)(void);
-s32 func_8008C724(void) {return test_poll();}
+s32 getintr(void) {return test_poll();}
 '''
         body = (root / 'tools/scripts/fixtures/legacy/func_8008DDAC.c').read_text()
         body = body.replace('#include "rr/library.h"', '')
@@ -54,7 +54,7 @@ s32 func_8008C724(void) {return test_poll();}
         cls.selectors = (C.c_uint8 * 2).in_dll(cls.lib, 'D_800A6764')
         cls.page = (C.c_uint8 * 65536).in_dll(cls.lib, 'test_data_page')
         cls.callbacks = {flag: C.c_void_p.in_dll(cls.lib, name)
-                         for flag, name in ((4, 'D_800A648C'), (2, 'D_800A6488'))}
+                         for flag, name in ((4, 'CD_cbready'), (2, 'CD_cbsync'))}
         cls.poll_global = C.c_void_p.in_dll(cls.lib, 'test_poll')
 
     def setUp(self):

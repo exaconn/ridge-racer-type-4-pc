@@ -77,9 +77,9 @@
 #undef D_800ACC14
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_800528A8 ((int (*)())func_800528A8)
+#define CdAudioSelectTrack ((int (*)())CdAudioSelectTrack)
 
-#undef func_800528A8
+#undef CdAudioSelectTrack
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A1158 (*(char (*)[])&D_800A1158)
@@ -115,13 +115,13 @@
 
 extern s16 D_800F3914;
 
-extern void func_800528A8();
+extern void CdAudioSelectTrack();
 
 extern int func_80096464();
 
 extern short D_800F4D44;
 
-extern int func_80052800();
+extern int CdAudioInit();
 
 extern signed char D_800AD4D8[];
 
@@ -135,7 +135,7 @@ extern int D_800F7660;
 
 void func_80059168() {
     int a0, a1, v;
-    func_80052800();
+    CdAudioInit();
     if (D_800F4D44 == 1) {
         a0 = D_800AD4D8[D_800AD4D8[0x17] + 8] < 3;
     } else {
@@ -148,12 +148,12 @@ void func_80059168() {
     }
     if (a0 == 0) {
         a1 = D_800F3914 + 3;
-        func_800528A8(0, a1);
+        CdAudioSelectTrack(0, a1);
     } else if (D_800F765C == 0) {
         a1 = func_80096464() % 14 + 0xB;
-        func_800528A8(0, a1);
+        CdAudioSelectTrack(0, a1);
     } else {
         a1 = D_800A0C9C[D_800F765C - 1];
-        func_800528A8(0, a1);
+        CdAudioSelectTrack(0, a1);
     }
 }

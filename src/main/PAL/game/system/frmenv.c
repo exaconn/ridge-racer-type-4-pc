@@ -22,13 +22,13 @@
 #include "rr/bios_devices.h"
 #include "game/data/selection.h"
 
-extern int func_80052800();
+extern int CdAudioInit();
 extern int InitGeom();
 extern int func_8004A678();
-extern int func_80013890();
-extern int func_8002B75C();
-extern int func_8003A1B4();
-extern int D_800102F0;
+extern int SetupRenderer();
+extern int CopyStringClearTail();
+extern int InitMenuArenas();
+extern int CdDirectoryBuffer;
 extern char D_800102F4[];
 extern char D_80010300[];
 extern char D_8001030C[];
@@ -43,8 +43,8 @@ extern char D_8001038C[];
 extern char D_80010398[];
 extern char D_800103A0[];
 extern char D_800103AC[];
-extern char D_800ABEF8[];
-extern int D_800ACC18;
+extern char PlayerCars[];
+extern int LoadCursor;
 extern int D_800AD568;
 extern signed char D_800AD4D8[];
 extern short D_800AD508;
@@ -54,23 +54,23 @@ extern char D_800F3920[];
 extern char D_800F39D8[];
 extern char D_800F3B28[];
 extern signed char D_800F2E30[];
-extern int D_800F2DE8[];
+extern int RankTable[];
 extern int D_800F2E08[];
 extern int D_800F4BD0[];
-extern int D_800F3A30;
+extern int NumLaps;
 extern int D_800F4C24;
 extern int D_800F4C2C;
 extern int D_800F4CA8;
 extern int D_800F4D40;
 extern short D_800F4D44;
 extern char *D_800F3B20;
-extern void func_800912B4(s32,s32);
-extern void func_800912D4(s32);
+extern void SetGeomOffset(s32,s32);
+extern void SetGeomScreen(s32);
 extern void *SetDefDispEnv(void *,s32,s32,s32,s32);
 
 void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags);
 
-void func_8001E988(void)
+void SystemInit(void)
 {
     int i;
     int *p;
@@ -80,27 +80,27 @@ void func_8001E988(void)
     int m;
 
     func_8001E84C(D_800102F4);
-    func_8008BE44();
-    func_800123D4();
+    CdInit();
+    InitCdFileDirectory();
     func_8007FA54();
-    func_8004EC28();
-    func_80052800();
+    SoundSystemInit();
+    CdAudioInit();
     ResetGraph(0);
     SetGraphDebug(0);
     SetDispMask(0);
     InitGeom();
-    func_80077E10(1);
+    CardSystemInit(1);
     func_8004A55C();
     func_8005C0C4();
     func_8004A678();
-    func_8009A8B4();
-    func_8009AEAC(1, 1, 0);
-    func_80013890(5);
-    D_800AC5DC = 0x80;
+    AddSIO();
+    _sio_control(1, 1, 0);
+    SetupRenderer(5);
+    VSyncThreshold = 0x80;
     D_800F4C24 = 0;
     D_800F4C2C = 0;
     D_800ACBF8 = 0;
-    D_800F3A30 = 2;
+    NumLaps = 2;
     D_800AD568 = 0;
     func_80096434(D_800F3920, 0x7C);
     func_80096434(D_800F4D98, 0x20);
@@ -109,11 +109,11 @@ void func_8001E988(void)
     func_80096434(D_800F2A68, 0x40);
     i = 7;
     do {
-        D_800F2DE8[i] = (int)(D_800F2A68 + i * 8);
+        RankTable[i] = (int)(D_800F2A68 + i * 8);
         i--;
     } while (i >= 0);
-    func_80096434(D_800ABEF8, 0x320);
-    func_80096434(D_800ABEF8 + 0x320, 0x320);
+    func_80096434(PlayerCars, 0x320);
+    func_80096434(PlayerCars + 0x320, 0x320);
     D_800F4BE0 = 0;
     i = 0;
     c5 = 5;
@@ -127,11 +127,11 @@ void func_8001E988(void)
         q += 4;
     } while (i < 4);
     D_800AD508 = -1;
-    func_8002B75C(D_800F3920, D_80010300);
-    func_8002B75C(D_800F39D8, D_800F3920);
-    func_8002B75C(D_800F39D8 + 0xC, D_800F3920);
-    func_8002B75C(D_800F39D8 + 0x18, D_800F3920);
-    func_8002B75C(D_800F39D8 + 0x24, D_800F3920);
+    CopyStringClearTail(D_800F3920, D_80010300);
+    CopyStringClearTail(D_800F39D8, D_800F3920);
+    CopyStringClearTail(D_800F39D8 + 0xC, D_800F3920);
+    CopyStringClearTail(D_800F39D8 + 0x18, D_800F3920);
+    CopyStringClearTail(D_800F39D8 + 0x24, D_800F3920);
     D_800F2E08[0] = (int)D_8001030C;
     D_800F2E08[4] = (int)D_80010320;
     D_800F2E08[1] = (int)D_80010328;
@@ -144,15 +144,15 @@ void func_8001E988(void)
     D_800F4BD0[1] = (int)D_80010398;
     D_800F4BD0[2] = (int)D_800103A0;
     D_800F4BD0[3] = (int)D_800103AC;
-    D_800ACC18 = D_800102F0;
-    D_800F4D40 = D_800102F0;
-    func_8003A1B4();
+    LoadCursor = CdDirectoryBuffer;
+    D_800F4D40 = CdDirectoryBuffer;
+    InitMenuArenas();
     k = 0xAF000;
     m = -1;
     i = 2;
     D_800F4CA8 = 0;
     D_800F4D44 = 0;
-    D_800AC5A0 = D_800102F0 + k;
+    D_800AC5A0 = CdDirectoryBuffer + k;
     r = D_800F2E30 + i * 0x2C;
     do {
         r[0x17] = m;
@@ -218,8 +218,8 @@ void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags) {
     __asm__("" : "+r"(center_y) : : "$2");
     temp=1-interlace;
     other_y=temp<<8;
-    func_800912B4(center_x,center_y);
-    func_800912D4(290);
+    SetGeomOffset(center_x,center_y);
+    SetGeomScreen(290);
     width=320;
     wide=input&4;
     saved_flags=input;
@@ -232,7 +232,7 @@ void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags) {
     i=0;
     rgb24=saved_flags&1;
     one=1;
-    settings=D_800AD528.halves;
+    settings=Options.halves;
     loop_wide=wide;
     window.y=0;window.x=0;window.h=0;window.w=0;
 loop:

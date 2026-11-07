@@ -30,18 +30,18 @@ typedef struct { int f0; int f4; int f8; char p0[8]; int f14; int f18; char p1[0
 extern int func_80098EE0();
 extern int func_80098F88();
 
-void func_80098AC4(void *arg0, s32 arg1, s8 arg2);
-void func_80098AD0(void *arg0, s8 arg1, s32 arg2, s8 arg3);
-int func_80098B64();
-int func_80098DD4();
+void _padSetAct(void *arg0, s32 arg1, s8 arg2);
+void _padSetCmd(void *arg0, s8 arg1, s32 arg2, s8 arg3);
+int _padRecvAtLoadInfo();
+int _padGetActSize();
 int _padLoadActInfo();
 
-void func_80098AC4(void *arg0, s32 arg1, s8 arg2) {
+void _padSetAct(void *arg0, s32 arg1, s8 arg2) {
     M2C_FIELD(arg0, s32 *, 0x28) = arg1;
     M2C_FIELD(arg0, s8 *, 0x34) = arg2;
 }
 
-void func_80098AD0(void *arg0, s8 arg1, s32 arg2, s8 arg3) {
+void _padSetCmd(void *arg0, s8 arg1, s32 arg2, s8 arg3) {
     M2C_FIELD(arg0, s8 *, 0x37) = arg1;
     M2C_FIELD(arg0, s32 *, 0x2C) = arg2;
     M2C_FIELD(arg0, s8 *, 0x36) = arg3;
@@ -59,7 +59,7 @@ void _padSendAtLoadInfo(u8 *channel) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC6C (*(void (*(*))(struct S *))&D_800ABC6C)
 
-int func_80098B64(a0) struct S *a0; {
+int _padRecvAtLoadInfo(a0) struct S *a0; {
     struct S2 *q;
     int t, n;
     /* ASM_BARRIER: pin b4 to $v1 so the load/add chain takes the original register allocation */
@@ -107,7 +107,7 @@ int func_80098B64(a0) struct S *a0; {
         a0->cnt = n;
         a0->sc = t;
         if ((unsigned char)n < a0->ca) goto r0;
-        if (func_80098DD4(a0) >= 0x81) {
+        if (_padGetActSize(a0) >= 0x81) {
             D_800ABC6C(a0);
             a0->st = 0xFE;
             a0->f49 = 2;
@@ -134,7 +134,7 @@ r1:
 
 #undef D_800ABC6C
 
-int func_80098DD4(s) struct S_1 *s; {
+int _padGetActSize(s) struct S_1 *s; {
     int a = s->a, b = s->b, c = s->c;
     int x = ((a + 1) >> 1) * 4;
     int y = ((b * 5 + 3) & 0xFFC) + 4;

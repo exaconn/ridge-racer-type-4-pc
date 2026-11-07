@@ -4,7 +4,7 @@
 # WHAT: the GCC development tree of 1997-03-18 (gcc-mirror commit 2b3600ac), between the
 # 2.7.2 and 2.8.0 releases, with the decompals/old-gcc PSX patches. It has GCC 2.8's 4-byte
 # reload spill slots and a 1996 loop.c that no 2.7.2.x release carries, which is what Sony's
-# SDK library objects show (e.g. libsnd func_800800B4 = _SsContDataEntry). Dating and the
+# SDK library objects show (e.g. libsnd _SsContDataEntry = _SsContDataEntry). Dating and the
 # Linux/Docker recipe: bashalarmistdecomp/eternal-silver-sssc-decomp recipe/gcc-970318/.
 # This script is that recipe plus old-gcc's gcc-2.7.2-psx-macos.sh host support.
 #

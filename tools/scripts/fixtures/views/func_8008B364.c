@@ -19,6 +19,6 @@
 
 #undef D_800A6350
 
-void func_8008B364(void) {
+void ResetCallback(void) {
     D_800A6350->reset();
 }

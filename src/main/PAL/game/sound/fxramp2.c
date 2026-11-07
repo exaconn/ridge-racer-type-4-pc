@@ -3,7 +3,7 @@
 #include "rr/audio_bank_setup.h"
 struct S { char pad[0x2874]; u32 a; char p[8]; s32 b; };
 void func_80053DE8(int a0, int a1, s16 a2) {
-    struct S *p = &D_800F4DB8;
+    struct S *p = &SoundState;
     int v = a2;
     p->b = v;
     if ((u32)v < 100) {

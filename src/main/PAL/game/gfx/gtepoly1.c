@@ -99,7 +99,7 @@ typedef struct {
 } TrailEntry8;
 
 extern int D_800F2EC8;
-extern s32 D_8009E0AC;
+extern s32 ModelTexturePage;
 extern int func_8006EE3C();
 extern int D_800100B8;
 extern s32 func_80096464(void);
@@ -107,14 +107,14 @@ extern signed char D_800F4C68;
 extern int D_8009E0B0[];
 extern int D_8009E0E0[];
 extern char D_8009E124[];
-extern void *D_800F3A08[];
+extern void *CarBoundsTable[];
 extern s16 D_800F4D44;
 extern u8 D_8010B2E0[];
 
 void *func_80013D48(char *a0_in, int *a1_in, int a2_in);
 void *func_80014068(char *a0_in, int *a1_in, int a2_in);
 void *func_8001446C(char *a0_in, int *a1_in, int a2_in);
-void func_80014A8C(s32 arg0);
+void SetModelTexturePage(s32 arg0);
 int func_80014A98(int a0, int a1, int a2, int a3);
 void func_80014C3C(char *a0_in, char *a1_in, s32 a2_in);
 void func_80014F34(s32 *a0_in, char *a1_in);
@@ -1184,8 +1184,8 @@ void *func_8001446C(char *a0_in, int *a1_in, int a2_in) {
     return s0;
 }
 
-void func_80014A8C(s32 arg0) {
-    D_8009E0AC = arg0;
+void SetModelTexturePage(s32 arg0) {
+    ModelTexturePage = arg0;
 }
 
 int func_80014A98(int a0, int a1, int a2, int a3)
@@ -1201,16 +1201,16 @@ int func_80014A98(int a0, int a1, int a2, int a3)
   register unsigned a __asm__("$5");
   unsigned long new_var;
   unsigned b;
-  if (D_8009E0AC < 0)
+  if (ModelTexturePage < 0)
   {
     return 0;
   }
   func_8006EE3C((SCRATCHPAD + 0x7C), a0, a1);
   new_var = 3;
   s0[2] = a3;
-  a = D_8009E0AC & 0xF;
+  a = ModelTexturePage & 0xF;
   a <<= 6;
-  b = D_8009E0AC & 0x10;
+  b = ModelTexturePage & 0x10;
   b <<= 4;
   s0[3] = (((b + 0x7F) << 6) | ((a >> 4) | new_var)) << 16;
   new_var3 = b >> 4;
@@ -2567,7 +2567,7 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
     }
     SP->p[0x24] = arg0;
     SP->w[0x1B] = *(s32 *)(SCRATCHPAD + 0x4) + 0x200 + arg6 * 4;
-    SP->p[0x25] = D_800F3A08[arg4 / 2];
+    SP->p[0x25] = CarBoundsTable[arg4 / 2];
 
     if (arg1 == 0 || (SP->w[0x23] & 1) == 0) {
         S4->w[0x3] = 0;

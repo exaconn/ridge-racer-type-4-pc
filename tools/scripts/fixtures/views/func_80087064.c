@@ -60,39 +60,39 @@ extern u16 D_8010F900;
 
 extern u16 D_8010F902;
 
-extern SpuVoiceRow36 D_8010F908[];
+extern SpuVoiceRow36 _svm_voice[];
 
-extern u8 D_8010FE18[];
+extern u8 _svm_sreg_dirty[];
 
 extern void (*D_8010FE30)(s32);
 
-extern u16 D_8010FE38[];
+extern u16 _svm_sreg_buf[];
 
 extern void (*D_8010FFB8)(s32);
 
 extern s32 D_8010FFBC;
 
-extern s32 D_8010FFC0[];
+extern s32 _svm_envx_hist[];
 
 extern u16 D_80110000;
 
 extern u16 D_80110002;
 
-extern s8 D_801100FC;
+extern s8 spuVmMaxVoice;
 
 extern s8 D_80110130;
 
-extern void func_80084674(SpuVoiceAttr *);
+extern void SpuSetVoiceAttr(SpuVoiceAttr *);
 
-extern void func_800874F4(s32, s32);
+extern void SpuSetNoiseVoice(s32, s32);
 
-extern void func_800877E4(s32, s32);
+extern void SpuSetReverbVoice(s32, s32);
 
-extern void func_80087814(s32, s32);
+extern void SpuSetKey(s32, s32);
 
 extern void func_800879D4(s32, u16 *);
 
-void func_80087064(void) {
+void _SsVmFlush(void) {
     SpuVoiceAttr attr;
     s32 v;
     s32 mask_all;
@@ -101,44 +101,44 @@ void func_80087064(void) {
     u8 hi;
 
     D_8010FFBC = (D_8010FFBC + 1) & 0xF;
-    *(s32 *)((u8 *)D_8010FFC0 + (D_8010FFBC << 2)) = 0;
-    p = D_8010FFC0;
+    *(s32 *)((u8 *)_svm_envx_hist + (D_8010FFBC << 2)) = 0;
+    p = _svm_envx_hist;
 
     v = 0;
-    if (D_801100FC > 0) {
+    if (spuVmMaxVoice > 0) {
         do {
-            func_800879D4(v, &D_8010F908[v].value06);
-            if (D_8010F908[v].value06 == 0) {
-                D_8010FFC0[D_8010FFBC] |= (1 << v);
+            func_800879D4(v, &_svm_voice[v].value06);
+            if (_svm_voice[v].value06 == 0) {
+                _svm_envx_hist[D_8010FFBC] |= (1 << v);
             }
             v++;
-        } while (v < D_801100FC);
+        } while (v < spuVmMaxVoice);
     }
 
     if (D_80110130 == 0) {
         mask_all = -1;
-        p = D_8010FFC0;
+        p = _svm_envx_hist;
         for (v = 0; v < 15; v++) {
             mask_all &= p[v];
         }
         v = 0;
-        if (D_801100FC > 0) {
+        if (spuVmMaxVoice > 0) {
             do {
                 bit = 1 << v;
                 if (mask_all & bit) {
-                    if (D_8010F908[v].flags1D == 2) {
+                    if (_svm_voice[v].flags1D == 2) {
                         if (v < 16) {
                             hi = 0;
                         } else {
                             bit = 0;
                             hi = 1 << (v - 16);
                         }
-                        func_800874F4(0, (hi << 16) | (short)bit);
+                        SpuSetNoiseVoice(0, (hi << 16) | (short)bit);
                     }
-                    D_8010F908[v].flags1D = 0;
+                    _svm_voice[v].flags1D = 0;
                 }
                 v++;
-            } while (v < D_801100FC);
+            } while (v < spuVmMaxVoice);
         }
     }
 
@@ -146,10 +146,10 @@ void func_80087064(void) {
     D_8010F8FA &= ~D_80110002;
 
     for (v = 0; v < 24; v++) {
-        if (D_8010F908[v].field1E != 0) {
+        if (_svm_voice[v].field1E != 0) {
             D_8010FFB8(v);
         }
-        if (D_8010F908[v].field2A != 0) {
+        if (_svm_voice[v].field2A != 0) {
             D_8010FE30(v);
         }
     }
@@ -157,34 +157,34 @@ void func_80087064(void) {
     for (v = 0; v < 24; v++) {
         attr.mask = 0;
         attr.voice = 1 << v;
-        if (D_8010FE18[v] & 1) {
+        if (_svm_sreg_dirty[v] & 1) {
             attr.mask = 3;
-            attr.volume.left = D_8010FE38[v * 8];
-            attr.volume.right = D_8010FE38[v * 8 + 1];
+            attr.volume.left = _svm_sreg_buf[v * 8];
+            attr.volume.right = _svm_sreg_buf[v * 8 + 1];
         }
-        if (D_8010FE18[v] & 4) {
+        if (_svm_sreg_dirty[v] & 4) {
             attr.mask |= 0x10;
-            attr.pitch = D_8010FE38[v * 8 + 2];
+            attr.pitch = _svm_sreg_buf[v * 8 + 2];
         }
-        if (D_8010FE18[v] & 8) {
+        if (_svm_sreg_dirty[v] & 8) {
             attr.mask |= 0x80;
-            attr.addr = D_8010FE38[v * 8 + 3] << 3;
+            attr.addr = _svm_sreg_buf[v * 8 + 3] << 3;
         }
-        if (D_8010FE18[v] & 0x10) {
+        if (_svm_sreg_dirty[v] & 0x10) {
             attr.mask |= 0x60000;
-            attr.adsr1 = D_8010FE38[v * 8 + 4];
-            attr.adsr2 = D_8010FE38[v * 8 + 5];
+            attr.adsr1 = _svm_sreg_buf[v * 8 + 4];
+            attr.adsr2 = _svm_sreg_buf[v * 8 + 5];
         }
         if (attr.mask != 0) {
-            func_80084674(&attr);
+            SpuSetVoiceAttr(&attr);
         }
-        D_8010FE18[v] = 0;
+        _svm_sreg_dirty[v] = 0;
     }
 
-    func_80087814(0, ((u8)D_80110002 << 16) | D_80110000);
-    func_80087814(1, ((u8)D_8010F8FA << 16) | D_8010F8F8);
-    func_800877E4(8, ((u8)D_8010F8FE << 16) | D_8010F8FC);
-    func_800874F4(8, ((u8)D_8010F902 << 16) | D_8010F900);
+    SpuSetKey(0, ((u8)D_80110002 << 16) | D_80110000);
+    SpuSetKey(1, ((u8)D_8010F8FA << 16) | D_8010F8F8);
+    SpuSetReverbVoice(8, ((u8)D_8010F8FE << 16) | D_8010F8FC);
+    SpuSetNoiseVoice(8, ((u8)D_8010F902 << 16) | D_8010F900);
 
     D_80110000 = 0;
     D_80110002 = 0;

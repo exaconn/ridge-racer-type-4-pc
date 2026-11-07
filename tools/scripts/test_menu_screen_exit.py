@@ -37,9 +37,9 @@ static void mutate(unsigned n){
  D_800AD50A=(u16)(case_id^n);D_800F4D44=(s16)((case_id+n)&255);
  D_800ACC14=&frames[n].rectangle;
 }
-int func_8004FC18(s32 a,s32 b){assert(phase++==0);assert(a==0&&b==0);mutate(0);return -1;}
+int SoundSetMasterVolume(s32 a,s32 b){assert(phase++==0);assert(a==0&&b==0);mutate(0);return -1;}
 int func_80036030(void){assert(phase++==1);mutate(1);return 7;}
-void func_8003CAF4(void){assert(phase++==2);assert(D_800F2EC8==0);mutate(2);}
+void SetupRace(void){assert(phase++==2);assert(D_800F2EC8==0);mutate(2);}
 void func_800207D4(u32 *ordering,s32 intensity,u32 mode){
  assert(phase++==3);assert(ordering==frames[2].ordering70);
  assert((uintptr_t)ordering>UINT32_MAX);

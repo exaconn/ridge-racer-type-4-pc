@@ -32,24 +32,24 @@ void ovl661_func_80114B00(void) {
     Rr661FrameVector16 *temp_v1_5;
 
     D_800F2DE4=(u32)D_800F2DE4+1;
-    if (((u32) ((u32)D_800FF6B0 - 1) < 2U) && (D_800F3A38[0].buttons08 & 0x800)) {
+    if (((u32) ((u32)RaceState - 1) < 2U) && (D_800F3A38[0].buttons08 & 0x800)) {
         if (D_800AC5D0 <= 0) {
             D_800AC5D0 = 0xF;
             temp_v1 = D_800F4C68 == 0;
             D_800F4C68 = temp_v1;
             if (temp_v1 != 0) {
-                func_8004FA04();
+                SoundPause();
                 D_800F2FDC = 0;
             } else {
                 func_800348E8(D_800F4D44);
-                func_8004FA50();
+                SoundResume();
             }
         } else {
             goto block_7;
         }
     } else if (D_800AC5D0 > 0) {
 block_7:
-        if (D_800FF6B0 < 4) {
+        if (RaceState < 4) {
             D_800AC5D0 = (u16) D_800AC5D0 - 1;
         }
     }
@@ -57,14 +57,14 @@ block_7:
         func_80034844(D_800F4D44);
         D_800F2DE4=(u32)D_800F2DE4-1;
         func_800349F4(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, D_800F2FDC);
-        if (D_800FF6B0 < 4) {
+        if (RaceState < 4) {
             func_80033F3C(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, D_800F2DE4);
         }
         var_s2 = 0;
-        if ((u32) ((u32)D_800FF6B0 - 1) < 3U) {
+        if ((u32) ((u32)RaceState - 1) < 3U) {
             do {
                 
-                temp_s0 = &D_800ABEF8[var_s2];
+                temp_s0 = &PlayerCars[var_s2];
                 func_80021684((temp_s0->input * 0xA0) / 1168, var_s2);
                 func_800217D0(*(s16 *)((u8 *)&D_800F4C70+var_s2*2), var_s2);
                 func_800219BC(temp_s0->half27A, var_s2);
@@ -89,11 +89,11 @@ __asm__("" : : "r"(temp_v0),"r"(temp_v1_2));
         RR_661_FRAME_SCRATCH->rotation18 = *temp_v0;
         RR_661_FRAME_SCRATCH->position08 = *temp_v1_2;
             __asm__("" : "+r"(var_s2));
-        func_8006EF8C(var_s2 + 2);
-            if (D_800FF6B0 == 0) {
+        SetupViewport(var_s2 + 2);
+            if (RaceState == 0) {
                 var_a0 = var_s2 * 2;
                 if ((u32) D_800F2DE4 < 0x4BU) {
-                    func_80033474(&D_800ABEF8[var_s2], D_800F2DE4);
+                    func_80033474(&PlayerCars[var_s2], D_800F2DE4);
                     var_v1_2 = var_s2 * 0x10;
                 } else {
                     goto block_22;
@@ -101,7 +101,7 @@ __asm__("" : : "r"(temp_v0),"r"(temp_v1_2));
             } else {
                 var_a0 = var_s2 * 2;
 block_22:
-                func_80033BE4((struct w3g2p *)((unsigned long)((((var_a0+var_s2)*8)+var_s2)<<5)+(unsigned long)D_800ABEF8));
+                func_80033BE4((struct w3g2p *)((unsigned long)((((var_a0+var_s2)*8)+var_s2)<<5)+(unsigned long)PlayerCars));
                 var_v1_2 = var_s2 * 0x10;
             }
             temp_v0_2 = (Rr661FrameVector16 *)((u8 *)D_801183D0+var_v1_2);
@@ -110,53 +110,53 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
         *temp_v0_2 = RR_661_FRAME_SCRATCH->rotation18;
         *temp_v1_3 = RR_661_FRAME_SCRATCH->position08;
             temp_s0_2 = var_s2 + 1;
-            func_8006E1AC();
-            func_8002E0D8(var_s2 + 2);
+            BuildCameraMatrices();
+            DrawCars(var_s2 + 2);
             func_8006ECE8(var_s2);
-            func_800747EC(0);
+            DrawTrackObjects(0);
             func_80036FD4(temp_s0_2);
             var_s2 = temp_s0_2;
         } while (var_s2 < 2);
         return;
     }
     ScreenFrame=(u32)ScreenFrame+1;
-    if ((u32) ((u32)D_800FF6B0 - 2) < 2U) {
+    if ((u32) ((u32)RaceState - 2) < 2U) {
         temp_v0_3 = (s32)((u32)D_800AC5A4 - 1);
         D_800AC5A4 = temp_v0_3;
         if (temp_v0_3 <= 0) {
-            D_800FF6B0 = 5;
+            RaceState = 5;
             D_800AC5D0 = 0x4B;
-            func_8004FC18(0,0x21);
+            SoundSetMasterVolume(0,0x21);
         }
     }
-    if (((u32) D_800F2DE4 >= 0x4BU) && (D_800FF6B0 == 0)) {
-        D_800FF6B0 = 1;
+    if (((u32) D_800F2DE4 >= 0x4BU) && (RaceState == 0)) {
+        RaceState = 1;
         func_8004FED4();
-        func_80014A8C(-1);
+        SetModelTexturePage(-1);
         func_800172DC();
         D_800ADAF0[1].environment.rgb24 = 0;
         D_800ADAF0[0].environment.rgb24 = 0;
     } else {
-        if (D_800FF6B0==1) {
+        if (RaceState==1) {
             if ((u32) D_800F2DE4 >= 0xB0U) {
-                func_80022CD4(&D_800ABEF8[0]);
-                func_80022CD4(&D_800ABEF8[1]);
-                func_80052A30(1);
-                D_800FF6B0 = 2;
+                func_80022CD4(&PlayerCars[0]);
+                func_80022CD4(&PlayerCars[1]);
+                CdAudioBeginPlay(1);
+                RaceState = 2;
             }
-        } else if (D_800FF6B0>=4) {
+        } else if (RaceState>=4) {
             var_a2 = 0x25;
             if (D_800F4C64 == -1) {
                 var_a2 = 0x45;
             }
             if (D_800AC5D0 < 0x19) {
                 func_800207D4(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, (0x19 - D_800AC5D0) * 0xA, var_a2);
-                RR_661_FRAME_SCRATCH->pointers.cursor = func_8001FC28(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
+                RR_661_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
             }
             if (D_800AC5D0 <= 0) {
-                ovl661_D_80118448[0] = (u16) D_800ABEF8[0].half1EE;
-                ovl661_D_80118448[1] = (u16) D_800ABEF8[1].half1EE;
-                if (D_800FF6B0 == 4) {
+                ovl661_D_80118448[0] = (u16) PlayerCars[0].half1EE;
+                ovl661_D_80118448[1] = (u16) PlayerCars[1].half1EE;
+                if (RaceState == 4) {
                     D_800F4C6A = 1;
                     D_800F3A26 = 0x15;
                     D_800F4D8A = 0;
@@ -166,35 +166,35 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
             } else {
                 D_800AC5D0 = (u16) D_800AC5D0 - 1;
             }
-        } else if (D_800FF6B0==0) {
+        } else if (RaceState==0) {
             if ((u32)D_800F2DE4 >= 51U) {
                 func_800207D4(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70,((u32)D_800F2DE4-50U)*10U,37);
             } else if ((u32)D_800F2DE4 < 25U) {
                 func_800207D4(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70,(25U-(u32)D_800F2DE4)*10U,69);
             }
-            RR_661_FRAME_SCRATCH->pointers.cursor = func_8001FC28(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
+            RR_661_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
         }
     }
-    ovl661_func_80114924((RrRaceCheckpointVehicle *)(void *)&D_800ABEF8[0]);
-    ovl661_func_80114924((RrRaceCheckpointVehicle *)(void *)&D_800ABEF8[1]);
-    func_8003C96C();
-    if ((s16) D_800ABEF8[0].half1EE < (s16) D_800ABEF8[1].half1EE) {
-        D_800ABEF8[0].half1EE = 0U;
-        D_800ABEF8[1].half1EE = 1U;
+    ovl661_func_80114924((RrRaceCheckpointVehicle *)(void *)&PlayerCars[0]);
+    ovl661_func_80114924((RrRaceCheckpointVehicle *)(void *)&PlayerCars[1]);
+    UpdateRaceRanking();
+    if ((s16) PlayerCars[0].half1EE < (s16) PlayerCars[1].half1EE) {
+        PlayerCars[0].half1EE = 0U;
+        PlayerCars[1].half1EE = 1U;
     } else {
-        D_800ABEF8[0].half1EE = 1U;
-        D_800ABEF8[1].half1EE = 0U;
+        PlayerCars[0].half1EE = 1U;
+        PlayerCars[1].half1EE = 0U;
     }
-    func_80037D88(D_800F4D44);
-    if (D_800FF6B0 < 4) {
+    StepRaceFrame(D_800F4D44);
+    if (RaceState < 4) {
         func_80033F3C(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, D_800F2DE4);
         func_80034630(D_800F2DE4);
     }
     var_s2 = 0;
-    if ((u32) ((u32)D_800FF6B0 - 1) < 3U) {
+    if ((u32) ((u32)RaceState - 1) < 3U) {
         do {
             
-                temp_s0_3 = &D_800ABEF8[var_s2];
+                temp_s0_3 = &PlayerCars[var_s2];
             func_80021684((temp_s0_3->input * 0xA0) / 1168, var_s2);
             func_800217D0(*(s16 *)((u8 *)&D_800F4C70+var_s2*2), var_s2);
             func_800219BC(temp_s0_3->half27A, var_s2);
@@ -219,11 +219,11 @@ __asm__("" : : "r"(temp_v0_4),"r"(temp_v1_4));
         RR_661_FRAME_SCRATCH->rotation18 = *temp_v0_4;
         RR_661_FRAME_SCRATCH->position08 = *temp_v1_4;
         __asm__("" : "+r"(var_s2));
-        func_8006EF8C(var_s2 + 2);
-        if (D_800FF6B0 == 0) {
+        SetupViewport(var_s2 + 2);
+        if (RaceState == 0) {
             var_a0_2 = var_s2 * 2;
             if ((u32) D_800F2DE4 < 0x4BU) {
-                func_80033474(&D_800ABEF8[var_s2], D_800F2DE4);
+                func_80033474(&PlayerCars[var_s2], D_800F2DE4);
                 var_v1_4 = var_s2 * 0x10;
             } else {
                 goto block_66;
@@ -231,7 +231,7 @@ __asm__("" : : "r"(temp_v0_4),"r"(temp_v1_4));
         } else {
             var_a0_2 = var_s2 * 2;
 block_66:
-            func_80033BE4((struct w3g2p *)((unsigned long)((((var_a0_2+var_s2)*8)+var_s2)<<5)+(unsigned long)D_800ABEF8));
+            func_80033BE4((struct w3g2p *)((unsigned long)((((var_a0_2+var_s2)*8)+var_s2)<<5)+(unsigned long)PlayerCars));
             var_v1_4 = var_s2 * 0x10;
         }
         temp_v0_5 = (Rr661FrameVector16 *)((u8 *)D_801183D0+var_v1_4);
@@ -240,16 +240,16 @@ __asm__("" : : "r"(temp_v0_5),"r"(temp_v1_5));
         *temp_v0_5 = RR_661_FRAME_SCRATCH->rotation18;
         *temp_v1_5 = RR_661_FRAME_SCRATCH->position08;
         temp_s1 = var_s2 * 2;
-        func_8006E1AC();
+        BuildCameraMatrices();
         __asm__("" : : "r"(temp_s1));
-        func_8002E0D8(var_s2 + 2);
-        if (((RrRaceVehicle *)((unsigned long)((((temp_s1+var_s2)*8)+var_s2)<<5)+(unsigned long)D_800ABEF8))->half1EA != 0) {
+        DrawCars(var_s2 + 2);
+        if (((RrRaceVehicle *)((unsigned long)((((temp_s1+var_s2)*8)+var_s2)<<5)+(unsigned long)PlayerCars))->half1EA != 0) {
             func_800225DC(var_s2 + 1);
         }
         RR_661_FRAME_SCRATCH->mode5E = 1;
         func_8006ECE8(var_s2);
-        func_800735D8(0);
-        func_800747EC(0);
+        UpdateTrackObjects(0);
+        DrawTrackObjects(0);
         temp_s0_4 = var_s2 + 1;
         func_80036FD4(temp_s0_4);
         {register s32 playerArg2 __asm__("$6")=var_s2;
@@ -259,9 +259,9 @@ __asm__("" : : "r"(temp_v0_5),"r"(temp_v1_5));
         func_8005007C(temp_a0,temp_a1_3,playerArg2);}
         __asm__("" : : "r"(temp_s1));
     } while (var_s2 < 2);
-    if (D_800FF6B0 >= 4) {
+    if (RaceState >= 4) {
         func_80036030();
-        if (D_800FF6B0 == 6) {
+        if (RaceState == 6) {
             func_80036068();
         }
     }

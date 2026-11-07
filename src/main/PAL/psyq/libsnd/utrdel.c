@@ -8,9 +8,9 @@
 extern int D_80110008[];
 extern s16 D_8011000C;
 
-s16 func_80086680(void);
+s16 SsUtGetReverbType(void);
 
-s32 func_800865E4(s32 a0) {
+s32 SsUtSetReverbType(s32 a0) {
     register int v1 __asm__("$3"); /* ASM_BARRIER: original keeps the sign-adjusted copy in v1, not a0 */
     short s;
     /* ASM_BARRIER: Retain the narrowing shift independently of its source. */
@@ -35,13 +35,13 @@ s32 func_800865E4(s32 a0) {
             page=(s32 *)0x80110000U;
             /* ASM_BARRIER: Materialize the command page before the call-delay offset. */
             __asm__("" : "+r"(page));
-            func_80085BA4(page+2);
+            SpuSetReverbModeParam(page+2);
         }
         return s;
     }
     return -1;
 }
 
-s16 func_80086680(void) {
+s16 SsUtGetReverbType(void) {
     return D_8011000C;
 }

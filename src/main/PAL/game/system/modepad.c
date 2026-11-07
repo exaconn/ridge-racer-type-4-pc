@@ -9,20 +9,20 @@
 #include "game/data/globals.h"
 
 extern int func_8005CA88();
-extern int func_8003EC88();
+extern int DrawUiRow();
 extern int D_800F3A38[];
-extern char *D_800F4D80;
-extern short D_800AC64A;
+extern char *UiRows;
+extern short MenuCursor;
 extern short D_800AD564;
 extern int D_800F3A60;
 extern int D_800F3AA4;
 extern short D_800F4BE8;
-extern int D_800F4BEC;
+extern int UiRowCount;
 extern int D_800F4CA8;
 extern short D_800FFC10;
-extern void func_8002B330();
+extern void StepMenuValue();
 extern void PlaySfx();
-extern unsigned func_8009AEAC();
+extern unsigned _sio_control();
 
 void func_8002F0E0(void);
 void func_8002F100();
@@ -38,17 +38,17 @@ void func_8002F100() {
     if (n > 0) {
         do {
             if (i == 2) {
-                if (D_800F3A38[0x6C / 4] == -1) *(short *)(D_800F4D80 + 0x68) = 1;
-                else *(short *)(D_800F4D80 + 0x68) = 0;
+                if (D_800F3A38[0x6C / 4] == -1) *(short *)(UiRows + 0x68) = 1;
+                else *(short *)(UiRows + 0x68) = 0;
             }
-            func_8003EC88(i);
+            DrawUiRow(i);
             i++;
         } while (i < n);
     }
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4D80 ((W7C0_E *)D_800F4D80)
+#define UiRows ((W7C0_E *)UiRows)
 
 int func_8002F1BC(void)
 {
@@ -56,36 +56,36 @@ int func_8002F1BC(void)
     int v;
 
     s1 = D_800F4CD0 + func_80034E3C();
-    if (D_800AC64A == D_800F4CD0) {
-        if (s1 == D_800AC64A) {
-            D_800F4D80[s1].b0C = 0;
-            D_800AC64A = 0;
+    if (MenuCursor == D_800F4CD0) {
+        if (s1 == MenuCursor) {
+            UiRows[s1].b0C = 0;
+            MenuCursor = 0;
         }
     }
-    D_800F4D80[D_800AC64A].b0C = 0;
-    func_8002B330(0, 2, &D_800AC64A, s1, 0);
-    func_8002B330(3, 4, &D_800AD564, 5, 0);
-    if (D_800AC64A == 2 && D_800F3AA4 == -1)
-        D_800F4D80[2].b0C = 4;
+    UiRows[MenuCursor].b0C = 0;
+    StepMenuValue(0, 2, &MenuCursor, s1, 0);
+    StepMenuValue(3, 4, &D_800AD564, 5, 0);
+    if (MenuCursor == 2 && D_800F3AA4 == -1)
+        UiRows[2].b0C = 4;
     else
-        D_800F4D80[D_800AC64A].b0C = 2;
+        UiRows[MenuCursor].b0C = 2;
     s2 = 0;
     if (D_800F3A60 != 0) {
-        if (D_800F4D80[D_800AC64A].s20 == 1) {
+        if (UiRows[MenuCursor].s20 == 1) {
             PlaySfx(4);
             return s2;
         }
         PlaySfx(1);
         s2 = 1;
-        if (D_800AC64A == D_800F4CD0)
+        if (MenuCursor == D_800F4CD0)
             func_80034E14();
         else
-            func_8009AEAC(1, 1, 0);
+            _sio_control(1, 1, 0);
         D_800F4CA8 = 2;
         D_800F4BE8 = 8;
         D_800F4C5C = 0x123;
-        D_800F4D2C = D_800AC64A;
-        v = (short)D_800AC64A;
+        D_800F4D2C = MenuCursor;
+        v = (short)MenuCursor;
         switch (v) {
         case 0:
             D_800F4D44 = 1;
@@ -122,10 +122,10 @@ int func_8002F1BC(void)
         }
     } else {
         if (s1 == D_800F4CD0 + 1) {
-            if (((func_8009AEAC(0, 0, 0) >> 7) & 3) == 2) {
-                D_800F4D80[D_800AC64A].b0C = 0;
+            if (((_sio_control(0, 0, 0) >> 7) & 3) == 2) {
+                UiRows[MenuCursor].b0C = 0;
                 s2 = 1;
-                D_800F4D80[(short)D_800F4D2C].b0C = 0;
+                UiRows[(short)D_800F4D2C].b0C = 0;
                 func_8001F290();
                 D_800F4D2C = 8;
                 D_800F4D44 = 4;
@@ -134,12 +134,12 @@ int func_8002F1BC(void)
         }
     }
     if (s2 == 1) {
-        D_800F4D80[D_800AC64A].b0C = s2;
-        for (i = 0; i < D_800F4BEC; i++) {
-            if (D_800F4D80[i].b14 == 2) D_800F4D80[i].b14 = 3;
+        UiRows[MenuCursor].b0C = s2;
+        for (i = 0; i < UiRowCount; i++) {
+            if (UiRows[i].b14 == 2) UiRows[i].b14 = 3;
         }
     }
     return s2;
 }
 
-#undef D_800F4D80
+#undef UiRows

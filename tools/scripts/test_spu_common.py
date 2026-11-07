@@ -18,7 +18,7 @@ class SpuCommonTest(unittest.TestCase):
 #include <stddef.h>
 #include <string.h>
 #include "rr/spu_common.h"
-RrSpuRegisterBank *D_800A47D8;
+RrSpuRegisterBank *_spu_RXX;
 static struct {u32 guard[4];RrSpuRegisterStorage bank;u32 tail[4];} actual;
 static u16 expected[256];
 static u32 rng=0x82674U;
@@ -60,8 +60,8 @@ int main(void){unsigned n,phase,i,j;uint64_t cases=0;RrSpuCommonAttributes28 a,s
   volumeSeen[0][(u16)a.master.left]++;volumeSeen[1][(u16)a.master.right]++;
   for(i=0;i<256;i++){expected[i]=(u16)next();actual.bank.halves[i]=expected[i];}expected[213]=(u16)n;actual.bank.halves[213]=(u16)n;controlSeen[n]++;
   for(i=0;i<4;i++){guards[i]=next();tails[i]=next();actual.guard[i]=guards[i];actual.tail[i]=tails[i];}
-  root=a.mask&&!(a.mask&0x3FC3U)?0:&actual.bank.registers;D_800A47D8=root;saved=a;model(&saved);SpuSetCommonAttr(&a);
-  assert(D_800A47D8==root);assert(!memcmp(&a,&saved,sizeof(a)));assert(!memcmp(actual.guard,guards,sizeof(guards)));assert(!memcmp(actual.tail,tails,sizeof(tails)));
+  root=a.mask&&!(a.mask&0x3FC3U)?0:&actual.bank.registers;_spu_RXX=root;saved=a;model(&saved);SpuSetCommonAttr(&a);
+  assert(_spu_RXX==root);assert(!memcmp(&a,&saved,sizeof(a)));assert(!memcmp(actual.guard,guards,sizeof(guards)));assert(!memcmp(actual.tail,tails,sizeof(tails)));
   for(i=0;i<256;i++)assert(actual.bank.halves[i]==expected[i]);cases++;
  }
  assert(cases==655360);for(i=0;i<65536;i++){assert(maskSeen[i]);assert(controlSeen[i]);for(j=0;j<2;j++){assert(modeSeen[j][i]);assert(volumeSeen[j][i]);}}

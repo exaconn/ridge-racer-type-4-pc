@@ -33,7 +33,7 @@ typedef struct {RrSpuAllocation records[34];int32_t last;uint32_t fence[4];} Wor
 static World initial,actual,expected,*world;
 static RrSpuAllocation *table;
 #define D_800A48BC (world->last)
-#define D_800A48C0 table
+#define _spu_memList table
 '''
         reference=r'''
 static uint32_t read32(const uint8_t *p){uint32_t v;memcpy(&v,p,4);return v;}
@@ -113,7 +113,7 @@ int main(void){
    }
   }
   actual=expected=initial;
-  bind(&actual);func_8008A774();
+  bind(&actual);_spu_gcSPU();
   bind(&expected);reference();
   if(memcmp(&actual,&expected,sizeof(actual))){fprintf(stderr,"case %u last%d mode%u failed (actual last%d expected%d)\n",k,n,mode,actual.last,expected.last);return 1;}
  }

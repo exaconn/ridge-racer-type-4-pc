@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8005D868();
+void ShuffleSlotOrder();
 
 #endif /* RR_GAME_MATH_SHUFFLE_H */

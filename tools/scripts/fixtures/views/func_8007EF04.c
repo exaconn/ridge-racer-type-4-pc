@@ -4,18 +4,18 @@
 
 #include "rr/spu.h"
 
-extern s32 func_80096E64(u32,s32);
+extern s32 DeliverEvent(u32,s32);
 
 extern s32 D_800A4828;
 
-extern void _spu_Fw1ts(void), func_8007F574(void);
+extern void _spu_Fw1ts(void), _spu_FsetDelayR(void);
 
 void _spu_FiDMA(void) {
     /* ASM_BARRIER: Retain the bounded poll count in its original register. */
     register u32 i;
     RrSpuRegisterBank *bank;
     if(D_800A4828==0) _spu_Fw1ts();
-    bank=D_800A47D8;
+    bank=_spu_RXX;
     bank->spu_control &= 0xFFCF;
     {
     u32 status=bank->spu_control & 0x30;
@@ -34,6 +34,6 @@ again:
         }
     }
     }
-    if(D_800A4810) D_800A4810();
-    else func_80096E64(0xF0000009U,0x20);
+    if(_spu_transferCallback) _spu_transferCallback();
+    else DeliverEvent(0xF0000009U,0x20);
 }

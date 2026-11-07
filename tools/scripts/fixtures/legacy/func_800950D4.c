@@ -1,14 +1,14 @@
 /* CC1_FLAGS: -mno-split-addresses */
-extern int func_8008B4E0(), func_800954D8(), GPU_memset();
+extern int SetIntrMask(), func_800954D8(), GPU_memset();
 #include "rr/gpu.h"
 extern int D_800ABBE8, D_800ABBF8;
 extern int D_800ABBEC;
 extern char D_801127D0[], D_801128D8[];
-int func_800950D4(a0)
+int _reset(a0)
 int a0;
 {
     int t;
-    t = func_8008B4E0(0);
+    t = SetIntrMask(0);
     D_800ABBEC = 0;
     D_800ABBF8 = t;
     D_800ABBE8 = D_800ABBEC;
@@ -30,7 +30,7 @@ int a0;
         *(u32 *)D_800ABBC8 = 0x01000000;
         break;
     }
-    func_8008B4E0(D_800ABBF8);
+    SetIntrMask(D_800ABBF8);
     if ((a0 & 7) == 0) return func_800954D8(a0);
     return 0;
 }

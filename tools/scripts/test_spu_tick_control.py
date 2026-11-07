@@ -50,7 +50,7 @@ static unsigned chosen[2],paths[5],interrupts[11],divided[2];
 static void cb0(void){assert(0);}static void cb1(void){assert(0);}
 void func_80082CB4(void){assert(0);}void func_80082D00(void){assert(0);}
 static RrSpuTickCallback pool[5]={0,cb0,cb1,func_80082CB4,func_80082D00};
-#define D_800A4D38 (g->data.timer.value)
+#define _snd_seq_tick_env (g->data.timer.value)
 #define D_800A6350 (&drivers[g->data.driver].prefix)
 #define D_800A6370 (g->data.callbacks.values)
 #define D_800ABC34 ((RrRootCounterRegisters *)g->data.counters.records)
@@ -65,8 +65,8 @@ static void mutate(u32 service){RrSpuTickState20 *t=&g->data.timer.value;u32 r,i
  for(i=0;i<3;i++)t->state[i]=signed_bits(next(&g->data.seed));
  if(service==1&&g->phase==2){t->flags.interrupt=0;t->flags.divided=0;}
 }
-void func_80096F04(void){assert(!g->data.critical);event(1,0,0,0,0);g->data.critical=1;mutate(1);}
-void func_80096F14(void){assert(g->data.critical);event(6,0,0,0,0);mutate(6);g->data.critical=0;}
+void EnterCriticalSection(void){assert(!g->data.critical);event(1,0,0,0,0);g->data.critical=1;mutate(1);}
+void ExitCriticalSection(void){assert(g->data.critical);event(6,0,0,0,0);mutate(6);g->data.critical=0;}
 static RrSpuTickCallback exchange(unsigned driver,s32 channel,RrSpuTickCallback callback){RrSpuTickCallback previous;assert(g->data.critical&&channel>=0&&channel<11);event(4,(u32)channel,driver,0,callback);previous=g->data.irq[channel];g->data.irq[channel]=callback;interrupts[channel]++;chosen[driver]++;mutate(4);return previous;}
 static RrSpuTickCallback exchange0(s32 n,RrSpuTickCallback c){return exchange(0,n,c);}
 static RrSpuTickCallback exchange1(s32 n,RrSpuTickCallback c){return exchange(1,n,c);}
@@ -92,7 +92,7 @@ static void model(s32 argument){RrSpuTickState20 *t=&g->data.timer.value;u32 cou
  else if(t->selector==3)period=35280;
  else if(t->selector!=2){s32 frequency=t->selector;if(t->active){paths[1]++;return;}assert(frequency!=0);if(frequency<70){period=(u16)(2116800/frequency);t->flags.divided=1;paths[2]++;}else{period=(u16)(4233600/frequency);paths[3]++;}}
  else paths[4]++;
- direct=t->flags.direct!=0;func_80096F04();
+ direct=t->flags.direct!=0;EnterCriticalSection();
  if(direct){unsigned selected=g->data.driver;event(5,4,selected,0,t->callback);chosen[selected]++;g->data.callbacks.values[4]=t->callback;}
  else{
   ResetRCnt(counter);SetRCnt(counter,period,4096);index=t->flags.interrupt;
@@ -100,7 +100,7 @@ static void model(s32 argument){RrSpuTickState20 *t=&g->data.timer.value;u32 cou
   else{divided[t->flags.divided!=0]++;callback=t->flags.divided?func_80082D00:t->callback;}
   exchange(g->data.driver,index,callback);
  }
- func_80096F14();
+ ExitCriticalSection();
 }
 static void initialize(Environment *e,u32 seed,u32 phase,s32 selector,s32 argument){unsigned i;u8 *p;
  memset(e,0,sizeof(*e));e->data.seed=seed;e->phase=phase;e->data.driver=(seed>>1)&1;
@@ -128,7 +128,7 @@ int main(void){static const s32 edges[16]={INT32_MIN,INT32_MAX,-1,-70,-69,1,4,6,
   argument=(phase==0||phase==6)?0:phase==1?1:phase==2?INT32_MIN:signed_bits(next(&seed));
   initialize(&actual,next(&seed),phase<2?0:phase<4?1:phase<6?2:1,selector,argument);
   if(phase==0||phase==2||phase==4||phase==6)actual.data.timer.value.active=0;
-  expected=actual;expected.reference=1;g=&expected;model(argument);g=&actual;func_80082A44(argument);
+  expected=actual;expected.reference=1;g=&expected;model(argument);g=&actual;_SsStart(argument);
   assert(!memcmp(&actual.data,&expected.data,sizeof(actual.data)));assert(actual.count==expected.count);assert(!memcmp(actual.events,expected.events,actual.count*sizeof(Event)));cases++;
  }
  for(n=0;n<65536;n++){

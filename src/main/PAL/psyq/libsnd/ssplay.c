@@ -3,11 +3,11 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/spu_common.h"
 
-#define SPU(index) (((RrSpuRegisterStorage*)D_800A47D8)->halves[index])
+#define SPU(index) (((RrSpuRegisterStorage*)_spu_RXX)->halves[index])
 
-void func_800825B4(signed char a0, signed char a1, signed char a2);
+void SsSetSerialAttr(signed char a0, signed char a1, signed char a2);
 
-void func_800825B4(signed char a0, signed char a1, signed char a2) {
+void SsSetSerialAttr(signed char a0, signed char a1, signed char a2) {
     struct { int x; int p[4]; int v24, v28; int pad; int v30, v34; } s;
     if (a0 == 0) {
         if (a1 == 0) { s.x = 0x200; s.v28 = a2; }
@@ -167,33 +167,33 @@ block_32:
     }
     if ((all != 0) || (mask & 0x100)) {
         if (attributes->cd.reverb == 0) {
-            bank=(RrSpuRegisterStorage*)D_800A47D8; var_v0_3 = bank->halves[213] & 0xFFFB;
+            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_3 = bank->halves[213] & 0xFFFB;
         } else {
-            bank=(RrSpuRegisterStorage*)D_800A47D8; var_v0_3 = bank->halves[213] | 4;
+            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_3 = bank->halves[213] | 4;
         }
         bank->halves[213] = var_v0_3;
     }
     if ((all != 0) || (mask & 0x200)) {
         if (attributes->cd.mix == 0) {
-            bank=(RrSpuRegisterStorage*)D_800A47D8; var_v0_4 = bank->halves[213] & 0xFFFE;
+            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_4 = bank->halves[213] & 0xFFFE;
         } else {
-            bank=(RrSpuRegisterStorage*)D_800A47D8; var_v0_4 = bank->halves[213] | 1;
+            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_4 = bank->halves[213] | 1;
         }
         bank->halves[213] = var_v0_4;
     }
     if ((all != 0) || (mask & 0x1000)) {
         if (attributes->external.reverb == 0) {
-            bank=(RrSpuRegisterStorage*)D_800A47D8; var_v0_5 = bank->halves[213] & 0xFFF7;
+            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_5 = bank->halves[213] & 0xFFF7;
         } else {
-            bank=(RrSpuRegisterStorage*)D_800A47D8; var_v0_5 = bank->halves[213] | 8;
+            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_5 = bank->halves[213] | 8;
         }
         bank->halves[213] = var_v0_5;
     }
     if ((all != 0) || (mask & 0x2000)) {
         if (attributes->external.mix == 0) {
-            bank=(RrSpuRegisterStorage*)D_800A47D8; var_v0_6 = bank->halves[213] & 0xFFFD;
+            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_6 = bank->halves[213] & 0xFFFD;
         } else {
-            bank=(RrSpuRegisterStorage*)D_800A47D8; var_v0_6 = bank->halves[213] | 2;
+            bank=(RrSpuRegisterStorage*)_spu_RXX; var_v0_6 = bank->halves[213] | 2;
         }
         bank->halves[213] = var_v0_6;
     }

@@ -25,19 +25,19 @@ typedef struct {
 
 extern RevAttr D_800A485C;
 
-extern s32 D_800A4854;
+extern s32 _spu_rev_offsetaddr;
 
-extern s32 D_800A48C8[];
+extern s32 _spu_rev_startaddr[];
 
 extern RrSpuRegisterPatch D_800A4E78[];
 
-extern void func_8007F3D0();
+extern void _spu_FsetRXX();
 
 extern s32 SpuClearReverbWorkArea();
 
 extern s32 _SpuIsInAllocateArea_();
 
-extern void func_80086084();
+extern void _spu_setReverbAttr();
 
 /* Byte copy of one reverb register preset (inlined at each use). */
 static __inline__ void copy(u8 *dst, u8 *src, s32 n) {
@@ -46,7 +46,7 @@ static __inline__ void copy(u8 *dst, u8 *src, s32 n) {
     }
 }
 
-s32 func_80085BA4(SpuReverbAttr *attr) {
+s32 SpuSetReverbModeParam(SpuReverbAttr *attr) {
     RrSpuRegisterPatch patch;
     s32 mask;
     s32 all;
@@ -77,13 +77,13 @@ s32 func_80085BA4(SpuReverbAttr *attr) {
         if (mode >= 10) {
             return -1;
         }
-        tbl = D_800A48C8;
-        if (_SpuIsInAllocateArea_(*(s32 *)((u8 *)D_800A48C8 + (mode << 2))) != 0) {
+        tbl = _spu_rev_startaddr;
+        if (_SpuIsInAllocateArea_(*(s32 *)((u8 *)_spu_rev_startaddr + (mode << 2))) != 0) {
             return -1;
         }
         mode_set = 1;
         D_800A485C.mode = mode;
-        D_800A4854 = tbl[D_800A485C.mode];
+        _spu_rev_offsetaddr = tbl[D_800A485C.mode];
         copy((u8 *)&patch, (u8 *)&D_800A4E78[D_800A485C.mode], 0x44);
         switch (D_800A485C.mode) {
         case 7:
@@ -134,29 +134,29 @@ s32 func_80085BA4(SpuReverbAttr *attr) {
     }
 
     if (mode_set) {
-        rev_on = (D_800A47D8->spu_control >> 7) & 1;
+        rev_on = (_spu_RXX->spu_control >> 7) & 1;
         if (rev_on) {
-            D_800A47D8->spu_control &= ~0x80;
+            _spu_RXX->spu_control &= ~0x80;
         }
     } else {
         if (all || (mask & 2)) {
-            ((volatile u16 *)D_800A47D8)[0x184 / 2] = attr->depth_left;
+            ((volatile u16 *)_spu_RXX)[0x184 / 2] = attr->depth_left;
             D_800A485C.depth_left = attr->depth_left;
         }
         if (all || (mask & 4)) {
-            ((volatile u16 *)D_800A47D8)[0x186 / 2] = attr->depth_right;
+            ((volatile u16 *)_spu_RXX)[0x186 / 2] = attr->depth_right;
             D_800A485C.depth_right = attr->depth_right;
         }
         goto skip;
     }
-    ((volatile u16 *)D_800A47D8)[0x184 / 2] = 0;
-    ((volatile u16 *)D_800A47D8)[0x186 / 2] = 0;
+    ((volatile u16 *)_spu_RXX)[0x184 / 2] = 0;
+    ((volatile u16 *)_spu_RXX)[0x186 / 2] = 0;
     D_800A485C.depth_left = 0;
     D_800A485C.depth_right = 0;
 skip:
 
     if (mode_set || delay_set || fb_set) {
-        func_80086084(&patch);
+        _spu_setReverbAttr(&patch);
     }
 
     if (clear_mode) {
@@ -164,9 +164,9 @@ skip:
     }
 
     if (mode_set) {
-        func_8007F3D0(0xD1, D_800A4854, 0);
+        _spu_FsetRXX(0xD1, _spu_rev_offsetaddr, 0);
         if (rev_on) {
-            D_800A47D8->spu_control |= 0x80;
+            _spu_RXX->spu_control |= 0x80;
         }
     }
 

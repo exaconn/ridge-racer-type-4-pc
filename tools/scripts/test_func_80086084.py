@@ -35,12 +35,12 @@ typedef int32_t s32;
 ''' + header)
         source += (root / 'tools/scripts/fixtures/legacy/func_80086B84.c').read_text().replace(
             '#include "rr/spu.h"', '')
-        source += '\nRrSpuRegisterBank *D_800A47D8;\n'
+        source += '\nRrSpuRegisterBank *_spu_RXX;\n'
         (directory / 'function.c').write_text(source)
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
-        cls.function = cls.library.func_80086084
+        cls.function = cls.library._spu_setReverbAttr
         cls.function.argtypes = [C.POINTER(Patch)]
         cls.function.restype = None
         cls.volume = cls.library.func_80086B84
@@ -53,7 +53,7 @@ typedef int32_t s32;
         previous = list(bank.control)
         patch = Patch(C.c_int32(mask).value, (C.c_uint16 * 32)(*values))
         before = C.string_at(C.addressof(patch), C.sizeof(patch))
-        C.c_void_p.in_dll(self.library, 'D_800A47D8').value = C.addressof(bank)
+        C.c_void_p.in_dll(self.library, '_spu_RXX').value = C.addressof(bank)
         self.function(C.byref(patch))
         expected = [values[i] if mask == 0 or mask & (1 << i) else previous[i]
                     for i in range(32)]
@@ -74,7 +74,7 @@ typedef int32_t s32;
     def test_volume_conversion_exhausts_both_halfword_inputs(self):
         bank = Bank()
         words = (C.c_uint16 * (C.sizeof(bank) // 2)).from_buffer(bank)
-        C.c_void_p.in_dll(self.library, 'D_800A47D8').value = C.addressof(bank)
+        C.c_void_p.in_dll(self.library, '_spu_RXX').value = C.addressof(bank)
         left, right = C.c_uint16(), C.c_uint16()
 
         def decoded(value):
@@ -90,7 +90,7 @@ typedef int32_t s32;
     def test_volume_reads_both_channels_before_writing_overlapping_outputs(self):
         bank = Bank()
         words = (C.c_uint16 * (C.sizeof(bank) // 2)).from_buffer(bank)
-        C.c_void_p.in_dll(self.library, 'D_800A47D8').value = C.addressof(bank)
+        C.c_void_p.in_dll(self.library, '_spu_RXX').value = C.addressof(bank)
         for voice in range(24):
             words[voice * 8], words[voice * 8 + 1] = 0x8001, 0x9002
             right_register = C.cast(C.byref(bank, voice * 16 + 2), C.POINTER(C.c_uint16))

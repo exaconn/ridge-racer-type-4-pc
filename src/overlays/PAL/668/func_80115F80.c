@@ -9,7 +9,7 @@ void ovl668_func_80115F80(void) {
     s32 var_s0;
 RrReplayCameraContextPrefix *ctx;
 
-    switch (D_800AC650.counter444) {                          
+    switch (RaceContext.counter444) {                          
     case 0:
         ovl668_func_80115DFC();
         goto increment;
@@ -17,25 +17,25 @@ RrReplayCameraContextPrefix *ctx;
         SetDispMask(1);
     case 1: case 2: case 3:
  increment:
-        D_800AC650.counter444=(u32)D_800AC650.counter444+1;
+        RaceContext.counter444=(u32)RaceContext.counter444+1;
         break;
     case 5:                                        
         var_a0 = -1;
         for(var_s0=0;ovl668_D_80116CA8[var_s0].key>=0;var_s0++){
-          if(ovl668_D_80116CA8[var_s0].key==D_800AC650.state44C){var_a0=ovl668_D_80116CA8[var_s0].action;break;}
+          if(ovl668_D_80116CA8[var_s0].key==RaceContext.state44C){var_a0=ovl668_D_80116CA8[var_s0].action;break;}
         }
         switch (var_a0) {                          
         case 0:                                    
-            D_800AC650.phase4AC = 1;
-            D_800AC650.counter4B4 = 0;
-            func_80052A30(0);
+            RaceContext.phase4AC = 1;
+            RaceContext.counter4B4 = 0;
+            CdAudioBeginPlay(0);
             break;
         case 1:                                    
-            D_800AC650.mode4A8 = 2;
+            RaceContext.mode4A8 = 2;
             break;
         }
         ovl668_func_80115554();
-        ctx=&D_800AC650;
+        ctx=&RaceContext;
         ctx->position450[0] = (s32) ((u32)ctx->position450[0] + (ctx->delta478[0] / 6));
         temp_a1 = ctx->delta478[2] / 6;
         ctx->position450[2] = (s32) ((u32)ctx->position450[2] + temp_a1);
@@ -60,7 +60,7 @@ RrReplayCameraContextPrefix *ctx;
             if (temp_v0_2 <= 0) {
                 ctx->counter4A4 = 0;
                 ctx->mode4A8 = 0;
-                func_80052B8C(0, 0);
+                CdAudioFade(0, 0);
                 D_800F4C6A = (s16) temp_s1;
                 D_800F3A26 = 3;
                 ctx->flagB0 = 1;
@@ -69,7 +69,7 @@ RrReplayCameraContextPrefix *ctx;
             func_800207D4(&D_800ACC14->head70, (s32)(255U - (u32)ctx->counter4A4), 0x45);
             break;
         }
-        temp_v1 = D_800AC650.phase4AC;
+        temp_v1 = RaceContext.phase4AC;
         if (temp_v1 != 0) {
             if (temp_v1 == 1) {
                 var_s0 = 0;
@@ -77,13 +77,13 @@ RrReplayCameraContextPrefix *ctx;
                 for(;var_s0<62;var_s0++)ovl668_func_801159C0(var_s0,160);
             }
         }
-        if ((D_800F3A38[0].buttons08 & 0x800) && (D_800AC650.mode4A8 == 0)) {
-            D_800AC650.mode4A8 = 2;
-            func_80052B8C(0, 0x15);
+        if ((D_800F3A38[0].buttons08 & 0x800) && (RaceContext.mode4A8 == 0)) {
+            RaceContext.mode4A8 = 2;
+            CdAudioFade(0, 0x15);
         }
         func_8006ECE8(0);
         func_80036FD4(0);
-        D_800AC650.state44C = (s32) ((u32)D_800AC650.state44C + 1);
+        RaceContext.state44C = (s32) ((u32)RaceContext.state44C + 1);
         ovl668_func_80115BD0(1);
         ovl668_func_80115BD0(0);
         /* fallthrough */

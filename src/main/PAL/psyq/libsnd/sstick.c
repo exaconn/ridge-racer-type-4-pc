@@ -12,9 +12,9 @@ typedef struct {
 } SeqHandlers;
 extern SeqHandlers D_8010EFC8;
 
-s32 func_800835E4(s16 a0, s16 a1) {
+s32 _SsGetSeqData(s16 a0, s16 a1) {
     s32 i = a0;
-    RrLibStateB0 **b = D_8010F068;
+    RrLibStateB0 **b = _ss_score;
     RrLibStateB0 **q = &b[i];
     s32 o = a1 * 0xB0;
     /* ASM_BARRIER: keeps the stream byte in s2 (otherwise s2/s3 swap with p). */
@@ -43,7 +43,7 @@ s32 func_800835E4(s16 a0, s16 a1) {
             p->b16 = status;
             c = *p->c0++;
             c2 = *p->c0++;
-            p->w90 = func_80081E04(a0, a1);
+            p->w90 = _SsReadDeltaValue(a0, a1);
             D_8010EFC8.noteOn(a0, a1, c, c2);
             break;
         case 0xB0: {
@@ -96,7 +96,7 @@ s32 func_800835E4(s16 a0, s16 a1) {
         case 0x90:
             c2 = *p->c0;
             p->c0++;
-            p->w90 = func_80081E04(a0, a1);
+            p->w90 = _SsReadDeltaValue(a0, a1);
             D_8010EFC8.noteOn(a0, a1, c, c2);
             break;
         case 0xB0:

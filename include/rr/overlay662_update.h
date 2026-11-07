@@ -6,8 +6,8 @@
 #include "rr/frame_environment.h"
 #include "rr/screen_tiles.h"
 #include "rr/menu_text_state.h"
-void func_8003D6F0(s32 index);
-void func_8003EC88(s32 index);
+void UpdateBadgeRowAnim(s32 index);
+void DrawUiRow(s32 index);
 void func_8002AF8C(s32 first,s32 second,s32 third);
 /* D_ACC14 points at the first rectangle of a containing frame owner.
  * Callback writes are visible to every later flag, fade and text-root read. */

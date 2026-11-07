@@ -6,17 +6,17 @@
 
 #include "rr/badge_row_types.h"
 
-extern RrBadgeRow1C *D_800F3AFC;
+extern RrBadgeRow1C *BadgeRows;
 extern s8 D_8009F108[];
 extern RrUiUvRect D_8009F074[];
 
 /* The helpers thread full packet pointers. Coordinate arguments remain wide
  * until their wire16 stores, including sums of two signed16 row fields. */
-void *func_8001FD20(u32 *, void *, s32, s32, s32, s32, s32, s32, s32);
-void *func_8001FDD4(u32 *, void *, s32, s32, s32, s32, s32, s32, s32);
-void *func_80020074(u32 *, void *, s32, s32, s32, s32, s32, s32,
+void *AddTilePrim(u32 *, void *, s32, s32, s32, s32, s32, s32, s32);
+void *AddTileGrid2x2(u32 *, void *, s32, s32, s32, s32, s32, s32, s32);
+void *AddSpriteWithDrawMode(u32 *, void *, s32, s32, s32, s32, s32, s32,
                     u16, u16, u16, u16);
-void *func_8001FC28(u32 *, void *, s32, s32, s32, s32);
+void *AddDrawAreaPrim(u32 *, void *, s32, s32, s32, s32);
 
 /* Emits five row underlines/areas and four textured badges. Style selects an
  * eight-byte pattern group, with nine readable bytes; its first four signed

@@ -19,7 +19,7 @@ static RrPulseRow rom[2][65552];
 static const RrPulseRow *repeat_owner[12],*once_owner[12];
 #define D_800F3A38 actual.outputs
 #define D_8010C170 actual.states
-#define D_800AD528 actual.settings
+#define Options actual.settings
 #define D_8009FFA0 (repeat_owner+4)
 #define D_8009FF80 (once_owner+4)
 '''+body+r'''

@@ -4,8 +4,8 @@
 #include "types.h"
 
 extern char D_800108D8[];
-extern int D_800F2ECC;
-int func_8003DC50(int a0);
-int func_8003DFEC(int a);
+extern int BadgeRowCount;
+int AllocRect16Rows(int a0);
+int AllocGlyphRows(int a);
 
 #endif /* RR_GAME_UI_UIDRAW_H */

@@ -30,10 +30,10 @@ typedef struct {
 typedef struct {s32 op,a[5];u32 hash;} Event;
 typedef struct {State s;unsigned calls;Event events[6];} World;
 static World actual,reference,initial,*w;static unsigned scenario,mutation;
-RrTrackSample3C *D_800ABEA4;
-#define D_800AC650 w->s.camera
-#define D_800ABEF8 w->s.vehicles
-#define D_800ABECC w->s.count
+RrTrackSample3C *TrackNodes;
+#define RaceContext w->s.camera
+#define PlayerCars w->s.vehicles
+#define TrackNodeCount w->s.count
 #undef RR_REPLAY_SCRATCH_WORDS
 #define RR_REPLAY_SCRATCH_WORDS w->s.scratch
 ''' + bodies + r'''
@@ -42,7 +42,7 @@ static s32 word(u32 u){s32 v;memcpy(&v,&u,4);return v;}
 static s32 wrap(int64_t v){return word((u32)(uint64_t)v);}
 static s16 half(s32 a){u16 u=(u16)(u32)a;s16 b;memcpy(&b,&u,2);return b;}
 static void change(void){unsigned i,j;RrReplayCameraContextPrefix *c=&w->s.camera;
- w->s.table=next()%2;w->s.count=4+next()%6;D_800ABEA4=w->s.tables[w->s.table];
+ w->s.table=next()%2;w->s.count=4+next()%6;TrackNodes=w->s.tables[w->s.table];
  c->node498=next()%w->s.count;c->fraction49C=next()%1024;c->lateral49E=half(next());
  c->pitch460=half(next());c->yaw462=half(next());c->roll464=half(next());c->angle490=half(next());c->velocity4A0=word(next());
  for(i=0;i<3;i++){c->position450[i]=word(next());c->delta478[i]=word(next());}
@@ -55,7 +55,7 @@ static Event *event(s32 op){size_t i;Event *e;u32 h=2166136261U;assert(w->calls<
 }
 static void effect(void){if(mutation)change();}
 void func_80047610(const RrTrackSample3C *a,const RrTrackSample3C *b,s32 lateral,s32 fraction,s32 *out){
- Event *e=event(1);s32 ia=a-D_800ABEA4,ib=b-D_800ABEA4;unsigned i;
+ Event *e=event(1);s32 ia=a-TrackNodes,ib=b-TrackNodes;unsigned i;
  assert(ia>=0&&ia<w->s.count&&ib>=0&&ib<w->s.count);
  e->a[0]=ia;e->a[1]=ib;e->a[2]=lateral;e->a[3]=fraction;
  /* Bounded simulated samples keep the sqrt input valid. Full camera position
@@ -65,7 +65,7 @@ void func_80047610(const RrTrackSample3C *a,const RrTrackSample3C *b,s32 lateral
  out[2]=(s32)(((u32)a->z0C+(u32)b->z0C+(u32)fraction)&2047)-1024;
  out[3]=0;for(i=0;i<3;i++)e->a[4]^=out[i];effect();
 }
-s32 func_8006E368(s32 y,s32 x){Event *e=event(2);s32 result=(s32)(next()%4097)-1024;e->a[0]=y;e->a[1]=x;e->a[2]=result;effect();return result;}
+s32 Atan2Table(s32 y,s32 x){Event *e=event(2);s32 result=(s32)(next()%4097)-1024;e->a[0]=y;e->a[1]=x;e->a[2]=result;effect();return result;}
 s32 func_80090758(s32 squared){Event *e=event(3);s32 result=(s32)(next()&0x7fffffffU);assert(squared>=0);e->a[0]=squared;e->a[1]=result;effect();return result;}
 u16 *RotMatrix(s16 *angles,u16 *matrix){Event *e=event(4);unsigned i;assert(((uintptr_t)matrix&3)==0);for(i=0;i<3;i++)e->a[i]=angles[i];for(i=0;i<16;i++)matrix[i]=(u16)next();effect();return matrix;}
 void *ApplyMatrixSV(const RrMatrixWords32 *matrix,const s16 *offset,RrPreviewVector8 *output){
@@ -73,24 +73,24 @@ void *ApplyMatrixSV(const RrMatrixWords32 *matrix,const s16 *offset,RrPreviewVec
  for(i=0;i<8;i++)e->a[3]^=word(words[i]);for(i=0;i<3;i++)e->a[i]=offset[i];
  output->x=half((s32)offset[0]+(s32)(words[0]&65535));output->y=half((s32)offset[1]+(s32)(words[1]&65535));output->z=half((s32)offset[2]+(s32)(words[2]&65535));effect();return output;
 }
-void func_8006E1AC(void){event(6);effect();}
+void BuildCameraMatrices(void){event(6);effect();}
 static void expected(unsigned kind){RrReplayCameraContextPrefix *c=&w->s.camera;
  if(kind==0){
   int fraction=c->fraction49C,a=c->node498-(3072-fraction)/1024,b;int old,newAngle,doubled,delta,velocity;int64_t product;
   if(a<0)a+=w->s.count;b=a-1;if(b<0)b+=w->s.count;
-  func_80047610(&D_800ABEA4[a],&D_800ABEA4[b],0,(1024-fraction)&1023,c->target468);
+  func_80047610(&TrackNodes[a],&TrackNodes[b],0,(1024-fraction)&1023,c->target468);
   for(a=0;a<3;a++)c->delta478[a]=wrap((int64_t)c->target468[a]-c->position450[a]/4);
-  old=c->yaw462;newAngle=half(1024-func_8006E368(c->delta478[0],c->delta478[2]));
+  old=c->yaw462;newAngle=half(1024-Atan2Table(c->delta478[0],c->delta478[2]));
   doubled=(newAngle-old)*2;delta=(int)((u32)doubled&4095);if(doubled&2048)delta-=4096;c->yaw462=newAngle;
   velocity=c->velocity4A0;product=(int64_t)wrap((int64_t)delta-velocity)*15;c->velocity4A0=wrap((int64_t)velocity+wrap(product)/16);
   c->roll464=half(wrap((int64_t)c->velocity4A0+c->roll464)/2);
  }else if(kind==1){
   s32 first[4],second[4],a=c->node498,b=a+1,dx,dz,height,root,angle;
-  if(b>=w->s.count)b=0;func_80047610(D_800ABEA4+a,D_800ABEA4+b,c->lateral49E,c->fraction49C,first);
+  if(b>=w->s.count)b=0;func_80047610(TrackNodes+a,TrackNodes+b,c->lateral49E,c->fraction49C,first);
   b=c->node498;a=b-1;c->position450[1]=wrap((int64_t)first[1]-120);if(a<0)a+=w->s.count;
-  func_80047610(D_800ABEA4+a,D_800ABEA4+b,c->lateral49E,c->fraction49C,second);
+  func_80047610(TrackNodes+a,TrackNodes+b,c->lateral49E,c->fraction49C,second);
   dx=wrap(((int64_t)second[0]-first[0])*4);dz=wrap(((int64_t)second[2]-first[2])*4);height=wrap((int64_t)second[1]-first[1]);
-  root=func_80090758(wrap((int64_t)dx*dx+(int64_t)dz*dz));angle=func_8006E368(height,root>>6);c->pitch460=half(1024-angle);
+  root=func_80090758(wrap((int64_t)dx*dx+(int64_t)dz*dz));angle=Atan2Table(height,root>>6);c->pitch460=half(1024-angle);
  }else{
   RrPreviewMatrixWorkspace matrix;RrPreviewVector8 vector={0};int i;
   w->s.scratch[6]=c->pitch460;w->s.scratch[7]=c->yaw462;w->s.scratch[8]=c->roll464;
@@ -98,7 +98,7 @@ static void expected(unsigned kind){RrReplayCameraContextPrefix *c=&w->s.camera;
   vector.x=half(w->s.scratch[6]);vector.y=half(w->s.scratch[7]);vector.z=half(w->s.scratch[8]);
   RotMatrix(&vector.x,matrix.halves);ApplyMatrixSV(&matrix.matrix,c->offset488,&vector);
   w->s.vehicles[0].pos20[0]=c->position450[0]/4+vector.x;w->s.vehicles[0].pos20[1]=c->position450[1]/4+vector.y;w->s.vehicles[0].pos20[2]=c->position450[2]/4+vector.z;
-  w->s.vehicles[0].rot50=(s32)c->pitch460+c->angle490;w->s.vehicles[0].rot54=c->yaw462;w->s.vehicles[0].rot58=c->roll464;func_8006E1AC();
+  w->s.vehicles[0].rot50=(s32)c->pitch460+c->angle490;w->s.vehicles[0].rot54=c->yaw462;w->s.vehicles[0].rot58=c->roll464;BuildCameraMatrices();
  }
 }
 int main(void){unsigned kind,i;
@@ -107,9 +107,9 @@ int main(void){unsigned kind,i;
   memset(&initial,0,sizeof(initial));w=&initial;w->s.rng=0x15554+scenario*23+kind;change();
   w->s.camera.yaw462=half(scenario);w->s.camera.fraction49C=scenario%1024;w->s.camera.node498=scenario%w->s.count;
   for(i=0;i<256;i++)w->s.scratch[i]=word(next());
-  actual=reference=initial;w=&actual;D_800ABEA4=w->s.tables[w->s.table];
+  actual=reference=initial;w=&actual;TrackNodes=w->s.tables[w->s.table];
   if(kind==0)ovl668_func_80115554();else if(kind==1)ovl668_func_801156FC();else ovl668_func_80115850();
-  w=&reference;D_800ABEA4=w->s.tables[w->s.table];expected(kind);assert(!memcmp(&actual,&reference,sizeof(actual)));
+  w=&reference;TrackNodes=w->s.tables[w->s.table];expected(kind);assert(!memcmp(&actual,&reference,sizeof(actual)));
  }
  return 0;
 }

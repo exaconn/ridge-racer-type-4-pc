@@ -36,11 +36,11 @@ typedef struct { char b[0x17]; signed char b17; char r[0x2C - 0x18]; } w3g2S;
 extern unsigned char D_800AD4F5;
 extern signed char *D_800FF68C;
 extern short D_800FFC18;
-extern s32 func_8001FCC8(s32, s32, s32);
-extern s32 func_8001FD20(s32, s32, s32, s32, s32, s32, s32, s32, s32);
+extern s32 AddDrawModePrim(s32, s32, s32);
+extern s32 AddTilePrim(s32, s32, s32, s32, s32, s32, s32, s32, s32);
 extern s32 func_8002018C(s32, s32, void *, s32, s32, s32);
 extern s32 func_80020508(s32, s32, s32, s32, s32, s32, s32, s32, s32);
-extern void func_8003DC9C(s32, s32, s32, s32, s32, s32, s32);
+extern void InitRect16Row(s32, s32, s32, s32, s32, s32, s32);
 extern s32 func_8003DCEC(s32);
 extern void func_80043608(s32);
 extern u8 D_8009F3F8[];
@@ -48,39 +48,39 @@ extern u8 D_8009F404[];
 extern int func_8002AF8C();
 extern int func_80032A14();
 extern int func_80032DF0();
-extern int func_8003D6F0();
+extern int UpdateBadgeRowAnim();
 extern struct S D_800F2A68[];
-extern struct S *D_800F2DE8[];
-extern short D_800AC59C;
-extern int func_8002A604();
-extern int func_8003D228();
+extern struct S *RankTable[];
+extern short NumCars;
+extern int ClearScreenOverlayState();
+extern int InitBadgeRow();
 extern s8 D_800ACC68;
 extern s16 D_800F3A26;
 extern s16 D_800F4C6A;
 extern s16 D_800F4D3C;
 extern s16 D_800F4D8A;
 extern int func_800207D4();
-extern int func_8002A344();
+extern int UpdateScreenFade();
 extern int func_8002AF8C();
-extern int func_8002B330();
+extern int StepMenuValue();
 extern int func_80032A14();
 extern int ResetScreenCounters();
-extern int func_8003D6F0();
+extern int UpdateBadgeRowAnim();
 extern int PlaySfx();
 extern struct { char pad[4]; char b4; char pad5; signed char b6; char pad2[0xC - 7]; } *D_800AC590;
 extern short D_800AC5D0;
 extern short D_800F4BE8;
-extern int D_800ACC18;
+extern int LoadCursor;
 extern int D_800F4D74;
 extern w3g2S D_800F2E30[];
 extern struct { char pad[0x28]; int w28, w2C; } D_800F3A38;
-extern struct { char pad[8]; short s8, sA; char padC[4]; short s10; char pad12[0x2C - 0x12]; short s2C; } *D_800F3AFC;
-extern char *D_800F4D80;
+extern struct { char pad[8]; short s8, sA; char padC[4]; short s10; char pad12[0x2C - 0x12]; short s2C; } *BadgeRows;
+extern char *UiRows;
 extern unsigned short D_800F3A42;
 extern int D_8010BFC0;
-extern int func_8002A344();
-extern void func_8003E928(int,int,int,int,int,int,int,int,int,int,...);
-extern s16 D_800AC64A;
+extern int UpdateScreenFade();
+extern void InitUiRow(int,int,int,int,int,int,int,int,int,int,...);
+extern s16 MenuCursor;
 extern s32 D_800F2DE4;
 extern s16 D_800FFC00;
 
@@ -197,7 +197,7 @@ L814:
 #undef func_80039F98
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3AFC ((Struct800F3AFC *)D_800F3AFC)
+#define BadgeRows ((Struct800F3AFC *)BadgeRows)
 #define D_800FF68C ((Struct800FF68C *)D_800FF68C)
 
 void func_8003189C(void) {
@@ -215,7 +215,7 @@ void func_8003189C(void) {
         D_800FF68C->unk1C = -1;
         break;
     case -4:
-        func_8003DC9C(0, 0x78, 0x60, 0x50, 0xB4, 0, 0);
+        InitRect16Row(0, 0x78, 0x60, 0x50, 0xB4, 0, 0);
         D_800FF68C->unk1E = -5;
         break;
     case -5:
@@ -228,14 +228,14 @@ void func_8003189C(void) {
     case -1:
         {
             s32 a1 = *(s32 *)SCRATCHPAD;
-            *(s32 *)SCRATCHPAD = func_8001FCC8(
+            *(s32 *)SCRATCHPAD = AddDrawModePrim(
                 D_800ACC14 + 0x74,
                 func_80020508(D_800ACC14 + 0x74, a1, 0x78, 0x60, 0x50, 0xB4, (u16)temp_s2, (u16)temp_s2, (u16)temp_s2),
                 0x45);
             if ((u16)temp_s2 >= 0x7C) {
                 D_800FF68C->unk1E = 2;
                 D_800FF68C->unk1F = 0;
-                D_800F3AFC[D_800FF68C->unk16].unk2 = 1;
+                BadgeRows[D_800FF68C->unk16].unk2 = 1;
             } else {
                 D_800FF68C->unk1F += 8;
             }
@@ -247,7 +247,7 @@ void func_8003189C(void) {
         if ((u16)temp_s2 >= 3) {
             var_a1 = func_8002018C(D_800ACC14 + 0x70, var_a1, D_8009F3F8, 1, 0xFF, 2);
         }
-        *(s32 *)SCRATCHPAD = func_8001FD20(D_800ACC14 + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
+        *(s32 *)SCRATCHPAD = AddTilePrim(D_800ACC14 + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
         if ((u16)temp_s2 >= 0x15) {
             D_800FF68C->unk1E = 1;
             D_800FF68C->unk1F = 0;
@@ -264,7 +264,7 @@ void func_8003189C(void) {
     case 1:
         {
             s32 two = 2;
-            *(s32 *)SCRATCHPAD = func_8001FD20(
+            *(s32 *)SCRATCHPAD = AddTilePrim(
                 D_800ACC14 + 0x7C,
                 func_8002018C(
                     D_800ACC14 + 0x70,
@@ -285,31 +285,31 @@ void func_8003189C(void) {
         if (D_800FF68C->unk1C >= 0) {
             var_a1 = func_8002018C(D_800ACC14 + 0x70, var_a1, D_8009F404, 0, 0x80, 1);
         }
-        *(s32 *)SCRATCHPAD = func_8001FD20(D_800ACC14 + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
+        *(s32 *)SCRATCHPAD = AddTilePrim(D_800ACC14 + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
         break;
     }
 }
 
-#undef D_800F3AFC
+#undef BadgeRows
 #undef D_800FF68C
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3AFC (*(s32 (*))&D_800F3AFC)
+#define BadgeRows (*(s32 (*))&BadgeRows)
 #define D_800FF68C ((void *)D_800FF68C)
 
 void func_80031CE4(void) {
     void *temp_v0;
 
-    if (M2C_FIELD(((M2C_FIELD(D_800FF68C, s16 *, 0x16) * 0x1C) + D_800F3AFC), s16 *, 0x10) == 3) {
+    if (M2C_FIELD(((M2C_FIELD(D_800FF68C, s16 *, 0x16) * 0x1C) + BadgeRows), s16 *, 0x10) == 3) {
         func_8002AF8C(1, 1, 0);
         func_80032DF0(D_800FF68C);
-        temp_v0 = (M2C_FIELD(D_800FF68C, s16 *, 0x16) * 0x1C) + D_800F3AFC;
+        temp_v0 = (M2C_FIELD(D_800FF68C, s16 *, 0x16) * 0x1C) + BadgeRows;
         func_80032A14(M2C_FIELD(temp_v0, s16 *, 8) + 0xA, M2C_FIELD(temp_v0, s16 *, 0xA) + 0x28, D_800FF68C);
     }
-    func_8003D6F0(M2C_FIELD(D_800FF68C, s16 *, 0x16));
+    UpdateBadgeRowAnim(M2C_FIELD(D_800FF68C, s16 *, 0x16));
 }
 
-#undef D_800F3AFC
+#undef BadgeRows
 #undef D_800FF68C
 
 void func_80031DA0(void) {
@@ -320,23 +320,23 @@ void func_80031DA8(void) {
 
 void func_80031DB0() {
     int i = 0;
-    struct S **q = D_800F2DE8;
+    struct S **q = RankTable;
     struct S *p = D_800F2A68;
     do { p->a = 0; p->b = i; *q++ = p; i++; p++; } while (i < 8);
 }
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F2A68 (*(struct E (*)[])&D_800F2A68)
-#define D_800F2DE8 (*(struct E *(*)[])&D_800F2DE8)
+#define RankTable (*(struct E *(*)[])&RankTable)
 
 void func_80031DEC(void) {
     int i = 0;
     struct E *e;
     struct E **t;
     int n;
-    if (D_800AC59C > 0) {
-        n = D_800AC59C;
-        t = D_800F2DE8;
+    if (NumCars > 0) {
+        n = NumCars;
+        t = RankTable;
         e = D_800F2A68;
         do {
             e->a = 0;
@@ -350,7 +350,7 @@ void func_80031DEC(void) {
 }
 
 #undef D_800F2A68
-#undef D_800F2DE8
+#undef RankTable
 
 void func_80031E3C(void) {
     s32 a2 = 0;
@@ -421,23 +421,23 @@ void func_80031E3C(void) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3AFC ((void *)D_800F3AFC)
+#define BadgeRows ((void *)BadgeRows)
 
 void func_80031F1C(void) {
-    func_8002A604();
+    ClearScreenOverlayState();
     D_800ACC68 = 2;
     D_800F4D3C = 0;
-    func_8003D228(1, 0x80, 0x58, 0xA8, 0x80, 0, 0x701);
-    M2C_FIELD(D_800F3AFC, s16 *, 0x1E) = 1;
-    func_8003D228(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
-    M2C_FIELD(D_800F3AFC, s16 *, 2) = 1;
+    InitBadgeRow(1, 0x80, 0x58, 0xA8, 0x80, 0, 0x701);
+    M2C_FIELD(BadgeRows, s16 *, 0x1E) = 1;
+    InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
+    M2C_FIELD(BadgeRows, s16 *, 2) = 1;
     func_8002AF8C(0, 1, 1);
     D_800F4C6A = 1;
     D_800F3A26 = 0xE;
     D_800F4D8A = 0;
 }
 
-#undef D_800F3AFC
+#undef BadgeRows
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AD4D8 (*(w3g2S (*))&D_800AD4D8)
@@ -447,10 +447,10 @@ void func_80031FE8(void) {
     int s0;
     switch (D_800F4D8A) {
     case 0:
-        *(D_800F4D80 + D_800F4D3C * 0x24 + 0xC) = 0;
-        func_8002B330(0, 2, &D_800F4D3C, 3, 0);
-        *(D_800F4D80 + D_800F4D3C * 0x24 + 0xC) = 2;
-        if (D_800F3AFC->s10 == 3) {
+        *(UiRows + D_800F4D3C * 0x24 + 0xC) = 0;
+        StepMenuValue(0, 2, &D_800F4D3C, 3, 0);
+        *(UiRows + D_800F4D3C * 0x24 + 0xC) = 2;
+        if (BadgeRows->s10 == 3) {
             s0 = D_800AC590->b6;
             if (s0 == 4) {
                 func_8002AF8C(1, 1, 1);
@@ -460,9 +460,9 @@ void func_80031FE8(void) {
                         D_800F4D8A = 1;
                         D_800AC5D0 = 0x40;
                         ResetScreenCounters();
-                        D_800ACC18 = D_800F4D74;
-                        D_800F3AFC->s10 = s0;
-                        D_800F3AFC->s2C = s0;
+                        LoadCursor = D_800F4D74;
+                        BadgeRows->s10 = s0;
+                        BadgeRows->s2C = s0;
                     } else {
                         PlaySfx(4);
                     }
@@ -471,10 +471,10 @@ void func_80031FE8(void) {
                     D_800F4D8A = 2;
                     D_800AC5D0 = 0x40;
                     ResetScreenCounters();
-                    D_800ACC18 = D_800F4D74;
+                    LoadCursor = D_800F4D74;
                     func_8003B398(0);
-                    D_800F3AFC->s10 = s0;
-                    D_800F3AFC->s2C = s0;
+                    BadgeRows->s10 = s0;
+                    BadgeRows->s2C = s0;
                 }
             }
         }
@@ -507,13 +507,13 @@ void func_80031FE8(void) {
         }
     default:
     common:
-        func_8003D6F0(0);
-        func_8003D6F0(1);
-        if (D_800F3AFC->s10 == 3) {
+        UpdateBadgeRowAnim(0);
+        UpdateBadgeRowAnim(1);
+        if (BadgeRows->s10 == 3) {
             D_800AC590->b4 = 0x1C;
-            func_80032A14(D_800F3AFC->s8 + 0xA, D_800F3AFC->sA + 0x28, D_800AC590);
+            func_80032A14(BadgeRows->s8 + 0xA, BadgeRows->sA + 0x28, D_800AC590);
         }
-        func_8002A344(0x10086);
+        UpdateScreenFade(0x10086);
     }
 }
 
@@ -539,21 +539,21 @@ void func_8003244C(void) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3AFC ((void *)D_800F3AFC)
+#define BadgeRows ((void *)BadgeRows)
 
 void func_800324F8(void) {
     D_800F2DE4 = 0;
     D_800FFC00 = 0;
     D_800FFC18 = 3;
-    D_800AC64A = 0;
-    func_8003E928(0, 0x8C, 0x88, 0x1C, 0x20, 0, 0, 1, 0, 0x68);
-    func_8003E928(1, 0x8C, 0xB0, 0x1C, 0x20, 0, 0, 1, 0, 0x69);
-    func_8003D228(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
+    MenuCursor = 0;
+    InitUiRow(0, 0x8C, 0x88, 0x1C, 0x20, 0, 0, 1, 0, 0x68);
+    InitUiRow(1, 0x8C, 0xB0, 0x1C, 0x20, 0, 0, 1, 0, 0x69);
+    InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
     D_800F4C6A = 1;
     D_800F3A26 = 0x2B;
     D_800F4D8A = 0;
-    M2C_FIELD(D_800F3AFC, s16 *, 2) = 1;
-    func_8002A344(0x10086);
+    M2C_FIELD(BadgeRows, s16 *, 2) = 1;
+    UpdateScreenFade(0x10086);
 }
 
-#undef D_800F3AFC
+#undef BadgeRows

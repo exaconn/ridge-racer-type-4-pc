@@ -85,7 +85,7 @@ typedef struct {
     s16 width,height;
 } RrGpuDebugSettings;
 extern RrGpuDebugSettings D_800ABAC2;
-extern s32 (*D_800ABABC)(const char *,...);
+extern s32 (*GPU_printf)(const char *,...);
 RR_ASSERT_SIZE(RrGpuDebugSettings, 6);
 RR_ASSERT_OFFSET(RrGpuDebugSettings, width, 2);
 RR_ASSERT_OFFSET(RrGpuDebugSettings, height, 4);
@@ -114,7 +114,7 @@ extern volatile u32 *D_800A63A0;
 RrLibInterruptCallback setIntrDMA(s32 channel, RrLibInterruptCallback callback);
 RrLibInterruptExchange startIntrDMA(void);
 void trapIntrDMA(void);
-void func_8008BDBC(RrLibInterruptCallback *callbacks, s32 count);
+void DMA_memclr(RrLibInterruptCallback *callbacks, s32 count);
 
 /* Prefix of the callback driver referenced by D_800A6350. */
 typedef struct {
@@ -125,10 +125,10 @@ typedef struct {
 } RrLibInterruptDriverPrefix;
 
 extern RrLibInterruptDriverPrefix *D_800A6350;
-extern void func_8008B364(void);
-RrLibInterruptCallback func_8008B3C4(s32 channel, RrLibInterruptCallback callback);
+extern void ResetCallback(void);
+RrLibInterruptCallback DMACallback(s32 channel, RrLibInterruptCallback callback);
 RrLibInterruptCallback _SpuDataCallback(RrLibInterruptCallback callback);
-RrLibInterruptCallback func_8008B394(s32 channel, RrLibInterruptCallback callback);
+RrLibInterruptCallback InterruptCallback(s32 channel, RrLibInterruptCallback callback);
 
 RR_ASSERT_SIZE(RrLibInterruptDriverPrefix, 0x10);
 RR_ASSERT_OFFSET(RrLibInterruptDriverPrefix, exchange, 4);
@@ -141,10 +141,10 @@ void func_8008DDAC(void);
 typedef void (*RrLibCompletionCallback)(void);
 typedef void (*RrLibNotificationCallback)(s32, s32);
 
-extern RrLibDataCallback D_800A6488, D_800A648C;
-extern RrLibNotificationCallback D_800A63F0;
-extern u32 D_800A63F4;
-s32 func_8008BE44(void);
+extern RrLibDataCallback CD_cbsync, CD_cbready;
+extern RrLibNotificationCallback CD_cbread;
+extern u32 CD_read_dma_mode;
+s32 CdInit(void);
 void func_8008BF10(s32 selector, u8 *data);
 void func_8008BF38(s32 selector, u8 *data);
 void func_8008BF60(s32 event, s32 argument);
@@ -194,7 +194,7 @@ typedef struct {
 } RrLibSavedState;
 
 /* IRQ selector must be in the callback-table range 0..10. */
-RrLibInterruptCallback func_8008B7A0(s32 selector, RrLibInterruptCallback callback);
+RrLibInterruptCallback setIntr(s32 selector, RrLibInterruptCallback callback);
 
 RR_ASSERT_SIZE(RrLibSavedState, 0x3C);
 RR_ASSERT_OFFSET(RrLibSavedState, dispatching02, 2);
@@ -205,9 +205,9 @@ RR_ASSERT_OFFSET(RrLibSavedState, register32, 0x34);
 RR_ASSERT_OFFSET(RrLibSavedState, callback_data, 0x38);
 
 /* Bank reset requires a low-halfword bank index in the 32-entry table (0..31). */
-void func_8007F794(s32 bank);
-void func_8007F910(s32 bank);
-void func_8007F934(s32 bank);
+void _SsClose(s32 bank);
+void SsSeqClose(s32 bank);
+void SsSepClose(s32 bank);
 
 /* Callback entry points use full argument registers; selectors narrow inside. */
 typedef void (*RrLibControllerCallback)(s32 bank, s32 row, s32 value);
@@ -215,24 +215,24 @@ typedef void (*RrLibControllerResetCallback)(s32 bank, s32 row);
 extern RrLibControllerCallback D_8010EFE0, D_8010EFE4, D_8010EFE8, D_8010EFEC;
 extern RrLibControllerCallback D_8010EFF0, D_8010EFF4, D_8010EFF8, D_8010EFFC;
 extern RrLibControllerCallback D_8010F000, D_8010F004;
-extern RrLibControllerCallback D_8010F0E8[][16];
+extern RrLibControllerCallback _SsMarkCallback[][16];
 extern RrLibControllerResetCallback D_8010F008;
-extern void func_80080434(s32 bank, s32 row, s32 value);
-void func_80080504(s32 bank, s32 row, s32 value);
-extern void func_800806C4(s32 bank, s32 row, s32 value);
-void func_80080774(s32 bank, s32 row, s32 value);
-void func_80086554(s32 left, s32 right);
-void func_80080804(s32 bank, s32 row, s32 value);
-void func_80080904(s32 bank, s32 row, s32 value);
-void func_800805D4(s32 bank, s32 row, s32 value);
-extern void func_80080A44(s32 bank, s32 row, s32 value);
-extern void func_80080AB4(s32 bank, s32 row, s32 value);
-extern void func_80080B24(s32 bank, s32 row);
-extern void func_80081804(s32 bank, s32 row);
-extern void func_800818B4(s32 bank, s32 row, s32 control);
-extern void func_80081D94(s32 bank, s32 row, s32 value);
-extern s32 func_80081E04(s32 bank, s32 row);
-extern void func_80089FA4(s32 channel, s32 device, s32 slot, u32 pitch, u32 value);
+extern void _SsContMainVol(s32 bank, s32 row, s32 value);
+void _SsContPanpot(s32 bank, s32 row, s32 value);
+extern void _SsContDamper(s32 bank, s32 row, s32 value);
+void _SsContExternal(s32 bank, s32 row, s32 value);
+void SsUtSetReverbDepth(s32 left, s32 right);
+void _SsContNrpn1(s32 bank, s32 row, s32 value);
+void _SsContNrpn2(s32 bank, s32 row, s32 value);
+void _SsContExpression(s32 bank, s32 row, s32 value);
+extern void _SsContRpn1(s32 bank, s32 row, s32 value);
+extern void _SsContRpn2(s32 bank, s32 row, s32 value);
+extern void _SsContResetAll(s32 bank, s32 row);
+extern void _SsSetPitchBend(s32 bank, s32 row);
+extern void _SsSetControlChange(s32 bank, s32 row, s32 control);
+extern void _SsSetProgramChange(s32 bank, s32 row, s32 value);
+extern s32 _SsReadDeltaValue(s32 bank, s32 row);
+extern void _SsVmSetVol(s32 channel, s32 device, s32 slot, u32 pitch, u32 value);
 
 RR_ASSERT_SIZE(RrLibBlock24Fields, 0x24);
 RR_ASSERT_OFFSET(RrLibBlock24Fields, h10, 0x10);
@@ -249,6 +249,6 @@ RR_ASSERT_OFFSET(RrLibStateB0, w94, 0x94);
 RR_ASSERT_OFFSET(RrLibStateB0, w98, 0x98);
 RR_ASSERT_OFFSET(RrLibStateB0, wac, 0xac);
 
-s32 func_800865E4(s32 value);
+s32 SsUtSetReverbType(s32 value);
 
 #endif

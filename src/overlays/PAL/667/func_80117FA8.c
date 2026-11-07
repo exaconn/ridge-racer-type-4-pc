@@ -25,40 +25,40 @@ void ovl667_func_80117FA8(void) {
         case 0:
             func_8002AF8C(1, 1, 1);
             previousCourse = D_800AC648;
-            func_8002B330(3, 2, (char *)&D_800AC648, D_8010C078, 0);
+            StepMenuValue(3, 2, (char *)&D_800AC648, D_8010C078, 0);
             if ((s16) previousCourse != (s16) D_800AC648) {
                 ResetScreenCounters();
             } else {
                 func_80033368((s16) previousCourse, 2);
             }
-            D_800F3914 = func_80032E9C((s16) D_800AC648);
-            D_800F4D80[D_800AC64A+18].cells[0] = 0;
-            func_8002B330(0, 2, (char *)&D_800AC64A, 3, 0);
-            D_800F4D80[D_800AC64A+18].cells[0] = 2;
+            D_800F3914 = DecodeCourseIndex((s16) D_800AC648);
+            UiRows[MenuCursor+18].cells[0] = 0;
+            StepMenuValue(0, 2, (char *)&MenuCursor, 3, 0);
+            UiRows[MenuCursor+18].cells[0] = 2;
             row = 0;
-            if (D_800F4D80[21].byte02 != 0) {
+            if (UiRows[21].byte02 != 0) {
                 do {
                     if (row == (s16) D_800AC648) {
-                        D_800F4D80[21].cells[row] = 2;
-                        D_800F4D80[21].byte16 = row;
+                        UiRows[21].cells[row] = 2;
+                        UiRows[21].byte16 = row;
                     } else {
-                        D_800F4D80[21].cells[row] = 0;
+                        UiRows[21].cells[row] = 0;
                     }
-                    cellCount=D_800F4D80[21].byte02;
+                    cellCount=UiRows[21].byte02;
                     row += 1;
                 } while (row < cellCount);
             }
-            activeState = D_800F4D80[18].byte14;
+            activeState = UiRows[18].byte14;
             close = 0;
             if (activeState == 2) {
                 if (D_800F3A38[0].a != 0) {
                     PlaySfx(1);
-                    D_800F4D80[D_800AC64A+18].cells[0] = 1;
-                    if ((s16) D_800AC64A == 0) {
+                    UiRows[MenuCursor+18].cells[0] = 1;
+                    if ((s16) MenuCursor == 0) {
                         row = 0;
                         previewIndex = 0;
                         do {
-                            preview = (RrUiRow24 *)((unsigned long)(previewIndex*sizeof(RrUiRow24))+(unsigned long)D_800F4D80+0x288);
+                            preview = (RrUiRow24 *)((unsigned long)(previewIndex*sizeof(RrUiRow24))+(unsigned long)UiRows+0x288);
                             if (preview->byte14 == 2) {
                                 preview->byte14 = 7U;
                             }
@@ -67,15 +67,15 @@ void ovl667_func_80117FA8(void) {
                         } while (row < 4);
                         ResetScreenCounters();
                         D_800AC5D0 = 0x40;
-                        D_800ACC18 = D_800F4D70.first;
+                        LoadCursor = D_800F4D70.first;
                         func_80053AF4(0, 0x3C);
                         func_80034F80();
                         D_800F4D8A = 3;
                         func_8002AF8C(0, 1, 1);
-                    } else if ((s16) D_800AC64A == 1) {
-                        D_800F4D80[23].byte14 = 0U;
+                    } else if ((s16) MenuCursor == 1) {
+                        UiRows[23].byte14 = 0U;
                         D_800F4D8A = 4;
-                    } else if ((s16) D_800AC64A == activeState) {
+                    } else if ((s16) MenuCursor == activeState) {
                         close = 1;
                     }
                 } else if (D_800F3A38[0].b != 0) {
@@ -87,7 +87,7 @@ void ovl667_func_80117FA8(void) {
                     row = 0;
                     backIndex = 0;
                     do {
-                        back = (RrUiRow24 *)((unsigned long)(backIndex*sizeof(RrUiRow24))+(unsigned long)D_800F4D80+0x288);
+                        back = (RrUiRow24 *)((unsigned long)(backIndex*sizeof(RrUiRow24))+(unsigned long)UiRows+0x288);
                         if (back->byte14 == 2) {
                             back->byte14 = 3U;
                         }
@@ -101,7 +101,7 @@ void ovl667_func_80117FA8(void) {
         case 3:
             func_80033368((s16) D_800AC648, 2);
             if ((waitResult == 0) && (D_800AC5D0 == 0x40)) {
-                func_8003EC88(0x18);
+                DrawUiRow(0x18);
             } else {
                 D_8010C0B8 = 1;
                 if (D_800AC5D0 > 0) {
@@ -115,20 +115,20 @@ void ovl667_func_80117FA8(void) {
                     D_800F3A26 = 0x29;
                     D_800F4D8A = 0;
                     D_800FF688 = 0;
-                    func_8009AEAC(3, 0, 0);
+                    _sio_control(3, 0, 0);
                 }
             }
             break;
         case 4:
-            detailState = D_800F4D80[23].byte14;
+            detailState = UiRows[23].byte14;
             if (detailState == 2) {
                 func_8002AF8C(1, 1, 0);
-                D_800F4D80[23].cells[0] = detailState;
-                func_8002B330(1, 4, (char *)&D_800F3A30, 0xA, (s32) detailState);
+                UiRows[23].cells[0] = detailState;
+                StepMenuValue(1, 4, (char *)&NumLaps, 0xA, (s32) detailState);
                 if (D_800F3A60 != 0) {
                     PlaySfx(1);
-                    D_800F4D80[23].cells[0] = 1U;
-                    D_800F4D80[23].byte14 = 3U;
+                    UiRows[23].cells[0] = 1U;
+                    UiRows[23].byte14 = 3U;
                 }
             } else if (detailState == 5) {
                 D_800F4D8A = 0;
@@ -136,7 +136,7 @@ void ovl667_func_80117FA8(void) {
             func_80033368((s16) D_800AC648, 2);
             break;
         case 8:
-            if (D_800F4D80[18].byte14 == 5) {
+            if (UiRows[18].byte14 == 5) {
                 ovl667_func_801161A8((1 - D_800AD508) * 2);
                 D_800F4C6A = 1;
                 D_800F3A26 = 0x3C;
@@ -148,10 +148,10 @@ void ovl667_func_80117FA8(void) {
     func_80032F44((s16) D_800AC648, 2);
     row = 0;
     do {
-        func_8003EC88(row + 0x12);
+        DrawUiRow(row + 0x12);
         row += 1;
     } while (row < 4);
-    if (D_800F4D80[18].byte14 == 2) {
+    if (UiRows[18].byte14 == 2) {
         if (D_800F4D8A != 4) {
             func_8002B12C(0xCE, 0xD0, 0x5E, 0, (s32) (s16) D_800AC648, -1, (s32)((u32)D_8010C078 + 1U));
             goto block_63;
@@ -161,8 +161,8 @@ void ovl667_func_80117FA8(void) {
 block_63:
     if (D_800F4D8A == 4) {
 block_64:
-        func_8003EC88(0x17);
+        DrawUiRow(0x17);
     }
     D_800F4CB8 = 0;
-    func_8002A344(0x10026);
+    UpdateScreenFade(0x10026);
 }

@@ -15,7 +15,7 @@ void func_8004B8A8(void) {
     const RrPulseRow **repeat, **once;
     s32 small;
     port = 0;
-    settings = D_800AD528.controls.pulse;
+    settings = Options.controls.pulse;
     repeat = D_8009FFA0;
     small = 64;
     once = D_8009FF80;

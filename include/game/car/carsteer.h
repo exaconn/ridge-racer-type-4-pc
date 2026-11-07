@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_8002C638();
+int UpdateCarSteering();
 
 #endif /* RR_GAME_CAR_CARSTEER_H */

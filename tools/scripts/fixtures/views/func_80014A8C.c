@@ -39,8 +39,8 @@
 
 #undef func_80096464
 
-extern s32 D_8009E0AC;
+extern s32 ModelTexturePage;
 
-void func_80014A8C(s32 arg0) {
-    D_8009E0AC = arg0;
+void SetModelTexturePage(s32 arg0) {
+    ModelTexturePage = arg0;
 }

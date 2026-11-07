@@ -20,7 +20,7 @@ class DmaCallbackExchangeTest(unittest.TestCase):
         header=(root/'include/rr/library.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
         bodies={}
-        for name in ('setIntrDMA','func_8008BDBC','startIntrDMA'):
+        for name in ('setIntrDMA','DMA_memclr','startIntrDMA'):
             body=(root/'tools/scripts/fixtures/views'/f'{name}.c').read_text().replace('#include "rr/library.h"','')
             body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
             bodies[name]=body
@@ -44,7 +44,7 @@ void a(void){called[0]++;}void b(void){called[1]++;}void c(void){called[2]++;}
 void trapIntrDMA(void){called[2]++;}
 s32 setup_count,setup_selector;RrLibInterruptCallback setup_callback;
 u32 setup_word;RrLibInterruptCallback setup_slots[8];
-RrLibInterruptCallback func_8008B394(s32 selector,RrLibInterruptCallback callback){
+RrLibInterruptCallback InterruptCallback(s32 selector,RrLibInterruptCallback callback){
     s32 i;setup_count++;setup_selector=selector;setup_callback=callback;setup_word=*D_800A63A0;
     for(i=0;i<8;i++)setup_slots[i]=D_800A63A4[i];return a;
 }
@@ -67,7 +67,7 @@ void test_write(volatile u32 *p,u32 value){
         cls.io_port=(C.c_int32*4).in_dll(cls.lib,'io_port');cls.io_value=(C.c_uint32*4).in_dll(cls.lib,'io_value');cls.io_slot=(C.c_void_p*4).in_dll(cls.lib,'io_slot')
         for name in ('setIntrDMA','observed_exchange'):
             f=getattr(cls.lib,name);f.argtypes=[C.c_int32,C.c_void_p];f.restype=C.c_void_p
-        cls.lib.func_8008BDBC.argtypes=[C.POINTER(C.c_void_p),C.c_int32];cls.lib.func_8008BDBC.restype=None
+        cls.lib.DMA_memclr.argtypes=[C.POINTER(C.c_void_p),C.c_int32];cls.lib.DMA_memclr.restype=None
         cls.lib.startIntrDMA.argtypes=[];cls.lib.startIntrDMA.restype=C.c_void_p
 
     def setUp(self):
@@ -123,9 +123,9 @@ void test_write(volatile u32 *p,u32 value){
         for count in (0,1,7,8,15,32):
             words=(C.c_void_p*34)(*[self.callbacks[i%3] for i in range(34)])
             expected=list(words);expected[1:1+count]=[None]*count
-            self.lib.func_8008BDBC(C.cast(C.byref(words,C.sizeof(C.c_void_p)),C.POINTER(C.c_void_p)),count)
+            self.lib.DMA_memclr(C.cast(C.byref(words,C.sizeof(C.c_void_p)),C.POINTER(C.c_void_p)),count)
             self.assertEqual(list(words),expected)
-        self.lib.func_8008BDBC(None,0)
+        self.lib.DMA_memclr(None,0)
 
     def test_setup_publishes_cleared_table_and_returns_callable_exchange(self):
         result=self.lib.startIntrDMA()

@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80026F5C();
+int ConstrainCarToTrack();
 
 #endif /* RR_GAME_CAR_AIPATH2_H */

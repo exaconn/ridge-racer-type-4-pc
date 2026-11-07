@@ -37,23 +37,23 @@ struct T { s32 k[9]; s32 v[9]; };
 
 struct E { char pad[0x74]; struct T t[2][10]; char r[12]; };
 
-extern RrSlot620 D_800F4DF0[];
+extern RrSlot620 SoundSlots[];
 extern u16 D_800A053C[];
-extern s16 D_800A043C[];
+extern s16 PanGainTable[];
 extern struct {
     char pad[0x31];
     u8 volume31;
     s16 mono32;
-} D_800AD528;
+} Options;
 extern s16 D_800F4DD0;
-extern int func_800857A4();
-extern void func_8004FE7C();
-extern struct E D_800F4DB8[];
+extern int SsUtKeyOnV();
+extern void SetVoiceVolumeScaled();
+extern struct E SoundState[];
 
 int func_80050744(int a0, int x, int a2, int a3);
 
-void func_800501BC(int a0) {
-    RrSlot620 *s0 = &D_800F4DF0[a0];
+void UpdateSoundSlot(int a0) {
+    RrSlot620 *s0 = &SoundSlots[a0];
     u16 fp = 0;
     int s3, i;
     u16 sp20;
@@ -65,7 +65,7 @@ void func_800501BC(int a0) {
         s3 = s0->voice08;
         for (i = 0; i < s0->count0C; i++, s3++) {
             if (s0->programs5DC[0][i] != s0->programs5DC[1][i]) {
-                func_800857A4((s16)s3, s0->bank04, (s16)s0->programs5DC[s0->program14][i], 0, s0->group28, 0, 0, 0);
+                SsUtKeyOnV((s16)s3, s0->bank04, (s16)s0->programs5DC[s0->program14][i], 0, s0->group28, 0, 0, 0);
             }
         }
         s0->previous18 = s0->program14;
@@ -101,11 +101,11 @@ void func_800501BC(int a0) {
             a1 += 0x7F;
         }
         a1 >>= 7;
-        a2 = (D_800A043C[s0->pan24] * a1) / 16129;
-        a1 = (D_800A043C[(s16)(0x7F - s0->pan24)] * a1) / 16129;
+        a2 = (PanGainTable[s0->pan24] * a1) / 16129;
+        a1 = (PanGainTable[(s16)(0x7F - s0->pan24)] * a1) / 16129;
 
         if (a0 >= 2 && i == 2) {
-            int t = D_800A043C[s0->spatial2C];
+            int t = PanGainTable[s0->spatial2C];
             fp = s0->spread5F4;
             a2 = (t * a2) / 16129;
             a1 = (t * a1) / 16129;
@@ -118,17 +118,17 @@ void func_800501BC(int a0) {
         a2 = (a2 * s0->gain5F2) / 128;
         a1 = (a1 * s0->gain5F2) / 128;
 
-        if (D_800AD528.mono32 != 0) {
+        if (Options.mono32 != 0) {
             a2 = (a2 + a1) / 2;
             a1 = a2;
         }
 
         a1 = (a1 * D_800F4DD0) / 128;
         a2 = (a2 * D_800F4DD0) / 128;
-        a2 = (a2 * D_800AD528.volume31) / 16;
-        a1 = (a1 * D_800AD528.volume31) / 16;
+        a2 = (a2 * Options.volume31) / 16;
+        a1 = (a1 * Options.volume31) / 16;
 
-        func_8004FE7C(s3, a1, a2);
+        SetVoiceVolumeScaled(s3, a1, a2);
 
         {
             int off = (s0->program14 * 5 + i) * 4;
@@ -143,7 +143,7 @@ void func_800501BC(int a0) {
             t0 = v % 128;
             t1 = v / 128;
             c = p->pitch5F8[0].coarse + t1;
-            func_80084E74((s16)s3, s0->bank04, (s16)s0->programs5DC[s0->program14][i], s0->group28, 0, (s16)c, t0);
+            SsUtChangePitch((s16)s3, s0->bank04, (s16)s0->programs5DC[s0->program14][i], s0->group28, 0, (s16)c, t0);
         }
     }
 }
@@ -151,12 +151,12 @@ void func_800501BC(int a0) {
 int func_80050744(int a0, int x, int a2, int a3) {
     int i, lo, vlo, vhi, klo, khi;
     for (i = 1; i < 9; i++) {
-        if (x < D_800F4DB8[a3].t[a2][a0].k[i]) break;
+        if (x < SoundState[a3].t[a2][a0].k[i]) break;
     }
     lo = i - 1;
-    vlo = D_800F4DB8[a3].t[a2][a0].v[lo];
-    vhi = D_800F4DB8[a3].t[a2][a0].v[i];
-    klo = D_800F4DB8[a3].t[a2][a0].k[lo];
-    khi = D_800F4DB8[a3].t[a2][a0].k[i];
+    vlo = SoundState[a3].t[a2][a0].v[lo];
+    vhi = SoundState[a3].t[a2][a0].v[i];
+    klo = SoundState[a3].t[a2][a0].k[lo];
+    khi = SoundState[a3].t[a2][a0].k[i];
     return (vhi - vlo) * (x - klo) / (khi - klo) + vlo;
 }

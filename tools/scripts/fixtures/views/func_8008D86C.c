@@ -15,12 +15,12 @@ s32 CD_init(void) {
     func_8001E84C(D_80011B14, (u32)(unsigned long)&D_800A6768);
     D_800A64A5 = 0;
     D_800A64A4 = 0;
-    D_800A648C = 0;
-    D_800A6488 = 0;
-    D_800A6498 = 0;
-    D_800A6494.word = 0;
-    func_8008B364();
-    func_8008B394(2, func_8008DDAC);
+    CD_cbready = 0;
+    CD_cbsync = 0;
+    CD_status1 = 0;
+    CD_status.word = 0;
+    ResetCallback();
+    InterruptCallback(2, func_8008DDAC);
     RR_CD_WRITE8(D_800A674C, 1);
     if (RR_CD_READ8(D_800A6758) & 7) {
         do {
@@ -40,7 +40,7 @@ s32 CD_init(void) {
     RR_CD_WRITE8(D_800A6758, 0);
     RR_CD_WRITE32(D_800A675C, 0x1325);
     CD_cw(command, parameters, 0, 0);
-    if (D_800A6494.word & 0x10) {
+    if (CD_status.word & 0x10) {
         CD_cw(1, 0, 0, 0);
     }
     if (CD_cw(0xA, 0, 0, 0) == 0) {

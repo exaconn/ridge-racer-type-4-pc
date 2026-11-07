@@ -15,7 +15,7 @@ extern char D_8009EBBC[];
 extern char D_8009EB1C[];
 extern char D_8009EC48[];
 extern char D_800D0160[];
-extern int *func_8001FCC8();
+extern int *AddDrawModePrim();
 extern int SetDrawArea();
 
 void func_80020920(unsigned char *a0, unsigned char *a1);
@@ -115,13 +115,13 @@ LC0:
     v = (int *)(a1 * 0x14 + d + 0x22674);
     *v = (*v & 0xFF000000) | (*s0 & 0xFFFFFF);
     *s0 = (*s0 & 0xFF000000) | ((d + 0x22688) & 0xFFFFFF);
-    s1 = func_8001FCC8(s0, *(int **)SCRATCHPAD, 5);
+    s1 = AddDrawModePrim(s0, *(int **)SCRATCHPAD, 5);
     *(int **)SCRATCHPAD = s1;
     if (a0 >= 2) {
         sp[2] = 0x140;
         sp[0] = 0;
         sp[3] = 0x100;
-        t = D_800F4BF0; sp[1] = t << 8;
+        t = DrawBufIndex; sp[1] = t << 8;
         SetDrawArea(s1, sp);
         *s1 = (*s1 & 0xFF000000) | (*s0 & 0xFFFFFF);
         *s0 = (*s0 & 0xFF000000) | ((int)s1 & 0xFFFFFF);
@@ -183,7 +183,7 @@ s32 a3;
 #undef D_800ACC14
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8001FCC8 ((s32 (*)())func_8001FCC8)
+#define AddDrawModePrim ((s32 (*)())AddDrawModePrim)
 
 void func_80020E2C(a0, a1, a2, a3, a4)
 RrSpritePacket *a0; s32 a1; s32 a2; u8 *a3; s32 a4;
@@ -214,13 +214,13 @@ RrSpritePacket *a0; s32 a1; s32 a2; u8 *a3; s32 a4;
             p++;
         } while (*a3 != 0);
     }
-    *(s32 *)SCRATCHPAD = func_8001FCC8(a0, p, 5);
+    *(s32 *)SCRATCHPAD = AddDrawModePrim(a0, p, 5);
 }
 
-#undef func_8001FCC8
+#undef AddDrawModePrim
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8001FCC8 ((int (*)())func_8001FCC8)
+#define AddDrawModePrim ((int (*)())AddDrawModePrim)
 
 void func_80020F20(a0, a1, a2, a3)
 struct P *a0; int a1; int a2; unsigned char *a3;
@@ -255,7 +255,7 @@ struct P *a0; int a1; int a2; unsigned char *a3;
             p++;
         } while (*a3 != 0);
     }
-    *(int *)SCRATCHPAD = func_8001FCC8(a0, p, 0x59);
+    *(int *)SCRATCHPAD = AddDrawModePrim(a0, p, 0x59);
 }
 
-#undef func_8001FCC8
+#undef AddDrawModePrim

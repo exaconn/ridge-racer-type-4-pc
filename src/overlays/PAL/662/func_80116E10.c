@@ -26,11 +26,11 @@ void ovl662_func_80116E10(void)
 
     shown = 0;
     D_800F2DE4++;
-    vehicle = D_800ABEF8;
+    vehicle = PlayerCars;
     ScreenFrame++;
     vehicle->rot54 = (vehicle->rot54 + 8) & 0xFFF;
     func_80033A74(1);
-    func_8006EF8C(6);
+    SetupViewport(6);
     ready = func_8003AE4C(0, 1);
     if (ready != 1) {
         if ((s8)D_800F2AB0[1] == 1) {
@@ -38,7 +38,7 @@ void ovl662_func_80116E10(void)
         }
         goto common;
     }
-    func_8002E394(vehicle);
+    SetCarBounds(vehicle);
     if ((s8)D_800F2AB0[1] == 7) {
         D_800F2AB0[1] = ready;
     }
@@ -46,66 +46,66 @@ void ovl662_func_80116E10(void)
     switch (D_800F4D8A) {
     case 0:
         func_8002AF8C(1, 1, 1);
-        before = func_8003708C((s8 *)&D_800F4D98);
-        func_8002B330(3, 2, (char *)&ovl662_D_801272E4, ovl662_D_801272E0, 0);
-        func_80037040((s8 *)&D_800F4D98, ovl662_D_80127348[ovl662_D_801272E4].value);
+        before = PackChoiceGlyph((s8 *)&D_800F4D98);
+        StepMenuValue(3, 2, (char *)&ovl662_D_801272E4, ovl662_D_801272E0, 0);
+        UnpackChoiceGlyph((s8 *)&D_800F4D98, ovl662_D_80127348[ovl662_D_801272E4].value);
         status = ovl662_D_80127300[(D_800F4D98.entry.parameter % 20) & 0xFF];
-        if ((s16)before != (s16)func_8003708C((s8 *)&D_800F4D98)) {
+        if ((s16)before != (s16)PackChoiceGlyph((s8 *)&D_800F4D98)) {
             ResetScreenCounters();
-            D_800ACC18 = D_800F4D70.first;
-            func_80037040((s8 *)&D_800F4D98, ovl662_D_80127348[ovl662_D_801272E4].value);
+            LoadCursor = D_800F4D70.first;
+            UnpackChoiceGlyph((s8 *)&D_800F4D98, ovl662_D_80127348[ovl662_D_801272E4].value);
             D_800F2AB0[1] = 6;
             D_800ACBD0[0].first = 0;
             D_800ACBD0[0].second = 0;
         }
-        D_800F4D80[D_800AC64A].cells[0] = 0;
-        func_8002B330(0, 2, (char *)&D_800AC64A, 2, 0);
+        UiRows[MenuCursor].cells[0] = 0;
+        StepMenuValue(0, 2, (char *)&MenuCursor, 2, 0);
         cell = 2;
         if (status != 1) {
-            D_800F4D80[0].half20 = 1;
-            if (D_800AC64A == 0) {
+            UiRows[0].half20 = 1;
+            if (MenuCursor == 0) {
                 cell = 4;
             }
         } else {
-            D_800F4D80[0].half20 = 0;
+            UiRows[0].half20 = 0;
         }
-        D_800F4D80[D_800AC64A].cells[0] = cell;
-        if (D_800F4D80[0].byte14 != 2) {
+        UiRows[MenuCursor].cells[0] = cell;
+        if (UiRows[0].byte14 != 2) {
             break;
         }
-        state = D_800F3AFC[0].state10;
+        state = BadgeRows[0].state10;
         if (state != 3) {
             break;
         }
         if (D_800F3A38[0].a) {
             func_8002AF8C(0, 1, 1);
-            D_800F4D80[D_800AC64A].cells[0] = 1;
-            if (D_800AC64A == 0) {
+            UiRows[MenuCursor].cells[0] = 1;
+            if (MenuCursor == 0) {
                 if (status == 1) {
                     PlaySfx(1);
-                    func_80014A8C(-1);
+                    SetModelTexturePage(-1);
                     D_800F4D8A = 3;
-                    D_800F3AFC[0].state10 = 4;
-                    D_800F3AFC[1].state10 = 4;
+                    BadgeRows[0].state10 = 4;
+                    BadgeRows[1].state10 = 4;
                     D_800F2AB0[1] = 3;
                     for (i = 0; i < 4; i++) {
-                        if (D_800F4D80[i].byte14 == 2) {
-                            D_800F4D80[i].byte14 = 3;
+                        if (UiRows[i].byte14 == 2) {
+                            UiRows[i].byte14 = 3;
                         }
                     }
                     D_800AC5D0 = 64;
                 } else {
                     PlaySfx(4);
                 }
-            } else if (D_800AC64A == 1) {
-                func_80014A8C(-1);
+            } else if (MenuCursor == 1) {
+                SetModelTexturePage(-1);
                 PlaySfx(1);
-                D_800F3AFC[0].state10 = 4;
-                D_800F3AFC[1].state10 = 4;
+                BadgeRows[0].state10 = 4;
+                BadgeRows[1].state10 = 4;
                 D_800F2AB0[1] = state;
-                for (i = 0; i < D_800F4BEC; i++) {
-                    if (D_800F4D80[i].byte14 == 2) {
-                        D_800F4D80[i].byte14 = 3;
+                for (i = 0; i < UiRowCount; i++) {
+                    if (UiRows[i].byte14 == 2) {
+                        UiRows[i].byte14 = 3;
                     }
                 }
                 D_800AC5D0 = 64;
@@ -113,14 +113,14 @@ void ovl662_func_80116E10(void)
             }
         } else if (D_800F3A38[0].b) {
             PlaySfx(2);
-            func_80014A8C(-1);
+            SetModelTexturePage(-1);
             func_8002AF8C(0, 1, 1);
-            D_800F3AFC[0].state10 = 4;
-            D_800F3AFC[1].state10 = 4;
+            BadgeRows[0].state10 = 4;
+            BadgeRows[1].state10 = 4;
             D_800F2AB0[1] = state;
-            for (i = 0; i < D_800F4BEC; i++) {
-                if (D_800F4D80[i].byte14 == 2) {
-                    D_800F4D80[i].byte14 = 3;
+            for (i = 0; i < UiRowCount; i++) {
+                if (UiRows[i].byte14 == 2) {
+                    UiRows[i].byte14 = 3;
                 }
             }
             D_800AC5D0 = 64;
@@ -160,19 +160,19 @@ void ovl662_func_80116E10(void)
 common:
     if (ovl662_D_801272D4 == 0 && (s8)D_800F2AB0[1] == 2) {
         ovl662_D_801272D4 = 1;
-        D_800F3AFC[0].half02 = 1;
-        D_800F3AFC[1].half02 = 1;
+        BadgeRows[0].half02 = 1;
+        BadgeRows[1].half02 = 1;
     }
     for (i = 0; i < 2; i++) {
-        func_8003EC88(i);
+        DrawUiRow(i);
     }
-    if (D_800F3AFC[1].state10 == 3) {
+    if (BadgeRows[1].state10 == 3) {
         ovl662_func_80116C34(D_800F4D98.entry.parameter);
     }
     i = shown;
     if ((u8)(D_800F2AB0[1] - 1) < 2 && i == 1) {
         func_80037198(0);
-        func_8002E5A0(D_800ABEF8);
+        func_8002E5A0(PlayerCars);
         fadeLevel = 0x100;
         if ((s8)D_800F2AB0[1] == i) {
             shade = ~((D_800F2AB0[2] * 255) / 30);
@@ -187,12 +187,12 @@ common:
             color.channel[1] = 0x80;
             color.channel[2] = 0x80;
         }
-        func_8002CC88(D_800ABEF8, color.rgb, fadeLevel, fadeMode);
+        func_8002CC88(PlayerCars, color.rgb, fadeLevel, fadeMode);
     }
-    func_8003D6F0(0);
-    func_8003D6F0(1);
+    UpdateBadgeRowAnim(0);
+    UpdateBadgeRowAnim(1);
     if (func_8003FBA8(0) > 0) {
         func_8002B12C(160, 144, 8, 1, ovl662_D_801272E4, -1, ovl662_D_801272E0 + 1);
     }
-    func_8002A344(0x1008E);
+    UpdateScreenFade(0x1008E);
 }

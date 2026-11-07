@@ -48,7 +48,7 @@ void record(s32 kind,void *p){s32 i=events++;event_kind[i]=kind;event_pointer[i]
 void error_a(s32 code){s32 i=events;record(1,0);error_codes[i]=code;if(on_error)on_error();}
 void error_b(s32 code){s32 i=events;record(2,0);error_codes[i]=code;if(on_error)on_error();}
 RrChannelErrorCallback D_800ABC68=error_a;
-s32 func_80098154(RrChannelRecordF0 *p){record(0,p);if(on_begin)on_begin(p);return begin_result;}
+s32 _padInitSioMode(RrChannelRecordF0 *p){record(0,p);if(on_begin)on_begin(p);return begin_result;}
 void func_80098488(RrChannelRecordF0 *p){record(3,p);if(on_step)on_step(p);else D_800ABCA8=(u32)D_800ABCA8+1;}
 u16 test_read(RrSerialPortRegisters *p){s32 i=io_count++;u16 value=p->control;io_kind[i]=0;io_port[i]=p==&ports[1];io_value[i]=value;if(on_read)on_read();return value;}
 void test_write(RrSerialPortRegisters *p,s32 baud,u16 value){s32 i=io_count++;io_kind[i]=baud?2:1;io_port[i]=p==&ports[1];io_value[i]=value;if(baud)p->baud=value;else p->control=value;}

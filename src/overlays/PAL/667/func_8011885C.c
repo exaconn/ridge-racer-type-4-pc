@@ -2,7 +2,7 @@
 
 extern s32 D_800F2DE4, D_800F4C64, D_800F3A60, D_800AC5D4;
 extern u16 D_800F4D8A;
-extern s16 D_800F4C6A, D_800F3A26, D_800AC5D0, D_800AC64A, D_800AD508;
+extern s16 D_800F4C6A, D_800F3A26, D_800AC5D0, MenuCursor, D_800AD508;
 extern s16 D_800FF688, D_8010C068, D_80107178;
 extern s16 D_8010C070[4];
 extern s16 D_8010C080[4];
@@ -13,13 +13,13 @@ s32 func_80034FC0(void);
 s32 func_80035024(s32);
 void func_80034F80(void);
 void func_8002AF8C(s32, s32, s32);
-void func_8002B75C(char *, char *);
-void func_8002B7B4(char *, char *, s32);
-void func_8002B814(char *, s32, s32);
+void CopyStringClearTail(char *, char *);
+void CopyStringPadSpaces(char *, char *, s32);
+void FormatDecimalDigits(char *, s32, s32);
 void func_800207D4(u32 *, s32, u32);
 void ResetScreenCounters(void);
-void func_8003A1B4(void);
-void func_8002A344(s32);
+void InitMenuArenas(void);
+void UpdateScreenFade(s32);
 void func_8003662C(s32);
 void func_80040858(s32);
 void func_800411D4(void);
@@ -60,16 +60,16 @@ void ovl667_func_8011885C(void) {
                 func_8002AF8C(group, 1, group);
             }
         }
-        func_8002B814(MenuTextRows[4].marquee.at28 + 8, D_8010C070[0] + 1, 0);
-        func_8002B7B4(MenuTextRows[5].marquee.at28 + 1, D_8010C088[D_8010C070[0]], 9);
+        FormatDecimalDigits(MenuTextRows[4].marquee.at28 + 8, D_8010C070[0] + 1, 0);
+        CopyStringPadSpaces(MenuTextRows[5].marquee.at28 + 1, D_8010C088[D_8010C070[0]], 9);
         /* The original literal occupies 12 bytes (zero word before "WIN "). */
-        func_8002B75C(MenuTextRows[5].marquee.at28 + 10, "WON !!!\0\0\0");
+        CopyStringClearTail(MenuTextRows[5].marquee.at28 + 10, "WON !!!\0\0\0");
         for (i = 0; i < 4; i++) {
             if (i < D_80107178) {
                 player = D_8010C070[i];
-                func_8002B7B4(MenuTextRows[7 + i].marquee.at28 + 5, D_8010C088[player], 9);
-                func_8002B75C(MenuTextRows[7 + i].marquee.at28 + 14, "WIN ");
-                func_8002B814(MenuTextRows[7 + i].marquee.at28 + 18, D_8010C080[player], 1);
+                CopyStringPadSpaces(MenuTextRows[7 + i].marquee.at28 + 5, D_8010C088[player], 9);
+                CopyStringClearTail(MenuTextRows[7 + i].marquee.at28 + 14, "WIN ");
+                FormatDecimalDigits(MenuTextRows[7 + i].marquee.at28 + 18, D_8010C080[player], 1);
             } else {
                 MenuTextRows[7 + i].marquee.at28[0] = 0;
             }
@@ -81,9 +81,9 @@ void ovl667_func_8011885C(void) {
             func_8002AF8C(1, 1, 0);
             if (ovl667_func_801187DC(0) >= 0) {
                 ResetScreenCounters();
-                func_8003A1B4();
+                InitMenuArenas();
                 D_800AC5D0 = 64;
-                D_800F4D8A = D_800AC64A + 5;
+                D_800F4D8A = MenuCursor + 5;
                 func_80034F80();
                 func_8002AF8C(0, 1, 0);
             }
@@ -107,7 +107,7 @@ void ovl667_func_8011885C(void) {
     case 5:
         group = 3;
         if (pressed == 0 && D_800AC5D0 == 64) {
-            func_8002B75C(MenuTextRows[38].marquee.at28, "*PLEASE WAIT! ");
+            CopyStringClearTail(MenuTextRows[38].marquee.at28, "*PLEASE WAIT! ");
             break;
         }
         D_800AC5D0 -= 2;
@@ -141,7 +141,7 @@ void ovl667_func_8011885C(void) {
         D_800F4D8A = 0;
         return;
     }
-    func_8002A344(0x1000C);
+    UpdateScreenFade(0x1000C);
     func_8003662C(D_800F2DE4);
     if (group >= 0) {
         for (i = 0; i < 11; i++) {

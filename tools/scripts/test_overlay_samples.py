@@ -16,7 +16,7 @@ class OverlaySamplesTest(unittest.TestCase):
             source = ROOT / f'src/overlays/PAL/{index}/func_{address:08X}.c'
             body = read_c_source(source)
             if index == 665:
-                body = body.replace('D_800F3AFC', 'sample665_badges')
+                body = body.replace('BadgeRows', 'sample665_badges')
             bodies.append(body)
         self.assertEqual(len(bodies), 9)
         harness = r'''
@@ -36,9 +36,9 @@ class OverlaySamplesTest(unittest.TestCase):
 #include "rr/badge_row_types.h"
 #include "rr/projection_state.h"
 s16 D_800F4C6A, D_800F3A26, D_800F4D8A, D_800AD50A;
-s32 D_800F2DE4; RrRaceVehicle D_800ABEF8[2];
+s32 D_800F2DE4; RrRaceVehicle PlayerCars[2];
 RrFrameStorage *D_800ACC14, display_buffer;
-RrBadgeRow1C first, second, *D_800F3AFC;
+RrBadgeRow1C first, second, *BadgeRows;
 s16 *sample665_badges;
 u8 D_800ACC68;
 RrGarageWorkingStorage ovl662_D_80127668;
@@ -59,18 +59,18 @@ void func_800207D4(void *a, s32 b, s32 c) {
     assert(a == display_buffer.ordering.ordering70 && b == 255 && c == 69);
     assert(D_800F4C6A == 1 && D_800F3A26 == 82 && D_800F4D8A == 0);
 }
-void func_80013890(s32 a) {
+void SetupRenderer(s32 a) {
     assert(scenario == 663 && step++ == 0 && a == 5 && D_800F2DE4 == 0);
     memset(&test_scratch, 0xA5, sizeof(test_scratch));
 }
-void func_8002E4F4(void *p) {
-    assert(scenario == 663 && step++ == 1 && p == D_800ABEF8);
+void ResetCarState(void *p) {
+    assert(scenario == 663 && step++ == 1 && p == PlayerCars);
     RrProjectionScratchPrefix expected;
     memset(&expected, 0xA5, sizeof(expected));
     expected.word18=120; expected.word08=-16; expected.word0C=-248;
     expected.word1C=0; expected.word20=0; expected.word10=-96;
     assert(!memcmp(&test_scratch,&expected,sizeof(expected)));
-    memset(p, 0x5A, sizeof(D_800ABEF8));
+    memset(p, 0x5A, sizeof(PlayerCars));
 }
 void func_80037110(void) {
     assert(scenario == 663 && step++ == 2);
@@ -79,18 +79,18 @@ void func_80037110(void) {
         if(i == 10) expected = 308;
         if(i == 9) expected = 10;
         if(i == 21) expected = 2560;
-        s32 actual; memcpy(&actual,(u8 *)D_800ABEF8+i*4,4); assert(actual == expected);
+        s32 actual; memcpy(&actual,(u8 *)PlayerCars+i*4,4); assert(actual == expected);
     }
-    D_800F3AFC = &second; sample665_badges=(s16 *)&second;
+    BadgeRows = &second; sample665_badges=(s16 *)&second;
 }
-void func_8002A604(void) {
+void ClearScreenOverlayState(void) {
     assert(scenario == 665 && step++ == 0);
     D_800ACC68 = 7;
 }
-void func_8003D228(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g) {
+void InitBadgeRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g) {
     assert(scenario == 665 && step++ == 1 && D_800ACC68 == 2);
     assert(a == 0 && b == 12 && c == 304 && d == 296 && e == 88 && f == 0 && g == 0);
-    D_800F3AFC = &second; sample665_badges=(s16 *)&second;
+    BadgeRows = &second; sample665_badges=(s16 *)&second;
 }
 void func_8002AF8C(s32 a,s32 b,s32 c) {
     assert(scenario == 665 && step++ == 2);
@@ -124,7 +124,7 @@ int main(void) {
     for (int module = 663; module <= 665; module += 2) {
         scenario = module; step = 0;
         memset(&first, 0xA5, sizeof(first)); memset(&second, 0x5A, sizeof(second));
-        D_800F3AFC = &first; sample665_badges=(s16 *)&first; D_800F2DE4 = 99;
+        BadgeRows = &first; sample665_badges=(s16 *)&first; D_800F2DE4 = 99;
         if (module == 663) ovl663_init_result_preview(); else ovl665_func_80115C8C();
         assert(step == 3);
         for (unsigned j = 0; j < sizeof(first); j++) {

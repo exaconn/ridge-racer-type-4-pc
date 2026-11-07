@@ -5,7 +5,7 @@ from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN
 from unicorn.mips_const import *
 P=Path(__file__).resolve().parent;ROOT=next(x for x in P.parents if (x/'Makefile').exists());os.chdir(ROOT)
 source=Path(sys.argv[1]if len(sys.argv)>1 else ROOT/'tools/scripts/fixtures/views/func_8005ED34.c').resolve();count=int(sys.argv[2])if len(sys.argv)>2 else 131072
-body=source.read_text();body=body[body.index('void func_8005ED34'):];body=re.sub(r'\s+(?:asm|__asm__)\s*\("\$\d+"\)','',body)
+body=source.read_text();body=body[body.index('void UpdateScrollTrack'):];body=re.sub(r'\s+(?:asm|__asm__)\s*\("\$\d+"\)','',body)
 class Key(C.Structure):_fields_=[('glyph',C.c_int16),('timing',C.c_uint16)]
 class Channel(C.Structure):_fields_=[('glyph',C.c_int16),('offset',C.c_uint16)]
 class Track(C.Structure):_fields_=[('state',C.c_int32),('disabled',C.c_int32),('index',C.c_int32),('hold',C.c_int32),('wait',C.c_int32),('keys',C.c_void_p),('channel',Channel*2),('reserved20',C.c_int32),('step',C.c_int32)]
@@ -13,8 +13,8 @@ class Root(C.Structure):_fields_=[('prefix00',C.c_ubyte*0x4c),('speed4C',C.c_uin
 class Clock(C.Structure):_fields_=[('active',C.c_int16),('reserved02',C.c_ubyte*14),('tempo',C.c_uint32)]
 sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();pack=lambda v:struct.pack('<I',v&0xffffffff)
 with TemporaryDirectory(prefix='rr5ed34-')as td:
- d=Path(td);head='#include <stdint.h>\n#include <stddef.h>\n#include "rr/cpu_md_leaf.h"\n#include "rr/layout.h"\n#undef RR_ASSERT_SIZE\n#undef RR_ASSERT_OFFSET\n#define RR_ASSERT_SIZE(t,n)\n#define RR_ASSERT_OFFSET(t,f,n)\n#include "rr/game_motion.h"\ntypedef RrMotionControllerPrefix RrScrollController;\ntypedef RrMotionClock20 RrScrollClock20;\nstruct {u8 before[16];RrScrollController value;u8 after[16];} root;\nstruct {u8 before[16];RrScrollClock20 value;u8 after[16];} clockOwner;\nstruct {u8 before[16];RrScrollKey4 value[8];u8 after[16];} keys;\nRrScrollController *D_800ACA28;\n'
- tail='\nvoid *owner(int n){return n==0?(void*)&root.value:n==1?(void*)&clockOwner.value:(void*)keys.value;}\nvoid run(void){D_800ACA28=&root.value;func_8005ED34(&clockOwner.value);}\nsize_t root_size(void){return sizeof root.value;}\n'
+ d=Path(td);head='#include <stdint.h>\n#include <stddef.h>\n#include "rr/cpu_md_leaf.h"\n#include "rr/layout.h"\n#undef RR_ASSERT_SIZE\n#undef RR_ASSERT_OFFSET\n#define RR_ASSERT_SIZE(t,n)\n#define RR_ASSERT_OFFSET(t,f,n)\n#include "rr/game_motion.h"\ntypedef RrMotionControllerPrefix RrScrollController;\ntypedef RrMotionClock20 RrScrollClock20;\nstruct {u8 before[16];RrScrollController value;u8 after[16];} root;\nstruct {u8 before[16];RrScrollClock20 value;u8 after[16];} clockOwner;\nstruct {u8 before[16];RrScrollKey4 value[8];u8 after[16];} keys;\nRrScrollController *MotionController;\n'
+ tail='\nvoid *owner(int n){return n==0?(void*)&root.value:n==1?(void*)&clockOwner.value:(void*)keys.value;}\nvoid run(void){MotionController=&root.value;UpdateScrollTrack(&clockOwner.value);}\nsize_t root_size(void){return sizeof root.value;}\n'
  (d/'test.c').write_text(head+body+tail);subprocess.run(['cc','-std=gnu11','-O2','-shared','-fPIC','-funsigned-char','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude','-I'+str(P),str(d/'test.c'),'-o',str(d/'test.dylib')],check=True)
  lib=C.CDLL(str(d/'test.dylib'));lib.owner.restype=C.c_void_p;lib.root_size.restype=C.c_size_t;N=[lib.owner(i)for i in range(3)];assert all(n>0xffffffff for n in N);assert lib.root_size()==C.sizeof(Root)
  u=Uc(UC_ARCH_MIPS,UC_MODE_MIPS32|UC_MODE_LITTLE_ENDIAN);u.mem_map(0,0x400000);exe=Path('assets/PAL/main.exe').read_bytes();u.mem_write(0x10000,exe[0x800:])

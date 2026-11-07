@@ -3,12 +3,12 @@
 
 #include "types.h"
 
-u8 func_8008BF94(void);
-s32 func_8008BFA4(void);
-u8 *func_8008BFC4(void);
+u8 CdStatus(void);
+s32 CdMode(void);
+u8 *CdLastPos(void);
 int CdReset();
-s32 func_8008C05C(s32 value);
-int func_8008C118();
-s32 func_8008C12C(s32 value);
+s32 CdSetDebug(s32 value);
+int CdSyncCallback();
+s32 CdReadyCallback(s32 value);
 
 #endif /* RR_PSYQ_LIBCD_S_1_H */

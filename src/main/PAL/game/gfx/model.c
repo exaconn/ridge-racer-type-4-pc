@@ -38,8 +38,8 @@ typedef struct {
 extern int D_8010718C;
 extern short D_800F4C58;
 extern int D_800F3820;
-extern s32 func_8007E0B4(s64);
-extern s64 func_8007E1B4(s32);
+extern s32 __fixdfsi(s64);
+extern s64 __floatsidf(s32);
 extern s32 func_8007E3B4(s64, s64);
 extern s64 func_8007E904(s64);
 extern void func_8005F0D0(s32, s32, s32, s32);
@@ -53,22 +53,22 @@ extern void MulMatrix2(MATRIX *, MATRIX *);
 extern void SetLightMatrix(MATRIX *);
 extern s32 D_800ABED0[];
 extern s32 D_800F2FD8;
-extern s16 *D_800F3A08[];
+extern s16 *CarBoundsTable[];
 extern int D_800F2EC0;
-extern int *D_8010E698[];
+extern int *ModelBankTable[];
 extern int D_8010E6D8[];
 extern char D_800A3C90[];
 
 int func_8006F1EC();
-s32 func_8006F260(void *arg0);
+s32 YawToOctant(void *arg0);
 int func_8006F288(int a0);
-void func_8006F2E0(s32 a0, s32 a1, s32 a2);
+void SetFogNearFar(s32 a0, s32 a1, s32 a2);
 void func_8006F5F0(int *a0);
 s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
 void func_800700AC(int *a0);
-void func_80070108(int *a0, int a1);
-void func_80070170(int *a0, int a1);
-void func_800701C4(int a0);
+void RegisterModelBank(int *a0, int a1);
+void UnrelocateModelBank(int *a0, int a1);
+void SelectModelBank(int a0);
 void func_8007021C(int a0, int a1);
 void func_80070234(int a0);
 
@@ -86,7 +86,7 @@ int a0;
     return func_8006F188() / 5;
 }
 
-s32 func_8006F260(void *arg0) {
+s32 YawToOctant(void *arg0) {
     s32 temp_v1;
     s32 var_v0;
 
@@ -100,10 +100,10 @@ s32 func_8006F260(void *arg0) {
 
 int func_8006F288(int a0) {
     int t = func_8006F1EC((SCRATCHPAD + 0x8), a0);
-    return *(int *)(((t * 8) + func_8006F260((SCRATCHPAD + 0x8))) * 4 + D_800F3820);
+    return *(int *)(((t * 8) + YawToOctant((SCRATCHPAD + 0x8))) * 4 + D_800F3820);
 }
 
-void func_8006F2E0(s32 a0, s32 a1, s32 a2) {
+void SetFogNearFar(s32 a0, s32 a1, s32 a2) {
     s64 d2, d0, d1, d6, t0, d4, d2_out;
     /* ASM_BARRIER: Move d2 into $a0/$a1 so $s0/$s1 is freed for 1.0 constant before __muldf3. */
     register s64 a0_d2 asm("$4");
@@ -113,17 +113,17 @@ void func_8006F2E0(s32 a0, s32 a1, s32 a2) {
     s64 c_max, c_min;
     s32 r0, r1;
 
-    d2 = func_8007E1B4(a2);
-    d0 = func_8007E1B4(a0);
-    d1 = func_8007E1B4(a1);
+    d2 = __floatsidf(a2);
+    d0 = __floatsidf(a0);
+    d1 = __floatsidf(a1);
     a0_d2 = d2;
     a2_c = 0x40F0000000000000LL;
     c1 = 0x3FF0000000000000LL;
     /* ASM_BARRIER: Materialize 1.0 in $s0/$s1 after $a0..$a3 setup and before __muldf3. */
     __asm__("" : "=r"(c1), "=r"(a0_d2), "=r"(a2_c) : "0"(c1), "1"(a0_d2), "2"(a2_c));
     d6 = __muldf3(a0_d2, a2_c);
-    d4 = func_8007DCC4(0x4170000000000000LL, __muldf3(d6, func_8007E944(func_8007DCC4(c1, d1), func_8007DCC4(c1, d0))));
-    t0 = func_8007DCC4(d6, d0);
+    d4 = __divdf3(0x4170000000000000LL, __muldf3(d6, __subdf3(__divdf3(c1, d1), __divdf3(c1, d0))));
+    t0 = __divdf3(d6, d0);
     d2_out = __muldf3(t0, func_8007E904(d4));
     a2_c = 0x40DFFFC000000000LL;
     /* ASM_BARRIER: Load 0x40DFFFC000000000LL into $a2/$a3 before moving d4 to $a0/$a1. */
@@ -141,8 +141,8 @@ void func_8006F2E0(s32 a0, s32 a1, s32 a2) {
             d4 = 0xC0E0000000000000LL;
         }
         d2_out = __muldf3(t0, func_8007E904(d4));
-        func_8007D7D4(d2_out, __muldf3(d4, func_8007DCC4(d6, d1)));
-        /* ASM_BARRIER: Bind $v0/$v1 from func_8007D7D4. */
+        __adddf3(d2_out, __muldf3(d4, __divdf3(d6, d1)));
+        /* ASM_BARRIER: Bind $v0/$v1 from __adddf3. */
         __asm__("" : "=r"(v0_lo), "=r"(v1_hi));
         a0_lo = v0_lo;
         a2_c = 0x3F30000000000000LL;
@@ -150,7 +150,7 @@ void func_8006F2E0(s32 a0, s32 a1, s32 a2) {
         /* ASM_BARRIER: Materialize 4096.0 in $s0/$s1 before __muldf3 while leaving $a1 = $v1 for the call delay slot. */
         __asm__("" : "=r"(c4096), "=r"(a0_lo), "=r"(a2_c), "=r"(v1_hi) : "0"(c4096), "1"(a0_lo), "2"(a2_c), "3"(v1_hi));
         t_mul = ((s64 (*)(s32, s32, s64))__muldf3)(a0_lo, v1_hi, a2_c);
-        d2_out = func_8007D7D4(d2_out, __muldf3(func_8007E944(c4096, t_mul), c4096));
+        d2_out = __adddf3(d2_out, __muldf3(__subdf3(c4096, t_mul), c4096));
     }
     c_max = 0x41DFFFFFFFC00000LL;
     /* ASM_BARRIER: Materialize INT_MAX double constant before argument setup. */
@@ -164,8 +164,8 @@ void func_8006F2E0(s32 a0, s32 a1, s32 a2) {
     if (func_8007E3B4(d2_out, c_min) < 0) {
         d2_out = c_min;
     }
-    r0 = func_8007E0B4(d4);
-    r1 = func_8007E0B4(d2_out);
+    r0 = __fixdfsi(d4);
+    r1 = __fixdfsi(d2_out);
     __asm__ volatile("ctc2 %0, $27" : : "r"(r0));
     __asm__ volatile("ctc2 %0, $28" : : "r"(r1));
 }
@@ -211,7 +211,7 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
     s32 s5;
     s32 a1;
 
-    func_800701C4(arg1);
+    SelectModelBank(arg1);
     v198[0].vx = S16(arg0, 0x20) - (s16)G->x08;
     v198[0].vy = 0;
     v198[0].vz = S16(arg0, 0x28) - (s16)G->z10;
@@ -281,15 +281,15 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         RR_GTE_SETROT(&m90);
         for (i = 0; i < 2; i++) {
             /* ASM_BARRIER: pin x to v0 to match branch delay slot and load scheduling */
-            register s32 x asm("v0") = D_800F3A08[0][0];
+            register s32 x asm("v0") = CarBoundsTable[0][0];
             if (i & 1) {
                 x = -x;
             }
             svD0.vx = x << 2;
-            /* ASM_BARRIER: force reload of D_800F3A08[0] after storing svD0.vx */
+            /* ASM_BARRIER: force reload of CarBoundsTable[0] after storing svD0.vx */
             __asm__ volatile("" : : : "memory");
-            svD0.vy = (u16)D_800F3A08[0][1] << 2;
-            svD0.vz = -((u16)D_800F3A08[0][2]) << 2;
+            svD0.vy = (u16)CarBoundsTable[0][1] << 2;
+            svD0.vz = -((u16)CarBoundsTable[0][2]) << 2;
             RR_GTE_MVMVA_ROT_V0_NOCV(&svD0);
             RR_GTE_STORE_IR(&v198[i + 3]);
             v198[i + 3].vx += v198[2].vx;
@@ -429,10 +429,10 @@ void func_800700AC(int *a0) {
     }
 }
 
-void func_80070108(int *a0, int a1) {
+void RegisterModelBank(int *a0, int a1) {
     int *p = a0 + 3;
     unsigned i;
-    D_8010E698[a1] = a0;
+    ModelBankTable[a1] = a0;
     i = 0;
     a0[1] += (int)a0;
     a0[2] += (int)a0;
@@ -445,7 +445,7 @@ void func_80070108(int *a0, int a1) {
     }
 }
 
-void func_80070170(int *a0, int a1) {
+void UnrelocateModelBank(int *a0, int a1) {
     int *p = a0 + 3;
     unsigned i = 0;
     a0[1] -= a1;
@@ -459,8 +459,8 @@ void func_80070170(int *a0, int a1) {
     }
 }
 
-void func_800701C4(int a0) {
-    int *v = D_8010E698[a0];
+void SelectModelBank(int a0) {
+    int *v = ModelBankTable[a0];
     int *w;
     int a2;
     int *g = (int *)SCRATCHPAD;
@@ -468,9 +468,9 @@ void func_800701C4(int a0) {
     __asm__("" : "=r"(w) : "0"(v));
     a2 = v[0];
     g[0x15] = w[1];
-    g[0x16] = D_8010E698[a0][2];
+    g[0x16] = ModelBankTable[a0][2];
     D_800F2FD8 = a2;
-    g[0x14] = (int)D_8010E698[a0] + 0xC;
+    g[0x14] = (int)ModelBankTable[a0] + 0xC;
 }
 
 void func_8007021C(int a0, int a1) {
@@ -478,5 +478,5 @@ void func_8007021C(int a0, int a1) {
 }
 
 void func_80070234(int a0) {
-    func_80092FFC(D_800A3C90, D_8010E6D8[a0]);
+    LoadImage(D_800A3C90, D_8010E6D8[a0]);
 }

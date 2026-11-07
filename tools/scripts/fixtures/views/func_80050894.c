@@ -1,9 +1,9 @@
 #include "types.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(RrAudioOwner (*))&D_800F4DB8)
+#define SoundState (*(RrAudioOwner (*))&SoundState)
 
-#undef D_800F4DB8
+#undef SoundState
 
 struct B { char b[0x5BC]; };
 

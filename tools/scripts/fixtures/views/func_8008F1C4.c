@@ -2,13 +2,13 @@
 
 extern s32 CdControl(s32 command, const u8 *parameters, u8 *result);
 
-extern void func_8008C55C(RrLibCompletionCallback);
+extern void CdDataCallback(RrLibCompletionCallback);
 
-extern void func_8008C12C(RrLibCompletionCallback);
+extern void CdReadyCallback(RrLibCompletionCallback);
 
 extern void data_ready_callback(void), func_8008F248(void);
 
-void func_8008F1C4(s32 flags) {
+void CdRead2(s32 flags) {
     u8 buf[8];
     buf[0] = flags;
     CdControl(0xE, buf, 0);
@@ -34,8 +34,8 @@ void func_8008F1C4(s32 flags) {
                 base[0x348 / 4] = one;
             }
         }
-        func_8008C55C(data_ready_callback);
-        func_8008C12C(func_8008F248);
+        CdDataCallback(data_ready_callback);
+        CdReadyCallback(func_8008F248);
     }
     {
         const u8 *zero = 0;

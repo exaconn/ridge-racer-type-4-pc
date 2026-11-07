@@ -14,8 +14,8 @@ extern const char D_80011A14[];
 extern const char D_80011A24[];
 extern const char D_80011B20[];
 extern u8 D_800A64A5;
-extern char *D_800A64AC[];
-extern char *D_800A652C[];
+extern char *CD_comstr[];
+extern char *CD_intstr[];
 extern volatile u8 D_800A6764[];
 extern s32 D_80110330;
 extern s32 D_80110334;
@@ -26,7 +26,7 @@ extern int D_800A6730;
 s32 CD_datasync(s32 mode);
 s32 CD_getsector(u8 *a0, u32 a1);
 s32 CD_getsector2(u8 *a, u32 b);
-void func_8008DDA0(int a);
+void CD_set_test_parmnum(int a);
 void func_8008DDAC(void);
 
 static inline int check_alarm(s32 limit, char **ac, volatile u8 *st, char **sc) {
@@ -63,9 +63,9 @@ s32 CD_datasync(s32 mode) {
     D_80110334 = 0;
     D_80110338[0] = D_80011B20;
     limit = 0x3C0000;
-    ac = D_800A64AC;
+    ac = CD_comstr;
     st = D_800A6764;
-    sc = D_800A652C;
+    sc = CD_intstr;
     do {
         if (check_alarm(limit, ac, st, sc) != 0) {
             return -1;
@@ -117,7 +117,7 @@ s32 CD_getsector2(u8 *a, u32 b) {
     return 0;
 }
 
-void func_8008DDA0(int a) { D_800A6730 = a; }
+void CD_set_test_parmnum(int a) { D_800A6730 = a; }
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A6764 (*(u8 (*)[2])&D_800A6764)
@@ -127,9 +127,9 @@ void func_8008DDAC(void) {
     u8 *q=p-1;
     s32 saved=*D_800A674C & 3;
     s32 result;
-    while((result=func_8008C724())) {
+    while((result=getintr())) {
         if(result & 4) {
-            if(D_800A648C) {
+            if(CD_cbready) {
                 /* ASM_BARRIER: Load the byte argument before preparing its data-page argument. */
                 register s32 argument=*p;
                 /* ASM_BARRIER: Retain the callback's data-page argument for its call delay slot. */
@@ -139,11 +139,11 @@ void func_8008DDAC(void) {
                 page=(u8 *)0x80110000U;
                 /* ASM_BARRIER: Keep the data-page offset separate for call scheduling. */
                 __asm__("" : "+r"(page));
-                D_800A648C(argument,page+0x320);
+                CD_cbready(argument,page+0x320);
             }
         }
         if(result & 2) {
-            if(D_800A6488) {
+            if(CD_cbsync) {
                 /* ASM_BARRIER: Load the byte argument before preparing its data-page argument. */
                 register s32 argument=*q;
                 /* ASM_BARRIER: Retain the callback's data-page argument for its call delay slot. */
@@ -153,7 +153,7 @@ void func_8008DDAC(void) {
                 page=(u8 *)0x80110000U;
                 /* ASM_BARRIER: Keep the data-page offset separate for call scheduling. */
                 __asm__("" : "+r"(page));
-                D_800A6488(argument,page+0x318);
+                CD_cbsync(argument,page+0x318);
             }
         }
     }

@@ -17,7 +17,7 @@ extern char D_800ADB60[];
 extern char D_800D02D8[];
 extern char D_800AE660[];
 extern char D_800D0DD8[];
-extern int func_8001FCC8();
+extern int AddDrawModePrim();
 extern char D_8009EA90[];
 extern char D_8009EACC[];
 
@@ -120,7 +120,7 @@ int a0;
             s0 += 5;
         } while (s3 < 3);
     }
-    *(int *)SCRATCHPAD = func_8001FCC8(s2, s0, 5);
+    *(int *)SCRATCHPAD = AddDrawModePrim(s2, s0, 5);
 }
 
 void func_80021350(s32 phase,s32 index) {
@@ -160,7 +160,7 @@ void func_80021350(s32 phase,s32 index) {
     target=(RrNumberTarget *)((u8 *)base+row);
     packet=(RrHudQuadEmission *)RR_HUD_QUAD_SCRATCH->cursor;
     /* Full native-width addresses retain the original sum order. */
-    head=*(u32 **)((unsigned long)D_800F4BF0*sizeof(u32 *)+row+(unsigned long)base);
+    head=*(u32 **)((unsigned long)DrawBufIndex*sizeof(u32 *)+row+(unsigned long)base);
     x=(u16)target->x;y=(u16)target->y;
     output=(u8 *)packet+8;
     packet->r=0xB0;packet->g=0xB0;packet->b=0;
@@ -220,12 +220,12 @@ void func_80021684(int a0, int a1)
     char *t = b + off;
     short x = *(short *)(t + 8);
     short y = *(short *)(t + 10);
-    int s1 = *(int *)(D_800F4BF0 * 4 + off + (int)b);
+    int s1 = *(int *)(DrawBufIndex * 4 + off + (int)b);
     int h, tn, on;
     h = a0 / 100;
     tn = (a0 / 10) - h * 10;
     on = a0 % 10;
-    *(int *)SCRATCHPAD = func_8001FCC8(s1, func_80021568(s1, func_80021568(s1, func_80021568(s1, *(int *)SCRATCHPAD, x, y, h, 0x7EFA), x + 8, y, tn, 0x7EFA), x + 0x10, y, on, 0x7EFA), 5);
+    *(int *)SCRATCHPAD = AddDrawModePrim(s1, func_80021568(s1, func_80021568(s1, func_80021568(s1, *(int *)SCRATCHPAD, x, y, h, 0x7EFA), x + 8, y, tn, 0x7EFA), x + 0x10, y, on, 0x7EFA), 5);
 }
 
 #undef D_8010BF88

@@ -1,14 +1,14 @@
 /* CC1_FLAGS: -mno-split-addresses */
 
-extern signed char D_801100FC;
+extern signed char spuVmMaxVoice;
 
 extern short D_80110114;
 
-extern short func_80089344();
+extern short _SsVmPBVoice();
 
-extern int func_8008A564();
+extern int _SsVmVSetUp();
 
-int func_80089540(a0, a1, a2, a3) int a0; int a1; int a2; int a3; {
+int _SsVmPitchBend(a0, a1, a2, a3) int a0; int a1; int a2; int a3; {
   register int s asm("$16");
   short i;
   int c0 = a0;
@@ -16,10 +16,10 @@ int func_80089540(a0, a1, a2, a3) int a0; int a1; int a2; int a3; {
   int t1 = a1 << 16;
   register int c3 asm("$21") = a3;
   int t0;
-  func_8008A564(t1 >> 16, t2 >> 16);
+  _SsVmVSetUp(t1 >> 16, t2 >> 16);
   i = 0;
   D_80110114 = c0;
   s = 0;
-  if (D_801100FC > 0) { t0 = c0 << 16; c0 = c3 & 0xFFFF; do { s += func_80089344(i, t0 >> 16, t1 >> 16, t2 >> 16, c0); i++; } while (i < D_801100FC); }
+  if (spuVmMaxVoice > 0) { t0 = c0 << 16; c0 = c3 & 0xFFFF; do { s += _SsVmPBVoice(i, t0 >> 16, t1 >> 16, t2 >> 16, c0); i++; } while (i < spuVmMaxVoice); }
   return s;
 }

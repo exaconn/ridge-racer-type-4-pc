@@ -32,7 +32,7 @@ extern int chkRC2wait();
 extern Q *D_800ABCC8;
 extern H *D_800ABCCC;
 
-int func_80098578(S *a0, int a1);
+int _padSioRW(S *a0, int a1);
 
 void func_80098488(RrChannelRecordF0 *channel) {
     s32 *stage=&D_800ABCAC;
@@ -69,7 +69,7 @@ error:
 out:;
 }
 
-int func_80098578(S *a0, int a1) {
+int _padSioRW(S *a0, int a1) {
     /* ASM_BARRIER: pin s1 to $s1 so unpinned s2 gets $s2 */
     register int s1 __asm__("$17");
     int s2;

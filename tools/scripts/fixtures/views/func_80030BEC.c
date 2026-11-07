@@ -26,18 +26,18 @@ void *func_80030BEC(void *cursor, s32 style, s32 index) {
         xshift = q[4];
         glyph = q[0];
         p = (RrBadgeRow1C *)((unsigned long)offset+(unsigned long)(*(RrBadgeRow1C **)(row_page+0x3AFC)));
-        result = func_8001FD20(&(*(RrIconSpriteContext **)(context_page-0x33EC))->head70,result,p->x08,(s32)p->y0A+p->extent0E-2,248,2,8,8,8);
+        result = AddTilePrim(&(*(RrIconSpriteContext **)(context_page-0x33EC))->head70,result,p->x08,(s32)p->y0A+p->extent0E-2,248,2,8,8,8);
         if(i<4) {
             outgoing = result;
             atlas = D_8009F074;
             uv = atlas+glyph;
             p = (RrBadgeRow1C *)((unsigned long)offset+(unsigned long)(*(RrBadgeRow1C **)(row_page+0x3AFC)));
-            result = func_80020074(&(*(RrIconSpriteContext **)(context_page-0x33EC))->head70,outgoing,(s32)p->x08+xshift,(s32)p->y06-2,uv->w,uv->h,uv->u,uv->v,74,0x2E28,1,128);
+            result = AddSpriteWithDrawMode(&(*(RrIconSpriteContext **)(context_page-0x33EC))->head70,outgoing,(s32)p->x08+xshift,(s32)p->y06-2,uv->w,uv->h,uv->u,uv->v,74,0x2E28,1,128);
         }
         outgoing = result;
         i++;
         last = (RrBadgeRow1C *)((unsigned long)offset+(unsigned long)(*(RrBadgeRow1C **)(row_page+0x3AFC)));
-        result = func_8001FC28(&(*(RrIconSpriteContext **)(context_page-0x33EC))->head70,outgoing,last->x14,last->y16,last->w18,last->h1A);
+        result = AddDrawAreaPrim(&(*(RrIconSpriteContext **)(context_page-0x33EC))->head70,outgoing,last->x14,last->y16,last->w18,last->h1A);
         offset+=28;
         /* ASM_BARRIER: end the returned V0 lifetime before the loop comparison. */
         __asm__("" : "+r"(result));

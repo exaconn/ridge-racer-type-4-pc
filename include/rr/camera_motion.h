@@ -18,8 +18,8 @@ typedef struct {s16 active00;u8 reserved02[14];s32 timing10;} RrCameraMotionInpu
  * word product wraps before division. The horizon uses unsigned division;
  * counter comparison narrows through signed16. Modes0/1 retain their distinct
  * stepping and key-wrap rules. The object pointer is captured before updates. */
-extern RrCameraRootPrefix D_800AC650;
-void func_8005B9F4(RrCameraMotionInput14 *input);
+extern RrCameraRootPrefix RaceContext;
+void UpdateCameraMotion(RrCameraMotionInput14 *input);
 RR_ASSERT_SIZE(RrCameraKey16,0x10);
 RR_ASSERT_SIZE(RrCameraMotion70,0x70);
 RR_ASSERT_SIZE(RrCameraObjectPrefix,0xE4);

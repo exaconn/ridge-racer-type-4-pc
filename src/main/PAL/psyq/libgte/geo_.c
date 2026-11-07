@@ -9,16 +9,16 @@ extern volatile s32 *D_800A6888;
 extern volatile s32 *D_800A688C;
 extern void func_8001E84C(const char *, ...);
 
-void func_80090250(int *d, int *s, unsigned n);
-void func_8009027C(s32 ch, s32 madr, s32 bcr_hi, s32 bcr_lo, volatile s32 chcr, u8 flag_in);
+void mem2mem(int *d, int *s, unsigned n);
+void dma_execute(s32 ch, s32 madr, s32 bcr_hi, s32 bcr_lo, volatile s32 chcr, u8 flag_in);
 s32 rsin(s32 a);
 
-void func_80090250(int *d, int *s, unsigned n) {
+void mem2mem(int *d, int *s, unsigned n) {
     unsigned i;
     for (i = 0; i < n; i++) *d++ = *s++;
 }
 
-void func_8009027C(s32 ch, s32 madr, s32 bcr_hi, s32 bcr_lo, volatile s32 chcr, u8 flag_in) {
+void dma_execute(s32 ch, s32 madr, s32 bcr_hi, s32 bcr_lo, volatile s32 chcr, u8 flag_in) {
     volatile s32 dummy;
     s32 i = 0;
     /* ASM_BARRIER: pin p to a1 */
@@ -116,9 +116,9 @@ s32 rsin(s32 a) {
 
 s32 sin_1(s32 a) {
     if (a < 0x801) {
-        if (a < 0x401) return D_800A68C0[a];
-        return D_800A68C0[0x800 - a];
+        if (a < 0x401) return SinTable[a];
+        return SinTable[0x800 - a];
     }
     if (a < 0xC01) return -D_800A58C0[a];
-    return -D_800A68C0[0x1000 - a];
+    return -SinTable[0x1000 - a];
 }

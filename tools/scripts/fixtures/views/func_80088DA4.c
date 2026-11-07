@@ -15,7 +15,7 @@ extern u8 D_8010F925[];
 extern u8 D_8010F90C[];
 
 /* The selected channel belongs to the valid 0..31 control-row range. */
-void func_80088DA4(s32 unused_mode) {
+void _SsVmKeyOffNow(s32 unused_mode) {
     s32 selected = D_80110118;
     u32 index = selected & 0xFFFF;
     u32 high_mask, low_mask;
@@ -35,7 +35,7 @@ void func_80088DA4(s32 unused_mode) {
         u32 low = D_80110000;
         u32 high = D_80110002;
         *(u16 *)(D_8010F90C + offset) = 0;
-        D_8010F908[index].value00 = 0;
+        _svm_voice[index].value00 = 0;
         {
             u32 pending = D_8010F8F8;
             low |= low_mask;

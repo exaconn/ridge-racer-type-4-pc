@@ -55,7 +55,7 @@ static int entry_count,row_bank,context_index,selected_index,mutate,skip_case;
 static u32 seed;
 static union {uint64_t align;u8 bytes[128];} arena[32];
 static RrPanelDraw callbacks[256];
-#define D_800F3AFC (w->rows[row_bank]+1)
+#define BadgeRows (w->rows[row_bank]+1)
 #define D_800ACC14 (skip_case?NULL:&w->contexts[context_index].prefix)
 #define D_8009F984 (callbacks+129)
 '''
@@ -85,10 +85,10 @@ static void *emit(int kind,u32 *order,void *cursor,s32 a,s32 b,s32 c,s32 d,s32 e
  }
  return arena[(seed+(u32)sequence*7U+(u32)kind)%32].bytes;
 }
-void *func_8001FC28(u32 *o,void *p,s32 x,s32 y,s32 width,s32 height){return emit(0,o,p,x,y,width,height,0,0,0);}
-void *func_8001FCC8(u32 *o,void *p,u16 mode){return emit(1,o,p,mode,0,0,0,0,0,0);}
+void *AddDrawAreaPrim(u32 *o,void *p,s32 x,s32 y,s32 width,s32 height){return emit(0,o,p,x,y,width,height,0,0,0);}
+void *AddDrawModePrim(u32 *o,void *p,u16 mode){return emit(1,o,p,mode,0,0,0,0,0,0);}
 RrSpritePacket *func_8003D2C4(u32 *o,RrSpritePacket *p,s32 x,s32 y,s32 style){return emit(2,o,p,x,y,style,0,0,0,0);}
-void *func_8001FD20(u32 *o,void *p,s32 x,s32 y,s32 width,s32 height,s32 r,s32 g,s32 b){return emit(3,o,p,x,y,width,height,r,g,b);}
+void *AddTilePrim(u32 *o,void *p,s32 x,s32 y,s32 width,s32 height,s32 r,s32 g,s32 b){return emit(3,o,p,x,y,width,height,r,g,b);}
 static void *cb0(u32 *o,void *p,s32 index){return emit(100,o,p,index,0,0,0,0,0,0);}
 static void *cb1(u32 *o,void *p,s32 index){return emit(101,o,p,index,0,0,0,0,0,0);}
 static u16 read16(const u8 *p){u16 v;memcpy(&v,p,2);return v;}
@@ -126,7 +126,7 @@ int main(void){
   actual.rows[0][selected_index+1].status00=(u16)k;
   actual.scratch.cursor=skip_case?NULL:arena[k%32].bytes;actual.scratch.order=(u32*)arena[(k+1)%32].bytes;
   expected=actual;
-  bind(&actual);func_8003D474(selected_index);
+  bind(&actual);DrawBadgeRow(selected_index);
   int count=entry_count,bank=row_bank,ctx=context_index;memcpy(actual_entries,entries,sizeof(entries));
   bind(&expected);reference(selected_index);
   if(entry_count!=count||row_bank!=bank||context_index!=ctx||memcmp(actual_entries,entries,sizeof(entries))||memcmp(&actual,&expected,sizeof(actual))){fprintf(stderr,"case %u status%04X index%d mutation%d failed actual entries%d expected%d\n",k,k&65535,selected_index,mutate,count,entry_count);return 1;}

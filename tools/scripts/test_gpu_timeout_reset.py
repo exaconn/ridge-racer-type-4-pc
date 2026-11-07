@@ -49,7 +49,7 @@ s32 func_8001E84C(const char *format,...) {
  return 1;
 }
 s32 test_exchange(s32 value) {
- s32 previous=func_8008B4E0(value);
+ s32 previous=SetIntrMask(value);
  test_mask_calls++;event(4,(u32)value,(u32)previous);
  if(test_mutate_mask && test_mask_calls==1){D_800ABBC8=&ports[4];D_800ABBD4=&ports[5];D_800ABBE4=&ports[6];}
  return previous;
@@ -84,8 +84,8 @@ void test_reset(void) {
                 body = body.replace('            *gpu,*D_800ABBD4,*D_800ABBCC);',
                                     '            test_read(gpu),*D_800ABBD4,*D_800ABBCC);')
                 replacements = {
-                    'saved=func_8008B4E0(0);': 'saved=test_exchange(0);',
-                    'func_8008B4E0(D_800ABBF8);': 'test_exchange(D_800ABBF8);',
+                    'saved=SetIntrMask(0);': 'saved=test_exchange(0);',
+                    'SetIntrMask(D_800ABBF8);': 'test_exchange(D_800ABBF8);',
                     'D_800ABBE8=D_800ABBEC;': 'D_800ABBE8=test_tail();',
                     '*D_800ABBD4=0x401;': 'test_dma(D_800ABBD4,0x401);',
                     '*D_800ABBE4|=0x800;': 'test_config(D_800ABBE4);',
@@ -103,10 +103,10 @@ void test_reset(void) {
         if result.returncode:
             raise AssertionError(result.stderr.decode())
         cls.lib = C.CDLL(str(directory/'function.so'))
-        cls.watchdog = cls.lib.func_80095394
+        cls.watchdog = cls.lib.get_alarm
         cls.watchdog.argtypes = []
         cls.watchdog.restype = C.c_int32
-        cls.mask = cls.lib.func_8008B4E0
+        cls.mask = cls.lib.SetIntrMask
         cls.mask.argtypes = [C.c_int32]
         cls.mask.restype = C.c_int32
         cls.ports = (C.c_uint32 * 8).in_dll(cls.lib, 'ports')
@@ -173,7 +173,7 @@ void test_reset(void) {
         for now in (-0x80000000, -1, 0, 0x7FFFFFFF):
             self.lib.test_reset()
             self.scalar('test_now').value = now
-            self.lib.func_80095360()
+            self.lib.set_alarm()
             self.assertEqual(self.scalar('D_800ABBFC').value, C.c_int32(now+240).value)
             self.assertEqual(self.scalar('D_800ABC00').value, 0)
 

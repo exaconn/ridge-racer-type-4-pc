@@ -4,12 +4,12 @@
 
 #include "rr/channel_stream.h"
 
-void func_80084314(s32 bankInput,s32 rowInput) {
+void _SsSndTempo(s32 bankInput,s32 rowInput) {
     s16 row=rowInput;
     s32 savedBank;
     s32 rawBank=bankInput;
     s32 bits=(s32)((u32)rawBank<<16);
-    RrChannelStreamB0 *(*table)[]=&D_8010F068;
+    RrChannelStreamB0 *(*table)[]=&_ss_score;
     RrChannelStreamB0 **slot=(RrChannelStreamB0 **)((u8*)table+(long)(bits>>14)*(long)(sizeof(**table)/sizeof(u32)));
     RrChannelStreamB0 *base=*slot;
     RrChannelStreamB0 *record=({
@@ -61,12 +61,12 @@ void func_80084314(s32 bankInput,s32 rowInput) {
     }
 adjusted:
     pitch=(u32)(s32)record->scale50*record->tempo94;
-    pitch=pitch*10U/(D_8010F064*60U);
+    pitch=pitch*10U/(VBLANK_MINUS*60U);
     record->pitch54=(s16)pitch;
     if((s16)pitch<=0)record->pitch54=1;
     if(record->tempoRemainingA8==0 || record->tempo94==record->targetTempoAC) {
         s32 endBits=(s32)((u32)savedBank<<16);
-        RrChannelStreamB0 *(*endTable)[]=&D_8010F068;
+        RrChannelStreamB0 *(*endTable)[]=&_ss_score;
         RrChannelStreamB0 **endSlot=(RrChannelStreamB0 **)((u8*)endTable+(long)(endBits>>14)*(long)(sizeof(**endTable)/sizeof(u32)));
         (*endSlot)[row].mode98&=~0x40;
         current=&(*endSlot)[row];

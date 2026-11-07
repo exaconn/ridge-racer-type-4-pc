@@ -20,21 +20,21 @@
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A67B0 (*(RrLibTransferState38 (*))&D_800A67B0)
 
-#define func_8008C12C ((void (*)(RrLibCompletionCallback))func_8008C12C)
+#define CdReadyCallback ((void (*)(RrLibCompletionCallback))CdReadyCallback)
 
-#define func_8008C55C ((void (*)(RrLibCompletionCallback))func_8008C55C)
+#define CdDataCallback ((void (*)(RrLibCompletionCallback))CdDataCallback)
 
-#define func_8008C118 ((void (*)(RrLibCompletionCallback))func_8008C118)
+#define CdSyncCallback ((void (*)(RrLibCompletionCallback))CdSyncCallback)
 
 #define func_8008E7F4 ((void (*)(void))func_8008E7F4)
 
 #undef D_800A67B0
 
-#undef func_8008C12C
+#undef CdReadyCallback
 
-#undef func_8008C55C
+#undef CdDataCallback
 
-#undef func_8008C118
+#undef CdSyncCallback
 
 #undef func_8008E7F4
 
@@ -50,15 +50,15 @@
 
 extern s32 VSync(s32);
 
-extern RrLibCompletionCallback func_8008C118(RrLibCompletionCallback);
+extern RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback);
 
-extern RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback);
+extern RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback);
 
-extern RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback);
+extern RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback);
 
-extern u8 func_8008BF94(void);
+extern u8 CdStatus(void);
 
-s32 func_8008EEF4(s32 sectors,u8 *buffer,u32 mode) {
+s32 CdRead(s32 sectors,u8 *buffer,u32 mode) {
     s32 count=sectors;
     u8 *destination=buffer;
     /* ASM_BARRIER: preserve request mode across pending-completion helpers. */
@@ -108,7 +108,7 @@ timeout:
         restored=*restore_slot;
         state=(RrLibReadRequestState*)((u8*)restore_slot-
               (sizeof(RrLibReadRequestState)-sizeof(RrLibReadRestoreTail)));
-        func_8008C118(restored);
+        CdSyncCallback(restored);
         ((volatile RrLibReadRequestState*)state)->finished24=0;
         goto setup;
     case 0:
@@ -134,11 +134,11 @@ timeout:
     __asm__("" : "+r"(state), "+r"(zero) : : "memory");
     state->buffer04=destination;
     state->sectors00=count;
-    state->restore.saved28=func_8008C118(zero);
-    state->restore.saved2C=func_8008C12C(0);
-    if(D_800A63F4&1)state->restore.saved30=func_8008C55C(0);
+    state->restore.saved28=CdSyncCallback(zero);
+    state->restore.saved2C=CdReadyCallback(0);
+    if(CD_read_dma_mode&1)state->restore.saved30=CdDataCallback(0);
     state->start1C=VSync(-1);
-    if(func_8008BF94()&0xE0) {
+    if(CdStatus()&0xE0) {
         command=9;
         parameters=0;
         /* ASM_BARRIER: form the command and parameter arguments independently. */

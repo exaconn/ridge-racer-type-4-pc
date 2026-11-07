@@ -22,13 +22,13 @@ static RrFrameStorage actual[2],expected[2];
 #define D_800ADAF0 actual
 #define D_800D0268 actual[1].environment
 #define D_800D02C4 actual[1].environment.display
-RrRuntimeSettings D_800AD528;
+RrRuntimeSettings Options;
 static int step,video;
 static u32 input_flags;
-static int func_8008BDF8(void) {return video;}
+static int GetVideoMode(void) {return video;}
 ''' + draw+disp+hook+r'''
-void func_800912B4(s32 x,s32 y) {assert(step++==0 && x==160 && y==(s32)((((input_flags>>1)&1)+1)*128));}
-void func_800912D4(s32 z) {assert(step++==1 && z==290);}
+void SetGeomOffset(s32 x,s32 y) {assert(step++==0 && x==160 && y==(s32)((((input_flags>>1)&1)+1)*128));}
+void SetGeomScreen(s32 z) {assert(step++==1 && z==290);}
 void *SetDefDrawEnv(void *e,s32 x,s32 y,s32 w,s32 h) {
  int index=step-2;assert(index>=0 && index<2);step++;
  assert(e==&actual[index]);assert(x==0 && y==(index?(s32)((1-((input_flags>>1)&1))*256):0));
@@ -53,13 +53,13 @@ static void reference(s32 r,s32 g,s16 b,u32 flags) {
   e->rgb24=flags&1;e->r=(u8)r;e->g=(u8)g;e->b=(u8)b;
   e->window.x=e->window.y=e->window.w=e->window.h=0;
   e->display.x=0;e->display.y=i?0:(1-interlace)*256;e->display.w=320;e->display.h=height;
-  e->screen.x=D_800AD528.halves[26];e->screen.y=D_800AD528.halves[28];e->screen.w=0;e->screen.h=256;
+  e->screen.x=Options.halves[26];e->screen.y=Options.halves[28];e->screen.w=0;e->screen.h=256;
   e->interlace=interlace;e->high_res=(flags&4)?1:0;e->pad6E[0]=e->pad6E[1]=0;
  }
 }
 static void run(s32 r,s32 g,s16 b,u32 flags,int mode,u16 sx,u16 sy) {
  memset(actual,0xA7,sizeof(actual));memcpy(expected,actual,sizeof(actual));
- input_flags=flags;step=0;video=mode;D_800AD528.halves[26]=sx;D_800AD528.halves[28]=sy;
+ input_flags=flags;step=0;video=mode;Options.halves[26]=sx;Options.halves[28]=sy;
  reference(r,g,b,flags);func_8001ECE8(r,g,b,flags);
  assert(step==8 && !memcmp(actual,expected,sizeof(actual)));
 }

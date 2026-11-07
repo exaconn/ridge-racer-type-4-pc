@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80091734(int a0, int a1, int a2);
+int NormalClip(int a0, int a1, int a2);
 
 #endif /* RR_PSYQ_LIBGTE_GTEMATH3_H */

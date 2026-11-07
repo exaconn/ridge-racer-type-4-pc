@@ -17,7 +17,7 @@ typedef struct {
     RrGridRow8 layout30;
 } RrMenuGrid38;
 
-extern RrMenuGrid38 *D_800F3A28;
+extern RrMenuGrid38 *MenuGridRecords;
 extern RrGridRow8 D_8009FDA8[];
 
 /* Index and layout select accessible records/rows; their byte offsets must fit
@@ -25,7 +25,7 @@ extern RrGridRow8 D_8009FDA8[];
  * defined. X/Y narrow to signed16 before division. Copies all eight layout bytes
  * after publishing the dimensions and steps, then scales bytes 0x32/0x33 in place.
  * Pointer slots retain full native widths; the PAL slot is at 0x800F3A28. */
-void func_80041A54(s32 index, s32 layout, s32 count, s32 x, s32 y);
+void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y);
 
 RR_ASSERT_SIZE(RrGridRow8, 8);
 RR_ASSERT_OFFSET(RrGridRow8, second, 4);

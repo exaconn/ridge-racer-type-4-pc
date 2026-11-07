@@ -24,12 +24,12 @@ typedef int32_t s32;''')
 s32 D_800A64A8;
 s8 *D_800A6800, *D_800A680C;
 s32 (*test_helper)(s32, s32);
-s32 func_80096F04(void) { return test_helper(0, 0); }
+s32 EnterCriticalSection(void) { return test_helper(0, 0); }
 s32 func_80096DE0(s32 value) { return test_helper(1, value); }
 s32 func_80096DB8(s32 value) { return test_helper(2, value); }
-s32 func_8008C55C(s32 value) { return test_helper(3, value); }
-s32 func_8008C12C(s32 value) { return test_helper(4, value); }
-s32 func_80096F14(void) { return test_helper(5, 0); }
+s32 CdDataCallback(s32 value) { return test_helper(3, value); }
+s32 CdReadyCallback(s32 value) { return test_helper(4, value); }
+s32 ExitCriticalSection(void) { return test_helper(5, 0); }
 '''
         (directory / 'function.c').write_text(source)
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),

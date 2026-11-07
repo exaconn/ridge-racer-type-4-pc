@@ -27,7 +27,7 @@ void func_80099E9C(s32 command)
                 __asm__("" : "+r"(mode));
                 *slot = 0;
             } else {
-                func_8009A6DC((u8 *)channel);
+                _dirFailAuto((u8 *)channel);
                 func_80099F90((RrChannelTransferView *)channel);
             }
         }
@@ -42,7 +42,7 @@ void func_80099E9C(s32 command)
             current++;
             D_800ABCA8 = current;
             if (bound >= current) {
-                status = func_80098154((RrChannelRecordF0 *)((long)(current * sizeof(RrChannelRecordF0)) + (unsigned long)base));
+                status = _padInitSioMode((RrChannelRecordF0 *)((long)(current * sizeof(RrChannelRecordF0)) + (unsigned long)base));
                 mode = 0xFFFF;
             } else {
                 status = 1;

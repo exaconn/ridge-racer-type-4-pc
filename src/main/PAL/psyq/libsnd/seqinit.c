@@ -37,12 +37,12 @@ typedef struct {
     s32 wa0, wa4, wa8, wac;
 } SeqStruct;
 
-extern SeqStruct *D_8010F068[];
-extern u32 D_8010F064;
+extern SeqStruct *_ss_score[];
+extern u32 VBLANK_MINUS;
 extern char D_80011718[];
 extern char D_80011730[];
 extern s32 func_8001E84C(char *);
-extern s32 func_80081E04(s32, s32);
+extern s32 _SsReadDeltaValue(s32, s32);
 
 /* Read the 24-bit big-endian tempo (microseconds per quarter note).
  * The read position is re-read from memory here (volatile access), as
@@ -62,14 +62,14 @@ static inline s32 read_tempo(SeqStruct *c) {
 }
 
 /* Initialise sequence slot a0 (vab id a1) from SEQ data at seq. */
-s32 func_80081EB4(s16 a0, s32 a1, u8 *seq) {
+s32 _SsInitSoundSeq(s16 a0, s32 a1, u8 *seq) {
     s32 i;
     u8 c;
     s32 b0, b1;
     s32 lo, hi, t;
     u32 m, v0;
     u8 *q;
-    SeqStruct *s0 = *(D_8010F068 + a0);
+    SeqStruct *s0 = *(_ss_score + a0);
 
     s0->b26 = a1;
     s0->h50 = 0;
@@ -135,7 +135,7 @@ s32 func_80081EB4(s16 a0, s32 a1, u8 *seq) {
     s0->b24 = *(s0->c0++);
     s0->b25 = *(s0->c0++);
 
-    s0->w90 = s0->w84 = func_80081E04(a0, 0);
+    s0->w90 = s0->w84 = _SsReadDeltaValue(a0, 0);
     s0->p10 = 0;
     m = s0->h50 * s0->w8c;
     /* Loop/section pointers: the original reloads c0 for each copy. */
@@ -143,14 +143,14 @@ s32 func_80081EB4(s16 a0, s32 a1, u8 *seq) {
     s0->c4 = *(u8 *volatile *)&s0->c0;
     s0->cC = q;
     s0->c8 = s0->c0;
-    if (m * 10 < D_8010F064 * 60) {
-        s0->h52 = (D_8010F064 * 600) / m;
+    if (m * 10 < VBLANK_MINUS * 60) {
+        s0->h52 = (VBLANK_MINUS * 600) / m;
         s0->h54 = s0->h52;
     } else {
-        v0 = (u32)(s0->h50 * s0->w8c * 10) / (D_8010F064 * 60);
+        v0 = (u32)(s0->h50 * s0->w8c * 10) / (VBLANK_MINUS * 60);
         s0->h52 = -1;
         s0->h54 = v0;
-        if ((D_8010F064 * 30) < (u32)(s0->h50 * s0->w8c * 10) % (D_8010F064 * 60)) {
+        if ((VBLANK_MINUS * 30) < (u32)(s0->h50 * s0->w8c * 10) % (VBLANK_MINUS * 60)) {
             s0->h54 = v0 + 1;
         }
     }

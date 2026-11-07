@@ -6,12 +6,12 @@ extern struct
   unsigned short h26C8;
   unsigned short h26CA;
   unsigned short h26CC;
-} D_800F4DB8;
-extern int func_80052ADC();
-extern int func_80052AB8();
-void func_80052E6C()
+} SoundState;
+extern int CdAudioSetVolume();
+extern int CdAudioMute();
+void CdAudioFadeStep()
 {
-  int d = D_800F4DB8.h26C6;
+  int d = SoundState.h26C6;
   int t;
   int v;
   int from;
@@ -19,24 +19,24 @@ void func_80052E6C()
   int to;
   if (d > 0)
   {
-    c = D_800F4DB8.h26C8;
-    if (((short) D_800F4DB8.h26C8) < d)
+    c = SoundState.h26C8;
+    if (((short) SoundState.h26C8) < d)
     {
       t = c + 1;
-      to = D_800F4DB8.h26CA;
-      from = D_800F4DB8.h26CC;
+      to = SoundState.h26CA;
+      from = SoundState.h26CC;
       v = (to - from) << 12;
       v = (v / d) * ((short) t);
-      D_800F4DB8.h26C8 = t;
+      SoundState.h26C8 = t;
       if (v < 0)
       {
         v += 0xFFF;
       }
       v = (v >> 12) + from;
-      func_80052ADC(v & 0xFFFF, &D_800F4DB8, from);
+      CdAudioSetVolume(v & 0xFFFF, &SoundState, from);
       return;
     }
-    D_800F4DB8.h26C6 = 0;
-    func_80052AB8(d, &D_800F4DB8);
+    SoundState.h26C6 = 0;
+    CdAudioMute(d, &SoundState);
   }
 }

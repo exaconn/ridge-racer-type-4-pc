@@ -13,8 +13,8 @@
 
 typedef struct {RrCdLocation location; s32 size; u8 name[16];} SearchResult;
 
-extern s32 func_8008DE84(SearchResult *, const char *);
-extern s32 func_8008EEF4(s32, void *, s32);
+extern s32 CdSearchFile(SearchResult *, const char *);
+extern s32 CdRead(s32, void *, s32);
 extern s32 CdPosToInt(const RrCdLocation *);
 extern void func_800963C4(s32);
 extern void func_8001E84C(const char *, ...);
@@ -22,8 +22,8 @@ extern const char D_80010028[];
 extern const char D_80010048[];
 extern const char D_80010054[];
 extern const char D_80010068[];
-extern u32 *D_800102F0;
-extern RrCdFileEntry D_801094A8[];
+extern u32 *CdDirectoryBuffer;
+extern RrCdFileEntry CdFileTable[];
 extern int rsin();
 extern int rcos();
 extern int D_8009DFA0;
@@ -32,8 +32,8 @@ extern struct P { int w0, w4; short x0, y0; int c1; short x1, y1; int c2; short 
 extern struct P *D_80109438;
 
 int func_80012210(int a0, int a1, int a2, int a3);
-int func_8001223C(int a0, int a1);
-void func_80012408(void);
+int GetR4FileIndex(int a0, int a1);
+void DrawLoadingTriangle(void);
 
 s32 func_80012208(s32 arg0) {
     return arg0 * 2;
@@ -45,7 +45,7 @@ int func_80012210(int a0, int a1, int a2, int a3) {
     return v + 0x152;
 }
 
-int func_8001223C(int a0, int a1) {
+int GetR4FileIndex(int a0, int a1) {
     switch (a0) {
     case 1: return a1 + 0x292;
     case 2: return a1 + 0x2D9;
@@ -55,7 +55,7 @@ int func_8001223C(int a0, int a1) {
     }
 }
 
-void func_80012290(void)
+void LoadR4Directory(void)
 {
     SearchResult file;
     s32 status, found;
@@ -69,8 +69,8 @@ void func_80012290(void)
     s32 base, sector, next;
     u32 *directory;
     RrCdFileEntry *entry;
-    func_8001E84C(D_80010028,D_80010048,D_800102F0);
-    found=func_8008DE84(&file,D_80010048);
+    func_8001E84C(D_80010028,D_80010048,CdDirectoryBuffer);
+    found=CdSearchFile(&file,D_80010048);
     message_page=(u8 *)0x80010000U;
     if (!found) {
         func_8001E84C(D_80010054,D_80010048);
@@ -81,16 +81,16 @@ void func_80012290(void)
     __asm__("" : "+r"(sectors), "+r"(message_page));
     do {
         CdControl(2,(const u8 *)&file.location,0);
-        func_8008EEF4(sectors,D_800102F0,0x80);
-        do { status=func_8008F090(1,0); } while(status>0);
+        CdRead(sectors,CdDirectoryBuffer,0x80);
+        do { status=CdReadSync(1,0); } while(status>0);
     } while(status);
     func_8001E84C((const char *)(message_page+0x68),sectors);
     base=CdPosToInt(&file.location);
-    directory=D_800102F0;
+    directory=CdDirectoryBuffer;
     i=0;
     count=*directory++;
     sector=base+*directory++;
-    entry=D_801094A8;
+    entry=CdFileTable;
     while(i<count) {
         CdIntToPos(sector,entry->location.c);
         next=base+*directory++;
@@ -102,17 +102,17 @@ void func_80012290(void)
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800102F0 (*(s32 (*))&D_800102F0)
+#define CdDirectoryBuffer (*(s32 (*))&CdDirectoryBuffer)
 
-void func_800123D4(void) {
-    func_8008C05C(1);
-    func_80012290();
-    D_800ACC18 = D_800102F0;
+void InitCdFileDirectory(void) {
+    CdSetDebug(1);
+    LoadR4Directory();
+    LoadCursor = CdDirectoryBuffer;
 }
 
-#undef D_800102F0
+#undef CdDirectoryBuffer
 
-void func_80012408(void)
+void DrawLoadingTriangle(void)
 {
     int a, v, w;
     unsigned *t;

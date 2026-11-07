@@ -2,11 +2,11 @@
 #include "rr/cd.h"
 
 extern RrLibCompletionCallback volatile D_800A67DC;
-extern void func_8008C580(s32);
+extern void CdDataSync(s32);
 extern s32 VSync(s32);
-extern RrLibCompletionCallback func_8008C118(RrLibCompletionCallback);
-extern RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback);
-extern RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback);
+extern RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback);
+extern RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback);
+extern RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback);
 extern void func_8008E7F4(void);
 
 #define RR_READ_OWNER_OFFSET \
@@ -30,7 +30,7 @@ void func_8008ED54(void) {
     volatile s32 *pending_a,*pending_b;
     u32 first_tick,second_tick;
     s32 decision;
-    if(D_800A63F4&1)func_8008C580(0);
+    if(CD_read_dma_mode&1)CdDataSync(0);
     root=&D_800A67B0;
     /* ASM_BARRIER: capture the complete state address before initial publication. */
     __asm__("" : "+r"(root));
@@ -44,7 +44,7 @@ first_timeout:
     __asm__("" : "+r"(saved));
     restored=*saved;
     root=(RrLibReadRequestState*)((u8*)saved-RR_READ_OWNER_OFFSET);
-    func_8008C118(restored);
+    CdSyncCallback(restored);
     decision=-1;
     /* The field's object type is ordinary s32. This publication follows callback
      * restoration and retains the original branch-delay store. */
@@ -56,7 +56,7 @@ second_timeout:
     __asm__("" : "+r"(saved));
     restored=*saved;
     root=(RrLibReadRequestState*)((u8*)saved-RR_READ_OWNER_OFFSET);
-    func_8008C118(restored);
+    CdSyncCallback(restored);
     root->finished24=0;
     goto done;
 begin_first_wait:
@@ -75,9 +75,9 @@ after_first_wait:
         pair=&D_800A67DC;
         /* ASM_BARRIER: capture the complete callback-pair address before setters. */
         __asm__("" : "+r"(pair));
-        func_8008C12C(RR_PAIR_TAIL(pair)->saved2C);
-        if(D_800A63F4&1)func_8008C55C(RR_PAIR_TAIL(pair)->saved30);
-        func_8008C118(func_8008E7F4);
+        CdReadyCallback(RR_PAIR_TAIL(pair)->saved2C);
+        if(CD_read_dma_mode&1)CdDataCallback(RR_PAIR_TAIL(pair)->saved30);
+        CdSyncCallback(func_8008E7F4);
         CdControlF(9,0);
         publish=(RrLibReadRequestState*)((u8*)pair-RR_PAIR_OWNER_OFFSET);
         ((volatile RrLibReadRequestState*)publish)->finished24=1;

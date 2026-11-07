@@ -49,31 +49,31 @@ typedef struct {
     u8 pad1E[0x36 - 0x1E];
 } SpuVoice;
 
-extern s32 D_8010F05C;
+extern s32 _snd_ev_flag;
 
-extern SpuVoice D_8010F908[];
+extern SpuVoice _svm_voice[];
 
-extern ProgAtr *D_801100EC;
+extern ProgAtr *_svm_pg;
 
-extern VagAtr *D_801100F8;
+extern VagAtr *_svm_tn;
 
-extern s8 D_801100FC;
+extern s8 spuVmMaxVoice;
 
-extern SvmCur D_80110100;
+extern SvmCur _svm_cur;
 
-extern s32 func_8008A564(s16, s16);
+extern s32 _SsVmVSetUp(s16, s16);
 
-extern s32 func_80086BE4(s16);
+extern s32 _SsVmAlloc(s16);
 
-extern void func_80086E74(void);
+extern void _SsVmDoAllocate(void);
 
 extern void func_80088794(s32);
 
-extern u16 func_80088608(s32, s32);
+extern u16 note2pitch2(s32, s32);
 
-extern void func_80088E74(u8, u16);
+extern void _SsVmKeyOnNow(u8, u16);
 
-s32 func_80085304(s16 arg1, s16 arg2, s16 arg3, s16 arg4_in, u16 arg5_in, s16 arg6, s16 arg7) {
+s32 SsUtKeyOn(s16 arg1, s16 arg2, s16 arg3, s16 arg4_in, u16 arg5_in, s16 arg6, s16 arg7) {
     s16 tone_idx;
     VagAtr *vag;
     s16 temp_a0;
@@ -82,70 +82,70 @@ s32 func_80085304(s16 arg1, s16 arg2, s16 arg3, s16 arg4_in, u16 arg5_in, s16 ar
     s32 v1;
     s32 arg5 = arg5_in;
 
-    if (D_8010F05C == 1) {
+    if (_snd_ev_flag == 1) {
         return -1;
     }
-    D_8010F05C = 1;
-    if (func_8008A564(arg1, arg2) == 0) {
-        D_80110100.f14 = 0x21;
-        D_80110100.f02 = arg4_in;
-        D_80110100.f03 = arg5;
-        D_80110100.f0C = arg3;
+    _snd_ev_flag = 1;
+    if (_SsVmVSetUp(arg1, arg2) == 0) {
+        _svm_cur.f14 = 0x21;
+        _svm_cur.f02 = arg4_in;
+        _svm_cur.f03 = arg5;
+        _svm_cur.f0C = arg3;
         if (arg6 == arg7) {
-            D_80110100.f05 = 0x40;
-            D_80110100.f04 = arg6;
+            _svm_cur.f05 = 0x40;
+            _svm_cur.f04 = arg6;
         } else if (arg6 > arg7) {
-            D_80110100.f04 = arg6;
-            D_80110100.f05 = (arg7 << 6) / arg6;
+            _svm_cur.f04 = arg6;
+            _svm_cur.f05 = (arg7 << 6) / arg6;
         } else {
-            D_80110100.f04 = arg7;
-            D_80110100.f05 = 0x7F - ((arg6 << 6) / arg7);
+            _svm_cur.f04 = arg7;
+            _svm_cur.f05 = 0x7F - ((arg6 << 6) / arg7);
         }
-        D_80110100.f0A = D_801100EC[arg2].f01;
-        D_80110100.f0B = D_801100EC[arg2].f04;
-        D_80110100.f00 = D_801100EC[arg2].f00;
-        tone_idx = D_80110100.f07 * 16 + D_80110100.f0C;
-        vag = (VagAtr *)(tone_idx * 32 + (s32)D_801100F8);
-        D_80110100.f0F = vag->f00;
+        _svm_cur.f0A = _svm_pg[arg2].f01;
+        _svm_cur.f0B = _svm_pg[arg2].f04;
+        _svm_cur.f00 = _svm_pg[arg2].f00;
+        tone_idx = _svm_cur.f07 * 16 + _svm_cur.f0C;
+        vag = (VagAtr *)(tone_idx * 32 + (s32)_svm_tn);
+        _svm_cur.f0F = vag->f00;
         temp_a0 = vag->f16;
-        D_80110100.f16 = temp_a0;
-        D_80110100.f0D = vag->f02;
-        D_80110100.f0E = vag->f03;
-        D_80110100.f10 = vag->f04;
-        D_80110100.f11 = vag->f05;
-        D_80110100.f12 = vag->f01;
+        _svm_cur.f16 = temp_a0;
+        _svm_cur.f0D = vag->f02;
+        _svm_cur.f0E = vag->f03;
+        _svm_cur.f10 = vag->f04;
+        _svm_cur.f11 = vag->f05;
+        _svm_cur.f12 = vag->f01;
         if (temp_a0 == 0) {
-            D_8010F05C = 0;
+            _snd_ev_flag = 0;
             return -1;
         }
     } else {
-        D_8010F05C = 0;
+        _snd_ev_flag = 0;
         return -1;
     }
-    voice = func_80086BE4(temp_a0) & 0xFF;
+    voice = _SsVmAlloc(temp_a0) & 0xFF;
     /* ASM_BARRIER: materialize voice in s1 before copying to v1 */
     __asm__("" : "+r"(voice));
     v1 = voice;
-    if (v1 == D_801100FC) {
-        D_8010F05C = 0;
+    if (v1 == spuVmMaxVoice) {
+        _snd_ev_flag = 0;
         return -1;
     }
-    D_80110100.f18 = voice;
-    D_8010F908[v1].f10 = 0x21;
-    D_8010F908[v1].f18 = arg1;
-    D_8010F908[v1].f12 = D_80110100.f07;
-    D_8010F908[v1].f14 = arg2;
-    D_8010F908[v1].f00 = D_80110100.f16;
-    D_8010F908[v1].f16 = D_80110100.f0C;
-    D_8010F908[v1].f0E = arg4_in;
-    D_8010F908[v1].f1D = 1;
-    D_8010F908[v1].f02 = 0;
-    func_80086E74();
-    if (D_80110100.f16 == 0xFF) {
+    _svm_cur.f18 = voice;
+    _svm_voice[v1].f10 = 0x21;
+    _svm_voice[v1].f18 = arg1;
+    _svm_voice[v1].f12 = _svm_cur.f07;
+    _svm_voice[v1].f14 = arg2;
+    _svm_voice[v1].f00 = _svm_cur.f16;
+    _svm_voice[v1].f16 = _svm_cur.f0C;
+    _svm_voice[v1].f0E = arg4_in;
+    _svm_voice[v1].f1D = 1;
+    _svm_voice[v1].f02 = 0;
+    _SsVmDoAllocate();
+    if (_svm_cur.f16 == 0xFF) {
         func_80088794(voice);
     } else {
-        func_80088E74(1, func_80088608((u16)arg4_in, arg5));
+        _SsVmKeyOnNow(1, note2pitch2((u16)arg4_in, arg5));
     }
-    D_8010F05C = 0;
+    _snd_ev_flag = 0;
     return voice;
 }

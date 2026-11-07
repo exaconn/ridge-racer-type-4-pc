@@ -10,7 +10,7 @@
 extern RrMenuItemState5C D_800F3A38[2];
 extern s16 D_800AC5D0,D_800AD508,D_800FF688,D_8010C0B8,D_8010C0C8,D_800F3A26;
 extern u16 D_800F4D8A,D_800F4C6A;
-extern s32 D_8010C078,D_800F3A30,D_800F4CB8,D_800F2DE4,ScreenFrame;
+extern s32 D_8010C078,NumLaps,D_800F4CB8,D_800F2DE4,ScreenFrame;
 s32 func_80034FC0(void);
 int func_80035024();
 s32 func_8003BAB0(void);
@@ -21,9 +21,9 @@ void func_8002AF8C(s32,s32,s32);
 void PlaySfx(s32);
 void func_80053AF4(s32,s32);
 void func_80053CB0(void);
-void func_8003EC88(s32);
+void DrawUiRow(s32);
 void func_800207D4(u32 *,s32,u32);
-void func_8002A344(s32);
+void UpdateScreenFade(s32);
 void ovl667_func_801161A8(s32);
 /* At least25 complete UI rows are accessible. Menu selection is0..2 at
  * indexed accesses; the live highlight count is0..8. D_800AD508 is0..1

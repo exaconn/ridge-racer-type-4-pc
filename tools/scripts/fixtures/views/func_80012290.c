@@ -3,17 +3,17 @@
 #include "rr/cd.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800102F0 (*(s32 (*))&D_800102F0)
+#define CdDirectoryBuffer (*(s32 (*))&CdDirectoryBuffer)
 
-#undef D_800102F0
+#undef CdDirectoryBuffer
 
 typedef struct {RrCdLocation location; s32 size; u8 name[16];} SearchResult;
 
-extern s32 func_8008DE84(SearchResult *, const char *);
+extern s32 CdSearchFile(SearchResult *, const char *);
 
-extern s32 func_8008EEF4(s32, void *, s32);
+extern s32 CdRead(s32, void *, s32);
 
-extern s32 func_8008F090(s32, void *);
+extern s32 CdReadSync(s32, void *);
 
 extern s32 CdPosToInt(const RrCdLocation *);
 
@@ -27,11 +27,11 @@ extern const char D_80010048[];
 
 extern const char D_80010054[];
 
-extern u32 *D_800102F0;
+extern u32 *CdDirectoryBuffer;
 
-extern RrCdFileEntry D_801094A8[];
+extern RrCdFileEntry CdFileTable[];
 
-void func_80012290(void)
+void LoadR4Directory(void)
 {
     SearchResult file;
     s32 status, found;
@@ -45,8 +45,8 @@ void func_80012290(void)
     s32 base, sector, next;
     u32 *directory;
     RrCdFileEntry *entry;
-    func_8001E84C(D_80010028,D_80010048,D_800102F0);
-    found=func_8008DE84(&file,D_80010048);
+    func_8001E84C(D_80010028,D_80010048,CdDirectoryBuffer);
+    found=CdSearchFile(&file,D_80010048);
     message_page=(u8 *)0x80010000U;
     if (!found) {
         func_8001E84C(D_80010054,D_80010048);
@@ -57,16 +57,16 @@ void func_80012290(void)
     __asm__("" : "+r"(sectors), "+r"(message_page));
     do {
         CdControl(2,(const u8 *)&file.location,0);
-        func_8008EEF4(sectors,D_800102F0,0x80);
-        do { status=func_8008F090(1,0); } while(status>0);
+        CdRead(sectors,CdDirectoryBuffer,0x80);
+        do { status=CdReadSync(1,0); } while(status>0);
     } while(status);
     func_8001E84C((const char *)(message_page+0x68),sectors);
     base=CdPosToInt(&file.location);
-    directory=D_800102F0;
+    directory=CdDirectoryBuffer;
     i=0;
     count=*directory++;
     sector=base+*directory++;
-    entry=D_801094A8;
+    entry=CdFileTable;
     while(i<count) {
         CdIntToPos(sector,entry->location.c);
         next=base+*directory++;

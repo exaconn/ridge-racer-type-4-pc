@@ -62,7 +62,7 @@ void func_8008E7F4(void){callback_effect^=16;}
 #define D_800A67B0 actual.state
 #define D_800A67D8 actual.state.restore.saved28
 #define D_800A67DC actual.state.restore.saved2C
-#define D_800A63F4 actual.flags
+#define CD_read_dma_mode actual.flags
 ''' + body + r'''
 enum {SYNC,CLOCK,SET0,SET1,SET2,COMMAND};
 static s32 bits(u32 value){s32 result;memcpy(&result,&value,4);return result;}
@@ -117,11 +117,11 @@ static s32 command(int model,s32 argument,const u8 *parameters) {
     }
     return -17;
 }
-void func_8008C580(s32 arg){sync_transfer(0,arg);}
+void CdDataSync(s32 arg){sync_transfer(0,arg);}
 s32 VSync(s32 arg){return tick(0,arg);}
-RrLibCompletionCallback func_8008C118(RrLibCompletionCallback c){return setter(0,0,c);}
-RrLibCompletionCallback func_8008C12C(RrLibCompletionCallback c){return setter(0,1,c);}
-RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback c){return setter(0,2,c);}
+RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback c){return setter(0,0,c);}
+RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback c){return setter(0,1,c);}
+RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback c){return setter(0,2,c);}
 s32 CdControlF(s32 c,const u8 *p){return command(0,c,p);}
 /* Separate algorithm: one generic deadline wait, then the stop specification.
  * A timeout returns true; a natural completion returns false. */

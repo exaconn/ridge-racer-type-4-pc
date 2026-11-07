@@ -22,7 +22,7 @@ static __inline__ s32 save_first_file_handler(void) {
     return 0;
 }
 
-void *func_80097114(char *path, void *directory) {
+void *firstfile(char *path, void *directory) {
     char *output;
     s8 *input;
     RrBiosDevice *device, *end, *limit;

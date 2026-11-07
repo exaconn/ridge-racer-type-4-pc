@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int func_80098AC4();
-int func_80098B64();
+int _padSetAct();
+int _padRecvAtLoadInfo();
 
 #endif /* RR_PSYQ_LIBPAD_PADSTAT2_H */

@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80085B64(short a0);
+void SsUtSetReverbDelay(short a0);
 
 #endif /* RR_PSYQ_LIBSND_UTRTYPE_H */

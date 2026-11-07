@@ -114,12 +114,12 @@ typedef struct {
     int f290;
 } Car37618;
 
-extern int func_80014A8C();
-extern int func_8003D228();
-extern int func_8003DC9C();
+extern int SetModelTexturePage();
+extern int InitBadgeRow();
+extern int InitRect16Row();
 extern int func_8003FAE4();
 extern s32 D_800F2EC8;
-extern int func_8001FCC8();
+extern int AddDrawModePrim();
 extern int func_8001FF84();
 extern unsigned char D_8009F7CC[];
 extern unsigned char D_8009F7D0[];
@@ -128,21 +128,21 @@ extern unsigned char D_8009F7D8[];
 extern unsigned char D_8009F7DC[];
 extern struct { char pad[0x1D2]; short h1D2; char pad2[0x1F]; unsigned char b1F3; } *D_800F39C8[];
 extern Car *CarTable[];
-extern Car D_800ABEF8[];
+extern Car PlayerCars[];
 extern Car D_80106B58[];
 extern Car D_80106E78[];
-extern Car D_80107198[];
-extern short D_800AC59C;
+extern Car ComCars[];
+extern short NumCars;
 extern short D_800AD508;
-extern int func_80026A74();
-extern int func_8006E368();
-extern int func_80027C54();
+extern int FindTrackNode();
+extern int Atan2Table();
+extern int FindWheelTrackNodes();
 extern short D_800AD522;
 extern struct {
     char pad[0x53C];
     Grid53C *p53C;
-} D_800AC650;
-extern Bounds08 *D_800F3A08[];
+} RaceContext;
+extern Bounds08 *CarBoundsTable[];
 
 void func_80037110(void);
 void func_80037198(int arg0);
@@ -150,10 +150,10 @@ void func_800373DC(int a);
 void func_80037618(Car37618 *p, int arg1);
 
 void func_80037110(void) {
-    func_80014A8C(0x19);
+    SetModelTexturePage(0x19);
     D_800F2EC8 = 0;
-    func_8003D228(0, 0x10, 0x158, 0x120, 0x3C, 0, 0x103);
-    func_8003DC9C(0, 0x10, 0x48, 0x120, 0x120, 0, 0);
+    InitBadgeRow(0, 0x10, 0x158, 0x120, 0x3C, 0, 0x103);
+    InitRect16Row(0, 0x10, 0x48, 0x120, 0x120, 0, 0);
     func_8003FAE4(0, -1, 0, 1);
 }
 
@@ -198,7 +198,7 @@ void func_80037198(int arg0) {
         a1 = func_8001FF84(D_800ACC14 + 0x70, a1, (s0 % 3) * 0x14 + 0xF0, (s0 / 3) * 0x28 + 0x58, buf, 0x7FA4, 1);
         s0++;
     } while (s0 < 9);
-    *(int *)SCRATCHPAD = func_8001FCC8(D_800ACC14 + 0x70, a1, 0x39);
+    *(int *)SCRATCHPAD = AddDrawModePrim(D_800ACC14 + 0x70, a1, 0x39);
 }
 
 void func_800373DC(int a) {
@@ -209,26 +209,26 @@ void func_800373DC(int a) {
     Car *q;
     switch (a) {
     case 1:
-        D_800AC59C = 8;
+        NumCars = 8;
         i = 0;
-        for (; i < D_800AC59C; i++) {
+        for (; i < NumCars; i++) {
             if (i == 0) {
-                CarTable[0] = D_800ABEF8;
+                CarTable[0] = PlayerCars;
             } else {
                 CarTable[i] = D_80106E78 + i;
             }
         }
         break;
     case 2:
-        D_800AC59C = 2;
-        CarTable[0] = D_800ABEF8;
-        CarTable[1] = D_800ABEF8 + 1;
+        NumCars = 2;
+        CarTable[0] = PlayerCars;
+        CarTable[1] = PlayerCars + 1;
         break;
     case 3:
         i = 2;
-        CarTable[0] = D_800ABEF8;
-        CarTable[1] = D_800ABEF8 + 1;
-        v = D_800AC59C;
+        CarTable[0] = PlayerCars;
+        CarTable[1] = PlayerCars + 1;
+        v = NumCars;
         if (i < v) {
             n = v;
             do {
@@ -238,36 +238,36 @@ void func_800373DC(int a) {
         }
         break;
     case 4:
-        D_800AC59C = 4;
+        NumCars = 4;
         if (D_800AD508 == 1) {
-            CarTable[0] = D_800ABEF8;
-            CarTable[1] = D_800ABEF8 + 1;
-            CarTable[2] = D_80107198;
-            CarTable[3] = D_80107198 + 1;
+            CarTable[0] = PlayerCars;
+            CarTable[1] = PlayerCars + 1;
+            CarTable[2] = ComCars;
+            CarTable[3] = ComCars + 1;
         } else {
-            CarTable[2] = D_800ABEF8;
-            CarTable[3] = D_800ABEF8 + 1;
-            CarTable[0] = D_80107198;
-            CarTable[1] = D_80107198 + 1;
+            CarTable[2] = PlayerCars;
+            CarTable[3] = PlayerCars + 1;
+            CarTable[0] = ComCars;
+            CarTable[1] = ComCars + 1;
         }
         break;
     case 5:
-        D_800AC59C = 7;
+        NumCars = 7;
         i = 0;
         n = 7;
         for (; i < n; i++) {
-            CarTable[i] = D_80107198 + i;
+            CarTable[i] = ComCars + i;
         }
         break;
     default:
     case 0:
-        CarTable[0] = D_800ABEF8;
-        D_800AC59C = 1;
+        CarTable[0] = PlayerCars;
+        NumCars = 1;
         break;
     case 6:
-        CarTable[0] = D_800ABEF8;
-        CarTable[1] = D_80107198;
-        D_800AC59C = 2;
+        CarTable[0] = PlayerCars;
+        CarTable[1] = ComCars;
+        NumCars = 2;
         break;
     }
     func_80031DEC();
@@ -280,24 +280,24 @@ void func_80037618(Car37618 *p, int arg1) {
 
     func_8002BEF8();
     if (D_800F4D44 == 0 && D_800AD522 == 1) {
-        p->fF0 = *D_800ACB8C;
-        t = D_800ABECC - 5;
-        p->f20 = D_800ABEA4[(p->fF0 + t) % D_800ABECC].x08;
+        p->fF0 = *TrackStartNode;
+        t = TrackNodeCount - 5;
+        p->f20 = TrackNodes[(p->fF0 + t) % TrackNodeCount].x08;
         p->f24 = 0;
-        p->f28 = D_800ABEA4[(p->fF0 + t) % D_800ABECC].z0C;
+        p->f28 = TrackNodes[(p->fF0 + t) % TrackNodeCount].z0C;
     } else {
-        p->f20 = D_800AC650.p53C->pos[arg1].x;
+        p->f20 = RaceContext.p53C->pos[arg1].x;
         p->f24 = 0;
-        p->f28 = D_800AC650.p53C->pos[arg1].z;
-        p->fF0 = D_800AC650.p53C->f0;
+        p->f28 = RaceContext.p53C->pos[arg1].z;
+        p->fF0 = RaceContext.p53C->f0;
     }
     p->f0 = p->f20 << 8;
     p->f4 = 0;
     p->f8 = p->f28 << 8;
-    p->fF0 = func_80026A74(&p->f20, p->fF0, D_800ABECC + 1);
+    p->fF0 = FindTrackNode(&p->f20, p->fF0, TrackNodeCount + 1);
     p->sF8 = p->sFA = p->sFC = p->sFE = p->fF0;
     p->f50 = 0;
-    p->f54 = ((0x800 - D_800ABEA4[p->fF0].heading12) - (D_800AD522 << 11)) & 0xFFF;
+    p->f54 = ((0x800 - TrackNodes[p->fF0].heading12) - (D_800AD522 << 11)) & 0xFFF;
     p->f58 = 0;
     p->s1AE = 0;
     p->s1D4 = p->s1D6 = p->f54;
@@ -305,19 +305,19 @@ void func_80037618(Car37618 *p, int arg1) {
         p->f290 = p->s1D4;
     }
     i = p->s1E6 >> 1;
-    p->f108 = D_800F3A08[i]->w6 * 4;
-    p->s10C = ((short)D_800F3A08[i]->w0 + 5) * 2;
-    p->s10E = 0x28 - D_800F3A08[i]->w4;
-    p->s110 = -((D_800F3A08[i]->w0 + 5) * 4);
-    p->s112 = -((D_800F3A08[i]->w4 - 0x14) * 4);
-    p->s114 = (D_800F3A08[i]->w0 + 5) * 4;
-    p->s116 = -((D_800F3A08[i]->w4 - 0x14) * 4);
-    p->s118 = -((D_800F3A08[i]->w0 + 5) * 4);
+    p->f108 = CarBoundsTable[i]->w6 * 4;
+    p->s10C = ((short)CarBoundsTable[i]->w0 + 5) * 2;
+    p->s10E = 0x28 - CarBoundsTable[i]->w4;
+    p->s110 = -((CarBoundsTable[i]->w0 + 5) * 4);
+    p->s112 = -((CarBoundsTable[i]->w4 - 0x14) * 4);
+    p->s114 = (CarBoundsTable[i]->w0 + 5) * 4;
+    p->s116 = -((CarBoundsTable[i]->w4 - 0x14) * 4);
+    p->s118 = -((CarBoundsTable[i]->w0 + 5) * 4);
     p->s11A = -0x50;
-    p->s11C = (D_800F3A08[i]->w0 + 5) * 4;
+    p->s11C = (CarBoundsTable[i]->w0 + 5) * 4;
     p->s11E = -0x50;
-    p->s120 = 0x400 - func_8006E368(p->s114 * 2, p->s116 + 0x50);
-    p->s122 = 0x400 - func_8006E368(p->s11C * 2, p->s11E - p->s116);
+    p->s120 = 0x400 - Atan2Table(p->s114 * 2, p->s116 + 0x50);
+    p->s122 = 0x400 - Atan2Table(p->s11C * 2, p->s11E - p->s116);
     p->f16C = 0x10;
     p->sDC = p->sDE = 0;
     p->sE0 = p->sE2 = 0;
@@ -348,12 +348,12 @@ void func_80037618(Car37618 *p, int arg1) {
         p->arr1BC[i] = 0;
         p->arr1C4[i] = 0;
     }
-    func_80026004(p, 0);
+    ComputeStartDistance(p, 0);
     p->f190 = p->f18C;
-    func_800244B0(p);
-    func_80022888(p);
-    func_80026F5C(p);
+    IntegrateCarMotion(p);
+    ComputeWheelOffsets(p);
+    ConstrainCarToTrack(p);
     *g = 0;
-    func_80027C54(p);
-    func_80028B30(p);
+    FindWheelTrackNodes(p);
+    UpdateWheelBumps(p);
 }

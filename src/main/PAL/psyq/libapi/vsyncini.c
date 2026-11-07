@@ -9,21 +9,21 @@ extern s32 *D_800A6394;
 
 void trapIntrVSync();
 void setIntrVSync(s32 slot,RrSpuTickCallback callback);
-void func_8008BB14();
+void VSync_memclr();
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8008B394 ((int (*)(int, int *))func_8008B394)
+#define InterruptCallback ((int (*)(int, int *))InterruptCallback)
 #define D_800A6370 (*(int (*))&D_800A6370)
 
-int *func_8008BA24(void) {
+int *startIntrVSync(void) {
     *D_800A6394 = 0x100;
-    D_800A6390 = 0;
-    func_8008BB14(&D_800A6370, 8);
-    func_8008B394(0, &trapIntrVSync);
+    Vcount = 0;
+    VSync_memclr(&D_800A6370, 8);
+    InterruptCallback(0, &trapIntrVSync);
     return &setIntrVSync;
 }
 
-#undef func_8008B394
+#undef InterruptCallback
 #undef D_800A6370
 
 /* legacy typing of shared globals in this part of the unit */
@@ -32,7 +32,7 @@ int *func_8008BA24(void) {
 void trapIntrVSync() {
     int i = 0;
     void (**p)() = D_800A6370;
-    D_800A6390++;
+    Vcount++;
     do {
         if (*p) (*p)();
         i++;
@@ -49,6 +49,6 @@ void setIntrVSync(s32 slot,RrSpuTickCallback callback)
     if(callback!=*p) *p=callback;
 }
 
-void func_8008BB14(p, n) int *p; int n; {
+void VSync_memclr(p, n) int *p; int n; {
     while (n--) *p++ = 0;
 }

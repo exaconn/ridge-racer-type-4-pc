@@ -10,9 +10,9 @@ void ovl662_func_80116020(void)
     D_800AD520=2;
     D_800F4D98.bytes[0]=2;
     D_800F3826=0;
-    for(i=0;i<4;i++)func_8003E040(i,-2,0,1);
-    func_8003DC9C(D_800F4D8C->glyph07,D_800F4D8C->x08,D_800F4D8C->y0A,D_800F4D8C->w0C,D_800F4D8C->h0E,0,0);
-    func_8003E928(0,12,72,240,32,0,0,4,2,D_800AD520);
-    func_8003D228(0,36,336,248,34,0,0x301);
-    D_800F3AFC->half02=1;
+    for(i=0;i<4;i++)InitGlyphRow(i,-2,0,1);
+    InitRect16Row(GlyphRows->glyph07,GlyphRows->x08,GlyphRows->y0A,GlyphRows->w0C,GlyphRows->h0E,0,0);
+    InitUiRow(0,12,72,240,32,0,0,4,2,D_800AD520);
+    InitBadgeRow(0,36,336,248,34,0,0x301);
+    BadgeRows->half02=1;
 }

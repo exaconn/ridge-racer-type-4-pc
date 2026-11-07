@@ -18,5 +18,5 @@ int func_80096DB8(a0) int a0; { int *p = D_801143AC; int r = *p; *p = a0; return
 int func_80096DCC(a0) int a0; { int *p = D_801143B0; int r = *p; *p = a0; return r; }
 
 void func_80096DE0(s32 arg0) {
-    func_8008B3C4(3, arg0);
+    DMACallback(3, arg0);
 }

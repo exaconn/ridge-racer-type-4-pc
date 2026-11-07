@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-s32 func_80085BA4(s32 *);
+s32 SpuSetReverbModeParam(s32 *);
 
 #endif /* RR_PSYQ_LIBSPU_SREVATTR_H */

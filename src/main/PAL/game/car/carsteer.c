@@ -5,12 +5,12 @@ typedef struct {
     u8 unkB;
 } UnkF3A08;
 
-extern s32 func_80025FBC(s16, s32);
-extern s32 func_8006E368(s16, s32);
+extern s32 AngleDiffSigned(s16, s32);
+extern s32 Atan2Table(s16, s32);
 extern s32 rsin(s32);
-extern UnkF3A08 *D_800F3A08[];
+extern UnkF3A08 *CarBoundsTable[];
 
-int func_8002C638(Car *arg0) {
+int UpdateCarSteering(Car *arg0) {
     s32 s1;
     s32 s2;
     s32 s3;
@@ -20,12 +20,12 @@ int func_8002C638(Car *arg0) {
     s3 = 0;
     s2 = (arg0->unk1DA - arg0->unk1D8) * 4;
     if (arg0->unk1E4 & 0x10) {
-        s1 = func_80025FBC(arg0->unk1D4, arg0->unk54) * 4;
+        s1 = AngleDiffSigned(arg0->unk1D4, arg0->unk54) * 4;
         if (arg0->sub1F4.unk1C->unkA != 0) {
             s3 = (rsin((arg0->sub1F4.unk54 << 5) & 0xFE0) * arg0->unk1DE) / 8128;
         }
     } else {
-        s1 = func_80025FBC(arg0->unk1D6, arg0->unk54) * 4;
+        s1 = AngleDiffSigned(arg0->unk1D6, arg0->unk54) * 4;
     }
 
     if ((v0 = arg0->unk1D8 < 1000)) {
@@ -71,13 +71,13 @@ int func_8002C638(Car *arg0) {
         arg0->unkE4[3] += s3;
     }
 
-    s1 = 4 - D_800F3A08[(s16)arg0->unk1E6 >> 1]->unkB;
+    s1 = 4 - CarBoundsTable[(s16)arg0->unk1E6 >> 1]->unkB;
     if (s1 <= 0) {
         s1 = 4;
     }
 
-    arg0->unk1AC = func_8006E368(arg0->unk10E, ((arg0->unkE4[0] + arg0->unkE4[1]) - (arg0->unkE4[2] + arg0->unkE4[3])) >> 4) >> 3;
-    arg0->unk1AE = (s16)(func_8006E368(arg0->s10C, ((arg0->unkE4[0] + arg0->unkE4[2]) - (arg0->unkE4[1] + arg0->unkE4[3])) >> 4) >> 2) / s1;
+    arg0->unk1AC = Atan2Table(arg0->unk10E, ((arg0->unkE4[0] + arg0->unkE4[1]) - (arg0->unkE4[2] + arg0->unkE4[3])) >> 4) >> 3;
+    arg0->unk1AE = (s16)(Atan2Table(arg0->s10C, ((arg0->unkE4[0] + arg0->unkE4[2]) - (arg0->unkE4[1] + arg0->unkE4[3])) >> 4) >> 2) / s1;
 
     if (arg0->unk1AE > 0x20) {
         arg0->unkDC[0] += arg0->unk1DC / 20;
@@ -96,6 +96,6 @@ int func_8002C638(Car *arg0) {
         }
     }
 
-    arg0->unk1A8 = func_8006E368(arg0->unk10E, ((arg0->unkDC[0] + arg0->unkDC[1]) - (arg0->unkDC[2] + arg0->unkDC[3])) >> 5);
-    arg0->unk1AA = func_8006E368(arg0->s10C, ((arg0->unkDC[0] + arg0->unkDC[2]) - (arg0->unkDC[1] + arg0->unkDC[3])) >> 5);
+    arg0->unk1A8 = Atan2Table(arg0->unk10E, ((arg0->unkDC[0] + arg0->unkDC[1]) - (arg0->unkDC[2] + arg0->unkDC[3])) >> 5);
+    arg0->unk1AA = Atan2Table(arg0->s10C, ((arg0->unkDC[0] + arg0->unkDC[2]) - (arg0->unkDC[1] + arg0->unkDC[3])) >> 5);
 }

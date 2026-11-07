@@ -4,7 +4,7 @@
 
 struct C { char p0[0x14]; int f14; int (*f18)(); char p1c[0x14]; unsigned char *f30; char p34[8]; unsigned char *f3c; char p40[4]; unsigned char f44, f45, f46, f47, f48, f49, f4a; char p4b[5]; unsigned char f50; char p51[0x97]; unsigned char fE8; };
 
-extern int func_80098B64();
+extern int _padRecvAtLoadInfo();
 
 extern int (*D_800ABC6C)();
 
@@ -68,7 +68,7 @@ l11:
             default: {
                 /* ASM_BARRIER: keep the callback return value in $v0 across the join label. */
                 register int v asm("$2");
-                if (a0->f18 != 0) v = a0->f18(a0); else v = func_80098B64(a0);
+                if (a0->f18 != 0) v = a0->f18(a0); else v = _padRecvAtLoadInfo(a0);
                 a0->f46 += v;
                 break;
             }

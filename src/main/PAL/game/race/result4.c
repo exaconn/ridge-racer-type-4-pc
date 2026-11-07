@@ -15,34 +15,34 @@ typedef struct { short a, b; } X;
 
 typedef struct { char p[4]; char a; char b; char c; char d; } Y;
 
-extern int func_8001FCC8();
+extern int AddDrawModePrim();
 extern int func_8001FF84();
 extern unsigned char D_8009F730[];
 extern unsigned char D_8009F790[];
 extern unsigned short D_800AC648;
-extern int func_8003D228();
-extern int func_8003DC9C();
-extern int func_8003E040();
-extern int D_800ACC18;
+extern int InitBadgeRow();
+extern int InitRect16Row();
+extern int InitGlyphRow();
+extern int LoadCursor;
 extern int D_800F2DE4;
 extern int D_800F4D40;
 extern signed char D_800F4D7C;
-extern int D_800F4D8C;
-extern s32 D_800AC5DC;
+extern int GlyphRows;
+extern s32 VSyncThreshold;
 extern s16 D_800F3A26;
 extern s16 D_800F4C6A;
 extern s16 D_800F4D8A;
 extern int func_8001E84C();
 extern int func_8002AF8C();
 extern void func_80036D40(void);
-extern int func_8003A1B4();
+extern int InitMenuArenas();
 extern int func_8003AE4C();
-extern int func_8003EC88();
+extern int DrawUiRow();
 extern char D_800106EC[];
 extern char D_800106F8[];
-extern int D_8009FDA4;
+extern int MenuStepDirection;
 extern int D_800F3A60;
-extern struct { char pad[0x10]; short h10; } *D_800F3AFC;
+extern struct { char pad[0x10]; short h10; } *BadgeRows;
 extern struct { char pad[4]; signed char b4; char b5; signed char b6; } *D_800FF68C;
 
 void func_8003662C();
@@ -162,11 +162,11 @@ int a0;
     }
     while (s1 < s0);
   }
-  *((int *) SCRATCHPAD) = func_8001FCC8(D_800ACC14 + 0x70, a1, 0x2E);
+  *((int *) SCRATCHPAD) = AddDrawModePrim(D_800ACC14 + 0x70, a1, 0x2E);
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3AFC ((X *)D_800F3AFC)
+#define BadgeRows ((X *)BadgeRows)
 #define D_800FF68C ((Y *)D_800FF68C)
 
 void func_8003687C(int a0) {
@@ -177,30 +177,30 @@ void func_8003687C(int a0) {
     do {
         a = a0 + i;
         t = a * 0x1C;
-        *(int *)(t + D_800F4D8C + 0x18) = *(int *)(i * 0x1C + D_800F4D8C + 0x18) + 0x30000;
-        func_8003E040(a, -2, 0, 0);
+        *(int *)(t + GlyphRows + 0x18) = *(int *)(i * 0x1C + GlyphRows + 0x18) + 0x30000;
+        InitGlyphRow(a, -2, 0, 0);
         i += 1;
-        p = t + D_800F4D8C;
-        func_8003DC9C(*(unsigned char *)(p + 7), *(short *)(p + 8), *(short *)(p + 0xA), *(short *)(p + 0xC), *(short *)(p + 0xE), 0, 0);
+        p = t + GlyphRows;
+        InitRect16Row(*(unsigned char *)(p + 7), *(short *)(p + 8), *(short *)(p + 0xA), *(short *)(p + 0xC), *(short *)(p + 0xE), 0, 0);
     } while (i < 4);
-    func_8003D228(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
-    func_8003E928(0, 0x28, 0x48, 0xC0, 0x20, 0, 0, 4, 3, 4);
-    D_800F3AFC->b = 1;
+    InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
+    InitUiRow(0, 0x28, 0x48, 0xC0, 0x20, 0, 0, 4, 3, 4);
+    BadgeRows->b = 1;
     D_800FF68C->a = 1;
     D_800FF68C->d = 0;
     D_800F2DE4 = 0;
     D_800F4D7C = 0;
-    D_800ACC18 = D_800F4D40;
+    LoadCursor = D_800F4D40;
 }
 
-#undef D_800F3AFC
+#undef BadgeRows
 #undef D_800FF68C
 
 void func_800369E8(void) {
-    func_8002A344(0x10006);
+    UpdateScreenFade(0x10006);
     func_8003687C(0);
     D_800F2DE4 = 0;
-    D_800AC5DC = 0x80;
+    VSyncThreshold = 0x80;
     D_800F4C6A = 1;
     D_800F3A26 = 0xA;
     D_800F4D8A = 0;
@@ -216,14 +216,14 @@ void func_80036A44(void) {
     int s1;
     D_800F2DE4 += 1;
     if (D_800FF68C->b4 >= 0x22) {
-        func_8003EC88(0);
+        DrawUiRow(0);
         a = 0x10006;
     } else {
         a = 0x10007;
     }
-    func_8002A344(a);
-    if (func_80036C08(D_8009FDA4) != 0) {
-        if (D_800F3AFC->h10 == 3) {
+    UpdateScreenFade(a);
+    if (func_80036C08(MenuStepDirection) != 0) {
+        if (BadgeRows->h10 == 3) {
             func_80036D40();
             return;
         }
@@ -233,7 +233,7 @@ void func_80036A44(void) {
             t = D_800FF68C->b6;
             if (t == 4) {
                 D_800FF68C->b4 = 0x22;
-                D_800F3AFC->h10 = t;
+                BadgeRows->h10 = t;
                 return;
             }
         }
@@ -241,16 +241,16 @@ void func_80036A44(void) {
     if (D_800AD4F2 == 2) {
         r = func_8003AE4C(0, 1);
         if (r == 1) {
-            if (D_800F3AFC->h10 == 0xB) {
+            if (BadgeRows->h10 == 0xB) {
                 func_8002AF8C(0, 1, 0);
                 func_8001E84C(D_800106EC);
-                s1 = D_800ACC18;
-                func_8003A1B4();
+                s1 = LoadCursor;
+                InitMenuArenas();
                 func_80039988();
                 D_800F4C6A = r;
                 D_800F3A26 = 0x22;
                 D_800F4D8A = 0;
-                D_800ACC18 = s1;
+                LoadCursor = s1;
                 func_8001E84C(D_800106F8);
             }
         }

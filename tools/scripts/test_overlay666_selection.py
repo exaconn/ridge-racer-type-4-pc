@@ -26,9 +26,9 @@ class Overlay666SelectionTest(unittest.TestCase):
 static struct World {u32 guard[4];s16 selection;u16 buttons;s32 direction;RrUiRow24 *ui;RrMenuGlyphRow1C *glyphs;RrUiRow24 backing[3][3];RrMenuGlyphRow1C records[3][4];u32 calls;s32 sound_args[5];u32 tail[4];} world,expected;
 #define D_800F3826 world.selection
 #define D_800F3A42 world.buttons
-#define D_8009FDA4 world.direction
-#define D_800F4D80 world.ui
-#define D_800F4D8C world.glyphs
+#define MenuStepDirection world.direction
+#define UiRows world.ui
+#define GlyphRows world.glyphs
 void TriggerSfx(s32 program,s32 level,s32 pan,s32 pitch,s32 voice);
 ''' + bridge + sound + body + r'''
 static u32 seed=0x15148;

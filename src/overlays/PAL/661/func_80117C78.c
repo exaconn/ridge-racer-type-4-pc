@@ -1,8 +1,8 @@
 #include "rr/menu_text_rows.h"
 #include "rr/overlay_menu.h"
 
-extern s16 D_800AC64A;
-extern s16 D_800AC5E0;
+extern s16 MenuCursor;
+extern s16 MenuItemCount;
 extern s32 ovl661_D_80118378[22];
 extern s32 D_800F4C64;
 extern s16 ovl661_D_80118448[2];
@@ -16,8 +16,8 @@ void ovl661_func_80117C78(void) {
     s32 i;
 
     InitMenuTextRows(D_800FFC48);
-    D_800AC64A = 0;
-    D_800AC5E0 = 3;
+    MenuCursor = 0;
+    MenuItemCount = 3;
     for (i = 0; i < 11; i++) {
         SetMenuTextRow(i, i, 0, 0, ovl661_D_80118378[i]);
     }

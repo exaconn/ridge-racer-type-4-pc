@@ -53,12 +53,12 @@ extern unsigned short D_800F4D8A;
 extern unsigned short D_800FFC18;
 extern short D_80109478[];
 extern short D_8010948E;
-extern int func_8002B330();
+extern int StepMenuValue();
 extern int PlaySfx();
 extern int func_80053AF4();
 extern int func_800207D4();
 extern int func_8003B934();
-extern int func_8002A604();
+extern int ClearScreenOverlayState();
 extern int func_80053CB0();
 extern int func_80114920();
 extern int func_80115598();
@@ -66,8 +66,8 @@ extern int func_801161A8();
 extern int func_8011512C();
 extern w8c5S D_800F2E30[];
 extern w8c5S D_8010B258[];
-extern struct { char pad[0x500]; unsigned char b500; } *D_800F4D80;
-extern struct { char pad[0x10]; short h10; char pad2[0x1A]; short h2C; } *D_800F3AFC;
+extern struct { char pad[0x500]; unsigned char b500; } *UiRows;
+extern struct { char pad[0x10]; short h10; char pad2[0x1A]; short h2C; } *BadgeRows;
 extern short D_800AC5D0;
 extern short D_800F3A26;
 extern short D_800FF688;
@@ -79,7 +79,7 @@ extern int D_801272F0[];
 extern s16 D_800A4540[][2];
 extern char *D_800ACC0C;
 extern int D_8010EFA8;
-extern int func_8002B75C();
+extern int CopyStringClearTail();
 extern short D_800A45BC;
 extern short D_800A45BE;
 extern unsigned char D_800ACBCC;
@@ -228,9 +228,9 @@ void func_8007BFF4()
         }
     }
     if (flag) {
-        func_8002B330(((unsigned short)D_800AC594 & 1) << 2, 2, D_80109478 + D_8010948E, n, 0);
+        StepMenuValue(((unsigned short)D_800AC594 & 1) << 2, 2, D_80109478 + D_8010948E, n, 0);
     } else {
-        func_8002B330((((unsigned short)D_800AC594 & 1) << 2) | 1, 2, D_80109478 + D_8010948E, n, 0);
+        StepMenuValue((((unsigned short)D_800AC594 & 1) << 2) | 1, 2, D_80109478 + D_8010948E, n, 0);
     }
     b3 = D_800F3A38;
     r = b3 + D_800AC594 * 0x5C;
@@ -259,16 +259,16 @@ void func_8007BFF4()
 void func_8007C308(void) {
     int i;
     char *q;
-    if (D_800F4D80->b500 == 2) {
+    if (UiRows->b500 == 2) {
         for (i = 0; i < 4; i++) {
-            q = (char *)(i * 0x24 + (int)D_800F4D80) + 0x4C8;
+            q = (char *)(i * 0x24 + (int)UiRows) + 0x4C8;
             if (q[0x14] == 2) {
                 q[0x14] = 3;
             }
         }
-        D_800F3AFC->h10 = 4;
+        BadgeRows->h10 = 4;
         if (D_800FFC18 == 3 || D_800FFC18 == 6 || D_800FFC18 == 7) {
-            D_800F3AFC->h2C = 4;
+            BadgeRows->h2C = 4;
         }
         D_800AC5D0 = 0x40;
         if (D_800FFC18 == 0) {
@@ -284,12 +284,12 @@ void func_8007C308(void) {
     func_800207D4(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) << 2, 0x45);
     if (func_8003B934() != 1) return;
     if (D_800AC5D0 > 0) return;
-    if (D_800F4D80->b500 != 5) return;
-    if (D_800F3AFC->h10 != 0xB) return;
+    if (UiRows->b500 != 5) return;
+    if (BadgeRows->h10 != 0xB) return;
     for (i = 0; i < 3; i++) {
         D_800F2E30[i] = D_8010B258[i];
     }
-    func_8002A604();
+    ClearScreenOverlayState();
     switch (D_800FFC18) {
     case 0:
     default:
@@ -520,13 +520,13 @@ int a0;
         D_800F3A24[1] = 0x5A;
         D_800F3A24[0] = 0x5A;
         func_80078E40(D_800FFC00, 0, 1);
-        func_8002B75C(D_800F4D50, D_800A457C);
+        CopyStringClearTail(D_800F4D50, D_800A457C);
         D_800A45BC = 1;
         break;
     case 1:
         func_80078E40(D_800FFC00, 0, 0);
         if (D_800F3A24[0] < 0x10U) {
-            if (func_80078414(D_800ACBCC, D_800F4D50) == 1) {
+            if (CardHasFile(D_800ACBCC, D_800F4D50) == 1) {
                 D_800A45BE = 0;
                 D_800A45BC = 2;
             } else {
@@ -554,7 +554,7 @@ int a0;
     case 3:
         for (i = 0x63; i >= 0; i--) {
         }
-        r = func_80078544(D_800FFC00, 0, D_800F4D50, D_800ACC0C + 0x1F00, 0x100, 0x300);
+        r = CardReadFileAt(D_800FFC00, 0, D_800F4D50, D_800ACC0C + 0x1F00, 0x100, 0x300);
         if (r == -1) {
             if (D_800A45BE < 3) {
                 D_800A45BE = (unsigned short)D_800A45BE + 1;
@@ -568,7 +568,7 @@ int a0;
     case 4:
         for (i = 0x63; i >= 0; i--) {
         }
-        q = func_80078178();
+        q = GetHwCardEvent();
         if (q != 0) {
             if (q == 1) {
                 D_800A45BC = 5;
@@ -623,14 +623,14 @@ int a0;
             i--;
             p--;
         } while (i >= 0);
-        func_8002B75C(D_800F4D50, D_800A457C);
+        CopyStringClearTail(D_800F4D50, D_800A457C);
         D_800F3AF8 = 0x30;
         D_800A45C0 = 1;
         break;
     case 1:
         func_80078E40(0, 0, 0);
         if (D_800F3A24[0] < 0x10U) {
-            if (func_80078414(D_800ACBCC, D_800F4D50) == 1) {
+            if (CardHasFile(D_800ACBCC, D_800F4D50) == 1) {
                 func_8007A9CC(2, 0);
                 D_800A45C0 = 2;
             } else {
@@ -699,13 +699,13 @@ int a0, a1;
         D_800F3A24[0] = 0x5A;
         func_80078E40(0, 0, 1);
         D_800A45C4 = 1;
-        func_8002B75C(D_800F4D50, D_800A4594[a1]);
+        CopyStringClearTail(D_800F4D50, D_800A4594[a1]);
         D_800F3AF8 = 0x10;
         break;
     case 1:
         func_80078E40(0, 0, 0);
         if (D_800F3A24[0] < 0x10U) {
-            if (func_80078414(D_800ACBCC, D_800F4D50) == 1) {
+            if (CardHasFile(D_800ACBCC, D_800F4D50) == 1) {
                 func_8007A9CC(2, 0);
                 D_800A45C4 = 2;
             } else {
@@ -757,7 +757,7 @@ int a0, a1;
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AC590 ((char *)D_800AC590)
-#define D_800F3AFC ((short *)D_800F3AFC)
+#define BadgeRows ((short *)BadgeRows)
 #define D_800FFC18 (*(short (*))&D_800FFC18)
 
 void func_8007D1B8(a0, a1, a2, a3, a4, a5) int a0; int a1; int a2; int a3; int a4; int a5; {
@@ -785,7 +785,7 @@ done:;
             }
         }
     }
-    if (D_800F3AFC[8] == 3) {
+    if (BadgeRows[8] == 3) {
         if (a0 == -1) {
             if (D_800FFC18 == 3 || D_800FFC18 == 6 || D_800FFC18 == 7) a0 = 0x19;
         } else if (a0 == -128) {
@@ -803,7 +803,7 @@ done:;
         }
         if (a0 >= 0) {
             D_800AC590[4] = a0;
-            func_80032A14(D_800F3AFC[4] + 10, D_800F3AFC[5] + 0x28, D_800AC590, a3);
+            func_80032A14(BadgeRows[4] + 10, BadgeRows[5] + 0x28, D_800AC590, a3);
         }
     }
     func_8007D448(a4, ((s0 & 2) > 0) & (*(short *)(D_800AC590 + 0x12) >= 6));
@@ -812,5 +812,5 @@ done:;
 }
 
 #undef D_800AC590
-#undef D_800F3AFC
+#undef BadgeRows
 #undef D_800FFC18

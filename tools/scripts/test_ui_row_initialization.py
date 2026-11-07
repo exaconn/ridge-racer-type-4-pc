@@ -28,7 +28,7 @@ class UiRowInitializationTest(unittest.TestCase):
 typedef uint8_t u8;typedef int16_t s16;typedef uint32_t u32;typedef int32_t s32;
 #define RR_FIELD_OFFSET(T,F) offsetof(T,F)
 ''' + header + '''
-s32 D_800F4BEC;
+s32 UiRowCount;
 u8 *test_page;
 s32 test_initialize(void) {return posix_memalign((void **)&test_page,65536,65536);}
 void test_release(void) {free(test_page);}
@@ -48,8 +48,8 @@ unsigned long test_row_size(void) {return sizeof(RrUiRow24);}
         cls.addClassCleanup(cls.lib.test_release)
         cls.address = C.c_void_p.in_dll(cls.lib, 'test_page').value
         cls.memory = (C.c_uint8*65536).from_address(cls.address)
-        cls.limit = C.c_int32.in_dll(cls.lib, 'D_800F4BEC')
-        cls.initialize = cls.lib.func_8003E928
+        cls.limit = C.c_int32.in_dll(cls.lib, 'UiRowCount')
+        cls.initialize = cls.lib.InitUiRow
         cls.initialize.argtypes = [C.c_int32]*10
         cls.initialize.restype = None
         cls.lib.test_row_size.restype = C.c_ulong

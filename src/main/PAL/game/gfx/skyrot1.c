@@ -11,7 +11,7 @@ struct V8 { unsigned char c[8]; };
 
 struct M { int a[8]; };
 
-extern int func_800701C4();
+extern int SelectModelBank();
 extern int RotMatrix();
 extern int func_8006EE3C();
 extern int func_8005F0D0();
@@ -19,12 +19,12 @@ extern char D_8001013C[];
 extern int D_800F2FD8;
 extern struct V8 D_800101E4;
 extern struct { char pad[0xA8]; unsigned short v; } *D_8010BF78;
-extern int func_80091FF4();
+extern int RotMatrixX();
 extern int RotMatrixY();
-extern int func_80092334();
+extern int RotMatrixZ();
 extern char D_8009E88C[];
 extern s16 D_800AC5D0;
-extern s32 D_800AC5DC;
+extern s32 VSyncThreshold;
 extern s16 D_800F3A26;
 extern s16 D_800F4C6A;
 extern s16 D_800F4D8A;
@@ -42,7 +42,7 @@ int func_8001BD40(int a0, int a1)
     int t[8];
     short *s3 = (short *)(SCRATCHPAD + 0x7C);
     int s2;
-    func_800701C4(4);
+    SelectModelBank(4);
     s2 = *(short *)(D_8010BF78 + (a0 << 1) + 0xAA);
     if (a1 || (s2 && (s2 & 0x3FF) > 0x20)) s2 += 0x20;
     else if (s2) s2 = 0;
@@ -79,8 +79,8 @@ void func_8001BEF8(void)
     t = (short)D_8010BF78->v;
     sp18.a[0] = 0x1000;
     RotMatrixY(t, &sp18);
-    func_80091FF4(0x100, &sp18);
-    func_80092334(0xAA, &sp18);
+    RotMatrixX(0x100, &sp18);
+    RotMatrixZ(0xAA, &sp18);
     func_800197C8(D_8009E88C, &sp18, &sp10, 0xC8);
 }
 
@@ -90,7 +90,7 @@ void func_8001BEF8(void)
 void func_8001BFA8(int a0, int a1, int a2)
 {
     int t[8];
-    func_800701C4(4);
+    SelectModelBank(4);
     RotMatrix(a1, (SCRATCHPAD + 0x84));
     RR_GTE_SETROT(D_8010BF78 + 0x20);
     MulRotMatrix0((SCRATCHPAD + 0x84), (SCRATCHPAD + 0xA4));
@@ -105,7 +105,7 @@ void func_8001BFA8(int a0, int a1, int a2)
 #undef D_8010BF78
 
 void func_8001C0F8(void) {
-    D_800AC5DC = 0x80;
+    VSyncThreshold = 0x80;
     D_800AC5D0 = 0;
     D_8010BF7C = 0;
     SetDispMask(1);

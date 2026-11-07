@@ -3,22 +3,22 @@
 void ovl663_init_menu(void) {
     D_800F2DE4 = 0;
     ScreenFrame = 0;
-    D_800AC64A = 0;
-    D_800AC5E0 = 3;
-    func_8002A604();
+    MenuCursor = 0;
+    MenuItemCount = 3;
+    ClearScreenOverlayState();
     ovl663_extra_courses_enabled = 0;
     ovl663_record_kind = 0;
     ResetScreenCounters();
-    D_800F4D70.second = D_800102F0 + 0x2D000;
-    func_8003A1B4();
-    D_800ACC18 = D_800F4D70.second;
-    func_8003E928(0, 118, 152, 68, 32, 0, 0, 1, 0, 122);
-    func_8003E928(1, 118, 192, 68, 32, 0, 0, 1, 1, 16);
-    func_8003E928(2, 118, 232, 68, 32, 0, 0, 1, 1, 17);
-    func_8003E928(3, 118, 272, 68, 32, 0, 0, 1, 0, 85);
+    D_800F4D70.second = CdDirectoryBuffer + 0x2D000;
+    InitMenuArenas();
+    LoadCursor = D_800F4D70.second;
+    InitUiRow(0, 118, 152, 68, 32, 0, 0, 1, 0, 122);
+    InitUiRow(1, 118, 192, 68, 32, 0, 0, 1, 1, 16);
+    InitUiRow(2, 118, 232, 68, 32, 0, 0, 1, 1, 17);
+    InitUiRow(3, 118, 272, 68, 32, 0, 0, 1, 0, 85);
     if (!ovl663_available_course_count)
-        D_800F4D80->half20 = 1;
-    func_80013890(5);
+        UiRows->half20 = 1;
+    SetupRenderer(5);
 }
 
 void ovl663_init_scene(void) {
@@ -68,28 +68,28 @@ void ovl663_update_menu(void) {
     switch (D_800F4D8A) {
     case 0:
         i = 0;
-        if (D_800F4D80->byte14 == 2) {
+        if (UiRows->byte14 == 2) {
             func_8002AF8C(1, 1, 1);
-            D_800F4D80[D_800AC64A].cells[0] = 0;
-            func_8002B330(0, 2, (char *)&D_800AC64A, 4, 0);
+            UiRows[MenuCursor].cells[0] = 0;
+            StepMenuValue(0, 2, (char *)&MenuCursor, 4, 0);
             highlight = 2;
             if (ovl663_available_course_count == 0) {
-                if (D_800AC64A == 0) {
+                if (MenuCursor == 0) {
                     highlight = 4;
                 }
             }
-            D_800F4D80[D_800AC64A].cells[0] = highlight;
+            UiRows[MenuCursor].cells[0] = highlight;
             closingMode = 0;
             if (D_800F3A38[0].a != 0) {
-                D_800F4D80[D_800AC64A].cells[0] = 1;
-                selected = D_800AC64A;
+                UiRows[MenuCursor].cells[0] = 1;
+                selected = MenuCursor;
                 if (selected == 0) {
                     if (ovl663_available_course_count > 0) {
                         PlaySfx(1);
                         closingMode = 2;
                         ResetScreenCounters();
                         D_800F4D8A = 3;
-                        D_800ACC18 = D_800F4D40;
+                        LoadCursor = D_800F4D40;
                     } else {
                         PlaySfx(4);
                     }
@@ -128,12 +128,12 @@ void ovl663_update_menu(void) {
                 i = 0;
 
                 do {
-                    rowState = D_800F4D80[i].byte14;
+                    rowState = UiRows[i].byte14;
                     if (rowState == 2) {
                         if (closingMode == rowState) {
-                            D_800F4D80[i].byte14 = 7U;
+                            UiRows[i].byte14 = 7U;
                         } else {
-                            D_800F4D80[i].byte14 = 3U;
+                            UiRows[i].byte14 = 3U;
                             func_80053AF4(0, (s16)(D_800AC5D0 - 4));
                         }
                     }
@@ -191,10 +191,10 @@ void ovl663_update_menu(void) {
     }
     i = 0;
     do {
-        func_8003EC88(i);
+        DrawUiRow(i);
         i += 1;
     } while (i < 4);
-    func_8002A344(0x10057);
+    UpdateScreenFade(0x10057);
 }
 
 void ovl663_init_selection(s32 mode) {
@@ -203,16 +203,16 @@ void ovl663_init_selection(s32 mode) {
     ScreenFrame = 0;
     D_800AC648 = 0;
     D_800F3914 = 0;
-    D_800AC64A = 0;
+    MenuCursor = 0;
     ovl663_selected_record = 0;
-    func_8002A604();
-    func_8003E928(0, 12, 64, 68, 32, 0, 0, one, one, 24);
-    func_8003E928(1, 12, 104, 68, 32, 0, 0, one, 0, 85);
-    func_8003E928(2, 12, 368, 208, 32, 0, 0, 8, 4, 0);
-    func_8003E928(3, 24, 88, 68, 32, 0, 0, one, 0, 83);
+    ClearScreenOverlayState();
+    InitUiRow(0, 12, 64, 68, 32, 0, 0, one, one, 24);
+    InitUiRow(1, 12, 104, 68, 32, 0, 0, one, 0, 85);
+    InitUiRow(2, 12, 368, 208, 32, 0, 0, 8, 4, 0);
+    InitUiRow(3, 24, 88, 68, 32, 0, 0, one, 0, 83);
     if (mode == 2)
-        func_8003D228(one, 49, 188, 222, 152, 0, 0xB04);
+        InitBadgeRow(one, 49, 188, 222, 152, 0, 0xB04);
     else
-        func_8003D228(one, 49, 188, 222, 152, 0, 0xA04);
-    D_800F3AFC[1].half02 = one;
+        InitBadgeRow(one, 49, 188, 222, 152, 0, 0xA04);
+    BadgeRows[1].half02 = one;
 }

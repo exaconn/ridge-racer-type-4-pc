@@ -39,15 +39,15 @@ typedef int32_t s32;
         source = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', source)
         source += '''
 s32 D_800A48B8;
-RrSpuAllocation *D_800A48C0;
+RrSpuAllocation *_spu_memList;
 void (*test_consolidate)(void);
-void func_8008A774(void) { test_consolidate(); }
+void _spu_gcSPU(void) { test_consolidate(); }
 '''
         (directory / 'function.c').write_text(source)
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
-        cls.function = cls.library.func_8008A6F4
+        cls.function = cls.library.SpuFree
         cls.function.argtypes = [C.c_uint32]
         cls.function.restype = None
 
@@ -56,7 +56,7 @@ void func_8008A774(void) { test_consolidate(); }
             limit = len(entries)
         table = (Allocation * len(entries))(*(Allocation(*entry) for entry in entries))
         C.c_int32.in_dll(self.library, 'D_800A48B8').value = limit
-        C.c_void_p.in_dll(self.library, 'D_800A48C0').value = (
+        C.c_void_p.in_dll(self.library, '_spu_memList').value = (
             C.addressof(table) if limit > 0 else None)
         expected = list(entries)
         prefix = [value for value, _ in entries[:max(0, limit)]]

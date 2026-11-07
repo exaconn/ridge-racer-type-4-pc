@@ -88,19 +88,19 @@ typedef struct
   Q q;
 } P;
 
-extern int func_80025FBC();
-extern int func_8004BAD4();
+extern int AngleDiffSigned();
+extern int PadSetRumbleParams();
 extern int rcos();
 extern int func_80096464();
-extern char D_800ABEF8[];
+extern char PlayerCars[];
 extern int D_800AD568;
 extern char *D_800F39C8[];
 extern char D_800F3A38[];
-extern int D_800FF6B0;
+extern int RaceState;
 extern unsigned char D_800ADAD8[][4];
 extern short D_800F4C70[];
 extern short D_800F2AB4[];
-extern int func_80025F84();
+extern int AngleDiffAbs();
 extern void func_80024CD8();
 extern void func_800252EC();
 extern void func_80025954();
@@ -111,7 +111,7 @@ extern int MulMatrix();
 
 void func_80022D50();
 void func_8002367C();
-void func_800244B0(char *p);
+void IntegrateCarMotion(char *p);
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ADAD8 (*(char (*)[])&D_800ADAD8)
@@ -148,13 +148,13 @@ int arg1;
   int v0_3;
   s2 = 0x1800;
   s1 = arg0 + 0x1F4;
-  if (D_800FF6B0 < 2)
+  if (RaceState < 2)
   {
     *((int *) (((char *) s1) + 0xC)) = 0;
     *((int *) (((char *) arg0) + 0x178)) = 0;
   }
   else
-    if (D_800FF6B0 < 4)
+    if (RaceState < 4)
   {
     q = D_800ADAD8;
     a2 = (arg1 * 4) + q;
@@ -304,7 +304,7 @@ int arg1;
     register int t5 asm("$5");
     t5 = (*((short *) (((char *) arg0) + 0x1EA))) << 0xB;
     t5 += 0x800;
-    s0_else = func_80025FBC(*((int *) (((char *) arg0) + 0x54)), t5 - (*((short *) (((char *) arg0) + 0x1EC)))) << 8;
+    s0_else = AngleDiffSigned(*((int *) (((char *) arg0) + 0x54)), t5 - (*((short *) (((char *) arg0) + 0x1EC)))) << 8;
     a0 = 0x1000 - rcos(((*((int *) (((char *) arg0) + 0xF4))) << 8) / 96);
     if ((*((short *) (((char *) arg0) + 0x1D8))) < 0x320)
     {
@@ -388,7 +388,7 @@ int arg1;
     }
   }
   *((int *) (((char *) s1) + 0x9C)) = (*((int *) (((char *) s1) + 0x9C))) & 0xFFF;
-  if ((arg0 == D_800ABEF8) || (arg0 == (D_800ABEF8 + 0x320)))
+  if ((arg0 == PlayerCars) || (arg0 == (PlayerCars + 0x320)))
   {
     /* ASM_BARRIER: pin p4 to a0 for D_800F3A38 base */
     register char *p4 asm("$4");
@@ -426,7 +426,7 @@ int arg1;
     }
     else
     {
-      s0 = func_80025FBC(*((short *) (((char *) arg0) + 0x1D4)), *((int *) (((char *) arg0) + 0x54)));
+      s0 = AngleDiffSigned(*((short *) (((char *) arg0) + 0x1D4)), *((int *) (((char *) arg0) + 0x54)));
       if (s0 >= 0x201)
       {
         s0 = 0x200;
@@ -504,9 +504,9 @@ int arg1;
       s0 = 0;
       s2 = 0xF;
     }
-    if (D_800FF6B0 < 4)
+    if (RaceState < 4)
     {
-      func_8004BAD4(arg1 & 1, s0, s2);
+      PadSetRumbleParams(arg1 & 1, s0, s2);
     }
   }
 }
@@ -564,7 +564,7 @@ P *a0;
   r = q->s1C;
   off = (q->s86 * 0x3C) + 4;
   s = (S *) (((int) q->s18) + off);
-  if (D_800FF6B0 < 4)
+  if (RaceState < 4)
   {
     q->sAC = D_800ADAD8[q->s24][1];
     q->sAE = D_800ADAD8[q->s24][2];
@@ -735,7 +735,7 @@ P *a0;
   {
     s1 -= a1 / 2;
   }
-  k3 = func_80025F84(a0->s54, a0->s1D4);
+  k3 = AngleDiffAbs(a0->s54, a0->s1D4);
   if (k3 > 0x400)
   {
     k3 = 0x800 - k3;
@@ -802,7 +802,7 @@ P *a0;
   else
     if (((unsigned) (q->sA4 - 1)) < 2)
   {
-    n2 = 0x1000 - rcos(func_80025F84(a0->s1D4, a0->s54));
+    n2 = 0x1000 - rcos(AngleDiffAbs(a0->s1D4, a0->s54));
     x = (n2 * 100) >> 12;
     k3 = r->sE;
     k3 = k3 + 9000;
@@ -836,7 +836,7 @@ P *a0;
   {
     a0->s1D4 = a0->s54;
   }
-  if (D_800FF6B0 >= 2)
+  if (RaceState >= 2)
   {
     switch (q->sA4)
     {
@@ -866,7 +866,7 @@ P *a0;
       a0->s1D8 = a0->s1D8 >> 1;
     }
   }
-  if ((((char *) a0) == D_800ABEF8) || (((char *) a0) == (D_800ABEF8 + 0x320)))
+  if ((((char *) a0) == PlayerCars) || (((char *) a0) == (PlayerCars + 0x320)))
   {
     d1 = D_800F4C70[q->s24 & 1];
     k2 = a0->s1DE;
@@ -891,7 +891,7 @@ P *a0;
   }
 }
 
-void func_800244B0(char *p) {
+void IntegrateCarMotion(char *p) {
     char *s5;
     char *s2;
     char *s1;

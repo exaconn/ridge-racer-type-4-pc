@@ -9,6 +9,6 @@
  * A negative index other than INT_MIN is an empty table. Addresses stored in
  * records are numeric SPU offsets; the table pointer retains native width. */
 extern s32 D_800A48BC;
-void func_8008A774(void);
+void _spu_gcSPU(void);
 
 #endif

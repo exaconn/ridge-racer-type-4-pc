@@ -13,22 +13,22 @@ struct E { unsigned char n; char pad[3]; unsigned char *p; };
 
 struct S { char pad[8]; struct E *e; char pad2[0xde]; unsigned char c; };
 
-void func_80097834();
-void func_80097874();
+void PadChkVsync();
+void PadStopCom();
 int PadChkMtap();
 int PadInfoComb();
 void PadSetMainMode(s32 selector, s32 first, s32 second);
 
-void func_80097834() { func_80098030(); }
+void PadChkVsync() { _padChkVsync(); }
 
 /* legacy typing of shared globals in this part of the unit */
 #define _padStartCom ((int (*)())_padStartCom)
 
-void func_80097854() { _padStartCom(); }
+void PadStartCom() { _padStartCom(); }
 
 #undef _padStartCom
 
-void func_80097874() { func_80098110(); }
+void PadStopCom() { _padStopCom(); }
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC9C ((char *)D_800ABC9C)
@@ -46,7 +46,7 @@ int PadChkMtap(a0) int a0; {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC7C (*(char *(*(*))())&D_800ABC7C)
 
-int func_800978E0() {
+int PadGetState() {
   char *p = D_800ABC7C();
   int a;
   if (p[0x37] == 0 && p[0x38] == 0) {
@@ -137,6 +137,6 @@ void PadSetMainMode(s32 selector, s32 first, s32 second) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC7C (*(int (*(*))())&D_800ABC7C)
 
-void PadSetAct(a0, a1, a2) int a0, a1, a2; { func_80098AC4(D_800ABC7C(), a1, a2); }
+void PadSetAct(a0, a1, a2) int a0, a1, a2; { _padSetAct(D_800ABC7C(), a1, a2); }
 
 #undef D_800ABC7C

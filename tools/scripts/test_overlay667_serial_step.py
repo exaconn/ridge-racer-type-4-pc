@@ -36,7 +36,7 @@ static struct World {
 static unsigned scenario,mutation;
 static s32 result;
 #define ovl667_D_80118ED0 w->peer
-#define D_800FF6B0 w->local
+#define RaceState w->local
 #define ovl667_D_80118ED4 w->halt
 #define ovl667_D_80118EC8 w->command
 #define ovl667_D_80118EF8 w->rxcount

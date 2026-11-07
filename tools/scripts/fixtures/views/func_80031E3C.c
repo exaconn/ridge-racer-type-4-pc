@@ -6,36 +6,36 @@
 #undef func_80039F98
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3AFC ((Struct800F3AFC *)D_800F3AFC)
+#define BadgeRows ((Struct800F3AFC *)BadgeRows)
 
 #define D_800FF68C ((Struct800FF68C *)D_800FF68C)
 
-#undef D_800F3AFC
+#undef BadgeRows
 
 #undef D_800FF68C
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3AFC (*(s32 (*))&D_800F3AFC)
+#define BadgeRows (*(s32 (*))&BadgeRows)
 
 #define D_800FF68C ((void *)D_800FF68C)
 
-#undef D_800F3AFC
+#undef BadgeRows
 
 #undef D_800FF68C
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F2A68 (*(struct E (*)[])&D_800F2A68)
 
-#define D_800F2DE8 (*(struct E *(*)[])&D_800F2DE8)
+#define RankTable (*(struct E *(*)[])&RankTable)
 
 #undef D_800F2A68
 
-#undef D_800F2DE8
+#undef RankTable
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3AFC ((void *)D_800F3AFC)
+#define BadgeRows ((void *)BadgeRows)
 
-#undef D_800F3AFC
+#undef BadgeRows
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800AD4D8 (*(w3g2S (*))&D_800AD4D8)
@@ -47,9 +47,9 @@
 #undef D_800F4D8A
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3AFC ((void *)D_800F3AFC)
+#define BadgeRows ((void *)BadgeRows)
 
-#undef D_800F3AFC
+#undef BadgeRows
 
 void func_80031E3C(void) {
     s32 a2 = 0;

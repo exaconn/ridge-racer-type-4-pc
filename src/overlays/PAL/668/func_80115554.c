@@ -10,30 +10,30 @@ void ovl668_func_80115554(void) {
     s32 diff;
     s32 unk4A0;
 
-    var_a3 = D_800AC650.fraction49C;
-    idx1 = D_800AC650.node498 - ((3072 - var_a3) / 1024);
+    var_a3 = RaceContext.fraction49C;
+    idx1 = RaceContext.node498 - ((3072 - var_a3) / 1024);
     idx2 = idx1 - 1;
     if (idx1 < 0) {
-        idx1 += D_800ABECC;
+        idx1 += TrackNodeCount;
         idx2 = idx1 - 1;
     }
     if (idx2 < 0) {
-        idx2 += D_800ABECC;
+        idx2 += TrackNodeCount;
     }
-    func_80047610(&D_800ABEA4[idx1], &D_800ABEA4[idx2], 0, (1024 - var_a3) & 0x3FF, D_800AC650.target468);
-    D_800AC650.delta478[0] = (s32)((u32)D_800AC650.target468[0] - (u32)(D_800AC650.position450[0] / 4));
-    D_800AC650.delta478[1] = (s32)((u32)D_800AC650.target468[1] - (u32)(D_800AC650.position450[1] / 4));
-    D_800AC650.delta478[2] = (s32)((u32)D_800AC650.target468[2] - (u32)(D_800AC650.position450[2] / 4));
-    old_unk462 = D_800AC650.yaw462;
-    new_unk462 = 1024 - func_8006E368(D_800AC650.delta478[0], D_800AC650.delta478[2]);
+    func_80047610(&TrackNodes[idx1], &TrackNodes[idx2], 0, (1024 - var_a3) & 0x3FF, RaceContext.target468);
+    RaceContext.delta478[0] = (s32)((u32)RaceContext.target468[0] - (u32)(RaceContext.position450[0] / 4));
+    RaceContext.delta478[1] = (s32)((u32)RaceContext.target468[1] - (u32)(RaceContext.position450[1] / 4));
+    RaceContext.delta478[2] = (s32)((u32)RaceContext.target468[2] - (u32)(RaceContext.position450[2] / 4));
+    old_unk462 = RaceContext.yaw462;
+    new_unk462 = 1024 - Atan2Table(RaceContext.delta478[0], RaceContext.delta478[2]);
     old_unk462 = (new_unk462 - old_unk462) * 2;
     diff = old_unk462;
     old_unk462 &= 0xFFF;
-    D_800AC650.yaw462 = new_unk462;
+    RaceContext.yaw462 = new_unk462;
     if (diff & 0x800) {
         old_unk462 |= ~0xFFF;
     }
-    unk4A0 = D_800AC650.velocity4A0;
-    D_800AC650.velocity4A0 = (s32)((u32)unk4A0 + (u32)((s32)(((u32)old_unk462 - (u32)unk4A0) * 15U) / 16));
-    D_800AC650.roll464 = (s32)((u32)D_800AC650.velocity4A0 + (u32)D_800AC650.roll464) / 2;
+    unk4A0 = RaceContext.velocity4A0;
+    RaceContext.velocity4A0 = (s32)((u32)unk4A0 + (u32)((s32)(((u32)old_unk462 - (u32)unk4A0) * 15U) / 16));
+    RaceContext.roll464 = (s32)((u32)RaceContext.velocity4A0 + (u32)RaceContext.roll464) / 2;
 }

@@ -21,9 +21,9 @@ class SpuAddressConversionTest(unittest.TestCase):
 #undef RR_ASSERT_OFFSET
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(offsetof(t,f)==(n), "offset")
 #include "rr/spu.h"
-s32 D_800A47FC, D_800A4800;
-u32 D_800A4804, D_800A4808;
-RrSpuRegisterBank *D_800A47D8;
+s32 _spu_mem_mode, _spu_mem_mode_plus;
+u32 _spu_mem_mode_unit, _spu_mem_mode_unitM;
+RrSpuRegisterBank *_spu_RXX;
 static struct {
     u32 before[8];
     RrSpuRegisterStorage bank;
@@ -40,10 +40,10 @@ int main(void) {
         address = seed;
         /* Exercise every shift, both query selectors, all256 write indices,
          * unrounded and wrapped rounded addresses, and independent masks. */
-        D_800A4800 = (k >> 1) & 31;
-        D_800A47FC = (k & 1) ? -1 : 0;
-        D_800A4804 = (k & 4) ? (1U << (k % 32)) : (k % 65535) + 1;
-        D_800A4808 = (k & 8) ? D_800A4804 - 1 : ~seed;
+        _spu_mem_mode_plus = (k >> 1) & 31;
+        _spu_mem_mode = (k & 1) ? -1 : 0;
+        _spu_mem_mode_unit = (k & 4) ? (1U << (k % 32)) : (k % 65535) + 1;
+        _spu_mem_mode_unitM = (k & 8) ? _spu_mem_mode_unit - 1 : ~seed;
         index = (s32)(k % 258) - 2;
         if ((k & 127) == 0) address = 0;
         if ((k & 127) == 1) address = UINT32_MAX;
@@ -54,14 +54,14 @@ int main(void) {
         }
         for (j = 0; j < 256; ++j)
             expected[j] = world.bank.halves[j] = (u16)(seed + j * 37U);
-        D_800A47D8 = &world.bank.registers;
-        assert((uintptr_t)D_800A47D8 > UINT32_MAX);
+        _spu_RXX = &world.bank.registers;
+        assert((uintptr_t)_spu_RXX > UINT32_MAX);
         rounded = address;
-        if (D_800A47FC && (uint64_t)address % D_800A4804) {
-            uint64_t sum = (uint64_t)address + D_800A4804;
-            rounded = (u32)sum & (D_800A4808 ^ UINT32_MAX);
+        if (_spu_mem_mode && (uint64_t)address % _spu_mem_mode_unit) {
+            uint64_t sum = (uint64_t)address + _spu_mem_mode_unit;
+            rounded = (u32)sum & (_spu_mem_mode_unitM ^ UINT32_MAX);
         }
-        units = (u32)((uint64_t)rounded / (UINT64_C(1) << D_800A4800));
+        units = (u32)((uint64_t)rounded / (UINT64_C(1) << _spu_mem_mode_plus));
         result = index == -1 ? (u16)units : rounded;
         if (index >= 0) expected[index] = (u16)units;
         assert((u32)_spu_FsetRXXa(index, (s32)address) == result);
@@ -70,7 +70,7 @@ int main(void) {
             assert(world.before[j] == (seed ^ j));
             assert(world.after[j] == ~(seed ^ j));
         }
-        assert(D_800A47D8 == &world.bank.registers);
+        assert(_spu_RXX == &world.bank.registers);
     }
     return 0;
 }

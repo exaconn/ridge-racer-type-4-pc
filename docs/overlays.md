@@ -16,8 +16,8 @@ Evidence:
 - Main EXE word at VA `0x800102F0` (file offset `0xAF0`) is `0x80114878`.
 - Startup at `0x8007D718` clears BSS through `0x80114878` (exclusive).
   The `0x80110000` region contains resident library state, not overlay code.
-- `func_8003A874` resets `D_800ACC18` to `D_800102F0`, then requests
-  `func_8001292C(func_8001223C(1, mode + 0xB), D_800ACC18)`.
+- `func_8003A874` resets `LoadCursor` to `CdDirectoryBuffer`, then requests
+  `CdFileReadStart(GetR4FileIndex(1, mode + 0xB), LoadCursor)`.
   The category-1 mapper adds `0x292`, so this selects entries 669..673 for
   mode 0..4. These include copies of the executable menu modules.
 - `func_8003A9E8` likewise requests entries `659 + D_800F4D2C` into that buffer.
@@ -28,10 +28,10 @@ Evidence:
   hence VA `0x80114920`, called by resident `func_8007C308`.
 
 The loader reuses the ordinary asynchronous CD state machine:
-`func_80012290` converts the R4 directory into `D_801094A8` entries;
-`func_8001292C` selects destination/location/sector count;
-`func_800127A0` starts the read through `func_8008EEF4`;
-`func_80012A58` reports completed bytes. The callers advance their allocation
+`LoadR4Directory` converts the R4 directory into `CdFileTable` entries;
+`CdFileReadStart` selects destination/location/sector count;
+`func_800127A0` starts the read through `CdRead`;
+`CdFileBytesLoaded` reports completed bytes. The callers advance their allocation
 cursor by the full sector-rounded size. Static code contains absolute resident
 and overlay addresses; there is no evidence here of a relocation pass.
 Runtime cache behavior has not been verified in an emulator.
@@ -144,7 +144,7 @@ recognizable course-selection structures). Garage 662 is a useful larger TU
 for shared menu structures. STR module 668 likely contains substantial library
 code and should be tracked separately when distinguishing game/library code.
 
-## Compiler (verified on three small functions: func_800172DC, func_8001F254, func_80025F84)
+## Compiler (verified on three small functions: func_800172DC, func_8001F254, AngleDiffAbs)
 
 gcc **2.8.1** PSX cc1 reproduces the original codegen (hoisted `lui/addiu` base pointers, loop delay slots);
 2.7.2 folds the symbols into the load/store and does not match. Pipeline in `tools/scripts/cc.sh`:

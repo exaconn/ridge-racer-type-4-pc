@@ -45,10 +45,10 @@ static unsigned scenario,mutation;
 #define D_800A64A4 w->s.active
 #define D_800A64A5 w->s.command
 #define D_800A6764 w->s.response
-#define D_800A6494 w->s.status
-#define D_800A6498 w->s.mode
-#define D_800A6488 w->s.callback1
-#define D_800A648C w->s.callback2
+#define CD_status w->s.status
+#define CD_status1 w->s.mode
+#define CD_cbsync w->s.callback1
+#define CD_cbready w->s.callback2
 #define D_800A674C w->s.indexPort
 #define D_800A6758 w->s.irqPort
 #define D_800A6754 w->s.enablePort
@@ -102,11 +102,11 @@ s32 func_8001E84C(const char *format,...){
  va_list args;u32 address;assert(format==D_80011B14);va_start(args,format);address=va_arg(args,u32);va_end(args);
  assert(address==(u32)(uintptr_t)&D_800A6768);service(2,0,address);return 1;
 }
-void func_8008B364(void){
+void ResetCallback(void){
  assert(w->s.active==0 && w->s.command==0 && w->s.callback1==0 && w->s.callback2==0 && w->s.status.word==0 && w->s.mode==0);
  service(3,0,0);
 }
-RrLibInterruptCallback func_8008B394(s32 channel,RrLibInterruptCallback callback){assert(channel==2 && callback==func_8008DDAC);service(4,channel,0);return 0;}
+RrLibInterruptCallback InterruptCallback(s32 channel,RrLibInterruptCallback callback){assert(channel==2 && callback==func_8008DDAC);service(4,channel,0);return 0;}
 s32 CD_cw(s32 command,const u8 *params,u8 *result,s32 mode){
  unsigned plan=(scenario>>1)%4;assert(params==0 && result==0 && mode==0);service(5,command,0);
  if(command==1){w->s.status.word=(scenario*0x1234567U&~16U)|((scenario&1)?16U:0U);return -1;}
@@ -118,7 +118,7 @@ s32 CD_sync(s32 mode,u8 *status){assert(mode==0 && status==0);service(6,0,0);ret
 static s32 reference(void){
  func_800963DC(D_80011B08);func_8001E84C(D_80011B14,(u32)(uintptr_t)&D_800A6768);
  w->s.command=0;w->s.active=0;w->s.callback2=0;w->s.callback1=0;w->s.mode=0;w->s.status.word=0;
- func_8008B364();func_8008B394(2,func_8008DDAC);
+ ResetCallback();InterruptCallback(2,func_8008DDAC);
  write8(w->s.indexPort,1);
  while(read8(w->s.irqPort)&7){write8(w->s.indexPort,1);write8(w->s.irqPort,7);write8(w->s.enablePort,7);}
  w->s.response[2]=0;w->s.response[1]=0;w->s.response[0]=2;

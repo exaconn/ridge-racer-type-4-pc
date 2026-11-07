@@ -14,14 +14,14 @@ import unittest
 
 
 EXCHANGES = [
-    ('func_8008BDE4', 0x800A63D0),
-    ('func_8008C05C', 0x800A6490),
-    ('func_8008C118', 0x800A6488),
-    ('func_8008C12C', 0x800A648C),
-    ('func_8008F194', 0x800A63F0),
-    ('func_8008F1A8', 0x800A63F4),
+    ('SetVideoMode', 0x800A63D0),
+    ('CdSetDebug', 0x800A6490),
+    ('CdSyncCallback', 0x800A6488),
+    ('CdReadyCallback', 0x800A648C),
+    ('CdReadCallback', 0x800A63F0),
+    ('CdReadMode', 0x800A63F4),
 ]
-SETTERS = [('func_80087054', 0x801100A0, 2), ('func_8008A624', 0x801100E8, 1)]
+SETTERS = [('_SsVmDamperOn', 0x801100A0, 2), ('SsSetMono', 0x801100E8, 1)]
 AfterPair = C.CFUNCTYPE(None)
 
 
@@ -44,9 +44,9 @@ typedef struct RrLibQueueRecord32 RrLibQueueRecord32;
 RrLibQueueRecord32 *test_queue;
 #define D_80110310 test_queue
 '''
-        names = ([name for name, _ in EXCHANGES] + ['func_80098030']
+        names = ([name for name, _ in EXCHANGES] + ['_padChkVsync']
                  + [name for name, _, _ in SETTERS]
-                 + ['func_80087DA4', 'SpuSetTransferMode', 'StSetRing', 'setRC2wait',
+                 + ['_spu_setInTransfer', 'SpuSetTransferMode', 'StSetRing', 'setRC2wait',
                     'func_8009C0A4'])
         for name in names:
             body = (root / 'tools/scripts/fixtures/legacy' / (name + '.c')).read_text() if (root / 'tools/scripts/fixtures/legacy' / (name + '.c')).exists() else (root / 'tools/scripts/fixtures/legacy' / ('func_%08X.c' % __import__('c_functions').address_of(name))).read_text()
@@ -55,12 +55,12 @@ RrLibQueueRecord32 *test_queue;
 
             def global_alias(match):
                 symbol = match[1]
-                address = int(symbol[2:], 16)
+                address = __import__('c_functions').address_of(symbol)
                 region = 0x80110000 if address >= 0x80110000 else 0x800A0000
                 page = 'test_page_8011_words' if region == 0x80110000 else 'test_page_800A'
                 return f'#define {symbol} {page}[(0x{address:X} - 0x{region:X}) / 4]'
 
-            body = re.sub(r'extern s32 (D_[0-9A-F]+);', global_alias, body)
+            body = re.sub(r'extern s32 (D_[0-9A-F]+|_spu_transferCallback|_spu_voice_centerNote|TrackObjectKeyframes|CdFileStateHandlers|_spu_mem_mode_unitM|_spu_rev_offsetaddr|_spu_rev_reserve_wa|CdFileIndexCurrent|SoundSequenceTable|_spu_mem_mode_plus|_spu_mem_mode_unit|_spu_rev_startaddr|CdAudioTrackTable|CdDirectoryBuffer|MenuStepDirection|TrackObjectStates|_snd_seq_tick_env|CD_read_dma_mode|CdFileSyncResult|MenuTextRowCount|ModelTexturePage|MotionController|TrackLaneOffsets|TrackObjectCount|VoiceVolumeScale|_svm_stereo_mono|CarUpdateStages|CdFileBytesRead|HwCardEvTimeout|MenuGridRecords|RubberBandCurve|SwCardEvTimeout|TrackObjectDefs|_SsMarkCallback|_spu_inTransfer|_spu_trans_mode|_svm_sreg_dirty|CarBoundsTable|CardDirEntries|CardFileHandle|CardPortResult|CdFileLocation|ModelBankTable|Rect16RowCount|SavedRaceState|SceneLoadState|TrackNodeCount|TrackStartNode|VSyncThreshold|_snd_seq_s_max|_snd_seq_t_max|_spu_transMode|_svm_envx_hist|_svm_vab_count|BadgeRowCount|CardPortState|CardPortTimer|CdFileSectors|GlyphRowCount|HwCardEvError|MenuItemCount|ModeFuncTable|RaceStandings|SwCardEvError|_snd_openflag|_spu_isCalled|_spu_mem_mode|_spu_rev_flag|_svm_sreg_buf|_svm_vab_used|spuVmMaxVoice|CarSnapshots|CarSpecTable|DrawBufIndex|FrameCounter|MenuTextRows|PanGainTable|ReplayInputs|ReplayLength|VBLANK_MINUS|_snd_ev_flag|_spu_keystat|_spu_memList|kMaxPrograms|BestLapTime|CdFileState|CdFileTable|HwCardEvIoe|HwCardEvNew|RaceContext|ReplayFrame|ReplayState|ScreenFrame|SwCardEvIoe|SwCardEvNew|TrackLength|ViewOffsetX|ViewOffsetY|ViewScreenH|_svm_damper|BackColorB|BackColorG|BackColorR|CD_cbready|CD_status1|GPU_printf|LoadCursor|MenuCursor|NumPlayers|PlayerCars|Rect16Rows|SoundSlots|SoundState|TrackNodes|UiRowCount|_spu_EVdma|_svm_voice|AtanTable|BadgeRows|CD_cbread|CD_cbsync|CD_comstr|CD_intstr|CD_status|FarColorB|FarColorG|FarColorR|GlyphRows|R4StrPath|RaceState|RankTable|_ss_score|CD_debug|CD_nopen|CarTable|LapTimes|PadPorts|SinTable|_spu_RXX|_spu_tsa|_svm_cur|ComCars|NumCars|NumLaps|Options|_svm_pg|_svm_tn|_svm_vh|CD_pos|UiRows|Vcount);', global_alias, body)
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = body.replace('"$1", ', '').replace(' : "$1"', '')
             body = body.replace('(s32 *)0x800A0000U', 'test_page_800A')
@@ -101,7 +101,7 @@ void StClearRing(void) { test_pair_after(); }
                     self.assert_only_write(self.words, before, offset, struct.pack('<i', value))
 
     def test_read_and_clear_returns_previous_state(self):
-        function = self.library.func_80098030
+        function = self.library._padChkVsync
         function.argtypes = []
         function.restype = C.c_int32
         offset = 0xBCD0
@@ -124,7 +124,7 @@ void StClearRing(void) { test_pair_after(); }
                                    struct.pack('<h', value))
 
     def test_mode_branch_sets_the_expected_boolean(self):
-        function = self.library.func_80087DA4
+        function = self.library._spu_setInTransfer
         function.argtypes = [C.c_int32]
         function.restype = None
         for mode in (-(1 << 31), -1, 0, 1, 2, (1 << 31) - 1):

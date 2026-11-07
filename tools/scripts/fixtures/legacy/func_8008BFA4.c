@@ -3,6 +3,6 @@
 
 extern u8 D_800A64A4;
 
-u8 func_8008BFA4(void) {
+u8 CdMode(void) {
     return D_800A64A4;
 }

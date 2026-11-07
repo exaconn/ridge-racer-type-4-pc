@@ -67,7 +67,7 @@ typedef struct {
 
 extern S D_800ACC68;
 extern B4 D_8009EFD0[];
-extern int func_8001FDD4();
+extern int AddTileGrid2x2();
 extern int func_8005B2D4();
 extern int func_8005B304();
 extern unsigned short D_80010440[];
@@ -78,46 +78,46 @@ extern short D_8009EFD8[];
 extern short D_8009EFE8[];
 extern R4 D_8009EFF8;
 extern S_F3A38 D_800F3A38[];
-extern void *func_8001FC28();
-extern void *func_8001FCC8();
-extern void *func_8001FD20();
+extern void *AddDrawAreaPrim();
+extern void *AddDrawModePrim();
+extern void *AddTilePrim();
 extern void *func_8001FF84();
-extern void *func_80020074();
+extern void *AddSpriteWithDrawMode();
 extern void *func_80020508();
 extern int rsin();
 extern struct { char pad[0xC]; unsigned char a; unsigned char b; short c; } D_800F4CB0;
 extern s8 D_8009EFFC[];
 extern char D_80010460[];
-extern s32 D_8009FDA4;
+extern s32 MenuStepDirection;
 extern int PlaySfx();
 extern char D_8009F008[];
-extern int D_800F3A30;
-extern int D_800F4C80[];
+extern int NumLaps;
+extern int LapTimes[];
 extern int AddPrim();
 extern char D_8009F014[];
 extern unsigned short D_8009F01C[];
 extern char D_8009F020[];
-extern int D_800AD504;
-extern int func_80025F84();
+extern int ReplayState;
+extern int AngleDiffAbs();
 extern int rcos();
 
-void func_8002A604(void);
+void ClearScreenOverlayState(void);
 void func_8002A63C(int arg0);
 void func_8002AF8C();
 void func_8002AFA4();
 void func_8002B12C();
-void func_8002B330();
-int func_8002B574(int a, int b);
+void StepMenuValue();
+int FramesToMilliseconds(int a, int b);
 void func_8002B5D0();
-void func_8002B75C(char *d, char *s);
-void func_8002B7B4();
-void func_8002B814();
-void func_8002B934(char *a, int b);
+void CopyStringClearTail(char *d, char *s);
+void CopyStringPadSpaces();
+void FormatDecimalDigits();
+void FormatRaceTime(char *a, int b);
 void func_8002BA28(int a0);
-char *func_8002BB88();
+char *FormatFrameTimeMMSS();
 void func_8002BC7C(int a);
 void func_8002BD18(int a, int b);
-void func_8002BDB4(int t);
+void FormatMillisecondsTime(int t);
 void func_8002BEF8(void *arg0);
 void func_8002BF34();
 void func_8002C11C(void *arg0, s16 arg1, s16 arg2);
@@ -125,7 +125,7 @@ void func_8002C11C(void *arg0, s16 arg1, s16 arg2);
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F4CB0 (*(short (*))&D_800F4CB0)
 
-void func_8002A344(a0) int a0; {
+void UpdateScreenFade(a0) int a0; {
     B4 sp;
     int a, t, a1;
     S *st = &D_800ACC68;
@@ -166,7 +166,7 @@ void func_8002A344(a0) int a0; {
     }
     {
         int t = *(int *)SCRATCHPAD;
-        *(int *)SCRATCHPAD = func_8001FDD4(D_800ACC14 + 0xB6C, t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
+        *(int *)SCRATCHPAD = AddTileGrid2x2(D_800ACC14 + 0xB6C, t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
     }
     func_8002A63C(a0 >> 2);
     if (D_800F4D2C != 6 && D_800F4D2C != 8) {
@@ -181,7 +181,7 @@ void func_8002A344(a0) int a0; {
 #define D_800ACC68 (*(M2C_UNK (*))&D_800ACC68)
 #define D_800F4CB0 (*(M2C_UNK (*))&D_800F4CB0)
 
-void func_8002A604(void) {
+void ClearScreenOverlayState(void) {
     func_80096434(&D_800F4CB0, 0x20);
     func_80096434(&D_800ACC68, 0xC);
 }
@@ -289,8 +289,8 @@ void func_8002A63C(int arg0) {
 
     pc = D_80010440;
     sp40 = (((sp38 + 1) & 3) << 5) | 0x1E;
-    a1 = func_8001FC28(D_800ACC14 + 0x70, *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200);
-    a1 = func_80020074(D_800ACC14 + 0x70, a1, 0x10, 0x24, 0x20, 0x10, 0, 0x20, sp40, 0x7F38, 1, (unsigned short)s7);
+    a1 = AddDrawAreaPrim(D_800ACC14 + 0x70, *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200);
+    a1 = AddSpriteWithDrawMode(D_800ACC14 + 0x70, a1, 0x10, 0x24, 0x20, 0x10, 0, 0x20, sp40, 0x7F38, 1, (unsigned short)s7);
     s1 = 0;
     s4 = 0x30;
     s5 = 0x24;
@@ -315,8 +315,8 @@ void func_8002A63C(int arg0) {
         D_800ACC14 + 0x70, a1, 8, 0x38, 0x130, 2,
         col1 = *pc, col1, col1
     );
-    a1 = func_8001FCC8(D_800ACC14 + 0x70, a1, sp40);
-    a1 = func_8001FC28(D_800ACC14 + 0x70, a1, D_800F4CB0.s10, D_800F4CB0.s12, D_800F4CB0.s14, D_800F4CB0.s16);
+    a1 = AddDrawModePrim(D_800ACC14 + 0x70, a1, sp40);
+    a1 = AddDrawAreaPrim(D_800ACC14 + 0x70, a1, D_800F4CB0.s10, D_800F4CB0.s12, D_800F4CB0.s14, D_800F4CB0.s16);
 
     for (j = 2; j < 7; j++) {
         s4 = D_8009EFD8[j];
@@ -351,12 +351,12 @@ void func_8002A63C(int arg0) {
     }
     if (D_800ACC68.a == 2) {
         j = sp38 + 0x7DBA;
-        a1 = func_8001FD20(D_800ACC14 + 0x70, a1, D_8009EFE8[7], y, 1, 0xC, 0xF0, 0x7A, 0x14);
+        a1 = AddTilePrim(D_800ACC14 + 0x70, a1, D_8009EFE8[7], y, 1, 0xC, 0xF0, 0x7A, 0x14);
         a1 = func_8001FF84(D_800ACC14 + 0x70, a1, D_8009EFE8[7] + 8, s5, &D_8009EE70[s2], j, 0);
     }
 
     col2 = *pc;
-    a1 = func_8001FCC8(D_800ACC14 + 0x70, a1, sp40);
+    a1 = AddDrawModePrim(D_800ACC14 + 0x70, a1, sp40);
     {
         char *p;
         int w, w2, w3, d;
@@ -387,8 +387,8 @@ void func_8002A63C(int arg0) {
         }
         /* ASM_BARRIER: extend live range of d so global-alloc assigns %hi(D_800ACC14) to $s5 */
         __asm__ volatile("" : : "r"(d));
-        a1 = func_8001FC28(D_800ACC14 + 0x70, a1, D_800F4CB0.s18, D_800F4CB0.s1A, D_800F4CB0.s1C, D_800F4CB0.s1E);
-        *(void **)SCRATCHPAD = func_8001FCC8(D_800ACC14 + 0x70, a1, sp40);
+        a1 = AddDrawAreaPrim(D_800ACC14 + 0x70, a1, D_800F4CB0.s18, D_800F4CB0.s1A, D_800F4CB0.s1C, D_800F4CB0.s1E);
+        *(void **)SCRATCHPAD = AddDrawModePrim(D_800ACC14 + 0x70, a1, sp40);
     }
 }
 
@@ -443,7 +443,7 @@ L1:
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ACC14 (*(s32 (*))&D_800ACC14)
-#define func_8001FD20 ((s32 (*)())func_8001FD20)
+#define AddTilePrim ((s32 (*)())AddTilePrim)
 
 void func_8002B12C(p0, p1, p2, p3, p4, a5, a6) s32 p0; s32 p1; s32 p2; s32 p3; s32 p4; s32 a5; s32 a6; {
     s32 i, k, t0, g, sel, sg;
@@ -462,7 +462,7 @@ void func_8002B12C(p0, p1, p2, p3, p4, a5, a6) s32 p0; s32 p1; s32 p2; s32 p3; s
     one = 1;
     a4 = p4;
     t0 = *(s32 *)SCRATCHPAD;
-    g = D_8009FDA4;
+    g = MenuStepDirection;
     nv = D_8009EFFC;
     w.u = *(B8 *)D_80010460;
 L0:
@@ -503,17 +503,17 @@ B14:
     if (i < 2) goto L0;
     *(s32 *)SCRATCHPAD = t0;
     if (a3 == 1) {
-        *(s32 *)SCRATCHPAD = func_8001FD20(D_800ACC14 + 0x70, t0, a0, a1 - 0xC, a3, 0x18, 0xFF, 0xFF, 0xFF);
+        *(s32 *)SCRATCHPAD = AddTilePrim(D_800ACC14 + 0x70, t0, a0, a1 - 0xC, a3, 0x18, 0xFF, 0xFF, 0xFF);
     }
 }
 
 #undef D_800ACC14
-#undef func_8001FD20
+#undef AddTilePrim
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3A38 (*(E (*)[])&D_800F3A38)
 
-void func_8002B330(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4; {
+void StepMenuValue(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4; {
     int s0;
     int a;
     unsigned short b;
@@ -554,18 +554,18 @@ void func_8002B330(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4;
         if ((b & 0x1000) == 0) {
           if ((b & 0x4000) == 0) {
             if (b & 0x8000) {
-                D_8009FDA4 = 1;
+                MenuStepDirection = 1;
                 s0 -= 1;
                 goto L;
             }
             if (b & 0x2000) {
-                D_8009FDA4 = 2;
+                MenuStepDirection = 2;
                 s0 += 1;
                 goto L;
             }
           }
         }
-        D_8009FDA4 = 0;
+        MenuStepDirection = 0;
         goto M;
     }
     goto M;
@@ -599,7 +599,7 @@ M:
 
 #undef D_800F3A38
 
-int func_8002B574(int a, int b)
+int FramesToMilliseconds(int a, int b)
 {
     int q = a / 25;
     a -= q * 25;
@@ -633,7 +633,7 @@ int a0; int a1; int b; int a3; int off;
     func_80020CD4(a0, a1, D_8009F008 + off, a3);
 }
 
-void func_8002B75C(char *d, char *s)
+void CopyStringClearTail(char *d, char *s)
 {
     int i = 0;
     char *p;
@@ -648,14 +648,14 @@ void func_8002B75C(char *d, char *s)
     }
 }
 
-void func_8002B7B4(d, s, n) char *d; unsigned char *s; int n; {
+void CopyStringPadSpaces(d, s, n) char *d; unsigned char *s; int n; {
     int i = 0;
     if (*s != 0) do { unsigned char c = *s; s++; d[i] = c; i++; } while (*s != 0);
     if (i < n) do { d[i] = 0x20; i++; } while (i < n);
     d[i] = 0;
 }
 
-void func_8002B814(a, b, c) char *a; int b; int c; {
+void FormatDecimalDigits(a, b, c) char *a; int b; int c; {
     int t;
     a[c] = b % 10 + 0x30;
     t = b / 10;
@@ -680,7 +680,7 @@ void func_8002B814(a, b, c) char *a; int b; int c; {
     }
 }
 
-void func_8002B934(char *a, int b)
+void FormatRaceTime(char *a, int b)
 {
   int s;
   int t;
@@ -691,17 +691,17 @@ void func_8002B934(char *a, int b)
     if (s)
     {
 s = b / 1000; m = s / 60; r = s % 60; t = b % 1000;
-      func_8002B814(a, m, 1);
-      func_8002B814(a + 3, r, 1);
-      func_8002B814(a + 6, t, 2);
+      FormatDecimalDigits(a, m, 1);
+      FormatDecimalDigits(a + 3, r, 1);
+      FormatDecimalDigits(a + 6, t, 2);
       return;
     }
     else
     {
 s = b / 1000; m = s / 60; r = s % 60; t = b % 1000;
-      func_8002B814(a, m, 1);
-      func_8002B814(a + 3, r, 1);
-      func_8002B814(a + 6, t, 2);
+      FormatDecimalDigits(a, m, 1);
+      FormatDecimalDigits(a + 3, r, 1);
+      FormatDecimalDigits(a + 6, t, 2);
       return;
     }
   }
@@ -709,14 +709,14 @@ s = b / 1000; m = s / 60; r = s % 60; t = b % 1000;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEF8 (*(S_800ABEF8 (*)[])&D_800ABEF8)
+#define PlayerCars (*(S_800ABEF8 (*)[])&PlayerCars)
 
 void func_8002BA28(int a0) {
-    /* ASM_BARRIER: pin &D_800ABEF8[a0] base pointer to $a0 */
+    /* ASM_BARRIER: pin &PlayerCars[a0] base pointer to $a0 */
     register S_800ABEF8 *p0 asm("a0");
-    /* ASM_BARRIER: reserve $v0 across D_800F3A30 %hi address load so %hi(D_800F3A30) uses $v1 */
+    /* ASM_BARRIER: reserve $v0 across NumLaps %hi address load so %hi(NumLaps) uses $v1 */
     register int dummy asm("v0");
-    /* ASM_BARRIER: pin D_800F3A30 value load to $v1 */
+    /* ASM_BARRIER: pin NumLaps value load to $v1 */
     register int n asm("v1");
     int s7;
     int i;
@@ -725,15 +725,15 @@ void func_8002BA28(int a0) {
     int y;
     RrSpritePacket *p;
 
-    s7 = D_800ABEF8[a0].s2A8;
-    p0 = &D_800ABEF8[a0];
-    /* ASM_BARRIER: combine D_800ABEF8[a0] address into $a0 and start $v0 live range before D_800F3A30 %hi */
+    s7 = PlayerCars[a0].s2A8;
+    p0 = &PlayerCars[a0];
+    /* ASM_BARRIER: combine PlayerCars[a0] address into $a0 and start $v0 live range before NumLaps %hi */
     __asm__("" : "+r"(p0), "=r"(dummy));
-    v = D_800F3A30;
-    /* ASM_BARRIER: order prologue stack stores before D_800F3A30 %lo load and p0->s2A8 load in sched2 */
-    __asm__("" : "=m"(*p0), "=m"(D_800F3A30) : "r"(dummy));
+    v = NumLaps;
+    /* ASM_BARRIER: order prologue stack stores before NumLaps %lo load and p0->s2A8 load in sched2 */
+    __asm__("" : "=m"(*p0), "=m"(NumLaps) : "r"(dummy));
     s7 = p0->s2A8;
-    n = D_800F3A30;
+    n = NumLaps;
     if (n > 0) {
         i = 0;
         do {
@@ -744,7 +744,7 @@ void func_8002BA28(int a0) {
             } else {
                 s3 = 0x7FF8;
             }
-            v = D_800F4C80[i];
+            v = LapTimes[i];
             y = i * 10 + 0x2C;
             func_8002B5D0(0xF0, y, v, s3, 0);
             p = *(RrSpritePacket **)SCRATCHPAD;
@@ -762,14 +762,14 @@ void func_8002BA28(int a0) {
             p++;
             *(RrSpritePacket **)SCRATCHPAD = p;
             i++;
-        } while (i < D_800F3A30);
+        } while (i < NumLaps);
     }
-    func_8002B5D0(0xF0, 0x1C, D_800F4C74, s3, 0);
+    func_8002B5D0(0xF0, 0x1C, BestLapTime, s3, 0);
 }
 
-#undef D_800ABEF8
+#undef PlayerCars
 
-char *func_8002BB88(a) int a; {
+char *FormatFrameTimeMMSS(a) int a; {
     if (a >= 0) {
         int s = a / 25;
         int m = s / 60;
@@ -787,10 +787,10 @@ char *func_8002BB88(a) int a; {
 void func_8002BC7C(int a)
 {
     char *p = D_800ACC14 + 0x226EC;
-    int r = func_8002BB88(a);
+    int r = FormatFrameTimeMMSS(a);
     int i = a < 0x5DC;
     int t = D_8009F01C[i];
-    int s = (D_800F3A30 - 3) * 10 + 0x50;
+    int s = (NumLaps - 3) * 10 + 0x50;
     func_80020E2C(D_800ACC14 + 0x70, 0x111, s, r, t);
     *(short *)(p + 0xA) = s;
 }
@@ -807,13 +807,13 @@ void func_8002BD18(int a, int b)
     } else {
         q = D_800ACC14 + 0xB70;
     }
-    r = func_8002BB88(a);
+    r = FormatFrameTimeMMSS(a);
     i = a < 0x5DC;
     t = D_8009F01C[i];
     func_80020E2C(q, 0x111, *(short *)(p + 0xA), r, t);
 }
 
-void func_8002BDB4(int t)
+void FormatMillisecondsTime(int t)
 {
     int a, b, c;
     /* ASM_BARRIER: pins the D_8009F020 base to $v0 (original allocates it before the digit temporaries) */
@@ -862,7 +862,7 @@ void func_8002BF34(a0, a1) RrRaceVehicle *a0; int a1; {
         if (v1 > 0x320) {
             su = 0x708;
             if (v1 < 0x709) su = (unsigned short)a0->input;
-            w = (short)su * rsin((short)func_80025F84(tv, a0->heading1D4));
+            w = (short)su * rsin((short)AngleDiffAbs(tv, a0->heading1D4));
             s0 = w / 65536 + 4;
         } else {
             s0 = 0xC;
@@ -881,11 +881,11 @@ void func_8002BF34(a0, a1) RrRaceVehicle *a0; int a1; {
     a0->shakeX198 = sx;
     a0->shakeY19A = sy;
     if (a0->flags1E4 & 0x10) {
-        w2 = rcos(func_80025F84(tv, a0->heading1D4)) >> 6;
+        w2 = rcos(AngleDiffAbs(tv, a0->heading1D4)) >> 6;
         if (a0->lateralVelF4 < 0) w2 = -w2;
         z = w2 + 0x40;
-        if (a0 == &D_800ABEF8[0] || a0 == &D_800ABEF8[1]) {
-            if (D_800AD504 != 2) PlaySfxVolPan(0x21, sc, (short)z, -1);
+        if (a0 == &PlayerCars[0] || a0 == &PlayerCars[1]) {
+            if (ReplayState != 2) PlaySfxVolPan(0x21, sc, (short)z, -1);
         }
     }
 }

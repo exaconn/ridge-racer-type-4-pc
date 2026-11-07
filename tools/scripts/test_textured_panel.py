@@ -86,7 +86,7 @@ static void initialize(u32 seed) {
 }
 static void check(s32 index) {
     memcpy(&expected,&actual,sizeof(actual));reference(index);
-    func_8005D40C(index);assert(!memcmp(&actual,&expected,sizeof(actual)));
+    EmitTexturedPanel(index);assert(!memcmp(&actual,&expected,sizeof(actual)));
 }
 int main(int argc,char **argv) {
     assert(argc==2);

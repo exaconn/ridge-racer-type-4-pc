@@ -2,7 +2,7 @@
 
 #include "rr/track_lateral.h"
 
-s32 func_80047CE0(RrRaceVehicle *input) {
+s32 CalcSteerLimit(RrRaceVehicle *input) {
     register RrRaceVehicle *vehicle=input;
     register s32 raw=vehicle->input;
     s32 rounded=raw;

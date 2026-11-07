@@ -2,27 +2,27 @@
 
 struct S { char pad[0x1AA]; unsigned short f; };
 
-extern struct S *D_800A47D8;
+extern struct S *_spu_RXX;
 
-extern int D_800A484C, D_800A4850, D_800A4854;
+extern int _spu_rev_flag, _spu_rev_reserve_wa, _spu_rev_offsetaddr;
 
 extern int _SpuIsInAllocateArea_();
 
 int SpuSetReverb(int a0) {
     switch (a0) {
     case 0:
-        D_800A484C = 0;
-        D_800A47D8->f &= 0xFF7F;
+        _spu_rev_flag = 0;
+        _spu_RXX->f &= 0xFF7F;
         break;
     case 1:
-        if (D_800A4850 != a0 && _SpuIsInAllocateArea_(D_800A4854)) {
-            D_800A484C = 0;
-            D_800A47D8->f &= 0xFF7F;
+        if (_spu_rev_reserve_wa != a0 && _SpuIsInAllocateArea_(_spu_rev_offsetaddr)) {
+            _spu_rev_flag = 0;
+            _spu_RXX->f &= 0xFF7F;
         } else {
-            D_800A484C = a0;
-            D_800A47D8->f |= 0x80;
+            _spu_rev_flag = a0;
+            _spu_RXX->f |= 0x80;
         }
         break;
     }
-    return D_800A484C;
+    return _spu_rev_flag;
 }

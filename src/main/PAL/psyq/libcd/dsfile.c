@@ -26,7 +26,7 @@ struct DirPath {
     char name[32];
 };
 
-extern int D_800A6490;
+extern int CD_debug;
 extern struct DirPath D_8011092C[];
 extern CdlFILE D_80110350[];
 extern const char D_80011CA4[];
@@ -50,14 +50,14 @@ int DS_cachefile(int dir) {
         return 1;
     }
     if (func_8008E780(1, D_8011092C[dir].a, D_80111F50) != 1) {
-        if (D_800A6490 > 0) {
+        if (CD_debug > 0) {
             func_8001E84C(D_80011CA4);
             return -1;
         }
         return -1;
     }
     p = D_80111F50;
-    if (D_800A6490 >= 2) {
+    if (CD_debug >= 2) {
         func_8001E84C(D_80011CC4);
     }
     i = 0;
@@ -80,7 +80,7 @@ int DS_cachefile(int dir) {
             D_80110350[i].name[p[0x20]] = 0;
             break;
         }
-        if (D_800A6490 >= 2) {
+        if (CD_debug >= 2) {
             func_8001E84C(
                 D_80011CE8,
                 D_80110350[i].pos[0],
@@ -100,7 +100,7 @@ int DS_cachefile(int dir) {
     if (i < 0x40) {
         D_80110350[i].name[0] = 0;
     }
-    if (D_800A6490 >= 2) {
+    if (CD_debug >= 2) {
         func_8001E84C(D_80011D04, i);
     }
     return 1;

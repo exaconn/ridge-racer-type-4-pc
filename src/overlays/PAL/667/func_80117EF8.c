@@ -8,10 +8,10 @@ void ovl667_func_80117EF8(void)
     s32 choice;
     D_800F2DE4=0;
     ScreenFrame=0;
-    D_800AC64A=0;
-    D_800AC5E0=3;
+    MenuCursor=0;
+    MenuItemCount=3;
     D_8010C068=0;
-    choice=func_80032E9C(D_800AC648);
+    choice=DecodeCourseIndex(D_800AC648);
     D_800F3914=choice;
     ResetScreenCounters();
     RR_GPU_PROJECTION_SCRATCH->word18=512;
@@ -20,10 +20,10 @@ void ovl667_func_80117EF8(void)
     RR_GPU_PROJECTION_SCRATCH->word20=0;
     RR_GPU_PROJECTION_SCRATCH->word08=0;
     RR_GPU_PROJECTION_SCRATCH->word10=0;
-    D_80107198.words20[0]=0;
-    D_80107198.words20[1]=0;
-    D_80107198.words20[2]=0;
+    ComCars.words20[0]=0;
+    ComCars.words20[1]=0;
+    ComCars.words20[2]=0;
     D_800AC5D4=0;
     D_8010C0B8=0;
-    D_800ACC18=D_800F4D70.second;
+    LoadCursor=D_800F4D70.second;
 }

@@ -30,13 +30,13 @@ static struct World {
  Fade fade;u32 calls;s32 arg0,seen_mode;s16 arg1,seen_delay;
  s32 post_mode,post_first;s16 post_delay;u32 after[8];
 } world,expected;
-#define D_800FF6B0 world.mode
-#define D_800F2EB8 world.limit
+#define RaceState world.mode
+#define TrackLength world.limit
 #define D_800AD522 world.tag
 #define D_800AC5D0 world.delay
-#define D_800F4DB8 world.fade
-void func_8004FB00(void){assert(0);}
-void func_80052B8C(int a,short b){
+#define SoundState world.fade
+void SoundStopAll(void){assert(0);}
+void CdAudioFade(int a,short b){
  assert(world.mode==5 && world.delay==75);
  assert(world.fade.b==71 && world.fade.c==0 && world.fade.d==0 && world.fade.e==world.fade.a);
  world.calls++;world.arg0=a;world.arg1=b;world.seen_mode=world.mode;world.seen_delay=world.delay;

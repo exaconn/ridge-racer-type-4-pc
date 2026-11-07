@@ -30,15 +30,15 @@ typedef struct {
  u8 guard1[32];
 } World;
 static World actual,expected;
-#define D_800AC5A8 actual.reset
-#define D_800AD504 actual.mode
-#define D_800ADAC8 actual.other
-#define D_80107188 actual.limit
-#define D_800AC59C actual.count_record.value1E4
-#define D_800AC570 actual.sources
+#define ReplayFrame actual.reset
+#define ReplayState actual.mode
+#define SavedRaceState actual.other
+#define ReplayLength actual.limit
+#define NumCars actual.count_record.value1E4
+#define CarSnapshots actual.sources
 #define CarTable actual.destinations
 #define D_800FFC48 actual.arena.bytes
-#define D_800AD510 actual.banks
+#define ReplayInputs actual.banks
 ''' + body + r'''
 static s32 bits(u32 x){s32 y;memcpy(&y,&x,4);return y;}
 static s16 half(u16 x){s16 y;memcpy(&y,&x,2);return y;}

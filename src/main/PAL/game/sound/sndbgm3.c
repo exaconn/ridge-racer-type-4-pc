@@ -10,10 +10,10 @@ struct EE_1 { s32 a, b, c; s16 d[2]; s32 f; };
 extern struct {
     char pad[0x26]; s16 h; char p1[0x1994 - 0x28]; s32 f1;
     struct EE e[2];
-} D_800F4DB8;
-extern char D_800AD528[];
-extern int func_8004FE7C();
-extern int func_800857A4();
+} SoundState;
+extern char Options[];
+extern int SetVoiceVolumeScaled();
+extern int SsUtKeyOnV();
 
 void func_800512C4(int a0, int a1, int a2);
 void func_80051538(int a0, s16 a1, s16 a2);
@@ -22,43 +22,43 @@ void func_80051248(int a0) {
     int k, i;
     if (a0 == 0) {
         k = 0xB;
-        D_800F4DB8.f1 = 1;
-        D_800F4DB8.e[0].f = 0;
+        SoundState.f1 = 1;
+        SoundState.e[0].f = 0;
     } else {
         k = 0xE;
-        D_800F4DB8.f1 = 1;
-        D_800F4DB8.e[0].f = 1;
+        SoundState.f1 = 1;
+        SoundState.e[0].f = 1;
     }
     for (i = 0; i < 2; i++) {
-        D_800F4DB8.e[i].e = 0;
-        D_800F4DB8.e[i].d = 0;
-        D_800F4DB8.e[i].a = 0;
-        D_800F4DB8.e[i].b = D_800F4DB8.h;
-        D_800F4DB8.e[i].c = k + i;
+        SoundState.e[i].e = 0;
+        SoundState.e[i].d = 0;
+        SoundState.e[i].a = 0;
+        SoundState.e[i].b = SoundState.h;
+        SoundState.e[i].c = k + i;
     }
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x1998]; struct EE_1 e[2]; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x1998]; struct EE_1 e[2]; } (*))&SoundState)
 
 void func_800512C4(int a0, int a1, int a2) {
     int i;
     if (D_800AD55A == 0) {
-        D_800F4DB8.e[a0].d[0] = a1;
-        D_800F4DB8.e[a0].d[1] = a2;
+        SoundState.e[a0].d[0] = a1;
+        SoundState.e[a0].d[1] = a2;
     } else {
-        D_800F4DB8.e[a0].d[0] = (a1 + a2) / 2;
-        D_800F4DB8.e[a0].d[1] = (a1 + a2) / 2;
+        SoundState.e[a0].d[0] = (a1 + a2) / 2;
+        SoundState.e[a0].d[1] = (a1 + a2) / 2;
     }
     for (i = 0; i < 2; i++) {
-        if (D_800F4DB8.e[a0].d[i] < 2) D_800F4DB8.e[a0].d[i] = 0;
+        if (SoundState.e[a0].d[i] < 2) SoundState.e[a0].d[i] = 0;
     }
 }
 
-#undef D_800F4DB8
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(char (*)[])&D_800F4DB8)
+#define SoundState (*(char (*)[])&SoundState)
 
 void func_80051378() {
     int i;
@@ -67,8 +67,8 @@ void func_80051378() {
     char *s5;
     int s0, s1, a, b;
     i = 0;
-    s5 = D_800AD528;
-    s4 = D_800F4DB8;
+    s5 = Options;
+    s4 = SoundState;
     s2 = s4;
     for (i = 0; i < 2; i++, s2 += 0x14) {
         if (*(int *)(s2 + 0x1994) == 0) continue;
@@ -85,41 +85,41 @@ void func_80051378() {
         s1 = (s1 * b) / 16;
         s0 = (s0 * b) / 16;
         if (s0 + s1 > 0) {
-            func_8004FE7C(*(int *)(s2 + 0x19A0), s0, s1);
+            SetVoiceVolumeScaled(*(int *)(s2 + 0x19A0), s0, s1);
             if (*(int *)(s2 + 0x1998) == 0) {
-                func_800857A4(*(short *)(s2 + 0x19A0), *(short *)(s2 + 0x199C), 7, 0, 0x3C, 0, (short)s0, (short)s1);
+                SsUtKeyOnV(*(short *)(s2 + 0x19A0), *(short *)(s2 + 0x199C), 7, 0, 0x3C, 0, (short)s0, (short)s1);
                 *(int *)(s2 + 0x1998) = 1;
             }
         } else if (*(int *)(s2 + 0x1998) != 0) {
-            func_80085AEC(*(short *)(s2 + 0x19A0));
+            SsUtKeyOffV(*(short *)(s2 + 0x19A0));
             *(int *)(s2 + 0x1998) = 0;
         }
     }
 }
 
-#undef D_800F4DB8
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x19BC]; s16 a[2]; s16 b[2]; s32 c, d; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x19BC]; s16 a[2]; s16 b[2]; s32 c, d; } (*))&SoundState)
 
 void func_800514FC(void) {
     int i;
     for (i = 0; i < 2; i++) {
-        D_800F4DB8.a[i] = 0;
-        D_800F4DB8.b[i] = 0;
+        SoundState.a[i] = 0;
+        SoundState.b[i] = 0;
     }
-    D_800F4DB8.c = 0;
-    D_800F4DB8.d = 5;
+    SoundState.c = 0;
+    SoundState.d = 5;
 }
 
-#undef D_800F4DB8
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x19BC]; s16 a[2]; s16 b[2]; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x19BC]; s16 a[2]; s16 b[2]; } (*))&SoundState)
 
 void func_80051538(int a0, s16 a1, s16 a2) {
-    D_800F4DB8.a[a0] = a1;
-    D_800F4DB8.b[a0] = a2;
+    SoundState.a[a0] = a1;
+    SoundState.b[a0] = a2;
 }
 
-#undef D_800F4DB8
+#undef SoundState

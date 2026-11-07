@@ -77,50 +77,50 @@ typedef struct {
     int sB0;
 } SA0;
 
-extern int D_800AD504;
-extern int D_800ADAC8;
-extern int D_800FF6B0;
-extern short D_800AC59C;
-extern B800 *D_800AC570[];
+extern int ReplayState;
+extern int SavedRaceState;
+extern int RaceState;
+extern short NumCars;
+extern B800 *CarSnapshots[];
 extern short D_8009FFB8[];
-extern int D_800AC5A8;
+extern int ReplayFrame;
 extern int D_800ACBE0[];
 extern int D_800ACBF0[];
 extern short D_800AD508;
-extern U4 *D_800AD510[];
-extern S_AD528 D_800AD528;
+extern U4 *ReplayInputs[];
+extern S_AD528 Options;
 extern unsigned char D_800ADAD8[][4];
 extern S30 D_800F2F78[];
 extern S5C D_800F3A38[];
 extern int D_800F3AF0[];
 extern short D_800F4D44;
-extern int D_80107188;
+extern int ReplayLength;
 extern short D_800AC5D0;
-extern int D_800F2EB8;
-extern int D_800F3A30;
+extern int TrackLength;
+extern int NumLaps;
 extern int D_800F3A60;
-extern int func_8004FC18();
+extern int SoundSetMasterVolume();
 extern int func_800207D4();
 extern int func_800293D0();
-extern int func_80077D90();
-extern int func_80014A8C();
-extern int D_800ABEF8[];
+extern int ClearTrackObjectStates();
+extern int SetModelTexturePage();
+extern int PlayerCars[];
 extern short D_800F3A26;
 extern short D_800F4C6A;
 extern short D_800F4D8A;
 extern int D_8010BFB0;
-extern int func_80020074();
-extern int func_8002E0D8();
+extern int AddSpriteWithDrawMode();
+extern int DrawCars();
 extern int func_8003660C();
 extern int func_80036FD4();
-extern int func_80037D88();
+extern int StepRaceFrame();
 extern int func_8005007C();
-extern int func_80052A30();
-extern int func_8006E1AC();
+extern int CdAudioBeginPlay();
+extern int BuildCameraMatrices();
 extern void func_8006ECE8(s32);
-extern int func_8006EF8C();
-extern int func_800735D8();
-extern int func_800747EC();
+extern int SetupViewport();
+extern int UpdateTrackObjects();
+extern int DrawTrackObjects();
 extern int rsin();
 extern int D_800F2A64;
 extern short D_800F2AB4[];
@@ -128,9 +128,9 @@ extern int D_800F2DE4;
 extern short D_800F4C70[];
 extern struct { char pad[0x1E4]; short f1e4; } *CarTable[];
 
-void func_800295B8(int unused);
-void func_80029660(char *arg0, int arg1);
-void func_80029E0C();
+void SaveCarSnapshots(int unused);
+void ReadCarInput(char *arg0, int arg1);
+void CheckRaceFinish();
 void func_80029F34();
 void func_8002A008(void);
 
@@ -138,21 +138,21 @@ void func_8002A008(void);
 #define CarTable (*(B800 *(*)[])&CarTable)
 
 /* Callers explicitly supply this legacy argument; the body ignores it. */
-void func_800295B8(int unused)
+void SaveCarSnapshots(int unused)
 {
   int i;
-  if (D_800AD504 == 0)
+  if (ReplayState == 0)
   {
-    D_800ADAC8 = D_800FF6B0;
-    for (i = 0; i < D_800AC59C; i++)
-      *D_800AC570[i] = *CarTable[i];
-    D_800AD504 = 1;
+    SavedRaceState = RaceState;
+    for (i = 0; i < NumCars; i++)
+      *CarSnapshots[i] = *CarTable[i];
+    ReplayState = 1;
   }
 }
 
 #undef CarTable
 
-void func_80029660(char *arg0, int arg1) {
+void ReadCarInput(char *arg0, int arg1) {
     SA0 *a0;
     short t3;
     short t5;
@@ -165,22 +165,22 @@ void func_80029660(char *arg0, int arg1) {
     int mode;
 
     a0 = (SA0 *)(arg0 + 0x1F4);
-    if (D_800FF6B0 != 0) {
-        if (D_800AD504 == 2) {
-            if (D_800AC5A8 < D_80107188) {
-                *(U4 *)D_800ADAD8[arg1] = D_800AD510[arg1][D_800AC5A8];
+    if (RaceState != 0) {
+        if (ReplayState == 2) {
+            if (ReplayFrame < ReplayLength) {
+                *(U4 *)D_800ADAD8[arg1] = ReplayInputs[arg1][ReplayFrame];
                 if (D_800F4D44 == 4) {
                     if (arg1 == 3) {
-                        D_800AC5A8 += 1;
+                        ReplayFrame += 1;
                     }
                 } else if (arg1 == 1 || D_800F4D44 < 2 || D_800F4D44 == 6) {
-                    D_800AC5A8 += 1;
+                    ReplayFrame += 1;
                 }
             }
         } else {
             t3 = 0;
             t2 = idx = arg1 & 1;
-            if (D_800FF6B0 < 4) {
+            if (RaceState < 4) {
                 mode = D_800F3A38[idx].w10;
                 if (mode == 0) {
                     t1 = 0;
@@ -221,7 +221,7 @@ void func_80029660(char *arg0, int arg1) {
                     }
                     a1 = a0->sB0 + (b * 140);
                 } else if (mode == 1) {
-                    t5 = (D_800F3A38[idx].s3C * 0x7F) / D_8009FFB8[D_800AD528.sub[idx].s12];
+                    t5 = (D_800F3A38[idx].s3C * 0x7F) / D_8009FFB8[Options.sub[idx].s12];
                     t1 = 0;
                     if (D_800F3A38[idx].h2 & D_800F2F78[idx].h14) {
                         t1 = 0xFF;
@@ -241,7 +241,7 @@ void func_80029660(char *arg0, int arg1) {
                         }
                         t3 = fm1 | 0x40;
                     }
-                    switch (D_800AD528.sub[idx].s14) {
+                    switch (Options.sub[idx].s14) {
                     case 0:
                     case 5: {
                         int i0;
@@ -338,19 +338,19 @@ void func_80029660(char *arg0, int arg1) {
                     }
                 }
                 __asm__ volatile("" : : "r"(t2)); /* ASM_BARRIER: keep t2 live so t2<<2 allocates v1 */
-                if (D_800AD504 == 1) {
-                    if (D_800AC5A8 < D_80107188) {
-                        D_800AD510[arg1][D_800AC5A8] = *(U4 *)D_800ADAD8[arg1];
+                if (ReplayState == 1) {
+                    if (ReplayFrame < ReplayLength) {
+                        ReplayInputs[arg1][ReplayFrame] = *(U4 *)D_800ADAD8[arg1];
                         if (arg1 == 3) {
-                            D_800AC5A8 += 1;
+                            ReplayFrame += 1;
                         }
                     }
                 }
-            } else if (D_800AD504 == 1) {
-                if (D_800AC5A8 < D_80107188) {
-                    D_800AD510[arg1][D_800AC5A8] = *(U4 *)D_800ADAD8[arg1];
+            } else if (ReplayState == 1) {
+                if (ReplayFrame < ReplayLength) {
+                    ReplayInputs[arg1][ReplayFrame] = *(U4 *)D_800ADAD8[arg1];
                     if (arg1 == 1 || D_800F4D44 < 2 || D_800F4D44 == 6) {
-                        D_800AC5A8 += 1;
+                        ReplayFrame += 1;
                     }
                 }
             }
@@ -358,31 +358,31 @@ void func_80029660(char *arg0, int arg1) {
     }
 }
 
-void func_80029E0C(a0) char *a0; {
+void CheckRaceFinish(a0) char *a0; {
     char *a2 = a0 + 0x1F4;
     int a1 = *(short *)(a2 + 0xB6);
-    if (*(int *)(a0 + 0x188) + *(int *)(a0 + 0x184) >= a1 * D_800F2EB8) {
+    if (*(int *)(a0 + 0x188) + *(int *)(a0 + 0x184) >= a1 * TrackLength) {
         unsigned short u = *(unsigned short *)(a2 + 0xB6);
-        if (D_800F3A30 >= a1) {
+        if (NumLaps >= a1) {
             *(short *)(a2 + 0xB6) = u + 1;
-            if (D_800F3A30 < (short)(u + 1)) {
-                if (D_800FF6B0 < 4) {
+            if (NumLaps < (short)(u + 1)) {
+                if (RaceState < 4) {
                     if (D_800AC5D0 == -1) {
-                        D_800FF6B0 = 4;
+                        RaceState = 4;
                         D_800AC5D0 = 0x4B;
-                        func_8004FC18(0, 0x47);
+                        SoundSetMasterVolume(0, 0x47);
                     }
                 }
             }
         }
     }
-    if (D_800AC5A8 >= D_80107188 - 0x4B && D_800AC5D0 == -1) {
+    if (ReplayFrame >= ReplayLength - 0x4B && D_800AC5D0 == -1) {
         D_800AC5D0 = 0x25;
-        func_8004FC18(0, 0x21);
+        SoundSetMasterVolume(0, 0x21);
     } else if (D_800F3A60 != 0) {
         if (D_800AC5D0 == -1) {
             D_800AC5D0 = 0x25;
-            func_8004FC18(0, 0x21);
+            SoundSetMasterVolume(0, 0x21);
         }
     }
 }
@@ -395,12 +395,12 @@ void func_80029F34() {
     func_800590DC();
     func_800207D4(D_800ACC14 + 0x70, 0xFF, 0x25);
     func_800293D0(0, 2);
-    D_800FF6B0 = D_800ADAC8;
-    func_80077D90(1);
-    func_80014A8C(10);
+    RaceState = SavedRaceState;
+    ClearTrackObjectStates(1);
+    SetModelTexturePage(10);
     D_8010BFB0 = 0;
     if ((unsigned)(D_800F4D44 - 2) < 2U) {
-        if (D_800ABEF8[0x184 / 4] < D_800ABEF8[0x4A4 / 4]) D_8010BFB0 = 1;
+        if (PlayerCars[0x184 / 4] < PlayerCars[0x4A4 / 4]) D_8010BFB0 = 1;
     }
     D_800AC5D0 = -1;
     D_800F4C6A = 1;
@@ -411,17 +411,17 @@ void func_80029F34() {
 #undef D_800F4D44
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEF8 (*(struct { char pad[0x184]; int f184; char pad2[0x320 - 0x188]; } (*)[])&D_800ABEF8)
+#define PlayerCars (*(struct { char pad[0x184]; int f184; char pad2[0x320 - 0x188]; } (*)[])&PlayerCars)
 
 void func_8002A008(void) {
     int i;
     short t;
     struct { char pad[0x1E4]; short f1e4; } **pp;
     D_800F2DE4 += 1;
-    if (D_800AC5A8 < 0x1A) {
-        func_800207D4(D_800ACC14 + 0x70, (0x19 - D_800AC5A8) * 10, 0x25);
-        if (D_800AC5A8 == 10) {
-            func_80052A30(0);
+    if (ReplayFrame < 0x1A) {
+        func_800207D4(D_800ACC14 + 0x70, (0x19 - ReplayFrame) * 10, 0x25);
+        if (ReplayFrame == 10) {
+            CdAudioBeginPlay(0);
         }
     } else {
         func_800556B4();
@@ -429,7 +429,7 @@ void func_8002A008(void) {
     ScreenFrame += 1;
     if (D_800AC5D0 >= 0) {
         if (D_800AC5D0 == 0) {
-            func_8004EE60(0);
+            SetReverbDepthBoth(0);
             func_8003660C();
         }
         t = (unsigned short)D_800AC5D0 - 1;
@@ -438,42 +438,42 @@ void func_8002A008(void) {
             func_800207D4(D_800ACC14 + 0x70, (0x19 - t) * 10, 0x45);
         }
     }
-    if (rsin((D_800AC5A8 << 7) & 0xF80) > 0) {
-        { int tt = *(int *)SCRATCHPAD; *(int *)SCRATCHPAD = func_80020074(D_800ACC14 + 0x70, tt, 0x10, 0x10, 0x4C, 0xC, 0x64, 0xC0, 5, 0x7FF8, 0, 0x80); }
+    if (rsin((ReplayFrame << 7) & 0xF80) > 0) {
+        { int tt = *(int *)SCRATCHPAD; *(int *)SCRATCHPAD = AddSpriteWithDrawMode(D_800ACC14 + 0x70, tt, 0x10, 0x10, 0x4C, 0xC, 0x64, 0xC0, 5, 0x7FF8, 0, 0x80); }
     }
-    for (i = 0; i < D_800AC59C; i++) {
+    for (i = 0; i < NumCars; i++) {
         if (CarTable[i]->f1e4 >= 0x10) {
-            func_80029E0C(CarTable[i]);
+            CheckRaceFinish(CarTable[i]);
         }
     }
-    func_80037D88(D_800F4D44);
+    StepRaceFrame(D_800F4D44);
     if ((unsigned)((unsigned short)D_800F4D44 - 2) < 2U) {
-        if ((unsigned char)D_800AC5A8 == 0) {
-            if (D_800ABEF8[0].f184 < D_800ABEF8[1].f184) {
+        if ((unsigned char)ReplayFrame == 0) {
+            if (PlayerCars[0].f184 < PlayerCars[1].f184) {
                 D_8010BFB0 = 1;
             } else {
                 D_8010BFB0 = 0;
             }
         }
     }
-    func_8006EF8C(0);
-    func_8004417C(2, &D_800ABEF8[D_8010BFB0]);
-    func_800735D8(0);
-    func_8006E1AC();
-    func_8002E0D8(6);
+    SetupViewport(0);
+    func_8004417C(2, &PlayerCars[D_8010BFB0]);
+    UpdateTrackObjects(0);
+    BuildCameraMatrices();
+    DrawCars(6);
     *(int *)(SCRATCHPAD + 0x78) = D_800F2A64;
     func_8006ECE8(0);
-    func_800747EC(0);
+    DrawTrackObjects(0);
     func_80036FD4(0);
-    if (D_800AC5A8 >= 0x19) {
-        func_800555E0();
+    if (ReplayFrame >= 0x19) {
+        QueueDrawStp();
     }
     func_8005007C(D_800F4C70[0], D_800F2AB4[0], 0);
     func_8005007C(D_800F4C70[1], D_800F2AB4[1], 1);
     func_8004B864(0);
     func_8004B864(1);
-    func_8004BB54(0);
-    func_8004BB54(1);
+    PadRumbleStop(0);
+    PadRumbleStop(1);
 }
 
-#undef D_800ABEF8
+#undef PlayerCars

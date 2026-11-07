@@ -24,7 +24,7 @@
 #include "game/gfx/drawbuf.h"
 
 #define G D_8010BF78
-#define H D_800F3AFC
+#define H BadgeRows
 #define K D_800AC590
 #define SPP (*(struct P **)SCRATCHPAD)
 #define SPO (*(struct P **)(SCRATCHPAD + 0x4))
@@ -107,25 +107,25 @@ struct P { union H h; int w[4]; };
 struct OT { int x; union H h; };
 
 extern int func_800207D4();
-extern int func_8002A604();
+extern int ClearScreenOverlayState();
 extern int func_80032A14();
 extern int ResetScreenCounters();
-extern int func_8003A1B4();
+extern int InitMenuArenas();
 extern int func_8003B934();
-extern int func_8003D228();
-extern int func_8003D6F0();
+extern int InitBadgeRow();
+extern int UpdateBadgeRowAnim();
 extern int func_80043608();
-extern int func_80052800();
-extern int func_800528A8();
-extern int func_80052A30();
-extern int func_80052B8C();
-extern int func_8006EF8C();
-extern int func_800912B4();
+extern int CdAudioInit();
+extern int CdAudioSelectTrack();
+extern int CdAudioBeginPlay();
+extern int CdAudioFade();
+extern int SetupViewport();
+extern int SetGeomOffset();
 extern struct GS *D_8010BF78;
-extern struct HS *D_800F3AFC;
+extern struct HS *BadgeRows;
 extern struct KS *D_800AC590;
 extern short D_800AC5D0;
-extern char *D_800ACC18;
+extern char *LoadCursor;
 extern char D_800ACC68;
 extern short D_800F3A26;
 extern short D_800F4BE8;
@@ -133,7 +133,7 @@ extern short D_800F4C6A;
 extern int D_800F4CA8;
 extern short D_800F4D8A;
 extern short D_8009E4EC;
-extern char *D_800102F0;
+extern char *CdDirectoryBuffer;
 extern char D_800101EC[];
 extern char D_8009E510[];
 extern char D_8009E520[];
@@ -141,7 +141,7 @@ extern char D_8009E530[];
 extern char D_8009E540[];
 
 void func_8001C14C();
-void func_8001E1F0(u32 intensity,RrSpriteGridClock *state);
+void EmitSpriteGrid(u32 intensity,RrSpriteGridClock *state);
 
 void func_8001C14C() {
     int temp_s5;
@@ -228,7 +228,7 @@ void func_8001C14C() {
     if (D_800AC5D0 != 4) {
         goto block_4;
     }
-    func_80052B8C(0, 0x40);
+    CdAudioFade(0, 0x40);
     goto block_6;
 block_4:
     if (D_800AC5D0 < 0x100) {
@@ -254,41 +254,41 @@ block_9:
     }
     switch (D_8010BF7C) {
 case 0x0:
-    D_800ACC18 = D_800102F0;
-    func_8002A604();
+    LoadCursor = CdDirectoryBuffer;
+    ClearScreenOverlayState();
     D_800ACC68 = 2;
-    func_8003A1B4();
+    InitMenuArenas();
     ResetScreenCounters();
     D_800F4CA8 = 4;
-    func_8003D228(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
+    InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
     D_8010BF7C = 1;
 case 0x1:
-    if (func_8001292C(func_8001223C(0, 0x13), D_800ACC18) == 0) {
+    if (CdFileReadStart(GetR4FileIndex(0, 0x13), LoadCursor) == 0) {
         goto block_248;
     }
     D_8010BF7C = 2;
 case 0x2:
-    temp_v0 = func_80012A58();
+    temp_v0 = CdFileBytesLoaded();
     if (temp_v0 == 0) {
         goto block_248;
     }
-    temp_s1 = D_800ACC18 + ((int *)D_800ACC18)[1];
-    temp_s2 = D_800ACC18 + ((int *)D_800ACC18)[2];
-    temp_s0 = D_800ACC18 + ((int *)D_800ACC18)[4];
-    func_80043608(D_800ACC18 + ((int *)D_800ACC18)[3]);
+    temp_s1 = LoadCursor + ((int *)LoadCursor)[1];
+    temp_s2 = LoadCursor + ((int *)LoadCursor)[2];
+    temp_s0 = LoadCursor + ((int *)LoadCursor)[4];
+    func_80043608(LoadCursor + ((int *)LoadCursor)[3]);
     func_80043608(temp_s0);
-    func_80070108(temp_s1, 4);
+    RegisterModelBank(temp_s1, 4);
     D_800AC64C = temp_s2;
-    func_80012A68(temp_s2);
+    RelocateOffsetTable(temp_s2);
     D_8010BF7C = 3;
-    D_800ACC18 += temp_v0;
+    LoadCursor += temp_v0;
 case 0x3:
     if (func_8003B934() == 0) {
         goto block_248;
     }
-    func_80052800();
-    func_800528A8(0, 0);
-    func_80052A30(0);
+    CdAudioInit();
+    CdAudioSelectTrack(0, 0);
+    CdAudioBeginPlay(0);
     func_8001B308();
     D_8010BF7C = 4;
 case 0x4:
@@ -1058,30 +1058,30 @@ case 0x34:
     goto block_221;
 block_197:
     func_8001B8B0(G->s48, G->s9C);
-    func_8001BAF8(G->s4A, 0);
+    EmitPresetSprite(G->s4A, 0);
     goto block_223;
 block_198:
 block_199:
-    func_8001BAF8(G->s48, 1);
-    func_8001BAF8(G->s48, 2);
-    func_8001BAF8(G->s4A, 3);
-    func_8001BAF8(G->s4C, 4);
+    EmitPresetSprite(G->s48, 1);
+    EmitPresetSprite(G->s48, 2);
+    EmitPresetSprite(G->s4A, 3);
+    EmitPresetSprite(G->s4C, 4);
     func_8001BBC4(G->s56, G->s5E, 0x6C0018, 0x78);
     goto block_225;
 block_200:
 block_201:
-    func_8001BAF8(G->s48, 5);
-    func_8001BAF8(G->s4A, 6);
-    func_8001BAF8(G->s4C, 7);
+    EmitPresetSprite(G->s48, 5);
+    EmitPresetSprite(G->s4A, 6);
+    EmitPresetSprite(G->s4C, 7);
     func_8001BBC4(G->s56, G->s5E, 0x6C0018, 0x78);
     goto block_225;
 block_202:
 block_203:
-    func_8001BAF8(G->s48, 8);
-    func_8001BAF8(G->s4A, 9);
-    func_8001BAF8(G->s4C, 0xA);
-    func_8001BAF8(G->s4E, 0xB);
-    func_8001BAF8(G->s50, 0xC);
+    EmitPresetSprite(G->s48, 8);
+    EmitPresetSprite(G->s4A, 9);
+    EmitPresetSprite(G->s4C, 0xA);
+    EmitPresetSprite(G->s4E, 0xB);
+    EmitPresetSprite(G->s50, 0xC);
     func_8001BBC4(G->s56, G->s5E, 0x6C0018, 0x78);
     goto block_225;
 block_205:
@@ -1092,66 +1092,66 @@ block_206:
     }
     func_8001BC84(temp_a0_3, G->s44);
 block_208:
-    func_8001BAF8(G->s48, 0xD);
-    func_8001BAF8(G->s48, 0xE);
+    EmitPresetSprite(G->s48, 0xD);
+    EmitPresetSprite(G->s48, 0xE);
     func_8001BBC4(G->s56, G->s5E, 0x680010, 0x120);
-    func_8001BAF8(G->s4A, 0xF);
-    func_8001BAF8(G->s4A, 0x10);
-    func_8001BAF8(G->s4A, 0x11);
+    EmitPresetSprite(G->s4A, 0xF);
+    EmitPresetSprite(G->s4A, 0x10);
+    EmitPresetSprite(G->s4A, 0x11);
     goto block_223;
 block_209:
 block_210:
-    func_8001BAF8(G->s48, 0xF);
-    func_8001BAF8(G->s48, 0x10);
-    func_8001BAF8(G->s48, 0x11);
-    func_8001BAF8(G->s4A, 0x12);
-    func_8001BAF8(G->s4C, 0x13);
-    func_8001BAF8(G->s4E, 0x14);
-    func_8001BAF8(G->s50, 0x15);
-    func_8001BAF8(G->s52, 0x16);
-    func_8001BAF8(G->s54, 0x17);
+    EmitPresetSprite(G->s48, 0xF);
+    EmitPresetSprite(G->s48, 0x10);
+    EmitPresetSprite(G->s48, 0x11);
+    EmitPresetSprite(G->s4A, 0x12);
+    EmitPresetSprite(G->s4C, 0x13);
+    EmitPresetSprite(G->s4E, 0x14);
+    EmitPresetSprite(G->s50, 0x15);
+    EmitPresetSprite(G->s52, 0x16);
+    EmitPresetSprite(G->s54, 0x17);
     func_8001BBC4(G->s56, G->s5E, 0xB0001C, 0x28);
     func_8001BBC4(G->s58, G->s60, 0xB00070, 0x28);
     func_8001BBC4(G->s5A, G->s62, 0xB000E0, 0x28);
     goto block_218;
 block_211:
 block_212:
-    func_8001BAF8(G->s48, 0x18);
-    func_8001BAF8(G->s48, 0x19);
-    func_8001BAF8(G->s4A, 0x1A);
-    func_8001BAF8(G->s4C, 0x1B);
+    EmitPresetSprite(G->s48, 0x18);
+    EmitPresetSprite(G->s48, 0x19);
+    EmitPresetSprite(G->s4A, 0x1A);
+    EmitPresetSprite(G->s4C, 0x1B);
     func_8001BBC4(G->s56, G->s5E, 0xE0008C, 0x28);
     goto block_218;
 block_213:
 block_214:
-    func_8001BAF8(G->s48, 0x1C);
-    func_8001BAF8(G->s4A, 0x1D);
-    func_8001BAF8(G->s4C, 0x1E);
+    EmitPresetSprite(G->s48, 0x1C);
+    EmitPresetSprite(G->s4A, 0x1D);
+    EmitPresetSprite(G->s4C, 0x1E);
     func_8001BBC4(G->s56, G->s5E, 0xE0008C, 0x28);
     goto block_218;
 block_215:
 block_216:
-    func_8001BAF8(G->s48, 0x1F);
-    func_8001BAF8(G->s4A, 0x20);
-    func_8001BAF8(G->s4C, 0x21);
+    EmitPresetSprite(G->s48, 0x1F);
+    EmitPresetSprite(G->s4A, 0x20);
+    EmitPresetSprite(G->s4C, 0x21);
     func_8001BBC4(G->s56, G->s5E, 0xE0008C, 0x28);
 block_218:
-    func_8001BAF8(0x80, 0xD);
-    func_8001BAF8(0x80, 0xE);
+    EmitPresetSprite(0x80, 0xD);
+    EmitPresetSprite(0x80, 0xE);
     func_8001BBC4(0x100, 0x1000, 0x680010, 0x120);
     goto block_220;
 block_219:
-    func_8001BAF8(G->s48, 0xD);
-    func_8001BAF8(G->s48, 0xE);
-    func_8001BAF8(G->s4A, 0x22);
-    func_8001BAF8(G->s4A, 0x23);
+    EmitPresetSprite(G->s48, 0xD);
+    EmitPresetSprite(G->s48, 0xE);
+    EmitPresetSprite(G->s4A, 0x22);
+    EmitPresetSprite(G->s4A, 0x23);
     func_8001BBC4(G->s56, G->s5E, 0x680010, 0x120);
 block_220:
     goto block_225;
 case 0x35:
 block_221:
 block_222:
-    func_8001BAF8(G->s48, 0x24);
+    EmitPresetSprite(G->s48, 0x24);
 block_223:
 case 0x1A:
 case 0x27:
@@ -1205,8 +1205,8 @@ block_225:
     RR_GTE_STORE_IR(sp3);
 block_227:
     func_8001B640();
-    func_8006EF8C(6);
-    func_800912B4(0xA0, 0xC0);
+    SetupViewport(6);
+    SetGeomOffset(0xA0, 0xC0);
     temp_a0_4 = G->s66;
     G->sA4 = 0;
     if (temp_a0_4 == 0) {
@@ -1314,16 +1314,16 @@ block_clamp:
     func_80041BF0(0, &spd2->ot->h, 1, c_800060);
 block_247:
     H->s2 = 1;
-    func_8003D6F0(0);
+    UpdateBadgeRowAnim(0);
     K->b4 = 0U;
     func_80032A14(H->s4 + 0xA, H->s6 + 0x28, D_800AC590);
-    func_8002A344(0x1001C);
+    UpdateScreenFade(0x1001C);
 block_248:
     return;
     }
 }
 
-void func_8001E1F0(u32 intensity,RrSpriteGridClock *state) {
+void EmitSpriteGrid(u32 intensity,RrSpriteGridClock *state) {
     s32 row;
     /* ASM_BARRIER: retain the horizontal position counter in a3. */
     register s32 x __asm__("$7");

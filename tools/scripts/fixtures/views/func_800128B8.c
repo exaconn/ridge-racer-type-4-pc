@@ -3,46 +3,46 @@
  * This grouping does not establish the original compiler unit boundary. */
 #include "rr/cd.h"
 
-#define B (*(int *)&D_800ACC18)
+#define B (*(int *)&LoadCursor)
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80070108 ((void (*)(void *, s32))func_80070108)
+#define RegisterModelBank ((void (*)(void *, s32))RegisterModelBank)
 
-#define D_800ACC18 ((Resource *)D_800ACC18)
+#define LoadCursor ((Resource *)LoadCursor)
 
-#define D_800F3A08 (*(void *(*)[])&D_800F3A08)
+#define CarBoundsTable (*(void *(*)[])&CarBoundsTable)
 
-#undef func_80070108
+#undef RegisterModelBank
 
-#undef D_800ACC18
+#undef LoadCursor
 
-#undef D_800F3A08
+#undef CarBoundsTable
 
 /* legacy typing of shared globals in this part of the unit */
 #define DrawSync ((int (*)())DrawSync)
 
-#define func_80092FFC ((int (*)())func_80092FFC)
+#define LoadImage ((int (*)())LoadImage)
 
 #undef DrawSync
 
-#undef func_80092FFC
+#undef LoadImage
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_8010BF60 ((short *)D_8010BF60)
 
 #undef D_8010BF60
 
-extern s32 D_8009DF90;
+extern s32 CdFileState;
 
-extern s32 (*D_8009DFA8[])();
+extern s32 (*CdFileStateHandlers[])();
 
-extern s32 D_80109488;
+extern s32 CdFileSyncResult;
 
-s32 func_800128B8(void) {
-    if (D_8009DF90 > 0) {
-        D_80109488 = func_8008C0D8(1, 0);
-        if (D_80109488 != 0) {
-            return D_8009DFA8[D_8009DF90]();
+s32 CdFileStep(void) {
+    if (CdFileState > 0) {
+        CdFileSyncResult = CdSync(1, 0);
+        if (CdFileSyncResult != 0) {
+            return CdFileStateHandlers[CdFileState]();
         }
     }
     return 0;

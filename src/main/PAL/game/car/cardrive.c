@@ -12,9 +12,9 @@ typedef struct { s16 vx, vy, vz, pad; } w3t1_SV;
 
 typedef struct { s32 m[8]; w3t1_SV sv; w3t1_SV out; w3t1_SV rot; } w3t1_F;
 
-void func_80048A6C(char *a0);
+void UpdateComCarSpeed(char *a0);
 
-void func_800486C4(RrDriveVehicleView *arg0) {
+void UpdateComCarDrive(RrDriveVehicleView *arg0) {
     s32 sp18;
     s32 sp1C;
     s32 sp20;
@@ -68,7 +68,7 @@ void func_800486C4(RrDriveVehicleView *arg0) {
         register s32 channel __asm__("$3");
         /* ASM_BARRIER: Keep this initialized drive value in its original register phase. */
         register s32 steering __asm__("$4");
-        value = func_80047CE0((RrRaceVehicle *)arg0);
+        value = CalcSteerLimit((RrRaceVehicle *)arg0);
         steering = var_s0;
         temp_s1->limit6E = value;
         channel = temp_s1->error92;
@@ -111,7 +111,7 @@ void func_800486C4(RrDriveVehicleView *arg0) {
             arg0->heading1D4 = (u16) (arg0->heading1D4 + temp_s1->steering8C);
         }
     }
-    temp_a1_2 = func_80047DF8((char *)arg0, temp_s1->laneTimer38, &sp18, &sp1C, &sp20);
+    temp_a1_2 = ScanCurveAhead((char *)arg0, temp_s1->laneTimer38, &sp18, &sp1C, &sp20);
     temp_s1->dragFlag46 = 0;
     if (temp_s1->shiftDir62 != 0) {
         temp_s1->gear68 = (u16) (temp_s1->gear68 + (u16) temp_s1->shiftDir62);
@@ -138,7 +138,7 @@ void func_800486C4(RrDriveVehicleView *arg0) {
             /* ASM_BARRIER: Keep this initialized drive value in its original register phase. */
             register s32 fraction __asm__("$2") = (var_s0 * 2) / 3;
             if ((fraction < temp_a0_2) && (temp_s1->steeringEnabled124 != 0) && (temp_s1->steering94.mode00 == 0)) {
-                func_80047FBC((RrRaceVehicle *)arg0, temp_a1_2);
+                PlanComCarCornerTurn((RrRaceVehicle *)arg0, temp_a1_2);
             }
             }
         }
@@ -167,10 +167,10 @@ void func_800486C4(RrDriveVehicleView *arg0) {
     } else {
         temp_s1->accelerating54 = 1;
     }
-    func_800483D8((RrRaceVehicle *)arg0);
+    UpdateEngineRpm((RrRaceVehicle *)arg0);
 }
 
-void func_80048A6C(char *a0) {
+void UpdateComCarSpeed(char *a0) {
     w3t1_F f;
     char *s1 = a0;
     char *s0 = s1 + 0x1F4;
@@ -248,5 +248,5 @@ void func_80048A6C(char *a0) {
     }
     I(s1, 0x30) = f.out.vx;
     I(s1, 0x38) = f.out.vz;
-    func_800468F0(s1);
+    UpdateCarTrackProjection(s1);
 }

@@ -2,7 +2,7 @@
 #include "rr/channel_voice_choice.h"
 #include "rr/spu_voice_cache.h"
 
-s32 func_80086BE4(void) {
+s32 _SsVmAlloc(void) {
     register u32 chosen;
     /* ASM_BARRIER: retain the captured selection accumulator in its original temporary. */
     register u32 best_gate asm("$12");
@@ -44,7 +44,7 @@ s32 func_80086BE4(void) {
     /* ASM_BARRIER: keep the byte loop comparison separate from the next byte index. */
     __asm__("" : "+r"(index));
     initial=D_8011010F;
-    count=D_801100FC;
+    count=spuVmMaxVoice;
     /* ASM_BARRIER: capture the priority byte and active count before narrowing priority. */
     __asm__("" : : : "memory");
     priority=(s8)initial;
@@ -187,9 +187,9 @@ s32 func_80086BE4(void) {
     if((u8)chosen==99) {
         ties_test=(u8)ties;
         chosen=best;
-        if(!ties_test)chosen=(u8)D_801100FC;
+        if(!ties_test)chosen=(u8)spuVmMaxVoice;
     }
-    count=D_801100FC;
+    count=spuVmMaxVoice;
     if((u8)chosen<count) {
         if(count>0) {
             register u32 one2;
@@ -279,7 +279,7 @@ s32 func_80086BE4(void) {
 
 /* PAL scalar state is addressed from page 0x80110000. Pointer-valued bank
  * and tone slots remain full native pointers in the shared declarations. */
-void func_80086E74(void) {
+void _SsVmDoAllocate(void) {
     register s32 i=0;
     register u16 *initial=&D_80110118;
     register u16 *selected;
@@ -319,7 +319,7 @@ void func_80086E74(void) {
     /* ASM_BARRIER: keep the shift unit independent of the constant row multiplier. */
     __asm__("" : "+r"(one) : "r"(selected));
     voice=*selected;
-    mask=D_8010FFC0;
+    mask=_svm_envx_hist;
     scaled=(u32)voice*8;
     voice=(s16)voice;
     row_offset=voice*sizeof(RrChannelControlRow36);
@@ -340,13 +340,13 @@ void func_80086E74(void) {
     program=selection[0];
     if ((s16)((u16)program & 1) > 0) {
         at=((s32)program-1)/2;
-        value=D_801100EC[at].value0C;
+        value=_svm_pg[at].value0C;
         offset=(s32)(scaled<<16);
     } else {
         at=(s32)((u32)(u16)program<<16);
         offset=(s32)(scaled<<16);
         at=((at>>16)-1)/2;
-        value=D_801100EC[at].value0E;
+        value=_svm_pg[at].value0E;
     }
     offset>>=15;
     store=(u8 *)0x80110000U;
@@ -374,18 +374,18 @@ void func_80086E74(void) {
     tone_selection=D_80110107;
     offset=(s32)(scaled<<16);
     offset2=offset>>15;
-    tone=(RrSpuTone32 *)((unsigned long)(tone_selection[0]*16+tone_selection[5])*32UL+(unsigned long)D_801100F8);
+    tone=(RrSpuTone32 *)((unsigned long)(tone_selection[0]*16+tone_selection[5])*32UL+(unsigned long)_svm_tn);
     value3=tone->value10;
     /* ASM_BARRIER: schedule tone value10 before forming the cache destination base. */
     __asm__("" : :);
-    base=&D_8010FE18.voices[0].tone08;
+    base=&_svm_sreg_dirty.voices[0].tone08;
     store=(u8 *)0x80110000U;
     /* ASM_BARRIER: retain the captured PAL page before adding the destination offset. */
     __asm__("" : "+r"(store));
     store+=offset2;
     *(u16 *)(store - 0x1E8 + RR_FIELD_OFFSET(RrSpuVolumeCache, voices) + RR_FIELD_OFFSET(RrSpuCachedVolumeEntry, tone08))=value3;
     flags=tone->value12;
-    value=D_801100A0+(flags&31);
+    value=_svm_damper+(flags&31);
     low=value;
     /* ASM_BARRIER: retain the full sum separately from its signed low16 comparison. */
     __asm__("" : "+r"(value));

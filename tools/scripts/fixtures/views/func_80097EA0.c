@@ -39,7 +39,7 @@ s32 func_80097EA0(void) {
     if(D_800ABCBC<first)goto out;
     D_800ABCAC=0;
     D_800ABCA8=first;
-    if(!func_80098154((RrChannelRecordF0 *)((unsigned long)D_800ABC9C+(long)(s32)((shifted-(u32)first)*(sizeof(RrChannelRecordF0)/15)+(u32)first*(sizeof(RrChannelRecordF0)%15)))))D_800ABC68(65535);
+    if(!_padInitSioMode((RrChannelRecordF0 *)((unsigned long)D_800ABC9C+(long)(s32)((shifted-(u32)first)*(sizeof(RrChannelRecordF0)/15)+(u32)first*(sizeof(RrChannelRecordF0)%15)))))D_800ABC68(65535);
     D_800ABCB0=0;
     while(D_800ABCA8<=D_800ABCBC)func_80098488(D_800ABC9C+D_800ABCA8);
     D_800ABCCC->baud=0x88;

@@ -2,13 +2,13 @@
 
 struct P { int link; unsigned char r, g, b, code; short x, y; unsigned char u, v; unsigned short clut; short w, h; };
 
-extern struct P *func_8001FCC8();
+extern struct P *AddDrawModePrim();
 
 extern int func_80095B94(), SetShadeTex(), SetSemiTrans(), AddPrim();
 
-void *func_80020074(u32 *a0, void *a1, int a2, int a3, int a4, int a5, int a6, int a7, unsigned short a8, unsigned short a9, unsigned short a10, unsigned short a11)
+void *AddSpriteWithDrawMode(u32 *a0, void *a1, int a2, int a3, int a4, int a5, int a6, int a7, unsigned short a8, unsigned short a9, unsigned short a10, unsigned short a11)
 {
-    struct P *p = func_8001FCC8(a0, a1, 5);
+    struct P *p = AddDrawModePrim(a0, a1, 5);
     func_80095B94(p);
     p->x = a2;
     p->y = a3;
@@ -27,5 +27,5 @@ void *func_80020074(u32 *a0, void *a1, int a2, int a3, int a4, int a5, int a6, i
     }
     p->clut = a9;
     AddPrim(a0, p++);
-    return func_8001FCC8(a0, p, a8);
+    return AddDrawModePrim(a0, p, a8);
 }

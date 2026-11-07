@@ -1,10 +1,10 @@
 #include "rr/ui_panel.h"
-void func_8003D474(s32 index) {
+void DrawBadgeRow(s32 index) {
     /* ASM_BARRIER: retain the selected index across helper and callback calls. */
     register s32 which asm("$23")=index;
     s32 high_raw;
     s32 offset=which*sizeof(RrBadgeRow1C);
-    RrBadgeRow1C *row=(RrBadgeRow1C *)((unsigned long)offset+(unsigned long)D_800F3AFC);
+    RrBadgeRow1C *row=(RrBadgeRow1C *)((unsigned long)offset+(unsigned long)BadgeRows);
     u32 raw;
     s32 status;
     /* ASM_BARRIER: retain the byte offset for the two fresh table captures. */
@@ -37,8 +37,8 @@ void func_8003D474(s32 index) {
         
         order=&context->head74;
         height=extent-22;
-        cursor=func_8001FC28(order,scratch->cursor,zero6,zero7,320,512);
-        cursor=func_8001FCC8(order,cursor,37);
+        cursor=AddDrawAreaPrim(order,scratch->cursor,zero6,zero7,320,512);
+        cursor=AddDrawModePrim(order,cursor,37);
         callback=high_raw>>24;
         {
             void *call_cursor=cursor;
@@ -48,15 +48,15 @@ void func_8003D474(s32 index) {
         }
         cursor=func_8003D2C4(order,cursor,x,y,status&255);
         y=y+22;
-        row=(RrBadgeRow1C *)((unsigned long)offset+(unsigned long)D_800F3AFC);
-        cursor=func_8001FD20(order,cursor,x,row->y0A+height+20,width,2,white,white,white);
-        cursor=func_8001FD20(order,cursor,x,y,width,2,white,white,white);
-        cursor=func_8001FD20(order,cursor,x,y,1,height,white,white,white);
-        cursor=func_8001FD20(order,cursor,x+width-1,y,1,height,white,white,white);
+        row=(RrBadgeRow1C *)((unsigned long)offset+(unsigned long)BadgeRows);
+        cursor=AddTilePrim(order,cursor,x,row->y0A+height+20,width,2,white,white,white);
+        cursor=AddTilePrim(order,cursor,x,y,width,2,white,white,white);
+        cursor=AddTilePrim(order,cursor,x,y,1,height,white,white,white);
+        cursor=AddTilePrim(order,cursor,x+width-1,y,1,height,white,white,white);
         white=74;
-        cursor=func_8001FD20(order,cursor,x,y,width,height,white,white,white);
-        cursor=func_8001FCC8(order,cursor,37);
-        row=(RrBadgeRow1C *)((unsigned long)offset+(unsigned long)D_800F3AFC);
-        scratch->cursor=func_8001FC28(order,cursor,row->x14,row->y16,row->w18,row->h1A);
+        cursor=AddTilePrim(order,cursor,x,y,width,height,white,white,white);
+        cursor=AddDrawModePrim(order,cursor,37);
+        row=(RrBadgeRow1C *)((unsigned long)offset+(unsigned long)BadgeRows);
+        scratch->cursor=AddDrawAreaPrim(order,cursor,row->x14,row->y16,row->w18,row->h1A);
     }
 }

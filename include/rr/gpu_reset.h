@@ -35,7 +35,7 @@ extern const char D_80011DF0[], D_80011E10[];
 
 s32 func_8001E84C(const char *format, ...);
 void GPU_memset(s8 *destination, s8 value, s32 length);
-s32 func_800950D4(s32 mode);
+s32 _reset(s32 mode);
 /* BIOS service receives an encoded low-24-bit PAL address, not a native pointer. */
 s32 func_80096E24(unsigned long address);
 s32 ResetGraph(s32);

@@ -104,7 +104,7 @@ int main(void) {
    actual->source=(RrGridRow8 *)((u8 *)(actual->page.slots.records+index)+overlaps[(n/4)%9]);
   }
   memcpy(expected,actual,sizeof(*actual));
-  reference(index,layout,count,x,y);func_80041A54(index,layout,count,x,y);
+  reference(index,layout,count,x,y);InitMenuGrid(index,layout,count,x,y);
   if(memcmp(actual,expected,sizeof(*actual))) {fprintf(stderr,"case %u failed\n",n);abort();}
  }
  free(actual);free(expected);puts("32768 native grid cases passed with UBSan");return 0;

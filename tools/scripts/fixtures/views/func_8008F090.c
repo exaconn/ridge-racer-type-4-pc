@@ -4,9 +4,9 @@
 
 extern int D_800A67CC[];
 
-extern int VSync(), func_8008EB6C(), func_8008C0F8();
+extern int VSync(), func_8008EB6C(), CdReady();
 
-int func_8008F090(a0, a1) int a0, a1; {
+int CdReadSync(a0, a1) int a0, a1; {
     int s0;
     int *p = D_800A67CC;
     int *q = D_800A67CC + 2;
@@ -25,7 +25,7 @@ int func_8008F090(a0, a1) int a0, a1; {
         }
         break;
     }
-    func_8008C0F8(1, a1);
+    CdReady(1, a1);
     if (q[0] != 0 && s0 == 0) s0 = 1;
     return s0;
 }

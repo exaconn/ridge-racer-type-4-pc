@@ -2,24 +2,24 @@
 void SetRotMatrix(int *a0);
 void SetColorMatrix(int *a0);
 void SetTransMatrix(int *a0);
-void func_80091164(int *a0);
-void func_80091174(int *a0);
-void func_80091184(int *a0);
+void SetVertex0(int *a0);
+void SetVertex1(int *a0);
+void SetVertex2(int *a0);
 void SetVertexTri(int *a0, int *a1, int *a2);
-void func_800911B4(int *a0, int *a1, int *a2);
-void func_800911C8(int a0, int a1, int a2);
-void func_800911DC(int a0);
-void func_800911E8(int a0, int a1, int a2);
-void func_800911FC(int a0, int a1, int a2, int a3);
-void func_80091214(int a0, int a1, int a2);
-void func_80091228(int a0, int a1, int a2);
-void func_8009123C(int a0, int a1, int a2);
-void func_80091250(int a0);
-void func_8009125C(int a0);
-void func_80091268(int a0);
+void SetRGBfifo(int *a0, int *a1, int *a2);
+void SetIR123(int a0, int a1, int a2);
+void SetIR0(int a0);
+void SetSZfifo3(int a0, int a1, int a2);
+void SetSZfifo4(int a0, int a1, int a2, int a3);
+void SetSXSYfifo(int a0, int a1, int a2);
+void SetRii(int a0, int a1, int a2);
+void SetMAC123(int a0, int a1, int a2);
+void SetData32(int a0);
+void SetDQA(int a0);
+void SetDQB(int a0);
 void SetBackColor(int a0, int a1, int a2);
 void SetFarColor(int a0, int a1, int a2);
-void func_800912B4(int a0, int a1);
+void SetGeomOffset(int a0, int a1);
 
 void SetRotMatrix(int *a0) {
     register int t0 __asm__("$8");
@@ -87,15 +87,15 @@ void SetTransMatrix(int *a0) {
     __asm__ volatile ("ctc2 %0, $7" : : "r"(t2));
 }
 
-void func_80091164(int *a0) {
+void SetVertex0(int *a0) {
     __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(a0));
 }
 
-void func_80091174(int *a0) {
+void SetVertex1(int *a0) {
     __asm__ volatile ("lwc2 $2, 0(%0)\n\tlwc2 $3, 4(%0)" : : "r"(a0));
 }
 
-void func_80091184(int *a0) {
+void SetVertex2(int *a0) {
     __asm__ volatile ("lwc2 $4, 0(%0)\n\tlwc2 $5, 4(%0)" : : "r"(a0));
 }
 
@@ -105,62 +105,62 @@ void SetVertexTri(int *a0, int *a1, int *a2) {
     __asm__ volatile ("lwc2 $4, 0(%0)\n\tlwc2 $5, 4(%0)" : : "r"(a2));
 }
 
-void func_800911B4(int *a0, int *a1, int *a2) {
+void SetRGBfifo(int *a0, int *a1, int *a2) {
     __asm__ volatile ("lwc2 $20, 0(%0)" : : "r"(a0));
     __asm__ volatile ("lwc2 $21, 0(%0)" : : "r"(a1));
     __asm__ volatile ("lwc2 $22, 0(%0)" : : "r"(a2));
 }
 
-void func_800911C8(int a0, int a1, int a2) {
+void SetIR123(int a0, int a1, int a2) {
     __asm__ volatile ("mtc2 %0, $9" : : "r"(a0));
     __asm__ volatile ("mtc2 %0, $10" : : "r"(a1));
     __asm__ volatile ("mtc2 %0, $11" : : "r"(a2));
 }
 
-void func_800911DC(int a0) {
+void SetIR0(int a0) {
     __asm__ volatile ("mtc2 %0, $8" : : "r"(a0));
 }
 
-void func_800911E8(int a0, int a1, int a2) {
+void SetSZfifo3(int a0, int a1, int a2) {
     __asm__ volatile ("mtc2 %0, $17" : : "r"(a0));
     __asm__ volatile ("mtc2 %0, $18" : : "r"(a1));
     __asm__ volatile ("mtc2 %0, $19" : : "r"(a2));
 }
 
-void func_800911FC(int a0, int a1, int a2, int a3) {
+void SetSZfifo4(int a0, int a1, int a2, int a3) {
     __asm__ volatile ("mtc2 %0, $16" : : "r"(a0));
     __asm__ volatile ("mtc2 %0, $17" : : "r"(a1));
     __asm__ volatile ("mtc2 %0, $18" : : "r"(a2));
     __asm__ volatile ("mtc2 %0, $19" : : "r"(a3));
 }
 
-void func_80091214(int a0, int a1, int a2) {
+void SetSXSYfifo(int a0, int a1, int a2) {
     __asm__ volatile ("mtc2 %0, $12" : : "r"(a0));
     __asm__ volatile ("mtc2 %0, $13" : : "r"(a1));
     __asm__ volatile ("mtc2 %0, $14" : : "r"(a2));
 }
 
-void func_80091228(int a0, int a1, int a2) {
+void SetRii(int a0, int a1, int a2) {
     __asm__ volatile ("ctc2 %0, $0" : : "r"(a0));
     __asm__ volatile ("ctc2 %0, $2" : : "r"(a1));
     __asm__ volatile ("ctc2 %0, $4" : : "r"(a2));
 }
 
-void func_8009123C(int a0, int a1, int a2) {
+void SetMAC123(int a0, int a1, int a2) {
     __asm__ volatile ("mtc2 %0, $25" : : "r"(a0));
     __asm__ volatile ("mtc2 %0, $26" : : "r"(a1));
     __asm__ volatile ("mtc2 %0, $27" : : "r"(a2));
 }
 
-void func_80091250(int a0) {
+void SetData32(int a0) {
     __asm__ volatile ("mtc2 %0, $30" : : "r"(a0));
 }
 
-void func_8009125C(int a0) {
+void SetDQA(int a0) {
     __asm__ volatile ("ctc2 %0, $27" : : "r"(a0));
 }
 
-void func_80091268(int a0) {
+void SetDQB(int a0) {
     __asm__ volatile ("ctc2 %0, $28" : : "r"(a0));
 }
 
@@ -178,7 +178,7 @@ void SetFarColor(int a0, int a1, int a2) {
     __asm__ volatile ("ctc2 %0, $23" : : "r"(a2));
 }
 
-void func_800912B4(int a0, int a1) {
+void SetGeomOffset(int a0, int a1) {
     a0 <<= 16; a1 <<= 16;
     __asm__ volatile ("ctc2 %0, $24" : : "r"(a0));
     __asm__ volatile ("ctc2 %0, $25" : : "r"(a1));

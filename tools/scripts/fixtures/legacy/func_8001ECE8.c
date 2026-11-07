@@ -1,6 +1,6 @@
 /* CC1_FLAGS: -fno-strength-reduce */
 #include "rr/frame_loop.h"
-extern void func_800912B4(s32,s32),func_800912D4(s32);
+extern void SetGeomOffset(s32,s32),SetGeomScreen(s32);
 extern void *SetDefDrawEnv(void *,s32,s32,s32,s32),*SetDefDispEnv(void *,s32,s32,s32,s32);
 void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags) {
     /* ASM_BARRIER: keep flags in S0 until the arena replaces their dead value. */
@@ -47,8 +47,8 @@ void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags) {
     __asm__("" : "+r"(center_y) : : "$2");
     temp=1-interlace;
     other_y=temp<<8;
-    func_800912B4(center_x,center_y);
-    func_800912D4(290);
+    SetGeomOffset(center_x,center_y);
+    SetGeomScreen(290);
     width=320;
     wide=input&4;
     saved_flags=input;
@@ -61,7 +61,7 @@ void func_8001ECE8(s32 r,s32 g,s16 b,u32 flags) {
     i=0;
     rgb24=saved_flags&1;
     one=1;
-    settings=D_800AD528.halves;
+    settings=Options.halves;
     loop_wide=wide;
     window.y=0;window.x=0;window.h=0;window.w=0;
 loop:

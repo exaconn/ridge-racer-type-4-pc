@@ -33,7 +33,7 @@ static s16 original_rom[4097];
 #define D_800A50C0 rom
 #define D_800A58C0 (rom+0x400)
 #define D_800A60C0 (rom+0x800)
-#define D_800A68C0 (rom+0xc00)
+#define SinTable (rom+0xc00)
 ''' + trig + body + r'''
 static u32 seed=0x1d208;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}

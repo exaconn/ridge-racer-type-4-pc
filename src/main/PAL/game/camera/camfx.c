@@ -37,7 +37,7 @@ extern struct
 {
   char pad[0x24C];
   Q *p;
-} D_800AC650;
+} RaceContext;
 void func_80056258(a0)
 int a0;
 {
@@ -56,20 +56,20 @@ int a0;
   Q *pq2;
   int *new_var;
   char *q;
-  v0 = func_800560CC();
-  D_800AC650.p->h2a = v0;
-  D_800AC650.p->h42 = -v0;
+  v0 = InterpCurveEase();
+  RaceContext.p->h2a = v0;
+  RaceContext.p->h42 = -v0;
   q = D_800A0D70;
-  D_800AC650.p->h70 = func_8005602C(q, func_80055FD8(q, a0, v0), a0);
+  RaceContext.p->h70 = InterpCurveLinear(q, FindCurveSegment(q, a0, v0), a0);
   q = D_800A0D7C;
-  s1 = func_8005602C(q, func_80055FD8(q, a0), a0);
+  s1 = InterpCurveLinear(q, FindCurveSegment(q, a0), a0);
   q = D_800A0D88;
-  a2 = func_8005602C(q, func_80055FD8(q, a0), a0);
-  D_800AC650.p->w68 = (s1 - (D_800AC650.p->wa0 * 4)) - 0x10;
-  D_800AC650.p->w64 = a2 + 0xC;
-  D_800AC650.p->w50 = s1;
-  D_800AC650.p->w4c = a2;
-  pq = D_800AC650.p;
+  a2 = InterpCurveLinear(q, FindCurveSegment(q, a0), a0);
+  RaceContext.p->w68 = (s1 - (RaceContext.p->wa0 * 4)) - 0x10;
+  RaceContext.p->w64 = a2 + 0xC;
+  RaceContext.p->w50 = s1;
+  RaceContext.p->w4c = a2;
+  pq = RaceContext.p;
   a1 = s1;
   if (s1 < 0)
   {
@@ -77,24 +77,24 @@ int a0;
   }
   a1b = a1 >> 2;
   pq->wb0 = a1b - pq->w100;
-  pq2 = D_800AC650.p;
+  pq2 = RaceContext.p;
   if (a2 < 0)
   {
     a2 += 3;
   }
   pq2->wac = a2 >> 2;
   q = D_800A0D94;
-  s1 = func_8005602C(q, func_80055FD8(q, a0, a2), a0);
+  s1 = InterpCurveLinear(q, FindCurveSegment(q, a0, a2), a0);
   v1 = -(s1 << 5);
-  new_var = (int *) D_800ABEF8;
+  new_var = (int *) PlayerCars;
   a0b = v1;
-  D_800AC650.p->wc8 = s1;
+  RaceContext.p->wc8 = s1;
   if (v1 < 0)
   {
     a0b = v1 + 0xFFF;
   }
   G = new_var;
   G[0x17C / 4] = v1 - ((a0b >> 12) << 12);
-  G[0x28 / 4] = D_800AC650.p->wb0 + D_800AC650.p->wc8;
-  G[0x24 / 4] = D_800AC650.p->wac + D_800AC650.p->wc4;
+  G[0x28 / 4] = RaceContext.p->wb0 + RaceContext.p->wc8;
+  G[0x24 / 4] = RaceContext.p->wac + RaceContext.p->wc4;
 }

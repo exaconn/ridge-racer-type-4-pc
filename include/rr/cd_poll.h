@@ -5,7 +5,7 @@
 #include "rr/diagnostics.h"
 /* Names are indexed by command0..27 and completion code0..6. The timeout
  * diagnostic requires the two status bytes to select those seven names. */
-extern const char *D_800A64AC[28],*D_800A652C[7];
+extern const char *CD_comstr[28],*CD_intstr[7];
 extern u8 D_800A64A5,D_800A6764[];
 extern s32 D_80110330;
 extern u32 D_80110334;

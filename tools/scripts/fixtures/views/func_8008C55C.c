@@ -16,6 +16,6 @@
         } \
     }
 
-extern int func_8008B3C4();
+extern int DMACallback();
 
-void func_8008C55C(a0) { func_8008B3C4(3, a0); }
+void CdDataCallback(a0) { DMACallback(3, a0); }

@@ -82,7 +82,7 @@ void AddPrim(u32 *ot,u32 *p) {
  assert((*expected_ordering&0xFFFFFFU)==((uintptr_t)p&0xFFFFFFU));
  phase=5;mutate(4);
 }
-u8 *func_8001FCC8(u32 *ot,u8 *cursor,u16 page) {
+u8 *AddDrawModePrim(u32 *ot,u8 *cursor,u16 page) {
  u16 expected=iteration?(u16)((descriptor.page&255)|0x60):descriptor.page;
  assert(phase==5 && ot==(u32 *)(D_800ACC14+0x70));
  assert(cursor==expected_cursor+20 && page==expected);

@@ -5,7 +5,7 @@
 void func_800833A0(s32 bankInput,s32 rowInput) {
     s16 bank=bankInput,row=rowInput;
     s32 bits=(s32)((u32)bank<<16);
-    RrChannelStreamB0 **table=D_8010F068;
+    RrChannelStreamB0 **table=_ss_score;
     /* Keep table indexing proportional to the native pointer width. */
     RrChannelStreamB0 **slot=(RrChannelStreamB0 **)((u8*)table+(long)(bits>>14)*(long)(sizeof(*table)/sizeof(u32)));
     RrChannelStreamB0 *record=&(*slot)[row];
@@ -46,10 +46,10 @@ void func_800833A0(s32 bankInput,s32 rowInput) {
             /* Preserve the original repeated signed-byte read before restart. */
             __asm__("" : : : "memory");
             record->active14=0;
-            func_80083994(record->restartBank22,record->restartRow23);
-            func_80089E1C((s16)((u32)bank|((u32)row<<8)));
+            _SsSndNextSep(record->restartBank22,record->restartRow23);
+            _SsVmSeqKeyOff((s16)((u32)bank|((u32)row<<8)));
         }
-        func_80089E1C((s16)((u32)bank|((u32)row<<8)));
+        _SsVmSeqKeyOff((s16)((u32)bank|((u32)row<<8)));
         record->accumulator90=record->pitch54;
     }
 }

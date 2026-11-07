@@ -1,8 +1,8 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/spu_key.h"
-#define HW (((RrSpuRegisterStorage *)D_800A47D8)->halves)
-void func_80087814(s32 mode,u32 mask) {
+#define HW (((RrSpuRegisterStorage *)_spu_RXX)->halves)
+void SpuSetKey(s32 mode,u32 mask) {
     u32 high;
     mask&=0xFFFFFF;
     high=mask>>16;
@@ -23,11 +23,11 @@ void func_80087814(s32 mode,u32 mask) {
             if(pending[2]&mask)pending[2]&=~mask;
             if(pending[3]&high)pending[3]&=~high;
         } else {
-            u32 active=D_800A4844|mask;
+            u32 active=_spu_keystat|mask;
             volatile u16 *bank=HW;
             bank[196]=mask;
             bank[197]=high;
-            D_800A4844=active;
+            _spu_keystat=active;
         }
         break;
     }
@@ -50,7 +50,7 @@ void func_80087814(s32 mode,u32 mask) {
             volatile u16 *bank=HW;
             bank[198]=mask;
             bank[199]=high;
-            D_800A4844&=~mask;
+            _spu_keystat&=~mask;
         }
         break;
     }

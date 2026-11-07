@@ -6,7 +6,7 @@
 
 /* PAL scalar state is addressed from page 0x80110000. Pointer-valued bank
  * and tone slots remain full native pointers in the shared declarations. */
-void func_80086E74(void) {
+void _SsVmDoAllocate(void) {
     register s32 i=0;
     register u16 *initial=&D_80110118;
     register u16 *selected;
@@ -46,7 +46,7 @@ void func_80086E74(void) {
     /* ASM_BARRIER: keep the shift unit independent of the constant row multiplier. */
     __asm__("" : "+r"(one) : "r"(selected));
     voice=*selected;
-    mask=D_8010FFC0;
+    mask=_svm_envx_hist;
     scaled=(u32)voice*8;
     voice=(s16)voice;
     row_offset=voice*sizeof(RrChannelControlRow36);
@@ -67,13 +67,13 @@ void func_80086E74(void) {
     program=selection[0];
     if ((s16)((u16)program & 1) > 0) {
         at=((s32)program-1)/2;
-        value=D_801100EC[at].value0C;
+        value=_svm_pg[at].value0C;
         offset=(s32)(scaled<<16);
     } else {
         at=(s32)((u32)(u16)program<<16);
         offset=(s32)(scaled<<16);
         at=((at>>16)-1)/2;
-        value=D_801100EC[at].value0E;
+        value=_svm_pg[at].value0E;
     }
     offset>>=15;
     store=(u8 *)0x80110000U;
@@ -101,18 +101,18 @@ void func_80086E74(void) {
     tone_selection=D_80110107;
     offset=(s32)(scaled<<16);
     offset2=offset>>15;
-    tone=(RrSpuTone32 *)((unsigned long)(tone_selection[0]*16+tone_selection[5])*32UL+(unsigned long)D_801100F8);
+    tone=(RrSpuTone32 *)((unsigned long)(tone_selection[0]*16+tone_selection[5])*32UL+(unsigned long)_svm_tn);
     value3=tone->value10;
     /* ASM_BARRIER: schedule tone value10 before forming the cache destination base. */
     __asm__("" : :);
-    base=&D_8010FE18.voices[0].tone08;
+    base=&_svm_sreg_dirty.voices[0].tone08;
     store=(u8 *)0x80110000U;
     /* ASM_BARRIER: retain the captured PAL page before adding the destination offset. */
     __asm__("" : "+r"(store));
     store+=offset2;
     *(u16 *)(store - 0x1E8 + RR_FIELD_OFFSET(RrSpuVolumeCache, voices) + RR_FIELD_OFFSET(RrSpuCachedVolumeEntry, tone08))=value3;
     flags=tone->value12;
-    value=D_801100A0+(flags&31);
+    value=_svm_damper+(flags&31);
     low=value;
     /* ASM_BARRIER: retain the full sum separately from its signed low16 comparison. */
     __asm__("" : "+r"(value));

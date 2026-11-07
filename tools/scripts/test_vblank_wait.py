@@ -20,7 +20,7 @@ class VBlankWaitTest(unittest.TestCase):
 #include <string.h>
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-volatile u32 D_800A6390;
+volatile u32 Vcount;
 char test_message_page[65536];
 u32 test_calls, test_clock_reads, test_advance_at, test_initial_clock, test_final_clock;
 uintptr_t test_events[3][3];
@@ -32,7 +32,7 @@ s32 func_80096F84(s32 value) {
  u32 i=test_calls++;if(i<3) {test_events[i][0]=2;test_events[i][1]=(u32)value;}
  return 99;
 }
-s32 func_80096F94(s32 first,s32 second) {
+s32 ChangeClearRCnt(s32 first,s32 second) {
  u32 i=test_calls++;if(i<3) {test_events[i][0]=3;test_events[i][1]=(u32)first;test_events[i][2]=(u32)second;}
  return -1;
 }
@@ -47,10 +47,10 @@ void test_reset(void) {test_calls=test_clock_reads=0;memset(test_events,0,sizeof
             raise AssertionError('Expected exactly one fixed message page')
         body = body.replace('(char *)0x80010000U', 'test_message_page')
         source += body
-        if body.count('(s32)D_800A6390') != 2:
+        if body.count('(s32)Vcount') != 2:
             raise AssertionError('Clock adapter must cover both actual volatile read sites')
-        adapted = body.replace('func_8008B2CC', 'test_advancing_wait')
-        adapted = adapted.replace('(s32)D_800A6390', '(s32)test_read_clock()')
+        adapted = body.replace('v_wait', 'test_advancing_wait')
+        adapted = adapted.replace('(s32)Vcount', '(s32)test_read_clock()')
         source += adapted
         (directory / 'wait.c').write_text(source)
         result = subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'wait.c'),
@@ -58,7 +58,7 @@ void test_reset(void) {test_calls=test_clock_reads=0;memset(test_events,0,sizeof
         if result.returncode:
             raise AssertionError(result.stderr.decode())
         cls.lib = C.CDLL(str(directory / 'wait.so'))
-        cls.clock = C.c_uint32.in_dll(cls.lib, 'D_800A6390')
+        cls.clock = C.c_uint32.in_dll(cls.lib, 'Vcount')
         cls.calls = C.c_uint32.in_dll(cls.lib, 'test_calls')
         cls.reads = C.c_uint32.in_dll(cls.lib, 'test_clock_reads')
         cls.advance = C.c_uint32.in_dll(cls.lib, 'test_advance_at')
@@ -66,7 +66,7 @@ void test_reset(void) {test_calls=test_clock_reads=0;memset(test_events,0,sizeof
         cls.final = C.c_uint32.in_dll(cls.lib, 'test_final_clock')
         cls.events = (C.c_size_t * 9).in_dll(cls.lib, 'test_events')
         cls.message = (C.c_char * 65536).in_dll(cls.lib, 'test_message_page')
-        cls.wait = cls.lib.func_8008B2CC
+        cls.wait = cls.lib.v_wait
         cls.advancing_wait = cls.lib.test_advancing_wait
         for function in (cls.wait, cls.advancing_wait):
             function.argtypes = [C.c_int32, C.c_int32]

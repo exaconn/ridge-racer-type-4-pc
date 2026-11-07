@@ -10,8 +10,8 @@ typedef struct {
     u8 pad14[0xC];
 } RrSpuTone32;
 
-extern u32 D_8010FFC0[16];
-extern u16 D_801100A0;
+extern u32 _svm_envx_hist[16];
+extern u16 _svm_damper;
 /* Program/voice halfwords at 0x80110116/118; the byte selection starts at
  * 0x80110107 and its voice halfword is aligned at byte offset 0x11. */
 extern s16 D_80110116[];
@@ -21,7 +21,7 @@ extern s8 D_80110107[];
  * program/tone allocations must cover the signed program and signed byte
  * bank/program indices. Tone source may overlap the software cache: value12
  * is loaded after publishing value10. All accessed halfwords are aligned. */
-void func_80086E74(void);
+void _SsVmDoAllocate(void);
 
 RR_ASSERT_SIZE(RrSpuTone32, 0x20);
 RR_ASSERT_OFFSET(RrSpuTone32, value10, 0x10);

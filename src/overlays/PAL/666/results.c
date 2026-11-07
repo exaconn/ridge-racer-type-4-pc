@@ -6,8 +6,8 @@ void ovl666_init_results(void) {
 
     /* The selected label bank is0..2; the two progress selectors are0..3. */
     InitMenuTextRows(D_800FFC48);
-    D_800AC64A = 0;
-    D_800AC5E0 = 3;
+    MenuCursor = 0;
+    MenuItemCount = 3;
     if (ovl666_result_kind == 0) {
         D_800F3920.prefix.flags5C[D_800F4D98.choice.bytes[1]] = 1;
         D_800F3920.prefix.progress
@@ -29,12 +29,12 @@ void ovl666_init_results(void) {
 }
 
 s32 ovl666_update_retry_choice(s32 mode) {
-    func_80041320(D_800AC64A + 37, 0, 0);
-    func_8002B330(0, 2, (char *)&D_800AC64A, 3, 0);
-    func_80041320(D_800AC64A + 37, 1, 1);
+    func_80041320(MenuCursor + 37, 0, 0);
+    StepMenuValue(0, 2, (char *)&MenuCursor, 3, 0);
+    func_80041320(MenuCursor + 37, 1, 1);
     if (D_800F3A60) {
         PlaySfx(1);
-        return D_800AC64A;
+        return MenuCursor;
     }
     return -1;
 }
@@ -79,9 +79,9 @@ void ovl666_update_results(void) {
             func_8002AF8C(1, 1, 0);
             if (ovl666_update_retry_choice(0) >= 0) {
                 ResetScreenCounters();
-                func_8003A1B4();
+                InitMenuArenas();
                 D_800AC5D0 = 64;
-                D_800F4D8A = D_800AC64A + 4;
+                D_800F4D8A = MenuCursor + 4;
             }
         }
         break;
@@ -135,7 +135,7 @@ void ovl666_update_results(void) {
     default:
         break;
     }
-    func_8002A344(0x1000C);
+    UpdateScreenFade(0x1000C);
     func_8003662C(D_800F2DE4);
     if (group >= 0) {
         i = 0;

@@ -1,5 +1,5 @@
 #include "rr/overlay668_stream.h"
-extern s32 func_8008F1C4(s32);
+extern s32 CdRead2(s32);
 
 void ovl668_func_801153F0(u8 *location) {
     u8 mode = 0x80;
@@ -9,5 +9,5 @@ void ovl668_func_801153F0(u8 *location) {
         while (CdControl(14, &mode, 0) == 0) {
         }
         VSync(3);
-    } while (func_8008F1C4(480) == 0);
+    } while (CdRead2(480) == 0);
 }

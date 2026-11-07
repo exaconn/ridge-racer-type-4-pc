@@ -18,25 +18,25 @@ void GPU_memset(s8 *arg0, s8 arg1, s32 arg2);
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAC2 (*(unsigned char (*))&D_800ABAC2)
-#define D_800ABABC (*(int (*(*))())&D_800ABABC)
+#define GPU_printf (*(int (*(*))())&GPU_printf)
 
 int DrawOTag2(a0) int a0; {
-    if (D_800ABAC2 >= 2) D_800ABABC(D_80011F38, a0);
+    if (D_800ABAC2 >= 2) GPU_printf(D_80011F38, a0);
     D_800ABBFC = VSync(-1) + 0xF0;
     D_800ABC00 = 0;
     while ((*D_800ABBD4 & 0x1000000) || (*D_800ABBC8 & 0x4000000) == 0) {
-        if (func_80095394() != 0) return -1;
+        if (get_alarm() != 0) return -1;
     }
-    func_8008B3C4(2, func_80095990);
+    DMACallback(2, func_80095990);
     D_800ABAB8->f18(a0);
     return 0;
 }
 
 #undef D_800ABAC2
-#undef D_800ABABC
+#undef GPU_printf
 
 void func_80095990(void) {
-    func_8008B3C4(2,func_80094E74);
+    DMACallback(2,_exeque);
 }
 
 void GPU_memset(s8 *arg0, s8 arg1, s32 arg2) {

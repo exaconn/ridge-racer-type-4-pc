@@ -8,8 +8,8 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
     s32 shifted;
     RrCharacterGridAddress clearAddress;
 
-    x = D_800F3AFC[row].x04 + 36;
-    y = D_800F3AFC[row].y06 + 56;
+    x = BadgeRows[row].x04 + 36;
+    y = BadgeRows[row].y06 + 56;
     /* Convert only the four in-bounds addresses to pointers. The last integer
      * decrement never constructs a C pointer before the buffer. */
     for (i = 3, clearAddress = (RrCharacterGridAddress)(text + 3); i >= 0; i--) {
@@ -34,13 +34,13 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
             clut = 32760;
             color = 0;
         }
-        cursor = func_8001F5B4(order, cursor, x + dx, y + dy, text, clut, 0, color);
+        cursor = AddTextSprites(order, cursor, x + dx, y + dy, text, clut, 0, color);
     }
-    cursor = func_8001FD20(order, cursor, x - 16, y + 136, 256, 2, 255, 255, 255);
+    cursor = AddTilePrim(order, cursor, x - 16, y + 136, 256, 2, 255, 255, 255);
     y += 144;
     x -= 12;
     for (i = 0, dx = i; i < 4; i++) {
-        cursor = func_8001FD20(order, cursor, x + dx, y, 1, 16, 255, 255, 255);
+        cursor = AddTilePrim(order, cursor, x + dx, y, 1, 16, 255, 255, 255);
         dx += 4;
         if (i < 3) {
             if (i == (s32)((u32)ovl662_D_801273B4 - 40U)) {
@@ -62,5 +62,5 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
             dx += D_8009FA1C[ovl662_D_80126230[i]].w + 4;
         }
     }
-    func_8001FCC8(order, cursor, 56);
+    AddDrawModePrim(order, cursor, 56);
 }

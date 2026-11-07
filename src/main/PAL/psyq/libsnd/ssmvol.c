@@ -2,8 +2,8 @@
 #include "psyq/libsnd/sstick3.h"
 #include "psyq/libsnd/ssmvol.h"
 
-void func_80083C9C(short a, short b);
+void SsSepStop(short a, short b);
 
-void func_80083C74(short a) { func_80083AF4(a, 0); }
+void SsSeqStop(short a) { _SsSndStop(a, 0); }
 
-void func_80083C9C(short a, short b) { func_80083AF4(a, b); }
+void SsSepStop(short a, short b) { _SsSndStop(a, b); }

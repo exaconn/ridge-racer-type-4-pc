@@ -30,8 +30,8 @@ class TrackInterpolationTest(unittest.TestCase):
 ''' + header('race_types.h') + header('race.h') + header('track_sample_types.h') + header('track_interpolation.h') + r'''
 static union {uint64_t alignment;u8 bytes[0x10000];} count_page;
 ''' + body + r'''
-RrTrackSample3C *D_800ABEA4;
-s32 D_800ABECC;
+RrTrackSample3C *TrackNodes;
+s32 TrackNodeCount;
 s16 D_800AD522;
 static RrTrackSample3C actual[256], expected[256];
 static unsigned random_state=0x873AF519;
@@ -81,9 +81,9 @@ static void one(int count,int index,int difference,int direction,int alias) {
     s16 offset=-123;
     memcpy(&vehicle.pad120[0x50],&offset,2);
     before=vehicle;
-    D_800ABECC=count;D_800AD522=direction;
+    TrackNodeCount=count;D_800AD522=direction;
     memcpy(count_page.bytes+0xBECC,&count,4);
-    D_800ABEA4=actual+128;
+    TrackNodes=actual+128;
     int a,b;indices(index,difference,direction,count,&a,&b);
     assert(a>=-128&&a<128&&b>=-128&&b<128);
     s32 out[5]={0x13579,0,0,0,0x24680},want[3];
@@ -94,7 +94,7 @@ static void one(int count,int index,int difference,int direction,int alias) {
         target=&expected[128+chosen].x08;
     }
     reference(a,b,(unsigned)difference&1023,target);
-    func_80043AB0(&vehicle,output,difference+offset);
+    GetTrackPointAhead(&vehicle,output,difference+offset);
     assert(memcmp(output,target,12)==0);
     assert(memcmp(actual,expected,sizeof(actual))==0);
     assert(memcmp(&vehicle,&before,sizeof(vehicle))==0);

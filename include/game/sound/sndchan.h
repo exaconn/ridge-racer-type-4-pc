@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_800501BC(int a0);
+void UpdateSoundSlot(int a0);
 
 #endif /* RR_GAME_SOUND_SNDCHAN_H */

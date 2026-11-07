@@ -31,11 +31,11 @@
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ACC14 (*(s32 (*))&D_800ACC14)
 
-#define func_8001FD20 ((s32 (*)())func_8001FD20)
+#define AddTilePrim ((s32 (*)())AddTilePrim)
 
 #undef D_800ACC14
 
-#undef func_8001FD20
+#undef AddTilePrim
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3A38 (*(E (*)[])&D_800F3A38)
@@ -43,9 +43,9 @@
 #undef D_800F3A38
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEF8 (*(S_800ABEF8 (*)[])&D_800ABEF8)
+#define PlayerCars (*(S_800ABEF8 (*)[])&PlayerCars)
 
-#undef D_800ABEF8
+#undef PlayerCars
 
 typedef struct {
     char pad[0x10];
@@ -55,11 +55,11 @@ typedef struct {
 
 extern S_F3A38 D_800F3A38[];
 
-extern s32 D_8009FDA4;
+extern s32 MenuStepDirection;
 
 extern int PlaySfx();
 
-void func_8002B330(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4; {
+void StepMenuValue(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4; {
     int s0;
     int a;
     unsigned short b;
@@ -100,18 +100,18 @@ void func_8002B330(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4;
         if ((b & 0x1000) == 0) {
           if ((b & 0x4000) == 0) {
             if (b & 0x8000) {
-                D_8009FDA4 = 1;
+                MenuStepDirection = 1;
                 s0 -= 1;
                 goto L;
             }
             if (b & 0x2000) {
-                D_8009FDA4 = 2;
+                MenuStepDirection = 2;
                 s0 += 1;
                 goto L;
             }
           }
         }
-        D_8009FDA4 = 0;
+        MenuStepDirection = 0;
         goto M;
     }
     goto M;

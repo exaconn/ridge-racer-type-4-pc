@@ -25,11 +25,11 @@ extern s32 D_800AD564;
 extern s16 D_800AD50A;
 extern s32 D_800F3A64, D_800F3A48;
 extern s16 D_800F3A1E, D_800FFC18;
-void func_8002B75C(char *destination, char *source);
+void CopyStringClearTail(char *destination, char *source);
 void func_800397BC(char *text);
 void func_8003BFC8(s32 paused);
-s32 func_800370BC(const RrCourseChoice4 *choices);
-s32 func_8004342C(s32 course, s32 selection, s32 car, s32 mode, s32 value, u8 *output);
+s32 CountChoiceGlyphs(const RrCourseChoice4 *choices);
+s32 EncodeRecordPassword(s32 course, s32 selection, s32 car, s32 mode, s32 value, u8 *output);
 
 void ovl660_func_80114910(void);
 void ovl660_func_80114920(void);

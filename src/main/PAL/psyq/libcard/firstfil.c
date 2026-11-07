@@ -2,7 +2,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/bios_devices.h"
 
-void *func_80097114(char *path, void *directory);
+void *firstfile(char *path, void *directory);
 s32 func_800972B0(s32 *a0,s32 a1,s32 a2);
 
 static __inline__ s32 save_first_file_handler(void) {
@@ -23,7 +23,7 @@ static __inline__ s32 save_first_file_handler(void) {
     return 0;
 }
 
-void *func_80097114(char *path, void *directory) {
+void *firstfile(char *path, void *directory) {
     char *output;
     s8 *input;
     RrBiosDevice *device, *end, *limit;

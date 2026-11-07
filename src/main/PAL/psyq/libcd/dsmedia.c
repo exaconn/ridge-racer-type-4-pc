@@ -6,9 +6,9 @@ extern s32 func_8001E84C(const char *,...);
 extern char D_80011D78[];
 extern char D_80011D88[];
 
-int func_8008F274();
+int CdDiskReady();
 
-int func_8008F274(a0)
+int CdDiskReady(a0)
 int a0;
 {
     unsigned char sp10[8];
@@ -37,7 +37,7 @@ int a0;
     return 5;
 }
 
-int func_8008F3B0(void) {
+int CdGetDiskType(void) {
     struct { u32 a[2]; u8 buf[0x800],st[8]; } L;
     int i, r, v, c;
     s32 sector;
@@ -51,7 +51,7 @@ int func_8008F3B0(void) {
     i = 0;
     c = 1;
     do {
-        r = func_8008C0F8(0, L.st);
+        r = CdReady(0, L.st);
         v = r;
         i++;
         if (v == c) break;
@@ -83,7 +83,7 @@ int func_8008F3B0(void) {
         __asm__("" : "=r"(parameters) : "0"(0));
         CdControl(9, parameters, 0);
     }
-    func_8008C51C(L.buf, 0x200);
+    CdGetSector(L.buf, 0x200);
     v = func_80096414(L.buf + 1, D_80011D88, 5);
     if (v != 0) return 1;
     return 2;

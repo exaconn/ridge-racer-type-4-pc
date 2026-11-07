@@ -2,7 +2,7 @@
 
 #include "rr/track_sample_types.h"
 
-extern int func_8001FCC8();
+extern int AddDrawModePrim();
 
 extern int func_8001FF84();
 
@@ -63,5 +63,5 @@ void func_80037198(int arg0) {
         a1 = func_8001FF84(D_800ACC14 + 0x70, a1, (s0 % 3) * 0x14 + 0xF0, (s0 / 3) * 0x28 + 0x58, buf, 0x7FA4, 1);
         s0++;
     } while (s0 < 9);
-    *(int *)0x1F800000 = func_8001FCC8(D_800ACC14 + 0x70, a1, 0x39);
+    *(int *)0x1F800000 = AddDrawModePrim(D_800ACC14 + 0x70, a1, 0x39);
 }

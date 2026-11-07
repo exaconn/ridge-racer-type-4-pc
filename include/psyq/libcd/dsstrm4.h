@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8008F814(int a, unsigned n);
+void init_ring_status(int a, unsigned n);
 
 #endif /* RR_PSYQ_LIBCD_DSSTRM4_H */

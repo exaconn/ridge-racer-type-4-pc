@@ -65,12 +65,12 @@ for i,a in enumerate(half_addresses):
  expr=f'active.half[{i}]' if i in [2,7] else f'((s16 *)active.half)[{i}]'
  macros+=f'#define D_{a:08X} ({expr})\n'
 for name,a in [('choices',0x80109478),('name',0x800A457C),('text',0x800F4D50),('stored',0x800F2E30),('snapshot',0x8010B258),('records',0x801272F0)]:macros+=f'#define D_{a:08X} (active.{name})\n'
-macros+='#define D_800F3AFC badgeRoot\n'
+macros+='#define BadgeRows badgeRoot\n'
 functions=[]
-signatures=[('s32','func_80035024',['s32']),('s32','func_8009AEAC',['s32','s32','unsigned long']),('void','SetDispMask',['s32']),('void','func_8001ECE8',['s32','s32','s16','u32']),('void','func_8002A604',[]),('void','func_8003E928',['s32']*10),('void','func_80053BB4',['s32']),('void','func_8003D228',['s32','s32','s16','s32','u16','u16','u16']),('void','ResetScreenCounters',[]),('s32','func_8003B934',[]),('void','func_8002A344',['s32']),('void','func_8002AF8C',['s32']*3)]
+signatures=[('s32','func_80035024',['s32']),('s32','_sio_control',['s32','s32','unsigned long']),('void','SetDispMask',['s32']),('void','func_8001ECE8',['s32','s32','s16','u32']),('void','ClearScreenOverlayState',[]),('void','InitUiRow',['s32']*10),('void','func_80053BB4',['s32']),('void','InitBadgeRow',['s32','s32','s16','s32','u16','u16','u16']),('void','ResetScreenCounters',[]),('s32','func_8003B934',[]),('void','UpdateScreenFade',['s32']),('void','func_8002AF8C',['s32']*3)]
 for event,(ret,name,types) in enumerate(signatures,1):
  params=','.join(t+' a'+str(i) for i,t in enumerate(types)) or 'void'
- params+=',...' if name=='func_8003E928' else ''
+ params+=',...' if name=='InitUiRow' else ''
  args=','.join('(u32)a'+str(i) for i in range(len(types))) or '0'
  functions.append(f'{ret} {name}({params}){{u32 args[10]={{{args}}};service({event},args);'+('return (s32)active.words[4];' if ret=='s32' else '')+'}')
 head=r'''

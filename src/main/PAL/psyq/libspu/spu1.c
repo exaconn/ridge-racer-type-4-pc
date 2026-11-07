@@ -5,16 +5,16 @@
 #include "psyq/libspu/spu1.h"
 #include "psyq/libspu/spu2.h"
 
-extern s32 func_80096E64(u32,s32);
+extern s32 DeliverEvent(u32,s32);
 
-void func_8007EFC0(int a0, int a1, int a2);
+void _spu_Fr_(int a0, int a1, int a2);
 
 void _spu_FiDMA(void) {
     /* ASM_BARRIER: Retain the bounded poll count in its original register. */
     register u32 i;
     RrSpuRegisterBank *bank;
     if(D_800A4828==0) _spu_Fw1ts();
-    bank=D_800A47D8;
+    bank=_spu_RXX;
     bank->spu_control &= 0xFFCF;
     {
     u32 status=bank->spu_control & 0x30;
@@ -33,16 +33,16 @@ again:
         }
     }
     }
-    if(D_800A4810) D_800A4810();
-    else func_80096E64(0xF0000009U,0x20);
+    if(_spu_transferCallback) _spu_transferCallback();
+    else DeliverEvent(0xF0000009U,0x20);
 }
 
-void func_8007EFC0(int a0, int a1, int a2) {
-    D_800A47D8->transfer_address = a1;
+void _spu_Fr_(int a0, int a1, int a2) {
+    _spu_RXX->transfer_address = a1;
     _spu_Fw1ts();
-    D_800A47D8->spu_control |= 0x30;
+    _spu_RXX->spu_control |= 0x30;
     _spu_Fw1ts();
-    func_8007F574();
+    _spu_FsetDelayR();
     *D_800A47DC = a0;
     *D_800A47E0 = ((u32)a2 << 16) | 0x10;
     D_800A4828 = 1;

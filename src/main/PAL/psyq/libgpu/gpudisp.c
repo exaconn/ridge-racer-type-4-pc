@@ -48,7 +48,7 @@ extern struct {
     char pad[0x10];
     void (*f10)(u32);
 } *D_800ABAB8;
-extern void (*D_800ABABC)(const char *, ...);
+extern void (*GPU_printf)(const char *, ...);
 extern u8 D_800ABAC2[];
 extern u8 D_800ABAC3;
 extern char D_800ABB2C[];
@@ -69,18 +69,18 @@ void SetDrawStp(char *p, int a);
 void SetDrawMode(void *arg0, s32 arg1, s32 arg2, s32 arg3, RrGpuRectangleFields *arg4);
 void SetDrawEnv(u32 *arg0, RrFrameEnvironment *arg1);
 void func_80093E70(u32 *arg0, RrFrameEnvironment *arg1);
-int func_800940E0(int a0, int a1, int a2);
-u32 func_80094100(s32 a0, s32 a1);
-u32 func_80094198(s32 a0, s32 a1);
-unsigned func_80094230(int a, int b);
-s32 func_800942CC(void);
-s32 func_800942E4(u8 *address, s32 count);
-s32 func_800943C4(RrGpuRectangle *arg0, u32 arg1);
-s32 func_800945F4(RrGpuRectangle *arg0,const u32 *arg1);
-s32 func_80094830(RrGpuRectangle *arg0,u32 *arg1);
-void func_80094AB0(u32 command);
-s32 func_80094AD4(s32 index);
-int func_80094AE8(int *a, int n);
+int get_mode(int a0, int a1, int a2);
+u32 get_cs(s32 a0, s32 a1);
+u32 get_ce(s32 a0, s32 a1);
+unsigned get_ofs(int a, int b);
+s32 _status(void);
+s32 _otc(u8 *address, s32 count);
+s32 _clr(RrGpuRectangle *arg0, u32 arg1);
+s32 _dws(RrGpuRectangle *arg0,const u32 *arg1);
+s32 _drs(RrGpuRectangle *arg0,u32 *arg1);
+void _ctl(u32 command);
+s32 _getctl(s32 index);
+int _cwb(int *a, int n);
 
 DISPENV_T *PutDispEnv(DISPENV_T *env) {
     u32 mode;
@@ -92,7 +92,7 @@ DISPENV_T *PutDispEnv(DISPENV_T *env) {
     p = D_800ABAC2;
     mode = 0x08000000;
     if (*p >= 2) {
-        D_800ABABC(D_80011F80, env);
+        GPU_printf(D_80011F80, env);
     }
     {
         /* ASM_BARRIER: keep 0x05000000 in $v0 so disp.y shift gets $v1 */
@@ -105,7 +105,7 @@ DISPENV_T *PutDispEnv(DISPENV_T *env) {
         (s16)d->y != env->disp.y ||
         (s16)d->w != env->disp.w ||
         (s16)d->h != env->disp.h) {
-        if ((env->pad0 = func_8008BDF8()) == 1) {
+        if ((env->pad0 = GetVideoMode()) == 1) {
             mode |= 0x08;
         }
         if (env->isrgb24) {
@@ -153,7 +153,7 @@ DISPENV_T *PutDispEnv(DISPENV_T *env) {
         /* ASM_BARRIER: keep i in $a2 */
         register s32 i asm("$6");
 
-        env->pad0 = func_8008BDF8();
+        env->pad0 = GetVideoMode();
         y0 = env->screen.y + (env->pad0 ? 0x13 : 0x10);
         y1 = env->screen.h ? y0 + env->screen.h : y0 + 0xF0;
         if (env->disp.w < 0x119) {
@@ -214,19 +214,19 @@ u32 GetODE(void) {
 
 void SetTexWindow(void *arg0, M2C_UNK arg1) {
     M2C_FIELD(arg0, s8 *, 3) = 2;
-    M2C_FIELD(arg0, s32 *, 4) = func_8009424C(arg1);
+    M2C_FIELD(arg0, s32 *, 4) = get_tw(arg1);
     M2C_FIELD(arg0, s32 *, 8) = 0;
 }
 
 void SetDrawArea(void *arg0, void *arg1) {
     M2C_FIELD(arg0, s8 *, 3) = 2;
-    M2C_FIELD(arg0, s32 *, 4) = func_80094100(M2C_FIELD(arg1, s16 *, 0), M2C_FIELD(arg1, s16 *, 2));
-    M2C_FIELD(arg0, s32 *, 8) = func_80094198((s16) (((u16) M2C_FIELD(arg1, s16 *, 0) + M2C_FIELD(arg1, u16 *, 4)) - 1), (s16) (((u16) M2C_FIELD(arg1, s16 *, 2) + M2C_FIELD(arg1, u16 *, 6)) - 1));
+    M2C_FIELD(arg0, s32 *, 4) = get_cs(M2C_FIELD(arg1, s16 *, 0), M2C_FIELD(arg1, s16 *, 2));
+    M2C_FIELD(arg0, s32 *, 8) = get_ce((s16) (((u16) M2C_FIELD(arg1, s16 *, 0) + M2C_FIELD(arg1, u16 *, 4)) - 1), (s16) (((u16) M2C_FIELD(arg1, s16 *, 2) + M2C_FIELD(arg1, u16 *, 6)) - 1));
 }
 
 void SetDrawOffset(void *arg0, void *arg1) {
     M2C_FIELD(arg0, s8 *, 3) = 2;
-    M2C_FIELD(arg0, s32 *, 4) = func_80094230(M2C_FIELD(arg1, s16 *, 0), M2C_FIELD(arg1, s16 *, 2));
+    M2C_FIELD(arg0, s32 *, 4) = get_ofs(M2C_FIELD(arg1, s16 *, 0), M2C_FIELD(arg1, s16 *, 2));
     M2C_FIELD(arg0, s32 *, 8) = 0;
 }
 
@@ -246,8 +246,8 @@ void SetDrawStp(char *p, int a) { p[3] = 2; ((int *)p)[1] = a ? 0xE6000001 : 0xE
 
 void SetDrawMode(void *arg0, s32 arg1, s32 arg2, s32 arg3, RrGpuRectangleFields *arg4) {
     M2C_FIELD(arg0, s8 *, 3) = 2;
-    M2C_FIELD(arg0, s32 *, 4) = func_800940E0(arg1, arg2, arg3 & 0xFFFF);
-    M2C_FIELD(arg0, s32 *, 8) = func_8009424C(arg4);
+    M2C_FIELD(arg0, s32 *, 4) = get_mode(arg1, arg2, arg3 & 0xFFFF);
+    M2C_FIELD(arg0, s32 *, 8) = get_tw(arg4);
 }
 
 void SetDrawEnv(u32 *arg0, RrFrameEnvironment *arg1) {
@@ -271,11 +271,11 @@ void SetDrawEnv(u32 *arg0, RrFrameEnvironment *arg1) {
     /* ASM_BARRIER: retain this arithmetic or packet-address phase. */
     register s32 height asm("$2");
 
-    output[1] = func_80094100(env->clip.x, env->clip.y);
-    output[2] = func_80094198((s16) ((((u16)env->clip.w) + (u16) env->clip.x) - 1), (s16) (((u16) env->clip.y + ((u16)env->clip.h)) - 1));
-    output[3] = func_80094230(env->offset_x, env->offset_y);
-    output[4] = func_800940E0(env->draw_display, env->dither, ((u16)env->page));
-    output[5] = func_8009424C(&env->window);
+    output[1] = get_cs(env->clip.x, env->clip.y);
+    output[2] = get_ce((s16) ((((u16)env->clip.w) + (u16) env->clip.x) - 1), (s16) (((u16) env->clip.y + ((u16)env->clip.h)) - 1));
+    output[3] = get_ofs(env->offset_x, env->offset_y);
+    output[4] = get_mode(env->draw_display, env->dither, ((u16)env->page));
+    output[5] = get_tw(&env->window);
     output[6] = 0xE6000000;
     word_count = 7;
     if (env->rgb24 != 0) {
@@ -343,11 +343,11 @@ void func_80093E70(u32 *arg0, RrFrameEnvironment *arg1) {
     register s32 width asm("$2");
     register s32 height asm("$2");
 
-    output[1] = func_80094100(env->clip.x, env->clip.y);
-    output[2] = func_80094198((s16) ((((u16)env->clip.w) + (u16) env->clip.x) - 1), (s16) (((u16) env->clip.y + ((u16)env->clip.h)) - 1));
-    output[3] = func_80094230(env->offset_x, env->offset_y);
-    output[4] = func_800940E0(env->draw_display, env->dither, ((u16)env->page));
-    output[5] = func_8009424C(&env->window);
+    output[1] = get_cs(env->clip.x, env->clip.y);
+    output[2] = get_ce((s16) ((((u16)env->clip.w) + (u16) env->clip.x) - 1), (s16) (((u16) env->clip.y + ((u16)env->clip.h)) - 1));
+    output[3] = get_ofs(env->offset_x, env->offset_y);
+    output[4] = get_mode(env->draw_display, env->dither, ((u16)env->page));
+    output[5] = get_tw(&env->window);
     output[6] = 0xE6000000;
     word_count = 7;
     if (env->rgb24 != 0) {
@@ -419,7 +419,7 @@ void func_80093E70(u32 *arg0, RrFrameEnvironment *arg1) {
     ((u8*)output)[3] = (s8) (word_count - 1);
 }
 
-int func_800940E0(int a0, int a1, int a2) {
+int get_mode(int a0, int a1, int a2) {
     int v1;
     register int v0 asm("$2");
     v1 = 0xE1000000;
@@ -433,7 +433,7 @@ int func_800940E0(int a0, int a1, int a2) {
     return v1 | v0;
 }
 
-u32 func_80094100(s32 a0, s32 a1) {
+u32 get_cs(s32 a0, s32 a1) {
     /* ASM_BARRIER: Preserve the original coordinate result register. */
     register s32 v __asm__("$2");
     /* ASM_BARRIER: Preserve the original clamped y value register. */
@@ -479,7 +479,7 @@ L:
     return u | v;
 }
 
-u32 func_80094198(s32 a0, s32 a1) {
+u32 get_ce(s32 a0, s32 a1) {
     /* ASM_BARRIER: Preserve the original coordinate result register. */
     register s32 v __asm__("$2");
     /* ASM_BARRIER: Preserve the original clamped y value register. */
@@ -525,9 +525,9 @@ L:
     return u | v;
 }
 
-unsigned func_80094230(int a, int b) { return 0xE5000000 | (b & 0x7FF) << 11 | (a & 0x7FF); }
+unsigned get_ofs(int a, int b) { return 0xE5000000 | (b & 0x7FF) << 11 | (a & 0x7FF); }
 
-u32 func_8009424C(RrGpuRectangleFields *a0)
+u32 get_tw(RrGpuRectangleFields *a0)
 {
   int v[4];
   int new_var;
@@ -550,13 +550,13 @@ u32 func_8009424C(RrGpuRectangleFields *a0)
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABBC8 ((s32 *)D_800ABBC8)
 
-s32 func_800942CC(void) {
+s32 _status(void) {
     return *D_800ABBC8;
 }
 
 #undef D_800ABBC8
 
-s32 func_800942E4(u8 *address, s32 count) {
+s32 _otc(u8 *address, s32 count) {
     u32 offset;
     u32 *configuration=D_800ABBE4;
     *configuration |= 0x08000000;
@@ -568,21 +568,21 @@ s32 func_800942E4(u8 *address, s32 count) {
     *D_800ABBDC = count;
     /* The final control store occupies the call delay slot in the original. */
     *(u32 *)D_800ABBE0 = 0x11000002;
-    func_80095360();
+    set_alarm();
     if (*D_800ABBE0 & 0x01000000) {
         /* ASM_BARRIER: Retire the first mask and prevent hoisting the loop mask across the busy gate. */
         __asm__("" : : : "$3", "$17");
         {
             u32 mask = 0x01000000;
             do {
-                if (func_80095394() != 0) return -1;
+                if (get_alarm() != 0) return -1;
             } while (*D_800ABBE0 & mask);
         }
     }
     return count;
 }
 
-s32 func_800943C4(RrGpuRectangle *arg0, u32 arg1) {
+s32 _clr(RrGpuRectangle *arg0, u32 arg1) {
     register RrGpuRectangle *rect=arg0;
     register u32 color;
     /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
@@ -652,9 +652,9 @@ s32 func_800943C4(RrGpuRectangle *arg0, u32 arg1) {
         packet[7]=xy;
         secondary[0]=tail_tag;
         packet[8]=rect->words[1];
-        secondary[1] = (s32) (func_80094B70(3) | e3);
-        secondary[2] = (s32) (func_80094B70(4) | 0xE4000000);
-        secondary[3] = (s32) (func_80094B70(5) | e5);
+        secondary[1] = (s32) (_param(3) | e3);
+        secondary[2] = (s32) (_param(4) | 0xE4000000);
+        secondary[3] = (s32) (_param(5) | e5);
     }else{
         /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
         register u32 header asm("$2")=0x05FFFFFFU;
@@ -690,7 +690,7 @@ s32 func_800943C4(RrGpuRectangle *arg0, u32 arg1) {
         packet[4]=rect->words[0];
         packet[5]=rect->words[1];
     }
-    func_80094B28((unsigned long)D_80112788);
+    _cwc((unsigned long)D_80112788);
     {
         register s32 result=0;
         /* ASM_BARRIER: form the zero return value before restoring saved registers. */
@@ -702,7 +702,7 @@ s32 func_800943C4(RrGpuRectangle *arg0, u32 arg1) {
 /* The small CPU tail uses compiler-fenced stores so GCC can place the final
  * write in a branch delay slot. The per-iteration and final memory fences
  * make every port write visible and ordered before subsequent accesses. */
-s32 func_800945F4(RrGpuRectangle *arg0,const u32 *arg1) {
+s32 _dws(RrGpuRectangle *arg0,const u32 *arg1) {
     register RrGpuRectangle *rect=arg0;
     register const u32 *cursor;
     register s32 signed_side;
@@ -724,7 +724,7 @@ s32 func_800945F4(RrGpuRectangle *arg0,const u32 *arg1) {
     cursor=arg1;
     /* ASM_BARRIER: prepare both input pointers before starting the deadline. */
     __asm__("" : "+r"(cursor) : "r"(rect));
-    func_80095360();
+    set_alarm();
     signed_side=rect->rect.w;raw_side=(u16)rect->rect.w;
     mode=0;
     if(signed_side>=0){
@@ -761,7 +761,7 @@ s32 func_800945F4(RrGpuRectangle *arg0,const u32 *arg1) {
         __asm__("" : : : "$3");
         mask=0x04000000U;
         do {
-            if(func_80095394())return -1;
+            if(get_alarm())return -1;
         }while(!(*D_800ABBC8&mask));
     }
     command=0xA0000000U;
@@ -817,7 +817,7 @@ s32 func_800945F4(RrGpuRectangle *arg0,const u32 *arg1) {
     return 0;
 }
 
-s32 func_80094830(RrGpuRectangle *arg0,u32 *arg1) {
+s32 _drs(RrGpuRectangle *arg0,u32 *arg1) {
     register RrGpuRectangle *rect=arg0;
     register u32 *cursor;
     register s32 signed_side;
@@ -837,7 +837,7 @@ s32 func_80094830(RrGpuRectangle *arg0,u32 *arg1) {
     cursor=arg1;
     /* ASM_BARRIER: prepare rectangle and output pointers before starting the deadline. */
     __asm__("" : "+r"(cursor) : "r"(rect));
-    func_80095360();
+    set_alarm();
     signed_side=rect->rect.w;raw_side=(u16)rect->rect.w;
     if(signed_side>=0){
         side=raw_side;
@@ -873,7 +873,7 @@ s32 func_80094830(RrGpuRectangle *arg0,u32 *arg1) {
         __asm__("" : : : "$3");
         mask=0x04000000U;
         do {
-            if(func_80095394())return -1;
+            if(get_alarm())return -1;
         }while(!(*D_800ABBC8&mask));
     }
     *D_800ABBC8=0x04000000U;
@@ -887,7 +887,7 @@ s32 func_80094830(RrGpuRectangle *arg0,u32 *arg1) {
         __asm__("" : : : "$3");
         mask=0x08000000U;
         do {
-            if(func_80095394())return -1;
+            if(get_alarm())return -1;
         }while(!(*D_800ABBC8&mask));
     }
     {
@@ -935,7 +935,7 @@ s32 func_80094830(RrGpuRectangle *arg0,u32 *arg1) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABBC8 ((u32 *)D_800ABBC8)
 
-void func_80094AB0(u32 command) {
+void _ctl(u32 command) {
     /* ASM_BARRIER: reuse v0 for the port pointer and then the command index. */
     register u32 index __asm__("$2");
     /* ASM_BARRIER: retain the original assembler temporary for the history address. */
@@ -958,7 +958,7 @@ void func_80094AB0(u32 command) {
 
 #undef D_800ABBC8
 
-s32 func_80094AD4(s32 index) {
+s32 _getctl(s32 index) {
     /* PAL RAM mapping: D_801127D0 is 0x27D0 bytes into this page. */
     u8 *base = (u8 *)0x80110000U;
     /* ASM_BARRIER: retain the base register through the indexed byte load. */
@@ -971,7 +971,7 @@ s32 func_80094AD4(s32 index) {
 #define D_800ABBC4 ((int *)D_800ABBC4)
 #define D_800ABBC8 ((int *)D_800ABBC8)
 
-int func_80094AE8(int *a, int n) {
+int _cwb(int *a, int n) {
     int i = n - 1;
     *D_800ABBC8 = 0x04000000;
     if (n) {
@@ -983,14 +983,14 @@ int func_80094AE8(int *a, int n) {
 #undef D_800ABBC4
 #undef D_800ABBC8
 
-void func_80094B28(unsigned long address) {
+void _cwc(unsigned long address) {
     *D_800ABBC8=0x04000002;
     *D_800ABBCC=(u32)address;
     *D_800ABBD0=0;
     *(u32 *)D_800ABBD4=0x01000401;
 }
 
-s32 func_80094B70(s32 a) {
+s32 _param(s32 a) {
     *D_800ABBC8 = a | 0x10000000;
     return *D_800ABBC4 & 0xFFFFFF;
 }

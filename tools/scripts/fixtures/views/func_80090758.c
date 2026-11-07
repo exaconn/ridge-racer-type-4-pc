@@ -4,14 +4,14 @@
 
 #include "types.h"
 
-extern int func_800916B8();
+extern int Lzc();
 
 int func_80090758(a0)
 int a0;
 {
     int t, s, a;
     if (a0 == 0) return 0;
-    t = 8 - func_800916B8(a0);
+    t = 8 - Lzc(a0);
     if (t >= 0) {
         s = t >> 1;
         a = a0 >> (s * 2);

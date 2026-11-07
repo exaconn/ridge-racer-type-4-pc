@@ -44,37 +44,37 @@ typedef struct {
     char p1E[0x36 - 0x1E];
 } SvmVoice;
 
-extern Ch *D_8010F068[];
+extern Ch *_ss_score[];
 
-extern Prog *D_801100EC;
+extern Prog *_svm_pg;
 
-extern VabHdr *D_801100F4;
+extern VabHdr *_svm_vh;
 
-extern Tone *D_801100F8;
+extern Tone *_svm_tn;
 
-extern signed char D_801100FC;
+extern signed char spuVmMaxVoice;
 
-extern SvmCur D_80110100;
+extern SvmCur _svm_cur;
 
-extern SvmVoice D_8010F908[];
+extern SvmVoice _svm_voice[];
 
-extern int func_8008A564();
+extern int _SsVmVSetUp();
 
-extern int func_80088340();
+extern int _SsVmKeyOff();
 
-extern unsigned char func_80089ED4();
+extern unsigned char _SsVmSelectToneAndVag();
 
-extern unsigned char func_80086BE4();
+extern unsigned char _SsVmAlloc();
 
-extern void func_80086E74();
+extern void _SsVmDoAllocate();
 
 extern void func_80088794();
 
-extern unsigned short func_800885D4();
+extern unsigned short note2pitch();
 
-extern void func_80088E74();
+extern void _SsVmKeyOnNow();
 
-int func_80087DE4(short a0, short a1, short a2, short a3, int a4_in, int a5_in)
+int _SsVmKeyOn(short a0, short a1, short a2, short a3, int a4_in, int a5_in)
 {
     unsigned char sp10[0x80];
     unsigned char sp90[0x80];
@@ -90,75 +90,75 @@ int func_80087DE4(short a0, short a1, short a2, short a3, int a4_in, int a5_in)
     int a5 = (unsigned short)a5_in;
 
     ret = 0;
-    tbl = D_8010F068;
+    tbl = _ss_score;
     s5 = tbl[a0 & 0xFF] + ((a0 & 0xFF00) >> 8);
-    if (func_8008A564(a1, a2) != 0) {
+    if (_SsVmVSetUp(a1, a2) != 0) {
         return -1;
     }
-    D_80110100.f14 = a0;
-    D_80110100.f02 = a3;
-    D_80110100.f03 = 0;
+    _svm_cur.f14 = a0;
+    _svm_cur.f02 = a3;
+    _svm_cur.f03 = 0;
     if (a0 == 0x21) {
-        D_80110100.f04 = a4;
+        _svm_cur.f04 = a4;
     } else {
         /* ASM_BARRIER: pins the product to $v0; with the identical arms (merged by
            post-reload cross-jumping) this keeps mult and div in separate flow blocks,
            so the highpart stays in HI and is reloaded via $t0 like the original */
         register int t asm("$2") = a4 * ((Ch *)((s5->b17 << 1) + (int)s5))->h60[0];
         if (t < 0) {
-            D_80110100.f04 = t / 127;
+            _svm_cur.f04 = t / 127;
         } else {
-            D_80110100.f04 = t / 127;
+            _svm_cur.f04 = t / 127;
         }
     }
-    D_80110100.f05 = a5;
-    prog = (Prog *)(((int)a2 << 4) + (int)D_801100EC);
-    D_80110100.f0A = prog->f01;
-    D_80110100.f0B = prog->f04;
-    D_80110100.f00 = prog->f00;
-    if (D_80110100.f07 >= D_801100F4->h12) {
+    _svm_cur.f05 = a5;
+    prog = (Prog *)(((int)a2 << 4) + (int)_svm_pg);
+    _svm_cur.f0A = prog->f01;
+    _svm_cur.f0B = prog->f04;
+    _svm_cur.f00 = prog->f00;
+    if (_svm_cur.f07 >= _svm_vh->h12) {
         return -1;
     }
     if (a4 == 0) {
-        ret = func_80088340(a0, a1, a2, (unsigned short)a3);
+        ret = _SsVmKeyOff(a0, a1, a2, (unsigned short)a3);
     } else {
-        n = func_80089ED4(sp90, sp10);
+        n = _SsVmSelectToneAndVag(sp90, sp10);
         for (i = 0; i < n; i++) {
-            D_80110100.f16 = sp10[i];
-            D_80110100.f0C = sp90[i];
-            tone = (Tone *)(((int)(unsigned short)((D_80110100.f07 * 16) + D_80110100.f0C) << 5) + (int)D_801100F8);
-            D_80110100.f0F = tone->f00;
-            D_80110100.f0D = tone->f02;
-            D_80110100.f0E = tone->f03;
-            D_80110100.f10 = tone->f04;
-            D_80110100.f11 = tone->f05;
-            D_80110100.f12 = tone->f01;
-            v = func_80086BE4(0);
-            D_80110100.f18 = v;
-            if (v < D_801100FC) {
+            _svm_cur.f16 = sp10[i];
+            _svm_cur.f0C = sp90[i];
+            tone = (Tone *)(((int)(unsigned short)((_svm_cur.f07 * 16) + _svm_cur.f0C) << 5) + (int)_svm_tn);
+            _svm_cur.f0F = tone->f00;
+            _svm_cur.f0D = tone->f02;
+            _svm_cur.f0E = tone->f03;
+            _svm_cur.f10 = tone->f04;
+            _svm_cur.f11 = tone->f05;
+            _svm_cur.f12 = tone->f01;
+            v = _SsVmAlloc(0);
+            _svm_cur.f18 = v;
+            if (v < spuVmMaxVoice) {
                 int a0_ext = a0;
-                D_8010F908[D_80110100.f18].f1D = 1;
-                D_8010F908[D_80110100.f18].f02 = 0;
-                D_8010F908[D_80110100.f18].f10 = a0;
-                D_8010F908[D_80110100.f18].f18 = D_80110100.f01;
-                D_8010F908[D_80110100.f18].f12 = D_80110100.f07;
-                D_8010F908[D_80110100.f18].f14 = a2;
+                _svm_voice[_svm_cur.f18].f1D = 1;
+                _svm_voice[_svm_cur.f18].f02 = 0;
+                _svm_voice[_svm_cur.f18].f10 = a0;
+                _svm_voice[_svm_cur.f18].f18 = _svm_cur.f01;
+                _svm_voice[_svm_cur.f18].f12 = _svm_cur.f07;
+                _svm_voice[_svm_cur.f18].f14 = a2;
                 if (a0_ext != 0x21) {
-                    D_8010F908[D_80110100.f18].f08 = a4;
-                    D_8010F908[D_80110100.f18].f0C = s5->b17;
+                    _svm_voice[_svm_cur.f18].f08 = a4;
+                    _svm_voice[_svm_cur.f18].f0C = s5->b17;
                 }
-                D_8010F908[D_80110100.f18].f0A = a5;
-                D_8010F908[D_80110100.f18].f16 = D_80110100.f0C;
-                D_8010F908[D_80110100.f18].f0E = a3;
-                D_8010F908[D_80110100.f18].f1A = D_80110100.f0F;
-                D_8010F908[D_80110100.f18].f00 = D_80110100.f16;
-                func_80086E74();
-                if (D_80110100.f16 == 0xFF) {
-                    func_80088794((unsigned char)D_80110100.f18);
+                _svm_voice[_svm_cur.f18].f0A = a5;
+                _svm_voice[_svm_cur.f18].f16 = _svm_cur.f0C;
+                _svm_voice[_svm_cur.f18].f0E = a3;
+                _svm_voice[_svm_cur.f18].f1A = _svm_cur.f0F;
+                _svm_voice[_svm_cur.f18].f00 = _svm_cur.f16;
+                _SsVmDoAllocate();
+                if (_svm_cur.f16 == 0xFF) {
+                    func_80088794((unsigned char)_svm_cur.f18);
                 } else {
-                    func_80088E74(n, func_800885D4());
+                    _SsVmKeyOnNow(n, note2pitch());
                 }
-                ret |= 1 << D_80110100.f18;
+                ret |= 1 << _svm_cur.f18;
             } else {
                 ret = -1;
             }

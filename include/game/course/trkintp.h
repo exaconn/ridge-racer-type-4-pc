@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-s32 func_80025EB0();
-void func_80026004(char *vehicle, int direction);
+s32 GetSmoothedTrackHeading();
+void ComputeStartDistance(char *vehicle, int direction);
 
 #endif /* RR_GAME_COURSE_TRKINTP_H */

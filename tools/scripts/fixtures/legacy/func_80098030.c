@@ -2,7 +2,7 @@
 
 extern s32 D_800ABCD0;
 
-s32 func_80098030(void) {
+s32 _padChkVsync(void) {
     s32 previous = D_800ABCD0;
     /* ASM_BARRIER: use the original assembler temporary for the store address. */
     register s32 *base __asm__("$1");

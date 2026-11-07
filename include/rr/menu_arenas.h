@@ -5,8 +5,8 @@
 
 /* Two resident pointer cells; the second is refreshed by menu resource loading. */
 extern RrMenuArenas D_800F4D70;
-extern u8 *D_800102F0;
-void func_8003A1B4(void);
+extern u8 *CdDirectoryBuffer;
+void InitMenuArenas(void);
 void ovl662_func_80116020(void);
 void ovl662_func_80116148(void);
 RR_ASSERT_SIZE(RrMenuArenas,8);

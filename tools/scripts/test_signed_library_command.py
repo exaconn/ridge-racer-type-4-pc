@@ -30,7 +30,7 @@ s32 test_command_page[16384];
 #define D_80110008 (test_command_page+2)
 s32 (*test_sink)(s32 *);
 void (*test_reset_hook)(void);
-s32 func_80085BA4(s32 *command) {return test_sink(command);}
+s32 SpuSetReverbModeParam(s32 *command) {return test_sink(command);}
 s32 test_unexpected_probe_calls;
 s32 _SpuIsInAllocateArea_(s32 ignored) {test_unexpected_probe_calls++;return 0;}
 '''
@@ -38,13 +38,13 @@ s32 _SpuIsInAllocateArea_(s32 ignored) {test_unexpected_probe_calls++;return 0;}
         reset = reset.replace('SpuSetReverb', 'test_actual_reset')
         source += reset + '''
 struct S test_device;
-struct S *D_800A47D8=&test_device;
-int D_800A484C, D_800A4850, D_800A4854;
+struct S *_spu_RXX=&test_device;
+int _spu_rev_flag, _spu_rev_reserve_wa, _spu_rev_offsetaddr;
 u16 *test_device_flags=&test_device.f;
 s32 SpuSetReverb(s32 value) {test_reset_hook();return test_actual_reset(value);}
 void test_initialize(void) {
- memset(test_command_page,0xA5,64);test_device.f=0xFFFF;D_800A484C=99;
- D_800A4850=7;D_800A4854=-123;test_unexpected_probe_calls=0;
+ memset(test_command_page,0xA5,64);test_device.f=0xFFFF;_spu_rev_flag=99;
+ _spu_rev_reserve_wa=7;_spu_rev_offsetaddr=-123;test_unexpected_probe_calls=0;
 }
 '''
         body = (root / 'tools/scripts/fixtures/views/func_800865E4.c').read_text()
@@ -63,11 +63,11 @@ void test_initialize(void) {
             raise AssertionError(result.stderr.decode())
         cls.lib = C.CDLL(str(directory / 'command.so'))
         cls.command = (C.c_ubyte * 64).in_dll(cls.lib, 'test_command_page')
-        cls.state = C.c_int32.in_dll(cls.lib, 'D_800A484C')
+        cls.state = C.c_int32.in_dll(cls.lib, '_spu_rev_flag')
         cls.probes = C.c_int32.in_dll(cls.lib, 'test_unexpected_probe_calls')
         flags = C.c_void_p.in_dll(cls.lib, 'test_device_flags').value
         cls.flags = C.c_uint16.from_address(flags)
-        cls.function = cls.lib.func_800865E4
+        cls.function = cls.lib.SsUtSetReverbType
         cls.function.argtypes = [C.c_int32]
         cls.function.restype = C.c_int32
 

@@ -4,7 +4,7 @@
     ((DrTPage *)(p))->addr = (ot)->addr; \
     (ot)->addr = (u32)(p)
 
-#define P D_800AC650.p
+#define P RaceContext.p
 
 #define B(o) (*(unsigned char *)(P + (o)))
 
@@ -13,9 +13,9 @@
 #define W(o) (*(int *)(P + (o)))
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(struct { char pad[0xDC]; s32 a; char pad2[4]; u8 b, c, d; } (*))&D_800AC650)
+#define RaceContext (*(struct { char pad[0xDC]; s32 a; char pad2[4]; u8 b, c, d; } (*))&RaceContext)
 
-#undef D_800AC650
+#undef RaceContext
 
 /* legacy typing of shared globals in this part of the unit */
 #define SetDrawStp ((int (*)())SetDrawStp)
@@ -27,19 +27,19 @@
 #undef D_800ACC14
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(struct { char pad[0xD4]; s32 a, b, c, d; u8 e[4]; } (*))&D_800AC650)
+#define RaceContext (*(struct { char pad[0xD4]; s32 a, b, c, d; u8 e[4]; } (*))&RaceContext)
 
-#undef D_800AC650
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(struct { char pad[0x3DC]; s32 a; } (*))&D_800AC650)
-
-#undef D_800AC650
+#undef RaceContext
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(struct { char pad[0xEC]; char buf[0x160]; char *p; } (*))&D_800AC650)
+#define RaceContext (*(struct { char pad[0x3DC]; s32 a; } (*))&RaceContext)
 
-#undef D_800AC650
+#undef RaceContext
+
+/* legacy typing of shared globals in this part of the unit */
+#define RaceContext (*(struct { char pad[0xEC]; char buf[0x160]; char *p; } (*))&RaceContext)
+
+#undef RaceContext
 
 typedef struct { int w[4]; } Q16;
 

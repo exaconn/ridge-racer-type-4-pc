@@ -34,8 +34,8 @@ typedef struct {s32 kind,args[8];World snapshot;} Entry;
 static World initial,actual,expected,*w;
 static Entry entries[2],saved[2];
 static int count;
-#define D_800A043C (w->table)
-#define D_800AD528 (w->settings)
+#define PanGainTable (w->table)
+#define Options (w->settings)
 #define D_800F4DD0 (w->gain)
 #define D_800F4DDC (w->banks[0])
 #define D_800F4DDE (w->banks[1])
@@ -49,8 +49,8 @@ static s32 emit(int kind,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h){
  for(int i=0;i<128;i++)w->table[i]=(s16)((u16)w->table[i]+0x9f81U);
  return (s32)0xDEADBEEFU;
 }
-s32 func_80085304(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){return emit(0,a,b,c,d,e,f,g,0);}
-s32 func_800857A4(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h){return emit(1,a,b,c,d,e,f,g,h);}
+s32 SsUtKeyOn(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){return emit(0,a,b,c,d,e,f,g,0);}
+s32 SsUtKeyOnV(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h){return emit(1,a,b,c,d,e,f,g,h);}
 static int narrow(u32 v){v&=65535;return v<32768?(int)v:(int)v-65536;}
 static int word(u32 v){return v<=INT32_MAX?(int)v:(int)((int64_t)v-INT64_C(4294967296));}
 static void reference(s32 program,s32 level,s32 pan,s32 pitch,s32 voice){

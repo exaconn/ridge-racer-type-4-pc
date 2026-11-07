@@ -1,5 +1,5 @@
 #include "rr/wide.h"
-RrWide64 *func_8007E494(RrWide64 *result,RrWide64 x) {
+RrWide64 *_mainasu(RrWide64 *result,RrWide64 x) {
     RrWide64 one;
     one.hi=0;
     /* Qualified write views keep the real ABI-home stores and subsequent reloads. */

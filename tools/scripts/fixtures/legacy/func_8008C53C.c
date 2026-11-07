@@ -3,6 +3,6 @@
 
 extern int CD_getsector2();
 
-s32 func_8008C53C(void) {
+s32 CdGetSector2(void) {
     return CD_getsector2() == 0;
 }

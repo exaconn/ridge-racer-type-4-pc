@@ -25,20 +25,20 @@
 extern void RotMatrix();
 extern char *D_800F39C8[];
 extern unsigned char D_800F4D98[][4];
-extern int D_800FF6B0;
+extern int RaceState;
 extern int D_800FF6F8;
-extern int D_800AD504;
+extern int ReplayState;
 extern int D_800AC538;
-extern char D_800ABEF8[];
+extern char PlayerCars[];
 extern short func_80022848(void);
 extern void func_800172DC();
 
-void func_80022888(char *a0);
-void func_80022B64(char *a0, int a1);
-void func_80022C90(s32 arg0);
+void ComputeWheelOffsets(char *a0);
+void UpdatePlayerCar(char *a0, int a1);
+void StepCarPhysics(s32 arg0);
 void func_80022CD4(RrRaceVehicle *arg0);
 
-void func_80022888(char *a0)
+void ComputeWheelOffsets(char *a0)
 {
     unsigned short v[3];
     int m[8];
@@ -68,7 +68,7 @@ void func_80022888(char *a0)
     } while (i < 4);
 }
 
-void func_80022980(a0, a1, a2)
+void InitPlayerCar(a0, a1, a2)
 char *a0; int a1; int a2;
 {
     char *s3, *s2, *p0;
@@ -83,7 +83,7 @@ char *a0; int a1; int a2;
     UH(a0, 0x1E4) = UH(s2, 0x24) | 0x110;
     W(s2, 0xA4) = 4;
     t = H(s3, 0x1DE);
-    D_800FF6B0 = 2;
+    RaceState = 2;
     W(s2, 0x94) = t;
     if (t < 0x2710) {
         W(s2, 0x94) = 0x2710;
@@ -111,30 +111,30 @@ char *a0; int a1; int a2;
     func_80037618(a0, a2, p2);
 }
 
-void func_80022B64(char *a0, int a1)
+void UpdatePlayerCar(char *a0, int a1)
 {
   int pad[18];
   int *pp = pad;
-  if (D_800FF6B0 > 0)
+  if (RaceState > 0)
   {
     *((short *) (a0 + 0x1EA)) = func_80022848();
     func_80026800(a0, a1);
     func_80022D50(a0, a1);
     func_8002367C(a0);
-    if ((a0 == D_800ABEF8) || (a0 == (D_800ABEF8 + 0x320)))
+    if ((a0 == PlayerCars) || (a0 == (PlayerCars + 0x320)))
     {
       if (D_800FF6F8 == 1)
       {
-        func_800394B8(a0);
+        PlayTrackEventSfx(a0);
       }
-      if (D_800AD504 != 2)
+      if (ReplayState != 2)
       {
-        func_800394E4(a0, a1 & 1);
+        UpdateRumbleStrip(a0, a1 & 1);
       }
     }
   }
   else
-    if (D_800FF6B0 == 0)
+    if (RaceState == 0)
   {
     func_800512C4(a1 & 1, 0, 0);
   }
@@ -142,7 +142,7 @@ void func_80022B64(char *a0, int a1)
   {
     if (func_8004C370(a1 & 1) != 0)
     {
-      if (((unsigned) (D_800FF6B0 - 2)) < 2)
+      if (((unsigned) (RaceState - 2)) < 2)
       {
         unsigned short t = (*((unsigned short *) (a0 + 0x1E4))) ^ 0x100;
         D_800AC538 ^= 1;
@@ -153,12 +153,12 @@ void func_80022B64(char *a0, int a1)
   }
 }
 
-void func_80022C90(s32 arg0) {
-    func_8002C638();
-    func_800244B0(arg0);
-    func_8002648C(arg0);
-    func_80022888(arg0);
-    func_80026F5C(arg0);
+void StepCarPhysics(s32 arg0) {
+    UpdateCarSteering();
+    IntegrateCarMotion(arg0);
+    UpdateCarTrackNode(arg0);
+    ComputeWheelOffsets(arg0);
+    ConstrainCarToTrack(arg0);
 }
 
 void func_80022CD4(RrRaceVehicle *arg0) {

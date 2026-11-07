@@ -10,17 +10,17 @@
 
 typedef struct { char p0[0x54]; unsigned short s54, s56; char p1[4]; short s5C; unsigned short s5E; short s60; } W;
 typedef struct { char p0[0x1E4]; short s1E4; } V;
-extern int D_800AC738;
-extern char D_80107198[];
+extern int RaceStandings;
+extern char ComCars[];
 extern int D_800F4DEC;
-extern int D_800FF6B0;
-extern struct { char pad[0x34]; int s34; } D_800F4DB8;
+extern int RaceState;
+extern struct { char pad[0x34]; int s34; } SoundState;
 
-extern int func_80048DB0();
-extern int func_80048A6C();
+extern int UpdateComCarLaneChange();
+extern int UpdateComCarSpeed();
 extern int func_80096464();
 
-void func_8004A170(void) {
+void UpdateComCars(void) {
     int i;
     char *s0;
     W *s1;
@@ -28,23 +28,23 @@ void func_8004A170(void) {
     register int r __asm__("$2");
     int q;
 
-    D_800AC738 = (SCRATCHPAD + 0x7C);
-    func_80049C68();
-    switch (D_800FF6B0) {
+    RaceStandings = (SCRATCHPAD + 0x7C);
+    UpdateRaceStandings();
+    switch (RaceState) {
     case 0:
         D_800F4DEC = 0;
         break;
     case 1:
-        D_800F4DB8.s34 = D_800F4DB8.s34 + 1;
+        SoundState.s34 = SoundState.s34 + 1;
         break;
     }
     for (i = 0; i < 0xB; i++) {
-        s0 = D_80107198 + i * 0x320;
+        s0 = ComCars + i * 0x320;
         s1 = (W *)(s0 + 0x1F4);
         if (((V *)s0)->s1E4 > 0) {
-            func_8004A080((RrRaceVehicle *)s0);
-            if (D_800FF6B0 < 2) {
-                if (D_800FF6B0 == 0) {
+            CalcDistanceToPlayer((RrRaceVehicle *)s0);
+            if (RaceState < 2) {
+                if (RaceState == 0) {
                     r = func_80096464();
                     q = r / 1000;
                     s1->s5C = r - q * 1000 + 0x1D4C;
@@ -86,13 +86,13 @@ void func_8004A170(void) {
                     }
                 }
             } else {
-                func_80049A60(s0);
+                ApplyRubberBandSpec(s0);
                 func_8004638C(s0);
-                func_80046DB8(s0);
-                func_80047A50(s0);
-                func_800486C4(s0);
-                func_80048DB0(s0);
-                func_80048A6C(s0);
+                UpdateComCarOvertake(s0);
+                UpdateComCarTargetPoint(s0);
+                UpdateComCarDrive(s0);
+                UpdateComCarLaneChange(s0);
+                UpdateComCarSpeed(s0);
             }
         }
     }

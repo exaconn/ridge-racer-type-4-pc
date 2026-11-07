@@ -69,11 +69,11 @@ static u32 emit(int kind,int a,int b,int c){
  }
  return 0xABCD0000U|((unsigned)kind*1297U)^((unsigned)a*17U)^((unsigned)b*213U)^((unsigned)c*319U);
 }
-u32 func_80094100(s32 x,s32 y){return emit(0,x,y,0);}
-u32 func_80094198(s32 x,s32 y){return emit(1,x,y,0);}
-u32 func_80094230(s32 x,s32 y){return emit(2,x,y,0);}
-s32 func_800940E0(s32 a,s32 b,s32 c){return (s32)emit(3,a,b,c);}
-u32 func_8009424C(RrGpuRectangleFields *p){assert(p==&w->env.window);u32 value=real_window(p);emit(4,12,0,0);return value;}
+u32 get_cs(s32 x,s32 y){return emit(0,x,y,0);}
+u32 get_ce(s32 x,s32 y){return emit(1,x,y,0);}
+u32 get_ofs(s32 x,s32 y){return emit(2,x,y,0);}
+s32 get_mode(s32 a,s32 b,s32 c){return (s32)emit(3,a,b,c);}
+u32 get_tw(RrGpuRectangleFields *p){assert(p==&w->env.window);u32 value=real_window(p);emit(4,12,0,0);return value;}
 static int narrow(unsigned v){v&=65535;return v<32768?(int)v:(int)v-65536;}
 static u16 read16(unsigned offset){u16 x;memcpy(&x,(u8*)&w->env+offset,2);return x;}
 static unsigned read8(unsigned offset){return *((u8*)&w->env+offset);}
@@ -126,7 +126,7 @@ int main(void){
         with TemporaryDirectory() as directory:
             c=Path(directory)/'draw.c'
             exe=Path(directory)/'draw'
-            c.write_text(prefix+'\n#define func_8009424C real_window\n'+helper+'\n#undef func_8009424C\n'+source)
+            c.write_text(prefix+'\n#define get_tw real_window\n'+helper+'\n#undef get_tw\n'+source)
             subprocess.run(['cc','-std=gnu11','-O2','-fsanitize=undefined',
                             '-fno-sanitize-recover=all','-I',str(ROOT/'include'),
                             str(c),'-o',str(exe)],check=True,capture_output=True,text=True)

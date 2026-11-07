@@ -17,7 +17,7 @@ typedef struct {
  * The final command uses scratch.order[703], requiring an accessible 704-word
  * ordering page. Output must have 16+24*tile_count bytes; at most 16641 tiles can
  * be emitted for signed16 input dimensions. Scratch pointers retain full width. */
-void func_80019D5C(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head);
+void EmitTiledRect(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head);
 
 RR_ASSERT_SIZE(RrTiledRectanglePacket, 24);
 RR_ASSERT_OFFSET(RrTiledRectanglePacket, mode, 4);

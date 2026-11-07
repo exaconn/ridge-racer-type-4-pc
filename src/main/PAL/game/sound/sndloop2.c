@@ -6,8 +6,8 @@
 extern s32 D_800F6670;
 
 void func_800518E0(void) {
-    RrAudioLoopState *state=&D_800F4DB8;
-    RrAudioSettings *settings=&D_800AD528.audio;
+    RrAudioLoopState *state=&SoundState;
+    RrAudioSettings *settings=&Options.audio;
     /* ASM_BARRIER: retain this phase value in its original MIPS register. */
     register u16 left asm("$19"),right asm("$18");
     s32 rp,lp;
@@ -101,7 +101,7 @@ void func_800518E0(void) {
             out_left=left_high>>16;
 
             right_high=(s32)((u32)right<<16);
-            func_8004FE7C(voice,out_left,right_high>>16);
+            SetVoiceVolumeScaled(voice,out_left,right_high>>16);
             out_voice=voice_word>>16;
 
             group=60;
@@ -109,24 +109,24 @@ void func_800518E0(void) {
             __asm__("" : : "r"(i));
 
             i++;
-            func_80084E74(out_voice,live->bank26,live->program1A04,group,0,first,second);
+            SsUtChangePitch(out_voice,live->bank26,live->program1A04,group,0,first,second);
             /* ASM_BARRIER: preserve this arithmetic or helper boundary. */
             __asm__("" : "+r"(left_high), "+r"(right_high));
             voice_word+=0x10000;
         }while(i<2);
         {
-            RrAudioLoopState *after=&D_800F4DB8;
+            RrAudioLoopState *after=&SoundState;
             if(!after->active1A00) {
                 s32 key=60;
 
-                func_800857A4(6,after->bank26,after->program1A04,0,key,0,left_high>>16,right_high>>16);
+                SsUtKeyOnV(6,after->bank26,after->program1A04,0,key,0,left_high>>16,right_high>>16);
                 /* ASM_BARRIER: preserve this arithmetic or helper boundary. */
                 __asm__("" : : "r"(left_high));
                 after->active1A00=1;
             }
         }
     }else if(state->active1A00) {
-        func_80085AEC(6);
+        SsUtKeyOffV(6);
         state->active1A00=0;
     }
 }

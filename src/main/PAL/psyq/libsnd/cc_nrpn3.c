@@ -5,22 +5,22 @@
 
 typedef struct { unsigned short s0, s2, s4, s6, s8; short sA, sC, sE, s10; } S;
 
-void func_80080E54();
-void func_80080F04(s32 arg0, u32 arg1, void *arg2);
-void func_80081004();
+void _SsSetNrpnVabAttr4();
+void _SsUtResolveADSR(s32 arg0, u32 arg1, void *arg2);
+void _SsSetNrpnVabAttr5();
 
-void func_80080E54(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; RrLibBlock24Fields s; u8 c; {
+void _SsSetNrpnVabAttr4(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; RrLibBlock24Fields s; u8 c; {
     register s32 cc = c;
     s16 loc[12];
-    func_800850C4(a0, a1, a2, &s);
-    func_80080F04(s.h10, s.h12, loc);
+    SsUtGetVagAtr(a0, a1, a2, &s);
+    _SsUtResolveADSR(s.h10, s.h12, loc);
     loc[5] = 0;
     loc[0] = cc;
-    func_80080F60(loc, &s.h10, &s.h12);
-    func_800867E4(a0, a1, a2, &s);
+    _SsUtBuildADSR(loc, &s.h10, &s.h12);
+    SsUtSetVagAtr(a0, a1, a2, &s);
 }
 
-void func_80080F04(s32 arg0, u32 arg1, void *arg2) {
+void _SsUtResolveADSR(s32 arg0, u32 arg1, void *arg2) {
     u32 temp_v1;
 
     M2C_FIELD(arg2, s16 *, 0xA) = (s16) (arg0 & 0x8000);
@@ -35,7 +35,7 @@ void func_80080F04(s32 arg0, u32 arg1, void *arg2) {
     M2C_FIELD(arg2, s16 *, 8) = (s16) (arg1 & 0x1F);
 }
 
-void func_80080F60(a0, a1, a2) S *a0; short *a1; short *a2; {
+void _SsUtBuildADSR(a0, a1, a2) S *a0; short *a1; short *a2; {
     S *p;
     short *d; 
     register int c __asm__("$2"); /* ASM_BARRIER: pin to the original register allocation */
@@ -72,13 +72,13 @@ void func_80080F60(a0, a1, a2) S *a0; short *a1; short *a2; {
     *a2 = y;
 }
 
-void func_80081004(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; RrLibBlock24Fields s; u8 c; {
+void _SsSetNrpnVabAttr5(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; RrLibBlock24Fields s; u8 c; {
     register s32 cc = c;
     s16 loc[12];
-    func_800850C4(a0, a1, a2, &s);
-    func_80080F04(s.h10, s.h12, loc);
+    SsUtGetVagAtr(a0, a1, a2, &s);
+    _SsUtResolveADSR(s.h10, s.h12, loc);
     loc[5] = 1;
     loc[0] = cc;
-    func_80080F60(loc, &s.h10, &s.h12);
-    func_800867E4(a0, a1, a2, &s);
+    _SsUtBuildADSR(loc, &s.h10, &s.h12);
+    SsUtSetVagAtr(a0, a1, a2, &s);
 }

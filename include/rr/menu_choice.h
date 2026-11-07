@@ -8,12 +8,12 @@
 #include "rr/menu_state_types.h"
 #include "game/menu/menuwork.h"
 
-extern s32 D_8009FDA4, D_800F3A60;
-extern void *D_800ACC18, *D_800F4D40;
+extern s32 MenuStepDirection, D_800F3A60;
+extern void *LoadCursor, *D_800F4D40;
 extern RrMenuSettings2C D_800AD4D8;
 extern s16 D_800F3826;
 extern u16 D_800F3A42;
-extern RrMenuGlyphRow1C *D_800F4D8C;
+extern RrMenuGlyphRow1C *GlyphRows;
 extern RrMenuChoice4 D_800F4D98;
 extern u8 D_800F4D99; /* Alias of D_800F4D98.bytes[1]. */
 extern u8 *D_800FF68C;

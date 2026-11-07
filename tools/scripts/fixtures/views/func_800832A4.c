@@ -2,9 +2,9 @@
 
 #include "rr/library.h"
 
-extern void func_800835E4(s32, s32);
+extern void _SsGetSeqData(s32, s32);
 
-void func_800832A4(s32 bank, s32 row) {
+void _SsSeqPlay(s32 bank, s32 row) {
     u32 bank_bits = (u32)bank << 16;
     /* ASM_BARRIER: Retain the original register across record lookup and counter updates. */
     register u32 row_bits __asm__("$5");
@@ -27,7 +27,7 @@ void func_800832A4(s32 bank, s32 row) {
     units = (s16)(row_bits >> 16) * 11;
     /* ASM_BARRIER: Complete both index calculations before materializing the PAL lookup page. */
     __asm__ volatile("" : : "r"(index), "r"(units) : "$3");
-    /* PAL mapping: table[-0xF98 / 4] selects D_8010F068[bank]. */
+    /* PAL mapping: table[-0xF98 / 4] selects _ss_score[bank]. */
     table = (RrLibStateB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL lookup page without folding its signed low offset. */
     __asm__("" : "=r"(table) : "0"(table));
@@ -66,7 +66,7 @@ void func_800832A4(s32 bank, s32 row) {
         saved_row = (s32)row_bits;
         do {
 again:
-            func_800835E4(saved_bank >> 16, saved_row >> 16);
+            _SsGetSeqData(saved_bank >> 16, saved_row >> 16);
             update = state->w90;
             if (update == 0) goto again;
             next_period = state->h48[6];

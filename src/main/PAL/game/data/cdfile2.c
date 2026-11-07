@@ -25,7 +25,7 @@
 #include "rr/bios_devices.h"
 #include "rr/relative_file.h"
 #include "game/gfx/model.h"
-#define B (*(int *)&D_800ACC18)
+#define B (*(int *)&LoadCursor)
 
 struct A { char p[0x14]; unsigned f14; char q[0x20]; unsigned f38; };
 
@@ -47,24 +47,24 @@ typedef struct {
     s32 p4, p8, pC, p10, p14;
 } Resource;
 
-extern s32 D_8009DF90;
+extern s32 CdFileState;
 extern s32 D_8009DF94;
-extern s32 D_8009DF9C;
-extern s32 (*D_8009DFA8[])();
+extern s32 CdFileIndexCurrent;
+extern s32 (*CdFileStateHandlers[])();
 extern s32 D_8010945C;
-extern s32 D_80109460;
+extern s32 CdFileSectors;
 extern s32 D_80109480;
-extern s32 D_80109484;
-extern s32 D_80109488;
-extern RrCdLocation D_80109464;
+extern s32 CdFileBytesRead;
+extern s32 CdFileSyncResult;
+extern RrCdLocation CdFileLocation;
 extern u8 D_80109498;
-extern RrCdFileEntry D_801094A8[];
+extern RrCdFileEntry CdFileTable[];
 extern unsigned char D_8009DFD8[];
 extern unsigned char D_8009DFEC[];
-extern int D_800ACC18;
-extern int *D_800F3A08[];
+extern int LoadCursor;
+extern int *CarBoundsTable[];
 extern struct E D_8010B2E0[];
-extern int D_8009DF98;
+extern int SceneLoadState;
 extern int D_8010943C;
 extern int D_8010BF60;
 extern void func_800436E8();
@@ -75,7 +75,7 @@ extern int D_8010944C;
 extern int D_80109450;
 extern int D_80109454;
 void DrawSync(s32);
-void func_80092FFC(s16 *, void *);
+void LoadImage(s16 *, void *);
 extern s32 D_80109468[];
 extern short D_800F3914;
 extern short D_8009E02C[];
@@ -94,17 +94,17 @@ s32 func_80012740(void);
 s32 func_80012774(void);
 s32 func_800127A0(void);
 s32 func_800127E8(void);
-void func_80012834(void);
+void CdFileFinish(void);
 s32 func_80012860(void);
-s32 func_8001292C(s32 a0, s32 a1);
-s32 func_800129BC(s32 a0, s32 a1, s32 a2, s32 a3);
-void func_80012A68(int *a0);
+s32 CdFileReadStart(s32 a0, s32 a1);
+s32 CdFileReadRange(s32 a0, s32 a1, s32 a2, s32 a3);
+void RelocateOffsetTable(int *a0);
 void func_80012AB4(int *a0, int a1);
 void func_80012C7C(int *a0, int a1);
 int func_80012E94(int a0, int a1, int a2, int a3, int a4);
 void func_8001301C(struct A *a0, int a1);
 int func_80013514(int a0, int a1, int a2, int a3, int a4);
-void func_80013890(s32 shift);
+void SetupRenderer(s32 shift);
 int func_80013904(char *a0_in, int a1_in);
 
 s32 func_80012578(void) {
@@ -113,7 +113,7 @@ s32 func_80012578(void) {
     CdControlB(1, 0, &D_80109498);
     var_v0 = D_80109498 & 0x10;
     if (var_v0 != 0) {
-        D_8009DF90 = 5;
+        CdFileState = 5;
         var_v0 = 0;
     }
     return var_v0;
@@ -121,16 +121,16 @@ s32 func_80012578(void) {
 
 s32 func_800125C8(void) {
     CdControlF(0x13, 0);
-    D_8009DF90 = 2;
+    CdFileState = 2;
     return 0;
 }
 
 s32 func_800125F8(void) {
-    if (D_80109488 == 2) {
-        func_80012290();
-        D_8009DF90 = 3;
+    if (CdFileSyncResult == 2) {
+        LoadR4Directory();
+        CdFileState = 3;
     } else {
-        D_8009DF90 = 1;
+        CdFileState = 1;
     }
     return 0;
 }
@@ -138,23 +138,23 @@ s32 func_800125F8(void) {
 s32 func_80012640(void) {
     D_80109498 = 0x80;
     CdControlF(0xE, &D_80109498);
-    D_8009DF90 = 4;
+    CdFileState = 4;
     D_8009DF94 = 0;
     return 0;
 }
 
 s32 func_80012684(void) {
-    if (D_80109488 == 2) {
+    if (CdFileSyncResult == 2) {
         if (++D_8009DF94 >= 4) {
             D_8009DF94 = 0;
-            if (D_8009DF9C < 0) {
-                D_8009DF90 = 0;
+            if (CdFileIndexCurrent < 0) {
+                CdFileState = 0;
             } else {
-                D_8009DF90 = 6;
+                CdFileState = 6;
             }
         }
     } else {
-        D_8009DF90 = 3;
+        CdFileState = 3;
     }
     return 0;
 }
@@ -162,101 +162,101 @@ s32 func_80012684(void) {
 s32 func_800126F0(void) {
     CdControlB(1, 0, &D_80109498);
     if (!(D_80109498 & 0x10)) {
-        D_8009DF90 = 1;
+        CdFileState = 1;
     }
     return 0;
 }
 
 s32 func_80012740(void) {
-    CdControlF(2, &D_80109464);
-    D_8009DF90 = 7;
+    CdControlF(2, &CdFileLocation);
+    CdFileState = 7;
     return 0;
 }
 
 s32 func_80012774(void) {
-    if (D_80109488 == 2) {
-        D_8009DF90 = 8;
+    if (CdFileSyncResult == 2) {
+        CdFileState = 8;
     } else {
-        D_8009DF90 = 0xB;
+        CdFileState = 0xB;
     }
     return 0;
 }
 
 s32 func_800127A0(void) {
-    if (func_8008EEF4(D_80109460, D_80109480, 0x80)) {
-        D_8009DF90 = 9;
+    if (CdRead(CdFileSectors, D_80109480, 0x80)) {
+        CdFileState = 9;
     } else {
-        D_8009DF90 = 0xB;
+        CdFileState = 0xB;
     }
     return 0;
 }
 
 s32 func_800127E8(void) {
-    s32 r = func_8008F090(1, 0);
+    s32 r = CdReadSync(1, 0);
     if (r == 0) {
-        D_8009DF90 = 0xA;
+        CdFileState = 0xA;
     } else if (r == -1) {
-        D_8009DF90 = 0xB;
+        CdFileState = 0xB;
     }
     return 0;
 }
 
-void func_80012834(void) {
-    D_8009DF9C = -1;
-    D_8009DF90 = 0;
-    D_80109484 = D_80109460 << 0xB;
+void CdFileFinish(void) {
+    CdFileIndexCurrent = -1;
+    CdFileState = 0;
+    CdFileBytesRead = CdFileSectors << 0xB;
 }
 
 s32 func_80012860(void)
 {
     CdControlB(1, 0, &D_80109498);
     if (D_80109498 & 0x10) {
-        D_8009DF90 = 5;
+        CdFileState = 5;
         return 0;
     }
-    D_8009DF90 = 6;
+    CdFileState = 6;
     return 0;
 }
 
-s32 func_800128B8(void) {
-    if (D_8009DF90 > 0) {
-        D_80109488 = func_8008C0D8(1, 0);
-        if (D_80109488 != 0) {
-            return D_8009DFA8[D_8009DF90]();
+s32 CdFileStep(void) {
+    if (CdFileState > 0) {
+        CdFileSyncResult = CdSync(1, 0);
+        if (CdFileSyncResult != 0) {
+            return CdFileStateHandlers[CdFileState]();
         }
     }
     return 0;
 }
 
-s32 func_8001292C(s32 a0, s32 a1) {
-    if (D_8009DF90 != 0) return 0;
+s32 CdFileReadStart(s32 a0, s32 a1) {
+    if (CdFileState != 0) return 0;
     D_80109480 = a1;
-    D_8009DF9C = a0;
-    D_8009DF90 = 6;
+    CdFileIndexCurrent = a0;
+    CdFileState = 6;
     D_8010945C = 0;
-    D_80109464 = D_801094A8[a0].location;
-    D_80109484 = 0;
-    D_80109460 = D_801094A8[D_8009DF9C].sectors;
+    CdFileLocation = CdFileTable[a0].location;
+    CdFileBytesRead = 0;
+    CdFileSectors = CdFileTable[CdFileIndexCurrent].sectors;
     return 1;
 }
 
-s32 func_800129BC(s32 a0, s32 a1, s32 a2, s32 a3) {
-    if (D_8009DF90 != 0) return 0;
+s32 CdFileReadRange(s32 a0, s32 a1, s32 a2, s32 a3) {
+    if (CdFileState != 0) return 0;
     D_80109480 = a3;
-    D_8009DF9C = a0;
-    D_8009DF90 = 6;
+    CdFileIndexCurrent = a0;
+    CdFileState = 6;
     D_8010945C = a1;
-    CdIntToPos(CdPosToInt(&D_801094A8[a0]) + a1, D_80109464.c);
-    D_80109460 = a2;
-    D_80109484 = 0;
+    CdIntToPos(CdPosToInt(&CdFileTable[a0]) + a1, CdFileLocation.c);
+    CdFileSectors = a2;
+    CdFileBytesRead = 0;
     return 1;
 }
 
-s32 func_80012A58(void) {
-    return D_80109484;
+s32 CdFileBytesLoaded(void) {
+    return CdFileBytesRead;
 }
 
-void func_80012A68(int *a0)
+void RelocateOffsetTable(int *a0)
 {
     int n = *a0;
     int *p = a0 + 1;
@@ -433,7 +433,7 @@ int func_80012E94(int a0, int a1, int a2, int a3, int a4)
     sp[0] = xx;
     sp[1] = b;
     *(int *)(sp + 2) = 0x140010;
-    func_80095C14(s0, sp, (a4 << 6) + 0x1B0, 0xD8);
+    SetDrawMove(s0, sp, (a4 << 6) + 0x1B0, 0xD8);
     *(int *)s0 = *(int *)g[1];
     s0[3] = 5;
     *(int *)g[1] = (int)s0;
@@ -458,7 +458,7 @@ void func_8001301C(struct A *a0, int a1)
     struct Q *p;
 
     s0 = (struct E *)((char *)D_8010B2E0 + a1 * 0x320);
-    a3 = D_800ACC18;
+    a3 = LoadCursor;
     u = ((a0->f14 + 2) / 3) * 0x18;
     t = ((a0->f38 + 2) / 3) * 0x18;
     s1 = 4;
@@ -502,29 +502,29 @@ void func_8001301C(struct A *a0, int a1)
         s0++;
         s1 -= 1;
     } while (s1 > 0);
-    D_800ACC18 = a3;
-    if (*(unsigned char *)((char *)D_800F3A08[a1] + 0xA) == 2) {
+    LoadCursor = a3;
+    if (*(unsigned char *)((char *)CarBoundsTable[a1] + 0xA) == 2) {
         s0 = (struct E *)((char *)D_8010B2E0 + a1 * 0x320);
         s1 = 4;
         do {
             s1 -= 1;
-            s0->fC4 = D_800ACC18;
-            func_80096434(D_800ACC18, 0x100);
+            s0->fC4 = LoadCursor;
+            func_80096434(LoadCursor, 0x100);
             s0++;
-            D_800ACC18 += 0x100;
+            LoadCursor += 0x100;
         } while (s1 > 0);
     }
 }
 
-int func_800131D0(int a0) {
-    if (D_8009DF98 != 0) {
+int RequestSceneLoad(int a0) {
+    if (SceneLoadState != 0) {
         return 0;
     }
     D_8010943C = a0;
-    return D_8009DF98 = 1;
+    return SceneLoadState = 1;
 }
 
-int func_80013200(void)
+int SceneLoadStep(void)
 {
     int *a1;
     /* ASM_BARRIER: pin saved regs to original assignment */
@@ -538,27 +538,27 @@ int func_80013200(void)
     register int t __asm__("$3");
     register int *pw __asm__("$2"); int s0;
 
-    switch (D_8009DF98) {
+    switch (SceneLoadState) {
     case 1:
-        if (func_8001292C(func_80012208(D_8010943C), D_800ACC18) == 0)
+        if (CdFileReadStart(func_80012208(D_8010943C), LoadCursor) == 0)
             return 0;
-        D_8009DF98 = 2;
+        SceneLoadState = 2;
     case 2:
-        if (func_80012A58() == 0)
+        if (CdFileBytesLoaded() == 0)
             return 0;
-        a0 = *(int *)(D_800ACC18 + 4) + D_800ACC18;
-        s0 = *(int *)(D_800ACC18 + 8) + D_800ACC18;
-        *(int *)(D_800ACC18 + 4) = a0;
-        *(int *)(D_800ACC18 + 8) = s0;
+        a0 = *(int *)(LoadCursor + 4) + LoadCursor;
+        s0 = *(int *)(LoadCursor + 8) + LoadCursor;
+        *(int *)(LoadCursor + 4) = a0;
+        *(int *)(LoadCursor + 8) = s0;
         func_800436E8(a0);
         func_800436E8(s0);
-        D_8009DF98 = 3;
+        SceneLoadState = 3;
     case 3:
-        if (func_8001292C(func_80012208(D_8010943C) + 1, D_800ACC18) == 0)
+        if (CdFileReadStart(func_80012208(D_8010943C) + 1, LoadCursor) == 0)
             return 0;
-        D_8009DF98 = 4;
+        SceneLoadState = 4;
     case 4:
-        s1 = func_80012A58();
+        s1 = CdFileBytesLoaded();
         if (s1 == 0)
             return 0;
         a1 = (int *)B;
@@ -580,18 +580,18 @@ int func_80013200(void)
             func_8007080C(a0);
         }
         D_8010BF68 = s2;
-        D_800ACC18 = D_800ACC18 + s1;
-        func_8007026C(sp10);
-        func_80012A68(s2);
-        func_80070108(sp14, 4);
+        LoadCursor = LoadCursor + s1;
+        RelocateRelativeFile(sp10);
+        RelocateOffsetTable(s2);
+        RegisterModelBank(sp14, 4);
         func_800700AC(sp18);
-        func_800292A8(fp);
+        SetTrackNodeData(fp);
         func_800293C4(s6);
         D_8010BF60 = s7;
-        D_800ACC18 = D_800ACC18 + func_80077D08(s3, D_800ACC18);
+        LoadCursor = LoadCursor + LoadTrackObjects(s3, LoadCursor);
         func_800713C4(s5);
         func_80071434(s4);
-        D_8009DF98 = 0;
+        SceneLoadState = 0;
         return 1;
     }
 }
@@ -603,7 +603,7 @@ int func_80013514(int a0, int a1, int a2, int a3, int a4)
     register int p1 asm("$16") = a1;
     register int p2 asm("$18") = a2;
     register int p3 asm("$19") = a3;
-    if (D_8009DF98 != 0) {
+    if (SceneLoadState != 0) {
         return 0;
     }
     D_80109440 = func_80012210();
@@ -613,14 +613,14 @@ int func_80013514(int a0, int a1, int a2, int a3, int a4)
     D_8010944C = p0;
     D_80109450 = p2;
     D_80109454 = p3;
-    D_8009DF98 = r;
+    SceneLoadState = r;
     return r;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80070108 ((void (*)(void *, s32))func_80070108)
-#define D_800ACC18 ((Resource *)D_800ACC18)
-#define D_800F3A08 (*(void *(*)[])&D_800F3A08)
+#define RegisterModelBank ((void (*)(void *, s32))RegisterModelBank)
+#define LoadCursor ((Resource *)LoadCursor)
+#define CarBoundsTable (*(void *(*)[])&CarBoundsTable)
 
 s32 func_800135BC(void) {
     s16 rect[4];
@@ -629,35 +629,35 @@ s32 func_800135BC(void) {
     void *s2;
     void *s3;
 
-    switch (D_8009DF98) {
+    switch (SceneLoadState) {
     case 1:
-        if (func_8001292C(D_80109440, D_800ACC18) == 0) {
+        if (CdFileReadStart(D_80109440, LoadCursor) == 0) {
             return 0;
         }
-        D_8009DF98 = 2;
+        SceneLoadState = 2;
     case 2:
-        if (func_80012A58() == 0) {
+        if (CdFileBytesLoaded() == 0) {
             return 0;
         }
         {
             s32 x;
-            D_800ACC18->p4 += (s32)D_800ACC18;
-            D_800ACC18->p8 += (s32)D_800ACC18;
-            D_800ACC18->pC += (s32)D_800ACC18;
-            D_800ACC18->p10 += (s32)D_800ACC18;
-            D_800ACC18->p14 += (s32)D_800ACC18;
-            s0 = (void *)D_800ACC18->pC;
-            s1 = (void *)D_800ACC18->p10;
-            s2 = (void *)D_800ACC18->p14;
-            s3 = (void *)D_800ACC18->p8;
-            func_800293AC((void *)D_800ACC18->p4, D_80109444);
-            D_800F3A08[D_80109444] = s3;
-            func_80070108(s0, D_80109444);
+            LoadCursor->p4 += (s32)LoadCursor;
+            LoadCursor->p8 += (s32)LoadCursor;
+            LoadCursor->pC += (s32)LoadCursor;
+            LoadCursor->p10 += (s32)LoadCursor;
+            LoadCursor->p14 += (s32)LoadCursor;
+            s0 = (void *)LoadCursor->pC;
+            s1 = (void *)LoadCursor->p10;
+            s2 = (void *)LoadCursor->p14;
+            s3 = (void *)LoadCursor->p8;
+            func_800293AC((void *)LoadCursor->p4, D_80109444);
+            CarBoundsTable[D_80109444] = s3;
+            RegisterModelBank(s0, D_80109444);
             /* ASM_BARRIER: preserve local-alloc priority of s0 ($s0) over s3 ($s3) */
             __asm__("" : : "r"(s0));
             func_80012AB4(s0, D_80109444);
             D_80109468[D_80109444] = (s32)s1;
-            func_80012A68(s1);
+            RelocateOffsetTable(s1);
             func_80012C7C(s1, D_80109444);
             rect[2] = 0x40;
             rect[1] = 0;
@@ -665,46 +665,46 @@ s32 func_800135BC(void) {
             x = (D_80109444 << 6) + 0x180;
             rect[0] = x;
         }
-        func_80092FFC(rect, s2);
+        LoadImage(rect, s2);
         DrawSync(0);
-        D_800ACC18 = s2;
+        LoadCursor = s2;
         func_8001301C(D_80109468[D_80109444], D_80109444);
         if (D_80109454 != 0) {
             func_80012E94(D_80109448, D_8010944C, D_80109450, D_80109454 - 1, D_80109444);
         }
-        D_8009DF98 = 0;
+        SceneLoadState = 0;
         return 1;
     }
 }
 
-#undef func_80070108
-#undef D_800ACC18
-#undef D_800F3A08
+#undef RegisterModelBank
+#undef LoadCursor
+#undef CarBoundsTable
 
 int func_800137B0(void) {
-    if (D_8009DF98 != 0) return 0;
-    return D_8009DF98 = 1;
+    if (SceneLoadState != 0) return 0;
+    return SceneLoadState = 1;
 }
 
 /* legacy typing of shared globals in this part of the unit */
 #define DrawSync ((int (*)())DrawSync)
-#define func_80092FFC ((int (*)())func_80092FFC)
+#define LoadImage ((int (*)())LoadImage)
 
 int func_800137D4(void) {
     short sp[4];
-    switch (D_8009DF98) {
+    switch (SceneLoadState) {
     case 1:
-        if (func_8001292C(func_8001223C(0, 0), D_800ACC18) == 0) return 0;
-        D_8009DF98 = 2;
+        if (CdFileReadStart(GetR4FileIndex(0, 0), LoadCursor) == 0) return 0;
+        SceneLoadState = 2;
     case 2:
-        if (func_80012A58() == 0) return 0;
+        if (CdFileBytesLoaded() == 0) return 0;
         sp[0] = 0x340;
         sp[2] = 0x80;
         sp[1] = 0;
         sp[3] = 0xB4;
-        func_80092FFC(sp, D_800ACC18);
+        LoadImage(sp, LoadCursor);
         DrawSync(0);
-        D_8009DF98 = 0;
+        SceneLoadState = 0;
         return 1;
     default:
         return 2;
@@ -712,9 +712,9 @@ int func_800137D4(void) {
 }
 
 #undef DrawSync
-#undef func_80092FFC
+#undef LoadImage
 
-void func_80013890(s32 shift) {
+void SetupRenderer(s32 shift) {
     /* ASM_BARRIER: reuse the incoming argument register for the scratch base. */
     register RrRendererScratch *scratch __asm__("$4");
     *(s32*)(SCRATCHPAD + 0x60)=shift;

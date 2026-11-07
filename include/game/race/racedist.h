@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80049C68(void);
+void UpdateRaceStandings(void);
 
 #endif /* RR_GAME_RACE_RACEDIST_H */

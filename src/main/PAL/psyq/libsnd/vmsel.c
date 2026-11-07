@@ -7,9 +7,9 @@
 
 /* $at as the %hi() base: with $1 allocatable cc1 2.8.1 emits lui $1,%hi / sw %lo($1) and its reorg fills the jr/jal delay slot with the sw (see DECOMP_GUIDE "delay-slot store"). */
 
-s32 func_8008A564(s32 bank,s32 program);
+s32 _SsVmVSetUp(s32 bank,s32 program);
 
-s32 func_8008A564(s32 bank,s32 program) {
+s32 _SsVmVSetUp(s32 bank,s32 program) {
     /* ASM_BARRIER: Retain full selectors until publishing their low bytes. */
     register s32 raw_bank __asm__("$7")=bank;
     /* ASM_BARRIER: Retain full selectors until publishing their low bytes. */
@@ -45,7 +45,7 @@ s32 func_8008A564(s32 bank,s32 program) {
         if(*(u8 *)(page+0x120)!=1) {result=-1;goto out;}
     }
     j=(s16)program;
-    if(j<D_801100EA)goto publish;
+    if(j<kMaxPrograms)goto publish;
 fail:
     result=-1;
     goto out;
@@ -73,11 +73,11 @@ publish:
     state=&D_80110101;
     state->bank=raw_bank;
     state->program=raw_program;
-    D_801100F8=tones;
+    _svm_tn=tones;
     /* ASM_BARRIER: Publish tone data before the other selected pointers. */
     __asm__("" : : : "memory");
-    D_801100F4=data;
-    D_801100EC=programs;
+    _svm_vh=data;
+    _svm_pg=programs;
     state->value=programs[j].value08;
     result=0;
 out:
@@ -86,14 +86,14 @@ out:
     return result;
 }
 
-void func_8008A624(void) {
+void SsSetMono(void) {
     s32 value = 1;
     /* ASM_BARRIER: preserve the original assembler temporary as the address base. */
     register s16 *base __asm__("$1") = (s16 *)0x80110000U;
-    /* PAL RAM mapping: D_801100E8 is base plus 0xE8. */
+    /* PAL RAM mapping: _svm_stereo_mono is base plus 0xE8. */
     /* ASM_BARRIER: retain the address and value registers for the return-slot store. */
     __asm__("" : "=r"(base), "=r"(value) : "0"(base), "1"(value));
     base[(0xE8) / 2] = value;
 }
 
-void func_8008A634() { D_801100E8 = 0; }
+void SsSetStereo() { _svm_stereo_mono = 0; }

@@ -11,14 +11,14 @@ extern char D_800FF690[];
 extern char D_800FF6B8[];
 extern char D_800FF6D8[];
 extern void MulMatrix0();
-extern short D_800A22E4[];
+extern short AtanTable[];
 
 void BuildRotMatrixZ(short *a0, int a1);
 void BuildRotMatrixY(void *arg0, M2C_UNK arg1);
 void BuildRotMatrixX(void *arg0, M2C_UNK arg1);
-void func_8006E174(void *arg0);
-void func_8006E300(int *a0);
-s32 func_8006E368(int a0, int a1);
+void SetIdentityMatrix(void *arg0);
+void BuildRotMatrixAngles(int *a0);
+s32 Atan2Table(int a0, int a1);
 
 void BuildRotMatrixZ(short *a0, int a1) {
     short s = rsin(a1);
@@ -82,7 +82,7 @@ void BuildRotMatrixX(void *arg0, M2C_UNK arg1) {
 #undef rsin
 #undef rcos
 
-void func_8006E174(void *arg0) {
+void SetIdentityMatrix(void *arg0) {
     M2C_FIELD(arg0, s16 *, 0) = 0x1000;
     M2C_FIELD(arg0, s16 *, 2) = 0;
     M2C_FIELD(arg0, s16 *, 4) = 0;
@@ -97,12 +97,12 @@ void func_8006E174(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0x1C) = 0;
 }
 
-void func_8006E1AC(void) {
+void BuildCameraMatrices(void) {
     char sp10[32];
     int *g = (int *)SCRATCHPAD;
     BuildRotMatrixY(SCRATCH_ROT_MATRIX, g[7]);
     BuildRotMatrixY(D_800FF690, g[7]);
-    func_8006E174(D_800FF6B8);
+    SetIdentityMatrix(D_800FF6B8);
     BuildRotMatrixY(D_800FF6D8, g[7]);
     BuildRotMatrixX(sp10, g[6]);
     MulMatrix2(sp10, SCRATCH_ROT_MATRIX);
@@ -122,7 +122,7 @@ void func_8006E1AC(void) {
     SetRotMatrix(SCRATCH_ROT_MATRIX);
 }
 
-void func_8006E300(int *a0) {
+void BuildRotMatrixAngles(int *a0) {
     char sp10[32];
     BuildRotMatrixY((SCRATCHPAD + 0x108), a0[1]);
     BuildRotMatrixX(sp10, a0[0]);
@@ -131,7 +131,7 @@ void func_8006E300(int *a0) {
     MulMatrix2(sp10, (SCRATCHPAD + 0x108));
 }
 
-int func_8006E368(int a0, int a1)
+int Atan2Table(int a0, int a1)
 {
     int r;
     if (a0 == 0) {
@@ -148,28 +148,28 @@ int func_8006E368(int a0, int a1)
     if (a0 > 0) {
         if (a1 >= 0) {
             if (a0 < a1) {
-                return 0x400 - D_800A22E4[(a0 << 10) / a1];
+                return 0x400 - AtanTable[(a0 << 10) / a1];
             }
-            r = D_800A22E4[(a1 << 10) / a0];
+            r = AtanTable[(a1 << 10) / a0];
 ret:
             return r;
         }
         a1 = -a1;
         if (a0 < a1) {
-            return D_800A22E4[(a0 << 10) / a1] - 0x400;
+            return AtanTable[(a0 << 10) / a1] - 0x400;
         }
-        return -D_800A22E4[(a1 << 10) / a0];
+        return -AtanTable[(a1 << 10) / a0];
     }
     a0 = -a0;
     if (a1 >= 0) {
         if (a0 < a1) {
-            return D_800A22E4[(a0 << 10) / a1] + 0x400;
+            return AtanTable[(a0 << 10) / a1] + 0x400;
         }
-        return 0x800 - D_800A22E4[(a1 << 10) / a0];
+        return 0x800 - AtanTable[(a1 << 10) / a0];
     }
     a1 = -a1;
     if (a0 < a1) {
-        return 0xC00 - D_800A22E4[(a0 << 10) / a1];
+        return 0xC00 - AtanTable[(a0 << 10) / a1];
     }
-    return D_800A22E4[(a1 << 10) / a0] + 0x800;
+    return AtanTable[(a1 << 10) / a0] + 0x800;
 }

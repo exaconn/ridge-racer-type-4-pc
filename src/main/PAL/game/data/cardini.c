@@ -17,154 +17,154 @@
 #include "game/data/globals.h"
 
 extern int func_80095C74();
-extern int func_80096F04();
-extern int func_80096F14();
-extern int D_8010EF58;
-extern int D_8010EF5C;
-extern int D_8010EF60;
-extern int D_8010EF64;
-extern int D_8010EF68;
-extern int D_8010EF6C;
-extern int D_8010EF70;
-extern int D_8010EF74;
+extern int EnterCriticalSection();
+extern int ExitCriticalSection();
+extern int HwCardEvIoe;
+extern int HwCardEvError;
+extern int HwCardEvTimeout;
+extern int HwCardEvNew;
+extern int SwCardEvIoe;
+extern int SwCardEvError;
+extern int SwCardEvTimeout;
+extern int SwCardEvNew;
 extern unsigned char D_800F3A24[];
 extern char D_800FFC48[];
-extern int D_8010ECC0[];
+extern int CardPortTimer[];
 extern char D_800113D8[];
-extern char D_8010ECD0[];
+extern char CardDirEntries[];
 extern char *func_80096F74();
 extern char D_800113E4[];
-extern int D_8010EF78;
-extern int func_80096F34();
+extern int CardFileHandle;
+extern int FileSeek();
 extern int func_80095C84();
 extern int func_80095C94();
-extern int D_8010ECB8[];
+extern int CardPortState[];
 extern int D_8010ECC8[];
-extern int D_8010EF80[];
+extern int CardPortResult[];
 extern int D_800A4094[];
 extern char D_8010EF28[];
 
-void func_80078000(void);
-int func_800780B8(int arg);
-void func_80078204(void);
-int func_8007825C(void);
-void func_800782F4(void);
-int func_8007834C(int a, int b);
-int func_80078414(int a0, unsigned char *a1);
-int func_80078544(int a0, int a1, int a2, int a3, int a4, int a5);
-int func_800786F8(int a0, int a1, int a2, int a3, int a4, int a5);
-int func_800787C4(int p, char *a1);
+void CardSystemShutdown(void);
+int PollHwCardEvents(int arg);
+void ClearHwCardEvents(void);
+int WaitSwCardEvent(void);
+void ClearSwCardEvents(void);
+int CountCardFiles(int a, int b);
+int CardHasFile(int a0, unsigned char *a1);
+int CardReadFileAt(int a0, int a1, int a2, int a3, int a4, int a5);
+int CardWriteFileAt(int a0, int a1, int a2, int a3, int a4, int a5);
+int CardUpdate(int p, char *a1);
 void func_80078E1C(s32 arg0, s32 arg1);
 
-void func_80077E10()
+void CardSystemInit()
 {
     InitCARD();
     StartCARD();
     func_80095C74();
     func_8009BA04();
-    func_80096F04();
-    D_8010EF58 = func_80096E74(0xF4000001, 4, 0x2000, 0);
-    D_8010EF5C = func_80096E74(0xF4000001, 0x8000, 0x2000, 0);
-    D_8010EF60 = func_80096E74(0xF4000001, 0x100, 0x2000, 0);
-    D_8010EF64 = func_80096E74(0xF4000001, 0x2000, 0x2000, 0);
-    D_8010EF68 = func_80096E74(0xF0000011, 4, 0x2000, 0);
-    D_8010EF6C = func_80096E74(0xF0000011, 0x8000, 0x2000, 0);
-    D_8010EF70 = func_80096E74(0xF0000011, 0x100, 0x2000, 0);
-    D_8010EF74 = func_80096E74(0xF0000011, 0x2000, 0x2000, 0);
-    func_80096F14();
-    func_80096EB4(D_8010EF58);
-    func_80096EB4(D_8010EF5C);
-    func_80096EB4(D_8010EF60);
-    func_80096EB4(D_8010EF64);
-    func_80096EB4(D_8010EF68);
-    func_80096EB4(D_8010EF6C);
-    func_80096EB4(D_8010EF70);
-    func_80096EB4(D_8010EF74);
+    EnterCriticalSection();
+    HwCardEvIoe = OpenEvent(0xF4000001, 4, 0x2000, 0);
+    HwCardEvError = OpenEvent(0xF4000001, 0x8000, 0x2000, 0);
+    HwCardEvTimeout = OpenEvent(0xF4000001, 0x100, 0x2000, 0);
+    HwCardEvNew = OpenEvent(0xF4000001, 0x2000, 0x2000, 0);
+    SwCardEvIoe = OpenEvent(0xF0000011, 4, 0x2000, 0);
+    SwCardEvError = OpenEvent(0xF0000011, 0x8000, 0x2000, 0);
+    SwCardEvTimeout = OpenEvent(0xF0000011, 0x100, 0x2000, 0);
+    SwCardEvNew = OpenEvent(0xF0000011, 0x2000, 0x2000, 0);
+    ExitCriticalSection();
+    EnableEvent(HwCardEvIoe);
+    EnableEvent(HwCardEvError);
+    EnableEvent(HwCardEvTimeout);
+    EnableEvent(HwCardEvNew);
+    EnableEvent(SwCardEvIoe);
+    EnableEvent(SwCardEvError);
+    EnableEvent(SwCardEvTimeout);
+    EnableEvent(SwCardEvNew);
     D_800F3A24[1] = 0x5A;
     D_800F3A24[0] = 0x5A;
     D_800ACC0C = (int)D_800FFC48;
 }
 
-void func_80078000(void) {
-    func_80096F04();
-    func_80096E84(D_8010EF58);
-    func_80096E84(D_8010EF5C);
-    func_80096E84(D_8010EF60);
-    func_80096E84(D_8010EF64);
-    func_80096E84(D_8010EF68);
-    func_80096E84(D_8010EF6C);
-    func_80096E84(D_8010EF70);
-    func_80096E84(D_8010EF74);
-    func_80096F14();
+void CardSystemShutdown(void) {
+    EnterCriticalSection();
+    CloseEvent(HwCardEvIoe);
+    CloseEvent(HwCardEvError);
+    CloseEvent(HwCardEvTimeout);
+    CloseEvent(HwCardEvNew);
+    CloseEvent(SwCardEvIoe);
+    CloseEvent(SwCardEvError);
+    CloseEvent(SwCardEvTimeout);
+    CloseEvent(SwCardEvNew);
+    ExitCriticalSection();
     func_8009BA94();
-    func_80095DA8();
+    StopCARD();
 }
 
-int func_800780B8(int arg) {
+int PollHwCardEvents(int arg) {
     int r;
     int t;
-    r = func_80096EA4(D_8010EF58) == 1;
-    if (func_80096EA4(D_8010EF5C) == 1) r = 2;
-    if (func_80096EA4(D_8010EF60) == 1) r = 3;
-    if (func_80096EA4(D_8010EF64) == 1) r = 4;
-    t = D_8010ECC0[arg]++;
+    r = TestEvent(HwCardEvIoe) == 1;
+    if (TestEvent(HwCardEvError) == 1) r = 2;
+    if (TestEvent(HwCardEvTimeout) == 1) r = 3;
+    if (TestEvent(HwCardEvNew) == 1) r = 4;
+    t = CardPortTimer[arg]++;
     if (t >= 0x78) r = 2;
     return r;
 }
 
-s32 func_80078178(void) {
-    if (func_80096EA4(D_8010EF58) == 1) {
+s32 GetHwCardEvent(void) {
+    if (TestEvent(HwCardEvIoe) == 1) {
         return 1;
     }
-    if (func_80096EA4(D_8010EF5C) == 1) {
+    if (TestEvent(HwCardEvError) == 1) {
         return 2;
     }
-    if (func_80096EA4(D_8010EF60) != 1) {
-        return (func_80096EA4(D_8010EF64) == 1) * 4;
+    if (TestEvent(HwCardEvTimeout) != 1) {
+        return (TestEvent(HwCardEvNew) == 1) * 4;
     }
     return 3;
 }
 
-void func_80078204(void) {
-    func_80096EA4(D_8010EF58);
-    func_80096EA4(D_8010EF5C);
-    func_80096EA4(D_8010EF60);
-    func_80096EA4(D_8010EF64);
+void ClearHwCardEvents(void) {
+    TestEvent(HwCardEvIoe);
+    TestEvent(HwCardEvError);
+    TestEvent(HwCardEvTimeout);
+    TestEvent(HwCardEvNew);
 }
 
-int func_8007825C(void) {
+int WaitSwCardEvent(void) {
     for (;;) {
-        if (func_80096EA4(D_8010EF68) == 1) return 1;
-        if (func_80096EA4(D_8010EF6C) == 1) return 2;
-        if (func_80096EA4(D_8010EF70) == 1) return 3;
-        if (func_80096EA4(D_8010EF74) == 1) return 4;
+        if (TestEvent(SwCardEvIoe) == 1) return 1;
+        if (TestEvent(SwCardEvError) == 1) return 2;
+        if (TestEvent(SwCardEvTimeout) == 1) return 3;
+        if (TestEvent(SwCardEvNew) == 1) return 4;
     }
 }
 
-void func_800782F4(void) {
-    func_80096EA4(D_8010EF68);
-    func_80096EA4(D_8010EF6C);
-    func_80096EA4(D_8010EF70);
-    func_80096EA4(D_8010EF74);
+void ClearSwCardEvents(void) {
+    TestEvent(SwCardEvIoe);
+    TestEvent(SwCardEvError);
+    TestEvent(SwCardEvTimeout);
+    TestEvent(SwCardEvNew);
 }
 
-int func_8007834C(int a, int b) {
+int CountCardFiles(int a, int b) {
     char sp[32];
     char *s0;
     int n = 0;
     func_80096484(sp, D_800113D8, a, b);
-    s0 = D_8010ECD0;
-    if (func_80097114(sp, s0) == s0) {
+    s0 = CardDirEntries;
+    if (firstfile(sp, s0) == s0) {
         do { n++; s0 += 0x28; } while (func_80096F74(s0) == s0);
         n = n;
     }
     return n;
 }
 
-int func_800783C8(int a0) {
+int CardFreeBlocks(int a0) {
     int a2 = 0, a1 = 0;
     char *v1;
-    char *p = D_8010ECD0;
+    char *p = CardDirEntries;
     int v;
     if (a0 > 0) { v1 = p; do { a1 += *(int *)(v1 + 0x18); v1 += 0x28; } while (++a2 < a0); }
     v = a1;
@@ -173,12 +173,12 @@ int func_800783C8(int a0) {
     return 15 - a1;
 }
 
-int func_80078414(int a0, unsigned char *a1) {
+int CardHasFile(int a0, unsigned char *a1) {
     int t1 = 0, t2 = 0;
     char *t0;
     int a3, v1;
     unsigned char a2;
-    char *b = D_8010ECD0;
+    char *b = CardDirEntries;
     if (a0 <= 0) goto end;
     t0 = b;
 outer:
@@ -205,7 +205,7 @@ end:
     return t2;
 }
 
-int func_80078490(a0, a1, a2, a3, a4)
+int CardReadFile(a0, a1, a2, a3, a4)
 int a0, a1, a2, a3, a4;
 {
     int sp[8];
@@ -214,36 +214,36 @@ int a0, a1, a2, a3, a4;
     int ret;
     func_80096484(sp, D_800113E4, a0, a1, a2);
     v = a4 << 13;
-    r = func_80096F24(sp, 0x8001);
+    r = FileOpen(sp, 0x8001);
     if (r != -1) {
-        D_8010EF78 = r;
-        func_80078204();
-        while (func_80096F44(r, a3, v) == 0) {
+        CardFileHandle = r;
+        ClearHwCardEvents();
+        while (FileRead(r, a3, v) == 0) {
         }
         ret = 0;
-        func_80096F64(r);
+        FileClose(r);
     } else {
         ret = -1;
     }
     return ret;
 }
 
-int func_80078544(int a0, int a1, int a2, int a3, int a4, int a5) {
+int CardReadFileAt(int a0, int a1, int a2, int a3, int a4, int a5) {
     char sp18[32];
     int h; register int r asm("$17"); int t;
     func_80096484(sp18, D_800113E4, a0, a1, a2);
     t = a4;
-    h = func_80096F24(sp18, 0x8001);
+    h = FileOpen(sp18, 0x8001);
     /* ASM_BARRIER: loads -1 into r after the call, not hoisted before it */
     __asm__ volatile("" : "=r"(r) : "0"(-1));
     if (h != r) {
-        if (func_80096F34(h, a5, 0) != r) {
-            D_8010EF78 = h;
-            func_80078204();
-            while (func_80096F44(h, a3, t) == 0) ;
+        if (FileSeek(h, a5, 0) != r) {
+            CardFileHandle = h;
+            ClearHwCardEvents();
+            while (FileRead(h, a3, t) == 0) ;
             r = 0;
         }
-        func_80096F64(h);
+        FileClose(h);
         return r;
     }
     /* ASM_BARRIER: legacy, reason not recorded (forces reg copy); retire & retest with fd.py */
@@ -251,7 +251,7 @@ int func_80078544(int a0, int a1, int a2, int a3, int a4, int a5) {
     return r;
 }
 
-int func_80078610(a0, a1, a2, a3, a4, a5)
+int CardWriteFile(a0, a1, a2, a3, a4, a5)
 int a0, a1, a2, a3, a4, a5;
 {
     int sp[8];
@@ -260,43 +260,43 @@ int a0, a1, a2, a3, a4, a5;
     int ret;
     func_80096484(sp, D_800113E4, a0, a1, a2);
     if (a5 == 1) {
-        r = func_80096F24(sp, (a4 << 16) | 0x200);
+        r = FileOpen(sp, (a4 << 16) | 0x200);
         if (r == -1) {
             return -1;
         }
-        func_80096F64(r);
+        FileClose(r);
     }
     v = a4 << 13;
-    r = func_80096F24(sp, 0x8002);
+    r = FileOpen(sp, 0x8002);
     if (r != -1) {
-        D_8010EF78 = r;
-        func_80078204();
-        while (func_80096F54(r, a3, v) == 0) {
+        CardFileHandle = r;
+        ClearHwCardEvents();
+        while (FileWrite(r, a3, v) == 0) {
         }
         ret = 0;
-        func_80096F64(r);
+        FileClose(r);
     } else {
         ret = -1;
     }
     return ret;
 }
 
-int func_800786F8(int a0, int a1, int a2, int a3, int a4, int a5) {
+int CardWriteFileAt(int a0, int a1, int a2, int a3, int a4, int a5) {
     char sp18[32];
     int h; register int r asm("$17"); int t;
     func_80096484(sp18, D_800113E4, a0, a1, a2);
     t = a4;
-    h = func_80096F24(sp18, 0x8002);
+    h = FileOpen(sp18, 0x8002);
     /* ASM_BARRIER: loads -1 into r after the call, not hoisted before it */
     __asm__ volatile("" : "=r"(r) : "0"(-1));
     if (h != r) {
-        if (func_80096F34(h, a5, 0) != r) {
-            D_8010EF78 = h;
-            func_80078204();
-            while (func_80096F54(h, a3, t) == 0) ;
+        if (FileSeek(h, a5, 0) != r) {
+            CardFileHandle = h;
+            ClearHwCardEvents();
+            while (FileWrite(h, a3, t) == 0) ;
             r = 0;
         }
-        func_80096F64(h);
+        FileClose(h);
         return r;
     }
     /* ASM_BARRIER: re-launders r so the -1 return uses s1 (not the equal h in s0) */
@@ -304,54 +304,54 @@ int func_800786F8(int a0, int a1, int a2, int a3, int a4, int a5) {
     return r;
 }
 
-int func_800787C4(int p, char *a1) {
+int CardUpdate(int p, char *a1) {
     char *s2;
     int a0;
     int sp[2];
     int x;
     s2 = (char *)((p << 4) + (int)a1);
-    switch (D_8010ECB8[p]) {
+    switch (CardPortState[p]) {
     case 0:
         func_80095C84(s2);
-        D_8010ECB8[p] = 1;
-        D_8010ECC0[p] = 0;
+        CardPortState[p] = 1;
+        CardPortTimer[p] = 0;
         D_8010ECC8[p] = 0;
         break;
     case 1:
-        a0 = func_800780B8(p);
+        a0 = PollHwCardEvents(p);
         if (a0 == 0) break;
         switch (a0) {
         case 1:
-            D_8010EF80[p] = a0;
-            D_8010ECB8[p] = 2;
-            D_8010ECC0[p] = 0;
+            CardPortResult[p] = a0;
+            CardPortState[p] = 2;
+            CardPortTimer[p] = 0;
             break;
         case 3:
-            D_8010EF80[p] = -1;
-            D_8010ECB8[p] = 6;
+            CardPortResult[p] = -1;
+            CardPortState[p] = 6;
             D_800A4094[p] = 0;
             break;
         case 4:
-            D_8010EF80[p] = 2;
-            D_8010ECB8[p] = 2;
-            D_8010ECC0[p] = 0;
+            CardPortResult[p] = 2;
+            CardPortState[p] = 2;
+            CardPortTimer[p] = 0;
             break;
         case 2:
         default:
-            D_8010EF80[p] = -4;
-            D_8010ECB8[p] = 6;
+            CardPortResult[p] = -4;
+            CardPortState[p] = 6;
             D_800A4094[p] = 0;
             break;
         }
         break;
     case 2:
         if (func_8009D700(s2, p * 17 + (int)D_8010EF28)) {
-            D_8010ECB8[p] = 3;
-            D_8010ECC0[p] = 0;
+            CardPortState[p] = 3;
+            CardPortTimer[p] = 0;
         } else {
-            if (D_8010ECC0[p]++ >= 0x78) {
-                D_8010EF80[p] = -4;
-                D_8010ECB8[p] = 6;
+            if (CardPortTimer[p]++ >= 0x78) {
+                CardPortResult[p] = -4;
+                CardPortState[p] = 6;
                 D_800A4094[p] = 0;
             }
         }
@@ -363,93 +363,93 @@ int func_800787C4(int p, char *a1) {
                 a0 = sp[1];
                 switch (a0) {
                 case 0:
-                    D_8010EF80[p] = 3;
+                    CardPortResult[p] = 3;
                     if (D_800A4094[p] == 1) {
-                        D_8010ECB8[p] = 6;
+                        CardPortState[p] = 6;
                     } else {
-                        D_8010ECB8[p] = 4;
+                        CardPortState[p] = 4;
                     }
                     break;
                 case 2:
-                    if (D_8010EF80[p] == 1) {
+                    if (CardPortResult[p] == 1) {
                         if (D_800A4094[p] == 1) {
-                            D_8010ECB8[p] = 6;
+                            CardPortState[p] = 6;
                         } else {
-                            D_8010ECB8[p] = 4;
+                            CardPortState[p] = 4;
                         }
                     } else {
-                        D_8010EF80[p] = 2;
-                        func_800782F4();
-                        func_80095CA4(s2);
-                        func_8007825C();
-                        D_8010ECB8[p] = 4;
+                        CardPortResult[p] = 2;
+                        ClearSwCardEvents();
+                        _card_clear(s2);
+                        WaitSwCardEvent();
+                        CardPortState[p] = 4;
                         D_800A4094[p] = 0;
                     }
                     break;
                 case 1:
-                    D_8010EF80[p] = -1;
-                    D_8010ECB8[p] = 6;
+                    CardPortResult[p] = -1;
+                    CardPortState[p] = 6;
                     D_800A4094[p] = 0;
                     break;
                 case 3:
-                    D_8010EF80[p] = 4;
-                    func_800782F4();
-                    func_80095CA4(s2);
-                    func_8007825C();
-                    D_8010ECB8[p] = 4;
+                    CardPortResult[p] = 4;
+                    ClearSwCardEvents();
+                    _card_clear(s2);
+                    WaitSwCardEvent();
+                    CardPortState[p] = 4;
                     D_800A4094[p] = 0;
                     break;
                 }
             } else {
-                D_8010EF80[p] = -4;
-                D_8010ECB8[p] = 6;
+                CardPortResult[p] = -4;
+                CardPortState[p] = 6;
                 D_800A4094[p] = 0;
             }
         } else {
-            if (D_8010ECC0[p]++ >= 0x78) {
-                D_8010EF80[p] = -4;
-                D_8010ECB8[p] = 6;
+            if (CardPortTimer[p]++ >= 0x78) {
+                CardPortResult[p] = -4;
+                CardPortState[p] = 6;
                 D_800A4094[p] = 0;
             }
         }
         break;
     case 4:
-        func_80078204();
+        ClearHwCardEvents();
         func_80095C94(s2);
-        D_8010ECB8[p] = 5;
-        D_8010ECC0[p] = 0;
+        CardPortState[p] = 5;
+        CardPortTimer[p] = 0;
         break;
     case 5:
-        a0 = func_800780B8(p);
+        a0 = PollHwCardEvents(p);
         if (a0 == 0) break;
-        D_8010ECB8[p] = 6;
+        CardPortState[p] = 6;
         switch (a0) {
         case 1:
             D_800A4094[p] = a0;
             break;
         case 3:
-            D_8010EF80[p] = -1;
+            CardPortResult[p] = -1;
             D_800A4094[p] = 0;
             break;
         case 4:
-            x = D_8010EF80[p];
+            x = CardPortResult[p];
             if ((unsigned)(x - 1) < 2) {
-                D_8010EF80[p] = -2;
+                CardPortResult[p] = -2;
             } else if ((unsigned)(x - 3) < 2) {
-                D_8010EF80[p] = -3;
+                CardPortResult[p] = -3;
             }
             D_800A4094[p] = 0;
             break;
         case 2:
         default:
-            D_8010EF80[p] = -4;
+            CardPortResult[p] = -4;
             D_800A4094[p] = 0;
             break;
         }
         break;
     case 6:
-        D_8010ECC8[p] = D_8010EF80[p];
-        D_8010ECB8[p] = 0;
+        D_8010ECC8[p] = CardPortResult[p];
+        CardPortState[p] = 0;
         break;
     }
     return D_8010ECC8[p];

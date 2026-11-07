@@ -14,7 +14,7 @@
 #define addPrim(ot, p) \
     ((DrTPage *)(p))->addr = (ot)->addr; \
     (ot)->addr = (u32)(p)
-#define P D_800AC650.p
+#define P RaceContext.p
 #define B(o) (*(unsigned char *)(P + (o)))
 #define H(o) (*(short *)(P + (o)))
 #define W(o) (*(int *)(P + (o)))
@@ -57,17 +57,17 @@ typedef RrMatrixWords32 M32;
 
 typedef struct { short m[3][3]; short pad[7]; } S70;
 
-extern struct { char pad[0xD4]; s32 a, b, c, d; u8 e, f, g; } D_800AC650;
+extern struct { char pad[0xD4]; s32 a, b, c, d; u8 e, f, g; } RaceContext;
 extern s32 D_800AC724;
 extern Rect D_800A0D04[];
 extern Rect D_800A0D24[][4];
-extern int func_80014A8C();
+extern int SetModelTexturePage();
 extern short D_800A0D7C;
 extern int D_800A0FB0[];
 extern unsigned short D_800AC006;
 extern int D_800ACBF8;
 extern short D_800F3826;
-extern struct { char pad[8]; short x8; } *D_800F3A08;
+extern struct { char pad[8]; short x8; } *CarBoundsTable;
 extern Q16 D_800111D4;
 extern short D_800ABED0[][3];
 extern int BuildRotMatrixZ();
@@ -86,29 +86,29 @@ void func_8005534C(s32 arg0);
 void func_80055358(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4);
 void func_80055700();
 void func_8005599C();
-void func_80055BF8(int a0, int *a1, u16 *a2, int *a3);
+void TransformPoint(int a0, int *a1, u16 *a2, int *a3);
 
 void func_80055300(void) {
-    D_800AC650.d = 1;
-    D_800AC650.a = 0;
-    D_800AC650.b = 0;
-    D_800AC650.c = 0;
-    D_800AC650.e = 0x90;
-    D_800AC650.f = 0x90;
-    D_800AC650.g = 0x90;
+    RaceContext.d = 1;
+    RaceContext.a = 0;
+    RaceContext.b = 0;
+    RaceContext.c = 0;
+    RaceContext.e = 0x90;
+    RaceContext.f = 0x90;
+    RaceContext.g = 0x90;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(struct { char pad[0xDC]; s32 a; char pad2[4]; u8 b, c, d; } (*))&D_800AC650)
+#define RaceContext (*(struct { char pad[0xDC]; s32 a; char pad2[4]; u8 b, c, d; } (*))&RaceContext)
 
 void func_80055330(int a0, u8 a1, u8 a2, u8 a3) {
-    D_800AC650.a = a0;
-    D_800AC650.b = a1;
-    D_800AC650.c = a2;
-    D_800AC650.d = a3;
+    RaceContext.a = a0;
+    RaceContext.b = a1;
+    RaceContext.c = a2;
+    RaceContext.d = a3;
 }
 
-#undef D_800AC650
+#undef RaceContext
 
 void func_8005534C(s32 arg0) {
     D_800AC724 = arg0;
@@ -181,7 +181,7 @@ void func_80055358(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
 #define SetDrawStp ((int (*)())SetDrawStp)
 #define D_800ACC14 ((S *)D_800ACC14)
 
-void func_800555E0()
+void QueueDrawStp()
 {
   int new_var;
   unsigned int *p = *((unsigned int **) SCRATCHPAD);
@@ -199,38 +199,38 @@ void func_800555E0()
 #undef D_800ACC14
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(struct { char pad[0xD4]; s32 a, b, c, d; u8 e[4]; } (*))&D_800AC650)
+#define RaceContext (*(struct { char pad[0xD4]; s32 a, b, c, d; u8 e[4]; } (*))&RaceContext)
 
 void func_80055660(void) {
-    if (D_800AC650.a != 0) {
-        func_80055358(D_800F4BF0, D_800AC650.b, D_800AC650.e, D_800AC650.c, D_800AC650.d);
+    if (RaceContext.a != 0) {
+        func_80055358(DrawBufIndex, RaceContext.b, RaceContext.e, RaceContext.c, RaceContext.d);
     }
 }
 
-#undef D_800AC650
+#undef RaceContext
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(struct { char pad[0x3DC]; s32 a; } (*))&D_800AC650)
+#define RaceContext (*(struct { char pad[0x3DC]; s32 a; } (*))&RaceContext)
 
 void func_800556B4(void) {
     if (D_800F3A40 & 0x10) {
-        D_800AC650.a ^= 1;
-        func_8005534C(D_800AC650.a);
+        RaceContext.a ^= 1;
+        func_8005534C(RaceContext.a);
     }
     func_80055660();
 }
 
-#undef D_800AC650
+#undef RaceContext
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(struct { char pad[0xEC]; char buf[0x160]; char *p; } (*))&D_800AC650)
+#define RaceContext (*(struct { char pad[0xEC]; char buf[0x160]; char *p; } (*))&RaceContext)
 
 void func_80055700(a0, a1)
 int a0, a1;
 {
     int t, one;
     char *q;
-    P = D_800AC650.buf;
+    P = RaceContext.buf;
     func_80096434(P, 0x160);
     H(0x84) = 0x1C1;
     H(0x86) = -0xDF8;
@@ -273,15 +273,15 @@ int a0, a1;
     q = P;
     D_800A0D7C = *(int *)(q + 0xA0) * 4;
     t = *(int *)(q + 0xA0) - 4;
-    t = t - (D_800F3A08->x8 + ((short)D_800AC006 / 2));
+    t = t - (CarBoundsTable->x8 + ((short)D_800AC006 / 2));
     *(int *)(q + 0x100) = t;
     W(0x13C) = a0;
     W(0x140) = a1;
-    func_80014A8C(0x19, t, &D_800AC650, q);
+    SetModelTexturePage(0x19, t, &RaceContext, q);
     D_800ACBF8 = 0;
 }
 
-#undef D_800AC650
+#undef RaceContext
 
 void func_8005599C(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
     M32 s10, s30, s50;
@@ -319,7 +319,7 @@ void func_8005599C(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *a3; {
     *a2 = s10;
 }
 
-void func_80055BF8(int a0, int *a1, u16 *a2, int *a3) {
+void TransformPoint(int a0, int *a1, u16 *a2, int *a3) {
     s16 t[3];
     t[0] = a2[0];
     t[1] = a2[2];

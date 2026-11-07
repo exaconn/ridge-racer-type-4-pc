@@ -1,6 +1,6 @@
 #include "rr/track_lateral.h"
 
-int func_80047DF8(a0, a1, a2, a3, a4) char *a0; int a1; int *a2; int *a3; int *a4;
+int ScanCurveAhead(a0, a1, a2, a3, a4) char *a0; int a1; int *a2; int *a3; int *a4;
 {
     int v0, v1, s0, s1, s2, s3, s4, s5, r0;
     int r1;
@@ -19,7 +19,7 @@ int func_80047DF8(a0, a1, a2, a3, a4) char *a0; int a1; int *a2; int *a3; int *a
     s5 = 0;
     if (s2 > 0) {
         do {
-            r0 = func_8004C454(s0, a1);
+            r0 = GetTrackNodeHeading(s0, a1);
             r0 &= 0xFFF;
             v1 = s1 - r0;
             if (r0 & 0x800) {
@@ -35,8 +35,8 @@ int func_80047DF8(a0, a1, a2, a3, a4) char *a0; int a1; int *a2; int *a3; int *a
             if (s5 < v1) s5 = v1;
             s0 -= 1;
             s1 = r0;
-            if (s0 < 0) s0 += D_800ABECC;
-            s2 -= D_800ABEA4[s0].segmentLength1C;
+            if (s0 < 0) s0 += TrackNodeCount;
+            s2 -= TrackNodes[s0].segmentLength1C;
         } while (s2 > 0);
     }
     *a2 = s5 << 12;

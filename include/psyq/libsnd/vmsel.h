@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_8008A624(void);
-void func_8008A634();
+void SsSetMono(void);
+void SsSetStereo();
 
 #endif /* RR_PSYQ_LIBSND_VMSEL_H */

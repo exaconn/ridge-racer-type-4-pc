@@ -91,7 +91,7 @@ class RelativeFileRelocationTest(unittest.TestCase):
           memcpy(&initial,&world,sizeof(world));
           reference();memcpy(&expected,&world,sizeof(world));
           memcpy(&world,&initial,sizeof(world));
-          func_8007026C(&world.file.header);
+          RelocateRelativeFile(&world.file.header);
           if(memcmp(&world,&expected,sizeof(world))){
            fprintf(stderr,"relocation mismatch case %u\n",k);return 1;
           }

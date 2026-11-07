@@ -11,16 +11,16 @@ s32 func_800869F0(s32 voice, s32 left, s32 right) {
         register u8 *base __asm__("$4");
         register u32 flags;
         i = (s16)voice;
-        D_8010FE18.voices[i].right = right;
+        _svm_sreg_dirty.voices[i].right = right;
         /* ASM_BARRIER: Preserve cache-store and flag-load scheduling and register lifetimes. */
         __asm__ volatile("" : : "r"(i) : "$4", "memory");
         base = (u8 *)0x80110000U;
-        /* ASM_BARRIER: Expose the PAL page base; base[-0x1E8 + voice] aliases D_8010FE18.flags. */
+        /* ASM_BARRIER: Expose the PAL page base; base[-0x1E8 + voice] aliases _svm_sreg_dirty.flags. */
         __asm__("" : "=r"(base) : "0"(base));
         base += i;
         flags = base[-0x1E8];
-        D_8010FE18.voices[i].left = left;
-        D_8010FE18.flags[i] = flags | 3;
+        _svm_sreg_dirty.voices[i].left = left;
+        _svm_sreg_dirty.flags[i] = flags | 3;
         return 0;
     }
     return -1;

@@ -34,9 +34,9 @@ static struct World {
     u8 streams[4][6][16];
     u32 guard1[8];
 } world, initial, expected;
-RrLibStateB0 *D_8010F068[32];
-u32 D_8010F064;
-s32 func_80081E04(s32, s32);
+RrLibStateB0 *_ss_score[32];
+u32 VBLANK_MINUS;
+s32 _SsReadDeltaValue(s32, s32);
 ''' + '\n'.join(bodies) + r'''
 static u32 seed=0x61a4e04;
 static u32 random32(void) { seed ^= seed<<13; seed ^= seed>>17; seed ^= seed<<5; return seed; }
@@ -49,16 +49,16 @@ static void reference(RrLibStateB0 *s) {
     period=60000000U/tempo;
     factor=(u32)(s32)s->h48[4];
     product=factor*period;
-    threshold=D_8010F064*60U;
+    threshold=VBLANK_MINUS*60U;
     word(&s->w94,period);
     if(product*10U<threshold) {
-        q=(D_8010F064*600U)/product;
+        q=(VBLANK_MINUS*600U)/product;
         half(&s->h48[5],q);half(&s->h48[6],q);
     } else {
         n=(u32)(s32)s->h48[4]*(u32)s->w94*10U;
         q=n/threshold;rem=n%threshold;
         half(&s->h48[5],65535);
-        half(&s->h48[6],q+(D_8010F064*30U<rem));
+        half(&s->h48[6],q+(VBLANK_MINUS*30U<rem));
     }
     v=*s->c0++;
     if(v&128U) {
@@ -86,14 +86,14 @@ int main(void) {
             world.records[b][r].c8=world.streams[b][r];
             world.records[b][r].p10=world.streams[b][r];
         }
-        for(b=0;b<32;b++) D_8010F068[b]=&world.records[b%4][2];
+        for(b=0;b<32;b++) _ss_score[b]=&world.records[b%4][2];
         bank=random32()%32;row=random32()%6;
         s=&world.records[bank%4][row];
         mode=iteration%3;
         tempo=1+random32()%0xffffff;
         frequency=iteration%2?50:60;
         if(iteration%7==0) frequency=random32()|1U;
-        D_8010F064=frequency;
+        VBLANK_MINUS=frequency;
         if(mode==0) {
             unsigned length=1+random32()%6;
             stream=world.streams[bank%4][row];
@@ -106,7 +106,7 @@ int main(void) {
         if(iteration>=393216) {
             static const u32 periods[]={149,150,151,179,180,181,299,300};
             unsigned n=iteration-393216;
-            D_8010F064=n>=3 && n<=5?60:50;
+            VBLANK_MINUS=n>=3 && n<=5?60:50;
             tempo=60000000U/periods[n];
             mode=0;stream=world.streams[bank%4][row];stream[3]=0;
             half(&s->h48[4],n>=6?1:3);

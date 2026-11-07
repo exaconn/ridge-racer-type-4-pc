@@ -3,7 +3,7 @@
 #include "rr/serial.h"
 extern u16 D_801146CA;
 extern u8 D_800ABD20[];
-extern s32 func_80097714(s32,void *);
+extern s32 SysDeqIntRP(s32,void *);
 s32 func_8009B85C(void) {
     RrInterruptRegisters *interrupts=D_800ABD30;
     RrSerialPortRegisters *port;
@@ -14,7 +14,7 @@ s32 func_8009B85C(void) {
     control=&D_801146CA;
     /* The final control write occupies the original call's delay slot. */
     *(u16 *)&port->control=*control;
-    func_80097714(3,D_800ABD20);
+    SysDeqIntRP(3,D_800ABD20);
     {
         /* Share the request bases across the store/reload pairs. */
         register volatile RrSerialRequest *send=&D_801146E8;

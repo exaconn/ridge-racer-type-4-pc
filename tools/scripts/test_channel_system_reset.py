@@ -65,11 +65,11 @@ void stage(s32 kind,uintptr_t a,uintptr_t b) {
     t->counter0=D_80114428[0];t->counter1=D_80114428[1];
     if(on_stage)on_stage(kind);
 }
-s32 func_80096F04(void) {stage(0,0,0);return -123;}
-void func_80096F14(void) {stage(4,0,0);}
-s32 func_80097714(s32 n,void *q) {stage(1,n,(uintptr_t)q);return -1;}
-s32 func_80097704(s32 n,void *q) {stage(2,n,(uintptr_t)q);return -2;}
-s32 func_80096F94(s32 n,s32 mode) {stage(3,n,mode);return -3;}
+s32 EnterCriticalSection(void) {stage(0,0,0);return -123;}
+void ExitCriticalSection(void) {stage(4,0,0);}
+s32 SysDeqIntRP(s32 n,void *q) {stage(1,n,(uintptr_t)q);return -1;}
+s32 SysEnqIntRP(s32 n,void *q) {stage(2,n,(uintptr_t)q);return -2;}
+s32 ChangeClearRCnt(s32 n,s32 mode) {stage(3,n,mode);return -3;}
 void callback_a(void *p) {stage(5,(uintptr_t)p,0);}
 void callback_b(void *p) {stage(6,(uintptr_t)p,0);}
 void op(s32 kind,RrInterruptRegisters *p,u32 value) {

@@ -17,7 +17,7 @@ void PadInitDirect(u8 *first,u8 *second) {
     register void (*callback)(RrChannelTransferView *);
     D_800ABCA0=0;
     D_800ABCB4=0;
-    func_8009A334();
+    _padInitDirSeq();
     record=D_801144D8;
     D_800ABC68=func_80099E9C;
     D_800ABC6C=func_80099E34;

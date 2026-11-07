@@ -12,7 +12,7 @@
 typedef struct { unsigned char a, b, c, d; } T;
 
 extern short D_800ABEC8;
-extern void *D_800ACC18;
+extern void *LoadCursor;
 extern short D_800AD520;
 extern short D_800F3914;
 
@@ -23,14 +23,14 @@ int func_8004E260()
     int r3;
     switch (D_800A021C) {
     case 0:
-        r = func_8001292C(func_8001223C(2, D_800F3914 + 0x16), D_8010C1F0);
+        r = CdFileReadStart(GetR4FileIndex(2, D_800F3914 + 0x16), D_8010C1F0);
         if (r == 0) goto out;
         goto inc;
     case 1:
-        r2 = func_80012A58();
+        r2 = CdFileBytesLoaded();
         if (r2 != 0) {
-            func_8004D5CC((RrTrackResourceFile *)D_8010C1F0);
-            D_8010C1F0 += func_8004D4BC(r2);
+            LoadTrackResource((RrTrackResourceFile *)D_8010C1F0);
+            D_8010C1F0 += AlignUp4(r2);
             D_800A021C += 1;
         }
         break;
@@ -47,7 +47,7 @@ int func_8004E260()
         break;
     case 4:
         D_800A021C = 0;
-        D_800ACC18 = D_8010C1F0;
+        LoadCursor = D_8010C1F0;
         return 1;
     }
     r = 0;

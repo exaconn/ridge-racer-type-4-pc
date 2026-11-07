@@ -5,9 +5,9 @@ extern s32 func_8001E84C(const char *,...);
 extern char D_800116B8[];
 extern char D_800116CC[];
 void _spu_FwriteByIO(const u16 *source,u32 size) {
-    register RrSpuRegisterBank *port=D_800A47D8;
+    register RrSpuRegisterBank *port=_spu_RXX;
     /* ASM_BARRIER: Retain the transfer-address halfword while capturing device status. */
-    register u32 address __asm__("$3")=D_800A47F0;
+    register u32 address __asm__("$3")=_spu_tsa;
     register u32 remaining=size;
     register u32 previous;
     s32 chunk;
@@ -25,14 +25,14 @@ void _spu_FwriteByIO(const u16 *source,u32 size) {
         if(remaining<65)chunk=remaining;else chunk=64;
         written=0;
         if(chunk>0) {
-            RrSpuRegisterBank *output=D_800A47D8;
+            RrSpuRegisterBank *output=_spu_RXX;
             do {
                 output->transfer_data=*input++;
                 written+=2;
             } while(written<chunk);
         }
         {
-            register RrSpuRegisterBank *control=D_800A47D8;
+            register RrSpuRegisterBank *control=_spu_RXX;
             /* ASM_BARRIER: Keep the old control halfword separate from its command bits. */
             /* ASM_BARRIER: Capture final control before restoring the previous status comparison. */
         register u32 old __asm__("$4")=control->spu_control;
@@ -47,7 +47,7 @@ void _spu_FwriteByIO(const u16 *source,u32 size) {
         }
         {
             register u32 count=0;
-            if(D_800A47D8->spu_status&0x400) {
+            if(_spu_RXX->spu_status&0x400) {
                 u32 busy;
                 /* ASM_BARRIER: Retain zero then increment when entering the bounded busy wait. */
                 /* ASM_BARRIER: Retain the final wait initial increment after its entry comparison. */
@@ -70,7 +70,7 @@ void _spu_FwriteByIO(const u16 *source,u32 size) {
                     __asm__("" : "+r"(reason));
                         func_8001E84C(format,reason+0x16B8);break;
                     }
-                    busy=D_800A47D8->spu_status&0x400;
+                    busy=_spu_RXX->spu_status&0x400;
                     count++;
                 } while(busy);
             }
@@ -79,7 +79,7 @@ void _spu_FwriteByIO(const u16 *source,u32 size) {
         _spu_Fw1ts();
         _spu_Fw1ts();
     }
-    port=D_800A47D8;
+    port=_spu_RXX;
     {
         /* ASM_BARRIER: Capture final control before restoring the previous status comparison. */
         register u32 old __asm__("$4")=port->spu_control;
@@ -114,7 +114,7 @@ void _spu_FwriteByIO(const u16 *source,u32 size) {
                     __asm__("" : "+r"(reason));
                     func_8001E84C(format,reason+0x16CC);break;
                 }
-                busy=(D_800A47D8->spu_status&0x7FF)!=expected;
+                busy=(_spu_RXX->spu_status&0x7FF)!=expected;
                 count++;
             } while(busy);
         }

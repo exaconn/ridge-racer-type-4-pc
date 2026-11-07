@@ -5,8 +5,8 @@
 #include "game/menu/menutran.h"
 #include "game/menu/menusave.h"
 
-extern void func_80037040(s8 *, s32);
-extern s32 func_8003708C(void *);
+extern void UnpackChoiceGlyph(s8 *, s32);
+extern s32 PackChoiceGlyph(void *);
 
 extern RrCourseChoice4 D_800ABE08[2][9];
 extern u8 D_800AD4F4[];
@@ -46,19 +46,19 @@ void func_8002F958(void) {
     slot = 0;
     for (k = 0; k < 8; k++) {
         g = D_800ABE08[1][k].glyph;
-        func_80037040((s8 *)&D_800F4D98, g);
+        UnpackChoiceGlyph((s8 *)&D_800F4D98, g);
         if (D_800F4D98.bytes[2] == 0x27 && slot < 4) {
             do {
                 if (slot == 3) {
-                    glyph = func_8003708C(D_800AD4F4);
+                    glyph = PackChoiceGlyph(D_800AD4F4);
                 } else {
-                    glyph = func_8003708C(D_800AD4F8[slot]);
+                    glyph = PackChoiceGlyph(D_800AD4F8[slot]);
                 }
                 found = 0;
                 for (j = 0; j < 8; j++) {
-                    func_80037040((s8 *)sp10, D_800ABE08[1][j].glyph);
+                    UnpackChoiceGlyph((s8 *)sp10, D_800ABE08[1][j].glyph);
                     sp10[2] %= 20;
-                    if (glyph == func_8003708C(sp10)) {
+                    if (glyph == PackChoiceGlyph(sp10)) {
                         found = 1;
                         break;
                     }

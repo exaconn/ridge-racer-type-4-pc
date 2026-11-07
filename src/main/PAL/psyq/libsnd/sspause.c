@@ -8,16 +8,16 @@ typedef struct { unsigned char *c0; int c4, c8, cC; char p10[4]; unsigned char b
 
 void func_80082204(int a0, short a1);
 void func_800822F8(short a, short b);
-void func_80082324(short a, signed char b, short c);
-void func_8008235C(short a, short b, signed char c, short d);
+void SsSeqPlay(short a, signed char b, short c);
+void SsSepPlay(short a, short b, signed char c, short d);
 
 void func_80082204(int a0, short a1) {
     int t = a0 << 16;
-    Ch **b = D_8010F068;
+    Ch **b = _ss_score;
     Ch **q = (Ch **)((int)b + (t >> 14));
     int o = a1 * 0xB0;
     Ch *p = (Ch *)((char *)*q + o);
-    func_80089D28((short)(a0 | (a1 << 8)), (char *)p + 0x5C, (char *)p + 0x5E);
+    _SsVmGetSeqVol((short)(a0 | (a1 << 8)), (char *)p + 0x5C, (char *)p + 0x5E);
     ((Ch *)(o + (int)*q))->w98 &= ~1;
     ((Ch *)(o + (int)*q))->w98 &= ~8;
     ((Ch *)(o + (int)*q))->w98 |= 2;
@@ -27,6 +27,6 @@ void func_800822D0(short a) { func_80082204(a, 0); }
 
 void func_800822F8(short a, short b) { func_80082204(a, b); }
 
-void func_80082324(short a, signed char b, short c) { func_80082494(a, 0, b, c); }
+void SsSeqPlay(short a, signed char b, short c) { Snd_SetPlayMode(a, 0, b, c); }
 
-void func_8008235C(short a, short b, signed char c, short d) { func_80082494(a, b, c, d); }
+void SsSepPlay(short a, short b, signed char c, short d) { Snd_SetPlayMode(a, b, c, d); }

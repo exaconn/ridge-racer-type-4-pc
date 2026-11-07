@@ -34,5 +34,5 @@ static __inline__ u8 *rr_relative_file_address(RrRelativeHeader *base,u32 offset
 /* Eight relocation slots per record; count multiplication wraps modulo32.
  * The writable image contains the header followed immediately by those slots.
  * Offset words add modulo32 on PAL; native views retain full pointer widths. */
-void func_8007026C(RrRelativeHeader *image);
+void RelocateRelativeFile(RrRelativeHeader *image);
 #endif

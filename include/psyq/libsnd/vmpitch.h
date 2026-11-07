@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-short func_80084C74(unsigned int, int, unsigned int, int);
+short _spu_note2pitch(unsigned int, int, unsigned int, int);
 
 #endif /* RR_PSYQ_LIBSND_VMPITCH_H */

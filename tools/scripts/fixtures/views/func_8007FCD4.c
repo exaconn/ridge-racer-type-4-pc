@@ -3,9 +3,9 @@
 #include "rr/spu.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A48C0 ((unsigned int *)D_800A48C0)
+#define _spu_memList ((unsigned int *)_spu_memList)
 
-#undef D_800A48C0
+#undef _spu_memList
 
 int _SpuIsInAllocateArea_(a0)
 unsigned int a0;
@@ -13,8 +13,8 @@ unsigned int a0;
     unsigned int *p, *q;
     unsigned int v, m1, m2, m3;
 
-    a0 <<= D_800A4800;
-    q = D_800A48C0;
+    a0 <<= _spu_mem_mode_plus;
+    q = _spu_memList;
     if (q == 0) return 0;
     {
         m1 = 0x80000000;

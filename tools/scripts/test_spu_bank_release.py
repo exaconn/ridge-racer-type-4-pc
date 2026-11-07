@@ -36,10 +36,10 @@ struct { u8 prefix[0x120]; u8 flags[16]; u8 pad130[0x48];
          u8 suffix[0x10000 - 0x1C0]; } test_page;
 _Static_assert(offsetof(__typeof__(test_page), count) == 0x178, "count offset");
 _Static_assert(offsetof(__typeof__(test_page), addresses) == 0x180, "address offset");
-#define D_80110120 test_page.flags
-#define D_80110178 test_page.count
+#define _svm_vab_used test_page.flags
+#define _svm_vab_count test_page.count
 void (*test_free)(u32 address);
-void func_8008A6F4(u32 address) { test_free(address); }
+void SpuFree(u32 address) { test_free(address); }
 '''
         body = (root / 'tools/scripts/fixtures/views/func_8008A674.c').read_text()
         body = body.replace('#include "rr/spu.h"', '')
@@ -53,7 +53,7 @@ void func_8008A6F4(u32 address) { test_free(address); }
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
         cls.page = Page.in_dll(cls.library, 'test_page')
-        cls.function = cls.library.func_8008A674
+        cls.function = cls.library.SsVabClose
         cls.function.argtypes = [C.c_uint16]
         cls.function.restype = None
 

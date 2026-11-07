@@ -38,7 +38,7 @@ void func_80021350(s32 phase,s32 index) {
     target=(RrNumberTarget *)((u8 *)base+row);
     packet=(RrHudQuadEmission *)RR_HUD_QUAD_SCRATCH->cursor;
     /* Full native-width addresses retain the original sum order. */
-    head=*(u32 **)((unsigned long)D_800F4BF0*sizeof(u32 *)+row+(unsigned long)base);
+    head=*(u32 **)((unsigned long)DrawBufIndex*sizeof(u32 *)+row+(unsigned long)base);
     x=(u16)target->x;y=(u16)target->y;
     output=(u8 *)packet+8;
     packet->r=0xB0;packet->g=0xB0;packet->b=0;

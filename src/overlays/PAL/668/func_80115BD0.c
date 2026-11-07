@@ -24,10 +24,10 @@ typedef struct {
 } RrStrFrameStorage;
 
 extern RrStrFrameStorage *D_800ACC14;
-extern s32 D_800F4BF0;
+extern s32 DrawBufIndex;
 void *SetDefDrawEnv(void *environment, s32 x, s32 y, s32 w, s32 h);
 void SetDrawEnv(u32 *output, void *environment);
-void *func_8001FCC8(u32 *ordering, void *cursor, u16 mode);
+void *AddDrawModePrim(u32 *ordering, void *cursor, u16 mode);
 
 typedef struct {
     u32 addr : 24;
@@ -49,7 +49,7 @@ void ovl668_func_80115BD0(s32 mode) {
 
     switch (mode) {
     case 0:
-        SetDefDrawEnv(&env, 0, (D_800F4BF0 << 8) | 40, 320, 160);
+        SetDefDrawEnv(&env, 0, (DrawBufIndex << 8) | 40, 320, 160);
         packet = RR_STR_SCRATCH_CURSOR;
         SetDrawEnv(packet, &env);
         ot = &D_800ACC14->ordering70[703];
@@ -59,7 +59,7 @@ void ovl668_func_80115BD0(s32 mode) {
         RR_STR_SCRATCH_CURSOR = packet;
         break;
     case 1:
-        SetDefDrawEnv(&env, 0, D_800F4BF0 << 8, 320, 256);
+        SetDefDrawEnv(&env, 0, DrawBufIndex << 8, 320, 256);
         packet = RR_STR_SCRATCH_CURSOR;
         SetDrawEnv(packet, &env);
         ot = &D_800ACC14->ordering70[0];
@@ -84,10 +84,10 @@ void ovl668_func_80115BD0(s32 mode) {
         *ot = (*ot & 0xFF000000) | ((u32)tile & 0x00FFFFFF);
         tile++;
         RR_STR_SCRATCH_CURSOR = (u32 *)tile;
-        RR_STR_SCRATCH_CURSOR = func_8001FCC8(ot, tile, 37);
+        RR_STR_SCRATCH_CURSOR = AddDrawModePrim(ot, tile, 37);
         break;
     case 3:
-        SetDefDrawEnv(&env, 0, (D_800F4BF0 << 8) | 80, 320, 160);
+        SetDefDrawEnv(&env, 0, (DrawBufIndex << 8) | 80, 320, 160);
         packet = RR_STR_SCRATCH_CURSOR;
         SetDrawEnv(packet, &env);
         ot = &D_800ACC14->ordering70[0];

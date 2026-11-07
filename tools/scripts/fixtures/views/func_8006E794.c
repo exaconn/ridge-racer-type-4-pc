@@ -19,7 +19,7 @@ void func_8006E794(void) {
     int i;
     char *p;
     char *g = (char *)0x1F800000;
-    func_8006E63C();
+    InitViewLighting();
     D_8010718C = 1;
     D_800AD5B8 = 0x1400;
     *(int *)(g + 0x78) = 0;

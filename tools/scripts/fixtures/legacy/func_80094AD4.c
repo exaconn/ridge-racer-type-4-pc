@@ -1,6 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
-s32 func_80094AD4(s32 index) {
+s32 _getctl(s32 index) {
     /* PAL RAM mapping: D_801127D0 is 0x27D0 bytes into this page. */
     u8 *base = (u8 *)0x80110000U;
     /* ASM_BARRIER: retain the base register through the indexed byte load. */

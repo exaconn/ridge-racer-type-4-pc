@@ -6,35 +6,35 @@
 #include "rr/library.h"
 #include "rr/menu_choice.h"
 
-extern int func_8008A674();
-extern short func_8008AA74();
-extern int func_8008B074();
+extern int SsVabClose();
+extern short SsVabOpenHeadSticky();
+extern int SsVabTransCompleted();
 extern int func_800963C4();
 extern int func_8001E84C();
 extern char D_800110D8[];
 extern char D_800110F0[];
 extern s32 D_800F7650;
 
-void func_8004ED38(int *arg0, int arg1, int arg2);
-void func_8004EE90(int a0, int a1);
+void LoadVab(int *arg0, int arg1, int arg2);
+void SetReverb(int a0, int a1);
 void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void PlaySfxVolPan(int a0, s16 a1, s16 a2, int a3);
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8008AEC4 ((short (*)())func_8008AEC4)
-#define D_800F4DB8 (*(short (*)[])&D_800F4DB8)
+#define SsVabTransBody ((short (*)())SsVabTransBody)
+#define SoundState (*(short (*)[])&SoundState)
 
-void func_8004ED38(int *arg0, int arg1, int arg2) {
-    int k = (int)D_800F4DB8; short *p = (short *)(k + (arg2 << 1));
+void LoadVab(int *arg0, int arg1, int arg2) {
+    int k = (int)SoundState; short *p = (short *)(k + (arg2 << 1));
     short v;
     /* ASM_BARRIER: original keeps the first result sign-extended in $a1 */
     register int t asm("$5");
     short v2;
     if (p[0x12] >= 0) {
-        func_8008A674(p[0x12]);
+        SsVabClose(p[0x12]);
         p[0x12] = -1;
     }
-    v = func_8008AA74(arg0[0], -1, arg1);
+    v = SsVabOpenHeadSticky(arg0[0], -1, arg1);
     p[0x12] = v;
     /* ASM_BARRIER: keep the result store ahead of the sign-extension in the schedule */
     __asm__ volatile("");
@@ -43,58 +43,58 @@ void func_8004ED38(int *arg0, int arg1, int arg2) {
         func_8001E84C(D_800110D8);
         func_800963C4(1);
     }
-    v2 = func_8008AEC4(arg0[1]);
+    v2 = SsVabTransBody(arg0[1]);
     p[0x12] = v2;
     if (v2 == -1) {
         func_8001E84C(D_800110F0);
         func_800963C4(1);
     }
-    func_8008B074(1);
+    SsVabTransCompleted(1);
 }
 
-#undef func_8008AEC4
-#undef D_800F4DB8
+#undef SsVabTransBody
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x2894]; s32 a, b, c, d; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x2894]; s32 a, b, c, d; } (*))&SoundState)
 
-void func_8004EE08(void) {
-    D_800F4DB8.a = 0;
-    D_800F4DB8.b = 0;
-    D_800F4DB8.c = 0;
-    D_800F4DB8.d = 0xFFFFFF;
-    func_800867A4();
-    func_800865E4(2);
-    func_800867C4();
-    func_80086554(0, 0);
+void ReverbReset(void) {
+    SoundState.a = 0;
+    SoundState.b = 0;
+    SoundState.c = 0;
+    SoundState.d = 0xFFFFFF;
+    SsUtReverbOff();
+    SsUtSetReverbType(2);
+    SsUtReverbOn();
+    SsUtSetReverbDepth(0, 0);
 }
 
-#undef D_800F4DB8
+#undef SoundState
 
-void func_8004EE60(s32 arg0) {
+void SetReverbDepthBoth(s32 arg0) {
     D_800F7650 = arg0;
-    func_80086554((s16) arg0, (s16) arg0);
+    SsUtSetReverbDepth((s16) arg0, (s16) arg0);
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x2894]; s32 a, b, c; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x2894]; s32 a, b, c; } (*))&SoundState)
 
-void func_8004EE90(int a0, int a1) {
-    func_800867A4();
+void SetReverb(int a0, int a1) {
+    SsUtReverbOff();
     if (a0 > 0) {
-        D_800F4DB8.a = a0;
-        D_800F4DB8.b = a1;
-        D_800F4DB8.c = a1;
-        func_800865E4((s16)a0);
-        func_800867C4();
+        SoundState.a = a0;
+        SoundState.b = a1;
+        SoundState.c = a1;
+        SsUtSetReverbType((s16)a0);
+        SsUtReverbOn();
     } else {
-        D_800F4DB8.a = 0;
-        D_800F4DB8.b = 0;
-        D_800F4DB8.c = 0;
+        SoundState.a = 0;
+        SoundState.b = 0;
+        SoundState.c = 0;
     }
 }
 
-#undef D_800F4DB8
+#undef SoundState
 
 void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s16 temp_a2_2;
@@ -136,14 +136,14 @@ void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
         var_a3 = D_800F4DEA;
         var_t0 -= 0x3C;
     }
-    table=D_800A043C;
+    table=PanGainTable;
 
     temp_a2 = arg2 & 0x7F;
     temp_a2_2 = (table[temp_a2] * (s16)arg1) / 16129;
     var_a0 = temp_a2_2;
     temp_v1 = (table[0x7F-temp_a2] * (s16)arg1) / 16129;
     var_a1 = temp_v1;
-    if (D_800AD528.audio.mono32 != 0) {
+    if (Options.audio.mono32 != 0) {
         temp_v0 = (s32) (temp_v1 + temp_a2_2) / 2;
         var_a0 = (s16) temp_v0;
         var_a1 = (s16) temp_v0;
@@ -161,7 +161,7 @@ void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 
     first_div=(s32)((u32)first_div<<16);
 
-    volume=D_800AD528.audio.volume31;
+    volume=Options.audio.volume31;
     var_s1 = (first_div>>16) * volume;
     second_div=var_a0_2>>7;
     if (var_s1 < 0) {
@@ -195,8 +195,8 @@ void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
         outnote=note;
 
         temp_s0_2 = temp_t1 - (u32)temp_s0 * 128U;
-        func_80085304(outbank, outprogram, mode, outnote, (s32) temp_s0_2, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
-        func_80085304(bank, program, 1, note, (s32) temp_s0_2, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
+        SsUtKeyOn(outbank, outprogram, mode, outnote, (s32) temp_s0_2, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
+        SsUtKeyOn(bank, program, 1, note, (s32) temp_s0_2, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
         return;
     }
     {
@@ -224,8 +224,8 @@ void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     temp_s0_3 = var_s0 >> 7;
     note=(s16)temp_s0_3;
     temp_s0_4 = temp_t1 - (u32)temp_s0_3 * 128U;
-    func_800857A4(outvoice, outbank, outprogram, mode, note, (s32) temp_s0_4, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
-    func_800857A4((s16)(voice+1U), bank, program, 1, note, (s32) temp_s0_4, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
+    SsUtKeyOnV(outvoice, outbank, outprogram, mode, note, (s32) temp_s0_4, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
+    SsUtKeyOnV((s16)(voice+1U), bank, program, 1, note, (s32) temp_s0_4, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
 }
 }
 
@@ -242,15 +242,15 @@ void func_8004F274(s32 arg0) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x19D0]; s32 a; char p1[4]; s32 b, c; char p2[8]; s16 arr[8]; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x19D0]; s32 a; char p1[4]; s32 b, c; char p2[8]; s16 arr[8]; } (*))&SoundState)
 
-void func_8004F2A0(void) {
+void SoundQueueClear(void) {
     s16 m = -1;
     int i = 7;
-    D_800F4DB8.a = 0;
-    D_800F4DB8.b = 0;
-    D_800F4DB8.c = 0;
-    do { D_800F4DB8.arr[i] = m; i--; } while (i >= 0);
+    SoundState.a = 0;
+    SoundState.b = 0;
+    SoundState.c = 0;
+    do { SoundState.arr[i] = m; i--; } while (i >= 0);
 }
 
-#undef D_800F4DB8
+#undef SoundState

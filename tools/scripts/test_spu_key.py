@@ -29,8 +29,8 @@ static s32 signed32(u32 x){s32 y;memcpy(&y,&x,4);return y;}
 #define D_800A48A4 (actual.flags)
 #define D_800A4870 (actual.dirty)
 #define D_800A486C (actual.queued)
-#define D_800A4844 (actual.direct)
-#define D_800A47D8 (actual.root)
+#define _spu_keystat (actual.direct)
+#define _spu_RXX (actual.root)
 '''+body+r'''
 static void model(s32 mode,u32 input){u32 mask=input&0xffffffU;unsigned low=(unsigned)(mask%65536),high=(unsigned)(mask/65536),bank,on,other;
  if(mode!=0&&mode!=1){paths[0]++;return;}
@@ -81,7 +81,7 @@ int main(void){unsigned n,phase,b,i;uint64_t cases=0;s32 mode;u32 mask;u8 high;
    actual.flags=next();}
   actual.root=&banks[(n>>4)&1].bank.registers;
   if(phase==8||((actual.flags&1)&&(n&8)))actual.root=0;
-  memcpy(&expected,&actual,sizeof(actual));model(mode,mask);func_80087814(mode,mask);compare();cases++;
+  memcpy(&expected,&actual,sizeof(actual));model(mode,mask);SpuSetKey(mode,mask);compare();cases++;
  }
  for(i=0;i<10;i++)assert(paths[i]);printf("%llu cases\n",(unsigned long long)cases);return 0;
 }

@@ -20,38 +20,38 @@ void ovl661_func_80117430(void) {
         case 0:
             func_8002AF8C(1, 1, 1);
             temp_s0 = D_800AC648;
-            func_8002B330(3, 2, (char *)&D_800AC648, ovl661_D_80118414, 0);
+            StepMenuValue(3, 2, (char *)&D_800AC648, ovl661_D_80118414, 0);
             if ((s16) temp_s0 != (s16) D_800AC648) {
                 ResetScreenCounters();
             } else {
                 func_80033368((s16) temp_s0, 1);
             }
-            D_800F3914 = func_80032E9C((s16) D_800AC648);
-            D_800F4D80[18+D_800AC64A].cells[0] = 0;
-            func_8002B330(0, 2, (char *)&D_800AC64A, D_800AC5E0, 0);
-            D_800F4D80[18+D_800AC64A].cells[0] = 2;
+            D_800F3914 = DecodeCourseIndex((s16) D_800AC648);
+            UiRows[18+MenuCursor].cells[0] = 0;
+            StepMenuValue(0, 2, (char *)&MenuCursor, MenuItemCount, 0);
+            UiRows[18+MenuCursor].cells[0] = 2;
             var_s0 = 0;
-            if (D_800F4D80[22].byte02 != 0) {
+            if (UiRows[22].byte02 != 0) {
                 do {
                     if (var_s0 == (s16) D_800AC648) {
-                        *((u8 *)D_800F4D80+var_s0+0x324) = 2;
-                        D_800F4D80[22].byte16 = var_s0;
+                        *((u8 *)UiRows+var_s0+0x324) = 2;
+                        UiRows[22].byte16 = var_s0;
                     } else {
-                        *((u8 *)D_800F4D80+var_s0+0x324) = 0;
+                        *((u8 *)UiRows+var_s0+0x324) = 0;
                     }
                     var_s0 += 1;
-                } while (var_s0 < (s32) D_800F4D80[22].byte02);
+                } while (var_s0 < (s32) UiRows[22].byte02);
             }
-            temp_s0_2 = D_800F4D80[18].byte14;
+            temp_s0_2 = UiRows[18].byte14;
             var_s2 = 0;
             if (temp_s0_2 == 2) {
                 if (D_800F3A38[0].a != 0) {
                     PlaySfx(1);
-                    D_800F4D80[18+D_800AC64A].cells[0] = 1;
-                    if ((s16) D_800AC64A == 0) {
+                    UiRows[18+MenuCursor].cells[0] = 1;
+                    if ((s16) MenuCursor == 0) {
                         var_s0 = 0;
                         do {
-                            temp_v1 = (RrUiRow24 *)((unsigned long)(var_s0*36)+(unsigned long)D_800F4D80+648);
+                            temp_v1 = (RrUiRow24 *)((unsigned long)(var_s0*36)+(unsigned long)UiRows+648);
                             if (temp_v1->byte14 == 2) {
                                 temp_v1->byte14 = 7U;
                             }
@@ -74,19 +74,19 @@ void ovl661_func_80117430(void) {
                         }
                         ResetScreenCounters();
                         D_800AC5D0 = 0x40;
-                        D_800ACC18 = D_800F4D70.first;
+                        LoadCursor = D_800F4D70.first;
                         func_80053AF4(0, 0x3C);
                         D_800F4D8A = 3;
                         func_8002AF8C(0, 1, 1);
-                    } else if ((s16) D_800AC64A == 1) {
-                        D_800F4D80[23].byte14 = 0U;
+                    } else if ((s16) MenuCursor == 1) {
+                        UiRows[23].byte14 = 0U;
                         D_800F4D8A = 4;
-                    } else if ((s16) D_800AC64A == temp_s0_2) {
-                        D_800F4D80[24].byte14 = 0U;
-                        D_800F4D80[25].byte14 = 0;
-                        D_800AC64A = 0;
+                    } else if ((s16) MenuCursor == temp_s0_2) {
+                        UiRows[24].byte14 = 0U;
+                        UiRows[25].byte14 = 0;
+                        MenuCursor = 0;
                         D_800F4D8A = 5;
-                    } else if ((s16) D_800AC64A == 3) {
+                    } else if ((s16) MenuCursor == 3) {
                         var_s2 = 1;
                     }
                 } else if (D_800F3A38[0].b != 0) {
@@ -95,10 +95,10 @@ void ovl661_func_80117430(void) {
                 }
                 if (var_s2 == 1) {
                     func_8002AF8C(0, 1, 1);
-                    func_80014A8C(-1);
+                    SetModelTexturePage(-1);
                     var_s0 = 0;
                     do {
-                        temp_v1_3 = (RrUiRow24 *)((unsigned long)(var_s0*36)+(unsigned long)D_800F4D80+648);
+                        temp_v1_3 = (RrUiRow24 *)((unsigned long)(var_s0*36)+(unsigned long)UiRows+648);
                         if (temp_v1_3->byte14 == 2) {
                             temp_v1_3->byte14 = 3U;
                         }
@@ -115,10 +115,10 @@ void ovl661_func_80117430(void) {
                 D_800AC5D0 = (u16) D_800AC5D0 - 1;
             }
             func_800207D4(&D_800ACC14->head70, (0x40 - D_800AC5D0) * 4, 0x45);
-            if (D_800AC59C.halves[0] >= 3) {
+            if (NumCars.halves[0] >= 3) {
                 D_800F4D44 = 3;
-                if (func_8003AE4C(2, D_800AC59C.halves[0] - 2) == 1) {
-                    D_800F4D70.first = D_800ACC18;
+                if (func_8003AE4C(2, NumCars.halves[0] - 2) == 1) {
+                    D_800F4D70.first = LoadCursor;
                     goto block_42;
                 }
             } else {
@@ -135,15 +135,15 @@ block_42:
             }
             goto block_63;
         case 4:
-            temp_s0_3 = D_800F4D80[23].byte14;
+            temp_s0_3 = UiRows[23].byte14;
             if (temp_s0_3 == 2) {
                 func_8002AF8C(1, 1, 0);
-                D_800F4D80[23].cells[0] = temp_s0_3;
-                func_8002B330(1, 4, (char *)&D_800F3A30, 0xA, (s32) temp_s0_3);
+                UiRows[23].cells[0] = temp_s0_3;
+                StepMenuValue(1, 4, (char *)&NumLaps, 0xA, (s32) temp_s0_3);
                 if (D_800F3A38[0].a != 0) {
                     PlaySfx(1);
-                    D_800F4D80[23].cells[0] = 1U;
-                    D_800F4D80[23].byte14 = 3U;
+                    UiRows[23].cells[0] = 1U;
+                    UiRows[23].byte14 = 3U;
                 }
             } else {
                 if (temp_s0_3 !=5) goto block_59;
@@ -151,24 +151,24 @@ block_42:
             }
             goto block_59;
         case 5:
-            temp_s1 = D_800F4D80[24].byte14;
+            temp_s1 = UiRows[24].byte14;
             if (temp_s1 == 2) {
                 func_8002AF8C(1, 1, 0);
-                D_800F4D80[24+D_800AC64A].cells[0] = 0;
-                func_8002B330(0, 2, (char *)&D_800AC64A, 2, 0);
-                D_800F4D80[24+D_800AC64A].cells[0] = temp_s1;
-                if ((s16)D_800AC64A == 0) {
-                    func_8002B330(1,4,(char *)&D_800AC59C.word,5,temp_s1);
+                UiRows[24+MenuCursor].cells[0] = 0;
+                StepMenuValue(0, 2, (char *)&MenuCursor, 2, 0);
+                UiRows[24+MenuCursor].cells[0] = temp_s1;
+                if ((s16)MenuCursor == 0) {
+                    StepMenuValue(1,4,(char *)&NumCars.word,5,temp_s1);
                 } else {
-                    func_8002B330(1,2,(char *)&D_800ABEC8,4,0);
+                    StepMenuValue(1,2,(char *)&D_800ABEC8,4,0);
                 }
                 if (D_800F3A38[0].a != 0) {
                     PlaySfx(1);
-                    D_800F4D80[24].cells[0] = 1;
-                    D_800F4D80[24].byte14 = 3U;
-                    D_800F4D80[25].cells[0] = 1;
-                    D_800F4D80[25].byte14 = 3;
-                    D_800AC64A = 2;
+                    UiRows[24].cells[0] = 1;
+                    UiRows[24].byte14 = 3U;
+                    UiRows[25].cells[0] = 1;
+                    UiRows[25].byte14 = 3;
+                    MenuCursor = 2;
                 }
             } else if (temp_s1 == 5) {
                 goto block_57;
@@ -180,7 +180,7 @@ block_59:
             func_80033368((s16) D_800AC648, 1);
             goto block_63;
         case 8:
-            if (D_800F4D80[18].byte14 == 5) {
+            if (UiRows[18].byte14 == 5) {
                 ovl661_func_80115598(0);
                 D_800F4C6A = 1;
                 D_800F3A26 = 0x38;
@@ -197,10 +197,10 @@ block_64:
         var_s0 = 0;
     }
     do {
-        func_8003EC88(var_s0 + 0x12);
+        DrawUiRow(var_s0 + 0x12);
         var_s0 += 1;
     } while (var_s0 < 5);
-    if ((D_800F4D80[18].byte14 == 2) && ((u32) (D_800F4D8A - 4) >= 2U)) {
+    if ((UiRows[18].byte14 == 2) && ((u32) (D_800F4D8A - 4) >= 2U)) {
         func_8002B12C(0xCE, 0xD0, 0x5E, 0, (s32) (s16) D_800AC648, -1, ovl661_D_80118414 + 1);
     }
     if (D_800F4D8A == 4) {
@@ -208,11 +208,11 @@ block_64:
         goto block_73;
     }
     if (D_800F4D8A == 5) {
-        func_8003EC88(0x18);
+        DrawUiRow(0x18);
         var_a0_3 = 0x19;
 block_73:
-        func_8003EC88(var_a0_3);
+        DrawUiRow(var_a0_3);
     }
     D_800F4CB8 = 0;
-    func_8002A344(0x10026);
+    UpdateScreenFade(0x10026);
 }

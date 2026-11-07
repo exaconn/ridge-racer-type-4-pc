@@ -33,11 +33,11 @@ typedef struct {
     RrLibStateB0 primary[32][3],alternate[32][3];
 } World;
 static World actual,expected;
-#define D_8010F068 actual.table
-#define D_8010F05C actual.lock
-#define D_8010F060 actual.mask
-#define D_8010F8E8 actual.banks
-#define D_8010F8EA actual.rows
+#define _ss_score actual.table
+#define _snd_ev_flag actual.lock
+#define _snd_openflag actual.mask
+#define _snd_seq_s_max actual.banks
+#define _snd_seq_t_max actual.rows
 ''' + body + r'''
 typedef struct {int id,bank,row;} Event;
 static Event trace[1024],wanted[1024];
@@ -51,7 +51,7 @@ static void want(int id,int bank,int row) {
 static void reenter(void) {
     World before=actual;
     int count=trace_count;
-    func_80082D54();
+    SsSeqCalledTbyT();
     assert(trace_count==count);
     assert(memcmp(&actual,&before,sizeof(actual))==0);
 }
@@ -76,17 +76,17 @@ static void callback(int id,int bank,int row) {
     }
     if(scenario==4&&id==1){actual.banks=0;actual.rows=0;}
 }
-void func_80087064(void) {
+void _SsVmFlush(void) {
     assert(actual.lock==1);event(0,-1,-1);
     if(scenario==5){actual.banks=actual.rows=1;actual.mask=1;}
     if(scenario==6)reenter();
 }
-void func_80083274(s16 bank,s16 row){callback(1,bank,row);}
+void _SsSndPlay(s16 bank,s16 row){callback(1,bank,row);}
 void func_80082FC4(s32 bank,s32 row){callback(2,bank,row);}
-void func_80084314(s32 bank,s32 row){callback(3,bank,row);}
-void func_800831D4(s32 bank,s32 row){callback(4,bank,row);}
-void func_80083A94(s32 bank,s16 row){callback(5,bank,row);}
-void func_80083AF4(s32 bank,s32 row){callback(6,bank,row);}
+void _SsSndTempo(s32 bank,s32 row){callback(3,bank,row);}
+void _SsSndPause(s32 bank,s32 row){callback(4,bank,row);}
+void _SsSndReplay(s32 bank,s16 row){callback(5,bank,row);}
+void _SsSndStop(s32 bank,s32 row){callback(6,bank,row);}
 
 static void prepare(int lock,int banks,int rows,u32 mask,u32 flags) {
     memset(&actual,0xA5,sizeof(actual));
@@ -130,7 +130,7 @@ static void normal(int lock,int banks,int rows,u32 mask,u32 flags) {
             }
         expected.lock=0;
     }
-    func_80082D54();verify();
+    SsSeqCalledTbyT();verify();
 }
 static void live(int which) {
     prepare(0,which==4?3:1,which==4?3:1,which==4?7:1,which==1||which==3||which==4?1:0xFF);
@@ -158,7 +158,7 @@ static void live(int which) {
         expected.primary[0][0].w98=0;
         if(which==5){expected.banks=expected.rows=1;expected.mask=1;}
     }
-    func_80082D54();verify();
+    SsSeqCalledTbyT();verify();
 }
 static void maximum_rows(void) {
     prepare(0,1,32767,1,0);
@@ -167,7 +167,7 @@ static void maximum_rows(void) {
     actual.table[0]=records;records[32766].w98=4;
     expected=actual;
     want(0,-1,-1);want(6,0,32766);
-    func_80082D54();
+    SsSeqCalledTbyT();
     expected.lock=0;verify();
     for(int r=0;r<32767;r++)assert(records[r].w98==0);
     free(records);

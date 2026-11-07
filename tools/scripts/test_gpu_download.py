@@ -105,10 +105,10 @@ static void call_mutation(bool initialize){
  }
  for(unsigned i=0;i<16;i++)world.image.words[i]^=0x98327141U*(i+1U);
 }
-void func_80095360(void){record(2);call_mutation(true);}
-s32 func_80095394(void){record(3);world.calls++;call_mutation(false);return world.calls==world.timeout_after?world.failure:0;}
+void set_alarm(void){record(2);call_mutation(true);}
+s32 get_alarm(void){record(3);world.calls++;call_mutation(false);return world.calls==world.timeout_after?world.failure:0;}
 static int reference(void){
- func_80095360();
+ set_alarm();
  int width=rect_for(world).rect.w,height=rect_for(world).rect.h;
  if(width<0)width=0;else if(width>world.width)width=world.width;
  rect_for(world).rect.w=(s16)width;
@@ -118,13 +118,13 @@ static int reference(void){
  if(words<=0)return -1;
  assert(words<=2048);
  unsigned blocks=(unsigned)words/16U,tail=(unsigned)words%16U;
- while(!(read_register(world.selected[1],1)&0x04000000U))if(func_80095394()!=0)return -1;
+ while(!(read_register(world.selected[1],1)&0x04000000U))if(get_alarm()!=0)return -1;
  write_register(world.selected[1],1,0x04000000U);
  write_register(world.selected[0],0,0x01000000U);
  write_register(world.selected[0],0,0xC0000000U);
  write_register(world.selected[0],0,rect_for(world).words[0]);
  write_register(world.selected[0],0,rect_for(world).words[1]);
- while(!(read_register(world.selected[1],1)&0x08000000U))if(func_80095394()!=0)return -1;
+ while(!(read_register(world.selected[1],1)&0x08000000U))if(get_alarm()!=0)return -1;
  for(unsigned i=0;i<tail;i++)world.image.words[i]=read_register(world.selected[0],0);
  if(blocks){
   write_register(world.selected[1],1,0x04000003U);
@@ -134,7 +134,7 @@ static int reference(void){
  }
  return 0;
 }
-s32 func_80094830(RrGpuRectangle *,u32 *);
+s32 _drs(RrGpuRectangle *,u32 *);
 static u32 random32(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 int main(void){
  static const s16 widths[]={-32768,-1,0,1,2,31,32,33,1024,32767};
@@ -154,7 +154,7 @@ int main(void){
   initial.reads=initial.calls=initial.phase=initial.data_reads=0;initial.ready_after=k%4;initial.receive_after=(k>>2)%4;initial.timeout_after=(k&4)?1+k%7:100;
   initial.failure=failures[(k>>3)&3];initial.mutation=(k>>16)&1;
   std::memcpy(&world,&initial,sizeof(world));count=0;std::memset(entries,0,sizeof(entries));
-  int result=func_80094830(&rect_for(world),world.image.words);std::memcpy(&actual,&world,sizeof(world));
+  int result=_drs(&rect_for(world),world.image.words);std::memcpy(&actual,&world,sizeof(world));
   unsigned calls=count;std::memcpy(saved,entries,sizeof(saved));
   if(result==0){passed++;bool dma=false;for(unsigned i=0;i<calls;i++)if(entries[i].kind==1 && entries[i].reg==4)dma=true;if(dma)bulk++;else immediate++;}else {failed++;if(world.calls==world.timeout_after){if(world.phase)receive_failures++;else command_failures++;}}
   std::memcpy(&world,&initial,sizeof(world));count=0;std::memset(entries,0,sizeof(entries));

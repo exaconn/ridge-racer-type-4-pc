@@ -26,7 +26,7 @@ u32 test_destination[34];
         body = body.replace('#include "rr/memory.h"', '')
         replacements = {
             '0xDF80U': '(unsigned long)(test_destination+2)',
-            '(unsigned long)func_80095DF4+0x10': '(unsigned long)(test_source+4)',
+            '(unsigned long)StopCARD2+0x10': '(unsigned long)(test_source+4)',
             '(unsigned long)func_80095E74': '(unsigned long)(test_source+32)',
         }
         for old, new in replacements.items():
@@ -43,7 +43,7 @@ u32 test_destination[34];
         cls.lib = C.CDLL(str(directory / 'copy.so'))
         cls.source = (C.c_uint32 * 34).in_dll(cls.lib, 'test_source')
         cls.destination = (C.c_uint32 * 34).in_dll(cls.lib, 'test_destination')
-        cls.function = cls.lib.func_80095FA0
+        cls.function = cls.lib._copy_memcard_patch
         cls.function.argtypes = []
         cls.function.restype = None
 

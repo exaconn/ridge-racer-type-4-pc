@@ -14,7 +14,7 @@ void ovl668_func_80114C3C(void)
     timer = (s32)((u32)D_800F2DE4 + 1U);
     D_800F2DE4 = timer;
     if (timer == 4) SetDispMask(1);
-    initialContext = &D_800AC650;
+    initialContext = &RaceContext;
     ovl668_func_801163FC(STR_STATE->commands10[STR_STATE->display24.word00], 3);
     pixels = STR_STATE->display24.rectangles[2].w * STR_STATE->display24.rectangles[2].h;
     context = initialContext;
@@ -33,15 +33,15 @@ retry:
         goto retry;
     }
 complete:
-    ovl668_func_8011535C(&((RrStrPlaybackState *)D_800AC650.activeB8)->display24, 0);
+    ovl668_func_8011535C(&((RrStrPlaybackState *)RaceContext.activeB8)->display24, 0);
     DrawSync(0);
     ovl668_func_80116298(1);
-    if (D_800AC650.stopD0 == 1) {
-        D_800AC650.phaseB4 = 2;
-        func_80083CD4(0, 0, 0);
+    if (RaceContext.stopD0 == 1) {
+        RaceContext.phaseB4 = 2;
+        SsSetSerialVol(0, 0, 0);
     }
     if (D_800F3A38[0].buttons08 & 0x800) {
-        func_80083CD4(0, 0, 0);
-        D_800AC650.phaseB4 = 2;
+        SsSetSerialVol(0, 0, 0);
+        RaceContext.phaseB4 = 2;
     }
 }

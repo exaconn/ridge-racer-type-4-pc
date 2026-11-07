@@ -3,7 +3,7 @@
 #include "rr/spu.h"
 
 /* Nonzero low16 pitch, with the fixed PAL tables: both searches always match. */
-u32 func_80084D44(s32 first,s32 second,u32 pitch) {
+u32 _spu_pitch2note(s32 first,s32 second,u32 pitch) {
  register s32 top=0;
  register s32 i;
  register s32 note;

@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80098578();
+int _padSioRW();
 
 #endif /* RR_PSYQ_LIBPAD_PADRECV_H */

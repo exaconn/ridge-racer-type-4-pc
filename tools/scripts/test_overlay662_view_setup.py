@@ -28,8 +28,8 @@ static struct World {u32 guard[4];s32 frame,counter,word;s16 half,setting,select
 #define D_800AD520 world.setting
 #define D_800F3826 world.selected
 #define D_800F4D98 world.choice
-#define D_800F4D8C world.glyph
-#define D_800F3AFC world.badge
+#define GlyphRows world.glyph
+#define BadgeRows world.badge
 ''' + body + r'''
 static u32 seed=0x16020,scenario;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
@@ -52,10 +52,10 @@ static void event(struct World *v,const s32 args[10]){
 }
 /* ABI-confirmed resident setup boundaries. Mutations expose any unintended
  * reset after a call, captured old root, or stale signed halfword argument. */
-void func_8003E040(s32 index,s32 control,s32 glyph,s32 style){s32 a[10]={index,control,glyph,style};assert(world.calls<4 && index==(s32)world.calls);event(&world,a);}
-void func_8003DC9C(s32 index,s16 a,s16 b,s16 c,s16 d,s16 e,s16 f){s32 args[10]={index,a,b,c,d,e,f};assert(world.calls==4);event(&world,args);}
-void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls==5);event(&world,args);}
-void func_8003D228(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[10]={a,b,c,d,e,f,g};assert(world.calls==6);event(&world,args);}
+void InitGlyphRow(s32 index,s32 control,s32 glyph,s32 style){s32 a[10]={index,control,glyph,style};assert(world.calls<4 && index==(s32)world.calls);event(&world,a);}
+void InitRect16Row(s32 index,s16 a,s16 b,s16 c,s16 d,s16 e,s16 f){s32 args[10]={index,a,b,c,d,e,f};assert(world.calls==4);event(&world,args);}
+void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls==5);event(&world,args);}
+void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[10]={a,b,c,d,e,f,g};assert(world.calls==6);event(&world,args);}
 static void reference(void){
  unsigned i,id;RrMenuGlyphRow1C *g;
  expected.frame=0;expected.counter=0;expected.word=0;expected.half=0;expected.setting=2;expected.choice.bytes[0]=2;expected.selected=0;

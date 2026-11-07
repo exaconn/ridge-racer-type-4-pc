@@ -102,7 +102,7 @@ s32 func_8001E84C(const char *format,...){va_list ap;unsigned message,first,seco
  assert(format==D_8001183C||format==D_80011858);message=format==D_80011858;
  va_start(ap,format);first=(unsigned)va_arg(ap,int);if(message)second=(unsigned)va_arg(ap,int);va_end(ap);
  enter(2,message,first,second);print_effect(&actual,message);return 1;}
-void func_80096ED4(void){enter(3,0,0,0);bios_effect(&actual);}
+void ReturnFromException(void){enter(3,0,0,0);bios_effect(&actual);}
 '''+body+r'''
 static void model(void){unsigned batch,repeat=0,i,bank;u16 pending;s32 old;
  if(!expected.saved.active){paths[0]++;emit(2,0,*expected.statusRoot,0);print_effect(&expected,0);
@@ -154,7 +154,7 @@ int main(void){unsigned n,i,pattern;uint64_t cases=0;
   actual.stalled=(n&4)?signed32(next()):counters[(n>>3)%10];
   for(i=0;i<11;i++)actual.saved.callbacks[i]=(next()&3)?callbacks[(n+i)%22]:0;
   memcpy(&expected,&actual,sizeof(actual));expected.statusRoot=&expected.regs[0].status;expected.maskRoot=&expected.regs[0].mask;
-  count=cursor=0;model();func_8008B5D0();assert(cursor==count);compare(&actual,&expected);cases++;
+  count=cursor=0;model();trapIntr();assert(cursor==count);compare(&actual,&expected);cases++;
  }
  for(i=0;i<2048;i++)assert(pendingSeen[i]);for(i=0;i<256;i++)assert(modeSeen[i]);for(i=0;i<12;i++)assert(paths[i]);
  printf("%llu cases\n",(unsigned long long)cases);return 0;

@@ -25,7 +25,7 @@ static World world,initial,actual;
 static u8 packets[3][128];static unsigned scenario,mutation,busy,seenLimits,seenClear,seenRoots;
 static const unsigned delays[]={0,1,2,3,1998,1999,2000,2001};
 static const u32 edges[]={0,1,255,256,257,65535,0x7FFFFFFFU,0x80000000U,0xFFFFFFFFU};
-#define D_800AC650 world.s.context
+#define RaceContext world.s.context
 #define D_800ADAF0 world.frames
 static s32 word(u32 bits){s32 v;memcpy(&v,&bits,4);return v;}
 static s16 half(u32 bits){u16 u=bits;s16 v;memcpy(&v,&u,2);return v;}

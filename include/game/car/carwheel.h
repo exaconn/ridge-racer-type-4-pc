@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_8002CBC0(char *a, int b);
+int TriggerWheelBump(char *a, int b);
 
 #endif /* RR_GAME_CAR_CARWHEEL_H */

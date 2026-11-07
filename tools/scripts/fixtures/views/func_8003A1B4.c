@@ -21,57 +21,57 @@
 
 extern int func_8001E84C();
 
-extern int func_8003D1D4();
+extern int AllocBadgeRows();
 
-extern int func_8003DC50();
+extern int AllocRect16Rows();
 
-extern int func_8003DFEC();
+extern int AllocGlyphRows();
 
-extern int func_8003E8D4();
+extern int AllocUiRows();
 
 extern int func_8003FAA0();
 
-extern int D_800102F0;
+extern int CdDirectoryBuffer;
 
 extern char D_8001075C[];
 
-extern int D_800AC540;
+extern int Rect16RowCount;
 
-extern int D_800ACC18;
+extern int LoadCursor;
 
 extern int D_800ACC1C;
 
 extern int D_800ACC24;
 
-extern int D_800F2ECC;
+extern int BadgeRowCount;
 
-extern int D_800F4BEC;
+extern int UiRowCount;
 
-extern int D_800F4C1C;
+extern int GlyphRowCount;
 
 extern int MenuTextRowCount;
 
 extern int D_800F4D70[];
 
-void func_8003A1B4()
+void InitMenuArenas()
 {
   /* ASM_BARRIER: pin the 0x2D000 constant to $a2 so the addu and the call share one lui/ori like the original */
   register int c asm("$6") = 0x2D000;
-  D_800F2ECC = 10;
-  D_800AC540 = 4;
-  D_800F4C1C = 4;
-  D_800F4BEC = 0x28;
+  BadgeRowCount = 10;
+  Rect16RowCount = 4;
+  GlyphRowCount = 4;
+  UiRowCount = 0x28;
   D_800ACC24 = 1;
   MenuTextRowCount = 0x37;
-  D_800F4D70[1] = D_800102F0 + c;
-  D_800ACC18 = D_800F4D70[1];
-  func_8001E84C(D_8001075C, D_800ACC18, 0x2D000);
-  D_800ACC18 = D_800ACC18 + func_8003D1D4(D_800ACC18);
-  D_800ACC18 = D_800ACC18 + func_8003DC50(D_800ACC18);
-  D_800ACC18 = D_800ACC18 + func_8003DFEC(D_800ACC18);
-  D_800ACC18 = D_800ACC18 + func_8003FAA0(D_800ACC18);
-  D_800ACC18 = D_800ACC18 + func_8003E8D4(D_800ACC18);
-  D_800ACC1C = D_800ACC18;
-  D_800F4D70[1] = D_800ACC18 + 0x19000;
-  D_800ACC18 = D_800ACC18 + 0x19000;
+  D_800F4D70[1] = CdDirectoryBuffer + c;
+  LoadCursor = D_800F4D70[1];
+  func_8001E84C(D_8001075C, LoadCursor, 0x2D000);
+  LoadCursor = LoadCursor + AllocBadgeRows(LoadCursor);
+  LoadCursor = LoadCursor + AllocRect16Rows(LoadCursor);
+  LoadCursor = LoadCursor + AllocGlyphRows(LoadCursor);
+  LoadCursor = LoadCursor + func_8003FAA0(LoadCursor);
+  LoadCursor = LoadCursor + AllocUiRows(LoadCursor);
+  D_800ACC1C = LoadCursor;
+  D_800F4D70[1] = LoadCursor + 0x19000;
+  LoadCursor = LoadCursor + 0x19000;
 }

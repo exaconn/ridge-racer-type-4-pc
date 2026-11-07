@@ -86,18 +86,18 @@ typedef struct {
     int f4;
     int f8;
 } S_SP7C;
-extern Car D_800ABEF8[];
-extern int D_800AD504;
+extern Car PlayerCars[];
+extern int ReplayState;
 extern short D_800AD522;
-extern int D_800F2EB8;
-extern int D_800F3A30;
-extern S_ECB0 *D_8010ECB0;
-extern S_ECB4 *D_8010ECB4;
+extern int TrackLength;
+extern int NumLaps;
+extern S_ECB0 *TrackObjectDefs;
+extern S_ECB4 *TrackObjectStates;
 
-void func_80071978(InTri *a0, int a1, int a2);
-void func_80071B94(InQuad *a0, int a1, int a2);
+void EmitSemiTransG3List(InTri *a0, int a1, int a2);
+void EmitSemiTransG4List(InQuad *a0, int a1, int a2);
 
-void func_80071978(InTri *a0, int a1, int a2) {
+void EmitSemiTransG3List(InTri *a0, int a1, int a2) {
     int sp20;
     int sp24;
     int i;
@@ -144,7 +144,7 @@ void func_80071978(InTri *a0, int a1, int a2) {
     hw[0] = (int)pkt;
 }
 
-void func_80071B94(InQuad *a0, int a1, int a2) {
+void EmitSemiTransG4List(InQuad *a0, int a1, int a2) {
     int sp28;
     int sp2C;
     int i;
@@ -201,37 +201,37 @@ void func_80071E04(void) {
     S_SP7C *sp = (S_SP7C *)(SCRATCHPAD + 0x7C);
     int *hw = (int *)SCRATCHPAD;
 
-#define b0 (&D_8010ECB0[i])
-#define b4 (&D_8010ECB4[i])
+#define b0 (&TrackObjectDefs[i])
+#define b4 (&TrackObjectStates[i])
 
     sp->f0 = func_80026998(hw[2], hw[4]);
-    for (i = 0; i < D_8010ECA8; i++) {
-        if (b0->f18 >= 0 && b0->f18 != D_800ABEF8[0].sub1F4.unkB6) {
+    for (i = 0; i < TrackObjectCount; i++) {
+        if (b0->f18 >= 0 && b0->f18 != PlayerCars[0].sub1F4.unkB6) {
             if (b0->f10 > 0) {
                 b4->f24 = 0;
             }
             continue;
         }
         if (b0->f2C != 0x3F) {
-            if (D_800F4D44 == 1 && D_800AD504 < 2) {
+            if (D_800F4D44 == 1 && ReplayState < 2) {
                 if (!(b0->f2C & 1)) {
                     continue;
                 }
-            } else if (D_800F4D44 == 1 && D_800AD504 == 2) {
+            } else if (D_800F4D44 == 1 && ReplayState == 2) {
                 if (!(b0->f2C & 2)) {
                     continue;
                 }
-            } else if (D_800F4D44 == 0 && D_800AD504 < 2) {
+            } else if (D_800F4D44 == 0 && ReplayState < 2) {
                 if (!(b0->f2C & 4)) {
                     continue;
                 }
-            } else if (D_800F4D44 == 0 && D_800AD504 == 2) {
+            } else if (D_800F4D44 == 0 && ReplayState == 2) {
                 if (!(b0->f2C & 8)) {
                     continue;
                 }
             } else if (D_800F4D44 == 6) {
                 if (b0->f2C == 0xA) {
-                    if (D_800AD504 != 2) {
+                    if (ReplayState != 2) {
                         continue;
                     }
                 } else if (!(b0->f2C & 0x10)) {
@@ -242,7 +242,7 @@ void func_80071E04(void) {
                     continue;
                 }
             } else {
-                if (b0->f2C != 0xA || D_800AD504 != 2) {
+                if (b0->f2C != 0xA || ReplayState != 2) {
                     continue;
                 }
             }
@@ -251,7 +251,7 @@ void func_80071E04(void) {
         sp->f8 = b0->f20;
         if (b0->f10 > 0) {
             if (b0->f18 == -3) {
-                if ((D_800ABEF8[0].sub1F4.unkB6 < 6 && (D_800F2EB8 * 4 + ((D_800F2EB8 * 59) >> 6)) >= D_800ABEF8[0].w184) ||
+                if ((PlayerCars[0].sub1F4.unkB6 < 6 && (TrackLength * 4 + ((TrackLength * 59) >> 6)) >= PlayerCars[0].w184) ||
                     (sp->f4 < sp->f0 && sp->f0 <= sp->f8)) {
                     b4->f24 = 0;
                     b4->f8 = 0;
@@ -276,13 +276,13 @@ void func_80071E04(void) {
                 b4->f24 = 0;
                 continue;
             }
-        } else if (b0->f14 > 0 && b4->f24 == 0 && sp->f4 == sp->f0 && D_800ABEF8[0].unk1EA == 0 && D_800AD522 == 0) {
+        } else if (b0->f14 > 0 && b4->f24 == 0 && sp->f4 == sp->f0 && PlayerCars[0].unk1EA == 0 && D_800AD522 == 0) {
             b4->f24 = 1;
         }
         if (D_800F4D44 == 2 || D_800F4D44 == 3) {
             if (b0->f0 == 0 && (b0->f4 % 10) == 0) {
-                if (D_800ABEF8[0].sub1F4.unkB6 == 0) {
-                    if (D_800ABEF8[1].sub1F4.unkB6 == 0) {
+                if (PlayerCars[0].sub1F4.unkB6 == 0) {
+                    if (PlayerCars[1].sub1F4.unkB6 == 0) {
                         b4->f24 = 1;
                     } else {
                         b4->f24 = 0;
@@ -291,8 +291,8 @@ void func_80071E04(void) {
                     b4->f24 = 0;
                 }
             } else if (b0->f0 == 1 && (b0->f4 % 10) == 0) {
-                if (((D_800F3A30 - 1) * D_800F2EB8 + ((D_800F2EB8 * 29) >> 5)) < D_800ABEF8[0].w184 ||
-                    ((D_800F3A30 - 1) * D_800F2EB8 + ((D_800F2EB8 * 29) >> 5)) < D_800ABEF8[1].w184) {
+                if (((NumLaps - 1) * TrackLength + ((TrackLength * 29) >> 5)) < PlayerCars[0].w184 ||
+                    ((NumLaps - 1) * TrackLength + ((TrackLength * 29) >> 5)) < PlayerCars[1].w184) {
                     b4->f24 = 1;
                 } else {
                     b4->f24 = 0;
@@ -304,7 +304,7 @@ void func_80071E04(void) {
                     b0->fC == 4)) {
             b4->f24 = 0;
         } else if (b0->f0 == 1 && (b0->f4 % 10) == 0) {
-            if (((D_800F3A30 - 1) * D_800F2EB8 + ((D_800F2EB8 * 29) >> 5)) > D_800ABEF8[0].w184) {
+            if (((NumLaps - 1) * TrackLength + ((TrackLength * 29) >> 5)) > PlayerCars[0].w184) {
                 b4->f24 = 0;
             }
         }

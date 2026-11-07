@@ -10,7 +10,7 @@
 #include "psyq/libcd/dsstrm32.h"
 #include "game/data/globals.h"
 
-extern s32 func_8008C0F8(s32, u8 *);
+extern s32 CdReady(s32, u8 *);
 
 typedef struct {
     u32 x;
@@ -92,7 +92,7 @@ void StCdInterrupt(void) {
             return;
         }
     }
-    if (func_8008C0F8(one, s.sp30) == 5) {
+    if (CdReady(one, s.sp30) == 5) {
         return;
     }
     s.sp22 = s.sp30[0];
@@ -162,9 +162,9 @@ void StCdInterrupt(void) {
     }
     var_t0 = 0x11000000;
     if (D_80110300 != 0) {
-        func_80090250(D_80112768, D_80110300 + (D_801102F0 << 11), 8, 0);
+        mem2mem(D_80112768, D_80110300 + (D_801102F0 << 11), 8, 0);
     } else {
-        func_8009027C(3, D_80112768, 0, 8, var_t0, 0, 0);
+        dma_execute(3, D_80112768, 0, 8, var_t0, 0, 0);
     }
     while (*D_800A68A0 & 0x01000000) {
     }
@@ -224,7 +224,7 @@ void StCdInterrupt(void) {
     if (D_801102D4 != D_80112768->sector_offset || (D_801102D0 != 0 && D_801102D0 != D_80112768->frame_no)) {
         D_801102D0 = 0;
         D_801102D4 = 0;
-        func_8008F814(D_801102F8, D_801102F4 - D_801102F8);
+        init_ring_status(D_801102F8, D_801102F4 - D_801102F8);
         D_801102F4 = D_801102F8;
         D_80112768->state = 0;
         /* ASM_BARRIER: Store state before checking D_80110300. */
@@ -253,7 +253,7 @@ void StCdInterrupt(void) {
             register void (*cb)(void) __asm__("$3");
             D_801102D0 = 0;
             D_801102D4 = 0;
-            func_8008F814(D_801102F8, D_801102F4 - D_801102F8);
+            init_ring_status(D_801102F8, D_801102F4 - D_801102F8);
             D_801102F4 = D_801102F8;
             D_80112768->state = 0;
             /* ASM_BARRIER: Store state before loading callback. */
@@ -387,7 +387,7 @@ void StCdInterrupt(void) {
         *(s32 *)p80 = c2102;
     }
     if (D_80112768->sector_size - 1 == D_80112768->sector_offset) {
-        /* ASM_BARRIER: Keep constant 1 in v1 for D_801102EC and func_8009027C arg. */
+        /* ASM_BARRIER: Keep constant 1 in v1 for D_801102EC and dma_execute arg. */
         register s32 one_v1 __asm__("$3") = 1;
         s32 f300 = D_80110300;
         /* ASM_BARRIER: Load D_80110300 before storing D_801102EC. */
@@ -395,7 +395,7 @@ void StCdInterrupt(void) {
         D_801102EC = one_v1;
         if (f300 != 0) {
             s32 f2f0;
-            func_80090250(D_8011030C, f300 + (D_801102F0 << 11) + 0x20, 0x1F8, 1);
+            mem2mem(D_8011030C, f300 + (D_801102F0 << 11) + 0x20, 0x1F8, 1);
             f2f0 = D_801102F0 + 1;
             /* ASM_BARRIER: Compute f2f0 before materializing page_8011 for delay slot. */
             __asm__("" : "=r"(f2f0) : "0"(f2f0) : "$1");
@@ -404,7 +404,7 @@ void StCdInterrupt(void) {
             __asm__("" : "=r"(page_8011) : "0"(page_8011));
             page_8011[0x2F0 / 4] = f2f0;
         } else {
-            func_8009027C(3, D_8011030C, 0, 0x1F8, var_t0, one_v1, 0);
+            dma_execute(3, D_8011030C, 0, 0x1F8, var_t0, one_v1, 0);
         }
         {
             s32 e0 = D_801102E0;
@@ -423,7 +423,7 @@ void StCdInterrupt(void) {
         s32 f300 = D_80110300;
         if (f300 != 0) {
             s32 f2f0;
-            func_80090250(D_8011030C, f300 + (D_801102F0 << 11) + 0x20, 0x1F8, 0);
+            mem2mem(D_8011030C, f300 + (D_801102F0 << 11) + 0x20, 0x1F8, 0);
             f2f0 = D_801102F0 + 1;
             /* ASM_BARRIER: Compute f2f0 before materializing page_8011 for delay slot. */
             __asm__("" : "=r"(f2f0) : "0"(f2f0) : "$1");
@@ -432,7 +432,7 @@ void StCdInterrupt(void) {
             __asm__("" : "=r"(page_8011) : "0"(page_8011));
             page_8011[0x2F0 / 4] = f2f0;
         } else {
-            func_8009027C(3, D_8011030C, 0, 0x1F8, var_t0, 0, 0);
+            dma_execute(3, D_8011030C, 0, 0x1F8, var_t0, 0, 0);
         }
     }
     *D_800A6884 = 0x1325;

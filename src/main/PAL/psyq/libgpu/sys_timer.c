@@ -6,12 +6,12 @@
 extern s32 func_8001E84C(const char *format,...);
 extern char D_80011F98[];
 
-void func_80095360(void) {
+void set_alarm(void) {
     D_800ABBFC = (u32)VSync(-1) + 0xF0;
     D_800ABC00 = 0;
 }
 
-int func_80095394(void) {
+int get_alarm(void) {
     s32 old,result;
     s32 saved;
     if(D_800ABBFC>=VSync(-1)) {
@@ -38,7 +38,7 @@ int func_80095394(void) {
         func_8001E84C(format,(head-(u32)D_800ABBEC)&63,
             *gpu,*D_800ABBD4,*D_800ABBCC);
     }
-    saved=func_8008B4E0(0);
+    saved=SetIntrMask(0);
     D_800ABBEC=0;
     D_800ABBF8=saved;
     D_800ABBE8=D_800ABBEC;
@@ -46,7 +46,7 @@ int func_80095394(void) {
     *D_800ABBE4|=0x800;
     *D_800ABBC8=0x02000000;
     *D_800ABBC8=0x01000000;
-    func_8008B4E0(D_800ABBF8);
+    SetIntrMask(D_800ABBF8);
     result=-1;
     goto done;
 ok:

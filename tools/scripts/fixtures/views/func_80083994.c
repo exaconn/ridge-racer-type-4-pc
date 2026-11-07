@@ -1,10 +1,10 @@
 #include "rr/library.h"
 
-extern RrLibStateB0 *D_8010F068[];
+extern RrLibStateB0 *_ss_score[];
 
-void func_80083994(s32 a0, s16 a1) {
+void _SsSndNextSep(s32 a0, s16 a1) {
     s32 t = a0 << 16;
-    RrLibStateB0 **b = D_8010F068;
+    RrLibStateB0 **b = _ss_score;
     RrLibStateB0 **q = (RrLibStateB0 **)((s32)b + (t >> 14));
     s32 o = a1 * 0xB0;
     RrLibStateB0 *p = (RrLibStateB0 *)((char *)*q + o);

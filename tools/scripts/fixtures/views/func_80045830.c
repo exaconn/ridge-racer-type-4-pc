@@ -1,12 +1,12 @@
 #include "m2c_macros.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(Context650 (*))&D_800AC650)
+#define RaceContext (*(Context650 (*))&RaceContext)
 
-#undef D_800AC650
+#undef RaceContext
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(int (*)[])&D_800AC650)
+#define RaceContext (*(int (*)[])&RaceContext)
 
 #define D_800AC6B0 (*(char (*)[])&D_800AC6B0)
 
@@ -14,7 +14,7 @@
 
 #define D_800ACC14 ((char *)D_800ACC14)
 
-#undef D_800AC650
+#undef RaceContext
 
 #undef D_800AC6B0
 

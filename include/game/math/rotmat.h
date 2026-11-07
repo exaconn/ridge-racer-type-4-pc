@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_8006E300();
+int BuildRotMatrixAngles();
 
 #endif /* RR_GAME_MATH_ROTMAT_H */

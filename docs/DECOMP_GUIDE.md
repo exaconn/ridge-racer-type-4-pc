@@ -14,7 +14,7 @@ Compiler: gcc 2.8.1 (PSX) `-O2 -G0 -mips1 -mcpu=3000 -funsigned-char` via `tools
 1. Original asm: `build/baseline/asm/nonmatchings/<func>/<func>.s`
 2. First draft: `tools/scripts/m2c.sh <func>` (needs cleanup: `M2C_FIELD(...)` -> real struct/array syntax, `M2C_UNK` -> int, etc.)
 3. Write `src/main/PAL/<func>.c` while working (one function per file; once matched it is folded into its translation unit, see `docs/SOURCE_LAYOUT.md`; includes `"types.h"` if you use s32/u8...).
-   Declare callees K&R style (`extern int SetDrawMode();`) and data as `extern int D_800F2ECC;` / arrays / structs.
+   Declare callees K&R style (`extern int SetDrawMode();`) and data as `extern int BadgeRowCount;` / arrays / structs.
    Keep the symbol names exactly as in the asm (`func_XXXXXXXX`, `D_XXXXXXXX`).
 4. Check: `.venv/bin/python tools/scripts/fd.py src/main/PAL/<func>.c`
    - `MATCH` = done. Otherwise it prints original asm, our disassembly and the first differing word.
@@ -97,7 +97,7 @@ Compiler: gcc 2.8.1 (PSX) `-O2 -G0 -mips1 -mcpu=3000 -funsigned-char` via `tools
 - `p = arr; p += 0x578;` as two statements gives lui, addiu lo, addiu 0x578; one expression folds to a single addiu.
 
 ## More tricks (from chunk 5)
-- Big global struct: declare `extern struct { char pad[0x2664]; s32 a; ... } D_800F4DB8;` and write `D.field` (folds symbol+offset like the original; a char-array+cast macro did not).
+- Big global struct: declare `extern struct { char pad[0x2664]; s32 a; ... } SoundState;` and write `D.field` (folds symbol+offset like the original; a char-array+cast macro did not).
 - Keep base register separate from offset in a loop: `(char*)D + i*0x1C` plus constant offset instead of a walking pointer.
 - A load whose result is unused is deleted by gcc; declare the field `volatile` to keep it.
 - `idx*4 + (int)ptr` vs `ptr + idx` swap the `addu` operand order.
@@ -116,7 +116,7 @@ Compiler: gcc 2.8.1 (PSX) `-O2 -G0 -mips1 -mcpu=3000 -funsigned-char` via `tools
 - `*(short *)&p->b = p->b;` reproduces byte load + `sh`.
 - A dead `int t[2]` stack array can reserve stack slots; bubble-sort swap `x=D[j-1]; y=D[j]; D[j]=x; D[j-1]=y;`.
 - Chained early returns `if (c) { D |= n; return; }` match repeated `return` patterns.
-- Layouts: `D_800AD4D8` byte fields 0x12..0x1E; `D_800ABEF8` array of 0x320-byte structs.
+- Layouts: `D_800AD4D8` byte fields 0x12..0x1E; `PlayerCars` array of 0x320-byte structs.
 
 ## More tricks (from chunk 0)
 - Fixing m2c types often suffices: `*(void **)0x1F800000 = ...`; byte constants like `0xF0` through `s8` emit `addiu -16`, use `u8`.
@@ -138,7 +138,7 @@ Put `/* GCC_VERSION: 2.7.2 */` as the first line of a C file to compile it with 
 Tell-tale for 2.7.2: jump tables loaded through `lui $at`, `jr; nop` with unfilled delay slots. Try both compilers on library functions.
 
 ### Third compiler: gcc-970318 (PsyQ 4.5+ library build)
-Sony's later SDK libraries (libsnd's `_SsContDataEntry` = func_800800B4) were built with a GCC development snapshot of
+Sony's later SDK libraries (libsnd's `_SsContDataEntry` = _SsContDataEntry) were built with a GCC development snapshot of
 1997-03-18, between 2.7.2 and 2.8.0: GCC 2.8's 4-byte reload spill slots (consecutive `sw` spills at 4-byte steps; stock
 2.7.2 rounds every spill slot to 8) with a 1996 loop.c that hoists loop invariants differently from both releases.
 Build it once with `tools/gcc-970318/build.sh` (-> `tools/toolchain/gcc-970318/cc1`; source hashes are checked; needs
@@ -159,7 +159,7 @@ Use `tools/scripts/place.py file.c...` to try a candidate under both compilers a
 - Store the result separately in each if/else branch instead of through a shared variable: gcc cross-jumps the identical tail with the right load order.
 - Put `case 1:` inside the `if` block of `case 0` for original fall-through layout; a `default:` body can sit between cases.
 - RODATA hex in the annotation can be lowercase.
-- Untried in that range: func_80045F48 and func_8004C138 (jump-table switches) and the large functions (>0x300 bytes).
+- Untried in that range: InitComCars and HsvToRgb (jump-table switches) and the large functions (>0x300 bytes).
 
 ## More tricks (wave 2, chunk 2)
 - Tail duplication: copy a tail statement into every arm of an if/else chain; crossjumping merges them back and gcc keeps `lui hi(sym)` in a callee-saved register across calls.
@@ -247,7 +247,7 @@ Units with inline asm are acceptable; no hand-written `.s` replacements.
 - Around 0x80061384-0x8006D4FC (sizes 0x40/0x50/0x54/0x5c/0xa8) and 0x800678A8-0x8006A3D0 are hand-written polygon-packet fragments; func_8005F0D0/F3D0/F434/FC74 are interpreter fragments: skip.
 
 ## More tricks (wave 3, lib 1)
-- Adjacent SDK symbols that are really one object: declare one struct (`extern struct { u8 f[0x20]; struct {short a,b;char pad[12];} e[24]; } D_8010FE18;`); gcc 2.7.2 then keeps the original memory-op order. Save the loaded byte in a temp (`t = f[i]; ... f[i] = t|3`).
+- Adjacent SDK symbols that are really one object: declare one struct (`extern struct { u8 f[0x20]; struct {short a,b;char pad[12];} e[24]; } _svm_sreg_dirty;`); gcc 2.7.2 then keeps the original memory-op order. Save the loaded byte in a temp (`t = f[i]; ... f[i] = t|3`).
 - 2.7.2: `*(T*)((int)ARR + idx*4)` yields `lui v1; addu v1,v1,idx; lw v1,lo(v1)`; `ARR[idx]` does not. Then `p += i; p->field` gave the matching final `addu`.
 - Return `f() == 0` after an early branch: `int r; if (...) { r = f() == 0; } else r = 0; return r;`.
 - Short params copied with `addu a3,a1,zero`: use `int` params with `(short)` casts at use and compute products into locals up front.
@@ -289,7 +289,7 @@ Units with inline asm are acceptable; no hand-written `.s` replacements.
 
 ## More tricks (wave 3, game 0)
 - Too-small stack frame: unused `int pad[18]; int *pp = pad;`.
-- Tail-block-only diffs: leave to perm.sh (found func_80022B64 in seconds).
+- Tail-block-only diffs: leave to perm.sh (found UpdatePlayerCar in seconds).
 - Switch with few cases = compare chain; list shared-body cases too (`case 0: case 1: case 5: break;`); use goto to end label for targets after fall-through.
 - Write stores in natural field order; temp vars for repeated constants get propagated back.
 - Struct-cast scratchpad access `((struct G*)0x1F800000)->ot` forces reloads (alias).
@@ -353,7 +353,7 @@ Units with inline asm are acceptable; no hand-written `.s` replacements.
 
 ## More tricks (wave 4, c1)
 - Prologue addiu scheduled one slot early vs store: chain assignments `D_x = p = a + 0x808;`.
-- `register ... asm("$5")` pinning fixes operand/reg choice (func_80025D0C, 80026998).
+- `register ... asm("$5")` pinning fixes operand/reg choice (GetTrackHeadingAt, 80026998).
 - `b = (int)ptr; p = (char **)(b + n*4)` controls addu operand order.
 - Scratchpad RMW: `{ int t = *(int*)0x1F800000; *(int*)0x1F800000 = f(..., t, ...); }`.
 
@@ -374,7 +374,7 @@ Units with inline asm are acceptable; no hand-written `.s` replacements.
 - 2.8.1 splits pointer biv into extra address bivs; index struct array by loop counter (`b[i].c`) to avoid.
 - Pin temps to $2/$3 for v0/v1 allocation; don't pin pointers the loop strength-reduces.
 - Near-miss scoring: normalized difflib diff of fd.py original-vs-mine disassembly.
-- Everything from func_8005F0D0 on is hand-written fragments (except func_8005ED34).
+- Everything from func_8005F0D0 on is hand-written fragments (except UpdateScrollTrack).
 
 ## More tricks (wave 4, c9)
 - `r = const; if (volatile_global != x) r = 0; return r;` : pin r to $2 and loaded value to $4, make global volatile (keeps unfilled `beq; nop` and early `li`). Matched func_8009D65C/D7A0/DE30.
@@ -404,11 +404,11 @@ Units with inline asm are acceptable; no hand-written `.s` replacements.
 - Scattered-case switch = compare chain: write as if/goto chain.
 
 ## More tricks (wave 5, c4)
-- Pin ONE variable only (func_80080C74: just the `a12` copy to $17); pinning all broke it.
-- Strength-reduced index: `P = (Ch*)(i*0xB0 + (int)*q)` and `i++` after last use of P (func_8007F794).
+- Pin ONE variable only (_SsSetNrpnVabAttr1: just the `a12` copy to $17); pinning all broke it.
+- Strength-reduced index: `P = (Ch*)(i*0xB0 + (int)*q)` and `i++` after last use of P (_SsClose).
 - Compute struct ptr inside `if` body (`s0 = &s1->b;`), use `s1 = &D[s2];` in loop instead of `s1++` to avoid strength reduction to `s1+574` (func_8004A474).
 - Load order of scratch fields changes schedule; load `v = s1->s1D8;` before `<0` test fixes v0/v1 split.
-- Forced copy `__asm__("" : "=r"(bk) : "0"(back));` before 2nd compare gives `addu v0,a0,zero` in branch delay slot (func_8002648C). Run perm.sh first on big near-misses, finish by hand.
+- Forced copy `__asm__("" : "=r"(bk) : "0"(back));` before 2nd compare gives `addu v0,a0,zero` in branch delay slot (UpdateCarTrackNode). Run perm.sh first on big near-misses, finish by hand.
 - fd.py writes build/fd/<stem>.o: use unique file stems.
 - In branch tail `__asm__("" : "=r"(r) : "0"(0))` keeps `li v0,0` in each arm.
 - `pgrep -f perm/<func>` matches your own shell; use `ps aux | grep permuter.py`.
@@ -459,7 +459,7 @@ Units with inline asm are acceptable; no hand-written `.s` replacements.
 - `volatile` field when original reloads after a store.
 
 ## More tricks (wave 5, c7)
-- Marker grid for library code: try all combos of 2.7.2 / NOSPLIT / FILL (NOSPLIT+FILL matched func_80084154).
+- Marker grid for library code: try all combos of 2.7.2 / NOSPLIT / FILL (NOSPLIT+FILL matched _SsSndSetVol).
 - K&R `short`/`unsigned short` params create copies matching original prologues.
 - Same pseudo for a constant in both branches stops hoisting out of a loop.
 - Permuter zero-score result: build/perm/<func>/output-0-*/source.c.
@@ -523,11 +523,11 @@ Fill of a branch delay slot from an earlier independent instruction (look-back 1
 - (w8c7) CD/SPU library module (~0x8009xxxx): module-wide `/* CC1_FLAGS: -mno-split-addresses */` on 2.8.1 + volatile hardware pointers/globals + goto-shaped CFG with shared return labels. Non-volatile cast on last store before a `jal` lets reorg fill the slot. `asm volatile("" : "=r"(r) : "0"(1))` gives separate `li 1`; `"memory"` clobber as last statement fixes tails; pin $3 fixed 9B758/9BA04.
 - Treat "assembler fill" diffs as a source/option problem, not an impossibility: sweep with tools/scripts/sweep_markers.py.
 - (w8c5) RODATA lines are needed for switch jump tables (`/* RODATA 0x800113f0 0x1c */`); extra `case 2:` merged with `default`, reload `a0` from `sp[1]` before switch; duplicate the call in each branch to fix `a0`; `i*0x24 + (int)base` for addu operand order; pins h=$16 r=$17.
-- (w8c5) FINDING (not adopted, needs owner decision): gcc 2.7.2 cc1 + tools/toolchain/gas-2.7/as (plain GNU as 2.7, reorder mode, no maspsx) reproduces func_8007E494 exactly — the soft-float/libgcc-style functions (DB54 E494 E9C4 E1B4 E818 E0B4 E944) seem to be assembled by gas 2.7 filling delay slots. Not used: project rule is stock maspsx only.
+- (w8c5) FINDING (not adopted, needs owner decision): gcc 2.7.2 cc1 + tools/toolchain/gas-2.7/as (plain GNU as 2.7, reorder mode, no maspsx) reproduces _mainasu exactly — the soft-float/libgcc-style functions (DB54 E494 E9C4 E1B4 E818 E0B4 E944) seem to be assembled by gas 2.7 filling delay slots. Not used: project rule is stock maspsx only.
 - (w7c2) Separate local var per code path (separate pseudos) changes s-reg assignment. Goto-loop with pre-hoisted pointer vars stops loop.c hoisting constants but keeps address hoisting.
 - (w7c2) `*(short*)&ushort_var = -1` gives `addiu -1` (plain const store gives `ori 0xFFFF`). Operand order via `(char*)x + (i<<2)` or `k + (int)tb`; `(idx<<4) + (int)base` with int globals matches `(arg0*0x10)+D`.
-- (w7c2) Shared goto labels for a common store (`s2:`/`m1:`) reproduce `j` into a shared `sh`. Plain `D_80110100.fXX` struct members reproduce negative-offset addressing from CSE'd base regs.
-- (w8c3) `/* CC1_FLAGS: -fno-strength-reduce */` stops constant field offset being folded into a walking loop pointer (func_80051378) — then pin pointer + put `i = 0;` before `s5 = D_800AD528;` for prologue order.
+- (w7c2) Shared goto labels for a common store (`s2:`/`m1:`) reproduce `j` into a shared `sh`. Plain `_svm_cur.fXX` struct members reproduce negative-offset addressing from CSE'd base regs.
+- (w8c3) `/* CC1_FLAGS: -fno-strength-reduce */` stops constant field offset being folded into a walking loop pointer (func_80051378) — then pin pointer + put `i = 0;` before `s5 = Options;` for prologue order.
 - (w8c3) GTE: empty-asm copy of `p+8` before the final scratchpad store forces the computation after the stores (func_80044BA0).
 - (w8c4) `a0 = (int)&D_x; return *(short *)a0;` forces original reg use; fake struct with big padding then `buf[0x160]` then pointer reproduces global accesses; `unsigned char` byte macros (signed gives `addiu -128`); local copy `q = P`; struct `{int p; int a[8];}` with descending fill loop for addressing.
 - (w8c0) Empty function with frame: `asm volatile("":::"memory")` makes cc1 emit `j $31; addu sp` -> maspsx `jr; addiu sp` (func_8001F400).
@@ -547,18 +547,18 @@ Conclusion: the rd-form functions need an assembler path (GNU as fed the raw mac
 
 ## Research note: delay-slot fill classes A/B (`lui $at; jal/jr; sw %lo($at)` and `jr ra; addiu sp`) (w9a)
 
-What the pipeline does (verified on StSetRing / func_8007E494):
+What the pipeline does (verified on StSetRing / _mainasu):
 - cc1 2.7.2 (`-mgas` default; `-mmips-as`/`-mno-gas` give identical text) emits stores as one-line macros `sw $5,sym`, leaves `jal`/`j $31` delay slots EMPTY (no `.set noreorder` wrapper) unless the reorg found a 4-byte filler (a 2-insn macro store is never one), and the epilogue as text `lw $31; addu $sp,$sp,N; j $31`. So the original object = that text run through a REORDER assembler: it expands the macro (`lui $at; sw`), moves the last real insn into the slot (the `sw %lo($at)`; `addiu sp` into `jr`), and keeps a filler between `lw $ra` and `jr $ra` (load hazard) -> `lw ra; addiu sp; jr ra; nop`.
 - Stock maspsx never reorders: `.ent` -> `.set noreorder` for the whole function, `.set` lines from cc1 are only tracked (`is_reorder`) and DROPPED, every unfilled branch/jump gets an explicit `nop # DEBUG: branch/jump`, `#nop` comment lines are deleted and re-derived. GNU as therefore only ever sees noreorder. No ASPSX_VERSION / MASPSX_FLAGS value changes this (flags not known to maspsx are forwarded to as, which has no reorder switch). Inline `.set reorder` passes maspsx only with a SPACE (tab form is swallowed) but maspsx still adds its own nop -> not a stock recipe, not used.
-- cc1 2.7.2 has no `-msplit-addresses` ("Invalid option"), no stock option emits `%hi/%lo` split, so with 2.7.2 the macro-store/fill pair is UNREACHABLE: functions whose codegen is 2.7.2-only (e.g. func_8007E494 needs `lw $a3,24($sp)`; 2.8.1 gives `move $7,$2`) and all `jr ra`-slot-with-`lw ra` epilogues stay blocked (2.8.1 NEVER emits `lw ra; addiu sp; jr; nop`; it always fills the `j $31` slot, so no 2.8.1 file in src/main has it).
+- cc1 2.7.2 has no `-msplit-addresses` ("Invalid option"), no stock option emits `%hi/%lo` split, so with 2.7.2 the macro-store/fill pair is UNREACHABLE: functions whose codegen is 2.7.2-only (e.g. _mainasu needs `lw $a3,24($sp)`; 2.8.1 gives `move $7,$2`) and all `jr ra`-slot-with-`lw ra` epilogues stay blocked (2.8.1 NEVER emits `lw ra; addiu sp; jr; nop`; it always fills the `j $31` slot, so no 2.8.1 file in src/main has it).
 
 What DOES work (stock): cc1 2.8.1 splits addresses itself (`lui rX,%hi; sw v,%lo(rX)`) and its reorg fills the jal/jr slot with the `sw`. The hi register is normally $2.., but `/* CC1_FLAGS: -fcall-used-$1 */` makes $1 (=$at) allocatable, so cc1 uses `$1` and the result is byte-identical to the assembler's `lui $at / sw %lo($at)` form, delay slot included. maspsx/as accept `$1` as `$at`. Recipe for leaf / simple stores with the original `lui $at,%hi(A); sw; lui $at,%hi(B); jr ra; sw %lo(B)($at)`:
     /* CC1_FLAGS: -fcall-used-$1 */      (default GCC 2.8.1, NOT the 2.7.2 marker)
-  plus `-fno-schedule-insns2` when the original keeps `sw $ra` before the first lui (calls). Matched with it: func_80087044, func_8008A634, func_8008DDA0, func_8008F914.
-Still blocked (checked all failed drafts + scratch drafts with 2.8.1 x {-fcall-used-$1, +-fno-schedule-insns2, +-fno-schedule-insns, -mno-split-addresses, -fno-strength-reduce}): everything that has `lw ra; addiu sp; jr ra; nop` or 2.7.2-only codegen (StSetRing top half matches with `-fcall-used-$1 -fno-schedule-insns2`, only the epilogue `lw; nop; jr; addiu` vs `lw; addiu; jr; nop` differs), func_8007E494, func_80082D00, SpuStart, _spu_Fw1ts, _add_mant_d, func_8007E9C4, func_8008F1C4, func_8008DDAC, func_8008E780, func_80080AB4, func_8007F794, func_80080804.
+  plus `-fno-schedule-insns2` when the original keeps `sw $ra` before the first lui (calls). Matched with it: _SsVmDamperOff, SsSetStereo, CD_set_test_parmnum, StSetMask.
+Still blocked (checked all failed drafts + scratch drafts with 2.8.1 x {-fcall-used-$1, +-fno-schedule-insns2, +-fno-schedule-insns, -mno-split-addresses, -fno-strength-reduce}): everything that has `lw ra; addiu sp; jr ra; nop` or 2.7.2-only codegen (StSetRing top half matches with `-fcall-used-$1 -fno-schedule-insns2`, only the epilogue `lw; nop; jr; addiu` vs `lw; addiu; jr; nop` differs), _mainasu, func_80082D00, SpuStart, _spu_Fw1ts, _add_mant_d, _err_math, CdRead2, func_8008DDAC, func_8008E780, _SsContRpn2, _SsClose, _SsContNrpn1.
 
 ## KEY LEVER: `/* CC1_FLAGS: -fcall-used-$1 */` (stock cc1 2.8.1)
-Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and its own scheduler puts the sw in jal/jr delay slots. Matched func_80087044, 8008A634, 8008DDA0, 8008F914 (same lever parasite-pc uses for ER_retry). Try also with `-fno-schedule-insns2` / `-fno-expensive-optimizations`. Added to sweep_markers.py defaults.
+Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and its own scheduler puts the sw in jal/jr delay slots. Matched _SsVmDamperOff, 8008A634, 8008DDA0, 8008F914 (same lever parasite-pc uses for ER_retry). Try also with `-fno-schedule-insns2` / `-fno-expensive-optimizations`. Added to sweep_markers.py defaults.
 - (w8c1) `goto` loop instead of do/while is not loop-optimised: nothing in it is hoisted. asm-launder a constant (e.g. 0x7EF8) to stop hoisting out of loop 1. `register asm` pins can alias other live pseudos (pin to $30 clobbered a2 / 0x1F800000 ptr).
 - (w8c1) K&R signature + `s0 = 0x40;` inside the `if` body fills a delay slot; separate address variables for two table accesses.
 - (w8c2) Declare 3x3 short matrix local as full 32-byte MATRIX struct (`short m[3][3]; short pad; int t[3]`) to fix frame + loop strength reduction; `m.m[0][i]`.. for transposed stores; small structs V3/V4 for array copies.
@@ -575,43 +575,43 @@ Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and
 - (w9c1) 3-level loop as gotos + inner do/while + one pin; separate var (`w2`) for second use of a product so `x/65536` quotient isn't shared; one reused `int s` avoids an `andi` mask; `i != one` / `sel = i == 1` for compare chains; early hoist of a global by reading it first.
 
 ## Wave 9 chunk 6 tricks
-- K&R params + `register int cN = aN;` copies fix order/registers of stack-arg loads (func_800884A8 near-miss).
+- K&R params + `register int cN = aN;` copies fix order/registers of stack-arg loads (_SsVmSeKeyOn near-miss).
 - `lw rd,%lo(sym)(rd)` form is only reachable via compound inline asm (`lui/addu/lw %lo`); not pure C, so NOT used in src/main (needs owner decision).
-- Near-misses: _spu_FiDMA (extra `addu v1,v1,-1`, 2.7.2 reorg), func_80089E1C (back-edge delay slot), func_8008A6F4 (lui/lw scheduling).
+- Near-misses: _spu_FiDMA (extra `addu v1,v1,-1`, 2.7.2 reorg), _SsVmSeqKeyOff (back-edge delay slot), SpuFree (lui/lw scheduling).
 
 ## Wave 10 tricks
 - `/* CC1_FLAGS: -fno-strength-reduce */` removes second pointer register in two-pointer stride loops (func_800572A8 near-miss).
 - Dead `char pad[N]` + `__asm__ volatile("" : : "m"(pad[0]))` at END of function reserves stack without instructions; `int pad[2]` adds 8 frame bytes.
 - Derived induction variable (`a0 + 0x80 + i*0x80`) places init after loop-hoisted constants (func_80079ED8).
 - Dead address-of inside a call arg `(*(v = &a4), i)` stops constant hoisting (func_80079ED8; found by permuter).
-- Goto loop + `char *b2 = D; q = a0*0x2C + (int)b2` (func_8003D01C); `-fno-schedule-insns` + pins (func_8002C138).
+- Goto loop + `char *b2 = D; q = a0*0x2C + (int)b2` (func_8003D01C); `-fno-schedule-insns` + pins (DecayCarOffset).
 - Near-misses: func_800572A8, 8004BE4C, 8007C944, 80047A50, 800211A4, 80054D50, 80042F58, 80043C14, 8004A080, 80049A60, 800217D0, 80020F20.
 - Wave 10 chunk 3: per-arm tail duplication (repeat the call in each arm so crossjump merges); `-fno-cse-skip-blocks` forces global reload across an if join (func_80059168); `__asm__("" : "=r"(x) : "0"(v))` launder keeps `& ~0x1F` out of andi narrowing, `volatile` variant keeps a constant inside its branch; separate temps per call result.
 
 ## Wave 11 tricks
-- Temp-var copy: `{ int t = f1(); v = f2(); s0 = t; }` moves the first call's result copy into the second jal's delay slot (func_8004BE4C).
-- Pins + empty-asm launder to fix schedule order (`v2 = b<<10; asm volatile("" : "=r"(v2) : "0"(v2));`) (func_80049A60).
+- Temp-var copy: `{ int t = f1(); v = f2(); s0 = t; }` moves the first call's result copy into the second jal's delay slot (PadPollPort).
+- Pins + empty-asm launder to fix schedule order (`v2 = b<<10; asm volatile("" : "=r"(v2) : "0"(v2));`) (ApplyRubberBandSpec).
 - If-chain as gotos in original block order reproduces layout; `t = D; sp[1] = t<<8` stops lhu narrowing (func_80020B10).
-- Separate result var per rand()/call result removes `addu a0,v0,zero` copies; `one = 1` variable gives srav/sllv (func_80053EC4).
+- Separate result var per rand()/call result removes `addu a0,v0,zero` copies; `one = 1` variable gives srav/sllv (SpawnParticlePair).
 - Switch + gotos with `/* RODATA addr size */` covers jump tables; `signed char *` for lb; `a1 = a0` in default arm keeps redundant copy (func_8003A2D4).
-- `if (x) {copy} else {identical copy}` changes loop invariant hoisting; `--p->f >= 0` decrements in loaded reg; `q += 2` biv with -fno-strength-reduce keeps base (func_8005ED34 near-miss).
+- `if (x) {copy} else {identical copy}` changes loop invariant hoisting; `--p->f >= 0` decrements in loaded reg; `q += 2` biv with -fno-strength-reduce keeps base (UpdateScrollTrack near-miss).
 - Pin address-holding pointers breaks `lui/addiu` hoist: pin products/scalars instead.
 
 ## Wave 12 tricks
 - Rewrite trailing do/while as `for (i=0;i<N;i++)`; use incoming param directly instead of local copy; local names must not collide with register names (s0,s3 rejected by cc1) (func_8002F1BC, 8003AE4C).
 - Scope products differently (function-scope x, block-scope y, inline third) to steer the last `mflo` into $v0 (func_8003CF34).
 - Launder `col` inside an if-arm to keep a redundant constant reload (func_80022448); launder after `if (t<0) t=-t` stops slti landing in bgez slot (func_80052024).
-- Switch tables: case blocks in original order, `case 0: default:` first, shared tails, `break` not early return, `/* RODATA addr size */` (func_80037B3C).
+- Switch tables: case blocks in original order, `case 0: default:` first, shared tails, `break` not early return, `/* RODATA addr size */` (InitRaceCars).
 - Second use of a constant in a loop makes loop.c hoist it to an s-reg; plain `for` duplicates the exit test with its own lui.
 - Soft-float: `typedef long long D` with 64-bit hex literals avoids .rdata doubles / maspsx `li.d` failure.
 - Never pin a register that an incoming parameter occupies.
 
 ## Wave 13 tricks
-- Large block copy = struct assignment (`typedef struct { int w[200]; } B; *d = *s;`) (func_800295B8).
-- Derive givs from the loop counter in a plain for (`s0 = base + i*0x320`) instead of copying `off = i` (func_8004A170, func_80022980: derive second walking pointer inside loop from the first).
+- Large block copy = struct assignment (`typedef struct { int w[200]; } B; *d = *s;`) (SaveCarSnapshots).
+- Derive givs from the loop counter in a plain for (`s0 = base + i*0x320`) instead of copying `off = i` (UpdateComCars, InitPlayerCar: derive second walking pointer inside loop from the first).
 - Load through a temp to reorder loads (func_80039C0C); separate local per stanza (func_80057750).
 - Second C name for the same symbol `extern T X2 __asm__("X");` defeats CSE of lui/addiu (func_80043C14) — documented hack, can be removed if a true source form is found.
-- `short c7` declaration for the constant changed hoisting (func_8002EAF8). `k = 2;` right after `i = 0;` hoists li ahead of address loads; dead address-of `*((char*)((*(nv=&p))+0x2A)) = k;` stops folding (func_80033474).
+- `short c7` declaration for the constant changed hoisting (TitleMenuInit). `k = 2;` right after `i = 0;` hoists li ahead of address loads; dead address-of `*((char*)((*(nv=&p))+0x2A)) = k;` stops folding (func_80033474).
 - Write through `volatile short *`, read through plain `short *` to get the lh reload after a store.
 - Permuter from a near-miss draft reaches 0 more often than hand tuning (func_80035B84, 80056F04, 80047DF8).
 - `fp`/`s8` are the same register; function-level GTE macros belong in include/rr_asm.h.
@@ -621,7 +621,7 @@ Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and
 - `perm.sh` bases must be comment-free (pycparser rejects /* */, typeof, asm); strip comments before permuting. cc1 segfaults on `struct __attribute__((packed)) V` as printed by the permuter: put the attribute after the body.
 - If a delay slot holds `sh` where original has next-arg setup, store inside both `if` arms (func_80020F20).
 - Compute `t = v >> 7` in the basic block before the following `if` so the sra does not fuse with halfword sign-extension (func_80051554) — no barrier needed.
-- `if (s) {A} else {A}` scaffold with identical arms reproduces quotient copies + `j; nop` (func_8002B934).
+- `if (s) {A} else {A}` scaffold with identical arms reproduces quotient copies + `j; nop` (FormatRaceTime).
 - Packet header unions `union { unsigned w; struct { char pad[3]; unsigned char len; } b; }` stop global-pointer reloads after stores; typed struct arrays give the original index/base computation order.
 - Fresh pointer var for a second base access stops cc1 folding +offset into the symbol; `x = a/18; s = a - x*18` keeps rand %18 temps.
 
@@ -630,7 +630,7 @@ Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and
 - One table pointer `s1[1..3]` instead of two walking pointers; stack data as `unsigned short v[4]` array; `do { } while (0)` wrapper fixes prologue order (func_800572A8, found by permuter).
 - Merge reused locals (original reuses few variables): rename-merge greedy search cut a large function's diff from 118 to 56 lines (func_8002367C near-miss). One variable for a clamp (`a = x; if (a > 0) a = 100; else a += 80;`).
 - Tail duplication: write the store in each arm so cross-jump merges only the tail. `asm("" : "=r"(ten) : "0"(10))` keeps one pseudo for a constant across the function.
-- Sibling functions (same GTE loop) share a draft: adapt the matched sibling (func_80027998 from func_80026C80).
+- Sibling functions (same GTE loop) share a draft: adapt the matched sibling (func_80027998 from FindTrackNodeScratch).
 - perm.sh: cpp step fails (exit 33) on drafts with RR_* macros; stub macros or strip before permuting.
 
 ## Wave 16 tricks

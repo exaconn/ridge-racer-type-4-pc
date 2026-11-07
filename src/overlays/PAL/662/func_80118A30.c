@@ -51,7 +51,7 @@ normalizeColumn:
 }else if(ovl662_D_801273B4==42){
                 D_800AC5D0 = 0x40;
                 D_800F4D8A = 1;
-                func_8002B75C(D_800F3920.prefix.progress.prefix00.fields.name,(char*)ovl662_D_801273A8);
+                CopyStringClearTail(D_800F3920.prefix.progress.prefix00.fields.name,(char*)ovl662_D_801273A8);
             }
         } else if (cancel == 1) {
             PlaySfx(2);
@@ -72,7 +72,7 @@ normalizeColumn:
             D_800F4D8A = 0;
         }
     }
-    func_8003D6F0(0);
-    func_8003D6F0(1);
-    func_8002A344(0x1008B);
+    UpdateBadgeRowAnim(0);
+    UpdateBadgeRowAnim(1);
+    UpdateScreenFade(0x1008B);
 }

@@ -1,5 +1,5 @@
 /* GCC_VERSION: 2.7.2 */
 
-extern int func_800832A4();
+extern int _SsSeqPlay();
 
-void func_80083274(short a, short b) { func_800832A4(a, b); }
+void _SsSndPlay(short a, short b) { _SsSeqPlay(a, b); }

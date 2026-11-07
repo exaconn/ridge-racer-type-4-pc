@@ -63,13 +63,13 @@ extern int MulMatrix0();
 extern short D_800AC0A4;
 extern S32B D_800AD598;
 extern V3 D_800FF690;
-extern int D_800FF6B0;
+extern int RaceState;
 extern V3 D_800FF6B8;
 extern S32B D_8010E710;
-extern int func_8002E0D8();
+extern int DrawCars();
 extern int func_80036FD4();
-extern int func_8006EF8C();
-extern int func_800747EC();
+extern int SetupViewport();
+extern int DrawTrackObjects();
 extern int D_8010E738;
 extern int D_8010E740[];
 extern int D_8010E768[];
@@ -83,7 +83,7 @@ extern M D_800F39A8;
 extern int ApplyMatrixSV();
 extern int func_8006DB0C();
 extern int SquareRoot0();
-extern int func_8006E368();
+extern int Atan2Table();
 extern short D_80107182;
 extern short D_80107184;
 extern struct { short m[3][3]; int t[3]; } D_800AD570;
@@ -91,7 +91,7 @@ extern struct { short a, b, c, d; } D_800F38F8[];
 extern short *D_8010E790;
 extern unsigned char *D_8010E798;
 extern int SetDispMask();
-extern int D_800AC5DC;
+extern int VSyncThreshold;
 extern struct S D_80011324;
 extern struct S D_8001132C;
 extern struct S D_80011334;
@@ -137,7 +137,7 @@ int func_80070464(void) {
         if (D_800AD50C != 0) {
             if (D_800AC538 == 0) {
                 if (D_800F4D44 != 0) {
-                    r = D_800FF6B0 == 2;
+                    r = RaceState == 2;
                 }
             }
         }
@@ -202,11 +202,11 @@ void func_80070734(int arg0) {
         }
         if (func_80070464() != 0) {
             *(int *)SCRATCHPAD = func_800706B8(*(int *)SCRATCHPAD);
-            func_8006EF8C(1);
+            SetupViewport(1);
             func_80036FD4(0);
             func_8006EDA4(0);
-            func_800747EC(2);
-            func_8002E0D8(1);
+            DrawTrackObjects(2);
+            DrawCars(1);
             func_8007064C();
         }
     }
@@ -240,7 +240,7 @@ void func_8007080C(a0)
             s1 = 1;
             do {
                 func_80095BF4(s0);
-                func_80095AC4(s0 - 0x14, s0);
+                CatPrim(s0 - 0x14, s0);
                 s1++;
                 s0 += 0x14;
             } while (s1 < 0xFF);
@@ -390,9 +390,9 @@ void func_80070BA4(char *a0, int a1, int a2) {
             s1->f10 = s1->f10 + 1;
         }
     } else {
-        a = s1->f0[D_800F4BF0];
-        s3 = s1->e8[D_800F4BF0];
-        if (a != 0) func_80095AC4(a, a + 0x14);
+        a = s1->f0[DrawBufIndex];
+        s3 = s1->e8[DrawBufIndex];
+        if (a != 0) CatPrim(a, a + 0x14);
         __asm__ volatile ("cfc2 $8, $21\n\tcfc2 $9, $22\n\tcfc2 $10, $23\n\tsw $8, 0(%0)\n\tsw $9, 0(%1)\n\tsw $10, 0(%2)"
             : : "r"(&sp68), "r"(&sp6c), "r"(&sp70) : "$8", "$9", "$10", "memory");
         if (s1->f14 > s1->f2C) {
@@ -402,7 +402,7 @@ void func_80070BA4(char *a0, int a1, int a2) {
             if (s1->f14 < a) {
                 if (s1->f30) s1->f14 = s1->f14 + 1;
                 s1->f4 = 0;
-                s1->f0[D_800F4BF0] = 0;
+                s1->f0[DrawBufIndex] = 0;
             } else {
                 b = s1->f14 - a + 1;
                 s1->f4 = b;
@@ -415,7 +415,7 @@ void func_80070BA4(char *a0, int a1, int a2) {
                 } else {
                     __asm__ volatile ("ctc2 %0, $21\n\tctc2 %1, $22\n\tctc2 %2, $23" : : "r"(k[1].u.c[0] << 4), "r"(k[1].u.c[1] << 4), "r"(k[1].u.c[2] << 4));
                     d = (s1->f18 << 12) / k->n;
-                    func_80091308(k, d, &s1->c48[s2]);
+                    DpqColor(k, d, &s1->c48[s2]);
                     if (s1->f30) {
                         s1->f18 = s1->f18 + 1;
                         if (s1->f18 >= k->n) {
@@ -430,7 +430,7 @@ void func_80070BA4(char *a0, int a1, int a2) {
                 } else {
                     __asm__ volatile ("ctc2 %0, $21\n\tctc2 %1, $22\n\tctc2 %2, $23" : : "r"(k[1].u.c[0] << 4), "r"(k[1].u.c[1] << 4), "r"(k[1].u.c[2] << 4));
                     d = (s1->f1C << 12) / k->n;
-                    func_80091308(k, d, &s1->c88[s2]);
+                    DpqColor(k, d, &s1->c88[s2]);
                     if (s1->f30) {
                         s1->f1C = s1->f1C + 1;
                         if (s1->f1C >= k->n) {
@@ -441,8 +441,8 @@ void func_80070BA4(char *a0, int a1, int a2) {
                 }
                 func_80070ACC(s1);
                 s3 = func_8006DB0C(a0, s3, s1, s2 << 2);
-                if (s3 != s1->e8[D_800F4BF0]) s1->f0[D_800F4BF0] = s3 - 0x14;
-                else s1->f0[D_800F4BF0] = 0;
+                if (s3 != s1->e8[DrawBufIndex]) s1->f0[DrawBufIndex] = s3 - 0x14;
+                else s1->f0[DrawBufIndex] = 0;
                 if (a1 < 2) {
                     if (s1->c48[s2].c[0] * 16 > D_80107180[0]) D_800AD570.m[0][a1] = (short)s1->c48[s2].c[0] << 4;
                     else D_800AD570.m[0][a1] = D_80107180[0];
@@ -453,9 +453,9 @@ void func_80070BA4(char *a0, int a1, int a2) {
                 }
             }
         }
-        c = s1->f0[D_800F4BF0];
+        c = s1->f0[DrawBufIndex];
         if (c != 0) {
-            AddPrims(s7, s1->e8[D_800F4BF0], c);
+            AddPrims(s7, s1->e8[DrawBufIndex], c);
         } else if (a1 < 2) {
             D_800AD570.m[0][a1] = D_80107180[0];
             D_800AD570.m[1][a1] = D_80107180[1];
@@ -468,8 +468,8 @@ void func_80070BA4(char *a0, int a1, int a2) {
             sp10[0] = (sp10[0] >> 1) - s1->fC8;
             sp10[1] = (sp10[1] >> 1) - s1->fCC;
             sp10[2] = (sp10[2] >> 1) - s1->fD0;
-            D_800F38F8[a1].a = -func_8006E368(SquareRoot0((sp10[0] >> 4) * (sp10[0] >> 4) + (sp10[2] >> 4) * (sp10[2] >> 4)), sp10[1] >> 4) & 0xFFF;
-            D_800F38F8[a1].b = (0x400 - func_8006E368(sp10[0], sp10[2])) & 0xFFF;
+            D_800F38F8[a1].a = -Atan2Table(SquareRoot0((sp10[0] >> 4) * (sp10[0] >> 4) + (sp10[2] >> 4) * (sp10[2] >> 4)), sp10[1] >> 4) & 0xFFF;
+            D_800F38F8[a1].b = (0x400 - Atan2Table(sp10[0], sp10[2])) & 0xFFF;
             D_800F38F8[a1].c = 0;
         }
         __asm__ volatile ("ctc2 %0, $21\n\tctc2 %1, $22\n\tctc2 %2, $23" : : "r"(sp68), "r"(sp6c), "r"(sp70));
@@ -489,7 +489,7 @@ void func_80071348(void) {
     int base;
     register short *g __asm__("$17");
     a = func_8006F1EC((SCRATCHPAD + 0x8), 0);
-    b = func_8006F260((SCRATCHPAD + 0x8));
+    b = YawToOctant((SCRATCHPAD + 0x8));
     base = (int)D_8010E790;
     p = (short *)(b * 2 + ((a << 4) + base));
     if (*p >= 0) {
@@ -517,7 +517,7 @@ s32 func_800713D0(void) {
 
 int func_800713E0(void) {
     int a = func_8006F1EC((SCRATCHPAD + 0x8), 0);
-    return (D_8010E798 + a * 8)[func_8006F260((SCRATCHPAD + 0x8))];
+    return (D_8010E798 + a * 8)[YawToOctant((SCRATCHPAD + 0x8))];
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -539,6 +539,6 @@ void func_80071440(void) {
     f = D_80011344;
     SetDispMask(0);
     func_8001ECE8(0, 0, 0, 3);
-    D_800AC5DC = 0x80;
+    VSyncThreshold = 0x80;
     D_8010E7A4 = 0;
 }

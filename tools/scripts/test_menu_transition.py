@@ -80,7 +80,7 @@ static void enter2(void){record(6,2,0,0,0,0,0,0,0,0);}
 static void enter3(void){record(6,3,0,0,0,0,0,0,0,0);}
 RrMenuScriptOperation D_8009F840[]={op0,op1,op2,op3,op0,op1,op2,op3,op0,op1,op2,op3};
 RrMenuSceneEntry D_8009F870[]={enter0,enter1,enter2,enter3,enter0,enter1,enter2,enter3,enter0,enter1,enter2,enter3};
-void *func_8001FD20(u32 *order,void *cursor,s32 x,s32 y,s32 width,s32 height,s32 r,s32 g,s32 b){
+void *AddTilePrim(u32 *order,void *cursor,s32 x,s32 y,s32 width,s32 height,s32 r,s32 g,s32 b){
  record(7,(intptr_t)order,(intptr_t)cursor,x,y,width,height,r,g,b);
  return (u8*)cursor+16;
 }

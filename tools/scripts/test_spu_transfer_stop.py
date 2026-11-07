@@ -23,9 +23,9 @@ typedef uint8_t u8; typedef int16_t s16; typedef uint16_t u16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
 RrSpuRegisterBank test_banks[2];
-RrSpuRegisterBank *D_800A47D8=&test_banks[0];
+RrSpuRegisterBank *_spu_RXX=&test_banks[0];
 s32 D_800A4828;
-void (*volatile D_800A4810)(void);
+void (*volatile _spu_transferCallback)(void);
 u32 test_count, test_log[4000][3], test_busy, test_reads, test_written;
 u32 test_replace_after_delay, test_callback_mutation;
 u32 test_layout[]={sizeof(RrSpuRegisterBank),offsetof(RrSpuRegisterBank,spu_control)};
@@ -42,10 +42,10 @@ void test_write_control(RrSpuRegisterBank *bank,u32 value) {
  record(2,value,(u32)(bank-test_banks));bank->spu_control=value;test_written=1;
 }
 void test_callback(void) {
- record(4,0,(u32)(D_800A47D8-test_banks));
- if(test_callback_mutation) {D_800A47D8->spu_control=0xBEEF;D_800A4828=72;}
+ record(4,0,(u32)(_spu_RXX-test_banks));
+ if(test_callback_mutation) {_spu_RXX->spu_control=0xBEEF;D_800A4828=72;}
 }
-s32 func_80096E64(u32 first,s32 second) {record(5,first,(u32)second);return -1;}
+s32 DeliverEvent(u32 first,s32 second) {record(5,first,(u32)second);return -1;}
 '''
         delay = (root / 'tools/scripts/fixtures/legacy/func_8007F59C.c').read_text()
         delay = delay.replace('#include "types.h"', '').replace('_spu_Fw1ts', 'test_actual_delay')
@@ -53,13 +53,13 @@ s32 func_80096E64(u32 first,s32 second) {record(5,first,(u32)second);return -1;}
         source += delay + '''
 void _spu_Fw1ts(void) {
  record(3,0,0);test_actual_delay();
- if(test_replace_after_delay)D_800A47D8=&test_banks[1];
+ if(test_replace_after_delay)_spu_RXX=&test_banks[1];
 }
 void test_initialize(u32 initial,u32 active,u32 callback,u32 busy) {
  memset(test_banks,0xA5,sizeof(test_banks));
  test_banks[0].spu_control=initial;test_banks[1].spu_control=initial;
- D_800A47D8=&test_banks[0];D_800A4828=(s32)active;
- D_800A4810=callback?test_callback:0;
+ _spu_RXX=&test_banks[0];D_800A4828=(s32)active;
+ _spu_transferCallback=callback?test_callback:0;
  test_count=test_reads=test_written=test_replace_after_delay=test_callback_mutation=0;
  test_busy=busy;memset(test_log,0xA5,sizeof(test_log));
 }

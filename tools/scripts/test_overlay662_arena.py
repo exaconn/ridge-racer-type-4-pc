@@ -32,8 +32,8 @@ static struct World {
  s8 flag0,flag1;s32 counter;u32 calls;Event events[4];u32 after[8];
 } world,expected;
 #define D_800F4D70 world.slots
-#define D_800102F0 world.base
-#define D_800ACC18 world.active
+#define CdDirectoryBuffer world.base
+#define LoadCursor world.active
 #define D_800F4D7C world.flag0
 #define D_800F3A2C world.flag1
 #define ScreenFrame world.counter
@@ -51,7 +51,7 @@ static void ui_effect(struct World *w,s32 a,s32 b,s32 c){
 }
 static void finish_effect(struct World *w){event(w,4,0,0,0,w->active);w->counter=77;}
 void ResetScreenCounters(void){rr_real_reset();assert(world.flag0==0 && world.flag1==0 && world.counter==0);reset_effect(&world);}
-void func_8003A1B4(void){load_effect(&world);}
+void InitMenuArenas(void){load_effect(&world);}
 void func_8002AF8C(s32 a,s32 b,s32 c){ui_effect(&world,a,b,c);}
 void ovl662_func_80116020(void){finish_effect(&world);}
 ''' + body + r'''

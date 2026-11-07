@@ -44,13 +44,13 @@ static void service(unsigned id,s32 a,s32 b){Event *event;
  if(id==2)assert(a>=0&&a<RR_SEQUENCE_TABLE_COUNT);
  mutate(&actual,id);
 }
-static void func_800295B8(s32 unused){service(0,unused,0);}
-static void func_8004FC18(s16 a,s16 b){service(1,a,b);}
+static void SaveCarSnapshots(s32 unused){service(0,unused,0);}
+static void SoundSetMasterVolume(s16 a,s16 b){service(1,a,b);}
 static void *sequence(s32 a,s32 b){service(2,a,b);return 0;}
-#define func_8004F2D8 sequence
-#define D_800F2EB8 (actual.length)
-#define D_800F3A30 (actual.target)
-#define D_800FF6B0 (actual.state)
+#define SoundQueueEnqueue sequence
+#define TrackLength (actual.length)
+#define NumLaps (actual.target)
+#define RaceState (actual.state)
 #define D_800F4C64 (actual.flag)
 #define D_800AC5D0 (actual.timer)
 #define D_8010C134 (actual.pending)

@@ -9,13 +9,13 @@ extern RrCourseChoice4 D_800ABE08[2][9];
 void func_80053BB4(s32 mode);
 #include "rr/overlay662_progress_init.h"
 extern const char ovl662_D_8011487C[];
-void func_80014A8C(s32 mode);
+void SetModelTexturePage(s32 mode);
 void ovl662_func_80114B9C(void) {
     SetDispMask(0);
-    func_8002A604();
+    ClearScreenOverlayState();
     ovl662_func_80114998();
     func_8001ECE8(0, 0, 0, 2);
-    func_80014A8C(25);
+    SetModelTexturePage(25);
     D_800F4C6A = 1;
     D_800F3A26 = 40;
     D_800F4D8A = 0;

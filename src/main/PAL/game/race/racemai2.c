@@ -126,34 +126,34 @@ typedef struct CarCollision {
     u8 pad298[0x320 - 0x298];
 } CarCollision;
 
-extern void (*D_8009F7A0[])();
+extern void (*CarUpdateStages[])();
 extern unsigned char D_8009F7E0[];
-extern char D_800ABEF8[];
-extern short D_800AC59C;
+extern char PlayerCars[];
+extern short NumCars;
 extern unsigned short D_800F3914;
 extern C *CarTable[];
 extern int rcos();
-extern s32 func_8006E368(s32, s32);
+extern s32 Atan2Table(s32, s32);
 extern s32 rsin(s32);
-extern s32 D_800AD504;
-extern s32 D_800F2EB8;
+extern s32 ReplayState;
+extern s32 TrackLength;
 extern s16 D_800F4D44;
-extern char *D_800ABEA4;
+extern char *TrackNodes;
 extern int D_800ABEC0;
 extern short D_800AD522;
-extern int D_800F3A30;
+extern int NumLaps;
 
-void func_80037D88();
-unsigned func_80038408(int a0, int a1, int a2, int a3, int a4);
-u32 func_800384B4(void *arg0, M2C_UNK arg1);
-void func_80038550(s32 arg0);
-void func_80038654(CarCollision *arg0);
+void StepRaceFrame();
+unsigned PointInQuad(int a0, int a1, int a2, int a3, int a4);
+u32 PointInQuadPtr(void *arg0, M2C_UNK arg1);
+void ComputeQuadMidpoints(s32 arg0);
+void ResolveCarCollisions(CarCollision *arg0);
 void func_80039494(RrRaceVehicle *vehicle);
-void func_800394B8(RrRaceVehicle *vehicle);
-void func_800394E4(char *p, int b);
-void func_800396E4(RrRaceVehicle *vehicle);
+void PlayTrackEventSfx(RrRaceVehicle *vehicle);
+void UpdateRumbleStrip(char *p, int b);
+void CheckFinalLapEvent(RrRaceVehicle *vehicle);
 
-void func_80037D88(arg0)
+void StepRaceFrame(arg0)
 unsigned int arg0;
 {
   int i;
@@ -172,76 +172,76 @@ unsigned int arg0;
   {
     case 0:
     default:
-      func_80029660(D_800ABEF8, 0);
-      func_80022B64(D_800ABEF8, 0);
+      ReadCarInput(PlayerCars, 0);
+      UpdatePlayerCar(PlayerCars, 0);
       break;
 
     case 1:
     case 6:
-      func_80029660(D_800ABEF8, 0);
-      func_80022B64(D_800ABEF8, 0);
+      ReadCarInput(PlayerCars, 0);
+      UpdatePlayerCar(PlayerCars, 0);
       s6 = 1;
-      func_8004A170();
+      UpdateComCars();
       break;
 
     case 2:
-      func_80029660(D_800ABEF8, 0);
-      func_80029660(D_800ABEF8 + 0x320, 1);
-      func_80022B64(D_800ABEF8, 0);
-      func_80022B64(D_800ABEF8 + 0x320, 1);
+      ReadCarInput(PlayerCars, 0);
+      ReadCarInput(PlayerCars + 0x320, 1);
+      UpdatePlayerCar(PlayerCars, 0);
+      UpdatePlayerCar(PlayerCars + 0x320, 1);
       break;
 
     case 3:
-      func_80029660(D_800ABEF8, 0);
-      func_80029660(D_800ABEF8 + 0x320, 1);
-      func_80022B64(D_800ABEF8, 0);
-      func_80022B64(D_800ABEF8 + 0x320, 1);
+      ReadCarInput(PlayerCars, 0);
+      ReadCarInput(PlayerCars + 0x320, 1);
+      UpdatePlayerCar(PlayerCars, 0);
+      UpdatePlayerCar(PlayerCars + 0x320, 1);
       s6 = 1;
-      func_8004A170();
+      UpdateComCars();
       break;
 
     case 4:
-      for (i = 0; i < D_800AC59C; i++)
+      for (i = 0; i < NumCars; i++)
       {
-        func_80029660(CarTable[i], i);
+        ReadCarInput(CarTable[i], i);
       }
-      for (i = 0; i < D_800AC59C; i++)
+      for (i = 0; i < NumCars; i++)
       {
         if (CarTable[i]->s1E8 != (-1))
         {
-          func_80022B64(CarTable[i], i);
+          UpdatePlayerCar(CarTable[i], i);
         }
       }
       break;
 
     case 5:
       s6 = 1;
-      func_8004A170();
+      UpdateComCars();
       break;
   }
 
   for (i = 0; i < 7; i++)
   {
-    for (*g = 0; *g < D_800AC59C; (*g)++)
+    for (*g = 0; *g < NumCars; (*g)++)
     {
       if (CarTable[*g]->s1E8 != (-1))
       {
-        D_8009F7A0[i](CarTable[*g]);
+        CarUpdateStages[i](CarTable[*g]);
       }
     }
   }
-  for (i = 0; i < D_800AC59C; i++)
+  for (i = 0; i < NumCars; i++)
   {
     if (CarTable[i]->s1E8 != (-1))
     {
       if (CarTable[i]->s1A0 & 7)
       {
-        func_8002C1D4(2, CarTable[i]);
+        SetCarImpactState(2, CarTable[i]);
         func_8002BF34(CarTable[i], (short) CarTable[i]->s1A0);
       }
       if (((short) CarTable[i]->s1A0) != 0)
       {
-        s4 = ((func_80025F84(0x800 - CarTable[i]->s1EC, CarTable[i]->s1D4) - 0x400) * 3) / 5;
+        s4 = ((AngleDiffAbs(0x800 - CarTable[i]->s1EC, CarTable[i]->s1D4) - 0x400) * 3) / 5;
         c = CarTable[i];
         if (c->s1D8 >= 0xA1)
         {
@@ -292,11 +292,11 @@ unsigned int arg0;
   }
   for (i = 7; i < 0xB; i++)
   {
-    for (*g = 0; *g < D_800AC59C; (*g)++)
+    for (*g = 0; *g < NumCars; (*g)++)
     {
       if (CarTable[*g]->s1E8 != (-1))
       {
-        D_8009F7A0[i](CarTable[*g]);
+        CarUpdateStages[i](CarTable[*g]);
       }
     }
   }
@@ -306,35 +306,35 @@ unsigned int arg0;
   }
 }
 
-unsigned func_80038408(int a0, int a1, int a2, int a3, int a4) {
+unsigned PointInQuad(int a0, int a1, int a2, int a3, int a4) {
     unsigned r = 0;
-    if (func_80091734(a0, a1, a4) >= 0) {
-        if (func_80091734(a1, a3, a4) >= 0) {
-            if (func_80091734(a3, a2, a4) >= 0) {
-                r = (unsigned)~func_80091734(a2, a0, a4) >> 31;
+    if (NormalClip(a0, a1, a4) >= 0) {
+        if (NormalClip(a1, a3, a4) >= 0) {
+            if (NormalClip(a3, a2, a4) >= 0) {
+                r = (unsigned)~NormalClip(a2, a0, a4) >> 31;
             }
         }
     }
     return r;
 }
 
-u32 func_800384B4(void *arg0, M2C_UNK arg1) {
+u32 PointInQuadPtr(void *arg0, M2C_UNK arg1) {
     u32 var_v0;
 
     var_v0 = 0;
-    if (func_80091734(M2C_FIELD(arg0, s32 *, 8), M2C_FIELD(arg0, s32 *, 0xC), arg1) >= 0) {
+    if (NormalClip(M2C_FIELD(arg0, s32 *, 8), M2C_FIELD(arg0, s32 *, 0xC), arg1) >= 0) {
         var_v0 = 0;
-        if (func_80091734(M2C_FIELD(arg0, s32 *, 0xC), M2C_FIELD(arg0, s32 *, 4), arg1) >= 0) {
+        if (NormalClip(M2C_FIELD(arg0, s32 *, 0xC), M2C_FIELD(arg0, s32 *, 4), arg1) >= 0) {
             var_v0 = 0;
-            if (func_80091734(M2C_FIELD(arg0, s32 *, 4), M2C_FIELD(arg0, s32 *, 0), arg1) >= 0) {
-                var_v0 = (u32) ~func_80091734(M2C_FIELD(arg0, s32 *, 0), M2C_FIELD(arg0, s32 *, 8), arg1) >> 0x1F;
+            if (NormalClip(M2C_FIELD(arg0, s32 *, 4), M2C_FIELD(arg0, s32 *, 0), arg1) >= 0) {
+                var_v0 = (u32) ~NormalClip(M2C_FIELD(arg0, s32 *, 0), M2C_FIELD(arg0, s32 *, 8), arg1) >> 0x1F;
             }
         }
     }
     return var_v0;
 }
 
-void func_80038550(s32 arg0) {
+void ComputeQuadMidpoints(s32 arg0) {
     void *temp_v0;
 
     temp_v0 = (arg0 * 0x24) + SCRATCH_CAR_WORK;
@@ -351,13 +351,13 @@ void func_80038550(s32 arg0) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80025F84 ((s32 (*)(s16, s16))func_80025F84)
-#define func_8002C1D4 ((void (*)(s32, CarCollision *))func_8002C1D4)
+#define AngleDiffAbs ((s32 (*)(s16, s16))AngleDiffAbs)
+#define SetCarImpactState ((void (*)(s32, CarCollision *))SetCarImpactState)
 #define rcos ((s32 (*)(s32))rcos)
-#define D_800ABEF8 (*(CarCollision (*)[2])&D_800ABEF8)
+#define PlayerCars (*(CarCollision (*)[2])&PlayerCars)
 #define CarTable (*(CarCollision *(*)[])&CarTable)
 
-void func_80038654(CarCollision *arg0) {
+void ResolveCarCollisions(CarCollision *arg0) {
     ScratchpadCollision *sp = (ScratchpadCollision *)SCRATCH_CAR_WORK;
     CarCollision *cars[2];
     s32 rx[2];
@@ -395,20 +395,20 @@ void func_80038654(CarCollision *arg0) {
     sp->pts40[0][4].pt.x = arg0->corners88[3].x;
     sp->pts40[0][4].pt.y = arg0->corners88[3].z;
     i = 0;
-    func_80038550(0);
+    ComputeQuadMidpoints(0);
 
     arg0_18C = arg0->unk18C;
     arg0_F4 = arg0->unkF4;
     arg0_24 = arg0->pos20[1];
 
-    for (; i < D_800AC59C; i++) {
+    for (; i < NumCars; i++) {
         other = CarTable[i];
         if (other != arg0 && other->unk1E8 != -1) {
             s32 diffF4;
             s32 diff18C;
             s32 other_24;
 
-            diff18C = ((other->unk18C + D_800F2EB8) - arg0_18C) % D_800F2EB8;
+            diff18C = ((other->unk18C + TrackLength) - arg0_18C) % TrackLength;
             other_F4 = other->unkF4;
             diffF4 = other_F4 - arg0_F4;
             other_24 = other->pos20[1];
@@ -423,7 +423,7 @@ void func_80038654(CarCollision *arg0) {
 
             if ((other->unk1B8 == arg0->unk1B8 || offZ < 0x1A) &&
                 diffF4 < 0x64 &&
-                (diff18C < 0xC8 || D_800F2EB8 - 0xC8 < diff18C) &&
+                (diff18C < 0xC8 || TrackLength - 0xC8 < diff18C) &&
                 offZ < 0x3C) {
                 {
                     s32 tx;
@@ -444,13 +444,13 @@ void func_80038654(CarCollision *arg0) {
                     sp->pts40[1][4].pt.y = other->corners88[3].z + sp->dy34;
                     offX = tx;
                     offZ = tz;
-                    func_80038550(1);
+                    ComputeQuadMidpoints(1);
                 }
 
                 for (j = 0; j < 2; j++) {
                     j_xor_1 = j ^ 1;
                     for (k = 0; k < 9; k++) {
-                        hit = func_800384B4(&sp->pts40[j][1], *(s32 *)(sp->pts40[j_xor_1] + k));
+                        hit = PointInQuadPtr(&sp->pts40[j][1], *(s32 *)(sp->pts40[j_xor_1] + k));
                         if (hit > 0) {
                             s32 rz0;
 
@@ -472,7 +472,7 @@ void func_80038654(CarCollision *arg0) {
                                 rz0 = -((sp->dy34 - sp->dx30) * sinVal) / 4096;
                             }
 
-                            ang = 0x400 - func_8006E368(ang, rz0);
+                            ang = 0x400 - Atan2Table(ang, rz0);
                             side = 0;
                             if (ang >= -cars[0]->unk122 && ang <= cars[0]->unk122) {
                                 if (ang <= -cars[0]->unk120 || ang >= cars[0]->unk120) {
@@ -483,9 +483,9 @@ void func_80038654(CarCollision *arg0) {
                             }
 
                             if (j_xor_1 != 0) {
-                                ang = -func_8006E368(sp->dx30, sp->dy34) + 0xC00;
+                                ang = -Atan2Table(sp->dx30, sp->dy34) + 0xC00;
                             } else {
-                                ang = -func_8006E368(-sp->dx30, -sp->dy34) + 0xC00;
+                                ang = -Atan2Table(-sp->dx30, -sp->dy34) + 0xC00;
                             }
                             sp->dx30 = rsin(ang) << 4;
                             sp->dy34 = rcos(ang) << 4;
@@ -500,11 +500,11 @@ void func_80038654(CarCollision *arg0) {
                             rx[1] = (dx[1] * cosVal + dy[1] * sinVal) >> 12;
                             ry[1] = (-dx[1] * sinVal + dy[1] * cosVal) >> 12;
 
-                            ang = func_8006E368(rx[1] - rx[0], ry[1] - ry[0]) & 0xFFF;
-                            sp->angles14[0] = func_8006E368(cars[0]->corners110[1].x - rx[0], cars[0]->corners110[1].y - ry[0]) & 0xFFF;
-                            sp->angles14[1] = func_8006E368(cars[0]->corners110[0].x - rx[0], cars[0]->corners110[0].y - ry[0]) & 0xFFF;
-                            sp->angles14[2] = func_8006E368(cars[0]->corners110[2].x - rx[0], cars[0]->corners110[2].y - ry[0]) & 0xFFF;
-                            sp->angles14[3] = func_8006E368(cars[0]->corners110[3].x - rx[0], cars[0]->corners110[3].y - ry[0]) & 0xFFF;
+                            ang = Atan2Table(rx[1] - rx[0], ry[1] - ry[0]) & 0xFFF;
+                            sp->angles14[0] = Atan2Table(cars[0]->corners110[1].x - rx[0], cars[0]->corners110[1].y - ry[0]) & 0xFFF;
+                            sp->angles14[1] = Atan2Table(cars[0]->corners110[0].x - rx[0], cars[0]->corners110[0].y - ry[0]) & 0xFFF;
+                            sp->angles14[2] = Atan2Table(cars[0]->corners110[2].x - rx[0], cars[0]->corners110[2].y - ry[0]) & 0xFFF;
+                            sp->angles14[3] = Atan2Table(cars[0]->corners110[3].x - rx[0], cars[0]->corners110[3].y - ry[0]) & 0xFFF;
 
                             for (dy[0] = 0; dy[0] < 3; dy[0]++) {
                                 if (ang >= sp->angles14[dy[0]] && ang <= sp->angles14[dy[0] + 1]) {
@@ -543,7 +543,7 @@ void func_80038654(CarCollision *arg0) {
                                 sp->dy34 >>= 6;
                             }
 
-                            ang = rcos(func_80025F84(cars[0]->unk1D4, cars[1]->unk1D4));
+                            ang = rcos(AngleDiffAbs(cars[0]->unk1D4, cars[1]->unk1D4));
                             cars[1]->pos00[0] -= sp->dx30;
                             cars[1]->pos00[2] -= sp->dy34;
                             cars[1]->pos10[0] -= sp->dx30 >> 6;
@@ -602,15 +602,15 @@ void func_80038654(CarCollision *arg0) {
                                 sp->pts40[1][4].pt.y = other->corners88[3].z + sp->dy34;
                                 offX = tx;
                                 offZ = tz;
-                                func_80038550(1);
+                                ComputeQuadMidpoints(1);
                             } else {
                                 if (cars[side]->unk1A5 == 0) {
-                                    func_8002C1D4(8, cars[side]);
+                                    SetCarImpactState(8, cars[side]);
                                 }
                                 if (cars[side ^ 1]->unk1A5 == 0) {
-                                    func_8002C1D4(8, cars[side ^ 1]);
+                                    SetCarImpactState(8, cars[side ^ 1]);
                                 }
-                                if ((arg0 == &D_800ABEF8[0] || arg0 == &D_800ABEF8[1]) && arg0->unk1A5 == 0x1E) {
+                                if ((arg0 == &PlayerCars[0] || arg0 == &PlayerCars[1]) && arg0->unk1A5 == 0x1E) {
                                     s16 pan = (other_F4 - arg0_F4) / 2;
                                     s16 vol;
                                     if (arg0->unk1EA != 0) {
@@ -621,7 +621,7 @@ void func_80038654(CarCollision *arg0) {
                                     if (vol >= 0x200) {
                                         vol = 0x1FF;
                                     }
-                                    if (D_800AD504 != 2 && arg0->unk1D8 >= 0) {
+                                    if (ReplayState != 2 && arg0->unk1D8 >= 0) {
                                         PlaySfxVolPan(0x21, (vol >> 3) + 0x3C, pan, -1);
                                     }
                                 }
@@ -638,29 +638,29 @@ void func_80038654(CarCollision *arg0) {
     }
 }
 
-#undef func_80025F84
-#undef func_8002C1D4
+#undef AngleDiffAbs
+#undef SetCarImpactState
 #undef rcos
-#undef D_800ABEF8
+#undef PlayerCars
 #undef CarTable
 
 void func_80039494(RrRaceVehicle *vehicle)
 {
-    func_80055250(3, vehicle->trackNodeF0);
+    LookupTrackEvent(3, vehicle->trackNodeF0);
 }
 
-void func_800394B8(RrRaceVehicle *vehicle)
+void PlayTrackEventSfx(RrRaceVehicle *vehicle)
 {
-    func_8004EE60(func_80055250(2, vehicle->trackNodeF0));
+    SetReverbDepthBoth(LookupTrackEvent(2, vehicle->trackNodeF0));
 }
 
-void func_800394E4(char *p, int b) {
+void UpdateRumbleStrip(char *p, int b) {
     int s3;
     int s2;
     int t;
     int a1;
     int s0;
-    a1 = func_80055250(4, *(int *)(p + 0xF0));
+    a1 = LookupTrackEvent(4, *(int *)(p + 0xF0));
     s3 = 0;
     s2 = s3;
     if (a1 >= 0) {
@@ -681,7 +681,7 @@ void func_800394E4(char *p, int b) {
                 s0 = -0x3F;
             }
             t = *(int *)(p + 0x54) - 0x800;
-            t += *(short *)(D_800ABEA4 + *(int *)(p + 0xF0) * 0x3C + 0x12);
+            t += *(short *)(TrackNodes + *(int *)(p + 0xF0) * 0x3C + 0x12);
             p = (char *)(t & 0xFFF);
             if (s0 < 0) {
                 if ((a1 & 1) > 0) {
@@ -702,22 +702,22 @@ l16:
     func_800512C4(b, s2, s3);
 }
 
-void func_800396E4(RrRaceVehicle *vehicle)
+void CheckFinalLapEvent(RrRaceVehicle *vehicle)
 {
     int distanceLimit;
     int courseLength;
     int flags, node;
     if (!(D_800ABEC0 & 0x100)) {
         if (D_800AD522 != 1) {
-            courseLength = D_800F2EB8;
-            distanceLimit = (D_800F3A30 - 1) * courseLength;
+            courseLength = TrackLength;
+            distanceLimit = (NumLaps - 1) * courseLength;
             if ((vehicle->second + vehicle->first) >= distanceLimit) {
                 node = vehicle->trackNodeF0;
-                if (func_80055250(6, node) == 1) {
+                if (LookupTrackEvent(6, node) == 1) {
                     flags = D_800ABEC0 & 0x100;
                     D_800ABEC0 = flags;
                     if (flags == 0) {
-                        func_8004F2D8(0x12, 0);
+                        SoundQueueEnqueue(0x12, 0);
                         D_800ABEC0 |= 0x100;
                     }
                 }

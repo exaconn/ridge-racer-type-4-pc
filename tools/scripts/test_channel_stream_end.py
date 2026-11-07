@@ -62,9 +62,9 @@ static void notify(World *w,s32 packed){unsigned b=(u32)packed&255,row=((u32)pac
  if(mutation&4){w->records[0][b][row].pitch54=signed16((u16)(0x8123U+notifications*97));
   w->records[0][b][row].state1C=(u8)(17+notifications);}
 }
-#define D_8010F068 (actual.slots)
-void func_80083994(s32 bank,s16 row){enter(0,bank,row);restart(&actual,bank,row);}
-void func_80089E1C(s32 packed){enter(1,packed,0);notify(&actual,packed);}
+#define _ss_score (actual.slots)
+void _SsSndNextSep(s32 bank,s16 row){enter(0,bank,row);restart(&actual,bank,row);}
+void _SsVmSeqKeyOff(s32 packed){enter(1,packed,0);notify(&actual,packed);}
 '''+body+r'''
 static unsigned branches[8],mutations[8];
 static void model(unsigned bank,unsigned row){RrChannelStreamB0 *r=&expected.slots[bank][row];

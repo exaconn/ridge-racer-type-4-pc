@@ -5,10 +5,10 @@
         if (mask & (bit)) goto apply_##index; \
     } else { \
     apply_##index: \
-        D_800A47D8->control[index] = patch->values[index]; \
+        _spu_RXX->control[index] = patch->values[index]; \
     }
 
-void func_80086084(RrSpuRegisterPatch *patch) {
+void _spu_setReverbAttr(RrSpuRegisterPatch *patch) {
     s32 mask = patch->mask;
     s32 all = mask == 0;
     APPLY_PATCH(0, 0x00000001U);

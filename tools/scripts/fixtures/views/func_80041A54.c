@@ -1,11 +1,11 @@
 #include "rr/menu_grid.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A28 (*(int (*))&D_800F3A28)
+#define MenuGridRecords (*(int (*))&MenuGridRecords)
 
-#undef D_800F3A28
+#undef MenuGridRecords
 
-void func_80041A54(s32 index, s32 layout, s32 count, s32 x, s32 y) {
+void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y) {
     register s32 six = 6;
     register s32 quotient = six / count;
     register s32 offset;

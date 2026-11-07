@@ -16,7 +16,7 @@ extern U D_800F2F78[];
 extern s32 ratan2(s32 z, s32 x);
 extern unsigned char D_800A017C[];
 
-s32 func_8004C454(s32 node, s32 lane);
+s32 GetTrackNodeHeading(s32 node, s32 lane);
 void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank);
 int func_8004C73C(int a0, int a1, unsigned char *s, int a3, int a4);
 int func_8004C7E8(int a0, int a1, unsigned char *s, int a3, int a4);
@@ -41,29 +41,29 @@ int func_8004C370(int i) {
     }
 }
 
-s32 func_8004C454(s32 node, s32 lane)
+s32 GetTrackNodeHeading(s32 node, s32 lane)
 {
     int delta[6];
     int previous;
     RrTrackLaneOffset8 *currentOffset, *previousOffset;
     int previousOffsetBytes, currentOffsetBytes;
     RrTrackSample3C *previousSample, *currentSample;
-    previous = (node - 1) % D_800ABECC;
-    if (previous < 0) previous += D_800ABECC;
+    previous = (node - 1) % TrackNodeCount;
+    if (previous < 0) previous += TrackNodeCount;
     switch (lane) {
     case 0:
-        currentOffset = D_800ACB9C + node;
-        previousOffset = D_800ACB9C + previous;
+        currentOffset = TrackLaneOffsets + node;
+        previousOffset = TrackLaneOffsets + previous;
         previousOffsetBytes = previous * (s32)sizeof(RrTrackSample3C);
         currentOffsetBytes = node * (s32)sizeof(RrTrackSample3C);
-        previousSample = (RrTrackSample3C *)(previousOffsetBytes + (unsigned long)D_800ABEA4);
-        currentSample = (RrTrackSample3C *)(currentOffsetBytes + (unsigned long)D_800ABEA4);
+        previousSample = (RrTrackSample3C *)(previousOffsetBytes + (unsigned long)TrackNodes);
+        currentSample = (RrTrackSample3C *)(currentOffsetBytes + (unsigned long)TrackNodes);
         delta[2] = previousSample->x08 + previousOffset->x - (currentSample->x08 + currentOffset->x);
         delta[3] = previousSample->z0C + previousOffset->z - (currentSample->z0C + currentOffset->z);
         break;
     case 10:
-        delta[2] = D_800ABEA4[previous].x08 - D_800ABEA4[node].x08;
-        delta[3] = D_800ABEA4[previous].z0C - D_800ABEA4[node].z0C;
+        delta[2] = TrackNodes[previous].x08 - TrackNodes[node].x08;
+        delta[3] = TrackNodes[previous].z0C - TrackNodes[node].z0C;
         break;
     }
     return (s16)ratan2(delta[3], delta[2]);

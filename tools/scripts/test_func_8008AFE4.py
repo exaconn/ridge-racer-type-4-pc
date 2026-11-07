@@ -22,8 +22,8 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 typedef int32_t s32;''')
         source += '''
-volatile u16 D_800A47F0;
-s32 D_800A4800;
+volatile u16 _spu_tsa;
+s32 _spu_mem_mode_plus;
 s32 (*test_convert)(s32, s32);
 s32 _spu_FsetRXXa(s32 mode, s32 value) {
     return test_convert(mode, value);
@@ -39,9 +39,9 @@ s32 _spu_FsetRXXa(s32 mode, s32 value) {
 
     def check_conversion(self, value, converted, shift=3):
         calls = []
-        stored = C.c_uint16.in_dll(self.library, 'D_800A47F0')
+        stored = C.c_uint16.in_dll(self.library, '_spu_tsa')
         stored.value = 0xA55A
-        C.c_int32.in_dll(self.library, 'D_800A4800').value = shift
+        C.c_int32.in_dll(self.library, '_spu_mem_mode_plus').value = shift
 
         @Convert
         def convert(mode, argument):

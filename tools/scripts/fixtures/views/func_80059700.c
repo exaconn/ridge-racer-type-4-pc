@@ -81,9 +81,9 @@
 #undef D_800ACC14
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_800528A8 ((int (*)())func_800528A8)
+#define CdAudioSelectTrack ((int (*)())CdAudioSelectTrack)
 
-#undef func_800528A8
+#undef CdAudioSelectTrack
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A1158 (*(char (*)[])&D_800A1158)

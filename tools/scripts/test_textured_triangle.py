@@ -31,7 +31,7 @@ int main(void){assert(sizeof(void*)==8);
   /* Ordering may alias a real packet word,including tag and the last word. */
   unsigned kind=(n>>4)%3;expected_head=kind==0?&world.head:kind==1?world.arena.words+slot*8:world.arena.words+slot*8+7;
   expected_packet=world.arena.words+slot*8;calls=0;
-  struct S32 *result=func_8002039C(expected_head,(struct S32*)packet,world.x,world.y,world.u,world.v,tpage,clut,mode,shade);
+  struct S32 *result=EmitPolyFT3(expected_head,(struct S32*)packet,world.x,world.y,world.u,world.v,tpage,clut,mode,shade);
   u32 *eh=kind==0?&expected.head:kind==1?expected.arena.words+slot*8:expected.arena.words+slot*8+7;u32 *ep=expected.arena.words+slot*8;
   *ep=(*ep&0xFF000000U)|(*eh&0xFFFFFFU);*eh=(*eh&0xFF000000U)|((uintptr_t)expected_packet&0xFFFFFFU);
   assert(calls==1&&result==&world.arena.packets[slot+1]&&memcmp(&world,&expected,sizeof(world))==0);

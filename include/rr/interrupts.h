@@ -11,7 +11,7 @@ typedef struct {
 
 extern RrInterruptRegisters *D_800ABC58, *D_800ABDAC, *D_800ABD30, *D_800ABCC8;
 /* Exchange the interrupt mask; return the previous zero-extended 16-bit value. */
-s32 func_8008B4E0(s32 value);
+s32 SetIntrMask(s32 value);
 s32 func_80097680(void);
 s32 func_8009BAD8(void);
 s32 func_8009BB18(void);

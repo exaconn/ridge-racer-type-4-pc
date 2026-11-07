@@ -1,8 +1,8 @@
 #include "types.h"
 #include "m2c_macros.h"
 
-extern int func_80052B8C();
+extern int CdAudioFade();
 
-void func_80052AB8(void) {
-    func_80052B8C(0, 0);
+void CdAudioMute(void) {
+    CdAudioFade(0, 0);
 }

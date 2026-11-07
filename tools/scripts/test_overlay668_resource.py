@@ -29,8 +29,8 @@ typedef struct {
 static World actual,expected;
 static unsigned scenario,bank,id,alias,calls;
 static const u32 sectorCounts[8]={0,1,119,120,121,0x7fffffffU,0x80000000U,0xffffffffU};
-#define D_800F4DB8 actual.audio
-#define D_800AC650 actual.context.prefix
+#define SoundState actual.audio
+#define RaceContext actual.context.prefix
 static u32 *output(World *w){switch(alias){
  case 0:return &w->sectors;
  case 1:return &w->file.byteSize;

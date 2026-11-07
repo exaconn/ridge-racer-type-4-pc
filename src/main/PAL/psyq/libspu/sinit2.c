@@ -5,8 +5,8 @@
 #include "rr/library.h"
 extern void SpuClearReverbWorkArea();
 void func_8007FA54(void) {
-    func_8008B364();
-    func_8007FA94();
+    ResetCallback();
+    SpuInit();
     SpuClearReverbWorkArea(7);
     func_8007F964();
 }

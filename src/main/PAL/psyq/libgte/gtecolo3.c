@@ -3,8 +3,8 @@
 #include "psyq/libgte/gtecolo3.h"
 
 void LocalLight(int *a0, int *a1);
-void func_80091308(int *a0, int a1, int *a2);
-void func_80091324(int *a0, int *a1);
+void DpqColor(int *a0, int a1, int *a2);
+void NormalColor(int *a0, int *a1);
 void NormalColor3(int *a0, int *a1, int *a2, int *a3, int * volatile a4, int * volatile a5);
 void NormalColorDpq(int *a0, int *a1, int a2, int *a3);
 void NormalColorDpq3(int *a0, int *a1, int *a2, int *a3, volatile int a4, int * volatile a5, int * volatile a6, int * volatile a7);
@@ -21,14 +21,14 @@ void LocalLight(int *a0, int *a1) {
     __asm__ volatile ("swc2 $9, 0(%0)\n\tswc2 $10, 4(%0)\n\tswc2 $11, 8(%0)" : : "r"(a1));
 }
 
-void func_80091308(int *a0, int a1, int *a2) {
+void DpqColor(int *a0, int a1, int *a2) {
     __asm__ volatile ("lwc2 $6, 0(%0)" : : "r"(a0));
     __asm__ volatile ("mtc2 %0, $8" : : "r"(a1));
     __asm__ volatile ("nop\n\t.word 0x4A780010");
     __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(a2));
 }
 
-void func_80091324(int *a0, int *a1) {
+void NormalColor(int *a0, int *a1) {
     __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(a0));
     __asm__ volatile ("nop\n\t.word 0x4AC8041E");
     __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(a1));

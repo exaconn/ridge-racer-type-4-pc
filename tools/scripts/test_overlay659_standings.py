@@ -21,8 +21,8 @@ class Overlay659StandingsTest(unittest.TestCase):
 #include "types.h"
 /* Native stand-in for resident vehicle storage, with its real size/alignment. */
 #include "rr/race_types.h"
-RrRaceVehicle D_800ABEF8[2];
-s32 D_800F4C80[10], D_800F4C64;
+RrRaceVehicle PlayerCars[2];
+s32 LapTimes[10], D_800F4C64;
 u16 D_800AC1A0;
 ''' + body + r'''
 static u32 random_state = 0x3715A6B9U;
@@ -34,13 +34,13 @@ static u32 next(void) {
 }
 static void check(const s32 input[6], s32 rank, s16 count) {
     s32 expected_times[10];
-    u8 expected_vehicle[sizeof(D_800ABEF8)];
-    memcpy(D_800F4C80, input, 6 * sizeof(*input));
-    for (unsigned i = 6; i < 10; i++) D_800F4C80[i] = (s32)(0x5A000000U + i);
-    memcpy(expected_times, D_800F4C80, sizeof(expected_times));
-    memset(D_800ABEF8, 0xA5, sizeof(D_800ABEF8));
-    memcpy((u8 *)D_800ABEF8 + 0x2AA, &count, sizeof(count));
-    memcpy(expected_vehicle, D_800ABEF8, sizeof(expected_vehicle));
+    u8 expected_vehicle[sizeof(PlayerCars)];
+    memcpy(LapTimes, input, 6 * sizeof(*input));
+    for (unsigned i = 6; i < 10; i++) LapTimes[i] = (s32)(0x5A000000U + i);
+    memcpy(expected_times, LapTimes, sizeof(expected_times));
+    memset(PlayerCars, 0xA5, sizeof(PlayerCars));
+    memcpy((u8 *)PlayerCars + 0x2AA, &count, sizeof(count));
+    memcpy(expected_vehicle, PlayerCars, sizeof(expected_vehicle));
     D_800F4C64 = rank; D_800AC1A0 = 0xBEEF;
     u16 selected = 0xBEEF;
     if (rank == -1) {
@@ -55,8 +55,8 @@ static void check(const s32 input[6], s32 rank, s16 count) {
     }
     ovl659_rank_standings();
     assert(D_800AC1A0 == selected && D_800F4C64 == rank);
-    assert(memcmp(expected_times, D_800F4C80, sizeof(expected_times)) == 0);
-    assert(memcmp(expected_vehicle, D_800ABEF8, sizeof(expected_vehicle)) == 0);
+    assert(memcmp(expected_times, LapTimes, sizeof(expected_times)) == 0);
+    assert(memcmp(expected_vehicle, PlayerCars, sizeof(expected_vehicle)) == 0);
 }
 int main(void) {
     s32 values[6];

@@ -22,8 +22,8 @@ static struct World {u32 guard[4];RrGarageSelectionPrefix garage;RrGarageWorking
 #define ovl662_D_801276A8 world.garage
 #define ovl662_D_80127668 world.working
 #define D_800F3A38 world.input
-#define D_800F4D80 world.row
-#define D_800F3AFC world.badge
+#define UiRows world.row
+#define BadgeRows world.badge
 #define D_800AC590 world.text
 #define D_800F3A60 world.accept
 #define ovl662_D_801272E8 world.exit

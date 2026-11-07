@@ -7,13 +7,13 @@
 typedef struct { char pad[0x1C]; short f1c; char pad2[0x3E]; } T;
 
 extern T D_800F3A38[];
-extern int func_8004FA98();
-extern int func_80052B48();
+extern int SetCdMixMode();
+extern int CdAudioSetVolumeRaw();
 extern int func_80053A9C();
-extern char D_800F4DB8[];
+extern char SoundState[];
 
 void func_8004C098(int i);
-void func_8004C138(const RrHsvColor input,RrRgbColor output);
+void HsvToRgb(const RrHsvColor input,RrRgbColor output);
 
 void func_8004C098(int i) {
     if (D_800F3A38[i].f1c != 0) {
@@ -22,13 +22,13 @@ void func_8004C098(int i) {
 }
 
 void func_8004C0EC(void) {
-    char *p = D_800F4DB8;
-    func_80052B48(*(unsigned short *)(p + 0x26C4));
+    char *p = SoundState;
+    CdAudioSetVolumeRaw(*(unsigned short *)(p + 0x26C4));
     func_80053A9C(*(short *)(p + 0x2888));
-    func_8004FA98(D_800AD55A);
+    SetCdMixMode(D_800AD55A);
 }
 
-void func_8004C138(const RrHsvColor input,RrRgbColor output) {
+void HsvToRgb(const RrHsvColor input,RrRgbColor output) {
     s32 s=input[1];
     s32 hue=input[0];
     s32 v=input[2];

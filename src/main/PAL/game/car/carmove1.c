@@ -37,9 +37,9 @@ extern short D_800AC53C;
 extern short D_800ACC74;
 
 void func_80027998(void);
-void func_80027C54(Car *arg0);
-void func_80028B30();
-void func_800292A8(char *a);
+void FindWheelTrackNodes(Car *arg0);
+void UpdateWheelBumps();
+void SetTrackNodeData(char *a);
 
 void func_80027998(void)
 {
@@ -53,12 +53,12 @@ void func_80027998(void)
     register s32 r3 __asm__("$12");
     g->cnt = 0;
     for (;;) {
-        g->w34 = (g->s150[g->idx] + 1) % D_800ABECC;
+        g->w34 = (g->s150[g->idx] + 1) % TrackNodeCount;
         a = g->w34;
-        p = (char *)D_800ABEA4 + g->s150[g->idx] * 0x3C;
+        p = (char *)TrackNodes + g->s150[g->idx] * 0x3C;
         g->w78 = *(s32 *)(p + 8);
         g->w80 = *(s32 *)(p + 12);
-        q = (char *)D_800ABEA4 + a * 0x3C;
+        q = (char *)TrackNodes + a * 0x3C;
         g->h74 = g->h70 = *(u16 *)(q + 8) - (u16)g->w78;
         g->h76 = g->h72 = *(u16 *)(q + 12) - (u16)g->w80;
         g->h64 = (g->t110[g->idx].a + g->t110[g->idx + 1].a) / 2 - (u16)g->w78;
@@ -79,15 +79,15 @@ void func_80027998(void)
             return;
         n = g->cnt + 1;
         g->cnt = n;
-        x = g->s150[g->idx] + D_800ABECC;
-        g->s150[g->idx] = ((n & 1) ? x + n : x - n) % D_800ABECC;
+        x = g->s150[g->idx] + TrackNodeCount;
+        g->s150[g->idx] = ((n & 1) ? x + n : x - n) % TrackNodeCount;
     }
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEA4 ((Node *)D_800ABEA4)
+#define TrackNodes ((Node *)TrackNodes)
 
-void func_80027C54(Car *arg0) {
+void FindWheelTrackNodes(Car *arg0) {
     SP_1 *g = (SP_1 *)SCRATCH_CAR_WORK;
     register s32 t0 asm("$8"); /* ASM_BARRIER: pin inner loop counter to $t0 */
     register s32 *q asm("$19"); /* ASM_BARRIER: pin (SCRATCHPAD + 0x7C) pointer to $s3 */
@@ -115,7 +115,7 @@ void func_80027C54(Car *arg0) {
     {
         s32 a0 = arg0->wF0;
         s32 v0 = a0 - 2;
-        s32 v1 = (v0 + D_800ABECC) % D_800ABECC;
+        s32 v1 = (v0 + TrackNodeCount) % TrackNodeCount;
         g->w14 = a0;
         g->w30 = arg0->s10C;
         g->w8 = 0;
@@ -128,8 +128,8 @@ void func_80027C54(Car *arg0) {
         g->t110[g->w8 + 1].c = g->w108 + (g->t110[g->w8 + 1].c >> 2);
         g->s150[g->w8] = arg0->sF8[g->w8];
         func_80027998();
-        g->z180[g->w8] = D_800ABEA4[g->s150[g->w8]].z8;
-        g->z180[g->w8 + 1] = D_800ABEA4[(g->s150[g->w8] + 1) % D_800ABECC].z8;
+        g->z180[g->w8] = TrackNodes[g->s150[g->w8]].z8;
+        g->z180[g->w8 + 1] = TrackNodes[(g->s150[g->w8] + 1) % TrackNodeCount].z8;
         arg0->sF8[g->w8 + 1] = arg0->sF8[g->w8] = g->s150[g->w8];
         g->w8 += 2;
     } while (g->w8 < 3);
@@ -228,9 +228,9 @@ void func_80027C54(Car *arg0) {
     } while (g->w8 < 4);
 }
 
-#undef D_800ABEA4
+#undef TrackNodes
 
-void func_80028B30(a)
+void UpdateWheelBumps(a)
 A *a;
 {
     int *q7c = (int *)(SCRATCHPAD + 0x7C);
@@ -244,7 +244,7 @@ A *a;
         SC->w114[t][0] = *(short *)((char *)SC + (*q7c * 8 + t * 2) + 0x250);
         if ((short)a->h100[SC->s8] != (short)a->hf8[SC->s8]) {
             if ((short)a->h1bc[SC->s8] == 0) {
-                if (func_8002CBC0(a, SC->s8) != 0)
+                if (TriggerWheelBump(a, SC->s8) != 0)
                     a->h1cc[SC->s8] = SC->w114[SC->s8][0];
             }
         }
@@ -263,7 +263,7 @@ A *a;
                     a->w8c[t3 * 4] = v;
                     if (SC->s8 == 0) {
                         a->h1ba = a->h1bc[0];
-                        func_8002C1D4(1, a);
+                        SetCarImpactState(1, a);
                     }
                     a->h1bc[SC->s8] = 0;
                     a->h1b8 ^= 1 << SC->s8;
@@ -280,9 +280,9 @@ b11:
         }
         a->h100[SC->s8] = a->hf8[SC->s8];
     } while (++SC->s8 < 4);
-    a->h1a8 += func_8006E368(a->h10e, (SC->h150[0] + SC->h150[1] - (SC->h150[2] + SC->h150[3])) >> 3);
+    a->h1a8 += Atan2Table(a->h10e, (SC->h150[0] + SC->h150[1] - (SC->h150[2] + SC->h150[3])) >> 3);
     {
-        short r = func_8006E368(a->h10c, (SC->h150[0] + SC->h150[2] - (SC->h150[1] + SC->h150[3])) >> 3);
+        short r = Atan2Table(a->h10c, (SC->h150[0] + SC->h150[2] - (SC->h150[1] + SC->h150[3])) >> 3);
         int wac = a->w8c[8];
         int wbc = a->w8c[12];
         int m = (wac + wbc) >> 1;
@@ -305,8 +305,8 @@ b11:
         SC->w3c = (SC->w34 + 0xC) & 0xF;
         SC->w40 = (SC->w34 + 2) & 0xF;
     }
-    a->h124[SC->w34] = func_8006E368(a->h10e, (a->w8c[0] + a->w8c[4] - (a->w8c[8] + a->w8c[12])) >> 3);
-    a->h144[SC->w34] = func_8006E368(a->h10c, (a->w8c[0] + a->w8c[8] - (a->w8c[4] + a->w8c[12])) >> 3);
+    a->h124[SC->w34] = Atan2Table(a->h10e, (a->w8c[0] + a->w8c[4] - (a->w8c[8] + a->w8c[12])) >> 3);
+    a->h144[SC->w34] = Atan2Table(a->h10c, (a->w8c[0] + a->w8c[8] - (a->w8c[4] + a->w8c[12])) >> 3);
     a->h164 += a->h124[SC->w34];
     a->h166 += a->h144[SC->w34];
     a->h164 = a->h164 - a->h124[SC->w38];
@@ -372,9 +372,9 @@ b11:
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEA4 ((char *)D_800ABEA4)
+#define TrackNodes ((char *)TrackNodes)
 
-void func_800292A8(char *a)
+void SetTrackNodeData(char *a)
 {
     struct B4 sp;
     int i = 0;
@@ -383,20 +383,20 @@ void func_800292A8(char *a)
     D_800ACBE8 = a + 4;
     sp = *(struct B4 *)a;
     n = *(int *)(a + 0x804);
-    D_800ABEA4 = p = a + 0x808;
-    D_800F2EB8 = 0;
-    D_800ABECC = n;
+    TrackNodes = p = a + 0x808;
+    TrackLength = 0;
+    TrackNodeCount = n;
     if (n > 0) {
         int m = n;
         register char *q asm("$4") = p;
         do {
-            D_800F2EB8 += *(short *)(q + 0x1C);
+            TrackLength += *(short *)(q + 0x1C);
             q += 0x3C;
             i++;
         } while (i < m);
     }
-    D_800AC53C = D_800F2EB8 / 1024;
-    D_800ACC74 = (D_800F2EB8 >> 8) + 1;
+    D_800AC53C = TrackLength / 1024;
+    D_800ACC74 = (TrackLength >> 8) + 1;
 }
 
-#undef D_800ABEA4
+#undef TrackNodes

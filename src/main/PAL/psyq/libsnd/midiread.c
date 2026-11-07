@@ -1,7 +1,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/library.h"
 #include "psyq/libsnd/midiread.h"
-void func_80080034(s16 bank, s16 row) {
+void _SsContBankChange(s16 bank, s16 row) {
     /* ASM_BARRIER: Retain the original table/record register across the update call. */
     register RrLibStateB0 **table __asm__("$16");
     register s32 index = bank * (s32)sizeof(*table);
@@ -10,7 +10,7 @@ void func_80080034(s16 bank, s16 row) {
     units = row * 11;
     /* ASM_BARRIER: Complete index arithmetic before materializing the PAL table page. */
     __asm__ volatile("" : : "r"(index), "r"(units) : "$16");
-    /* PAL mapping: table[-0xF98 / 4] selects D_8010F068[bank]. */
+    /* PAL mapping: table[-0xF98 / 4] selects _ss_score[bank]. */
     table = (RrLibStateB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL table page without folding its signed low offset. */
     __asm__("" : "=r"(table) : "0"(table));
@@ -22,5 +22,5 @@ void func_80080034(s16 bank, s16 row) {
         state->c0 = cursor;
         state->b26 = value;
     }
-    state->w90 = func_80081E04(bank, row);
+    state->w90 = _SsReadDeltaValue(bank, row);
 }

@@ -36,7 +36,7 @@ static const s16 rom[4097]={''' + ','.join(map(str,table)) + r'''};
 #define D_800A50C0 rom
 #define D_800A58C0 (rom+0x400)
 #define D_800A60C0 (rom+0x800)
-#define D_800A68C0 (rom+0xc00)
+#define SinTable (rom+0xc00)
 ''' + trig + body + r'''
 static u32 seed=0x152b0;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
@@ -71,7 +71,7 @@ void *func_8001FF84(u32 *ordering,void *packet,s32 x,s32 y,RrUiUvRect *region,u1
  assert(x==arg_x && y==arg_y && region==&world.region && clut==0x7FA4 && flags==expected_flags);
  first_effect(&world,flags);return cursor(20);
 }
-void *func_8001FCC8(u32 *ordering,void *packet,u16 page){
+void *AddDrawModePrim(u32 *ordering,void *packet,u16 page){
  assert(world.calls==1 && ordering==world.frames[(frame_id+1)%3].ordering.ordering70 && packet==cursor(20) && page==expected_page);
  assert(world.scratch.cursor==world.arenas[(arena_id+1)%3].bytes+128);
  second_effect(&world,page);return cursor(32);

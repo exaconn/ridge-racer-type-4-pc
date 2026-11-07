@@ -58,7 +58,7 @@ static void change(void){unsigned i,j;RrPalette16 *p=w==&actual?palettes:expecte
 s32 rsin(s32 angle){unsigned index=(scenario+(w->count*2731U))%8193;Event *e=event(1);s32 result=(s32)index-4096;
  assert(angle>=-4095&&angle<=4095);e->arg=angle;e->result=result;sineSeen[index]++;change();return result;
 }
-void func_80092FFC(const RrGpuRectangleFields *rectangle,const void *pixels){unsigned index=(unsigned)(rectangle-w->s.rectangles);Event *e=event(2);
+void LoadImage(const RrGpuRectangleFields *rectangle,const void *pixels){unsigned index=(unsigned)(rectangle-w->s.rectangles);Event *e=event(2);
  assert(index<5);e->arg=index;uploadSeen[index]++;
  if(index<3){uintptr_t p=(uintptr_t)pixels,start=(uintptr_t)images;assert(p>UINT32_MAX&&p>=start&&p<start+sizeof(images));assert((p-start)%sizeof(images[0])==0);e->index=(unsigned)((p-start)/sizeof(images[0]));}
  else e->index=paletteIndex(pixels);
@@ -75,11 +75,11 @@ static void expected(void){RrGarageSelectionPrefix *g=&w->s.garage;unsigned acti
  w->s.phase=word((u32)w->s.phase+32U);
  for(i=1;i<16;i++){u16 color=(u16)(p->entries[i]|32768);p->entries[i]=color;s->entries[i]=color;}
  memmove(b->raw.data,p->raw.data,32);
- func_80092FFC(&w->s.rectangles[0],g->scratch34);
- func_80092FFC(&w->s.rectangles[1],g->image38[g->active21]);
- func_80092FFC(&w->s.rectangles[2],g->image40[g->active21]);
- func_80092FFC(&w->s.rectangles[3],capturedPalette);
- func_80092FFC(&w->s.rectangles[4],capturedScratch);
+ LoadImage(&w->s.rectangles[0],g->scratch34);
+ LoadImage(&w->s.rectangles[1],g->image38[g->active21]);
+ LoadImage(&w->s.rectangles[2],g->image40[g->active21]);
+ LoadImage(&w->s.rectangles[3],capturedPalette);
+ LoadImage(&w->s.rectangles[4],capturedScratch);
 }
 int main(void){unsigned i,j,a;uint64_t cases=0;
  for(scenario=0;scenario<65536;scenario++)for(mutation=0;mutation<2;mutation++){

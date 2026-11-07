@@ -66,25 +66,25 @@ typedef struct
   u8 flags[0x20];
   SpuCachedVoice10 voices[24];
 } SpuVolumeCache;
-extern ChannelRecordB0 *D_8010F068[];
-extern ControlRow36 D_8010F908[];
+extern ChannelRecordB0 *_ss_score[];
+extern ControlRow36 _svm_voice[];
 extern s16 D_8010F910[];
 extern s16 D_8010F918[];
 extern s16 D_8010F91A[];
 extern s16 D_8010F91C[];
 extern s16 D_8010F91E[];
 extern s16 D_8010F920[];
-extern SpuVolumeCache D_8010FE18;
-extern SpuCachedVoice10 D_8010FE38[];
+extern SpuVolumeCache _svm_sreg_dirty;
+extern SpuCachedVoice10 _svm_sreg_buf[];
 extern u32 D_800A48F8;
-extern s16 D_801100E8;
-extern SpuProgram10 *D_801100EC;
-extern SpuBankData *D_801100F4;
-extern SpuTone20 *D_801100F8;
-extern s8 D_801100FC;
+extern s16 _svm_stereo_mono;
+extern SpuProgram10 *_svm_pg;
+extern SpuBankData *_svm_vh;
+extern SpuTone20 *_svm_tn;
+extern s8 spuVmMaxVoice;
 extern s16 D_80110114;
-extern s32 func_8008A564();
-s32 func_80089FA4(s32 a0, s16 a1, s16 a2, u16 a3, u16 a4)
+extern s32 _SsVmVSetUp();
+s32 _SsVmSetVol(s32 a0, s16 a1, s16 a2, u16 a3, u16 a4)
 {
   u8 new_var;
   s16 i;
@@ -108,8 +108,8 @@ s32 func_80089FA4(s32 a0, s16 a1, s16 a2, u16 a3, u16 a4)
   v1_tmp = ((s16) a0) & 0xFF00;
   /* ASM_BARRIER: prevent combining sra 16 and andi 0xff00 into srl 24 */
   __asm__("" : "=r"(v1_tmp) : "0"(v1_tmp));
-  rec = *(ChannelRecordB0 **)(a0_off + (s32)D_8010F068) + (v1_tmp >> 8);
-  func_8008A564(a1, a2);
+  rec = *(ChannelRecordB0 **)(a0_off + (s32)_ss_score) + (v1_tmp >> 8);
+  _SsVmVSetUp(a1, a2);
   D_80110114 = a0;
   if (a4 == 0)
   {
@@ -122,14 +122,14 @@ s32 func_80089FA4(s32 a0, s16 a1, s16 a2, u16 a3, u16 a4)
   /* ASM_BARRIER: prevent constant propagation of count=0 into loop header */
   __asm__("" : "=r"(count) : "0"(count));
   i = 0;
-  if (count < D_801100FC)
+  if (count < spuVmMaxVoice)
   do {
-    new_var = D_801100F4->unk18;
+    new_var = _svm_vh->unk18;
     if (!(D_800A48F8 & (1 << i)))
     {
-      if (((D_8010F908[i].match10 == ((s16) a0)) && (D_8010F908[i].match14 == a2)) && (D_8010F908[i].match18 == a1))
+      if (((_svm_voice[i].match10 == ((s16) a0)) && (_svm_voice[i].match14 == a2)) && (_svm_voice[i].match18 == a1))
       {
-        vol = (((D_8010F908[i].unk08 * a3) / 127) * (new_var * 0x3FFF)) / 16129;
+        vol = (((_svm_voice[i].unk08 * a3) / 127) * (new_var * 0x3FFF)) / 16129;
         if ((rec->unk60[rec->unk17] != a3) && (rec->unk60[rec->unk17] == 0))
         {
           rec->unk60[rec->unk17] = 1;
@@ -138,9 +138,9 @@ s32 func_80089FA4(s32 a0, s16 a1, s16 a2, u16 a3, u16 a4)
         __asm__("" : "=r"(vol));
         /* ASM_BARRIER: second death of vol in block for global-alloc */
         __asm__ volatile("" : : "r"(vol));
-        l = (((D_8010F908[i].unk08 * a3) / 127) * (k = D_801100F4->unk18 * 0x3FFF)) / 16129;
-        tone = (SpuTone20 *)((((D_8010F908[i].unk12 << 4) + D_8010F908[i].unk16) << 5) + (s32)D_801100F8);
-        vol = ((l * D_801100EC[a2].value01) * tone->unk02) / 16129;
+        l = (((_svm_voice[i].unk08 * a3) / 127) * (k = _svm_vh->unk18 * 0x3FFF)) / 16129;
+        tone = (SpuTone20 *)((((_svm_voice[i].unk12 << 4) + _svm_voice[i].unk16) << 5) + (s32)_svm_tn);
+        vol = ((l * _svm_pg[a2].value01) * tone->unk02) / 16129;
         l = (vol * rec->value58) / 127;
         r = (vol * rec->value5A) / 127;
         pan = tone->unk03;
@@ -156,7 +156,7 @@ s32 func_80089FA4(s32 a0, s16 a1, s16 a2, u16 a3, u16 a4)
           left = (l * (0x7F - pan)) / 63;
           right = r;
         }
-        pan = D_801100EC[D_8010F908[i].match14].value04;
+        pan = _svm_pg[_svm_voice[i].match14].value04;
         if (pan < 0x40)
         {
           right = (right * pan) / 63;
@@ -174,7 +174,7 @@ s32 func_80089FA4(s32 a0, s16 a1, s16 a2, u16 a3, u16 a4)
         {
           left = (left * (0x7F - pan)) / 63;
         }
-        if (D_801100E8 == 1)
+        if (_svm_stereo_mono == 1)
         {
           u32 dummy_hi;
           /* ASM_BARRIER: preserve loop counter i allocation priority and mark hi unused for bne delay slot */
@@ -190,14 +190,14 @@ s32 func_80089FA4(s32 a0, s16 a1, s16 a2, u16 a3, u16 a4)
         }
         left = (left * left) / 16383;
         right = (right * right) / 16383;
-        *((s16 *) (&D_8010FE38[i].left)) = left;
-        *((s16 *) (&D_8010FE38[i].right)) = right;
+        *((s16 *) (&_svm_sreg_buf[i].left)) = left;
+        *((s16 *) (&_svm_sreg_buf[i].right)) = right;
         count++;
-        D_8010FE18.flags[i] |= 3;
+        _svm_sreg_dirty.flags[i] |= 3;
       }
     }
     i++;
-  } while (i < D_801100FC);
+  } while (i < spuVmMaxVoice);
 
   return count;
 }

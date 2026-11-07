@@ -9,8 +9,8 @@ void ovl662_func_8011CF8C(void)
         intensity.bits=(64U-(u32)ovl662_D_801276A8.fade00)<<2;
         func_800207D4(((RrFrameOrderingPrefix *)D_800ACC14)->ordering70,intensity.value,69);
     }
-    if(ovl662_D_801276A8.flagsD1&1)func_8003D6F0(0);
-    if(ovl662_D_801276A8.flagsD1&2){func_8003EC88(0);func_8003EC88(1);}
+    if(ovl662_D_801276A8.flagsD1&1)UpdateBadgeRowAnim(0);
+    if(ovl662_D_801276A8.flagsD1&2){DrawUiRow(0);DrawUiRow(1);}
     if(ovl662_D_801276A8.flagsD1&4){func_80032DF0(D_800AC590);func_80032A14(22,320,D_800AC590);}
     first=0;
     if(ovl662_D_801276A8.fade00>=0)goto no_second;
@@ -25,5 +25,5 @@ no_second:
     second=0;
 publish:
     func_8002AF8C(first,second,0);
-    func_8002A344(0x1004E);
+    UpdateScreenFade(0x1004E);
 }

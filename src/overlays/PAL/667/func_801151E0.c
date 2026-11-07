@@ -1,7 +1,7 @@
 #include "rr/overlay667_packet.h"
 void ovl667_func_801151E0(void) {
     s32 state;
-    if (ovl667_D_80118ED0 == D_800FF6B0 && ovl667_D_80118ED0 >= 4) {
+    if (ovl667_D_80118ED0 == RaceState && ovl667_D_80118ED0 >= 4) {
         if (ovl667_D_80118ED4 == 0) ovl667_D_80118ED4 = 1;
     } else if (ovl667_D_80118ED4 <= 0) {
         state = ovl667_D_80118F0C;

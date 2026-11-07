@@ -3,8 +3,8 @@
 
 #include "types.h"
 
-void func_80022888(char *a0);
-void func_80022980();
-void func_80022B64(char *a0, int a1);
+void ComputeWheelOffsets(char *a0);
+void InitPlayerCar();
+void UpdatePlayerCar(char *a0, int a1);
 
 #endif /* RR_GAME_CAR_CARSETUP_H */

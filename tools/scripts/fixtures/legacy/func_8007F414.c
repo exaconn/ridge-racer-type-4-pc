@@ -10,11 +10,11 @@ s32 _spu_FsetRXXa(s32 index, s32 value) {
     register u32 copy __asm__("$3");
     register u32 result __asm__("$2");
 
-    if (D_800A47FC && address % D_800A4804 != 0) {
-        address += D_800A4804;
-        address &= ~D_800A4808;
+    if (_spu_mem_mode && address % _spu_mem_mode_unit != 0) {
+        address += _spu_mem_mode_unit;
+        address &= ~_spu_mem_mode_unitM;
     }
-    units = address >> D_800A4800;
+    units = address >> _spu_mem_mode_plus;
     copy = units;
     if (index == -2) goto address_result;
     if (index != -1) goto store;
@@ -24,7 +24,7 @@ address_result:
     result = address;
     goto out;
 store:
-    ((RrSpuRegisterStorage *)D_800A47D8)->halves[index] = units;
+    ((RrSpuRegisterStorage *)_spu_RXX)->halves[index] = units;
     result = address;
 out:
     return (s32)result;

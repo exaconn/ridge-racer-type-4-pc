@@ -6,7 +6,7 @@ import subprocess
 root=Path(__file__).resolve().parents[2]
 body=(root/'src/overlays/PAL/667/func_80117FA8.c').read_text()
 body=body[body.index('void ovl667_func_80117FA8'):]
-mapper=(root/'tools/scripts/fixtures/views/func_80032E9C.c').read_text().replace('func_80032E9C','actual_mapper')
+mapper=(root/'tools/scripts/fixtures/views/func_80032E9C.c').read_text().replace('DecodeCourseIndex','actual_mapper')
 source=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -36,10 +36,10 @@ static State actual,reference,*w;
 #define ScreenFrame w->tick
 #define D_800AC5D0 w->timer
 #define D_800AC648 w->course
-#define D_800AC64A w->selection
+#define MenuCursor w->selection
 #define D_800AD522 w->style
 #define D_800F3914 w->mapped
-#define D_800F3A30 w->players
+#define NumLaps w->players
 #define D_800F3A26 w->scene
 #define D_800AD508 w->split
 #define D_800FF688 w->card
@@ -49,12 +49,12 @@ static State actual,reference,*w;
 #define D_800F4CB8 w->clear
 #define D_800F4D8A w->phase
 #define D_800F4C6A w->enabled
-#define D_800F4D80 w->rows[w->rowRoot]
+#define UiRows w->rows[w->rowRoot]
 #define D_800F3A38 w->input
 #define D_800F3A60 w->input[0].a
 #define D_800ACC14 (&w->frames[w->frameRoot])
 #define D_800F4D70 w->arenas
-#define D_800ACC18 w->published
+#define LoadCursor w->published
 #define D_8009F64C w->map
 ''' + body + mapper + r'''
 typedef struct {unsigned kind;s32 args[7];State before;} Event;
@@ -88,7 +88,7 @@ void func_80053CB0(void){service(1);}
 s32 func_80035024(s32 a){const s32 args[7]={a};record(2,args);effect(2);return profile>=18?0:profile>=12&&profile<14?word(words[scenario%8]):1;}
 s32 func_8003BAB0(void){service(3);return profile==10||profile==11?word(words[scenario%8]):1;}
 void func_8002AF8C(s32 a,s32 b,s32 c){const s32 args[7]={a,b,c};record(4,args);effect(4);}
-void func_8002B330(s32 a,s32 b,char *p,s32 d,s32 e){unsigned k;
+void StepMenuValue(s32 a,s32 b,char *p,s32 d,s32 e){unsigned k;
  if(p==(char*)&w->course){k=0;assert(a==3&&b==2);}
  else if(p==(char*)&w->selection){k=1;assert(a==0&&b==2&&d==3);}
  else{assert(p==(char*)&w->players);k=2;assert(a==1&&b==4&&d==10&&e==2);}
@@ -97,25 +97,25 @@ void func_8002B330(s32 a,s32 b,char *p,s32 d,s32 e){unsigned k;
 }
 void ResetScreenCounters(void){service(6);}
 void func_80033368(s32 a,s32 b){const s32 args[7]={a,b};record(7,args);effect(7);}
-s32 func_80032E9C(s32 a){const s32 args[7]={a};record(8,args);effect(8);return actual_mapper(a);}
+s32 DecodeCourseIndex(s32 a){const s32 args[7]={a};record(8,args);effect(8);return actual_mapper(a);}
 void PlaySfx(s32 a){const s32 args[7]={a};record(9,args);effect(9);}
 void func_80053AF4(s32 a,s32 b){const s32 args[7]={a,b};record(10,args);effect(10);}
 void func_80034F80(void){service(11);}
 void ovl667_func_801161A8(s32 a){assert(a==0||a==2);const s32 args[7]={a};record(12,args);effect(12);}
 void func_800207D4(u32 *p,s32 b,u32 c){unsigned k;for(k=0;k<2&&p!=w->frames[k].ordering70;k++){}assert(k<2&&(uintptr_t)p>UINT32_MAX);const s32 args[7]={k,b,(s32)c};record(13,args);effect(13);}
-void func_8003EC88(s32 a){const s32 args[7]={a};record(14,args);effect(14);}
+void DrawUiRow(s32 a){const s32 args[7]={a};record(14,args);effect(14);}
 void func_80032F44(s32 a,s32 b){const s32 args[7]={a,b};record(15,args);effect(15);}
 void func_8002B12C(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){const s32 args[7]={a,b,c,d,e,f,g};record(16,args);effect(16);}
-s32 func_8009AEAC(s32 a,s32 b,unsigned long c){assert(c<=UINT32_MAX);const s32 args[7]={a,b,(s32)c};record(17,args);effect(17);return word(scenario*0x1234567U);}
-void func_8002A344(s32 a){const s32 args[7]={a};record(18,args);effect(18);}
+s32 _sio_control(s32 a,s32 b,unsigned long c){assert(c<=UINT32_MAX);const s32 args[7]={a,b,(s32)c};record(17,args);effect(17);return word(scenario*0x1234567U);}
+void UpdateScreenFade(s32 a){const s32 args[7]={a};record(18,args);effect(18);}
 static void closeRows(unsigned n,u8 state){for(unsigned i=18;i<18+n;i++)if(w->rows[w->rowRoot][i].byte14==2)w->rows[w->rowRoot][i].byte14=state;}
 static void expected(void){s32 quit=func_80034FC0();early[quit!=0]++;if(quit){func_80053CB0();return;}
  s32 wait=func_80035024(2);w->frame=word((u32)w->frame+1);w->tick=word((u32)w->tick+1);
  int ready=1;if(w->phase!=3)ready=func_8003BAB0()==1;readiness[ready]++;
  if(ready){unsigned phase=w->phase;states[phase==0?0:phase==3?1:phase==4?2:phase==8?3:4]++;
-  if(phase==0){func_8002AF8C(1,1,1);s16 old=w->course;func_8002B330(3,2,(char*)&w->course,w->available,0);
+  if(phase==0){func_8002AF8C(1,1,1);s16 old=w->course;StepMenuValue(3,2,(char*)&w->course,w->available,0);
    courseChange[old!=w->course]++;if(old!=w->course)ResetScreenCounters();else func_80033368(old,2);
-   w->mapped=func_80032E9C(w->course);w->rows[w->rowRoot][18+w->selection].cells[0]=0;func_8002B330(0,2,(char*)&w->selection,3,0);w->rows[w->rowRoot][18+w->selection].cells[0]=2;
+   w->mapped=DecodeCourseIndex(w->course);w->rows[w->rowRoot][18+w->selection].cells[0]=0;StepMenuValue(0,2,(char*)&w->selection,3,0);w->rows[w->rowRoot][18+w->selection].cells[0]=2;
    unsigned cells=w->rows[w->rowRoot][21].byte02;for(unsigned i=0;i<cells;i++){if((s32)i==w->course){w->rows[w->rowRoot][21].cells[i]=2;w->rows[w->rowRoot][21].byte16=i;}else w->rows[w->rowRoot][21].cells[i]=0;}
    int state=w->rows[w->rowRoot][18].byte14;if(state==2){int back=0;if(w->input[0].a){PlaySfx(1);w->rows[w->rowRoot][18+w->selection].cells[0]=1;
      if(w->selection==0){choices[0]++;closeRows(4,7);ResetScreenCounters();w->timer=64;w->published=w->arenas.first;func_80053AF4(0,60);func_80034F80();w->phase=3;func_8002AF8C(0,1,1);}
@@ -123,17 +123,17 @@ static void expected(void){s32 quit=func_80034FC0();early[quit!=0]++;if(quit){fu
     }else if(w->input[0].b){choices[3]++;PlaySfx(2);back=1;}
     if(back){func_8002AF8C(0,1,1);closeRows(5,3);w->phase=8;}}
   }else if(phase==3){func_80033368(w->course,2);int blockedNow=wait==0&&w->timer==64;blocked[blockedNow]++;
-   if(blockedNow)func_8003EC88(24);else{w->waitFlag=1;if(w->timer>0)w->timer=half((u16)w->timer-1);func_800207D4(w->frames[w->frameRoot].ordering70,(64-(s32)w->timer)*4,69);
-    if(w->timer<=0){exits[0]++;w->loadStatus=-1;func_80053CB0();w->enabled=1;w->scene=41;w->phase=0;w->card=0;func_8009AEAC(3,0,0);}}
+   if(blockedNow)DrawUiRow(24);else{w->waitFlag=1;if(w->timer>0)w->timer=half((u16)w->timer-1);func_800207D4(w->frames[w->frameRoot].ordering70,(64-(s32)w->timer)*4,69);
+    if(w->timer<=0){exits[0]++;w->loadStatus=-1;func_80053CB0();w->enabled=1;w->scene=41;w->phase=0;w->card=0;_sio_control(3,0,0);}}
   }else if(phase==4){int state=w->rows[w->rowRoot][23].byte14;
-   if(state==2){func_8002AF8C(1,1,0);w->rows[w->rowRoot][23].cells[0]=2;func_8002B330(1,4,(char*)&w->players,10,2);
+   if(state==2){func_8002AF8C(1,1,0);w->rows[w->rowRoot][23].cells[0]=2;StepMenuValue(1,4,(char*)&w->players,10,2);
     if(w->input[0].a){PlaySfx(1);w->rows[w->rowRoot][23].cells[0]=1;w->rows[w->rowRoot][23].byte14=3;}}
    else if(state==5)w->phase=0;func_80033368(w->course,2);
   }else if(phase==8){if(w->rows[w->rowRoot][18].byte14==5){exits[1]++;ovl667_func_801161A8((1-(s32)w->split)*2);w->enabled=1;w->scene=60;w->phase=0;}}
  }
- func_80032F44(w->course,2);for(unsigned i=18;i<22;i++)func_8003EC88(i);
+ func_80032F44(w->course,2);for(unsigned i=18;i<22;i++)DrawUiRow(i);
  if(w->rows[w->rowRoot][18].byte14==2&&w->phase!=4)func_8002B12C(206,208,94,0,w->course,-1,word((u32)w->available+1));
- if(w->phase==4)func_8003EC88(23);w->clear=0;func_8002A344(0x10026);
+ if(w->phase==4)DrawUiRow(23);w->clear=0;UpdateScreenFade(0x10026);
 }
 int main(void){assert(sizeof(void*)==8);u16 endian=1;assert(*(u8*)&endian==1);
  for(scenario=0;scenario<65536;scenario++)for(profile=0;profile<20;profile++){

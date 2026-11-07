@@ -22,17 +22,17 @@ class SpuAllocationScanTest(unittest.TestCase):
         body=(root/'tools/scripts/fixtures/views/func_8007FC54.c').read_text().replace('#include "rr/spu.h"','')
         body=re.sub(r' : "\$[0-9]+"','',body)
         assert body.count('value=p->address_flags;')==1 and body.count('value+p->size')==1
-        observed=body.replace('func_8007FC54','observed_scan').replace('value=p->address_flags;','value=read_flags(p);').replace('value+p->size','value+read_size(p)')
+        observed=body.replace('_SpuIsInAllocateArea','observed_scan').replace('value=p->address_flags;','value=read_flags(p);').replace('value+p->size','value+read_size(p)')
         code='''#include <stdint.h>
 typedef uint8_t u8; typedef int8_t s8; typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 '''+header+'''
 RrSpuAllocation table[80];
-RrSpuAllocation *D_800A48C0=table;
+RrSpuAllocation *_spu_memList=table;
 s32 reads,kind[160],entry[160],replace_base;
 u32 read_flags(RrSpuAllocation *p) {
     kind[reads]=0;entry[reads++]=p-table;
-    if(replace_base)D_800A48C0=0;
+    if(replace_base)_spu_memList=0;
     return p->address_flags;
 }
 u32 read_size(RrSpuAllocation *p) {kind[reads]=1;entry[reads++]=p-table;return p->size;}
@@ -40,10 +40,10 @@ u32 read_size(RrSpuAllocation *p) {kind[reads]=1;entry[reads++]=p-table;return p
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'))
-        cls.table=(Allocation*80).in_dll(cls.lib,'table');cls.base=C.c_void_p.in_dll(cls.lib,'D_800A48C0')
+        cls.table=(Allocation*80).in_dll(cls.lib,'table');cls.base=C.c_void_p.in_dll(cls.lib,'_spu_memList')
         cls.reads=C.c_int32.in_dll(cls.lib,'reads');cls.replace=C.c_int32.in_dll(cls.lib,'replace_base')
         cls.kind=(C.c_int32*160).in_dll(cls.lib,'kind');cls.entry=(C.c_int32*160).in_dll(cls.lib,'entry')
-        for name in ('func_8007FC54','observed_scan'):
+        for name in ('_SpuIsInAllocateArea','observed_scan'):
             f=getattr(cls.lib,name);f.argtypes=[C.c_uint32];f.restype=C.c_int32
 
     def setUp(self):
@@ -72,7 +72,7 @@ u32 read_size(RrSpuAllocation *p) {kind[reads]=1;entry[reads++]=p-table;return p
     def check(self,entries,address,observe=False):
         self.install(entries);before=bytes(self.table);self.reads.value=0
         expected,trace=self.expected(entries,address)
-        fn=self.lib.observed_scan if observe else self.lib.func_8007FC54
+        fn=self.lib.observed_scan if observe else self.lib._SpuIsInAllocateArea
         self.assertEqual(fn(address),expected)
         self.assertEqual(bytes(self.table),before)
         if observe:
@@ -81,7 +81,7 @@ u32 read_size(RrSpuAllocation *p) {kind[reads]=1;entry[reads++]=p-table;return p
 
     def test_null_table_and_flag_precedence(self):
         self.base.value=None
-        for address in (0,1,0x0FFFFFFF,0xFFFFFFFF):self.assertEqual(self.lib.func_8007FC54(address),0)
+        for address in (0,1,0x0FFFFFFF,0xFFFFFFFF):self.assertEqual(self.lib._SpuIsInAllocateArea(address),0)
         cases=[[],[(0x80000100,0xFFFFFFFF)],[(0xC0000100,0xFFFFFFFF),(0x100,0)],[(0x40000000,0),(0,0xFFFFFFFF)],[(0x30000100,0)],[(0xF0000100,0),(0x20000200,0x20)]]
         for entries in cases:
             for address in (0,1,0xFF,0x100,0x101,0x200,0x220,0xFFFFFFFF):self.check(entries,address,True)

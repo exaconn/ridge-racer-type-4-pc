@@ -24,10 +24,10 @@ typedef uint8_t u8; typedef int8_t s8; typedef uint16_t u16; typedef int16_t s16
 typedef uint32_t u32; typedef int32_t s32;
 '''+header+'''
 u32 test_page[0x10000/4];
-#define D_800A63F4 test_page[0x63F4/4]
+#define CD_read_dma_mode test_page[0x63F4/4]
 char test_text[0x1900];
-RrLibDataCallback D_800A6488,D_800A648C;
-RrLibNotificationCallback D_800A63F0;
+RrLibDataCallback CD_cbsync,CD_cbready;
+RrLibNotificationCallback CD_cbread;
 s32 primary[5],secondary[5],attempts,secondary_calls,prints,events;
 u32 event_class[8],event_spec[8];
 const char *printed;
@@ -39,17 +39,17 @@ s32 CD_init(void) {
 }
 s32 CD_initvol(void) {secondary_calls++;return secondary[attempts-1];}
 s32 func_8001E84C(const char *format,...) {prints++;printed=format;return -123;}
-int func_80096E64(int kind,int spec) {
+int DeliverEvent(int kind,int spec) {
     event_class[events]=(u32)kind;event_spec[events++]=(u32)spec;return -999;
 }
 '''
-        for name in ('func_8008BE44','func_8008BED4','func_8008BF10','func_8008BF38','func_8008BF60'):
+        for name in ('CdInit','func_8008BED4','func_8008BF10','func_8008BF38','func_8008BF60'):
             body=(root/'tools/scripts/fixtures/views'/f'{name}.c').read_text()
             body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
             body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
             body=re.sub(r'"\$[0-9]+", ','',body)
             body=re.sub(r' : "\$[0-9]+"','',body)
-            if name=='func_8008BE44':
+            if name=='CdInit':
                 assert body.count('(u32 *)0x800A0000U')==1
                 assert body.count('(const char *)0x80010000U')==1
                 body=body.replace('(u32 *)0x800A0000U','test_page').replace('(const char *)0x80010000U','test_text')
@@ -57,11 +57,11 @@ int func_80096E64(int kind,int spec) {
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'))
-        cls.lib.func_8008BE44.argtypes=[];cls.lib.func_8008BE44.restype=C.c_int32
+        cls.lib.CdInit.argtypes=[];cls.lib.CdInit.restype=C.c_int32
         cls.page=(C.c_uint32*(0x10000//4)).in_dll(cls.lib,'test_page')
         cls.primary=(C.c_int32*5).in_dll(cls.lib,'primary')
         cls.secondary=(C.c_int32*5).in_dll(cls.lib,'secondary')
-        cls.slots=[C.c_void_p.in_dll(cls.lib,name) for name in ('D_800A6488','D_800A648C','D_800A63F0')]
+        cls.slots=[C.c_void_p.in_dll(cls.lib,name) for name in ('CD_cbsync','CD_cbready','CD_cbread')]
         cls.expected=[C.cast(getattr(cls.lib,name),C.c_void_p).value for name in ('func_8008BF10','func_8008BF38','func_8008BF60')]
         cls.hook=C.c_void_p.in_dll(cls.lib,'on_probe')
 
@@ -85,7 +85,7 @@ int func_80096E64(int kind,int spec) {
             before=bytes(self.page)
             observations=[]
             self.install_hook(lambda i:observations.append((i,[s.value for s in self.slots],self.page[0x63F4//4])))
-            self.assertEqual(self.lib.func_8008BE44(),1)
+            self.assertEqual(self.lib.CdInit(),1)
             self.assertEqual(self.integer('attempts').value,n+1)
             self.assertEqual(self.integer('secondary_calls').value,1)
             self.assertEqual(self.integer('prints').value,0)
@@ -101,7 +101,7 @@ int func_80096E64(int kind,int spec) {
         before=([s.value for s in self.slots],bytes(self.page))
         self.primary[:]=[2,-1,0,0,-2147483648]
         self.secondary[:]=[0,0,1,-1,0]
-        self.assertEqual(self.lib.func_8008BE44(),0)
+        self.assertEqual(self.lib.CdInit(),0)
         self.assertEqual((self.integer('attempts').value,self.integer('secondary_calls').value,self.integer('prints').value),(5,2,1))
         self.assertEqual(([s.value for s in self.slots],bytes(self.page)),before)
         text=(C.c_char*0x1900).in_dll(self.lib,'test_text')
@@ -109,7 +109,7 @@ int func_80096E64(int kind,int spec) {
 
     def test_actual_published_callbacks_deliver_their_events(self):
         self.primary[0]=0
-        self.assertEqual(self.lib.func_8008BE44(),1)
+        self.assertEqual(self.lib.CdInit(),1)
         buffer=(C.c_uint8*8)(*range(8));before=bytes(buffer)
         DataCallback(self.slots[0].value)(-123,C.addressof(buffer))
         DataCallback(self.slots[1].value)(2147483647,C.addressof(buffer))
@@ -126,8 +126,8 @@ int func_80096E64(int kind,int spec) {
             for slot,addr in zip(self.slots,addresses):slot.value=addr
             self.page[0x63F4//4]=0x12340000+i
         self.install_hook(mutate)
-        self.assertEqual(self.lib.func_8008BE44(),0)
+        self.assertEqual(self.lib.CdInit(),0)
         self.assertEqual(([s.value for s in self.slots],self.page[0x63F4//4]),(addresses,0x12340004))
         self.integer('attempts').value=0;self.primary[2]=0
-        self.assertEqual(self.lib.func_8008BE44(),1)
+        self.assertEqual(self.lib.CdInit(),1)
         self.assertEqual(([s.value for s in self.slots],self.page[0x63F4//4]),(self.expected,0))

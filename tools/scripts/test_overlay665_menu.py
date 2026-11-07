@@ -37,13 +37,13 @@ typedef struct {s32 op,args[10];u32 hash;} Event;
 typedef struct {State s;unsigned calls;Event events[24];} World;
 static World actual,reference,initial,*w;static unsigned scenario,mutation,kind;
 static u8 resources[3][0x2D100],storage[3][128];static u16 textData[32];
-RrIconSpriteContext *D_800ACC14;RrUiRow24 *D_800F4D80;RrMenuTextState *D_800AC590;
-#define D_800AC650 w->s.context
+RrIconSpriteContext *D_800ACC14;RrUiRow24 *UiRows;RrMenuTextState *D_800AC590;
+#define RaceContext w->s.context
 #define ovl665_D_80119768 w->s.visual
 #define D_800F3A38 w->s.inputs
 #define D_800F4D70 w->s.arenas
-#define D_800102F0 w->s.resource
-#define D_800ACC18 w->s.published
+#define CdDirectoryBuffer w->s.resource
+#define LoadCursor w->s.published
 #define D_800AC5D0 w->s.fade
 #define ScreenFrame w->s.pulse
 #define D_800F3A2C w->s.clear1
@@ -55,7 +55,7 @@ static s32 wrap(int64_t x){return word((u32)(uint64_t)x);}
 static s16 half(s32 x){u16 n=(u16)(u32)x;s16 v;memcpy(&v,&n,2);return v;}
 static const s32 phases[]={0,1,2,-1,3,INT32_MIN,INT32_MAX};
 static const s16 fades[]={INT16_MIN,-1,0,1,2,63,64,INT16_MAX};
-static void roots(void){D_800ACC14=(RrIconSpriteContext*)&w->s.frames[w->s.frameRoot];D_800F4D80=w->s.rows[w->s.uiRoot];D_800AC590=&w->s.text[w->s.textRoot];}
+static void roots(void){D_800ACC14=(RrIconSpriteContext*)&w->s.frames[w->s.frameRoot];UiRows=w->s.rows[w->s.uiRoot];D_800AC590=&w->s.text[w->s.textRoot];}
 static void effect(void){unsigned i,j;static const u8 types[]={0x41,0x73,0x23,0xE3,0,0x12};
  w->s.frameRoot=next()%3;w->s.uiRoot=next()%3;w->s.textRoot=next()%3;w->s.fade=fades[next()%8];w->s.pulse=word(next());w->s.clear1=next();w->s.clear2=next();
  w->s.visual.scene00=word(next());w->s.visual.selection08=next()%8;w->s.visual.layout0C=phases[next()%7];w->s.visual.detail10=word(next());w->s.visual.exit34.word=word(next());w->s.context.mode18=phases[next()%7];
@@ -73,42 +73,42 @@ static Event *event(s32 op){const u8 *p=(const u8*)&w->s;size_t i;u32 h=21661362
  e=&w->events[w->calls++];memset(e,0,sizeof(*e));e->op=op;e->hash=h;return e;
 }
 static void change(void){if(mutation)effect();}
-void func_8002A604(void){event(1);change();}
-void func_8003A1B4(void){event(2);change();}
-void func_80013890(s32 shift){event(3)->args[0]=shift;change();}
-void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){Event *v=event(4);s32 args[]={a,b,c,d,e,f,g,h,i,j};memcpy(v->args,args,sizeof(args));change();}
+void ClearScreenOverlayState(void){event(1);change();}
+void InitMenuArenas(void){event(2);change();}
+void SetupRenderer(s32 shift){event(3)->args[0]=shift;change();}
+void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){Event *v=event(4);s32 args[]={a,b,c,d,e,f,g,h,i,j};memcpy(v->args,args,sizeof(args));change();}
 void func_8002AF8C(s32 a,s32 b,s32 c){Event *e=event(5);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
 void func_8004E008(void){event(6);change();}
 void func_80053BB4(s32 mode){event(7)->args[0]=mode;change();}
 void func_800207D4(u32 *ordering,s32 intensity,u32 mode){Event *e=event(8);u32 *base=w->s.frames[w->s.frameRoot].ordering70;assert(ordering==base||ordering==base+702);e->args[0]=ordering-base;e->args[1]=intensity;e->args[2]=(s32)mode;*ordering^=(u32)intensity;change();}
-void func_8002B330(s32 a,s32 b,char *selection,s32 count,s32 flags){Event *e=event(9);assert(selection==(char*)&w->s.visual.selection08);e->args[0]=a;e->args[1]=b;e->args[2]=count;e->args[3]=flags;*selection=(char)(next()%8);change();}
+void StepMenuValue(s32 a,s32 b,char *selection,s32 count,s32 flags){Event *e=event(9);assert(selection==(char*)&w->s.visual.selection08);e->args[0]=a;e->args[1]=b;e->args[2]=count;e->args[3]=flags;*selection=(char)(next()%8);change();}
 s32 ovl665_func_8011629C(s32 index){Event *e=event(10);s32 result=real_classify(index);e->args[0]=index;e->args[1]=result;return result;}
 void PlaySfx(s32 sound){event(11)->args[0]=sound;change();}
 void func_8005B2D4(s32 mode){event(12)->args[0]=mode;change();}
 void func_80053AF4(s32 a,s32 b){Event *e=event(13);e->args[0]=a;e->args[1]=b;change();}
 void ovl665_func_80116070(void){event(14);change();}
-void func_8003EC88(s32 index){assert(index>=0&&index<8);event(15)->args[0]=index;change();}
-void func_8002A344(s32 flags){event(16)->args[0]=flags;change();}
+void DrawUiRow(s32 index){assert(index>=0&&index<8);event(15)->args[0]=index;change();}
+void UpdateScreenFade(s32 flags){event(16)->args[0]=flags;change();}
 static void expected(void){State *s=&w->s;unsigned i;
  if(!kind){static const s32 group[]={8,9,1,1,1,1,0},label[]={19,19,25,20,21,18,85};
-  func_8002A604();s->clear1=0;s->clear2=0;s->pulse=0;s->arenas.second=s->resource+0x2D000;func_8003A1B4();s->published=s->arenas.second;func_80013890(5);
-  for(i=0;i<7;i++)func_8003E928(i,94,96+40*i,112,32,0,0,1,group[i],label[i]);
+  ClearScreenOverlayState();s->clear1=0;s->clear2=0;s->pulse=0;s->arenas.second=s->resource+0x2D000;InitMenuArenas();s->published=s->arenas.second;SetupRenderer(5);
+  for(i=0;i<7;i++)InitUiRow(i,94,96+40*i,112,32,0,0,1,group[i],label[i]);
   func_8002AF8C(1,1,1);if(s->context.mode18==1){s->visual.selection08=5;s->context.mode18=0;}s->fade=64;func_8004E008();func_80053BB4(0);D_800AC590->b4=-1;return;
  }
  {s32 phase=s->visual.layout0C;
  if(phase==0){
   if(s->fade>0){s->fade=half((s32)s->fade-1);func_800207D4(s->frames[s->frameRoot].ordering70+702,(s32)s->fade*4,69);}
-  if(D_800F4D80[0].byte14==2&&s->fade==0){
-   D_800F4D80[s->visual.selection08].cells[0]=0;func_8002B330(0,2,(char*)&s->visual.selection08,7,0);D_800F4D80[s->visual.selection08].cells[0]=2;
+  if(UiRows[0].byte14==2&&s->fade==0){
+   UiRows[s->visual.selection08].cells[0]=0;StepMenuValue(0,2,(char*)&s->visual.selection08,7,0);UiRows[s->visual.selection08].cells[0]=2;
    if(s->inputs[0].a){
     int reject=s->visual.selection08==1&&ovl665_func_8011629C(1)<0;
     if(reject)PlaySfx(4);
-    else {PlaySfx(1);D_800F4D80[s->visual.selection08].cells[0]=1;s->fade=64;s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
+    else {PlaySfx(1);UiRows[s->visual.selection08].cells[0]=1;s->fade=64;s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
    }else if(s->inputs[0].b){PlaySfx(2);s->visual.selection08=6;s->fade=64;s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
   }
   func_8005B2D4(1);
  }else if(phase==1){
-  for(i=0;i<8;i++)if(D_800F4D80[i].byte14==2)D_800F4D80[i].byte14=3;
+  for(i=0;i<8;i++)if(UiRows[i].byte14==2)UiRows[i].byte14=3;
   if(s->visual.selection08==3||s->visual.selection08>=5)func_80053AF4(0,half((s32)s->fade-4));
   s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);
  }else if(phase==2){
@@ -116,8 +116,8 @@ static void expected(void){State *s=&w->s;unsigned i;
   if(s->fade<=0){func_8005B2D4(0);s->visual.exit34.word=0;s->visual.layout0C=0;s->visual.detail10=0;s->visual.scene00=wrap((int64_t)s->visual.scene00+1);if(s->visual.selection08==0||s->visual.selection08==1)ovl665_func_80116070();}
  }
  }
- if(ovl665_func_8011629C(1)<0){D_800F4D80[1].half20=1;if(s->visual.selection08==1)D_800F4D80[1].cells[0]=4;}else D_800F4D80[1].half20=0;
- for(i=0;i<8;i++)func_8003EC88(i);func_8002A344(0x10066);
+ if(ovl665_func_8011629C(1)<0){UiRows[1].half20=1;if(s->visual.selection08==1)UiRows[1].cells[0]=4;}else UiRows[1].half20=0;
+ for(i=0;i<8;i++)DrawUiRow(i);UpdateScreenFade(0x10066);
 }
 int main(void){unsigned i;assert((uintptr_t)resources>UINT32_MAX);_Static_assert(sizeof(State)%4==0,"state words");
  for(scenario=0;scenario<32768;scenario++)for(kind=0;kind<2;kind++)for(mutation=0;mutation<2;mutation++){

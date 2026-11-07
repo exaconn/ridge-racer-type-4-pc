@@ -5,6 +5,6 @@
 
 int InitCARD();
 void StartCARD(void);
-void func_80095DA8(void);
+void StopCARD(void);
 
 #endif /* RR_PSYQ_LIBCARD_INIT_H */

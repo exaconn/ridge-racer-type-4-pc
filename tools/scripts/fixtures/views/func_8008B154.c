@@ -39,7 +39,7 @@ int VSync(a0) int a0; {
         t = *D_800A525C;
     } while (t != *D_800A525C);
     s1 = (t - D_800A5260) & 0xFFFF;
-    if (a0 < 0) return D_800A6390;
+    if (a0 < 0) return Vcount;
     if (a0 == 1) return s1;
     if (a0 > 0) {
         v = D_800A5264;
@@ -50,9 +50,9 @@ int VSync(a0) int a0; {
     }
     w = 0;
     if (a0 > 0) w = a0 - 1;
-    func_8008B2CC(v, w);
+    v_wait(v, w);
     s0 = *D_800A5258;
-    func_8008B2CC(D_800A6390 + 1, 1);
+    v_wait(Vcount + 1, 1);
     if (s0 & 0x400000) {
         r = D_800A5258;
         if ((int)(s0 ^ *r) >= 0) {
@@ -60,7 +60,7 @@ int VSync(a0) int a0; {
             } while (((s0 ^ *r) & 0x80000000) == 0);
         }
     }
-    D_800A5264 = D_800A6390;
+    D_800A5264 = Vcount;
     do {
         D_800A5260 = *D_800A525C;
     } while (D_800A5260 != *D_800A525C);

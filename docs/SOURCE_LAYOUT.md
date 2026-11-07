@@ -105,8 +105,8 @@ Work list for the remaining declarations: `tools/scripts/proto_conflicts.py [dir
 still has local cross-unit declarations, the spellings in use and the units involved.
 
 A frequent reason for a remaining local declaration: an older `include/rr/*.h` header already declares the
-symbol with a prototype (`s32 func_80032E9C(s32 selection);`), but a game unit only matches its original
-bytes with the K&R spelling it declares locally (`extern int func_80032E9C();`). The `rr/` prototype is a
+symbol with a prototype (`s32 DecodeCourseIndex(s32 selection);`), but a game unit only matches its original
+bytes with the K&R spelling it declares locally (`extern int DecodeCourseIndex();`). The `rr/` prototype is a
 documentation-grade type, the local K&R declaration is what the compiler saw. Making the two agree needs
 the `rr/` header to change spelling, which in turn has to be re-checked against the overlays and host tests
 that include it; `proto_conflicts.py` lists such cases.
@@ -161,5 +161,5 @@ from the address); only their contents use the new names.
 * Fields: `tools/scripts/emu_probe.py` drives the emulator; `Car.posX/posY/posZ` were identified by moving the car
   through memory (the car and camera jump), `posX6/posZ6` by the code that refreshes them from the position (`>> 6`).
 * Globals: `CarTable` (was `CarTable`) is the table of pointers to the race vehicle records. Seen in the running game:
-  eight consecutive pointers with a constant 0x320 stride, the first one equal to the `Car` that `func_80027C54` receives.
+  eight consecutive pointers with a constant 0x320 stride, the first one equal to the `Car` that `FindWheelTrackNodes` receives.
   `rename_symbols.py` also registers data names (`Name = 0xADDR; // type:u32` renames `D_ADDR`).

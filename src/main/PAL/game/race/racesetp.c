@@ -1,6 +1,6 @@
 #include "rr/race_setup.h"
 
-void func_8003CAF4(void)
+void SetupRace(void)
 {
     u8 *vectors;
     register u8 *countRoot __asm__("$4");
@@ -28,7 +28,7 @@ void func_8003CAF4(void)
     }
     DrawSync(0);
     func_8004A678();
-    func_80037B3C(D_800F4D44);
+    InitRaceCars(D_800F4D44);
     if (((D_800F4D44 < 2) || (D_800F4D44 == 6)) || ((D_800F4D44 == 4) && (D_80107178 == 2)))
     {
         D_800FF6F8 = 1;
@@ -40,7 +40,7 @@ void func_8003CAF4(void)
     if (D_800F4D44 != 5)
     {
         vehicleIndex = 0;
-        vehicle = D_800ABEF8;
+        vehicle = PlayerCars;
         do
         {
             /* Keep the complete owner address through this traversal. */
@@ -49,7 +49,7 @@ void func_8003CAF4(void)
 
             if (vehicleFlags != 0)
             {
-                func_8004BB00(vehicleIndex);
+                PadRumbleStart(vehicleIndex);
                 vehicle->flags1E4 = (s16) (((u16) vehicle->flags1E4) ^ 0x100);
             }
             vehicleIndex += 1;
@@ -58,21 +58,21 @@ void func_8003CAF4(void)
         while (vehicleIndex < 2);
     }
     func_8006E794();
-    func_80013890(5);
+    SetupRenderer(5);
     D_8010C13C = 0;
     D_8010C12C = 2;
     D_8010C120[1] = 0;
     D_8010C120[0] = 0;
     D_8010C120[2] = -1;
-    D_8010C140[2] = (s32) D_800F2EB8;
-    third = D_800F2EB8 / 3;
+    D_8010C140[2] = (s32) TrackLength;
+    third = TrackLength / 3;
     D_8010C140[0] = third;
     vectors = (u8 *) (&D_800F3838);
     D_8010C140[1] = (s32) (third * 2);
     vector = (s32 *) (((D_800F3914 * 12) + (D_800AD522 * 96)) + vectors);
     D_8010C0F8[0] = (s32) vector[0];
     D_8010C0F8[1] = (s32) vector[1];
-    D_800FF6B0 = D_800ADAC8;
+    RaceState = SavedRaceState;
     D_8010C0F8[2] = (s32) vector[2];
     if (D_800F4D44 == 0)
     {
@@ -93,7 +93,7 @@ void func_8003CAF4(void)
         offset0 = D_800F3914 * 4;
         selectedCount = (s32 *)(offset0+otherRoot);
     publish_count:
-        D_800F4C74 = *selectedCount;
+        BestLapTime = *selectedCount;
 
     }
     D_8010C134 = -1;
@@ -117,14 +117,14 @@ void func_8003CAF4(void)
             courseIndex += 8;
         }
         participant = courseIndex + byteRoot;
-        D_800F3A30 = (s32) (*participant);
+        NumLaps = (s32) (*participant);
         /* Initialized-value metadata retains the original store order. */
-        __asm__("" : : "m"(D_800F3A30));
+        __asm__("" : : "m"(NumLaps));
         resetIndex = 0;
     }
     minusOne = -1;
 
-    rank = D_800F4C80;
+    rank = LapTimes;
     result = D_800F4BA8;
     do
     {
@@ -159,7 +159,7 @@ void func_8003CAF4(void)
         D_800AC538 = 0;
         D_800ACBF8 = 1;
     }
-    func_8006E1AC();
+    BuildCameraMatrices();
     func_800209C4(D_800F4D44);
     func_80021084(D_800F4D44);
     ScreenFrame = 0;
@@ -173,8 +173,8 @@ void func_8003CAF4(void)
     {
         D_800AC5A4 = 0xAFC8;
     }
-    D_800AC5DC = 0x180;
-    func_80077D90(0);
+    VSyncThreshold = 0x180;
+    ClearTrackObjectStates(0);
     D_800F4C70.first = 0;
     D_800F4C70.second = 0;
     D_800F2AB4.first = 0;
@@ -182,6 +182,6 @@ void func_8003CAF4(void)
     D_800ABEC0 = 0;
     func_8004F7E0();
     func_80059168();
-    func_80014A8C(0xA);
+    SetModelTexturePage(0xA);
 
 }

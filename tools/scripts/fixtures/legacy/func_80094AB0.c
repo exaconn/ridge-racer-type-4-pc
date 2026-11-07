@@ -1,7 +1,7 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
 extern u32 *D_800ABBC8;
-void func_80094AB0(u32 command) {
+void _ctl(u32 command) {
     /* ASM_BARRIER: reuse v0 for the port pointer and then the command index. */
     register u32 index __asm__("$2");
     /* ASM_BARRIER: retain the original assembler temporary for the history address. */

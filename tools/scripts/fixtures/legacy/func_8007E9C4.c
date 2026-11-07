@@ -1,8 +1,8 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
 extern s32 D_800A47D0, D_800A47D4;
-extern s32 func_80096E64(u32, u32);
-s32 func_8007E9C4(s32 mode, s32 parameter) {
+extern s32 DeliverEvent(u32, u32);
+s32 _err_math(s32 mode, s32 parameter) {
     /* ASM_BARRIER: Keep the final parameter store in the original PAL address register. */
     register s32 *page __asm__("$1");
     /* ASM_BARRIER: Materialize the first mode comparison before publishing the parameters. */
@@ -16,8 +16,8 @@ s32 func_8007E9C4(s32 mode, s32 parameter) {
     __asm__("" : "+r"(page));
     page[0x47D4/4]=parameter;
     switch(mode) {
-    case 33: func_80096E64(0xF4000002U,0x301); break;
-    case 34: func_80096E64(0xF4000002U,0x302); break;
+    case 33: DeliverEvent(0xF4000002U,0x301); break;
+    case 34: DeliverEvent(0xF4000002U,0x302); break;
     }
     return 0;
 }

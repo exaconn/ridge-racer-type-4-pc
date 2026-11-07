@@ -22,11 +22,11 @@
 
 #undef D_800F3A26
 
-extern void func_8007D710(void),func_8008B364(void),func_80096E54(s32),func_8001E988(void);
+extern void func_8007D710(void),ResetCallback(void),SetMem(s32),SystemInit(void);
 
-extern s32 func_8008BDE4(s32),func_800128B8(void);
+extern s32 SetVideoMode(s32),CdFileStep(void);
 
-extern void SetDispMask(s32),func_8004FD80(void),DrawSync(s32);
+extern void SetDispMask(s32),SoundUpdate(void),DrawSync(s32);
 
 extern u32 *ClearOTagR(u32 *,s32);
 
@@ -34,26 +34,26 @@ extern s32 VSync(s32);
 
 extern void *PutDispEnv(void *), *PutDrawEnv(void *);
 
-extern void DrawOTag(void *),func_8004A6C4(void);
+extern void DrawOTag(void *),PadUpdate(void);
 
-void func_8001E684(void) {
+void MainLoop(void) {
     s32 threshold;
     register u8 *bank_page;
     u32 bank;
     u8 *frame;
     func_8007D710();
-    func_8008BDE4(1);
-    func_8008B364();
+    SetVideoMode(1);
+    ResetCallback();
     bank_page=(u8 *)0x800F0000U;
-    func_80096E54(2);
-    func_8001E988();
-    D_800AC5DC=128;
+    SetMem(2);
+    SystemInit();
+    VSyncThreshold=128;
     SetDispMask(0);
     D_800F2DE4=0;
     D_800F4C6A=1;
     D_800F3A26=1;
     D_800F4D8A=0;
-    D_800ABEAC=0;
+    FrameCounter=0;
     for (;;) {
         {
             /* ASM_BARRIER: prepare the real ordering-table length before its address. */
@@ -66,7 +66,7 @@ void func_8001E684(void) {
             /* ASM_BARRIER: keep the arena address after the length preparation. */
             __asm__("" : "+r"(length) : : "$3");
             frame_page=(u8 *)0x800B0000U;
-            bank=D_800ABEAC;
+            bank=FrameCounter;
             /* ASM_BARRIER: read the counter before completing the arena address. */
             __asm__("" : "+r"(frame_page), "+r"(bank));
             frames=(RrFrameStorage *)(frame_page-0x2510);
@@ -81,18 +81,18 @@ void func_8001E684(void) {
             ClearOTagR(ordering,length);
         }
         ClearOTagR((u32 *)(D_800ACC14+0xB70),0x2C0);
-        func_800128B8();
-        func_8004FD80();
-        D_8009E9F0[D_800F4C6A][D_800F3A26]();
+        CdFileStep();
+        SoundUpdate();
+        ModeFuncTable[D_800F4C6A][D_800F3A26]();
         DrawSync(0);
-        threshold=D_800AC5DC;
+        threshold=VSyncThreshold;
         do {} while (VSync(1)<threshold);
         VSync(0);
         PutDispEnv(D_800ACC14+0x5C);
         PutDrawEnv(D_800ACC14);
         DrawOTag(D_800ACC14+0xB6C);
         if(D_800ACBF8) DrawOTag(D_800ACC14+0x166C);
-        func_8004A6C4();
-        D_800ABEAC++;
+        PadUpdate();
+        FrameCounter++;
     }
 }

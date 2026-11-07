@@ -5,8 +5,8 @@
 #include "psyq/libsnd/ssresum2.h"
 #include "psyq/libsnd/ssresume.h"
 #include "psyq/libsnd/sstick3.h"
-extern void func_80084314(s32,s32);
-void func_80082D54(void) {
+extern void _SsSndTempo(s32,s32);
+void SsSeqCalledTbyT(void) {
     s32 bank, offset, signed_row;
     s32 row;
     s32 row_shift;
@@ -14,16 +14,16 @@ void func_80082D54(void) {
     s32 signed_bank;
     RrLibStateB0 **entry,**records;
     s32 row_limit,bank_limit;
-    if(D_8010F05C!=1) {
-        D_8010F05C=1;
+    if(_snd_ev_flag!=1) {
+        _snd_ev_flag=1;
         bank=0;
-        func_80087064();
-        if(D_8010F8E8>0) {
-            records=D_8010F068;
+        _SsVmFlush();
+        if(_snd_seq_s_max>0) {
+            records=_ss_score;
             do {
-                if(D_8010F060&(1U<<bank)) {
+                if(_snd_openflag&(1U<<bank)) {
                     row=0;
-                    if(D_8010F8EA>0) {
+                    if(_snd_seq_t_max>0) {
                         /* ASM_BARRIER: Keep the row counter distinct from the later shifted row and byte offset. */
                         __asm__("" : "+r"(row));
                         entry=records;
@@ -38,20 +38,20 @@ void func_80082D54(void) {
                         do {
                             if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&1) {
                                 signed_row=row_shift>>16;
-                                func_80083274(signed_bank,signed_row);
+                                _SsSndPlay(signed_bank,signed_row);
                                 if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x10)func_80082FC4(signed_bank,signed_row);
                                 if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x20)func_80082FC4(signed_bank,signed_row);
-                                if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x40)func_80084314(signed_bank,signed_row);
-                                if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x80)func_80084314(signed_bank,signed_row);
+                                if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x40)_SsSndTempo(signed_bank,signed_row);
+                                if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&0x80)_SsSndTempo(signed_bank,signed_row);
                             }
-                            if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&2)func_800831D4(bank_shift>>16,row_shift>>16);
-                            if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&8)func_80083A94(bank_shift>>16,row_shift>>16);
+                            if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&2)_SsSndPause(bank_shift>>16,row_shift>>16);
+                            if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&8)_SsSndReplay(bank_shift>>16,row_shift>>16);
                             if(((RrLibStateB0*)(offset+(unsigned long)*entry))->w98&4) {
-                                func_80083AF4(bank_shift>>16,row_shift>>16);
+                                _SsSndStop(bank_shift>>16,row_shift>>16);
                                 ((RrLibStateB0*)(offset+(unsigned long)*entry))->w98=0;
                             }
                             row_shift+=0x10000;
-                            row_limit=D_8010F8EA;
+                            row_limit=_snd_seq_t_max;
                             /* ASM_BARRIER: Read the live row bound before incrementing its counter. */
                             __asm__("" : "+r"(row_limit));
                             row++;
@@ -59,12 +59,12 @@ void func_80082D54(void) {
                         }while(row<row_limit);
                     }
                 }
-                bank_limit=D_8010F8E8;
+                bank_limit=_snd_seq_s_max;
                 /* ASM_BARRIER: Read the live bank bound before incrementing its counter. */
                 __asm__("" : "+r"(bank_limit));
                 bank++;records++;
             }while(bank<bank_limit);
         }
-        D_8010F05C=0;
+        _snd_ev_flag=0;
     }
 }

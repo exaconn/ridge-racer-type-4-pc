@@ -15,7 +15,7 @@ extern RrGpuColorCommand D_800F3A20,D_800F3A18;
 
 /* Captures the raw depth shift and current render flags in scratchpad; resets
  * the two RGB/command templates and the viewport to (0,0,320,256). */
-void func_80013890(s32 shift);
+void SetupRenderer(s32 shift);
 RR_ASSERT_SIZE(RrGpuColorCommand, 4);
 RR_ASSERT_OFFSET(RrGpuColorCommand, code, 3);
 RR_ASSERT_SIZE(RrRendererScratch, 0x74);

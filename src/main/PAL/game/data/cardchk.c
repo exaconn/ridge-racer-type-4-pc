@@ -16,7 +16,7 @@ int a0; int a1; int a2;
     unsigned char *p0, *p1, *pp, *b0;
 
     k = a0 & 0xFF;
-    r = func_800787C4(k, a1 & 0xFF);
+    r = CardUpdate(k, a1 & 0xFF);
     D_8010EF88[k] = r;
     if (r != 0) {
         D_8010EF90[k] = r;
@@ -49,8 +49,8 @@ loop:
             *p0 = 0x1E; *p1 = 0; flag = 1; break;
         case 2:
             if (*p0 >= 0x10) {
-                D_800ACBCC[s3] = func_8007834C(s3, a1 & 0xFF);
-                *p0 = 0xF - func_800783C8(D_800ACBCC[s3]);
+                D_800ACBCC[s3] = CountCardFiles(s3, a1 & 0xFF);
+                *p0 = 0xF - CardFreeBlocks(D_800ACBCC[s3]);
                 *p1 = 0;
             }
             flag = 1; break;
@@ -61,8 +61,8 @@ loop:
             *p0 = 0x14; *p1 = 1; flag = 1; break;
         case 5:
             if (*p0 >= 0x10) {
-                D_800ACBCC[s3] = func_8007834C(s3, a1 & 0xFF);
-                *p0 = 0xF - func_800783C8(D_800ACBCC[s3]);
+                D_800ACBCC[s3] = CountCardFiles(s3, a1 & 0xFF);
+                *p0 = 0xF - CardFreeBlocks(D_800ACBCC[s3]);
                 *p1 = 1;
             }
             flag = 1; break;

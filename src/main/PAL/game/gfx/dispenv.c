@@ -10,15 +10,15 @@ struct S {
     int f38, f3C, f40, f44;
 };
 
-extern int func_80043AB0();
-extern struct S D_800AC650;
+extern int GetTrackPointAhead();
+extern struct S RaceContext;
 /* same symbol under a 2nd C name: cse cannot reuse the earlier address, so the else arm re-materialises lui/addiu like the original */
-extern struct S D_800AC650b __asm__("D_800AC650");
+extern struct S D_800AC650b __asm__("RaceContext");
 extern int D_800AC690;
 extern int D_800AC694;
 extern int func_80047610();
-extern int D_800ABEA4;
-extern int D_800ABECC;
+extern int TrackNodes;
+extern int TrackNodeCount;
 extern void ApplyMatrix();
 extern void RotMatrixZYX();
 extern void *D_800ACBA0;
@@ -44,34 +44,34 @@ int *a1;
     int s;
     struct S *q;
     int t;
-    d[0] = (D_800AC650.f20 / 4 - a1[0]) / 4;
-    d[1] = (D_800AC650.f24 / 4 - a1[1]) / 4;
-    d[2] = (D_800AC650.f28 / 4 - a1[2]) / 4;
+    d[0] = (RaceContext.f20 / 4 - a1[0]) / 4;
+    d[1] = (RaceContext.f24 / 4 - a1[1]) / 4;
+    d[2] = (RaceContext.f28 / 4 - a1[2]) / 4;
     s = func_80090758(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]) * 2;
-    if (D_800AC650.f1C != 0) {
+    if (RaceContext.f1C != 0) {
         t = s >> 2;
-        D_800AC650.f3C = t;
-        D_800AC650.f38 = s - t;
-        D_800AC650.f44 = 0;
-        D_800AC650.f40 = s;
+        RaceContext.f3C = t;
+        RaceContext.f38 = s - t;
+        RaceContext.f44 = 0;
+        RaceContext.f40 = s;
         if (s > 0xFFFF) {
             if (*(short *)(a0 + 0x1EA) != 0) goto L;
         } else {
 L:
-            D_800AC650.f44 = 1;
+            RaceContext.f44 = 1;
         }
         if (*(short *)((char *)a1 + 0x32) - *(int *)(a0 + 0xF0) >= 0) D_800AC694 = 1;
     }
-    t = s - D_800AC650.f3C;
-    if (D_800AC650.f44 == 0) {
+    t = s - RaceContext.f3C;
+    if (RaceContext.f44 == 0) {
         if (t < 0) {
-            D_800AC650.f44 = 1;
+            RaceContext.f44 = 1;
         } else {
             q = &D_800AC650b;
             if (q->f40 - s < 0) q->f44 = 1;
         }
     }
-    func_80043AB0(a0, sp20, a1[5]);
+    GetTrackPointAhead(a0, sp20, a1[5]);
     return D_800AC690 = s;
 }
 
@@ -88,10 +88,10 @@ void func_80043DE4(a0, a1, a2) char *a0; int *a1; int *a2; {
     q2 = r;
     r = d - (q2 << 10);
     d = q2;
-    if (d < 0) d += D_800ABECC;
+    if (d < 0) d += TrackNodeCount;
     j = d + 1;
-    if (D_800ABECC < j) j -= D_800ABECC;
-    func_80047610(D_800ABEA4 + d * 60, D_800ABEA4 + j * 60, a2[0], r, a1);
+    if (TrackNodeCount < j) j -= TrackNodeCount;
+    func_80047610(TrackNodes + d * 60, TrackNodes + j * 60, a2[0], r, a1);
     a1[0] = a1[0] << 2;
     a1[2] = a1[2] << 2;
     a1[1] = a1[1] + (a2[1] << 2);

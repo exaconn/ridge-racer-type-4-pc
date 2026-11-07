@@ -20,40 +20,40 @@ typedef struct {
     char pad8[0x26CE - 0x26C6];
     unsigned short h26CE;
 } S;
-extern S D_800F4DB8;
+extern S SoundState;
 
-void func_80052C70()
+void CdAudioRequestPause()
 {
-    switch (D_800F4DB8.f269C) {
+    switch (SoundState.f269C) {
     case 0:
     case 1:
-        if (D_800F4DB8.f2670 != 2) {
-            D_800F4DB8.f2670 = 2;
-            D_800F4DB8.f2678 = 0;
-            D_800F4DB8.h26CE = D_800F4DB8.h26C4;
+        if (SoundState.f2670 != 2) {
+            SoundState.f2670 = 2;
+            SoundState.f2678 = 0;
+            SoundState.h26CE = SoundState.h26C4;
         }
-        if (D_800F4DB8.f269C == 1) {
-            D_800F4DB8.f26B8 = D_800F4DB8.f269C;
+        if (SoundState.f269C == 1) {
+            SoundState.f26B8 = SoundState.f269C;
         } else {
-            D_800F4DB8.f26B8 = 0;
-            D_800F4DB8.f2694 = D_800F4DB8.f2664;
+            SoundState.f26B8 = 0;
+            SoundState.f2694 = SoundState.f2664;
         }
         break;
     case 2:
-        if (D_800F4DB8.f2670 != 3) {
-            D_800F4DB8.f2670 = 3;
-            D_800F4DB8.f26A4 = 0;
-            D_800F4DB8.f2678 = 0;
+        if (SoundState.f2670 != 3) {
+            SoundState.f2670 = 3;
+            SoundState.f26A4 = 0;
+            SoundState.f2678 = 0;
         }
         break;
     }
-    if (D_800F4DB8.f2670 == 1) {
-        if (D_800F4DB8.f26B0 < 0x20) {
-            D_800F4DB8.f26B4 = D_800F4DB8.f2670;
+    if (SoundState.f2670 == 1) {
+        if (SoundState.f26B0 < 0x20) {
+            SoundState.f26B4 = SoundState.f2670;
             return;
         }
-        D_800F4DB8.f2670 = 2;
-        D_800F4DB8.f2678 = 0;
-        D_800F4DB8.h26CE = D_800F4DB8.h26C4;
+        SoundState.f2670 = 2;
+        SoundState.f2678 = 0;
+        SoundState.h26CE = SoundState.h26C4;
     }
 }

@@ -10,7 +10,7 @@ def header(name):
     text=(ROOT/'include/rr'/name).read_text()
     return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
 body=native_source((ROOT/'tools/scripts/fixtures/views/func_80099CD4.c').read_text())
-registrar=native_source((ROOT/'tools/scripts/fixtures/views/func_8009A334.c').read_text()).replace('func_8009A334','native_registrar')
+registrar=native_source((ROOT/'tools/scripts/fixtures/views/func_8009A334.c').read_text()).replace('_padInitDirSeq','native_registrar')
 registrar,n=re.subn(r'\(u8 \*\)0x800B0000U','(callback_page.bytes+0x4380)',registrar)
 assert n==1
 code=r'''
@@ -59,7 +59,7 @@ static void check_callbacks(void) {
  assert(D_800ABC8C==func_80099F90);
  assert(D_800ABC80==func_8009A368 && D_800ABC84==func_8009A7BC && D_800ABC88==func_8009A478);
 }
-void func_8009A334(void) {
+void _padInitDirSeq(void) {
  assert(stage==0 && D_800ABCA0==0 && D_800ABCB4==0);
  native_registrar();stage=1;D_800ABCA0=-17;D_800ABCB4=seed;
 }

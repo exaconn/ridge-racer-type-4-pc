@@ -31,11 +31,11 @@
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ACC14 (*(s32 (*))&D_800ACC14)
 
-#define func_8001FD20 ((s32 (*)())func_8001FD20)
+#define AddTilePrim ((s32 (*)())AddTilePrim)
 
 #undef D_800ACC14
 
-#undef func_8001FD20
+#undef AddTilePrim
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3A38 (*(E (*)[])&D_800F3A38)
@@ -43,11 +43,11 @@
 #undef D_800F3A38
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEF8 (*(S_800ABEF8 (*)[])&D_800ABEF8)
+#define PlayerCars (*(S_800ABEF8 (*)[])&PlayerCars)
 
-#undef D_800ABEF8
+#undef PlayerCars
 
-void func_8002B75C(char *d, char *s)
+void CopyStringClearTail(char *d, char *s)
 {
     int i = 0;
     char *p;

@@ -57,7 +57,7 @@ typedef uint32_t u32;typedef int32_t s32;typedef int64_t s64;
         if result.returncode:
             raise AssertionError(result.stderr.decode())
         cls.lib = C.CDLL(str(directory/'function.so'))
-        cls.response = cls.lib.func_80047CE0
+        cls.response = cls.lib.CalcSteerLimit
         cls.response.argtypes = [C.POINTER(Distance)]
         cls.response.restype = C.c_int32
 

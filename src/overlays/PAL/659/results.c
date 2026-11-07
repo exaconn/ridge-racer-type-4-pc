@@ -6,8 +6,8 @@ void ovl659_init_results(void) {
 
     ovl659_rank_standings();
     InitMenuTextRows(D_800FFC48);
-    D_800AC64A = 0;
-    D_800AC5E0 = 2;
+    MenuCursor = 0;
+    MenuItemCount = 2;
     offset = 0;
     if (D_800AD4D8.mode1A != 4) {
         offset = 11;
@@ -45,7 +45,7 @@ void ovl659_update_results(void) {
                 func_8002AF8C(0, 1, 0);
                 PlaySfx(1);
                 if (D_800AD4D8.mode1A == 4) {
-                    func_8003A1B4();
+                    InitMenuArenas();
                     ResetScreenCounters();
                     D_800F4D8A = 5;
                     break;
@@ -65,17 +65,17 @@ void ovl659_update_results(void) {
             rowOffset = 5;
         }
         for (i = 0; i < 3; i++) {
-            if (i >= D_800F3A30) {
+            if (i >= NumLaps) {
                 MenuTextRows[rowOffset + 2].state.d34 = -1;
                 break;
             }
-            if (i + lapOffset == D_800ABEF8[0].steering288.finish20) {
+            if (i + lapOffset == PlayerCars[0].steering288.finish20) {
                 func_80041320(i + rowOffset, 1, -1);
             } else {
                 func_80041320(i + rowOffset, 0, -1);
             }
-            func_8002B814((char *)&MenuTextRows[i + rowOffset].bytes[32], i + lapOffset + 1, 0);
-            func_8002B934((char *)&MenuTextRows[i + rowOffset].bytes[35], D_800F4C80[i + lapOffset]);
+            FormatDecimalDigits((char *)&MenuTextRows[i + rowOffset].bytes[32], i + lapOffset + 1, 0);
+            FormatRaceTime((char *)&MenuTextRows[i + rowOffset].bytes[35], LapTimes[i + lapOffset]);
         }
         break;
     case 3:
@@ -84,17 +84,17 @@ void ovl659_update_results(void) {
             D_800F4D8A = 7;
         } else if (MenuTextRows[38].signedBytes[3] >= 14) {
             func_8002AF8C(1, 1, 0);
-            func_80041320(D_800AC64A + 37, 0, 0);
-            func_8002B330(0, 2, (char *)&D_800AC64A, D_800AC5E0, 0);
-            func_80041320(D_800AC64A + 37, 1, 1);
+            func_80041320(MenuCursor + 37, 0, 0);
+            StepMenuValue(0, 2, (char *)&MenuCursor, MenuItemCount, 0);
+            func_80041320(MenuCursor + 37, 1, 1);
             if (D_800F3A60 != 0) {
                 func_8002AF8C(0, 1, 0);
                 PlaySfx(1);
-                if (D_800AC64A == 0) {
+                if (MenuCursor == 0) {
                     D_800F4D8A = 4;
                     D_800AC5D0 = 64;
                     D_800AD4D8.retries08[D_800AD4D8.phase17]--;
-                    func_8002B814((char *)&MenuTextRows[40].bytes[36],
+                    FormatDecimalDigits((char *)&MenuTextRows[40].bytes[36],
                                   D_800AD4D8.retries08[D_800AD4D8.phase17], 0);
                 } else {
                     D_800F4D8A = 7;
@@ -146,7 +146,7 @@ void ovl659_update_results(void) {
                 D_800F3A26 = 11;
             }
             D_800F4D8A = 0;
-            func_8002A344(0x1000C);
+            UpdateScreenFade(0x1000C);
             return;
         }
         break;
@@ -163,16 +163,16 @@ void ovl659_update_results(void) {
         }
         break;
     case 8:
-        func_8003A1B4();
+        InitMenuArenas();
         D_800F4C6A = 1;
         D_800F3A26 = 31;
         D_800F4D8A = 0;
-        func_8002A344(0x1000C);
+        UpdateScreenFade(0x1000C);
         return;
     default:
         break;
     }
-    func_8002A344(0x1000C);
+    UpdateScreenFade(0x1000C);
     if (ovl659_preview_timer == -2) {
         func_8003662C(D_800F2DE4);
     } else {
@@ -206,7 +206,7 @@ void ovl659_rank_standings(void) {
     n = 6;
     i = 0;
     destination = values;
-    source = D_800F4C80;
+    source = LapTimes;
     order = indices;
     for (; i < 6; destination++, source++, i++, order++) {
         *order = i;
@@ -236,10 +236,10 @@ void ovl659_rank_standings(void) {
     }
     rank = D_800F4C64;
     if (rank == -1) {
-        vehicle = D_800ABEF8;
+        vehicle = PlayerCars;
         vehicle->steering288.finish20 = rank;
         if (vehicle->steering288.count22 > 0)
-            D_800F4C80[vehicle->steering288.count22 - 1] = rank;
+            LapTimes[vehicle->steering288.count22 - 1] = rank;
     } else {
         D_800AC1A0 = indices[0];
     }

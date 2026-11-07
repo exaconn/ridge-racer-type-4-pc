@@ -14,7 +14,7 @@ typedef struct {
 } Struct2C;
 
 
-extern Struct4000 *D_800102F0;
+extern Struct4000 *CdDirectoryBuffer;
 extern char D_800A40A8[][0x40];
 extern char D_800A4128[][0x40];
 extern unsigned char D_800A41E8;
@@ -57,7 +57,7 @@ int a1;
                 func_80079FF8(D_800ACC0C, D_800A4128[D_800F4D3C], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[D_800F4D3C]);
                 func_80079200(D_800F3AF8);
             } else if (D_800F3AF8 == 0x20) {
-                *D_800ACC0C = *D_800102F0;
+                *D_800ACC0C = *CdDirectoryBuffer;
             }
         } else if (a0 >= 2) {
             D_800A41E9 = 0;
@@ -68,7 +68,7 @@ int a1;
                 func_80079FF8(D_800ACC0C, D_800A4128[D_800F4D3C], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[D_800F4D3C]);
                 func_80079200(D_800F3AF8);
             } else if (D_800F3AF8 == 0x20) {
-                *D_800ACC0C = *D_800102F0;
+                *D_800ACC0C = *CdDirectoryBuffer;
             }
         }
         D_800A41E8 = 1;
@@ -80,9 +80,9 @@ int a1;
         for (i = 0x1D; i >= 0; i--) {
         }
         if (D_800F3AF8 == 0x20) {
-            r = func_80078610((short)a1, 0, D_800F4D50, D_800ACC0C, 2, D_800A41E9);
+            r = CardWriteFile((short)a1, 0, D_800F4D50, D_800ACC0C, 2, D_800A41E9);
         } else {
-            r = func_80078610((short)a1, 0, D_800F4D50, D_800ACC0C, 1, D_800A41E9);
+            r = CardWriteFile((short)a1, 0, D_800F4D50, D_800ACC0C, 1, D_800A41E9);
         }
         if (r == -1) {
             if (D_800A41EA < 3) {
@@ -95,7 +95,7 @@ int a1;
         }
         break;
     case 3:
-        i = func_80078178();
+        i = GetHwCardEvent();
         if (i != 0) {
             if (i == 1) {
                 D_800A41E8 = 4;

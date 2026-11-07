@@ -1,11 +1,11 @@
 /* CC1_FLAGS: -mno-split-addresses */
-extern int func_8007F54C(), func_8007F574();
+extern int _spu_FsetDelayW(), _spu_FsetDelayR();
 struct H { char p[0x1A6]; volatile unsigned short f1A6; char q[2]; volatile unsigned short f1AA; };
-extern struct H *D_800A47D8;
+extern struct H *_spu_RXX;
 extern int *D_800A47DC, *D_800A47E0, *D_800A47E4;
-extern unsigned short D_800A47F0;
-extern int D_800A4800, D_800A4828, D_800A482C, D_800A4830;
-int func_8007F068(int a0, ...) {
+extern unsigned short _spu_tsa;
+extern int _spu_mem_mode_plus, D_800A4828, D_800A482C, D_800A4830;
+int _spu_t(int a0, ...) {
     unsigned *s0;
     unsigned v1;
     unsigned short x;
@@ -20,43 +20,43 @@ int func_8007F068(int a0, ...) {
             /* ASM_BARRIER: Keep shifted transfer address in $v0 */
             register unsigned r_v0 asm("$2");
             r_a0 = *s0;
-            r_v0 = r_a0 >> D_800A4800;
-            D_800A47F0 = r_v0;
-            D_800A47D8->f1A6 = r_v0;
+            r_v0 = r_a0 >> _spu_mem_mode_plus;
+            _spu_tsa = r_v0;
+            _spu_RXX->f1A6 = r_v0;
         }
         break;
     case 1:
         D_800A4828 = 0;
         v1 = 0;
-        while (D_800A47D8->f1A6 != D_800A47F0) {
+        while (_spu_RXX->f1A6 != _spu_tsa) {
             v1++;
             if (v1 >= 0xF01) return -2;
         }
-        D_800A47D8->f1AA = (D_800A47D8->f1AA & 0xFFCF) | 0x20;
+        _spu_RXX->f1AA = (_spu_RXX->f1AA & 0xFFCF) | 0x20;
         break;
     case 0:
         D_800A4828 = 1;
         v1 = 0;
-        while (D_800A47D8->f1A6 != D_800A47F0) {
+        while (_spu_RXX->f1A6 != _spu_tsa) {
             v1++;
             if (v1 >= 0xF01) return -2;
         }
-        D_800A47D8->f1AA |= 0x30;
+        _spu_RXX->f1AA |= 0x30;
         break;
     case 3:
         x = (D_800A4828 == 1) ? 0x30 : 0x20;
         v1 = 0;
-        while ((D_800A47D8->f1AA & 0x30) != x) {
+        while ((_spu_RXX->f1AA & 0x30) != x) {
             v1++;
             if (v1 >= 0xF01) return -2;
         }
         if (D_800A4828 == 1) {
             s0++;
-            func_8007F574();
+            _spu_FsetDelayR();
             val = 0x01000000;
         } else {
             s0++;
-            func_8007F54C();
+            _spu_FsetDelayW();
             val = 0x01000000;
         }
         {

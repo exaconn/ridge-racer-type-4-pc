@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80087524();
+int SpuSetAnyVoice();
 
 #endif /* RR_PSYQ_LIBSPU_SPUKEYX_H */

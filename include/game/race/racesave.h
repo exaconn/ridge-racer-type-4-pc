@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80029660(char *arg0, int arg1);
+void ReadCarInput(char *arg0, int arg1);
 
 #endif /* RR_GAME_RACE_RACESAVE_H */

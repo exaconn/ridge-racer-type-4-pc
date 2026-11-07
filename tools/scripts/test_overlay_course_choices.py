@@ -41,7 +41,7 @@ struct State {
 static struct World {struct State s;unsigned calls;struct {u32 hash;s32 service,arg;} events[8];} actual,expected,*w;
 static unsigned scenario,mutation;
 #define D_800F4D70 w->s.arenas
-#define D_800ACC18 w->s.current
+#define LoadCursor w->s.current
 #define D_800F4D40 w->s.backing
 #define D_800F4D98 w->s.selection
 #define D_800ACBD0 w->s.points
@@ -54,13 +54,13 @@ static unsigned scenario,mutation;
 #define ovl661_D_8011844C w->s.cols661
 #define D_8010C0D8 w->s.rows667
 #define D_8010C0D0 w->s.cols667
-#define D_800ABEF8 w->s.vehicles
+#define PlayerCars w->s.vehicles
 #define RR_COURSE_SCRATCH (&w->s.scratch.projection)
 #define RR_PROJECTION_SCRATCH RR_COURSE_SCRATCH
 #define D_800F2DE4 w->s.word2de4
 #define ScreenFrame w->s.wordabeb0
-#define D_800AC64A w->s.halfc64a
-#define D_800AC5E0 w->s.halfc5e0
+#define MenuCursor w->s.halfc64a
+#define MenuItemCount w->s.halfc5e0
 #define ovl660_preview_bank w->s.row660
 #define ovl660_preview_selection w->s.col660
 #define ovl660_preview_confirmation w->s.reset660
@@ -97,10 +97,10 @@ static void event(s32 service,s32 arg){
  w->events[n].hash=h;w->events[n].service=service;w->events[n].arg=arg;w->calls++;
  if(mutation)effect(n);
 }
-void func_80013890(s32 shift){assert(shift==5);event(1,shift);}
+void SetupRenderer(s32 shift){assert(shift==5);event(1,shift);}
 void ResetScreenCounters(void){event(2,0);}
 void func_80037110(void){event(3,0);}
-void func_8002E4F4(RrRaceVehicle *vehicle){assert(vehicle==&w->s.vehicles[0]);event(4,0);}
+void ResetCarState(RrRaceVehicle *vehicle){assert(vehicle==&w->s.vehicles[0]);event(4,0);}
 ''' + glyph + count + bodies + r'''
 static void reference_glyph(s8 *output,s32 value){
  s32 first=value/160,second=value/40-first*4,last=value%40;
@@ -109,12 +109,12 @@ static void reference_glyph(s8 *output,s32 value){
 static s32 reference_count(const RrCourseChoice4 *p){unsigned i;for(i=0;i<9;i++)if(p[i].glyph==-1 || (i==8 && p[i].glyph!=0x167))return i;return 9;}
 static void reference(unsigned kind){
  if(kind==0){
-  w->s.word2de4=0;w->s.wordabeb0=0;func_80013890(5);w->s.halfc64a=0;w->s.halfc5e0=3;
+  w->s.word2de4=0;w->s.wordabeb0=0;SetupRenderer(5);w->s.halfc64a=0;w->s.halfc5e0=3;
   ResetScreenCounters();func_80037110();
   w->s.scratch.projection.word18=120;w->s.scratch.projection.word08=-16;
   w->s.scratch.projection.word0C=-248;w->s.scratch.projection.word10=-96;
   w->s.scratch.projection.word1C=0;w->s.scratch.projection.word20=0;
-  w->s.current=w->s.backing;func_8002E4F4(&w->s.vehicles[0]);
+  w->s.current=w->s.backing;ResetCarState(&w->s.vehicles[0]);
   w->s.vehicles[0].pos20[1]=10;w->s.vehicles[0].pos20[2]=308;w->s.vehicles[0].rot54=2048;
   w->s.reset660=0;
   reference_glyph((s8*)&w->s.selection,w->s.main[w->s.row660][w->s.col660].glyph);

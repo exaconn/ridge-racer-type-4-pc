@@ -31,8 +31,8 @@ class ChannelPitchTest(unittest.TestCase):
 #include "types.h"
 ''' + header('spu.h') + header('channels.h') + header('channel_pitch.h') + r'''
 static union {uint64_t alignment;u8 bytes[0x4000];} ram;
-#define D_8010F908 (*(RrChannelControlRow36 (*)[24])(ram.bytes+0x1908))
-#define D_8010FE18 (*(RrSpuVolumeCache *)(ram.bytes+0x1E18))
+#define _svm_voice (*(RrChannelControlRow36 (*)[24])(ram.bytes+0x1908))
+#define _svm_sreg_dirty (*(RrSpuVolumeCache *)(ram.bytes+0x1E18))
 #define D_8011010C (*(RrSpuPitchRequest *)(ram.bytes+0x210C))
 #define D_80110114 (*(s16 *)(ram.bytes+0x2114))
 #define D_80110118 (*(u16 *)(ram.bytes+0x2118))
@@ -41,26 +41,26 @@ static int voice,selection_calls,pitch_calls,mutate;
 static s32 selection_status,seen_bank,seen_program;
 static u32 seen_first,seen_second;
 static u16 result_pitch(u32 first,u32 second) {return (u16)(first*257U+second*11U);}
-s32 func_8008A564(s32 bank,s32 program) {
+s32 _SsVmVSetUp(s32 bank,s32 program) {
     selection_calls++;seen_bank=bank;seen_program=program;
     if(mutate) {
-        D_8010F908[voice].pad16[0]=0xEC;
-        D_8010F908[voice].match18=1234;
-        D_8010F908[voice].match14=-2468;
-        D_8010F908[voice].group0E=777;
+        _svm_voice[voice].pad16[0]=0xEC;
+        _svm_voice[voice].match18=1234;
+        _svm_voice[voice].match14=-2468;
+        _svm_voice[voice].group0E=777;
     }
     return selection_status;
 }
-u16 func_80088608(s32 first,s32 second) {
+u16 note2pitch2(s32 first,s32 second) {
     assert(selection_calls==1);
     assert(D_80110114==0x21&&D_80110118==voice);
-    assert(ram.bytes[0x210C]==D_8010F908[voice].pad16[0]);
+    assert(ram.bytes[0x210C]==_svm_voice[voice].pad16[0]);
     assert(first>=0&&first<=65535&&second>=0&&second<=65535);
     pitch_calls++;seen_first=first;seen_second=second;
     if(mutate) {
-        D_8010FE18.flags[voice]=0x80;
+        _svm_sreg_dirty.flags[voice]=0x80;
         u16 value=0xBEEF;
-        memcpy(D_8010FE18.voices[voice].pad04,&value,2);
+        memcpy(_svm_sreg_dirty.voices[voice].pad04,&value,2);
     }
     return result_pitch(first,second);
 }
@@ -68,23 +68,23 @@ static u8 expected[sizeof(ram)];
 static void prepare(int selected,s16 bank,s16 program,s16 group,int dynamic) {
     memset(ram.bytes,0xA5,sizeof(ram.bytes));
     voice=selected;mutate=dynamic;selection_calls=pitch_calls=0;
-    D_8010F908[voice].match18=bank;
-    D_8010F908[voice].match14=program;
-    D_8010F908[voice].group0E=group;
-    D_8010F908[voice].pad16[0]=0x17;
-    D_8010FE18.flags[voice]=0x42;
+    _svm_voice[voice].match18=bank;
+    _svm_voice[voice].match14=program;
+    _svm_voice[voice].group0E=group;
+    _svm_voice[voice].pad16[0]=0x17;
+    _svm_sreg_dirty.flags[voice]=0x42;
 }
 static void run(s32 rawvoice,s32 bank,s32 program,s32 group,u32 first,u32 second) {
     memcpy(expected,ram.bytes,sizeof(expected));
     int valid=(u16)rawvoice<24;
     if(valid) {
         assert((u16)rawvoice==voice);
-        valid=D_8010F908[voice].match18==(s16)bank
-            &&D_8010F908[voice].match14==(s16)program
-            &&D_8010F908[voice].group0E==(s16)group;
+        valid=_svm_voice[voice].match18==(s16)bank
+            &&_svm_voice[voice].match14==(s16)program
+            &&_svm_voice[voice].group0E==(s16)group;
     }
-    s32 expected_bank=D_8010F908[voice].match18;
-    s32 expected_program=D_8010F908[voice].match14;
+    s32 expected_bank=_svm_voice[voice].match18;
+    s32 expected_program=_svm_voice[voice].match14;
     if(valid) {
         RrChannelControlRow36 *rows=(RrChannelControlRow36 *)(expected+0x1908);
         RrSpuVolumeCache *cache=(RrSpuVolumeCache *)(expected+0x1E18);
@@ -99,7 +99,7 @@ static void run(s32 rawvoice,s32 bank,s32 program,s32 group,u32 first,u32 second
         memcpy(cache->voices[voice].pad04,&pitch,2);
         cache->flags[voice]|=4;
     }
-    assert(func_80084E74(rawvoice,bank,program,group,0xDEADBEEF,first,second)==(valid?0:-1));
+    assert(SsUtChangePitch(rawvoice,bank,program,group,0xDEADBEEF,first,second)==(valid?0:-1));
     assert(selection_calls==valid&&pitch_calls==valid);
     if(valid) {
         assert(seen_bank==expected_bank&&seen_program==expected_program);

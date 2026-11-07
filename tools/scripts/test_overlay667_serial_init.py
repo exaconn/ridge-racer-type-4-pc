@@ -87,7 +87,7 @@ static s32 boundary(s32 kind,s32 command,s32 operation,unsigned long argument) {
  return word(0x80000000U|scenario);
 }
 void SetDispMask(s32 mode){assert(mode==0);(void)boundary(0,mode,0,0);}
-s32 func_8009AEAC(s32 command,s32 operation,unsigned long argument) {
+s32 _sio_control(s32 command,s32 operation,unsigned long argument) {
  if(command==4) {
   s32 (*registered)(s32,u32)=(s32(*)(s32,u32))argument;
   assert(operation==0 && registered==ovl667_func_8011492C);

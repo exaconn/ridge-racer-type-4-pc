@@ -69,7 +69,7 @@ void AddPrim(u32 *table,u32 *packet) {
         cursor=pool+160;
     }
 }
-u8 *func_8001FCC8(u32 *table,u8 *packet,u16 mode) {
+u8 *AddDrawModePrim(u32 *table,u8 *packet,u16 mode) {
     assert(table==&ordering&&packet==pool+80&&cursor==packet);
     assert(mode==wanted_mode&&frame==4&&event_count==12&&final_calls==0);
     final_calls++;

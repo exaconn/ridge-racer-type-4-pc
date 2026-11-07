@@ -1,4 +1,4 @@
-int func_800940E0(int a0, int a1, int a2) {
+int get_mode(int a0, int a1, int a2) {
     int v1;
     register int v0 asm("$2");
     v1 = 0xE1000000;

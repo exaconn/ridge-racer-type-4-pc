@@ -1,6 +1,6 @@
 #include "rr/steering.h"
 
-s32 func_8004D420(const RrCurve24 *curve, s32 time, s32 *output)
+s32 EvalRateCurve(const RrCurve24 *curve, s32 time, s32 *output)
 {
     s32 half;
     s32 rate;

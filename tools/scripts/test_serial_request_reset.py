@@ -37,7 +37,7 @@ void record(u32 op,u32 value,uintptr_t pointer) {
  u32 i=test_count++;if(i<32){test_log[i][0]=op;test_log[i][1]=value;test_log[i][2]=0;}
 }
 uintptr_t test_irq_pointer;
-s32 func_80097714(s32 channel,void *pointer) {
+s32 SysDeqIntRP(s32 channel,void *pointer) {
  test_irq_pointer=(uintptr_t)pointer;record(6,channel,0);
  if(test_mutate) {
   D_801146E8.first=123;D_801146D8.request.first=-77;

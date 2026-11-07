@@ -26,13 +26,13 @@ extern int D_800F2EB4;
 extern unsigned int D_8010E290[];
 extern unsigned int *D_8010E690;
 
-void func_8006E63C(void);
+void InitViewLighting(void);
 void func_8006E834(void);
 void func_8006E8F8();
 void func_8006E9CC(void);
 void func_8006E9D4(void);
 
-void func_8006E63C(void)
+void InitViewLighting(void)
 {
     int *t;
     int *b;
@@ -44,22 +44,22 @@ void func_8006E63C(void)
     D_800AD5BC[0] = 0x1000;
     D_800AD5BC[1] = 0x1000;
     D_800AD5BC[2] = 0x1000;
-    D_800ABE98 = 0x13;
-    D_801093F8 = 0x1D;
-    D_80107194 = 0x1C;
+    BackColorR = 0x13;
+    BackColorG = 0x1D;
+    BackColorB = 0x1C;
     b = D_800A3B38;
     i = D_800F3914;
     t = b + i * 3;
-    D_800F4D84 = t[0];
-    D_800F4D68 = t[1];
-    D_800F4D48 = t[2];
+    FarColorR = t[0];
+    FarColorG = t[1];
+    FarColorB = t[2];
 }
 
 void func_8006E794(void) {
     int i;
     char *p;
     char *g = (char *)SCRATCHPAD;
-    func_8006E63C();
+    InitViewLighting();
     D_8010718C = 1;
     D_800AD5B8 = 0x1400;
     *(int *)(g + 0x78) = 0;

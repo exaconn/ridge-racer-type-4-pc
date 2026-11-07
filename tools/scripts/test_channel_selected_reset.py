@@ -27,19 +27,19 @@ typedef uint8_t u8; typedef int8_t s8; typedef uint16_t u16; typedef int16_t s16
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
 int test_ram[0xFA4/4+1];
-#define D_8010F05C test_ram[0]
+#define _snd_ev_flag test_ram[0]
 u16 D_80110118;
 int calls, seen_mode, seen_lock, seen_selected, mode, nested;
-void func_80088DA4(s32 unused_mode) {
-    calls++;seen_mode=unused_mode;seen_lock=D_8010F05C;seen_selected=D_80110118;
-    if(mode==1) nested=func_80085AEC(7);
-    if(mode==2) {D_8010F05C=-123;D_80110118=0xBEEF;}
+void _SsVmKeyOffNow(s32 unused_mode) {
+    calls++;seen_mode=unused_mode;seen_lock=_snd_ev_flag;seen_selected=D_80110118;
+    if(mode==1) nested=SsUtKeyOffV(7);
+    if(mode==2) {_snd_ev_flag=-123;D_80110118=0xBEEF;}
 }
 ''' + body
         (d / 'f.c').write_text(code)
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(d/'f.c'), '-o', str(d/'f.so')], check=True, capture_output=True)
         cls.lib = C.CDLL(str(d/'f.so'))
-        cls.call = cls.lib.func_80085AEC
+        cls.call = cls.lib.SsUtKeyOffV
         cls.call.argtypes = [C.c_int32]
         cls.call.restype = C.c_int32
         cls.ram = (C.c_int32 * (0xFA4//4+1)).in_dll(cls.lib, 'test_ram')

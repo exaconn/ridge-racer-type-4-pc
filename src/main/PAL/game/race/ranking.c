@@ -39,17 +39,17 @@ extern unsigned char D_800F3B28[];
 /* extern */
 /* extern */
 /* extern */
-extern s32 D_800102F0;
+extern s32 CdDirectoryBuffer;
 extern M2C_UNK D_800103B8;
-extern s32 D_800AC5DC;
-extern s32 D_800ACC18;
+extern s32 VSyncThreshold;
+extern s32 LoadCursor;
 extern s32 D_800F2DE4;
 extern s16 D_800F3A26;
 extern s16 D_800F4C6A;
 extern s8 D_800F4D7C;
 extern s16 D_800F4D8A;
 extern s16 D_800FFC18;
-extern int func_8004FA98();
+extern int SetCdMixMode();
 
 void func_8001EEE4(void);
 void func_8001F194(void);
@@ -163,11 +163,11 @@ void func_8001F2D4(void) {
     int pad[6];
     SetDispMask(0);
     func_8001E84C(&D_800103B8);
-    D_800ACC18 = D_800102F0;
+    LoadCursor = CdDirectoryBuffer;
     func_80071440();
     D_800FFC18 = 0;
     func_8007CDC4(0);
-    D_800AC5DC = 0x80;
+    VSyncThreshold = 0x80;
     D_800F2DE4 = 0;
     D_800F4D8A = 0;
     D_800F4D7C = 0;
@@ -188,8 +188,8 @@ void func_8001F374(void) {
     temp_v0 = func_8003BBBC();
     if (temp_v0 == 1) {
         D_800F2DE4 += 1;
-        if (func_80071570(func_8007CDC4(1) == 1) == temp_v0) {
-            func_8004FA98(D_800AD55A);
+        if (SplashLogoUpdate(func_8007CDC4(1) == 1) == temp_v0) {
+            SetCdMixMode(D_800AD55A);
             D_800F4D8A = 0;
             D_800F4C6A = (s16) ((u16) D_800F4C5C >> 8);
             D_800F3A26 = D_800F4C5C & 0xFF;

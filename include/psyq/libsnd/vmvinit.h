@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80084534();
+int SsUtAllKeyOff();
 
 #endif /* RR_PSYQ_LIBSND_VMVINIT_H */

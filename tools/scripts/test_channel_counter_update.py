@@ -36,7 +36,7 @@ _Static_assert(__builtin_offsetof(RrLibStateB0,w90)==0x90,"counter");
 RrLibStateB0 test_records[5][5];
 RrLibStateB0 *test_table[0x1100];
 void (*test_update)(s32,s32);
-void func_800835E4(s32 bank,s32 row) { test_update(bank,row); }
+void _SsGetSeqData(s32 bank,s32 row) { test_update(bank,row); }
 void test_initialize(void) {
  int bank;
  for(bank=-2;bank<=2;bank++) test_table[0x1000-0xF98/4+bank]=&test_records[bank+2][2];
@@ -48,7 +48,7 @@ void test_initialize(void) {
         cls.lib = C.CDLL(str(directory / 'function.so'))
         cls.records = (C.c_uint8 * (25 * 0xB0)).in_dll(cls.lib, 'test_records')
         cls.table = (C.c_void_p * 0x1100).in_dll(cls.lib, 'test_table')
-        cls.function = cls.lib.func_800832A4
+        cls.function = cls.lib._SsSeqPlay
         cls.function.argtypes = [C.c_int32, C.c_int32]
         cls.function.restype = None
 

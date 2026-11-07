@@ -47,7 +47,7 @@ s32 test_first_status(void *channel) { return D_800ABC80(channel); }
 s32 test_second_status(void *channel) { return D_800ABC84(channel); }
 void test_update(void *channel) { D_800ABC88(channel); }
 '''
-        for name in ('func_8009A334', 'func_8009A7BC'):
+        for name in ('_padInitDirSeq', 'func_8009A7BC'):
             body = (root / 'tools/scripts/fixtures/views' / (name + '.c')).read_text()
             body = body.replace('#include "rr/channels.h"', '')
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
@@ -59,7 +59,7 @@ void test_update(void *channel) { D_800ABC88(channel); }
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'functions.c'),
                         '-o', str(directory / 'functions.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'functions.so'))
-        cls.install = cls.library.func_8009A334
+        cls.install = cls.library._padInitDirSeq
         cls.install.argtypes = []
         cls.install.restype = None
         cls.slots = (C.c_void_p * (0x10000 // C.sizeof(C.c_void_p))).in_dll(cls.library, 'test_slots')

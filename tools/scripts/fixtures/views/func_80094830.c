@@ -35,7 +35,7 @@
 
 #undef D_800ABBC8
 
-s32 func_80094830(RrGpuRectangle *arg0,u32 *arg1) {
+s32 _drs(RrGpuRectangle *arg0,u32 *arg1) {
     register RrGpuRectangle *rect=arg0;
     register u32 *cursor;
     register s32 signed_side;
@@ -55,7 +55,7 @@ s32 func_80094830(RrGpuRectangle *arg0,u32 *arg1) {
     cursor=arg1;
     /* ASM_BARRIER: prepare rectangle and output pointers before starting the deadline. */
     __asm__("" : "+r"(cursor) : "r"(rect));
-    func_80095360();
+    set_alarm();
     signed_side=rect->rect.w;raw_side=(u16)rect->rect.w;
     if(signed_side>=0){
         side=raw_side;
@@ -91,7 +91,7 @@ s32 func_80094830(RrGpuRectangle *arg0,u32 *arg1) {
         __asm__("" : : : "$3");
         mask=0x04000000U;
         do {
-            if(func_80095394())return -1;
+            if(get_alarm())return -1;
         }while(!(*D_800ABBC8&mask));
     }
     *D_800ABBC8=0x04000000U;
@@ -105,7 +105,7 @@ s32 func_80094830(RrGpuRectangle *arg0,u32 *arg1) {
         __asm__("" : : : "$3");
         mask=0x08000000U;
         do {
-            if(func_80095394())return -1;
+            if(get_alarm())return -1;
         }while(!(*D_800ABBC8&mask));
     }
     {

@@ -38,7 +38,7 @@ extern s32 func_8005599C();
 extern s32 ScaleMatrix();
 extern s32 func_8006EE3C();
 extern char D_800A1CE0[];
-extern struct { char pad[0x250]; char pad2[0x3D8 - 0x250]; struct Q *q; } D_800AC650;
+extern struct { char pad[0x250]; char pad2[0x3D8 - 0x250]; struct Q *q; } RaceContext;
 extern short D_800A1E60[];
 extern int *D_800A1F88[];
 
@@ -51,11 +51,11 @@ void func_8005B2E4(s32 arg0);
 void func_8005B2F4(s32 arg0);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(char (*)[])&D_800AC650)
+#define RaceContext (*(char (*)[])&RaceContext)
 
 void func_8005AA2C(void) {
     w3t1_F f;
-    char *b = D_800AC650;
+    char *b = RaceContext;
     char *c;
     u16 *row;
     s32 i, j, x, y, v;
@@ -100,22 +100,22 @@ void func_8005AA2C(void) {
     func_8005A9C4();
 }
 
-#undef D_800AC650
+#undef RaceContext
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACA28 (*(int (*))&D_800ACA28)
+#define MotionController (*(int (*))&MotionController)
 
 void func_8005ABAC(int a0) {
-    int *p = (int *)(D_800ACA28 + 0x15C);
+    int *p = (int *)(MotionController + 0x15C);
     func_80096434(p, 0x2C);
     p[1] = 0;
     p[3] = (int)(D_800A1CE0 + (a0 << 5));
     p[7] = 0x1000;
 }
 
-#undef D_800ACA28
+#undef MotionController
 
-void func_8005AC0C(RrMotionClock20 *clock) {
+void UpdateMotionTrack(RrMotionClock20 *clock) {
     s16 counter, next;
     s32 start, code, delta, units;
     s32 rate;
@@ -128,7 +128,7 @@ void func_8005AC0C(RrMotionClock20 *clock) {
     RrMotionTrack44 *track;
     RrMotionControllerPrefix *controller;
 
-    controller = D_800ACA28;
+    controller = MotionController;
     track = &controller->track;
     if (track->disabled == 0) {
         switch (controller->track.state) {
@@ -224,46 +224,46 @@ void func_8005AC0C(RrMotionClock20 *clock) {
 #define func_80096434 ((int (*)())func_80096434)
 
 void func_8005AF5C(void) {
-    D_800AC650.q = (struct Q *)((char *)&D_800AC650 + 0x250);
-    func_80096434(D_800AC650.q, 0x188);
-    D_800AC650.q->f8 = -0x1388;
-    D_800AC650.q->f48 = 0x1B8;
-    D_800AC650.q->h2c = 0x1C1;
-    D_800AC650.q->h2e = -0xDF8;
-    D_800AC650.q->h30 = -0x79A;
-    D_800AC650.q->c20 = 0xC0;
-    D_800AC650.q->c21 = 0xC0;
-    D_800AC650.q->c22 = 0xC0;
-    D_800AC650.q->h34 = -0x64;
-    D_800AC650.q->h36 = 0;
-    D_800AC650.q->h38 = 0x64;
-    D_800AC650.q->c24 = 0xC0;
-    D_800AC650.q->c25 = 0xC0;
-    D_800AC650.q->c26 = 0xC0;
-    D_800AC650.q->h3c = -0xA4D;
-    D_800AC650.q->h3e = -0x642;
-    D_800AC650.q->h40 = 0xA86;
-    D_800AC650.q->c28 = 0x20;
-    D_800AC650.q->c29 = 0x20;
-    D_800AC650.q->c2a = 0x20;
-    D_800AC650.q->c44 = 0;
-    D_800AC650.q->c45 = 0;
-    D_800AC650.q->c46 = 0;
-    D_800AC650.q->f64 = D_800A1E60;
-    D_800AC650.q->f6c = D_800AC650.q->f64[D_800AC650.q->f68 * 4];
-    D_800AC650.q->f70 = D_800AC650.q->f64[D_800AC650.q->f68 * 4 + 1];
-    switch (D_800AC650.q->f6c) {
+    RaceContext.q = (struct Q *)((char *)&RaceContext + 0x250);
+    func_80096434(RaceContext.q, 0x188);
+    RaceContext.q->f8 = -0x1388;
+    RaceContext.q->f48 = 0x1B8;
+    RaceContext.q->h2c = 0x1C1;
+    RaceContext.q->h2e = -0xDF8;
+    RaceContext.q->h30 = -0x79A;
+    RaceContext.q->c20 = 0xC0;
+    RaceContext.q->c21 = 0xC0;
+    RaceContext.q->c22 = 0xC0;
+    RaceContext.q->h34 = -0x64;
+    RaceContext.q->h36 = 0;
+    RaceContext.q->h38 = 0x64;
+    RaceContext.q->c24 = 0xC0;
+    RaceContext.q->c25 = 0xC0;
+    RaceContext.q->c26 = 0xC0;
+    RaceContext.q->h3c = -0xA4D;
+    RaceContext.q->h3e = -0x642;
+    RaceContext.q->h40 = 0xA86;
+    RaceContext.q->c28 = 0x20;
+    RaceContext.q->c29 = 0x20;
+    RaceContext.q->c2a = 0x20;
+    RaceContext.q->c44 = 0;
+    RaceContext.q->c45 = 0;
+    RaceContext.q->c46 = 0;
+    RaceContext.q->f64 = D_800A1E60;
+    RaceContext.q->f6c = RaceContext.q->f64[RaceContext.q->f68 * 4];
+    RaceContext.q->f70 = RaceContext.q->f64[RaceContext.q->f68 * 4 + 1];
+    switch (RaceContext.q->f6c) {
     case 0:
-        func_8005B8D8(D_800AC650.q->f70);
+        func_8005B8D8(RaceContext.q->f70);
         break;
     case 1:
-        func_8005D500(D_800AC650.q->f70);
+        func_8005D500(RaceContext.q->f70);
         break;
     case 2:
-        func_8005ECD4(D_800AC650.q->f70);
+        func_8005ECD4(RaceContext.q->f70);
         break;
     case 3:
-        func_8005ABAC(D_800AC650.q->f70);
+        func_8005ABAC(RaceContext.q->f70);
         break;
     }
 }
@@ -271,56 +271,56 @@ void func_8005AF5C(void) {
 #undef func_80096434
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(struct { char pad[0x3D8]; struct Q_1 *q; } (*))&D_800AC650)
+#define RaceContext (*(struct { char pad[0x3D8]; struct Q_1 *q; } (*))&RaceContext)
 
 void func_8005B190(void) {
-    D_800AC650.q->f68 = 0;
-    D_800AC650.q->f6a = 0;
-    D_800AC650.q->f60 = 0;
-    D_800AC650.q->f64 = D_800A1F88[D_800F7620];
-    D_800AC650.q->f6c = ((short *)D_800AC650.q->f64)[D_800AC650.q->f68 * 4];
-    D_800AC650.q->f70 = ((short *)D_800AC650.q->f64)[D_800AC650.q->f68 * 4 + 1];
-    switch (D_800AC650.q->f6c) {
+    RaceContext.q->f68 = 0;
+    RaceContext.q->f6a = 0;
+    RaceContext.q->f60 = 0;
+    RaceContext.q->f64 = D_800A1F88[D_800F7620];
+    RaceContext.q->f6c = ((short *)RaceContext.q->f64)[RaceContext.q->f68 * 4];
+    RaceContext.q->f70 = ((short *)RaceContext.q->f64)[RaceContext.q->f68 * 4 + 1];
+    switch (RaceContext.q->f6c) {
     case 0:
-        func_8005B8D8(D_800AC650.q->f70);
+        func_8005B8D8(RaceContext.q->f70);
         break;
     case 1:
-        func_8005D500(D_800AC650.q->f70);
+        func_8005D500(RaceContext.q->f70);
         break;
     case 2:
-        func_8005ECD4(D_800AC650.q->f70);
+        func_8005ECD4(RaceContext.q->f70);
         break;
     case 3:
-        func_8005ABAC(D_800AC650.q->f70);
+        func_8005ABAC(RaceContext.q->f70);
         break;
     }
 }
 
-#undef D_800AC650
+#undef RaceContext
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACA28 ((void *)D_800ACA28)
+#define MotionController ((void *)MotionController)
 
 void func_8005B2D4(s32 arg0) {
-    M2C_FIELD(D_800ACA28, s32 *, 0x54) = arg0;
+    M2C_FIELD(MotionController, s32 *, 0x54) = arg0;
 }
 
-#undef D_800ACA28
+#undef MotionController
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACA28 ((void *)D_800ACA28)
+#define MotionController ((void *)MotionController)
 
 void func_8005B2E4(s32 arg0) {
-    M2C_FIELD(D_800ACA28, s32 *, 0x50) = arg0;
+    M2C_FIELD(MotionController, s32 *, 0x50) = arg0;
 }
 
-#undef D_800ACA28
+#undef MotionController
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACA28 ((void *)D_800ACA28)
+#define MotionController ((void *)MotionController)
 
 void func_8005B2F4(s32 arg0) {
-    M2C_FIELD(D_800ACA28, s32 *, 0x58) = arg0;
+    M2C_FIELD(MotionController, s32 *, 0x58) = arg0;
 }
 
-#undef D_800ACA28
+#undef MotionController

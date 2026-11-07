@@ -16,16 +16,16 @@ head=r'''
 #define RR_ASSERT_SIZE(t,n)
 #define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/controller_hud.h"
-__typeof__(D_800ACC14) D_800ACC14;RrBankRecord320 *CarTable[16];s16 D_800AC59C,D_800AD508;RrUiUvRect D_8009EE58;
+__typeof__(D_800ACC14) D_800ACC14;RrBankRecord320 *CarTable[16];s16 NumCars,D_800AD508;RrUiUvRect D_8009EE58;
 static RrGpuScratchPointers scratch;static RrFrameStorage frames[2];static RrBankRecord320 records[16];static u32 streams[3][1024];
 #undef RR_HUD_SCRATCH
 #define RR_HUD_SCRATCH (&scratch)
 typedef uintptr_t (*Callback)(unsigned,uintptr_t*);static Callback cb;void set_callback(Callback c){cb=c;}
 void *func_8001FF84(u32*h,void*p,s32 x,s32 y,RrUiUvRect*g,u16 clut,s32 flags){uintptr_t a[9]={(uintptr_t)h,(uintptr_t)p,(u32)x,(u32)y,(uintptr_t)g,clut,(u32)flags};return (void*)cb(0,a);}
 RrSpritePacketSignedClut *GameQueueSprite(u32*h,RrSpritePacketSignedClut*p,s32 x,s32 y,s32 w,s32 he,s32 u,s32 v,s32 c){uintptr_t a[9]={(uintptr_t)h,(uintptr_t)p,(u32)x,(u32)y,(u32)w,(u32)he,(u32)u,(u32)v,(u32)c};return (void*)cb(1,a);}
-void *func_8001FCC8(u32*h,void*p,u16 page){uintptr_t a[9]={(uintptr_t)h,(uintptr_t)p,page};return (void*)cb(2,a);}
-void *object(unsigned n){switch(n){case 0:return frames;case 1:return records;case 2:return streams;case 3:return &D_8009EE58;case 4:return &D_800AC59C;case 5:return &D_800AD508;case 6:return &scratch;case 7:return &D_800ACC14;case 8:return CarTable;default:abort();}}
-size_t object_size(unsigned n){switch(n){case 0:return sizeof(frames);case 1:return sizeof(records);case 2:return sizeof(streams);case 3:return sizeof(D_8009EE58);case 4:return sizeof(D_800AC59C);case 5:return sizeof(D_800AD508);case 6:return sizeof(scratch);case 7:return sizeof(D_800ACC14);case 8:return sizeof(CarTable);default:abort();}}
+void *AddDrawModePrim(u32*h,void*p,u16 page){uintptr_t a[9]={(uintptr_t)h,(uintptr_t)p,page};return (void*)cb(2,a);}
+void *object(unsigned n){switch(n){case 0:return frames;case 1:return records;case 2:return streams;case 3:return &D_8009EE58;case 4:return &NumCars;case 5:return &D_800AD508;case 6:return &scratch;case 7:return &D_800ACC14;case 8:return CarTable;default:abort();}}
+size_t object_size(unsigned n){switch(n){case 0:return sizeof(frames);case 1:return sizeof(records);case 2:return sizeof(streams);case 3:return sizeof(D_8009EE58);case 4:return sizeof(NumCars);case 5:return sizeof(D_800AD508);case 6:return sizeof(scratch);case 7:return sizeof(D_800ACC14);case 8:return sizeof(CarTable);default:abort();}}
 '''
 file=P/(source.stem+'_native.c');file.write_text(head+body)
 subprocess.run(['cc','-std=gnu11','-O2','-funsigned-char','-shared','-fPIC','-Iinclude','-I'+str(source.parent),'-I'+str(Path(__file__).parent),'-fsanitize=undefined,bounds','-fno-sanitize-recover=all',str(file),'-o',str(file.with_suffix('.dylib'))],check=True)
@@ -58,7 +58,7 @@ def snap(native):
  if native:ptrs=[pal(C.c_void_p.from_address(N[obj][0]+j*8).value) for obj,count in [(6,2),(7,1),(8,16)] for j in range(count)]
  else:ptrs=[struct.unpack('<I',read(addresses[obj]+j*4,4))[0] for obj,count in [(6,2),(7,1),(8,16)] for j in range(count)]
  return b''.join(parts)+struct.pack('<19I',*ptrs)
-names=['func_8001FF84','GameQueueSprite','func_8001FCC8'];counts=[7,9,3];ptrargs=[{0,1,4},{0,1},{0,1}];events=[];observed=[];case=0;errors=[]
+names=['func_8001FF84','GameQueueSprite','AddDrawModePrim'];counts=[7,9,3];ptrargs=[{0,1,4},{0,1},{0,1}];events=[];observed=[];case=0;errors=[]
 def service(e,args,native):
  arr=[pal(x) if native and j in ptrargs[e] else x&0xffffffff for j,x in enumerate(args)]
  trace=observed if native else events;trace.append((e,arr,snap(native)));serial=len(trace)

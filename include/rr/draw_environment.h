@@ -3,9 +3,9 @@
 
 #include "rr/frame_environment.h"
 
-s32 func_800940E0(s32 draw_display,s32 dither,s32 page);
-u32 func_80094230(s32 x,s32 y);
-u32 func_8009424C(RrGpuRectangleFields *window);
+s32 get_mode(s32 draw_display,s32 dither,s32 page);
+u32 get_ofs(s32 x,s32 y);
+u32 get_tw(RrGpuRectangleFields *window);
 /* Three-word drawing-mode packet; NULL window emits command zero. */
 void SetDrawMode(void *output,s32 draw_display,s32 dither,s32 page,
     RrGpuRectangleFields *window);

@@ -65,12 +65,12 @@ void test_initialize(void) {
         cls.records = (Record * (256 * 256)).in_dll(cls.library, 'test_records')
         cls.pointers = (C.c_void_p * 0x4100).in_dll(cls.library, 'test_pointer_ram')
         cls.selected = C.c_int16.in_dll(cls.library, 'D_80110114')
-        cls.left = cls.library.func_80089D8C
-        cls.right = cls.library.func_80089DD4
+        cls.left = cls.library._SsVmGetSeqLVol
+        cls.right = cls.library._SsVmGetSeqRVol
         for function in (cls.left, cls.right):
             function.argtypes = [C.c_int32]
             function.restype = C.c_int32
-        cls.pair = cls.library.func_80089D28
+        cls.pair = cls.library._SsVmGetSeqVol
         cls.pair.argtypes = [C.c_int32, C.POINTER(C.c_uint16), C.POINTER(C.c_uint16)]
         cls.pair.restype = C.c_int32
 

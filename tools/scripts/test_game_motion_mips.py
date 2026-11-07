@@ -10,8 +10,8 @@ ns={'__file__':str(fixture)};script=fixture.read_text();exec(script[:script.inde
 setup=src[src.index('u32 seed=i*0x9e3779b9U;',src.index('int main')):src.index(' if(t->state==0',src.index('int main'))]
 validation=src[src.index(' if(t->state==0',src.index('int main')):src.index('reference=actual;',src.index('int main'))].replace('continue;','return 0;')
 src=src[:src.index('int main')]+'''static unsigned currentIndex;
-int setup(unsigned i){currentIndex=i;'''+setup+validation+'''D_800ACA28=&actual.controller;return 1;}
-void run(void){func_8005AC0C(&clock);}
+int setup(unsigned i){currentIndex=i;'''+setup+validation+'''MotionController=&actual.controller;return 1;}
+void run(void){UpdateMotionTrack(&clock);}
 void snapshot(u8 *out){RrMotionTrack44 *t=&actual.controller.track;memcpy(out,&actual.controller,0x15C);out+=0x15C;
 #define PUT(f,n) memcpy(out,&t->f,n);out+=n;
  PUT(state,4);PUT(disabled,4);PUT(word08,4);u32 key=0x80200000+32*(currentIndex%4);memcpy(out,&key,4);out+=4;

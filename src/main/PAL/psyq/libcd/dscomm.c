@@ -18,12 +18,12 @@
     ((volatile RrLibReadRequestState*)((u8*)(pair)-RR_PAIR_OWNER_OFFSET))
 #define RR_PAIR_PENDING(pair) (RR_PAIR_REQUEST(pair)->finished24)
 
-extern RrLibCompletionCallback func_8008C55C(RrLibCompletionCallback);
+extern RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback);
 extern s32 CdPosToInt(void *);
 extern s32 func_800963DC(const char *,...);
 extern const char D_80011D28[];
 extern void func_8008EA9C(void);
-extern void func_8008C03C(void);
+extern void CdFlush(void);
 extern const char D_80011D40[];
 extern const char D_80011D58[];
 extern volatile u32 D_800A67BC;
@@ -31,7 +31,7 @@ extern RrLibCompletionCallback volatile D_800A67DC;
 
 void func_8008E828(s32 event,u8 *data);
 void func_8008EA9C(void);
-s32 func_8008EEF4(s32 sectors,u8 *buffer,u32 mode);
+s32 CdRead(s32 sectors,u8 *buffer,u32 mode);
 
 void func_8008E828(s32 event,u8 *data) {
     u8 header[12];
@@ -54,13 +54,13 @@ void func_8008E828(s32 event,u8 *data) {
             if (initial->step10==512) {
                 /* ASM_BARRIER: retain flags address formation inside this arm. */
                 __asm__("" : );
-                if (D_800A63F4&1) {
-                    func_8008C55C(0);
-                    func_8008C53C(header,3);
-                    func_8008C580(0);
-                    func_8008C55C(func_8008EA9C);
+                if (CD_read_dma_mode&1) {
+                    CdDataCallback(0);
+                    CdGetSector2(header,3);
+                    CdDataSync(0);
+                    CdDataCallback(func_8008EA9C);
                 } else {
-                    func_8008C51C(header,3);
+                    CdGetSector(header,3);
                 }
                 now=CdPosToInt(header);
                 completed=&D_800A67D0;
@@ -75,20 +75,20 @@ void func_8008E828(s32 event,u8 *data) {
             }
             /* ASM_BARRIER: reload flags at the common transfer join. */
             __asm__("" : );
-            if (D_800A63F4&1) {
+            if (CD_read_dma_mode&1) {
                 /* ASM_BARRIER: keep the deferred address inside its branch. */
                 __asm__("" : );
                 deferred=&D_800A67B8;
                 /* ASM_BARRIER: form the complete window before loading arguments. */
                 __asm__("" : "+r"(deferred));
-                func_8008C53C(deferred->position08,deferred->step10);
+                CdGetSector2(deferred->position08,deferred->step10);
             } else {
                 /* ASM_BARRIER: keep the immediate address inside its branch. */
                 __asm__("" : );
                 position=&D_800A67B8;
                 /* ASM_BARRIER: retain one captured window across the transfer. */
                 __asm__("" : "+r"(position));
-                func_8008C51C(position->position08,position->step10);
+                CdGetSector(position->position08,position->step10);
                 transfer=(RrLibReadRequestState *)((u8 *)position-
                                                    RR_READ_POSITION_OWNER_OFFSET);
                 transfer->position08=position->position08+(position->step10<<2);
@@ -115,11 +115,11 @@ void func_8008E828(s32 event,u8 *data) {
     }
     if (state->remaining14==0 ||
         (now=VSync(-1),(s32)(state->start1C+1200U)<now)) {
-        func_8008C12C(state->restore.saved2C);
-        if (D_800A63F4&1) {
-            func_8008C55C(state->restore.saved30);
+        CdReadyCallback(state->restore.saved2C);
+        if (CD_read_dma_mode&1) {
+            CdDataCallback(state->restore.saved30);
         }
-        func_8008C118(func_8008E7F4);
+        CdSyncCallback(func_8008E7F4);
         CdControlF(9,0);
         /* PAL page+0x63F0 contains the data notification function pointer. */
         notify_page=(u8 *)0x800A0000U;
@@ -133,9 +133,9 @@ void func_8008E828(s32 event,u8 *data) {
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A67B0 (*(RrLibTransferState38 (*))&D_800A67B0)
-#define func_8008C12C ((void (*)(RrLibCompletionCallback))func_8008C12C)
-#define func_8008C55C ((void (*)(RrLibCompletionCallback))func_8008C55C)
-#define func_8008C118 ((void (*)(RrLibCompletionCallback))func_8008C118)
+#define CdReadyCallback ((void (*)(RrLibCompletionCallback))CdReadyCallback)
+#define CdDataCallback ((void (*)(RrLibCompletionCallback))CdDataCallback)
+#define CdSyncCallback ((void (*)(RrLibCompletionCallback))CdSyncCallback)
 #define func_8008E7F4 ((void (*)(void))func_8008E7F4)
 
 void func_8008EA9C(void) {
@@ -148,11 +148,11 @@ void func_8008EA9C(void) {
     if (state->remaining14 == 0) {
         u8 *page;
         RrLibNotificationCallback callback;
-        func_8008C12C(state->restore2C);
-        if (D_800A63F4 & 1) func_8008C55C(state->restore30);
-        func_8008C118(func_8008E7F4);
+        CdReadyCallback(state->restore2C);
+        if (CD_read_dma_mode & 1) CdDataCallback(state->restore30);
+        CdSyncCallback(func_8008E7F4);
         CdControlF(9, 0);
-        /* PAL mapping: page + 0x63F0 is &D_800A63F0. */
+        /* PAL mapping: page + 0x63F0 is &CD_cbread. */
         page = (u8 *)0x800A0000U;
         callback = *(RrLibNotificationCallback *)(page + 0x63F0);
         /* Ordinary state publication permits the original branch-delay store. */
@@ -162,9 +162,9 @@ void func_8008EA9C(void) {
 }
 
 #undef D_800A67B0
-#undef func_8008C12C
-#undef func_8008C55C
-#undef func_8008C118
+#undef CdReadyCallback
+#undef CdDataCallback
+#undef CdSyncCallback
 #undef func_8008E7F4
 
 s32 func_8008EB6C(s32 restart) {
@@ -185,12 +185,12 @@ s32 func_8008EB6C(s32 restart) {
     register s32 command __asm__("$4");
     register const u8 *parameters __asm__("$5");
 
-    func_8008C118(0);
-    func_8008C12C(0);
-    if (D_800A63F4 & 1) {
-        func_8008C55C(0);
+    CdSyncCallback(0);
+    CdReadyCallback(0);
+    if (CD_read_dma_mode & 1) {
+        CdDataCallback(0);
     }
-    if (func_8008BF94() & 0x10) {
+    if (CdStatus() & 0x10) {
         if (!(VSync(-1) & 63)) {
             func_800963DC(D_80011D40);
         }
@@ -211,11 +211,11 @@ s32 func_8008EB6C(s32 restart) {
         /* ASM_BARRIER: stage the null parameter after the command value. */
         __asm__("" : "+r"(parameters) : "r"(command));
         CdControl(command, parameters, 0);
-        if (!CdControl(2, func_8008BFC4(), 0)) {
+        if (!CdControl(2, CdLastPos(), 0)) {
             goto failed;
         }
     }
-    func_8008C03C();
+    CdFlush();
     /* ASM_BARRIER: form the captured mode address after reset returns. */
     __asm__("" : : : "$17");
     mode_slot = &D_800A67BC;
@@ -224,7 +224,7 @@ s32 func_8008EB6C(s32 restart) {
     requested = *mode_slot;
     mode_byte = requested;
     requested &= 255;
-    if (requested != func_8008BFA4() || retry != 0) {
+    if (requested != CdMode() || retry != 0) {
         if (!CdControl(14, &mode_byte, 0)) {
 failed:
             /* ASM_BARRIER: retain one shared failure block with fresh state
@@ -235,7 +235,7 @@ failed:
             return failed_state->remaining14;
         }
     }
-    completed = CdPosToInt(func_8008BFC4());
+    completed = CdPosToInt(CdLastPos());
     /* ASM_BARRIER: the success-state address is formed after decoding. */
     __asm__("" : : : "$16");
     callback = (RrLibCompletionCallback)func_8008E828;
@@ -244,10 +244,10 @@ failed:
      * publish the decoded sector in the callback setter's delay slot. */
     __asm__("" : "+r"(state) : "r"(callback));
     state->completed20 = completed;
-    func_8008C12C(callback);
+    CdReadyCallback(callback);
     command = 6;
-    if (D_800A63F4 & 1) {
-        func_8008C55C(func_8008EA9C);
+    if (CD_read_dma_mode & 1) {
+        CdDataCallback(func_8008EA9C);
         command = 6;
     }
     state->position08 = state->buffer04;
@@ -272,7 +272,7 @@ void func_8008ED54(void) {
     volatile s32 *pending_a,*pending_b;
     u32 first_tick,second_tick;
     s32 decision;
-    if(D_800A63F4&1)func_8008C580(0);
+    if(CD_read_dma_mode&1)CdDataSync(0);
     root=&D_800A67B0;
     /* ASM_BARRIER: capture the complete state address before initial publication. */
     __asm__("" : "+r"(root));
@@ -286,7 +286,7 @@ first_timeout:
     __asm__("" : "+r"(saved));
     restored=*saved;
     root=(RrLibReadRequestState*)((u8*)saved-RR_READ_OWNER_OFFSET);
-    func_8008C118(restored);
+    CdSyncCallback(restored);
     decision=-1;
     /* The field's object type is ordinary s32. This publication follows callback
      * restoration and retains the original branch-delay store. */
@@ -298,7 +298,7 @@ second_timeout:
     __asm__("" : "+r"(saved));
     restored=*saved;
     root=(RrLibReadRequestState*)((u8*)saved-RR_READ_OWNER_OFFSET);
-    func_8008C118(restored);
+    CdSyncCallback(restored);
     root->finished24=0;
     goto done;
 begin_first_wait:
@@ -317,9 +317,9 @@ after_first_wait:
         pair=&D_800A67DC;
         /* ASM_BARRIER: capture the complete callback-pair address before setters. */
         __asm__("" : "+r"(pair));
-        func_8008C12C(RR_PAIR_TAIL(pair)->saved2C);
-        if(D_800A63F4&1)func_8008C55C(RR_PAIR_TAIL(pair)->saved30);
-        func_8008C118(func_8008E7F4);
+        CdReadyCallback(RR_PAIR_TAIL(pair)->saved2C);
+        if(CD_read_dma_mode&1)CdDataCallback(RR_PAIR_TAIL(pair)->saved30);
+        CdSyncCallback(func_8008E7F4);
         CdControlF(9,0);
         publish=(RrLibReadRequestState*)((u8*)pair-RR_PAIR_OWNER_OFFSET);
         ((volatile RrLibReadRequestState*)publish)->finished24=1;
@@ -342,7 +342,7 @@ done:
 /* legacy typing of shared globals in this part of the unit */
 #define CdControlB ((s32 (*)(s32,const u8*,u8*))CdControlB)
 
-s32 func_8008EEF4(s32 sectors,u8 *buffer,u32 mode) {
+s32 CdRead(s32 sectors,u8 *buffer,u32 mode) {
     s32 count=sectors;
     u8 *destination=buffer;
     /* ASM_BARRIER: preserve request mode across pending-completion helpers. */
@@ -392,7 +392,7 @@ timeout:
         restored=*restore_slot;
         state=(RrLibReadRequestState*)((u8*)restore_slot-
               (sizeof(RrLibReadRequestState)-sizeof(RrLibReadRestoreTail)));
-        func_8008C118(restored);
+        CdSyncCallback(restored);
         ((volatile RrLibReadRequestState*)state)->finished24=0;
         goto setup;
     case 0:
@@ -418,11 +418,11 @@ timeout:
     __asm__("" : "+r"(state), "+r"(zero) : : "memory");
     state->buffer04=destination;
     state->sectors00=count;
-    state->restore.saved28=func_8008C118(zero);
-    state->restore.saved2C=func_8008C12C(0);
-    if(D_800A63F4&1)state->restore.saved30=func_8008C55C(0);
+    state->restore.saved28=CdSyncCallback(zero);
+    state->restore.saved2C=CdReadyCallback(0);
+    if(CD_read_dma_mode&1)state->restore.saved30=CdDataCallback(0);
     state->start1C=VSync(-1);
-    if(func_8008BF94()&0xE0) {
+    if(CdStatus()&0xE0) {
         command=9;
         parameters=0;
         /* ASM_BARRIER: form the command and parameter arguments independently. */

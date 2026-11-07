@@ -36,8 +36,8 @@ static unsigned scenario,mutation;
 #define ovl659_result_labels w->s.labels
 #define ovl659_preview_timer w->s.local
 #define D_800F2DE4 w->s.frame
-#define D_800AC64A w->s.flag
-#define D_800AC5E0 w->s.mode
+#define MenuCursor w->s.flag
+#define MenuItemCount w->s.mode
 static s32 word(u32 value){s32 result;memcpy(&result,&value,4);return result;}
 static void effect(unsigned n){
  unsigned i;u32 value=scenario*0x9e3779b9U+n*47U;

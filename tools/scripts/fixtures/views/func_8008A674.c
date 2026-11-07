@@ -4,7 +4,7 @@
 
 #include "rr/spu.h"
 
-void func_8008A674(u16 channel) {
+void SsVabClose(u16 channel) {
     s32 index;
     if (channel < 16) {
         /* ASM_BARRIER: Preserve the original indexed-load register. */
@@ -12,7 +12,7 @@ void func_8008A674(u16 channel) {
         index = (s16)channel;
         /* ASM_BARRIER: Normalize the bank index before materializing its flag page. */
         __asm__ volatile("" : : "r"(index) : "$3");
-        /* PAL mapping: flags[0x120 + index] is D_80110120[index]. */
+        /* PAL mapping: flags[0x120 + index] is _svm_vab_used[index]. */
         flags = (u8 *)0x80110000U;
         /* ASM_BARRIER: Expose the PAL flag-page base without folding the symbol offset. */
         __asm__("" : "=r"(flags) : "0"(flags));
@@ -28,9 +28,9 @@ void func_8008A674(u16 channel) {
             /* ASM_BARRIER: Expose the PAL allocation-page base for the argument load. */
             __asm__("" : "=r"(allocations) : "0"(allocations));
             allocations += offset;
-            func_8008A6F4(*(u32 *)(allocations + 0x180));
-            D_80110120[index] = 0;
-            D_80110178--;
+            SpuFree(*(u32 *)(allocations + 0x180));
+            _svm_vab_used[index] = 0;
+            _svm_vab_count--;
         }
     }
 }

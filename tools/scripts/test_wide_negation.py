@@ -11,7 +11,7 @@ class WideNegationTest(ArithmeticFixture,unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.negate=cls.lib.func_8007E494;cls.observed=cls.lib.test_neg_observed
+        cls.negate=cls.lib._mainasu;cls.observed=cls.lib.test_neg_observed
         for f in (cls.negate,cls.observed):f.argtypes=[C.POINTER(Wide),Wide];f.restype=C.c_void_p
 
     def check(self,bits,f=None):

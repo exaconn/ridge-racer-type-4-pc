@@ -11,7 +11,7 @@ extern s16 D_800AC5D0,D_800FFC18;
 extern s32 ScreenFrame;
 extern u8 D_8009F7E4[44];
 void func_800207D4(u32 *,s32,u32);
-void func_8003D6F0(s32);void func_8002A344(s32);
+void UpdateBadgeRowAnim(s32);void UpdateScreenFade(s32);
 /* Captures the unsigned scene phase, then advances both wrapping counters.
  * Grid reads require row0..4 and column0..9 before one-step navigation.
  * Sound/layout services may mutate later input, selection and the full frame

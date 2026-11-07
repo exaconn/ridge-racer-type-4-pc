@@ -23,7 +23,7 @@ extern volatile RrSerialRequest D_801146E8;
 extern RrSerialPortRegisters *D_800ABD18;
 extern RrSerialPortRegisters D_801146C0;
 extern int (*D_801146D0)(int, int);
-extern int func_80096E64(unsigned int, int);
+extern int DeliverEvent(unsigned int, int);
 
 int func_8009A9A4(int first, int second) {
     int s1 = 0;
@@ -70,7 +70,7 @@ int func_8009A9A4(int first, int second) {
                 p->control |= 0x10;
                 p->control = ctrl;
                 p->control &= ~0x20;
-                func_80096E64(0xF000000B, 0x8000);
+                DeliverEvent(0xF000000B, 0x8000);
                 goto done;
             }
             if ((p->status & 2) == 0) {
@@ -80,7 +80,7 @@ int func_8009A9A4(int first, int second) {
                     if (D_801146D0 != 0) {
                         if (D_801146D0(1, s1++) == 0) {
                             D_800ABD18->control &= ~0x20;
-                            func_80096E64(0xF000000B, 0x100);
+                            DeliverEvent(0xF000000B, 0x100);
                             goto done;
                         }
                     }

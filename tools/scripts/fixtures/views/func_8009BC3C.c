@@ -6,7 +6,7 @@
 
 #include "rr/serial.h"
 
-extern s32 func_80097714(s32,void *);
+extern s32 SysDeqIntRP(s32,void *);
 
 s32 func_8009BC3C(void) {
     s32 result;
@@ -66,7 +66,7 @@ s32 func_8009BC3C(void) {
         /* ASM_BARRIER: Expose the real mapped counter store to the delay-slot scheduler. */
         __asm__("" : "+r"(page));
         page[-0x4218/4]=0;
-        func_80097714(flag,event);
+        SysDeqIntRP(flag,event);
     }
     return 0;
 }

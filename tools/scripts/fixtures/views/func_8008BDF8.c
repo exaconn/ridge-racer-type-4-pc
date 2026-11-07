@@ -2,6 +2,6 @@
 
 extern s32 D_800A63D0;
 
-s32 func_8008BDF8(void) {
+s32 GetVideoMode(void) {
     return D_800A63D0;
 }

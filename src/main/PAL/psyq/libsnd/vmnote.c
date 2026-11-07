@@ -4,11 +4,11 @@
 #include "psyq/libsnd/vmmain.h"
 #include "rr/channels.h"
 
-void func_800884A8();
-int func_80088594(int a0, int a1, unsigned short a2);
-void func_800885C8(void);
+void _SsVmSeKeyOn();
+int _SsVmSeKeyOff(int a0, int a1, unsigned short a2);
+void KeyOnCheck(void);
 
-void func_800884A8(a0, a1, a2, a3, a4, a5)
+void _SsVmSeKeyOn(a0, a1, a2, a3, a4, a5)
 int a0;
 int a1;
 int a2;
@@ -40,11 +40,11 @@ int a5;
     r = a5;
     v = 0x7F - ((x << 6) / y);
   }
-  func_80087DE4(0x21, (short) a0, (short) a1, a2 & 0xFFFF, r & 0xFFFF, v & 0xFFFF);
+  _SsVmKeyOn(0x21, (short) a0, (short) a1, a2 & 0xFFFF, r & 0xFFFF, v & 0xFFFF);
 }
 
-int func_80088594(int a0, int a1, unsigned short a2) { return func_80088340(0x21, (short)a0, (short)a1, a2); }
+int _SsVmSeKeyOff(int a0, int a1, unsigned short a2) { return _SsVmKeyOff(0x21, (short)a0, (short)a1, a2); }
 
-void func_800885C8(void) {
+void KeyOnCheck(void) {
 
 }

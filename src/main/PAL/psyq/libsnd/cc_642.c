@@ -1,7 +1,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/library.h"
 #include "psyq/libsnd/vmtick2.h"
-void func_800806C4(s32 bank, s32 row, s32 raw_value) {
+void _SsContDamper(s32 bank, s32 row, s32 raw_value) {
     /* ASM_BARRIER: Preserve the original register through selector calculation and call argument preparation. */
     register u32 raw_bank __asm__("$17") = bank;
     u32 value = raw_value;
@@ -30,11 +30,11 @@ void func_800806C4(s32 bank, s32 row, s32 raw_value) {
     __asm__("" : "=r"(table) : "0"(table));
     table = (RrLibStateB0 **)((u8 *)table + index);
     state = (RrLibStateB0 *)((u8 *)table[-0xF98 / 4] + units);
-    if ((u32)value < 64) func_80087044();
-    else func_80087054();
+    if ((u32)value < 64) _SsVmDamperOff();
+    else _SsVmDamperOn();
     bank_bits = raw_bank << 16;
     row_bits = raw_row << 16;
     /* ASM_BARRIER: Shift the row before completing signed bank normalization for the decoder. */
     __asm__("" : "+r"(row_bits) : "r"(bank_bits));
-    state->w90 = func_80081E04((s32)bank_bits >> 16, (s32)row_bits >> 16);
+    state->w90 = _SsReadDeltaValue((s32)bank_bits >> 16, (s32)row_bits >> 16);
 }

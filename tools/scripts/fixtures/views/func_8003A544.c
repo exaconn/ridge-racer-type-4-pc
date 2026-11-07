@@ -69,6 +69,6 @@ void func_8003A544(void) {
         }
     }
     if (D_800F4C6A != 1) {
-        *(void **)0x1F800000 = func_8001FDD4((u32 *)((u8 *)D_800ACC14 + 0xB6C), *(void **)0x1F800000, 0, 0, 0x140, 0x200, 0, 0, 0);
+        *(void **)0x1F800000 = AddTileGrid2x2((u32 *)((u8 *)D_800ACC14 + 0xB6C), *(void **)0x1F800000, 0, 0, 0x140, 0x200, 0, 0, 0);
     }
 }

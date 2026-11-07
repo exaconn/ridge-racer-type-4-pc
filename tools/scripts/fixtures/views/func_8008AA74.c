@@ -2,6 +2,6 @@
 
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 
-extern int func_8008AAE4();
+extern int _SsVabOpenHeadWithMode();
 
-short func_8008AA74(int a0, short a1, int a2) { return func_8008AAE4(a0, a1, func_8008AADC, a2); }
+short SsVabOpenHeadSticky(int a0, short a1, int a2) { return _SsVabOpenHeadWithMode(a0, a1, VsGetAddr, a2); }

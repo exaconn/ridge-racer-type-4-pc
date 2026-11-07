@@ -4,12 +4,12 @@
 #include "psyq/libapi/pad2.h"
 #include "rr/spu_tick_control.h"
 
-extern int func_80097714();
+extern int SysDeqIntRP();
 extern volatile short *D_800ABC54;
 
 int RemovePatchPad();
 
-int RemovePatchPad() { func_80096F04(); func_80097714(1, &D_801143E8); func_80096F14(); return 1; }
+int RemovePatchPad() { EnterCriticalSection(); SysDeqIntRP(1, &D_801143E8); ExitCriticalSection(); return 1; }
 
 int func_80097618(void) {
     volatile int i; int pad[2];

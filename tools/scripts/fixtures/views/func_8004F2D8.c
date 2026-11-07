@@ -1,6 +1,6 @@
 #include "rr/sequence_queue.h"
 
-void *func_8004F2D8(s32 id,s32 restart) {
+void *SoundQueueEnqueue(s32 id,s32 restart) {
     s32 n=0,used=0,copied;
     s16 *input,*scan;
     u8 *output;
@@ -10,10 +10,10 @@ void *func_8004F2D8(s32 id,s32 restart) {
     RrSequenceQueueState *last;
     /* ASM_BARRIER: address temporary dies before each copy/return value in v0. */
     register u8 *copybase __asm__("$2");
-    if(D_800F6784==0)input=D_800A0374[id][0];
-    else input=D_800A0374[id][1];
+    if(D_800F6784==0)input=SoundSequenceTable[id][0];
+    else input=SoundSequenceTable[id][1];
     if(input==(s16*)-1)return (void*)-1;
-    state=&D_800F4DB8;
+    state=&SoundState;
     if(state->active19D0==0) {
         state->active19D0=1;
         goto reset;
@@ -32,7 +32,7 @@ reset:
     }
     copied=0;
     if(*input>0) {
-        copybase=(u8*)&D_800F4DB8;
+        copybase=(u8*)&SoundState;
         output=(u8*)((unsigned long)(used*2)+(unsigned long)copybase);
         do{
             u16 value=*input++;

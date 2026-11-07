@@ -29,17 +29,17 @@ extern struct
 {
   char pad[0x24C];
   struct Q *p;
-} D_800AC650;
+} RaceContext;
 extern struct 
 {
   char pad[0x10E];
   unsigned short f10E;
-} D_800ABEF8;
+} PlayerCars;
 extern struct 
 {
   char pad[8];
   short f8;
-} *D_800F3A08;
+} *CarBoundsTable;
 
 RrMeshQuadGT4 *func_80057A44(RrMeshQuadGT4 *p, s32 *s);
 RrMeshQuadG4 *func_80057C50(RrMeshQuadG4 *p, s32 *s);
@@ -51,24 +51,24 @@ int func_800578D8(int a0)
   int sp10[2];
   int s1;
   s1 = 4;
-  D_800AC650.p->f100 = (D_800AC650.p->fA0 - s1) - (D_800F3A08->f8 + ((short) (((short) D_800ABEF8.f10E) / 3)));
-  s1 = func_8005642C(&D_800ABEF8, D_800AC650.p->f104, a0, sp10);
+  RaceContext.p->f100 = (RaceContext.p->fA0 - s1) - (CarBoundsTable->f8 + ((short) (((short) PlayerCars.f10E) / 3)));
+  s1 = func_8005642C(&PlayerCars, RaceContext.p->f104, a0, sp10);
   func_80057750();
   func_8002E828(2, SCRATCH_ROT_MATRIX);
   func_80055C84();
-  D_800AC650.p->f104 = D_800AC650.p->f104 + 1;
-  D_800AC650.p->f108 = D_800AC650.p->f108 + 1;
-  if (D_800AC650.p->f104 >= 0x322)
+  RaceContext.p->f104 = RaceContext.p->f104 + 1;
+  RaceContext.p->f108 = RaceContext.p->f108 + 1;
+  if (RaceContext.p->f104 >= 0x322)
   {
-    D_800AC650.p->f104 = 0x321;
+    RaceContext.p->f104 = 0x321;
   }
-  if (D_800AC650.p->f108 >= 0x516)
+  if (RaceContext.p->f108 >= 0x516)
   {
-    D_800AC650.p->f108 = 0x515;
+    RaceContext.p->f108 = 0x515;
   }
   if (D_800F3A40 & 0x800)
   {
-    if (D_800AC650.p->f104 >= 0x33)
+    if (RaceContext.p->f104 >= 0x33)
     {
       s1 = 1;
     }

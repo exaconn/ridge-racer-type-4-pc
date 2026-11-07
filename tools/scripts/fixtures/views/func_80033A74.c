@@ -1,35 +1,35 @@
 #include "types.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEF8 (*(S2 (*)[])&D_800ABEF8)
+#define PlayerCars (*(S2 (*)[])&PlayerCars)
 
 #define D_800F3A38 (*(S1 (*)[])&D_800F3A38)
 
-#undef D_800ABEF8
+#undef PlayerCars
 
 #undef D_800F3A38
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8009AEAC ((unsigned int (*)())func_8009AEAC)
+#define _sio_control ((unsigned int (*)())_sio_control)
 
 #define D_800F3A38 (*(T38 (*))&D_800F3A38)
 
 #define D_800FF688 (*(unsigned short (*))&D_800FF688)
 
-#undef func_8009AEAC
+#undef _sio_control
 
 #undef D_800F3A38
 
 #undef D_800FF688
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8009AEAC ((unsigned (*)())func_8009AEAC)
+#define _sio_control ((unsigned (*)())_sio_control)
 
-#undef func_8009AEAC
+#undef _sio_control
 
 extern int func_8002E828();
 
-extern int func_8006E1AC();
+extern int BuildCameraMatrices();
 
 extern short D_8009F694[];
 
@@ -40,7 +40,7 @@ extern struct
   char pad[0x178];
   int v;
   char pad2[0x320 - 0x17C];
-} D_800ABEF8[];
+} PlayerCars[];
 
 extern int D_800AC5D4;
 
@@ -68,7 +68,7 @@ void func_80033A74(int a)
   g[6] = q[0];
   g[7] = q[1];
   g[8] = q[2];
-  func_8006E1AC(g, q);
+  BuildCameraMatrices(g, q);
   {
     int t;
     t = 0x1F800028;
@@ -79,21 +79,21 @@ void func_80033A74(int a)
   ;
   if (D_800F3A38[D_800AC5D4 & 1].b & 4)
   {
-    D_800ABEF8[D_800AC5D4 & 1].v += 0xC0;
+    PlayerCars[D_800AC5D4 & 1].v += 0xC0;
   }
   else
     if (D_800F3A38[D_800AC5D4 & 1].b & 8)
   {
-    D_800ABEF8[D_800AC5D4 & 1].v -= 0xC0;
+    PlayerCars[D_800AC5D4 & 1].v -= 0xC0;
   }
-  i = D_800ABEF8[D_800AC5D4 & 1].v;
+  i = PlayerCars[D_800AC5D4 & 1].v;
   if (i > 0xF00)
   {
-    D_800ABEF8[D_800AC5D4 & 1].v = 0xF00;
+    PlayerCars[D_800AC5D4 & 1].v = 0xF00;
   }
   else
     if (i < (-0xF00))
   {
-    D_800ABEF8[D_800AC5D4 & 1].v = -0xF00;
+    PlayerCars[D_800AC5D4 & 1].v = -0xF00;
   }
 }

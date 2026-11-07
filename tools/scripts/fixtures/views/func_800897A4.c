@@ -7,21 +7,21 @@
 #include "rr/spu.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010FE18 (*(u8 (*)[])&D_8010FE18)
+#define _svm_sreg_dirty (*(u8 (*)[])&_svm_sreg_dirty)
 
-#define D_801100EC ((SpuProgram10 *)D_801100EC)
+#define _svm_pg ((SpuProgram10 *)_svm_pg)
 
-#define D_801100F8 ((SpuTone20 *)D_801100F8)
+#define _svm_tn ((SpuTone20 *)_svm_tn)
 
-#define func_8008A564 ((s32 (*)(s16 bank, s16 program))func_8008A564)
+#define _SsVmVSetUp ((s32 (*)(s16 bank, s16 program))_SsVmVSetUp)
 
-#undef D_8010FE18
+#undef _svm_sreg_dirty
 
-#undef D_801100EC
+#undef _svm_pg
 
-#undef D_801100F8
+#undef _svm_tn
 
-#undef func_8008A564
+#undef _SsVmVSetUp
 
 typedef struct {
     u8 pad00[2];
@@ -69,19 +69,19 @@ typedef struct {
     u8 pad0C[4];
 } SpuCachedVolume10;
 
-extern ChannelRecordB0 *D_8010F068[];
+extern ChannelRecordB0 *_ss_score[];
 
-extern ControlRow36 D_8010F908[];
+extern ControlRow36 _svm_voice[];
 
-extern SpuCachedVolume10 D_8010FE38[];
+extern SpuCachedVolume10 _svm_sreg_buf[];
 
-extern s16 D_801100E8;
+extern s16 _svm_stereo_mono;
 
-extern s8 D_801100FC;
+extern s8 spuVmMaxVoice;
 
 extern u32 D_800A48F8;
 
-s16 func_800897A4(s16 a0, u16 a1, u16 a2) {
+s16 _SsVmSetSeqVol(s16 a0, u16 a1, u16 a2) {
     s16 i;
     s32 v;
     s32 w;
@@ -94,7 +94,7 @@ s16 func_800897A4(s16 a0, u16 a1, u16 a2) {
     SpuTone20 *tone_ptr;
     ChannelRecordB0 *ptr;
 
-    ptr = &D_8010F068[a0 & 0xFF][(a0 & 0xFF00) >> 8];
+    ptr = &_ss_score[a0 & 0xFF][(a0 & 0xFF00) >> 8];
     ptr->value58 = a1;
     ptr->value5A = a2;
     if (ptr->value58 >= 0x7F) {
@@ -103,15 +103,15 @@ s16 func_800897A4(s16 a0, u16 a1, u16 a2) {
     if (ptr->value5A >= 0x7F) {
         ptr->value5A = 0x7F;
     }
-    for (i = 0; i < D_801100FC; i++) {
+    for (i = 0; i < spuVmMaxVoice; i++) {
         if (!(D_800A48F8 & (1 << i))) {
-            if (D_8010F908[i].match10 == a0 && D_8010F908[i].match18 == ptr->unk26) {
-                func_8008A564(D_8010F908[i].match18, D_8010F908[i].unk12);
-                v = (D_8010F908[i].unk08 * ptr->unk60[D_8010F908[i].unk0C]) / 0x7F;
+            if (_svm_voice[i].match10 == a0 && _svm_voice[i].match18 == ptr->unk26) {
+                _SsVmVSetUp(_svm_voice[i].match18, _svm_voice[i].unk12);
+                v = (_svm_voice[i].unk08 * ptr->unk60[_svm_voice[i].unk0C]) / 0x7F;
                 w = v * 0x3FFF;
-                vl = (D_801100F4[0x18] * w) / 0x3F01;
-                tone_ptr = (SpuTone20 *)(((D_8010F908[i].unk12 << 4) + D_8010F908[i].unk16) * 32 + (s32)D_801100F8);
-                vr = (vl * D_801100EC[D_8010F908[i].match14].value01 * tone_ptr->unk02) / 0x3F01;
+                vl = (_svm_vh[0x18] * w) / 0x3F01;
+                tone_ptr = (SpuTone20 *)(((_svm_voice[i].unk12 << 4) + _svm_voice[i].unk16) * 32 + (s32)_svm_tn);
+                vr = (vl * _svm_pg[_svm_voice[i].match14].value01 * tone_ptr->unk02) / 0x3F01;
                 vl = (vr * ptr->value58) / 0x7F;
                 vr = (vr * ptr->value5A) / 0x7F;
                 pan = tone_ptr->unk03;
@@ -122,13 +122,13 @@ s16 func_800897A4(s16 a0, u16 a1, u16 a2) {
                 }
                 right = vr;
                 left = vl;
-                pan = D_801100EC[D_8010F908[i].match14].value04;
+                pan = _svm_pg[_svm_voice[i].match14].value04;
                 if (pan < 0x40) {
                     right = (right * pan) / 0x3F;
                 } else {
                     left = (left * (0x7F - pan)) / 0x3F;
                 }
-                pan = D_8010F908[i].unk0A;
+                pan = _svm_voice[i].unk0A;
                 if (pan < 0x40) {
                     s32 prod = right * pan;
                     /* ASM_BARRIER: signed high-multiply by 0x82082083 (/ 0x3F) in $s3 without emitting a second dead sra-31 sign pseudo in combine/reload */
@@ -137,17 +137,17 @@ s16 func_800897A4(s16 a0, u16 a1, u16 a2) {
                 } else {
                     left = (left * (0x7F - pan)) / 0x3F;
                 }
-                if (D_801100E8 == 1) {
+                if (_svm_stereo_mono == 1) {
                     if (left < right) {
                         left = right;
                     } else {
                         right = left;
                     }
                 }
-                v = D_8010FE38[i].left = (left * left) / 0x3FFF;
+                v = _svm_sreg_buf[i].left = (left * left) / 0x3FFF;
                 sq = (right * right) / 0x3FFF;
-                *(s16 *)((s32)D_8010FE38 + i * 16 + 2) = sq;
-                D_8010FE18[i] |= 3;
+                *(s16 *)((s32)_svm_sreg_buf + i * 16 + 2) = sq;
+                _svm_sreg_dirty[i] |= 3;
             }
         }
     }

@@ -28,7 +28,7 @@ char test_format[0x10000];
         body = re.sub(r'"\$[0-9]+", ', '', body)
         body = re.sub(r' : "\$[0-9]+"', '', body)
         body = body.replace('(const char *)0x80010000U', 'test_format')
-        body += '\nvoid (*D_800ABABC)(const char *, s32, s32, s32);\n'
+        body += '\nvoid (*GPU_printf)(const char *, s32, s32, s32);\n'
         (directory / 'function.c').write_text(body)
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
@@ -44,7 +44,7 @@ char test_format[0x10000];
         def callback(format, enabled, second, third):
             self.events.append((format, enabled, second, third, self.state[2]))
         self.callback = Callback(callback)
-        C.c_void_p.in_dll(self.library, 'D_800ABABC').value = C.cast(self.callback, C.c_void_p).value
+        C.c_void_p.in_dll(self.library, 'GPU_printf').value = C.cast(self.callback, C.c_void_p).value
 
     def test_every_new_and_previous_byte(self):
         self.state[:] = bytes([0xA5]) * 64
@@ -72,7 +72,7 @@ char test_format[0x10000];
     def test_callback_changes_do_not_replace_saved_return_value(self):
         self.state[2] = 231
         self.callback = Callback(lambda *args: self.state.__setitem__(2, 17))
-        C.c_void_p.in_dll(self.library, 'D_800ABABC').value = C.cast(self.callback, C.c_void_p).value
+        C.c_void_p.in_dll(self.library, 'GPU_printf').value = C.cast(self.callback, C.c_void_p).value
         self.assertEqual(self.function(5), 231)
         self.assertEqual(self.state[2], 17)
 

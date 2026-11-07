@@ -26,9 +26,9 @@ typedef struct {u32 guard[4],rng;RrRuntimeSettings settings;RrBadgeRow1C rows[3]
 typedef struct {s32 op,args[7];u32 hash;} Event;
 typedef struct {State s;unsigned calls;Event events[4];} World;
 static World actual,reference,initial,*w;static unsigned mutation;
-RrBadgeRow1C *D_800F3AFC;
-#define D_800AD528 w->s.settings
-#define D_800AC64A w->s.flag
+RrBadgeRow1C *BadgeRows;
+#define Options w->s.settings
+#define MenuCursor w->s.flag
 #define ovl665_D_801148B4 format
 ''' + body + r'''
 static u32 next(void){u32 x=w->s.rng;x^=x<<13;x^=x>>17;x^=x<<5;return w->s.rng=x;}
@@ -37,16 +37,16 @@ static void effect(void){unsigned i,j;static const s32 values[]={INT32_MIN,INT32
  for(i=0;i<60;i++)w->s.settings.bytes[i]=next();
  w->s.settings.display.x34=values[next()%12];w->s.settings.display.y38=values[next()%12];
  for(i=0;i<3;i++)for(j=0;j<8;j++)w->s.rows[i][j].half02=(s16)next();
- w->s.root=next()%3;D_800F3AFC=w->s.rows[w->s.root];w->s.flag=(s16)next();
+ w->s.root=next()%3;BadgeRows=w->s.rows[w->s.root];w->s.flag=(s16)next();
 }
 static Event *event(s32 op){size_t i;u32 h=2166136261U;Event *e;assert(w->calls<4);for(i=0;i<sizeof(w->s);i++)h=(h^((u8*)&w->s)[i])*16777619U;e=&w->events[w->calls++];memset(e,0,sizeof(*e));e->op=op;e->hash=h;return e;}
 static void change(void){if(mutation)effect();}
-void func_8002A604(void){event(1);change();}
-void func_8003D228(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){Event *v=event(2);s32 args[]={a,b,c,d,e,f,g};memcpy(v->args,args,sizeof(args));change();}
+void ClearScreenOverlayState(void){event(1);change();}
+void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){Event *v=event(2);s32 args[]={a,b,c,d,e,f,g};memcpy(v->args,args,sizeof(args));change();}
 void func_8002AF8C(s32 a,s32 b,s32 c){Event *e=event(3);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
 s32 func_8001E84C(const char *message,...){va_list args;Event *e=event(4);assert(message==format);va_start(args,message);e->args[0]=va_arg(args,s32);e->args[1]=va_arg(args,s32);va_end(args);return 1;}
 static void expected(void){
- func_8002A604();w->s.flag=0;func_8003D228(0,12,304,296,88,0,0);
+ ClearScreenOverlayState();w->s.flag=0;InitBadgeRow(0,12,304,296,88,0,0);
  w->s.rows[w->s.root][0].half02=1;func_8002AF8C(1,1,0);
  func_8001E84C(format,w->s.settings.display.x34,w->s.settings.display.y38);
 }
@@ -56,7 +56,7 @@ int main(void){unsigned scenario,i;_Static_assert(sizeof(RrRuntimeSettings)==60,
   memset(&initial,0,sizeof(initial));w=&initial;w->s.rng=0x15798+scenario*31;effect();
   w->s.settings.display.x34=word(scenario*0x9e3779b9U);w->s.settings.display.y38=word(~scenario*0x85ebca6bU);
   for(i=0;i<4;i++){w->s.guard[i]=scenario+i;w->s.tail[i]=~(scenario+i);}actual=reference=initial;
-  w=&actual;D_800F3AFC=w->s.rows[w->s.root];ovl665_func_80115798();w=&reference;D_800F3AFC=w->s.rows[w->s.root];expected();assert(!memcmp(&actual,&reference,sizeof(actual)));
+  w=&actual;BadgeRows=w->s.rows[w->s.root];ovl665_func_80115798();w=&reference;BadgeRows=w->s.rows[w->s.root];expected();assert(!memcmp(&actual,&reference,sizeof(actual)));
  }
  return 0;
 }

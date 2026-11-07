@@ -18,7 +18,7 @@ class GpuCoordinatesTest(unittest.TestCase):
         body=(root/'tools/scripts/fixtures/legacy/gpu_coordinates.c').read_text().replace('#include "rr/gpu.h"','')
         body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
         body=re.sub(r' : "\$[0-9]+"','',body)
-        observed=body.replace('func_80094100','observed_top_left').replace('func_80094198','observed_bottom_right')
+        observed=body.replace('get_cs','observed_top_left').replace('get_ce','observed_bottom_right')
         for axis,name in enumerate(('D_800ABAC4','D_800ABAC6')):
             assert observed.count(f'c = {name} - 1')==2
             assert observed.count(f't = *(u16 *)&{name};')==2
@@ -43,7 +43,7 @@ u16 read_unsigned(s32 axis) {
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'))
-        cls.functions=[cls.lib.func_80094100,cls.lib.func_80094198]
+        cls.functions=[cls.lib.get_cs,cls.lib.get_ce]
         cls.observed=[cls.lib.observed_top_left,cls.lib.observed_bottom_right]
         for f in cls.functions+cls.observed:f.argtypes=[C.c_int32,C.c_int32];f.restype=C.c_uint32
         cls.width=C.c_int16.in_dll(cls.lib,'D_800ABAC4');cls.height=C.c_int16.in_dll(cls.lib,'D_800ABAC6')

@@ -3,13 +3,13 @@
 #include "rr/spu_allocation.h"
 #include "psyq/libsnd/ssvab.h"
 
-short func_8008AA74(int a0, short a1, int a2);
-short func_8008AAA8(int a0, short a1, int a2);
-int func_8008AADC(a0, a1);
+short SsVabOpenHeadSticky(int a0, short a1, int a2);
+short SsVabFakeHead(int a0, short a1, int a2);
+int VsGetAddr(a0, a1);
 
 /* -g retains lexical block labels used by stock MASPSX to place load delays.
  * Keep the pointer snapshot scope before the zero-size loop. */
-void func_8008A774(void) {
+void _spu_gcSPU(void) {
  /* ASM_BARRIER: keep this phase value in the original MIPS register. */
  register s32 i asm("$9");
  register s32 n;
@@ -19,7 +19,7 @@ void func_8008A774(void) {
   register u32 free_bit=0x80000000U;
   register u32 deleted=0x2FFFFFFFU;
   register u32 mask=0x0FFFFFFFU;
-  register RrSpuAllocation *base=D_800A48C0;
+  register RrSpuAllocation *base=_spu_memList;
   register s32 limit=n;
   /* ASM_BARRIER: keep this phase value in the original MIPS register. */
   register RrSpuAllocation *cur asm("$7")=base;
@@ -72,7 +72,7 @@ void func_8008A774(void) {
   register u32 deleted=0x2FFFFFFFU;
   register s32 limit=n;
   register RrSpuAllocation *cur;
-  { RrSpuAllocation *snapshot=D_800A48C0; cur=snapshot; }
+  { RrSpuAllocation *snapshot=_spu_memList; cur=snapshot; }
   do {if(cur->size==0)cur->address_flags=deleted;i++;cur++;}while(i<=limit);
  }
  /* Exchange-sort live records by the numeric address. */
@@ -100,7 +100,7 @@ void func_8008A774(void) {
    /* ASM_BARRIER: keep this phase value in the original MIPS register. */
    register s32 scaled asm("$2");
    mask=0x0FFF0000U;
-   base=D_800A48C0;
+   base=_spu_memList;
    mask|=0xFFFFU;
    cur=base;
 sort_loop:
@@ -144,7 +144,7 @@ sort_done:;
    register u32 end_bit=0x40000000U;
    register u32 deleted=0x2FFFFFFFU;
    /* ASM_BARRIER: keep this phase value in the original MIPS register. */
-   register RrSpuAllocation *base asm("$6")=D_800A48C0;
+   register RrSpuAllocation *base asm("$6")=_spu_memList;
    register RrSpuAllocation *cur=base;
    u32 flags;
 compact_loop:
@@ -186,7 +186,7 @@ compact_done:;
   register u32 address;
   scaled=i*8;
   free_bit=0x80000000U;mask=0x0FFFFFFFU;end_bit=0x40000000U;
-  base=D_800A48C0;cur=(RrSpuAllocation *)((unsigned long)scaled+(unsigned long)base);
+  base=_spu_memList;cur=(RrSpuAllocation *)((unsigned long)scaled+(unsigned long)base);
   /* ASM_BARRIER: preserve the phase boundary and arithmetic schedule. */
   __asm__("" : "+r"(free_bit));
 tail_loop:
@@ -206,8 +206,8 @@ tail_done:;
  }
 }
 
-short func_8008AA74(int a0, short a1, int a2) { return func_8008AAE4(a0, a1, func_8008AADC, a2); }
+short SsVabOpenHeadSticky(int a0, short a1, int a2) { return _SsVabOpenHeadWithMode(a0, a1, VsGetAddr, a2); }
 
-short func_8008AAA8(int a0, short a1, int a2) { return func_8008AAE4(a0, a1, func_8008AADC, a2); }
+short SsVabFakeHead(int a0, short a1, int a2) { return _SsVabOpenHeadWithMode(a0, a1, VsGetAddr, a2); }
 
-int func_8008AADC(a0, a1) { return a1; }
+int VsGetAddr(a0, a1) { return a1; }

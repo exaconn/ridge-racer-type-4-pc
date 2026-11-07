@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_800879F4();
+int _SsVmInit();
 
 #endif /* RR_PSYQ_LIBSND_VMRESET_H */

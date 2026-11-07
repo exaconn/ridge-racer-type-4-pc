@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_80053E2C(void);
+void InitParticles(void);
 void func_80054128(int a0);
 void func_80054264(int a0);
 

@@ -2,7 +2,7 @@
 #define RR_OVERLAY668_TRACK_PROJECT_H
 #include "rr/overlay668_camera.h"
 #include "rr/track_projection.h"
-s32 func_80026A74(s32 *position,s32 node,s32 count);
+s32 FindTrackNode(s32 *position,s32 node,s32 count);
 /* Search uses arithmetic-shifted coordinates; interpolation uses division
  * toward zero. Reload positions and the sample root after the search service.
  * The returned node addresses a complete track sample. Coordinate arguments

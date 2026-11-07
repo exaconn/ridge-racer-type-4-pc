@@ -7,7 +7,7 @@
 #define RR_STANDING_ROW(base) \
     ((RrRaceStandingEntry0C*)((base)+RR_STANDING_PREFIX_SIZE))
 
-s32 func_800469A4(RrRaceVehicle *vehicle) {
+s32 FindNearestCarAhead(RrRaceVehicle *vehicle) {
     s32 best=-1,index=0,selected,limit,count,fresh_count,id;
     s32 first_count,second_count,distance,half,negative_half;
     /* ASM_BARRIER: keep the captured track length in the consumed mode register. */
@@ -22,7 +22,7 @@ s32 func_800469A4(RrRaceVehicle *vehicle) {
     register s32 mode __asm__("$5");
     s32 input;
     u8 *lookup_cursor;
-    context=&D_800AC650;
+    context=&RaceContext;
     flags=vehicle->flags1E4;
     mode=context->mode;
     input=vehicle->input;
@@ -30,7 +30,7 @@ s32 func_800469A4(RrRaceVehicle *vehicle) {
     flags=(flags&15)+best;
     input++;
     limit=input*16;
-    count=D_800AC59C;
+    count=NumCars;
     selected=(s32)((u32)flags+(u32)mode);
     if(count>0) {
         first_count=count;
@@ -46,11 +46,11 @@ lookup:
     /* ASM_BARRIER: preserve the original second count capture after lookup. */
     __asm__("" : : : "memory");
     index=0;
-    fresh_count=D_800AC59C;
+    fresh_count=NumCars;
     if(fresh_count>0) {
         reference=(u8*)table+selected*sizeof(RrRaceStandingEntry0C);
         second_count=fresh_count;
-        circumference=D_800F2EB8;
+        circumference=TrackLength;
         cursor=(u8*)table;
         half=circumference/2;
         negative_half=(s32)(0U-(u32)circumference)/2;

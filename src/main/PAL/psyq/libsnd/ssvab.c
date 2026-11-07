@@ -32,27 +32,27 @@ typedef struct {
     u16 reserved2;
 } ProgAtr;
 
-extern void func_80087DA4(s32);
+extern void _spu_setInTransfer(s32);
 
 extern ProgAtr *D_80110020[];
 extern u8 *D_80110060[];
 extern u8 *D_801100A8[];
-extern s16 D_801100EA;
-extern u8 D_80110120[];
+extern s16 kMaxPrograms;
+extern u8 _svm_vab_used[];
 extern u32 D_80110138[];
-extern u16 D_80110178;
+extern u16 _svm_vab_count;
 extern u32 D_80110180[];
 
 static inline void vab_count_dec(void) {
     /* ASM_BARRIER: keep the decremented count in v1 as in the target */
     register u16 c __asm__("$3");
-    c = D_80110178;
-    D_80110178 = c - 1;
+    c = _svm_vab_count;
+    _svm_vab_count = c - 1;
 }
 
 typedef s32 (*VabTransFunc)(u32, s32, s16);
 
-s16 func_8008AAE4(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
+s16 _SsVabOpenHeadWithMode(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
     s16 vab_id = 0x10;
     u8 *p;
     VabHdr *vab_h;
@@ -64,37 +64,37 @@ s16 func_8008AAE4(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
     u32 spu_alloc;
     u8 num_vags;
 
-    if (func_80087DCC() == 1) {
+    if (_spu_getInTransfer() == 1) {
         return -1;
     }
-    func_80087DA4(1);
+    _spu_setInTransfer(1);
     if (vabid < 0x10) {
         if (vabid == -1) {
             i = 0;
         loop:
-            if (D_80110120[i] != 0) {
+            if (_svm_vab_used[i] != 0) {
                 i++;
                 if (i < 0x10) {
                     goto loop;
                 }
             } else {
-                D_80110120[i] = 1;
+                _svm_vab_used[i] = 1;
                 vab_id = i;
-                D_80110178++;
+                _svm_vab_count++;
             }
         } else {
-            if (D_80110120[vabid] == 0) {
-                D_80110120[vabid] = 1;
+            if (_svm_vab_used[vabid] == 0) {
+                _svm_vab_used[vabid] = 1;
                 vab_id = vabid;
-                D_80110178++;
+                _svm_vab_count++;
             }
         }
     } else {
-        func_80087DA4(0);
+        _spu_setInTransfer(0);
         return -1;
     }
     if (vab_id >= 0x10) {
-        func_80087DA4(0);
+        _spu_setInTransfer(0);
         return -1;
     }
     p = addr;
@@ -102,35 +102,35 @@ s16 func_8008AAE4(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
     p += 0x20;
     vab_h = (VabHdr *)addr;
     if ((vab_h->form >> 8) != 0x564142) {
-        D_80110120[vab_id] = 0;
-        func_80087DA4(0);
+        _svm_vab_used[vab_id] = 0;
+        _spu_setInTransfer(0);
         vab_count_dec();
         goto err;
     }
     if ((vab_h->form & 0xFF) == 0x70) {
         if (vab_h->ver >= 5) {
-            D_801100EA = 0x80;
+            kMaxPrograms = 0x80;
         } else {
-            D_801100EA = 0x40;
+            kMaxPrograms = 0x40;
         }
     } else {
-        D_801100EA = 0x40;
+        kMaxPrograms = 0x40;
     }
-    if (vab_h->ps > D_801100EA) {
-        D_80110120[vab_id] = 0;
-        func_80087DA4(0);
+    if (vab_h->ps > kMaxPrograms) {
+        _svm_vab_used[vab_id] = 0;
+        _spu_setInTransfer(0);
         vab_count_dec();
         goto err;
     }
     D_80110020[vab_id] = (ProgAtr *)p;
     prog_atr = (ProgAtr *)p;
-    p += D_801100EA * sizeof(ProgAtr);
+    p += kMaxPrograms * sizeof(ProgAtr);
     i = 0;
     /* ASM_BARRIER: hide zero in i from reload_cse so tot_size is initialized from $zero */
     __asm__("" : "+r"(i));
     tot_size = 0;
-    if ((s32)tot_size < D_801100EA) {
-        s32 limit = D_801100EA;
+    if ((s32)tot_size < kMaxPrograms) {
+        s32 limit = kMaxPrograms;
         /* ASM_BARRIER: keep the loop pointer in v1 as in the target */
         register ProgAtr *cur __asm__("$3") = prog_atr;
         do {
@@ -167,8 +167,8 @@ s16 func_8008AAE4(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
         return -1;
     }
     if ((spu_alloc + tot_size) > 0x80000U) {
-        D_80110120[vab_id] = 0;
-        func_80087DA4(0);
+        _svm_vab_used[vab_id] = 0;
+        _spu_setInTransfer(0);
         vab_count_dec();
         goto err;
     }
@@ -198,6 +198,6 @@ s16 func_8008AAE4(u8 *addr, s16 vabid, VabTransFunc func, s32 mode) {
         }
     }
     D_80110138[vab_id] = tot_size;
-    D_80110120[vab_id] = 2;
+    _svm_vab_used[vab_id] = 2;
     return vab_id;
 }

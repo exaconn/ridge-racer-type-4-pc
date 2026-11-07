@@ -17,9 +17,9 @@ typedef struct {
 
 extern int D_800A67A4;
 
-extern int D_800A649C;
+extern int CD_nopen;
 
-extern int D_800A6490;
+extern int CD_debug;
 
 extern CdlFILE D_80110350[];
 
@@ -39,7 +39,7 @@ extern int DS_cachefile(int);
 
 extern int func_8001E84C();
 
-CdlFILE *func_8008DE84(CdlFILE *fp, char *name) {
+CdlFILE *CdSearchFile(CdlFILE *fp, char *name) {
     char buf[16];
     char *p;
     char *d;
@@ -48,10 +48,10 @@ CdlFILE *func_8008DE84(CdlFILE *fp, char *name) {
     /* ASM_BARRIER: use hard reg $0 so jump2 cross-jumping does not merge this return with .L8008E130 */
     register CdlFILE *zero asm("$0");
 
-    if (D_800A67A4 != D_800A649C) {
-        if (func_8008E17C() == 0)
+    if (D_800A67A4 != CD_nopen) {
+        if (DS_newmedia() == 0)
             return 0;
-        D_800A67A4 = D_800A649C;
+        D_800A67A4 = CD_nopen;
     }
     if (*name != '\\') {
         return zero;
@@ -79,34 +79,34 @@ CdlFILE *func_8008DE84(CdlFILE *fp, char *name) {
     }
 done:
     if (i >= 8) {
-        if (D_800A6490 > 0)
+        if (CD_debug > 0)
             func_8001E84C(D_80011B38, name, i);
         return 0;
     }
     if (buf[0] == 0) {
-        if (D_800A6490 > 0)
+        if (CD_debug > 0)
             func_8001E84C(D_80011B54, name);
         return 0;
     }
     *d = 0;
     if (DS_cachefile(dir) == 0) {
-        if (D_800A6490 > 0)
+        if (CD_debug > 0)
             func_8001E84C(D_80011B6C);
         return 0;
     }
-    if (D_800A6490 >= 2)
+    if (CD_debug >= 2)
         func_8001E84C(D_80011B88, buf);
     for (i = 0; i < 64; i++) {
         if (D_80110350[i].name[0] == 0)
             break;
         if (func_8008E15C(D_80110350[i].name, buf)) {
-            if (D_800A6490 >= 2)
+            if (CD_debug >= 2)
                 func_8001E84C(D_80011BA8, buf);
             *fp = D_80110350[i];
             return &D_80110350[i];
         }
     }
-    if (D_800A6490 > 0)
+    if (CD_debug > 0)
         func_8001E84C(D_80011BB4, buf);
     return 0;
 }

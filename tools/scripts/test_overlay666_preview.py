@@ -24,21 +24,21 @@ class Overlay666PreviewTest(unittest.TestCase):
 #include "rr/overlay666_preview.h"
 static struct World {u32 head[4];RrRaceVehicle cars[2];RrProjectionScratchPrefix scratch;RrBadgeRow1C badges[3][2],*root;RrCourseChoice4 table[4][9];RrCurrentSelection choice;RrMenuGridPoint grid[4];void*base,*published;s32 frame,pulse,local;RrMenuSelectionWord32 index;s16 row,mode,flag;s8 clear1,clear2;u32 tail[4];} world,expected,checkpoint[6];
 static unsigned scenario,calls,reference_calls;static u8 arenas[3][64],packets[64];static u32 orders[32];
-#define D_800ABEF8 world.cars
+#define PlayerCars world.cars
 #define RR_PROJECTION_SCRATCH (&world.scratch)
-#define D_800F3AFC world.root
+#define BadgeRows world.root
 #define ovl666_available_courses world.table
 #define D_800ACBD0 world.grid
 #define D_800F4D98 world.choice
 #define D_800F4D40 world.base
-#define D_800ACC18 world.published
+#define LoadCursor world.published
 #define D_800F2DE4 world.frame
 #define ScreenFrame world.pulse
 #define ovl666_selected_course world.index
 #define ovl666_preview_phase world.local
 #define D_800F3826 world.row
-#define D_800AC5E0 world.mode
-#define D_800AC64A world.flag
+#define MenuItemCount world.mode
+#define MenuCursor world.flag
 #define D_800F3A2C world.clear1
 #define D_800F4D7C world.clear2
 '''+bodies+r'''
@@ -56,10 +56,10 @@ static void effect(struct World*w,unsigned n){unsigned j;
  for(j=0;j<4;j++){((u8*)&w->choice)[j]=(u8)(scenario+n+j);w->grid[j].first=half(scenario+n+j);w->grid[j].second=half(scenario+n+j+1);}
 }
 static void boundary(unsigned n){assert(calls++==n);assert(memcmp(&world,&checkpoint[n],sizeof(world))==0);effect(&world,n);}
-void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){assert(calls<2);assert(a==(s32)calls&&b==24&&c==(calls?128:88)&&d==68&&e==32&&f==0&&g==0&&h==1&&i==0&&j==(calls?85:84));boundary(calls);}
-void func_80013890(s32 shift){assert(shift==5);boundary(2);}
+void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){assert(calls<2);assert(a==(s32)calls&&b==24&&c==(calls?128:88)&&d==68&&e==32&&f==0&&g==0&&h==1&&i==0&&j==(calls?85:84));boundary(calls);}
+void SetupRenderer(s32 shift){assert(shift==5);boundary(2);}
 void func_80037110(void){boundary(3);}
-void func_8002E4F4(RrRaceVehicle*p){assert(p==world.cars);assert((uintptr_t)p>UINT32_MAX);boundary(4);}
+void ResetCarState(RrRaceVehicle*p){assert(p==world.cars);assert((uintptr_t)p>UINT32_MAX);boundary(4);}
 void func_8002AF8C(s32 a,s32 b,s32 c){assert(a==0&&b==1&&c==1);boundary(5);}
 static void event(void){unsigned n=reference_calls++;assert(n<6);checkpoint[n]=expected;effect(&expected,n);}
 static void reference(void){unsigned n;int glyph,t;

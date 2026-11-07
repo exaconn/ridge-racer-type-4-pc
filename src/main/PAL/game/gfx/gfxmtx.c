@@ -21,7 +21,7 @@ extern char *D_800F4D90;
 void func_8003CF34(int a0);
 void func_8003D01C();
 int func_8003D108();
-int func_8003D1D4(int a0);
+int AllocBadgeRows(int a0);
 
 void func_8003CF34(int a0)
 {
@@ -98,11 +98,11 @@ int func_8003D108(a0) int a0;
     char *p;
     if (a0 & 1) {
         i = 0;
-        n = D_800F2ECC;
+        n = BadgeRowCount;
         if (n > 0) {
             int c = 0xB;
             int m = n;
-            p = D_800F3AFC;
+            p = BadgeRows;
             do {
                 short t = *(short *)(p + 0x10);
                 if (t != 0 && t != c) {
@@ -138,14 +138,14 @@ int func_8003D108(a0) int a0;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3AFC (*(int (*))&D_800F3AFC)
+#define BadgeRows (*(int (*))&BadgeRows)
 
-int func_8003D1D4(int a0) {
-    int n = D_800F2ECC * 28;
-    D_800F3AFC = a0;
+int AllocBadgeRows(int a0) {
+    int n = BadgeRowCount * 28;
+    BadgeRows = a0;
     func_80096434(a0, n);
     func_8001E84C(D_80010874, n);
     return n;
 }
 
-#undef D_800F3AFC
+#undef BadgeRows

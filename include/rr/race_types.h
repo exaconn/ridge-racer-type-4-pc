@@ -47,7 +47,7 @@ typedef struct {
     s16 metric12A;
 } RrRaceVehicleControl;
 
-/* 0x30-byte performance interpolation row (D_800ACB90 / context table). */
+/* 0x30-byte performance interpolation row (CarSpecTable / context table). */
 typedef struct {
     s32 baseSpeed00, pad04;
     unsigned short ratios08[6];

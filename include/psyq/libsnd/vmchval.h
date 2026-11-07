@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80089D28();
+int _SsVmGetSeqVol();
 
 #endif /* RR_PSYQ_LIBSND_VMCHVAL_H */

@@ -1,4 +1,4 @@
 /* GCC_VERSION: 2.7.2 */
 #include "psyq/libspu/spukeyx.h"
 #include "psyq/libspu/spukeyx2.h"
-void func_800877E4(a0, a1) { func_80087524(a0, a1, 0xCC, 0xCD); }
+void SpuSetReverbVoice(a0, a1) { SpuSetAnyVoice(a0, a1, 0xCC, 0xCD); }

@@ -55,8 +55,8 @@ class RaceDistanceTest(unittest.TestCase):
         source = '''#include <stdint.h>
 typedef uint8_t u8;typedef uint32_t u32;typedef int32_t s32;typedef int16_t s16;
 ''' + header + '''
-RrRaceVehicle D_800ABEF8[2];
-RrRaceDistanceContextPrefix D_800AC650;
+RrRaceVehicle PlayerCars[2];
+RrRaceDistanceContextPrefix RaceContext;
 unsigned long test_context_size(void) {return sizeof(RrRaceDistanceContextPrefix);}
 unsigned long test_record_size(void) {return sizeof(RrRaceVehicle);}
 ''' + body
@@ -67,9 +67,9 @@ unsigned long test_record_size(void) {return sizeof(RrRaceVehicle);}
         if result.returncode:
             raise AssertionError(result.stderr.decode())
         cls.lib = C.CDLL(str(directory/'function.so'))
-        cls.references = (Distance*2).in_dll(cls.lib, 'D_800ABEF8')
-        cls.context = Context.in_dll(cls.lib, 'D_800AC650')
-        cls.calculate = cls.lib.func_8004A080
+        cls.references = (Distance*2).in_dll(cls.lib, 'PlayerCars')
+        cls.context = Context.in_dll(cls.lib, 'RaceContext')
+        cls.calculate = cls.lib.CalcDistanceToPlayer
         cls.calculate.argtypes = [C.POINTER(Distance)]
         cls.calculate.restype = None
         for name in ('test_context_size', 'test_record_size'):

@@ -6,9 +6,9 @@
 
 extern s32 D_800A48B8;
 
-extern void func_8008A774(void);
+extern void _spu_gcSPU(void);
 
-void func_8008A6F4(u32 address) {
+void SpuFree(u32 address) {
     s32 visited = 0;
     s32 count = D_800A48B8;
     if (count > 0) {
@@ -19,7 +19,7 @@ void func_8008A6F4(u32 address) {
 
         /* ASM_BARRIER: materialize loop invariants before loading the cursor. */
         __asm__ volatile("" : : "r"(end_marker), "r"(freed), "r"(limit));
-        entry = D_800A48C0;
+        entry = _spu_memList;
         /* ASM_BARRIER: place the pointer's load delay before the loop label. */
         __asm__ volatile("nop");
         do {
@@ -34,5 +34,5 @@ void func_8008A6F4(u32 address) {
             entry++;
         } while (visited < limit);
     }
-    func_8008A774();
+    _spu_gcSPU();
 }

@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80046DB8(RrRaceVehicle *p);
+void UpdateComCarOvertake(RrRaceVehicle *p);
 
 #endif /* RR_GAME_COURSE_TRKPROJ_H */

@@ -26,10 +26,10 @@ typedef struct Node {
     char pad30[0x3C - 0x30];
 } Node;
 
-void func_80026C80(void);
-void func_80026F5C(Car *arg0);
+void FindTrackNodeScratch(void);
+void ConstrainCarToTrack(Car *arg0);
 
-void func_80026C80(void)
+void FindTrackNodeScratch(void)
 {
     SP *g = (SP *)SCRATCH_CAR_WORK;
     s32 a, n, t, x;
@@ -41,12 +41,12 @@ void func_80026C80(void)
     register s32 r3 __asm__("$12");
     g->cnt = 0;
     for (;;) {
-        g->w34 = (g->s150[g->idx] + 1) % D_800ABECC;
+        g->w34 = (g->s150[g->idx] + 1) % TrackNodeCount;
         a = g->w34;
-        p = (char *)D_800ABEA4 + g->s150[g->idx] * 0x3C;
+        p = (char *)TrackNodes + g->s150[g->idx] * 0x3C;
         g->w78 = *(s32 *)(p + 8);
         g->w80 = *(s32 *)(p + 12);
-        q = (char *)D_800ABEA4 + a * 0x3C;
+        q = (char *)TrackNodes + a * 0x3C;
         g->h74 = g->h70 = *(u16 *)(q + 8) - (u16)g->w78;
         g->h76 = g->h72 = *(u16 *)(q + 12) - (u16)g->w80;
         g->h64 = g->t110[g->idx].a - (u16)g->w78;
@@ -71,16 +71,16 @@ void func_80026C80(void)
         g->s150[g->idx] = (n & 1) ? x + n : x - n;
         a = g->s150[g->idx];
         if (a >= 0)
-            g->s150[g->idx] = a % D_800ABECC;
+            g->s150[g->idx] = a % TrackNodeCount;
         else
-            g->s150[g->idx] = (D_800ABECC + a) % D_800ABECC;
+            g->s150[g->idx] = (TrackNodeCount + a) % TrackNodeCount;
     }
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEA4 ((Node *)D_800ABEA4)
+#define TrackNodes ((Node *)TrackNodes)
 
-void func_80026F5C(Car *arg0) {
+void ConstrainCarToTrack(Car *arg0) {
     SP_1 *g = (SP_1 *)SCRATCH_CAR_WORK;
     s32 idx, next_idx;
     Node *s1, *s2;
@@ -100,11 +100,11 @@ void func_80026F5C(Car *arg0) {
     g->sC6 = 0;
     g->sC4 = 0;
     idx = g->p0->wF0;
-    next_idx = (idx + 1) % D_800ABECC;
-    s1 = &D_800ABEA4[idx];
+    next_idx = (idx + 1) % TrackNodeCount;
+    s1 = &TrackNodes[idx];
     g->s174 = s1->s22;
     g->s176 = s1->s20;
-    s2 = &D_800ABEA4[next_idx];
+    s2 = &TrackNodes[next_idx];
     g->s24 = rsin(g->s174);
     g->s26 = rcos(g->s174);
     g->s28 = rsin(g->s176);
@@ -216,12 +216,12 @@ void func_80026F5C(Car *arg0) {
     g->p0->wF4 = g->w18;
     g->p0->w188 = (D_800AD522 != 0) ? g->w14 : (g->s162 - g->w14);
     g->p0->w190 = g->p0->w18C;
-    g->p0->w18C = (g->p0->w184 + g->p0->w188 + D_800F2EB8) % D_800F2EB8;
+    g->p0->w18C = (g->p0->w184 + g->p0->w188 + TrackLength) % TrackLength;
     if (g->p0->w18C < 0) {
-        g->p0->w18C += D_800F2EB8;
+        g->p0->w18C += TrackLength;
     }
     g->p0->s194 = (s1->w24 + g->w14) >> 4;
     g->p0->s1A0 = g->w2C;
 }
 
-#undef D_800ABEA4
+#undef TrackNodes

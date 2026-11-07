@@ -51,17 +51,17 @@ class SpuVoiceCacheTest(unittest.TestCase):
             static u8 *tone_ptr;
             #define AT(t,o) (*(t *)(page+(o)))
             #define D_80110118 AT(u16,280)
-            #define D_8010FFC0 ((u32 *)(page-64))
+            #define _svm_envx_hist ((u32 *)(page-64))
             #define D_80110116 ((s16 *)(page+278))
             #define D_80110107 ((s8 *)(page+263))
-            #define D_801100A0 AT(u16,160)
-            #define D_801100EC program_ptr
-            #define D_801100F8 tone_ptr
+            #define _svm_damper AT(u16,160)
+            #define _svm_pg program_ptr
+            #define _svm_tn tone_ptr
             #define D_8010F90E ((u16 *)(page-1778))
             #define D_8010FE3E ((u16 *)(page-450))
             #define D_8010FE40 ((u16 *)(page-448))
             #define rr_flags ((u8 *)(page-488))
-            #define D_8010FE18 AT(RrSpuVolumeCache,-488)
+            #define _svm_sreg_dirty AT(RrSpuVolumeCache,-488)
             '''
             reference=r'''
             static uint16_t rd16(const void *p) {uint16_t v;memcpy(&v,p,2);return v;}
@@ -122,7 +122,7 @@ class SpuVoiceCacheTest(unittest.TestCase):
               wr16(page+160,k%2?bases[(k/2)%10]:(uint16_t)next());
               actual=expected=initial;
               int ti=bank*16+note;
-              bind(&actual,mode,ti);func_80086E74();
+              bind(&actual,mode,ti);_SsVmDoAllocate();
               bind(&expected,mode,ti);reference();
               if(memcmp(&actual,&expected,sizeof(actual))){fprintf(stderr,"case %u mode %d failed\n",k,mode);return 1;}
              }

@@ -7,31 +7,31 @@
 #include "rr/library.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80095A24 ((int (*)())func_80095A24)
+#define GetClut ((int (*)())GetClut)
 
-#undef func_80095A24
+#undef GetClut
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAC2 (*(u8 (*)[])&D_800ABAC2)
 
-#define D_800ABABC (*(void (*(*))(const char *, s32, s32, s32))&D_800ABABC)
+#define GPU_printf (*(void (*(*))(const char *, s32, s32, s32))&GPU_printf)
 
 #undef D_800ABAC2
 
-#undef D_800ABABC
+#undef GPU_printf
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABABC (*(int (*(*))())&D_800ABABC)
+#define GPU_printf (*(int (*(*))())&GPU_printf)
 
 #define D_800ABAB8 ((int *)D_800ABAB8)
 
-#define func_8008B3C4 ((int (*)())func_8008B3C4)
+#define DMACallback ((int (*)())DMACallback)
 
-#undef D_800ABABC
+#undef GPU_printf
 
 #undef D_800ABAB8
 
-#undef func_8008B3C4
+#undef DMACallback
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAC2 (*(u8 (*))&D_800ABAC2)
@@ -41,16 +41,16 @@
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAC2 (*(unsigned char (*)[])&D_800ABAC2)
 
-#define D_800ABABC (*(void (*(*))())&D_800ABABC)
+#define GPU_printf (*(void (*(*))())&GPU_printf)
 
 #undef D_800ABAC2
 
-#undef D_800ABABC
+#undef GPU_printf
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAC2 (*(unsigned char (*)[])&D_800ABAC2)
 
-#define D_800ABABC (*(void (*(*))())&D_800ABABC)
+#define GPU_printf (*(void (*(*))())&GPU_printf)
 
 #define D_800ABAB8 (*(struct { char pad[0x10]; int (*f)(); } *(*))&D_800ABAB8)
 
@@ -58,7 +58,7 @@
 
 #undef D_800ABAC2
 
-#undef D_800ABABC
+#undef GPU_printf
 
 #undef D_800ABAB8
 
@@ -67,13 +67,13 @@
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((void *)D_800ABAB8)
 
-#define D_800ABABC (*(M2C_UNK (*(*))(M2C_UNK *, s32))&D_800ABABC)
+#define GPU_printf (*(M2C_UNK (*(*))(M2C_UNK *, s32))&GPU_printf)
 
 #define D_800ABAC2 (*(u8 (*))&D_800ABAC2)
 
 #undef D_800ABAB8
 
-#undef D_800ABABC
+#undef GPU_printf
 
 #undef D_800ABAC2
 
@@ -107,24 +107,24 @@
 #undef D_800ABAB8
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABABC (*(int (*(*))())&D_800ABABC)
+#define GPU_printf (*(int (*(*))())&GPU_printf)
 
 #define D_800ABAC2 (*(unsigned char (*))&D_800ABAC2)
 
-#undef D_800ABABC
+#undef GPU_printf
 
 #undef D_800ABAC2
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((char *)D_800ABAB8)
 
-#define D_800ABABC (*(int (*(*))())&D_800ABABC)
+#define GPU_printf (*(int (*(*))())&GPU_printf)
 
 #define D_800ABAC2 (*(unsigned char (*))&D_800ABAC2)
 
 #undef D_800ABAB8
 
-#undef D_800ABABC
+#undef GPU_printf
 
 #undef D_800ABAC2
 
@@ -141,26 +141,26 @@
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((int *)D_800ABAB8)
 
-#define D_800ABABC (*(int (*(*))())&D_800ABABC)
+#define GPU_printf (*(int (*(*))())&GPU_printf)
 
 #define D_800ABAC2 (*(unsigned char (*))&D_800ABAC2)
 
 #undef D_800ABAB8
 
-#undef D_800ABABC
+#undef GPU_printf
 
 #undef D_800ABAC2
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABAB8 ((char *)D_800ABAB8)
 
-#define D_800ABABC (*(int (*(*))())&D_800ABABC)
+#define GPU_printf (*(int (*(*))())&GPU_printf)
 
 #define D_800ABAC2 (*(unsigned char (*)[])&D_800ABAC2)
 
 #undef D_800ABAB8
 
-#undef D_800ABABC
+#undef GPU_printf
 
 #undef D_800ABAC2
 
@@ -172,7 +172,7 @@ extern char D_80011F20[];
 
 unsigned *ClearOTagR(unsigned *a, int b) {
     int *q;
-    if (D_800ABAC2 >= 2) D_800ABABC(D_80011F20, a, b);
+    if (D_800ABAC2 >= 2) GPU_printf(D_80011F20, a, b);
     (*(int (**)())(D_800ABAB8 + 0x2C))(a, b);
     q = &D_800ABB80;
     *q = ((int)D_800ABB6C & 0xFFFFFF) | 0x04000000;

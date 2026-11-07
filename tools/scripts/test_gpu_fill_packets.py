@@ -64,11 +64,11 @@ static void event(int kind,unsigned long arg){
   world.status^=0x31578321U;
  }
 }
-s32 func_80094B70(s32 command){
+s32 _param(s32 command){
  assert(command==3+(int)count);event(0,(unsigned)command);
  return (s32)((0x782301U*(unsigned)command ^ world.status)&0xFFFFFFU);
 }
-void func_80094B28(unsigned long address){assert(address==(unsigned long)world.primary.words);event(1,address);}
+void _cwc(unsigned long address){assert(address==(unsigned long)world.primary.words);event(1,address);}
 static u16 get16(RrGpuRectangle *r,unsigned off){u16 value;memcpy(&value,(u8*)r+off,2);return value;}
 static int signed16(u16 v){return v<32768?(int)v:(int)v-65536;}
 static u32 get32(RrGpuRectangle *r,unsigned off){u32 value;memcpy(&value,(u8*)r+off,4);return value;}
@@ -87,18 +87,18 @@ static int reference(RrGpuRectangle *r,u32 color){
   p[6]=0x60000000U|(color&0xFFFFFFU);
   p[5]=0xE1000000U|(status&0x7FFU)|((color>>31)*1024U);
   p[7]=get32(r,0);u32 size=get32(r,4);q[0]=0x03FFFFFFU;p[8]=size;
-  q[1]=(u32)func_80094B70(3)|0xE3000000U;
-  q[2]=(u32)func_80094B70(4)|0xE4000000U;
-  q[3]=(u32)func_80094B70(5)|0xE5000000U;
+  q[1]=(u32)_param(3)|0xE3000000U;
+  q[2]=(u32)_param(4)|0xE4000000U;
+  q[3]=(u32)_param(5)|0xE5000000U;
  }else{
   p[0]=0x05FFFFFFU;p[1]=0xE6000000U;u32 status=world.status;
   p[3]=0x02000000U|(color&0xFFFFFFU);
   p[2]=0xE1000000U|(status&0x7FFU)|((color>>31)*1024U);
   p[4]=get32(r,0);p[5]=get32(r,4);
  }
- func_80094B28((unsigned long)p);return 0;
+ _cwc((unsigned long)p);return 0;
 }
-s32 func_800943C4(RrGpuRectangle *,u32);
+s32 _clr(RrGpuRectangle *,u32);
 int main(void){
  unsigned fast=0,extended=0;
  assert((uintptr_t)world.primary.words>UINT32_MAX);
@@ -110,7 +110,7 @@ int main(void){
   world.width=(s16)(u16)(k*139U);world.height=(s16)(u16)(k*17U);
   if((k&7)==0){r->rect.x=(s16)(u16)(k*64U);world.width=32767;}
   initial=world;count=0;memset(entries,0,sizeof(entries));
-  assert(func_800943C4(rectangle(),color)==0);actual=world;unsigned calls=count;
+  assert(_clr(rectangle(),color)==0);actual=world;unsigned calls=count;
   memcpy(saved,entries,sizeof(saved));if(calls==1)fast++;else {assert(calls==4);extended++;}
   world=initial;count=0;memset(entries,0,sizeof(entries));
   assert(reference(rectangle(),color)==0);assert(count==calls);

@@ -28,7 +28,7 @@ extern short D_800F4C6A;
 extern short D_800F3A26;
 extern short D_800F4D8A;
 extern int D_800F2EC8;
-extern char D_800AC650[];
+extern char RaceContext[];
 extern short D_800AD50A;
 extern int func_80096464();
 extern int func_80055300();
@@ -67,7 +67,7 @@ void func_8005D974(int a0) {
     int x5;
 
     if (D_8010E240[0] != 0) {
-        func_8005D868();
+        ShuffleSlotOrder();
         D_8010E240[0] = 0;
     }
     func_80096434(D_800ACB0C, 0x80);
@@ -137,7 +137,7 @@ void func_8005D974(int a0) {
         d[9] = n;
         D_800F3914 = h;
         if (n >= 8)
-            func_8005D868();
+            ShuffleSlotOrder();
     }
     func_80059314(0, 0);
     D_800F4D44 = 5;
@@ -155,12 +155,12 @@ void func_8005D974(int a0) {
         D_800F765C = 1;
     }
     func_80055300();
-    c = D_800AC650;
+    c = RaceContext;
     D_800F2EC8 = 1;
     *(short *)(c + 0x4E0) = 0xD2;
     *(short *)(c + 0x4E2) = 0;
     *(short *)(c + 0x4E4) = 0x8FC;
-    func_8004C138(c + 0x4E0, c + 0x4E8);
+    HsvToRgb(c + 0x4E0, c + 0x4E8);
     func_80055330(0, c[0x4E8], c[0x4E9], c[0x4EA]);
     *(int *)(c + 0x534) = 0;
     if (a0 == 0) {
@@ -170,7 +170,7 @@ void func_8005D974(int a0) {
         x5 = 0;
     }
     func_8005534C(x5);
-    c2 = D_800AC650;
+    c2 = RaceContext;
     *(int *)(c2 + 0x4F0) = -0x20;
     *(int *)(c2 + 0x4EC) = 0;
     *(int *)(c2 + 0x4F4) = 0;
@@ -179,7 +179,7 @@ void func_8005D974(int a0) {
     *(int *)(c2 + 0x504) = 0;
     *(int *)(c2 + 0x514) = 0x122;
     func_8004F9C8();
-    func_80077D90(0);
+    ClearTrackObjectStates(0);
     D_800AD50A = 0x209;
 }
 

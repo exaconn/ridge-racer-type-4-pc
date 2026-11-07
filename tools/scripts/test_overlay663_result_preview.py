@@ -32,10 +32,10 @@ static unsigned scenario,mutation,seenPhases,seenDraw,seenExit,seenTimers[8];
 static const u16 phases[]={0,1,2,3,8,32768,65535};
 static const u8 modes[]={0,1,2,3,5,127,128,255};
 static const u32 frames[]={0,1,0x7FFFFFFFU,0x80000000U,0xFFFFFFFFU};
-#define D_800ABEF8 w->s.cars
+#define PlayerCars w->s.cars
 #define D_800F4D98 w->s.choice
-#define D_800F4D80 (w->s.ui[w->s.uiRoot])
-#define D_800F3AFC (w->s.badges[w->s.badgeRoot])
+#define UiRows (w->s.ui[w->s.uiRoot])
+#define BadgeRows (w->s.badges[w->s.badgeRoot])
 #define D_800F2AB0 (w->s.modes[w->s.modeRoot])
 #define D_800F2DE4 w->s.frame
 #define D_800F3A60 w->s.accepted
@@ -66,7 +66,7 @@ void func_8002AF8C(s32 a,s32 b,s32 c){Event *e=event(1);e->args[0]=a;e->args[1]=
 void PlaySfx(s32 a){event(2)->args[0]=a;change();}
 void ovl663_init_selection(s32 a){event(3)->args[0]=a;if(w==&actual)seenExit=1;change();}
 void func_80033A74(s32 a){event(4)->args[0]=a;change();}
-void func_8006EF8C(s32 a){event(5)->args[0]=a;change();}
+void SetupViewport(s32 a){event(5)->args[0]=a;change();}
 void func_80037198(s32 a){Event *e=event(6);e->args[0]=a;assert(w->s.choice.selection.pad02[1]==2);change();}
 void func_8002E5A0(RrRaceVehicle *car){event(7);assert(car==w->s.cars);assert((uintptr_t)car>UINT32_MAX);assert(w->s.choice.selection.pad02[1]==0);change();}
 void func_8002CC88(RrRaceVehicle *car,RrPreviewRgb3 color,s32 scale,s32 flags){Event *e=event(8);
@@ -74,10 +74,10 @@ void func_8002CC88(RrRaceVehicle *car,RrPreviewRgb3 color,s32 scale,s32 flags){E
  if(w==&actual){seenDraw=1;if(w->s.modes[w->s.modeRoot][1]==1){unsigned t=w->s.modes[w->s.modeRoot][2];seenTimers[t/32]|=1U<<(t%32);}}
  change();
 }
-void func_8003EC88(s32 a){event(9)->args[0]=a;change();}
-void func_8003D6F0(s32 a){event(10)->args[0]=a;change();}
+void DrawUiRow(s32 a){event(9)->args[0]=a;change();}
+void UpdateBadgeRowAnim(s32 a){event(10)->args[0]=a;change();}
 s32 func_8003FBA8(s32 a){event(11)->args[0]=a;change();return 0;}
-void func_8002A344(s32 a){event(12)->args[0]=a;change();}
+void UpdateScreenFade(s32 a){event(12)->args[0]=a;change();}
 ''' + body + r'''
 static void expected(void){State *s=&w->s;unsigned p=(u16)s->phase;
  s->frame=word((u32)s->frame+1U);
@@ -86,14 +86,14 @@ static void expected(void){State *s=&w->s;unsigned p=(u16)s->phase;
   if(s->accepted){PlaySfx(1);func_8002AF8C(0,1,0);((u8*)&s->ui[s->uiRoot])[120]=1;((u8*)&s->ui[s->uiRoot])[128]=3;s->phase=2;s->badges[s->badgeRoot][0].state10=4;s->modes[s->modeRoot][1]=3;}
  }else if(p==2){if(s->badges[s->badgeRoot][0].state10==11&&s->modes[s->modeRoot][1]==5){ovl663_init_selection(s->entry);s->scene=1;s->next=75;s->phase=0;}}
  s->cars[0].rot54=(u32)(word((u32)s->cars[0].rot54+8U))&4095;
- func_80033A74(1);func_8006EF8C(6);
+ func_80033A74(1);SetupViewport(6);
  {unsigned mode=s->modes[s->modeRoot][1];if(mode==1||mode==2){RrPreviewRgb3 c;int scale;
   s->choice.selection.pad02[1]=2;func_80037198(0);s->choice.selection.pad02[1]=0;func_8002E5A0(s->cars);
   if(s->modes[s->modeRoot][1]==1){int64_t t=s->modes[s->modeRoot][2];c.r=(u8)(255-t*255/30);c.g=c.r;c.b=c.r;scale=t*256/30;}
   else{c.r=128;c.g=128;c.b=128;scale=256;}
   func_8002CC88(s->cars,c,scale,0);
  }}
- func_8003EC88(3);func_8003D6F0(0);func_8003FBA8(0);func_8002A344(0x10022);
+ DrawUiRow(3);UpdateBadgeRowAnim(0);func_8003FBA8(0);UpdateScreenFade(0x10022);
 }
 int main(void){unsigned i;
  for(scenario=0;scenario<16384;scenario++)for(mutation=0;mutation<2;mutation++){

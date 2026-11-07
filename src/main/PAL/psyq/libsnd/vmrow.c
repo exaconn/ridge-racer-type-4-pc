@@ -5,15 +5,15 @@
 
 extern u8 D_8010F90C[];
 
-void func_80088D64(u8 index) {
+void vmNoiseOff(u8 index) {
     s32 offset = index * 54;
     /* ASM_BARRIER: retain the original assembler temporary for the final field store. */
     register u8 *base __asm__("$1");
-    ((RrChannelControlRow36 *)((u8 *)D_8010F908 + offset))->flags1D = 0;
-    ((RrChannelControlRow36 *)((u8 *)D_8010F908 + offset))->value00 = 0;
+    ((RrChannelControlRow36 *)((u8 *)_svm_voice + offset))->flags1D = 0;
+    ((RrChannelControlRow36 *)((u8 *)_svm_voice + offset))->value00 = 0;
     /* ASM_BARRIER: finish the first two field stores before binding the last address. */
     __asm__ volatile("" : : "r"(offset) : "$1", "memory");
-    /* PAL RAM mapping: D_8010F908 is base minus 0x6F8. */
+    /* PAL RAM mapping: _svm_voice is base minus 0x6F8. */
     base = (u8 *)0x80110000U;
     /* ASM_BARRIER: expose the indexed field store in the return delay slot. */
     __asm__("" : "=r"(base) : "0"(base));
@@ -22,7 +22,7 @@ void func_80088D64(u8 index) {
 }
 
 /* The selected channel belongs to the valid 0..31 control-row range. */
-void func_80088DA4(s32 unused_mode) {
+void _SsVmKeyOffNow(s32 unused_mode) {
     s32 selected = D_80110118;
     u32 index = selected & 0xFFFF;
     u32 high_mask, low_mask;
@@ -42,7 +42,7 @@ void func_80088DA4(s32 unused_mode) {
         u32 low = D_80110000;
         u32 high = D_80110002;
         *(u16 *)(D_8010F90C + offset) = 0;
-        D_8010F908[index].value00 = 0;
+        _svm_voice[index].value00 = 0;
         {
             u32 pending = D_8010F8F8;
             low |= low_mask;

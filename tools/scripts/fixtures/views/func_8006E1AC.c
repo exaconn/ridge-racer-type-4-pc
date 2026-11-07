@@ -34,12 +34,12 @@ extern void MulMatrix2();
 
 extern void SetRotMatrix();
 
-void func_8006E1AC(void) {
+void BuildCameraMatrices(void) {
     char sp10[32];
     int *g = (int *)0x1F800000;
     BuildRotMatrixY(0x1F800028, g[7]);
     BuildRotMatrixY(D_800FF690, g[7]);
-    func_8006E174(D_800FF6B8);
+    SetIdentityMatrix(D_800FF6B8);
     BuildRotMatrixY(D_800FF6D8, g[7]);
     BuildRotMatrixX(sp10, g[6]);
     MulMatrix2(sp10, 0x1F800028);

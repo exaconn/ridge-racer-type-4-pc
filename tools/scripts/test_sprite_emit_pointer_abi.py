@@ -47,7 +47,7 @@ int main(void) {
   T pages[2],page;memset(pages,0xB7,sizeof(pages));page=pages[0];
   page.a=(page.a&0xFFFFFF)|0x02000000;page.b=0xE1000200U|(n&0x9FF);page.c=0;
   memcpy(expected,&page,12);packet_size=12;expected_packet=(u32*)pages;ordering=0xCD654321;
-  assert(func_8001FCC8(&ordering,pages,n)==pages+1);
+  assert(AddDrawModePrim(&ordering,pages,n)==pages+1);
   page.a=(page.a&0xFF000000)|0x654321;assert(memcmp(pages,&page,12)==0);
   for(unsigned i=12;i<sizeof(pages);i++)assert(((u8*)pages)[i]==0xB7);
   assert(ordering==(0xCD000000|((uintptr_t)pages&0xFFFFFF)));

@@ -6,24 +6,24 @@ void ovl662_func_8011512C(void) {
     /* Keep the per-vehicle rotation temporary in the call-result register. */
     register s32 rotation __asm__("$2");
     void *arena;
-    func_8002A604();
+    ClearScreenOverlayState();
     D_800F2DE4=0;
     ScreenFrame=0;
-    D_800AC64A=0;
-    D_800AC5E0=4;
+    MenuCursor=0;
+    MenuItemCount=4;
     ResetScreenCounters();
-    D_800F4D70.second=D_800102F0+0x2D000;
-    func_8003A1B4();
-    D_800ACC18=D_800F4D70.second;
-    func_8003E928(0,24,88,68,32,0,0,1,0,21);
-    func_8003E928(1,24,128,68,32,0,0,1,0,102);
-    func_8003E928(2,24,168,68,32,0,0,1,0,22);
-    func_8003E928(3,24,208,68,32,0,0,1,0,85);
-    func_80013890(5);
+    D_800F4D70.second=CdDirectoryBuffer+0x2D000;
+    InitMenuArenas();
+    LoadCursor=D_800F4D70.second;
+    InitUiRow(0,24,88,68,32,0,0,1,0,21);
+    InitUiRow(1,24,128,68,32,0,0,1,0,102);
+    InitUiRow(2,24,168,68,32,0,0,1,0,22);
+    InitUiRow(3,24,208,68,32,0,0,1,0,85);
+    SetupRenderer(5);
     ResetScreenCounters();
     func_80037110();
     i=0;
-    vehicle=D_800ABEF8;
+    vehicle=PlayerCars;
     ovl662_D_801272D4=0;
     scratch=RR_PROJECTION_SCRATCH;
     scratch->word18=120;
@@ -33,12 +33,12 @@ void ovl662_func_8011512C(void) {
     scratch->word20=0;
     scratch->word10=-96;
     arena=D_800F4D40;
-    D_800ACC18=arena;
+    LoadCursor=arena;
     D_800F4D70.first=arena;
     do {
         /* Keep one full vehicle cursor through both setup calls. */
         __asm__("" : "+r"(vehicle));
-        func_8002E4F4(vehicle);
+        ResetCarState(vehicle);
         vehicle->pos20[1]=10;
         vehicle->pos20[2]=308;
         rotation=2048;
@@ -48,9 +48,9 @@ void ovl662_func_8011512C(void) {
         i++;
         vehicle++;
     } while(i<2);
-    func_80037040((s8*)D_800F4D98.bytes,D_800ABE08[1][ovl662_D_801272E4].glyph);
+    UnpackChoiceGlyph((s8*)D_800F4D98.bytes,D_800ABE08[1][ovl662_D_801272E4].glyph);
     D_800ACBD0[0].first=D_800ABE08[1][ovl662_D_801272E4].first;
     D_800ACBD0[0].second=D_800ABE08[1][ovl662_D_801272E4].second;
-    ovl662_D_801272E0=func_800370BC(D_800ABE08[1]);
+    ovl662_D_801272E0=CountChoiceGlyphs(D_800ABE08[1]);
     func_8002AF8C(0,1,1);
 }

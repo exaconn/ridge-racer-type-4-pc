@@ -4,7 +4,7 @@
 
 #include "rr/timing.h"
 
-void func_80095360(void) {
+void set_alarm(void) {
     D_800ABBFC = (u32)VSync(-1) + 0xF0;
     D_800ABC00 = 0;
 }

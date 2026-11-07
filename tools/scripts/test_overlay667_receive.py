@@ -51,7 +51,7 @@ static s32 eventResult,queryResult,writeResult;
 #define ovl667_D_80118EC8 w->s.command
 #define ovl667_D_80118ED0 w->s.peer
 #define ovl667_D_80118EEC w->s.phase
-#define D_800FF6B0 w->s.local
+#define RaceState w->s.local
 #define D_800F2AA8 w->s.reader
 #define D_800F2AAC w->s.writer
 #define ovl667_D_80118F08 w->s.read
@@ -104,18 +104,18 @@ static s32 event(s32 kind,s32 a,s32 b,s32 c) {
  if(mutation)effect(n);
  return kind==0?eventResult:kind==3?writeResult:queryResult;
 }
-s32 func_80096EA4(RrBiosEventHandle handle) {
+s32 TestEvent(RrBiosEventHandle handle) {
  assert(handle==w->s.handle);return event(0,word(handle),0,0);
 }
-s32 func_80096F44(s32 descriptor,void *buffer,s32 count) {
+s32 FileRead(s32 descriptor,void *buffer,s32 count) {
  assert(descriptor==w->s.reader && buffer==&w->s.rx.packet && count==12);
  assert((uintptr_t)buffer>UINT32_MAX);return event(1,descriptor,count,0);
 }
-s32 func_8009AEAC(s32 command,s32 operation,unsigned long argument) {
+s32 _sio_control(s32 command,s32 operation,unsigned long argument) {
  assert(argument==0 && ((command==2&&operation==0)||(command==3&&operation==1)));
  return event(2,command,operation,0);
 }
-s32 func_80096F54(s32 descriptor,const void *buffer,s32 count) {
+s32 FileWrite(s32 descriptor,const void *buffer,s32 count) {
  assert(descriptor==w->s.writer && buffer==&w->s.tx && count==12);
  assert((uintptr_t)buffer>UINT32_MAX);return event(3,descriptor,count,0);
 }

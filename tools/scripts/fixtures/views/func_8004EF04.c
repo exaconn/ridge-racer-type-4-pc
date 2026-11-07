@@ -1,28 +1,28 @@
 #include "rr/audio_pan.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8008AEC4 ((short (*)())func_8008AEC4)
+#define SsVabTransBody ((short (*)())SsVabTransBody)
 
-#define D_800F4DB8 (*(short (*)[])&D_800F4DB8)
+#define SoundState (*(short (*)[])&SoundState)
 
-#undef func_8008AEC4
+#undef SsVabTransBody
 
-#undef D_800F4DB8
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x2894]; s32 a, b, c, d; } (*))&D_800F4DB8)
-
-#undef D_800F4DB8
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x2894]; s32 a, b, c; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x2894]; s32 a, b, c, d; } (*))&SoundState)
 
-#undef D_800F4DB8
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x19D0]; s32 a; char p1[4]; s32 b, c; char p2[8]; s16 arr[8]; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x2894]; s32 a, b, c; } (*))&SoundState)
 
-#undef D_800F4DB8
+#undef SoundState
+
+/* legacy typing of shared globals in this part of the unit */
+#define SoundState (*(struct { char pad[0x19D0]; s32 a; char p1[4]; s32 b, c; char p2[8]; s16 arr[8]; } (*))&SoundState)
+
+#undef SoundState
 
 void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s16 temp_a2_2;
@@ -64,14 +64,14 @@ void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
         var_a3 = D_800F4DEA;
         var_t0 -= 0x3C;
     }
-    table=D_800A043C;
+    table=PanGainTable;
 
     temp_a2 = arg2 & 0x7F;
     temp_a2_2 = (table[temp_a2] * (s16)arg1) / 16129;
     var_a0 = temp_a2_2;
     temp_v1 = (table[0x7F-temp_a2] * (s16)arg1) / 16129;
     var_a1 = temp_v1;
-    if (D_800AD528.audio.mono32 != 0) {
+    if (Options.audio.mono32 != 0) {
         temp_v0 = (s32) (temp_v1 + temp_a2_2) / 2;
         var_a0 = (s16) temp_v0;
         var_a1 = (s16) temp_v0;
@@ -89,7 +89,7 @@ void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 
     first_div=(s32)((u32)first_div<<16);
 
-    volume=D_800AD528.audio.volume31;
+    volume=Options.audio.volume31;
     var_s1 = (first_div>>16) * volume;
     second_div=var_a0_2>>7;
     if (var_s1 < 0) {
@@ -123,8 +123,8 @@ void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
         outnote=note;
 
         temp_s0_2 = temp_t1 - (u32)temp_s0 * 128U;
-        func_80085304(outbank, outprogram, mode, outnote, (s32) temp_s0_2, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
-        func_80085304(bank, program, 1, note, (s32) temp_s0_2, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
+        SsUtKeyOn(outbank, outprogram, mode, outnote, (s32) temp_s0_2, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
+        SsUtKeyOn(bank, program, 1, note, (s32) temp_s0_2, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
         return;
     }
     {
@@ -152,7 +152,7 @@ void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     temp_s0_3 = var_s0 >> 7;
     note=(s16)temp_s0_3;
     temp_s0_4 = temp_t1 - (u32)temp_s0_3 * 128U;
-    func_800857A4(outvoice, outbank, outprogram, mode, note, (s32) temp_s0_4, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
-    func_800857A4((s16)(voice+1U), bank, program, 1, note, (s32) temp_s0_4, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
+    SsUtKeyOnV(outvoice, outbank, outprogram, mode, note, (s32) temp_s0_4, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
+    SsUtKeyOnV((s16)(voice+1U), bank, program, 1, note, (s32) temp_s0_4, (s32) (s16) temp_s2, (s32) (s16) temp_s1);
 }
 }

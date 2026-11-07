@@ -6,11 +6,11 @@
 #include "psyq/libpad/padenab.h"
 #include "rr/spu_tick_control.h"
 
-extern s32 func_80096F94(s32,s32);
-extern s32 func_80097714(s32,void *);
-extern s32 func_80097704(s32,void *);
+extern s32 ChangeClearRCnt(s32,s32);
+extern s32 SysDeqIntRP(s32,void *);
+extern s32 SysEnqIntRP(s32,void *);
 
-s32 func_80098030(void);
+s32 _padChkVsync(void);
 
 int func_80097EA0(void) {
     s32 first,condition,enabled;
@@ -47,7 +47,7 @@ int func_80097EA0(void) {
     if(D_800ABCBC<first)goto out;
     D_800ABCAC=0;
     D_800ABCA8=first;
-    if(!func_80098154((RrChannelRecordF0 *)((unsigned long)D_800ABC9C+(long)(s32)((shifted-(u32)first)*(sizeof(RrChannelRecordF0)/15)+(u32)first*(sizeof(RrChannelRecordF0)%15)))))D_800ABC68(65535);
+    if(!_padInitSioMode((RrChannelRecordF0 *)((unsigned long)D_800ABC9C+(long)(s32)((shifted-(u32)first)*(sizeof(RrChannelRecordF0)/15)+(u32)first*(sizeof(RrChannelRecordF0)%15)))))D_800ABC68(65535);
     D_800ABCB0=0;
     while(D_800ABCA8<=D_800ABCBC)func_80098488(D_800ABC9C+D_800ABCA8);
     D_800ABCCC->baud=0x88;
@@ -55,7 +55,7 @@ out:
     return 0;
 }
 
-s32 func_80098030(void) {
+s32 _padChkVsync(void) {
     s32 previous = D_800ABCD0;
     /* ASM_BARRIER: use the original assembler temporary for the store address. */
     register s32 *base __asm__("$1");
@@ -83,16 +83,16 @@ void _padStartCom(void) {
         __asm__("" : "+r"(page));
         page[-0x4360/4]=0;
     }
-    func_80096F04();
-    func_80097714(2,D_80114418);
-    func_80097704(2,D_80114418);
+    EnterCriticalSection();
+    SysDeqIntRP(2,D_80114418);
+    SysEnqIntRP(2,D_80114418);
     p=D_800ABCC8;
     p->pending=0xFFFFFFFEU;
     mask=p->mask;
     /* Ordinary final write view permits the original call-delay store. */
     *(u32 *)((u8 *)p+RR_FIELD_OFFSET(RrInterruptRegisters,mask))=mask|1;
-    func_80096F94(3,0);
-    func_80096F14();
+    ChangeClearRCnt(3,0);
+    ExitCriticalSection();
     D_800ABC6C(D_800ABC9C);
     D_800ABC6C(D_800ABC9C+1);
     counters=D_80114428;

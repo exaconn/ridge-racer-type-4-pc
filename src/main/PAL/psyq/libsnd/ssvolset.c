@@ -5,12 +5,12 @@
 #include "psyq/libsnd/ssvolset.h"
 #include "psyq/libsnd/ssatr2.h"
 
-void func_80084154(s32 bank,s32 row,s32 left,s32 right);
-void func_800841E4(s16 bank, s32 left, s32 right);
-void func_8008424C(s32 bank, s32 row, s32 left, s32 right);
-void func_800842DC(int a, int b, int c, int d);
+void _SsSndSetVol(s32 bank,s32 row,s32 left,s32 right);
+void SsSeqSetVol(s16 bank, s32 left, s32 right);
+void SsSepSetVol(s32 bank, s32 row, s32 left, s32 right);
+void SsSeqGetVol(int a, int b, int c, int d);
 
-void func_80084154(s32 bank,s32 row,s32 left,s32 right) {
+void _SsSndSetVol(s32 bank,s32 row,s32 left,s32 right) {
     register u32 raw_bank=bank;
     /* ASM_BARRIER: Retain the original register for lookup, argument preparation, or return scheduling. */
     register s32 left_value __asm__("$9")=left;
@@ -44,11 +44,11 @@ void func_80084154(s32 bank,s32 row,s32 left,s32 right) {
         encoded=(u32)row<<8;
         encoded=raw_bank|encoded;
         encoded<<=16;
-        func_800897A4((s32)encoded>>16,(u16)left_value,(u16)right_value,1);
+        _SsVmSetSeqVol((s32)encoded>>16,(u16)left_value,(u16)right_value,1);
     }
 }
 
-void func_800841E4(s16 bank, s32 left, s32 right) {
+void SsSeqSetVol(s16 bank, s32 left, s32 right) {
     register s32 right_value = right;
     /* ASM_BARRIER: Retain the original register across the bank lookup and mode branch. */
     register s32 left_value __asm__("$9")= left;
@@ -64,7 +64,7 @@ void func_800841E4(s16 bank, s32 left, s32 right) {
     index = bank * sizeof(*table);
     /* ASM_BARRIER: Scale the bank index before materializing the PAL table page. */
     __asm__ volatile("" : : "r"(index):"$7");
-    /* PAL mapping: table[-0xF98 / 4] selects D_8010F068[bank]. */
+    /* PAL mapping: table[-0xF98 / 4] selects _ss_score[bank]. */
     table = (RrChannelValueRecordB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL table page without a symbol-address macro. */
     __asm__("" : "=r"(table):"0"(table));
@@ -78,11 +78,11 @@ void func_800841E4(s16 bank, s32 left, s32 right) {
         register s32 argument_left = (u16)left_value;
         /* ASM_BARRIER: Normalize the left argument before the right argument and final call constant. */
         __asm__("" : "=r"(argument_right):"0"(argument_right),"r"(argument_left):"$7");
-        func_800897A4(bank, argument_left, (u16)argument_right, 1);
+        _SsVmSetSeqVol(bank, argument_left, (u16)argument_right, 1);
     }
 }
 
-void func_8008424C(s32 bank, s32 row, s32 left, s32 right) {
+void SsSepSetVol(s32 bank, s32 row, s32 left, s32 right) {
     /* ASM_BARRIER: Preserve the original register allocation across lookup and the mode branch. */
     register s32 raw_bank __asm__("$8") = bank;
     /* ASM_BARRIER: Preserve the original register allocation across lookup and the mode branch. */
@@ -103,7 +103,7 @@ void func_8008424C(s32 bank, s32 row, s32 left, s32 right) {
     units = (s16)row * 11;
     /* ASM_BARRIER: Complete index arithmetic before materializing the PAL table page. */
     __asm__ volatile("" : : "r"(index), "r"(units) : "$3");
-    /* PAL mapping: table[-0xF98 / 4] selects D_8010F068[bank]. */
+    /* PAL mapping: table[-0xF98 / 4] selects _ss_score[bank]. */
     table = (RrLibStateB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL table page without folding its signed low offset. */
     __asm__("" : "=r"(table) : "0"(table));
@@ -119,7 +119,7 @@ void func_8008424C(s32 bank, s32 row, s32 left, s32 right) {
         return;
     }
     row_bits = (u32)row << 8;
-    func_800897A4((s16)(raw_bank | row_bits), left_value & 0xFFFF, right_value & 0xFFFF, 1);
+    _SsVmSetSeqVol((s16)(raw_bank | row_bits), left_value & 0xFFFF, right_value & 0xFFFF, 1);
 }
 
-void func_800842DC(int a, int b, int c, int d) { func_80089D28((short)(a | (b << 8)), c, d); }
+void SsSeqGetVol(int a, int b, int c, int d) { _SsVmGetSeqVol((short)(a | (b << 8)), c, d); }

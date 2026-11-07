@@ -13,23 +13,23 @@ typedef struct {
 
 extern short D_800AD508;
 
-extern RrVehicleBounds08 *D_800F3A08[];
+extern RrVehicleBounds08 *CarBoundsTable[];
 
-void func_8002E394(RrRaceVehicle *a)
+void SetCarBounds(RrRaceVehicle *a)
 {
     int n;
     RrVehicleBounds08 **pp;
     int b;
     if (D_800AD508 != 0) {
-        n = a != D_800ABEF8;
+        n = a != PlayerCars;
     } else {
         n = 3;
-        if (a == D_800ABEF8) {
+        if (a == PlayerCars) {
             n = 2;
         }
     }
     a->slotIndex1E6 = n * 2;
-    b = (int)D_800F3A08;
+    b = (int)CarBoundsTable;
     pp = (RrVehicleBounds08 **)(b + n * 4);
     a->height108 = (*pp)->height06 * 4;
     a->width10C = ((short)(*pp)->halfW00 + 5) * 2;

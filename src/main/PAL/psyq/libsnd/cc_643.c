@@ -1,6 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/library.h"
-void func_80080774(s32 raw_bank, s32 raw_row, s32 raw_value) {
+void _SsContExternal(s32 raw_bank, s32 raw_row, s32 raw_value) {
     u32 bank_selector = raw_bank;
     register u32 value = raw_value & 255;
     register u32 bank_bits;
@@ -30,6 +30,6 @@ void func_80080774(s32 raw_bank, s32 raw_row, s32 raw_value) {
     __asm__("" : "=r"(table) : "0"(table));
     table = (RrLibStateB0 **)((u8 *)table + index);
     state = table[-0xF98 / 4] + row;
-    func_80086554(left, right);
-    state->w90 = func_80081E04(bank, row);
+    SsUtSetReverbDepth(left, right);
+    state->w90 = _SsReadDeltaValue(bank, row);
 }

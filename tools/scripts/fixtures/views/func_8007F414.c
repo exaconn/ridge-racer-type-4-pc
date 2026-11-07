@@ -5,23 +5,23 @@
 #include "rr/spu.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A47D8 ((struct H *)D_800A47D8)
+#define _spu_RXX ((struct H *)_spu_RXX)
 
-#define D_800A47F0 (*(unsigned short (*))&D_800A47F0)
+#define _spu_tsa (*(unsigned short (*))&_spu_tsa)
 
-#undef D_800A47D8
+#undef _spu_RXX
 
-#undef D_800A47F0
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800A47D8 ((unsigned short *)D_800A47D8)
-
-#undef D_800A47D8
+#undef _spu_tsa
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A47D8 ((unsigned short *)D_800A47D8)
+#define _spu_RXX ((unsigned short *)_spu_RXX)
 
-#undef D_800A47D8
+#undef _spu_RXX
+
+/* legacy typing of shared globals in this part of the unit */
+#define _spu_RXX ((unsigned short *)_spu_RXX)
+
+#undef _spu_RXX
 
 s32 _spu_FsetRXXa(s32 index, s32 value) {
     u32 address = (u32)value;
@@ -31,11 +31,11 @@ s32 _spu_FsetRXXa(s32 index, s32 value) {
     register u32 copy __asm__("$3");
     register u32 result __asm__("$2");
 
-    if (D_800A47FC && address % D_800A4804 != 0) {
-        address += D_800A4804;
-        address &= ~D_800A4808;
+    if (_spu_mem_mode && address % _spu_mem_mode_unit != 0) {
+        address += _spu_mem_mode_unit;
+        address &= ~_spu_mem_mode_unitM;
     }
-    units = address >> D_800A4800;
+    units = address >> _spu_mem_mode_plus;
     copy = units;
     if (index == -2) goto address_result;
     if (index != -1) goto store;
@@ -45,7 +45,7 @@ address_result:
     result = address;
     goto out;
 store:
-    ((RrSpuRegisterStorage *)D_800A47D8)->halves[index] = units;
+    ((RrSpuRegisterStorage *)_spu_RXX)->halves[index] = units;
     result = address;
 out:
     return (s32)result;

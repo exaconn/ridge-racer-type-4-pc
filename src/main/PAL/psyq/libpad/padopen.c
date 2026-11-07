@@ -10,10 +10,10 @@ struct A { char p0[0xC]; char *f0C; char p1[0x27]; unsigned char b37; char p2[0x
 
 struct W { int x; };
 
-extern int func_80096F04();
-extern int func_80096F94();
-extern int func_80097714();
-extern int func_80096F14();
+extern int EnterCriticalSection();
+extern int ChangeClearRCnt();
+extern int SysDeqIntRP();
+extern int ExitCriticalSection();
 extern struct HW *D_800ABCCC;
 extern volatile int *D_800ABCC8;
 extern int D_800ABCA8;
@@ -21,11 +21,11 @@ extern struct W D_800ABCC0[];
 extern void (*D_800ABC88)();
 extern void (*D_800ABC8C)();
 
-int func_80098154();
+int _padInitSioMode();
 
-void func_80098110() { func_80096F04(); func_80096F94(3, 1); func_80097714(2, &D_80114418); func_80096F14(); }
+void _padStopCom() { EnterCriticalSection(); ChangeClearRCnt(3, 1); SysDeqIntRP(2, &D_80114418); ExitCriticalSection(); }
 
-int func_80098154(a0) struct A *a0; {
+int _padInitSioMode(a0) struct A *a0; {
     struct W *p;
     struct HW *hw;
     int v;

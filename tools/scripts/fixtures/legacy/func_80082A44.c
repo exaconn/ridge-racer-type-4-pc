@@ -6,7 +6,7 @@
  * offset differences keep every scalar access within that object. */
 #define FIELD(p,type,member) (*(type *)((p)+((long)RR_FIELD_OFFSET(RrSpuTickState20,member)-(long)RR_FIELD_OFFSET(RrSpuTickState20,flags))))
 #define FLAG(p,member) (*(s8 *)((p)+(long)RR_FIELD_OFFSET(RrSpuTickFlags4,member)))
-void func_80082A44(s32 direct)
+void _SsStart(s32 direct)
 {
     s32 wait=999;
     u32 counter;
@@ -18,7 +18,7 @@ void func_80082A44(s32 direct)
     do {wait--;} while(wait>=0);
     counter=0xF2000002;
     period=0x44E8;
-    setup=(u8 *)&D_800A4D38+RR_FIELD_OFFSET(RrSpuTickState20,flags);
+    setup=(u8 *)&_snd_seq_tick_env+RR_FIELD_OFFSET(RrSpuTickState20,flags);
     FLAG(setup,interrupt)=6;
     FLAG(setup,direct)=0;
     FLAG(setup,divided)=0;
@@ -34,7 +34,7 @@ void func_80082A44(s32 direct)
     case 3:period=0x89D0;break;
     default:
         {
-        register u8 *active=(u8 *)&D_800A4D38+RR_FIELD_OFFSET(RrSpuTickState20,active);
+        register u8 *active=(u8 *)&_snd_seq_tick_env+RR_FIELD_OFFSET(RrSpuTickState20,active);
         if(*(s32 *)active!=0) return;
         {
             register s32 frequency=*(s32 *)(active-4);
@@ -51,12 +51,12 @@ void func_80082A44(s32 direct)
         }
         }
     }
-    state=(u8 *)&D_800A4D38+RR_FIELD_OFFSET(RrSpuTickState20,flags);
+    state=(u8 *)&_snd_seq_tick_env+RR_FIELD_OFFSET(RrSpuTickState20,flags);
     if(FLAG(state,direct)) {
-        func_80096F04();
+        EnterCriticalSection();
         VSyncCallback(FIELD(state,RrSpuTickCallback,callback));
     } else {
-        func_80096F04();
+        EnterCriticalSection();
         ResetRCnt(counter);
         SetRCnt(counter,(u16)period,0x1000);
         interrupt=FLAG(state,interrupt);
@@ -64,14 +64,14 @@ void func_80082A44(s32 direct)
             interrupt=0;
             /* ASM_BARRIER: Keep the initialized IRQ argument distinct from null. */
             __asm__("" : "+r"(interrupt));
-            FIELD(state,RrSpuTickCallback,previous)=func_8008B394(interrupt,0);
+            FIELD(state,RrSpuTickCallback,previous)=InterruptCallback(interrupt,0);
             interrupt=FLAG(state,interrupt);
             callback=func_80082CB4;
         } else {
             callback=func_80082D00;
             if(FLAG(state,divided)==0) callback=FIELD(state,RrSpuTickCallback,callback);
         }
-        func_8008B394(interrupt,callback);
+        InterruptCallback(interrupt,callback);
     }
-    func_80096F14();
+    ExitCriticalSection();
 }

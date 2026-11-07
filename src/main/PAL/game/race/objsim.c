@@ -11,10 +11,10 @@
 #include "rr/overlay668_camera.h"
 #include "rr/audio_loop.h"
 
-#define B4 ((S_ECB4 *)(i * 0x2C + (int)D_8010ECB4))
-#define B0 ((S_ECB0 *)(i * 0x30 + (int)D_8010ECB0))
-#define AC(idx) ((S_ECAC *)((idx) * 0x24 + (int)D_8010ECAC))
-#define AB(idx) ((S_ABEA4 *)((idx) * 0x3C + (int)D_800ABEA4))
+#define B4 ((S_ECB4 *)(i * 0x2C + (int)TrackObjectStates))
+#define B0 ((S_ECB0 *)(i * 0x30 + (int)TrackObjectDefs))
+#define AC(idx) ((S_ECAC *)((idx) * 0x24 + (int)TrackObjectKeyframes))
+#define AB(idx) ((S_ABEA4 *)((idx) * 0x3C + (int)TrackNodes))
 
 typedef struct {
     s32 f00;
@@ -53,9 +53,9 @@ typedef struct {
     s32 f28;
 } Node2C;
 
-extern Node24 *D_8010ECAC;
-extern Node30 *D_8010ECB0;
-extern Node2C *D_8010ECB4;
+extern Node24 *TrackObjectKeyframes;
+extern Node30 *TrackObjectDefs;
+extern Node2C *TrackObjectStates;
 /* size 0x30 */
 typedef struct {
     int f0;
@@ -89,7 +89,7 @@ extern int D_800A4090;
 extern int D_800F2DE4;
 extern short D_800F3914;
 extern unsigned short D_800F3A38[];
-extern int D_800FF6B0;
+extern int RaceState;
 extern int D_8010E7A8;
 extern int D_8010E7AC;
 extern int D_8010E7B0;
@@ -98,10 +98,10 @@ extern int D_8010E7B8;
 extern int D_8010E7C8[];
 extern S_E8E8 D_8010E8E8[];
 
-s32 func_80072358(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
-void func_800735D8(void);
+s32 InterpolateObjectKeyframe(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
+void UpdateTrackObjects(void);
 
-s32 func_80072358(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7) {
+s32 InterpolateObjectKeyframe(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7) {
     s32 *sp = (s32 *)(SCRATCHPAD + 0x7C);
     s32 d1, w, d2;
 
@@ -111,63 +111,63 @@ s32 func_80072358(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s3
     sp[12] = arg6;
     sp[13] = arg7;
 
-    if ((D_8010ECAC[arg1].f08 % 10) == 8 &&
-        (arg1 + 1) < (D_8010ECB0[arg0].f28 + D_8010ECB0[arg0].f24) &&
-        (D_8010ECB4[arg0].f00 + 10) > (D_8010ECAC[arg1].f00 * 6)) {
-        d1 = (D_8010ECAC[arg1 + 1].f00 - D_8010ECAC[arg1].f00) * 6;
-        w = D_8010ECAC[arg1].f00 * 6 - 10;
-        w = D_8010ECB4[arg0].f00 - w;
-        sp[0] = (D_8010ECAC[arg1].f0C - D_8010ECAC[arg1 - 1].f0C) / sp[11];
-        sp[1] = (D_8010ECAC[arg1].f10 - D_8010ECAC[arg1 - 1].f10) / sp[11];
-        sp[2] = (D_8010ECAC[arg1].f14 - D_8010ECAC[arg1 - 1].f14) / sp[11];
-        sp[3] = (D_8010ECAC[arg1 + 1].f0C - D_8010ECAC[arg1].f0C) / d1;
-        sp[4] = (D_8010ECAC[arg1 + 1].f10 - D_8010ECAC[arg1].f10) / d1;
-        sp[5] = (D_8010ECAC[arg1 + 1].f14 - D_8010ECAC[arg1].f14) / d1;
+    if ((TrackObjectKeyframes[arg1].f08 % 10) == 8 &&
+        (arg1 + 1) < (TrackObjectDefs[arg0].f28 + TrackObjectDefs[arg0].f24) &&
+        (TrackObjectStates[arg0].f00 + 10) > (TrackObjectKeyframes[arg1].f00 * 6)) {
+        d1 = (TrackObjectKeyframes[arg1 + 1].f00 - TrackObjectKeyframes[arg1].f00) * 6;
+        w = TrackObjectKeyframes[arg1].f00 * 6 - 10;
+        w = TrackObjectStates[arg0].f00 - w;
+        sp[0] = (TrackObjectKeyframes[arg1].f0C - TrackObjectKeyframes[arg1 - 1].f0C) / sp[11];
+        sp[1] = (TrackObjectKeyframes[arg1].f10 - TrackObjectKeyframes[arg1 - 1].f10) / sp[11];
+        sp[2] = (TrackObjectKeyframes[arg1].f14 - TrackObjectKeyframes[arg1 - 1].f14) / sp[11];
+        sp[3] = (TrackObjectKeyframes[arg1 + 1].f0C - TrackObjectKeyframes[arg1].f0C) / d1;
+        sp[4] = (TrackObjectKeyframes[arg1 + 1].f10 - TrackObjectKeyframes[arg1].f10) / d1;
+        sp[5] = (TrackObjectKeyframes[arg1 + 1].f14 - TrackObjectKeyframes[arg1].f14) / d1;
         sp[6] = ((sp[0] * (20 - w)) >> 1) + ((sp[3] * w) >> 1);
         sp[7] = ((sp[1] * (20 - w)) >> 1) + ((sp[4] * w) >> 1);
         sp[8] = ((sp[2] * (20 - w)) >> 1) + ((sp[5] * w) >> 1);
-        D_8010ECB4[arg0].f0C += sp[6] / 10;
-        D_8010ECB4[arg0].f10 += sp[7] / 10;
-        D_8010ECB4[arg0].f14 += sp[8] / 10;
-    } else if ((arg1 - 1) >= D_8010ECB0[arg0].f24 &&
-               (D_8010ECAC[arg1 - 1].f08 % 10) == 8 &&
-               (D_8010ECB4[arg0].f00 - 10) <= (D_8010ECAC[arg1 - 1].f00 * 6)) {
-        d2 = (D_8010ECAC[arg1 - 1].f00 - D_8010ECAC[arg1 - 2].f00) * 6;
-        sp[0] = (D_8010ECAC[arg1].f0C - D_8010ECAC[arg1 - 1].f0C) / sp[11];
-        sp[1] = (D_8010ECAC[arg1].f10 - D_8010ECAC[arg1 - 1].f10) / sp[11];
-        sp[2] = (D_8010ECAC[arg1].f14 - D_8010ECAC[arg1 - 1].f14) / sp[11];
-        sp[3] = (D_8010ECAC[arg1 - 1].f0C - D_8010ECAC[arg1 - 2].f0C) / d2;
-        sp[4] = (D_8010ECAC[arg1 - 1].f10 - D_8010ECAC[arg1 - 2].f10) / d2;
-        sp[5] = (D_8010ECAC[arg1 - 1].f14 - D_8010ECAC[arg1 - 2].f14) / d2;
+        TrackObjectStates[arg0].f0C += sp[6] / 10;
+        TrackObjectStates[arg0].f10 += sp[7] / 10;
+        TrackObjectStates[arg0].f14 += sp[8] / 10;
+    } else if ((arg1 - 1) >= TrackObjectDefs[arg0].f24 &&
+               (TrackObjectKeyframes[arg1 - 1].f08 % 10) == 8 &&
+               (TrackObjectStates[arg0].f00 - 10) <= (TrackObjectKeyframes[arg1 - 1].f00 * 6)) {
+        d2 = (TrackObjectKeyframes[arg1 - 1].f00 - TrackObjectKeyframes[arg1 - 2].f00) * 6;
+        sp[0] = (TrackObjectKeyframes[arg1].f0C - TrackObjectKeyframes[arg1 - 1].f0C) / sp[11];
+        sp[1] = (TrackObjectKeyframes[arg1].f10 - TrackObjectKeyframes[arg1 - 1].f10) / sp[11];
+        sp[2] = (TrackObjectKeyframes[arg1].f14 - TrackObjectKeyframes[arg1 - 1].f14) / sp[11];
+        sp[3] = (TrackObjectKeyframes[arg1 - 1].f0C - TrackObjectKeyframes[arg1 - 2].f0C) / d2;
+        sp[4] = (TrackObjectKeyframes[arg1 - 1].f10 - TrackObjectKeyframes[arg1 - 2].f10) / d2;
+        sp[5] = (TrackObjectKeyframes[arg1 - 1].f14 - TrackObjectKeyframes[arg1 - 2].f14) / d2;
         sp[6] = ((sp[0] * (sp[10] + 9)) >> 1) + ((sp[3] * (11 - sp[10])) >> 1);
         sp[7] = ((sp[1] * (sp[10] + 9)) >> 1) + ((sp[4] * (11 - sp[10])) >> 1);
         sp[8] = ((sp[2] * (sp[10] + 9)) >> 1) + ((sp[5] * (11 - sp[10])) >> 1);
-        D_8010ECB4[arg0].f0C += sp[6] / 10;
-        D_8010ECB4[arg0].f10 += sp[7] / 10;
-        D_8010ECB4[arg0].f14 += sp[8] / 10;
+        TrackObjectStates[arg0].f0C += sp[6] / 10;
+        TrackObjectStates[arg0].f10 += sp[7] / 10;
+        TrackObjectStates[arg0].f14 += sp[8] / 10;
     } else {
-        D_8010ECB4[arg0].f0C = ((((((D_8010ECAC[arg1].f0C - D_8010ECAC[arg1 - 1].f0C) / sp[14]) * (100 - D_8010ECAC[arg1].f04)) / 100) * sp[10] * sp[12]) / sp[11]) / sp[13] + D_8010ECAC[arg1 - arg3].f0C;
-        D_8010ECB4[arg0].f10 = ((((((D_8010ECAC[arg1].f10 - D_8010ECAC[arg1 - 1].f10) / sp[14]) * (100 - D_8010ECAC[arg1].f04)) / 100) * sp[10] * sp[12]) / sp[11]) / sp[13] + D_8010ECAC[arg1 - arg3].f10;
-        D_8010ECB4[arg0].f14 = ((((((D_8010ECAC[arg1].f14 - D_8010ECAC[arg1 - 1].f14) / sp[14]) * (100 - D_8010ECAC[arg1].f04)) / 100) * sp[10] * sp[12]) / sp[11]) / sp[13] + D_8010ECAC[arg1 - arg3].f14;
+        TrackObjectStates[arg0].f0C = ((((((TrackObjectKeyframes[arg1].f0C - TrackObjectKeyframes[arg1 - 1].f0C) / sp[14]) * (100 - TrackObjectKeyframes[arg1].f04)) / 100) * sp[10] * sp[12]) / sp[11]) / sp[13] + TrackObjectKeyframes[arg1 - arg3].f0C;
+        TrackObjectStates[arg0].f10 = ((((((TrackObjectKeyframes[arg1].f10 - TrackObjectKeyframes[arg1 - 1].f10) / sp[14]) * (100 - TrackObjectKeyframes[arg1].f04)) / 100) * sp[10] * sp[12]) / sp[11]) / sp[13] + TrackObjectKeyframes[arg1 - arg3].f10;
+        TrackObjectStates[arg0].f14 = ((((((TrackObjectKeyframes[arg1].f14 - TrackObjectKeyframes[arg1 - 1].f14) / sp[14]) * (100 - TrackObjectKeyframes[arg1].f04)) / 100) * sp[10] * sp[12]) / sp[11]) / sp[13] + TrackObjectKeyframes[arg1 - arg3].f14;
     }
 
-    D_8010ECB4[arg0].f1C = D_8010ECAC[arg1 - arg3].f1C + ((((((D_8010ECAC[arg1].f1C - D_8010ECAC[arg1 - 1].f1C) / sp[14]) * (100 - D_8010ECAC[arg1].f04)) / 100) * sp[10] * sp[12]) / sp[11]) / sp[13];
-    D_8010ECB4[arg0].f1E = D_8010ECAC[arg1 - arg3].f1E + ((((((D_8010ECAC[arg1].f1E - D_8010ECAC[arg1 - 1].f1E) / sp[14]) * (100 - D_8010ECAC[arg1].f04)) / 100) * sp[10] * sp[12]) / sp[11]) / sp[13];
-    D_8010ECB4[arg0].f20 = D_8010ECAC[arg1 - arg3].f20 + ((((((D_8010ECAC[arg1].f20 - D_8010ECAC[arg1 - 1].f20) / sp[14]) * (100 - D_8010ECAC[arg1].f04)) / 100) * sp[10] * sp[12]) / sp[11]) / sp[13];
+    TrackObjectStates[arg0].f1C = TrackObjectKeyframes[arg1 - arg3].f1C + ((((((TrackObjectKeyframes[arg1].f1C - TrackObjectKeyframes[arg1 - 1].f1C) / sp[14]) * (100 - TrackObjectKeyframes[arg1].f04)) / 100) * sp[10] * sp[12]) / sp[11]) / sp[13];
+    TrackObjectStates[arg0].f1E = TrackObjectKeyframes[arg1 - arg3].f1E + ((((((TrackObjectKeyframes[arg1].f1E - TrackObjectKeyframes[arg1 - 1].f1E) / sp[14]) * (100 - TrackObjectKeyframes[arg1].f04)) / 100) * sp[10] * sp[12]) / sp[11]) / sp[13];
+    TrackObjectStates[arg0].f20 = TrackObjectKeyframes[arg1 - arg3].f20 + ((((((TrackObjectKeyframes[arg1].f20 - TrackObjectKeyframes[arg1 - 1].f20) / sp[14]) * (100 - TrackObjectKeyframes[arg1].f04)) / 100) * sp[10] * sp[12]) / sp[11]) / sp[13];
 
-    if (D_8010ECAC[arg1].f04 != 0) {
-        if ((D_8010ECAC[arg1].f08 % 10) == 4 || (D_8010ECAC[arg1].f08 % 10) == 5) {
-            D_8010ECB4[arg0].f0C += ((((D_8010ECAC[arg1].f0C - D_8010ECAC[arg1 - 1].f0C) / sp[14]) * sp[10]) / sp[11]) * D_8010ECAC[arg1].f04 / 100;
-            D_8010ECB4[arg0].f10 += ((((D_8010ECAC[arg1].f10 - D_8010ECAC[arg1 - 1].f10) / sp[14]) * sp[10]) / sp[11]) * D_8010ECAC[arg1].f04 / 100;
-            D_8010ECB4[arg0].f14 += ((((D_8010ECAC[arg1].f14 - D_8010ECAC[arg1 - 1].f14) / sp[14]) * sp[10]) / sp[11]) * D_8010ECAC[arg1].f04 / 100;
-            D_8010ECB4[arg0].f1C += ((((D_8010ECAC[arg1].f1C - D_8010ECAC[arg1 - 1].f1C) / sp[14]) * sp[10]) / sp[11]) * D_8010ECAC[arg1].f04 / 100;
-            D_8010ECB4[arg0].f1E += ((((D_8010ECAC[arg1].f1E - D_8010ECAC[arg1 - 1].f1E) / sp[14]) * sp[10]) / sp[11]) * D_8010ECAC[arg1].f04 / 100;
-            D_8010ECB4[arg0].f20 += ((((D_8010ECAC[arg1].f20 - D_8010ECAC[arg1 - 1].f20) / sp[14]) * sp[10]) / sp[11]) * D_8010ECAC[arg1].f04 / 100;
+    if (TrackObjectKeyframes[arg1].f04 != 0) {
+        if ((TrackObjectKeyframes[arg1].f08 % 10) == 4 || (TrackObjectKeyframes[arg1].f08 % 10) == 5) {
+            TrackObjectStates[arg0].f0C += ((((TrackObjectKeyframes[arg1].f0C - TrackObjectKeyframes[arg1 - 1].f0C) / sp[14]) * sp[10]) / sp[11]) * TrackObjectKeyframes[arg1].f04 / 100;
+            TrackObjectStates[arg0].f10 += ((((TrackObjectKeyframes[arg1].f10 - TrackObjectKeyframes[arg1 - 1].f10) / sp[14]) * sp[10]) / sp[11]) * TrackObjectKeyframes[arg1].f04 / 100;
+            TrackObjectStates[arg0].f14 += ((((TrackObjectKeyframes[arg1].f14 - TrackObjectKeyframes[arg1 - 1].f14) / sp[14]) * sp[10]) / sp[11]) * TrackObjectKeyframes[arg1].f04 / 100;
+            TrackObjectStates[arg0].f1C += ((((TrackObjectKeyframes[arg1].f1C - TrackObjectKeyframes[arg1 - 1].f1C) / sp[14]) * sp[10]) / sp[11]) * TrackObjectKeyframes[arg1].f04 / 100;
+            TrackObjectStates[arg0].f1E += ((((TrackObjectKeyframes[arg1].f1E - TrackObjectKeyframes[arg1 - 1].f1E) / sp[14]) * sp[10]) / sp[11]) * TrackObjectKeyframes[arg1].f04 / 100;
+            TrackObjectStates[arg0].f20 += ((((TrackObjectKeyframes[arg1].f20 - TrackObjectKeyframes[arg1 - 1].f20) / sp[14]) * sp[10]) / sp[11]) * TrackObjectKeyframes[arg1].f04 / 100;
         }
     }
 }
 
-void func_800735D8(void) {
+void UpdateTrackObjects(void) {
     int i;
     int s0;
     int *sp = (int *)(SCRATCHPAD + 0x7C);
@@ -178,7 +178,7 @@ void func_800735D8(void) {
     int *hw;
 
     func_80071E04();
-    for (i = 0; i < D_8010ECA8; i++) {
+    for (i = 0; i < TrackObjectCount; i++) {
             if (B4->f24 == 1) {
                 if (B0->f8 == 0xA) {
                     if (B4->f8 == 0) {
@@ -290,22 +290,22 @@ void func_800735D8(void) {
                             switch (AC(s0)->f8 % 10) {
                             case 1:
                             case 4:
-                                func_80072358(i, s0, 1, 1, t1, t0, t1, t0);
+                                InterpolateObjectKeyframe(i, s0, 1, 1, t1, t0, t1, t0);
                                 break;
                             case 2:
                             case 5:
-                                func_80072358(i, s0, -1, 0, t0 - t1, t0, t0 - t1, t0);
+                                InterpolateObjectKeyframe(i, s0, -1, 0, t0 - t1, t0, t0 - t1, t0);
                                 break;
                             case 3:
                                 t0 /= 2;
                                 if (t1 < t0) {
-                                    func_80072358(i, s0, 2, 1, t1, t0, t1, t0);
+                                    InterpolateObjectKeyframe(i, s0, 2, 1, t1, t0, t1, t0);
                                 } else {
-                                    func_80072358(i, s0, -2, 0, t0 * 2 - t1, t0, t0 * 2 - t1, t0);
+                                    InterpolateObjectKeyframe(i, s0, -2, 0, t0 * 2 - t1, t0, t0 * 2 - t1, t0);
                                 }
                                 break;
                             default:
-                                func_80072358(i, s0, 1, 1, t1, t0, 1, 1);
+                                InterpolateObjectKeyframe(i, s0, 1, 1, t1, t0, 1, 1);
                                 break;
                             }
                             if (AC(s0)->f8 / 10 == 1) {
@@ -348,7 +348,7 @@ void func_800735D8(void) {
                                 }
                             }
                             if (B0->f8 == 0xD) {
-                                if (D_800FF6B0 == 1) {
+                                if (RaceState == 1) {
                                     switch (B4->f8) {
                                     case 0:
                                     case 4:
@@ -383,17 +383,17 @@ void func_800735D8(void) {
                                         D_800A4090 -= 0x80;
                                         a0 = D_8010E7B0 - 1;
                                         if (D_8010E7B0 <= 0) {
-                                            a0 += D_800ABECC;
+                                            a0 += TrackNodeCount;
                                         }
                                         D_8010E7B0 = a0;
                                         v1 = D_8010E7AC - 1;
                                         if (D_8010E7AC <= 0) {
-                                            v1 += D_800ABECC;
+                                            v1 += TrackNodeCount;
                                         }
                                         D_8010E7AC = v1;
                                         v1 = D_8010E7A8 - 1;
                                         if (D_8010E7A8 <= 0) {
-                                            v1 += D_800ABECC;
+                                            v1 += TrackNodeCount;
                                         }
                                         D_8010E7A8 = v1;
                                     }
@@ -406,7 +406,7 @@ void func_800735D8(void) {
                                     B4->fC += sp[2];
                                     B4->f10 += sp[3] - 0xFA;
                                     B4->f14 += sp[4];
-                                    sp[8] = 0x400 - func_8006E368(sp[5], sp[7]);
+                                    sp[8] = 0x400 - Atan2Table(sp[5], sp[7]);
                                     if (sp[8] == D_8010E7B8) {
                                         D_8010E7B4 += (D_8010E7B4 < 0x2C);
                                     } else if ((sp[8] >> 4) == (D_8010E7B8 >> 4)) {
@@ -421,7 +421,7 @@ void func_800735D8(void) {
                                     r6 = sp[8];
                                     B4->f1E = r6;
                                     D_8010E7B8 = r6;
-                                    B4->f1C = 0x400 - func_8006E368(sp[6], func_80090758(sp[5] * sp[5] + sp[7] * sp[7]) >> 6);
+                                    B4->f1C = 0x400 - Atan2Table(sp[6], func_80090758(sp[5] * sp[5] + sp[7] * sp[7]) >> 6);
                                     B4->f20 = 0;
                                 }
                             }

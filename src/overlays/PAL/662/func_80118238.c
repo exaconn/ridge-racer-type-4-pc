@@ -13,8 +13,8 @@ void ovl662_func_80118238(u32 *arg0, void *arg1, s32 arg2) {
     /* ASM_BARRIER: pin c to $v0 ($2) to match original v0/v1 register allocation */
     register s32 c __asm__("$2");
 
-    x = D_800F3AFC[arg2].x04 + 8;
-    y = D_800F3AFC[arg2].y06 + 72;
+    x = BadgeRows[arg2].x04 + 8;
+    y = BadgeRows[arg2].y06 + 72;
     for (i = 0; i < 4; i++) {
         buf[i] = 0;
     }
@@ -38,8 +38,8 @@ void ovl662_func_80118238(u32 *arg0, void *arg1, s32 arg2) {
             color = 0xFF;
         }
         x2 = x + offset;
-        arg1 = func_8001FD20(arg0, arg1, x2, y, 8, 2, color, color, color);
-        arg1 = func_8001F5B4(arg0, arg1, x2 + 2, y - 20, buf, clut, 0, 0);
+        arg1 = AddTilePrim(arg0, arg1, x2, y, 8, 2, color, color, color);
+        arg1 = AddTextSprites(arg0, arg1, x2 + 2, y - 20, buf, clut, 0, 0);
     }
-    func_8001FCC8(arg0, arg1, 56);
+    AddDrawModePrim(arg0, arg1, 56);
 }

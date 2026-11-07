@@ -3,9 +3,9 @@
 #include "m2c_macros.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8001FCC8 (*(u8 *(*)(u32 *,u8 *,u16))&func_8001FCC8)
+#define AddDrawModePrim (*(u8 *(*)(u32 *,u8 *,u16))&AddDrawModePrim)
 
-#undef func_8001FCC8
+#undef AddDrawModePrim
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((void (*)(u32 *, u32 *))AddPrim)
@@ -47,7 +47,7 @@ void SetShadeTex(void *, M2C_UNK);
 void func_80095B74(void *);
 
 /* extern */
-struct S32 *func_8002039C(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9) {
+struct S32 *EmitPolyFT3(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9) {
     func_80095B74(arg1);
     M2C_FIELD(arg1, u16 *, 8) = (u16) M2C_FIELD(arg2, u16 *, 0);
     M2C_FIELD(arg1, u16 *, 0xA) = (u16) M2C_FIELD(arg3, u16 *, 0);

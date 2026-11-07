@@ -1,6 +1,6 @@
 #include "rr/renderer_setup.h"
 
-void func_80013890(s32 shift) {
+void SetupRenderer(s32 shift) {
     /* ASM_BARRIER: reuse the incoming argument register for the scratch base. */
     register RrRendererScratch *scratch __asm__("$4");
     *(s32*)0x1F800060U=shift;

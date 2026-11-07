@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80095C14();
+int SetDrawMove();
 
 #endif /* RR_PSYQ_LIBGPU_PRIMATT8_H */

@@ -36,14 +36,14 @@ s32 test_printf(const char *format,...) {
  va_list args; s32 value; va_start(args,format); value=va_arg(args,s32); va_end(args);
  return test_debug(format,value);
 }
-s32 (*D_800ABABC)(const char *,...) = test_printf;
+s32 (*GPU_printf)(const char *,...) = test_printf;
 RrLibGraphicsDriverPrefix test_drivers[2];
 RrLibGraphicsDriverPrefix *D_800ABAB8;
 u32 test_driver_size=sizeof(RrLibGraphicsDriverPrefix);
 s32 test_gpu[4];
 s32 *D_800ABBC8=&test_gpu[0], *D_800ABBCC=&test_gpu[1];
 s32 *D_800ABBD0=&test_gpu[2], *D_800ABBD4=&test_gpu[3];
-void func_80094B28(unsigned long);
+void _cwc(unsigned long);
 void test_configure(s32 index,s32 (*dispatch)(RrLibDrawOrderingTable,s32,s32,s32),
                     RrLibDrawOrderingTable draw) {
  test_drivers[index].dispatch=dispatch;
@@ -77,7 +77,7 @@ void test_initialize(void) {
         cls.driver_bytes = (C.c_uint8 * (2 * cls.driver_size)).in_dll(cls.lib, 'test_drivers')
         cls.gpu = (C.c_uint32 * 4).in_dll(cls.lib, 'test_gpu')
         cls.level = C.c_uint8.in_dll(cls.lib, 'D_800ABAC2')
-        cls.draw = cls.lib.func_80094B28
+        cls.draw = cls.lib._cwc
         cls.draw.argtypes = [C.c_ulong]
         cls.draw.restype = None
         cls.draw_address = C.cast(cls.draw, C.c_void_p).value

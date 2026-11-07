@@ -130,7 +130,7 @@ int main(void) {
   }
   s32 intensity=intensities[(n/31)%8];
   memcpy(expected,actual,sizeof(*actual));reference(rectangle,intensity,head);
-  func_80019D5C(rectangle,intensity,head);
+  EmitTiledRect(rectangle,intensity,head);
   if(memcmp(actual,expected,sizeof(*actual))) {fprintf(stderr,"tile case %u failed\n",n);abort();}
  }
  free(actual);free(expected);puts("4160 native tiled-rectangle cases passed with UBSan");return 0;

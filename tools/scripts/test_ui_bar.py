@@ -81,7 +81,7 @@ RrSpritePacket *GameQueueSprite(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,
                             s32 width,s32 height,s32 u,s32 v,s32 clut) {
     return append(0,1,order,cursor,0,x,y,width,height,u,v,clut);
 }
-void *func_8001FD20(u32 *order,void *cursor,s32 x,s32 y,s32 width,s32 height,
+void *AddTilePrim(u32 *order,void *cursor,s32 x,s32 y,s32 width,s32 height,
                    s32 r,s32 g,s32 b) {
     return append(0,2,order,cursor,0,x,y,width,height,r,g,b);
 }

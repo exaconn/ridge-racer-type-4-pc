@@ -26,12 +26,12 @@ static struct State{u32 guard[4];s32 frame,tick,mode,available,table[9];s16 menu
 #define D_800F4D8A w->state
 #define D_800F4C6A w->enable
 #define D_800F3A26 w->scene
-#define D_800AC64A w->menu
+#define MenuCursor w->menu
 #define D_800AC5D0 w->timer
-#define D_800F4D80 (w->rows[w->root])
+#define UiRows (w->rows[w->root])
 #define D_800F3A38 w->input
 #define D_800ACC14 w->context
-#define D_800ACC18 w->published
+#define LoadCursor w->published
 #define D_800F4D40 w->buffer
 #define ovl663_record_kind w->mode
 #define ovl663_available_course_count w->available
@@ -50,7 +50,7 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;u32
  for(unsigned i=0;i<9;i++)w->table[i]=word(v+i*0x1234567U);
 }
 void func_8002AF8C(s32 a,s32 b,s32 c){record(0,a,b,c);effect(0);}
-void func_8002B330(s32 a,s32 b,char *p,s32 d,s32 e){assert(p==(char*)&w->menu&&(uintptr_t)p>UINT32_MAX&&d==4&&e==0);record(1,a,b,d);effect(1);w->menu=(scenario/2+serial)%4;}
+void StepMenuValue(s32 a,s32 b,char *p,s32 d,s32 e){assert(p==(char*)&w->menu&&(uintptr_t)p>UINT32_MAX&&d==4&&e==0);record(1,a,b,d);effect(1);w->menu=(scenario/2+serial)%4;}
 void PlaySfx(s32 a){record(2,a,0,0);effect(2);}
 void ResetScreenCounters(void){record(3,0,0,0);effect(3);}
 void func_80053AF4(s32 a,s32 b){record(4,a,b,0);effect(4);}
@@ -59,10 +59,10 @@ s32 func_8003BEA8(s32 a){record(6,a,0,0);effect(6);return ((scenario>>5)&1)?1:wo
 void ovl663_init_preview(void){record(7,0,0,0);effect(7);}
 void ovl663_init_selection(s32 a){record(8,a,0,0);effect(8);}
 void func_80053CB0(void){record(9,0,0,0);effect(9);}
-void func_8003EC88(s32 a){record(10,a,0,0);effect(10);}
-void func_8002A344(s32 a){record(11,a,0,0);effect(11);}
+void DrawUiRow(s32 a){record(10,a,0,0);effect(10);}
+void UpdateScreenFade(s32 a){record(11,a,0,0);effect(11);}
 static void expected(void){unsigned phase=w->state;w->frame=word((u32)w->frame+1);w->tick=word((u32)w->tick+1);
- if(phase==0&&w->rows[w->root][0].byte14==2){func_8002AF8C(1,1,1);w->rows[w->root][w->menu].cells[0]=0;func_8002B330(0,2,(char*)&w->menu,4,0);
+ if(phase==0&&w->rows[w->root][0].byte14==2){func_8002AF8C(1,1,1);w->rows[w->root][w->menu].cells[0]=0;StepMenuValue(0,2,(char*)&w->menu,4,0);
   w->rows[w->root][w->menu].cells[0]=(w->available==0&&w->menu==0)?4:2;int close=0;
   if(w->input[0].a){w->rows[w->root][w->menu].cells[0]=1;int selected=w->menu;
    if(selected==0){if(w->available>0){choices[0]++;PlaySfx(1);close=2;ResetScreenCounters();w->state=3;w->published=w->buffer;}else{choices[1]++;PlaySfx(4);}}
@@ -78,7 +78,7 @@ static void expected(void){unsigned phase=w->state;w->frame=word((u32)w->frame+1
   if(w->timer<=0){if(phase==8){exits[2]++;func_80053CB0();w->enable=1;w->scene=3;w->state=0;}
    else{exits[1]++;ovl663_init_selection(w->mode);w->enable=1;w->scene=75;w->state=0;}}
  }
- for(unsigned i=0;i<4;i++)func_8003EC88(i);func_8002A344(0x10057);
+ for(unsigned i=0;i<4;i++)DrawUiRow(i);UpdateScreenFade(0x10057);
 }
 int main(void){assert(sizeof(void*)==8);for(scenario=0;scenario<65536;scenario++)for(profile=0;profile<12;profile++){
  memset(&actual,0xA6,sizeof(actual));w=&actual;static const u16 phases[]={0,3,4,5,8};w->state=profile<10?phases[profile/2]:(u16)scenario;

@@ -72,7 +72,7 @@ typedef struct {
     u16 clut36;
 } GridEntry;
 
-extern GridEntry *D_800F3A28;
+extern GridEntry *MenuGridRecords;
 
 extern void BuildRotMatrixZ(MATRIX *, s32);
 extern void BuildRotMatrixY(MATRIX *, s32);
@@ -103,18 +103,18 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
     POLY_GT4 *pkt;
 
     if (arg2 != 0) {
-        D_800F3A28[arg0].w00++;
+        MenuGridRecords[arg0].w00++;
     }
-    D_800F3A28[arg0].w00 &= 0xFF;
-    t = D_800F3A28[arg0].w00;
-    sp50.vx = D_800F3A28[arg0].x0C - g->cam_x08;
+    MenuGridRecords[arg0].w00 &= 0xFF;
+    t = MenuGridRecords[arg0].w00;
+    sp50.vx = MenuGridRecords[arg0].x0C - g->cam_x08;
     sp50.vy = 0x200 - g->cam_y0C;
-    sp50.vz = D_800F3A28[arg0].z14 - g->cam_z10;
+    sp50.vz = MenuGridRecords[arg0].z14 - g->cam_z10;
     ApplyMatrix((MATRIX *)SCRATCH_ROT_MATRIX, &sp50, &sp58);
-    BuildRotMatrixX(&sp10, D_800F3A28[arg0].rot_z1C);
-    BuildRotMatrixZ(&sp30, D_800F3A28[arg0].rot_x24);
+    BuildRotMatrixX(&sp10, MenuGridRecords[arg0].rot_z1C);
+    BuildRotMatrixZ(&sp30, MenuGridRecords[arg0].rot_x24);
     MulMatrix(&sp10, &sp30);
-    BuildRotMatrixY(&sp30, D_800F3A28[arg0].rot_y20);
+    BuildRotMatrixY(&sp30, MenuGridRecords[arg0].rot_y20);
     MulMatrix2(&sp30, &sp10);
     MulMatrix2((MATRIX *)SCRATCH_ROT_MATRIX, &sp10);
     sp10.t[0] = sp58.vx;
@@ -123,21 +123,21 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
     SetTransMatrix(&sp10);
     SetRotMatrix(&sp10);
 
-    count = D_800F3A28[arg0].count2C;
-    cols_total = D_800F3A28[arg0].columns2E * count + 1;
+    count = MenuGridRecords[arg0].count2C;
+    cols_total = MenuGridRecords[arg0].columns2E * count + 1;
     sxy_buf = (s32 *)(SCRATCHPAD + 0x7C);
     shade_buf = (u8 *)(SCRATCHPAD + 0x338);
     div_num = 0x600;
     step_ang = div_num / count;
     s6 = 0;
-    for (s5 = 0; s5 < D_800F3A28[arg0].rows2F + 1; s5++) {
-        sp50.vz = D_800F3A28[arg0].step_y0A * ((D_800F3A28[arg0].rows2F >> 1) - s5);
+    for (s5 = 0; s5 < MenuGridRecords[arg0].rows2F + 1; s5++) {
+        sp50.vz = MenuGridRecords[arg0].step_y0A * ((MenuGridRecords[arg0].rows2F >> 1) - s5);
         for (s2 = 0; s2 < cols_total; s2++) {
             s32 s0_tmp;
-            s1 = D_800F3A28[arg0].height06;
-            sp50.vx = D_800F3A28[arg0].step_x08 * (s2 - (cols_total >> 1));
-            s0_tmp = rsin(D_800F3A28[arg0].width04 * t + s2 * step_ang);
-            s1 = (s1 * (s0_tmp + rsin(D_800F3A28[arg0].width04 * t + (s5 << 8)))) >> 12;
+            s1 = MenuGridRecords[arg0].height06;
+            sp50.vx = MenuGridRecords[arg0].step_x08 * (s2 - (cols_total >> 1));
+            s0_tmp = rsin(MenuGridRecords[arg0].width04 * t + s2 * step_ang);
+            s1 = (s1 * (s0_tmp + rsin(MenuGridRecords[arg0].width04 * t + (s5 << 8)))) >> 12;
             sp50.vy = s1;
             RR_GTE_RTPS_LDV(&sp50);
             RR_GTE_SWC2_SXY2(&sxy_buf[s6]);
@@ -150,11 +150,11 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
     }
 
     pkt = *(POLY_GT4 **)SCRATCHPAD;
-    for (s5 = 0; s5 < D_800F3A28[arg0].columns2E * D_800F3A28[arg0].rows2F * D_800F3A28[arg0].count2C; s5++) {
+    for (s5 = 0; s5 < MenuGridRecords[arg0].columns2E * MenuGridRecords[arg0].rows2F * MenuGridRecords[arg0].count2C; s5++) {
         s32 v1;
 
         s1 = s5 / (cols_total - 1);
-        s6 = s5 % D_800F3A28[arg0].columns2E;
+        s6 = s5 % MenuGridRecords[arg0].columns2E;
         pkt->len = 0xC;
         pkt->code = 0x3C;
         s2 = s1 + s5;
@@ -164,14 +164,14 @@ int func_80041BF0(s32 arg0, P_TAG *arg1, s32 arg2) {
         *(s32 *)&pkt->x2 = sxy_buf[v1];
         *(s32 *)&pkt->x3 = sxy_buf[v1 + 1];
 
-        pkt->u0 = pkt->u2 = D_800F3A28[arg0].u30 + D_800F3A28[arg0].du32 * s6;
-        pkt->u1 = pkt->u3 = pkt->u0 + D_800F3A28[arg0].du32;
+        pkt->u0 = pkt->u2 = MenuGridRecords[arg0].u30 + MenuGridRecords[arg0].du32 * s6;
+        pkt->u1 = pkt->u3 = pkt->u0 + MenuGridRecords[arg0].du32;
 
-        pkt->v0 = pkt->v1 = D_800F3A28[arg0].v31 + D_800F3A28[arg0].dv33 * s1;
-        pkt->v2 = pkt->v3 = pkt->v0 + D_800F3A28[arg0].dv33;
+        pkt->v0 = pkt->v1 = MenuGridRecords[arg0].v31 + MenuGridRecords[arg0].dv33 * s1;
+        pkt->v2 = pkt->v3 = pkt->v0 + MenuGridRecords[arg0].dv33;
 
-        pkt->tpage = D_800F3A28[arg0].tpage34;
-        pkt->clut = D_800F3A28[arg0].clut36;
+        pkt->tpage = MenuGridRecords[arg0].tpage34;
+        pkt->clut = MenuGridRecords[arg0].clut36;
 
         s1 = shade_buf[s2];
         *(s32 *)&pkt->r0 = (s1 << 16) | (s1 << 8) | s1 | 0x3C000000;

@@ -23,7 +23,7 @@ typedef struct {
 
 extern RrParticleSys D_800F2AB8;
 
-void func_80053EC4(void);
+void SpawnParticlePair(void);
 s32 func_80096464(void);
 void SetDrawMode(u32 *, s32, s32, s32, s32);
 
@@ -37,7 +37,7 @@ void func_80054D50(void) {
         D_800F2AB8.f18 = D_800F2AB8.f14 - ((D_800F2AB8.f14 - D_800F2AB8.f10) * D_800F2AB8.f0C) / D_800F2AB8.f08;
     }
     if (D_800F2AB8.f04 <= 0) {
-        func_80053EC4();
+        SpawnParticlePair();
         D_800F2AB8.f04 = (func_80096464() % 16) * 2 + 8;
     }
     p = *(u32 **)SCRATCHPAD;

@@ -14,7 +14,7 @@ void ovl663_update_selection(void) {
     switch ((u16)D_800F4D8A) {
     case 0:
         i = 0;
-        if (D_800F3AFC[1].state10 == 3) {
+        if (BadgeRows[1].state10 == 3) {
             D_800F4D8A = 1;
             func_8002AF8C(1, 1, 1);
             i = 0;
@@ -22,32 +22,32 @@ void ovl663_update_selection(void) {
         break;
     case 1:
         func_8002B12C(0xA0, 0x108, 0x76, 0, (s32)D_800AC648, 0, ovl663_course_count);
-        func_8002B330(1, 2, (char *)&D_800AC648, ovl663_course_count, 0);
+        StepMenuValue(1, 2, (char *)&D_800AC648, ovl663_course_count, 0);
         i = 0;
-        D_800F3914 = func_80032E9C(D_800AC648);
-        while (i < (s32)D_800F4D80[2].byte02) {
+        D_800F3914 = DecodeCourseIndex(D_800AC648);
+        while (i < (s32)UiRows[2].byte02) {
             if (i == ((u16)D_800AC648 & 7)) {
-                D_800F4D80[2].cells[i] = (s8)((u8)D_800AD522 + 2);
-                D_800F4D80[2].byte16 = i;
+                UiRows[2].cells[i] = (s8)((u8)D_800AD522 + 2);
+                UiRows[2].byte16 = i;
             } else if (i >= ovl663_course_count) {
-                D_800F4D80[2].cells[i] = 1;
+                UiRows[2].cells[i] = 1;
             } else {
-                D_800F4D80[2].cells[i] = (u8)D_800AD522;
+                UiRows[2].cells[i] = (u8)D_800AD522;
             }
             i += 1;
         }
-        D_800F4D80[D_800AC64A].cells[0] = 0;
-        func_8002B330(0, 2, (char *)&D_800AC64A, 2, 0);
+        UiRows[MenuCursor].cells[0] = 0;
+        StepMenuValue(0, 2, (char *)&MenuCursor, 2, 0);
         i = 0;
-        D_800F4D80[D_800AC64A].cells[0] = 2;
+        UiRows[MenuCursor].cells[0] = 2;
         ovl663_selected_record = -1;
         if (D_800F3A38[0].a != 0) {
             PlaySfx(1);
-            D_800F4D80[D_800AC64A].cells[0] = 1;
-            if (D_800AC64A == 0) {
+            UiRows[MenuCursor].cells[0] = 1;
+            if (MenuCursor == 0) {
                 ovl663_selected_record = 0;
                 D_800F4D8A = 2;
-            } else if (D_800AC64A == 1) {
+            } else if (MenuCursor == 1) {
                 i = 1;
             }
         } else if (D_800F3A38[0].b != 0) {
@@ -60,14 +60,14 @@ void ovl663_update_selection(void) {
             D_800AC5D0 = 0x40;
             D_800F4D8A = 8;
             do {
-                D_800F4D80[i].byte14 = 3;
+                UiRows[i].byte14 = 3;
                 i += 1;
             } while (i < 3);
-            D_800F3AFC[1].state10 = 4;
+            BadgeRows[1].state10 = 4;
         }
         break;
     case 2:
-        func_8002B330(0, 4, (char *)&ovl663_selected_record, 5, 0);
+        StepMenuValue(0, 4, (char *)&ovl663_selected_record, 5, 0);
         if (D_800F3A38[0].b != 0) {
             PlaySfx(2);
             D_800F4D8A = 1;
@@ -75,14 +75,14 @@ void ovl663_update_selection(void) {
             func_8002AF8C(0, 1, 1);
             D_800F4D8A = 3;
             ResetScreenCounters();
-            D_800ACC18 = D_800F4D40;
+            LoadCursor = D_800F4D40;
             mirrorSet = D_800AC648 >= 8;
             if (ovl663_record_kind == 1) {
                 car = D_800FF700[mirrorSet][D_800F3914][ovl663_selected_record].car;
             } else {
                 car = D_800AD5C8[mirrorSet][D_800F3914][ovl663_selected_record].car;
             }
-            func_80037040((s8 *)&D_800F4D98, car);
+            UnpackChoiceGlyph((s8 *)&D_800F4D98, car);
             if (D_800F4D98.choice.bytes[2] == 0x27) {
                 if (D_800F4D98.choice.bytes[0] != 2) {
                     glyphIndex = D_800F4D98.choice.bytes[1] + (D_800F4D98.choice.bytes[0] * 4);
@@ -97,15 +97,15 @@ void ovl663_update_selection(void) {
             }
             i = 0;
             do {
-                D_800F4D80[i].byte14 = 3;
+                UiRows[i].byte14 = 3;
                 i += 1;
             } while (i < 3);
-            D_800F3AFC[1].state10 = 4;
+            BadgeRows[1].state10 = 4;
         }
         break;
     case 3:
         modelReady = func_8003AE4C(0, 1);
-        if ((modelReady == 1) && (D_800F4D80->byte14 == 5)) {
+        if ((modelReady == 1) && (UiRows->byte14 == 5)) {
             ovl663_init_result_preview();
             D_800F4C6A = modelReady;
             D_800F3A26 = 0x4D;
@@ -130,13 +130,13 @@ void ovl663_update_selection(void) {
     }
     i = 0;
     do {
-        func_8003EC88(i);
+        DrawUiRow(i);
         i += 1;
     } while (i < 3);
-    func_8003D6F0(1);
+    UpdateBadgeRowAnim(1);
     renderMask = 0x10063;
     if (ovl663_record_kind == 1) {
         renderMask = 0x1005F;
     }
-    func_8002A344(renderMask);
+    UpdateScreenFade(renderMask);
 }

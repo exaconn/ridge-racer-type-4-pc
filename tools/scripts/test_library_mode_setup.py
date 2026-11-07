@@ -30,8 +30,8 @@ s32 (*test_command)(s32, const u8 *, u8 *);
 void (*test_first)(RrLibCompletionCallback);
 void (*test_second)(RrLibCompletionCallback);
 s32 CdControl(s32 c, const u8 *p, u8 *r) { return test_command(c,p,r); }
-void func_8008C55C(RrLibCompletionCallback c) { test_first(c); }
-void func_8008C12C(RrLibCompletionCallback c) { test_second(c); }
+void CdDataCallback(RrLibCompletionCallback c) { test_first(c); }
+void CdReadyCallback(RrLibCompletionCallback c) { test_second(c); }
 void data_ready_callback(void) { test_unexpected++; }
 void func_8008F248(void) { test_unexpected++; }
 '''
@@ -45,7 +45,7 @@ void func_8008F248(void) { test_unexpected++; }
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.lib = C.CDLL(str(directory / 'function.so'))
         cls.page = (C.c_int32 * 0x4000).in_dll(cls.lib, 'test_page')
-        cls.function = cls.lib.func_8008F1C4
+        cls.function = cls.lib.CdRead2
         cls.function.argtypes = [C.c_int32]
         cls.function.restype = None
         cls.first = C.cast(cls.lib.data_ready_callback, C.c_void_p).value

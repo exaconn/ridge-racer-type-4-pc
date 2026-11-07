@@ -7,7 +7,7 @@ stage=root/'tools/scripts'
 source_path=Path(sys.argv[1]) if len(sys.argv)>1 else root/'src/overlays/PAL/667/func_801161A8.c'
 body=source_path.read_text();macro='\n'.join(l for l in body.splitlines() if l.startswith('#define KEEP_GLYPH'))
 body=body[body.index('void ovl667_func_801161A8'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
-encoder=(root/'tools/scripts/fixtures/views/func_80037040.c').read_text().replace('void func_80037040','static void encode_original')
+encoder=(root/'tools/scripts/fixtures/views/func_80037040.c').read_text().replace('void UnpackChoiceGlyph','static void encode_original')
 source=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -35,15 +35,15 @@ static State actual,reference,*w;
 #define D_800F2DE4 w->frame
 #define ScreenFrame w->tick
 #define D_800AC5D4 w->player
-#define D_800AC64A w->selection
-#define D_800AC5E0 w->limit
+#define MenuCursor w->selection
+#define MenuItemCount w->limit
 #define D_800AC648 w->course
 #define D_8010C0B8 w->active
-#define D_800102F0 w->base
+#define CdDirectoryBuffer w->base
 #define D_800F4D40 w->buffer
-#define D_800ACC18 w->published
+#define LoadCursor w->published
 #define D_800F4D70 w->arenas
-#define D_800ABEF8 w->vehicles
+#define PlayerCars w->vehicles
 #define D_800F4D98 w->selectionRows
 #define D_8010BFD8 w->table
 #define D_8010C0C0 w->counts
@@ -83,15 +83,15 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
 }
 static void service(unsigned kind){const s32 args[10]={0};record(kind,args);effect(kind);}
 void ResetScreenCounters(void){service(0);}
-void func_8003A1B4(void){service(1);}
-void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){const s32 args[10]={a,b,c,d,e,f,g,h,i,j};record(2,args);effect(2);}
-void func_80013890(s32 a){const s32 args[10]={a};record(3,args);effect(3);}
+void InitMenuArenas(void){service(1);}
+void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){const s32 args[10]={a,b,c,d,e,f,g,h,i,j};record(2,args);effect(2);}
+void SetupRenderer(s32 a){const s32 args[10]={a};record(3,args);effect(3);}
 void func_80037110(void){service(4);}
-void func_8002E4F4(RrRaceVehicle *p){unsigned i;for(i=0;i<2&&p!=&w->vehicles[i];i++){}assert(i<2&&(uintptr_t)p>UINT32_MAX);const s32 args[10]={i};record(5,args);effect(5);}
-s32 func_800370BC(const RrCourseChoice4 *p){unsigned g,r;for(g=0;g<2;g++)for(r=0;r<2;r++)if(p==w->table[g][r])goto found;
+void ResetCarState(RrRaceVehicle *p){unsigned i;for(i=0;i<2&&p!=&w->vehicles[i];i++){}assert(i<2&&(uintptr_t)p>UINT32_MAX);const s32 args[10]={i};record(5,args);effect(5);}
+s32 CountChoiceGlyphs(const RrCourseChoice4 *p){unsigned g,r;for(g=0;g<2;g++)for(r=0;r<2;r++)if(p==w->table[g][r])goto found;
 found:assert(g<2&&r<2&&(uintptr_t)p>UINT32_MAX);const s32 args[10]={g,r};record(6,args);s32 count=0;for(;count<9;count++){if(p[count].glyph==-1)break;if(count==8&&p[8].glyph!=0x167)break;}effect(6);return count;}
-void func_80037040(s8 *p,s32 glyph){unsigned i;for(i=0;i<4&&p!=(s8*)&w->selectionRows+4*i;i++){}assert(i<4&&(uintptr_t)p>UINT32_MAX);const s32 args[10]={i,glyph};record(7,args);encode_original(p,glyph);effect(7);}
-static void expected(s32 original){w->frame=0;w->tick=0;w->selection=0;w->limit=3;ResetScreenCounters();w->arenas.second=w->base+0x2D000;func_8003A1B4();w->player=original;w->published=w->arenas.second;
+void UnpackChoiceGlyph(s8 *p,s32 glyph){unsigned i;for(i=0;i<4&&p!=(s8*)&w->selectionRows+4*i;i++){}assert(i<4&&(uintptr_t)p>UINT32_MAX);const s32 args[10]={i,glyph};record(7,args);encode_original(p,glyph);effect(7);}
+static void expected(s32 original){w->frame=0;w->tick=0;w->selection=0;w->limit=3;ResetScreenCounters();w->arenas.second=w->base+0x2D000;InitMenuArenas();w->player=original;w->published=w->arenas.second;
  static const s32 rows[24][10]={
  {0,24,88,68,32,0,0,1,0,83},{1,24,128,68,32,0,0,1,0,54},{2,24,168,68,32,0,0,1,0,85},
  {3,24,88,68,32,0,0,1,0,83},{4,24,128,68,32,0,0,1,0,101},{5,24,168,68,32,0,0,1,0,53},{6,24,208,68,32,0,0,1,0,85},{7,116,88,28,32,0,0,1,0,55},{8,116,128,28,32,0,0,1,0,56},
@@ -99,13 +99,13 @@ static void expected(s32 original){w->frame=0;w->tick=0;w->selection=0;w->limit=
  {12,24,88,68,32,0,0,1,0,83},{13,24,128,68,32,0,0,1,0,101},{14,24,168,68,32,0,0,1,0,53},{15,24,208,68,32,0,0,1,0,85},{16,116,88,28,32,0,0,1,0,55},{17,116,128,28,32,0,0,1,0,56},
  {18,12,64,68,32,0,0,1,0,84},{19,12,104,68,32,0,0,1,0,3},{20,12,144,68,32,0,0,1,0,85},{21,12,368,208,32,0,0,8,4,0},{23,104,104,68,32,0,0,1,5,3},{24,104,64,68,32,0,0,0,126,0}};
  for(unsigned i=0;i<24;i++){s32 args[10];memcpy(args,rows[i],40);if(args[0]==21)args[9]=w->course;record(2,args);effect(2);}
- func_80013890(5);w->selection=0;w->limit=3;ResetScreenCounters();func_80037110();w->active=0;w->published=w->buffer;resourceBranch[w->player&1]++;
+ SetupRenderer(5);w->selection=0;w->limit=3;ResetScreenCounters();func_80037110();w->active=0;w->published=w->buffer;resourceBranch[w->player&1]++;
  if((w->player&1)==0)w->arenas.first=w->buffer;else w->published=w->arenas.first;
  w->scratch.word18=120;w->scratch.word08=-16;w->scratch.word0C=-248;w->scratch.word1C=0;w->scratch.word20=0;w->scratch.word10=-96;
- for(unsigned i=0;i<2;i++){func_8002E4F4(&w->vehicles[i]);w->vehicles[i].pos20[1]=10;w->vehicles[i].pos20[2]=308;w->vehicles[i].rot54=2048;}
- for(unsigned g=0;g<2;g++)for(unsigned r=0;r<2;r++)w->counts[g][r]=func_800370BC(w->table[g][r]);
+ for(unsigned i=0;i<2;i++){ResetCarState(&w->vehicles[i]);w->vehicles[i].pos20[1]=10;w->vehicles[i].pos20[2]=308;w->vehicles[i].rot54=2048;}
+ for(unsigned g=0;g<2;g++)for(unsigned r=0;r<2;r++)w->counts[g][r]=CountChoiceGlyphs(w->table[g][r]);
  unsigned old=original&1;oldGroup[old!=(w->player&1)]++;int reset=w->counts[old][1]==0;groupReset[reset]++;if(reset)w->group[old]=0;
- unsigned dest=w->player,g=dest&1;func_80037040((s8*)&w->selectionRows+4*dest,w->table[g][w->group[g]][w->index[g]].glyph);
+ unsigned dest=w->player,g=dest&1;UnpackChoiceGlyph((s8*)&w->selectionRows+4*dest,w->table[g][w->group[g]][w->index[g]].glyph);
  destChanged[dest!=(unsigned)w->player]++;unsigned current=w->player;g=current&1;
  w->point[current].first=w->table[g][w->group[g]][w->index[g]].first;
  w->point[current].second=w->table[g][w->group[g]][w->index[g]].second;

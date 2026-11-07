@@ -27,15 +27,15 @@ typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
 RrLibStateB0 records[32][9], replacement[9];
-RrLibStateB0 *D_8010F068[32];
-u32 D_8010F060;
-s16 D_8010F8EA;
+RrLibStateB0 *_ss_score[32];
+u32 _snd_openflag;
+s16 _snd_seq_t_max;
 void (*hook)(s32);
 s32 arguments[5];
-void func_800897A4(s32 bank,s32 a,s32 b,s32 c) {
+void _SsVmSetSeqVol(s32 bank,s32 a,s32 b,s32 c) {
  arguments[0]=bank;arguments[1]=a;arguments[2]=b;arguments[3]=c;hook(0);
 }
-void func_80089E1C(s32 bank) { arguments[4]=bank;hook(1); }
+void _SsVmSeqKeyOff(s32 bank) { arguments[4]=bank;hook(1); }
 u32 layout[] = { sizeof(RrLibStateB0),
  offsetof(RrLibStateB0,w98),offsetof(RrLibStateB0,b22),
  offsetof(RrLibStateB0,h48),offsetof(RrLibStateB0,w9c),
@@ -44,9 +44,9 @@ u32 layout[] = { sizeof(RrLibStateB0),
  offsetof(RrLibStateB0,h58)};
 void initialize(void) {
  int i;memset(records,0xA5,sizeof(records));memset(replacement,0x69,sizeof(replacement));
- for(i=0;i<32;i++)D_8010F068[i]=records[i];
+ for(i=0;i<32;i++)_ss_score[i]=records[i];
 }
-void replace_bank(s32 bank) {D_8010F068[bank]=replacement;}
+void replace_bank(s32 bank) {_ss_score[bank]=replacement;}
 '''
         for name in ('8007F794', '8007F910', '8007F934'):
             body = (root / f'tools/scripts/fixtures/views/func_{name}.c').read_text()
@@ -62,11 +62,11 @@ void replace_bank(s32 bank) {D_8010F068[bank]=replacement;}
         cls.size = cls.layout[0]
         cls.records = (C.c_ubyte * (cls.size * 32 * 9)).in_dll(cls.lib, 'records')
         cls.replacement = (C.c_ubyte * (cls.size * 9)).in_dll(cls.lib, 'replacement')
-        cls.flags = C.c_uint32.in_dll(cls.lib, 'D_8010F060')
-        cls.count = C.c_int16.in_dll(cls.lib, 'D_8010F8EA')
+        cls.flags = C.c_uint32.in_dll(cls.lib, '_snd_openflag')
+        cls.count = C.c_int16.in_dll(cls.lib, '_snd_seq_t_max')
         cls.arguments = (C.c_int32 * 5).in_dll(cls.lib, 'arguments')
         for name in ('8007F794', '8007F910', '8007F934'):
-            function = getattr(cls.lib, 'func_' + name)
+            function = getattr(cls.lib, __import__('c_functions').name_at(name))
             function.argtypes = [C.c_int32]
             function.restype = None
 
@@ -85,7 +85,7 @@ void replace_bank(s32 bank) {D_8010F068[bank]=replacement;}
     def call(self, name, raw_bank, callback):
         hook = Hook(callback)
         C.c_void_p.in_dll(self.lib, 'hook').value = C.cast(hook, C.c_void_p).value
-        getattr(self.lib, 'func_' + name)(raw_bank)
+        getattr(self.lib, __import__('c_functions').name_at(name))(raw_bank)
 
     def test_rows_flags_and_wrapper_narrowing(self):
         for name in ('8007F794', '8007F910', '8007F934'):

@@ -3,6 +3,6 @@
 
 extern u8 D_800A64A5;
 
-u8 func_8008BFB4(void) {
+u8 CdLastCom(void) {
     return D_800A64A5;
 }

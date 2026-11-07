@@ -57,7 +57,7 @@ RrWide64 *test_alias(s32 index,RrWide64 left,RrWide64 right) {
 }
 s32 test_page[0x4000];
 s32 (*test_counter)(u32,u32);
-s32 func_80096E64(u32 counter,u32 mode) { return test_counter(counter,mode); }
+s32 DeliverEvent(u32 counter,u32 mode) { return test_counter(counter,mode); }
 '''
         owners = {'func_'+n: root / 'tools/scripts/fixtures/legacy' / ('func_'+n+'.c') for n in ('8007DB54', '8007DC04', '8007E9C4', '8007DFA4', '8007DFF4', '8007E1B4', '8007E904', '8007E494', '8007E818')}
         sources = dict.fromkeys(owners['func_' + name] for name in
@@ -72,8 +72,8 @@ s32 func_80096E64(u32 counter,u32 mode) { return test_counter(counter,mode); }
             body = re.sub(r'"\$[0-9]+",\s*', '', body)
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?=\))', '', body)
             source += body
-            if 'func_8007E494(' in body:
-                observed=body.replace('func_8007E494','test_neg_observed')
+            if '_mainasu(' in body:
+                observed=body.replace('_mainasu','test_neg_observed')
                 assert observed.count('_add_mant_d(')==1
                 source+=observed.replace('_add_mant_d(','test_neg_add(')
         (directory / 'function.c').write_text(source)
@@ -97,14 +97,14 @@ s32 func_80096E64(u32 counter,u32 mode) { return test_counter(counter,mode); }
         cls.logical_shift = cls.lib._dbl_shift_us
         cls.logical_shift.argtypes = [C.POINTER(Wide), C.c_int32, Wide, C.c_int32]
         cls.logical_shift.restype = C.POINTER(Wide)
-        cls.integer_to_binary64 = cls.lib.func_8007E1B4
+        cls.integer_to_binary64 = getattr(cls.lib, '__floatsidf')
         cls.integer_to_binary64.argtypes = [C.c_int32]
         cls.integer_to_binary64.restype = C.c_uint64
         cls.negate_binary64 = cls.lib.func_8007E904
         cls.negate_binary64.argtypes = [C.c_uint64]
         cls.negate_binary64.restype = C.c_uint64
         cls.values = (Wide * 3).in_dll(cls.lib, 'test_values')
-        cls.function = cls.lib.func_8007E9C4
+        cls.function = cls.lib._err_math
         cls.function.argtypes = [C.c_int32, C.c_int32]
         cls.function.restype = C.c_int32
         cls.page = (C.c_uint8 * 65536).in_dll(cls.lib, 'test_page')

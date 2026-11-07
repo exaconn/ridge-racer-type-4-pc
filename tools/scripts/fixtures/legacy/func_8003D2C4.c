@@ -5,7 +5,7 @@
  * narrow coordinates and packet fields when writing the GPU representation. */
 extern RrSpritePacket *func_8001FF84(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32);
 extern RrSpritePacket *GameQueueSprite(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32);
-extern void *func_8001FD20(u32*,void*,s32,s32,s32,s32,s32,s32,s32);
+extern void *AddTilePrim(u32*,void*,s32,s32,s32,s32,s32,s32,s32);
 
 RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 style) {
     /* ASM_BARRIER: keep the ordering pointer live across every helper call. */
@@ -64,5 +64,5 @@ RrSpritePacket *func_8003D2C4(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 
     /* ASM_BARRIER: finish the final helper arguments before computing underline width. */
     __asm__("" : "+r"(out_order), "+r"(out_cursor), "+r"(x_stage), "+r"(y_stage) : : "$2");
     width=offset-4;
-    return func_8001FD20(out_order,out_cursor,x_stage,y_stage,width,2,255,255,255);
+    return AddTilePrim(out_order,out_cursor,x_stage,y_stage,width,2,255,255,255);
 }

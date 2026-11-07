@@ -22,12 +22,12 @@ typedef uint32_t u32;typedef int32_t s32;
 ''' + header + '''
 u8 test_table[65536] __attribute__((aligned(8)));
 u8 test_mode_page[65536] __attribute__((aligned(8)));
-#define D_800A47F4 (*(s32*)(test_mode_page+0x47F4))
-#define D_800A47F0 (*(volatile u16*)(test_mode_page+0x47F0))
-#define D_800A4800 (*(s32*)(test_mode_page+0x4800))
-#define D_800A480C (*(s32*)(test_mode_page+0x480C))
-s32 D_800A4848;
-void (*volatile D_800A4810)(void);
+#define _spu_transMode (*(s32*)(test_mode_page+0x47F4))
+#define _spu_tsa (*(volatile u16*)(test_mode_page+0x47F0))
+#define _spu_mem_mode_plus (*(s32*)(test_mode_page+0x4800))
+#define _spu_inTransfer (*(s32*)(test_mode_page+0x480C))
+s32 _spu_trans_mode;
+void (*volatile _spu_transferCallback)(void);
 s32 test_commands[8],test_command_count,test_pio_calls,test_mode_calls,test_address_calls;
 u32 test_dma_address,test_dma_size,test_input_address;const u16 *test_dma_source;
 s32 test_forced_address_result;
@@ -40,7 +40,7 @@ s32 _spu_FsetRXXa(s32 index,s32 address) {
  test_address_hook();
  return test_forced_address_result>=0 ? test_forced_address_result : (((u32)address+7U)&~7U)>>3;
 }
-s32 func_8007F068(s32 command,...) {
+s32 _spu_t(s32 command,...) {
  va_list args;test_commands[test_command_count++]=command;va_start(args,command);
  if(command==2)test_dma_address=va_arg(args,u32);
  if(command==3) {test_dma_source=va_arg(args,const u16 *);test_dma_size=va_arg(args,u32);test_dma_hook();}
@@ -55,7 +55,7 @@ void test_reset(void) {
   *(u32*)(test_table+0x138+i*4)=100+i;
   *(u32*)(test_table+0x180+i*4)=0x2000+i*8;
  }
- D_800A47F4=1;D_800A4800=3;D_800A480C=99;D_800A4810=0;D_800A4848=123;
+ _spu_transMode=1;_spu_mem_mode_plus=3;_spu_inTransfer=99;_spu_transferCallback=0;_spu_trans_mode=123;
  test_command_count=test_mode_calls=test_address_calls=test_pio_calls=0;
  test_dma_address=test_dma_size=test_input_address=0;test_dma_source=0;
  test_forced_address_result=-1;
@@ -88,7 +88,7 @@ void test_reset(void) {
         cls.lib=C.CDLL(str(directory/'bank.so'))
         cls.table=(C.c_uint8*65536).in_dll(cls.lib,'test_table')
         cls.mode=(C.c_uint8*65536).in_dll(cls.lib,'test_mode_page')
-        cls.transfer=cls.lib.func_8008AEC4;cls.transfer.argtypes=[C.POINTER(C.c_uint16),C.c_int32]
+        cls.transfer=cls.lib.SsVabTransBody;cls.transfer.argtypes=[C.POINTER(C.c_uint16),C.c_int32]
         cls.transfer.restype=C.c_int32
 
     def scalar(self,name):return C.c_int32.in_dll(self.lib,name)
@@ -142,7 +142,7 @@ void test_reset(void) {
                 valid=0x1010<=address<=0x7FFF8;self.run_case(index,valid)
                 self.assertEqual(self.scalar('test_mode_calls').value,1)
                 self.assertEqual(self.scalar('test_address_calls').value,int(valid))
-                self.assertEqual(self.scalar('D_800A4848').value,0)
+                self.assertEqual(self.scalar('_spu_trans_mode').value,0)
                 self.assertEqual(self.mode_scalar(0x47F4).value,0)
                 self.assertEqual(self.mode_scalar(0x480C).value,0 if valid else 1)
                 if valid:
@@ -164,7 +164,7 @@ void test_reset(void) {
         def address_change():self.word(0x138+index*4).value=222
         def dma_change():
             self.table[0x120+index]=7
-            C.c_void_p.in_dll(self.lib,'D_800A4810').value=C.cast(self.lib.test_completion,C.c_void_p).value
+            C.c_void_p.in_dll(self.lib,'_spu_transferCallback').value=C.cast(self.lib.test_completion,C.c_void_p).value
         self.on_mode=mode_change;self.on_address=address_change;self.on_dma=dma_change
         self.assertEqual(self.transfer(self.values,index),index)
         if self.errors:raise self.errors[0]

@@ -6,15 +6,15 @@
 #include "rr/overlay665_render_types.h"
 
 extern s32 D_800F2FD8;
-void func_8006E1AC(void);
-void func_8006EF8C(s32);
-void func_800912B4(s32 x,s32 y);
+void BuildCameraMatrices(void);
+void SetupViewport(s32);
+void SetGeomOffset(s32 x,s32 y);
 void func_8002E828(s32 scale,void *matrix);
 void func_8005599C(char *view,char *lighting,
     RrMatrixWords32 *first,RrMatrixWords32 *second);
 u32 *ScaleMatrix(u32 *matrix,s32 scale[3]);
-void func_800912D4(s32);
-void func_800701C4();
+void SetGeomScreen(s32);
+void SelectModelBank();
 void func_8006EE3C(s16 *output,s16 *view,s32 *matrix);
 void BuildRotMatrixZ(s16 *matrix,s32 angle);
 void BuildRotMatrixX(void *matrix,s32 angle);

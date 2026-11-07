@@ -3,7 +3,7 @@ from tempfile import TemporaryDirectory
 import re,subprocess,sys,os,json,hashlib
 root=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file());stage=Path(__file__).resolve().parent
 path=Path(sys.argv[1]) if len(sys.argv)>1 else root/'tools/scripts/fixtures/views/func_8005AC0C.c'
-body=path.read_text();body=body[body.index('void func_8005AC0C'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
+body=path.read_text();body=body[body.index('void UpdateMotionTrack'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
 src=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -14,7 +14,7 @@ _Static_assert(sizeof(RrMotionVector8)==8,"complete snapshot");
 _Static_assert(sizeof(RrMotionKey32)==32,"complete key");
 typedef struct {u32 guard[4];RrMotionControllerPrefix controller;u32 end[4];} State;
 static State actual,reference;static RrMotionKey32 keys[4];static RrMotionClock20 clock;
-RrMotionControllerPrefix *D_800ACA28;
+RrMotionControllerPrefix *MotionController;
 ''' + body + r'''
 static s32 word(u32 u){s32 s;memcpy(&s,&u,4);return s;}
 static s16 half(u16 u){s16 s;memcpy(&s,&u,2);return s;}
@@ -30,7 +30,7 @@ static void expected(RrMotionControllerPrefix *p,const RrMotionClock20 *c){RrMot
 }
 int main(void){unsigned cases=0,states[6]={0};for(unsigned i=0;i<1048576;i++){u32 seed=i*0x9e3779b9U;memset(&actual,0xA5,sizeof(actual));memset(&clock,0x5A,sizeof(clock));RrMotionTrack44 *t=&actual.controller.track;RrMotionKey32 *k=&keys[i%4];k->from=(RrMotionVector8){half(seed),half(seed>>9),half(seed>>17),half(~seed)};k->to=(RrMotionVector8){half(~seed),half(seed>>3),half(seed>>11),half(seed>>1)};k->fromScale=word(seed);k->toScale=word(seed^0x80000000U);k->continueAfter=i&1;k->timeCode=word(seed);clock.active=(s16)((i>>1)&1);clock.tempo=seed^0x5A5A5A5AU;t->key=k;t->state=(s32)(i%6)-1;t->disabled=((i>>3)&7)==0;t->elapsed=half(i);t->duration=half(seed>>16);t->velocity=word(seed);t->scale=word(~seed);
  if(t->state==0&&clock.active&&!t->disabled){s32 unit=(arithmetic8(k->timeCode)*12+(k->timeCode&255))*2;if(!half((u32)((uint64_t)clock.tempo*(u32)unit)/1200))continue;}
- if(!valid(t,&clock))continue;reference=actual;RrMotionClock20 oldClock=clock;RrMotionKey32 oldKey=*k;D_800ACA28=&actual.controller;assert((uintptr_t)D_800ACA28>UINT32_MAX&&(uintptr_t)k>UINT32_MAX);expected(&reference.controller,&clock);func_8005AC0C(&clock);assert(!memcmp(&actual,&reference,sizeof(actual)));assert(!memcmp(&clock,&oldClock,sizeof(clock))&&!memcmp(k,&oldKey,sizeof(*k)));states[i%6]++;cases++;}for(unsigned j=0;j<6;j++)assert(states[j]);printf("native cases %u; all states covered\n",cases);}
+ if(!valid(t,&clock))continue;reference=actual;RrMotionClock20 oldClock=clock;RrMotionKey32 oldKey=*k;MotionController=&actual.controller;assert((uintptr_t)MotionController>UINT32_MAX&&(uintptr_t)k>UINT32_MAX);expected(&reference.controller,&clock);UpdateMotionTrack(&clock);assert(!memcmp(&actual,&reference,sizeof(actual)));assert(!memcmp(&clock,&oldClock,sizeof(clock))&&!memcmp(k,&oldKey,sizeof(*k)));states[i%6]++;cases++;}for(unsigned j=0;j<6;j++)assert(states[j]);printf("native cases %u; all states covered\n",cases);}
 '''
 with TemporaryDirectory() as td:
  p=Path(td);(p/'test.c').write_text(src);subprocess.run(['cc','-std=gnu11','-O2','-fsanitize=address,undefined','-fno-sanitize-recover=all','-I'+str(root/'include'),'-I'+str(stage),str(p/'test.c'),'-o',str(p/'test')],check=True);subprocess.run([str(p/'test')],check=True)

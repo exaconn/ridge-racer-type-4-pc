@@ -5,19 +5,19 @@ from unicorn import *
 from unicorn.mips_const import *
 P=Path(os.getenv("RR_TEST_DIR","build/goal_50/part32/native"));P.mkdir(parents=True,exist_ok=True);source=Path(sys.argv[1]) if len(sys.argv)>1 else Path("tools/scripts/fixtures/legacy/func_800534D8.c");count=int(sys.argv[2]) if len(sys.argv)>2 else 8192
 body=source.read_text().split('\n',1)[1];body=re.sub(r' __asm__\("[a-z0-9$]+"\)','',body)
-services=[('func_80052F2C','void',[]),('func_80053120','void',[]),('func_80053254','void',[]),('func_80053384','void',[]),('func_80053300','void',[]),('func_80052DA8','void',[]),('func_8008C0D8','s32',['s32','u8*']),('CdIntToPos','u8*',['s32','u8*']),('CdControlF','s32',['s32','const u8*']),('func_8008F274','s32',['s32']),('func_8008C03C','void',[]),('func_80052AB8','void',[]),('func_80052C70','void',[]),('func_8001E84C','s32',['const char*','RrAudioState*']),('func_80052B48','void',['s32']),('func_80052E6C','void',[]),('func_8008BFB4','s32',[]),('CdPosToInt','s32',['const u8*']),('func_80052ADC','void',['u16'])]
+services=[('CdAudioPlayStep','void',[]),('CdAudioPauseStep','void',[]),('CdAudioResumeStep','void',[]),('CdAudioStopStep','void',[]),('CdAudioLoopStep','void',[]),('CdAudioFilterStep','void',[]),('CdSync','s32',['s32','u8*']),('CdIntToPos','u8*',['s32','u8*']),('CdControlF','s32',['s32','const u8*']),('CdDiskReady','s32',['s32']),('CdFlush','void',[]),('CdAudioMute','void',[]),('CdAudioRequestPause','void',[]),('func_8001E84C','s32',['const char*','RrAudioState*']),('CdAudioSetVolumeRaw','void',['s32']),('CdAudioFadeStep','void',[]),('CdLastCom','s32',[]),('CdPosToInt','s32',['const u8*']),('CdAudioSetVolume','void',['u16'])]
 head='''#include <stdint.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include "rr/audio_cd_controller.h"
 static struct {u8 before[64];RrAudioState owner;u8 after[64];} storage;
-#define D_800F4DB8 storage.owner
-#define D_800F746C D_800F4DB8.request26B4
+#define SoundState storage.owner
+#define D_800F746C SoundState.request26B4
 char D_8001118C[12];
 typedef uintptr_t(*Callback)(unsigned,uintptr_t*);static Callback cb;
 void set_callback(Callback p){cb=p;}
-void *owner(void){return &D_800F4DB8;}void *format(void){return D_8001118C;}
+void *owner(void){return &SoundState;}void *format(void){return D_8001118C;}
 void guards(void){memset(storage.before,0xA6,64);memset(storage.after,0x6A,64);}
 unsigned check(void){unsigned j;for(j=0;j<64;j++)if(storage.before[j]!=0xA6||storage.after[j]!=0x6A)return 1;return 0;}
 '''
@@ -71,13 +71,13 @@ def service(i,args,native):
   for j,off in enumerate([0x2688,0x268c,0x2690,0x26a8,0x26d8,0x26dc,0x26e8,0x26f4]):field(off,edges[(seed+j*3)%len(edges)],native)
   field(0x28c8+(seed%4096)*8,edges[(seed+9)%len(edges)],native)
   field(0x26a0,seed&1,native);field(0x26ac,seed%6,native)
- if name=='func_8008C0D8':
+ if name=='CdSync':
   if args[1]:wr(args[1],bytes((seed+k*19)&255 for k in range(8)),native)
   return [0,1,2,5,-1,0x1000002][(case+step)%6]
  if name=='CdIntToPos':wr(args[1],bytes((seed+k*7)&255 for k in range(3)),native);return args[1]
  if name=='CdControlF':return [0,1,0x80000000][(case+step)%3]
- if name=='func_8008F274':return [0,16,-1][case%3]
- if name=='func_8008BFB4':return 17 if case&1 else 0
+ if name=='CdDiskReady':return [0,16,-1][case%3]
+ if name=='CdLastCom':return 17 if case&1 else 0
  if name=='CdPosToInt':return edges[(case+step)%len(edges)]&0xffffffff
  if name=='func_8001E84C':return 1
  return 0
@@ -134,7 +134,7 @@ for case in range(count):
    assert resume is None and u.reg_read(UC_MIPS_REG_PC)==0x803ff000,case
    final=snap(False)
   else:
-   observed=[];lib.func_800534D8();assert not errors,errors
+   observed=[];lib.CdAudioUpdate();assert not errors,errors
    if events!=observed:
     for k,(a,b) in enumerate(zip(events,observed)):
      if a!=b:

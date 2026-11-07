@@ -47,10 +47,10 @@ static World initial,actual,expected,*w;
 static Entry entries[8],actual_entries[8];
 static unsigned seed;
 static int mutation,count;
-#define D_800F4DB8 (w->audio)
-#define D_800AD528 (w->settings)
+#define SoundState (w->audio)
+#define Options (w->settings)
 #define D_800F4D44 (w->mode)
-#define D_800F4DC0 (w->audio.master08)
+#define VoiceVolumeScale (w->audio.master08)
 '''
         reference=r'''
 static u32 emit(int kind,u32 a,u32 b,u32 c,u32 d,u32 e,u32 f,u32 g,u32 hh){
@@ -71,10 +71,10 @@ static u32 emit(int kind,u32 a,u32 b,u32 c,u32 d,u32 e,u32 f,u32 g,u32 hh){
  }
  return seed|0x80000000U;
 }
-s32 func_80086B00(s32 voice,s32 left,s32 right){return (s32)emit(0,voice,left,right,0,0,0,0,0);}
-s32 func_80084E74(s32 voice,s32 bank,s32 program,s32 group,s32 unused,u32 first,u32 second){return (s32)emit(1,voice,bank,program,group,unused,first,second,0);}
-s32 func_800857A4(s32 voice,s32 bank,s32 program,s32 mode,s32 group,s32 unused,s32 left,s32 right){return (s32)emit(2,voice,bank,program,mode,group,unused,left,right);}
-s32 func_80085AEC(s32 voice){return (s32)emit(3,voice,0,0,0,0,0,0,0);}
+s32 SsUtSetVVol(s32 voice,s32 left,s32 right){return (s32)emit(0,voice,left,right,0,0,0,0,0);}
+s32 SsUtChangePitch(s32 voice,s32 bank,s32 program,s32 group,s32 unused,u32 first,u32 second){return (s32)emit(1,voice,bank,program,group,unused,first,second,0);}
+s32 SsUtKeyOnV(s32 voice,s32 bank,s32 program,s32 mode,s32 group,s32 unused,s32 left,s32 right){return (s32)emit(2,voice,bank,program,mode,group,unused,left,right);}
+s32 SsUtKeyOffV(s32 voice){return (s32)emit(3,voice,0,0,0,0,0,0,0);}
 static u16 r16(const u8 *p){u16 v;memcpy(&v,p,2);return v;}
 static u32 r32(const u8 *p){u32 v;memcpy(&v,p,4);return v;}
 static void w32(u8 *p,u32 v){memcpy(p,&v,4);}
@@ -141,7 +141,7 @@ int main(void){
  mutation=0;
  for(unsigned i=0;i<8;i++)for(unsigned j=0;j<8;j++){
   unsigned k=i*8+j;seed=k;actual=initial;actual.audio.master08=levels[(i+j)%8];expected=actual;
-  bind(&actual);func_8004FE7C((s32)voices[i],levels[j],levels[(j+3)%8]);memcpy(actual_entries,entries,sizeof(entries));
+  bind(&actual);SetVoiceVolumeScaled((s32)voices[i],levels[j],levels[(j+3)%8]);memcpy(actual_entries,entries,sizeof(entries));
   bind(&expected);volume_reference(voices[i],levels[j],levels[(j+3)%8]);if(count!=1||compare(131072+k))return 1;
  }
  puts("131072 loop cases and64 promoted helper cases: OK (UBSan)");return 0;

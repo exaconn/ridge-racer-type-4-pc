@@ -4,7 +4,7 @@
 #include "psyq/libsnd/vmpitch.h"
 
 
-extern void func_80088DA4(int unused_mode);
+extern void _SsVmKeyOffNow(int unused_mode);
 extern int D_800A48F8;
 extern char D_8010F90A[];
 extern char D_8010F90E[];
@@ -12,16 +12,16 @@ extern char D_8010F918[];
 extern char D_8010F91A[];
 extern char D_8010F91C[];
 extern char D_8010F91E[];
-extern signed char D_801100FC;
+extern signed char spuVmMaxVoice;
 extern short D_80110118;
 extern int _spu_FsetRXXa(int, int);
-extern volatile unsigned short *D_800A47D8;
-extern unsigned short D_800A4874[];
+extern volatile unsigned short *_spu_RXX;
+extern unsigned short _spu_voice_centerNote[];
 
-void func_80084534();
-void func_80084674();
+void SsUtAllKeyOff();
+void SpuSetVoiceAttr();
 
-void func_80084534(void) {
+void SsUtAllKeyOff(void) {
     struct {
         int s10;
         int s14;
@@ -46,7 +46,7 @@ void func_80084534(void) {
     L.s18 = 0;
     L.s1A = 0;
     L.s4C = 0x4000;
-    if (D_801100FC > 0) {
+    if (spuVmMaxVoice > 0) {
         c1 = 1;
         c18 = 0x18;
         cff = 0xFF;
@@ -62,16 +62,16 @@ void func_80084534(void) {
                 *(short *)(D_8010F91C + v0) = 0;
                 *(short *)(D_8010F91E + v0) = cff;
                 L.s10 = a1;
-                func_80084674(&L, a1);
+                SpuSetVoiceAttr(&L, a1);
                 D_80110118 = s0;
-                func_80088DA4(1);
+                _SsVmKeyOffNow(1);
             }
             s0++;
-        } while (s0 < D_801100FC);
+        } while (s0 < spuVmMaxVoice);
     }
 }
 
-void func_80084674(SpuVoiceAttr *s0) {
+void SpuSetVoiceAttr(SpuVoiceAttr *s0) {
     struct { int counter; volatile unsigned int accumulator; } work;
     int s4;
     int s3;
@@ -90,15 +90,15 @@ void func_80084674(SpuVoiceAttr *s0) {
         if (s0->voice & (1 << s4)) {
             s3 = s4 * 8;
             if (s2 || (s1 & 0x10)) {
-                D_800A47D8[s3 + 2] = s0->pitch;
+                _spu_RXX[s3 + 2] = s0->pitch;
             }
             if (s2 || (s1 & 0x40)) {
-                D_800A4874[s4] = s0->sample_note;
+                _spu_voice_centerNote[s4] = s0->sample_note;
             }
             if (s2 || (s1 & 0x20)) {
-                ua1 = D_800A4874[s4];
+                ua1 = _spu_voice_centerNote[s4];
                 a3 = s0->note;
-                D_800A47D8[s3 + 2] = func_80084C74(ua1 >> 8, ua1 & 0xFF, a3 >> 8, a3 & 0xFF);
+                _spu_RXX[s3 + 2] = _spu_note2pitch(ua1 >> 8, ua1 & 0xFF, a3 >> 8, a3 & 0xFF);
             }
             if (s2 || (s1 & 0x1)) {
                 a0 = 0;
@@ -135,7 +135,7 @@ void func_80084674(SpuVoiceAttr *s0) {
                         ua1 = 0;
                     }
                 }
-                D_800A47D8[s3 + 0] = ua1 | a0;
+                _spu_RXX[s3 + 0] = ua1 | a0;
             }
             if (s2 || (s1 & 0x2)) {
                 a0 = 0;
@@ -172,7 +172,7 @@ void func_80084674(SpuVoiceAttr *s0) {
                         ua1 = 0;
                     }
                 }
-                D_800A47D8[s3 + 1] = ua1 | a0;
+                _spu_RXX[s3 + 1] = ua1 | a0;
             }
             if (s2 || (s1 & 0x80)) {
                 _spu_FsetRXXa(s3 | 3, s0->addr);
@@ -181,10 +181,10 @@ void func_80084674(SpuVoiceAttr *s0) {
                 _spu_FsetRXXa(s3 | 7, s0->loop_addr);
             }
             if (s2 || (s1 & 0x20000)) {
-                D_800A47D8[s3 + 4] = s0->adsr1;
+                _spu_RXX[s3 + 4] = s0->adsr1;
             }
             if (s2 || (s1 & 0x40000)) {
-                D_800A47D8[s3 + 5] = s0->adsr2;
+                _spu_RXX[s3 + 5] = s0->adsr2;
             }
             if (s2 || (s1 & 0x800)) {
                 ua1 = s0->ar;
@@ -201,10 +201,10 @@ void func_80084674(SpuVoiceAttr *s0) {
                 }
                 {
                     /* ASM_BARRIER: Keep loaded hardware register in v0 before masking into v1. */
-                    register unsigned short v0 __asm__("$2") = D_800A47D8[s3 + 4];
+                    register unsigned short v0 __asm__("$2") = _spu_RXX[s3 + 4];
                     /* ASM_BARRIER: Keep masked hardware register in v1 across envelope combine. */
                     register unsigned int v1 __asm__("$3") = v0 & 0xFF;
-                    D_800A47D8[s3 + 4] = v1 | ((ua1 | a2) << 8);
+                    _spu_RXX[s3 + 4] = v1 | ((ua1 | a2) << 8);
                 }
             }
             if (s2 || (s1 & 0x1000)) {
@@ -212,7 +212,7 @@ void func_80084674(SpuVoiceAttr *s0) {
                 if (ua1 >= 0x10) {
                     ua1 = 0xF;
                 }
-                D_800A47D8[s3 + 4] = (D_800A47D8[s3 + 4] & 0xFF0F) | (ua1 << 4);
+                _spu_RXX[s3 + 4] = (_spu_RXX[s3 + 4] & 0xFF0F) | (ua1 << 4);
             }
             if (s2 || (s1 & 0x2000)) {
                 ua1 = s0->sr;
@@ -235,10 +235,10 @@ void func_80084674(SpuVoiceAttr *s0) {
                 }
                 {
                     /* ASM_BARRIER: Keep loaded hardware register in v0 before masking into v1. */
-                    register unsigned short v0 __asm__("$2") = D_800A47D8[s3 + 5];
+                    register unsigned short v0 __asm__("$2") = _spu_RXX[s3 + 5];
                     /* ASM_BARRIER: Keep masked hardware register in v1 across envelope combine. */
                     register unsigned int v1 __asm__("$3") = v0 & 0x3F;
-                    D_800A47D8[s3 + 5] = v1 | ((ua1 | a2) << 6);
+                    _spu_RXX[s3 + 5] = v1 | ((ua1 | a2) << 6);
                 }
             }
             if (s2 || (s1 & 0x4000)) {
@@ -256,14 +256,14 @@ void func_80084674(SpuVoiceAttr *s0) {
                         break;
                     }
                 }
-                D_800A47D8[s3 + 5] = (D_800A47D8[s3 + 5] & 0xFFC0) | (ua1 | a2);
+                _spu_RXX[s3 + 5] = (_spu_RXX[s3 + 5] & 0xFFC0) | (ua1 | a2);
             }
             if (s2 || (s1 & 0x8000)) {
                 ua1 = s0->sl;
                 if (ua1 >= 0x10) {
                     ua1 = 0xF;
                 }
-                D_800A47D8[s3 + 4] = (D_800A47D8[s3 + 4] & 0xFFF0) | ua1;
+                _spu_RXX[s3 + 4] = (_spu_RXX[s3 + 4] & 0xFFF0) | ua1;
             }
         }
     }

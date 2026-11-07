@@ -79,7 +79,7 @@ static void initialize(u32 seed) {
 static void check(s32 intensity,int index) {
     memcpy(&expected,&actual,sizeof(actual));
     reference(intensity,index);
-    func_8001BAF8(intensity,index);
+    EmitPresetSprite(intensity,index);
     assert(!memcmp(&actual,&expected,sizeof(actual)));
 }
 int main(int argc,char **argv) {

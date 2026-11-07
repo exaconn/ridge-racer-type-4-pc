@@ -1,22 +1,22 @@
 #include "types.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4D80 (*(int (*))&D_800F4D80)
+#define UiRows (*(int (*))&UiRows)
 
-#undef D_800F4D80
+#undef UiRows
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4D80 ((UiElem24 *)D_800F4D80)
+#define UiRows ((UiElem24 *)UiRows)
 
-#define func_8001FD20 ((s32 (*)())func_8001FD20)
+#define AddTilePrim ((s32 (*)())AddTilePrim)
 
-#define func_80020074 ((s32 (*)())func_80020074)
+#define AddSpriteWithDrawMode ((s32 (*)())AddSpriteWithDrawMode)
 
-#undef D_800F4D80
+#undef UiRows
 
-#undef func_8001FD20
+#undef AddTilePrim
 
-#undef func_80020074
+#undef AddSpriteWithDrawMode
 
 typedef struct {
     short x, y;
@@ -45,17 +45,17 @@ typedef struct {
     int f18;
 } MenuRow1C;
 
-extern int func_8001FCC8();
+extern int AddDrawModePrim();
 
-extern void *func_8001FD20();
+extern void *AddTilePrim();
 
-extern void *func_80020074();
+extern void *AddSpriteWithDrawMode();
 
 extern void *func_8002018C();
 
 extern void *func_80020508();
 
-extern void func_8003DC9C();
+extern void InitRect16Row();
 
 extern int func_8003DCEC();
 
@@ -63,7 +63,7 @@ extern void func_80043608();
 
 extern int D_800ACC14;
 
-extern MenuRow1C *D_800F4D8C;
+extern MenuRow1C *GlyphRows;
 
 int func_8003E13C(int arg0) {
     SpriteDesc sp30;
@@ -75,7 +75,7 @@ int func_8003E13C(int arg0) {
     int v0;
     void *a1;
 
-    base = D_800F4D8C;
+    base = GlyphRows;
     p = (MenuRow1C *)((arg0 * 0x1C) + (int)base);
     sp40.page = sp30.page = p->page;
     sp40.clut = sp30.clut = p->clut;
@@ -94,126 +94,126 @@ int func_8003E13C(int arg0) {
 
     switch (s7) {
     case -2:
-        D_800F4D8C[arg0].f03 = 0;
-        D_800F4D8C[arg0].f02 = -4;
-        D_800F4D8C[arg0].f00 = 0;
+        GlyphRows[arg0].f03 = 0;
+        GlyphRows[arg0].f02 = -4;
+        GlyphRows[arg0].f00 = 0;
         break;
     case -3:
         break;
     case -4:
-        func_8003DC9C(D_800F4D8C[arg0].f07, D_800F4D8C[arg0].x, D_800F4D8C[arg0].y, D_800F4D8C[arg0].w, D_800F4D8C[arg0].h, 0, 0);
-        D_800F4D8C[arg0].f02 = -5;
+        InitRect16Row(GlyphRows[arg0].f07, GlyphRows[arg0].x, GlyphRows[arg0].y, GlyphRows[arg0].w, GlyphRows[arg0].h, 0, 0);
+        GlyphRows[arg0].f02 = -5;
         break;
     case -5:
-        if (func_8003DCEC(D_800F4D8C[arg0].f07) != 0) {
-            D_800F4D8C[arg0].f02 = -1;
+        if (func_8003DCEC(GlyphRows[arg0].f07) != 0) {
+            GlyphRows[arg0].f02 = -1;
         }
         break;
     case -6:
-        D_800F4D8C[arg0].f03 = 0;
-        D_800F4D8C[arg0].f02 = -7;
+        GlyphRows[arg0].f03 = 0;
+        GlyphRows[arg0].f02 = -7;
     case -7:
-        func_8003DCEC(D_800F4D8C[arg0].f07);
-        if (D_800F4D8C[arg0].f03 >= 0x14) {
-            D_800F4D8C[arg0].f02 = -1;
-            D_800F4D8C[arg0].f03 = 0;
+        func_8003DCEC(GlyphRows[arg0].f07);
+        if (GlyphRows[arg0].f03 >= 0x14) {
+            GlyphRows[arg0].f02 = -1;
+            GlyphRows[arg0].f03 = 0;
         } else {
-            D_800F4D8C[arg0].f03++;
+            GlyphRows[arg0].f03++;
         }
         break;
     case -1:
         a1 = *(void **)0x1F800000;
         v0 = ((unsigned short)s5 * 0x7C) / 10;
-        *(void **)0x1F800000 = (void *)func_8001FCC8(
+        *(void **)0x1F800000 = (void *)AddDrawModePrim(
             D_800ACC14 + 0x74,
-            func_80020508(D_800ACC14 + 0x74, a1, D_800F4D8C[arg0].x, D_800F4D8C[arg0].y, D_800F4D8C[arg0].w, D_800F4D8C[arg0].h, v0, v0, v0),
+            func_80020508(D_800ACC14 + 0x74, a1, GlyphRows[arg0].x, GlyphRows[arg0].y, GlyphRows[arg0].w, GlyphRows[arg0].h, v0, v0, v0),
             0x45
         );
         if ((unsigned short)s5 >= 10) {
-            D_800F4D8C[arg0].f02 = 0;
-            D_800F4D8C[arg0].f03 = 0;
+            GlyphRows[arg0].f02 = 0;
+            GlyphRows[arg0].f03 = 0;
         } else {
-            D_800F4D8C[arg0].f03++;
+            GlyphRows[arg0].f03++;
         }
-        func_8003DCEC(D_800F4D8C[arg0].f07);
+        func_8003DCEC(GlyphRows[arg0].f07);
         break;
     case 0:
         a1 = *(void **)0x1F800000;
         if ((unsigned short)s5 >= 3) {
             a1 = func_8002018C(D_800ACC14 + 0x70, a1, &sp30, 1, 0xFF, 3);
         }
-        *(void **)0x1F800000 = func_8001FD20(
+        *(void **)0x1F800000 = AddTilePrim(
             D_800ACC14 + 0x74,
             a1,
-            D_800F4D8C[arg0].x,
-            D_800F4D8C[arg0].y,
-            D_800F4D8C[arg0].w,
-            D_800F4D8C[arg0].h,
+            GlyphRows[arg0].x,
+            GlyphRows[arg0].y,
+            GlyphRows[arg0].w,
+            GlyphRows[arg0].h,
             8, 8, 8
         );
         if ((unsigned short)s5 >= 0x15) {
-            D_800F4D8C[arg0].f02 = 1;
-            D_800F4D8C[arg0].f03 = 0;
+            GlyphRows[arg0].f02 = 1;
+            GlyphRows[arg0].f03 = 0;
         } else {
-            D_800F4D8C[arg0].f03++;
+            GlyphRows[arg0].f03++;
         }
         if (s5 == 1) {
-            func_80043608(D_800F4D8C[arg0].f18 + ((D_800F4D8C[arg0].f06 * D_800F4D8C[arg0].f00) << 11));
+            func_80043608(GlyphRows[arg0].f18 + ((GlyphRows[arg0].f06 * GlyphRows[arg0].f00) << 11));
         }
         break;
     case 1:
         a1 = func_8002018C(D_800ACC14 + 0x70, *(void **)0x1F800000, &sp30, 1, (0x80 - s5) * 2, 2);
         a1 = func_8002018C(D_800ACC14 + 0x70, a1, &sp40, 1, s5, 1);
-        *(void **)0x1F800000 = func_8001FD20(
+        *(void **)0x1F800000 = AddTilePrim(
             D_800ACC14 + 0x7C,
             a1,
-            D_800F4D8C[arg0].x,
-            D_800F4D8C[arg0].y,
-            D_800F4D8C[arg0].w,
-            D_800F4D8C[arg0].h,
+            GlyphRows[arg0].x,
+            GlyphRows[arg0].y,
+            GlyphRows[arg0].w,
+            GlyphRows[arg0].h,
             8, 8, 8
         );
         if (s5 >= 0x80) {
-            D_800F4D8C[arg0].f03 = 0;
-            D_800F4D8C[arg0].f02 = 2;
+            GlyphRows[arg0].f03 = 0;
+            GlyphRows[arg0].f02 = 2;
         } else {
-            D_800F4D8C[arg0].f03 += 8;
+            GlyphRows[arg0].f03 += 8;
         }
         break;
     case 2:
     default:
         a1 = *(void **)0x1F800000;
-        if (D_800F4D8C[arg0].f00 >= 0) {
-            a1 = func_80020074(
+        if (GlyphRows[arg0].f00 >= 0) {
+            a1 = AddSpriteWithDrawMode(
                 D_800ACC14 + 0x70,
                 a1,
-                D_800F4D8C[arg0].x,
-                D_800F4D8C[arg0].y,
-                D_800F4D8C[arg0].w,
-                D_800F4D8C[arg0].h,
-                D_800F4D8C[arg0].u,
-                D_800F4D8C[arg0].v,
-                D_800F4D8C[arg0].page,
-                D_800F4D8C[arg0].clut,
+                GlyphRows[arg0].x,
+                GlyphRows[arg0].y,
+                GlyphRows[arg0].w,
+                GlyphRows[arg0].h,
+                GlyphRows[arg0].u,
+                GlyphRows[arg0].v,
+                GlyphRows[arg0].page,
+                GlyphRows[arg0].clut,
                 0,
                 0x80
             );
         }
-        *(void **)0x1F800000 = func_8001FD20(
+        *(void **)0x1F800000 = AddTilePrim(
             D_800ACC14 + 0x74,
             a1,
-            D_800F4D8C[arg0].x,
-            D_800F4D8C[arg0].y,
-            D_800F4D8C[arg0].w,
-            D_800F4D8C[arg0].h,
+            GlyphRows[arg0].x,
+            GlyphRows[arg0].y,
+            GlyphRows[arg0].w,
+            GlyphRows[arg0].h,
             8, 8, 8
         );
-        if (s5 >= D_800F4D8C[arg0].f05 && D_800F4D8C[arg0].f01 >= 2) {
-            D_800F4D8C[arg0].f03 = 0;
-            D_800F4D8C[arg0].f02 = 0;
-            D_800F4D8C[arg0].f00 = ++D_800F4D8C[arg0].f00 % D_800F4D8C[arg0].f01;
+        if (s5 >= GlyphRows[arg0].f05 && GlyphRows[arg0].f01 >= 2) {
+            GlyphRows[arg0].f03 = 0;
+            GlyphRows[arg0].f02 = 0;
+            GlyphRows[arg0].f00 = ++GlyphRows[arg0].f00 % GlyphRows[arg0].f01;
         } else {
-            D_800F4D8C[arg0].f03++;
+            GlyphRows[arg0].f03++;
         }
         break;
     }

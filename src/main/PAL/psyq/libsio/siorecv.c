@@ -27,7 +27,7 @@ extern volatile RrSerialReceiveRequest D_801146D8;
 extern RrSerialPortRegisters *D_800ABD18;
 extern RrSerialPortRegisters D_801146C0;
 extern int (*D_801146D0)(int, int);
-extern int func_80096E64(unsigned int, int);
+extern int DeliverEvent(unsigned int, int);
 
 int func_8009AC50(int first, int second) {
     int s0 = 0;
@@ -53,7 +53,7 @@ int func_8009AC50(int first, int second) {
                 do {
                     if (D_801146D0 != 0) {
                         if (D_801146D0(2, s0++) == 0) {
-                            func_80096E64(0xF000000B, 0x100);
+                            DeliverEvent(0xF000000B, 0x100);
                             goto done;
                         }
                     }
@@ -73,7 +73,7 @@ int func_8009AC50(int first, int second) {
                     do {
                         if (D_801146D0 != 0) {
                             if (D_801146D0(2, s0++) == 0) {
-                                func_80096E64(0xF000000B, 0x100);
+                                DeliverEvent(0xF000000B, 0x100);
                                 return second - D_801146D8.request.second - 1;
                             }
                         }

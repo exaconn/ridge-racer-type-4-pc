@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_800867A4();
-void func_800867C4();
+void SsUtReverbOff();
+void SsUtReverbOn();
 
 #endif /* RR_PSYQ_LIBSND_UTREV3_H */

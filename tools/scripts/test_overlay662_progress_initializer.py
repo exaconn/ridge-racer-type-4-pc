@@ -27,13 +27,13 @@ static struct World {State s;u32 calls;Event events[5];u32 guard[4];} world,expe
 static u8 resources[3][0x2D100],original[3][0x2D100];
 #define D_800F2DE4 world.s.frame
 #define ScreenFrame world.s.counter
-#define D_800AC64A world.s.current
-#define D_800AC5E0 world.s.limit
+#define MenuCursor world.s.current
+#define MenuItemCount world.s.limit
 #define D_800F4D7C world.s.flag1
 #define D_800F3A2C world.s.flag2
 #define D_800F4D70 world.s.arenas
-#define D_800102F0 world.s.base
-#define D_800ACC18 world.s.published
+#define CdDirectoryBuffer world.s.base
+#define LoadCursor world.s.published
 #define D_800F4D40 world.s.saved
 #define D_800F3920 world.s.save
 #define ovl662_D_80127328 world.s.counts
@@ -59,9 +59,9 @@ static void effect(struct World *v){
 static void observe(struct World *v,s32 kind,const s32 args[10]){
  Event *e;assert(v->calls<5);e=&v->events[v->calls++];memset(e,0,sizeof(*e));e->kind=kind;memcpy(e->args,args,sizeof(e->args));memcpy(&e->state,&v->s,sizeof(v->s));effect(v);
 }
-void func_8003A1B4(void){s32 a[10]={0};assert(world.calls==0 && world.s.frame==0 && world.s.counter==0 && world.s.current==0 && world.s.limit==3 && world.s.flag1==0 && world.s.flag2==0 && world.s.arenas.second==world.s.base+0x2D000);observe(&world,0,a);}
-void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls>=1 && world.calls<=3 && a==(s32)world.calls-1);if(world.calls==1)assert(world.s.published==world.s.arenas.second);observe(&world,1,args);}
-void func_80013890(s32 mode){s32 a[10]={mode};assert(world.calls==4);observe(&world,2,a);}
+void InitMenuArenas(void){s32 a[10]={0};assert(world.calls==0 && world.s.frame==0 && world.s.counter==0 && world.s.current==0 && world.s.limit==3 && world.s.flag1==0 && world.s.flag2==0 && world.s.arenas.second==world.s.base+0x2D000);observe(&world,0,a);}
+void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls>=1 && world.calls<=3 && a==(s32)world.calls-1);if(world.calls==1)assert(world.s.published==world.s.arenas.second);observe(&world,1,args);}
+void SetupRenderer(s32 mode){s32 a[10]={mode};assert(world.calls==4);observe(&world,2,a);}
 static const s32 rows[3][10]={{0,118,176,68,32,0,0,1,0,54},{1,118,216,68,32,0,0,1,1,15},{2,118,256,68,32,0,0,1,0,85}};
 static void reference(void){
  unsigned i,j;State *s=&expected.s;s32 a[10]={0};

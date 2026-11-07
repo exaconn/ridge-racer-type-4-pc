@@ -2,9 +2,9 @@
 #include "game/gfx/drawbuf.h"
 typedef struct { int x; } __attribute__((packed)) U4;
 extern int func_8001FF84();
-extern int func_8001FCC8();
+extern int AddDrawModePrim();
 extern U4 D_8009EE4C[];
-extern int D_800F3A30;
+extern int NumLaps;
 
 void func_80021C94(a0, a1)
 int a0; int a1;
@@ -35,10 +35,10 @@ int a0; int a1;
             *(char *)&buf = a1 * 0xC;
         }
         if (i == 1) {
-            *(char *)&buf = D_800F3A30 * 0xC;
+            *(char *)&buf = NumLaps * 0xC;
         }
         a = func_8001FF84(s4, a, 0x118 + i * 0x14, s5, &buf, 0x7EF8, 0);
         i++;
     } while (i < 2);
-    *(int *)SCRATCHPAD = func_8001FCC8(s4, a, 0x25);
+    *(int *)SCRATCHPAD = AddDrawModePrim(s4, a, 0x25);
 }

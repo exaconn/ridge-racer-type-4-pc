@@ -1,8 +1,8 @@
 #include "rr/overlay_menu.h"
 s32 ovl661_func_80117E10(void){
- func_80041320(D_800AC64A+38,0,0);
- func_8002B330(0,2,(char*)&D_800AC64A,3,0);
- func_80041320(D_800AC64A+38,1,1);
- if(D_800F3A60){PlaySfx(1);return D_800AC64A;}
+ func_80041320(MenuCursor+38,0,0);
+ StepMenuValue(0,2,(char*)&MenuCursor,3,0);
+ func_80041320(MenuCursor+38,1,1);
+ if(D_800F3A60){PlaySfx(1);return MenuCursor;}
  return -1;
 }

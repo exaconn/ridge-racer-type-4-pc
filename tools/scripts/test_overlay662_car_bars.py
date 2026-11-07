@@ -41,8 +41,8 @@ static void *service(unsigned kind,u32 *head,void *cursor,const u32 *args){struc
  effect(w,kind,args,order);return (u8*)cursor+(kind==0?20:kind==1?16:12);
 }
 void *func_8001FF84(u32 *h,void *p,s32 x,s32 y,RrUiUvRect *r,u16 clut,s32 flags){u32 a[8]={(u32)x,(u32)y,r->u,r->v,r->w,r->h,clut,(u32)flags};return service(0,h,p,a);}
-void *func_8001FD20(u32 *h,void *p,s32 x,s32 y,s32 w,s32 hgt,s32 r,s32 g,s32 b){u32 a[8]={(u32)x,(u32)y,(u32)w,(u32)hgt,(u32)r,(u32)g,(u32)b};return service(1,h,p,a);}
-void *func_8001FCC8(u32 *h,void *p,u16 page){u32 a[8]={page};return service(2,h,p,a);}
+void *AddTilePrim(u32 *h,void *p,s32 x,s32 y,s32 w,s32 hgt,s32 r,s32 g,s32 b){u32 a[8]={(u32)x,(u32)y,(u32)w,(u32)hgt,(u32)r,(u32)g,(u32)b};return service(1,h,p,a);}
+void *AddDrawModePrim(u32 *h,void *p,u16 page){u32 a[8]={page};return service(2,h,p,a);}
 static void reference(s32 selected){
  void *cursor=expected.scratch.cursor;u32 strip[8]={40,288,0,64,240,24,0x7FA4,1};cursor=service(0,&expected.context->head70,cursor,strip);
  for(unsigned i=0;i<20;i++)if(expected.status[i]!=0){u32 a[8]={41+12*i,288,10,22,255,189,0};if((s32)i==selected){a[4]=240;a[5]=122;a[6]=20;}cursor=service(1,&expected.context->head70,cursor,a);}

@@ -2,4 +2,4 @@
 
 extern int SpuSetReverb();
 
-void func_800867A4() { SpuSetReverb(0); }
+void SsUtReverbOff() { SpuSetReverb(0); }

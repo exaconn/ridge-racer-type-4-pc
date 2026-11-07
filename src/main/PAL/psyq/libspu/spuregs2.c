@@ -1,25 +1,25 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "psyq/libspu/spuregs2.h"
 #include "psyq/libspu/spuregs2.h"
-extern int func_8007EAC4();
-extern int func_8007F3D0();
+extern int _spu_init();
+extern int _spu_FsetRXX();
 extern int SpuStart();
-extern int func_8008B364();
-extern int D_800A47F4;
-extern int D_800A4844;
-extern int D_800A4854;
+extern int ResetCallback();
+extern int _spu_transMode;
+extern int _spu_keystat;
+extern int _spu_rev_offsetaddr;
 extern struct { int a; short b, c; int d, e; } D_800A485C;
 extern int D_800A4870; extern int D_800A486C;
 extern unsigned short D_800A48A2;
 extern int D_800A48A4; extern int D_800A48B8;
 extern int D_800A48BC;
-extern int D_800A48C0;
-extern int D_800A48C8;
-void func_8007F604(a0) int a0; {
+extern int _spu_memList;
+extern int _spu_rev_startaddr;
+void _SpuInit(a0) int a0; {
     unsigned short *p;
     int i; unsigned c; struct { int a; short b, c; int d, e; } *q;
-    func_8008B364();
-    func_8007EAC4(a0);
+    ResetCallback();
+    _spu_init(a0);
     c = 0xC000;
     if (a0 == 0) {
         i = 0x17;
@@ -31,22 +31,22 @@ void func_8007F604(a0) int a0; {
         } while (i >= 0);
     }
     SpuStart(c);
-    D_800A484C = 0;
-    D_800A4850 = 0;
+    _spu_rev_flag = 0;
+    _spu_rev_reserve_wa = 0;
     q = &D_800A485C;
     q->a = 0;
     q->b = 0;
     q->c = 0;
     q->d = 0;
     q->e = 0;
-    D_800A4854 = D_800A48C8;
-    func_8007F3D0(0xD1, D_800A48C8, 0);
+    _spu_rev_offsetaddr = _spu_rev_startaddr;
+    _spu_FsetRXX(0xD1, _spu_rev_startaddr, 0);
     D_800A48B8 = 0;
     D_800A48BC = 0;
-    D_800A48C0 = 0;
-    D_800A4848 = 0;
-    D_800A47F4 = 0;
-    D_800A4844 = 0;
+    _spu_memList = 0;
+    _spu_trans_mode = 0;
+    _spu_transMode = 0;
+    _spu_keystat = 0;
     D_800A4870 = 0;
     D_800A486C = 0;
     D_800A48A4 = 0;

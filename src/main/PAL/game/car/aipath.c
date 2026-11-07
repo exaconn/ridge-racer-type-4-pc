@@ -74,21 +74,21 @@ typedef struct
   unsigned char b;
 } K;
 
-extern s32 D_800ABECC;
-extern struct E *D_800ABEA4;
+extern s32 TrackNodeCount;
+extern struct E *TrackNodes;
 extern K D_800ADAD8[];
-extern int func_80026A74();
+extern int FindTrackNode();
 
-s32 func_800261BC(s32 *pos, s32 startIdx);
-void func_8002648C(RrRaceVehicle *p);
+s32 FindTrackNodeUnbounded(s32 *pos, s32 startIdx);
+void UpdateCarTrackNode(RrRaceVehicle *p);
 void func_8002679C(void *arg0);
 void func_80026800();
 void func_80026998(int a0, int a1);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABEA4 (*(s32 (*))&D_800ABEA4)
+#define TrackNodes (*(s32 (*))&TrackNodes)
 
-s32 func_800261BC(s32 *pos, s32 startIdx) {
+s32 FindTrackNodeUnbounded(s32 *pos, s32 startIdx) {
     SP *g = (SP *)SCRATCH_CAR_WORK;
     s32 a, n, t, x;
     s32 r;
@@ -107,16 +107,16 @@ s32 func_800261BC(s32 *pos, s32 startIdx) {
     g->t110[0].a = pos[0];
     g->t110[0].c = pos[2];
     g->s150[0] = startIdx;
-    g->s150[1] = D_800ABECC;
+    g->s150[1] = TrackNodeCount;
     for (;;) {
-        g->w34 = (g->s150[0] + 1) % D_800ABECC;
+        g->w34 = (g->s150[0] + 1) % TrackNodeCount;
         a = g->w34;
-        p = (char *)D_800ABEA4 + g->s150[0] * 0x3C;
+        p = (char *)TrackNodes + g->s150[0] * 0x3C;
         /* ASM_BARRIER: boost p reference weight so local-alloc assigns $a2 to p and $a3 to q */
         __asm__("" : "+r"(p));
         g->w78 = *(s32 *)(p + 8);
         g->w80 = *(s32 *)(p + 12);
-        q = (char *)D_800ABEA4 + a * 0x3C;
+        q = (char *)TrackNodes + a * 0x3C;
         g->h74 = g->h70 = *(u16 *)(q + 8) - (u16)g->w78;
         g->h76 = g->h72 = *(u16 *)(q + 12) - (u16)g->w80;
         g->h64 = (u16)g->t110[0].a - (u16)g->w78;
@@ -163,9 +163,9 @@ s32 func_800261BC(s32 *pos, s32 startIdx) {
     return g->s150[0];
 }
 
-#undef D_800ABEA4
+#undef TrackNodes
 
-void func_8002648C(RrRaceVehicle *p)
+void UpdateCarTrackNode(RrRaceVehicle *p)
 {
   int s = 1;
   int t;
@@ -179,7 +179,7 @@ void func_8002648C(RrRaceVehicle *p)
   int n;
   struct E *base;
   int bk;
-  t = func_800261BC(p->pos20, p->trackNodeF0);
+  t = FindTrackNodeUnbounded(p->pos20, p->trackNodeF0);
   if (t < 0)
   {
     *(short *)&p->flags1E4 = -1;
@@ -190,8 +190,8 @@ void func_8002648C(RrRaceVehicle *p)
     if (t != p->trackNodeF0)
     {
       cur = p->trackNodeF0;
-      n = D_800ABECC;
-      base = D_800ABEA4;
+      n = TrackNodeCount;
+      base = TrackNodes;
       while (1)
       {
         x = cur - s;
@@ -239,8 +239,8 @@ void func_8002648C(RrRaceVehicle *p)
     if (t != p->trackNodeF0)
   {
     cur = p->trackNodeF0;
-    n = D_800ABECC;
-    base = D_800ABEA4;
+    n = TrackNodeCount;
+    base = TrackNodes;
     while (1)
     {
       x = cur - s;
@@ -406,5 +406,5 @@ void func_80026998(int a0, int a1)
     a0 = a0 + ((v >> 11) << 5);
     if (a0 < 0) a0 = 0;
     else if (a0 >= 0x400) a0 = 0x3FF;
-    func_80026A74(sp, D_800ACBE8[a0], 6);
+    FindTrackNode(sp, D_800ACBE8[a0], 6);
 }

@@ -2,7 +2,7 @@
 
 #include "rr/channels.h"
 
-void func_8009A334(void) {
+void _padInitDirSeq(void) {
     /* ASM_BARRIER: reuse v0 for each callback address in source order. */
     register RrChannelUpdateCallback update __asm__("$2");
     /* ASM_BARRIER: preserve the original assembler temporary for the final slot. */

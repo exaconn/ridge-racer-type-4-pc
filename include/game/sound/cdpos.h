@@ -4,6 +4,6 @@
 #include "types.h"
 
 extern int D_8010E220;
-void func_80052760(void);
+void CdAudioFindStreamFile(void);
 
 #endif /* RR_GAME_SOUND_CDPOS_H */

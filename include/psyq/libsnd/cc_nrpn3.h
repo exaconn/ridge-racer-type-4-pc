@@ -3,8 +3,8 @@
 
 #include "types.h"
 
-void func_80080E54();
-void func_80080F60();
-void func_80081004();
+void _SsSetNrpnVabAttr4();
+void _SsUtBuildADSR();
+void _SsSetNrpnVabAttr5();
 
 #endif /* RR_PSYQ_LIBSND_CC_NRPN3_H */

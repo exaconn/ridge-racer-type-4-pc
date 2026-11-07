@@ -12,11 +12,11 @@ typedef struct {
     u16 pad1E6;
     u32 suffix[78];
 } RrBankRecord320;
-extern s32 D_800AC5A8,D_800AD504,D_800ADAC8,D_80107188;
-extern s16 D_800AC59C;
-extern RrBankRecord320 *D_800AC570[],*CarTable[];
+extern s32 ReplayFrame,ReplayState,SavedRaceState,ReplayLength;
+extern s16 NumCars;
+extern RrBankRecord320 *CarSnapshots[],*CarTable[];
 extern u8 D_800FFC48[];
-extern u8 *D_800AD510[];
+extern u8 *ReplayInputs[];
 
 /* Mode2 restores the live signed count of records; source/destination records
  * must be identical or disjoint, four-byte-aligned, and their slots accessible.

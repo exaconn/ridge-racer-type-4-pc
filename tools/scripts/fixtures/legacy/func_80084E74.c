@@ -1,7 +1,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channel_pitch.h"
-extern u16 func_80088608(s32 first, s32 second);
-s32 func_80084E74(s32 raw_input, s32 bank, s32 program, s32 group, s32 unused, u32 first_input, u32 second_input)
+extern u16 note2pitch2(s32 first, s32 second);
+s32 SsUtChangePitch(s32 raw_input, s32 bank, s32 program, s32 group, s32 unused, u32 first_input, u32 second_input)
 {
     s32 raw_voice=raw_input;
     u32 first=(u16)first_input;
@@ -42,7 +42,7 @@ s32 func_80084E74(s32 raw_input, s32 bank, s32 program, s32 group, s32 unused, u
     /* ASM_BARRIER: retain the actual PAL group-field page for indexed addressing. */
     __asm__("" : "+r"(group_page));
     if (*(s16*)(group_page+offset-0x6EA) != (s16)group) return -1;
-    func_8008A564(selected_bank, selected_program);
+    _SsVmVSetUp(selected_bank, selected_program);
     pitch_first=first;
     state = D_8011010C.fields08;
     state[0] = 0x21;
@@ -53,14 +53,14 @@ s32 func_80084E74(s32 raw_input, s32 bank, s32 program, s32 group, s32 unused, u
     /* ASM_BARRIER: retain the PAL page for the row byte reloaded after selection. */
     __asm__("" : "+r"(byte_page));
     ((RrSpuPitchRequest*)((u8*)state-8))->instrument00=*(byte_page+offset-0x6E2);
-    pitch = func_80088608(pitch_first,second);
-    *(u16 *)((voice * sizeof(RrSpuCachedVolumeEntry)) + (unsigned long)D_8010FE18.voices[0].pad04) = pitch;
+    pitch = note2pitch2(pitch_first,second);
+    *(u16 *)((voice * sizeof(RrSpuCachedVolumeEntry)) + (unsigned long)_svm_sreg_dirty.voices[0].pad04) = pitch;
     /* ASM_BARRIER: store pitch before reusing its offset register for fresh flags. */
     __asm__("" : : : "$3","memory");
     flags_page=(u8*)0x80110000U;
     /* ASM_BARRIER: retain the PAL flag page for the indexed load. */
     __asm__("" : "+r"(flags_page));
     flags=*(flags_page+voice-0x1E8);
-    D_8010FE18.flags[voice]=flags|4;
+    _svm_sreg_dirty.flags[voice]=flags|4;
     return 0;
 }

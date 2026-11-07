@@ -62,14 +62,14 @@ class Overlay665RenderTest(unittest.TestCase):
          if(first)memcpy(e->first,first,32);if(second)memcpy(e->second,second,32);
          if(mutation)effect(n);return e;
         }
-        void func_8006E1AC(void) {
+        void BuildCameraMatrices(void) {
          assert(w->calls==0 && w->s.scratch.depth60==3);
          assert(w->s.scratch.projection.word08==0 && w->s.scratch.projection.word0C==0 && w->s.scratch.projection.word10==0);
          assert(w->s.scratch.projection.word18==0 && w->s.scratch.projection.word1C==0 && w->s.scratch.projection.word20==0);
          (void)event(0,0,0,0,0,0);
         }
-        void func_8006EF8C(s32 mode){assert(mode==6);(void)event(1,mode,0,0,0,0);}
-        void func_800912B4(s32 x,s32 y){(void)event(2,x,y,0,0,0);}
+        void SetupViewport(s32 mode){assert(mode==6);(void)event(1,mode,0,0,0,0);}
+        void SetGeomOffset(s32 x,s32 y){(void)event(2,x,y,0,0,0);}
         void func_8005599C(char *view,char *lighting,RrMatrixWords32 *first,RrMatrixWords32 *second) {
          unsigned i,n=w->calls;
          assert(view==(char*)&w->s.visual.view74 && lighting==(char*)&w->s.visual.lighting4C);
@@ -83,8 +83,8 @@ class Overlay665RenderTest(unittest.TestCase):
          for(i=0;i<5;i++)matrix[i]=(matrix[i]^captured[i%3])+scenario+i;
          return matrix;
         }
-        void func_800912D4(s32 depth){(void)event(5,depth,0,0,0,0);}
-        void func_800701C4(s32 object){assert(object==8);(void)event(6,object,0,0,0,0);}
+        void SetGeomScreen(s32 depth){(void)event(5,depth,0,0,0,0);}
+        void SelectModelBank(s32 object){assert(object==8);(void)event(6,object,0,0,0,0);}
         s32 *MulMatrix2(s32 *basis,u16 *matrix) {
          unsigned i;u32 b[8],m[8];memcpy(b,basis,32);memcpy(m,matrix,32);
          assert(((uintptr_t)basis&3)==0 && ((uintptr_t)matrix&3)==0);
@@ -124,7 +124,7 @@ class Overlay665RenderTest(unittest.TestCase):
          w->s.visual.view74.rotation10=(s16)w->s.visual.rotation44;
          w->s.visual.view74.position00.words[2]=w->s.visual.position48;
          func_8005599C((char*)&w->s.visual.view74,(char*)&w->s.visual.lighting4C,&first->matrix,&second->matrix);
-         (void)ScaleMatrix(first->words,scales);func_800912D4(w->s.visual.depth40);
+         (void)ScaleMatrix(first->words,scales);SetGeomScreen(w->s.visual.depth40);
         }
         static void light(RrPreviewMatrixWorkspace *matrix){ovl665_func_80116358(matrix,&w->s.visual.lighting4C.matrix);}
         static void project(RrPreviewMatrixWorkspace *matrix){func_8006EE3C(w->s.scratch.tail7C.projection.halves,w->s.visual.view74.position00.halves,(s32*)matrix->words);}
@@ -137,13 +137,13 @@ class Overlay665RenderTest(unittest.TestCase):
          w->s.scratch.depth60=3;
          w->s.scratch.projection.word10=0;w->s.scratch.projection.word0C=0;w->s.scratch.projection.word08=0;
          w->s.scratch.projection.word20=0;w->s.scratch.projection.word1C=0;w->s.scratch.projection.word18=0;
-         func_8006E1AC();func_8006EF8C(6);
-         func_800912B4((s16)w->s.visual.centerX38,(s16)w->s.visual.centerY3A);
+         BuildCameraMatrices();SetupViewport(6);
+         SetGeomOffset((s16)w->s.visual.centerX38,(s16)w->s.visual.centerY3A);
          func_8002E828(2,w->s.scratch.matrix28.halves);kind=w->s.visual.kind18;
          if(kind>=0 && kind<=3) {
           setup(&first,&second);
           if(kind!=2)light(&first);
-          func_800701C4(8);
+          SelectModelBank(8);
           if(kind==0 || kind==1) {
            s32 object;project(&first);w->s.scratch.counter78=0;
            object=kind==0?1:w->s.meshes<1;

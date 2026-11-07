@@ -6,7 +6,7 @@
 #include "rr/trig.h"
 extern s32 ovl662_D_801268C8;
 extern RrGpuRectangleFields ovl662_D_801268A0,ovl662_D_801268A8,ovl662_D_801268B0,ovl662_D_801268B8,ovl662_D_801268C0;
-void func_80092FFC(const RrGpuRectangleFields *rectangle,const void *pixels);
+void LoadImage(const RrGpuRectangleFields *rectangle,const void *pixels);
 /* active21 stays0..1. Each palette pointer addresses words[0] of a complete
  * RrPalette16 owner; owners may coincide. Captured owners stay valid through
  * all callbacks. Sine returns -4096..4096. Callbacks may change the counter,

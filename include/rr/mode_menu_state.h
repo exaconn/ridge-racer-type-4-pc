@@ -13,11 +13,11 @@ extern s16 D_8010948C, D_8010948E, D_80109478[3];
 extern u16 D_800F3A26, D_800F4D8A;
 extern RrMenuSettings2C D_800F2E30[3], D_8010B258[3];
 
-void func_8002B75C(char *destination, char *source);
+void CopyStringClearTail(char *destination, char *source);
 int func_80035024();
 void func_80053BB4(s32 mode);
 s32 func_8003B934(void);
-void func_8002A344(s32 layout);
+void UpdateScreenFade(s32 layout);
 
 /* The initial choice index is0..2. The name terminates within23 bytes and
  * the text destination has24 bytes. Badge helpers may replace the live root;

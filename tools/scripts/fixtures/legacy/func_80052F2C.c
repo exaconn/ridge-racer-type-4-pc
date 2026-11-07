@@ -15,41 +15,41 @@ typedef struct {
     char pad4[0x26C0 - 0x26B4];
     unsigned short h26C0;
 } B;
-extern B D_800F4DB8;
+extern B SoundState;
 extern char D_800F7414[];
 extern unsigned int D_800F7430;
-extern int func_80052B48();
-extern int func_8008C0D8();
+extern int CdAudioSetVolumeRaw();
+extern int CdSync();
 extern int CdControl();
-extern int func_8008F274();
+extern int CdDiskReady();
 
-void func_80052F2C()
+void CdAudioPlayStep()
 {
     int r;
     int pad[2];
     B *p;
     switch (D_800F7430) {
     case 0:
-        if (func_8008C0D8(1, 0) == 0) break;
-        if (D_800F4DB8.f269C != -1) break;
-        D_800F4DB8.f2678 = D_800F4DB8.f2678 + 1;
+        if (CdSync(1, 0) == 0) break;
+        if (SoundState.f269C != -1) break;
+        SoundState.f2678 = SoundState.f2678 + 1;
     case 1:
         if (CdControl(0x1B, 0, 0)) {
-            D_800F4DB8.f2678 = D_800F4DB8.f2678 + 1;
+            SoundState.f2678 = SoundState.f2678 + 1;
             break;
         }
-        if (func_8008F274(1) == 0x10) {
-            D_800F4DB8.f267C = 1;
-            D_800F4DB8.f2680 = -2;
-            D_800F4DB8.f2670 = -1;
-            D_800F4DB8.f2678 = 0;
+        if (CdDiskReady(1) == 0x10) {
+            SoundState.f267C = 1;
+            SoundState.f2680 = -2;
+            SoundState.f2670 = -1;
+            SoundState.f2678 = 0;
         }
         break;
     case 2:
-        r = func_8008C0D8(1, 0);
+        r = CdSync(1, 0);
         if (r == 2) {
-            D_800F4DB8.f2678 = D_800F4DB8.f2678 + 1;
-            func_80052B48(D_800F4DB8.h26C0);
+            SoundState.f2678 = SoundState.f2678 + 1;
+            CdAudioSetVolumeRaw(SoundState.h26C0);
         } else if (r == 5) {
             D_800F7430 = 1;
         }
@@ -69,13 +69,13 @@ void func_80052F2C()
         }
         break;
     case 4:
-        D_800F4DB8.f2670 = -1;
-        D_800F4DB8.f2678 = 0;
-        D_800F4DB8.f269C = 1;
-        D_800F4DB8.f2680 = 0;
-        D_800F4DB8.f26A8 = 0;
-        D_800F4DB8.f26AC = 0;
-        D_800F4DB8.f26B0 = 0;
+        SoundState.f2670 = -1;
+        SoundState.f2678 = 0;
+        SoundState.f269C = 1;
+        SoundState.f2680 = 0;
+        SoundState.f26A8 = 0;
+        SoundState.f26AC = 0;
+        SoundState.f26B0 = 0;
         break;
     }
 }

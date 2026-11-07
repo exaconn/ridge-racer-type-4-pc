@@ -52,7 +52,7 @@ void ovl662_func_8011B484(void){assert(world.calls==0);observe(&world,0,0);}
 void ovl662_func_8011B400(void){assert(world.calls==1);observe(&world,1,0);}
 void ovl662_func_8011CF8C(void){assert(world.calls==2);observe(&world,2,0);}
 void ovl662_func_80119B44(void){assert(world.calls==0);observe(&world,3,0);}
-void func_8002A344(s32 flags){assert(world.calls==1 && flags==0x10002 && world.s.mode==1 && world.s.scene==70 && world.s.phase==0);observe(&world,4,flags);}
+void UpdateScreenFade(s32 flags){assert(world.calls==1 && flags==0x10002 && world.s.mode==1 && world.s.scene==70 && world.s.phase==0);observe(&world,4,flags);}
 static void reference_transition(void){
  int64_t counter;
  observe(&expected,0,0);observe(&expected,1,0);observe(&expected,2,0);
@@ -84,7 +84,7 @@ int main(void){unsigned k;static const s32 edges[]={26,27,28,INT32_MAX,INT32_MIN
 static struct World {u32 guard[4];RrMenuArenas arenas;void *published;RrMenuChoice4 choice;s16 glyph;u8 *mode;u8 backing[3][2];s32 counter;s8 flag1,flag2;u32 tail[4];} world,expected;
 static u8 resources[3][64];
 #define D_800F4D70 world.arenas
-#define D_800ACC18 world.published
+#define LoadCursor world.published
 #define D_800F4D98 world.choice
 #define D_800ABE2C world.glyph
 #define D_800F2AB0 world.mode

@@ -1,30 +1,30 @@
 #include "rr/ui.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4D80 (*(int (*))&D_800F4D80)
+#define UiRows (*(int (*))&UiRows)
 
-#undef D_800F4D80
+#undef UiRows
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4D80 ((UiElem24 *)D_800F4D80)
+#define UiRows ((UiElem24 *)UiRows)
 
-#define func_8001FD20 ((s32 (*)())func_8001FD20)
+#define AddTilePrim ((s32 (*)())AddTilePrim)
 
-#define func_80020074 ((s32 (*)())func_80020074)
+#define AddSpriteWithDrawMode ((s32 (*)())AddSpriteWithDrawMode)
 
-#undef D_800F4D80
+#undef UiRows
 
-#undef func_8001FD20
+#undef AddTilePrim
 
-#undef func_80020074
+#undef AddSpriteWithDrawMode
 
-void func_8003E928(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g,s32 h,...) {
+void InitUiRow(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g,s32 h,...) {
  register s32 i;
  u32 offset;
  register RrUiRow24 *tail;
  /* ASM_BARRIER: Keep the real PAL pointer page in its shared address register. */
  register u8 *page __asm__("$9");
- if(index<D_800F4BEC) {
+ if(index<UiRowCount) {
   /* Pointer storage is re-read after byte/halfword stores that can alias it. */
   page=(u8*)0x800F0000U;
   /* Preserve PAL offset wrapping while widening the signed offset for host pointers. */

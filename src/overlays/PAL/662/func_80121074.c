@@ -44,10 +44,10 @@ void ovl662_func_80121074(s32 mode) {
                     D_800F4C6A=1;D_800F3A26=0x27;D_800F4D8A=0;return;
                 }
             } else {
-                phase = D_800F4D80[0].byte14;
+                phase = UiRows[0].byte14;
                 switch ((s32) phase) {
                 case 2:
-                    if ((D_800F3AFC->state10 == 3) && (ovl662_D_801276A8.flagsD1 = (u8) (capturedFlags | 4), (D_800AC590->st == 4))) {
+                    if ((BadgeRows->state10 == 3) && (ovl662_D_801276A8.flagsD1 = (u8) (capturedFlags | 4), (D_800AC590->st == 4))) {
                         if (D_800F3A38[0].type01 != 0x12) {
                             if (D_800F3A38[0].buttons0A & 0x1000) {
                                 if (ovl662_D_801276A8.stateD2 != 0) {
@@ -69,26 +69,26 @@ block_32:
                         selection = ovl662_D_801276A8.stateD2;
                         switch (selection) {
                         case 0:
-                            D_800F4D80[0].cells[0] = 2;
-                            D_800F4D80[1].cells[0] = 0;
+                            UiRows[0].cells[0] = 2;
+                            UiRows[1].cells[0] = 0;
                             return;
                         case 1:
-                            D_800F4D80[0].cells[0] = 0;
-                            D_800F4D80[1].cells[0] = 2;
+                            UiRows[0].cells[0] = 0;
+                            UiRows[1].cells[0] = 2;
                             return;
                         case 2:
-                            D_800F4D80[0].cells[0] = 1;
-                            D_800F4D80[1].cells[0] = 0;
-                            D_800F4D80[0].byte14 = 7U;
-                            D_800F4D80[1].byte14 = 7U;
+                            UiRows[0].cells[0] = 1;
+                            UiRows[1].cells[0] = 0;
+                            UiRows[0].byte14 = 7U;
+                            UiRows[1].byte14 = 7U;
                             ovl662_D_801276A8.fade00 = 0x40;
                             return;
                         case 3:
-                            D_800F4D80[0].cells[0] = 0;
-                            D_800F4D80[1].cells[0] = 1;
-                            D_800F4D80[0].byte14 = selection;
-                            D_800F4D80[1].byte14 = selection;
-                            D_800F3AFC->state10 = 4;
+                            UiRows[0].cells[0] = 0;
+                            UiRows[1].cells[0] = 1;
+                            UiRows[0].byte14 = selection;
+                            UiRows[1].byte14 = selection;
+                            BadgeRows->state10 = 4;
                             ovl662_D_801276A8.flagsD1 = (u8) (ovl662_D_801276A8.flagsD1 & 0xFB);
                             return;
                         }
@@ -96,7 +96,7 @@ block_32:
                     break;
                 case 5:
                 case 6:
-                    if (D_800F3AFC->state10 == 0xB) {
+                    if (BadgeRows->state10 == 0xB) {
                         ovl662_D_80127668.words[0] = (s32) (ovl662_D_80127668.words[0] & ~9);
                         ovl662_D_801276A8.flagsD1 = 0U;
                         return;
@@ -136,10 +136,10 @@ block_32:
             D_800AC590->b5 = -1;
             D_800AC590->st = 0;
             ovl662_D_801276A8.flagsD1 = 3U;
-            D_800F3AFC->half02 = 1;
-            D_800F3AFC->state10 = 0;
-            D_800F4D80[0].byte14 = 0U;
-            D_800F4D80[1].byte14 = 0U;
+            BadgeRows->half02 = 1;
+            BadgeRows->state10 = 0;
+            UiRows[0].byte14 = 0U;
+            UiRows[1].byte14 = 0U;
             ovl662_D_801276A8.stateD2 = 1U;
         } else {
             return;

@@ -34,9 +34,9 @@ typedef uint32_t u32; typedef int32_t s32;
 ''' + layout + header + asm_header + '''
 s32 test_commands[32];
 s32 (*test_command_sink)(s32 *);
-s32 func_80085BA4(s32 *command) { return test_command_sink(command); }
+s32 SpuSetReverbModeParam(s32 *command) { return test_command_sink(command); }
 s16 test_mode_page[32768];
-#define D_801100A0 test_mode_page[0xA0/2]
+#define _svm_damper test_mode_page[0xA0/2]
 RrLibControllerCallback test_loop_callbacks[0x200];
 RrLibStateB0 *test_table[0x4100];
 RrLibStateB0 test_records[9][17];
@@ -50,11 +50,11 @@ u32 test_layout[] = {sizeof(RrLibStateB0), offsetof(RrLibStateB0,c0),
 RrLibControllerCallback D_8010EFE0,D_8010EFE4,D_8010EFE8,D_8010EFEC,D_8010EFF0;
 RrLibControllerCallback D_8010EFF4,D_8010EFF8,D_8010EFFC,D_8010F000,D_8010F004;
 RrLibControllerResetCallback D_8010F008;
-void test_bind_controller(void) { D_8010EFEC=func_800805D4; }
+void test_bind_controller(void) { D_8010EFEC=_SsContExpression; }
 s32 (*test_patch)(s32,s32,s32);
 void (*test_voice)(s32,s32,s32,u32,u32);
-s32 func_80089624(s16 device,s16 channel,s32 value) { return test_patch(device,channel,value); }
-void func_80089FA4(s32 packed,s32 device,s32 channel,u32 pitch,u32 previous) {
+s32 _SsVmSetProgVol(s16 device,s16 channel,s32 value) { return test_patch(device,channel,value); }
+void _SsVmSetVol(s32 packed,s32 device,s32 channel,u32 pitch,u32 previous) {
  test_voice(packed,device,channel,pitch,previous);
 }
 void test_initialize(void) {
@@ -72,25 +72,25 @@ void test_prepare(s32 bank,s32 row,const u8 *input,u32 length,u32 accumulator) {
  test_records[bank+4][row+8].w88=accumulator;
 }
 '''
-        source = source.replace('D_8010EFEC=func_800805D4',
-                                {'80080434': 'D_8010EFE4=func_80080434',
-                                 '800806C4': 'D_8010EFF0=func_800806C4',
-                                 '80080774': 'D_8010F004=func_80080774',
-                                 '80080804': 'D_8010EFF4=func_80080804',
-                                 '80080904': 'D_8010EFF8=func_80080904'}.get(
-                                     cls.handler, 'D_8010EFEC=func_800805D4'))
+        source = source.replace('D_8010EFEC=_SsContExpression',
+                                {'80080434': 'D_8010EFE4=_SsContMainVol',
+                                 '800806C4': 'D_8010EFF0=_SsContDamper',
+                                 '80080774': 'D_8010F004=_SsContExternal',
+                                 '80080804': 'D_8010EFF4=_SsContNrpn1',
+                                 '80080904': 'D_8010EFF8=_SsContNrpn2'}.get(
+                                     cls.handler, 'D_8010EFEC=_SsContExpression'))
         for name in ('80080434', '800805D4', '800806C4', '80080774', '80080804', '80080904', '80081E04', '800818B4',
                      '80087044', '80087054', '80086554'):
             body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
             body = body.replace('#include "rr_asm.h"', '')
             body = body.replace('#include "rr/library.h"', '').replace('#include "types.h"', '')
-            body = body.replace('extern short D_801100A0;', '')
+            body = body.replace('extern short _svm_damper;', '')
             body = body.replace('extern int D_80110008[];', '')
             body = body.replace('D_80110008', 'test_commands')
             body = body.replace('(s16 *)0x80110000U', 'test_mode_page')
-            body = body.replace('extern RrLibStateB0 *D_8010F068[];', '')
-            body = body.replace('D_8010F0E8', '(test_loop_callbacks + 0x100)')
-            body = body.replace('D_8010F068', '(test_table + 0x4000 - 0xF98 / 4)')
+            body = body.replace('extern RrLibStateB0 *_ss_score[];', '')
+            body = body.replace('_SsMarkCallback', '(test_loop_callbacks + 0x100)')
+            body = body.replace('_ss_score', '(test_table + 0x4000 - 0xF98 / 4)')
             body = body.replace('(RrLibStateB0 **)0x80110000U', '(test_table + 0x4000)')
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
@@ -106,10 +106,10 @@ void test_prepare(s32 bank,s32 row,const u8 *input,u32 length,u32 accumulator) {
         cls.table = (C.c_void_p * 0x4100).in_dll(cls.lib, 'test_table')
         cls.prepare = cls.lib.test_prepare
         cls.prepare.argtypes = [C.c_int32, C.c_int32, C.c_void_p, C.c_uint32, C.c_uint32]
-        cls.function = getattr(cls.lib, 'func_' + cls.handler)
+        cls.function = getattr(cls.lib, __import__('c_functions').name_at(cls.handler))
         cls.function.argtypes = [C.c_int32] * 3
         cls.function.restype = None
-        cls.controller = cls.lib.func_800818B4
+        cls.controller = cls.lib._SsSetControlChange
         cls.controller.argtypes = [C.c_int32] * 3
         cls.controller.restype = None
 

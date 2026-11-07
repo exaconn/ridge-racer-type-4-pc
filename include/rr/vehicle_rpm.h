@@ -8,5 +8,5 @@ extern s16 D_800F3826,D_800F4D44;
  * Products wrap32 before signed division, steering magnitude is computed wide,
  * and the final halfword stores preserve the original RPM/latch wrapping.
  * The full canonical record is accessed through the GNU aliasable drive view. */
-void func_800483D8(RrRaceVehicle *vehicle);
+void UpdateEngineRpm(RrRaceVehicle *vehicle);
 #endif

@@ -32,7 +32,7 @@ typedef uint32_t u32;typedef int32_t s32;
                                '-o',str(cls.directory/'pitch.so')],capture_output=True,text=True)
         if result.returncode:raise AssertionError(result.stderr)
         cls.lib=C.CDLL(str(cls.directory/'pitch.so'))
-        cls.convert=cls.lib.func_80084D44
+        cls.convert=cls.lib._spu_pitch2note
         cls.convert.argtypes=[C.c_int32,C.c_int32,C.c_uint32];cls.convert.restype=C.c_uint32
         exe=(root/'assets/PAL/main.exe').read_bytes()
         cls.coarse=struct.unpack_from('<12H',exe,0x800+0x800A4D58-0x80010000)
@@ -92,7 +92,7 @@ int main(void) {
  for(i=0;i<12;i++)D_800A4D58[i]=coarse[i];
  for(i=0;i<128;i++)D_800A4D70[i]=fine[i];
  for(p=1;p<65536;p++)for(i=0;i<4;i++)
-  digest^=func_80084D44((s32)words[i],(s32)words[3-i],p|(i<<16));
+  digest^=_spu_pitch2note((s32)words[i],(s32)words[3-i],p|(i<<16));
  (void)digest;return 0;
 }
 '''.replace('COARSE',coarse).replace('FINE',fine)

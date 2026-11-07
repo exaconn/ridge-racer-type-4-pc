@@ -10,7 +10,7 @@ class SpuTickTest(unittest.TestCase):
   body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
   body=re.sub(r' __asm__\("\$\d+"\)','',body)
   getter=(ROOT/'tools/scripts/fixtures/views/func_8008BDF8.c').read_text()
-  getter=re.sub(r'^#include[^\n]*\n|^extern[^\n]*\n','',getter,flags=re.M).replace('func_8008BDF8','actual_system')
+  getter=re.sub(r'^#include[^\n]*\n|^extern[^\n]*\n','',getter,flags=re.M).replace('GetVideoMode','actual_system')
   code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -30,11 +30,11 @@ static u32 seed=0x84004;
 static u32 next(void){u32 n=seed;n^=n<<13;n^=n>>17;n^=n<<5;return seed=n;}
 static s32 signed_bits(u32 n){s32 r;memcpy(&r,&n,4);return r;}
 static void callback0(void){}static void callback1(void){}
-#define D_800A4D38 (actual.timer)
-#define D_8010F064 (actual.rate)
+#define _snd_seq_tick_env (actual.timer)
+#define VBLANK_MINUS (actual.rate)
 #define D_800A63D0 (actual.system)
 '''+getter+r'''
-s32 func_8008BDF8(void){calls++;assert(calls==1);assert(!memcmp(&actual,&expected,sizeof(actual)));return actual_system();}
+s32 GetVideoMode(void){calls++;assert(calls==1);assert(!memcmp(&actual,&expected,sizeof(actual)));return actual_system();}
 '''+body+r'''
 static void model(s32 mode){s32 selected;unsigned flag=((u32)mode/4096U)&1U;
  selected=flag?(s32)((u32)mode%4096U):mode;
@@ -69,7 +69,7 @@ int main(void){u32 n,phase,i;uint64_t cases=0;unsigned flags[2]={0},selectors[8]
   switch(phase){case 0:case 2:actual.system=0;break;case 1:case 3:actual.system=1;break;case 4:actual.system=INT32_MIN;break;case 5:actual.system=INT32_MAX;break;case 6:actual.system=-1;break;case 7:actual.system=2;break;case 8:actual.system=(s16)n;break;default:actual.system=signed_bits(next());}
   flags[((u32)mode>>12)&1]++;selected=(mode&4096)?mode&4095:mode;selectors[selected<0?6:selected<6?(unsigned)selected:7]++;
   systems[actual.system==0?0:actual.system==1?1:actual.system<0?2:3]++;
-  expected=actual;calls=0;func_80084004(mode);assert(calls==1);model(mode);
+  expected=actual;calls=0;SsSetTickMode(mode);assert(calls==1);model(mode);
   assert(!memcmp(&actual,&expected,sizeof(actual)));cases++;
  }
  assert(cases==655360);for(i=0;i<2;i++)assert(flags[i]);for(i=0;i<8;i++)assert(selectors[i]);for(i=0;i<4;i++)assert(systems[i]);return 0;

@@ -67,10 +67,10 @@ static void check(s32 shift,u32 flagbits,u32 seed) {
     store(scratch+0x6C,0,2);
     store(scratch+0x6E,0,2);
     store(scratch+0x72,256,2);
-    func_80013890(shift);
+    SetupRenderer(shift);
     assert(!memcmp(&actual,&expected,sizeof(actual)));
     /* A second call must replace stale parameters and templates again. */
-    func_80013890(shift);
+    SetupRenderer(shift);
     assert(!memcmp(&actual,&expected,sizeof(actual)));
 }
 int main(int argc,char **argv) {

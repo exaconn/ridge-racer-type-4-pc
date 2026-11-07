@@ -20,9 +20,9 @@
 
 #undef D_800A6358
 
-extern s32 func_80096F84(s32),func_80096F94(s32,s32);
+extern s32 func_80096F84(s32),ChangeClearRCnt(s32,s32);
 
-RrLibInterruptCallback func_8008B7A0(s32 id,RrLibInterruptCallback callback) {
+RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback) {
     s32 selector=id;
     /* ASM_BARRIER: Preserve the requested callback across kernel calls. */
     register RrLibInterruptCallback requested __asm__("$18")=callback;
@@ -62,11 +62,11 @@ RrLibInterruptCallback func_8008B7A0(s32 id,RrLibInterruptCallback callback) {
     if(selector==0) {
         disabled=requested==0;
         func_80096F84(disabled);
-        func_80096F94(3,disabled);
+        ChangeClearRCnt(3,disabled);
     }
-    if(selector==4)func_80096F94(0,requested==0);
-    if(selector==5)func_80096F94(1,requested==0);
-    if(selector==6)func_80096F94(2,requested==0);
+    if(selector==4)ChangeClearRCnt(0,requested==0);
+    if(selector==5)ChangeClearRCnt(1,requested==0);
+    if(selector==6)ChangeClearRCnt(2,requested==0);
     *D_800A6358=saved;
 out:
     return previous;

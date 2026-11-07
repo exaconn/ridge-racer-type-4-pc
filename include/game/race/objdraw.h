@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80077D08(int *a, int b);
+int LoadTrackObjects(int *a, int b);
 
 #endif /* RR_GAME_RACE_OBJDRAW_H */

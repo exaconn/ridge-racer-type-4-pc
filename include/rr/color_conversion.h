@@ -8,7 +8,7 @@ typedef u8 RrRgbColor[3];
  * sector leaves output untouched; sector0 can retain a negative fraction.
  * Input covers three aligned halfwords, output three bytes when written.
  * Output may overlap writable input: all three inputs are captured first. */
-void func_8004C138(const RrHsvColor input,RrRgbColor output);
+void HsvToRgb(const RrHsvColor input,RrRgbColor output);
 RR_ASSERT_SIZE(RrHsvColor,6);
 RR_ASSERT_SIZE(RrRgbColor,3);
 #endif

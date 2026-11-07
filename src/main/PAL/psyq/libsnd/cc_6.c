@@ -23,10 +23,10 @@ RR_ASSERT_SIZE(ProgAtr, 0x10);
 
   /* _ss_score */
 extern void (*D_8010F00C[])();      /* SsFCALL.ccentry: _SsSetNrpnVabAttr0.. */
-extern void func_800850C4(s16 vab, s16 prog, s16 tone, VagAtr *atr); /* SsUtGetVagAtr */
-extern void func_800867E4(s16 vab, s16 prog, s16 tone, VagAtr *atr); /* SsUtSetVagAtr */
+extern void SsUtGetVagAtr(s16 vab, s16 prog, s16 tone, VagAtr *atr); /* SsUtGetVagAtr */
+extern void SsUtSetVagAtr(s16 vab, s16 prog, s16 tone, VagAtr *atr); /* SsUtSetVagAtr */
 
-void func_800800B4(s16 bank, s16 row, u8 data) {
+void _SsContDataEntry(s16 bank, s16 row, u8 data) {
     RrLibStateB0 *s;
     ProgAtr progAtr;
     VagAtr vagAtr;
@@ -34,20 +34,20 @@ void func_800800B4(s16 bank, s16 row, u8 data) {
     s32 i;
     s16 tune;
 
-    s = &D_8010F068[bank][row];
+    s = &_ss_score[bank][row];
     ch = s->b17;
-    func_80084FB4(s->b26, s->b37[ch], (u8 *)&progAtr); /* SsUtGetProgAtr */
+    SsUtGetProgAtr(s->b26, s->b37[ch], (u8 *)&progAtr); /* SsUtGetProgAtr */
     if (s->b1c == 1 && s->b15 == 0) {
         /* loop start armed: data is the repeat count */
         s->b1d = data;
         s->b1c = 0;
         s->b15 = 1;
-        s->w90 = func_80081E04(bank, row);
+        s->w90 = _SsReadDeltaValue(bank, row);
     } else if (s->b1e == 2) {
         /* RPN complete: 0 = bend range, 1 = fine tune, 2 = coarse tune */
         if (s->b19 == 0) {
             for (i = 0; i < progAtr.tones; i++) {
-                func_800850C4(s->b26, s->b37[ch], i, &vagAtr);
+                SsUtGetVagAtr(s->b26, s->b37[ch], i, &vagAtr);
                 switch (s->b18) {
                 case 0:
                     vagAtr.pbmin = vagAtr.pbmax = data & 0x7F;
@@ -77,10 +77,10 @@ void func_800800B4(s16 bank, s16 row, u8 data) {
                     vagAtr.center += tune;
                     break;
                 }
-                func_800867E4(s->b26, s->b37[ch], i, &vagAtr);
+                SsUtSetVagAtr(s->b26, s->b37[ch], i, &vagAtr);
             }
         }
-        s->w90 = func_80081E04(bank, row);
+        s->w90 = _SsReadDeltaValue(bank, row);
         s->b1e = 0;
     } else if (s->b1f == 2) {
         /* NRPN complete: tone attribute handler; vagAtr is whatever the stack holds. */
@@ -89,9 +89,9 @@ void func_800800B4(s16 bank, s16 row, u8 data) {
         } else {
             D_8010F00C[s->b1a](s->b26, s->b37[ch], s->b1b, vagAtr, s->b1a, data);
         }
-        s->w90 = func_80081E04(bank, row);
+        s->w90 = _SsReadDeltaValue(bank, row);
         s->b1f = 0;
     } else {
-        s->w90 = func_80081E04(bank, row);
+        s->w90 = _SsReadDeltaValue(bank, row);
     }
 }

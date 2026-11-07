@@ -56,7 +56,7 @@ RR_ASSERT_OFFSET(RrChannelTransferView, previous38, 0x38);
 RR_ASSERT_OFFSET(RrChannelTransferView, phase45, 0x45);
 RR_ASSERT_OFFSET(RrChannelTransferView, gates54, 0x54);
 
-/* Partial layout of the 0x36-byte control rows beginning at D_8010F908. */
+/* Partial layout of the 0x36-byte control rows beginning at _svm_voice. */
 typedef struct {
     s16 value00;
     u16 age02;
@@ -74,7 +74,7 @@ typedef struct {
     u8 pad1E[0x36 - 0x1E];
 } RrChannelControlRow36;
 
-/* Partial per-channel record selected through D_8010F068 (0xB0 stride). */
+/* Partial per-channel record selected through _ss_score (0xB0 stride). */
 typedef struct {
     u8 pad00[0x48];
     s16 rampDelta48, rampApplied4A;
@@ -86,26 +86,26 @@ typedef struct {
     u8 padA4[0xB0 - 0xA4];
 } RrChannelValueRecordB0;
 
-extern RrChannelValueRecordB0 *D_8010F068[];
+extern RrChannelValueRecordB0 *_ss_score[];
 extern s16 D_80110114;
 extern u16 D_80110118;
-extern s32 D_8010F05C;
+extern s32 _snd_ev_flag;
 
 /* Reset uses the global selector; the caller-supplied mode is unused. */
-extern void func_80088DA4(s32 unused_mode);
-extern void func_80088D64(u8 index);
-extern RrChannelControlRow36 D_8010F908[];
+extern void _SsVmKeyOffNow(s32 unused_mode);
+extern void vmNoiseOff(u8 index);
+extern RrChannelControlRow36 _svm_voice[];
 extern u32 D_800A48F8;
-/* Uses the valid active-channel count established by func_8008A644. */
-s32 func_80088340(s32 match10, s32 match18, s32 match14, u32 group0E);
+/* Uses the valid active-channel count established by SsSetReservedVoice. */
+s32 _SsVmKeyOff(s32 match10, s32 match18, s32 match14, u32 group0E);
 /* Reset all unblocked rows matching the signed low16 match10 value.
- * Uses the active-channel count1..24 established by func_8008A644. */
-void func_80089E1C(s32 group);
-extern s32 func_80085AEC(s32 selected);
+ * Uses the active-channel count1..24 established by SsSetReservedVoice. */
+void _SsVmSeqKeyOff(s32 group);
+extern s32 SsUtKeyOffV(s32 selected);
 
 /* Active channel count, accepted values are 1 through 24 after byte wrapping. */
-extern s8 D_801100FC;
-extern s32 func_8008A644(u32 count);
+extern s8 spuVmMaxVoice;
+extern s32 SsSetReservedVoice(u32 count);
 
 typedef s32 (*RrChannelStatusCallback)(void *);
 
@@ -150,7 +150,7 @@ extern RrChannelErrorCallback D_800ABC68;
 extern s32 D_800ABCD0, D_800ABCB8, D_800ABCBC;
 extern s32 D_800ABCA8, D_800ABCAC, D_800ABCB0;
 extern s32 D_80114428[2];
-s32 func_80098154(RrChannelRecordF0 *channel);
+s32 _padInitSioMode(RrChannelRecordF0 *channel);
 /* Entry stage must be in 0..4; the handler sees its incremented value. */
 typedef s32 (*RrChannelStageCallback)(RrChannelRecordF0 *channel);
 extern RrChannelStageCallback D_800ABCEC[5];

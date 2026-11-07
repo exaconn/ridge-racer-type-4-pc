@@ -36,7 +36,7 @@ typedef uint32_t u32;
 typedef int32_t s32;
 ''' + header + '''
 struct { RrSpuVolumeCache cache; u8 extra[0x200]; } test_holder;
-#define D_8010FE18 test_holder.cache
+#define _svm_sreg_dirty test_holder.cache
 '''
         for name in ('800869F0', '80086B00'):
             body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
@@ -51,7 +51,7 @@ struct { RrSpuVolumeCache cache; u8 extra[0x200]; } test_holder;
                         '-o', str(directory / 'functions.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'functions.so'))
         cls.holder = Holder.in_dll(cls.library, 'test_holder')
-        cls.functions = [cls.library.func_800869F0, cls.library.func_80086B00]
+        cls.functions = [cls.library.func_800869F0, cls.library.SsUtSetVVol]
         for function in cls.functions:
             function.argtypes = [C.c_int32] * 3
             function.restype = C.c_int32

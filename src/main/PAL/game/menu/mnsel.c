@@ -7,22 +7,22 @@ typedef struct { char p[0x10]; short s10; } T3;
 
 extern int ResetScreenCounters();
 extern int PlaySfx();
-extern int D_8009FDA4;
+extern int MenuStepDirection;
 extern char D_800AD4D8[];
 extern short D_800AD520;
 extern int D_800F2DE4;
 extern short D_800F3A26;
 extern unsigned short D_800F3A42;
 extern int D_800F3A60;
-extern T3 *D_800F3AFC;
+extern T3 *BadgeRows;
 extern short D_800F4C6A;
-extern char *D_800F4D80;
+extern char *UiRows;
 extern short D_800F4D8A;
-extern signed char *D_800F4D8C;
+extern signed char *GlyphRows;
 extern char *D_800FF68C;
 
-int func_80041A18(int a, int n);
-void func_80041A54(s32 index, s32 layout, s32 count, s32 x, s32 y);
+int AllocMenuGridRecords(int a, int n);
+void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y);
 
 void func_800417EC()
 {
@@ -30,22 +30,22 @@ void func_800417EC()
     char *q; char *r;
     int t = D_800F4D98[0];
     D_800AD520 = t;
-    D_800F4D80[t + 0xC] = 0;
+    UiRows[t + 0xC] = 0;
     if (D_800F3A42 & 0x2000) {
         if (D_800AD520 < 3) {
             D_800AD520 = (unsigned short)D_800AD520 + 1;
-            D_8009FDA4 = 2;
+            MenuStepDirection = 2;
             goto L_a8;
         }
     }
     if (D_800F3A42 & 0x8000) {
         if (D_800AD520 > 0) {
             D_800AD520 = (unsigned short)D_800AD520 - 1;
-            D_8009FDA4 = 1;
+            MenuStepDirection = 1;
             goto L_a8;
         }
     }
-    D_8009FDA4 = 0;
+    MenuStepDirection = 0;
     goto L_54;
 L_a8:
     PlaySfx(0);
@@ -56,14 +56,14 @@ L_a8:
     }
     D_800F4D98[0] = D_800AD520;
     D_800FF68C[4] = (unsigned char)D_800AD520 + 0x22;
-    D_800F4D8C[D_800AD520 * 0x1C + 2] = -6;
-    D_800F4D8C[D_800AD520 * 0x1C] = 0;
-    D_800F4D80[0x16] = D_800AD520;
+    GlyphRows[D_800AD520 * 0x1C + 2] = -6;
+    GlyphRows[D_800AD520 * 0x1C] = 0;
+    UiRows[0x16] = D_800AD520;
 L_54:
-    q = D_800F4D80 + 0xC;
+    q = UiRows + 0xC;
     q[D_800AD520] = 2;
     if (D_800F3A60 != 0) {
-        s0 = D_800F3AFC->s10;
+        s0 = BadgeRows->s10;
         if (s0 == 3) {
             PlaySfx(1);
             D_800F2DE4 = 0;
@@ -71,8 +71,8 @@ L_54:
             r = D_800AD4D8;
             *(short *)(r + 0x1A) = 1;
             r[0x1C] = D_800F4D98[0];
-            D_800F3AFC->s10 = 4;
-            D_800F4D80[0x14] = s0;
+            BadgeRows->s10 = 4;
+            UiRows[0x14] = s0;
             D_800F4C6A = 1;
             D_800F3A26 = 0xB;
             D_800F4D8A = 0;
@@ -81,18 +81,18 @@ L_54:
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A28 (*(int (*))&D_800F3A28)
+#define MenuGridRecords (*(int (*))&MenuGridRecords)
 
-int func_80041A18(int a, int n) {
+int AllocMenuGridRecords(int a, int n) {
     int sz = n * 56;
-    D_800F3A28 = a;
+    MenuGridRecords = a;
     func_80096434(a, sz);
     return sz;
 }
 
-#undef D_800F3A28
+#undef MenuGridRecords
 
-void func_80041A54(s32 index, s32 layout, s32 count, s32 x, s32 y) {
+void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y) {
     register s32 six = 6;
     register s32 quotient = six / count;
     register s32 offset;

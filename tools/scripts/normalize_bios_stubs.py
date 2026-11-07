@@ -12,7 +12,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 PATTERN = re.compile(
-    r'^glabel (?P<name>func_[0-9A-Fa-f]{8})\n'
+    r'^glabel (?P<name>[A-Za-z_]\w*)\n'
     r'\s*(?:/\*[^\n]*?\*/\s*)?addiu\s+\$t2,\s*\$zero,\s*(?P<vector>0x[A-Ca-c]0)\s*\n'
     r'\s*(?:/\*[^\n]*?\*/\s*)?jr\s+\$t2\s*\n'
     r'\s*(?:/\*[^\n]*?\*/\s*)?addiu\s+\$t1,\s*\$zero,\s*(?P<service>0x[0-9A-Fa-f]+)\s*\n'
@@ -29,7 +29,7 @@ def normalize(source, version='PAL'):
     def call(name, vector, service):
         return f"{names[int(vector, 16), int(service, 16)]} {name}\n"
     source, existing = re.subn(
-        r'^BIOS_CALL (func_[0-9A-Fa-f]{8}), (0x[0-9A-Fa-f]+), (0x[0-9A-Fa-f]+)\n',
+        r'^BIOS_CALL ([A-Za-z_]\w*), (0x[0-9A-Fa-f]+), (0x[0-9A-Fa-f]+)\n',
         lambda m: call(*m.groups()), source, flags=re.M)
     source, found = PATTERN.subn(lambda m: call(m['name'], m['vector'], m['service']), source)
     return source, existing + found

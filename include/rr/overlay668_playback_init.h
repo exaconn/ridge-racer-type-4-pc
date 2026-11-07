@@ -6,7 +6,7 @@
 #include "rr/menu_text_rows.h"
 /* CD file descriptor: position, byte count and16-byte filename storage. */
 typedef struct {RrCdLocation location;u32 byteSize;char name[16];} RrStrCdFileInfo;
-extern void *D_800F4D40,*D_800ACC18;
+extern void *D_800F4D40,*LoadCursor;
 extern s16 D_800F4C6A,D_800F3A26,D_800F4D8A;
 void ovl668_func_80114910(s32 resource,RrStrCdFileInfo *file,u32 *sectors);
 /* After the display setup service, D_800F4D40 covers an aligned complete

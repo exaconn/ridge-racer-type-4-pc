@@ -6,9 +6,9 @@
 
 typedef RrLibControllerCallback Control;
 
-extern RrLibStateB0 *D_8010F068[];
+extern RrLibStateB0 *_ss_score[];
 
-void func_800818B4(s32 bank, s32 row, s32 control) {
+void _SsSetControlChange(s32 bank, s32 row, s32 control) {
 /* ASM_BARRIER: Retain the original scratch or argument register through controller dispatch. */
 register u32 bits __asm__("$2");
     /* ASM_BARRIER: Retain the original scratch or argument register through controller dispatch. */
@@ -36,7 +36,7 @@ register u32 bits __asm__("$2");
     offset = normalized_row*(s32)sizeof(RrLibStateB0);
     /* ASM_BARRIER: Complete record offsets and canonical selectors before the indexed table load. */
     __asm__ volatile("" : : "r"(index), "r"(offset), "r"(normalized_bank), "r"(normalized_row) : "memory");
-    state = D_8010F068[normalized_bank]+normalized_row;
+    state = _ss_score[normalized_bank]+normalized_row;
     cursor = state->c0;
     value = *cursor++;
     state->c0 = cursor;
@@ -130,5 +130,5 @@ fallback:
     argument_bank = (s16)bank;
     argument_row = (s16)row;
 decode:
-    state->w90 = func_80081E04(argument_bank, argument_row);
+    state->w90 = _SsReadDeltaValue(argument_bank, argument_row);
 }

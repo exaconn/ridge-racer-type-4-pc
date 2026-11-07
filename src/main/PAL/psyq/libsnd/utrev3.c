@@ -2,6 +2,6 @@
 #include "psyq/libsnd/utrev3.h"
 #include "psyq/libsnd/utrev.h"
 
-void func_800867A4() { SpuSetReverb(0); }
+void SsUtReverbOff() { SpuSetReverb(0); }
 
-void func_800867C4() { SpuSetReverb(1); }
+void SsUtReverbOn() { SpuSetReverb(1); }

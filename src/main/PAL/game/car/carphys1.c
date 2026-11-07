@@ -1,11 +1,11 @@
 #include "game/car/carphys1.h"
 #include "rr/menu_overlay_runtime.h"
 #include "game/car/carphys2.h"
-extern int func_80025FBC();
+extern int AngleDiffSigned();
 #define S(p, o) (*(short *)((p) + (o)))
 #define U(p, o) (*(unsigned short *)((p) + (o)))
 #define W(p, o) (*(int *)((p) + (o)))
-void func_800247FC(a0)
+void UpdateCarHeading(a0)
 char *a0;
 {
     char *s1;
@@ -20,10 +20,10 @@ char *a0;
     U(a0, 0x1D8) = U(a0, 0x1D8) + (v1 >> 12);
     if (S(s1, 0xA) == 0) {
         if (S(s2, 0x3C) > 0) {
-            S(a0, 0x1D4) = U(a0, 0x1D4) + ((func_80025FBC(S(a0, 0x1D4), func_80024BCC(a0)) * S(s2, 0x3C)) >> 2) / 60;
+            S(a0, 0x1D4) = U(a0, 0x1D4) + ((AngleDiffSigned(S(a0, 0x1D4), GetTrackTargetHeading(a0)) * S(s2, 0x3C)) >> 2) / 60;
         }
     }
-    a1 = func_80025FBC(S(a0, 0x1D4), W(a0, 0x54));
+    a1 = AngleDiffSigned(S(a0, 0x1D4), W(a0, 0x54));
     if (S(s1, 0xA) > 0) {
         if (S(a0, 0x1DE) < 0) {
             if (S(a0, 0x1D8) < 0x3C0) {

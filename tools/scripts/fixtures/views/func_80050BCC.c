@@ -1,14 +1,14 @@
 #include "rr/audio_bank_setup.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x26]; s16 h; char pad2[0x195C - 0x28]; struct { s32 a, b, c; char p[16]; } e[2]; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x26]; s16 h; char pad2[0x195C - 0x28]; struct { s32 a, b, c; char p[16]; } e[2]; } (*))&SoundState)
 
-#undef D_800F4DB8
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x1964]; struct { s32 a, pad, b, c; char pad2[12]; } e[1]; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x1964]; struct { s32 a, pad, b, c; char pad2[12]; } e[1]; } (*))&SoundState)
 
-#undef D_800F4DB8
+#undef SoundState
 
 void func_80050BCC(RrAudioBankSetup *arg0)
 {
@@ -40,7 +40,7 @@ register s32 channelOffset asm("$4");
   new_var = input->slot0C;
   bankIndex = new_var;
   channels[0] = 5;
-  channels[1] = 6;slotBase=(u8*)D_800F4DF0;asm("" : : "r"(slotBase));
+  channels[1] = 6;slotBase=(u8*)SoundSlots;asm("" : : "r"(slotBase));
   asm("" : "+r"(input));
   calculation=((bankIndex*3)<<4)+bankIndex;asm("" : "+r"(calculation));offset=calculation<<5;
   channelOffset=bankIndex<<2;channel=(s32*)((u8*)channels+channelOffset);
@@ -50,7 +50,7 @@ register s32 channelOffset asm("$4");
   
   if (handle > (0 - 1))
   {
-    func_8008A674(handle);
+    SsVabClose(handle);
     *((s16 *) ((((u8 *) owner) + 0x24) + ((*channel) * 2))) = -1;
   }
   func_80096434(slot, 0x620);
@@ -61,7 +61,7 @@ register s32 channelOffset asm("$4");
   }
   if (input->bank00 != ((const u8 *) (~0UL)))
   {
-    handle = (s16) func_8008AA74(input->bank00, -1, mode);
+    handle = (s16) SsVabOpenHeadSticky(input->bank00, -1, mode);
     *((s16 *) ((((u8 *) owner) + 0x24) + ((*channel) * 2))) = handle;
     bankView = (RrAudioState *) (((u8 *) owner) + offset);
     *((RrAudioBankStorage32*)&bankView->slots38[0].bank04) = (s32) handle;
@@ -69,10 +69,10 @@ register s32 channelOffset asm("$4");
   if (input->data04 != ((const u16 *) (~0UL)))
   {
     bankPointer = (RrAudioState *) (((u8 *) owner) + offset);
-    handle = (s16) func_8008AEC4(input->data04, bankPointer->slots38[0].bank04);
+    handle = (s16) SsVabTransBody(input->data04, bankPointer->slots38[0].bank04);
     *((s16 *) ((((u8 *) owner) + 0x24) + ((*channel) * 2))) = handle;
     *((RrAudioBankStorage32*)&bankPointer->slots38[0].bank04) = (s32) handle;
-    func_8008B074(1);
+    SsVabTransCompleted(1);
   }
   if (input->group08 != (RrAudioProgramData*)~0UL)
   {
@@ -94,7 +94,7 @@ register s32 channelOffset asm("$4");
   slot->voice08 = voice;
   slot->count0C = 4;asm("" : : : "$21", "$22", "$2", "memory");
   i = 0;
-  loopRoot = (u8 *) (&D_800F4DB8);asm("" : : "r"(loopRoot));
+  loopRoot = (u8 *) (&SoundState);asm("" : : "r"(loopRoot));
   calculation=((bankIndex*3)<<4)+bankIndex;asm("" : "+r"(calculation));calculation<<=5;
   bankOwner=loopRoot+calculation;
 tone=(u8*)&toneRecord;
@@ -105,13 +105,13 @@ zeroArg=0;toneArg=tone;
     read = (u8*)((unsigned long)readOffset+(unsigned long)loopRoot);
     write = (u8*)((unsigned long)writeOffset+(unsigned long)loopRoot);
 asm("" : : "r"(write));
-    func_800850C4(*((s16 *) (bankOwner + 0x3C)), *((s16 *) (read + 0x614)), zeroArg, toneArg);
+    SsUtGetVagAtr(*((s16 *) (bankOwner + 0x3C)), *((s16 *) (read + 0x614)), zeroArg, toneArg);
     writeOffset = writeOffset + 4;
     readOffset = readOffset + 2;
     semitone = 0x3C;
     *((s16 *) (write + 0x630)) = (s16) (semitone - ((u8 *) (&toneRecord))[12]);
     *((s16 *) (write + 0x632)) = (s16) ((((u8 *) (&toneRecord))[13] + ((u8 *) (&toneRecord))[12]) << 7);
-    func_800850C4(*((s16 *) (bankOwner + 0x3C)), *((s16 *) (read + 0x61E)), 0, tone);
+    SsUtGetVagAtr(*((s16 *) (bankOwner + 0x3C)), *((s16 *) (read + 0x61E)), 0, tone);
     *((s16 *) (write + 0x644)) = (s16) (semitone - ((u8 *) (&toneRecord))[12]);
     i++;
     *((s16 *) (write + 0x646)) = (s16) ((((u8 *) (&toneRecord))[13] + ((u8 *) (&toneRecord))[12]) << 7);

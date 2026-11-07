@@ -39,7 +39,7 @@ typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
 RrLibTransferState38 D_800A67B0;
-u32 D_800A63F4;
+u32 CD_read_dma_mode;
 struct { u8 prefix[0x63F0]; RrLibNotificationCallback callback;
          u8 suffix[0x10000 - 0x63F0 - sizeof(RrLibNotificationCallback)]; } test_page;
 void (*test_first)(RrLibCompletionCallback);
@@ -47,9 +47,9 @@ void (*test_second)(RrLibCompletionCallback);
 void (*test_control)(RrLibCompletionCallback);
 void (*test_command)(s32, s32);
 s32 test_unexpected_calls;
-void func_8008C12C(RrLibCompletionCallback callback) { test_first(callback); }
-void func_8008C55C(RrLibCompletionCallback callback) { test_second(callback); }
-void func_8008C118(RrLibCompletionCallback callback) { test_control(callback); }
+void CdReadyCallback(RrLibCompletionCallback callback) { test_first(callback); }
+void CdDataCallback(RrLibCompletionCallback callback) { test_second(callback); }
+void CdSyncCallback(RrLibCompletionCallback callback) { test_control(callback); }
 s32 CdControlF(s32 command, const u8 *value) { test_command(command, (s32)(unsigned long)value); return 0; }
 void func_8008E7F4(void) { test_unexpected_calls++; }
 void test_callback_first(void) { test_unexpected_calls++; }
@@ -67,7 +67,7 @@ void test_callback_second(void) { test_unexpected_calls++; }
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
         cls.state = State.in_dll(cls.library, 'D_800A67B0')
-        cls.flags = C.c_uint32.in_dll(cls.library, 'D_800A63F4')
+        cls.flags = C.c_uint32.in_dll(cls.library, 'CD_read_dma_mode')
         cls.page = NotificationPage.in_dll(cls.library, 'test_page')
         cls.unexpected = C.c_int32.in_dll(cls.library, 'test_unexpected_calls')
         cls.first_address = C.cast(cls.library.test_callback_first, C.c_void_p).value

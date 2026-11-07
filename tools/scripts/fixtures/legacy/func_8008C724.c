@@ -12,12 +12,12 @@ extern const char D_80011A4C[];
 extern const char D_80011A68[];
 extern const char D_80011A7C[];
 
-extern s32 D_800A6490;
-extern s32 D_800A6494;
-extern s32 D_800A6498;
-extern s32 D_800A649C;
+extern s32 CD_debug;
+extern s32 CD_status;
+extern s32 CD_status1;
+extern s32 CD_nopen;
 extern u8 D_800A64A5;
-extern char *D_800A64AC[];
+extern char *CD_comstr[];
 extern s32 D_800A654C[];
 extern s32 D_800A664C[];
 extern volatile u8 *D_800A674C;
@@ -42,7 +42,7 @@ extern u8 D_80110328[];
         } \
     }
 
-s32 func_8008C724(void) {
+s32 getintr(void) {
     volatile u8 intr;
     u8 res[8];
     s32 i;
@@ -72,22 +72,22 @@ s32 func_8008C724(void) {
     {
         s32 t = intr;
         if (t != 3 || D_800A664C[D_800A64A5] != 0) {
-            if ((D_800A6494 & 0x10) == 0 && (res[0] & 0x10) != 0) {
-                D_800A649C++;
+            if ((CD_status & 0x10) == 0 && (res[0] & 0x10) != 0) {
+                CD_nopen++;
             }
-            D_800A6494 = *(volatile u8 *)res;
-            err = D_800A6494 & 0x1D;
-            D_800A6498 = res[1];
+            CD_status = *(volatile u8 *)res;
+            err = CD_status & 0x1D;
+            CD_status1 = res[1];
         }
     }
     {
         s32 t = intr;
         if (t == 5) {
-            if (D_800A6490 > 0) {
+            if (CD_debug > 0) {
                 func_8001E84C(D_80011A40);
             }
-            if (D_800A6490 > 0) {
-                func_8001E84C(D_80011A4C, D_800A64AC[D_800A64A5], D_800A6494, D_800A6498);
+            if (CD_debug > 0) {
+                func_8001E84C(D_80011A4C, CD_comstr[D_800A64A5], CD_status, CD_status1);
             }
         }
     }

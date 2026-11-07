@@ -3,19 +3,19 @@
 #include "psyq/libspu/s_crwa.h"
 #include "psyq/libspu/spuregs2.h"
 #include "rr/bios_events.h"
-extern int D_800A480C;
-int func_8008B0A4(int a0) {
+extern int _spu_inTransfer;
+int SpuIsTransferCompleted(int a0) {
   int r;
-  if (D_800A4848 == 1 || D_800A480C == 1) return 1;
-  r = func_80096EA4(D_800A4840);
+  if (_spu_trans_mode == 1 || _spu_inTransfer == 1) return 1;
+  r = TestEvent(_spu_EVdma);
   if (a0 == 1) {
     if (r == 0) {
-      while (func_80096EA4(D_800A4840) == 0) ;
+      while (TestEvent(_spu_EVdma) == 0) ;
     }
     r = 1;
-    D_800A480C = r;
+    _spu_inTransfer = r;
   } else if (r == 1) {
-    D_800A480C = r;
+    _spu_inTransfer = r;
   }
   return r;
 }

@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8002C1D4();
+void SetCarImpactState();
 
 #endif /* RR_GAME_CAR_CARSTATE_H */

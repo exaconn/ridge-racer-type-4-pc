@@ -23,12 +23,12 @@ class BadgeRowsTest(unittest.TestCase):
         body=body.replace('(u8 *)0x800F0000U','(actual->row_page.bytes+4)')
         helper=(ROOT/'tools/scripts/fixtures/views/func_80020074.c').read_text()
         helper=re.sub(r'^#include[^\n]*\n','',helper,flags=re.M)
-        helper=helper.replace('void *func_80020074(', 'void *native_sprite(')
+        helper=helper.replace('void *AddSpriteWithDrawMode(', 'void *native_sprite(')
         # Give the existing unprototyped helper boundaries pointer-safe native
         # declarations; their argument counts and ignored return values agree.
-        old='extern struct P *func_8001FCC8();'
+        old='extern struct P *AddDrawModePrim();'
         assert helper.count(old)==1
-        helper=helper.replace(old,'extern struct P *func_8001FCC8(u32 *, void *, s32);')
+        helper=helper.replace(old,'extern struct P *AddDrawModePrim(u32 *, void *, s32);')
         old='extern int func_80095B94(), SetShadeTex(), SetSemiTrans(), AddPrim();'
         assert helper.count(old)==1
         helper=helper.replace(old,'extern int func_80095B94(void *), SetShadeTex(void *, s32), SetSemiTrans(void *, s32), AddPrim(u32 *, void *);')
@@ -95,13 +95,13 @@ static void *emit(World *w,int kind,u32 *head,void *cursor,const s32 *args,int c
  if((call+iteration)%3==0)return (u8 *)&actual->rows[call&1][4]+((call+iteration)%4)*4;
  return actual->arena+64+((call*37+iteration)%320)*4;
 }
-void *func_8001FD20(u32 *h,void *p,s32 x,s32 y,s32 w,s32 height,s32 r,s32 g,s32 b) {
+void *AddTilePrim(u32 *h,void *p,s32 x,s32 y,s32 w,s32 height,s32 r,s32 g,s32 b) {
  s32 a[]={x,y,w,height,r,g,b};return emit(actual,0,h,p,a,7);
 }
-void *func_80020074(u32 *h,void *p,s32 x,s32 y,s32 w,s32 height,s32 u,s32 v,u16 mode,u16 clut,u16 semi,u16 color) {
+void *AddSpriteWithDrawMode(u32 *h,void *p,s32 x,s32 y,s32 w,s32 height,s32 u,s32 v,u16 mode,u16 clut,u16 semi,u16 color) {
  s32 a[]={x,y,w,height,u,v,mode,clut,semi,color};return emit(actual,1,h,p,a,10);
 }
-void *func_8001FC28(u32 *h,void *p,s32 x,s32 y,s32 w,s32 height) {
+void *AddDrawAreaPrim(u32 *h,void *p,s32 x,s32 y,s32 w,s32 height) {
  s32 a[]={x,y,w,height};return emit(actual,2,h,p,a,4);
 }
 static void *reference(void *cursor,s32 style,s32 index) {
@@ -130,7 +130,7 @@ static const u8 rom_patterns[320]={'''+rom(0x8009F108-16,320)+r'''};
 static const u8 rom_uv[1040]={'''+rom(0x8009F074-512,1040)+r'''};
 static u8 sprite_arena[512] __attribute__((aligned(8)));
 static u32 sprite_head;static int mode_calls;static u16 expected_mode;
-struct P *func_8001FCC8(u32 *head,void *cursor,s32 mode) {
+struct P *AddDrawModePrim(u32 *head,void *cursor,s32 mode) {
  assert(head==&sprite_head);
  if(mode_calls++==0){assert(cursor==sprite_arena+32 && mode==5);return (struct P *)(sprite_arena+160);}
  assert(cursor==sprite_arena+180 && mode==expected_mode);return (struct P *)(sprite_arena+288);

@@ -11,7 +11,7 @@ typedef struct {u32 tag,command;} RrGpuSingleCommandPacket;
  * pointer reload. Adds one modulo 16-bit tick, then advances phase by 5 for each
  * sprite. Raw intensity bits are OR-packed without clamping. Each list insertion
  * clears the ordering-head high byte. Finishes with command E100022A. */
-void func_8001E1F0(u32 intensity,RrSpriteGridClock *state);
+void EmitSpriteGrid(u32 intensity,RrSpriteGridClock *state);
 
 RR_ASSERT_SIZE(RrSpriteGridClock, 16);
 RR_ASSERT_OFFSET(RrSpriteGridClock, tick0E, 14);

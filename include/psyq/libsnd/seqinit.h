@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80081EB4();
+int _SsInitSoundSeq();
 
 #endif /* RR_PSYQ_LIBSND_SEQINIT_H */

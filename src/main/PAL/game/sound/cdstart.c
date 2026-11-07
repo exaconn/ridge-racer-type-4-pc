@@ -3,7 +3,7 @@
 #include "rr/overlay668_stream.h"
 #include "rr/cd.h"
 
-#define D D_800F4DB8
+#define D SoundState
 
 typedef struct {
     char pad0[0x2664];
@@ -28,20 +28,20 @@ typedef struct {
     unsigned short h26CE;
 } S;
 
-extern struct { char p0[0x2670]; s32 x2670; char p1[0x4]; s32 x2678; char p2[0x20]; s32 x269C; s32 x26A0; char p3[0x4]; s32 x26A8; char p4[0x4]; s32 x26B0; s32 x26B4; char p5[0x4]; s32 x26BC; u16 x26C0; char p6[0xC]; u16 x26CE; } D_800F4DB8;
-extern int func_8008F274();
+extern struct { char p0[0x2670]; s32 x2670; char p1[0x4]; s32 x2678; char p2[0x20]; s32 x269C; s32 x26A0; char p3[0x4]; s32 x26A8; char p4[0x4]; s32 x26B0; s32 x26B4; char p5[0x4]; s32 x26BC; u16 x26C0; char p6[0xC]; u16 x26CE; } SoundState;
+extern int CdDiskReady();
 
-void func_80052A30(int a0);
-void func_80052AB8(void);
-void func_80052ADC(u16 a0);
-void func_80052B48(s32 arg0);
-void func_80052B8C(u16 a0, int a1);
-void func_80052C70();
-void func_80052D50(int a0);
+void CdAudioBeginPlay(int a0);
+void CdAudioMute(void);
+void CdAudioSetVolume(u16 a0);
+void CdAudioSetVolumeRaw(s32 arg0);
+void CdAudioFade(u16 a0, int a1);
+void CdAudioRequestPause();
+void CdAudioSetFilter(int a0);
 int func_80052D6C(void);
-void func_80052DA8(void);
+void CdAudioFilterStep(void);
 
-void func_80052A30(int a0) {
+void CdAudioBeginPlay(int a0) {
     D.x2670 = 1;
     D.x26BC = 1;
     if (a0 == 1) D.x26A0 = a0;
@@ -50,30 +50,30 @@ void func_80052A30(int a0) {
     D.x26A8 = 0;
     D.x26B0 = 0;
     D.x26B4 = 0;
-    if (D.x269C == 2) func_80052ADC(D.x26CE);
-    else func_80052B8C(D.x26C0, 0);
-    func_80052B48(0);
+    if (D.x269C == 2) CdAudioSetVolume(D.x26CE);
+    else CdAudioFade(D.x26C0, 0);
+    CdAudioSetVolumeRaw(0);
 }
 
-void func_80052AB8(void) {
-    func_80052B8C(0, 0);
+void CdAudioMute(void) {
+    CdAudioFade(0, 0);
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x26C4]; u16 v; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x26C4]; u16 v; } (*))&SoundState)
 
-void func_80052ADC(u16 a0) {
+void CdAudioSetVolume(u16 a0) {
     s16 s;
-    if (D_800F4DB8.v != a0) {
-        D_800F4DB8.v = (u8)a0;
-        s = (D_800F4DB8.v * D_800AD558) / 16;
-        func_80083CD4(0, s, s);
+    if (SoundState.v != a0) {
+        SoundState.v = (u8)a0;
+        s = (SoundState.v * D_800AD558) / 16;
+        SsSetSerialVol(0, s, s);
     }
 }
 
-#undef D_800F4DB8
+#undef SoundState
 
-void func_80052B48(s32 arg0) {
+void CdAudioSetVolumeRaw(s32 arg0) {
     s32 var_a0;
     u32 temp_a1;
 
@@ -82,40 +82,40 @@ void func_80052B48(s32 arg0) {
         var_a0 += 0xF;
     }
     temp_a1 = (u32) var_a0 >> 4;
-    func_80083CD4(0, temp_a1, temp_a1);
+    SsSetSerialVol(0, temp_a1, temp_a1);
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char p0[0x2670]; s32 x2670; char p1[0x4]; s32 x2678; char p2[0x20]; s32 x269C; char p3[0x8]; s32 x26A8; char p4[0x4]; s32 x26B0; s32 x26B4; char p5[0xC]; u16 x26C4; s16 x26C6; s16 x26C8; u16 x26CA; u16 x26CC; u16 x26CE; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char p0[0x2670]; s32 x2670; char p1[0x4]; s32 x2678; char p2[0x20]; s32 x269C; char p3[0x8]; s32 x26A8; char p4[0x4]; s32 x26B0; s32 x26B4; char p5[0xC]; u16 x26C4; s16 x26C6; s16 x26C8; u16 x26CA; u16 x26CC; u16 x26CE; } (*))&SoundState)
 
-void func_80052B8C(u16 a0, int a1) {
+void CdAudioFade(u16 a0, int a1) {
     if (a1 >= 2) {
-        u16 v = D_800F4DB8.x26C4;
-        D_800F4DB8.x26C6 = a1;
-        D_800F4DB8.x26C8 = 0;
-        D_800F4DB8.x26CA = a0;
-        D_800F4DB8.x26CC = v;
+        u16 v = SoundState.x26C4;
+        SoundState.x26C6 = a1;
+        SoundState.x26C8 = 0;
+        SoundState.x26CA = a0;
+        SoundState.x26CC = v;
     } else {
-        func_80052ADC(a0);
-        D_800F4DB8.x26C6 = 0;
-        D_800F4DB8.x26C8 = 0;
-        D_800F4DB8.x26CA = 0;
-        D_800F4DB8.x26CC = 0;
+        CdAudioSetVolume(a0);
+        SoundState.x26C6 = 0;
+        SoundState.x26C8 = 0;
+        SoundState.x26CA = 0;
+        SoundState.x26CC = 0;
         if (a0 == 0) {
-            int r = D_800F4DB8.x269C;
+            int r = SoundState.x269C;
             if (r != -1) {
-                if (D_800F4DB8.x2670 != 1) {
-                    D_800F4DB8.x2670 = 4;
-                    D_800F4DB8.x2678 = 0;
-                    D_800F4DB8.x26A8 = 0;
-                    if (r == 2) func_80052ADC(D_800F4DB8.x26CE);
+                if (SoundState.x2670 != 1) {
+                    SoundState.x2670 = 4;
+                    SoundState.x2678 = 0;
+                    SoundState.x26A8 = 0;
+                    if (r == 2) CdAudioSetVolume(SoundState.x26CE);
                 } else {
-                    if (D_800F4DB8.x26B0 < 0x20) {
-                        D_800F4DB8.x26B4 = 2;
+                    if (SoundState.x26B0 < 0x20) {
+                        SoundState.x26B4 = 2;
                     } else {
-                        D_800F4DB8.x2670 = 4;
-                        D_800F4DB8.x2678 = 0;
-                        D_800F4DB8.x26A8 = 0;
+                        SoundState.x2670 = 4;
+                        SoundState.x2678 = 0;
+                        SoundState.x26A8 = 0;
                     }
                 }
             }
@@ -123,98 +123,98 @@ void func_80052B8C(u16 a0, int a1) {
     }
 }
 
-#undef D_800F4DB8
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(S (*))&D_800F4DB8)
+#define SoundState (*(S (*))&SoundState)
 
-void func_80052C70()
+void CdAudioRequestPause()
 {
-    switch (D_800F4DB8.f269C) {
+    switch (SoundState.f269C) {
     case 0:
     case 1:
-        if (D_800F4DB8.f2670 != 2) {
-            D_800F4DB8.f2670 = 2;
-            D_800F4DB8.f2678 = 0;
-            D_800F4DB8.h26CE = D_800F4DB8.h26C4;
+        if (SoundState.f2670 != 2) {
+            SoundState.f2670 = 2;
+            SoundState.f2678 = 0;
+            SoundState.h26CE = SoundState.h26C4;
         }
-        if (D_800F4DB8.f269C == 1) {
-            D_800F4DB8.f26B8 = D_800F4DB8.f269C;
+        if (SoundState.f269C == 1) {
+            SoundState.f26B8 = SoundState.f269C;
         } else {
-            D_800F4DB8.f26B8 = 0;
-            D_800F4DB8.f2694 = D_800F4DB8.f2664;
+            SoundState.f26B8 = 0;
+            SoundState.f2694 = SoundState.f2664;
         }
         break;
     case 2:
-        if (D_800F4DB8.f2670 != 3) {
-            D_800F4DB8.f2670 = 3;
-            D_800F4DB8.f26A4 = 0;
-            D_800F4DB8.f2678 = 0;
+        if (SoundState.f2670 != 3) {
+            SoundState.f2670 = 3;
+            SoundState.f26A4 = 0;
+            SoundState.f2678 = 0;
         }
         break;
     }
-    if (D_800F4DB8.f2670 == 1) {
-        if (D_800F4DB8.f26B0 < 0x20) {
-            D_800F4DB8.f26B4 = D_800F4DB8.f2670;
+    if (SoundState.f2670 == 1) {
+        if (SoundState.f26B0 < 0x20) {
+            SoundState.f26B4 = SoundState.f2670;
             return;
         }
-        D_800F4DB8.f2670 = 2;
-        D_800F4DB8.f2678 = 0;
-        D_800F4DB8.h26CE = D_800F4DB8.h26C4;
+        SoundState.f2670 = 2;
+        SoundState.f2678 = 0;
+        SoundState.h26CE = SoundState.h26C4;
     }
 }
 
-#undef D_800F4DB8
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x266C]; s32 a, b, c, d; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x266C]; s32 a, b, c, d; } (*))&SoundState)
 
-void func_80052D50(int a0) {
-    D_800F4DB8.a = a0;
-    D_800F4DB8.b = 6;
-    D_800F4DB8.d = 0;
+void CdAudioSetFilter(int a0) {
+    SoundState.a = a0;
+    SoundState.b = 6;
+    SoundState.d = 0;
 }
 
-#undef D_800F4DB8
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x2674]; s32 a, b; char p[4]; s32 c; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x2674]; s32 a, b; char p[4]; s32 c; } (*))&SoundState)
 
 int func_80052D6C(void) {
-    if (D_800F4DB8.a != 0 || D_800F4DB8.b != 0) return 1;
-    return D_800F4DB8.c;
+    if (SoundState.a != 0 || SoundState.b != 0) return 1;
+    return SoundState.c;
 }
 
-#undef D_800F4DB8
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x266C]; int a; int b; int pp; int c; int d; int e; char pad2[0x14]; int g; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x266C]; int a; int b; int pp; int c; int d; int e; char pad2[0x14]; int g; } (*))&SoundState)
 
-void func_80052DA8(void) {
+void CdAudioFilterStep(void) {
     char sp[8];
-    switch (D_800F4DB8.c) {
+    switch (SoundState.c) {
     case 0:
         sp[0] = 1;
-        sp[1] = D_800F4DB8.a;
+        sp[1] = SoundState.a;
         if (CdControl(0xD, sp, 0) != 0) {
-            D_800F4DB8.c++;
+            SoundState.c++;
             return;
         }
-        if (func_8008F274(1) == 0x10) {
-            D_800F4DB8.d = 1;
-            D_800F4DB8.e = -3;
-            D_800F4DB8.b = -1;
-            D_800F4DB8.c = 0;
+        if (CdDiskReady(1) == 0x10) {
+            SoundState.d = 1;
+            SoundState.e = -3;
+            SoundState.b = -1;
+            SoundState.c = 0;
             return;
         }
         return;
     case 1:
-        D_800F4DB8.b = -1;
-        D_800F4DB8.c = 0;
-        D_800F4DB8.e = 0;
-        D_800F4DB8.g = D_800F4DB8.a;
+        SoundState.b = -1;
+        SoundState.c = 0;
+        SoundState.e = 0;
+        SoundState.g = SoundState.a;
         break;
     }
 }
 
-#undef D_800F4DB8
+#undef SoundState

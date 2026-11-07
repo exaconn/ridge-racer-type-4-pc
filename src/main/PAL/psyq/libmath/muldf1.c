@@ -7,12 +7,12 @@ typedef union {
     RrWide64 s;
 } DpUnion;
 
-extern s32 func_8007E9C4(s32 category, s32 operation);
+extern s32 _err_math(s32 category, s32 operation);
 
-RrWide64 *func_8007E494(RrWide64 *result,RrWide64 x);
+RrWide64 *_mainasu(RrWide64 *result,RrWide64 x);
 double __muldf3(double a_in, double b_in);
 
-RrWide64 *func_8007E494(RrWide64 *result,RrWide64 x) {
+RrWide64 *_mainasu(RrWide64 *result,RrWide64 x) {
     RrWide64 one;
     one.hi=0;
     /* Qualified write views keep the real ABI-home stores and subsequent reloads. */
@@ -107,7 +107,7 @@ double __muldf3(double a_in, double b_in) {
     sp18.hi &= 0xFFEFFFFF;
 
     if (s7 >= 0x7FF) {
-        func_8007E9C4(0x22, 0xD);
+        _err_math(0x22, 0xD);
         sp48.s.hi = fp ? 0xFFF00000 : 0x7FF00000;
         sp48.s.lo = 0;
     } else {

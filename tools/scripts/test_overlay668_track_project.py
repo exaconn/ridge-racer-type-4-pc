@@ -21,9 +21,9 @@ C=r'''
 #include "rr/overlay668_track_project.h"
 static struct {u8 pre[16];RrReplayCameraContextPrefix c;u8 post[16];} camera;
 static struct {u8 pre[16];RrTrackSample3C table[3][8];u8 post[16];} samples,saved;
-#define D_800AC650 camera.c
-RrTrackSample3C *D_800ABEA4;
-s32 D_800ABECC;
+#define RaceContext camera.c
+RrTrackSample3C *TrackNodes;
+s32 TrackNodeCount;
 static u8 expected[0x4B8];
 static unsigned scenario,event;
 static s32 initial[3],oldnode,count;
@@ -33,16 +33,16 @@ static s32 word(u32 x){s32 v;memcpy(&v,&x,4);return v;}
 static s16 half(u16 x){s16 v;memcpy(&v,&x,2);return v;}
 static void check(void){assert(!memcmp(&camera.c,expected,sizeof expected));}
 static void change(unsigned salt){unsigned i;for(i=0;i<sizeof expected;i++)expected[i]=(u8)(scenario*29+i*7+salt);memcpy(&camera.c,expected,sizeof expected);}
-s32 func_80026A74(s32 *position,s32 node,s32 n){
+s32 FindTrackNode(s32 *position,s32 node,s32 n){
  unsigned i;assert(event++==0);check();assert(node==oldnode&&n==count);
  assert((uintptr_t)position>UINT32_MAX);
  for(i=0;i<3;i++)assert(position[i]==initial[i]>>2);
- change(31);D_800ABEA4=samples.table[(scenario+1)%3];
+ change(31);TrackNodes=samples.table[(scenario+1)%3];
  /* The local search vector may be overwritten; later calculations use globals. */
  for(i=0;i<3;i++)position[i]=word(0xDEADBEEF+i);
  return scenario%8;
 }
-void func_800464E8(RrTrackOffsetArgument x,RrTrackOffsetArgument z,s32 node,s16 *fraction,s16 *lateral,s32 *height){
+void ProjectToTrackSegment(RrTrackOffsetArgument x,RrTrackOffsetArgument z,s32 node,s16 *fraction,s16 *lateral,s32 *height){
  s16 a,b;u32 n=scenario%8;
  assert(event++==1&&node==(s32)n&&fraction==&camera.c.fraction49C&&lateral==&camera.c.lateral49E);
  memcpy(expected+0x498,&n,4);check();assert((uintptr_t)height>UINT32_MAX);
@@ -50,7 +50,7 @@ void func_800464E8(RrTrackOffsetArgument x,RrTrackOffsetArgument z,s32 node,s16 
  b=half((u16)(camera.c.position450[2]/4-(u16)samples.table[(scenario+1)%3][n].z0C));
  assert(x.value==a&&z.value==b);
  change(63);*fraction=half(scenario*37);*lateral=half(~(scenario*71));*height=word(scenario*0x9E3779B9U);
- memcpy(expected,&camera.c,sizeof expected);D_800ABEA4=samples.table[(scenario+2)%3];D_800ABECC=word(~scenario);
+ memcpy(expected,&camera.c,sizeof expected);TrackNodes=samples.table[(scenario+2)%3];TrackNodeCount=word(~scenario);
 }
 '''
 TAIL=r'''
@@ -59,17 +59,17 @@ int main(void){unsigned i,b,j;_Static_assert(sizeof(void*)==8,"full native point
  for(scenario=0;scenario<512;scenario++){
   memset(&camera,0xA5,sizeof camera);memset(&samples,0x5A,sizeof samples);change(0);
   for(i=0;i<3;i++)camera.c.position450[i]=initial[i]=values[(scenario+i*3)%8];
-  camera.c.node498=oldnode=scenario%8;D_800ABECC=counts[(scenario/8)%8];count=word((u32)D_800ABECC+1);
+  camera.c.node498=oldnode=scenario%8;TrackNodeCount=counts[(scenario/8)%8];count=word((u32)TrackNodeCount+1);
   for(b=0;b<3;b++)for(j=0;j<8;j++){
    u8 *p=(u8*)&samples.table[b][j];for(i=0;i<60;i++)p[i]=(u8)(scenario*11+b*17+j*19+i*3);
    samples.table[b][j].x08=word(scenario*0x9E3779B9U+b*65537+j*97);
    samples.table[b][j].z0C=word(~(scenario*0x85EBCA6BU+b*131071+j*193));
   }
-  saved=samples;D_800ABEA4=samples.table[scenario%3];event=0;memcpy(expected,&camera.c,sizeof expected);
+  saved=samples;TrackNodes=samples.table[scenario%3];event=0;memcpy(expected,&camera.c,sizeof expected);
   ovl668_func_80115460(0);assert(event==2);check();assert(!memcmp(&samples,&saved,sizeof samples));
   for(i=0;i<16;i++)assert(camera.pre[i]==0xA5&&camera.post[i]==0xA5);
-  assert(D_800ABEA4==samples.table[(scenario+2)%3]);
-  printf("%08x %u ",(u32)D_800ABECC,8*((scenario+2)%3));
+  assert(TrackNodes==samples.table[(scenario+2)%3]);
+  printf("%08x %u ",(u32)TrackNodeCount,8*((scenario+2)%3));
   for(i=0;i<sizeof expected;i++)printf("%02x",((u8*)&camera.c)[i]);puts("");
  }return 0;
 }

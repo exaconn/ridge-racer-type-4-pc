@@ -14,11 +14,11 @@ class ChannelVolumeRampTest(unittest.TestCase):
   body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
   body=re.sub(r' __asm__\("\$\d+"\)','',body)
   body=re.sub(r'__asm__\(""[^;]*;', '',body)
-  getter=(ROOT/'src/main/PAL/psyq/libsnd/vmchval.c').read_text().split('s32 func_80089D8C')[0]
+  getter=(ROOT/'src/main/PAL/psyq/libsnd/vmchval.c').read_text().split('s32 _SsVmGetSeqLVol')[0]
   getter=re.sub(r'^#include[^\n]*\n','',getter,flags=re.M)
   getter=re.sub(r' __asm__\("\$\d+"\)','',getter)
   getter=re.sub(r'__asm__(?: volatile)?\(""[^;]*;', '',getter)
-  getter=getter.replace('0x80110000U','(actual.slots+998)').replace('func_80089D28','real_getter')
+  getter=getter.replace('0x80110000U','(actual.slots+998)').replace('_SsVmGetSeqVol','real_getter')
   code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -51,7 +51,7 @@ static void check(const World *a,const World *e){unsigned i;
  assert(!memcmp(a->tail,e->tail,sizeof(a->tail)));assert(a->last==e->last);
  for(i=0;i<SLOTS;i++)assert((uintptr_t)a->slots[i]-(uintptr_t)&actual == (uintptr_t)e->slots[i]-(uintptr_t)&expected);
 }
-#define D_8010F068 (actual.slots)
+#define _ss_score (actual.slots)
 #define D_80110114 (actual.last)
 '''+getter+r'''
 static void snapshot(unsigned kind,s32 id,u16 left,u16 right){Event *e;assert(eventCount<3);
@@ -61,8 +61,8 @@ static void enter(unsigned kind,s32 id,u16 left,u16 right){Event *e;assert(event
 static void set(World *w,s32 id,u16 left,u16 right){unsigned bank=(u32)id&255,row=((u32)id>>8)&255;
  RrChannelValueRecordB0 *r=&w->slots[bank][row];r->value58=left;r->value5A=right;
  if(mutate){w->slots[bank]=w->records[1][bank];w->records[1][bank][row].mode98=wrap((int64_t)w->records[1][bank][row].mode98 ^ 0x12345678);}}
-s32 func_80089D28(s32 id,u16 *left,u16 *right){enter(0,id,0,0);return real_getter(id,left,right);}
-void func_800897A4(s32 id,u16 left,u16 right,s32 mode){assert(mode==1);enter(1,id,left,right);set(&actual,id,left,right);}
+s32 _SsVmGetSeqVol(s32 id,u16 *left,u16 *right){enter(0,id,0,0);return real_getter(id,left,right);}
+void _SsVmSetSeqVol(s32 id,u16 left,u16 right,s32 mode){assert(mode==1);enter(1,id,left,right);set(&actual,id,left,right);}
 '''+body+r'''
 static void get_model(s32 id,u16 *left,u16 *right){unsigned b=(u32)id&255,r=((u32)id>>8)&255;
  snapshot(0,id,0,0);expected.last=signed16((u16)id);*left=expected.slots[b][r].value58;*right=expected.slots[b][r].value5A;}

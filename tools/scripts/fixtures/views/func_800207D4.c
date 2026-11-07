@@ -8,7 +8,7 @@ extern void SetSemiTrans(void *,s32);
 
 extern void AddPrim(u32 *,u32 *);
 
-extern u8 *func_8001FCC8(u32 *,u8 *,u16);
+extern u8 *AddDrawModePrim(u32 *,u8 *,u16);
 
 void func_800207D4(u32 *ordering,s32 intensity,u32 mode) {
     u8 *next,*fields,*packet;
@@ -46,5 +46,5 @@ void func_800207D4(u32 *ordering,s32 intensity,u32 mode) {
         fields+=sizeof(RrGpuTilePacket16);
     }while(index<4);
     *(u8**)0x1F800000U=next;
-    *(u8**)0x1F800000U=func_8001FCC8(ordering,next,(u16)mode);
+    *(u8**)0x1F800000U=AddDrawModePrim(ordering,next,(u16)mode);
 }

@@ -112,7 +112,7 @@ static void check(s32 index,s32 x,s32 y,s32 intensity,s32 phase,s32 gain,u32 see
  mutate=change;return_offset=28+(seed%3)*8;
  original_selector=(index==4)+(phase>=128?2:0);
  reference(index,x,y,intensity);
- func_8005C37C(index,x,y,intensity);
+ EmitFadeSprite(index,x,y,intensity);
  assert(!memcmp(&actual_log,&expected_log,sizeof(Trace)));
  assert(!memcmp(&actual,&expected,sizeof(actual)));
 }
@@ -140,7 +140,7 @@ int main(int argc,char **argv) {
   // Zero output must not touch absent packet/context/table entries.
   memset(&actual,0,sizeof(actual));memcpy(&expected,&actual,sizeof(actual));
   memset(&actual_log,0,sizeof(actual_log));
-  func_8005C37C((-2147483647-1),1,2,0);
+  EmitFadeSprite((-2147483647-1),1,2,0);
   assert(!actual_log.count&&!memcmp(&actual,&expected,sizeof(actual)));
  }
  return 0;

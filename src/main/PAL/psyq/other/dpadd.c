@@ -2,14 +2,14 @@
 #include "rr/wide.h"
 
 extern RrWide64 *_dbl_shift(RrWide64 *result, s32 direction, RrWide64 value, s32 count);
-extern s32 func_8007E9C4(s32 category, s32 operation);
+extern s32 _err_math(s32 category, s32 operation);
 
 typedef union {
     double d;
     RrWide64 s;
 } DpUnion;
 
-double func_8007D7D4(double a_in, double b_in) {
+double __adddf3(double a_in, double b_in) {
     RrWide64 sp18;
     RrWide64 sp20;
     RrWide64 sp28;
@@ -54,10 +54,10 @@ double func_8007D7D4(double a_in, double b_in) {
     sp20.lo = b.s.lo;
 
     if (a.s.hi & 0x80000000) {
-        func_8007E494(&sp18, sp18);
+        _mainasu(&sp18, sp18);
     }
     if (b.s.hi & 0x80000000) {
-        func_8007E494(&sp20, sp20);
+        _mainasu(&sp20, sp20);
     }
 
     _dbl_shift(&sp18, 0, sp18, 9);
@@ -73,7 +73,7 @@ double func_8007D7D4(double a_in, double b_in) {
     _add_mant_d(&sp18, sp18, sp20);
 
     if (sp18.hi < 0) {
-        func_8007E494(&sp18, sp18);
+        _mainasu(&sp18, sp18);
         s7 = 0x80000000;
     } else if (sp18.hi == 0 && sp18.lo == 0) {
         return sp30.d;
@@ -147,7 +147,7 @@ double func_8007D7D4(double a_in, double b_in) {
     sp18.hi &= 0xFFEFFFFF;
 
     if (s4 >= 0x7FF) {
-        func_8007E9C4(0x22, 0xB);
+        _err_math(0x22, 0xB);
         a.s.hi = s7 ? 0xFFF00000 : 0x7FF00000;
         a.s.lo = 0;
     } else {

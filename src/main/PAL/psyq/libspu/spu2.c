@@ -11,19 +11,19 @@ struct H { char p[0x1A6]; volatile unsigned short f1A6; char q[2]; volatile unsi
 extern int D_800A482C;
 extern int D_800A4830;
 
-int func_8007F068(int a0, ...);
-u32 func_8007F2E8(const u16 *a0, u32 a1);
-u32 func_8007F36C(u16 *a0, u32 a1);
-void func_8007F3D0(int a0, unsigned int a1, int a2);
+int _spu_t(int a0, ...);
+u32 _spu_Fw(const u16 *a0, u32 a1);
+u32 _spu_Fr(u16 *a0, u32 a1);
+void _spu_FsetRXX(int a0, unsigned int a1, int a2);
 s32 _spu_FsetRXXa(s32 index, s32 value);
 int _spu_FgetRXXa(int a0, int a1);
 void _spu_FsetPCR(int a0);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A47D8 ((struct H *)D_800A47D8)
-#define D_800A47F0 (*(unsigned short (*))&D_800A47F0)
+#define _spu_RXX ((struct H *)_spu_RXX)
+#define _spu_tsa (*(unsigned short (*))&_spu_tsa)
 
-int func_8007F068(int a0, ...) {
+int _spu_t(int a0, ...) {
     unsigned *s0;
     unsigned v1;
     unsigned short x;
@@ -38,43 +38,43 @@ int func_8007F068(int a0, ...) {
             /* ASM_BARRIER: Keep shifted transfer address in $v0 */
             register unsigned r_v0 asm("$2");
             r_a0 = *s0;
-            r_v0 = r_a0 >> D_800A4800;
-            D_800A47F0 = r_v0;
-            D_800A47D8->f1A6 = r_v0;
+            r_v0 = r_a0 >> _spu_mem_mode_plus;
+            _spu_tsa = r_v0;
+            _spu_RXX->f1A6 = r_v0;
         }
         break;
     case 1:
         D_800A4828 = 0;
         v1 = 0;
-        while (D_800A47D8->f1A6 != D_800A47F0) {
+        while (_spu_RXX->f1A6 != _spu_tsa) {
             v1++;
             if (v1 >= 0xF01) return -2;
         }
-        D_800A47D8->f1AA = (D_800A47D8->f1AA & 0xFFCF) | 0x20;
+        _spu_RXX->f1AA = (_spu_RXX->f1AA & 0xFFCF) | 0x20;
         break;
     case 0:
         D_800A4828 = 1;
         v1 = 0;
-        while (D_800A47D8->f1A6 != D_800A47F0) {
+        while (_spu_RXX->f1A6 != _spu_tsa) {
             v1++;
             if (v1 >= 0xF01) return -2;
         }
-        D_800A47D8->f1AA |= 0x30;
+        _spu_RXX->f1AA |= 0x30;
         break;
     case 3:
         x = (D_800A4828 == 1) ? 0x30 : 0x20;
         v1 = 0;
-        while ((D_800A47D8->f1AA & 0x30) != x) {
+        while ((_spu_RXX->f1AA & 0x30) != x) {
             v1++;
             if (v1 >= 0xF01) return -2;
         }
         if (D_800A4828 == 1) {
             s0++;
-            func_8007F574();
+            _spu_FsetDelayR();
             val = 0x01000000;
         } else {
             s0++;
-            func_8007F54C();
+            _spu_FsetDelayW();
             val = 0x01000000;
         }
         {
@@ -102,39 +102,39 @@ int func_8007F068(int a0, ...) {
     return 0;
 }
 
-#undef D_800A47D8
-#undef D_800A47F0
+#undef _spu_RXX
+#undef _spu_tsa
 
-u32 func_8007F2E8(const u16 *a0, u32 a1) {
-    if (D_800A47F4 == 0) {
-        func_8007F068(2, (u32)D_800A47F0 << D_800A4800);
-        func_8007F068(1);
-        func_8007F068(3, a0, a1);
+u32 _spu_Fw(const u16 *a0, u32 a1) {
+    if (_spu_transMode == 0) {
+        _spu_t(2, (u32)_spu_tsa << _spu_mem_mode_plus);
+        _spu_t(1);
+        _spu_t(3, a0, a1);
     } else {
         _spu_FwriteByIO(a0, a1);
     }
     return a1;
 }
 
-u32 func_8007F36C(u16 *a0, u32 a1) {
-    func_8007F068(2, (u32)D_800A47F0 << D_800A4800);
-    func_8007F068(0);
-    func_8007F068(3, a0, a1);
+u32 _spu_Fr(u16 *a0, u32 a1) {
+    _spu_t(2, (u32)_spu_tsa << _spu_mem_mode_plus);
+    _spu_t(0);
+    _spu_t(3, a0, a1);
     return a1;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A47D8 ((unsigned short *)D_800A47D8)
+#define _spu_RXX ((unsigned short *)_spu_RXX)
 
-void func_8007F3D0(int a0, unsigned int a1, int a2) {
+void _spu_FsetRXX(int a0, unsigned int a1, int a2) {
     if (a2 == 0) {
-        D_800A47D8[a0] = a1;
+        _spu_RXX[a0] = a1;
     } else {
-        D_800A47D8[a0] = a1 >> D_800A4800;
+        _spu_RXX[a0] = a1 >> _spu_mem_mode_plus;
     }
 }
 
-#undef D_800A47D8
+#undef _spu_RXX
 
 s32 _spu_FsetRXXa(s32 index, s32 value) {
     u32 address = (u32)value;
@@ -144,11 +144,11 @@ s32 _spu_FsetRXXa(s32 index, s32 value) {
     register u32 copy __asm__("$3");
     register u32 result __asm__("$2");
 
-    if (D_800A47FC && address % D_800A4804 != 0) {
-        address += D_800A4804;
-        address &= ~D_800A4808;
+    if (_spu_mem_mode && address % _spu_mem_mode_unit != 0) {
+        address += _spu_mem_mode_unit;
+        address &= ~_spu_mem_mode_unitM;
     }
-    units = address >> D_800A4800;
+    units = address >> _spu_mem_mode_plus;
     copy = units;
     if (index == -2) goto address_result;
     if (index != -1) goto store;
@@ -158,22 +158,22 @@ address_result:
     result = address;
     goto out;
 store:
-    ((RrSpuRegisterStorage *)D_800A47D8)->halves[index] = units;
+    ((RrSpuRegisterStorage *)_spu_RXX)->halves[index] = units;
     result = address;
 out:
     return (s32)result;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A47D8 ((unsigned short *)D_800A47D8)
+#define _spu_RXX ((unsigned short *)_spu_RXX)
 
 int _spu_FgetRXXa(int a0, int a1) {
-    unsigned short v = D_800A47D8[a0];
+    unsigned short v = _spu_RXX[a0];
     if (a1 == -1) return v;
-    return v << D_800A4800;
+    return v << _spu_mem_mode_plus;
 }
 
-#undef D_800A47D8
+#undef _spu_RXX
 
 void _spu_FsetPCR(int a0) {
     *D_800A47E8 &= 0xFFF8FFFF;

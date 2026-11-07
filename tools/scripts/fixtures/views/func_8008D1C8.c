@@ -7,13 +7,13 @@
 #define R(o) (*(unsigned short *)(D_800A6760 + (o)))
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A6488 (*(void (*(*))(u8, u8 *))&D_800A6488)
+#define CD_cbsync (*(void (*(*))(u8, u8 *))&CD_cbsync)
 
-#define D_800A648C (*(void (*(*))(u8, u8 *))&D_800A648C)
+#define CD_cbready (*(void (*(*))(u8, u8 *))&CD_cbready)
 
-#undef D_800A6488
+#undef CD_cbsync
 
-#undef D_800A648C
+#undef CD_cbready
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A674C ((unsigned char *)D_800A674C)
@@ -54,7 +54,7 @@ extern s32 func_8001E84C();
 
 extern s32 VSync(s32);
 
-extern s32 func_8008B4B8(void);
+extern s32 CheckCallback(void);
 
 extern s32 CD_sync(s32, u8 *);
 
@@ -64,17 +64,17 @@ extern const char D_80011AB8[];
 
 extern const char D_80011AC8[];
 
-extern s32 D_800A6490;
+extern s32 CD_debug;
 
-extern u8 D_800A64A0[4];
+extern u8 CD_pos[4];
 
 extern u8 D_800A64A4;
 
 extern u8 D_800A64A5;
 
-extern char *D_800A64AC[];
+extern char *CD_comstr[];
 
-extern char *D_800A652C[];
+extern char *CD_intstr[];
 
 extern s32 D_800A65CC[];
 
@@ -118,12 +118,12 @@ static inline int check_alarm(char **ac, char ** sc, volatile u8 *st) {
 static inline void cd_poll_cb(volatile u8 *st, volatile u8 *st1) {
     u8 saved = *D_800A674C & 3;
     s32 res;
-    while ((res = func_8008C724()) != 0) {
-        if ((res & 4) && D_800A648C != 0) {
-            D_800A648C(*st1, D_80110320);
+    while ((res = getintr()) != 0) {
+        if ((res & 4) && CD_cbready != 0) {
+            CD_cbready(*st1, D_80110320);
         }
-        if ((res & 2) && D_800A6488 != 0) {
-            D_800A6488(*st, D_80110318);
+        if ((res & 2) && CD_cbsync != 0) {
+            CD_cbsync(*st, D_80110318);
         }
     }
     *D_800A674C = saved;
@@ -135,12 +135,12 @@ s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     u8 *dst;
     u8 *p;
 
-    if (D_800A6490 >= 2) {
-        func_8001E84C(D_80011AB0, D_800A64AC[arg0]);
+    if (CD_debug >= 2) {
+        func_8001E84C(D_80011AB0, CD_comstr[arg0]);
     }
     if (D_800A66CC[arg0] != 0 && arg1 == 0) {
-        if (D_800A6490 > 0) {
-            func_8001E84C(D_80011AB8, D_800A64AC[arg0]);
+        if (CD_debug > 0) {
+            func_8001E84C(D_80011AB8, CD_comstr[arg0]);
         }
         return -2;
     }
@@ -154,7 +154,7 @@ s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     }
     if (arg0 == 2) {
         for (i = 0; i < 4; i++) {
-            D_800A64A0[i] = p[i];
+            CD_pos[i] = p[i];
         }
     }
     if (arg0 == 0xE) {
@@ -177,15 +177,15 @@ s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     D_80110334 = 0;
     D_80110338 = D_80011AC8;
     if (D_800A6764[0] == 0) {
-        char **ac = D_800A64AC;
-        char **sc = D_800A652C;
+        char **ac = CD_comstr;
+        char **sc = CD_intstr;
         volatile u8 *st = D_800A6764;
         volatile u8 *st1 = st + 1;
         do {
             if (check_alarm(ac, sc, st)) {
                 return -1;
             }
-            if (func_8008B4B8() != 0) {
+            if (CheckCallback() != 0) {
                 cd_poll_cb(st, st1);
             }
         } while (*st == 0);

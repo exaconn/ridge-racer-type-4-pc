@@ -32,16 +32,16 @@ static s32 word(u32 x){s32 v;memcpy(&v,&x,4);return v;}
 static s16 half(u16 x){s16 v;memcpy(&v,&x,2);return v;}
 static void dump(char tag,s32 a,s32 b){unsigned i;printf("%c %08x %08x ",tag,(u32)a,(u32)b);for(i=0;i<sizeof world;i++)printf("%02x",((u8*)&world)[i]);puts("");}
 s32 ratan2(s32 x,s32 z){assert(event++==0);dump('A',x,z);return (s32)(scenario*137%4096)-2048;}
-s32 func_80047CE0(RrRaceVehicle *v){assert(v==&world.vehicle&&event++==1);dump('B',0,0);return (scenario/64)%8<7?limits[(scenario/64)%8]:half(scenario*293+0x8000);}
-s32 func_80047DF8(char *raw,s32 lane,s32 *x,s32 *y,s32 *z){
+s32 CalcSteerLimit(RrRaceVehicle *v){assert(v==&world.vehicle&&event++==1);dump('B',0,0);return (scenario/64)%8<7?limits[(scenario/64)%8]:half(scenario*293+0x8000);}
+s32 ScanCurveAhead(char *raw,s32 lane,s32 *x,s32 *y,s32 *z){
  RrRaceVehicle *v=(RrRaceVehicle *)raw;
  assert(v==&world.vehicle&&event++==2);assert((uintptr_t)x>UINT32_MAX&&(uintptr_t)y>UINT32_MAX&&(uintptr_t)z>UINT32_MAX);
  assert(x!=y&&y!=z&&x!=z);dump('C',lane,0);
  *x=word(scenario*0x9E3779B9U);*y=word(~(scenario*0x85EBCA6BU));*z=word(scenario*0xC2B2AE35U);
  return word(returns[(scenario/8)%8]);
 }
-void func_80047FBC(RrRaceVehicle *v,s32 speed){unsigned i;assert(v==&world.vehicle&&event++==3);dump('D',speed,0);if(scenario&1)for(i=0;i<800;i++)((u8*)v)[i]=(u8)(scenario*29+(16+i)*7+31);}
-void func_800483D8(RrRaceVehicle *v){unsigned i;assert(v==&world.vehicle&&(event==3||event==4));event++;dump('E',0,0);for(i=0;i<800;i++)((u8*)v)[i]=(u8)(scenario*29+(16+i)*7+63);}
+void PlanComCarCornerTurn(RrRaceVehicle *v,s32 speed){unsigned i;assert(v==&world.vehicle&&event++==3);dump('D',speed,0);if(scenario&1)for(i=0;i<800;i++)((u8*)v)[i]=(u8)(scenario*29+(16+i)*7+31);}
+void UpdateEngineRpm(RrRaceVehicle *v){unsigned i;assert(v==&world.vehicle&&(event==3||event==4));event++;dump('E',0,0);for(i=0;i<800;i++)((u8*)v)[i]=(u8)(scenario*29+(16+i)*7+63);}
 '''
 TAIL=r'''
 int main(void){unsigned i;const s16 shifts[3]={-1,0,1};const s16 inputs[8]={0,1,-1,32767,-32768,8,128,-128};
@@ -55,13 +55,13 @@ int main(void){unsigned i;const s16 shifts[3]={-1,0,1};const s16 inputs[8]={0,1,
   world.vehicle.input=inputs[(scenario/3)%8];world.vehicle.steeringLock1B8=(scenario/24)%2;
   world.vehicle.holdFlag23C=inputs[(scenario/48)%8];world.vehicle.pad23E=inputs[(scenario/384)%8];
   world.vehicle.steering288.mode00=(scenario/128)%2;world.vehicle.steeringEnabled318=1;
-  event=0;func_800486C4((RrDriveVehicleView *)&world.vehicle);dump('F',event,0);
+  event=0;UpdateComCarDrive((RrDriveVehicleView *)&world.vehicle);dump('F',event,0);
   for(i=0;i<16;i++)assert(world.pre[i]==(u8)(scenario*29+i*7)&&world.post[i]==(u8)(scenario*29+(816+i)*7));
  }return 0;
 }
 '''
 def main():
- body=SOURCE.read_text();body=body[body.index('void func_800486C4'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
+ body=SOURCE.read_text();body=body[body.index('void UpdateComCarDrive'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
  with TemporaryDirectory() as tmp:
   c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(C+body+TAIL)
   subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True)

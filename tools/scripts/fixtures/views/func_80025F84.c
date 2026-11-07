@@ -4,7 +4,7 @@
 
 #include "rr/race_types.h"
 
-int func_80025F84(int a0, int a1) {
+int AngleDiffAbs(int a0, int a1) {
     int d;
     a0 &= 0xFFF;
     a1 &= 0xFFF;

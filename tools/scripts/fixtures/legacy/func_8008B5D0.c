@@ -1,7 +1,7 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/interrupt_dispatch.h"
-void func_8008B5D0(void) {
+void trapIntr(void) {
     RrLibSavedState *state=&D_800A52C8;
     RrLibInterruptCallback *base;
     register u32 one __asm__("$19");
@@ -11,7 +11,7 @@ void func_8008B5D0(void) {
     register s32 index __asm__("$17");
     if(state->active==0) {
         func_8001E84C(D_8001183C,*D_800A6354);
-        func_80096ED4();
+        ReturnFromException();
     }
     {
         register volatile u16 *status __asm__("$4")=D_800A6354;
@@ -80,5 +80,5 @@ reread:
         } else D_800A6360=0;
     }
     D_800A52C8.dispatching02=0;
-    func_80096ED4();
+    ReturnFromException();
 }

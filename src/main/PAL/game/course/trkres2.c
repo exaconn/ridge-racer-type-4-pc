@@ -4,14 +4,14 @@
 #include "m2c_macros.h"
 #include "game/course/trkres2.h"
 
-extern s32 D_800ACB90;
+extern s32 CarSpecTable;
 
-void func_8004D354(RrCurve24 *curve, s32 displacement, s32 duration, s32 initialRate);
-s32 func_8004D420(const RrCurve24 *curve, s32 time, s32 *output);
-int func_8004D4BC(int a);
+void BuildRateCurve(RrCurve24 *curve, s32 displacement, s32 duration, s32 initialRate);
+s32 EvalRateCurve(const RrCurve24 *curve, s32 time, s32 *output);
+int AlignUp4(int a);
 
 /* Build a two-phase rate curve in twelve-bit fixed-point units. */
-void func_8004D354(RrCurve24 *curve, s32 displacement, s32 duration, s32 initialRate)
+void BuildRateCurve(RrCurve24 *curve, s32 displacement, s32 duration, s32 initialRate)
 {
     s32 half = duration / 2;
     s32 scaledDisplacement = displacement * 4096;
@@ -26,7 +26,7 @@ void func_8004D354(RrCurve24 *curve, s32 displacement, s32 duration, s32 initial
     curve->secondAcceleration = -middleRate / half;
 }
 
-s32 func_8004D420(const RrCurve24 *curve, s32 time, s32 *output)
+s32 EvalRateCurve(const RrCurve24 *curve, s32 time, s32 *output)
 {
     s32 half;
     s32 rate;
@@ -45,7 +45,7 @@ s32 func_8004D420(const RrCurve24 *curve, s32 time, s32 *output)
     return 0;
 }
 
-int func_8004D4BC(int a) {
+int AlignUp4(int a) {
     int v = a;
     int r = v & 3;
     if (r != 0) {
@@ -54,31 +54,31 @@ int func_8004D4BC(int a) {
     return v;
 }
 
-void func_8004D4DC(RrLookupTables32 *tables)
+void RelocateTrackLookupTables(RrLookupTables32 *tables)
 {
-    D_800AC650.lookupTables = tables;
+    RaceContext.lookupTables = tables;
     tables->auxiliary10 = (void *)((unsigned long)tables->auxiliary10 + (unsigned long)tables);
-    D_800AC650.lookupTables->auxiliary14 = (void *)((unsigned long)D_800AC650.lookupTables->auxiliary14 + (unsigned long)tables);
-    D_800AC650.lookupTables->table0 = (RrTrackEventEntry *)((unsigned long)D_800AC650.lookupTables->table0 + (unsigned long)tables);
-    D_800AC650.lookupTables->table1 = (RrTrackEventEntry *)((unsigned long)D_800AC650.lookupTables->table1 + (unsigned long)tables);
-    D_800AC650.lookupTables->table2 = (RrTrackEventEntry *)((unsigned long)D_800AC650.lookupTables->table2 + (unsigned long)tables);
-    D_800AC650.lookupTables->table3 = (RrTrackEventEntry *)((unsigned long)D_800AC650.lookupTables->table3 + (unsigned long)tables);
-    D_800AC650.lookupTables->auxiliary28 = (void *)((unsigned long)D_800AC650.lookupTables->auxiliary28 + (unsigned long)tables);
+    RaceContext.lookupTables->auxiliary14 = (void *)((unsigned long)RaceContext.lookupTables->auxiliary14 + (unsigned long)tables);
+    RaceContext.lookupTables->table0 = (RrTrackEventEntry *)((unsigned long)RaceContext.lookupTables->table0 + (unsigned long)tables);
+    RaceContext.lookupTables->table1 = (RrTrackEventEntry *)((unsigned long)RaceContext.lookupTables->table1 + (unsigned long)tables);
+    RaceContext.lookupTables->table2 = (RrTrackEventEntry *)((unsigned long)RaceContext.lookupTables->table2 + (unsigned long)tables);
+    RaceContext.lookupTables->table3 = (RrTrackEventEntry *)((unsigned long)RaceContext.lookupTables->table3 + (unsigned long)tables);
+    RaceContext.lookupTables->auxiliary28 = (void *)((unsigned long)RaceContext.lookupTables->auxiliary28 + (unsigned long)tables);
 }
 
-void func_8004D58C(RrTrackLaneOffset8 *offsets)
+void SetTrackLaneOffsets(RrTrackLaneOffset8 *offsets)
 {
-    D_800ACB9C = offsets;
+    TrackLaneOffsets = offsets;
 }
 
-void func_8004D598(s32 *startNode)
+void SetTrackStartNode(s32 *startNode)
 {
-    D_800ACB8C = startNode;
+    TrackStartNode = startNode;
 }
 
-void func_8004D5A4(u8 *workspace)
+void SetTrackWorkspace(u8 *workspace)
 {
-    RrTrackResourceContext *context = &D_800AC650;
+    RrTrackResourceContext *context = &RaceContext;
     context->workspace554 = workspace;
     workspace += 0xA00;
     context->workspace558 = workspace;
@@ -88,14 +88,14 @@ void func_8004D5A4(u8 *workspace)
     context->cameraNodes550 = workspace;
 }
 
-void func_8004D5CC(RrTrackResourceFile *file)
+void LoadTrackResource(RrTrackResourceFile *file)
 {
-    func_8004D4DC((RrLookupTables32 *)((u8 *)file + file->lookupOffset04));
-    func_8004D58C((RrTrackLaneOffset8 *)((u8 *)file + file->laneOffset08));
-    func_8004D598((s32 *)((u8 *)file + file->startNodeOffset0C));
-    func_8004D5A4((u8 *)file + file->workspaceOffset10);
+    RelocateTrackLookupTables((RrLookupTables32 *)((u8 *)file + file->lookupOffset04));
+    SetTrackLaneOffsets((RrTrackLaneOffset8 *)((u8 *)file + file->laneOffset08));
+    SetTrackStartNode((s32 *)((u8 *)file + file->startNodeOffset0C));
+    SetTrackWorkspace((u8 *)file + file->workspaceOffset10);
 }
 
-void func_8004D61C(s32 arg0) {
-    D_800ACB90 = arg0;
+void SetCarSpecTable(s32 arg0) {
+    CarSpecTable = arg0;
 }

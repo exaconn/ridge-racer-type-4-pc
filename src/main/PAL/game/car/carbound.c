@@ -28,24 +28,24 @@ struct V { int a, b, c, d; };
 typedef struct { int a, b, c, d; } V4;
 
 extern T *CarTable[];
-extern short D_800AC59C;
+extern short NumCars;
 extern short D_800AD508;
 extern int func_8002D1B4();
 extern int func_8002D784();
-extern RrVehicleBounds08 *D_800F3A08[];
+extern RrVehicleBounds08 *CarBoundsTable[];
 extern int BuildRotMatrixY();
 extern int BuildRotMatrixX();
 extern int BuildRotMatrixZ();
 extern int MulMatrix();
 extern int ApplyMatrix();
 
-void func_8002E0D8();
-void func_8002E394(RrRaceVehicle *a);
-void func_8002E4F4(RrRaceVehicle *a);
+void DrawCars();
+void SetCarBounds(RrRaceVehicle *a);
+void ResetCarState(RrRaceVehicle *a);
 void func_8002E5A0();
 void func_8002E828(s32 arg0, void *arg1);
 
-void func_8002E0D8(a0) int a0; {
+void DrawCars(a0) int a0; {
     int z; 
     int i, s2, y;
     T **p;
@@ -61,7 +61,7 @@ void func_8002E0D8(a0) int a0; {
         }
     case 1:
         if (D_800F4D44 != 4) {
-            for (i = 1; i < D_800AC59C; i++) {
+            for (i = 1; i < NumCars; i++) {
                 if (CarTable[i]->f1E8 != -1) func_8002D784(CarTable[i], a0);
             }
         } else {
@@ -78,7 +78,7 @@ void func_8002E0D8(a0) int a0; {
         s2 = 3;
         if (D_800F4D44 == 4) s2 = 4;
         if (D_80107178 == 2) s2 = 0;
-        if (D_800AC59C > 0) {
+        if (NumCars > 0) {
             i = 0;
             p = CarTable;
             do {
@@ -97,36 +97,36 @@ void func_8002E0D8(a0) int a0; {
                 }
                 p++;
                 i++;
-            } while (i < D_800AC59C);
+            } while (i < NumCars);
         }
         break;
     case 6:
-        if (D_800AC59C > 0) {
+        if (NumCars > 0) {
             i = 0;
             do {
                 if (CarTable[i]->f1E8 != -1) func_8002D784(CarTable[i], 2);
                 i++;
-            } while (i < D_800AC59C);
+            } while (i < NumCars);
         }
         break;
     }
 }
 
-void func_8002E394(RrRaceVehicle *a)
+void SetCarBounds(RrRaceVehicle *a)
 {
     int n;
     RrVehicleBounds08 **pp;
     int b;
     if (D_800AD508 != 0) {
-        n = a != D_800ABEF8;
+        n = a != PlayerCars;
     } else {
         n = 3;
-        if (a == D_800ABEF8) {
+        if (a == PlayerCars) {
             n = 2;
         }
     }
     a->slotIndex1E6 = n * 2;
-    b = (int)D_800F3A08;
+    b = (int)CarBoundsTable;
     pp = (RrVehicleBounds08 **)(b + n * 4);
     a->height108 = (*pp)->height06 * 4;
     a->width10C = ((short)(*pp)->halfW00 + 5) * 2;
@@ -141,11 +141,11 @@ void func_8002E394(RrRaceVehicle *a)
     a->corner11E = -0x50;
 }
 
-void func_8002E4F4(RrRaceVehicle *a)
+void ResetCarState(RrRaceVehicle *a)
 {
     int *p = (int *)a;
     func_80096434(a, sizeof(RrRaceVehicle));
-    func_8002E394(a);
+    SetCarBounds(a);
     a->ang80 = (unsigned short)a->rot50;
     a->ang82 = (unsigned short)a->rot54;
     a->ang84 = (unsigned short)a->rot58;

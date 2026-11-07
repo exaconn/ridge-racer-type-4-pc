@@ -1,12 +1,12 @@
 /* CC1_FLAGS: -fno-strength-reduce */
 
-extern int D_8010ECA8;
+extern int TrackObjectCount;
 
-extern int *D_8010ECB0;
+extern int *TrackObjectDefs;
 
-extern int *D_8010ECB4;
+extern int *TrackObjectStates;
 
-void func_80077D90(a0) int a0; {
+void ClearTrackObjectStates(a0) int a0; {
     int a3; 
     int n; 
     int *a1; 
@@ -15,12 +15,12 @@ void func_80077D90(a0) int a0; {
     int x; 
     int one; 
     a3 = 0;
-    t = D_8010ECA8;
+    t = TrackObjectCount;
     if (t > 0) {
         one = 1;
         n = t;
-        a1 = D_8010ECB4;
-        a2 = D_8010ECB0;
+        a1 = TrackObjectStates;
+        a2 = TrackObjectDefs;
         do {
             a1[9] = 0;
             if (a0 != one || (x = a2[2], t = 0xA, x != t) || a2[1] != 0)

@@ -6,4 +6,4 @@
 
 #define P ((RrLibStateB0 *)(offset + (unsigned long)*q))
 
-void func_8007F934(s32 bank) { func_8007F794((s16)bank); }
+void SsSepClose(s32 bank) { _SsClose((s16)bank); }

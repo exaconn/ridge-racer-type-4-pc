@@ -107,7 +107,7 @@
 #define RR_GTE14_LIGHT2() __asm__ volatile (".word 0x4A4B6412; .word 0x4AA80428; .word 0x4AA80428; .word 0x4B38041C")
 #define RR_GTE14_SWC2_RGB012(p) __asm__ volatile ("swc2 $20, 4(%0); swc2 $21, 12(%0); swc2 $22, 20(%0)" : : "r"(p) : "memory")
 #define RR_GTE14_SWC2_RGB2(p) __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(p) : "memory")
-/* func_80027C54: MVMVA rot-matrix x V0, no translation, shift 12 (sf=1,mx=0,v=0,cv=3,lm=0); preceded by the V0 load from p. */
+/* FindWheelTrackNodes: MVMVA rot-matrix x V0, no translation, shift 12 (sf=1,mx=0,v=0,cv=3,lm=0); preceded by the V0 load from p. */
 #define RR_GTE_MVMVA_ROT_V0_NOCV(p) { __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(p)); __asm__ volatile ("nop; nop"); __asm__ volatile (".word 0x4A486012"); }
 
 /* SQR: square signed IR1..IR3, with fixed-point shift 12 or no shift.
@@ -126,7 +126,7 @@
 #define RR_GTE_MV3_COL(src) __asm__ volatile ("lhu $12, 0(%0); lhu $13, 6(%0); lhu $14, 12(%0); mtc2 $12, $9; mtc2 $13, $10; mtc2 $14, $11\n\tnop\n\tnop\n\t.word 0x4A49E012" : : "r"(src) : "$12", "$13", "$14")
 #define RR_GTE_ST3_COL(dst) __asm__ volatile ("mfc2 $12, $9; mfc2 $13, $10; mfc2 $14, $11; sh $12, 0(%0); sh $13, 6(%0); sh $14, 12(%0)" : : "r"(dst) : "$12", "$13", "$14", "memory")
 
-/* func_80048A6C: store IR1..IR3 ($9-$11) as contiguous 16-bit components. */
+/* UpdateComCarSpeed: store IR1..IR3 ($9-$11) as contiguous 16-bit components. */
 #define RR_GTE_STORE_IR_S16(p) __asm__ volatile ("mfc2 $12, $9\n\tmfc2 $13, $10\n\tmfc2 $14, $11\n\tsh $12, 0(%0)\n\tsh $13, 2(%0)\n\tsh $14, 4(%0)" : : "r"(p) : "$12", "$13", "$14", "memory")
 
 /* func_80052024 / func_80077BAC: combined rotation + translation matrix loaders and FLAG reader. */

@@ -5,8 +5,8 @@
 
 s32 func_80012208(s32 arg0);
 int func_80012210();
-int func_8001223C();
-void func_80012290(void);
-void func_800123D4(void);
+int GetR4FileIndex();
+void LoadR4Directory(void);
+void InitCdFileDirectory(void);
 
 #endif /* RR_GAME_DATA_CDFILE1_H */

@@ -17,6 +17,6 @@ RR_ASSERT_OFFSET(RrSpuPitchRequest, fields08, 8);
  * compare signed low16 values. Selector status is ignored. Its callback may
  * update the row byte used for the request; pitch calculation may update
  * cache flags, which are read only after storing the returned pitch. */
-s32 func_80084E74(s32 voice, s32 bank, s32 program, s32 group,
+s32 SsUtChangePitch(s32 voice, s32 bank, s32 program, s32 group,
                  s32 unused, u32 first, u32 second);
 #endif

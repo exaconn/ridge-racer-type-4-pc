@@ -11,14 +11,14 @@
 #define W_MUL(a,b) ((s32)((u32)(a)*(u32)(b)))
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(struct { char pad[0x3D8]; char *p; } (*))&D_800AC650)
+#define RaceContext (*(struct { char pad[0x3D8]; char *p; } (*))&RaceContext)
 
-#undef D_800AC650
+#undef RaceContext
 
-void func_8005B9F4(RrCameraMotionInput14 *input) {
+void UpdateCameraMotion(RrCameraMotionInput14 *input) {
     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
     register RrCameraMotionInput14 *arg0 __asm__("$9")=input;
-    RrCameraRootPrefix *root=&D_800AC650;
+    RrCameraRootPrefix *root=&RaceContext;
     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
     register RrCameraObjectPrefix *object __asm__("$8")=root->camera3D8;
     s32 boundary;

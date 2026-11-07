@@ -40,9 +40,9 @@ typedef struct {
     u8 suffix[32];
 } World;
 static World actual,expected;
-#define D_800AC650 actual.context
-#define D_800AC59C actual.counter.count.value
-#define D_800F2EB8 actual.track.gap14
+#define RaceContext actual.context
+#define NumCars actual.counter.count.value
+#define TrackLength actual.track.gap14
 ''' + body + r'''
 static u8 *locate(const void *address,size_t size) {
     uintptr_t offset=(uintptr_t)address-(uintptr_t)&actual;
@@ -100,7 +100,7 @@ static RrRaceStandingsTable *initialize(int rows,s32 length,u32 seed,int alias) 
 }
 static void check(void) {
     memcpy(&expected,&actual,sizeof(actual));
-    int wanted=reference();int got=func_800469A4(&actual.vehicle);
+    int wanted=reference();int got=FindNearestCarAhead(&actual.vehicle);
     assert(got==wanted);assert(!memcmp(&actual,&expected,sizeof(actual)));
 }
 static int permutation(int *values) {

@@ -2,7 +2,7 @@
 #define RR_SEQUENCER_DISPATCH_H
 #include "rr/sequencer_init.h"
 
-extern s32 D_8010F05C;
+extern s32 _snd_ev_flag;
 
 /* Lock1 skips dispatch. Otherwise publish lock1, run the initial SPU callback,
  * then process enabled banks and each record's current flags in observed order.
@@ -10,5 +10,5 @@ extern s32 D_8010F05C;
  * reached must be below32 and every reached record accessible; nonpositive
  * dimensions skip their loops. Flag0x4's handler is followed by a fresh-record
  * flag clear. Unlock is unconditional after entered dispatch. */
-void func_80082D54(void);
+void SsSeqCalledTbyT(void);
 #endif

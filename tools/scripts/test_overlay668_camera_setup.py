@@ -64,9 +64,9 @@ static void call8(void){service(8);}
 static void call9(void){service(9);}
 static void call10(s32 mode,u8 r,u8 g,u8 b){assert(mode==0&&r==144&&g==144&&b==144);service(10);}
 static void call11(s32 enabled){assert(enabled==1);service(11);}
-#define D_800AC650 (actual.camera)
-#define D_800ABEA4 (actual.root)
-#define D_800AC5DC (actual.draw)
+#define RaceContext (actual.camera)
+#define TrackNodes (actual.root)
+#define VSyncThreshold (actual.draw)
 #define D_8010718C (actual.clock)
 #define D_800F2EC8 (actual.ready)
 #define D_80127E90 (actual.delay)
@@ -77,8 +77,8 @@ static void call11(s32 enabled){assert(enabled==1);service(11);}
 #define SetDispMask call0
 #define func_8001ECE8 call1
 #define func_8006E794 call2
-#define func_80013890 call3
-#define func_8006E1AC call4
+#define SetupRenderer call3
+#define BuildCameraMatrices call4
 #define ovl668_func_80115460 call5
 #define ovl668_func_80115554 call6
 #define ovl668_func_801156FC call7

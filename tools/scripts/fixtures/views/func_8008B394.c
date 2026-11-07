@@ -19,6 +19,6 @@
 
 #undef D_800A6350
 
-RrLibInterruptCallback func_8008B394(s32 channel, RrLibInterruptCallback callback) {
+RrLibInterruptCallback InterruptCallback(s32 channel, RrLibInterruptCallback callback) {
     return D_800A6350->install(channel, callback);
 }

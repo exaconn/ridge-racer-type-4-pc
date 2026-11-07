@@ -2,8 +2,8 @@
 #include "rr/library.h"
 #include "psyq/libsnd/vmmain.h"
 #include "psyq/libsnd/midinote.h"
-extern void func_80088340(s32, s32, s32, s32);
-void func_80081CB4(s32 bank, s32 row, s32 value, s32 mode) {
+extern void _SsVmKeyOff(s32, s32, s32, s32);
+void _SsNoteOn(s32 bank, s32 row, s32 value, s32 mode) {
     /* ASM_BARRIER: Retain the original register across the bank lookup and callback dispatch. */
     register s32 raw_bank __asm__("$8") = bank;
     register s32 raw_value = value;
@@ -28,7 +28,7 @@ void func_80081CB4(s32 bank, s32 row, s32 value, s32 mode) {
     offset = units * 16;
     /* ASM_BARRIER: Complete both offsets before materializing the PAL table page. */
     __asm__ volatile("" : : "r"(index), "r"(offset) : "$3");
-    /* PAL mapping: table[-0xF98 / 4] selects D_8010F068[bank]. */
+    /* PAL mapping: table[-0xF98 / 4] selects _ss_score[bank]. */
     table = (RrLibStateB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL lookup page without a symbol-address macro. */
     __asm__("" : "=r"(table) : "0"(table));
@@ -49,10 +49,10 @@ void func_80081CB4(s32 bank, s32 row, s32 value, s32 mode) {
     if (mode & 255) {
         if(!((state->h80 >> slot) & 1)) {
             row_bits = (u32)row << 8;
-            func_80087DE4((s16)(raw_bank | row_bits), state->b26, selected[0x37], raw_value & 255, mode_byte, previous);
+            _SsVmKeyOn((s16)(raw_bank | row_bits), state->b26, selected[0x37], raw_value & 255, mode_byte, previous);
         }
     } else {
         row_bits = (u32)row << 8;
-        func_80088340((s16)(raw_bank | row_bits), state->b26, selected[0x37], raw_value & 255);
+        _SsVmKeyOff((s16)(raw_bank | row_bits), state->b26, selected[0x37], raw_value & 255);
     }
 }

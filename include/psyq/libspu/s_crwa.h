@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern s32 D_800A4840;
-void func_8007FA94(void);
+extern s32 _spu_EVdma;
+void SpuInit(void);
 
 #endif /* RR_PSYQ_LIBSPU_S_CRWA_H */

@@ -4,6 +4,6 @@
 #include "types.h"
 
 extern int *D_800A635C;
-void func_8008BA00();
+void memclr();
 
 #endif /* RR_PSYQ_LIBAPI_INTRDISP_H */

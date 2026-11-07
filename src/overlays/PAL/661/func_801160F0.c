@@ -9,27 +9,27 @@ extern s16 ovl661_D_80118440[2][2];       /* course count per player/group */
 extern s16 ovl661_D_8011844C[2];          /* selected course per player */
 extern s16 ovl661_D_80118450[2];          /* selected group per player */
 extern RrCourseChoice4 ovl661_D_80118458[2][2][9];
-extern s32 D_800F4BEC, D_800F4CB8;
+extern s32 UiRowCount, D_800F4CB8;
 extern s16 D_800FFC18;
 void func_80033A74(s32);
-void func_8006EF8C(s32);
+void SetupViewport(s32);
 s32 func_8003AE4C(s32, s32);
-void func_8002E394(RrRaceVehicle *);
+void SetCarBounds(RrRaceVehicle *);
 void func_8002E5A0(RrRaceVehicle *);
 void func_8002CC88(RrRaceVehicle *, RrPreviewRgb3, s32, s32);
 void func_8002AF8C(s32, s32, s32);
-void func_8002B330(s32, s32, char *, s32, s32);
-void func_80037040(s8 *, s32);
-s32 func_8003708C(s8 *);
+void StepMenuValue(s32, s32, char *, s32, s32);
+void UnpackChoiceGlyph(s8 *, s32);
+s32 PackChoiceGlyph(s8 *);
 void ResetScreenCounters(void);
-void func_80014A8C(s32);
+void SetModelTexturePage(s32);
 void PlaySfx(s32);
-void func_8003EC88(s32);
+void DrawUiRow(s32);
 void func_80037198(s32);
-void func_8003D6F0(s32);
+void UpdateBadgeRowAnim(s32);
 s32 func_8003FBA8(s32);
 void func_8002B12C(s32, s32, s32, s32, s32, s32, s32);
-void func_8002A344(s32);
+void UpdateScreenFade(s32);
 void func_800207D4(u32 *, s32, u32);
 void func_80053AF4(s32, s32);
 void func_80053CB0(void);
@@ -67,12 +67,12 @@ void ovl661_func_801160F0(void)
 
     active = 0;
     tick = &D_800F2DE4;
-    vehicles = D_800ABEF8;
+    vehicles = PlayerCars;
     vehicle = &vehicles[PLAYER];
     (*tick)++;
     vehicle->rot54 = (vehicle->rot54 + 8) & 0xFFF;
     func_80033A74(1);
-    func_8006EF8C(6);
+    SetupViewport(6);
     result = func_8003AE4C(D_800AC5D4, 1);
     if (result != 1) {
         if (MODE == 1) {
@@ -80,7 +80,7 @@ void ovl661_func_801160F0(void)
         }
         goto tail;
     }
-    func_8002E394(&vehicles[PLAYER]);
+    SetCarBounds(&vehicles[PLAYER]);
     if (MODE == 7) {
         MODE = result;
     }
@@ -88,36 +88,36 @@ void ovl661_func_801160F0(void)
     switch (D_800F4D8A) {
     case 7:
         row = GROUP_ROW(PLAYER, (s16)(ovl661_D_80118450[PLAYER] ^ 1), 0);
-        if (D_800F4D80[row].byte14 == 5) {
+        if (UiRows[row].byte14 == 5) {
             D_800F4D8A = 0;
         }
     case 0:
         func_8002AF8C(1, 1, 1);
-        before = func_8003708C(SELECTION + D_800AC5D4 * 4);
-        func_8002B330(PLAYER * 4 | 1, 2, (char *)&ovl661_D_8011844C[PLAYER],
+        before = PackChoiceGlyph(SELECTION + D_800AC5D4 * 4);
+        StepMenuValue(PLAYER * 4 | 1, 2, (char *)&ovl661_D_8011844C[PLAYER],
                       ovl661_D_80118440[PLAYER][ovl661_D_80118450[PLAYER]], 0);
-        func_80037040(SELECTION + D_800AC5D4 * 4,
+        UnpackChoiceGlyph(SELECTION + D_800AC5D4 * 4,
                       ovl661_D_80118458[PLAYER][ovl661_D_80118450[PLAYER]][ovl661_D_8011844C[PLAYER]].glyph);
-        if ((s16)before != (s16)func_8003708C(SELECTION + D_800AC5D4 * 4)) {
+        if ((s16)before != (s16)PackChoiceGlyph(SELECTION + D_800AC5D4 * 4)) {
             ResetScreenCounters();
-            D_800ACC18 = D_800F4D70.first;
-            func_80037040(SELECTION + D_800AC5D4 * 4,
+            LoadCursor = D_800F4D70.first;
+            UnpackChoiceGlyph(SELECTION + D_800AC5D4 * 4,
                           ovl661_D_80118458[PLAYER][ovl661_D_80118450[PLAYER]][ovl661_D_8011844C[PLAYER]].glyph);
             D_800ACBD0[D_800AC5D4].first = ovl661_D_80118458[PLAYER][ovl661_D_80118450[PLAYER]][ovl661_D_8011844C[PLAYER]].first;
             D_800ACBD0[D_800AC5D4].second = ovl661_D_80118458[PLAYER][ovl661_D_80118450[PLAYER]][ovl661_D_8011844C[PLAYER]].second;
             MODE = 6;
         }
-        row = GROUP_ROW(PLAYER, ovl661_D_80118450[PLAYER], D_800AC64A);
-        D_800F4D80[row].cells[0] = 0;
-        func_8002B330(PLAYER * 4, 2, (char *)&D_800AC64A, ovl661_D_80118358[ovl661_D_80118450[PLAYER]], 0);
-        row = GROUP_ROW(PLAYER, ovl661_D_80118450[PLAYER], D_800AC64A);
-        D_800F4D80[row].cells[0] = 2;
-        i = D_800F4D80[row].byte14;
+        row = GROUP_ROW(PLAYER, ovl661_D_80118450[PLAYER], MenuCursor);
+        UiRows[row].cells[0] = 0;
+        StepMenuValue(PLAYER * 4, 2, (char *)&MenuCursor, ovl661_D_80118358[ovl661_D_80118450[PLAYER]], 0);
+        row = GROUP_ROW(PLAYER, ovl661_D_80118450[PLAYER], MenuCursor);
+        UiRows[row].cells[0] = 2;
+        i = UiRows[row].byte14;
         close = 0;
         if (i != 2) {
             break;
         }
-        if (D_800F3AFC->state10 != 3) {
+        if (BadgeRows->state10 != 3) {
             break;
         }
         {
@@ -126,21 +126,21 @@ void ovl661_func_801160F0(void)
         }
         if (input->a != 0) {
             PlaySfx(1);
-            D_800F4D80[row].cells[0] = 1;
-            if (D_800AC64A == ovl661_D_8011835C[ovl661_D_80118450[PLAYER]][0]) {
+            UiRows[row].cells[0] = 1;
+            if (MenuCursor == ovl661_D_8011835C[ovl661_D_80118450[PLAYER]][0]) {
                 ovl661_D_80118438 = i;
                 D_800F4D8A = 4;
-            } else if (D_800AC64A == ovl661_D_8011835C[ovl661_D_80118450[PLAYER]][1]
+            } else if (MenuCursor == ovl661_D_8011835C[ovl661_D_80118450[PLAYER]][1]
                        && ovl661_D_80118458[D_800AC5D4][1][0].glyph != -1) {
                 ovl661_D_8011844C[PLAYER] = 0;
-                D_800AC64A = 0;
+                MenuCursor = 0;
                 for (i = 0; i < 4; i++) {
                     row = GROUP_ROW(PLAYER, ovl661_D_80118450[PLAYER], i);
                     if (row == -1) {
                         break;
                     }
-                    if (D_800F4D80[row].byte14 == 2) {
-                        D_800F4D80[row].byte14 = 3;
+                    if (UiRows[row].byte14 == 2) {
+                        UiRows[row].byte14 = 3;
                     }
                 }
                 for (i = 0; i < 4;) {
@@ -149,85 +149,85 @@ void ovl661_func_801160F0(void)
                     if (row == -1) {
                         break;
                     }
-                    D_800F4D80[row].byte14 = 0;
+                    UiRows[row].byte14 = 0;
                 }
                 D_800F4D8A = 7;
                 ovl661_D_80118450[PLAYER] ^= 1;
-            } else if (D_800AC64A == ovl661_D_8011835C[ovl661_D_80118450[PLAYER]][2]) {
+            } else if (MenuCursor == ovl661_D_8011835C[ovl661_D_80118450[PLAYER]][2]) {
                 close = 1;
-            } else if (D_800AC64A == ovl661_D_8011835C[ovl661_D_80118450[PLAYER]][3]) {
-                for (i = 0; i < D_800F4BEC; i++) {
-                    if (D_800F4D80[i].byte14 == 2) {
-                        D_800F4D80[i].byte14 = 3;
+            } else if (MenuCursor == ovl661_D_8011835C[ovl661_D_80118450[PLAYER]][3]) {
+                for (i = 0; i < UiRowCount; i++) {
+                    if (UiRows[i].byte14 == 2) {
+                        UiRows[i].byte14 = 3;
                     }
                 }
                 MODE = 3;
                 D_800AC5D0 = 0x40;
                 D_800F4D8A = 10;
-                D_800F3AFC->state10 = 4;
+                BadgeRows->state10 = 4;
             }
         } else if (input->b != 0) {
             PlaySfx(2);
             close = 1;
         }
         if (close == 1) {
-            for (i = 0; i < D_800F4BEC; i++) {
-                if (D_800F4D80[i].byte14 == 2) {
-                    D_800F4D80[i].byte14 = 3;
+            for (i = 0; i < UiRowCount; i++) {
+                if (UiRows[i].byte14 == 2) {
+                    UiRows[i].byte14 = 3;
                 }
             }
             MODE = 3;
             D_800AC5D0 = 0x40;
-            D_800F3AFC->state10 = 4;
+            BadgeRows->state10 = 4;
             func_80053AF4(0, 60);
             D_800F4D8A = 8;
         }
         break;
     case 3:
         row = GROUP_ROW((D_800AC5D4 - 1) & 1, 1, 3) + 1;
-        if (D_800F4D80[row].byte14 == 5) {
+        if (UiRows[row].byte14 == 5) {
             ovl661_D_80118438 = 1;
             D_800F4D8A = 0;
         }
         break;
     case 4:
         row = GROUP_ROW(PLAYER, 1, 3) + 1;
-        i = D_800F4D80[row].byte14;
+        i = UiRows[row].byte14;
         if (i != 2) {
             break;
         }
-        D_800F4D80[row + ENTRIES[D_800AC5D4].reserved].cells[0] = 0;
-        func_8002B330(PLAYER * 4, 1, (char *)&ENTRIES[D_800AC5D4].reserved, 2, 0);
-        D_800F4D80[row + ENTRIES[D_800AC5D4].reserved].cells[0] = i;
+        UiRows[row + ENTRIES[D_800AC5D4].reserved].cells[0] = 0;
+        StepMenuValue(PLAYER * 4, 1, (char *)&ENTRIES[D_800AC5D4].reserved, 2, 0);
+        UiRows[row + ENTRIES[D_800AC5D4].reserved].cells[0] = i;
         {
             RrMenuItemState5C *inputs = D_800F3A38;
             input = inputs + PLAYER;
         }
         if (input->a != 0) {
             PlaySfx(1);
-            D_800F4D80[row + ENTRIES[0].reserved].cells[0] = 1;
-            D_800F4D80[row].byte14 = 3;
-            D_800F4D80[row + 1].byte14 = 3;
+            UiRows[row + ENTRIES[0].reserved].cells[0] = 1;
+            UiRows[row].byte14 = 3;
+            UiRows[row + 1].byte14 = 3;
             for (i = 0; i < 4; i++) {
                 row = GROUP_ROW(PLAYER, ovl661_D_80118450[PLAYER], i);
                 if (row == -1) {
                     break;
                 }
-                if (D_800F4D80[row].byte14 == 2) {
-                    D_800F4D80[row].byte14 = 3;
+                if (UiRows[row].byte14 == 2) {
+                    UiRows[row].byte14 = 3;
                 }
             }
             active = 0;
-            D_800F4D70.first = D_800ACC18;
+            D_800F4D70.first = LoadCursor;
             if ((D_800AC5D4 & 1) > 0) {
                 D_800F4D8A = 5;
-                for (i = 0; i < D_800F4BEC; i++) {
-                    if (D_800F4D80[i].byte14 == 2) {
-                        D_800F4D80[i].byte14 = 3;
+                for (i = 0; i < UiRowCount; i++) {
+                    if (UiRows[i].byte14 == 2) {
+                        UiRows[i].byte14 = 3;
                     }
                 }
                 MODE = 3;
-                D_800F3AFC->state10 = 4;
+                BadgeRows->state10 = 4;
             } else {
                 D_800F4D8A = 3;
                 D_800AC5D4++;
@@ -235,15 +235,15 @@ void ovl661_func_801160F0(void)
             }
         } else if (input->b != 0) {
             PlaySfx(2);
-            D_800F4D80[row].byte14 = 3;
-            D_800F4D80[row + 1].byte14 = 3;
+            UiRows[row].byte14 = 3;
+            UiRows[row + 1].byte14 = 3;
             D_800F4D8A = 6;
         }
         break;
     case 5:
         func_8002AF8C(0, 1, 1);
         row = GROUP_ROW(PLAYER, 1, 3) + 1;
-        status = D_800F4D80[row].byte14;
+        status = UiRows[row].byte14;
         if (status == 5 && MODE == status) {
             ResetScreenCounters();
             ovl661_func_80117350();
@@ -254,16 +254,16 @@ void ovl661_func_801160F0(void)
         break;
     case 6:
         row = GROUP_ROW(PLAYER, 1, 3) + 1;
-        if (D_800F4D80[row].byte14 == 5) {
+        if (UiRows[row].byte14 == 5) {
             D_800F4D8A = 0;
             ovl661_D_80118438 = 1;
-            D_800F4D80[row].byte14 = 0;
-            D_800F4D80[row + 1].byte14 = 0;
+            UiRows[row].byte14 = 0;
+            UiRows[row + 1].byte14 = 0;
         }
         break;
     case 9:
         row = GROUP_ROW(PLAYER, 1, 3) + 1;
-        status = D_800F4D80[row].byte14;
+        status = UiRows[row].byte14;
         if (status == 5 && MODE == status) {
             ovl661_func_80115598(0);
             D_800F4D8A = 0;
@@ -272,7 +272,7 @@ void ovl661_func_801160F0(void)
     case 8:
         func_8002AF8C(0, 1, 1);
         D_800AC5D0--;
-        func_80014A8C(-1);
+        SetModelTexturePage(-1);
         func_800207D4(D_800ACC14->ordering.ordering70, (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             func_80053CB0();
@@ -283,7 +283,7 @@ void ovl661_func_801160F0(void)
         break;
     case 10:
         func_8002AF8C(0, 1, 1);
-        func_80014A8C(-1);
+        SetModelTexturePage(-1);
         D_800AC5D0--;
         func_800207D4(D_800ACC14->ordering.ordering70, (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
@@ -297,7 +297,7 @@ void ovl661_func_801160F0(void)
 tail:
     if (ovl661_D_80118438 == 0 && MODE == 2) {
         ovl661_D_80118438 = 1;
-        D_800F3AFC->half02 = 1;
+        BadgeRows->half02 = 1;
     }
     if (D_800F4D8A == 3) {
         player = D_800AC5D4 - 1;
@@ -307,7 +307,7 @@ tail:
     if (D_800F4D8A == 7) {
         group = ovl661_D_80118450[player & 1] ^ 1;
         row = GROUP_ROW(player & 1, group, 0);
-        if (D_800F4D80[row].byte14 == 5) {
+        if (UiRows[row].byte14 == 5) {
             group = ovl661_D_80118450[player & 1];
         }
     } else {
@@ -318,18 +318,18 @@ tail:
         if (row == -1) {
             break;
         }
-        func_8003EC88(row);
+        DrawUiRow(row);
     }
     if (ovl661_D_80118438 == 2) {
         last = GROUP_ROW(player & 1, 1, 3);
-        func_8003EC88(last + 1);
-        func_8003EC88(last + 2);
+        DrawUiRow(last + 1);
+        DrawUiRow(last + 2);
     }
     if ((u8)MODE - 1 < 2U) {
         i = active;
         if (i == 1) {
             func_80037198(D_800AC5D4);
-            func_8002E5A0(&D_800ABEF8[PLAYER]);
+            func_8002E5A0(&PlayerCars[PLAYER]);
             brightness = 0x100;
             if (MODE == i) {
                 last = ~((D_800F2AB0[2] * 0xFF) / 30);
@@ -344,10 +344,10 @@ tail:
                 color.channel[1] = 0x80;
                 color.channel[2] = 0x80;
             }
-            func_8002CC88(&D_800ABEF8[PLAYER], color.rgb, brightness, flags);
+            func_8002CC88(&PlayerCars[PLAYER], color.rgb, brightness, flags);
         }
     }
-    func_8003D6F0(0);
+    UpdateBadgeRowAnim(0);
     if (func_8003FBA8(0) > 0) {
         func_8002B12C(0xA0, 0x90, 8, 1, ovl661_D_8011844C[PLAYER], 0,
                       ovl661_D_80118440[PLAYER][ovl661_D_80118450[PLAYER]]);
@@ -360,5 +360,5 @@ tail:
     if (*(s16 *)(groups + (D_800AC5D4 & 1) * 2) != 0) {
         sound = 0x10036;
     }
-    func_8002A344(sound);
+    UpdateScreenFade(sound);
 }

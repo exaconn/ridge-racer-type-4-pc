@@ -1,11 +1,11 @@
 #include "rr/menu_text_rows.h"
 #include "rr/overlay_menu.h"
 extern s32 D_800F2DE4;
-extern s16 D_800AC64A;
-extern s16 D_800AC5E0;
+extern s16 MenuCursor;
+extern s16 MenuItemCount;
 extern s32 ovl667_D_80118E2C[22];
 extern s32 D_800F4C64;
-extern s16 D_800AC59C;
+extern s16 NumCars;
 extern s16 D_8010C070[8];
 extern s16 D_8010C080[8];
 extern s16 D_8010C0C8[8];
@@ -19,8 +19,8 @@ void ovl667_func_80118634(void) {
      * inverse position for participant0 are valid slots0..7. */
     D_800F2DE4 = 0;
     InitMenuTextRows(D_800FFC48);
-    D_800AC64A = 0;
-    D_800AC5E0 = 3;
+    MenuCursor = 0;
+    MenuItemCount = 3;
     for (i = 0; i < 11; i++) {
         SetMenuTextRow(i, i, 0, 0, ovl667_D_80118E2C[i]);
     }
@@ -31,7 +31,7 @@ void ovl667_func_80118634(void) {
         SetMenuTextRow(i, i - 33, 2, 0, ovl667_D_80118E2C[i - 22]);
     }
     if (D_800F4C64 >= 0) {
-        for (i = 0; i < D_800AC59C; i++) {
+        for (i = 0; i < NumCars; i++) {
             D_8010C070[D_8010C0C8[i]] = i;
         }
         if (D_8010C080[D_8010C070[0]] < 99) {

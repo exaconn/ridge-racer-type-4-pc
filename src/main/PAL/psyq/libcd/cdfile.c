@@ -26,8 +26,8 @@ struct DirPath {
 };
 
 extern int D_800A67A4;
-extern int D_800A649C;
-extern int D_800A6490;
+extern int CD_nopen;
+extern int CD_debug;
 extern CdlFILE D_80110350[];
 extern const char D_80011B38[];
 extern const char D_80011B54[];
@@ -48,12 +48,12 @@ extern void func_80096444(char *, void *, int);
 extern char D_8011095C[];
 extern s32 func_80096404(const char *, const char *);
 
-CdlFILE *func_8008DE84(CdlFILE *fp, char *name);
+CdlFILE *CdSearchFile(CdlFILE *fp, char *name);
 int func_8008E15C(int a, int b);
-int func_8008E17C(void);
+int DS_newmedia(void);
 s32 DS_searchdir(s32 key, const char *name);
 
-CdlFILE *func_8008DE84(CdlFILE *fp, char *name) {
+CdlFILE *CdSearchFile(CdlFILE *fp, char *name) {
     char buf[16];
     char *p;
     char *d;
@@ -62,10 +62,10 @@ CdlFILE *func_8008DE84(CdlFILE *fp, char *name) {
     /* ASM_BARRIER: use hard reg $0 so jump2 cross-jumping does not merge this return with .L8008E130 */
     register CdlFILE *zero asm("$0");
 
-    if (D_800A67A4 != D_800A649C) {
-        if (func_8008E17C() == 0)
+    if (D_800A67A4 != CD_nopen) {
+        if (DS_newmedia() == 0)
             return 0;
-        D_800A67A4 = D_800A649C;
+        D_800A67A4 = CD_nopen;
     }
     if (*name != '\\') {
         return zero;
@@ -93,34 +93,34 @@ CdlFILE *func_8008DE84(CdlFILE *fp, char *name) {
     }
 done:
     if (i >= 8) {
-        if (D_800A6490 > 0)
+        if (CD_debug > 0)
             func_8001E84C(D_80011B38, name, i);
         return 0;
     }
     if (buf[0] == 0) {
-        if (D_800A6490 > 0)
+        if (CD_debug > 0)
             func_8001E84C(D_80011B54, name);
         return 0;
     }
     *d = 0;
     if (DS_cachefile(dir) == 0) {
-        if (D_800A6490 > 0)
+        if (CD_debug > 0)
             func_8001E84C(D_80011B6C);
         return 0;
     }
-    if (D_800A6490 >= 2)
+    if (CD_debug >= 2)
         func_8001E84C(D_80011B88, buf);
     for (i = 0; i < 64; i++) {
         if (D_80110350[i].name[0] == 0)
             break;
         if (func_8008E15C(D_80110350[i].name, buf)) {
-            if (D_800A6490 >= 2)
+            if (CD_debug >= 2)
                 func_8001E84C(D_80011BA8, buf);
             *fp = D_80110350[i];
             return &D_80110350[i];
         }
     }
-    if (D_800A6490 > 0)
+    if (CD_debug > 0)
         func_8001E84C(D_80011BB4, buf);
     return 0;
 }
@@ -130,7 +130,7 @@ int func_8008E15C(int a, int b) { return func_80096414(a, b, 12) == 0; }
 /* legacy typing of shared globals in this part of the unit */
 #define func_80096414 ((int (*)(void *, const char *, int))func_80096414)
 
-int func_8008E17C(void) {
+int DS_newmedia(void) {
     int sp18;
     unsigned char *p;
     int i;
@@ -139,13 +139,13 @@ int func_8008E17C(void) {
     int dummy;
 
     if (func_8008E780(1, 0x10, D_80111F50) != 1) {
-        if (D_800A6490 > 0) {
+        if (CD_debug > 0) {
             func_8001E84C(D_80011BC4);
         }
         return 0;
     }
     if (func_80096414(D_80111F50 + 1, D_80011BF0, 5) != 0) {
-        if (D_800A6490 > 0) {
+        if (CD_debug > 0) {
             func_8001E84C(D_80011BF8);
         }
         return 0;
@@ -155,13 +155,13 @@ int func_8008E17C(void) {
     __asm__ volatile("" : "=r"(p8c) : "0"(p8c));
     *(U4 *)&sp18 = *(U4 *)(p8c + 0x8C);
     if (func_8008E780(1, sp18, p8c) != 1) {
-        if (D_800A6490 > 0) {
+        if (CD_debug > 0) {
             func_8001E84C(D_80011C28, sp18);
         }
         return 0;
     }
     p = p8c;
-    if (D_800A6490 >= 2) {
+    if (CD_debug >= 2) {
         func_8001E84C(D_80011C4C);
     }
     i = 0;
@@ -177,7 +177,7 @@ int func_8008E17C(void) {
         D_80110950[i].name[p[0]] = 0;
         pad = (p[0] & 1) + 8;
         p += p[0] + pad;
-        if (D_800A6490 >= 2) {
+        if (CD_debug >= 2) {
             func_8001E84C(
                 D_80011C6C,
                 D_80110950[i].c,
@@ -195,7 +195,7 @@ int func_8008E17C(void) {
         D_80110950[i].b = 0;
     }
     D_800A67A0 = 0;
-    if (D_800A6490 >= 2) {
+    if (CD_debug >= 2) {
         func_8001E84C(D_80011C80, i);
     }
     return 1;

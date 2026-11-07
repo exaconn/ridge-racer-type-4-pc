@@ -75,19 +75,19 @@ typedef struct {
 extern struct {
     char pad[0x3D8];
     CamQ *q;
-} D_800AC650;
-extern s32 D_800AC5DC;
+} RaceContext;
+extern s32 VSyncThreshold;
 extern s16 D_800F7488;
 extern s16 D_800F7624;
 extern void func_8002E828(s32, s32);
-extern void func_8005AC0C(s16 *);
-extern void func_8005B9F4(s16 *);
+extern void UpdateMotionTrack(s16 *);
+extern void UpdateCameraMotion(s16 *);
 extern void func_8005D544(s16 *);
-extern void func_8005ED34(s16 *);
-extern void func_8006E1AC(void);
-extern void func_8006EF8C(s32);
-extern void func_800912B4(s32, s32);
-extern void func_800912D4(s32);
+extern void UpdateScrollTrack(s16 *);
+extern void BuildCameraMatrices(void);
+extern void SetupViewport(s32);
+extern void SetGeomOffset(s32, s32);
+extern void SetGeomScreen(s32);
 extern char D_800A1AA0[];
 extern char D_800A1B60[];
 
@@ -98,68 +98,68 @@ void func_8005B304(void) {
     s32 a2 = 0;
     s16 *s0;
 
-    if (D_800AC5DC == 0x80) {
-        D_800AC650.q->f4c = 2;
+    if (VSyncThreshold == 0x80) {
+        RaceContext.q->f4c = 2;
     } else {
-        D_800AC650.q->f4c = 1;
+        RaceContext.q->f4c = 1;
     }
-    if (D_800AC650.q->f5c == 0) {
+    if (RaceContext.q->f5c == 0) {
         s0 = &D_800F7624;
     } else {
         s0 = &D_800F7488;
     }
     if (*s0 != 0) {
-        if (++D_800AC650.q->f6a >= D_800AC650.q->f64[D_800AC650.q->f68].w4) {
-            D_800AC650.q->f68++;
-            if (D_800AC650.q->f64[D_800AC650.q->f68].s0 < 0) {
-                D_800AC650.q->f68 = 0;
+        if (++RaceContext.q->f6a >= RaceContext.q->f64[RaceContext.q->f68].w4) {
+            RaceContext.q->f68++;
+            if (RaceContext.q->f64[RaceContext.q->f68].s0 < 0) {
+                RaceContext.q->f68 = 0;
             }
-            D_800AC650.q->f6c = D_800AC650.q->f64[D_800AC650.q->f68].s0;
-            D_800AC650.q->f70 = D_800AC650.q->f64[D_800AC650.q->f68].s2;
+            RaceContext.q->f6c = RaceContext.q->f64[RaceContext.q->f68].s0;
+            RaceContext.q->f70 = RaceContext.q->f64[RaceContext.q->f68].s2;
             a2 = 1;
-            D_800AC650.q->f6a = 0;
+            RaceContext.q->f6a = 0;
         }
     }
-    switch (D_800AC650.q->f6c) {
+    switch (RaceContext.q->f6c) {
     case 0:
         if (a2 != 0) {
-            func_8005B8D8(D_800AC650.q->f70);
+            func_8005B8D8(RaceContext.q->f70);
         }
-        func_8005B9F4(s0);
+        UpdateCameraMotion(s0);
         break;
     case 1:
         if (a2 != 0) {
-            func_8005D500(D_800AC650.q->f70);
+            func_8005D500(RaceContext.q->f70);
         }
         func_8005D544(s0);
         break;
     case 2:
         if (a2 != 0) {
-            func_8005ECD4(D_800AC650.q->f70);
+            func_8005ECD4(RaceContext.q->f70);
         }
-        func_8005ED34(s0);
+        UpdateScrollTrack(s0);
         break;
     case 3:
         if (a2 != 0) {
-            func_8005ABAC(D_800AC650.q->f70);
+            func_8005ABAC(RaceContext.q->f70);
         }
-        func_8005AC0C(s0);
+        UpdateMotionTrack(s0);
         break;
     }
-    if (D_800AC650.q->f54 != 0) {
-        g->v08 = D_800AC650.q->v0;
-        g->v18 = D_800AC650.q->v1;
-        func_8006E1AC();
-        func_800912D4(D_800AC650.q->f48);
-        if (D_800AC650.q->f50 == 0) {
-            func_8006EF8C(6);
-            func_800912B4(0xA0, 0xE8);
+    if (RaceContext.q->f54 != 0) {
+        g->v08 = RaceContext.q->v0;
+        g->v18 = RaceContext.q->v1;
+        BuildCameraMatrices();
+        SetGeomScreen(RaceContext.q->f48);
+        if (RaceContext.q->f50 == 0) {
+            SetupViewport(6);
+            SetGeomOffset(0xA0, 0xE8);
             func_8002E828(2, SCRATCH_ROT_MATRIX);
         }
         g->f60 = 5;
         g->p04 = (s32)&DRAWBUF->tailB70;
-        if (D_800AC650.q->f54 != 0) {
-            switch (D_800AC650.q->f6c) {
+        if (RaceContext.q->f54 != 0) {
+            switch (RaceContext.q->f6c) {
             case 0:
                 func_8005C024();
                 break;
@@ -174,7 +174,7 @@ void func_8005B304(void) {
                 break;
             }
         }
-        if (D_800AC650.q->f58 == 0) {
+        if (RaceContext.q->f58 == 0) {
             ((DrStp *)g->p04)->addr = DRAWBUF->tailB68.addr;
             DRAWBUF->tailB68.addr = g->p04 + 0xAFC;
         } else {
@@ -220,10 +220,10 @@ void func_8005B304(void) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(char (*)[])&D_800AC650)
+#define RaceContext (*(char (*)[])&RaceContext)
 
 void func_8005B8D8(int a0) {
-    char *s1 = D_800AC650;
+    char *s1 = RaceContext;
     char *a;
     register char *t asm("$2");
     int v;
@@ -237,7 +237,7 @@ void func_8005B8D8(int a0) {
         W(Q(s1, 0x3D8), 0x78) = 1;
         W(Q(s1, 0x3D8), 0x80) = (int)(D_800A1B60 + (a0 << 5));
     }
-    a = D_800AC650;
+    a = RaceContext;
     t0 = Q(a, 0x3D8);
     W(t0, 0xE0) = 0x2D0;
     t = Q(a, 0x3D8);
@@ -256,4 +256,4 @@ void func_8005B8D8(int a0) {
     W(t0, 0x7C) = 1;
 }
 
-#undef D_800AC650
+#undef RaceContext

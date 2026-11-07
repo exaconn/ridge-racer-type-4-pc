@@ -3,10 +3,10 @@
 #include "rr/channel_stream.h"
 #include "psyq/libsnd/sstick.h"
 
-void func_800832A4(s32 bank, s32 row);
+void _SsSeqPlay(s32 bank, s32 row);
 void func_800833A0(s32 bankInput,s32 rowInput);
 
-void func_800832A4(s32 bank, s32 row) {
+void _SsSeqPlay(s32 bank, s32 row) {
     u32 bank_bits = (u32)bank << 16;
     /* ASM_BARRIER: Retain the original register across record lookup and counter updates. */
     register u32 row_bits __asm__("$5");
@@ -29,7 +29,7 @@ void func_800832A4(s32 bank, s32 row) {
     units = (s16)(row_bits >> 16) * 11;
     /* ASM_BARRIER: Complete both index calculations before materializing the PAL lookup page. */
     __asm__ volatile("" : : "r"(index), "r"(units) : "$3");
-    /* PAL mapping: table[-0xF98 / 4] selects D_8010F068[bank]. */
+    /* PAL mapping: table[-0xF98 / 4] selects _ss_score[bank]. */
     table = (RrLibStateB0 **)0x80110000U;
     /* ASM_BARRIER: Expose the PAL lookup page without folding its signed low offset. */
     __asm__("" : "=r"(table) : "0"(table));
@@ -68,7 +68,7 @@ void func_800832A4(s32 bank, s32 row) {
         saved_row = (s32)row_bits;
         do {
 again:
-            func_800835E4(saved_bank >> 16, saved_row >> 16);
+            _SsGetSeqData(saved_bank >> 16, saved_row >> 16);
             update = state->w90;
             if (update == 0) goto again;
             next_period = state->h48[6];
@@ -83,7 +83,7 @@ finish:
 void func_800833A0(s32 bankInput,s32 rowInput) {
     s16 bank=bankInput,row=rowInput;
     s32 bits=(s32)((u32)bank<<16);
-    RrChannelStreamB0 **table=D_8010F068;
+    RrChannelStreamB0 **table=_ss_score;
     /* Keep table indexing proportional to the native pointer width. */
     RrChannelStreamB0 **slot=(RrChannelStreamB0 **)((u8*)table+(long)(bits>>14)*(long)(sizeof(*table)/sizeof(u32)));
     RrChannelStreamB0 *record=&(*slot)[row];
@@ -124,10 +124,10 @@ void func_800833A0(s32 bankInput,s32 rowInput) {
             /* Preserve the original repeated signed-byte read before restart. */
             __asm__("" : : : "memory");
             record->active14=0;
-            func_80083994(record->restartBank22,record->restartRow23);
-            func_80089E1C((s16)((u32)bank|((u32)row<<8)));
+            _SsSndNextSep(record->restartBank22,record->restartRow23);
+            _SsVmSeqKeyOff((s16)((u32)bank|((u32)row<<8)));
         }
-        func_80089E1C((s16)((u32)bank|((u32)row<<8)));
+        _SsVmSeqKeyOff((s16)((u32)bank|((u32)row<<8)));
         record->accumulator90=record->pitch54;
     }
 }

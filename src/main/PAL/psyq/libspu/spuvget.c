@@ -2,7 +2,7 @@
 #include "rr/spu.h"
 
 void func_80086B84(u32 voice, u16 *left, u16 *right) {
-    RrSpuVoiceRegisters *registers = (RrSpuVoiceRegisters *)(voice * 16 + (unsigned long)D_800A47D8);
+    RrSpuVoiceRegisters *registers = (RrSpuVoiceRegisters *)(voice * 16 + (unsigned long)_spu_RXX);
     u16 raw_left = registers->left;
     u16 raw_right = registers->right;
     u32 value = raw_left & 0xFFFF;

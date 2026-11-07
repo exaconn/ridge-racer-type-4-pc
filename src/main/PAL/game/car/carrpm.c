@@ -1,7 +1,7 @@
 #include "rr/vehicle_rpm.h"
 #include "rr/cpu_md_leaf.h"
 #include "rr_asm.h"
-void func_800483D8(RrRaceVehicle *vehicle) {
+void UpdateEngineRpm(RrRaceVehicle *vehicle) {
     /* ASM_BARRIER: retain actual values and pointers in their original register phases. */
     register RrDriveVehicleView *body __asm__("$11")=(RrDriveVehicleView *)vehicle;
     /* ASM_BARRIER: retain actual values and pointers in their original register phases. */

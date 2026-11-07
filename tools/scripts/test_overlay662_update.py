@@ -44,12 +44,12 @@ static void observe(struct World *v,s32 kind,s32 a,s32 b,s32 c,const void *point
  Event *e;assert(v->calls<8);e=&v->events[v->calls++];memset(e,0,sizeof(*e));e->kind=kind;e->args[0]=a;e->args[1]=b;e->args[2]=c;e->pointer=pointer;memcpy(&e->garage,&v->garage,sizeof(v->garage));e->context=v->context;e->text=v->text;effect(v,kind,pointer);
 }
 void func_800207D4(u32 *ordering,s32 intensity,u32 mode){assert(mode==69);observe(&world,0,intensity,(s32)mode,0,ordering);}
-void func_8003D6F0(s32 index){assert(index==0);observe(&world,1,index,0,0,0);}
-void func_8003EC88(s32 index){assert(index==0 || index==1);observe(&world,2,index,0,0,0);}
+void UpdateBadgeRowAnim(s32 index){assert(index==0);observe(&world,1,index,0,0,0);}
+void DrawUiRow(s32 index){assert(index==0 || index==1);observe(&world,2,index,0,0,0);}
 void func_80032DF0(void *state){observe(&world,3,0,0,0,state);}
 void func_80032A14(s32 x,s32 y,RrMenuTextState *state){assert(x==22 && y==320);observe(&world,4,x,y,0,state);}
 void func_8002AF8C(s32 a,s32 b,s32 c){observe(&world,5,a,b,c,0);}
-void func_8002A344(s32 flags){assert(flags==0x1004E);observe(&world,6,flags,0,0,0);}
+void UpdateScreenFade(s32 flags){assert(flags==0x1004E);observe(&world,6,flags,0,0,0);}
 static void reference(void){
  RrGarageSelectionPrefix *g=&expected.garage;s32 a,b;
  if(g->fade00>=0){

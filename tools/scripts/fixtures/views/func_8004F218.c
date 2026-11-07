@@ -1,28 +1,28 @@
 #include "rr/audio_pan.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8008AEC4 ((short (*)())func_8008AEC4)
+#define SsVabTransBody ((short (*)())SsVabTransBody)
 
-#define D_800F4DB8 (*(short (*)[])&D_800F4DB8)
+#define SoundState (*(short (*)[])&SoundState)
 
-#undef func_8008AEC4
+#undef SsVabTransBody
 
-#undef D_800F4DB8
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x2894]; s32 a, b, c, d; } (*))&D_800F4DB8)
-
-#undef D_800F4DB8
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x2894]; s32 a, b, c; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x2894]; s32 a, b, c, d; } (*))&SoundState)
 
-#undef D_800F4DB8
+#undef SoundState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(struct { char pad[0x19D0]; s32 a; char p1[4]; s32 b, c; char p2[8]; s16 arr[8]; } (*))&D_800F4DB8)
+#define SoundState (*(struct { char pad[0x2894]; s32 a, b, c; } (*))&SoundState)
 
-#undef D_800F4DB8
+#undef SoundState
+
+/* legacy typing of shared globals in this part of the unit */
+#define SoundState (*(struct { char pad[0x19D0]; s32 a; char p1[4]; s32 b, c; char p2[8]; s16 arr[8]; } (*))&SoundState)
+
+#undef SoundState
 
 void PlaySfxVolPan(int a0, s16 a1, s16 a2, int a3) {
     TriggerSfx(a0, a1, a2, 0x1E00, a3);

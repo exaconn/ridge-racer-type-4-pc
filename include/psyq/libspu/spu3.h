@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8007F574(void);
+void _spu_FsetDelayR(void);
 
 #endif /* RR_PSYQ_LIBSPU_SPU3_H */

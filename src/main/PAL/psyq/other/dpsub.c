@@ -4,7 +4,7 @@
 #include "psyq/other/dpadd.h"
 typedef union { double d; u64 bits; RrWide64 words; } DW;
 /* Soft-float subtraction a - b: returns a for b == +-0, -b for a == +-0, else a + (-b). */
-u64 func_8007E944(DW a, DW b) {
+u64 __subdf3(DW a, DW b) {
     DW x;
     u32 sign;
     x.d = a.d;
@@ -17,5 +17,5 @@ add:
     sign = 0x80000000;
 add_sign:
     b.words.hi ^= sign;
-    return func_8007D7D4(a.bits, b.bits);
+    return __adddf3(a.bits, b.bits);
 }

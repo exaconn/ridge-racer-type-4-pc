@@ -7,9 +7,9 @@
 extern RrMenuItemState5C D_800F3A38[2];
 void ovl662_func_80118ED8(void);
 s32 func_8003DCEC(s32);
-void func_8003EC88(s32);
-void func_8003D6F0(s32);
-void func_8002A344(s32);
+void DrawUiRow(s32);
+void UpdateBadgeRowAnim(s32);
+void UpdateScreenFade(s32);
 /* Palette selection0..24 indexes the shared mapping; values0..25 name the
  * two existing TIM banks. UI selection names a writable row; both closing
  * rows exist in every freshly published bank. Services may replace roots and

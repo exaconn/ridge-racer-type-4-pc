@@ -4,13 +4,13 @@
 extern RrLibSavedState D_800A52C8;
 extern u16 *D_800A6358;
 extern s32 *D_800A635C;
-extern void func_80096EF4(void *data);
-extern void func_80096F14(void);
+extern void HookEntryInt(void *data);
+extern void ExitCriticalSection(void);
 
-RrLibSavedState *func_8008B988(void) {
+RrLibSavedState *restartIntr(void) {
     RrLibSavedState *state = &D_800A52C8;
     if (state->active != 0) return 0;
-    func_80096EF4(state->callback_data);
+    HookEntryInt(state->callback_data);
     state->active = 1;
     *D_800A6358 = state->register16;
     {
@@ -20,6 +20,6 @@ RrLibSavedState *func_8008B988(void) {
         __asm__ volatile("nop");
         *destination = value;
     }
-    func_80096F14();
+    ExitCriticalSection();
     return state;
 }

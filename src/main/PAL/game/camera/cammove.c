@@ -10,10 +10,10 @@
  * the typed HI/LO interface with an independent native arithmetic reference. */
 #define W_MUL(a,b) ((s32)((u32)(a)*(u32)(b)))
 
-void func_8005B9F4(RrCameraMotionInput14 *input) {
+void UpdateCameraMotion(RrCameraMotionInput14 *input) {
     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
     register RrCameraMotionInput14 *arg0 __asm__("$9")=input;
-    RrCameraRootPrefix *root=&D_800AC650;
+    RrCameraRootPrefix *root=&RaceContext;
     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
     register RrCameraObjectPrefix *object __asm__("$8")=root->camera3D8;
     s32 boundary;
@@ -301,7 +301,7 @@ block_34:
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AC650 (*(struct { char pad[0x3D8]; char *p; } (*))&D_800AC650)
+#define RaceContext (*(struct { char pad[0x3D8]; char *p; } (*))&RaceContext)
 
 void func_8005C024(void)
 {
@@ -310,16 +310,16 @@ void func_8005C024(void)
     int sp50[3];
     int v;
 
-    func_8005599C(D_800AC650.p + 0xC8, D_800AC650.p + 0x20, sp10, sp30);
-    v = *(int *)(D_800AC650.p + 0xE0);
+    func_8005599C(RaceContext.p + 0xC8, RaceContext.p + 0x20, sp10, sp30);
+    v = *(int *)(RaceContext.p + 0xE0);
     sp50[2] = v;
     sp50[1] = v;
     sp50[0] = v;
     ScaleMatrix(sp10, sp50);
-    func_800701C4(7);
-    func_8006EE3C((SCRATCHPAD + 0x7C), D_800AC650.p + 0xC8, sp10);
+    SelectModelBank(7);
+    func_8006EE3C((SCRATCHPAD + 0x7C), RaceContext.p + 0xC8, sp10);
     *(int *)(SCRATCHPAD + 0x78) = 0;
     func_80058768(SCRATCHPAD, D_800F2FD8 < 1, 0, 0x100);
 }
 
-#undef D_800AC650
+#undef RaceContext

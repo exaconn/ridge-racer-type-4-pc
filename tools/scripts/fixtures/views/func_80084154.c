@@ -2,9 +2,9 @@
 
 #include "rr/channels.h"
 
-extern void func_800897A4(s32,s32,s32,s32);
+extern void _SsVmSetSeqVol(s32,s32,s32,s32);
 
-void func_80084154(s32 bank,s32 row,s32 left,s32 right) {
+void _SsSndSetVol(s32 bank,s32 row,s32 left,s32 right) {
     register u32 raw_bank=bank;
     /* ASM_BARRIER: Retain the original register for lookup, argument preparation, or return scheduling. */
     register s32 left_value __asm__("$9")=left;
@@ -38,6 +38,6 @@ void func_80084154(s32 bank,s32 row,s32 left,s32 right) {
         encoded=(u32)row<<8;
         encoded=raw_bank|encoded;
         encoded<<=16;
-        func_800897A4((s32)encoded>>16,(u16)left_value,(u16)right_value,1);
+        _SsVmSetSeqVol((s32)encoded>>16,(u16)left_value,(u16)right_value,1);
     }
 }

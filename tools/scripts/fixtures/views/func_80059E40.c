@@ -65,7 +65,7 @@ extern struct {
     s32 w28a4;
     s32 w28a8;
     s32 w28ac;
-} D_800F4DB8;
+} SoundState;
 
 extern s32 D_8010E228;
 
@@ -163,24 +163,24 @@ s32 func_80059E40(s32 arg0) {
         if (sp18[5] >= 0x80) {
             if (D_800F3A40 & 0x8000) {
                 if (D_8010E234 == 0) {
-                    D_800F4DB8.w28a4 = 0;
+                    SoundState.w28a4 = 0;
                     D_8010E234 = 1;
                 } else {
-                    D_800F4DB8.w28a4--;
-                    if (D_800F4DB8.w28a4 < 0) {
-                        D_800F4DB8.w28a4 = D_800F4DB8.w28a8 - 1;
+                    SoundState.w28a4--;
+                    if (SoundState.w28a4 < 0) {
+                        SoundState.w28a4 = SoundState.w28a8 - 1;
                     }
                 }
                 D_8010E238 = 0;
             }
             if (D_800F3A40 & 0x2000) {
                 if (D_8010E234 == 0) {
-                    D_800F4DB8.w28a4 = 0;
+                    SoundState.w28a4 = 0;
                     D_8010E234 = 1;
                 } else {
-                    D_800F4DB8.w28a4++;
-                    if (D_800F4DB8.w28a4 >= D_800F4DB8.w28a8) {
-                        D_800F4DB8.w28a4 = 0;
+                    SoundState.w28a4++;
+                    if (SoundState.w28a4 >= SoundState.w28a8) {
+                        SoundState.w28a4 = 0;
                     }
                 }
                 D_8010E238 = 0;
@@ -193,13 +193,13 @@ s32 func_80059E40(s32 arg0) {
         func_80059B1C(D_800A1A60, 0x3C, 0xC8, sp18[5]);
         func_80059B1C(D_800A1A60 + 4, 0xFC, 0xC8, sp18[5]);
         func_80059B1C(D_800A1A60 + 8, 0x4C, 0xC8, sp18[5]);
-        func_80096484(sp30, D_80011234, D_800F4DB8.w28a4);
+        func_80096484(sp30, D_80011234, SoundState.w28a4);
         func_8004C5A4(0x5A, 0xC8, sp30, sp18[5], 0);
         func_80059B1C(D_800A1A60 + 0xC, 0x6C, 0xC8, sp18[5]);
-        if (D_800F4DB8.w28a4 <= 0) {
+        if (SoundState.w28a4 <= 0) {
             func_8004C5A4(0x78, 0xC8, D_8001123C, sp18[5], 0);
         } else {
-            func_8004C5A4(0x78, 0xC8, D_800A095C + (D_800A0C9C[D_800F4DB8.w28a4 - 1] << 5), sp18[5], 0);
+            func_8004C5A4(0x78, 0xC8, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), sp18[5], 0);
         }
         func_8004C928(0);
         return s4;
@@ -274,16 +274,16 @@ s32 func_80059E40(s32 arg0) {
         if (D_8010E234 >= 0) {
             if (sp18[5] >= 0x80) {
                 if (D_800F3A40 & 0x8000) {
-                    D_800F4DB8.w28a4--;
-                    if (D_800F4DB8.w28a4 < 0) {
-                        D_800F4DB8.w28a4 = D_800F4DB8.w28a8 - 1;
+                    SoundState.w28a4--;
+                    if (SoundState.w28a4 < 0) {
+                        SoundState.w28a4 = SoundState.w28a8 - 1;
                     }
                     D_8010E238 = 0;
                 }
                 if (D_800F3A40 & 0x2000) {
-                    D_800F4DB8.w28a4++;
-                    if (D_800F4DB8.w28a4 >= D_800F4DB8.w28a8) {
-                        D_800F4DB8.w28a4 = 0;
+                    SoundState.w28a4++;
+                    if (SoundState.w28a4 >= SoundState.w28a8) {
+                        SoundState.w28a4 = 0;
                     }
                     D_8010E238 = 0;
                 }
@@ -291,22 +291,22 @@ s32 func_80059E40(s32 arg0) {
                     s4 = 1;
                 }
             }
-            D_800F4DB8.w28ac = D_800F4DB8.w28a4;
+            SoundState.w28ac = SoundState.w28a4;
             func_80059B1C(D_800A1A60, 0x3C, 0xC8, sp18[5]);
             func_80059B1C(D_800A1A60 + 4, 0xFC, 0xC8, sp18[5]);
             func_80059B1C(D_800A1A60 + 8, 0x4C, 0xC8, sp18[5]);
-            func_80096484(sp30, D_80011234, D_800F4DB8.w28a4);
+            func_80096484(sp30, D_80011234, SoundState.w28a4);
             func_8004C5A4(0x5A, 0xC8, sp30, sp18[5], 0);
             func_80059B1C(D_800A1A60 + 0xC, 0x6C, 0xC8, sp18[5]);
-            if (D_800F4DB8.w28a4 > 0) {
-                func_8004C5A4(0x78, 0xC8, D_800A095C + (D_800A0C9C[D_800F4DB8.w28a4 - 1] << 5), sp18[5], 0);
+            if (SoundState.w28a4 > 0) {
+                func_8004C5A4(0x78, 0xC8, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), sp18[5], 0);
             } else {
                 func_8004C5A4(0x78, 0xC8, D_8001123C, sp18[5], 0);
             }
         } else {
-            s0_3 = 0x88 - func_8004C7E8(0x14, 0xC8, D_800A095C + (D_800A0C9C[D_800F4DB8.w28a4 - 1] << 5), sp18[5], 0) / 2;
+            s0_3 = 0x88 - func_8004C7E8(0x14, 0xC8, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), sp18[5], 0) / 2;
             func_80059B1C(D_800A1A68, s0_3, 0xC8, sp18[5]);
-            func_80096484(sp30, D_80011234, D_800F4DB8.w28a4);
+            func_80096484(sp30, D_80011234, SoundState.w28a4);
             func_8004C5A4(s0_3 + 0xE, 0xC8, sp30, sp18[5], 0);
             func_80059B1C(D_800A1A68 + 4, s0_3 + 0x20, 0xC8, sp18[5]);
             if (sp18[5] >= 0x80 && D_800F3A60 != 0) {

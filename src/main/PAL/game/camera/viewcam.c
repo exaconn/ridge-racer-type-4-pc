@@ -53,37 +53,37 @@ extern int RotMatrixYXZ();
 extern short D_800ABED0[][3];
 extern char D_800F38F8[][8];
 extern unsigned short D_800AD5BC[];
-extern s16 D_800A3BA4[];
-extern s16 D_800A3BB4[];
-extern s32 D_800A3BC4[];
+extern s16 ViewOffsetX[];
+extern s16 ViewOffsetY[];
+extern s32 ViewScreenH[];
 extern u16 D_800A3BE0[];
 extern s16 D_800A3BF0[];
 extern u16 D_800A3C00[];
 extern s16 D_800A3C10[];
 extern S_800A3C20 D_800A3C20[][7];
-extern void func_800912B4(s32, s32);
-extern void func_800912D4(s32);
+extern void SetGeomOffset(s32, s32);
+extern void SetGeomScreen(s32);
 extern void SetDrawArea(s32);
 extern void AddPrim(s32, s32);
 extern int D_8010718C;
-extern Car D_800ABEF8[];
+extern Car PlayerCars[];
 
 void func_8006E9E8(int a0, int *a1);
 void func_8006EAC8(void);
-void func_8006EC64(void);
+void SetupViewLighting(void);
 void func_8006ECE8(int ignoredPlayer);
 void func_8006ED4C(void);
 void func_8006EDA4(void);
 void func_8006EE3C(short *a0, short *a1, int *a2);
-void func_8006EED8(void);
-void func_8006EF8C(s32 a0);
+void BuildLightMatrix(void);
+void SetupViewport(s32 a0);
 int func_8006F188(int *a0, int a1);
 
 void func_8006E9E8(int a0, int *a1) {
     int v[4], w[4], x[4];
     int *g = (int *)(SCRATCHPAD + 0x7C);
     if (a0) {
-        func_8006E300();
+        BuildRotMatrixAngles();
         v[0] = (0x8000 - a1[0]) << 2;
         v[1] = (0x60 - a1[1]) << 2;
         v[2] = (0x8000 - a1[2]) << 2;
@@ -132,13 +132,13 @@ void func_8006EAC8(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABED0 (*(M2C_UNK (*))&D_800ABED0)
 
-void func_8006EC64(void) {
+void SetupViewLighting(void) {
     SetColorMatrix(&D_800AD570);
-    func_8006EED8();
+    BuildLightMatrix();
     SetLightMatrix(&D_800ABED0);
-    SetBackColor(D_800ABE98, D_801093F8, D_80107194);
-    SetFarColor(D_800F4D84, D_800F4D68, D_800F4D48);
-    func_80090594(0x4E20, 0x122);
+    SetBackColor(BackColorR, BackColorG, BackColorB);
+    SetFarColor(FarColorR, FarColorG, FarColorB);
+    SetFogNear(0x4E20, 0x122);
 }
 
 #undef D_800ABED0
@@ -147,7 +147,7 @@ void func_8006ECE8(int ignoredPlayer) {
     char *p = D_800ABF48;
     func_8006E834();
     func_80071348();
-    func_8006EC64();
+    SetupViewLighting();
     func_8006E9E8(p, p - 0x30);
     func_8006EAC8();
     func_80060C70(SCRATCHPAD, D_8010E690, D_800F3914);
@@ -162,7 +162,7 @@ void func_8006ED4C(void) {
     func_8006E834();
     func_8006E8F8();
     func_80071348();
-    func_8006EC64();
+    SetupViewLighting();
     func_8006EAC8();
     func_80060C70(SCRATCHPAD, D_8010E690, D_800F3914);
 }
@@ -185,7 +185,7 @@ void func_8006EDA4(void) {
     if (v < D_8010E290) {
         D_8010E290 = v;
     }
-    func_8006EC64();
+    SetupViewLighting();
     func_8006EAC8();
     func_80060C70(g, D_8010E690, D_800F3914);
     g[0x2E] = (short)D_8010E280;
@@ -207,7 +207,7 @@ void func_8006EE3C(short *a0, short *a1, int *a2) {
     SetTransMatrix(a0 + 12);
 }
 
-void func_8006EED8(void) {
+void BuildLightMatrix(void) {
     int i;
     int m[8];
     struct { short a, b, c, d; } s;
@@ -225,7 +225,7 @@ void func_8006EED8(void) {
     }
 }
 
-void func_8006EF8C(s32 a0) {
+void SetupViewport(s32 a0) {
     /* ASM_BARRIER: Keep scratchpad base pointer in $s2 initialized in prologue. */
     register Scratch_8006EF8C *s2 asm("$18") = G;
     /* ASM_BARRIER: Keep s3 in $s3 so s3 += 0xC modifies $s3 in place before storing to SCRATCHPAD. */
@@ -244,9 +244,9 @@ void func_8006EF8C(s32 a0) {
     s3 = s2->f00;
     D_800AC5D8 = a0;
     s1 = (a0 == 1);
-    func_800912B4(D_800A3BA4[a0], D_800A3BB4[a0]);
+    SetGeomOffset(ViewOffsetX[a0], ViewOffsetY[a0]);
     s5 = (a0 == 1);
-    func_800912D4(D_800A3BC4[a0]);
+    SetGeomScreen(ViewScreenH[a0]);
     s2->f6C = D_800A3BE0[a0];
     v1 = D_800A3BF0[a0];
     if (s1) {
@@ -259,7 +259,7 @@ void func_8006EF8C(s32 a0) {
         v1 += D_800F4CE0;
     }
     s2->f72 = v1;
-    p = &D_800A3C20[D_800F4BF0][a0];
+    p = &D_800A3C20[DrawBufIndex][a0];
     if (!s5) {
         s2->f64 = 0;
     } else {
@@ -279,7 +279,7 @@ void func_8006EF8C(s32 a0) {
         }
         p->f6 = a0_val;
         v1 = p->f2;
-        if (D_800F4BF0 != 0) {
+        if (DrawBufIndex != 0) {
             v1 += 0x100;
         }
         p->f2 = v1;
@@ -299,5 +299,5 @@ int func_8006F188(int *a0, int a1) {
     if (D_8010718C == 0) {
         return func_80026998(a0[0], a0[2]);
     }
-    return D_800ABEF8[a1].wF0;
+    return PlayerCars[a1].wF0;
 }

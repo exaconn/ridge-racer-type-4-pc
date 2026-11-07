@@ -11,7 +11,7 @@
 
 #define RR_TEXT_GPU_SCRATCH ((RrGpuScratchPointers *)SCRATCHPAD)
 
-void *func_8001FCC8(u32 *ordering, void *cursor, u16 mode);
+void *AddDrawModePrim(u32 *ordering, void *cursor, u16 mode);
 void AddPrim(u32 *ordering, void *packet);
 void func_80095B94(void *packet);
 
@@ -73,7 +73,7 @@ void func_80040858(s32 row) {
                 glyph++;
                 x[0] += 0xD;
             }
-            RR_TEXT_GPU_SCRATCH->cursor = func_8001FCC8(D_800ACC14->ordering.ordering70, cursor, 0x2E);
+            RR_TEXT_GPU_SCRATCH->cursor = AddDrawModePrim(D_800ACC14->ordering.ordering70, cursor, 0x2E);
             if (tick >= 0x1E) {
                 MenuTextRows[row].rendering.phase++;
                 MenuTextRows[row].rendering.tick = 0;

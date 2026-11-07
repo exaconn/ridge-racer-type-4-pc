@@ -34,7 +34,7 @@ typedef struct {
     s16 xy[4][2];
 } RrRingPacket24;
 
-void func_8005E900(s32 *position, s32 radius);
+void DrawRing(s32 *position, s32 radius);
 
 RR_ASSERT_SIZE(RrRingTransform24, 24);
 RR_ASSERT_OFFSET(RrRingTransform24, rx, 0x10);

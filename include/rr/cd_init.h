@@ -6,7 +6,7 @@
 extern const char D_80011B08[],D_80011B14[];
 /* First cell of the metadata pointer table; diagnostics serialize its address. */
 extern u8 *D_800A6768;
-extern s32 D_800A6498;
+extern s32 CD_status1;
 extern u8 D_800A64A4,D_800A64A5;
 /* The response owner supplies at least the three reset bytes. */
 extern u8 D_800A6764[];

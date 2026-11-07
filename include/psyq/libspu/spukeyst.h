@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_8007EA34();
+int SpuGetKeyStatus();
 
 #endif /* RR_PSYQ_LIBSPU_SPUKEYST_H */

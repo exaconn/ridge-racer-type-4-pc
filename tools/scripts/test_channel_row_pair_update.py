@@ -28,7 +28,7 @@ typedef uint32_t u32; typedef int32_t s32;
 RrChannelValueRecordB0 test_records[9][17];
 RrChannelValueRecordB0 *test_table[0x4100];
 void (*test_callback)(s32,s32,s32,s32);
-void func_800897A4(s32 packed,s32 left,s32 right,s32 mode) {
+void _SsVmSetSeqVol(s32 packed,s32 left,s32 right,s32 mode) {
  test_callback(packed,left,right,mode);
 }
 void test_initialize(void) {
@@ -52,7 +52,7 @@ void test_initialize(void) {
         cls.lib = C.CDLL(str(directory / 'function.so'))
         cls.records = (C.c_uint8 * (9 * 17 * 0xB0)).in_dll(cls.lib, 'test_records')
         cls.table = (C.c_void_p * 0x4100).in_dll(cls.lib, 'test_table')
-        cls.function = cls.lib.func_80084154
+        cls.function = cls.lib._SsSndSetVol
         cls.function.argtypes = [C.c_int32] * 4
         cls.function.restype = None
 

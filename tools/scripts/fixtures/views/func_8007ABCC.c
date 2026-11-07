@@ -15,21 +15,21 @@
 #undef D_800F4D8A
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8002A344 ((int (*)())func_8002A344)
+#define UpdateScreenFade ((int (*)())UpdateScreenFade)
 
 #define func_8002AF8C ((int (*)())func_8002AF8C)
 
 #define func_80035024 ((int (*)())func_80035024)
 
-#define func_8009AEAC ((int (*)())func_8009AEAC)
+#define _sio_control ((int (*)())_sio_control)
 
-#undef func_8002A344
+#undef UpdateScreenFade
 
 #undef func_8002AF8C
 
 #undef func_80035024
 
-#undef func_8009AEAC
+#undef _sio_control
 
 void func_8007ABCC(void) {
     unsigned long clearAddress;
@@ -46,7 +46,7 @@ void func_8007ABCC(void) {
     if (D_800F4D44 == 4) {
         func_80035024(2);
         if (D_800FF688 == -1) {
-            func_8009AEAC(1, 1, 0);
+            _sio_control(1, 1, 0);
         }
     }
     phase = D_800F4D8A;
@@ -63,7 +63,7 @@ void func_8007ABCC(void) {
         bank = clockLow & 1;
         D_800AC594 = bank;
         D_800FFC00 = bank;
-        func_8002A604();
+        ClearScreenOverlayState();
         i = 23;
         /* ASM_BARRIER: retain the initialized byte counter before indexing. */
         __asm__("" : "+r"(i));
@@ -76,30 +76,30 @@ void func_8007ABCC(void) {
             i--;
             clearAddress--;
         } while (i >= 0);
-        func_8002B75C(D_800F4D50,D_800A457C);
+        CopyStringClearTail(D_800F4D50,D_800A457C);
         selection = D_800FFC18;
         /* ASM_BARRIER: keep the signed snapshot separate from the range read. */
         __asm__("" : "+r"(selection));
         modeRange = (u16)D_800FFC18;
         modeRange = (u16)(modeRange - 6);
         if (selection == 0) {
-            func_8003E928(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
-            func_8003E928(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x65);
-            func_8003E928(0x24, 0xC, 0x90, 0x44, 0x20, 0, 0, 1, 0, 0x64);
-            func_8003E928(0x25, 0xC, 0xB8, 0x44, 0x20, 0, 0, 1, 0, 0x55);
+            InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
+            InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x65);
+            InitUiRow(0x24, 0xC, 0x90, 0x44, 0x20, 0, 0, 1, 0, 0x64);
+            InitUiRow(0x25, 0xC, 0xB8, 0x44, 0x20, 0, 0, 1, 0, 0x55);
             D_800F3A1C = 0;
             D_800F3AF8 = 0;
             D_800A45B8 = 0x1001A;
             func_80053BB4(0);
         } else if (modeRange < 2U) {
             if (selection == 6) {
-                func_8003E928(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
-                func_8003E928(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x65);
-                func_8003E928(0x24, 0xC, 0x90, 0x44, 0x20, 0, 0, 1, 0, 0x55);
+                InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
+                InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x65);
+                InitUiRow(0x24, 0xC, 0x90, 0x44, 0x20, 0, 0, 1, 0, 0x55);
                 layout = 0x1001A;
             } else {
-                func_8003E928(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
-                func_8003E928(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
+                InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
+                InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
                 layout = 0x10012;
             }
             D_800A45B8 = layout;
@@ -107,38 +107,38 @@ void func_8007ABCC(void) {
             __asm__("" : : : "memory");
             D_800F3AF8 = 0x10;
             D_800F3A1C = 0x29;
-            func_8003D228(1, 0x80, 0x58, 0xA8, 0x80, 0, 0xE02);
-            D_800F3AFC[1].half02 = 1;
+            InitBadgeRow(1, 0x80, 0x58, 0xA8, 0x80, 0, 0xE02);
+            BadgeRows[1].half02 = 1;
             D_801272F0[0] = -1;
             D_801272F0[1] = -1;
             D_801272F0[2] = -1;
         } else {
             if (selection == 1 || selection == 3 || selection == 5) {
-                func_8003E928(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
-                func_8003E928(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
+                InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
+                InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
                 D_800A45B8 = 0x10012;
                 if (D_800FFC18 == 3) {
                     D_800F3A1C = 0x17;
                 } else {
                     D_800F3A1C = 0x20;
                 }
-                func_8003D228(1, 0x80, 0x58, 0xA8, 0x80, 0, 0x702);
-                D_800F3AFC[1].half02 = 1;
+                InitBadgeRow(1, 0x80, 0x58, 0xA8, 0x80, 0, 0x702);
+                BadgeRows[1].half02 = 1;
                 D_800F3AF8 = (s16) (u16) D_800FFC18;
             } else if (selection == 2) {
                 D_800A45B8 = 0x10016;
-                func_8003E928(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x65);
-                func_8003E928(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
+                InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x65);
+                InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
                 D_800F3A1C = 0x21;
                 D_800F3AF8 = selection;
             } else {
                 D_800A45B8 = 0x1001A;
             }
         }
-        func_8003E928(0x26, 0x80, 0xE0, 0x1C, 0x20, 0, 0, 1, 0, 0x68);
-        func_8003E928(0x27, 0x80, 0x108, 0x1C, 0x20, 0, 0, 1, 0, 0x69);
-        func_8003D228(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
-        D_800F3AFC[0].half02 = 1;
+        InitUiRow(0x26, 0x80, 0xE0, 0x1C, 0x20, 0, 0, 1, 0, 0x68);
+        InitUiRow(0x27, 0x80, 0x108, 0x1C, 0x20, 0, 0, 1, 0, 0x69);
+        InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
+        BadgeRows[0].half02 = 1;
         ResetScreenCounters();
         defaultChoice = 3;
         /* ASM_BARRIER: keep the initialized fill value apart from the count. */
@@ -168,6 +168,6 @@ void func_8007ABCC(void) {
         }
         break;
     }
-    func_8002A344(D_800A45B8);
+    UpdateScreenFade(D_800A45B8);
     func_8002AF8C(0, 1, 1);
 }

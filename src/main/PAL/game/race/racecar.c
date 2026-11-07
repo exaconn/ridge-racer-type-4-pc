@@ -7,13 +7,13 @@
 #include "game/car/carphys2.h"
 #include "game/car/aipath2.h"
 #include "game/car/carsteer.h"
-extern int func_80025FBC();
-extern int func_80027C54();
-extern int func_8006E368();
+extern int AngleDiffSigned();
+extern int FindWheelTrackNodes();
+extern int Atan2Table();
 extern int rsin();
 extern int rcos();
 extern int D_8010718C;
-extern struct w3g2o { int pad0[4]; int f10, f14, f18, f1C; char pad1[0x10]; int f30; int pad34; int f38; char pad2[0x18]; int f54; } D_800ABEF8;
+extern struct w3g2o { int pad0[4]; int f10, f14, f18, f1C; char pad1[0x10]; int f30; int pad34; int f38; char pad2[0x18]; int f54; } PlayerCars;
 typedef struct { int a, b, c, d; } w3g2V;
 struct w3g2q { int pad0[4]; int f10, f14, f18, f1C; char pad1[0x10]; int f30; int pad34; int f38; char pad2[0x18]; int f54;
   char pad3[0x1D4 - 0x58]; short s1D4, s1D6; short s1D8; short s1DA, s1DC, s1DE; unsigned short u1E0; short s1E2, s1E4, s1E6, s1E8, s1EA; };
@@ -33,28 +33,28 @@ void func_80033808(struct w3g2q *p) {
     v2 = p->s1D8 * rcos(p->s1D4 + (p->s1EA << 11));
     if (v2 < 0) v2 += 0xFF;
     p->f38 = v2 >> 8;
-    func_80024A88(p);
-    t = func_80025FBC(p->f54, p->s1D4);
+    SteerCarTowardTrack(p);
+    t = AngleDiffSigned(p->f54, p->s1D4);
     *q = 0;
     p->f54 = p->f54 + t / 2;
     func_8002679C(p);
-    func_8002C638(p);
-    func_800244B0(p);
-    func_8002648C(p);
-    func_80022888(p);
-    func_80026F5C(p);
-    func_80027C54(p);
-    func_80028B30(p);
-    v3 = rsin(D_800ABEF8.f54);
+    UpdateCarSteering(p);
+    IntegrateCarMotion(p);
+    UpdateCarTrackNode(p);
+    ComputeWheelOffsets(p);
+    ConstrainCarToTrack(p);
+    FindWheelTrackNodes(p);
+    UpdateWheelBumps(p);
+    v3 = rsin(PlayerCars.f54);
     if (v3 < 0) v3 += 0x7F;
-    sp[0] = D_800ABEF8.f10 + (v3 >> 7) - g[2];
-    sp[1] = D_800ABEF8.f14 - g[3];
-    v4 = rcos(D_800ABEF8.f54);
+    sp[0] = PlayerCars.f10 + (v3 >> 7) - g[2];
+    sp[1] = PlayerCars.f14 - g[3];
+    v4 = rcos(PlayerCars.f54);
     if (v4 < 0) v4 += 0x7F;
-    sp[2] = D_800ABEF8.f18 + (v4 >> 7) - g[4];
+    sp[2] = PlayerCars.f18 + (v4 >> 7) - g[4];
     *(w3g2V *)(SCRATCHPAD + 0x8) = *(w3g2V *)&p->f10;
     g[3] -= 0x100;
-    g[7] = 0x400 - func_8006E368(sp[0], sp[2]);
-    g[6] = 0x400 - func_8006E368(sp[1], func_80090758(sp[0] * sp[0] + sp[2] * sp[2]) >> 6);
+    g[7] = 0x400 - Atan2Table(sp[0], sp[2]);
+    g[6] = 0x400 - Atan2Table(sp[1], func_80090758(sp[0] * sp[0] + sp[2] * sp[2]) >> 6);
     g[8] = 0;
 }

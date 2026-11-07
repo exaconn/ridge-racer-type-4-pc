@@ -11,6 +11,6 @@ void *func_80096454(void *destination, s32 value, u32 length);
 u8 *func_80096D34(u8 *destination, const u8 *source, s32 length);
 
 /* Copy the fixed PAL code patch to its kernel RAM destination. */
-void func_80095FA0(void);
+void _copy_memcard_patch(void);
 
 #endif

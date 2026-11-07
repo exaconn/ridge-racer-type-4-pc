@@ -55,8 +55,8 @@ static struct BufferWorld {
 static struct DisplayWorld {
  u32 guards0[8];RrStrDisplayConfig configs[3];s32 format;u32 guards1[8];
 } dworld,dinitial,dexpected;
-#define D_800AC650 bworld.root.context
-#define D_800F4BF0 dworld.format
+#define RaceContext bworld.root.context
+#define DrawBufIndex dworld.format
 ''' + bodies + r'''
 static u32 seed=0x14e90;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}

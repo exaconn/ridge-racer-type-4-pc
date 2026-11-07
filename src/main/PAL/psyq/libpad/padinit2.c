@@ -66,7 +66,7 @@ void func_800996C4(T *a0) {
     char *p = a0->f3c;
     D_800ABCE8 = r;
     *p = 0;
-    func_80098578(a0, -2);
+    _padSioRW(a0, -2);
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -123,7 +123,7 @@ s32 func_80099890(RrTransferState *state) {
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC70 (*(s32 (*(*))(Rec8009991C *, s32))&D_800ABC70)
-#define func_80098578 ((s32 (*)(Rec8009991C *, u8))func_80098578)
+#define _padSioRW ((s32 (*)(Rec8009991C *, u8))_padSioRW)
 #define func_80098788 ((s32 (*)(Rec8009991C *, u8))func_80098788)
 
 s32 func_8009991C(Rec8009991C *arg0) {
@@ -188,7 +188,7 @@ s32 func_8009991C(Rec8009991C *arg0) {
             D_800ABCC0[idx] = -1;
             break;
         }
-        res = func_80098578(arg0, (u8)D_800ABC70(arg0, mode));
+        res = _padSioRW(arg0, (u8)D_800ABC70(arg0, mode));
         if (res < 0) {
             return res;
         }
@@ -200,7 +200,7 @@ s32 func_8009991C(Rec8009991C *arg0) {
     }
 
     while (--D_800ABCE0 > 0) {
-        res = func_80098578(arg0, (u8)D_800ABC70(arg0, mode));
+        res = _padSioRW(arg0, (u8)D_800ABC70(arg0, mode));
         if (res < 0) {
             return res;
         }
@@ -222,5 +222,5 @@ end:
 }
 
 #undef D_800ABC70
-#undef func_80098578
+#undef _padSioRW
 #undef func_80098788

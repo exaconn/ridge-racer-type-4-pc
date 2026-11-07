@@ -5,6 +5,6 @@
 
 void func_80022D50();
 void func_8002367C();
-void func_800244B0(char *p);
+void IntegrateCarMotion(char *p);
 
 #endif /* RR_GAME_CAR_CARPARAM_H */

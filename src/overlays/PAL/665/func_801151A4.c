@@ -34,7 +34,7 @@ void ovl665_func_801151A4(void) {
             func_800207D4(&((RrFrameOrderingPrefix *)(void *)D_800ACC14)->ordering70[702], (s32)openingTimer*4, 0x45);
         }
         func_8005B2D4(1);
-        if (D_800F4D80[0].byte14 == 2) {
+        if (UiRows[0].byte14 == 2) {
             row = 0;
             if (D_800AC5D0 == 0) {
                 ovl665_D_80119768.layout0C = (s32) ((u32)ovl665_D_80119768.layout0C + 1U);
@@ -44,12 +44,12 @@ void ovl665_func_801151A4(void) {
         }
         break;
     case 2:
-        D_800F4D80[ovl665_D_80119768.exit34.word].cells[0] = 0;
-        func_8002B330(0, 2, (char *)&ovl665_D_80119768.exit34.halves[0], 4, 0);
-        D_800F4D80[ovl665_D_80119768.exit34.word].cells[0] = 2;
+        UiRows[ovl665_D_80119768.exit34.word].cells[0] = 0;
+        StepMenuValue(0, 2, (char *)&ovl665_D_80119768.exit34.halves[0], 4, 0);
+        UiRows[ovl665_D_80119768.exit34.word].cells[0] = 2;
         if (D_800F3A38[0].a != 0) {
             PlaySfx(1);
-            D_800F4D80[ovl665_D_80119768.exit34.word].cells[0] = 1;
+            UiRows[ovl665_D_80119768.exit34.word].cells[0] = 1;
             ovl665_D_80119768.layout0C = (s32) (ovl665_D_80119768.exit34.word + 3);
             func_8002AF8C(1, 1, 0);
             row = 0;
@@ -63,61 +63,61 @@ void ovl665_func_801151A4(void) {
         }
         break;
     case 3:
-        musicState = D_800F4D80[4].byte14;
+        musicState = UiRows[4].byte14;
         if (musicState == 2) {
-            D_800F4D80[4].cells[0] = musicState;
-            func_8002B330(1, -1, (char *)&D_800AD528.bytes[0x30], 0x11, 0);
-            ovl665_D_80119754 = (s32) D_800AD528.bytes[0x30];
+            UiRows[4].cells[0] = musicState;
+            StepMenuValue(1, -1, (char *)&Options.bytes[0x30], 0x11, 0);
+            ovl665_D_80119754 = (s32) Options.bytes[0x30];
             func_80053A9C(D_800F7640);
             if (D_800F3A60 != 0) {
                 PlaySfx(1);
-                D_800F4D80[4].cells[0] = 1U;
+                UiRows[4].cells[0] = 1U;
                 ovl665_D_80119768.layout0C = 7U;
                 func_8002AF8C(1, 1, 1);
             }
         }
-        func_8003EC88(4);
+        DrawUiRow(4);
         row = 0;
         break;
     case 4:
-        effectsState = D_800F4D80[5].byte14;
+        effectsState = UiRows[5].byte14;
         if (effectsState == 2) {
-            D_800F4D80[5].cells[0] = effectsState;
-            func_8002B330(1, -1, (char *)&D_800AD528.bytes[0x31], 0x11, 0);
-            ovl665_D_80119758 = (s32) D_800AD528.bytes[0x31];
+            UiRows[5].cells[0] = effectsState;
+            StepMenuValue(1, -1, (char *)&Options.bytes[0x31], 0x11, 0);
+            ovl665_D_80119758 = (s32) Options.bytes[0x31];
             if (D_800F3A60 != 0) {
                 PlaySfx(1);
-                D_800F4D80[5].cells[0] = 1U;
+                UiRows[5].cells[0] = 1U;
                 ovl665_D_80119768.layout0C = 7U;
                 func_8002AF8C(1, 1, 1);
             }
         }
-        func_8003EC88(5);
+        DrawUiRow(5);
         row = 0;
         break;
     case 5:
-        monoState = D_800F4D80[6].byte14;
+        monoState = UiRows[6].byte14;
         if (monoState == 2) {
-            D_800F4D80[D_800AD528.audio.mono32+6].cells[0] = 0;
-            func_8002B330(0, 2, (char *)&D_800AD528.audio.mono32, 2, 0);
-            D_800F4D80[D_800AD528.audio.mono32+6].cells[0] = monoState;
+            UiRows[Options.audio.mono32+6].cells[0] = 0;
+            StepMenuValue(0, 2, (char *)&Options.audio.mono32, 2, 0);
+            UiRows[Options.audio.mono32+6].cells[0] = monoState;
             if (D_800F3A60 != 0) {
                 PlaySfx(1);
-                D_800F4D80[D_800AD528.audio.mono32+6].cells[0] = 1;
+                UiRows[Options.audio.mono32+6].cells[0] = 1;
                 ovl665_D_80119768.layout0C = 7U;
                 func_8002AF8C(1, 1, 1);
-                func_8004FA98(D_800AD528.audio.mono32);
+                SetCdMixMode(Options.audio.mono32);
             }
         }
-        func_8003EC88(6);
-        func_8003EC88(7);
+        DrawUiRow(6);
+        DrawUiRow(7);
         row = 0;
         break;
     case 6:
         row = 0;
         closeIndex = 0;
         do {
-            closingRow = (RrUiRow24 *)((unsigned long)(closeIndex*sizeof(RrUiRow24))+(unsigned long)D_800F4D80);
+            closingRow = (RrUiRow24 *)((unsigned long)(closeIndex*sizeof(RrUiRow24))+(unsigned long)UiRows);
             if (closingRow->byte14 == 2) {
                 closingRow->byte14 = 3U;
             }
@@ -131,15 +131,15 @@ void ovl665_func_801151A4(void) {
         row = 4;
         detailIndex = 4;
         do {
-            detail = (RrUiRow24 *)((unsigned long)(detailIndex*sizeof(RrUiRow24))+(unsigned long)D_800F4D80);
+            detail = (RrUiRow24 *)((unsigned long)(detailIndex*sizeof(RrUiRow24))+(unsigned long)UiRows);
             detailState = detail->byte14;
             if (detailState == 2) {
                 detail->byte14 = 3U;
             } else if (detailState == 6) {
                 ovl665_D_80119768.layout0C = 8;
             }
-            if ((u8) D_800F4D80[detailIndex].byte14 >= 2U) {
-                func_8003EC88(row);
+            if ((u8) UiRows[detailIndex].byte14 >= 2U) {
+                DrawUiRow(row);
             }
             row += 1;
             detailIndex++;
@@ -150,7 +150,7 @@ void ovl665_func_801151A4(void) {
         row = 4;
         clearIndex = 4;
         do {
-            clearingRow = (RrUiRow24 *)((unsigned long)(clearIndex*sizeof(RrUiRow24))+(unsigned long)D_800F4D80);
+            clearingRow = (RrUiRow24 *)((unsigned long)(clearIndex*sizeof(RrUiRow24))+(unsigned long)UiRows);
             if (clearingRow->byte14 != 0) {
                 clearingRow->byte14 = 0U;
             }
@@ -178,8 +178,8 @@ reset_rows:
     row=0;
 draw_rows:
     do {
-        func_8003EC88(row);
+        DrawUiRow(row);
         row += 1;
     } while (row < 4);
-    func_8002A344(0x1006A);
+    UpdateScreenFade(0x1006A);
 }

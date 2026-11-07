@@ -39,7 +39,7 @@ extern u32 D_80112788[10];
 
 extern u32 D_801127B0[4];
 
-s32 func_800943C4(RrGpuRectangle *arg0, u32 arg1) {
+s32 _clr(RrGpuRectangle *arg0, u32 arg1) {
     register RrGpuRectangle *rect=arg0;
     register u32 color;
     /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
@@ -109,9 +109,9 @@ s32 func_800943C4(RrGpuRectangle *arg0, u32 arg1) {
         packet[7]=xy;
         secondary[0]=tail_tag;
         packet[8]=rect->words[1];
-        secondary[1] = (s32) (func_80094B70(3) | e3);
-        secondary[2] = (s32) (func_80094B70(4) | 0xE4000000);
-        secondary[3] = (s32) (func_80094B70(5) | e5);
+        secondary[1] = (s32) (_param(3) | e3);
+        secondary[2] = (s32) (_param(4) | 0xE4000000);
+        secondary[3] = (s32) (_param(5) | e5);
     }else{
         /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
         register u32 header asm("$2")=0x05FFFFFFU;
@@ -147,7 +147,7 @@ s32 func_800943C4(RrGpuRectangle *arg0, u32 arg1) {
         packet[4]=rect->words[0];
         packet[5]=rect->words[1];
     }
-    func_80094B28((unsigned long)D_80112788);
+    _cwc((unsigned long)D_80112788);
     {
         register s32 result=0;
         /* ASM_BARRIER: form the zero return value before restoring saved registers. */

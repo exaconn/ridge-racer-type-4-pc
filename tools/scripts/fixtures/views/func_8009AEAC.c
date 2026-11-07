@@ -31,17 +31,17 @@
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABD20 (*(u8 (*)[])&D_800ABD20)
 
-#define func_80097714 ((s32 (*)(s32,void *))func_80097714)
+#define SysDeqIntRP ((s32 (*)(s32,void *))SysDeqIntRP)
 
 #undef D_800ABD20
 
-#undef func_80097714
+#undef SysDeqIntRP
 
 extern s32 ResetGraph(s32);
 
-extern s32 func_80096F04(void);
+extern s32 EnterCriticalSection(void);
 
-extern void func_80096F14(void);
+extern void ExitCriticalSection(void);
 
 extern RrSerialPortRegisters D_801146C0;
 
@@ -49,7 +49,7 @@ extern volatile s32 D_801146D0;
 
 extern s16 D_800ABD34[];
 
-s32 func_8009AEAC(u32 arg0, u32 arg1, u32 arg2) {
+s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
     s32 ret = 0;
 
     switch (arg0) {
@@ -152,7 +152,7 @@ s32 func_8009AEAC(u32 arg0, u32 arg1, u32 arg2) {
     case 2:
         switch (arg1) {
         case 0: {
-            s32 v = func_80096F04();
+            s32 v = EnterCriticalSection();
             RrSerialPortRegisters *port = D_800ABD18;
             port->control |= 0x50;
             port->mode = D_801146C0.mode;
@@ -161,7 +161,7 @@ s32 func_8009AEAC(u32 arg0, u32 arg1, u32 arg2) {
             port->control |= 0x10;
             ret = 0;
             if (v == 1) {
-                func_80096F14();
+                ExitCriticalSection();
             }
             break;
         }
@@ -170,22 +170,22 @@ s32 func_8009AEAC(u32 arg0, u32 arg1, u32 arg2) {
             D_800ABD18->control |= 0x10;
             break;
         case 2: {
-            s32 v = func_80096F04();
+            s32 v = EnterCriticalSection();
             D_800ABD18->control &= ~0x400;
             D_801146D8.request.active = 0;
             D_801146D8.request.second = 0;
             if (v == 1) {
-                func_80096F14();
+                ExitCriticalSection();
             }
             break;
         }
         case 3: {
-            s32 v = func_80096F04();
+            s32 v = EnterCriticalSection();
             D_800ABD18->control &= ~0x820;
             D_801146E8.active = 0;
             D_801146E8.second = 0;
             if (v == 1) {
-                func_80096F14();
+                ExitCriticalSection();
             }
             break;
         }

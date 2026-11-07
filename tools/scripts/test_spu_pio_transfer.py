@@ -26,10 +26,10 @@ class SpuPioTransferTest(unittest.TestCase):
 typedef uint8_t u8;typedef uint16_t u16;typedef int16_t s16;
 typedef uint32_t u32;typedef int32_t s32;
 ''' + header + '''
-RrSpuRegisterBank test_ports[3],*D_800A47D8;
-volatile u16 D_800A47F0;
-s32 D_800A47F4,D_800A4800,D_800A480C;
-void (*volatile D_800A4810)(void);
+RrSpuRegisterBank test_ports[3],*_spu_RXX;
+volatile u16 _spu_tsa;
+s32 _spu_transMode,_spu_mem_mode_plus,_spu_inTransfer;
+void (*volatile _spu_transferCallback)(void);
 void test_completion(void) {}
 char test_rom[0x10000];
 #define D_80011698 (test_rom+0x1698)
@@ -52,7 +52,7 @@ s32 func_8001E84C(const char *format,...) {
  va_start(args,format);reason=va_arg(args,const char *);va_end(args);
  test_diagnostic_hook((void *)format,(void *)reason);return 123;
 }
-s32 func_8007F068(s32 command,...) {
+s32 _spu_t(s32 command,...) {
  va_list args;test_dma_commands[test_dma_calls++]=command;
  va_start(args,command);
  if(command==2)test_dma_address=va_arg(args,u32);
@@ -62,8 +62,8 @@ s32 func_8007F068(s32 command,...) {
 void test_reset(void) {
  s32 i;memset(test_ports,0x5A,sizeof(test_ports));
  for(i=0;i<3;i++) {test_ports[i].spu_status=0xA123;test_ports[i].spu_control=0xA5EF;}
- D_800A47D8=&test_ports[0];D_800A47F0=0xBCDE;D_800A47F4=1;D_800A4800=3;
- D_800A480C=99;D_800A4810=test_completion;test_delay_calls=test_dma_calls=0;
+ _spu_RXX=&test_ports[0];_spu_tsa=0xBCDE;_spu_transMode=1;_spu_mem_mode_plus=3;
+ _spu_inTransfer=99;_spu_transferCallback=test_completion;test_delay_calls=test_dma_calls=0;
  test_dma_address=test_dma_bytes=0;test_dma_buffer=0;
 }
 '''
@@ -78,7 +78,7 @@ void test_reset(void) {
                 body=body.replace('_spu_Fw1ts(','test_delay_actual(')
             if name=='8007ED44':
                 substitutions={
-                    'D_800A47D8->spu_status':('test_status_read(D_800A47D8)',3),
+                    '_spu_RXX->spu_status':('test_status_read(_spu_RXX)',3),
                     'port->spu_status':('test_status_read(port)',2),
                     'output->transfer_data=*input++;':('test_data_write(output,*input++);',1),
                     '*(u16 *)&control->spu_control=command|0x10;':('test_control_write(control,command|0x10);',1),
@@ -100,7 +100,7 @@ void test_reset(void) {
         cls.transfer=cls.lib._spu_FwriteByIO
         cls.transfer.argtypes=[C.POINTER(C.c_uint16),C.c_uint32]
         cls.transfer.restype=None
-        for name in ('func_8007F2E8','func_8007F36C','func_8008AF84'):
+        for name in ('_spu_Fw','_spu_Fr','SpuWrite'):
             function=getattr(cls.lib,name)
             function.argtypes=[C.POINTER(C.c_uint16),C.c_uint32]
             function.restype=C.c_uint32
@@ -138,7 +138,7 @@ void test_reset(void) {
 
     def scalar(self,name):return C.c_int32.in_dll(self.lib,name)
     def port(self,index):return C.addressof(self.ports)+index*512
-    def select_port(self,index):C.c_void_p.in_dll(self.lib,'D_800A47D8').value=self.port(index)
+    def select_port(self,index):C.c_void_p.in_dll(self.lib,'_spu_RXX').value=self.port(index)
     def input(self,size):
         values=(C.c_uint16*((size+1)//2+8))()
         for i in range(len(values)):values[i]=(i*0x4567+0x1234)&65535
@@ -215,12 +215,12 @@ void test_reset(void) {
 
     def test_typed_dma_wrappers_full_pointer_clamp_and_late_completion_flag(self):
         values=self.input(128)
-        self.scalar('D_800A47F4').value=0
-        for name,command in (('func_8007F2E8',1),('func_8007F36C',0),('func_8008AF84',1)):
+        self.scalar('_spu_transMode').value=0
+        for name,command in (('_spu_Fw',1),('_spu_Fr',0),('SpuWrite',1)):
             for size in (0,1,127,0x7EFF0,0x7EFF1,0xFFFFFFFF):
                 self.scalar('test_dma_calls').value=0
-                C.c_void_p.in_dll(self.lib,'D_800A4810').value=0;self.scalar('D_800A480C').value=99
-                expected=min(size,0x7EFF0) if name=='func_8008AF84' else size
+                C.c_void_p.in_dll(self.lib,'_spu_transferCallback').value=0;self.scalar('_spu_inTransfer').value=99
+                expected=min(size,0x7EFF0) if name=='SpuWrite' else size
                 self.assertEqual(getattr(self.lib,name)(values,size),expected)
                 self.assertEqual(self.scalar('test_dma_calls').value,3)
                 commands=(C.c_int32*8).in_dll(self.lib,'test_dma_commands')
@@ -228,12 +228,12 @@ void test_reset(void) {
                 self.assertEqual(C.c_void_p.in_dll(self.lib,'test_dma_buffer').value,C.addressof(values))
                 self.assertEqual(C.c_uint32.in_dll(self.lib,'test_dma_bytes').value,expected)
                 self.assertEqual(C.c_uint32.in_dll(self.lib,'test_dma_address').value,0xBCDE<<3)
-                self.assertEqual(self.scalar('D_800A480C').value,0 if name=='func_8008AF84' else 99)
+                self.assertEqual(self.scalar('_spu_inTransfer').value,0 if name=='SpuWrite' else 99)
         self.setUp()
-        C.c_void_p.in_dll(self.lib,'D_800A4810').value=0
-        def changed():C.c_void_p.in_dll(self.lib,'D_800A4810').value=C.cast(self.lib.test_completion,C.c_void_p).value
+        C.c_void_p.in_dll(self.lib,'_spu_transferCallback').value=0
+        def changed():C.c_void_p.in_dll(self.lib,'_spu_transferCallback').value=C.cast(self.lib.test_completion,C.c_void_p).value
         self.on_delay=changed
-        self.assertEqual(self.lib.func_8008AF84(values,65),65);self.check_errors()
-        self.assertEqual(self.scalar('D_800A480C').value,99)
+        self.assertEqual(self.lib.SpuWrite(values,65),65);self.check_errors()
+        self.assertEqual(self.scalar('_spu_inTransfer').value,99)
         self.assertEqual(self.scalar('test_dma_calls').value,0)
         self.assertEqual(len(self.data),33)

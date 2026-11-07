@@ -38,9 +38,9 @@ RR_ASSERT_OFFSET(RrDriveControlView,error92,0x92);
 RR_ASSERT_OFFSET(RrDriveControlView,gearRatios100,0x100);
 /* Legacy road sampler consumes the complete vehicle through a char view and
  * writes three distinct word-sized output locals. */
-s32 func_80047DF8(char *vehicle,s32 lane,s32 *,s32 *,s32 *);
-void func_80047FBC(RrRaceVehicle *vehicle,s32 speed);
-void func_800483D8(RrRaceVehicle *vehicle);
+s32 ScanCurveAhead(char *vehicle,s32 lane,s32 *,s32 *,s32 *);
+void PlanComCarCornerTurn(RrRaceVehicle *vehicle,s32 speed);
+void UpdateEngineRpm(RrRaceVehicle *vehicle);
 s32 ratan2();
 /* Gear after a pending shift addresses one of six ratios. Pure angle/response
  * services retain the vehicle; road sampling writes its three output words.
@@ -48,5 +48,5 @@ s32 ratan2();
  * is signed16-normalized in a full word. Products wrap32 before signed division;
  * steering filtering narrows before clamping and before the averaging step. */
 /* Pass the canonical record through this explicitly aliasable complete view. */
-void func_800486C4(RrDriveVehicleView *vehicle);
+void UpdateComCarDrive(RrDriveVehicleView *vehicle);
 #endif

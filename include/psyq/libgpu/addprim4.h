@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80095AC4(s32 *arg0, s32 arg1);
+void CatPrim(s32 *arg0, s32 arg1);
 
 #endif /* RR_PSYQ_LIBGPU_ADDPRIM4_H */

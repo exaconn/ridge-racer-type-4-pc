@@ -9,7 +9,7 @@ typedef struct {
  u8 reserved263C[0xA8D0-0x263C];
 } RrStrArchiveAudioState;
 typedef struct {u32 position,sectors;} RrStrArchiveEntry;
-extern RrStrArchiveAudioState D_800F4DB8;
+extern RrStrArchiveAudioState SoundState;
 /* Resource addresses an aligned8-byte entry at archive+130+resource*8.
  * CD conversion writes three location bytes through the full file pointer.
  * Preserve the captured entry across the service, then reload its sector

@@ -29,9 +29,9 @@ typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
 u32 test_ram[0x10000 / 4];
-#define D_800A6488 test_ram[0x6488 / 4]
-#define D_800A648C test_ram[0x648C / 4]
-#define D_800A6498 test_ram[0x6498 / 4]
+#define CD_cbsync test_ram[0x6488 / 4]
+#define CD_cbready test_ram[0x648C / 4]
+#define CD_status1 test_ram[0x6498 / 4]
 RrLibInterruptDriverPrefix test_driver, test_alternate_driver;
 RrLibInterruptDriverPrefix *D_800A6350;
 s32 test_handler_calls;
@@ -40,7 +40,7 @@ void func_8008DDAC(void) { test_handler_calls++; }
         for name in ('8008B364', '8008B394', '8008D820'):
             body = (root / ('tools/scripts/fixtures/legacy/func_' + name + '.c')).read_text()
             body = body.replace('#include "rr/library.h"', '')
-            body = re.sub(r'^extern s32 D_[^\n]*\n', '', body, flags=re.M)
+            body = re.sub(r'^extern s32 [^\n(]*\n', '', body, flags=re.M)
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r'"\$[0-9]+", ', '', body)
             body = re.sub(r' : "\$[0-9]+"', '', body)
@@ -59,10 +59,10 @@ void func_8008DDAC(void) { test_handler_calls++; }
         cls.initialize = cls.library.CD_initintr
         cls.initialize.argtypes = []
         cls.initialize.restype = None
-        cls.reset = cls.library.func_8008B364
+        cls.reset = cls.library.ResetCallback
         cls.reset.argtypes = []
         cls.reset.restype = None
-        cls.install = cls.library.func_8008B394
+        cls.install = cls.library.InterruptCallback
         cls.install.argtypes = [C.c_int32, C.c_void_p]
         cls.install.restype = C.c_void_p
 

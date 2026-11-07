@@ -56,18 +56,18 @@ extern RrParticleSys D_800F2AB8;
 extern struct {
     char pad[0x3E8];
     s32 f3E8;
-} D_800AC650;
+} RaceContext;
 extern RrGpuColorCommand D_800A0CF0;
 
-int func_80053E88(void);
-void func_80053EC4();
+int FindFreeParticle(void);
+void SpawnParticlePair();
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F2AB8 (*(struct { s32 a; char p[0x14]; s32 b; } (*))&D_800F2AB8)
 
-void func_80053E2C(void) {
+void InitParticles(void) {
     func_8001ECE8(0, 0, 0, 3);
-    D_800AC5DC = 0x80;
+    VSyncThreshold = 0x80;
     D_800F2AB8.a = 0;
     func_80096434(&D_800F2AB8, 0x32C);
     D_800F2AB8.b = 0x100;
@@ -78,7 +78,7 @@ void func_80053E2C(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F2AB8 (*(struct { char pad[0x20]; struct { char p[0xC]; s32 f; char q[0x10]; } e[24]; } (*))&D_800F2AB8)
 
-int func_80053E88(void) {
+int FindFreeParticle(void) {
     int i;
     for (i = 0; i < 24; i++) {
         if (D_800F2AB8.e[i].f == 0) return i;
@@ -88,7 +88,7 @@ int func_80053E88(void) {
 
 #undef D_800F2AB8
 
-void func_80053EC4()
+void SpawnParticlePair()
 {
     RrUiParticle20 *s0;
     unsigned char *s1;
@@ -97,7 +97,7 @@ void func_80053EC4()
     unsigned char *tb;
     int v0, r1, r2, r3, r4, r5, r6, one;
     int s5, s2;
-    v0 = func_80053E88();
+    v0 = FindFreeParticle();
     if (v0 >= 0) {
         s0 = &D_800F2AE4[v0];
         one = 1;
@@ -123,7 +123,7 @@ void func_80053EC4()
         s0->velX1C = 0;
         s0->velY1E = 0;
         s0->scale1A = 0x100;
-        v0 = func_80053E88();
+        v0 = FindFreeParticle();
         if (v0 >= 0) {
             s0 = &D_800F2AE4[v0];
             s0->active00 = one;
@@ -206,13 +206,13 @@ void func_80054264(int a0) {
     c[0] = c[1] = c[2] = c[3] = e->c10;
     for (i = 0; i < 4; i++) {
         v = (c[i].r * D_800F2AB8.val18) / 256;
-        v = (v * D_800AC650.f3E8) / 256;
+        v = (v * RaceContext.f3E8) / 256;
         c[i].r = v;
         v = (c[i].g * D_800F2AB8.val18) / 256;
-        v = (v * D_800AC650.f3E8) / 256;
+        v = (v * RaceContext.f3E8) / 256;
         c[i].g = v;
         v = (c[i].b * D_800F2AB8.val18) / 256;
-        v = (v * D_800AC650.f3E8) / 256;
+        v = (v * RaceContext.f3E8) / 256;
         c[i].b = v;
     }
     c[1].r /= 2;

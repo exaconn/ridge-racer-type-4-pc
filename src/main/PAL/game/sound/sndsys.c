@@ -45,19 +45,19 @@ typedef struct {
     s32 group08;
 } RrAudioSetupArg;
 
-extern struct { char pad[0x614]; volatile u16 m[1][5]; char r[2]; } D_800F4DB8[];
+extern struct { char pad[0x614]; volatile u16 m[1][5]; char r[2]; } SoundState[];
 extern struct E D_800F4E2C[];
-extern void func_8008A674();
-extern s32 func_8008AA74();
-extern void func_8008B074();
+extern void SsVabClose();
+extern s32 SsVabOpenHeadSticky();
+extern void SsVabTransCompleted();
 
 void func_80050844(int a0, int a1, int a2, int a3);
 void func_80050894(struct B *a0, int a1);
 void func_80050978(RrAudioSetupArg *arg0);
 
 void func_80050844(int a0, int a1, int a2, int a3) {
-    u16 old = D_800F4DB8[a3].m[a1][a0];
-    if (a2 >= 0) D_800F4DB8[a3].m[a1][a0] = a2;
+    u16 old = SoundState[a3].m[a1][a0];
+    if (a2 >= 0) SoundState[a3].m[a1][a0] = a2;
 }
 
 void func_80050894(struct B *a0, int a1) {
@@ -65,29 +65,29 @@ void func_80050894(struct B *a0, int a1) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(RrAudioOwner (*))&D_800F4DB8)
+#define SoundState (*(RrAudioOwner (*))&SoundState)
 
 void func_80050978(RrAudioSetupArg *arg0) {
     u8 sp10[32];
     s32 i, j, k;
 
-    if (D_800F4DB8.bank30 >= 0) {
-        func_8008A674(D_800F4DB8.bank30);
-        D_800F4DB8.bank30 = -1;
+    if (SoundState.bank30 >= 0) {
+        SsVabClose(SoundState.bank30);
+        SoundState.bank30 = -1;
     }
 
-    func_80096434(&D_800F4DB8.slots38[2], 0x620);
-    func_80096434(&D_800F4DB8.slots38[3], 0x620);
+    func_80096434(&SoundState.slots38[2], 0x620);
+    func_80096434(&SoundState.slots38[3], 0x620);
 
     if (arg0->bank00 != -1) {
-        D_800F4DB8.bank30 = func_8008AA74(arg0->bank00, -1, 0x5D000);
-        D_800F4DB8.slots38[2].bank04 = D_800F4DB8.slots38[3].bank04 = D_800F4DB8.bank30;
+        SoundState.bank30 = SsVabOpenHeadSticky(arg0->bank00, -1, 0x5D000);
+        SoundState.slots38[2].bank04 = SoundState.slots38[3].bank04 = SoundState.bank30;
     }
 
     if (arg0->data04 != -1) {
-        D_800F4DB8.bank30 = func_8008AEC4(arg0->data04, (s16)D_800F4DB8.slots38[2].bank04);
-        D_800F4DB8.slots38[2].bank04 = D_800F4DB8.slots38[3].bank04 = D_800F4DB8.bank30;
-        func_8008B074(1);
+        SoundState.bank30 = SsVabTransBody(arg0->data04, (s16)SoundState.slots38[2].bank04);
+        SoundState.slots38[2].bank04 = SoundState.slots38[3].bank04 = SoundState.bank30;
+        SsVabTransCompleted(1);
     }
 
     if (arg0->group08 != -1) {
@@ -96,28 +96,28 @@ void func_80050978(RrAudioSetupArg *arg0) {
     }
 
     for (j = 2; j < 4; j++) {
-        D_800F4DB8.slots38[j].flags00 = 1;
-        D_800F4DB8.slots38[j].level20 = 0x56;
-        D_800F4DB8.slots38[j].gain22 = 0x80;
-        D_800F4DB8.slots38[j].pan24 = 0x40;
-        D_800F4DB8.slots38[j].reserved26 = 0;
-        D_800F4DB8.slots38[j].count0C = 3;
+        SoundState.slots38[j].flags00 = 1;
+        SoundState.slots38[j].level20 = 0x56;
+        SoundState.slots38[j].gain22 = 0x80;
+        SoundState.slots38[j].pan24 = 0x40;
+        SoundState.slots38[j].reserved26 = 0;
+        SoundState.slots38[j].count0C = 3;
     }
 
-    D_800F4DB8.slots38[2].voice08 = 0xE;
-    D_800F4DB8.slots38[3].voice08 = 0x11;
+    SoundState.slots38[2].voice08 = 0xE;
+    SoundState.slots38[3].voice08 = 0x11;
 
     for (i = 2; i < 4; i++) {
         for (j = 0; j < 5; j++) {
-            func_800850C4((s16)D_800F4DB8.slots38[i].bank04, D_800F4DB8.slots38[i].programs5DC[0][j], 0, sp10);
+            SsUtGetVagAtr((s16)SoundState.slots38[i].bank04, SoundState.slots38[i].programs5DC[0][j], 0, sp10);
             k = (i & 1) * 2 + 0x3C;
-            D_800F4DB8.slots38[i].pitch5F8[0][j].coarse = k - sp10[12];
-            D_800F4DB8.slots38[i].pitch5F8[0][j].fine = (sp10[13] + sp10[12]) << 7;
-            func_800850C4((s16)D_800F4DB8.slots38[i].bank04, D_800F4DB8.slots38[i].programs5DC[1][j], 0, sp10);
-            D_800F4DB8.slots38[i].pitch5F8[1][j].coarse = k - sp10[12];
-            D_800F4DB8.slots38[i].pitch5F8[1][j].fine = (sp10[13] + sp10[12]) << 7;
+            SoundState.slots38[i].pitch5F8[0][j].coarse = k - sp10[12];
+            SoundState.slots38[i].pitch5F8[0][j].fine = (sp10[13] + sp10[12]) << 7;
+            SsUtGetVagAtr((s16)SoundState.slots38[i].bank04, SoundState.slots38[i].programs5DC[1][j], 0, sp10);
+            SoundState.slots38[i].pitch5F8[1][j].coarse = k - sp10[12];
+            SoundState.slots38[i].pitch5F8[1][j].fine = (sp10[13] + sp10[12]) << 7;
         }
     }
 }
 
-#undef D_800F4DB8
+#undef SoundState

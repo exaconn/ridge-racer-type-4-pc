@@ -27,9 +27,9 @@ static struct World {
  unsigned calls;Event events[4];u32 tail[4];
 } world,expected;
 static u8 packets[64];static u32 orders[32];static unsigned scenario;
-#define D_800ABEF8 world.cars
+#define PlayerCars world.cars
 #define RR_PROJECTION_SCRATCH (&world.scratch)
-#define D_800F3AFC world.root
+#define BadgeRows world.root
 #define ovl663_selected_record world.local
 #define D_800F2DE4 world.frame
 #define D_800ACC68 world.flag
@@ -55,10 +55,10 @@ static void event(struct World *w,const s32 args[10]){unsigned n=w->calls,j;Even
  e->scratch[4]=w->scratch.word18;e->scratch[5]=w->scratch.word1C;e->scratch[6]=w->scratch.word20;
  e->cursor=w->scratch.pointers.cursor;e->order=w->scratch.pointers.order;effect(w,n);
 }
-void func_8002A604(void){s32 a[10]={0};assert(world.calls==0);assert(world.local==0);event(&world,a);}
-void func_80013890(s32 shift){s32 a[10]={shift};assert(world.calls==1);assert(world.flag==2&&world.frame==0);event(&world,a);}
-void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls==2);event(&world,args);}
-void func_8003D228(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[10]={a,b,c,d,e,f,g};assert(world.calls==3);event(&world,args);}
+void ClearScreenOverlayState(void){s32 a[10]={0};assert(world.calls==0);assert(world.local==0);event(&world,a);}
+void SetupRenderer(s32 shift){s32 a[10]={shift};assert(world.calls==1);assert(world.flag==2&&world.frame==0);event(&world,a);}
+void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};assert(world.calls==2);event(&world,args);}
+void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[10]={a,b,c,d,e,f,g};assert(world.calls==3);event(&world,args);}
 static void reference(void){s32 a[10]={0};expected.local=0;event(&expected,a);expected.flag=2;expected.frame=0;
  {s32 args[10]={3};event(&expected,args);}
  expected.scratch.word08=expected.scratch.word0C=expected.scratch.word10=0;

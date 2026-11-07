@@ -13,11 +13,11 @@ typedef struct {
     u32 workspaceOffset10;
 } RrTrackResourceFile;
 
-void func_8004D4DC(RrLookupTables32 *tables);
-void func_8004D58C(RrTrackLaneOffset8 *offsets);
-void func_8004D598(s32 *startNode);
-void func_8004D5A4(u8 *workspace);
-void func_8004D5CC(RrTrackResourceFile *file);
+void RelocateTrackLookupTables(RrLookupTables32 *tables);
+void SetTrackLaneOffsets(RrTrackLaneOffset8 *offsets);
+void SetTrackStartNode(s32 *startNode);
+void SetTrackWorkspace(u8 *workspace);
+void LoadTrackResource(RrTrackResourceFile *file);
 
 RR_ASSERT_SIZE(RrTrackResourceFile,0x14);
 RR_ASSERT_OFFSET(RrTrackResourceContext,cameraNodes550,0x550);

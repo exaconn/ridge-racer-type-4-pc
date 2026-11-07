@@ -31,8 +31,8 @@ static struct World {u32 guard[4];s32 frame,counter,bank;s16 current,limit,selec
 #define D_800F2DE4 world.frame
 #define ScreenFrame world.counter
 #define D_800AC5D4 world.bank
-#define D_800AC64A world.current
-#define D_800AC5E0 world.limit
+#define MenuCursor world.current
+#define MenuItemCount world.limit
 #define D_800AC648 world.selected
 #define D_800F3914 world.mapped
 #define D_800AD522 world.flag
@@ -42,8 +42,8 @@ static struct World {u32 guard[4];s32 frame,counter,bank;s16 current,limit,selec
 #define D_800F3A2C world.flag2
 #define D_800ACBD0 world.points
 #define D_800F4D70 world.arenas
-#define D_800ACC18 world.published
-#define D_80107198 world.scene
+#define LoadCursor world.published
+#define ComCars world.scene
 static u8 codes[8]={''' + ','.join(map(str,table)) + r'''};
 #define D_8009F64C codes
 ''' + lookup + reset + body + fixed + r'''

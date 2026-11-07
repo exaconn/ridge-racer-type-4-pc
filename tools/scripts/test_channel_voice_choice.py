@@ -41,7 +41,7 @@ class ChannelVoiceChoiceTest(unittest.TestCase):
             static World initial,actual,expected;
             static uint8_t *page;
             #define D_8011010F (*(u8 *)(page+271))
-            #define D_801100FC (*(s8 *)(page+252))
+            #define spuVmMaxVoice (*(s8 *)(page+252))
             #define D_800A48F8 (*(u32 *)(page-1900))
             '''
             reference=r'''
@@ -84,7 +84,7 @@ class ChannelVoiceChoiceTest(unittest.TestCase):
             static uint32_t next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
             static void run(unsigned k,int known){
              actual=expected=initial;
-             page=actual.bytes+2048;int got=func_80086BE4();
+             page=actual.bytes+2048;int got=_SsVmAlloc();
              page=expected.bytes+2048;int want=reference();
              if(got!=want || memcmp(&actual,&expected,sizeof(actual)) || (known>=0 && got!=known)){
               fprintf(stderr,"case %u: got %d reference %d known %d\n",k,got,want,known);exit(1);

@@ -34,7 +34,7 @@
 
 #undef ApplyMatrix
 
-void func_80043AB0(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
+void GetTrackPointAhead(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
     s16 current_y;
     s32 fraction;
     s32 index, length;
@@ -48,11 +48,11 @@ void func_80043AB0(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
         index = vehicle->trackNodeF0 - ((s32) (distance - vehicle->trackFraction170) >> 0xA);
         neighbour = index - 1;
         if (index < 0) {
-            index += D_800ABECC;
+            index += TrackNodeCount;
             neighbour = index - 1;
         }
         if (neighbour < 0) {
-            neighbour += D_800ABECC;
+            neighbour += TrackNodeCount;
         }
     } else {
         page=(u8*)0x800B0000U;
@@ -70,8 +70,8 @@ void func_80043AB0(RrRaceVehicle *vehicle, s32 *output, s32 distance) {
             neighbour -= length;
         }
     }
-    current = D_800ABEA4 + index;
-    next = D_800ABEA4 + neighbour;
+    current = TrackNodes + index;
+    next = TrackNodes + neighbour;
     fraction = (distance - vehicle->trackFraction170) & 0x3FF;
     output[0] = (s32) ((((s32) ((next->x08 - current->x08) * fraction) / 1024) + current->x08) * 4);
     current_y = current->y10;

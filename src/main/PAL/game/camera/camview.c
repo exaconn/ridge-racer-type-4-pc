@@ -10,8 +10,8 @@
 
 struct E { s16 a, h; };
 
-extern struct { char pad[0x24C]; char *p24c; char pad2[0x560 - 0x250]; int v560; } D_800AC650;
-extern int D_800ABEF8;
+extern struct { char pad[0x24C]; char *p24c; char pad2[0x560 - 0x250]; int v560; } RaceContext;
+extern int PlayerCars;
 extern int D_800F2FD8;
 extern void func_8002CC88();
 extern void func_8002E5A0();
@@ -20,11 +20,11 @@ extern void func_8005F0D0();
 extern void BuildRotMatrixY();
 extern void BuildRotMatrixX();
 extern void func_8006EE3C();
-extern void func_800701C4();
+extern void SelectModelBank();
 extern short D_800A0D64[];
 
-int func_80055FD8(struct E *p, int a1);
-s32 func_8005602C(RrPairS16 *t, s32 idx, s32 x);
+int FindCurveSegment(struct E *p, int a1);
+s32 InterpCurveLinear(RrPairS16 *t, s32 idx, s32 x);
 
 void func_80055C84(void)
 {
@@ -41,21 +41,21 @@ void func_80055C84(void)
 
     s6 = g[0x18];
     g[0x18] = 3;
-    func_8005599C(D_800AC650.p24c, D_800AC650.p24c + 0x78, L.m18, L.m38);
-    func_800701C4(8);
-    func_8006EE3C((SCRATCHPAD + 0x7C), D_800AC650.p24c, L.m18);
+    func_8005599C(RaceContext.p24c, RaceContext.p24c + 0x78, L.m18, L.m38);
+    SelectModelBank(8);
+    func_8006EE3C((SCRATCHPAD + 0x7C), RaceContext.p24c, L.m18);
     g[0x1E] = 0;
     func_8005F0D0(SCRATCHPAD, D_800F2FD8 < 1, 0, 0);
-    func_8006EE3C((SCRATCHPAD + 0x7C), D_800AC650.p24c, L.m18);
-    func_80058038(D_800AC650.v560, 0, 0);
-    func_80055BF8(L.m38, D_800AC650.p24c, D_800AC650.p24c + 0x18, L.v80, L.m58);
-    BuildRotMatrixY(L.m58, -*(short *)(D_800AC650.p24c + 0x2A));
+    func_8006EE3C((SCRATCHPAD + 0x7C), RaceContext.p24c, L.m18);
+    func_80058038(RaceContext.v560, 0, 0);
+    TransformPoint(L.m38, RaceContext.p24c, RaceContext.p24c + 0x18, L.v80, L.m58);
+    BuildRotMatrixY(L.m58, -*(short *)(RaceContext.p24c + 0x2A));
     MulMatrix2(L.m18, L.m58);
     func_8006EE3C((SCRATCHPAD + 0x7C), L.v80, L.m58);
     g[0x1E] = 0;
     func_8005F0D0(SCRATCHPAD, 1, 0, 0);
-    func_80055BF8(L.m38, D_800AC650.p24c, D_800AC650.p24c + 0x30, L.v80, L.m58);
-    BuildRotMatrixY(L.m58, -*(short *)(D_800AC650.p24c + 0x42));
+    TransformPoint(L.m38, RaceContext.p24c, RaceContext.p24c + 0x30, L.v80, L.m58);
+    BuildRotMatrixY(L.m58, -*(short *)(RaceContext.p24c + 0x42));
     MulMatrix2(L.m18, L.m58);
     func_8006EE3C((SCRATCHPAD + 0x7C), L.v80, L.m58);
     a1 = 1;
@@ -63,24 +63,24 @@ void func_80055C84(void)
     if (D_800F2FD8 >= 3)
         a1 = 2;
     func_8005F0D0(SCRATCHPAD, a1, 0, 0);
-    func_80055BF8(L.m38, D_800AC650.p24c, D_800AC650.p24c + 0x60, L.v80, L.m58);
-    BuildRotMatrixX(L.m58, -*(short *)(D_800AC650.p24c + 0x70));
+    TransformPoint(L.m38, RaceContext.p24c, RaceContext.p24c + 0x60, L.v80, L.m58);
+    BuildRotMatrixX(L.m58, -*(short *)(RaceContext.p24c + 0x70));
     MulMatrix2(L.m18, L.m58);
     func_8006EE3C((SCRATCHPAD + 0x7C), L.v80, L.m58);
-    func_80058038(D_800AC650.v560, 2, 0);
-    func_80055BF8(L.m38, D_800AC650.p24c, D_800AC650.p24c + 0x48, L.v80, L.m58);
-    BuildRotMatrixY(L.m58, -*(short *)(D_800AC650.p24c + 0x5A));
+    func_80058038(RaceContext.v560, 2, 0);
+    TransformPoint(L.m38, RaceContext.p24c, RaceContext.p24c + 0x48, L.v80, L.m58);
+    BuildRotMatrixY(L.m58, -*(short *)(RaceContext.p24c + 0x5A));
     MulMatrix2(L.m18, L.m58);
     func_8006EE3C((SCRATCHPAD + 0x7C), L.v80, L.m58);
-    func_80058038(D_800AC650.v560, *(int *)(D_800AC650.p24c + 0xA4) * 2 | 1, 0);
+    func_80058038(RaceContext.v560, *(int *)(RaceContext.p24c + 0xA4) * 2 | 1, 0);
     g[0x18] = s6;
     L.c90[0] = 0x80;
     L.c90[1] = 0x80;
     L.c90[2] = 0x80;
     g[1] = D_800ACC14 + 0xB70;
-    func_8002E5A0(&D_800ABEF8);
-    func_8002CC88(&D_800ABEF8, *(int *)L.c90, 0x80, 1);
-    t = func_80044B24(L.m18, (char *)&D_800ABEF8 + 0x20);
+    func_8002E5A0(&PlayerCars);
+    func_8002CC88(&PlayerCars, *(int *)L.c90, 0x80, 1);
+    t = func_80044B24(L.m18, (char *)&PlayerCars + 0x20);
     t = (t >> 3) + 0x64;
     m = 0xFFFFFF;
     t = t << 2;
@@ -94,7 +94,7 @@ void func_80055C84(void)
     g[1] = d + 0x70;
 }
 
-int func_80055FD8(struct E *p, int a1) {
+int FindCurveSegment(struct E *p, int a1) {
     int t = a1 / 10;
     int i = 0;
     while (p[i].h >= 0) {
@@ -104,7 +104,7 @@ int func_80055FD8(struct E *p, int a1) {
     return i;
 }
 
-s32 func_8005602C(RrPairS16 *t, s32 idx, s32 x) {
+s32 InterpCurveLinear(RrPairS16 *t, s32 idx, s32 x) {
     RrPairS16 *p;
     if (idx == 0) return t[0].a;
     p = (RrPairS16 *)(idx * 4 + (s32)t);
@@ -112,7 +112,7 @@ s32 func_8005602C(RrPairS16 *t, s32 idx, s32 x) {
     return (p->a - p[-1].a) * (x - p[-1].b * 10) / ((p->b - p[-1].b) * 10) + p[-1].a;
 }
 
-int func_800560CC(int a0)
+int InterpCurveEase(int a0)
 {
   int pad[2];
   int i;
@@ -125,7 +125,7 @@ int func_800560CC(int a0)
   int a3;
   int d;
   int h;
-  i = func_80055FD8(D_800A0D64, a0);
+  i = FindCurveSegment(D_800A0D64, a0);
   if (i == 0)
   {
     return D_800A0D64[0];

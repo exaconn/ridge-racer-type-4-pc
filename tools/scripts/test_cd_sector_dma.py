@@ -35,7 +35,7 @@ u32 test_control(volatile u32 *p){
 }
 #define RR_NOP_DEP() ((void)0)
 '''
-        for name in ('CD_getsector','CD_getsector2','func_8008C51C'):
+        for name in ('CD_getsector','CD_getsector2','CdGetSector'):
             body=native_body((root/'tools/scripts/fixtures/views'/f'{name}.c').read_text())
             if name=='CD_getsector':
                 assert body.count('*p & 0x40')==1 and body.count('*D_800A6790 & 0x01000000')==2
@@ -50,7 +50,7 @@ u32 test_control(volatile u32 *p){
         cls.regs=(C.c_uint32*8).in_dll(cls.lib,'regs');cls.ports=(C.c_uint8*6).in_dll(cls.lib,'ports')
         cls.address=C.c_void_p.in_dll(cls.lib,'address');cls.status_port=C.c_void_p.in_dll(cls.lib,'D_800A674C')
         cls.values={n:C.c_int32.in_dll(cls.lib,n) for n in ('status_reads','control_reads','status_ready','control_ready','swap_status')}
-        for name in ('CD_getsector','CD_getsector2','func_8008C51C'):
+        for name in ('CD_getsector','CD_getsector2','CdGetSector'):
             f=getattr(cls.lib,name);f.argtypes=[C.c_void_p,C.c_uint32];f.restype=C.c_int32
 
     def reset(self):
@@ -64,7 +64,7 @@ u32 test_control(volatile u32 *p){
     def test_raw_and_boolean_wrapper_preserve_native_addresses_and_word_masks(self):
         buffer=(C.c_uint8*32)(*range(32));before=bytes(buffer)
         if C.sizeof(C.c_void_p)>4:self.assertGreater(C.addressof(buffer),0xFFFFFFFF)
-        for name,expected in [('CD_getsector',0),('func_8008C51C',1)]:
+        for name,expected in [('CD_getsector',0),('CdGetSector',1)]:
             for words in (0,1,512,65535,0x80000000,0xFFFF0000,0xFFFFFFFF):
                 self.reset();self.assertEqual(getattr(self.lib,name)(buffer,words),expected)
                 self.assertEqual(self.address.value,C.addressof(buffer))

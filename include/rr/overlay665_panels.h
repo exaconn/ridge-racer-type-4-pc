@@ -6,8 +6,8 @@
 extern RrUiUvRect ovl665_D_80119028;
 void ovl665_func_80115C8C(void);
 void ovl665_func_80115CFC(void);
-void func_80057040(s32,s32,s32,s32);
-void func_8003D6F0(s32);
+void DrawHudDigit(s32,s32,s32,s32);
+void UpdateBadgeRowAnim(s32);
 #ifndef RR_PROJECTION_SCRATCH
 #define RR_PROJECTION_SCRATCH ((RrProjectionScratchPrefix *)0x1F800000U)
 #endif

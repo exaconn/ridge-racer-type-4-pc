@@ -24,7 +24,7 @@ typedef struct {
  * selects texture-page/vertical coordinates. Requires a four-byte-aligned destination
  * with 40 writable bytes and an accessible second word in the ordering page. RGB bytes and
  * the last two UV padding halfwords retain their old contents. */
-void func_8005D40C(s32 index);
+void EmitTexturedPanel(s32 index);
 RR_ASSERT_SIZE(RrPolyFT4Packet, 0x28);
 RR_ASSERT_OFFSET(RrPolyFT4Packet, code, 7);
 RR_ASSERT_OFFSET(RrPolyFT4Packet, x0, 8);

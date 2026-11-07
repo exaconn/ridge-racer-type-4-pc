@@ -4,7 +4,7 @@
 void func_80081AE4(s32 raw_bank, s32 raw_row) {
     s16 a0 = raw_bank;
     s16 a1 = raw_row;
-    register RrLibStateB0 **b = D_8010F068;
+    register RrLibStateB0 **b = _ss_score;
     RrLibStateB0 **q = b+a0;
     RrLibStateB0 *c = *q+a1;
     unsigned int a2, v0, lo, m;
@@ -23,7 +23,7 @@ void func_80081AE4(s32 raw_bank, s32 raw_row) {
     b2 = p[1];
     lo = 0x03938700 / (b2 | ((b0 << 16) | (b1 << 8)));
     m = c->h48[4] * lo;
-    a2 = D_8010F064;
+    a2 = VBLANK_MINUS;
     c->c0 = p + 2;
     c->w94 = lo;
     /* ASM_BARRIER: Keep the tempo store before subsequent arithmetic. */
@@ -42,5 +42,5 @@ void func_80081AE4(s32 raw_bank, s32 raw_row) {
         if ((unsigned)(t0 * 2) < (unsigned)((u32)(s32)c->h48[4] * (u32)c->w94 * 0xA) % a3)
             c->h48[6] = a2 + 1;
     }
-    c->w90 = func_80081E04(a0, a1);
+    c->w90 = _SsReadDeltaValue(a0, a1);
 }

@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8001E988(void);
+void SystemInit(void);
 
 #endif /* RR_GAME_SYSTEM_FRMENV_H */

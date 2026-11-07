@@ -2,8 +2,8 @@
 
 #include "rr/channels.h"
 
-s32 func_80088340(s32 a,s32 b,s32 c,u32 group) {
-    register s32 maximum=D_801100FC;
+s32 _SsVmKeyOff(s32 a,s32 b,s32 c,u32 group) {
+    register s32 maximum=spuVmMaxVoice;
     register u32 index;
     register s32 count;
     /* ASM_BARRIER: Capture the active count before initializing the saved loop index. */
@@ -72,12 +72,12 @@ s32 func_80088340(s32 a,s32 b,s32 c,u32 group) {
             {
             /* ASM_BARRIER: Prepare the sentinel in the last match-comparison delay slot. */
             register s32 marker __asm__("$2")=255;
-            if(((RrChannelControlRow36 *)((u8 *)D_8010F908+offset))->value00==marker) {count++;func_80088D64(i);}
-            else {D_80110118=(u8)index;func_80088DA4(0);count++;}
+            if(((RrChannelControlRow36 *)((u8 *)_svm_voice+offset))->value00==marker) {count++;vmNoiseOff(i);}
+            else {D_80110118=(u8)index;_SsVmKeyOffNow(0);count++;}
             }
 next:;
             index++;
-        } while((u8)index<D_801100FC);
+        } while((u8)index<spuVmMaxVoice);
     }
     return count;
 }

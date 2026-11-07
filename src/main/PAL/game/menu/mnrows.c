@@ -18,18 +18,18 @@
 #include "rr/frame_environment.h"
 #include "game/data/screenframe.h"
 
-extern int D_800102F0;
+extern int CdDirectoryBuffer;
 extern char D_8001075C[];
-extern int D_800ACC18;
+extern int LoadCursor;
 extern int D_800F4D70[];
 extern int func_80036068();
-extern int func_8002A604();
-extern int D_800AC5DC;
+extern int ClearScreenOverlayState();
+extern int VSyncThreshold;
 extern int D_800F4D40;
 extern short D_800F3826;
 
 void ResetScreenCounters(void);
-void func_8003A1B4();
+void InitMenuArenas();
 void func_8003A2D4();
 
 void func_80039F98(void) {
@@ -162,27 +162,27 @@ void ResetScreenCounters(void) {
     ScreenFrame = 0;
 }
 
-void func_8003A1B4()
+void InitMenuArenas()
 {
   /* ASM_BARRIER: pin the 0x2D000 constant to $a2 so the addu and the call share one lui/ori like the original */
   register int c asm("$6") = 0x2D000;
-  D_800F2ECC = 10;
-  D_800AC540 = 4;
-  D_800F4C1C = 4;
-  D_800F4BEC = 0x28;
+  BadgeRowCount = 10;
+  Rect16RowCount = 4;
+  GlyphRowCount = 4;
+  UiRowCount = 0x28;
   D_800ACC24 = 1;
   MenuTextRowCount = 0x37;
-  D_800F4D70[1] = D_800102F0 + c;
-  D_800ACC18 = D_800F4D70[1];
-  func_8001E84C(D_8001075C, D_800ACC18, 0x2D000);
-  D_800ACC18 = D_800ACC18 + func_8003D1D4(D_800ACC18);
-  D_800ACC18 = D_800ACC18 + func_8003DC50(D_800ACC18);
-  D_800ACC18 = D_800ACC18 + func_8003DFEC(D_800ACC18);
-  D_800ACC18 = D_800ACC18 + func_8003FAA0(D_800ACC18);
-  D_800ACC18 = D_800ACC18 + func_8003E8D4(D_800ACC18);
-  D_800ACC1C = D_800ACC18;
-  D_800F4D70[1] = D_800ACC18 + 0x19000;
-  D_800ACC18 = D_800ACC18 + 0x19000;
+  D_800F4D70[1] = CdDirectoryBuffer + c;
+  LoadCursor = D_800F4D70[1];
+  func_8001E84C(D_8001075C, LoadCursor, 0x2D000);
+  LoadCursor = LoadCursor + AllocBadgeRows(LoadCursor);
+  LoadCursor = LoadCursor + AllocRect16Rows(LoadCursor);
+  LoadCursor = LoadCursor + AllocGlyphRows(LoadCursor);
+  LoadCursor = LoadCursor + func_8003FAA0(LoadCursor);
+  LoadCursor = LoadCursor + AllocUiRows(LoadCursor);
+  D_800ACC1C = LoadCursor;
+  D_800F4D70[1] = LoadCursor + 0x19000;
+  LoadCursor = LoadCursor + 0x19000;
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -194,20 +194,20 @@ void func_8003A1B4()
 void func_8003A2D4() {
     int a0, a1, a3;
     D_800F2DE4 = 0;
-    D_800AC5DC = 0x80;
-    D_800ACC18 = D_800F4D40;
+    VSyncThreshold = 0x80;
+    LoadCursor = D_800F4D40;
     a3 = 0;
     switch (D_800F4BE8) {
     case 0:
         func_8001ECE8(0, 0, 0, 1);
         D_800FFC10 = 1;
-        D_800ACC18 = D_800F4D70;
+        LoadCursor = D_800F4D70;
         goto l428;
     case 10:
         if (D_800F4D44 == 5) goto five;
         func_8001ECE8(0, 0, 0, 1);
         D_800FFC10 = 1;
-        D_800ACC18 = D_800102F0;
+        LoadCursor = CdDirectoryBuffer;
         goto l428;
     five:
         func_8001ECE8(0, 0, 0, 2);
@@ -227,8 +227,8 @@ void func_8003A2D4() {
         D_800FFC10 = 0;
     }
 l418:
-    func_8002A604();
-    func_8003A1B4();
+    ClearScreenOverlayState();
+    InitMenuArenas();
 l428:
     ResetScreenCounters();
     if (D_800FFC10 == 1) {
@@ -314,6 +314,6 @@ void func_8003A544(void) {
         }
     }
     if (D_800F4C6A != 1) {
-        *(void **)SCRATCHPAD = func_8001FDD4((u32 *)((u8 *)D_800ACC14 + 0xB6C), *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200, 0, 0, 0);
+        *(void **)SCRATCHPAD = AddTileGrid2x2((u32 *)((u8 *)D_800ACC14 + 0xB6C), *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200, 0, 0, 0);
     }
 }

@@ -4,7 +4,7 @@
 #include "psyq/libspu/spuregs2.h"
 #include "rr/spu.h"
 
-short func_8008B074(short a0);
+short SsVabTransCompleted(short a0);
 
 void SpuSetTransferMode(s32 mode) {
     s32 selected;
@@ -15,14 +15,14 @@ void SpuSetTransferMode(s32 mode) {
     case 1: selected = 1; break;
     default: selected = 0; break;
     }
-    D_800A4848 = mode;
+    _spu_trans_mode = mode;
     /* ASM_BARRIER: finish the preceding state updates before binding the address. */
     __asm__ volatile("" : : "r"(selected) : "$1");
-    /* PAL RAM mapping for D_800A47F4. */
+    /* PAL RAM mapping for _spu_transMode. */
     base = (s32 *)0x800A0000U;
     /* ASM_BARRIER: allow the register-relative store in the branch delay slot. */
     __asm__("" : "=r"(base) : "0"(base));
     base[0x47F4 / 4] = selected;
 }
 
-short func_8008B074(short a0) { return func_8008B0A4(a0); }
+short SsVabTransCompleted(short a0) { return SpuIsTransferCompleted(a0); }

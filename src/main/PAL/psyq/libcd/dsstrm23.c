@@ -3,4 +3,4 @@
 #include "psyq/libcd/dsstrm32.h"
 #include "game/data/globals.h"
 extern int D_80110304;
-void func_8008F914(int a, int b, int c) { D_80110308 = a; D_801102E4 = b; D_80110304 = c; }
+void StSetMask(int a, int b, int c) { D_80110308 = a; D_801102E4 = b; D_80110304 = c; }

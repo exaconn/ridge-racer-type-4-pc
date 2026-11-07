@@ -5,22 +5,22 @@ void ovl668_func_80115850(void) {
     RrPreviewVector8 sp30;
     s32 *scratch = RR_REPLAY_SCRATCH_WORDS;
 
-    scratch[6] = D_800AC650.pitch460;
-    scratch[7] = D_800AC650.yaw462;
-    scratch[8] = D_800AC650.roll464;
-    scratch[2] = D_800AC650.position450[0];
-    scratch[3] = D_800AC650.position450[1];
-    scratch[4] = D_800AC650.position450[2];
+    scratch[6] = RaceContext.pitch460;
+    scratch[7] = RaceContext.yaw462;
+    scratch[8] = RaceContext.roll464;
+    scratch[2] = RaceContext.position450[0];
+    scratch[3] = RaceContext.position450[1];
+    scratch[4] = RaceContext.position450[2];
     sp30.x = scratch[6];
     sp30.y = scratch[7];
     sp30.z = scratch[8];
     RotMatrix(&sp30.x, sp10.halves);
-    ApplyMatrixSV(&sp10.matrix, D_800AC650.offset488, &sp30);
-    D_800ABEF8[0].pos20[0] = (D_800AC650.position450[0] / 4) + sp30.x;
-    D_800ABEF8[0].pos20[1] = (D_800AC650.position450[1] / 4) + sp30.y;
-    D_800ABEF8[0].pos20[2] = (D_800AC650.position450[2] / 4) + sp30.z;
-    D_800ABEF8[0].rot50 = D_800AC650.pitch460 + D_800AC650.angle490;
-    D_800ABEF8[0].rot54 = D_800AC650.yaw462;
-    D_800ABEF8[0].rot58 = D_800AC650.roll464;
-    func_8006E1AC();
+    ApplyMatrixSV(&sp10.matrix, RaceContext.offset488, &sp30);
+    PlayerCars[0].pos20[0] = (RaceContext.position450[0] / 4) + sp30.x;
+    PlayerCars[0].pos20[1] = (RaceContext.position450[1] / 4) + sp30.y;
+    PlayerCars[0].pos20[2] = (RaceContext.position450[2] / 4) + sp30.z;
+    PlayerCars[0].rot50 = RaceContext.pitch460 + RaceContext.angle490;
+    PlayerCars[0].rot54 = RaceContext.yaw462;
+    PlayerCars[0].rot58 = RaceContext.roll464;
+    BuildCameraMatrices();
 }

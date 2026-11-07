@@ -1,13 +1,13 @@
 #include "rr/race.h"
 
 struct V { int a, b, c, d; };
-extern int func_8002E394();
+extern int SetCarBounds();
 extern int func_80096434();
-void func_8002E4F4(RrRaceVehicle *a)
+void ResetCarState(RrRaceVehicle *a)
 {
     int *p = (int *)a;
     func_80096434(a, sizeof(RrRaceVehicle));
-    func_8002E394(a);
+    SetCarBounds(a);
     a->ang80 = (unsigned short)a->rot50;
     a->ang82 = (unsigned short)a->rot54;
     a->ang84 = (unsigned short)a->rot58;

@@ -4,45 +4,45 @@
 #include "rr/serial.h"
 #include "psyq/libsio/siostart.h"
 
-extern int func_80096F04();
-extern int func_80096F14();
+extern int EnterCriticalSection();
+extern int ExitCriticalSection();
 extern int func_8009B9E4();
 extern M2C_UNK D_800ABD50;
-M2C_UNK func_80096E14();
+M2C_UNK FlushCache();
 /* extern */
 M2C_UNK func_8009B9F4(M2C_UNK *);
 /* extern */
 extern M2C_UNK D_80012104;
 
-void func_8009A8F8(void);
+void DelSIO(void);
 void func_8009A944(void);
 s32 func_8009A94C(s32 first, s32 second);
 
-void func_8009A8B4(void) {
+void AddSIO(void) {
     s32 temp_s0;
 
-    temp_s0 = func_80096F04();
+    temp_s0 = EnterCriticalSection();
     func_8009B9E4(&D_800ABD50);
     if (temp_s0 == 1) {
-        func_80096F14();
+        ExitCriticalSection();
     }
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80096F14 ((M2C_UNK (*)())func_80096F14)
+#define ExitCriticalSection ((M2C_UNK (*)())ExitCriticalSection)
 
-void func_8009A8F8(void) {
+void DelSIO(void) {
     s32 temp_s0;
 
-    temp_s0 = func_80096F04();
+    temp_s0 = EnterCriticalSection();
     func_8009B9F4(&D_80012104);
-    func_80096E14();
+    FlushCache();
     if (temp_s0 == 1) {
-        func_80096F14();
+        ExitCriticalSection();
     }
 }
 
-#undef func_80096F14
+#undef ExitCriticalSection
 
 void func_8009A944(void) {
 }

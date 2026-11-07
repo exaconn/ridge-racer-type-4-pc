@@ -64,3 +64,14 @@ def address_of(name):
         if m and m.group(1) == name:
             return int(m.group(2), 16)
     raise KeyError(name)
+
+
+def name_at(address):
+    """current name of the function at an address (hex string or int): the registered name, else func_XXXXXXXX"""
+    import re
+    a = int(address, 16) if isinstance(address, str) else address
+    for line in (Path(__file__).resolve().parents[2] / 'configs/PAL/sym.main.txt').read_text().splitlines():
+        m = re.match(r'^(\w+)\s*=\s*0x([0-9A-Fa-f]+);\s*//\s*type:func', line)
+        if m and int(m.group(2), 16) == a and not re.fullmatch(r'func_[0-9A-F]{8}', m.group(1)):
+            return m.group(1)
+    return 'func_%08X' % a

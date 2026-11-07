@@ -48,7 +48,7 @@ s32 test_restart(s32 request) {
  if(test_restart_hook)test_restart_hook();
  return result;
 }
-s32 func_80097714(s32 flag,void *event) {
+s32 SysDeqIntRP(s32 flag,void *event) {
  test_event_calls++;test_event_flag=flag;test_event_pointer=event;
  test_event_state=D_800ABDE4;test_event_counter=D_800ABDE8;
  return -123;

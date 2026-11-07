@@ -32,7 +32,7 @@ typedef struct {s32 op,x,y,a,b,c;size_t cursor;u8 data[8];} Event;
 typedef struct {State s;Event events[12];unsigned count;} World;
 static World actual,reference,initial,*w;
 static u8 arena[512];static u32 ordering[4];static char ratio[8];
-RrBadgeRow1C *D_800F3AFC;
+RrBadgeRow1C *BadgeRows;
 #define D_800F3920 w->s.save
 #define D_800F4D98 w->s.choice
 #define D_8009FA1C w->s.uv
@@ -46,7 +46,7 @@ s8 ovl662_D_80126228[3]={26,25,123},ovl662_D_8012622C[4]={42,25,123,-1};
 static u32 next(void){u32 x=w->s.rng;x^=x<<13;x^=x>>17;x^=x<<5;return w->s.rng=x;}
 static void change(void){
  unsigned i;
- D_800F3AFC=w->s.rows+(next()%4);
+ BadgeRows=w->s.rows+(next()%4);
  w->s.choice.bytes[0]=next()%4;w->s.choice.bytes[1]=next()%4;w->s.choice.bytes[2]=next()%99;
  for(i=0;i<128;i++)w->s.uv[i].w=next();
  w->s.number=next()%100;w->s.total=next()%100;
@@ -61,16 +61,16 @@ s32 rsin(s32 angle){Event *e=event(1,0);s32 v=(s32)(next()%3)-1;e->a=angle;e->b=
 void *func_8001FF84(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
  Event *e=event(2,p);assert(ot==ordering);e->x=x;e->y=y;e->a=clut;e->b=color;memcpy(e->data,uv,4);change();return (u8*)p+20;
 }
-void *func_8001F5B4(u32 *ot,void *p,s32 x,s32 y,const char *text,s32 clut,s32 spacing,s32 color){
+void *AddTextSprites(u32 *ot,void *p,s32 x,s32 y,const char *text,s32 clut,s32 spacing,s32 color){
  Event *e=event(3,p);size_t n=strlen(text);assert(n<8&&ot==ordering);e->x=x;e->y=y;e->a=clut;e->b=spacing;e->c=color;memcpy(e->data,text,n+1);change();return (u8*)p+20*n;
 }
-void *func_8001FCC8(u32 *ot,void *p,u16 mode){Event *e=event(4,p);assert(ot==ordering);e->a=mode;change();return (u8*)p+12;}
-char *func_80042D28(s32 first,s32 second,s32 digits){
+void *AddDrawModePrim(u32 *ot,void *p,u16 mode){Event *e=event(4,p);assert(ot==ordering);e->a=mode;change();return (u8*)p+12;}
+char *FormatCountOfTotal(s32 first,s32 second,s32 digits){
  Event *e=event(5,0);assert(digits==1);e->a=first;e->b=second;
  ratio[0]='0'+first/10;ratio[1]='0'+first%10;ratio[2]='/';ratio[3]='0'+second/10;ratio[4]='0'+second%10;ratio[5]=0;change();return ratio;
 }
 static void expected(unsigned kind,u32 *ot,void *p,s32 row){
- int x=D_800F3AFC[row].x04+8,y=D_800F3AFC[row].y06+32,flag=0,i;
+ int x=BadgeRows[row].x04+8,y=BadgeRows[row].y06+32,flag=0,i;
  const s8 *keys=kind==0?ovl662_D_80126218:kind==1?ovl662_D_80126224:kind==2?ovl662_D_80126228:ovl662_D_8012622C;
  if(kind<2){
   for(i=0;i<4;i++){
@@ -83,18 +83,18 @@ static void expected(unsigned kind,u32 *ot,void *p,s32 row){
  for(i=0;i<(kind==3?4:3);i++){
   if(keys[i]<0){
    int n=kind==1?w->s.counts[w->s.choice.bytes[0]][w->s.choice.bytes[1]]:w->s.total;
-   char *text=func_80042D28(n,kind==1?20:24,1);
-   p=func_8001F5B4(ot,p,x,y,text,32760+flag,0,0);break;
+   char *text=FormatCountOfTotal(n,kind==1?20:24,1);
+   p=AddTextSprites(ot,p,x,y,text,32760+flag,0,0);break;
   }
   p=func_8001FF84(ot,p,x,y,&w->s.uv[(unsigned)keys[i]],32760,0);
   x+=w->s.uv[(unsigned)keys[i]].w+2;
   if(i==2&&(kind==0||kind==2)){
    char text[8]={0};int n=kind==0?w->s.choice.bytes[2]+1:w->s.number;
    text[0]='0'+n/10;text[1]='0'+n%10;
-   p=func_8001F5B4(ot,p,x,y,text,32760+flag,0,0);
+   p=AddTextSprites(ot,p,x,y,text,32760+flag,0,0);
   }
  }
- func_8001FCC8(ot,p,56);
+ AddDrawModePrim(ot,p,56);
 }
 int main(void){unsigned scenario,kind,i;void (*functions[4])(u32*,void*,s32)={ovl662_func_80117654,ovl662_func_80117AA4,ovl662_func_80117C98,ovl662_func_80117DFC};
  assert((uintptr_t)arena>UINT32_MAX);_Static_assert(sizeof(RrSaveProgressRecord7C)==124,"full save");
@@ -106,8 +106,8 @@ int main(void){unsigned scenario,kind,i;void (*functions[4])(u32*,void*,s32)={ov
   }
   if(scenario%5<4){RrSelectionRow *h=&w->s.save.history6C[scenario%5];h->selection=w->s.choice.bytes[0];h->variant=w->s.choice.bytes[1];h->parameter=w->s.choice.bytes[2];}
   w->s.tick=(s32)next();actual=reference=initial;
-  w=&actual;D_800F3AFC=w->s.rows;functions[kind](ordering,arena,scenario%4);
-  w=&reference;D_800F3AFC=w->s.rows;expected(kind,ordering,arena,scenario%4);
+  w=&actual;BadgeRows=w->s.rows;functions[kind](ordering,arena,scenario%4);
+  w=&reference;BadgeRows=w->s.rows;expected(kind,ordering,arena,scenario%4);
   assert(!memcmp(&actual,&reference,sizeof(actual)));
  }
  return 0;

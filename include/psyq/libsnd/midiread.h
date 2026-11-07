@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80080034(s16 bank, s16 row);
+void _SsContBankChange(s16 bank, s16 row);
 
 #endif /* RR_PSYQ_LIBSND_MIDIREAD_H */

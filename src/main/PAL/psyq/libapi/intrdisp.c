@@ -6,16 +6,16 @@
 #include "rr/spu_tick_control.h"
 
 extern s32 func_80096F84(s32);
-extern s32 func_80096F94(s32,s32);
-extern void func_80096EE4();
-extern void func_80096EF4(void *data);
+extern s32 ChangeClearRCnt(s32,s32);
+extern void ResetEntryInt();
+extern void HookEntryInt(void *data);
 
-RrLibInterruptCallback func_8008B7A0(s32 id,RrLibInterruptCallback callback);
-RrLibSavedState *func_8008B8E8(void);
-RrLibSavedState *func_8008B988(void);
-void func_8008BA00();
+RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback);
+RrLibSavedState *stopIntr(void);
+RrLibSavedState *restartIntr(void);
+void memclr();
 
-void func_8008B5D0(void) {
+void trapIntr(void) {
     RrLibSavedState *state=&D_800A52C8;
     RrLibInterruptCallback *base;
     register u32 one __asm__("$19");
@@ -25,7 +25,7 @@ void func_8008B5D0(void) {
     register s32 index __asm__("$17");
     if(state->active==0) {
         func_8001E84C(D_8001183C,*D_800A6354);
-        func_80096ED4();
+        ReturnFromException();
     }
     {
         register volatile u16 *status __asm__("$4")=D_800A6354;
@@ -94,10 +94,10 @@ reread:
         } else D_800A6360=0;
     }
     D_800A52C8.dispatching02=0;
-    func_80096ED4();
+    ReturnFromException();
 }
 
-RrLibInterruptCallback func_8008B7A0(s32 id,RrLibInterruptCallback callback) {
+RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback) {
     s32 selector=id;
     /* ASM_BARRIER: Preserve the requested callback across kernel calls. */
     register RrLibInterruptCallback requested __asm__("$18")=callback;
@@ -137,11 +137,11 @@ RrLibInterruptCallback func_8008B7A0(s32 id,RrLibInterruptCallback callback) {
     if(selector==0) {
         disabled=requested==0;
         func_80096F84(disabled);
-        func_80096F94(3,disabled);
+        ChangeClearRCnt(3,disabled);
     }
-    if(selector==4)func_80096F94(0,requested==0);
-    if(selector==5)func_80096F94(1,requested==0);
-    if(selector==6)func_80096F94(2,requested==0);
+    if(selector==4)ChangeClearRCnt(0,requested==0);
+    if(selector==5)ChangeClearRCnt(1,requested==0);
+    if(selector==6)ChangeClearRCnt(2,requested==0);
     *D_800A6358=saved;
 out:
     return previous;
@@ -151,11 +151,11 @@ out:
 #define D_800A6358 ((unsigned short *)D_800A6358)
 #define D_800A6354 ((unsigned short *)D_800A6354)
 
-RrLibSavedState *func_8008B8E8(void) {
+RrLibSavedState *stopIntr(void) {
   RrLibSavedState *p = &D_800A52C8;
   unsigned short *a, *c; int *b; int t;
   if (p->active == 0) return 0;
-  func_80096F04();
+  EnterCriticalSection();
   a = D_800A6358;
   b = D_800A635C;
   p->register16 = *a;
@@ -165,7 +165,7 @@ RrLibSavedState *func_8008B8E8(void) {
   *a = 0;
   *c = *(volatile unsigned short *)a;
   *D_800A635C = *D_800A635C & 0x77777777;
-  func_80096EE4();
+  ResetEntryInt();
   p->active = 0;
   return p; }
 
@@ -175,10 +175,10 @@ RrLibSavedState *func_8008B8E8(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A6358 ((u16 *)D_800A6358)
 
-RrLibSavedState *func_8008B988(void) {
+RrLibSavedState *restartIntr(void) {
     RrLibSavedState *state = &D_800A52C8;
     if (state->active != 0) return 0;
-    func_80096EF4(state->callback_data);
+    HookEntryInt(state->callback_data);
     state->active = 1;
     *D_800A6358 = state->register16;
     {
@@ -188,12 +188,12 @@ RrLibSavedState *func_8008B988(void) {
         __asm__ volatile("nop");
         *destination = value;
     }
-    func_80096F14();
+    ExitCriticalSection();
     return state;
 }
 
 #undef D_800A6358
 
-void func_8008BA00(p, n) int *p; int n; {
+void memclr(p, n) int *p; int n; {
     while (n--) *p++ = 0;
 }

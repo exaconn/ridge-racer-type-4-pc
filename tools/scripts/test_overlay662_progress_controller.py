@@ -45,9 +45,9 @@ static const u16 timers[8]={0,1,63,64,32767,32768,65534,65535};
 #define D_800F4D98 w->s.choice
 #define D_800F4D99 w->s.choice.bytes[1]
 #define D_800F3A38 w->s.controllers
-#define D_800F4D80 w->s.ui[w->s.uiRoot]
-#define D_800F3AFC w->s.badges[w->s.badgeRoot]
-#define D_800F4D8C w->s.glyphs[w->s.glyphRoot]
+#define UiRows w->s.ui[w->s.uiRoot]
+#define BadgeRows w->s.badges[w->s.badgeRoot]
+#define GlyphRows w->s.glyphs[w->s.glyphRoot]
 #define D_800ACC14 ((RrIconSpriteContext*)&frames[w->s.frameRoot])
 #define ovl662_D_801272D8 w->s.counts
 #define ovl662_D_80127328 w->s.grid
@@ -81,9 +81,9 @@ void ovl662_func_80116960(void){event(9);change();}
 void ovl662_func_80116020(void){event(10);change();}
 void func_800207D4(u32 *order,s32 fade,u32 flags){Event *e=event(11);assert((uintptr_t)order>UINT32_MAX);assert(order==frames[w->s.frameRoot].ordering70);e->args[0]=w->s.frameRoot;e->args[1]=fade;e->args[2]=flags;change();}
 void ovl662_func_8011512C(void){event(12);change();}
-void func_8003EC88(s32 a){event(13)->args[0]=a;change();}
-void func_8003D6F0(s32 a){event(14)->args[0]=a;change();}
-void func_8002A344(s32 flags){event(15)->args[0]=flags;change();}
+void DrawUiRow(s32 a){event(13)->args[0]=a;change();}
+void UpdateBadgeRowAnim(s32 a){event(14)->args[0]=a;change();}
+void UpdateScreenFade(s32 flags){event(15)->args[0]=flags;change();}
 ''' + bodies + r'''
 static s32 completion(unsigned mode){s32 selected=w->s.choice.bytes[mode];
  func_8002B12C(160,204,48,0,selected,0,4);return func_8003E13C(selected);
@@ -117,7 +117,7 @@ static void expected(void){s32 flags=65538;unsigned phase=(u16)w->s.phase;
   func_800207D4(frames[w->s.frameRoot].ordering70,(64-(s32)w->s.timer)*4,69);
   if(w->s.timer<=0){ovl662_func_8011512C();w->s.scene=1;w->s.nextScene=64;w->s.phase=0;branchSeen[6]++;}else branchSeen[7]++;
  }
- func_8003EC88(0);func_8003D6F0(0);func_8002A344(flags);
+ DrawUiRow(0);UpdateBadgeRowAnim(0);UpdateScreenFade(flags);
 }
 int main(void){unsigned p,i,j,k;uint64_t cases=0;
  memset(frames,0xA5,sizeof(frames));memcpy(frameSnapshot,frames,sizeof(frames));

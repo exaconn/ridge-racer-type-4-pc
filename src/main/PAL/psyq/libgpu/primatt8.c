@@ -1,4 +1,4 @@
-void func_80095C14(int *p, short *s, unsigned short a2, int a3) {
+void SetDrawMove(int *p, short *s, unsigned short a2, int a3) {
     char c = 5;
     if (s[2] == 0 || s[3] == 0) {
         c = 0;

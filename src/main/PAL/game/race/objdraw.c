@@ -132,9 +132,9 @@ extern void func_8001A52C(s32);
 extern void func_8001ADA0(s32, s32);
 extern void func_8005F0D0(void *, s32, s32, s32);
 extern void SubmitCourseModel2(void *, s32);
-extern void func_800701C4(s32);
-extern void func_80071978(Poly38 *, s32, s32);
-extern void func_80071B94(Poly48 *, s32, s32);
+extern void SelectModelBank(s32);
+extern void EmitSemiTransG3List(Poly38 *, s32, s32);
+extern void EmitSemiTransG4List(Poly48 *, s32, s32);
 extern s32 rsin(s32);
 extern s32 rcos(s32);
 extern void MulMatrix0(Mat32 *, Mat32 *, Mat32 *);
@@ -149,21 +149,21 @@ extern s32 D_800A3CDC[];
 extern s32 D_800A3D18[];
 extern SVec D_800A3FC8[];
 extern CVec D_800A4088[];
-extern S_ABEA4 *D_800ABEA4;
+extern S_ABEA4 *TrackNodes;
 extern Mat32 D_800ABED0;
-extern s32 D_800AD504;
+extern s32 ReplayState;
 extern s32 D_800F2DE4;
 extern s16 D_800F3914;
 extern s8 D_800F4C68;
 extern S_F4D90 *D_800F4D90;
-extern s32 D_800FF6B0;
+extern s32 RaceState;
 extern s32 D_8010E840;
 extern s32 D_8010E848[];
 extern Vec16 D_8010E8C8;
 extern Vec16 D_8010E8E8[];
-extern S_ECAC *D_8010ECAC;
-extern S_ECB0 *D_8010ECB0;
-extern S_ECB4 *D_8010ECB4;
+extern S_ECAC *TrackObjectKeyframes;
+extern S_ECB0 *TrackObjectDefs;
+extern S_ECB4 *TrackObjectStates;
 extern int BuildRotMatrixZ();
 extern int BuildRotMatrixY();
 extern int BuildRotMatrixX();
@@ -173,12 +173,12 @@ extern int *D_8010E8D8;
 extern int *D_8010E8DC;
 extern int D_8010E8E0;
 
-void func_800747EC(s32 arg0);
-void func_80077A34(int unused, short *p, M *out, int flag);
+void DrawTrackObjects(s32 arg0);
+void BuildObjectMatrix(int unused, short *p, M *out, int flag);
 void func_80077BAC(int a0, int *a1, int a2);
-int func_80077D08(int *a, int b);
+int LoadTrackObjects(int *a, int b);
 
-void func_800747EC(s32 arg0) {
+void DrawTrackObjects(s32 arg0) {
     Mat32 sp18;
     Mat32 sp38;
     Mat32 sp58;
@@ -205,34 +205,34 @@ void func_800747EC(s32 arg0) {
     func_80096454(&sp98, 0, 8);
     s3 = (s32 *)(SCRATCHPAD + 0x7C);
     fp = (u8 *)SCRATCHPAD;
-    for (i = 0; i < D_8010ECA8; i++) {
-        if (D_8010ECB4[i].f24 != 1) {
+    for (i = 0; i < TrackObjectCount; i++) {
+        if (TrackObjectStates[i].f24 != 1) {
             continue;
         }
-        if (arg0 == 2 && (D_8010ECB0[i].f04 / 10) != 1) {
+        if (arg0 == 2 && (TrackObjectDefs[i].f04 / 10) != 1) {
             continue;
         }
 
-        switch (D_8010ECB0[i].f04 % 10) {
+        switch (TrackObjectDefs[i].f04 % 10) {
         case 0:
-            func_80077A34(i, &D_8010ECB4[i].rot, &sp18, arg0);
+            BuildObjectMatrix(i, &TrackObjectStates[i].rot, &sp18, arg0);
             func_80077BAC(i, &sp18, arg0);
-            if ((D_8010ECB4[i].f08 / 10) == 1) {
-                s3[0x00 / 4] = D_8010ECB4[i].f08 + (D_800F3914 % 4) * 3 - 11;
-                s3[0x04 / 4] = (D_8010ECB4[i].f00 / 6) % D_800A3CDC[s3[0x00 / 4]];
+            if ((TrackObjectStates[i].f08 / 10) == 1) {
+                s3[0x00 / 4] = TrackObjectStates[i].f08 + (D_800F3914 % 4) * 3 - 11;
+                s3[0x04 / 4] = (TrackObjectStates[i].f00 / 6) % D_800A3CDC[s3[0x00 / 4]];
                 s3[0x08 / 4] = D_800A3D18[s3[0x00 / 4] * 12 + s3[0x04 / 4]];
-                SubmitCourseModel2(SCRATCH_BASE, D_8010ECB0[i].f00 + s3[0x08 / 4]);
+                SubmitCourseModel2(SCRATCH_BASE, TrackObjectDefs[i].f00 + s3[0x08 / 4]);
                 continue;
             }
-            if ((u32)((D_8010ECB4[i].f04 / 100) - 1) < 2U) {
-                SubmitCourseModel2(SCRATCH_BASE, D_8010ECB0[i].f00 + (D_8010ECB4[i].f04 % 100));
+            if ((u32)((TrackObjectStates[i].f04 / 100) - 1) < 2U) {
+                SubmitCourseModel2(SCRATCH_BASE, TrackObjectDefs[i].f00 + (TrackObjectStates[i].f04 % 100));
             } else {
-                SubmitCourseModel2(SCRATCH_BASE, D_8010ECB0[i].f00);
+                SubmitCourseModel2(SCRATCH_BASE, TrackObjectDefs[i].f00);
             }
             break;
 
         case 1:
-            func_80077A34(i, &D_8010ECB4[i].rot, &sp18, 0);
+            BuildObjectMatrix(i, &TrackObjectStates[i].rot, &sp18, 0);
             sp38 = D_800ABED0;
             if (D_800F3914 == 7 || D_800F3914 == 3 || D_800F3914 == 2) {
                 for (j = 0; j < 3; j++) {
@@ -258,33 +258,33 @@ void func_800747EC(s32 arg0) {
             MulMatrix0(&D_800ABED0, &sp18, &sp58);
             SetLightMatrix(&sp58);
             func_80077BAC(i, &sp18, 0);
-            func_800701C4(4);
-            func_8005F0D0(SCRATCH_BASE, D_8010ECB0[i].f00, 0, 0);
+            SelectModelBank(4);
+            func_8005F0D0(SCRATCH_BASE, TrackObjectDefs[i].f00, 0, 0);
             break;
 
         case 2:
-            func_8001ADA0(D_8010ECB0[i].f08, D_8010ECB0[i].f00);
+            func_8001ADA0(TrackObjectDefs[i].f08, TrackObjectDefs[i].f00);
             continue;
 
         case 3:
-            func_8001A52C(D_8010ECB0[i].f00);
+            func_8001A52C(TrackObjectDefs[i].f00);
             continue;
 
         case 4:
-            func_8001A8DC(D_8010ECB0[i].f00);
+            func_8001A8DC(TrackObjectDefs[i].f00);
             continue;
 
         case 5:
-            if (D_800AD504 == 2 && D_800F4D44 == 1 && D_800AC1A2 < 6) {
+            if (ReplayState == 2 && D_800F4D44 == 1 && D_800AC1A2 < 6) {
                 continue;
             }
-            if (D_8010ECB4[i].f08 != 0) {
-                if (D_8010ECB4[i].f04 + 100 == D_8010ECB4[i].f00) {
+            if (TrackObjectStates[i].f08 != 0) {
+                if (TrackObjectStates[i].f04 + 100 == TrackObjectStates[i].f00) {
                     if (D_800F4C68 == 0 && D_800F4D44 != 5) {
                         PlaySfxVolPan(0x27, 0x7F, 0x40, -1);
                     }
                 }
-                func_80070BA4(SCRATCH_BASE, D_8010ECB0[i].f00, D_800F4C68 == 0);
+                func_80070BA4(SCRATCH_BASE, TrackObjectDefs[i].f00, D_800F4C68 == 0);
                 SetDrawMode(SCRATCH_PRIM, 0, 1, 0x2A, 0);
                 AddPrim(SCRATCH_OT + 0x900, SCRATCH_PRIM);
                 SCRATCH_PRIM += 0xC;
@@ -295,14 +295,14 @@ void func_800747EC(s32 arg0) {
             break;
         }
 
-        switch (D_8010ECB0[i].f08) {
+        switch (TrackObjectDefs[i].f08) {
         case 1:
         case 6:
         case 8:
         case 9:
-            s3[0x00 / 4] = (D_8010ECB4[i].f0C - SCRATCH_CAMX) >> 4;
-            s3[0x04 / 4] = (D_8010ECB4[i].f10 - SCRATCH_CAMY) >> 4;
-            s3[0x08 / 4] = (D_8010ECB4[i].f14 - SCRATCH_CAMZ) >> 4;
+            s3[0x00 / 4] = (TrackObjectStates[i].f0C - SCRATCH_CAMX) >> 4;
+            s3[0x04 / 4] = (TrackObjectStates[i].f10 - SCRATCH_CAMY) >> 4;
+            s3[0x08 / 4] = (TrackObjectStates[i].f14 - SCRATCH_CAMZ) >> 4;
             dist = func_80090758((s3[0x00 / 4] * s3[0x00 / 4] + s3[0x04 / 4] * s3[0x04 / 4] + s3[0x08 / 4] * s3[0x08 / 4]) >> 12);
             if (dist < 0) {
                 dist = -dist;
@@ -310,19 +310,19 @@ void func_800747EC(s32 arg0) {
             break;
         }
 
-        switch (D_8010ECB0[i].f08) {
+        switch (TrackObjectDefs[i].f08) {
         case 1:
         case 14:
-            sp118.vx = D_8010ECB4[i].rot.vx;
-            sp118.vy = (D_8010ECB4[i].f00 * 0x188) % 0x1000;
-            sp118.vz = D_8010ECB4[i].rot.vz;
-            func_80077A34(i, &sp118, &sp18, 0);
+            sp118.vx = TrackObjectStates[i].rot.vx;
+            sp118.vy = (TrackObjectStates[i].f00 * 0x188) % 0x1000;
+            sp118.vz = TrackObjectStates[i].rot.vz;
+            BuildObjectMatrix(i, &sp118, &sp18, 0);
             MulMatrix0(&sp38, &sp18, &sp58);
             SetLightMatrix(&sp58);
             func_80077BAC(i, &sp18, 0);
-            func_800701C4(4);
+            SelectModelBank(4);
             func_8005F0D0(SCRATCH_BASE, 1, 0, 0);
-            if (D_8010ECB0[i].f08 != 14) {
+            if (TrackObjectDefs[i].f08 != 14) {
                 v = (0x898 - dist) / 20;
                 if (dist >= 0x899) {
                     v = 0;
@@ -349,14 +349,14 @@ void func_800747EC(s32 arg0) {
             sp118.vx = 0;
             sp118.vy = 0x400;
             sp118.vz = 0;
-            func_80077A34(i, &sp118, &sp18, arg0);
+            BuildObjectMatrix(i, &sp118, &sp18, arg0);
             func_80077BAC(i, &sp18, arg0);
             SubmitCourseModel2(SCRATCH_BASE, 2);
             break;
 
         case 3:
             sp118.vx = sp118.vy = sp118.vz = 0;
-            func_80077A34(i, &sp118, &sp18, arg0);
+            BuildObjectMatrix(i, &sp118, &sp18, arg0);
             func_80077BAC(i, &sp18, arg0);
             SubmitCourseModel2(SCRATCH_BASE, 2);
             break;
@@ -364,9 +364,9 @@ void func_800747EC(s32 arg0) {
         case 4:
         case 7:
             sp118.vx = sp118.vy = sp118.vz = 0;
-            func_80077A34(i, &sp118, &sp18, 0);
+            BuildObjectMatrix(i, &sp118, &sp18, 0);
             func_80077BAC(i, &sp18, 0);
-            if (D_8010ECB0[i].f08 == 4) {
+            if (TrackObjectDefs[i].f08 == 4) {
                 for (j = 2; j < 6; j++) {
                     SubmitCourseModel2(SCRATCH_BASE, j);
                 }
@@ -394,19 +394,19 @@ void func_800747EC(s32 arg0) {
                     : : "r"(one)
                 );
             }
-            func_8001AFB8(D_8010ECB0[i].f00 + 1, 1);
-            func_8001AFB8(D_8010ECB0[i].f00 + 2, 0);
-            if (D_8010ECB0[i].f08 != 5) {
+            func_8001AFB8(TrackObjectDefs[i].f00 + 1, 1);
+            func_8001AFB8(TrackObjectDefs[i].f00 + 2, 0);
+            if (TrackObjectDefs[i].f08 != 5) {
                 v = (0xDB6 - dist) / 13;
                 if (dist >= 0xDB7 || D_800F4C68 != 0) {
                     func_800517F8(6, 0x1E00, 0, 0x40);
                     v = 0;
-                    if (D_8010ECB4[i].f08 == 1) {
-                        D_8010ECB4[i].f08 = 2;
+                    if (TrackObjectStates[i].f08 == 1) {
+                        TrackObjectStates[i].f08 = 2;
                     }
                 }
-                if ((v >= 0x74 && D_8010ECB4[i].f08 == 0) || D_8010ECB4[i].f08 == 1) {
-                    D_8010ECB4[i].f08 = 1;
+                if ((v >= 0x74 && TrackObjectStates[i].f08 == 0) || TrackObjectStates[i].f08 == 1) {
+                    TrackObjectStates[i].f08 = 1;
                     func_800517F8(6, 0x1E00, v, 0x40);
                 }
             }
@@ -414,8 +414,8 @@ void func_800747EC(s32 arg0) {
 
         case 8:
             v = (0xC80 - dist) / 25;
-            if (v >= 0x3D && D_8010ECB4[i].f08 == 0) {
-                D_8010ECB4[i].f08 = 1;
+            if (v >= 0x3D && TrackObjectStates[i].f08 == 0) {
+                TrackObjectStates[i].f08 = 1;
                 PlaySfxVolPan(0x26, 0x7F, 0x40, -1);
             }
             break;
@@ -425,18 +425,18 @@ void func_800747EC(s32 arg0) {
             if (dist >= 0x119F || D_800F4C68 != 0) {
                 func_800517F8(6, 0x1E00, 0, 0x40);
                 v = 0;
-                if (D_8010ECB4[i].f08 == 1) {
-                    D_8010ECB4[i].f08 = 2;
+                if (TrackObjectStates[i].f08 == 1) {
+                    TrackObjectStates[i].f08 = 2;
                 }
             }
-            if ((v >= 0x22 && D_8010ECB4[i].f08 == 0) || D_8010ECB4[i].f08 == 1) {
-                D_8010ECB4[i].f08 = 1;
+            if ((v >= 0x22 && TrackObjectStates[i].f08 == 0) || TrackObjectStates[i].f08 == 1) {
+                TrackObjectStates[i].f08 = 1;
                 func_800517F8(6, 0x1E00, v, 0x40);
             }
             break;
 
         case 11:
-            if (D_800FF6B0 == 0) {
+            if (RaceState == 0) {
                 continue;
             }
             sp18.t[0] = sp18.t[1] = sp18.t[2] = 0;
@@ -450,8 +450,8 @@ void func_800747EC(s32 arg0) {
             } else {
                 s3[0x2C / 4] = 0;
             }
-            s3[0x14 / 4] = SCRATCH_CAMX - D_8010ECAC[D_8010ECB0[i].f24 + s3[0x2C / 4]].f0C;
-            s3[0x18 / 4] = SCRATCH_CAMX - D_8010ECAC[D_8010ECB0[i].f24 + s3[0x2C / 4] + 1].f0C;
+            s3[0x14 / 4] = SCRATCH_CAMX - TrackObjectKeyframes[TrackObjectDefs[i].f24 + s3[0x2C / 4]].f0C;
+            s3[0x18 / 4] = SCRATCH_CAMX - TrackObjectKeyframes[TrackObjectDefs[i].f24 + s3[0x2C / 4] + 1].f0C;
             if (s3[0x14 / 4] > 0) {
                 sp1C8.vx = s3[0x14 / 4] >> 4;
                 v = (0x2A30 - s3[0x14 / 4]) / 100;
@@ -466,7 +466,7 @@ void func_800747EC(s32 arg0) {
                 v = 0;
             }
             sp1C8.vy = 0;
-            sp1C8.vz = (SCRATCH_CAMZ - D_8010ECAC[D_8010ECB0[i].f24 + s3[0x2C / 4]].f14) >> 4;
+            sp1C8.vz = (SCRATCH_CAMZ - TrackObjectKeyframes[TrackObjectDefs[i].f24 + s3[0x2C / 4]].f14) >> 4;
             sp120.vx = sp1C8.vx;
             sp120.vy = sp1C8.vy;
             sp120.vz = sp1C8.vz;
@@ -490,12 +490,12 @@ void func_800747EC(s32 arg0) {
             break;
 
         case 12:
-            if (D_800FF6B0 == 0) {
+            if (RaceState == 0) {
                 continue;
             }
-            s3[0x14 / 4] = SCRATCH_CAMX - D_8010ECAC[D_8010ECB0[i].f24].f0C;
+            s3[0x14 / 4] = SCRATCH_CAMX - TrackObjectKeyframes[TrackObjectDefs[i].f24].f0C;
             pan = 0x40;
-            s3[0x18 / 4] = SCRATCH_CAMX - D_8010ECAC[D_8010ECB0[i].f24 + 1].f0C;
+            s3[0x18 / 4] = SCRATCH_CAMX - TrackObjectKeyframes[TrackObjectDefs[i].f24 + 1].f0C;
             if (s3[0x14 / 4] > 0) {
                 v = (0x2A30 - s3[0x14 / 4]) / 100;
             } else if (s3[0x18 / 4] < 0) {
@@ -529,37 +529,37 @@ void func_800747EC(s32 arg0) {
             break;
         }
 
-        q = D_8010ECB4[i].f04 / 100;
+        q = TrackObjectStates[i].f04 / 100;
         if (q == 3) {
-            D_8010ECB4[i].f04 = (D_8010ECB4[i].f04 - 300 < 50) ? D_8010ECB4[i].f04 + 10 : D_8010ECB4[i].f04;
+            TrackObjectStates[i].f04 = (TrackObjectStates[i].f04 - 300 < 50) ? TrackObjectStates[i].f04 + 10 : TrackObjectStates[i].f04;
         } else if (q == 0) {
-            D_8010ECB4[i].f04 = (D_8010ECB4[i].f04 > 0) ? D_8010ECB4[i].f04 - 5 : D_8010ECB4[i].f04;
+            TrackObjectStates[i].f04 = (TrackObjectStates[i].f04 > 0) ? TrackObjectStates[i].f04 - 5 : TrackObjectStates[i].f04;
         }
 
-        if ((D_8010ECB4[i].f04 % 100) == 0) {
+        if ((TrackObjectStates[i].f04 % 100) == 0) {
             continue;
         }
 
-        switch (D_8010ECB0[i].f0C % 10) {
+        switch (TrackObjectDefs[i].f0C % 10) {
         case 1:
             if (arg0 == 2) {
                 s3[0x20 / 4] = -1;
             } else {
                 s3[0x20 / 4] = 1;
             }
-            sp1CB8 = func_80026998(D_8010ECB4[i].f0C, D_8010ECB4[i].f14);
+            sp1CB8 = func_80026998(TrackObjectStates[i].f0C, TrackObjectStates[i].f14);
             for (j = 0; j < 8; j++) {
-                spA0[j].vy = (D_800ABEA4[sp1CB8].f10 - D_8010ECB4[i].f10) >> 2;
-                spA0[j].vx = (((spA0[j].vy >> 1)) * rcos(D_8010ECB4[i].f00 * 57 + j * 512)) / 4096;
-                spA0[j].vz = (((spA0[j].vy >> 1)) * rsin(D_8010ECB4[i].f00 * 57 + j * 512)) / 4096 + (((spA0[j].vy >> 1)) + 250) * s3[0x20 / 4];
+                spA0[j].vy = (TrackNodes[sp1CB8].f10 - TrackObjectStates[i].f10) >> 2;
+                spA0[j].vx = (((spA0[j].vy >> 1)) * rcos(TrackObjectStates[i].f00 * 57 + j * 512)) / 4096;
+                spA0[j].vz = (((spA0[j].vy >> 1)) * rsin(TrackObjectStates[i].f00 * 57 + j * 512)) / 4096 + (((spA0[j].vy >> 1)) + 250) * s3[0x20 / 4];
                 sp128[j].b = 0;
                 sp128[j].g = 0;
                 sp128[j].r = 0;
             }
             {
-                k = (func_80096464() % 10) + (D_8010ECB4[i].f04 % 100);
+                k = (func_80096464() % 10) + (TrackObjectStates[i].f04 % 100);
                 if (D_800F4C68 != 0) {
-                    k = D_8010ECB4[i].f04 % 100;
+                    k = TrackObjectStates[i].f04 % 100;
                 }
                 for (j = 0; j < 4; j++) {
                     sp1D8[j].v0.vy = 20;
@@ -578,7 +578,7 @@ void func_800747EC(s32 arg0) {
                 }
                 for (j = 0; j < 8; j++) {
                     sp1D8[j + 4].v0.vx = 0;
-                    sp1D8[j + 4].v0.vy = (D_800ABEA4[sp1CB8].f10 - D_8010ECB4[i].f10) >> 2;
+                    sp1D8[j + 4].v0.vy = (TrackNodes[sp1CB8].f10 - TrackObjectStates[i].f10) >> 2;
                     sp1D8[j + 4].v0.vz = ((spA0[j].vy / 4) + 250) * s3[0x20 / 4];
                     sp1D8[j + 4].v1.vx = (spA0[j].vx >> 1);
                     sp1D8[j + 4].v1.vy = spA0[j].vy;
@@ -593,9 +593,9 @@ void func_800747EC(s32 arg0) {
                     sp1D8[j + 4].c2.r = sp1D8[j + 4].c2.g = (k + 5) >> 1;
                     sp1D8[j + 4].c2.b = (k * 3) >> 3;
                 }
-                func_80077A34(i, &D_8010ECB4[i].rot, &sp18, arg0);
+                BuildObjectMatrix(i, &TrackObjectStates[i].rot, &sp18, arg0);
                 SetRotMatrix(&sp18);
-                func_80071978(sp1D8, 12, 1);
+                EmitSemiTransG3List(sp1D8, 12, 1);
                 for (j = 0; j < 8; j++) {
                     sp638[j].v0.vx = (spA0[j].vx >> 1);
                     sp638[j].v0.vy = spA0[j].vy;
@@ -616,13 +616,13 @@ void func_800747EC(s32 arg0) {
                     sp638[j].c2.r = sp638[j].c2.g = sp638[j].c2.b = 0;
                     sp638[j].c3.r = sp638[j].c3.g = sp638[j].c3.b = 0;
                 }
-                func_80071B94(sp638, 8, 1);
+                EmitSemiTransG4List(sp638, 8, 1);
             }
             break;
 
         case 2:
         case 5:
-            s3[0x28 / 4] = D_8010ECB0[i].f0C / 10;
+            s3[0x28 / 4] = TrackObjectDefs[i].f0C / 10;
             for (k = 0; k < 18; k++) {
                 if (s3[0x28 / 4] == 0) {
                     if (D_800F3914 == 0) {
@@ -663,7 +663,7 @@ void func_800747EC(s32 arg0) {
                     sp638[s3[0x30 / 4]].c2 = sp638[s3[0x30 / 4]].c3 = sp128[k];
                 }
             }
-            func_80077A34(i, &sp98, &sp18, arg0);
+            BuildObjectMatrix(i, &sp98, &sp18, arg0);
             sp120.vx = -SCRATCH_CAMX >> 3;
             sp120.vy = -SCRATCH_CAMY >> 3;
             sp120.vz = -SCRATCH_CAMZ >> 3;
@@ -673,10 +673,10 @@ void func_800747EC(s32 arg0) {
             sp38.t[2] = sp1C8.vz;
             RR_GTE_SETROT(&sp18);
             RR_GTE_SETTR_AT20(&sp38);
-            if ((D_8010ECB0[i].f0C % 10) == 5) {
-                func_80071B94(sp638, 36, 2);
+            if ((TrackObjectDefs[i].f0C % 10) == 5) {
+                EmitSemiTransG4List(sp638, 36, 2);
             } else {
-                func_80071B94(sp638, 36, 0);
+                EmitSemiTransG4List(sp638, 36, 0);
             }
             break;
 
@@ -704,12 +704,12 @@ void func_800747EC(s32 arg0) {
                 }
             }
             for (j = 0; j < 2; j++) {
-                sp638[j + 76].v0.vx = D_8010ECB4[i].f0C >> 3;
-                sp638[j + 76].v0.vy = D_8010ECB4[i].f10 >> 3;
-                sp638[j + 76].v0.vz = D_8010ECB4[i].f14 >> 3;
-                sp638[j + 76].v1.vx = D_8010ECB4[i].f0C >> 3;
-                sp638[j + 76].v1.vy = D_8010ECB4[i].f10 >> 3;
-                sp638[j + 76].v1.vz = D_8010ECB4[i].f14 >> 3;
+                sp638[j + 76].v0.vx = TrackObjectStates[i].f0C >> 3;
+                sp638[j + 76].v0.vy = TrackObjectStates[i].f10 >> 3;
+                sp638[j + 76].v0.vz = TrackObjectStates[i].f14 >> 3;
+                sp638[j + 76].v1.vx = TrackObjectStates[i].f0C >> 3;
+                sp638[j + 76].v1.vy = TrackObjectStates[i].f10 >> 3;
+                sp638[j + 76].v1.vz = TrackObjectStates[i].f14 >> 3;
                 sp638[j + 76].v2.vx = D_8010E8E8[1].vx;
                 sp638[j + 76].v2.vy = D_8010E8E8[1].vy;
                 sp638[j + 76].v2.vz = D_8010E8E8[1].vz;
@@ -719,7 +719,7 @@ void func_800747EC(s32 arg0) {
                 sp638[j + 76].c0 = sp638[j + 76].c2 = sp128[1];
                 sp638[j + 76].c1 = sp638[j + 76].c3 = sp128[37];
             }
-            func_80077A34(i, &sp98, &sp18, arg0);
+            BuildObjectMatrix(i, &sp98, &sp18, arg0);
             sp120.vx = -SCRATCH_CAMX >> 3;
             sp120.vy = -SCRATCH_CAMY >> 3;
             sp120.vz = -SCRATCH_CAMZ >> 3;
@@ -729,36 +729,36 @@ void func_800747EC(s32 arg0) {
             sp38.t[2] = sp1C8.vz;
             RR_GTE_SETROT(&sp18);
             RR_GTE_SETTR_AT20(&sp38);
-            func_80071B94(sp638, 78, 0);
+            EmitSemiTransG4List(sp638, 78, 0);
             break;
 
         case 4:
             {
-                s32 dx = (D_8010ECB4[i].f0C - SCRATCH_CAMX) >> 4;
-                s32 dz = (D_8010ECB4[i].f14 - SCRATCH_CAMZ) >> 4;
+                s32 dx = (TrackObjectStates[i].f0C - SCRATCH_CAMX) >> 4;
+                s32 dz = (TrackObjectStates[i].f14 - SCRATCH_CAMZ) >> 4;
                 s3[0x00 / 4] = func_80090758((dx * dx + dz * dz) >> 12);
             }
             if ((u32)((u16)D_800F4D44 - 2) < 3U) {
                 if (D_8010E848[i] != D_800F2DE4 && D_800F4C68 == 0) {
-                    D_8010ECB4[i].f08 = (D_8010ECB4[i].f08 + (((i & 1) == 0) ? 0x20 : 0xFE0)) % 0x1000;
+                    TrackObjectStates[i].f08 = (TrackObjectStates[i].f08 + (((i & 1) == 0) ? 0x20 : 0xFE0)) % 0x1000;
                 }
                 D_8010E848[i] = D_800F2DE4;
             } else if (D_800F4C68 == 0) {
-                D_8010ECB4[i].f08 = (D_8010ECB4[i].f08 + (((i & 1) == 0) ? 0x20 : 0xFE0)) % 0x1000;
+                TrackObjectStates[i].f08 = (TrackObjectStates[i].f08 + (((i & 1) == 0) ? 0x20 : 0xFE0)) % 0x1000;
             }
             if (s3[0x00 / 4] < 900) {
                 for (j = 0; j < 2; j++) {
                     spA0[j].vx = 0;
                     spA0[j].vy = -1000 - s3[0x00 / 4];
-                    { s32 t = ((((s3[0x00 / 4] - 500) * 3 >> 2) + 900) * rsin(D_8010ECB4[i].f08) >> 12) - 400; spA0[j].vz = j * (((s3[0x00 / 4] - 500) / 7) + 400) + t; }
+                    { s32 t = ((((s3[0x00 / 4] - 500) * 3 >> 2) + 900) * rsin(TrackObjectStates[i].f08) >> 12) - 400; spA0[j].vz = j * (((s3[0x00 / 4] - 500) / 7) + 400) + t; }
                     sp128[j].b = 0;
                     sp128[j].g = 0;
                     sp128[j].r = 0;
                 }
                 {
-                    k = (func_80096464() % 10) + (D_8010ECB4[i].f04 % 100);
+                    k = (func_80096464() % 10) + (TrackObjectStates[i].f04 % 100);
                 if (D_800F4C68 != 0) {
-                    k = D_8010ECB4[i].f04 % 100;
+                    k = TrackObjectStates[i].f04 % 100;
                 }
                     for (j = 0; j < 3; j++) {
                         sp1D8[j].v0.vy = 20;
@@ -787,22 +787,22 @@ void func_800747EC(s32 arg0) {
                         }
                     }
                 }
-                func_80077A34(i, &D_8010ECB4[i].rot, &sp18, arg0);
+                BuildObjectMatrix(i, &TrackObjectStates[i].rot, &sp18, arg0);
                 RR_GTE_SETROT(&sp18);
-                func_80071978(sp1D8, 3, 0);
+                EmitSemiTransG3List(sp1D8, 3, 0);
             } else if (s3[0x00 / 4] < 3300) {
                 for (j = 0; j < 2; j++) {
                     spA0[j].vx = 0;
                     spA0[j].vy = -1000 - s3[0x00 / 4];
-                    { s32 t = ((((s3[0x00 / 4] - 500) * 3 >> 2) + 900) * rsin(D_8010ECB4[i].f08) >> 12) - 400; spA0[j].vz = j * (((s3[0x00 / 4] - 500) / 7) + 400) + t; }
+                    { s32 t = ((((s3[0x00 / 4] - 500) * 3 >> 2) + 900) * rsin(TrackObjectStates[i].f08) >> 12) - 400; spA0[j].vz = j * (((s3[0x00 / 4] - 500) / 7) + 400) + t; }
                     sp128[j].b = 0;
                     sp128[j].g = 0;
                     sp128[j].r = 0;
                 }
                 {
-                    k = (func_80096464() % 10) + (D_8010ECB4[i].f04 % 100);
+                    k = (func_80096464() % 10) + (TrackObjectStates[i].f04 % 100);
                 if (D_800F4C68 != 0) {
-                    k = D_8010ECB4[i].f04 % 100;
+                    k = TrackObjectStates[i].f04 % 100;
                 }
                     sp1D8[0].v0.vy = 20;
                     sp1D8[0].v0.vx = 0;
@@ -816,33 +816,33 @@ void func_800747EC(s32 arg0) {
                     sp1D8[0].v1 = spA0[0];
                     sp1D8[0].v2 = spA0[1];
                 }
-                func_80077A34(i, &D_8010ECB4[i].rot, &sp18, arg0);
+                BuildObjectMatrix(i, &TrackObjectStates[i].rot, &sp18, arg0);
                 RR_GTE_SETROT(&sp18);
-                func_80071978(sp1D8, 1, 0);
+                EmitSemiTransG3List(sp1D8, 1, 0);
             } else {
                 for (j = 0; j < 2; j++) {
                     spA0[j].vx = 0;
                     spA0[j].vy = -350 - (s3[0x00 / 4] >> 1);
-                    { s32 t = ((rsin(D_8010ECB4[i].f08) * 3000) >> 12) - 400; spA0[j].vz = j * 800 + t; }
+                    { s32 t = ((rsin(TrackObjectStates[i].f08) * 3000) >> 12) - 400; spA0[j].vz = j * 800 + t; }
                     sp128[j].b = 0;
                     sp128[j].g = 0;
                     sp128[j].r = 0;
                 }
                 {
-                    k = (func_80096464() % 10) + (D_8010ECB4[i].f04 % 100);
+                    k = (func_80096464() % 10) + (TrackObjectStates[i].f04 % 100);
                 if (D_800F4C68 != 0) {
-                    k = D_8010ECB4[i].f04 % 100;
+                    k = TrackObjectStates[i].f04 % 100;
                 }
                     if (s3[0x00 / 4] >= 5801) {
                         k = (k * 500) / (s3[0x00 / 4] - 5300);
                     }
                     {
                         s32 x, y, z;
-                        x = D_8010ECB4[i].f0C >> 3;
+                        x = TrackObjectStates[i].f0C >> 3;
                         sp1D8[0].v0.vx = x;
-                        y = D_8010ECB4[i].f10 >> 3;
+                        y = TrackObjectStates[i].f10 >> 3;
                         sp1D8[0].v0.vy = y;
-                        z = D_8010ECB4[i].f14 >> 3;
+                        z = TrackObjectStates[i].f14 >> 3;
                         sp1D8[0].v1.vx = spA0[0].vx + x;
                         sp1D8[0].v1.vy = spA0[0].vy + y;
                         sp1D8[0].c0.r = k;
@@ -856,7 +856,7 @@ void func_800747EC(s32 arg0) {
                     sp1D8[0].c1 = sp128[0];
                     sp1D8[0].c2 = sp128[1];
                 }
-                func_80077A34(i, &sp98, &sp18, arg0);
+                BuildObjectMatrix(i, &sp98, &sp18, arg0);
                 sp120.vx = -SCRATCH_CAMX >> 3;
                 sp120.vy = -SCRATCH_CAMY >> 3;
                 sp120.vz = -SCRATCH_CAMZ >> 3;
@@ -866,7 +866,7 @@ void func_800747EC(s32 arg0) {
                 sp38.t[2] = sp1C8.vz;
                 RR_GTE_SETROT(&sp18);
                 RR_GTE_SETTR_AT20(&sp38);
-                func_80071978(sp1D8, 1, 2);
+                EmitSemiTransG3List(sp1D8, 1, 2);
             }
             break;
         }
@@ -876,7 +876,7 @@ void func_800747EC(s32 arg0) {
 /* legacy typing of shared globals in this part of the unit */
 #define MulMatrix0 ((int (*)())MulMatrix0)
 
-void func_80077A34(int unused, short *p, M *out, int flag) {
+void BuildObjectMatrix(int unused, short *p, M *out, int flag) {
     M m10, m30, m50, m70;
     M m90;
     M *q = &m70;
@@ -901,7 +901,7 @@ void func_80077A34(int unused, short *p, M *out, int flag) {
 #undef MulMatrix0
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010ECB4 ((char *)D_8010ECB4)
+#define TrackObjectStates ((char *)TrackObjectStates)
 
 void func_80077BAC(int a0, int *a1, int a2)
 {
@@ -912,9 +912,9 @@ void func_80077BAC(int a0, int *a1, int a2)
   int v;
   RR_GTE_SETROT(D_800FF690);
   sp[0x78 / 4] = 0;
-  sp10[0] = ((*((int *) ((((char *) (a0 * 0x2C)) + ((int) D_8010ECB4)) + 0xC))) - sp[2]) >> 2;
-  sp10[1] = ((*((int *) ((((char *) (a0 * 0x2C)) + ((int) D_8010ECB4)) + 0x10))) - sp[3]) >> 2;
-  sp10[2] = ((*((int *) ((((char *) (a0 * 0x2C)) + ((int) D_8010ECB4)) + 0x14))) - sp[4]) >> 2;
+  sp10[0] = ((*((int *) ((((char *) (a0 * 0x2C)) + ((int) TrackObjectStates)) + 0xC))) - sp[2]) >> 2;
+  sp10[1] = ((*((int *) ((((char *) (a0 * 0x2C)) + ((int) TrackObjectStates)) + 0x10))) - sp[3]) >> 2;
+  sp10[2] = ((*((int *) ((((char *) (a0 * 0x2C)) + ((int) TrackObjectStates)) + 0x14))) - sp[4]) >> 2;
   func_80090C74(sp10, sp18);
   if (a2 == 2)
   {
@@ -931,30 +931,30 @@ void func_80077BAC(int a0, int *a1, int a2)
   RR_GTE_SETROT(a1);
 }
 
-#undef D_8010ECB4
+#undef TrackObjectStates
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010ECAC ((int *)D_8010ECAC)
-#define D_8010ECB0 ((int *)D_8010ECB0)
-#define D_8010ECB4 (*(int (*))&D_8010ECB4)
+#define TrackObjectKeyframes ((int *)TrackObjectKeyframes)
+#define TrackObjectDefs ((int *)TrackObjectDefs)
+#define TrackObjectStates (*(int (*))&TrackObjectStates)
 
-int func_80077D08(int *a, int b) {
+int LoadTrackObjects(int *a, int b) {
     int n = *a;
     int s;
     a++;
     D_8010E8DC = a;
-    D_8010ECB0 = a;
+    TrackObjectDefs = a;
     D_8010E8E0 = b;
-    D_8010ECB4 = b;
+    TrackObjectStates = b;
     a = a + n * 12;
-    D_8010ECA8 = n;
+    TrackObjectCount = n;
     D_8010E8D8 = a;
     s = n * 0x2C;
-    D_8010ECAC = a;
+    TrackObjectKeyframes = a;
     func_80096434(b, s);
     return s;
 }
 
-#undef D_8010ECAC
-#undef D_8010ECB0
-#undef D_8010ECB4
+#undef TrackObjectKeyframes
+#undef TrackObjectDefs
+#undef TrackObjectStates

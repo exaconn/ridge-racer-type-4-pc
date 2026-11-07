@@ -50,19 +50,19 @@ typedef struct {
     RrLookupTables32 *lookupTables;
 } RrTrackResourceContext;
 
-extern RrTrackResourceContext D_800AC650;
+extern RrTrackResourceContext RaceContext;
 extern RrLookupTables16 *D_800ACBB8;
 
-s32 func_80054EF4(s32 key, s32 selection);
+s32 LookupTrackEventPair(s32 key, s32 selection);
 /* A terminal threshold of sampleCount - 1 denotes a range wrapping to zero. */
-s32 func_80054FA4(const RrTrackEventEntry *entries, s32 count, s32 key);
-s32 func_80055040(s32 key);
-s32 func_800550A0(s32 key);
-s32 func_80055100(s32 key);
-s32 func_80055160(s32 key);
-s32 func_800551C0(s32 key);
+s32 FindTrackEventIndex(const RrTrackEventEntry *entries, s32 count, s32 key);
+s32 LookupTrackEventTable0(s32 key);
+s32 LookupTrackEventTable1(s32 key);
+s32 LookupTrackEventTable2(s32 key);
+s32 LookupTrackEventTable3(s32 key);
+s32 LookupTrackEventPair2(s32 key);
 /* selection is one of the seven track-event tables (0..6). */
-s32 func_80055250(s32 selection, s32 key);
+s32 LookupTrackEvent(s32 selection, s32 key);
 
 RR_ASSERT_SIZE(RrTrackEventEntry, 8);
 RR_ASSERT_SIZE(RrTrackEventPair, 4);

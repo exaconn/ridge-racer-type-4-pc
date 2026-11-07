@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8004A170(void);
+void UpdateComCars(void);
 
 #endif /* RR_GAME_CAR_CARAI_H */

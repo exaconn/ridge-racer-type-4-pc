@@ -2,7 +2,7 @@
 
 #include "rr/library.h"
 
-void func_80080434(s32 raw_bank, s32 raw_row, s32 raw_value) {
+void _SsContMainVol(s32 raw_bank, s32 raw_row, s32 raw_value) {
     s32 bank = (s16)raw_bank;
     register s32 row;
     /* ASM_BARRIER: Retain the original register for selector, slot, or callback argument scheduling. */
@@ -37,10 +37,10 @@ void func_80080434(s32 raw_bank, s32 raw_row, s32 raw_value) {
     slot = state->b17;
     selected = (u8 *)state + slot;
     channel = selected[RR_FIELD_OFFSET(RrLibStateB0, b37)];
-    func_80089FA4(encoded, state->b26,
+    _SsVmSetVol(encoded, state->b26,
                  channel, pitch_arg,
                  selected[RR_FIELD_OFFSET(RrLibStateB0, b27)]);
     pitch = (u16 *)(slot * sizeof(u16) + (unsigned long)state);
     *(u16 *)((u8 *)pitch + RR_FIELD_OFFSET(RrLibStateB0, h60)) = value & 255;
-    state->w90 = func_80081E04(bank, row);
+    state->w90 = _SsReadDeltaValue(bank, row);
 }

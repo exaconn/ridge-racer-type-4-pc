@@ -2,7 +2,7 @@
 
 #include "rr/spu.h"
 
-s32 func_80084FB4(s32 raw_bank, s16 program, u8 *output) {
+s32 SsUtGetProgAtr(s32 raw_bank, s16 program, u8 *output) {
     s32 offset;
     /* ASM_BARRIER: Keep the incoming output pointer until the bank gate is resolved. */
     register u8 *incoming __asm__("$6")=output;
@@ -22,14 +22,14 @@ s32 func_80084FB4(s32 raw_bank, s16 program, u8 *output) {
     output=incoming;
     if(page==1) {
         /* Selection failure is intentionally ignored; copy from the current table. */
-        func_8008A564(bank, program);
+        _SsVmVSetUp(bank, program);
         offset=program*16;
-        output[0]=*(u8 *)(offset+(unsigned long)D_801100EC);
-        output[1]=((u8 *)(offset+(unsigned long)D_801100EC))[1];
-        output[2]=((u8 *)(offset+(unsigned long)D_801100EC))[2];
-        output[3]=((u8 *)(offset+(unsigned long)D_801100EC))[3];
-        output[4]=((u8 *)(offset+(unsigned long)D_801100EC))[4];
-        *(u16 *)(output+6)=*(u16 *)(offset+(unsigned long)D_801100EC+6);
+        output[0]=*(u8 *)(offset+(unsigned long)_svm_pg);
+        output[1]=((u8 *)(offset+(unsigned long)_svm_pg))[1];
+        output[2]=((u8 *)(offset+(unsigned long)_svm_pg))[2];
+        output[3]=((u8 *)(offset+(unsigned long)_svm_pg))[3];
+        output[4]=((u8 *)(offset+(unsigned long)_svm_pg))[4];
+        *(u16 *)(output+6)=*(u16 *)(offset+(unsigned long)_svm_pg+6);
         return 0;
     }
     return -1;

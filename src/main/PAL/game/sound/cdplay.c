@@ -7,21 +7,21 @@
 
 extern int D_800A099C[][3];
 extern int D_800A0904[];
-extern int func_80052B48();
+extern int CdAudioSetVolumeRaw();
 extern int func_80096474();
-extern int func_80052ADC();
-extern struct { char pad[0x2664]; s32 a; char p0[4]; s32 b, c, d, e; char p1[8]; s32 g; char p3[0x14]; s32 h; char p2[0x26CE - 0x26A0]; u16 i; } D_800F4DB8;
+extern int CdAudioSetVolume();
+extern struct { char pad[0x2664]; s32 a; char p0[4]; s32 b, c, d, e; char p1[8]; s32 g; char p3[0x14]; s32 h; char p2[0x26CE - 0x26A0]; u16 i; } SoundState;
 
-void func_800528A8();
-void func_800529D8(int a0, int a1, int a2);
+void CdAudioSelectTrack();
+void CdAudioSetTarget(int a0, int a1, int a2);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4DB8 (*(char (*)[])&D_800F4DB8)
+#define SoundState (*(char (*)[])&SoundState)
 
-void func_800528A8(a0, a1)
+void CdAudioSelectTrack(a0, a1)
 int a0, a1;
 {
-    register char *g = D_800F4DB8;
+    register char *g = SoundState;
     register char *s2;
     register int s1;
     unsigned s0; 
@@ -44,7 +44,7 @@ int a0, a1;
         h = s0 >> 28;
         s0 &= m;
         s0 += W(s2, 0x2634);
-        func_800529D8(s0, h, 0);
+        CdAudioSetTarget(s0, h, 0);
         W(g, 0x2690) = (*(int *)(s1 + W(s2, 0x2638) + 4) - 2) * 8;
         func_80096434(g + 0x26D0, 0x1C);
         { int b = (int)D_800A099C; v = (int *)(b + a1 * 12); }
@@ -58,19 +58,19 @@ int a0, a1;
         W(g, 0x2690) = tt + s0;
         W(g, 0x26E8) = v2;
         W(g, 0x26C0) = D_800A0904[a1];
-        func_80052B48(0);
+        CdAudioSetVolumeRaw(0);
     }
-    func_80096474(D_800ABEAC);
+    func_80096474(FrameCounter);
 }
 
-#undef D_800F4DB8
+#undef SoundState
 
-void func_800529D8(int a0, int a1, int a2) {
-    D_800F4DB8.a = a0;
-    D_800F4DB8.b = a1;
-    D_800F4DB8.d = 0;
-    if (a2 == 0) D_800F4DB8.g = a0;
-    D_800F4DB8.c = -1;
-    D_800F4DB8.e = 0;
-    if (D_800F4DB8.h == 2) func_80052ADC(D_800F4DB8.i);
+void CdAudioSetTarget(int a0, int a1, int a2) {
+    SoundState.a = a0;
+    SoundState.b = a1;
+    SoundState.d = 0;
+    if (a2 == 0) SoundState.g = a0;
+    SoundState.c = -1;
+    SoundState.e = 0;
+    if (SoundState.h == 2) CdAudioSetVolume(SoundState.i);
 }

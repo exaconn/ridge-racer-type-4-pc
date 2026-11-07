@@ -14,9 +14,9 @@ void ovl662_func_80116808(void);
 void ovl662_func_80116960(void);
 void ovl662_func_8011512C(void);
 void func_800207D4(u32 *,s32,u32);
-void func_8003EC88(s32);
-void func_8003D6F0(s32);
-void func_8002A344(s32);
+void DrawUiRow(s32);
+void UpdateBadgeRowAnim(s32);
+void UpdateScreenFade(s32);
 /* Entry phase must be0,1,2,3,4 or8. PAL table slots5..7 and its default
  * consume an unspecified saved register and are not controller states.
  * Choice bytes0/1 remain0..3 across callbacks. Published roots cover a complete

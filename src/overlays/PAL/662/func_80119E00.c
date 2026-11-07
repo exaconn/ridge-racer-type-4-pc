@@ -22,7 +22,7 @@ void ovl662_func_80119E00(void) {
         else func_8002AF8C(1,1,0);
         previous = ovl662_D_801272BE;
         if (ovl662_D_80127398 >= 0x11) {
-            func_8002B330(1, 2, (char *)&ovl662_D_801272BE, 0x19, 0);
+            StepMenuValue(1, 2, (char *)&ovl662_D_801272BE, 0x19, 0);
         }
         if ((s16) previous != (s16) ovl662_D_801272BE) {
             key = (s8)ovl662_D_801272A0[(s16)ovl662_D_801272BE];
@@ -37,25 +37,25 @@ void ovl662_func_80119E00(void) {
             func_8001E854(palette, paletteIndex, 0);
             ovl662_D_80127398 = 0;
         }
-        D_800F4D80[(s16)D_800AC64A].cells[0] = 0;
-        func_8002B330(0, 2, (char *)&D_800AC64A, D_800AC5E0, 0);
+        UiRows[(s16)MenuCursor].cells[0] = 0;
+        StepMenuValue(0, 2, (char *)&MenuCursor, MenuItemCount, 0);
         highlight = 2;
         if (ovl662_D_801272E2 >= 0x19) {
-            D_800F4D80->half20 = 1;
-            if ((s16) D_800AC64A == 0) {
+            UiRows->half20 = 1;
+            if ((s16) MenuCursor == 0) {
                 highlight = 4;
             }
         } else {
-            D_800F4D80->half20 = 0;
+            UiRows->half20 = 0;
         }
-        D_800F4D80[(s16)D_800AC64A].cells[0] = highlight;
-        rowPhase = D_800F4D80->byte14;
+        UiRows[(s16)MenuCursor].cells[0] = highlight;
+        rowPhase = UiRows->byte14;
         if (rowPhase == 2) {
-            badgePhase = D_800F3AFC->state10;
+            badgePhase = BadgeRows->state10;
             if (badgePhase == 3) {
                 if (D_800F3A38[0].a != 0) {
-                    D_800F4D80[(s16)D_800AC64A].cells[0] = 1;
-                    if ((s16) D_800AC64A == 0) {
+                    UiRows[(s16)MenuCursor].cells[0] = 1;
+                    if ((s16) MenuCursor == 0) {
                         if (ovl662_D_801272E2 < 0x19) {
                             PlaySfx(1);
                             index = 0;
@@ -63,24 +63,24 @@ void ovl662_func_80119E00(void) {
                             ovl662_D_80127398 = 0;
                             D_800F4D8A = (u16) badgePhase;
                             do {
-                                acceptRow = (RrUiRow24 *)(index * sizeof(RrUiRow24) + (unsigned long)D_800F4D80);
+                                acceptRow = (RrUiRow24 *)(index * sizeof(RrUiRow24) + (unsigned long)UiRows);
                                 if (acceptRow->byte14 == 2) {
                                     acceptRow->byte14 = 3U;
                                 }
                                 index += 1;
                             } while (index < 2);
-                            D_800F3AFC->state10 = 4;
+                            BadgeRows->state10 = 4;
                         } else {
                             PlaySfx(4);
                         }
-                    } else if ((s16) D_800AC64A == 1) {
+                    } else if ((s16) MenuCursor == 1) {
                         PlaySfx(1);
                         index = 0;
                         ovl662_D_80127398 = 0;
                         ovl662_D_801272D4 = (s16) rowPhase;
-                        D_800F3AFC->state10 = 4;
+                        BadgeRows->state10 = 4;
                         do {
-                            closingRow = (RrUiRow24 *)(index * sizeof(RrUiRow24) + (unsigned long)D_800F4D80);
+                            closingRow = (RrUiRow24 *)(index * sizeof(RrUiRow24) + (unsigned long)UiRows);
                             if (closingRow->byte14 == 2) {
                                 closingRow->byte14 = 3U;
                             }
@@ -94,9 +94,9 @@ void ovl662_func_80119E00(void) {
                         index = 0;
                         ovl662_D_801272D4 = (s16) rowPhase;
                         ovl662_D_80127398 = 0;
-                        D_800F3AFC->state10 = 4;
+                        BadgeRows->state10 = 4;
                         do {
-                            cancelRow = (RrUiRow24 *)(index * sizeof(RrUiRow24) + (unsigned long)D_800F4D80);
+                            cancelRow = (RrUiRow24 *)(index * sizeof(RrUiRow24) + (unsigned long)UiRows);
                             if (cancelRow->byte14 == 2) {
                                 cancelRow->byte14 = 3U;
                             }
@@ -112,7 +112,7 @@ closeMenu:
     case 3:
         if (ovl662_D_801272E8 == 0) func_8002AF8C(0,1,1);
         else func_8002AF8C(0,1,0);
-        if ((D_800F4D80->byte14 == 5) && (D_800F3AFC->state10 == 11)) {
+        if ((UiRows->byte14 == 5) && (BadgeRows->state10 == 11)) {
             D_800ACBD0[0].second = (u16)ovl662_D_801272E2+1;
             if (ovl662_D_801272E8 == 0) goto enterPalette;
             goto publishScene;
@@ -121,7 +121,7 @@ closeMenu:
     case 4:
         if (ovl662_D_801272E8 == 0) func_8002AF8C(0,1,1);
         else func_8002AF8C(0,1,0);
-        if ((D_800F4D80->byte14 == 5) && (D_800F3AFC->state10 == 11)) {
+        if ((UiRows->byte14 == 5) && (BadgeRows->state10 == 11)) {
             if (ovl662_D_801272E8 != 0) goto publishScene;
 enterPalette:
             ovl662_func_80118ED8();
@@ -143,14 +143,14 @@ drawMenu:
             func_8002B12C(0xA0, 0xC0, 0x30, 0, (s32) (s16) ovl662_D_801272BE, 0, (s32) ovl662_D_8012739A);
         }
         index = 0;
-        if (D_800AC5E0 > 0) {
+        if (MenuItemCount > 0) {
             do {
-                func_8003EC88(index);
+                DrawUiRow(index);
                 index += 1;
-            } while (index < D_800AC5E0);
+            } while (index < MenuItemCount);
         }
-        func_8003D6F0(0);
+        UpdateBadgeRowAnim(0);
         break;
     }
-    func_8002A344(0x1004A);
+    UpdateScreenFade(0x1004A);
 }

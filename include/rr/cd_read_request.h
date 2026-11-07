@@ -31,7 +31,7 @@ extern RrLibCompletionCallback D_800A67D8;
  * restores its saved callback on timeout, configures the request, and saves
  * displaced callbacks. Returns whether the begin helper reports >0.
  * Buffer and callback values are passed/stored without pointer truncation. */
-s32 func_8008EEF4(s32 sectors,u8 *buffer,u32 mode);
+s32 CdRead(s32 sectors,u8 *buffer,u32 mode);
 /* Clears active callbacks, optionally repositions, captures the requested mode,
  * then starts transfer. Shell-open/command failure publishes remaining=-1.
  * Successful return reloads remaining after the clock helper completes. */

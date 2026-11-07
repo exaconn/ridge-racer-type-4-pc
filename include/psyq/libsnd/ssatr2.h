@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_800897A4(s32,s32,s32,s32);
+void _SsVmSetSeqVol(s32,s32,s32,s32);
 
 #endif /* RR_PSYQ_LIBSND_SSATR2_H */

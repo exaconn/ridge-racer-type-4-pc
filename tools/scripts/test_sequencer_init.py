@@ -32,10 +32,10 @@ static struct {
     u8 suffix[64];
 } pointers;
 static s16 stored_banks,stored_rows,*banks_location,*rows_location;
-#define D_8010F068 (pointers.entries+1)
-#define D_8010F8E8 (*banks_location)
-#define D_8010F8EA (*rows_location)
-u32 D_8010F060;
+#define _ss_score (pointers.entries+1)
+#define _snd_seq_s_max (*banks_location)
+#define _snd_seq_t_max (*rows_location)
+u32 _snd_openflag;
 ''' + body + r'''
 static void reset_record(RrLibStateB0 *record) {
     record->w98=record->w9c=record->wa0=record->wa4=record->wa8=record->wac=0;
@@ -68,13 +68,13 @@ static void one(int banks,int rows,u32 mask,int alias) {
     for(int i=0;i<initialized;i++)reset_record(&expected[i+1]);
     u32 wanted_mask=mask;
     for(int bit=banks;bit<32;bit++)wanted_mask|=UINT32_C(1)<<bit;
-    D_8010F060=mask;
-    func_80083DE4(banks?base:NULL,(s32)(0xA5A50000U|banks),(s32)(0x12340000U|rows));
-    assert(D_8010F060==wanted_mask);
+    _snd_openflag=mask;
+    SsSetTableSize(banks?base:NULL,(s32)(0xA5A50000U|banks),(s32)(0x12340000U|rows));
+    assert(_snd_openflag==wanted_mask);
     assert(memcmp(&pointers,wanted_pointers.bytes,sizeof(pointers))==0);
     assert(memcmp(allocation,expected,(count+2)*sizeof(*allocation))==0);
-    assert(D_8010F8E8==((alias&1)&&initialized?0:banks));
-    assert(D_8010F8EA==((alias&2)&&initialized?0:rows));
+    assert(_snd_seq_s_max==((alias&1)&&initialized?0:banks));
+    assert(_snd_seq_t_max==((alias&2)&&initialized?0:rows));
     free(expected);free(allocation);
 }
 int main(int argc,char **argv) {

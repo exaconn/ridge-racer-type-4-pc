@@ -5,13 +5,13 @@
 
 #include "rr/race_types.h"
 
-extern RrRaceVehicle D_800ABEF8[2];
-extern RrRaceDistanceContextPrefix D_800AC650;
-void func_8004A080(RrRaceVehicle *current);
+extern RrRaceVehicle PlayerCars[2];
+extern RrRaceDistanceContextPrefix RaceContext;
+void CalcDistanceToPlayer(RrRaceVehicle *current);
 /* The interpolation path requires span != 0; positive blend requires divisor != 0.
  * The target retains the original DIV exception checks for invalid records. */
 /* Return a full signed word whose value is normalized to signed16. */
-s32 func_80047CE0(RrRaceVehicle *vehicle);
+s32 CalcSteerLimit(RrRaceVehicle *vehicle);
 
 RR_ASSERT_SIZE(RrRaceVehicle, 0x320);
 RR_ASSERT_OFFSET(RrRaceVehicle, pos10, 0x10);

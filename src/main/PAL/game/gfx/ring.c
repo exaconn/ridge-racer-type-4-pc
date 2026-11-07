@@ -18,7 +18,7 @@ s32 rcos(s32 angle);
 extern int D_800A1CD0[];
 extern void func_80096434();
 
-void func_8005E900(s32 *position, s32 radius);
+void DrawRing(s32 *position, s32 radius);
 void func_8005ECD4(int a0);
 
 static __inline__ s32 project_ring_origin(s32 *position, s32 radius,
@@ -43,7 +43,7 @@ static __inline__ s32 project_ring_origin(s32 *position, s32 radius,
   return depth;
 }
 
-void func_8005E900(s32 *position, s32 radius)
+void DrawRing(s32 *position, s32 radius)
 {
   s32 scale[3];
   RrRingTransform24 transform;
@@ -66,7 +66,7 @@ void func_8005E900(s32 *position, s32 radius)
   transform.rz = 0;
   transform.ry = 0;
   transform.rx = 0;
-  func_8005599C((char *)&transform, (char *)D_800ACA28 + 0x20, &rotation, &camera);
+  func_8005599C((char *)&transform, (char *)MotionController + 0x20, &rotation, &camera);
   scale[2] = 1024;
   scale[1] = 1024;
   scale[0] = 1024;
@@ -123,13 +123,13 @@ void func_8005E900(s32 *position, s32 radius)
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACA28 (*(int (*))&D_800ACA28)
+#define MotionController (*(int (*))&MotionController)
 
 void func_8005ECD4(int a0) {
-    int *p = (int *)(D_800ACA28 + 0x134);
+    int *p = (int *)(MotionController + 0x134);
     func_80096434(p, 0x28);
     p[1] = 0;
     p[5] = D_800A1CD0[a0];
 }
 
-#undef D_800ACA28
+#undef MotionController

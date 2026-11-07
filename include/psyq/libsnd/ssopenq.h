@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-short func_8007FD94();
+short SsSeqOpen();
 
 #endif /* RR_PSYQ_LIBSND_SSOPENQ_H */

@@ -12,16 +12,16 @@ body=re.sub(r'((?:__asm__|asm)\(""\s*:\s*"\+r"\((\w+)\))',lambda m:'asm("" : : "
 body=re.sub(r'(?:__asm__|asm)\s*\(\s*""\s*:\s*:\s*:\s*"\$21"\s*,\s*"\$22"\s*,\s*"\$2"\s*,\s*"memory"\s*\)', 'asm("" : : : "memory")', body)
 # Physical MIPS FP clobber has no logical operation in the host C model.
 for reg in ['$30','$fp','fp']:body=body.replace('asm("" : : : "'+reg+'");','asm("" : : : "memory");')
-services=[('func_8008A674','s32',['s16']),('func_80096434','void',['void*','s32']),('func_8008AA74','s32',['const u8*','s32','s32']),('func_8008AEC4','s32',['const u16*','s32']),('func_8008B074','s32',['s32']),('func_80050894','void',['RrAudioProgramData*','s32']),('func_800850C4','s32',['s32','s16','s32','u8*'])]
+services=[('SsVabClose','s32',['s16']),('func_80096434','void',['void*','s32']),('SsVabOpenHeadSticky','s32',['const u8*','s32','s32']),('SsVabTransBody','s32',['const u16*','s32']),('SsVabTransCompleted','s32',['s32']),('func_80050894','void',['RrAudioProgramData*','s32']),('SsUtGetVagAtr','s32',['s32','s16','s32','u8*'])]
 class Setup(C.Structure):_fields_=[('bank00',C.c_void_p),('data04',C.c_void_p),('group08',C.c_void_p),('slot0C',C.c_int32)]
 sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();pack=lambda x:struct.pack('<I',x&0xffffffff)
 with TemporaryDirectory(prefix='rr50bcc-')as td:
- d=Path(td);code='#include <stdint.h>\n#include <stddef.h>\n#include "rr/layout.h"\n#undef RR_ASSERT_SIZE\n#undef RR_ASSERT_OFFSET\n#define RR_ASSERT_SIZE(t,n)\n#define RR_ASSERT_OFFSET(t,f,n)\n#include "rr/audio_bank_setup.h"\nstruct {u8 a[16];RrAudioState v;u8 b[16];} state;\nstruct {u8 a[16];RrAudioBankSetup v;u8 b[16];} input;\nstruct {u8 a[16];u8 v[3064];u8 b[16];} resources;\nstruct {u8 a[16];RrAudioState v;u8 b[16];} rootBox;\n#define D_800F4DB8 rootBox.v\n#define D_800F4DF0 (D_800F4DB8.slots38)\ntypedef uintptr_t(*Callback)(unsigned,uintptr_t*);static Callback cb;void set_callback(Callback p){cb=p;}\n'
+ d=Path(td);code='#include <stdint.h>\n#include <stddef.h>\n#include "rr/layout.h"\n#undef RR_ASSERT_SIZE\n#undef RR_ASSERT_OFFSET\n#define RR_ASSERT_SIZE(t,n)\n#define RR_ASSERT_OFFSET(t,f,n)\n#include "rr/audio_bank_setup.h"\nstruct {u8 a[16];RrAudioState v;u8 b[16];} state;\nstruct {u8 a[16];RrAudioBankSetup v;u8 b[16];} input;\nstruct {u8 a[16];u8 v[3064];u8 b[16];} resources;\nstruct {u8 a[16];RrAudioState v;u8 b[16];} rootBox;\n#define SoundState rootBox.v\n#define SoundSlots (SoundState.slots38)\ntypedef uintptr_t(*Callback)(unsigned,uintptr_t*);static Callback cb;void set_callback(Callback p){cb=p;}\n'
  # The actual canonical owner is surrounded by separate explicit guards below.
  code=code.replace('struct {u8 a[16];RrAudioState v;u8 b[16];} state;','')
  for i,(name,ret,types)in enumerate(services):
   code+=ret+' '+name+'('+','.join(t+' a'+str(j)for j,t in enumerate(types))+'){uintptr_t a[]={'+','.join('(uintptr_t)a'+str(j)for j in range(len(types)))+'};uintptr_t r=cb('+str(i)+',a);'+('return('+ret+')r;'if ret!='void'else'')+'}\n'
- code+=body+'\nvoid *owner(int n){return n==0?(void*)&D_800F4DB8:n==1?(void*)&input.v:(void*)resources.v;}\nvoid run(void){func_80050BCC(&input.v);}\n'
+ code+=body+'\nvoid *owner(int n){return n==0?(void*)&SoundState:n==1?(void*)&input.v:(void*)resources.v;}\nvoid run(void){func_80050BCC(&input.v);}\n'
  (d/'test.c').write_text(code);subprocess.run(['cc','-std=gnu11','-O2','-funsigned-char','-Werror=uninitialized','-shared','-fPIC','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude','-I'+str(P),str(d/'test.c'),'-o',str(d/'test.dylib')],check=True)
  lib=C.CDLL(str(d/'test.dylib'));lib.owner.restype=C.c_void_p;N=[lib.owner(i)for i in range(3)];assert all(n>0xffffffff for n in N)
  A=[0x800F4DB8,0x80180000,0x80190000];S=[0xA8D0,16,3064];u=Uc(UC_ARCH_MIPS,UC_MODE_MIPS32|UC_MODE_LITTLE_ENDIAN);u.mem_map(0,0x400000);u.mem_write(0x10000,Path('assets/PAL/main.exe').read_bytes()[0x800:]);elf=os.getenv('RR_COMPILED_ELF')
@@ -58,13 +58,13 @@ with TemporaryDirectory(prefix='rr50bcc-')as td:
   nonlocalDummy=None
   name=services[i][0];seq=len(observed if native else events);normal=[]
   for j,(a,t)in enumerate(zip(args,services[i][2])):
-   if '*'in t and name=='func_800850C4':
+   if '*'in t and name=='SsUtGetVagAtr':
     if not native:assert u.reg_read(UC_MIPS_REG_SP)<=a and a+24<=0x803e0000,('tone stack',case)
     else:assert a>0xffffffff
     normal.append('tone')
    elif '*'in t:normal.append(pal(a)if native else a)
    else:normal.append(a&0xffffffff)
-  if name in ['func_8008AA74','func_8008AEC4']:normal.append(get(normal[0],32,native))
+  if name in ['SsVabOpenHeadSticky','SsVabTransBody']:normal.append(get(normal[0],32,native))
   if name=='func_80050894':normal.append(get(normal[0],0x5BC,native))
   event=(i,normal,snapshot(native));(observed if native else events).append(event);coverage.add(name)
   if name=='func_80096434':assert normal[:2]==[A[0]+0x38+bankIndex*0x620,0x620];put(normal[0],b'\0'*0x620,native)
@@ -75,12 +75,12 @@ with TemporaryDirectory(prefix='rr50bcc-')as td:
     put(A[0]+0x38+slot*0x620+4,struct.pack('<h',[-32768,-1,0,1,32767][(case+seq+slot)%5]),native)
     for j in range(10):put(A[0]+0x38+slot*0x620+0x5dc+j*2,struct.pack('<H',(case*97+seq*31+j*8191)&65535),native)
   if case&2 and i<6:setInput(native,A[2]+((case+seq)&1)*32 if (case+seq)%4 else 0xffffffff,A[2]+64+((case+seq+1)&1)*32 if (case+seq)%5 else 0xffffffff,A[2]+128+((case+seq)&1)*0x5BC if (case+seq)%3 else 0xffffffff,1-bankIndex)
-  if name=='func_800850C4':
+  if name=='SsUtGetVagAtr':
    data=bytes((case*17+seq*29+j*31)&255 for j in range(24));a=args[3]
    for start,end in [(0,14),(16,24)]:
     if native:C.memmove(a+start,data[start:end],end-start)
     else:write(a+start,data[start:end])
-  return (0x9a000000 | ((case*7919+seq*113+i*31)&65535))if name in ['func_8008AA74','func_8008AEC4']else 0
+  return (0x9a000000 | ((case*7919+seq*113+i*31)&65535))if name in ['SsVabOpenHeadSticky','SsVabTransBody']else 0
  def callback(i,p):
   try:return service(i,[p[j]for j in range(len(services[i][2]))],True)
   except BaseException as e:errors.append(e);return 0

@@ -2,7 +2,7 @@
 
 #include "rr/relative_file.h"
 
-void func_8007026C(RrRelativeHeader *input){
+void RelocateRelativeFile(RrRelativeHeader *input){
  RrRelativeHeader *base=input;
  /* ASM_BARRIER: Preserve the entry cursor allocation through the loop. */
  register RrRelativeSlot *cursor __asm__("$6")=(RrRelativeSlot*)(base+1);

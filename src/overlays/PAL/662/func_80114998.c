@@ -3,17 +3,17 @@
 void ovl662_func_80114998(void)
 {
     s32 i,j,k;
-    D_800F2DE4=0; ScreenFrame=0; D_800AC64A=0; D_800AC5E0=3;
+    D_800F2DE4=0; ScreenFrame=0; MenuCursor=0; MenuItemCount=3;
     ResetScreenCounters();
-    D_800F4D70.second=D_800102F0+0x2D000;
-    func_8003A1B4();
-    D_800ACC18=D_800F4D70.second;
-    func_8003E928(0,118,176,68,32,0,0,1,0,54);
-    func_8003E928(1,118,216,68,32,0,0,1,1,15);
-    func_8003E928(2,118,256,68,32,0,0,1,0,85);
-    func_80013890(5);
+    D_800F4D70.second=CdDirectoryBuffer+0x2D000;
+    InitMenuArenas();
+    LoadCursor=D_800F4D70.second;
+    InitUiRow(0,118,176,68,32,0,0,1,0,54);
+    InitUiRow(1,118,216,68,32,0,0,1,1,15);
+    InitUiRow(2,118,256,68,32,0,0,1,0,85);
+    SetupRenderer(5);
     ovl662_D_801272FC=0;
-    D_800ACC18=D_800F4D40;
+    LoadCursor=D_800F4D40;
     D_800F4D70.first=D_800F4D40;
     for(i=0;i<4;i++) {
         ovl662_D_801272D8[i]=0;

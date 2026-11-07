@@ -39,10 +39,10 @@ void (*test_begin)(void *);
 void (*test_end)(void);
 void (*test_save_begin)(void);
 void (*test_save_end)(void);
-void func_80096EF4(void *data) { test_begin(data); }
-void func_80096F14(void) { test_end(); }
-void func_80096F04(void) { test_save_begin(); }
-void func_80096EE4(void) { test_save_end(); }
+void HookEntryInt(void *data) { test_begin(data); }
+void ExitCriticalSection(void) { test_end(); }
+void EnterCriticalSection(void) { test_save_begin(); }
+void ResetEntryInt(void) { test_save_end(); }
 '''
         for name in ('8008B988', '8008B8E8'):
             body = (root / ('tools/scripts/fixtures/legacy/func_' + name + '.c')).read_text()
@@ -54,8 +54,8 @@ void func_80096EE4(void) { test_save_end(); }
                         '-o', str(directory / 'functions.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'functions.so'))
         cls.state = State.in_dll(cls.library, 'D_800A52C8')
-        cls.restore = cls.library.func_8008B988
-        cls.save = cls.library.func_8008B8E8
+        cls.restore = cls.library.restartIntr
+        cls.save = cls.library.stopIntr
         for function in (cls.restore, cls.save):
             function.argtypes = []
             function.restype = C.c_void_p

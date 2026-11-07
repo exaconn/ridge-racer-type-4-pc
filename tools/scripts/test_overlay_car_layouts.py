@@ -39,21 +39,21 @@ typedef struct {State s;unsigned calls;Event events[16];} World;
 static World actual,reference,initial,*w;
 static unsigned scenario,kind,mutation,seenCounts;
 static u8 resources[3][0x2D100],arenas[3][128],packets[128];static u32 orders[32];
-#define D_800ABEF8 w->s.cars
+#define PlayerCars w->s.cars
 #undef RR_PROJECTION_SCRATCH
 #define RR_PROJECTION_SCRATCH (&w->s.scratch)
-#define D_800102F0 w->s.resource
+#define CdDirectoryBuffer w->s.resource
 #define D_800F4D70 w->s.arenas
 #define D_800F4D40 w->s.base
-#define D_800ACC18 w->s.published
+#define LoadCursor w->s.published
 #define D_800F4D98 w->s.choice
 #define D_800ACBD0 w->s.grid
 #define D_800ABE08 w->s.table
 #define D_800F2DE4 w->s.frame
 #define ScreenFrame w->s.pulse
 #define D_800AC648 w->s.selection
-#define D_800AC64A w->s.flag
-#define D_800AC5E0 w->s.mode
+#define MenuCursor w->s.flag
+#define MenuItemCount w->s.mode
 #define D_800AD522 w->s.selectionFlag
 #define D_800F3914 w->s.course
 #define D_800F3A2C w->s.clear1
@@ -85,30 +85,30 @@ static Event *event(s32 op){size_t i;u32 h=2166136261U;Event *e;assert(w->calls<
  e=&w->events[w->calls++];memset(e,0,sizeof(*e));e->op=op;e->hash=h;return e;
 }
 static void change(void){if(mutation)effect(w->calls);}
-void func_8002A604(void){event(1);change();}
-void func_8003A1B4(void){event(2);change();}
-void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){Event *v=event(3);s32 args[]={a,b,c,d,e,f,g,h,i,j};memcpy(v->args,args,sizeof(args));change();}
-void func_80013890(s32 shift){Event *e=event(4);e->args[0]=shift;change();}
+void ClearScreenOverlayState(void){event(1);change();}
+void InitMenuArenas(void){event(2);change();}
+void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){Event *v=event(3);s32 args[]={a,b,c,d,e,f,g,h,i,j};memcpy(v->args,args,sizeof(args));change();}
+void SetupRenderer(s32 shift){Event *e=event(4);e->args[0]=shift;change();}
 void func_80037110(void){event(5);change();}
-void func_8002E4F4(RrRaceVehicle *car){Event *e=event(6);assert(car==w->s.cars||car==w->s.cars+1);e->args[0]=car-w->s.cars;assert((uintptr_t)car>UINT32_MAX);change();}
+void ResetCarState(RrRaceVehicle *car){Event *e=event(6);assert(car==w->s.cars||car==w->s.cars+1);e->args[0]=car-w->s.cars;assert((uintptr_t)car>UINT32_MAX);change();}
 void func_8002AF8C(s32 a,s32 b,s32 c){Event *e=event(7);e->args[0]=a;e->args[1]=b;e->args[2]=c;if(w==&actual){assert(w->s.count>=0&&w->s.count<=9);seenCounts|=1U<<w->s.count;}change();}
 static void reset(void){w->s.clear1=0;w->s.clear2=0;w->s.pulse=0;}
 static void expected(void){unsigned i;State *s=&w->s;
- if(kind)func_8002A604();s->frame=0;s->pulse=0;s->flag=0;s->mode=kind?4:3;
+ if(kind)ClearScreenOverlayState();s->frame=0;s->pulse=0;s->flag=0;s->mode=kind?4:3;
  if(!kind){int selected=s->selection;s->selectionFlag=selected>=8;s->course=s->map[(u32)selected&7];}
- reset();s->arenas.second=s->resource+0x2D000;func_8003A1B4();s->published=s->arenas.second;
+ reset();s->arenas.second=s->resource+0x2D000;InitMenuArenas();s->published=s->arenas.second;
  if(!kind){
   static const s32 rows[12][4]={{12,64,68,83},{12,104,68,102},{12,144,68,85},{12,368,208,0},{24,88,68,84},{24,128,68,54},{24,168,68,85},{24,88,68,84},{24,128,68,53},{24,168,68,85},{116,88,28,55},{116,128,28,56}};
-  for(i=0;i<12;i++)func_8003E928(i,rows[i][0],rows[i][1],rows[i][2],32,0,0,i==3?8:1,i==3?4:0,i==3?(s->selection&7):rows[i][3]);
+  for(i=0;i<12;i++)InitUiRow(i,rows[i][0],rows[i][1],rows[i][2],32,0,0,i==3?8:1,i==3?4:0,i==3?(s->selection&7):rows[i][3]);
   s->scratch.word18=512;s->scratch.word0C=-416;s->scratch.word1C=0;s->scratch.word20=0;s->scratch.word08=0;s->scratch.word10=0;
   for(i=0;i<3;i++)s->cars[0].pos20[i]=0;
  }else{
   static const s32 labels[]={21,102,22,85};int glyph,t,count;
-  for(i=0;i<4;i++)func_8003E928(i,24,88+40*i,68,32,0,0,1,0,labels[i]);
-  func_80013890(5);reset();func_80037110();s->local=0;
+  for(i=0;i<4;i++)InitUiRow(i,24,88+40*i,68,32,0,0,1,0,labels[i]);
+  SetupRenderer(5);reset();func_80037110();s->local=0;
   s->scratch.word18=120;s->scratch.word08=-16;s->scratch.word0C=-248;s->scratch.word1C=0;s->scratch.word20=0;s->scratch.word10=-96;
   s->published=s->base;s->arenas.first=s->base;
-  for(i=0;i<2;i++){func_8002E4F4(s->cars+i);s->cars[i].pos20[1]=10;s->cars[i].pos20[2]=308;s->cars[i].rot54=2048;}
+  for(i=0;i<2;i++){ResetCarState(s->cars+i);s->cars[i].pos20[1]=10;s->cars[i].pos20[2]=308;s->cars[i].rot54=2048;}
   glyph=s->table[1][s->index].glyph;t=glyph/160;s->choice.bytes[0]=(u8)t;s->choice.bytes[1]=(u8)(glyph/40-4*t);s->choice.bytes[2]=(u8)(glyph%40);
   s->grid[0].first=s->table[1][s->index].first;s->grid[0].second=s->table[1][s->index].second;
   count=0;while(count<9&&s->table[1][count].glyph!=-1){if(count==8&&s->table[1][8].glyph!=359)break;count++;}s->count=count;func_8002AF8C(0,1,1);

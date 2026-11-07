@@ -4,6 +4,6 @@
 #include "types.h"
 
 extern int D_800ABEC4;
-void func_80037B3C(s32);
+void InitRaceCars(s32);
 
 #endif /* RR_GAME_RACE_RACEINIT_H */

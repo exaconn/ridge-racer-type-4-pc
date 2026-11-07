@@ -57,11 +57,11 @@ void func_80093E70(u32 *arg0, RrFrameEnvironment *arg1) {
     register s32 width asm("$2");
     register s32 height asm("$2");
 
-    output[1] = func_80094100(env->clip.x, env->clip.y);
-    output[2] = func_80094198((s16) ((((u16)env->clip.w) + (u16) env->clip.x) - 1), (s16) (((u16) env->clip.y + ((u16)env->clip.h)) - 1));
-    output[3] = func_80094230(env->offset_x, env->offset_y);
-    output[4] = func_800940E0(env->draw_display, env->dither, ((u16)env->page));
-    output[5] = func_8009424C(&env->window);
+    output[1] = get_cs(env->clip.x, env->clip.y);
+    output[2] = get_ce((s16) ((((u16)env->clip.w) + (u16) env->clip.x) - 1), (s16) (((u16) env->clip.y + ((u16)env->clip.h)) - 1));
+    output[3] = get_ofs(env->offset_x, env->offset_y);
+    output[4] = get_mode(env->draw_display, env->dither, ((u16)env->page));
+    output[5] = get_tw(&env->window);
     output[6] = 0xE6000000;
     word_count = 7;
     if (env->rgb24 != 0) {

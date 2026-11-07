@@ -3,9 +3,9 @@
 
 #include "types.h"
 
-extern int D_800AC540;
+extern int Rect16RowCount;
 extern int D_800ACC1C;
 extern int D_800ACC24;
-extern int D_800F4C1C;
+extern int GlyphRowCount;
 
 #endif /* RR_GAME_MENU_MNROWS_H */

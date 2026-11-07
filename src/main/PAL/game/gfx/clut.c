@@ -36,7 +36,7 @@ void func_8001E854(int a0, int a1, int a2)
         r.y = 0x40;
         r.w = s[4];
         r.h = s[5];
-        func_80092FFC(&r, (char *)s + 0xC);
+        LoadImage(&r, (char *)s + 0xC);
         DrawSync(0);
         a0 = (int)s + ((*(unsigned *)s >> 2) << 2);
     }
@@ -47,7 +47,7 @@ void func_8001E854(int a0, int a1, int a2)
     r.h = s[5];
     if (r.w > 0) {
         if (r.h > 0) {
-            func_80092FFC(&r, (char *)s + 0xC);
+            LoadImage(&r, (char *)s + 0xC);
 done:
             DrawSync(0);
         }

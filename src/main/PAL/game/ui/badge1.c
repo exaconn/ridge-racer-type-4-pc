@@ -13,12 +13,12 @@ typedef struct { int a, b, c; } T;
 extern int SetDrawArea();
 extern char D_800ADAF0[];
 
-void *func_8001FC28(u32 *a0, void *cursor, int a2, int a3, int a4, int a5);
-T *func_8001FCC8(u32 *a0, T *a1, unsigned short a2);
-void *func_8001FD20(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
-void *func_8001FDD4(u32 *a0, void *a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
+void *AddDrawAreaPrim(u32 *a0, void *cursor, int a2, int a3, int a4, int a5);
+T *AddDrawModePrim(u32 *a0, T *a1, unsigned short a2);
+void *AddTilePrim(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
+void *AddTileGrid2x2(u32 *a0, void *a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
 
-void *func_8001FC28(u32 *a0, void *cursor, int a2, int a3, int a4, int a5) {
+void *AddDrawAreaPrim(u32 *a0, void *cursor, int a2, int a3, int a4, int a5) {
     struct P12 *a1=cursor;
     short sp[4];
     char *p = D_800ADAF0;
@@ -27,7 +27,7 @@ void *func_8001FC28(u32 *a0, void *cursor, int a2, int a3, int a4, int a5) {
     if (*(short *)(p + 0x5E) == *(short *)(p + 0x227D6)) {
         sp[1] = a3;
     } else {
-        t = D_800F4BF0;
+        t = DrawBufIndex;
         sp[1] = a3 + (t << 8);
     }
     sp[2] = a4;
@@ -40,7 +40,7 @@ void *func_8001FC28(u32 *a0, void *cursor, int a2, int a3, int a4, int a5) {
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((void (*)(u32 *,u32 *))AddPrim)
 
-T *func_8001FCC8(u32 *a0, T *a1, unsigned short a2) {
+T *AddDrawModePrim(u32 *a0, T *a1, unsigned short a2) {
     SetDrawMode(a1, 0, 1, a2, 0);
     AddPrim(a0, (u32 *)a1++);
     return a1;
@@ -48,7 +48,7 @@ T *func_8001FCC8(u32 *a0, T *a1, unsigned short a2) {
 
 #undef AddPrim
 
-void *func_8001FD20(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
+void *AddTilePrim(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
     func_80095BB4(arg1);
     M2C_FIELD(arg1, s16 *, 8) = arg2;
     M2C_FIELD(arg1, s16 *, 0xA) = arg3;
@@ -61,7 +61,7 @@ void *func_8001FD20(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg
     return arg1 + 0x10;
 }
 
-void *func_8001FDD4(u32 *a0, void *a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8)
+void *AddTileGrid2x2(u32 *a0, void *a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8)
 {
     int i = 0;
     int w = a4 / 2;
@@ -71,7 +71,7 @@ void *func_8001FDD4(u32 *a0, void *a1, int a2, int a3, int a4, int a5, int a6, i
         int y = a3;
         if (i >= 2)
             y += h;
-        a1 = func_8001FD20(a0, a1, x, y, w, h, a6, a7, a8);
+        a1 = AddTilePrim(a0, a1, x, y, w, h, a6, a7, a8);
         i++;
     } while (i < 4);
     return a1;

@@ -2,7 +2,7 @@
 #include "types.h"
 
 extern u8 D_800ABAC2[];
-extern void (*D_800ABABC)(const char *, s32, s32, s32);
+extern void (*GPU_printf)(const char *, s32, s32, s32);
 
 s32 SetGraphDebug(s32 enabled) {
     u8 *state = D_800ABAC2;
@@ -11,7 +11,7 @@ s32 SetGraphDebug(s32 enabled) {
     state[0] = enabled;
     if (enabled & 0xFF) {
         const char *format;
-        void (*callback)(const char *, s32, s32, s32) = D_800ABABC;
+        void (*callback)(const char *, s32, s32, s32) = GPU_printf;
         s32 first = state[0], second = state[-2], third = state[1];
         /* ASM_BARRIER: read the callback and state bytes before materializing the format page. */
         __asm__ volatile("" : : "r"(callback), "r"(first), "r"(second), "r"(third) : "$4");

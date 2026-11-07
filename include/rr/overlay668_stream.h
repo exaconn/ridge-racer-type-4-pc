@@ -12,16 +12,16 @@ typedef struct {
     u32 commandIndex20;
     RrStrDisplayConfig display24;
 } RrStrPlaybackState;
-extern s32 D_801102DC,D_800AC5DC,D_800F2DE4;
+extern s32 D_801102DC,VSyncThreshold,D_800F2DE4;
 extern u8 D_800AD558;
 void SetDispMask(s32);
-void func_800825B4(s8,s8,s8);
-void func_80083CD4(s8,s32,s32);
+void SsSetSerialAttr(s8,s8,s8);
+void SsSetSerialVol(s8,s32,s32);
 s32 VSync(s32);
 s32 ovl668_func_801150D8(RrStrDisplayConfig *);
 void ovl668_func_801153F0(u8 *location);
 void ovl668_func_80114B2C(u8 *resource);
-void func_80092FFC(const RrGpuRectangleFields *rectangle,const void *pixels);
+void LoadImage(const RrGpuRectangleFields *rectangle,const void *pixels);
 void ovl668_func_80114F48(void);
 /* Both selectors are0..1. The full playback state remains live across callbacks.
  * Coordinates narrow to signed16, DMA output covers width*height/2 words.

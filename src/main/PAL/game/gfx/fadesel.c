@@ -6,31 +6,31 @@ extern struct {
     char pad0[0x3E4]; int f3E4; char pad1[0x3F4 - 0x3E8]; int f3F4; int f3F8;
     char pad2[0x404 - 0x3FC]; int f404; char pad3[0x41C - 0x408]; int f41C;
     char pad4[0x434 - 0x420]; int f434; int f438; int f43C; int f440;
-} D_800AC650;
+} RaceContext;
 extern s32 D_800ACA78;
 
 void func_8005C988(a0)
 int a0;
 {
-    D_800AC650.f404 = 0;
-    D_800AC650.f3F8 = 0;
-    D_800AC650.f434 = 1;
-    D_800AC650.f43C = 0;
-    D_800AC650.f440 = 0;
+    RaceContext.f404 = 0;
+    RaceContext.f3F8 = 0;
+    RaceContext.f434 = 1;
+    RaceContext.f43C = 0;
+    RaceContext.f440 = 0;
     switch (a0) {
     case 0:
-        D_800AC650.f438 = 0xB;
+        RaceContext.f438 = 0xB;
         break;
     case 1:
-        D_800AC650.f438 = 8;
+        RaceContext.f438 = 8;
         break;
     case 2:
-        D_800AC650.f438 = 0xC;
+        RaceContext.f438 = 0xC;
         break;
     }
-    D_800AC650.f3F4 = 1;
-    D_800AC650.f3E4 = 0xBB8;
-    D_800AC650.f41C = 2;
+    RaceContext.f3F4 = 1;
+    RaceContext.f3E4 = 0xBB8;
+    RaceContext.f41C = 2;
 }
 
 void func_8005CA04(void) {

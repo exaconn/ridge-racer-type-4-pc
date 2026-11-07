@@ -102,7 +102,7 @@ extern int MaskBitSetting;
 extern s32 ModelTexturePage;
 extern int SetGteObjectTransform();
 extern int UnknownRroTypeFmt;
-extern s32 func_80096464(void);
+extern s32 PsyqRand(void);
 extern signed char RacePaused;
 extern int D_8009E0B0[];
 extern int D_8009E0E0[];
@@ -1317,7 +1317,7 @@ void func_80014C3C(char *a0_in, char *a1_in, s32 a2_in) {
     __asm__ volatile("" : "+r"(v1), "+r"(v0));
     sp[0] = v1;
     sp[1] = v0;
-    v0 = func_80096464() & 3;
+    v0 = PsyqRand() & 3;
     s0 = -(s0 + 0xA0);
     a3 = (s32)(s5 + 0xE0);
     s2 = s7 + 8;
@@ -1349,9 +1349,9 @@ void func_80014C3C(char *a0_in, char *a1_in, s32 a2_in) {
             a3 = 1;
             sp[3] = a3;
             s3 = 0x1000;
-            v0 = func_80096464() & 0x1FF;
+            v0 = PsyqRand() & 0x1FF;
             s0 = v0 - 0x100;
-            v0 = func_80096464() & 0x1FF;
+            v0 = PsyqRand() & 0x1FF;
             s1 = v0 - 0x100;
             if (s0 == 0) {
                 /* ASM_BARRIER: keep s1 assignment in bnez delay slot */
@@ -1368,7 +1368,7 @@ void func_80014C3C(char *a0_in, char *a1_in, s32 a2_in) {
             __asm__ volatile("" : "+r"(v0), "+r"(s0), "+r"(s1));
             *(s16 *)(s2 - 4) = s0;
             *(s16 *)(s2 - 2) = v0;
-            v0 = (func_80096464() & 0x7F) - 0xC30;
+            v0 = (PsyqRand() & 0x7F) - 0xC30;
             *(s16 *)(s2 + 0) = v0;
             v0 = s0 / 2;
             *(s16 *)(s2 + 4) = v0;
@@ -1960,7 +1960,7 @@ void func_80015110(s32 *a0_in, char *a1_in) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80096464 ((int (*)())func_80096464)
+#define PsyqRand ((int (*)())PsyqRand)
 
 void func_800153FC(a0, a1) char *a0; char *a1;
 {
@@ -1988,7 +1988,7 @@ void func_800153FC(a0, a1) char *a0; char *a1;
         v = 0x1000;
     L2:
         s0 = v;
-        s0 += func_80096464() & 0xF;
+        s0 += PsyqRand() & 0xF;
         *(int *)(a0 + 0x64) = s0;
     }
     RR_GTE_MTC2_IR0(s0);
@@ -2010,11 +2010,11 @@ void func_800153FC(a0, a1) char *a0; char *a1;
     t = (ScreenFrame & 3) * 12 + 0x64;
     func_80015110(*(int *)a0 + t, a1);
     {
-        int u = (func_80096464() & 3) - 1;
+        int u = (PsyqRand() & 3) - 1;
         *(int *)(a1 + 0xAC) = *(int *)(a1 + 0x14) + u;
     }
     {
-        int w = (func_80096464() & 3) - 1;
+        int w = (PsyqRand() & 3) - 1;
         *(int *)(a1 + 0xB0) = *(int *)(a1 + 0x18) + w;
     }
     *(int *)(a1 + 0xB4) = *(int *)(a1 + 0x1C);
@@ -2022,7 +2022,7 @@ void func_800153FC(a0, a1) char *a0; char *a1;
     func_80014F34(*(int *)a0 + 0x58, a1);
 }
 
-#undef func_80096464
+#undef PsyqRand
 
 void func_800155D8(char *a0, char *a1) {
     int otz;
@@ -2602,7 +2602,7 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
             s0 = v;
             S4->w[0x18] = s0;
             if (SP->w[0x23] & 1) {
-                s0 += func_80096464() & 0xF;
+                s0 += PsyqRand() & 0xF;
             }
             S4->w[0x2] = s0;
         }
@@ -2724,7 +2724,7 @@ void func_80015F68(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 arg4, s32 
                 } else if (v1 >= 0x1000) {
                     SP->w[0x31] = 0xFFF;
                 }
-                v0_val = func_80096464();
+                v0_val = PsyqRand();
                 v1 = (SP->w[0x28] + 0xEC8) / 2;
                 a0_val = v0_val & SP->w[0x31];
                 SP->w[0x30] = a0_val;

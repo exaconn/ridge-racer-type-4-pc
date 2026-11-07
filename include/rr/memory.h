@@ -4,7 +4,7 @@
 #include "types.h"
 
 /* BIOS A0/2B memset: write the low byte of value and return destination. */
-void *func_80096454(void *destination, s32 value, u32 length);
+void *PsyqMemset(void *destination, s32 value, u32 length);
 
 /* Overlap-safe byte copy. For positive length and destination < source, returns
  * destination + length; otherwise returns destination. Nonpositive length is inert. */

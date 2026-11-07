@@ -9,7 +9,7 @@ typedef int s32;
 typedef unsigned int u32;
 
 extern s32 func_80096D14(const s8 *);
-extern s8 *func_80096D24(const s8 *, s32, s32);
+extern s8 *PsyqMemchr(const s8 *, s32, s32);
 extern void *PsyqMemmove(void *, const void *, s32);
 
 typedef struct {
@@ -325,7 +325,7 @@ s32 PsyqSprintf(s8 *dst, const s8 *fmt, ...) {
                     } else if (!st.has_prec) {
                         len = func_80096D14(p);
                     } else {
-                        s8 *end = func_80096D24(p, 0, st.prec);
+                        s8 *end = PsyqMemchr(p, 0, st.prec);
                         len = end - p;
                         if (end == 0) {
                             len = st.prec;

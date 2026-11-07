@@ -83,7 +83,7 @@
 #define RR_GTE_RTPS_LDV(p) { __asm__ volatile ("lwc2 $0, 0(%0); lwc2 $1, 4(%0)" : : "r"(p)); __asm__ volatile ("nop; nop"); __asm__ volatile (".word 0x4A180001"); }
 #define RR_GTE_SWC2_SXYZ(p) __asm__ volatile ("swc2 $12, 0(%0); swc2 $13, 4(%0); swc2 $14, 8(%0)" : : "r"(p) : "memory")
 #define RR_GTE_SWC2_SXY2(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
-/* func_80017CC0: RR_GTE_CLRTR(): TR = 0; RR_GTE_MTC2_IR1(x): mtc2 $9; RR_GTE_CTC2_FCR(x): ctc2 $21; RR_GTE_SWC2_IR1(p): swc2 $9. */
+/* DrawTrackScenery: RR_GTE_CLRTR(): TR = 0; RR_GTE_MTC2_IR1(x): mtc2 $9; RR_GTE_CTC2_FCR(x): ctc2 $21; RR_GTE_SWC2_IR1(p): swc2 $9. */
 #define RR_GTE_CLRTR() __asm__ volatile ("ctc2 $0, $5; ctc2 $0, $6; ctc2 $0, $7")
 #define RR_GTE_MTC2_IR1(x) __asm__ volatile ("mtc2 %0, $9" : : "r"(x))
 #define RR_GTE_CTC2_FCR(x) __asm__ volatile ("ctc2 %0, $21" : : "r"(x))

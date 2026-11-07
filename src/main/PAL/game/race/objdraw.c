@@ -144,7 +144,7 @@ extern void RotMatrix(SVec *, Mat32 *);
 extern s32 ratan2(s32, s32);
 extern void SetDrawMode(s32, s32, s32, s32, s32);
 extern void AddPrim(s32, s32);
-extern void func_80096454(void *, s32, s32);
+extern void PsyqMemset(void *, s32, s32);
 extern s32 D_800A3CDC[];
 extern s32 D_800A3D18[];
 extern SVec CourseLightColors[];
@@ -202,7 +202,7 @@ void DrawTrackObjects(s32 arg0) {
     s32 pan;
     s32 q;
 
-    func_80096454(&sp98, 0, 8);
+    PsyqMemset(&sp98, 0, 8);
     s3 = (s32 *)(SCRATCHPAD + 0x7C);
     fp = (u8 *)SCRATCHPAD;
     for (i = 0; i < TrackObjectCount; i++) {
@@ -478,14 +478,14 @@ void DrawTrackObjects(s32 arg0) {
             }
             if ((u32)((u16)D_800F4D44 - 2) < 3U) {
                 if (D_8010E848[i] == ModeFrame) {
-                    func_80051538(1, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
+                    SetSoundChannelVolLR(1, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
                 } else {
-                    func_80051538(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
-                    func_80051538(1, 0, 0);
+                    SetSoundChannelVolLR(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
+                    SetSoundChannelVolLR(1, 0, 0);
                 }
                 D_8010E848[i] = ModeFrame;
             } else {
-                func_80051538(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
+                SetSoundChannelVolLR(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
             }
             break;
 
@@ -508,20 +508,20 @@ void DrawTrackObjects(s32 arg0) {
             }
             if ((u32)((u16)D_800F4D44 - 2) < 3U) {
                 if (D_8010E848[i] == ModeFrame) {
-                    func_80051538(1, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
+                    SetSoundChannelVolLR(1, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
                 } else {
-                    func_80051538(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
-                    func_80051538(1, 0, 0);
+                    SetSoundChannelVolLR(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
+                    SetSoundChannelVolLR(1, 0, 0);
                 }
                 D_8010E848[i] = ModeFrame;
             } else {
-                func_80051538(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
+                SetSoundChannelVolLR(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
             }
             break;
 
         case 15:
-            func_80051538(0, 0, 0);
-            func_80051538(1, 0, 0);
+            SetSoundChannelVolLR(0, 0, 0);
+            SetSoundChannelVolLR(1, 0, 0);
             break;
 
         case 10:
@@ -557,7 +557,7 @@ void DrawTrackObjects(s32 arg0) {
                 sp128[j].r = 0;
             }
             {
-                k = (func_80096464() % 10) + (TrackObjectStates[i].f04 % 100);
+                k = (PsyqRand() % 10) + (TrackObjectStates[i].f04 % 100);
                 if (RacePaused != 0) {
                     k = TrackObjectStates[i].f04 % 100;
                 }
@@ -756,7 +756,7 @@ void DrawTrackObjects(s32 arg0) {
                     sp128[j].r = 0;
                 }
                 {
-                    k = (func_80096464() % 10) + (TrackObjectStates[i].f04 % 100);
+                    k = (PsyqRand() % 10) + (TrackObjectStates[i].f04 % 100);
                 if (RacePaused != 0) {
                     k = TrackObjectStates[i].f04 % 100;
                 }
@@ -800,7 +800,7 @@ void DrawTrackObjects(s32 arg0) {
                     sp128[j].r = 0;
                 }
                 {
-                    k = (func_80096464() % 10) + (TrackObjectStates[i].f04 % 100);
+                    k = (PsyqRand() % 10) + (TrackObjectStates[i].f04 % 100);
                 if (RacePaused != 0) {
                     k = TrackObjectStates[i].f04 % 100;
                 }
@@ -829,7 +829,7 @@ void DrawTrackObjects(s32 arg0) {
                     sp128[j].r = 0;
                 }
                 {
-                    k = (func_80096464() % 10) + (TrackObjectStates[i].f04 % 100);
+                    k = (PsyqRand() % 10) + (TrackObjectStates[i].f04 % 100);
                 if (RacePaused != 0) {
                     k = TrackObjectStates[i].f04 % 100;
                 }

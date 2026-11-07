@@ -28,7 +28,7 @@ class CdDiscProbeTest(unittest.TestCase):
 #include <stdarg.h>
 typedef uint8_t u8;typedef uint32_t u32;typedef int32_t s32;
 '''+header+'''
-char message_page[0x1D78+16],D_80011D88[]="CD001";
+char message_page[0x1D78+16],StrIso9660Id[]="CD001";
 s32 initial_status,final_status,second_status,ready_attempt,poll_error,sector_return;
 s32 polls,command_count,commands[16],diagnostics,transfers,comparisons,sector_words,layout_ok;
 u8 sector[2048];u8 *status_pointer,*parameter_pointer,*sector_pointer;
@@ -52,8 +52,8 @@ s32 CD_getsector(u8 *buffer,u32 words){
     if(buffer+2048!=status_pointer || parameter_pointer+8!=buffer || (uintptr_t)buffer%4)layout_ok=0;
     memcpy(buffer,sector,2048);return sector_return;
 }
-s32 func_80096414(const void *left,const void *right,u32 count){
-    comparisons++;if(left!=sector_pointer+1 || right!=D_80011D88 || count!=5)layout_ok=0;
+s32 PsyqStrncmp(const void *left,const void *right,u32 count){
+    comparisons++;if(left!=sector_pointer+1 || right!=StrIso9660Id || count!=5)layout_ok=0;
     return memcmp(left,right,count);
 }
 s32 DebugPrintStub(const char *message,...){

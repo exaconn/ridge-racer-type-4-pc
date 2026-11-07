@@ -577,13 +577,13 @@ void StepCarStateSpinOut(a0) P *a0; {
         if (D_800F4D44 != 4) {
             s2 = q->s74 >> 10;
             s0 = q->s9C;
-            if ((func_80096464() & 3) >= 2) q->s9C = s0 + s2;
+            if ((PsyqRand() & 3) >= 2) q->s9C = s0 + s2;
             else q->s9C = s0 - s2;
             s0 = a0->sE4;
-            if (func_80096464() & 1) s0 += 0x10;
+            if (PsyqRand() & 1) s0 += 0x10;
             a0->sE4 = s0;
             s0 = a0->sE6;
-            if (func_80096464() & 1) s0 += 0x10;
+            if (PsyqRand() & 1) s0 += 0x10;
             a0->sE6 = s0;
         } else {
             int c;

@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_8005C0C4(void);
+void InitOptionsDefaults(void);
 void func_8005C13C(int a0);
 void UpdateFadeTint(int a0);
 

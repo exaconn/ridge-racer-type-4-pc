@@ -48,7 +48,7 @@ void io(s32 kind,volatile u16 *p,u16 value) {
 u16 test_read(volatile u16 *p) {u16 value=*p;io(0,p,value);return value;}
 void test_write(volatile u16 *p,u16 value) {io(1,p,value);*p=value;}
 RrLibInterruptDriverPrefix driver={0,0,setIntr,0};
-RrLibInterruptDriverPrefix *D_800A6350=&driver;
+RrLibInterruptDriverPrefix *IntrDriverTablePtr=&driver;
 unsigned long native_size=sizeof(RrLibSavedState);
 unsigned long native_offsets[]={offsetof(RrLibSavedState,callbacks),offsetof(RrLibSavedState,enabled_mask),offsetof(RrLibSavedState,callback_data)};
 '''+body+observed+wrapper

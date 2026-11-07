@@ -29,8 +29,8 @@ void ovl666_init_preview(void) {
     PlayerCars[0].rot54 = 2048;
     UnpackChoiceGlyph((s8 *)&SelectionRows,
                   ovl666_available_courses[D_800F3826][ovl666_selected_course.word].glyph);
-    D_800ACBD0[0].first = ovl666_available_courses[D_800F3826][ovl666_selected_course.word].first;
-    D_800ACBD0[0].second = ovl666_available_courses[D_800F3826][ovl666_selected_course.word].second;
+    PlayerCourseChoices[0].first = ovl666_available_courses[D_800F3826][ovl666_selected_course.word].first;
+    PlayerCourseChoices[0].second = ovl666_available_courses[D_800F3826][ovl666_selected_course.word].second;
     SetMenuFrameOptions(0, 1, 1);
 }
 
@@ -83,9 +83,9 @@ void ovl666_update_preview(void) {
             LoadCursor = D_800F4D40;
             UnpackChoiceGlyph((s8 *)&SelectionRows,
                           ovl666_available_courses[D_800F3826][ovl666_selected_course.word].glyph);
-            D_800ACBD0[0].first =
+            PlayerCourseChoices[0].first =
                 ovl666_available_courses[D_800F3826][ovl666_selected_course.word].first;
-            D_800ACBD0[0].second =
+            PlayerCourseChoices[0].second =
                 ovl666_available_courses[D_800F3826][ovl666_selected_course.word].second;
             ((s8 *)ImageRows)[1] = 6;
         }
@@ -145,7 +145,7 @@ void ovl666_update_preview(void) {
             ovl666_result_kind = loadResult;
             D_800AC648 = course;
             CourseIndex = DecodeCourseIndex((s16)course);
-            func_80053CB0();
+            SeqMuteVolume();
             MenuScriptId = 0;
             ModeGroup = loadResult;
             D_800F3A26 = 0x23;

@@ -36,7 +36,7 @@ s32 test_page[0x4000];
 #define RR_NOP_DEP_ON(value) ((void)(value))
 ''' + header + '''
 RrSerialPortRegisters test_ports[2],*CardSio0Base;
-volatile u32 test_irq[2],*D_800ABDD4;
+volatile u32 test_irq[2],*I_STAT_CardSel;
 s32 (*test_poll)(void);void (*test_start)(s32);
 u16 (*test_status)(void *);
 s32 chkRC2wait(void) { return test_poll(); }
@@ -47,7 +47,7 @@ void test_reset(void) {
  test_ports[0].data=0xAB;test_ports[0].status=1;
  test_ports[1].data=0xCD;test_ports[1].status=0;
  test_irq[0]=test_irq[1]=0;
- CardSio0Base=&test_ports[0];D_800ABDD4=&test_irq[0];
+ CardSio0Base=&test_ports[0];I_STAT_CardSel=&test_irq[0];
 }
 '''
         body = (root/'tools/scripts/fixtures/views/func_8009BE18.c').read_text()
@@ -168,7 +168,7 @@ void test_reset(void) {
             trace.append(('start', limit))
             if limit == 60:
                 self.assertEqual(self.ports[0].data, 0xFF)
-                self.pointer('D_800ABDD4').value = C.addressof(self.irq) + 4
+                self.pointer('I_STAT_CardSel').value = C.addressof(self.irq) + 4
             stage[:] = [limit, 0]
         def poll():
             stage[1] += 1

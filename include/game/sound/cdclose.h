@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern unsigned int D_800F7430;
+extern unsigned int CdAudioFadeState;
 void CdAudioResumeStep(void);
 void CdAudioLoopStep(void);
 

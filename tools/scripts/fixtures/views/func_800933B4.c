@@ -166,7 +166,7 @@
 
 #undef D_800ABAC2
 
-extern int func_80096444();
+extern int PsyqMemcpy();
 
 extern char PutDrawEnvFmt[];
 
@@ -178,6 +178,6 @@ int PutDrawEnv(int *a0) {
     SetDrawEnv2((u32 *)(a0 + 7), (RrFrameEnvironment *)a0);
     a0[7] |= 0xFFFFFF;
     ((int (*)())GpuFuncTable[2])(GpuFuncTable[6], a0 + 7, 0x40, 0);
-    func_80096444(p + 0xE, a0, 0x5C);
+    PsyqMemcpy(p + 0xE, a0, 0x5C);
     return (int)a0;
 }

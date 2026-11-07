@@ -67,7 +67,7 @@ extern int RaceState;
 extern V3 D_800FF6B8;
 extern S32B D_8010E710;
 extern int DrawCars();
-extern int func_80036FD4();
+extern int DrawTrackSceneryForPlayer();
 extern int SetupViewport();
 extern int DrawTrackObjects();
 extern int D_8010E738;
@@ -99,7 +99,7 @@ extern struct S D_8001133C;
 extern struct S D_80011344;
 
 void func_80070400(int *a0);
-int func_80070464(void);
+int SetupRearViewMirror(void);
 void func_8007064C(void);
 struct P *func_800706B8(struct P *a0);
 void func_80070734(int arg0);
@@ -129,7 +129,7 @@ void func_80070440(void) {
     D_8010E730 = 0;
 }
 
-int func_80070464(void) {
+int SetupRearViewMirror(void) {
     char sp[32];
     int r = 0;
     int *s = (int *)SCRATCHPAD;
@@ -200,10 +200,10 @@ void func_80070734(int arg0) {
         } else if (D_800F4CE0 >= -0x23) {
             D_800F4CE0 -= 1;
         }
-        if (func_80070464() != 0) {
+        if (SetupRearViewMirror() != 0) {
             *(int *)SCRATCHPAD = func_800706B8(*(int *)SCRATCHPAD);
             SetupViewport(1);
-            func_80036FD4(0);
+            DrawTrackSceneryForPlayer(0);
             func_8006EDA4(0);
             DrawTrackObjects(2);
             DrawCars(1);
@@ -361,7 +361,7 @@ void func_80070BA4(char *a0, int a1, int a2) {
     int d; /*D*/
     unsigned char *q; /*D*/
 
-    func_80096454(sp60, 0, 8);
+    PsyqMemset(sp60, 0, 8);
     sp60[2] = 0x100;
     s1 = D_8010E78C + a1;
     s7 = *(int *)(a0 + 4) + 0x900;
@@ -378,12 +378,12 @@ void func_80070BA4(char *a0, int a1, int a2) {
             s0->h8 = 0;
             s0->hA = 0;
             s0->hC = 0;
-            s0->f20 = func_80096464() & 0xF;
-            BuildRotMatrixY(sp20, func_80096464() & 0xFFF);
+            s0->f20 = PsyqRand() & 0xF;
+            BuildRotMatrixY(sp20, PsyqRand() & 0xFFF);
             a1++;
-            BuildRotMatrixX(sp40, func_80096464() & 0xFFF);
+            BuildRotMatrixX(sp40, PsyqRand() & 0xFFF);
             MulMatrix2(sp40, sp20);
-            BuildRotMatrixZ(sp40, func_80096464() & 0xFFF);
+            BuildRotMatrixZ(sp40, PsyqRand() & 0xFFF);
             MulMatrix2(sp40, sp20);
             ApplyMatrixSV(sp20, sp60, s0->c10);
             *(U8 *)s0->c18 = *(U8 *)s0->c10;
@@ -523,7 +523,7 @@ int func_800713E0(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define D_8010E798 (*(s32 (*))&D_8010E798)
 
-void func_80071434(s32 arg0) {
+void SetOctantLookupTable(s32 arg0) {
     D_8010E798 = arg0;
 }
 

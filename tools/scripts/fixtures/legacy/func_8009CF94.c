@@ -17,7 +17,7 @@ s32 _cardCmd5CVarRx(s32 unused) {
             RR_NOP_DEP_ON(port);
             while(!(port->status & 2)) { }
             received=CardCmdSioRegs->data;
-            CardCmdBuffer=D_8011471C;
+            CardCmdBuffer=CardCmdResultPtrA;
             D_8011472C.value=1;
             D_80114730=received+1;
         }

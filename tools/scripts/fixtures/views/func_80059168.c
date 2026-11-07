@@ -117,7 +117,7 @@ extern s16 CourseIndex;
 
 extern void CdAudioSelectTrack();
 
-extern int func_80096464();
+extern int PsyqRand();
 
 extern short D_800F4D44;
 
@@ -150,7 +150,7 @@ void SelectCourseBgmTrack() {
         a1 = CourseIndex + 3;
         CdAudioSelectTrack(0, a1);
     } else if (D_800F765C == 0) {
-        a1 = func_80096464() % 14 + 0xB;
+        a1 = PsyqRand() % 14 + 0xB;
         CdAudioSelectTrack(0, a1);
     } else {
         a1 = D_800A0C9C[D_800F765C - 1];

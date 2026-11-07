@@ -71,7 +71,7 @@ c0:
         state->b26 = value; goto decode;
 c6:
         argument_bank = normalized_bank;
-        callback = D_8010EFE0;
+        callback = SsCtrlHandlerCC6;
         argument_row = normalized_row;
         goto dispatch;
 c7:
@@ -101,7 +101,7 @@ c91:
         goto dispatch;
 c98:
         argument_bank = normalized_bank;
-        callback = D_8010EFF4;
+        callback = SsCtrlHandlerCC98;
         argument_row = normalized_row;
         goto dispatch;
 c99:

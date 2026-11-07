@@ -28,11 +28,11 @@ extern int D_800ACBA8;
 extern char D_8010B2E0[];
 
 int func_80043C14();
-void func_80043DE4();
+void GetTrackLaneWorldPos();
 void func_80043ED4(short *a, short b, int c);
 void RotateNegZByEulerZYX(short *a, short b, int c);
 short LerpAngleWrap4096(short *p, int t);
-s32 func_80044064(void);
+s32 CountTrackEntries(void);
 void func_800440A0(int a0);
 
 int func_80043C14(a0, a1)
@@ -75,7 +75,7 @@ L:
     return D_800AC690 = s;
 }
 
-void func_80043DE4(a0, a1, a2) char *a0; int *a1; int *a2; {
+void GetTrackLaneWorldPos(a0, a1, a2) char *a0; int *a1; int *a2; {
     int d;
     int q2;
     int r;
@@ -140,7 +140,7 @@ short LerpAngleWrap4096(short *p, int t) {
     return v - (v / 4096 * 4096);
 }
 
-s32 func_80044064(void) {
+s32 CountTrackEntries(void) {
     s32 var_a1;
     void *var_a0;
 

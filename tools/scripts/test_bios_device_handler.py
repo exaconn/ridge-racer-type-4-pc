@@ -36,9 +36,9 @@ u32 test_first_calls;
 void *firstfile2(char *path,void *directory) {
  test_requested_path=path;test_directory=directory;test_first_calls++;return directory;
 }
-RrBiosDeviceHandler D_801143B8;
+RrBiosDeviceHandler CardFirstFileHandler;
 s32 (*test_compare)(const char *,const char *);
-s32 func_80096404(const char *first,const char *second) {return test_compare(first,second);}
+s32 PsyqStrcmp(const char *first,const char *second) {return test_compare(first,second);}
 s32 test_prior_handler(s32 *first,s32 second,s32 third) {return -1;}
 u32 test_layout[]={sizeof(RrBiosDevice),offsetof(RrBiosDevice,name),offsetof(RrBiosDevice,handler)};
 const char *test_names[]={0,"other","tty","last"};
@@ -91,7 +91,7 @@ void test_select_other_table(u32 count) {test_kernel_table=test_other_devices;te
         cls.first_calls = C.c_uint32.in_dll(cls.lib, 'test_first_calls')
         cls.requested_path = C.c_void_p.in_dll(cls.lib, 'test_requested_path')
         cls.directory = C.c_void_p.in_dll(cls.lib, 'test_directory')
-        cls.handler_global = C.c_void_p.in_dll(cls.lib, 'D_801143B8')
+        cls.handler_global = C.c_void_p.in_dll(cls.lib, 'CardFirstFileHandler')
         cls.compare_global = C.c_void_p.in_dll(cls.lib, 'test_compare')
 
     def setUp(self):

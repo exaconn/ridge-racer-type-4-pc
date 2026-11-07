@@ -4,7 +4,7 @@
 
 extern int rsin();
 extern int rcos();
-extern int func_80096464();
+extern int PsyqRand();
 extern unsigned char *AddTextSprites();
 extern int FrameCounter;
 extern int D_800A2098[];
@@ -43,8 +43,8 @@ void func_8005C4E0(void)
     }
   }
 
-  h[0] = (func_80096464() % 16) - 8;
-  h[1] = (func_80096464() % 6) - 3;
+  h[0] = (PsyqRand() % 16) - 8;
+  h[1] = (PsyqRand() % 6) - 3;
   p = *((unsigned char **) SCRATCHPAD);
   for (i = 0; i < 2; i++)
   {

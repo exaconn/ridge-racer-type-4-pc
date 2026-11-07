@@ -33,10 +33,10 @@ s32 _cardSioHandler(void);
 s32 _cardCmdStep(void);
 s32 _cardCmdReset(s32 request);
 
-extern s32 D_800ABDE4, D_800ABDE8, CardCommandRequest, CardReceiveIndex, CardRxCount;
+extern s32 CardCommandStatus, D_800ABDE8, CardCommandRequest, CardReceiveIndex, CardRxCount;
 extern u8 *CardCmdBuffer;
-extern void *D_8011471C;
-extern u32 *D_80114720;
+extern void *CardCmdResultPtrA;
+extern u32 *CardCmdResultPtrB;
 extern s32 CardCmdSector, D_80114728, D_80114730, CardCurrentCommand;
 extern RrCommandParameter D_8011472C;
 extern RrCommandReadCallback CardCommandReader;
@@ -53,7 +53,7 @@ s32 _cardSectorRx(s32 value);
 s32 _cardGetIdRx(s32 value);
 
 static __inline__ s32 rr_command_begin(s32 request) {
-    if (!(D_800ABDE4 & 1)) return 0;
+    if (!(CardCommandStatus & 1)) return 0;
     CardReceiveIndex = 0;
     CardRxCount = 0;
     D_80114730 = 0;

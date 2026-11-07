@@ -36,8 +36,8 @@ struct {u32 guard;u32 prefix[2];RrGpuMovePayload payload;u32 after;} packet;
 #define GpuMovePayload packet.payload
 u32 ports[8];
 volatile u32 *GPU_STATUS=&ports[0],*DMA2_CHCR=&ports[1],*DMA2_MADR=&ports[2],*DMA2_BCR=&ports[3];
-s32 D_800ABBFC,GpuAlarmCount;
-char D_80011EFC[]="MoveImage";
+s32 GpuTimeoutDeadline,GpuAlarmCount;
+char MoveImageNameStr[]="MoveImage";
 s32 test_now,test_timeout_calls,test_debug_calls,test_exchange_calls,test_draw_calls,test_draw_driver;
 s32 test_event_count;u32 test_events[64][3];
 void *test_rect;const char *test_name;unsigned long test_address;
@@ -57,7 +57,7 @@ RrLibInterruptCallback test_exchange(s32 channel,RrLibInterruptCallback callback
  test_exchange_calls++;event(6,channel,0);if(test_exchange_hook)test_exchange_hook();return old;
 }
 RrLibInterruptDriverPrefix irq_driver={0,test_exchange,0,0};
-RrLibInterruptDriverPrefix *D_800A6350=&irq_driver;
+RrLibInterruptDriverPrefix *IntrDriverTablePtr=&irq_driver;
 void draw(unsigned long address,s32 driver){
  test_draw_calls++;test_address=address;test_draw_driver=driver;
  memcpy(test_payload,&packet.payload,sizeof(test_payload));event(7,driver,0);
@@ -73,7 +73,7 @@ void test_reset(void){
  ports[0]=0x04000000;ports[1]=0;
  GPU_STATUS=&ports[0];DMA2_CHCR=&ports[1];DMA2_MADR=&ports[2];DMA2_BCR=&ports[3];
  memset(drivers,0x5A,sizeof(drivers));drivers[0].draw_ordering_table=draw0;drivers[1].draw_ordering_table=draw1;GpuFuncTable=&drivers[0];
- D_800ABBFC=-1;GpuAlarmCount=999;test_now=100;
+ GpuTimeoutDeadline=-1;GpuAlarmCount=999;test_now=100;
  test_timeout_calls=test_debug_calls=test_exchange_calls=test_draw_calls=test_event_count=0;
  test_debug_hook=test_exchange_hook=0;test_callback=0;test_address=0;
 }
@@ -148,7 +148,7 @@ void *test_packet_address(void){return packet.prefix;}
                     self.assertEqual(self.scalar('test_exchange_calls').value, 1)
                     self.assertEqual(self.scalar('test_draw_calls').value, int(valid))
                     self.assertEqual(bytes(rect), before)
-                    self.assertEqual((self.scalar('D_800ABBFC').value,self.scalar('GpuAlarmCount').value),(340,0))
+                    self.assertEqual((self.scalar('GpuTimeoutDeadline').value,self.scalar('GpuAlarmCount').value),(340,0))
                     self.assertEqual((self.packet[0],self.packet[1],self.packet[2],self.packet[6]),(0xA5A5A5A5,)*4)
                     if valid:
                         packed_x_y = int.from_bytes(before[:4], 'little')
@@ -189,7 +189,7 @@ void *test_packet_address(void){return packet.prefix;}
             self.lib.test_select(1)
             rect.x=-9;rect.y=10;rect.w=-11;rect.h=12
         self.assertEqual(self.invoke(rect,-1,0x12345678,poll,debug,exchange),0)
-        self.assertEqual(self.scalar('D_800ABBFC').value,C.c_int32(0x7FFFFFFF+240).value)
+        self.assertEqual(self.scalar('GpuTimeoutDeadline').value,C.c_int32(0x7FFFFFFF+240).value)
         self.assertEqual(self.scalar('test_draw_driver').value,1)
         self.assertEqual(list(self.packet)[3:6],[0x000AFFF7,0x5678FFFF,0x000CFFF5])
         self.assertEqual((self.ports[0],self.ports[1]),(0x04000000,0x01000000))

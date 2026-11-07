@@ -36,7 +36,7 @@ struct { u8 prefix[0x954]; RrLibNamedEntry entries[128];
 #define D_8011095C test_page.entries[0].name
 s32 test_comparisons, test_mutate_next;
 const char *test_last_name;
-s32 func_80096404(const char *name, const char *entry_name) {
+s32 PsyqStrcmp(const char *name, const char *entry_name) {
     test_comparisons++;
     test_last_name = entry_name;
     if (test_mutate_next) test_page.entries[1].key = 0;

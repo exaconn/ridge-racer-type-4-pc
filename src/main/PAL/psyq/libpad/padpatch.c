@@ -43,7 +43,7 @@ extern int _padCmd46();
 extern int _padCmd47();
 extern int _padCmd4B();
 extern unsigned char *D_80114438;
-extern int (*D_800ABC84)();
+extern int (*PadChannelBusyFn)();
 /* Partial layout: six input slot IDs, per-group limits, six output IDs. */
 typedef struct {
     char pad0[4];
@@ -188,7 +188,7 @@ int _padSetActAlign(a0, a1)
 char *a0; int a1;
 {
     int r;
-    if (D_800ABC84(a0, a1) == 0) {
+    if (PadChannelBusyFn(a0, a1) == 0) {
         /* ASM_BARRIER: keep separate li 1 for return value (original has two li 1) */
         __asm__ volatile("" : "=r"(r) : "0"(1));
         a0[0x46] = 1;

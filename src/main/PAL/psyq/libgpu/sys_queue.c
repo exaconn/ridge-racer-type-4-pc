@@ -25,7 +25,7 @@ extern struct GpuSys D_800ABAC0;
 extern volatile unsigned int *GPU_STATUS;
 extern volatile unsigned int *DMA2_CHCR;
 extern volatile int _qin;
-extern int D_800ABBF0;
+extern int GpuQueueSavedIntrMask;
 extern volatile struct GpuQueue D_801128D8[];
 
 void _addque(int a, int b, int c);
@@ -44,14 +44,14 @@ int _addque2(GpuOpFunc op, int *p0, int len, int p1) {
         }
         _exeque();
     }
-    D_800ABBF0 = SetIntrMask(0);
+    GpuQueueSavedIntrMask = SetIntrMask(0);
     sys = &D_800ABAC0;
     sys->unk8 = 1;
     if (sys->enabled == 0 || (_qin == _qout && (*DMA2_CHCR & 0x01000000) == 0 && sys->unkC == 0)) {
         while ((*GPU_STATUS & 0x04000000) == 0)
 ;
         op(p0, p1);
-        SetIntrMask(D_800ABBF0);
+        SetIntrMask(GpuQueueSavedIntrMask);
         return 0;
     }
     DMACallback(2, _exeque);
@@ -66,7 +66,7 @@ int _addque2(GpuOpFunc op, int *p0, int len, int p1) {
     D_801128D8[_qin].p1 = p1;
     D_801128D8[_qin].op = op;
     _qin = (_qin + 1) & 0x3F;
-    SetIntrMask(D_800ABBF0);
+    SetIntrMask(GpuQueueSavedIntrMask);
     _exeque();
     return (_qin - _qout) & 0x3F;
 }

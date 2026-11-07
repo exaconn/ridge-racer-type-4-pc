@@ -20,7 +20,7 @@ void DrawCourseInfoPanel(s32,s32);
 void SetMenuFrameOptions(s32,s32,s32);
 void PlaySfx(s32);
 void SeqFadeVolume(s32,s32);
-void func_80053CB0(void);
+void SeqMuteVolume(void);
 void DrawUiRow(s32);
 void AddScreenFadeTiles(u32 *,s32,u32);
 void UpdateScreenFade(s32);

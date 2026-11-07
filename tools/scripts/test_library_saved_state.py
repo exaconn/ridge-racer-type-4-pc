@@ -33,8 +33,8 @@ typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
 RrLibSavedState D_800A52C8;
-u16 *I_MASK, *D_800A6354;
-s32 *D_800A635C;
+u16 *I_MASK, *I_STAT;
+s32 *DPCR_Intr;
 void (*test_begin)(void *);
 void (*test_end)(void);
 void (*test_save_begin)(void);
@@ -65,8 +65,8 @@ void ResetEntryInt(void) { test_save_end(); }
         self.port16 = C.c_uint16(0x1234)
         self.port32 = C.c_int32(0x12345678)
         self.ack = C.c_uint16(0xBEEF)
-        for name, value in [('I_MASK', self.port16), ('D_800A635C', self.port32),
-                            ('D_800A6354', self.ack)]:
+        for name, value in [('I_MASK', self.port16), ('DPCR_Intr', self.port32),
+                            ('I_STAT', self.ack)]:
             C.c_void_p.in_dll(self.library, name).value = C.addressof(value)
         self.events = []
         self.callbacks = []

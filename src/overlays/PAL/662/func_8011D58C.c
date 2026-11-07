@@ -1,13 +1,13 @@
 #include "rr/overlay662_garage.h"
 #include "rr/tables.h"
 extern RrMenuItemState5C PlayerControllers[];
-extern void *func_80096454(void *, s32, u32);
+extern void *PsyqMemset(void *, s32, u32);
 void ovl662_func_8011D58C(RrGaragePoint *output)
 {
     RrGaragePoint point;
     s32 value;
     s32 y;
-    func_80096454(&point,0,4);
+    PsyqMemset(&point,0,4);
     if (PlayerControllers[1].type01 == 0x12) {
         value = (s32)((u32)PlayerControllers[1].axis14 << 24) >> 25;
         if (value < -3 || value > 3) value += value / 2;

@@ -2,11 +2,11 @@
 #include "psyq/libpad/padintr.h"
 struct R { int a, b; };
 extern struct R *I_STAT_Pad;
-extern int (*D_800ABC90)();
+extern int (*PadVsyncHook)();
 int _padIsVsync() {
     struct R *r = I_STAT_Pad;
     if (!(r->b & 1)) return 0;
     if (!(r->a & 1)) return 0;
-    if (D_800ABC90) D_800ABC90();
+    if (PadVsyncHook) PadVsyncHook();
     return 1;
 }

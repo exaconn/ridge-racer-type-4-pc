@@ -3,7 +3,7 @@
 #include "game/effect/spark.h"
 extern short SparkFrameRanges[];
 
-void func_80057750() {
+void UpdateSparkEffects() {
     int a0, a1, lo, l1, l2, a2, a3;
     lo = SparkFrameRanges[0];
     a0 = *(int *)(D_800AC89C + 0x104);

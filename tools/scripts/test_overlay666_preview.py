@@ -28,7 +28,7 @@ static unsigned scenario,calls,reference_calls;static u8 arenas[3][64],packets[6
 #define RR_PROJECTION_SCRATCH (&world.scratch)
 #define BadgeRows world.root
 #define ovl666_available_courses world.table
-#define D_800ACBD0 world.grid
+#define PlayerCourseChoices world.grid
 #define SelectionRows world.choice
 #define D_800F4D40 world.base
 #define LoadCursor world.published

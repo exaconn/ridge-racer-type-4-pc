@@ -211,7 +211,7 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
 }
 
 s32 _sio_irq_check(void) {
-    RrInterruptRegisters *interrupts=D_800ABD30;
+    RrInterruptRegisters *interrupts=I_STAT_Sio;
     /* ASM_BARRIER: Keep the predicate result in the common return register. */
     register s32 result;
     if(interrupts->pending & interrupts->mask & 0x100) {
@@ -237,8 +237,8 @@ done:
 s32 _sio_irq_handler(void) {
     s32 count;
 
-    if (D_800ABD30->pending & 0x100) {
-        D_800ABD30->pending = ~0x100;
+    if (I_STAT_Sio->pending & 0x100) {
+        I_STAT_Sio->pending = ~0x100;
     }
     if (SIO1_REGS->status & 0x38) {
         volatile u16 *cfg;
@@ -330,7 +330,7 @@ s32 _sio_irq_handler(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define SioShadowRegs (*(W5A (*))&SioShadowRegs)
 #define SIO1_REGS ((W5A *)SIO1_REGS)
-#define D_800ABD30 ((volatile int *)D_800ABD30)
+#define I_STAT_Sio ((volatile int *)I_STAT_Sio)
 #define SioRequest (*(int (*)[3])&SioRequest)
 #define SioReceiveRequest (*(int (*)[3])&SioReceiveRequest)
 
@@ -353,7 +353,7 @@ int _sio_init(void) {
     s = SioIrqQueueEntry;
     SysDeqIntRP(3, s);
     SysEnqIntRP(3, s);
-    D_800ABD30[1] |= 0x100;
+    I_STAT_Sio[1] |= 0x100;
     e = SioRequest;
     d = SioReceiveRequest;
     e[0] = 0;
@@ -371,7 +371,7 @@ int _sio_init(void) {
 
 #undef SioShadowRegs
 #undef SIO1_REGS
-#undef D_800ABD30
+#undef I_STAT_Sio
 #undef SioRequest
 #undef SioReceiveRequest
 
@@ -388,7 +388,7 @@ s32 _sio_close(void) {
 #define SysDeqIntRP ((s32 (*)(s32,void *))SysDeqIntRP)
 
 s32 _sio_deinit(void) {
-    RrInterruptRegisters *interrupts=D_800ABD30;
+    RrInterruptRegisters *interrupts=I_STAT_Sio;
     RrSerialPortRegisters *port;
     volatile u16 *control;
     interrupts->mask &= ~0x100U;

@@ -2,7 +2,7 @@
 #define RR_CHANNEL_ADVANCE_H
 #include "rr/channels.h"
 
-extern RrChannelRecordF0 D_801144D8[];
+extern RrChannelRecordF0 PadChannelRecordArray[];
 extern s32 D_800ABCC0[];
 extern u16 *D_800ABD00;
 void _dirFailAuto(u8 *channel);

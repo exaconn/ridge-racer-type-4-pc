@@ -51,7 +51,7 @@ typedef struct {
 } RrTrackResourceContext;
 
 extern RrTrackResourceContext RaceContext;
-extern RrLookupTables16 *D_800ACBB8;
+extern RrLookupTables16 *TrackEventTables;
 
 s32 LookupTrackEventPair(s32 key, s32 selection);
 /* A terminal threshold of sampleCount - 1 denotes a range wrapping to zero. */

@@ -28,25 +28,25 @@ struct DirPath {
 extern int CD_dirNopen;
 extern int CD_nopen;
 extern int CD_debug;
-extern CdlFILE D_80110350[];
+extern CdlFILE DsDirFileCache[];
 extern const char D_80011B38[];
-extern const char D_80011B54[];
+extern const char StrCdDirNotFoundFmt[];
 extern const char CdSearchFileDiscErrorMsg[];
 extern const char StrCdSearchFileFmt[];
-extern const char D_80011BA8[];
+extern const char StrFoundFmt[];
 extern const char FileNotFoundFmt[];
-extern int func_80096414();
+extern int PsyqStrncmp();
 extern struct DirPath CD_pathtbl[];
-extern const char D_80011BC4[];
-extern const char D_80011BF0[];
+extern const char CdNewMediaReadErrorStr[];
+extern const char StrCd001[];
 extern const char CdNewMediaFormatErrorMsg[];
 extern const char StrCdNewmediaReadError[];
 extern const char D_80011C4C[];
 extern const char CdFileInfoFmt[];
-extern const char D_80011C80[];
-extern void func_80096444(char *, void *, int);
+extern const char StrCdNewMediaDirCountFmt[];
+extern void PsyqMemcpy(char *, void *, int);
 extern char D_8011095C[];
-extern s32 func_80096404(const char *, const char *);
+extern s32 PsyqStrcmp(const char *, const char *);
 
 CdlFILE *CdSearchFile(CdlFILE *fp, char *name);
 int _cmp(int a, int b);
@@ -99,7 +99,7 @@ done:
     }
     if (buf[0] == 0) {
         if (CD_debug > 0)
-            DebugPrintStub(D_80011B54, name);
+            DebugPrintStub(StrCdDirNotFoundFmt, name);
         return 0;
     }
     *d = 0;
@@ -111,13 +111,13 @@ done:
     if (CD_debug >= 2)
         DebugPrintStub(StrCdSearchFileFmt, buf);
     for (i = 0; i < 64; i++) {
-        if (D_80110350[i].name[0] == 0)
+        if (DsDirFileCache[i].name[0] == 0)
             break;
-        if (_cmp(D_80110350[i].name, buf)) {
+        if (_cmp(DsDirFileCache[i].name, buf)) {
             if (CD_debug >= 2)
-                DebugPrintStub(D_80011BA8, buf);
-            *fp = D_80110350[i];
-            return &D_80110350[i];
+                DebugPrintStub(StrFoundFmt, buf);
+            *fp = DsDirFileCache[i];
+            return &DsDirFileCache[i];
         }
     }
     if (CD_debug > 0)
@@ -125,10 +125,10 @@ done:
     return 0;
 }
 
-int _cmp(int a, int b) { return func_80096414(a, b, 12) == 0; }
+int _cmp(int a, int b) { return PsyqStrncmp(a, b, 12) == 0; }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80096414 ((int (*)(void *, const char *, int))func_80096414)
+#define PsyqStrncmp ((int (*)(void *, const char *, int))PsyqStrncmp)
 
 int DS_newmedia(void) {
     int sp18;
@@ -138,19 +138,19 @@ int DS_newmedia(void) {
     int pad;
     int dummy;
 
-    if (cd_read(1, 0x10, D_80111F50) != 1) {
+    if (cd_read(1, 0x10, CdIsoSectorBuf) != 1) {
         if (CD_debug > 0) {
-            DebugPrintStub(D_80011BC4);
+            DebugPrintStub(CdNewMediaReadErrorStr);
         }
         return 0;
     }
-    if (func_80096414(D_80111F50 + 1, D_80011BF0, 5) != 0) {
+    if (PsyqStrncmp(CdIsoSectorBuf + 1, StrCd001, 5) != 0) {
         if (CD_debug > 0) {
             DebugPrintStub(CdNewMediaFormatErrorMsg);
         }
         return 0;
     }
-    p8c = D_80111F50;
+    p8c = CdIsoSectorBuf;
     /* ASM_BARRIER: prevent cse2 from folding s0+0x8C back to symbol+0x8C */
     __asm__ volatile("" : "=r"(p8c) : "0"(p8c));
     *(U4 *)&sp18 = *(U4 *)(p8c + 0x8C);
@@ -172,7 +172,7 @@ int DS_newmedia(void) {
         *(U4 *)&CD_pathtbl[i].c = *(U4 *)(p + 2);
         CD_pathtbl[i].b = p[6];
         CD_pathtbl[i].a = i + 1;
-        func_80096444(CD_pathtbl[i].name, p + 8, p[0]);
+        PsyqMemcpy(CD_pathtbl[i].name, p + 8, p[0]);
         dummy = (p < p8c + 0x800);
         CD_pathtbl[i].name[p[0]] = 0;
         pad = (p[0] & 1) + 8;
@@ -196,12 +196,12 @@ int DS_newmedia(void) {
     }
     D_800A67A0 = 0;
     if (CD_debug >= 2) {
-        DebugPrintStub(D_80011C80, i);
+        DebugPrintStub(StrCdNewMediaDirCountFmt, i);
     }
     return 1;
 }
 
-#undef func_80096414
+#undef PsyqStrncmp
 
 s32 DS_searchdir(s32 key, const char *name) {
     s32 i = 0;
@@ -223,7 +223,7 @@ s32 DS_searchdir(s32 key, const char *name) {
         entry_key = ((RrLibNamedEntry *)(page + 0x954))->key;
         if (entry_key == 0) break;
         if (entry_key == key) {
-            if (func_80096404(name, entry_name) == 0) return i + 1;
+            if (PsyqStrcmp(name, entry_name) == 0) return i + 1;
         }
         entry_name += 0x2C;
         offset += 0x2C;

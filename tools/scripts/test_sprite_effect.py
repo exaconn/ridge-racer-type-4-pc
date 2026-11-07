@@ -45,7 +45,7 @@ void SetSprt(void *p) {
  assert(phase==0 && p==expected_cursor);
  native_init(p);phase=1;mutate(0);
 }
-s32 func_80096464(void) {
+s32 PsyqRand(void) {
  u32 raw;
  assert(count!=1 && (phase==1 || phase==3));rng_calls++;
  raw=rng_seed^(phase==1?0x55AA0000U:0xAA550000U)^(u32)iteration*0x11111111U;

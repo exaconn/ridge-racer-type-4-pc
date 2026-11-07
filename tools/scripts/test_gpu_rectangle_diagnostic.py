@@ -43,12 +43,12 @@ RrGpuDebugSettings D_800ABAC2;
 #define D_800ABAC6 D_800ABAC2.height
 char test_rom[0x2000];
 #define StrBadRectFmt (test_rom+0x1EA8)
-#define D_80011EB4 (test_rom+0x1EB4)
+#define StrRectFmt (test_rom+0x1EB4)
 #define D_80011EC8 (test_rom+0x1EC8)
 u32 test_layout[]={sizeof(RrGpuDebugSettings),offsetof(RrGpuDebugSettings,width),offsetof(RrGpuDebugSettings,height),sizeof(RrGpuRectangle)};
 s32 (*test_report)(s32,s32,const char *,const char *,s32,s32,s32,s32);
 s32 collect(s32 which,const char *format,va_list args) {
- if(format==D_80011EB4){
+ if(format==StrRectFmt){
   s32 x=va_arg(args,s32),y=va_arg(args,s32),w=va_arg(args,s32),h=va_arg(args,s32);
   return test_report(2,which,format,0,x,y,w,h);
  }
@@ -61,7 +61,7 @@ s32 (*GPU_printf)(const char *,...)=test_printf1;
         for name in ('func_80092DB8.c', 'gpu_coordinates.c'):
             body = (root/('src/main/PAL/' + name)).read_text()
             body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
-            body = body.replace('extern char StrBadRectFmt[],D_80011EB4[],D_80011EC8[];', '')
+            body = body.replace('extern char StrBadRectFmt[],StrRectFmt[],D_80011EC8[];', '')
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r'"\$[0-9]+",\s*', '', body)
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?=\))', '', body)

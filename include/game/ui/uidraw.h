@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern char D_800108D8[];
+extern char SizeLdFmt[];
 extern int BadgeRowCount;
 int AllocRect16Rows(int a0);
 int AllocGlyphRows(int a);

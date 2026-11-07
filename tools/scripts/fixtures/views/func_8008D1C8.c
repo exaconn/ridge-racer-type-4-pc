@@ -60,7 +60,7 @@ extern s32 CD_sync(s32, u8 *);
 
 extern const char D_80011AB0[];
 
-extern const char D_80011AB8[];
+extern const char StrCdNoParamFmt[];
 
 extern const char CdCwLabel[];
 
@@ -94,14 +94,14 @@ extern s32 CD_timeout_deadline;
 
 extern s32 D_80110334;
 
-extern const char *D_80110338;
+extern const char *CdWaitCallerName;
 
 static inline int check_alarm(char **ac, char ** sc, volatile u8 *st) {
     if (VSync(-1) > CD_timeout_deadline || D_80110334++ > 0x3C0000) {
-        func_800963DC(D_80011A14);
+        func_800963DC(CdTimeoutPrefixStr);
         { u8 s0_ = st[0]; u8 s1_ = st[1]; char *x5 = sc[s1_];
-        /* ASM_BARRIER: Load D_80110338 directly into $a1. */
-        register const char *a1 __asm__("$5") = D_80110338;
+        /* ASM_BARRIER: Load CdWaitCallerName directly into $a1. */
+        register const char *a1 __asm__("$5") = CdWaitCallerName;
         DebugPrintStub(
             CdTimeoutStatusFmt,
             a1,
@@ -120,7 +120,7 @@ static inline void cd_poll_cb(volatile u8 *st, volatile u8 *st1) {
     s32 res;
     while ((res = getintr()) != 0) {
         if ((res & 4) && CD_cbready != 0) {
-            CD_cbready(*st1, D_80110320);
+            CD_cbready(*st1, CdReadyResult);
         }
         if ((res & 2) && CD_cbsync != 0) {
             CD_cbsync(*st, CD_syncResult);
@@ -140,7 +140,7 @@ s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     }
     if (D_800A66CC[arg0] != 0 && arg1 == 0) {
         if (CD_debug > 0) {
-            DebugPrintStub(D_80011AB8, CD_comstr[arg0]);
+            DebugPrintStub(StrCdNoParamFmt, CD_comstr[arg0]);
         }
         return -2;
     }
@@ -175,7 +175,7 @@ s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     }
     CD_timeout_deadline = VSync(-1) + 0x3C0;
     D_80110334 = 0;
-    D_80110338 = CdCwLabel;
+    CdWaitCallerName = CdCwLabel;
     if (D_800A6764[0] == 0) {
         char **ac = CD_comstr;
         char **sc = CD_intstr;

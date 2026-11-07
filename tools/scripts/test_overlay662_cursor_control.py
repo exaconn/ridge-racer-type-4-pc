@@ -49,7 +49,7 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;u32
  for(unsigned i=0;i<46;i++)w->buttons[i]=&fixed.banks[(scenario+n+i)&1][i].rectangle;
  for(unsigned i=0;i<4;i++)w->actions[i]=&actionObjects[(scenario+n+i+profile/4)%4];
 }
-void *func_80096454(void *p,s32 value,u32 size){assert(size==4&&value==0&&(uintptr_t)p>UINT32_MAX);record(0,value,size);return memset(p,value,size);}
+void *PsyqMemset(void *p,s32 value,u32 size){assert(size==4&&value==0&&(uintptr_t)p>UINT32_MAX);record(0,value,size);return memset(p,value,size);}
 void ovl662_func_8011DA90(void){record(1,0,0);effect(1);}
 static void movePoint(unsigned kind,RrGaragePoint *p){assert((uintptr_t)p>UINT32_MAX);record(kind,p->x,p->y);effect(kind);p->x=half(scenario*37U+serial*71U+kind);p->y=half(~(scenario*53U+serial*13U+kind));}
 void ovl662_func_8011D338(RrGaragePoint *p){movePoint(2,p);}void ovl662_func_8011D58C(RrGaragePoint *p){movePoint(3,p);}void ovl662_func_8011D664(RrGaragePoint *p){movePoint(4,p);}
@@ -67,7 +67,7 @@ static void action(unsigned k,s32 a){callbacks[k]++;record(10,k,a);effect(10);}
 static void action0(s32 a){action(0,a);}static void action1(s32 a){action(1,a);}static void action2(s32 a){action(2,a);}static void action3(s32 a){action(3,a);}
 void PlaySfx(s32 a){record(11,a,0);effect(11);}
 void ovl662_func_8011DE70(void){record(11,-1,0);effect(11);}
-static void expected(void){RrGaragePoint movement={0,0};u32 events=0;func_80096454(&movement,0,4);
+static void expected(void){RrGaragePoint movement={0,0};u32 events=0;PsyqMemset(&movement,0,4);
  if(w->work.words[0]&1){paths[0]++;return;}
  if(w->work.words[0]&2){ovl662_func_8011DA90();if(word(w->work.points.word28)<4096){paths[1]++;return;}
   paths[2]++;w->work.points.cursor18=w->work.points.cursor14;w->work.words[0]&=~6U;

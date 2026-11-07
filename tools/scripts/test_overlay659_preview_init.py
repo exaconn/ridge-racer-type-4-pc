@@ -69,7 +69,7 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
  for(unsigned j=0;j<16;j++)w->scratch[j]=word(v+j);
 }
 static void service(unsigned kind){const s32 args[10]={0};record(kind,args);effect(kind);}
-void func_80053CB0(void){service(0);}
+void SeqMuteVolume(void){service(0);}
 void ResetScreenCounters(void){service(1);}
 void ClearScreenOverlayState(void){service(2);}
 void InitMenuArenas(void){service(3);}

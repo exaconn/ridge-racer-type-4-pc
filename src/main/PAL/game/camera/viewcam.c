@@ -71,7 +71,7 @@ extern Car PlayerCars[];
 void func_8006E9E8(int a0, int *a1);
 void SetupViewMatrix(void);
 void SetupViewLighting(void);
-void func_8006ECE8(int ignoredPlayer);
+void SetupPlayerView(int ignoredPlayer);
 void func_8006ED4C(void);
 void func_8006EDA4(void);
 void SetGteObjectTransform(short *a0, short *a1, int *a2);
@@ -143,7 +143,7 @@ void SetupViewLighting(void) {
 
 #undef LightMatrix
 
-void func_8006ECE8(int ignoredPlayer) {
+void SetupPlayerView(int ignoredPlayer) {
     char *p = D_800ABF48;
     func_8006E834();
     func_80071348();

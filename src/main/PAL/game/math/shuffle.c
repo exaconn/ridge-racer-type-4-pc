@@ -2,7 +2,7 @@
 #include "rr/frame_loop.h"
 extern struct { int p; int a[8]; } SlotOrder;
 extern int D_8010E264;
-extern int func_80096464();
+extern int PsyqRand();
 extern int func_80096474();
 void ShuffleSlotOrder()
 {
@@ -12,9 +12,9 @@ void ShuffleSlotOrder()
         SlotOrder.a[i] = i;
     i = 0;
     do {
-        a = func_80096464();
+        a = PsyqRand();
         x = a % 8;
-        b = func_80096464();
+        b = PsyqRand();
         y = (x + b % 4) % 7;
         t = SlotOrder.a[x];
         i++;

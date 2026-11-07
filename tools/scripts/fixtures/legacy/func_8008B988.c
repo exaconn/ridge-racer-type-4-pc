@@ -3,7 +3,7 @@
 
 extern RrLibSavedState D_800A52C8;
 extern u16 *I_MASK;
-extern s32 *D_800A635C;
+extern s32 *DPCR_Intr;
 extern void HookEntryInt(void *data);
 extern void ExitCriticalSection(void);
 
@@ -14,7 +14,7 @@ RrLibSavedState *restartIntr(void) {
     state->active = 1;
     *I_MASK = state->register16;
     {
-        s32 *destination = D_800A635C;
+        s32 *destination = DPCR_Intr;
         s32 value = state->register32;
         /* ASM_BARRIER: retain the original load-delay nop before the call/store pair. */
         __asm__ volatile("nop");

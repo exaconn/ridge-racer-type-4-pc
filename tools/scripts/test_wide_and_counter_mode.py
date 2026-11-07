@@ -65,8 +65,8 @@ s32 DeliverEvent(u32 counter,u32 mode) { return test_counter(counter,mode); }
         for path in {q.read_text(): q for q in sources}.values():
             body = path.read_text()
             body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
-            body = body.replace('extern s32 D_800A47D0, D_800A47D4;', '')
-            body = body.replace('D_800A47D0', 'test_page[0x47D0/4]')
+            body = body.replace('extern s32 _err_math_mode, _err_math_param;', '')
+            body = body.replace('_err_math_mode', 'test_page[0x47D0/4]')
             body = body.replace('(s32 *)0x800A0000U', 'test_page')
             body = re.sub(r'\s+(?:__asm__|asm)\("\$[0-9]+"\)', '', body)
             body = re.sub(r'"\$[0-9]+",\s*', '', body)

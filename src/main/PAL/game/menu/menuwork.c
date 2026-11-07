@@ -67,7 +67,7 @@ void func_8003984C(void);
 void func_80039894(void);
 void func_8003989C(void);
 void func_80039920(void);
-void func_80039ABC(void);
+void CarPreviewModeUpdate(void);
 void func_80039C0C(void);
 
 void GetNameChar(unsigned char *a0, int a1) {
@@ -148,7 +148,7 @@ void func_80039988(void) {
 #define PlayerCars (*(char (*)[])&PlayerCars)
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 
-void func_80039ABC(void) {
+void CarPreviewModeUpdate(void) {
     ModeFrame += 1;
     SetupViewport(6);
     if (D_800F4D8A == 0) {

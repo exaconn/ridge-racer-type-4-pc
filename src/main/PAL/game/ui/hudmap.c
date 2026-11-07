@@ -10,7 +10,7 @@ struct B { char pad[0x12]; short x; char p2[0x28]; };
 
 extern int AddDrawAreaPrim();
 extern int FormatDecimalDigits();
-extern char D_800103FC[];
+extern char StrTotalTimeLabel[];
 extern char LapTimeLabel[];
 extern char StrPressStart[];
 extern short D_800AC1A0;
@@ -58,7 +58,7 @@ void DrawRaceTimesScreen(void) {
         if (++i < NumLaps) goto L1;
     }
     DrawRaceTime(0x78, 0x5E, TotalRaceTime, 0x7EF8, 1);
-    DrawFontStringCentered(0x78, 0x50, D_800103FC, 0x80, 0);
+    DrawFontStringCentered(0x78, 0x50, StrTotalTimeLabel, 0x80, 0);
     DrawFontStringCentered(0x78, 0x78, LapTimeLabel, 0x80, 0);
     i = 7;
     b = sp18 + 7;

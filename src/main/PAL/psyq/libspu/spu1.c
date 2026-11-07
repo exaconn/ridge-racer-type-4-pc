@@ -13,7 +13,7 @@ void _spu_FiDMA(void) {
     /* ASM_BARRIER: Retain the bounded poll count in its original register. */
     register u32 i;
     RrSpuRegisterBank *bank;
-    if(D_800A4828==0) _spu_Fw1ts();
+    if(_spu_dmaIsRead==0) _spu_Fw1ts();
     bank=_spu_RXX;
     bank->spu_control &= 0xFFCF;
     {
@@ -45,6 +45,6 @@ void _spu_Fr_(int a0, int a1, int a2) {
     _spu_FsetDelayR();
     *DMA4_MADR = a0;
     *DMA4_BCR = ((u32)a2 << 16) | 0x10;
-    D_800A4828 = 1;
+    _spu_dmaIsRead = 1;
     *DMA4_CHCR = 0x1000200;
 }

@@ -9,7 +9,7 @@ typedef struct {
     volatile u32 mask;
 } RrInterruptRegisters;
 
-extern RrInterruptRegisters *D_800ABC58, *I_STAT_Card, *D_800ABD30, *I_STAT_Pad;
+extern RrInterruptRegisters *I_STAT_PadVsync, *I_STAT_Card, *I_STAT_Sio, *I_STAT_Pad;
 /* Exchange the interrupt mask; return the previous zero-extended 16-bit value. */
 s32 SetIntrMask(s32 value);
 s32 _padVsyncHookCheck(void);

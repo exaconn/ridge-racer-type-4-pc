@@ -63,7 +63,7 @@ int func_8006F1EC();
 s32 YawToOctant(void *arg0);
 int func_8006F288(int a0);
 void SetFogNearFar(s32 a0, s32 a1, s32 a2);
-void func_8006F5F0(int *a0);
+void InitTimTemplate(int *a0);
 s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
 void func_800700AC(int *a0);
 void RegisterModelBank(int *a0, int a1);
@@ -170,7 +170,7 @@ void SetFogNearFar(s32 a0, s32 a1, s32 a2) {
     __asm__ volatile("ctc2 %0, $28" : : "r"(r1));
 }
 
-void func_8006F5F0(int *a0) {
+void InitTimTemplate(int *a0) {
     int n;
     *a0++ = 0x10;
     *a0++ = 8;

@@ -20,13 +20,13 @@ class CommandCompletionTest(unittest.TestCase):
         for name in ('commands', 'interrupts', 'serial'):
             text = (root / ('include/rr/' + name + '.h')).read_text()
             text = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', text, flags=re.M)
-            text = re.sub(r'^extern s32 D_800ABDE4,[^\n]*\n', '', text, flags=re.M)
+            text = re.sub(r'^extern s32 CardCommandStatus,[^\n]*\n', '', text, flags=re.M)
             headers += text
         source = '''#include <stdint.h>
 #include <string.h>
 typedef uint8_t u8; typedef uint16_t u16; typedef uint32_t u32; typedef int32_t s32;
 s32 test_ram[0x4000];
-#define D_800ABDE4 test_ram[0xBDE4/4]
+#define CardCommandStatus test_ram[0xBDE4/4]
 #define D_800ABDE8 test_ram[0xBDE8/4]
 #define CardCommandRequest test_ram[0xBDEC/4]
 #define CardReceiveIndex test_ram[0xBDF4/4]
@@ -43,21 +43,21 @@ s32 test_event_state,test_event_counter,test_restart_state;
 s32 _cardCmdStep(void) { return test_poll(); }
 s32 test_restart(s32 request) {
  s32 result;
- test_restart_calls++;test_request=request;test_restart_state=D_800ABDE4;
+ test_restart_calls++;test_request=request;test_restart_state=CardCommandStatus;
  result=_cardCmdReset(request);
  if(test_restart_hook)test_restart_hook();
  return result;
 }
 s32 SysDeqIntRP(s32 flag,void *event) {
  test_event_calls++;test_event_flag=flag;test_event_pointer=event;
- test_event_state=D_800ABDE4;test_event_counter=D_800ABDE8;
+ test_event_state=CardCommandStatus;test_event_counter=D_800ABDE8;
  return -123;
 }
 void test_reset(void) {
  memset(test_ram,0xA5,sizeof(test_ram));memset(test_irq,0,sizeof(test_irq));
  memset(test_serial,0x5A,sizeof(test_serial));
  I_STAT_Card=&test_irq[0];CardSio0Regs=&test_serial[0];
- D_800ABDE4=3;D_800ABDE8=10;CardCommandRequest=123;
+ CardCommandStatus=3;D_800ABDE8=10;CardCommandRequest=123;
  CardRetriesLeft=0;CardReceiveIndex=9;CardRxCount=11;D_80114730=17;
  test_restart_calls=test_event_calls=0;test_restart_hook=0;
 }

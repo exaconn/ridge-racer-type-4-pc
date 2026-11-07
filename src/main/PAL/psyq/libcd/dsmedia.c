@@ -1,10 +1,10 @@
 #include "rr/cd.h"
 #include "rr/overlay668_stream.h"
 
-extern s32 func_80096414(const void *,const void *,u32);
+extern s32 PsyqStrncmp(const void *,const void *,u32);
 extern s32 DebugPrintStub(const char *,...);
 extern char CdCommandErrorStr[];
-extern char D_80011D88[];
+extern char StrIso9660Id[];
 
 int CdDiskReady();
 
@@ -84,7 +84,7 @@ int CdGetDiskType(void) {
         CdControl(9, parameters, 0);
     }
     CdGetSector(L.buf, 0x200);
-    v = func_80096414(L.buf + 1, D_80011D88, 5);
+    v = PsyqStrncmp(L.buf + 1, StrIso9660Id, 5);
     if (v != 0) return 1;
     return 2;
 }

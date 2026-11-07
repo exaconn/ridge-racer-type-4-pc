@@ -34,7 +34,7 @@ void SetupMenuCarCamera(s32);void SetupViewport(s32);s32 LoadCarRangeStep(s32,s3
 void SetCarBounds(RrRaceVehicle *);void SetModelTexturePage(s32);void AddScreenFadeTiles(u32 *,s32,u32);void DrawUiRow(s32);
 void DrawSelectionIconGrid(s32);void func_8002E5A0(RrRaceVehicle *);void DrawPreviewCar(RrRaceVehicle *,RrPreviewRgb3,s32,s32);
 void UpdateBadgeRowAnim(s32);s32 UpdateImageRow(s32);void UpdateScreenFade(s32);
-void SetMenuFrameOptions(s32,s32,s32);void StepMenuValue(s32,s32,char*,s32,s32);void UnpackChoiceGlyph(s8*,s32);void ResetScreenCounters(void);void PlaySfx(s32);void func_80053CB0(void);void SeqFadeVolume(s32,s32);void ovl666_init_menu(void);
+void SetMenuFrameOptions(s32,s32,s32);void StepMenuValue(s32,s32,char*,s32,s32);void UnpackChoiceGlyph(s8*,s32);void ResetScreenCounters(void);void PlaySfx(s32);void SeqMuteVolume(void);void SeqFadeVolume(s32,s32);void ovl666_init_menu(void);
 static struct State {u32 guard[4];s32 frame,player,rowCount; u16 state; s16 scene,timer,menu,row,course,d44,limitAlias;u16 enable,be8; s16 highCourse;u8 courseMap[8]; s32 overlayMode,ready; RrMenuSelectionWord32 selected; s16 limits[4];u16 courseTable[4][4];
  RrRaceVehicle vehicles[2];RrMenuItemState5C input[2];RrUiRow24 rows[2][7];RrBadgeRow1C badges[2][2];RrFrameStorage contexts[2];
  RrCurrentSelection choice;RrMenuGridPoint grid[4];RrCourseChoice4 courses[4][9];RrMenuArenas arenas;void *published;
@@ -68,7 +68,7 @@ static u8 buffers[3][32];
 #define BadgeRows (w->badges[w->badgeRoot])
 #define CurrentDrawBuf (&w->contexts[w->contextRoot])
 #define SelectionRows w->choice
-#define D_800ACBD0 w->grid
+#define PlayerCourseChoices w->grid
 #define CourseChoiceTable w->courses
 #define LoadCursor w->published
 #define MenuArenas w->arenas
@@ -114,7 +114,7 @@ s32 UpdateImageRow(s32 a){record(18,a,0,0,0,0,0,0,0);effect(18);return half(scen
 void DrawMenuStepArrows(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){record(19,a,b,c,d,e,f,g,0);effect(19);}
 void UpdateScreenFade(s32 a){record(19,a,0,-1,0,0,0,0,0);effect(19);}
 s32 DecodeCourseIndex(s32 a){record(20,a,0,0,0,0,0,0,0);effect(20);if(referenceRun){w->highCourse=a>=8;return w->courseMap[a&7];}return actual_course(a);}
-void func_80053CB0(void){record(21,0,0,0,0,0,0,0,0);effect(21);}
+void SeqMuteVolume(void){record(21,0,0,0,0,0,0,0,0);effect(21);}
 void SeqFadeVolume(s32 a,s32 b){record(22,a,b,0,0,0,0,0,0);effect(22);}
 /* Independent control flow transcribed from original overlay666 MIPS.
  * All services record complete pre-call worlds before deterministic callbacks. */
@@ -134,7 +134,7 @@ static void expected(void){int ready=0;w->frame=word((u32)w->frame+1);w->player=
    else if(w->input[0].b){actions[2]++;PlaySfx(2);closeTwo();w->modes[w->modeRoot][1]=3;w->state=5;w->badges[w->badgeRoot][0].state10=4;}}
   break;}
  case 3:{SetMenuFrameOptions(0,1,1);if(w->timer>0)w->timer=half((u16)w->timer-1);SetModelTexturePage(-1);AddScreenFadeTiles(&w->contexts[w->contextRoot].ordering.ordering70,(64-w->timer)*4,69);int completion=LoadCarRangeStep(1,1);
-  if(completion==1&&w->timer<=0){exits[0]++;w->d44=6;u16 course=w->courseTable[w->choice.selection.primary][w->choice.selection.variant];w->ready=completion;w->limitAlias=course;w->course=DecodeCourseIndex(half(course));func_80053CB0();w->be8=0;w->enable=completion;w->scene=35;w->state=0;w->arenas.first=w->published;}break;}
+  if(completion==1&&w->timer<=0){exits[0]++;w->d44=6;u16 course=w->courseTable[w->choice.selection.primary][w->choice.selection.variant];w->ready=completion;w->limitAlias=course;w->course=DecodeCourseIndex(half(course));SeqMuteVolume();w->be8=0;w->enable=completion;w->scene=35;w->state=0;w->arenas.first=w->published;}break;}
  case 4:{int phase=w->rows[w->root][5].byte14;if(phase==2){w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=0;StepMenuValue(0,1,(char*)&w->choice.selection.pad02[1],2,0);w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=phase;
    if(w->input[0].a){actions[3]++;PlaySfx(1);SetMenuFrameOptions(0,1,1);w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=1;w->rows[w->root][5].byte14=w->rows[w->root][6].byte14=7;
     u8 bytes[4];memcpy(bytes,&w->choice,4);memcpy(&w->choice.selection.rows[0],bytes,4);w->choice.selection.rows[0].parameter=19;w->course=0;w->state=3;ResetScreenCounters();w->timer=64;SeqFadeVolume(0,60);w->arenas.first=w->published;

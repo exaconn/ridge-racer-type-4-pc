@@ -12,18 +12,18 @@ from c_functions import source_owners
 CASES = [
     ('8009D198', 7, '8009D118', '8009C610', ('D_8011472C',)),
     ('8009D348', 8, '8009D3E8', '8009C610', ('CardCmdSector',)),
-    ('8009D5B4', 100, '8009D65C', '8009D680', ('D_8011471C', 'D_80114720')),
+    ('8009D5B4', 100, '8009D65C', '8009D680', ('CardCmdResultPtrA', 'CardCmdResultPtrB')),
     ('8009D700', 12, '8009D7A0', '8009D7C4', ('CardCmdBuffer',)),
-    ('8009DD88', 101, '8009DE30', '8009DE54', ('D_8011471C', 'D_80114720')),
+    ('8009DD88', 101, '8009DE30', '8009DE54', ('CardCmdResultPtrA', 'CardCmdResultPtrB')),
     ('8009D238', 13, '8009D2E0', '8009C610', ('CardCmdSector', 'D_80114728')),
-    ('8009CB84', 14, '8009CC44', '8009CCF0', ('CardCmdSector', 'CardCmdBuffer', 'D_8011471C')),
+    ('8009CB84', 14, '8009CC44', '8009CCF0', ('CardCmdSector', 'CardCmdBuffer', 'CardCmdResultPtrA')),
     ('8009D068', 6, '8009D118', '8009C610', ('CardCmdSector', 'D_80114728')),
-    ('8009CDFC', 15, '8009CEBC', '8009CF94', ('CardCmdSector', 'CardCmdBuffer', 'D_8011471C')),
+    ('8009CDFC', 15, '8009CEBC', '8009CF94', ('CardCmdSector', 'CardCmdBuffer', 'CardCmdResultPtrA')),
     ('8009C638', 3, '8009C6D8', '8009C6F8', ('CardCmdBuffer',)),
 ]
 SCALARS = ['D_800ABDE8', 'CardCommandRequest', 'CardReceiveIndex', 'CardRxCount',
            'CardCmdSector', 'D_80114728', 'D_8011472C', 'D_80114730', 'CardCurrentCommand']
-POINTERS = ['CardCmdBuffer', 'D_8011471C', 'D_80114720', 'CardCommandReader', 'CardWriteHandler']
+POINTERS = ['CardCmdBuffer', 'CardCmdResultPtrA', 'CardCmdResultPtrB', 'CardCommandReader', 'CardWriteHandler']
 
 
 NA = lambda n: __import__('c_functions').name_at(int(n, 16) | 0x80000000)
@@ -50,10 +50,10 @@ typedef uint8_t u8; typedef uint16_t u16; typedef uint32_t u32; typedef int32_t 
 u32 test_ram[0x4000];
 s32 test_parameter_page[0x4000];
 #define CardCmdSector test_parameter_page[0x4724 / 4]
-#define D_800ABDE4 test_ram[0xBDE4 / 4]
+#define CardCommandStatus test_ram[0xBDE4 / 4]
 u8 *CardCmdBuffer;
-void *D_8011471C;
-u32 *D_80114720;
+void *CardCmdResultPtrA;
+u32 *CardCmdResultPtrB;
 s32 test_callback_calls;
 ''' + '\n'.join('s32 ' + name + ';' for name in SCALARS if name not in ('D_8011472C', 'CardCmdSector')) + '''
 s32 (*CardCommandReader)(void);
@@ -315,7 +315,7 @@ s32 func_8009DF14(s32 mode, s32 value) {
             union[:4] = (1).to_bytes(4, 'little')
             scalars['D_8011472C'] = 1
             scalars['D_80114730'] = byte + 1
-            pointers['CardCmdBuffer'] = pointers['D_8011471C']
+            pointers['CardCmdBuffer'] = pointers['CardCmdResultPtrA']
             serial_before = bytes(self.serial_ports), self.serial_pointer.value
             self.assertEqual(writer(0x12345678), 0)
             self.assertEqual(self.snapshot(), (ram, scalars, pointers))

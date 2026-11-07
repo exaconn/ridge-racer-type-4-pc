@@ -17,7 +17,7 @@ typedef struct {
 } B;
 extern B SoundState;
 extern char D_800F7414[];
-extern unsigned int D_800F7430;
+extern unsigned int CdAudioFadeState;
 extern int CdAudioSetVolumeRaw();
 extern int CdSync();
 extern int CdControl();
@@ -28,7 +28,7 @@ void CdAudioPlayStep()
     int r;
     int pad[2];
     B *p;
-    switch (D_800F7430) {
+    switch (CdAudioFadeState) {
     case 0:
         if (CdSync(1, 0) == 0) break;
         if (SoundState.f269C != -1) break;
@@ -51,7 +51,7 @@ void CdAudioPlayStep()
             SoundState.f2678 = SoundState.f2678 + 1;
             CdAudioSetVolumeRaw(SoundState.h26C0);
         } else if (r == 5) {
-            D_800F7430 = 1;
+            CdAudioFadeState = 1;
         }
         break;
     case 3:

@@ -42,7 +42,7 @@ static unsigned count,seen,serial,n,profile;static int reference_run;
 #define CourseChoiceTable world.courses
 #define ovl662_D_80127300 world.status
 #define ovl662_D_80127348 world.cars
-#define D_800ACBD0 world.grid
+#define PlayerCourseChoices world.grid
 '''+codecs+body+r'''
 static u32 seed=0x16960;static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 static s16 half(u32 b){u16 u=(u16)b;s16 r;memcpy(&r,&u,2);return r;}

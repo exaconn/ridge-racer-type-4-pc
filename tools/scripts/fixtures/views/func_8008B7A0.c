@@ -9,11 +9,11 @@
 /* legacy typing of shared globals in this part of the unit */
 #define I_MASK ((unsigned short *)I_MASK)
 
-#define D_800A6354 ((unsigned short *)D_800A6354)
+#define I_STAT ((unsigned short *)I_STAT)
 
 #undef I_MASK
 
-#undef D_800A6354
+#undef I_STAT
 
 /* legacy typing of shared globals in this part of the unit */
 #define I_MASK ((u16 *)I_MASK)

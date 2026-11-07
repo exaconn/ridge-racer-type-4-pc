@@ -4,7 +4,7 @@
 #include "types.h"
 
 extern char StrStoreImage[];
-extern char D_80011EFC[];
+extern char MoveImageNameStr[];
 extern const char D_80011F38[];
 char *SetDefDrawEnv(char *p, int a, int b, int c, int d);
 s32 SetGraphDebug(s32 enabled);

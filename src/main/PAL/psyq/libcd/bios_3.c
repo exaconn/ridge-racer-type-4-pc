@@ -10,7 +10,7 @@ extern s32 DebugPrintStub();
 extern s32 VSync(s32);
 extern void CD_flush(void);
 extern s32 func_800963DC(const char *);
-extern const char D_80011A14[];
+extern const char CdTimeoutPrefixStr[];
 extern const char CdTimeoutStatusFmt[];
 extern const char CdDatasyncNameStr[];
 extern u8 D_800A64A5;
@@ -19,7 +19,7 @@ extern char *CD_intstr[];
 extern volatile u8 D_800A6764[];
 extern s32 CD_timeout_deadline;
 extern s32 D_80110334;
-extern const char *D_80110338[];
+extern const char *CdWaitCallerName[];
 /* $at as the %hi() base: with $1 allocatable cc1 2.8.1 emits lui $1,%hi / sw %lo($1) and its reorg fills the jr/jal delay slot with the sw (see DECOMP_GUIDE "delay-slot store"). */
 extern int D_800A6730;
 
@@ -31,14 +31,14 @@ void CdCommandCallback(void);
 
 static inline int check_alarm(s32 limit, char **ac, volatile u8 *st, char **sc) {
     if (VSync(-1) > CD_timeout_deadline || D_80110334++ > limit) {
-        func_800963DC(D_80011A14);
+        func_800963DC(CdTimeoutPrefixStr);
         {
             u8 s0_ = st[0];
             u8 s1_ = st[1];
             char *x5 = sc[s1_];
             DebugPrintStub(
                 CdTimeoutStatusFmt,
-                D_80110338[0],
+                CdWaitCallerName[0],
                 ac[D_800A64A5],
                 sc[s0_],
                 x5
@@ -61,7 +61,7 @@ s32 CD_datasync(s32 mode) {
     __asm__("" : : "r"(mode), "r"(mode));
     CD_timeout_deadline = t + 0x3C0;
     D_80110334 = 0;
-    D_80110338[0] = CdDatasyncNameStr;
+    CdWaitCallerName[0] = CdDatasyncNameStr;
     limit = 0x3C0000;
     ac = CD_comstr;
     st = D_800A6764;
@@ -81,7 +81,7 @@ s32 CD_getsector(u8 *a0, u32 a1) {
     volatile unsigned char *p;
     *CD_reg0 = 0;
     *CD_reg3 = 0x80;
-    *D_800A6780 = 0x20943;
+    *CD_DELAY = 0x20943;
     /* Ordinary write views retain the original setup and teardown scheduling. */
     *(u32 *)COM_DELAY = 0x1323;
     *CD_dpcr |= 0x8000;
@@ -105,7 +105,7 @@ s32 CD_getsector2(u8 *a, u32 b) {
     volatile int x;
     *CD_reg0 = 0;
     *CD_reg3 = 0x80;
-    *D_800A6780 = 0x21020843;
+    *CD_DELAY = 0x21020843;
     *COM_DELAY = 0x1325;
     *CD_dpcr |= 0x8000;
     *DMA3_MADR = a;

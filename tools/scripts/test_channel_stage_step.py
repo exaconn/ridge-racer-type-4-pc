@@ -44,7 +44,7 @@ s32 h4(RrChannelRecordF0 *p){return handler(4,p);}
 RrChannelStageCallback PadRecvStageTable[5]={h0,h1,h2,h3,h4};
 void error_a(s32 code){trace(3,code,0);if(on_error)on_error(0);}
 void error_b(s32 code){trace(4,code,0);if(on_error)on_error(0);}
-RrChannelErrorCallback D_800ABC68=error_a;
+RrChannelErrorCallback PadAdvanceChannelFn=error_a;
 void setRC2wait(s32 limit){trace(1,limit,0);if(on_timer)on_timer(0);}
 s32 _padClrIntSio0(void){trace(2,0,0);if(on_wait)on_wait(0);return wait_result;}
 '''+body
@@ -57,7 +57,7 @@ s32 _padClrIntSio0(void){trace(2,0,0);if(on_wait)on_wait(0);return wait_result;}
         cls.values={n:C.c_int32.in_dll(cls.lib,n) for n in ('handler_result','mutate_stage','stage_after','wait_result','events')}
         cls.kind=(C.c_int32*16).in_dll(cls.lib,'event_kind');cls.stage=(C.c_int32*16).in_dll(cls.lib,'event_stage')
         cls.code=(C.c_int32*16).in_dll(cls.lib,'event_code');cls.pointer=(C.c_void_p*16).in_dll(cls.lib,'event_pointer')
-        cls.error=C.c_void_p.in_dll(cls.lib,'D_800ABC68')
+        cls.error=C.c_void_p.in_dll(cls.lib,'PadAdvanceChannelFn')
 
     def setUp(self):self.reset()
 

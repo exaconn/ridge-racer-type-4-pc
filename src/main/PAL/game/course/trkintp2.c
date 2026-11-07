@@ -12,7 +12,7 @@ typedef struct { int a, b, c, d; } V;
 
 extern unsigned char ChecksumBytes();
 extern int func_80096424();
-extern int func_80096464();
+extern int PsyqRand();
 extern char PasswordChars[];
 extern char PasswordBytes[];
 extern void DrawSync();
@@ -29,7 +29,7 @@ int EncodeRecordPassword();
 int DecodeRecordPassword(int *a, int *b, int *c, int *d, int *e, int f);
 void LoadTimImage(int *p);
 void LoadTimList(int *p);
-int func_80043730();
+int FindNearestTrackEntry();
 void func_800437D8();
 void CarLocalToWorld(char *a, int b, int *c);
 void GetTrackPointAhead(RrRaceVehicle *vehicle, s32 *output, s32 distance);
@@ -90,12 +90,12 @@ int EncodeRecordPassword(a0, a1, a2, a3, a4, a5) int a0; int a1; int a2; int a3;
     a0 &= 0xF;
     s0 |= a0;
     PasswordBytes[0] = s0;
-    r = func_80096464(a0);
+    r = PsyqRand(a0);
     a2 = a2 * 4 + a3;
     PasswordBytes[1] = (s0 >> 8) + (r & ~0x3F);
     PasswordBytes[2] = a2;
     PasswordBytes[3] = a2 >> 8;
-    PasswordBytes[4] = (a2 >> 16) + (func_80096464() & ~0x3F);
+    PasswordBytes[4] = (a2 >> 16) + (PsyqRand() & ~0x3F);
     PasswordBytes[5] = a4 & 0xF;
     EncodePasswordCode(PasswordBytes, PasswordChars);
     PasswordChars[0xD] = 0;
@@ -160,7 +160,7 @@ void LoadTimList(int *p) {
     }
 }
 
-int func_80043730(a0) char *a0;
+int FindNearestTrackEntry(a0) char *a0;
 {
     int t2 = 0;
     int t1 = 0x7FFFFFFF;

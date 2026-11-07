@@ -42,8 +42,8 @@ typedef char RrGpuUploadAddressFitsPointer[
 typedef char RrGpuDownloadAddressFitsPointer[
     sizeof(unsigned long) >= sizeof(void *) ? 1 : -1];
 
-extern void func_80096444(void *, void *, s32);
-extern char D_80011F80[];
+extern void PsyqMemcpy(void *, void *, s32);
+extern char StrPutDispEnvFmt[];
 extern struct {
     char pad[0x10];
     void (*f10)(u32);
@@ -53,7 +53,7 @@ extern u8 D_800ABAC2[];
 extern u8 D_800ABAC3;
 extern char D_800ABB2C[];
 extern URECT16 D_800ABB34;
-extern HRANGE D_800ABB94[2][5];
+extern HRANGE DispHRangeTable[2][5];
 extern u8 D_800ABBBC[5];
 extern u32 D_80112788[10];
 extern u32 D_801127B0[4];
@@ -92,7 +92,7 @@ DISPENV_T *PutDispEnv(DISPENV_T *env) {
     p = D_800ABAC2;
     mode = 0x08000000;
     if (*p >= 2) {
-        GPU_printf(D_80011F80, env);
+        GPU_printf(StrPutDispEnvFmt, env);
     }
     {
         /* ASM_BARRIER: keep 0x05000000 in $v0 so disp.y shift gets $v1 */
@@ -167,8 +167,8 @@ DISPENV_T *PutDispEnv(DISPENV_T *env) {
         } else {
             i = 4;
         }
-        x0 = D_800ABB94[env->pad0][i].x0 + env->screen.x * D_800ABBBC[i];
-        dx = D_800ABB94[env->pad0][i].x1 - D_800ABB94[env->pad0][i].x0;
+        x0 = DispHRangeTable[env->pad0][i].x0 + env->screen.x * D_800ABBBC[i];
+        dx = DispHRangeTable[env->pad0][i].x1 - DispHRangeTable[env->pad0][i].x0;
         w = env->screen.w;
         if (w) {
             dx = (dx * w) >> 8;
@@ -192,16 +192,16 @@ DISPENV_T *PutDispEnv(DISPENV_T *env) {
         x1 = (y1 & 0x3FF) << 10;
         GpuFuncTable->f10(0x07000000 | x1 | (y0 & 0x3FF));
     }
-    func_80096444(D_800ABB2C, env, 0x14);
+    PsyqMemcpy(D_800ABB2C, env, 0x14);
     return env;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80096444 ((int (*)())func_80096444)
+#define PsyqMemcpy ((int (*)())PsyqMemcpy)
 
-int GetDispEnv(int a) { func_80096444(a, D_800ABB2C, 0x14); return a; }
+int GetDispEnv(int a) { PsyqMemcpy(a, D_800ABB2C, 0x14); return a; }
 
-#undef func_80096444
+#undef PsyqMemcpy
 
 /* legacy typing of shared globals in this part of the unit */
 #define GpuFuncTable ((void *)GpuFuncTable)

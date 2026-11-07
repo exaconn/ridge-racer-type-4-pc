@@ -7,7 +7,7 @@ extern struct {
     short h2890;
 } SoundState;
 extern int SeqSetVolume();
-extern int func_80053CB0();
+extern int SeqMuteVolume();
 
 void SeqFadeStep()
 {
@@ -36,6 +36,6 @@ void SeqFadeStep()
       SeqSetVolume((short)v, &SoundState, from);
       return;
     }
-    func_80053CB0(d, &SoundState);
+    SeqMuteVolume(d, &SoundState);
   }
 }

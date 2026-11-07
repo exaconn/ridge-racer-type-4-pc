@@ -79,7 +79,7 @@ void PadUpdateRumble(void);
 void PadPollPort(s32);
 extern T_1 PadPulseState[];
 extern char StrControllerNoErrorFmt[];
-extern char D_80011030[];
+extern char StrActuatorNoErrorFmt[];
 extern int DebugPrintStub();
 
 void PadUpdate(void);
@@ -387,7 +387,7 @@ void PadRangeCheckSet(unsigned a, unsigned b, short c, short d) {
         DebugPrintStub(StrControllerNoErrorFmt, a);
     }
     if (b >= 2) {
-        DebugPrintStub(D_80011030, b);
+        DebugPrintStub(StrActuatorNoErrorFmt, b);
     }
     t = &PadPulseState[a];
     t->t[b] = d;

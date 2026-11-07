@@ -166,7 +166,7 @@
 
 #undef D_800ABAC2
 
-extern char D_80011EB4[];
+extern char StrRectFmt[];
 
 extern char D_80011EC8[];
 
@@ -217,7 +217,7 @@ report:
             s32 h=rect->rect.h;
             /* ASM_BARRIER: Reload all rectangle fields before fetching the second diagnostic callback. */
             __asm__("" : : "r"(x),"r"(y),"r"(w),"r"(h) : "$2");
-            GPU_printf(D_80011EB4,x,y,w,h);
+            GPU_printf(StrRectFmt,x,y,w,h);
         }
     }
 }

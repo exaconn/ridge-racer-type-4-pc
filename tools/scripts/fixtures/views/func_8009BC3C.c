@@ -40,13 +40,13 @@ s32 _cardSioHandler(void) {
                 /* ASM_BARRIER: Capture the retry predicate before publishing the success state. */
                 register s32 retry __asm__("$3");
                 retry=CardRetriesLeft;
-                D_800ABDE4=0x41;
+                CardCommandStatus=0x41;
                 /* ASM_BARRIER: Retain argument preparation on both retry paths. */
                 __asm__ volatile("" : "+r"(flag));
                 flag=1;
                 if(retry!=0) {
                     _cardCmdReset(CardCommandRequest);
-                    D_800ABDE4=2;
+                    CardCommandStatus=2;
                     CardRetriesLeft=(u32)CardRetriesLeft-1;
                     /* ASM_BARRIER: Finish retry bookkeeping before preparing the event argument again. */
                     __asm__("" : : : "$4", "memory");
@@ -59,7 +59,7 @@ s32 _cardSioHandler(void) {
                 event=D_800ABDC0;
                 /* Ordinary write view preserves the original jump-delay store. */
                 *(u16 *)&CardSio0Regs->control=0;
-                D_800ABDE4=0x21;
+                CardCommandStatus=0x21;
             }
         }
         page=(s32 *)0x800B0000U;

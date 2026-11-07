@@ -347,7 +347,7 @@ case 0x6:
     if (G->s44 < 0x20) {
         goto block_197;
     }
-    func_80096454((SCRATCHPAD + 0x18), 0, 0x10);
+    PsyqMemset((SCRATCHPAD + 0x18), 0, 0x10);
     src = D_8009E540;
     st = &D_8010BF7C;
     __asm__ volatile("" ::: "$8", "$9"); /* ASM_BARRIER: reserve $t0-$t1 so sp2 allocates to $t5 */

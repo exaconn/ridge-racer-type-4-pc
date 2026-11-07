@@ -15,7 +15,7 @@ extern w3g6_32 D_800A3B00;
 extern w3g6_U D_800A3B20[];
 extern w3g6_U D_800A3B28[];
 extern w3g6_U D_800A3B30[];
-extern int D_800A3B38[];
+extern int CourseFarColorTable[];
 extern w3g6_32 ColorMatrix;
 extern short D_800AD5BC[];
 extern w3g6_U D_800F38F8[];
@@ -47,7 +47,7 @@ void InitViewLighting(void)
     BackColorR = 0x13;
     BackColorG = 0x1D;
     BackColorB = 0x1C;
-    b = D_800A3B38;
+    b = CourseFarColorTable;
     i = CourseIndex;
     t = b + i * 3;
     FarColorR = t[0];

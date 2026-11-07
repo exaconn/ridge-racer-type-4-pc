@@ -12,7 +12,7 @@
 
 #define SIO1_REGS ((W5A *)SIO1_REGS)
 
-#define D_800ABD30 ((volatile int *)D_800ABD30)
+#define I_STAT_Sio ((volatile int *)I_STAT_Sio)
 
 #define SioRequest (*(int (*)[3])&SioRequest)
 
@@ -22,7 +22,7 @@
 
 #undef SIO1_REGS
 
-#undef D_800ABD30
+#undef I_STAT_Sio
 
 #undef SioRequest
 

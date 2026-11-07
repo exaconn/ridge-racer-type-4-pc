@@ -31,11 +31,11 @@ void SetupRace(void)
     InitRaceCars(D_800F4D44);
     if (((D_800F4D44 < 2) || (D_800F4D44 == 6)) || ((D_800F4D44 == 4) && (D_80107178 == 2)))
     {
-        D_800FF6F8 = 1;
+        TrackEventSfxEnabled = 1;
     }
     else
     {
-        D_800FF6F8 = 0;
+        TrackEventSfxEnabled = 0;
     }
     if (D_800F4D44 != 5)
     {
@@ -67,7 +67,7 @@ void SetupRace(void)
     D_8010C140[2] = (s32) TrackLength;
     third = TrackLength / 3;
     D_8010C140[0] = third;
-    vectors = (u8 *) (&D_800F3838);
+    vectors = (u8 *) (&CourseBestLapTimes);
     D_8010C140[1] = (s32) (third * 2);
     vector = (s32 *) (((CourseIndex * 12) + (ReverseCourse * 96)) + vectors);
     D_8010C0F8[0] = (s32) vector[0];
@@ -168,10 +168,10 @@ void SetupRace(void)
     RacePaused = 0;
     PauseCursor = 0;
     D_80107190 = 0x80;
-    D_800AC5A4 = 0x3A98;
+    RaceTimeRemaining = 0x3A98;
     if ((D_800F4D44 != 1) && (D_800F4D44 != 6))
     {
-        D_800AC5A4 = 0xAFC8;
+        RaceTimeRemaining = 0xAFC8;
     }
     VSyncThreshold = 0x180;
     ClearTrackObjectStates(0);
@@ -180,7 +180,7 @@ void SetupRace(void)
     D_800F2AB4.first = 0;
     D_800F2AB4.second = 0;
     RaceVoiceFlags = 0;
-    func_8004F7E0();
+    StopAllSoundAndReset();
     SelectCourseBgmTrack();
     SetModelTexturePage(0xA);
 

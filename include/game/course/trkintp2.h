@@ -4,7 +4,7 @@
 #include "types.h"
 
 extern unsigned char D_8009FE2C[];
-int func_80043730();
+int FindNearestTrackEntry();
 void func_800437D8();
 void CarLocalToWorld(char *a, int b, int *c);
 

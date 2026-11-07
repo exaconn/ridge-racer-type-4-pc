@@ -62,7 +62,7 @@ extern int CarLoadStep();
 
 extern int UploadCarClut();
 
-extern struct { short a; short b; } D_800ACBD0[];
+extern struct { short a; short b; } PlayerCourseChoices[];
 
 extern char *D_800F3B24;
 
@@ -82,7 +82,7 @@ int LoadCarRangeStep(int arg0, int arg1) {
         break;
     case 1:
         arg0 += LoadIndex;
-        if (RequestCarLoad(SelectionRows[arg0][1], SelectionRows[arg0][0], SelectionRows[arg0][2] % 20, D_800ACBD0[arg0].a, arg0) == 1) {
+        if (RequestCarLoad(SelectionRows[arg0][1], SelectionRows[arg0][0], SelectionRows[arg0][2] % 20, PlayerCourseChoices[arg0].a, arg0) == 1) {
             LoadState = 2;
         }
         break;
@@ -90,7 +90,7 @@ int LoadCarRangeStep(int arg0, int arg1) {
         r = CarLoadStep();
         if (r != 1) break;
         arg0 += LoadIndex;
-        a1 = D_800ACBD0[arg0].b;
+        a1 = PlayerCourseChoices[arg0].b;
         if (a1 >= 2) {
             q3 = D_800F3B24;
             a1 -= 2;

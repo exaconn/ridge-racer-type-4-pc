@@ -262,7 +262,7 @@ int AllocGlyphRows(int a) {
     int sz = GlyphRowCount * 28;
     GlyphRows = a;
     func_80096434(a, sz);
-    DebugPrintStub(D_800108D8, sz);
+    DebugPrintStub(SizeLdFmt, sz);
     return sz;
 }
 

@@ -29,7 +29,7 @@ typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + headers + '''
 RrInterruptRegisters test_irq;
-RrInterruptRegisters *D_800ABC58=&test_irq, *I_STAT_Card=&test_irq, *D_800ABD30=&test_irq;
+RrInterruptRegisters *I_STAT_PadVsync=&test_irq, *I_STAT_Card=&test_irq, *I_STAT_Sio=&test_irq;
 RrSerialReceiveRequest SioReceiveRequest;
 RrSerialPortRegisters test_serial;
 RrSerialPortRegisters *SIO1_REGS=&test_serial;

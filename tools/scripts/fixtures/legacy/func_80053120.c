@@ -13,7 +13,7 @@ extern struct {
     char pad5[0x26B8 - 0x26A0];
     int f26B8;
 } SoundState;
-extern unsigned int D_800F7430;
+extern unsigned int CdAudioFadeState;
 extern int CdAudioSetVolume();
 extern int CdSync();
 extern int CdControl();
@@ -21,7 +21,7 @@ extern int CdControl();
 void CdAudioPauseStep()
 {
     int r;
-    switch (D_800F7430) {
+    switch (CdAudioFadeState) {
     case 0:
         SoundState.f269C = 2;
         CdAudioSetVolume(0);
@@ -38,7 +38,7 @@ void CdAudioPauseStep()
     inc:
             SoundState.f2678 = SoundState.f2678 + 1;
         } else if (r == 5) {
-            D_800F7430 = 1;
+            CdAudioFadeState = 1;
         }
         break;
     case 4:

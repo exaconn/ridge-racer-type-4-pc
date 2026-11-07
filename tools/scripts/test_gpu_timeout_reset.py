@@ -24,7 +24,7 @@ typedef uint8_t u8;typedef uint16_t u16;typedef int16_t s16;typedef uint32_t u32
 ''' + headers + '''
 u32 ports[8];u16 mask_storage,*I_MASK=&mask_storage;
 volatile u32 *GPU_STATUS=&ports[0],*DMA2_MADR=&ports[1],*DMA2_CHCR=&ports[2],*DPCR=&ports[3];
-s32 _qin,D_800ABBF8,D_800ABBFC,GpuAlarmCount;
+s32 _qin,D_800ABBF8,GpuTimeoutDeadline,GpuAlarmCount;
 volatile s32 _qout;
 char GpuTimeoutFmt[]="GPU timeout:que=%d,stat=%08x,chcr=%08x,madr=%08x\\n";
 s32 test_now,test_diag_calls,test_read_count,test_time_calls;
@@ -64,7 +64,7 @@ void test_gpu(volatile u32 *p,u32 value) {
 void test_reset(void) {
  u32 i;for(i=0;i<8;i++)ports[i]=0xA5000000+i;
  GPU_STATUS=&ports[0];DMA2_MADR=&ports[1];DMA2_CHCR=&ports[2];DPCR=&ports[3];
- _qin=70;_qout=5;D_800ABBF8=-1;D_800ABBFC=100;GpuAlarmCount=0;
+ _qin=70;_qout=5;D_800ABBF8=-1;GpuTimeoutDeadline=100;GpuAlarmCount=0;
  mask_storage=0xF123;test_now=101;
  test_diag_calls=test_read_count=test_time_calls=test_mask_calls=test_tail_reads=test_event_count=0;
  test_mutate_diag=test_mutate_mask=test_swap_write=0;
@@ -174,7 +174,7 @@ void test_reset(void) {
             self.lib.test_reset()
             self.scalar('test_now').value = now
             self.lib.set_alarm()
-            self.assertEqual(self.scalar('D_800ABBFC').value, C.c_int32(now+240).value)
+            self.assertEqual(self.scalar('GpuTimeoutDeadline').value, C.c_int32(now+240).value)
             self.assertEqual(self.scalar('GpuAlarmCount').value, 0)
 
     def test_diagnostic_queue_difference_wraps_before_masking(self):

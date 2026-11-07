@@ -9,7 +9,7 @@
 
 extern s32 RC2WaitLimit;
 
-extern unsigned int D_801146B8;
+extern unsigned int PadRcnt2Start;
 
 int chkRC2wait() {
     unsigned int a0;
@@ -17,7 +17,7 @@ int chkRC2wait() {
     register volatile unsigned short *p __asm__("$3");
     unsigned int v0, lim, b;
     a0 = *(volatile unsigned short *)0x1F801120 & 0xFFFF;
-    if (a0 < D_801146B8) {
+    if (a0 < PadRcnt2Start) {
         p = (unsigned short *)0x1F801128;
         if (*p != 0) {
             a0 += *p;
@@ -26,11 +26,11 @@ int chkRC2wait() {
         }
     }
     if (!(*(volatile unsigned short *)0x1F801124 & 0x200)) {
-        b = D_801146B8;
+        b = PadRcnt2Start;
         lim = RC2WaitLimit;
         v0 = (a0 - b) >> 3;
     } else {
-        b = D_801146B8;
+        b = PadRcnt2Start;
         lim = RC2WaitLimit;
         v0 = a0 - b;
     }

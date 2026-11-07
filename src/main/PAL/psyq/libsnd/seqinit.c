@@ -40,7 +40,7 @@ typedef struct {
 extern SeqStruct *_ss_score[];
 extern u32 VBLANK_MINUS;
 extern char StrNotSeqData[];
-extern char D_80011730[];
+extern char SeqOldFormatMsg[];
 extern s32 DebugPrintStub(char *);
 extern s32 _SsReadDeltaValue(s32, s32);
 
@@ -112,7 +112,7 @@ s32 _SsInitSoundSeq(s16 a0, s32 a1, u8 *seq) {
             return -1;
         }
     } else {
-        DebugPrintStub(D_80011730);
+        DebugPrintStub(SeqOldFormatMsg);
         return 0;
     }
 

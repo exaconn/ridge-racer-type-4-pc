@@ -24,7 +24,7 @@ extern int func_800172DC();
 extern int AddScreenFadeTiles();
 extern int DrawOpponentCar();
 extern int DrawCars();
-extern int func_80036FD4();
+extern int DrawTrackSceneryForPlayer();
 extern int StepRaceFrame();
 extern int DrawFontString();
 extern int SoundSetMasterVolume();
@@ -35,7 +35,7 @@ extern int func_80055330();
 extern int func_8005534C();
 extern int SelectCourseBgmTrack();
 extern int BuildCameraMatrices();
-extern int func_8006ECE8();
+extern int SetupPlayerView();
 extern int SetupViewport();
 extern int UpdateTrackObjects();
 extern int DrawTrackObjects();
@@ -498,8 +498,8 @@ void func_8005DDF4()
     while (i_s1 < 7);
   }
   *((int *) (SCRATCHPAD + 0x78)) = D_800F2A64;
-  func_8006ECE8(0);
+  SetupPlayerView(0);
   DrawTrackObjects(0);
-  func_80036FD4(0);
+  DrawTrackSceneryForPlayer(0);
   QueueDrawStp();
 }

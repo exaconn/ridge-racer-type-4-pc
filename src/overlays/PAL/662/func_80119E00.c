@@ -113,7 +113,7 @@ closeMenu:
         if (ovl662_D_801272E8 == 0) SetMenuFrameOptions(0,1,1);
         else SetMenuFrameOptions(0,1,0);
         if ((UiRows->byte14 == 5) && (BadgeRows->state10 == 11)) {
-            D_800ACBD0[0].second = (u16)ovl662_D_801272E2+1;
+            PlayerCourseChoices[0].second = (u16)ovl662_D_801272E2+1;
             if (ovl662_D_801272E8 == 0) goto enterPalette;
             goto publishScene;
         }

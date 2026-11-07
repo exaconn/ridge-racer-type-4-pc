@@ -7,13 +7,13 @@
 /* legacy typing of shared globals in this part of the unit */
 #define CardSio0Base ((S *)CardSio0Base)
 
-#define D_800ABDD4 ((int *)D_800ABDD4)
+#define I_STAT_CardSel ((int *)I_STAT_CardSel)
 
 #define setRC2wait ((int (*)())setRC2wait)
 
 #undef CardSio0Base
 
-#undef D_800ABDD4
+#undef I_STAT_CardSel
 
 #undef setRC2wait
 
@@ -37,7 +37,7 @@ int _cardSelectSlot(a0) int a0; {
             p->b0;
             return 0;
         }
-        *D_800ABDD4 = -0x81;
+        *I_STAT_CardSel = -0x81;
     }
     return 1;
 }

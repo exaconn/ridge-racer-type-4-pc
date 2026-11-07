@@ -44,7 +44,7 @@ static unsigned scenario,mutation;
 #define LoadCursor w->s.current
 #define D_800F4D40 w->s.backing
 #define SelectionRows w->s.selection
-#define D_800ACBD0 w->s.points
+#define PlayerCourseChoices w->s.points
 #define ImageRows w->s.ui[scenario%4]
 #define CourseChoiceTable w->s.main
 #define ovl661_D_80118458 w->s.table661

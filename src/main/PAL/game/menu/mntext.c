@@ -9,7 +9,7 @@ void FormatDecimalDigits(char *output, s32 value, s32 digits);
 void FormatRaceTime(char *output, s32 time);
 extern char D_80010BF0[];
 extern char LapTimeTemplateStr[];
-extern u8 *D_8009FD04[];
+extern u8 *MenuTextTemplates[];
 extern char *D_8009FD8C[];
 extern char *D_8009FD9C;
 extern s8 D_800AD4F1;
@@ -17,7 +17,7 @@ extern s16 ReverseCourse;
 extern s16 CourseIndex;
 extern RrTimeRecord16 RaceRecords[2][8][5];
 extern RrTimeRecord16 LapRecords[2][8][5];
-extern u8 *D_800F39C8[];
+extern u8 *CarRecordPtrs[];
 extern s32 TotalRaceTime;
 
 
@@ -45,8 +45,8 @@ void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
         MenuTextRows[row].rendering.y = (s16)position * 28 + 0x60;
         MenuTextRows[row].rendering.clut = 0x2638;
         if (label >= 0) {
-            while (D_8009FD04[templateIndex][column] != 0) {
-                MenuTextRows[row].rendering.text[column] = D_8009FD04[templateIndex][column];
+            while (MenuTextTemplates[templateIndex][column] != 0) {
+                MenuTextRows[row].rendering.text[column] = MenuTextTemplates[templateIndex][column];
                 column++;
             }
         } else {
@@ -90,7 +90,7 @@ void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
             }
             break;
         case 15:
-            value = D_800F39C8[0][0x1F3];
+            value = CarRecordPtrs[0][0x1F3];
             FormatDecimalDigits((char *)&MenuTextRows[row].rendering.text[12], value + 1, 0);
             break;
         case 16:
@@ -131,7 +131,7 @@ void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
         case 31:
             MenuTextRows[row].rendering.clut = 0x2639;
             MenuTextRows[row].rendering.flags = 2;
-            MenuTextRows[row].rendering.text[0] = D_8009FD04[templateIndex][0];
+            MenuTextRows[row].rendering.text[0] = MenuTextTemplates[templateIndex][0];
             MenuTextRows[row].rendering.text[1] = 0;
             break;
         }

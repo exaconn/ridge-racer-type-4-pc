@@ -6,8 +6,8 @@
 void ovl661_func_80117350(void)
 {
     ModeFrame=0;ScreenFrame=0;MenuCursor=0;MenuItemCount=4;
-    D_800ACBD0[2].first=(func_80096464()&3)+10;
-    D_800ACBD0[3].first=(func_80096464()&3)+12;
+    PlayerCourseChoices[2].first=(PsyqRand()&3)+10;
+    PlayerCourseChoices[3].first=(PsyqRand()&3)+12;
     CourseIndex=DecodeCourseIndex(D_800AC648);
     ResetScreenCounters();
     RR_GPU_PROJECTION_SCRATCH->word18=512;

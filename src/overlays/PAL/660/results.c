@@ -204,7 +204,7 @@ void ovl660_func_8011572C(void) {
         }
         break;
     case 8:
-        ready = func_8003B12C();
+        ready = LoadResultsSceneStep();
         if (ready == 1) {
             SeqStartTrack(0);
             ovl660_func_80114920();

@@ -102,7 +102,7 @@ extern s16 LinkState;
 extern int D_8009F728;
 extern signed char LinkEntryState[];
 extern signed char D_800ABEBE;
-extern int D_800AC5A4;
+extern int RaceTimeRemaining;
 extern short D_800AD508;
 extern int D_800F3A64;
 
@@ -110,7 +110,7 @@ void SetupMenuCarCamera(int a);
 void UpdateRaceChaseCamera(struct w3g2p *p);
 void DrawStartCountdown(s32 arg0, s32 arg1);
 void PlayStartCountdownVoice(int a0);
-void func_800347BC(void);
+void InitPlayerRumble(void);
 void UpdatePauseMenu(int a0);
 void ApplyPauseMenuChoice(int arg0);
 void DrawPauseMenu(int a0, int a1);
@@ -400,7 +400,7 @@ void PlayStartCountdownVoice(int a0) {
 #define PlayerCars (*(Car (*)[])&PlayerCars)
 #define PlayerControllers (*(S1 (*)[])&PlayerControllers)
 
-void func_800347BC(void) {
+void InitPlayerRumble(void) {
     int i;
     PadClearPulse(0);
     PadClearPulse(1);
@@ -428,7 +428,7 @@ void UpdatePauseMenu(int a0) {
             PlaySfx(0);
         }
     }
-    func_800347BC();
+    InitPlayerRumble();
 }
 
 void ApplyPauseMenuChoice(int arg0) {
@@ -711,8 +711,8 @@ int UpdateLinkHandshake(int a0)
     else
       if (a0 == 0)
     {
-      int v = D_800AC5A4 - 1;
-      D_800AC5A4 = v;
+      int v = RaceTimeRemaining - 1;
+      RaceTimeRemaining = v;
       if (v <= 0)
       {
         LinkState = 4;
@@ -730,9 +730,9 @@ int UpdateLinkHandshake(int a0)
     case 4:
       if (a0 == 0)
     {
-      if (D_800AC5A4 > 0)
+      if (RaceTimeRemaining > 0)
       {
-        D_800AC5A4 -= 1;
+        RaceTimeRemaining -= 1;
       }
     }
       if ((k == 0) || ((k == 3) && (a0 == 0)))

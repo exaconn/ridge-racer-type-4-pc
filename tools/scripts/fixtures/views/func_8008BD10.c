@@ -6,7 +6,7 @@
 
 RrLibInterruptCallback setIntrDMA(s32 channel,RrLibInterruptCallback callback) {
     s32 i=channel;
-    RrLibInterruptCallback *entry=D_800A63A4;
+    RrLibInterruptCallback *entry=InterruptCallbackTable;
     /* ASM_BARRIER: Retain the previous callback for the common return. */
     register RrLibInterruptCallback old __asm__("$7");
     RrLibInterruptCallback value;
@@ -23,7 +23,7 @@ RrLibInterruptCallback setIntrDMA(s32 channel,RrLibInterruptCallback callback) {
         if(value) {
             u32 word,bit;
             s32 shift;
-            control=D_800A63A0;
+            control=DICR_VSync;
             mask|=65535;
             *entry=value;
             word=*control;
@@ -34,7 +34,7 @@ RrLibInterruptCallback setIntrDMA(s32 channel,RrLibInterruptCallback callback) {
         } else {
             u32 word;
             s32 shift;
-            control=D_800A63A0;
+            control=DICR_VSync;
             mask|=65535;
             *entry=0;
             word=*control;

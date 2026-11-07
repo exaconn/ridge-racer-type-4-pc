@@ -125,7 +125,7 @@ void ovl661_func_80117430(void) {
                 D_800F4D44 = 2;
 block_42:
                 if (D_800AC5D0 <= 0) {
-                    func_80053CB0();
+                    SeqMuteVolume();
                     ovl661_D_80118448[0] = -1;
                     MenuScriptId = 0;
                     ModeGroup = 1;

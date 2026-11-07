@@ -2,6 +2,6 @@
 
 extern int SeqFadeVolume();
 
-void func_80053CB0(void) {
+void SeqMuteVolume(void) {
     SeqFadeVolume(0, 0);
 }

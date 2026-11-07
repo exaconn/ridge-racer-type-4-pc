@@ -89,11 +89,11 @@ void ovl663_update_selection(void) {
                 } else {
                     glyphIndex = 0;
                 }
-                D_800ACBD0[0].first = (s16)(s8)CourseChoiceTable[0][glyphIndex].first;
-                D_800ACBD0[0].second = 0;
+                PlayerCourseChoices[0].first = (s16)(s8)CourseChoiceTable[0][glyphIndex].first;
+                PlayerCourseChoices[0].second = 0;
             } else {
-                D_800ACBD0[0].first = 0;
-                D_800ACBD0[0].second = 0;
+                PlayerCourseChoices[0].first = 0;
+                PlayerCourseChoices[0].second = 0;
             }
             i = 0;
             do {

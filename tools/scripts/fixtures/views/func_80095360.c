@@ -5,6 +5,6 @@
 #include "rr/timing.h"
 
 void set_alarm(void) {
-    D_800ABBFC = (u32)VSync(-1) + 0xF0;
+    GpuTimeoutDeadline = (u32)VSync(-1) + 0xF0;
     GpuAlarmCount = 0;
 }

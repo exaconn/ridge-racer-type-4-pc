@@ -79,24 +79,24 @@ void DrawLinkEntryScreen(s32 mode) {
             status=LinkEntryState[1-mode][row];
             switch (status) {
             case 0:
-                DrawBigFontString(60,statusY,D_8001060C);
+                DrawBigFontString(60,statusY,StrNowAcceptingEntries);
                 break;
             case 1:
                 DrawBigFontString(60,statusY,EntryAcceptedStr);
-                DrawBigFontString(60,waitY,D_8001063C);
+                DrawBigFontString(60,waitY,StrStarPleaseWait);
                 break;
             case -1:
-                DrawBigFontString(60,statusY,D_8001064C);
+                DrawBigFontString(60,statusY,StrNoPlayer);
                 break;
             }
             row++;
         } while (row<2);
-        row=D_800AC5A4/50;
+        row=RaceTimeRemaining/50;
         text[0]=row/10+48;
         text[1]=row%10+48;
         DrawBigFontString(44,244,text);
         DrawBigFontString(32,244,SecondsUntilCloseText);
-        remaining=(s32)(500U-(u32)D_800AC5A4);
+        remaining=(s32)(500U-(u32)RaceTimeRemaining);
         DrawBigFontString(((s32)((u32)remaining<<8)/500)+32,224,D_80010674);
     }
 }

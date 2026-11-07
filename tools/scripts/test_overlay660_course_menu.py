@@ -89,7 +89,7 @@ void SeqFadeVolume(s32 a,s32 b){const s32 args[12]={a,b};record(7,args);effect(7
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){va_list ap;va_start(ap,j);s32 x=va_arg(ap,s32),y=va_arg(ap,s32);va_end(ap);const s32 args[12]={a,b,c,d,e,f,g,h,i,j,x,y};record(8,args);effect(8);}
 void ovl660_func_801163C4(void){service(9);}
 void AddScreenFadeTiles(u32 *p,s32 b,u32 c){unsigned k;for(k=0;k<2&&p!=w->frames[k].ordering70;k++){}assert(k<2&&(uintptr_t)p>UINT32_MAX);const s32 args[12]={k,b,(s32)c};record(10,args);effect(10);}
-void func_80053CB0(void){service(11);}
+void SeqMuteVolume(void){service(11);}
 void DrawCourseInfoPanel(s32 a,s32 b){const s32 args[12]={a,b};record(12,args);effect(12);}
 void DrawUiRow(s32 a){const s32 args[12]={a};record(13,args);effect(13);}
 void DrawMenuStepArrows(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){const s32 args[12]={a,b,c,d,e,f,g};record(14,args);effect(14);}
@@ -113,7 +113,7 @@ static void expected(void){w->frame=word((u32)w->frame+1);w->tick=word((u32)w->t
    if(w->rows[w->rowRoot][3].byte14==5){for(unsigned i=0;i<3;i++)w->rows[w->rowRoot][i].byte14=0;w->phase=0;}
   }else if(phase==3){course=0;if(w->rows[w->rowRoot][0].byte14==5){exits[0]++;ovl660_func_801163C4();w->enabled=1;w->scene=51;w->phase=0;}
   }else if(phase==8||phase==10){course=0;s16 timer=half((u16)w->timer-1);w->timer=timer;AddScreenFadeTiles(w->frames[w->frameRoot].ordering70,(64-(s32)timer)*4,69);
-   if(w->timer<=0){exits[phase==8?1:2]++;if(phase==8){func_80053CB0();w->enabled=1;w->scene=3;}else{w->settings=1;w->secondary=306;w->enabled=1;w->scene=71;}w->phase=0;}
+   if(w->timer<=0){exits[phase==8?1:2]++;if(phase==8){SeqMuteVolume();w->enabled=1;w->scene=3;}else{w->settings=1;w->secondary=306;w->enabled=1;w->scene=71;}w->phase=0;}
   }
  }
  if(course)DrawCourseInfoPanel(w->course,0);for(unsigned i=0;i<4;i++)DrawUiRow(i);

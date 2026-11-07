@@ -12,8 +12,8 @@ static __inline__ s32 save_first_file_handler(void) {
     if (device < end) {
         limit = end;
         do {
-            if (device->name && func_80096404(device->name, D_801143C0) == 0) {
-                D_801143B8 = device->handler;
+            if (device->name && PsyqStrcmp(device->name, D_801143C0) == 0) {
+                CardFirstFileHandler = device->handler;
                 return 1;
             }
             device++;
@@ -45,7 +45,7 @@ void *firstfile(char *path, void *directory) {
     if (device < end) {
         limit = end;
         do {
-            if (device->name && func_80096404(device->name, D_801143C0) == 0) {
+            if (device->name && PsyqStrcmp(device->name, D_801143C0) == 0) {
                 device->handler = _firstfile_hook;
                 break;
             }

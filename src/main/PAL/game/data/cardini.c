@@ -32,7 +32,7 @@ extern char D_800FFC48[];
 extern int CardPortTimer[];
 extern char StrCardDirPatternFmt[];
 extern char CardDirEntries[];
-extern char *func_80096F74();
+extern char *nextfile();
 extern char D_800113E4[];
 extern int CardFileHandle;
 extern int FileSeek();
@@ -155,7 +155,7 @@ int CountCardFiles(int a, int b) {
     PsyqSprintf(sp, StrCardDirPatternFmt, a, b);
     s0 = CardDirEntries;
     if (firstfile(sp, s0) == s0) {
-        do { n++; s0 += 0x28; } while (func_80096F74(s0) == s0);
+        do { n++; s0 += 0x28; } while (nextfile(s0) == s0);
         n = n;
     }
     return n;

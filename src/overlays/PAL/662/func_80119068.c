@@ -49,7 +49,7 @@ void ovl662_func_80119068(void) {
             if (ovl662_D_801272BC > 0) {
                 SelectionRows.pad02[0] += 20;
             }
-            D_800ACBD0[0].first = ovl662_D_801272BC;
+            PlayerCourseChoices[0].first = ovl662_D_801272BC;
             ResetScreenCounters();
             LoadCursor = MenuArenas.first;
             (*(s8*)(ImageRows+1)) = 6;
@@ -148,8 +148,8 @@ close:
         AddScreenFadeTiles(((RrFrameStorage*)(void*)CurrentDrawBuf)->ordering.ordering70, (0x40 - fade) * 4, 0x45);
         if ((s16)D_800AC5D0 > 0) break;
         CourseChoiceTable[1][ovl662_D_801272E4].glyph = PackChoiceGlyph(&SelectionRows);
-        CourseChoiceTable[1][ovl662_D_801272E4].first = D_800ACBD0[0].first;
-        CourseChoiceTable[1][ovl662_D_801272E4].second = D_800ACBD0[0].second;
+        CourseChoiceTable[1][ovl662_D_801272E4].first = PlayerCourseChoices[0].first;
+        CourseChoiceTable[1][ovl662_D_801272E4].second = PlayerCourseChoices[0].second;
         ovl662_func_8011512C();
         ModeGroup = 1;
         D_800F3A26 = 0x40;

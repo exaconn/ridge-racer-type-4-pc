@@ -30,7 +30,7 @@ extern struct {
 void SeqStartTrack(int a0) {
     int arr[2] = {0x6C, 0x7F};
     if (SoundState.x2868 != a0) {
-        func_80053CB0();
+        SeqMuteVolume();
         SoundState.x2868 = a0;
         SoundState.x2864 = (s16)SsSeqOpen(SoundState.w[a0], SoundState.h[a0 + 2]);
         SsSetMarkCallback((s16)SoundState.x2864, 0, SeqMarkCallback);

@@ -41,7 +41,7 @@ typedef struct {int kind,offset,size,sector;s32 port;World snapshot;} Entry;
 static World initial,actual,expected,*w;
 static Entry entries[90],saved[90];
 static unsigned seed=0x6910FCAB;static int count,writes,fail_at,mutation;static s32 failure;
-#define D_801140F8 (w->directory)
+#define CardFormatDirRecords (w->directory)
 #define D_801142D8 (w->broken)
 #define D_80114328 (w->scratch)
 static unsigned random32(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}

@@ -3,9 +3,9 @@
 #include "rr/library.h"
 #include "rr/diagnostics.h"
 extern RrLibSavedState D_800A52C8;
-extern volatile u16 *D_800A6354,*I_MASK;
+extern volatile u16 *I_STAT,*I_MASK;
 extern s32 IntrStuckCount;
-extern const char UnexpectedInterruptFmt[],D_80011858[];
+extern const char UnexpectedInterruptFmt[],IntrTimeoutFmt[];
 void ReturnFromException(void);
 void trapIntr(void);
 /* I_STAT acknowledgements write zero to the serviced bits. The native protocol

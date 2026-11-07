@@ -32,8 +32,8 @@ class CdDirectoryInitTest(unittest.TestCase):
 ''' + header + r'''
 static u8 message_storage[256];
 ''' + body + r'''
-const char D_80010028[]="start", R4BinPath[]="R4.BIN";
-const char StrFileNotFoundFmt[]="missing", D_80010068[]="done";
+const char NowLoadingFmt[]="start", R4BinPath[]="R4.BIN";
+const char StrFileNotFoundFmt[]="missing", StrReadSectorFmt[]="done";
 u32 *CdDirectoryBuffer;
 RrCdFileEntry CdFileTable[952];
 static u32 directory_a[1024], directory_b[1024], directory_c[1024];
@@ -52,7 +52,7 @@ void func_800963C4(s32 code) {assert(code==1 && !found && logs==2);longjmp(exite
 void DebugPrintStub(const char *format, ...) {
     va_list ap;va_start(ap,format);
     if(logs==0) {
-        assert(format==D_80010028);
+        assert(format==NowLoadingFmt);
         assert(va_arg(ap,const char *)==R4BinPath);
         assert(va_arg(ap,u32 *)==directory_a);
     } else if(!found) {

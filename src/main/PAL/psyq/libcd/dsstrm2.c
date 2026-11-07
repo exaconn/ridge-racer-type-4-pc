@@ -5,7 +5,7 @@
 #include "psyq/libcd/dsstrm32.h"
 extern int StCurFrameNo;
 extern int StDataReadyFunc;
-extern int D_80112764;
+extern int StRingFullFunc;
 void StSetStream(int a, int b, int c, int d, int e) {
     StSetMask(1);
     StRingBase = 0;
@@ -15,7 +15,7 @@ void StSetStream(int a, int b, int c, int d, int e) {
     D_801102E0 = 0;
     D_801102D4 = 0;
     StCurFrameNo = 0;
-    D_80112764 = e;
+    StRingFullFunc = e;
     /* ASM_BARRIER: keeps epilogue stack loads (lw ra/s*) after the final global stores; sched2 otherwise hoists/sinks them */
     __asm__ volatile ("" : : : "memory");
 }

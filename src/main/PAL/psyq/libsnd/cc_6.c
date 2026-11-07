@@ -22,7 +22,7 @@ RR_ASSERT_SIZE(VagAtr, 0x20);
 RR_ASSERT_SIZE(ProgAtr, 0x10);
 
   /* _ss_score */
-extern void (*D_8010F00C[])();      /* SsFCALL.ccentry: _SsSetNrpnVabAttr0.. */
+extern void (*SsFCALLCcEntry[])();      /* SsFCALL.ccentry: _SsSetNrpnVabAttr0.. */
 extern void SsUtGetVagAtr(s16 vab, s16 prog, s16 tone, VagAtr *atr); /* SsUtGetVagAtr */
 extern void SsUtSetVagAtr(s16 vab, s16 prog, s16 tone, VagAtr *atr); /* SsUtSetVagAtr */
 
@@ -85,9 +85,9 @@ void _SsContDataEntry(s16 bank, s16 row, u8 data) {
     } else if (s->b1f == 2) {
         /* NRPN complete: tone attribute handler; vagAtr is whatever the stack holds. */
         if (s->b1b == 16) {
-            D_8010F00C[s->b1a](s->b26, s->b37[ch], 0, vagAtr, s->b1a, data);
+            SsFCALLCcEntry[s->b1a](s->b26, s->b37[ch], 0, vagAtr, s->b1a, data);
         } else {
-            D_8010F00C[s->b1a](s->b26, s->b37[ch], s->b1b, vagAtr, s->b1a, data);
+            SsFCALLCcEntry[s->b1a](s->b26, s->b37[ch], s->b1b, vagAtr, s->b1a, data);
         }
         s->w90 = _SsReadDeltaValue(bank, row);
         s->b1f = 0;

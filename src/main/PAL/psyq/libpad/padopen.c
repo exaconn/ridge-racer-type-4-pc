@@ -16,10 +16,10 @@ extern int SysDeqIntRP();
 extern int ExitCriticalSection();
 extern struct HW *PadSio0Base;
 extern volatile int *I_STAT_Pad;
-extern int D_800ABCA8;
+extern int PadActiveChannel;
 extern struct W D_800ABCC0[];
 extern void (*PadPacketDoneCallback)();
-extern void (*D_800ABC8C)();
+extern void (*PadSaveCommandCallback)();
 
 int _padInitSioMode();
 
@@ -38,23 +38,23 @@ int _padInitSioMode(a0) struct A *a0; {
     setRC2wait(a0->bE8 == 8 ? 0x50 : 0x91);
     hw = PadSio0Base;
     t = 0x1003;
-    if (D_800ABCA8 != 0) t = 0x3003;
+    if (PadActiveChannel != 0) t = 0x3003;
     hw->sA = t;
-    if ((cur = (&D_800ABCC0[D_800ABCA8])->x) >= 0) {
+    if ((cur = (&D_800ABCC0[PadActiveChannel])->x) >= 0) {
         struct W *base;
         if (cur > 0) {
             base = D_800ABCC0;
         lp:
-            v = base[D_800ABCA8].x - 1;
-            base[D_800ABCA8].x = v;
+            v = base[PadActiveChannel].x - 1;
+            base[PadActiveChannel].x = v;
             PadPacketDoneCallback(a0->f0C + v * 0xF0);
-            if (base[D_800ABCA8].x > 0) goto lp;
+            if (base[PadActiveChannel].x > 0) goto lp;
         }
-        p = &D_800ABCC0[D_800ABCA8];
+        p = &D_800ABCC0[PadActiveChannel];
         if (p->x == 0) {
             p->x = -1;
             PadPacketDoneCallback(a0);
-            D_800ABC8C(a0);
+            PadSaveCommandCallback(a0);
         }
     }
     if (PadSio0Base->s4 & 0x200) {

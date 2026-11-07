@@ -30,7 +30,7 @@ typedef struct {
 
 extern int (*D_800ABC80)();
 extern int D_800ABCE8;
-extern int D_800ABCA8;
+extern int PadActiveChannel;
 extern int PadFirstChannel;
 extern int D_800ABCA4;
 extern int (*D_800ABC98)();
@@ -47,10 +47,10 @@ typedef struct {
 RR_ASSERT_SIZE(RrTransferState, 0x40);
 RR_ASSERT_OFFSET(RrTransferState, flag37, 0x37);
 extern s32 (*PadTxByteCallback)(RrTransferState *, s32);
-extern void (*D_800ABC68)(s32);
+extern void (*PadAdvanceChannelFn)(s32);
 extern void (*D_800ABC74)(Rec8009991C *);
 extern void (*PadPacketDoneCallback)(Rec8009991C *);
-extern void (*D_800ABC8C)(Rec8009991C *);
+extern void (*PadSaveCommandCallback)(Rec8009991C *);
 extern Rec8009991C *PadChannelRecords;
 extern s32 D_800ABCC0[];
 extern Unk800ABCE4 *JOY_DATA;
@@ -73,7 +73,7 @@ void func_800996C4(T *a0) {
 #define _padSioRW2 ((int (*)())_padSioRW2)
 
 void func_8009970C(o) O *o; {
-    if (D_800ABCA8 == PadFirstChannel) {
+    if (PadActiveChannel == PadFirstChannel) {
         if (D_800ABCA4 != 0) {
             D_800ABC98();
             D_800ABC94();
@@ -160,7 +160,7 @@ s32 _padTransferPacket(Rec8009991C *arg0) {
     }
 
     ptr = 0;
-    idx = (D_800ABCA8 == 0);
+    idx = (PadActiveChannel == 0);
     while (PadPacketBytesLeft >= 2) {
         if (D_800ABCC0[idx] < 0) {
             break;
@@ -184,7 +184,7 @@ s32 _padTransferPacket(Rec8009991C *arg0) {
         case 1:
             ptr = &PadChannelRecords[idx];
             PadPacketDoneCallback(ptr);
-            D_800ABC8C(ptr);
+            PadSaveCommandCallback(ptr);
             D_800ABCC0[idx] = -1;
             break;
         }
@@ -215,7 +215,7 @@ s32 _padTransferPacket(Rec8009991C *arg0) {
 
     _padWaitRXready();
     arg0->unk3C[arg0->unk44++] = JOY_DATA->unk00;
-    D_800ABC68(0);
+    PadAdvanceChannelFn(0);
     res = 0;
 end:
     return res;

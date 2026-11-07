@@ -11,7 +11,7 @@ s32 _padSetMainMode(RrChannelPatchCommand *raw,s32 first_raw,s32 second_raw) {
 
  /* ASM_BARRIER: Save arguments before loading readiness, leaving the saved comparison copy late. */
  __asm__("" : "+r"(channel) : "r"(first),"r"(second) : "$2", "$19");
- ready=D_800ABC84;
+ ready=PadChannelBusyFn;
 
  copy=first;
  if(ready(raw))return 0;

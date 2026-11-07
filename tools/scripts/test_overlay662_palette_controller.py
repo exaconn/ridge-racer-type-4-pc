@@ -31,7 +31,7 @@ static u8 banks[3][25*0x840];
 #define PlayerControllers w->input
 #define UiRows (w->rows[w->root])
 #define BadgeRows (w->badges[w->badgeRoot])
-#define D_800ACBD0 w->grid
+#define PlayerCourseChoices w->grid
 #define D_800F3B20 w->palette0
 #define D_800F3B24 w->palette1
 #define ovl662_D_801272A0 w->map

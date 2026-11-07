@@ -167,7 +167,7 @@ void ovl666_update_menu(void) {
                 ModeGroup = ready;
                 D_800F3A26 = 3;
                 D_800F4D8A = 0;
-                func_80053CB0();
+                SeqMuteVolume();
             }
             goto update_rows;
         default:

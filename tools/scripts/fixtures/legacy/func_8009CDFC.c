@@ -16,7 +16,7 @@ s32 _cardCmd5CVarBegin(s32 request, s32 parameter, u8 *buffer, u8 *first) {
     active = 2;
     CardCmdSector = parameter;
     CardCmdBuffer = buffer;
-    D_8011471C = first;
+    CardCmdResultPtrA = first;
     D_80114728 = 0;
     D_8011472C.value = 0;
     {
@@ -24,7 +24,7 @@ s32 _cardCmd5CVarBegin(s32 request, s32 parameter, u8 *buffer, u8 *first) {
         register s32 *base __asm__("$1");
         /* ASM_BARRIER: finish parameter publication before materializing the state address. */
         __asm__ volatile("" : : : "$1", "memory");
-        /* PAL RAM mapping: base[-0x421C / 4] is D_800ABDE4. */
+        /* PAL RAM mapping: base[-0x421C / 4] is CardCommandStatus. */
         base = (s32 *)0x800B0000U;
         /* ASM_BARRIER: expose the active-state store in the branch delay slot. */
         __asm__("" : "=r"(base) : "0"(base));

@@ -14,13 +14,13 @@ extern int EnterCriticalSection();
 extern int ChangeClearRCnt();
 extern int SysDeqIntRP();
 extern int ExitCriticalSection();
-extern int D_800ABDB0;
+extern int CardIrqQueueEntry;
 extern int SysEnqIntRP();
 
 int _cardVsyncHandler();
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABDB0 (*(char (*)[])&D_800ABDB0)
+#define CardIrqQueueEntry (*(char (*)[])&CardIrqQueueEntry)
 
 void _cardStartCom(void)
 {
@@ -29,8 +29,8 @@ void _cardStartCom(void)
     *(short *)(CardSio0Regs + 0xE) = 0x88;
     *(short *)(CardSio0Regs + 8) = 0xD;
     EnterCriticalSection();
-    SysDeqIntRP(2, D_800ABDB0);
-    SysEnqIntRP(2, D_800ABDB0);
+    SysDeqIntRP(2, CardIrqQueueEntry);
+    SysEnqIntRP(2, CardIrqQueueEntry);
     q = I_STAT_Card;
     q->pending = ~1U;
     *(u32 *)&q->mask = q->mask | 1;
@@ -38,9 +38,9 @@ void _cardStartCom(void)
     ExitCriticalSection();
 }
 
-#undef D_800ABDB0
+#undef CardIrqQueueEntry
 
-void _cardStopCom() { EnterCriticalSection(); ChangeClearRCnt(3, 1); SysDeqIntRP(2, &D_800ABDB0); ExitCriticalSection(); }
+void _cardStopCom() { EnterCriticalSection(); ChangeClearRCnt(3, 1); SysDeqIntRP(2, &CardIrqQueueEntry); ExitCriticalSection(); }
 
 s32 _cardChkVsyncIrq(void) {
     RrInterruptRegisters *registers=I_STAT_Card;
@@ -80,7 +80,7 @@ int _cardVsyncHandler() {
     short *h;
     if (D_800ABDE8) {
         g = I_STAT_Card;
-        D_800ABDE4 = 0x11;
+        CardCommandStatus = 0x11;
         D_800ABDE8 = 0;
         g[0] = ~0x80;
         g[1] &= ~0x80;
@@ -93,7 +93,7 @@ int _cardVsyncHandler() {
         CardSio0Regs[5] = 0;
         return 0;
     }
-    if (D_800ABDE4 & 1) return 0;
+    if (CardCommandStatus & 1) return 0;
     SysDeqIntRP(1, D_800ABDC0);
     SysEnqIntRP(1, D_800ABDC0);
     _cardSioHandler();

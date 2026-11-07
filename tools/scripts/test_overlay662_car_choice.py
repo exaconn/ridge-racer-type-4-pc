@@ -34,7 +34,7 @@ typedef struct {State s;unsigned calls;Event events[4];} World;
 static World actual,reference,initial,*w;static unsigned mutation;
 #define SaveProgress w->s.save
 #define CourseChoiceTable w->s.choices
-#define D_800ACBD0 w->s.points
+#define PlayerCourseChoices w->s.points
 #define SelectionRows w->s.current
 #define ModeGroup w->s.mode
 #define D_800F3A26 w->s.position

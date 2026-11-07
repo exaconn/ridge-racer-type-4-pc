@@ -24,11 +24,11 @@ typedef struct {
 } Struct10;
 
 extern int DefaultCourseTimes[2][8];
-extern StructC D_8009EA44[5];
+extern StructC DefaultRecordEntries[5];
 extern unsigned char CourseLapCounts[2][8];
 extern int CourseBestLap[2][8];
 extern Struct10 RaceRecords[2][8][5];
-extern int D_800F3838[2][8][3];
+extern int CourseBestLapTimes[2][8][3];
 extern int D_800F3B00[8];
 extern Struct10 LapRecords[2][8][5];
 extern char CourseChoiceTable[];
@@ -71,7 +71,7 @@ void InitDefaultTimeRecords(void) {
             CourseBestLap[i][j] = DefaultCourseTimes[1][j];
             CourseBestTotal[i][j] = (DefaultCourseTimes[1][j] - 0x2FD) * CourseLapCounts[0][j] + (CourseLapCounts[0][j] * 1000 + c);
             for (k = 0; k < 3; k++) {
-                D_800F3838[i][j][k] = DefaultCourseTimes[1][j];
+                CourseBestLapTimes[i][j][k] = DefaultCourseTimes[1][j];
             }
         }
     }
@@ -79,17 +79,17 @@ void InitDefaultTimeRecords(void) {
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 8; j++) {
             for (k = 0; k < 5; k++) {
-                *(int *)&LapRecords[i][j][k].name[0] = *(int *)&D_8009EA44[k].name[0];
-                *(int *)&LapRecords[i][j][k].name[4] = *(int *)&D_8009EA44[k].name[4];
-                *(int *)&RaceRecords[i][j][k].name[0] = *(int *)&D_8009EA44[k].name[0];
-                *(int *)&RaceRecords[i][j][k].name[4] = *(int *)&D_8009EA44[k].name[4];
+                *(int *)&LapRecords[i][j][k].name[0] = *(int *)&DefaultRecordEntries[k].name[0];
+                *(int *)&LapRecords[i][j][k].name[4] = *(int *)&DefaultRecordEntries[k].name[4];
+                *(int *)&RaceRecords[i][j][k].name[0] = *(int *)&DefaultRecordEntries[k].name[0];
+                *(int *)&RaceRecords[i][j][k].name[4] = *(int *)&DefaultRecordEntries[k].name[4];
                 LapRecords[i][j][k].time = CourseBestLap[i][j] + k * 3000;
                 {
                     int t = k * 3000;
                     RaceRecords[i][j][k].time = CourseBestTotal[i][j] + t * CourseLapCounts[0][j];
                 }
-                LapRecords[i][j][k].car = D_8009EA44[k].car;
-                RaceRecords[i][j][k].car = D_8009EA44[k].car;
+                LapRecords[i][j][k].car = DefaultRecordEntries[k].car;
+                RaceRecords[i][j][k].car = DefaultRecordEntries[k].car;
             }
         }
     }
@@ -166,7 +166,7 @@ void SplashModeEnter(void) {
     LoadCursor = CdDirectoryBuffer;
     func_80071440();
     D_800FFC18 = 0;
-    func_8007CDC4(0);
+    LoadSaveFromCardStep(0);
     VSyncThreshold = 0x80;
     ModeFrame = 0;
     D_800F4D8A = 0;
@@ -179,7 +179,7 @@ void SplashModeEnter(void) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8007CDC4 ((int (*)())func_8007CDC4)
+#define LoadSaveFromCardStep ((int (*)())LoadSaveFromCardStep)
 #define PendingModeId (*(u16 (*))&PendingModeId)
 
 void SplashModeUpdate(void) {
@@ -188,7 +188,7 @@ void SplashModeUpdate(void) {
     temp_v0 = func_8003BBBC();
     if (temp_v0 == 1) {
         ModeFrame += 1;
-        if (SplashLogoUpdate(func_8007CDC4(1) == 1) == temp_v0) {
+        if (SplashLogoUpdate(LoadSaveFromCardStep(1) == 1) == temp_v0) {
             SetCdMixMode(D_800AD55A);
             D_800F4D8A = 0;
             ModeGroup = (s16) ((u16) PendingModeId >> 8);
@@ -197,7 +197,7 @@ void SplashModeUpdate(void) {
     }
 }
 
-#undef func_8007CDC4
+#undef LoadSaveFromCardStep
 #undef PendingModeId
 
 void func_8001F400(void){ int a[6];

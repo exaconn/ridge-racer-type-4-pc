@@ -3,7 +3,7 @@
 #include "rr/spu_init.h"
 extern s32 DebugPrintStub(const char *,...);
 extern char D_800116B8[];
-extern char D_800116CC[];
+extern char StrSpuDmaClearWaitMsg[];
 void _spu_FwriteByIO(const u16 *source,u32 size) {
     register RrSpuRegisterBank *port=_spu_RXX;
     /* ASM_BARRIER: Retain the transfer-address halfword while capturing device status. */

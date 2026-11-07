@@ -28,7 +28,7 @@ void CdAudioLoopStep(void);
 void CdAudioPauseStep()
 {
     int r;
-    switch (D_800F7430) {
+    switch (CdAudioFadeState) {
     case 0:
         SoundState.f269C = 2;
         CdAudioSetVolume(0);
@@ -45,7 +45,7 @@ void CdAudioPauseStep()
     inc:
             SoundState.f2678 = SoundState.f2678 + 1;
         } else if (r == 5) {
-            D_800F7430 = 1;
+            CdAudioFadeState = 1;
         }
         break;
     case 4:

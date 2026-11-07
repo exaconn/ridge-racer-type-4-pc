@@ -472,7 +472,7 @@ void func_80031FE8(void) {
                     D_800AC5D0 = 0x40;
                     ResetScreenCounters();
                     LoadCursor = D_800F4D74;
-                    func_8003B398(0);
+                    LoadTimListStep(0);
                     BadgeRows->s10 = s0;
                     BadgeRows->s2C = s0;
                 }
@@ -484,7 +484,7 @@ void func_80031FE8(void) {
         if (D_800AC5D0 > 0) D_800AC5D0 = D_800AC5D0 - 1;
         AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
-            if (func_8003B398(1) == 1) {
+            if (LoadTimListStep(1) == 1) {
                 SelectionState = SaveSlotSelections[D_800F4D3C];
                 ModeGroup = 1;
                 D_800F3A26 = 0xF;

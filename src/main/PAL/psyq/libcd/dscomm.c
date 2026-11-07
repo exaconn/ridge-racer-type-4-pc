@@ -25,7 +25,7 @@ extern const char CdReadSectorErrorMsg[];
 extern void cb_data(void);
 extern void CdFlush(void);
 extern const char StrCdReadShellOpen[];
-extern const char D_80011D58[];
+extern const char StrCdReadRetry[];
 extern volatile u32 D_800A67BC;
 extern RrLibCompletionCallback volatile D_800A67DC;
 
@@ -205,7 +205,7 @@ s32 cd_read_retry(s32 restart) {
         /* ASM_BARRIER: keep retry-only diagnostic address formation in this
          * branch instead of copying it into its predecessor's delay slot. */
         __asm__("" : );
-        func_800963DC(D_80011D58);
+        func_800963DC(StrCdReadRetry);
         command = 9;
         parameters = 0;
         /* ASM_BARRIER: stage the null parameter after the command value. */

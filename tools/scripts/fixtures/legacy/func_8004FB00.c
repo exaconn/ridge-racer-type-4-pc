@@ -2,12 +2,12 @@
 extern int SlotKeyOffAll();
 extern int SetPlayerVoice();
 extern int func_800512C4();
-extern int func_80051538();
+extern int SetSoundChannelVolLR();
 extern int SoundLoopSet();
 extern int CdAudioMute();
 extern int SoundReverbOffAll();
 extern int func_80051B38();
-extern int D_800F4DBC;
+extern int SoundPaused;
 struct E { char pad[0x38]; u32 flags; char r[1568 - 0x3C]; };
 extern struct E SoundState[];
 void SoundStopAll(void) {
@@ -18,10 +18,10 @@ void SoundStopAll(void) {
     }
     for (i = 0; i < 2; i++) SetPlayerVoice(0, 0, 0, i);
     for (i = 0; i < 2; i++) func_800512C4(i, 0, 0);
-    func_80051538(0, 0, 0);
+    SetSoundChannelVolLR(0, 0, 0);
     SoundLoopSet(5, 0x1E00, 0, 0x40);
     CdAudioMute();
     SoundReverbOffAll();
     func_80051B38();
-    D_800F4DBC = 1;
+    SoundPaused = 1;
 }

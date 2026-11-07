@@ -21,7 +21,7 @@ class CommandBlockReaderTest(unittest.TestCase):
 #include <string.h>
 typedef uint8_t u8;typedef uint32_t u32;typedef int32_t s32;
 ''' + header + '''
-s32 D_800ABDE4,D_800ABDE8,CardCommandRequest,CardRetriesLeft,CardReceiveIndex,CardRxCount;
+s32 CardCommandStatus,D_800ABDE8,CardCommandRequest,CardRetriesLeft,CardReceiveIndex,CardRxCount;
 s32 CardChecksum,CardCmdSector,D_80114728,D_80114730,CardCurrentCommand;
 RrCommandParameter D_8011472C;
 RrCommandReadCallback CardCommandReader;
@@ -31,7 +31,7 @@ s32 (*test_tick)(void),(*test_phase)(void);
 u8 D_80114714;
 void test_reset(void) {
  memset(CardRxTrace,0xA5,sizeof(CardRxTrace));
- D_800ABDE4=3;D_800ABDE8=2;CardCommandRequest=0x123;CardRetriesLeft=0;
+ CardCommandStatus=3;D_800ABDE8=2;CardCommandRequest=0x123;CardRetriesLeft=0;
  CardReceiveIndex=4;CardRxCount=6;D_80114730=9;
  D_80114714=0xB7;
  CardChecksum=0x13579BDF;CardCmdSector=0x12345678;
@@ -213,13 +213,13 @@ void test_reset(void) {
             for state in (0, 1, 2, 3, -1):
                 for mode in (0, 1, -0x80000000):
                     self.lib.test_reset()
-                    self.put('D_800ABDE4', state)
+                    self.put('CardCommandStatus', state)
                     result = self.begin(-0x12345678, block, mode)
                     success = 1 <= block <= 15 and state & 1
                     self.assertEqual(result, int(bool(success)))
                     self.assertEqual(self.get('CardCmdSector'), block)
                     if success:
-                        self.assertEqual(self.get('D_800ABDE4'), 2)
+                        self.assertEqual(self.get('CardCommandStatus'), 2)
                         self.assertEqual(self.get('CardCommandRequest'), -0x12345678)
                         self.assertEqual([self.get(n) for n in ('D_800ABDE8','CardReceiveIndex','CardRxCount','D_80114730')], [0]*4)
                         self.assertEqual(self.parameter.value, int(mode != 0))
@@ -230,7 +230,7 @@ void test_reset(void) {
                         self.put('D_800ABDE8', 2)
                         self.assertEqual(Poll(self.read_pointer.value)(), 0x52)
                     else:
-                        self.assertEqual(self.get('D_800ABDE4'), state)
+                        self.assertEqual(self.get('CardCommandStatus'), state)
                         self.assertEqual(self.get('CardCommandRequest'), 0x123)
                         self.assertEqual(self.parameter.value, -123)
                         self.assertIsNone(self.read_pointer.value)

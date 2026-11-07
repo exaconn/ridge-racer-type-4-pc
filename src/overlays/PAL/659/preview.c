@@ -9,7 +9,7 @@ void ovl659_init_preview(void) {
         ScreenFrame = 0;
         MenuCursor = 0;
         MenuItemCount = 3;
-        func_80053CB0();
+        SeqMuteVolume();
         ResetScreenCounters();
         ClearScreenOverlayState();
         InitMenuArenas();

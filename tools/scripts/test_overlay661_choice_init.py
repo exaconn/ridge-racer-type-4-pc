@@ -40,7 +40,7 @@ static struct World {u32 guard[4];s32 frame,counter,bank;s16 current,limit,selec
 #define D_8010C0B8 world.selectionCounter
 #define LoadState world.flag1
 #define MenuScriptStep world.flag2
-#define D_800ACBD0 world.points
+#define PlayerCourseChoices world.points
 #define MenuArenas world.arenas
 #define LoadCursor world.published
 #define ComCars world.scene
@@ -64,7 +64,7 @@ static void effect(struct World *v,unsigned step){
  v->arenas.first=world.arena[(scenario+step)%3]+8;v->arenas.second=world.arena[(scenario+step+1)%3]+16;v->published=world.arena[(scenario+step+2)%3]+24;
  v->scratch.pointers.cursor=world.arena[(scenario+step)%3]+32;v->scratch.pointers.order=world.order;
 }
-s32 func_80096464(void){
+s32 PsyqRand(void){
  unsigned step=world.calls;assert(step<2);
  if(step==0)assert(world.frame==0 && world.counter==0 && world.current==0 && world.limit==4);
  else assert(world.points[2].first==(s16)((random_value[0]&3)+10));

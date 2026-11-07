@@ -25,7 +25,7 @@ static struct World {u32 guard[4]; RrMenuItemState5C rows[3]; RrGaragePoint out;
 #define PlayerControllers w.rows
 static unsigned calls;
 /* A0/2B BIOS memset boundary: verify arguments and execute its memory semantics. */
-void *func_80096454(void *p,s32 value,u32 count){assert(value==0 && count==4);calls++;return memset(p,value,count);}
+void *PsyqMemset(void *p,s32 value,u32 count){assert(value==0 && count==4);calls++;return memset(p,value,count);}
 ''' + body + r'''
 int main(void){unsigned type,x,y,i;
  for(type=0;type<256;type++)for(x=0;x<256;x++)for(y=0;y<256;y++){

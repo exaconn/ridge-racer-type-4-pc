@@ -8,11 +8,11 @@ s32 LookupTrackEventPair(s32 key, s32 selection) {
     s32 lower = 0, upper, middle;
     RrTrackEventPair *entries;
     if (selection == 0) {
-        upper = D_800ACBB8->count0;
-        entries = D_800ACBB8->table0;
+        upper = TrackEventTables->count0;
+        entries = TrackEventTables->table0;
     } else {
-        upper = D_800ACBB8->count1;
-        entries = D_800ACBB8->table1;
+        upper = TrackEventTables->count1;
+        entries = TrackEventTables->table1;
     }
     while (lower < upper) {
         middle = (lower + upper) / 2;
@@ -75,7 +75,7 @@ s32 LookupTrackEventTable3(s32 key) {
 }
 
 s32 LookupTrackEventPair2(s32 key) {
-    RrLookupTables16 *tables = D_800ACBB8;
+    RrLookupTables16 *tables = TrackEventTables;
     s32 upper = tables->count2;
     RrTrackEventPair *entries = tables->table2;
     s32 lower = 0, middle;

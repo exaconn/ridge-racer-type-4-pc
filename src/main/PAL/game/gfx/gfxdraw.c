@@ -103,7 +103,7 @@ void func_8004417C(int arg0, void *arg1) {
     int *scratch;
 
     s2 = RaceContext.f550;
-    a0 = func_80043730(arg1);
+    a0 = FindNearestTrackEntry(arg1);
     scratch = (int *)SCRATCHPAD;
     if (arg0 >= 2) {
         s2 = RaceContext.f550;
@@ -208,7 +208,7 @@ void func_8004417C(int arg0, void *arg1) {
         SetGeomScreen(s2->f28);
         break;
     case 5:
-        func_80043DE4(arg1, &RaceContext.f20, s2);
+        GetTrackLaneWorldPos(arg1, &RaceContext.f20, s2);
         sp38[0] = s2->f10;
         sp38[1] = s2->f14;
         sp38[2] = s2->f18;
@@ -224,7 +224,7 @@ void func_8004417C(int arg0, void *arg1) {
         RaceContext.f32 = 0;
         RaceContext.f34 = -0x100;
         CarLocalToWorld(arg1, &RaceContext.f30, &RaceContext.f20);
-        func_80043DE4(arg1, &scratch[2], s2);
+        GetTrackLaneWorldPos(arg1, &scratch[2], s2);
         sp10[0] = RaceContext.f20 - scratch[2];
         sp10[2] = RaceContext.f28 - scratch[4];
         sp10[1] = RaceContext.f24 - scratch[3];

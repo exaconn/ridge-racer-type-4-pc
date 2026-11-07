@@ -3,11 +3,11 @@
 #include "types.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABDE4 (*(s32 (*))&D_800ABDE4)
+#define CardCommandStatus (*(s32 (*))&CardCommandStatus)
 
-#undef D_800ABDE4
+#undef CardCommandStatus
 
-extern volatile int D_800ABDE4;
+extern volatile int CardCommandStatus;
 
 extern int D_800ABDE8;
 
@@ -19,7 +19,7 @@ extern s32 D_80114730;
 
 s32 _cardCmdReset(s32 value) {
     s32 result;
-    if (!(D_800ABDE4 & 1)) return 0;
+    if (!(CardCommandStatus & 1)) return 0;
     CardReceiveIndex = 0;
     CardRxCount = 0;
     D_80114730 = 0;

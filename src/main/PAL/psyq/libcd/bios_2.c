@@ -11,7 +11,7 @@ int CD_init(void) {
     func_800963DC(CD_str_init_prefix);
     /* The disabled logger consumes a32-bit PAL address value, never a pointer
      * used for access; hardware and callback pointers remain full-width. */
-    DebugPrintStub(D_80011B14, (u32)(unsigned long)&D_800A6768);
+    DebugPrintStub(StrAddrFmt, (u32)(unsigned long)&D_800A6768);
     D_800A64A5 = 0;
     D_800A64A4 = 0;
     CD_cbready = 0;

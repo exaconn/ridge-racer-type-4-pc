@@ -10,7 +10,7 @@
 extern struct { char p[0x18]; int (*f18)(); } *GpuFuncTable;
 extern volatile unsigned *DMA2_CHCR;
 extern volatile unsigned *GPU_STATUS;
-extern int D_800ABBFC;
+extern int GpuTimeoutDeadline;
 extern int GpuAlarmCount;
 
 int DrawOTag2();
@@ -22,7 +22,7 @@ void GPU_memset(s8 *arg0, s8 arg1, s32 arg2);
 
 int DrawOTag2(a0) int a0; {
     if (D_800ABAC2 >= 2) GPU_printf(D_80011F38, a0);
-    D_800ABBFC = VSync(-1) + 0xF0;
+    GpuTimeoutDeadline = VSync(-1) + 0xF0;
     GpuAlarmCount = 0;
     while ((*DMA2_CHCR & 0x1000000) || (*GPU_STATUS & 0x4000000) == 0) {
         if (get_alarm() != 0) return -1;

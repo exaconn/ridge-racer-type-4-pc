@@ -22,7 +22,7 @@ int a0;
 int a1;
 {
     checkRECT(StrStoreImage, a0);
-    D_800ABBFC = VSync(-1) + 0xF0;
+    GpuTimeoutDeadline = VSync(-1) + 0xF0;
     GpuAlarmCount = 0;
     while ((*DMA2_CHCR & 0x1000000) || (*GPU_STATUS & 0x4000000) == 0) {
         if (get_alarm()) return -1;
@@ -42,8 +42,8 @@ int a1;
 s32 MoveImage2(RrGpuRectangle *rect,s32 x,s32 y) {
     /* ASM_BARRIER: Keep each DMA status read in the original polling temporary. */
     register u32 status __asm__("$2");
-    checkRECT(D_80011EFC,rect);
-    D_800ABBFC=(u32)VSync(-1)+240;
+    checkRECT(MoveImageNameStr,rect);
+    GpuTimeoutDeadline=(u32)VSync(-1)+240;
     GpuAlarmCount=0;
     status=*DMA2_CHCR;
     goto test;

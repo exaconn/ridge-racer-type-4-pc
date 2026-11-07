@@ -142,7 +142,7 @@ typedef struct {
 typedef struct { char *cur; char *ot; } SPD;
 
 extern char D_800100D0[];
-extern short *D_8009E1D4[];
+extern short *CourseSkyKeyframePtrs[];
 extern short *D_8009E224[];
 extern char D_8009E248[];
 extern int SetGeomOffset();
@@ -152,13 +152,13 @@ SkyTri *func_80017310(SkyTri *a0, SkyCtx *a1, int a2);
 SkyQuad17528 *func_80017528(SkyQuad17528 *a0, SkyCtxQuad *a1, int a2);
 SkyQuad177E4 *func_800177E4(SkyQuad177E4 *a0, SkyCtxQuad *a1, int a2);
 SkyTri17A90 *func_80017A90(SkyTri17A90 *a0, SkyCtx *a1, int a2);
-void func_80017CC0();
+void DrawTrackScenery();
 char *func_80017F84(char *a0, char *a1);
 char *func_800183EC(char *a0, char *a1);
 char *func_800189AC(char *a0, char *a1);
 char *func_80018D44(char *a0, char *a1);
 char *func_80019144(char *a0, char *a1);
-void func_800194BC(char *a0, int a1);
+void RunSkyCommandList(char *a0, int a1);
 void func_800195BC(char *a0, volatile unsigned short *a1);
 void func_800197C8(int a0, int a1, short *a2, int a3);
 
@@ -596,7 +596,7 @@ SkyTri17A90 *func_80017A90(SkyTri17A90 *a0, SkyCtx *a1, int a2) {
     return a0;
 }
 
-void func_80017CC0(a0) int a0; {
+void DrawTrackScenery(a0) int a0; {
     int *s4;
     short *a1;
     int s1;
@@ -611,7 +611,7 @@ void func_80017CC0(a0) int a0; {
     s4 = D_8010BF68;
     RR_GTE_SETROT((int *)SCRATCH_ROT_MATRIX);
     RR_GTE_CLRTR();
-    a1 = D_8009E1D4[CourseIndex];
+    a1 = CourseSkyKeyframePtrs[CourseIndex];
     if (a1 != 0) {
         while (a1[0] < a0) a1 += 2;
         {
@@ -1194,7 +1194,7 @@ char *func_80019144(char *a0, char *a1) {
     return a0;
 }
 
-void func_800194BC(char *a0, int a1)
+void RunSkyCommandList(char *a0, int a1)
 {
     int *s = (int *)(SCRATCHPAD + 0x7C);
     int w, v;
@@ -1251,7 +1251,7 @@ void func_800195BC(char *a0, volatile unsigned short *a1)
     p[8] = a1[8];
     RR_GTE_SETROT(p);
     RR_GTE_SETTR(a0);
-    func_800194BC(D_800AC64C, 0);
+    RunSkyCommandList(D_800AC64C, 0);
 }
 
 void func_800197C8(int a0, int a1, short *a2, int a3) {

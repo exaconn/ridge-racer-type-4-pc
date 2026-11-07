@@ -109,14 +109,14 @@ typedef RrLibInterruptCallback (*RrLibInterruptExchange)(s32, RrLibInterruptCall
 
 /* DMA callback table has eight slots (initialization clears all eight).
  * Registration has no bounds check; channel must be in 0..7. */
-extern RrLibInterruptCallback D_800A63A4[8];
-extern volatile u32 *D_800A63A0;
+extern RrLibInterruptCallback InterruptCallbackTable[8];
+extern volatile u32 *DICR_VSync;
 RrLibInterruptCallback setIntrDMA(s32 channel, RrLibInterruptCallback callback);
 RrLibInterruptExchange startIntrDMA(void);
 void trapIntrDMA(void);
 void DMA_memclr(RrLibInterruptCallback *callbacks, s32 count);
 
-/* Prefix of the callback driver referenced by D_800A6350. */
+/* Prefix of the callback driver referenced by IntrDriverTablePtr. */
 typedef struct {
     RrLibInterruptCallback reserved;
     RrLibInterruptExchange exchange;
@@ -124,7 +124,7 @@ typedef struct {
     void (*reset)(void);
 } RrLibInterruptDriverPrefix;
 
-extern RrLibInterruptDriverPrefix *D_800A6350;
+extern RrLibInterruptDriverPrefix *IntrDriverTablePtr;
 extern void ResetCallback(void);
 RrLibInterruptCallback DMACallback(s32 channel, RrLibInterruptCallback callback);
 RrLibInterruptCallback _SpuDataCallback(RrLibInterruptCallback callback);
@@ -212,8 +212,8 @@ void SsSepClose(s32 bank);
 /* Callback entry points use full argument registers; selectors narrow inside. */
 typedef void (*RrLibControllerCallback)(s32 bank, s32 row, s32 value);
 typedef void (*RrLibControllerResetCallback)(s32 bank, s32 row);
-extern RrLibControllerCallback D_8010EFE0, D_8010EFE4, D_8010EFE8, D_8010EFEC;
-extern RrLibControllerCallback SsCtrlHandlerCC64, D_8010EFF4, D_8010EFF8, D_8010EFFC;
+extern RrLibControllerCallback SsCtrlHandlerCC6, D_8010EFE4, D_8010EFE8, D_8010EFEC;
+extern RrLibControllerCallback SsCtrlHandlerCC64, SsCtrlHandlerCC98, D_8010EFF8, D_8010EFFC;
 extern RrLibControllerCallback D_8010F000, D_8010F004;
 extern RrLibControllerCallback _SsMarkCallback[][16];
 extern RrLibControllerResetCallback SsCtrlHandlerCC121;

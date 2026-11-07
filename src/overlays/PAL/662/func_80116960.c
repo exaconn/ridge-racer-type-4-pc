@@ -35,7 +35,7 @@ void ovl662_func_80116960(void){
  }while(i<20);
  ovl662_D_801272E0=count;
  UnpackChoiceGlyph((s8*)&SelectionRows,ovl662_D_80127348[0].value);
- D_800ACBD0[0].first=0;D_800ACBD0[0].second=0;
+ PlayerCourseChoices[0].first=0;PlayerCourseChoices[0].second=0;
  ModeGroup=1;D_800F3A26=67;D_800F4D8A=0;
  LoadCursor=D_800F4D40;MenuArenas.first=D_800F4D40;
 }

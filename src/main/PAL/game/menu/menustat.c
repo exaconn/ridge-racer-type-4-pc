@@ -21,7 +21,7 @@ extern unsigned short D_800F4D8A;
 extern S4D8 SelectionState;
 extern char PlayerCars[];
 extern int LoadCursor;
-extern int D_800F4D78;
+extern int SavedLoadCursor;
 extern unsigned char D_8009F070[];
 extern int D_800F3A60;
 extern unsigned short D_800AC5D0;
@@ -46,7 +46,7 @@ void func_800302C0()
         if (p->h1A == 6) {
             if (LoadCarRangeStep(0, 1) == 1) {
                 ResetCarState(PlayerCars);
-                D_800F4D78 = LoadCursor;
+                SavedLoadCursor = LoadCursor;
                 r = (p->b17 - 1) / 2;
                 x = D_8009F070[p->b14];
                 if (r >= 3) { r = 2; x = x * 3; }
@@ -87,7 +87,7 @@ void func_800302C0()
                 ModeGroup = 1;
                 D_800F3A26 = 0x21;
                 D_800F4D8A = 0;
-                LoadCursor = D_800F4D78;
+                LoadCursor = SavedLoadCursor;
                 CdAudioBeginPlay(0);
             } else {
                 ModeGroup = 1;
@@ -116,7 +116,7 @@ tail:
     *(int *)SCRATCHPAD = AddTileGrid2x2(CurrentDrawBuf + 0xB6C, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x200, sp[0], sp[1], sp[2]);
 }
 
-int func_8003069C(a, p, x, y, w, z) int a; int p; int x; int y; int w; int z; {
+int AddBadgeSpriteStrip(a, p, x, y, w, z) int a; int p; int x; int y; int w; int z; {
     int t0 = x;
     int s1 = y;
     int i = 0;

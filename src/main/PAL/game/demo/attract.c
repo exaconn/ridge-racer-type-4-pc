@@ -30,7 +30,7 @@ extern short D_800F4D8A;
 extern int MaskBitSetting;
 extern char RaceContext[];
 extern short D_800AD50A;
-extern int func_80096464();
+extern int PsyqRand();
 extern int func_80055300();
 extern int func_80055330();
 extern int func_8005534C();
@@ -81,8 +81,8 @@ void StartAttractDemo(int a0) {
     } while (i >= 0);
     i = 0;
     do {
-        s0 = func_80096464() % 4;
-        r = func_80096464() % 2;
+        s0 = PsyqRand() % 4;
+        r = PsyqRand() % 2;
         v = s0 + r;
         t = v;
         if (v < 0) t = v + 3;
@@ -97,7 +97,7 @@ void StartAttractDemo(int a0) {
         i++;
     } while (i < 0x10);
     i = 0;
-    x6 = func_80096464();
+    x6 = PsyqRand();
     s2 = x6 / 18;
     s2 = x6 - s2 * 18;
     tb = D_800A2124;
@@ -107,7 +107,7 @@ void StartAttractDemo(int a0) {
         b[i].a = sp[i];
         b[i].b = tb[sp[i]];
         *w = tb[sp[i]];
-        u = s2 + func_80096464() % 4;
+        u = s2 + PsyqRand() % 4;
         v = u - 2;
         if (v < 0) v = 0;
         if (v > 0x12) v = 0x12;

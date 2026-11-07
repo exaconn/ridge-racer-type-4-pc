@@ -41,7 +41,7 @@ void ovl667_func_80116D18(void) {
     modelReady = 0;
     ModeFrame++;
     if (ExitOnLinkLost() != 0) {
-        func_80053CB0();
+        SeqMuteVolume();
         return;
     }
     UpdateLinkHandshake(2);
@@ -78,8 +78,8 @@ void ovl667_func_80116D18(void) {
             LoadCursor = MenuArenas.first;
             UnpackChoiceGlyph((s8 *)&SelectionRows + D_800AC5D4 * 4,
                           D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].glyph);
-            D_800ACBD0[D_800AC5D4].first = D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].first;
-            D_800ACBD0[D_800AC5D4].second = D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].second;
+            PlayerCourseChoices[D_800AC5D4].first = D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].first;
+            PlayerCourseChoices[D_800AC5D4].second = D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].second;
             ImageRows[1] = 6;
         }
         row = ovl667_D_80118E1C[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][MenuCursor];
@@ -233,7 +233,7 @@ void ovl667_func_80116D18(void) {
         D_800AC5D0 = (u16)D_800AC5D0 - 1;
         AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
-            func_80053CB0();
+            SeqMuteVolume();
             ModeGroup = 1;
             D_800F3A26 = 3;
             D_800F4D8A = 0;

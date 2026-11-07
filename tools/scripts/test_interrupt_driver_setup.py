@@ -33,7 +33,7 @@ u32 test_ram[0x10000 / 4];
 #define CD_cbready test_ram[0x648C / 4]
 #define CD_status1 test_ram[0x6498 / 4]
 RrLibInterruptDriverPrefix test_driver, test_alternate_driver;
-RrLibInterruptDriverPrefix *D_800A6350;
+RrLibInterruptDriverPrefix *IntrDriverTablePtr;
 s32 test_handler_calls;
 void CdCommandCallback(void) { test_handler_calls++; }
 '''
@@ -53,7 +53,7 @@ void CdCommandCallback(void) { test_handler_calls++; }
         cls.ram = (C.c_uint32 * (0x10000 // 4)).in_dll(cls.library, 'test_ram')
         cls.driver = Driver.in_dll(cls.library, 'test_driver')
         cls.alternate = Driver.in_dll(cls.library, 'test_alternate_driver')
-        cls.current = C.c_void_p.in_dll(cls.library, 'D_800A6350')
+        cls.current = C.c_void_p.in_dll(cls.library, 'IntrDriverTablePtr')
         cls.handler_calls = C.c_int32.in_dll(cls.library, 'test_handler_calls')
         cls.handler = C.cast(cls.library.CdCommandCallback, C.c_void_p).value
         cls.initialize = cls.library.CD_initintr

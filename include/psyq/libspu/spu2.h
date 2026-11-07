@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-extern s32 D_800A4828;
+extern s32 _spu_dmaIsRead;
 
 #endif /* RR_PSYQ_LIBSPU_SPU2_H */

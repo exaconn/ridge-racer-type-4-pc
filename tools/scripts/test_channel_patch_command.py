@@ -37,7 +37,7 @@ class ChannelPatchCommandTest(unittest.TestCase):
 typedef uint8_t u8;typedef int8_t s8;typedef uint16_t u16;typedef int16_t s16;
 typedef uint32_t u32;typedef int32_t s32;
 ''' + header + '''
-RrChannelStatusCallback D_800ABC84;
+RrChannelStatusCallback PadChannelBusyFn;
 RrChannelUpdateCallback D_800ABC6C;
 RrChannelRecordCallback D_800ABC7C;
 unsigned long test_size(void) {return sizeof(RrChannelPatchCommand);}
@@ -83,7 +83,7 @@ unsigned long test_argument_offset(void) {return offsetof(RrChannelPatchCommand,
         def getter(selector):
             self.selector=selector;return C.addressof(self.record)
         self.callbacks=[ready,complete,getter]
-        for name,callback in zip(('D_800ABC84','D_800ABC6C','D_800ABC7C'),self.callbacks):
+        for name,callback in zip(('PadChannelBusyFn','D_800ABC6C','D_800ABC7C'),self.callbacks):
             C.c_void_p.in_dll(self.lib,name).value=C.cast(callback,C.c_void_p).value
 
     def expected(self,before,**fields):

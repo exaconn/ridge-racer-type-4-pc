@@ -41,14 +41,14 @@ int _padSioRW2(a0, a1) struct W *a0; int a1; {
     }
     while (!(*(volatile int *)I_STAT_Pad & 0x80)) {
         v1 = *(volatile unsigned short *)0x1F801120;
-        if (v1 < D_801146B8) {
+        if (v1 < PadRcnt2Start) {
             if (*(volatile unsigned short *)0x1F801128 != 0) v1 += *(volatile unsigned short *)0x1F801128;
             else v1 += 0x10000;
         }
         if (*(volatile unsigned short *)0x1F801124 & 0x200) {
-            if (v1 - D_801146B8 >= RC2WaitLimit) return -2;
+            if (v1 - PadRcnt2Start >= RC2WaitLimit) return -2;
         } else {
-            if (((v1 - D_801146B8) >> 3) >= RC2WaitLimit) return -2;
+            if (((v1 - PadRcnt2Start) >> 3) >= RC2WaitLimit) return -2;
         }
     }
     if (a0->fE8 != 8) {

@@ -16,7 +16,7 @@ extern int SetVoiceVolumeScaled();
 extern int SsUtKeyOnV();
 
 void func_800512C4(int a0, int a1, int a2);
-void func_80051538(int a0, s16 a1, s16 a2);
+void SetSoundChannelVolLR(int a0, s16 a1, s16 a2);
 
 void func_80051248(int a0) {
     int k, i;
@@ -60,7 +60,7 @@ void func_800512C4(int a0, int a1, int a2) {
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(char (*)[])&SoundState)
 
-void func_80051378() {
+void UpdateLoopVoices() {
     int i;
     register char *s2 asm("$18"); /* ASM_BARRIER: pin */
     char *s4;
@@ -117,7 +117,7 @@ void func_800514FC(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(struct { char pad[0x19BC]; s16 a[2]; s16 b[2]; } (*))&SoundState)
 
-void func_80051538(int a0, s16 a1, s16 a2) {
+void SetSoundChannelVolLR(int a0, s16 a1, s16 a2) {
     SoundState.a[a0] = a1;
     SoundState.b[a0] = a2;
 }

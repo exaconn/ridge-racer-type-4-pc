@@ -35,7 +35,7 @@ static struct World {
  s8 ports[4],*port0,*port1;u32 first,second,calls;
  u16 screen,step;s16 counter;Event events[8];u32 after[8];
 } world,expected;
-#define D_800A6350 world.active
+#define IntrDriverTablePtr world.active
 #define D_800A64A8 world.audio_mode
 #define D_800A6800 world.port0
 #define D_800A680C world.port1

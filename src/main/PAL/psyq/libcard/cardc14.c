@@ -16,7 +16,7 @@ s32 _cardCmd58Begin(s32 request, u32 *first, u32 *second);
 
 int _cardCmd5BFixedBegin(a0,a1) int a0; int a1; {
     int r;
-    if (!(D_800ABDE4 & 1)) {
+    if (!(CardCommandStatus & 1)) {
         r = 0;
     } else {
         r = 1;
@@ -33,7 +33,7 @@ int _cardCmd5BFixedBegin(a0,a1) int a0; int a1; {
     CardCommandReader = (int *)_cardCmd5BRangeTx;
     CardWriteHandler = (int *)_cardCmd5BRangeRx;
     CardCmdBuffer = a1;
-    D_800ABDE4 = 2;
+    CardCommandStatus = 2;
     return 1;
 }
 
@@ -50,7 +50,7 @@ int _cardCmd5BFixedBegin(a0,a1) int a0; int a1; {
 int _cardCmd5CFixedBegin(a0, a1) int a0; int a1; {
     int r;
     char *p;
-    if (!(D_800ABDE4 & 1)) {
+    if (!(CardCommandStatus & 1)) {
         r = 0;
     } else {
         r = 1;
@@ -73,7 +73,7 @@ int _cardCmd5CFixedBegin(a0, a1) int a0; int a1; {
     CardCurrentCommand = 9;
     CardCommandReader = (int *)_cardCmd5CRangeTx;
     CardWriteHandler = (int *)_cardCmd5CRangeRx;
-    D_800ABDE4 = 2;
+    CardCommandStatus = 2;
     return 1;
 }
 
@@ -92,14 +92,14 @@ s32 _cardCmd58Begin(s32 request, u32 *first, u32 *second) {
     CardCommandReader = _cardCmd58Tx;
     CardWriteHandler = _cardCmd58Rx;
     active = 2;
-    D_8011471C = first;
-    D_80114720 = second;
+    CardCmdResultPtrA = first;
+    CardCmdResultPtrB = second;
     {
         /* ASM_BARRIER: preserve the original assembler temporary for the mapped store. */
         register s32 *base __asm__("$1");
         /* ASM_BARRIER: finish parameter publication before materializing the state address. */
         __asm__ volatile("" : : : "$1", "memory");
-        /* PAL RAM mapping: base[-0x421C / 4] is D_800ABDE4. */
+        /* PAL RAM mapping: base[-0x421C / 4] is CardCommandStatus. */
         base = (s32 *)0x800B0000U;
         /* ASM_BARRIER: expose the active-state store in the branch delay slot. */
         __asm__("" : "=r"(base) : "0"(base));

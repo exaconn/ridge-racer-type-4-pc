@@ -81,7 +81,7 @@ void PlaySfx(s32 a){const s32 args[7]={a};record(4,args);effect(4);}
 void SeqFadeVolume(s32 a,s32 b){const s32 args[7]={a,b};record(5,args);effect(5);}
 void ovl666_init_preview(void){service(6);}
 void AddScreenFadeTiles(u32 *p,s32 b,u32 c){unsigned k;for(k=0;k<2&&p!=&w->contexts[k].ordering.ordering70;k++){}assert(k<2&&(uintptr_t)p>UINT32_MAX);const s32 args[7]={k,b,(s32)c};record(7,args);effect(7);}
-void func_80053CB0(void){service(8);}
+void SeqMuteVolume(void){service(8);}
 void DrawMenuStepArrows(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){const s32 args[7]={a,b,c,d,e,f,g};record(9,args);effect(9);}
 void ovl666_draw_selection_pulse(s32 a,s32 b){const s32 args[7]={a,b};record(10,args);effect(10);}
 s32 UpdateGlyphRow(s32 a){const s32 args[7]={a};record(11,args);effect(11);return word(scenario*0x1234567U);}
@@ -101,7 +101,7 @@ static void expected(void){w->frame=word((u32)w->frame+1);w->tick=word((u32)w->t
    if(close==2){closeRows();w->phase=8;w->timer=64;SeqFadeVolume(0,60);}
   }else if(phase==3){SetMenuFrameOptions(0,1,1);if(w->rows[w->rowRoot][0].byte14==5){exits[0]++;ovl666_init_preview();w->enable=1;w->scene=80;w->phase=0;title=rows=0;}
   }else if(phase==8){title=0;SetMenuFrameOptions(0,1,1);s16 timer=half((u16)w->timer-1);w->timer=timer;AddScreenFadeTiles(&w->contexts[w->context].ordering.ordering70,(64-(s32)timer)*4,69);
-   if(w->timer<=0){exits[1]++;w->enable=1;w->scene=3;w->phase=0;func_80053CB0();}
+   if(w->timer<=0){exits[1]++;w->enable=1;w->scene=3;w->phase=0;SeqMuteVolume();}
   }
  }
  if(title){DrawMenuStepArrows(160,204,48,0,w->glyph,0,4);int glyph=w->glyph;int active=w->save.prefix.flags5C[glyph]!=0;pulse[active]++;

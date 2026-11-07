@@ -51,7 +51,7 @@ static void cb0(void){assert(0);}static void cb1(void){assert(0);}
 void _SsTickCallback(void){assert(0);}void _SsTickCallbackDivided(void){assert(0);}
 static RrSpuTickCallback pool[5]={0,cb0,cb1,_SsTickCallback,_SsTickCallbackDivided};
 #define _snd_seq_tick_env (g->data.timer.value)
-#define D_800A6350 (&drivers[g->data.driver].prefix)
+#define IntrDriverTablePtr (&drivers[g->data.driver].prefix)
 #define D_800A6370 (g->data.callbacks.values)
 #define RCNT_REGS ((RrRootCounterRegisters *)g->data.counters.records)
 static u32 next(u32 *p){u32 n=*p;n^=n<<13;n^=n>>17;n^=n<<5;return *p=n;}

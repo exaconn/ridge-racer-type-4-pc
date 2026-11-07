@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_8003069C();
+int AddBadgeSpriteStrip();
 
 #endif /* RR_GAME_MENU_MENUSTAT_H */

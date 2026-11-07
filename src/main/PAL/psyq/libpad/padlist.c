@@ -38,7 +38,7 @@ void _padAdvanceChannel(s32 command)
 {
     /* ASM_BARRIER: retain the incoming command in a1 until first-pass dispatch. */
     register s32 mode __asm__("$5") = command;
-    register RrChannelRecordF0 *base = D_801144D8;
+    register RrChannelRecordF0 *base = PadChannelRecordArray;
     register s32 skip = -9;
     register s32 *flags = D_800ABCC0;
     register s32 current;
@@ -47,10 +47,10 @@ void _padAdvanceChannel(s32 command)
     register s32 status;
     RrChannelRecordF0 *channel;
     do {
-        channel = (RrChannelRecordF0 *)((long)(D_800ABCA8 * sizeof(RrChannelRecordF0)) + (unsigned long)base);
+        channel = (RrChannelRecordF0 *)((long)(PadActiveChannel * sizeof(RrChannelRecordF0)) + (unsigned long)base);
         if (mode != skip) {
             if (mode == 0) {
-                s32 *slot = (s32 *)((long)(D_800ABCA8 * sizeof(s32)) + (unsigned long)flags);
+                s32 *slot = (s32 *)((long)(PadActiveChannel * sizeof(s32)) + (unsigned long)flags);
                 /* ASM_BARRIER: preserve a literal zero store after command dispatch. */
                 __asm__("" : "+r"(mode));
                 *slot = 0;
@@ -60,7 +60,7 @@ void _padAdvanceChannel(s32 command)
             }
         }
         control = D_800ABD00;
-        current = D_800ABCA8;
+        current = PadActiveChannel;
         PadRecvStage = 0;
         control[5] = 0;
         /* ASM_BARRIER: finish control publication before reading the live bound. */
@@ -68,7 +68,7 @@ void _padAdvanceChannel(s32 command)
         {
             register s32 bound = D_800ABCBC;
             current++;
-            D_800ABCA8 = current;
+            PadActiveChannel = current;
             if (bound >= current) {
                 status = _padInitSioMode((RrChannelRecordF0 *)((long)(current * sizeof(RrChannelRecordF0)) + (unsigned long)base));
                 mode = 0xFFFF;

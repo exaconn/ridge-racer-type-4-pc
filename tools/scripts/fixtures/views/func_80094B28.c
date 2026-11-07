@@ -7,9 +7,9 @@
 #define CLAMP(v, lo, hi) ((v) < (lo) ? (lo) : ((v) > (hi) ? (hi) : (v)))
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80096444 ((int (*)())func_80096444)
+#define PsyqMemcpy ((int (*)())PsyqMemcpy)
 
-#undef func_80096444
+#undef PsyqMemcpy
 
 /* legacy typing of shared globals in this part of the unit */
 #define GpuFuncTable ((void *)GpuFuncTable)

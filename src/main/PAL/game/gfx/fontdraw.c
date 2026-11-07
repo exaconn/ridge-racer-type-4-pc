@@ -10,7 +10,7 @@ extern unsigned char D_8009EDF8[];
 
 char *AddTextSprites();
 void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation);
-void func_8001FA48();
+void DrawAnimatedText();
 
 /* legacy typing of shared globals in this part of the unit */
 #define SetDrawMode ((s32 (*)())SetDrawMode)
@@ -234,7 +234,7 @@ void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
     RR_GLYPH_ANIMATION_SCRATCH->cursor = cursor + 0xC;
 }
 
-void func_8001FA48(arg0, arg1, p, arg3, arg4)
+void DrawAnimatedText(arg0, arg1, p, arg3, arg4)
 int arg0; int arg1; char *p; int arg3; int arg4;
 {
     int s7 = 0, s4 = 0, s2 = 0, s6, s3;

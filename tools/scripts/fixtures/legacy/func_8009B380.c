@@ -2,7 +2,7 @@
 #include "rr/interrupts.h"
 #include "rr/serial.h"
 s32 _sio_irq_check(void) {
-    RrInterruptRegisters *interrupts=D_800ABD30;
+    RrInterruptRegisters *interrupts=I_STAT_Sio;
     /* ASM_BARRIER: Keep the predicate result in the common return register. */
     register s32 result;
     if(interrupts->pending & interrupts->mask & 0x100) {

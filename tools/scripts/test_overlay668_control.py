@@ -41,7 +41,7 @@ static struct CallbackWorld {
  RrLibInterruptCallback slots[8],last;
  u32 calls,tag,mutate;u32 guards[8];
 } cworld,cinitial,cexpected;
-#define D_800A6350 cworld.active
+#define IntrDriverTablePtr cworld.active
 u32 *ovl668_D_80116E54;
 ''' + resident + query + bodies + r'''
 static u32 seed=0x163fc;

@@ -236,7 +236,7 @@ int AllocUiRows(int a) {
     int sz = UiRowCount * 36;
     UiRows = a;
     func_80096434(a, sz);
-    DebugPrintStub(D_800108D8, sz);
+    DebugPrintStub(SizeLdFmt, sz);
     return sz;
 }
 

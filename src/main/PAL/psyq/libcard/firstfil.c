@@ -13,8 +13,8 @@ static __inline__ s32 save_first_file_handler(void) {
     if (device < end) {
         limit = end;
         do {
-            if (device->name && func_80096404(device->name, D_801143C0) == 0) {
-                D_801143B8 = device->handler;
+            if (device->name && PsyqStrcmp(device->name, D_801143C0) == 0) {
+                CardFirstFileHandler = device->handler;
                 return 1;
             }
             device++;
@@ -46,7 +46,7 @@ void *firstfile(char *path, void *directory) {
     if (device < end) {
         limit = end;
         do {
-            if (device->name && func_80096404(device->name, D_801143C0) == 0) {
+            if (device->name && PsyqStrcmp(device->name, D_801143C0) == 0) {
                 device->handler = _firstfile_hook;
                 break;
             }
@@ -62,7 +62,7 @@ s32 _firstfile_hook(s32 *a0,s32 a1,s32 a2) {
     unsigned long cursor,end,limit;
     if(*a0==0) *a0=1;
     cursor=(unsigned long)*(RrBiosDevice **)0x150;
-    handler=D_801143B8;
+    handler=CardFirstFileHandler;
     end=cursor+(*(u32 *)0x154/sizeof(RrBiosDevice))*sizeof(RrBiosDevice);
     if(cursor<end) {
         /* ASM_BARRIER: Keep the loop bound assignment after the initial table-range gate. */
@@ -78,7 +78,7 @@ s32 _firstfile_hook(s32 *a0,s32 a1,s32 a2) {
                 page=(char *)0x80110000U;
                 /* ASM_BARRIER: Materialize the name page before its call-delay offset. */
                 __asm__("" : "+r"(page));
-                if(func_80096404(device->name,page+0x43C0)==0) {
+                if(PsyqStrcmp(device->name,page+0x43C0)==0) {
                     device->handler=handler;
                     break;
                 }
@@ -86,5 +86,5 @@ s32 _firstfile_hook(s32 *a0,s32 a1,s32 a2) {
             cursor+=sizeof(RrBiosDevice);
         } while(cursor<limit);
     }
-    return D_801143B8(a0,a1,a2);
+    return CardFirstFileHandler(a0,a1,a2);
 }

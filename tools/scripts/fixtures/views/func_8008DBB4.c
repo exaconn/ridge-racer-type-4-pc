@@ -15,7 +15,7 @@ s32 CD_getsector(u8 *a0, u32 a1) {
     volatile unsigned char *p;
     *CD_reg0 = 0;
     *CD_reg3 = 0x80;
-    *D_800A6780 = 0x20943;
+    *CD_DELAY = 0x20943;
     /* Ordinary write views retain the original setup and teardown scheduling. */
     *(u32 *)COM_DELAY = 0x1323;
     *CD_dpcr |= 0x8000;

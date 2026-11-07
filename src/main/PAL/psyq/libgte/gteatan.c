@@ -1,6 +1,6 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 /* GCC_VERSION: 2.7.2 */
-extern short D_800AB260[]; /* ratan_tbl */
+extern short ratan_tbl[]; /* ratan_tbl */
 
 /* PsyQ libgte ratan2(y, x) */
 
@@ -30,14 +30,14 @@ long ratan2(long y, long x) {
         } else {
             v = (y << 10) / x;
         }
-        r = D_800AB260[v];
+        r = ratan_tbl[v];
     } else {
         if (x & 0x7FE00000) {
             v = x / (y >> 10);
         } else {
             v = (x << 10) / y;
         }
-        r = 1024 - D_800AB260[v];
+        r = 1024 - ratan_tbl[v];
     }
     if (s1) {
         r = 2048 - r;

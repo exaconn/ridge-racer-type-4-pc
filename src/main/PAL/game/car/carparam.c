@@ -91,10 +91,10 @@ typedef struct
 extern int AngleDiffSigned();
 extern int PadSetRumbleParams();
 extern int rcos();
-extern int func_80096464();
+extern int PsyqRand();
 extern char PlayerCars[];
 extern int D_800AD568;
-extern char *D_800F39C8[];
+extern char *CarRecordPtrs[];
 extern char PlayerControllers[];
 extern int RaceState;
 extern unsigned char CarInputs[][4];
@@ -395,7 +395,7 @@ int arg1;
     p4 = PlayerControllers;
     *((short *) ((p4 + ((arg1 & 1) * 0x5C)) + 0x50)) = 1;
     s0 = *((short *) (((char *) arg0) + 0x1D8));
-    t = (*((short *) (((char *) D_800F39C8[arg1]) + 0x1F0))) * 8;
+    t = (*((short *) (((char *) CarRecordPtrs[arg1]) + 0x1F0))) * 8;
     if (t < s0)
     {
       s0 = t;
@@ -450,7 +450,7 @@ int arg1;
     }
     if (!(s2 < 0xC))
     {
-      s2 -= func_80096464() & 3;
+      s2 -= PsyqRand() & 3;
     }
     if (!(s2 < 0x10))
     {
@@ -885,7 +885,7 @@ P *a0;
     D_800F4C70[q->s24 & 1] = d1 + (((q->s88 - d1) * 0x14) / k2);
     if (D_800F4C70[q->s24 & 1] < 0x1F5)
     {
-      D_800F4C70[q->s24 & 1] += 0x1F4 - ((func_80096464() * 0x64) / 32767);
+      D_800F4C70[q->s24 & 1] += 0x1F4 - ((PsyqRand() * 0x64) / 32767);
     }
     D_800F2AB4[q->s24 & 1] = (q->sAC >= 0x41) && (q->s38 == 0);
   }

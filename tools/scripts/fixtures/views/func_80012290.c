@@ -21,7 +21,7 @@ extern void func_800963C4(s32);
 
 extern void DebugPrintStub(const char *, ...);
 
-extern const char D_80010028[];
+extern const char NowLoadingFmt[];
 
 extern const char R4BinPath[];
 
@@ -45,7 +45,7 @@ void LoadR4Directory(void)
     s32 base, sector, next;
     u32 *directory;
     RrCdFileEntry *entry;
-    DebugPrintStub(D_80010028,R4BinPath,CdDirectoryBuffer);
+    DebugPrintStub(NowLoadingFmt,R4BinPath,CdDirectoryBuffer);
     found=CdSearchFile(&file,R4BinPath);
     message_page=(u8 *)0x80010000U;
     if (!found) {

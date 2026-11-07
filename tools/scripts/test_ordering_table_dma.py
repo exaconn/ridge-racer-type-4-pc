@@ -25,7 +25,7 @@ typedef uint8_t u8;typedef uint16_t u16;typedef int16_t s16;typedef uint32_t u32
 u32 ports[6];u8 *address;
 u8 * volatile *DMA6_MADR=&address;
 volatile u32 *DMA6_BCR=&ports[2],*DMA6_CHCR=&ports[3],*DPCR=&ports[1];
-s32 D_800ABBFC,GpuAlarmCount;
+s32 GpuTimeoutDeadline,GpuAlarmCount;
 s32 init_calls,init_mode,timeout_calls,reads,ready_after,abort_after,abort_value;
 s32 init_swap,timeout_swap,read_ports[64];u32 read_values[64];
 u32 setup[4];u8 *setup_address;
@@ -49,14 +49,14 @@ u32 test_control(volatile u32 *p){
         cls.f.argtypes=[C.c_void_p,C.c_int32];cls.f.restype=C.c_int32
         cls.ports=(C.c_uint32*6).in_dll(cls.lib,'ports');cls.address=C.c_void_p.in_dll(cls.lib,'address')
         cls.control=C.c_void_p.in_dll(cls.lib,'DMA6_CHCR')
-        cls.values={n:C.c_int32.in_dll(cls.lib,n) for n in ('D_800ABBFC','GpuAlarmCount','init_calls','init_mode','timeout_calls','reads','ready_after','abort_after','abort_value','init_swap','timeout_swap')}
+        cls.values={n:C.c_int32.in_dll(cls.lib,n) for n in ('GpuTimeoutDeadline','GpuAlarmCount','init_calls','init_mode','timeout_calls','reads','ready_after','abort_after','abort_value','init_swap','timeout_swap')}
         cls.read_ports=(C.c_int32*64).in_dll(cls.lib,'read_ports');cls.read_values=(C.c_uint32*64).in_dll(cls.lib,'read_values')
 
     def reset(self):
         self.ports[:]=[0xCAFE1234,0x12345678,0x87654321,0xFFFFFFFF,0x00123456,0xDEADBEEF]
         self.control.value=C.addressof(self.ports)+12;self.address.value=None
         for v in self.values.values():v.value=0
-        self.values['D_800ABBFC'].value=-1;self.values['GpuAlarmCount'].value=999
+        self.values['GpuTimeoutDeadline'].value=-1;self.values['GpuAlarmCount'].value=999
         self.values['ready_after'].value=1;self.values['abort_value'].value=-1
 
     def check_setup(self,buffer,count,initial_config):
@@ -66,7 +66,7 @@ u32 test_control(volatile u32 *p){
         self.assertEqual(C.c_void_p.in_dll(self.lib,'setup_address').value,expected)
         self.assertEqual(list((C.c_uint32*4).in_dll(self.lib,'setup')),[initial_config|0x08000000,count&0xFFFFFFFF,0x11000002,0x00123456])
         self.assertEqual((self.values['init_calls'].value,self.values['init_mode'].value),(1,-1))
-        self.assertEqual((self.values['D_800ABBFC'].value,self.values['GpuAlarmCount'].value),(340,0))
+        self.assertEqual((self.values['GpuTimeoutDeadline'].value,self.values['GpuAlarmCount'].value),(340,0))
         self.assertEqual((self.ports[0],self.ports[5]),(0xCAFE1234,0xDEADBEEF))
 
     def test_address_count_wrap_native_width_and_initial_completion(self):

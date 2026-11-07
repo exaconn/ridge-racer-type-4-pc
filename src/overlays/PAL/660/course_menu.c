@@ -238,7 +238,7 @@ check_back:
             D_800AC5D0 = (u16) cancelTimer;
             AddScreenFadeTiles(((RrFrameOrderingPrefix *)(void *)CurrentDrawBuf)->ordering70, (0x40 - cancelTimer) * 4, 0x45);
             if ((s16) D_800AC5D0 <= 0) {
-                func_80053CB0();
+                SeqMuteVolume();
                 ModeGroup = 1;
                 D_800F3A26 = 3;
                 D_800F4D8A=0;

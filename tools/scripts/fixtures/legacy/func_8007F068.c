@@ -4,7 +4,7 @@ struct H { char p[0x1A6]; volatile unsigned short f1A6; char q[2]; volatile unsi
 extern struct H *_spu_RXX;
 extern int *DMA4_MADR, *DMA4_BCR, *DMA4_CHCR;
 extern unsigned short _spu_tsa;
-extern int _spu_mem_mode_plus, D_800A4828, SpuDmaStartAddr, D_800A4830;
+extern int _spu_mem_mode_plus, _spu_dmaIsRead, SpuDmaStartAddr, _spu_dma_block_count;
 int _spu_t(int a0, ...) {
     unsigned *s0;
     unsigned v1;
@@ -26,7 +26,7 @@ int _spu_t(int a0, ...) {
         }
         break;
     case 1:
-        D_800A4828 = 0;
+        _spu_dmaIsRead = 0;
         v1 = 0;
         while (_spu_RXX->f1A6 != _spu_tsa) {
             v1++;
@@ -35,7 +35,7 @@ int _spu_t(int a0, ...) {
         _spu_RXX->f1AA = (_spu_RXX->f1AA & 0xFFCF) | 0x20;
         break;
     case 0:
-        D_800A4828 = 1;
+        _spu_dmaIsRead = 1;
         v1 = 0;
         while (_spu_RXX->f1A6 != _spu_tsa) {
             v1++;
@@ -44,13 +44,13 @@ int _spu_t(int a0, ...) {
         _spu_RXX->f1AA |= 0x30;
         break;
     case 3:
-        x = (D_800A4828 == 1) ? 0x30 : 0x20;
+        x = (_spu_dmaIsRead == 1) ? 0x30 : 0x20;
         v1 = 0;
         while ((_spu_RXX->f1AA & 0x30) != x) {
             v1++;
             if (v1 >= 0xF01) return -2;
         }
-        if (D_800A4828 == 1) {
+        if (_spu_dmaIsRead == 1) {
             s0++;
             _spu_FsetDelayR();
             val = 0x01000000;
@@ -69,15 +69,15 @@ int _spu_t(int a0, ...) {
             /* ASM_BARRIER: Equalize dependence depth so srl schedules before andi */
             __asm__("" : "=r"(r_v1) : "0"(r_v1));
             r_v1 += (r_a0 & 0x3F) != 0;
-            D_800A4830 = r_v1;
+            _spu_dma_block_count = r_v1;
             r_a0 = SpuDmaStartAddr;
             *DMA4_MADR = r_a0;
         }
-        *DMA4_BCR = (D_800A4830 << 16) | 0x10;
+        *DMA4_BCR = (_spu_dma_block_count << 16) | 0x10;
         /* ASM_BARRIER: Keep low half of 0x01000201 after *DMA4_BCR store so it fills bne delay slot */
         __asm__ volatile("" : "=r"(val) : "0"(val));
         val |= 0x201;
-        if (D_800A4828 == 1) val = 0x01000200;
+        if (_spu_dmaIsRead == 1) val = 0x01000200;
         *DMA4_CHCR = val;
         break;
     }

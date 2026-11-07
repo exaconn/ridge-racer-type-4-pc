@@ -59,10 +59,10 @@ void func_800307B4(a0) int a0;
     s1 = AddSpriteWithDrawMode(CurrentDrawBuf + 0x70, s1, G->h4 + 0x38, G->h6, 0xA8, 0x20, 0, 0, 0x4A, 0x2E28, 1, 0x80);
     s1 = AddDrawAreaPrim(CurrentDrawBuf + 0x70, s1, G->h14, G->h16, G->h18, G->h1a);
     s1 = func_80030BEC(s1, 0x12, 2);
-    s1 = func_8003069C(0xE, CurrentDrawBuf + 0x70, s1, G->h20, G->h22, 0x80);
-    s1 = func_8003069C(0xF, CurrentDrawBuf + 0x70, s1, G->h20 + 0x90, G->h22, 0x80);
-    s1 = func_8003069C(0x10, CurrentDrawBuf + 0x70, s1, G->h20, G->h22, 0x80);
-    s1 = func_8003069C(0x11, CurrentDrawBuf + 0x70, s1, G->h20 + 0x90, G->h22, 0x80);
+    s1 = AddBadgeSpriteStrip(0xE, CurrentDrawBuf + 0x70, s1, G->h20, G->h22, 0x80);
+    s1 = AddBadgeSpriteStrip(0xF, CurrentDrawBuf + 0x70, s1, G->h20 + 0x90, G->h22, 0x80);
+    s1 = AddBadgeSpriteStrip(0x10, CurrentDrawBuf + 0x70, s1, G->h20, G->h22, 0x80);
+    s1 = AddBadgeSpriteStrip(0x11, CurrentDrawBuf + 0x70, s1, G->h20 + 0x90, G->h22, 0x80);
     s1 = func_80030F64(CurrentDrawBuf + 0x70, s1);
     s1 = AddDrawAreaPrim(CurrentDrawBuf + 0x70, s1, G->h30, G->h32, G->h34, G->h36);
     if (D_800AD4EF >= 4) {

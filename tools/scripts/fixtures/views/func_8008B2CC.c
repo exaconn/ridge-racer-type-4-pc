@@ -5,19 +5,19 @@
 #include "rr/timing.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A6350 (*(int (**(*))())&D_800A6350)
+#define IntrDriverTablePtr (*(int (**(*))())&IntrDriverTablePtr)
 
-#undef D_800A6350
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800A6350 (*(int (**(*))())&D_800A6350)
-
-#undef D_800A6350
+#undef IntrDriverTablePtr
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A6350 (*(int (**(*))())&D_800A6350)
+#define IntrDriverTablePtr (*(int (**(*))())&IntrDriverTablePtr)
 
-#undef D_800A6350
+#undef IntrDriverTablePtr
+
+/* legacy typing of shared globals in this part of the unit */
+#define IntrDriverTablePtr (*(int (**(*))())&IntrDriverTablePtr)
+
+#undef IntrDriverTablePtr
 
 extern s32 func_800963DC(const char *, ...);
 

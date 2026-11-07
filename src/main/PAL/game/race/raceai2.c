@@ -48,11 +48,11 @@ extern int AddTextSprites();
 extern int AddDrawModePrim();
 extern int AddTilePrim();
 extern int AddScreenFadeTiles();
-extern char D_80010678[];
+extern char StrLinkError[];
 extern char PressStartStr[];
 extern short D_800AC5D0;
 extern int D_800F3A60;
-extern char D_80010694[];
+extern char StrLinkBattleEnd[];
 extern char D_800106A4[];
 extern int SoundSetMasterVolume();
 extern s32 MaskBitSetting;
@@ -66,14 +66,14 @@ extern char ScreenFadeState;
 extern int ResetScreenCounters();
 extern signed char SelectionState[];
 extern E *RankTable[];
-extern int D_800F39C8;
+extern int CarRecordPtrs;
 extern int TotalRaceTime;
 extern unsigned char D_8009F72C[];
 
 int LinkExchange();
 void LinkWaitModeEnter(void);
 void LinkWaitModeUpdate(void);
-void func_8003597C(void);
+void LinkExchangeModeUpdate(void);
 void LinkErrorModeUpdate();
 void LinkBattleEndModeUpdate(void);
 void StopRaceRumble(void);
@@ -85,7 +85,7 @@ void func_80036330(void);
 void SortRaceRankTable(void);
 void EnterRaceResultScreen(void);
 void func_800365BC(void);
-void func_800365E4(void);
+void SortRankAndEnterResults(void);
 void FinishRace(void);
 
 void DrawLinkEntryScreen(s32 mode) {
@@ -115,24 +115,24 @@ void DrawLinkEntryScreen(s32 mode) {
             status=LinkEntryState[1-mode][row];
             switch (status) {
             case 0:
-                DrawBigFontString(60,statusY,D_8001060C);
+                DrawBigFontString(60,statusY,StrNowAcceptingEntries);
                 break;
             case 1:
                 DrawBigFontString(60,statusY,EntryAcceptedStr);
-                DrawBigFontString(60,waitY,D_8001063C);
+                DrawBigFontString(60,waitY,StrStarPleaseWait);
                 break;
             case -1:
-                DrawBigFontString(60,statusY,D_8001064C);
+                DrawBigFontString(60,statusY,StrNoPlayer);
                 break;
             }
             row++;
         } while (row<2);
-        row=D_800AC5A4/50;
+        row=RaceTimeRemaining/50;
         text[0]=row/10+48;
         text[1]=row%10+48;
         DrawBigFontString(44,244,text);
         DrawBigFontString(32,244,SecondsUntilCloseText);
-        remaining=(s32)(500U-(u32)D_800AC5A4);
+        remaining=(s32)(500U-(u32)RaceTimeRemaining);
         DrawBigFontString(((s32)((u32)remaining<<8)/500)+32,224,D_80010674);
     }
 }
@@ -178,7 +178,7 @@ void LinkWaitModeEnter(void) {
     LinkEntryState[2] = 1;
     LinkEntryState[3] = 0;
     ClearScreenOverlayState();
-    D_800AC5A4 = 0x1F4;
+    RaceTimeRemaining = 0x1F4;
     ModeFrame = 0;
     VSyncThreshold = 0x80;
     D_800F4D8A = 0;
@@ -219,7 +219,7 @@ void LinkWaitModeUpdate(void) {
 
 #undef D_800AD508
 
-void func_8003597C(void) {
+void LinkExchangeModeUpdate(void) {
     int s = LinkState;
     if (s == 1) goto st1;
     if (s < 2) {
@@ -296,7 +296,7 @@ void LinkErrorModeUpdate()
       _sio_control(1, 1, 0);
       g = (int *) SCRATCHPAD;
       new_var = *g;
-      *g = AddDrawModePrim(CurrentDrawBuf + 0x70, AddTilePrim(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, new_var, 0x78, 0x100, D_80010678, 0x7F38, 0, 1), 0x78, 0x114, PressStartStr, 0x7F38, 0, 1), 0, 0, 0x140, 0x200, 0x80, 0, 0), 0x5E);
+      *g = AddDrawModePrim(CurrentDrawBuf + 0x70, AddTilePrim(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, new_var, 0x78, 0x100, StrLinkError, 0x7F38, 0, 1), 0x78, 0x114, PressStartStr, 0x7F38, 0, 1), 0, 0, 0x140, 0x200, 0x80, 0, 0), 0x5E);
       if (D_800F3A60 == 0)
     {
       if (ModeFrame < 0xFB)
@@ -357,7 +357,7 @@ void LinkBattleEndModeUpdate(void)
     case 2:
       ModeFrame++;
       new_var = *((int *) SCRATCHPAD);
-      *((int *) SCRATCHPAD) = AddDrawModePrim(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, new_var, 0x78, 0x100, D_80010694, 0x7F38, 0, 1), 0x78, 0x114, D_800106A4, 0x7F38, 0, 1), 0x3E);
+      *((int *) SCRATCHPAD) = AddDrawModePrim(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, new_var, 0x78, 0x100, StrLinkBattleEnd, 0x7F38, 0, 1), 0x78, 0x114, D_800106A4, 0x7F38, 0, 1), 0x3E);
       if (D_800F3A60 == 0)
     {
       if (ModeFrame < 0xFB)
@@ -499,7 +499,7 @@ void func_80036330(void) {
     int a2;
     int a0;
     int a1;
-    a2 = D_800F39C8 + 0x1E8;
+    a2 = CarRecordPtrs + 0x1E8;
     if (D_800AD4EF >= 0) {
         a1 = 0;
         if (D_800AD4EF >= 2) {
@@ -574,11 +574,11 @@ void func_800365BC(void) {
     EnterRaceResultScreen();
 }
 
-void func_800365E4(void) {
+void SortRankAndEnterResults(void) {
     SortRaceRankTable();
     EnterRaceResultScreen();
 }
 
 void FinishRace(void) {
-    func_800365E4();
+    SortRankAndEnterResults();
 }

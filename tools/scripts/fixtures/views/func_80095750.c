@@ -31,15 +31,15 @@
 
 #undef GPU_DmaDoneRequeue
 
-extern char D_80011EFC[];
+extern char MoveImageNameStr[];
 
 extern RrLibGraphicsDriverPrefix *GpuFuncTable;
 
 s32 MoveImage2(RrGpuRectangle *rect,s32 x,s32 y) {
     /* ASM_BARRIER: Keep each DMA status read in the original polling temporary. */
     register u32 status __asm__("$2");
-    checkRECT(D_80011EFC,rect);
-    D_800ABBFC=(u32)VSync(-1)+240;
+    checkRECT(MoveImageNameStr,rect);
+    GpuTimeoutDeadline=(u32)VSync(-1)+240;
     GpuAlarmCount=0;
     status=*DMA2_CHCR;
     goto test;

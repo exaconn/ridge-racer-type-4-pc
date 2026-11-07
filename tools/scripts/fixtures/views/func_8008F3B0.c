@@ -1,10 +1,10 @@
 #include "rr/cd.h"
 
-extern s32 func_80096414(const void *,const void *,u32);
+extern s32 PsyqStrncmp(const void *,const void *,u32);
 
 extern s32 DebugPrintStub(const char *,...);
 
-extern char D_80011D88[];
+extern char StrIso9660Id[];
 
 int CdGetDiskType(void) {
     struct { u32 a[2]; u8 buf[0x800],st[8]; } L;
@@ -53,7 +53,7 @@ int CdGetDiskType(void) {
         CdControl(9, parameters, 0);
     }
     CdGetSector(L.buf, 0x200);
-    v = func_80096414(L.buf + 1, D_80011D88, 5);
+    v = PsyqStrncmp(L.buf + 1, StrIso9660Id, 5);
     if (v != 0) return 1;
     return 2;
 }

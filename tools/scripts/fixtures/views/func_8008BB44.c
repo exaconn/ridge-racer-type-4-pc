@@ -5,9 +5,9 @@
 #include "rr/library.h"
 
 RrLibInterruptExchange startIntrDMA(void) {
-    DMA_memclr(D_800A63A4, 8);
+    DMA_memclr(InterruptCallbackTable, 8);
     /* The ordinary write view permits the original call-delay store. */
-    *(u32 *)D_800A63A0 = 0;
+    *(u32 *)DICR_VSync = 0;
     InterruptCallback(3, trapIntrDMA);
     return setIntrDMA;
 }

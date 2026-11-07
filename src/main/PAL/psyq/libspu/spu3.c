@@ -4,16 +4,16 @@
 #include "psyq/libspu/spu3.h"
 #include "rr/spu.h"
 
-extern unsigned int *D_800A47EC;
+extern unsigned int *SPU_DELAY;
 
 void _spu_FsetDelayW(void);
 
 void _spu_FsetDelayW(void) {
-    *D_800A47EC = (*D_800A47EC & 0xF0FFFFFF) | 0x20000000;
+    *SPU_DELAY = (*SPU_DELAY & 0xF0FFFFFF) | 0x20000000;
 }
 
 void _spu_FsetDelayR(void) {
-    *D_800A47EC = (*D_800A47EC & 0xF0FFFFFF) | 0x22000000;
+    *SPU_DELAY = (*SPU_DELAY & 0xF0FFFFFF) | 0x22000000;
 }
 
 void _spu_Fw1ts(void) {

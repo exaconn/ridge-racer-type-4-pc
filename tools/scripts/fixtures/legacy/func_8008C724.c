@@ -7,8 +7,8 @@
 extern s32 DebugPrintStub();
 extern s32 func_800963DC(const char *);
 
-extern const char D_80011A40[];
-extern const char D_80011A4C[];
+extern const char DiskErrorPrefixStr[];
+extern const char StrCdComCodeFmt[];
 extern const char CdUnknownIntrMsg[];
 extern const char CD_fmt_intr_code[];
 
@@ -27,7 +27,7 @@ extern volatile u8 *CD_reg3;
 extern volatile u8 D_800A6764[];
 
 extern u8 CD_syncResult[];
-extern u8 D_80110320[];
+extern u8 CdReadyResult[];
 extern u8 D_80110328[];
 
 #define COPY8(dst_arr, src_arr) \
@@ -84,10 +84,10 @@ s32 getintr(void) {
         s32 t = intr;
         if (t == 5) {
             if (CD_debug > 0) {
-                DebugPrintStub(D_80011A40);
+                DebugPrintStub(DiskErrorPrefixStr);
             }
             if (CD_debug > 0) {
-                DebugPrintStub(D_80011A4C, CD_comstr[D_800A64A5], CD_status, CD_status1);
+                DebugPrintStub(StrCdComCodeFmt, CD_comstr[D_800A64A5], CD_status, CD_status1);
             }
         }
     }
@@ -119,7 +119,7 @@ s32 getintr(void) {
             volatile u8 *p = D_800A6764;
             p[1] = v;
         }
-        COPY8(D_80110320, res);
+        COPY8(CdReadyResult, res);
         *CD_reg0 = 0;
         *CD_reg3 = 0;
         return 4;
@@ -129,12 +129,12 @@ s32 getintr(void) {
             p[1] = p[2] = 4;
         }
         COPY8(D_80110328, res);
-        COPY8(D_80110320, res);
+        COPY8(CdReadyResult, res);
         return 4;
     case 5:
         D_800A6764[0] = D_800A6764[1] = 5;
         COPY8(CD_syncResult, res);
-        COPY8(D_80110320, res);
+        COPY8(CdReadyResult, res);
         return 6;
     default:
         func_800963DC(CdUnknownIntrMsg);

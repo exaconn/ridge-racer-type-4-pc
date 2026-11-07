@@ -96,7 +96,7 @@ void ovl667_func_801161A8(s32 arg0) {
     temp_a2_2 = D_800AC5D4 & 1;
     temp_s0 = &D_8010C0D8[temp_a2_2];
     temp_t0_2 = &D_8010C0D0[temp_a2_2];
-    temp_a3_2 = &D_800ACBD0[D_800AC5D4];
+    temp_a3_2 = &PlayerCourseChoices[D_800AC5D4];
     temp_a3_2->first = D_8010BFD8[temp_a2_2][*temp_s0][*temp_t0_2].first;
     temp_a3_2->second = D_8010BFD8[temp_a2_2][*temp_s0][*temp_t0_2].second;
 }

@@ -1,7 +1,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
-extern s32 D_800A47D0;
-extern s32 D_800A47D4;
+extern s32 _err_math_mode;
+extern s32 _err_math_param;
 extern s32 DeliverEvent(u32, u32);
 s32 _err_math(s32 mode, s32 parameter) {
     /* ASM_BARRIER: Keep the final parameter store in the original PAL address register. */
@@ -9,7 +9,7 @@ s32 _err_math(s32 mode, s32 parameter) {
     /* ASM_BARRIER: Materialize the first mode comparison before publishing the parameters. */
     register s32 first_mode=33;
     __asm__ volatile("" : : "r"(first_mode));
-    D_800A47D0=mode;
+    _err_math_mode=mode;
     /* ASM_BARRIER: Publish the mode before materializing the final parameter address. */
     __asm__ volatile("" : : : "$1", "memory");
     page=(s32 *)0x800A0000U;

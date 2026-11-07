@@ -4,6 +4,6 @@
 #include "types.h"
 
 extern char *D_800AC89C;
-void func_80057750();
+void UpdateSparkEffects();
 
 #endif /* RR_GAME_EFFECT_SPARK_H */

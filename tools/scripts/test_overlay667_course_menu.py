@@ -84,7 +84,7 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
 }
 static void service(unsigned kind){const s32 args[7]={0};record(kind,args);effect(kind);}
 s32 ExitOnLinkLost(void){service(0);return profile==14||profile==15?word(words[scenario%8]):0;}
-void func_80053CB0(void){service(1);}
+void SeqMuteVolume(void){service(1);}
 s32 UpdateLinkHandshake(s32 a){const s32 args[7]={a};record(2,args);effect(2);return profile>=18?0:profile>=12&&profile<14?word(words[scenario%8]):1;}
 s32 LoadTrackNodesStep(void){service(3);return profile==10||profile==11?word(words[scenario%8]):1;}
 void SetMenuFrameOptions(s32 a,s32 b,s32 c){const s32 args[7]={a,b,c};record(4,args);effect(4);}
@@ -109,7 +109,7 @@ void DrawMenuStepArrows(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){const s32 arg
 s32 _sio_control(s32 a,s32 b,unsigned long c){assert(c<=UINT32_MAX);const s32 args[7]={a,b,(s32)c};record(17,args);effect(17);return word(scenario*0x1234567U);}
 void UpdateScreenFade(s32 a){const s32 args[7]={a};record(18,args);effect(18);}
 static void closeRows(unsigned n,u8 state){for(unsigned i=18;i<18+n;i++)if(w->rows[w->rowRoot][i].byte14==2)w->rows[w->rowRoot][i].byte14=state;}
-static void expected(void){s32 quit=ExitOnLinkLost();early[quit!=0]++;if(quit){func_80053CB0();return;}
+static void expected(void){s32 quit=ExitOnLinkLost();early[quit!=0]++;if(quit){SeqMuteVolume();return;}
  s32 wait=UpdateLinkHandshake(2);w->frame=word((u32)w->frame+1);w->tick=word((u32)w->tick+1);
  int ready=1;if(w->phase!=3)ready=LoadTrackNodesStep()==1;readiness[ready]++;
  if(ready){unsigned phase=w->phase;states[phase==0?0:phase==3?1:phase==4?2:phase==8?3:4]++;
@@ -124,7 +124,7 @@ static void expected(void){s32 quit=ExitOnLinkLost();early[quit!=0]++;if(quit){f
     if(back){SetMenuFrameOptions(0,1,1);closeRows(5,3);w->phase=8;}}
   }else if(phase==3){func_80033368(w->course,2);int blockedNow=wait==0&&w->timer==64;blocked[blockedNow]++;
    if(blockedNow)DrawUiRow(24);else{w->waitFlag=1;if(w->timer>0)w->timer=half((u16)w->timer-1);AddScreenFadeTiles(w->frames[w->frameRoot].ordering70,(64-(s32)w->timer)*4,69);
-    if(w->timer<=0){exits[0]++;w->loadStatus=-1;func_80053CB0();w->enabled=1;w->scene=41;w->phase=0;w->card=0;_sio_control(3,0,0);}}
+    if(w->timer<=0){exits[0]++;w->loadStatus=-1;SeqMuteVolume();w->enabled=1;w->scene=41;w->phase=0;w->card=0;_sio_control(3,0,0);}}
   }else if(phase==4){int state=w->rows[w->rowRoot][23].byte14;
    if(state==2){SetMenuFrameOptions(1,1,0);w->rows[w->rowRoot][23].cells[0]=2;StepMenuValue(1,4,(char*)&w->players,10,2);
     if(w->input[0].a){PlaySfx(1);w->rows[w->rowRoot][23].cells[0]=1;w->rows[w->rowRoot][23].byte14=3;}}

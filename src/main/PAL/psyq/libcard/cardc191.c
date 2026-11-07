@@ -155,14 +155,14 @@ s32 _cardGetIdBegin(s32 request, u32 *first, u32 *second) {
     CardCommandReader = _cardGetIdTx;
     CardWriteHandler = _cardGetIdRx;
     active = 2;
-    D_8011471C = first;
-    D_80114720 = second;
+    CardCmdResultPtrA = first;
+    CardCmdResultPtrB = second;
     {
         /* ASM_BARRIER: preserve the original assembler temporary for the mapped store. */
         register s32 *base __asm__("$1");
         /* ASM_BARRIER: finish parameter publication before materializing the state address. */
         __asm__ volatile("" : : : "$1", "memory");
-        /* PAL RAM mapping: base[-0x421C / 4] is D_800ABDE4. */
+        /* PAL RAM mapping: base[-0x421C / 4] is CardCommandStatus. */
         base = (s32 *)0x800B0000U;
         /* ASM_BARRIER: expose the active-state store in the branch delay slot. */
         __asm__("" : "=r"(base) : "0"(base));

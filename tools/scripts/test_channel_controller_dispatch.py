@@ -9,9 +9,9 @@ import unittest
 
 Control = C.CFUNCTYPE(None, C.c_int32, C.c_int32, C.c_int32)
 Reset = C.CFUNCTYPE(None, C.c_int32, C.c_int32)
-ROUTES = {6: 'D_8010EFE0', 7: 'D_8010EFE4', 10: 'D_8010EFE8',
+ROUTES = {6: 'SsCtrlHandlerCC6', 7: 'D_8010EFE4', 10: 'D_8010EFE8',
           11: 'D_8010EFEC', 64: 'SsCtrlHandlerCC64', 91: 'D_8010F004',
-          98: 'D_8010EFF4', 99: 'D_8010EFF8', 100: 'D_8010EFFC', 101: 'D_8010F000'}
+          98: 'SsCtrlHandlerCC98', 99: 'D_8010EFF8', 100: 'D_8010EFFC', 101: 'D_8010F000'}
 
 
 class ChannelControllerDispatchTest(unittest.TestCase):

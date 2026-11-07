@@ -67,7 +67,7 @@ extern u16 D_800111FE;
 extern short *D_800A0F20[];
 extern short *D_800A0F8C[];
 extern short D_800AD520;
-extern int func_80096464();
+extern int PsyqRand();
 extern struct { char pad[0x24C]; struct { char pad[0x140]; int v; } *p; } RaceContext;
 
 int func_8005642C(Car *arg0, int arg1, int arg2, int *arg3);
@@ -396,11 +396,11 @@ void func_8005748C(a0, a1, a2) int a0, a1, a2; {
         s4 -= (a1 - a2) << 2;
     }
     if (a1 < 0x30) {
-        r = func_80096464();
+        r = PsyqRand();
         q = r / 16;
         q = r - q * 16;
         s0 = q - 8;
-        r = func_80096464();
+        r = PsyqRand();
         q = r / 8;
         q = r - q * 8;
         s1 = q - 4;

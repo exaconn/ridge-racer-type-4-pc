@@ -8,7 +8,7 @@
 #include "rr/course_choices.h"
 extern void LoadTimList();
 extern void RaceLoadReset();
-extern int func_80096464();
+extern int PsyqRand();
 extern int CdDirectoryBuffer;
 extern int D_800F4D40;
 extern unsigned char LoadState;
@@ -48,7 +48,7 @@ int func_8003BD2C(void) {
         break;
     case 5:
         if (func_8004E990() == 1) {
-            func_8005C13C(func_80096464() & 1);
+            func_8005C13C(PsyqRand() & 1);
             LoadState = 6;
     case 6:
             r = 1;

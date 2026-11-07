@@ -31,7 +31,7 @@ s32 test_ram[16384];
 #define _spu_isCalled test_ram[0x48A8/4]
 #define _spu_EVdma test_ram[0x4840/4]
 RrLibInterruptDriverPrefix test_driver,test_alternate_driver;
-RrLibInterruptDriverPrefix *D_800A6350=&test_driver;
+RrLibInterruptDriverPrefix *IntrDriverTablePtr=&test_driver;
 s32 test_stop_calls;
 void _spu_FiDMA(void) {test_stop_calls++;}
 s32 (*test_system)(s32,u32,s32,s32,void *);
@@ -69,7 +69,7 @@ s32 EnableEvent(s32 event) {return test_system(4,(u32)event,0,0,0);}
         cls.event = C.c_int32.from_buffer(cls.ram, 0x4840)
         cls.driver = Driver.in_dll(cls.lib, 'test_driver')
         cls.alternate = Driver.in_dll(cls.lib, 'test_alternate_driver')
-        cls.current = C.c_void_p.in_dll(cls.lib, 'D_800A6350')
+        cls.current = C.c_void_p.in_dll(cls.lib, 'IntrDriverTablePtr')
         cls.stop_calls = C.c_int32.in_dll(cls.lib, 'test_stop_calls')
         cls.stop = C.cast(cls.lib._spu_FiDMA, C.c_void_p).value
         cls.initialize = cls.lib.SpuStart

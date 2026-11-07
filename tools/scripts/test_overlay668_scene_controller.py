@@ -19,7 +19,7 @@ head=r'''
 #include "rr/icon_sprites.h"
 #include "rr/tables.h"
 typedef struct {s32 key,action;} RrReplayEvent;
-void AddScreenFadeTiles(u32*,s32,u32);void CdAudioBeginPlay(s32);void CdAudioFade(u16,s32);void func_8006ECE8(s32);void func_80036FD4(s32);
+void AddScreenFadeTiles(u32*,s32,u32);void CdAudioBeginPlay(s32);void CdAudioFade(u16,s32);void SetupPlayerView(s32);void DrawTrackSceneryForPlayer(s32);
 void ovl668_func_80115BD0(s32);void ovl668_func_801159C0(s32,s32);
 static struct State{u32 guard[4];RrReplayCameraContextPrefix camera;RrReplayEvent events[3];RrMenuItemState5C input[2];RrIconSpriteContext contexts[2];unsigned root;s32 textPosition,textDelta;s16 enable,scene,phase;u32 tail[4];}a,b,*w;
 #define RaceContext w->camera
@@ -37,7 +37,7 @@ static struct Event{struct State before;s32 args[4];}trace[90];static unsigned s
 static s32 word(u32 x){s32 y;memcpy(&y,&x,4);return y;}
 static void hit(unsigned k,s32 x,s32 y,s32 z){s32 args[4]={k,x,y,z};if(ref){assert(count<90);trace[count].before=*w;memcpy(trace[count++].args,args,sizeof(args));}else{coverage[k]++;assert(seen<count);assert(!memcmp(w,&trace[seen].before,sizeof(*w)));assert(!memcmp(args,trace[seen++].args,sizeof(args)));}}
 static void effect(unsigned k){unsigned n=serial++;if(!(profile&1))return;u32 v=(scenario*0x9E3779B9U+n*0x1234567U+k);w->camera.counter444=word(v);w->camera.state44C=word(v+1);w->camera.mode4A8=(scenario+n)%4;w->camera.phase4AC=(scenario/4+n)%3;w->camera.counter4A4=word(v);w->camera.position450[0]=word(v+3);w->camera.position450[2]=word(v-7);w->camera.delta478[0]=word(v*3);w->camera.delta478[2]=word(~v);w->root=(scenario+n)&1;w->textPosition=word(v*17);w->textDelta=word(v*29);w->input[0].buttons08=(u16)v;}
-void ovl668_func_80115DFC(void){hit(0,0,0,0);effect(0);}void SetDispMask(s32 x){hit(1,x,0,0);effect(1);}void CdAudioBeginPlay(s32 x){hit(2,x,0,0);effect(2);}void ovl668_func_80115554(void){hit(3,0,0,0);effect(3);}void ovl668_func_80115460(s32 *v){assert(v==w->camera.position450&&(uintptr_t)v>UINT32_MAX);hit(4,0,0,0);effect(4);}void ovl668_func_801156FC(void){hit(5,0,0,0);effect(5);}void ovl668_func_80115850(void){hit(6,0,0,0);effect(6);}void ovl668_func_80115BD0(s32 x){hit(7,x,0,0);effect(7);}void CdAudioFade(u16 x,s32 y){hit(8,x,y,0);effect(8);}void AddScreenFadeTiles(u32*p,s32 x,u32 y){assert(p==&w->contexts[w->root].head70&&(uintptr_t)p>UINT32_MAX);hit(9,w->root,x,y);effect(9);}void ovl668_func_801159C0(s32 x,s32 y){hit(10,x,y,0);effect(10);}void func_8006ECE8(s32 x){hit(11,x,0,0);effect(11);}void func_80036FD4(s32 x){hit(12,x,0,0);effect(12);}
+void ovl668_func_80115DFC(void){hit(0,0,0,0);effect(0);}void SetDispMask(s32 x){hit(1,x,0,0);effect(1);}void CdAudioBeginPlay(s32 x){hit(2,x,0,0);effect(2);}void ovl668_func_80115554(void){hit(3,0,0,0);effect(3);}void ovl668_func_80115460(s32 *v){assert(v==w->camera.position450&&(uintptr_t)v>UINT32_MAX);hit(4,0,0,0);effect(4);}void ovl668_func_801156FC(void){hit(5,0,0,0);effect(5);}void ovl668_func_80115850(void){hit(6,0,0,0);effect(6);}void ovl668_func_80115BD0(s32 x){hit(7,x,0,0);effect(7);}void CdAudioFade(u16 x,s32 y){hit(8,x,y,0);effect(8);}void AddScreenFadeTiles(u32*p,s32 x,u32 y){assert(p==&w->contexts[w->root].head70&&(uintptr_t)p>UINT32_MAX);hit(9,w->root,x,y);effect(9);}void ovl668_func_801159C0(s32 x,s32 y){hit(10,x,y,0);effect(10);}void SetupPlayerView(s32 x){hit(11,x,0,0);effect(11);}void DrawTrackSceneryForPlayer(s32 x){hit(12,x,0,0);effect(12);}
 /* Independent original-MIPS control flow, using explicit wrapping words. */
 static void oracle(void){s32 stage=w->camera.counter444;
  if(stage==0){ovl668_func_80115DFC();w->camera.counter444=word((u32)w->camera.counter444+1);return;}
@@ -52,7 +52,7 @@ static void oracle(void){s32 stage=w->camera.counter444;
  }
  if(w->camera.phase4AC==1){w->textPosition=word((u32)w->textPosition-(u32)w->textDelta);for(int j=0;j<62;j++)ovl668_func_801159C0(j,160);}
  if((w->input[0].buttons08&2048)&&w->camera.mode4A8==0){startCount++;w->camera.mode4A8=2;CdAudioFade(0,21);}
- func_8006ECE8(0);func_80036FD4(0);w->camera.state44C=word((u32)w->camera.state44C+1);ovl668_func_80115BD0(1);ovl668_func_80115BD0(0);
+ SetupPlayerView(0);DrawTrackSceneryForPlayer(0);w->camera.state44C=word((u32)w->camera.state44C+1);ovl668_func_80115BD0(1);ovl668_func_80115BD0(0);
 }
 int main(void){assert(sizeof(void*)==8);static const s32 stageValues[]={0,1,2,3,4,5,-1,0x7FFFFFFF};static const u32 edge[]={0,1,2,3,4,251,254,255,256,0xFFFFFFFF,0x80000000,0x7FFFFFFF};for(scenario=0;scenario<65536;scenario++)for(profile=0;profile<16;profile++){
  memset(&a,0xA6,sizeof(a));w=&a;w->camera.counter444=stageValues[profile/2];stages[profile/2]++;w->camera.state44C=(scenario%4==0?100:scenario%4==1?1800:word(scenario*0x9876543U));w->camera.counter4A4=word(edge[scenario%12]);w->camera.mode4A8=(scenario/4)%4;w->camera.phase4AC=(scenario/16)%3;w->camera.position450[0]=word(scenario*0x1234567U);w->camera.position450[2]=word(~(scenario*0x9876543U));w->camera.delta478[0]=word(edge[scenario%12]);w->camera.delta478[2]=word(scenario*0x3456789U);w->input[0].buttons08=(u16)scenario;w->root=scenario&1;w->textPosition=word(edge[(scenario+7)%12]);w->textDelta=word(scenario*0x8974563U);

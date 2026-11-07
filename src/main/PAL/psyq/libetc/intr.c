@@ -10,7 +10,7 @@
 
 extern volatile unsigned *GPUSTAT;
 extern volatile unsigned *RCNT1_VALUE;
-extern volatile unsigned D_800A5260;
+extern volatile unsigned VSyncRcnt1Last;
 extern volatile unsigned D_800A5264;
 extern s32 func_800963DC(const char *, ...);
 extern s32 ChangeClearPAD(s32);
@@ -38,7 +38,7 @@ int VSync(a0) int a0; {
     do {
         t = *RCNT1_VALUE;
     } while (t != *RCNT1_VALUE);
-    s1 = (t - D_800A5260) & 0xFFFF;
+    s1 = (t - VSyncRcnt1Last) & 0xFFFF;
     if (a0 < 0) return Vcount;
     if (a0 == 1) return s1;
     if (a0 > 0) {
@@ -62,8 +62,8 @@ int VSync(a0) int a0; {
     }
     D_800A5264 = Vcount;
     do {
-        D_800A5260 = *RCNT1_VALUE;
-    } while (D_800A5260 != *RCNT1_VALUE);
+        VSyncRcnt1Last = *RCNT1_VALUE;
+    } while (VSyncRcnt1Last != *RCNT1_VALUE);
     return s1;
 }
 
@@ -89,42 +89,42 @@ loop:
 }
 
 void ResetCallback(void) {
-    D_800A6350->reset();
+    IntrDriverTablePtr->reset();
 }
 
 RrLibInterruptCallback InterruptCallback(s32 channel, RrLibInterruptCallback callback) {
-    return D_800A6350->install(channel, callback);
+    return IntrDriverTablePtr->install(channel, callback);
 }
 
 RrLibInterruptCallback DMACallback(s32 channel, RrLibInterruptCallback callback) {
-    return D_800A6350->exchange(channel,callback);
+    return IntrDriverTablePtr->exchange(channel,callback);
 }
 
 void VSyncCallback(RrSpuTickCallback callback)
 {
-    ((RrSpuTickInterruptDriver20 *)D_800A6350)->install14(4,callback);
+    ((RrSpuTickInterruptDriver20 *)IntrDriverTablePtr)->install14(4,callback);
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A6350 (*(int (**(*))())&D_800A6350)
+#define IntrDriverTablePtr (*(int (**(*))())&IntrDriverTablePtr)
 
-void VSyncCallbacks() { D_800A6350[5](); }
+void VSyncCallbacks() { IntrDriverTablePtr[5](); }
 
-#undef D_800A6350
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800A6350 (*(int (**(*))())&D_800A6350)
-
-void StopCallback() { D_800A6350[4](); }
-
-#undef D_800A6350
+#undef IntrDriverTablePtr
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A6350 (*(int (**(*))())&D_800A6350)
+#define IntrDriverTablePtr (*(int (**(*))())&IntrDriverTablePtr)
 
-void RestartCallback() { D_800A6350[6](); }
+void StopCallback() { IntrDriverTablePtr[4](); }
 
-#undef D_800A6350
+#undef IntrDriverTablePtr
+
+/* legacy typing of shared globals in this part of the unit */
+#define IntrDriverTablePtr (*(int (**(*))())&IntrDriverTablePtr)
+
+void RestartCallback() { IntrDriverTablePtr[6](); }
+
+#undef IntrDriverTablePtr
 
 u16 CheckCallback(void) {
     return D_800A52CA;

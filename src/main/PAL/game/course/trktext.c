@@ -24,7 +24,7 @@ void DrawFontStringRight(int a0, int a1, unsigned char *s, int a3, int a4);
 void AddSetTexpagePrim(int a0);
 void *func_8004C998(char *a0);
 void func_8004CBDC(char *p);
-void func_8004CC1C(void *arg0, void *arg1, void *arg2, s32 arg3);
+void AddHGradientRectPrim(void *arg0, void *arg1, void *arg2, s32 arg3);
 void func_8004CD88(unsigned short *a0, int a1, unsigned char *a2, unsigned char *a3, int a4);
 
 int GetMappedPadButtons(int i) {
@@ -324,7 +324,7 @@ void func_8004CBDC(char *p) {
 /* legacy typing of shared globals in this part of the unit */
 #define CurrentDrawBuf (*(s32 (*))&CurrentDrawBuf)
 
-void func_8004CC1C(void *arg0, void *arg1, void *arg2, s32 arg3) {
+void AddHGradientRectPrim(void *arg0, void *arg1, void *arg2, s32 arg3) {
     void *temp_a3;
     void *temp_t0;
 

@@ -34,7 +34,7 @@ s32 _sio_deinit(void);
 extern RrSerialPortRegisters *volatile CardCmdSioRegs;
 extern RrSerialPortRegisters *CardSio0Base;
 s32 _cardSelectSlot(s32 slot);
-extern volatile u32 *D_800ABDD4;
+extern volatile u32 *I_STAT_CardSel;
 extern s32 D_80114700;
 void setRC2wait(s32 limit);
 s32 chkRC2wait(void);

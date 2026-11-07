@@ -23,20 +23,20 @@ typedef struct { char pad[0x1C]; unsigned w; } W3L2_P;
 extern unsigned char D_800ABAC1[];
 extern int SetGraphQueFmt[];
 extern char D_80011E64[];
-extern char D_80011E80[];
+extern char StrSetDispMaskFmt[];
 extern M2C_UNK DrawSyncFmt;
 extern char StrBadRectFmt[];
-extern char D_80011EB4[];
+extern char StrRectFmt[];
 extern char D_80011EC8[];
-extern char D_80011ECC[];
+extern char StrClearImage[];
 extern char D_80011ED8[];
 /* extern */
 extern M2C_UNK LoadImageName;
 extern char ClearOTagFmt[];
 extern char D_800ABB6C[];
 extern int D_800ABB80;
-extern char D_80011F20[];
-extern int func_80096444();
+extern char StrClearOTagRFmt[];
+extern int PsyqMemcpy();
 extern char PutDrawEnvFmt[];
 extern char StrDrawOTagEnvFmt[];
 extern char D_800ABAD0[];
@@ -193,7 +193,7 @@ s32 SetGraphDebug(s32 enabled) {
         s32 first = state[0], second = state[-2], third = state[1];
         /* ASM_BARRIER: read the callback and state bytes before materializing the format page. */
         __asm__ volatile("" : : "r"(callback), "r"(first), "r"(second), "r"(third) : "$4");
-        /* PAL read-only mapping: format + 0x1E24 is D_80011E24. */
+        /* PAL read-only mapping: format + 0x1E24 is SetGraphDebugFmt. */
         format = (const char *)0x80010000U;
         /* ASM_BARRIER: expose the page-relative addition in the indirect-call delay slot. */
         __asm__("" : "=r"(format) : "0"(format));
@@ -262,7 +262,7 @@ int DrawSyncCallback(a0) int a0; {
 
 void SetDispMask(a0) int a0; {
  unsigned char *p = D_800ABAC2;
- if (*p >= 2) GPU_printf(D_80011E80, a0);
+ if (*p >= 2) GPU_printf(StrSetDispMaskFmt, a0);
  if (a0 == 0) GPU_memset(p + 0x6A, -1, 0x14);
  GpuFuncTable->f(a0 ? 0x3000000 : 0x3000001); }
 
@@ -334,7 +334,7 @@ report:
             s32 h=rect->rect.h;
             /* ASM_BARRIER: Reload all rectangle fields before fetching the second diagnostic callback. */
             __asm__("" : : "r"(x),"r"(y),"r"(w),"r"(h) : "$2");
-            GPU_printf(D_80011EB4,x,y,w,h);
+            GPU_printf(StrRectFmt,x,y,w,h);
         }
     }
 }
@@ -344,7 +344,7 @@ report:
 
 void ClearImage(int a, int b, int c, int d)
 {
-int v; char nv; nv = b & 0xFF; checkRECT(D_80011ECC, a); v = (((d & 0xFF) << 16) | ((c & 0xFF) << 8)) | nv; (*(int (**)())(GpuFuncTable + 8))(*(int *)(GpuFuncTable + 0xC), a, 8, v);
+int v; char nv; nv = b & 0xFF; checkRECT(StrClearImage, a); v = (((d & 0xFF) << 16) | ((c & 0xFF) << 8)) | nv; (*(int (**)())(GpuFuncTable + 8))(*(int *)(GpuFuncTable + 0xC), a, 8, v);
 }
 
 #undef GpuFuncTable
@@ -389,7 +389,7 @@ A *a0; int a1; int a2;
     B *p;
     int *o;
     int w;
-    checkRECT(D_80011EFC, a0);
+    checkRECT(MoveImageNameStr, a0);
     if (*(short *)&a0->s4 == 0) return -1;
     if (*((short *)&a0->s4 + 1) != 0) {
     p = &GpuMovePayload;
@@ -442,7 +442,7 @@ int *ClearOTag(a0, a1) int *a0; int a1; {
 
 unsigned *ClearOTagR(unsigned *a, int b) {
     int *q;
-    if (D_800ABAC2 >= 2) GPU_printf(D_80011F20, a, b);
+    if (D_800ABAC2 >= 2) GPU_printf(StrClearOTagRFmt, a, b);
     (*(int (**)())(GpuFuncTable + 0x2C))(a, b);
     q = &D_800ABB80;
     *q = ((int)D_800ABB6C & 0xFFFFFF) | 0x04000000;
@@ -500,7 +500,7 @@ int PutDrawEnv(int *a0) {
     SetDrawEnv2((u32 *)(a0 + 7), (RrFrameEnvironment *)a0);
     a0[7] |= 0xFFFFFF;
     ((int (*)())GpuFuncTable[2])(GpuFuncTable[6], a0 + 7, 0x40, 0);
-    func_80096444(p + 0xE, a0, 0x5C);
+    PsyqMemcpy(p + 0xE, a0, 0x5C);
     return (int)a0;
 }
 
@@ -520,11 +520,11 @@ void DrawOTagEnv(int a, W3L2_P *b) {
     SetDrawEnv2((u32 *)t, (RrFrameEnvironment *)b);
     b->w = (b->w & 0xFF000000) | (a & 0xFFFFFF);
     (*(int (**)())(GpuFuncTable + 8))(*(int *)(GpuFuncTable + 0x18), t, 0x40, 0);
-    func_80096444(D_800ABAC2 + 0xE, b, 0x5C);
+    PsyqMemcpy(D_800ABAC2 + 0xE, b, 0x5C);
 }
 
 #undef GpuFuncTable
 #undef GPU_printf
 #undef D_800ABAC2
 
-int GetDrawEnv(int a) { func_80096444(a, D_800ABAD0, 0x5C); return a; }
+int GetDrawEnv(int a) { PsyqMemcpy(a, D_800ABAD0, 0x5C); return a; }

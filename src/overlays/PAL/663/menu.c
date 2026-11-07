@@ -180,7 +180,7 @@ void ovl663_update_menu(void) {
         AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (0x40 - cancelTimer) * 4, 0x45);
         i = 0;
         if ((s16)D_800AC5D0 <= 0) {
-            func_80053CB0();
+            SeqMuteVolume();
             ModeGroup = 1;
             D_800F3A26 = 3;
             D_800F4D8A = 0;

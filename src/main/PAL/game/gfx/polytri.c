@@ -196,7 +196,7 @@ void EmitSemiTransG4List(InQuad *a0, int a1, int a2) {
     hw[0] = (int)pkt;
 }
 
-void func_80071E04(void) {
+void UpdateTrackObjectActivation(void) {
     int i;
     S_SP7C *sp = (S_SP7C *)(SCRATCHPAD + 0x7C);
     int *hw = (int *)SCRATCHPAD;

@@ -27,6 +27,6 @@ s32 _cardCmd59ParamBegin(s32 request, s32 parameter, u8 *buffer) {
     CardCmdBuffer = buffer;
     CardCurrentCommand = mode;
     CardWriteHandler = _cardRxStatusByte;
-    D_800ABDE4 = mode;
+    CardCommandStatus = mode;
     return 1;
 }

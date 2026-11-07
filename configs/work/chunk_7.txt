@@ -5,7 +5,7 @@ FloodFill4bpp 0x800717ac 0x24
 FloodFill4bppStep 0x800717d0 0x1a8 
 EmitSemiTransG3List 0x80071978 0x21c 
 EmitSemiTransG4List 0x80071b94 0x270 
-func_80071E04 0x80071e04 0x554 
+UpdateTrackObjectActivation 0x80071e04 0x554 
 InterpolateObjectKeyframe 0x80072358 0x1280 
 UpdateTrackObjects 0x800735d8 0x1214 
 ClearTrackObjectStates 0x80077d90 0x80 

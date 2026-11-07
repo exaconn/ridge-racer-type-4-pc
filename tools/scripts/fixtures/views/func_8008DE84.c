@@ -5,9 +5,9 @@
 /* CC1_FLAGS: -fsigned-char -mhard-float */
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80096414 ((int (*)(void *, const char *, int))func_80096414)
+#define PsyqStrncmp ((int (*)(void *, const char *, int))PsyqStrncmp)
 
-#undef func_80096414
+#undef PsyqStrncmp
 
 typedef struct {
     unsigned char pos[4];
@@ -21,17 +21,17 @@ extern int CD_nopen;
 
 extern int CD_debug;
 
-extern CdlFILE D_80110350[];
+extern CdlFILE DsDirFileCache[];
 
 extern const char D_80011B38[];
 
-extern const char D_80011B54[];
+extern const char StrCdDirNotFoundFmt[];
 
 extern const char CdSearchFileDiscErrorMsg[];
 
 extern const char StrCdSearchFileFmt[];
 
-extern const char D_80011BA8[];
+extern const char StrFoundFmt[];
 
 extern const char FileNotFoundFmt[];
 
@@ -85,7 +85,7 @@ done:
     }
     if (buf[0] == 0) {
         if (CD_debug > 0)
-            DebugPrintStub(D_80011B54, name);
+            DebugPrintStub(StrCdDirNotFoundFmt, name);
         return 0;
     }
     *d = 0;
@@ -97,13 +97,13 @@ done:
     if (CD_debug >= 2)
         DebugPrintStub(StrCdSearchFileFmt, buf);
     for (i = 0; i < 64; i++) {
-        if (D_80110350[i].name[0] == 0)
+        if (DsDirFileCache[i].name[0] == 0)
             break;
-        if (_cmp(D_80110350[i].name, buf)) {
+        if (_cmp(DsDirFileCache[i].name, buf)) {
             if (CD_debug >= 2)
-                DebugPrintStub(D_80011BA8, buf);
-            *fp = D_80110350[i];
-            return &D_80110350[i];
+                DebugPrintStub(StrFoundFmt, buf);
+            *fp = DsDirFileCache[i];
+            return &DsDirFileCache[i];
         }
     }
     if (CD_debug > 0)

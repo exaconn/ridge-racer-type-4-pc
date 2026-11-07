@@ -19,7 +19,7 @@ typedef union {
     u8 bytes[128];
 } RrCardFormatSector;
 
-extern RrCardDirectoryRecord D_801140F8[15];
+extern RrCardDirectoryRecord CardFormatDirRecords[15];
 extern RrCardBrokenRecord D_801142D8[20];
 extern RrCardFormatSector D_80114328;
 /* Initialize directory sectors1..15, broken-sector records16..35 and MC header0.

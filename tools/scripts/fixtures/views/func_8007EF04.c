@@ -6,7 +6,7 @@
 
 extern s32 DeliverEvent(u32,s32);
 
-extern s32 D_800A4828;
+extern s32 _spu_dmaIsRead;
 
 extern void _spu_Fw1ts(void), _spu_FsetDelayR(void);
 
@@ -14,7 +14,7 @@ void _spu_FiDMA(void) {
     /* ASM_BARRIER: Retain the bounded poll count in its original register. */
     register u32 i;
     RrSpuRegisterBank *bank;
-    if(D_800A4828==0) _spu_Fw1ts();
+    if(_spu_dmaIsRead==0) _spu_Fw1ts();
     bank=_spu_RXX;
     bank->spu_control &= 0xFFCF;
     {

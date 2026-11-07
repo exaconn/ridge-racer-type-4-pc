@@ -112,12 +112,12 @@ extern int D_8010BFB0;
 extern int AddSpriteWithDrawMode();
 extern int DrawCars();
 extern int FinishRace();
-extern int func_80036FD4();
+extern int DrawTrackSceneryForPlayer();
 extern int StepRaceFrame();
 extern int SlotSetLevelProgram();
 extern int CdAudioBeginPlay();
 extern int BuildCameraMatrices();
-extern void func_8006ECE8(s32);
+extern void SetupPlayerView(s32);
 extern int SetupViewport();
 extern int UpdateTrackObjects();
 extern int DrawTrackObjects();
@@ -392,7 +392,7 @@ void CheckRaceFinish(a0) char *a0; {
 
 void ReplayModeEnter() {
     SoundInitForRace();
-    func_800590DC();
+    SelectReplayBgmTrack();
     AddScreenFadeTiles(CurrentDrawBuf + 0x70, 0xFF, 0x25);
     func_800293D0(0, 2);
     RaceState = SavedRaceState;
@@ -462,9 +462,9 @@ void ReplayModeUpdate(void) {
     BuildCameraMatrices();
     DrawCars(6);
     *(int *)(SCRATCHPAD + 0x78) = D_800F2A64;
-    func_8006ECE8(0);
+    SetupPlayerView(0);
     DrawTrackObjects(0);
-    func_80036FD4(0);
+    DrawTrackSceneryForPlayer(0);
     if (ReplayFrame >= 0x19) {
         QueueDrawStp();
     }

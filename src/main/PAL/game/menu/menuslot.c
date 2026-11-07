@@ -76,7 +76,7 @@ void func_80032600(void) {
         if (D_800AC5D0 > 0) D_800AC5D0 = D_800AC5D0 - 1;
         AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
-            r = func_8003B398(1);
+            r = LoadTimListStep(1);
             if (r == 1) {
                 ModeGroup = r;
                 D_800F3A26 = 0xF;

@@ -6,11 +6,11 @@
 #include "game/car/aipath.h"
 #include "game/menu/title.h"
 
-extern int func_80017CC0();
+extern int DrawTrackScenery();
 extern int D_800AC308;
 extern int D_8010718C;
 
-void func_80036FD4(int a0);
+void DrawTrackSceneryForPlayer(int a0);
 void UnpackChoiceGlyph(signed char *a0, int a1);
 s32 PackChoiceGlyph(void *arg0);
 s32 CountChoiceGlyphs(const RrCourseChoice4 *a0);
@@ -101,7 +101,7 @@ active:
     }
 }
 
-void func_80036FD4(int a0) {
+void DrawTrackSceneryForPlayer(int a0) {
     int v;
     if (D_8010718C == 1) {
         if (a0 < 2) {
@@ -113,7 +113,7 @@ void func_80036FD4(int a0) {
         int *p = (int *)SCRATCHPAD;
         v = FindTrackNodeAtXZ(p[2], p[4]);
     }
-    func_80017CC0(v);
+    DrawTrackScenery(v);
 }
 
 void UnpackChoiceGlyph(signed char *a0, int a1) {

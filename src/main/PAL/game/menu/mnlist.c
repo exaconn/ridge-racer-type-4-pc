@@ -57,7 +57,7 @@ extern u8 D_8009FDD8[];
 extern u8 D_8009FDE4[];
 extern int D_800AC5D4;
 extern signed char *ImageRows;
-extern char *D_800F39C8[];
+extern char *CarRecordPtrs[];
 extern char *BadgeRows;
 extern R4 SelectionRows[];
 extern int AddTileSemiTransPrim();
@@ -141,7 +141,7 @@ int arg2;
       sp4C = q - 8;
     }
   }
-  c = D_800F39C8[D_800AC5D4];
+  c = CarRecordPtrs[D_800AC5D4];
   sp48 = 0x11;
   sp44 = ((u8) c[0x1F3]) + 1;
   sp40 = *((short *) (c + 0x1F0));
@@ -200,7 +200,7 @@ int arg2;
         case 3:
           if (sp34 == 0)
         {
-          arg1 = AddTextSprites(arg0, arg1, s2, y, D_800F39C8[D_800AC5D4] + 0x1F5, 0x7FF8, 2, 0);
+          arg1 = AddTextSprites(arg0, arg1, s2, y, CarRecordPtrs[D_800AC5D4] + 0x1F5, 0x7FF8, 2, 0);
         }
         else
         {

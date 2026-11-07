@@ -32,7 +32,7 @@ void DrawMenuStepArrows(s32, s32, s32, s32, s32, s32, s32);
 void UpdateScreenFade(s32);
 void AddScreenFadeTiles(u32 *, s32, u32);
 void SeqFadeVolume(s32, s32);
-void func_80053CB0(void);
+void SeqMuteVolume(void);
 void ovl661_func_80115598(s32);
 void ovl661_func_80115F8C(void);
 void ovl661_func_80117350(void);
@@ -103,8 +103,8 @@ void ovl661_func_801160F0(void)
             LoadCursor = MenuArenas.first;
             UnpackChoiceGlyph(SELECTION + D_800AC5D4 * 4,
                           ovl661_D_80118458[PLAYER][ovl661_D_80118450[PLAYER]][ovl661_D_8011844C[PLAYER]].glyph);
-            D_800ACBD0[D_800AC5D4].first = ovl661_D_80118458[PLAYER][ovl661_D_80118450[PLAYER]][ovl661_D_8011844C[PLAYER]].first;
-            D_800ACBD0[D_800AC5D4].second = ovl661_D_80118458[PLAYER][ovl661_D_80118450[PLAYER]][ovl661_D_8011844C[PLAYER]].second;
+            PlayerCourseChoices[D_800AC5D4].first = ovl661_D_80118458[PLAYER][ovl661_D_80118450[PLAYER]][ovl661_D_8011844C[PLAYER]].first;
+            PlayerCourseChoices[D_800AC5D4].second = ovl661_D_80118458[PLAYER][ovl661_D_80118450[PLAYER]][ovl661_D_8011844C[PLAYER]].second;
             MODE = 6;
         }
         row = GROUP_ROW(PLAYER, ovl661_D_80118450[PLAYER], MenuCursor);
@@ -275,7 +275,7 @@ void ovl661_func_801160F0(void)
         SetModelTexturePage(-1);
         AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
-            func_80053CB0();
+            SeqMuteVolume();
             ModeGroup = 1;
             D_800F3A26 = 3;
             D_800F4D8A = 0;

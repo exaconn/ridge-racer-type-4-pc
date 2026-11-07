@@ -23,7 +23,7 @@ void UpdateScreenFade(s32);
 void func_8003662C(s32);
 void UpdateMenuTextRow(s32);
 void func_800411D4(void);
-s32 func_8003B12C(void);
+s32 LoadResultsSceneStep(void);
 void SeqStartTrack(s32);
 s32 ovl661_func_80117E10(s32);
 void ovl661_func_80115598(s32);
@@ -108,7 +108,7 @@ void ovl661_func_80117E90(void) {
         }
         break;
     case 8:
-        ready = func_8003B12C();
+        ready = LoadResultsSceneStep();
         if (ready == 1) {
             SeqStartTrack(0);
             ovl661_func_80115598(0);

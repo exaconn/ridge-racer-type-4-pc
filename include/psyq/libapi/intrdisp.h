@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern int *D_800A635C;
+extern int *DPCR_Intr;
 void memclr();
 
 #endif /* RR_PSYQ_LIBAPI_INTRDISP_H */

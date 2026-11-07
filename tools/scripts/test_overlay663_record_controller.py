@@ -59,7 +59,7 @@ static u8 buffers[3][32];static const s32 limits[3]={4,8,16};static const s32 mo
 #define BadgeRows (w->badges[w->badgeRoot])
 #define CurrentDrawBuf (&w->contexts[w->contextRoot])
 #define SelectionRows w->choice
-#define D_800ACBD0 w->grid
+#define PlayerCourseChoices w->grid
 #define CourseChoiceTable w->courses
 #define RaceRecords w->banks[0]
 #define LapRecords w->banks[1]

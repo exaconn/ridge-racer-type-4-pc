@@ -16,7 +16,7 @@ extern int CourseBestLap[2][8];
 extern Struct40 Options;
 extern Struct10 RaceRecords[2][8][5];
 extern Struct2C SaveSlotSelections[3];
-extern int D_800F3838[2][8][3];
+extern int CourseBestLapTimes[2][8][3];
 extern Struct840 *D_800F3910;
 extern Struct840 *D_800F3918;
 extern Struct7C SaveProgress;
@@ -31,7 +31,7 @@ extern StructC D_80118420[];
 extern Struct48 D_80118458[2];
 extern int D_801272F0[];
 extern int StoreImage();
-extern char D_80011564[];
+extern char StrFmtPercentS[];
 extern short D_8010EF98[];
 extern char D_80011568[];
 extern short D_8010EFA0[];
@@ -75,7 +75,7 @@ int ApplySaveData(int arg0) {
             for (s0 = 0; s0 < 2; s0++) {
                 for (t0 = 0; t0 < 8; t0++) {
                     for (k = 0; k < 3; k++) {
-                        D_800F3838[s0][t0][k] = s3->f3E4[s0][t0][k];
+                        CourseBestLapTimes[s0][t0][k] = s3->f3E4[s0][t0][k];
                     }
                     for (k = 0; k < 5; k++) {
                         LapRecords[s0][t0][k] = s3->f4A4[s0][t0][k];
@@ -151,7 +151,7 @@ int a5;
     a0[1] = 0x43;
     a0[2] = 0x13;
     a0[3] = 1;
-    PsyqSprintf(a0 + 4, D_80011564, a1);
+    PsyqSprintf(a0 + 4, StrFmtPercentS, a1);
     D_8010EF98[0] = a2;
     D_8010EF98[2] = 0x10;
     D_8010EF98[1] = a3;
@@ -186,10 +186,10 @@ B *a6;
     a0[1] = 0x43;
     a0[2] = 0x11;
     a0[3] = 1;
-    PsyqSprintf(a0 + 4, D_80011564, a1);
+    PsyqSprintf(a0 + 4, StrFmtPercentS, a1);
     a0[0x50] = 1;
     a0[0x51] = 0;
-    PsyqSprintf(a0 + 0x52, D_80011564, D_80011568);
+    PsyqSprintf(a0 + 0x52, StrFmtPercentS, D_80011568);
     D_8010EFA0[0] = a2;
     D_8010EFA0[2] = 0x10;
     D_8010EFA0[1] = a3;

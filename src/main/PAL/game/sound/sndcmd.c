@@ -179,7 +179,7 @@ void SoundInitForRace(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(struct { char pad[4]; s32 a; char p[4]; s32 b; s32 c; } (*))&SoundState)
 
-void func_8004F7E0(void) {
+void StopAllSoundAndReset(void) {
     SsUtAllKeyOff(0);
     SsSetReservedVoice(4);
     SoundState.b = 1;

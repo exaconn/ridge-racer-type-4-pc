@@ -5,25 +5,25 @@
 #include "rr/timing.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A6350 (*(int (**(*))())&D_800A6350)
+#define IntrDriverTablePtr (*(int (**(*))())&IntrDriverTablePtr)
 
-#undef D_800A6350
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800A6350 (*(int (**(*))())&D_800A6350)
-
-#undef D_800A6350
+#undef IntrDriverTablePtr
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A6350 (*(int (**(*))())&D_800A6350)
+#define IntrDriverTablePtr (*(int (**(*))())&IntrDriverTablePtr)
 
-#undef D_800A6350
+#undef IntrDriverTablePtr
+
+/* legacy typing of shared globals in this part of the unit */
+#define IntrDriverTablePtr (*(int (**(*))())&IntrDriverTablePtr)
+
+#undef IntrDriverTablePtr
 
 extern volatile unsigned *GPUSTAT;
 
 extern volatile unsigned *RCNT1_VALUE;
 
-extern volatile unsigned D_800A5260;
+extern volatile unsigned VSyncRcnt1Last;
 
 extern volatile unsigned D_800A5264;
 
@@ -38,7 +38,7 @@ int VSync(a0) int a0; {
     do {
         t = *RCNT1_VALUE;
     } while (t != *RCNT1_VALUE);
-    s1 = (t - D_800A5260) & 0xFFFF;
+    s1 = (t - VSyncRcnt1Last) & 0xFFFF;
     if (a0 < 0) return Vcount;
     if (a0 == 1) return s1;
     if (a0 > 0) {
@@ -62,7 +62,7 @@ int VSync(a0) int a0; {
     }
     D_800A5264 = Vcount;
     do {
-        D_800A5260 = *RCNT1_VALUE;
-    } while (D_800A5260 != *RCNT1_VALUE);
+        VSyncRcnt1Last = *RCNT1_VALUE;
+    } while (VSyncRcnt1Last != *RCNT1_VALUE);
     return s1;
 }

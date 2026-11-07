@@ -4,7 +4,7 @@
 #include "rr/trig.h"
 #include "psyq/libcd/dsstrm32.h"
 
-extern const char D_80011D98[];
+extern const char DmaStatusErrorFmt[];
 extern volatile s32 *D_800A6888;
 extern volatile s32 *DICR;
 extern void DebugPrintStub(const char *, ...);
@@ -35,7 +35,7 @@ void dma_execute(s32 ch, s32 madr, s32 bcr_hi, s32 bcr_lo, volatile s32 chcr, u8
             /* ASM_BARRIER: keep v0 live at loop entry so beqz does not steal target insn */
             __asm__ volatile("" : : "r"(cond));
             if (i == 0x10000) {
-                DebugPrintStub(D_80011D98, *(volatile s32 *)((s32)p + 0x1F801088));
+                DebugPrintStub(DmaStatusErrorFmt, *(volatile s32 *)((s32)p + 0x1F801088));
                 goto after_loop;
             }
             i++;
@@ -98,7 +98,7 @@ after_loop:
         *p = bcr;
     }
     p++;
-    while ((*D_800A6870 & 0x40) == 0) {
+    while ((*CD_REG0_STRM & 0x40) == 0) {
     }
     *p = chcr;
     dummy = *p;

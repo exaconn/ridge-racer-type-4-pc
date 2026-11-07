@@ -14,7 +14,7 @@ void ovl667_func_80117FA8(void) {
     RrUiRow24 *back;
 
     if (ExitOnLinkLost() != 0) {
-        func_80053CB0();
+        SeqMuteVolume();
         return;
     }
     waitResult = UpdateLinkHandshake(2);
@@ -110,7 +110,7 @@ void ovl667_func_80117FA8(void) {
                 AddScreenFadeTiles(((RrFrameOrderingPrefix *)(void *)CurrentDrawBuf)->ordering70, (0x40 - D_800AC5D0) * 4, 0x45);
                 if (D_800AC5D0 <= 0) {
                     D_8010C0C8 = -1;
-                    func_80053CB0();
+                    SeqMuteVolume();
                     ModeGroup = 1;
                     D_800F3A26 = 0x29;
                     D_800F4D8A = 0;

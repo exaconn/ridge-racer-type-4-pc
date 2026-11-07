@@ -11,7 +11,7 @@ void setRC2wait(s32 limit) {
     RC2WaitLimit = limit;
     /* ASM_BARRIER: finish the limit store before binding the saved-counter address. */
     __asm__ volatile("" : : : "$1", "memory");
-    /* PAL RAM mapping for D_801146B8. */
+    /* PAL RAM mapping for PadRcnt2Start. */
     base = (s32 *)0x80110000U;
     /* ASM_BARRIER: expose the register-relative return-slot store. */
     __asm__("" : "=r"(base) : "0"(base));
@@ -27,7 +27,7 @@ int chkRC2wait() {
     register volatile unsigned short *p __asm__("$3");
     unsigned int v0, lim, b;
     a0 = *(volatile unsigned short *)0x1F801120 & 0xFFFF;
-    if (a0 < D_801146B8) {
+    if (a0 < PadRcnt2Start) {
         p = (unsigned short *)0x1F801128;
         if (*p != 0) {
             a0 += *p;
@@ -36,11 +36,11 @@ int chkRC2wait() {
         }
     }
     if (!(*(volatile unsigned short *)0x1F801124 & 0x200)) {
-        b = D_801146B8;
+        b = PadRcnt2Start;
         lim = RC2WaitLimit;
         v0 = (a0 - b) >> 3;
     } else {
-        b = D_801146B8;
+        b = PadRcnt2Start;
         lim = RC2WaitLimit;
         v0 = a0 - b;
     }

@@ -124,6 +124,6 @@ void func_8005D820(void) {
 
 #undef MotionController
 
-void func_8005D858(void) {
+void ResetSlotOrder(void) {
     SlotOrder = -1;
 }

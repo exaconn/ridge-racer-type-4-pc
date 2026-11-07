@@ -12,7 +12,7 @@ M2C_UNK FlushCache();
 /* extern */
 M2C_UNK DelDrv(M2C_UNK *);
 /* extern */
-extern M2C_UNK D_80012104;
+extern M2C_UNK StrSioDeviceName;
 
 void DelSIO(void);
 void func_8009A944(void);
@@ -35,7 +35,7 @@ void DelSIO(void) {
     s32 temp_s0;
 
     temp_s0 = EnterCriticalSection();
-    DelDrv(&D_80012104);
+    DelDrv(&StrSioDeviceName);
     FlushCache();
     if (temp_s0 == 1) {
         ExitCriticalSection();

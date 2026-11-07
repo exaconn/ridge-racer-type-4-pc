@@ -4,7 +4,7 @@
 #include "types.h"
 
 void SetupDialogueTable();
-void func_800293AC();
-void func_800293C4(s32 arg0);
+void SetCarRecordPtr();
+void SetLightTable(s32 arg0);
 
 #endif /* RR_GAME_DATA_BANKREC_H */

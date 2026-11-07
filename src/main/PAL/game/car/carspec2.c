@@ -139,7 +139,7 @@ int CalcRubberBandFactor(Vehicle *a0, int a1) {
         if (s2->b[a1] < 0x7D0) {
             if (SoundState.f1A0C[(a0->flags1E4 & 0xF) - 1] == 0) {
                 if (SoundState.f1A28 == 0) {
-                    v0 = func_80096464() & 1;
+                    v0 = PsyqRand() & 1;
                     SoundState.f1A2C = v0;
                     SoundQueueEnqueue(v0 + 0xD, 0);
                 }
@@ -156,7 +156,7 @@ int CalcRubberBandFactor(Vehicle *a0, int a1) {
             if (s2->b[a1] >= -0x5DB) {
                 if (SoundState.f1A08 == 0) {
                     if (SoundState.f1A28 == 0) {
-                        v0 = func_80096464() & 1;
+                        v0 = PsyqRand() & 1;
                         SoundState.f1A30 = v0;
                         SoundQueueEnqueue(v0 + 0xB, 0);
                     }

@@ -28,11 +28,11 @@ typedef struct {State s;Event events[12];unsigned count;} World;
 static World actual,reference,*w;
 static unsigned scenario,mutation,seen[8],flagSeen[65536],pairSeen[2][65536],budgetSeen[18];
 static const s32 budgets[18]={INT32_MIN,INT32_MIN+1,INT32_MAX-1,INT32_MAX,-1000,-501,-500,-50,-1,0,1,49,50,99,100,499,500,501};
-static u8 *labels[7]={StrPlayerLabel,D_8001060C,EntryAcceptedStr,D_8001063C,D_8001064C,SecondsUntilCloseText,D_80010674};
+static u8 *labels[7]={StrPlayerLabel,StrNowAcceptingEntries,EntryAcceptedStr,StrStarPleaseWait,StrNoPlayer,SecondsUntilCloseText,D_80010674};
 static const unsigned sizes[7]={12,28,20,16,12,28,4};
 #define LinkEntryState (w->s.status)
 #define D_800AD508 (w->s.flags)
-#define D_800AC5A4 (w->s.budget)
+#define RaceTimeRemaining (w->s.budget)
 static s32 word(u32 u){s32 n;memcpy(&n,&u,4);return n;}
 static s16 half(u16 u){s16 n;memcpy(&n,&u,2);return n;}
 static s8 byte(u8 u){s8 n;memcpy(&n,&u,1);return n;}
@@ -52,9 +52,9 @@ static void expected(s32 mode){u8 number[4]={0,0,0,0};unsigned row;int player;s8
   player=1-mode;number[0]=(u8)(49+(int)row+2*(int)half(w->s.flags^1U));
   DrawBigFontString(12,64+194*row,StrPlayerLabel);DrawBigFontString(88,64+194*row,number);
   status=w->s.status[player][row];
-  if(status==0){seen[2]++;DrawBigFontString(60,120+194*row,D_8001060C);}
-  else if(status==1){seen[3]++;DrawBigFontString(60,120+194*row,EntryAcceptedStr);DrawBigFontString(60,150+194*row,D_8001063C);}
-  else if(status==-1){seen[4]++;DrawBigFontString(60,120+194*row,D_8001064C);}else seen[5]++;
+  if(status==0){seen[2]++;DrawBigFontString(60,120+194*row,StrNowAcceptingEntries);}
+  else if(status==1){seen[3]++;DrawBigFontString(60,120+194*row,EntryAcceptedStr);DrawBigFontString(60,150+194*row,StrStarPleaseWait);}
+  else if(status==-1){seen[4]++;DrawBigFontString(60,120+194*row,StrNoPlayer);}else seen[5]++;
  }
  budgetCoverage();seconds=(s32)((int64_t)w->s.budget/50);number[0]=(u8)((int64_t)seconds/10+48);number[1]=(u8)((int64_t)seconds%10+48);
  DrawBigFontString(44,244,number);DrawBigFontString(32,244,SecondsUntilCloseText);budgetCoverage();

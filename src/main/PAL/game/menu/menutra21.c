@@ -59,7 +59,7 @@ extern int SeqFadeVolume();
 extern int AddScreenFadeTiles();
 extern int func_8003B934();
 extern int ClearScreenOverlayState();
-extern int func_80053CB0();
+extern int SeqMuteVolume();
 extern int func_80114920();
 extern int func_80115598();
 extern int func_801161A8();
@@ -294,7 +294,7 @@ void func_8007C308(void) {
     case 0:
     default:
     case 4:
-        func_80053CB0();
+        SeqMuteVolume();
         ModeGroup = 1;
         D_800F3A26 = 3;
         D_800F4D8A = 0;
@@ -319,7 +319,7 @@ void func_8007C308(void) {
                 ModeGroup = 1;
                 D_800F3A26 = 0x3C;
             } else {
-                func_80053CB0();
+                SeqMuteVolume();
                 ModeGroup = 1;
                 D_800F3A26 = 0x2D;
             }
@@ -600,7 +600,7 @@ int a0;
 #define CardLoadStep ((int (*)())CardLoadStep)
 #define D_800F3AF8 (*(short (*))&D_800F3AF8)
 
-int func_8007CDC4(a0)
+int LoadSaveFromCardStep(a0)
 int a0;
 {
     int ret;
@@ -699,7 +699,7 @@ int a0, a1;
         D_800F3A24[0] = 0x5A;
         PollCardStatus(0, 0, 1);
         D_800A45C4 = 1;
-        CopyStringClearTail(CardTargetFileName, D_800A4594[a1]);
+        CopyStringClearTail(CardTargetFileName, CardTargetFileNames[a1]);
         D_800F3AF8 = 0x10;
         break;
     case 1:

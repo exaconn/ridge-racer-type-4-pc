@@ -6,7 +6,7 @@ extern SaveBuf *SaveBuffer;
 extern Struct2C SelectionState;
 extern Struct40 Options;
 extern Struct10 RaceRecords[2][8][5];
-extern int D_800F3838[2][8][3];
+extern int CourseBestLapTimes[2][8][3];
 extern Struct7C SaveProgress;
 extern Struct840 *D_800F399C;
 extern Struct840 *D_800F39A0;
@@ -59,7 +59,7 @@ void BuildSaveData(int arg0) {
         for (a3 = 0; a3 < 2; a3++) {
             for (t0 = 0; t0 < 8; t0++) {
                 for (a1 = 0; a1 < 3; a1++) {
-                    s3->f3E4[a3][t0][a1] = D_800F3838[a3][t0][a1];
+                    s3->f3E4[a3][t0][a1] = CourseBestLapTimes[a3][t0][a1];
                 }
                 for (a1 = 0; a1 < 5; a1++) {
                     s3->f4A4[a3][t0][a1] = LapRecords[a3][t0][a1];

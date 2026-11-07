@@ -49,7 +49,7 @@ typedef struct {
     u16 pad2;
 } PolyFT4;
 
-extern int func_80096464();
+extern int PsyqRand();
 extern RrUiParticle20 ParticleEntries[];
 extern unsigned char D_800A0CF4[];
 extern RrParticleSys ParticleSystem;
@@ -104,17 +104,17 @@ void SpawnParticlePair()
         s0->active00 = one;
         s0->state04 = 0;
         s0->timer08 = 0;
-        r1 = func_80096464();
+        r1 = PsyqRand();
         v0 = r1 % 240 - 0x28;
         s0->x0C = v0;
         s5 = (short)v0;
-        r2 = func_80096464();
+        r2 = PsyqRand();
         s0->spanX14 = 0x168 - (u16)s0->x0C;
         s0->y0E = r2 % 140 + 0xAA;
-        r3 = func_80096464();
+        r3 = PsyqRand();
         s2 = ((r3 & 3) + one) << one;
         s0->speed16 = s2;
-        r4 = func_80096464();
+        r4 = PsyqRand();
         ix = r4 - (r4 / 2) * 2; tb = D_800A0CF4; s1 = tb + (ix << 2);
         s0->r10 = s1[0];
         s0->g11 = s1[1];
@@ -129,9 +129,9 @@ void SpawnParticlePair()
             s0->active00 = one;
             s0->state04 = 0;
             s0->timer08 = 0;
-            r5 = func_80096464();
+            r5 = PsyqRand();
             s0->x0C = s5 + r5 % 60 - 0x1E;
-            r6 = func_80096464();
+            r6 = PsyqRand();
             s0->speed16 = s2;
             s0->spanX14 = 0x168 - (u16)s0->x0C;
             s0->y0E = r6 % 140 + 0xAA;

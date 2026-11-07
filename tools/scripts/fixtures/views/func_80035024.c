@@ -53,7 +53,7 @@ extern signed char LinkEntryState[];
 
 extern signed char D_800ABEBE;
 
-extern int D_800AC5A4;
+extern int RaceTimeRemaining;
 
 extern short D_800AD508;
 
@@ -193,8 +193,8 @@ int UpdateLinkHandshake(int a0)
     else
       if (a0 == 0)
     {
-      int v = D_800AC5A4 - 1;
-      D_800AC5A4 = v;
+      int v = RaceTimeRemaining - 1;
+      RaceTimeRemaining = v;
       if (v <= 0)
       {
         LinkState = 4;
@@ -212,9 +212,9 @@ int UpdateLinkHandshake(int a0)
     case 4:
       if (a0 == 0)
     {
-      if (D_800AC5A4 > 0)
+      if (RaceTimeRemaining > 0)
       {
-        D_800AC5A4 -= 1;
+        RaceTimeRemaining -= 1;
       }
     }
       if ((k == 0) || ((k == 3) && (a0 == 0)))

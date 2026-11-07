@@ -123,7 +123,7 @@ void ovl666_update_results(void) {
         }
         break;
     case 8:
-        ready = func_8003B12C();
+        ready = LoadResultsSceneStep();
         if (ready == 1) {
             SeqStartTrack(0);
             ovl666_init_menu();

@@ -6,6 +6,6 @@
 #include "rr/menu_selection.h"
 #include "rr/projection_state.h"
 /* BIOS random service; this initializer consumes only its low two bits. */
-s32 func_80096464(void);
+s32 PsyqRand(void);
 void ovl661_func_80117350(void);
 #endif

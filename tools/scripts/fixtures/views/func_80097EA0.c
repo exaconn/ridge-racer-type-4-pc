@@ -38,10 +38,10 @@ s32 _padIntPad(void) {
     shifted=(u32)first<<4;
     if(D_800ABCBC<first)goto out;
     PadRecvStage=0;
-    D_800ABCA8=first;
-    if(!_padInitSioMode((RrChannelRecordF0 *)((unsigned long)PadChannelRecords+(long)(s32)((shifted-(u32)first)*(sizeof(RrChannelRecordF0)/15)+(u32)first*(sizeof(RrChannelRecordF0)%15)))))D_800ABC68(65535);
+    PadActiveChannel=first;
+    if(!_padInitSioMode((RrChannelRecordF0 *)((unsigned long)PadChannelRecords+(long)(s32)((shifted-(u32)first)*(sizeof(RrChannelRecordF0)/15)+(u32)first*(sizeof(RrChannelRecordF0)%15)))))PadAdvanceChannelFn(65535);
     D_800ABCB0=0;
-    while(D_800ABCA8<=D_800ABCBC)_padSioStageStep(PadChannelRecords+D_800ABCA8);
+    while(PadActiveChannel<=D_800ABCBC)_padSioStageStep(PadChannelRecords+PadActiveChannel);
     PadSio0Base->baud=0x88;
 out:
     return 0;

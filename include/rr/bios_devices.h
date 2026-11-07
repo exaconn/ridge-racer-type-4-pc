@@ -24,9 +24,9 @@ typedef struct {
     u8 pad38[0x18];
 } RrBiosDevice;
 
-extern RrBiosDeviceHandler D_801143B8;
+extern RrBiosDeviceHandler CardFirstFileHandler;
 extern char D_801143C0[];
-s32 func_80096404(const char *first, const char *second);
+s32 PsyqStrcmp(const char *first, const char *second);
 /* Install the one-shot BIOS first-file workaround, then enumerate into directory.
  * Returns the BIOS result, or NULL when the pathname's device is not registered. */
 void *firstfile(char *path, void *directory);

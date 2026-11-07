@@ -8,7 +8,7 @@ extern signed char *D_800ACBFC;
 extern char *TrackNodesEnd;
 extern short D_800F4D2C;
 int func_8003A9E8(void);
-int func_8003B398();
+int LoadTimListStep();
 int LoadDialogueStep(void);
 int func_8003BBBC(void);
 

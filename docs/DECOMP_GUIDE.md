@@ -527,7 +527,7 @@ Fill of a branch delay slot from an earlier independent instruction (look-back 1
 - (w7c2) Separate local var per code path (separate pseudos) changes s-reg assignment. Goto-loop with pre-hoisted pointer vars stops loop.c hoisting constants but keeps address hoisting.
 - (w7c2) `*(short*)&ushort_var = -1` gives `addiu -1` (plain const store gives `ori 0xFFFF`). Operand order via `(char*)x + (i<<2)` or `k + (int)tb`; `(idx<<4) + (int)base` with int globals matches `(arg0*0x10)+D`.
 - (w7c2) Shared goto labels for a common store (`s2:`/`m1:`) reproduce `j` into a shared `sh`. Plain `_svm_cur.fXX` struct members reproduce negative-offset addressing from CSE'd base regs.
-- (w8c3) `/* CC1_FLAGS: -fno-strength-reduce */` stops constant field offset being folded into a walking loop pointer (func_80051378) — then pin pointer + put `i = 0;` before `s5 = Options;` for prologue order.
+- (w8c3) `/* CC1_FLAGS: -fno-strength-reduce */` stops constant field offset being folded into a walking loop pointer (UpdateLoopVoices) — then pin pointer + put `i = 0;` before `s5 = Options;` for prologue order.
 - (w8c3) GTE: empty-asm copy of `p+8` before the final scratchpad store forces the computation after the stores (func_80044BA0).
 - (w8c4) `a0 = (int)&D_x; return *(short *)a0;` forces original reg use; fake struct with big padding then `buf[0x160]` then pointer reproduces global accesses; `unsigned char` byte macros (signed gives `addiu -128`); local copy `q = P`; struct `{int p; int a[8];}` with descending fill loop for addressing.
 - (w8c0) Empty function with frame: `asm volatile("":::"memory")` makes cc1 emit `j $31; addu sp` -> maspsx `jr; addiu sp` (func_8001F400).
@@ -591,7 +591,7 @@ Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and
 ## Wave 11 tricks
 - Temp-var copy: `{ int t = f1(); v = f2(); s0 = t; }` moves the first call's result copy into the second jal's delay slot (PadPollPort).
 - Pins + empty-asm launder to fix schedule order (`v2 = b<<10; asm volatile("" : "=r"(v2) : "0"(v2));`) (ApplyRubberBandSpec).
-- If-chain as gotos in original block order reproduces layout; `t = D; sp[1] = t<<8` stops lhu narrowing (func_80020B10).
+- If-chain as gotos in original block order reproduces layout; `t = D; sp[1] = t<<8` stops lhu narrowing (SubmitRaceHudPackets).
 - Separate result var per rand()/call result removes `addu a0,v0,zero` copies; `one = 1` variable gives srav/sllv (SpawnParticlePair).
 - Switch + gotos with `/* RODATA addr size */` covers jump tables; `signed char *` for lb; `a1 = a0` in default arm keeps redundant copy (InitMenuScript).
 - `if (x) {copy} else {identical copy}` changes loop invariant hoisting; `--p->f >= 0` decrements in loaded reg; `q += 2` biv with -fno-strength-reduce keeps base (UpdateScrollTrack near-miss).
@@ -609,7 +609,7 @@ Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and
 ## Wave 13 tricks
 - Large block copy = struct assignment (`typedef struct { int w[200]; } B; *d = *s;`) (SaveCarSnapshots).
 - Derive givs from the loop counter in a plain for (`s0 = base + i*0x320`) instead of copying `off = i` (UpdateComCars, InitPlayerCar: derive second walking pointer inside loop from the first).
-- Load through a temp to reorder loads (func_80039C0C); separate local per stanza (func_80057750).
+- Load through a temp to reorder loads (func_80039C0C); separate local per stanza (UpdateSparkEffects).
 - Second C name for the same symbol `extern T X2 __asm__("X");` defeats CSE of lui/addiu (func_80043C14) — documented hack, can be removed if a true source form is found.
 - `short c7` declaration for the constant changed hoisting (TitleMenuInit). `k = 2;` right after `i = 0;` hoists li ahead of address loads; dead address-of `*((char*)((*(nv=&p))+0x2A)) = k;` stops folding (UpdateRaceIntroCamera).
 - Write through `volatile short *`, read through plain `short *` to get the lh reload after a store.

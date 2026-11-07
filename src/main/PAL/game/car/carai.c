@@ -18,7 +18,7 @@ extern struct { char pad[0x34]; int s34; } SoundState;
 
 extern int UpdateComCarLaneChange();
 extern int UpdateComCarSpeed();
-extern int func_80096464();
+extern int PsyqRand();
 
 void UpdateComCars(void) {
     int i;
@@ -45,10 +45,10 @@ void UpdateComCars(void) {
             CalcDistanceToPlayer((RrRaceVehicle *)s0);
             if (RaceState < 2) {
                 if (RaceState == 0) {
-                    r = func_80096464();
+                    r = PsyqRand();
                     q = r / 1000;
                     s1->s5C = r - q * 1000 + 0x1D4C;
-                    r = func_80096464(q);
+                    r = PsyqRand(q);
                     s1->s54 = 1;
                     s1->s56 = 0x400;
                     s1->s60 = 0;
@@ -68,20 +68,20 @@ void UpdateComCars(void) {
                     __asm__ volatile("" : "=r"(m) : "0"(m));
                     if (s1->s5C < m) {
                         s1->s54 = 0;
-                        r = func_80096464();
+                        r = PsyqRand();
                         q = r / 1000;
                         s1->s5C = r - q * 1000 + 0x157C;
-                        r = func_80096464(q);
+                        r = PsyqRand(q);
                         s1->s5E = r % 100 + 0xC8;
                     }
                 } else {
                     s1->s56 = s1->s56 - s1->s5E;
                     if (s1->s56 < s1->s5C) {
                         s1->s54 = 1;
-                        r = func_80096464();
+                        r = PsyqRand();
                         q = r / 1000;
                         s1->s5C = r - q * 1000 + 0x1D4C;
-                        r = func_80096464(q);
+                        r = PsyqRand(q);
                         s1->s5E = r % 100 + 0x190;
                     }
                 }

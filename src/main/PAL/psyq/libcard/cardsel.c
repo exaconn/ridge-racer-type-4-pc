@@ -6,7 +6,7 @@ typedef struct { unsigned char b0; char p0[3]; unsigned short h4; char p1[4]; un
 
 /* legacy typing of shared globals in this part of the unit */
 #define CardSio0Base ((S *)CardSio0Base)
-#define D_800ABDD4 ((int *)D_800ABDD4)
+#define I_STAT_CardSel ((int *)I_STAT_CardSel)
 #define setRC2wait ((int (*)())setRC2wait)
 
 int _cardSelectSlot(a0) int a0; {
@@ -27,13 +27,13 @@ int _cardSelectSlot(a0) int a0; {
             p->b0;
             return 0;
         }
-        *D_800ABDD4 = -0x81;
+        *I_STAT_CardSel = -0x81;
     }
     return 1;
 }
 
 #undef CardSio0Base
-#undef D_800ABDD4
+#undef I_STAT_CardSel
 #undef setRC2wait
 
 s32 _cardXferByte(s32 value) {
@@ -74,7 +74,7 @@ s32 _cardXferByte(s32 value) {
 irq_wait:
     if(chkRC2wait()) { ready=0;goto irq_done; }
 irq_test:
-    if(!(*D_800ABDD4&0x80)) goto irq_wait;
+    if(!(*I_STAT_CardSel&0x80)) goto irq_wait;
     ready=1;
 irq_done:
     if(!ready) return (u32)-0x200-(u32)D_80114700;
@@ -92,7 +92,7 @@ irq_done:
         *(u8 *)&output->data=input;
         setRC2wait(limit);
     }
-    interrupt=D_800ABDD4;
+    interrupt=I_STAT_CardSel;
     port=CardSio0Base;
     *interrupt=~0x80U;
     if(port->status&0x80) {

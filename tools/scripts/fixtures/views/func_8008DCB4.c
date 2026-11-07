@@ -13,7 +13,7 @@ s32 CD_getsector2(u8 *a, u32 b) {
     volatile int x;
     *CD_reg0 = 0;
     *CD_reg3 = 0x80;
-    *D_800A6780 = 0x21020843;
+    *CD_DELAY = 0x21020843;
     *COM_DELAY = 0x1325;
     *CD_dpcr |= 0x8000;
     *DMA3_MADR = a;

@@ -6,7 +6,7 @@ s32 _card_format(s32 arg0){
     register s32 port=arg0;
     register s32 i=0;
     RrCardFormatSector *scratch=&D_80114328;
-    RrCardDirectoryRecord *base=D_801140F8;
+    RrCardDirectoryRecord *base=CardFormatDirRecords;
     register s32 state=0xA0,last=0xFFFF,success=1;
     register s32 next;
     s32 status;
@@ -24,9 +24,9 @@ s32 _card_format(s32 arg0){
         func_80096434(entry,32);
         wire=&entry->wire;
 
-        D_801140F8[i].fields.state=state;
-        D_801140F8[i].fields.size=0;
-        D_801140F8[i].fields.next=last;
+        CardFormatDirRecords[i].fields.state=state;
+        CardFormatDirRecords[i].fields.size=0;
+        CardFormatDirRecords[i].fields.next=last;
         {
         register u32 a,b,c,d;
         a=wire->words[0].value;

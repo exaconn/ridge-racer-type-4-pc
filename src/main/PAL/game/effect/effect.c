@@ -24,7 +24,7 @@ typedef struct {
 extern RrParticleSys ParticleSystem;
 
 void SpawnParticlePair(void);
-s32 func_80096464(void);
+s32 PsyqRand(void);
 void SetDrawMode(u32 *, s32, s32, s32, s32);
 
 void UpdateParticles(void) {
@@ -38,7 +38,7 @@ void UpdateParticles(void) {
     }
     if (ParticleSystem.f04 <= 0) {
         SpawnParticlePair();
-        ParticleSystem.f04 = (func_80096464() % 16) * 2 + 8;
+        ParticleSystem.f04 = (PsyqRand() % 16) * 2 + 8;
     }
     p = *(u32 **)SCRATCHPAD;
     ParticleSystem.f04--;

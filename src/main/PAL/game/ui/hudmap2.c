@@ -135,7 +135,7 @@ extern s32 TrackNodeCount;
 extern s16 D_800AC648;
 extern s16 CourseIndex;
 extern void CdAudioSelectTrack();
-extern int func_80096464();
+extern int PsyqRand();
 extern short D_800AD520;
 extern short D_800F4D44;
 extern int CdAudioInit();
@@ -164,7 +164,7 @@ extern struct {
 
 void DrawMapBitmapIso(s32 arg0, u8 *arg1, s32 *arg2);
 void DrawTrackNodeMap(s32 *arg0);
-void func_800590DC(void);
+void SelectReplayBgmTrack(void);
 void CenterGlyphListX(short *a0, int a1);
 void func_80059314(s32 arg0, s32 arg1);
 void DrawGlyphList(s16 *stream,s32 color,s32 bank);
@@ -379,8 +379,8 @@ void DrawTrackNodeMap(s32 *arg0) {
 
 #undef CurrentDrawBuf
 
-void func_800590DC(void) {
- int r, a1; if (D_800F4D44 == 1) { if (CourseIndex == 7) { a1 = D_800AD520 + 0x20; CdAudioSelectTrack(0, a1); return; } } r = func_80096464(); a1 = r % 6 + 0x1A; CdAudioSelectTrack(0, a1);
+void SelectReplayBgmTrack(void) {
+ int r, a1; if (D_800F4D44 == 1) { if (CourseIndex == 7) { a1 = D_800AD520 + 0x20; CdAudioSelectTrack(0, a1); return; } } r = PsyqRand(); a1 = r % 6 + 0x1A; CdAudioSelectTrack(0, a1);
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -403,7 +403,7 @@ void SelectCourseBgmTrack() {
         a1 = CourseIndex + 3;
         CdAudioSelectTrack(0, a1);
     } else if (D_800F765C == 0) {
-        a1 = func_80096464() % 14 + 0xB;
+        a1 = PsyqRand() % 14 + 0xB;
         CdAudioSelectTrack(0, a1);
     } else {
         a1 = D_800A0C9C[D_800F765C - 1];

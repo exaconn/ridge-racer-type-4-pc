@@ -133,7 +133,7 @@ void ovl659_update_results(void) {
         if (ovl659_preview_timer > 0) {
             ovl659_preview_timer--;
         }
-        ready = func_8003B12C();
+        ready = LoadResultsSceneStep();
         if (ready == 1 && ovl659_preview_timer <= 0) {
             if (SelectionState.phase17 == 7) {
                 UpdateSaveProgress();

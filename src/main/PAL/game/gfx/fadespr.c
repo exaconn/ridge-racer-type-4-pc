@@ -22,7 +22,7 @@ extern RrSpritePacket *AddSpritePrim(u32 *, RrSpritePacket *, s32, s32,
 
 void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity);
 
-void func_8005C0C4(void) {
+void InitOptionsDefaults(void) {
     int i;
     char *b;
     char *q;

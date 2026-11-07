@@ -49,7 +49,7 @@ extern int UpdateSoundSlot();
 
 extern int UpdatePlayerVoices();
 
-extern int func_80051378();
+extern int UpdateLoopVoices();
 
 extern int func_80051554();
 
@@ -79,7 +79,7 @@ void SoundUpdate(void) {
         if (*p & 1) UpdateSoundSlot(i);
     }
     UpdatePlayerVoices();
-    func_80051378();
+    UpdateLoopVoices();
     func_80051554();
     SoundQueueUpdate();
     SoundLoopUpdate();

@@ -47,8 +47,8 @@ u32 test_layout[] = {sizeof(RrLibStateB0), offsetof(RrLibStateB0,c0),
  offsetof(RrLibStateB0,w90), offsetof(RrLibStateB0,b1b),
  offsetof(RrLibStateB0,b1a), offsetof(RrLibStateB0,b15), offsetof(RrLibStateB0,b1d),
  offsetof(RrLibStateB0,b1c), offsetof(RrLibStateB0,b1f), offsetof(RrLibStateB0,c8)};
-RrLibControllerCallback D_8010EFE0,D_8010EFE4,D_8010EFE8,D_8010EFEC,SsCtrlHandlerCC64;
-RrLibControllerCallback D_8010EFF4,D_8010EFF8,D_8010EFFC,D_8010F000,D_8010F004;
+RrLibControllerCallback SsCtrlHandlerCC6,D_8010EFE4,D_8010EFE8,D_8010EFEC,SsCtrlHandlerCC64;
+RrLibControllerCallback SsCtrlHandlerCC98,D_8010EFF8,D_8010EFFC,D_8010F000,D_8010F004;
 RrLibControllerResetCallback SsCtrlHandlerCC121;
 void test_bind_controller(void) { D_8010EFEC=_SsContExpression; }
 s32 (*test_patch)(s32,s32,s32);
@@ -76,7 +76,7 @@ void test_prepare(s32 bank,s32 row,const u8 *input,u32 length,u32 accumulator) {
                                 {'80080434': 'D_8010EFE4=_SsContMainVol',
                                  '800806C4': 'SsCtrlHandlerCC64=_SsContDamper',
                                  '80080774': 'D_8010F004=_SsContExternal',
-                                 '80080804': 'D_8010EFF4=_SsContNrpn1',
+                                 '80080804': 'SsCtrlHandlerCC98=_SsContNrpn1',
                                  '80080904': 'D_8010EFF8=_SsContNrpn2'}.get(
                                      cls.handler, 'D_8010EFEC=_SsContExpression'))
         for name in ('80080434', '800805D4', '800806C4', '80080774', '80080804', '80080904', '80081E04', '800818B4',

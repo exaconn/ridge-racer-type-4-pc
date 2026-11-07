@@ -437,7 +437,7 @@ void func_8001B308(void) {
     } while (i >= 0);
     AllocMenuGridRecords(&D_800FFC48, 1);
     InitMenuGrid(0, 1, 3, 0xB4, 0x60);
-    func_80096454(MenuGridRecords + 0x1C, 0, 0x10);
+    PsyqMemset(MenuGridRecords + 0x1C, 0, 0x10);
     *(V16 *)(MenuGridRecords + 0xC) = D_800101D4;
 }
 

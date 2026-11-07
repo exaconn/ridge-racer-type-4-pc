@@ -37,14 +37,14 @@ typedef uint16_t u16;
 typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-RrChannelStatusCallback D_800ABC80, D_800ABC84;
+RrChannelStatusCallback D_800ABC80, PadChannelBusyFn;
 RrChannelUpdateCallback test_slots[0x10000 / sizeof(RrChannelUpdateCallback)];
 #define PadPacketDoneCallback test_slots[0xBC88 / sizeof(RrChannelUpdateCallback)]
 void *test_last_channel;
 s32 _padChannelDispatch(void *channel) { return 101; }
 void _padPacketDone(void *channel) { test_last_channel = channel; }
 s32 test_first_status(void *channel) { return D_800ABC80(channel); }
-s32 test_second_status(void *channel) { return D_800ABC84(channel); }
+s32 test_second_status(void *channel) { return PadChannelBusyFn(channel); }
 void test_update(void *channel) { PadPacketDoneCallback(channel); }
 '''
         for name in ('_padInitDirSeq', '_padChannelBusy'):
@@ -75,7 +75,7 @@ void test_update(void *channel) { PadPacketDoneCallback(channel); }
         second = C.cast(self.library._padChannelBusy, C.c_void_p).value
         update = C.cast(self.library._padPacketDone, C.c_void_p).value
         C.c_void_p.in_dll(self.library, 'D_800ABC80').value = second
-        C.c_void_p.in_dll(self.library, 'D_800ABC84').value = first
+        C.c_void_p.in_dll(self.library, 'PadChannelBusyFn').value = first
         index = 0xBC88 // C.sizeof(C.c_void_p)
         self.slots[index - 1:index + 2] = [update, None, update]
         expected = list(self.slots)
@@ -83,7 +83,7 @@ void test_update(void *channel) { PadPacketDoneCallback(channel); }
         for _ in range(2):
             self.install()
             self.assertEqual(C.c_void_p.in_dll(self.library, 'D_800ABC80').value, first)
-            self.assertEqual(C.c_void_p.in_dll(self.library, 'D_800ABC84').value, second)
+            self.assertEqual(C.c_void_p.in_dll(self.library, 'PadChannelBusyFn').value, second)
             self.assertEqual(list(self.slots), expected)
         state = ChannelStatus()
         self.assertEqual(self.library.test_first_status(C.byref(state)), 101)

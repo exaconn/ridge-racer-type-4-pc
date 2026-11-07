@@ -19,7 +19,7 @@ extern void *LoadCursor;
 extern u8 D_80118374[4];
 void SetModelTexturePage(s32);void AddScreenFadeTiles(u32*,s32,u32);void UpdateScreenFade(s32);void SetMenuFrameOptions(s32,s32,s32);
 void DrawMenuStepArrows(s32,s32,s32,s32,s32,s32,s32);void StepMenuValue(s32,s32,char*,s32,s32);
-s32 DecodeCourseIndex(s32);void DrawCourseInfoPanel(s32,s32);void func_80033368(s32,s32);void ResetScreenCounters(void);s32 LoadCarRangeStep(s32,s32);s32 LoadTrackNodesStep(void);void DrawUiRow(s32);void PlaySfx(s32);void SeqFadeVolume(s32,s32);void func_80053CB0(void);void ovl661_func_80115598(s32);
+s32 DecodeCourseIndex(s32);void DrawCourseInfoPanel(s32,s32);void func_80033368(s32,s32);void ResetScreenCounters(void);s32 LoadCarRangeStep(s32,s32);s32 LoadTrackNodesStep(void);void DrawUiRow(s32);void PlaySfx(s32);void SeqFadeVolume(s32,s32);void SeqMuteVolume(void);void ovl661_func_80115598(s32);
 /* UI roots cover at least26 complete rows. Highlight count is0..10; its byte span may extend beyond cells[8]
  * into later bytes of the same complete row.
  * Parameter table indices are0..3. Menu phase0 accepts selection0..3; phase5

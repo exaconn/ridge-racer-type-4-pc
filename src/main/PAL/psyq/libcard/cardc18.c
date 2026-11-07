@@ -5,7 +5,7 @@ s32 _cardSectorBegin(s32 a0, s32 a1, s32 a2) {
     int r;
     CardCmdSector = a1;
     if (((u32)a1 - 1) < 0xF) {
-        if (!(D_800ABDE4 & 1)) {
+        if (!(CardCommandStatus & 1)) {
             r = 0;
         } else {
             r = 1;
@@ -21,7 +21,7 @@ s32 _cardSectorBegin(s32 a0, s32 a1, s32 a2) {
             CardCommandReader = _cardSectorTx;
             CardWriteHandler = _cardSectorRx;
             CardRetriesLeft = 1;
-            D_800ABDE4 = 2;
+            CardCommandStatus = 2;
             return 1;
         }
         return 0;

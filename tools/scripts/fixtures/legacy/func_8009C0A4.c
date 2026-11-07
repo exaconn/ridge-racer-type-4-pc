@@ -1,13 +1,13 @@
 /* GCC_VERSION: 2.7.2 */
 #include "types.h"
-extern s32 D_800ABDE4;
+extern s32 CardCommandStatus;
 extern s32 D_800ABDE8;
 extern s32 CardReceiveIndex;
 extern s32 CardRxCount;
 extern s32 D_80114730;
 s32 _cardCmdReset(s32 value) {
     s32 result;
-    if (!(D_800ABDE4 & 1)) return 0;
+    if (!(CardCommandStatus & 1)) return 0;
     CardReceiveIndex = 0;
     CardRxCount = 0;
     D_80114730 = 0;

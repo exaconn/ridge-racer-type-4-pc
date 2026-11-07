@@ -99,7 +99,7 @@ void SoundSystemInit() {
     func_80096434(RaceContext, 0x57C);
     s0 -= 0x1498;
     func_80055300();
-    func_8005D858();
+    ResetSlotOrder();
     *(int *)(s1 + 8) = 0x80;
     n = -1;
     for (i = 3; i >= 0; i--) {

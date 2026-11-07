@@ -13,7 +13,7 @@ struct P { int tag; unsigned char r, g, b, code; short x, y, w, h; };
 
 extern void SetSprt(void *);
 extern void AddPrim(u32 *,u32 *);
-extern s32 func_80096464(void);
+extern s32 PsyqRand(void);
 /* extern */
 /* extern */
 /* extern */
@@ -62,7 +62,7 @@ u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_a
         SetSprt(sprite);
         jitter=0;
         if(count!=1) {
-            u32 random=(u32)func_80096464()&7;
+            u32 random=(u32)PsyqRand()&7;
             register s32 three=3;
             jitter=three-random;
             /* ASM_BARRIER: keep the subtraction input distinct from its A1 result. */
@@ -86,8 +86,8 @@ u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_a
         SetSemiTrans(sprite,transparency);}
         level=strength;
         if(count!=1) {
-            if(i==1)level=(s32)((u32)strength*((u32)func_80096464()&15))/24;
-            else level=(s32)((u32)strength*(((u32)func_80096464()&31)+8))/48;
+            if(i==1)level=(s32)((u32)strength*((u32)PsyqRand()&15))/24;
+            else level=(s32)((u32)strength*(((u32)PsyqRand()&31)+8))/48;
         }
         /* ASM_BARRIER: move intensity to A1 after division and before the RGB stores. */
         { register s32 color asm("$5")=level;  sprite->r=color;sprite->g=color;sprite->b=color; }

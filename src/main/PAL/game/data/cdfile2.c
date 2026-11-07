@@ -51,7 +51,7 @@ extern s32 CdFileState;
 extern s32 CdFileSyncCount;
 extern s32 CdFileIndexCurrent;
 extern s32 (*CdFileStateHandlers[])();
-extern s32 D_8010945C;
+extern s32 CdFileSectorOffset;
 extern s32 CdFileSectors;
 extern s32 D_80109480;
 extern s32 CdFileBytesRead;
@@ -76,7 +76,7 @@ extern int D_80109450;
 extern int D_80109454;
 void DrawSync(s32);
 void LoadImage(s16 *, void *);
-extern s32 D_80109468[];
+extern s32 CarOffsetTables[];
 extern short CourseIndex;
 extern short D_8009E02C[];
 extern char *D_800F4D90;
@@ -233,7 +233,7 @@ s32 CdFileReadStart(s32 a0, s32 a1) {
     D_80109480 = a1;
     CdFileIndexCurrent = a0;
     CdFileState = 6;
-    D_8010945C = 0;
+    CdFileSectorOffset = 0;
     CdFileLocation = CdFileTable[a0].location;
     CdFileBytesRead = 0;
     CdFileSectors = CdFileTable[CdFileIndexCurrent].sectors;
@@ -245,7 +245,7 @@ s32 CdFileReadRange(s32 a0, s32 a1, s32 a2, s32 a3) {
     D_80109480 = a3;
     CdFileIndexCurrent = a0;
     CdFileState = 6;
-    D_8010945C = a1;
+    CdFileSectorOffset = a1;
     CdIntToPos(CdPosToInt(&CdFileTable[a0]) + a1, CdFileLocation.c);
     CdFileSectors = a2;
     CdFileBytesRead = 0;
@@ -586,11 +586,11 @@ int SceneLoadStep(void)
         RegisterModelBank(sp14, 4);
         func_800700AC(sp18);
         SetTrackNodeData(fp);
-        func_800293C4(s6);
+        SetLightTable(s6);
         D_8010BF60 = s7;
         LoadCursor = LoadCursor + LoadTrackObjects(s3, LoadCursor);
         func_800713C4(s5);
-        func_80071434(s4);
+        SetOctantLookupTable(s4);
         SceneLoadState = 0;
         return 1;
     }
@@ -650,13 +650,13 @@ s32 CarLoadStep(void) {
             s1 = (void *)LoadCursor->p10;
             s2 = (void *)LoadCursor->p14;
             s3 = (void *)LoadCursor->p8;
-            func_800293AC((void *)LoadCursor->p4, D_80109444);
+            SetCarRecordPtr((void *)LoadCursor->p4, D_80109444);
             CarBoundsTable[D_80109444] = s3;
             RegisterModelBank(s0, D_80109444);
             /* ASM_BARRIER: preserve local-alloc priority of s0 ($s0) over s3 ($s3) */
             __asm__("" : : "r"(s0));
             PatchModelBankTexPages(s0, D_80109444);
-            D_80109468[D_80109444] = (s32)s1;
+            CarOffsetTables[D_80109444] = (s32)s1;
             RelocateOffsetTable(s1);
             PatchOffsetTableTexPages(s1, D_80109444);
             rect[2] = 0x40;
@@ -668,7 +668,7 @@ s32 CarLoadStep(void) {
         LoadImage(rect, s2);
         DrawSync(0);
         LoadCursor = s2;
-        AllocCarSlotBuffers(D_80109468[D_80109444], D_80109444);
+        AllocCarSlotBuffers(CarOffsetTables[D_80109444], D_80109444);
         if (D_80109454 != 0) {
             func_80012E94(D_80109448, D_8010944C, D_80109450, D_80109454 - 1, D_80109444);
         }

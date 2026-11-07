@@ -35,8 +35,8 @@ typedef uint8_t u8;typedef int8_t s8;typedef uint16_t u16;typedef int16_t s16;
 typedef uint32_t u32;typedef int32_t s32;
 #define RR_FIELD_OFFSET(type,field) offsetof(type,field)
 '''+header+'''
-RrLibInterruptCallback D_800A63A4[8];
-u32 ports[5];volatile u32 *D_800A63A0=&ports[1];
+RrLibInterruptCallback InterruptCallbackTable[8];
+u32 ports[5];volatile u32 *DICR_VSync=&ports[1];
 s32 called[3],io_count,io_kind[4],io_port[4];u32 io_value[4];
 RrLibInterruptCallback io_slot[4];s32 selected;
 void (*on_read)(void);
@@ -45,22 +45,22 @@ void trapIntrDMA(void){called[2]++;}
 s32 setup_count,setup_selector;RrLibInterruptCallback setup_callback;
 u32 setup_word;RrLibInterruptCallback setup_slots[8];
 RrLibInterruptCallback InterruptCallback(s32 selector,RrLibInterruptCallback callback){
-    s32 i;setup_count++;setup_selector=selector;setup_callback=callback;setup_word=*D_800A63A0;
-    for(i=0;i<8;i++)setup_slots[i]=D_800A63A4[i];return a;
+    s32 i;setup_count++;setup_selector=selector;setup_callback=callback;setup_word=*DICR_VSync;
+    for(i=0;i<8;i++)setup_slots[i]=InterruptCallbackTable[i];return a;
 }
 u32 test_read(volatile u32 *p){
-    u32 value=*p;s32 i=io_count++;io_kind[i]=0;io_port[i]=p==&ports[3];io_value[i]=value;io_slot[i]=D_800A63A4[selected];
+    u32 value=*p;s32 i=io_count++;io_kind[i]=0;io_port[i]=p==&ports[3];io_value[i]=value;io_slot[i]=InterruptCallbackTable[selected];
     if(on_read)on_read();return value;
 }
 void test_write(volatile u32 *p,u32 value){
-    s32 i=io_count++;io_kind[i]=1;io_port[i]=p==&ports[3];io_value[i]=value;io_slot[i]=D_800A63A4[selected];*p=value;
+    s32 i=io_count++;io_kind[i]=1;io_port[i]=p==&ports[3];io_value[i]=value;io_slot[i]=InterruptCallbackTable[selected];*p=value;
 }
 '''+''.join(bodies.values())+observed
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'))
-        cls.slots=(C.c_void_p*8).in_dll(cls.lib,'D_800A63A4');cls.ports=(C.c_uint32*5).in_dll(cls.lib,'ports')
-        cls.port=C.c_void_p.in_dll(cls.lib,'D_800A63A0');cls.hook=C.c_void_p.in_dll(cls.lib,'on_read')
+        cls.slots=(C.c_void_p*8).in_dll(cls.lib,'InterruptCallbackTable');cls.ports=(C.c_uint32*5).in_dll(cls.lib,'ports')
+        cls.port=C.c_void_p.in_dll(cls.lib,'DICR_VSync');cls.hook=C.c_void_p.in_dll(cls.lib,'on_read')
         cls.callbacks=[C.cast(getattr(cls.lib,n),C.c_void_p).value for n in ('a','b','c')]
         cls.called=(C.c_int32*3).in_dll(cls.lib,'called');cls.selected=C.c_int32.in_dll(cls.lib,'selected')
         cls.io_count=C.c_int32.in_dll(cls.lib,'io_count');cls.io_kind=(C.c_int32*4).in_dll(cls.lib,'io_kind')

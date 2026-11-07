@@ -20,7 +20,7 @@ typedef uint8_t u8;typedef uint32_t u32;typedef int32_t s32;
 '''+header+'''
 u8 ports[6];u32 regs[8];u8 *address;
 volatile u8 *CD_reg0=&ports[1],*CD_reg3=&ports[2];
-volatile u32 *COM_DELAY=&regs[1],*D_800A6780=&regs[2],*CD_dpcr=&regs[3],*DMA3_BCR=&regs[4],*DMA3_CHCR=&regs[5];
+volatile u32 *COM_DELAY=&regs[1],*CD_DELAY=&regs[2],*CD_dpcr=&regs[3],*DMA3_BCR=&regs[4],*DMA3_CHCR=&regs[5];
 u8 * volatile *DMA3_MADR=&address;
 s32 status_reads,control_reads,status_ready,control_ready,swap_status;
 s32 status_ports[16];u32 setup_snapshot[5];u8 *setup_address;

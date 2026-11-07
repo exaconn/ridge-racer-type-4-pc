@@ -5,7 +5,7 @@
 #include "game/menu/menu13.h"
 #include "game/data/bankrec.h"
 
-extern int D_800F39C8[];
+extern int CarRecordPtrs[];
 extern s32 D_800F4D90;
 
 void func_800293D0(s32 layout,s32 mode);
@@ -22,9 +22,9 @@ void SetupDialogueTable(a) char *a; {
     D_800ACBFC = a + 0x78;
 }
 
-void func_800293AC(a, i) int a; int i; { D_800F39C8[i] = a; }
+void SetCarRecordPtr(a, i) int a; int i; { CarRecordPtrs[i] = a; }
 
-void func_800293C4(s32 arg0) {
+void SetLightTable(s32 arg0) {
     D_800F4D90 = arg0;
 }
 

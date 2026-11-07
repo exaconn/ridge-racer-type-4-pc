@@ -8,7 +8,7 @@ void ovl662_func_8011E070(void) {
     u16 ySum;
     u16 xSum;
 
-    func_80096454(&movement, 0, 4);
+    PsyqMemset(&movement, 0, 4);
     events = 0;
     if (!(ovl662_D_80127668.words[0] & 1)) {
         if (ovl662_D_80127668.words[0] & 2) {

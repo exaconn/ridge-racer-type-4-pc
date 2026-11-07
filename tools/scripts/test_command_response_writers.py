@@ -10,7 +10,7 @@ import unittest
 Write = C.CFUNCTYPE(C.c_int32, C.c_int32)
 SCALARS = ('D_800ABDE8', 'CardCommandRequest', 'CardReceiveIndex', 'CardRxCount',
            'CardCmdSector', 'D_80114728', 'D_80114730', 'CardCurrentCommand')
-POINTERS = ('CardCmdBuffer', 'D_8011471C', 'D_80114720', 'CardCommandReader', 'CardWriteHandler')
+POINTERS = ('CardCmdBuffer', 'CardCmdResultPtrA', 'CardCmdResultPtrB', 'CardCommandReader', 'CardWriteHandler')
 
 
 class CommandResponseWritersTest(unittest.TestCase):
@@ -22,16 +22,16 @@ class CommandResponseWritersTest(unittest.TestCase):
         directory = Path(cls.temp.name)
         header = (root / 'include/rr/commands.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        header = header.replace('extern s32 D_800ABDE4,', 'extern s32')
+        header = header.replace('extern s32 CardCommandStatus,', 'extern s32')
         source = '''#include <stdint.h>
 #include <string.h>
 typedef uint8_t u8; typedef uint32_t u32; typedef int32_t s32;
 s32 test_ram[0x4000];
-#define D_800ABDE4 test_ram[0xBDE4/4]
+#define CardCommandStatus test_ram[0xBDE4/4]
 ''' + header + '''
 u8 *CardCmdBuffer;
-void *D_8011471C;
-u32 *D_80114720;
+void *CardCmdResultPtrA;
+u32 *CardCmdResultPtrB;
 RrCommandParameter D_8011472C;
 RrCommandReadCallback CardCommandReader;
 RrCommandWriteCallback CardWriteHandler;
@@ -44,7 +44,7 @@ void test_initialize(void) {
  memset(test_ram,0xA5,sizeof(test_ram));
  memset(test_results,0xA5,sizeof(test_results));
  CardCmdBuffer=(u8 *)&test_results[0][1];
- D_8011471C=&test_results[0][3]; D_80114720=&test_results[1][11];
+ CardCmdResultPtrA=&test_results[0][3]; CardCmdResultPtrB=&test_results[1][11];
  D_8011472C.buffer=(u8 *)&test_results[0][2];
  CardCommandReader=_cardCmd59Tx; CardWriteHandler=0;
 }
@@ -116,8 +116,8 @@ void test_initialize(void) {
                         self.assertEqual(self.snapshot(), (bytes(expected), ram, scalars, pointers))
 
     def test_nonwriting_phases_accept_null_result_pointers(self):
-        self.pointers['D_8011471C'].value = None
-        self.pointers['D_80114720'].value = None
+        self.pointers['CardCmdResultPtrA'].value = None
+        self.pointers['CardCmdResultPtrB'].value = None
         for writer in self.writers:
             for phase in (-1, 0, 2, 3, 6, 0x7FFFFFFF):
                 self.scalars['CardRxCount'].value = phase
@@ -128,7 +128,7 @@ void test_initialize(void) {
                 self.assertEqual(self.snapshot(), (before, ram, scalars, pointers))
 
     def test_pair_result_pointers_may_alias(self):
-        self.pointers['D_80114720'].value = self.pointers['D_8011471C'].value
+        self.pointers['CardCmdResultPtrB'].value = self.pointers['CardCmdResultPtrA'].value
         before, ram, scalars, pointers = self.snapshot()
         expected = bytearray(before)
         for phase, byte in [(4, 0x12), (5, 0xAB)]:
@@ -142,7 +142,7 @@ void test_initialize(void) {
         C.c_int32.from_buffer(self.ram, 0xBDE4).value = 1
         pointer = C.addressof(self.results) + 12
         self.assertEqual(self.start_word(0x12345678, pointer), 1)
-        self.assertEqual(self.pointers['D_8011471C'].value, pointer)
+        self.assertEqual(self.pointers['CardCmdResultPtrA'].value, pointer)
         self.assertEqual(self.pointers['CardWriteHandler'].value, C.cast(self.writers[0], C.c_void_p).value)
         self.assertEqual(self.scalars['CardCurrentCommand'].value, 1)
         self.assertEqual(self.scalars['CardCmdSector'].value, -2)
@@ -157,8 +157,8 @@ void test_initialize(void) {
         C.c_int32.from_buffer(self.ram, 0xBDE4).value = 1
         first, second = C.addressof(self.results) + 12, C.addressof(self.results) + 108
         self.assertEqual(self.start_pair(-1, first, second), 1)
-        self.assertEqual(self.pointers['D_8011471C'].value, first)
-        self.assertEqual(self.pointers['D_80114720'].value, second)
+        self.assertEqual(self.pointers['CardCmdResultPtrA'].value, first)
+        self.assertEqual(self.pointers['CardCmdResultPtrB'].value, second)
         self.assertEqual(self.pointers['CardWriteHandler'].value, C.cast(self.writers[1], C.c_void_p).value)
         self.assertEqual(self.scalars['CardCurrentCommand'].value, 100)
         callback = Write(self.pointers['CardWriteHandler'].value)
@@ -191,14 +191,14 @@ void test_initialize(void) {
                     self.assertEqual(self.snapshot(), (bytes(expected), ram, scalars, pointers))
 
     def test_command101_null_unused_outputs_and_aliased_word_sequence(self):
-        self.pointers['D_8011471C'].value = None
-        self.pointers['D_80114720'].value = None
+        self.pointers['CardCmdResultPtrA'].value = None
+        self.pointers['CardCmdResultPtrB'].value = None
         for phase in (-0x80000000, -1, 0, 1, 2, 3, 4, 5, 6, 11, 0x7FFFFFFF):
             self.scalars['CardRxCount'].value = phase
             self.assertEqual(self.response101(0x5A), 0)
         address = C.addressof(self.results) + 3 * 4
-        self.pointers['D_8011471C'].value = address
-        self.pointers['D_80114720'].value = address
+        self.pointers['CardCmdResultPtrA'].value = address
+        self.pointers['CardCmdResultPtrB'].value = address
         expected = bytes(self.results)
         for phase, byte, value in [(7, 0xFE, 0xFE), (8, 0xDC, 0xFEDC),
                                     (9, 0x98, 0x98), (10, 0x76, 0x9876)]:

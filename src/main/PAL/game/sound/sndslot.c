@@ -100,7 +100,7 @@ void SoundUpdate(void) {
         if (*p & 1) UpdateSoundSlot(i);
     }
     UpdatePlayerVoices();
-    func_80051378();
+    UpdateLoopVoices();
     func_80051554();
     SoundQueueUpdate();
     SoundLoopUpdate();
@@ -188,7 +188,7 @@ int a0;
     int i;
     int k;
     int t;
-    func_80096454(s, 0, 0x10);
+    PsyqMemset(s, 0, 0x10);
     s[3] = 2;
     k = w->f8;
     i = 0;

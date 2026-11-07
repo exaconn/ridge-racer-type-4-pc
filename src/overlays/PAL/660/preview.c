@@ -27,8 +27,8 @@ void ovl660_func_801163C4(void)
     state->rot54 = 2048;
     ovl660_preview_confirmation = 0;
     UnpackChoiceGlyph((s8 *)&SelectionRows, CourseChoiceTable[ovl660_preview_bank][ovl660_preview_selection].glyph);
-    D_800ACBD0[0].first = CourseChoiceTable[ovl660_preview_bank][ovl660_preview_selection].first;
-    D_800ACBD0[0].second = CourseChoiceTable[ovl660_preview_bank][ovl660_preview_selection].second;
+    PlayerCourseChoices[0].first = CourseChoiceTable[ovl660_preview_bank][ovl660_preview_selection].first;
+    PlayerCourseChoices[0].second = CourseChoiceTable[ovl660_preview_bank][ovl660_preview_selection].second;
     ovl660_available_car_counts[0] = CountChoiceGlyphs(&CourseChoiceTable[0][0]);
     ovl660_available_car_counts[1] = CountChoiceGlyphs(&CourseChoiceTable[1][0]);
 }
@@ -84,8 +84,8 @@ void ovl660_func_80116530(void) {
             LoadCursor = D_800F4D40;
             UnpackChoiceGlyph((s8 *)&SelectionRows,
                           CourseChoiceTable[ovl660_preview_bank][ovl660_preview_selection].glyph);
-            D_800ACBD0[0].first = CourseChoiceTable[ovl660_preview_bank][ovl660_preview_selection].first;
-            D_800ACBD0[0].second = CourseChoiceTable[ovl660_preview_bank][ovl660_preview_selection].second;
+            PlayerCourseChoices[0].first = CourseChoiceTable[ovl660_preview_bank][ovl660_preview_selection].first;
+            PlayerCourseChoices[0].second = CourseChoiceTable[ovl660_preview_bank][ovl660_preview_selection].second;
             ((s8 *)ImageRows)[1] = 6;
         }
         UiRows[ovl660_preview_row_map[ovl660_preview_bank][MenuCursor]].cells[0] = 0;
@@ -146,7 +146,7 @@ void ovl660_func_80116530(void) {
         SetModelTexturePage(-1);
         AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
-            func_80053CB0();
+            SeqMuteVolume();
             MenuScriptId = 0;
             ModeGroup = 1;
             D_800F3A26 = 0x23;

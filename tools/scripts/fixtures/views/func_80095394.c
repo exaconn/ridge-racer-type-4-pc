@@ -13,7 +13,7 @@ extern char GpuTimeoutFmt[];
 s32 get_alarm(void) {
     s32 old,result;
     s32 saved;
-    if(D_800ABBFC>=VSync(-1)) {
+    if(GpuTimeoutDeadline>=VSync(-1)) {
         s32 *counter=&GpuAlarmCount;
         {
             s32 tick=*counter;

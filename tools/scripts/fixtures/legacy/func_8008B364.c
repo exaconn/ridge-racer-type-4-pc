@@ -2,5 +2,5 @@
 #include "rr/library.h"
 
 void ResetCallback(void) {
-    D_800A6350->reset();
+    IntrDriverTablePtr->reset();
 }

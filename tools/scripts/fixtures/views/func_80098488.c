@@ -19,7 +19,7 @@ void _padSioStageStep(RrChannelRecordF0 *channel) {
     if(value) {
         if(value==3 && channel->status.packet[0]==0x80)goto reload;
         setRC2wait(60);
-        if(!_padClrIntSio0())D_800ABC68(-3);
+        if(!_padClrIntSio0())PadAdvanceChannelFn(-3);
 reload:
         value=PadRecvStage;
         /* ASM_BARRIER: Keep the reload gap before the shared saturation label. */
@@ -39,6 +39,6 @@ reload:
     }
     goto out;
 error:
-    D_800ABC68(result);
+    PadAdvanceChannelFn(result);
 out:;
 }

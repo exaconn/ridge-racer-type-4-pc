@@ -16,7 +16,7 @@ s32 _cardCmdStep(void) {
         s32 slot=CardCommandRequest;
         register u32 header;
         register u32 count;
-        D_800ABDE4=4;
+        CardCommandStatus=4;
         /* ASM_BARRIER: Capture the request before preparing the state-four temporary. */
         __asm__("" : : : "$2");
         _cardSelectSlot(slot>>4);

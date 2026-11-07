@@ -32,7 +32,7 @@ void ovl659_update_race(void) {
         func_8003BFC8();
         DrawPauseMenu(&CurrentDrawBuf->ordering.ordering70[0], PauseCursor);
         DrawLapTimeList(0);
-        DrawTimeRemaining(D_800AC5A4);
+        DrawTimeRemaining(RaceTimeRemaining);
         DrawStartCountdown(&CurrentDrawBuf->ordering.ordering70[0], ModeFrame);
         DrawHudRotatingQuad(D_800F4C70.first, 0);
         func_800211A4(0);
@@ -42,20 +42,20 @@ void ovl659_update_race(void) {
         DrawRaceMinimap(0);
         DrawSteeringIndicator(&CurrentDrawBuf->ordering.ordering70[0], 0);
         func_80021C00(0);
-        func_80020B10(D_800F4D44);
+        SubmitRaceHudPackets(D_800F4D44);
         BuildCameraMatrices();
         DrawCars(0);
         RR_659_SCRATCH->word78 = D_800F2A64;
-        func_8006ECE8(0);
+        SetupPlayerView(0);
         DrawTrackObjects(0);
-        func_80036FD4(0);
+        DrawTrackSceneryForPlayer(0);
         func_80070734(ScreenFrame);
         return;
     }
 
     ScreenFrame = (u32)ScreenFrame + 1;
     if (((u32)RaceState - 2) < 2U) {
-        if ((D_800AC5A4 = (u32)D_800AC5A4 - 1) <= 0) {
+        if ((RaceTimeRemaining = (u32)RaceTimeRemaining - 1) <= 0) {
             RaceState = 5;
             PlayerCars[0].half1EE = 9;
             D_800AC5D0 = 37;
@@ -112,7 +112,7 @@ void ovl659_update_race(void) {
     CheckFinalLapEvent((char *)PlayerCars);
     if (((u32)RaceState - 1) < 3U) {
         DrawLapTimeList(0);
-        DrawTimeRemaining(D_800AC5A4);
+        DrawTimeRemaining(RaceTimeRemaining);
         DrawHudRotatingQuad(D_800F4C70.first, 0);
         func_800211A4(0);
         DrawHudNumber3((PlayerCars[0].input * 160) / 1168, 0);
@@ -121,7 +121,7 @@ void ovl659_update_race(void) {
         DrawRaceMinimap(0);
         DrawSteeringIndicator(&CurrentDrawBuf->ordering.ordering70[0], 0);
         func_80021C00(0);
-        func_80020B10(D_800F4D44);
+        SubmitRaceHudPackets(D_800F4D44);
     }
     StepRaceFrame(D_800F4D44);
     if (RaceState == 0) {
@@ -138,9 +138,9 @@ void ovl659_update_race(void) {
         func_800225DC(0);
     }
     RR_659_SCRATCH->word78 = D_800F2A64;
-    func_8006ECE8(0);
+    SetupPlayerView(0);
     DrawTrackObjects(0);
-    func_80036FD4(0);
+    DrawTrackSceneryForPlayer(0);
     func_80070734(ScreenFrame);
     if (RaceState == 0) {
         RR_659_SCRATCH->pointers.cursor = AddDrawAreaPrim(

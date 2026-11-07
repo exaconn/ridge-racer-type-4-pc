@@ -25,7 +25,7 @@ class SerialRequestResetTest(unittest.TestCase):
 typedef uint8_t u8; typedef uint16_t u16; typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
 RrInterruptRegisters test_irq;
-RrInterruptRegisters *D_800ABD30=&test_irq;
+RrInterruptRegisters *I_STAT_Sio=&test_irq;
 RrSerialPortRegisters test_ports[2];
 RrSerialPortRegisters *SIO1_REGS=&test_ports[0];
 volatile RrSerialRequest SioRequest;

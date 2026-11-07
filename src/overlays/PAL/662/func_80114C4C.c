@@ -7,8 +7,8 @@ extern u8 D_800F4368[];
 void SetModelTexturePage(s32 mode);
 void StepMenuValue(s32 mode, s32 width, char *selection, s32 limit, s32 flags);
 void SeqFadeVolume(s32, s32);
-void func_80053CB0(void);
-void func_8006F5F0(void *);
+void SeqMuteVolume(void);
+void InitTimTemplate(void *);
 void UploadCarClut(void *, s32, s32);
 
 void ovl662_func_80114C4C(void)
@@ -96,7 +96,7 @@ void ovl662_func_80114C4C(void)
         AddScreenFadeTiles(((RrFrameOrderingPrefix *)CurrentDrawBuf)->ordering70,
                       (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
-            func_8006F5F0(D_800F4368);
+            InitTimTemplate(D_800F4368);
             UploadCarClut(D_800F4368, 0, 0);
             ModeGroup = 3;
             D_800F3A26 = 1;
@@ -111,7 +111,7 @@ void ovl662_func_80114C4C(void)
             ModeGroup = 1;
             D_800F3A26 = 3;
             D_800F4D8A = 0;
-            func_80053CB0();
+            SeqMuteVolume();
         }
         break;
     }

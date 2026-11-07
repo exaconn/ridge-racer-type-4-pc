@@ -33,7 +33,7 @@ extern struct {
     int f2868;
 } SoundState;
 extern int CdAudioRequestPause();
-extern s32 D_800F4DBC;
+extern s32 SoundPaused;
 extern int CdAudioMute();
 extern void CdAudioFade(int, short);
 
@@ -98,7 +98,7 @@ void SoundPause(void) {
     s32 var_a0;
     s32 var_s0;
 
-    D_800F4DBC = 1;
+    SoundPaused = 1;
     CdAudioRequestPause();
     var_s0 = 0;
     var_a0 = 0;
@@ -113,7 +113,7 @@ void SoundResume(void) {
     s32 var_a0;
     s32 var_s0;
 
-    D_800F4DBC = 0;
+    SoundPaused = 0;
     CdAudioRequestPause();
     var_s0 = 0;
     var_a0 = 0;
@@ -150,12 +150,12 @@ void SoundStopAll(void) {
     }
     for (i = 0; i < 2; i++) SetPlayerVoice(0, 0, 0, i);
     for (i = 0; i < 2; i++) func_800512C4(i, 0, 0);
-    func_80051538(0, 0, 0);
+    SetSoundChannelVolLR(0, 0, 0);
     SoundLoopSet(5, 0x1E00, 0, 0x40);
     CdAudioMute();
     SoundReverbOffAll();
     func_80051B38();
-    D_800F4DBC = 1;
+    SoundPaused = 1;
 }
 
 #undef SoundState

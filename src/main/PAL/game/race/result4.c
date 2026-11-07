@@ -48,7 +48,7 @@ extern struct { char pad[4]; signed char b4; char b5; signed char b6; } *Dialogu
 void func_8003662C();
 void func_8003687C(int a0);
 void func_800369E8(void);
-void func_80036A44(void);
+void NewCarModeUpdate(void);
 
 void func_8003662C(a0)
 int a0;
@@ -209,7 +209,7 @@ void func_800369E8(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define ModeFrame (*(unsigned (*))&ModeFrame)
 
-void func_80036A44(void) {
+void NewCarModeUpdate(void) {
     int a;
     int t;
     int r;

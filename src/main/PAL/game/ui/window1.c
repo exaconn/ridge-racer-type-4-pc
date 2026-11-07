@@ -19,7 +19,7 @@ extern int *AddDrawModePrim();
 extern int SetDrawArea();
 
 void InitHudSpritePacket(unsigned char *a0, unsigned char *a1);
-void func_80020B10();
+void SubmitRaceHudPackets();
 void DrawDigitString12();
 void DrawDigitString8();
 void DrawDigitString16();
@@ -82,7 +82,7 @@ void InitRaceHudPackets(int a0)
     }
 }
 
-void func_80020B10(a0) int a0;
+void SubmitRaceHudPackets(a0) int a0;
 {
     short sp[4];
     int *s0;

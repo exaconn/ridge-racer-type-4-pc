@@ -18,16 +18,16 @@ extern s32 CdRead(s32, void *, s32);
 extern s32 CdPosToInt(const RrCdLocation *);
 extern void func_800963C4(s32);
 extern void DebugPrintStub(const char *, ...);
-extern const char D_80010028[];
+extern const char NowLoadingFmt[];
 extern const char R4BinPath[];
 extern const char StrFileNotFoundFmt[];
-extern const char D_80010068[];
+extern const char StrReadSectorFmt[];
 extern u32 *CdDirectoryBuffer;
 extern RrCdFileEntry CdFileTable[];
 extern int rsin();
 extern int rcos();
 extern int D_8009DFA0;
-extern int D_8009DFA4;
+extern int LoadingTriangleFlip;
 extern struct P { int w0, w4; short x0, y0; int c1; short x1, y1; int c2; short x2, y2; } D_80109400[];
 extern struct P *D_80109438;
 
@@ -69,7 +69,7 @@ void LoadR4Directory(void)
     s32 base, sector, next;
     u32 *directory;
     RrCdFileEntry *entry;
-    DebugPrintStub(D_80010028,R4BinPath,CdDirectoryBuffer);
+    DebugPrintStub(NowLoadingFmt,R4BinPath,CdDirectoryBuffer);
     found=CdSearchFile(&file,R4BinPath);
     message_page=(u8 *)0x80010000U;
     if (!found) {
@@ -120,8 +120,8 @@ void DrawLoadingTriangle(void)
     register unsigned m asm("$5");
     unsigned h;
     a = D_8009DFA0 + 0x10;
-    v = D_8009DFA4 ^ 1;
-    D_8009DFA4 = v;
+    v = LoadingTriangleFlip ^ 1;
+    LoadingTriangleFlip = v;
     D_8009DFA0 = a;
     D_80109438 = &D_80109400[v];
     D_80109438->x0 = (rsin(a) >> 7) + 0x50;

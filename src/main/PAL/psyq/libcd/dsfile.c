@@ -28,18 +28,18 @@ struct DirPath {
 
 extern int CD_debug;
 extern struct DirPath DS_pathTable[];
-extern CdlFILE D_80110350[];
+extern CdlFILE DsDirFileCache[];
 extern const char D_80011CA4[];
 extern const char CdCacheFileSearchMsg[];
 extern unsigned short D_80011CE0;
 extern short D_80011CE4;
 extern char D_80011CE6;
-extern const char D_80011CE8[];
-extern const char D_80011D04[];
+extern const char CdFileEntryFmt[];
+extern const char StrCdCacheFileCountFmt[];
 
 extern int DebugPrintStub();
 extern void CdIntToPos(int, void *);
-extern void func_80096444(char *, void *, int);
+extern void PsyqMemcpy(char *, void *, int);
 
 int DS_cachefile(int dir) {
     int sp18;
@@ -49,45 +49,45 @@ int DS_cachefile(int dir) {
     if (dir == D_800A67A0) {
         return 1;
     }
-    if (cd_read(1, DS_pathTable[dir].a, D_80111F50) != 1) {
+    if (cd_read(1, DS_pathTable[dir].a, CdIsoSectorBuf) != 1) {
         if (CD_debug > 0) {
             DebugPrintStub(D_80011CA4);
             return -1;
         }
         return -1;
     }
-    p = D_80111F50;
+    p = CdIsoSectorBuf;
     if (CD_debug >= 2) {
         DebugPrintStub(CdCacheFileSearchMsg);
     }
     i = 0;
-    while (p < D_80111F50 + 0x800) {
+    while (p < CdIsoSectorBuf + 0x800) {
         if (p[0] == 0) {
             break;
         }
         *(U4 *)&sp18 = *(U4 *)(p + 2);
-        CdIntToPos(sp18, D_80110350[i].pos);
-        *(U4 *)&D_80110350[i].size = *(U4 *)(p + 10);
+        CdIntToPos(sp18, DsDirFileCache[i].pos);
+        *(U4 *)&DsDirFileCache[i].size = *(U4 *)(p + 10);
         switch (i) {
         case 0:
-            __builtin_memcpy(D_80110350[0].name, &D_80011CE0, 2);
+            __builtin_memcpy(DsDirFileCache[0].name, &D_80011CE0, 2);
             break;
         case 1:
-            __builtin_memcpy(D_80110350[1].name, &D_80011CE4, 3);
+            __builtin_memcpy(DsDirFileCache[1].name, &D_80011CE4, 3);
             break;
         default:
-            func_80096444(D_80110350[i].name, p + 0x21, p[0x20]);
-            D_80110350[i].name[p[0x20]] = 0;
+            PsyqMemcpy(DsDirFileCache[i].name, p + 0x21, p[0x20]);
+            DsDirFileCache[i].name[p[0x20]] = 0;
             break;
         }
         if (CD_debug >= 2) {
             DebugPrintStub(
-                D_80011CE8,
-                D_80110350[i].pos[0],
-                D_80110350[i].pos[1],
-                D_80110350[i].pos[2],
-                D_80110350[i].size,
-                D_80110350[i].name
+                CdFileEntryFmt,
+                DsDirFileCache[i].pos[0],
+                DsDirFileCache[i].pos[1],
+                DsDirFileCache[i].pos[2],
+                DsDirFileCache[i].size,
+                DsDirFileCache[i].name
             );
         }
         p += p[0];
@@ -98,10 +98,10 @@ int DS_cachefile(int dir) {
     }
     D_800A67A0 = dir;
     if (i < 0x40) {
-        D_80110350[i].name[0] = 0;
+        DsDirFileCache[i].name[0] = 0;
     }
     if (CD_debug >= 2) {
-        DebugPrintStub(D_80011D04, i);
+        DebugPrintStub(StrCdCacheFileCountFmt, i);
     }
     return 1;
 }

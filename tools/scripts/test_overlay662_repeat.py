@@ -31,7 +31,7 @@ static struct World {u32 guard[4];ControllerOwner controller;u32 counters[8];u32
 #define ovl662_D_80126C30 w.counters[6]
 #define ovl662_D_80126C34 w.counters[7]
 static unsigned calls;
-void *func_80096454(void *p,s32 value,u32 n){assert(value==0 && n==4);calls++;return memset(p,value,n);}
+void *PsyqMemset(void *p,s32 value,u32 n){assert(value==0 && n==4);calls++;return memset(p,value,n);}
 ''' + bodies + r'''
 static u32 seed=0x1d664;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}

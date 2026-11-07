@@ -40,7 +40,7 @@ s32 CdGetSector(u8 *buffer, u32 words);
 u8 *CdIntToPos(s32 sector, u8 *location);
 s32 CdGetDiskType(void);
 extern volatile u8 *CD_reg0, *CD_reg3;
-extern volatile u32 *COM_DELAY, *D_800A6780, *CD_dpcr;
+extern volatile u32 *COM_DELAY, *CD_DELAY, *CD_dpcr;
 extern volatile u32 *DMA3_BCR, *DMA3_CHCR;
 /* The DMA address register holds a buffer address, not an integer object id. */
 extern u8 * volatile *DMA3_MADR;

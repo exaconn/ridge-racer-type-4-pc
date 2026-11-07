@@ -59,14 +59,14 @@ update_pause_timer:
         DrawHudDigitMod10(PlayerCars[0].half27A, 0);
         DrawRaceMinimap(0);
         DrawSteeringIndicator(CurrentDrawBuf->ordering.ordering70, 0);
-        func_80020B10(D_800F4D44);
+        SubmitRaceHudPackets(D_800F4D44);
         BuildCameraMatrices();
         SetupViewport(0);
         DrawCars(0);
         RR_660_FRAME_SCRATCH->word78 = D_800F2A64;
-        func_8006ECE8(0);
+        SetupPlayerView(0);
         DrawTrackObjects(0);
-        func_80036FD4(0);
+        DrawTrackSceneryForPlayer(0);
         func_80070734(ScreenFrame);
         return;
     }
@@ -130,7 +130,7 @@ update_pause_timer:
         DrawHudDigitMod10(PlayerCars[0].half27A, 0);
         DrawRaceMinimap(0);
         DrawSteeringIndicator(CurrentDrawBuf->ordering.ordering70, 0);
-        func_80020B10(D_800F4D44);
+        SubmitRaceHudPackets(D_800F4D44);
     }
     StepRaceFrame(D_800F4D44);
     UpdateTrackObjects(0);
@@ -152,9 +152,9 @@ draw_vehicle:
         }
     }
     RR_660_FRAME_SCRATCH->word78 = (s32) D_800F2A64;
-    func_8006ECE8(0);
+    SetupPlayerView(0);
     DrawTrackObjects(0);
-    func_80036FD4(0);
+    DrawTrackSceneryForPlayer(0);
     SlotSetLevelProgram(D_800F4C70.first, D_800F2AB4.first, 0);
     if (RaceState >= 4) {
         StopRaceRumble();

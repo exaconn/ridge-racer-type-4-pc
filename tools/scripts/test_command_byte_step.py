@@ -33,7 +33,7 @@ s32 test_page[0x4000];
 #define D_80114730 test_page[0x4730/4]
 #define RR_NOP_DEP_ON(value) ((void)(value))
 ''' + headers + '''
-s32 D_800ABDE4,D_800ABDE8,CardCommandRequest,CardReceiveIndex,CardRxCount;
+s32 CardCommandStatus,D_800ABDE8,CardCommandRequest,CardReceiveIndex,CardRxCount;
 s32 D_80114728,CardCurrentCommand;
 u8 CardRxTrace[160],D_801147D8[160];
 RrCommandReadCallback CardCommandReader;
@@ -52,7 +52,7 @@ void test_reset(void) {
  memset(CardRxTrace,0xA5,sizeof(CardRxTrace));
  memset(D_801147D8,0xA5,sizeof(D_801147D8));
  memset(test_ports,0,sizeof(test_ports));
- D_800ABDE4=3;D_800ABDE8=2;CardCommandRequest=0x123;
+ CardCommandStatus=3;D_800ABDE8=2;CardCommandRequest=0x123;
  CardReceiveIndex=4;CardRxCount=6;D_80114730=9;
  D_80114728=0;CardCurrentCommand=0;
  test_ports[0].data=0xAB;test_ports[0].status=2;
@@ -145,7 +145,7 @@ void test_reset(void) {
                 def select(slot):
                     events.append(('select', slot))
                     self.assertEqual(slot, request >> 4)
-                    self.assertEqual(self.get('D_800ABDE4'), 4)
+                    self.assertEqual(self.get('CardCommandStatus'), 4)
                     self.assertEqual(self.get('D_80114730'), 9)
                     self.put('CardCommandRequest', 0x2340 | nibble)
                     return -0x80000000

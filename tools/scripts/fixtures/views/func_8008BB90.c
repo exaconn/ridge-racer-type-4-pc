@@ -17,27 +17,27 @@ void trapIntrDMA(void) {
     int i;
     RrLibInterruptCallback *bp;
     unsigned int one, m;
-    s1 = (*D_800A63A0 >> 24) & 0x7F;
+    s1 = (*DICR_VSync >> 24) & 0x7F;
     if (s1 != 0) {
         one = 1;
         m = 0xFFFFFF;
-        bp = D_800A63A4;
+        bp = InterruptCallbackTable;
         do {
             i = 0;
             if (s1 != 0) {
                 for (; s1 != 0; i++, s1 >>= 1) {
                     if (i >= 7) break;
                     if (s1 & 1) {
-                        *D_800A63A0 &= (one << (i + 24)) | m;
+                        *DICR_VSync &= (one << (i + 24)) | m;
                         if (bp[i] != 0) bp[i]();
                     }
                 }
             }
-            s1 = (*D_800A63A0 >> 24) & 0x7F;
+            s1 = (*DICR_VSync >> 24) & 0x7F;
         } while (s1 != 0);
     }
-    if ((*D_800A63A0 & 0xFF000000) == 0x80000000 || (*D_800A63A0 & 0x8000)) {
-        DebugPrintStub(D_80011878, *D_800A63A0);
+    if ((*DICR_VSync & 0xFF000000) == 0x80000000 || (*DICR_VSync & 0x8000)) {
+        DebugPrintStub(D_80011878, *DICR_VSync);
         i = 0;
         do {
             DebugPrintStub(DmaMadrDebugFmt, i, *(int *)(i * 16 + D_800A63C4));

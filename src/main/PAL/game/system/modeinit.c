@@ -21,12 +21,12 @@
 #include "game/data/selection.h"
 #include "game/data/screenframe.h"
 
-extern int func_80053CB0();
+extern int SeqMuteVolume();
 extern int CdDirectoryBuffer;
-extern char D_800104A4[];
+extern char StrMainMenu0Log[];
 extern short D_800AC5D0;
 extern int D_800AC5D4;
-extern short D_800ACBD0[];
+extern short PlayerCourseChoices[];
 extern int D_800ACBF8;
 extern int LoadCursor;
 extern short D_800AD508;
@@ -43,7 +43,7 @@ extern short D_800F4D8A;
 extern short LinkState;
 extern int D_8010BFB8;
 extern int InitBadgeRow();
-extern char D_800104B0[];
+extern char StrInitMainMenu0[];
 extern char LinkEntryState[];
 extern char *D_800AC590;
 extern int VSyncThreshold;
@@ -67,10 +67,10 @@ void TitleModeEnter() {
     char *a1;
     int a2;
     SetDispMask(0);
-    func_80053CB0();
+    SeqMuteVolume();
     a2 = 0;
     a1 = SelectionRows;
-    a0 = D_800ACBD0;
+    a0 = PlayerCourseChoices;
     D_800AD508 = -1;
     LinkState = 0;
     D_800AC5D0 = 0;
@@ -98,7 +98,7 @@ void TitleModeEnter() {
     D_800ACBF8 = 0;
     MaskBitSetting = 0;
     D_800F4CD0 = (D_800F3974 & 1) + 7;
-    DebugPrintStub(D_800104A4);
+    DebugPrintStub(StrMainMenu0Log);
 }
 
 void TitleMenuInit()
@@ -142,7 +142,7 @@ void TitleMenuInit()
   InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
   BadgeRows[1] = 1;
   _sio_control(1, 1, 0);
-  DebugPrintStub(D_800104B0);
+  DebugPrintStub(StrInitMainMenu0);
 }
 
 /* legacy typing of shared globals in this part of the unit */

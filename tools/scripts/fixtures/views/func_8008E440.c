@@ -7,13 +7,13 @@
 #include "rr/library.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80096414 ((int (*)(void *, const char *, int))func_80096414)
+#define PsyqStrncmp ((int (*)(void *, const char *, int))PsyqStrncmp)
 
-#undef func_80096414
+#undef PsyqStrncmp
 
 extern char D_8011095C[];
 
-extern s32 func_80096404(const char *, const char *);
+extern s32 PsyqStrcmp(const char *, const char *);
 
 s32 DS_searchdir(s32 key, const char *name) {
     s32 i = 0;
@@ -35,7 +35,7 @@ s32 DS_searchdir(s32 key, const char *name) {
         entry_key = ((RrLibNamedEntry *)(page + 0x954))->key;
         if (entry_key == 0) break;
         if (entry_key == key) {
-            if (func_80096404(name, entry_name) == 0) return i + 1;
+            if (PsyqStrcmp(name, entry_name) == 0) return i + 1;
         }
         entry_name += 0x2C;
         offset += 0x2C;

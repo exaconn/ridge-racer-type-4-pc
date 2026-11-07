@@ -4,7 +4,7 @@ void ovl662_func_8011D338(RrGaragePoint *output)
     RrGaragePoint point;
     s32 step,delta;
     u32 axis;
-    func_80096454(&point,0,4);
+    PsyqMemset(&point,0,4);
     if (PlayerControllers[0].type01 == 0x73 && PlayerControllers[0].kind1C != 0 && PlayerControllers[0].flag40 == 0) {
         step=1;
         if (PlayerControllers[0].buttons02 & 8) step=4;

@@ -106,7 +106,7 @@ void UpdateDialogue(int a0, int a1, S *s) {
             }
         }
 call1:
-        func_8001FA48(a0, a1, s, 0, 0x3FFC);
+        DrawAnimatedText(a0, a1, s, 0, 0x3FFC);
 tail1:
         if ((signed char)s->b1C != (signed char)s->b1D) {
             s->b1F = 0;
@@ -117,7 +117,7 @@ tail1:
     case 2:
         func_80031DA0();
         func_80031DA8();
-        func_8001FA48(a0, a1, s, 1, 0x3FFC);
+        DrawAnimatedText(a0, a1, s, 1, 0x3FFC);
         break;
     case 3:
         if ((signed char)s->b8 > s->b9) {
@@ -147,7 +147,7 @@ tail1:
             break;
         }
     case 4:
-        func_8001FA48(a0, a1, s, 1, 0x3FFC);
+        DrawAnimatedText(a0, a1, s, 1, 0x3FFC);
         s->st = 4;
         break;
     case 5:

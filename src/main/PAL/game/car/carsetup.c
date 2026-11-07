@@ -23,10 +23,10 @@
 #define UH(b, o) (*(unsigned short *)((char *)(b) + (o)))
 
 extern void RotMatrix();
-extern char *D_800F39C8[];
+extern char *CarRecordPtrs[];
 extern unsigned char SelectionRows[][4];
 extern int RaceState;
-extern int D_800FF6F8;
+extern int TrackEventSfxEnabled;
 extern int ReplayState;
 extern int D_800AC538;
 extern char PlayerCars[];
@@ -75,7 +75,7 @@ char *a0; int a1; int a2;
     short *p2;
     int i, t;
     s2 = a0 + 0x1F4;
-    s3 = D_800F39C8[a1];
+    s3 = CarRecordPtrs[a1];
     func_80096434(a0, 0x320);
     H(s2, 0x84) = SelectionRows[a1][3] & 1;
     H(a0, 0x1E6) = a1 * 2;
@@ -123,7 +123,7 @@ void UpdatePlayerCar(char *a0, int a1)
     UpdateCarEngine(a0);
     if ((a0 == PlayerCars) || (a0 == (PlayerCars + 0x320)))
     {
-      if (D_800FF6F8 == 1)
+      if (TrackEventSfxEnabled == 1)
       {
         PlayTrackEventSfx(a0);
       }

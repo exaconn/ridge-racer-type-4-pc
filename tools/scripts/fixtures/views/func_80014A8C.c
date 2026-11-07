@@ -35,9 +35,9 @@
 #define GTE_MTC2_RGB_DPCS(c) __asm__ volatile("mtc2 %0, $6\n\tnop\n\tnop\n\t.word 0x4A780010" : : "r"(c))
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80096464 ((int (*)())func_80096464)
+#define PsyqRand ((int (*)())PsyqRand)
 
-#undef func_80096464
+#undef PsyqRand
 
 extern s32 ModelTexturePage;
 

@@ -6,7 +6,7 @@ struct HW { volatile unsigned char b0; char p1[3]; volatile unsigned short s4; s
 struct Q { int a; };
 extern struct HW *PadSio0Base;
 extern struct Q *I_STAT_Pad;
-extern unsigned D_801146B8, RC2WaitLimit;
+extern unsigned PadRcnt2Start, RC2WaitLimit;
 struct W { char p[0x3C]; unsigned char *f3c; char p2[4]; unsigned char f44, f45; char p3[0xE8 - 0x46]; unsigned char fE8; };
 int _padSioRW2(a0, a1) struct W *a0; int a1; {
     int s1;
@@ -31,14 +31,14 @@ int _padSioRW2(a0, a1) struct W *a0; int a1; {
     }
     while (!(*(volatile int *)I_STAT_Pad & 0x80)) {
         v1 = *(volatile unsigned short *)0x1F801120;
-        if (v1 < D_801146B8) {
+        if (v1 < PadRcnt2Start) {
             if (*(volatile unsigned short *)0x1F801128 != 0) v1 += *(volatile unsigned short *)0x1F801128;
             else v1 += 0x10000;
         }
         if (*(volatile unsigned short *)0x1F801124 & 0x200) {
-            if (v1 - D_801146B8 >= RC2WaitLimit) return -2;
+            if (v1 - PadRcnt2Start >= RC2WaitLimit) return -2;
         } else {
-            if (((v1 - D_801146B8) >> 3) >= RC2WaitLimit) return -2;
+            if (((v1 - PadRcnt2Start) >> 3) >= RC2WaitLimit) return -2;
         }
     }
     if (a0->fE8 != 8) {

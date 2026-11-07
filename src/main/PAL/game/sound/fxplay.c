@@ -22,14 +22,14 @@ extern int SeqFadeVolume();
 extern s16 D_800F761C;
 
 void SeqStartTrack(int a0);
-void func_80053CB0(void);
+void SeqMuteVolume(void);
 void SeqMusicPause(void);
 void SeqMusicResume(void);
 
 void SeqStartTrack(int a0) {
     int arr[2] = {0x6C, 0x7F};
     if (SoundState.x2868 != a0) {
-        func_80053CB0();
+        SeqMuteVolume();
         SoundState.x2868 = a0;
         SoundState.x2864 = (s16)SsSeqOpen(SoundState.w[a0], SoundState.h[a0 + 2]);
         SsSetMarkCallback((s16)SoundState.x2864, 0, SeqMarkCallback);
@@ -43,7 +43,7 @@ void SeqStartTrack(int a0) {
     }
 }
 
-void func_80053CB0(void) {
+void SeqMuteVolume(void) {
     SeqFadeVolume(0, 0);
 }
 

@@ -168,11 +168,11 @@ extern char D_800ABB6C[];
 
 extern int D_800ABB80;
 
-extern char D_80011F20[];
+extern char StrClearOTagRFmt[];
 
 unsigned *ClearOTagR(unsigned *a, int b) {
     int *q;
-    if (D_800ABAC2 >= 2) GPU_printf(D_80011F20, a, b);
+    if (D_800ABAC2 >= 2) GPU_printf(StrClearOTagRFmt, a, b);
     (*(int (**)())(GpuFuncTable + 0x2C))(a, b);
     q = &D_800ABB80;
     *q = ((int)D_800ABB6C & 0xFFFFFF) | 0x04000000;

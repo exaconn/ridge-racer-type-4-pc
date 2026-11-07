@@ -47,7 +47,7 @@ void func_8007B774(void) {
             PlaySfx(1);
             if ((unsigned short)(D_800FFC18 - 6) < 2) {
                 D_800F3AF8 = 0x11;
-                CopyStringClearTail(CardTargetFileName, D_800A4594[D_800F4D3C]);
+                CopyStringClearTail(CardTargetFileName, CardTargetFileNames[D_800F4D3C]);
             } else {
                 CopyStringClearTail(CardTargetFileName, CardSaveFileName);
             }

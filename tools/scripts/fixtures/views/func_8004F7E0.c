@@ -40,7 +40,7 @@ extern int SoundReset();
 
 extern s32 D_800AC66C;
 
-void func_8004F7E0(void) {
+void StopAllSoundAndReset(void) {
     SsUtAllKeyOff(0);
     SsSetReservedVoice(4);
     SoundState.b = 1;

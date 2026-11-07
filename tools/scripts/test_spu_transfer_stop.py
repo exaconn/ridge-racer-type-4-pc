@@ -24,7 +24,7 @@ typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
 RrSpuRegisterBank test_banks[2];
 RrSpuRegisterBank *_spu_RXX=&test_banks[0];
-s32 D_800A4828;
+s32 _spu_dmaIsRead;
 void (*volatile _spu_transferCallback)(void);
 u32 test_count, test_log[4000][3], test_busy, test_reads, test_written;
 u32 test_replace_after_delay, test_callback_mutation;
@@ -43,7 +43,7 @@ void test_write_control(RrSpuRegisterBank *bank,u32 value) {
 }
 void test_callback(void) {
  record(4,0,(u32)(_spu_RXX-test_banks));
- if(test_callback_mutation) {_spu_RXX->spu_control=0xBEEF;D_800A4828=72;}
+ if(test_callback_mutation) {_spu_RXX->spu_control=0xBEEF;_spu_dmaIsRead=72;}
 }
 s32 DeliverEvent(u32 first,s32 second) {record(5,first,(u32)second);return -1;}
 '''
@@ -58,7 +58,7 @@ void _spu_Fw1ts(void) {
 void test_initialize(u32 initial,u32 active,u32 callback,u32 busy) {
  memset(test_banks,0xA5,sizeof(test_banks));
  test_banks[0].spu_control=initial;test_banks[1].spu_control=initial;
- _spu_RXX=&test_banks[0];D_800A4828=(s32)active;
+ _spu_RXX=&test_banks[0];_spu_dmaIsRead=(s32)active;
  _spu_transferCallback=callback?test_callback:0;
  test_count=test_reads=test_written=test_replace_after_delay=test_callback_mutation=0;
  test_busy=busy;memset(test_log,0xA5,sizeof(test_log));
@@ -87,7 +87,7 @@ void test_initialize(u32 initial,u32 active,u32 callback,u32 busy) {
         cls.log = (C.c_uint32 * 12000).in_dll(cls.lib, 'test_log')
         cls.replace = C.c_uint32.in_dll(cls.lib, 'test_replace_after_delay')
         cls.mutate = C.c_uint32.in_dll(cls.lib, 'test_callback_mutation')
-        cls.active = C.c_int32.in_dll(cls.lib, 'D_800A4828')
+        cls.active = C.c_int32.in_dll(cls.lib, '_spu_dmaIsRead')
         cls.initialize = cls.lib.test_initialize
         cls.initialize.argtypes = [C.c_uint32]*4
         cls.stop, cls.native_stop = cls.lib._spu_FiDMA, cls.lib.test_native_stop

@@ -15,8 +15,8 @@ typedef struct {
 
 
 extern Struct4000 *CdDirectoryBuffer;
-extern char D_800A40A8[][0x40];
-extern char D_800A4128[][0x40];
+extern char CardHeaderTitles[][0x40];
+extern char CardTitleStrings[][0x40];
 extern unsigned char D_800A41E8;
 extern unsigned char D_800A41E9 __asm__("D_800A41E8+1");
 extern short D_800A41EA __asm__("D_800A41E8+2");
@@ -51,10 +51,10 @@ int a1;
         if (a0 == 1) {
             D_800A41E9 = 1;
             if (D_800F3AF8 < 0x10) {
-                BuildCardHeaderStatic(SaveBuffer, D_800A40A8[i], 0x250, 0x1FC, 0x254, 0x1D8, D_800A45C8);
+                BuildCardHeaderStatic(SaveBuffer, CardHeaderTitles[i], 0x250, 0x1FC, 0x254, 0x1D8, D_800A45C8);
                 BuildSaveData(D_800F3AF8);
             } else if (D_800F3AF8 & 0x10) {
-                BuildCardHeaderStatic(SaveBuffer, D_800A4128[D_800F4D3C], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[D_800F4D3C]);
+                BuildCardHeaderStatic(SaveBuffer, CardTitleStrings[D_800F4D3C], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[D_800F4D3C]);
                 BuildSaveData(D_800F3AF8);
             } else if (D_800F3AF8 == 0x20) {
                 *SaveBuffer = *CdDirectoryBuffer;
@@ -62,10 +62,10 @@ int a1;
         } else if (a0 >= 2) {
             D_800A41E9 = 0;
             if (D_800F3AF8 < 0x10) {
-                BuildCardHeaderStatic(SaveBuffer, D_800A40A8[i], 0x250, 0x1FC, 0x254, 0x1D8, D_800A45C8);
+                BuildCardHeaderStatic(SaveBuffer, CardHeaderTitles[i], 0x250, 0x1FC, 0x254, 0x1D8, D_800A45C8);
                 BuildSaveData(D_800F3AF8);
             } else if (D_800F3AF8 & 0x10) {
-                BuildCardHeaderStatic(SaveBuffer, D_800A4128[D_800F4D3C], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[D_800F4D3C]);
+                BuildCardHeaderStatic(SaveBuffer, CardTitleStrings[D_800F4D3C], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[D_800F4D3C]);
                 BuildSaveData(D_800F3AF8);
             } else if (D_800F3AF8 == 0x20) {
                 *SaveBuffer = *CdDirectoryBuffer;

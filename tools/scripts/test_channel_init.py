@@ -27,18 +27,18 @@ typedef struct {
 static World actual,expected;
 static RrChannelRecordF0 external_record;
 static union {void *align;u8 bytes[0x4388];} callback_page;
-#define D_801144D8 actual.records
+#define PadChannelRecordArray actual.records
 #define D_80114448 actual.buffers_a
 #define PadTxBuffers actual.buffers_b
 #define PadPacketDoneCallback (*(RrChannelUpdateCallback *)(callback_page.bytes+8))
 RrChannelRecordF0 *PadChannelRecords;
-RrChannelErrorCallback D_800ABC68;
+RrChannelErrorCallback PadAdvanceChannelFn;
 RrChannelUpdateCallback D_800ABC6C,D_800ABC74;
 u32 (*PadTxByteCallback)(const RrChannelTransferView *);
-s32 (*D_800ABC78)(void *);
+s32 (*PadChannelToPortFn)(void *);
 RrChannelRecordCallback D_800ABC7C;
-void (*D_800ABC8C)(RrChannelTransferView *);
-RrChannelStatusCallback D_800ABC80,D_800ABC84;
+void (*PadSaveCommandCallback)(RrChannelTransferView *);
+RrChannelStatusCallback D_800ABC80,PadChannelBusyFn;
 s32 PadComActive,D_800ABCB4;
 static int stage,seed;
 void _padAdvanceChannel(s32 n) {(void)n;}
@@ -53,11 +53,11 @@ s32 _padChannelBusy(void *p) {(void)p;return 0;}
 void _padPacketDone(void *p) {(void)p;}
 '''+registrar+r'''
 static void check_callbacks(void) {
- assert(D_800ABC68==_padAdvanceChannel && D_800ABC6C==_padResetChannel);
+ assert(PadAdvanceChannelFn==_padAdvanceChannel && D_800ABC6C==_padResetChannel);
  assert(PadTxByteCallback==_padGetTxByte && D_800ABC74==_padAllocGates);
- assert(D_800ABC78==_padChannelToPort && D_800ABC7C==_padPortToChannel);
- assert(D_800ABC8C==_padSaveCommand);
- assert(D_800ABC80==_padChannelDispatch && D_800ABC84==_padChannelBusy && PadPacketDoneCallback==_padPacketDone);
+ assert(PadChannelToPortFn==_padChannelToPort && D_800ABC7C==_padPortToChannel);
+ assert(PadSaveCommandCallback==_padSaveCommand);
+ assert(D_800ABC80==_padChannelDispatch && PadChannelBusyFn==_padChannelBusy && PadPacketDoneCallback==_padPacketDone);
 }
 void _padInitDirSeq(void) {
  assert(stage==0 && PadComActive==0 && D_800ABCB4==0);

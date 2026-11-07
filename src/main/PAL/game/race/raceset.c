@@ -19,7 +19,7 @@ extern s16 D_800AC5D0;
 extern s32 CourseBestLap[2][8];
 extern s16 ReverseCourse;
 extern s32 TrackLength;
-extern s32 D_800F3838[2][8][3];
+extern s32 CourseBestLapTimes[2][8][3];
 extern s16 CourseIndex;
 extern s32 NumLaps;
 extern s32 D_800F3B00[];
@@ -59,7 +59,7 @@ void UpdateLapTiming(RrRaceVehicle *arg0) {
             }
             LapTimes[s0->steering94.count22 - 1] = FramesToMilliseconds(
                 LapFrameCounts[s0->steering94.count22 - 1],
-                func_80096464() % 40
+                PsyqRand() % 40
             );
             if (LapTimes[s0->steering94.count22 - 1] > 0x927BE) {
                 LapTimes[s0->steering94.count22 - 1] = 0x927BF;
@@ -143,9 +143,9 @@ void UpdateLapTiming(RrRaceVehicle *arg0) {
                             if (CourseBestLap[ReverseCourse][CourseIndex] > BestLapTime) {
                                 CourseBestLap[ReverseCourse][CourseIndex] = BestLapTime;
                             }
-                            D_800F3838[ReverseCourse][CourseIndex][0] = D_8010C0F8[0];
-                            D_800F3838[ReverseCourse][CourseIndex][1] = D_8010C0F8[1];
-                            D_800F3838[ReverseCourse][CourseIndex][2] = D_8010C0F8[2];
+                            CourseBestLapTimes[ReverseCourse][CourseIndex][0] = D_8010C0F8[0];
+                            CourseBestLapTimes[ReverseCourse][CourseIndex][1] = D_8010C0F8[1];
+                            CourseBestLapTimes[ReverseCourse][CourseIndex][2] = D_8010C0F8[2];
                         } else if (D_800F4D44 == 1) {
                             if (CourseBestTotalTimes[CourseIndex] > TotalRaceTime) {
                                 CourseBestTotalTimes[CourseIndex] = TotalRaceTime;

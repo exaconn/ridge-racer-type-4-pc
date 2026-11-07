@@ -177,7 +177,7 @@ void UpdateTrackObjects(void) {
     register int r4 asm("v0"); /* ASM_BARRIER: force modulo result into v0 before copying to a3 */
     int *hw;
 
-    func_80071E04();
+    UpdateTrackObjectActivation();
     for (i = 0; i < TrackObjectCount; i++) {
             if (B4->f24 == 1) {
                 if (B0->f8 == 0xA) {
@@ -210,17 +210,17 @@ void UpdateTrackObjects(void) {
                 }
                 if (B0->f4 == 5) {
                     if (B4->f8 == 0 || B4->f0 >= 0xD1) {
-                        if (B0->f0 > 0 && (func_80096464() % (B0->f0 * 8 + 0x14)) != 0) {
+                        if (B0->f0 > 0 && (PsyqRand() % (B0->f0 * 8 + 0x14)) != 0) {
                             B4->f8 = 0;
                             goto next_iter;
                         }
-                        r1 = func_80096464();
+                        r1 = PsyqRand();
                         B4->fC = AC(B0->f24)->fC + (r1 % AC(B0->f24)[1].fC);
-                        r2 = func_80096464();
+                        r2 = PsyqRand();
                         B4->f10 = AC(B0->f24)->f10 + (r2 % AC(B0->f24)[1].f10);
-                        r3 = func_80096464();
+                        r3 = PsyqRand();
                         B4->f14 = AC(B0->f24)->f14 + (r3 % AC(B0->f24)[1].f14);
-                        r4 = func_80096464() % 6;
+                        r4 = PsyqRand() % 6;
                         B4->f8 = r4 + 1;
                         func_80070934(B0->f0, 7, &B4->fC, r4);
                         B4->f0 = 0;

@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern unsigned char D_80111F50[];
+extern unsigned char CdIsoSectorBuf[];
 int DS_cachefile(int dir);
 
 #endif /* RR_PSYQ_LIBCD_DSFILE_H */

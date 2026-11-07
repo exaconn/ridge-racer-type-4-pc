@@ -79,13 +79,13 @@ void ovl666_update_race(void) {
             DrawHudNumber3((PlayerCars[0].input * 160) / 1168, 0);
             DrawHudDigitMod10(PlayerCars[0].half27A, 0);
             UpdateHudRankDisplay(PlayerCars[0].half1EE, 0);
-            DrawTimeRemainingForPlayer(D_800AC5A4, 0);
+            DrawTimeRemainingForPlayer(RaceTimeRemaining, 0);
             DrawLapCounter(0, PlayerCars[0].steering288.count22);
             DrawRaceMinimap(0);
             DrawSteeringIndicator(&CurrentDrawBuf->ordering.ordering70[0], 0);
             func_80021C00(1);
             func_800211A4(0);
-            func_80020B10(4);
+            SubmitRaceHudPackets(4);
         }
         if (RaceState == 0 && ModeFrame < 75U) {
             UpdateRaceIntroCamera(PlayerCars, ModeFrame);
@@ -95,16 +95,16 @@ void ovl666_update_race(void) {
         }
         BuildCameraMatrices();
         DrawCars(0);
-        func_8006ECE8(0);
+        SetupPlayerView(0);
         DrawTrackObjects(0);
-        func_80036FD4(0);
+        DrawTrackSceneryForPlayer(0);
         func_80070734(ScreenFrame);
         return;
     }
 
     ScreenFrame = (u32)ScreenFrame + 1;
     if (((u32)RaceState - 2) < 2U) {
-        if ((D_800AC5A4 = (u32)D_800AC5A4 - 1) <= 0) {
+        if ((RaceTimeRemaining = (u32)RaceTimeRemaining - 1) <= 0) {
             RaceState = 5;
             D_800AC5D0 = 75;
             SoundSetMasterVolume(0, 33);
@@ -172,13 +172,13 @@ void ovl666_update_race(void) {
         DrawHudNumber3((PlayerCars[0].input * 160) / 1168, 0);
         DrawHudDigitMod10(PlayerCars[0].half27A, 0);
         UpdateHudRankDisplay(PlayerCars[0].half1EE, 0);
-        DrawTimeRemainingForPlayer(D_800AC5A4, 0);
+        DrawTimeRemainingForPlayer(RaceTimeRemaining, 0);
         DrawLapCounter(0, PlayerCars[0].steering288.count22);
         DrawRaceMinimap(0);
         DrawSteeringIndicator(&CurrentDrawBuf->ordering.ordering70[0], 0);
         func_80021C00(1);
         func_800211A4(0);
-        func_80020B10(4);
+        SubmitRaceHudPackets(4);
     }
     if (RaceState == 0 && ModeFrame < 75U) {
         UpdateRaceIntroCamera(PlayerCars, ModeFrame);
@@ -190,10 +190,10 @@ void ovl666_update_race(void) {
     if (PlayerCars[0].half1EA != 0) {
         func_800225DC(0);
     }
-    func_8006ECE8(0);
+    SetupPlayerView(0);
     UpdateTrackObjects(0);
     DrawTrackObjects(0);
-    func_80036FD4(0);
+    DrawTrackSceneryForPlayer(0);
     func_80070734(ScreenFrame);
     SlotSetLevelProgram(D_800F4C70.first, D_800F2AB4.first, 0);
     if (RaceState >= 4) {

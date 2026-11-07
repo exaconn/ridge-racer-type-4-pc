@@ -71,7 +71,7 @@ static void cb0(void){callback_effect^=1;}
 static void cb1(void){callback_effect^=2;}
 static void cb2(void){callback_effect^=4;}
 const char StrCdReadShellOpen[]="CdRead: Shell open...\n";
-const char D_80011D58[]="CdRead: retry...\n";
+const char StrCdReadRetry[]="CdRead: retry...\n";
 #define CdReadState actual.state
 #define D_800A67BC actual.state.mode0C
 #define CD_read_dma_mode actual.flags
@@ -127,7 +127,7 @@ static s32 clock_tick(int model,s32 argument) {
 }
 static s32 diagnostic(int model,const char *text) {
     record(model,LOG,0,0,text,-1);
-    assert(text==StrCdReadShellOpen||text==D_80011D58);return -17;
+    assert(text==StrCdReadShellOpen||text==StrCdReadRetry);return -17;
 }
 static u8 *packet(int model) {
     World *world=model?&expected:&actual;
@@ -211,7 +211,7 @@ static s32 reference(s32 restart) {
         return expected.state.remaining14;
     }
     if(restart) {
-        diagnostic(1,D_80011D58);
+        diagnostic(1,StrCdReadRetry);
         control(1,9,0,0);
         if(!control(1,2,packet(1),0)) {
             expected.state.remaining14=-1;

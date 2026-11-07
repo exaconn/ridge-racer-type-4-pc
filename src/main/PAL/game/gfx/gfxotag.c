@@ -79,7 +79,7 @@ extern void CdAudioSelectTrack();
 extern void CdAudioBeginPlay();
 extern void CdAudioFade();
 extern void func_80059E40();
-extern int func_80096464();
+extern int PsyqRand();
 extern int D_800AC6EC;
 extern signed char SelectionState[];
 extern signed char Options[];
@@ -298,7 +298,7 @@ int func_80045868(char *arg0)
     {
       *((int *) (((char *) g1) + 0xA0)) = 0;
     }
-    func_80051538(0, (short) (*((int *) (((char *) g1) + 0xA0))), (short) (*((int *) (((char *) g1) + 0xA0))));
+    SetSoundChannelVolLR(0, (short) (*((int *) (((char *) g1) + 0xA0))), (short) (*((int *) (((char *) g1) + 0xA0))));
     *((int *) (((char *) g1) + 0x8C)) = (*((int *) (((char *) g1) + 0x8C))) + 1;
   }
   else
@@ -309,7 +309,7 @@ int func_80045868(char *arg0)
     {
       *((int *) (((char *) g1) + 0xA0)) = 0x60;
     }
-    func_80051538(0, (short) (*((int *) (((char *) g1) + 0xA0))), (short) (*((int *) (((char *) g1) + 0xA0))));
+    SetSoundChannelVolLR(0, (short) (*((int *) (((char *) g1) + 0xA0))), (short) (*((int *) (((char *) g1) + 0xA0))));
   }
   gB = RaceContext;
   s0 = gB[0x88 / 4];
@@ -500,7 +500,7 @@ int func_80045868(char *arg0)
       {
         if (D_800F765C == 0)
         {
-          CdAudioSelectTrack(0, (func_80096464() % 14) + 0xB);
+          CdAudioSelectTrack(0, (PsyqRand() % 14) + 0xB);
         }
         else
         {

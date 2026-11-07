@@ -45,7 +45,7 @@ extern int AddScreenFadeTiles();
 extern int ResetScreenCounters();
 extern int PlaySfx();
 extern int SeqFadeVolume();
-extern int func_80053CB0();
+extern int SeqMuteVolume();
 extern unsigned short D_800AC5D0;
 extern int LoadCursor;
 extern struct { char pad[1]; signed char b1; } *ImageRows;
@@ -101,7 +101,7 @@ int func_80030D9C(int x, int a1)
       }
     }
     s3 += D_8009F1E0[i];
-    x = func_8003069C(a, CurrentDrawBuf + 0x70, x, 0x20, s3, s2);
+    x = AddBadgeSpriteStrip(a, CurrentDrawBuf + 0x70, x, 0x20, s3, s2);
     if (i == 1)
     {
       unsigned char *t;
@@ -219,7 +219,7 @@ void func_80031244(void) {
                     D_800AC5D0 = 0x40;
                     ResetScreenCounters(tab);
                     LoadCursor = D_800F4D74;
-                    func_8003B398(0);
+                    LoadTimListStep(0);
                     SeqFadeVolume(0, (short)(D_800AC5D0 - 4));
                     D_800F4D8A = 1;
                 } else if (PendingModeId == 0x111) {
@@ -239,8 +239,8 @@ void func_80031244(void) {
     if (BadgeRows[Dialogue->h16].h10 == 0xB) {
         if (ImageRows->b1 == 5) {
             if (PendingModeId == 0x10F || PendingModeId == 0x12A) {
-                if (func_8003B398(1) != 1) goto done;
-                func_80053CB0();
+                if (LoadTimListStep(1) != 1) goto done;
+                SeqMuteVolume();
             if ((short)D_800AC5D0 <= 0) {
                 unsigned c = PendingModeId;
                 D_800F4D8A = 0;
@@ -248,7 +248,7 @@ void func_80031244(void) {
                 D_800F3A26 = c & 0xFF;
             }
             } else if (PendingModeId == 0x205) {
-                func_80053CB0();
+                SeqMuteVolume();
             if ((short)D_800AC5D0 <= 0) {
                 unsigned c = PendingModeId;
                 D_800F4D8A = 0;

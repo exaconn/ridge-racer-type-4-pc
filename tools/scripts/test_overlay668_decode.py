@@ -52,7 +52,7 @@ static struct CallbackWorld {
 } cworld,cinitial,cexpected;
 #define ovl668_D_80116D10 wworld.image.tables.quant
 #define ovl668_D_80116D94 wworld.image.tables.matrix
-#define D_800A6350 cworld.active
+#define IntrDriverTablePtr cworld.active
 ''' + resident + bodies + r'''
 static u32 seed=0x162cc;
 static int callback_touches;

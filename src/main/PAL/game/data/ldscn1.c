@@ -30,7 +30,7 @@ extern int InitMenuArenas();
 extern int D_800F4D74;
 extern short CourseIndex;
 extern int UploadCarClut();
-extern struct { short a; short b; } D_800ACBD0[];
+extern struct { short a; short b; } PlayerCourseChoices[];
 extern char *D_800F3B24;
 extern char D_800F3B28[];
 extern unsigned char SelectionRows[][4];
@@ -59,9 +59,9 @@ int LoadSceneStep(void);
 int LoadAllCarsStep(void);
 int LoadCarRangeStep(int arg0, int arg1);
 int func_8003B040(void);
-int func_8003B12C(void);
-int func_8003B294(void);
-int func_8003B398(void);
+int LoadResultsSceneStep(void);
+int LoadCarClutStep(void);
+int LoadTimListStep(void);
 int LoadGlyphRowsStep(void);
 int LoadDialogueStep(void);
 int func_8003B934(void);
@@ -236,7 +236,7 @@ int LoadAllCarsStep(void) {
     case 3:
         s0 = LoadIndex;
         if (s0 < 0) goto l5;
-        if (RequestCarLoad(SelectionRows[s0][1], SelectionRows[s0][0], SelectionRows[s0][2] % 20, D_800ACBD0[s0].a, s0) == 1) {
+        if (RequestCarLoad(SelectionRows[s0][1], SelectionRows[s0][0], SelectionRows[s0][2] % 20, PlayerCourseChoices[s0].a, s0) == 1) {
             LoadState = 4;
         }
         break;
@@ -244,7 +244,7 @@ int LoadAllCarsStep(void) {
         s0 = LoadIndex;
         r = CarLoadStep();
         if (r != 1) break;
-        a1 = D_800ACBD0[s0].b;
+        a1 = PlayerCourseChoices[s0].b;
         if (a1 >= 2) {
             s2 = D_800F3B24;
             a1 -= 2;
@@ -293,7 +293,7 @@ int LoadCarRangeStep(int arg0, int arg1) {
         break;
     case 1:
         arg0 += LoadIndex;
-        if (RequestCarLoad(SelectionRows[arg0][1], SelectionRows[arg0][0], SelectionRows[arg0][2] % 20, D_800ACBD0[arg0].a, arg0) == 1) {
+        if (RequestCarLoad(SelectionRows[arg0][1], SelectionRows[arg0][0], SelectionRows[arg0][2] % 20, PlayerCourseChoices[arg0].a, arg0) == 1) {
             LoadState = 2;
         }
         break;
@@ -301,7 +301,7 @@ int LoadCarRangeStep(int arg0, int arg1) {
         r = CarLoadStep();
         if (r != 1) break;
         arg0 += LoadIndex;
-        a1 = D_800ACBD0[arg0].b;
+        a1 = PlayerCourseChoices[arg0].b;
         if (a1 >= 2) {
             q3 = D_800F3B24;
             a1 -= 2;
@@ -363,7 +363,7 @@ int func_8003B040(void) {
 
 #undef LoadIndex
 
-int func_8003B12C(void) {
+int LoadResultsSceneStep(void) {
     int r = 0;
     switch (LoadState) {
     case 0:
@@ -414,7 +414,7 @@ s7:
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3B24 (*(int (*))&D_800F3B24)
 
-int func_8003B294(void) {
+int LoadCarClutStep(void) {
     int r = 0;
     switch (LoadState) {
     case 0:
@@ -443,7 +443,7 @@ int func_8003B294(void) {
 
 #undef D_800F3B24
 
-int func_8003B398(void) {
+int LoadTimListStep(void) {
     int r = 0;
     switch (LoadState) {
     case 0:

@@ -55,8 +55,8 @@ void ovl662_func_80116E10(void)
             LoadCursor = MenuArenas.first;
             UnpackChoiceGlyph((s8 *)&SelectionRows, ovl662_D_80127348[ovl662_D_801272E4].value);
             ImageRows[1] = 6;
-            D_800ACBD0[0].first = 0;
-            D_800ACBD0[0].second = 0;
+            PlayerCourseChoices[0].first = 0;
+            PlayerCourseChoices[0].second = 0;
         }
         UiRows[MenuCursor].cells[0] = 0;
         StepMenuValue(0, 2, (char *)&MenuCursor, 2, 0);

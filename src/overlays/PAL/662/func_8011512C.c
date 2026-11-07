@@ -49,8 +49,8 @@ void ovl662_func_8011512C(void) {
         vehicle++;
     } while(i<2);
     UnpackChoiceGlyph((s8*)SelectionRows.bytes,CourseChoiceTable[1][ovl662_D_801272E4].glyph);
-    D_800ACBD0[0].first=CourseChoiceTable[1][ovl662_D_801272E4].first;
-    D_800ACBD0[0].second=CourseChoiceTable[1][ovl662_D_801272E4].second;
+    PlayerCourseChoices[0].first=CourseChoiceTable[1][ovl662_D_801272E4].first;
+    PlayerCourseChoices[0].second=CourseChoiceTable[1][ovl662_D_801272E4].second;
     ovl662_D_801272E0=CountChoiceGlyphs(CourseChoiceTable[1]);
     SetMenuFrameOptions(0,1,1);
 }

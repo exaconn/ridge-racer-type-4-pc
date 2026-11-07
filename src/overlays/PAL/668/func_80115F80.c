@@ -81,8 +81,8 @@ RrReplayCameraContextPrefix *ctx;
             RaceContext.mode4A8 = 2;
             CdAudioFade(0, 0x15);
         }
-        func_8006ECE8(0);
-        func_80036FD4(0);
+        SetupPlayerView(0);
+        DrawTrackSceneryForPlayer(0);
         RaceContext.state44C = (s32) ((u32)RaceContext.state44C + 1);
         ovl668_func_80115BD0(1);
         ovl668_func_80115BD0(0);

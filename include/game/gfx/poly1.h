@@ -9,7 +9,7 @@ void func_80070BA4(char *a0, int a1, int a2);
 void func_80071348(void);
 void func_800713C4(s32 arg0);
 int func_800713E0(void);
-void func_80071434(s32 arg0);
+void SetOctantLookupTable(s32 arg0);
 void func_80071440(void);
 
 #endif /* RR_GAME_GFX_POLY1_H */

@@ -7,14 +7,14 @@ extern s32 DebugPrintStub(const char *format,...);
 extern char GpuTimeoutFmt[];
 
 void set_alarm(void) {
-    D_800ABBFC = (u32)VSync(-1) + 0xF0;
+    GpuTimeoutDeadline = (u32)VSync(-1) + 0xF0;
     GpuAlarmCount = 0;
 }
 
 int get_alarm(void) {
     s32 old,result;
     s32 saved;
-    if(D_800ABBFC>=VSync(-1)) {
+    if(GpuTimeoutDeadline>=VSync(-1)) {
         s32 *counter=&GpuAlarmCount;
         {
             s32 tick=*counter;

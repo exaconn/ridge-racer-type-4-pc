@@ -3,22 +3,22 @@
 #include "psyq/libcard/cardsts.h"
 #include "rr/commands.h"
 
-extern volatile int D_800ABDE4;
+extern volatile int CardCommandStatus;
 extern unsigned char D_80114741;
 extern int CardCurrentCommand;
 
 
 int MemCardSync(a0, a1, a2) int a0; int *a1; int *a2; {
-    if (CardCurrentCommand == 0 || D_800ABDE4 == 1) {
+    if (CardCurrentCommand == 0 || CardCommandStatus == 1) {
         *a2 = 0;
         *a1 = 0;
         return -1;
     }
     if (a0 == 0) {
-        while (D_800ABDE4 < 5);
+        while (CardCommandStatus < 5);
     }
     *a1 = CardCurrentCommand;
-    switch (D_800ABDE4) {
+    switch (CardCommandStatus) {
     case 4:
     case 2:
         *a2 = 0;
@@ -44,11 +44,11 @@ int MemCardSync(a0, a1, a2) int a0; int *a1; int *a2; {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABDE4 (*(s32 (*))&D_800ABDE4)
+#define CardCommandStatus (*(s32 (*))&CardCommandStatus)
 
 s32 _cardCmdReset(s32 value) {
     s32 result;
-    if (!(D_800ABDE4 & 1)) return 0;
+    if (!(CardCommandStatus & 1)) return 0;
     CardReceiveIndex = 0;
     CardRxCount = 0;
     D_80114730 = 0;
@@ -68,4 +68,4 @@ s32 _cardCmdReset(s32 value) {
     return result;
 }
 
-#undef D_800ABDE4
+#undef CardCommandStatus

@@ -9,8 +9,8 @@ extern const char *CD_comstr[28],*CD_intstr[7];
 extern u8 D_800A64A5,D_800A6764[];
 extern s32 CD_timeout_deadline;
 extern u32 D_80110334;
-extern const char *D_80110338;
-extern const char D_80011A14[],CdTimeoutStatusFmt[],CdDatasyncNameStr[];
+extern const char *CdWaitCallerName;
+extern const char CdTimeoutPrefixStr[],CdTimeoutStatusFmt[],CdDatasyncNameStr[];
 s32 func_800963DC(const char *message);
 void CD_flush(void);
 /* Mode0 waits; a nonzero mode polls once. Returns-1 on timeout,0 when idle,

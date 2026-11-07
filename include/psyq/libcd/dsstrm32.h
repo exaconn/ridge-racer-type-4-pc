@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern volatile u8 *D_800A6870;
+extern volatile u8 *CD_REG0_STRM;
 extern int D_801102EC;
 extern int StRingWriteIndex;
 extern int D_801102F8;

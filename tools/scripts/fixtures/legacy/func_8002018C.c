@@ -1,6 +1,6 @@
 #include "rr/sprite_effect.h"
 extern void SetSprt(void *),SetSemiTrans(void *,s32),AddPrim(u32 *,u32 *);
-extern s32 func_80096464(void);
+extern s32 PsyqRand(void);
 extern u8 *AddDrawModePrim(u32 *,u8 *,u16);
 u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg) {
     /* ASM_BARRIER: retain the loop bound in callee-saved S5 across helpers. */
@@ -36,7 +36,7 @@ u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_a
         SetSprt(sprite);
         jitter=0;
         if(count!=1) {
-            u32 random=(u32)func_80096464()&7;
+            u32 random=(u32)PsyqRand()&7;
             register s32 three=3;
             jitter=three-random;
             /* ASM_BARRIER: keep the subtraction input distinct from its A1 result. */
@@ -60,8 +60,8 @@ u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_a
         SetSemiTrans(sprite,transparency);}
         level=strength;
         if(count!=1) {
-            if(i==1)level=(s32)((u32)strength*((u32)func_80096464()&15))/24;
-            else level=(s32)((u32)strength*(((u32)func_80096464()&31)+8))/48;
+            if(i==1)level=(s32)((u32)strength*((u32)PsyqRand()&15))/24;
+            else level=(s32)((u32)strength*(((u32)PsyqRand()&31)+8))/48;
         }
         /* ASM_BARRIER: move intensity to A1 after division and before the RGB stores. */
         { register s32 color asm("$5")=level;  sprite->r=color;sprite->g=color;sprite->b=color; }

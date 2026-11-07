@@ -156,7 +156,7 @@ extern int LoadTimImage();
 extern int LoadTimList();
 extern int BuildCameraMatrices();
 extern int RotMatrix();
-extern int D_8009E26C[];
+extern int TileFadeColorTable[];
 extern int D_8009E36C[];
 
 void EmitTiledRect(RrGpuRectangleFields *rectangle, s32 intensity, u32 *head);
@@ -364,7 +364,7 @@ void func_80019FC8(void) {
         LoadCursor = (char *)TileRectScene + 0x4C;
         SetupRenderer(3);
         TileRectScene->unk20 = D_8001010C;
-        func_80096454(TileRectScene->unk28, 0, 0x10);
+        PsyqMemset(TileRectScene->unk28, 0, 0x10);
         {
             S_8010BF70 *p = TileRectScene;
             D_8010BF74 = 6;
@@ -560,7 +560,7 @@ void func_8001A52C(int a0) {
                 a2 = a3->u.w.sxy0;
                 a1 = a3->u.w.sxy1;
                 t2 = a3->u.w.sxy2;
-                v0 = D_8009E26C[(ScreenFrame - (v1_tmp = t3->b18 - 0x40)) & 0x3F];
+                v0 = TileFadeColorTable[(ScreenFrame - (v1_tmp = t3->b18 - 0x40)) & 0x3F];
                 pkt[2] = a2;
                 pkt[4] = a1;
                 pkt[6] = t2;

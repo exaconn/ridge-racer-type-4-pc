@@ -9,7 +9,7 @@ extern int DrawUiRow();
 extern char *UiRows;
 extern short D_800FFC18;
 extern int AddTilePrim();
-extern char D_80011680[];
+extern char StrName[];
 extern char TeamLabel[];
 extern char StrMaker[];
 
@@ -68,7 +68,7 @@ void func_8007D65C(int a0)
 {
   int new_var;
   int new_var2;
-  func_8001F400(0x28, 0xA0, D_80011680, 0x414);
+  func_8001F400(0x28, 0xA0, StrName, 0x414);
   func_8001F400(0x68, 0xA0, TeamLabel, 0x414);
   func_8001F400(0xC2, 0xA0, StrMaker, 0x414);
   new_var2 = *((int *) SCRATCHPAD);

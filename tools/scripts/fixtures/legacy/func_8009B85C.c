@@ -5,7 +5,7 @@ extern u16 D_801146CA;
 extern u8 SioIrqQueueEntry[];
 extern s32 SysDeqIntRP(s32,void *);
 s32 _sio_deinit(void) {
-    RrInterruptRegisters *interrupts=D_800ABD30;
+    RrInterruptRegisters *interrupts=I_STAT_Sio;
     RrSerialPortRegisters *port;
     volatile u16 *control;
     interrupts->mask &= ~0x100U;

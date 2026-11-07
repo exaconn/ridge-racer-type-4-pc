@@ -61,8 +61,8 @@ void ovl662_func_801154C8(void) {
             UnpackChoiceGlyph((s8*)&SelectionRows, CourseChoiceTable[1][ovl662_D_801272E4].glyph);
             (*(s8*)(ImageRows+1)) = 6;
             temp_v1 = (u8 *)(void *)&CourseChoiceTable + ovl662_D_801272E4 * sizeof(RrCourseChoice4);
-            D_800ACBD0[0].first = (s16) (s8) ((RrCourseChoice4 *)(void *)(temp_v1 + sizeof(CourseChoiceTable[0])))->first;
-            D_800ACBD0[0].second = (s16) (s8) ((RrCourseChoice4 *)(void *)(temp_v1 + sizeof(CourseChoiceTable[0])))->second;
+            PlayerCourseChoices[0].first = (s16) (s8) ((RrCourseChoice4 *)(void *)(temp_v1 + sizeof(CourseChoiceTable[0])))->first;
+            PlayerCourseChoices[0].second = (s16) (s8) ((RrCourseChoice4 *)(void *)(temp_v1 + sizeof(CourseChoiceTable[0])))->second;
         }
         UiRows[MenuCursor].cells[0] = 0;
         StepMenuValue(0, 2, (char*)&MenuCursor, 4, 0);

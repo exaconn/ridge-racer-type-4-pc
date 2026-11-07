@@ -2,5 +2,5 @@
 #include "rr/library.h"
 
 RrLibInterruptCallback InterruptCallback(s32 channel, RrLibInterruptCallback callback) {
-    return D_800A6350->install(channel, callback);
+    return IntrDriverTablePtr->install(channel, callback);
 }

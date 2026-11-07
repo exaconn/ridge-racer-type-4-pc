@@ -5,7 +5,7 @@
 #include "rr/spu_tick_control.h"
 
 extern int SysDeqIntRP();
-extern volatile short *D_800ABC54;
+extern volatile short *JOY_DATA_Pad2;
 
 int RemovePatchPad();
 
@@ -13,13 +13,13 @@ int RemovePatchPad() { EnterCriticalSection(); SysDeqIntRP(1, &D_801143E8); Exit
 
 int _padVsyncHookHandler(void) {
     volatile int i; int pad[2];
-    D_800ABC54[5] = 0;
+    JOY_DATA_Pad2[5] = 0;
     for (i = 10; --i != -1; ) ;
     return 0;
 }
 
 s32 _padVsyncHookCheck(void) {
-    RrInterruptRegisters *registers=D_800ABC58;
+    RrInterruptRegisters *registers=I_STAT_PadVsync;
     /* ASM_BARRIER: Keep the predicate result in the original return register. */
     register s32 result;
     if(registers->mask&1) {

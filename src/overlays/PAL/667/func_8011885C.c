@@ -23,7 +23,7 @@ void UpdateScreenFade(s32);
 void func_8003662C(s32);
 void UpdateMenuTextRow(s32);
 void func_800411D4(void);
-s32 func_8003B12C(void);
+s32 LoadResultsSceneStep(void);
 void SeqStartTrack(s32);
 s32 ovl667_func_801187DC(s32);
 void ovl667_func_801161A8(s32);
@@ -128,7 +128,7 @@ void ovl667_func_8011885C(void) {
         }
         break;
     case 8:
-        result = func_8003B12C();
+        result = LoadResultsSceneStep();
         if (result != 1) {
             return;
         }

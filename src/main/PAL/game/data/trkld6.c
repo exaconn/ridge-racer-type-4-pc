@@ -18,7 +18,7 @@ extern struct { char pad[0x10]; int f10; char pad2[0x19CC - 0x14]; int f19cc; } 
 extern short D_800F4D44;
 extern short D_800F3826;
 extern int D_800F6784;
-extern unsigned short D_800A02C0;
+extern unsigned short SavedCourseIndex;
 extern short CourseIndex;
 extern int LoadTimList();
 extern int LoadVab();
@@ -98,7 +98,7 @@ int LoadRaceSoundAndTrackStep(void) {
             RaceLoadState = 0;
             RaceLoadSubState = 0;
             RaceLoadCursor = LoadCursor;
-            *(int *)&D_800A02C0 = CourseIndex;
+            *(int *)&SavedCourseIndex = CourseIndex;
             if (CourseIndex >= 8) {
                 CourseIndex = 7;
             }
@@ -108,7 +108,7 @@ int LoadRaceSoundAndTrackStep(void) {
     case 2:
         if (LoadTrackStep() != 0) {
             D_800A0218 += 1;
-            CourseIndex = D_800A02C0;
+            CourseIndex = SavedCourseIndex;
         }
         return 0;
     case 3:

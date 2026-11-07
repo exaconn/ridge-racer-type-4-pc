@@ -26,7 +26,7 @@ extern s32 VSync(s32);
 
 extern s32 CheckCallback(void);
 
-extern const char D_80011A9C[];
+extern const char StrCdSync[];
 
 extern char *CD_intstr[];
 
@@ -34,18 +34,18 @@ extern s32 CD_timeout_deadline;
 
 extern s32 D_80110334;
 
-extern const char *D_80110338[];
+extern const char *CdWaitCallerName[];
 
 static inline int check_alarm(char **ac, char **sc, volatile u8 *st) {
     if (VSync(-1) > CD_timeout_deadline || D_80110334++ > 0x3C0000) {
-        func_800963DC(D_80011A14);
+        func_800963DC(CdTimeoutPrefixStr);
         {
             u8 s0_ = st[0];
             u8 s1_ = st[1];
             char *x5 = sc[s1_];
             DebugPrintStub(
                 CdTimeoutStatusFmt,
-                D_80110338[0],
+                CdWaitCallerName[0],
                 ac[D_800A64A5],
                 sc[s0_],
                 x5
@@ -62,7 +62,7 @@ static inline void cd_poll_cb(volatile u8 *st, volatile u8 *st1) {
     s32 res;
     while ((res = getintr()) != 0) {
         if ((res & 4) && CD_cbready != 0) {
-            CD_cbready(*st1, D_80110320);
+            CD_cbready(*st1, CdReadyResult);
         }
         if ((res & 2) && CD_cbsync != 0) {
             CD_cbsync(*st, CD_syncResult);
@@ -84,7 +84,7 @@ s32 CD_sync(s32 mode, u8 *result) {
     s32 t = VSync(-1);
     CD_timeout_deadline = t + 0x3C0;
     D_80110334 = 0;
-    D_80110338[0] = D_80011A9C;
+    CdWaitCallerName[0] = StrCdSync;
     ac = CD_comstr;
     sc = CD_intstr;
     st = D_800A6764;

@@ -142,13 +142,13 @@ int _padGetActSize(s) struct S_1 *s; {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABC84 (*(int (*(*))())&D_800ABC84)
+#define PadChannelBusyFn (*(int (*(*))())&PadChannelBusyFn)
 
 int _padLoadActInfo(o, a1) O *o; int a1; {
     int r;
     if (a1 != 0) {
         if (o->f4 != 0) return 0;
-        if (D_800ABC84() != 0) return 0;
+        if (PadChannelBusyFn() != 0) return 0;
     } else return 0;
     /* ASM_BARRIER: return value 1 must be a separate li (not CSE'd with the constant 1 used by the stores/shift) */
     asm volatile("" : "=r"(r) : "0"(1));
@@ -162,4 +162,4 @@ int _padLoadActInfo(o, a1) O *o; int a1; {
     return r;
 }
 
-#undef D_800ABC84
+#undef PadChannelBusyFn

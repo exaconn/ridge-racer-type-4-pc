@@ -30,7 +30,7 @@ class ChannelCallbacksTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         header = (root / 'include/rr/channels.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        header = header.replace('extern RrChannelUpdateCallback D_800ABC88;', '')
+        header = header.replace('extern RrChannelUpdateCallback PadPacketDoneCallback;', '')
         source = '''#include <stdint.h>
 typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16;
@@ -39,15 +39,15 @@ typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
 RrChannelStatusCallback D_800ABC80, D_800ABC84;
 RrChannelUpdateCallback test_slots[0x10000 / sizeof(RrChannelUpdateCallback)];
-#define D_800ABC88 test_slots[0xBC88 / sizeof(RrChannelUpdateCallback)]
+#define PadPacketDoneCallback test_slots[0xBC88 / sizeof(RrChannelUpdateCallback)]
 void *test_last_channel;
-s32 func_8009A368(void *channel) { return 101; }
-void func_8009A478(void *channel) { test_last_channel = channel; }
+s32 _padChannelDispatch(void *channel) { return 101; }
+void _padPacketDone(void *channel) { test_last_channel = channel; }
 s32 test_first_status(void *channel) { return D_800ABC80(channel); }
 s32 test_second_status(void *channel) { return D_800ABC84(channel); }
-void test_update(void *channel) { D_800ABC88(channel); }
+void test_update(void *channel) { PadPacketDoneCallback(channel); }
 '''
-        for name in ('_padInitDirSeq', 'func_8009A7BC'):
+        for name in ('_padInitDirSeq', '_padChannelBusy'):
             body = (root / 'tools/scripts/fixtures/views' / (name + '.c')).read_text()
             body = body.replace('#include "rr/channels.h"', '')
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
@@ -71,9 +71,9 @@ void test_update(void *channel) { D_800ABC88(channel); }
         cls.library.test_update.restype = None
 
     def test_installation_binds_three_correct_functions_and_preserves_other_slots(self):
-        first = C.cast(self.library.func_8009A368, C.c_void_p).value
-        second = C.cast(self.library.func_8009A7BC, C.c_void_p).value
-        update = C.cast(self.library.func_8009A478, C.c_void_p).value
+        first = C.cast(self.library._padChannelDispatch, C.c_void_p).value
+        second = C.cast(self.library._padChannelBusy, C.c_void_p).value
+        update = C.cast(self.library._padPacketDone, C.c_void_p).value
         C.c_void_p.in_dll(self.library, 'D_800ABC80').value = second
         C.c_void_p.in_dll(self.library, 'D_800ABC84').value = first
         index = 0xBC88 // C.sizeof(C.c_void_p)

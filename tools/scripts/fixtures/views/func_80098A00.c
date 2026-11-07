@@ -3,15 +3,15 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABCC8 ((struct Q_1 *)D_800ABCC8)
+#define I_STAT_Pad ((struct Q_1 *)I_STAT_Pad)
 
-#define D_800ABCCC ((struct R *)D_800ABCCC)
+#define PadSio0Base ((struct R *)PadSio0Base)
 
 #define chkRC2wait ((int (*)())chkRC2wait)
 
-#undef D_800ABCC8
+#undef I_STAT_Pad
 
-#undef D_800ABCCC
+#undef PadSio0Base
 
 #undef chkRC2wait
 
@@ -21,17 +21,17 @@ struct Q { int a; };
 
 extern int setRC2wait(), chkRC2wait();
 
-extern struct HW *D_800ABCCC;
+extern struct HW *PadSio0Base;
 
-extern struct Q *D_800ABCC8;
+extern struct Q *I_STAT_Pad;
 
 int _padClrIntSio0() {
-    D_800ABCC8->a = -0x81;
-    if (D_800ABCCC->c & 0x80) {
+    I_STAT_Pad->a = -0x81;
+    if (PadSio0Base->c & 0x80) {
         do {
             if (chkRC2wait()) return 0;
-        } while (D_800ABCCC->c & 0x80);
+        } while (PadSio0Base->c & 0x80);
     }
-    D_800ABCCC->f |= 0x10;
+    PadSio0Base->f |= 0x10;
     return 1;
 }

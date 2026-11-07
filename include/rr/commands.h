@@ -12,7 +12,7 @@ typedef union {
     u8 *buffer;
 } RrCommandParameter;
 
-/* Prefix beginning at D_80114718. Callback signatures follow their call sites. */
+/* Prefix beginning at CardCmdBuffer. Callback signatures follow their call sites. */
 typedef struct {
     u8 *buffer;
     void *first_result; /* Byte buffer or word result, depending on the command. */
@@ -25,40 +25,40 @@ typedef struct {
     RrCommandWriteCallback write;
 } RrCommandContextPrefix;
 
-extern s32 D_800ABDF0;
+extern s32 CardRetriesLeft;
 extern u8 D_800ABDC0[];
-/* Received and transmitted command bytes, indexed by D_800ABDF8/F4. */
-extern u8 D_80114740[], D_801147D8[];
-s32 func_8009BC3C(void);
-s32 func_8009C0F4(void);
-s32 func_8009C0A4(s32 request);
+/* Received and transmitted command bytes, indexed by CardRxCount/F4. */
+extern u8 CardRxTrace[], D_801147D8[];
+s32 _cardSioHandler(void);
+s32 _cardCmdStep(void);
+s32 _cardCmdReset(s32 request);
 
-extern s32 D_800ABDE4, D_800ABDE8, D_800ABDEC, D_800ABDF4, D_800ABDF8;
-extern u8 *D_80114718;
+extern s32 D_800ABDE4, D_800ABDE8, CardCommandRequest, CardReceiveIndex, CardRxCount;
+extern u8 *CardCmdBuffer;
 extern void *D_8011471C;
 extern u32 *D_80114720;
-extern s32 D_80114724, D_80114728, D_80114730, D_80114870;
+extern s32 CardCmdSector, D_80114728, D_80114730, CardCurrentCommand;
 extern RrCommandParameter D_8011472C;
-extern RrCommandReadCallback D_80114734;
-extern RrCommandWriteCallback D_80114738;
+extern RrCommandReadCallback CardCommandReader;
+extern RrCommandWriteCallback CardWriteHandler;
 
 /* Command 11 block transfer and its checksum-producing byte reader. */
-extern s32 D_80114710;
+extern s32 CardChecksum;
 extern u8 D_80114714;
-s32 func_8009D8B0(s32 request, s32 block, s32 mode);
-s32 func_8009D978(void);
-s32 func_8009DB18(s32 value);
+s32 _cardSectorBegin(s32 request, s32 block, s32 mode);
+s32 _cardSectorTx(void);
+s32 _cardSectorRx(s32 value);
 
 /* Command 101 response: handshake, then two words assembled high byte first. */
-s32 func_8009DE54(s32 value);
+s32 _cardGetIdRx(s32 value);
 
 static __inline__ s32 rr_command_begin(s32 request) {
     if (!(D_800ABDE4 & 1)) return 0;
-    D_800ABDF4 = 0;
-    D_800ABDF8 = 0;
+    CardReceiveIndex = 0;
+    CardRxCount = 0;
     D_80114730 = 0;
     D_800ABDE8 = 0;
-    D_800ABDEC = request;
+    CardCommandRequest = request;
     return 1;
 }
 

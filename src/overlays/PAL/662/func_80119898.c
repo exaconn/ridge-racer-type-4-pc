@@ -31,10 +31,10 @@ void ovl662_func_80119898(s32 mode) {
  color=64-rsin((s32)((u32)ScreenFrame*64U))/64;
  cursor=RR_GPU_SCRATCH->cursor;
  if(amount>0){
-  cursor=EmitPolyFT3(&D_800ACC14->head70,cursor,quad.x,quad.y,quad.u,quad.v,42,0x1028,0,(u16)amount);
-  cursor=EmitPolyFT3(&D_800ACC14->head70,cursor,quad.x+1,quad.y+1,quad.u+1,quad.v+1,42,0x1028,0,(u16)amount);
-  cursor=AddTilePrim(&D_800ACC14->head70,cursor,quad.x[0],quad.y[0],(s32)((u32)quad.x[1]-(u32)quad.x[0]),(s32)((u32)quad.y[2]-(u32)quad.y[0]),color,color,color);
- }else cursor=AddTilePrim(&D_800ACC14->head70,cursor,quad.x[0],quad.y[0],(s32)((u32)quad.x[1]-(u32)quad.x[0]),(s32)((u32)quad.y[2]-(u32)quad.y[0]),0,0,0);
+  cursor=EmitPolyFT3(&CurrentDrawBuf->head70,cursor,quad.x,quad.y,quad.u,quad.v,42,0x1028,0,(u16)amount);
+  cursor=EmitPolyFT3(&CurrentDrawBuf->head70,cursor,quad.x+1,quad.y+1,quad.u+1,quad.v+1,42,0x1028,0,(u16)amount);
+  cursor=AddTilePrim(&CurrentDrawBuf->head70,cursor,quad.x[0],quad.y[0],(s32)((u32)quad.x[1]-(u32)quad.x[0]),(s32)((u32)quad.y[2]-(u32)quad.y[0]),color,color,color);
+ }else cursor=AddTilePrim(&CurrentDrawBuf->head70,cursor,quad.x[0],quad.y[0],(s32)((u32)quad.x[1]-(u32)quad.x[0]),(s32)((u32)quad.y[2]-(u32)quad.y[0]),0,0,0);
  fresh=ovl662_D_80127398;
 
  previous=(u16)ovl662_D_80127398;

@@ -21,7 +21,7 @@ class GarageRepeatTest(unittest.TestCase):
 #include "rr/overlay662_input.h"
 typedef union {RrMenuItemState5C rows[3];u32 words[69];} ControllerOwner;
 static struct World {u32 guard[4];ControllerOwner controller;u32 counters[8];u32 mask;RrGaragePoint out;u32 tail[4];} w,e;
-#define D_800F3A38 w.controller.rows
+#define PlayerControllers w.controller.rows
 #define ovl662_D_80126C18 w.counters[0]
 #define ovl662_D_80126C1C w.counters[1]
 #define ovl662_D_80126C20 w.counters[2]

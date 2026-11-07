@@ -20,9 +20,9 @@ extern s32 func_80096464(void);
 
 u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_arg,s32 semi,s32 strength_arg,s32 count_arg);
 struct S32 *EmitPolyFT3(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, void *arg4, void *arg5, u16 arg6, u16 arg7, u16 arg8, u16 arg9);
-void *func_80020508(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
+void *AddTileSemiTransPrim(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
 struct P *GameQueueTileTrans(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
-struct P *func_8002064C(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
+struct P *AddLineF2SemiTrans(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8);
 RrPolyF3Packet *func_8002071C(u32 *ordering,RrPolyF3Packet *packet,s32 xy0,s32 xy1,s32 xy2,const u8 *rgb,s32 flags);
 
 /* legacy typing of shared globals in this part of the unit */
@@ -101,7 +101,7 @@ u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_a
             else page=descriptor->page;
             out_cursor=(u8 *)sprite;
             i++;
-            sprite=(RrSpritePacket *)AddDrawModePrim((u32 *)(D_800ACC14+0x70),out_cursor,page);
+            sprite=(RrSpritePacket *)AddDrawModePrim((u32 *)(CurrentDrawBuf+0x70),out_cursor,page);
         }
     }
     return (u8 *)sprite;
@@ -144,7 +144,7 @@ struct S32 *EmitPolyFT3(u32 *arg0, struct S32 *arg1, void *arg2, void *arg3, voi
 
 #undef AddPrim
 
-void *func_80020508(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
+void *AddTileSemiTransPrim(s32 *arg0, void *arg1, s16 arg2, s16 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
     M2C_FIELD(arg1, s8 *, 3) = 3;
     M2C_FIELD(arg1, s16 *, 8) = arg2;
     M2C_FIELD(arg1, s16 *, 0xC) = (s16) arg4;
@@ -184,7 +184,7 @@ struct P *GameQueueTileTrans(int a0, struct P *a1, short a2, short a3, int a4, i
 #define AddPrim ((int (*)())AddPrim)
 #define SetShadeTex ((int (*)())SetShadeTex)
 
-struct P *func_8002064C(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8) {
+struct P *AddLineF2SemiTrans(int a0, struct P *a1, short a2, short a3, int a4, int a5, int a6, int a7, int a8) {
     SetLineF2(a1);
     SetShadeTex(a1, 1);
     a1->x = a2;

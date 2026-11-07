@@ -71,7 +71,7 @@ extern u16 D_8009FE76;
 extern void func_80096434(void *, s32);
 extern void ResetCarState(ComCar *);
 extern s32 FindTrackNode(s32 *, s32);
-extern void func_8001E84C(const char *, s32);
+extern void DebugPrintStub(const char *, s32);
 
 void InitComCars(s32 count) {
     s32 i, j, k;
@@ -167,5 +167,5 @@ void InitComCars(s32 count) {
     } else {
         D_8009FE76 = 0x320;
     }
-    func_8001E84C("InitComCar OK!\n", i);
+    DebugPrintStub("InitComCar OK!\n", i);
 }

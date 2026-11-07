@@ -7,7 +7,7 @@
  * The complete four-byte local has no padding and all fields are initialized
  * before the log call. Coordinate sums use the low bytes of the signed halves. */
 typedef struct {u8 x,y,previous,replacement;} RrGaragePixelEdit4;
-void func_800717AC(u8 *pixel,u32 operation);
+void FloodFill4bpp(u8 *pixel,u32 operation);
 /* Only an active hit needs images. active21 remains0..1; the computed byte
  * offset y*32+x/2 fits a complete512-word selected image. Backup may mutate
  * globals and payloads, but the captured pixel address remains valid. */

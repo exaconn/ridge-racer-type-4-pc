@@ -33,7 +33,7 @@ s32 _card_read(s32 port,s32 sector,u8 *buffer){return test_operation(4,port,sect
 s32 _card_status(s32 slot){return test_operation(2,slot,0,0,0);}
 void func_80096434(void *buffer,s32 size){memset(buffer,0,size);test_operation(3,0,0,buffer,size);}
 char D_80011FD8[64];
-s32 func_8001E84C(const char *format,...){return test_operation(5,0,0,(void *)format,0);}
+s32 DebugPrintStub(const char *format,...){return test_operation(5,0,0,(void *)format,0);}
 '''
         body = (root/'tools/scripts/fixtures/views/func_80096054.c').read_text()
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)

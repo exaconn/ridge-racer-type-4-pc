@@ -18,15 +18,15 @@ extern struct {
     char p3[0x2864 - 0x285C]; s32 x2864, x2868, x286C;
     char p4[0x287C - 0x2870]; s32 x287C;
 } SoundState;
-extern int func_80053AF4();
+extern int SeqFadeVolume();
 extern s16 D_800F761C;
 
-void func_80053BB4(int a0);
+void SeqStartTrack(int a0);
 void func_80053CB0(void);
 void SeqMusicPause(void);
 void SeqMusicResume(void);
 
-void func_80053BB4(int a0) {
+void SeqStartTrack(int a0) {
     int arr[2] = {0x6C, 0x7F};
     if (SoundState.x2868 != a0) {
         func_80053CB0();
@@ -44,7 +44,7 @@ void func_80053BB4(int a0) {
 }
 
 void func_80053CB0(void) {
-    func_80053AF4(0, 0);
+    SeqFadeVolume(0, 0);
 }
 
 void SeqMusicPause(void) {

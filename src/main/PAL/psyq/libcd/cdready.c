@@ -4,10 +4,10 @@
 #include "psyq/libcd/bios_1.h"
 #include "rr/cd_init.h"
 
-extern s32 func_8001E84C(const char *, ...);
+extern s32 DebugPrintStub(const char *, ...);
 int DeliverEvent(int, int);
 
-int func_8008BED4();
+int CdInitAttempt();
 void def_cbsync(s32 selector, u8 *data);
 void def_cbready(s32 selector, u8 *data);
 void def_cbread(s32 event, s32 argument);
@@ -18,7 +18,7 @@ s32 CdInit(void) {
     register s32 result __asm__("$2");
 loop:
     {
-    s32 status=func_8008BED4();
+    s32 status=CdInitAttempt();
     s32 expected=1;
     /* ASM_BARRIER: Keep the probe result comparison separate from returned success. */
     __asm__("" : "+r"(expected));
@@ -51,14 +51,14 @@ loop:
         message=(const char *)0x80010000U;
         /* ASM_BARRIER: Expose the message offset for the print-call delay slot. */
         __asm__("" : "+r"(message));
-        func_8001E84C(message+0x18A8);
+        DebugPrintStub(message+0x18A8);
     }
     result=0;
 out:
     return result;
 }
 
-int func_8008BED4() {
+int CdInitAttempt() {
     int r;
     if (CD_init() == 0) { r = CD_initvol() == 0; } else r = 0;
     return r;

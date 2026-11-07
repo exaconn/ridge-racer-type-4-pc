@@ -1,9 +1,9 @@
 #define NULL 0
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A38 (*(T (*)[])&D_800F3A38)
+#define PlayerControllers (*(T (*)[])&PlayerControllers)
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 /* legacy typing of shared globals in this part of the unit */
 #define PadPulseState (*(T_2 (*)[])&PadPulseState)
@@ -70,7 +70,7 @@ typedef struct {
 
 extern Settings Options;
 
-extern Pad D_800F3A38[2];
+extern Pad PlayerControllers[2];
 
 extern Port PadPorts[2];
 
@@ -82,7 +82,7 @@ extern s32 D_800F4CD8[2];
 
 extern s16 D_8009FFB8[4];
 
-extern s16 D_8009FFC0[6];
+extern s16 PadRangeLimits[6];
 
 extern s32 D_8009FFCC[8];
 
@@ -111,8 +111,8 @@ void PadUpdate(void) {
     ports[0] = &PadPorts[0];
     ports[1] = &PadPorts[1];
     __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: schedule ports array initialization before loop preheader */
-    states[0] = &D_800F3A38[0];
-    states[1] = &D_800F3A38[1];
+    states[0] = &PlayerControllers[0];
+    states[1] = &PlayerControllers[1];
 
     for (i = 0; i < 2; i++) {
         if (ports[i]->type01 != states[i]->type01) {
@@ -339,19 +339,19 @@ void PadUpdate(void) {
                 if (val < 0) {
                     val = 0;
                 }
-                if (val > D_8009FFC0[Options.w[i].range01]) {
-                    val = D_8009FFC0[Options.w[i].range01];
+                if (val > PadRangeLimits[Options.w[i].range01]) {
+                    val = PadRangeLimits[Options.w[i].range01];
                 }
             } else {
                 val += D_8009FFCC[Options.w[i].deadzone00];
                 if (val > 0) {
                     val = 0;
                 }
-                if (val < -D_8009FFC0[Options.w[i].range01]) {
-                    val = -D_8009FFC0[Options.w[i].range01];
+                if (val < -PadRangeLimits[Options.w[i].range01]) {
+                    val = -PadRangeLimits[Options.w[i].range01];
                 }
             }
-            states[i]->steering3C = (val << 7) / D_8009FFC0[Options.w[i].range01];
+            states[i]->steering3C = (val << 7) / PadRangeLimits[Options.w[i].range01];
             break;
         case 0x73:
             val = states[i]->steering20 - 0x80;

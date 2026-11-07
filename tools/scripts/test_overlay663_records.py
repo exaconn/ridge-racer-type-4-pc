@@ -30,7 +30,7 @@ static u32 heads[704],arena[4096];static unsigned scenario,bank,mutation,seenTra
 #define LapRecords w->s.banks[1]
 #define BadgeRows (w->s.badges[w->s.root])
 #define D_800AC648 w->s.group
-#define D_800F3914 w->s.track
+#define CourseIndex w->s.track
 #define ScreenFrame w->s.tick
 #define ovl663_selected_record w->s.selected
 #define D_8009FAA0 w->s.glyphs
@@ -62,7 +62,7 @@ static Event *event(s32 kind){unsigned i;u32 hash=2166136261U;Event *e;assert(w-
 static void change(void){if(mutation)effect(w->calls);}
 static void *render(Event *e,u32 *order,void *cursor){assert(order==heads);assert((uintptr_t)cursor>UINT32_MAX);assert((u8*)cursor>=(u8*)arena&&(u8*)cursor<(u8*)(arena+4096));e->cursor=(u8*)cursor-(u8*)arena;change();return (u8*)cursor+4*(w->calls%7+1);}
 s32 rcos(s32 angle){Event *e=event(1);e->args[0]=angle;change();return (u32)angle&128?-4096:4096;}
-void *func_8001FF84(u32 *o,void *p,s32 x,s32 y,RrUiUvRect *glyph,u16 clut,s32 color){Event *e=event(2);unsigned i,id=99;
+void *AddSpritePrim(u32 *o,void *p,s32 x,s32 y,RrUiUvRect *glyph,u16 clut,s32 color){Event *e=event(2);unsigned i,id=99;
  for(i=0;i<5;i++)if(glyph==w->s.glyphs+i)id=i;for(i=0;i<2;i++)if(glyph==w->s.footer+i)id=5+i;assert(id<7);
  e->args[0]=x;e->args[1]=y;e->args[2]=id;e->args[3]=clut;e->args[4]=color;memcpy(e->data,glyph,4);if(id<5)seenClut|=1U<<(clut-32760);return render(e,o,p);}
 void *AddTilePrim(u32 *o,void *p,s32 x,s32 y,s32 width,s32 height,s32 r,s32 g,s32 b){Event *e=event(3);s32 args[]={x,y,width,height,r,g,b};memcpy(e->args,args,sizeof(args));return render(e,o,p);}
@@ -79,7 +79,7 @@ static void *expected(unsigned row,void *cursor){State *s=&w->s;unsigned g=s->gr
  seenTracks|=1U<<(g*8+s->track);
  for(i=0;i<5;i++){
   int clut=32760;if((s32)i==s->selected){int angle=word((u32)s->tick*128U-682U);if(rcos(angle)<0)clut=32761;}
-  x=s->badges[s->root][row].x04+8;cursor=func_8001FF84(heads,cursor,x,y,s->glyphs+i,clut,0);
+  x=s->badges[s->root][row].x04+8;cursor=AddSpritePrim(heads,cursor,x,y,s->glyphs+i,clut,0);
   x+=s->widths[bank][0];cursor=AddTilePrim(heads,cursor,x,y-2,1,20,255,255,255);
   x+=s->widths[bank][1];cursor=AddTextSprites(heads,cursor,x,y,format(s->banks[bank][g][s->track][i].time),clut,0,0);
   x+=s->widths[bank][2];cursor=AddTilePrim(heads,cursor,x,y-2,1,20,255,255,255);
@@ -88,7 +88,7 @@ static void *expected(unsigned row,void *cursor){State *s=&w->s;unsigned g=s->gr
  x+=52;rowY=s->badges[s->root][row].y06;y=rowY+40;
  cursor=AddTilePrim(heads,cursor,x,y-2,1,116,255,255,255);cursor=AddDrawModePrim(heads,cursor,56);
  x+=16;cursor=func_80032EC8(heads,cursor,x,y,(u16)s->group%8);
- cursor=func_8001FF84(heads,cursor,x+8,rowY+112,s->footer+g,30180+g,0);return AddDrawModePrim(heads,cursor,89);
+ cursor=AddSpritePrim(heads,cursor,x+8,rowY+112,s->footer+g,30180+g,0);return AddDrawModePrim(heads,cursor,89);
 }
 int main(void){unsigned i,row;
  for(scenario=0;scenario<4096;scenario++)for(bank=0;bank<2;bank++)for(mutation=0;mutation<2;mutation++){

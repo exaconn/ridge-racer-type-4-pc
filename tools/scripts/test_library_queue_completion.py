@@ -52,12 +52,12 @@ _Static_assert(offsetof(__typeof__(test_page), current) == 0x2F8, "index offset"
 _Static_assert(offsetof(__typeof__(test_page), word) == 0x2750, "packed word offset");
 _Static_assert(offsetof(__typeof__(test_page), callback) == 0x2760, "callback offset");
 #define D_801102EC test_page.busy
-#define D_801102F4 test_page.next
+#define StRingWriteIndex test_page.next
 #define D_801102F8 test_page.current
 #define D_80110310 test_page.records
 #define D_80112750 test_page.word
 #define D_80112754 test_page.value
-#define D_80112760 test_page.callback
+#define StDataReadyFunc test_page.callback
 '''
         body = (root / 'tools/scripts/fixtures/legacy/func_8008F5E4.c').read_text()
         body = body.replace('#include "rr/library.h"', '')

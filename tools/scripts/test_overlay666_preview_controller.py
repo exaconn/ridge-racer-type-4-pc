@@ -32,9 +32,9 @@ src=r'''
 #include "rr/tables.h"
 void SetupMenuCarCamera(s32);void SetupViewport(s32);s32 LoadCarRangeStep(s32,s32);s32 PackChoiceGlyph(s8 *);
 void SetCarBounds(RrRaceVehicle *);void SetModelTexturePage(s32);void AddScreenFadeTiles(u32 *,s32,u32);void DrawUiRow(s32);
-void func_80037198(s32);void func_8002E5A0(RrRaceVehicle *);void func_8002CC88(RrRaceVehicle *,RrPreviewRgb3,s32,s32);
+void DrawSelectionIconGrid(s32);void func_8002E5A0(RrRaceVehicle *);void DrawPreviewCar(RrRaceVehicle *,RrPreviewRgb3,s32,s32);
 void UpdateBadgeRowAnim(s32);s32 UpdateImageRow(s32);void UpdateScreenFade(s32);
-void SetMenuFrameOptions(s32,s32,s32);void StepMenuValue(s32,s32,char*,s32,s32);void UnpackChoiceGlyph(s8*,s32);void ResetScreenCounters(void);void PlaySfx(s32);void func_80053CB0(void);void func_80053AF4(s32,s32);void ovl666_init_menu(void);
+void SetMenuFrameOptions(s32,s32,s32);void StepMenuValue(s32,s32,char*,s32,s32);void UnpackChoiceGlyph(s8*,s32);void ResetScreenCounters(void);void PlaySfx(s32);void func_80053CB0(void);void SeqFadeVolume(s32,s32);void ovl666_init_menu(void);
 static struct State {u32 guard[4];s32 frame,player,rowCount; u16 state; s16 scene,timer,menu,row,course,d44,limitAlias;u16 enable,be8; s16 highCourse;u8 courseMap[8]; s32 overlayMode,ready; RrMenuSelectionWord32 selected; s16 limits[4];u16 courseTable[4][4];
  RrRaceVehicle vehicles[2];RrMenuItemState5C input[2];RrUiRow24 rows[2][7];RrBadgeRow1C badges[2][2];RrFrameStorage contexts[2];
  RrCurrentSelection choice;RrMenuGridPoint grid[4];RrCourseChoice4 courses[4][9];RrMenuArenas arenas;void *published;
@@ -56,23 +56,23 @@ static u8 buffers[3][32];
 #define ovl666_preview_phase w->overlayMode
 #define ovl666_result_kind w->ready
 #define ovl666_available_courses w->courses
-#define D_800F3914 w->course
+#define CourseIndex w->course
 #define D_800AC648 w->limitAlias
 #define D_800F4D44 w->d44
 #define MenuScriptId w->be8
 #define ScreenFrame w->player
 #define D_800F4D40 w->arenas.second
 #define PlayerCars w->vehicles
-#define D_800F3A38 w->input
+#define PlayerControllers w->input
 #define UiRows (w->rows[w->root])
 #define BadgeRows (w->badges[w->badgeRoot])
-#define D_800ACC14 (&w->contexts[w->contextRoot])
+#define CurrentDrawBuf (&w->contexts[w->contextRoot])
 #define SelectionRows w->choice
 #define D_800ACBD0 w->grid
-#define D_800ABE08 w->courses
+#define CourseChoiceTable w->courses
 #define LoadCursor w->published
-#define D_800F4D70 w->arenas
-#define D_800F2AB0 (w->modes[w->modeRoot])
+#define MenuArenas w->arenas
+#define ImageRows (w->modes[w->modeRoot])
 '''+body+encode+decode+read_c_source(Path('tools/scripts/fixtures/views/func_80032E9C.c')).replace('DecodeCourseIndex','actual_course')+r'''
 static struct Event {unsigned kind;s32 a[8];struct State before;}events[48];
 static unsigned scenario,profile,serial,count,seen,coverage[24],actions[7],colors[2],exits[4],changed[2],completed[2];static int referenceRun;
@@ -106,16 +106,16 @@ void PlaySfx(s32 a){record(10,a,0,0,0,0,0,0,0);effect(10);}
 void ovl666_init_menu(void){record(11,0,0,0,0,0,0,0,0);effect(11);}
 void AddScreenFadeTiles(u32 *p,s32 a,u32 b){assert(p==&w->contexts[w->contextRoot].ordering.ordering70&&(uintptr_t)p>UINT32_MAX);record(12,w->contextRoot,a,b,0,0,0,0,0);effect(12);}
 void DrawUiRow(s32 a){record(13,a,0,0,0,0,0,0,0);effect(13);}
-void func_80037198(s32 a){record(14,a,0,0,0,0,0,0,0);effect(14);}
+void DrawSelectionIconGrid(s32 a){record(14,a,0,0,0,0,0,0,0);effect(14);}
 void func_8002E5A0(RrRaceVehicle *p){assert(p==w->vehicles&&(uintptr_t)p>UINT32_MAX);record(15,0,0,0,0,0,0,0,0);effect(15);}
-void func_8002CC88(RrRaceVehicle *p,RrPreviewRgb3 c,s32 a,s32 b){assert(p==w->vehicles);record(16,c.r,c.g,c.b,a,b,0,0,0);effect(16);}
+void DrawPreviewCar(RrRaceVehicle *p,RrPreviewRgb3 c,s32 a,s32 b){assert(p==w->vehicles);record(16,c.r,c.g,c.b,a,b,0,0,0);effect(16);}
 void UpdateBadgeRowAnim(s32 a){record(17,a,0,0,0,0,0,0,0);effect(17);}
 s32 UpdateImageRow(s32 a){record(18,a,0,0,0,0,0,0,0);effect(18);return half(scenario);}
 void DrawMenuStepArrows(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){record(19,a,b,c,d,e,f,g,0);effect(19);}
 void UpdateScreenFade(s32 a){record(19,a,0,-1,0,0,0,0,0);effect(19);}
 s32 DecodeCourseIndex(s32 a){record(20,a,0,0,0,0,0,0,0);effect(20);if(referenceRun){w->highCourse=a>=8;return w->courseMap[a&7];}return actual_course(a);}
 void func_80053CB0(void){record(21,0,0,0,0,0,0,0,0);effect(21);}
-void func_80053AF4(s32 a,s32 b){record(22,a,b,0,0,0,0,0,0);effect(22);}
+void SeqFadeVolume(s32 a,s32 b){record(22,a,b,0,0,0,0,0,0);effect(22);}
 /* Independent control flow transcribed from original overlay666 MIPS.
  * All services record complete pre-call worlds before deterministic callbacks. */
 static void closeTwo(void){for(int i=3;i<5;i++)if(w->rows[w->root][i].byte14==2)w->rows[w->root][i].byte14=3;}
@@ -137,7 +137,7 @@ static void expected(void){int ready=0;w->frame=word((u32)w->frame+1);w->player=
   if(completion==1&&w->timer<=0){exits[0]++;w->d44=6;u16 course=w->courseTable[w->choice.selection.primary][w->choice.selection.variant];w->ready=completion;w->limitAlias=course;w->course=DecodeCourseIndex(half(course));func_80053CB0();w->be8=0;w->enable=completion;w->scene=35;w->state=0;w->arenas.first=w->published;}break;}
  case 4:{int phase=w->rows[w->root][5].byte14;if(phase==2){w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=0;StepMenuValue(0,1,(char*)&w->choice.selection.pad02[1],2,0);w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=phase;
    if(w->input[0].a){actions[3]++;PlaySfx(1);SetMenuFrameOptions(0,1,1);w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=1;w->rows[w->root][5].byte14=w->rows[w->root][6].byte14=7;
-    u8 bytes[4];memcpy(bytes,&w->choice,4);memcpy(&w->choice.selection.rows[0],bytes,4);w->choice.selection.rows[0].parameter=19;w->course=0;w->state=3;ResetScreenCounters();w->timer=64;func_80053AF4(0,60);w->arenas.first=w->published;
+    u8 bytes[4];memcpy(bytes,&w->choice,4);memcpy(&w->choice.selection.rows[0],bytes,4);w->choice.selection.rows[0].parameter=19;w->course=0;w->state=3;ResetScreenCounters();w->timer=64;SeqFadeVolume(0,60);w->arenas.first=w->published;
    }else if(w->input[0].b){actions[4]++;PlaySfx(2);w->rows[w->root][5].byte14=w->rows[w->root][6].byte14=3;w->state=6;}}
   break;}
  case 6:if(w->rows[w->root][5].byte14==5){actions[5]++;w->state=0;w->overlayMode=1;w->rows[w->root][5].byte14=w->rows[w->root][6].byte14=0;}break;
@@ -145,8 +145,8 @@ static void expected(void){int ready=0;w->frame=word((u32)w->frame+1);w->player=
  }
 footer:
  for(int i=3;i<5;i++)DrawUiRow(i);if(w->overlayMode==2){DrawUiRow(5);DrawUiRow(6);}
- if((u8)((s8)w->modes[w->modeRoot][1]-1)<2&&ready==1){func_80037198(0);func_8002E5A0(w->vehicles);RrPreviewRgb3 c;int scale,flags;
-  if((s8)w->modes[w->modeRoot][1]==ready){colors[0]++;unsigned level=w->modes[w->modeRoot][2];c.r=c.g=c.b=(u8)~(level*255/30);scale=level*256/30;flags=258;}else{colors[1]++;c.r=c.g=c.b=128;scale=256;flags=1;}func_8002CC88(w->vehicles,c,scale,flags);}
+ if((u8)((s8)w->modes[w->modeRoot][1]-1)<2&&ready==1){DrawSelectionIconGrid(0);func_8002E5A0(w->vehicles);RrPreviewRgb3 c;int scale,flags;
+  if((s8)w->modes[w->modeRoot][1]==ready){colors[0]++;unsigned level=w->modes[w->modeRoot][2];c.r=c.g=c.b=(u8)~(level*255/30);scale=level*256/30;flags=258;}else{colors[1]++;c.r=c.g=c.b=128;scale=256;flags=1;}DrawPreviewCar(w->vehicles,c,scale,flags);}
  UpdateBadgeRowAnim(0);if(UpdateImageRow(0)>0&&w->limits[w->row]>=2)DrawMenuStepArrows(160,144,8,1,w->selected.word,0,w->limits[w->row]);
 title:UpdateScreenFade(0x10036);
 }

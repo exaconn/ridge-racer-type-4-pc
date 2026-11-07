@@ -29,14 +29,14 @@ void ovl662_func_80119068(void) {
     SetupViewport(6);
     ready = LoadCarRangeStep(0, 1);
     if (ready != 1) {
-        if ((*(s8*)(D_800F2AB0+1)) == 1) {
-            (*(s8*)(D_800F2AB0+1)) = 0;
+        if ((*(s8*)(ImageRows+1)) == 1) {
+            (*(s8*)(ImageRows+1)) = 0;
         }
         goto tail;
     }
     SetCarBounds(vehicle);
-    if ((*(s8*)(D_800F2AB0+1)) == 7) {
-        (*(s8*)(D_800F2AB0+1)) = ready;
+    if ((*(s8*)(ImageRows+1)) == 7) {
+        (*(s8*)(ImageRows+1)) = ready;
     }
     active = 1;
     switch ((u16)D_800F4D8A) {
@@ -51,8 +51,8 @@ void ovl662_func_80119068(void) {
             }
             D_800ACBD0[0].first = ovl662_D_801272BC;
             ResetScreenCounters();
-            LoadCursor = D_800F4D70.first;
-            (*(s8*)(D_800F2AB0+1)) = 6;
+            LoadCursor = MenuArenas.first;
+            (*(s8*)(ImageRows+1)) = 6;
         }
         UiRows[MenuCursor].cells[0] = 0;
         StepMenuValue(0, 2, (char*)&MenuCursor, 3, 0);
@@ -70,7 +70,7 @@ void ovl662_func_80119068(void) {
         if (row != 2) break;
         phase = BadgeRows->state10;
         if (phase != 3) break;
-        if (D_800F3A38[0].a != 0) {
+        if (PlayerControllers[0].a != 0) {
             UiRows[MenuCursor].cells[0] = 1;
             if (MenuCursor == 0) {
                 SetModelTexturePage(-1);
@@ -86,7 +86,7 @@ void ovl662_func_80119068(void) {
                 } while (i < 4);
                 BadgeRows[0].state10 = 4;
                 BadgeRows[1].state10 = 4;
-                (*(s8*)(D_800F2AB0+1)) = 3;
+                (*(s8*)(ImageRows+1)) = 3;
                 D_800AC5D0 = 0x40;
             } else if (MenuCursor == 1) {
                 if (ovl662_D_801272BC > 0) {
@@ -103,7 +103,7 @@ void ovl662_func_80119068(void) {
                     } while (i < 4);
                     BadgeRows[0].state10 = 4;
                     BadgeRows[1].state10 = 4;
-                    (*(s8*)(D_800F2AB0+1)) = 3;
+                    (*(s8*)(ImageRows+1)) = 3;
                 } else {
                     PlaySfx(4);
                 }
@@ -113,7 +113,7 @@ void ovl662_func_80119068(void) {
                 i = 0;
                 BadgeRows[0].state10 = 4;
                 BadgeRows[1].state10 = 4;
-                (*(s8*)(D_800F2AB0+1)) = phase;
+                (*(s8*)(ImageRows+1)) = phase;
                 do {
                     p = (RrUiRow24 *)((unsigned long)i * sizeof(RrUiRow24) + (unsigned long)UiRows);
                     if (p->byte14 == 2) {
@@ -123,13 +123,13 @@ void ovl662_func_80119068(void) {
                 } while (i < 4);
                 goto close;
             }
-        } else if (D_800F3A38[0].b != 0) {
+        } else if (PlayerControllers[0].b != 0) {
             PlaySfx(2);
             SetModelTexturePage(-1);
             i = 0;
             BadgeRows[0].state10 = 4;
             BadgeRows[1].state10 = 4;
-            (*(s8*)(D_800F2AB0+1)) = phase;
+            (*(s8*)(ImageRows+1)) = phase;
             do {
                 p = (RrUiRow24 *)((unsigned long)i * sizeof(RrUiRow24) + (unsigned long)UiRows);
                 if (p->byte14 == 2) {
@@ -145,18 +145,18 @@ close:
     case 3:
         fade = D_800AC5D0 - 1;
         D_800AC5D0 = fade;
-        AddScreenFadeTiles(((RrFrameStorage*)(void*)D_800ACC14)->ordering.ordering70, (0x40 - fade) * 4, 0x45);
+        AddScreenFadeTiles(((RrFrameStorage*)(void*)CurrentDrawBuf)->ordering.ordering70, (0x40 - fade) * 4, 0x45);
         if ((s16)D_800AC5D0 > 0) break;
-        D_800ABE08[1][ovl662_D_801272E4].glyph = PackChoiceGlyph(&SelectionRows);
-        D_800ABE08[1][ovl662_D_801272E4].first = D_800ACBD0[0].first;
-        D_800ABE08[1][ovl662_D_801272E4].second = D_800ACBD0[0].second;
+        CourseChoiceTable[1][ovl662_D_801272E4].glyph = PackChoiceGlyph(&SelectionRows);
+        CourseChoiceTable[1][ovl662_D_801272E4].first = D_800ACBD0[0].first;
+        CourseChoiceTable[1][ovl662_D_801272E4].second = D_800ACBD0[0].second;
         ovl662_func_8011512C();
         ModeGroup = 1;
         D_800F3A26 = 0x40;
         D_800F4D8A = 0;
         return;
     case 4:
-        if (UiRows[0].byte14 == 5 && (*(s8*)(D_800F2AB0+1)) == 5) {
+        if (UiRows[0].byte14 == 5 && (*(s8*)(ImageRows+1)) == 5) {
             ovl662_D_801272E8 = 0;
             ModeGroup = 1;
             D_800F3A26 = 0x45;
@@ -166,7 +166,7 @@ close:
     case 8:
         fade = D_800AC5D0 - 1;
         D_800AC5D0 = fade;
-        AddScreenFadeTiles(((RrFrameStorage*)(void*)D_800ACC14)->ordering.ordering70, (0x40 - fade) * 4, 0x45);
+        AddScreenFadeTiles(((RrFrameStorage*)(void*)CurrentDrawBuf)->ordering.ordering70, (0x40 - fade) * 4, 0x45);
         if ((s16)D_800AC5D0 > 0) break;
         ovl662_func_8011512C();
         ModeGroup = 1;
@@ -175,7 +175,7 @@ close:
         return;
     }
 tail:
-    if (ovl662_D_801272D4 == 0 && (*(s8*)(D_800F2AB0+1)) == 2) {
+    if (ovl662_D_801272D4 == 0 && (*(s8*)(ImageRows+1)) == 2) {
         ovl662_D_801272D4 = 1;
         BadgeRows[0].half02 = 1;
         BadgeRows[1].half02 = 1;
@@ -187,24 +187,24 @@ tail:
         i++;
     } while (i < 3);
     i = active;
-    if (((u32)((u8)(*(s8*)(D_800F2AB0+1)) - 1) < 2U) && (i == 1)) {
-        func_80037198(0);
+    if (((u32)((u8)(*(s8*)(ImageRows+1)) - 1) < 2U) && (i == 1)) {
+        DrawSelectionIconGrid(0);
         func_8002E5A0((char *)(void *)PlayerCars);
         tint = 0x100;
-        if ((*(s8*)(D_800F2AB0+1)) == i) {
-            shade = ~((D_800F2AB0[2] * 0xFF) / 30);
+        if ((*(s8*)(ImageRows+1)) == i) {
+            shade = ~((ImageRows[2] * 0xFF) / 30);
             color.channel[0] = shade;
             color.channel[1] = shade;
             color.channel[2] = shade;
             mode = 0x102;
-            tint = (D_800F2AB0[2] << 8) / 30;
+            tint = (ImageRows[2] << 8) / 30;
         } else {
             mode = 1;
             color.channel[0] = 0x80;
             color.channel[1] = 0x80;
             color.channel[2] = 0x80;
         }
-        func_8002CC88(PlayerCars, color.rgb, tint, mode);
+        DrawPreviewCar(PlayerCars, color.rgb, tint, mode);
     }
     UpdateBadgeRowAnim(0);
     UpdateBadgeRowAnim(1);

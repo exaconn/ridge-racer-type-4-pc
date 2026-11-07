@@ -7,9 +7,9 @@
 s32 _padIntPad(void) {
     s32 first,condition,enabled;
     u32 shifted;
-    RrSerialPortRegisters *port=D_800ABCCC;
+    RrSerialPortRegisters *port=PadSio0Base;
     if(port->control&2) {*(u16 *)&port->control=0;goto out;}
-    condition=D_800ABCB8;
+    condition=PadFirstChannel;
     /* ASM_BARRIER: Form the enable page after the serial-control gate. */
     __asm__("" : : : "$2");
     enabled=1;
@@ -32,17 +32,17 @@ s32 _padIntPad(void) {
         s32 value=*counter;
         if(value<150)*counter=value+1;
     }
-    if(!D_800ABCA0)goto out;
-    first=D_800ABCB8;
+    if(!PadComActive)goto out;
+    first=PadFirstChannel;
     /* Stage 15 times the index; quotient/remainder preserve native record sizes. */
     shifted=(u32)first<<4;
     if(D_800ABCBC<first)goto out;
-    D_800ABCAC=0;
+    PadRecvStage=0;
     D_800ABCA8=first;
-    if(!_padInitSioMode((RrChannelRecordF0 *)((unsigned long)D_800ABC9C+(long)(s32)((shifted-(u32)first)*(sizeof(RrChannelRecordF0)/15)+(u32)first*(sizeof(RrChannelRecordF0)%15)))))D_800ABC68(65535);
+    if(!_padInitSioMode((RrChannelRecordF0 *)((unsigned long)PadChannelRecords+(long)(s32)((shifted-(u32)first)*(sizeof(RrChannelRecordF0)/15)+(u32)first*(sizeof(RrChannelRecordF0)%15)))))D_800ABC68(65535);
     D_800ABCB0=0;
-    while(D_800ABCA8<=D_800ABCBC)func_80098488(D_800ABC9C+D_800ABCA8);
-    D_800ABCCC->baud=0x88;
+    while(D_800ABCA8<=D_800ABCBC)_padSioStageStep(PadChannelRecords+D_800ABCA8);
+    PadSio0Base->baud=0x88;
 out:
     return 0;
 }

@@ -8,9 +8,9 @@ extern int D_800A63C4;
 
 extern char D_80011878[];
 
-extern char D_80011894[];
+extern char DmaMadrDebugFmt[];
 
-extern void func_8001E84C();
+extern void DebugPrintStub();
 
 void trapIntrDMA(void) {
     unsigned int s1;
@@ -37,10 +37,10 @@ void trapIntrDMA(void) {
         } while (s1 != 0);
     }
     if ((*D_800A63A0 & 0xFF000000) == 0x80000000 || (*D_800A63A0 & 0x8000)) {
-        func_8001E84C(D_80011878, *D_800A63A0);
+        DebugPrintStub(D_80011878, *D_800A63A0);
         i = 0;
         do {
-            func_8001E84C(D_80011894, i, *(int *)(i * 16 + D_800A63C4));
+            DebugPrintStub(DmaMadrDebugFmt, i, *(int *)(i * 16 + D_800A63C4));
             i++;
         } while (i < 7);
     }

@@ -33,7 +33,7 @@ typedef int32_t s32;''')
 s32 _spu_transMode, _spu_mem_mode_plus, _spu_EVdma;
 volatile s32 _spu_transferCallback;
 u32 _spu_rev_startaddr[10];
-u8 D_800A4938[0x400];
+u8 SpuZeroBlock[0x400];
 s32 (*test_validate)(u32);
 void (*test_transfer)(s32, u32, void *, u32);
 s32 (*test_wait)(s32);
@@ -73,7 +73,7 @@ s32 _spu_t(s32 mode, ...) {
         self.global_int('_spu_transMode').value = mode
         self.global_int('_spu_transferCallback').value = callback
         self.global_int('_spu_EVdma').value = 0x123456
-        buffer = (C.c_uint8 * 0x400).in_dll(self.library, 'D_800A4938')
+        buffer = (C.c_uint8 * 0x400).in_dll(self.library, 'SpuZeroBlock')
         buffer[:] = [i & 255 for i in range(0x400)]
         before_buffer = bytes(buffer)
         calls, observed_state = [], []

@@ -53,15 +53,15 @@ extern void *AddSpriteWithDrawMode();
 
 extern void *AddJitterSprites();
 
-extern void *func_80020508();
+extern void *AddTileSemiTransPrim();
 
 extern void InitRect16Row();
 
 extern int UpdateRect16Row();
 
-extern void func_80043608();
+extern void LoadTimImage();
 
-extern int D_800ACC14;
+extern int CurrentDrawBuf;
 
 extern MenuRow1C *GlyphRows;
 
@@ -125,8 +125,8 @@ int UpdateGlyphRow(int arg0) {
         a1 = *(void **)0x1F800000;
         v0 = ((unsigned short)s5 * 0x7C) / 10;
         *(void **)0x1F800000 = (void *)AddDrawModePrim(
-            D_800ACC14 + 0x74,
-            func_80020508(D_800ACC14 + 0x74, a1, GlyphRows[arg0].x, GlyphRows[arg0].y, GlyphRows[arg0].w, GlyphRows[arg0].h, v0, v0, v0),
+            CurrentDrawBuf + 0x74,
+            AddTileSemiTransPrim(CurrentDrawBuf + 0x74, a1, GlyphRows[arg0].x, GlyphRows[arg0].y, GlyphRows[arg0].w, GlyphRows[arg0].h, v0, v0, v0),
             0x45
         );
         if ((unsigned short)s5 >= 10) {
@@ -140,10 +140,10 @@ int UpdateGlyphRow(int arg0) {
     case 0:
         a1 = *(void **)0x1F800000;
         if ((unsigned short)s5 >= 3) {
-            a1 = AddJitterSprites(D_800ACC14 + 0x70, a1, &sp30, 1, 0xFF, 3);
+            a1 = AddJitterSprites(CurrentDrawBuf + 0x70, a1, &sp30, 1, 0xFF, 3);
         }
         *(void **)0x1F800000 = AddTilePrim(
-            D_800ACC14 + 0x74,
+            CurrentDrawBuf + 0x74,
             a1,
             GlyphRows[arg0].x,
             GlyphRows[arg0].y,
@@ -158,14 +158,14 @@ int UpdateGlyphRow(int arg0) {
             GlyphRows[arg0].f03++;
         }
         if (s5 == 1) {
-            func_80043608(GlyphRows[arg0].f18 + ((GlyphRows[arg0].f06 * GlyphRows[arg0].f00) << 11));
+            LoadTimImage(GlyphRows[arg0].f18 + ((GlyphRows[arg0].f06 * GlyphRows[arg0].f00) << 11));
         }
         break;
     case 1:
-        a1 = AddJitterSprites(D_800ACC14 + 0x70, *(void **)0x1F800000, &sp30, 1, (0x80 - s5) * 2, 2);
-        a1 = AddJitterSprites(D_800ACC14 + 0x70, a1, &sp40, 1, s5, 1);
+        a1 = AddJitterSprites(CurrentDrawBuf + 0x70, *(void **)0x1F800000, &sp30, 1, (0x80 - s5) * 2, 2);
+        a1 = AddJitterSprites(CurrentDrawBuf + 0x70, a1, &sp40, 1, s5, 1);
         *(void **)0x1F800000 = AddTilePrim(
-            D_800ACC14 + 0x7C,
+            CurrentDrawBuf + 0x7C,
             a1,
             GlyphRows[arg0].x,
             GlyphRows[arg0].y,
@@ -185,7 +185,7 @@ int UpdateGlyphRow(int arg0) {
         a1 = *(void **)0x1F800000;
         if (GlyphRows[arg0].f00 >= 0) {
             a1 = AddSpriteWithDrawMode(
-                D_800ACC14 + 0x70,
+                CurrentDrawBuf + 0x70,
                 a1,
                 GlyphRows[arg0].x,
                 GlyphRows[arg0].y,
@@ -200,7 +200,7 @@ int UpdateGlyphRow(int arg0) {
             );
         }
         *(void **)0x1F800000 = AddTilePrim(
-            D_800ACC14 + 0x74,
+            CurrentDrawBuf + 0x74,
             a1,
             GlyphRows[arg0].x,
             GlyphRows[arg0].y,

@@ -18,7 +18,7 @@ source=r'''
 static struct World {u32 guard[4];RrGpuScratchPointers scratch;RrIconSpriteContext contexts[3];RrIconSpriteContext *context;s16 phase;u16 pad;s32 clock;u32 arena[256];u32 tail[4];} world,expected;
 static struct Event {unsigned id;u32 args[12];u8 *cursor;u32 *head;struct World before;} events[5];
 static unsigned count,seen,scenario;static int ref;static s32 sineReturns[2];static unsigned sineIndex;static s32 geometry[4][4];static u16 expectedShade;
-#define D_800ACC14 world.context
+#define CurrentDrawBuf world.context
 #define ScreenFrame world.clock
 #define ovl662_D_80127398 world.phase
 #define RR_GPU_SCRATCH (&world.scratch)

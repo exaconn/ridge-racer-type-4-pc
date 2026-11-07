@@ -30,8 +30,8 @@ extern char D_8010B2E0[];
 int func_80043C14();
 void func_80043DE4();
 void func_80043ED4(short *a, short b, int c);
-void func_80043F5C(short *a, short b, int c);
-short func_80043FC0(short *p, int t);
+void RotateNegZByEulerZYX(short *a, short b, int c);
+short LerpAngleWrap4096(short *p, int t);
 s32 func_80044064(void);
 void func_800440A0(int a0);
 
@@ -115,7 +115,7 @@ void func_80043ED4(short *a, short b, int c) {
     ApplyMatrix(m, r, c);
 }
 
-void func_80043F5C(short *a, short b, int c) {
+void RotateNegZByEulerZYX(short *a, short b, int c) {
     int m[8];
     unsigned short v[3];
     short r[3];
@@ -129,7 +129,7 @@ void func_80043F5C(short *a, short b, int c) {
     ApplyMatrix(m, r, c);
 }
 
-short func_80043FC0(short *p, int t) {
+short LerpAngleWrap4096(short *p, int t) {
     int n = p[0x24 / 2] * 5;
     int v;
     if (n > 0 && t < n) {

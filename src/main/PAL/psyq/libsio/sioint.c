@@ -18,23 +18,23 @@ typedef struct { short p0, p2, p4, p6, w8; unsigned short wA; short pC; unsigned
 extern s32 ResetGraph(s32);
 extern s32 EnterCriticalSection(void);
 extern void ExitCriticalSection(void);
-extern RrSerialPortRegisters D_801146C0;
-extern volatile s32 D_801146D0;
+extern RrSerialPortRegisters SioShadowRegs;
+extern volatile s32 SioPollHook;
 extern s16 D_800ABD34[];
-extern volatile s32 *D_800ABD1C;
+extern volatile s32 *SioDataReg;
 extern s32 DeliverEvent(u32, s32);
 extern void SysEnqIntRP();
 extern void SysDeqIntRP();
-extern char D_800ABD20[];
+extern char SioIrqQueueEntry[];
 extern u16 D_801146CA;
 
 s32 _sio_control(u32 arg0, u32 arg1, u32 arg2);
-s32 func_8009B3FC(void);
-int func_8009B758(void);
-s32 func_8009B84C(void);
-s32 func_8009B854(void);
-int func_8009B8EC();
-s32 func_8009B9D4(void);
+s32 _sio_irq_handler(void);
+int _sio_init(void);
+s32 _sio_open(void);
+s32 _sio_close(void);
+int _sio_inout();
+s32 _sio_unsupported(void);
 
 s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
     s32 ret = 0;
@@ -43,34 +43,34 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
     case 0:
         switch (arg1) {
         case 0:
-            ret = D_800ABD18->status;
+            ret = SIO1_REGS->status;
             break;
         case 1:
-            ret = (D_800ABD18->control >> 1) & 1;
-            if (D_800ABD18->control & 0x20) {
+            ret = (SIO1_REGS->control >> 1) & 1;
+            if (SIO1_REGS->control & 0x20) {
                 ret |= 2;
             }
             break;
         case 2:
-            ret = D_801146C0.mode;
+            ret = SioShadowRegs.mode;
             break;
         case 3:
-            ret = 0x1FA400 / D_801146C0.baud;
+            ret = 0x1FA400 / SioShadowRegs.baud;
             break;
         case 4:
             ret = 1;
             break;
         case 5:
             if (arg2 == 0) {
-                ret = *(volatile s32 *)&D_801146D8.request.second;
+                ret = *(volatile s32 *)&SioReceiveRequest.request.second;
             } else {
-                ret = D_801146E8.second;
+                ret = SioRequest.second;
             }
             break;
         case 6: {
-            volatile RrSerialRequest *req = &D_801146E8;
+            volatile RrSerialRequest *req = &SioRequest;
             if (arg2 == 0) {
-                req = &D_801146D8.request;
+                req = &SioReceiveRequest.request;
             }
             ret = req->active != 0;
             break;
@@ -83,12 +83,12 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
             break;
         case 1: {
             /* ASM_BARRIER: pin the port pointer to $v1 like the original allocation */
-            register RrSerialPortRegisters *p asm("$3") = &D_801146C0;
+            register RrSerialPortRegisters *p asm("$3") = &SioShadowRegs;
             s32 dtr;
             u32 dtr_copy;
             u32 ctrl;
             u32 v;
-            p->control = D_800ABD18->control & ~0x22;
+            p->control = SIO1_REGS->control & ~0x22;
             dtr = (arg2 & 1) << 1;
             dtr_copy = dtr;
             ctrl = p->control;
@@ -99,13 +99,13 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
                 v = ctrl | dtr_copy;
             }
             p->control = v;
-            D_800ABD18->control = D_801146C0.control;
+            SIO1_REGS->control = SioShadowRegs.control;
             break;
         }
         case 2: {
-            RrSerialPortRegisters *p = &D_801146C0;
+            RrSerialPortRegisters *p = &SioShadowRegs;
             p->mode = arg2;
-            D_800ABD18->mode = p->mode;
+            SIO1_REGS->mode = p->mode;
             break;
         }
         case 3: {
@@ -114,10 +114,10 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
                 ret = -1;
                 break;
             }
-            p = &D_801146C0;
+            p = &SioShadowRegs;
             p->baud = 0x1FA400 / arg2;
-            D_800ABD18->baud = p->baud;
-            D_800ABD18->control |= 0x10;
+            SIO1_REGS->baud = p->baud;
+            SIO1_REGS->control |= 0x10;
             break;
         }
         case 4: {
@@ -127,10 +127,10 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
                 if (ret < 0) {
                     break;
                 }
-                p = &D_801146C0;
+                p = &SioShadowRegs;
                 p->control &= ~0x300;
                 p->control |= ret;
-                D_800ABD18->control = p->control;
+                SIO1_REGS->control = p->control;
             }
             break;
         }
@@ -140,11 +140,11 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
         switch (arg1) {
         case 0: {
             s32 v = EnterCriticalSection();
-            RrSerialPortRegisters *port = D_800ABD18;
+            RrSerialPortRegisters *port = SIO1_REGS;
             port->control |= 0x50;
-            port->mode = D_801146C0.mode;
-            port->control = D_801146C0.control;
-            port->baud = D_801146C0.baud;
+            port->mode = SioShadowRegs.mode;
+            port->control = SioShadowRegs.control;
+            port->baud = SioShadowRegs.baud;
             port->control |= 0x10;
             ret = 0;
             if (v == 1) {
@@ -154,13 +154,13 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
         }
         case 1:
             ret = 0;
-            D_800ABD18->control |= 0x10;
+            SIO1_REGS->control |= 0x10;
             break;
         case 2: {
             s32 v = EnterCriticalSection();
-            D_800ABD18->control &= ~0x400;
-            D_801146D8.request.active = 0;
-            D_801146D8.request.second = 0;
+            SIO1_REGS->control &= ~0x400;
+            SioReceiveRequest.request.active = 0;
+            SioReceiveRequest.request.second = 0;
             if (v == 1) {
                 ExitCriticalSection();
             }
@@ -168,9 +168,9 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
         }
         case 3: {
             s32 v = EnterCriticalSection();
-            D_800ABD18->control &= ~0x820;
-            D_801146E8.active = 0;
-            D_801146E8.second = 0;
+            SIO1_REGS->control &= ~0x820;
+            SioRequest.active = 0;
+            SioRequest.second = 0;
             if (v == 1) {
                 ExitCriticalSection();
             }
@@ -182,13 +182,13 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
         switch (arg1) {
         case 0:
             if (arg2 != 0) {
-                D_800ABD18->control |= 0x20;
+                SIO1_REGS->control |= 0x20;
             } else {
-                D_800ABD18->control &= ~0x20;
+                SIO1_REGS->control &= ~0x20;
             }
             break;
         case 1:
-            if (D_800ABD18->status & 0x100) {
+            if (SIO1_REGS->status & 0x100) {
                 ret = 1;
             }
             break;
@@ -196,7 +196,7 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
         break;
     case 4:
         if (arg1 == 0) {
-            volatile s32 *q = &D_801146D0;
+            volatile s32 *q = &SioPollHook;
             ret = *q;
             *(s32 *)q = arg2;
         }
@@ -210,16 +210,16 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
     return ret;
 }
 
-s32 func_8009B380(void) {
+s32 _sio_irq_check(void) {
     RrInterruptRegisters *interrupts=D_800ABD30;
     /* ASM_BARRIER: Keep the predicate result in the common return register. */
     register s32 result;
     if(interrupts->pending & interrupts->mask & 0x100) {
-        RrSerialReceiveRequest *request=&D_801146D8;
+        RrSerialReceiveRequest *request=&SioReceiveRequest;
         /* ASM_BARRIER: Keep the original address materialization before the active load. */
         __asm__("" : "+r"(request));
         if(request->request.active) {
-            RrSerialPortRegisters *port=D_800ABD18;
+            RrSerialPortRegisters *port=SIO1_REGS;
             if(!(port->status & 1)) {
                 result=1;
                 goto done;
@@ -234,39 +234,39 @@ done:
     return result;
 }
 
-s32 func_8009B3FC(void) {
+s32 _sio_irq_handler(void) {
     s32 count;
 
     if (D_800ABD30->pending & 0x100) {
         D_800ABD30->pending = ~0x100;
     }
-    if (D_800ABD18->status & 0x38) {
+    if (SIO1_REGS->status & 0x38) {
         volatile u16 *cfg;
         volatile RrSerialRequest *req;
 
-        D_800ABD18->control &= ~0x820;
-        cfg = &D_801146C0.mode;
+        SIO1_REGS->control &= ~0x820;
+        cfg = &SioShadowRegs.mode;
         /* ASM_BARRIER: keep the configuration base for its mode/baud fields. */
         KEEP_BASE(cfg);
-        req = &D_801146E8;
+        req = &SioRequest;
         /* ASM_BARRIER: keep the send request base for both cleared fields. */
         KEEP_BASE(req);
         req->second = 0;
         req->active = 0;
-        D_800ABD18->control;
-        D_800ABD18->control = 0x50;
-        D_800ABD18->mode = cfg[0];
-        D_800ABD18->baud = cfg[3];
-        *(u16 *)&D_800ABD18->control = D_800ABD18->control | 0x10;
+        SIO1_REGS->control;
+        SIO1_REGS->control = 0x50;
+        SIO1_REGS->mode = cfg[0];
+        SIO1_REGS->baud = cfg[3];
+        *(u16 *)&SIO1_REGS->control = SIO1_REGS->control | 0x10;
         DeliverEvent(0xF000000B, 0x8000);
         return 0;
     }
     {
-        volatile RrSerialRequest *req = &D_801146E8;
+        volatile RrSerialRequest *req = &SioRequest;
         /* ASM_BARRIER: keep the send request base for the active/second checks. */
         KEEP_BASE(req);
-        if (req->active != 0 && req->second != 0 && (D_800ABD18->status & 2)) {
-            s32 index = (D_801146C0.control & 0x300) >> 7;
+        if (req->active != 0 && req->second != 0 && (SIO1_REGS->status & 2)) {
+            s32 index = (SioShadowRegs.control & 0x300) >> 7;
             /* ASM_BARRIER: finish the table index before the table page lui (original assembler macro order). */
             __asm__ volatile("" : : "r"(index));
             count = 0x800B0000;
@@ -276,67 +276,67 @@ s32 func_8009B3FC(void) {
             count = *(s16 *)(count - 0x42B8);
             switch (count) {
             case 1:
-                *(u8 *)D_801146E8.first = D_800ABD18->data;
+                *(u8 *)SioRequest.first = SIO1_REGS->data;
                 break;
             case 2:
-                *(u8 *)D_801146E8.first = D_800ABD18->data;
-                *((u8 *)D_801146E8.first + 1) = D_800ABD18->data;
+                *(u8 *)SioRequest.first = SIO1_REGS->data;
+                *((u8 *)SioRequest.first + 1) = SIO1_REGS->data;
                 break;
             case 4:
-                *(s32 *)D_801146E8.first = *D_800ABD1C;
+                *(s32 *)SioRequest.first = *SioDataReg;
                 break;
             case 8:
-                *(s32 *)D_801146E8.first = *D_800ABD1C;
-                *((s32 *)D_801146E8.first + 1) = *D_800ABD1C;
+                *(s32 *)SioRequest.first = *SioDataReg;
+                *((s32 *)SioRequest.first + 1) = *SioDataReg;
                 break;
             }
             {
-                volatile RrSerialRequest *tx = &D_801146E8;
+                volatile RrSerialRequest *tx = &SioRequest;
                 /* ASM_BARRIER: keep the send request base for the count update. */
                 KEEP_BASE(tx);
                 tx->first += count;
                 tx->second -= count;
                 if (tx->second == 0) {
                     tx->active = 0;
-                    *(u16 *)&D_800ABD18->control = D_800ABD18->control & ~0x820;
+                    *(u16 *)&SIO1_REGS->control = SIO1_REGS->control & ~0x820;
                     DeliverEvent(0xF000000B, 0x400);
                 }
             }
-            D_800ABD18->control ^= 2;
+            SIO1_REGS->control ^= 2;
         }
     }
     {
-        volatile RrSerialReceiveRequest *rx = (volatile RrSerialReceiveRequest *)&D_801146D8;
+        volatile RrSerialReceiveRequest *rx = (volatile RrSerialReceiveRequest *)&SioReceiveRequest;
         /* ASM_BARRIER: keep the receive request base for its fields. */
         KEEP_BASE(rx);
-        if (rx->request.active != 0 && (D_800ABD18->status & 1) &&
-            ((D_800ABD18->status & 0x80) == rx->receive_status)) {
+        if (rx->request.active != 0 && (SIO1_REGS->status & 1) &&
+            ((SIO1_REGS->status & 0x80) == rx->receive_status)) {
             if (rx->request.second == 0) {
                 rx->request.active = 0;
                 DeliverEvent(0xF000000B, 0x800);
             } else {
                 rx->receive_status ^= 0x80;
-                D_800ABD18->data = *(u8 *)D_801146D8.request.first;
+                SIO1_REGS->data = *(u8 *)SioReceiveRequest.request.first;
                 rx->request.first += 1;
                 rx->request.second -= 1;
-                D_800ABD18->control |= 0x400;
+                SIO1_REGS->control |= 0x400;
             }
         }
     }
-    D_800ABD18->control |= 0x10;
+    SIO1_REGS->control |= 0x10;
     return 0;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_801146C0 (*(W5A (*))&D_801146C0)
-#define D_800ABD18 ((W5A *)D_800ABD18)
+#define SioShadowRegs (*(W5A (*))&SioShadowRegs)
+#define SIO1_REGS ((W5A *)SIO1_REGS)
 #define D_800ABD30 ((volatile int *)D_800ABD30)
-#define D_801146E8 (*(int (*)[3])&D_801146E8)
-#define D_801146D8 (*(int (*)[3])&D_801146D8)
+#define SioRequest (*(int (*)[3])&SioRequest)
+#define SioReceiveRequest (*(int (*)[3])&SioReceiveRequest)
 
-int func_8009B758(void) {
-    W5A *a = &D_801146C0;
-    volatile W5A *b = D_800ABD18;
+int _sio_init(void) {
+    W5A *a = &SioShadowRegs;
+    volatile W5A *b = SIO1_REGS;
     char *s;
     int r;
     int t;
@@ -350,57 +350,57 @@ int func_8009B758(void) {
     b->wE = a->wE;
     b->wA |= 0x10;
     ((W5A *)b)->wA = a->wA;
-    s = D_800ABD20;
+    s = SioIrqQueueEntry;
     SysDeqIntRP(3, s);
     SysEnqIntRP(3, s);
     D_800ABD30[1] |= 0x100;
-    e = D_801146E8;
-    d = D_801146D8;
+    e = SioRequest;
+    d = SioReceiveRequest;
     e[0] = 0;
     d[0] = e[0];
     e[1] = 0;
     d[1] = e[1];
     e[2] = 0;
     t = e[2];
-    D_801146D0 = 0;
+    SioPollHook = 0;
     /* ASM_BARRIER: return constant 0 through a register (original li v0,0 after the last store) */
     __asm__ volatile("" : "=r"(r) : "0"(0));
     d[2] = t;
     return r;
 }
 
-#undef D_801146C0
-#undef D_800ABD18
+#undef SioShadowRegs
+#undef SIO1_REGS
 #undef D_800ABD30
-#undef D_801146E8
-#undef D_801146D8
+#undef SioRequest
+#undef SioReceiveRequest
 
-s32 func_8009B84C(void) {
+s32 _sio_open(void) {
     return 0;
 }
 
-s32 func_8009B854(void) {
+s32 _sio_close(void) {
     return 0;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABD20 (*(u8 (*)[])&D_800ABD20)
+#define SioIrqQueueEntry (*(u8 (*)[])&SioIrqQueueEntry)
 #define SysDeqIntRP ((s32 (*)(s32,void *))SysDeqIntRP)
 
-s32 func_8009B85C(void) {
+s32 _sio_deinit(void) {
     RrInterruptRegisters *interrupts=D_800ABD30;
     RrSerialPortRegisters *port;
     volatile u16 *control;
     interrupts->mask &= ~0x100U;
-    port=D_800ABD18;
+    port=SIO1_REGS;
     port->control |= 0x50;
     control=&D_801146CA;
     /* The final control write occupies the original call's delay slot. */
     *(u16 *)&port->control=*control;
-    SysDeqIntRP(3,D_800ABD20);
+    SysDeqIntRP(3,SioIrqQueueEntry);
     {
         /* Share the request bases across the store/reload pairs. */
-        register volatile RrSerialRequest *send=&D_801146E8;
+        register volatile RrSerialRequest *send=&SioRequest;
         register RrSerialReceiveRequest *receive;
         /* ASM_BARRIER: Reload request words through the original value register. */
         register s32 active __asm__("$3");
@@ -412,7 +412,7 @@ s32 func_8009B85C(void) {
         active=send->active;
         /* ASM_BARRIER: Finish the active reload before materializing the receiver base. */
         __asm__ volatile("" : : "r"(active) : "$4", "memory");
-        receive=&D_801146D8;
+        receive=&SioReceiveRequest;
         /* ASM_BARRIER: Materialize the receive prefix before publishing its reloaded fields. */
         __asm__("" : "=r"(receive) : "0"(receive));
         receive->request.active=active;
@@ -426,10 +426,10 @@ s32 func_8009B85C(void) {
     }
 }
 
-#undef D_800ABD20
+#undef SioIrqQueueEntry
 #undef SysDeqIntRP
 
-int func_8009B8EC(a0, a1)
+int _sio_inout(a0, a1)
     int *a0;
     int a1;
 {
@@ -437,23 +437,23 @@ int func_8009B8EC(a0, a1)
     a0[6] = 0;
     if (a1 == 1) {
         if (a0[0] & 0x8000) {
-            if (func_8009A94C(a0[2], a0[3]) != 0) {
+            if (_sio_write_async(a0[2], a0[3]) != 0) {
                 a0[6] = 0x10;
                 return -1;
             }
             return 0;
         }
-        v = func_8009A9A4(a0[2], a0[3]);
+        v = _sio_write(a0[2], a0[3]);
         if (v < 0) a0[6] = 5;
         return v;
     }
     if (a1 == 2) {
         if (a0[0] & 0x8000) {
-            if (func_8009ABF8(a0[2], a0[3]) == 0) return 0;
+            if (_sio_read_async(a0[2], a0[3]) == 0) return 0;
             a0[6] = 0x10;
             return -1;
         }
-        v = func_8009AC50(a0[2], a0[3]);
+        v = _sio_read(a0[2], a0[3]);
         if (v < 0) a0[6] = 5;
         return v;
     }
@@ -461,6 +461,6 @@ int func_8009B8EC(a0, a1)
     return -1;
 }
 
-s32 func_8009B9D4(void) {
+s32 _sio_unsupported(void) {
     return 0;
 }

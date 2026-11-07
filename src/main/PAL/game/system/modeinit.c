@@ -31,7 +31,7 @@ extern int D_800ACBF8;
 extern int LoadCursor;
 extern short D_800AD508;
 extern short ReverseCourse;
-extern int D_800F2EC8;
+extern int MaskBitSetting;
 extern unsigned short D_800F3974;
 extern short D_800F3A26;
 extern short MenuScriptId;
@@ -92,13 +92,13 @@ void TitleModeEnter() {
     D_800F4D8A = 0;
     LoadCursor = CdDirectoryBuffer;
     D_800F4D40 = CdDirectoryBuffer;
-    if ((unsigned)(D_800F4D44 - 2) < 3U) func_8001F254(CdDirectoryBuffer, a1, a2);
+    if ((unsigned)(D_800F4D44 - 2) < 3U) BackupSaveData(CdDirectoryBuffer, a1, a2);
     D_800F4D44 = 0;
     _sio_control(1, 1, 0);
     D_800ACBF8 = 0;
-    D_800F2EC8 = 0;
+    MaskBitSetting = 0;
     D_800F4CD0 = (D_800F3974 & 1) + 7;
-    func_8001E84C(D_800104A4);
+    DebugPrintStub(D_800104A4);
 }
 
 void TitleMenuInit()
@@ -142,7 +142,7 @@ void TitleMenuInit()
   InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
   BadgeRows[1] = 1;
   _sio_control(1, 1, 0);
-  func_8001E84C(D_800104B0);
+  DebugPrintStub(D_800104B0);
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -217,7 +217,7 @@ void TitleMenuUpdate(void)
         return;
     case 1:
         _sio_control(1, 1, 0);
-        if (D_800F3A40 & 0x800) {
+        if (Pad0Buttons & 0x800) {
             if (s0 == 0)
                 func_8005C7A4();
             PlaySfx(1);

@@ -39,9 +39,9 @@ typedef struct {
 
 extern SeqStruct *_ss_score[];
 extern u32 VBLANK_MINUS;
-extern char D_80011718[];
+extern char StrNotSeqData[];
 extern char D_80011730[];
-extern s32 func_8001E84C(char *);
+extern s32 DebugPrintStub(char *);
 extern s32 _SsReadDeltaValue(s32, s32);
 
 /* Read the 24-bit big-endian tempo (microseconds per quarter note).
@@ -108,11 +108,11 @@ s32 _SsInitSoundSeq(s16 a0, s32 a1, u8 *seq) {
     if (c == 'S' || c == 'p') {
         s0->c0 += 7;
         if (*(s0->c0++) != 1) {
-            func_8001E84C(D_80011718);
+            DebugPrintStub(StrNotSeqData);
             return -1;
         }
     } else {
-        func_8001E84C(D_80011730);
+        DebugPrintStub(D_80011730);
         return 0;
     }
 

@@ -17,7 +17,7 @@ typedef struct {
     u8 a, b, c, d;
 } RrMenuChoice;
 
-/* Partial D_800F3A38 view used by menu transitions (0x5C stride). */
+/* Partial PlayerControllers view used by menu transitions (0x5C stride). */
 typedef struct {
     u8 pad00,type01;
     u16 buttons02;

@@ -91,7 +91,7 @@ int main(void) {
   }
   for(j=0;j<6;j++)actual.record.status.payload5D[j]=(n&1)?next():(n+j)%17;
   D_800ABCB0=expected_budget=budgets[n%10];
-  memcpy(&expected,&actual,sizeof(actual));reference();func_8009A05C(&actual.record);
+  memcpy(&expected,&actual,sizeof(actual));reference();_padAllocGates(&actual.record);
   assert(calls==1 && D_800ABCB0==expected_budget && !memcmp(&actual,&expected,sizeof(actual)));
   assert(native_budget_page.bytes[4]==0xA5 && native_budget_page.bytes[0x4357]==0xA5);
  }

@@ -5,8 +5,8 @@
 extern s8 LinkEntryState[2][2];
 extern s32 D_800AC5A4;
 extern u16 D_800AD508;
-extern u8 D_80010600[12],D_8001060C[28],D_80010628[20];
-extern u8 D_8001063C[16],D_8001064C[12],D_80010658[28],D_80010674[4];
+extern u8 StrPlayerLabel[12],D_8001060C[28],EntryAcceptedStr[20];
+extern u8 D_8001063C[16],D_8001064C[12],SecondsUntilCloseText[28],D_80010674[4];
 void DrawBigFontString(s32 x,s32 y,u8 *text);
 /* Negative modes draw nothing; active modes0/1 select the two status pairs.
  * The renderer reads a terminated string and may change later global state. */

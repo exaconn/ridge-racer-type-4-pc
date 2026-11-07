@@ -4,40 +4,40 @@
 #include "rr/commands.h"
 extern volatile int D_800ABDE8;
 
-int func_8009D7A0() {
+int _cardCmd5ATx() {
  register int r asm("$2") = 0x5A; int d; d = D_800ABDE8; if (d != 2) r = 0; return r;
 }
 
-int func_8009D7C4(a0) int a0; {
+int _cardCmd5ARx(a0) int a0; {
     int v;
     int r;
     char *c;
-    switch (D_800ABDF8) {
+    switch (CardRxCount) {
     case 3:
         D_80114730 = a0 & 0xFF;
         break;
     case 4:
-        D_80114718[1] = a0;
+        CardCmdBuffer[1] = a0;
         break;
     case 5:
-        D_80114718[0] = a0;
+        CardCmdBuffer[0] = a0;
         break;
     case 6:
-        D_80114718[0x10] = a0;
+        CardCmdBuffer[0x10] = a0;
         break;
     case 17:
-        D_80114718[0xC] = a0 - 1;
+        CardCmdBuffer[0xC] = a0 - 1;
         break;
     default:
-        v = D_800ABDF8;
+        v = CardRxCount;
         if ((unsigned)(v - 9) < 4) {
-            c = D_80114718 + 0x10;
+            c = CardCmdBuffer + 0x10;
             c -= v;
             *c = a0;
             break;
         }
         if (v < 7) break;
-        D_80114718[v - 5] = a0;
+        CardCmdBuffer[v - 5] = a0;
         break;
     }
     r = 0;

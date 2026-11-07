@@ -7,7 +7,7 @@
 #endif
 void SetSprt(void *packet);
 void AddPrim(u32 *ordering,u32 *packet);
-void func_8001F808(s32 x,s32 y,s32 glyph,s32 clut,s16 *animation);
+void DrawAnimatedGlyph(s32 x,s32 y,s32 glyph,s32 clut,s16 *animation);
 /* Each preference binds a real initialized value only for the empty constraint;
  * the enclosing C variable remains tracked normally by the allocator. */
 #ifdef __mips__

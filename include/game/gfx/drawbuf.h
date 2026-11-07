@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-/* The draw buffer D_800ACC14 points at: 0x70 bytes of environment, then the ordering table,
+/* The draw buffer CurrentDrawBuf points at: 0x70 bytes of environment, then the ordering table,
  * whose last entries are the list tails the camera code patches. Units that only do pointer
  * arithmetic on it use the byte pointer; units that read fields go through DRAWBUF. */
 typedef struct {
@@ -19,8 +19,8 @@ typedef struct {
     DrawBufTag tailB70;
 } DrawBuf;
 
-extern unsigned char *D_800ACC14;
+extern unsigned char *CurrentDrawBuf;
 
-#define DRAWBUF ((DrawBuf *)D_800ACC14)
+#define DRAWBUF ((DrawBuf *)CurrentDrawBuf)
 
 #endif

@@ -17,7 +17,7 @@ void ovl660_func_8011712C(void)
     ModeGroup = 1;
     D_800F3A26 = 53;
     D_800F4D8A = 0;
-    AddScreenFadeTiles(((RrFrameOrderingPrefix *)D_800ACC14)->ordering70, 255, 69);
+    AddScreenFadeTiles(((RrFrameOrderingPrefix *)CurrentDrawBuf)->ordering70, 255, 69);
 }
 
 void ovl660_func_8011718C(void) {
@@ -25,7 +25,7 @@ void ovl660_func_8011718C(void) {
     s8 paused;
 
     ModeFrame = (s32)((u32)ModeFrame + 1U);
-    if ((((u32)RaceState - 1U) < 2U) && (D_800F3A38[0].buttons08 & 0x800)) {
+    if ((((u32)RaceState - 1U) < 2U) && (PlayerControllers[0].buttons08 & 0x800)) {
         if (D_800AC5D0 <= 0) {
             D_800AC5D0 = 0xF;
             paused = RacePaused == 0;
@@ -49,16 +49,16 @@ update_pause_timer:
     if (RacePaused != 0) {
         UpdatePauseMenu(D_800F4D44);
         ModeFrame = (s32)((u32)ModeFrame - 1U);
-        DrawPauseMenu(D_800ACC14->ordering.ordering70, PauseCursor);
+        DrawPauseMenu(CurrentDrawBuf->ordering.ordering70, PauseCursor);
         func_8003BFC8(1);
         DrawLapTimeList(0);
-        DrawStartCountdown(D_800ACC14->ordering.ordering70, ModeFrame);
+        DrawStartCountdown(CurrentDrawBuf->ordering.ordering70, ModeFrame);
         DrawHudRotatingQuad(D_800F4C70.first, 0);
         func_800211A4(0);
         DrawHudNumber3((PlayerCars[0].input * 0xA0) / 1168, 0);
-        func_800219BC(PlayerCars[0].half27A, 0);
+        DrawHudDigitMod10(PlayerCars[0].half27A, 0);
         DrawRaceMinimap(0);
-        DrawSteeringIndicator(D_800ACC14->ordering.ordering70, 0);
+        DrawSteeringIndicator(CurrentDrawBuf->ordering.ordering70, 0);
         func_80020B10(D_800F4D44);
         BuildCameraMatrices();
         SetupViewport(0);
@@ -88,7 +88,7 @@ update_pause_timer:
                 if (RaceState == 4) {
                     fadeFlags = 0x25;
                 }
-                AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (0x19 - D_800AC5D0) * 0xA, fadeFlags);
+                AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (0x19 - D_800AC5D0) * 0xA, fadeFlags);
             }
             if (D_800AC5D0 <= 0) {
                 if (RaceState == 4) {
@@ -103,22 +103,22 @@ update_pause_timer:
             }
     } else if (RaceState == 0) {
             if ((u32) ModeFrame >= 0x33U) {
-                AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (ModeFrame - 0x32) * 0xA, 0x25);
+                AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (ModeFrame - 0x32) * 0xA, 0x25);
                 D_800ADAF0[1].environment.rgb24 = 0;
                 D_800ADAF0[0].environment.rgb24 = 0;
             } else if ((u32) ModeFrame < 0x19U) {
-                AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (0x19 - ModeFrame) * 0xA, 0x45);
+                AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (0x19 - ModeFrame) * 0xA, 0x45);
                 D_800ADAF0[1].environment.rgb24 = 1;
                 D_800ADAF0[0].environment.rgb24 = 1;
             }
-            RR_660_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(D_800ACC14->ordering.ordering70, RR_660_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
+            RR_660_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(CurrentDrawBuf->ordering.ordering70, RR_660_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
     }
     UpdateLapTiming(PlayerCars);
     func_8003BFC8(0);
     ovl660_func_80117084((RrRaceVehicleViews *)(void *)PlayerCars);
     UpdateRaceRanking();
     if (RaceState < 4) {
-        DrawStartCountdown(D_800ACC14->ordering.ordering70, ModeFrame);
+        DrawStartCountdown(CurrentDrawBuf->ordering.ordering70, ModeFrame);
         PlayStartCountdownVoice(ModeFrame);
     }
     CheckFinalLapEvent((char *)(void *)PlayerCars);
@@ -127,9 +127,9 @@ update_pause_timer:
         DrawHudRotatingQuad(D_800F4C70.first, 0);
         func_800211A4(0);
         DrawHudNumber3((PlayerCars[0].input * 0xA0) / 1168, 0);
-        func_800219BC(PlayerCars[0].half27A, 0);
+        DrawHudDigitMod10(PlayerCars[0].half27A, 0);
         DrawRaceMinimap(0);
-        DrawSteeringIndicator(D_800ACC14->ordering.ordering70, 0);
+        DrawSteeringIndicator(CurrentDrawBuf->ordering.ordering70, 0);
         func_80020B10(D_800F4D44);
     }
     StepRaceFrame(D_800F4D44);

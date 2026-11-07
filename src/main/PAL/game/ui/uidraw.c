@@ -140,7 +140,7 @@ int AllocRect16Rows(int a0) {
     int n = Rect16RowCount << 4;
     Rect16Rows = a0;
     func_80096434(a0, n);
-    func_8001E84C(D_80010874, n);
+    DebugPrintStub(D_80010874, n);
     return n;
 }
 
@@ -249,7 +249,7 @@ int UpdateRect16Row(int a0) {
         tb = D_8009F9CC;
         p = D_8009F9C0;
     loop:
-        AddPartialLine(D_800ACC14 + 0x70, *(int *)((char *)xs + (p[0] << 2)), *(int *)((char *)ys + (p[0] << 2)), *(int *)((char *)xs + (p[1] << 2)), *(int *)((char *)ys + (p[1] << 2)), lv[*(unsigned char *)(k + (int)tb)], 1, 8, 8, 8, -1);
+        AddPartialLine(CurrentDrawBuf + 0x70, *(int *)((char *)xs + (p[0] << 2)), *(int *)((char *)ys + (p[0] << 2)), *(int *)((char *)xs + (p[1] << 2)), *(int *)((char *)ys + (p[1] << 2)), lv[*(unsigned char *)(k + (int)tb)], 1, 8, 8, 8, -1);
         p += 2;
         k++;
         if (k < 6) goto loop;
@@ -262,7 +262,7 @@ int AllocGlyphRows(int a) {
     int sz = GlyphRowCount * 28;
     GlyphRows = a;
     func_80096434(a, sz);
-    func_8001E84C(D_800108D8, sz);
+    DebugPrintStub(D_800108D8, sz);
     return sz;
 }
 

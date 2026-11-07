@@ -1,7 +1,7 @@
 #include "rr/overlay662_garage.h"
 #include "rr/tables.h"
 
-extern RrMenuItemState5C D_800F3A38[];
+extern RrMenuItemState5C PlayerControllers[];
 s32 ovl662_func_8011DDD8(s32 mode);
 
 /* Repeat-key handling for the two garage scroll directions. */
@@ -10,16 +10,16 @@ void ovl662_func_8011DE70(void)
     s32 first;
     s32 second;
 
-    if (D_800F3A38[0].type01 == 0x23) {
-        first = D_800F3A38[0].buttons02 & 0x840;
-        second = D_800F3A38[0].buttons02 & 0x80;
-    } else if (D_800F3A38[0].type01 != 0x12) {
-        first = D_800F3A38[0].buttons02 & 0x820;
-        second = D_800F3A38[0].buttons02 & 0x40;
+    if (PlayerControllers[0].type01 == 0x23) {
+        first = PlayerControllers[0].buttons02 & 0x840;
+        second = PlayerControllers[0].buttons02 & 0x80;
+    } else if (PlayerControllers[0].type01 != 0x12) {
+        first = PlayerControllers[0].buttons02 & 0x820;
+        second = PlayerControllers[0].buttons02 & 0x40;
     }
-    if (D_800F3A38[1].type01 == 0x12) {
-        first |= D_800F3A38[1].buttons02 & 8;
-        second |= D_800F3A38[1].buttons02 & 4;
+    if (PlayerControllers[1].type01 == 0x12) {
+        first |= PlayerControllers[1].buttons02 & 8;
+        second |= PlayerControllers[1].buttons02 & 4;
     }
 
     if (ovl662_D_80127668.words[1] & 0x10) {

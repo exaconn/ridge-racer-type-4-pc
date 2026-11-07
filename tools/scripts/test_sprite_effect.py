@@ -24,7 +24,7 @@ fixture=r'''
 ''' + header +helpers+r'''
 static union {u32 align;u8 bytes[4096];} arena;
 static union {u32 align;u8 bytes[256];} contexts[4];
-u8 *D_800ACC14;
+u8 *CurrentDrawBuf;
 static RrSpriteEffectSource descriptor;
 static u32 ordering;
 static u32 *expected_ordering;
@@ -39,7 +39,7 @@ static void mutate(int n) {
  descriptor.x=(s16)(seed&0xFFFF);descriptor.y=(s16)(seed>>16);
  descriptor.page=(u16)(seed^0x8012U);descriptor.clut=(u16)(seed^0xFFFFU);
  descriptor.uv.u=seed;descriptor.uv.v=seed>>8;descriptor.uv.w=seed>>16;descriptor.uv.h=seed>>24;
- D_800ACC14=contexts[n&3].bytes;
+ CurrentDrawBuf=contexts[n&3].bytes;
 }
 void SetSprt(void *p) {
  assert(phase==0 && p==expected_cursor);
@@ -84,7 +84,7 @@ void AddPrim(u32 *ot,u32 *p) {
 }
 u8 *AddDrawModePrim(u32 *ot,u8 *cursor,u16 page) {
  u16 expected=iteration?(u16)((descriptor.page&255)|0x60):descriptor.page;
- assert(phase==5 && ot==(u32 *)(D_800ACC14+0x70));
+ assert(phase==5 && ot==(u32 *)(CurrentDrawBuf+0x70));
  assert(cursor==expected_cursor+20 && page==expected);
  /* Deliberate opaque-helper return variation proves full-width cursor threading. */
  expected_cursor=cursor+12+(variant?(iteration&1)*4:0);

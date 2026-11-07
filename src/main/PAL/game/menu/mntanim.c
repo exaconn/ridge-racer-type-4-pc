@@ -15,7 +15,7 @@ void *AddDrawModePrim(u32 *ordering, void *cursor, u16 mode);
 void AddPrim(u32 *ordering, void *packet);
 void SetSprt(void *packet);
 
-extern RrFrameStorage *D_800ACC14;
+extern RrFrameStorage *CurrentDrawBuf;
 
 void UpdateMenuTextRow(s32 row) {
     s32 x[4];
@@ -69,11 +69,11 @@ void UpdateMenuTextRow(s32 row) {
                 sprite->g = brightness;
                 sprite->b = brightness;
                 sprite->clut = 0x2678;
-                AddPrim(D_800ACC14->ordering.ordering70, sprite);
+                AddPrim(CurrentDrawBuf->ordering.ordering70, sprite);
                 glyph++;
                 x[0] += 0xD;
             }
-            RR_TEXT_GPU_SCRATCH->cursor = AddDrawModePrim(D_800ACC14->ordering.ordering70, cursor, 0x2E);
+            RR_TEXT_GPU_SCRATCH->cursor = AddDrawModePrim(CurrentDrawBuf->ordering.ordering70, cursor, 0x2E);
             if (tick >= 0x1E) {
                 MenuTextRows[row].rendering.phase++;
                 MenuTextRows[row].rendering.tick = 0;

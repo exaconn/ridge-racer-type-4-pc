@@ -5,10 +5,10 @@
 #include "game/sound/cdclose.h"
 #include "game/sound/cdstart.h"
 extern RrAudioState SoundState;
-extern char D_8001118C[];
+extern char XaRepeatMsg[];
 /* Physical alias: request26B4. */
 extern s32 D_800F746C;
-s32 func_8001E84C(const char*,...);
+s32 DebugPrintStub(const char*,...);
 void CdAudioMute(void);void CdAudioSetVolume(u16);void CdAudioSetVolumeRaw(s32);void CdAudioRequestPause(void);
 void CdAudioFadeStep(void);void CdAudioPlayStep(void);void CdAudioPauseStep(void);void CdAudioStopStep(void);
 s32 CdLastCom(void);void CdFlush(void);s32 CdPosToInt(const u8*);s32 CdDiskReady(s32);

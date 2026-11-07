@@ -33,7 +33,7 @@ static u32 pool[8192],expectedPool[8192],initialPool[8192];
 static unsigned scenario,mutation,entry,seen[16],colors[256],xSeen[64],ySeen[64],brushSeen[5],maskSeen[3];
 #define ovl662_D_801276A8 w->s.garage
 #define ovl662_D_80127668 w->s.work
-#define D_800F3A38 w->s.controllers
+#define PlayerControllers w->s.controllers
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static s16 half(u16 n){s16 v;memcpy(&v,&n,2);return v;}
 static u32 next(void){u32 n=w->s.rng;n^=n<<13;n^=n>>17;n^=n<<5;return w->s.rng=n;}
@@ -66,7 +66,7 @@ s32 ovl662_func_8011E6C8(s32 x,s32 y,s32 width,s32 height){Event *e=event(2);s32
  e->args[0]=x;e->args[1]=y;e->args[2]=width;e->args[3]=height;e->args[4]=result;change();return result;
 }
 void ovl662_func_8011D120(void){unsigned i=currentPixel();event(3)->args[0]=i;payload()[i]^=255;w->s.garage.dirtyD3=1;change();}
-void func_800717AC(u8 *pixel,u32 operation){Event *e=event(4);unsigned i=byteIndex(pixel);e->args[0]=i;e->args[1]=word(operation);e->args[2]=payload()[i];change();}
+void FloodFill4bpp(u8 *pixel,u32 operation){Event *e=event(4);unsigned i=byteIndex(pixel);e->args[0]=i;e->args[1]=word(operation);e->args[2]=payload()[i];change();}
 static void service(s32 kind){event(kind);change();}
 void ovl662_func_80124ABC(void){service(10);}void ovl662_func_80124C94(void){service(11);}
 void ovl662_func_80124FD8(void){service(13);}void ovl662_func_801251AC(void){service(14);}
@@ -82,7 +82,7 @@ static void expectedPixel(void){unsigned x,y,index,old,color;u32 operation;
  xSeen[x]++;ySeen[y]++;colors[color]++;seen[2+(x&1)]++;
  if(old==color){seen[4]++;return;}
  operation=(u32)x+(u32)y*256U+(u32)old*65536U+(u32)color*16777216U;
- ovl662_func_8011D120();func_800717AC((u8*)pool+index,operation);seen[5]++;
+ ovl662_func_8011D120();FloodFill4bpp((u8*)pool+index,operation);seen[5]++;
 }
 static void expectedDispatcher(void){unsigned i,index;ovl662_func_8012571C();
  index=byteIndex((u8*)w->s.garage.scratch34)/4;assert(index<=8192-512);for(i=0;i<512;i++)expectedPool[index+i]=0;

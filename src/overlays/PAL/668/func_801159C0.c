@@ -26,7 +26,7 @@ typedef struct {
     u32 head70;
 } RrStrCreditContext;
 
-extern RrStrCreditContext *D_800ACC14;
+extern RrStrCreditContext *CurrentDrawBuf;
 extern s32 D_80127E90;
 const s32 ovl668_D_80114898[2] = {0x35, 0x36};
 const s32 ovl668_D_801148A0 = 0x7F94;
@@ -87,7 +87,7 @@ void ovl668_func_801159C0(s32 line, s32 unused) {
         p->b3 = bottom;
         p->clut = ovl668_D_801148A0;
         p->tpage = ovl668_D_80114898[page];
-        ot = &D_800ACC14->head70;
+        ot = &CurrentDrawBuf->head70;
         p->tag = (p->tag & 0xFF000000) | (*ot & 0x00FFFFFF);
         *ot = (*ot & 0xFF000000) | ((u32)p & 0x00FFFFFF);
         p++;

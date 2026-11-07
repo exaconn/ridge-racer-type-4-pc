@@ -6,7 +6,7 @@
 
 typedef struct { char pad[0x1C]; short f1c; char pad2[0x3E]; } T;
 
-extern T D_800F3A38[];
+extern T PlayerControllers[];
 extern int SetCdMixMode();
 extern int CdAudioSetVolumeRaw();
 extern int SeqSetVolume();
@@ -16,12 +16,12 @@ void func_8004C098(int i);
 void HsvToRgb(const RrHsvColor input,RrRgbColor output);
 
 void func_8004C098(int i) {
-    if (D_800F3A38[i].f1c != 0) {
+    if (PlayerControllers[i].f1c != 0) {
         PadSetMainMode(i * 16, 1, 0);
     }
 }
 
-void func_8004C0EC(void) {
+void ApplySoundVolumes(void) {
     char *p = SoundState;
     CdAudioSetVolumeRaw(*(unsigned short *)(p + 0x26C4));
     SeqSetVolume(*(short *)(p + 0x2888));

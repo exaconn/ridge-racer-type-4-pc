@@ -10,7 +10,7 @@ void ovl665_func_80116358(const RrPreviewMatrixWorkspace *arg0, const RrPreviewL
     i=0;
     dst2=mat[1].halves;
     mat[0]=*arg0;
-    dst1=D_800ABED0.halves;
+    dst1=LightMatrix.halves;
     src2=input->halves;
     do {
         dst1[0]=src2[6];
@@ -25,6 +25,6 @@ void ovl665_func_80116358(const RrPreviewMatrixWorkspace *arg0, const RrPreviewL
         arg1+=4;
         dst2++;
     } while (i<3);
-    MulMatrix2((s32 *)D_800ABED0.words,mat[0].halves);
+    MulMatrix2((s32 *)LightMatrix.words,mat[0].halves);
     SetLightMatrix((s32 *)mat[0].words);
 }

@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8008E7F4();
+void cd_read_restore_sync();
 
 #endif /* RR_PSYQ_LIBCD_DSREAD2_H */

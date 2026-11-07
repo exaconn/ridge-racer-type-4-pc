@@ -2,7 +2,7 @@
 void ovl662_func_80119B44(void) {
  s32 i;s16 val;RrBadgeRow1C *badge;
  ModeFrame=0;ScreenFrame=0;ovl662_D_801272D4=0;ovl662_D_801272C0=0;MenuCursor=0;
- LoadCursor=D_800F4D70.second;
+ LoadCursor=MenuArenas.second;
  if(!ovl662_D_801272E8)MenuItemCount=2;else MenuItemCount=1;
  InitRect16Row(0,128,128,64,128,0,0);
  InitUiRow(0,12,64,68,32,0,0,1,0,83);
@@ -15,7 +15,7 @@ void ovl662_func_80119B44(void) {
  }
  ovl662_D_80127398=0;
  if(ovl662_D_801272E8==1){ovl662_D_801272E2=0;ovl662_D_801272BE=0;}
- else{val=D_800ABE08[1][ovl662_D_801272E4].second;ovl662_D_801272E2=val;
+ else{val=CourseChoiceTable[1][ovl662_D_801272E4].second;ovl662_D_801272E2=val;
  if((s16)val>0)ovl662_D_801272BE=val-1;else ovl662_D_801272BE=0;}
  ovl662_D_801272E2=(s8)ovl662_D_801272A0[ovl662_D_801272BE];
  val=ovl662_D_801272E2;

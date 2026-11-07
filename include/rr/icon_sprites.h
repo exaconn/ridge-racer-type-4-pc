@@ -8,7 +8,7 @@ typedef struct {
     u8 pad08[0x68];
     u32 head70;
 } RrIconSpriteContext;
-extern RrIconSpriteContext *D_800ACC14;
+extern RrIconSpriteContext *CurrentDrawBuf;
 extern u16 D_8001121C[];
 
 /* Requires a valid nonnegative CLUT-table index, a four-byte-aligned cursor

@@ -4,11 +4,11 @@
 
 #include "rr/commands.h"
 
-s32 func_8009D978(void) {
+s32 _cardSectorTx(void) {
     register s32 result;
     /* ASM_BARRIER: Keep the folding accumulator separate from the returned byte. */
     register s32 checksum __asm__("$3");
-    if(D_800ABDF0) {
+    if(CardRetriesLeft) {
         /* ASM_BARRIER: Keep the retry-phase comparison after its independent tick read. */
         __asm__("" : : : "$2");
         switch(D_800ABDE8) {
@@ -21,14 +21,14 @@ s32 func_8009D978(void) {
     /* ASM_BARRIER: Keep the normal-phase comparison after its independent tick read. */
     __asm__("" : : : "$2");
     switch(D_800ABDE8) {
-    case 2: D_80114710=0;result=0x57;goto done;
+    case 2: CardChecksum=0;result=0x57;goto done;
     case 5:
-high: result=((u8 *)&D_80114724)[1];goto done;
+high: result=((u8 *)&CardCmdSector)[1];goto done;
     case 6:
-low: result=*(u8 *)&D_80114724;goto done;
-    case 133: result=D_8011472C.value;checksum=D_80114710^result;goto fold;
-    case 134: result=D_80114710;goto done;
-    case 135: result=((D_80114724>>8)^D_80114724)&255;goto done;
+low: result=*(u8 *)&CardCmdSector;goto done;
+    case 133: result=D_8011472C.value;checksum=CardChecksum^result;goto fold;
+    case 134: result=CardChecksum;goto done;
+    case 135: result=((CardCmdSector>>8)^CardCmdSector)&255;goto done;
     default:
         if(D_800ABDE8<7) {result=0;goto done;}
         /* ASM_BARRIER: Preserve the separate fresh tick read for the upper bound. */
@@ -38,12 +38,12 @@ low: result=*(u8 *)&D_80114724;goto done;
         __asm__("" : : : "memory");
         {
             s32 phase=D_800ABDE8;
-            checksum=D_80114710;
-            result=D_80114740[phase+3];
+            checksum=CardChecksum;
+            result=CardRxTrace[phase+3];
             checksum^=result;
         }
 fold:
-        D_80114710=checksum;
+        CardChecksum=checksum;
     }
 done:
     /* ASM_BARRIER: Retain the original shared return entry for all protocol phases. */

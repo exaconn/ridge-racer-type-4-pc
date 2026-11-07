@@ -44,11 +44,11 @@ static const u16 timers[8]={0,1,63,64,32767,32768,65534,65535};
 #define ovl662_D_801272D4 w->s.mode
 #define SelectionRows w->s.choice
 #define D_800F4D99 w->s.choice.bytes[1]
-#define D_800F3A38 w->s.controllers
+#define PlayerControllers w->s.controllers
 #define UiRows w->s.ui[w->s.uiRoot]
 #define BadgeRows w->s.badges[w->s.badgeRoot]
 #define GlyphRows w->s.glyphs[w->s.glyphRoot]
-#define D_800ACC14 ((RrIconSpriteContext*)&frames[w->s.frameRoot])
+#define CurrentDrawBuf ((RrIconSpriteContext*)&frames[w->s.frameRoot])
 #define ovl662_D_801272D8 w->s.counts
 #define ovl662_D_80127328 w->s.grid
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
@@ -67,7 +67,7 @@ static void change(void){unsigned i,j,n=w->calls;if(!mutation)return;
  w->s.badges[w->s.badgeRoot][0].state10=((scenario+n)%3==0)?3:((scenario+n)%3==1)?11:-1;
  for(i=0;i<4;i++){w->s.counts[i]=(u16)next();for(j=0;j<4;j++)w->s.grid[i][j]=(u16)next();}
 }
-s32 func_8003B47C(void){static const s32 values[]={0,1,-1,65537};Event *e=event(1);s32 result=values[scenario%4];e->args[0]=result;change();return result;}
+s32 LoadGlyphRowsStep(void){static const s32 values[]={0,1,-1,65537};Event *e=event(1);s32 result=values[scenario%4];e->args[0]=result;change();return result;}
 void DrawMenuStepArrows(s32 x,s32 y,s32 width,s32 mode,s32 selected,s32 first,s32 second){
  Event *e=event(2);e->args[0]=x;e->args[1]=y;e->args[2]=width;e->args[3]=mode;e->args[4]=selected;e->args[5]=first;e->args[6]=second;change();
 }
@@ -90,7 +90,7 @@ static s32 completion(unsigned mode){s32 selected=w->s.choice.bytes[mode];
 }
 static void expected(void){s32 flags=65538;unsigned phase=(u16)w->s.phase;
  w->s.frame=word((u32)w->s.frame+1);w->s.tick=word((u32)w->s.tick+1);
- if(phase==0){s32 result=func_8003B47C();if(result==1){SetMenuFrameOptions(1,1,1);w->s.phase=1;}}
+ if(phase==0){s32 result=LoadGlyphRowsStep();if(result==1){SetMenuFrameOptions(1,1,1);w->s.phase=1;}}
  else if(phase==1||phase==3){s32 completed=completion(phase==3);s32 captured=w->s.badges[w->s.badgeRoot][0].state10;
   if(phase==3)flags=65542;
   if(captured==3){

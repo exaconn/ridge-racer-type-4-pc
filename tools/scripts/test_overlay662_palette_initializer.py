@@ -31,9 +31,9 @@ static World actual,reference,initial,*w;
 static u8 arena[3][128],palettes[3][25*0x840];
 static unsigned scenario,mutation,seenMap,seenFlags;
 #define SaveProgress w->s.save
-#define D_800ABE08 w->s.courses
+#define CourseChoiceTable w->s.courses
 #define BadgeRows (w->s.badges[w->s.root])
-#define D_800F4D70 w->s.arenas
+#define MenuArenas w->s.arenas
 #define LoadCursor w->s.published
 #define D_800F3B20 w->s.palette0
 #define D_800F3B24 w->s.palette1

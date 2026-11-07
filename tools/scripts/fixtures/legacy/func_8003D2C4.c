@@ -3,7 +3,7 @@
 
 /* Caller-facing O32 arguments retain full register words; the existing helpers
  * narrow coordinates and packet fields when writing the GPU representation. */
-extern RrSpritePacket *func_8001FF84(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32);
+extern RrSpritePacket *AddSpritePrim(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32);
 extern RrSpritePacket *GameQueueSprite(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32);
 extern void *AddTilePrim(u32*,void*,s32,s32,s32,s32,s32,s32,s32);
 
@@ -34,7 +34,7 @@ RrSpritePacket *DrawBadgeTitleBar(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,
     descriptor_base=(u8*)D_8009F968;
     selector=(u32)style*sizeof(RrUiBarDescriptor);
     descriptor=(RrUiBarDescriptor*)(descriptor_base+selector);
-    cursor=func_8001FF84(ordering,cursor,x_stage,y_stage,
+    cursor=AddSpritePrim(ordering,cursor,x_stage,y_stage,
                        &D_8009F94C[descriptor->glyph],0x7FFB,0);
     out_order=ordering;
     out_cursor=cursor;

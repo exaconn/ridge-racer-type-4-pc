@@ -14,9 +14,9 @@ struct Q_1 { int a, b; };
 
 extern int setRC2wait();
 extern int chkRC2wait();
-extern int D_800ABCAC;
-extern struct HW *D_800ABCCC;
-extern struct Q *D_800ABCC8;
+extern int PadRecvStage;
+extern struct HW *PadSio0Base;
+extern struct Q *I_STAT_Pad;
 
 int _padSioRW2(a0, a1) struct W *a0; int a1; {
     int s1;
@@ -30,38 +30,38 @@ int _padSioRW2(a0, a1) struct W *a0; int a1; {
     if ((c >> 4) == 8) {
         if (a0->f44 >= 9) s1 = 0x22;
     }
-    do { } while (!(D_800ABCCC->s4 & 2));
+    do { } while (!(PadSio0Base->s4 & 2));
     setRC2wait(0x190);
-    hw = D_800ABCCC;
+    hw = PadSio0Base;
     s2 = hw->b0;
     if (a0->f44 != 0 || (s2 >> 4) != 8) {
         hw->sE = s1;
     } else {
         hw->sE = 0x22;
     }
-    while (!(*(volatile int *)D_800ABCC8 & 0x80)) {
+    while (!(*(volatile int *)I_STAT_Pad & 0x80)) {
         v1 = *(volatile unsigned short *)0x1F801120;
         if (v1 < D_801146B8) {
             if (*(volatile unsigned short *)0x1F801128 != 0) v1 += *(volatile unsigned short *)0x1F801128;
             else v1 += 0x10000;
         }
         if (*(volatile unsigned short *)0x1F801124 & 0x200) {
-            if (v1 - D_801146B8 >= D_801146BC) return -2;
+            if (v1 - D_801146B8 >= RC2WaitLimit) return -2;
         } else {
-            if (((v1 - D_801146B8) >> 3) >= D_801146BC) return -2;
+            if (((v1 - D_801146B8) >> 3) >= RC2WaitLimit) return -2;
         }
     }
     if (a0->fE8 != 8) {
-        if (D_800ABCAC == 2) {
+        if (PadRecvStage == 2) {
             setRC2wait(0x3C);
             do { } while (chkRC2wait() == 0);
         }
     }
-    D_800ABCCC->b0 = a1;
-    if (D_800ABCAC == 3) {
+    PadSio0Base->b0 = a1;
+    if (PadRecvStage == 3) {
         if (s2 == 0x80) {
-            D_800ABCC8->a = -0x81;
-            D_800ABCCC->sA |= 0x10;
+            I_STAT_Pad->a = -0x81;
+            PadSio0Base->sA |= 0x10;
         }
     }
     a0->f45++;
@@ -81,21 +81,21 @@ int _padSioRW2(a0, a1) struct W *a0; int a1; {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABCC8 ((struct Q_1 *)D_800ABCC8)
-#define D_800ABCCC ((struct R *)D_800ABCCC)
+#define I_STAT_Pad ((struct Q_1 *)I_STAT_Pad)
+#define PadSio0Base ((struct R *)PadSio0Base)
 #define chkRC2wait ((int (*)())chkRC2wait)
 
 int _padClrIntSio0() {
-    D_800ABCC8->a = -0x81;
-    if (D_800ABCCC->c & 0x80) {
+    I_STAT_Pad->a = -0x81;
+    if (PadSio0Base->c & 0x80) {
         do {
             if (chkRC2wait()) return 0;
-        } while (D_800ABCCC->c & 0x80);
+        } while (PadSio0Base->c & 0x80);
     }
-    D_800ABCCC->f |= 0x10;
+    PadSio0Base->f |= 0x10;
     return 1;
 }
 
-#undef D_800ABCC8
-#undef D_800ABCCC
+#undef I_STAT_Pad
+#undef PadSio0Base
 #undef chkRC2wait

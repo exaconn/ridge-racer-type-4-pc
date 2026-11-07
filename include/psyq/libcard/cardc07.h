@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int func_8009CA8C();
-int func_8009CB50();
+int _cardCmd5CRangeTx();
+int _cardCmd5CRangeRx();
 
 #endif /* RR_PSYQ_LIBCARD_CARDC07_H */

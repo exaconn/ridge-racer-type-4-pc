@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_8007A9CC();
+int CardLoadStep();
 
 #endif /* RR_GAME_MENU_LOADMENU_H */

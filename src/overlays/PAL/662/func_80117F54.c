@@ -57,9 +57,9 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
                 clut = 32760;
                 color = 0;
             }
-            cursor = func_8001FF84(order, cursor, x + dx, y,
-                &D_8009FA1C[ovl662_D_80126230[i]], clut, color);
-            dx += D_8009FA1C[ovl662_D_80126230[i]].w + 4;
+            cursor = AddSpritePrim(order, cursor, x + dx, y,
+                &UiFontGlyphs[ovl662_D_80126230[i]], clut, color);
+            dx += UiFontGlyphs[ovl662_D_80126230[i]].w + 4;
         }
     }
     AddDrawModePrim(order, cursor, 56);

@@ -140,7 +140,7 @@ extern u8 D_8009F02C[];
 extern u8 D_8009F034[];
 extern u8 D_8009F03C[];
 extern u8 D_8009F044[];
-extern s16 D_800ABED0[];
+extern s16 LightMatrix[];
 extern s32 D_800F2FD8;
 extern Bounds2CC88 *CarBoundsTable[];
 s32 func_80039494(Vehicle2D1B4 *);
@@ -148,9 +148,9 @@ extern LightEntry2C *D_800F4D90;
 extern LodDist6 D_8009F04C[];
 
 int TriggerWheelBump(char *a, int b);
-void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2);
-void func_8002D1B4(Vehicle2D1B4 *arg0);
-void func_8002D784(Vehicle2D784 *arg0, s32 arg1);
+void DrawPreviewCar(Vehicle2CC88 *arg0, s32 arg1, s32 arg2);
+void DrawPlayerCar(Vehicle2D1B4 *arg0);
+void DrawOpponentCar(Vehicle2D784 *arg0, s32 arg1);
 
 int TriggerWheelBump(char *a, int b)
 {
@@ -169,7 +169,7 @@ fail:
     return 1;
 }
 
-void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
+void DrawPreviewCar(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
     Mat8 sp10;
     Mat8 sp30;
     Mat8 sp50;
@@ -184,14 +184,14 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
 
     slot_half = arg0->slot1E6 >> 1;
     SelectModelBank(slot_half);
-    func_8003CF34(arg2);
+    SetLightColorsScaled(arg2);
 
     BuildRotMatrixY(&sp70, -arg0->rot54);
     BuildRotMatrixX(&sp30, -arg0->rot50);
     BuildRotMatrixZ(&sp50, -arg0->rot58);
     MulMatrix(&sp30, &sp50);
     MulMatrix(&sp70, &sp30);
-    MulMatrix0(D_800ABED0, &sp70, &sp50);
+    MulMatrix0(LightMatrix, &sp70, &sp50);
     RR_GTE_SETLLM(&sp50);
 
     BuildRotMatrixY(&sp10, -arg0->rot54);
@@ -273,7 +273,7 @@ void func_8002CC88(Vehicle2CC88 *arg0, s32 arg1, s32 arg2) {
 /* legacy typing of shared globals in this part of the unit */
 #define CarBoundsTable (*(Bounds2D1B4 *(*)[])&CarBoundsTable)
 
-void func_8002D1B4(Vehicle2D1B4 *arg0) {
+void DrawPlayerCar(Vehicle2D1B4 *arg0) {
     Mat8 sp20;
     Mat8 sp40;
     Mat8 sp60;
@@ -297,7 +297,7 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
     BuildRotMatrixZ(&sp60, -arg0->rot58);
     MulMatrix(&sp40, &sp60);
     MulMatrix(&sp80, &sp40);
-    MulMatrix0(D_800ABED0, &sp80, &sp60);
+    MulMatrix0(LightMatrix, &sp80, &sp60);
     RR_GTE_SETLLM(&sp60);
     BuildRotMatrixY(&sp20, -arg0->rot54);
     MulMatrix2((Mat8 *)SCRATCH_ROT_MATRIX, &sp20);
@@ -387,7 +387,7 @@ void func_8002D1B4(Vehicle2D1B4 *arg0) {
 #define func_80039494 ((s32 (*)(Vehicle2D784 *))func_80039494)
 #define CarBoundsTable (*(Bounds2D784 *(*)[])&CarBoundsTable)
 
-void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
+void DrawOpponentCar(Vehicle2D784 *arg0, s32 arg1) {
     Mat8 sp20;
     Mat8 sp40;
     Mat8 sp60;
@@ -446,7 +446,7 @@ void func_8002D784(Vehicle2D784 *arg0, s32 arg1) {
         BuildRotMatrixZ(&sp60, -arg0->rot58);
         MulMatrix(&sp40, &sp60);
         MulMatrix(&sp80, &sp40);
-        MulMatrix0(D_800ABED0, &sp80, &sp60);
+        MulMatrix0(LightMatrix, &sp80, &sp60);
         RR_GTE_SETLLM(&sp60);
         if (i < D_8009F04C[arg1].d0) {
             BuildRotMatrixY(&sp20, -arg0->rot54);

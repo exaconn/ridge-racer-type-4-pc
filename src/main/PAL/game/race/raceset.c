@@ -20,7 +20,7 @@ extern s32 CourseBestLap[2][8];
 extern s16 ReverseCourse;
 extern s32 TrackLength;
 extern s32 D_800F3838[2][8][3];
-extern s16 D_800F3914;
+extern s16 CourseIndex;
 extern s32 NumLaps;
 extern s32 D_800F3B00[];
 extern s32 LapFrameCounts[];
@@ -94,7 +94,7 @@ void UpdateLapTiming(RrRaceVehicle *arg0) {
                     }
                 }
             }
-            if ((u16)(D_800F3914 - 6) < 2U) {
+            if ((u16)(CourseIndex - 6) < 2U) {
                 target = NumLaps - 1;
             } else {
                 target = NumLaps;
@@ -137,21 +137,21 @@ void UpdateLapTiming(RrRaceVehicle *arg0) {
                             TotalRaceTime = 0x927BF;
                         }
                         if (D_800F4D44 == 0) {
-                            if (CourseBestTotal[ReverseCourse][D_800F3914] > TotalRaceTime) {
-                                CourseBestTotal[ReverseCourse][D_800F3914] = TotalRaceTime;
+                            if (CourseBestTotal[ReverseCourse][CourseIndex] > TotalRaceTime) {
+                                CourseBestTotal[ReverseCourse][CourseIndex] = TotalRaceTime;
                             }
-                            if (CourseBestLap[ReverseCourse][D_800F3914] > BestLapTime) {
-                                CourseBestLap[ReverseCourse][D_800F3914] = BestLapTime;
+                            if (CourseBestLap[ReverseCourse][CourseIndex] > BestLapTime) {
+                                CourseBestLap[ReverseCourse][CourseIndex] = BestLapTime;
                             }
-                            D_800F3838[ReverseCourse][D_800F3914][0] = D_8010C0F8[0];
-                            D_800F3838[ReverseCourse][D_800F3914][1] = D_8010C0F8[1];
-                            D_800F3838[ReverseCourse][D_800F3914][2] = D_8010C0F8[2];
+                            D_800F3838[ReverseCourse][CourseIndex][0] = D_8010C0F8[0];
+                            D_800F3838[ReverseCourse][CourseIndex][1] = D_8010C0F8[1];
+                            D_800F3838[ReverseCourse][CourseIndex][2] = D_8010C0F8[2];
                         } else if (D_800F4D44 == 1) {
-                            if (D_800AC5B0[D_800F3914] > TotalRaceTime) {
-                                D_800AC5B0[D_800F3914] = TotalRaceTime;
+                            if (CourseBestTotalTimes[CourseIndex] > TotalRaceTime) {
+                                CourseBestTotalTimes[CourseIndex] = TotalRaceTime;
                             }
-                            if (D_800F3B00[D_800F3914] > BestLapTime) {
-                                D_800F3B00[D_800F3914] = BestLapTime;
+                            if (D_800F3B00[CourseIndex] > BestLapTime) {
+                                D_800F3B00[CourseIndex] = BestLapTime;
                             }
                         }
                     }

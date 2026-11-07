@@ -5,8 +5,8 @@
 #include "rr/save_progress.h"
 #include "rr/course_choice_types.h"
 #include "rr/string_tail_copy.h"
-extern RrCourseChoice4 D_800ABE08[2][9];
-void func_80053BB4(s32 mode);
+extern RrCourseChoice4 CourseChoiceTable[2][9];
+void SeqStartTrack(s32 mode);
 #include "rr/overlay662_progress_init.h"
 extern const char ovl662_D_8011487C[];
 void SetModelTexturePage(s32 mode);
@@ -19,12 +19,12 @@ void ovl662_func_80114B9C(void) {
     ModeGroup = 1;
     D_800F3A26 = 40;
     D_800F4D8A = 0;
-    func_8001E84C(ovl662_D_8011487C);
+    DebugPrintStub(ovl662_D_8011487C);
     if (SaveProgress.prefix.reserved50.words[0] == 1) {
-        if (D_800ABE08[1][7].glyph >= 0) {
-            D_800ABE08[1][8].glyph = 359;
-            D_800ABE08[1][8].first = 1;
+        if (CourseChoiceTable[1][7].glyph >= 0) {
+            CourseChoiceTable[1][8].glyph = 359;
+            CourseChoiceTable[1][8].first = 1;
         }
     }
-    func_80053BB4(0);
+    SeqStartTrack(0);
 }

@@ -3,11 +3,11 @@
 #include "types.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_801146BC (*(unsigned int (*))&D_801146BC)
+#define RC2WaitLimit (*(unsigned int (*))&RC2WaitLimit)
 
-#undef D_801146BC
+#undef RC2WaitLimit
 
-extern s32 D_801146BC;
+extern s32 RC2WaitLimit;
 
 extern unsigned int D_801146B8;
 
@@ -27,11 +27,11 @@ int chkRC2wait() {
     }
     if (!(*(volatile unsigned short *)0x1F801124 & 0x200)) {
         b = D_801146B8;
-        lim = D_801146BC;
+        lim = RC2WaitLimit;
         v0 = (a0 - b) >> 3;
     } else {
         b = D_801146B8;
-        lim = D_801146BC;
+        lim = RC2WaitLimit;
         v0 = a0 - b;
     }
     return v0 >= lim;

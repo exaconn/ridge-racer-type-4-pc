@@ -41,7 +41,7 @@ static World world,initial,expected;static u16 textData[32];static unsigned scen
 #define ScreenFadeState world.s.work
 #define BadgeRows world.s.badges[world.s.badgeRoot]
 #define D_800AC590 (&world.s.text[world.s.textRoot])
-#define D_800ACC14 ((RrIconSpriteContext*)&world.s.frames[world.s.frameRoot])
+#define CurrentDrawBuf ((RrIconSpriteContext*)&world.s.frames[world.s.frameRoot])
 #define D_800F3A60 world.s.accept
 #define D_800AC5D0 world.s.fade
 #define ovl665_D_80119028 world.s.uv
@@ -85,7 +85,7 @@ void func_8005B2D4(s32 mode){event(6)->args[0]=mode;change();}
 void PlaySfx(s32 sound){event(7)->args[0]=sound;change();}
 void AddScreenFadeTiles(u32 *head,s32 intensity,u32 mode){Event *e=event(8);assert(head==world.s.frames[world.s.frameRoot].ordering70);e->args[0]=intensity;e->args[1]=mode;*head^=(u32)intensity;change();}
 void ovl665_func_80114A24(void){event(9);change();}
-void *func_8001FF84(u32 *head,void *cursor,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
+void *AddSpritePrim(u32 *head,void *cursor,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
  Event *e=event(10);unsigned n=world.s.glyphCalls,i;GlyphStorage *p;int arena=-1;
  assert(n<8&&head==world.s.frames[world.s.frameRoot].ordering70&&uv==&world.s.uv);
  for(i=0;i<3;i++)if(cursor==&world.s.streams[i].glyphs[n])arena=i;assert(arena>=0);p=&world.s.streams[arena].glyphs[n];
@@ -125,7 +125,7 @@ static void reference(void){unsigned i;State *s=&world.s;
   else if(phase==3){s->fade=half((s32)s->fade-1);AddScreenFadeTiles(s->frames[s->frameRoot].ordering70,(64-(s32)s->fade)*4,69);if(s->fade<=0&&BadgeRows[0].state10==11){ovl665_func_80114A24();s->visual.layout0C=0;s->visual.scene00=wrap((int64_t)s->visual.scene00-1);return;}}
  }
  {void *cursor=s->scratch.pointers.cursor;
-  for(i=0;i<8;i++)cursor=func_8001FF84(s->frames[s->frameRoot].ordering70,cursor,24+36*i,144,&s->uv,32568,255-(i*223+6)/7);
+  for(i=0;i<8;i++)cursor=AddSpritePrim(s->frames[s->frameRoot].ordering70,cursor,24+36*i,144,&s->uv,32568,255-(i*223+6)/7);
   s->scratch.pointers.cursor=cursor;command(cursor,0xE1000239U);
  }
  for(i=0;i<8;i++){DrawHudDigit(0,28+36*i,192,128);DrawHudDigit(i+1,34+36*i,192,128);}

@@ -40,7 +40,7 @@ static int count,mutation,status,op_status;
 static unsigned seen[12];
 static _Alignas(16) u8 contexts[2][0xc00],packets[4096];
 static s8 *scripts[12];
-#define D_800ACC14 ((RrIconSpriteContext*)contexts[w->context])
+#define CurrentDrawBuf ((RrIconSpriteContext*)contexts[w->context])
 #define D_800AD50A (w->transition)
 #define ModeFrame (w->frame)
 #define D_800F3A26 (w->next_timer)

@@ -3,48 +3,48 @@
 #include "rr/commands.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_80114718 (*(int (*))&D_80114718)
+#define CardCmdBuffer (*(int (*))&CardCmdBuffer)
 
-#define D_80114734 ((int *)D_80114734)
+#define CardCommandReader ((int *)CardCommandReader)
 
-#define D_80114738 ((int *)D_80114738)
+#define CardWriteHandler ((int *)CardWriteHandler)
 
-#undef D_80114718
+#undef CardCmdBuffer
 
-#undef D_80114734
+#undef CardCommandReader
 
-#undef D_80114738
+#undef CardWriteHandler
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_8011472C (*(char (*))&D_8011472C)
 
-#define D_80114718 ((char *)D_80114718)
+#define CardCmdBuffer ((char *)CardCmdBuffer)
 
-#define D_80114734 ((int *)D_80114734)
+#define CardCommandReader ((int *)CardCommandReader)
 
-#define D_80114738 ((int *)D_80114738)
+#define CardWriteHandler ((int *)CardWriteHandler)
 
 #undef D_8011472C
 
-#undef D_80114718
+#undef CardCmdBuffer
 
-#undef D_80114734
+#undef CardCommandReader
 
-#undef D_80114738
+#undef CardWriteHandler
 
-extern s32 func_8009D65C(void);
+extern s32 _cardCmd58Tx(void);
 
-extern s32 func_8009D680(s32);
+extern s32 _cardCmd58Rx(s32);
 
-s32 func_8009D5B4(s32 request, u32 *first, u32 *second) {
+s32 _cardCmd58Begin(s32 request, u32 *first, u32 *second) {
     s32 result;
     s32 active;
     if (!rr_command_begin(request)) return 0;
     /* ASM_BARRIER: keep success initialization before the command configuration stores. */
     __asm__ volatile("" : "=r"(result) : "0"(1) : "$3", "memory");
-    D_80114870 = 100;
-    D_80114734 = func_8009D65C;
-    D_80114738 = func_8009D680;
+    CardCurrentCommand = 100;
+    CardCommandReader = _cardCmd58Tx;
+    CardWriteHandler = _cardCmd58Rx;
     active = 2;
     D_8011471C = first;
     D_80114720 = second;

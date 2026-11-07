@@ -2,7 +2,7 @@
 
 extern s32 func_80096414(const void *,const void *,u32);
 
-extern s32 func_8001E84C(const char *,...);
+extern s32 DebugPrintStub(const char *,...);
 
 extern char D_80011D88[];
 
@@ -38,7 +38,7 @@ int CdGetDiskType(void) {
                 const char *page=(const char *)0x80010000U;
                 /* ASM_BARRIER: Expose the real PAL message page before forming its call argument. */
                 __asm__("" : "+r"(page));
-                func_8001E84C(page+0x1D78);
+                DebugPrintStub(page+0x1D78);
                 }
                 return 1;
             }

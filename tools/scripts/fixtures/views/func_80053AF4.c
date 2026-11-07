@@ -30,7 +30,7 @@ extern void SsSeqClose(int);
 
 extern int func_80096434();
 
-void func_80053AF4(int a0, int a1) {
+void SeqFadeVolume(int a0, int a1) {
     if ((s16)a1 >= 2) {
         u16 v = SoundState.x2888;
         SoundState.x288A = a1;

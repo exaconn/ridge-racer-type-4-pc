@@ -5,7 +5,7 @@ int SetRCnt(unsigned a0, unsigned short a1, int a2) {
     int a3 = 0x48;
     char *p;
     if (t >= 3) return 0;
-    p = (char *)(t * 16 + (unsigned long)D_800ABC34);
+    p = (char *)(t * 16 + (unsigned long)RCNT_REGS);
     *(short *)(p + 4) = 0;
     *(volatile short *)(p + 8) = a1;
     if ((unsigned)t < 2) {
@@ -17,6 +17,6 @@ int SetRCnt(unsigned a0, unsigned short a1, int a2) {
         }
     }
     if (a2 & 0x1000) a3 |= 0x10;
-    *(short *)(t * 16 + (unsigned long)D_800ABC34 + 4) = a3;
+    *(short *)(t * 16 + (unsigned long)RCNT_REGS + 4) = a3;
     return 1;
 }

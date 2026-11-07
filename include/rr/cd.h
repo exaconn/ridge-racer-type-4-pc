@@ -16,7 +16,7 @@ typedef struct {
 
 /* Per-command metadata and the current drive status byte.
  * The command's low byte must select an accessible metadata entry. */
-extern u32 D_800A6400[];
+extern u32 CD_com_info[];
 /* Reset clears all four bytes; command paths read the low status byte. */
 typedef union {u32 word;struct {u8 status,reserved[3];} bytes;} RrCdDriveStatus;
 extern RrCdDriveStatus CD_status;
@@ -39,11 +39,11 @@ s32 CD_getsector2(u8 *buffer, u32 words);
 s32 CdGetSector(u8 *buffer, u32 words);
 u8 *CdIntToPos(s32 sector, u8 *location);
 s32 CdGetDiskType(void);
-extern volatile u8 *D_800A674C, *D_800A6758;
-extern volatile u32 *D_800A675C, *D_800A6780, *D_800A6784;
-extern volatile u32 *D_800A678C, *D_800A6790;
+extern volatile u8 *CD_reg0, *CD_reg3;
+extern volatile u32 *COM_DELAY, *D_800A6780, *CD_dpcr;
+extern volatile u32 *DMA3_BCR, *DMA3_CHCR;
 /* The DMA address register holds a buffer address, not an integer object id. */
-extern u8 * volatile *D_800A6788;
+extern u8 * volatile *DMA3_MADR;
 
 RR_ASSERT_SIZE(RrCdLocation, 4);
 RR_ASSERT_SIZE(RrCdFileEntry, 8);

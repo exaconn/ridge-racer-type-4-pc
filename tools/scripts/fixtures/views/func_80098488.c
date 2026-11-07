@@ -8,20 +8,20 @@ extern void setRC2wait(s32);
 
 extern s32 _padClrIntSio0(void);
 
-void func_80098488(RrChannelRecordF0 *channel) {
-    s32 *stage=&D_800ABCAC;
-    RrChannelStageCallback callback=D_800ABCEC[*stage];
+void _padSioStageStep(RrChannelRecordF0 *channel) {
+    s32 *stage=&PadRecvStage;
+    RrChannelStageCallback callback=PadRecvStageTable[*stage];
     s32 result,value;
     *stage+=1;
     result=callback(channel);
     if(result<0)goto error;
-    value=D_800ABCAC;
+    value=PadRecvStage;
     if(value) {
         if(value==3 && channel->status.packet[0]==0x80)goto reload;
         setRC2wait(60);
         if(!_padClrIntSio0())D_800ABC68(-3);
 reload:
-        value=D_800ABCAC;
+        value=PadRecvStage;
         /* ASM_BARRIER: Keep the reload gap before the shared saturation label. */
         RR_NOP_DEP_ON(value);
     }

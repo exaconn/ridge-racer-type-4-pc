@@ -6,7 +6,7 @@ s32 ovl668_func_801168A4(const char *message) {
     /* Preserve the full native register pointer; PAL uses32-bit pointers. */
     u32 *port;
     s32 result;
-    func_8001E84C(ovl668_D_801148FC, message);
+    DebugPrintStub(ovl668_D_801148FC, message);
     RR_STR_WRITE32(ovl668_D_80116E54, 0x80000000);
     RR_STR_WRITE32(ovl668_D_80116E28, 0);
     port = ovl668_D_80116E34;

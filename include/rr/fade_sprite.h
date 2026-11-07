@@ -9,7 +9,7 @@ typedef struct {
     u8 pad08[0x90];
     u32 head98;
 } RrFadeSpriteContext;
-extern RrFadeSpriteContext *D_800ACC14;
+extern RrFadeSpriteContext *CurrentDrawBuf;
 extern s32 D_800ACA3C,D_800ACA38;
 extern RrUiUvRect D_800A1FB0[];
 extern u32 D_80011248[];

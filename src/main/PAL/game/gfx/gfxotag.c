@@ -60,7 +60,7 @@ extern struct {
 } RaceContext;
 extern short D_800AD520;
 extern int D_800F2FD8;
-extern short D_800F3914;
+extern short CourseIndex;
 extern void SetGteObjectTransform();
 extern void SelectModelBank();
 extern void func_8005F0D0();
@@ -101,7 +101,7 @@ void func_80044EC4(void) {
     s2 = RaceContext.f55C + (D_800AD520 << 7);
     func_80044920(s2, sp10);
     SetGteObjectTransform((SCRATCHPAD + 0x7C), s2, sp10);
-    s1 = func_80044B24(sp10, s2);
+    s1 = RotTransPersOrigin(sp10, s2);
     if (s1 > 0) {
         ClearOTagR(RaceContext.f50[DrawBufIndex], 0x15F);
         g[1] = RaceContext.f50[DrawBufIndex];
@@ -121,11 +121,11 @@ void func_80044EC4(void) {
             ((P_TAG *)&DRAWBUF->ot[s1])->addr = g[1] + 0x578;
         }
     }
-    if (D_8009FE60[D_800F3914] == 7) {
+    if (D_8009FE60[CourseIndex] == 7) {
         s2 = RaceContext.f55C + (D_800AD520 << 7) + 0x40;
         func_80044920(s2, sp10);
         SetGteObjectTransform((SCRATCHPAD + 0x7C), s2, sp10);
-        s1 = func_80044B24(sp10, s2);
+        s1 = RotTransPersOrigin(sp10, s2);
         if (s1 > 0) {
             ClearOTagR(RaceContext.f58[DrawBufIndex], 0x15F);
             g[1] = RaceContext.f58[DrawBufIndex];
@@ -147,7 +147,7 @@ void func_80044EC4(void) {
         }
     }
     g[0x18] = s5;
-    g[1] = (int)D_800ACC14 + 0x70;
+    g[1] = (int)CurrentDrawBuf + 0x70;
 }
 
 void ApplyCameraState(int *a) {
@@ -254,7 +254,7 @@ void func_80045830(void) {
 #define RaceContext (*(int (*)[])&RaceContext)
 #define D_800AC6B0 (*(char (*)[])&D_800AC6B0)
 #define D_800AC6D8 (*(int (*))&D_800AC6D8)
-#define D_800ACC14 ((char *)D_800ACC14)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
 int func_80045868(char *arg0)
 {
@@ -291,7 +291,7 @@ int func_80045868(char *arg0)
   g1 = RaceContext;
   if ((*((int *) (((char *) g1) + 0x90))) != 0)
   {
-    AddScreenFadeTiles(D_800ACC14 + 0x70, (*((int *) (((char *) g1) + 0x8C))) * 10, 0x25);
+    AddScreenFadeTiles(CurrentDrawBuf + 0x70, (*((int *) (((char *) g1) + 0x8C))) * 10, 0x25);
     v1 = (*((int *) (((char *) g1) + 0xA0))) - 8;
     *((int *) (((char *) g1) + 0xA0)) = v1;
     if (v1 < 0)
@@ -359,7 +359,7 @@ int func_80045868(char *arg0)
       pk[4] = s0;
       pk[5] = s0;
       pk[6] = s0;
-      ot = D_800ACC14;
+      ot = CurrentDrawBuf;
       __asm__("" : "+r"(pk) : "r"(ot), "r"(low)); /* ASM_BARRIER: order ot load before pk load and prioritize low */
       w = *((int *) pk);
       *((short *) (pk + 0xC)) = 0x140;
@@ -371,7 +371,7 @@ int func_80045868(char *arg0)
       pk += 0x10;
       *((char **) SCRATCHPAD) = pk;
       pk[3] = 1;
-      ot2 = D_800ACC14;
+      ot2 = CurrentDrawBuf;
       __asm__("" : "+r"(pk) : "r"(ot2)); /* ASM_BARRIER: order ot2 load before pk load */
       w = *((int *) pk);
       *((int *) (pk + 4)) = 0xE1000245;
@@ -414,7 +414,7 @@ int func_80045868(char *arg0)
   {
     case 1:
       func_800452CC(arg0, gD[0x88 / 4], D_800AD520);
-      if (D_800F3A40 & 0x800)
+      if (Pad0Buttons & 0x800)
     {
       if (gD[0x88 / 4] >= 0x1A)
       {
@@ -531,4 +531,4 @@ int func_80045868(char *arg0)
 #undef RaceContext
 #undef D_800AC6B0
 #undef D_800AC6D8
-#undef D_800ACC14
+#undef CurrentDrawBuf

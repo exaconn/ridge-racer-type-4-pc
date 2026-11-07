@@ -43,8 +43,8 @@ void _spu_Fr_(int a0, int a1, int a2) {
     _spu_RXX->spu_control |= 0x30;
     _spu_Fw1ts();
     _spu_FsetDelayR();
-    *D_800A47DC = a0;
-    *D_800A47E0 = ((u32)a2 << 16) | 0x10;
+    *DMA4_MADR = a0;
+    *DMA4_BCR = ((u32)a2 << 16) | 0x10;
     D_800A4828 = 1;
-    *D_800A47E4 = 0x1000200;
+    *DMA4_CHCR = 0x1000200;
 }

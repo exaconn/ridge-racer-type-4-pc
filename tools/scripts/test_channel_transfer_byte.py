@@ -37,8 +37,8 @@ unsigned long native_offsets[]={offsetof(RrChannelTransferView,data28),offsetof(
         cls.lib=C.CDLL(str(d/'f.so'))
         assert C.c_ulong.in_dll(cls.lib,'native_size').value==C.sizeof(Transfer)
         assert list((C.c_ulong*3).in_dll(cls.lib,'native_offsets'))==[Transfer.data28.offset,Transfer.phase45.offset,Transfer.gates54.offset]
-        cls.get=cls.lib.func_80099FA0;cls.get.argtypes=[C.POINTER(Transfer)];cls.get.restype=C.c_uint32
-        cls.history=cls.lib.func_80099F90;cls.history.argtypes=[C.POINTER(Transfer)];cls.history.restype=None
+        cls.get=cls.lib._padGetTxByte;cls.get.argtypes=[C.POINTER(Transfer)];cls.get.restype=C.c_uint32
+        cls.history=cls.lib._padSaveCommand;cls.history.argtypes=[C.POINTER(Transfer)];cls.history.restype=None
 
     def setUp(self):
         self.ctx=Transfer();C.memset(C.addressof(self.ctx),0xA5,C.sizeof(self.ctx))

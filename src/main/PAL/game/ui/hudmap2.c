@@ -123,7 +123,7 @@ typedef struct {
 } Scratch;
 
 extern s32 D_800A101C;
-extern UvRect D_800A1020[];
+extern UvRect HudMapSpriteRects[];
 extern UvRect D_800A1028;
 extern UvRect D_800A102C;
 extern s16 D_800A1030[];
@@ -133,7 +133,7 @@ extern s32 D_800A1070[];
 extern S3C *TrackNodes;
 extern s32 TrackNodeCount;
 extern s16 D_800AC648;
-extern s16 D_800F3914;
+extern s16 CourseIndex;
 extern void CdAudioSelectTrack();
 extern int func_80096464();
 extern short D_800AD520;
@@ -162,8 +162,8 @@ extern struct {
     s32 w28ac;
 } SoundState;
 
-void func_800587E4(s32 arg0, u8 *arg1, s32 *arg2);
-void func_80058A3C(s32 *arg0);
+void DrawMapBitmapIso(s32 arg0, u8 *arg1, s32 *arg2);
+void DrawTrackNodeMap(s32 *arg0);
 void func_800590DC(void);
 void CenterGlyphListX(short *a0, int a1);
 void func_80059314(s32 arg0, s32 arg1);
@@ -174,9 +174,9 @@ void func_80059C28(s32 index,s32 color);
 void func_80059D34(s32 index,s32 color);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((u8 *)D_800ACC14)
+#define CurrentDrawBuf ((u8 *)CurrentDrawBuf)
 
-void func_800587E4(s32 arg0, u8 *arg1, s32 *arg2) {
+void DrawMapBitmapIso(s32 arg0, u8 *arg1, s32 *arg2) {
     SPRT *sprt;
     s32 i, j;
     s32 x0, y0;
@@ -210,25 +210,25 @@ void func_800587E4(s32 arg0, u8 *arg1, s32 *arg2) {
                 sprt->code = (sprt->code & ~2) | 1;
                 sprt->clut = 0x7F64;
             }
-            ADDPRIM(D_800ACC14 + idx * 4 + 0x98, sprt);
+            ADDPRIM(CurrentDrawBuf + idx * 4 + 0x98, sprt);
             sprt++;
             x0 -= 4;
             y0 += 4;
         }
     }
     SetDrawMode(sprt, 0, 1, 0x19, 0);
-    (sprt)->addr = ((SPRT *)(D_800ACC14 + 0x9C))->addr;
-    ((SPRT *)(D_800ACC14 + 0x9C))->addr = (u32)(sprt);
+    (sprt)->addr = ((SPRT *)(CurrentDrawBuf + 0x9C))->addr;
+    ((SPRT *)(CurrentDrawBuf + 0x9C))->addr = (u32)(sprt);
     ((struct { void *p; } *)SCRATCHPAD)->p = (DR_MODE *)sprt + 1;
-    func_80058A3C(arg2);
+    DrawTrackNodeMap(arg2);
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((u8 *)D_800ACC14)
+#define CurrentDrawBuf ((u8 *)CurrentDrawBuf)
 
-void func_80058A3C(s32 *arg0) {
+void DrawTrackNodeMap(s32 *arg0) {
     SVECTOR sp10;
     SVECTOR sp18;
     s16 sp20[4];
@@ -244,8 +244,8 @@ void func_80058A3C(s32 *arg0) {
     S3C *sec;
 
     tile = SCRATCH->p;
-    sp10.vx = D_800A1050[D_800F3914].x;
-    sp10.vy = D_800A1050[D_800F3914].y;
+    sp10.vx = D_800A1050[CourseIndex].x;
+    sp10.vy = D_800A1050[CourseIndex].y;
 
     for (i = 0; i < TrackNodeCount; i++) {
         sp18.vx = TrackNodes[i].c / 384;
@@ -261,7 +261,7 @@ void func_80058A3C(s32 *arg0) {
         tile->r0 = 0xFF;
         tile->g0 = 0xDE;
         tile->b0 = 0x7F;
-        ADDPRIM(D_800ACC14 + 0x84, tile);
+        ADDPRIM(CurrentDrawBuf + 0x84, tile);
         tile++;
     }
     SCRATCH->p = tile;
@@ -275,7 +275,7 @@ void func_80058A3C(s32 *arg0) {
     }
 
     base = TrackNodes;
-    sec = (S3C *)(D_800A1070[D_800F3914] * 0x3C + (s32)base);
+    sec = (S3C *)(D_800A1070[CourseIndex] * 0x3C + (s32)base);
     sp18.vx = sec->c / 384;
     sp18.vy = -sec->d / 192;
     sp18.vx += sp10.vx;
@@ -291,21 +291,21 @@ void func_80058A3C(s32 *arg0) {
 
     for (i = 0; i < 4; i++) {
         sp20[2] = sp20[0] = s2 + (i & 1);
-        func_8004D290(sp20, sp28, 1, 5);
+        AddLineF2Prim(sp20, sp28, 1, 5);
     }
 
     sprt = SCRATCH->p;
     sprt->len = 4;
     sprt->code = 0x64;
-    sprt->u0 = D_800A1020[1].u;
-    sprt->v0 = D_800A1020[1].v;
-    sprt->w = D_800A1020[1].w;
-    sprt->h = D_800A1020[1].h;
+    sprt->u0 = HudMapSpriteRects[1].u;
+    sprt->v0 = HudMapSpriteRects[1].v;
+    sprt->w = HudMapSpriteRects[1].w;
+    sprt->h = HudMapSpriteRects[1].h;
     sprt->x0 = s1[4] + sp18.vx;
     sprt->y0 = s1[5] + sp18.vy;
     sprt->code |= 3;
     sprt->clut = 0x7FE5;
-    ADDPRIM(D_800ACC14 + 0x84, sprt);
+    ADDPRIM(CurrentDrawBuf + 0x84, sprt);
     sprt++;
 
     sprt->len = 4;
@@ -318,14 +318,14 @@ void func_80058A3C(s32 *arg0) {
     sprt->y0 = s1[7] + sp18.vy;
     sprt->code |= 3;
     sprt->clut = 0x7FE5;
-    ADDPRIM(D_800ACC14 + 0x84, sprt);
+    ADDPRIM(CurrentDrawBuf + 0x84, sprt);
     sprt++;
 
     SCRATCH->p = sprt;
     drmode = (DR_MODE_1 *)sprt;
     drmode->len = 1;
     drmode->code[0] = 0xE1000219;
-    ADDPRIM(D_800ACC14 + 0x84, drmode);
+    ADDPRIM(CurrentDrawBuf + 0x84, drmode);
     drmode++;
     SCRATCH->p = drmode;
 
@@ -354,10 +354,10 @@ void func_80058A3C(s32 *arg0) {
     sprt = SCRATCH->p;
     sprt->len = 4;
     sprt->code = 0x64;
-    sprt->u0 = D_800A1020[0].u;
-    sprt->v0 = D_800A1020[0].v;
-    sprt->w = D_800A1020[0].w;
-    sprt->h = D_800A1020[0].h;
+    sprt->u0 = HudMapSpriteRects[0].u;
+    sprt->v0 = HudMapSpriteRects[0].v;
+    sprt->w = HudMapSpriteRects[0].w;
+    sprt->h = HudMapSpriteRects[0].h;
     sprt->r0 = D_800A101C & 0x7F;
     sprt->g0 = D_800A101C & 0x7F;
     sprt->b0 = D_800A101C & 0x7F;
@@ -365,28 +365,28 @@ void func_80058A3C(s32 *arg0) {
     sprt->y0 = sp18.vy - 8;
     sprt->code = (sprt->code | 2) & ~1;
     sprt->clut = 0x7FE5;
-    ADDPRIM(D_800ACC14 + 0x80, sprt);
+    ADDPRIM(CurrentDrawBuf + 0x80, sprt);
     sprt++;
 
     SCRATCH->p = sprt;
     drmode = (DR_MODE_1 *)sprt;
     drmode->len = 1;
     drmode->code[0] = 0xE1000239;
-    ADDPRIM(D_800ACC14 + 0x80, drmode);
+    ADDPRIM(CurrentDrawBuf + 0x80, drmode);
     drmode++;
     SCRATCH->p = drmode;
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 void func_800590DC(void) {
- int r, a1; if (D_800F4D44 == 1) { if (D_800F3914 == 7) { a1 = D_800AD520 + 0x20; CdAudioSelectTrack(0, a1); return; } } r = func_80096464(); a1 = r % 6 + 0x1A; CdAudioSelectTrack(0, a1);
+ int r, a1; if (D_800F4D44 == 1) { if (CourseIndex == 7) { a1 = D_800AD520 + 0x20; CdAudioSelectTrack(0, a1); return; } } r = func_80096464(); a1 = r % 6 + 0x1A; CdAudioSelectTrack(0, a1);
 }
 
 /* legacy typing of shared globals in this part of the unit */
 #define CdAudioSelectTrack ((int (*)())CdAudioSelectTrack)
 
-void func_80059168() {
+void SelectCourseBgmTrack() {
     int a0, a1, v;
     CdAudioInit();
     if (D_800F4D44 == 1) {
@@ -400,7 +400,7 @@ void func_80059168() {
         D_800F7660 = 0xF;
     }
     if (a0 == 0) {
-        a1 = D_800F3914 + 3;
+        a1 = CourseIndex + 3;
         CdAudioSelectTrack(0, a1);
     } else if (D_800F765C == 0) {
         a1 = func_80096464() % 14 + 0xB;
@@ -414,7 +414,7 @@ void func_80059168() {
 #undef CdAudioSelectTrack
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A1158 (*(char (*)[])&D_800A1158)
+#define HudGlyphUvRects (*(char (*)[])&HudGlyphUvRects)
 
 void CenterGlyphListX(short *a0, int a1)
 {
@@ -430,7 +430,7 @@ void CenterGlyphListX(short *a0, int a1)
       p++;
       if (((short) v) >= 0x400)
       {
-        e = D_800A1158 + (((short) (v - 0x400)) << 2);
+        e = HudGlyphUvRects + (((short) (v - 0x400)) << 2);
       }
       else
       {
@@ -454,11 +454,11 @@ void CenterGlyphListX(short *a0, int a1)
   a0[0] = 0xA0 - (sum / 2);
 }
 
-#undef D_800A1158
+#undef HudGlyphUvRects
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A1090 (*(u8 (*)[])&D_800A1090)
-#define D_800A1158 (*(u8 (*)[])&D_800A1158)
+#define HudGlyphUvRects (*(u8 (*)[])&HudGlyphUvRects)
 
 void func_80059314(s32 arg0, s32 arg1) {
     s32 i;
@@ -475,16 +475,16 @@ void func_80059314(s32 arg0, s32 arg1) {
     } else {
         switch (D_800AD520) {
         case 0:
-            D_800F765C = D_800A1A40[D_800F3914] + 1;
+            D_800F765C = D_800A1A40[CourseIndex] + 1;
             break;
         case 1:
-            D_800F765C = D_800A1A00[D_800F3914] + 1;
+            D_800F765C = D_800A1A00[CourseIndex] + 1;
             break;
         case 2:
-            D_800F765C = D_800A19E0[D_800F3914] + 1;
+            D_800F765C = D_800A19E0[CourseIndex] + 1;
             break;
         case 3:
-            D_800F765C = D_800A1A20[D_800F3914] + 1;
+            D_800F765C = D_800A1A20[CourseIndex] + 1;
             break;
         }
     }
@@ -511,7 +511,7 @@ void func_80059314(s32 arg0, s32 arg1) {
     case 4:
     default:
         D_8010E234 = -1;
-        SoundState.w28a4 = D_800A19E0[D_800F3914] + 1;
+        SoundState.w28a4 = D_800A19E0[CourseIndex] + 1;
         SoundState.w28a8 = 0;
         break;
     }
@@ -530,25 +530,25 @@ void func_80059314(s32 arg0, s32 arg1) {
     }
 
     for (i = 0; i < 8; i++) {
-        CenterGlyphListX(D_800A1984[i], D_800A1158);
-        CenterGlyphListX(D_800A1984[i] + 8, D_800A1158);
-        CenterGlyphListX(D_800A1984[i] + 14, D_800A1158);
+        CenterGlyphListX(D_800A1984[i], HudGlyphUvRects);
+        CenterGlyphListX(D_800A1984[i] + 8, HudGlyphUvRects);
+        CenterGlyphListX(D_800A1984[i] + 14, HudGlyphUvRects);
     }
 
     for (i = 0; i < 7; i++) {
         CenterGlyphListX(D_800A19A4[i], D_800A1090);
     }
 
-    CenterGlyphListX(D_800A1818, D_800A1158);
-    CenterGlyphListX(D_800A1824, D_800A1158);
+    CenterGlyphListX(D_800A1818, HudGlyphUvRects);
+    CenterGlyphListX(D_800A1824, HudGlyphUvRects);
 
     for (i = 0; i < 8; i++) {
-        CenterGlyphListX(D_800A19C0[i], D_800A1158);
+        CenterGlyphListX(D_800A19C0[i], HudGlyphUvRects);
     }
 }
 
 #undef D_800A1090
-#undef D_800A1158
+#undef HudGlyphUvRects
 
 void DrawGlyphList(s16 *stream,s32 color,s32 bank)
 {
@@ -576,11 +576,11 @@ void DrawGlyphList(s16 *stream,s32 color,s32 bank)
             glyph = *stream++;
             if (glyph >= 0x400) {
                 offset = (s32)((cachedGlyph - 0x400U) << 16) >> 14;
-                uv = (RrUiUvRect*)((u8 *)D_800A1158 + offset);
+                uv = (RrUiUvRect*)((u8 *)HudGlyphUvRects + offset);
             } else {
                 offset = glyph * 4;
                 if (bank == 0) uv = (RrUiUvRect*)((u8 *)D_800A1090 + offset);
-                else uv = (RrUiUvRect*)((u8 *)D_800A1158 + offset);
+                else uv = (RrUiUvRect*)((u8 *)HudGlyphUvRects + offset);
             }
             spriteCode = 0x66;
             ((RrSpritePacketSignedClut*)cursor)->len = 4;
@@ -593,14 +593,14 @@ void DrawGlyphList(s16 *stream,s32 color,s32 bank)
             ((RrSpritePacketSignedClut*)cursor)->u = uv->u;
             ((RrSpritePacketSignedClut*)cursor)->v = uv->v;
             ((RrSpritePacketSignedClut*)cursor)->clut = clut;
-            ((RrSpritePacketSignedClut*)cursor)->addr = (D_800ACC14->head70&0xFFFFFFU);
-            D_800ACC14->head70 = (D_800ACC14->head70 & 0xFF000000) | ((u32)(unsigned long)cursor & 0xFFFFFF);
+            ((RrSpritePacketSignedClut*)cursor)->addr = (CurrentDrawBuf->head70&0xFFFFFFU);
+            CurrentDrawBuf->head70 = (CurrentDrawBuf->head70 & 0xFF000000) | ((u32)(unsigned long)cursor & 0xFFFFFF);
             cursor+=20;
             RR_GLYPH_SCRATCH->cursor=cursor;
             ((RrGlyphCommand8*)cursor)->len=1;
             ((RrGlyphCommand8*)cursor)->command=(page&0x9FF)|0xE1000200;
-            ((RrGlyphCommand8*)cursor)->addr=D_800ACC14->head70;
-            D_800ACC14->head70=(D_800ACC14->head70&0xFF000000U)|((u32)(unsigned long)cursor&0xFFFFFFU);
+            ((RrGlyphCommand8*)cursor)->addr=CurrentDrawBuf->head70;
+            CurrentDrawBuf->head70=(CurrentDrawBuf->head70&0xFF000000U)|((u32)(unsigned long)cursor&0xFFFFFFU);
             RR_GLYPH_SCRATCH->cursor=cursor+8;
             gap = *stream++;
             x=(s32)((u32)x+(u32)(uv->w+gap));
@@ -611,8 +611,8 @@ void DrawGlyphList(s16 *stream,s32 color,s32 bank)
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A1090 (*(char (*)[])&D_800A1090)
-#define D_800A1158 (*(char (*)[])&D_800A1158)
-#define D_800ACC14 ((char *)D_800ACC14)
+#define HudGlyphUvRects (*(char (*)[])&HudGlyphUvRects)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
 void DrawGlyphListSloped(t1, a1, a2)
 s16 *t1;
@@ -643,11 +643,11 @@ s32 a2;
             e = *t1++;
             if (e >= 0x400) {
                 v = (s32)((a - 0x400) << 16) >> 14;
-                t0 = (u8 *)D_800A1158 + v;
+                t0 = (u8 *)HudGlyphUvRects + v;
             } else {
                 v = e * 4;
                 if (a2 == 0) t0 = (u8 *)D_800A1090 + v;
-                else t0 = (u8 *)D_800A1158 + v;
+                else t0 = (u8 *)HudGlyphUvRects + v;
             }
             k = 0x66;
             p->len = 4;
@@ -661,14 +661,14 @@ s32 a2;
             p->v = t0[1];
             p->clut = t8;
             t6++;
-            p->addr = ((RrSpritePacketSignedClut *)(D_800ACC14 + 0x70))->addr;
-            *(u32 *)(D_800ACC14 + 0x70) = (*(u32 *)(D_800ACC14 + 0x70) & 0xFF000000) | ((u32)p & 0xFFFFFF);
+            p->addr = ((RrSpritePacketSignedClut *)(CurrentDrawBuf + 0x70))->addr;
+            *(u32 *)(CurrentDrawBuf + 0x70) = (*(u32 *)(CurrentDrawBuf + 0x70) & 0xFF000000) | ((u32)p & 0xFFFFFF);
             p++;
             *(RrSpritePacketSignedClut **)SCRATCHPAD = p;
             p->len = 1;
             *((u32 *)p + 1) = (t3 & 0x9FF) | 0xE1000200;
-            p->addr = ((RrSpritePacketSignedClut *)(D_800ACC14 + 0x70))->addr;
-            *(u32 *)(D_800ACC14 + 0x70) = (*(u32 *)(D_800ACC14 + 0x70) & 0xFF000000) | ((u32)p & 0xFFFFFF);
+            p->addr = ((RrSpritePacketSignedClut *)(CurrentDrawBuf + 0x70))->addr;
+            *(u32 *)(CurrentDrawBuf + 0x70) = (*(u32 *)(CurrentDrawBuf + 0x70) & 0xFF000000) | ((u32)p & 0xFFFFFF);
             *(RrSpritePacketSignedClut **)SCRATCHPAD = (RrSpritePacketSignedClut *)((u32 *)p + 2);
             w = *t1++;
             t5 += t0[2] + w;
@@ -678,11 +678,11 @@ s32 a2;
 }
 
 #undef D_800A1090
-#undef D_800A1158
-#undef D_800ACC14
+#undef HudGlyphUvRects
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((char *)D_800ACC14)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
 void func_80059B1C(unsigned char *a0x, int a1, int a2, int a3) {
     register unsigned char *p asm("$10");
@@ -719,13 +719,13 @@ void func_80059B1C(unsigned char *a0x, int a1, int a2, int a3) {
     p[0xD] = t;
     hi = 0xFF000000;
     g = (int *)SCRATCHPAD;
-    d = D_800ACC14;
+    d = CurrentDrawBuf;
     *(unsigned int *)p = (*(unsigned int *)p & hi) | (*(unsigned int *)(d + 0x70) & lo);
     *(unsigned int *)(d + 0x70) = (*(unsigned int *)(d + 0x70) & hi) | ((unsigned int)p & lo);
     p += 0x14;
     *g = (int)p;
     p[3] = 1;
-    d = D_800ACC14;
+    d = CurrentDrawBuf;
     t3 = *(unsigned int *)p;
     *(unsigned int *)(p + 4) = cmd;
     *(unsigned int *)p = (t3 & hi) | (*(unsigned int *)(d + 0x70) & lo);
@@ -734,7 +734,7 @@ void func_80059B1C(unsigned char *a0x, int a1, int a2, int a3) {
     *g = (int)q;
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 void func_80059C28(s32 index,s32 color) {
     RR_ICON_SPRITE_BODY(120)

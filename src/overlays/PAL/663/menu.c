@@ -9,9 +9,9 @@ void ovl663_init_menu(void) {
     ovl663_extra_courses_enabled = 0;
     ovl663_record_kind = 0;
     ResetScreenCounters();
-    D_800F4D70.second = CdDirectoryBuffer + 0x2D000;
+    MenuArenas.second = CdDirectoryBuffer + 0x2D000;
     InitMenuArenas();
-    LoadCursor = D_800F4D70.second;
+    LoadCursor = MenuArenas.second;
     InitUiRow(0, 118, 152, 68, 32, 0, 0, 1, 0, 122);
     InitUiRow(1, 118, 192, 68, 32, 0, 0, 1, 1, 16);
     InitUiRow(2, 118, 232, 68, 32, 0, 0, 1, 1, 17);
@@ -30,7 +30,7 @@ void ovl663_init_scene(void) {
     ModeGroup = 1;
     D_800F3A26 = 74;
     D_800F4D8A = 0;
-    func_8001E84C(ovl663_scene_name);
+    DebugPrintStub(ovl663_scene_name);
     ovl663_available_course_count = 0;
     for (i = 0; i < 9; i++) {
         if (SaveProgress.unlocked60[ovl663_course_order[i]] != 0) {
@@ -40,7 +40,7 @@ void ovl663_init_scene(void) {
         }
     }
     ovl663_init_menu();
-    func_80053BB4(0);
+    SeqStartTrack(0);
     ovl663_course_count = 4;
     val = SaveProgress.prefix.progress.prefix00.fields.configuration0C;
     if (val >= 16) {
@@ -80,7 +80,7 @@ void ovl663_update_menu(void) {
             }
             UiRows[MenuCursor].cells[0] = highlight;
             closingMode = 0;
-            if (D_800F3A38[0].a != 0) {
+            if (PlayerControllers[0].a != 0) {
                 UiRows[MenuCursor].cells[0] = 1;
                 selected = MenuCursor;
                 if (selected == 0) {
@@ -114,7 +114,7 @@ void ovl663_update_menu(void) {
                 }
             } else {
                 cancelSound = 2;
-                if (D_800F3A38[0].b != 0) {
+                if (PlayerControllers[0].b != 0) {
                 cancel:
                     PlaySfx(cancelSound);
                     D_800F4D8A = 8;
@@ -134,7 +134,7 @@ void ovl663_update_menu(void) {
                             UiRows[i].byte14 = 7U;
                         } else {
                             UiRows[i].byte14 = 3U;
-                            func_80053AF4(0, (s16)(D_800AC5D0 - 4));
+                            SeqFadeVolume(0, (s16)(D_800AC5D0 - 4));
                         }
                     }
                     i += 1;
@@ -147,7 +147,7 @@ void ovl663_update_menu(void) {
         if ((s16)D_800AC5D0 > 0) {
             D_800AC5D0 = (u16)D_800AC5D0 - 1;
         }
-        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (0x40 - (s16)D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (0x40 - (s16)D_800AC5D0) * 4, 0x45);
         i = 0;
         if ((s16)D_800AC5D0 <= 0) {
             loaded = func_8003BEA8(ovl663_available_courses[0]);
@@ -165,7 +165,7 @@ void ovl663_update_menu(void) {
     case 5:
         closingTimer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = (u16)closingTimer;
-        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (0x40 - closingTimer) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (0x40 - closingTimer) * 4, 0x45);
         i = 0;
         if ((s16)D_800AC5D0 <= 0) {
             ovl663_init_selection(ovl663_record_kind);
@@ -177,7 +177,7 @@ void ovl663_update_menu(void) {
     case 8:
         cancelTimer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = (u16)cancelTimer;
-        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (0x40 - cancelTimer) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (0x40 - cancelTimer) * 4, 0x45);
         i = 0;
         if ((s16)D_800AC5D0 <= 0) {
             func_80053CB0();
@@ -202,7 +202,7 @@ void ovl663_init_selection(s32 mode) {
     ModeFrame = 0;
     ScreenFrame = 0;
     D_800AC648 = 0;
-    D_800F3914 = 0;
+    CourseIndex = 0;
     MenuCursor = 0;
     ovl663_selected_record = 0;
     ClearScreenOverlayState();

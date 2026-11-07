@@ -11,12 +11,12 @@ void ovl660_func_80114920(void) {
     MenuCursor=0;
     MenuItemCount=3;
     selection=DecodeCourseIndex(D_800AC648);
-    result=&D_800F3914;
+    result=&CourseIndex;
     *result=selection;
     ResetScreenCounters();
-    D_800F4D70.second=CdDirectoryBuffer+0x2D000;
+    MenuArenas.second=CdDirectoryBuffer+0x2D000;
     InitMenuArenas();
-    LoadCursor=D_800F4D70.second;
+    LoadCursor=MenuArenas.second;
     InitUiRow(0,12,64,68,32,0,0,1,0,83);
     InitUiRow(1,12,104,68,32,0,0,1,0,102);
     InitUiRow(2,12,144,68,32,0,0,1,0,85);
@@ -62,12 +62,12 @@ void ovl660_func_80114C40(void)
         ovl660_available_course_count = 16;
     }
     ovl660_func_80114920();
-    UnpackChoiceGlyph((s8*)&SelectionRows,D_800ABE08[0][0].glyph);
+    UnpackChoiceGlyph((s8*)&SelectionRows,CourseChoiceTable[0][0].glyph);
     ModeGroup = 1;
     D_800F3A26 = 50;
     D_800F4D8A = 0;
-    func_8001E84C(ovl660_title);
-    func_80053BB4(0);
+    DebugPrintStub(ovl660_title);
+    SeqStartTrack(0);
 }
 
 void ovl660_func_80114D38(void) {
@@ -100,7 +100,7 @@ void ovl660_func_80114D38(void) {
             } else {
                 func_80033368((s16) previousCourse, 0);
             }
-            D_800F3914 = DecodeCourseIndex((s16) D_800AC648);
+            CourseIndex = DecodeCourseIndex((s16) D_800AC648);
             UiRows[MenuCursor].cells[0] = 0;
             StepMenuValue(0, 2, (char *)&MenuCursor, (s32) MenuItemCount, 0);
             UiRows[MenuCursor].cells[0] = 2;
@@ -168,7 +168,7 @@ void ovl660_func_80114D38(void) {
                         }
                         D_800AC5D0 = 0x40;
                         D_800F4D8A = 8;
-                        func_80053AF4(0, 0x3C);
+                        SeqFadeVolume(0, 0x3C);
                     }
                 } else {
                     goto check_back;
@@ -210,7 +210,7 @@ check_back:
             if (D_800F3A60 != 0) {
                 if (UiRows[3].byte14 == 2) {
                     D_800F4D8A = 5;
-                    D_800F2AB0[1] = 3;
+                    ImageRows[1] = 3;
                     UiRows[3].byte14 = 3U;
                     UiRows[4].byte14 = 3;
                 }
@@ -236,7 +236,7 @@ check_back:
         case 8:
             cancelTimer = (u16)D_800AC5D0 - 1;
             D_800AC5D0 = (u16) cancelTimer;
-            AddScreenFadeTiles(((RrFrameOrderingPrefix *)(void *)D_800ACC14)->ordering70, (0x40 - cancelTimer) * 4, 0x45);
+            AddScreenFadeTiles(((RrFrameOrderingPrefix *)(void *)CurrentDrawBuf)->ordering70, (0x40 - cancelTimer) * 4, 0x45);
             if ((s16) D_800AC5D0 <= 0) {
                 func_80053CB0();
                 ModeGroup = 1;
@@ -248,7 +248,7 @@ check_back:
         case 10:
             settingsTimer = (u16)D_800AC5D0 - 1;
             D_800AC5D0 = (u16) settingsTimer;
-            AddScreenFadeTiles(((RrFrameOrderingPrefix *)(void *)D_800ACC14)->ordering70, (0x40 - settingsTimer) * 4, 0x45);
+            AddScreenFadeTiles(((RrFrameOrderingPrefix *)(void *)CurrentDrawBuf)->ordering70, (0x40 - settingsTimer) * 4, 0x45);
             if ((s16) D_800AC5D0 <= 0) {
                 D_800FFC18 = 1;
                 D_800F3A1E = 0x132;

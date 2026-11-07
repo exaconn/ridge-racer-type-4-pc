@@ -8,7 +8,7 @@ typedef struct {
     u16 page,clut;
     RrUiUvRect uv;
 } RrSpriteEffectSource;
-extern u8 *D_800ACC14;
+extern u8 *CurrentDrawBuf;
 
 /* Nonpositive count returns the cursor without accessing any input storage.
  * Otherwise descriptor storage must remain separate from the output packets.

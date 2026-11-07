@@ -24,8 +24,8 @@ void ovl668_func_80115BD0(s32);void ovl668_func_801159C0(s32,s32);
 static struct State{u32 guard[4];RrReplayCameraContextPrefix camera;RrReplayEvent events[3];RrMenuItemState5C input[2];RrIconSpriteContext contexts[2];unsigned root;s32 textPosition,textDelta;s16 enable,scene,phase;u32 tail[4];}a,b,*w;
 #define RaceContext w->camera
 #define ovl668_D_80116CA8 w->events
-#define D_800F3A38 w->input
-#define D_800ACC14 (&w->contexts[w->root])
+#define PlayerControllers w->input
+#define CurrentDrawBuf (&w->contexts[w->root])
 #define D_80127E90 w->textPosition
 #define D_80127E94 w->textDelta
 #define ModeGroup w->enable

@@ -38,7 +38,7 @@ typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-RrLibTransferState38 D_800A67B0;
+RrLibTransferState38 CdReadState;
 u32 CD_read_dma_mode;
 struct { u8 prefix[0x63F0]; RrLibNotificationCallback callback;
          u8 suffix[0x10000 - 0x63F0 - sizeof(RrLibNotificationCallback)]; } test_page;
@@ -51,7 +51,7 @@ void CdReadyCallback(RrLibCompletionCallback callback) { test_first(callback); }
 void CdDataCallback(RrLibCompletionCallback callback) { test_second(callback); }
 void CdSyncCallback(RrLibCompletionCallback callback) { test_control(callback); }
 s32 CdControlF(s32 command, const u8 *value) { test_command(command, (s32)(unsigned long)value); return 0; }
-void func_8008E7F4(void) { test_unexpected_calls++; }
+void cd_read_restore_sync(void) { test_unexpected_calls++; }
 void test_callback_first(void) { test_unexpected_calls++; }
 void test_callback_second(void) { test_unexpected_calls++; }
 '''
@@ -66,13 +66,13 @@ void test_callback_second(void) { test_unexpected_calls++; }
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
-        cls.state = State.in_dll(cls.library, 'D_800A67B0')
+        cls.state = State.in_dll(cls.library, 'CdReadState')
         cls.flags = C.c_uint32.in_dll(cls.library, 'CD_read_dma_mode')
         cls.page = NotificationPage.in_dll(cls.library, 'test_page')
         cls.unexpected = C.c_int32.in_dll(cls.library, 'test_unexpected_calls')
         cls.first_address = C.cast(cls.library.test_callback_first, C.c_void_p).value
         cls.second_address = C.cast(cls.library.test_callback_second, C.c_void_p).value
-        cls.control_address = C.cast(cls.library.func_8008E7F4, C.c_void_p).value
+        cls.control_address = C.cast(cls.library.cd_read_restore_sync, C.c_void_p).value
         cls.function = cls.library.cb_data
         cls.function.argtypes = []
         cls.function.restype = None

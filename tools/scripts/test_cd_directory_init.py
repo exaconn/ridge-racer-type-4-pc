@@ -32,8 +32,8 @@ class CdDirectoryInitTest(unittest.TestCase):
 ''' + header + r'''
 static u8 message_storage[256];
 ''' + body + r'''
-const char D_80010028[]="start", D_80010048[]="R4.BIN";
-const char D_80010054[]="missing", D_80010068[]="done";
+const char D_80010028[]="start", R4BinPath[]="R4.BIN";
+const char StrFileNotFoundFmt[]="missing", D_80010068[]="done";
 u32 *CdDirectoryBuffer;
 RrCdFileEntry CdFileTable[952];
 static u32 directory_a[1024], directory_b[1024], directory_c[1024];
@@ -44,20 +44,20 @@ static const RrCdLocation location={{0x12,0x34,0x56,0x78}};
 static const int base=20000;
 
 s32 CdSearchFile(SearchResult *file, const char *name) {
-    assert(logs==1 && name==D_80010048);
+    assert(logs==1 && name==R4BinPath);
     if(found){file->location=location;file->size=1234;memset(file->name,0,sizeof(file->name));}
     return found;
 }
 void func_800963C4(s32 code) {assert(code==1 && !found && logs==2);longjmp(exited,1);}
-void func_8001E84C(const char *format, ...) {
+void DebugPrintStub(const char *format, ...) {
     va_list ap;va_start(ap,format);
     if(logs==0) {
         assert(format==D_80010028);
-        assert(va_arg(ap,const char *)==D_80010048);
+        assert(va_arg(ap,const char *)==R4BinPath);
         assert(va_arg(ap,u32 *)==directory_a);
     } else if(!found) {
-        assert(format==D_80010054);
-        assert(va_arg(ap,const char *)==D_80010048);
+        assert(format==StrFileNotFoundFmt);
+        assert(va_arg(ap,const char *)==R4BinPath);
     } else {
         assert(format==(const char *)(message_storage+0x68));
         assert(va_arg(ap,int)==2);

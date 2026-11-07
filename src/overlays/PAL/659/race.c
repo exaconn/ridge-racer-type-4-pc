@@ -10,7 +10,7 @@ void ovl659_exit_race(void) {
 void ovl659_update_race(void) {
     ModeFrame = (u32)ModeFrame + 1;
     SetupViewport(0);
-    if (((u32)RaceState - 1) < 2U && (D_800F3A38[0].buttons08 & 0x800) && D_800AC5D0 <= 0) {
+    if (((u32)RaceState - 1) < 2U && (PlayerControllers[0].buttons08 & 0x800) && D_800AC5D0 <= 0) {
         D_800AC5D0 = 15;
         RacePaused = (RacePaused == 0);
         if (RacePaused != 0) {
@@ -30,17 +30,17 @@ void ovl659_update_race(void) {
         UpdatePauseMenu(D_800F4D44);
         ModeFrame = (u32)ModeFrame - 1;
         func_8003BFC8();
-        DrawPauseMenu(&D_800ACC14->ordering.ordering70[0], PauseCursor);
+        DrawPauseMenu(&CurrentDrawBuf->ordering.ordering70[0], PauseCursor);
         DrawLapTimeList(0);
-        func_8002BC7C(D_800AC5A4);
-        DrawStartCountdown(&D_800ACC14->ordering.ordering70[0], ModeFrame);
+        DrawTimeRemaining(D_800AC5A4);
+        DrawStartCountdown(&CurrentDrawBuf->ordering.ordering70[0], ModeFrame);
         DrawHudRotatingQuad(D_800F4C70.first, 0);
         func_800211A4(0);
         DrawHudNumber3((PlayerCars[0].input * 160) / 1168, 0);
-        func_800219BC(PlayerCars[0].half27A, 0);
-        func_80021A7C(PlayerCars[0].half1EE, 0);
+        DrawHudDigitMod10(PlayerCars[0].half27A, 0);
+        UpdateHudRankDisplay(PlayerCars[0].half1EE, 0);
         DrawRaceMinimap(0);
-        DrawSteeringIndicator(&D_800ACC14->ordering.ordering70[0], 0);
+        DrawSteeringIndicator(&CurrentDrawBuf->ordering.ordering70[0], 0);
         func_80021C00(0);
         func_80020B10(D_800F4D44);
         BuildCameraMatrices();
@@ -86,7 +86,7 @@ void ovl659_update_race(void) {
             } else {
                 a2 = 69;
             }
-            AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (25 - D_800AC5D0) * 10, a2);
+            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (25 - D_800AC5D0) * 10, a2);
         }
         if (D_800AC5D0 <= 0) {
             SelectionState.pad18[1] = PlayerCars[0].half1EE;
@@ -105,21 +105,21 @@ void ovl659_update_race(void) {
 
     UpdateLapTiming(PlayerCars);
     if (RaceState < 4) {
-        DrawStartCountdown(&D_800ACC14->ordering.ordering70[0], ModeFrame);
+        DrawStartCountdown(&CurrentDrawBuf->ordering.ordering70[0], ModeFrame);
         PlayStartCountdownVoice(ModeFrame);
     }
     UpdateRaceRanking();
     CheckFinalLapEvent((char *)PlayerCars);
     if (((u32)RaceState - 1) < 3U) {
         DrawLapTimeList(0);
-        func_8002BC7C(D_800AC5A4);
+        DrawTimeRemaining(D_800AC5A4);
         DrawHudRotatingQuad(D_800F4C70.first, 0);
         func_800211A4(0);
         DrawHudNumber3((PlayerCars[0].input * 160) / 1168, 0);
-        func_800219BC(PlayerCars[0].half27A, 0);
-        func_80021A7C(PlayerCars[0].half1EE, 0);
+        DrawHudDigitMod10(PlayerCars[0].half27A, 0);
+        UpdateHudRankDisplay(PlayerCars[0].half1EE, 0);
         DrawRaceMinimap(0);
-        DrawSteeringIndicator(&D_800ACC14->ordering.ordering70[0], 0);
+        DrawSteeringIndicator(&CurrentDrawBuf->ordering.ordering70[0], 0);
         func_80021C00(0);
         func_80020B10(D_800F4D44);
     }
@@ -144,11 +144,11 @@ void ovl659_update_race(void) {
     func_80070734(ScreenFrame);
     if (RaceState == 0) {
         RR_659_SCRATCH->pointers.cursor = AddDrawAreaPrim(
-            D_800ACC14->ordering.ordering70 + 2, RR_659_SCRATCH->pointers.cursor, 0, 0, 320, 256);
+            CurrentDrawBuf->ordering.ordering70 + 2, RR_659_SCRATCH->pointers.cursor, 0, 0, 320, 256);
         D_800ADAF0[1].environment.rgb24 = 1;
         D_800ADAF0[0].environment.rgb24 = 1;
         RR_659_SCRATCH->pointers.cursor =
-            AddDrawAreaPrim(D_800ACC14->ordering.ordering70 + 702, RR_659_SCRATCH->pointers.cursor, 0,
+            AddDrawAreaPrim(CurrentDrawBuf->ordering.ordering70 + 702, RR_659_SCRATCH->pointers.cursor, 0,
                           D_80107190, 320, (s32)(256U - (u32)D_80107190 * 2U));
         if ((D_80107190 = (s32)((u32)D_80107190 - 16U)) < 0) {
             D_80107190 = 0;

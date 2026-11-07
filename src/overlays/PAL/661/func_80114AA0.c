@@ -6,5 +6,5 @@ void ovl661_func_80114AA0(void)
     ModeGroup = 1;
     D_800F3A26 = 38;
     D_800F4D8A = 0;
-    AddScreenFadeTiles(((RrFrameOrderingPrefix *)D_800ACC14)->ordering70, 255, 69);
+    AddScreenFadeTiles(((RrFrameOrderingPrefix *)CurrentDrawBuf)->ordering70, 255, 69);
 }

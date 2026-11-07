@@ -4,11 +4,11 @@ struct R { short x, y, w, h; };
 
 extern int DrawSync();
 
-int func_8001E84C(void);
+int DebugPrintStub(void);
 void UploadCarClut(int a0, int a1, int a2);
 
 /* Resident callback that reports success without changing state. */
-int func_8001E84C(void)
+int DebugPrintStub(void)
 {
     return 1;
 }

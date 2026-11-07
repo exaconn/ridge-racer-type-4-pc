@@ -42,7 +42,7 @@ u32 _spu_note2pitch(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     }
     /* ASM_BARRIER: Keep the unadjusted remainder live in $a0 so the positive path copies into $v1 in the delay slot. */
     __asm__("" : "+r"(rem2) : "r"(rem));
-    res = (s32)(D_800A4D58[(s16)rem2] * D_800A4D70[(u16)arg3]) >> 16;
+    res = (s32)(SvmSemitoneTable[(s16)rem2] * SvmPitchFineTable[(u16)arg3]) >> 16;
     if ((s16)shift >= 0) {
         res = 0x3FFF;
     } else {
@@ -68,15 +68,15 @@ u32 _spu_pitch2note(s32 first,s32 second,u32 pitch) {
  do {if((value>>i)&1)top=i;i++;}while(i<14);
  pitch=(u16)pitch<<(15-top);
  i=11;value=(u16)pitch;
- table=&D_800A4D58[11];
+ table=&SvmSemitoneTable[11];
  for(;i>=0;i--,table--) {
   if((u32)value>=*table){note=i;break;}
  }
- value=((u32)(u16)pitch<<15)/D_800A4D58[(u16)note];
+ value=((u32)(u16)pitch<<15)/SvmSemitoneTable[(u16)note];
 {
   register u16 *fine_table;
   i=127;
-  fine_table=&D_800A4D70[127];
+  fine_table=&SvmPitchFineTable[127];
   value=(u16)value;
   for(;i>=0;i--,fine_table--) {
    if((u32)value>=*fine_table){fine=i;break;}

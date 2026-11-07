@@ -3,9 +3,9 @@
 #include "rr/channel_advance.h"
 #include "rr/channels.h"
 
-void func_80099E34();
+void _padResetChannel();
 
-void func_80099E34(a0) unsigned char *a0; {
+void _padResetChannel(a0) unsigned char *a0; {
   int i;
   unsigned char *p;
   unsigned char c;
@@ -34,7 +34,7 @@ void func_80099E34(a0) unsigned char *a0; {
   }
 }
 
-void func_80099E9C(s32 command)
+void _padAdvanceChannel(s32 command)
 {
     /* ASM_BARRIER: retain the incoming command in a1 until first-pass dispatch. */
     register s32 mode __asm__("$5") = command;
@@ -56,12 +56,12 @@ void func_80099E9C(s32 command)
                 *slot = 0;
             } else {
                 _dirFailAuto((u8 *)channel);
-                func_80099F90((RrChannelTransferView *)channel);
+                _padSaveCommand((RrChannelTransferView *)channel);
             }
         }
         control = D_800ABD00;
         current = D_800ABCA8;
-        D_800ABCAC = 0;
+        PadRecvStage = 0;
         control[5] = 0;
         /* ASM_BARRIER: finish control publication before reading the live bound. */
         __asm__("" : : : "memory");
@@ -80,13 +80,13 @@ void func_80099E9C(s32 command)
     } while (!status);
 }
 
-void func_80099F90(RrChannelTransferView *channel) {
+void _padSaveCommand(RrChannelTransferView *channel) {
     u8 command=channel->command37;
     channel->command37=0;
     channel->previous38=command;
 }
 
-u32 func_80099FA0(const RrChannelTransferView *channel) {
+u32 _padGetTxByte(const RrChannelTransferView *channel) {
     u32 phase=channel->phase45;
     s32 index;
     u32 command=channel->command37;

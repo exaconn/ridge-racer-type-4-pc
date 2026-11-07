@@ -22,25 +22,25 @@
 extern int SetModelTexturePage();
 extern int func_800172DC();
 extern int AddScreenFadeTiles();
-extern int func_8002D784();
+extern int DrawOpponentCar();
 extern int DrawCars();
 extern int func_80036FD4();
 extern int StepRaceFrame();
-extern int func_8004C5A4();
+extern int DrawFontString();
 extern int SoundSetMasterVolume();
 extern int CdAudioSelectTrack();
 extern int CdAudioBeginPlay();
 extern int CdAudioFade();
 extern int func_80055330();
 extern int func_8005534C();
-extern int func_80059168();
+extern int SelectCourseBgmTrack();
 extern int BuildCameraMatrices();
 extern int func_8006ECE8();
 extern int SetupViewport();
 extern int UpdateTrackObjects();
 extern int DrawTrackObjects();
-extern char D_800112CC[];
-extern char D_800112D4[];
+extern char RepeatLabel[];
+extern char StrFmtTwoDigitsTitle[];
 extern char D_800A1A6C[];
 extern short D_800AC5D0;
 extern int D_800ACA2C;
@@ -48,7 +48,7 @@ extern int D_800ACB0C;
 extern int D_800ACB28;
 extern int D_800ACB2C;
 extern int D_800F2A64;
-extern int D_800F2EC8;
+extern int MaskBitSetting;
 extern short D_800F3A26;
 extern int D_800F3A60;
 extern int D_800F3A68;
@@ -115,7 +115,7 @@ void func_8005DDF4()
   {
     SetDispMask(0);
     SetupDrawDispEnvs(0, 0, 0, 1);
-    func_80059168();
+    SelectCourseBgmTrack();
     CdAudioBeginPlay(0);
     RaceContext.w4dc = 0xFA;
     for (i = 0; i < 7; i++)
@@ -135,7 +135,7 @@ void func_8005DDF4()
       SlotSetPause(i, 1);
     }
 
-    D_800F2EC8 = 1;
+    MaskBitSetting = 1;
   }
   else
     if (RaceContext.w4bc > 0)
@@ -149,7 +149,7 @@ void func_8005DDF4()
   StepRaceFrame(5);
   UpdateTrackObjects(0);
   p = &RaceContext;
-  D_800F2EC8 = (one = 1);
+  MaskBitSetting = (one = 1);
   p->w4bc = p->w4bc + one;
   p->w4c4 = p->w4c4 + one;
   if (p->w4bc >= 0x1771)
@@ -195,7 +195,7 @@ void func_8005DDF4()
     register int one_v0 asm("v0") = 1; /* ASM_BARRIER: pin constant 1 to v0 for w4c8 comparison */
     if (c8_1 == one_v0)
     {
-      if (D_800F3A40 & 0x10)
+      if (Pad0Buttons & 0x10)
       {
         RaceContext.w534 = RaceContext.w534 + 1;
         if (RaceContext.w534 >= 4)
@@ -290,7 +290,7 @@ void func_8005DDF4()
         RaceContext.w500 = RaceContext.w500 - 0x1000;
       }
     }
-      if (D_800F3A40 & 0x100)
+      if (Pad0Buttons & 0x100)
       {
         RaceContext.w538 = RaceContext.w538 ^ 1;
       }
@@ -340,7 +340,7 @@ void func_8005DDF4()
   if (D_800AC5D0 > 0)
   {
     D_800AC5D0 = D_800AC5D0 - 1;
-    AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
+    AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
     if (D_800AC5D0 == 0)
     {
       if (RaceContext.w4c8 == 0)
@@ -355,7 +355,7 @@ void func_8005DDF4()
         D_800F3A26 = 8;
       }
       D_800F4D8A = 0;
-      D_800F2EC8 = 0;
+      MaskBitSetting = 0;
       __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: prevent hoisting argument setup for SoundSetMasterVolume before stores */
       SoundSetMasterVolume(0, 0);
     }
@@ -363,7 +363,7 @@ void func_8005DDF4()
   else
     if (D_800ACB0C < 0x1A)
   {
-    AddScreenFadeTiles(D_800ACC14 + 0x70, (0x19 - D_800ACB0C) * 8, 0x45);
+    AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x19 - D_800ACB0C) * 8, 0x45);
   }
   {
     register int c8_2 asm("a2") = RaceContext.w4c8; /* ASM_BARRIER: pin w4c8 to a2 across w28a4 clamping and func_800534B4 third argument */
@@ -372,11 +372,11 @@ void func_8005DDF4()
       if (RaceContext.w538 == 0)
       {
         old = SoundState.w28a4;
-        if (D_800F3A40 & 0x8000)
+        if (Pad0Buttons & 0x8000)
         {
           SoundState.w28a4 = SoundState.w28a4 - 1;
         }
-        if (D_800F3A40 & 0x2000)
+        if (Pad0Buttons & 0x2000)
         {
           SoundState.w28a4 = SoundState.w28a4 + 1;
         }
@@ -460,16 +460,16 @@ void func_8005DDF4()
       if (D_800ACB28 != 0)
       {
         old = 0xC8;
-        DrawFontStringRight(0x131, old, D_800112CC, 0xFF, 0);
+        DrawFontStringRight(0x131, old, RepeatLabel, 0xFF, 0);
       }
       DrawFontStringRight(0xFA, 0xD4, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), 0xFF, 0);
       func_80059B1C(D_800A1A6C, 0xFC, 0xD4, 0xFF);
       func_80059B1C(D_800A1A6C - 4, 0x105, 0xD4, 0xFF);
-      func_80096484(sp18, D_800112D4, SoundState.w28a4);
-      func_8004C5A4(0x112, 0xD4, sp18, 0xFF, 0);
+      PsyqSprintf(sp18, StrFmtTwoDigitsTitle, SoundState.w28a4);
+      DrawFontString(0x112, 0xD4, sp18, 0xFF, 0);
       func_80059B1C(D_800A1A6C - 0xC, 0x121, 0xD4, 0xFF);
         func_80059B1C(D_800A1A6C - 8, 0x12A, 0xD4, 0xFF);
-        func_8004C928(0);
+        AddSetTexpagePrim(0);
       }
     }
   }
@@ -492,7 +492,7 @@ void func_8005DDF4()
       __asm__ volatile("" : "+r"(a0), "+r"(a1)); /* ASM_BARRIER: order argument setup before pointer increment */
       ip_s0++;
       __asm__ volatile("" : "+r"(ip_s0)); /* ASM_BARRIER: keep pointer increment before jal so i_s1++ fills delay slot */
-      func_8002D784(a0, a1);
+      DrawOpponentCar(a0, a1);
       i_s1++;
     }
     while (i_s1 < 7);

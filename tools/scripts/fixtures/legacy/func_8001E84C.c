@@ -1,5 +1,5 @@
 /* Resident callback that reports success without changing state. */
-int func_8001E84C(void)
+int DebugPrintStub(void)
 {
     return 1;
 }

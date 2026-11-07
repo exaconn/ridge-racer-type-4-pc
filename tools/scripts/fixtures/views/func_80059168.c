@@ -67,14 +67,14 @@
     scratch->cursor=(u8*)p+sizeof(RrGpuSingleCommandPacket);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((u8 *)D_800ACC14)
+#define CurrentDrawBuf ((u8 *)CurrentDrawBuf)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((u8 *)D_800ACC14)
+#define CurrentDrawBuf ((u8 *)CurrentDrawBuf)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
 #define CdAudioSelectTrack ((int (*)())CdAudioSelectTrack)
@@ -82,38 +82,38 @@
 #undef CdAudioSelectTrack
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A1158 (*(char (*)[])&D_800A1158)
+#define HudGlyphUvRects (*(char (*)[])&HudGlyphUvRects)
 
-#undef D_800A1158
+#undef HudGlyphUvRects
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A1090 (*(u8 (*)[])&D_800A1090)
 
-#define D_800A1158 (*(u8 (*)[])&D_800A1158)
+#define HudGlyphUvRects (*(u8 (*)[])&HudGlyphUvRects)
 
 #undef D_800A1090
 
-#undef D_800A1158
+#undef HudGlyphUvRects
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A1090 (*(char (*)[])&D_800A1090)
 
-#define D_800A1158 (*(char (*)[])&D_800A1158)
+#define HudGlyphUvRects (*(char (*)[])&HudGlyphUvRects)
 
-#define D_800ACC14 ((char *)D_800ACC14)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
 #undef D_800A1090
 
-#undef D_800A1158
+#undef HudGlyphUvRects
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((char *)D_800ACC14)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
-extern s16 D_800F3914;
+extern s16 CourseIndex;
 
 extern void CdAudioSelectTrack();
 
@@ -133,7 +133,7 @@ extern int D_800F765C;
 
 extern int D_800F7660;
 
-void func_80059168() {
+void SelectCourseBgmTrack() {
     int a0, a1, v;
     CdAudioInit();
     if (D_800F4D44 == 1) {
@@ -147,7 +147,7 @@ void func_80059168() {
         D_800F7660 = 0xF;
     }
     if (a0 == 0) {
-        a1 = D_800F3914 + 3;
+        a1 = CourseIndex + 3;
         CdAudioSelectTrack(0, a1);
     } else if (D_800F765C == 0) {
         a1 = func_80096464() % 14 + 0xB;

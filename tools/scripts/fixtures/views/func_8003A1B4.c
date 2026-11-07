@@ -7,7 +7,7 @@
 
 #define IntroScriptStep ((int (*)())IntroScriptStep)
 
-#define D_800F4D70 (*(int (*))&D_800F4D70)
+#define MenuArenas (*(int (*))&MenuArenas)
 
 #define ModeGroup (*(short (*))&ModeGroup)
 
@@ -15,11 +15,11 @@
 
 #undef IntroScriptStep
 
-#undef D_800F4D70
+#undef MenuArenas
 
 #undef ModeGroup
 
-extern int func_8001E84C();
+extern int DebugPrintStub();
 
 extern int AllocBadgeRows();
 
@@ -41,7 +41,7 @@ extern int LoadCursor;
 
 extern int D_800ACC1C;
 
-extern int D_800ACC24;
+extern int ImageRowCount;
 
 extern int BadgeRowCount;
 
@@ -51,7 +51,7 @@ extern int GlyphRowCount;
 
 extern int MenuTextRowCount;
 
-extern int D_800F4D70[];
+extern int MenuArenas[];
 
 void InitMenuArenas()
 {
@@ -61,17 +61,17 @@ void InitMenuArenas()
   Rect16RowCount = 4;
   GlyphRowCount = 4;
   UiRowCount = 0x28;
-  D_800ACC24 = 1;
+  ImageRowCount = 1;
   MenuTextRowCount = 0x37;
-  D_800F4D70[1] = CdDirectoryBuffer + c;
-  LoadCursor = D_800F4D70[1];
-  func_8001E84C(D_8001075C, LoadCursor, 0x2D000);
+  MenuArenas[1] = CdDirectoryBuffer + c;
+  LoadCursor = MenuArenas[1];
+  DebugPrintStub(D_8001075C, LoadCursor, 0x2D000);
   LoadCursor = LoadCursor + AllocBadgeRows(LoadCursor);
   LoadCursor = LoadCursor + AllocRect16Rows(LoadCursor);
   LoadCursor = LoadCursor + AllocGlyphRows(LoadCursor);
   LoadCursor = LoadCursor + AllocImageRows(LoadCursor);
   LoadCursor = LoadCursor + AllocUiRows(LoadCursor);
   D_800ACC1C = LoadCursor;
-  D_800F4D70[1] = LoadCursor + 0x19000;
+  MenuArenas[1] = LoadCursor + 0x19000;
   LoadCursor = LoadCursor + 0x19000;
 }

@@ -4,7 +4,7 @@
 
 #include "rr/library.h"
 
-extern s32 func_8001E84C(const char *, ...);
+extern s32 DebugPrintStub(const char *, ...);
 
 s32 CdInit(void) {
     s32 i=4;
@@ -12,7 +12,7 @@ s32 CdInit(void) {
     register s32 result __asm__("$2");
 loop:
     {
-    s32 status=func_8008BED4();
+    s32 status=CdInitAttempt();
     s32 expected=1;
     /* ASM_BARRIER: Keep the probe result comparison separate from returned success. */
     __asm__("" : "+r"(expected));
@@ -45,7 +45,7 @@ loop:
         message=(const char *)0x80010000U;
         /* ASM_BARRIER: Expose the message offset for the print-call delay slot. */
         __asm__("" : "+r"(message));
-        func_8001E84C(message+0x18A8);
+        DebugPrintStub(message+0x18A8);
     }
     result=0;
 out:

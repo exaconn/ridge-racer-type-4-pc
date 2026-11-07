@@ -38,7 +38,7 @@ static struct World {
  SharedInput basis,overlap;u32 tail[4];
  struct Prepared captured;u32 installed[5];unsigned calls;
 } actual,expected,initial,*w;
-#define D_800ABED0 w->basis.matrix
+#define LightMatrix w->basis.matrix
 static unsigned scenario,mode;
 static s32 *multiply(s32 *basis,u16 *matrix) {
  RrPreviewMatrixWorkspace *pair=(RrPreviewMatrixWorkspace *)matrix;

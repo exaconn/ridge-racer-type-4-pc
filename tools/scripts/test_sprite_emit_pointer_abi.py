@@ -39,7 +39,7 @@ int main(void) {
   if(intensity)want.r=want.g=want.b=(u8)intensity;
   want.x=(s16)(u16)n;want.y=(s16)(u16)(n^0x8000);want.u=rect.u;want.v=rect.v;want.w=rect.w;want.h=rect.h;want.clut=n;
   memcpy(expected,&want,20);packet_size=20;expected_packet=(u32*)packets;ordering=0xAB123456;
-  assert(func_8001FF84(&ordering,packets,(int)n,(int)(n^0x8000),&rect,n,flags)==packets+1);
+  assert(AddSpritePrim(&ordering,packets,(int)n,(int)(n^0x8000),&rect,n,flags)==packets+1);
   want.link=(want.link&0xFF000000)|0x123456;
   assert(memcmp(packets,&want,20)==0);
   for(unsigned i=20;i<sizeof(packets);i++)assert(((u8*)packets)[i]==0xA6);

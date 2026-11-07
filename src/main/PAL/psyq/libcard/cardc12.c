@@ -5,30 +5,30 @@
 #include "psyq/libcard/cardc03.h"
 #include "psyq/libcard/cardc12.h"
 
-s32 func_8009D068(s32 request, s32 parameter, s32 count);
-s32 func_8009D118(void);
-s32 func_8009D198(s32 request, s32 parameter);
-s32 func_8009D238(s32 request, s32 parameter, s32 count);
-int func_8009D2E0();
-s32 func_8009D348(s32 request, s32 parameter);
-int func_8009D3E8();
+s32 _cardCmd5DBegin(s32 request, s32 parameter, s32 count);
+s32 _cardCmd5DTx(void);
+s32 _cardCmd5DValueBegin(s32 request, s32 parameter);
+s32 _cardCmd5EBegin(s32 request, s32 parameter, s32 count);
+int _cardCmd5ETx();
+s32 _cardCmd5FBegin(s32 request, s32 parameter);
+int _cardCmd5FTx();
 
-s32 func_8009CF94(s32 unused) {
+s32 _cardCmd5CVarRx(s32 unused) {
     s32 received;
     RrSerialPortRegisters *port;
     s32 result;
-    if(D_800ABDF8==3) {
-        port=D_800ABDE0;
+    if(CardRxCount==3) {
+        port=CardCmdSioRegs;
         RR_NOP_DEP_ON(port);
         while(!(port->status & 2)) { }
-        D_80114728=D_800ABDE0->data;
-    } else if(D_800ABDF8>=4) {
-        if((u32)D_800ABDF8==(u32)D_80114728+4) {
-            port=D_800ABDE0;
+        D_80114728=CardCmdSioRegs->data;
+    } else if(CardRxCount>=4) {
+        if((u32)CardRxCount==(u32)D_80114728+4) {
+            port=CardCmdSioRegs;
             RR_NOP_DEP_ON(port);
             while(!(port->status & 2)) { }
-            received=D_800ABDE0->data;
-            D_80114718=D_8011471C;
+            received=CardCmdSioRegs->data;
+            CardCmdBuffer=D_8011471C;
             D_8011472C.value=1;
             D_80114730=received+1;
         }
@@ -37,17 +37,17 @@ s32 func_8009CF94(s32 unused) {
     return result;
 }
 
-s32 func_8009D068(s32 request, s32 parameter, s32 count) {
+s32 _cardCmd5DBegin(s32 request, s32 parameter, s32 count) {
     s32 result;
     s32 active;
     if (!rr_command_begin(request)) return 0;
     /* ASM_BARRIER: keep success initialization before the command configuration stores. */
     __asm__ volatile("" : "=r"(result) : "0"(1) : "$3", "memory");
-    D_80114870 = 6;
-    D_80114734 = func_8009D118;
-    D_80114738 = func_8009C610;
+    CardCurrentCommand = 6;
+    CardCommandReader = _cardCmd5DTx;
+    CardWriteHandler = _cardRxStatusByte;
     active = 2;
-    D_80114724 = parameter;
+    CardCmdSector = parameter;
     D_80114728 = count;
     D_8011472C.value = 0;
     {
@@ -64,11 +64,11 @@ s32 func_8009D068(s32 request, s32 parameter, s32 count) {
     return result;
 }
 
-s32 func_8009D118(void) {
+s32 _cardCmd5DTx(void) {
     s32 result;
     switch(D_800ABDE8) {
     case 2: result=0x5D; break;
-    case 4: result=D_80114724; break;
+    case 4: result=CardCmdSector; break;
     case 5: result=D_8011472C.value; break;
     case 6: result=D_80114728; break;
     default: result=0; break;
@@ -76,15 +76,15 @@ s32 func_8009D118(void) {
     return result;
 }
 
-s32 func_8009D198(s32 request, s32 parameter) {
+s32 _cardCmd5DValueBegin(s32 request, s32 parameter) {
     s32 result;
     s32 active;
     if (!rr_command_begin(request)) return 0;
     /* ASM_BARRIER: keep success initialization before the command configuration stores. */
     __asm__ volatile("" : "=r"(result) : "0"(1) : "$3", "memory");
-    D_80114870 = 7;
-    D_80114734 = func_8009D118;
-    D_80114738 = func_8009C610;
+    CardCurrentCommand = 7;
+    CardCommandReader = _cardCmd5DTx;
+    CardWriteHandler = _cardRxStatusByte;
     active = 2;
     D_8011472C.value = parameter;
     {
@@ -101,17 +101,17 @@ s32 func_8009D198(s32 request, s32 parameter) {
     return result;
 }
 
-s32 func_8009D238(s32 request, s32 parameter, s32 count) {
+s32 _cardCmd5EBegin(s32 request, s32 parameter, s32 count) {
     s32 result;
     s32 active;
     if (!rr_command_begin(request)) return 0;
     /* ASM_BARRIER: keep success initialization before the command configuration stores. */
     __asm__ volatile("" : "=r"(result) : "0"(1) : "$3", "memory");
-    D_80114870 = 13;
-    D_80114734 = func_8009D2E0;
-    D_80114738 = func_8009C610;
+    CardCurrentCommand = 13;
+    CardCommandReader = _cardCmd5ETx;
+    CardWriteHandler = _cardRxStatusByte;
     active = 2;
-    D_80114724 = parameter;
+    CardCmdSector = parameter;
     D_80114728 = count;
     {
         /* ASM_BARRIER: preserve the original assembler temporary for the mapped store. */
@@ -127,7 +127,7 @@ s32 func_8009D238(s32 request, s32 parameter, s32 count) {
     return result;
 }
 
-int func_8009D2E0() {
+int _cardCmd5ETx() {
     int v = D_800ABDE8;
     int r;
     if (v == 4) goto c4;
@@ -143,7 +143,7 @@ c2:
     r = 0x5E;
     goto end;
 c4:
-    r = D_80114724;
+    r = CardCmdSector;
     goto end;
 c5:
     r = D_80114728;
@@ -151,17 +151,17 @@ end:
     return r;
 }
 
-s32 func_8009D348(s32 request, s32 parameter) {
+s32 _cardCmd5FBegin(s32 request, s32 parameter) {
     s32 result;
     s32 active;
     if (!rr_command_begin(request)) return 0;
     /* ASM_BARRIER: keep success initialization before the command configuration stores. */
     __asm__ volatile("" : "=r"(result) : "0"(1) : "$3", "memory");
-    D_80114870 = 8;
-    D_80114734 = func_8009D3E8;
-    D_80114738 = func_8009C610;
+    CardCurrentCommand = 8;
+    CardCommandReader = _cardCmd5FTx;
+    CardWriteHandler = _cardRxStatusByte;
     active = 2;
-    D_80114724 = parameter;
+    CardCmdSector = parameter;
     {
         /* ASM_BARRIER: preserve the original assembler temporary for the mapped store. */
         register s32 *base __asm__("$1");
@@ -176,10 +176,10 @@ s32 func_8009D348(s32 request, s32 parameter) {
     return result;
 }
 
-int func_8009D3E8() {
+int _cardCmd5FTx() {
     switch (D_800ABDE8) {
     case 2: return 0x5F;
-    case 4: return D_80114724;
+    case 4: return CardCmdSector;
     }
     return 0;
 }

@@ -48,12 +48,12 @@ static RrLibSavedState driverStates[2];
 static RrSpuTickInterruptDriver20 savedDrivers[2];
 static unsigned chosen[2],paths[5],interrupts[11],divided[2];
 static void cb0(void){assert(0);}static void cb1(void){assert(0);}
-void func_80082CB4(void){assert(0);}void func_80082D00(void){assert(0);}
-static RrSpuTickCallback pool[5]={0,cb0,cb1,func_80082CB4,func_80082D00};
+void _SsTickCallback(void){assert(0);}void _SsTickCallbackDivided(void){assert(0);}
+static RrSpuTickCallback pool[5]={0,cb0,cb1,_SsTickCallback,_SsTickCallbackDivided};
 #define _snd_seq_tick_env (g->data.timer.value)
 #define D_800A6350 (&drivers[g->data.driver].prefix)
 #define D_800A6370 (g->data.callbacks.values)
-#define D_800ABC34 ((RrRootCounterRegisters *)g->data.counters.records)
+#define RCNT_REGS ((RrRootCounterRegisters *)g->data.counters.records)
 static u32 next(u32 *p){u32 n=*p;n^=n<<13;n^=n>>17;n^=n<<5;return *p=n;}
 static s32 signed_bits(u32 n){s32 r;memcpy(&r,&n,4);return r;}
 static void event(u32 code,u32 a,u32 b,u32 c,RrSpuTickCallback callback){Event *e;assert(g->count<12);e=&g->events[g->count++];e->before=g->data;e->code=code;e->a=a;e->b=b;e->c=c;e->callback=callback;}
@@ -96,8 +96,8 @@ static void model(s32 argument){RrSpuTickState20 *t=&g->data.timer.value;u32 cou
  if(direct){unsigned selected=g->data.driver;event(5,4,selected,0,t->callback);chosen[selected]++;g->data.callbacks.values[4]=t->callback;}
  else{
   ResetRCnt(counter);SetRCnt(counter,period,4096);index=t->flags.interrupt;
-  if(!index){old=exchange(g->data.driver,0,0);t->previous=old;index=t->flags.interrupt;callback=func_80082CB4;}
-  else{divided[t->flags.divided!=0]++;callback=t->flags.divided?func_80082D00:t->callback;}
+  if(!index){old=exchange(g->data.driver,0,0);t->previous=old;index=t->flags.interrupt;callback=_SsTickCallback;}
+  else{divided[t->flags.divided!=0]++;callback=t->flags.divided?_SsTickCallbackDivided:t->callback;}
   exchange(g->data.driver,index,callback);
  }
  ExitCriticalSection();

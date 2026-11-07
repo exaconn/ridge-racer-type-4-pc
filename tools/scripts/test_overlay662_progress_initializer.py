@@ -31,7 +31,7 @@ static u8 resources[3][0x2D100],original[3][0x2D100];
 #define MenuItemCount world.s.limit
 #define LoadState world.s.flag1
 #define MenuScriptStep world.s.flag2
-#define D_800F4D70 world.s.arenas
+#define MenuArenas world.s.arenas
 #define CdDirectoryBuffer world.s.base
 #define LoadCursor world.s.published
 #define D_800F4D40 world.s.saved

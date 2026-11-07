@@ -9,7 +9,7 @@ extern char ovl661_D_80118420[2][12];
 extern s16 ovl661_D_80118448[2];
 extern char ovl661_D_801148EC[];
 extern char ovl661_D_801148F8[];
-extern u8 *D_800ACC14;
+extern u8 *CurrentDrawBuf;
 
 void SetMenuFrameOptions(s32, s32, s32);
 void PlaySfx(s32);
@@ -24,7 +24,7 @@ void func_8003662C(s32);
 void UpdateMenuTextRow(s32);
 void func_800411D4(void);
 s32 func_8003B12C(void);
-void func_80053BB4(s32);
+void SeqStartTrack(s32);
 s32 ovl661_func_80117E10(s32);
 void ovl661_func_80115598(s32);
 
@@ -78,7 +78,7 @@ void ovl661_func_80117E90(void) {
         break;
     case 4:
         D_800AC5D0--;
-        AddScreenFadeTiles((u32 *)(D_800ACC14 + 0x70), (64 - D_800AC5D0) * 4, 69);
+        AddScreenFadeTiles((u32 *)(CurrentDrawBuf + 0x70), (64 - D_800AC5D0) * 4, 69);
         group = 3;
         if (D_800AC5D0 <= 0) {
             MenuScriptId = 0;
@@ -90,7 +90,7 @@ void ovl661_func_80117E90(void) {
         break;
     case 5:
         D_800AC5D0 -= 2;
-        AddScreenFadeTiles((u32 *)(D_800ACC14 + 0x70), (64 - D_800AC5D0) * 4, 69);
+        AddScreenFadeTiles((u32 *)(CurrentDrawBuf + 0x70), (64 - D_800AC5D0) * 4, 69);
         group = 3;
         if (D_800AC5D0 <= 0) {
             group = -1;
@@ -99,7 +99,7 @@ void ovl661_func_80117E90(void) {
         break;
     case 6:
         D_800AC5D0--;
-        AddScreenFadeTiles((u32 *)(D_800ACC14 + 0x70), (64 - D_800AC5D0) * 4, 69);
+        AddScreenFadeTiles((u32 *)(CurrentDrawBuf + 0x70), (64 - D_800AC5D0) * 4, 69);
         group = -1;
         if (D_800AC5D0 <= 0) {
             ModeGroup = 1;
@@ -110,7 +110,7 @@ void ovl661_func_80117E90(void) {
     case 8:
         ready = func_8003B12C();
         if (ready == 1) {
-            func_80053BB4(0);
+            SeqStartTrack(0);
             ovl661_func_80115598(0);
             ModeGroup = ready;
             D_800F3A26 = 56;

@@ -3,13 +3,13 @@
 #include "rr/commands.h"
 #include "psyq/libcard/cardc192.h"
 
-s32 func_8009DD88(s32 request, u32 *first, u32 *second);
+s32 _cardGetIdBegin(s32 request, u32 *first, u32 *second);
 
-s32 func_8009D978(void) {
+s32 _cardSectorTx(void) {
     register s32 result;
     /* ASM_BARRIER: Keep the folding accumulator separate from the returned byte. */
     register s32 checksum __asm__("$3");
-    if(D_800ABDF0) {
+    if(CardRetriesLeft) {
         /* ASM_BARRIER: Keep the retry-phase comparison after its independent tick read. */
         __asm__("" : : : "$2");
         switch(D_800ABDE8) {
@@ -22,14 +22,14 @@ s32 func_8009D978(void) {
     /* ASM_BARRIER: Keep the normal-phase comparison after its independent tick read. */
     __asm__("" : : : "$2");
     switch(D_800ABDE8) {
-    case 2: D_80114710=0;result=0x57;goto done;
+    case 2: CardChecksum=0;result=0x57;goto done;
     case 5:
-high: result=((u8 *)&D_80114724)[1];goto done;
+high: result=((u8 *)&CardCmdSector)[1];goto done;
     case 6:
-low: result=*(u8 *)&D_80114724;goto done;
-    case 133: result=D_8011472C.value;checksum=D_80114710^result;goto fold;
-    case 134: result=D_80114710;goto done;
-    case 135: result=((D_80114724>>8)^D_80114724)&255;goto done;
+low: result=*(u8 *)&CardCmdSector;goto done;
+    case 133: result=D_8011472C.value;checksum=CardChecksum^result;goto fold;
+    case 134: result=CardChecksum;goto done;
+    case 135: result=((CardCmdSector>>8)^CardCmdSector)&255;goto done;
     default:
         if(D_800ABDE8<7) {result=0;goto done;}
         /* ASM_BARRIER: Preserve the separate fresh tick read for the upper bound. */
@@ -39,12 +39,12 @@ low: result=*(u8 *)&D_80114724;goto done;
         __asm__("" : : : "memory");
         {
             s32 phase=D_800ABDE8;
-            checksum=D_80114710;
-            result=D_80114740[phase+3];
+            checksum=CardChecksum;
+            result=CardRxTrace[phase+3];
             checksum^=result;
         }
 fold:
-        D_80114710=checksum;
+        CardChecksum=checksum;
     }
 done:
     /* ASM_BARRIER: Retain the original shared return entry for all protocol phases. */
@@ -52,7 +52,7 @@ done:
     return result;
 }
 
-s32 func_8009DB18(s32 input) {
+s32 _cardSectorRx(s32 input) {
     register s32 original=input;
     /* ASM_BARRIER: Retain the original byte argument and final-marker mask register. */
     register s32 value __asm__("$4");
@@ -61,13 +61,13 @@ s32 func_8009DB18(s32 input) {
     /* ASM_BARRIER: Capture the full input before loading the retry flag. */
     __asm__("" : "+r"(original) : : "$2");
     value=original;
-    if(D_800ABDF0) {
-        switch(D_800ABDF8) {
+    if(CardRetriesLeft) {
+        switch(CardRxCount) {
         case 2: {
             /* ASM_BARRIER: Preserve the original byte comparison temporary and branch delay. */
             register u32 byte __asm__("$3")=value&255;
             if(byte==8) {
-                D_800ABDF0=0;
+                CardRetriesLeft=0;
                 byte=1;
                 D_80114730=byte;
                 result=0;goto done;
@@ -83,10 +83,10 @@ s32 func_8009DB18(s32 input) {
             D_80114714=0;result=0;goto done;
         }
         case 9:
-            if((result=value&255)!=((u8 *)&D_80114724)[1]){result=-9;goto done;}
+            if((result=value&255)!=((u8 *)&CardCmdSector)[1]){result=-9;goto done;}
             goto fold_original;
         case 10:
-            if((result=value&255)!=*(u8 *)&D_80114724){result=-10;goto done;}
+            if((result=value&255)!=*(u8 *)&CardCmdSector){result=-10;goto done;}
 fold_original:
             result=D_80114714;
             result^=original;
@@ -97,11 +97,11 @@ fold_original:
         case 140:
             if((value&255)!=0x47){result=-140;goto done;}
         default:
-            if((u32)D_800ABDF8-11<128)D_80114714^=value;
+            if((u32)CardRxCount-11<128)D_80114714^=value;
             result=0;goto done;
         }
     } else {
-        switch(D_800ABDF8) {
+        switch(CardRxCount) {
         case 2: {
             /* ASM_BARRIER: Preserve the original byte comparison temporary and branch delay. */
             register u32 byte __asm__("$3")=value&255;
@@ -145,15 +145,15 @@ done:
     return result;
 }
 
-s32 func_8009DD88(s32 request, u32 *first, u32 *second) {
+s32 _cardGetIdBegin(s32 request, u32 *first, u32 *second) {
     s32 result;
     s32 active;
     if (!rr_command_begin(request)) return 0;
     /* ASM_BARRIER: keep success initialization before the command configuration stores. */
     __asm__ volatile("" : "=r"(result) : "0"(1) : "$3", "memory");
-    D_80114870 = 101;
-    D_80114734 = func_8009DE30;
-    D_80114738 = func_8009DE54;
+    CardCurrentCommand = 101;
+    CardCommandReader = _cardGetIdTx;
+    CardWriteHandler = _cardGetIdRx;
     active = 2;
     D_8011471C = first;
     D_80114720 = second;

@@ -12,14 +12,14 @@ void ovl662_func_80118A30(void) {
     ScreenFrame=(u32)ScreenFrame+1;
     if (phase == 0) {
         SetMenuFrameOptions(1, 1, 1);
-        if (D_800F3A38[0].b != 0) {cancel=1;goto normalizeColumn;}
-        if (D_800F3A38[0].buttons0A & 0x1000) {
+        if (PlayerControllers[0].b != 0) {cancel=1;goto normalizeColumn;}
+        if (PlayerControllers[0].buttons0A & 0x1000) {
             PlaySfx(0);ovl662_D_801273A3--;goto normalizeRow;
-        }else if (D_800F3A38[0].buttons0A & 0x4000) {
+        }else if (PlayerControllers[0].buttons0A & 0x4000) {
             PlaySfx(0);ovl662_D_801273A3++;goto normalizeRow;
-        }else if (D_800F3A38[0].buttons0A & 0x8000) {
+        }else if (PlayerControllers[0].buttons0A & 0x8000) {
             PlaySfx(0);ovl662_D_801273A2--;goto normalizeColumn;
-        }else if (D_800F3A38[0].buttons0A & 0x2000) {
+        }else if (PlayerControllers[0].buttons0A & 0x2000) {
             PlaySfx(0);ovl662_D_801273A2++;goto normalizeColumn;
         }else goto normalizeColumn;
 normalizeRow:
@@ -64,7 +64,7 @@ normalizeColumn:
         SetMenuFrameOptions(0, 1, 1);
         fadeStep = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = (u16) fadeStep;
-        AddScreenFadeTiles(&D_800ACC14->head70, (0x40 - fadeStep) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->head70, (0x40 - fadeStep) * 4, 0x45);
         if ((s16) D_800AC5D0 <= 0) {
             D_800FFC18 = 5;
             ModeGroup = phase;

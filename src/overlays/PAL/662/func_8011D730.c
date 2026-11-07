@@ -4,8 +4,8 @@ void ovl662_func_8011D730(u32 *output)
 {
     u32 result=0;
     s32 axis;
-    if (D_800F3A38[0].type01 == 0x73 && D_800F3A38[0].kind1C != 0 && D_800F3A38[0].flag40 == 0) {
-        axis=D_800F3A38[0].axis17;
+    if (PlayerControllers[0].type01 == 0x73 && PlayerControllers[0].kind1C != 0 && PlayerControllers[0].flag40 == 0) {
+        axis=PlayerControllers[0].axis17;
         if (axis < 32) {
             ovl662_D_80126C18++;
             if ((s32)ovl662_D_80126C18 >= 47) ovl662_D_80126C18=40;
@@ -22,7 +22,7 @@ void ovl662_func_8011D730(u32 *output)
         } else {
             ovl662_D_80126C1C=0;
         }
-        axis=D_800F3A38[0].axis16;
+        axis=PlayerControllers[0].axis16;
         if (axis < 32) {
             ovl662_D_80126C20++;
             if ((s32)ovl662_D_80126C20 >= 47) ovl662_D_80126C20=40;

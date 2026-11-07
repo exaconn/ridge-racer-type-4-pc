@@ -31,12 +31,12 @@ typedef struct {
 extern int (*D_800ABC80)();
 extern int D_800ABCE8;
 extern int D_800ABCA8;
-extern int D_800ABCB8;
+extern int PadFirstChannel;
 extern int D_800ABCA4;
 extern int (*D_800ABC98)();
 extern int (*D_800ABC94)();
 extern int D_800ABCB4;
-extern int D_800ABCE0;
+extern int PadPacketBytesLeft;
 /* Partial transfer state; field purposes beyond this routine are still unknown. */
 typedef struct {
     u8 pad00[0x37];
@@ -46,20 +46,20 @@ typedef struct {
 } RrTransferState;
 RR_ASSERT_SIZE(RrTransferState, 0x40);
 RR_ASSERT_OFFSET(RrTransferState, flag37, 0x37);
-extern s32 (*D_800ABC70)(RrTransferState *, s32);
+extern s32 (*PadTxByteCallback)(RrTransferState *, s32);
 extern void (*D_800ABC68)(s32);
 extern void (*D_800ABC74)(Rec8009991C *);
-extern void (*D_800ABC88)(Rec8009991C *);
+extern void (*PadPacketDoneCallback)(Rec8009991C *);
 extern void (*D_800ABC8C)(Rec8009991C *);
-extern Rec8009991C *D_800ABC9C;
+extern Rec8009991C *PadChannelRecords;
 extern s32 D_800ABCC0[];
-extern Unk800ABCE4 *D_800ABCE4;
+extern Unk800ABCE4 *JOY_DATA;
 
 void func_800996C4(T *a0);
 void func_8009970C();
 int func_800997E4();
 s32 func_80099890(RrTransferState *state);
-s32 func_8009991C(Rec8009991C *arg0);
+s32 _padTransferPacket(Rec8009991C *arg0);
 
 void func_800996C4(T *a0) {
     int r = D_800ABC80(a0);
@@ -73,7 +73,7 @@ void func_800996C4(T *a0) {
 #define _padSioRW2 ((int (*)())_padSioRW2)
 
 void func_8009970C(o) O *o; {
-    if (D_800ABCA8 == D_800ABCB8) {
+    if (D_800ABCA8 == PadFirstChannel) {
         if (D_800ABCA4 != 0) {
             D_800ABC98();
             D_800ABC94();
@@ -102,8 +102,8 @@ int func_800997E4(a0) unsigned char *a0; {
   v = _padSioRW2(a0, a1);
   if (v < 0) return v;
   t = (v & 0xF) * 2;
-  D_800ABCE0 = t;
-  if (t == 0) D_800ABCE0 = 0x20;
+  PadPacketBytesLeft = t;
+  if (t == 0) PadPacketBytesLeft = 0x20;
   return 0;
 }
 
@@ -116,17 +116,17 @@ s32 func_80099890(RrTransferState *state) {
     if ((state->packet[0] >> 4) == 8) {
         mode = state->flag37 == 0;
     }
-    result = _padSioRW2(state, (u8)D_800ABC70(state, mode));
+    result = _padSioRW2(state, (u8)PadTxByteCallback(state, mode));
     if (result == 0x5A || result == 0 || result < 0) return result;
     return -4;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABC70 (*(s32 (*(*))(Rec8009991C *, s32))&D_800ABC70)
+#define PadTxByteCallback (*(s32 (*(*))(Rec8009991C *, s32))&PadTxByteCallback)
 #define _padSioRW ((s32 (*)(Rec8009991C *, u8))_padSioRW)
 #define _padSioRW2 ((s32 (*)(Rec8009991C *, u8))_padSioRW2)
 
-s32 func_8009991C(Rec8009991C *arg0) {
+s32 _padTransferPacket(Rec8009991C *arg0) {
     s32 i;
     s32 res;
     s32 idx;
@@ -142,13 +142,13 @@ s32 func_8009991C(Rec8009991C *arg0) {
 
     if (mode != 0) {
         for (i = -1; i < 4; i++) {
-            if (--D_800ABCE0 <= 0) {
+            if (--PadPacketBytesLeft <= 0) {
                 break;
             }
             if (i >= 0) {
                 D_800ABC74(&arg0->unk0C[i]);
             }
-            res = _padSioRW2(arg0, (u8)D_800ABC70(arg0, 1));
+            res = _padSioRW2(arg0, (u8)PadTxByteCallback(arg0, 1));
             if (res < 0) {
                 return res;
             }
@@ -161,13 +161,13 @@ s32 func_8009991C(Rec8009991C *arg0) {
 
     ptr = 0;
     idx = (D_800ABCA8 == 0);
-    while (D_800ABCE0 >= 2) {
+    while (PadPacketBytesLeft >= 2) {
         if (D_800ABCC0[idx] < 0) {
             break;
         }
         if (D_800ABCC0[idx] > 0) {
-            ptr = &D_800ABC9C[idx].unk0C[D_800ABCC0[idx]] - 1;
-            D_800ABC88(ptr);
+            ptr = &PadChannelRecords[idx].unk0C[D_800ABCC0[idx]] - 1;
+            PadPacketDoneCallback(ptr);
             {
                 void *a0r;
             }
@@ -177,18 +177,18 @@ s32 func_8009991C(Rec8009991C *arg0) {
             D_800ABCC0[idx] = 3;
             break;
         case 3:
-            D_800ABC88(ptr - 1);
+            PadPacketDoneCallback(ptr - 1);
             D_800ABCC0[idx] = 1;
             break;
         case 0:
         case 1:
-            ptr = &D_800ABC9C[idx];
-            D_800ABC88(ptr);
+            ptr = &PadChannelRecords[idx];
+            PadPacketDoneCallback(ptr);
             D_800ABC8C(ptr);
             D_800ABCC0[idx] = -1;
             break;
         }
-        res = _padSioRW(arg0, (u8)D_800ABC70(arg0, mode));
+        res = _padSioRW(arg0, (u8)PadTxByteCallback(arg0, mode));
         if (res < 0) {
             return res;
         }
@@ -196,15 +196,15 @@ s32 func_8009991C(Rec8009991C *arg0) {
         if (_padClrIntSio0() == 0) {
             return -3;
         }
-        D_800ABCE0--;
+        PadPacketBytesLeft--;
     }
 
-    while (--D_800ABCE0 > 0) {
-        res = _padSioRW(arg0, (u8)D_800ABC70(arg0, mode));
+    while (--PadPacketBytesLeft > 0) {
+        res = _padSioRW(arg0, (u8)PadTxByteCallback(arg0, mode));
         if (res < 0) {
             return res;
         }
-        if (D_800ABCE4->unk0E != 0x22) {
+        if (JOY_DATA->unk0E != 0x22) {
             setRC2wait(0x3C);
             if (_padClrIntSio0() == 0) {
                 res = -3;
@@ -214,13 +214,13 @@ s32 func_8009991C(Rec8009991C *arg0) {
     }
 
     _padWaitRXready();
-    arg0->unk3C[arg0->unk44++] = D_800ABCE4->unk00;
+    arg0->unk3C[arg0->unk44++] = JOY_DATA->unk00;
     D_800ABC68(0);
     res = 0;
 end:
     return res;
 }
 
-#undef D_800ABC70
+#undef PadTxByteCallback
 #undef _padSioRW
 #undef _padSioRW2

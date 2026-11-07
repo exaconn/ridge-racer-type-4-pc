@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8009A05C(void *);
+void _padAllocGates(void *);
 
 #endif /* RR_PSYQ_LIBPAD_PADCHK_H */

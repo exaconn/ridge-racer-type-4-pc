@@ -38,7 +38,7 @@ s32 test_printf(const char *format,...) {
 }
 s32 (*GPU_printf)(const char *,...) = test_printf;
 RrLibGraphicsDriverPrefix test_drivers[2];
-RrLibGraphicsDriverPrefix *D_800ABAB8;
+RrLibGraphicsDriverPrefix *GpuFuncTable;
 u32 test_driver_size=sizeof(RrLibGraphicsDriverPrefix);
 s32 test_gpu[4];
 s32 *GPU_STATUS=&test_gpu[0], *DMA2_MADR=&test_gpu[1];
@@ -49,11 +49,11 @@ void test_configure(s32 index,s32 (*dispatch)(RrLibDrawOrderingTable,s32,s32,s32
  test_drivers[index].dispatch=dispatch;
  test_drivers[index].draw_ordering_table=draw;
 }
-void test_select(s32 index) { D_800ABAB8=&test_drivers[index]; }
+void test_select(s32 index) { GpuFuncTable=&test_drivers[index]; }
 void test_initialize(void) {
  memset(test_drivers,0xA5,sizeof(test_drivers));
  memset(test_gpu,0xA5,sizeof(test_gpu));
- D_800ABAB8=&test_drivers[0];
+ GpuFuncTable=&test_drivers[0];
 }
 '''
         for name in ('80093344', '80094B28'):

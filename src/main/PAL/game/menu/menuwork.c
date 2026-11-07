@@ -31,30 +31,30 @@ extern int SetupRenderer();
 extern int ResetCarState();
 extern int InitSelectionRows();
 extern int SetupMenuCarCamera();
-extern int func_80037110();
+extern int InitPreviewImageRows();
 extern int ResetScreenCounters();
 extern void InitUiRow(int,int,int,int,int,int,int,int,int,int,...);
 extern M2C_UNK PlayerCars;
 extern s32 VSyncThreshold;
 extern s16 D_800AD50A;
 extern int SetMenuFrameOptions();
-extern int func_8002CC88();
+extern int DrawPreviewCar();
 extern int func_8002E5A0();
 extern int func_8002E828();
 extern int UpdateImageRow();
 extern int CdAudioFade();
-extern int func_80053BB4();
+extern int SeqStartTrack();
 extern int BuildCameraMatrices();
 extern int SetupViewport();
 extern unsigned char D_8009F818[];
 extern short D_800AC5D0;
-extern signed char *D_800F2AB0;
+extern signed char *ImageRows;
 extern int LoadCursor;
 extern int D_800F3A60;
 extern W7C0_F *BadgeRows;
-extern int D_800F4D70;
+extern int MenuArenas;
 extern W7C0_E *UiRows;
-extern void func_80037198();
+extern void DrawSelectionIconGrid();
 extern int LoadCarRangeStep();
 extern void UpdateBadgeRowAnim();
 extern void DrawUiRow();
@@ -133,7 +133,7 @@ void func_80039988(void) {
     M2C_FIELD(&PlayerCars, s32 *, 0x28) = 0x134;
     M2C_FIELD(&PlayerCars, s32 *, 0x24) = 0xA;
     M2C_FIELD(&PlayerCars, s32 *, 0x54) = 0xA00;
-    func_80037110();
+    InitPreviewImageRows();
     InitUiRow(0, 0x18, 0x58, 0x44, 0x20, 0, 0, 1, 0, 0x53);
     InitUiRow(1, 0x74, 0x58, 0x1C, 0x20, 5, 0, 1, 0, 0x37);
     InitUiRow(2, 0x74, 0x80, 0x1C, 0x20, 5, 0, 1, 0, 0x38);
@@ -157,19 +157,19 @@ void func_80039ABC(void) {
             CdAudioFade(0, 0x3C);
             D_800F4D8A = 1;
             func_80039988();
-            D_800F2AB0[1] = 0;
+            ImageRows[1] = 0;
         }
     } else {
         BuildCameraMatrices();
         func_8002E828(2, SCRATCH_ROT_MATRIX);
         func_8002E5A0(PlayerCars);
-        func_8002CC88(PlayerCars, 0, 0x100, 1);
+        DrawPreviewCar(PlayerCars, 0, 0x100, 1);
         UpdateImageRow(0);
-        if (D_800F2AB0[1] == 2) {
+        if (ImageRows[1] == 2) {
             ModeGroup = 1;
             D_800F3A26 = 0x22;
             D_800F4D8A = 0;
-            func_80053BB4(0);
+            SeqStartTrack(0);
         }
     }
     UpdateScreenFade(0x10028);
@@ -182,12 +182,12 @@ void func_80039ABC(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define PlayerCars (*(char (*)[])&PlayerCars)
 #define SelectionState (*(char (*)[])&SelectionState)
-#define D_800F2AB0 ((W7C0_S *)D_800F2AB0)
+#define ImageRows ((W7C0_S *)ImageRows)
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 #define UpdateScreenFade ((void (*)())UpdateScreenFade)
 #define SetMenuFrameOptions ((void (*)())SetMenuFrameOptions)
 #define StepMenuValue ((void (*)())StepMenuValue)
-#define func_8002CC88 ((void (*)())func_8002CC88)
+#define DrawPreviewCar ((void (*)())DrawPreviewCar)
 #define func_8002E5A0 ((void (*)())func_8002E5A0)
 #define SetupMenuCarCamera ((void (*)())SetupMenuCarCamera)
 #define ResetScreenCounters ((void (*)())ResetScreenCounters)
@@ -208,7 +208,7 @@ void func_80039C0C(void)
     if (s2 == 1) {
         v1 = LoadCursor;
         s0 = D_800F4D8A;
-        D_800F4D70 = v1;
+        MenuArenas = v1;
         if (s0 == s2)
             goto b1;
         if (s0 < 2) {
@@ -256,7 +256,7 @@ void func_80039C0C(void)
         goto end;
     b2:
         ModeFrame = 0;
-        D_800F2AB0->b1 = 3;
+        ImageRows->b1 = 3;
         BadgeRows->s10 = 4;
         ResetScreenCounters();
         {
@@ -273,23 +273,23 @@ void func_80039C0C(void)
 end:
     SetupMenuCarCamera(1);
     SetupViewport(6);
-    if (D_800F2AB0->b1 > 0) {
+    if (ImageRows->b1 > 0) {
         char *g = PlayerCars;
         sp18[0] = 0x80;
         sp18[1] = 0x80;
         sp18[2] = 0x80;
         *(int *)(g + 0x54) = (*(int *)(g + 0x54) + 8) & 0xFFF;
-        if (D_800F2AB0->b1 == 2)
+        if (ImageRows->b1 == 2)
             s1 = 0x100;
         else
-            s1 = (D_800F2AB0->b2 << 8) / 30;
+            s1 = (ImageRows->b2 << 8) / 30;
         BadgeRows->s2 = 1;
         DrawUiRow(0);
         DrawUiRow(1);
         DrawUiRow(2);
-        func_80037198(0);
+        DrawSelectionIconGrid(0);
         func_8002E5A0(PlayerCars);
-        func_8002CC88(PlayerCars, *(int *)sp18, s1, 1);
+        DrawPreviewCar(PlayerCars, *(int *)sp18, s1, 1);
     }
     UpdateBadgeRowAnim(0);
     UpdateImageRow(0);
@@ -297,12 +297,12 @@ end:
 
 #undef PlayerCars
 #undef SelectionState
-#undef D_800F2AB0
+#undef ImageRows
 #undef D_800F4D8A
 #undef UpdateScreenFade
 #undef SetMenuFrameOptions
 #undef StepMenuValue
-#undef func_8002CC88
+#undef DrawPreviewCar
 #undef func_8002E5A0
 #undef SetupMenuCarCamera
 #undef ResetScreenCounters

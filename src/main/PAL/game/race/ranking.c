@@ -23,7 +23,7 @@ typedef struct {
     int time;
 } Struct10;
 
-extern int D_8009EA04[2][8];
+extern int DefaultCourseTimes[2][8];
 extern StructC D_8009EA44[5];
 extern unsigned char CourseLapCounts[2][8];
 extern int CourseBestLap[2][8];
@@ -31,9 +31,9 @@ extern Struct10 RaceRecords[2][8][5];
 extern int D_800F3838[2][8][3];
 extern int D_800F3B00[8];
 extern Struct10 LapRecords[2][8][5];
-extern char D_800ABE08[];
+extern char CourseChoiceTable[];
 extern unsigned short D_8009EA80[];
-extern unsigned char D_800F2FE0[];
+extern unsigned char SaveDataWork[];
 extern unsigned char D_800F3B28[];
 /* extern */
 /* extern */
@@ -52,9 +52,9 @@ extern s16 D_800FFC18;
 extern int SetCdMixMode();
 
 void InitDefaultTimeRecords(void);
-void func_8001F194(void);
-void func_8001F254(void);
-void func_8001F290(void);
+void InitCourseChoices(void);
+void BackupSaveData(void);
+void RestoreSaveData(void);
 void func_8001F2CC(void);
 void SplashModeEnter(void);
 void SplashModeUpdate(void);
@@ -66,12 +66,12 @@ void InitDefaultTimeRecords(void) {
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 8; j++) {
             int c = 0x2FD;
-            D_800F3B00[j] = D_8009EA04[0][j];
-            D_800AC5B0[j] = (D_8009EA04[0][j] - 0x2FD) * CourseLapCounts[1][j] + (CourseLapCounts[1][j] * 1000 + c);
-            CourseBestLap[i][j] = D_8009EA04[1][j];
-            CourseBestTotal[i][j] = (D_8009EA04[1][j] - 0x2FD) * CourseLapCounts[0][j] + (CourseLapCounts[0][j] * 1000 + c);
+            D_800F3B00[j] = DefaultCourseTimes[0][j];
+            CourseBestTotalTimes[j] = (DefaultCourseTimes[0][j] - 0x2FD) * CourseLapCounts[1][j] + (CourseLapCounts[1][j] * 1000 + c);
+            CourseBestLap[i][j] = DefaultCourseTimes[1][j];
+            CourseBestTotal[i][j] = (DefaultCourseTimes[1][j] - 0x2FD) * CourseLapCounts[0][j] + (CourseLapCounts[0][j] * 1000 + c);
             for (k = 0; k < 3; k++) {
-                D_800F3838[i][j][k] = D_8009EA04[1][j];
+                D_800F3838[i][j][k] = DefaultCourseTimes[1][j];
             }
         }
     }
@@ -95,7 +95,7 @@ void InitDefaultTimeRecords(void) {
     }
 }
 
-void func_8001F194(void)
+void InitCourseChoices(void)
 {
     /* ASM_BARRIER: register pins reproduce original t/a register allocation */
     register int a2 asm("$6");
@@ -109,8 +109,8 @@ void func_8001F194(void)
     short *t3;
     char *a1;
     unsigned short u;
-    func_80096434(D_800ABE08, 0x90);
-    func_80096434(D_800ABE08 + 0x24, 0x90);
+    func_80096434(CourseChoiceTable, 0x90);
+    func_80096434(CourseChoiceTable + 0x24, 0x90);
     t4 = 0;
     e = 8;
     t6 = D_8009EA80;
@@ -118,11 +118,11 @@ void func_8001F194(void)
     t1 = t4;
     do {
         a2 = 0;
-        t3 = (short *)(t2 + D_800ABE08);
+        t3 = (short *)(t2 + CourseChoiceTable);
         t0 = t6;
         a3 = t1;
 loop:
-        a1 = a3 + D_800ABE08;
+        a1 = a3 + CourseChoiceTable;
         if (a2 == e) {
             int m;
             __asm__ volatile("" : "=r"(m) : "0"(-1)); /* ASM_BARRIER: keep -1 inside branch */
@@ -142,17 +142,17 @@ loop:
     } while (t4 < 4);
 }
 
-void func_8001F254(void) {
+void BackupSaveData(void) {
     int i;
     for (i = 0; i < 0x840; i++) {
-        D_800F3B28[i] = D_800F2FE0[i];
+        D_800F3B28[i] = SaveDataWork[i];
     }
 }
 
-void func_8001F290(void) {
+void RestoreSaveData(void) {
     int i;
     for (i = 0; i < 0x840; i++) {
-        D_800F2FE0[i] = D_800F3B28[i];
+        SaveDataWork[i] = D_800F3B28[i];
     }
 }
 
@@ -162,7 +162,7 @@ void func_8001F2CC(void) {
 void SplashModeEnter(void) {
     int pad[6];
     SetDispMask(0);
-    func_8001E84C(&D_800103B8);
+    DebugPrintStub(&D_800103B8);
     LoadCursor = CdDirectoryBuffer;
     func_80071440();
     D_800FFC18 = 0;

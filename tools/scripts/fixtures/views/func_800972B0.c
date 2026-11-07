@@ -4,7 +4,7 @@
 
 #include "rr/bios_devices.h"
 
-s32 func_800972B0(s32 *a0,s32 a1,s32 a2) {
+s32 _firstfile_hook(s32 *a0,s32 a1,s32 a2) {
     /* ASM_BARRIER: Keep the captured handler in its original saved register across name comparisons. */
     register RrBiosDeviceHandler handler __asm__("$19");
     unsigned long cursor,end,limit;

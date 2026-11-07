@@ -6,7 +6,7 @@
 
 #include "rr/channels.h"
 
-void func_80099E9C(s32 command)
+void _padAdvanceChannel(s32 command)
 {
     /* ASM_BARRIER: retain the incoming command in a1 until first-pass dispatch. */
     register s32 mode __asm__("$5") = command;
@@ -28,12 +28,12 @@ void func_80099E9C(s32 command)
                 *slot = 0;
             } else {
                 _dirFailAuto((u8 *)channel);
-                func_80099F90((RrChannelTransferView *)channel);
+                _padSaveCommand((RrChannelTransferView *)channel);
             }
         }
         control = D_800ABD00;
         current = D_800ABCA8;
-        D_800ABCAC = 0;
+        PadRecvStage = 0;
         control[5] = 0;
         /* ASM_BARRIER: finish control publication before reading the live bound. */
         __asm__("" : : : "memory");

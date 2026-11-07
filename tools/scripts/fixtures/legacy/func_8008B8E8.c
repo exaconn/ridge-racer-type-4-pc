@@ -1,14 +1,14 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/library.h"
 extern RrLibSavedState D_800A52C8;
-extern unsigned short *D_800A6358, *D_800A6354; extern int *D_800A635C;
+extern unsigned short *I_MASK, *D_800A6354; extern int *D_800A635C;
 extern void EnterCriticalSection(), ResetEntryInt();
 RrLibSavedState *stopIntr(void) {
   RrLibSavedState *p = &D_800A52C8;
   unsigned short *a, *c; int *b; int t;
   if (p->active == 0) return 0;
   EnterCriticalSection();
-  a = D_800A6358;
+  a = I_MASK;
   b = D_800A635C;
   p->register16 = *a;
   t = *b;

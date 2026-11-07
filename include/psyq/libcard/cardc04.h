@@ -5,7 +5,7 @@
 
 extern unsigned char D_80114726;
 extern unsigned char D_80114727;
-int func_8009C87C();
-s32 func_8009C91C(s32 value);
+int _cardCmd5BRangeTx();
+s32 _cardCmd5BRangeRx(s32 value);
 
 #endif /* RR_PSYQ_LIBCARD_CARDC04_H */

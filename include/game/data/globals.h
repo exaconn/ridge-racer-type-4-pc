@@ -27,6 +27,6 @@ extern u16 _svm_okof1;
 extern u16 _svm_okof2;
 extern s16 _svm_stereo_mono;
 extern s8 _svm_auto_kof_mode;
-extern int D_801102E4;
+extern int StStartFrame;
 
 #endif

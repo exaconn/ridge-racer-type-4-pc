@@ -611,7 +611,7 @@ void func_80017CC0(a0) int a0; {
     s4 = D_8010BF68;
     RR_GTE_SETROT((int *)SCRATCH_ROT_MATRIX);
     RR_GTE_CLRTR();
-    a1 = D_8009E1D4[D_800F3914];
+    a1 = D_8009E1D4[CourseIndex];
     if (a1 != 0) {
         while (a1[0] < a0) a1 += 2;
         {
@@ -641,7 +641,7 @@ void func_80017CC0(a0) int a0; {
     }
     k = 0;
     RR_GTE_SETFC(k, k, k);
-    a1 = D_8009E224[D_800F3914];
+    a1 = D_8009E224[CourseIndex];
     if (a1 != 0) {
         while (a1[0] < a0) a1 += 2;
         s3 = a1[1];
@@ -664,7 +664,7 @@ void func_80017CC0(a0) int a0; {
                 case 8: r = (int)func_80017528(r, s0, w); break;
                 case 1: r = (int)func_800177E4(r, s0, w); break;
                 case 11: r = (int)func_80017A90(r, s0, w); break;
-                default: func_8001E84C(D_800100D0, k, w); return;
+                default: DebugPrintStub(D_800100D0, k, w); return;
                 }
             }
             s1++;

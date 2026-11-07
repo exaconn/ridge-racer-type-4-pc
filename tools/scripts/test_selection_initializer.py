@@ -42,7 +42,7 @@ static State actual,reference,*w;
 #define CdDirectoryBuffer w->base
 #define D_800F4D40 w->buffer
 #define LoadCursor w->published
-#define D_800F4D70 w->arenas
+#define MenuArenas w->arenas
 #define PlayerCars w->vehicles
 #define SelectionRows w->selectionRows
 #define D_8010BFD8 w->table
@@ -86,7 +86,7 @@ void ResetScreenCounters(void){service(0);}
 void InitMenuArenas(void){service(1);}
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){const s32 args[10]={a,b,c,d,e,f,g,h,i,j};record(2,args);effect(2);}
 void SetupRenderer(s32 a){const s32 args[10]={a};record(3,args);effect(3);}
-void func_80037110(void){service(4);}
+void InitPreviewImageRows(void){service(4);}
 void ResetCarState(RrRaceVehicle *p){unsigned i;for(i=0;i<2&&p!=&w->vehicles[i];i++){}assert(i<2&&(uintptr_t)p>UINT32_MAX);const s32 args[10]={i};record(5,args);effect(5);}
 s32 CountChoiceGlyphs(const RrCourseChoice4 *p){unsigned g,r;for(g=0;g<2;g++)for(r=0;r<2;r++)if(p==w->table[g][r])goto found;
 found:assert(g<2&&r<2&&(uintptr_t)p>UINT32_MAX);const s32 args[10]={g,r};record(6,args);s32 count=0;for(;count<9;count++){if(p[count].glyph==-1)break;if(count==8&&p[8].glyph!=0x167)break;}effect(6);return count;}
@@ -99,7 +99,7 @@ static void expected(s32 original){w->frame=0;w->tick=0;w->selection=0;w->limit=
  {12,24,88,68,32,0,0,1,0,83},{13,24,128,68,32,0,0,1,0,101},{14,24,168,68,32,0,0,1,0,53},{15,24,208,68,32,0,0,1,0,85},{16,116,88,28,32,0,0,1,0,55},{17,116,128,28,32,0,0,1,0,56},
  {18,12,64,68,32,0,0,1,0,84},{19,12,104,68,32,0,0,1,0,3},{20,12,144,68,32,0,0,1,0,85},{21,12,368,208,32,0,0,8,4,0},{23,104,104,68,32,0,0,1,5,3},{24,104,64,68,32,0,0,0,126,0}};
  for(unsigned i=0;i<24;i++){s32 args[10];memcpy(args,rows[i],40);if(args[0]==21)args[9]=w->course;record(2,args);effect(2);}
- SetupRenderer(5);w->selection=0;w->limit=3;ResetScreenCounters();func_80037110();w->active=0;w->published=w->buffer;resourceBranch[w->player&1]++;
+ SetupRenderer(5);w->selection=0;w->limit=3;ResetScreenCounters();InitPreviewImageRows();w->active=0;w->published=w->buffer;resourceBranch[w->player&1]++;
  if((w->player&1)==0)w->arenas.first=w->buffer;else w->published=w->arenas.first;
  w->scratch.word18=120;w->scratch.word08=-16;w->scratch.word0C=-248;w->scratch.word1C=0;w->scratch.word20=0;w->scratch.word10=-96;
  for(unsigned i=0;i<2;i++){ResetCarState(&w->vehicles[i]);w->vehicles[i].pos20[1]=10;w->vehicles[i].pos20[2]=308;w->vehicles[i].rot54=2048;}

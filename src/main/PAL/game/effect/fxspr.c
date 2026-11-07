@@ -52,7 +52,7 @@ void func_8005C4E0(void)
     {
       ax = (j / 2) + 0x9E;
       ay = ((j % 2) << 1) + 0xE4;
-      p = AddTextSprites(D_800ACC14 + 0x98, p, ax - D_800A2098[RaceContext.f438], h[i] + ay, D_800A1FC8 + (RaceContext.f438 * 4), 0x7F38, new_var = 1, (l[i] << new_var) | new_var);
+      p = AddTextSprites(CurrentDrawBuf + 0x98, p, ax - D_800A2098[RaceContext.f438], h[i] + ay, D_800A1FC8 + (RaceContext.f438 * 4), 0x7F38, new_var = 1, (l[i] << new_var) | new_var);
     }
 
   }
@@ -60,7 +60,7 @@ void func_8005C4E0(void)
   w = D_80011258;
   *((unsigned char **) SCRATCHPAD) = p;
   p[3] = 1;
-  d = D_800ACC14;
+  d = CurrentDrawBuf;
   *((unsigned int *) (p + 4)) = (w & 0x9FF) | 0xE1000200;
   *((unsigned int *) p) = ((*((unsigned int *) p)) & 0xFF000000) | ((*((unsigned int *) (d + 0x98))) & 0xFFFFFF);
   *((unsigned int *) (d + 0x98)) = ((*((unsigned int *) (d + 0x98))) & 0xFF000000) | (((unsigned int) p) & 0xFFFFFF);

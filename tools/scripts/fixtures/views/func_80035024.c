@@ -3,22 +3,22 @@
 /* legacy typing of shared globals in this part of the unit */
 #define PlayerCars (*(S2 (*)[])&PlayerCars)
 
-#define D_800F3A38 (*(S1 (*)[])&D_800F3A38)
+#define PlayerControllers (*(S1 (*)[])&PlayerControllers)
 
 #undef PlayerCars
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 /* legacy typing of shared globals in this part of the unit */
 #define _sio_control ((unsigned int (*)())_sio_control)
 
-#define D_800F3A38 (*(T38 (*))&D_800F3A38)
+#define PlayerControllers (*(T38 (*))&PlayerControllers)
 
 #define LinkState (*(unsigned short (*))&LinkState)
 
 #undef _sio_control
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 #undef LinkState
 
@@ -39,7 +39,7 @@ extern struct
   short a;
   unsigned short b;
   char pad[0x58];
-} D_800F3A38[];
+} PlayerControllers[];
 
 extern int PlaySfx();
 
@@ -167,7 +167,7 @@ int UpdateLinkHandshake(int a0)
       t = &bp[z - new_var2];
       if ((*t) == 0)
       {
-        e = &D_800F3A38;
+        e = &PlayerControllers;
         new_var3 = z;
         if (e->a84 != 0)
         {

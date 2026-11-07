@@ -48,7 +48,7 @@ void InitViewLighting(void)
     BackColorG = 0x1D;
     BackColorB = 0x1C;
     b = D_800A3B38;
-    i = D_800F3914;
+    i = CourseIndex;
     t = b + i * 3;
     FarColorR = t[0];
     FarColorG = t[1];
@@ -64,7 +64,7 @@ void func_8006E794(void) {
     D_800AD5B8 = 0x1400;
     *(int *)(g + 0x78) = 0;
     *(short *)(g + 0x5E) = 0;
-    if (D_800F3914 == 7) {
+    if (CourseIndex == 7) {
         for (i = 0; i < 5; i++) {
             func_80070934(i, 6, 0, 0);
         }

@@ -21,7 +21,7 @@ source=r'''
 static struct World {u32 guard[4];RrGarageSelectionPrefix garage;RrGarageWorkingStorage working;RrMenuItemState5C input[2];RrUiRow24 rows[2][2];RrUiRow24 *row;RrBadgeRow1C badges[2];RrBadgeRow1C *badge;RrMenuTextState texts[2];RrMenuTextState *text;s32 accept,exit;s16 scene,enable,state;u32 tail[4];} world,expected;
 #define ovl662_D_801276A8 world.garage
 #define ovl662_D_80127668 world.working
-#define D_800F3A38 world.input
+#define PlayerControllers world.input
 #define UiRows world.row
 #define BadgeRows world.badge
 #define D_800AC590 world.text

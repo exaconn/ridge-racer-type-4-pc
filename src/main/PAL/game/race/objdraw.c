@@ -147,13 +147,13 @@ extern void AddPrim(s32, s32);
 extern void func_80096454(void *, s32, s32);
 extern s32 D_800A3CDC[];
 extern s32 D_800A3D18[];
-extern SVec D_800A3FC8[];
+extern SVec CourseLightColors[];
 extern CVec D_800A4088[];
 extern S_ABEA4 *TrackNodes;
-extern Mat32 D_800ABED0;
+extern Mat32 LightMatrix;
 extern s32 ReplayState;
 extern s32 ModeFrame;
-extern s16 D_800F3914;
+extern s16 CourseIndex;
 extern s8 RacePaused;
 extern S_F4D90 *D_800F4D90;
 extern s32 RaceState;
@@ -168,7 +168,7 @@ extern int BuildRotMatrixZ();
 extern int BuildRotMatrixY();
 extern int BuildRotMatrixX();
 extern int MulMatrix2();
-extern int D_800FF690[];
+extern int CameraViewMatrix[];
 extern int *D_8010E8D8;
 extern int *D_8010E8DC;
 extern int D_8010E8E0;
@@ -218,7 +218,7 @@ void DrawTrackObjects(s32 arg0) {
             BuildObjectMatrix(i, &TrackObjectStates[i].rot, &sp18, arg0);
             SetTrackObjectTransform(i, &sp18, arg0);
             if ((TrackObjectStates[i].f08 / 10) == 1) {
-                s3[0x00 / 4] = TrackObjectStates[i].f08 + (D_800F3914 % 4) * 3 - 11;
+                s3[0x00 / 4] = TrackObjectStates[i].f08 + (CourseIndex % 4) * 3 - 11;
                 s3[0x04 / 4] = (TrackObjectStates[i].f00 / 6) % D_800A3CDC[s3[0x00 / 4]];
                 s3[0x08 / 4] = D_800A3D18[s3[0x00 / 4] * 12 + s3[0x04 / 4]];
                 SubmitCourseModel2(SCRATCH_BASE, TrackObjectDefs[i].f00 + s3[0x08 / 4]);
@@ -233,29 +233,29 @@ void DrawTrackObjects(s32 arg0) {
 
         case 1:
             BuildObjectMatrix(i, &TrackObjectStates[i].rot, &sp18, 0);
-            sp38 = D_800ABED0;
-            if (D_800F3914 == 7 || D_800F3914 == 3 || D_800F3914 == 2) {
+            sp38 = LightMatrix;
+            if (CourseIndex == 7 || CourseIndex == 3 || CourseIndex == 2) {
                 for (j = 0; j < 3; j++) {
-                    D_800ABED0.m[j][0] = D_800F4D90->light_dir[j].vx;
-                    D_800ABED0.m[j][1] = -D_800F4D90->light_dir[j].vy;
-                    D_800ABED0.m[j][2] = D_800F4D90->light_dir[j].vz;
-                    sp78.m[0][j] = D_800A3FC8[D_800F3914 * 3 + j].vx;
-                    sp78.m[1][j] = D_800A3FC8[D_800F3914 * 3 + j].vy;
-                    sp78.m[2][j] = D_800A3FC8[D_800F3914 * 3 + j].vz;
+                    LightMatrix.m[j][0] = D_800F4D90->light_dir[j].vx;
+                    LightMatrix.m[j][1] = -D_800F4D90->light_dir[j].vy;
+                    LightMatrix.m[j][2] = D_800F4D90->light_dir[j].vz;
+                    sp78.m[0][j] = CourseLightColors[CourseIndex * 3 + j].vx;
+                    sp78.m[1][j] = CourseLightColors[CourseIndex * 3 + j].vy;
+                    sp78.m[2][j] = CourseLightColors[CourseIndex * 3 + j].vz;
                 }
             } else {
                 for (j = 0; j < 3; j++) {
-                    D_800ABED0.m[j][0] = D_800F4D90->light_dir[j].vx;
-                    D_800ABED0.m[j][1] = D_800F4D90->light_dir[j].vy;
-                    D_800ABED0.m[j][2] = D_800F4D90->light_dir[j].vz;
-                    sp78.m[0][j] = D_800A3FC8[D_800F3914 * 3 + j].vx;
-                    sp78.m[1][j] = D_800A3FC8[D_800F3914 * 3 + j].vy;
-                    sp78.m[2][j] = D_800A3FC8[D_800F3914 * 3 + j].vz;
+                    LightMatrix.m[j][0] = D_800F4D90->light_dir[j].vx;
+                    LightMatrix.m[j][1] = D_800F4D90->light_dir[j].vy;
+                    LightMatrix.m[j][2] = D_800F4D90->light_dir[j].vz;
+                    sp78.m[0][j] = CourseLightColors[CourseIndex * 3 + j].vx;
+                    sp78.m[1][j] = CourseLightColors[CourseIndex * 3 + j].vy;
+                    sp78.m[2][j] = CourseLightColors[CourseIndex * 3 + j].vz;
                 }
             }
             SetBackColor(D_800F4D90->ambient.r, D_800F4D90->ambient.g, D_800F4D90->ambient.b);
             SetColorMatrix(&sp78);
-            MulMatrix0(&D_800ABED0, &sp18, &sp58);
+            MulMatrix0(&LightMatrix, &sp18, &sp58);
             SetLightMatrix(&sp58);
             SetTrackObjectTransform(i, &sp18, 0);
             SelectModelBank(4);
@@ -445,7 +445,7 @@ void DrawTrackObjects(s32 arg0) {
             sp118.vz = SCRATCH_ROTZ;
             RotMatrix(&sp118, &sp18);
             RR_GTE_SETROT_TR(&sp18);
-            if ((u32)((u16)D_800F3914 - 2) < 2U && SCRATCH_CAMX <= 0x21EF7) {
+            if ((u32)((u16)CourseIndex - 2) < 2U && SCRATCH_CAMX <= 0x21EF7) {
                 s3[0x2C / 4] = 2;
             } else {
                 s3[0x2C / 4] = 0;
@@ -625,7 +625,7 @@ void DrawTrackObjects(s32 arg0) {
             s3[0x28 / 4] = TrackObjectDefs[i].f0C / 10;
             for (k = 0; k < 18; k++) {
                 if (s3[0x28 / 4] == 0) {
-                    if (D_800F3914 == 0) {
+                    if (CourseIndex == 0) {
                         sp128[k].r = (k < 9) ? 20 : 20 - (k - 8) * 2;
                         sp128[k].g = (k < 9) ? 20 : 20 - (k - 8) * 2;
                         sp128[k].b = (k < 9) ? 10 : 18 - k;
@@ -682,9 +682,9 @@ void DrawTrackObjects(s32 arg0) {
 
         case 3:
             for (k = 0; k < 38; k++) {
-                sp128[k].r = (k < 21) ? D_800A4088[D_800F3914 - 4].r : D_800A4088[D_800F3914 - 4].r - (D_800A4088[D_800F3914 - 4].r * (k - 20)) / 17;
-                sp128[k].g = (k < 21) ? D_800A4088[D_800F3914 - 4].g : D_800A4088[D_800F3914 - 4].g - (D_800A4088[D_800F3914 - 4].g * (k - 20)) / 17;
-                sp128[k].b = (k < 21) ? D_800A4088[D_800F3914 - 4].b : D_800A4088[D_800F3914 - 4].b - (D_800A4088[D_800F3914 - 4].b * (k - 20)) / 17;
+                sp128[k].r = (k < 21) ? D_800A4088[CourseIndex - 4].r : D_800A4088[CourseIndex - 4].r - (D_800A4088[CourseIndex - 4].r * (k - 20)) / 17;
+                sp128[k].g = (k < 21) ? D_800A4088[CourseIndex - 4].g : D_800A4088[CourseIndex - 4].g - (D_800A4088[CourseIndex - 4].g * (k - 20)) / 17;
+                sp128[k].b = (k < 21) ? D_800A4088[CourseIndex - 4].b : D_800A4088[CourseIndex - 4].b - (D_800A4088[CourseIndex - 4].b * (k - 20)) / 17;
                 for (j = 0; j < 2; j++) {
                     s3[0x38 / 4] = k * 2 + j;
                     sp638[s3[0x38 / 4]].v0.vx = D_8010E8E8[k + 1].vx;
@@ -910,7 +910,7 @@ void SetTrackObjectTransform(int a0, int *a1, int a2)
   int *sp = (int *) SCRATCHPAD;
   char *p;
   int v;
-  RR_GTE_SETROT(D_800FF690);
+  RR_GTE_SETROT(CameraViewMatrix);
   sp[0x78 / 4] = 0;
   sp10[0] = ((*((int *) ((((char *) (a0 * 0x2C)) + ((int) TrackObjectStates)) + 0xC))) - sp[2]) >> 2;
   sp10[1] = ((*((int *) ((((char *) (a0 * 0x2C)) + ((int) TrackObjectStates)) + 0x10))) - sp[3]) >> 2;

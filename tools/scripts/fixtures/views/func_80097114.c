@@ -46,7 +46,7 @@ void *firstfile(char *path, void *directory) {
         limit = end;
         do {
             if (device->name && func_80096404(device->name, D_801143C0) == 0) {
-                device->handler = func_800972B0;
+                device->handler = _firstfile_hook;
                 break;
             }
             device++;

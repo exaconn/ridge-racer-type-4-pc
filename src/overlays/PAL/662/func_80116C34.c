@@ -19,9 +19,9 @@ void ovl662_func_80116C34(s32 selected)
     strip.w = 240;
     strip.h = 24;
     strip.u = 0;
-    head = &D_800ACC14->head70;
+    head = &CurrentDrawBuf->head70;
     initial = RR_GPU_SCRATCH->cursor;
-    cursor = func_8001FF84(head, initial, 40, y, &strip, 0x7FA4, 1);
+    cursor = AddSpritePrim(head, initial, 40, y, &strip, 0x7FA4, 1);
 
     index = 0;
     status = ovl662_D_80127300;
@@ -36,7 +36,7 @@ void ovl662_func_80116C34(s32 selected)
                 g = 189;
                 b = 0;
             }
-            cursor = AddTilePrim(&D_800ACC14->head70, cursor,
+            cursor = AddTilePrim(&CurrentDrawBuf->head70, cursor,
                                   x + 1, y, 10, 22, r, g, b);
         }
         x += 12;
@@ -44,11 +44,11 @@ void ovl662_func_80116C34(s32 selected)
         status++;
     } while (index < 20);
 
-    result = AddDrawModePrim(&D_800ACC14->head70, cursor, 0x39);
+    result = AddDrawModePrim(&CurrentDrawBuf->head70, cursor, 0x39);
     RR_GPU_SCRATCH->cursor = result;
     if (ovl662_D_80127300[(SelectionRows.bytes[2] % 20) & 255] == 2) {
-        result = func_8001FF84(&D_800ACC14->head70, result, 142, 256,
+        result = AddSpritePrim(&CurrentDrawBuf->head70, result, 142, 256,
                               &ovl662_D_80126214, 0x7CBB, 0);
-        RR_GPU_SCRATCH->cursor = AddDrawModePrim(&D_800ACC14->head70, result, 0x38);
+        RR_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->head70, result, 0x38);
     }
 }

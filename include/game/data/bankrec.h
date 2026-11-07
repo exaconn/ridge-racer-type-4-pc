@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void func_80029358();
+void SetupDialogueTable();
 void func_800293AC();
 void func_800293C4(s32 arg0);
 

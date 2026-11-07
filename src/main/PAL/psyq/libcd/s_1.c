@@ -12,7 +12,7 @@ extern int CD_init();
 extern int CD_flush();
 extern s32 CD_debug;
 extern int CD_comstr[];
-extern char D_800118C8[];
+extern char CD_str_none[];
 extern int CD_intstr[];
 extern s32 CD_cbsync;
 extern s32 CD_cbready;
@@ -78,9 +78,9 @@ s32 CdSetDebug(s32 value) {
     return previous;
 }
 
-char *CdComstr(unsigned char a0) { char *r; if (a0 < 0x1C) r = (char *)CD_comstr[a0]; else r = D_800118C8; return r; }
+char *CdComstr(unsigned char a0) { char *r; if (a0 < 0x1C) r = (char *)CD_comstr[a0]; else r = CD_str_none; return r; }
 
-char *CdIntstr(unsigned char a0) { char *r; if (a0 < 7) r = (char *)CD_intstr[a0]; else r = D_800118C8; return r; }
+char *CdIntstr(unsigned char a0) { char *r; if (a0 < 7) r = (char *)CD_intstr[a0]; else r = CD_str_none; return r; }
 
 s32 CdSync(s32 mode,u8 *status) {
     return CD_sync(mode,status);

@@ -1,6 +1,6 @@
 #include "rr/fade_sprite.h"
 
-extern RrSpritePacket *func_8001FF84(u32 *, RrSpritePacket *, s32, s32,
+extern RrSpritePacket *AddSpritePrim(u32 *, RrSpritePacket *, s32, s32,
                                   RrUiUvRect *, u16, s32);
 
 void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity) {
@@ -56,8 +56,8 @@ void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity) {
     scratch = (RrGpuScratchPointers *)0x1F800000U;
     if (scale > 0) {
         cursor = (RrSpritePacket *)scratch->cursor;
-        slot = &D_800ACC14;
-        p = (RrGpuSingleCommandPacket *)func_8001FF84(
+        slot = &CurrentDrawBuf;
+        p = (RrGpuSingleCommandPacket *)AddSpritePrim(
             ({
                 ordering = &(*slot)->head98;
                 /* ASM_BARRIER: finish a0 within argument evaluation, leaving

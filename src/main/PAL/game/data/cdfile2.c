@@ -48,7 +48,7 @@ typedef struct {
 } Resource;
 
 extern s32 CdFileState;
-extern s32 D_8009DF94;
+extern s32 CdFileSyncCount;
 extern s32 CdFileIndexCurrent;
 extern s32 (*CdFileStateHandlers[])();
 extern s32 D_8010945C;
@@ -67,7 +67,7 @@ extern struct E D_8010B2E0[];
 extern int SceneLoadState;
 extern int D_8010943C;
 extern int D_8010BF60;
-extern void func_800436E8();
+extern void LoadTimList();
 extern int D_80109440;
 extern int D_80109444;
 extern int D_80109448;
@@ -77,21 +77,21 @@ extern int D_80109454;
 void DrawSync(s32);
 void LoadImage(s16 *, void *);
 extern s32 D_80109468[];
-extern short D_800F3914;
+extern short CourseIndex;
 extern short D_8009E02C[];
 extern char *D_800F4D90;
-extern short D_800ABED0[];
+extern short LightMatrix[];
 extern short D_800ABED6[];
 extern short D_800ABEDC[];
 
-s32 func_80012578(void);
+s32 CdFileStateCheckShell(void);
 s32 CdFileStateGetTN(void);
 s32 CdFileStateReloadDirectory(void);
 s32 CdFileStateSetMode(void);
-s32 func_80012684(void);
+s32 CdFileStateWaitSetMode(void);
 s32 CdFileStateWaitShellClose(void);
 s32 CdFileStateSetloc(void);
-s32 func_80012774(void);
+s32 CdFileStateWaitSetloc(void);
 s32 CdFileStateStartRead(void);
 s32 CdFileStateReadSync(void);
 void CdFileFinish(void);
@@ -107,7 +107,7 @@ int RequestCarLoad(int a0, int a1, int a2, int a3, int a4);
 void SetupRenderer(s32 shift);
 int func_80013904(char *a0_in, int a1_in);
 
-s32 func_80012578(void) {
+s32 CdFileStateCheckShell(void) {
     s32 var_v0;
 
     CdControlB(1, 0, &D_80109498);
@@ -139,14 +139,14 @@ s32 CdFileStateSetMode(void) {
     D_80109498 = 0x80;
     CdControlF(0xE, &D_80109498);
     CdFileState = 4;
-    D_8009DF94 = 0;
+    CdFileSyncCount = 0;
     return 0;
 }
 
-s32 func_80012684(void) {
+s32 CdFileStateWaitSetMode(void) {
     if (CdFileSyncResult == 2) {
-        if (++D_8009DF94 >= 4) {
-            D_8009DF94 = 0;
+        if (++CdFileSyncCount >= 4) {
+            CdFileSyncCount = 0;
             if (CdFileIndexCurrent < 0) {
                 CdFileState = 0;
             } else {
@@ -173,7 +173,7 @@ s32 CdFileStateSetloc(void) {
     return 0;
 }
 
-s32 func_80012774(void) {
+s32 CdFileStateWaitSetloc(void) {
     if (CdFileSyncResult == 2) {
         CdFileState = 8;
     } else {
@@ -550,8 +550,8 @@ int SceneLoadStep(void)
         s0 = *(int *)(LoadCursor + 8) + LoadCursor;
         *(int *)(LoadCursor + 4) = a0;
         *(int *)(LoadCursor + 8) = s0;
-        func_800436E8(a0);
-        func_800436E8(s0);
+        LoadTimList(a0);
+        LoadTimList(s0);
         SceneLoadState = 3;
     case 3:
         if (CdFileReadStart(func_80012208(D_8010943C) + 1, LoadCursor) == 0)
@@ -801,13 +801,13 @@ int func_80013904(char *a0_in, int a1_in) {
     t0 = v0 & 7;
     a3 &= 0xFFF;
     a1 &= 7;
-    /* ASM_BARRIER: order bit extractions before D_800F3914 load */
+    /* ASM_BARRIER: order bit extractions before CourseIndex load */
     __asm__ volatile("" : "+r"(a2), "+r"(t0), "+r"(a3), "+r"(a1));
-    /* ASM_BARRIER: load %hi(D_800F3914) before masking a0 */
-    __asm__ volatile("lui %0, %%hi(D_800F3914)" : "=r"(v0) : "r"(a0));
+    /* ASM_BARRIER: load %hi(CourseIndex) before masking a0 */
+    __asm__ volatile("lui %0, %%hi(CourseIndex)" : "=r"(v0) : "r"(a0));
     a0 &= 7;
-    /* ASM_BARRIER: load %lo(D_800F3914) after masking a0 */
-    __asm__ volatile("lh %0, %%lo(D_800F3914)(%1)" : "=r"(v1) : "r"(v0), "r"(a0));
+    /* ASM_BARRIER: load %lo(CourseIndex) after masking a0 */
+    __asm__ volatile("lh %0, %%lo(CourseIndex)(%1)" : "=r"(v1) : "r"(v0), "r"(a0));
     v0 = (int)D_8009E02C;
     /* ASM_BARRIER: load D_8009E02C address before index shifts */
     __asm__ volatile("" : "+r"(v0));
@@ -901,7 +901,7 @@ int func_80013904(char *a0_in, int a1_in) {
         : "r"(a0), "r"(t1), "r"(t2)
     );
 
-    t8 = D_800ABED0;
+    t8 = LightMatrix;
     a2 = *(int *)(v1 + 0x18);
     a3 = *(short *)(v1 + 0x1C);
     a0 = *(int *)(a1 + 0x18);

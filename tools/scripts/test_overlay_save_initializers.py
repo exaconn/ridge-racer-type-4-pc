@@ -44,7 +44,7 @@ static struct World {struct State s;unsigned calls;struct {s32 service,arg[4];u3
 static unsigned scenario,mutation,kind;
 static u8 seenCounts[10];
 #define SaveProgress w->s.save
-#define D_800ABE08 w->s.choices
+#define CourseChoiceTable w->s.choices
 #define SelectionRows w->s.current
 #define ovl660_record_name w->s.name
 #define ovl660_preview_bank w->s.row
@@ -108,8 +108,8 @@ void ovl663_init_menu(void){
  if(w==&actual){assert(w->s.count>=0 && w->s.count<=9);seenCounts[w->s.count]=1;}
  event(6,0,0,0,0);
 }
-s32 func_8001E84C(const char *format,...){assert(format==(kind==0?format660:kind==1?format662:format663));event(7,0,0,0,0);return 1;}
-void func_80053BB4(s32 mode){assert(mode==0);event(8,mode,0,0,0);}
+s32 DebugPrintStub(const char *format,...){assert(format==(kind==0?format660:kind==1?format662:format663));event(7,0,0,0,0);return 1;}
+void SeqStartTrack(s32 mode){assert(mode==0);event(8,mode,0,0,0);}
 ''' + helpers + bodies + r'''
 static void copy_name(char *destination,const char *source){unsigned n=0,j;while(source[n])n++;for(j=0;j<n;j++)destination[j]=source[j];while(destination[n])destination[n++]=0;}
 static void reference(void){
@@ -121,16 +121,16 @@ static void reference(void){
   w->s.zoom=flags>=16?8:4;if((u32)flags&256)w->s.zoom=16;
   ovl660_func_80114920();
   {s32 glyph=w->s.choices[0][0].glyph;w->s.current.bytes[0]=(u8)(glyph/160);w->s.current.bytes[1]=(u8)(glyph/40-(glyph/160)*4);w->s.current.bytes[2]=(u8)(glyph%40);}
-  w->s.mode=1;w->s.position=50;w->s.timer=0;func_8001E84C(format660);func_80053BB4(0);
+  w->s.mode=1;w->s.position=50;w->s.timer=0;DebugPrintStub(format660);SeqStartTrack(0);
  }else if(kind==1){
   ClearScreenOverlayState();ovl662_func_80114998();SetupDrawDispEnvs(0,0,0,2);w->s.driverSetting=25;
-  w->s.mode=1;w->s.position=40;w->s.timer=0;func_8001E84C(format662);
+  w->s.mode=1;w->s.position=40;w->s.timer=0;DebugPrintStub(format662);
   if(w->s.save.prefix.reserved50.words[0]==1 && w->s.choices[1][7].glyph>=0){w->s.choices[1][8].glyph=359;w->s.choices[1][8].first=1;}
-  func_80053BB4(0);
+  SeqStartTrack(0);
  }else{
-  SetupDrawDispEnvs(0,0,0,2);w->s.mode=1;w->s.position=74;w->s.timer=0;func_8001E84C(format663);n=0;w->s.count=0;
+  SetupDrawDispEnvs(0,0,0,2);w->s.mode=1;w->s.position=74;w->s.timer=0;DebugPrintStub(format663);n=0;w->s.count=0;
   for(i=0;i<9;i++){unsigned key=w->s.order[i];u8 value=w->s.save.unlocked60[key];if(value){w->s.ids[n]=(s32)key;w->s.values[n]=value;n++;w->s.count=(s32)n;}}
-  ovl663_init_menu();func_80053BB4(0);
+  ovl663_init_menu();SeqStartTrack(0);
   flags=w->s.save.prefix.progress.prefix00.fields.configuration0C;w->s.zoom=flags>=16?8:4;if((u32)flags&256)w->s.zoom=16;
  }
 }

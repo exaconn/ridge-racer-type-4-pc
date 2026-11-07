@@ -8,7 +8,7 @@ class GarageMotionTest(unittest.TestCase):
     def test_all_axes_and_controller_types(self):
         root=Path(__file__).resolve().parents[2]
         body=(root/'src/overlays/PAL/662/func_8011D58C.c').read_text()
-        body=body.replace('extern RrMenuItemState5C D_800F3A38[];','')
+        body=body.replace('extern RrMenuItemState5C PlayerControllers[];','')
         source=r'''
 #include <assert.h>
 #include <stddef.h>
@@ -22,7 +22,7 @@ class GarageMotionTest(unittest.TestCase):
 #include "rr/overlay662_garage.h"
 #include "rr/tables.h"
 static struct World {u32 guard[4]; RrMenuItemState5C rows[3]; RrGaragePoint out; u32 tail[4];} w,e;
-#define D_800F3A38 w.rows
+#define PlayerControllers w.rows
 static unsigned calls;
 /* A0/2B BIOS memset boundary: verify arguments and execute its memory semantics. */
 void *func_80096454(void *p,s32 value,u32 count){assert(value==0 && count==4);calls++;return memset(p,value,count);}

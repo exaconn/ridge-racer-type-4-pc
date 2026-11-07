@@ -6,7 +6,7 @@
 typedef void (*RrFrameStep)(void);
 extern RrFrameStorage D_800ADAF0[2];
 extern RrFrameStep *ModeFuncTable[];
-extern u8 *D_800ACC14;
+extern u8 *CurrentDrawBuf;
 extern u32 FrameCounter;
 extern s32 VSyncThreshold, D_800ACBF8, ModeFrame, DrawBufIndex;
 extern u16 ModeGroup, D_800F3A26;

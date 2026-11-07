@@ -5,7 +5,7 @@
 
 #undef D_800F4C38
 
-extern short D_800F3914;
+extern short CourseIndex;
 
 extern int func_80070934();
 
@@ -24,7 +24,7 @@ void func_8006E794(void) {
     D_800AD5B8 = 0x1400;
     *(int *)(g + 0x78) = 0;
     *(short *)(g + 0x5E) = 0;
-    if (D_800F3914 == 7) {
+    if (CourseIndex == 7) {
         for (i = 0; i < 5; i++) {
             func_80070934(i, 6, 0, 0);
         }

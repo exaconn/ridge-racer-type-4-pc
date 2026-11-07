@@ -44,12 +44,12 @@ extern s16 D_800AD50A;
 extern int AddScreenFadeTiles();
 extern int ResetScreenCounters();
 extern int PlaySfx();
-extern int func_80053AF4();
+extern int SeqFadeVolume();
 extern int func_80053CB0();
 extern unsigned short D_800AC5D0;
 extern int LoadCursor;
-extern struct { char pad[1]; signed char b1; } *D_800F2AB0;
-extern struct { char pad[8]; unsigned short h8; char pad2[0x1E]; int w28; } D_800F3A38;
+extern struct { char pad[1]; signed char b1; } *ImageRows;
+extern struct { char pad[8]; unsigned short h8; char pad2[0x1E]; int w28; } PlayerControllers;
 extern struct { char pad[0x10]; short h10; char pad2[10]; } *BadgeRows;
 extern int D_800F4D74;
 extern struct { char pad[6]; signed char b6; char pad2[0xF]; short h16; } *Dialogue;
@@ -59,7 +59,7 @@ int func_80030F64(int a0, int a1);
 void func_80031064(void);
 void func_800311FC(void);
 void func_80031244(void);
-void func_8003153C(void);
+void AddScreenBackdropTile(void);
 
 int func_80030D9C(int x, int a1)
 {
@@ -101,7 +101,7 @@ int func_80030D9C(int x, int a1)
       }
     }
     s3 += D_8009F1E0[i];
-    x = func_8003069C(a, D_800ACC14 + 0x70, x, 0x20, s3, s2);
+    x = func_8003069C(a, CurrentDrawBuf + 0x70, x, 0x20, s3, s2);
     if (i == 1)
     {
       unsigned char *t;
@@ -109,7 +109,7 @@ int func_80030D9C(int x, int a1)
       s0 = D_8009F1E4[(signed char) SelectionState.v] + 0x20;
       new_var = D_8009F074;
       t = new_var[s0];
-      x = AddSpriteWithDrawMode(D_800ACC14 + 0x70, x, b + 0x34, s3, t[2], t[3], t[0], t[1], 0x4A, 0x2E28, i, s2);
+      x = AddSpriteWithDrawMode(CurrentDrawBuf + 0x70, x, b + 0x34, s3, t[2], t[3], t[0], t[1], 0x4A, 0x2E28, i, s2);
     }
     i++;
   }
@@ -134,7 +134,7 @@ int func_80030F64(int a0, int a1) {
         }
         y = s0;
         s0 += 8;
-        a1 = AddTilePrim(D_800ACC14 + 0x70, a1, y, 0x190, 8, 0x1C, v, v, v);
+        a1 = AddTilePrim(CurrentDrawBuf + 0x70, a1, y, 0x190, 8, 0x1C, v, v, v);
 next:
         i++;
     } while (i < 8);
@@ -142,7 +142,7 @@ next:
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2AB0 ((char *)D_800F2AB0)
+#define ImageRows ((char *)ImageRows)
 #define ModeFrame (*(unsigned int (*))&ModeFrame)
 #define BadgeRows ((short *)BadgeRows)
 
@@ -159,12 +159,12 @@ void func_80031064(void)
     if (UiRows[0x14] >= 3) {
         DrawUiRow(0);
     }
-    if (((signed char *)D_800F2AB0)[1] >= 3) {
+    if (((signed char *)ImageRows)[1] >= 3) {
         UpdateImageRow(0);
     }
     if (ModeFrame >= 3) {
         D_800F4CA8 = 1;
-        t = func_8003B588();
+        t = LoadDialogueStep();
         if (t == 1) {
             if (func_8003D108(3) == 3) {
                 ModeFrame = 0;
@@ -181,7 +181,7 @@ void func_80031064(void)
     }
 }
 
-#undef D_800F2AB0
+#undef ImageRows
 #undef ModeFrame
 #undef BadgeRows
 
@@ -205,26 +205,26 @@ void func_80031244(void) {
         UpdateDialoguePanel();
     }
     UpdateDialogueBox();
-    if (Dialogue->b6 == 4 || (D_800F3A40 & 0x800)) {
+    if (Dialogue->b6 == 4 || (Pad0Buttons & 0x800)) {
         s0 = BadgeRows[Dialogue->h16].h10;
         if (s0 == 3) {
-            if (D_800F3A38.w28 != 0 || (D_800F3A38.h8 & 0x800)) {
+            if (PlayerControllers.w28 != 0 || (PlayerControllers.h8 & 0x800)) {
                 PlaySfx(1);
                 SetMenuFrameOptions(0, 1, 0);
                 tab = BadgeRows;
                 ((typeof(BadgeRows))tab)[Dialogue->h16].h10 = 4;
-                D_800F2AB0->b1 = s0;
+                ImageRows->b1 = s0;
                 D_800AC5D0 = 0;
                 if (PendingModeId == 0x10F || PendingModeId == 0x12A || PendingModeId == 0x205) {
                     D_800AC5D0 = 0x40;
                     ResetScreenCounters(tab);
                     LoadCursor = D_800F4D74;
                     func_8003B398(0);
-                    func_80053AF4(0, (short)(D_800AC5D0 - 4));
+                    SeqFadeVolume(0, (short)(D_800AC5D0 - 4));
                     D_800F4D8A = 1;
                 } else if (PendingModeId == 0x111) {
                     D_800AC5D0 = 0x40;
-                    func_80053AF4(0, 0x3C);
+                    SeqFadeVolume(0, 0x3C);
                     D_800F4D8A = 1;
                 }
             }
@@ -234,10 +234,10 @@ void func_80031244(void) {
         if ((short)D_800AC5D0 > 0) {
             D_800AC5D0 -= 1;
         }
-        AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - (short)D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - (short)D_800AC5D0) * 4, 0x45);
     }
     if (BadgeRows[Dialogue->h16].h10 == 0xB) {
-        if (D_800F2AB0->b1 == 5) {
+        if (ImageRows->b1 == 5) {
             if (PendingModeId == 0x10F || PendingModeId == 0x12A) {
                 if (func_8003B398(1) != 1) goto done;
                 func_80053CB0();
@@ -271,8 +271,8 @@ done:
 
 #undef D_800F4D8A
 
-void func_8003153C(void) {
+void AddScreenBackdropTile(void) {
     int *g = (int *)SCRATCHPAD;
     int b = *g;
-    *g = AddTilePrim(D_800ACC14 + 0xB6C, b, 0, 0, 0x140, 0x200, 0x20, 0x20, 0x20);
+    *g = AddTilePrim(CurrentDrawBuf + 0xB6C, b, 0, 0, 0x140, 0x200, 0x20, 0x20, 0x20);
 }

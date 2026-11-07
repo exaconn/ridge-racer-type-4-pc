@@ -2,7 +2,7 @@
 
 #include "rr/channels.h"
 
-s32 func_8009A368(void *a0) {
+s32 _padChannelDispatch(void *a0) {
     RrChannelRecordF0 *state=a0;
     /* ASM_BARRIER: Separate the saved channel from the early-call argument. */
     __asm__("" : "+r"(state));

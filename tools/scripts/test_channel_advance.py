@@ -27,7 +27,7 @@ class ChannelAdvanceTest(unittest.TestCase):
 #include "types.h"
 ''' + header + r'''
 RrChannelRecordF0 D_801144D8[2];
-s32 D_800ABCC0[2], D_800ABCA8, D_800ABCAC, D_800ABCBC;
+s32 D_800ABCC0[2], D_800ABCA8, PadRecvStage, D_800ABCBC;
 u16 packet_a[12], packet_b[12], *D_800ABD00;
 static int scenario, trace[32], trace_count, ready_count, ready_result;
 static int id(void *p) {
@@ -40,7 +40,7 @@ void _dirFailAuto(u8 *channel) {
     if(scenario==1) {assert(index==0);D_800ABCA8=1;D_800ABD00=packet_b;}
     if(scenario==4) D_800ABCBC=0;
 }
-void func_80099F90(RrChannelTransferView *channel) {
+void _padSaveCommand(RrChannelTransferView *channel) {
     int index=id(channel);event(20+index);
     if(scenario==3) {assert(index==0);D_800ABCA8=1;D_800ABD00=packet_b;}
 }
@@ -55,7 +55,7 @@ s32 _padInitSioMode(RrChannelRecordF0 *channel) {
         harness=r'''
 static void reset(int start,int last,int result) {
     scenario=0;trace_count=0;ready_count=0;ready_result=result;
-    D_800ABCA8=start;D_800ABCBC=last;D_800ABCAC=0x12345678;
+    D_800ABCA8=start;D_800ABCBC=last;PadRecvStage=0x12345678;
     D_800ABCC0[0]=0x13579;D_800ABCC0[1]=0x24680;
     memset(D_801144D8,0x5A,sizeof(D_801144D8));
     for(int i=0;i<12;i++){packet_a[i]=0xA5A5;packet_b[i]=0x5A5A;}
@@ -66,7 +66,7 @@ static void expect_trace(const int *expected,int size) {
     assert(memcmp(trace,expected,size*sizeof(int))==0);
     const u8 *bytes=(const u8 *)D_801144D8;
     for(unsigned i=0;i<sizeof(D_801144D8);i++)assert(bytes[i]==0x5A);
-    assert(D_800ABCAC==0);
+    assert(PadRecvStage==0);
 }
 static void packets(int changed_a,int changed_b) {
     for(int i=0;i<12;i++) {
@@ -82,7 +82,7 @@ static void basic(s32 mode,int start,int last,int result) {
         expected[n++]=31;
         if(result==0){expected[n++]=11;expected[n++]=21;}
     }
-    func_80099E9C(mode);
+    _padAdvanceChannel(mode);
     expect_trace(expected,n);
     assert(D_800ABCA8==(start==0&&last==1&&result==0?2:start+1));
     assert(D_800ABCC0[0]==(mode==0&&start==0?0:0x13579));
@@ -105,17 +105,17 @@ static void live_cases(void) {
     const int captured[]={10,20};
     for(int which=1;which<=3;which+=2) {
         reset(0,1,0);scenario=which;
-        func_80099E9C(17);
+        _padAdvanceChannel(17);
         expect_trace(captured,2);assert(D_800ABCA8==2&&ready_count==0);
         assert(D_800ABD00==packet_b);packets(0,1);
     }
     reset(0,1,1);scenario=2;
     const int restart[]={31,10,20,31};
-    func_80099E9C(-9);
+    _padAdvanceChannel(-9);
     expect_trace(restart,4);assert(D_800ABCA8==1&&ready_count==2);
     assert(D_800ABD00==packet_b);packets(1,1);
     reset(0,1,0);scenario=4;
-    func_80099E9C(1);
+    _padAdvanceChannel(1);
     expect_trace(captured,2);assert(D_800ABCA8==1&&ready_count==0);
     assert(D_800ABCBC==0);packets(1,0);
 }

@@ -140,7 +140,7 @@ void UpdatePlayerCar(char *a0, int a1)
   }
   if (D_800AD508 < 0)
   {
-    if (func_8004C370(a1 & 1) != 0)
+    if (GetMappedPadButtons(a1 & 1) != 0)
     {
       if (((unsigned) (RaceState - 2)) < 2)
       {

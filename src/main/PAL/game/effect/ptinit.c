@@ -255,7 +255,7 @@ void DrawParticle(int a0) {
         p->v3 = 0xA0;
         p->tpage = 0xA5;
         p->clut = 0x7EB8;
-        ADDPRIM(D_800ACC14 + 0x188, p);
+        ADDPRIM(CurrentDrawBuf + 0x188, p);
         p++;
     }
 
@@ -282,7 +282,7 @@ void DrawParticle(int a0) {
     p->v3 = 0xA0;
     p->tpage = 0xA5;
     p->clut = 0x7EB8;
-    ADDPRIM(D_800ACC14 + 0x188, p);
+    ADDPRIM(CurrentDrawBuf + 0x188, p);
     p++;
 
     if (e->s1E >= 5) {
@@ -309,7 +309,7 @@ void DrawParticle(int a0) {
         p->v3 = 0xA0;
         p->tpage = 0xA5;
         p->clut = 0x7EB8;
-        ADDPRIM(D_800ACC14 + 0x188, p);
+        ADDPRIM(CurrentDrawBuf + 0x188, p);
         p++;
     }
     *(PolyFT4 **)SCRATCHPAD = p;
@@ -334,13 +334,13 @@ void DrawParticle(int a0) {
         rect.y = e->y0E - (s16)e->u16 / 2;
         rect.w = s3;
         rect.h = (s16)e->u16 / 2;
-        func_8004D11C(&rect, &c[1], &c[2], &c[0], &c[1], 0x41);
+        AddGouraudRect(&rect, &c[1], &c[2], &c[0], &c[1], 0x41);
 
         rect.x = s1;
         rect.y = e->y0E;
         rect.w = s3;
         rect.h = (s16)e->u16 / 2;
-        func_8004D11C(&rect, &c[0], &c[1], &c[1], &c[2], 0x41);
+        AddGouraudRect(&rect, &c[0], &c[1], &c[1], &c[2], 0x41);
 
         rect.x = s1;
         rect.y = e->y0E + (s16)e->u16 / 2;
@@ -353,25 +353,25 @@ void DrawParticle(int a0) {
             rect.y = e->y0E - (s16)e->u16 / 2 - 0x10;
             rect.w = e->s18 - s3;
             rect.h = 0x10;
-            func_8004CFB0(&rect, &D_800A0CF0, &c[2], 0x41);
+            AddVerticalGradientRect(&rect, &D_800A0CF0, &c[2], 0x41);
 
             rect.x = s7;
             rect.y = e->y0E;
             rect.w = e->s18 - s3;
             rect.h = (s16)e->u16 / 2;
-            func_8004CFB0(&rect, &c[0], &c[1], 0x41);
+            AddVerticalGradientRect(&rect, &c[0], &c[1], 0x41);
 
             rect.x = s7;
             rect.y = e->y0E - (s16)e->u16 / 2;
             rect.w = e->s18 - s3;
             rect.h = (s16)e->u16 / 2;
-            func_8004CFB0(&rect, &c[1], &c[0], 0x41);
+            AddVerticalGradientRect(&rect, &c[1], &c[0], 0x41);
 
             rect.x = s7;
             rect.y = e->y0E + (s16)e->u16 / 2;
             rect.w = e->s18 - s3;
             rect.h = 0x10;
-            func_8004CFB0(&rect, &c[2], &D_800A0CF0, 0x41);
+            AddVerticalGradientRect(&rect, &c[2], &D_800A0CF0, 0x41);
         }
     }
 }

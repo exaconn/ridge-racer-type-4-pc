@@ -1,5 +1,5 @@
 /* CC1_FLAGS: -mno-split-addresses */
-extern int SetIntrMask(), func_800954D8(), GPU_memset();
+extern int SetIntrMask(), GPU_CheckVersion(), GPU_memset();
 #include "rr/gpu.h"
 extern int _qin, D_800ABBF8;
 extern int _qout;
@@ -31,6 +31,6 @@ int a0;
         break;
     }
     SetIntrMask(D_800ABBF8);
-    if ((a0 & 7) == 0) return func_800954D8(a0);
+    if ((a0 & 7) == 0) return GPU_CheckVersion(a0);
     return 0;
 }

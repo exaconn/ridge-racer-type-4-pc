@@ -16,18 +16,18 @@ class RootCounterReadTest(unittest.TestCase):
         header=(root/'include/rr/counters.h').read_text()
         header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
         body=(root/'tools/scripts/fixtures/views/func_80097040.c').read_text().replace('#include "rr/counters.h"','')
-        assert body.count('D_800ABC34[index].count')==1
-        observed=body.replace('GetRCnt','observed_read').replace('D_800ABC34[index].count','test_read(index)')
+        assert body.count('RCNT_REGS[index].count')==1
+        observed=body.replace('GetRCnt','observed_read').replace('RCNT_REGS[index].count','test_read(index)')
         code='''#include <stdint.h>
 typedef uint8_t u8; typedef uint16_t u16; typedef uint32_t u32; typedef int32_t s32;
 '''+header+'''
 RrRootCounterRegisters registers[3];
-RrRootCounterRegisters *D_800ABC34=registers;
+RrRootCounterRegisters *RCNT_REGS=registers;
 s32 read_count, last_index;
 u16 test_read(s32 index) {
-    u16 result=D_800ABC34[index].count;
+    u16 result=RCNT_REGS[index].count;
     read_count++;last_index=index;
-    D_800ABC34[index].count=result+1;
+    RCNT_REGS[index].count=result+1;
     return result;
 }
 '''+body+observed
@@ -35,7 +35,7 @@ u16 test_read(s32 index) {
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'))
         cls.ram=(C.c_uint16*24).in_dll(cls.lib,'registers')
-        cls.pointer=C.c_void_p.in_dll(cls.lib,'D_800ABC34')
+        cls.pointer=C.c_void_p.in_dll(cls.lib,'RCNT_REGS')
         cls.reads=C.c_int.in_dll(cls.lib,'read_count')
         cls.last=C.c_int.in_dll(cls.lib,'last_index')
         for name in ('GetRCnt','observed_read'):

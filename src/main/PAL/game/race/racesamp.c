@@ -118,9 +118,9 @@ extern int SetModelTexturePage();
 extern int InitBadgeRow();
 extern int InitRect16Row();
 extern int InitImageRow();
-extern s32 D_800F2EC8;
+extern s32 MaskBitSetting;
 extern int AddDrawModePrim();
-extern int func_8001FF84();
+extern int AddSpritePrim();
 extern unsigned char D_8009F7CC[];
 extern unsigned char D_8009F7D0[];
 extern unsigned char D_8009F7D4[];
@@ -144,20 +144,20 @@ extern struct {
 } RaceContext;
 extern Bounds08 *CarBoundsTable[];
 
-void func_80037110(void);
-void func_80037198(int arg0);
+void InitPreviewImageRows(void);
+void DrawSelectionIconGrid(int arg0);
 void InitCarTable(int a);
 void PlaceCarOnGrid(Car37618 *p, int arg1);
 
-void func_80037110(void) {
+void InitPreviewImageRows(void) {
     SetModelTexturePage(0x19);
-    D_800F2EC8 = 0;
+    MaskBitSetting = 0;
     InitBadgeRow(0, 0x10, 0x158, 0x120, 0x3C, 0, 0x103);
     InitRect16Row(0, 0x10, 0x48, 0x120, 0x120, 0, 0);
     InitImageRow(0, -1, 0, 1);
 }
 
-void func_80037198(int arg0) {
+void DrawSelectionIconGrid(int arg0) {
     int v[9];
     char buf[4];
     int s0;
@@ -195,10 +195,10 @@ void func_80037198(int arg0) {
         int t = v[s0];
         buf[0] = (t % 16) * 16;
         buf[1] = (t / 16) << 5;
-        a1 = func_8001FF84(D_800ACC14 + 0x70, a1, (s0 % 3) * 0x14 + 0xF0, (s0 / 3) * 0x28 + 0x58, buf, 0x7FA4, 1);
+        a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, (s0 % 3) * 0x14 + 0xF0, (s0 / 3) * 0x28 + 0x58, buf, 0x7FA4, 1);
         s0++;
     } while (s0 < 9);
-    *(int *)SCRATCHPAD = AddDrawModePrim(D_800ACC14 + 0x70, a1, 0x39);
+    *(int *)SCRATCHPAD = AddDrawModePrim(CurrentDrawBuf + 0x70, a1, 0x39);
 }
 
 void InitCarTable(int a) {

@@ -59,7 +59,7 @@ static unsigned scenario,mutation,overlay;
 #define ovl660_result_transition w->state.screenFlag
 #define MenuCursor w->state.selection
 #define MenuItemCount w->state.mode
-#define D_800F3914 w->state.gameMode
+#define CourseIndex w->state.gameMode
 #define ovl660_result_kind w->state.flash
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static s16 half(u32 n){u16 bits=(u16)n;s16 v;memcpy(&v,&bits,2);return v;}

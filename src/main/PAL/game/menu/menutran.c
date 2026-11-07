@@ -17,7 +17,7 @@ extern short D_800ABEC8;
 extern short D_800AC648;
 extern short D_800AD520;
 extern short D_800F3826;
-extern short D_800F3914;
+extern short CourseIndex;
 extern signed char SelectionState[];
 extern unsigned char D_800AD4F0;
 extern unsigned char D_800F3981;
@@ -94,7 +94,7 @@ void func_8002F688() {
     D_800AD520 = c0;
     D_800F3826 = SelectionRows[1];
     D_800F4C28 = SelectionRows[2];
-    D_800F3914 = DecodeCourseIndex(a0, c0, a2);
+    CourseIndex = DecodeCourseIndex(a0, c0, a2);
     D_800ABEC8 = 0;
     SaveProgress[3] |= 1 << D_800AC648;
     if (SelectionRows[2] >= 5) {

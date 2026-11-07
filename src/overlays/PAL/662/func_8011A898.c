@@ -5,7 +5,7 @@ extern const char ovl662_D_801148F0[];
 extern s16 ModeGroup,D_800F3A26,D_800F4D8A;
 void InitUiRow(s32,s32,s32,s32,s32,s32,s32,s32,s32,s32,...);
 void ovl662_func_8011A898(void) {
-    func_8001E84C(ovl662_D_801148F0);
+    DebugPrintStub(ovl662_D_801148F0);
     ovl662_func_8011A788(0);
     ovl662_D_801276A8.dirtyD3 = 0;
     ClearScreenOverlayState();

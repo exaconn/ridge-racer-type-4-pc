@@ -21,7 +21,7 @@
 extern int CdDirectoryBuffer;
 extern char D_8001075C[];
 extern int LoadCursor;
-extern int D_800F4D70[];
+extern int MenuArenas[];
 extern int StopRaceAudioAndRumble();
 extern int ClearScreenOverlayState();
 extern int VSyncThreshold;
@@ -170,25 +170,25 @@ void InitMenuArenas()
   Rect16RowCount = 4;
   GlyphRowCount = 4;
   UiRowCount = 0x28;
-  D_800ACC24 = 1;
+  ImageRowCount = 1;
   MenuTextRowCount = 0x37;
-  D_800F4D70[1] = CdDirectoryBuffer + c;
-  LoadCursor = D_800F4D70[1];
-  func_8001E84C(D_8001075C, LoadCursor, 0x2D000);
+  MenuArenas[1] = CdDirectoryBuffer + c;
+  LoadCursor = MenuArenas[1];
+  DebugPrintStub(D_8001075C, LoadCursor, 0x2D000);
   LoadCursor = LoadCursor + AllocBadgeRows(LoadCursor);
   LoadCursor = LoadCursor + AllocRect16Rows(LoadCursor);
   LoadCursor = LoadCursor + AllocGlyphRows(LoadCursor);
   LoadCursor = LoadCursor + AllocImageRows(LoadCursor);
   LoadCursor = LoadCursor + AllocUiRows(LoadCursor);
   D_800ACC1C = LoadCursor;
-  D_800F4D70[1] = LoadCursor + 0x19000;
+  MenuArenas[1] = LoadCursor + 0x19000;
   LoadCursor = LoadCursor + 0x19000;
 }
 
 /* legacy typing of shared globals in this part of the unit */
 #define SetDispMask ((int (*)())SetDispMask)
 #define IntroScriptStep ((int (*)())IntroScriptStep)
-#define D_800F4D70 (*(int (*))&D_800F4D70)
+#define MenuArenas (*(int (*))&MenuArenas)
 #define ModeGroup (*(short (*))&ModeGroup)
 
 void InitMenuScript() {
@@ -201,7 +201,7 @@ void InitMenuScript() {
     case 0:
         SetupDrawDispEnvs(0, 0, 0, 1);
         D_800FFC10 = 1;
-        LoadCursor = D_800F4D70;
+        LoadCursor = MenuArenas;
         goto l428;
     case 10:
         if (D_800F4D44 == 5) goto five;
@@ -261,7 +261,7 @@ l428:
 
 #undef SetDispMask
 #undef IntroScriptStep
-#undef D_800F4D70
+#undef MenuArenas
 #undef ModeGroup
 
 void UpdateMenuScript(void) {
@@ -314,6 +314,6 @@ void UpdateMenuScript(void) {
         }
     }
     if (ModeGroup != 1) {
-        *(void **)SCRATCHPAD = AddTileGrid2x2((u32 *)((u8 *)D_800ACC14 + 0xB6C), *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200, 0, 0, 0);
+        *(void **)SCRATCHPAD = AddTileGrid2x2((u32 *)((u8 *)CurrentDrawBuf + 0xB6C), *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200, 0, 0, 0);
     }
 }

@@ -10,5 +10,5 @@
  * and length>=2 requires two readable input bytes. Byte buffers may overlap gate/mapping
  * storage.
  * Cost addition wraps32 before the signed comparison. */
-void func_8009A05C(void *record);
+void _padAllocGates(void *record);
 #endif

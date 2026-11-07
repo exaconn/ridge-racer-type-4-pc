@@ -43,7 +43,7 @@ typedef struct {
 static World actual,expected;
 static Trace actual_log,expected_log;
 static int mutate,return_offset,return_kind,original_selector;
-#define D_800ACC14 actual.context
+#define CurrentDrawBuf actual.context
 #define D_800ACA3C actual.phase
 #define D_800ACA38 actual.gain
 #define D_800A1FB0 actual.uv
@@ -77,7 +77,7 @@ static RrSpritePacket *helper(int model,u32 *ordering,RrSpritePacket *cursor,
  if(!return_kind)memset(mapped(w,raw),0xCA,24);
  return (RrSpritePacket*)raw;
 }
-RrSpritePacket *func_8001FF84(u32 *a,RrSpritePacket *b,s32 c,s32 d,
+RrSpritePacket *AddSpritePrim(u32 *a,RrSpritePacket *b,s32 c,s32 d,
  RrUiUvRect *e,u16 f,s32 g){return helper(0,a,b,c,d,e,f,g);}
 static void reference(s32 index,s32 x,s32 y,s32 intensity) {
  s32 phase=expected.phase;

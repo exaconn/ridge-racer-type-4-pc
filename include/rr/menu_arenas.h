@@ -4,7 +4,7 @@
 #include "rr/menu_arena_types.h"
 
 /* Two resident pointer cells; the second is refreshed by menu resource loading. */
-extern RrMenuArenas D_800F4D70;
+extern RrMenuArenas MenuArenas;
 extern u8 *CdDirectoryBuffer;
 void InitMenuArenas(void);
 void ovl662_func_80116020(void);

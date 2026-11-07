@@ -5,7 +5,7 @@ void ovl662_func_8011DA90(void)
     RrMenuItemState5C *pad;
 
     if ((ovl662_D_80127668.words[0] & 2) ||
-        ((pad = &D_800F3A38[0])->type01 != 0x12 && (pad->buttons02 & 4))) {
+        ((pad = &PlayerControllers[0])->type01 != 0x12 && (pad->buttons02 & 4))) {
         /* ASM_BARRIER: GCC local-alloc assigns state base to $a0 so controller base gets $a1 */
         register u32 *s __asm__("$4") = ovl662_D_80127668.words;
         s[10] += s[11];

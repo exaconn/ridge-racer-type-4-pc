@@ -87,8 +87,8 @@ typedef struct {
 /* size 0x3C */
 extern int D_800A4090;
 extern int ModeFrame;
-extern short D_800F3914;
-extern unsigned short D_800F3A38[];
+extern short CourseIndex;
+extern unsigned short PlayerControllers[];
 extern int RaceState;
 extern int D_8010E7A8;
 extern int D_8010E7AC;
@@ -184,13 +184,13 @@ void UpdateTrackObjects(void) {
                     if (B4->f8 == 0) {
                         if (D_800F4D44 != 1) {
                             B4->f8 = 0xB;
-                        } else if (D_800F3914 == 7) {
+                        } else if (CourseIndex == 7) {
                             if (D_800AC1A2 != 0) {
                                 B4->f8 = D_800AC1A2 + 0xA;
                             } else {
                                 B4->f8 = 0xB;
                             }
-                        } else if (D_800AC1A2 <= 0 || (D_800F3914 == 6 && D_800AC1A2 < 2)) {
+                        } else if (D_800AC1A2 <= 0 || (CourseIndex == 6 && D_800AC1A2 < 2)) {
                             B4->f8 = 0xB;
                         } else {
                             switch (D_800AC0E6 + 1) {
@@ -352,18 +352,18 @@ void UpdateTrackObjects(void) {
                                     switch (B4->f8) {
                                     case 0:
                                     case 4:
-                                        if (D_800F3A38[4] & 0x8000) {
+                                        if (PlayerControllers[4] & 0x8000) {
                                             B4->f8++;
-                                        } else if (*(int *)&D_800F3A38[4] & 0x7000) {
+                                        } else if (*(int *)&PlayerControllers[4] & 0x7000) {
                                             B4->f8 = 5;
                                         }
                                         break;
                                     case 1:
                                     case 2:
                                     case 3:
-                                        if (D_800F3A38[4] & 0x2000) {
+                                        if (PlayerControllers[4] & 0x2000) {
                                             B4->f8++;
-                                        } else if (*(int *)&D_800F3A38[4] & 0xD000) {
+                                        } else if (*(int *)&PlayerControllers[4] & 0xD000) {
                                             B4->f8 = 5;
                                         }
                                         break;

@@ -40,13 +40,13 @@ struct State {
 };
 static struct World {struct State s;unsigned calls;struct {u32 hash;s32 service,arg;} events[8];} actual,expected,*w;
 static unsigned scenario,mutation;
-#define D_800F4D70 w->s.arenas
+#define MenuArenas w->s.arenas
 #define LoadCursor w->s.current
 #define D_800F4D40 w->s.backing
 #define SelectionRows w->s.selection
 #define D_800ACBD0 w->s.points
-#define D_800F2AB0 w->s.ui[scenario%4]
-#define D_800ABE08 w->s.main
+#define ImageRows w->s.ui[scenario%4]
+#define CourseChoiceTable w->s.main
 #define ovl661_D_80118458 w->s.table661
 #define D_8010BFD8 w->s.table667
 #define D_800AC5D4 w->s.player
@@ -99,7 +99,7 @@ static void event(s32 service,s32 arg){
 }
 void SetupRenderer(s32 shift){assert(shift==5);event(1,shift);}
 void ResetScreenCounters(void){event(2,0);}
-void func_80037110(void){event(3,0);}
+void InitPreviewImageRows(void){event(3,0);}
 void ResetCarState(RrRaceVehicle *vehicle){assert(vehicle==&w->s.vehicles[0]);event(4,0);}
 ''' + glyph + count + bodies + r'''
 static void reference_glyph(s8 *output,s32 value){
@@ -110,7 +110,7 @@ static s32 reference_count(const RrCourseChoice4 *p){unsigned i;for(i=0;i<9;i++)
 static void reference(unsigned kind){
  if(kind==0){
   w->s.word2de4=0;w->s.wordabeb0=0;SetupRenderer(5);w->s.halfc64a=0;w->s.halfc5e0=3;
-  ResetScreenCounters();func_80037110();
+  ResetScreenCounters();InitPreviewImageRows();
   w->s.scratch.projection.word18=120;w->s.scratch.projection.word08=-16;
   w->s.scratch.projection.word0C=-248;w->s.scratch.projection.word10=-96;
   w->s.scratch.projection.word1C=0;w->s.scratch.projection.word20=0;

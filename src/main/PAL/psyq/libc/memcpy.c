@@ -1,5 +1,5 @@
 #include "rr/memory.h"
-u8 *func_80096D34(u8 *destination,const u8 *source,s32 length) {
+u8 *PsyqMemmove(u8 *destination,const u8 *source,s32 length) {
     /* ASM_BARRIER: Preserve the original destination-walking register. */
     register u8 *cursor=destination;
     /* ASM_BARRIER: Preserve the original signed length test register. */

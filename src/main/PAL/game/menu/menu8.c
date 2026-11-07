@@ -39,10 +39,10 @@ extern short D_800FFC18;
 extern s32 AddDrawModePrim(s32, s32, s32);
 extern s32 AddTilePrim(s32, s32, s32, s32, s32, s32, s32, s32, s32);
 extern s32 AddJitterSprites(s32, s32, void *, s32, s32, s32);
-extern s32 func_80020508(s32, s32, s32, s32, s32, s32, s32, s32, s32);
+extern s32 AddTileSemiTransPrim(s32, s32, s32, s32, s32, s32, s32, s32, s32);
 extern void InitRect16Row(s32, s32, s32, s32, s32, s32, s32);
 extern s32 UpdateRect16Row(s32);
-extern void func_80043608(s32);
+extern void LoadTimImage(s32);
 extern u8 D_8009F3F8[];
 extern u8 D_8009F404[];
 extern int SetMenuFrameOptions();
@@ -72,8 +72,8 @@ extern short D_800AC5D0;
 extern short MenuScriptId;
 extern int LoadCursor;
 extern int D_800F4D74;
-extern w3g2S D_800F2E30[];
-extern struct { char pad[0x28]; int w28, w2C; } D_800F3A38;
+extern w3g2S SaveSlotSelections[];
+extern struct { char pad[0x28]; int w28, w2C; } PlayerControllers;
 extern struct { char pad[8]; short s8, sA; char padC[4]; short s10; char pad12[0x2C - 0x12]; short s2C; } *BadgeRows;
 extern char *UiRows;
 extern unsigned short D_800F3A42;
@@ -229,8 +229,8 @@ void UpdateDialoguePanel(void) {
         {
             s32 a1 = *(s32 *)SCRATCHPAD;
             *(s32 *)SCRATCHPAD = AddDrawModePrim(
-                D_800ACC14 + 0x74,
-                func_80020508(D_800ACC14 + 0x74, a1, 0x78, 0x60, 0x50, 0xB4, (u16)temp_s2, (u16)temp_s2, (u16)temp_s2),
+                CurrentDrawBuf + 0x74,
+                AddTileSemiTransPrim(CurrentDrawBuf + 0x74, a1, 0x78, 0x60, 0x50, 0xB4, (u16)temp_s2, (u16)temp_s2, (u16)temp_s2),
                 0x45);
             if ((u16)temp_s2 >= 0x7C) {
                 Dialogue->unk1E = 2;
@@ -245,9 +245,9 @@ void UpdateDialoguePanel(void) {
     case 0:
         var_a1 = *(s32 *)SCRATCHPAD;
         if ((u16)temp_s2 >= 3) {
-            var_a1 = AddJitterSprites(D_800ACC14 + 0x70, var_a1, D_8009F3F8, 1, 0xFF, 2);
+            var_a1 = AddJitterSprites(CurrentDrawBuf + 0x70, var_a1, D_8009F3F8, 1, 0xFF, 2);
         }
-        *(s32 *)SCRATCHPAD = AddTilePrim(D_800ACC14 + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
+        *(s32 *)SCRATCHPAD = AddTilePrim(CurrentDrawBuf + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
         if ((u16)temp_s2 >= 0x15) {
             Dialogue->unk1E = 1;
             Dialogue->unk1F = 0;
@@ -257,7 +257,7 @@ void UpdateDialoguePanel(void) {
         if (temp_s2 == 1) {
             u8 temp_a0 = Dialogue->unk1C;
             if ((u32)(temp_a0 - 1) < 5U) {
-                func_80043608(Dialogue->unk20 + (((s8)temp_a0 - 1) << 14));
+                LoadTimImage(Dialogue->unk20 + (((s8)temp_a0 - 1) << 14));
             }
         }
         break;
@@ -265,10 +265,10 @@ void UpdateDialoguePanel(void) {
         {
             s32 two = 2;
             *(s32 *)SCRATCHPAD = AddTilePrim(
-                D_800ACC14 + 0x7C,
+                CurrentDrawBuf + 0x7C,
                 AddJitterSprites(
-                    D_800ACC14 + 0x70,
-                    AddJitterSprites(D_800ACC14 + 0x70, *(s32 *)SCRATCHPAD, D_8009F404, 1, temp_s2, 1),
+                    CurrentDrawBuf + 0x70,
+                    AddJitterSprites(CurrentDrawBuf + 0x70, *(s32 *)SCRATCHPAD, D_8009F404, 1, temp_s2, 1),
                     D_8009F3F8, 1, (0x80 - temp_s2) * 2, two),
                 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
             if ((u32)temp_s2 >= 0x80U) {
@@ -283,9 +283,9 @@ void UpdateDialoguePanel(void) {
     default:
         var_a1 = *(s32 *)SCRATCHPAD;
         if (Dialogue->unk1C >= 0) {
-            var_a1 = AddJitterSprites(D_800ACC14 + 0x70, var_a1, D_8009F404, 0, 0x80, 1);
+            var_a1 = AddJitterSprites(CurrentDrawBuf + 0x70, var_a1, D_8009F404, 0, 0x80, 1);
         }
-        *(s32 *)SCRATCHPAD = AddTilePrim(D_800ACC14 + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
+        *(s32 *)SCRATCHPAD = AddTilePrim(CurrentDrawBuf + 0x74, var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
         break;
     }
 }
@@ -454,8 +454,8 @@ void func_80031FE8(void) {
             s0 = D_800AC590->b6;
             if (s0 == 4) {
                 SetMenuFrameOptions(1, 1, 1);
-                if (D_800F3A38.w28 != 0) {
-                    if (D_800F2E30[D_800F4D3C].b17 > 0) {
+                if (PlayerControllers.w28 != 0) {
+                    if (SaveSlotSelections[D_800F4D3C].b17 > 0) {
                         PlaySfx(1);
                         D_800F4D8A = 1;
                         D_800AC5D0 = 0x40;
@@ -466,7 +466,7 @@ void func_80031FE8(void) {
                     } else {
                         PlaySfx(4);
                     }
-                } else if (D_800F3A38.w2C != 0) {
+                } else if (PlayerControllers.w2C != 0) {
                     PlaySfx(2);
                     D_800F4D8A = 2;
                     D_800AC5D0 = 0x40;
@@ -482,10 +482,10 @@ void func_80031FE8(void) {
     case 1:
         SetMenuFrameOptions(0, 1, 1);
         if (D_800AC5D0 > 0) D_800AC5D0 = D_800AC5D0 - 1;
-        AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             if (func_8003B398(1) == 1) {
-                SelectionState = D_800F2E30[D_800F4D3C];
+                SelectionState = SaveSlotSelections[D_800F4D3C];
                 ModeGroup = 1;
                 D_800F3A26 = 0xF;
                 D_800F4D8A = 0;
@@ -496,7 +496,7 @@ void func_80031FE8(void) {
     case 2:
         SetMenuFrameOptions(0, 1, 1);
         if (D_800AC5D0 > 0) D_800AC5D0 = D_800AC5D0 - 1;
-        AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             func_8002F688();
             MenuScriptId = 1;
@@ -531,7 +531,7 @@ void func_8003244C(void) {
     } else if (D_8010BFC0 >= 2) {
         D_8010BFC0 = 0;
     }
-    if (D_800F3A40 & 0x800) {
+    if (Pad0Buttons & 0x800) {
         ModeGroup = 1;
         D_800F3A26 = 0xF;
         D_800F4D8A = 0;

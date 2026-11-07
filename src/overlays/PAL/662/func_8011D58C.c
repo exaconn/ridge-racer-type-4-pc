@@ -1,6 +1,6 @@
 #include "rr/overlay662_garage.h"
 #include "rr/tables.h"
-extern RrMenuItemState5C D_800F3A38[];
+extern RrMenuItemState5C PlayerControllers[];
 extern void *func_80096454(void *, s32, u32);
 void ovl662_func_8011D58C(RrGaragePoint *output)
 {
@@ -8,11 +8,11 @@ void ovl662_func_8011D58C(RrGaragePoint *output)
     s32 value;
     s32 y;
     func_80096454(&point,0,4);
-    if (D_800F3A38[1].type01 == 0x12) {
-        value = (s32)((u32)D_800F3A38[1].axis14 << 24) >> 25;
+    if (PlayerControllers[1].type01 == 0x12) {
+        value = (s32)((u32)PlayerControllers[1].axis14 << 24) >> 25;
         if (value < -3 || value > 3) value += value / 2;
         if (value) point.x=value;
-        y = D_800F3A38[1].axis15;
+        y = PlayerControllers[1].axis15;
         if (y < -7 || y > 7) y += (y + (s32)((u32)y >> 31)) >> 1;
         if (y) point.y=y;
     }

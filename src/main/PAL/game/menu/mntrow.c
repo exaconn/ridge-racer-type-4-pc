@@ -59,7 +59,7 @@ extern void InitBadgeRow();
 extern void InitRect16Row();
 extern void InitGlyphRow();
 extern void InitUiRow(int,int,int,int,int,int,int,int,int,int,...);
-extern void func_80053BB4();
+extern void SeqStartTrack();
 extern short D_800AC5D0;
 extern short D_800AD50A;
 extern short D_800AD520;
@@ -193,12 +193,12 @@ void DrawMenuTextRow(s32 a0) {
             }
         }
     }
-    *(RrSpritePacket **)SCRATCHPAD = AddDrawModePrim((char *)D_800ACC14 + 0x70, s4, 0x2E);
+    *(RrSpritePacket **)SCRATCHPAD = AddDrawModePrim((char *)CurrentDrawBuf + 0x70, s4, 0x2E);
 }
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddDrawModePrim (*(unsigned *(*)())&AddDrawModePrim)
-#define D_800ACC14 ((char *)D_800ACC14)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
 void func_800411D4()
 {
@@ -207,7 +207,7 @@ void func_800411D4()
     unsigned char *q;
     char *d;
     unsigned t;
-    a1 = AddDrawModePrim(D_800ACC14 + 0x98, *(int *)SCRATCHPAD, 5);
+    a1 = AddDrawModePrim(CurrentDrawBuf + 0x98, *(int *)SCRATCHPAD, 5);
     q = (unsigned char *)a1 + 7;
     a3 = 0;
     do {
@@ -221,7 +221,7 @@ void func_800411D4()
         q[a3 * 20] |= 1;
         *(short *)(q + a3 * 20 + 1) = (a3 % 22) * 13 + 0x11;
         *(short *)(q + a3 * 20 + 3) = (a3 / 22) * 0x1C + 0x60;
-        d = D_800ACC14;
+        d = CurrentDrawBuf;
         a3++;
         t = (unsigned)a1 & 0xFFFFFF;
         *a1 = (*a1 & 0xFF000000) | (*(unsigned *)(d + 0x98) & 0xFFFFFF);
@@ -232,7 +232,7 @@ void func_800411D4()
 }
 
 #undef AddDrawModePrim
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
 #define MenuTextRows ((E *)MenuTextRows)
@@ -306,7 +306,7 @@ void func_80041434(void) {
     D_800AD520 = 2;
     SelectionRows[0] = 2;
     D_800F3826 = 0;
-    func_80053BB4(0);
+    SeqStartTrack(0);
     InitRect16Row(*(unsigned char *)(GlyphRows + 7), *(short *)(GlyphRows + 8), *(short *)(GlyphRows + 0xA), *(short *)(GlyphRows + 0xC), *(short *)(GlyphRows + 0xE), 0, 0);
     InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
     InitUiRow(0, 0xC, 0x48, 0xF0, 0x20, 0, 0, 4, 2, 0);

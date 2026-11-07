@@ -5,16 +5,16 @@ void ovl662_func_80114998(void)
     s32 i,j,k;
     ModeFrame=0; ScreenFrame=0; MenuCursor=0; MenuItemCount=3;
     ResetScreenCounters();
-    D_800F4D70.second=CdDirectoryBuffer+0x2D000;
+    MenuArenas.second=CdDirectoryBuffer+0x2D000;
     InitMenuArenas();
-    LoadCursor=D_800F4D70.second;
+    LoadCursor=MenuArenas.second;
     InitUiRow(0,118,176,68,32,0,0,1,0,54);
     InitUiRow(1,118,216,68,32,0,0,1,1,15);
     InitUiRow(2,118,256,68,32,0,0,1,0,85);
     SetupRenderer(5);
     ovl662_D_801272FC=0;
     LoadCursor=D_800F4D40;
-    D_800F4D70.first=D_800F4D40;
+    MenuArenas.first=D_800F4D40;
     for(i=0;i<4;i++) {
         ovl662_D_801272D8[i]=0;
         for(j=0;j<4;j++) {

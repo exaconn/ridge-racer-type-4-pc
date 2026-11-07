@@ -2,9 +2,9 @@
 
 #include "rr/commands.h"
 
-extern s32 func_8009C3BC(void), func_8009C400(s32);
+extern s32 _cardCmd59Tx(void), _cardCmd59Rx(s32);
 
-int func_8009C3BC() {
+int _cardCmd59Tx() {
     int a; 
     register int r __asm__("$2");
     int t; 

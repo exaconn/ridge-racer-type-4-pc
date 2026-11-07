@@ -43,7 +43,7 @@ void UpdateParticles(void) {
     p = *(u32 **)SCRATCHPAD;
     ParticleSystem.f04--;
     SetDrawMode(p, 0, 1, 0xA0, 0);
-    ot = (u32 *)(D_800ACC14 + 0x19C);
+    ot = (u32 *)(CurrentDrawBuf + 0x19C);
     *p = (*p & 0xFF000000) | (*ot & 0x00FFFFFF);
     *ot = (*ot & 0xFF000000) | ((u32)p & 0x00FFFFFF);
     p += 3;

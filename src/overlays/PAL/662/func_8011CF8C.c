@@ -7,7 +7,7 @@ void ovl662_func_8011CF8C(void)
         union {u32 bits;s32 value;} intensity;
         if(ovl662_D_801276A8.fade00!=0)ovl662_D_801276A8.fade00--;
         intensity.bits=(64U-(u32)ovl662_D_801276A8.fade00)<<2;
-        AddScreenFadeTiles(((RrFrameOrderingPrefix *)D_800ACC14)->ordering70,intensity.value,69);
+        AddScreenFadeTiles(((RrFrameOrderingPrefix *)CurrentDrawBuf)->ordering70,intensity.value,69);
     }
     if(ovl662_D_801276A8.flagsD1&1)UpdateBadgeRowAnim(0);
     if(ovl662_D_801276A8.flagsD1&2){DrawUiRow(0);DrawUiRow(1);}

@@ -11,29 +11,29 @@ typedef struct { char p0; unsigned char f1; char p2[6]; unsigned short f8; char 
 
 typedef struct { short a[8], b[8], c[8]; } U;
 
-extern T D_800F3A38[];
+extern T PlayerControllers[];
 extern U PadButtonMap[];
 extern s32 ratan2(s32 z, s32 x);
 extern unsigned char FontGlyphMap[];
 
 s32 GetTrackNodeHeading(s32 node, s32 lane);
-void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank);
+void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank);
 int DrawFontStringCentered(int a0, int a1, unsigned char *s, int a3, int a4);
 int DrawFontStringCenteredOffset(int a0, int a1, unsigned char *s, int a3, int a4);
 void DrawFontStringRight(int a0, int a1, unsigned char *s, int a3, int a4);
-void func_8004C928(int a0);
+void AddSetTexpagePrim(int a0);
 void *func_8004C998(char *a0);
 void func_8004CBDC(char *p);
 void func_8004CC1C(void *arg0, void *arg1, void *arg2, s32 arg3);
 void func_8004CD88(unsigned short *a0, int a1, unsigned char *a2, unsigned char *a3, int a4);
 
-int func_8004C370(int i) {
-    T *t = &D_800F3A38[i];
+int GetMappedPadButtons(int i) {
+    T *t = &PlayerControllers[i];
     switch (t->f1) {
     case 0x41:
     case 0x73:
     default:
-        return D_800F3A38[i].f8 & PadButtonMap[i].a[6];
+        return PlayerControllers[i].f8 & PadButtonMap[i].a[6];
     case 0x23:
         return t->f8 & PadButtonMap[i].b[6];
     case 0xE3:
@@ -69,7 +69,7 @@ s32 GetTrackNodeHeading(s32 node, s32 lane)
     return (s16)ratan2(delta[3], delta[2]);
 }
 
-void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
+void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
     register RrSpritePacket *packet;
     register s32 current_x;
     register s32 glyph;
@@ -137,7 +137,7 @@ void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
                 *(s16 *)fields = 0x7F78;
                 fields[-2] = u;
                 fields[-1] = v;
-                context = D_800ACC14;
+                context = CurrentDrawBuf;
                 head = (u32 *)((unsigned long)(selected * 4) + (unsigned long)context + 0x70);
                 *(s16 *)(fields + 2) = width;
                 fields += 20;
@@ -170,7 +170,7 @@ int DrawFontStringCentered(int a0, int a1, unsigned char *s, int a3, int a4) {
             }
         } while (*s != 0);
     }
-    func_8004C5A4(0xA0 - sum / 2, a1, s0, a3, a4);
+    DrawFontString(0xA0 - sum / 2, a1, s0, a3, a4);
     return sum;
 }
 
@@ -193,7 +193,7 @@ int DrawFontStringCenteredOffset(int a0, int a1, unsigned char *s, int a3, int a
             }
         } while (*s != 0);
     }
-    func_8004C5A4(a0 + (0xA0 - sum / 2), a1, s0, a3, a4);
+    DrawFontString(a0 + (0xA0 - sum / 2), a1, s0, a3, a4);
     return sum;
 }
 
@@ -216,15 +216,15 @@ void DrawFontStringRight(int a0, int a1, unsigned char *s, int a3, int a4) {
             }
         } while (*s != 0);
     }
-    func_8004C5A4(a0 - sum, a1, s0, a3, a4);
+    DrawFontString(a0 - sum, a1, s0, a3, a4);
 }
 
 #undef FontGlyphWidths
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(int (*))&D_800ACC14)
+#define CurrentDrawBuf (*(int (*))&CurrentDrawBuf)
 
-void func_8004C928(int a0) {
+void AddSetTexpagePrim(int a0) {
     register int *g asm("$8") = (int *)SCRATCHPAD;
     int lo;
     int *p = (int *)g[0];
@@ -232,7 +232,7 @@ void func_8004C928(int a0) {
     int t;
     ((char *)p)[3] = 1;
     p[1] = 0xE100023E;
-    q = (int *)(a0 * 4 + D_800ACC14);
+    q = (int *)(a0 * 4 + CurrentDrawBuf);
     lo = 0xFFFFFF;
     t = q[0x70/4];
     p[0] = (p[0] & 0xFF000000) | (t & lo);
@@ -240,10 +240,10 @@ void func_8004C928(int a0) {
     g[0] = (int)(p + 2);
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(int (*))&D_800ACC14)
+#define CurrentDrawBuf (*(int (*))&CurrentDrawBuf)
 
 void *func_8004C998(char *a0)
 {
@@ -302,7 +302,7 @@ void *func_8004C998(char *a0)
   a1 = *((unsigned short *) (((char *) a0) + 0x26));
   *((unsigned short *) (((char *) p) + 0x16)) = (((((*((unsigned short *) (((char *) a0) + 0xC))) & 3) << 7) | (((a1 & 0x100) << 16) >> 20)) | (((*((unsigned short *) (((char *) a0) + 0x24))) & 0x3FF) >> 6)) | ((a1 & 0x200) * 4);
   *((unsigned short *) (((char *) p) + 0xE)) = ((*((unsigned short *) (((char *) a0) + 0x2A))) << 6) | (((*((unsigned short *) (((char *) a0) + 0x28))) >> 4) & 0x3F);
-  dd = D_800ACC14;
+  dd = CurrentDrawBuf;
   *((unsigned int *) (((char *) p) + 0)) = ((*((unsigned int *) (((char *) p) + 0))) & 0xFF000000) | ((*((unsigned int *) (((char *) ((char *) (((*((unsigned int *) (((char *) a0) + 0))) * 4) + dd))) + 0x70))) & 0xFFFFFF);
   d = (char *) (((*((unsigned int *) (((char *) a0) + 0))) * 4) + dd);
   *((unsigned int *) (((char *) d) + 0x70)) = ((*((unsigned int *) (((char *) d) + 0x70))) & 0xFF000000) | (((unsigned int) p) & 0xFFFFFF);
@@ -311,7 +311,7 @@ void *func_8004C998(char *a0)
   return p;
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 void func_8004CBDC(char *p) {
     func_80096434(p, 0x2C);
@@ -322,7 +322,7 @@ void func_8004CBDC(char *p) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(s32 (*))&D_800ACC14)
+#define CurrentDrawBuf (*(s32 (*))&CurrentDrawBuf)
 
 void func_8004CC1C(void *arg0, void *arg1, void *arg2, s32 arg3) {
     void *temp_a3;
@@ -351,16 +351,16 @@ void func_8004CC1C(void *arg0, void *arg1, void *arg2, s32 arg3) {
     M2C_FIELD(temp_t0, u8 *, 0x1C) = (u8) M2C_FIELD(arg2, u8 *, 0);
     M2C_FIELD(temp_t0, u8 *, 0x1D) = (u8) M2C_FIELD(arg2, u8 *, 1);
     M2C_FIELD(temp_t0, u8 *, 0x1E) = (u8) M2C_FIELD(arg2, u8 *, 2);
-    temp_a3 = (arg3 * 4) + D_800ACC14;
+    temp_a3 = (arg3 * 4) + CurrentDrawBuf;
     M2C_FIELD(temp_t0, s32 *, 0) = (s32) ((M2C_FIELD(temp_t0, s32 *, 0) & 0xFF000000) | (M2C_FIELD(temp_a3, s32 *, 0x70) & 0xFFFFFF));
     M2C_FIELD(temp_a3, s32 *, 0x70) = (s32) ((M2C_FIELD(temp_a3, s32 *, 0x70) & 0xFF000000) | ((s32) temp_t0 & 0xFFFFFF));
     *(void **)SCRATCHPAD = temp_t0 + 0x24;
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(int (*))&D_800ACC14)
+#define CurrentDrawBuf (*(int (*))&CurrentDrawBuf)
 
 void func_8004CD88(unsigned short *a0, int a1, unsigned char *a2, unsigned char *a3, int a4) {
     RrPolyG4Packet *p = *(RrPolyG4Packet **)SCRATCHPAD;
@@ -398,11 +398,11 @@ void func_8004CD88(unsigned short *a0, int a1, unsigned char *a2, unsigned char 
     p->r3 = a3[0];
     p->g3 = a3[1];
     p->b3 = a3[2];
-    a = (int *)(a4 * 4 + D_800ACC14);
+    a = (int *)(a4 * 4 + CurrentDrawBuf);
     *(int *)p = (*(int *)p & 0xFF000000) | (a[0x70 / 4] & 0xFFFFFF);
     *(volatile int *)&a[0x70 / 4] = (a[0x70 / 4] & 0xFF000000) | ((int)p & 0xFFFFFF);
     p++;
     *(RrPolyG4Packet **)SCRATCHPAD = p;
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf

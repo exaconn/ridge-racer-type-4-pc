@@ -23,23 +23,23 @@ typedef struct {
     unsigned int receive_status;
 } RrSerialReceiveRequest;
 
-extern volatile RrSerialReceiveRequest D_801146D8;
-extern RrSerialPortRegisters *D_800ABD18;
-extern RrSerialPortRegisters D_801146C0;
-extern int (*D_801146D0)(int, int);
+extern volatile RrSerialReceiveRequest SioReceiveRequest;
+extern RrSerialPortRegisters *SIO1_REGS;
+extern RrSerialPortRegisters SioShadowRegs;
+extern int (*SioPollHook)(int, int);
 extern int DeliverEvent(unsigned int, int);
 
-int func_8009AC50(int first, int second) {
+int _sio_read(int first, int second) {
     int s0 = 0;
     int s1;
     int s5;
-    volatile RrSerialReceiveRequest *p1 = &D_801146D8;
+    volatile RrSerialReceiveRequest *p1 = &SioReceiveRequest;
 
     if (p1->request.active != 0) {
         return -1;
     }
 
-    s5 = D_800ABD48[(D_801146C0.control & 0x300) >> 8];
+    s5 = D_800ABD48[(SioShadowRegs.control & 0x300) >> 8];
     p1->request.second = second;
     p1->request.first = first;
     s1 = 0;
@@ -47,42 +47,42 @@ int func_8009AC50(int first, int second) {
     if (p1->request.second != 0) {
         volatile RrSerialReceiveRequest *b = p1;
         do {
-            if ((D_800ABD18->status & 5) != 5) {
+            if ((SIO1_REGS->status & 5) != 5) {
                 int five;
                 five = 5;
                 do {
-                    if (D_801146D0 != 0) {
-                        if (D_801146D0(2, s0++) == 0) {
+                    if (SioPollHook != 0) {
+                        if (SioPollHook(2, s0++) == 0) {
                             DeliverEvent(0xF000000B, 0x100);
                             goto done;
                         }
                     }
-                } while ((D_800ABD18->status & 5) != five);
+                } while ((SIO1_REGS->status & 5) != five);
             }
             if (s1 == 0) {
-                b->receive_status = D_800ABD18->status & 0x80;
+                b->receive_status = SIO1_REGS->status & 0x80;
             }
-            D_800ABD18->data = *(unsigned char *)D_801146D8.request.first;
+            SIO1_REGS->data = *(unsigned char *)SioReceiveRequest.request.first;
             b->request.first += 1;
             s1 += 1;
             b->request.second -= 1;
             if (s1 == s5) {
-                if ((D_800ABD18->status & 0x80) == b->receive_status) {
+                if ((SIO1_REGS->status & 0x80) == b->receive_status) {
                     volatile unsigned int *rs;
-                    rs = &D_801146D8.receive_status;
+                    rs = &SioReceiveRequest.receive_status;
                     do {
-                        if (D_801146D0 != 0) {
-                            if (D_801146D0(2, s0++) == 0) {
+                        if (SioPollHook != 0) {
+                            if (SioPollHook(2, s0++) == 0) {
                                 DeliverEvent(0xF000000B, 0x100);
-                                return second - D_801146D8.request.second - 1;
+                                return second - SioReceiveRequest.request.second - 1;
                             }
                         }
-                    } while ((D_800ABD18->status & 0x80) == *rs);
+                    } while ((SIO1_REGS->status & 0x80) == *rs);
                 }
                 s1 = 0;
             }
-        } while (D_801146D8.request.second != 0);
+        } while (SioReceiveRequest.request.second != 0);
     }
 done:
-    return second - D_801146D8.request.second;
+    return second - SioReceiveRequest.request.second;
 }

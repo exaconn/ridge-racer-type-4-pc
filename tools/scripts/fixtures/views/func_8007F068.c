@@ -25,15 +25,15 @@
 
 extern int _spu_FsetDelayW(), _spu_FsetDelayR();
 
-extern int *D_800A47DC;
+extern int *DMA4_MADR;
 
-extern int *D_800A47E0;
+extern int *DMA4_BCR;
 
-extern int *D_800A47E4;
+extern int *DMA4_CHCR;
 
 extern int D_800A4828;
 
-extern int D_800A482C;
+extern int SpuDmaStartAddr;
 
 extern int D_800A4830;
 
@@ -95,22 +95,22 @@ int _spu_t(int a0, ...) {
             /* ASM_BARRIER: Keep block count in $v1 */
             register unsigned r_v1 asm("$3");
             r_a0 = s0[-1];
-            D_800A482C = r_a0;
+            SpuDmaStartAddr = r_a0;
             r_a0 = s0[0];
             r_v1 = r_a0 >> 6;
             /* ASM_BARRIER: Equalize dependence depth so srl schedules before andi */
             __asm__("" : "=r"(r_v1) : "0"(r_v1));
             r_v1 += (r_a0 & 0x3F) != 0;
             D_800A4830 = r_v1;
-            r_a0 = D_800A482C;
-            *D_800A47DC = r_a0;
+            r_a0 = SpuDmaStartAddr;
+            *DMA4_MADR = r_a0;
         }
-        *D_800A47E0 = (D_800A4830 << 16) | 0x10;
-        /* ASM_BARRIER: Keep low half of 0x01000201 after *D_800A47E0 store so it fills bne delay slot */
+        *DMA4_BCR = (D_800A4830 << 16) | 0x10;
+        /* ASM_BARRIER: Keep low half of 0x01000201 after *DMA4_BCR store so it fills bne delay slot */
         __asm__ volatile("" : "=r"(val) : "0"(val));
         val |= 0x201;
         if (D_800A4828 == 1) val = 0x01000200;
-        *D_800A47E4 = val;
+        *DMA4_CHCR = val;
         break;
     }
     return 0;

@@ -6,7 +6,7 @@ void FormatDecimalDigits(char *output, s32 value, s32 digits);
 
 void FormatRaceTime(char *output, s32 time);
 
-extern char D_80010BF0[], D_80010E0C[];
+extern char D_80010BF0[], LapTimeTemplateStr[];
 
 extern u8 *D_8009FD04[];
 
@@ -16,7 +16,7 @@ extern RrMenuSettings2C SelectionState;
 
 extern s8 D_800AD4F1;
 
-extern s16 ReverseCourse, D_800F3914;
+extern s16 ReverseCourse, CourseIndex;
 
 extern RrTimeRecord16 RaceRecords[2][8][5], LapRecords[2][8][5];
 
@@ -76,13 +76,13 @@ void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
                 suffixIndex = 3;
             }
             CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[1], D_8009FD8C[suffixIndex]);
-            CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[4], D_80010E0C);
+            CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[4], LapTimeTemplateStr);
             if (formatKind < 10) {
-                CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[14], LapRecords[ReverseCourse][D_800F3914][value].name);
-                FormatRaceTime((char *)&MenuTextRows[row].rendering.text[4], LapRecords[ReverseCourse][D_800F3914][value].time);
+                CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[14], LapRecords[ReverseCourse][CourseIndex][value].name);
+                FormatRaceTime((char *)&MenuTextRows[row].rendering.text[4], LapRecords[ReverseCourse][CourseIndex][value].time);
             } else {
-                CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[14], RaceRecords[ReverseCourse][D_800F3914][value].name);
-                FormatRaceTime((char *)&MenuTextRows[row].rendering.text[4], RaceRecords[ReverseCourse][D_800F3914][value].time);
+                CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[14], RaceRecords[ReverseCourse][CourseIndex][value].name);
+                FormatRaceTime((char *)&MenuTextRows[row].rendering.text[4], RaceRecords[ReverseCourse][CourseIndex][value].time);
             }
             break;
         case 15:

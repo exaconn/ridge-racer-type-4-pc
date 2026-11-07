@@ -8,15 +8,15 @@
 #include "rr/interrupts.h"
 #include "rr/overlay668_stream.h"
 
-extern volatile unsigned *D_800A5258;
-extern volatile unsigned *D_800A525C;
+extern volatile unsigned *GPUSTAT;
+extern volatile unsigned *RCNT1_VALUE;
 extern volatile unsigned D_800A5260;
 extern volatile unsigned D_800A5264;
 extern s32 func_800963DC(const char *, ...);
 extern s32 ChangeClearPAD(s32);
 extern s32 ChangeClearRCnt(s32,s32);
 extern u16 D_800A52CA;
-extern u16 *D_800A6358;
+extern u16 *I_MASK;
 
 void v_wait(s32 a0, s32 a1);
 RrLibInterruptCallback InterruptCallback(s32 channel, RrLibInterruptCallback callback);
@@ -34,10 +34,10 @@ int VSync(a0) int a0; {
     volatile unsigned *r;
     register int v __asm__("$2"); /* ASM_BARRIER: first call argument stays in v0 like the original */
     int w;
-    s0 = *D_800A5258;
+    s0 = *GPUSTAT;
     do {
-        t = *D_800A525C;
-    } while (t != *D_800A525C);
+        t = *RCNT1_VALUE;
+    } while (t != *RCNT1_VALUE);
     s1 = (t - D_800A5260) & 0xFFFF;
     if (a0 < 0) return Vcount;
     if (a0 == 1) return s1;
@@ -51,10 +51,10 @@ int VSync(a0) int a0; {
     w = 0;
     if (a0 > 0) w = a0 - 1;
     v_wait(v, w);
-    s0 = *D_800A5258;
+    s0 = *GPUSTAT;
     v_wait(Vcount + 1, 1);
     if (s0 & 0x400000) {
-        r = D_800A5258;
+        r = GPUSTAT;
         if ((int)(s0 ^ *r) >= 0) {
             do {
             } while (((s0 ^ *r) & 0x80000000) == 0);
@@ -62,8 +62,8 @@ int VSync(a0) int a0; {
     }
     D_800A5264 = Vcount;
     do {
-        D_800A5260 = *D_800A525C;
-    } while (D_800A5260 != *D_800A525C);
+        D_800A5260 = *RCNT1_VALUE;
+    } while (D_800A5260 != *RCNT1_VALUE);
     return s1;
 }
 
@@ -131,11 +131,11 @@ u16 CheckCallback(void) {
 }
 
 u16 GetIntrMask(void) {
-    return *D_800A6358;
+    return *I_MASK;
 }
 
 s32 SetIntrMask(s32 value) {
-    s32 previous=*D_800A6358;
-    *D_800A6358=value;
+    s32 previous=*I_MASK;
+    *I_MASK=value;
     return previous;
 }

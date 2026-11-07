@@ -34,7 +34,7 @@ typedef uint8_t u8;typedef int8_t s8;typedef uint16_t u16;typedef int16_t s16;
 typedef uint32_t u32;typedef int32_t s32;
 #define RR_FIELD_OFFSET(type,field) offsetof(type,field)
 '''+headers+'''
-u32 D_800A6400[34];RrCdDriveStatus CD_status;
+u32 CD_com_info[34];RrCdDriveStatus CD_status;
 RrLibDataCallback callback_page[0x10000/sizeof(RrLibDataCallback)];
 #define CD_cbsync callback_page[0x6488/sizeof(RrLibDataCallback)]
 s32 (*on_call)(s32,const u8 *,u8 *,s32);
@@ -55,7 +55,7 @@ s32 CD_cw(s32 command,const u8 *parameters,u8 *result,s32 mode){
         cls.g=cls.lib.CdControlF;cls.g.argtypes=[C.c_int32,C.c_void_p];cls.g.restype=C.c_int32
         cls.h=cls.lib.CdControlB;cls.h.argtypes=[C.c_int32,C.c_void_p,C.c_void_p];cls.h.restype=C.c_int32
         cls.wrapper=cls.lib.CdSync;cls.wrapper.argtypes=[C.c_int32,C.c_void_p];cls.wrapper.restype=C.c_int32
-        cls.table=(C.c_uint32*34).in_dll(cls.lib,'D_800A6400');cls.status=C.c_uint8.in_dll(cls.lib,'CD_status')
+        cls.table=(C.c_uint32*34).in_dll(cls.lib,'CD_com_info');cls.status=C.c_uint8.in_dll(cls.lib,'CD_status')
         cls.slot=C.c_void_p.from_address(C.addressof((C.c_void_p*(0x10000//C.sizeof(C.c_void_p))).in_dll(cls.lib,'callback_page'))+0x6488);cls.hook=C.c_void_p.in_dll(cls.lib,'on_call')
         cls.callbacks=[C.cast(getattr(cls.lib,'callback_'+n),C.c_void_p).value for n in ('a','b','c')]
         cls.called=(C.c_int32*3).in_dll(cls.lib,'called')

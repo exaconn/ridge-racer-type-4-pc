@@ -1,6 +1,6 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channel_gates.h"
-void func_8009A05C(void *argument) {
+void _padAllocGates(void *argument) {
     RrChannelRecordF0 *record=argument;
     register s32 i,j,found,mask;
     s32 value;

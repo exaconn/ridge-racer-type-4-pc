@@ -21,7 +21,7 @@ typedef struct {
     s32 feedback;
 } RevAttr;
 
-extern RevAttr D_800A485C;
+extern RevAttr _spu_rev_attr;
 extern s32 _spu_rev_offsetaddr;
 extern s32 _spu_rev_startaddr[];
 extern RrSpuRegisterPatch D_800A4E78[];
@@ -73,36 +73,36 @@ s32 SpuSetReverbModeParam(SpuReverbAttr *attr) {
             return -1;
         }
         mode_set = 1;
-        D_800A485C.mode = mode;
-        _spu_rev_offsetaddr = tbl[D_800A485C.mode];
-        copy((u8 *)&patch, (u8 *)&D_800A4E78[D_800A485C.mode], 0x44);
-        switch (D_800A485C.mode) {
+        _spu_rev_attr.mode = mode;
+        _spu_rev_offsetaddr = tbl[_spu_rev_attr.mode];
+        copy((u8 *)&patch, (u8 *)&D_800A4E78[_spu_rev_attr.mode], 0x44);
+        switch (_spu_rev_attr.mode) {
         case 7:
-            D_800A485C.feedback = 0x7F;
-            D_800A485C.delay = 0x7F;
+            _spu_rev_attr.feedback = 0x7F;
+            _spu_rev_attr.delay = 0x7F;
             break;
         case 8:
-            D_800A485C.feedback = 0;
-            D_800A485C.delay = 0x7F;
+            _spu_rev_attr.feedback = 0;
+            _spu_rev_attr.delay = 0x7F;
             break;
         default:
-            D_800A485C.feedback = 0;
-            D_800A485C.delay = 0;
+            _spu_rev_attr.feedback = 0;
+            _spu_rev_attr.delay = 0;
             break;
         }
     }
 
     /* Nested tests keep gcc from folding the 7..8 range check into one compare. */
-    if ((all || (mask & 8)) && D_800A485C.mode < 9) if (D_800A485C.mode >= 7) {
+    if ((all || (mask & 8)) && _spu_rev_attr.mode < 9) if (_spu_rev_attr.mode >= 7) {
         s32 d;
         delay_set = 1;
         if (!mode_set) {
-            copy((u8 *)&patch, (u8 *)&D_800A4E78[D_800A485C.mode], 0x44);
+            copy((u8 *)&patch, (u8 *)&D_800A4E78[_spu_rev_attr.mode], 0x44);
             patch.mask = 0x0C011C00;
         }
-        D_800A485C.delay = attr->delay;
-        patch.values[10] = ((D_800A485C.delay << 13) / 127) - patch.values[0];
-        d = (D_800A485C.delay << 12) / 127;
+        _spu_rev_attr.delay = attr->delay;
+        patch.values[10] = ((_spu_rev_attr.delay << 13) / 127) - patch.values[0];
+        d = (_spu_rev_attr.delay << 12) / 127;
         patch.values[11] = d - patch.values[1];
         patch.values[12] = patch.values[13] + d;
         patch.values[16] = patch.values[17] + d;
@@ -110,18 +110,18 @@ s32 SpuSetReverbModeParam(SpuReverbAttr *attr) {
         patch.values[27] = patch.values[29] + d;
     }
 
-    if ((all || (mask & 0x10)) && D_800A485C.mode < 9) if (D_800A485C.mode >= 7) {
+    if ((all || (mask & 0x10)) && _spu_rev_attr.mode < 9) if (_spu_rev_attr.mode >= 7) {
         fb_set = 1;
         if (!mode_set) {
             if (!delay_set) {
-                copy((u8 *)&patch, (u8 *)&D_800A4E78[D_800A485C.mode], 0x44);
+                copy((u8 *)&patch, (u8 *)&D_800A4E78[_spu_rev_attr.mode], 0x44);
                 patch.mask = 0x80;
             } else {
                 patch.mask |= 0x80;
             }
         }
-        D_800A485C.feedback = attr->feedback;
-        patch.values[7] = (D_800A485C.feedback * 0x8100) / 127;
+        _spu_rev_attr.feedback = attr->feedback;
+        patch.values[7] = (_spu_rev_attr.feedback * 0x8100) / 127;
     }
 
     if (mode_set) {
@@ -132,18 +132,18 @@ s32 SpuSetReverbModeParam(SpuReverbAttr *attr) {
     } else {
         if (all || (mask & 2)) {
             ((volatile u16 *)_spu_RXX)[0x184 / 2] = attr->depth_left;
-            D_800A485C.depth_left = attr->depth_left;
+            _spu_rev_attr.depth_left = attr->depth_left;
         }
         if (all || (mask & 4)) {
             ((volatile u16 *)_spu_RXX)[0x186 / 2] = attr->depth_right;
-            D_800A485C.depth_right = attr->depth_right;
+            _spu_rev_attr.depth_right = attr->depth_right;
         }
         goto skip;
     }
     ((volatile u16 *)_spu_RXX)[0x184 / 2] = 0;
     ((volatile u16 *)_spu_RXX)[0x186 / 2] = 0;
-    D_800A485C.depth_left = 0;
-    D_800A485C.depth_right = 0;
+    _spu_rev_attr.depth_left = 0;
+    _spu_rev_attr.depth_right = 0;
 skip:
 
     if (mode_set || delay_set || fb_set) {
@@ -151,7 +151,7 @@ skip:
     }
 
     if (clear_mode) {
-        SpuClearReverbWorkArea(D_800A485C.mode);
+        SpuClearReverbWorkArea(_spu_rev_attr.mode);
     }
 
     if (mode_set) {

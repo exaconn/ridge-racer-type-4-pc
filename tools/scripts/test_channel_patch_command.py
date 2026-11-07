@@ -59,8 +59,8 @@ unsigned long test_argument_offset(void) {return offsetof(RrChannelPatchCommand,
         cls.start=cls.lib._padSetMainMode
         cls.start.argtypes=[C.POINTER(Command),C.c_int32,C.c_int32];cls.start.restype=C.c_int32
         cls.lib.PadSetMainMode.argtypes=[C.c_int32]*3;cls.lib.PadSetMainMode.restype=None
-        cls.update_address=C.cast(cls.lib.func_80099564,C.c_void_p).value
-        cls.complete_address=C.cast(cls.lib.func_800995B8,C.c_void_p).value
+        cls.update_address=C.cast(cls.lib._padMainModeUpdate,C.c_void_p).value
+        cls.complete_address=C.cast(cls.lib._padMainModeComplete,C.c_void_p).value
         for name in ('test_size','test_argument_offset'):getattr(cls.lib,name).restype=C.c_ulong
 
     def setUp(self):

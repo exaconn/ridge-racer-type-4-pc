@@ -3,9 +3,9 @@
 #define G ((Scratch_8006EF8C *)0x1F800000)
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABED0 (*(M2C_UNK (*))&D_800ABED0)
+#define LightMatrix (*(M2C_UNK (*))&LightMatrix)
 
-#undef D_800ABED0
+#undef LightMatrix
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_80060C70 ((int (*)())func_80060C70)
@@ -66,7 +66,7 @@ extern S_800A3C20 D_800A3C20[][7];
 
 extern s32 D_800AC5D8;
 
-extern s32 D_800ACC14;
+extern s32 CurrentDrawBuf;
 
 extern s32 DrawBufIndex;
 
@@ -140,9 +140,9 @@ void SetupViewport(s32 a0) {
         p->f2 = v1;
     }
     if (a0 & 1) {
-        s2->f04 = D_800ACC14 + 0xB70;
+        s2->f04 = CurrentDrawBuf + 0xB70;
     } else {
-        s2->f04 = D_800ACC14 + 0x70;
+        s2->f04 = CurrentDrawBuf + 0x70;
     }
     SetDrawArea(s3);
     AddPrim(s2->f04 + 0xAFC, s3);

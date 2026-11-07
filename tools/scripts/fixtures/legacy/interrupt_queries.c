@@ -1,8 +1,8 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/interrupts.h"
 
-s32 func_8009BAD8(void) {
-    RrInterruptRegisters *registers=D_800ABDAC;
+s32 _cardChkVsyncIrq(void) {
+    RrInterruptRegisters *registers=I_STAT_Card;
     register s32 result;
     if(registers->mask&1) {
         if(registers->pending&1) result=1;
@@ -15,8 +15,8 @@ s32 func_8009BAD8(void) {
     return result;
 }
 
-s32 func_8009BB18(void) {
-    RrInterruptRegisters *registers=D_800ABDAC;
+s32 _cardChkSioIrq(void) {
+    RrInterruptRegisters *registers=I_STAT_Card;
     register s32 result;
     if(registers->mask&0x80) {
         if(registers->pending&0x80) result=1;

@@ -28,20 +28,20 @@ typedef uint8_t u8;typedef int8_t s8;typedef uint16_t u16;typedef int16_t s16;ty
 #define RR_NOP_DEP_ON(value) ((void)(value))
 '''+h+'''
 s32 ram[0x4354/4+2];
-#define D_800ABCAC ram[0]
+#define PadRecvStage ram[0]
 RrChannelRecordF0 channel;
 s32 handler_result,mutate_stage,stage_after,wait_result,events,event_kind[16],event_stage[16],event_code[16];
 void *event_pointer[16];void (*on_handler)(void *),(*on_timer)(void *),(*on_wait)(void *),(*on_error)(void *);
 unsigned long record_size=sizeof(RrChannelRecordF0),packet_offset=offsetof(RrChannelStatusView,packet);
-void trace(s32 kind,s32 code,void *p){s32 i=events++;event_kind[i]=kind;event_stage[i]=D_800ABCAC;event_code[i]=code;event_pointer[i]=p;}
+void trace(s32 kind,s32 code,void *p){s32 i=events++;event_kind[i]=kind;event_stage[i]=PadRecvStage;event_code[i]=code;event_pointer[i]=p;}
 s32 handler(s32 selected,RrChannelRecordF0 *p){
-    trace(10+selected,0,p);if(mutate_stage)D_800ABCAC=stage_after;
+    trace(10+selected,0,p);if(mutate_stage)PadRecvStage=stage_after;
     if(on_handler)on_handler(p);return handler_result;
 }
 s32 h0(RrChannelRecordF0 *p){return handler(0,p);}s32 h1(RrChannelRecordF0 *p){return handler(1,p);}
 s32 h2(RrChannelRecordF0 *p){return handler(2,p);}s32 h3(RrChannelRecordF0 *p){return handler(3,p);}
 s32 h4(RrChannelRecordF0 *p){return handler(4,p);}
-RrChannelStageCallback D_800ABCEC[5]={h0,h1,h2,h3,h4};
+RrChannelStageCallback PadRecvStageTable[5]={h0,h1,h2,h3,h4};
 void error_a(s32 code){trace(3,code,0);if(on_error)on_error(0);}
 void error_b(s32 code){trace(4,code,0);if(on_error)on_error(0);}
 RrChannelErrorCallback D_800ABC68=error_a;
@@ -50,7 +50,7 @@ s32 _padClrIntSio0(void){trace(2,0,0);if(on_wait)on_wait(0);return wait_result;}
 '''+body
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
-        cls.lib=C.CDLL(str(d/'f.so'));cls.f=cls.lib.func_80098488;cls.f.argtypes=[C.POINTER(ChannelRecord)];cls.f.restype=None
+        cls.lib=C.CDLL(str(d/'f.so'));cls.f=cls.lib._padSioStageStep;cls.f.argtypes=[C.POINTER(ChannelRecord)];cls.f.restype=None
         assert C.c_ulong.in_dll(cls.lib,'record_size').value==C.sizeof(ChannelRecord)
         assert C.c_ulong.in_dll(cls.lib,'packet_offset').value==ChannelStatus.packet.offset
         cls.channel=ChannelRecord.in_dll(cls.lib,'channel');cls.ram=(C.c_int32*(0x4354//4+2)).in_dll(cls.lib,'ram')

@@ -29,10 +29,10 @@ typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + headers + '''
 RrInterruptRegisters test_irq;
-RrInterruptRegisters *D_800ABC58=&test_irq, *D_800ABDAC=&test_irq, *D_800ABD30=&test_irq;
-RrSerialReceiveRequest D_801146D8;
+RrInterruptRegisters *D_800ABC58=&test_irq, *I_STAT_Card=&test_irq, *D_800ABD30=&test_irq;
+RrSerialReceiveRequest SioReceiveRequest;
 RrSerialPortRegisters test_serial;
-RrSerialPortRegisters *D_800ABD18=&test_serial;
+RrSerialPortRegisters *SIO1_REGS=&test_serial;
 u32 test_info, test_control, test_readback;
 u32 test_last_data, test_last_control, test_count;
 u32 test_log[16][2];
@@ -68,8 +68,8 @@ void test_reset(u32 info,u32 control,u32 readback) {
             if name in ('8009BAD8', '8009BB18'):
                 # Each actual definition is extracted from the shared, contiguous TU.
                 tu = (root / 'tools/scripts/fixtures/legacy/interrupt_queries.c').read_text()
-                start = tu.index('s32 func_' + name + '(')
-                finish = tu.find('\ns32 func_', start + 1)
+                start = tu.index('s32 ' + __import__('c_functions').name_at(int(name,16)|0x80000000) + '(')
+                _m = re.search(r'\ns32 \w+\(', tu[start + 1:]); finish = start + 1 + _m.start() if _m else -1
                 body = tu[start:finish if finish >= 0 else len(tu)]
             else:
                 body = path.read_text()
@@ -77,7 +77,7 @@ void test_reset(u32 info,u32 control,u32 readback) {
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
             # Retain a second, unchanged body that uses real volatile RAM accesses.
-            native = body.replace('func_'+name, 'test_native_'+name)
+            native = body.replace(__import__('c_functions').name_at(int(name,16)|0x80000000), 'test_native_'+name)
             source += native
             if name == '800954D8':
                 # Adapt only MMIO lvalues/reads; retain every condition, mask and return.
@@ -115,28 +115,28 @@ void test_reset(u32 info,u32 control,u32 readback) {
         if result.returncode:
             raise AssertionError(result.stderr.decode())
         cls.lib = C.CDLL(str(directory / 'function.so'))
-        cls.query, cls.native_query = cls.lib.func_800954D8, cls.lib.test_native_800954D8
+        cls.query, cls.native_query = cls.lib.GPU_CheckVersion, cls.lib.test_native_800954D8
         for function in (cls.query, cls.native_query):
             function.argtypes = [C.c_int32]
             function.restype = C.c_int32
-        cls.irq_query, cls.native_irq = cls.lib.func_80097680, cls.lib.test_native_80097680
+        cls.irq_query, cls.native_irq = cls.lib._padVsyncHookCheck, cls.lib.test_native_80097680
         for function in (cls.irq_query, cls.native_irq):
             function.argtypes = []
             function.restype = C.c_int32
         cls.irq_variants = []
         for name, bit in (('8009BAD8', 1), ('8009BB18', 0x80)):
-            query, native = getattr(cls.lib, 'func_' + name), getattr(cls.lib, 'test_native_' + name)
+            query, native = getattr(cls.lib, __import__('c_functions').name_at(int(name,16)|0x80000000)), getattr(cls.lib, 'test_native_' + name)
             for function in (query, native):
                 function.argtypes = []
                 function.restype = C.c_int32
             cls.irq_variants.append((query, native, bit))
-        cls.receive_query, cls.native_receive = cls.lib.func_8009B380, cls.lib.test_native_8009B380
+        cls.receive_query, cls.native_receive = cls.lib._sio_irq_check, cls.lib.test_native_8009B380
         for function in (cls.receive_query, cls.native_receive):
             function.argtypes = []
             function.restype = C.c_int32
         cls.serial = (C.c_uint8 * 16).in_dll(cls.lib, 'test_serial')
-        cls.request = (C.c_int32 * 4).in_dll(cls.lib, 'D_801146D8')
-        cls.serial_pointer = C.c_void_p.in_dll(cls.lib, 'D_800ABD18')
+        cls.request = (C.c_int32 * 4).in_dll(cls.lib, 'SioReceiveRequest')
+        cls.serial_pointer = C.c_void_p.in_dll(cls.lib, 'SIO1_REGS')
         cls.reset = cls.lib.test_reset
         cls.reset.argtypes = [C.c_uint32] * 3
         cls.irq = (C.c_uint32 * 2).in_dll(cls.lib, 'test_irq')

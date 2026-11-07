@@ -3,7 +3,7 @@
 #include "rr/overlay668_stream.h"
 #include "rr/diagnostics.h"
 #include "rr/tables.h"
-extern RrMenuItemState5C D_800F3A38[];
+extern RrMenuItemState5C PlayerControllers[];
 extern const char ovl668_D_8011487C[];
 s32 StGetBackloc(const RrCdLocation *location);
 void DrawSync(s32 mode);

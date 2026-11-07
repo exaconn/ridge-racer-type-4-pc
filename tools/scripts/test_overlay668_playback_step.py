@@ -33,7 +33,7 @@ static const s32 frames[8]={0,-1,INT32_MIN,1,17,INT32_MAX,-4096,4096};
 const char ovl668_D_8011487C[]="time out in strNext() %d\n";
 #define RaceContext w->s.context
 #define ModeFrame w->s.timer
-#define D_800F3A38 w->s.controllers
+#define PlayerControllers w->s.controllers
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static u32 next(void){u32 n=w->s.rng;n^=n<<13;n^=n>>17;n^=n<<5;return w->s.rng=n;}
 static unsigned playerIndex(const void *p){uintptr_t n=(uintptr_t)p,start=(uintptr_t)(w==&actual?players:expectedPlayers);assert(n>UINT32_MAX&&n>=start&&n<start+sizeof(players));assert((n-start)%sizeof(RrStrPlaybackState)==0);return (unsigned)((n-start)/sizeof(RrStrPlaybackState));}
@@ -61,7 +61,7 @@ s32 ovl668_func_801150D8(RrStrDisplayConfig *p){Event *e=event(4);s32 result;uns
  e->args[0]=displayIndex(p);w->queries++;result=w->queries<=limit?-1:(scenario&8?INT32_MIN:0);e->args[1]=result;change();return result;
 }
 s32 StGetBackloc(const RrCdLocation *p){Event *e=event(5);s32 frame=(scenario&32)?(s32)(w->queries%2):frames[(scenario+w->queries)%8];assert(p==&RaceContext.currentC0);memcpy(&e->args[0],p,4);e->args[1]=frame;change();return frame;}
-s32 func_8001E84C(const char *format,...){va_list args;u32 frame;Event *e=event(6);assert(format==ovl668_D_8011487C);va_start(args,format);frame=va_arg(args,u32);va_end(args);e->args[0]=word(frame);change();return 1;}
+s32 DebugPrintStub(const char *format,...){va_list args;u32 frame;Event *e=event(6);assert(format==ovl668_D_8011487C);va_start(args,format);frame=va_arg(args,u32);va_end(args);e->args[0]=word(frame);change();return 1;}
 void ovl668_func_801153F0(u8 *p){Event *e=event(7);assert(p==RaceContext.currentC0.c);memcpy(&e->args[0],p,4);change();}
 void ovl668_func_8011535C(RrStrDisplayConfig *p,s32 mode){Event *e=event(8);e->args[0]=displayIndex(p);e->args[1]=mode;assert(mode==0);change();}
 void DrawSync(s32 mode){event(9)->args[0]=mode;change();}
@@ -73,7 +73,7 @@ static void expected(void){RrStrPlaybackState *p;RrCdLocation *location=&RaceCon
  p=active();ovl668_func_801163FC(p->commands10[p->display24.word00],3);
  p=active();ovl668_func_80116478(p->buffers18[p->display24.word08],(u32)((int64_t)p->display24.rectangles[2].w*p->display24.rectangles[2].h/2));
  for(;;){p=active();result=ovl668_func_801150D8(&p->display24);if(result!=-1){seen[2]++;break;}
-  frame=(u32)StGetBackloc(location);func_8001E84C(ovl668_D_8011487C,frame);
+  frame=(u32)StGetBackloc(location);DebugPrintStub(ovl668_D_8011487C,frame);
   thresholdSeen[(frame>=RaceContext.thresholdC8)*2+(word(frame)<=0)]++;
   if(frame>=RaceContext.thresholdC8){RaceContext.stopD0=1;seen[3]++;break;}
   if(word(frame)<=0){memcpy(location->c,RaceContext.locationBC.c,4);seen[4]++;}else seen[5]++;

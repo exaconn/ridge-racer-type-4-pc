@@ -10,7 +10,7 @@ extern s32 D_800F4D90;
 
 void func_800293D0(s32 layout,s32 mode);
 
-void func_80029358(a) char *a; {
+void SetupDialogueTable(a) char *a; {
     int i;
     unsigned short *p;
     void **q;

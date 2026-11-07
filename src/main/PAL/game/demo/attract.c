@@ -16,10 +16,10 @@
 #include "rr/driver_control.h"
 #include "game/data/selection.h"
 
-extern int D_8010E240[];
+extern int SlotOrder[];
 extern char D_800ACB0C[];
 extern int D_800A2124[];
-extern short D_800F3914;
+extern short CourseIndex;
 extern unsigned short D_800A2134;
 extern unsigned short D_800A2138[];
 extern short D_800FFC10;
@@ -27,7 +27,7 @@ extern short MenuScriptId;
 extern short ModeGroup;
 extern short D_800F3A26;
 extern short D_800F4D8A;
-extern int D_800F2EC8;
+extern int MaskBitSetting;
 extern char RaceContext[];
 extern short D_800AD50A;
 extern int func_80096464();
@@ -66,9 +66,9 @@ void StartAttractDemo(int a0) {
     char *c2;
     int x5;
 
-    if (D_8010E240[0] != 0) {
+    if (SlotOrder[0] != 0) {
         ShuffleSlotOrder();
-        D_8010E240[0] = 0;
+        SlotOrder[0] = 0;
     }
     func_80096434(D_800ACB0C, 0x80);
     *(int *)(D_800ACB0C + 0xC) = a0;
@@ -115,7 +115,7 @@ void StartAttractDemo(int a0) {
         w++;
         i++;
     } while (i < 4);
-    D_800F3914 = -1;
+    CourseIndex = -1;
     if (a0 == 1) {
         m = D_800F3A3A & D_800A2134;
         if (m != 0) {
@@ -123,19 +123,19 @@ void StartAttractDemo(int a0) {
             e = D_800A2138;
             do {
                 if (m == e[0])
-                    D_800F3914 = e[1];
+                    CourseIndex = e[1];
                 i++;
                 e += 2;
             } while (i < 8);
         }
     }
-    if (D_800F3914 < 0) {
-        d = D_8010E240;
+    if (CourseIndex < 0) {
+        d = SlotOrder;
         n = d[9];
         h = ((unsigned short *)d)[n * 2 + 2];
         n = n + 1;
         d[9] = n;
-        D_800F3914 = h;
+        CourseIndex = h;
         if (n >= 8)
             ShuffleSlotOrder();
     }
@@ -148,7 +148,7 @@ void StartAttractDemo(int a0) {
     D_800F4D8A = 0;
     if (a0 == 0) {
         func_8005C8D8(-1);
-        D_800F765C = D_800A19E0[D_800F3914] + 1;
+        D_800F765C = D_800A19E0[CourseIndex] + 1;
     } else {
         func_8005C13C(0);
         func_8005C988(2);
@@ -156,7 +156,7 @@ void StartAttractDemo(int a0) {
     }
     func_80055300();
     c = RaceContext;
-    D_800F2EC8 = 1;
+    MaskBitSetting = 1;
     *(short *)(c + 0x4E0) = 0xD2;
     *(short *)(c + 0x4E2) = 0;
     *(short *)(c + 0x4E4) = 0x8FC;

@@ -52,7 +52,7 @@ RrReplayCameraContextPrefix *ctx;
                 ctx->counter4A4 = 0xFF;
                 ctx->mode4A8 = 0;
 }
-            AddScreenFadeTiles(&D_800ACC14->head70, (s32)(255U - (u32)ctx->counter4A4), 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->head70, (s32)(255U - (u32)ctx->counter4A4), 0x45);
             break;
         case 2:                                    
             temp_v0_2 = (u32)ctx->counter4A4 - 4;
@@ -66,7 +66,7 @@ RrReplayCameraContextPrefix *ctx;
                 ctx->flagB0 = 1;
                 D_800F4D8A = 0;
             }
-            AddScreenFadeTiles(&D_800ACC14->head70, (s32)(255U - (u32)ctx->counter4A4), 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->head70, (s32)(255U - (u32)ctx->counter4A4), 0x45);
             break;
         }
         temp_v1 = RaceContext.phase4AC;
@@ -77,7 +77,7 @@ RrReplayCameraContextPrefix *ctx;
                 for(;var_s0<62;var_s0++)ovl668_func_801159C0(var_s0,160);
             }
         }
-        if ((D_800F3A38[0].buttons08 & 0x800) && (RaceContext.mode4A8 == 0)) {
+        if ((PlayerControllers[0].buttons08 & 0x800) && (RaceContext.mode4A8 == 0)) {
             RaceContext.mode4A8 = 2;
             CdAudioFade(0, 0x15);
         }

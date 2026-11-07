@@ -15,15 +15,15 @@ typedef struct { unsigned char a, b, c, d; } B4;
 extern unsigned char D_8009F924[];
 extern B4 D_8009F928[];
 extern W8 D_8009F934[];
-extern W6 D_800ABED0[];
+extern W6 LightMatrix[];
 extern char *D_800F4D90;
 
-void func_8003CF34(int a0);
-void func_8003D01C();
+void SetLightColorsScaled(int a0);
+void SetLightColorsFromRow();
 int func_8003D108();
 int AllocBadgeRows(int a0);
 
-void func_8003CF34(int a0)
+void SetLightColorsScaled(int a0)
 {
     short sp[3][3];
     int pad[2];
@@ -31,9 +31,9 @@ void func_8003CF34(int a0)
     int x;
 
     for (i = 0; i < 3; i++) {
-        D_800ABED0[i].a = D_8009F934[i].a;
-        D_800ABED0[i].b = D_8009F934[i].b;
-        D_800ABED0[i].c = D_8009F934[i].c;
+        LightMatrix[i].a = D_8009F934[i].a;
+        LightMatrix[i].b = D_8009F934[i].b;
+        LightMatrix[i].c = D_8009F934[i].c;
         sp[0][i] = D_8009F928[i].a << 4;
         sp[1][i] = D_8009F928[i].b << 4;
         sp[2][i] = D_8009F928[i].c << 4;
@@ -49,15 +49,15 @@ void func_8003CF34(int a0)
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABED0 (*(unsigned short (*)[])&D_800ABED0)
+#define LightMatrix (*(unsigned short (*)[])&LightMatrix)
 
-void func_8003D01C(a0) int a0;
+void SetLightColorsFromRow(a0) int a0;
 {
     short sp[14];
     short *s0;
     int i = 0;
     char *base;
-    unsigned short *a3 = D_800ABED0;
+    unsigned short *a3 = LightMatrix;
     unsigned char *a1;
     unsigned char *a2;
     base = D_800F4D90;
@@ -88,7 +88,7 @@ L:
     SetColorMatrix(s0);
 }
 
-#undef D_800ABED0
+#undef LightMatrix
 
 int func_8003D108(a0) int a0;
 {
@@ -116,11 +116,11 @@ int func_8003D108(a0) int a0;
     }
     if (a0 & 2) {
         i = 0;
-        n = D_800ACC24;
+        n = ImageRowCount;
         if (n > 0) {
             int c = 5;
             int m = n;
-            a0 = (int)D_800F2AB0;
+            a0 = (int)ImageRows;
             do {
                 signed char t = *(char *)(a0 + 1);
                 if (t != 0) {
@@ -144,7 +144,7 @@ int AllocBadgeRows(int a0) {
     int n = BadgeRowCount * 28;
     BadgeRows = a0;
     func_80096434(a0, n);
-    func_8001E84C(D_80010874, n);
+    DebugPrintStub(D_80010874, n);
     return n;
 }
 

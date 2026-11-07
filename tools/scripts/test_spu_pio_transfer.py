@@ -47,7 +47,7 @@ void test_data_write(RrSpuRegisterBank *p,u16 value) {
 void test_control_write(RrSpuRegisterBank *p,u16 value) {
  p->spu_control=value;test_control_hook(p,value);
 }
-s32 func_8001E84C(const char *format,...) {
+s32 DebugPrintStub(const char *format,...) {
  va_list args;const char *reason;
  va_start(args,format);reason=va_arg(args,const char *);va_end(args);
  test_diagnostic_hook((void *)format,(void *)reason);return 123;

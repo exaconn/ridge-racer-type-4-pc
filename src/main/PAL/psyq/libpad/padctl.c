@@ -31,17 +31,17 @@ void PadStartCom() { _padStartCom(); }
 void PadStopCom() { _padStopCom(); }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABC9C ((char *)D_800ABC9C)
+#define PadChannelRecords ((char *)PadChannelRecords)
 
 int PadChkMtap(a0) int a0; {
     if (D_800ABCB4) {
         int i = a0 >> 4;
-        return D_800ABC9C[i * 0xF0 + 0xE8] == 8;
+        return PadChannelRecords[i * 0xF0 + 0xE8] == 8;
     }
     return 0;
 }
 
-#undef D_800ABC9C
+#undef PadChannelRecords
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABC7C (*(char *(*(*))())&D_800ABC7C)

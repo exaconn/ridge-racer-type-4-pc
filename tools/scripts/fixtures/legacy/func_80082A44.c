@@ -66,9 +66,9 @@ void _SsStart(s32 direct)
             __asm__("" : "+r"(interrupt));
             FIELD(state,RrSpuTickCallback,previous)=InterruptCallback(interrupt,0);
             interrupt=FLAG(state,interrupt);
-            callback=func_80082CB4;
+            callback=_SsTickCallback;
         } else {
-            callback=func_80082D00;
+            callback=_SsTickCallbackDivided;
             if(FLAG(state,divided)==0) callback=FIELD(state,RrSpuTickCallback,callback);
         }
         InterruptCallback(interrupt,callback);

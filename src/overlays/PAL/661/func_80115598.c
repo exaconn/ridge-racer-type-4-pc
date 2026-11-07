@@ -10,10 +10,10 @@ void ovl661_func_80115598(s32 mode) {
     MenuCursor=0;
     MenuItemCount=3;
     ResetScreenCounters();
-    D_800F4D70.second=CdDirectoryBuffer+0x2D000;
+    MenuArenas.second=CdDirectoryBuffer+0x2D000;
     InitMenuArenas();
     D_800AC5D4=mode;
-    LoadCursor=D_800F4D70.second;
+    LoadCursor=MenuArenas.second;
     InitUiRow(0,24,88,68,32,0,0,1,0,83);
     InitUiRow(1,24,128,68,32,0,0,1,0,54);
     InitUiRow(2,24,168,68,32,0,0,1,0,85);
@@ -44,14 +44,14 @@ void ovl661_func_80115598(s32 mode) {
     MenuCursor=0;
     MenuItemCount=3;
     ResetScreenCounters();
-    func_80037110();
+    InitPreviewImageRows();
     /* Allocation metadata for the real pointer cell; emits no instruction. */
     __asm__("" : "+m"(LoadCursor));
     arena=D_800F4D40;
     ovl661_D_80118438=0;
     LoadCursor=arena;
-    if(!(D_800AC5D4&1))D_800F4D70.first=arena;
-    else LoadCursor=D_800F4D70.first;
+    if(!(D_800AC5D4&1))MenuArenas.first=arena;
+    else LoadCursor=MenuArenas.first;
     i=0;y=10;z=308;vehicle=PlayerCars;
     scratch=RR_PROJECTION_SCRATCH;
     scratch->word18=120;

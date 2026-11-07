@@ -42,8 +42,8 @@ void ovl662_func_80124E4C(void)
         } else {
             operation.previous = *pixel & 15;
         }
-        if (D_800F3A38[0].type01 != 0x12 &&
-            (D_800F3A38[0].buttons02 & 2) && (D_800F3A38[0].buttons02 & 1)) {
+        if (PlayerControllers[0].type01 != 0x12 &&
+            (PlayerControllers[0].buttons02 & 2) && (PlayerControllers[0].buttons02 & 1)) {
             operation.replacement = 0;
         } else {
             operation.replacement = ovl662_D_801276A8.config22;
@@ -53,7 +53,7 @@ void ovl662_func_80124E4C(void)
             packed = (u32)operation.y << 8;
             packed = (u32)operation.x | packed;
             packed |= (u32)operation.previous << 16;
-            func_800717AC(pixel, packed | ((u32)operation.replacement << 24));
+            FloodFill4bpp(pixel, packed | ((u32)operation.replacement << 24));
         }
     }
 }

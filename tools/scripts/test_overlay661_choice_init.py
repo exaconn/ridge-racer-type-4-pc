@@ -34,14 +34,14 @@ static struct World {u32 guard[4];s32 frame,counter,bank;s16 current,limit,selec
 #define MenuCursor world.current
 #define MenuItemCount world.limit
 #define D_800AC648 world.selected
-#define D_800F3914 world.mapped
+#define CourseIndex world.mapped
 #define ReverseCourse world.flag
 #define D_8010C068 world.modeCounter
 #define D_8010C0B8 world.selectionCounter
 #define LoadState world.flag1
 #define MenuScriptStep world.flag2
 #define D_800ACBD0 world.points
-#define D_800F4D70 world.arenas
+#define MenuArenas world.arenas
 #define LoadCursor world.published
 #define ComCars world.scene
 static u8 codes[8]={''' + ','.join(map(str,table)) + r'''};

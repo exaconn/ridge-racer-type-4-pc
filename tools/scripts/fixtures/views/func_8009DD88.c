@@ -4,17 +4,17 @@
 
 #include "rr/commands.h"
 
-extern s32 func_8009DE30(void);
+extern s32 _cardGetIdTx(void);
 
-s32 func_8009DD88(s32 request, u32 *first, u32 *second) {
+s32 _cardGetIdBegin(s32 request, u32 *first, u32 *second) {
     s32 result;
     s32 active;
     if (!rr_command_begin(request)) return 0;
     /* ASM_BARRIER: keep success initialization before the command configuration stores. */
     __asm__ volatile("" : "=r"(result) : "0"(1) : "$3", "memory");
-    D_80114870 = 101;
-    D_80114734 = func_8009DE30;
-    D_80114738 = func_8009DE54;
+    CardCurrentCommand = 101;
+    CardCommandReader = _cardGetIdTx;
+    CardWriteHandler = _cardGetIdRx;
     active = 2;
     D_8011471C = first;
     D_80114720 = second;

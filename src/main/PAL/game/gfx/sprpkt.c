@@ -38,7 +38,7 @@ void func_8003BFC8(a0) s32 a0;
                     c = 0x16;
                 }
                 if (D_8010C114 == 0x3B && s2 < 2 && a0 == 0) SoundQueueEnqueue(c, 0);
-                *(RrSpritePacket **)SCRATCHPAD = GameQueueSprite((char *)D_800ACC14 + 0x70, *(RrSpritePacket **)SCRATCHPAD, 0x70, 0x60, 0xC, 0xC, s5, 0xA8, 0x7EF8);
+                *(RrSpritePacket **)SCRATCHPAD = GameQueueSprite((char *)CurrentDrawBuf + 0x70, *(RrSpritePacket **)SCRATCHPAD, 0x70, 0x60, 0xC, 0xC, s5, 0xA8, 0x7EF8);
                 DrawRaceTime(0x80, 0x60, s1, 0x7EF8, 1);
             } else {
                 s3 = D_8010C0F8[D_8010C12C];
@@ -58,8 +58,8 @@ void func_8003BFC8(a0) s32 a0;
         p->v = 0xA8;
         p->clut = 0x7EF8;
         p->code |= 1;
-        p->addr = ((struct O *)D_800ACC14)->addr;
-        ((struct O *)D_800ACC14)->addr = (u32)p++;
+        p->addr = ((struct O *)CurrentDrawBuf)->addr;
+        ((struct O *)CurrentDrawBuf)->addr = (u32)p++;
         /* ASM_BARRIER: keeps the SCRATCHPAD pointer store after the bitfield store (original order) */
         __asm__ volatile("" : : : "memory");
         *(RrSpritePacket **)SCRATCHPAD = p;

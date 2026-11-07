@@ -32,7 +32,7 @@ static s32 signed_bits(u32 n){s32 r;memcpy(&r,&n,4);return r;}
 static void callback0(void){}static void callback1(void){}
 #define _snd_seq_tick_env (actual.timer)
 #define VBLANK_MINUS (actual.rate)
-#define D_800A63D0 (actual.system)
+#define CurrentVideoMode (actual.system)
 '''+getter+r'''
 s32 GetVideoMode(void){calls++;assert(calls==1);assert(!memcmp(&actual,&expected,sizeof(actual)));return actual_system();}
 '''+body+r'''

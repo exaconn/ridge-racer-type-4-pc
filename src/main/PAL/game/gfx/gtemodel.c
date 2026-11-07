@@ -13,7 +13,7 @@ typedef struct { int a, b; } __attribute__((packed)) V8;
 
 extern int func_8001AC24();
 extern int RotMatrixZ();
-extern int D_800FF690[];
+extern int CameraViewMatrix[];
 extern int D_8009E46C[];
 extern int SetupRenderer();
 extern int InitMenuGrid();
@@ -80,7 +80,7 @@ void func_8001ADA0(a0, a1) int a0; int a1;
     m[0x2C / 4] = v1;
     RotMatrixZ(g20, r_a1);
     RR_GTE_SETROT(m);
-    p__r8 = D_800FF690;
+    p__r8 = CameraViewMatrix;
     RR_GTE_SETLLM(p__r8);
     p__r8 = D_800FF6A4;
     RR_GTE_SETBK_P(p__r8);

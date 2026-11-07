@@ -21,11 +21,11 @@ extern int rsin();
 extern struct S PlayerCars[];
 extern int NumLaps;
 
-void func_800219BC(s32 arg0, s32 arg1);
-void func_80021A7C();
+void DrawHudDigitMod10(s32 arg0, s32 arg1);
+void UpdateHudRankDisplay();
 void func_80021C00(int a0);
 
-void func_800219BC(s32 arg0, s32 arg1) {
+void DrawHudDigitMod10(s32 arg0, s32 arg1) {
     s32 temp_s0;
     s32 temp_v1;
     char *temp_a3;
@@ -42,10 +42,10 @@ void func_800219BC(s32 arg0, s32 arg1) {
     *(s32 *)SCRATCHPAD = AddDrawModePrim(temp_s0, r, 5);
 }
 
-void func_80021A7C(a0, a1) int a0; int a1; {
+void UpdateHudRankDisplay(a0, a1) int a0; int a1; {
     int base, a, s0, s1, v;
     char *s2, *p2;
-    base = D_800ACC14;
+    base = CurrentDrawBuf;
     s2 = (char *)(base + 0x226B0);
     *(char *)(a1 * 0x78 + (int)s2 + 0xC) = (a0 + 1) * 0x18;
     p2 = (char *)(base + 0x226D8);
@@ -82,7 +82,7 @@ void func_80021A7C(a0, a1) int a0; int a1; {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((char *)D_800ACC14)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
 void func_80021C00(int a0) {
     int a1, a2;
@@ -94,7 +94,7 @@ void func_80021C00(int a0) {
     } else {
         a1 = a2 * 6 + 1;
     }
-    p = D_800ACC14 + (a1 * 0x14 + 0x22688);
+    p = CurrentDrawBuf + (a1 * 0x14 + 0x22688);
     if (PlayerCars[a2].f < NumLaps) {
         *(short *)(p + 0x10) = 0;
         return;
@@ -102,4 +102,4 @@ void func_80021C00(int a0) {
     *(short *)(p + 0x10) = 0x14;
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf

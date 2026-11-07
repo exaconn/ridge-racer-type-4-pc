@@ -35,7 +35,7 @@ static unsigned scenario,family,slot,postbyte,expected_map,expected_sound,map_ca
 #define ovl662_D_801273B8 world.table
 #define D_800AC590 world.textroot
 #define BadgeRows world.badgeroot
-#define D_800F3A38 world.items
+#define PlayerControllers world.items
 #define D_800FFC18 world.pending
 #define D_800F3A26 world.scene
 #define D_800F4D8A world.latch

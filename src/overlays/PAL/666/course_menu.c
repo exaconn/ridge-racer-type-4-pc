@@ -7,9 +7,9 @@ void ovl666_init_menu(void) {
     MenuCursor = 0;
     MenuItemCount = 3;
     ResetScreenCounters();
-    D_800F4D70.second = CdDirectoryBuffer + 0x2D000;
+    MenuArenas.second = CdDirectoryBuffer + 0x2D000;
     InitMenuArenas();
-    LoadCursor = D_800F4D70.second;
+    LoadCursor = MenuArenas.second;
     for (i = 0; i < 4; i++)
         InitGlyphRow(i, -2, 0, 1);
     InitRect16Row(GlyphRows->glyph07, GlyphRows->x08, GlyphRows->y0A, GlyphRows->w0C,
@@ -38,21 +38,21 @@ void ovl666_init_scene(void) {
     for (i = 0; i < 4; i++) {
         ovl666_course_counts[i] = 0;
         for (j = 0; j < 9; j++) {
-            UnpackChoiceGlyph((s8 *)&SelectionRows, D_800ABE08[1][j].glyph);
+            UnpackChoiceGlyph((s8 *)&SelectionRows, CourseChoiceTable[1][j].glyph);
             if (SelectionRows.selection.variant == i && SelectionRows.selection.pad02[0] < 39) {
-                ovl666_available_courses[i][ovl666_course_counts[i]] = D_800ABE08[1][j];
+                ovl666_available_courses[i][ovl666_course_counts[i]] = CourseChoiceTable[1][j];
                 ovl666_course_counts[i]++;
             }
         }
     }
     D_800AC648 = 0;
     D_800F3826 = 0;
-    func_8001E84C(ovl666_scene_name);
+    DebugPrintStub(ovl666_scene_name);
     ovl666_init_menu();
     ModeGroup = 1;
     D_800F3A26 = 79;
     D_800F4D8A = 0;
-    func_80053BB4(0);
+    SeqStartTrack(0);
 }
 
 void ovl666_update_menu(void) {
@@ -70,7 +70,7 @@ void ovl666_update_menu(void) {
 
     ModeFrame = (s32)((u32)ModeFrame + 1U);
     ScreenFrame = (s32)((u32)ScreenFrame + 1U);
-    ready = func_8003B47C();
+    ready = LoadGlyphRowsStep();
     if (ready == 1) {
         switch (D_800F4D8A) {
         case 0:
@@ -98,7 +98,7 @@ void ovl666_update_menu(void) {
             UiRows[MenuCursor].cells[0] = cellState;
             ovl666_update_course_selection();
             closing = 0;
-            if (D_800F3A38[0].a != 0) {
+            if (PlayerControllers[0].a != 0) {
                 selected = MenuCursor;
                 if (selected == 0) {
                     if (ovl666_course_counts[D_800F3826] > 0) {
@@ -124,7 +124,7 @@ void ovl666_update_menu(void) {
                 }
             } else {
                 sound = 2;
-                if (D_800F3A38[0].b != 0) {
+                if (PlayerControllers[0].b != 0) {
                 play_cancel:
                     PlaySfx(sound);
                     closing = 2;
@@ -143,7 +143,7 @@ void ovl666_update_menu(void) {
                     } while (choiceRow < 3);
                     D_800F4D8A = 8;
                     D_800AC5D0 = 0x40;
-                    func_80053AF4(0, 0x3C);
+                    SeqFadeVolume(0, 0x3C);
                 }
             }
             goto title;
@@ -162,7 +162,7 @@ void ovl666_update_menu(void) {
             SetMenuFrameOptions(0, 1, 1);
             timer = (u16)D_800AC5D0 - 1;
             D_800AC5D0 = (u16)timer;
-            AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (0x40 - timer) * 4, 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (0x40 - timer) * 4, 0x45);
             if ((s16)D_800AC5D0 <= 0) {
                 ModeGroup = ready;
                 D_800F3A26 = 3;
@@ -242,8 +242,8 @@ void ovl666_draw_selection_pulse(s32 x, s32 y) {
         mode = 89;
         wave = -wave;
     }
-    cursor = func_8001FF84(D_800ACC14->ordering.ordering70, cursor, x, y, &ovl666_selection_sprite,
+    cursor = AddSpritePrim(CurrentDrawBuf->ordering.ordering70, cursor, x, y, &ovl666_selection_sprite,
                            0x7FA4, ((wave + 1) * 2) | 1);
-    cursor = AddDrawModePrim(D_800ACC14->ordering.ordering70, cursor, mode);
+    cursor = AddDrawModePrim(CurrentDrawBuf->ordering.ordering70, cursor, mode);
     scratch->cursor = cursor;
 }

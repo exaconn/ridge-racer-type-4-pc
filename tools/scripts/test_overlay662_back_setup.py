@@ -50,7 +50,7 @@ static void event(s32 service,const s32 *args,unsigned count){
  w->events[n].kind=service;for(i=0;i<count;i++)w->events[n].arg[i]=args[i];w->events[n].hash=h;
  w->calls++;if(mutation && service!=0)effect(n);
 }
-s32 func_8001E84C(const char *format,...){
+s32 DebugPrintStub(const char *format,...){
  assert(format==(kind?load_message:save_message));event(0,0,0);return 1;
 }
 void ovl662_func_8011A788(s32 mode){event(1,&mode,1);}
@@ -61,7 +61,7 @@ void InitBadgeRow(s32 i,s32 first,s16 x,s32 y,u16 width,u16 mode,u16 flags){s32 
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[]={a,b,c,d,e,f,g,h,i,j};event(6,args,10);}
 ''' + bodies + r'''
 static void reference(void){
- func_8001E84C(kind?load_message:save_message);
+ DebugPrintStub(kind?load_message:save_message);
  ovl662_func_8011A788((s32)kind);
  if(kind){ovl662_func_8011D278(-1);ovl662_func_8011D120();}
  w->s.garage.dirtyD3=0;ClearScreenOverlayState();

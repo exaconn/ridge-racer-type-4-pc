@@ -51,7 +51,7 @@ void *SoundQueueEnqueue(s32 a,s32 b){service(2,a,b);return 0;}
 #define TotalRaceTime (actual.flag)
 #define D_800AC5D0 (actual.timer)
 #define D_8010C134 (actual.pending)
-#define D_800F3914 (actual.mode)
+#define CourseIndex (actual.mode)
 '''+body+r'''
 static void model(void){
  int lap=expected.vehicle.control.steering94.count22;

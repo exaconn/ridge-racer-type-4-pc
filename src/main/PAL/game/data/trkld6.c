@@ -19,8 +19,8 @@ extern short D_800F4D44;
 extern short D_800F3826;
 extern int D_800F6784;
 extern unsigned short D_800A02C0;
-extern short D_800F3914;
-extern int func_800436E8();
+extern short CourseIndex;
+extern int LoadTimList();
 extern int LoadVab();
 extern char D_800A0234[];
 extern char *D_800ACBB4;
@@ -29,7 +29,7 @@ extern int D_800A0270[];
 extern int LoadVab();
 
 void func_8004E414(void);
-int func_8004E5E8(void);
+int LoadRaceSoundAndTrackStep(void);
 int func_8004E70C(void);
 int func_8004E8CC(void);
 int func_8004E990();
@@ -87,20 +87,20 @@ void func_8004E414(void) {
     }
 }
 
-int func_8004E5E8(void) {
+int LoadRaceSoundAndTrackStep(void) {
     switch (D_800A0218) {
     case 0:
         func_8004E414();
         D_800A0218 += 1;
     case 1:
         if (LoadRaceSoundStep() != 0) {
-            D_800A021C = 0;
+            RaceLoadStepIndex = 0;
             RaceLoadState = 0;
             RaceLoadSubState = 0;
             RaceLoadCursor = LoadCursor;
-            *(int *)&D_800A02C0 = D_800F3914;
-            if (D_800F3914 >= 8) {
-                D_800F3914 = 7;
+            *(int *)&D_800A02C0 = CourseIndex;
+            if (CourseIndex >= 8) {
+                CourseIndex = 7;
             }
             D_800A0218 += 1;
         }
@@ -108,7 +108,7 @@ int func_8004E5E8(void) {
     case 2:
         if (LoadTrackStep() != 0) {
             D_800A0218 += 1;
-            D_800F3914 = D_800A02C0;
+            CourseIndex = D_800A02C0;
         }
         return 0;
     case 3:
@@ -128,11 +128,11 @@ int func_8004E70C(void)
     int i, i4, r, ret;
     char *s1, *s3;
     char *t;
-    switch (D_800A021C) {
+    switch (RaceLoadStepIndex) {
     case 0:
         ret = r = CdFileReadStart(GetR4FileIndex(2, 1), RaceLoadCursor);
         if (r == 0) break;
-        D_800A021C = D_800A021C + 1;
+        RaceLoadStepIndex = RaceLoadStepIndex + 1;
     case 1:
         if (CdFileBytesLoaded() == 0) { ret = 0; break; }
         t = RaceLoadCursor + *(int *)(RaceLoadCursor + 4);
@@ -151,12 +151,12 @@ int func_8004E70C(void)
             s3 += 4;
             i++;
         } while (i < 2);
-        func_800436E8(RaceLoadCursor + *(int *)(RaceLoadCursor + 0x24));
+        LoadTimList(RaceLoadCursor + *(int *)(RaceLoadCursor + 0x24));
         t = AlignUp4(RaceLoadCursor + *(int *)(RaceLoadCursor + 0x1C));
         LoadCursor = t;
         RaceLoadCursor = t;
-        D_800A021C = 0;
-        func_8004F600();
+        RaceLoadStepIndex = 0;
+        SoundCloseVabsAndReset();
         ret = 1;
         break;
     default:
@@ -171,22 +171,22 @@ int func_8004E70C(void)
 #undef RaceLoadCursor
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_800436E8 ((int (*)())func_800436E8)
+#define LoadTimList ((int (*)())LoadTimList)
 #define RegisterModelBank ((int (*)())RegisterModelBank)
 #define RaceLoadCursor ((char *)RaceLoadCursor)
 
 int func_8004E8CC(void) {
     int v;
-    switch (D_800A021C) {
+    switch (RaceLoadStepIndex) {
     case 0:
         v = CdFileReadStart(GetR4FileIndex(2, 2), RaceLoadCursor);
         if (v != 0) {
-            D_800A021C += 1;
+            RaceLoadStepIndex += 1;
     case 1:
             if (CdFileBytesLoaded() != 0) {
                 RegisterModelBank(RaceLoadCursor + *(int *)(RaceLoadCursor + 4), 8);
-                func_800436E8(RaceLoadCursor + *(int *)(RaceLoadCursor + 8));
-                D_800A021C = 0;
+                LoadTimList(RaceLoadCursor + *(int *)(RaceLoadCursor + 8));
+                RaceLoadStepIndex = 0;
                 return 1;
             }
             v = 0;
@@ -197,7 +197,7 @@ int func_8004E8CC(void) {
     }
 }
 
-#undef func_800436E8
+#undef LoadTimList
 #undef RegisterModelBank
 #undef RaceLoadCursor
 
@@ -205,25 +205,25 @@ int func_8004E8CC(void) {
 #define LoadCursor ((int *)LoadCursor)
 #define RaceLoadCursor ((int *)RaceLoadCursor)
 #define VabLoadArgs (*(int (*)[])&VabLoadArgs)
-#define func_800436E8 ((int (*)())func_800436E8)
+#define LoadTimList ((int (*)())LoadTimList)
 
 int func_8004E990()
 {
     int r;
     int *q;
-    switch (D_800A021C) {
+    switch (RaceLoadStepIndex) {
     case 0:
         r = CdFileReadStart(GetR4FileIndex(2, 0), RaceLoadCursor);
         if (r != 0) {
-            D_800A021C++;
+            RaceLoadStepIndex++;
     case 1:
             if (CdFileBytesLoaded()) {
                 q = D_800A0270;
                 VabLoadArgs[0] = (int)RaceLoadCursor + RaceLoadCursor[1];
                 VabLoadArgs[1] = (int)RaceLoadCursor + RaceLoadCursor[2];
                 LoadVab(VabLoadArgs, q[1], q[2]);
-                func_800436E8((int)RaceLoadCursor + RaceLoadCursor[3]);
-                D_800A021C = 0;
+                LoadTimList((int)RaceLoadCursor + RaceLoadCursor[3]);
+                RaceLoadStepIndex = 0;
                 RaceLoadCursor = (int *)((int)RaceLoadCursor + RaceLoadCursor[2]);
                 LoadCursor = RaceLoadCursor;
                 return 1;
@@ -240,4 +240,4 @@ int func_8004E990()
 #undef LoadCursor
 #undef RaceLoadCursor
 #undef VabLoadArgs
-#undef func_800436E8
+#undef LoadTimList

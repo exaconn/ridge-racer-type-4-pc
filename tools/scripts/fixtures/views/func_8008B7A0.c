@@ -7,18 +7,18 @@
 #include "rr/library.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A6358 ((unsigned short *)D_800A6358)
+#define I_MASK ((unsigned short *)I_MASK)
 
 #define D_800A6354 ((unsigned short *)D_800A6354)
 
-#undef D_800A6358
+#undef I_MASK
 
 #undef D_800A6354
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A6358 ((u16 *)D_800A6358)
+#define I_MASK ((u16 *)I_MASK)
 
-#undef D_800A6358
+#undef I_MASK
 
 extern s32 ChangeClearPAD(s32),ChangeClearRCnt(s32,s32);
 
@@ -41,8 +41,8 @@ RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback) {
     state=(RrLibSavedState *)((unsigned long)base-RR_FIELD_OFFSET(RrLibSavedState,callbacks));
     if(!state->active) goto out;
     {
-        u16 raw=*D_800A6358;
-        *D_800A6358=0;
+        u16 raw=*I_MASK;
+        *I_MASK=0;
         saved=raw;
     }
     if(requested) {
@@ -67,7 +67,7 @@ RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback) {
     if(selector==4)ChangeClearRCnt(0,requested==0);
     if(selector==5)ChangeClearRCnt(1,requested==0);
     if(selector==6)ChangeClearRCnt(2,requested==0);
-    *D_800A6358=saved;
+    *I_MASK=saved;
 out:
     return previous;
 }

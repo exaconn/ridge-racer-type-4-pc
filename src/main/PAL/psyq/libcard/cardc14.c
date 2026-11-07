@@ -5,92 +5,92 @@
 #include "psyq/libcard/cardc162.h"
 #include "psyq/libcard/cardc04.h"
 
-int func_8009D424();
-int func_8009D4E0();
-s32 func_8009D5B4(s32 request, u32 *first, u32 *second);
+int _cardCmd5BFixedBegin();
+int _cardCmd5CFixedBegin();
+s32 _cardCmd58Begin(s32 request, u32 *first, u32 *second);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_80114718 (*(int (*))&D_80114718)
-#define D_80114734 ((int *)D_80114734)
-#define D_80114738 ((int *)D_80114738)
+#define CardCmdBuffer (*(int (*))&CardCmdBuffer)
+#define CardCommandReader ((int *)CardCommandReader)
+#define CardWriteHandler ((int *)CardWriteHandler)
 
-int func_8009D424(a0,a1) int a0; int a1; {
+int _cardCmd5BFixedBegin(a0,a1) int a0; int a1; {
     int r;
     if (!(D_800ABDE4 & 1)) {
         r = 0;
     } else {
         r = 1;
-        D_800ABDF4 = 0;
-        D_800ABDF8 = 0;
+        CardReceiveIndex = 0;
+        CardRxCount = 0;
         D_80114730 = 0;
         D_800ABDE8 = 0;
-        D_800ABDEC = a0;
+        CardCommandRequest = a0;
     }
     if (r == 0) return 0;
-    D_80114724 = 0x6000300;
+    CardCmdSector = 0x6000300;
     D_80114728 = 4;
-    D_80114870 = 0xA;
-    D_80114734 = (int *)func_8009C87C;
-    D_80114738 = (int *)func_8009C91C;
-    D_80114718 = a1;
+    CardCurrentCommand = 0xA;
+    CardCommandReader = (int *)_cardCmd5BRangeTx;
+    CardWriteHandler = (int *)_cardCmd5BRangeRx;
+    CardCmdBuffer = a1;
     D_800ABDE4 = 2;
     return 1;
 }
 
-#undef D_80114718
-#undef D_80114734
-#undef D_80114738
+#undef CardCmdBuffer
+#undef CardCommandReader
+#undef CardWriteHandler
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_8011472C (*(char (*))&D_8011472C)
-#define D_80114718 ((char *)D_80114718)
-#define D_80114734 ((int *)D_80114734)
-#define D_80114738 ((int *)D_80114738)
+#define CardCmdBuffer ((char *)CardCmdBuffer)
+#define CardCommandReader ((int *)CardCommandReader)
+#define CardWriteHandler ((int *)CardWriteHandler)
 
-int func_8009D4E0(a0, a1) int a0; int a1; {
+int _cardCmd5CFixedBegin(a0, a1) int a0; int a1; {
     int r;
     char *p;
     if (!(D_800ABDE4 & 1)) {
         r = 0;
     } else {
         r = 1;
-        D_800ABDF4 = 0;
-        D_800ABDF8 = 0;
+        CardReceiveIndex = 0;
+        CardRxCount = 0;
         D_80114730 = 0;
         D_800ABDE8 = 0;
-        D_800ABDEC = a0;
+        CardCommandRequest = a0;
     }
     if (r == 0) return 0;
     if (a1 != 0) {
-        D_80114724 = 0xD800008;
+        CardCmdSector = 0xD800008;
     } else {
-        D_80114724 = 0xD800004;
+        CardCmdSector = 0xD800004;
     }
     p = &D_8011472C;
-    D_80114718 = p;
+    CardCmdBuffer = p;
     *p = 2;
     D_80114728 = 1;
-    D_80114870 = 9;
-    D_80114734 = (int *)func_8009CA8C;
-    D_80114738 = (int *)func_8009CB50;
+    CardCurrentCommand = 9;
+    CardCommandReader = (int *)_cardCmd5CRangeTx;
+    CardWriteHandler = (int *)_cardCmd5CRangeRx;
     D_800ABDE4 = 2;
     return 1;
 }
 
 #undef D_8011472C
-#undef D_80114718
-#undef D_80114734
-#undef D_80114738
+#undef CardCmdBuffer
+#undef CardCommandReader
+#undef CardWriteHandler
 
-s32 func_8009D5B4(s32 request, u32 *first, u32 *second) {
+s32 _cardCmd58Begin(s32 request, u32 *first, u32 *second) {
     s32 result;
     s32 active;
     if (!rr_command_begin(request)) return 0;
     /* ASM_BARRIER: keep success initialization before the command configuration stores. */
     __asm__ volatile("" : "=r"(result) : "0"(1) : "$3", "memory");
-    D_80114870 = 100;
-    D_80114734 = func_8009D65C;
-    D_80114738 = func_8009D680;
+    CardCurrentCommand = 100;
+    CardCommandReader = _cardCmd58Tx;
+    CardWriteHandler = _cardCmd58Rx;
     active = 2;
     D_8011471C = first;
     D_80114720 = second;

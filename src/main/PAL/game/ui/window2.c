@@ -84,7 +84,7 @@ int a0;
 
     s0 = *(unsigned **)SCRATCHPAD;
     if (a0 >= 2) {
-        s2 = (unsigned *)(D_800ACC14 + 0xB70);
+        s2 = (unsigned *)(CurrentDrawBuf + 0xB70);
         s5 = 4;
         if (a0 == 3) s5 = 2;
         s3 = 0;
@@ -106,7 +106,7 @@ int a0;
         m2 = 0xFFFFFF;
         h2 = 0xFF000000;
         s4 = D_8009EA90;
-        s2 = (unsigned *)(D_800ACC14 + 0x70);
+        s2 = (unsigned *)(CurrentDrawBuf + 0x70);
         s1 = (char *)s0 + 0xA;
         do {
             InitHudSpritePacket(s0, s4);

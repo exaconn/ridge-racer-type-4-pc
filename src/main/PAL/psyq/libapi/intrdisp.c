@@ -24,7 +24,7 @@ void trapIntr(void) {
     u32 next;
     register s32 index __asm__("$17");
     if(state->active==0) {
-        func_8001E84C(D_8001183C,*D_800A6354);
+        DebugPrintStub(UnexpectedInterruptFmt,*D_800A6354);
         ReturnFromException();
     }
     {
@@ -34,7 +34,7 @@ void trapIntr(void) {
         register u32 statusValue __asm__("$4");
         register u32 maskValue __asm__("$2");
         state->dispatching02=1;
-        mask=D_800A6358;
+        mask=I_MASK;
         statusValue=*status;
         maskValue=*mask;
         /* Preserve the initialized register values through mask composition. */
@@ -67,7 +67,7 @@ reread:
             {
                 register volatile u16 *status __asm__("$4")=D_800A6354;
                 u32 enabled=D_800A52C8.enabled_mask;
-                volatile u16 *mask=D_800A6358;
+                volatile u16 *mask=I_MASK;
                 register u32 statusValue __asm__("$4")=*status;
                 register u32 maskValue __asm__("$2")=*mask;
                 __asm__("" : : "r"(enabled),"r"(statusValue));
@@ -79,19 +79,19 @@ reread:
     }
     {
         volatile u16 *status=D_800A6354;
-        volatile u16 *mask=D_800A6358;
+        volatile u16 *mask=I_MASK;
         if(*status & *mask) {
-            s32 *counter=&D_800A6360;
+            s32 *counter=&IntrStuckCount;
             u32 count=(u32)*counter;
             s32 previous=(s32)count;
             count++;
             *counter=(s32)count;
             if(previous>=0x801) {
-                func_8001E84C(({const char *format=D_80011858; __asm__("" : "+r"(format));format;}),*status,*mask);
-                D_800A6360=0;
+                DebugPrintStub(({const char *format=D_80011858; __asm__("" : "+r"(format));format;}),*status,*mask);
+                IntrStuckCount=0;
                 RR_IRQ_ACK16(D_800A6354,0);
             }
-        } else D_800A6360=0;
+        } else IntrStuckCount=0;
     }
     D_800A52C8.dispatching02=0;
     ReturnFromException();
@@ -116,8 +116,8 @@ RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback) {
     state=(RrLibSavedState *)((unsigned long)base-RR_FIELD_OFFSET(RrLibSavedState,callbacks));
     if(!state->active) goto out;
     {
-        u16 raw=*D_800A6358;
-        *D_800A6358=0;
+        u16 raw=*I_MASK;
+        *I_MASK=0;
         saved=raw;
     }
     if(requested) {
@@ -142,13 +142,13 @@ RrLibInterruptCallback setIntr(s32 id,RrLibInterruptCallback callback) {
     if(selector==4)ChangeClearRCnt(0,requested==0);
     if(selector==5)ChangeClearRCnt(1,requested==0);
     if(selector==6)ChangeClearRCnt(2,requested==0);
-    *D_800A6358=saved;
+    *I_MASK=saved;
 out:
     return previous;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A6358 ((unsigned short *)D_800A6358)
+#define I_MASK ((unsigned short *)I_MASK)
 #define D_800A6354 ((unsigned short *)D_800A6354)
 
 RrLibSavedState *stopIntr(void) {
@@ -156,7 +156,7 @@ RrLibSavedState *stopIntr(void) {
   unsigned short *a, *c; int *b; int t;
   if (p->active == 0) return 0;
   EnterCriticalSection();
-  a = D_800A6358;
+  a = I_MASK;
   b = D_800A635C;
   p->register16 = *a;
   t = *b;
@@ -169,18 +169,18 @@ RrLibSavedState *stopIntr(void) {
   p->active = 0;
   return p; }
 
-#undef D_800A6358
+#undef I_MASK
 #undef D_800A6354
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A6358 ((u16 *)D_800A6358)
+#define I_MASK ((u16 *)I_MASK)
 
 RrLibSavedState *restartIntr(void) {
     RrLibSavedState *state = &D_800A52C8;
     if (state->active != 0) return 0;
     HookEntryInt(state->callback_data);
     state->active = 1;
-    *D_800A6358 = state->register16;
+    *I_MASK = state->register16;
     {
         s32 *destination = D_800A635C;
         s32 value = state->register32;
@@ -192,7 +192,7 @@ RrLibSavedState *restartIntr(void) {
     return state;
 }
 
-#undef D_800A6358
+#undef I_MASK
 
 void memclr(p, n) int *p; int n; {
     while (n--) *p++ = 0;

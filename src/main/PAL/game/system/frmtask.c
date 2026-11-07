@@ -26,7 +26,7 @@ extern int D_800F3A60;
 extern int CdAudioInit();
 extern int CdAudioSelectTrack();
 extern int CdAudioBeginPlay();
-extern int func_800436E8();
+extern int LoadTimList();
 extern int SetMenuFrameOptions();
 extern int AddScreenFadeTiles();
 extern int CdAudioFade();
@@ -58,7 +58,7 @@ void func_8001E378(void) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(int (*))&D_800ACC14)
+#define CurrentDrawBuf (*(int (*))&CurrentDrawBuf)
 #define ModeGroup (*(short (*))&ModeGroup)
 #define D_800F3A26 (*(short (*))&D_800F3A26)
 
@@ -87,7 +87,7 @@ void func_8001E390(void) {
         CdAudioInit();
         CdAudioSelectTrack(0, 0x24);
         CdAudioBeginPlay(0);
-        func_800436E8(LoadCursor);
+        LoadTimList(LoadCursor);
         D_8010BF84 = 7;
         q = (short *)LoadCursor;
         D_8010BF80 = q;
@@ -115,7 +115,7 @@ void func_8001E390(void) {
         SetMenuFrameOptions(1, 1, 0);
         if (D_800AC5D0 > 0) {
             D_800AC5D0--;
-            AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
+            AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
             if (D_800AC5D0 == 0) {
                 ModeGroup = 1;
                 D_800F3A26 = 3;
@@ -129,11 +129,11 @@ void func_8001E390(void) {
     default:
     common:
         p = D_8010BF80;
-        func_8001B754(p + 1, p + 4, 0x80);
+        RampValueToLimit(p + 1, p + 4, 0x80);
         p = D_8010BF80;
-        func_8001B754(p + 2, p + 5, 0x80);
+        RampValueToLimit(p + 2, p + 5, 0x80);
         p = D_8010BF80;
-        func_8001B754(p + 3, p + 6, 0x80);
+        RampValueToLimit(p + 3, p + 6, 0x80);
         EmitPresetSprite(D_8010BF80[1], 0x2F);
         EmitPresetSprite(D_8010BF80[2], 0x30);
         p = D_8010BF80;
@@ -152,7 +152,7 @@ void func_8001E390(void) {
     }
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 #undef ModeGroup
 #undef D_800F3A26
 
@@ -193,14 +193,14 @@ void MainLoop(void) {
             bank &=1;
             frame=(u8 *)((unsigned long)bank*sizeof(RrFrameStorage)+(unsigned long)frames);
             ordering=(u32 *)(frame+0x70);
-            D_800ACC14=frame;
+            CurrentDrawBuf=frame;
             *(s32 *)(bank_page+0x4BF0)=bank;
             scratch=(u8 **)SCRATCHPAD;
             scratch[1]=(u8 *)ordering;
             scratch[0]=frame+0x1670;
             ClearOTagR(ordering,length);
         }
-        ClearOTagR((u32 *)(D_800ACC14+0xB70),0x2C0);
+        ClearOTagR((u32 *)(CurrentDrawBuf+0xB70),0x2C0);
         CdFileStep();
         SoundUpdate();
         ModeFuncTable[ModeGroup][D_800F3A26]();
@@ -208,10 +208,10 @@ void MainLoop(void) {
         threshold=VSyncThreshold;
         do {} while (VSync(1)<threshold);
         VSync(0);
-        PutDispEnv(D_800ACC14+0x5C);
-        PutDrawEnv(D_800ACC14);
-        DrawOTag(D_800ACC14+0xB6C);
-        if(D_800ACBF8) DrawOTag(D_800ACC14+0x166C);
+        PutDispEnv(CurrentDrawBuf+0x5C);
+        PutDrawEnv(CurrentDrawBuf);
+        DrawOTag(CurrentDrawBuf+0xB6C);
+        if(D_800ACBF8) DrawOTag(CurrentDrawBuf+0x166C);
         PadUpdate();
         FrameCounter++;
     }

@@ -114,7 +114,7 @@ extern int InitMenuArenas();
 extern int func_8003B934();
 extern int InitBadgeRow();
 extern int UpdateBadgeRowAnim();
-extern int func_80043608();
+extern int LoadTimImage();
 extern int CdAudioInit();
 extern int CdAudioSelectTrack();
 extern int CdAudioBeginPlay();
@@ -240,11 +240,11 @@ block_4:
     D_800F3A26 = 0x23;
     D_800F4D8A = 0;
 block_6:
-    AddScreenFadeTiles(D_800ACC14 + 0x70, D_800AC5D0, 0x45);
+    AddScreenFadeTiles(CurrentDrawBuf + 0x70, D_800AC5D0, 0x45);
     D_800AC5D0 = (u16) D_800AC5D0 + 4;
     goto block_9;
 block_7:
-    if (!(D_800F3A40 & 0x800)) {
+    if (!(Pad0Buttons & 0x800)) {
         goto block_9;
     }
     D_800AC5D0 = 4;
@@ -275,8 +275,8 @@ case 0x2:
     temp_s1 = LoadCursor + ((int *)LoadCursor)[1];
     temp_s2 = LoadCursor + ((int *)LoadCursor)[2];
     temp_s0 = LoadCursor + ((int *)LoadCursor)[4];
-    func_80043608(LoadCursor + ((int *)LoadCursor)[3]);
-    func_80043608(temp_s0);
+    LoadTimImage(LoadCursor + ((int *)LoadCursor)[3]);
+    LoadTimImage(temp_s0);
     RegisterModelBank(temp_s1, 4);
     D_800AC64C = temp_s2;
     RelocateOffsetTable(temp_s2);
@@ -1166,25 +1166,25 @@ block_225:
     spd->ot->h.p = spd->cur;
     spd->ot->h.b.len = 0;
     spd->cur = (struct P *)((char *)spd->cur + 8);
-    func_8001B754(&G->s48, &G->s74, 0x80);
-    func_8001B754(&G->s4A, &G->s76, 0x80);
-    func_8001B754(&G->s4C, &G->s78, 0x80);
-    func_8001B754(&G->s4E, &G->s7A, 0x80);
-    func_8001B754(&G->s50, &G->s7C, 0x80);
-    func_8001B754(&G->s52, &G->s7E, 0x80);
-    func_8001B754(&G->s54, &G->s80, 0x80);
-    func_8001B754(&G->s9A, &G->s98, 0x100);
-    func_8001B7C8(&G->s56, &G->s5E, &G->s82);
-    func_8001B7C8(&G->s58, &G->s60, &G->s84);
-    func_8001B7C8(&G->s5A, &G->s62, &G->s86);
-    func_8001B7C8(&G->s5C, &G->s64, &G->s88);
-    func_8001B83C(&G->s66, &G->s8A);
-    func_8001B83C(&G->s68, &G->s8C);
-    func_8001B83C(&G->s6A, &G->s8E);
-    func_8001B83C(&G->s6C, &G->s90);
-    func_8001B83C(&G->s6E, &G->s92);
-    func_8001B83C(&G->s70, &G->s94);
-    func_8001B83C(&G->s72, &G->s96);
+    RampValueToLimit(&G->s48, &G->s74, 0x80);
+    RampValueToLimit(&G->s4A, &G->s76, 0x80);
+    RampValueToLimit(&G->s4C, &G->s78, 0x80);
+    RampValueToLimit(&G->s4E, &G->s7A, 0x80);
+    RampValueToLimit(&G->s50, &G->s7C, 0x80);
+    RampValueToLimit(&G->s52, &G->s7E, 0x80);
+    RampValueToLimit(&G->s54, &G->s80, 0x80);
+    RampValueToLimit(&G->s9A, &G->s98, 0x100);
+    RampValuePairTo4096(&G->s56, &G->s5E, &G->s82);
+    RampValuePairTo4096(&G->s58, &G->s60, &G->s84);
+    RampValuePairTo4096(&G->s5A, &G->s62, &G->s86);
+    RampValuePairTo4096(&G->s5C, &G->s64, &G->s88);
+    RampValueTo4096(&G->s66, &G->s8A);
+    RampValueTo4096(&G->s68, &G->s8C);
+    RampValueTo4096(&G->s6A, &G->s8E);
+    RampValueTo4096(&G->s6C, &G->s90);
+    RampValueTo4096(&G->s6E, &G->s92);
+    RampValueTo4096(&G->s70, &G->s94);
+    RampValueTo4096(&G->s72, &G->s96);
     g_v1 = G;
     v0 = (unsigned short)g_v1->sA0;
     if (g_v1->sA0 == 0) {
@@ -1212,7 +1212,7 @@ block_227:
     if (temp_a0_4 == 0) {
         goto block_229;
     }
-    func_8001B688(temp_a0_4);
+    SetLightColorsFromAngle(temp_a0_4);
     G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(0, G->uA2 & 1));
     G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(1, G->uA2 & 2, D_8010BF78));
 block_229:
@@ -1220,7 +1220,7 @@ block_229:
     if (temp_a0_5 == 0) {
         goto block_231;
     }
-    func_8001B688(temp_a0_5);
+    SetLightColorsFromAngle(temp_a0_5);
     G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(2, G->uA2 & 4));
     G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(3, G->uA2 & 8, D_8010BF78));
 block_231:
@@ -1228,7 +1228,7 @@ block_231:
     if (temp_a0_6 == 0) {
         goto block_233;
     }
-    func_8001B688(temp_a0_6);
+    SetLightColorsFromAngle(temp_a0_6);
     G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(4, G->uA2 & 0x10));
     G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(5, G->uA2 & 0x20, D_8010BF78));
     G->sA4 = (s16) ((u16) G->sA4 | func_8001BD40(6, G->uA2 & 0x40, D_8010BF78));
@@ -1238,29 +1238,29 @@ block_233:
     if (temp_a0_7 == 0) {
         goto block_235;
     }
-    func_8001B688(temp_a0_7);
+    SetLightColorsFromAngle(temp_a0_7);
     func_8001BFA8(1, D_800101EC, D_8009E510);
 block_235:
     temp_a0_8 = G->s6E;
     if (temp_a0_8 == 0) {
         goto block_237;
     }
-    func_8001B688(temp_a0_8);
+    SetLightColorsFromAngle(temp_a0_8);
     func_8001BFA8(1, D_800101EC, D_8009E520);
 block_237:
     temp_a0_9 = G->s70;
     if (temp_a0_9 == 0) {
         goto block_239;
     }
-    func_8001B688(temp_a0_9);
+    SetLightColorsFromAngle(temp_a0_9);
     func_8001BFA8(2, D_800101EC, D_8009E530);
 block_239:
     temp_a0_10 = G->s72;
     if (temp_a0_10 == 0) {
         goto block_241;
     }
-    func_8001B688(temp_a0_10);
-    func_8001BEF8();
+    SetLightColorsFromAngle(temp_a0_10);
+    DrawRotatingSky();
 block_241:
     c80 = G->s9A;
     if (c80 == 0) {

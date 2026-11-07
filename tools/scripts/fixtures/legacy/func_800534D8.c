@@ -150,7 +150,7 @@ block_34:
             } else if (SoundState.action2670 != 5) {
                 SoundState.action2670 = 5;
                 SoundState.timer26A4 = 0;
-                func_8001E84C(D_8001118C, &SoundState);
+                DebugPrintStub(XaRepeatMsg, &SoundState);
             }
             CdAudioSetVolumeRaw(0);
         }

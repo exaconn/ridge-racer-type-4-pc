@@ -11,26 +11,26 @@ struct B { char pad[0x12]; short x; char p2[0x28]; };
 extern int AddDrawAreaPrim();
 extern int FormatDecimalDigits();
 extern char D_800103FC[];
-extern char D_80010408[];
-extern char D_80010414[];
+extern char LapTimeLabel[];
+extern char StrPressStart[];
 extern short D_800AC1A0;
 extern int NumLaps;
 extern int TotalRaceTime;
 extern int LapTimes[];
 extern int AddDrawModePrim();
-extern int func_8001FF84();
+extern int AddSpritePrim();
 extern char D_8009EE6C[];
 extern int RaceState;
 extern int GameQueueTileTrans();
-extern int func_8002064C();
+extern int AddLineF2SemiTrans();
 extern struct B *TrackNodes;
 
-void func_80022448(void);
+void DrawRaceTimesScreen(void);
 void func_800225DC(int a0);
 void AddPartialLine(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10);
 int func_80022848(struct A *a0);
 
-void func_80022448(void) {
+void DrawRaceTimesScreen(void) {
     char sp18[8];
     int i;
     int y;
@@ -38,7 +38,7 @@ void func_80022448(void) {
     char *b;
     int col, v;
     int sel;
-    *(int *)SCRATCHPAD = AddDrawAreaPrim(D_800ACC14 + 0x70, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x100);
+    *(int *)SCRATCHPAD = AddDrawAreaPrim(CurrentDrawBuf + 0x70, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x100);
     i = 0;
     sel = D_800AC1A0;
     if (NumLaps > 0) {
@@ -59,7 +59,7 @@ void func_80022448(void) {
     }
     DrawRaceTime(0x78, 0x5E, TotalRaceTime, 0x7EF8, 1);
     DrawFontStringCentered(0x78, 0x50, D_800103FC, 0x80, 0);
-    DrawFontStringCentered(0x78, 0x78, D_80010408, 0x80, 0);
+    DrawFontStringCentered(0x78, 0x78, LapTimeLabel, 0x80, 0);
     i = 7;
     b = sp18 + 7;
     do {
@@ -69,8 +69,8 @@ void func_80022448(void) {
     } while (i >= 0);
     FormatDecimalDigits(sp18, D_800AC0E6 + 1, 1);
     DrawFontStringCentered(0x78, 0x3C, sp18, 0x80, 0);
-    DrawFontStringCentered(0x78, 0xC8, D_80010414, 0x80, 0);
-    func_8004C928(0);
+    DrawFontStringCentered(0x78, 0xC8, StrPressStart, 0x80, 0);
+    AddSetTexpagePrim(0);
 }
 
 void func_800225DC(int a0) {
@@ -82,20 +82,20 @@ void func_800225DC(int a0) {
         if (a0 > 0) {
             a3 = ((a0 - 1) << 7) + 0x38;
             if (a0 == 1) {
-                s0 = D_800ACC14 + 0x70;
+                s0 = CurrentDrawBuf + 0x70;
             } else {
-                s0 = D_800ACC14 + 0xB70;
+                s0 = CurrentDrawBuf + 0xB70;
             }
         } else {
             a3 = 0x78;
-            s0 = D_800ACC14 + 0x70;
+            s0 = CurrentDrawBuf + 0x70;
         }
-        *(int *)SCRATCHPAD = AddDrawModePrim(s0, func_8001FF84(s0, p, 0x6A, a3, D_8009EE6C, 0x7EF8, 0), 0x3E);
+        *(int *)SCRATCHPAD = AddDrawModePrim(s0, AddSpritePrim(s0, p, 0x6A, a3, D_8009EE6C, 0x7EF8, 0), 0x3E);
     }
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(int (*))&D_800ACC14)
+#define CurrentDrawBuf (*(int (*))&CurrentDrawBuf)
 
 void AddPartialLine(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10)
 {
@@ -108,11 +108,11 @@ void AddPartialLine(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int 
         x = a1 + ((d1 * a5) >> 8);
         y = a2 + ((d2 * a5) >> 8);
         if (a10 >= 0) {
-            r = func_8002064C(a0, r, a1, a2, x, y, a7, a8, a9);
+            r = AddLineF2SemiTrans(a0, r, a1, a2, x, y, a7, a8, a9);
             if (a6 != 0) {
-                r = func_8002064C(a0, r, a1, a2 + 1, x, y + 1, a7, a8, a9);
+                r = AddLineF2SemiTrans(a0, r, a1, a2 + 1, x, y + 1, a7, a8, a9);
             }
-            r = AddDrawModePrim(D_800ACC14 + 0x70, r, ((a10 & 3) << 5) | 5);
+            r = AddDrawModePrim(CurrentDrawBuf + 0x70, r, ((a10 & 3) << 5) | 5);
         } else {
             r = GameQueueTileTrans(a0, r, a1, a2, x, y, a7, a8, a9);
             if (a6 != 0) {
@@ -123,7 +123,7 @@ void AddPartialLine(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int 
     }
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 int func_80022848(struct A *a0) {
     int t = 0x800 - TrackNodes[a0->idx].x;

@@ -3,7 +3,7 @@
 #include "game/sound/sndown.h"
 
 void SlotSetupBank(RrAudioBankSetup *arg0);
-void func_80050E94(int a0, int a1, int a2, int a3);
+void SetPlayerVoice(int a0, int a1, int a2, int a3);
 
 void SlotSetupBank(RrAudioBankSetup *arg0)
 {
@@ -117,7 +117,7 @@ asm("" : : "r"(write));
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(struct { char pad[0x26]; s16 h; char pad2[0x195C - 0x28]; struct { s32 a, b, c; char p[16]; } e[2]; } (*))&SoundState)
 
-void func_80050E58(void) {
+void ResetPlayerVoices(void) {
     int i;
     for (i = 0; i < 2; i++) {
         SoundState.e[i].c = 0;
@@ -131,7 +131,7 @@ void func_80050E58(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(struct { char pad[0x1964]; struct { s32 a, pad, b, c; char pad2[12]; } e[1]; } (*))&SoundState)
 
-void func_80050E94(int a0, int a1, int a2, int a3) {
+void SetPlayerVoice(int a0, int a1, int a2, int a3) {
     SoundState.e[a3].a = a0;
     if (a0 != 0) {
         SoundState.e[a3].b = a1;

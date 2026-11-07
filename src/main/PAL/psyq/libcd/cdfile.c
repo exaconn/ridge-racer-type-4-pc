@@ -25,24 +25,24 @@ struct DirPath {
     char name[32];
 };
 
-extern int D_800A67A4;
+extern int CD_dirNopen;
 extern int CD_nopen;
 extern int CD_debug;
 extern CdlFILE D_80110350[];
 extern const char D_80011B38[];
 extern const char D_80011B54[];
-extern const char D_80011B6C[];
-extern const char D_80011B88[];
+extern const char CdSearchFileDiscErrorMsg[];
+extern const char StrCdSearchFileFmt[];
 extern const char D_80011BA8[];
-extern const char D_80011BB4[];
+extern const char FileNotFoundFmt[];
 extern int func_80096414();
-extern struct DirPath D_80110950[];
+extern struct DirPath CD_pathtbl[];
 extern const char D_80011BC4[];
 extern const char D_80011BF0[];
-extern const char D_80011BF8[];
-extern const char D_80011C28[];
+extern const char CdNewMediaFormatErrorMsg[];
+extern const char StrCdNewmediaReadError[];
 extern const char D_80011C4C[];
-extern const char D_80011C6C[];
+extern const char CdFileInfoFmt[];
 extern const char D_80011C80[];
 extern void func_80096444(char *, void *, int);
 extern char D_8011095C[];
@@ -62,10 +62,10 @@ CdlFILE *CdSearchFile(CdlFILE *fp, char *name) {
     /* ASM_BARRIER: use hard reg $0 so jump2 cross-jumping does not merge this return with .L8008E130 */
     register CdlFILE *zero asm("$0");
 
-    if (D_800A67A4 != CD_nopen) {
+    if (CD_dirNopen != CD_nopen) {
         if (DS_newmedia() == 0)
             return 0;
-        D_800A67A4 = CD_nopen;
+        CD_dirNopen = CD_nopen;
     }
     if (*name != '\\') {
         return zero;
@@ -94,34 +94,34 @@ CdlFILE *CdSearchFile(CdlFILE *fp, char *name) {
 done:
     if (i >= 8) {
         if (CD_debug > 0)
-            func_8001E84C(D_80011B38, name, i);
+            DebugPrintStub(D_80011B38, name, i);
         return 0;
     }
     if (buf[0] == 0) {
         if (CD_debug > 0)
-            func_8001E84C(D_80011B54, name);
+            DebugPrintStub(D_80011B54, name);
         return 0;
     }
     *d = 0;
     if (DS_cachefile(dir) == 0) {
         if (CD_debug > 0)
-            func_8001E84C(D_80011B6C);
+            DebugPrintStub(CdSearchFileDiscErrorMsg);
         return 0;
     }
     if (CD_debug >= 2)
-        func_8001E84C(D_80011B88, buf);
+        DebugPrintStub(StrCdSearchFileFmt, buf);
     for (i = 0; i < 64; i++) {
         if (D_80110350[i].name[0] == 0)
             break;
         if (_cmp(D_80110350[i].name, buf)) {
             if (CD_debug >= 2)
-                func_8001E84C(D_80011BA8, buf);
+                DebugPrintStub(D_80011BA8, buf);
             *fp = D_80110350[i];
             return &D_80110350[i];
         }
     }
     if (CD_debug > 0)
-        func_8001E84C(D_80011BB4, buf);
+        DebugPrintStub(FileNotFoundFmt, buf);
     return 0;
 }
 
@@ -140,13 +140,13 @@ int DS_newmedia(void) {
 
     if (cd_read(1, 0x10, D_80111F50) != 1) {
         if (CD_debug > 0) {
-            func_8001E84C(D_80011BC4);
+            DebugPrintStub(D_80011BC4);
         }
         return 0;
     }
     if (func_80096414(D_80111F50 + 1, D_80011BF0, 5) != 0) {
         if (CD_debug > 0) {
-            func_8001E84C(D_80011BF8);
+            DebugPrintStub(CdNewMediaFormatErrorMsg);
         }
         return 0;
     }
@@ -156,34 +156,34 @@ int DS_newmedia(void) {
     *(U4 *)&sp18 = *(U4 *)(p8c + 0x8C);
     if (cd_read(1, sp18, p8c) != 1) {
         if (CD_debug > 0) {
-            func_8001E84C(D_80011C28, sp18);
+            DebugPrintStub(StrCdNewmediaReadError, sp18);
         }
         return 0;
     }
     p = p8c;
     if (CD_debug >= 2) {
-        func_8001E84C(D_80011C4C);
+        DebugPrintStub(D_80011C4C);
     }
     i = 0;
     while (p < p8c + 0x800) {
         if (p[0] == 0) {
             break;
         }
-        *(U4 *)&D_80110950[i].c = *(U4 *)(p + 2);
-        D_80110950[i].b = p[6];
-        D_80110950[i].a = i + 1;
-        func_80096444(D_80110950[i].name, p + 8, p[0]);
+        *(U4 *)&CD_pathtbl[i].c = *(U4 *)(p + 2);
+        CD_pathtbl[i].b = p[6];
+        CD_pathtbl[i].a = i + 1;
+        func_80096444(CD_pathtbl[i].name, p + 8, p[0]);
         dummy = (p < p8c + 0x800);
-        D_80110950[i].name[p[0]] = 0;
+        CD_pathtbl[i].name[p[0]] = 0;
         pad = (p[0] & 1) + 8;
         p += p[0] + pad;
         if (CD_debug >= 2) {
-            func_8001E84C(
-                D_80011C6C,
-                D_80110950[i].c,
-                D_80110950[i].a,
-                D_80110950[i].b,
-                D_80110950[i].name
+            DebugPrintStub(
+                CdFileInfoFmt,
+                CD_pathtbl[i].c,
+                CD_pathtbl[i].a,
+                CD_pathtbl[i].b,
+                CD_pathtbl[i].name
             );
         }
         i++;
@@ -192,11 +192,11 @@ int DS_newmedia(void) {
         }
     }
     if (i < 0x80) {
-        D_80110950[i].b = 0;
+        CD_pathtbl[i].b = 0;
     }
     D_800A67A0 = 0;
     if (CD_debug >= 2) {
-        func_8001E84C(D_80011C80, i);
+        DebugPrintStub(D_80011C80, i);
     }
     return 1;
 }

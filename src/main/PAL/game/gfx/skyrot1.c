@@ -30,7 +30,7 @@ extern s16 ModeGroup;
 extern s16 D_800F4D8A;
 
 int func_8001BD40(int a0, int a1);
-void func_8001BEF8(void);
+void DrawRotatingSky(void);
 void func_8001BFA8(int a0, int a1, int a2);
 void func_8001C0F8(void);
 
@@ -65,7 +65,7 @@ int func_8001BD40(int a0, int a1)
 
 #undef D_8010BF78
 
-void func_8001BEF8(void)
+void DrawRotatingSky(void)
 {
     struct V8 sp10;
     struct M sp18;

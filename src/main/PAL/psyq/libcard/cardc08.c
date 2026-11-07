@@ -3,18 +3,18 @@
 #include "psyq/libcard/cardc09.h"
 #include "psyq/libcard/cardc10.h"
 
-s32 func_8009CB84(s32 request, s32 parameter, u8 *buffer, u8 *first) {
+s32 _cardCmd5BVarBegin(s32 request, s32 parameter, u8 *buffer, u8 *first) {
     s32 result;
     s32 active;
     if (!rr_command_begin(request)) return 0;
     /* ASM_BARRIER: keep success initialization before the command configuration stores. */
     __asm__ volatile("" : "=r"(result) : "0"(1) : "$3", "memory");
-    D_80114870 = 14;
-    D_80114734 = func_8009CC44;
-    D_80114738 = func_8009CCF0;
+    CardCurrentCommand = 14;
+    CardCommandReader = _cardCmd5BVarTx;
+    CardWriteHandler = _cardCmd5BVarRx;
     active = 2;
-    D_80114724 = parameter;
-    D_80114718 = buffer;
+    CardCmdSector = parameter;
+    CardCmdBuffer = buffer;
     D_8011471C = first;
     D_80114728 = 0;
     D_8011472C.value = 0;

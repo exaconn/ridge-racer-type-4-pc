@@ -8,32 +8,32 @@
 #define KEEP_BASE(p) __asm__ volatile("" : "=r"(p) : "0"(p))
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_801146C0 (*(W5A (*))&D_801146C0)
+#define SioShadowRegs (*(W5A (*))&SioShadowRegs)
 
-#define D_800ABD18 ((W5A *)D_800ABD18)
+#define SIO1_REGS ((W5A *)SIO1_REGS)
 
 #define D_800ABD30 ((volatile int *)D_800ABD30)
 
-#define D_801146E8 (*(int (*)[3])&D_801146E8)
+#define SioRequest (*(int (*)[3])&SioRequest)
 
-#define D_801146D8 (*(int (*)[3])&D_801146D8)
+#define SioReceiveRequest (*(int (*)[3])&SioReceiveRequest)
 
-#undef D_801146C0
+#undef SioShadowRegs
 
-#undef D_800ABD18
+#undef SIO1_REGS
 
 #undef D_800ABD30
 
-#undef D_801146E8
+#undef SioRequest
 
-#undef D_801146D8
+#undef SioReceiveRequest
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABD20 (*(u8 (*)[])&D_800ABD20)
+#define SioIrqQueueEntry (*(u8 (*)[])&SioIrqQueueEntry)
 
 #define SysDeqIntRP ((s32 (*)(s32,void *))SysDeqIntRP)
 
-#undef D_800ABD20
+#undef SioIrqQueueEntry
 
 #undef SysDeqIntRP
 
@@ -43,9 +43,9 @@ extern s32 EnterCriticalSection(void);
 
 extern void ExitCriticalSection(void);
 
-extern RrSerialPortRegisters D_801146C0;
+extern RrSerialPortRegisters SioShadowRegs;
 
-extern volatile s32 D_801146D0;
+extern volatile s32 SioPollHook;
 
 extern s16 D_800ABD34[];
 
@@ -56,34 +56,34 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
     case 0:
         switch (arg1) {
         case 0:
-            ret = D_800ABD18->status;
+            ret = SIO1_REGS->status;
             break;
         case 1:
-            ret = (D_800ABD18->control >> 1) & 1;
-            if (D_800ABD18->control & 0x20) {
+            ret = (SIO1_REGS->control >> 1) & 1;
+            if (SIO1_REGS->control & 0x20) {
                 ret |= 2;
             }
             break;
         case 2:
-            ret = D_801146C0.mode;
+            ret = SioShadowRegs.mode;
             break;
         case 3:
-            ret = 0x1FA400 / D_801146C0.baud;
+            ret = 0x1FA400 / SioShadowRegs.baud;
             break;
         case 4:
             ret = 1;
             break;
         case 5:
             if (arg2 == 0) {
-                ret = *(volatile s32 *)&D_801146D8.request.second;
+                ret = *(volatile s32 *)&SioReceiveRequest.request.second;
             } else {
-                ret = D_801146E8.second;
+                ret = SioRequest.second;
             }
             break;
         case 6: {
-            volatile RrSerialRequest *req = &D_801146E8;
+            volatile RrSerialRequest *req = &SioRequest;
             if (arg2 == 0) {
-                req = &D_801146D8.request;
+                req = &SioReceiveRequest.request;
             }
             ret = req->active != 0;
             break;
@@ -96,12 +96,12 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
             break;
         case 1: {
             /* ASM_BARRIER: pin the port pointer to $v1 like the original allocation */
-            register RrSerialPortRegisters *p asm("$3") = &D_801146C0;
+            register RrSerialPortRegisters *p asm("$3") = &SioShadowRegs;
             s32 dtr;
             u32 dtr_copy;
             u32 ctrl;
             u32 v;
-            p->control = D_800ABD18->control & ~0x22;
+            p->control = SIO1_REGS->control & ~0x22;
             dtr = (arg2 & 1) << 1;
             dtr_copy = dtr;
             ctrl = p->control;
@@ -112,13 +112,13 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
                 v = ctrl | dtr_copy;
             }
             p->control = v;
-            D_800ABD18->control = D_801146C0.control;
+            SIO1_REGS->control = SioShadowRegs.control;
             break;
         }
         case 2: {
-            RrSerialPortRegisters *p = &D_801146C0;
+            RrSerialPortRegisters *p = &SioShadowRegs;
             p->mode = arg2;
-            D_800ABD18->mode = p->mode;
+            SIO1_REGS->mode = p->mode;
             break;
         }
         case 3: {
@@ -127,10 +127,10 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
                 ret = -1;
                 break;
             }
-            p = &D_801146C0;
+            p = &SioShadowRegs;
             p->baud = 0x1FA400 / arg2;
-            D_800ABD18->baud = p->baud;
-            D_800ABD18->control |= 0x10;
+            SIO1_REGS->baud = p->baud;
+            SIO1_REGS->control |= 0x10;
             break;
         }
         case 4: {
@@ -140,10 +140,10 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
                 if (ret < 0) {
                     break;
                 }
-                p = &D_801146C0;
+                p = &SioShadowRegs;
                 p->control &= ~0x300;
                 p->control |= ret;
-                D_800ABD18->control = p->control;
+                SIO1_REGS->control = p->control;
             }
             break;
         }
@@ -153,11 +153,11 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
         switch (arg1) {
         case 0: {
             s32 v = EnterCriticalSection();
-            RrSerialPortRegisters *port = D_800ABD18;
+            RrSerialPortRegisters *port = SIO1_REGS;
             port->control |= 0x50;
-            port->mode = D_801146C0.mode;
-            port->control = D_801146C0.control;
-            port->baud = D_801146C0.baud;
+            port->mode = SioShadowRegs.mode;
+            port->control = SioShadowRegs.control;
+            port->baud = SioShadowRegs.baud;
             port->control |= 0x10;
             ret = 0;
             if (v == 1) {
@@ -167,13 +167,13 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
         }
         case 1:
             ret = 0;
-            D_800ABD18->control |= 0x10;
+            SIO1_REGS->control |= 0x10;
             break;
         case 2: {
             s32 v = EnterCriticalSection();
-            D_800ABD18->control &= ~0x400;
-            D_801146D8.request.active = 0;
-            D_801146D8.request.second = 0;
+            SIO1_REGS->control &= ~0x400;
+            SioReceiveRequest.request.active = 0;
+            SioReceiveRequest.request.second = 0;
             if (v == 1) {
                 ExitCriticalSection();
             }
@@ -181,9 +181,9 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
         }
         case 3: {
             s32 v = EnterCriticalSection();
-            D_800ABD18->control &= ~0x820;
-            D_801146E8.active = 0;
-            D_801146E8.second = 0;
+            SIO1_REGS->control &= ~0x820;
+            SioRequest.active = 0;
+            SioRequest.second = 0;
             if (v == 1) {
                 ExitCriticalSection();
             }
@@ -195,13 +195,13 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
         switch (arg1) {
         case 0:
             if (arg2 != 0) {
-                D_800ABD18->control |= 0x20;
+                SIO1_REGS->control |= 0x20;
             } else {
-                D_800ABD18->control &= ~0x20;
+                SIO1_REGS->control &= ~0x20;
             }
             break;
         case 1:
-            if (D_800ABD18->status & 0x100) {
+            if (SIO1_REGS->status & 0x100) {
                 ret = 1;
             }
             break;
@@ -209,7 +209,7 @@ s32 _sio_control(u32 arg0, u32 arg1, u32 arg2) {
         break;
     case 4:
         if (arg1 == 0) {
-            volatile s32 *q = &D_801146D0;
+            volatile s32 *q = &SioPollHook;
             ret = *q;
             *(s32 *)q = arg2;
         }

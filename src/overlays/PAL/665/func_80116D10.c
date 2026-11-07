@@ -94,13 +94,13 @@ typedef struct {
 
 extern Ovl665CarState ovl665_D_80119768;
 extern s32 ovl665_D_80119760;
-extern Ovl665Pad5C D_800F3A38[2];
+extern Ovl665Pad5C PlayerControllers[2];
 extern Ovl665Settings Options;
 extern Ovl665Entry28 PadPorts[];
 extern Ovl665Panel *BadgeRows;
 extern Ovl665Row24 *UiRows;
 extern Ovl665Text *D_800AC590;
-extern Ovl665Frame *D_800ACC14;
+extern Ovl665Frame *CurrentDrawBuf;
 extern s16 D_800AC5D0;
 extern s32 D_800AC5D4;
 extern s32 D_800F4CB8;
@@ -118,7 +118,7 @@ extern s32 ovl665_D_80119724[];
 extern u8 ovl665_D_8011973C[];
 extern u8 ovl665_D_80119020[], ovl665_D_80119024[];
 extern s16 D_8009FFB8[];
-extern s16 D_8009FFC0[];
+extern s16 PadRangeLimits[];
 extern s32 D_8009FFCC[];
 
 extern s32 PadGetState(s32);
@@ -127,12 +127,12 @@ extern s32 func_8004E8CC(void);
 extern s32 ovl665_func_8011629C(s32);
 extern void func_8005B2D4(s32);
 extern void StepMenuValue(s32, s32, void *, s32, s32);
-extern void func_8004A5C0(s32, s32, s32, s32);
+extern void SetPadButtonMapLayout(s32, s32, s32, s32);
 /* Sound cue; several call sites pass the freshly computed offset as a
  * second (ignored) argument, so it is declared without a prototype. */
 extern void PlaySfx();
 extern void ovl665_func_80116AA4(void *, s32);
-extern void *func_8001FF84(void *, void *, s32, s32, void *, s32, s32);
+extern void *AddSpritePrim(void *, void *, s32, s32, void *, s32, s32);
 extern void ovl665_func_8011643C(void);
 extern void DrawUiRow(s32);
 extern void AddScreenFadeTiles(void *, s32, s32);
@@ -177,7 +177,7 @@ typedef struct {
         Ovl665Frame *frame;                                                 \
         packet = SCRATCH->cursor;                                           \
         ((u8 *)&packet->tag)[3] = 1;                                        \
-        frame = D_800ACC14;                                                 \
+        frame = CurrentDrawBuf;                                                 \
         packet->command = 0xE1000259;                                       \
         packet->tag = (packet->tag & 0xFF000000) | (frame->ordering70 & 0xFFFFFF); \
         frame->ordering70 = (frame->ordering70 & 0xFF000000) | ((u32)packet & 0xFFFFFF); \
@@ -202,15 +202,15 @@ void ovl665_func_80116D10(s32 player) {
     Ovl665Line line;
     Ovl665Packet *packet;
 
-    ST.buttons28 = D_800F3A38[player].buttons08;
+    ST.buttons28 = PlayerControllers[player].buttons08;
     entry = &PadPorts[player];
     changed = 0;
     switch (ST.step0C) {
     case 0:
         if (ovl665_D_80119760 == 0) {
-            if (D_800F3A38[player].ready40 == 1) {
+            if (PlayerControllers[player].ready40 == 1) {
                 if (ST.ready2C == 0) {
-                    if (D_800F3A38[player].course01 != 0xE3) {
+                    if (PlayerControllers[player].course01 != 0xE3) {
                         if (PadGetState(player << 4) == 6) {
                             PadSetMainMode(player << 4, 1, 0);
                         }
@@ -248,7 +248,7 @@ void ovl665_func_80116D10(s32 player) {
                 ST.rotation86 = index;
                 break;
             case 3:
-                if (D_800F3A38[player].course01 != 0xE3) {
+                if (PlayerControllers[player].course01 != 0xE3) {
                     index = Options.a[player].car00;
                     src = ovl665_D_8011902C[index];
                     index <<= 12;
@@ -259,7 +259,7 @@ void ovl665_func_80116D10(s32 player) {
                     index <<= 12;
                 ST.rotation86 = index;
                 }
-                ST.course2A = D_800F3A38[player].course01;
+                ST.course2A = PlayerControllers[player].course01;
                 break;
             }
             ST.view38 = ovl665_D_80119698[ST.kind18];
@@ -291,7 +291,7 @@ void ovl665_func_80116D10(s32 player) {
             }
             switch (ST.kind18) {
             case 1:
-                if (D_800F3A38[player].option1C != 0) {
+                if (PlayerControllers[player].option1C != 0) {
                     UiRows[5].cells[0] = 1;
                     UiRows[Options.a[player].colour02 + 6].cells[0] = 0;
                     StepMenuValue(player * 4, 2, &Options.a[player].colour02, 2, 0);
@@ -309,10 +309,10 @@ void ovl665_func_80116D10(s32 player) {
                     src = ovl665_D_8011902C[Options.a[player].car00];
                     COPY_COLOURS(src);
                     ST.fade24 = 0;
-                    func_8004A5C0(player, Options.a[player].car00, Options.b[player].h[6],
+                    SetPadButtonMapLayout(player, Options.a[player].car00, Options.b[player].h[6],
                                   Options.c[player].c[3]);
                 }
-                if (D_800F3A38[player].confirm28 != 0) {
+                if (PlayerControllers[player].confirm28 != 0) {
                     PlaySfx(1);
                     CLOSE_ROWS(5);
                     D_800AC5D0 = 64;
@@ -322,10 +322,10 @@ void ovl665_func_80116D10(s32 player) {
                 ovl665_func_80116AA4(ovl665_D_80119290[Options.a[player].car00], ST.fade24);
                 cursor = CURSOR;
                 if (Options.a[player].car00 > 0) {
-                    cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
+                    cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
                 }
                 if (Options.a[player].car00 < 7) {
-                    cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
+                    cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
                 }
                 CURSOR = cursor;
                 break;
@@ -341,13 +341,13 @@ void ovl665_func_80116D10(s32 player) {
                     src = ovl665_D_801190CC[Options.b[player].h[6]];
                     COPY_COLOURS(src);
                     ST.fade24 = 0;
-                    func_8004A5C0(player, Options.a[player].car00, Options.b[player].h[6],
+                    SetPadButtonMapLayout(player, Options.a[player].car00, Options.b[player].h[6],
                                   Options.c[player].c[3]);
                 }
-                value = D_800F3A38[player].balance20 * 3800 / 256 - 1900;
+                value = PlayerControllers[player].balance20 * 3800 / 256 - 1900;
                 ST.offset8C = value / 2;
                 ST.offset94 = -value / 2;
-                if (D_800F3A38[player].confirm28 != 0) {
+                if (PlayerControllers[player].confirm28 != 0) {
                     PlaySfx(1, value);
                     CLOSE_ROWS(5);
                     D_800AC5D0 = 64;
@@ -357,19 +357,19 @@ void ovl665_func_80116D10(s32 player) {
                 ovl665_func_80116AA4(ovl665_D_801193E8[Options.b[player].h[6]], ST.fade24);
                 cursor = CURSOR;
                 if (Options.b[player].h[6] > 0) {
-                    cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
+                    cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
                 }
                 if (Options.b[player].h[6] < 7) {
-                    cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
+                    cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
                 }
                 CURSOR = cursor;
                 break;
             case 3:
-                if (ST.course2A != D_800F3A38[player].course01) {
+                if (ST.course2A != PlayerControllers[player].course01) {
                     changed = 1;
-                    ST.course2A = D_800F3A38[player].course01;
+                    ST.course2A = PlayerControllers[player].course01;
                 }
-                if (D_800F3A38[player].course01 != 0xE3) {
+                if (PlayerControllers[player].course01 != 0xE3) {
                     old = Options.a[player].car00;
                     StepMenuValue(player * 4 | 1, 1, &Options.a[player].car00, 8, 0);
                     if (old != Options.a[player].car00) {
@@ -379,7 +379,7 @@ void ovl665_func_80116D10(s32 player) {
                             ST.angle1C += 0x1000;
                         }
                         changed = 1;
-                        func_8004A5C0(player, Options.a[player].car00, Options.b[player].h[6],
+                        SetPadButtonMapLayout(player, Options.a[player].car00, Options.b[player].h[6],
                                       Options.c[player].c[3]);
                     }
                     if (changed) {
@@ -387,7 +387,7 @@ void ovl665_func_80116D10(s32 player) {
                         COPY_COLOURS(src);
                         ST.fade24 = 0;
                     }
-                    if (D_800F3A38[player].confirm28 != 0) {
+                    if (PlayerControllers[player].confirm28 != 0) {
                         PlaySfx(1);
                         CLOSE_ROWS(5);
                         D_800AC5D0 = 64;
@@ -397,10 +397,10 @@ void ovl665_func_80116D10(s32 player) {
                     ovl665_func_80116AA4(ovl665_D_80119558[Options.a[player].car00], ST.fade24);
                     cursor = CURSOR;
                     if (Options.a[player].car00 > 0) {
-                        cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
+                        cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
                     }
                     if (Options.a[player].car00 < 7) {
-                        cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
+                        cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
                     }
                     CURSOR = cursor;
                 } else {
@@ -413,7 +413,7 @@ void ovl665_func_80116D10(s32 player) {
                             ST.angle1C += 0x1000;
                         }
                         changed = 1;
-                        func_8004A5C0(player, Options.a[player].car00, Options.b[player].h[6],
+                        SetPadButtonMapLayout(player, Options.a[player].car00, Options.b[player].h[6],
                                       Options.c[player].c[3]);
                     }
                     if (changed) {
@@ -421,9 +421,9 @@ void ovl665_func_80116D10(s32 player) {
                         COPY_COLOURS(src);
                         ST.fade24 = 0;
                     }
-                    value = D_800F3A38[player].tilt41 * 16;
+                    value = PlayerControllers[player].tilt41 * 16;
                     ST.offset90 = value;
-                    if (D_800F3A38[player].confirm28 != 0) {
+                    if (PlayerControllers[player].confirm28 != 0) {
                         PlaySfx(1, value);
                         CLOSE_ROWS(5);
                         D_800AC5D0 = 64;
@@ -433,10 +433,10 @@ void ovl665_func_80116D10(s32 player) {
                     ovl665_func_80116AA4(ovl665_D_801195F8[Options.c[player].c[3]], ST.fade24);
                     cursor = CURSOR;
                     if (Options.c[player].c[3] > 0) {
-                        cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
+                        cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 280, ovl665_D_80119020, 0x7F38, 255);
                     }
                     if (Options.c[player].c[3] < 7) {
-                        cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
+                        cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 280, ovl665_D_80119024, 0x7F38, 255);
                     }
                     CURSOR = cursor;
                 }
@@ -457,7 +457,7 @@ void ovl665_func_80116D10(s32 player) {
         for (i = 0; i < 5; i++) {
             DrawUiRow(i);
         }
-        if (ST.kind18 == 1 && D_800F3A38[player].option1C != 0) {
+        if (ST.kind18 == 1 && PlayerControllers[player].option1C != 0) {
             for (i = 5; i < 8; i++) {
                 DrawUiRow(i);
             }
@@ -466,7 +466,7 @@ void ovl665_func_80116D10(s32 player) {
     case 2:
         timer = D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(&D_800ACC14->ordering70, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering70, (64 - timer) * 4, 69);
         if (D_800AC5D0 <= 0) {
             if (ST.next14 == 0) {
                 ovl665_func_80114A24();
@@ -499,10 +499,10 @@ void ovl665_func_80116D10(s32 player) {
             ST.detail10++;
             break;
         case 1:
-            value = D_800F3A38[player].balance20 * 3800 / 256 - 1900;
+            value = PlayerControllers[player].balance20 * 3800 / 256 - 1900;
             ST.offset8C = value / 2;
             ST.offset94 = -value / 2;
-            if (D_800F3A38[player].buttons08 & 0x800) {
+            if (PlayerControllers[player].buttons08 & 0x800) {
                 PlaySfx(1, value);
                 Options.b[player].h[0] = entry->b4 - 128;
                 Options.b[player].h[1] = entry->b5;
@@ -529,7 +529,7 @@ void ovl665_func_80116D10(s32 player) {
             if (ST.phase20 >= 4096) {
                 ST.phase20 = phase - 4064;
             }
-            if (D_800F3A38[player].buttons08 & 0x840) {
+            if (PlayerControllers[player].buttons08 & 0x840) {
                 PlaySfx(1, value);
                 D_800AC590->b4 = Options.b[player].h[5] + 14;
                 ST.view38 = ovl665_D_80119698[5];
@@ -539,19 +539,19 @@ void ovl665_func_80116D10(s32 player) {
             line.x0 = 148;
             line.x1 = 172;
             line.y0 = line.y1 = ST.view38.y02;
-            func_8004D290((const s16 *)&line, ovl665_D_8011973C, 0, 0);
+            AddLineF2Prim((const s16 *)&line, ovl665_D_8011973C, 0, 0);
             if (Options.b[player].h[4] > 0) {
                 line.y0 = line.y1 = ST.view38.y02 + ovl665_D_80119724[Options.b[player].h[4] - 1];
-                func_8004D290((const s16 *)&line, ovl665_D_8011973C, 0, 0);
+                AddLineF2Prim((const s16 *)&line, ovl665_D_8011973C, 0, 0);
                 line.y0 = line.y1 = ST.view38.y02 - ovl665_D_80119724[Options.b[player].h[4] - 1];
-                func_8004D290((const s16 *)&line, ovl665_D_8011973C, 0, 0);
+                AddLineF2Prim((const s16 *)&line, ovl665_D_8011973C, 0, 0);
             }
             cursor = CURSOR;
             if (Options.b[player].h[4] > 0) {
-                cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
             }
             if (Options.b[player].h[4] < 3) {
-                cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
             }
             CURSOR = cursor;
             break;
@@ -569,7 +569,7 @@ void ovl665_func_80116D10(s32 player) {
             if (ST.phase20 >= 4096) {
                 ST.phase20 = phase - 4064;
             }
-            if (D_800F3A38[player].buttons08 & 0x840) {
+            if (PlayerControllers[player].buttons08 & 0x840) {
                 PlaySfx(1, value);
                 CLOSE_ROWS(5);
                 D_800AC5D0 = 64;
@@ -577,10 +577,10 @@ void ovl665_func_80116D10(s32 player) {
             }
             cursor = CURSOR;
             if (Options.b[player].h[5] > 0) {
-                cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
             }
             if (Options.b[player].h[5] < 3) {
-                cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
             }
             CURSOR = cursor;
             break;
@@ -609,9 +609,9 @@ void ovl665_func_80116D10(s32 player) {
             ST.detail10++;
             break;
         case 1:
-            value = D_800F3A38[player].tilt41 * 16;
+            value = PlayerControllers[player].tilt41 * 16;
             ST.offset90 = value;
-            if (D_800F3A38[player].buttons08 & 0x800) {
+            if (PlayerControllers[player].buttons08 & 0x800) {
                 PlaySfx(1, value);
                 PadSetRumbleFlags(player, 3);
                 D_800AC590->b4 = Options.c[player].c[0] + 10;
@@ -633,7 +633,7 @@ void ovl665_func_80116D10(s32 player) {
             if (ST.phase20 >= 4096) {
                 ST.phase20 = phase - 4064;
             }
-            if (D_800F3A38[player].confirm28 != 0) {
+            if (PlayerControllers[player].confirm28 != 0) {
                 PlaySfx(1, value);
                 D_800AC590->b4 = Options.c[player].c[1] + 18;
                 ST.phase20 = 0;
@@ -645,10 +645,10 @@ void ovl665_func_80116D10(s32 player) {
             }
             cursor = CURSOR;
             if (Options.c[player].c[0] > 0) {
-                cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
             }
             if (Options.c[player].c[0] < 3) {
-                cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
             }
             CURSOR = cursor;
             break;
@@ -658,14 +658,14 @@ void ovl665_func_80116D10(s32 player) {
             if (old != Options.c[player].c[1]) {
                 D_800AC590->b4 = Options.c[player].c[1] + 18;
             }
-            value = rsin(ST.phase20) * D_8009FFC0[Options.c[player].c[1]] / 256;
+            value = rsin(ST.phase20) * PadRangeLimits[Options.c[player].c[1]] / 256;
             ST.offset90 = value;
             phase = ST.phase20;
             ST.phase20 = phase + 32;
             if (ST.phase20 >= 4096) {
                 ST.phase20 = phase - 4064;
             }
-            if (D_800F3A38[player].confirm28 != 0) {
+            if (PlayerControllers[player].confirm28 != 0) {
                 PlaySfx(1, value);
                 D_800AC590->b4 = Options.c[player].c[2] + 23;
                 ST.phase20 = 0;
@@ -673,10 +673,10 @@ void ovl665_func_80116D10(s32 player) {
             }
             cursor = CURSOR;
             if (Options.c[player].c[1] > 0) {
-                cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
             }
             if (Options.c[player].c[1] < 4) {
-                cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
             }
             CURSOR = cursor;
             break;
@@ -694,7 +694,7 @@ void ovl665_func_80116D10(s32 player) {
             if (ST.phase20 >= 4096) {
                 ST.phase20 = phase - 4064;
             }
-            if (D_800F3A38[player].confirm28 != 0) {
+            if (PlayerControllers[player].confirm28 != 0) {
                 PlaySfx(1, value);
                 CLOSE_ROWS(5);
                 D_800AC5D0 = 64;
@@ -702,15 +702,15 @@ void ovl665_func_80116D10(s32 player) {
             }
             cursor = CURSOR;
             if (Options.c[player].c[2] > 0) {
-                cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 56, 182, ovl665_D_80119020, 0x7F38, 255);
             }
             if (Options.c[player].c[2] < 2) {
-                cursor = func_8001FF84(&D_800ACC14->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
+                cursor = AddSpritePrim(&CurrentDrawBuf->ordering70, cursor, 254, 182, ovl665_D_80119024, 0x7F38, 255);
             }
             CURSOR = cursor;
             break;
         }
-        if (ovl665_func_8011629C(player) < 0 || D_800F3A38[player].course01 != 0xE3) {
+        if (ovl665_func_8011629C(player) < 0 || PlayerControllers[player].course01 != 0xE3) {
             CLOSE_ROWS(8);
             D_800AC5D0 = 64;
             ST.step0C = 2;

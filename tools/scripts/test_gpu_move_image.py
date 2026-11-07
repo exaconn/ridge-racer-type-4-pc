@@ -25,7 +25,7 @@ class GpuMoveImageTest(unittest.TestCase):
         for name in ('gpu', 'library', 'timing'):
             text = (root/('include/rr/' + name + '.h')).read_text()
             text = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', text, flags=re.M)
-            text = text.replace('extern RrGpuMovePayload D_800ABB60;', '')
+            text = text.replace('extern RrGpuMovePayload GpuMovePayload;', '')
             headers += text
         code = '''#include <stdint.h>
 #include <stddef.h>
@@ -33,10 +33,10 @@ class GpuMoveImageTest(unittest.TestCase):
 typedef uint8_t u8;typedef int8_t s8;typedef uint16_t u16;typedef int16_t s16;typedef uint32_t u32;typedef int32_t s32;
 ''' + headers + '''
 struct {u32 guard;u32 prefix[2];RrGpuMovePayload payload;u32 after;} packet;
-#define D_800ABB60 packet.payload
+#define GpuMovePayload packet.payload
 u32 ports[8];
 volatile u32 *GPU_STATUS=&ports[0],*DMA2_CHCR=&ports[1],*DMA2_MADR=&ports[2],*DMA2_BCR=&ports[3];
-s32 D_800ABBFC,D_800ABC00;
+s32 D_800ABBFC,GpuAlarmCount;
 char D_80011EFC[]="MoveImage";
 s32 test_now,test_timeout_calls,test_debug_calls,test_exchange_calls,test_draw_calls,test_draw_driver;
 s32 test_event_count;u32 test_events[64][3];
@@ -65,15 +65,15 @@ void draw(unsigned long address,s32 driver){
 }
 void draw0(unsigned long address){draw(address,0);}
 void draw1(unsigned long address){draw(address,1);}
-RrLibGraphicsDriverPrefix drivers[2],*D_800ABAB8;
-void test_select(s32 index){D_800ABAB8=&drivers[index];}
+RrLibGraphicsDriverPrefix drivers[2],*GpuFuncTable;
+void test_select(s32 index){GpuFuncTable=&drivers[index];}
 u32 test_layout[]={sizeof(RrGpuRectangle),sizeof(RrGpuMovePayload),offsetof(RrLibGraphicsDriverPrefix,draw_ordering_table)};
 void test_reset(void){
  s32 i;memset(&packet,0xA5,sizeof(packet));for(i=0;i<8;i++)ports[i]=0xA5000000+i;
  ports[0]=0x04000000;ports[1]=0;
  GPU_STATUS=&ports[0];DMA2_CHCR=&ports[1];DMA2_MADR=&ports[2];DMA2_BCR=&ports[3];
- memset(drivers,0x5A,sizeof(drivers));drivers[0].draw_ordering_table=draw0;drivers[1].draw_ordering_table=draw1;D_800ABAB8=&drivers[0];
- D_800ABBFC=-1;D_800ABC00=999;test_now=100;
+ memset(drivers,0x5A,sizeof(drivers));drivers[0].draw_ordering_table=draw0;drivers[1].draw_ordering_table=draw1;GpuFuncTable=&drivers[0];
+ D_800ABBFC=-1;GpuAlarmCount=999;test_now=100;
  test_timeout_calls=test_debug_calls=test_exchange_calls=test_draw_calls=test_event_count=0;
  test_debug_hook=test_exchange_hook=0;test_callback=0;test_address=0;
 }
@@ -113,7 +113,7 @@ void *test_packet_address(void){return packet.prefix;}
         errors = []
         def checked_poll():
             try:
-                self.assertEqual(self.scalar('D_800ABC00').value, 0)
+                self.assertEqual(self.scalar('GpuAlarmCount').value, 0)
                 return poll()
             except BaseException as error:
                 errors.append(error)
@@ -148,7 +148,7 @@ void *test_packet_address(void){return packet.prefix;}
                     self.assertEqual(self.scalar('test_exchange_calls').value, 1)
                     self.assertEqual(self.scalar('test_draw_calls').value, int(valid))
                     self.assertEqual(bytes(rect), before)
-                    self.assertEqual((self.scalar('D_800ABBFC').value,self.scalar('D_800ABC00').value),(340,0))
+                    self.assertEqual((self.scalar('D_800ABBFC').value,self.scalar('GpuAlarmCount').value),(340,0))
                     self.assertEqual((self.packet[0],self.packet[1],self.packet[2],self.packet[6]),(0xA5A5A5A5,)*4)
                     if valid:
                         packed_x_y = int.from_bytes(before[:4], 'little')
@@ -195,7 +195,7 @@ void *test_packet_address(void){return packet.prefix;}
         self.assertEqual((self.ports[0],self.ports[1]),(0x04000000,0x01000000))
         self.assertEqual((self.ports[4],self.ports[5]),(0x04000002,0x01000401))
         callback=C.c_void_p.in_dll(self.lib,'test_callback').value
-        self.assertEqual(callback,C.cast(self.lib.func_80095990,C.c_void_p).value)
+        self.assertEqual(callback,C.cast(self.lib.GPU_DmaDoneRequeue,C.c_void_p).value)
         Hook(callback)()
         self.assertEqual(C.c_void_p.in_dll(self.lib,'test_callback').value,C.cast(self.lib._exeque,C.c_void_p).value)
 

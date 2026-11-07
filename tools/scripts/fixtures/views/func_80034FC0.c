@@ -3,22 +3,22 @@
 /* legacy typing of shared globals in this part of the unit */
 #define PlayerCars (*(S2 (*)[])&PlayerCars)
 
-#define D_800F3A38 (*(S1 (*)[])&D_800F3A38)
+#define PlayerControllers (*(S1 (*)[])&PlayerControllers)
 
 #undef PlayerCars
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 /* legacy typing of shared globals in this part of the unit */
 #define _sio_control ((unsigned int (*)())_sio_control)
 
-#define D_800F3A38 (*(T38 (*))&D_800F3A38)
+#define PlayerControllers (*(T38 (*))&PlayerControllers)
 
 #define LinkState (*(unsigned short (*))&LinkState)
 
 #undef _sio_control
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 #undef LinkState
 
@@ -37,7 +37,7 @@ extern int _sio_control();
 
 extern s16 LinkState;
 
-int func_80034FC0(void) {
+int ExitOnLinkLost(void) {
     if (LinkState == -1) {
         ModeGroup = 1;
         D_800F3A26 = 0x2D;

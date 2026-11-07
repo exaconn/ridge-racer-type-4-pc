@@ -9,7 +9,7 @@
 
 #define SetSprt ((s32 (*)())SetSprt)
 
-#define D_800ACC14 ((char *)D_800ACC14)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
 #undef SetDrawMode
 
@@ -17,7 +17,7 @@
 
 #undef SetSprt
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((void (*)())AddPrim)
@@ -69,11 +69,11 @@ u8 *a2;
                 s2->u = u;
                 s2->v = vv;
                 s2->clut = 0x5B20;
-                AddPrim(D_800ACC14 + 0x70, s2++);
+                AddPrim(CurrentDrawBuf + 0x70, s2++);
                 s3++;
             }
     }
     SetDrawMode(s3, 0, 1, 0x58, 0);
-    AddPrim(D_800ACC14 + 0x70, s3);
+    AddPrim(CurrentDrawBuf + 0x70, s3);
     *(char **)0x1F800000 = (char *)s3 + 0xC;
 }

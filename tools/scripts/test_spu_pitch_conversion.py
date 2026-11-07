@@ -26,7 +26,7 @@ class SpuPitchConversionTest(unittest.TestCase):
         cls.source='''#include <stdint.h>
 typedef uint8_t u8;typedef uint16_t u16;typedef int16_t s16;
 typedef uint32_t u32;typedef int32_t s32;
-''' + header + '\nu16 D_800A4D58[12],D_800A4D70[128];\n' + body
+''' + header + '\nu16 SvmSemitoneTable[12],SvmPitchFineTable[128];\n' + body
         (cls.directory/'pitch.c').write_text(cls.source)
         result=subprocess.run(['cc','-shared','-fPIC','-O2',str(cls.directory/'pitch.c'),
                                '-o',str(cls.directory/'pitch.so')],capture_output=True,text=True)
@@ -37,8 +37,8 @@ typedef uint32_t u32;typedef int32_t s32;
         exe=(root/'assets/PAL/main.exe').read_bytes()
         cls.coarse=struct.unpack_from('<12H',exe,0x800+0x800A4D58-0x80010000)
         cls.fine=struct.unpack_from('<128H',exe,0x800+0x800A4D70-0x80010000)
-        cls.coarse_native=(C.c_uint16*12).in_dll(cls.lib,'D_800A4D58')
-        cls.fine_native=(C.c_uint16*128).in_dll(cls.lib,'D_800A4D70')
+        cls.coarse_native=(C.c_uint16*12).in_dll(cls.lib,'SvmSemitoneTable')
+        cls.fine_native=(C.c_uint16*128).in_dll(cls.lib,'SvmPitchFineTable')
         cls.coarse_native[:]=cls.coarse;cls.fine_native[:]=cls.fine
 
     def oracle(self,first,second,pitch):
@@ -89,8 +89,8 @@ int main(void) {
  static const u16 coarse[]={COARSE};static const u16 fine[]={FINE};
  static const u32 words[]={0U,0xFFFFFFFFU,0x80000000U,0x7FFFFFFFU};
  volatile u32 digest=0;u32 p,i;
- for(i=0;i<12;i++)D_800A4D58[i]=coarse[i];
- for(i=0;i<128;i++)D_800A4D70[i]=fine[i];
+ for(i=0;i<12;i++)SvmSemitoneTable[i]=coarse[i];
+ for(i=0;i<128;i++)SvmPitchFineTable[i]=fine[i];
  for(p=1;p<65536;p++)for(i=0;i<4;i++)
   digest^=_spu_pitch2note((s32)words[i],(s32)words[3-i],p|(i<<16));
  (void)digest;return 0;

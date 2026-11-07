@@ -5,11 +5,11 @@
 
 /* Configured GPU data and status/control register addresses. */
 extern volatile u32 *GPU_DATA, *GPU_STATUS;
-s32 func_800954D8(s32 mode);
+s32 GPU_CheckVersion(s32 mode);
 
 /* GPU DMA channel and queue timeout state. Queue tail is interrupt-visible. */
 extern volatile u32 *DMA2_MADR, *DMA2_BCR, *DMA2_CHCR;
-extern s32 _qin, D_800ABBF8, D_800ABBFC, D_800ABC00;
+extern s32 _qin, D_800ABBF8, D_800ABBFC, GpuAlarmCount;
 extern volatile s32 _qout;
 
 /* Drawing limits and packed E3/E4 drawing-area coordinate commands. */
@@ -37,9 +37,9 @@ typedef struct {
 } RrGpuMovePayload;
 
 /* The DMA packet header occupies the eight bytes preceding this payload. */
-extern RrGpuMovePayload D_800ABB60;
+extern RrGpuMovePayload GpuMovePayload;
 void checkRECT(const char *name, RrGpuRectangle *rectangle);
-void func_80095990();
+void GPU_DmaDoneRequeue();
 void _cwc(unsigned long address);
 s32 MoveImage2(RrGpuRectangle *rectangle, s32 x, s32 y);
 /* Uploads ceil(width*height/2) packed pixel words, using a CPU tail and DMA

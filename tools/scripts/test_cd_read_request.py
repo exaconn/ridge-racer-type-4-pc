@@ -61,9 +61,9 @@ static void cb0(void){callback_effect^=1;}
 static void cb1(void){callback_effect^=2;}
 static void cb2(void){callback_effect^=4;}
 static void cb3(void){callback_effect^=8;}
-#define D_800A67B0 actual.state
+#define CdReadState actual.state
 #define D_800A67D4 actual.state.finished24
-#define D_800A67D8 actual.state.restore.saved28
+#define CdReadSavedSyncCallback actual.state.restore.saved28
 #define CD_read_dma_mode actual.flags
 ''' + body + r'''
 enum {CLOCK,SET0,SET1,SET2,STATUS,COMMAND,BEGIN};

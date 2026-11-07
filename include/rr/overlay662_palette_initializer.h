@@ -3,7 +3,7 @@
 #include "rr/overlay_menu_init.h"
 #include "rr/save_progress.h"
 #include "rr/course_choice_types.h"
-extern RrCourseChoice4 D_800ABE08[2][9];
+extern RrCourseChoice4 CourseChoiceTable[2][9];
 extern s16 ovl662_D_801272D4,ovl662_D_8012739A,ovl662_D_80127398,ovl662_D_801272E2,ovl662_D_801272E4,ovl662_D_801272BE;
 extern s32 ovl662_D_801272C0,ovl662_D_801272E8;
 extern u8 ovl662_D_801272A0[25];

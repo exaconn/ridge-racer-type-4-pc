@@ -3,7 +3,7 @@
 #include "rr/bios_devices.h"
 
 void *firstfile(char *path, void *directory);
-s32 func_800972B0(s32 *a0,s32 a1,s32 a2);
+s32 _firstfile_hook(s32 *a0,s32 a1,s32 a2);
 
 static __inline__ s32 save_first_file_handler(void) {
     RrBiosDevice *device, *end, *limit;
@@ -47,7 +47,7 @@ void *firstfile(char *path, void *directory) {
         limit = end;
         do {
             if (device->name && func_80096404(device->name, D_801143C0) == 0) {
-                device->handler = func_800972B0;
+                device->handler = _firstfile_hook;
                 break;
             }
             device++;
@@ -56,7 +56,7 @@ void *firstfile(char *path, void *directory) {
     return firstfile2(path, directory);
 }
 
-s32 func_800972B0(s32 *a0,s32 a1,s32 a2) {
+s32 _firstfile_hook(s32 *a0,s32 a1,s32 a2) {
     /* ASM_BARRIER: Keep the captured handler in its original saved register across name comparisons. */
     register RrBiosDeviceHandler handler __asm__("$19");
     unsigned long cursor,end,limit;

@@ -9,14 +9,14 @@
 extern unsigned char D_8009EDF8[];
 
 char *AddTextSprites();
-void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation);
+void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation);
 void func_8001FA48();
 
 /* legacy typing of shared globals in this part of the unit */
 #define SetDrawMode ((s32 (*)())SetDrawMode)
 #define AddPrim ((s32 (*)())AddPrim)
 #define SetSprt ((s32 (*)())SetSprt)
-#define D_800ACC14 ((char *)D_800ACC14)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
 void DrawBigFontString(a0, a1, a2)
 s32 a0, a1;
@@ -45,19 +45,19 @@ u8 *a2;
                 s2->u = u;
                 s2->v = vv;
                 s2->clut = 0x5B20;
-                AddPrim(D_800ACC14 + 0x70, s2++);
+                AddPrim(CurrentDrawBuf + 0x70, s2++);
                 s3++;
             }
     }
     SetDrawMode(s3, 0, 1, 0x58, 0);
-    AddPrim(D_800ACC14 + 0x70, s3);
+    AddPrim(CurrentDrawBuf + 0x70, s3);
     *(char **)SCRATCHPAD = (char *)s3 + 0xC;
 }
 
 #undef SetDrawMode
 #undef AddPrim
 #undef SetSprt
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((void (*)())AddPrim)
@@ -142,7 +142,7 @@ int arg7;
 #undef SetShadeTex
 #undef SetSprt
 
-void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
+void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
     s16 nextTimer;
     s32 tileU,shadowBrightness;
     s32 drawV;
@@ -222,7 +222,7 @@ void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
         sprites->h = 0x18;
         sprites->clut = clut;
         sprites++;
-        AddPrim(&D_800ACC14->head70, (u32 *)linkPacket);
+        AddPrim(&CurrentDrawBuf->head70, (u32 *)linkPacket);
         pass++;
     } while (pass <= 0);
     drawV = (s16) tileV;
@@ -230,7 +230,7 @@ void func_8001F808(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
         drawV += 0xFF;
     }
     SetDrawMode(cursor, 0, 1, ((s32) (drawV & 0x100) >> 4) | 0x2F, 0);
-    AddPrim(&D_800ACC14->head70, (u32 *)cursor);
+    AddPrim(&CurrentDrawBuf->head70, (u32 *)cursor);
     RR_GLYPH_ANIMATION_SCRATCH->cursor = cursor + 0xC;
 }
 
@@ -296,7 +296,7 @@ int arg0; int arg1; char *p; int arg3; int arg4;
                 goto L_BE8;
             }
         L_call:
-            func_8001F808(arg0 + (short)s2, arg1 + (short)s4, a2 - 1, arg4, (s16 *)(p + (s7 * 4 + 0x28)));
+            DrawAnimatedGlyph(arg0 + (short)s2, arg1 + (short)s4, a2 - 1, arg4, (s16 *)(p + (s7 * 4 + 0x28)));
             s2 += 7;
             if (s3 != 0) {
                 s2 = 0;

@@ -19,15 +19,15 @@ class CdSectorDmaTest(unittest.TestCase):
 typedef uint8_t u8;typedef uint32_t u32;typedef int32_t s32;
 '''+header+'''
 u8 ports[6];u32 regs[8];u8 *address;
-volatile u8 *D_800A674C=&ports[1],*D_800A6758=&ports[2];
-volatile u32 *D_800A675C=&regs[1],*D_800A6780=&regs[2],*D_800A6784=&regs[3],*D_800A678C=&regs[4],*D_800A6790=&regs[5];
-u8 * volatile *D_800A6788=&address;
+volatile u8 *CD_reg0=&ports[1],*CD_reg3=&ports[2];
+volatile u32 *COM_DELAY=&regs[1],*D_800A6780=&regs[2],*CD_dpcr=&regs[3],*DMA3_BCR=&regs[4],*DMA3_CHCR=&regs[5];
+u8 * volatile *DMA3_MADR=&address;
 s32 status_reads,control_reads,status_ready,control_ready,swap_status;
 s32 status_ports[16];u32 setup_snapshot[5];u8 *setup_address;
 u8 test_status(volatile u8 *p){
     s32 n=status_reads++;status_ports[n]=p==&ports[4];
     if(!n){setup_snapshot[0]=regs[1];setup_snapshot[1]=regs[2];setup_snapshot[2]=regs[3];setup_snapshot[3]=regs[4];setup_snapshot[4]=regs[5];setup_address=address;}
-    if(swap_status && n==0)D_800A674C=&ports[4];
+    if(swap_status && n==0)CD_reg0=&ports[4];
     return status_reads>=status_ready?0x40:0;
 }
 u32 test_control(volatile u32 *p){
@@ -38,17 +38,17 @@ u32 test_control(volatile u32 *p){
         for name in ('CD_getsector','CD_getsector2','CdGetSector'):
             body=native_body((root/'tools/scripts/fixtures/views'/f'{name}.c').read_text())
             if name=='CD_getsector':
-                assert body.count('*p & 0x40')==1 and body.count('*D_800A6790 & 0x01000000')==2
-                body=body.replace('*p & 0x40','test_status(p) & 0x40').replace('*D_800A6790 & 0x01000000','test_control(D_800A6790) & 0x01000000')
+                assert body.count('*p & 0x40')==1 and body.count('*DMA3_CHCR & 0x01000000')==2
+                body=body.replace('*p & 0x40','test_status(p) & 0x40').replace('*DMA3_CHCR & 0x01000000','test_control(DMA3_CHCR) & 0x01000000')
             elif name=='CD_getsector2':
-                assert body.count('*D_800A674C & 0x40')==1 and body.count('x = *D_800A6790;')==1
-                body=body.replace('*D_800A674C & 0x40','test_status(D_800A674C) & 0x40').replace('x = *D_800A6790;','x = test_control(D_800A6790);')
+                assert body.count('*CD_reg0 & 0x40')==1 and body.count('x = *DMA3_CHCR;')==1
+                body=body.replace('*CD_reg0 & 0x40','test_status(CD_reg0) & 0x40').replace('x = *DMA3_CHCR;','x = test_control(DMA3_CHCR);')
             code+=body+'\n'
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'))
         cls.regs=(C.c_uint32*8).in_dll(cls.lib,'regs');cls.ports=(C.c_uint8*6).in_dll(cls.lib,'ports')
-        cls.address=C.c_void_p.in_dll(cls.lib,'address');cls.status_port=C.c_void_p.in_dll(cls.lib,'D_800A674C')
+        cls.address=C.c_void_p.in_dll(cls.lib,'address');cls.status_port=C.c_void_p.in_dll(cls.lib,'CD_reg0')
         cls.values={n:C.c_int32.in_dll(cls.lib,n) for n in ('status_reads','control_reads','status_ready','control_ready','swap_status')}
         for name in ('CD_getsector','CD_getsector2','CdGetSector'):
             f=getattr(cls.lib,name);f.argtypes=[C.c_void_p,C.c_uint32];f.restype=C.c_int32

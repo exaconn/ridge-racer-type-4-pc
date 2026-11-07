@@ -6,7 +6,7 @@ extern int CD_init();
 
 extern int CD_initvol();
 
-int func_8008BED4() {
+int CdInitAttempt() {
     int r;
     if (CD_init() == 0) { r = CD_initvol() == 0; } else r = 0;
     return r;

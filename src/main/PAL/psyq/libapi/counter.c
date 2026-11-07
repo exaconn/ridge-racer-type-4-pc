@@ -15,7 +15,7 @@ int SetRCnt(unsigned a0, unsigned short a1, int a2) {
     int a3 = 0x48;
     char *p;
     if (t >= 3) return 0;
-    p = (char *)(t * 16 + (unsigned long)D_800ABC34);
+    p = (char *)(t * 16 + (unsigned long)RCNT_REGS);
     *(short *)(p + 4) = 0;
     *(volatile short *)(p + 8) = a1;
     if ((unsigned)t < 2) {
@@ -27,7 +27,7 @@ int SetRCnt(unsigned a0, unsigned short a1, int a2) {
         }
     }
     if (a2 & 0x1000) a3 |= 0x10;
-    *(short *)(t * 16 + (unsigned long)D_800ABC34 + 4) = a3;
+    *(short *)(t * 16 + (unsigned long)RCNT_REGS + 4) = a3;
     return 1;
 }
 
@@ -35,7 +35,7 @@ s32 GetRCnt(u32 id) {
     s32 index=id & 0xFFFF;
     s32 result;
     if(index<3) {
-        u16 count=D_800ABC34[index].count;
+        u16 count=RCNT_REGS[index].count;
         /* ASM_BARRIER: Preserve the zero-extended halfword load as the return word. */
         __asm__("" : "=r"(result) : "0"(count));
     }
@@ -79,5 +79,5 @@ s32 StopRCnt(u32 index) {
 int ResetRCnt(a0) unsigned int a0; {
   int v = a0 & 0xFFFF;
   if (v >= 3) return 0;
-  *(short *)((u8 *)D_800ABC34 + v * 16) = 0; return 1;
+  *(short *)((u8 *)RCNT_REGS + v * 16) = 0; return 1;
 }

@@ -31,7 +31,7 @@ static struct World {
  u8 *base_after_reset,*scratch_after_load,*scratch_after_ui,*active_after_ui;
  s8 flag0,flag1;s32 counter;u32 calls;Event events[4];u32 after[8];
 } world,expected;
-#define D_800F4D70 world.slots
+#define MenuArenas world.slots
 #define CdDirectoryBuffer world.base
 #define LoadCursor world.active
 #define LoadState world.flag0

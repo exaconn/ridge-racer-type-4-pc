@@ -91,9 +91,9 @@ extern void SetGeomScreen(s32);
 extern char D_800A1AA0[];
 extern char D_800A1B60[];
 
-void func_8005B304(void);
+void StepCameraScript(void);
 
-void func_8005B304(void) {
+void StepCameraScript(void) {
     Scratch5B304 *g = (Scratch5B304 *)SCRATCHPAD;
     s32 a2 = 0;
     s16 *s0;
@@ -167,7 +167,7 @@ void func_8005B304(void) {
                 func_8005D820();
                 break;
             case 2:
-                func_8005EFBC();
+                DrawRingEffects();
                 break;
             case 3:
                 func_8005AA2C();

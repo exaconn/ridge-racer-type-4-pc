@@ -58,7 +58,7 @@ extern struct
   short a;
   unsigned short b;
   char pad[0x58];
-} D_800F3A38[];
+} PlayerControllers[];
 extern short AngleDiffSigned();
 extern int BuildRotMatrixZ();
 extern int BuildRotMatrixY();
@@ -68,7 +68,7 @@ extern int ApplyMatrix();
 extern int D_8010718C;
 extern s32 AddDrawAreaPrim();
 extern s32 AddDrawModePrim();
-extern s32 func_8001FF84();
+extern s32 AddSpritePrim();
 extern Glyph4 D_8009F6AC[];
 extern u16 D_8009F6CC[];
 extern u16 D_8009F6D0[];
@@ -95,7 +95,7 @@ extern short D_800F4D8A;
 extern int GameQueueSprite();
 extern int func_8002071C();
 extern unsigned char D_8009F71C[][4];
-extern int D_800105C8[];
+extern int SioDeviceName[];
 extern int LinkWriteHandle;
 extern int LinkReadHandle;
 extern s16 LinkState;
@@ -114,11 +114,11 @@ void func_800347BC(void);
 void UpdatePauseMenu(int a0);
 void ApplyPauseMenuChoice(int arg0);
 void DrawPauseMenu(int a0, int a1);
-int func_80034E70(int a0, unsigned int a1);
-void func_80034F80(void);
-int func_80034FC0(void);
+int LinkTimeoutCallback(int a0, unsigned int a1);
+void BeginLinkSync(void);
+int ExitOnLinkLost(void);
 int UpdateLinkHandshake(int a0);
-int func_800353E4(void);
+int PollLinkStatus(void);
 
 void SetupMenuCarCamera(int a)
 {
@@ -146,12 +146,12 @@ void SetupMenuCarCamera(int a)
     func_8002E828(2, t);
   }
   ;
-  if (D_800F3A38[D_800AC5D4 & 1].b & 4)
+  if (PlayerControllers[D_800AC5D4 & 1].b & 4)
   {
     PlayerCars[D_800AC5D4 & 1].v += 0xC0;
   }
   else
-    if (D_800F3A38[D_800AC5D4 & 1].b & 8)
+    if (PlayerControllers[D_800AC5D4 & 1].b & 8)
   {
     PlayerCars[D_800AC5D4 & 1].v -= 0xC0;
   }
@@ -236,7 +236,7 @@ void DrawStartCountdown(s32 arg0, s32 arg1) {
     if (RaceState != 0 && (arg1 - 0x4B) < 0xAF) {
         s5 = arg1 % 25;
         s3 = (arg1 - 0x4B) / 25;
-        if ((D_800ACC14 + 0x70) == arg0) {
+        if ((CurrentDrawBuf + 0x70) == arg0) {
             s4 = 0;
             if (s3 == 6) {
                 s4 = -(s5 << 7) / 25;
@@ -263,7 +263,7 @@ void DrawStartCountdown(s32 arg0, s32 arg1) {
             if (s3 >= 4) {
                 s7 = ((arg1 >> 2) & 1) + 2;
                 sp20 = D_8009F6AC[7];
-                a1 = func_8001FF84(arg0, a1, D_8009F6DB + 0x60, s4 + 0x39, &sp20, D_8009F6D0[s7], 0);
+                a1 = AddSpritePrim(arg0, a1, D_8009F6DB + 0x60, s4 + 0x39, &sp20, D_8009F6D0[s7], 0);
             } else if (s3 > 0) {
                 s2 = 0;
                 for (s1 = 0; s1 < 0x10;) {
@@ -274,7 +274,7 @@ void DrawStartCountdown(s32 arg0, s32 arg1) {
                     }
                     b = s1 & 1;
                     c = b << 1;
-                    a1 = func_8001FF84(arg0, a1, s2 + 0x78, s4 + 0x39, &D_8009F6AC[2 + b], D_8009F6D0[b * 2], 0);
+                    a1 = AddSpritePrim(arg0, a1, s2 + 0x78, s4 + 0x39, &D_8009F6AC[2 + b], D_8009F6D0[b * 2], 0);
                     s1++;
                     s2 += 1 << (c + 1);
                 }
@@ -282,7 +282,7 @@ void DrawStartCountdown(s32 arg0, s32 arg1) {
                 sp20 = D_8009F6AC[5];
                 sp20 = D_8009F6AC[6];
                 sp20.b0 += (s3 - 1) * 12;
-                a1 = func_8001FF84(arg0, a1, D_8009F6DA + 0x60, s4 + 0x39, &sp20, D_8009F6D0[0], 0);
+                a1 = AddSpritePrim(arg0, a1, D_8009F6DA + 0x60, s4 + 0x39, &sp20, D_8009F6D0[0], 0);
             }
         } else {
             if (s3 == 0) {
@@ -295,7 +295,7 @@ void DrawStartCountdown(s32 arg0, s32 arg1) {
                     }
                     b = s1 & 1;
                     c = b << 1;
-                    a1 = func_8001FF84(arg0, a1, s2 + 0x78, s4 + 0x39, &D_8009F6AC[2 + b], D_8009F6D0[b * 2], 0);
+                    a1 = AddSpritePrim(arg0, a1, s2 + 0x78, s4 + 0x39, &D_8009F6AC[2 + b], D_8009F6D0[b * 2], 0);
                     s1++;
                     s2 += 1 << (c + 1);
                 }
@@ -308,7 +308,7 @@ void DrawStartCountdown(s32 arg0, s32 arg1) {
                         sp20 = D_8009F6AC[7];
                         s1 = 3;
                     }
-                    a1 = func_8001FF84(arg0, a1, D_8009F6D8[s1] + 0x60, s4 + 0x39, &sp20, D_8009F6D0[s7], 0);
+                    a1 = AddSpritePrim(arg0, a1, D_8009F6D8[s1] + 0x60, s4 + 0x39, &sp20, D_8009F6D0[s7], 0);
                 }
             } else {
                 s7 = 0;
@@ -322,7 +322,7 @@ void DrawStartCountdown(s32 arg0, s32 arg1) {
                         sp20 = D_8009F6AC[6];
                         sp20.b0 += (s3 - 1) * 12;
                     }
-                    a1 = func_8001FF84(arg0, a1, D_8009F6D8[s1] + 0x60, s4 + 0x39, &sp20, D_8009F6D0[s7], 0);
+                    a1 = AddSpritePrim(arg0, a1, D_8009F6D8[s1] + 0x60, s4 + 0x39, &sp20, D_8009F6D0[s7], 0);
                 }
             }
         }
@@ -330,14 +330,14 @@ void DrawStartCountdown(s32 arg0, s32 arg1) {
             s0 = s4 + 0x39;
             s2 = 0;
             for (s1 = 0; s1 < 10; s1++) {
-                a1 = func_8001FF84(arg0, a1, s2 + 0x78, s0, &D_8009F6AC[4], D_8009F6D0[(u32)(s1 - 3) < 4 ? 3 : s7], 0);
+                a1 = AddSpritePrim(arg0, a1, s2 + 0x78, s0, &D_8009F6AC[4], D_8009F6D0[(u32)(s1 - 3) < 4 ? 3 : s7], 0);
                 s2 += 8;
             }
         }
-        a1 = func_8001FF84(arg0, a1, 0x68, s4 + 0x1A, &D_8009F6AC[1], D_8009F6CC[s3 >= 4], (fp << 1) | 1);
-        a1 = func_8001FF84(arg0, a1, 0x60, s4, &D_8009F6AC[0], 0x797C, 0);
+        a1 = AddSpritePrim(arg0, a1, 0x68, s4 + 0x1A, &D_8009F6AC[1], D_8009F6CC[s3 >= 4], (fp << 1) | 1);
+        a1 = AddSpritePrim(arg0, a1, 0x60, s4, &D_8009F6AC[0], 0x797C, 0);
         *(s32 *)SCRATCHPAD = AddDrawModePrim(arg0, a1, 0x3F);
-        if (arg0 == D_800ACC14 + 0xB70) {
+        if (arg0 == CurrentDrawBuf + 0xB70) {
             s32 y;
             if (s3 == 6) {
                 fp = ((0x19 - s5) * 0x18) / 25;
@@ -398,7 +398,7 @@ void PlayStartCountdownVoice(int a0) {
 
 /* legacy typing of shared globals in this part of the unit */
 #define PlayerCars (*(Car (*)[])&PlayerCars)
-#define D_800F3A38 (*(S1 (*)[])&D_800F3A38)
+#define PlayerControllers (*(S1 (*)[])&PlayerControllers)
 
 void func_800347BC(void) {
     int i;
@@ -406,23 +406,23 @@ void func_800347BC(void) {
     PadClearPulse(1);
     for (i = 0; i < 2; i++) {
         if (PlayerCars[i].unk1E4 != 0) {
-            D_800F3A38[i].f = 1;
+            PlayerControllers[i].f = 1;
             PadSetRumbleParams(i, 0, 0xF);
         }
     }
 }
 
 #undef PlayerCars
-#undef D_800F3A38
+#undef PlayerControllers
 
 void UpdatePauseMenu(int a0) {
-    if (D_800F3A40 & 0x1000) {
+    if (Pad0Buttons & 0x1000) {
         if (PauseCursor > 0) {
             PauseCursor = PauseCursor - 1;
             PlaySfx(0);
         }
     }
-    if (D_800F3A40 & 0x4000) {
+    if (Pad0Buttons & 0x4000) {
         if (PauseCursor < D_8009F6DC[a0]) {
             PauseCursor = PauseCursor + 1;
             PlaySfx(0);
@@ -529,20 +529,20 @@ void func_80034E14(void) {
     _sio_control(1, 1, 1);
 }
 
-int func_80034E3C(void) {
+int IsLinkPeerPresent(void) {
     return (unsigned)(((unsigned)_sio_control(0, 0, 0) >> 7) & 3) - 1 < 2;
 }
 
-int func_80034E70(int a0, unsigned int a1) {
+int LinkTimeoutCallback(int a0, unsigned int a1) {
     return a1 <= 0x1869E;
 }
 
 void OpenLinkSerial(void) {
     _sio_control(1, 3, 0x7E900);
     _sio_control(1, 4, 1);
-    LinkWriteHandle = FileOpen(D_800105C8, 2);
-    LinkReadHandle = FileOpen(D_800105C8, 1);
-    _sio_control(4, 0, (int)func_80034E70);
+    LinkWriteHandle = FileOpen(SioDeviceName, 2);
+    LinkReadHandle = FileOpen(SioDeviceName, 1);
+    _sio_control(4, 0, (int)LinkTimeoutCallback);
     _sio_control(2, 0, 0);
 }
 
@@ -554,14 +554,14 @@ void CloseLinkSerial(void) {
     _sio_control(4, 0, 0);
 }
 
-void func_80034F80(void) {
+void BeginLinkSync(void) {
     if (LinkState == 2) {
         LinkState = 3;
         _sio_control(1, 1, 2);
     }
 }
 
-int func_80034FC0(void) {
+int ExitOnLinkLost(void) {
     if (LinkState == -1) {
         ModeGroup = 1;
         D_800F3A26 = 0x2D;
@@ -574,7 +574,7 @@ int func_80034FC0(void) {
 
 /* legacy typing of shared globals in this part of the unit */
 #define _sio_control ((unsigned int (*)())_sio_control)
-#define D_800F3A38 (*(T38 (*))&D_800F3A38)
+#define PlayerControllers (*(T38 (*))&PlayerControllers)
 #define LinkState (*(unsigned short (*))&LinkState)
 
 int UpdateLinkHandshake(int a0)
@@ -685,7 +685,7 @@ int UpdateLinkHandshake(int a0)
       t = &bp[z - new_var2];
       if ((*t) == 0)
       {
-        e = &D_800F3A38;
+        e = &PlayerControllers;
         new_var3 = z;
         if (e->a84 != 0)
         {
@@ -770,13 +770,13 @@ int UpdateLinkHandshake(int a0)
 }
 
 #undef _sio_control
-#undef D_800F3A38
+#undef PlayerControllers
 #undef LinkState
 
 /* legacy typing of shared globals in this part of the unit */
 #define _sio_control ((unsigned (*)())_sio_control)
 
-int func_800353E4(void) {
+int PollLinkStatus(void) {
     int r = 0;
     int t = (_sio_control(0, 0, 0) >> 7) & 3;
     if (t == 0 || t == 3) {

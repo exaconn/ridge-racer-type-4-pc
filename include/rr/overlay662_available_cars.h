@@ -9,13 +9,13 @@
 /* Four-byte available-car slots retain their unused upper halfword. Twenty
  * slots occupy27348..27398;the following storage is the image-fade phase. */
 typedef struct {s16 value;u16 reserved;} RrGarageAvailableCar;
-extern RrCourseChoice4 D_800ABE08[2][9];
+extern RrCourseChoice4 CourseChoiceTable[2][9];
 extern s16 ovl662_D_801272D4,ovl662_D_801272E0,ovl662_D_801272E4;
 extern s16 MenuCursor,MenuItemCount,D_800F3A26,D_800F4D8A;
 extern u16 ModeGroup;
 extern s16 ovl662_D_80127300[20];
 extern RrGarageAvailableCar ovl662_D_80127348[20];
-void SetupRenderer(s32);void func_80037110(void);s32 PackChoiceGlyph(void *);
+void SetupRenderer(s32);void InitPreviewImageRows(void);s32 PackChoiceGlyph(void *);
 /* Resource base owns at least0x2D000 bytes for the initial arena offset.
  * Services may replace full arena/UI pointers;progress group bytes remain
  *0..3 whenever the next progress word is selected. Each of20 low mask bits

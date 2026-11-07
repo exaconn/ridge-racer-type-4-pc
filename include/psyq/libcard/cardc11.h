@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_8009CEBC();
+int _cardCmd5CVarTx();
 
 #endif /* RR_PSYQ_LIBCARD_CARDC11_H */

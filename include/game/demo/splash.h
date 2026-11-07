@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern int D_8010E7A4;
+extern int SplashLogoFrame;
 int SplashLogoUpdate(int a0);
 
 #endif /* RR_GAME_DEMO_SPLASH_H */

@@ -35,7 +35,7 @@ static u8 arena[512];static u32 ordering[4];static char ratio[8];
 RrBadgeRow1C *BadgeRows;
 #define SaveProgress w->s.save
 #define SelectionRows w->s.choice
-#define D_8009FA1C w->s.uv
+#define UiFontGlyphs w->s.uv
 #define ScreenFrame w->s.tick
 #define ovl662_D_80127328 w->s.counts
 #define ovl662_D_801272BC w->s.number
@@ -58,7 +58,7 @@ static Event *event(s32 op,void *cursor){
  return e;
 }
 s32 rsin(s32 angle){Event *e=event(1,0);s32 v=(s32)(next()%3)-1;e->a=angle;e->b=v;change();return v;}
-void *func_8001FF84(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
+void *AddSpritePrim(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
  Event *e=event(2,p);assert(ot==ordering);e->x=x;e->y=y;e->a=clut;e->b=color;memcpy(e->data,uv,4);change();return (u8*)p+20;
 }
 void *AddTextSprites(u32 *ot,void *p,s32 x,s32 y,const char *text,s32 clut,s32 spacing,s32 color){
@@ -86,7 +86,7 @@ static void expected(unsigned kind,u32 *ot,void *p,s32 row){
    char *text=FormatCountOfTotal(n,kind==1?20:24,1);
    p=AddTextSprites(ot,p,x,y,text,32760+flag,0,0);break;
   }
-  p=func_8001FF84(ot,p,x,y,&w->s.uv[(unsigned)keys[i]],32760,0);
+  p=AddSpritePrim(ot,p,x,y,&w->s.uv[(unsigned)keys[i]],32760,0);
   x+=w->s.uv[(unsigned)keys[i]].w+2;
   if(i==2&&(kind==0||kind==2)){
    char text[8]={0};int n=kind==0?w->s.choice.bytes[2]+1:w->s.number;

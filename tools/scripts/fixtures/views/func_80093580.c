@@ -12,9 +12,9 @@
 #undef func_80096444
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABAB8 ((void *)D_800ABAB8)
+#define GpuFuncTable ((void *)GpuFuncTable)
 
-#undef D_800ABAB8
+#undef GpuFuncTable
 
 /* legacy typing of shared globals in this part of the unit */
 #define GPU_STATUS ((s32 *)GPU_STATUS)
@@ -65,7 +65,7 @@ extern char D_80011F80[];
 extern struct {
     char pad[0x10];
     void (*f10)(u32);
-} *D_800ABAB8;
+} *GpuFuncTable;
 
 extern void (*GPU_printf)(const char *, ...);
 
@@ -96,7 +96,7 @@ DISPENV_T *PutDispEnv(DISPENV_T *env) {
     {
         /* ASM_BARRIER: keep 0x05000000 in $v0 so disp.y shift gets $v1 */
         register u32 cmd5 asm("$2") = 0x05000000;
-        D_800ABAB8->f10((((u16)env->disp.y & 0x3FF) << 10) | (((u16)env->disp.x & 0x3FF) | cmd5));
+        GpuFuncTable->f10((((u16)env->disp.y & 0x3FF) << 10) | (((u16)env->disp.x & 0x3FF) | cmd5));
     }
     d = (URECT16 *)(p + 0x6A);
     if (*(s32 *)(p + 0x7A) != *(s32 *)&env->isinter ||
@@ -134,7 +134,7 @@ DISPENV_T *PutDispEnv(DISPENV_T *env) {
                 mode |= 0x24;
             }
         }
-        D_800ABAB8->f10(mode);
+        GpuFuncTable->f10(mode);
         env->pad0 = 8;
     }
     if ((s16)D_800ABB34.x != env->screen.x ||
@@ -186,10 +186,10 @@ DISPENV_T *PutDispEnv(DISPENV_T *env) {
             y0 = CLAMP(y0, 0x10, 0x101);
             y1 = CLAMP(y1, y0 + 2, 0x102);
         }
-        D_800ABAB8->f10(0x06000000 | ((x1 & 0xFFF) << 12) | (x0 & 0xFFF));
+        GpuFuncTable->f10(0x06000000 | ((x1 & 0xFFF) << 12) | (x0 & 0xFFF));
         /* ASM_BARRIER: compute y1 shift in $v1 so 0x07000000 gets $v0 after y0 mask */
         x1 = (y1 & 0x3FF) << 10;
-        D_800ABAB8->f10(0x07000000 | x1 | (y0 & 0x3FF));
+        GpuFuncTable->f10(0x07000000 | x1 | (y0 & 0x3FF));
     }
     func_80096444(D_800ABB2C, env, 0x14);
     return env;

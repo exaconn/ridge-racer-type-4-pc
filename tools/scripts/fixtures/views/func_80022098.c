@@ -1,9 +1,9 @@
 #include "rr/controller_hud.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((struct O *)D_800ACC14)
+#define CurrentDrawBuf ((struct O *)CurrentDrawBuf)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 void DrawSteeringIndicator(u32 *ordering, s32 layout) {
     RrHudTriangle triangle;
@@ -35,7 +35,7 @@ void DrawSteeringIndicator(u32 *ordering, s32 layout) {
         baselineY = 0xF0;
         player = layout == 2;
     }
-    inputBase = D_800F3A38;
+    inputBase = PlayerControllers;
 
     input = (RrMenuItemState5C *)((unsigned long)inputBase + player * 0x5C);
     status = input->status10;
@@ -73,7 +73,7 @@ drawWarning:
                 i += 1;
                 tickX += 0xF;
             } while (i < 9);
-            offsetX = (D_800F3A38[player].steering3C * 0x3C) / 127;
+            offsetX = (PlayerControllers[player].steering3C * 0x3C) / 127;
             if (offsetX >= 0x3D) {
                 offsetX = 0x3C;
                 goto drawNeedle;

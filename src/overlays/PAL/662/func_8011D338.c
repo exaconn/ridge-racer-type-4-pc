@@ -5,10 +5,10 @@ void ovl662_func_8011D338(RrGaragePoint *output)
     s32 step,delta;
     u32 axis;
     func_80096454(&point,0,4);
-    if (D_800F3A38[0].type01 == 0x73 && D_800F3A38[0].kind1C != 0 && D_800F3A38[0].flag40 == 0) {
+    if (PlayerControllers[0].type01 == 0x73 && PlayerControllers[0].kind1C != 0 && PlayerControllers[0].flag40 == 0) {
         step=1;
-        if (D_800F3A38[0].buttons02 & 8) step=4;
-        axis=D_800F3A38[0].axis16;
+        if (PlayerControllers[0].buttons02 & 8) step=4;
+        axis=PlayerControllers[0].axis16;
         if (axis <112) {
             delta=((s32)axis-112)*step;
             if (ovl662_D_80126C14[0] <0) ovl662_D_80126C14[0]+=delta;
@@ -22,7 +22,7 @@ void ovl662_func_8011D338(RrGaragePoint *output)
             point.x=ovl662_D_80126C14[0]/112;
             ovl662_D_80126C14[0]-=point.x*112;
         } else ovl662_D_80126C14[0]=0;
-        axis=D_800F3A38[0].axis17;
+        axis=PlayerControllers[0].axis17;
         if (axis <112) {
             delta=((s32)axis-112)*step;
             if (ovl662_D_80126C14[1] <0) ovl662_D_80126C14[1]+=delta;

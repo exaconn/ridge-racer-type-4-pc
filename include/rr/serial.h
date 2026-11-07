@@ -24,23 +24,23 @@ typedef struct {
     u32 receive_status;
 } RrSerialReceiveRequest;
 
-extern RrSerialRequest volatile D_801146E8;
-extern RrSerialReceiveRequest D_801146D8;
-extern RrSerialPortRegisters *D_800ABDA8;
-extern RrSerialPortRegisters *D_800ABD18;
-extern RrSerialPortRegisters *D_800ABCCC;
-s32 func_8009B85C(void);
+extern RrSerialRequest volatile SioRequest;
+extern RrSerialReceiveRequest SioReceiveRequest;
+extern RrSerialPortRegisters *CardSio0Regs;
+extern RrSerialPortRegisters *SIO1_REGS;
+extern RrSerialPortRegisters *PadSio0Base;
+s32 _sio_deinit(void);
 
-extern RrSerialPortRegisters *volatile D_800ABDE0;
-extern RrSerialPortRegisters *D_800ABDD0;
-s32 func_8009BD44(s32 slot);
+extern RrSerialPortRegisters *volatile CardCmdSioRegs;
+extern RrSerialPortRegisters *CardSio0Base;
+s32 _cardSelectSlot(s32 slot);
 extern volatile u32 *D_800ABDD4;
 extern s32 D_80114700;
 void setRC2wait(s32 limit);
 s32 chkRC2wait(void);
 /* Negative input writes its complemented low byte; nonnegative input uses
  * the interrupt handshake. Returns captured data or the corresponding timeout. */
-s32 func_8009BE18(s32 value);
+s32 _cardXferByte(s32 value);
 
 RR_ASSERT_SIZE(RrSerialRequest, 0xC);
 RR_ASSERT_OFFSET(RrSerialRequest, first, 4);

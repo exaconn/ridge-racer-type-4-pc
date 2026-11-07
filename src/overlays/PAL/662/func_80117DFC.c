@@ -11,10 +11,10 @@ void ovl662_func_80117DFC(u32 *arg0, void *arg1, s32 arg2) {
             arg1 = AddTextSprites(arg0, arg1, x, y, FormatCountOfTotal(ovl662_D_801272BE, 24, 1), 0x7FF8, 0, 0);
             break;
         }
-        arg1 = func_8001FF84(arg0, arg1, x, y, &D_8009FA1C[ovl662_D_8012622C[i]], 0x7FF8, 0);
+        arg1 = AddSpritePrim(arg0, arg1, x, y, &UiFontGlyphs[ovl662_D_8012622C[i]], 0x7FF8, 0);
         /* ASM_BARRIER: boost arg1 register allocation priority to $s0 */
         __asm__("" : "+r"(arg1));
-        x += D_8009FA1C[ovl662_D_8012622C[i]].w + 2;
+        x += UiFontGlyphs[ovl662_D_8012622C[i]].w + 2;
     }
     AddDrawModePrim(arg0, arg1, 56);
 }

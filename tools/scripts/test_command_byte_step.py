@@ -24,7 +24,7 @@ class CommandByteStepTest(unittest.TestCase):
         for name in ('commands', 'serial'):
             text = (root / ('include/rr/' + name + '.h')).read_text()
             text = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', text, flags=re.M)
-            text = text.replace(', D_80114730, D_80114870', ', D_80114870')
+            text = text.replace(', D_80114730, CardCurrentCommand', ', CardCurrentCommand')
             headers += text
         source = '''#include <stdint.h>
 #include <string.h>
@@ -33,31 +33,31 @@ s32 test_page[0x4000];
 #define D_80114730 test_page[0x4730/4]
 #define RR_NOP_DEP_ON(value) ((void)(value))
 ''' + headers + '''
-s32 D_800ABDE4,D_800ABDE8,D_800ABDEC,D_800ABDF4,D_800ABDF8;
-s32 D_80114728,D_80114870;
-u8 D_80114740[160],D_801147D8[160];
-RrCommandReadCallback D_80114734;
-RrCommandWriteCallback D_80114738;
+s32 D_800ABDE4,D_800ABDE8,CardCommandRequest,CardReceiveIndex,CardRxCount;
+s32 D_80114728,CardCurrentCommand;
+u8 CardRxTrace[160],D_801147D8[160];
+RrCommandReadCallback CardCommandReader;
+RrCommandWriteCallback CardWriteHandler;
 RrSerialPortRegisters test_ports[2];
-RrSerialPortRegisters *volatile D_800ABDE0;
+RrSerialPortRegisters *volatile CardCmdSioRegs;
 s32 (*test_select)(s32),(*test_exchange)(s32);
 u16 (*test_status)(void *);u8 (*test_data)(void *);
 s32 (*test_subtype)(void);
-s32 func_8009BD44(s32 slot) {return test_select(slot);}
-s32 func_8009BE18(s32 byte) {return test_exchange(byte);}
+s32 _cardSelectSlot(s32 slot) {return test_select(slot);}
+s32 _cardXferByte(s32 byte) {return test_exchange(byte);}
 u16 test_status_read(RrSerialPortRegisters *p) {return test_status(p);}
 u8 test_data_read(RrSerialPortRegisters *p) {return test_data(p);}
 void test_reset(void) {
  memset(test_page,0xA5,sizeof(test_page));
- memset(D_80114740,0xA5,sizeof(D_80114740));
+ memset(CardRxTrace,0xA5,sizeof(CardRxTrace));
  memset(D_801147D8,0xA5,sizeof(D_801147D8));
  memset(test_ports,0,sizeof(test_ports));
- D_800ABDE4=3;D_800ABDE8=2;D_800ABDEC=0x123;
- D_800ABDF4=4;D_800ABDF8=6;D_80114730=9;
- D_80114728=0;D_80114870=0;
+ D_800ABDE4=3;D_800ABDE8=2;CardCommandRequest=0x123;
+ CardReceiveIndex=4;CardRxCount=6;D_80114730=9;
+ D_80114728=0;CardCurrentCommand=0;
  test_ports[0].data=0xAB;test_ports[0].status=2;
  test_ports[1].data=0xCD;test_ports[1].status=2;
- D_800ABDE0=&test_ports[0];
+ CardCmdSioRegs=&test_ports[0];
 }
 '''
         body = (root/'tools/scripts/fixtures/views/func_8009C0F4.c').read_text()
@@ -68,7 +68,7 @@ void test_reset(void) {
         replacements = {'(s32 *)0x80110000U': ('test_page', 1),
                         'port->status': ('test_status_read(port)', 1),
                         'port->data': ('test_data_read(port)', 1),
-                        'D_80114870': ('test_subtype()', 2)}
+                        'CardCurrentCommand': ('test_subtype()', 2)}
         for old, (new, count) in replacements.items():
             assert body.count(old) == count, old
             body = body.replace(old, new)
@@ -80,10 +80,10 @@ void test_reset(void) {
             raise AssertionError(result.stderr.decode())
         cls.lib = C.CDLL(str(directory/'function.so'))
         cls.page = (C.c_int32 * 0x4000).in_dll(cls.lib, 'test_page')
-        cls.rx = (C.c_uint8 * 160).in_dll(cls.lib, 'D_80114740')
+        cls.rx = (C.c_uint8 * 160).in_dll(cls.lib, 'CardRxTrace')
         cls.tx = (C.c_uint8 * 160).in_dll(cls.lib, 'D_801147D8')
         cls.ports = (Port * 2).in_dll(cls.lib, 'test_ports')
-        cls.step = cls.lib.func_8009C0F4
+        cls.step = cls.lib._cardCmdStep
         cls.step.argtypes = []
         cls.step.restype = C.c_int32
 
@@ -93,11 +93,11 @@ void test_reset(void) {
         self.errors = []
         self.install('test_select', Unary, lambda slot: 0)
         self.install('test_exchange', Unary, lambda byte: 0x82)
-        self.install('D_80114734', Poll, lambda: 0x81)
-        self.install('D_80114738', Unary, lambda byte: 0)
+        self.install('CardCommandReader', Poll, lambda: 0x81)
+        self.install('CardWriteHandler', Unary, lambda byte: 0)
         self.install('test_status', Status, lambda address: 2)
         self.install('test_data', Data, lambda address: C.cast(address, C.POINTER(Port)).contents.data)
-        self.install('test_subtype', Poll, lambda: self.get('D_80114870'))
+        self.install('test_subtype', Poll, lambda: self.get('CardCurrentCommand'))
 
     def install(self, name, kind, action):
         def checked(*args):
@@ -139,54 +139,54 @@ void test_reset(void) {
             for nibble in range(16):
                 self.setUp()
                 self.put('D_800ABDE8', 1)
-                self.put('D_800ABDEC', request)
-                self.put('D_800ABDF4', 0x7FFFFFFF)
+                self.put('CardCommandRequest', request)
+                self.put('CardReceiveIndex', 0x7FFFFFFF)
                 events = []
                 def select(slot):
                     events.append(('select', slot))
                     self.assertEqual(slot, request >> 4)
                     self.assertEqual(self.get('D_800ABDE4'), 4)
                     self.assertEqual(self.get('D_80114730'), 9)
-                    self.put('D_800ABDEC', 0x2340 | nibble)
+                    self.put('CardCommandRequest', 0x2340 | nibble)
                     return -0x80000000
                 def exchange(byte):
                     events.append(('exchange', byte))
                     self.assertEqual(byte, ~(0x81+nibble))
-                    self.put('D_800ABDEC', 0x12345670 | (15-nibble))
+                    self.put('CardCommandRequest', 0x12345670 | (15-nibble))
                     return -1
                 self.install('test_select', Unary, select)
                 self.install('test_exchange', Unary, exchange)
-                self.install('D_80114734', Poll, self.forbidden)
-                self.install('D_80114738', Unary, self.forbidden)
-                C.c_void_p.in_dll(self.lib, 'D_800ABDE0').value = None
+                self.install('CardCommandReader', Poll, self.forbidden)
+                self.install('CardWriteHandler', Unary, self.forbidden)
+                C.c_void_p.in_dll(self.lib, 'CardCmdSioRegs').value = None
                 self.assertEqual(self.run_step(), 0)
                 self.assertEqual(len(events), 2)
                 self.assertEqual(bytes(self.tx), bytes([0x81+15-nibble])+b'\xA5'*159)
                 self.assertEqual(bytes(self.rx), b'\xA5'*160)
-                self.assertEqual(self.get('D_800ABDF4'), -0x80000000)
+                self.assertEqual(self.get('CardReceiveIndex'), -0x80000000)
 
     def test_each_read_and_receive_byte_with_fresh_callback_state(self):
         for byte in range(256):
             self.setUp()
             def reader():
                 self.assertEqual(self.get('D_80114730'), 8)
-                self.put('D_800ABDF4', 9)
+                self.put('CardReceiveIndex', 9)
                 return C.c_int32(0x80000000 | byte).value
             def exchange(argument):
                 self.assertEqual(argument, byte)
                 self.assertEqual(self.tx[9], byte)
-                self.assertEqual(self.get('D_800ABDF4'), 10)
-                self.put('D_800ABDF8', 12)
-                self.install('D_80114738', Unary, writer)
+                self.assertEqual(self.get('CardReceiveIndex'), 10)
+                self.put('CardRxCount', 12)
+                self.install('CardWriteHandler', Unary, writer)
                 return 0x12340000 | (255-byte)
             def writer(argument):
                 self.assertEqual(argument, 255-byte)
                 self.assertEqual(self.rx[12], 255-byte)
-                self.assertEqual(self.get('D_800ABDF8'), 13)
+                self.assertEqual(self.get('CardRxCount'), 13)
                 return 0
-            self.install('D_80114734', Poll, reader)
+            self.install('CardCommandReader', Poll, reader)
             self.install('test_exchange', Unary, exchange)
-            self.install('D_80114738', Unary, self.forbidden)
+            self.install('CardWriteHandler', Unary, self.forbidden)
             self.install('test_status', Status, self.forbidden)
             self.assertEqual(self.run_step(), 0)
             self.assertEqual(bytes(self.tx), b'\xA5'*9+bytes([byte])+b'\xA5'*150)
@@ -198,30 +198,30 @@ void test_reset(void) {
                 self.setUp()
                 self.put('D_80114730', remaining)
                 self.install('test_exchange', Unary, lambda byte: result)
-                self.install('D_80114738', Unary, self.forbidden)
+                self.install('CardWriteHandler', Unary, self.forbidden)
                 self.assertEqual(self.run_step(), C.c_int32(result-1000).value)
                 self.assertEqual(self.get('D_80114730'), C.c_int32(remaining-1).value)
                 self.assertEqual(bytes(self.rx), b'\xA5'*160)
         for result in (-0x80000000, -1, 1, 2000, 0x7FFFFFFF):
             self.setUp()
-            self.install('D_80114738', Unary, lambda byte: result)
+            self.install('CardWriteHandler', Unary, lambda byte: result)
             self.assertEqual(self.run_step(), C.c_int32(result-2000).value)
-            self.assertEqual(self.get('D_800ABDF8'), 7)
+            self.assertEqual(self.get('CardRxCount'), 7)
 
     def test_last_byte_skip_wait_subtypes_and_all_output_bytes(self):
         for subtype in (14, 15):
             for byte in range(256):
                 self.setUp()
                 calls = []
-                self.put('D_80114870', subtype)
+                self.put('CardCurrentCommand', subtype)
                 self.put('D_80114728', 3)
                 self.ports[0].data = byte
                 def writer(value):
                     calls.append(value)
-                    self.assertEqual(self.get('D_800ABDF8'), 6+len(calls))
+                    self.assertEqual(self.get('CardRxCount'), 6+len(calls))
                     self.put('D_80114730', 1 if len(calls) == 1 else 99)
                     return 0
-                self.install('D_80114738', Unary, writer)
+                self.install('CardWriteHandler', Unary, writer)
                 self.install('test_status', Status, self.forbidden)
                 self.assertEqual(self.run_step(), 1)
                 self.assertEqual(calls, [0x82, byte])
@@ -233,7 +233,7 @@ void test_reset(void) {
         for subtype in (-0x80000000, -1, 0, 13, 14, 15, 16, 0x7FFFFFFF):
             for final_result in (0, -0x80000000, -1, 1, 3000, 0x7FFFFFFF):
                 self.setUp()
-                self.put('D_80114870', subtype)
+                self.put('CardCurrentCommand', subtype)
                 self.put('D_800ABDE8', 0x7FFFFFFF)
                 calls, statuses, types = [], [], []
                 initial = C.addressof(self.ports)
@@ -242,28 +242,28 @@ void test_reset(void) {
                     calls.append(value)
                     if len(calls) == 1:
                         self.put('D_80114730', 1)
-                        self.install('D_80114738', Unary, final_writer)
+                        self.install('CardWriteHandler', Unary, final_writer)
                     return 0
                 def final_writer(value):
                     calls.append(value)
-                    self.assertEqual(self.get('D_800ABDF8'), 21)
+                    self.assertEqual(self.get('CardRxCount'), 21)
                     self.assertEqual(self.rx[20], 0xCD)
                     return final_result
                 def status(address):
                     statuses.append(address)
                     self.assertEqual(address, initial)
-                    C.c_void_p.in_dll(self.lib, 'D_800ABDE0').value = second
+                    C.c_void_p.in_dll(self.lib, 'CardCmdSioRegs').value = second
                     return 2 if len(statuses) == 3 else 0
                 def data(address):
                     self.assertEqual(address, second)
                     self.assertEqual(self.get('D_800ABDE8'), -0x80000000)
                     self.assertEqual(self.get('D_80114730'), 0)
-                    self.put('D_800ABDF8', 20)
+                    self.put('CardRxCount', 20)
                     return 0xCD
                 def read_type():
                     types.append(1)
                     return subtype
-                self.install('D_80114738', Unary, writer)
+                self.install('CardWriteHandler', Unary, writer)
                 self.install('test_status', Status, status)
                 self.install('test_data', Data, data)
                 self.install('test_subtype', Poll, read_type)
@@ -281,9 +281,9 @@ void test_reset(void) {
         def writer(value):
             calls.append(value)
             self.put('D_80114730', 1)
-            self.put('D_800ABDF8', 0)
+            self.put('CardRxCount', 0)
             return 0
-        self.install('D_80114738', Unary, writer)
+        self.install('CardWriteHandler', Unary, writer)
         self.install('test_subtype', Poll, subtype)
         self.install('test_status', Status, self.forbidden)
         self.assertEqual(self.run_step(), 1)

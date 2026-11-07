@@ -14,7 +14,7 @@ struct Z { char pad[0x4C]; unsigned short h4C; char pad2[0xE4 - 0x4E]; struct E 
 struct A { short h0; char pad2[0xE]; unsigned int i10; };
 
 extern struct Z *MotionController;
-extern s32 D_8010E240;
+extern s32 SlotOrder;
 
 void func_8005D544(struct A *a0);
 
@@ -125,5 +125,5 @@ void func_8005D820(void) {
 #undef MotionController
 
 void func_8005D858(void) {
-    D_8010E240 = -1;
+    SlotOrder = -1;
 }

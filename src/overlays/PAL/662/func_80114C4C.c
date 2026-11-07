@@ -1,12 +1,12 @@
 #include "rr/overlay662_progress_controller.h"
 #include "rr/course_choice_types.h"
 
-extern RrCourseChoice4 D_800ABE08[2][9];
+extern RrCourseChoice4 CourseChoiceTable[2][9];
 extern s16 MenuCursor;
 extern u8 D_800F4368[];
 void SetModelTexturePage(s32 mode);
 void StepMenuValue(s32 mode, s32 width, char *selection, s32 limit, s32 flags);
-void func_80053AF4(s32, s32);
+void SeqFadeVolume(s32, s32);
 void func_80053CB0(void);
 void func_8006F5F0(void *);
 void UploadCarClut(void *, s32, s32);
@@ -28,11 +28,11 @@ void ovl662_func_80114C4C(void)
         UiRows[MenuCursor].cells[0] = 0;
         StepMenuValue(0, 2, (char *)&MenuCursor, 3, 0);
         UiRows[MenuCursor].cells[0] = state;
-        if (D_800F3A38[0].a) {
+        if (PlayerControllers[0].a) {
             SetMenuFrameOptions(0, 1, 1);
             UiRows[MenuCursor].cells[0] = 1;
             if (MenuCursor == 0) {
-                if (D_800ABE08[1][0].glyph != -1) {
+                if (CourseChoiceTable[1][0].glyph != -1) {
                     SetModelTexturePage(-1);
                     PlaySfx(1);
                     D_800F4D8A = 3;
@@ -65,9 +65,9 @@ void ovl662_func_80114C4C(void)
                     }
                 }
                 D_800AC5D0 = 64;
-                func_80053AF4(0, 60);
+                SeqFadeVolume(0, 60);
             }
-        } else if (D_800F3A38[0].b) {
+        } else if (PlayerControllers[0].b) {
             PlaySfx(2);
             SetModelTexturePage(-1);
             D_800F4D8A = 8;
@@ -78,12 +78,12 @@ void ovl662_func_80114C4C(void)
                 }
             }
             D_800AC5D0 = 64;
-            func_80053AF4(0, 60);
+            SeqFadeVolume(0, 60);
         }
         break;
     case 3:
         D_800AC5D0--;
-        AddScreenFadeTiles(((RrFrameOrderingPrefix *)D_800ACC14)->ordering70,
+        AddScreenFadeTiles(((RrFrameOrderingPrefix *)CurrentDrawBuf)->ordering70,
                       (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             ModeGroup = 1;
@@ -93,7 +93,7 @@ void ovl662_func_80114C4C(void)
         break;
     case 4:
         D_800AC5D0--;
-        AddScreenFadeTiles(((RrFrameOrderingPrefix *)D_800ACC14)->ordering70,
+        AddScreenFadeTiles(((RrFrameOrderingPrefix *)CurrentDrawBuf)->ordering70,
                       (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             func_8006F5F0(D_800F4368);
@@ -105,7 +105,7 @@ void ovl662_func_80114C4C(void)
         break;
     case 8:
         D_800AC5D0--;
-        AddScreenFadeTiles(((RrFrameOrderingPrefix *)D_800ACC14)->ordering70,
+        AddScreenFadeTiles(((RrFrameOrderingPrefix *)CurrentDrawBuf)->ordering70,
                       (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             ModeGroup = 1;

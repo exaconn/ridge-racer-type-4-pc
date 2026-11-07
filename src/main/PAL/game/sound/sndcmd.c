@@ -40,12 +40,12 @@ extern int func_80055300();
 extern int func_80055330();
 extern int func_8005534C();
 extern int SlotsStartForRace();
-extern int D_800F2EC8;
+extern int MaskBitSetting;
 extern struct { char p0[0x1C]; s32 x1C; char p1[0x28]; s32 x48; s32 x4C; char p2[0x38C]; s32 x3DC; } RaceContext;
 
 void SoundQueueUpdate();
-void func_8004F600(void);
-void func_8004F720(void);
+void SoundCloseVabsAndReset(void);
+void SoundInitForRace(void);
 
 void SoundQueueUpdate()
 {
@@ -124,7 +124,7 @@ void SoundQueueUpdate()
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(struct { char pad[4]; s32 x4; char p2[4]; s32 xC; char p3[0x24-0x10]; s16 v[1]; char p4[0x2868-0x26]; s32 x2868; } (*))&SoundState)
 
-void func_8004F600(void) {
+void SoundCloseVabsAndReset(void) {
     int idx[4] = {1, 4, 5, 6};
     int i;
     SsUtAllKeyOff(0);
@@ -137,7 +137,7 @@ void func_8004F600(void) {
     SsSetReservedVoice(0x18);
     SoundState.xC = 0;
     SoundMasterVolumeReset();
-    func_80050E58();
+    ResetPlayerVoices();
     func_80051248(0);
     func_800514FC();
     SoundQueueClear();
@@ -154,14 +154,14 @@ void func_8004F600(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(struct { char p0[0x4]; s32 x4; char p1[0x4]; s32 xC; s32 x10; char p2[0x44]; s16 x58; char p3[0x61E]; s16 x678; char p4[0x61E]; s16 xC98; char p5[0x61E]; s16 x12B8; } (*))&SoundState)
 
-void func_8004F720(void) {
+void SoundInitForRace(void) {
     SsUtAllKeyOff(0);
     SsSetReservedVoice(4);
     SoundState.xC = 1;
     SoundState.x4 = 0;
     SoundReset(SoundState.x10, 1);
     func_80055300();
-    D_800F2EC8 = 1;
+    MaskBitSetting = 1;
     func_80055330(0, 0x90, 0x90, 0x90);
     func_8005534C(RaceContext.x3DC);
     SlotsStartForRace();

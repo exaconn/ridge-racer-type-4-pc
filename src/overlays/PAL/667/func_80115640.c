@@ -31,7 +31,7 @@ typedef struct {
 
 extern s16 D_80107178;
 extern s32 D_80107190;
-extern char *D_800ACC14;
+extern char *CurrentDrawBuf;
 extern u32 ModeFrame;
 extern s32 RaceState;
 extern s32 TotalRaceTime;
@@ -40,7 +40,7 @@ extern s16 NumCars;
 extern s32 D_800AC5A4;
 extern s32 ScreenFrame;
 extern s16 D_800AD508;
-extern u16 D_800F3A40;
+extern u16 Pad0Buttons;
 extern s8 RacePaused;
 extern s8 PauseCursor;
 extern s16 D_800F4D44;
@@ -67,8 +67,8 @@ extern void func_800211A4();
 extern void DrawHudRotatingQuad();
 extern void DrawHudNumber3();
 extern void DrawHudNumber5();
-extern void func_800219BC();
-extern void func_80021A7C();
+extern void DrawHudDigitMod10();
+extern void UpdateHudRankDisplay();
 extern void func_80021C00();
 extern void DrawLapCounter();
 extern void DrawRaceMinimap();
@@ -76,7 +76,7 @@ extern void DrawSteeringIndicator();
 extern void DrawSplitScreenDivider();
 extern void func_800225DC();
 extern void func_80022CD4();
-extern void func_8002BD18();
+extern void DrawTimeRemainingForPlayer();
 extern void DrawCars();
 extern void UpdateRaceIntroCamera();
 extern void UpdateRaceChaseCamera();
@@ -125,10 +125,10 @@ void ovl667_func_80115640(void) {
 
     split = (D_80107178 != 2) << 1;
     if (split == 0) {
-        frame = D_800ACC14 + 0x70;
+        frame = CurrentDrawBuf + 0x70;
     } else {
         *(s16 *)0x1F80005E = 1;
-        frame = D_800ACC14 + 0xB70;
+        frame = CurrentDrawBuf + 0xB70;
     }
     if (ModeFrame < 2) {
         SetDispMask(0);
@@ -188,7 +188,7 @@ void ovl667_func_80115640(void) {
     UpdateRaceRanking();
 
     if (ovl667_D_80118F8D != ovl667_D_80118F8C) {
-        buttons = D_800F3A40;
+        buttons = Pad0Buttons;
         ovl667_D_80118EEC = (buttons & 0x800) && D_800AC5D0 == 0;
         ovl667_D_80118EEC |= (buttons & 0x1000) ? 2 : 0;
         ovl667_D_80118EEC |= (buttons & 0x4000) ? 4 : 0;
@@ -277,9 +277,9 @@ void ovl667_func_80115640(void) {
                 DrawSteeringIndicator(frame, i + 1);
             }
             DrawHudNumber3((PlayerCars[i].speed1D8 * 160) / 1168, i);
-            func_800219BC(PlayerCars[i].half27A, i);
-            func_80021A7C((s16)PlayerCars[i].rank1EE, i);
-            func_8002BD18(D_800AC5A4, i);
+            DrawHudDigitMod10(PlayerCars[i].half27A, i);
+            UpdateHudRankDisplay((s16)PlayerCars[i].rank1EE, i);
+            DrawTimeRemainingForPlayer(D_800AC5A4, i);
             func_80021C00(i + 1);
             if (i == 1) {
                 DrawSplitScreenDivider(0);

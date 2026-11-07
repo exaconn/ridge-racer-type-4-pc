@@ -13,9 +13,9 @@ extern s32 CdReadyCallback();
 
 extern s32 CdDataCallback();
 
-extern s32 func_80096DB8();
+extern s32 CdAltReadyCallback();
 
-extern s32 func_80096DE0();
+extern s32 CdAltDataCallback();
 
 extern s32 EnterCriticalSection();
 
@@ -30,8 +30,8 @@ extern s8 *D_800A680C;
 void StUnSetRing(void) {
     EnterCriticalSection();
     if (D_800A64A8 == 1) {
-        func_80096DE0(0);
-        func_80096DB8(0);
+        CdAltDataCallback(0);
+        CdAltReadyCallback(0);
     } else {
         CdDataCallback(0);
         CdReadyCallback(0);

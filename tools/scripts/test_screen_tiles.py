@@ -39,7 +39,7 @@ class ScreenTilesTest(unittest.TestCase):
 ''' + header('gpu.h') + header('screen_tiles.h') + r'''
 static u8 pool[192] __attribute__((aligned(64)));
 static u8 *cursor;
-RrGpuRectangle *D_800ACC14;
+RrGpuRectangle *CurrentDrawBuf;
 ''' + helpers + body + r'''
 static RrGpuRectangle contexts[4];
 static u32 ordering;
@@ -58,14 +58,14 @@ void SetSemiTrans(void *packet,s32 enabled) {
     trace(2);actual_semitransparency(packet,enabled);
     /* Explicit boundary hooks exercise live caller state. The actual helper
      * body above still supplies every packet operation. */
-    if(scenario==2||scenario==3)D_800ACC14=&contexts[frame];
+    if(scenario==2||scenario==3)CurrentDrawBuf=&contexts[frame];
 }
 void AddPrim(u32 *table,u32 *packet) {
     assert(table==&ordering&&(u8*)packet==pool+16+frame*16);
     trace(3);actual_link(table,packet);
     frame++;
     if(scenario==1||scenario==3) {
-        D_800ACC14=&contexts[frame%4];
+        CurrentDrawBuf=&contexts[frame%4];
         cursor=pool+160;
     }
 }
@@ -87,7 +87,7 @@ static int get_height(RrGpuRectangle *context,u8 *memory) {
 }
 static u32 reference(u8 *memory,s32 intensity,u32 initial,RrGpuRectangle **last_context) {
     int color=intensity<0?0:intensity>255?255:intensity;
-    RrGpuRectangle *context=D_800ACC14;
+    RrGpuRectangle *context=CurrentDrawBuf;
     for(int i=0;i<4;i++) {
         u8 *packet=memory+16+i*16;
         packet[3]=3;packet[7]=0x62;
@@ -112,7 +112,7 @@ static void one(s32 intensity,s16 height,u32 mode,int alias,int hooks) {
     for(unsigned i=0;i<sizeof(pool);i++)pool[i]=(u8)(i*73U+(i>>3)+19U);
     memset(contexts,0xA5,sizeof(contexts));
     for(int i=0;i<4;i++)contexts[i].rect.h=(s16)((u16)height+i*37U);
-    D_800ACC14=alias>=0?(RrGpuRectangle *)(pool+16+alias-6):&contexts[0];
+    CurrentDrawBuf=alias>=0?(RrGpuRectangle *)(pool+16+alias-6):&contexts[0];
     cursor=pool+16;ordering=0xA5123456U;
     frame=event_count=final_calls=0;scenario=hooks;wanted_mode=mode;
     RrGpuRectangle saved[4];memcpy(saved,contexts,sizeof(saved));
@@ -121,7 +121,7 @@ static void one(s32 intensity,s16 height,u32 mode,int alias,int hooks) {
     u32 wanted_ordering=reference(wanted,intensity,ordering,&wanted_context);
     AddScreenFadeTiles(&ordering,intensity,mode);
     assert(frame==4&&event_count==12&&final_calls==1&&cursor==pool+92);
-    assert(ordering==wanted_ordering&&D_800ACC14==wanted_context);
+    assert(ordering==wanted_ordering&&CurrentDrawBuf==wanted_context);
     assert(memcmp(pool,wanted,sizeof(pool))==0);
     assert(memcmp(saved,contexts,sizeof(saved))==0);
 }

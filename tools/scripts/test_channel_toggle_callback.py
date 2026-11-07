@@ -41,7 +41,7 @@ struct { u8 prefix[0x4D40]; void (*callback)(void);
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.lib = C.CDLL(str(directory / 'function.so'))
         cls.page = Page.in_dll(cls.lib, 'test_page')
-        cls.function = cls.lib.func_80082D00
+        cls.function = cls.lib._SsTickCallbackDivided
         cls.function.argtypes = []
         cls.function.restype = None
 

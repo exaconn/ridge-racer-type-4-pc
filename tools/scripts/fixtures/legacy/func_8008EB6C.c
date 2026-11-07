@@ -11,7 +11,7 @@ extern RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback);
 extern RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback);
 extern s32 CdPosToInt(void *);
 extern s32 func_800963DC(const char *, ...);
-extern const char D_80011D40[], D_80011D58[];
+extern const char StrCdReadShellOpen[], D_80011D58[];
 extern volatile u32 D_800A67BC;
 extern void cb_read(s32, u8 *);
 extern void cb_data(void);
@@ -41,11 +41,11 @@ s32 cd_read_retry(s32 restart) {
     }
     if (CdStatus() & 0x10) {
         if (!(VSync(-1) & 63)) {
-            func_800963DC(D_80011D40);
+            func_800963DC(StrCdReadShellOpen);
         }
         CdControlF(1, 0);
         timestamp = VSync(-1);
-        shell_state = &D_800A67B0;
+        shell_state = &CdReadState;
         shell_state->start1C = timestamp;
         shell_state->remaining14 = -1;
         return shell_state->remaining14;
@@ -79,7 +79,7 @@ failed:
             /* ASM_BARRIER: retain one shared failure block with fresh state
              * publication and reload, rather than duplicating address setup. */
             __asm__("" : );
-            failed_state = &D_800A67B0;
+            failed_state = &CdReadState;
             failed_state->remaining14 = -1;
             return failed_state->remaining14;
         }
@@ -88,7 +88,7 @@ failed:
     /* ASM_BARRIER: the success-state address is formed after decoding. */
     __asm__("" : : : "$16");
     callback = (RrLibCompletionCallback)cb_read;
-    state = &D_800A67B0;
+    state = &CdReadState;
     /* ASM_BARRIER: stage the callback address before the state address, then
      * publish the decoded sector in the callback setter's delay slot. */
     __asm__("" : "+r"(state) : "r"(callback));

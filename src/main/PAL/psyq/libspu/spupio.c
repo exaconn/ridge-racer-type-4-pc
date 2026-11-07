@@ -1,7 +1,7 @@
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/spu.h"
 #include "rr/spu_init.h"
-extern s32 func_8001E84C(const char *,...);
+extern s32 DebugPrintStub(const char *,...);
 extern char D_800116B8[];
 extern char D_800116CC[];
 void _spu_FwriteByIO(const u16 *source,u32 size) {
@@ -68,7 +68,7 @@ void _spu_FwriteByIO(const u16 *source,u32 size) {
                         /* ASM_BARRIER: Expose the real PAL ROM page for the diagnostic call delay slot. */
                         /* ASM_BARRIER: Expose the restore-timeout ROM reason in the call delay slot. */
                     __asm__("" : "+r"(reason));
-                        func_8001E84C(format,reason+0x16B8);break;
+                        DebugPrintStub(format,reason+0x16B8);break;
                     }
                     busy=_spu_RXX->spu_status&0x400;
                     count++;
@@ -112,7 +112,7 @@ void _spu_FwriteByIO(const u16 *source,u32 size) {
                     reason=(const char *)0x80010000U;
                     /* ASM_BARRIER: Expose the restore-timeout ROM reason in the call delay slot. */
                     __asm__("" : "+r"(reason));
-                    func_8001E84C(format,reason+0x16CC);break;
+                    DebugPrintStub(format,reason+0x16CC);break;
                 }
                 busy=(_spu_RXX->spu_status&0x7FF)!=expected;
                 count++;

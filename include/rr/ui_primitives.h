@@ -6,9 +6,9 @@
 
 /* Semitransparent POLY_G4 rectangles. The two-color variant repeats the top
  * and bottom colors across each row; the four-color variant sets each corner. */
-void func_8004CFB0(RrGpuRectangleFields *rectangle,
+void AddVerticalGradientRect(RrGpuRectangleFields *rectangle,
     RrGpuColorCommand *top, RrGpuColorCommand *bottom, s32 depth);
-void func_8004D11C(RrGpuRectangleFields *rectangle,
+void AddGouraudRect(RrGpuRectangleFields *rectangle,
     RrGpuColorCommand *topLeft, RrGpuColorCommand *topRight,
     RrGpuColorCommand *bottomLeft, RrGpuColorCommand *bottomRight, s32 depth);
 

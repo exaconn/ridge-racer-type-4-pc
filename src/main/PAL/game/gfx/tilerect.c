@@ -148,12 +148,12 @@ extern int D_8009E268;
 extern char *LoadCursor;
 extern unsigned char D_800AD4EA;
 extern int D_800F3A60;
-extern S_8010BF70 *D_8010BF70;
+extern S_8010BF70 *TileRectScene;
 extern int SetupRenderer();
 extern int func_80019C90();
 extern int ResetScreenCounters();
-extern int func_80043608();
-extern int func_800436E8();
+extern int LoadTimImage();
+extern int LoadTimList();
 extern int BuildCameraMatrices();
 extern int RotMatrix();
 extern int D_8009E26C[];
@@ -336,7 +336,7 @@ void func_80019FC8(void) {
         if (CdFileBytesLoaded() == 0) {
             return;
         }
-        func_800436E8(LoadCursor);
+        LoadTimList(LoadCursor);
         D_8010BF74 = 2;
     case 2:
         if (CdFileReadStart(GetR4FileIndex(0, 0x14), LoadCursor) == 0) {
@@ -347,7 +347,7 @@ void func_80019FC8(void) {
         if (CdFileBytesLoaded() == 0) {
             return;
         }
-        func_80043608(LoadCursor);
+        LoadTimImage(LoadCursor);
         D_8010BF74 = 4;
     case 4:
         if (CdFileReadStart(GetR4FileIndex(0, D_800AD4EA + 0xA), LoadCursor) == 0) {
@@ -360,13 +360,13 @@ void func_80019FC8(void) {
             return;
         }
         RelocateOffsetTable(D_800AC64C = LoadCursor);
-        D_8010BF70 = (S_8010BF70 *)(LoadCursor += s1);
-        LoadCursor = (char *)D_8010BF70 + 0x4C;
+        TileRectScene = (S_8010BF70 *)(LoadCursor += s1);
+        LoadCursor = (char *)TileRectScene + 0x4C;
         SetupRenderer(3);
-        D_8010BF70->unk20 = D_8001010C;
-        func_80096454(D_8010BF70->unk28, 0, 0x10);
+        TileRectScene->unk20 = D_8001010C;
+        func_80096454(TileRectScene->unk28, 0, 0x10);
         {
-            S_8010BF70 *p = D_8010BF70;
+            S_8010BF70 *p = TileRectScene;
             D_8010BF74 = 6;
             p->s48 = 0x40;
             /* ASM_BARRIER: keep p in $v0 across D_8010BF74 = 6 and field stores */
@@ -382,11 +382,11 @@ void func_80019FC8(void) {
             p->s3C = 0;
         }
     case 6:
-        if (D_8010BF70->s3C < 0x40) {
-            if (D_8010BF70->s3C == 8) {
-                D_8010BF70->s42 = 4;
-            } else if (D_8010BF70->s3C == 0x20) {
-                D_8010BF70->s44 = 4;
+        if (TileRectScene->s3C < 0x40) {
+            if (TileRectScene->s3C == 8) {
+                TileRectScene->s42 = 4;
+            } else if (TileRectScene->s3C == 0x20) {
+                TileRectScene->s44 = 4;
             }
             break;
         }
@@ -395,31 +395,31 @@ void func_80019FC8(void) {
     case 7:
         if (D_800AC5D0 == 0 && D_800F3A60 != 0) {
             D_800AC5D0 = 4;
-            D_8010BF70->s44 = -4;
-            D_8010BF70->s42 = -4;
+            TileRectScene->s44 = -4;
+            TileRectScene->s42 = -4;
         }
         break;
     }
 
-    D_8010BF70->s3C++;
-    *(short *)((char *)D_8010BF70 + 0x22) -= 4;
-    func_8001B754(&D_8010BF70->s3E, &D_8010BF70->s42, 0x80);
-    func_8001B754(&D_8010BF70->s40, &D_8010BF70->s44, 0x80);
+    TileRectScene->s3C++;
+    *(short *)((char *)TileRectScene + 0x22) -= 4;
+    RampValueToLimit(&TileRectScene->s3E, &TileRectScene->s42, 0x80);
+    RampValueToLimit(&TileRectScene->s40, &TileRectScene->s44, 0x80);
 
-    if (D_8010BF70->s4A != 0) {
+    if (TileRectScene->s4A != 0) {
         S_8010BF70 *p;
         /* ASM_BARRIER: keep interpolated IR2 result in $s2 */
         register int ir2 __asm__("$18");
 
-        if (D_8010BF70->s4A / 32 != 0) {
-            D_8010BF70->s4A -= D_8010BF70->s4A / 32;
-        } else if (D_8010BF70->s4A >= 3) {
-            D_8010BF70->s4A -= 2;
+        if (TileRectScene->s4A / 32 != 0) {
+            TileRectScene->s4A -= TileRectScene->s4A / 32;
+        } else if (TileRectScene->s4A >= 3) {
+            TileRectScene->s4A -= 2;
         } else {
-            D_8010BF70->s4A = 0;
+            TileRectScene->s4A = 0;
         }
 
-        p = D_8010BF70;
+        p = TileRectScene;
         /* ASM_BARRIER: GTE INTPL setup and execution on p->s4A */
         __asm__ volatile(
             "lhu $8, 0x4A(%1)\n\t"
@@ -446,20 +446,20 @@ void func_80019FC8(void) {
         D_8009E268 = ir2;
     }
 
-    EmitPresetSprite(D_8010BF70->s3E, 0x25);
-    EmitPresetSprite(D_8010BF70->s40, 0x26);
+    EmitPresetSprite(TileRectScene->s3E, 0x25);
+    EmitPresetSprite(TileRectScene->s40, 0x26);
 
     W(4) = 0xE1000229;
     LNK(1, 4);
     GS->cur += 8;
-    func_8001B83C(&D_8010BF70->s46, &D_8010BF70->s48);
+    RampValueTo4096(&TileRectScene->s46, &TileRectScene->s48);
 
-    if (D_8010BF70->s46 != 0) {
+    if (TileRectScene->s46 != 0) {
         /* ASM_BARRIER: Keep &sp10 in $a2 before unaligned struct copy */
         register struct B8 *a2 asm("$6");
-        func_80019C90(D_8010BF70->s46);
+        func_80019C90(TileRectScene->s46);
         BuildCameraMatrices();
-        RotMatrix(&D_8010BF70->unk20, D_8010BF70);
+        RotMatrix(&TileRectScene->unk20, TileRectScene);
         /* ASM_BARRIER: Emit 8-byte unaligned struct copy using $8, $9, $10 without spilling $8 at earlier block move */
         __asm__(
             "addiu $6, $29, 0x10\n\t"
@@ -475,7 +475,7 @@ void func_80019FC8(void) {
             "swr $10, 0x14($29)"
             : "=r"(a2), "=m"(sp10)
         );
-        func_800197C8(D_8010BF70->unk28, D_8010BF70, a2, D_8009E268);
+        func_800197C8(TileRectScene->unk28, TileRectScene, a2, D_8009E268);
     }
     W(4) = 0xE6000001;
     LNK(1, 0xAFC);

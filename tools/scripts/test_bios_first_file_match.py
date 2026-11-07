@@ -23,7 +23,7 @@ class BiosFirstFileMatchTest(unittest.TestCase):
         with (ROOT / 'build/PAL/main.elf').open('rb') as stream:
             elf = ELFFile(stream)
             symbols = elf.get_section_by_name('.symtab')
-            for name in ('firstfile', 'func_800972B0', 'CountCardFiles'):
+            for name in ('firstfile', '_firstfile_hook', 'CountCardFiles'):
                 address, size = inventory[name]
                 symbol = symbols.get_symbol_by_name(name)[0]
                 self.assertEqual(symbol['st_value'], address, name)

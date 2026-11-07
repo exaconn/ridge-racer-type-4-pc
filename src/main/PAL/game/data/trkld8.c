@@ -13,10 +13,10 @@
 #include "rr/sequencer_init.h"
 #include "rr/spu_tick.h"
 #include "rr/bios_devices.h"
-extern int func_800436E8();
+extern int LoadTimList();
 extern short D_800AD520;
 extern int D_800AD564;
-extern short D_800F3914;
+extern short CourseIndex;
 extern int D_800F4D40;
 extern char D_800F74B0[];
 extern char RaceContext[];
@@ -33,33 +33,33 @@ int func_8004EA8C(void) {
     int w;
     int g;
     int h;
-    switch (D_800A021C) {
+    switch (RaceLoadStepIndex) {
     case 0:
         v = CdFileReadStart(GetR4FileIndex(1, 10), RaceLoadCursor);
         if (v != 0) {
-            D_800A021C += 1;
+            RaceLoadStepIndex += 1;
     case 1:
             t = CdFileBytesLoaded();
             if (t != 0) {
                 u = AlignUp4(t);
                 w = RaceLoadCursor + u;
-                D_800F3914 = 8;
+                CourseIndex = 8;
                 LoadCursor = w;
                 RaceLoadCursor = w;
                 D_800F4D40 = w;
-                D_800A021C += 1;
+                RaceLoadStepIndex += 1;
             }
     default:
             v = 0;
         }
         return v;
     case 2:
-        v = RequestSceneLoad(D_800F3914);
+        v = RequestSceneLoad(CourseIndex);
         if (v != 0) {
-            D_800A021C += 1;
+            RaceLoadStepIndex += 1;
     case 3:
             if (SceneLoadStep() != 0) {
-                D_800A021C += 1;
+                RaceLoadStepIndex += 1;
             }
             v = 0;
         }
@@ -69,11 +69,11 @@ int func_8004EA8C(void) {
         h = D_800AD520 + 0x97;
         v = CdFileReadStart(GetR4FileIndex(2, g + h), LoadCursor);
         if (v != 0) {
-            D_800A021C += 1;
+            RaceLoadStepIndex += 1;
     case 5:
             if (CdFileBytesLoaded() != 0) {
-                func_800436E8(LoadCursor);
-                D_800A021C = 0;
+                LoadTimList(LoadCursor);
+                RaceLoadStepIndex = 0;
                 return 1;
             }
             v = 0;

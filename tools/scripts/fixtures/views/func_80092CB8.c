@@ -23,13 +23,13 @@
 /* legacy typing of shared globals in this part of the unit */
 #define GPU_printf (*(int (*(*))())&GPU_printf)
 
-#define D_800ABAB8 ((int *)D_800ABAB8)
+#define GpuFuncTable ((int *)GpuFuncTable)
 
 #define DMACallback ((int (*)())DMACallback)
 
 #undef GPU_printf
 
-#undef D_800ABAB8
+#undef GpuFuncTable
 
 #undef DMACallback
 
@@ -52,7 +52,7 @@
 
 #define GPU_printf (*(void (*(*))())&GPU_printf)
 
-#define D_800ABAB8 (*(struct { char pad[0x10]; int (*f)(); } *(*))&D_800ABAB8)
+#define GpuFuncTable (*(struct { char pad[0x10]; int (*f)(); } *(*))&GpuFuncTable)
 
 #define GPU_memset ((int (*)())GPU_memset)
 
@@ -60,51 +60,51 @@
 
 #undef GPU_printf
 
-#undef D_800ABAB8
+#undef GpuFuncTable
 
 #undef GPU_memset
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABAB8 ((void *)D_800ABAB8)
+#define GpuFuncTable ((void *)GpuFuncTable)
 
 #define GPU_printf (*(M2C_UNK (*(*))(M2C_UNK *, s32))&GPU_printf)
 
 #define D_800ABAC2 (*(u8 (*))&D_800ABAC2)
 
-#undef D_800ABAB8
+#undef GpuFuncTable
 
 #undef GPU_printf
 
 #undef D_800ABAC2
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABAB8 ((char *)D_800ABAB8)
+#define GpuFuncTable ((char *)GpuFuncTable)
 
-#undef D_800ABAB8
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ABAB8 ((char *)D_800ABAB8)
-
-#undef D_800ABAB8
+#undef GpuFuncTable
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABAB8 ((void *)D_800ABAB8)
+#define GpuFuncTable ((char *)GpuFuncTable)
 
-#undef D_800ABAB8
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ABAB8 ((char *)D_800ABAB8)
-
-#undef D_800ABAB8
+#undef GpuFuncTable
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABB60 (*(B (*))&D_800ABB60)
+#define GpuFuncTable ((void *)GpuFuncTable)
 
-#define D_800ABAB8 ((int *)D_800ABAB8)
+#undef GpuFuncTable
 
-#undef D_800ABB60
+/* legacy typing of shared globals in this part of the unit */
+#define GpuFuncTable ((char *)GpuFuncTable)
 
-#undef D_800ABAB8
+#undef GpuFuncTable
+
+/* legacy typing of shared globals in this part of the unit */
+#define GpuMovePayload (*(B (*))&GpuMovePayload)
+
+#define GpuFuncTable ((int *)GpuFuncTable)
+
+#undef GpuMovePayload
+
+#undef GpuFuncTable
 
 /* legacy typing of shared globals in this part of the unit */
 #define GPU_printf (*(int (*(*))())&GPU_printf)
@@ -116,49 +116,49 @@
 #undef D_800ABAC2
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABAB8 ((char *)D_800ABAB8)
+#define GpuFuncTable ((char *)GpuFuncTable)
 
 #define GPU_printf (*(int (*(*))())&GPU_printf)
 
 #define D_800ABAC2 (*(unsigned char (*))&D_800ABAC2)
 
-#undef D_800ABAB8
+#undef GpuFuncTable
 
 #undef GPU_printf
 
 #undef D_800ABAC2
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABAB8 ((char *)D_800ABAB8)
+#define GpuFuncTable ((char *)GpuFuncTable)
 
-#undef D_800ABAB8
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800ABAB8 ((RrLibGraphicsDriverPrefix *)D_800ABAB8)
-
-#undef D_800ABAB8
+#undef GpuFuncTable
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABAB8 ((int *)D_800ABAB8)
+#define GpuFuncTable ((RrLibGraphicsDriverPrefix *)GpuFuncTable)
+
+#undef GpuFuncTable
+
+/* legacy typing of shared globals in this part of the unit */
+#define GpuFuncTable ((int *)GpuFuncTable)
 
 #define GPU_printf (*(int (*(*))())&GPU_printf)
 
 #define D_800ABAC2 (*(unsigned char (*))&D_800ABAC2)
 
-#undef D_800ABAB8
+#undef GpuFuncTable
 
 #undef GPU_printf
 
 #undef D_800ABAC2
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABAB8 ((char *)D_800ABAB8)
+#define GpuFuncTable ((char *)GpuFuncTable)
 
 #define GPU_printf (*(int (*(*))())&GPU_printf)
 
 #define D_800ABAC2 (*(unsigned char (*)[])&D_800ABAC2)
 
-#undef D_800ABAB8
+#undef GpuFuncTable
 
 #undef GPU_printf
 
@@ -170,4 +170,4 @@ void SetDispMask(a0) int a0; {
  unsigned char *p = D_800ABAC2;
  if (*p >= 2) GPU_printf(D_80011E80, a0);
  if (a0 == 0) GPU_memset(p + 0x6A, -1, 0x14);
- D_800ABAB8->f(a0 ? 0x3000000 : 0x3000001); }
+ GpuFuncTable->f(a0 ? 0x3000000 : 0x3000001); }

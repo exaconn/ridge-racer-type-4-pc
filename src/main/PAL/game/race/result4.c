@@ -16,7 +16,7 @@ typedef struct { short a, b; } X;
 typedef struct { char p[4]; char a; char b; char c; char d; } Y;
 
 extern int AddDrawModePrim();
-extern int func_8001FF84();
+extern int AddSpritePrim();
 extern unsigned char D_8009F730[];
 extern unsigned char D_8009F790[];
 extern unsigned short D_800AC648;
@@ -32,14 +32,14 @@ extern s32 VSyncThreshold;
 extern s16 D_800F3A26;
 extern s16 ModeGroup;
 extern s16 D_800F4D8A;
-extern int func_8001E84C();
+extern int DebugPrintStub();
 extern int SetMenuFrameOptions();
 extern void func_80036D40(void);
 extern int InitMenuArenas();
 extern int LoadCarRangeStep();
 extern int DrawUiRow();
-extern char D_800106EC[];
-extern char D_800106F8[];
+extern char NewCar0Msg[];
+extern char StrNewCarLog[];
 extern int MenuStepDirection;
 extern int D_800F3A60;
 extern struct { char pad[0x10]; short h10; } *BadgeRows;
@@ -124,7 +124,7 @@ int a0;
       s2 = t + (D_800AC648 & 7);
     }
     p = D_8009F730 + (s2 * 4);
-    a1 = func_8001FF84(D_800ACC14 + 0x70, a1, s3, 0x48, p, 0x263A, (s4 + 1) * 2);
+    a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, s3, 0x48, p, 0x263A, (s4 + 1) * 2);
     u = s3 + 2;
     s3 = u + p[2];
     next:
@@ -152,7 +152,7 @@ int a0;
     do
     {
       new_var = s3 - 2;
-      a1 = func_8001FF84(D_800ACC14 + 0x70, a1, s3, 0x24, (unsigned char *)((s2 * 4) + (int)base), t0, (s4 + 1) * 2);
+      a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, s3, 0x24, (unsigned char *)((s2 * 4) + (int)base), t0, (s4 + 1) * 2);
       s2 = 0x17;
       s1++;
       q = base + 0x5C;
@@ -162,7 +162,7 @@ int a0;
     }
     while (s1 < s0);
   }
-  *((int *) SCRATCHPAD) = AddDrawModePrim(D_800ACC14 + 0x70, a1, 0x2E);
+  *((int *) SCRATCHPAD) = AddDrawModePrim(CurrentDrawBuf + 0x70, a1, 0x2E);
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -243,7 +243,7 @@ void func_80036A44(void) {
         if (r == 1) {
             if (BadgeRows->h10 == 0xB) {
                 SetMenuFrameOptions(0, 1, 0);
-                func_8001E84C(D_800106EC);
+                DebugPrintStub(NewCar0Msg);
                 s1 = LoadCursor;
                 InitMenuArenas();
                 func_80039988();
@@ -251,7 +251,7 @@ void func_80036A44(void) {
                 D_800F3A26 = 0x22;
                 D_800F4D8A = 0;
                 LoadCursor = s1;
-                func_8001E84C(D_800106F8);
+                DebugPrintStub(StrNewCarLog);
             }
         }
     }

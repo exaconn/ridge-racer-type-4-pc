@@ -41,19 +41,19 @@ static u8 resources[3][0x2D100],arenas[3][128],packets[128];static u32 orders[32
 #undef RR_PROJECTION_SCRATCH
 #define RR_PROJECTION_SCRATCH (&w->s.scratch)
 #define CdDirectoryBuffer w->s.resource
-#define D_800F4D70 w->s.arenas
+#define MenuArenas w->s.arenas
 #define D_800F4D40 w->s.base
 #define LoadCursor w->s.published
 #define SelectionRows w->s.choice
 #define D_800ACBD0 w->s.grid
-#define D_800ABE08 w->s.table
+#define CourseChoiceTable w->s.table
 #define ModeFrame w->s.frame
 #define ScreenFrame w->s.pulse
 #define D_800AC648 w->s.selection
 #define MenuCursor w->s.flag
 #define MenuItemCount w->s.mode
 #define ReverseCourse w->s.selectionFlag
-#define D_800F3914 w->s.course
+#define CourseIndex w->s.course
 #define MenuScriptStep w->s.clear1
 #define LoadState w->s.clear2
 #define D_8009F64C w->s.map
@@ -93,7 +93,7 @@ void ClearScreenOverlayState(void){event(1);change();}
 void InitMenuArenas(void){event(2);change();}
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){Event *v=event(3);s32 args[]={a,b,c,d,e,f,g,h,i,j};memcpy(v->args,args,sizeof(args));change();}
 void SetupRenderer(s32 shift){Event *e=event(4);e->args[0]=shift;change();}
-void func_80037110(void){event(5);change();}
+void InitPreviewImageRows(void){event(5);change();}
 void ResetCarState(RrRaceVehicle *car){Event *e=event(6);assert(car==w->s.cars||car==w->s.cars+1);e->args[0]=car-w->s.cars;assert((uintptr_t)car>UINT32_MAX);change();}
 void SetMenuFrameOptions(s32 a,s32 b,s32 c){Event *e=event(7);e->args[0]=a;e->args[1]=b;e->args[2]=c;if(w==&actual){assert(w->s.count>=0&&w->s.count<=9);seenCounts|=1U<<w->s.count;}change();}
 static void reset(void){w->s.clear1=0;w->s.clear2=0;w->s.pulse=0;}
@@ -102,7 +102,7 @@ static void expected(void){unsigned i,p,g;State *s=&w->s;
  static const s32 rows[26][10]={{0,24,88,68,32,0,0,1,0,83},{1,24,128,68,32,0,0,1,0,54},{2,24,168,68,32,0,0,1,0,85},{3,24,88,68,32,0,0,1,0,83},{4,24,128,68,32,0,0,1,0,101},{5,24,168,68,32,0,0,1,0,53},{6,24,208,68,32,0,0,1,0,85},{7,116,88,28,32,0,0,1,0,55},{8,116,128,28,32,0,0,1,0,56},{9,24,88,68,32,0,0,1,0,83},{10,24,128,68,32,0,0,1,0,54},{11,24,168,68,32,0,0,1,0,85},{12,24,88,68,32,0,0,1,0,83},{13,24,128,68,32,0,0,1,0,101},{14,24,168,68,32,0,0,1,0,53},{15,24,208,68,32,0,0,1,0,85},{16,116,88,28,32,0,0,1,0,55},{17,116,128,28,32,0,0,1,0,56},{18,12,64,68,32,0,0,1,0,84},{19,12,104,68,32,0,0,1,0,3},{20,12,144,68,32,0,0,1,1,13},{21,12,184,68,32,0,0,1,0,85},{22,12,368,208,32,0,0,8,4,0},{23,104,104,68,32,0,0,1,5,3},{24,104,144,68,32,0,0,1,6,23},{25,104,184,68,32,0,0,1,7,6}};
  s->frame=0;s->pulse=0;s->flag=0;s->mode=3;reset();s->arenas.second=s->resource+0x2D000;InitMenuArenas();s->player=kind;s->published=s->arenas.second;
  for(i=0;i<26;i++)InitUiRow(rows[i][0],rows[i][1],rows[i][2],rows[i][3],rows[i][4],rows[i][5],rows[i][6],rows[i][7],rows[i][8],i==22?s->selection:rows[i][9]);
- SetupRenderer(5);s->flag=0;s->mode=3;reset();func_80037110();s->local=0;s->published=s->base;if(!(s->player&1))s->arenas.first=s->base;else s->published=s->arenas.first;
+ SetupRenderer(5);s->flag=0;s->mode=3;reset();InitPreviewImageRows();s->local=0;s->published=s->base;if(!(s->player&1))s->arenas.first=s->base;else s->published=s->arenas.first;
  s->scratch.word18=120;s->scratch.word08=-16;s->scratch.word0C=-248;s->scratch.word1C=0;s->scratch.word20=0;s->scratch.word10=-96;
  for(i=0;i<2;i++){ResetCarState(s->cars+i);s->cars[i].pos20[1]=10;s->cars[i].pos20[2]=308;s->cars[i].rot54=2048;}
  for(p=0;p<2;p++)for(g=0;g<2;g++){unsigned n=0;while(n<9&&s->table[p][g][n].glyph!=-1){if(n==8&&s->table[p][g][8].glyph!=359)break;n++;}s->counts[p][g]=n;}

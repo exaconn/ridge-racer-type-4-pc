@@ -21,7 +21,7 @@ class InterruptCallbackExchangeTest(unittest.TestCase):
         body=(root/'tools/scripts/fixtures/views/func_8008B7A0.c').read_text().replace('#include "rr/library.h"','')
         body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
         observed=body.replace('setIntr','observed_exchange')
-        sites={'raw=*D_800A6358;':'raw=test_read(D_800A6358);','*D_800A6358=0;':'test_write(D_800A6358,0);','*D_800A6358=saved;':'test_write(D_800A6358,saved);'}
+        sites={'raw=*I_MASK;':'raw=test_read(I_MASK);','*I_MASK=0;':'test_write(I_MASK,0);','*I_MASK=saved;':'test_write(I_MASK,saved);'}
         for old,new in sites.items():
             assert observed.count(old)==1
             observed=observed.replace(old,new)
@@ -33,7 +33,7 @@ typedef uint32_t u32; typedef int32_t s32;
 #define RR_FIELD_OFFSET(type,field) offsetof(type,field)
 '''+header+'''
 RrLibSavedState D_800A52C8;
-u16 ports[6];volatile u16 *D_800A6358=&ports[1];
+u16 ports[6];volatile u16 *I_MASK=&ports[1];
 s32 called[3],io_count,io_kind[32],io_port[32];u32 io_value[32];
 void (*on_bios)(s32,s32,s32);
 void callback_a(void) {called[0]++;}
@@ -58,7 +58,7 @@ unsigned long native_offsets[]={offsetof(RrLibSavedState,callbacks),offsetof(RrL
         assert C.c_ulong.in_dll(cls.lib,'native_size').value==C.sizeof(State)
         assert list((C.c_ulong*3).in_dll(cls.lib,'native_offsets'))==[State.callbacks.offset,State.enabled_mask.offset,State.callback_data.offset]
         cls.state=State.in_dll(cls.lib,'D_800A52C8');cls.ports=(C.c_uint16*6).in_dll(cls.lib,'ports')
-        cls.port=C.c_void_p.in_dll(cls.lib,'D_800A6358');cls.hook=C.c_void_p.in_dll(cls.lib,'on_bios')
+        cls.port=C.c_void_p.in_dll(cls.lib,'I_MASK');cls.hook=C.c_void_p.in_dll(cls.lib,'on_bios')
         cls.callbacks=[C.cast(getattr(cls.lib,name),C.c_void_p).value for name in ('callback_a','callback_b','callback_c')]
         cls.called=(C.c_int32*3).in_dll(cls.lib,'called');cls.io_count=C.c_int32.in_dll(cls.lib,'io_count')
         cls.io_kind=(C.c_int32*32).in_dll(cls.lib,'io_kind');cls.io_port=(C.c_int32*32).in_dll(cls.lib,'io_port');cls.io_value=(C.c_uint32*32).in_dll(cls.lib,'io_value')

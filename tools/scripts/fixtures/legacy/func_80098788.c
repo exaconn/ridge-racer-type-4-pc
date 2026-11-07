@@ -1,12 +1,12 @@
 /* CC1_FLAGS: -mno-split-addresses */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 extern int setRC2wait(), chkRC2wait();
-extern int D_800ABCAC;
+extern int PadRecvStage;
 struct HW { volatile unsigned char b0; char p1[3]; volatile unsigned short s4; short p6; short s8; unsigned short sA; char pC[2]; volatile short sE; };
 struct Q { int a; };
-extern struct HW *D_800ABCCC;
-extern struct Q *D_800ABCC8;
-extern unsigned D_801146B8, D_801146BC;
+extern struct HW *PadSio0Base;
+extern struct Q *I_STAT_Pad;
+extern unsigned D_801146B8, RC2WaitLimit;
 struct W { char p[0x3C]; unsigned char *f3c; char p2[4]; unsigned char f44, f45; char p3[0xE8 - 0x46]; unsigned char fE8; };
 int _padSioRW2(a0, a1) struct W *a0; int a1; {
     int s1;
@@ -20,38 +20,38 @@ int _padSioRW2(a0, a1) struct W *a0; int a1; {
     if ((c >> 4) == 8) {
         if (a0->f44 >= 9) s1 = 0x22;
     }
-    do { } while (!(D_800ABCCC->s4 & 2));
+    do { } while (!(PadSio0Base->s4 & 2));
     setRC2wait(0x190);
-    hw = D_800ABCCC;
+    hw = PadSio0Base;
     s2 = hw->b0;
     if (a0->f44 != 0 || (s2 >> 4) != 8) {
         hw->sE = s1;
     } else {
         hw->sE = 0x22;
     }
-    while (!(*(volatile int *)D_800ABCC8 & 0x80)) {
+    while (!(*(volatile int *)I_STAT_Pad & 0x80)) {
         v1 = *(volatile unsigned short *)0x1F801120;
         if (v1 < D_801146B8) {
             if (*(volatile unsigned short *)0x1F801128 != 0) v1 += *(volatile unsigned short *)0x1F801128;
             else v1 += 0x10000;
         }
         if (*(volatile unsigned short *)0x1F801124 & 0x200) {
-            if (v1 - D_801146B8 >= D_801146BC) return -2;
+            if (v1 - D_801146B8 >= RC2WaitLimit) return -2;
         } else {
-            if (((v1 - D_801146B8) >> 3) >= D_801146BC) return -2;
+            if (((v1 - D_801146B8) >> 3) >= RC2WaitLimit) return -2;
         }
     }
     if (a0->fE8 != 8) {
-        if (D_800ABCAC == 2) {
+        if (PadRecvStage == 2) {
             setRC2wait(0x3C);
             do { } while (chkRC2wait() == 0);
         }
     }
-    D_800ABCCC->b0 = a1;
-    if (D_800ABCAC == 3) {
+    PadSio0Base->b0 = a1;
+    if (PadRecvStage == 3) {
         if (s2 == 0x80) {
-            D_800ABCC8->a = -0x81;
-            D_800ABCCC->sA |= 0x10;
+            I_STAT_Pad->a = -0x81;
+            PadSio0Base->sA |= 0x10;
         }
     }
     a0->f45++;

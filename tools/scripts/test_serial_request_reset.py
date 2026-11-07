@@ -27,11 +27,11 @@ typedef uint8_t u8; typedef uint16_t u16; typedef uint32_t u32; typedef int32_t 
 RrInterruptRegisters test_irq;
 RrInterruptRegisters *D_800ABD30=&test_irq;
 RrSerialPortRegisters test_ports[2];
-RrSerialPortRegisters *D_800ABD18=&test_ports[0];
-volatile RrSerialRequest D_801146E8;
-RrSerialReceiveRequest D_801146D8;
+RrSerialPortRegisters *SIO1_REGS=&test_ports[0];
+volatile RrSerialRequest SioRequest;
+RrSerialReceiveRequest SioReceiveRequest;
 u16 D_801146CA;
-u8 D_800ABD20[32];
+u8 SioIrqQueueEntry[32];
 u32 test_count,test_log[32][3],test_mutate,test_override;
 void record(u32 op,u32 value,uintptr_t pointer) {
  u32 i=test_count++;if(i<32){test_log[i][0]=op;test_log[i][1]=value;test_log[i][2]=0;}
@@ -40,9 +40,9 @@ uintptr_t test_irq_pointer;
 s32 SysDeqIntRP(s32 channel,void *pointer) {
  test_irq_pointer=(uintptr_t)pointer;record(6,channel,0);
  if(test_mutate) {
-  D_801146E8.first=123;D_801146D8.request.first=-77;
-  D_801146D8.receive_status=0x12345678U;
-  D_800ABD18=&test_ports[1];D_801146CA=0x5555;
+  SioRequest.first=123;SioReceiveRequest.request.first=-77;
+  SioReceiveRequest.receive_status=0x12345678U;
+  SIO1_REGS=&test_ports[1];D_801146CA=0x5555;
  }
  return -99;
 }
@@ -51,24 +51,24 @@ void write_mask(u32 v) {record(2,v,0);test_irq.mask=v;}
 u32 read_control(RrSerialPortRegisters *port) {u32 v=port->control;record(3,v,0);return v;}
 void write_control(RrSerialPortRegisters *port,u32 value) {record(4,value,0);port->control=value;}
 u32 read_configuration(void) {u32 v=D_801146CA;record(5,v,0);return v;}
-void write_send_active(s32 value) {record(7,(u32)value,0);D_801146E8.active=value;}
+void write_send_active(s32 value) {record(7,(u32)value,0);SioRequest.active=value;}
 s32 read_send_active(void) {
- s32 v;if(test_override)D_801146E8.active=-1234567;
- v=D_801146E8.active;record(8,(u32)v,0);return v;
+ s32 v;if(test_override)SioRequest.active=-1234567;
+ v=SioRequest.active;record(8,(u32)v,0);return v;
 }
-void write_receive_active(s32 value) {record(9,(u32)value,0);D_801146D8.request.active=value;}
-void write_send_second(s32 value) {record(10,(u32)value,0);D_801146E8.second=value;}
+void write_receive_active(s32 value) {record(9,(u32)value,0);SioReceiveRequest.request.active=value;}
+void write_send_second(s32 value) {record(10,(u32)value,0);SioRequest.second=value;}
 s32 read_send_second(void) {
- s32 v;if(test_override)D_801146E8.second=0x12345678;
- v=D_801146E8.second;record(11,(u32)v,0);return v;
+ s32 v;if(test_override)SioRequest.second=0x12345678;
+ v=SioRequest.second;record(11,(u32)v,0);return v;
 }
-void write_receive_second(s32 value) {record(12,(u32)value,0);D_801146D8.request.second=value;}
+void write_receive_second(s32 value) {record(12,(u32)value,0);SioReceiveRequest.request.second=value;}
 void initialize(u32 mask,u32 control,u32 configuration) {
  memset(&test_irq,0xA5,sizeof(test_irq));test_irq.mask=mask;
  memset(test_ports,0xA5,sizeof(test_ports));test_ports[0].control=control;
- memset((void *)&D_801146E8,0x69,sizeof(D_801146E8));
- memset(&D_801146D8,0x5A,sizeof(D_801146D8));
- D_800ABD18=&test_ports[0];D_801146CA=configuration;
+ memset((void *)&SioRequest,0x69,sizeof(SioRequest));
+ memset(&SioReceiveRequest,0x5A,sizeof(SioReceiveRequest));
+ SIO1_REGS=&test_ports[0];D_801146CA=configuration;
  test_count=test_mutate=test_override=0;test_irq_pointer=0;
  memset(test_log,0xA5,sizeof(test_log));
 }
@@ -77,7 +77,7 @@ void initialize(u32 mask,u32 control,u32 configuration) {
         body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
         body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
         body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?:,\s*"memory")?', '', body)
-        source += body.replace('func_8009B85C', 'test_native_reset')
+        source += body.replace('_sio_deinit', 'test_native_reset')
         replacements = {
             'interrupts->mask &= ~0x100U;': 'write_mask(read_mask() & ~0x100U);',
             'port->control |= 0x50;': 'write_control(port,read_control(port) | 0x50);',
@@ -102,18 +102,18 @@ void initialize(u32 mask,u32 control,u32 configuration) {
         cls.lib = C.CDLL(str(directory / 'reset.so'))
         cls.irq = (C.c_uint32 * 2).in_dll(cls.lib, 'test_irq')
         cls.ports = (C.c_uint8 * 32).in_dll(cls.lib, 'test_ports')
-        cls.send = (C.c_int32 * 3).in_dll(cls.lib, 'D_801146E8')
-        cls.receive = (C.c_int32 * 4).in_dll(cls.lib, 'D_801146D8')
+        cls.send = (C.c_int32 * 3).in_dll(cls.lib, 'SioRequest')
+        cls.receive = (C.c_int32 * 4).in_dll(cls.lib, 'SioReceiveRequest')
         cls.count = C.c_uint32.in_dll(cls.lib, 'test_count')
         cls.log = (C.c_uint32 * 96).in_dll(cls.lib, 'test_log')
         cls.config = C.c_uint16.in_dll(cls.lib, 'D_801146CA')
         cls.mutate = C.c_uint32.in_dll(cls.lib, 'test_mutate')
         cls.override = C.c_uint32.in_dll(cls.lib, 'test_override')
         cls.irq_pointer = C.c_size_t.in_dll(cls.lib, 'test_irq_pointer')
-        cls.irq_handler = (C.c_ubyte * 32).in_dll(cls.lib, 'D_800ABD20')
+        cls.irq_handler = (C.c_ubyte * 32).in_dll(cls.lib, 'SioIrqQueueEntry')
         cls.initialize = cls.lib.initialize
         cls.initialize.argtypes = [C.c_uint32]*3
-        cls.reset, cls.native = cls.lib.func_8009B85C, cls.lib.test_native_reset
+        cls.reset, cls.native = cls.lib._sio_deinit, cls.lib.test_native_reset
         for function in (cls.reset, cls.native):
             function.argtypes = []
             function.restype = C.c_int32

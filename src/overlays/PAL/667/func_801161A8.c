@@ -17,10 +17,10 @@ void ovl667_func_801161A8(s32 arg0) {
     MenuCursor = 0;
     MenuItemCount = 3;
     ResetScreenCounters();
-    D_800F4D70.second = CdDirectoryBuffer + 0x2D000;
+    MenuArenas.second = CdDirectoryBuffer + 0x2D000;
     InitMenuArenas();
     D_800AC5D4 = arg0;
-    LoadCursor = D_800F4D70.second;
+    LoadCursor = MenuArenas.second;
     InitUiRow(0, 0x18, 0x58, 0x44, 0x20, 0, 0, 1, 0, 0x53);
     /* ASM_BARRIER: keep the published arena cell across the first UI service.
      * Read/write memory annotation retains its value and original address lifetime. */
@@ -52,13 +52,13 @@ void ovl667_func_801161A8(s32 arg0) {
     MenuCursor = 0;
     MenuItemCount = 3;
     ResetScreenCounters();
-    func_80037110();
+    InitPreviewImageRows();
     D_8010C0B8 = 0;
     LoadCursor = D_800F4D40;
     if (!(D_800AC5D4 & 1)) {
-        D_800F4D70.first = D_800F4D40;
+        MenuArenas.first = D_800F4D40;
     } else {
-        LoadCursor = D_800F4D70.first;
+        LoadCursor = MenuArenas.first;
     }
     var_s1 = 0;
     placeY=10;placeZ=308;

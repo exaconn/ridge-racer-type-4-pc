@@ -17,7 +17,7 @@ typedef struct {u8 guard0[32];RrMenuItemState5C outputs[2];RrPulseState18 states
 static World actual,expected;
 static RrPulseRow rom[2][65552];
 static const RrPulseRow *repeat_owner[12],*once_owner[12];
-#define D_800F3A38 actual.outputs
+#define PlayerControllers actual.outputs
 #define PadPulseState actual.states
 #define Options actual.settings
 #define D_8009FFA0 (repeat_owner+4)

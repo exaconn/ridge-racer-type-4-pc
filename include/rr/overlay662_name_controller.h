@@ -6,7 +6,7 @@
 #include "rr/save_progress.h"
 #include "rr/string_tail_copy.h"
 #include "rr/tables.h"
-extern RrMenuItemState5C D_800F3A38[2];
+extern RrMenuItemState5C PlayerControllers[2];
 extern s16 D_800AC5D0,D_800FFC18;
 extern s32 ScreenFrame;
 extern u8 NameCharset[44];

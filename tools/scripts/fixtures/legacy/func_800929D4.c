@@ -8,12 +8,12 @@ s32 ResetGraph(s32 mode)
     switch(mode & 7) {
     case 0:
     case 3:
-        func_8001E84C(D_80011DF0,&D_800ABA78,&D_800ABAC0);
+        DebugPrintStub(ResetGraphFmt,&GpuDriverTable,&D_800ABAC0);
     case 5:
         state=&D_800ABAC0;
         GPU_memset((s8 *)state,0,128);
         ResetCallback();
-        func_80096E24((unsigned long)D_800ABAB8 & 0xFFFFFF);
+        func_80096E24((unsigned long)GpuFuncTable & 0xFFFFFF);
         state->kind00=_reset(mode);
         state->enabled01=1;
         /* Preserve the explicit byte reload after the reset service. */
@@ -23,7 +23,7 @@ s32 ResetGraph(s32 mode)
         GPU_memset((s8 *)state->tail6C,-1,0x14);
         return state->kind00;
     default:
-        if(D_800ABAC2.level>=2) GPU_printf(D_80011E10,mode);
-        return D_800ABAB8->reset34(1);
+        if(D_800ABAC2.level>=2) GPU_printf(StrResetGraphFmt,mode);
+        return GpuFuncTable->reset34(1);
     }
 }

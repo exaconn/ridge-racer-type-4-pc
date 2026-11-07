@@ -8,7 +8,7 @@
 extern void UnpackChoiceGlyph(s8 *, s32);
 extern s32 PackChoiceGlyph(void *);
 
-extern RrCourseChoice4 D_800ABE08[2][9];
+extern RrCourseChoice4 CourseChoiceTable[2][9];
 extern u8 D_800AD4F4[];
 extern u8 D_800AD4F8[][4];
 
@@ -45,7 +45,7 @@ void UpdateSaveProgress(void) {
 
     slot = 0;
     for (k = 0; k < 8; k++) {
-        g = D_800ABE08[1][k].glyph;
+        g = CourseChoiceTable[1][k].glyph;
         UnpackChoiceGlyph((s8 *)&SelectionRows, g);
         if (SelectionRows.bytes[2] == 0x27 && slot < 4) {
             do {
@@ -56,7 +56,7 @@ void UpdateSaveProgress(void) {
                 }
                 found = 0;
                 for (j = 0; j < 8; j++) {
-                    UnpackChoiceGlyph((s8 *)sp10, D_800ABE08[1][j].glyph);
+                    UnpackChoiceGlyph((s8 *)sp10, CourseChoiceTable[1][j].glyph);
                     sp10[2] %= 20;
                     if (glyph == PackChoiceGlyph(sp10)) {
                         found = 1;
@@ -65,9 +65,9 @@ void UpdateSaveProgress(void) {
                 }
 
                 if (found == 0) {
-                    D_800ABE08[1][k].glyph = glyph;
-                    D_800ABE08[1][k].second = 0;
-                    D_800ABE08[1][k].first = 0;
+                    CourseChoiceTable[1][k].glyph = glyph;
+                    CourseChoiceTable[1][k].second = 0;
+                    CourseChoiceTable[1][k].first = 0;
                     break;
                 }
                 slot++;

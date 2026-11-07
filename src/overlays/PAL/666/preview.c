@@ -13,7 +13,7 @@ void ovl666_init_preview(void) {
     InitUiRow(1, 24, 128, 68, 32, 0, 0, 1, 0, 85);
     SetupRenderer(5);
     ResetScreenCounters();
-    func_80037110();
+    InitPreviewImageRows();
     LoadCursor = D_800F4D40;
     BadgeRows[0].half02 = 1;
     sp = RR_PROJECTION_SCRATCH;
@@ -58,15 +58,15 @@ void ovl666_update_preview(void) {
     if (D_800F4D8A != 3) {
         loadResult = LoadCarRangeStep(0, 1);
         if (loadResult != 1) {
-            if (((s8 *)D_800F2AB0)[1] == 1) {
-                ((s8 *)D_800F2AB0)[1] = 0;
+            if (((s8 *)ImageRows)[1] == 1) {
+                ((s8 *)ImageRows)[1] = 0;
             }
             rowIndex = 0;
             goto draw_selection_rows;
         }
         SetCarBounds(PlayerCars);
-        if (((s8 *)D_800F2AB0)[1] == 7) {
-            ((s8 *)D_800F2AB0)[1] = loadResult;
+        if (((s8 *)ImageRows)[1] == 7) {
+            ((s8 *)ImageRows)[1] = loadResult;
         }
     }
     modelReady = 1;
@@ -87,14 +87,14 @@ void ovl666_update_preview(void) {
                 ovl666_available_courses[D_800F3826][ovl666_selected_course.word].first;
             D_800ACBD0[0].second =
                 ovl666_available_courses[D_800F3826][ovl666_selected_course.word].second;
-            ((s8 *)D_800F2AB0)[1] = 6;
+            ((s8 *)ImageRows)[1] = 6;
         }
         UiRows[MenuCursor + 3].cells[0] = 0;
         StepMenuValue(0, 2, (char *)&MenuCursor, 2, 0);
         UiRows[MenuCursor + 3].cells[0] = 2;
         selectionState = UiRows[MenuCursor + 3].byte14;
         if (selectionState == 2) {
-            if (D_800F3A38[0].a != 0) {
+            if (PlayerControllers[0].a != 0) {
                 UiRows[MenuCursor + 3].cells[0] = 1;
                 if (MenuCursor == 0) {
                     PlaySfx(1);
@@ -113,7 +113,7 @@ void ovl666_update_preview(void) {
                     } while (rowIndex < 2);
                     goto close_selection;
                 }
-            } else if (D_800F3A38[0].b != 0) {
+            } else if (PlayerControllers[0].b != 0) {
                 PlaySfx(2);
                 rowIndex = 0;
 
@@ -124,7 +124,7 @@ void ovl666_update_preview(void) {
                     rowIndex += 1;
                 } while (rowIndex < 2);
             close_selection:
-                ((s8 *)D_800F2AB0)[1] = 3;
+                ((s8 *)ImageRows)[1] = 3;
                 D_800F4D8A = 5;
                 BadgeRows->state10 = 4;
             }
@@ -136,7 +136,7 @@ void ovl666_update_preview(void) {
             D_800AC5D0 = (u16)D_800AC5D0 - 1;
         }
         SetModelTexturePage(-1);
-        AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (0x40 - D_800AC5D0) * 4, 0x45);
         loadResult = LoadCarRangeStep(1, 1);
         if ((loadResult == 1) && (D_800AC5D0 <= 0)) {
             D_800F4D44 = 6;
@@ -144,7 +144,7 @@ void ovl666_update_preview(void) {
                 ovl666_course_dispatch[SelectionRows.selection.primary][SelectionRows.selection.variant];
             ovl666_result_kind = loadResult;
             D_800AC648 = course;
-            D_800F3914 = DecodeCourseIndex((s16)course);
+            CourseIndex = DecodeCourseIndex((s16)course);
             func_80053CB0();
             MenuScriptId = 0;
             ModeGroup = loadResult;
@@ -159,7 +159,7 @@ void ovl666_update_preview(void) {
             UiRows[SelectionRows.selection.pad02[1] + 5].cells[0] = 0;
             StepMenuValue(0, 1, (char *)&SelectionRows.selection.pad02[1], 2, 0);
             UiRows[SelectionRows.selection.pad02[1] + 5].cells[0] = confirmationState;
-            if (D_800F3A38[0].a != 0) {
+            if (PlayerControllers[0].a != 0) {
                 PlaySfx(1);
                 SetMenuFrameOptions(0, 1, 1);
                 UiRows[SelectionRows.selection.pad02[1] + 5].cells[0] = 1;
@@ -167,16 +167,16 @@ void ovl666_update_preview(void) {
                 UiRows[6].byte14 = 7;
                 SelectionRows.selection.rows[0] = SelectionRows.entry;
                 SelectionRows.selection.rows[0].parameter = 0x13;
-                D_800F3914 = 0;
+                CourseIndex = 0;
                 D_800F4D8A = 3;
                 ResetScreenCounters();
                 D_800AC5D0 = 0x40;
-                func_80053AF4(0, 0x3C);
+                SeqFadeVolume(0, 0x3C);
             save_preview_arena:
-                D_800F4D70.first = LoadCursor;
+                MenuArenas.first = LoadCursor;
                 goto draw_selection;
             }
-            if (D_800F3A38[0].b != 0) {
+            if (PlayerControllers[0].b != 0) {
                 PlaySfx(2);
                 UiRows[5].byte14 = 3;
                 UiRows[6].byte14 = 3;
@@ -195,7 +195,7 @@ void ovl666_update_preview(void) {
     case 5:
         SetMenuFrameOptions(0, 1, 1);
         closingState = UiRows[3].byte14;
-        if ((closingState == 5) && (((s8 *)D_800F2AB0)[1] == closingState)) {
+        if ((closingState == 5) && (((s8 *)ImageRows)[1] == closingState)) {
             ResetScreenCounters();
             ovl666_init_menu();
             ModeGroup = 1;
@@ -217,24 +217,24 @@ draw_selection_rows:
         DrawUiRow(6);
     }
     drawModel = modelReady;
-    if (((u32)((u8)((s8 *)D_800F2AB0)[1] - 1) < 2U) && (drawModel == 1)) {
-        func_80037198(0);
+    if (((u32)((u8)((s8 *)ImageRows)[1] - 1) < 2U) && (drawModel == 1)) {
+        DrawSelectionIconGrid(0);
         func_8002E5A0(PlayerCars);
         scale = 0x100;
-        if (((s8 *)D_800F2AB0)[1] == drawModel) {
-            brightness = ~((D_800F2AB0[2] * 0xFF) / 30);
+        if (((s8 *)ImageRows)[1] == drawModel) {
+            brightness = ~((ImageRows[2] * 0xFF) / 30);
             color.channels.r = brightness;
             color.channels.g = brightness;
             color.channels.b = brightness;
             drawFlags = 0x102;
-            scale = (D_800F2AB0[2] << 8) / 30;
+            scale = (ImageRows[2] << 8) / 30;
         } else {
             drawFlags = 1;
             color.channels.r = 0x80;
             color.channels.g = 0x80;
             color.channels.b = 0x80;
         }
-        func_8002CC88(PlayerCars, color.argument, scale, drawFlags);
+        DrawPreviewCar(PlayerCars, color.argument, scale, drawFlags);
     }
     UpdateBadgeRowAnim(0);
     if (UpdateImageRow(0) > 0) {

@@ -32,13 +32,13 @@ static struct World {u32 guard[4];RrSaveProgressRecord7C save;u8 name[12],glyphs
 #define ModeFrame world.frame
 #define ScreenFrame world.tick
 #define D_800F3A60 world.accept
-#define D_800F3A38 world.input
+#define PlayerControllers world.input
 #define D_800AC5D0 world.timer
 #define D_800F4D8A world.state
 #define D_800FFC18 world.slot
 #define D_800F3A26 world.scene
 #define ModeGroup world.enable
-#define D_800ACC14 world.context
+#define CurrentDrawBuf world.context
 '''+body+copy+r'''
 static struct Event {unsigned kind;s32 a,b,c;void *p;struct World before;} events[9];
 static unsigned count,seen,serial,scenario,profile,oneCalls,coverage[6],choices[46],outcome[2];static int reference_run;

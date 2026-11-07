@@ -5,11 +5,11 @@
 
 extern volatile int D_800ABDE4;
 extern unsigned char D_80114741;
-extern int D_80114870;
+extern int CardCurrentCommand;
 
 
 int MemCardSync(a0, a1, a2) int a0; int *a1; int *a2; {
-    if (D_80114870 == 0 || D_800ABDE4 == 1) {
+    if (CardCurrentCommand == 0 || D_800ABDE4 == 1) {
         *a2 = 0;
         *a1 = 0;
         return -1;
@@ -17,7 +17,7 @@ int MemCardSync(a0, a1, a2) int a0; int *a1; int *a2; {
     if (a0 == 0) {
         while (D_800ABDE4 < 5);
     }
-    *a1 = D_80114870;
+    *a1 = CardCurrentCommand;
     switch (D_800ABDE4) {
     case 4:
     case 2:
@@ -38,7 +38,7 @@ int MemCardSync(a0, a1, a2) int a0; int *a1; int *a2; {
             *a2 = 0;
         }
     fin:
-        D_80114870 = 0;
+        CardCurrentCommand = 0;
         return 1;
     }
 }
@@ -46,11 +46,11 @@ int MemCardSync(a0, a1, a2) int a0; int *a1; int *a2; {
 /* legacy typing of shared globals in this part of the unit */
 #define D_800ABDE4 (*(s32 (*))&D_800ABDE4)
 
-s32 func_8009C0A4(s32 value) {
+s32 _cardCmdReset(s32 value) {
     s32 result;
     if (!(D_800ABDE4 & 1)) return 0;
-    D_800ABDF4 = 0;
-    D_800ABDF8 = 0;
+    CardReceiveIndex = 0;
+    CardRxCount = 0;
     D_80114730 = 0;
     D_800ABDE8 = 0;
     {
@@ -59,7 +59,7 @@ s32 func_8009C0A4(s32 value) {
         result = 1;
         /* ASM_BARRIER: preserve the shared return path and preceding stores. */
         __asm__("" : "=r"(result) : "0"(result) : "$1", "memory");
-        /* PAL RAM mapping: D_800ABDEC is base minus 0x4214. */
+        /* PAL RAM mapping: CardCommandRequest is base minus 0x4214. */
         base = (s32 *)0x800B0000U;
         /* ASM_BARRIER: expose the register-relative store in the branch delay slot. */
         __asm__("" : "=r"(base) : "0"(base));

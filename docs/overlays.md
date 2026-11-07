@@ -144,7 +144,7 @@ recognizable course-selection structures). Garage 662 is a useful larger TU
 for shared menu structures. STR module 668 likely contains substantial library
 code and should be tracked separately when distinguishing game/library code.
 
-## Compiler (verified on three small functions: func_800172DC, func_8001F254, AngleDiffAbs)
+## Compiler (verified on three small functions: func_800172DC, BackupSaveData, AngleDiffAbs)
 
 gcc **2.8.1** PSX cc1 reproduces the original codegen (hoisted `lui/addiu` base pointers, loop delay slots);
 2.7.2 folds the symbols into the load/store and does not match. Pipeline in `tools/scripts/cc.sh`:

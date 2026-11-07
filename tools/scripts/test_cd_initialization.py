@@ -30,7 +30,7 @@ static void write32(volatile u32 *port,u32 value);
 #define RR_CD_WRITE8(port,value) write8(port,value)
 #define RR_CD_WRITE32(port,value) write32(port,value)
 #include "rr/cd_init.h"
-const char D_80011B08[]="CD_init:",D_80011B14[]="addr=%08x\n";
+const char CD_str_init_prefix[]="CD_init:",D_80011B14[]="addr=%08x\n";
 static u8 metadata_buffer[3];u8 *D_800A6768=metadata_buffer;
 static struct Ports {volatile u8 index,irq,enable;volatile u32 control;} ports[3];
 struct State {
@@ -49,10 +49,10 @@ static unsigned scenario,mutation;
 #define CD_status1 w->s.mode
 #define CD_cbsync w->s.callback1
 #define CD_cbready w->s.callback2
-#define D_800A674C w->s.indexPort
-#define D_800A6758 w->s.irqPort
-#define D_800A6754 w->s.enablePort
-#define D_800A675C w->s.controlPort
+#define CD_reg0 w->s.indexPort
+#define CD_reg3 w->s.irqPort
+#define CD_REG2 w->s.enablePort
+#define COM_DELAY w->s.controlPort
 static void callback1(s32 code,u8 *data){(void)code;(void)data;}
 static void callback2(s32 code,u8 *data){(void)code;(void)data;}
 void CdCommandCallback(void){}
@@ -97,8 +97,8 @@ static void write8(volatile u8 *p,u8 value){
  }
 }
 static void write32(volatile u32 *p,u32 value){unsigned b;for(b=0;b<3;b++)if(p==&ports[b].control)break;assert(b<3);event(12,b,value);w->s.device[b].control=value;}
-s32 func_800963DC(const char *message){assert(message==D_80011B08);service(1,0,0);return -1;}
-s32 func_8001E84C(const char *format,...){
+s32 func_800963DC(const char *message){assert(message==CD_str_init_prefix);service(1,0,0);return -1;}
+s32 DebugPrintStub(const char *format,...){
  va_list args;u32 address;assert(format==D_80011B14);va_start(args,format);address=va_arg(args,u32);va_end(args);
  assert(address==(u32)(uintptr_t)&D_800A6768);service(2,0,address);return 1;
 }
@@ -116,7 +116,7 @@ s32 CD_cw(s32 command,const u8 *params,u8 *result,s32 mode){
 s32 CD_sync(s32 mode,u8 *status){assert(mode==0 && status==0);service(6,0,0);return ((scenario>>1)%4)==2?2:3;}
 ''' + body + r'''
 static s32 reference(void){
- func_800963DC(D_80011B08);func_8001E84C(D_80011B14,(u32)(uintptr_t)&D_800A6768);
+ func_800963DC(CD_str_init_prefix);DebugPrintStub(D_80011B14,(u32)(uintptr_t)&D_800A6768);
  w->s.command=0;w->s.active=0;w->s.callback2=0;w->s.callback1=0;w->s.mode=0;w->s.status.word=0;
  ResetCallback();InterruptCallback(2,CdCommandCallback);
  write8(w->s.indexPort,1);

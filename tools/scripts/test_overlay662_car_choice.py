@@ -33,7 +33,7 @@ typedef struct {s32 op,arg;u32 hash;} Event;
 typedef struct {State s;unsigned calls;Event events[4];} World;
 static World actual,reference,initial,*w;static unsigned mutation;
 #define SaveProgress w->s.save
-#define D_800ABE08 w->s.choices
+#define CourseChoiceTable w->s.choices
 #define D_800ACBD0 w->s.points
 #define SelectionRows w->s.current
 #define ModeGroup w->s.mode
@@ -63,7 +63,7 @@ static void event(s32 op,s32 arg){size_t i;u32 hash=2166136261U;Event *e;assert(
 void SetDispMask(s32 mode){assert(mode==0);event(1,mode);}
 void ovl662_func_8011512C(void){event(2,0);}
 void ovl662_func_80118ED8(void){event(4,0);}
-s32 func_8001E84C(const char *message,...){assert(message==format);event(3,0);return 1;}
+s32 DebugPrintStub(const char *message,...){assert(message==format);event(3,0);return 1;}
 static void expected(unsigned kind){
  if(!kind){unsigned n=0,i;s32 glyph;SetDispMask(0);w->s.index=0;
   while(w->s.save.prefix.progress.prefix00.fields.name[n])n++;
@@ -72,7 +72,7 @@ static void expected(unsigned kind){
   ovl662_func_8011512C();glyph=w->s.choices[1][0].glyph;
   w->s.current.bytes[0]=(u8)(glyph/160);w->s.current.bytes[1]=(u8)(glyph/40-4*(glyph/160));w->s.current.bytes[2]=(u8)(glyph%40);
   w->s.points[0].first=w->s.choices[1][w->s.index].first;w->s.points[0].second=w->s.choices[1][w->s.index].second;
-  w->s.mode=1;w->s.position=64;w->s.timer=0;func_8001E84C(format);
+  w->s.mode=1;w->s.position=64;w->s.timer=0;DebugPrintStub(format);
  }else{
   RrCourseChoice4 c=w->s.choices[1][w->s.index];w->s.first=c.first;w->s.second=c.second;
   w->s.points[0].first=c.first;w->s.points[0].second=c.second;ovl662_func_80118ED8();

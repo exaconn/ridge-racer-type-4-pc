@@ -38,17 +38,17 @@
 #undef LoadIndex
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_800436E8 ((void (*)())func_800436E8)
+#define LoadTimList ((void (*)())LoadTimList)
 
 #define RaceLoadReset ((void (*)())RaceLoadReset)
 
-#define func_8004F600 ((void (*)())func_8004F600)
+#define SoundCloseVabsAndReset ((void (*)())SoundCloseVabsAndReset)
 
-#undef func_800436E8
+#undef LoadTimList
 
 #undef RaceLoadReset
 
-#undef func_8004F600
+#undef SoundCloseVabsAndReset
 
 extern char LoadIndex;
 

@@ -18,7 +18,7 @@ typedef struct {
     u8 group_count;
 } RrSlotAssignmentState;
 
-s32 func_80099404(RrSlotAssignmentState *state)
+s32 _padActAlignComplete(RrSlotAssignmentState *state)
 {
     s32 group, minimum, remaining, i;
     u8 *slots;

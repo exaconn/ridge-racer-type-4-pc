@@ -38,12 +38,12 @@ s32 CD_init(void) {
     return n<5 ? primary[n] : -99;
 }
 s32 CD_initvol(void) {secondary_calls++;return secondary[attempts-1];}
-s32 func_8001E84C(const char *format,...) {prints++;printed=format;return -123;}
+s32 DebugPrintStub(const char *format,...) {prints++;printed=format;return -123;}
 int DeliverEvent(int kind,int spec) {
     event_class[events]=(u32)kind;event_spec[events++]=(u32)spec;return -999;
 }
 '''
-        for name in ('CdInit','func_8008BED4','def_cbsync','def_cbready','def_cbread'):
+        for name in ('CdInit','CdInitAttempt','def_cbsync','def_cbready','def_cbread'):
             body=(root/'tools/scripts/fixtures/views'/f'{name}.c').read_text()
             body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
             body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)

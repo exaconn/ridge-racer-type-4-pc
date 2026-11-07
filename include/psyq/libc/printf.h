@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_80096484();
+int PsyqSprintf();
 
 #endif /* RR_PSYQ_LIBC_PRINTF_H */

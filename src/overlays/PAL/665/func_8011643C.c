@@ -54,7 +54,7 @@ void ovl665_func_8011643C(void) {
             SetGteObjectTransform(scratch->tail7C.projection.halves, temp_s1->position00.halves, (s32 *)sp10.words);
             var_a1 = 1;
             scratch->counter78 = 0;
-            func_80058768(scratch, var_a1, 0, 0);
+            SubmitModelTwoTri(scratch, var_a1, 0, 0);
             goto block_33;
     case 1:
     temp_s1_2 = &ovl665_D_80119768.view74;
@@ -72,7 +72,7 @@ void ovl665_func_8011643C(void) {
     SetGteObjectTransform(scratch->tail7C.projection.halves, temp_s1_2->position00.halves, (s32 *)sp10.words);
     scratch->counter78 = 0;
     var_a1 = D_800F2FD8 < 1;
-func_80058768(scratch, var_a1, 0, 0);
+SubmitModelTwoTri(scratch, var_a1, 0, 0);
  goto block_33;
 
     case 2:
@@ -96,7 +96,7 @@ temp_s4 = &ovl665_D_80119768.view74;
         if (D_800F2FD8 >= 3) {
             var_a1_4 = 2;
         }
-        func_80058768(RR_PREVIEW_RENDER_SCRATCH, var_a1_4, 0, 0);
+        SubmitModelTwoTri(RR_PREVIEW_RENDER_SCRATCH, var_a1_4, 0, 0);
         if (ovl665_D_80119768.layout0C >= 2) {
             if (ovl665_D_80119768.detail10 >= 2) {
                 SetGteObjectTransform(RR_PREVIEW_RENDER_SCRATCH->tail7C.projection.halves, temp_s4->position00.halves, (s32 *)sp30.words);
@@ -105,7 +105,7 @@ temp_s4 = &ovl665_D_80119768.view74;
                 if (D_800F2FD8 >= 7) {
                     var_a1_5 = 6;
                 }
-                func_80058768(RR_PREVIEW_RENDER_SCRATCH, var_a1_5, 0, 0);
+                SubmitModelTwoTri(RR_PREVIEW_RENDER_SCRATCH, var_a1_5, 0, 0);
             }
         }
         BuildRotMatrixX(sp30.halves, ovl665_D_80119768.view74.rotation20);
@@ -118,7 +118,7 @@ temp_s4 = &ovl665_D_80119768.view74;
         if (D_800F2FD8 >= 4) {
             var_a1_6 = 3;
         }
-        func_80058768(RR_PREVIEW_RENDER_SCRATCH, var_a1_6, 0, 0);
+        SubmitModelTwoTri(RR_PREVIEW_RENDER_SCRATCH, var_a1_6, 0, 0);
         if (ovl665_D_80119768.layout0C >= 2) {
             if (ovl665_D_80119768.detail10 >= 2) {
                 SetGteObjectTransform(RR_PREVIEW_RENDER_SCRATCH->tail7C.projection.halves, temp_s5_2->position00.halves, (s32 *)sp30.words);
@@ -127,7 +127,7 @@ temp_s4 = &ovl665_D_80119768.view74;
                 if (D_800F2FD8 >= 8) {
                     var_a1 = 7;
                 }
-                func_80058768(RR_PREVIEW_RENDER_SCRATCH, var_a1, 0, 0);
+                SubmitModelTwoTri(RR_PREVIEW_RENDER_SCRATCH, var_a1, 0, 0);
             goto block_33;
             }
         }
@@ -151,7 +151,7 @@ temp_s5 = &ovl665_D_80119768.view74;
             if (D_800F2FD8 >= 5) {
                 var_a1_2 = 4;
             }
-            func_80058768(scratch, var_a1_2, 0, 0);
+            SubmitModelTwoTri(scratch, var_a1_2, 0, 0);
             BuildRotMatrixZ((s16 *)sp30.halves, ovl665_D_80119768.view74.rotation1C + 0x400);
             MulMatrix2((s32 *)sp10.words, sp30.halves);
             ovl665_func_80116358(&sp30, &temp_s0_2->matrix);
@@ -161,7 +161,7 @@ temp_s5 = &ovl665_D_80119768.view74;
             if (D_800F2FD8 >= 6) {
                 var_a1_3 = 5;
             }
-            func_80058768(scratch, var_a1_3, 0, 0);
+            SubmitModelTwoTri(scratch, var_a1_3, 0, 0);
             if (ovl665_D_80119768.layout0C >= 2) {
                 if (ovl665_D_80119768.detail10 >= 2) {
                     if (ovl665_D_80119768.detail10 < 4) {
@@ -171,7 +171,7 @@ temp_s5 = &ovl665_D_80119768.view74;
                         if (D_800F2FD8 >= 9) {
                             var_a1 = 8;
                         }
-                        func_80058768(scratch, var_a1, 0, 0);
+                        SubmitModelTwoTri(scratch, var_a1, 0, 0);
                         goto block_33;
                     }
                 }

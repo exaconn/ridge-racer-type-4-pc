@@ -32,6 +32,6 @@ int a0;
         break;
     }
     SetIntrMask(D_800ABBF8);
-    if ((a0 & 7) == 0) return func_800954D8(a0);
+    if ((a0 & 7) == 0) return GPU_CheckVersion(a0);
     return 0;
 }

@@ -7,11 +7,11 @@ extern s16 LinkState, D_8010C068, D_80107178;
 extern s16 D_8010C070[4];
 extern s16 D_8010C080[4];
 extern char D_8010C088[4][12];
-extern u8 *D_800ACC14;
+extern u8 *CurrentDrawBuf;
 
-s32 func_80034FC0(void);
+s32 ExitOnLinkLost(void);
 s32 UpdateLinkHandshake(s32);
-void func_80034F80(void);
+void BeginLinkSync(void);
 void SetMenuFrameOptions(s32, s32, s32);
 void CopyStringClearTail(char *, char *);
 void CopyStringPadSpaces(char *, char *, s32);
@@ -24,7 +24,7 @@ void func_8003662C(s32);
 void UpdateMenuTextRow(s32);
 void func_800411D4(void);
 s32 func_8003B12C(void);
-void func_80053BB4(s32);
+void SeqStartTrack(s32);
 s32 ovl667_func_801187DC(s32);
 void ovl667_func_801161A8(s32);
 
@@ -36,7 +36,7 @@ void ovl667_func_8011885C(void) {
     s32 player;
 
     ModeFrame++;
-    if (func_80034FC0() != 0) {
+    if (ExitOnLinkLost() != 0) {
         return;
     }
     pressed = UpdateLinkHandshake(2);
@@ -84,7 +84,7 @@ void ovl667_func_8011885C(void) {
                 InitMenuArenas();
                 D_800AC5D0 = 64;
                 D_800F4D8A = MenuCursor + 5;
-                func_80034F80();
+                BeginLinkSync();
                 SetMenuFrameOptions(0, 1, 0);
             }
         }
@@ -95,7 +95,7 @@ void ovl667_func_8011885C(void) {
             break;
         }
         D_800AC5D0--;
-        AddScreenFadeTiles((u32 *)(D_800ACC14 + 0x70), (64 - D_800AC5D0) * 4, 69);
+        AddScreenFadeTiles((u32 *)(CurrentDrawBuf + 0x70), (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             D_8010C068 = 1;
             ModeGroup = 1;
@@ -111,7 +111,7 @@ void ovl667_func_8011885C(void) {
             break;
         }
         D_800AC5D0 -= 2;
-        AddScreenFadeTiles((u32 *)(D_800ACC14 + 0x70), (64 - D_800AC5D0) * 4, 69);
+        AddScreenFadeTiles((u32 *)(CurrentDrawBuf + 0x70), (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             group = -1;
             D_800F4D8A = 8;
@@ -120,7 +120,7 @@ void ovl667_func_8011885C(void) {
     case 6:
         group = -1;
         D_800AC5D0--;
-        AddScreenFadeTiles((u32 *)(D_800ACC14 + 0x70), (64 - D_800AC5D0) * 4, 69);
+        AddScreenFadeTiles((u32 *)(CurrentDrawBuf + 0x70), (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             ModeGroup = 1;
             D_800F3A26 = 3;
@@ -132,7 +132,7 @@ void ovl667_func_8011885C(void) {
         if (result != 1) {
             return;
         }
-        func_80053BB4(0);
+        SeqStartTrack(0);
         LinkState = 0;
         D_800AC5D4 = (result - D_800AD508) * 2;
         ovl667_func_801161A8(D_800AC5D4);

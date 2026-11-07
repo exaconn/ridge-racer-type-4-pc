@@ -10,7 +10,7 @@
 
 extern int IntroScriptStep();
 extern int DrawUiRow();
-extern int D_800F3A38[];
+extern int PlayerControllers[];
 extern char *UiRows;
 extern short MenuCursor;
 extern short D_800AD564;
@@ -33,12 +33,12 @@ void func_8002F0E0(void) {
 }
 
 void DrawModeSelectRows() {
-    int n = D_800F4CD0 + func_80034E3C();
+    int n = D_800F4CD0 + IsLinkPeerPresent();
     int i = 0;
     if (n > 0) {
         do {
             if (i == 2) {
-                if (D_800F3A38[0x6C / 4] == -1) *(short *)(UiRows + 0x68) = 1;
+                if (PlayerControllers[0x6C / 4] == -1) *(short *)(UiRows + 0x68) = 1;
                 else *(short *)(UiRows + 0x68) = 0;
             }
             DrawUiRow(i);
@@ -55,7 +55,7 @@ int ModeSelectMenuStep(void)
     int s1, s2, i;
     int v;
 
-    s1 = D_800F4CD0 + func_80034E3C();
+    s1 = D_800F4CD0 + IsLinkPeerPresent();
     if (MenuCursor == D_800F4CD0) {
         if (s1 == MenuCursor) {
             UiRows[s1].b0C = 0;
@@ -95,7 +95,7 @@ int ModeSelectMenuStep(void)
             D_800FFC10 = 0;
             break;
         case 2:
-            func_8001F290();
+            RestoreSaveData();
             D_800F4D44 = 2;
             D_800FFC10 = 0;
             break;
@@ -110,7 +110,7 @@ int ModeSelectMenuStep(void)
             break;
         default:
             if (v == D_800F4CD0) {
-                func_8001F290();
+                RestoreSaveData();
                 D_800F4D44 = 4;
                 D_800F4D2C = 8;
                 PendingModeId = 0x11D;
@@ -126,7 +126,7 @@ int ModeSelectMenuStep(void)
                 UiRows[MenuCursor].b0C = 0;
                 s2 = 1;
                 UiRows[(short)D_800F4D2C].b0C = 0;
-                func_8001F290();
+                RestoreSaveData();
                 D_800F4D2C = 8;
                 D_800F4D44 = 4;
                 PendingModeId = 0x11D;

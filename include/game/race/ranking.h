@@ -4,9 +4,9 @@
 #include "types.h"
 
 int InitDefaultTimeRecords();
-void func_8001F194(void);
-int func_8001F254();
-void func_8001F290(void);
+void InitCourseChoices(void);
+int BackupSaveData();
+void RestoreSaveData(void);
 int func_8001F400();
 
 #endif /* RR_GAME_RACE_RANKING_H */

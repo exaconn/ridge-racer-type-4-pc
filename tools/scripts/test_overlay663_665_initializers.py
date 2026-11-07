@@ -39,7 +39,7 @@ static u8 resources[3][0x2D100],original_resources[3][0x2D100];
 #define ovl663_extra_courses_enabled world.c4
 #define ovl663_record_kind world.c8
 #define ovl663_available_course_count world.condition
-#define D_800F4D70 world.arenas
+#define MenuArenas world.arenas
 #define CdDirectoryBuffer world.base
 #define LoadCursor world.published
 #define UiRows world.ui

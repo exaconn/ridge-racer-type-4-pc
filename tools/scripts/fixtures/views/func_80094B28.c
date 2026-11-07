@@ -12,9 +12,9 @@
 #undef func_80096444
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABAB8 ((void *)D_800ABAB8)
+#define GpuFuncTable ((void *)GpuFuncTable)
 
-#undef D_800ABAB8
+#undef GpuFuncTable
 
 /* legacy typing of shared globals in this part of the unit */
 #define GPU_STATUS ((s32 *)GPU_STATUS)

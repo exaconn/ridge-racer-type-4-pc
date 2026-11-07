@@ -28,7 +28,7 @@ typedef union {u8 bytes[256];u32 words[64];} Arena;
 typedef struct {u32 *ordering;void *cursor;RrFrameStorage *context;RrUiUvRect *region;s32 x,y,flags;u16 clut,page;u8 *published;} Event;
 static struct World {u32 guard[4];RrGpuScratchPointers scratch;RrFrameStorage *context;RrFrameStorage frames[3];Arena arenas[3];s32 phase;RrUiUvRect region;u32 calls;Event events[2];u32 tail[4];} world,expected;
 #define RR_GPU_SCRATCH (&world.scratch)
-#define D_800ACC14 world.context
+#define CurrentDrawBuf world.context
 #define ScreenFrame world.phase
 #define ovl666_selection_sprite world.region
 static const s16 rom[4097]={''' + ','.join(map(str,table)) + r'''};
@@ -66,7 +66,7 @@ static void second_effect(struct World *v,u16 page){
 }
 /* ABI-confirmed resident emitter boundaries. Full pointer returns and the
  * captured/fresh context distinction are directly observable in the events. */
-void *func_8001FF84(u32 *ordering,void *packet,s32 x,s32 y,RrUiUvRect *region,u16 clut,s32 flags){
+void *AddSpritePrim(u32 *ordering,void *packet,s32 x,s32 y,RrUiUvRect *region,u16 clut,s32 flags){
  assert(world.calls==0 && ordering==world.frames[frame_id].ordering.ordering70 && packet==cursor(0));
  assert(x==arg_x && y==arg_y && region==&world.region && clut==0x7FA4 && flags==expected_flags);
  first_effect(&world,flags);return cursor(20);

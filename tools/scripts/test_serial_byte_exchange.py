@@ -35,7 +35,7 @@ s32 test_page[0x4000];
 #define D_80114700 test_page[0x4700/4]
 #define RR_NOP_DEP_ON(value) ((void)(value))
 ''' + header + '''
-RrSerialPortRegisters test_ports[2],*D_800ABDD0;
+RrSerialPortRegisters test_ports[2],*CardSio0Base;
 volatile u32 test_irq[2],*D_800ABDD4;
 s32 (*test_poll)(void);void (*test_start)(s32);
 u16 (*test_status)(void *);
@@ -47,7 +47,7 @@ void test_reset(void) {
  test_ports[0].data=0xAB;test_ports[0].status=1;
  test_ports[1].data=0xCD;test_ports[1].status=0;
  test_irq[0]=test_irq[1]=0;
- D_800ABDD0=&test_ports[0];D_800ABDD4=&test_irq[0];
+ CardSio0Base=&test_ports[0];D_800ABDD4=&test_irq[0];
 }
 '''
         body = (root/'tools/scripts/fixtures/views/func_8009BE18.c').read_text()
@@ -69,7 +69,7 @@ void test_reset(void) {
         cls.ports = (Port * 2).in_dll(cls.lib, 'test_ports')
         cls.irq = (C.c_uint32 * 2).in_dll(cls.lib, 'test_irq')
         cls.page = (C.c_int32 * 0x4000).in_dll(cls.lib, 'test_page')
-        cls.exchange = cls.lib.func_8009BE18
+        cls.exchange = cls.lib._cardXferByte
         cls.exchange.argtypes = [C.c_int32]
         cls.exchange.restype = C.c_int32
 
@@ -130,7 +130,7 @@ void test_reset(void) {
         polls = []
         def status(address):
             reads.append(address)
-            self.pointer('D_800ABDD0').value = initial + C.sizeof(Port)
+            self.pointer('CardSio0Base').value = initial + C.sizeof(Port)
             return 1 if len(reads) == 3 else 0
         def poll():
             polls.append(1)
@@ -179,7 +179,7 @@ void test_reset(void) {
             if stage[0] == 5:
                 return int(stage[1] == 2)
             self.assertEqual(self.irq[1], 0xFFFFFF7F)
-            self.pointer('D_800ABDD0').value = second
+            self.pointer('CardSio0Base').value = second
             self.page[0x4700//4] = 0x12345678
             return 0
         self.assertEqual(self.invoke(0x7FFFFFFF, poll, start), 0x12345678)

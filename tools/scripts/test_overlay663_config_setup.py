@@ -30,7 +30,7 @@ static struct World {u32 guard[4];s32 frame,counter,local;s16 selected,mapped,cu
 #define ScreenFrame world.counter
 #define ovl663_selected_record world.local
 #define D_800AC648 world.selected
-#define D_800F3914 world.mapped
+#define CourseIndex world.mapped
 #define MenuCursor world.current
 #define BadgeRows world.badge
 #define MenuFrameState world.work32.words[0]

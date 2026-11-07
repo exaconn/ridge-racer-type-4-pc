@@ -21,7 +21,7 @@ void ovl668_func_80116558(s32 mode) {
         RR_STR_WRITE32(ovl668_D_80116E54, (RR_STR_READ32(ovl668_D_80116E34), 0x60000000));
         break;
     default:
-        func_8001E84C(ovl668_D_801148C0, mode);
+        DebugPrintStub(ovl668_D_801148C0, mode);
         break;
     }
 }

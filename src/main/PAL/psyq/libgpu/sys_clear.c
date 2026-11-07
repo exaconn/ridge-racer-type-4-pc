@@ -7,11 +7,11 @@
 #include "psyq/libgpu/gpuenv.h"
 #include "rr/gpu.h"
 
-extern struct { char p[0x18]; int (*f18)(); } *D_800ABAB8;
+extern struct { char p[0x18]; int (*f18)(); } *GpuFuncTable;
 extern volatile unsigned *DMA2_CHCR;
 extern volatile unsigned *GPU_STATUS;
 extern int D_800ABBFC;
-extern int D_800ABC00;
+extern int GpuAlarmCount;
 
 int DrawOTag2();
 void GPU_memset(s8 *arg0, s8 arg1, s32 arg2);
@@ -23,19 +23,19 @@ void GPU_memset(s8 *arg0, s8 arg1, s32 arg2);
 int DrawOTag2(a0) int a0; {
     if (D_800ABAC2 >= 2) GPU_printf(D_80011F38, a0);
     D_800ABBFC = VSync(-1) + 0xF0;
-    D_800ABC00 = 0;
+    GpuAlarmCount = 0;
     while ((*DMA2_CHCR & 0x1000000) || (*GPU_STATUS & 0x4000000) == 0) {
         if (get_alarm() != 0) return -1;
     }
-    DMACallback(2, func_80095990);
-    D_800ABAB8->f18(a0);
+    DMACallback(2, GPU_DmaDoneRequeue);
+    GpuFuncTable->f18(a0);
     return 0;
 }
 
 #undef D_800ABAC2
 #undef GPU_printf
 
-void func_80095990(void) {
+void GPU_DmaDoneRequeue(void) {
     DMACallback(2,_exeque);
 }
 

@@ -20,7 +20,7 @@ source=r'''
 static struct World {u32 guard[4];RrGpuScratchPointers scratch;RrIconSpriteContext contexts[3];RrIconSpriteContext *context;s16 status[20];RrMenuChoice4 choice;RrUiUvRect icon;u32 arena[256];u32 tail[4];} world,expected;
 static struct Event {unsigned kind;u32 args[8];void *cursor;u32 *head;struct World before;} events[24];
 static unsigned count,seen,scenario,profile,serial;static int reference_run;
-#define D_800ACC14 world.context
+#define CurrentDrawBuf world.context
 #define SelectionRows world.choice
 #define ovl662_D_80127300 world.status
 #define ovl662_D_80126214 world.icon
@@ -40,7 +40,7 @@ static void *service(unsigned kind,u32 *head,void *cursor,const u32 *args){struc
  else{assert(seen<count);struct Event *e=&events[seen++];assert(e->kind==kind&&e->head==head&&e->cursor==cursor&&memcmp(e->args,args,32)==0&&memcmp(w,&e->before,sizeof(*w))==0);}
  effect(w,kind,args,order);return (u8*)cursor+(kind==0?20:kind==1?16:12);
 }
-void *func_8001FF84(u32 *h,void *p,s32 x,s32 y,RrUiUvRect *r,u16 clut,s32 flags){u32 a[8]={(u32)x,(u32)y,r->u,r->v,r->w,r->h,clut,(u32)flags};return service(0,h,p,a);}
+void *AddSpritePrim(u32 *h,void *p,s32 x,s32 y,RrUiUvRect *r,u16 clut,s32 flags){u32 a[8]={(u32)x,(u32)y,r->u,r->v,r->w,r->h,clut,(u32)flags};return service(0,h,p,a);}
 void *AddTilePrim(u32 *h,void *p,s32 x,s32 y,s32 w,s32 hgt,s32 r,s32 g,s32 b){u32 a[8]={(u32)x,(u32)y,(u32)w,(u32)hgt,(u32)r,(u32)g,(u32)b};return service(1,h,p,a);}
 void *AddDrawModePrim(u32 *h,void *p,u16 page){u32 a[8]={page};return service(2,h,p,a);}
 static void reference(s32 selected){

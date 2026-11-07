@@ -10,7 +10,7 @@ typedef unsigned int u32;
 
 extern s32 func_80096D14(const s8 *);
 extern s8 *func_80096D24(const s8 *, s32, s32);
-extern void *func_80096D34(void *, const void *, s32);
+extern void *PsyqMemmove(void *, const void *, s32);
 
 typedef struct {
     u32 left : 1;
@@ -27,10 +27,10 @@ typedef struct {
 } FmtState;
 
 extern FmtState D_800ABC20;
-extern const s8 D_80011FF8[];
-extern const s8 D_8001200C[];
+extern const s8 HexDigitsUpper[];
+extern const s8 StrHexDigitsLower[];
 
-s32 func_80096484(s8 *dst, const s8 *fmt, ...) {
+s32 PsyqSprintf(s8 *dst, const s8 *fmt, ...) {
     s8 buf[512];
     FmtState st;
     s32 * volatile ap;
@@ -259,10 +259,10 @@ s32 func_80096484(s8 *dst, const s8 *fmt, ...) {
                     st.is_long = 1;
                     /* fallthrough */
                 case 'X':
-                    digits = D_80011FF8;
+                    digits = HexDigitsUpper;
                     goto do_hex;
                 case 'x':
-                    digits = D_8001200C;
+                    digits = StrHexDigitsLower;
                 do_hex:
                     uval = *ap++;
                     __asm__ volatile("" : : "m"(st)); /* ASM_BARRIER: load st after ap++ */
@@ -366,7 +366,7 @@ s32 func_80096484(s8 *dst, const s8 *fmt, ...) {
                         st.width--;
                     } while (len < st.width);
                 }
-                func_80096D34(dst + total, p, len);
+                PsyqMemmove(dst + total, p, len);
                 total += len;
                 while (len < st.width) {
                     dst[total++] = ch_space;

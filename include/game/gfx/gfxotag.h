@@ -4,7 +4,7 @@
 #include "types.h"
 
 extern short D_8009FE60[];
-extern u16 D_800F3A40;
+extern u16 Pad0Buttons;
 void ApplyCameraState(int *a);
 
 #endif /* RR_GAME_GFX_GFXOTAG_H */

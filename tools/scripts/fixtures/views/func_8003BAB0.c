@@ -38,17 +38,17 @@
 #undef LoadIndex
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_800436E8 ((void (*)())func_800436E8)
+#define LoadTimList ((void (*)())LoadTimList)
 
 #define RaceLoadReset ((void (*)())RaceLoadReset)
 
-#define func_8004F600 ((void (*)())func_8004F600)
+#define SoundCloseVabsAndReset ((void (*)())SoundCloseVabsAndReset)
 
-#undef func_800436E8
+#undef LoadTimList
 
 #undef RaceLoadReset
 
-#undef func_8004F600
+#undef SoundCloseVabsAndReset
 
 extern char LoadIndex;
 
@@ -62,7 +62,7 @@ extern int CdFileBytesLoaded();
 
 extern int LoadCursor;
 
-extern short D_800F3914;
+extern short CourseIndex;
 
 extern void SetTrackNodeData();
 
@@ -70,7 +70,7 @@ extern char *TrackNodes;
 
 extern int TrackNodeCount;
 
-extern char *D_800F2EC4;
+extern char *TrackNodesEnd;
 
 extern int D_8010BFC8;
 
@@ -82,7 +82,7 @@ int LoadTrackNodesStep(void) {
         LoadState = 1;
         D_8010BFC8 = 0;
     case 1:
-        if (CdFileReadStart(GetR4FileIndex(1, D_800F3914 + 0x38), LoadCursor) != 0) {
+        if (CdFileReadStart(GetR4FileIndex(1, CourseIndex + 0x38), LoadCursor) != 0) {
             LoadState = 2;
         }
         break;
@@ -90,7 +90,7 @@ int LoadTrackNodesStep(void) {
         if (CdFileBytesLoaded() != 0) {
             SetTrackNodeData(LoadCursor);
             LoadState = 3;
-            D_800F2EC4 = TrackNodes + TrackNodeCount * 60;
+            TrackNodesEnd = TrackNodes + TrackNodeCount * 60;
     case 3:
             r = 1;
         }

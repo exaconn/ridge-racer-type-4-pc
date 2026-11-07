@@ -2,5 +2,5 @@
 /* $at as the %hi() base: with $1 allocatable cc1 2.8.1 emits lui $1,%hi / sw %lo($1) and its reorg fills the jr/jal delay slot with the sw (see DECOMP_GUIDE "delay-slot store"). */
 #include "psyq/libcd/dsstrm32.h"
 #include "game/data/globals.h"
-extern int D_80110304;
-void StSetMask(int a, int b, int c) { D_80110308 = a; D_801102E4 = b; D_80110304 = c; }
+extern int StEndFrame;
+void StSetMask(int a, int b, int c) { D_80110308 = a; StStartFrame = b; StEndFrame = c; }

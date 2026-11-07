@@ -8,7 +8,7 @@ void ovl662_func_801161FC(void)
     ScreenFrame = (s32)((u32)ScreenFrame + 1U);
     switch ((u16)D_800F4D8A) {
     case 0:
-        ready = func_8003B47C();
+        ready = LoadGlyphRowsStep();
         if (ready == 1) {
             SetMenuFrameOptions(1, 1, 1);
             D_800F4D8A = ready;
@@ -22,7 +22,7 @@ void ovl662_func_801161FC(void)
             if (changed) {
                 ovl662_func_80116690();
             }
-            if (D_800F3A38[0].a) {
+            if (PlayerControllers[0].a) {
                 if ((s16)ovl662_D_801272D8[SelectionRows.bytes[0]] > 0) {
                     PlaySfx(1);
                     ModeFrame = 0;
@@ -32,7 +32,7 @@ void ovl662_func_801161FC(void)
                 } else {
                     PlaySfx(4);
                 }
-            } else if (D_800F3A38[0].b) {
+            } else if (PlayerControllers[0].b) {
                 PlaySfx(2);
                 D_800F4D8A = 8;
                 D_800AC5D0 = 64;
@@ -56,7 +56,7 @@ void ovl662_func_801161FC(void)
             if (changed) {
                 ovl662_func_80116808();
             }
-            if (D_800F3A38[0].a) {
+            if (PlayerControllers[0].a) {
                 if ((s16)ovl662_D_80127328[SelectionRows.bytes[0]][SelectionRows.bytes[1]] > 0) {
                     PlaySfx(1);
                     ModeFrame = 0;
@@ -66,7 +66,7 @@ void ovl662_func_801161FC(void)
                 } else {
                     PlaySfx(4);
                 }
-            } else if (D_800F3A38[0].b) {
+            } else if (PlayerControllers[0].b) {
                 PlaySfx(2);
                 ovl662_D_801272D4 = 1;
                 D_800F4D8A = 4;
@@ -95,7 +95,7 @@ void ovl662_func_801161FC(void)
     case 8:
         D_800AC5D0--;
         SetMenuFrameOptions(0, 1, 1);
-        AddScreenFadeTiles(((RrFrameOrderingPrefix *)D_800ACC14)->ordering70,
+        AddScreenFadeTiles(((RrFrameOrderingPrefix *)CurrentDrawBuf)->ordering70,
                      (64 - D_800AC5D0) * 4, 69);
         if (D_800AC5D0 <= 0) {
             ovl662_func_8011512C();

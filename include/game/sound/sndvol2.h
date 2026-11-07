@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_80050EC4(void);
+void UpdatePlayerVoices(void);
 
 #endif /* RR_GAME_SOUND_SNDVOL2_H */

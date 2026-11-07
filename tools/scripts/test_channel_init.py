@@ -29,52 +29,52 @@ static RrChannelRecordF0 external_record;
 static union {void *align;u8 bytes[0x4388];} callback_page;
 #define D_801144D8 actual.records
 #define D_80114448 actual.buffers_a
-#define D_80114490 actual.buffers_b
-#define D_800ABC88 (*(RrChannelUpdateCallback *)(callback_page.bytes+8))
-RrChannelRecordF0 *D_800ABC9C;
+#define PadTxBuffers actual.buffers_b
+#define PadPacketDoneCallback (*(RrChannelUpdateCallback *)(callback_page.bytes+8))
+RrChannelRecordF0 *PadChannelRecords;
 RrChannelErrorCallback D_800ABC68;
 RrChannelUpdateCallback D_800ABC6C,D_800ABC74;
-u32 (*D_800ABC70)(const RrChannelTransferView *);
+u32 (*PadTxByteCallback)(const RrChannelTransferView *);
 s32 (*D_800ABC78)(void *);
 RrChannelRecordCallback D_800ABC7C;
 void (*D_800ABC8C)(RrChannelTransferView *);
 RrChannelStatusCallback D_800ABC80,D_800ABC84;
-s32 D_800ABCA0,D_800ABCB4;
+s32 PadComActive,D_800ABCB4;
 static int stage,seed;
-void func_80099E9C(s32 n) {(void)n;}
-void func_80099E34(void *p) {(void)p;}
-u32 func_80099FA0(const RrChannelTransferView *p) {(void)p;return 0;}
-void func_8009A05C(void *p) {(void)p;}
-s32 func_8009A2D8(void *p) {(void)p;return 0;}
-void *func_8009A310(s32 n) {(void)n;return 0;}
-void func_80099F90(RrChannelTransferView *p) {(void)p;}
-s32 func_8009A368(void *p) {(void)p;return 0;}
-s32 func_8009A7BC(void *p) {(void)p;return 0;}
-void func_8009A478(void *p) {(void)p;}
+void _padAdvanceChannel(s32 n) {(void)n;}
+void _padResetChannel(void *p) {(void)p;}
+u32 _padGetTxByte(const RrChannelTransferView *p) {(void)p;return 0;}
+void _padAllocGates(void *p) {(void)p;}
+s32 _padChannelToPort(void *p) {(void)p;return 0;}
+void *_padPortToChannel(s32 n) {(void)n;return 0;}
+void _padSaveCommand(RrChannelTransferView *p) {(void)p;}
+s32 _padChannelDispatch(void *p) {(void)p;return 0;}
+s32 _padChannelBusy(void *p) {(void)p;return 0;}
+void _padPacketDone(void *p) {(void)p;}
 '''+registrar+r'''
 static void check_callbacks(void) {
- assert(D_800ABC68==func_80099E9C && D_800ABC6C==func_80099E34);
- assert(D_800ABC70==func_80099FA0 && D_800ABC74==func_8009A05C);
- assert(D_800ABC78==func_8009A2D8 && D_800ABC7C==func_8009A310);
- assert(D_800ABC8C==func_80099F90);
- assert(D_800ABC80==func_8009A368 && D_800ABC84==func_8009A7BC && D_800ABC88==func_8009A478);
+ assert(D_800ABC68==_padAdvanceChannel && D_800ABC6C==_padResetChannel);
+ assert(PadTxByteCallback==_padGetTxByte && D_800ABC74==_padAllocGates);
+ assert(D_800ABC78==_padChannelToPort && D_800ABC7C==_padPortToChannel);
+ assert(D_800ABC8C==_padSaveCommand);
+ assert(D_800ABC80==_padChannelDispatch && D_800ABC84==_padChannelBusy && PadPacketDoneCallback==_padPacketDone);
 }
 void _padInitDirSeq(void) {
- assert(stage==0 && D_800ABCA0==0 && D_800ABCB4==0);
- native_registrar();stage=1;D_800ABCA0=-17;D_800ABCB4=seed;
+ assert(stage==0 && PadComActive==0 && D_800ABCB4==0);
+ native_registrar();stage=1;PadComActive=-17;D_800ABCB4=seed;
 }
 void func_80096434(void *p,s32 length) {
  assert(stage==1 && p==actual.records && length==sizeof(actual.records));
- assert(D_800ABC9C==actual.records && D_800ABCA0==-17 && D_800ABCB4==seed);
+ assert(PadChannelRecords==actual.records && PadComActive==-17 && D_800ABCB4==seed);
  check_callbacks();memset(p,0,length);
  actual.records[0].responseE8=seed;actual.records[1].responseE8=seed+1;
  /* The local arena pointer must survive an opaque helper replacing this global. */
- D_800ABC9C=&external_record;stage=2;
+ PadChannelRecords=&external_record;stage=2;
 }
 void _padSetVsyncParam(void) {
- assert(stage==2 && D_800ABCA0==-17 && D_800ABCB4==seed);
+ assert(stage==2 && PadComActive==-17 && D_800ABCB4==seed);
  assert(!memcmp(&actual,&expected,sizeof(actual)));
- check_callbacks();D_800ABCA0=-42;stage=3;
+ check_callbacks();PadComActive=-42;stage=3;
 }
 '''+body+r'''
 static u8 *mapped(u8 *pointer) {
@@ -114,10 +114,10 @@ int main(void) {
   memset(&callback_page,0xA5,sizeof(callback_page));
   memcpy(&expected,&actual,sizeof(actual));first=input(a);second=input(b);
   reference(first,second);
-  D_800ABCA0=123;D_800ABCB4=456;D_800ABC9C=0;
+  PadComActive=123;D_800ABCB4=456;PadChannelRecords=0;
   PadInitDirect(first,second);
-  assert(stage==3 && D_800ABCA0==1 && D_800ABCB4==seed);
-  assert(D_800ABC9C==&external_record);
+  assert(stage==3 && PadComActive==1 && D_800ABCB4==seed);
+  assert(PadChannelRecords==&external_record);
   assert(!memcmp(&actual,&expected,sizeof(actual)));
   for(j=0;j<sizeof(external_record);j++)assert(((u8 *)&external_record)[j]==0xB7);
   assert(callback_page.bytes[0]==0xA5 && callback_page.bytes[7]==0xA5 && callback_page.bytes[16]==0xA5 && callback_page.bytes[0x4387]==0xA5);

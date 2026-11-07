@@ -25,14 +25,14 @@ extern int VSyncThreshold;
 extern short MenuCursor;
 extern signed char SelectionState[];
 extern int ModeFrame;
-extern T D_800F2E30[];
+extern T SaveSlotSelections[];
 extern short D_800F3A26;
 extern short ModeGroup;
 extern short D_800F4D8A;
 extern int DrawUiRow();
 extern E *UiRows;
 extern short D_800FFC18;
-extern struct { int p[10]; int a28; int a2c; } D_800F3A38;
+extern struct { int p[10]; int a28; int a2c; } PlayerControllers;
 extern int StepMenuValue();
 extern int PlaySfx();
 extern int AddScreenFadeTiles();
@@ -69,7 +69,7 @@ void func_8002FCEC() {
     ClearScreenOverlayState();
     a1 = 0;
     a0 = 0;
-    p = D_800F2E30;
+    p = SaveSlotSelections;
     L:
     a0++;
     if (p->b > 0) goto T;
@@ -125,7 +125,7 @@ void func_8002FEFC() {
     s = UiRows->b;
     if (s != 2) goto END;
     SetMenuFrameOptions(1, 1, 1);
-    if (D_800F3A38.a28 == 0) goto L0C;
+    if (PlayerControllers.a28 == 0) goto L0C;
     PlaySfx(1);
     UiRows[MenuCursor].a = 1;
     v = 3;
@@ -137,7 +137,7 @@ void func_8002FEFC() {
     D_800F4D8A = 1;
     goto END;
 L0C:
-    if (D_800F3A38.a2c == 0) goto END;
+    if (PlayerControllers.a2c == 0) goto END;
     PlaySfx(2);
     v = 3;
     MenuCursor = s;
@@ -152,7 +152,7 @@ C1:
     SetMenuFrameOptions(0, 1, 1);
     t = D_800AC5D0 - 1;
     D_800AC5D0 = t;
-    AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - (short)t) * 4, 0x45);
+    AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - (short)t) * 4, 0x45);
     if ((short)D_800AC5D0 > 0) goto END;
     w = MenuCursor;
     if (w == s) goto L120;
@@ -188,7 +188,7 @@ END:
 #undef ModeGroup
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((char *)D_800ACC14)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
 void func_8003016C(void)
 {
@@ -215,10 +215,10 @@ void func_8003016C(void)
         LoadCursor = D_800F4D40;
     }
     MenuFrameState = 0;
-    sp[0] = AddTileGrid2x2(D_800ACC14 + 0x70, sp[0], 0, 0, 0x140, 0x200, 8, 8, 8);
+    sp[0] = AddTileGrid2x2(CurrentDrawBuf + 0x70, sp[0], 0, 0, 0x140, 0x200, 8, 8, 8);
     ModeGroup = 1;
     D_800F3A26 = 0x10;
     D_800F4D8A = 0;
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf

@@ -37,7 +37,7 @@ class OverlaySamplesTest(unittest.TestCase):
 #include "rr/projection_state.h"
 s16 ModeGroup, D_800F3A26, D_800F4D8A, D_800AD50A;
 s32 ModeFrame; RrRaceVehicle PlayerCars[2];
-RrFrameStorage *D_800ACC14, display_buffer;
+RrFrameStorage *CurrentDrawBuf, display_buffer;
 RrBadgeRow1C first, second, *BadgeRows;
 s16 *sample665_badges;
 u8 ScreenFadeState;
@@ -52,7 +52,7 @@ void func_8003CAB4(void) {
     assert((scenario == 659 && step == 0) || (scenario == 666 && step == 1));
     step++;
     ModeGroup = -8; D_800F3A26 = -9; D_800F4D8A = -10;
-    D_800ACC14 = &display_buffer;
+    CurrentDrawBuf = &display_buffer;
 }
 void AddScreenFadeTiles(void *a, s32 b, s32 c) {
     assert(scenario == 666 && step++ == 2);
@@ -72,7 +72,7 @@ void ResetCarState(void *p) {
     assert(!memcmp(&test_scratch,&expected,sizeof(expected)));
     memset(p, 0x5A, sizeof(PlayerCars));
 }
-void func_80037110(void) {
+void InitPreviewImageRows(void) {
     assert(scenario == 663 && step++ == 2);
     for (int i = 0; i < 0x320/4; i++) {
         s32 expected = 0x5A5A5A5A;

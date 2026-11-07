@@ -5,25 +5,25 @@
 typedef struct { unsigned char b0; char p0[3]; unsigned short h4; char p1[4]; unsigned short hA; } S;
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABDD0 ((S *)D_800ABDD0)
+#define CardSio0Base ((S *)CardSio0Base)
 #define D_800ABDD4 ((int *)D_800ABDD4)
 #define setRC2wait ((int (*)())setRC2wait)
 
-int func_8009BD44(a0) int a0; {
-    volatile S *p, *q = D_800ABDD0;
+int _cardSelectSlot(a0) int a0; {
+    volatile S *p, *q = CardSio0Base;
     q->hA = 0;
     setRC2wait(0x91);
-    p = D_800ABDD0;
+    p = CardSio0Base;
     p->hA = a0 ? 0x3003 : 0x1003;
     if (p->h4 & 0x200) {
         p->hA |= 0x10;
         if (p->h4 & 0x200) {
             p->b0 = 1;
-            p = D_800ABDD0;
+            p = CardSio0Base;
             /* ASM_BARRIER: orig has the load-delay nop BEFORE the loop label; maspsx emits it after the label (inside the loop) */
             RR_NOP_DEP();
             while ((p->h4 & 2) == 0) ;
-            p = D_800ABDD0;
+            p = CardSio0Base;
             p->b0;
             return 0;
         }
@@ -32,13 +32,13 @@ int func_8009BD44(a0) int a0; {
     return 1;
 }
 
-#undef D_800ABDD0
+#undef CardSio0Base
 #undef D_800ABDD4
 #undef setRC2wait
 
-s32 func_8009BE18(s32 value) {
+s32 _cardXferByte(s32 value) {
     s32 ready, completed, input;
-    RrSerialPortRegisters *initial=D_800ABDD0;
+    RrSerialPortRegisters *initial=CardSio0Base;
     RrSerialPortRegisters *port;
     u32 *interrupt;
     {
@@ -62,7 +62,7 @@ s32 func_8009BE18(s32 value) {
         {
             /* ASM_BARRIER: Form the complemented byte in the original polling delay slot. */
             register u32 complement __asm__("$2")=~input;
-            RrSerialPortRegisters *output=D_800ABDD0;
+            RrSerialPortRegisters *output=CardSio0Base;
             /* ASM_BARRIER: Preserve the original load gap before the shared success jump. */
             RR_NOP_DEP_ON(output);
             /* Ordinary write view retains the original jump-delay store. */
@@ -85,7 +85,7 @@ irq_done:
         RrSerialPortRegisters *output;
         /* ASM_BARRIER: Prepare the next timer limit before loading the fresh output port. */
         __asm__("" : "+r"(limit));
-        output=D_800ABDD0;
+        output=CardSio0Base;
         /* ASM_BARRIER: Retain the original output-port load gap before launching the timer. */
         RR_NOP_DEP_ON(output);
         /* Ordinary write view retains the original call-delay store. */
@@ -93,15 +93,15 @@ irq_done:
         setRC2wait(limit);
     }
     interrupt=D_800ABDD4;
-    port=D_800ABDD0;
+    port=CardSio0Base;
     *interrupt=~0x80U;
     if(port->status&0x80) {
         do {
             if(chkRC2wait()) { completed=0;goto transmit_done; }
-        } while(D_800ABDD0->status&0x80);
+        } while(CardSio0Base->status&0x80);
     }
     completed=1;
-    D_800ABDD0->control|=0x10;
+    CardSio0Base->control|=0x10;
 transmit_done:
     if(!completed) return (u32)-0x300-(u32)D_80114700;
 success:

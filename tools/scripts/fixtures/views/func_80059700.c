@@ -71,14 +71,14 @@
     scratch->cursor=(u8*)p+sizeof(RrGpuSingleCommandPacket);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((u8 *)D_800ACC14)
+#define CurrentDrawBuf ((u8 *)CurrentDrawBuf)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((u8 *)D_800ACC14)
+#define CurrentDrawBuf ((u8 *)CurrentDrawBuf)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
 #define CdAudioSelectTrack ((int (*)())CdAudioSelectTrack)
@@ -86,36 +86,36 @@
 #undef CdAudioSelectTrack
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A1158 (*(char (*)[])&D_800A1158)
+#define HudGlyphUvRects (*(char (*)[])&HudGlyphUvRects)
 
-#undef D_800A1158
+#undef HudGlyphUvRects
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A1090 (*(u8 (*)[])&D_800A1090)
 
-#define D_800A1158 (*(u8 (*)[])&D_800A1158)
+#define HudGlyphUvRects (*(u8 (*)[])&HudGlyphUvRects)
 
 #undef D_800A1090
 
-#undef D_800A1158
+#undef HudGlyphUvRects
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A1090 (*(char (*)[])&D_800A1090)
 
-#define D_800A1158 (*(char (*)[])&D_800A1158)
+#define HudGlyphUvRects (*(char (*)[])&HudGlyphUvRects)
 
-#define D_800ACC14 ((char *)D_800ACC14)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
 #undef D_800A1090
 
-#undef D_800A1158
+#undef HudGlyphUvRects
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((char *)D_800ACC14)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 void DrawGlyphList(s16 *stream,s32 color,s32 bank)
 {
@@ -143,11 +143,11 @@ void DrawGlyphList(s16 *stream,s32 color,s32 bank)
             glyph = *stream++;
             if (glyph >= 0x400) {
                 offset = (s32)((cachedGlyph - 0x400U) << 16) >> 14;
-                uv = (RrUiUvRect*)((u8 *)D_800A1158 + offset);
+                uv = (RrUiUvRect*)((u8 *)HudGlyphUvRects + offset);
             } else {
                 offset = glyph * 4;
                 if (bank == 0) uv = (RrUiUvRect*)((u8 *)D_800A1090 + offset);
-                else uv = (RrUiUvRect*)((u8 *)D_800A1158 + offset);
+                else uv = (RrUiUvRect*)((u8 *)HudGlyphUvRects + offset);
             }
             spriteCode = 0x66;
             ((RrSpritePacketSignedClut*)cursor)->len = 4;
@@ -160,14 +160,14 @@ void DrawGlyphList(s16 *stream,s32 color,s32 bank)
             ((RrSpritePacketSignedClut*)cursor)->u = uv->u;
             ((RrSpritePacketSignedClut*)cursor)->v = uv->v;
             ((RrSpritePacketSignedClut*)cursor)->clut = clut;
-            ((RrSpritePacketSignedClut*)cursor)->addr = (D_800ACC14->head70&0xFFFFFFU);
-            D_800ACC14->head70 = (D_800ACC14->head70 & 0xFF000000) | ((u32)(unsigned long)cursor & 0xFFFFFF);
+            ((RrSpritePacketSignedClut*)cursor)->addr = (CurrentDrawBuf->head70&0xFFFFFFU);
+            CurrentDrawBuf->head70 = (CurrentDrawBuf->head70 & 0xFF000000) | ((u32)(unsigned long)cursor & 0xFFFFFF);
             cursor+=20;
             RR_GLYPH_SCRATCH->cursor=cursor;
             ((RrGlyphCommand8*)cursor)->len=1;
             ((RrGlyphCommand8*)cursor)->command=(page&0x9FF)|0xE1000200;
-            ((RrGlyphCommand8*)cursor)->addr=D_800ACC14->head70;
-            D_800ACC14->head70=(D_800ACC14->head70&0xFF000000U)|((u32)(unsigned long)cursor&0xFFFFFFU);
+            ((RrGlyphCommand8*)cursor)->addr=CurrentDrawBuf->head70;
+            CurrentDrawBuf->head70=(CurrentDrawBuf->head70&0xFF000000U)|((u32)(unsigned long)cursor&0xFFFFFFU);
             RR_GLYPH_SCRATCH->cursor=cursor+8;
             gap = *stream++;
             x=(s32)((u32)x+(u32)(uv->w+gap));

@@ -69,7 +69,7 @@ extern S ScreenFadeState;
 extern B4 ScreenFadeColors[];
 extern int AddTileGrid2x2();
 extern int func_8005B2D4();
-extern int func_8005B304();
+extern int StepCameraScript();
 extern unsigned short D_80010440[];
 extern R4 D_8009EE70[];
 extern R4 D_8009EEC8;
@@ -77,24 +77,24 @@ extern signed char D_8009EF3C[][4];
 extern short D_8009EFD8[];
 extern short D_8009EFE8[];
 extern R4 D_8009EFF8;
-extern S_F3A38 D_800F3A38[];
+extern S_F3A38 PlayerControllers[];
 extern void *AddDrawAreaPrim();
 extern void *AddDrawModePrim();
 extern void *AddTilePrim();
-extern void *func_8001FF84();
+extern void *AddSpritePrim();
 extern void *AddSpriteWithDrawMode();
-extern void *func_80020508();
+extern void *AddTileSemiTransPrim();
 extern int rsin();
 extern struct { char pad[0xC]; unsigned char a; unsigned char b; short c; } MenuFrameState;
 extern s8 D_8009EFFC[];
 extern char D_80010460[];
 extern s32 MenuStepDirection;
 extern int PlaySfx();
-extern char D_8009F008[];
+extern char RaceTimeDigits[];
 extern int NumLaps;
 extern int LapTimes[];
 extern int AddPrim();
-extern char D_8009F014[];
+extern char TimeTextMMSS[];
 extern unsigned short D_8009F01C[];
 extern char D_8009F020[];
 extern int ReplayState;
@@ -104,7 +104,7 @@ extern int rcos();
 void ClearScreenOverlayState(void);
 void DrawMenuFrame(int arg0);
 void SetMenuFrameOptions();
-void func_8002AFA4();
+void DrawArrowTrianglePair();
 void DrawMenuStepArrows();
 void StepMenuValue();
 int FramesToMilliseconds(int a, int b);
@@ -115,8 +115,8 @@ void FormatDecimalDigits();
 void FormatRaceTime(char *a, int b);
 void DrawLapTimeList(int a0);
 char *FormatFrameTimeMMSS();
-void func_8002BC7C(int a);
-void func_8002BD18(int a, int b);
+void DrawTimeRemaining(int a);
+void DrawTimeRemainingForPlayer(int a, int b);
 void FormatMillisecondsTime(int t);
 void ResetVehicleShake(void *arg0);
 void StartCollisionShake();
@@ -129,7 +129,7 @@ void UpdateScreenFade(a0) int a0; {
     B4 sp;
     int a, t, a1;
     S *st = &ScreenFadeState;
-    *(D_800ACC14 + 0x18) = 0;
+    *(CurrentDrawBuf + 0x18) = 0;
     a = (a0 >> 1) & 1;
     st->c = a;
     if (a != st->d) ScreenFadeState.a = 0;
@@ -166,12 +166,12 @@ void UpdateScreenFade(a0) int a0; {
     }
     {
         int t = *(int *)SCRATCHPAD;
-        *(int *)SCRATCHPAD = AddTileGrid2x2(D_800ACC14 + 0xB6C, t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
+        *(int *)SCRATCHPAD = AddTileGrid2x2(CurrentDrawBuf + 0xB6C, t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
     }
     DrawMenuFrame(a0 >> 2);
     if (D_800F4D2C != 6 && D_800F4D2C != 8) {
         func_8005B2D4(a0 & 1);
-        func_8005B304();
+        StepCameraScript();
     }
 }
 
@@ -289,8 +289,8 @@ void DrawMenuFrame(int arg0) {
 
     pc = D_80010440;
     sp40 = (((sp38 + 1) & 3) << 5) | 0x1E;
-    a1 = AddDrawAreaPrim(D_800ACC14 + 0x70, *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200);
-    a1 = AddSpriteWithDrawMode(D_800ACC14 + 0x70, a1, 0x10, 0x24, 0x20, 0x10, 0, 0x20, sp40, 0x7F38, 1, (unsigned short)s7);
+    a1 = AddDrawAreaPrim(CurrentDrawBuf + 0x70, *(void **)SCRATCHPAD, 0, 0, 0x140, 0x200);
+    a1 = AddSpriteWithDrawMode(CurrentDrawBuf + 0x70, a1, 0x10, 0x24, 0x20, 0x10, 0, 0x20, sp40, 0x7F38, 1, (unsigned short)s7);
     s1 = 0;
     s4 = 0x30;
     s5 = 0x24;
@@ -299,31 +299,31 @@ void DrawMenuFrame(int arg0) {
     c = D_8009EF3C[s6][0];
     while (c != -1) {
         r = &D_8009EE70[c];
-        a1 = func_8001FF84(D_800ACC14 + 0x70, a1, s4, s5, r, 0x7F38, ((unsigned short)s7 << 1) | 1);
+        a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, s4, s5, r, 0x7F38, ((unsigned short)s7 << 1) | 1);
         c = D_8009EF3C[s6][++s1];
         { int t = s4 + 2; s4 = t + r->w; }
     }
 
     if (MenuFrameState.w8 > 0) {
-        a1 = func_8001FF84(D_800ACC14 + 0x70, a1, s4, s5, &D_8009EEC8, 0x7F38, ((unsigned short)s7 << 1) | 1);
+        a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, s4, s5, &D_8009EEC8, 0x7F38, ((unsigned short)s7 << 1) | 1);
         D_8009EFF8.u = MenuFrameState.w8 * 8;
         { int t = s4 + 2; s4 = t + D_8009EEC8.w; }
-        a1 = func_8001FF84(D_800ACC14 + 0x70, a1, s4, s5, &D_8009EFF8, 0x7F38, 1, ((unsigned short)s7 << 1) | 1);
+        a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, s4, s5, &D_8009EFF8, 0x7F38, 1, ((unsigned short)s7 << 1) | 1);
     }
 
-    a1 = func_80020508(
-        D_800ACC14 + 0x70, a1, 8, 0x38, 0x130, 2,
+    a1 = AddTileSemiTransPrim(
+        CurrentDrawBuf + 0x70, a1, 8, 0x38, 0x130, 2,
         col1 = *pc, col1, col1
     );
-    a1 = AddDrawModePrim(D_800ACC14 + 0x70, a1, sp40);
-    a1 = AddDrawAreaPrim(D_800ACC14 + 0x70, a1, MenuFrameState.s10, MenuFrameState.s12, MenuFrameState.s14, MenuFrameState.s16);
+    a1 = AddDrawModePrim(CurrentDrawBuf + 0x70, a1, sp40);
+    a1 = AddDrawAreaPrim(CurrentDrawBuf + 0x70, a1, MenuFrameState.s10, MenuFrameState.s12, MenuFrameState.s14, MenuFrameState.s16);
 
     for (j = 2; j < 7; j++) {
         s4 = D_8009EFD8[j];
         s5 = (j >= 2) ? 0x1BE : 0x1AA;
         sp30 = D_8009EE70[j];
         if ((unsigned int)(j - 3) < 2) {
-            s2 = (D_800F3A38[D_800AC5D4 & 1].w10 == 1);
+            s2 = (PlayerControllers[D_800AC5D4 & 1].w10 == 1);
             if (s2 == 1) {
                 sp30.u += 0x14;
                 if (j == 4) {
@@ -341,7 +341,7 @@ void DrawMenuFrame(int arg0) {
                 sp30.w -= 0x1E;
             }
         }
-        a1 = func_8001FF84(D_800ACC14 + 0x70, a1, s4, s5, &sp30, 0x7F38, ((unsigned short)s7 << 1) | 1);
+        a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, s4, s5, &sp30, 0x7F38, ((unsigned short)s7 << 1) | 1);
     }
 
     if (MenuFrameState.sE == 0) {
@@ -351,17 +351,17 @@ void DrawMenuFrame(int arg0) {
     }
     if (ScreenFadeState.a == 2) {
         j = sp38 + 0x7DBA;
-        a1 = AddTilePrim(D_800ACC14 + 0x70, a1, D_8009EFE8[7], y, 1, 0xC, 0xF0, 0x7A, 0x14);
-        a1 = func_8001FF84(D_800ACC14 + 0x70, a1, D_8009EFE8[7] + 8, s5, &D_8009EE70[s2], j, 0);
+        a1 = AddTilePrim(CurrentDrawBuf + 0x70, a1, D_8009EFE8[7], y, 1, 0xC, 0xF0, 0x7A, 0x14);
+        a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, D_8009EFE8[7] + 8, s5, &D_8009EE70[s2], j, 0);
     }
 
     col2 = *pc;
-    a1 = AddDrawModePrim(D_800ACC14 + 0x70, a1, sp40);
+    a1 = AddDrawModePrim(CurrentDrawBuf + 0x70, a1, sp40);
     {
         char *p;
         int w, w2, w3, d;
         for (j = 3; j < 7; j++) {
-            a1 = func_80020508(D_800ACC14 + 0x70, a1, D_8009EFE8[j], (j >= 3) ? y : 0x1A8, 1, 0xC, col2, col2, col2);
+            a1 = AddTileSemiTransPrim(CurrentDrawBuf + 0x70, a1, D_8009EFE8[j], (j >= 3) ? y : 0x1A8, 1, 0xC, col2, col2, col2);
             /* ASM_BARRIER: define p after last loop call so p is live-in to next block without crossing calls */
             __asm__("" : "=r"(p));
         }
@@ -372,23 +372,23 @@ void DrawMenuFrame(int arg0) {
         __asm__("" : "=r"(w2) : "0"(w), "r"(p));
         /* ASM_BARRIER: chain birthing insn w3 so 16(sp) store stall cycle is filled before a3=0x1B8 */
         __asm__("" : "=r"(w3) : "0"(w2));
-        a1 = func_80020508(
-            (p = D_800ACC14) + 0x70, a1, 8, 0x1B8,
+        a1 = AddTileSemiTransPrim(
+            (p = CurrentDrawBuf) + 0x70, a1, 8, 0x1B8,
             (col3 = *pc, w3), 2,
             col3, col3, ({ /* ASM_BARRIER: keep w3 live past 16(sp) store so combine preserves w3 birthing insn */ __asm__("" : "=r"(d) : "r"(w3), "m"(*(char *)col3)); col3; })
         );
         if (MenuFrameState.bD != 1) {
-            a1 = func_80020508(D_800ACC14 + 0x70, a1, 0xEE, 0x1C6, 0x16, 2, col3, col3, col3);
+            a1 = AddTileSemiTransPrim(CurrentDrawBuf + 0x70, a1, 0xEE, 0x1C6, 0x16, 2, col3, col3, col3);
         }
         if (MenuFrameState.bC != 1) {
-            a1 = func_80020508(D_800ACC14 + 0x70, a1, 0xA8, 0x1C6, 0x12, 2, col3, col3, col3);
+            a1 = AddTileSemiTransPrim(CurrentDrawBuf + 0x70, a1, 0xA8, 0x1C6, 0x12, 2, col3, col3, col3);
             /* ASM_BARRIER: make REG_N_SETS > 1 to prevent birthing_insn_p boost in sched1 */
-            __asm__ volatile("" : "+r"(col3), "=r"(p) : "m"(D_800ACC14), "m"(D_800ACC14), "m"(D_800ACC14), "m"(D_800ACC14), "m"(MenuFrameState.bC), "m"(MenuFrameState.bC));
+            __asm__ volatile("" : "+r"(col3), "=r"(p) : "m"(CurrentDrawBuf), "m"(CurrentDrawBuf), "m"(CurrentDrawBuf), "m"(CurrentDrawBuf), "m"(MenuFrameState.bC), "m"(MenuFrameState.bC));
         }
-        /* ASM_BARRIER: extend live range of d so global-alloc assigns %hi(D_800ACC14) to $s5 */
+        /* ASM_BARRIER: extend live range of d so global-alloc assigns %hi(CurrentDrawBuf) to $s5 */
         __asm__ volatile("" : : "r"(d));
-        a1 = AddDrawAreaPrim(D_800ACC14 + 0x70, a1, MenuFrameState.s18, MenuFrameState.s1A, MenuFrameState.s1C, MenuFrameState.s1E);
-        *(void **)SCRATCHPAD = AddDrawModePrim(D_800ACC14 + 0x70, a1, sp40);
+        a1 = AddDrawAreaPrim(CurrentDrawBuf + 0x70, a1, MenuFrameState.s18, MenuFrameState.s1A, MenuFrameState.s1C, MenuFrameState.s1E);
+        *(void **)SCRATCHPAD = AddDrawModePrim(CurrentDrawBuf + 0x70, a1, sp40);
     }
 }
 
@@ -398,9 +398,9 @@ void DrawMenuFrame(int arg0) {
 void SetMenuFrameOptions(a, b, c) short a; int b; int c; { MenuFrameState.c = a; MenuFrameState.a = b; MenuFrameState.b = c; }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(s32 (*))&D_800ACC14)
+#define CurrentDrawBuf (*(s32 (*))&CurrentDrawBuf)
 
-void func_8002AFA4(a0, a1, a2, a3, a4, a5) s32 a0; s32 a1; s32 a2; s32 a3; s32 a4; s32 a5; {
+void DrawArrowTrianglePair(a0, a1, a2, a3, a4, a5) s32 a0; s32 a1; s32 a2; s32 a3; s32 a4; s32 a5; {
     s32 i, j, k, t0, sel, sg, off;
     register s32 s1 __asm__("$17"); /* ASM_BARRIER: pin i+1 to s1 so loop var i gets s2 (saved reg order) */
     s8 *tb;
@@ -430,7 +430,7 @@ L1:
     sel = 0;
     if (a5 == s1) sel = 0 < j;
     j++;
-    sg = D_800ACC14 + 0x70;
+    sg = CurrentDrawBuf + 0x70;
     ub = (char *)&w.u;
     t0 = func_8002071C(sg, t0, ((s32 *)w.v)[0], ((s32 *)w.v)[1], ((s32 *)w.v)[2], ub + sel * 4, 0);
     if (j < 2) goto L1;
@@ -439,10 +439,10 @@ L1:
     *(s32 *)SCRATCHPAD = t0;
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(s32 (*))&D_800ACC14)
+#define CurrentDrawBuf (*(s32 (*))&CurrentDrawBuf)
 #define AddTilePrim ((s32 (*)())AddTilePrim)
 
 void DrawMenuStepArrows(p0, p1, p2, p3, p4, a5, a6) s32 p0; s32 p1; s32 p2; s32 p3; s32 p4; s32 a5; s32 a6; {
@@ -496,22 +496,22 @@ B12:
         } else {
 B14:
             ub = (char *)&w.u;
-            t0 = func_8002071C(D_800ACC14 + 0x70, t0, ((s32 *)w.v)[0], ((s32 *)w.v)[1], ((s32 *)w.v)[2], ub + (sel << 2), 0);
+            t0 = func_8002071C(CurrentDrawBuf + 0x70, t0, ((s32 *)w.v)[0], ((s32 *)w.v)[1], ((s32 *)w.v)[2], ub + (sel << 2), 0);
         }
     }
     i++;
     if (i < 2) goto L0;
     *(s32 *)SCRATCHPAD = t0;
     if (a3 == 1) {
-        *(s32 *)SCRATCHPAD = AddTilePrim(D_800ACC14 + 0x70, t0, a0, a1 - 0xC, a3, 0x18, 0xFF, 0xFF, 0xFF);
+        *(s32 *)SCRATCHPAD = AddTilePrim(CurrentDrawBuf + 0x70, t0, a0, a1 - 0xC, a3, 0x18, 0xFF, 0xFF, 0xFF);
     }
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 #undef AddTilePrim
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A38 (*(E (*)[])&D_800F3A38)
+#define PlayerControllers (*(E (*)[])&PlayerControllers)
 
 void StepMenuValue(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4; {
     int s0;
@@ -536,7 +536,7 @@ void StepMenuValue(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4;
         break;
     }
     if ((a0 & 1) == 0) {
-        b = D_800F3A38[a].b;
+        b = PlayerControllers[a].b;
         if ((b & 0x8000) == 0) {
             if ((b & 0x2000) == 0) {
                 if (b & 0x1000) {
@@ -550,7 +550,7 @@ void StepMenuValue(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4;
             }
         }
     } else {
-        b = D_800F3A38[a].b;
+        b = PlayerControllers[a].b;
         if ((b & 0x1000) == 0) {
           if ((b & 0x4000) == 0) {
             if (b & 0x8000) {
@@ -597,7 +597,7 @@ M:
     }
 }
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 int FramesToMilliseconds(int a, int b)
 {
@@ -616,21 +616,21 @@ int a0; int a1; int b; int a3; int off;
         int t;
         m = m / 60;
         t = b % 1000;
-        D_8009F008[1] = m + 0x30;
-        D_8009F008[6] = t / 100 + 0x30;
-        D_8009F008[7] = t / 10 % 10 + 0x30;
-        D_8009F008[8] = t % 10 + 0x30;
-        D_8009F008[3] = r / 10 + 0x30;
-        D_8009F008[4] = r % 10 + 0x30;
+        RaceTimeDigits[1] = m + 0x30;
+        RaceTimeDigits[6] = t / 100 + 0x30;
+        RaceTimeDigits[7] = t / 10 % 10 + 0x30;
+        RaceTimeDigits[8] = t % 10 + 0x30;
+        RaceTimeDigits[3] = r / 10 + 0x30;
+        RaceTimeDigits[4] = r % 10 + 0x30;
     } else {
-        D_8009F008[1] = 0x3A;
-        D_8009F008[3] = 0x3A;
-        D_8009F008[4] = 0x3A;
-        D_8009F008[6] = 0x3A;
-        D_8009F008[7] = 0x3A;
-        D_8009F008[8] = 0x3A;
+        RaceTimeDigits[1] = 0x3A;
+        RaceTimeDigits[3] = 0x3A;
+        RaceTimeDigits[4] = 0x3A;
+        RaceTimeDigits[6] = 0x3A;
+        RaceTimeDigits[7] = 0x3A;
+        RaceTimeDigits[8] = 0x3A;
     }
-    DrawDigitString12(a0, a1, D_8009F008 + off, a3);
+    DrawDigitString12(a0, a1, RaceTimeDigits + off, a3);
 }
 
 void CopyStringClearTail(char *d, char *s)
@@ -758,7 +758,7 @@ void DrawLapTimeList(int a0) {
             p->code |= 1;
             p->w = 0xC;
             p->h = 0xC;
-            AddPrim(D_800ACC14 + 0x70, p);
+            AddPrim(CurrentDrawBuf + 0x70, p);
             p++;
             *(RrSpritePacket **)SCRATCHPAD = p;
             i++;
@@ -774,38 +774,38 @@ char *FormatFrameTimeMMSS(a) int a; {
         int s = a / 25;
         int m = s / 60;
         int r = s % 60;
-        D_8009F014[0] = m / 10 + 0x30;
-        D_8009F014[1] = m % 10 + 0x30;
-        D_8009F014[3] = r / 10 + 0x30;
-        D_8009F014[4] = r % 10 + 0x30;
+        TimeTextMMSS[0] = m / 10 + 0x30;
+        TimeTextMMSS[1] = m % 10 + 0x30;
+        TimeTextMMSS[3] = r / 10 + 0x30;
+        TimeTextMMSS[4] = r % 10 + 0x30;
     } else {
-        D_8009F014[0] = 0x2D; D_8009F014[1] = 0x2D; D_8009F014[3] = 0x2D; D_8009F014[4] = 0x2D;
+        TimeTextMMSS[0] = 0x2D; TimeTextMMSS[1] = 0x2D; TimeTextMMSS[3] = 0x2D; TimeTextMMSS[4] = 0x2D;
     }
-    return D_8009F014;
+    return TimeTextMMSS;
 }
 
-void func_8002BC7C(int a)
+void DrawTimeRemaining(int a)
 {
-    char *p = D_800ACC14 + 0x226EC;
+    char *p = CurrentDrawBuf + 0x226EC;
     int r = FormatFrameTimeMMSS(a);
     int i = a < 0x5DC;
     int t = D_8009F01C[i];
     int s = (NumLaps - 3) * 10 + 0x50;
-    DrawDigitString8(D_800ACC14 + 0x70, 0x111, s, r, t);
+    DrawDigitString8(CurrentDrawBuf + 0x70, 0x111, s, r, t);
     *(short *)(p + 0xA) = s;
 }
 
-void func_8002BD18(int a, int b)
+void DrawTimeRemainingForPlayer(int a, int b)
 {
-    char *p = D_800ACC14 + (b * 120 + 0x226EC);
+    char *p = CurrentDrawBuf + (b * 120 + 0x226EC);
     char *q;
     int r;
     int i;
     int t;
     if (b == 0) {
-        q = D_800ACC14 + 0x70;
+        q = CurrentDrawBuf + 0x70;
     } else {
-        q = D_800ACC14 + 0xB70;
+        q = CurrentDrawBuf + 0xB70;
     }
     r = FormatFrameTimeMMSS(a);
     i = a < 0x5DC;

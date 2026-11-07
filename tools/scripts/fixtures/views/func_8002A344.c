@@ -24,23 +24,23 @@
 #undef MenuFrameState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(s32 (*))&D_800ACC14)
+#define CurrentDrawBuf (*(s32 (*))&CurrentDrawBuf)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(s32 (*))&D_800ACC14)
+#define CurrentDrawBuf (*(s32 (*))&CurrentDrawBuf)
 
 #define AddTilePrim ((s32 (*)())AddTilePrim)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 #undef AddTilePrim
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A38 (*(E (*)[])&D_800F3A38)
+#define PlayerControllers (*(E (*)[])&PlayerControllers)
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 /* legacy typing of shared globals in this part of the unit */
 #define PlayerCars (*(S_800ABEF8 (*)[])&PlayerCars)
@@ -55,7 +55,7 @@ extern S ScreenFadeState;
 
 extern B4 ScreenFadeColors[];
 
-extern char *D_800ACC14;
+extern char *CurrentDrawBuf;
 
 extern short D_800F4D2C;
 
@@ -63,7 +63,7 @@ extern int AddTileGrid2x2();
 
 extern int func_8005B2D4();
 
-extern int func_8005B304();
+extern int StepCameraScript();
 
 extern int SetDispMask();
 
@@ -73,7 +73,7 @@ void UpdateScreenFade(a0) int a0; {
     B4 sp;
     int a, t, a1;
     S *st = &ScreenFadeState;
-    *(D_800ACC14 + 0x18) = 0;
+    *(CurrentDrawBuf + 0x18) = 0;
     a = (a0 >> 1) & 1;
     st->c = a;
     if (a != st->d) ScreenFadeState.a = 0;
@@ -110,11 +110,11 @@ void UpdateScreenFade(a0) int a0; {
     }
     {
         int t = *(int *)0x1F800000;
-        *(int *)0x1F800000 = AddTileGrid2x2(D_800ACC14 + 0xB6C, t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
+        *(int *)0x1F800000 = AddTileGrid2x2(CurrentDrawBuf + 0xB6C, t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
     }
     DrawMenuFrame(a0 >> 2);
     if (D_800F4D2C != 6 && D_800F4D2C != 8) {
         func_8005B2D4(a0 & 1);
-        func_8005B304();
+        StepCameraScript();
     }
 }

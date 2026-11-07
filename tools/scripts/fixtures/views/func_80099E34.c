@@ -2,7 +2,7 @@
 
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 
-void func_80099E34(a0) unsigned char *a0; {
+void _padResetChannel(a0) unsigned char *a0; {
   int i;
   unsigned char *p;
   unsigned char c;

@@ -25,7 +25,7 @@ typedef struct {s32 kind,args[3];const void *pointer;RrGarageSelectionPrefix gar
 static struct World {u32 guard[4];RrGarageSelectionPrefix garage;RrGpuRectangle *context;RrMenuTextState *text;RrMenuTextState texts[3];u32 calls;Event events[8];u32 tail[4];} world,expected;
 static RrFrameOrderingPrefix frames[3],original[3];
 #define ovl662_D_801276A8 world.garage
-#define D_800ACC14 world.context
+#define CurrentDrawBuf world.context
 #define D_800AC590 world.text
 ''' + body + r'''
 static u32 seed=0x1CF8C,scenario,mutate;

@@ -20,7 +20,7 @@ extern volatile s32 _spu_transferCallback;
 
 extern u32 _spu_rev_startaddr[];
 
-extern u8 D_800A4938[];
+extern u8 SpuZeroBlock[];
 
 s32 SpuClearReverbWorkArea(u32 preset) {
     volatile s32 saved_callback = 0;
@@ -65,7 +65,7 @@ s32 SpuClearReverbWorkArea(u32 preset) {
         }
         _spu_t(2, destination);
         _spu_t(1);
-        _spu_t(3, D_800A4938, preset);
+        _spu_t(3, SpuZeroBlock, preset);
         WaitEvent(_spu_EVdma);
         remaining -= 0x400;
         destination += 0x400;

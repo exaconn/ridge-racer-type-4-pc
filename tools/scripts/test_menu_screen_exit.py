@@ -25,28 +25,28 @@ class MenuScreenExitTest(unittest.TestCase):
 _Static_assert(__builtin_types_compatible_p(__typeof__(ModeGroup),u16),"mode width");
 u16 ModeGroup,D_800AD50A,D_8009F914[256];
 s16 D_800F3A26,D_800F4D8A,D_800F4D44;
-s32 D_800F2EC8;
-RrGpuRectangle *D_800ACC14;
+s32 MaskBitSetting;
+RrGpuRectangle *CurrentDrawBuf;
 static RrFrameOrderingPrefix frames[4],saved[4];
 static unsigned phase,case_id,which;
 static u32 rng=0x1712C;
 static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
 static void mutate(unsigned n){
  ModeGroup=(u16)(case_id+n);D_800F3A26=(s16)(case_id-n);
- D_800F4D8A=(s16)(case_id+n*3);D_800F2EC8=(s32)(case_id+n);
+ D_800F4D8A=(s16)(case_id+n*3);MaskBitSetting=(s32)(case_id+n);
  D_800AD50A=(u16)(case_id^n);D_800F4D44=(s16)((case_id+n)&255);
- D_800ACC14=&frames[n].rectangle;
+ CurrentDrawBuf=&frames[n].rectangle;
 }
 int SoundSetMasterVolume(s32 a,s32 b){assert(phase++==0);assert(a==0&&b==0);mutate(0);return -1;}
 int StopRaceRumble(void){assert(phase++==1);mutate(1);return 7;}
-void SetupRace(void){assert(phase++==2);assert(D_800F2EC8==0);mutate(2);}
+void SetupRace(void){assert(phase++==2);assert(MaskBitSetting==0);mutate(2);}
 void AddScreenFadeTiles(u32 *ordering,s32 intensity,u32 mode){
  assert(phase++==3);assert(ordering==frames[2].ordering70);
  assert((uintptr_t)ordering>UINT32_MAX);
  assert(intensity==255&&mode==69);
  assert(ModeGroup==1&&D_800F3A26==(which?38:53)&&D_800F4D8A==0);
  assert(D_800AD50A==D_8009F914[(case_id+2)&255]);
- assert(D_800F2EC8==(s32)(case_id+2));
+ assert(MaskBitSetting==(s32)(case_id+2));
  assert(memcmp(frames,saved,sizeof(frames))==0);
  ordering[(case_id>>8)%704]^=0x76543210U;
  mutate(3);
@@ -58,11 +58,11 @@ int main(void){unsigned i,j;
   for(j=0;j<sizeof(frames);j++)((u8*)frames)[j]=(u8)next();
   memcpy(saved,frames,sizeof(frames));phase=0;
   ModeGroup=(u16)case_id;D_800F3A26=(s16)case_id;D_800F4D8A=(s16)~case_id;
-  D_800ACC14=&frames[3].rectangle;
+  CurrentDrawBuf=&frames[3].rectangle;
   if(which)ovl661_func_80114AA0();else ovl660_func_8011712C();
-  assert(phase==4);assert(D_800ACC14==&frames[3].rectangle);
+  assert(phase==4);assert(CurrentDrawBuf==&frames[3].rectangle);
   assert(ModeGroup==(u16)(case_id+3));assert(D_800F3A26==(s16)(case_id-3));
-  assert(D_800F4D8A==(s16)(case_id+9));assert(D_800F2EC8==(s32)(case_id+3));
+  assert(D_800F4D8A==(s16)(case_id+9));assert(MaskBitSetting==(s32)(case_id+3));
   assert(D_800AD50A==(u16)(case_id^3));
   saved[2].ordering70[(case_id>>8)%704]^=0x76543210U;
   assert(memcmp(frames,saved,sizeof(frames))==0);

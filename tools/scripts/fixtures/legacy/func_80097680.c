@@ -1,6 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/interrupts.h"
-s32 func_80097680(void) {
+s32 _padVsyncHookCheck(void) {
     RrInterruptRegisters *registers=D_800ABC58;
     /* ASM_BARRIER: Keep the predicate result in the original return register. */
     register s32 result;

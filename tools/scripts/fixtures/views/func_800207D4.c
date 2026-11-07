@@ -30,7 +30,7 @@ void AddScreenFadeTiles(u32 *ordering,s32 intensity,u32 mode) {
         SetSemiTrans(next,1);
         column=index&1;
         x=column*160;
-        rectangle=D_800ACC14;
+        rectangle=CurrentDrawBuf;
         *(s16*)(fields+2)=x;
         y=(rectangle->rect.h/2)*(index/2);
         link_order=ordering;

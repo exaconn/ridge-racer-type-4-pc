@@ -32,7 +32,7 @@ void ovl661_func_80114B00(void) {
     Rr661FrameVector16 *temp_v1_5;
 
     ModeFrame=(u32)ModeFrame+1;
-    if (((u32) ((u32)RaceState - 1) < 2U) && (D_800F3A38[0].buttons08 & 0x800)) {
+    if (((u32) ((u32)RaceState - 1) < 2U) && (PlayerControllers[0].buttons08 & 0x800)) {
         if (D_800AC5D0 <= 0) {
             D_800AC5D0 = 0xF;
             temp_v1 = RacePaused == 0;
@@ -56,9 +56,9 @@ block_7:
     if (RacePaused != 0) {
         UpdatePauseMenu(D_800F4D44);
         ModeFrame=(u32)ModeFrame-1;
-        DrawPauseMenu(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, PauseCursor);
+        DrawPauseMenu(((RrFrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70, PauseCursor);
         if (RaceState < 4) {
-            DrawStartCountdown(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, ModeFrame);
+            DrawStartCountdown(((RrFrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70, ModeFrame);
         }
         var_s2 = 0;
         if ((u32) ((u32)RaceState - 1) < 3U) {
@@ -67,12 +67,12 @@ block_7:
                 temp_s0 = &PlayerCars[var_s2];
                 DrawHudNumber3((temp_s0->input * 0xA0) / 1168, var_s2);
                 DrawHudNumber5(*(s16 *)((u8 *)&D_800F4C70+var_s2*2), var_s2);
-                func_800219BC(temp_s0->half27A, var_s2);
-                func_80021A7C(temp_s0->half1EE, var_s2);
-                {register s32 playerArg __asm__("$5")=var_s2;s32 budget=D_800AC5A4;__asm__("" : : "r"(budget));{register s32 nextPlayer __asm__("$2")=playerArg+1;__asm__("" : : "r"(nextPlayer));var_s2=nextPlayer;func_8002BD18(budget,playerArg);}}
+                DrawHudDigitMod10(temp_s0->half27A, var_s2);
+                UpdateHudRankDisplay(temp_s0->half1EE, var_s2);
+                {register s32 playerArg __asm__("$5")=var_s2;s32 budget=D_800AC5A4;__asm__("" : : "r"(budget));{register s32 nextPlayer __asm__("$2")=playerArg+1;__asm__("" : : "r"(nextPlayer));var_s2=nextPlayer;DrawTimeRemainingForPlayer(budget,playerArg);}}
                 DrawLapCounter(var_s2, temp_s0->steering288.count22);
                 DrawRaceMinimap(var_s2);
-                DrawSteeringIndicator(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, var_s2);
+                DrawSteeringIndicator(((RrFrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70, var_s2);
                 func_80021C00(var_s2);
             } while (var_s2 < 2);
             DrawSplitScreenDivider(0);
@@ -150,8 +150,8 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
                 var_a2 = 0x45;
             }
             if (D_800AC5D0 < 0x19) {
-                AddScreenFadeTiles(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, (0x19 - D_800AC5D0) * 0xA, var_a2);
-                RR_661_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
+                AddScreenFadeTiles(((RrFrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70, (0x19 - D_800AC5D0) * 0xA, var_a2);
+                RR_661_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(((RrFrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
             }
             if (D_800AC5D0 <= 0) {
                 ovl661_D_80118448[0] = (u16) PlayerCars[0].half1EE;
@@ -168,11 +168,11 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
             }
         } else if (RaceState==0) {
             if ((u32)ModeFrame >= 51U) {
-                AddScreenFadeTiles(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70,((u32)ModeFrame-50U)*10U,37);
+                AddScreenFadeTiles(((RrFrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70,((u32)ModeFrame-50U)*10U,37);
             } else if ((u32)ModeFrame < 25U) {
-                AddScreenFadeTiles(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70,(25U-(u32)ModeFrame)*10U,69);
+                AddScreenFadeTiles(((RrFrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70,(25U-(u32)ModeFrame)*10U,69);
             }
-            RR_661_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
+            RR_661_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(((RrFrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
         }
     }
     ovl661_func_80114924((RrRaceCheckpointVehicle *)(void *)&PlayerCars[0]);
@@ -187,7 +187,7 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
     }
     StepRaceFrame(D_800F4D44);
     if (RaceState < 4) {
-        DrawStartCountdown(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, ModeFrame);
+        DrawStartCountdown(((RrFrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70, ModeFrame);
         PlayStartCountdownVoice(ModeFrame);
     }
     var_s2 = 0;
@@ -197,12 +197,12 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
                 temp_s0_3 = &PlayerCars[var_s2];
             DrawHudNumber3((temp_s0_3->input * 0xA0) / 1168, var_s2);
             DrawHudNumber5(*(s16 *)((u8 *)&D_800F4C70+var_s2*2), var_s2);
-            func_800219BC(temp_s0_3->half27A, var_s2);
-            func_80021A7C(temp_s0_3->half1EE, var_s2);
-            {register s32 playerArg __asm__("$5")=var_s2;s32 budget=D_800AC5A4;__asm__("" : : "r"(budget));{register s32 nextPlayer __asm__("$2")=playerArg+1;__asm__("" : : "r"(nextPlayer));var_s2=nextPlayer;func_8002BD18(budget,playerArg);}}
+            DrawHudDigitMod10(temp_s0_3->half27A, var_s2);
+            UpdateHudRankDisplay(temp_s0_3->half1EE, var_s2);
+            {register s32 playerArg __asm__("$5")=var_s2;s32 budget=D_800AC5A4;__asm__("" : : "r"(budget));{register s32 nextPlayer __asm__("$2")=playerArg+1;__asm__("" : : "r"(nextPlayer));var_s2=nextPlayer;DrawTimeRemainingForPlayer(budget,playerArg);}}
             DrawLapCounter(var_s2, temp_s0_3->steering288.count22);
             DrawRaceMinimap(var_s2);
-            DrawSteeringIndicator(((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70, var_s2);
+            DrawSteeringIndicator(((RrFrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70, var_s2);
             func_80021C00(var_s2);
         } while (var_s2 < 2);
         DrawSplitScreenDivider(0);

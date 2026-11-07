@@ -14,16 +14,16 @@ typedef struct { unsigned char a, b, c, d; } T;
 extern short D_800ABEC8;
 extern void *LoadCursor;
 extern short D_800AD520;
-extern short D_800F3914;
+extern short CourseIndex;
 
 int LoadTrackStep()
 {
     int r;
     int r2;
     int r3;
-    switch (D_800A021C) {
+    switch (RaceLoadStepIndex) {
     case 0:
-        r = CdFileReadStart(GetR4FileIndex(2, D_800F3914 + 0x16), RaceLoadCursor);
+        r = CdFileReadStart(GetR4FileIndex(2, CourseIndex + 0x16), RaceLoadCursor);
         if (r == 0) goto out;
         goto inc;
     case 1:
@@ -31,22 +31,22 @@ int LoadTrackStep()
         if (r2 != 0) {
             LoadTrackResource((RrTrackResourceFile *)RaceLoadCursor);
             RaceLoadCursor += AlignUp4(r2);
-            D_800A021C += 1;
+            RaceLoadStepIndex += 1;
         }
         break;
     case 2:
-        r3 = LoadCarSpecStep(D_800F3914, D_800AD520, D_800ABEC8);
+        r3 = LoadCarSpecStep(CourseIndex, D_800AD520, D_800ABEC8);
         goto chk;
     case 3:
-        r3 = func_8004D994(D_800F3914, D_800AD520);
+        r3 = func_8004D994(CourseIndex, D_800AD520);
     chk:
         if (r3 != 0) {
     inc:
-            D_800A021C += 1;
+            RaceLoadStepIndex += 1;
         }
         break;
     case 4:
-        D_800A021C = 0;
+        RaceLoadStepIndex = 0;
         LoadCursor = RaceLoadCursor;
         return 1;
     }

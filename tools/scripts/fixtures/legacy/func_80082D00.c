@@ -4,7 +4,7 @@
 extern s32 D_800A4D4C;
 extern void (*D_800A4D40)(void);
 
-void func_80082D00(void) {
+void _SsTickCallbackDivided(void) {
     if (D_800A4D4C == 0) {
         /* ASM_BARRIER: Retain the assembler temporary for the state publication. */
         register u8 *page __asm__("$1");

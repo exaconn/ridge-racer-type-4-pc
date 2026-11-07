@@ -23,7 +23,7 @@ s32 CdControl(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer
     /* ASM_BARRIER: Retain the independent success/failure state. */
     register s32 state __asm__("$23");
     s32 terminal;
-    table=D_800A6400;
+    table=CD_com_info;
     saved=CD_cbsync;
     /* ASM_BARRIER: Capture the saved callback before computing the selected metadata entry. */
     __asm__("" : "+r"(saved) : "r"(table) : "$2");
@@ -93,7 +93,7 @@ s32 CdControlF(s32 requested_command,const u8 *parameter_buffer) {
     s32 terminal;
     one=1;
     code=command&255;
-    table=D_800A6400;
+    table=CD_com_info;
     saved=CD_cbsync;
     /* ASM_BARRIER: Capture the saved callback before computing the selected metadata entry. */
     __asm__("" : "+r"(saved) : "r"(table) : "$2");
@@ -169,7 +169,7 @@ s32 CdControlB(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffe
     s32 terminal;
     s32 one=1;
     code=command&255;
-    table=D_800A6400;
+    table=CD_com_info;
     saved=CD_cbsync;
     offset=code*sizeof(*table);
     metadata=(u32 *)((unsigned long)offset+(unsigned long)table);

@@ -11,7 +11,7 @@
 
 extern int D_801102F8;
 
-extern int D_801102F4;
+extern int StRingWriteIndex;
 
 extern int D_801102EC;
 
@@ -19,7 +19,7 @@ extern s32 D_80112754;
 
 extern RrLibPackedWord D_80112750;
 
-extern void (*D_80112760)(void);
+extern void (*StDataReadyFunc)(void);
 
 void data_ready_callback(void)
 {
@@ -32,8 +32,8 @@ void data_ready_callback(void)
     p->state = 2;
     D_80112750 = p->word1C;
     value = p->value08;
-    next = D_801102F4;
-    callback = D_80112760;
+    next = StRingWriteIndex;
+    callback = StDataReadyFunc;
     D_80112754 = value;
     {
         /* ASM_BARRIER: Preserve the assembler temporary for publishing the next index. */

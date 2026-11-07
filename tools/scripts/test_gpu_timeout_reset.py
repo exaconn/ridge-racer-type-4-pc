@@ -22,11 +22,11 @@ class GpuTimeoutResetTest(unittest.TestCase):
 #include <string.h>
 typedef uint8_t u8;typedef uint16_t u16;typedef int16_t s16;typedef uint32_t u32;typedef int32_t s32;
 ''' + headers + '''
-u32 ports[8];u16 mask_storage,*D_800A6358=&mask_storage;
+u32 ports[8];u16 mask_storage,*I_MASK=&mask_storage;
 volatile u32 *GPU_STATUS=&ports[0],*DMA2_MADR=&ports[1],*DMA2_CHCR=&ports[2],*DPCR=&ports[3];
-s32 _qin,D_800ABBF8,D_800ABBFC,D_800ABC00;
+s32 _qin,D_800ABBF8,D_800ABBFC,GpuAlarmCount;
 volatile s32 _qout;
-char D_80011F98[]="GPU timeout:que=%d,stat=%08x,chcr=%08x,madr=%08x\\n";
+char GpuTimeoutFmt[]="GPU timeout:que=%d,stat=%08x,chcr=%08x,madr=%08x\\n";
 s32 test_now,test_diag_calls,test_read_count,test_time_calls;
 s32 test_mask_calls,test_tail_reads,test_mutate_diag,test_mutate_mask,test_swap_write;
 s32 test_event_count;u32 test_events[64][3];u32 test_diag_args[4];const char *test_format;
@@ -40,10 +40,10 @@ u32 test_read(volatile u32 *p) {
  if(test_read_count==1)*p=0x89ABCDEFU;
  return value;
 }
-s32 func_8001E84C(const char *format,...) {
+s32 DebugPrintStub(const char *format,...) {
  va_list args;s32 i;va_start(args,format);
  for(i=0;i<4;i++)test_diag_args[i]=va_arg(args,u32);
- va_end(args);test_format=format;test_diag_calls++;test_counter_at_diag=D_800ABC00;
+ va_end(args);test_format=format;test_diag_calls++;test_counter_at_diag=GpuAlarmCount;
  event(3,0,0);
  if(test_mutate_diag){GPU_STATUS=&ports[4];DMA2_CHCR=&ports[5];DPCR=&ports[6];}
  return 1;
@@ -64,7 +64,7 @@ void test_gpu(volatile u32 *p,u32 value) {
 void test_reset(void) {
  u32 i;for(i=0;i<8;i++)ports[i]=0xA5000000+i;
  GPU_STATUS=&ports[0];DMA2_MADR=&ports[1];DMA2_CHCR=&ports[2];DPCR=&ports[3];
- _qin=70;_qout=5;D_800ABBF8=-1;D_800ABBFC=100;D_800ABC00=0;
+ _qin=70;_qout=5;D_800ABBF8=-1;D_800ABBFC=100;GpuAlarmCount=0;
  mask_storage=0xF123;test_now=101;
  test_diag_calls=test_read_count=test_time_calls=test_mask_calls=test_tail_reads=test_event_count=0;
  test_mutate_diag=test_mutate_mask=test_swap_write=0;
@@ -123,12 +123,12 @@ void test_reset(void) {
             for old in (-0x80000000, -1, 0, 0xEFFFF, 0xF0000, 0xF0001, 0x7FFFFFFF):
                 self.lib.test_reset()
                 self.scalar('test_now').value = now
-                self.scalar('D_800ABC00').value = old
+                self.scalar('GpuAlarmCount').value = old
                 before = bytes(self.ports)
                 expired = now > 100 or old > 0xF0000
                 self.assertEqual(self.watchdog(), -1 if expired else 0)
                 expected = old if now > 100 else C.c_int32(old+1).value
-                self.assertEqual(self.scalar('D_800ABC00').value, expected)
+                self.assertEqual(self.scalar('GpuAlarmCount').value, expected)
                 self.assertEqual(self.scalar('test_diag_calls').value, int(expired))
                 if not expired:
                     self.assertEqual(bytes(self.ports), before)
@@ -175,7 +175,7 @@ void test_reset(void) {
             self.scalar('test_now').value = now
             self.lib.set_alarm()
             self.assertEqual(self.scalar('D_800ABBFC').value, C.c_int32(now+240).value)
-            self.assertEqual(self.scalar('D_800ABC00').value, 0)
+            self.assertEqual(self.scalar('GpuAlarmCount').value, 0)
 
     def test_diagnostic_queue_difference_wraps_before_masking(self):
         args = (C.c_uint32 * 4).in_dll(self.lib, 'test_diag_args')

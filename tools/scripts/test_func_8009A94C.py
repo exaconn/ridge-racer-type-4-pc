@@ -25,26 +25,26 @@ typedef int32_t s32;
         for name in ('8009A94C', '8009ABF8'):
             body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
             source += body.replace('#include "rr/serial.h"', '')
-        source += '\nvolatile RrSerialRequest D_801146E8;\nRrSerialReceiveRequest D_801146D8;\nRrSerialPortRegisters *D_800ABD18;\n'
+        source += '\nvolatile RrSerialRequest SioRequest;\nRrSerialReceiveRequest SioReceiveRequest;\nRrSerialPortRegisters *SIO1_REGS;\n'
         (directory / 'function.c').write_text(source)
         subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
-        cls.function = cls.library.func_8009A94C
+        cls.function = cls.library._sio_write_async
         cls.function.argtypes = [C.c_int32, C.c_int32]
         cls.function.restype = C.c_int32
-        cls.receive = cls.library.func_8009ABF8
+        cls.receive = cls.library._sio_read_async
         cls.receive.argtypes = [C.c_int32, C.c_int32]
         cls.receive.restype = C.c_int32
 
     def setUp(self):
-        self.request = (C.c_int32 * 3).in_dll(self.library, 'D_801146E8')
-        self.receive_request = (C.c_int32 * 4).in_dll(self.library, 'D_801146D8')
+        self.request = (C.c_int32 * 3).in_dll(self.library, 'SioRequest')
+        self.receive_request = (C.c_int32 * 4).in_dll(self.library, 'SioReceiveRequest')
         self.registers = (C.c_uint16 * 8)(*range(8))
-        C.c_void_p.in_dll(self.library, 'D_800ABD18').value = C.addressof(self.registers)
+        C.c_void_p.in_dll(self.library, 'SIO1_REGS').value = C.addressof(self.registers)
 
     def test_busy_request_preserves_state_without_accessing_registers(self):
-        C.c_void_p.in_dll(self.library, 'D_800ABD18').value = None
+        C.c_void_p.in_dll(self.library, 'SIO1_REGS').value = None
         for active in (1, 2, -1, -(1 << 31), (1 << 31) - 1):
             self.request[:] = [active, 123, -456]
             self.assertEqual(self.function(789, -987), -1)
@@ -60,7 +60,7 @@ typedef int32_t s32;
                 self.assertEqual(list(self.registers), [0, 1, 2, 3, 4, 0x825, 6, 7])
 
     def test_busy_receive_preserves_request_and_does_not_access_port(self):
-        C.c_void_p.in_dll(self.library, 'D_800ABD18').value = None
+        C.c_void_p.in_dll(self.library, 'SIO1_REGS').value = None
         for active in (1, 2, -1, -(1 << 31), (1 << 31) - 1):
             self.receive_request[:] = [active, 123, -456, 128]
             self.assertEqual(self.receive(789, -987), -1)

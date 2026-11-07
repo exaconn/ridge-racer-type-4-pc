@@ -28,7 +28,7 @@ static u8 banks[3][25*0x840];
 #define ModeGroup w->enable
 #define MenuCursor w->selection
 #define MenuItemCount w->count
-#define D_800F3A38 w->input
+#define PlayerControllers w->input
 #define UiRows (w->rows[w->root])
 #define BadgeRows (w->badges[w->badgeRoot])
 #define D_800ACBD0 w->grid

@@ -58,9 +58,9 @@ static void cb0(void){callback_effect^=1;}
 static void cb1(void){callback_effect^=2;}
 static void cb2(void){callback_effect^=4;}
 static void cb3(void){callback_effect^=8;}
-void func_8008E7F4(void){callback_effect^=16;}
-#define D_800A67B0 actual.state
-#define D_800A67D8 actual.state.restore.saved28
+void cd_read_restore_sync(void){callback_effect^=16;}
+#define CdReadState actual.state
+#define CdReadSavedSyncCallback actual.state.restore.saved28
 #define D_800A67DC actual.state.restore.saved2C
 #define CD_read_dma_mode actual.flags
 ''' + body + r'''
@@ -144,7 +144,7 @@ static void reference(void) {
     if(expected.state.finished24&&!wait_model())return;
     setter(1,1,expected.state.restore.saved2C);
     if(expected.flags&1)setter(1,2,expected.state.restore.saved30);
-    setter(1,0,func_8008E7F4);
+    setter(1,0,cd_read_restore_sync);
     command(1,9,0);
     expected.state.finished24=1;
     if(expected.state.finished24)wait_model();

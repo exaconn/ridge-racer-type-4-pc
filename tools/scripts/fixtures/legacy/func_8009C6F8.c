@@ -1,7 +1,7 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/commands.h"
-s32 func_8009C6F8(s32 value) {
-    s32 phase=D_800ABDF8;
+s32 _cardCmd5BRx(s32 value) {
+    s32 phase=CardRxCount;
     /* ASM_BARRIER: Retain the copied input for status-byte publication. */
     register s32 saved __asm__("$5")=value;
     /* ASM_BARRIER: Share the zero result after all response stores. */
@@ -11,8 +11,8 @@ s32 func_8009C6F8(s32 value) {
         /* ASM_BARRIER: Keep the copied raw input distinct from its masked status. */
         __asm__ volatile("" : : "r"(saved));
     }
-    else if(phase==10) D_80114718[4]=(u32)value-1;
-    else if(phase>=6) D_80114718[phase-6]=value;
+    else if(phase==10) CardCmdBuffer[4]=(u32)value-1;
+    else if(phase>=6) CardCmdBuffer[phase-6]=value;
     result=0;
     /* ASM_BARRIER: Preserve the common return after response publication. */
     __asm__ volatile("" : : "r"(result));

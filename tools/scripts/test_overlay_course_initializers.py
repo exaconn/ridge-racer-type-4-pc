@@ -49,7 +49,7 @@ struct State {
 static struct World {struct State s;unsigned calls;struct {s32 service,args[4];u32 hash;} events[12];} actual,expected,initial,*w;
 static unsigned scenario,mutation,kind;static u8 seenCounts[4][10];
 #define SaveProgress w->s.save
-#define D_800ABE08 w->s.source
+#define CourseChoiceTable w->s.source
 #define ovl661_D_80118458 w->s.versus
 #define ovl666_available_courses w->s.extra
 #define ovl661_D_80118420 w->s.names
@@ -62,7 +62,7 @@ static unsigned scenario,mutation,kind;static u8 seenCounts[4][10];
 #define ovl666_course_counts w->s.counts
 #define D_800ABEC8 w->s.clearABEC8
 #define D_800AC648 w->s.clearAC648
-#define D_800F3914 w->s.clearF3914
+#define CourseIndex w->s.clearF3914
 #define NumCars w->s.modeAC59C
 #define MenuCursor w->s.flag
 #define NumLaps w->s.laps
@@ -107,9 +107,9 @@ void SetDispMask(s32 mode){assert(mode==0);event(1,mode,0,0,0);}
 void ClearScreenOverlayState(void){event(2,0,0,0,0);}
 void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags){event(3,r,g,b,(s32)flags);}
 void ovl661_func_80115598(s32 mode){assert(mode==0);event(4,mode,0,0,0);}
-void func_80053BB4(s32 mode){assert(mode==0);event(5,mode,0,0,0);}
+void SeqStartTrack(s32 mode){assert(mode==0);event(5,mode,0,0,0);}
 void SetMenuFrameOptions(s32 a,s32 b,s32 c){event(6,a,b,c,0);}
-s32 func_8001E84C(const char *format,...){
+s32 DebugPrintStub(const char *format,...){
  unsigned i;assert(format==(kind?format666:format661));
  if(kind && w==&actual)for(i=0;i<4;i++){assert(w->s.counts[i]>=0 && w->s.counts[i]<=9);seenCounts[i][w->s.counts[i]]=1;}
  event(7,0,0,0,0);return 1;
@@ -134,8 +134,8 @@ static void reference(void){unsigned i,j,k;
   SetupDrawDispEnvs(0,0,0,2);ovl661_func_80115598(0);
   reference_glyph((s8*)&w->s.choice.complete,w->s.source[0][0].glyph);
   reference_glyph((s8*)&w->s.choice.complete+4,w->s.source[0][0].glyph);
-  func_80053BB4(0);w->s.marker=8;w->s.course=1;w->s.position=56;w->s.selected=0;
-  func_8001E84C(format661);SetMenuFrameOptions(0,1,1);
+  SeqStartTrack(0);w->s.marker=8;w->s.course=1;w->s.position=56;w->s.selected=0;
+  DebugPrintStub(format661);SetMenuFrameOptions(0,1,1);
  }else{
   SetupDrawDispEnvs(0,0,0,2);
   for(i=0;i<4;i++)for(j=0;j<9;j++)w->s.extra[i][j].glyph=-1;
@@ -147,8 +147,8 @@ static void reference(void){unsigned i,j,k;
     if((u8)(value/40-(value/160)*4)==i && (u8)(value%40)<39){w->s.extra[i][k++]=w->s.source[1][j];w->s.counts[i]=(s16)k;}
    }
   }
-  w->s.clearAC648=0;w->s.clearF3826=0;func_8001E84C(format666);ovl666_init_menu();
-  w->s.course=1;w->s.position=79;w->s.selected=0;func_80053BB4(0);
+  w->s.clearAC648=0;w->s.clearF3826=0;DebugPrintStub(format666);ovl666_init_menu();
+  w->s.course=1;w->s.position=79;w->s.selected=0;SeqStartTrack(0);
  }
 }
 int main(void){unsigned i,j;

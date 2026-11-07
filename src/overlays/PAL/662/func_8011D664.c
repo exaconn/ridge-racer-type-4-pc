@@ -6,8 +6,8 @@ void ovl662_func_8011D664(RrGaragePoint *output)
     u32 buttons;
     s32 step;
     func_80096454(&point,0,4);
-    if (D_800F3A38[0].type01 != 0x12) {
-        buttons = D_800F3A38[0].buttons02;
+    if (PlayerControllers[0].type01 != 0x12) {
+        buttons = PlayerControllers[0].buttons02;
         step=1;
         if (buttons & 8) step=4;
         if (buttons & 0x1000) point.y=-(step*2);

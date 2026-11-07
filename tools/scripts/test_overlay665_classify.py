@@ -21,7 +21,7 @@ class OverlayClassifyTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(offsetof(t,f)==n,"offset")
 #include "rr/menu_pulse.h"
 static struct World {u32 before[8];RrMenuItemState5C rows[16];u32 after[8];} world,initial;
-#define D_800F3A38 (world.rows+8)
+#define PlayerControllers (world.rows+8)
 ''' + body + r'''
 static u32 seed=0x1629c;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}

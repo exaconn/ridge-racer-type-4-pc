@@ -12,8 +12,8 @@ void ovl662_func_80117C98(u32 *arg0, void *arg1, s32 arg2) {
         buf[i] = 0;
     }
     for (i = 0; i < 3; i++) {
-        arg1 = func_8001FF84(arg0, arg1, x, y, &D_8009FA1C[ovl662_D_80126228[i]], 0x7FF8, 0);
-        x += D_8009FA1C[ovl662_D_80126228[i]].w + 2;
+        arg1 = AddSpritePrim(arg0, arg1, x, y, &UiFontGlyphs[ovl662_D_80126228[i]], 0x7FF8, 0);
+        x += UiFontGlyphs[ovl662_D_80126228[i]].w + 2;
         if (i == 2) {
             FormatDecimalDigits(buf, ovl662_D_801272BC, 1);
             arg1 = AddTextSprites(arg0, arg1, x, y, buf, 0x7FF8, 0, 0);

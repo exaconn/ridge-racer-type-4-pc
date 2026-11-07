@@ -12,7 +12,7 @@
 
 #define D_800AC6D8 (*(int (*))&D_800AC6D8)
 
-#define D_800ACC14 ((char *)D_800ACC14)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
 #undef RaceContext
 
@@ -20,7 +20,7 @@
 
 #undef D_800AC6D8
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 extern int func_80096434();
 

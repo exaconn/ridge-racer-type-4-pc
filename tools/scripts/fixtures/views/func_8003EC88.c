@@ -1,19 +1,19 @@
 #include "types.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2AB0 ((E *)D_800F2AB0)
+#define ImageRows ((E *)ImageRows)
 
-#undef D_800F2AB0
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800F2AB0 ((E_1 *)D_800F2AB0)
-
-#undef D_800F2AB0
+#undef ImageRows
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2AB0 ((E_2 *)D_800F2AB0)
+#define ImageRows ((E_1 *)ImageRows)
 
-#undef D_800F2AB0
+#undef ImageRows
+
+/* legacy typing of shared globals in this part of the unit */
+#define ImageRows ((E_2 *)ImageRows)
+
+#undef ImageRows
 
 typedef struct {
     s32 prim;
@@ -58,7 +58,7 @@ extern s32 AddDrawModePrim();
 
 extern s32 AddTilePrim();
 
-extern s32 func_8001FF84();
+extern s32 AddSpritePrim();
 
 extern void func_8003EA04();
 
@@ -70,9 +70,9 @@ extern char D_80010924[];
 
 extern char D_80010928[];
 
-extern char D_8001092C[];
+extern char StrPleaseWait[];
 
-extern FontGlyph4 D_8009FA1C[];
+extern FontGlyph4 UiFontGlyphs[];
 
 extern FontGlyph4 D_8009FB80[];
 
@@ -90,7 +90,7 @@ extern s16 D_800ABEC8;
 
 extern s16 NumCars;
 
-extern s32 D_800ACC14;
+extern s32 CurrentDrawBuf;
 
 extern s16 ReverseCourse;
 
@@ -218,7 +218,7 @@ s32 DrawUiRow(s32 arg0) {
     }
 
     sp28 = UiRows[arg0].rect18;
-    s3 = AddDrawAreaPrim(D_800ACC14 + 0x70, s3_init, 0, 0, 0x140, 0x200);
+    s3 = AddDrawAreaPrim(CurrentDrawBuf + 0x70, s3_init, 0, 0, 0x140, 0x200);
     s4 += 7;
 
     switch (s6) {
@@ -239,19 +239,19 @@ s32 DrawUiRow(s32 arg0) {
         /* fallthrough */
     case 0:
         {
-            FontGlyph4 *base_0 = D_8009FA1C;
-            s3 = func_8001FF84(D_800ACC14 + 0x70, s3, s4, s7 + 8, &base_0[sp34], fp | 0x7FF8, s2);
+            FontGlyph4 *base_0 = UiFontGlyphs;
+            s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &base_0[sp34], fp | 0x7FF8, s2);
             if (s6 != 0) {
                 for (s1 = 0; s1 < 2; s1++) {
-                    s3 = func_8001FF84(D_800ACC14 + 0x70, s3, s4 + 0x1E + s1 * 0x16, s7 + 8, &D_8009FC0C[s1], 0x7FF8, 0);
+                    s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4 + 0x1E + s1 * 0x16, s7 + 8, &D_8009FC0C[s1], 0x7FF8, 0);
                     if (s1 == 0) {
                         D_8009FD00[0] = s0 / 10;
                     } else {
                         D_8009FD00[0] = (s0 % 10) * 8;
                     }
-                    s3 = func_8001FF84(D_800ACC14 + 0x70, s3, s4 + 0x26 + s1 * 6, s7 + 8, D_8009FD00, 0x7FF8, 0);
+                    s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4 + 0x26 + s1 * 6, s7 + 8, D_8009FD00, 0x7FF8, 0);
                 }
-                /* ASM_BARRIER: Keep base_0 (D_8009FA1C) live across case 0 loop so reload rematerializes it into $t0 */
+                /* ASM_BARRIER: Keep base_0 (UiFontGlyphs) live across case 0 loop so reload rematerializes it into $t0 */
                 __asm__("" : : "ri"(base_0));
             }
         }
@@ -266,8 +266,8 @@ s32 DrawUiRow(s32 arg0) {
                 break;
             }
             s5_1 = fp | 0x7FF8;
-            s3 = func_8001FF84(D_800ACC14 + 0x70, s3, s4, s7 + 8, &D_8009FA1C[s0], s5_1, s2);
-            s4 += 2 + D_8009FA1C[s0].b2;
+            s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &UiFontGlyphs[s0], s5_1, s2);
+            s4 += 2 + UiFontGlyphs[s0].b2;
         }
         if (s6 == 4) {
             if (ReverseCourse == 1) {
@@ -275,9 +275,9 @@ s32 DrawUiRow(s32 arg0) {
             } else {
                 s0 = 0xC;
             }
-            s3 = func_8001FF84(D_800ACC14 + 0x70, s3, s4, s7 + 8, &D_8009FA1C[s0], 0x7FF8, 0);
+            s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
         } else if ((u32)(s6 - 8) < 2U) {
-            s3 = AddTextSprites(D_800ACC14 + 0x70, s3, s4, s7 + 8, (s6 == 8) ? D_80010924 : D_80010928, fp | 0x7FF8, 0, s2);
+            s3 = AddTextSprites(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, (s6 == 8) ? D_80010924 : D_80010928, fp | 0x7FF8, 0, s2);
         }
         break;
     case 2:
@@ -286,13 +286,13 @@ s32 DrawUiRow(s32 arg0) {
             if (s0 == -1) {
                 break;
             }
-            a0_arg = D_800ACC14 + 0x70;
-            glyph = &D_8009FA1C[s0];
+            a0_arg = CurrentDrawBuf + 0x70;
+            glyph = &UiFontGlyphs[s0];
             s5_2 = fp | 0x7FF8;
-            s3 = func_8001FF84(a0_arg, s3, s4, s7 + 8, glyph, s5_2, 0);
-            s4 += 2 + D_8009FA1C[s0].b2;
+            s3 = AddSpritePrim(a0_arg, s3, s4, s7 + 8, glyph, s5_2, 0);
+            s4 += 2 + UiFontGlyphs[s0].b2;
         }
-        s3 = AddTilePrim(D_800ACC14 + 0x70, s3, sp38 + 0xA9, s7 + 6, 1, 0x14, 0xFF, 0xFF, 0xFF);
+        s3 = AddTilePrim(CurrentDrawBuf + 0x70, s3, sp38 + 0xA9, s7 + 6, 1, 0x14, 0xFF, 0xFF, 0xFF);
         s4 = sp38 + 0xB0;
         for (s1 = 0; s1 < 2; s1++) {
             if (s1 == 0) {
@@ -300,8 +300,8 @@ s32 DrawUiRow(s32 arg0) {
             } else {
                 s0 = D_8009FC7C[sp34][7];
             }
-            s3 = func_8001FF84(D_800ACC14 + 0x70, s3, s4, s7 + 8, &D_8009FA1C[s0], 0x7FF8, 0);
-            s4 += 2 + D_8009FA1C[s0].b2;
+            s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
+            s4 += 2 + UiFontGlyphs[s0].b2;
         }
         break;
     case 3:
@@ -310,25 +310,25 @@ s32 DrawUiRow(s32 arg0) {
             if (s0 == -1) {
                 break;
             }
-            s3 = func_8001FF84(D_800ACC14 + 0x70, s3, s4, s7 + 8, &D_8009FA1C[s0], 0x7FF8, 0);
-            s4 += 2 + D_8009FA1C[s0].b2;
+            s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
+            s4 += 2 + UiFontGlyphs[s0].b2;
             if (s1 == 3) {
-                s3 = AddTilePrim(D_800ACC14 + 0x70, s3, sp38 + 0x7E, s7 + 6, 1, 0x14, 0xFF, 0xFF, 0xFF);
+                s3 = AddTilePrim(CurrentDrawBuf + 0x70, s3, sp38 + 0x7E, s7 + 6, 1, 0x14, 0xFF, 0xFF, 0xFF);
                 s4 = sp38 + 0x86;
             }
         }
         break;
     case 10:
     case 11:
-        s3 = func_8001FF84(D_800ACC14 + 0x70, s3, s4, s7 + 8, &D_8009FB80[0], 0x7FF8, 0);
-        s3 = func_8001FF84(D_800ACC14 + 0x70, s3, s4 + 0x44, s7 + 8, &D_8009FB80[1], 0x7FF8, 0);
+        s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &D_8009FB80[0], 0x7FF8, 0);
+        s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4 + 0x44, s7 + 8, &D_8009FB80[1], 0x7FF8, 0);
         if (s6 == 10) {
             s0 = D_80119754;
         } else {
             s0 = D_80119758;
         }
         for (s1 = 0; s1 < s0; s1++) {
-            s3 = AddTilePrim(D_800ACC14 + 0x70, s3, s4 + 0x12 + s1 * 3, s7 + 8, 2, 0x10, 0xFF, 0xFF, 0xFF);
+            s3 = AddTilePrim(CurrentDrawBuf + 0x70, s3, s4 + 0x12 + s1 * 3, s7 + 8, 2, 0x10, 0xFF, 0xFF, 0xFF);
         }
         break;
     case 12:
@@ -341,23 +341,23 @@ s32 DrawUiRow(s32 arg0) {
             s1 = 0;
             do {
                 s0 = D_8009FC7C[sp34][s1];
-                s3 = func_8001FF84(D_800ACC14 + 0x70, s3, s4, s7 + 8, &D_8009FA1C[s0], 0x7FF8, 0);
-                s4 += 2 + D_8009FA1C[s0].b2;
+                s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
+                s4 += 2 + UiFontGlyphs[s0].b2;
                 s1++;
             } while (s1 < s2);
         }
         break;
     case 0x7E:
-        s3 = AddTextSprites(D_800ACC14 + 0x70, s3, s4, s7 + 8, D_8001092C, 0x7FF8, 2, 0);
+        s3 = AddTextSprites(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, StrPleaseWait, 0x7FF8, 2, 0);
         break;
     case 0x7F:
-        s3 = func_8001FF84(D_800ACC14 + 0x70, s3, s4, s7 + 8, &D_8009FCDC[sp34], fp | 0x4820, s2);
+        s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &D_8009FCDC[sp34], fp | 0x4820, s2);
         break;
     }
 
-    ((Scratchpad *)0x1F800000)->prim = AddDrawModePrim(D_800ACC14 + 0x70, s3, 0x38);
+    ((Scratchpad *)0x1F800000)->prim = AddDrawModePrim(CurrentDrawBuf + 0x70, s3, 0x38);
     DrawUiBox(sp38, s7, UiRows[arg0].s8, UiRows[arg0].sA, 0x4A, 0x4A, 0x4A);
-    ((Scratchpad *)0x1F800000)->prim = AddDrawAreaPrim(D_800ACC14 + 0x70, ((Scratchpad *)0x1F800000)->prim, sp28.x, sp28.y, sp28.w, sp28.h);
+    ((Scratchpad *)0x1F800000)->prim = AddDrawAreaPrim(CurrentDrawBuf + 0x70, ((Scratchpad *)0x1F800000)->prim, sp28.x, sp28.y, sp28.w, sp28.h);
     sp38 += UiRows[arg0].rect18.w;
     if ((u32)(sp30 - 4) >= 3U) {
         func_8003EA04(arg0, sp38, s7);

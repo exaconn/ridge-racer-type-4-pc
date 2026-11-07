@@ -4,7 +4,7 @@
 #include "rr/overlay662_palette_initializer.h"
 #include "rr/overlay662_image_fade.h"
 #include "rr/tables.h"
-extern RrMenuItemState5C D_800F3A38[2];
+extern RrMenuItemState5C PlayerControllers[2];
 void ovl662_func_80118ED8(void);
 s32 UpdateRect16Row(s32);
 void DrawUiRow(s32);

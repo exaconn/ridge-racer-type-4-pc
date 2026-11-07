@@ -9,7 +9,7 @@
 #include "rr/course_choice_types.h"
 #include "rr/menu_glyph.h"
 #include "rr/ui.h"
-extern RrMenuArenas D_800F4D70;
+extern RrMenuArenas MenuArenas;
 extern u8 *CdDirectoryBuffer;
 extern void *D_800F4D40,*LoadCursor;
 extern s32 ModeFrame,ScreenFrame;
@@ -18,7 +18,7 @@ extern s16 ovl661_D_80118440[2][2],ovl661_D_8011844C[2],ovl661_D_80118450[2];
 extern RrCourseChoice4 ovl661_D_80118458[2][2][9];
 void ResetScreenCounters(void);
 void InitMenuArenas(void);
-void func_80037110(void);
+void InitPreviewImageRows(void);
 void ResetCarState(RrRaceVehicle *);
 s32 CountChoiceGlyphs(const RrCourseChoice4 *);
 /* Mode and fresh player selectors are0..1. Each group is0..1 and course0..8;

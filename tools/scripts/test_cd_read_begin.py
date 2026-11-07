@@ -70,9 +70,9 @@ static volatile u32 callback_effect;
 static void cb0(void){callback_effect^=1;}
 static void cb1(void){callback_effect^=2;}
 static void cb2(void){callback_effect^=4;}
-const char D_80011D40[]="CdRead: Shell open...\n";
+const char StrCdReadShellOpen[]="CdRead: Shell open...\n";
 const char D_80011D58[]="CdRead: retry...\n";
-#define D_800A67B0 actual.state
+#define CdReadState actual.state
 #define D_800A67BC actual.state.mode0C
 #define CD_read_dma_mode actual.flags
 ''' + body + '\n' + decoder + r'''
@@ -127,7 +127,7 @@ static s32 clock_tick(int model,s32 argument) {
 }
 static s32 diagnostic(int model,const char *text) {
     record(model,LOG,0,0,text,-1);
-    assert(text==D_80011D40||text==D_80011D58);return -17;
+    assert(text==StrCdReadShellOpen||text==D_80011D58);return -17;
 }
 static u8 *packet(int model) {
     World *world=model?&expected:&actual;
@@ -203,7 +203,7 @@ static s32 reference(s32 restart) {
     set(1,0,0);set(1,1,0);
     if(expected.flags&1)set(1,2,0);
     if(status(1)&16) {
-        if(((u32)clock_tick(1,-1)%64)==0)diagnostic(1,D_80011D40);
+        if(((u32)clock_tick(1,-1)%64)==0)diagnostic(1,StrCdReadShellOpen);
         transfer(1,1,0);
         u32 now=(u32)clock_tick(1,-1);
         expected.state.start1C=now;

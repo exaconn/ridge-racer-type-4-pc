@@ -2,4 +2,4 @@
 #include "psyq/libcd/s_1.h"
 #include "rr/cd_read_request.h"
 #include "psyq/libcd/dsread2.h"
-void func_8008E7F4() { int *p = &D_800A67D8; int a = *p; p -= 10; CdSyncCallback(a); p[9] = 0; }
+void cd_read_restore_sync() { int *p = &CdReadSavedSyncCallback; int a = *p; p -= 10; CdSyncCallback(a); p[9] = 0; }

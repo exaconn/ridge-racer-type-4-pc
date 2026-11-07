@@ -13,7 +13,7 @@ typedef struct {
     u8 pad0A[6];
 } RrRootCounterRegisters;
 
-extern RrRootCounterRegisters *D_800ABC34;
+extern RrRootCounterRegisters *RCNT_REGS;
 /* The selector is its unsigned low halfword; selectors outside 0..2 return 0. */
 s32 GetRCnt(u32 selector);
 

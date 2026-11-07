@@ -17,10 +17,10 @@ extern s32 CdSearchFile(SearchResult *, const char *);
 extern s32 CdRead(s32, void *, s32);
 extern s32 CdPosToInt(const RrCdLocation *);
 extern void func_800963C4(s32);
-extern void func_8001E84C(const char *, ...);
+extern void DebugPrintStub(const char *, ...);
 extern const char D_80010028[];
-extern const char D_80010048[];
-extern const char D_80010054[];
+extern const char R4BinPath[];
+extern const char StrFileNotFoundFmt[];
 extern const char D_80010068[];
 extern u32 *CdDirectoryBuffer;
 extern RrCdFileEntry CdFileTable[];
@@ -69,11 +69,11 @@ void LoadR4Directory(void)
     s32 base, sector, next;
     u32 *directory;
     RrCdFileEntry *entry;
-    func_8001E84C(D_80010028,D_80010048,CdDirectoryBuffer);
-    found=CdSearchFile(&file,D_80010048);
+    DebugPrintStub(D_80010028,R4BinPath,CdDirectoryBuffer);
+    found=CdSearchFile(&file,R4BinPath);
     message_page=(u8 *)0x80010000U;
     if (!found) {
-        func_8001E84C(D_80010054,D_80010048);
+        DebugPrintStub(StrFileNotFoundFmt,R4BinPath);
         func_800963C4(1);
     }
     sectors=2;
@@ -84,7 +84,7 @@ void LoadR4Directory(void)
         CdRead(sectors,CdDirectoryBuffer,0x80);
         do { status=CdReadSync(1,0); } while(status>0);
     } while(status);
-    func_8001E84C((const char *)(message_page+0x68),sectors);
+    DebugPrintStub((const char *)(message_page+0x68),sectors);
     base=CdPosToInt(&file.location);
     directory=CdDirectoryBuffer;
     i=0;

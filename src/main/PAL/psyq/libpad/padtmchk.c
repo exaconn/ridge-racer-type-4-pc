@@ -5,10 +5,10 @@ struct C { char p0[0x14]; int f14; int (*f18)(); char p1c[0x14]; unsigned char *
 
 extern int (*D_800ABC6C)();
 
-void func_8009A478();
+void _padPacketDone();
 void _dirFailAuto();
 
-void func_8009A478(a0) struct C *a0; {
+void _padPacketDone(a0) struct C *a0; {
     unsigned int t;
     int a1;
     unsigned char b;

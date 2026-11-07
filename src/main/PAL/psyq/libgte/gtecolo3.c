@@ -12,8 +12,8 @@ void NormalColorCol(int *a0, int *a1, int *a2);
 void NormalColorCol3(int *a0, int *a1, int *a2, int *a3, int * volatile a4, int * volatile a5, int * volatile a6);
 void ColorDpq(int *a0, int *a1, int a2, int *a3);
 void ColorCol(int *a0, int *a1, int *a2);
-int func_80091498(void);
-int func_800914A8(void);
+int GteAvsz3(void);
+int GteAvsz4(void);
 
 void LocalLight(int *a0, int *a1) {
     __asm__ volatile ("lwc2 $0, 0(%0)\n\tlwc2 $1, 4(%0)" : : "r"(a0));
@@ -113,14 +113,14 @@ void ColorCol(int *a0, int *a1, int *a2) {
     __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(a2));
 }
 
-int func_80091498(void) {
+int GteAvsz3(void) {
     int v;
     RR_GTE_OP(0x4B58002D);
     __asm__ volatile ("mfc2 %0, $7" : "=r"(v));
     return v;
 }
 
-int func_800914A8(void) {
+int GteAvsz4(void) {
     int v;
     RR_GTE_OP(0x4B68002E);
     __asm__ volatile ("mfc2 %0, $7" : "=r"(v));

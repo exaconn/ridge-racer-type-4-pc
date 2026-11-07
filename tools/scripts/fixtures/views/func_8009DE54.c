@@ -4,10 +4,10 @@
 
 #include "rr_asm.h"
 
-s32 func_8009DE54(s32 value) {
+s32 _cardGetIdRx(s32 value) {
     /* ASM_BARRIER: Share the original result pointer register between accumulation cases. */
     register u32 *word __asm__("$2");
-    switch (D_800ABDF8) {
+    switch (CardRxCount) {
     case 2:D_80114730=8;break;
     case 3:if ((value&255)!=0x5A) return -1;break;
     case 7:*(u32 *)D_8011471C=value&255;break;

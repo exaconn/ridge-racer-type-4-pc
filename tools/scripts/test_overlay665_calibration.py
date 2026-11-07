@@ -29,10 +29,10 @@ static State world,initial,expected;
 #define D_800AC5D0 world.timer
 #define Options world.settings
 #define D_800ADAF0 world.frames
-#define D_800F3A38 world.input
+#define PlayerControllers world.input
 #define BadgeRows world.badges[world.badgeRoot]
 #define D_800AC590 (&world.text[world.textRoot])
-#define D_800ACC14 ((RrIconSpriteContext *)&world.frames[world.frameRoot])
+#define CurrentDrawBuf ((RrIconSpriteContext *)&world.frames[world.frameRoot])
 #define ovl665_D_80119018 world.regions[0]
 #define ovl665_D_80119020 world.regions[1]
 #undef RR_PROJECTION_SCRATCH
@@ -64,7 +64,7 @@ void func_8005B2D4(s32 a){const s32 args[8]={a};record(1,args);effect(1);}
 void PlaySfx(s32 a){const s32 args[8]={a};record(2,args);effect(2);}
 void AddScreenFadeTiles(u32 *p,s32 a,u32 b){assert(p==world.frames[world.frameRoot].ordering.ordering70&&(uintptr_t)p>UINT32_MAX);const s32 args[8]={world.frameRoot,a,(s32)b};record(3,args);effect(3);}
 void ovl665_func_80114A24(void){service(4);}
-void *func_8001FF84(u32 *head,void *cursor,s32 x,s32 y,const RrUiUvRect *region,u16 clut,s32 color){unsigned arena,which=99,n=world.sprites;u32 uv;assert(n<4&&head==world.frames[world.frameRoot].ordering.ordering70&&(uintptr_t)cursor>UINT32_MAX);
+void *AddSpritePrim(u32 *head,void *cursor,s32 x,s32 y,const RrUiUvRect *region,u16 clut,s32 color){unsigned arena,which=99,n=world.sprites;u32 uv;assert(n<4&&head==world.frames[world.frameRoot].ordering.ordering70&&(uintptr_t)cursor>UINT32_MAX);
  for(arena=0;arena<3;arena++)if(cursor==&world.streams[arena].sprites[n])break;assert(arena<3);
  for(unsigned a=0;a<2;a++)for(unsigned b=0;b<2;b++)if(region==&world.regions[a][b])which=a*2+b;assert(which<4);memcpy(&uv,region,4);
  const s32 args[8]={world.frameRoot,arena,x,y,which,clut,color,word(uv)};record(5,args);
@@ -87,7 +87,7 @@ static void oracle(void){s32 phase=world.visual.layout0C;paths[phase>=0&&phase<4
   if(world.timer<=0&&world.badges[world.badgeRoot][0].state10==11){exitKinds[0]++;service(4);world.visual.layout0C=0;world.visual.scene00=word((u32)world.visual.scene00-1);return;}exitKinds[1]++;
  }
  void *cursor=world.scratch.pointers.cursor;
- for(unsigned i=0;i<4;i++)cursor=func_8001FF84(world.frames[world.frameRoot].ordering.ordering70,cursor,i<2?160:136+(i-2)*48,i<2?128+i*96:176,&world.regions[i/2][i%2],32568,255);
+ for(unsigned i=0;i<4;i++)cursor=AddSpritePrim(world.frames[world.frameRoot].ordering.ordering70,cursor,i<2?160:136+(i-2)*48,i<2?128+i*96:176,&world.regions[i/2][i%2],32568,255);
  RrGpuSingleCommandPacket *packet=cursor;world.scratch.pointers.cursor=(u8*)packet;u32 old=world.frames[world.frameRoot].ordering.ordering70[0];
  packet->tag=0x01000000U+(old&0xFFFFFFU);packet->command=0xE1000259U;world.frames[world.frameRoot].ordering.ordering70[0]=(old&0xFF000000U)+((uintptr_t)packet%0x1000000U);world.scratch.pointers.cursor=(u8*)(packet+1);
  world.text[world.textRoot].b4=26;UpdateBadgeRowAnim(0);

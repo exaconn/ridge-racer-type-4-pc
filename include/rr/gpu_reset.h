@@ -28,12 +28,12 @@ typedef struct {
 } RrGpuHeightTable14;
 
 extern RrGpuResetState80 D_800ABAC0;
-extern RrGpuResetDriver40 D_800ABA78, *D_800ABAB8;
+extern RrGpuResetDriver40 GpuDriverTable, *GpuFuncTable;
 extern RrGpuDimension4 D_800ABB40[3];
 extern RrGpuHeightTable14 D_800ABB4C;
-extern const char D_80011DF0[], D_80011E10[];
+extern const char ResetGraphFmt[], StrResetGraphFmt[];
 
-s32 func_8001E84C(const char *format, ...);
+s32 DebugPrintStub(const char *format, ...);
 void GPU_memset(s8 *destination, s8 value, s32 length);
 s32 _reset(s32 mode);
 /* BIOS service receives an encoded low-24-bit PAL address, not a native pointer. */

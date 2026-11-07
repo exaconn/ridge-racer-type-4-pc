@@ -27,7 +27,7 @@ extern struct {
     char p4[0x287C - 0x2870]; s32 x287C;
 } SoundState;
 
-void func_80053BB4(int a0) {
+void SeqStartTrack(int a0) {
     int arr[2] = {0x6C, 0x7F};
     if (SoundState.x2868 != a0) {
         func_80053CB0();

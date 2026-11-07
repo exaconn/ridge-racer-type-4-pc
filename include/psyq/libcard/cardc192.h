@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-int func_8009DE30();
+int _cardGetIdTx();
 
 #endif /* RR_PSYQ_LIBCARD_CARDC192_H */

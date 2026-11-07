@@ -95,7 +95,7 @@ extern int func_80096464();
 extern char PlayerCars[];
 extern int D_800AD568;
 extern char *D_800F39C8[];
-extern char D_800F3A38[];
+extern char PlayerControllers[];
 extern int RaceState;
 extern unsigned char CarInputs[][4];
 extern short D_800F4C70[];
@@ -390,9 +390,9 @@ int arg1;
   *((int *) (((char *) s1) + 0x9C)) = (*((int *) (((char *) s1) + 0x9C))) & 0xFFF;
   if ((arg0 == PlayerCars) || (arg0 == (PlayerCars + 0x320)))
   {
-    /* ASM_BARRIER: pin p4 to a0 for D_800F3A38 base */
+    /* ASM_BARRIER: pin p4 to a0 for PlayerControllers base */
     register char *p4 asm("$4");
-    p4 = D_800F3A38;
+    p4 = PlayerControllers;
     *((short *) ((p4 + ((arg1 & 1) * 0x5C)) + 0x50)) = 1;
     s0 = *((short *) (((char *) arg0) + 0x1D8));
     t = (*((short *) (((char *) D_800F39C8[arg1]) + 0x1F0))) * 8;

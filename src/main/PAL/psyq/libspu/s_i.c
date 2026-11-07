@@ -83,9 +83,9 @@ void _SsStart(s32 direct)
             __asm__("" : "+r"(interrupt));
             FIELD(state,RrSpuTickCallback,previous)=InterruptCallback(interrupt,0);
             interrupt=FLAG(state,interrupt);
-            callback=func_80082CB4;
+            callback=_SsTickCallback;
         } else {
-            callback=func_80082D00;
+            callback=_SsTickCallbackDivided;
             if(FLAG(state,divided)==0) callback=FIELD(state,RrSpuTickCallback,callback);
         }
         InterruptCallback(interrupt,callback);
@@ -97,7 +97,7 @@ void SsStart(void) { _SsStart(1); }
 
 void SsStart2(void) { _SsStart(0); }
 
-void func_80082CB4(void) {
+void _SsTickCallback(void) {
  void (**p)() = D_800A4D44;
  /* ASM_BARRIER: keeps D_800A4D44 address in one register (lui+addiu) so p[-1] uses a negative offset */
  __asm__("" : "=r"(p) : "0"(p));
@@ -105,7 +105,7 @@ void func_80082CB4(void) {
  p[-1]();
 }
 
-void func_80082D00(void) {
+void _SsTickCallbackDivided(void) {
     if (D_800A4D4C == 0) {
         /* ASM_BARRIER: Retain the assembler temporary for the state publication. */
         register u8 *page __asm__("$1");

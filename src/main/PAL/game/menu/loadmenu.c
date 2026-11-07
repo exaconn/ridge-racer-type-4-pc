@@ -17,9 +17,9 @@ void func_8007AB8C(int arg0);
 void func_8007B3A0(void);
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4D50 (*(char (*)[])&D_800F4D50)
+#define CardTargetFileName (*(char (*)[])&CardTargetFileName)
 
-int func_8007A9CC(a0, a1)
+int CardLoadStep(a0, a1)
 short a0;
 int a1;
 {
@@ -41,9 +41,9 @@ int a1;
         for (i = 0x1D; i >= 0; i--) {
         }
         if (D_800F3AF8 != 0x10) {
-            r = CardReadFile((short)a1, 0, D_800F4D50, SaveBuffer, 1);
+            r = CardReadFile((short)a1, 0, CardTargetFileName, SaveBuffer, 1);
         } else {
-            r = CardReadFileAt((short)a1, 0, D_800F4D50, SaveBuffer, 0x80, 0x280);
+            r = CardReadFileAt((short)a1, 0, CardTargetFileName, SaveBuffer, 0x80, 0x280);
         }
         if (r == -1) {
             if (D_800A41EE < 3) {
@@ -82,7 +82,7 @@ int a1;
     return D_800A41EC;
 }
 
-#undef D_800F4D50
+#undef CardTargetFileName
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800F3A26 (*(short (*))&D_800F3A26)
@@ -138,7 +138,7 @@ void func_8007ABCC(void) {
         i = 23;
         /* ASM_BARRIER: retain the initialized byte counter before indexing. */
         __asm__("" : "+r"(i));
-        clearAddress = (unsigned long)D_800F4D50;
+        clearAddress = (unsigned long)CardTargetFileName;
         /* ASM_BARRIER: retain the real buffer address before its byte offset. */
         __asm__("" : "+r"(clearAddress));
         clearAddress += i;
@@ -147,7 +147,7 @@ void func_8007ABCC(void) {
             i--;
             clearAddress--;
         } while (i >= 0);
-        CopyStringClearTail(D_800F4D50,D_800A457C);
+        CopyStringClearTail(CardTargetFileName,CardSaveFileName);
         selection = D_800FFC18;
         /* ASM_BARRIER: keep the signed snapshot separate from the range read. */
         __asm__("" : "+r"(selection));
@@ -158,10 +158,10 @@ void func_8007ABCC(void) {
             InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x65);
             InitUiRow(0x24, 0xC, 0x90, 0x44, 0x20, 0, 0, 1, 0, 0x64);
             InitUiRow(0x25, 0xC, 0xB8, 0x44, 0x20, 0, 0, 1, 0, 0x55);
-            D_800F3A1C = 0;
+            MenuStateIndex = 0;
             D_800F3AF8 = 0;
             D_800A45B8 = 0x1001A;
-            func_80053BB4(0);
+            SeqStartTrack(0);
         } else if (modeRange < 2U) {
             if (selection == 6) {
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
@@ -177,7 +177,7 @@ void func_8007ABCC(void) {
             /* ASM_BARRIER: publish the layout before the badge status. */
             __asm__("" : : : "memory");
             D_800F3AF8 = 0x10;
-            D_800F3A1C = 0x29;
+            MenuStateIndex = 0x29;
             InitBadgeRow(1, 0x80, 0x58, 0xA8, 0x80, 0, 0xE02);
             BadgeRows[1].half02 = 1;
             D_801272F0[0] = -1;
@@ -189,9 +189,9 @@ void func_8007ABCC(void) {
                 InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
                 D_800A45B8 = 0x10012;
                 if (D_800FFC18 == 3) {
-                    D_800F3A1C = 0x17;
+                    MenuStateIndex = 0x17;
                 } else {
-                    D_800F3A1C = 0x20;
+                    MenuStateIndex = 0x20;
                 }
                 InitBadgeRow(1, 0x80, 0x58, 0xA8, 0x80, 0, 0x702);
                 BadgeRows[1].half02 = 1;
@@ -200,7 +200,7 @@ void func_8007ABCC(void) {
                 D_800A45B8 = 0x10016;
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x65);
                 InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
-                D_800F3A1C = 0x21;
+                MenuStateIndex = 0x21;
                 D_800F3AF8 = selection;
             } else {
                 D_800A45B8 = 0x1001A;
@@ -221,7 +221,7 @@ void func_8007ABCC(void) {
         }
         D_8010948C = 0;
         for (i = 0; i < 3; i++) {
-            D_8010B258[i] = D_800F2E30[i];
+            D_8010B258[i] = SaveSlotSelections[i];
         }
         D_800F4D8A = 1;
         break;

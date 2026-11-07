@@ -8,7 +8,7 @@
 #include "rr/interrupts.h"
 #include "rr/spu_tick_control.h"
 
-extern s32 D_800ABC50;
+extern s32 InitPadFlag;
 extern int ChangeClearPAD();
 extern int PAD_init2();
 extern int _patch_pad();
@@ -29,14 +29,14 @@ void PAD_init();
 void InitPAD();
 s32 StartPAD(void);
 void StopPAD();
-int func_80097568(void);
+int _padInstallVsyncHook(void);
 
 void SetInitPadFlag(s32 value) {
-    D_800ABC50 = value;
+    InitPadFlag = value;
 }
 
 s32 ReadInitPadFlag(void) {
-    return D_800ABC50;
+    return InitPadFlag;
 }
 
 void PAD_init(a0, a1, a2, a3) int a0, a1, a2, a3; {
@@ -45,9 +45,9 @@ void PAD_init(a0, a1, a2, a3) int a0, a1, a2, a3; {
     _patch_pad();
     ExitCriticalSection();
     ChangeClearPAD(0);
-    func_80097568();
+    _padInstallVsyncHook();
     PAD_init2(a0, a1, a2, a3);
-    D_800ABC50 = 1;
+    InitPadFlag = 1;
     /* ASM_BARRIER: keep the final global store before the epilogue loads */
     __asm__ volatile("" : : : "memory");
 }
@@ -58,9 +58,9 @@ void InitPAD(a0, a1, a2, a3) int a0; int a1; int a2; int a3; {
     _patch_pad();
     ExitCriticalSection();
     ChangeClearPAD(0);
-    func_80097568();
+    _padInstallVsyncHook();
     InitPAD2(a0, a1, a2, a3);
-    D_800ABC50 = 1;
+    InitPadFlag = 1;
     /* ASM_BARRIER: keeps epilogue stack loads (lw ra/s*) after the final global stores; sched2 otherwise hoists/sinks them */
     __asm__ volatile ("" : : : "memory");
 }
@@ -72,16 +72,16 @@ s32 StartPAD(void) {
     return 1;
 }
 
-void StopPAD() { DisablePAD(); StopPAD2(); RemovePatchPad(); D_800ABC50 = 0; }
+void StopPAD() { DisablePAD(); StopPAD2(); RemovePatchPad(); InitPadFlag = 0; }
 
-int func_80097568(void) {
+int _padInstallVsyncHook(void) {
     int *p;
     char *s;
     EnterCriticalSection();
     p = D_801143EC;
     s = (char *)p - 4;
-    p[0] = (int)func_80097618;
-    p[1] = (int)func_80097680;
+    p[0] = (int)_padVsyncHookHandler;
+    p[1] = (int)_padVsyncHookCheck;
     D_801143E8 = 0;
     D_801143F4 = 0;
     SysDeqIntRP(1, s);

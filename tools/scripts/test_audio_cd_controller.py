@@ -5,7 +5,7 @@ from unicorn import *
 from unicorn.mips_const import *
 P=Path(os.getenv("RR_TEST_DIR","build/goal_50/part32/native"));P.mkdir(parents=True,exist_ok=True);source=Path(sys.argv[1]) if len(sys.argv)>1 else Path("tools/scripts/fixtures/legacy/func_800534D8.c");count=int(sys.argv[2]) if len(sys.argv)>2 else 8192
 body=source.read_text().split('\n',1)[1];body=re.sub(r' __asm__\("[a-z0-9$]+"\)','',body)
-services=[('CdAudioPlayStep','void',[]),('CdAudioPauseStep','void',[]),('CdAudioResumeStep','void',[]),('CdAudioStopStep','void',[]),('CdAudioLoopStep','void',[]),('CdAudioFilterStep','void',[]),('CdSync','s32',['s32','u8*']),('CdIntToPos','u8*',['s32','u8*']),('CdControlF','s32',['s32','const u8*']),('CdDiskReady','s32',['s32']),('CdFlush','void',[]),('CdAudioMute','void',[]),('CdAudioRequestPause','void',[]),('func_8001E84C','s32',['const char*','RrAudioState*']),('CdAudioSetVolumeRaw','void',['s32']),('CdAudioFadeStep','void',[]),('CdLastCom','s32',[]),('CdPosToInt','s32',['const u8*']),('CdAudioSetVolume','void',['u16'])]
+services=[('CdAudioPlayStep','void',[]),('CdAudioPauseStep','void',[]),('CdAudioResumeStep','void',[]),('CdAudioStopStep','void',[]),('CdAudioLoopStep','void',[]),('CdAudioFilterStep','void',[]),('CdSync','s32',['s32','u8*']),('CdIntToPos','u8*',['s32','u8*']),('CdControlF','s32',['s32','const u8*']),('CdDiskReady','s32',['s32']),('CdFlush','void',[]),('CdAudioMute','void',[]),('CdAudioRequestPause','void',[]),('DebugPrintStub','s32',['const char*','RrAudioState*']),('CdAudioSetVolumeRaw','void',['s32']),('CdAudioFadeStep','void',[]),('CdLastCom','s32',[]),('CdPosToInt','s32',['const u8*']),('CdAudioSetVolume','void',['u16'])]
 head='''#include <stdint.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -14,16 +14,16 @@ head='''#include <stdint.h>
 static struct {u8 before[64];RrAudioState owner;u8 after[64];} storage;
 #define SoundState storage.owner
 #define D_800F746C SoundState.request26B4
-char D_8001118C[12];
+char XaRepeatMsg[12];
 typedef uintptr_t(*Callback)(unsigned,uintptr_t*);static Callback cb;
 void set_callback(Callback p){cb=p;}
-void *owner(void){return &SoundState;}void *format(void){return D_8001118C;}
+void *owner(void){return &SoundState;}void *format(void){return XaRepeatMsg;}
 void guards(void){memset(storage.before,0xA6,64);memset(storage.after,0x6A,64);}
 unsigned check(void){unsigned j;for(j=0;j<64;j++)if(storage.before[j]!=0xA6||storage.after[j]!=0x6A)return 1;return 0;}
 '''
 code=head
 for i,(name,ret,types) in enumerate(services):
- if name=='func_8001E84C':params='const char *a0,...';prefix='va_list ap;RrAudioState *a1;va_start(ap,a0);a1=va_arg(ap,RrAudioState*);va_end(ap);'
+ if name=='DebugPrintStub':params='const char *a0,...';prefix='va_list ap;RrAudioState *a1;va_start(ap,a0);a1=va_arg(ap,RrAudioState*);va_end(ap);'
  else:params=','.join(t+' a'+str(j) for j,t in enumerate(types)) or 'void';prefix=''
  code+=ret+' '+name+'('+params+'){'+prefix+'uintptr_t a[4]={'+(','.join('(uintptr_t)a'+str(j) for j in range(len(types))) or '0')+'};uintptr_t v=cb('+str(i)+',a);'+('return ('+ret+')v;' if ret!='void' else '')+'}\n'
 code+=body
@@ -79,7 +79,7 @@ def service(i,args,native):
  if name=='CdDiskReady':return [0,16,-1][case%3]
  if name=='CdLastCom':return 17 if case&1 else 0
  if name=='CdPosToInt':return edges[(case+step)%len(edges)]&0xffffffff
- if name=='func_8001E84C':return 1
+ if name=='DebugPrintStub':return 1
  return 0
 CB=C.CFUNCTYPE(C.c_size_t,C.c_uint,C.POINTER(C.c_size_t))
 @CB

@@ -4,14 +4,14 @@
 #include "types.h"
 
 extern s32 D_800A0218;
-extern s32 D_800A021C;
+extern s32 RaceLoadStepIndex;
 extern int RaceLoadState;
 extern int RaceLoadSubState;
 extern int RaceLoadCursor;
 int LoadCarSpecStep();
 int func_8004D7D8();
 int func_8004D994();
-int func_8004E03C(char *a0);
+int LoadVabPairStep(char *a0);
 s32 func_8004E184(void);
 int LoadRaceSoundStep(void);
 

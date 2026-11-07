@@ -21,8 +21,8 @@ s32 _padSetMainMode(RrChannelPatchCommand *raw,s32 first_raw,s32 second_raw) {
  {
   register u32 wanted=channel->argument;
   channel->phase=1;
-  channel->update=func_80099564;
-  channel->complete=func_800995B8;
+  channel->update=_padMainModeUpdate;
+  channel->complete=_padMainModeComplete;
   {
    u32 masked;
    masked=(u8)copy;

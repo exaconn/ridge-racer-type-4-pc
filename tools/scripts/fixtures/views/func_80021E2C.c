@@ -1,9 +1,9 @@
 #include "rr/controller_hud.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((struct O *)D_800ACC14)
+#define CurrentDrawBuf ((struct O *)CurrentDrawBuf)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 void DrawRaceMinimap(s32 arg0) {
     s32 var_s2;
@@ -18,14 +18,14 @@ void DrawRaceMinimap(s32 arg0) {
 
     var_s4 = 0;
     if (arg0 == 0) {
-        var_s3 = ((RrFrameStorage *)(void *)D_800ACC14)->ordering.ordering70;
+        var_s3 = ((RrFrameStorage *)(void *)CurrentDrawBuf)->ordering.ordering70;
         if (D_800AD508 >= 0) {
             var_s2 = (s16)((u16)D_800AD508 ^ 1);
         } else {
             var_s2 = 0;
         }
     } else {
-        var_s3 = ((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70;
+        var_s3 = ((RrFrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70;
         if (arg0 == 1) {
             var_s4 = -0x80;
         }
@@ -46,7 +46,7 @@ void DrawRaceMinimap(s32 arg0) {
                 u16 clut=(temp_hi<<6)+0x1A16;
                 s32 yNumerator=temp_a0->y28; s32 xNumerator=temp_a0->x20;
                 register s32 yValue __asm__("$2");s32 xValue;xValue=xNumerator/1150+4;yBase=var_s4+242;yValue=yBase-yNumerator/1150;
-                var_a1 = func_8001FF84(var_s3, var_a1, xValue, yValue-4, glyph, clut, 0);
+                var_a1 = AddSpritePrim(var_s3, var_a1, xValue, yValue-4, glyph, clut, 0);
             }
             var_s0 += 1;
         } while (var_s0 < NumCars);

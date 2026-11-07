@@ -66,7 +66,7 @@ int func_800578D8(int a0)
   {
     RaceContext.p->f108 = 0x515;
   }
-  if (D_800F3A40 & 0x800)
+  if (Pad0Buttons & 0x800)
   {
     if (RaceContext.p->f104 >= 0x33)
     {

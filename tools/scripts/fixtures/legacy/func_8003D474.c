@@ -33,7 +33,7 @@ void DrawBadgeRow(s32 index) {
         zero7=zero6;
         y=row->y06;x=row->x04;width=row->width0C;extent=row->extent0E;
         
-        context=(RrPanelContext *)D_800ACC14;
+        context=(RrPanelContext *)CurrentDrawBuf;
         
         order=&context->head74;
         height=extent-22;

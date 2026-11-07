@@ -129,7 +129,7 @@ c11:
         goto dispatch;
 c64:
         argument_bank = normalized_bank;
-        callback = D_8010EFF0;
+        callback = SsCtrlHandlerCC64;
         argument_row = normalized_row;
         goto dispatch;
 c91:
@@ -162,7 +162,7 @@ dispatch:
         callback(argument_bank, argument_row, value);
         return;
 c121:
-        D_8010F008(normalized_bank, normalized_row);
+        SsCtrlHandlerCC121(normalized_bank, normalized_row);
         return;
 fallback:
     argument_bank = (s16)bank;

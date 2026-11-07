@@ -2,7 +2,7 @@
 #include "rr/library.h"
 
 extern RrLibSavedState D_800A52C8;
-extern u16 *D_800A6358;
+extern u16 *I_MASK;
 extern s32 *D_800A635C;
 extern void HookEntryInt(void *data);
 extern void ExitCriticalSection(void);
@@ -12,7 +12,7 @@ RrLibSavedState *restartIntr(void) {
     if (state->active != 0) return 0;
     HookEntryInt(state->callback_data);
     state->active = 1;
-    *D_800A6358 = state->register16;
+    *I_MASK = state->register16;
     {
         s32 *destination = D_800A635C;
         s32 value = state->register32;

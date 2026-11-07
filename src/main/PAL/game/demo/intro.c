@@ -223,9 +223,9 @@ int IntroScriptStep(void) {
         sp28[2] = RaceContext.f412 * 18 + 0x10;
         for (i = 0; i < 2; i++) {
             sp28[1] = sp28[3] = i * 40 + 0x172;
-            func_8004D290(sp28, sp30, 0, 10);
+            AddLineF2Prim(sp28, sp30, 0, 10);
             sp28[1] = sp28[3] = i * 40 + 0x173;
-            func_8004D290(sp28, sp30, 0, 10);
+            AddLineF2Prim(sp28, sp30, 0, 10);
         }
     }
 
@@ -276,8 +276,8 @@ int IntroScriptStep(void) {
         break;
     }
 
-    func_8005C26C(RaceContext.f3EC);
-    *(int *)SCRATCHPAD = AddTileGrid2x2(D_800ACC14 + 0xB6C, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x200,
+    UpdateFadeTint(RaceContext.f3EC);
+    *(int *)SCRATCHPAD = AddTileGrid2x2(CurrentDrawBuf + 0xB6C, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x200,
                                        RaceContext.f3F0, RaceContext.f3F1, RaceContext.f3F2);
     for (i = 0; i < 2; i++) {
         D_800ADAF0[i].r = RaceContext.f3F0;

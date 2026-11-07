@@ -1,6 +1,6 @@
 #include "rr/frame_loop.h"
 
-extern int func_8001E84C();
+extern int DebugPrintStub();
 
 extern int CdInit();
 
@@ -26,7 +26,7 @@ extern int InitGamePads();
 
 extern int func_8005C0C4();
 
-extern int func_8004A678();
+extern int ApplyOptionsPadButtonMaps();
 
 extern int AddSIO();
 
@@ -42,7 +42,7 @@ extern int InitMenuArenas();
 
 extern int InitDefaultTimeRecords();
 
-extern int func_8001F194();
+extern int InitCourseChoices();
 
 extern int func_8006F5F0();
 
@@ -54,13 +54,13 @@ extern int CdDirectoryBuffer;
 
 extern char D_800102F4[];
 
-extern char D_80010300[];
+extern char DefaultPlayerName[];
 
 extern char D_8001030C[];
 
 extern char D_80010320[];
 
-extern char D_80010328[];
+extern char TeamNameMicroMouseMappy[];
 
 extern char D_80010348[];
 
@@ -72,7 +72,7 @@ extern char D_8001036C[];
 
 extern char D_80010384[];
 
-extern char D_8001038C[];
+extern char TeamNameAssoluto[];
 
 extern char D_80010398[];
 
@@ -82,7 +82,7 @@ extern char D_800103AC[];
 
 extern char PlayerCars[];
 
-extern int D_800AC5A0;
+extern int LoadDestCursor;
 
 extern int LoadCursor;
 
@@ -94,7 +94,7 @@ extern short D_800AD508;
 
 extern char RankEntries[];
 
-extern char D_800F2FE0[];
+extern char SaveDataWork[];
 
 extern char SaveProgress[];
 
@@ -104,7 +104,7 @@ extern char D_800F3B28[];
 
 extern char SelectionRows[];
 
-extern signed char D_800F2E30[];
+extern signed char SaveSlotSelections[];
 
 extern int RankTable[];
 
@@ -137,7 +137,7 @@ void SystemInit(void)
     int k, c5;
     int m;
 
-    func_8001E84C(D_800102F4);
+    DebugPrintStub(D_800102F4);
     CdInit();
     InitCdFileDirectory();
     SsInit();
@@ -150,7 +150,7 @@ void SystemInit(void)
     CardSystemInit(1);
     InitGamePads();
     func_8005C0C4();
-    func_8004A678();
+    ApplyOptionsPadButtonMaps();
     AddSIO();
     _sio_control(1, 1, 0);
     SetupRenderer(5);
@@ -185,20 +185,20 @@ void SystemInit(void)
         q += 4;
     } while (i < 4);
     D_800AD508 = -1;
-    CopyStringClearTail(SaveProgress, D_80010300);
+    CopyStringClearTail(SaveProgress, DefaultPlayerName);
     CopyStringClearTail(D_800F39D8, SaveProgress);
     CopyStringClearTail(D_800F39D8 + 0xC, SaveProgress);
     CopyStringClearTail(D_800F39D8 + 0x18, SaveProgress);
     CopyStringClearTail(D_800F39D8 + 0x24, SaveProgress);
     D_800F2E08[0] = (int)D_8001030C;
     D_800F2E08[4] = (int)D_80010320;
-    D_800F2E08[1] = (int)D_80010328;
+    D_800F2E08[1] = (int)TeamNameMicroMouseMappy;
     D_800F2E08[5] = (int)D_80010348;
     D_800F2E08[2] = (int)D_80010350;
     D_800F2E08[6] = (int)D_80010364;
     D_800F2E08[3] = (int)D_8001036C;
     D_800F2E08[7] = (int)D_80010384;
-    D_800F4BD0[0] = (int)D_8001038C;
+    D_800F4BD0[0] = (int)TeamNameAssoluto;
     D_800F4BD0[1] = (int)D_80010398;
     D_800F4BD0[2] = (int)D_800103A0;
     D_800F4BD0[3] = (int)D_800103AC;
@@ -210,18 +210,18 @@ void SystemInit(void)
     i = 2;
     D_800F4CA8 = 0;
     D_800F4D44 = 0;
-    D_800AC5A0 = CdDirectoryBuffer + k;
-    r = D_800F2E30 + i * 0x2C;
+    LoadDestCursor = CdDirectoryBuffer + k;
+    r = SaveSlotSelections + i * 0x2C;
     do {
         r[0x17] = m;
         i--;
         r -= 0x2C;
     } while (i >= 0);
     InitDefaultTimeRecords(k, i, r, m);
-    func_8001F194();
+    InitCourseChoices();
     func_8006F5F0(D_800F3B28);
     func_8006F5F0(D_800F3B28 + 0x840);
-    func_8006F5F0(D_800F2FE0);
+    func_8006F5F0(SaveDataWork);
     D_800F3B20 = D_800F3B28;
     ResetRankEntries();
     InitCarTable(1);

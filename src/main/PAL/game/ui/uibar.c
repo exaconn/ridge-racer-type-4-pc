@@ -65,7 +65,7 @@ unsigned short a6;
 #undef BadgeRows
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8001FF84 (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32))&func_8001FF84)
+#define AddSpritePrim (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32))&AddSpritePrim)
 #define GameQueueSprite (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32))&GameQueueSprite)
 
 RrSpritePacket *DrawBadgeTitleBar(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,s32 style) {
@@ -95,7 +95,7 @@ RrSpritePacket *DrawBadgeTitleBar(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,
     descriptor_base=(u8*)D_8009F968;
     selector=(u32)style*sizeof(RrUiBarDescriptor);
     descriptor=(RrUiBarDescriptor*)(descriptor_base+selector);
-    cursor=func_8001FF84(ordering,cursor,x_stage,y_stage,
+    cursor=AddSpritePrim(ordering,cursor,x_stage,y_stage,
                        &D_8009F94C[descriptor->glyph],0x7FFB,0);
     out_order=ordering;
     out_cursor=cursor;
@@ -128,7 +128,7 @@ RrSpritePacket *DrawBadgeTitleBar(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,
     return AddTilePrim(out_order,out_cursor,x_stage,y_stage,width,2,255,255,255);
 }
 
-#undef func_8001FF84
+#undef AddSpritePrim
 #undef GameQueueSprite
 
 void DrawBadgeRow(s32 index) {
@@ -165,7 +165,7 @@ void DrawBadgeRow(s32 index) {
         zero7=zero6;
         y=row->y06;x=row->x04;width=row->width0C;extent=row->extent0E;
         
-        context=(RrPanelContext *)D_800ACC14;
+        context=(RrPanelContext *)CurrentDrawBuf;
         
         order=&context->head74;
         height=extent-22;

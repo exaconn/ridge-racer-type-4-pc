@@ -56,7 +56,7 @@ static u32 seed;
 static union {uint64_t align;u8 bytes[128];} arena[32];
 static RrPanelDraw callbacks[256];
 #define BadgeRows (w->rows[row_bank]+1)
-#define D_800ACC14 (skip_case?NULL:&w->contexts[context_index].prefix)
+#define CurrentDrawBuf (skip_case?NULL:&w->contexts[context_index].prefix)
 #define D_8009F984 (callbacks+129)
 '''
         reference=r'''

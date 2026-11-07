@@ -27,8 +27,8 @@ extern int SetGeomScreen();
 int ValidateRecordPassword(unsigned char *a0, unsigned char *a1);
 int EncodeRecordPassword();
 int DecodeRecordPassword(int *a, int *b, int *c, int *d, int *e, int f);
-void func_80043608(int *p);
-void func_800436E8(int *p);
+void LoadTimImage(int *p);
+void LoadTimList(int *p);
 int func_80043730();
 void func_800437D8();
 void CarLocalToWorld(char *a, int b, int *c);
@@ -125,7 +125,7 @@ int DecodeRecordPassword(int *a, int *b, int *c, int *d, int *e, int f) {
 #undef func_80096424
 #undef PasswordBytes
 
-void func_80043608(int *p) {
+void LoadTimImage(int *p) {
     short r[4];
     unsigned short *h;
     p++;
@@ -150,12 +150,12 @@ void func_80043608(int *p) {
     }
 }
 
-void func_800436E8(int *p) {
+void LoadTimList(int *p) {
     int n;
     p++;
     while ((n = *p++) > 0) {
         char *q = (char *)p + ((unsigned)n >> 2 << 2);
-        func_80043608(p);
+        LoadTimImage(p);
         p = (int *)q;
     }
 }

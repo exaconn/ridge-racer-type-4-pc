@@ -26,7 +26,7 @@ static struct World {
  u16 screen,step;s16 counter,post_counter;u16 post_screen,post_step;
  u32 selected,marker,calls;Event events[3];u32 after[8];
 } world,expected;
-#define D_800ACC14 world.active
+#define CurrentDrawBuf world.active
 #define ModeGroup world.screen
 #define D_800F3A26 world.step
 #define D_800F4D8A world.counter

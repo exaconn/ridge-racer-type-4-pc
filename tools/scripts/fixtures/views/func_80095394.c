@@ -6,15 +6,15 @@
 
 #include "rr/interrupts.h"
 
-extern s32 func_8001E84C(const char *format,...);
+extern s32 DebugPrintStub(const char *format,...);
 
-extern char D_80011F98[];
+extern char GpuTimeoutFmt[];
 
 s32 get_alarm(void) {
     s32 old,result;
     s32 saved;
     if(D_800ABBFC>=VSync(-1)) {
-        s32 *counter=&D_800ABC00;
+        s32 *counter=&GpuAlarmCount;
         {
             s32 tick=*counter;
             old=tick;
@@ -27,14 +27,14 @@ s32 get_alarm(void) {
         volatile u32 *gpu=GPU_STATUS;
         const char *format;
         u32 head;
-        format=D_80011F98;
+        format=GpuTimeoutFmt;
         *gpu;
         /* ASM_BARRIER: Keep the discarded status read before reading queue indices. */
         __asm__("" : : : "memory");
         head=_qin;
         /* ASM_BARRIER: Read the queue head before preparing the remaining diagnostic operands. */
         __asm__("" : "=r"(head) : "0"(head));
-        func_8001E84C(format,(head-(u32)_qout)&63,
+        DebugPrintStub(format,(head-(u32)_qout)&63,
             *gpu,*DMA2_CHCR,*DMA2_MADR);
     }
     saved=SetIntrMask(0);

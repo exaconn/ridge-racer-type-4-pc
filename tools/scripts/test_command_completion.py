@@ -28,23 +28,23 @@ typedef uint8_t u8; typedef uint16_t u16; typedef uint32_t u32; typedef int32_t 
 s32 test_ram[0x4000];
 #define D_800ABDE4 test_ram[0xBDE4/4]
 #define D_800ABDE8 test_ram[0xBDE8/4]
-#define D_800ABDEC test_ram[0xBDEC/4]
-#define D_800ABDF4 test_ram[0xBDF4/4]
-#define D_800ABDF8 test_ram[0xBDF8/4]
+#define CardCommandRequest test_ram[0xBDEC/4]
+#define CardReceiveIndex test_ram[0xBDF4/4]
+#define CardRxCount test_ram[0xBDF8/4]
 ''' + headers + '''
-s32 D_800ABDF0,D_80114730;
+s32 CardRetriesLeft,D_80114730;
 u8 D_800ABDC0[16];
-RrInterruptRegisters test_irq[2],*D_800ABDAC;
-RrSerialPortRegisters test_serial[2],*D_800ABDA8;
+RrInterruptRegisters test_irq[2],*I_STAT_Card;
+RrSerialPortRegisters test_serial[2],*CardSio0Regs;
 s32 (*test_poll)(void);void (*test_restart_hook)(void);
 s32 test_restart_calls,test_request,test_event_calls,test_event_flag;
 void *test_event_pointer;
 s32 test_event_state,test_event_counter,test_restart_state;
-s32 func_8009C0F4(void) { return test_poll(); }
+s32 _cardCmdStep(void) { return test_poll(); }
 s32 test_restart(s32 request) {
  s32 result;
  test_restart_calls++;test_request=request;test_restart_state=D_800ABDE4;
- result=func_8009C0A4(request);
+ result=_cardCmdReset(request);
  if(test_restart_hook)test_restart_hook();
  return result;
 }
@@ -56,9 +56,9 @@ s32 SysDeqIntRP(s32 flag,void *event) {
 void test_reset(void) {
  memset(test_ram,0xA5,sizeof(test_ram));memset(test_irq,0,sizeof(test_irq));
  memset(test_serial,0x5A,sizeof(test_serial));
- D_800ABDAC=&test_irq[0];D_800ABDA8=&test_serial[0];
- D_800ABDE4=3;D_800ABDE8=10;D_800ABDEC=123;
- D_800ABDF0=0;D_800ABDF4=9;D_800ABDF8=11;D_80114730=17;
+ I_STAT_Card=&test_irq[0];CardSio0Regs=&test_serial[0];
+ D_800ABDE4=3;D_800ABDE8=10;CardCommandRequest=123;
+ CardRetriesLeft=0;CardReceiveIndex=9;CardRxCount=11;D_80114730=17;
  test_restart_calls=test_event_calls=0;test_restart_hook=0;
 }
 '''
@@ -71,8 +71,8 @@ void test_reset(void) {
             body = re.sub(r'"\$[0-9]+",\s*', '', body)
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?=\))', '', body)
             if name == '8009BC3C':
-                assert body.count('func_8009C0A4(') == 1
-                body = body.replace('func_8009C0A4(', 'test_restart(')
+                assert body.count('_cardCmdReset(') == 1
+                body = body.replace('_cardCmdReset(', 'test_restart(')
             source += body
         directory = Path(cls.temp.name)
         (directory / 'function.c').write_text(source)
@@ -84,7 +84,7 @@ void test_reset(void) {
         cls.ram = (C.c_int32 * 0x4000).in_dll(cls.lib, 'test_ram')
         cls.irq = (C.c_uint32 * 4).in_dll(cls.lib, 'test_irq')
         cls.serial = (C.c_uint16 * 16).in_dll(cls.lib, 'test_serial')
-        cls.run_completion = cls.lib.func_8009BC3C
+        cls.run_completion = cls.lib._cardSioHandler
         cls.run_completion.argtypes = []
         cls.run_completion.restype = C.c_int32
 
@@ -119,7 +119,7 @@ void test_reset(void) {
         for result in (0, 1, 2, -1, -0x80000000, 0x7FFFFFFF):
             for retries in (0, 1, -1, -0x80000000, 0x7FFFFFFF):
                 self.lib.test_reset()
-                self.scalar('D_800ABDF0').value = retries
+                self.scalar('CardRetriesLeft').value = retries
                 self.ram[0xBDE8//4] = 0x7FFFFFFF
                 self.irq[1] = 0x12340001
                 serial_before = bytes(self.serial)
@@ -135,7 +135,7 @@ void test_reset(void) {
                 state = (2 if retried else 0x41) if result == 1 else (0x21 if result else 3)
                 self.assertEqual(self.ram[0xBDE4//4], state)
                 expected_retries = C.c_int32(retries - int(retried)).value
-                self.assertEqual(self.scalar('D_800ABDF0').value, expected_retries)
+                self.assertEqual(self.scalar('CardRetriesLeft').value, expected_retries)
                 expected = bytearray(serial_before)
                 if result:
                     expected[10:12] = b'\0\0'
@@ -148,9 +148,9 @@ void test_reset(void) {
 
     def test_fresh_pointers_and_retry_count_after_helper_mutations(self):
         self.lib.test_reset()
-        self.scalar('D_800ABDF0').value = 4
+        self.scalar('CardRetriesLeft').value = 4
         def poll():
-            self.pointer('D_800ABDAC').value = C.addressof(self.irq) + 8
+            self.pointer('I_STAT_Card').value = C.addressof(self.irq) + 8
             self.ram[0xBDEC//4] = -123
             return 1
         def restarted():
@@ -159,20 +159,20 @@ void test_reset(void) {
             self.assertEqual(self.ram[0xBDF4//4], 0)
             self.assertEqual(self.ram[0xBDF8//4], 0)
             self.assertEqual(self.scalar('D_80114730').value, 0)
-            self.scalar('D_800ABDF0').value = -0x80000000
+            self.scalar('CardRetriesLeft').value = -0x80000000
             self.ram[0xBDE4//4] = 99
             self.ram[0xBDE8//4] = 999
-            self.pointer('D_800ABDA8').value = C.addressof(self.serial) + 16
+            self.pointer('CardSio0Regs').value = C.addressof(self.serial) + 16
         self.run_with(poll, restarted)
         self.assertEqual(list(self.irq), [0, 0, 0xFFFFFF7F, 0x80])
-        self.assertEqual(self.scalar('D_800ABDF0').value, 0x7FFFFFFF)
+        self.assertEqual(self.scalar('CardRetriesLeft').value, 0x7FFFFFFF)
         self.assertEqual((self.serial[5], self.serial[13]), (0x5A5A, 0))
         self.assertEqual(self.ram[0xBDE4//4], 2)
         self.assertEqual(self.ram[0xBDE8//4], 0)
 
     def test_zero_result_does_not_access_serial_port_or_signal_event(self):
         self.lib.test_reset()
-        self.pointer('D_800ABDA8').value = None
+        self.pointer('CardSio0Regs').value = None
         self.run_with(lambda: 0)
         self.assertEqual(self.scalar('test_event_calls').value, 0)
         self.assertEqual(self.ram[0xBDE8//4], 11)

@@ -33,7 +33,7 @@ typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
 RrLibSavedState D_800A52C8;
-u16 *D_800A6358, *D_800A6354;
+u16 *I_MASK, *D_800A6354;
 s32 *D_800A635C;
 void (*test_begin)(void *);
 void (*test_end)(void);
@@ -65,7 +65,7 @@ void ResetEntryInt(void) { test_save_end(); }
         self.port16 = C.c_uint16(0x1234)
         self.port32 = C.c_int32(0x12345678)
         self.ack = C.c_uint16(0xBEEF)
-        for name, value in [('D_800A6358', self.port16), ('D_800A635C', self.port32),
+        for name, value in [('I_MASK', self.port16), ('D_800A635C', self.port32),
                             ('D_800A6354', self.ack)]:
             C.c_void_p.in_dll(self.library, name).value = C.addressof(value)
         self.events = []
@@ -115,7 +115,7 @@ void ResetEntryInt(void) { test_save_end(); }
         self.state.active = 0
         self.state.register16 = 0xABCD
         self.state.register32 = 0x12345678
-        C.c_void_p.in_dll(self.library, 'D_800A6358').value = C.addressof(self.state) + State.register32.offset
+        C.c_void_p.in_dll(self.library, 'I_MASK').value = C.addressof(self.state) + State.register32.offset
         self.assertEqual(self.restore(), C.addressof(self.state))
         self.assertEqual(self.port32.value, 0x1234ABCD)
         self.assertEqual(self.events, ['test_begin', 'test_end'])

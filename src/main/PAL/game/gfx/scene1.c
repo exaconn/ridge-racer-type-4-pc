@@ -69,7 +69,7 @@ extern int D_800ACBF8;
 extern short D_800F3826;
 extern struct { char pad[8]; short x8; } *CarBoundsTable;
 extern Q16 D_800111D4;
-extern short D_800ABED0[][3];
+extern short LightMatrix[][3];
 extern int BuildRotMatrixZ();
 extern int BuildRotMatrixY();
 extern int BuildRotMatrixX();
@@ -179,7 +179,7 @@ void func_80055358(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
 
 /* legacy typing of shared globals in this part of the unit */
 #define SetDrawStp ((int (*)())SetDrawStp)
-#define D_800ACC14 ((S *)D_800ACC14)
+#define CurrentDrawBuf ((S *)CurrentDrawBuf)
 
 void QueueDrawStp()
 {
@@ -188,7 +188,7 @@ void QueueDrawStp()
   unsigned int *new_var2;
   unsigned int *ot;
   SetDrawStp(p, 1);
-  ot = D_800ACC14->w;
+  ot = CurrentDrawBuf->w;
   *p = (new_var = ((*p) & 0xFF000000) | ((*ot) & 0xFFFFFF));
   *ot = ((*ot) & 0xFF000000) | (((unsigned int) p) & 0xFFFFFF);
   new_var2 = p;
@@ -196,7 +196,7 @@ void QueueDrawStp()
 }
 
 #undef SetDrawStp
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
 #define RaceContext (*(struct { char pad[0xD4]; s32 a, b, c, d; u8 e[4]; } (*))&RaceContext)
@@ -213,7 +213,7 @@ void func_80055660(void) {
 #define RaceContext (*(struct { char pad[0x3DC]; s32 a; } (*))&RaceContext)
 
 void func_800556B4(void) {
-    if (D_800F3A40 & 0x10) {
+    if (Pad0Buttons & 0x10) {
         RaceContext.a ^= 1;
         func_8005534C(RaceContext.a);
     }
@@ -303,15 +303,15 @@ void SetupObjectLightMatrices(a0, a1, a2, a3) char *a0; char *a1; M32 *a2; M32 *
     *a3 = s30;
     n = 0;
     do {
-        D_800ABED0[n][0] = *(unsigned short *)(a1 + n * 8 + 0xC);
-        D_800ABED0[n][1] = *(unsigned short *)(a1 + n * 8 + 0xE);
-        D_800ABED0[n][2] = *(unsigned short *)(a1 + n * 8 + 0x10);
+        LightMatrix[n][0] = *(unsigned short *)(a1 + n * 8 + 0xC);
+        LightMatrix[n][1] = *(unsigned short *)(a1 + n * 8 + 0xE);
+        LightMatrix[n][2] = *(unsigned short *)(a1 + n * 8 + 0x10);
         s70.m[0][n] = (unsigned char)a1[n * 4] * 16;
         s70.m[1][n] = (unsigned char)a1[n * 4 + 1] * 16;
         s70.m[2][n] = (unsigned char)a1[n * 4 + 2] * 16;
         n++;
     } while (n < 3);
-    MulMatrix0(D_800ABED0, &s10, &s30);
+    MulMatrix0(LightMatrix, &s10, &s30);
     SetLightMatrix(&s30);
     SetColorMatrix(&s70);
     SetBackColor((unsigned char)a1[0x24], (unsigned char)a1[0x25], (unsigned char)a1[0x26]);

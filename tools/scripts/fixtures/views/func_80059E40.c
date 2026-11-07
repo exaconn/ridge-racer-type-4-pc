@@ -1,12 +1,12 @@
 #include "rr/line_emit.h"
 
-extern void func_8004C5A4(s32, s32, const char *, s32, s32);
+extern void DrawFontString(s32, s32, const char *, s32, s32);
 
 extern s32 DrawFontStringCentered(s32, s32, char *, s32, s32);
 
 extern s32 DrawFontStringCenteredOffset(s32, s32, char *, s32, s32);
 
-extern void func_8004C928(s32);
+extern void AddSetTexpagePrim(s32);
 
 extern void DrawGlyphList(s16 *, s32, s32);
 
@@ -18,7 +18,7 @@ extern void func_80059C28(s32, u8);
 
 extern void func_80059D34(s32, u8);
 
-extern void func_80096484(char *, const char *, s32);
+extern void PsyqSprintf(char *, const char *, s32);
 
 extern const char D_80011228[];
 
@@ -26,7 +26,7 @@ extern const char D_8001122C[];
 
 extern const char D_80011230[];
 
-extern const char D_80011234[];
+extern const char StrFmtTwoDigitsOpening[];
 
 extern const char D_8001123C[];
 
@@ -54,9 +54,9 @@ extern u32 D_800A1A70[];
 
 extern u32 D_800A1A88[];
 
-extern s16 D_800F3914;
+extern s16 CourseIndex;
 
-extern u16 D_800F3A40;
+extern u16 Pad0Buttons;
 
 extern s32 D_800F3A60;
 
@@ -139,14 +139,14 @@ s32 func_80059E40(s32 arg0) {
             sp48[0] = sp48[1] = sp48[2] = sp18[0];
         }
         if (sp40[2] > sp40[0]) {
-            func_8004D290(sp40, sp48, 1, 0);
+            AddLineF2Prim(sp40, sp48, 1, 0);
             sp40[1] = 0x47;
             sp40[3] = 0x47;
             sp48[0] = sp48[1] = sp48[2] = sp48[0] >> 1;
-            func_8004D290(sp40, sp48, 1, 0);
+            AddLineF2Prim(sp40, sp48, 1, 0);
             sp40[1] = 0x49;
             sp40[3] = 0x49;
-            func_8004D290(sp40, sp48, 1, 0);
+            AddLineF2Prim(sp40, sp48, 1, 0);
         }
 
         DrawGlyphList(D_800A18F0[s2], sp18[1], 0);
@@ -154,14 +154,14 @@ s32 func_80059E40(s32 arg0) {
         DrawGlyphList(D_800A1930[s2], sp18[2], 0);
         DrawGlyphListSloped(D_800A1970[D_8010E230], sp18[2], 0);
         func_80059D34(0, sp18[3]);
-        func_8004C5A4(0x9A, 0xA0, D_80011228, sp18[4], 0);
-        s0_1 = DrawFontStringCentered(0x60, 0xB0, CourseNames + D_800F3914 * 0x18, sp18[4], 0) / 2;
-        func_8004C5A4(0x9A - s0_1, 0xB0, D_8001122C, sp18[4], 0);
-        func_8004C5A4(0xA2 + s0_1, 0xB0, D_80011230, sp18[4], 0);
-        func_8004C928(0);
+        DrawFontString(0x9A, 0xA0, D_80011228, sp18[4], 0);
+        s0_1 = DrawFontStringCentered(0x60, 0xB0, CourseNames + CourseIndex * 0x18, sp18[4], 0) / 2;
+        DrawFontString(0x9A - s0_1, 0xB0, D_8001122C, sp18[4], 0);
+        DrawFontString(0xA2 + s0_1, 0xB0, D_80011230, sp18[4], 0);
+        AddSetTexpagePrim(0);
 
         if (sp18[5] >= 0x80) {
-            if (D_800F3A40 & 0x8000) {
+            if (Pad0Buttons & 0x8000) {
                 if (D_8010E234 == 0) {
                     SoundState.w28a4 = 0;
                     D_8010E234 = 1;
@@ -173,7 +173,7 @@ s32 func_80059E40(s32 arg0) {
                 }
                 D_8010E238 = 0;
             }
-            if (D_800F3A40 & 0x2000) {
+            if (Pad0Buttons & 0x2000) {
                 if (D_8010E234 == 0) {
                     SoundState.w28a4 = 0;
                     D_8010E234 = 1;
@@ -193,15 +193,15 @@ s32 func_80059E40(s32 arg0) {
         func_80059B1C(D_800A1A60, 0x3C, 0xC8, sp18[5]);
         func_80059B1C(D_800A1A60 + 4, 0xFC, 0xC8, sp18[5]);
         func_80059B1C(D_800A1A60 + 8, 0x4C, 0xC8, sp18[5]);
-        func_80096484(sp30, D_80011234, SoundState.w28a4);
-        func_8004C5A4(0x5A, 0xC8, sp30, sp18[5], 0);
+        PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.w28a4);
+        DrawFontString(0x5A, 0xC8, sp30, sp18[5], 0);
         func_80059B1C(D_800A1A60 + 0xC, 0x6C, 0xC8, sp18[5]);
         if (SoundState.w28a4 <= 0) {
-            func_8004C5A4(0x78, 0xC8, D_8001123C, sp18[5], 0);
+            DrawFontString(0x78, 0xC8, D_8001123C, sp18[5], 0);
         } else {
-            func_8004C5A4(0x78, 0xC8, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), sp18[5], 0);
+            DrawFontString(0x78, 0xC8, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), sp18[5], 0);
         }
-        func_8004C928(0);
+        AddSetTexpagePrim(0);
         return s4;
     } else {
         for (i = 0; i < 6; i++) {
@@ -249,21 +249,21 @@ s32 func_80059E40(s32 arg0) {
             sp58[0] = sp58[1] = sp58[2] = sp18[0];
         }
         if (sp50[2] > sp50[0]) {
-            func_8004D290(sp50, sp58, 1, 0);
+            AddLineF2Prim(sp50, sp58, 1, 0);
             sp50[1] = 0x37;
             sp50[3] = 0x37;
             sp58[0] = sp58[1] = sp58[2] = sp58[0] >> 1;
-            func_8004D290(sp50, sp58, 1, 0);
+            AddLineF2Prim(sp50, sp58, 1, 0);
             sp50[1] = 0x39;
             sp50[3] = 0x39;
-            func_8004D290(sp50, sp58, 1, 0);
+            AddLineF2Prim(sp50, sp58, 1, 0);
         }
 
-        func_8004C5A4(0x9A, 0x48, D_80011228, sp18[2], 0);
-        s0_2 = DrawFontStringCentered(0x60, 0x58, CourseNames + D_800F3914 * 0x18, sp18[2], 0) / 2;
-        func_8004C5A4(0x9A - s0_2, 0x58, D_8001122C, sp18[2], 0);
-        func_8004C5A4(0xA2 + s0_2, 0x58, D_80011230, sp18[2], 0);
-        func_8004C928(0);
+        DrawFontString(0x9A, 0x48, D_80011228, sp18[2], 0);
+        s0_2 = DrawFontStringCentered(0x60, 0x58, CourseNames + CourseIndex * 0x18, sp18[2], 0) / 2;
+        DrawFontString(0x9A - s0_2, 0x58, D_8001122C, sp18[2], 0);
+        DrawFontString(0xA2 + s0_2, 0x58, D_80011230, sp18[2], 0);
+        AddSetTexpagePrim(0);
 
         if (s2 < 3) {
             func_80059C28(1, sp18[3]);
@@ -273,14 +273,14 @@ s32 func_80059E40(s32 arg0) {
 
         if (D_8010E234 >= 0) {
             if (sp18[5] >= 0x80) {
-                if (D_800F3A40 & 0x8000) {
+                if (Pad0Buttons & 0x8000) {
                     SoundState.w28a4--;
                     if (SoundState.w28a4 < 0) {
                         SoundState.w28a4 = SoundState.w28a8 - 1;
                     }
                     D_8010E238 = 0;
                 }
-                if (D_800F3A40 & 0x2000) {
+                if (Pad0Buttons & 0x2000) {
                     SoundState.w28a4++;
                     if (SoundState.w28a4 >= SoundState.w28a8) {
                         SoundState.w28a4 = 0;
@@ -295,19 +295,19 @@ s32 func_80059E40(s32 arg0) {
             func_80059B1C(D_800A1A60, 0x3C, 0xC8, sp18[5]);
             func_80059B1C(D_800A1A60 + 4, 0xFC, 0xC8, sp18[5]);
             func_80059B1C(D_800A1A60 + 8, 0x4C, 0xC8, sp18[5]);
-            func_80096484(sp30, D_80011234, SoundState.w28a4);
-            func_8004C5A4(0x5A, 0xC8, sp30, sp18[5], 0);
+            PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.w28a4);
+            DrawFontString(0x5A, 0xC8, sp30, sp18[5], 0);
             func_80059B1C(D_800A1A60 + 0xC, 0x6C, 0xC8, sp18[5]);
             if (SoundState.w28a4 > 0) {
-                func_8004C5A4(0x78, 0xC8, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), sp18[5], 0);
+                DrawFontString(0x78, 0xC8, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), sp18[5], 0);
             } else {
-                func_8004C5A4(0x78, 0xC8, D_8001123C, sp18[5], 0);
+                DrawFontString(0x78, 0xC8, D_8001123C, sp18[5], 0);
             }
         } else {
             s0_3 = 0x88 - DrawFontStringCenteredOffset(0x14, 0xC8, D_800A095C + (D_800A0C9C[SoundState.w28a4 - 1] << 5), sp18[5], 0) / 2;
             func_80059B1C(D_800A1A68, s0_3, 0xC8, sp18[5]);
-            func_80096484(sp30, D_80011234, SoundState.w28a4);
-            func_8004C5A4(s0_3 + 0xE, 0xC8, sp30, sp18[5], 0);
+            PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.w28a4);
+            DrawFontString(s0_3 + 0xE, 0xC8, sp30, sp18[5], 0);
             func_80059B1C(D_800A1A68 + 4, s0_3 + 0x20, 0xC8, sp18[5]);
             if (sp18[5] >= 0x80 && D_800F3A60 != 0) {
                 s4 = 1;
@@ -315,6 +315,6 @@ s32 func_80059E40(s32 arg0) {
         }
     }
 
-    func_8004C928(0);
+    AddSetTexpagePrim(0);
     return s4;
 }

@@ -38,17 +38,17 @@
 #undef LoadIndex
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_800436E8 ((void (*)())func_800436E8)
+#define LoadTimList ((void (*)())LoadTimList)
 
 #define RaceLoadReset ((void (*)())RaceLoadReset)
 
-#define func_8004F600 ((void (*)())func_8004F600)
+#define SoundCloseVabsAndReset ((void (*)())SoundCloseVabsAndReset)
 
-#undef func_800436E8
+#undef LoadTimList
 
 #undef RaceLoadReset
 
-#undef func_8004F600
+#undef SoundCloseVabsAndReset
 
 typedef struct { char p[7]; char b; } Z;
 
@@ -68,9 +68,9 @@ extern int CdFileReadRange();
 
 extern int InitDialogueState();
 
-extern int func_80029358();
+extern int SetupDialogueTable();
 
-extern int func_80043608();
+extern int LoadTimImage();
 
 extern int D_800F4CA8;
 
@@ -96,7 +96,7 @@ int func_8003B934(void) {
     case 2:
         if (CdFileBytesLoaded()) {
             s = D_800FFC48;
-            func_80043608(s);
+            LoadTimImage(s);
             s += 0x4E20;
             LoadState = 3;
             D_800AC590 = (Z *)s;
@@ -117,7 +117,7 @@ int func_8003B934(void) {
         break;
     case 4:
         if (CdFileBytesLoaded()) {
-            func_80029358(D_80104DB0);
+            SetupDialogueTable(D_80104DB0);
             LoadState = 5;
     case 5:
             r = 1;

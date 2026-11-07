@@ -10,13 +10,13 @@
 #undef ModeGroup
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(int (*))&D_800ACC14)
+#define CurrentDrawBuf (*(int (*))&CurrentDrawBuf)
 
 #define ModeGroup (*(short (*))&ModeGroup)
 
 #define D_800F3A26 (*(short (*))&D_800F3A26)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 #undef ModeGroup
 
@@ -73,14 +73,14 @@ void MainLoop(void) {
             bank &=1;
             frame=(u8 *)((unsigned long)bank*sizeof(RrFrameStorage)+(unsigned long)frames);
             ordering=(u32 *)(frame+0x70);
-            D_800ACC14=frame;
+            CurrentDrawBuf=frame;
             *(s32 *)(bank_page+0x4BF0)=bank;
             scratch=(u8 **)0x1F800000;
             scratch[1]=(u8 *)ordering;
             scratch[0]=frame+0x1670;
             ClearOTagR(ordering,length);
         }
-        ClearOTagR((u32 *)(D_800ACC14+0xB70),0x2C0);
+        ClearOTagR((u32 *)(CurrentDrawBuf+0xB70),0x2C0);
         CdFileStep();
         SoundUpdate();
         ModeFuncTable[ModeGroup][D_800F3A26]();
@@ -88,10 +88,10 @@ void MainLoop(void) {
         threshold=VSyncThreshold;
         do {} while (VSync(1)<threshold);
         VSync(0);
-        PutDispEnv(D_800ACC14+0x5C);
-        PutDrawEnv(D_800ACC14);
-        DrawOTag(D_800ACC14+0xB6C);
-        if(D_800ACBF8) DrawOTag(D_800ACC14+0x166C);
+        PutDispEnv(CurrentDrawBuf+0x5C);
+        PutDrawEnv(CurrentDrawBuf);
+        DrawOTag(CurrentDrawBuf+0xB6C);
+        if(D_800ACBF8) DrawOTag(CurrentDrawBuf+0x166C);
         PadUpdate();
         FrameCounter++;
     }

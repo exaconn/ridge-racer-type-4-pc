@@ -34,20 +34,20 @@ typedef struct {
  Event events[12];u32 count,seed,phase;
 } Environment;
 static Environment actual,expected,*g;
-RrGpuResetDriver40 D_800ABA78;
+RrGpuResetDriver40 GpuDriverTable;
 static RrGpuResetDriver40 alternate;
-const char D_80011DF0[]="init",D_80011E10[]="debug";
+const char ResetGraphFmt[]="init",StrResetGraphFmt[]="debug";
 #define D_800ABAC0 (g->data.state)
 #define D_800ABAC2 (g->data.state.debug02)
-#define D_800ABAB8 (g->root)
+#define GpuFuncTable (g->root)
 #define D_800ABB40 (g->widths)
 #define D_800ABB4C (g->heights)
 static u32 next(u32 *p){u32 n=*p;n^=n<<13;n^=n>>17;n^=n<<5;return *p=n;}
-static u32 driverIndex(void){assert(g->root==&D_800ABA78||g->root==&alternate);return g->root==&alternate;}
+static u32 driverIndex(void){assert(g->root==&GpuDriverTable||g->root==&alternate);return g->root==&alternate;}
 static void event(u32 code,unsigned long a,unsigned long b,unsigned long c){Event *e;assert(g->count<12);e=&g->events[g->count++];e->code=code;e->a=a;e->b=b;e->c=c;memcpy(e->state,g->data.raw,128);e->root=driverIndex();memcpy(e->widths,g->widths,sizeof(e->widths));e->heights=g->heights;}
 static void mutate(u32 code){unsigned i;u32 r;
  if(!g->phase)return;
- r=next(&g->seed);g->root=(r&1)?&alternate:&D_800ABA78;
+ r=next(&g->seed);g->root=(r&1)?&alternate:&GpuDriverTable;
  g->data.raw[0]=(u8)(r%3);g->data.raw[2]=(u8)(r>>8);
  g->data.raw[(r>>16)%128]=(u8)(r>>24);
  /* The reset result must remain a valid dimension index when later used. */
@@ -55,8 +55,8 @@ static void mutate(u32 code){unsigned i;u32 r;
  for(i=0;i<3;i++){g->widths[i].value=(u16)next(&g->seed);g->heights.dimensions[i].value=(u16)next(&g->seed);}
  if(g->phase==2)memset(g->data.raw+16,(int)code,112);
 }
-s32 func_8001E84C(const char *f,...){va_list ap;RrGpuResetDriver40 *a;RrGpuResetState80 *b;va_start(ap,f);a=va_arg(ap,RrGpuResetDriver40*);b=va_arg(ap,RrGpuResetState80*);va_end(ap);assert(f==D_80011DF0&&a==&D_800ABA78&&b==&g->data.state);event(1,0,0,0);mutate(1);return -123;}
-static s32 debug(const char *f,...){va_list ap;s32 mode;va_start(ap,f);mode=va_arg(ap,s32);va_end(ap);assert(f==D_80011E10);event(2,(u32)mode,0,0);mutate(2);return 456;}
+s32 DebugPrintStub(const char *f,...){va_list ap;RrGpuResetDriver40 *a;RrGpuResetState80 *b;va_start(ap,f);a=va_arg(ap,RrGpuResetDriver40*);b=va_arg(ap,RrGpuResetState80*);va_end(ap);assert(f==ResetGraphFmt&&a==&GpuDriverTable&&b==&g->data.state);event(1,0,0,0);mutate(1);return -123;}
+static s32 debug(const char *f,...){va_list ap;s32 mode;va_start(ap,f);mode=va_arg(ap,s32);va_end(ap);assert(f==StrResetGraphFmt);event(2,(u32)mode,0,0);mutate(2);return 456;}
 s32 (*GPU_printf)(const char *,...)=debug;
 void GPU_memset(s8 *p,s8 value,s32 n){uintptr_t offset=(uintptr_t)p-(uintptr_t)&g->data.state;assert(offset<=128&&n>=0&&(unsigned)n<=128-offset);event(3,offset,(u8)value,(u32)n);memset(p,(u8)value,(size_t)n);mutate(3);}
 void ResetCallback(void){event(4,0,0,0);mutate(4);}
@@ -67,7 +67,7 @@ static s32 reset1(s32 mode){assert(mode==1);event(8,mode,0,0);mutate(8);return (
 ''' + body + r'''
 static s32 model(s32 mode){unsigned low=(u32)mode%8;u16 w,h;
  if(low==0||low==3||low==5){
-  if(low!=5)func_8001E84C(D_80011DF0,&D_800ABA78,&g->data.state);
+  if(low!=5)DebugPrintStub(ResetGraphFmt,&GpuDriverTable,&g->data.state);
   GPU_memset((s8*)g->data.raw,0,128);
   ResetCallback();
   func_80096E24((uintptr_t)g->root&0xFFFFFF);
@@ -78,8 +78,8 @@ static s32 model(s32 mode){unsigned low=(u32)mode%8;u16 w,h;
   GPU_memset((s8*)g->data.raw+108,-1,20);
   return g->data.raw[0];
  }
- if(g->data.raw[2]>=2)debug(D_80011E10,mode);
- if(g->root==&D_800ABA78)return reset0(1);
+ if(g->data.raw[2]>=2)debug(StrResetGraphFmt,mode);
+ if(g->root==&GpuDriverTable)return reset0(1);
  return reset1(1);
 }
 int main(void){u32 n,phase,seed=0x929D4,seen[8]={0},levels[256]={0};unsigned i;uint64_t cases=0;s32 mode,result,reference;
@@ -90,7 +90,7 @@ int main(void){u32 n,phase,seed=0x929D4,seen[8]={0},levels[256]={0};unsigned i;u
  _Static_assert(offsetof(RrGpuResetDriver40,reset34)==13*sizeof(void*),"native callback offset");
  _Static_assert(sizeof(unsigned long)>=sizeof(void*),"address width");
  assert((uintptr_t)&actual>UINT32_MAX&& (uintptr_t)&alternate>UINT32_MAX);
- D_800ABA78.reset34=reset0;alternate.reset34=reset1;
+ GpuDriverTable.reset34=reset0;alternate.reset34=reset1;
  for(n=0;n<65536;n++)for(phase=0;phase<4;phase++){
   memset(&actual,0,sizeof(actual));actual.seed=next(&seed);actual.phase=phase;
   for(i=0;i<128;i++)actual.data.raw[i]=(u8)next(&seed);
@@ -98,7 +98,7 @@ int main(void){u32 n,phase,seed=0x929D4,seen[8]={0},levels[256]={0};unsigned i;u
   for(i=0;i<4;i++){actual.guards[i]=next(&seed);actual.tails[i]=next(&seed);}
   for(i=0;i<3;i++){actual.widths[i].value=(u16)next(&seed);actual.widths[i].reserved=(u16)next(&seed);actual.heights.dimensions[i].value=(u16)next(&seed);actual.heights.dimensions[i].reserved=(u16)next(&seed);}
   actual.heights.commands0C[0]=next(&seed);actual.heights.commands0C[1]=next(&seed);
-  actual.root=(n&1)?&alternate:&D_800ABA78;expected=actual;
+  actual.root=(n&1)?&alternate:&GpuDriverTable;expected=actual;
   if(phase==0)mode=(s32)n;else if(phase==1)mode=(s32)(n|0xFFFF0000U);else mode=(s32)((next(&seed)&0xFFFF0000U)|n);
   seen[(u32)mode&7]++;g=&expected;reference=model(mode);g=&actual;result=ResetGraph(mode);
   assert(result==reference);assert(!memcmp(&actual,&expected,sizeof(actual)));cases++;

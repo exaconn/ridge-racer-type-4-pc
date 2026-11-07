@@ -1,15 +1,15 @@
 #include "rr/library.h"
 #include "rr/cd.h"
 
-extern RrLibTransferState38 D_800A67B0;
+extern RrLibTransferState38 CdReadState;
 extern u32 CD_read_dma_mode;
 extern void CdReadyCallback(RrLibCompletionCallback);
 extern void CdDataCallback(RrLibCompletionCallback);
 extern void CdSyncCallback(RrLibCompletionCallback);
-extern void func_8008E7F4(void);
+extern void cd_read_restore_sync(void);
 
 void cb_data(void) {
-    register volatile RrLibTransferState38 *state = &D_800A67B0;
+    register volatile RrLibTransferState38 *state = &CdReadState;
     /* ASM_BARRIER: Keep the complete state address in its saved register. */
     __asm__("" : "=r"(state) : "0"(state));
     state->position08 += state->step10 << 2;
@@ -20,7 +20,7 @@ void cb_data(void) {
         RrLibNotificationCallback callback;
         CdReadyCallback(state->restore2C);
         if (CD_read_dma_mode & 1) CdDataCallback(state->restore30);
-        CdSyncCallback(func_8008E7F4);
+        CdSyncCallback(cd_read_restore_sync);
         CdControlF(9, 0);
         /* PAL mapping: page + 0x63F0 is &CD_cbread. */
         page = (u8 *)0x800A0000U;

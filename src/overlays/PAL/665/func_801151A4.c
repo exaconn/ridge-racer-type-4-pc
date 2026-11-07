@@ -31,7 +31,7 @@ void ovl665_func_801151A4(void) {
         openingTimer = (u16) D_800AC5D0 - 1;
         if (signedTimer > 0) {
             D_800AC5D0 = openingTimer;
-            AddScreenFadeTiles(&((RrFrameOrderingPrefix *)(void *)D_800ACC14)->ordering70[702], (s32)openingTimer*4, 0x45);
+            AddScreenFadeTiles(&((RrFrameOrderingPrefix *)(void *)CurrentDrawBuf)->ordering70[702], (s32)openingTimer*4, 0x45);
         }
         func_8005B2D4(1);
         if (UiRows[0].byte14 == 2) {
@@ -47,14 +47,14 @@ void ovl665_func_801151A4(void) {
         UiRows[ovl665_D_80119768.exit34.word].cells[0] = 0;
         StepMenuValue(0, 2, (char *)&ovl665_D_80119768.exit34.halves[0], 4, 0);
         UiRows[ovl665_D_80119768.exit34.word].cells[0] = 2;
-        if (D_800F3A38[0].a != 0) {
+        if (PlayerControllers[0].a != 0) {
             PlaySfx(1);
             UiRows[ovl665_D_80119768.exit34.word].cells[0] = 1;
             ovl665_D_80119768.layout0C = (s32) (ovl665_D_80119768.exit34.word + 3);
             SetMenuFrameOptions(1, 1, 0);
             row = 0;
         } else {
-            if (D_800F3A38[0].b != 0) {
+            if (PlayerControllers[0].b != 0) {
                 PlaySfx(2);
                 D_800AC5D0 = 0x40;
                 ovl665_D_80119768.layout0C = 6;
@@ -162,7 +162,7 @@ void ovl665_func_801151A4(void) {
     case 9:
         closingTimer = (u16) D_800AC5D0 - 1;
         D_800AC5D0 = closingTimer;
-        AddScreenFadeTiles(&((RrFrameOrderingPrefix *)(void *)D_800ACC14)->ordering70[0], (0x40 - closingTimer) * 4, 0x45);
+        AddScreenFadeTiles(&((RrFrameOrderingPrefix *)(void *)CurrentDrawBuf)->ordering70[0], (0x40 - closingTimer) * 4, 0x45);
         row = 0;
         if (D_800AC5D0 <= 0) {
             ovl665_func_80114A24();

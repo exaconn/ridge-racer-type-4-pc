@@ -62,7 +62,7 @@ extern int BuildRotMatrixX();
 extern int MulMatrix0();
 extern short D_800AC0A4;
 extern S32B D_800AD598;
-extern V3 D_800FF690;
+extern V3 CameraViewMatrix;
 extern int RaceState;
 extern V3 D_800FF6B8;
 extern S32B D_8010E710;
@@ -147,14 +147,14 @@ int func_80070464(void) {
         *(S32B *)(s + 10) = D_800AD598;
         s[7] += 0x800;
         BuildRotMatrixY(sp, 0x800);
-        MulMatrix0(sp, &D_800FF690, &D_800FF690);
+        MulMatrix0(sp, &CameraViewMatrix, &CameraViewMatrix);
         MulMatrix0(sp, &D_800FF6B8, &D_800FF6B8);
         BuildRotMatrixX(sp, D_800AC0A4 * 2);
-        MulMatrix2(sp, &D_800FF690);
+        MulMatrix2(sp, &CameraViewMatrix);
         MulMatrix2(sp, &D_800FF6B8);
-        D_800FF690.x = -D_800FF690.x;
-        D_800FF690.y = -D_800FF690.y;
-        D_800FF690.z = -D_800FF690.z;
+        CameraViewMatrix.x = -CameraViewMatrix.x;
+        CameraViewMatrix.y = -CameraViewMatrix.y;
+        CameraViewMatrix.z = -CameraViewMatrix.z;
         D_800FF6B8.x = -D_800FF6B8.x;
         D_800FF6B8.y = -D_800FF6B8.y;
         D_800FF6B8.z = -D_800FF6B8.z;
@@ -540,5 +540,5 @@ void func_80071440(void) {
     SetDispMask(0);
     SetupDrawDispEnvs(0, 0, 0, 3);
     VSyncThreshold = 0x80;
-    D_8010E7A4 = 0;
+    SplashLogoFrame = 0;
 }

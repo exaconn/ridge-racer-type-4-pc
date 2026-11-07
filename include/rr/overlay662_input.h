@@ -3,7 +3,7 @@
 #include "rr/overlay662_garage.h"
 #include "rr/tables.h"
 #include "rr/memory.h"
-extern RrMenuItemState5C D_800F3A38[];
+extern RrMenuItemState5C PlayerControllers[];
 extern s16 ovl662_D_80126C14[2];
 /* Analog movement with per-axis fractional accumulation outside112..144.
  * Vertical movement is doubled before its contribution is subtracted from

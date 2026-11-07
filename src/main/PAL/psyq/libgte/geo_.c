@@ -6,8 +6,8 @@
 
 extern const char D_80011D98[];
 extern volatile s32 *D_800A6888;
-extern volatile s32 *D_800A688C;
-extern void func_8001E84C(const char *, ...);
+extern volatile s32 *DICR;
+extern void DebugPrintStub(const char *, ...);
 
 void mem2mem(int *d, int *s, unsigned n);
 void dma_execute(s32 ch, s32 madr, s32 bcr_hi, s32 bcr_lo, volatile s32 chcr, u8 flag_in);
@@ -35,7 +35,7 @@ void dma_execute(s32 ch, s32 madr, s32 bcr_hi, s32 bcr_lo, volatile s32 chcr, u8
             /* ASM_BARRIER: keep v0 live at loop entry so beqz does not steal target insn */
             __asm__ volatile("" : : "r"(cond));
             if (i == 0x10000) {
-                func_8001E84C(D_80011D98, *(volatile s32 *)((s32)p + 0x1F801088));
+                DebugPrintStub(D_80011D98, *(volatile s32 *)((s32)p + 0x1F801088));
                 goto after_loop;
             }
             i++;
@@ -54,15 +54,15 @@ after_loop:
         /* ASM_BARRIER: pin dicr to v1 */
         register u8 *dicr __asm__("$3");
         if (flag == mask) {
-            dicr = (u8 *)D_800A688C;
+            dicr = (u8 *)DICR;
             mask = dicr[2] | (mask << ch);
         } else {
-            dicr = (u8 *)D_800A688C;
+            dicr = (u8 *)DICR;
             mask = dicr[2] & ~(mask << ch);
         }
         dicr[2] = mask;
     }
-    dummy = *D_800A688C;
+    dummy = *DICR;
     /* ASM_BARRIER: prevent scheduling across dummy store */
     __asm__ volatile("" : : : "memory");
     {

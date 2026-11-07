@@ -1,6 +1,6 @@
 #include "rr/text_sprites.h"
 
-void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
+void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
     register RrSpritePacket *packet;
     register s32 current_x;
     register s32 glyph;
@@ -68,7 +68,7 @@ void func_8004C5A4(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
                 *(s16 *)fields = 0x7F78;
                 fields[-2] = u;
                 fields[-1] = v;
-                context = D_800ACC14;
+                context = CurrentDrawBuf;
                 head = (u32 *)((unsigned long)(selected * 4) + (unsigned long)context + 0x70);
                 *(s16 *)(fields + 2) = width;
                 fields += 20;

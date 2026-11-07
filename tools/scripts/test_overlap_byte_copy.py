@@ -26,7 +26,7 @@ class OverlapByteCopyTest(unittest.TestCase):
         if result.returncode:
             raise AssertionError(result.stderr.decode())
         cls.lib = C.CDLL(str(directory / 'function.so'))
-        cls.function = cls.lib.func_80096D34
+        cls.function = cls.lib.PsyqMemmove
         cls.function.argtypes = [C.c_void_p, C.c_void_p, C.c_int32]
         cls.function.restype = C.c_void_p
 

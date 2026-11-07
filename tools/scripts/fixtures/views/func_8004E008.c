@@ -41,12 +41,12 @@ extern int RaceLoadSubState;
 
 extern s32 D_800A0218;
 
-extern s32 D_800A021C;
+extern s32 RaceLoadStepIndex;
 
 extern s32 LoadCursor;
 
 void RaceLoadReset(void) {
-    D_800A021C = 0;
+    RaceLoadStepIndex = 0;
     RaceLoadState = 0;
     RaceLoadSubState = 0;
     D_800A0218 = 0;

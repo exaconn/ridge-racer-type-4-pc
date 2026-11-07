@@ -42,7 +42,7 @@ typedef struct {
 static World *actual,*expected;
 #define D_800A015C actual->mapping
 #define FontGlyphWidths actual->width_base
-#define D_800ACC14 actual->context
+#define CurrentDrawBuf actual->context
 ''' + body + r'''
 static const u8 original_mapping[288]={''' + table(0x800A015C,288) + r'''};
 static const u8 original_widths[256]={''' + table(0x800A01DC,256) + r'''};
@@ -125,7 +125,7 @@ int main(void) {
    actual->mapping[1]=0;
   }
   memcpy(expected,actual,sizeof(*actual));
-  reference(x,y,text,color,bank);func_8004C5A4(x,y,text,color,bank);
+  reference(x,y,text,color,bank);DrawFontString(x,y,text,color,bank);
   if(memcmp(actual,expected,sizeof(*actual))) {fprintf(stderr,"case %u failed\n",n);abort();}
  }
  free(actual);free(expected);puts("32768 native text-emitter cases passed with UBSan");

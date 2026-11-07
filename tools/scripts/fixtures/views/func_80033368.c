@@ -1,8 +1,8 @@
 struct T { int pad[2]; int a; int b; int pad2[11]; };
 
-extern int D_800ACC14;
+extern int CurrentDrawBuf;
 
-extern int func_800587E4();
+extern int DrawMapBitmapIso();
 
 extern struct T *TrackNodes;
 
@@ -10,7 +10,7 @@ extern int TrackNodeCount;
 
 extern short ReverseCourse;
 
-extern int D_800F2EC4;
+extern int TrackNodesEnd;
 
 extern int D_8010BFC8;
 
@@ -32,5 +32,5 @@ void func_80033368(int unusedSelection,int unusedMode) {
     v.x = t->a;
     v.z = t->b;
     D_8010BFC8 += 1;
-    func_800587E4(D_800ACC14 + 0x70, D_800F2EC4, &v);
+    DrawMapBitmapIso(CurrentDrawBuf + 0x70, TrackNodesEnd, &v);
 }

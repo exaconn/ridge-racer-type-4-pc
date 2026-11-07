@@ -13,7 +13,7 @@ void ovl667_func_80117FA8(void) {
     RrUiRow24 *preview;
     RrUiRow24 *back;
 
-    if (func_80034FC0() != 0) {
+    if (ExitOnLinkLost() != 0) {
         func_80053CB0();
         return;
     }
@@ -31,7 +31,7 @@ void ovl667_func_80117FA8(void) {
             } else {
                 func_80033368((s16) previousCourse, 2);
             }
-            D_800F3914 = DecodeCourseIndex((s16) D_800AC648);
+            CourseIndex = DecodeCourseIndex((s16) D_800AC648);
             UiRows[MenuCursor+18].cells[0] = 0;
             StepMenuValue(0, 2, (char *)&MenuCursor, 3, 0);
             UiRows[MenuCursor+18].cells[0] = 2;
@@ -51,7 +51,7 @@ void ovl667_func_80117FA8(void) {
             activeState = UiRows[18].byte14;
             close = 0;
             if (activeState == 2) {
-                if (D_800F3A38[0].a != 0) {
+                if (PlayerControllers[0].a != 0) {
                     PlaySfx(1);
                     UiRows[MenuCursor+18].cells[0] = 1;
                     if ((s16) MenuCursor == 0) {
@@ -67,9 +67,9 @@ void ovl667_func_80117FA8(void) {
                         } while (row < 4);
                         ResetScreenCounters();
                         D_800AC5D0 = 0x40;
-                        LoadCursor = D_800F4D70.first;
-                        func_80053AF4(0, 0x3C);
-                        func_80034F80();
+                        LoadCursor = MenuArenas.first;
+                        SeqFadeVolume(0, 0x3C);
+                        BeginLinkSync();
                         D_800F4D8A = 3;
                         SetMenuFrameOptions(0, 1, 1);
                     } else if ((s16) MenuCursor == 1) {
@@ -78,7 +78,7 @@ void ovl667_func_80117FA8(void) {
                     } else if ((s16) MenuCursor == activeState) {
                         close = 1;
                     }
-                } else if (D_800F3A38[0].b != 0) {
+                } else if (PlayerControllers[0].b != 0) {
                     PlaySfx(2);
                     close = 1;
                 }
@@ -107,7 +107,7 @@ void ovl667_func_80117FA8(void) {
                 if (D_800AC5D0 > 0) {
                     D_800AC5D0 = (s16)((u16) D_800AC5D0 - 1);
                 }
-                AddScreenFadeTiles(((RrFrameOrderingPrefix *)(void *)D_800ACC14)->ordering70, (0x40 - D_800AC5D0) * 4, 0x45);
+                AddScreenFadeTiles(((RrFrameOrderingPrefix *)(void *)CurrentDrawBuf)->ordering70, (0x40 - D_800AC5D0) * 4, 0x45);
                 if (D_800AC5D0 <= 0) {
                     D_8010C0C8 = -1;
                     func_80053CB0();

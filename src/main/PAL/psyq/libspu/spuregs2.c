@@ -8,7 +8,7 @@ extern int ResetCallback();
 extern int _spu_transMode;
 extern int _spu_keystat;
 extern int _spu_rev_offsetaddr;
-extern struct { int a; short b, c; int d, e; } D_800A485C;
+extern struct { int a; short b, c; int d, e; } _spu_rev_attr;
 extern int _spu_RQmask; extern int _spu_RQvoice;
 extern unsigned short D_800A48A2;
 extern int _spu_env; extern int _spu_AllocBlockNum;
@@ -33,7 +33,7 @@ void _SpuInit(a0) int a0; {
     SpuStart(c);
     _spu_rev_flag = 0;
     _spu_rev_reserve_wa = 0;
-    q = &D_800A485C;
+    q = &_spu_rev_attr;
     q->a = 0;
     q->b = 0;
     q->c = 0;

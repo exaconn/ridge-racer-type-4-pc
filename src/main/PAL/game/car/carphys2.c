@@ -353,11 +353,11 @@ void StepCarStateNormal(C *c) {
                 if (CarBoundsTable[a3]->bA == 1) {
                     a2 = 0;
                 }
-                func_80050E94(1, 0x1418, a2, a3 & 1);
+                SetPlayerVoice(1, 0x1418, a2, a3 & 1);
             }
         } else {
             if (c == (C *)PlayerCars || c == (C *)(PlayerCars + 0x320)) {
-                func_80050E94(0, 0, 0, d->i24 & 1);
+                SetPlayerVoice(0, 0, 0, d->i24 & 1);
             }
         }
         s4 = GetTrackTargetHeading(c);
@@ -460,11 +460,11 @@ void StepCarStateSlide(C_1 *c0) {
             if (CarBoundsTable[a3]->bA == 1) {
                 a2 = 0;
             }
-            func_80050E94(1, a1, a2, a3 & 1);
+            SetPlayerVoice(1, a1, a2, a3 & 1);
         }
     } else {
         if (c == (C_1 *)PlayerCars || c == (C_1 *)(PlayerCars + 0x320)) {
-            func_80050E94(0, 0, 0, d->i24 & 1);
+            SetPlayerVoice(0, 0, 0, d->i24 & 1);
         }
         s5 = 0x200;
     }
@@ -527,7 +527,7 @@ void StepCarStateSlide(C_1 *c0) {
     }
     if (d->i58 < 0) {
         if (c == (C_1 *)PlayerCars || c == (C_1 *)(PlayerCars + 0x320)) {
-            func_80050E94(0, 0, 0, d->i24 & 1);
+            SetPlayerVoice(0, 0, 0, d->i24 & 1);
         }
         d->i9C = c->i54;
         d->iA4 = 0;
@@ -568,7 +568,7 @@ void StepCarStateSpinOut(a0) P *a0; {
         if ((char *)a0 == PlayerCars || (char *)a0 == PlayerCars + 0x320) {
             a3 = q->s24;
             if (*((unsigned char *)CarBoundsTable[a3] + 0xA) == 1) a2 = 0;
-            func_80050E94(1, 0x1A80, a2, a3 & 1);
+            SetPlayerVoice(1, 0x1A80, a2, a3 & 1);
             PadStartPulse(q->s24 & 1, 2, 1);
         }
         q->s74 = q->s74 - 0x30;
@@ -612,7 +612,7 @@ void StepCarStateSpinOut(a0) P *a0; {
     } else {
         q->sA4 = 0;
         if ((char *)a0 == PlayerCars || (char *)a0 == PlayerCars + 0x320) {
-            func_80050E94(0, 0, 0, q->s24 & 1);
+            SetPlayerVoice(0, 0, 0, q->s24 & 1);
             PadStartPulse(q->s24 & 1, 0, 1);
         }
     }

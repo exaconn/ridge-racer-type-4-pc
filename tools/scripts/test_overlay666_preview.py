@@ -58,7 +58,7 @@ static void effect(struct World*w,unsigned n){unsigned j;
 static void boundary(unsigned n){assert(calls++==n);assert(memcmp(&world,&checkpoint[n],sizeof(world))==0);effect(&world,n);}
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){assert(calls<2);assert(a==(s32)calls&&b==24&&c==(calls?128:88)&&d==68&&e==32&&f==0&&g==0&&h==1&&i==0&&j==(calls?85:84));boundary(calls);}
 void SetupRenderer(s32 shift){assert(shift==5);boundary(2);}
-void func_80037110(void){boundary(3);}
+void InitPreviewImageRows(void){boundary(3);}
 void ResetCarState(RrRaceVehicle*p){assert(p==world.cars);assert((uintptr_t)p>UINT32_MAX);boundary(4);}
 void SetMenuFrameOptions(s32 a,s32 b,s32 c){assert(a==0&&b==1&&c==1);boundary(5);}
 static void event(void){unsigned n=reference_calls++;assert(n<6);checkpoint[n]=expected;effect(&expected,n);}

@@ -10,8 +10,8 @@ extern int SsVabClose();
 extern short SsVabOpenHeadSticky();
 extern int SsVabTransCompleted();
 extern int func_800963C4();
-extern int func_8001E84C();
-extern char D_800110D8[];
+extern int DebugPrintStub();
+extern char VabOpenHeadErrorStr[];
 extern char D_800110F0[];
 extern s32 D_800F7650;
 
@@ -40,13 +40,13 @@ void LoadVab(int *arg0, int arg1, int arg2) {
     __asm__ volatile("");
     t = v;
     if (t == -1) {
-        func_8001E84C(D_800110D8);
+        DebugPrintStub(VabOpenHeadErrorStr);
         func_800963C4(1);
     }
     v2 = SsVabTransBody(arg0[1]);
     p[0x12] = v2;
     if (v2 == -1) {
-        func_8001E84C(D_800110F0);
+        DebugPrintStub(D_800110F0);
         func_800963C4(1);
     }
     SsVabTransCompleted(1);

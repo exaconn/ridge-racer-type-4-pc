@@ -3,7 +3,7 @@
 #include "rr/overlay665_calibration.h"
 #include "rr/menu_transition.h"
 void InitMotionController(void);
-void func_8005B304(void);
+void StepCameraScript(void);
 void StartAttractDemo();
 void ovl665_func_80116D10(s32);
 void ovl665_func_801151A4(void);

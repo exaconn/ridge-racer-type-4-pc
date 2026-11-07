@@ -29,25 +29,25 @@ typedef struct {
 
 extern void setRC2wait(s32);
 extern int chkRC2wait();
-extern Q *D_800ABCC8;
-extern H *D_800ABCCC;
+extern Q *I_STAT_Pad;
+extern H *PadSio0Base;
 
 int _padSioRW(S *a0, int a1);
 
-void func_80098488(RrChannelRecordF0 *channel) {
-    s32 *stage=&D_800ABCAC;
-    RrChannelStageCallback callback=D_800ABCEC[*stage];
+void _padSioStageStep(RrChannelRecordF0 *channel) {
+    s32 *stage=&PadRecvStage;
+    RrChannelStageCallback callback=PadRecvStageTable[*stage];
     s32 result,value;
     *stage+=1;
     result=callback(channel);
     if(result<0)goto error;
-    value=D_800ABCAC;
+    value=PadRecvStage;
     if(value) {
         if(value==3 && channel->status.packet[0]==0x80)goto reload;
         setRC2wait(60);
         if(!_padClrIntSio0())D_800ABC68(-3);
 reload:
-        value=D_800ABCAC;
+        value=PadRecvStage;
         /* ASM_BARRIER: Keep the reload gap before the shared saturation label. */
         RR_NOP_DEP_ON(value);
     }
@@ -75,21 +75,21 @@ int _padSioRW(S *a0, int a1) {
     int s2;
 
     if (a1 < 0) {
-        unsigned char tmp = D_800ABCCC->b0;
+        unsigned char tmp = PadSio0Base->b0;
         /* ASM_BARRIER: pin ~a1 to $v0 so nor $v0, $zero, $s3 fills beqz delay slot */
         register int v0 __asm__("$2");
         a0->b44 = 0xFF;
         a0->b45 = 1;
         *a0->p40 = ~a1;
         s2 = tmp;
-        while (!(D_800ABCCC->h4 & 1))
+        while (!(PadSio0Base->h4 & 1))
             ;
         while (chkRC2wait() == 0)
             ;
         v0 = ~a1;
-        /* ASM_BARRIER: compute ~a1 before loading D_800ABCCC so nor fills beqz delay slot */
+        /* ASM_BARRIER: compute ~a1 before loading PadSio0Base so nor fills beqz delay slot */
         __asm__ volatile("" : "+r"(v0));
-        *(unsigned char *)&D_800ABCCC->b0 = v0;
+        *(unsigned char *)&PadSio0Base->b0 = v0;
         /* ASM_BARRIER: keep return value copy in the jump delay slot */
         __asm__ volatile("" : : : "memory");
         return s2;
@@ -112,21 +112,21 @@ int _padSioRW(S *a0, int a1) {
             }
         }
     }
-    D_801146BC = 0x1AE;
+    RC2WaitLimit = 0x1AE;
     D_801146B8 = *(volatile unsigned short *)0x1F801120;
-    while (!(D_800ABCCC->h4 & 2))
+    while (!(PadSio0Base->h4 & 2))
         ;
-    s2 = D_800ABCCC->b0;
-    D_800ABCCC->hE = s1;
-    while (!(D_800ABCC8->a & 0x80)) {
+    s2 = PadSio0Base->b0;
+    PadSio0Base->hE = s1;
+    while (!(I_STAT_Pad->a & 0x80)) {
         if (chkRC2wait() != 0) {
             return -0x14;
         }
     }
-    D_800ABCCC->b0 = a1;
+    PadSio0Base->b0 = a1;
     if (s1 == 0x22) {
-        D_800ABCC8->a = -0x81;
-        D_800ABCCC->hA |= 0x10;
+        I_STAT_Pad->a = -0x81;
+        PadSio0Base->hA |= 0x10;
     }
     a0->b45++;
     a0->p3C[a0->b44] = s2;

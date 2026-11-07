@@ -13,7 +13,7 @@ class PlayerStatusTest(unittest.TestCase):
   for address,size in [(0x80010600,12),(0x8001060C,28),(0x80010628,20),(0x8001063C,16),(0x8001064C,12),(0x80010658,28),(0x80010674,4)]:
    offset=address-0x80010000+0x800;data=image[offset:offset+size]
    self.assertEqual(len(data),size);self.assertIn(0,data)
-   declarations.append(f'u8 D_{address:08X}[{size}]={{'+','.join(map(str,data))+'};')
+   declarations.append(f'u8 {__import__("rename_symbols").registry().get(f"D_{address:08X}",f"D_{address:08X}")}[{size}]={{'+','.join(map(str,data))+'};')
   body=(ROOT/'tools/scripts/fixtures/views/func_80035478.c').read_text().split('void DrawLinkEntryScreen',1)[1]
   code=r'''
 #include <assert.h>
@@ -28,7 +28,7 @@ typedef struct {State s;Event events[12];unsigned count;} World;
 static World actual,reference,*w;
 static unsigned scenario,mutation,seen[8],flagSeen[65536],pairSeen[2][65536],budgetSeen[18];
 static const s32 budgets[18]={INT32_MIN,INT32_MIN+1,INT32_MAX-1,INT32_MAX,-1000,-501,-500,-50,-1,0,1,49,50,99,100,499,500,501};
-static u8 *labels[7]={D_80010600,D_8001060C,D_80010628,D_8001063C,D_8001064C,D_80010658,D_80010674};
+static u8 *labels[7]={StrPlayerLabel,D_8001060C,EntryAcceptedStr,D_8001063C,D_8001064C,SecondsUntilCloseText,D_80010674};
 static const unsigned sizes[7]={12,28,20,16,12,28,4};
 #define LinkEntryState (w->s.status)
 #define D_800AD508 (w->s.flags)
@@ -50,14 +50,14 @@ static void expected(s32 mode){u8 number[4]={0,0,0,0};unsigned row;int player;s8
  if(mode<0){seen[0]++;return;}assert(mode==0||mode==1);seen[1]++;
  for(row=0;row<2;row++){
   player=1-mode;number[0]=(u8)(49+(int)row+2*(int)half(w->s.flags^1U));
-  DrawBigFontString(12,64+194*row,D_80010600);DrawBigFontString(88,64+194*row,number);
+  DrawBigFontString(12,64+194*row,StrPlayerLabel);DrawBigFontString(88,64+194*row,number);
   status=w->s.status[player][row];
   if(status==0){seen[2]++;DrawBigFontString(60,120+194*row,D_8001060C);}
-  else if(status==1){seen[3]++;DrawBigFontString(60,120+194*row,D_80010628);DrawBigFontString(60,150+194*row,D_8001063C);}
+  else if(status==1){seen[3]++;DrawBigFontString(60,120+194*row,EntryAcceptedStr);DrawBigFontString(60,150+194*row,D_8001063C);}
   else if(status==-1){seen[4]++;DrawBigFontString(60,120+194*row,D_8001064C);}else seen[5]++;
  }
  budgetCoverage();seconds=(s32)((int64_t)w->s.budget/50);number[0]=(u8)((int64_t)seconds/10+48);number[1]=(u8)((int64_t)seconds%10+48);
- DrawBigFontString(44,244,number);DrawBigFontString(32,244,D_80010658);budgetCoverage();
+ DrawBigFontString(44,244,number);DrawBigFontString(32,244,SecondsUntilCloseText);budgetCoverage();
  scaled=wrap64((int64_t)500-w->s.budget);scaled=wrap64(scaled*256);x=scaled/500+32;
  DrawBigFontString((s32)x,224,D_80010674);
 }

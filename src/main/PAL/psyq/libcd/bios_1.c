@@ -5,36 +5,36 @@
 
 #define R(o) (*(unsigned short *)(D_800A6760 + (o)))
 
-extern s32 func_8001E84C();
+extern s32 DebugPrintStub();
 extern s32 VSync(s32);
 extern s32 CheckCallback(void);
 extern s32 getintr(void);
 extern s32 CD_sync(s32, u8 *);
 extern s32 func_800963DC(const char *);
 extern const char D_80011A14[];
-extern const char D_80011A24[];
+extern const char CdTimeoutStatusFmt[];
 extern const char D_80011AB0[];
 extern const char D_80011AB8[];
-extern const char D_80011AC8[];
+extern const char CdCwLabel[];
 extern s32 CD_debug;
 extern u8 CD_pos[4];
 extern u8 D_800A64A4;
 extern u8 D_800A64A5;
 extern char *CD_comstr[];
 extern char *CD_intstr[];
-extern s32 D_800A65CC[];
+extern s32 CdCommandParamTable[];
 extern s32 D_800A66CC[];
-extern volatile u8 *D_800A674C;
-extern volatile u8 *D_800A6750;
-extern volatile u8 *D_800A6754;
+extern volatile u8 *CD_reg0;
+extern volatile u8 *CD_REG1;
+extern volatile u8 *CD_REG2;
 extern u8 D_800A6764[];
-extern u8 D_80110318[];
+extern u8 CD_syncResult[];
 extern u8 D_80110320[];
-extern s32 D_80110330;
+extern s32 CD_timeout_deadline;
 extern s32 D_80110334;
 extern const char *D_80110338;
-extern unsigned char *D_800A6758;
-extern int *D_800A675C;
+extern unsigned char *CD_reg3;
+extern int *COM_DELAY;
 extern char *D_800A6760;
 extern s32 CD_status1;
 
@@ -49,13 +49,13 @@ void CD_initintr(void);
 #define CD_cbready (*(void (*(*))(u8, u8 *))&CD_cbready)
 
 static inline int check_alarm(char **ac, char ** sc, volatile u8 *st) {
-    if (VSync(-1) > D_80110330 || D_80110334++ > 0x3C0000) {
+    if (VSync(-1) > CD_timeout_deadline || D_80110334++ > 0x3C0000) {
         func_800963DC(D_80011A14);
         { u8 s0_ = st[0]; u8 s1_ = st[1]; char *x5 = sc[s1_];
         /* ASM_BARRIER: Load D_80110338 directly into $a1. */
         register const char *a1 __asm__("$5") = D_80110338;
-        func_8001E84C(
-            D_80011A24,
+        DebugPrintStub(
+            CdTimeoutStatusFmt,
             a1,
             ac[D_800A64A5],
             sc[s0_],
@@ -68,17 +68,17 @@ static inline int check_alarm(char **ac, char ** sc, volatile u8 *st) {
 }
 
 static inline void cd_poll_cb(volatile u8 *st, volatile u8 *st1) {
-    u8 saved = *D_800A674C & 3;
+    u8 saved = *CD_reg0 & 3;
     s32 res;
     while ((res = getintr()) != 0) {
         if ((res & 4) && CD_cbready != 0) {
             CD_cbready(*st1, D_80110320);
         }
         if ((res & 2) && CD_cbsync != 0) {
-            CD_cbsync(*st, D_80110318);
+            CD_cbsync(*st, CD_syncResult);
         }
     }
-    *D_800A674C = saved;
+    *CD_reg0 = saved;
 }
 
 s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
@@ -88,11 +88,11 @@ s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     u8 *p;
 
     if (CD_debug >= 2) {
-        func_8001E84C(D_80011AB0, CD_comstr[arg0]);
+        DebugPrintStub(D_80011AB0, CD_comstr[arg0]);
     }
     if (D_800A66CC[arg0] != 0 && arg1 == 0) {
         if (CD_debug > 0) {
-            func_8001E84C(D_80011AB8, CD_comstr[arg0]);
+            DebugPrintStub(D_80011AB8, CD_comstr[arg0]);
         }
         return -2;
     }
@@ -113,21 +113,21 @@ s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
         D_800A64A4 = *p;
     }
     D_800A6764[0] = 0;
-    if (((s32 (*)[64])D_800A65CC)[0][arg0] != 0) {
+    if (((s32 (*)[64])CdCommandParamTable)[0][arg0] != 0) {
         D_800A6764[1] = 0;
     }
-    *D_800A674C = 0;
-    for (i = 0; i < ((s32 (*)[64])D_800A65CC)[1][arg0]; i++) {
-        *D_800A6754 = p[i];
+    *CD_reg0 = 0;
+    for (i = 0; i < ((s32 (*)[64])CdCommandParamTable)[1][arg0]; i++) {
+        *CD_REG2 = p[i];
     }
     D_800A64A5 = arg0;
-    *D_800A6750 = arg0;
+    *CD_REG1 = arg0;
     if (arg3 != 0) {
         return 0;
     }
-    D_80110330 = VSync(-1) + 0x3C0;
+    CD_timeout_deadline = VSync(-1) + 0x3C0;
     D_80110334 = 0;
-    D_80110338 = D_80011AC8;
+    D_80110338 = CdCwLabel;
     if (D_800A6764[0] == 0) {
         char **ac = CD_comstr;
         char **sc = CD_intstr;
@@ -143,7 +143,7 @@ s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
         } while (*st == 0);
     }
     dst = arg2;
-    src = D_80110318;
+    src = CD_syncResult;
     if (dst != 0) {
         s32 n;
         for (n = 7; n != -1; n--) {
@@ -157,55 +157,55 @@ s32 CD_cw(u8 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
 #undef CD_cbready
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A674C ((unsigned char *)D_800A674C)
-#define D_800A6750 ((unsigned char *)D_800A6750)
-#define D_800A6754 ((unsigned char *)D_800A6754)
+#define CD_reg0 ((unsigned char *)CD_reg0)
+#define CD_REG1 ((unsigned char *)CD_REG1)
+#define CD_REG2 ((unsigned char *)CD_REG2)
 
 int CD_vol(unsigned char *a) {
-    *D_800A674C = 2;
-    *D_800A6754 = a[0];
-    *D_800A6758 = a[1];
-    *D_800A674C = 3;
-    *D_800A6750 = a[2];
-    *D_800A6754 = a[3];
-    *D_800A6758 = 0x20;
+    *CD_reg0 = 2;
+    *CD_REG2 = a[0];
+    *CD_reg3 = a[1];
+    *CD_reg0 = 3;
+    *CD_REG1 = a[2];
+    *CD_REG2 = a[3];
+    *CD_reg3 = 0x20;
     return 0;
 }
 
-#undef D_800A674C
-#undef D_800A6750
-#undef D_800A6754
+#undef CD_reg0
+#undef CD_REG1
+#undef CD_REG2
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A674C ((signed char *)D_800A674C)
-#define D_800A6754 ((signed char *)D_800A6754)
+#define CD_reg0 ((signed char *)CD_reg0)
+#define CD_REG2 ((signed char *)CD_REG2)
 
 void CD_flush() {
     volatile unsigned char *p;
-    *D_800A674C = 1;
-    if (*D_800A6758 & 7) {
+    *CD_reg0 = 1;
+    if (*CD_reg3 & 7) {
         do {
-            *D_800A674C = 1;
-            *D_800A6758 = 7;
-            *D_800A6754 = 7;
-        } while (*D_800A6758 & 7);
+            *CD_reg0 = 1;
+            *CD_reg3 = 7;
+            *CD_REG2 = 7;
+        } while (*CD_reg3 & 7);
     }
     p = D_800A6764;
     p[2] = 0;
     p[1] = p[2];
     p[0] = 2;
-    *D_800A674C = 0;
-    *D_800A6758 = 0;
-    *D_800A675C = 0x1325;
+    *CD_reg0 = 0;
+    *CD_reg3 = 0;
+    *COM_DELAY = 0x1325;
 }
 
-#undef D_800A674C
-#undef D_800A6754
+#undef CD_reg0
+#undef CD_REG2
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A674C ((unsigned char *)D_800A674C)
-#define D_800A6750 ((unsigned char *)D_800A6750)
-#define D_800A6754 ((unsigned char *)D_800A6754)
+#define CD_reg0 ((unsigned char *)CD_reg0)
+#define CD_REG1 ((unsigned char *)CD_REG1)
+#define CD_REG2 ((unsigned char *)CD_REG2)
 
 int CD_initvol(void) {
     unsigned char b[4];
@@ -220,19 +220,19 @@ int CD_initvol(void) {
     b[0] = 0x80;
     b[3] = 0;
     b[1] = 0;
-    *D_800A674C = 2;
-    *D_800A6754 = b[0];
-    *D_800A6758 = b[1];
-    *D_800A674C = 3;
-    *D_800A6750 = b[2];
-    *D_800A6754 = b[3];
-    *D_800A6758 = 0x20;
+    *CD_reg0 = 2;
+    *CD_REG2 = b[0];
+    *CD_reg3 = b[1];
+    *CD_reg0 = 3;
+    *CD_REG1 = b[2];
+    *CD_REG2 = b[3];
+    *CD_reg3 = 0x20;
     return 0;
 }
 
-#undef D_800A674C
-#undef D_800A6750
-#undef D_800A6754
+#undef CD_reg0
+#undef CD_REG1
+#undef CD_REG2
 
 void CD_initintr(void) {
     CD_cbready = 0;

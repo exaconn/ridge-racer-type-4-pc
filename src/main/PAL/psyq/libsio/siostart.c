@@ -7,7 +7,7 @@
 extern int EnterCriticalSection();
 extern int ExitCriticalSection();
 extern int AddDrv();
-extern M2C_UNK D_800ABD50;
+extern M2C_UNK SioDeviceBlock;
 M2C_UNK FlushCache();
 /* extern */
 M2C_UNK DelDrv(M2C_UNK *);
@@ -16,13 +16,13 @@ extern M2C_UNK D_80012104;
 
 void DelSIO(void);
 void func_8009A944(void);
-s32 func_8009A94C(s32 first, s32 second);
+s32 _sio_write_async(s32 first, s32 second);
 
 void AddSIO(void) {
     s32 temp_s0;
 
     temp_s0 = EnterCriticalSection();
-    AddDrv(&D_800ABD50);
+    AddDrv(&SioDeviceBlock);
     if (temp_s0 == 1) {
         ExitCriticalSection();
     }
@@ -47,14 +47,14 @@ void DelSIO(void) {
 void func_8009A944(void) {
 }
 
-s32 func_8009A94C(s32 first, s32 second) {
-    volatile RrSerialRequest *request = &D_801146E8;
+s32 _sio_write_async(s32 first, s32 second) {
+    volatile RrSerialRequest *request = &SioRequest;
     RrSerialPortRegisters *registers;
 
     if (request->active == 0) {
         request->second = second;
         request->first = first;
-        registers = D_800ABD18;
+        registers = SIO1_REGS;
         request->active = 1;
         /* Keep the separate read/write operations on the control register. */
         registers->control |= 0x800;

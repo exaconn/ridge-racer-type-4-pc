@@ -3,11 +3,11 @@
 #include "psyq/libcard/cardc163.h"
 #include "psyq/libcard/cardc162.h"
 
-s32 func_8009D700(s32 request, u8 *buffer);
+s32 _cardCmd5ABegin(s32 request, u8 *buffer);
 
-s32 func_8009D680(s32 value) {
+s32 _cardCmd58Rx(s32 value) {
     s32 result;
-    switch(D_800ABDF8) {
+    switch(CardRxCount) {
     case 3: D_80114730=value & 255; break;
     case 4: *(u32 *)D_8011471C=value & 255; break;
     case 5: *D_80114720=value & 255; break;
@@ -16,17 +16,17 @@ s32 func_8009D680(s32 value) {
     return result;
 }
 
-s32 func_8009D700(s32 request, u8 *buffer) {
+s32 _cardCmd5ABegin(s32 request, u8 *buffer) {
     s32 result;
     s32 active;
     if (!rr_command_begin(request)) return 0;
     /* ASM_BARRIER: keep success initialization before the command configuration stores. */
     __asm__ volatile("" : "=r"(result) : "0"(1) : "$3", "memory");
-    D_80114870 = 12;
-    D_80114734 = func_8009D7A0;
-    D_80114738 = func_8009D7C4;
+    CardCurrentCommand = 12;
+    CardCommandReader = _cardCmd5ATx;
+    CardWriteHandler = _cardCmd5ARx;
     active = 2;
-    D_80114718 = buffer;
+    CardCmdBuffer = buffer;
     {
         /* ASM_BARRIER: preserve the original assembler temporary for the mapped store. */
         register s32 *base __asm__("$1");

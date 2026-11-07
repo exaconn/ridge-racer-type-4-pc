@@ -2,20 +2,20 @@ typedef struct { unsigned char c[4]; } B4;
 typedef struct { unsigned char a, b, c, d; } S;
 extern S ScreenFadeState;
 extern B4 ScreenFadeColors[];
-extern char *D_800ACC14;
+extern char *CurrentDrawBuf;
 extern short MenuFrameState;
 extern short D_800F4D2C;
 extern int AddTileGrid2x2();
 extern int DrawMenuFrame();
 extern int func_8005B2D4();
-extern int func_8005B304();
+extern int StepCameraScript();
 extern int SetDispMask();
 
 void UpdateScreenFade(a0) int a0; {
     B4 sp;
     int a, t, a1;
     S *st = &ScreenFadeState;
-    *(D_800ACC14 + 0x18) = 0;
+    *(CurrentDrawBuf + 0x18) = 0;
     a = (a0 >> 1) & 1;
     st->c = a;
     if (a != st->d) ScreenFadeState.a = 0;
@@ -52,11 +52,11 @@ void UpdateScreenFade(a0) int a0; {
     }
     {
         int t = *(int *)0x1F800000;
-        *(int *)0x1F800000 = AddTileGrid2x2(D_800ACC14 + 0xB6C, t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
+        *(int *)0x1F800000 = AddTileGrid2x2(CurrentDrawBuf + 0xB6C, t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
     }
     DrawMenuFrame(a0 >> 2);
     if (D_800F4D2C != 6 && D_800F4D2C != 8) {
         func_8005B2D4(a0 & 1);
-        func_8005B304();
+        StepCameraScript();
     }
 }

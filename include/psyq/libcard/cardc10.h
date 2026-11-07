@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-s32 func_8009CCF0(s32 value);
+s32 _cardCmd5BVarRx(s32 value);
 
 #endif /* RR_PSYQ_LIBCARD_CARDC10_H */

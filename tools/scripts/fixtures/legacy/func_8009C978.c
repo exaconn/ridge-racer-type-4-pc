@@ -2,10 +2,10 @@
 #include "rr/commands.h"
 
 extern s32 func_8009DF14(s32, s32);
-extern s32 func_8009CA8C(void);
-extern s32 func_8009CB50(s32);
+extern s32 _cardCmd5CRangeTx(void);
+extern s32 _cardCmd5CRangeRx(s32);
 
-s32 func_8009C978(s32 request, u8 *buffer, s32 sector, s32 input_count) {
+s32 _cardCmd5CRangeBegin(s32 request, u8 *buffer, s32 sector, s32 input_count) {
     s32 result;
     s32 active;
     /* ASM_BARRIER: retain the count in the original callee-saved register across validation calls. */
@@ -17,12 +17,12 @@ s32 func_8009C978(s32 request, u8 *buffer, s32 sector, s32 input_count) {
     if (!rr_command_begin(request)) return 0;
     /* ASM_BARRIER: keep success initialization before the command configuration stores. */
     __asm__ volatile("" : "=r"(result) : "0"(1) : "$3", "memory");
-    D_80114870 = 5;
-    D_80114734 = func_8009CA8C;
-    D_80114738 = func_8009CB50;
+    CardCurrentCommand = 5;
+    CardCommandReader = _cardCmd5CRangeTx;
+    CardWriteHandler = _cardCmd5CRangeRx;
     active = 2;
-    D_80114718 = buffer;
-    D_80114724 = sector;
+    CardCmdBuffer = buffer;
+    CardCmdSector = sector;
     D_80114728 = count;
     {
         /* ASM_BARRIER: preserve the original assembler temporary for the mapped store. */

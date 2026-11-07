@@ -78,8 +78,8 @@ static void completion0(void){completion_effect^=1;}
 static void completion1(void){completion_effect^=2;}
 static void completion2(void){completion_effect^=4;}
 static void notification0(s32,u8*),notification1(s32,u8*);
-const char D_80011D28[]="CdRead: sector mismatch\n";
-#define D_800A67B0 actual.state
+const char CdReadSectorErrorMsg[]="CdRead: sector mismatch\n";
+#define CdReadState actual.state
 #define D_800A67B8 (*(RrCdPositionView*)&actual.state.position08)
 #define D_800A67D0 actual.state.completed20
 #define CD_read_dma_mode actual.flags
@@ -166,7 +166,7 @@ static s32 decode(int model,void *pointer) {
     return value;
 }
 static s32 diagnostic(int model,const char *text) {
-    record(model,DIAGNOSTIC,0,0,0,text,0,0);assert(text==D_80011D28);return -1;
+    record(model,DIAGNOSTIC,0,0,0,text,0,0);assert(text==CdReadSectorErrorMsg);return -1;
 }
 static s32 clock_tick(int model,s32 mode) {
     World *w=model?&expected:&actual;
@@ -217,7 +217,7 @@ s32 VSync(s32 mode){return clock_tick(0,mode);}
 s32 cd_read_retry(s32 mode){return restart(0,mode);}
 s32 CdControlF(s32 c,const u8 *p){return command(0,c,p);}
 void cb_data(void){completion_effect^=8;}
-void func_8008E7F4(void){completion_effect^=16;}
+void cd_read_restore_sync(void){completion_effect^=16;}
 static void reference(s32 event,u8 *data) {
     expected.state.restore.notify34=data;
     if((u32)event%256!=1)expected.state.remaining14=-1;
@@ -232,7 +232,7 @@ static void reference(s32 event,u8 *data) {
             } else read_data(1,0,header,3);
             s32 sector=decode(1,header);
             if((u32)sector!=expected.state.completed20) {
-                diagnostic(1,D_80011D28);
+                diagnostic(1,CdReadSectorErrorMsg);
                 expected.state.remaining14=-1;
             }
         }
@@ -256,7 +256,7 @@ static void reference(s32 event,u8 *data) {
     if(finished) {
         set(1,1,expected.state.restore.saved2C);
         if(expected.flags&1)set(1,2,expected.state.restore.saved30);
-        set(1,0,func_8008E7F4);
+        set(1,0,cd_read_restore_sync);
         command(1,9,0);
         RrCdDataNotify callback=expected.notify;
         expected.state.finished24=1;

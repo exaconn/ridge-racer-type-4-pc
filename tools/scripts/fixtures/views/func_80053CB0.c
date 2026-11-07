@@ -1,7 +1,7 @@
 #include "types.h"
 
-extern int func_80053AF4();
+extern int SeqFadeVolume();
 
 void func_80053CB0(void) {
-    func_80053AF4(0, 0);
+    SeqFadeVolume(0, 0);
 }

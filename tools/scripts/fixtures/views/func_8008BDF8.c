@@ -1,7 +1,7 @@
 #include "types.h"
 
-extern s32 D_800A63D0;
+extern s32 CurrentVideoMode;
 
 s32 GetVideoMode(void) {
-    return D_800A63D0;
+    return CurrentVideoMode;
 }

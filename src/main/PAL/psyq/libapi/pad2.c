@@ -11,14 +11,14 @@ int RemovePatchPad();
 
 int RemovePatchPad() { EnterCriticalSection(); SysDeqIntRP(1, &D_801143E8); ExitCriticalSection(); return 1; }
 
-int func_80097618(void) {
+int _padVsyncHookHandler(void) {
     volatile int i; int pad[2];
     D_800ABC54[5] = 0;
     for (i = 10; --i != -1; ) ;
     return 0;
 }
 
-s32 func_80097680(void) {
+s32 _padVsyncHookCheck(void) {
     RrInterruptRegisters *registers=D_800ABC58;
     /* ASM_BARRIER: Keep the predicate result in the original return register. */
     register s32 result;

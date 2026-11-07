@@ -1,6 +1,6 @@
 #include "game/math/shuffle.h"
 #include "rr/frame_loop.h"
-extern struct { int p; int a[8]; } D_8010E240;
+extern struct { int p; int a[8]; } SlotOrder;
 extern int D_8010E264;
 extern int func_80096464();
 extern int func_80096474();
@@ -9,17 +9,17 @@ void ShuffleSlotOrder()
     int i, a, b, x, y, t;
     func_80096474(FrameCounter);
     for (i = 7; i >= 0; i--)
-        D_8010E240.a[i] = i;
+        SlotOrder.a[i] = i;
     i = 0;
     do {
         a = func_80096464();
         x = a % 8;
         b = func_80096464();
         y = (x + b % 4) % 7;
-        t = D_8010E240.a[x];
+        t = SlotOrder.a[x];
         i++;
-        D_8010E240.a[x] = D_8010E240.a[y];
-        D_8010E240.a[y] = t;
+        SlotOrder.a[x] = SlotOrder.a[y];
+        SlotOrder.a[y] = t;
     } while (i < 0x20);
     D_8010E264 = 0;
 }

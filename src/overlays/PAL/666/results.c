@@ -89,7 +89,7 @@ void ovl666_update_results(void) {
         SetMenuFrameOptions(0, 1, 0);
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (64 - timer) * 4, 69);
         group = 3;
         if (D_800AC5D0 <= 0) {
             ovl666_result_kind = 1;
@@ -103,7 +103,7 @@ void ovl666_update_results(void) {
         SetMenuFrameOptions(0, 1, 0);
         timer = (u16)D_800AC5D0 - 2;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (64 - timer) * 4, 69);
         group = 3;
         if (D_800AC5D0 <= 0) {
             group = -1;
@@ -114,7 +114,7 @@ void ovl666_update_results(void) {
         SetMenuFrameOptions(0, 1, 0);
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(D_800ACC14->ordering.ordering70, (64 - timer) * 4, 69);
+        AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70, (64 - timer) * 4, 69);
         group = -1;
         if (D_800AC5D0 <= 0) {
             ModeGroup = 1;
@@ -125,7 +125,7 @@ void ovl666_update_results(void) {
     case 8:
         ready = func_8003B12C();
         if (ready == 1) {
-            func_80053BB4(0);
+            SeqStartTrack(0);
             ovl666_init_menu();
             ModeGroup = ready;
             D_800F3A26 = 79;

@@ -18,7 +18,7 @@
 
 #define SelectionState (*(char (*)[])&SelectionState)
 
-#define D_800F2AB0 ((W7C0_S *)D_800F2AB0)
+#define ImageRows ((W7C0_S *)ImageRows)
 
 #define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
 
@@ -28,7 +28,7 @@
 
 #define StepMenuValue ((void (*)())StepMenuValue)
 
-#define func_8002CC88 ((void (*)())func_8002CC88)
+#define DrawPreviewCar ((void (*)())DrawPreviewCar)
 
 #define func_8002E5A0 ((void (*)())func_8002E5A0)
 
@@ -44,7 +44,7 @@
 
 #undef SelectionState
 
-#undef D_800F2AB0
+#undef ImageRows
 
 #undef D_800F4D8A
 
@@ -54,7 +54,7 @@
 
 #undef StepMenuValue
 
-#undef func_8002CC88
+#undef DrawPreviewCar
 
 #undef func_8002E5A0
 

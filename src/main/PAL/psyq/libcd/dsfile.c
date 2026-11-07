@@ -27,17 +27,17 @@ struct DirPath {
 };
 
 extern int CD_debug;
-extern struct DirPath D_8011092C[];
+extern struct DirPath DS_pathTable[];
 extern CdlFILE D_80110350[];
 extern const char D_80011CA4[];
-extern const char D_80011CC4[];
+extern const char CdCacheFileSearchMsg[];
 extern unsigned short D_80011CE0;
 extern short D_80011CE4;
 extern char D_80011CE6;
 extern const char D_80011CE8[];
 extern const char D_80011D04[];
 
-extern int func_8001E84C();
+extern int DebugPrintStub();
 extern void CdIntToPos(int, void *);
 extern void func_80096444(char *, void *, int);
 
@@ -49,16 +49,16 @@ int DS_cachefile(int dir) {
     if (dir == D_800A67A0) {
         return 1;
     }
-    if (cd_read(1, D_8011092C[dir].a, D_80111F50) != 1) {
+    if (cd_read(1, DS_pathTable[dir].a, D_80111F50) != 1) {
         if (CD_debug > 0) {
-            func_8001E84C(D_80011CA4);
+            DebugPrintStub(D_80011CA4);
             return -1;
         }
         return -1;
     }
     p = D_80111F50;
     if (CD_debug >= 2) {
-        func_8001E84C(D_80011CC4);
+        DebugPrintStub(CdCacheFileSearchMsg);
     }
     i = 0;
     while (p < D_80111F50 + 0x800) {
@@ -81,7 +81,7 @@ int DS_cachefile(int dir) {
             break;
         }
         if (CD_debug >= 2) {
-            func_8001E84C(
+            DebugPrintStub(
                 D_80011CE8,
                 D_80110350[i].pos[0],
                 D_80110350[i].pos[1],
@@ -101,7 +101,7 @@ int DS_cachefile(int dir) {
         D_80110350[i].name[0] = 0;
     }
     if (CD_debug >= 2) {
-        func_8001E84C(D_80011D04, i);
+        DebugPrintStub(D_80011D04, i);
     }
     return 1;
 }

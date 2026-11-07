@@ -15,7 +15,7 @@ typedef struct {
     char name[16];
 } CdlFILE;
 
-extern int D_800A67A4;
+extern int CD_dirNopen;
 
 extern int CD_nopen;
 
@@ -27,17 +27,17 @@ extern const char D_80011B38[];
 
 extern const char D_80011B54[];
 
-extern const char D_80011B6C[];
+extern const char CdSearchFileDiscErrorMsg[];
 
-extern const char D_80011B88[];
+extern const char StrCdSearchFileFmt[];
 
 extern const char D_80011BA8[];
 
-extern const char D_80011BB4[];
+extern const char FileNotFoundFmt[];
 
 extern int DS_cachefile(int);
 
-extern int func_8001E84C();
+extern int DebugPrintStub();
 
 CdlFILE *CdSearchFile(CdlFILE *fp, char *name) {
     char buf[16];
@@ -48,10 +48,10 @@ CdlFILE *CdSearchFile(CdlFILE *fp, char *name) {
     /* ASM_BARRIER: use hard reg $0 so jump2 cross-jumping does not merge this return with .L8008E130 */
     register CdlFILE *zero asm("$0");
 
-    if (D_800A67A4 != CD_nopen) {
+    if (CD_dirNopen != CD_nopen) {
         if (DS_newmedia() == 0)
             return 0;
-        D_800A67A4 = CD_nopen;
+        CD_dirNopen = CD_nopen;
     }
     if (*name != '\\') {
         return zero;
@@ -80,33 +80,33 @@ CdlFILE *CdSearchFile(CdlFILE *fp, char *name) {
 done:
     if (i >= 8) {
         if (CD_debug > 0)
-            func_8001E84C(D_80011B38, name, i);
+            DebugPrintStub(D_80011B38, name, i);
         return 0;
     }
     if (buf[0] == 0) {
         if (CD_debug > 0)
-            func_8001E84C(D_80011B54, name);
+            DebugPrintStub(D_80011B54, name);
         return 0;
     }
     *d = 0;
     if (DS_cachefile(dir) == 0) {
         if (CD_debug > 0)
-            func_8001E84C(D_80011B6C);
+            DebugPrintStub(CdSearchFileDiscErrorMsg);
         return 0;
     }
     if (CD_debug >= 2)
-        func_8001E84C(D_80011B88, buf);
+        DebugPrintStub(StrCdSearchFileFmt, buf);
     for (i = 0; i < 64; i++) {
         if (D_80110350[i].name[0] == 0)
             break;
         if (_cmp(D_80110350[i].name, buf)) {
             if (CD_debug >= 2)
-                func_8001E84C(D_80011BA8, buf);
+                DebugPrintStub(D_80011BA8, buf);
             *fp = D_80110350[i];
             return &D_80110350[i];
         }
     }
     if (CD_debug > 0)
-        func_8001E84C(D_80011BB4, buf);
+        DebugPrintStub(FileNotFoundFmt, buf);
     return 0;
 }

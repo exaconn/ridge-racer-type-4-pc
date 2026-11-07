@@ -3,9 +3,9 @@
 #define G ((Scratch_8006EF8C *)0x1F800000)
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABED0 (*(M2C_UNK (*))&D_800ABED0)
+#define LightMatrix (*(M2C_UNK (*))&LightMatrix)
 
-#undef D_800ABED0
+#undef LightMatrix
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_80060C70 ((int (*)())func_80060C70)

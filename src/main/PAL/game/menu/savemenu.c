@@ -24,15 +24,15 @@ extern char D_800A45C8[];
 extern char D_800A4648[][0x80];
 extern Struct4000 *SaveBuffer;
 extern Struct2C SelectionState;
-extern Struct2C D_800F2E30[3];
+extern Struct2C SaveSlotSelections[3];
 extern short D_800F3AF8;
 extern short D_800F4D3C;
-extern char D_800F4D50[];
+extern char CardTargetFileName[];
 extern short D_800FFC18;
 extern Struct2C D_8010B258[3];
 extern int D_801272F0[];
 
-int func_8007A310(a0, a1)
+int CardSaveStep(a0, a1)
 short a0;
 int a1;
 {
@@ -80,9 +80,9 @@ int a1;
         for (i = 0x1D; i >= 0; i--) {
         }
         if (D_800F3AF8 == 0x20) {
-            r = CardWriteFile((short)a1, 0, D_800F4D50, SaveBuffer, 2, D_800A41E9);
+            r = CardWriteFile((short)a1, 0, CardTargetFileName, SaveBuffer, 2, D_800A41E9);
         } else {
-            r = CardWriteFile((short)a1, 0, D_800F4D50, SaveBuffer, 1, D_800A41E9);
+            r = CardWriteFile((short)a1, 0, CardTargetFileName, SaveBuffer, 1, D_800A41E9);
         }
         if (r == -1) {
             if (D_800A41EA < 3) {
@@ -103,7 +103,7 @@ int a1;
                 case 3:
                     D_8010B258[D_800F4D3C] = SelectionState;
                     for (i = 0; i < 3; i++) {
-                        D_800F2E30[i] = D_8010B258[i];
+                        SaveSlotSelections[i] = D_8010B258[i];
                     }
                     break;
                 case 6:

@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern char D_80011EF0[];
+extern char StrStoreImage[];
 extern char D_80011EFC[];
 extern const char D_80011F38[];
 char *SetDefDrawEnv(char *p, int a, int b, int c, int d);

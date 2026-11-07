@@ -54,10 +54,10 @@
 
 extern int SoundSetMasterVolume();
 
-extern s32 D_800F2EC8;
+extern s32 MaskBitSetting;
 
 void StopRaceAudioAndRumble(void) {
     SoundSetMasterVolume(0, 0);
     StopRaceRumble();
-    D_800F2EC8 = 0;
+    MaskBitSetting = 0;
 }

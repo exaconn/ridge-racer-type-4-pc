@@ -63,8 +63,8 @@ static void channel_effect(struct World *w,s32 kind,s32 argument){
 static void unlock_effect(struct World *w){event(w,7,0);w->screen=42;w->counter=-42;}
 static void cd_effect(struct World *w){event(w,8,9);w->screen=0xffff;w->step=0xffff;w->counter=-32768;}
 s32 EnterCriticalSection(void){lock_effect(&world);return -1;}
-s32 func_80096DE0(s32 a){channel_effect(&world,3,a);return 0;}
-s32 func_80096DB8(s32 a){channel_effect(&world,4,a);return 0;}
+s32 CdAltDataCallback(s32 a){channel_effect(&world,3,a);return 0;}
+s32 CdAltReadyCallback(s32 a){channel_effect(&world,4,a);return 0;}
 s32 CdDataCallback(s32 a){channel_effect(&world,5,a);return 0;}
 s32 CdReadyCallback(s32 a){channel_effect(&world,6,a);return 0;}
 s32 ExitCriticalSection(void){assert(*world.port0==0 && *world.port1==0);unlock_effect(&world);return 0;}

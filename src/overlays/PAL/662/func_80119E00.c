@@ -53,7 +53,7 @@ void ovl662_func_80119E00(void) {
         if (rowPhase == 2) {
             badgePhase = BadgeRows->state10;
             if (badgePhase == 3) {
-                if (D_800F3A38[0].a != 0) {
+                if (PlayerControllers[0].a != 0) {
                     UiRows[(s16)MenuCursor].cells[0] = 1;
                     if ((s16) MenuCursor == 0) {
                         if (ovl662_D_801272E2 < 0x19) {
@@ -88,7 +88,7 @@ void ovl662_func_80119E00(void) {
                         } while (index < 2);
                         goto closeMenu;
                     }
-                } else if (D_800F3A38[0].b != 0) {
+                } else if (PlayerControllers[0].b != 0) {
                     if (ovl662_D_801272E8 == 0) {
                         PlaySfx(2);
                         index = 0;

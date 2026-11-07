@@ -67,7 +67,7 @@ typedef struct {
 extern RrLibQueueRecord32 *D_80110310;
 void StSetRing(RrLibQueueRecord32 *first, s32 second);
 void StSetStream(s32 a, s32 b, s32 c, s32 d, s32 e);
-extern s32 D_801102FC, D_80110304, D_80110314;
+extern s32 D_801102FC, StEndFrame, D_80110314;
 /* Buffer must contain the configured header table and its 0x7E0-byte payload slots. */
 s32 StGetNext(u8 **data, RrLibQueueRecord32 **header);
 
@@ -213,10 +213,10 @@ void SsSepClose(s32 bank);
 typedef void (*RrLibControllerCallback)(s32 bank, s32 row, s32 value);
 typedef void (*RrLibControllerResetCallback)(s32 bank, s32 row);
 extern RrLibControllerCallback D_8010EFE0, D_8010EFE4, D_8010EFE8, D_8010EFEC;
-extern RrLibControllerCallback D_8010EFF0, D_8010EFF4, D_8010EFF8, D_8010EFFC;
+extern RrLibControllerCallback SsCtrlHandlerCC64, D_8010EFF4, D_8010EFF8, D_8010EFFC;
 extern RrLibControllerCallback D_8010F000, D_8010F004;
 extern RrLibControllerCallback _SsMarkCallback[][16];
-extern RrLibControllerResetCallback D_8010F008;
+extern RrLibControllerResetCallback SsCtrlHandlerCC121;
 extern void _SsContMainVol(s32 bank, s32 row, s32 value);
 void _SsContPanpot(s32 bank, s32 row, s32 value);
 extern void _SsContDamper(s32 bank, s32 row, s32 value);

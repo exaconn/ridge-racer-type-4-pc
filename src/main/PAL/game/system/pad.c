@@ -62,13 +62,13 @@ typedef struct { short s0, s2, s4, s6, s8, sA, sC, sE, s10, s12, s14, s16; } T_2
 typedef struct { short s0, s2, s4, s6, s8, sA, sC, sE, s10, s12, s14, s16; } T_3;
 
 extern Settings Options;
-extern Pad D_800F3A38[2];
+extern Pad PlayerControllers[2];
 extern Port PadPorts[2];
 extern s32 D_800FFC08[2];
 extern s32 D_800AD590[2];
 extern s32 D_800F4CD8[2];
 extern s16 D_8009FFB8[4];
-extern s16 D_8009FFC0[6];
+extern s16 PadRangeLimits[6];
 extern s32 D_8009FFCC[8];
 extern s32 D_800A016C[8];
 extern s32 VSyncThreshold;
@@ -78,9 +78,9 @@ void func_8004B8A8(void);
 void PadUpdateRumble(void);
 void PadPollPort(s32);
 extern T_1 PadPulseState[];
-extern char D_80011014[];
+extern char StrControllerNoErrorFmt[];
 extern char D_80011030[];
-extern int func_8001E84C();
+extern int DebugPrintStub();
 
 void PadUpdate(void);
 int func_8004B70C(int i);
@@ -99,8 +99,8 @@ void PadUpdate(void) {
     ports[0] = &PadPorts[0];
     ports[1] = &PadPorts[1];
     __asm__ volatile("" ::: "memory"); /* ASM_BARRIER: schedule ports array initialization before loop preheader */
-    states[0] = &D_800F3A38[0];
-    states[1] = &D_800F3A38[1];
+    states[0] = &PlayerControllers[0];
+    states[1] = &PlayerControllers[1];
 
     for (i = 0; i < 2; i++) {
         if (ports[i]->type01 != states[i]->type01) {
@@ -327,19 +327,19 @@ void PadUpdate(void) {
                 if (val < 0) {
                     val = 0;
                 }
-                if (val > D_8009FFC0[Options.w[i].range01]) {
-                    val = D_8009FFC0[Options.w[i].range01];
+                if (val > PadRangeLimits[Options.w[i].range01]) {
+                    val = PadRangeLimits[Options.w[i].range01];
                 }
             } else {
                 val += D_8009FFCC[Options.w[i].deadzone00];
                 if (val > 0) {
                     val = 0;
                 }
-                if (val < -D_8009FFC0[Options.w[i].range01]) {
-                    val = -D_8009FFC0[Options.w[i].range01];
+                if (val < -PadRangeLimits[Options.w[i].range01]) {
+                    val = -PadRangeLimits[Options.w[i].range01];
                 }
             }
-            states[i]->steering3C = (val << 7) / D_8009FFC0[Options.w[i].range01];
+            states[i]->steering3C = (val << 7) / PadRangeLimits[Options.w[i].range01];
             break;
         case 0x73:
             val = states[i]->steering20 - 0x80;
@@ -373,21 +373,21 @@ void PadUpdate(void) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A38 (*(T (*)[])&D_800F3A38)
+#define PlayerControllers (*(T (*)[])&PlayerControllers)
 
 int func_8004B70C(int i) {
-    return D_800F3A38[i].f54;
+    return PlayerControllers[i].f54;
 }
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 void PadRangeCheckSet(unsigned a, unsigned b, short c, short d) {
     T_1 *t;
     if (a >= 2) {
-        func_8001E84C(D_80011014, a);
+        DebugPrintStub(StrControllerNoErrorFmt, a);
     }
     if (b >= 2) {
-        func_8001E84C(D_80011030, b);
+        DebugPrintStub(D_80011030, b);
     }
     t = &PadPulseState[a];
     t->t[b] = d;

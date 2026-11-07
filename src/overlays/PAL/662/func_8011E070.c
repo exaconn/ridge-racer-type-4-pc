@@ -55,7 +55,7 @@ processInput:
                 }
                 ovl662_D_80127668.points.cursor14 = ovl662_D_80127668.points.cursor18;
                 flags = ovl662_D_80127668.words[0];
-                if (!(flags & 8) && (D_800F3A38[0].type01 != 0x12) && (D_800F3A38[0].buttons08 & 4)) {
+                if (!(flags & 8) && (PlayerControllers[0].type01 != 0x12) && (PlayerControllers[0].buttons08 & 4)) {
                     ovl662_D_80127668.words[0] = (s32) (flags | 4);
                     ovl662_D_80127668.words[1] = 0x30;
                     ovl662_D_80127668.points.first20 = ovl662_D_80127668.points.cursor18;

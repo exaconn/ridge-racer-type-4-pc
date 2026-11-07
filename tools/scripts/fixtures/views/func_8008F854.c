@@ -7,7 +7,7 @@ s32 StGetNext(u8 **data,RrLibQueueRecord32 **header) {
     /* ASM_BARRIER: Keep the status word in the original common return register. */
     register s32 result __asm__("$2");
     if(selected->state==1) {
-        s32 reset=D_80110304;
+        s32 reset=StEndFrame;
         /* ASM_BARRIER: Preserve the original assembler temporary for index publication. */
         register s32 *page __asm__("$1");
         /* ASM_BARRIER: Read the reset flag before materializing the index address. */

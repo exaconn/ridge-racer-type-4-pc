@@ -33,7 +33,7 @@ extern volatile int _qin;
 
 extern volatile int _qout;
 
-extern int D_800ABBF4;
+extern int GpuSavedIntrMask;
 
 extern volatile struct GpuQueue D_801128D8[];
 
@@ -42,7 +42,7 @@ int _exeque(void) {
     if (*DMA2_CHCR & 0x01000000) {
         return 1;
     }
-    D_800ABBF4 = SetIntrMask(0);
+    GpuSavedIntrMask = SetIntrMask(0);
     while (_qin != _qout && (m0 = 0x01000000, (*DMA2_CHCR & m0) == 0)) {
         if (((_qout + 1) & 0x3F) == _qin && D_800ABACC == 0) {
             DMACallback(2, 0);
@@ -52,7 +52,7 @@ int _exeque(void) {
         D_801128D8[_qout].op(D_801128D8[_qout].p0, D_801128D8[_qout].p1);
         _qout = (_qout + 1) & 0x3F;
     }
-    SetIntrMask(D_800ABBF4);
+    SetIntrMask(GpuSavedIntrMask);
     if (_qin == _qout && (*DMA2_CHCR & 0x01000000) == 0) {
         void (*fn)();
         if (D_800ABAC0.unk8 != 0 && (fn = D_800ABAC0.unkC) != 0) {

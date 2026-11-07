@@ -23,7 +23,7 @@ void ovl665_func_80115CFC(void) {
         break;
     case 3:
         D_800AC5D0--;
-        AddScreenFadeTiles(((RrFrameOrderingPrefix*)D_800ACC14)->ordering70,(64-D_800AC5D0)*4,69);
+        AddScreenFadeTiles(((RrFrameOrderingPrefix*)CurrentDrawBuf)->ordering70,(64-D_800AC5D0)*4,69);
         if(D_800AC5D0<=0 && BadgeRows[0].state10==11) {
             ovl665_func_80114A24();
             ovl665_D_80119768.layout0C=0;
@@ -37,13 +37,13 @@ void ovl665_func_80115CFC(void) {
     glyph=&ovl665_D_80119028;
     x=24;
     for(;i<8;x+=36,i++) {
-        cursor=func_8001FF84(((RrFrameOrderingPrefix*)D_800ACC14)->ordering70,cursor,x,144,glyph,0x7F38,((7-i)*223)/7+32);
+        cursor=AddSpritePrim(((RrFrameOrderingPrefix*)CurrentDrawBuf)->ordering70,cursor,x,144,glyph,0x7F38,((7-i)*223)/7+32);
     }
     packet=(RrGpuSingleCommandPacket*)cursor;
     RR_PROJECTION_SCRATCH->pointers.cursor=(u8*)packet;
     ((u8*)&packet->tag)[3]=1;
     {
-        RrFrameOrderingPrefix *context=(RrFrameOrderingPrefix*)D_800ACC14;
+        RrFrameOrderingPrefix *context=(RrFrameOrderingPrefix*)CurrentDrawBuf;
         packet->command=0xE1000239U;
         packet->tag=(packet->tag&0xFF000000U)|(context->ordering70[0]&0xFFFFFFU);
         context->ordering70[0]=(context->ordering70[0]&0xFF000000U)|((u32)(unsigned long)packet&0xFFFFFFU);
@@ -57,7 +57,7 @@ void ovl665_func_80115CFC(void) {
     packet=(RrGpuSingleCommandPacket*)RR_PROJECTION_SCRATCH->pointers.cursor;
     ((u8*)&packet->tag)[3]=1;
     {
-        RrFrameOrderingPrefix *context=(RrFrameOrderingPrefix*)D_800ACC14;
+        RrFrameOrderingPrefix *context=(RrFrameOrderingPrefix*)CurrentDrawBuf;
         packet->command=0xE1000238U;
         packet->tag=(packet->tag&0xFF000000U)|(context->ordering70[0]&0xFFFFFFU);
         context->ordering70[0]=(context->ordering70[0]&0xFF000000U)|((u32)(unsigned long)packet&0xFFFFFFU);

@@ -1,9 +1,9 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/library.h"
-extern s32 D_801102EC, D_801102F4, D_801102F8, D_80112754;
+extern s32 D_801102EC, StRingWriteIndex, D_801102F8, D_80112754;
 extern RrLibQueueRecord32 *D_80110310;
 extern RrLibPackedWord D_80112750;
-extern void (*D_80112760)(void);
+extern void (*StDataReadyFunc)(void);
 void data_ready_callback(void)
 {
     s32 value;
@@ -15,8 +15,8 @@ void data_ready_callback(void)
     p->state = 2;
     D_80112750 = p->word1C;
     value = p->value08;
-    next = D_801102F4;
-    callback = D_80112760;
+    next = StRingWriteIndex;
+    callback = StDataReadyFunc;
     D_80112754 = value;
     {
         /* ASM_BARRIER: Preserve the assembler temporary for publishing the next index. */

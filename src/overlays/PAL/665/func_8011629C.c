@@ -1,7 +1,7 @@
 #include "rr/menu_pulse.h"
 s32 ovl665_func_8011629C(s32 index)
 {
-    RrMenuItemState5C *item=&D_800F3A38[index];
+    RrMenuItemState5C *item=&PlayerControllers[index];
     s32 result=-1;
     switch(item->type01){
     case 0x41:case 0x73:

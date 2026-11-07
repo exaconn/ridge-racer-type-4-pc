@@ -107,7 +107,7 @@ static s32 sine_reference(u32 phase){unsigned quadrant=(phase&4095U)/1024U,at=ph
 static void effect(struct World *v,const u16 points[4]){Event *e=&v->event;assert(v->calls==0);v->calls++;memset(e,0,sizeof(*e));memcpy(e->points,points,8);memcpy(e->rgb,v->color,3);e->color=world.color;e->blend=0;e->depth=0;memcpy(&e->before,&v->visual,sizeof(v->visual));
  v->visual.centerX38^=0xA55A;v->visual.centerY3A^=0x5AA5;((u8*)&v->visual.scale3C)[0]^=0xEF;v->color[0]^=0x31;v->color[1]^=0x73;v->color[2]^=0xA7;
 }
-void func_8004D290(const s16 points[4],const u8 rgb[3],s32 blend,s32 depth){assert(rgb==world.color && blend==0 && depth==0);assert((uintptr_t)points>UINT32_MAX && (uintptr_t)rgb>UINT32_MAX);effect(&world,(u16 *)points);}
+void AddLineF2Prim(const s16 points[4],const u8 rgb[3],s32 blend,s32 depth){assert(rgb==world.color && blend==0 && depth==0);assert((uintptr_t)points>UINT32_MAX && (uintptr_t)rgb>UINT32_MAX);effect(&world,(u16 *)points);}
 static void reference(s32 angle){u16 points[4];int64_t sine=sine_reference((u32)angle&4095U),cosine=sine_reference(((u32)angle+1024U)&4095U),x=expected.visual.centerX38,y=expected.visual.centerY3A;
  assert(sine>=-4096 && sine<=4096 && cosine>=-4096 && cosine<=4096);
  points[0]=(u16)(x+sine/128);points[1]=(u16)(y-cosine/64);points[2]=(u16)(x+sine*40/8192);points[3]=(u16)(y-cosine*40/4096);effect(&expected,points);

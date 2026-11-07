@@ -40,7 +40,7 @@ static State actual,reference,*w;
 #define MenuCursor w->selection
 #define MenuItemCount w->limit
 #define ReverseCourse w->style
-#define D_800F3914 w->mapped
+#define CourseIndex w->mapped
 #define D_800F3A1E w->secondary
 #define D_800F3A26 w->scene
 #define D_800FFC18 w->settings
@@ -48,10 +48,10 @@ static State actual,reference,*w;
 #define ModeGroup w->enabled
 #define D_800F3A60 w->input[0].a
 #define D_800F3A64 w->input[0].b
-#define D_800F2AB0 w->modes[w->modeRoot]
+#define ImageRows w->modes[w->modeRoot]
 #define UiRowCount w->rowCount
 #define UiRows w->rows[w->rowRoot]
-#define D_800ACC14 (&w->frames[w->frameRoot])
+#define CurrentDrawBuf (&w->frames[w->frameRoot])
 #define ovl660_available_course_count w->available
 ''' + body + r'''
 typedef struct {unsigned kind;s32 args[12];State before;} Event;
@@ -85,7 +85,7 @@ void ResetScreenCounters(void){service(3);}
 void func_80033368(s32 a,s32 b){const s32 args[12]={a,b};record(4,args);effect(4);}
 s32 DecodeCourseIndex(s32 a){const s32 args[12]={a};record(5,args);w->style=a>=8;return w->map[a&7];}
 void PlaySfx(s32 a){const s32 args[12]={a};record(6,args);effect(6);}
-void func_80053AF4(s32 a,s32 b){const s32 args[12]={a,b};record(7,args);effect(7);}
+void SeqFadeVolume(s32 a,s32 b){const s32 args[12]={a,b};record(7,args);effect(7);}
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){va_list ap;va_start(ap,j);s32 x=va_arg(ap,s32),y=va_arg(ap,s32);va_end(ap);const s32 args[12]={a,b,c,d,e,f,g,h,i,j,x,y};record(8,args);effect(8);}
 void ovl660_func_801163C4(void){service(9);}
 void AddScreenFadeTiles(u32 *p,s32 b,u32 c){unsigned k;for(k=0;k<2&&p!=w->frames[k].ordering70;k++){}assert(k<2&&(uintptr_t)p>UINT32_MAX);const s32 args[12]={k,b,(s32)c};record(10,args);effect(10);}
@@ -105,7 +105,7 @@ static void expected(void){w->frame=word((u32)w->frame+1);w->tick=word((u32)w->t
    int back=1;if(w->input[0].a&&w->rows[w->rowRoot][0].byte14==2){back=0;PlaySfx(1);SetMenuFrameOptions(0,1,1);int selected=w->selection;
     if(selected==0){choices[0]++;w->rows[w->rowRoot][0].cells[0]=1;closeRows(4);w->phase=3;}
     else if(selected==1){choices[1]++;closeLiveRows();w->timer=64;w->phase=10;}
-    else if(selected==2){choices[2]++;closeLiveRows();w->timer=64;w->phase=8;func_80053AF4(0,60);}
+    else if(selected==2){choices[2]++;closeLiveRows();w->timer=64;w->phase=8;SeqFadeVolume(0,60);}
    }
    if(back&&w->input[0].b&&w->rows[w->rowRoot][0].byte14==2){choices[3]++;PlaySfx(2);SetMenuFrameOptions(0,1,1);closeLiveRows();w->timer=64;w->phase=8;}
   }else if(phase==2){if(w->input[0].a&&w->rows[w->rowRoot][0].byte14==5){w->phase=4;InitUiRow(3,120,220,68,32,0,0,1,0,0,0,0);InitUiRow(4,120,260,68,32,0,0,1,0,0,0,0);}

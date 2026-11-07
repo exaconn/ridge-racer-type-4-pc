@@ -130,7 +130,7 @@ extern void (*CarUpdateStages[])();
 extern unsigned char D_8009F7E0[];
 extern char PlayerCars[];
 extern short NumCars;
-extern unsigned short D_800F3914;
+extern unsigned short CourseIndex;
 extern C *CarTable[];
 extern int rcos();
 extern s32 Atan2Table(s32, s32);
@@ -167,7 +167,7 @@ unsigned int arg0;
   int *g;
   g = (int *) (SCRATCHPAD + 0x7C);
   s6 = 0;
-  s5 = ((int) (D_800F3914 << 16)) >> 17;
+  s5 = ((int) (CourseIndex << 16)) >> 17;
   switch (arg0)
   {
     case 0:

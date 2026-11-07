@@ -47,12 +47,12 @@ typedef struct {
 
 typedef struct { char p0; char b1; char pad[0xE]; int w10; char pad2[8]; short h1C; short h1E; char pad3[0x20]; char c40; char pad4[0x1B]; } W10_T;
 
-extern T D_800F3A38[];
+extern T PlayerControllers[];
 extern Settings4BC5C Options;
-extern s16 D_8009FFC0[];
+extern s16 PadRangeLimits[];
 extern s32 VSyncThreshold;
 extern char D_8009FFDC[];
-extern char D_8009FFE4[];
+extern char PadActAlignBytes[];
 extern int PadGetState();
 extern int PadInfoMode();
 extern int PadInfoAct();
@@ -68,40 +68,40 @@ void PadUpdateRumble(void);
 void PadPollPort();
 
 void PadSetRumbleParams(int i, short a, char b) {
-    T *t = &D_800F3A38[i];
+    T *t = &PlayerControllers[i];
     t->f52 = a;
     t->f49 = b;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A38 (*(T_1 (*)[])&D_800F3A38)
+#define PlayerControllers (*(T_1 (*)[])&PlayerControllers)
 
 void PadRumbleStart(int i) {
-    T_1 *t = &D_800F3A38[i];
+    T_1 *t = &PlayerControllers[i];
     t->f50 = 1;
     PadSetRumbleFlags(i, 2);
     t->f49 = 0xF;
 }
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A38 (*(T_2 (*)[])&D_800F3A38)
+#define PlayerControllers (*(T_2 (*)[])&PlayerControllers)
 
 void PadRumbleStop(int i) {
-    T_2 *t = &D_800F3A38[i];
+    T_2 *t = &PlayerControllers[i];
     t->f50 = 0;
     t->f49 = 0;
     t->f52 = 0;
 }
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A38 (*(T_3 (*)[])&D_800F3A38)
+#define PlayerControllers (*(T_3 (*)[])&PlayerControllers)
 
 void PadSetRumbleFlags(int i, int flags) {
-    T_3 *t = &D_800F3A38[i];
+    T_3 *t = &PlayerControllers[i];
     if (flags & 1) {
         if (!(t->f44 & 0x40)) {
             t->f48 |= 0x40;
@@ -126,10 +126,10 @@ void PadSetRumbleFlags(int i, int flags) {
     }
 }
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A38 (*(Pad4BC5C (*)[])&D_800F3A38)
+#define PlayerControllers (*(Pad4BC5C (*)[])&PlayerControllers)
 
 void PadUpdateRumble(void) {
     s32 i;
@@ -141,7 +141,7 @@ void PadUpdateRumble(void) {
     Pad4BC5C *t;
 
     for (i = 0; i < 2; i++) {
-        t = &D_800F3A38[i];
+        t = &PlayerControllers[i];
         for (j = 0; j < 2; j++) {
             mask = 1 << (j + 6);
             if (t->f48 & mask) {
@@ -169,7 +169,7 @@ void PadUpdateRumble(void) {
         a0 = (t->f49 * Options.w[i].f2A) / 2;
         if (t->f50 != 0) {
             if (t->f52 != 0) {
-                if (__builtin_abs(t->f4C) < D_8009FFC0[Options.w[i].f29]) {
+                if (__builtin_abs(t->f4C) < PadRangeLimits[Options.w[i].f29]) {
                     if (a0 != 0) {
                         t0 = t1 | (1 << (t->f52 + 3));
                     }
@@ -190,10 +190,10 @@ void PadUpdateRumble(void) {
     }
 }
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A38 (*(W10_T (*)[])&D_800F3A38)
+#define PlayerControllers (*(W10_T (*)[])&PlayerControllers)
 
 void PadPollPort(a0)
 int a0;
@@ -204,7 +204,7 @@ int a0;
   /* ASM_BARRIER: pin result var to $s0 (original assigns s0=result, s1=struct pointer) */
   register int s0 __asm__("$16");
   int v1;
-  W10_T *s1 = &D_800F3A38[a0];
+  W10_T *s1 = &PlayerControllers[a0];
   s0 = PadGetState(s2);
   if (s0 == 0)
   {
@@ -247,7 +247,7 @@ B:
     s1->c40 = 1;
     s1->w10 = 2;
     PadSetAct(s2, (char *)s1 + 0x44, 1);
-    if (PadSetActAlign(s2, D_8009FFE4) != 0)
+    if (PadSetActAlign(s2, PadActAlignBytes) != 0)
     {
       ((unsigned char *)s1)[0x1B] = 1;
       s1->h1E = 0;
@@ -283,4 +283,4 @@ B:
   }
 }
 
-#undef D_800F3A38
+#undef PlayerControllers

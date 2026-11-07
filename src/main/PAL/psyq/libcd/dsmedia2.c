@@ -19,7 +19,7 @@ extern s8 *D_800A6800;
 extern s8 *D_800A680C;
 extern s32 D_80112754;
 extern RrLibPackedWord D_80112750;
-extern void (*D_80112760)(void);
+extern void (*StDataReadyFunc)(void);
 extern int CdPosToInt();
 
 void StClearRing(void);
@@ -31,19 +31,19 @@ void StClearRing(void) {
     int a = D_80110314;
     D_801102FC = 0;
     D_801102F8 = 0;
-    D_801102F4 = 0;
+    StRingWriteIndex = 0;
     D_801102EC = 0;
     init_ring_status(0, a);
     D_801102DC = 0;
     D_801102D4 = 0;
-    D_801102D0 = 0;
+    StCurFrameNo = 0;
 }
 
 void StUnSetRing(void) {
     EnterCriticalSection();
     if (D_800A64A8 == 1) {
-        func_80096DE0(0);
-        func_80096DB8(0);
+        CdAltDataCallback(0);
+        CdAltReadyCallback(0);
     } else {
         CdDataCallback(0);
         CdReadyCallback(0);
@@ -69,8 +69,8 @@ void data_ready_callback(void)
     p->state = 2;
     D_80112750 = p->word1C;
     value = p->value08;
-    next = D_801102F4;
-    callback = D_80112760;
+    next = StRingWriteIndex;
+    callback = StDataReadyFunc;
     D_80112754 = value;
     {
         /* ASM_BARRIER: Preserve the assembler temporary for publishing the next index. */

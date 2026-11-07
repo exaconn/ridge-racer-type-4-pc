@@ -6,5 +6,5 @@
 
 void set_alarm(void) {
     D_800ABBFC = (u32)VSync(-1) + 0xF0;
-    D_800ABC00 = 0;
+    GpuAlarmCount = 0;
 }

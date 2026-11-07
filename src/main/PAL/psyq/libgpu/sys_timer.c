@@ -3,19 +3,19 @@
 #include "rr/timing.h"
 #include "rr/interrupts.h"
 
-extern s32 func_8001E84C(const char *format,...);
-extern char D_80011F98[];
+extern s32 DebugPrintStub(const char *format,...);
+extern char GpuTimeoutFmt[];
 
 void set_alarm(void) {
     D_800ABBFC = (u32)VSync(-1) + 0xF0;
-    D_800ABC00 = 0;
+    GpuAlarmCount = 0;
 }
 
 int get_alarm(void) {
     s32 old,result;
     s32 saved;
     if(D_800ABBFC>=VSync(-1)) {
-        s32 *counter=&D_800ABC00;
+        s32 *counter=&GpuAlarmCount;
         {
             s32 tick=*counter;
             old=tick;
@@ -28,14 +28,14 @@ int get_alarm(void) {
         volatile u32 *gpu=GPU_STATUS;
         const char *format;
         u32 head;
-        format=D_80011F98;
+        format=GpuTimeoutFmt;
         *gpu;
         /* ASM_BARRIER: Keep the discarded status read before reading queue indices. */
         __asm__("" : : : "memory");
         head=_qin;
         /* ASM_BARRIER: Read the queue head before preparing the remaining diagnostic operands. */
         __asm__("" : "=r"(head) : "0"(head));
-        func_8001E84C(format,(head-(u32)_qout)&63,
+        DebugPrintStub(format,(head-(u32)_qout)&63,
             *gpu,*DMA2_CHCR,*DMA2_MADR);
     }
     saved=SetIntrMask(0);
@@ -55,7 +55,7 @@ done:
     return result;
 }
 
-s32 func_800954D8(s32 a) {
+s32 GPU_CheckVersion(s32 a) {
     *GPU_STATUS = 0x10000007;
     if ((*GPU_DATA & 0xFFFFFF) != 2) {
         *GPU_DATA = (*GPU_STATUS & 0x3FFF) | 0xE1001000;

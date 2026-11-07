@@ -36,10 +36,10 @@ static unsigned count,seen,serial,n,profile;static int reference_run;
 #define CdDirectoryBuffer world.resource
 #define LoadCursor world.ui
 #define D_800F4D40 world.screen
-#define D_800F4D70 world.arenas
+#define MenuArenas world.arenas
 #define SelectionRows world.choice
 #define SaveProgress world.save
-#define D_800ABE08 world.courses
+#define CourseChoiceTable world.courses
 #define ovl662_D_80127300 world.status
 #define ovl662_D_80127348 world.cars
 #define D_800ACBD0 world.grid
@@ -66,7 +66,7 @@ static void service(unsigned id,const u32 *a){struct World *w=reference_run?&exp
 void ResetScreenCounters(void){u32 a[10]={0};service(0,a);}
 void InitMenuArenas(void){u32 a[10]={0};service(1,a);}
 void InitUiRow(s32 a0,s32 a1,s32 a2,s32 a3,s32 a4,s32 a5,s32 a6,s32 a7,s32 a8,s32 a9,...){u32 a[10]={(u32)a0,(u32)a1,(u32)a2,(u32)a3,(u32)a4,(u32)a5,(u32)a6,(u32)a7,(u32)a8,(u32)a9};service(2,a);}
-void func_80037110(void){u32 a[10]={0};service(3,a);}
+void InitPreviewImageRows(void){u32 a[10]={0};service(3,a);}
 void InitBadgeRow(s32 a0,s32 a1,s16 a2,s32 a3,u16 a4,u16 a5,u16 a6){u32 a[10]={(u32)a0,(u32)a1,(u32)(s32)a2,(u32)a3,a4,a5,a6};service(4,a);}
 void SetupRenderer(s32 n){u32 a[10]={(u32)n};service(5,a);}
 s32 PackChoiceGlyph(void *p){u8 bytes[3];memcpy(bytes,p,3);s32 result=actual_encode(bytes);u32 a[10]={bytes[0],bytes[1],bytes[2]};service(6,a);return result;}

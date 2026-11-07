@@ -3,22 +3,22 @@
 /* legacy typing of shared globals in this part of the unit */
 #define PlayerCars (*(S2 (*)[])&PlayerCars)
 
-#define D_800F3A38 (*(S1 (*)[])&D_800F3A38)
+#define PlayerControllers (*(S1 (*)[])&PlayerControllers)
 
 #undef PlayerCars
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 /* legacy typing of shared globals in this part of the unit */
 #define _sio_control ((unsigned int (*)())_sio_control)
 
-#define D_800F3A38 (*(T38 (*))&D_800F3A38)
+#define PlayerControllers (*(T38 (*))&PlayerControllers)
 
 #define LinkState (*(unsigned short (*))&LinkState)
 
 #undef _sio_control
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 #undef LinkState
 
@@ -49,7 +49,7 @@ extern struct
   short a;
   unsigned short b;
   char pad[0x58];
-} D_800F3A38[];
+} PlayerControllers[];
 
 void SetupMenuCarCamera(int a)
 {
@@ -77,12 +77,12 @@ void SetupMenuCarCamera(int a)
     func_8002E828(2, t);
   }
   ;
-  if (D_800F3A38[D_800AC5D4 & 1].b & 4)
+  if (PlayerControllers[D_800AC5D4 & 1].b & 4)
   {
     PlayerCars[D_800AC5D4 & 1].v += 0xC0;
   }
   else
-    if (D_800F3A38[D_800AC5D4 & 1].b & 8)
+    if (PlayerControllers[D_800AC5D4 & 1].b & 8)
   {
     PlayerCars[D_800AC5D4 & 1].v -= 0xC0;
   }

@@ -45,14 +45,14 @@ wait:
 setup:
     /* ASM_BARRIER: keep the timeout jump aimed at the complete constructor entry. */
     __asm__("" : );
-    control=&D_800A67B0;
+    control=&CdReadState;
     control->mode0C=format;
     kind=control->mode0C&0x30;
     switch(kind) {
 /* The original mode-dispatch block also holds timeout recovery, which returns
  * to setup before selecting the transfer step. */
 timeout:
-        restore_slot=&D_800A67D8;
+        restore_slot=&CdReadSavedSyncCallback;
         /* ASM_BARRIER: capture the saved-callback slot before deriving its owner. */
         __asm__("" : "+r"(restore_slot));
         restored=*restore_slot;
@@ -71,13 +71,13 @@ timeout:
         default_step=0x246;
         /* ASM_BARRIER: stage the fallback value before its address temporary. */
         __asm__("" : "+r"(default_step) : : "$3");
-        fallback=&D_800A67B0;
+        fallback=&CdReadState;
         /* ASM_BARRIER: retain the complete fallback address for its field store. */
         __asm__("" : "+r"(fallback));
         fallback->step10=default_step;
         break;
     }
-    state=&D_800A67B0;
+    state=&CdReadState;
     zero=0;
     state->mode0C|=0x20;
     /* ASM_BARRIER: publish mode before the request buffer and sector count. */

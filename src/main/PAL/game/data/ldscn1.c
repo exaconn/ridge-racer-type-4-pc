@@ -25,21 +25,21 @@ extern unsigned char LoadState;
 extern int CdDirectoryBuffer;
 extern int LoadCursor;
 extern int D_800F4D40;
-extern int D_800F4D70;
+extern int MenuArenas;
 extern int InitMenuArenas();
 extern int D_800F4D74;
-extern short D_800F3914;
+extern short CourseIndex;
 extern int UploadCarClut();
 extern struct { short a; short b; } D_800ACBD0[];
 extern char *D_800F3B24;
 extern char D_800F3B28[];
 extern unsigned char SelectionRows[][4];
-extern int func_800436E8();
+extern int LoadTimList();
 extern char D_800FFC48[];
 extern int InitMotionController();
 extern int func_8005B2D4();
-extern int func_80053BB4();
-extern int func_80043608();
+extern int SeqStartTrack();
+extern int LoadTimImage();
 extern struct { char pad[4]; signed char f4; char pad2[0x1B]; int f20; } *Dialogue;
 extern int D_800F4CA8;
 extern struct { char pad[0x17]; signed char f17; char pad2[2]; short f1A; unsigned char f1C; } SelectionState;
@@ -62,8 +62,8 @@ int func_8003B040(void);
 int func_8003B12C(void);
 int func_8003B294(void);
 int func_8003B398(void);
-int func_8003B47C(void);
-int func_8003B588(void);
+int LoadGlyphRowsStep(void);
+int LoadDialogueStep(void);
 int func_8003B934(void);
 int LoadTrackNodesStep(void);
 int func_8003BBBC(void);
@@ -77,7 +77,7 @@ int func_8003A79C(void) {
         LoadIndex = 0;
         RaceLoadReset();
     case 1:
-        if (func_8004E5E8() == 1) {
+        if (LoadRaceSoundAndTrackStep() == 1) {
             LoadState = 2;
     case 2:
             i = 0;
@@ -105,7 +105,7 @@ int func_8003A874(void) {
     case 0:
         if (D_800F4D44 == 4) {
             r = 1;
-            D_800F4D70 = D_800F4D40;
+            MenuArenas = D_800F4D40;
             LoadCursor = D_800F4D40;
             break;
         }
@@ -186,7 +186,7 @@ int func_8003AAE8(void) {
     case 1:
         if (func_8004E184()) {
             D_800F4D40 = LoadCursor;
-            func_8004F600();
+            SoundCloseVabsAndReset();
             LoadState = 2;
             InitMenuArenas();
             LoadCursor = D_800F4D74;
@@ -205,7 +205,7 @@ int LoadSceneStep(void) {
         LoadState = 1;
         LoadIndex = 0;
     case 1:
-        if (RequestSceneLoad(D_800F3914)) {
+        if (RequestSceneLoad(CourseIndex)) {
             LoadState = 2;
         }
         break;
@@ -268,7 +268,7 @@ l5:
         break;
     case 5:
         s1 = 1;
-        if (D_800F4D44 == 4) D_800F4D70 = LoadCursor;
+        if (D_800F4D44 == 4) MenuArenas = LoadCursor;
         break;
     default:
         break;
@@ -351,7 +351,7 @@ int func_8003B040(void) {
         break;
     case 2:
         if (CdFileBytesLoaded()) {
-            func_800436E8(LoadCursor);
+            LoadTimList(LoadCursor);
             LoadState = 3;
     case 3:
             r = 1;
@@ -377,7 +377,7 @@ int func_8003B12C(void) {
         break;
     case 2:
         if (CdFileBytesLoaded()) {
-            func_800436E8(LoadCursor);
+            LoadTimList(LoadCursor);
             LoadState = 3;
             LoadCursor = D_800ACC1C;
             RaceLoadReset();
@@ -386,7 +386,7 @@ int func_8003B12C(void) {
     case 3:
         if (func_8004E70C()) {
             InitMotionController();
-            func_8004F600();
+            SoundCloseVabsAndReset();
             if (D_800F4D44 == 1) {
                 goto s7;
             }
@@ -423,16 +423,16 @@ int func_8003B294(void) {
         } else {
             LoadState = 1;
         }
-        D_800AC5A0 = CdDirectoryBuffer + 0xAF000;
+        LoadDestCursor = CdDirectoryBuffer + 0xAF000;
     case 1:
-        if (CdFileReadStart(GetR4FileIndex(1, 0x12), D_800AC5A0)) {
+        if (CdFileReadStart(GetR4FileIndex(1, 0x12), LoadDestCursor)) {
             LoadState = 2;
         }
         break;
     case 2:
         if (CdFileBytesLoaded()) {
             LoadState = 3;
-            D_800F3B24 = D_800AC5A0;
+            D_800F3B24 = LoadDestCursor;
     case 3:
             r = 1;
         }
@@ -457,7 +457,7 @@ int func_8003B398(void) {
         break;
     case 2:
         if (CdFileBytesLoaded()) {
-            func_800436E8(LoadCursor);
+            LoadTimList(LoadCursor);
             LoadState = 3;
     case 3:
             r = 1;
@@ -467,7 +467,7 @@ int func_8003B398(void) {
     return r;
 }
 
-int func_8003B47C(void) {
+int LoadGlyphRowsStep(void) {
     int r = 0;
     int v;
     switch (LoadState) {
@@ -498,7 +498,7 @@ int func_8003B47C(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define LoadIndex (*(unsigned char (*))&LoadIndex)
 
-int func_8003B588(void) {
+int LoadDialogueStep(void) {
     int s3 = 0;
     int s0, s1, s2, a0, v0, k;
 
@@ -506,14 +506,14 @@ int func_8003B588(void) {
     case 0:
         k = 0xAF000;
         *(unsigned char *)&LoadIndex = 0;
-        D_800AC5A0 = CdDirectoryBuffer + k;
-        v0 = D_800AC5A0;
-        D_800AC5A0 = v0;
+        LoadDestCursor = CdDirectoryBuffer + k;
+        v0 = LoadDestCursor;
+        LoadDestCursor = v0;
         Dialogue = (void *)v0;
         v0 += 0x348;
-        D_800AC5A0 = v0;
+        LoadDestCursor = v0;
         if (D_800F4CA8 == 1 && SelectionState.f17 == 7 && SelectionState.f1A == 4) {
-            func_80053BB4(1);
+            SeqStartTrack(1);
         }
         InitDialogueState(Dialogue);
         LoadState = 1;
@@ -527,27 +527,27 @@ int func_8003B588(void) {
             s2 = 0x41;
             s1 = 4;
         }
-        if (CdFileReadRange(GetR4FileIndex(1, s2), s1 * D_800AD564, s1, D_800AC5A0)) {
+        if (CdFileReadRange(GetR4FileIndex(1, s2), s1 * D_800AD564, s1, LoadDestCursor)) {
             LoadState = 2;
         }
         break;
     case 2:
         s2 = CdFileBytesLoaded();
         if (s2) {
-            func_80029358(D_800AC5A0);
+            SetupDialogueTable(LoadDestCursor);
             LoadState = 3;
-            D_800AC5A0 += s2;
-            Dialogue->f20 = D_800AC5A0;
+            LoadDestCursor += s2;
+            Dialogue->f20 = LoadDestCursor;
         }
         break;
     case 3:
-        if (CdFileReadStart(GetR4FileIndex(1, 0x42), D_800AC5A0)) {
+        if (CdFileReadStart(GetR4FileIndex(1, 0x42), LoadDestCursor)) {
             LoadState = 4;
         }
         break;
     case 4:
         if (CdFileBytesLoaded()) {
-            func_80043608(D_800AC5A0);
+            LoadTimImage(LoadDestCursor);
             LoadState = 5;
         }
         break;
@@ -572,7 +572,7 @@ int func_8003B588(void) {
                 s1 = 8;
                 s0 <<= 3;
             }
-            if (CdFileReadRange(GetR4FileIndex(1, s2), s0, s1, D_800AC5A0)) {
+            if (CdFileReadRange(GetR4FileIndex(1, s2), s0, s1, LoadDestCursor)) {
                 LoadState = 6;
             }
         } else {
@@ -583,9 +583,9 @@ int func_8003B588(void) {
         s2 = CdFileBytesLoaded();
         if (s2) {
             if (LoadIndex == 0) {
-                func_800436E8(D_800AC5A0);
+                LoadTimList(LoadDestCursor);
             } else {
-                D_800AC5A0 = D_800AC5A0 + s2;
+                LoadDestCursor = LoadDestCursor + s2;
             }
             LoadIndex = LoadIndex + 1;
             s0 = D_800ACBFC[Dialogue->f4 * 8 + LoadIndex];
@@ -621,7 +621,7 @@ int func_8003B934(void) {
     case 2:
         if (CdFileBytesLoaded()) {
             s = D_800FFC48;
-            func_80043608(s);
+            LoadTimImage(s);
             s += 0x4E20;
             LoadState = 3;
             D_800AC590 = (Z *)s;
@@ -642,7 +642,7 @@ int func_8003B934(void) {
         break;
     case 4:
         if (CdFileBytesLoaded()) {
-            func_80029358(D_80104DB0);
+            SetupDialogueTable(D_80104DB0);
             LoadState = 5;
     case 5:
             r = 1;
@@ -660,7 +660,7 @@ int LoadTrackNodesStep(void) {
         LoadState = 1;
         D_8010BFC8 = 0;
     case 1:
-        if (CdFileReadStart(GetR4FileIndex(1, D_800F3914 + 0x38), LoadCursor) != 0) {
+        if (CdFileReadStart(GetR4FileIndex(1, CourseIndex + 0x38), LoadCursor) != 0) {
             LoadState = 2;
         }
         break;
@@ -668,7 +668,7 @@ int LoadTrackNodesStep(void) {
         if (CdFileBytesLoaded() != 0) {
             SetTrackNodeData(LoadCursor);
             LoadState = 3;
-            D_800F2EC4 = TrackNodes + TrackNodeCount * 60;
+            TrackNodesEnd = TrackNodes + TrackNodeCount * 60;
     case 3:
             r = 1;
         }
@@ -678,9 +678,9 @@ int LoadTrackNodesStep(void) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_800436E8 ((void (*)())func_800436E8)
+#define LoadTimList ((void (*)())LoadTimList)
 #define RaceLoadReset ((void (*)())RaceLoadReset)
-#define func_8004F600 ((void (*)())func_8004F600)
+#define SoundCloseVabsAndReset ((void (*)())SoundCloseVabsAndReset)
 
 int func_8003BBBC(void) {
     int r = 0;
@@ -696,14 +696,14 @@ int func_8003BBBC(void) {
         break;
     case 2:
         if (CdFileBytesLoaded() != 0) {
-            func_800436E8(LoadCursor);
+            LoadTimList(LoadCursor);
             RaceLoadReset();
             LoadState = 3;
         }
         break;
     case 3:
-        if (func_8004E03C(D_8010C220) != 0) {
-            func_8004F600();
+        if (LoadVabPairStep(D_8010C220) != 0) {
+            SoundCloseVabsAndReset();
             LoadState = 4;
             LoadCursor = CdDirectoryBuffer;
         }
@@ -727,6 +727,6 @@ int func_8003BBBC(void) {
     return r;
 }
 
-#undef func_800436E8
+#undef LoadTimList
 #undef RaceLoadReset
-#undef func_8004F600
+#undef SoundCloseVabsAndReset

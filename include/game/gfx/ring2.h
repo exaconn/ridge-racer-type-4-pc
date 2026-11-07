@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8005EFBC(void);
+void DrawRingEffects(void);
 
 #endif /* RR_GAME_GFX_RING2_H */

@@ -4,7 +4,7 @@
 
 #include "rr/channels.h"
 
-u32 func_80099FA0(const RrChannelTransferView *channel) {
+u32 _padGetTxByte(const RrChannelTransferView *channel) {
     u32 phase=channel->phase45;
     s32 index;
     u32 command=channel->command37;

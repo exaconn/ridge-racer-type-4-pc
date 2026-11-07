@@ -42,14 +42,14 @@ void ovl662_func_80120B68(s32 mode) {
             switch ((s32) phase) {
             case 2:
                 if ((BadgeRows->state10 == 3) && (ovl662_D_801276A8.flagsD1 = (u8) (ovl662_D_801276A8.flagsD1 | 4), (D_800AC590->st == 4))) {
-                    if (D_800F3A38[0].type01 != 0x12) {
+                    if (PlayerControllers[0].type01 != 0x12) {
                         if ((u8) ovl662_D_801276A8.stateD2 < 2U) {
-                            if (D_800F3A38[0].buttons0A & 0x1000) {
+                            if (PlayerControllers[0].buttons0A & 0x1000) {
                                 if (ovl662_D_801276A8.stateD2 != 0) {
                                     ovl662_D_801276A8.stateD2 = 0U;
                                     goto block_34;
                                 }
-                            } else if ((D_800F3A38[0].buttons0A & 0x4000) && (ovl662_D_801276A8.stateD2 != 1)) {
+                            } else if ((PlayerControllers[0].buttons0A & 0x4000) && (ovl662_D_801276A8.stateD2 != 1)) {
                                 ovl662_D_801276A8.stateD2 = 1U;
 block_34:
                                 PlaySfx(0);

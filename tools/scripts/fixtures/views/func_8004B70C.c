@@ -1,9 +1,9 @@
 #define NULL 0
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A38 (*(T (*)[])&D_800F3A38)
+#define PlayerControllers (*(T (*)[])&PlayerControllers)
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 /* legacy typing of shared globals in this part of the unit */
 #define PadPulseState (*(T_2 (*)[])&PadPulseState)
@@ -42,8 +42,8 @@ typedef struct {
     s32 idleStage54, idleTick58;
 } Pad;
 
-extern Pad D_800F3A38[2];
+extern Pad PlayerControllers[2];
 
 int func_8004B70C(int i) {
-    return D_800F3A38[i].f54;
+    return PlayerControllers[i].f54;
 }

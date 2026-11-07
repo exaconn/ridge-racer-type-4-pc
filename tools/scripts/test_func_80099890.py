@@ -30,7 +30,7 @@ class TransferResultTest(unittest.TestCase):
         source = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', source, flags=re.M)
         source = '#include <stdint.h>\ntypedef uint8_t u8;\ntypedef int32_t s32;\n' + source
         source += '''
-s32 (*D_800ABC70)(RrTransferState *, s32);
+s32 (*PadTxByteCallback)(RrTransferState *, s32);
 s32 (*test_finish)(RrTransferState *, u8);
 s32 _padSioRW2(RrTransferState *state, u8 value) {
     return test_finish(state, value);
@@ -61,7 +61,7 @@ s32 _padSioRW2(RrTransferState *state, u8 value) {
             calls.append(('finish', C.addressof(pointer.contents), value))
             return finish_result
 
-        C.c_void_p.in_dll(self.library, 'D_800ABC70').value = C.cast(callback, C.c_void_p).value
+        C.c_void_p.in_dll(self.library, 'PadTxByteCallback').value = C.cast(callback, C.c_void_p).value
         C.c_void_p.in_dll(self.library, 'test_finish').value = C.cast(finish, C.c_void_p).value
         before = C.string_at(C.addressof(state), C.sizeof(state))
         expected = finish_result if finish_result <= 0 or finish_result == 0x5A else -4

@@ -40,7 +40,7 @@ static unsigned scenario;
 #define ModeGroup world.mode
 #define D_800F3A26 world.scene
 #define D_800F4D8A world.counter
-#define D_800F4D70 world.arenas
+#define MenuArenas world.arenas
 #define CdDirectoryBuffer world.base
 #define LoadCursor world.published
 #define D_800F4D40 world.resource
@@ -65,7 +65,7 @@ void InitMenuArenas(void){s32 a[10]={0};
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[10]={a,b,c,d,e,f,g,h,i,j};
  assert(world.calls>=1&&world.calls<=3);if(world.calls==1)assert(world.published==world.arenas.second);event(&world,args);
 }
-void func_80037110(void){s32 a[10]={37110};assert(world.calls==4);event(&world,a);}
+void InitPreviewImageRows(void){s32 a[10]={37110};assert(world.calls==4);event(&world,a);}
 void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){s32 args[10]={a,b,c,d,e,f,g};assert(world.calls==5);event(&world,args);}
 void SetupRenderer(s32 shift){s32 a[10]={shift};assert(world.calls==6);event(&world,a);}
 static void reference(void){s32 a[10]={0};unsigned n;

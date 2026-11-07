@@ -83,11 +83,11 @@ int main(void){unsigned k;static const s32 edges[]={26,27,28,INT32_MAX,INT32_MIN
         source=PREFIX+r'''
 static struct World {u32 guard[4];RrMenuArenas arenas;void *published;RrMenuChoice4 choice;s16 glyph;u8 *mode;u8 backing[3][2];s32 counter;s8 flag1,flag2;u32 tail[4];} world,expected;
 static u8 resources[3][64];
-#define D_800F4D70 world.arenas
+#define MenuArenas world.arenas
 #define LoadCursor world.published
 #define SelectionRows world.choice
 #define D_800ABE2C world.glyph
-#define D_800F2AB0 world.mode
+#define ImageRows world.mode
 #define ScreenFrame world.counter
 #define LoadState world.flag1
 #define MenuScriptStep world.flag2

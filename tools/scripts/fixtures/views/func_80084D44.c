@@ -17,15 +17,15 @@ u32 _spu_pitch2note(s32 first,s32 second,u32 pitch) {
  do {if((value>>i)&1)top=i;i++;}while(i<14);
  pitch=(u16)pitch<<(15-top);
  i=11;value=(u16)pitch;
- table=&D_800A4D58[11];
+ table=&SvmSemitoneTable[11];
  for(;i>=0;i--,table--) {
   if((u32)value>=*table){note=i;break;}
  }
- value=((u32)(u16)pitch<<15)/D_800A4D58[(u16)note];
+ value=((u32)(u16)pitch<<15)/SvmSemitoneTable[(u16)note];
 {
   register u16 *fine_table;
   i=127;
-  fine_table=&D_800A4D70[127];
+  fine_table=&SvmPitchFineTable[127];
   value=(u16)value;
   for(;i>=0;i--,fine_table--) {
    if((u32)value>=*fine_table){fine=i;break;}

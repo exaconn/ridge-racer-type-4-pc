@@ -55,7 +55,7 @@ void ovl659_update_results(void) {
             }
         }
         lapOffset = 0;
-        if (D_800F3914 == 7) {
+        if (CourseIndex == 7) {
             if (rsin((ModeFrame & 0xFF) << 4) > 0) {
                 lapOffset = 3;
             }
@@ -105,7 +105,7 @@ void ovl659_update_results(void) {
     case 4:
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (64 - timer) * 4, 69);
         group = 1;
         if (D_800AC5D0 <= 0) {
             MenuScriptId = 0;
@@ -141,7 +141,7 @@ void ovl659_update_results(void) {
                 D_800F3A26 = 3;
             } else {
                 ResetScreenCounters();
-                func_80053BB4(1);
+                SeqStartTrack(1);
                 ModeGroup = ready;
                 D_800F3A26 = 11;
             }

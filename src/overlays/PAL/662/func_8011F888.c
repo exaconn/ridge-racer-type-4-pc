@@ -31,7 +31,7 @@ void ovl662_func_8011F888(s32 mode) {
         if (BadgeRows[0].state10 == 3) {
             if (ovl662_D_801276A8.fade00 < 0) {
                 ovl662_D_801276A8.flagsD1 |= 4;
-                if (D_800AC590->st == 4 && D_800F3A38[0].type01 != 0x12 && D_800F3A38[0].a != 0) {
+                if (D_800AC590->st == 4 && PlayerControllers[0].type01 != 0x12 && PlayerControllers[0].a != 0) {
                     ovl662_D_801276A8.fade00 = 64;
                     PlaySfx(1);
                 }

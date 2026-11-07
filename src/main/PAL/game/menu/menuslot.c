@@ -28,7 +28,7 @@ extern struct w3g2e { char pad[0xC]; char c; char pad2[7]; unsigned char b14; ch
 extern struct { char pad[4]; char b4; char pad5[2]; char b7; } *Dialogue;
 extern int D_800F4CA8;
 extern int AddDrawModePrim();
-extern int func_8001FF84();
+extern int AddSpritePrim();
 extern int rsin();
 extern char D_8009F648[];
 
@@ -62,7 +62,7 @@ void func_80032600(void) {
         break;
     case 3:
         if (D_800AC5D0 > 0) D_800AC5D0 = D_800AC5D0 - 1;
-        AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             r = func_8003B934();
             if (r == 1) {
@@ -74,7 +74,7 @@ void func_80032600(void) {
         break;
     case 4:
         if (D_800AC5D0 > 0) D_800AC5D0 = D_800AC5D0 - 1;
-        AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - D_800AC5D0) * 4, 0x45);
         if (D_800AC5D0 <= 0) {
             r = func_8003B398(1);
             if (r == 1) {
@@ -116,5 +116,5 @@ int a1;
     v += 0x7F;
   }
   new_var = *((int *) SCRATCHPAD);
-  *((int *) SCRATCHPAD) = AddDrawModePrim(D_800ACC14 + 0x70, func_8001FF84(D_800ACC14 + 0x70, new_var, a0, a1, D_8009F648, 0x1B56, ((v >> 7) + 0x80) * 2), 0x25);
+  *((int *) SCRATCHPAD) = AddDrawModePrim(CurrentDrawBuf + 0x70, AddSpritePrim(CurrentDrawBuf + 0x70, new_var, a0, a1, D_8009F648, 0x1B56, ((v >> 7) + 0x80) * 2), 0x25);
 }

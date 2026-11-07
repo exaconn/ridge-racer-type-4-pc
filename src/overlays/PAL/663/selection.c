@@ -24,7 +24,7 @@ void ovl663_update_selection(void) {
         DrawMenuStepArrows(0xA0, 0x108, 0x76, 0, (s32)D_800AC648, 0, ovl663_course_count);
         StepMenuValue(1, 2, (char *)&D_800AC648, ovl663_course_count, 0);
         i = 0;
-        D_800F3914 = DecodeCourseIndex(D_800AC648);
+        CourseIndex = DecodeCourseIndex(D_800AC648);
         while (i < (s32)UiRows[2].byte02) {
             if (i == ((u16)D_800AC648 & 7)) {
                 UiRows[2].cells[i] = (s8)((u8)ReverseCourse + 2);
@@ -41,7 +41,7 @@ void ovl663_update_selection(void) {
         i = 0;
         UiRows[MenuCursor].cells[0] = 2;
         ovl663_selected_record = -1;
-        if (D_800F3A38[0].a != 0) {
+        if (PlayerControllers[0].a != 0) {
             PlaySfx(1);
             UiRows[MenuCursor].cells[0] = 1;
             if (MenuCursor == 0) {
@@ -50,7 +50,7 @@ void ovl663_update_selection(void) {
             } else if (MenuCursor == 1) {
                 i = 1;
             }
-        } else if (D_800F3A38[0].b != 0) {
+        } else if (PlayerControllers[0].b != 0) {
             PlaySfx(2);
             i = 1;
         }
@@ -68,19 +68,19 @@ void ovl663_update_selection(void) {
         break;
     case 2:
         StepMenuValue(0, 4, (char *)&ovl663_selected_record, 5, 0);
-        if (D_800F3A38[0].b != 0) {
+        if (PlayerControllers[0].b != 0) {
             PlaySfx(2);
             D_800F4D8A = 1;
-        } else if (D_800F3A38[0].a != 0) {
+        } else if (PlayerControllers[0].a != 0) {
             SetMenuFrameOptions(0, 1, 1);
             D_800F4D8A = 3;
             ResetScreenCounters();
             LoadCursor = D_800F4D40;
             mirrorSet = D_800AC648 >= 8;
             if (ovl663_record_kind == 1) {
-                car = LapRecords[mirrorSet][D_800F3914][ovl663_selected_record].car;
+                car = LapRecords[mirrorSet][CourseIndex][ovl663_selected_record].car;
             } else {
-                car = RaceRecords[mirrorSet][D_800F3914][ovl663_selected_record].car;
+                car = RaceRecords[mirrorSet][CourseIndex][ovl663_selected_record].car;
             }
             UnpackChoiceGlyph((s8 *)&SelectionRows, car);
             if (SelectionRows.choice.bytes[2] == 0x27) {
@@ -89,7 +89,7 @@ void ovl663_update_selection(void) {
                 } else {
                     glyphIndex = 0;
                 }
-                D_800ACBD0[0].first = (s16)(s8)D_800ABE08[0][glyphIndex].first;
+                D_800ACBD0[0].first = (s16)(s8)CourseChoiceTable[0][glyphIndex].first;
                 D_800ACBD0[0].second = 0;
             } else {
                 D_800ACBD0[0].first = 0;
@@ -115,7 +115,7 @@ void ovl663_update_selection(void) {
     case 8:
         fadeTimer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = (u16)fadeTimer;
-        AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (0x40 - fadeTimer) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (0x40 - fadeTimer) * 4, 0x45);
         i = 0;
         if ((s16)D_800AC5D0 <= 0) {
             ovl663_init_menu();

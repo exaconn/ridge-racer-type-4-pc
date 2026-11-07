@@ -21,14 +21,14 @@ void DrawRaceMinimap(s32 arg0) {
 
     var_s4 = 0;
     if (arg0 == 0) {
-        var_s3 = ((RrFrameStorage *)(void *)D_800ACC14)->ordering.ordering70;
+        var_s3 = ((RrFrameStorage *)(void *)CurrentDrawBuf)->ordering.ordering70;
         if (D_800AD508 >= 0) {
             var_s2 = (s16)((u16)D_800AD508 ^ 1);
         } else {
             var_s2 = 0;
         }
     } else {
-        var_s3 = ((RrFrameStorage *)(void *)D_800ACC14)->tables.secondB70;
+        var_s3 = ((RrFrameStorage *)(void *)CurrentDrawBuf)->tables.secondB70;
         if (arg0 == 1) {
             var_s4 = -0x80;
         }
@@ -49,7 +49,7 @@ void DrawRaceMinimap(s32 arg0) {
                 u16 clut=(temp_hi<<6)+0x1A16;
                 s32 yNumerator=temp_a0->y28; s32 xNumerator=temp_a0->x20;
                 register s32 yValue __asm__("$2");s32 xValue;xValue=xNumerator/1150+4;yBase=var_s4+242;yValue=yBase-yNumerator/1150;
-                var_a1 = func_8001FF84(var_s3, var_a1, xValue, yValue-4, glyph, clut, 0);
+                var_a1 = AddSpritePrim(var_s3, var_a1, xValue, yValue-4, glyph, clut, 0);
             }
             var_s0 += 1;
         } while (var_s0 < NumCars);
@@ -100,7 +100,7 @@ void DrawSteeringIndicator(u32 *ordering, s32 layout) {
         baselineY = 0xF0;
         player = layout == 2;
     }
-    inputBase = D_800F3A38;
+    inputBase = PlayerControllers;
 
     input = (RrMenuItemState5C *)((unsigned long)inputBase + player * 0x5C);
     status = input->status10;
@@ -138,7 +138,7 @@ drawWarning:
                 i += 1;
                 tickX += 0xF;
             } while (i < 9);
-            offsetX = (D_800F3A38[player].steering3C * 0x3C) / 127;
+            offsetX = (PlayerControllers[player].steering3C * 0x3C) / 127;
             if (offsetX >= 0x3D) {
                 offsetX = 0x3C;
                 goto drawNeedle;
@@ -169,7 +169,7 @@ drawNeedle:
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((struct O *)D_800ACC14)
+#define CurrentDrawBuf ((struct O *)CurrentDrawBuf)
 
 void DrawSplitScreenDivider(int a0)
 {
@@ -192,10 +192,10 @@ void DrawSplitScreenDivider(int a0)
     p->b4 = 8;
     p->b5 = 8;
     p->b6 = 8;
-    o = D_800ACC14;
+    o = CurrentDrawBuf;
     p->w0 = (p->w0 & 0xFF000000) | (o->t & 0xFFFFFF);
     *(volatile unsigned *)&o->t = (o->t & 0xFF000000) | ((unsigned)p++ & 0xFFFFFF);
     *(struct P **)SCRATCHPAD = p;
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf

@@ -6,11 +6,11 @@
 #undef BadgeRows
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8001FF84 (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32))&func_8001FF84)
+#define AddSpritePrim (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,RrUiUvRect*,u16,s32))&AddSpritePrim)
 
 #define GameQueueSprite (*(RrSpritePacket *(*)(u32*,RrSpritePacket*,s32,s32,s32,s32,s32,s32,s32))&GameQueueSprite)
 
-#undef func_8001FF84
+#undef AddSpritePrim
 
 #undef GameQueueSprite
 

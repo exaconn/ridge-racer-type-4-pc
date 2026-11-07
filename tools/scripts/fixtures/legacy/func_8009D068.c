@@ -1,20 +1,20 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/commands.h"
 
-extern s32 func_8009D118(void);
-extern s32 func_8009C610(s32);
+extern s32 _cardCmd5DTx(void);
+extern s32 _cardRxStatusByte(s32);
 
-s32 func_8009D068(s32 request, s32 parameter, s32 count) {
+s32 _cardCmd5DBegin(s32 request, s32 parameter, s32 count) {
     s32 result;
     s32 active;
     if (!rr_command_begin(request)) return 0;
     /* ASM_BARRIER: keep success initialization before the command configuration stores. */
     __asm__ volatile("" : "=r"(result) : "0"(1) : "$3", "memory");
-    D_80114870 = 6;
-    D_80114734 = func_8009D118;
-    D_80114738 = func_8009C610;
+    CardCurrentCommand = 6;
+    CardCommandReader = _cardCmd5DTx;
+    CardWriteHandler = _cardRxStatusByte;
     active = 2;
-    D_80114724 = parameter;
+    CardCmdSector = parameter;
     D_80114728 = count;
     D_8011472C.value = 0;
     {

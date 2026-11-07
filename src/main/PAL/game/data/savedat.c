@@ -10,12 +10,12 @@
 typedef struct { char b[0x80]; } B;
 
 extern int CopyStringClearTail();
-extern Struct48 D_800ABE08;
+extern Struct48 CourseChoiceTable;
 extern SaveBuf *SaveBuffer;
 extern int CourseBestLap[2][8];
 extern Struct40 Options;
 extern Struct10 RaceRecords[2][8][5];
-extern Struct2C D_800F2E30[3];
+extern Struct2C SaveSlotSelections[3];
 extern int D_800F3838[2][8][3];
 extern Struct840 *D_800F3910;
 extern Struct840 *D_800F3918;
@@ -64,13 +64,13 @@ int ApplySaveData(int arg0) {
             Options = s3->f2FC;
             for (s0 = 0; s0 < 3; s0++) {
                 if (arg0 == 0x30) {
-                    D_800F2E30[s0] = s3->f360[s0];
+                    SaveSlotSelections[s0] = s3->f360[s0];
                 } else {
                     D_8010B258[s0] = s3->f360[s0];
                 }
             }
             for (s0 = 0; s0 < 9; s0++) {
-                D_800ABE08.f24[s0] = s3->f33C[s0];
+                CourseChoiceTable.f24[s0] = s3->f33C[s0];
             }
             for (s0 = 0; s0 < 2; s0++) {
                 for (t0 = 0; t0 < 8; t0++) {
@@ -88,7 +88,7 @@ int ApplySaveData(int arg0) {
             for (s0 = 0; s0 < 0x210; s0++) {
                 D_800F3B28[s0] = s3->fEA4[s0];
             }
-            func_8004C0EC();
+            ApplySoundVolumes();
             a2 = 1;
         }
         break;
@@ -151,7 +151,7 @@ int a5;
     a0[1] = 0x43;
     a0[2] = 0x13;
     a0[3] = 1;
-    func_80096484(a0 + 4, D_80011564, a1);
+    PsyqSprintf(a0 + 4, D_80011564, a1);
     D_8010EF98[0] = a2;
     D_8010EF98[2] = 0x10;
     D_8010EF98[1] = a3;
@@ -186,10 +186,10 @@ B *a6;
     a0[1] = 0x43;
     a0[2] = 0x11;
     a0[3] = 1;
-    func_80096484(a0 + 4, D_80011564, a1);
+    PsyqSprintf(a0 + 4, D_80011564, a1);
     a0[0x50] = 1;
     a0[0x51] = 0;
-    func_80096484(a0 + 0x52, D_80011564, D_80011568);
+    PsyqSprintf(a0 + 0x52, D_80011564, D_80011568);
     D_8010EFA0[0] = a2;
     D_8010EFA0[2] = 0x10;
     D_8010EFA0[1] = a3;

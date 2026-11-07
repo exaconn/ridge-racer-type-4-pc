@@ -7,7 +7,7 @@
 
 #define SetSprt ((s32 (*)())SetSprt)
 
-#define D_800ACC14 ((char *)D_800ACC14)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
 #undef SetDrawMode
 
@@ -15,7 +15,7 @@
 
 #undef SetSprt
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddPrim ((void (*)())AddPrim)

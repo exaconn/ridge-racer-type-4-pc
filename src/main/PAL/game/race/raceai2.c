@@ -32,13 +32,13 @@ extern short ModeGroup;
 extern short D_800F4D8A;
 extern short LinkState;
 extern int SetMenuFrameOptions();
-extern int func_80034FC0();
+extern int ExitOnLinkLost();
 extern int UpdateLinkHandshake();
 extern s16 MenuScriptId;
 extern char D_800ABEBE[];
 extern char D_800AC648[];
 extern char D_800ACBD8[];
-extern char D_800F3914[];
+extern char CourseIndex[];
 extern char NumLaps[];
 extern char D_800F4DA0[];
 extern char D_8010C0A0[];
@@ -49,13 +49,13 @@ extern int AddDrawModePrim();
 extern int AddTilePrim();
 extern int AddScreenFadeTiles();
 extern char D_80010678[];
-extern char D_80010684[];
+extern char PressStartStr[];
 extern short D_800AC5D0;
 extern int D_800F3A60;
 extern char D_80010694[];
 extern char D_800106A4[];
 extern int SoundSetMasterVolume();
-extern s32 D_800F2EC8;
+extern s32 MaskBitSetting;
 extern int func_801150CC();
 extern int func_80117C78();
 extern int func_801154D8();
@@ -83,7 +83,7 @@ void func_80036174(void);
 void func_80036270(void);
 void func_80036330(void);
 void SortRaceRankTable(void);
-void func_80036538(void);
+void EnterRaceResultScreen(void);
 void func_800365BC(void);
 void func_800365E4(void);
 void FinishRace(void);
@@ -110,7 +110,7 @@ void DrawLinkEntryScreen(s32 mode) {
             waitY=row*194+150;
             statusY=row*194+120;
             text[0]=row+((s32)((u32)(D_800AD508^1)<<16)>>15)+49;
-            DrawBigFontString(12,labelY,D_80010600);
+            DrawBigFontString(12,labelY,StrPlayerLabel);
             DrawBigFontString(88,labelY,text);
             status=LinkEntryState[1-mode][row];
             switch (status) {
@@ -118,7 +118,7 @@ void DrawLinkEntryScreen(s32 mode) {
                 DrawBigFontString(60,statusY,D_8001060C);
                 break;
             case 1:
-                DrawBigFontString(60,statusY,D_80010628);
+                DrawBigFontString(60,statusY,EntryAcceptedStr);
                 DrawBigFontString(60,waitY,D_8001063C);
                 break;
             case -1:
@@ -131,7 +131,7 @@ void DrawLinkEntryScreen(s32 mode) {
         text[0]=row/10+48;
         text[1]=row%10+48;
         DrawBigFontString(44,244,text);
-        DrawBigFontString(32,244,D_80010658);
+        DrawBigFontString(32,244,SecondsUntilCloseText);
         remaining=(s32)(500U-(u32)D_800AC5A4);
         DrawBigFontString(((s32)((u32)remaining<<8)/500)+32,224,D_80010674);
     }
@@ -202,7 +202,7 @@ void LinkWaitModeEnter(void) {
 
 void LinkWaitModeUpdate(void) {
     ModeFrame += 1;
-    if (func_80034FC0() != 1) {
+    if (ExitOnLinkLost() != 1) {
         if (UpdateLinkHandshake(0) != 0) {
             MenuScriptId = 8;
             ModeGroup = 1;
@@ -210,8 +210,8 @@ void LinkWaitModeUpdate(void) {
             D_800F4D8A = 0;
         }
         DrawLinkEntryScreen(D_800AD508);
-        AddPartialLine(D_800ACC14 + 0x70, 8, 0xF0, 0x138, 0xF0, ModeFrame * 8, 1, 8, 8, 8, 0);
-        AddPartialLine(D_800ACC14 + 0x70, 8, 0x10C, 0x138, 0x10C, ModeFrame * 8, 1, 8, 8, 8, 0);
+        AddPartialLine(CurrentDrawBuf + 0x70, 8, 0xF0, 0x138, 0xF0, ModeFrame * 8, 1, 8, 8, 8, 0);
+        AddPartialLine(CurrentDrawBuf + 0x70, 8, 0x10C, 0x138, 0x10C, ModeFrame * 8, 1, 8, 8, 8, 0);
         SetMenuFrameOptions(1, 1, 1);
         UpdateScreenFade(0x1003E);
     }
@@ -241,7 +241,7 @@ st1:
     if (LinkExchange(D_8010C0A0, D_8010C0A0 - 0x18, 0x18, 1) == -1) { LinkState = 3; return; }
     if (LinkExchange(D_800F4DA0, D_800F4DA0 - 8, 8, 1) == -1) { LinkState = 3; return; }
     if (LinkExchange(D_800ACBD8, D_800ACBD8 - 8, 8, 1) == -1) { LinkState = 3; return; }
-    if (LinkExchange(D_800F3914, D_800F3914, 2, 0) == -1) { LinkState = 3; return; }
+    if (LinkExchange(CourseIndex, CourseIndex, 2, 0) == -1) { LinkState = 3; return; }
     if (LinkExchange(D_800AC648, D_800AC648, 2, 0) == -1) { LinkState = 3; return; }
     if (LinkExchange(NumLaps, NumLaps, 4, 0) == -1) { LinkState = 3; return; }
     LinkState = 2;
@@ -296,7 +296,7 @@ void LinkErrorModeUpdate()
       _sio_control(1, 1, 0);
       g = (int *) SCRATCHPAD;
       new_var = *g;
-      *g = AddDrawModePrim(D_800ACC14 + 0x70, AddTilePrim(D_800ACC14 + 0x70, AddTextSprites(D_800ACC14 + 0x70, AddTextSprites(D_800ACC14 + 0x70, new_var, 0x78, 0x100, D_80010678, 0x7F38, 0, 1), 0x78, 0x114, D_80010684, 0x7F38, 0, 1), 0, 0, 0x140, 0x200, 0x80, 0, 0), 0x5E);
+      *g = AddDrawModePrim(CurrentDrawBuf + 0x70, AddTilePrim(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, new_var, 0x78, 0x100, D_80010678, 0x7F38, 0, 1), 0x78, 0x114, PressStartStr, 0x7F38, 0, 1), 0, 0, 0x140, 0x200, 0x80, 0, 0), 0x5E);
       if (D_800F3A60 == 0)
     {
       if (ModeFrame < 0xFB)
@@ -313,8 +313,8 @@ void LinkErrorModeUpdate()
     {
       D_800AC5D0 = ((unsigned short) D_800AC5D0) - 1;
     }
-      AddScreenFadeTiles(D_800ACC14 + 0x70, (0x20 - D_800AC5D0) * 8, 0x45);
-      *((int *) SCRATCHPAD) = AddTilePrim(D_800ACC14 + 0x74, *((int *) SCRATCHPAD), 0, 0, 0x140, 0x200, (0x20 - D_800AC5D0) * 4, 0, 0);
+      AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x20 - D_800AC5D0) * 8, 0x45);
+      *((int *) SCRATCHPAD) = AddTilePrim(CurrentDrawBuf + 0x74, *((int *) SCRATCHPAD), 0, 0, 0x140, 0x200, (0x20 - D_800AC5D0) * 4, 0, 0);
       if (D_800AC5D0 <= 0)
     {
       ModeGroup = 1;
@@ -357,7 +357,7 @@ void LinkBattleEndModeUpdate(void)
     case 2:
       ModeFrame++;
       new_var = *((int *) SCRATCHPAD);
-      *((int *) SCRATCHPAD) = AddDrawModePrim(D_800ACC14 + 0x70, AddTextSprites(D_800ACC14 + 0x70, AddTextSprites(D_800ACC14 + 0x70, new_var, 0x78, 0x100, D_80010694, 0x7F38, 0, 1), 0x78, 0x114, D_800106A4, 0x7F38, 0, 1), 0x3E);
+      *((int *) SCRATCHPAD) = AddDrawModePrim(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, AddTextSprites(CurrentDrawBuf + 0x70, new_var, 0x78, 0x100, D_80010694, 0x7F38, 0, 1), 0x78, 0x114, D_800106A4, 0x7F38, 0, 1), 0x3E);
       if (D_800F3A60 == 0)
     {
       if (ModeFrame < 0xFB)
@@ -374,7 +374,7 @@ void LinkBattleEndModeUpdate(void)
     {
       D_800AC5D0 = D_800AC5D0 - 1;
     }
-      AddScreenFadeTiles(D_800ACC14 + 0x70, (0x20 - D_800AC5D0) * 8, 0x45);
+      AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x20 - D_800AC5D0) * 8, 0x45);
       if (D_800AC5D0 <= 0)
     {
       ModeGroup = 1;
@@ -400,7 +400,7 @@ void StopRaceRumble(void) {
 void StopRaceAudioAndRumble(void) {
     SoundSetMasterVolume(0, 0);
     StopRaceRumble();
-    D_800F2EC8 = 0;
+    MaskBitSetting = 0;
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -420,7 +420,7 @@ void func_80036098(void) {
         D_800F3A26 = 0x23;
         D_800F4D8A = 0;
     }
-    *(int *)SCRATCHPAD = AddTilePrim(D_800ACC14 + 0x70, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x100, 8, 8, 8);
+    *(int *)SCRATCHPAD = AddTilePrim(CurrentDrawBuf + 0x70, *(int *)SCRATCHPAD, 0, 0, 0x140, 0x100, 8, 8, 8);
 }
 
 #undef D_800F4D8A
@@ -431,7 +431,7 @@ void func_80036174(void) {
     ModeFrame = 0;
     D_8010C0E0 = 0;
     ScreenFadeState = 2;
-    func_8004F600();
+    SoundCloseVabsAndReset();
     switch (D_800F4D44) {
     case 1:
         func_801150CC();
@@ -555,7 +555,7 @@ void SortRaceRankTable(void) {
 /* legacy typing of shared globals in this part of the unit */
 #define SelectionState (*(struct w3g2s (*))&SelectionState)
 
-void func_80036538(void) {
+void EnterRaceResultScreen(void) {
     struct w3g2s *p;
     if (D_800F4D44 == 1) {
         p = &SelectionState;
@@ -571,12 +571,12 @@ void func_80036538(void) {
 
 void func_800365BC(void) {
     SortRaceRankTable();
-    func_80036538();
+    EnterRaceResultScreen();
 }
 
 void func_800365E4(void) {
     SortRaceRankTable();
-    func_80036538();
+    EnterRaceResultScreen();
 }
 
 void FinishRace(void) {

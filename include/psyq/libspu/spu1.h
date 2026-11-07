@@ -3,8 +3,8 @@
 
 #include "types.h"
 
-extern volatile int *D_800A47DC;
-extern volatile int *D_800A47E0;
-extern volatile int *D_800A47E4;
+extern volatile int *DMA4_MADR;
+extern volatile int *DMA4_BCR;
+extern volatile int *DMA4_CHCR;
 
 #endif /* RR_PSYQ_LIBSPU_SPU1_H */

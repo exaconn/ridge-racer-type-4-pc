@@ -94,24 +94,24 @@ void func_80020B10(a0) int a0;
     if (a0 < 5) goto L7C;
 L58:
     a1 = 4;
-    s0 = (int *)(D_800ACC14 + 0x70);
+    s0 = (int *)(CurrentDrawBuf + 0x70);
     goto LC0;
 L68:
     a1 = 8;
-    s0 = (int *)(D_800ACC14 + 0x70);
+    s0 = (int *)(CurrentDrawBuf + 0x70);
     goto LC0;
 L7C:
     if (D_80107178 != 2 || a0 != 3) {
         if (a0 != 4) goto Lb4;
     }
     a1 = 6;
-    s0 = (int *)(D_800ACC14 + 0x70);
+    s0 = (int *)(CurrentDrawBuf + 0x70);
     goto LC0;
 Lb4:
     a1 = 0xC;
-    s0 = (int *)(D_800ACC14 + 0xB70);
+    s0 = (int *)(CurrentDrawBuf + 0xB70);
 LC0:
-    d = D_800ACC14;
+    d = CurrentDrawBuf;
     v = (int *)(a1 * 0x14 + d + 0x22674);
     *v = (*v & 0xFF000000) | (*s0 & 0xFFFFFF);
     *s0 = (*s0 & 0xFF000000) | ((d + 0x22688) & 0xFFFFFF);
@@ -130,7 +130,7 @@ LC0:
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 ((char *)D_800ACC14)
+#define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
 void DrawDigitString12(a0, a1, a2, a3)
 s32 a0;
@@ -170,17 +170,17 @@ s32 a3;
             p->v = kb;
             p->code |= 1;
             p->clut = a3;
-            p->addr = ((RrSpritePacketSignedClut *)(D_800ACC14 + 0x70))->addr;
-            ((RrSpritePacketSignedClut *)(D_800ACC14 + 0x70))->addr = (u32)p;
+            p->addr = ((RrSpritePacketSignedClut *)(CurrentDrawBuf + 0x70))->addr;
+            ((RrSpritePacketSignedClut *)(CurrentDrawBuf + 0x70))->addr = (u32)p;
             p++;
         } while (*a2 != 0);
     }
     SetDrawMode(p, 0, 1, 5, 0);
-    AddPrim(D_800ACC14 + 0x70, p);
+    AddPrim(CurrentDrawBuf + 0x70, p);
     *(RrSpritePacketSignedClut **)SCRATCHPAD = (RrSpritePacketSignedClut *)((char *)p + 0xC);
 }
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
 #define AddDrawModePrim ((s32 (*)())AddDrawModePrim)

@@ -18,7 +18,7 @@
 #define RR_PAIR_PENDING(pair) (RR_PAIR_REQUEST(pair)->finished24)
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A67B0 (*(RrLibTransferState38 (*))&D_800A67B0)
+#define CdReadState (*(RrLibTransferState38 (*))&CdReadState)
 
 #define CdReadyCallback ((void (*)(RrLibCompletionCallback))CdReadyCallback)
 
@@ -26,9 +26,9 @@
 
 #define CdSyncCallback ((void (*)(RrLibCompletionCallback))CdSyncCallback)
 
-#define func_8008E7F4 ((void (*)(void))func_8008E7F4)
+#define cd_read_restore_sync ((void (*)(void))cd_read_restore_sync)
 
-#undef D_800A67B0
+#undef CdReadState
 
 #undef CdReadyCallback
 
@@ -36,12 +36,12 @@
 
 #undef CdSyncCallback
 
-#undef func_8008E7F4
+#undef cd_read_restore_sync
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_8008E7F4 ((void (*)(void))func_8008E7F4)
+#define cd_read_restore_sync ((void (*)(void))cd_read_restore_sync)
 
-#undef func_8008E7F4
+#undef cd_read_restore_sync
 
 /* legacy typing of shared globals in this part of the unit */
 #define CdControlB ((s32 (*)(s32,const u8*,u8*))CdControlB)
@@ -95,14 +95,14 @@ wait:
 setup:
     /* ASM_BARRIER: keep the timeout jump aimed at the complete constructor entry. */
     __asm__("" : );
-    control=&D_800A67B0;
+    control=&CdReadState;
     control->mode0C=format;
     kind=control->mode0C&0x30;
     switch(kind) {
 /* The original mode-dispatch block also holds timeout recovery, which returns
  * to setup before selecting the transfer step. */
 timeout:
-        restore_slot=&D_800A67D8;
+        restore_slot=&CdReadSavedSyncCallback;
         /* ASM_BARRIER: capture the saved-callback slot before deriving its owner. */
         __asm__("" : "+r"(restore_slot));
         restored=*restore_slot;
@@ -121,13 +121,13 @@ timeout:
         default_step=0x246;
         /* ASM_BARRIER: stage the fallback value before its address temporary. */
         __asm__("" : "+r"(default_step) : : "$3");
-        fallback=&D_800A67B0;
+        fallback=&CdReadState;
         /* ASM_BARRIER: retain the complete fallback address for its field store. */
         __asm__("" : "+r"(fallback));
         fallback->step10=default_step;
         break;
     }
-    state=&D_800A67B0;
+    state=&CdReadState;
     zero=0;
     state->mode0C|=0x20;
     /* ASM_BARRIER: publish mode before the request buffer and sector count. */

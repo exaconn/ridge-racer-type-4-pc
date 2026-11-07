@@ -7,13 +7,13 @@ void ovl665_func_80114C4C(void) {
     case 0:
         if(D_800AC5D0>0) {
             D_800AC5D0--;
-            AddScreenFadeTiles(&((RrFrameOrderingPrefix*)D_800ACC14)->ordering70[702],D_800AC5D0*4,69);
+            AddScreenFadeTiles(&((RrFrameOrderingPrefix*)CurrentDrawBuf)->ordering70[702],D_800AC5D0*4,69);
         }
         if(UiRows[0].byte14==2 && D_800AC5D0==0) {
             UiRows[ovl665_D_80119768.selection08].cells[0]=0;
             StepMenuValue(0,2,(char*)&ovl665_D_80119768.selection08,7,0);
             UiRows[ovl665_D_80119768.selection08].cells[0]=2;
-            if(D_800F3A38[0].a) {
+            if(PlayerControllers[0].a) {
                 if(ovl665_D_80119768.selection08==1 && ovl665_func_8011629C(1)<0) {
                     PlaySfx(4);
                 } else {
@@ -22,7 +22,7 @@ void ovl665_func_80114C4C(void) {
                     D_800AC5D0=64;
                     ovl665_D_80119768.layout0C=(s32)((u32)ovl665_D_80119768.layout0C+1U);
                 }
-            } else if(D_800F3A38[0].b) {
+            } else if(PlayerControllers[0].b) {
                 PlaySfx(2);
                 ovl665_D_80119768.selection08=6;
                 D_800AC5D0=64;
@@ -36,13 +36,13 @@ void ovl665_func_80114C4C(void) {
             if(UiRows[i].byte14==2)UiRows[i].byte14=3;
         }
         if(ovl665_D_80119768.selection08>=5 || ovl665_D_80119768.selection08==3) {
-            func_80053AF4(0,(s16)(D_800AC5D0-4));
+            SeqFadeVolume(0,(s16)(D_800AC5D0-4));
         }
         ovl665_D_80119768.layout0C=(s32)((u32)ovl665_D_80119768.layout0C+1U);
         break;
     case 2:
         D_800AC5D0--;
-        AddScreenFadeTiles(&((RrFrameOrderingPrefix*)D_800ACC14)->ordering70[0],(64-D_800AC5D0)*4,69);
+        AddScreenFadeTiles(&((RrFrameOrderingPrefix*)CurrentDrawBuf)->ordering70[0],(64-D_800AC5D0)*4,69);
         if(D_800AC5D0<=0) {
             func_8005B2D4(0);
             ovl665_D_80119768.exit34.word=0;

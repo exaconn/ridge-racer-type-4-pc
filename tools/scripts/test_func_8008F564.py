@@ -25,8 +25,8 @@ s32 D_800A64A8;
 s8 *D_800A6800, *D_800A680C;
 s32 (*test_helper)(s32, s32);
 s32 EnterCriticalSection(void) { return test_helper(0, 0); }
-s32 func_80096DE0(s32 value) { return test_helper(1, value); }
-s32 func_80096DB8(s32 value) { return test_helper(2, value); }
+s32 CdAltDataCallback(s32 value) { return test_helper(1, value); }
+s32 CdAltReadyCallback(s32 value) { return test_helper(2, value); }
 s32 CdDataCallback(s32 value) { return test_helper(3, value); }
 s32 CdReadyCallback(s32 value) { return test_helper(4, value); }
 s32 ExitCriticalSection(void) { return test_helper(5, 0); }

@@ -51,7 +51,7 @@ extern void MulMatrix0(void *, MATRIX *, MATRIX *);
 extern void MulMatrix(MATRIX *, MATRIX *);
 extern void MulMatrix2(MATRIX *, MATRIX *);
 extern void SetLightMatrix(MATRIX *);
-extern s32 D_800ABED0[];
+extern s32 LightMatrix[];
 extern s32 D_800F2FD8;
 extern s16 *CarBoundsTable[];
 extern int D_800F2EC0;
@@ -69,21 +69,21 @@ void func_800700AC(int *a0);
 void RegisterModelBank(int *a0, int a1);
 void UnrelocateModelBank(int *a0, int a1);
 void SelectModelBank(int a0);
-void func_8007021C(int a0, int a1);
-void func_80070234(int a0);
+void SetVramImageSlot(int a0, int a1);
+void LoadVramImageSlot(int a0);
 
 int func_8006F1EC(a0)
 int a0;
 {
     int t, n;
     if (D_8010718C == 0) {
-        t = func_8006F188(a0);
+        t = GetViewTrackNode(a0);
         n = *(int *)(a0 + 0x14);
         a0 = (int)&D_800F4C58;
         func_80026A20(t, n, a0);
         return *(short *)a0;
     }
-    return func_8006F188() / 5;
+    return GetViewTrackNode() / 5;
 }
 
 s32 YawToOctant(void *arg0) {
@@ -246,7 +246,7 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         MulMatrix2(&m90, &m50);
         BuildRotMatrixZ(&m70, -S32(arg0, 0x58));
         MulMatrix2(&m50, &m70);
-        MulMatrix0(D_800ABED0, &m70, &mB0);
+        MulMatrix0(LightMatrix, &m70, &mB0);
         SetLightMatrix(&mB0);
         BuildRotMatrixY(&m10, -S32(arg0, 0x54));
         MulMatrix2((MATRIX *)SCRATCH_ROT_MATRIX, &m10);
@@ -358,7 +358,7 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         MulMatrix2(&m90, &m50);
         BuildRotMatrixZ(&m70, -S32(arg0, 0x58));
         MulMatrix2(&m50, &m70);
-        MulMatrix0(D_800ABED0, &m70, &mB0);
+        MulMatrix0(LightMatrix, &m70, &mB0);
         SetLightMatrix(&mB0);
         BuildRotMatrixY(&m10, -S32(arg0, 0x54));
         MulMatrix2((MATRIX *)SCRATCH_ROT_MATRIX, &m10);
@@ -392,7 +392,7 @@ s32 func_8006F6F0(char *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, 
         BuildRotMatrixY(&m50, -S32(arg0, 0x54));
         BuildRotMatrixX(&m90, -S32(arg0, 0x50));
         MulMatrix2(&m50, &m90);
-        MulMatrix0(D_800ABED0, &m90, &mB0);
+        MulMatrix0(LightMatrix, &m90, &mB0);
         SetLightMatrix(&mB0);
         BuildRotMatrixZ(&m50, -S32(arg0, 0x58));
         MulMatrix2(&m90, &m50);
@@ -473,10 +473,10 @@ void SelectModelBank(int a0) {
     g[0x14] = (int)ModelBankTable[a0] + 0xC;
 }
 
-void func_8007021C(int a0, int a1) {
+void SetVramImageSlot(int a0, int a1) {
     D_8010E6D8[a1] = a0;
 }
 
-void func_80070234(int a0) {
+void LoadVramImageSlot(int a0) {
     LoadImage(D_800A3C90, D_8010E6D8[a0]);
 }

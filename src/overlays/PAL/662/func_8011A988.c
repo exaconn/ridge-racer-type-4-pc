@@ -5,7 +5,7 @@ extern const char ovl662_D_80114900[];
 extern s16 ModeGroup,D_800F3A26,D_800F4D8A;
 void InitUiRow(s32,s32,s32,s32,s32,s32,s32,s32,s32,s32,...);
 void ovl662_func_8011A988(void) {
-    func_8001E84C(ovl662_D_80114900);
+    DebugPrintStub(ovl662_D_80114900);
     ovl662_func_8011A788(1);
     ovl662_func_8011D278(-1);
     ovl662_func_8011D120();

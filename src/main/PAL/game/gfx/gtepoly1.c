@@ -98,10 +98,10 @@ typedef struct {
     SVector *verts;
 } TrailEntry8;
 
-extern int D_800F2EC8;
+extern int MaskBitSetting;
 extern s32 ModelTexturePage;
 extern int SetGteObjectTransform();
-extern int D_800100B8;
+extern int UnknownRroTypeFmt;
 extern s32 func_80096464(void);
 extern signed char RacePaused;
 extern int D_8009E0B0[];
@@ -651,12 +651,12 @@ void *func_80014068(char *a0_in, int *a1_in, int a2_in) {
                                 /* ASM_BARRIER: keep 0xA in $v0 before storing -0x1D(t3) */
                                 __asm__ volatile("" : "+r"(r_v0));
                                 *(char *)(t3 - 0x1D) = r_v0;
-                                /* ASM_BARRIER: store -0x1D(t3) before OT stores and D_800F2EC8 load */
+                                /* ASM_BARRIER: store -0x1D(t3) before OT stores and MaskBitSetting load */
                                 __asm__ volatile("" : "+r"(r_v1));
                                 *(int *)r_v1 = (int)t6;
                                 *(char *)(r_v1 + 3) = 0;
-                                r_v1 = D_800F2EC8;
-                                /* ASM_BARRIER: load D_800F2EC8 into $v1 before computing t9|1 in load delay slot */
+                                r_v1 = MaskBitSetting;
+                                /* ASM_BARRIER: load MaskBitSetting into $v1 before computing t9|1 in load delay slot */
                                 __asm__ volatile("" : "+r"(r_v1));
                                 r_v0 = t9 | 1;
                                 *(int *)(t3 - 0x1C) = r_v0;
@@ -728,7 +728,7 @@ void *func_8001446C(char *a0_in, int *a1_in, int a2_in) {
     register int s2 __asm__("$18");
     /* ASM_BARRIER: keep OTZ shift in $s3 */
     register int s3 __asm__("$19");
-    /* ASM_BARRIER: keep D_800F2EC8 | 0xE6000000 in $s4 */
+    /* ASM_BARRIER: keep MaskBitSetting | 0xE6000000 in $s4 */
     register int s4 __asm__("$20");
     int x0, x1, x2, x3, y0, y1, y2, y3;
 
@@ -779,16 +779,16 @@ void *func_8001446C(char *a0_in, int *a1_in, int a2_in) {
     __asm__ volatile("" : "+r"(r_v0));
     r_a1 = *(int *)(r_v0 + 0);
     t7 = *(int *)(r_v0 + 4);
-    /* ASM_BARRIER: load fourth vertex words before D_800F2EC8 and stores */
+    /* ASM_BARRIER: load fourth vertex words before MaskBitSetting and stores */
     __asm__ volatile("" : "+r"(r_a1), "+r"(t7));
-    /* ASM_BARRIER: materialize %hi(D_800F2EC8) before storing r_a0 to 0x3C(t0) */
-    __asm__("" : "+r"(r_a0) : "m"(D_800F2EC8));
+    /* ASM_BARRIER: materialize %hi(MaskBitSetting) before storing r_a0 to 0x3C(t0) */
+    __asm__("" : "+r"(r_a0) : "m"(MaskBitSetting));
     *(int *)((char *)t0 + 0x3C) = r_a0;
     r_a0 = SCRATCHPAD;
     *(int *)((char *)t0 + 0x38) = r_v1;
     *(int *)((char *)t0 + 0x40) = r_a1;
-    r_v0 = D_800F2EC8;
-    /* ASM_BARRIER: load D_800F2EC8 before setting v1=0x100 and storing 0x44 */
+    r_v0 = MaskBitSetting;
+    /* ASM_BARRIER: load MaskBitSetting before setting v1=0x100 and storing 0x44 */
     __asm__ volatile("" : "+r"(r_v0), "+r"(r_a0));
     r_v1 = 0x100;
     /* ASM_BARRIER: set v1=0x100 before storing 0x44 */
@@ -797,15 +797,15 @@ void *func_8001446C(char *a0_in, int *a1_in, int a2_in) {
     /* ASM_BARRIER: store 0x44 before computing s4 */
     __asm__ volatile("" : "+r"(r_v0));
     s4 = r_v0 | s1;
-    /* ASM_BARRIER: compute s4 before loading D_800ACC14 */
+    /* ASM_BARRIER: compute s4 before loading CurrentDrawBuf */
     __asm__ volatile("" : "+r"(s4));
-    r_v0 = (int)D_800ACC14;
+    r_v0 = (int)CurrentDrawBuf;
     t3 = *(char **)(r_a0 + 0x0);
-    /* ASM_BARRIER: load D_800ACC14 and t3 before loading D_800ACC14[3] and s3 */
+    /* ASM_BARRIER: load CurrentDrawBuf and t3 before loading CurrentDrawBuf[3] and s3 */
     __asm__ volatile("" : "+r"(r_v0), "+r"(t3));
     r_v0 = *(short *)(r_v0 + 6);
     s3 = *(int *)(r_a0 + 0x60);
-    /* ASM_BARRIER: load D_800ACC14[3] and s3 before branch */
+    /* ASM_BARRIER: load CurrentDrawBuf[3] and s3 before branch */
     __asm__ volatile("" : "+r"(r_v0), "+r"(s3));
     t8 = 7;
     if (r_v0 == r_v1) {
@@ -1245,7 +1245,7 @@ int func_80014A98(int a0, int a1, int a2, int a3)
         break;
 
       default:
-        return func_8001E84C(&D_800100B8, w, t);
+        return DebugPrintStub(&UnknownRroTypeFmt, w, t);
 
     }
 

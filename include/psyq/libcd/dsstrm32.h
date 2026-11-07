@@ -5,9 +5,9 @@
 
 extern volatile u8 *D_800A6870;
 extern int D_801102EC;
-extern int D_801102F4;
+extern int StRingWriteIndex;
 extern int D_801102F8;
-extern int D_80110300;
+extern int StRingBase;
 extern int D_80110308;
 void StCdInterrupt(void);
 

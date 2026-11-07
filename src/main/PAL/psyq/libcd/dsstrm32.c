@@ -29,17 +29,17 @@ typedef struct {
     Packed32 headm;
 } StHeader;
 
-extern volatile u8 *D_800A6878;
-extern volatile u8 *D_800A687C;
-extern volatile s32 *D_800A6880;
+extern volatile u8 *CD_REG2_STRM;
+extern volatile u8 *DS_cd_reg3;
+extern volatile s32 *CDROM_DELAY_SIZE;
 extern volatile s32 *D_800A6884;
 extern volatile s32 *D_800A6890;
-extern volatile s32 *D_800A68A0;
+extern volatile s32 *DS_dma_regs;
 extern s32 D_800A68B8;
 extern s32 D_801102DC;
 extern s32 D_801102F0;
-extern u32 D_80110304;
-extern void *D_8011030C;
+extern u32 StEndFrame;
+extern void *StRingSectorDest;
 extern StHeader *D_80110310;
 extern s32 D_80110314;
 extern void (*D_80112764)(void);
@@ -75,8 +75,8 @@ void StCdInterrupt(void) {
     }
     if (D_801102D8 != 0) {
         if (*D_800A6890 & 0x01000000) {
-            s32 f300 = D_80110300;
-            /* ASM_BARRIER: Load D_80110300 before materializing page_8011 for delay slot. */
+            s32 f300 = StRingBase;
+            /* ASM_BARRIER: Load StRingBase before materializing page_8011 for delay slot. */
             __asm__("" : "=r"(one) : "0"(one), "r"(f300) : "$1");
             page_8011 = (s32 *)0x80110000U;
             /* ASM_BARRIER: Expose D_801102DC store for conditional branch delay slot. */
@@ -107,7 +107,7 @@ void StCdInterrupt(void) {
     }
     {
         /* ASM_BARRIER: Keep index in v0 and base in v1 for addu v1, v1, v0. */
-        register s32 f2f4 __asm__("$2") = D_801102F4;
+        register s32 f2f4 __asm__("$2") = StRingWriteIndex;
         hdr_v1 = D_80110310;
         /* ASM_BARRIER: Materialize both before scaling and adding. */
         __asm__("" : "=r"(f2f4), "=r"(hdr_v1) : "0"(f2f4), "1"(hdr_v1));
@@ -117,7 +117,7 @@ void StCdInterrupt(void) {
     /* ASM_BARRIER: Keep hdr_v1 in v1 after storing to D_80112768. */
     __asm__ volatile("" : "=r"(hdr_v1) : "0"(hdr_v1) : "memory");
     if (hdr_v1->state != 0) {
-        if (D_80110300 != 0) {
+        if (StRingBase != 0) {
             D_801102F0 += 1;
         }
         st = 4;
@@ -128,10 +128,10 @@ void StCdInterrupt(void) {
         return;
     }
     *D_800A6870 = 0;
-    *D_800A687C = 0;
+    *DS_cd_reg3 = 0;
     *D_800A6870 = 0;
-    *D_800A687C = 0x80;
-    *D_800A6880 = 0x20943;
+    *DS_cd_reg3 = 0x80;
+    *CDROM_DELAY_SIZE = 0x20943;
     *D_800A6884 = 0x1323;
     {
         /* ASM_BARRIER: Pin loop counter to a0 and buffer base to a1. */
@@ -141,7 +141,7 @@ void StCdInterrupt(void) {
             /* ASM_BARRIER: Force array base into a1 before loop. */
             __asm__("" : "=r"(buf_base), "=r"(idx) : "0"(buf_base), "1"(idx));
             do {
-                volatile u8 *p78 = D_800A6878;
+                volatile u8 *p78 = CD_REG2_STRM;
                 u8 *dst = buf_base + idx;
                 u8 val = *p78;
                 idx += 1;
@@ -149,8 +149,8 @@ void StCdInterrupt(void) {
             } while (idx < 4U);
             idx = 0;
             {
-                /* ASM_BARRIER: Pin D_800A6878 pointer to v1 in second loop. */
-                register volatile u8 *p78 __asm__("$3") = D_800A6878;
+                /* ASM_BARRIER: Pin CD_REG2_STRM pointer to v1 in second loop. */
+                register volatile u8 *p78 __asm__("$3") = CD_REG2_STRM;
                 /* ASM_BARRIER: Keep load-delay gap before the polling loop label. */
                 RR_NOP_DEP_ON(p78);
                 do {
@@ -161,12 +161,12 @@ void StCdInterrupt(void) {
         }
     }
     var_t0 = 0x11000000;
-    if (D_80110300 != 0) {
-        mem2mem(D_80112768, D_80110300 + (D_801102F0 << 11), 8, 0);
+    if (StRingBase != 0) {
+        mem2mem(D_80112768, StRingBase + (D_801102F0 << 11), 8, 0);
     } else {
         dma_execute(3, D_80112768, 0, 8, var_t0, 0, 0);
     }
-    while (*D_800A68A0 & 0x01000000) {
+    while (*DS_dma_regs & 0x01000000) {
     }
     {
         /* ASM_BARRIER: Order 0x20843 load and unaligned copy through original registers. */
@@ -176,7 +176,7 @@ void StCdInterrupt(void) {
         /* ASM_BARRIER: Materialize 0x20843 in a0 first. */
         __asm__("" : "=r"(c20843) : "0"(c20843));
         h = D_80112768;
-        p80 = D_800A6880;
+        p80 = CDROM_DELAY_SIZE;
         /* ASM_BARRIER: Keep h in v0 and p80 in v1 across unaligned copy. */
         __asm__("" : "=r"(h), "=r"(p80), "=r"(c20843) : "0"(h), "1"(p80), "2"(c20843));
         h->headm = *(Packed32 *)s.sp28;
@@ -184,15 +184,15 @@ void StCdInterrupt(void) {
     }
     *D_800A6884 = 0x1325;
     if (D_80110308 == 1) {
-        /* ASM_BARRIER: Keep D_801102E4 in a0 and D_80112768 in v1. */
-        register s32 e4 __asm__("$4") = D_801102E4;
+        /* ASM_BARRIER: Keep StStartFrame in a0 and D_80112768 in v1. */
+        register s32 e4 __asm__("$4") = StStartFrame;
         if (e4 != 0) {
             hdr_v1 = D_80112768;
             if (e4 != hdr_v1->frame_no) {
                 hdr_v1->state = 0;
-                /* ASM_BARRIER: Store state before checking D_80110300. */
+                /* ASM_BARRIER: Store state before checking StRingBase. */
                 __asm__ volatile("" : : : "memory");
-                if (D_80110300 != 0) {
+                if (StRingBase != 0) {
                     s32 f2f0 = D_801102F0 + 1;
                     /* ASM_BARRIER: Compute f2f0 before materializing page_8011 for delay slot. */
                     __asm__("" : "=r"(f2f0) : "0"(f2f0) : "$1");
@@ -207,7 +207,7 @@ void StCdInterrupt(void) {
         }
     }
     if (D_80112768->state != 0x160 || ((D_80112768->type >> 10) & 0x1F) != D_801102E8) {
-        if (D_80110300 != 0) {
+        if (StRingBase != 0) {
             /* ASM_BARRIER: Keep branch delay slot empty before materializing page_8011. */
             __asm__ volatile("" : : : "$1");
             page_8011 = (s32 *)0x80110000U;
@@ -221,15 +221,15 @@ void StCdInterrupt(void) {
         D_80112768->state = 0;
         return;
     }
-    if (D_801102D4 != D_80112768->sector_offset || (D_801102D0 != 0 && D_801102D0 != D_80112768->frame_no)) {
-        D_801102D0 = 0;
+    if (D_801102D4 != D_80112768->sector_offset || (StCurFrameNo != 0 && StCurFrameNo != D_80112768->frame_no)) {
+        StCurFrameNo = 0;
         D_801102D4 = 0;
-        init_ring_status(D_801102F8, D_801102F4 - D_801102F8);
-        D_801102F4 = D_801102F8;
+        init_ring_status(D_801102F8, StRingWriteIndex - D_801102F8);
+        StRingWriteIndex = D_801102F8;
         D_80112768->state = 0;
-        /* ASM_BARRIER: Store state before checking D_80110300. */
+        /* ASM_BARRIER: Store state before checking StRingBase. */
         __asm__ volatile("" : : : "memory");
-        if (D_80110300 != 0) {
+        if (StRingBase != 0) {
             D_801102F0 += 1;
         }
         st = 6;
@@ -241,20 +241,20 @@ void StCdInterrupt(void) {
     }
     if (D_80112768->sector_offset == 0) {
         s32 fn = D_80112768->frame_no;
-        u32 f304 = D_80110304;
-        /* ASM_BARRIER: Load frame_no and D_80110304 before clearing D_801102D4. */
+        u32 f304 = StEndFrame;
+        /* ASM_BARRIER: Load frame_no and StEndFrame before clearing D_801102D4. */
         __asm__ volatile("" : "=r"(fn) : "0"(fn), "r"(f304) : "memory");
         D_801102D4 = 0;
         /* ASM_BARRIER: Clear D_801102D4 before masking fn with 0xFFFF. */
         __asm__ volatile("" : "=r"(fn) : "0"(fn) : "memory");
-        D_801102D0 = fn & 0xFFFF;
-        if (f304 != 0 && D_801102D0 >= f304) {
+        StCurFrameNo = fn & 0xFFFF;
+        if (f304 != 0 && StCurFrameNo >= f304) {
             /* ASM_BARRIER: Pin cb to v1 so it is loaded before st = 1. */
             register void (*cb)(void) __asm__("$3");
-            D_801102D0 = 0;
+            StCurFrameNo = 0;
             D_801102D4 = 0;
-            init_ring_status(D_801102F8, D_801102F4 - D_801102F8);
-            D_801102F4 = D_801102F8;
+            init_ring_status(D_801102F8, StRingWriteIndex - D_801102F8);
+            StRingWriteIndex = D_801102F8;
             D_80112768->state = 0;
             /* ASM_BARRIER: Store state before loading callback. */
             __asm__ volatile("" : : : "memory");
@@ -271,7 +271,7 @@ void StCdInterrupt(void) {
             if (cb != 0) {
                 cb();
             }
-            if (D_80110300 != 0) {
+            if (StRingBase != 0) {
                 D_801102F0 += 1;
             }
             st = 7;
@@ -281,8 +281,8 @@ void StCdInterrupt(void) {
             page_800a[0x68B8 / 4] = st;
             return;
         }
-        if ((u32)(D_80110314 - D_801102F4 - 1) < D_80112768->sector_size) {
-            if (D_80110304 == 0) {
+        if ((u32)(D_80110314 - StRingWriteIndex - 1) < D_80112768->sector_size) {
+            if (StEndFrame == 0) {
                 /* ASM_BARRIER: Pin cb to v1 so it is loaded before st = 1. */
                 register void (*cb)(void) __asm__("$3");
                 D_80112768->state = 1;
@@ -301,7 +301,7 @@ void StCdInterrupt(void) {
                 if (cb != 0) {
                     cb();
                 }
-                if (D_80110300 != 0) {
+                if (StRingBase != 0) {
                     D_801102F0 += 1;
                 }
                 st = 8;
@@ -313,9 +313,9 @@ void StCdInterrupt(void) {
             }
             if ((s16)D_80110310->state != 0) {
                 D_80112768->state = 0;
-                /* ASM_BARRIER: Store state before checking D_80110300. */
+                /* ASM_BARRIER: Store state before checking StRingBase. */
                 __asm__ volatile("" : : : "memory");
-                if (D_80110300 != 0) {
+                if (StRingBase != 0) {
                     D_801102F0 += 1;
                 }
                 st = 9;
@@ -333,7 +333,7 @@ void StCdInterrupt(void) {
                 register s32 *dst __asm__("$5") = (s32 *)D_80110310;
                 register s32 *src __asm__("$3") = (s32 *)D_80112768;
                 register u32 idx __asm__("$4") = 0;
-                D_801102F4 = 0;
+                StRingWriteIndex = 0;
                 do {
                     s32 val = *src;
                     src += 1;
@@ -344,11 +344,11 @@ void StCdInterrupt(void) {
             }
             D_80112768 = D_80110310;
         }
-        D_801102F8 = D_801102F4;
+        D_801102F8 = StRingWriteIndex;
     }
     D_800A68B8 = 0xA;
     D_801102D4 = (u16)D_801102D4 + 1;
-    D_8011030C = (u8 *)(D_80110310 + D_80110314) + D_801102F4 * 0x7E0;
+    StRingSectorDest = (u8 *)(D_80110310 + D_80110314) + StRingWriteIndex * 0x7E0;
     var_t0 = 0x11000000;
     if (D_801102D8 != 0) {
         {
@@ -357,7 +357,7 @@ void StCdInterrupt(void) {
             register volatile s32 *p80 __asm__("$2");
             /* ASM_BARRIER: Load upper half of 0x20943 into v1 first. */
             __asm__("" : "=r"(c20943) : "0"(0x20000));
-            p80 = D_800A6880;
+            p80 = CDROM_DELAY_SIZE;
             /* ASM_BARRIER: Complete 0x20943 after loading p80. */
             __asm__("" : "=r"(p80), "=r"(c20943) : "0"(p80), "1"(c20943));
             *p80 = c20943 | 0x943;
@@ -378,7 +378,7 @@ void StCdInterrupt(void) {
         register volatile s32 *p80 __asm__("$2");
         /* ASM_BARRIER: Materialize c2102 and upper half of var_t0 before loading p80. */
         __asm__("" : "=r"(c2102), "=r"(var_t0) : "0"(c2102), "1"(0x11400000));
-        p80 = D_800A6880;
+        p80 = CDROM_DELAY_SIZE;
         /* ASM_BARRIER: Complete var_t0 after loading p80. */
         __asm__("" : "=r"(p80), "=r"(var_t0) : "0"(p80), "1"(var_t0), "r"(c2102));
         var_t0 |= 0x100;
@@ -389,13 +389,13 @@ void StCdInterrupt(void) {
     if (D_80112768->sector_size - 1 == D_80112768->sector_offset) {
         /* ASM_BARRIER: Keep constant 1 in v1 for D_801102EC and dma_execute arg. */
         register s32 one_v1 __asm__("$3") = 1;
-        s32 f300 = D_80110300;
-        /* ASM_BARRIER: Load D_80110300 before storing D_801102EC. */
+        s32 f300 = StRingBase;
+        /* ASM_BARRIER: Load StRingBase before storing D_801102EC. */
         __asm__("" : "=r"(one_v1) : "0"(one_v1), "r"(f300) : "$1");
         D_801102EC = one_v1;
         if (f300 != 0) {
             s32 f2f0;
-            mem2mem(D_8011030C, f300 + (D_801102F0 << 11) + 0x20, 0x1F8, 1);
+            mem2mem(StRingSectorDest, f300 + (D_801102F0 << 11) + 0x20, 0x1F8, 1);
             f2f0 = D_801102F0 + 1;
             /* ASM_BARRIER: Compute f2f0 before materializing page_8011 for delay slot. */
             __asm__("" : "=r"(f2f0) : "0"(f2f0) : "$1");
@@ -404,15 +404,15 @@ void StCdInterrupt(void) {
             __asm__("" : "=r"(page_8011) : "0"(page_8011));
             page_8011[0x2F0 / 4] = f2f0;
         } else {
-            dma_execute(3, D_8011030C, 0, 0x1F8, var_t0, one_v1, 0);
+            dma_execute(3, StRingSectorDest, 0, 0x1F8, var_t0, one_v1, 0);
         }
         {
             s32 e0 = D_801102E0;
-            /* ASM_BARRIER: Load D_801102E0 before clearing D_801102D4 and D_801102D0. */
+            /* ASM_BARRIER: Load D_801102E0 before clearing D_801102D4 and StCurFrameNo. */
             __asm__ volatile("" : "=r"(e0) : "0"(e0) : "memory");
             D_801102D4 = 0;
-            D_801102D0 = 0;
-            /* ASM_BARRIER: Clear D_801102D0 before materializing page_8011 for delay slot. */
+            StCurFrameNo = 0;
+            /* ASM_BARRIER: Clear StCurFrameNo before materializing page_8011 for delay slot. */
             __asm__ volatile("" : : "r"(e0) : "$1", "memory");
             page_8011 = (s32 *)0x80110000U;
             /* ASM_BARRIER: Expose D_801102E8 store for jump delay slot. */
@@ -420,10 +420,10 @@ void StCdInterrupt(void) {
             page_8011[0x2E8 / 4] = e0;
         }
     } else {
-        s32 f300 = D_80110300;
+        s32 f300 = StRingBase;
         if (f300 != 0) {
             s32 f2f0;
-            mem2mem(D_8011030C, f300 + (D_801102F0 << 11) + 0x20, 0x1F8, 0);
+            mem2mem(StRingSectorDest, f300 + (D_801102F0 << 11) + 0x20, 0x1F8, 0);
             f2f0 = D_801102F0 + 1;
             /* ASM_BARRIER: Compute f2f0 before materializing page_8011 for delay slot. */
             __asm__("" : "=r"(f2f0) : "0"(f2f0) : "$1");
@@ -432,21 +432,21 @@ void StCdInterrupt(void) {
             __asm__("" : "=r"(page_8011) : "0"(page_8011));
             page_8011[0x2F0 / 4] = f2f0;
         } else {
-            dma_execute(3, D_8011030C, 0, 0x1F8, var_t0, 0, 0);
+            dma_execute(3, StRingSectorDest, 0, 0x1F8, var_t0, 0, 0);
         }
     }
     *D_800A6884 = 0x1325;
     D_80112768->state = 3;
-    /* ASM_BARRIER: Store state before incrementing D_801102F4. */
+    /* ASM_BARRIER: Store state before incrementing StRingWriteIndex. */
     __asm__ volatile("" : : : "memory");
     {
-        s32 f2f4 = D_801102F4;
-        s32 f300 = D_80110300;
+        s32 f2f4 = StRingWriteIndex;
+        s32 f300 = StRingBase;
         f2f4 += 1;
         /* ASM_BARRIER: Compute f2f4 before materializing page_8011 for delay slot. */
         __asm__("" : "=r"(f2f4) : "0"(f2f4), "r"(f300) : "$1");
         page_8011 = (s32 *)0x80110000U;
-        /* ASM_BARRIER: Expose D_801102F4 store for conditional branch delay slot. */
+        /* ASM_BARRIER: Expose StRingWriteIndex store for conditional branch delay slot. */
         __asm__("" : "=r"(page_8011) : "0"(page_8011));
         page_8011[0x2F4 / 4] = f2f4;
         if (f300 != 0 && D_801102EC != 0) {

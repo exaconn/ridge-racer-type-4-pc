@@ -29,9 +29,9 @@ void ovl662_func_80117854(u32 *order, void *cursor, s32 row)
                 FormatCountOfTotal((s16)ovl662_D_801272FC, 320, 2),
                 flag + 0x7FF8, 0, 0);
         } else {
-            cursor = func_8001FF84(order, cursor, x, y,
-                &D_8009FA1C[ovl662_D_8012621C[i]], 0x7FF8, 0);
-            x += D_8009FA1C[ovl662_D_8012621C[i]].w + 2;
+            cursor = AddSpritePrim(order, cursor, x, y,
+                &UiFontGlyphs[ovl662_D_8012621C[i]], 0x7FF8, 0);
+            x += UiFontGlyphs[ovl662_D_8012621C[i]].w + 2;
         }
     }
     AddDrawModePrim(order, cursor, 56);

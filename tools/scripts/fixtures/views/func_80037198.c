@@ -4,9 +4,9 @@
 
 extern int AddDrawModePrim();
 
-extern int func_8001FF84();
+extern int AddSpritePrim();
 
-extern int D_800ACC14;
+extern int CurrentDrawBuf;
 
 extern unsigned char D_8009F7CC[];
 
@@ -22,7 +22,7 @@ extern struct { char pad[0x1D2]; short h1D2; char pad2[0x1F]; unsigned char b1F3
 
 extern unsigned char SelectionRows[][4];
 
-void func_80037198(int arg0) {
+void DrawSelectionIconGrid(int arg0) {
     int v[9];
     char buf[4];
     int s0;
@@ -60,8 +60,8 @@ void func_80037198(int arg0) {
         int t = v[s0];
         buf[0] = (t % 16) * 16;
         buf[1] = (t / 16) << 5;
-        a1 = func_8001FF84(D_800ACC14 + 0x70, a1, (s0 % 3) * 0x14 + 0xF0, (s0 / 3) * 0x28 + 0x58, buf, 0x7FA4, 1);
+        a1 = AddSpritePrim(CurrentDrawBuf + 0x70, a1, (s0 % 3) * 0x14 + 0xF0, (s0 / 3) * 0x28 + 0x58, buf, 0x7FA4, 1);
         s0++;
     } while (s0 < 9);
-    *(int *)0x1F800000 = AddDrawModePrim(D_800ACC14 + 0x70, a1, 0x39);
+    *(int *)0x1F800000 = AddDrawModePrim(CurrentDrawBuf + 0x70, a1, 0x39);
 }

@@ -74,7 +74,7 @@ void DrawLinkEntryScreen(s32 mode) {
             waitY=row*194+150;
             statusY=row*194+120;
             text[0]=row+((s32)((u32)(D_800AD508^1)<<16)>>15)+49;
-            DrawBigFontString(12,labelY,D_80010600);
+            DrawBigFontString(12,labelY,StrPlayerLabel);
             DrawBigFontString(88,labelY,text);
             status=LinkEntryState[1-mode][row];
             switch (status) {
@@ -82,7 +82,7 @@ void DrawLinkEntryScreen(s32 mode) {
                 DrawBigFontString(60,statusY,D_8001060C);
                 break;
             case 1:
-                DrawBigFontString(60,statusY,D_80010628);
+                DrawBigFontString(60,statusY,EntryAcceptedStr);
                 DrawBigFontString(60,waitY,D_8001063C);
                 break;
             case -1:
@@ -95,7 +95,7 @@ void DrawLinkEntryScreen(s32 mode) {
         text[0]=row/10+48;
         text[1]=row%10+48;
         DrawBigFontString(44,244,text);
-        DrawBigFontString(32,244,D_80010658);
+        DrawBigFontString(32,244,SecondsUntilCloseText);
         remaining=(s32)(500U-(u32)D_800AC5A4);
         DrawBigFontString(((s32)((u32)remaining<<8)/500)+32,224,D_80010674);
     }

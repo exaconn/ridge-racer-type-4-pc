@@ -171,15 +171,15 @@ void SoundFindNearestCars(s32 arg0) {
 
     sub = &ComCars[min_idx[0]].sub1F4;
     if (sub->unk94 != 0) {
-        func_80050E94(1, sub->unkC0, sub->unkC4, 1);
+        SetPlayerVoice(1, sub->unkC0, sub->unkC4, 1);
         D_800F6748 = slot[0] + 2;
     } else {
         sub = &ComCars[min_idx[1]].sub1F4;
         if (sub->unk94 != 0) {
-            func_80050E94(1, sub->unkC0, sub->unkC4, 1);
+            SetPlayerVoice(1, sub->unkC0, sub->unkC4, 1);
             D_800F6748 = slot[1] + 2;
         } else {
-            func_80050E94(0, 0, 0, 1);
+            SetPlayerVoice(0, 0, 0, 1);
         }
     }
 }

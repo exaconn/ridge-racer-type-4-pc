@@ -8,7 +8,7 @@ typedef struct {
     s16 x,y,w,h;
 } RrGpuTilePacket16;
 /* The drawing context starts with this rectangle. */
-extern RrGpuRectangle *D_800ACC14;
+extern RrGpuRectangle *CurrentDrawBuf;
 
 /* Requires 4-byte-aligned writable cursor storage with room for four tiles and the following draw-mode packet at the
  * scratchpad cursor. Intensity is clamped0..255; mode uses its low16.

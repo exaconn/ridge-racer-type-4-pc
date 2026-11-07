@@ -30,7 +30,7 @@ typedef struct {u8 pre[16];RrGarageWorkingStorage work;RrMenuItemState5C pads[2]
 static World actual;
 static unsigned scenario,sound_calls,gte_calls;
 #define ovl662_D_80127668 actual.work
-#define D_800F3A38 actual.pads
+#define PlayerControllers actual.pads
 static const u32 factors[8]={0,1,4095,4096,4097,0xffffffffU,0x80000000U,0x7fffffffU};
 static const u32 steps[8]={0,1,2,4096,0xffffffffU,0x80000000U,0x7fffffffU,65535};
 static void dump(void){unsigned i;for(i=0;i<sizeof actual;i++)printf("%02x",((u8*)&actual)[i]);puts("");}

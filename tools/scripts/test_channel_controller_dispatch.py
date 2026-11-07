@@ -10,7 +10,7 @@ import unittest
 Control = C.CFUNCTYPE(None, C.c_int32, C.c_int32, C.c_int32)
 Reset = C.CFUNCTYPE(None, C.c_int32, C.c_int32)
 ROUTES = {6: 'D_8010EFE0', 7: 'D_8010EFE4', 10: 'D_8010EFE8',
-          11: 'D_8010EFEC', 64: 'D_8010EFF0', 91: 'D_8010F004',
+          11: 'D_8010EFEC', 64: 'SsCtrlHandlerCC64', 91: 'D_8010F004',
           98: 'D_8010EFF4', 99: 'D_8010EFF8', 100: 'D_8010EFFC', 101: 'D_8010F000'}
 
 
@@ -36,7 +36,7 @@ RrLibStateB0 test_records[9][17];
 u8 test_streams[9][17][32];
 u32 test_layout[] = {sizeof(RrLibStateB0), offsetof(RrLibStateB0,b26),
                     offsetof(RrLibStateB0,w88), offsetof(RrLibStateB0,w90)};
-RrLibControllerResetCallback D_8010F008;
+RrLibControllerResetCallback SsCtrlHandlerCC121;
 void test_initialize(void) {
  s32 bank;
  memset(test_records,0xA5,sizeof(test_records));
@@ -86,7 +86,7 @@ void test_prepare(s32 bank,s32 row,const u8 *bytes,u32 count,u32 accumulator) {
         self.hooks = []
         for code, name in ROUTES.items():
             self.hook(name, Control, lambda *args, code=code: self.events.append((code, args, bytes(self.records))))
-        self.hook('D_8010F008', Reset, lambda *args: self.events.append((121, args, bytes(self.records))))
+        self.hook('SsCtrlHandlerCC121', Reset, lambda *args: self.events.append((121, args, bytes(self.records))))
 
     def hook(self, name, kind, function):
         value = kind(function)
@@ -166,7 +166,7 @@ void test_prepare(s32 bank,s32 row,const u8 *bytes,u32 count,u32 accumulator) {
             self.events.append((bank, row, C.c_void_p.from_buffer(self.records, offset).value))
             self.table[0x4000 - 0xF98 // 4] = replacement
             C.c_int32.from_buffer(self.records, offset + self.counter_offset).value = -99
-        self.hook('D_8010F008', Reset, reset)
+        self.hook('SsCtrlHandlerCC121', Reset, reset)
         expected = bytearray(self.records)
         expected[offset:offset + C.sizeof(C.c_void_p)] = struct.pack('P', stream + 1)
         expected[offset + self.counter_offset:offset + self.counter_offset + 4] = struct.pack('<i', -99)

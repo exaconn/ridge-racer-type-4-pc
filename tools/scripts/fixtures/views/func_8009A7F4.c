@@ -3,11 +3,11 @@
 #include "types.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_801146BC (*(unsigned int (*))&D_801146BC)
+#define RC2WaitLimit (*(unsigned int (*))&RC2WaitLimit)
 
-#undef D_801146BC
+#undef RC2WaitLimit
 
-extern s32 D_801146BC;
+extern s32 RC2WaitLimit;
 
 extern unsigned int D_801146B8;
 
@@ -16,7 +16,7 @@ void setRC2wait(s32 limit) {
     register s32 counter __asm__("$2") = *(volatile u16 *)0x1F801120;
     /* ASM_BARRIER: retain the original assembler temporary for the mapped store. */
     register s32 *base __asm__("$1");
-    D_801146BC = limit;
+    RC2WaitLimit = limit;
     /* ASM_BARRIER: finish the limit store before binding the saved-counter address. */
     __asm__ volatile("" : : : "$1", "memory");
     /* PAL RAM mapping for D_801146B8. */

@@ -42,9 +42,9 @@ extern RrMenuChoice D_800A4520[];
 extern s8 *D_800AC590;
 extern s16 D_800AC594;
 extern s32 ModeFrame;
-extern s16 D_800F3A1C;
+extern s16 MenuStateIndex;
 extern u8 D_800F3A24[];
-extern RrMenuItemState5C D_800F3A38[];
+extern RrMenuItemState5C PlayerControllers[];
 extern s16 D_800FFC00;
 extern s16 D_8010948C;
 extern unsigned char D_800A4524[][4];
@@ -55,7 +55,7 @@ extern short D_80109478[];
 extern short D_8010948E;
 extern int StepMenuValue();
 extern int PlaySfx();
-extern int func_80053AF4();
+extern int SeqFadeVolume();
 extern int AddScreenFadeTiles();
 extern int func_8003B934();
 extern int ClearScreenOverlayState();
@@ -64,7 +64,7 @@ extern int func_80114920();
 extern int func_80115598();
 extern int func_801161A8();
 extern int func_8011512C();
-extern w8c5S D_800F2E30[];
+extern w8c5S SaveSlotSelections[];
 extern w8c5S D_8010B258[];
 extern struct { char pad[0x500]; unsigned char b500; } *UiRows;
 extern struct { char pad[0x10]; short h10; char pad2[0x1A]; short h2C; } *BadgeRows;
@@ -82,9 +82,9 @@ extern int D_8010EFA8;
 extern int CopyStringClearTail();
 extern short D_800A45BC;
 extern short D_800A45BE;
-extern unsigned char D_800ACBCC;
-extern char D_800A457C[];
-extern char D_800F4D50[];
+extern unsigned char CardFileCounts;
+extern char CardSaveFileName[];
+extern char CardTargetFileName[];
 extern int D_800A45C0;
 extern int D_800A45C4;
 extern unsigned char D_800A4478[];
@@ -104,19 +104,19 @@ int func_8007CB44();
 int func_8007CFC0();
 
 void func_8007BD18(void) {
-    s32 i = D_800A4258[D_800F3A1C].i;
+    s32 i = D_800A4258[MenuStateIndex].i;
     s32 a = D_800A44F4[i].a;
     s32 c = D_800A44F4[i].c;
     s32 b = D_800A44F4[i].b;
     s32 r;
-    if (c == 1) r = func_8007A310(0, D_800FFC00);
-    else r = func_8007A9CC(0, D_800FFC00);
+    if (c == 1) r = CardSaveStep(0, D_800FFC00);
+    else r = CardLoadStep(0, D_800FFC00);
     if (r == 4) {
-        D_800F3A1C = a;
+        MenuStateIndex = a;
     } else if (r == 5) {
-        D_800F3A1C = b;
+        MenuStateIndex = b;
     } else if (r == 6) {
-        D_800F3A1C = b;
+        MenuStateIndex = b;
     }
     if (c == 0xD) {
         if (r == 4) D_8010948C = 1;
@@ -125,38 +125,38 @@ void func_8007BD18(void) {
 
 void func_8007BDF8(void)
 {
-  s32 a1 = *(D_800A4510 + D_800A4258[D_800F3A1C].i);
-  if ((&D_800F3A38[D_800AC594])->a != 0)
+  s32 a1 = *(D_800A4510 + D_800A4258[MenuStateIndex].i);
+  if ((&PlayerControllers[D_800AC594])->a != 0)
   {
     if (a1 == 0)
     {
       PlaySfx(1);
-      if (D_800F3A1C == 0xC)
+      if (MenuStateIndex == 0xC)
       {
-        D_800F3A1C = D_80109458;
+        MenuStateIndex = D_80109458;
         D_800F3A24[D_800FFC00] = 0x5A;
-        func_80078E40(D_800FFC00, 0, 1);
+        PollCardStatus(D_800FFC00, 0, 1);
         return;
       }
-      D_800F3A1C = 0;
+      MenuStateIndex = 0;
     }
   }
   else
-    if ((&D_800F3A38[D_800AC594])->b != 0)
+    if ((&PlayerControllers[D_800AC594])->b != 0)
   {
     if (a1 == 0)
     {
       PlaySfx(2);
-      D_800F3A1C = 0;
+      MenuStateIndex = 0;
     }
   }
 }
 
 void func_8007BEF8(void) {
-    s32 i = D_800A4258[D_800F3A1C].i;
+    s32 i = D_800A4258[MenuStateIndex].i;
     s32 v = D_800A4514[i * 2];
     if (D_800AC590[6] == 4) {
-        D_800F3A1C = v;
+        MenuStateIndex = v;
         ModeFrame -= 1;
     }
 }
@@ -166,20 +166,20 @@ void func_8007BF58(void) {
     s32 i;
     s32 a, b;
     for (k = 0x63; k >= 0; k--) ;
-    i = D_800A4258[D_800F3A1C].i;
+    i = D_800A4258[MenuStateIndex].i;
     a = D_800A4520[i].a;
     b = D_800A4520[i].c;
-    if (func_80078E1C(D_800FFC00, 0) == 1) {
-        D_800F3A1C = a;
+    if (CardFormatSlot(D_800FFC00, 0) == 1) {
+        MenuStateIndex = a;
         return;
     }
-    D_800F3A1C = b;
+    MenuStateIndex = b;
 }
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800A4258 (*(struct E (*)[])&D_800A4258)
-#define D_800F3A38 (*(char (*)[])&D_800F3A38)
-#define func_80078E40 ((int (*)())func_80078E40)
+#define PlayerControllers (*(char (*)[])&PlayerControllers)
+#define PollCardStatus ((int (*)())PollCardStatus)
 
 void func_8007BFF4()
 {
@@ -193,15 +193,15 @@ void func_8007BFF4()
     D_801094A0 = 0;
     D_800F3AF8 = D_800FFC18;
     switch ((short)D_800F3AF8) {
-    case 0: D_800F3A1C = 0; break;
-    case 1: case 5: D_800F3A1C = 0x20; break;
-    case 2: D_800F3A1C = 0x21; break;
-    case 3: D_800F3A1C = 0x18; break;
-    case 6: D_800F3A1C = 0x2A; D_800F3AF8 = 0x10; break;
-    case 7: D_800F3A1C = 0x2B; D_800F3AF8 = 0x10; break;
+    case 0: MenuStateIndex = 0; break;
+    case 1: case 5: MenuStateIndex = 0x20; break;
+    case 2: MenuStateIndex = 0x21; break;
+    case 3: MenuStateIndex = 0x18; break;
+    case 6: MenuStateIndex = 0x2A; D_800F3AF8 = 0x10; break;
+    case 7: MenuStateIndex = 0x2B; D_800F3AF8 = 0x10; break;
     }
     base = D_800A4258;
-    p = base + D_800F3A1C;
+    p = base + MenuStateIndex;
     i = p->a;
     c = p->c;
     D_8010948E = c;
@@ -232,26 +232,26 @@ void func_8007BFF4()
     } else {
         StepMenuValue((((unsigned short)D_800AC594 & 1) << 2) | 1, 2, D_80109478 + D_8010948E, n, 0);
     }
-    b3 = D_800F3A38;
+    b3 = PlayerControllers;
     r = b3 + D_800AC594 * 0x5C;
     if (*(int *)(r + 0x28) != 0) {
         PlaySfx(1);
         D_800F4D8A = 0;
-        D_800F3A1C = arr[D_80109478[D_8010948E]];
-        if (D_800F3A1C != 0x43) {
+        MenuStateIndex = arr[D_80109478[D_8010948E]];
+        if (MenuStateIndex != 0x43) {
             D_800F3A24[D_800FFC00] = 0x5A;
-            func_80078E40(D_800FFC00, 0, 1);
+            PollCardStatus(D_800FFC00, 0, 1);
         }
     } else if (*(int *)(r + 0x2C) != 0) {
         PlaySfx(2);
         D_800F4D8A = 0;
-        D_800F3A1C = arr[n - 1];
+        MenuStateIndex = arr[n - 1];
     }
 }
 
 #undef D_800A4258
-#undef D_800F3A38
-#undef func_80078E40
+#undef PlayerControllers
+#undef PollCardStatus
 
 /* legacy typing of shared globals in this part of the unit */
 #define D_800FFC18 (*(short (*))&D_800FFC18)
@@ -272,7 +272,7 @@ void func_8007C308(void) {
         }
         D_800AC5D0 = 0x40;
         if (D_800FFC18 == 0) {
-            func_80053AF4(0, 0x3C);
+            SeqFadeVolume(0, 0x3C);
         }
         ResetScreenCounters();
         D_800F4CA8 = 2;
@@ -281,13 +281,13 @@ void func_8007C308(void) {
     if (D_800AC5D0 > 0) {
         D_800AC5D0 = D_800AC5D0 - 1;
     }
-    AddScreenFadeTiles(D_800ACC14 + 0x70, (0x40 - D_800AC5D0) << 2, 0x45);
+    AddScreenFadeTiles(CurrentDrawBuf + 0x70, (0x40 - D_800AC5D0) << 2, 0x45);
     if (func_8003B934() != 1) return;
     if (D_800AC5D0 > 0) return;
     if (UiRows->b500 != 5) return;
     if (BadgeRows->h10 != 0xB) return;
     for (i = 0; i < 3; i++) {
-        D_800F2E30[i] = D_8010B258[i];
+        SaveSlotSelections[i] = D_8010B258[i];
     }
     ClearScreenOverlayState();
     switch (D_800FFC18) {
@@ -377,9 +377,9 @@ void func_8007C76C()
         D_800F4D3C = t;
         if (t == 3) {
             if (D_800FFC18 == 7) {
-                D_800F3A1C = 0x2B;
+                MenuStateIndex = 0x2B;
             } else {
-                D_800F3A1C = 0x2A;
+                MenuStateIndex = 0x2A;
             }
             D_800F4D3C = 0;
             D_800F4D8A = 0;
@@ -395,34 +395,34 @@ void func_8007C76C()
 #define D_800A4258 (*(E8 (*)[])&D_800A4258)
 
 void func_8007C848(void) {
- E8 *e = D_800A4258; int s = D_800F3A1C;
+ E8 *e = D_800A4258; int s = MenuStateIndex;
  unsigned char *q = D_800A44A8 + e[s].b*4;
  int x = q[0], y = q[1];
  unsigned c = D_800F3A24[D_800FFC00];
  register int d asm("$3"); /* ASM_BARRIER: pin reload value to v1 */
- if (c < 0x10 || x == (d = *(volatile unsigned char *)&D_800F3A24[D_800FFC00])) { D_800F3A1C = y; return; }
- if (d == 0x14 && s == 2) D_800F3A1C = 8;
+ if (c < 0x10 || x == (d = *(volatile unsigned char *)&D_800F3A24[D_800FFC00])) { MenuStateIndex = y; return; }
+ if (d == 0x14 && s == 2) MenuStateIndex = 8;
 }
 
 #undef D_800A4258
 
 void func_8007C8D4(void) {
-    s32 i = D_800A4258[D_800F3A1C].i;
+    s32 i = D_800A4258[MenuStateIndex].i;
     s32 a = D_800A4540[i][0];
     s32 b = D_800A4540[i][1];
-    if (D_800F3A1C == 0x3B) {
+    if (MenuStateIndex == 0x3B) {
         if (D_8010B2DC[D_800FFC00] == 1) {
-            D_800F3A1C = a;
+            MenuStateIndex = a;
             return;
         }
-        D_800F3A1C = b;
+        MenuStateIndex = b;
         return;
     }
-    D_800F3A1C = a;
+    MenuStateIndex = a;
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F2E30 (*(W10_R (*)[])&D_800F2E30)
+#define SaveSlotSelections (*(W10_R (*)[])&SaveSlotSelections)
 
 void func_8007C944(void)
 {
@@ -469,17 +469,17 @@ void func_8007C944(void)
       a3 = (W10_H *) (a2 + 0x1F60);
       if (a1 == a3->chk)
       {
-        *(t2 = D_800F2E30 + t1) = *((W10_R *) a3);
+        *(t2 = SaveSlotSelections + t1) = *((W10_R *) a3);
       }
       else
       {
-        e = ((signed char *) D_800F2E30) + (t1 * 0x2C);
+        e = ((signed char *) SaveSlotSelections) + (t1 * 0x2C);
         e[0x17] = -1;
       }
       t1++;
     }
     while (t1 < 3);
-    D_800F3A1C = 0x18;
+    MenuStateIndex = 0x18;
     D_800F4D8A = 0;
   }
   else
@@ -487,19 +487,19 @@ void func_8007C944(void)
   {
     for (t1 = 2; t1 >= 0; t1--)
     {
-      e = ((signed char *) D_800F2E30) + (t1 * 0x2C);
+      e = ((signed char *) SaveSlotSelections) + (t1 * 0x2C);
       e[0x17] = -1;
     }
 
-    D_800F3A1C = 0x18;
+    MenuStateIndex = 0x18;
     D_800F4D8A = 0;
   }
 }
 
-#undef D_800F2E30
+#undef SaveSlotSelections
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80078E40 ((int (*)())func_80078E40)
+#define PollCardStatus ((int (*)())PollCardStatus)
 #define SaveBuffer (*(int (*))&SaveBuffer)
 
 int func_8007CB44(a0)
@@ -519,14 +519,14 @@ int a0;
     case 0:
         D_800F3A24[1] = 0x5A;
         D_800F3A24[0] = 0x5A;
-        func_80078E40(D_800FFC00, 0, 1);
-        CopyStringClearTail(D_800F4D50, D_800A457C);
+        PollCardStatus(D_800FFC00, 0, 1);
+        CopyStringClearTail(CardTargetFileName, CardSaveFileName);
         D_800A45BC = 1;
         break;
     case 1:
-        func_80078E40(D_800FFC00, 0, 0);
+        PollCardStatus(D_800FFC00, 0, 0);
         if (D_800F3A24[0] < 0x10U) {
-            if (CardHasFile(D_800ACBCC, D_800F4D50) == 1) {
+            if (CardHasFile(CardFileCounts, CardTargetFileName) == 1) {
                 D_800A45BE = 0;
                 D_800A45BC = 2;
             } else {
@@ -554,7 +554,7 @@ int a0;
     case 3:
         for (i = 0x63; i >= 0; i--) {
         }
-        r = CardReadFileAt(D_800FFC00, 0, D_800F4D50, SaveBuffer + 0x1F00, 0x100, 0x300);
+        r = CardReadFileAt(D_800FFC00, 0, CardTargetFileName, SaveBuffer + 0x1F00, 0x100, 0x300);
         if (r == -1) {
             if (D_800A45BE < 3) {
                 D_800A45BE = (unsigned short)D_800A45BE + 1;
@@ -592,12 +592,12 @@ int a0;
     return ret;
 }
 
-#undef func_80078E40
+#undef PollCardStatus
 #undef SaveBuffer
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80078E40 ((int (*)())func_80078E40)
-#define func_8007A9CC ((int (*)())func_8007A9CC)
+#define PollCardStatus ((int (*)())PollCardStatus)
+#define CardLoadStep ((int (*)())CardLoadStep)
 #define D_800F3AF8 (*(short (*))&D_800F3AF8)
 
 int func_8007CDC4(a0)
@@ -615,23 +615,23 @@ int a0;
     case 0:
         D_800F3A24[1] = 0x5A;
         D_800F3A24[0] = 0x5A;
-        func_80078E40(0, 0, 1);
+        PollCardStatus(0, 0, 1);
         i = 0x17;
-        p = D_800F4D50 + i;
+        p = CardTargetFileName + i;
         do {
             *p = 0;
             i--;
             p--;
         } while (i >= 0);
-        CopyStringClearTail(D_800F4D50, D_800A457C);
+        CopyStringClearTail(CardTargetFileName, CardSaveFileName);
         D_800F3AF8 = 0x30;
         D_800A45C0 = 1;
         break;
     case 1:
-        func_80078E40(0, 0, 0);
+        PollCardStatus(0, 0, 0);
         if (D_800F3A24[0] < 0x10U) {
-            if (CardHasFile(D_800ACBCC, D_800F4D50) == 1) {
-                func_8007A9CC(2, 0);
+            if (CardHasFile(CardFileCounts, CardTargetFileName) == 1) {
+                CardLoadStep(2, 0);
                 D_800A45C0 = 2;
             } else {
                 goto set1;
@@ -653,7 +653,7 @@ int a0;
         }
         break;
     case 2:
-        ret = func_8007A9CC(0, 0);
+        ret = CardLoadStep(0, 0);
         if (ret == 4) {
             goto set1;
         } else if (ret == 5) {
@@ -674,13 +674,13 @@ set1:
     return ret;
 }
 
-#undef func_80078E40
-#undef func_8007A9CC
+#undef PollCardStatus
+#undef CardLoadStep
 #undef D_800F3AF8
 
 /* legacy typing of shared globals in this part of the unit */
-#define func_80078E40 ((int (*)())func_80078E40)
-#define func_8007A9CC ((int (*)())func_8007A9CC)
+#define PollCardStatus ((int (*)())PollCardStatus)
+#define CardLoadStep ((int (*)())CardLoadStep)
 #define D_800F3AF8 (*(short (*))&D_800F3AF8)
 
 int func_8007CFC0(a0, a1)
@@ -697,16 +697,16 @@ int a0, a1;
     case 0:
         D_800F3A24[1] = 0x5A;
         D_800F3A24[0] = 0x5A;
-        func_80078E40(0, 0, 1);
+        PollCardStatus(0, 0, 1);
         D_800A45C4 = 1;
-        CopyStringClearTail(D_800F4D50, D_800A4594[a1]);
+        CopyStringClearTail(CardTargetFileName, D_800A4594[a1]);
         D_800F3AF8 = 0x10;
         break;
     case 1:
-        func_80078E40(0, 0, 0);
+        PollCardStatus(0, 0, 0);
         if (D_800F3A24[0] < 0x10U) {
-            if (CardHasFile(D_800ACBCC, D_800F4D50) == 1) {
-                func_8007A9CC(2, 0);
+            if (CardHasFile(CardFileCounts, CardTargetFileName) == 1) {
+                CardLoadStep(2, 0);
                 D_800A45C4 = 2;
             } else {
                 ret = -1;
@@ -729,7 +729,7 @@ int a0, a1;
         }
         break;
     case 2:
-        ret = func_8007A9CC(0, 0);
+        ret = CardLoadStep(0, 0);
         if (ret == 4) {
             D_800A45C4 = ret;
             ret = 2;
@@ -751,8 +751,8 @@ int a0, a1;
     return ret;
 }
 
-#undef func_80078E40
-#undef func_8007A9CC
+#undef PollCardStatus
+#undef CardLoadStep
 #undef D_800F3AF8
 
 /* legacy typing of shared globals in this part of the unit */

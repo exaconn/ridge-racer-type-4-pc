@@ -7,7 +7,7 @@ extern s32 VSync(s32);
 extern RrLibCompletionCallback CdSyncCallback(RrLibCompletionCallback);
 extern RrLibCompletionCallback CdReadyCallback(RrLibCompletionCallback);
 extern RrLibCompletionCallback CdDataCallback(RrLibCompletionCallback);
-extern void func_8008E7F4(void);
+extern void cd_read_restore_sync(void);
 
 #define RR_READ_OWNER_OFFSET \
     (sizeof(RrLibReadRequestState)-sizeof(RrLibReadRestoreTail))
@@ -31,7 +31,7 @@ void CdReadBreak(void) {
     u32 first_tick,second_tick;
     s32 decision;
     if(CD_read_dma_mode&1)CdDataSync(0);
-    root=&D_800A67B0;
+    root=&CdReadState;
     /* ASM_BARRIER: capture the complete state address before initial publication. */
     __asm__("" : "+r"(root));
     root->remaining14=0;
@@ -39,7 +39,7 @@ void CdReadBreak(void) {
     decision=1;
     goto after_first_wait;
 first_timeout:
-    saved=&D_800A67D8;
+    saved=&CdReadSavedSyncCallback;
     /* ASM_BARRIER: materialize the saved-callback slot before its first load. */
     __asm__("" : "+r"(saved));
     restored=*saved;
@@ -51,7 +51,7 @@ first_timeout:
     ((RrLibReadRequestState*)root)->finished24=0;
     goto after_first_wait;
 second_timeout:
-    saved=&D_800A67D8;
+    saved=&CdReadSavedSyncCallback;
     /* ASM_BARRIER: materialize the saved-callback slot before the second timeout load. */
     __asm__("" : "+r"(saved));
     restored=*saved;
@@ -77,7 +77,7 @@ after_first_wait:
         __asm__("" : "+r"(pair));
         CdReadyCallback(RR_PAIR_TAIL(pair)->saved2C);
         if(CD_read_dma_mode&1)CdDataCallback(RR_PAIR_TAIL(pair)->saved30);
-        CdSyncCallback(func_8008E7F4);
+        CdSyncCallback(cd_read_restore_sync);
         CdControlF(9,0);
         publish=(RrLibReadRequestState*)((u8*)pair-RR_PAIR_OWNER_OFFSET);
         ((volatile RrLibReadRequestState*)publish)->finished24=1;

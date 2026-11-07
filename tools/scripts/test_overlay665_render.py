@@ -31,7 +31,7 @@ class Overlay665RenderTest(unittest.TestCase):
         #define RR_PREVIEW_RENDER_SCRATCH (&w->s.scratch)
         #define ovl665_D_80119768 w->s.visual
         #define D_800F2FD8 w->s.meshes
-        #define D_800ABED0 w->s.basis
+        #define LightMatrix w->s.basis
         static const s32 kinds[]={INT32_MIN,-1,0,1,2,3,4,INT32_MAX};
         static s32 word(u32 bits){s32 v;memcpy(&v,&bits,4);return v;}
         static s16 half(u32 bits){u16 v=(u16)bits;s16 s;memcpy(&s,&v,2);return s;}
@@ -112,7 +112,7 @@ class Overlay665RenderTest(unittest.TestCase):
          unsigned i;u16 *halves=matrix;(void)event(11,angle,0,0,matrix,0);
          for(i=0;i<9;i++)halves[i]=(u16)((u32)angle+scenario+i*17);
         }
-        void func_80058768(RrPreviewRenderScratch *scratch,s32 object,s32 blend,s32 depth) {
+        void SubmitModelTwoTri(RrPreviewRenderScratch *scratch,s32 object,s32 blend,s32 depth) {
          assert(scratch==&w->s.scratch && object>=0 && object<=8 && blend==0 && depth==0);
          assert(scratch->counter78==0 && (uintptr_t)scratch->commands50>UINT32_MAX);
          (void)event(12,object,blend,depth,0,0);
@@ -130,7 +130,7 @@ class Overlay665RenderTest(unittest.TestCase):
         static void project(RrPreviewMatrixWorkspace *matrix){SetGteObjectTransform(w->s.scratch.tail7C.projection.halves,w->s.visual.view74.position00.halves,(s32*)matrix->words);}
         static void draw(s32 threshold,s32 object) {
          s32 chosen=w->s.meshes>=threshold?object:1;
-         w->s.scratch.counter78=0;func_80058768(&w->s.scratch,chosen,0,0);
+         w->s.scratch.counter78=0;SubmitModelTwoTri(&w->s.scratch,chosen,0,0);
         }
         static void reference(void) {
          RrPreviewMatrixWorkspace first,second;s32 saved=w->s.scratch.depth60,kind;
@@ -147,7 +147,7 @@ class Overlay665RenderTest(unittest.TestCase):
           if(kind==0 || kind==1) {
            s32 object;project(&first);w->s.scratch.counter78=0;
            object=kind==0?1:w->s.meshes<1;
-           func_80058768(&w->s.scratch,object,0,0);
+           SubmitModelTwoTri(&w->s.scratch,object,0,0);
           } else if(kind==2) {
            BuildRotMatrixX(second.halves,w->s.visual.view74.rotation18);
            (void)MulMatrix2((s32*)first.words,second.halves);light(&second);project(&second);draw(3,2);

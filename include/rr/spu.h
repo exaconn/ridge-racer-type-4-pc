@@ -119,7 +119,7 @@ u32 SpuSetTransferStartAddr(s32 address);
 void SpuSetTransferMode(s32 mode);
 void _spu_setInTransfer(s32 mode);
 
-extern u16 D_800A4D58[12], D_800A4D70[128];
+extern u16 SvmSemitoneTable[12], SvmPitchFineTable[128];
 /* Requires nonzero low16 pitch and the fixed PAL tuning tables. Values at
  * least0x4000 saturate to0x3FFF before conversion; caller words wrap in32bits. */
 u32 _spu_pitch2note(s32 first, s32 second, u32 pitch);

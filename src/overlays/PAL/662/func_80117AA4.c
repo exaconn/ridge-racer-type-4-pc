@@ -23,10 +23,10 @@ void ovl662_func_80117AA4(u32 *arg0, void *arg1, s32 arg2) {
                 flag + 0x7FF8, 0, 0);
             break;
         }
-        arg1 = func_8001FF84(arg0, arg1, x, y, &D_8009FA1C[ovl662_D_80126224[i]], 0x7FF8, 0);
+        arg1 = AddSpritePrim(arg0, arg1, x, y, &UiFontGlyphs[ovl662_D_80126224[i]], 0x7FF8, 0);
         /* ASM_BARRIER: boost arg1 register allocation priority to $s2 */
         __asm__("" : "+r"(arg1));
-        x += D_8009FA1C[ovl662_D_80126224[i]].w + 2;
+        x += UiFontGlyphs[ovl662_D_80126224[i]].w + 2;
     }
     AddDrawModePrim(arg0, arg1, 56);
 }

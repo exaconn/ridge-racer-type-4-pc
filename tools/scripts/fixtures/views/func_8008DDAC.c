@@ -18,7 +18,7 @@ extern s32 getintr(void);
 void CdCommandCallback(void) {
     u8 *p=&D_800A6764[1];
     u8 *q=p-1;
-    s32 saved=*D_800A674C & 3;
+    s32 saved=*CD_reg0 & 3;
     s32 result;
     while((result=getintr())) {
         if(result & 4) {
@@ -50,5 +50,5 @@ void CdCommandCallback(void) {
             }
         }
     }
-    *D_800A674C=saved;
+    *CD_reg0=saved;
 }

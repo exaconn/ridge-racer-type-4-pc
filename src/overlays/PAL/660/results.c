@@ -19,7 +19,7 @@ void ovl660_func_801154D8(void)
     MenuCursor = 0;
     MenuItemCount = 3;
     off = 0;
-    if (D_800F3914 == 7) {
+    if (CourseIndex == 7) {
         off = 11;
     }
     for (i = 0; i < 44; i++) {
@@ -79,7 +79,7 @@ void ovl660_func_8011572C(void) {
             }
         }
         base = 5;
-        if (D_800F3914 == 7) {
+        if (CourseIndex == 7) {
             base = 3;
         }
         for (i = 0; i < NumLaps; i++) {
@@ -92,7 +92,7 @@ void ovl660_func_8011572C(void) {
             }
         }
         base = 9;
-        if (D_800F3914 == 7) {
+        if (CourseIndex == 7) {
             base = 10;
         }
         if (ovl660_lap_record_rank < 5) {
@@ -109,7 +109,7 @@ void ovl660_func_8011572C(void) {
                 s32 entry = ovl660_race_record_rank + 15;
                 CopyStringClearTail((char *)&MenuTextRows[entry].bytes[42], ovl660_record_name);
             }
-            CopyStringClearTail(LapRecords[ReverseCourse][D_800F3914][ovl660_race_record_rank].name, ovl660_record_name);
+            CopyStringClearTail(LapRecords[ReverseCourse][CourseIndex][ovl660_race_record_rank].name, ovl660_record_name);
             func_80041320(ovl660_race_record_rank + 15, 1, -((ovl660_name_cursor + 15) << 8));
         }
         if (MenuTextRows[15].signedBytes[3] >= 15) {
@@ -131,7 +131,7 @@ void ovl660_func_8011572C(void) {
                 s32 entry = ovl660_lap_record_rank + 26;
                 CopyStringClearTail((char *)&MenuTextRows[entry].bytes[42], ovl660_record_name);
             }
-            CopyStringClearTail(RaceRecords[ReverseCourse][D_800F3914][ovl660_lap_record_rank].name, ovl660_record_name);
+            CopyStringClearTail(RaceRecords[ReverseCourse][CourseIndex][ovl660_lap_record_rank].name, ovl660_record_name);
             func_80041320(ovl660_lap_record_rank + 26, 1, -((ovl660_name_cursor + 15) << 8));
         }
         if (MenuTextRows[15].signedBytes[3] >= 15) {
@@ -165,7 +165,7 @@ void ovl660_func_8011572C(void) {
                               &MenuTextRows[42].bytes[29]);
                 MenuTextRows[42].bytes[42] = 34;
                 ovl660_result_transition = 2;
-            } else if (ovl660_result_transition == 0 && (*(s32 *)&D_800F3A38[0] & 0x900000) == 0x900000) {
+            } else if (ovl660_result_transition == 0 && (*(s32 *)&PlayerControllers[0] & 0x900000) == 0x900000) {
                 ovl660_result_transition = 1;
             }
         }
@@ -173,7 +173,7 @@ void ovl660_func_8011572C(void) {
     case 4:
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (64 - timer) * 4, 69);
         group = 33;
         if (D_800AC5D0 <= 0) {
             MenuScriptId = 0;
@@ -185,7 +185,7 @@ void ovl660_func_8011572C(void) {
     case 5:
         timer = (u16)D_800AC5D0 - 2;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (64 - timer) * 4, 69);
         group = 33;
         if (D_800AC5D0 <= 0) {
             group = -1;
@@ -195,7 +195,7 @@ void ovl660_func_8011572C(void) {
     case 6:
         timer = (u16)D_800AC5D0 - 1;
         D_800AC5D0 = timer;
-        AddScreenFadeTiles(&D_800ACC14->ordering.ordering70[0], (64 - timer) * 4, 69);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70[0], (64 - timer) * 4, 69);
         group = -1;
         if (D_800AC5D0 <= 0) {
             ModeGroup = 1;
@@ -206,7 +206,7 @@ void ovl660_func_8011572C(void) {
     case 8:
         ready = func_8003B12C();
         if (ready == 1) {
-            func_80053BB4(0);
+            SeqStartTrack(0);
             ovl660_func_80114920();
             ModeGroup = ready;
             D_800F3A26 = 50;
@@ -240,9 +240,9 @@ s32 ovl660_func_80115FA8(s32 mode, s32 time) {
     for (i = 0; i < 5; i++) {
         order[i] = i;
         if (mode == 1) {
-            times[i] = RaceRecords[ReverseCourse][D_800F3914][i].time;
+            times[i] = RaceRecords[ReverseCourse][CourseIndex][i].time;
         } else {
-            times[i] = LapRecords[ReverseCourse][D_800F3914][i].time;
+            times[i] = LapRecords[ReverseCourse][CourseIndex][i].time;
         }
     }
     for (i = 0; i < 5; i++) {
@@ -262,19 +262,19 @@ s32 ovl660_func_80115FA8(s32 mode, s32 time) {
         if (order[i] == 5) {
             for (j = 4; i < j; j--) {
                 if (mode == 1) {
-                    RaceRecords[ReverseCourse][D_800F3914][j] = RaceRecords[ReverseCourse][D_800F3914][j - 1];
+                    RaceRecords[ReverseCourse][CourseIndex][j] = RaceRecords[ReverseCourse][CourseIndex][j - 1];
                 } else {
-                    LapRecords[ReverseCourse][D_800F3914][j] = LapRecords[ReverseCourse][D_800F3914][j - 1];
+                    LapRecords[ReverseCourse][CourseIndex][j] = LapRecords[ReverseCourse][CourseIndex][j - 1];
                 }
             }
             if (mode == 1) {
-                RaceRecords[ReverseCourse][D_800F3914][i].car = PackChoiceGlyph((s8 *)&SelectionRows);
-                RaceRecords[ReverseCourse][D_800F3914][i].time = times[i];
-                CopyStringClearTail(RaceRecords[ReverseCourse][D_800F3914][i].name, ovl660_record_name);
+                RaceRecords[ReverseCourse][CourseIndex][i].car = PackChoiceGlyph((s8 *)&SelectionRows);
+                RaceRecords[ReverseCourse][CourseIndex][i].time = times[i];
+                CopyStringClearTail(RaceRecords[ReverseCourse][CourseIndex][i].name, ovl660_record_name);
             } else {
-                LapRecords[ReverseCourse][D_800F3914][i].car = PackChoiceGlyph((s8 *)&SelectionRows);
-                LapRecords[ReverseCourse][D_800F3914][i].time = times[i];
-                CopyStringClearTail(LapRecords[ReverseCourse][D_800F3914][i].name, ovl660_record_name);
+                LapRecords[ReverseCourse][CourseIndex][i].car = PackChoiceGlyph((s8 *)&SelectionRows);
+                LapRecords[ReverseCourse][CourseIndex][i].time = times[i];
+                CopyStringClearTail(LapRecords[ReverseCourse][CourseIndex][i].name, ovl660_record_name);
             }
             return i;
         }

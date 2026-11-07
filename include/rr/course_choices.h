@@ -6,10 +6,10 @@
 #include "rr/menu_arena_types.h"
 #include "rr/selection.h"
 #include "rr/course_choice_types.h"
-extern RrCourseChoice4 D_800ABE08[2][9];
-extern RrMenuArenas D_800F4D70;
+extern RrCourseChoice4 CourseChoiceTable[2][9];
+extern RrMenuArenas MenuArenas;
 extern void *LoadCursor;
-extern u8 *D_800F2AB0;
+extern u8 *ImageRows;
 void ResetScreenCounters(void);
 /* Nine readable entries; glyph-1 terminates. The final glyph0x167 counts
  * as the ninth valid entry. */

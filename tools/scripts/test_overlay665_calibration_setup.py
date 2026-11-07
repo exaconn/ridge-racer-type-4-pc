@@ -44,11 +44,11 @@ static void change(void){if(mutation)effect();}
 void ClearScreenOverlayState(void){event(1);change();}
 void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){Event *v=event(2);s32 args[]={a,b,c,d,e,f,g};memcpy(v->args,args,sizeof(args));change();}
 void SetMenuFrameOptions(s32 a,s32 b,s32 c){Event *e=event(3);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
-s32 func_8001E84C(const char *message,...){va_list args;Event *e=event(4);assert(message==format);va_start(args,message);e->args[0]=va_arg(args,s32);e->args[1]=va_arg(args,s32);va_end(args);return 1;}
+s32 DebugPrintStub(const char *message,...){va_list args;Event *e=event(4);assert(message==format);va_start(args,message);e->args[0]=va_arg(args,s32);e->args[1]=va_arg(args,s32);va_end(args);return 1;}
 static void expected(void){
  ClearScreenOverlayState();w->s.flag=0;InitBadgeRow(0,12,304,296,88,0,0);
  w->s.rows[w->s.root][0].half02=1;SetMenuFrameOptions(1,1,0);
- func_8001E84C(format,w->s.settings.display.x34,w->s.settings.display.y38);
+ DebugPrintStub(format,w->s.settings.display.x34,w->s.settings.display.y38);
 }
 int main(void){unsigned scenario,i;_Static_assert(sizeof(RrRuntimeSettings)==60,"settings extent");_Static_assert(offsetof(RrDisplaySettings3C,x34)==52,"signed word x");
  assert((uintptr_t)actual.s.rows>UINT32_MAX);

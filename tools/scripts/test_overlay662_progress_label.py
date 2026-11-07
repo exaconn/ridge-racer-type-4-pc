@@ -32,11 +32,11 @@ typedef struct {s32 op,x,y,a,b,c;size_t cursor;u8 data[8];} Event;
 typedef struct {State s;Event events[12];unsigned count;} World;
 static World actual,reference,initial,*w;
 static unsigned numberSeen[81],totalSeen[321],clutSeen[2];
-static u8 arena[1024];static u32 ordering[4];char D_8010C150[8];
+static u8 arena[1024];static u32 ordering[4];char FractionText[8];
 RrBadgeRow1C *BadgeRows;
 #define SaveProgress w->s.save
 #define SelectionRows w->s.choice
-#define D_8009FA1C w->s.uv
+#define UiFontGlyphs w->s.uv
 #define ScreenFrame w->s.tick
 #define ovl662_D_801272D8 w->s.counts
 #define ovl662_D_801272FC w->s.total
@@ -57,7 +57,7 @@ static Event *event(s32 op,void *cursor){
  return e;
 }
 s32 rsin(s32 angle){Event *e=event(1,0);s32 v=(s32)(next()%3)-1;e->a=angle;e->b=v;change();return v;}
-void *func_8001FF84(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
+void *AddSpritePrim(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
  Event *e=event(2,p);assert(ot==ordering);e->x=x;e->y=y;e->a=clut;e->b=color;memcpy(e->data,uv,4);change();return (u8*)p+20;
 }
 void *AddTextSprites(u32 *ot,void *p,s32 x,s32 y,const char *text,s32 clut,s32 spacing,s32 color){
@@ -82,7 +82,7 @@ static void expected(u32 *ot,void *p,s32 row){
    p=AddTextSprites(ot,p,x,y,text,32760+flag,0,0);
    if(key==-1){x+=34;p=AddTilePrim(ot,p,x,y-2,1,20,255,255,255);x+=8;}
   }else{
-   p=func_8001FF84(ot,p,x,y,&w->s.uv[key],32760,0);
+   p=AddSpritePrim(ot,p,x,y,&w->s.uv[key],32760,0);
    x+=w->s.uv[(unsigned)key].w+2;
   }
  }

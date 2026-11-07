@@ -27,8 +27,8 @@ struct S_1 { char pad[0xE3]; unsigned char a; char pad1[5]; unsigned char b; cha
 
 typedef struct { int f0; int f4; int f8; char p0[8]; int f14; int f18; char p1[0x2A]; char f46; char f47; char p2[1]; char f49; char p3[0x99]; unsigned char fE3; char p4[5]; unsigned char fE9; } O;
 
-extern int func_80098EE0();
-extern int func_80098F88();
+extern int _padSendActInfoCmd();
+extern int _padRecvActInfoReply();
 
 void _padSetAct(void *arg0, s32 arg1, s8 arg2);
 void _padSetCmd(void *arg0, s8 arg1, s32 arg2, s8 arg3);
@@ -50,9 +50,9 @@ void _padSetCmd(void *arg0, s8 arg1, s32 arg2, s8 arg3) {
 void _padSendAtLoadInfo(u8 *channel) {
     RrChannelStatusView *state=(RrChannelStatusView *)channel;
     switch(state->phase) {
-    case 2:func_80099638(state);break;
-    case 3:func_8009964C(state,state->argumentE4);break;
-    case 4:func_8009968C(state,state->state47);break;
+    case 2:_padCmd45(state);break;
+    case 3:_padCmd4C(state,state->argumentE4);break;
+    case 4:_padCmd47(state,state->state47);break;
     }
 }
 
@@ -156,9 +156,9 @@ int _padLoadActInfo(o, a1) O *o; int a1; {
     o->f0 = (a1 + 3) >> 2 << 2;
     o->f4 = o->f0 + ((o->fE3 + 1) >> 1 << 2); o->f8 = o->f4 + ((o->fE9 * 5 + 3) & 0xFFC);
     o->f46 = 1;
-    o->f14 = (int)func_80098EE0;
+    o->f14 = (int)_padSendActInfoCmd;
     o->f47 = 0;
-    o->f18 = (int)func_80098F88;
+    o->f18 = (int)_padRecvActInfoReply;
     return r;
 }
 

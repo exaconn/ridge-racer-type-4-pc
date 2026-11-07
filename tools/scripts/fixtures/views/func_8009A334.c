@@ -7,12 +7,12 @@ void _padInitDirSeq(void) {
     register RrChannelUpdateCallback update __asm__("$2");
     /* ASM_BARRIER: preserve the original assembler temporary for the final slot. */
     register u8 *base __asm__("$1");
-    D_800ABC80 = func_8009A368;
-    D_800ABC84 = func_8009A7BC;
+    D_800ABC80 = _padChannelDispatch;
+    D_800ABC84 = _padChannelBusy;
     /* ASM_BARRIER: finish the first two callback stores before loading the third. */
     __asm__ volatile("" : : : "$2", "memory");
-    update = func_8009A478;
-    /* PAL RAM mapping: D_800ABC88 is base minus 0x4378. */
+    update = _padPacketDone;
+    /* PAL RAM mapping: PadPacketDoneCallback is base minus 0x4378. */
     base = (u8 *)0x800B0000U;
     /* ASM_BARRIER: expose the register-relative store in the return delay slot. */
     __asm__("" : "=r"(base) : "0"(base));

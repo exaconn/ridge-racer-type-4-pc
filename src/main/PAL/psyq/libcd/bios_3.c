@@ -6,18 +6,18 @@
 #include "rr/library.h"
 #include "psyq/libcd/s_3.h"
 
-extern s32 func_8001E84C();
+extern s32 DebugPrintStub();
 extern s32 VSync(s32);
 extern void CD_flush(void);
 extern s32 func_800963DC(const char *);
 extern const char D_80011A14[];
-extern const char D_80011A24[];
-extern const char D_80011B20[];
+extern const char CdTimeoutStatusFmt[];
+extern const char CdDatasyncNameStr[];
 extern u8 D_800A64A5;
 extern char *CD_comstr[];
 extern char *CD_intstr[];
 extern volatile u8 D_800A6764[];
-extern s32 D_80110330;
+extern s32 CD_timeout_deadline;
 extern s32 D_80110334;
 extern const char *D_80110338[];
 /* $at as the %hi() base: with $1 allocatable cc1 2.8.1 emits lui $1,%hi / sw %lo($1) and its reorg fills the jr/jal delay slot with the sw (see DECOMP_GUIDE "delay-slot store"). */
@@ -30,14 +30,14 @@ void CD_set_test_parmnum(int a);
 void CdCommandCallback(void);
 
 static inline int check_alarm(s32 limit, char **ac, volatile u8 *st, char **sc) {
-    if (VSync(-1) > D_80110330 || D_80110334++ > limit) {
+    if (VSync(-1) > CD_timeout_deadline || D_80110334++ > limit) {
         func_800963DC(D_80011A14);
         {
             u8 s0_ = st[0];
             u8 s1_ = st[1];
             char *x5 = sc[s1_];
-            func_8001E84C(
-                D_80011A24,
+            DebugPrintStub(
+                CdTimeoutStatusFmt,
                 D_80110338[0],
                 ac[D_800A64A5],
                 sc[s0_],
@@ -59,9 +59,9 @@ s32 CD_datasync(s32 mode) {
     s32 t = VSync(-1);
     /* ASM_BARRIER: Set allocno priorities for s2..s4 (mode, ac, limit). */
     __asm__("" : : "r"(mode), "r"(mode));
-    D_80110330 = t + 0x3C0;
+    CD_timeout_deadline = t + 0x3C0;
     D_80110334 = 0;
-    D_80110338[0] = D_80011B20;
+    D_80110338[0] = CdDatasyncNameStr;
     limit = 0x3C0000;
     ac = CD_comstr;
     st = D_800A6764;
@@ -70,7 +70,7 @@ s32 CD_datasync(s32 mode) {
         if (check_alarm(limit, ac, st, sc) != 0) {
             return -1;
         }
-        if ((*D_800A6790 & 0x1000000) == 0) {
+        if ((*DMA3_CHCR & 0x1000000) == 0) {
             return 0;
         }
     } while (mode == 0);
@@ -79,41 +79,41 @@ s32 CD_datasync(s32 mode) {
 
 s32 CD_getsector(u8 *a0, u32 a1) {
     volatile unsigned char *p;
-    *D_800A674C = 0;
-    *D_800A6758 = 0x80;
+    *CD_reg0 = 0;
+    *CD_reg3 = 0x80;
     *D_800A6780 = 0x20943;
     /* Ordinary write views retain the original setup and teardown scheduling. */
-    *(u32 *)D_800A675C = 0x1323;
-    *D_800A6784 |= 0x8000;
-    *D_800A6788 = a0;
-    *D_800A678C = a1 | 0x10000;
-    p = D_800A674C;
+    *(u32 *)COM_DELAY = 0x1323;
+    *CD_dpcr |= 0x8000;
+    *DMA3_MADR = a0;
+    *DMA3_BCR = a1 | 0x10000;
+    p = CD_reg0;
     /* ASM_BARRIER: orig has the load-delay nop BEFORE the loop label; maspsx emits it inside the loop */
     RR_NOP_DEP();
     do {
     } while (!(*p & 0x40));
-    *D_800A6790 = 0x11000000;
-    if (*D_800A6790 & 0x01000000) {
+    *DMA3_CHCR = 0x11000000;
+    if (*DMA3_CHCR & 0x01000000) {
         do {
-        } while (*D_800A6790 & 0x01000000);
+        } while (*DMA3_CHCR & 0x01000000);
     }
-    *(u32 *)D_800A675C = 0x1325;
+    *(u32 *)COM_DELAY = 0x1325;
     return 0;
 }
 
 s32 CD_getsector2(u8 *a, u32 b) {
     volatile int x;
-    *D_800A674C = 0;
-    *D_800A6758 = 0x80;
+    *CD_reg0 = 0;
+    *CD_reg3 = 0x80;
     *D_800A6780 = 0x21020843;
-    *D_800A675C = 0x1325;
-    *D_800A6784 |= 0x8000;
-    *D_800A6788 = a;
-    *D_800A678C = b | 0x10000;
-    while (!(*D_800A674C & 0x40)) {
+    *COM_DELAY = 0x1325;
+    *CD_dpcr |= 0x8000;
+    *DMA3_MADR = a;
+    *DMA3_BCR = b | 0x10000;
+    while (!(*CD_reg0 & 0x40)) {
     }
-    *D_800A6790 = 0x11400100;
-    x = *D_800A6790;
+    *DMA3_CHCR = 0x11400100;
+    x = *DMA3_CHCR;
     return 0;
 }
 
@@ -125,7 +125,7 @@ void CD_set_test_parmnum(int a) { D_800A6730 = a; }
 void CdCommandCallback(void) {
     u8 *p=&D_800A6764[1];
     u8 *q=p-1;
-    s32 saved=*D_800A674C & 3;
+    s32 saved=*CD_reg0 & 3;
     s32 result;
     while((result=getintr())) {
         if(result & 4) {
@@ -157,7 +157,7 @@ void CdCommandCallback(void) {
             }
         }
     }
-    *D_800A674C=saved;
+    *CD_reg0=saved;
 }
 
 #undef D_800A6764

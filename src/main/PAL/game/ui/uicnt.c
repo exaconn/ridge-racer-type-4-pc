@@ -12,7 +12,7 @@ typedef struct {
 extern S_800F3AFC *BadgeRows;
 extern int D_800AD564;
 extern int D_8009FE10[];
-extern int func_8001FF84();
+extern int AddSpritePrim();
 extern int AddDrawModePrim();
 
 void func_80042F58(int a0, int a1, int a2);
@@ -33,10 +33,10 @@ void func_80042F58(int a0, int a1, int a2) {
     s4 = BadgeRows[a2].s4 + 0x10;
     s2 = BadgeRows[a2].s6 + 0x20;
     rem = D_800AD564 % 5;
-    a1 = func_8001FF84(a0, a1, s4, s2, &D_8009FE10[rem], 0x4424, 0);
+    a1 = AddSpritePrim(a0, a1, s4, s2, &D_8009FE10[rem], 0x4424, 0);
     for (i = 0; i < 2; i++) {
         off = i * 0x28 - 8;
-        a1 = func_8001FF84(a0, a1, s4 + off, s2, &D_8009FE10[i + 5], 0x4424, 0);
+        a1 = AddSpritePrim(a0, a1, s4 + off, s2, &D_8009FE10[i + 5], 0x4424, 0);
     }
     AddDrawModePrim(a0, a1, 0x39);
 }

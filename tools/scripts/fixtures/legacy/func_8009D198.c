@@ -1,18 +1,18 @@
 /* GCC_VERSION: 2.7.2 */
 #include "rr/commands.h"
 
-extern s32 func_8009D118(void);
-extern s32 func_8009C610(s32);
+extern s32 _cardCmd5DTx(void);
+extern s32 _cardRxStatusByte(s32);
 
-s32 func_8009D198(s32 request, s32 parameter) {
+s32 _cardCmd5DValueBegin(s32 request, s32 parameter) {
     s32 result;
     s32 active;
     if (!rr_command_begin(request)) return 0;
     /* ASM_BARRIER: keep success initialization before the command configuration stores. */
     __asm__ volatile("" : "=r"(result) : "0"(1) : "$3", "memory");
-    D_80114870 = 7;
-    D_80114734 = func_8009D118;
-    D_80114738 = func_8009C610;
+    CardCurrentCommand = 7;
+    CardCommandReader = _cardCmd5DTx;
+    CardWriteHandler = _cardRxStatusByte;
     active = 2;
     D_8011472C.value = parameter;
     {
@@ -30,20 +30,20 @@ s32 func_8009D198(s32 request, s32 parameter) {
 }
 
 
-extern s32 func_8009D2E0(void);
-extern s32 func_8009C610(s32);
+extern s32 _cardCmd5ETx(void);
+extern s32 _cardRxStatusByte(s32);
 
-s32 func_8009D238(s32 request, s32 parameter, s32 count) {
+s32 _cardCmd5EBegin(s32 request, s32 parameter, s32 count) {
     s32 result;
     s32 active;
     if (!rr_command_begin(request)) return 0;
     /* ASM_BARRIER: keep success initialization before the command configuration stores. */
     __asm__ volatile("" : "=r"(result) : "0"(1) : "$3", "memory");
-    D_80114870 = 13;
-    D_80114734 = func_8009D2E0;
-    D_80114738 = func_8009C610;
+    CardCurrentCommand = 13;
+    CardCommandReader = _cardCmd5ETx;
+    CardWriteHandler = _cardRxStatusByte;
     active = 2;
-    D_80114724 = parameter;
+    CardCmdSector = parameter;
     D_80114728 = count;
     {
         /* ASM_BARRIER: preserve the original assembler temporary for the mapped store. */

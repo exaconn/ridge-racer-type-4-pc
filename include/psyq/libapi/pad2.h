@@ -4,6 +4,6 @@
 #include "types.h"
 
 int RemovePatchPad();
-int func_80097618(void);
+int _padVsyncHookHandler(void);
 
 #endif /* RR_PSYQ_LIBAPI_PAD2_H */

@@ -3,9 +3,9 @@
 void ovl665_func_80114A24(void) {
     ClearScreenOverlayState();
     ResetScreenCounters();
-    D_800F4D70.second=CdDirectoryBuffer+0x2D000;
+    MenuArenas.second=CdDirectoryBuffer+0x2D000;
     InitMenuArenas();
-    LoadCursor=D_800F4D70.second;
+    LoadCursor=MenuArenas.second;
     SetupRenderer(5);
     InitUiRow(0,94,96,112,32,0,0,1,8,19);
     InitUiRow(1,94,136,112,32,0,0,1,9,19);
@@ -21,6 +21,6 @@ void ovl665_func_80114A24(void) {
     }
     D_800AC5D0=64;
     RaceLoadReset();
-    func_80053BB4(0);
+    SeqStartTrack(0);
     D_800AC590->b4=-1;
 }

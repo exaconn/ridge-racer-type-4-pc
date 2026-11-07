@@ -8,7 +8,7 @@ extern int _padRecvAtLoadInfo();
 
 extern int (*D_800ABC6C)();
 
-void func_8009A478(a0) struct C *a0; {
+void _padPacketDone(a0) struct C *a0; {
     unsigned int t;
     int a1;
     unsigned char b;

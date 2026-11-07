@@ -51,7 +51,7 @@ extern struct {
 extern int SsUtKeyOnV();
 extern int SetVoiceVolumeScaled();
 
-void func_80050EC4(void) {
+void UpdatePlayerVoices(void) {
     int i;
     Entry *s0;
     Slot *s2;

@@ -24,23 +24,23 @@
 #undef MenuFrameState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(s32 (*))&D_800ACC14)
+#define CurrentDrawBuf (*(s32 (*))&CurrentDrawBuf)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(s32 (*))&D_800ACC14)
+#define CurrentDrawBuf (*(s32 (*))&CurrentDrawBuf)
 
 #define AddTilePrim ((s32 (*)())AddTilePrim)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 #undef AddTilePrim
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A38 (*(E (*)[])&D_800F3A38)
+#define PlayerControllers (*(E (*)[])&PlayerControllers)
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 /* legacy typing of shared globals in this part of the unit */
 #define PlayerCars (*(S_800ABEF8 (*)[])&PlayerCars)

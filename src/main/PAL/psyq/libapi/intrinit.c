@@ -12,7 +12,7 @@ extern unsigned short D_800A52C8;
 extern char D_800A5304[];
 extern int *D_800A6350;
 extern unsigned short *D_800A6354;
-extern unsigned short *D_800A6358;
+extern unsigned short *I_MASK;
 char *startIntr()
 {
     char *p, *r;
@@ -20,7 +20,7 @@ char *startIntr()
     unsigned short *a, *b;
     if (*q == 0) {
         a = D_800A6354;
-        b = D_800A6358;
+        b = I_MASK;
         *b = 0;
         *a = *(volatile unsigned short *)b;
         *D_800A635C = 0x33333333;

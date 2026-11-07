@@ -9,12 +9,12 @@ extern s32 CdGetSector2(u8 *,u32);
 extern void CdDataSync(s32);
 extern s32 CdPosToInt(void *);
 extern s32 func_800963DC(const char *,...);
-extern const char D_80011D28[];
-extern void cb_data(void),func_8008E7F4(void);
+extern const char CdReadSectorErrorMsg[];
+extern void cb_data(void),cd_read_restore_sync(void);
 
 void cb_read(s32 event,u8 *data) {
     u8 header[12];
-    register volatile RrLibReadRequestState *initial=&D_800A67B0;
+    register volatile RrLibReadRequestState *initial=&CdReadState;
     register volatile RrLibReadRequestState *state;
     register volatile RrLibReadRequestState *transfer;
     register volatile RrLibReadRequestState *failed;
@@ -46,7 +46,7 @@ void cb_read(s32 event,u8 *data) {
                 /* ASM_BARRIER: capture the complete counter address before load. */
                 __asm__("" : "+r"(completed));
                 if ((u32)now!=*completed) {
-                    func_800963DC(D_80011D28);
+                    func_800963DC(CdReadSectorErrorMsg);
                     failed=(RrLibReadRequestState *)((u8 *)completed-
                                                      RR_READ_COMPLETED_OWNER_OFFSET);
                     failed->remaining14=-1;
@@ -81,7 +81,7 @@ void cb_read(s32 event,u8 *data) {
         initial->remaining14=-1;
     }
     now=VSync(-1);
-    state=&D_800A67B0;
+    state=&CdReadState;
     /* ASM_BARRIER: form the complete state address after the clock returns. */
     __asm__("" : "+r"(state));
     state->retry18=now;
@@ -98,7 +98,7 @@ void cb_read(s32 event,u8 *data) {
         if (CD_read_dma_mode&1) {
             CdDataCallback(state->restore.saved30);
         }
-        CdSyncCallback(func_8008E7F4);
+        CdSyncCallback(cd_read_restore_sync);
         CdControlF(9,0);
         /* PAL page+0x63F0 contains the data notification function pointer. */
         notify_page=(u8 *)0x800A0000U;

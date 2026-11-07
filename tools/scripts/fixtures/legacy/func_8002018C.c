@@ -75,7 +75,7 @@ u8 *AddJitterSprites(u32 *ordering,u8 *cursor,RrSpriteEffectSource *descriptor_a
             else page=descriptor->page;
             out_cursor=(u8 *)sprite;
             i++;
-            sprite=(RrSpritePacket *)AddDrawModePrim((u32 *)(D_800ACC14+0x70),out_cursor,page);
+            sprite=(RrSpritePacket *)AddDrawModePrim((u32 *)(CurrentDrawBuf+0x70),out_cursor,page);
         }
     }
     return (u8 *)sprite;

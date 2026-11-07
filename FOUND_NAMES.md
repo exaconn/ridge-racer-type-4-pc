@@ -39,7 +39,7 @@ znaki nowej linii.
 
 | Overlay | Adres ciągu | Treść | Użycie / dowód w odtworzonym kodzie |
 |---|---|---|---|
-| 660 | `0x8011487C` | `job_ta_crs_info0` | [course_menu.c](src/overlays/PAL/660/course_menu.c): przekazanie `ovl660_title` do `func_8001E84C` |
+| 660 | `0x8011487C` | `job_ta_crs_info0` | [course_menu.c](src/overlays/PAL/660/course_menu.c): przekazanie `ovl660_title` do `DebugPrintStub` |
 | 661 | `0x80114888` | `job_vs_car_info0` | [func_80115DB8.c](src/overlays/PAL/661/func_80115DB8.c): wypisanie `ovl661_D_80114888` |
 | 662 | `0x8011487C` | `garage0` | [func_80114B9C.c](src/overlays/PAL/662/func_80114B9C.c): wypisanie `ovl662_D_8011487C` |
 | 662 | `0x80114888` | `job_garage_car_info0` | [func_801153B0.c](src/overlays/PAL/662/func_801153B0.c): wypisanie `ovl662_D_80114888` |

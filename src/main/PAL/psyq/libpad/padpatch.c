@@ -38,10 +38,10 @@ struct S_1 {
     unsigned short sc, se;
 };
 
-extern int func_8009964C();
-extern int func_8009966C();
-extern int func_8009968C();
-extern int func_800996AC();
+extern int _padCmd4C();
+extern int _padCmd46();
+extern int _padCmd47();
+extern int _padCmd4B();
 extern unsigned char *D_80114438;
 extern int (*D_800ABC84)();
 /* Partial layout: six input slot IDs, per-group limits, six output IDs. */
@@ -60,23 +60,23 @@ typedef struct {
 RR_ASSERT_SIZE(RrSlotAssignmentState, 0xEC);
 RR_ASSERT_OFFSET(RrSlotAssignmentState, group_data, 4);
 
-void func_80098EE0();
-int func_80098F88(struct S_1 *s);
-void func_800993E8(void *arg0);
-s32 func_80099404(RrSlotAssignmentState *state);
+void _padSendActInfoCmd();
+int _padRecvActInfoReply(struct S_1 *s);
+void _padActAlignUpdate(void *arg0);
+s32 _padActAlignComplete(RrSlotAssignmentState *state);
 
-void func_80098EE0(s) struct S *s; {
+void _padSendActInfoCmd(s) struct S *s; {
     switch (s->c46) {
-    case 2: func_8009964C(s, s->c47); break;
-    case 3: func_8009966C(s, s->c47); break;
+    case 2: _padCmd4C(s, s->c47); break;
+    case 3: _padCmd46(s, s->c47); break;
     case 4:
-        if (s->c48 == 0) func_8009968C(s, s->c47);
-        else func_800996AC(s);
+        if (s->c48 == 0) _padCmd47(s, s->c47);
+        else _padCmd4B(s);
         break;
     }
 }
 
-int func_80098F88(struct S_1 *s) {
+int _padRecvActInfoReply(struct S_1 *s) {
     struct S2 *q;
     struct E4 *p5;
     struct E8 *e8;
@@ -192,21 +192,21 @@ char *a0; int a1;
         /* ASM_BARRIER: keep separate li 1 for return value (original has two li 1) */
         __asm__ volatile("" : "=r"(r) : "0"(1));
         a0[0x46] = 1;
-        *(int *)(a0 + 0x14) = (int)func_800993E8;
+        *(int *)(a0 + 0x14) = (int)_padActAlignUpdate;
         *(int *)(a0 + 0x20) = a1;
-        *(int *)(a0 + 0x18) = (int)func_80099404;
+        *(int *)(a0 + 0x18) = (int)_padActAlignComplete;
         return r;
     }
     return 0;
 }
 
-void func_800993E8(void *arg0) {
+void _padActAlignUpdate(void *arg0) {
     M2C_FIELD(arg0, s8 *, 0x37) = 0x4D;
     M2C_FIELD(arg0, s8 *, 0x36) = 6;
     M2C_FIELD(arg0, s32 *, 0x2C) = (s32) M2C_FIELD(arg0, s32 *, 0x20);
 }
 
-s32 func_80099404(RrSlotAssignmentState *state)
+s32 _padActAlignComplete(RrSlotAssignmentState *state)
 {
     s32 group, minimum, remaining, i;
     u8 *slots;

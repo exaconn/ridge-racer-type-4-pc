@@ -37,7 +37,7 @@ static unsigned scenario,mutation,phaseSeen[10];
 #define D_800AC5D0 w->s.timer
 #define D_800F3A60 w->s.accepted
 #define UiRows (w->s.rows[w->s.root])
-#define D_800ACC14 (&frames[w->s.bank])
+#define CurrentDrawBuf (&frames[w->s.bank])
 static Event *event(int kind){unsigned i;u32 h=2166136261U;Event *e;assert(w->calls<16);
  for(i=0;i<sizeof(w->s);i++)h=(h^((u8*)&w->s)[i])*16777619U;
  e=w->events+w->calls++;memset(e,0,sizeof(*e));e->kind=kind;e->hash=h;return e;

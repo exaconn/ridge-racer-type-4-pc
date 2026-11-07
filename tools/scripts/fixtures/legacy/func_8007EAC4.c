@@ -10,7 +10,7 @@ s32 _spu_init(s32 warm)
     u32 count;
     s32 i;
     u16 *entry;
-    *D_800A47E8 |= 0xB0000;
+    *SPU_DPCR |= 0xB0000;
     _spu_transMode=0;
     D_800A47F8=0;
     _spu_tsa=0;
@@ -29,7 +29,7 @@ s32 _spu_init(s32 warm)
         count++;
         do {
             if(count>0xF00) {
-                func_8001E84C(D_80011698,D_800116A8);
+                DebugPrintStub(D_80011698,SpuWaitResetStr);
                 break;
             }
             count++;

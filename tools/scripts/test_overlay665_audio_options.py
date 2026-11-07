@@ -40,10 +40,10 @@ static State actual,reference,*w;
 #define Options w->settings
 #define D_800AC5D0 w->timer
 #define D_800F7640 w->gain
-#define D_800F3A38 w->input
+#define PlayerControllers w->input
 #define D_800F3A60 w->input[0].a
 #define UiRows w->rows[w->rowRoot]
-#define D_800ACC14 (&w->frames[w->frameRoot])
+#define CurrentDrawBuf (&w->frames[w->frameRoot])
 ''' + body + r'''
 typedef struct {unsigned kind;s32 args[5];State before;} Event;
 static Event events[24];

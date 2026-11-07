@@ -15,6 +15,6 @@
 
 extern void _exeque(void);
 
-void func_80095990(void) {
+void GPU_DmaDoneRequeue(void) {
     DMACallback(2,_exeque);
 }

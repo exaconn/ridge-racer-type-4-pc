@@ -3,7 +3,7 @@
 #include "rr_asm.h"
 #include "game/gfx/light2.h"
 #include "rr/menu_overlay_runtime.h"
-void func_8001B688(a0) int a0;
+void SetLightColorsFromAngle(a0) int a0;
 {
     int *p; 
     register int x asm("$17"); /* ASM_BARRIER: pin to s-reg like the original saves */

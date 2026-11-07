@@ -10,7 +10,7 @@
 extern s32 ModeFrame,ScreenFrame;
 extern s16 MenuCursor,MenuItemCount,D_8010C0B8;
 extern u8 *CdDirectoryBuffer;
-extern RrMenuArenas D_800F4D70;
+extern RrMenuArenas MenuArenas;
 extern void *LoadCursor,*D_800F4D40;
 extern RrRaceVehicle PlayerCars[2];
 extern RrSelectionRows SelectionRows;
@@ -19,7 +19,7 @@ extern s16 D_8010C0C0[2][2],D_8010C0D8[2],D_8010C0D0[2];
 void ResetScreenCounters(void);
 void InitMenuArenas(void);
 void SetupRenderer(s32);
-void func_80037110(void);
+void InitPreviewImageRows(void);
 void ResetCarState(RrRaceVehicle *);
 s32 CountChoiceGlyphs(const RrCourseChoice4 *);
 void UnpackChoiceGlyph(s8 *,s32);

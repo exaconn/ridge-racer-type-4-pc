@@ -8,7 +8,7 @@
 #include "rr/menu_setup.h"
 #include "rr/overlay_menu.h"
 extern s16 ovl662_D_801272D4,ovl662_D_801272E0;
-void func_80037110(void);
+void InitPreviewImageRows(void);
 void ResetCarState(RrRaceVehicle *vehicle);
 s32 CountChoiceGlyphs(const RrCourseChoice4 *choices);
 void SetMenuFrameOptions(s32,s32,s32);

@@ -8,15 +8,15 @@ struct A { char p0[0xC]; char *f0C; char p1[0x27]; unsigned char b37; char p2[0x
 
 struct W { int x; };
 
-extern struct HW *D_800ABCCC;
+extern struct HW *PadSio0Base;
 
-extern volatile int *D_800ABCC8;
+extern volatile int *I_STAT_Pad;
 
 extern int D_800ABCA8;
 
 extern struct W D_800ABCC0[];
 
-extern void (*D_800ABC88)();
+extern void (*PadPacketDoneCallback)();
 
 extern void (*D_800ABC8C)();
 
@@ -30,12 +30,12 @@ int _padInitSioMode(a0) struct A *a0; {
     int v;
     int t;
     int cur;
-    D_800ABCCC->sA = 0x40;
-    D_800ABCCC->sA = 0;
-    D_800ABCCC->s8 = 0xD;
-    D_800ABCCC->sE = 0x88;
+    PadSio0Base->sA = 0x40;
+    PadSio0Base->sA = 0;
+    PadSio0Base->s8 = 0xD;
+    PadSio0Base->sE = 0x88;
     setRC2wait(a0->bE8 == 8 ? 0x50 : 0x91);
-    hw = D_800ABCCC;
+    hw = PadSio0Base;
     t = 0x1003;
     if (D_800ABCA8 != 0) t = 0x3003;
     hw->sA = t;
@@ -46,50 +46,50 @@ int _padInitSioMode(a0) struct A *a0; {
         lp:
             v = base[D_800ABCA8].x - 1;
             base[D_800ABCA8].x = v;
-            D_800ABC88(a0->f0C + v * 0xF0);
+            PadPacketDoneCallback(a0->f0C + v * 0xF0);
             if (base[D_800ABCA8].x > 0) goto lp;
         }
         p = &D_800ABCC0[D_800ABCA8];
         if (p->x == 0) {
             p->x = -1;
-            D_800ABC88(a0);
+            PadPacketDoneCallback(a0);
             D_800ABC8C(a0);
         }
     }
-    if (D_800ABCCC->s4 & 0x200) {
-        D_800ABCCC->sA |= 0x10;
-        if (D_800ABCCC->s4 & 0x200) {
+    if (PadSio0Base->s4 & 0x200) {
+        PadSio0Base->sA |= 0x10;
+        if (PadSio0Base->s4 & 0x200) {
             while (chkRC2wait() == 0);
-            D_800ABCCC->b0 = 1;
+            PadSio0Base->b0 = 1;
             setRC2wait(0x64);
             if (_padClrIntSio0() == 0) return 0;
             _padWaitRXready();
-            *(volatile unsigned char *)&D_800ABCCC->b0;
+            *(volatile unsigned char *)&PadSio0Base->b0;
             setRC2wait(0x1AE);
             goto l1;
         l1b:
             if (chkRC2wait() != 0) return 0;
         l1:
-            if (!(*D_800ABCC8 & 0x80)) goto l1b;
-            D_800ABCCC->b0 = 0x42;
+            if (!(*I_STAT_Pad & 0x80)) goto l1b;
+            PadSio0Base->b0 = 0x42;
             setRC2wait(0x3C);
             if (_padClrIntSio0() == 0) return 0;
             _padWaitRXready();
-            *(volatile unsigned char *)&D_800ABCCC->b0;
+            *(volatile unsigned char *)&PadSio0Base->b0;
             setRC2wait(0x1AE);
             goto l2;
         l2b:
             if (chkRC2wait() != 0) return 0;
         l2:
-            if (!(*D_800ABCC8 & 0x80)) goto l2b;
-            D_800ABCCC->b0 = 1;
+            if (!(*I_STAT_Pad & 0x80)) goto l2b;
+            PadSio0Base->b0 = 1;
             setRC2wait(0x3C);
             if (_padClrIntSio0() == 0) return 0;
             _padWaitRXready();
-            *(volatile unsigned char *)&D_800ABCCC->b0;
+            *(volatile unsigned char *)&PadSio0Base->b0;
             return 0;
         }
-        *D_800ABCC8 = -0x81;
+        *I_STAT_Pad = -0x81;
     }
     if (a0->b50 != 0 && a0->b37 != 0) return 0;
     return 1;

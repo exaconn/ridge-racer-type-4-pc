@@ -26,7 +26,7 @@
 #include "rr/sequencer_init.h"
 #include "rr/sequencer_tempo.h"
 #include "psyq/libsnd/cc_98.h"
-extern char D_800116E8[];
+extern char SsSeqOpenFailMsg[];
 extern int SsFCALL[];
 short SsSeqOpen(a0, a1) int a0; int a1; {
     /* ASM_BARRIER: pin t0 to match original register allocation */
@@ -59,7 +59,7 @@ short SsSeqOpen(a0, a1) int a0; int a1; {
     a3 = _snd_openflag;
     if (a3 == -1) {
     err:
-        func_8001E84C(D_800116E8, x, a2, a3);
+        DebugPrintStub(SsSeqOpenFailMsg, x, a2, a3);
         return -1;
     } else {
         v1 = 0;

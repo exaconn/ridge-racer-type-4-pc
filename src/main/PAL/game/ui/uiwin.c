@@ -62,10 +62,10 @@ extern int AddDrawModePrim();
 extern void *AddTilePrim();
 extern void *AddSpriteWithDrawMode();
 extern void *AddJitterSprites();
-extern void *func_80020508();
+extern void *AddTileSemiTransPrim();
 extern void InitRect16Row();
 extern int UpdateRect16Row();
-extern void func_80043608();
+extern void LoadTimImage();
 extern MenuRow1C *GlyphRows;
 extern s32 rsin();
 
@@ -133,8 +133,8 @@ int UpdateGlyphRow(int arg0) {
         a1 = *(void **)SCRATCHPAD;
         v0 = ((unsigned short)s5 * 0x7C) / 10;
         *(void **)SCRATCHPAD = (void *)AddDrawModePrim(
-            D_800ACC14 + 0x74,
-            func_80020508(D_800ACC14 + 0x74, a1, GlyphRows[arg0].x, GlyphRows[arg0].y, GlyphRows[arg0].w, GlyphRows[arg0].h, v0, v0, v0),
+            CurrentDrawBuf + 0x74,
+            AddTileSemiTransPrim(CurrentDrawBuf + 0x74, a1, GlyphRows[arg0].x, GlyphRows[arg0].y, GlyphRows[arg0].w, GlyphRows[arg0].h, v0, v0, v0),
             0x45
         );
         if ((unsigned short)s5 >= 10) {
@@ -148,10 +148,10 @@ int UpdateGlyphRow(int arg0) {
     case 0:
         a1 = *(void **)SCRATCHPAD;
         if ((unsigned short)s5 >= 3) {
-            a1 = AddJitterSprites(D_800ACC14 + 0x70, a1, &sp30, 1, 0xFF, 3);
+            a1 = AddJitterSprites(CurrentDrawBuf + 0x70, a1, &sp30, 1, 0xFF, 3);
         }
         *(void **)SCRATCHPAD = AddTilePrim(
-            D_800ACC14 + 0x74,
+            CurrentDrawBuf + 0x74,
             a1,
             GlyphRows[arg0].x,
             GlyphRows[arg0].y,
@@ -166,14 +166,14 @@ int UpdateGlyphRow(int arg0) {
             GlyphRows[arg0].f03++;
         }
         if (s5 == 1) {
-            func_80043608(GlyphRows[arg0].f18 + ((GlyphRows[arg0].f06 * GlyphRows[arg0].f00) << 11));
+            LoadTimImage(GlyphRows[arg0].f18 + ((GlyphRows[arg0].f06 * GlyphRows[arg0].f00) << 11));
         }
         break;
     case 1:
-        a1 = AddJitterSprites(D_800ACC14 + 0x70, *(void **)SCRATCHPAD, &sp30, 1, (0x80 - s5) * 2, 2);
-        a1 = AddJitterSprites(D_800ACC14 + 0x70, a1, &sp40, 1, s5, 1);
+        a1 = AddJitterSprites(CurrentDrawBuf + 0x70, *(void **)SCRATCHPAD, &sp30, 1, (0x80 - s5) * 2, 2);
+        a1 = AddJitterSprites(CurrentDrawBuf + 0x70, a1, &sp40, 1, s5, 1);
         *(void **)SCRATCHPAD = AddTilePrim(
-            D_800ACC14 + 0x7C,
+            CurrentDrawBuf + 0x7C,
             a1,
             GlyphRows[arg0].x,
             GlyphRows[arg0].y,
@@ -193,7 +193,7 @@ int UpdateGlyphRow(int arg0) {
         a1 = *(void **)SCRATCHPAD;
         if (GlyphRows[arg0].f00 >= 0) {
             a1 = AddSpriteWithDrawMode(
-                D_800ACC14 + 0x70,
+                CurrentDrawBuf + 0x70,
                 a1,
                 GlyphRows[arg0].x,
                 GlyphRows[arg0].y,
@@ -208,7 +208,7 @@ int UpdateGlyphRow(int arg0) {
             );
         }
         *(void **)SCRATCHPAD = AddTilePrim(
-            D_800ACC14 + 0x74,
+            CurrentDrawBuf + 0x74,
             a1,
             GlyphRows[arg0].x,
             GlyphRows[arg0].y,
@@ -236,7 +236,7 @@ int AllocUiRows(int a) {
     int sz = UiRowCount * 36;
     UiRows = a;
     func_80096434(a, sz);
-    func_8001E84C(D_800108D8, sz);
+    DebugPrintStub(D_800108D8, sz);
     return sz;
 }
 
@@ -302,7 +302,7 @@ void func_8003EA04(s32 arg0, s32 arg1, s32 arg2) {
     UiElem24 *p;
 
     if (UiRows[arg0].b2 == 0) {
-        *(s32 *)SCRATCHPAD = AddTilePrim(D_800ACC14 + 0x70, *(s32 *)SCRATCHPAD, arg1, arg2, 1, UiRows[arg0].sA, 0xFF, 0xFF, 0xFF);
+        *(s32 *)SCRATCHPAD = AddTilePrim(CurrentDrawBuf + 0x70, *(s32 *)SCRATCHPAD, arg1, arg2, 1, UiRows[arg0].sA, 0xFF, 0xFF, 0xFF);
     } else {
         s1 = 0;
         s3 = *(s32 *)SCRATCHPAD;
@@ -334,7 +334,7 @@ void func_8003EA04(s32 arg0, s32 arg1, s32 arg2) {
                 v = rsin(a0);
                 t = s0 + 1;
                 s0 = ((t + v / 0x801) << 3) + 0xD0;
-                s3 = AddSpriteWithDrawMode(D_800ACC14 + 0x70, s3, s6, arg2 + 8, 8, 0x10, s0, 0x10, c, 0x7F3A, 0, 0x80);
+                s3 = AddSpriteWithDrawMode(CurrentDrawBuf + 0x70, s3, s6, arg2 + 8, 8, 0x10, s0, 0x10, c, 0x7F3A, 0, 0x80);
                 s1++;
             } while (s1 < UiRows[arg0].b2);
         }

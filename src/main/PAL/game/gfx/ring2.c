@@ -11,7 +11,7 @@ struct A { int x, y, z, pad; short rx, ry, rz; };
 struct S3 { int x, y, z; };
 struct W { short x[12]; short h18, h1a; };
 
-void func_8005EFBC(void) {
+void DrawRingEffects(void) {
     int i;
     struct { struct A a; struct S3 s; char pad2[4]; int m[8]; int v[8]; } l;
     char *e = (struct W *)((char *)RaceContext.q + 0x134);

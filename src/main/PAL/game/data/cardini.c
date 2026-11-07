@@ -30,7 +30,7 @@ extern int SwCardEvNew;
 extern unsigned char D_800F3A24[];
 extern char D_800FFC48[];
 extern int CardPortTimer[];
-extern char D_800113D8[];
+extern char StrCardDirPatternFmt[];
 extern char CardDirEntries[];
 extern char *func_80096F74();
 extern char D_800113E4[];
@@ -39,9 +39,9 @@ extern int FileSeek();
 extern int _card_info();
 extern int _card_load();
 extern int CardPortState[];
-extern int D_8010ECC8[];
+extern int CardPortLastResult[];
 extern int CardPortResult[];
-extern int D_800A4094[];
+extern int CardPortLoaded[];
 extern char D_8010EF28[];
 
 void CardSystemShutdown(void);
@@ -54,14 +54,14 @@ int CardHasFile(int a0, unsigned char *a1);
 int CardReadFileAt(int a0, int a1, int a2, int a3, int a4, int a5);
 int CardWriteFileAt(int a0, int a1, int a2, int a3, int a4, int a5);
 int CardUpdate(int p, char *a1);
-void func_80078E1C(s32 arg0, s32 arg1);
+void CardFormatSlot(s32 arg0, s32 arg1);
 
 void CardSystemInit()
 {
     InitCARD();
     StartCARD();
     _bu_init();
-    func_8009BA04();
+    _cardStartCom();
     EnterCriticalSection();
     HwCardEvIoe = OpenEvent(0xF4000001, 4, 0x2000, 0);
     HwCardEvError = OpenEvent(0xF4000001, 0x8000, 0x2000, 0);
@@ -96,7 +96,7 @@ void CardSystemShutdown(void) {
     CloseEvent(SwCardEvTimeout);
     CloseEvent(SwCardEvNew);
     ExitCriticalSection();
-    func_8009BA94();
+    _cardStopCom();
     StopCARD();
 }
 
@@ -152,7 +152,7 @@ int CountCardFiles(int a, int b) {
     char sp[32];
     char *s0;
     int n = 0;
-    func_80096484(sp, D_800113D8, a, b);
+    PsyqSprintf(sp, StrCardDirPatternFmt, a, b);
     s0 = CardDirEntries;
     if (firstfile(sp, s0) == s0) {
         do { n++; s0 += 0x28; } while (func_80096F74(s0) == s0);
@@ -212,7 +212,7 @@ int a0, a1, a2, a3, a4;
     int r;
     int v;
     int ret;
-    func_80096484(sp, D_800113E4, a0, a1, a2);
+    PsyqSprintf(sp, D_800113E4, a0, a1, a2);
     v = a4 << 13;
     r = FileOpen(sp, 0x8001);
     if (r != -1) {
@@ -231,7 +231,7 @@ int a0, a1, a2, a3, a4;
 int CardReadFileAt(int a0, int a1, int a2, int a3, int a4, int a5) {
     char sp18[32];
     int h; register int r asm("$17"); int t;
-    func_80096484(sp18, D_800113E4, a0, a1, a2);
+    PsyqSprintf(sp18, D_800113E4, a0, a1, a2);
     t = a4;
     h = FileOpen(sp18, 0x8001);
     /* ASM_BARRIER: loads -1 into r after the call, not hoisted before it */
@@ -258,7 +258,7 @@ int a0, a1, a2, a3, a4, a5;
     int r;
     int v;
     int ret;
-    func_80096484(sp, D_800113E4, a0, a1, a2);
+    PsyqSprintf(sp, D_800113E4, a0, a1, a2);
     if (a5 == 1) {
         r = FileOpen(sp, (a4 << 16) | 0x200);
         if (r == -1) {
@@ -284,7 +284,7 @@ int a0, a1, a2, a3, a4, a5;
 int CardWriteFileAt(int a0, int a1, int a2, int a3, int a4, int a5) {
     char sp18[32];
     int h; register int r asm("$17"); int t;
-    func_80096484(sp18, D_800113E4, a0, a1, a2);
+    PsyqSprintf(sp18, D_800113E4, a0, a1, a2);
     t = a4;
     h = FileOpen(sp18, 0x8002);
     /* ASM_BARRIER: loads -1 into r after the call, not hoisted before it */
@@ -315,7 +315,7 @@ int CardUpdate(int p, char *a1) {
         _card_info(s2);
         CardPortState[p] = 1;
         CardPortTimer[p] = 0;
-        D_8010ECC8[p] = 0;
+        CardPortLastResult[p] = 0;
         break;
     case 1:
         a0 = PollHwCardEvents(p);
@@ -329,7 +329,7 @@ int CardUpdate(int p, char *a1) {
         case 3:
             CardPortResult[p] = -1;
             CardPortState[p] = 6;
-            D_800A4094[p] = 0;
+            CardPortLoaded[p] = 0;
             break;
         case 4:
             CardPortResult[p] = 2;
@@ -340,19 +340,19 @@ int CardUpdate(int p, char *a1) {
         default:
             CardPortResult[p] = -4;
             CardPortState[p] = 6;
-            D_800A4094[p] = 0;
+            CardPortLoaded[p] = 0;
             break;
         }
         break;
     case 2:
-        if (func_8009D700(s2, p * 17 + (int)D_8010EF28)) {
+        if (_cardCmd5ABegin(s2, p * 17 + (int)D_8010EF28)) {
             CardPortState[p] = 3;
             CardPortTimer[p] = 0;
         } else {
             if (CardPortTimer[p]++ >= 0x78) {
                 CardPortResult[p] = -4;
                 CardPortState[p] = 6;
-                D_800A4094[p] = 0;
+                CardPortLoaded[p] = 0;
             }
         }
         break;
@@ -364,7 +364,7 @@ int CardUpdate(int p, char *a1) {
                 switch (a0) {
                 case 0:
                     CardPortResult[p] = 3;
-                    if (D_800A4094[p] == 1) {
+                    if (CardPortLoaded[p] == 1) {
                         CardPortState[p] = 6;
                     } else {
                         CardPortState[p] = 4;
@@ -372,7 +372,7 @@ int CardUpdate(int p, char *a1) {
                     break;
                 case 2:
                     if (CardPortResult[p] == 1) {
-                        if (D_800A4094[p] == 1) {
+                        if (CardPortLoaded[p] == 1) {
                             CardPortState[p] = 6;
                         } else {
                             CardPortState[p] = 4;
@@ -383,13 +383,13 @@ int CardUpdate(int p, char *a1) {
                         _card_clear(s2);
                         WaitSwCardEvent();
                         CardPortState[p] = 4;
-                        D_800A4094[p] = 0;
+                        CardPortLoaded[p] = 0;
                     }
                     break;
                 case 1:
                     CardPortResult[p] = -1;
                     CardPortState[p] = 6;
-                    D_800A4094[p] = 0;
+                    CardPortLoaded[p] = 0;
                     break;
                 case 3:
                     CardPortResult[p] = 4;
@@ -397,19 +397,19 @@ int CardUpdate(int p, char *a1) {
                     _card_clear(s2);
                     WaitSwCardEvent();
                     CardPortState[p] = 4;
-                    D_800A4094[p] = 0;
+                    CardPortLoaded[p] = 0;
                     break;
                 }
             } else {
                 CardPortResult[p] = -4;
                 CardPortState[p] = 6;
-                D_800A4094[p] = 0;
+                CardPortLoaded[p] = 0;
             }
         } else {
             if (CardPortTimer[p]++ >= 0x78) {
                 CardPortResult[p] = -4;
                 CardPortState[p] = 6;
-                D_800A4094[p] = 0;
+                CardPortLoaded[p] = 0;
             }
         }
         break;
@@ -425,11 +425,11 @@ int CardUpdate(int p, char *a1) {
         CardPortState[p] = 6;
         switch (a0) {
         case 1:
-            D_800A4094[p] = a0;
+            CardPortLoaded[p] = a0;
             break;
         case 3:
             CardPortResult[p] = -1;
-            D_800A4094[p] = 0;
+            CardPortLoaded[p] = 0;
             break;
         case 4:
             x = CardPortResult[p];
@@ -438,23 +438,23 @@ int CardUpdate(int p, char *a1) {
             } else if ((unsigned)(x - 3) < 2) {
                 CardPortResult[p] = -3;
             }
-            D_800A4094[p] = 0;
+            CardPortLoaded[p] = 0;
             break;
         case 2:
         default:
             CardPortResult[p] = -4;
-            D_800A4094[p] = 0;
+            CardPortLoaded[p] = 0;
             break;
         }
         break;
     case 6:
-        D_8010ECC8[p] = CardPortResult[p];
+        CardPortLastResult[p] = CardPortResult[p];
         CardPortState[p] = 0;
         break;
     }
-    return D_8010ECC8[p];
+    return CardPortLastResult[p];
 }
 
-void func_80078E1C(s32 arg0, s32 arg1) {
+void CardFormatSlot(s32 arg0, s32 arg1) {
     _card_format((arg0 * 0x10) + arg1);
 }

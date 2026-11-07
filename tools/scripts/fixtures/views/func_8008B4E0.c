@@ -19,10 +19,10 @@
 
 #undef D_800A6350
 
-extern u16 *D_800A6358;
+extern u16 *I_MASK;
 
 s32 SetIntrMask(s32 value) {
-    s32 previous=*D_800A6358;
-    *D_800A6358=value;
+    s32 previous=*I_MASK;
+    *I_MASK=value;
     return previous;
 }

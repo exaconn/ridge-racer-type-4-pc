@@ -5,7 +5,7 @@
 #include "rr/timing.h"
 #include "psyq/libapi/vsyncini.h"
 
-extern s32 *D_800A6394;
+extern s32 *RCNT1_MODE;
 
 void trapIntrVSync();
 void setIntrVSync(s32 slot,RrSpuTickCallback callback);
@@ -16,7 +16,7 @@ void VSync_memclr();
 #define D_800A6370 (*(int (*))&D_800A6370)
 
 int *startIntrVSync(void) {
-    *D_800A6394 = 0x100;
+    *RCNT1_MODE = 0x100;
     Vcount = 0;
     VSync_memclr(&D_800A6370, 8);
     InterruptCallback(0, &trapIntrVSync);

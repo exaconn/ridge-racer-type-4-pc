@@ -10,5 +10,5 @@ void _dirFailAuto(u8 *channel);
  * overflow when incremented. Handlers may replace the index, bound and control
  * pointer. Mode -9 skips only the first cleanup; mode 0 clears its flag instead.
  * Subsequent passes use 65535, stopping at the bound or a nonzero ready result. */
-void func_80099E9C(s32 mode);
+void _padAdvanceChannel(s32 mode);
 #endif

@@ -15,9 +15,9 @@ s32 _padChkVsync(void);
 int _padIntPad(void) {
     s32 first,condition,enabled;
     u32 shifted;
-    RrSerialPortRegisters *port=D_800ABCCC;
+    RrSerialPortRegisters *port=PadSio0Base;
     if(port->control&2) {*(u16 *)&port->control=0;goto out;}
-    condition=D_800ABCB8;
+    condition=PadFirstChannel;
     /* ASM_BARRIER: Form the enable page after the serial-control gate. */
     __asm__("" : : : "$2");
     enabled=1;
@@ -40,17 +40,17 @@ int _padIntPad(void) {
         s32 value=*counter;
         if(value<150)*counter=value+1;
     }
-    if(!D_800ABCA0)goto out;
-    first=D_800ABCB8;
+    if(!PadComActive)goto out;
+    first=PadFirstChannel;
     /* Stage 15 times the index; quotient/remainder preserve native record sizes. */
     shifted=(u32)first<<4;
     if(D_800ABCBC<first)goto out;
-    D_800ABCAC=0;
+    PadRecvStage=0;
     D_800ABCA8=first;
-    if(!_padInitSioMode((RrChannelRecordF0 *)((unsigned long)D_800ABC9C+(long)(s32)((shifted-(u32)first)*(sizeof(RrChannelRecordF0)/15)+(u32)first*(sizeof(RrChannelRecordF0)%15)))))D_800ABC68(65535);
+    if(!_padInitSioMode((RrChannelRecordF0 *)((unsigned long)PadChannelRecords+(long)(s32)((shifted-(u32)first)*(sizeof(RrChannelRecordF0)/15)+(u32)first*(sizeof(RrChannelRecordF0)%15)))))D_800ABC68(65535);
     D_800ABCB0=0;
-    while(D_800ABCA8<=D_800ABCBC)func_80098488(D_800ABC9C+D_800ABCA8);
-    D_800ABCCC->baud=0x88;
+    while(D_800ABCA8<=D_800ABCBC)_padSioStageStep(PadChannelRecords+D_800ABCA8);
+    PadSio0Base->baud=0x88;
 out:
     return 0;
 }
@@ -84,20 +84,20 @@ void _padStartCom(void) {
         page[-0x4360/4]=0;
     }
     EnterCriticalSection();
-    SysDeqIntRP(2,D_80114418);
-    SysEnqIntRP(2,D_80114418);
-    p=D_800ABCC8;
+    SysDeqIntRP(2,PadIntQueueEntry);
+    SysEnqIntRP(2,PadIntQueueEntry);
+    p=I_STAT_Pad;
     p->pending=0xFFFFFFFEU;
     mask=p->mask;
     /* Ordinary final write view permits the original call-delay store. */
     *(u32 *)((u8 *)p+RR_FIELD_OFFSET(RrInterruptRegisters,mask))=mask|1;
     ChangeClearRCnt(3,0);
     ExitCriticalSection();
-    D_800ABC6C(D_800ABC9C);
-    D_800ABC6C(D_800ABC9C+1);
+    D_800ABC6C(PadChannelRecords);
+    D_800ABC6C(PadChannelRecords+1);
     counters=D_80114428;
     counters[1]=0;counters[0]=0;
-    D_800ABCA0=1;
+    PadComActive=1;
     /* ASM_BARRIER: Restore saved registers only after publishing the enabled state. */
     __asm__ volatile("" : : : "$16", "$31", "memory");
 }

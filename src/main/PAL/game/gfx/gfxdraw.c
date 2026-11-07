@@ -86,7 +86,7 @@ extern s32 rcos();
 void func_8004417C(int arg0, void *arg1);
 void func_800448EC(void);
 void func_80044920();
-void func_80044B24(void);
+void RotTransPersOrigin(void);
 void func_80044B5C(void);
 u8 *func_80044BA0(s32 a0);
 
@@ -139,7 +139,7 @@ void func_8004417C(int arg0, void *arg1) {
         sp10[1] = RaceContext.f24 - scratch[3];
         scratch[7] = 0x400 - Atan2Table(sp10[0], sp10[2]);
         scratch[6] = 0x400 - Atan2Table(sp10[1], func_80090758(sp10[0] * sp10[0] + sp10[2] * sp10[2]) >> 6);
-        scratch[8] = func_80043FC0(s2, RaceContext.f48);
+        scratch[8] = LerpAngleWrap4096(s2, RaceContext.f48);
         SetGeomScreen(s2->f28);
         break;
     case 2:
@@ -170,7 +170,7 @@ void func_8004417C(int arg0, void *arg1) {
         sp10[1] = RaceContext.f24 - scratch[3];
         scratch[7] = 0x400 - Atan2Table(sp10[0], sp10[2]);
         scratch[6] = 0x400 - Atan2Table(sp10[1], func_80090758(sp10[0] * sp10[0] + sp10[2] * sp10[2]) >> 6);
-        scratch[8] = func_80043FC0(s2, RaceContext.f48);
+        scratch[8] = LerpAngleWrap4096(s2, RaceContext.f48);
         break;
     case 3:
         scratch[2] = s2->x * 4;
@@ -178,7 +178,7 @@ void func_8004417C(int arg0, void *arg1) {
         scratch[4] = s2->z * 4;
         scratch[6] = s2->f10;
         scratch[7] = s2->f14;
-        scratch[8] = func_80043FC0(s2, D_800AC698);
+        scratch[8] = LerpAngleWrap4096(s2, D_800AC698);
         SetGeomScreen(s2->f28);
         break;
     case 4:
@@ -192,7 +192,7 @@ void func_8004417C(int arg0, void *arg1) {
         sp30[0] = s2->f10;
         sp30[1] = s2->f14;
         sp30[2] = 0;
-        func_80043F5C(sp30, s2->f18, sp20);
+        RotateNegZByEulerZYX(sp30, s2->f18, sp20);
         sp20[0] += s2->x;
         sp20[1] += s2->y;
         sp20[2] += s2->z;
@@ -204,7 +204,7 @@ void func_8004417C(int arg0, void *arg1) {
         sp10[1] = RaceContext.f24 - scratch[3];
         scratch[7] = 0x400 - Atan2Table(sp10[0], sp10[2]);
         scratch[6] = 0x400 - Atan2Table(sp10[1], func_80090758(sp10[0] * sp10[0] + sp10[2] * sp10[2]) >> 6);
-        scratch[8] = func_80043FC0(s2, RaceContext.f48);
+        scratch[8] = LerpAngleWrap4096(s2, RaceContext.f48);
         SetGeomScreen(s2->f28);
         break;
     case 5:
@@ -213,7 +213,7 @@ void func_8004417C(int arg0, void *arg1) {
         sp38[1] = s2->f14;
         sp38[2] = s2->f18;
         func_80043ED4(sp38, s2->f2C, &scratch[2]);
-        scratch[8] = func_80043FC0(s2, RaceContext.f48);
+        scratch[8] = LerpAngleWrap4096(s2, RaceContext.f48);
         scratch[2] += RaceContext.f20;
         scratch[3] += RaceContext.f24;
         scratch[4] += RaceContext.f28;
@@ -230,7 +230,7 @@ void func_8004417C(int arg0, void *arg1) {
         sp10[1] = RaceContext.f24 - scratch[3];
         scratch[7] = 0x400 - Atan2Table(sp10[0], sp10[2]);
         scratch[6] = 0x400 - Atan2Table(sp10[1], func_80090758(sp10[0] * sp10[0] + sp10[2] * sp10[2]) >> 6);
-        scratch[8] = func_80043FC0(s2, RaceContext.f48);
+        scratch[8] = LerpAngleWrap4096(s2, RaceContext.f48);
         SetGeomScreen(s2->f28);
         break;
     }
@@ -284,7 +284,7 @@ void func_80044920(a0, a1) A0 *a0; V8 *a1;
     *a1 = s.m10;
 }
 
-void func_80044B24(void) {
+void RotTransPersOrigin(void) {
     short a[3];
     int b, c, d;
     a[0] = 0;
@@ -354,7 +354,7 @@ u8 *func_80044BA0(s32 a0) {
         p[0x15] = g->c1[1];
         p[0x16] = g->c1[2];
         w = *(s32 *)p;
-        ot = (s32 *)(a0 * 4 + (s32)D_800ACC14);
+        ot = (s32 *)(a0 * 4 + (s32)CurrentDrawBuf);
         o = ot[0x70 / 4];
         o = o & 0xFFFFFF;
         w = w & 0xFF000000;
@@ -365,7 +365,7 @@ u8 *func_80044BA0(s32 a0) {
     {
         s32 *ot;
         p[3] = 1;
-        ot = (s32 *)(a0 * 4 + (s32)D_800ACC14);
+        ot = (s32 *)(a0 * 4 + (s32)CurrentDrawBuf);
         *(s32 *)(p + 4) = 0xE1000245;
         *(s32 *)p = (*(s32 *)p & 0xFF000000) | (ot[0x70 / 4] & 0xFFFFFF);
         ot[0x70 / 4] = (ot[0x70 / 4] & 0xFF000000) | ((s32)p & 0xFFFFFF);

@@ -4,7 +4,7 @@
 #include "types.h"
 
 extern unsigned char D_80114725;
-int func_8009C55C();
-int func_8009C610();
+int _cardCmd59ParamTx();
+int _cardRxStatusByte();
 
 #endif /* RR_PSYQ_LIBCARD_CARDC03_H */

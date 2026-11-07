@@ -12,7 +12,7 @@ struct S { char pad[0x2864]; s16 a; char p[0x2888 - 0x2866]; s16 b; };
 
 
 void SeqSetVolume(s16 a0);
-void func_80053AF4(int a0, int a1);
+void SeqFadeVolume(int a0, int a1);
 
 void CdAudioUpdate(void) {
     s32 ready;
@@ -164,7 +164,7 @@ block_34:
             } else if (SoundState.action2670 != 5) {
                 SoundState.action2670 = 5;
                 SoundState.timer26A4 = 0;
-                func_8001E84C(D_8001118C, &SoundState);
+                DebugPrintStub(XaRepeatMsg, &SoundState);
             }
             CdAudioSetVolumeRaw(0);
         }
@@ -259,7 +259,7 @@ void SeqSetVolume(s16 a0) {
 /* legacy typing of shared globals in this part of the unit */
 #define SoundState (*(struct { char p0[0x2864]; s32 x2864; s32 x2868; s32 x286C; char p1[0x18]; u16 x2888; s16 x288A; s16 x288C; s16 x288E; s16 x2890; } (*))&SoundState)
 
-void func_80053AF4(int a0, int a1) {
+void SeqFadeVolume(int a0, int a1) {
     if ((s16)a1 >= 2) {
         u16 v = SoundState.x2888;
         SoundState.x288A = a1;

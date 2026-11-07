@@ -99,7 +99,7 @@ void SoundUpdate(void) {
     for (p = (u32 *)((char *)&SoundState + 0x38); i < 4; i++, p += 0x188) {
         if (*p & 1) UpdateSoundSlot(i);
     }
-    func_80050EC4();
+    UpdatePlayerVoices();
     func_80051378();
     func_80051554();
     SoundQueueUpdate();

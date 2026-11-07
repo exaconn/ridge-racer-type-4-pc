@@ -26,7 +26,7 @@ void ovl661_func_80117430(void) {
             } else {
                 func_80033368((s16) temp_s0, 1);
             }
-            D_800F3914 = DecodeCourseIndex((s16) D_800AC648);
+            CourseIndex = DecodeCourseIndex((s16) D_800AC648);
             UiRows[18+MenuCursor].cells[0] = 0;
             StepMenuValue(0, 2, (char *)&MenuCursor, MenuItemCount, 0);
             UiRows[18+MenuCursor].cells[0] = 2;
@@ -45,7 +45,7 @@ void ovl661_func_80117430(void) {
             temp_s0_2 = UiRows[18].byte14;
             var_s2 = 0;
             if (temp_s0_2 == 2) {
-                if (D_800F3A38[0].a != 0) {
+                if (PlayerControllers[0].a != 0) {
                     PlaySfx(1);
                     UiRows[18+MenuCursor].cells[0] = 1;
                     if ((s16) MenuCursor == 0) {
@@ -74,8 +74,8 @@ void ovl661_func_80117430(void) {
                         }
                         ResetScreenCounters();
                         D_800AC5D0 = 0x40;
-                        LoadCursor = D_800F4D70.first;
-                        func_80053AF4(0, 0x3C);
+                        LoadCursor = MenuArenas.first;
+                        SeqFadeVolume(0, 0x3C);
                         D_800F4D8A = 3;
                         SetMenuFrameOptions(0, 1, 1);
                     } else if ((s16) MenuCursor == 1) {
@@ -89,7 +89,7 @@ void ovl661_func_80117430(void) {
                     } else if ((s16) MenuCursor == 3) {
                         var_s2 = 1;
                     }
-                } else if (D_800F3A38[0].b != 0) {
+                } else if (PlayerControllers[0].b != 0) {
                     PlaySfx(2);
                     var_s2 = 1;
                 }
@@ -114,11 +114,11 @@ void ovl661_func_80117430(void) {
             if (D_800AC5D0 > 0) {
                 D_800AC5D0 = (u16) D_800AC5D0 - 1;
             }
-            AddScreenFadeTiles(&D_800ACC14->head70, (0x40 - D_800AC5D0) * 4, 0x45);
+            AddScreenFadeTiles(&CurrentDrawBuf->head70, (0x40 - D_800AC5D0) * 4, 0x45);
             if (NumCars.halves[0] >= 3) {
                 D_800F4D44 = 3;
                 if (LoadCarRangeStep(2, NumCars.halves[0] - 2) == 1) {
-                    D_800F4D70.first = LoadCursor;
+                    MenuArenas.first = LoadCursor;
                     goto block_42;
                 }
             } else {
@@ -140,7 +140,7 @@ block_42:
                 SetMenuFrameOptions(1, 1, 0);
                 UiRows[23].cells[0] = temp_s0_3;
                 StepMenuValue(1, 4, (char *)&NumLaps, 0xA, (s32) temp_s0_3);
-                if (D_800F3A38[0].a != 0) {
+                if (PlayerControllers[0].a != 0) {
                     PlaySfx(1);
                     UiRows[23].cells[0] = 1U;
                     UiRows[23].byte14 = 3U;
@@ -162,7 +162,7 @@ block_42:
                 } else {
                     StepMenuValue(1,2,(char *)&D_800ABEC8,4,0);
                 }
-                if (D_800F3A38[0].a != 0) {
+                if (PlayerControllers[0].a != 0) {
                     PlaySfx(1);
                     UiRows[24].cells[0] = 1;
                     UiRows[24].byte14 = 3U;

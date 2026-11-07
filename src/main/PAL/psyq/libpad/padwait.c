@@ -3,7 +3,7 @@
 #include "psyq/libpad/padwait.h"
 
 void _padWaitRXready(void) {
-    RrSerialPortRegisters *port = D_800ABCCC;
+    RrSerialPortRegisters *port = PadSio0Base;
 
     /* ASM_BARRIER: keep the pointer's load delay before the polling loop label. */
     __asm__ volatile("nop");

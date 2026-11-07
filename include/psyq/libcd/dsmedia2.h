@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern int D_801102D0;
+extern int StCurFrameNo;
 extern short D_801102D4;
 extern int D_80110348;
 void StClearRing(void);

@@ -24,23 +24,23 @@
 #undef MenuFrameState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(s32 (*))&D_800ACC14)
+#define CurrentDrawBuf (*(s32 (*))&CurrentDrawBuf)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(s32 (*))&D_800ACC14)
+#define CurrentDrawBuf (*(s32 (*))&CurrentDrawBuf)
 
 #define AddTilePrim ((s32 (*)())AddTilePrim)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 #undef AddTilePrim
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A38 (*(E (*)[])&D_800F3A38)
+#define PlayerControllers (*(E (*)[])&PlayerControllers)
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 /* legacy typing of shared globals in this part of the unit */
 #define PlayerCars (*(S_800ABEF8 (*)[])&PlayerCars)
@@ -49,7 +49,7 @@
 
 typedef struct { u8 c[8]; } B8;
 
-extern char *D_800ACC14;
+extern char *CurrentDrawBuf;
 
 extern void *AddTilePrim();
 
@@ -112,13 +112,13 @@ B12:
         } else {
 B14:
             ub = (char *)&w.u;
-            t0 = func_8002071C(D_800ACC14 + 0x70, t0, ((s32 *)w.v)[0], ((s32 *)w.v)[1], ((s32 *)w.v)[2], ub + (sel << 2), 0);
+            t0 = func_8002071C(CurrentDrawBuf + 0x70, t0, ((s32 *)w.v)[0], ((s32 *)w.v)[1], ((s32 *)w.v)[2], ub + (sel << 2), 0);
         }
     }
     i++;
     if (i < 2) goto L0;
     *(s32 *)0x1F800000 = t0;
     if (a3 == 1) {
-        *(s32 *)0x1F800000 = AddTilePrim(D_800ACC14 + 0x70, t0, a0, a1 - 0xC, a3, 0x18, 0xFF, 0xFF, 0xFF);
+        *(s32 *)0x1F800000 = AddTilePrim(CurrentDrawBuf + 0x70, t0, a0, a1 - 0xC, a3, 0x18, 0xFF, 0xFF, 0xFF);
     }
 }

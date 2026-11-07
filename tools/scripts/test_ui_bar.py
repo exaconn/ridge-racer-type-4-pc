@@ -73,7 +73,7 @@ static RrSpritePacket *append(int model,int kind,u32 *order,RrSpritePacket *curs
     if(model)expected_log[sequence]=entry;else actual_log[sequence]=entry;
     effect(model?&expected:&actual,sequence);return next_cursor(sequence);
 }
-RrSpritePacket *func_8001FF84(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,
+RrSpritePacket *AddSpritePrim(u32 *order,RrSpritePacket *cursor,s32 x,s32 y,
                             RrUiUvRect *glyph,u16 clut,s32 mode) {
     return append(0,0,order,cursor,glyph,x,y,clut,mode,0,0,0);
 }

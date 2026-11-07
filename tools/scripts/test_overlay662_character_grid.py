@@ -32,7 +32,7 @@ static const s32 sineValues[9]={INT32_MIN,-4096,-1,0,1,63,64,4096,INT32_MAX};
 u8 NameCharset[]=" 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!?&@";
 s8 ovl662_D_80126230[3]={0,1,2};
 RrBadgeRow1C *BadgeRows;
-#define D_8009FA1C w->s.uv
+#define UiFontGlyphs w->s.uv
 #define ScreenFrame w->s.tick
 #define ovl662_D_801273B4 w->s.selection
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
@@ -54,7 +54,7 @@ void *AddTextSprites(u32 *ot,void *p,s32 x,s32 y,const char *text,s32 clut,s32 s
  assert(clut==32760||clut==32761);clutSeen[clut-32760]++;
  e->args[0]=x;e->args[1]=y;e->args[2]=clut;e->args[3]=spacing;e->args[4]=color;memcpy(e->text,text,4);change();return (u8*)p+20;
 }
-void *func_8001FF84(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
+void *AddSpritePrim(u32 *ot,void *p,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
  Event *e=event(3,p);assert(ot==ordering&&uv>=w->s.uv&&uv<w->s.uv+128);assert(clut==32760||clut==32761);clutSeen[clut-32760]++;
  e->args[0]=x;e->args[1]=y;e->args[2]=clut;e->args[3]=color;e->args[4]=uv-w->s.uv;memcpy(e->text,uv,4);change();return (u8*)p+20;
 }
@@ -78,7 +78,7 @@ static void expected(s32 row){s32 x=w->s.rows[row].x04+36,y=w->s.rows[row].y06+5
  for(i=0;i<4;i++){
   p=AddTilePrim(ordering,p,x-12+dx,y+144,1,16,255,255,255);dx+=4;
   if(i!=3){unsigned key=ovl662_D_80126230[i];pulse((u32)w->s.selection==40+i,&clut,&color);
-   p=func_8001FF84(ordering,p,x-12+dx,y+144,&w->s.uv[key],clut,color);dx+=4+w->s.uv[key].w;
+   p=AddSpritePrim(ordering,p,x-12+dx,y+144,&w->s.uv[key],clut,color);dx+=4+w->s.uv[key].w;
   }
  }
  AddDrawModePrim(ordering,p,56);

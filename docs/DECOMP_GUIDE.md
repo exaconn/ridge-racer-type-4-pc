@@ -37,7 +37,7 @@ Compiler: gcc 2.8.1 (PSX) `-O2 -G0 -mips1 -mcpu=3000 -funsigned-char` via `tools
 - Struct arrays: `p[i].x` vs pointer walking compile differently; try both. `i < n` vs `n > i`, `for` vs `while` vs `do/while` change block order.
 - `(x + 1) % n` emits the `div`/`break 7`/`break 6` sequence (maspsx expands it); `x / 1024` emits the shift-with-bias sequence for signed int.
 - Temporaries: introducing/removing a local, or moving a load before/after a call, changes register allocation and scheduling.
-- Function pointer/address constants like `0x80034E70` in the asm are usually `(int)func_80034E70` (lui/addiu pair with relocation); a plain literal gives `ori`.
+- Function pointer/address constants like `0x80034E70` in the asm are usually `(int)LinkTimeoutCallback` (lui/addiu pair with relocation); a plain literal gives `ori`.
 - Switch statements: the jump-table order (rodata) must match too; case bodies are emitted in source order, table slots follow case values.
 - PsyQ library functions (>= 0x8007D000) are lower priority; `configs/PAL/psyq_hints.parasite.txt` lists likely names from another game.
 
@@ -51,7 +51,7 @@ Compiler: gcc 2.8.1 (PSX) `-O2 -G0 -mips1 -mcpu=3000 -funsigned-char` via `tools
 - Check which argument registers the asm reads: a function that uses `$a1`,`$a2` but never `$a0` needs a dummy first parameter.
 - `p[7] = 0x40; p[7] = c ? 0x42 : 0x40;` reproduces store/branch/store; two plain `if` stores do not.
 - Signed `x / 2` emits `srl/addu/sra`; two divisions of the same sum reproduce some originals.
-- Known layouts: `D_800F3A38` array of 0x5C-byte structs; `PadPulseState` 0x18-byte elements of shorts.
+- Known layouts: `PlayerControllers` array of 0x5C-byte structs; `PadPulseState` 0x18-byte elements of shorts.
 
 ## More tricks (from chunk 6)
 - In-place signed `/256`: `if (v < 0) v += 0xFF; x = v >> 8;` (plain `/ 256` adds a register copy).
@@ -302,7 +302,7 @@ Units with inline asm are acceptable; no hand-written `.s` replacements.
 - `int *p = D_X; r = *p; *p = a0;` gets register-held address.
 - `unsigned a0; v = a0 & 0xFFFF; if (v >= 3) return 0;` gives slti on masked value.
 - `goto out;` to shared `return 0` reproduces epilogue `addu v0,zero`.
-- Unresolved: func_8009C310-family `li v0,1` delay-slot placement; tiny if-conversion functions (xori/sltiu/negu/andi).
+- Unresolved: _cardCmd59Begin-family `li v0,1` delay-slot placement; tiny if-conversion functions (xori/sltiu/negu/andi).
 - `-mno-split-addresses` is rejected by 2.7.2 cc1.
 
 ## More tricks (wave 3, gte 1)
@@ -377,7 +377,7 @@ Units with inline asm are acceptable; no hand-written `.s` replacements.
 - Everything from func_8005F0D0 on is hand-written fragments (except UpdateScrollTrack).
 
 ## More tricks (wave 4, c9)
-- `r = const; if (volatile_global != x) r = 0; return r;` : pin r to $2 and loaded value to $4, make global volatile (keeps unfilled `beq; nop` and early `li`). Matched func_8009D65C/D7A0/DE30.
+- `r = const; if (volatile_global != x) r = 0; return r;` : pin r to $2 and loaded value to $4, make global volatile (keeps unfilled `beq; nop` and early `li`). Matched _cardCmd58Tx/D7A0/DE30.
 - Pinned regs can backfire: cse reuses known value (e.g. 0) and deletes `li v0,0` or reuses reg for `sw zero`.
 - 2.7.2 if-converts to xori/sltiu/negu; if original has plain branches, use 2.8.1 + volatile global.
 - Declarations at top avoid cc1 Bus error from mixed declarations.
@@ -555,7 +555,7 @@ What the pipeline does (verified on StSetRing / _mainasu):
 What DOES work (stock): cc1 2.8.1 splits addresses itself (`lui rX,%hi; sw v,%lo(rX)`) and its reorg fills the jal/jr slot with the `sw`. The hi register is normally $2.., but `/* CC1_FLAGS: -fcall-used-$1 */` makes $1 (=$at) allocatable, so cc1 uses `$1` and the result is byte-identical to the assembler's `lui $at / sw %lo($at)` form, delay slot included. maspsx/as accept `$1` as `$at`. Recipe for leaf / simple stores with the original `lui $at,%hi(A); sw; lui $at,%hi(B); jr ra; sw %lo(B)($at)`:
     /* CC1_FLAGS: -fcall-used-$1 */      (default GCC 2.8.1, NOT the 2.7.2 marker)
   plus `-fno-schedule-insns2` when the original keeps `sw $ra` before the first lui (calls). Matched with it: _SsVmDamperOff, SsSetStereo, CD_set_test_parmnum, StSetMask.
-Still blocked (checked all failed drafts + scratch drafts with 2.8.1 x {-fcall-used-$1, +-fno-schedule-insns2, +-fno-schedule-insns, -mno-split-addresses, -fno-strength-reduce}): everything that has `lw ra; addiu sp; jr ra; nop` or 2.7.2-only codegen (StSetRing top half matches with `-fcall-used-$1 -fno-schedule-insns2`, only the epilogue `lw; nop; jr; addiu` vs `lw; addiu; jr; nop` differs), _mainasu, func_80082D00, SpuStart, _spu_Fw1ts, _add_mant_d, _err_math, CdRead2, CdCommandCallback, cd_read, _SsContRpn2, _SsClose, _SsContNrpn1.
+Still blocked (checked all failed drafts + scratch drafts with 2.8.1 x {-fcall-used-$1, +-fno-schedule-insns2, +-fno-schedule-insns, -mno-split-addresses, -fno-strength-reduce}): everything that has `lw ra; addiu sp; jr ra; nop` or 2.7.2-only codegen (StSetRing top half matches with `-fcall-used-$1 -fno-schedule-insns2`, only the epilogue `lw; nop; jr; addiu` vs `lw; addiu; jr; nop` differs), _mainasu, _SsTickCallbackDivided, SpuStart, _spu_Fw1ts, _add_mant_d, _err_math, CdRead2, CdCommandCallback, cd_read, _SsContRpn2, _SsClose, _SsContNrpn1.
 
 ## KEY LEVER: `/* CC1_FLAGS: -fcall-used-$1 */` (stock cc1 2.8.1)
 Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and its own scheduler puts the sw in jal/jr delay slots. Matched _SsVmDamperOff, 8008A634, 8008DDA0, 8008F914 (same lever parasite-pc uses for ER_retry). Try also with `-fno-schedule-insns2` / `-fno-expensive-optimizations`. Added to sweep_markers.py defaults.
@@ -565,7 +565,7 @@ Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and
 - (w8c2) `register int *g asm("$4")` placed after the first computation gives `lui a0` scratchpad base. Read base symbol into a local before `i = a0*6`.
 - (w9c0) Derive every pointer/Y value from loop counter `i` (`0xEC + i*0x38`, `0x118 + i*0x14`) in a plain `do { } while (i < 2)`: loop.c emits giv inits after hoisted constants (original preheader order). Packed `U4` struct for lwl/lwr/swl/swr copies. A volatile `asm("" : "=r"(x) : "0"(c))` barrier acts as a scheduling barrier and can change the schedule.
 - (w9c4) `/* CC1_FLAGS: -fno-schedule-insns */` for functions whose original has unscheduled `lw; nop; sw` runs following source order (sched1 off). Detect such runs, then brute-force statement order. Mask constant `lui`+`ori` kept apart by an empty-asm barrier so sched2 sees separate insns. `-fno-cse-skip-blocks` stops reuse of a global across an `if` join (redundant reload fix). `int b=(int)D; v=(int*)(b+a1*12)` puts base first in addu.
-- (w9c7) Inline CPU instructions only via named central macros in include/rr_asm.h (e.g. `RR_NOP_DEP()` for a lone `nop`; used by func_8009BD44 — maspsx puts the load-delay nop after the loop label, original has it before). No raw `asm("nop")` strings in function bodies.
+- (w9c7) Inline CPU instructions only via named central macros in include/rr_asm.h (e.g. `RR_NOP_DEP()` for a lone `nop`; used by _cardSelectSlot — maspsx puts the load-delay nop after the loop label, original has it before). No raw `asm("nop")` strings in function bodies.
 - (w9c7) CD/SPU module 0x80092xxx-0x8009Cxxx: `-mno-split-addresses`; duplicated call in each branch; `while (A || B)` loops; `char nv = b & 0xFF`.
 - (w9c2) 3-element loop reading a stride-4 table with one walking pointer + offsets 0,1,2 in the original: write `T[i*4+k]`/`T[i][k]`, not `*s++`. Empty-asm launder on a pointer inside a loop (`asm volatile("" : "=r"(p) : "0"(p))`) makes cc1 recompute `p + i*2` each iteration (matches `sll v1,t0,1; addu v1,s0,v1`). `"=r"(f) : "r"(e)` form does NOT copy; use `"0"`.
 - (w9c2) The original may pass an unused 4th arg (kept-live pointer, e.g. `$a3` loop-end) to a callee: K&R call with extra arg.
@@ -584,9 +584,9 @@ Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and
 - Dead `char pad[N]` + `__asm__ volatile("" : : "m"(pad[0]))` at END of function reserves stack without instructions; `int pad[2]` adds 8 frame bytes.
 - Derived induction variable (`a0 + 0x80 + i*0x80`) places init after loop-hoisted constants (BuildCardHeaderAnim).
 - Dead address-of inside a call arg `(*(v = &a4), i)` stops constant hoisting (BuildCardHeaderAnim; found by permuter).
-- Goto loop + `char *b2 = D; q = a0*0x2C + (int)b2` (func_8003D01C); `-fno-schedule-insns` + pins (DecayCarOffset).
+- Goto loop + `char *b2 = D; q = a0*0x2C + (int)b2` (SetLightColorsFromRow); `-fno-schedule-insns` + pins (DecayCarOffset).
 - Near-misses: func_800572A8, 8004BE4C, 8007C944, 80047A50, 800211A4, 80054D50, 80042F58, 80043C14, 8004A080, 80049A60, 800217D0, 80020F20.
-- Wave 10 chunk 3: per-arm tail duplication (repeat the call in each arm so crossjump merges); `-fno-cse-skip-blocks` forces global reload across an if join (func_80059168); `__asm__("" : "=r"(x) : "0"(v))` launder keeps `& ~0x1F` out of andi narrowing, `volatile` variant keeps a constant inside its branch; separate temps per call result.
+- Wave 10 chunk 3: per-arm tail duplication (repeat the call in each arm so crossjump merges); `-fno-cse-skip-blocks` forces global reload across an if join (SelectCourseBgmTrack); `__asm__("" : "=r"(x) : "0"(v))` launder keeps `& ~0x1F` out of andi narrowing, `volatile` variant keeps a constant inside its branch; separate temps per call result.
 
 ## Wave 11 tricks
 - Temp-var copy: `{ int t = f1(); v = f2(); s0 = t; }` moves the first call's result copy into the second jal's delay slot (PadPollPort).
@@ -599,8 +599,8 @@ Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and
 
 ## Wave 12 tricks
 - Rewrite trailing do/while as `for (i=0;i<N;i++)`; use incoming param directly instead of local copy; local names must not collide with register names (s0,s3 rejected by cc1) (ModeSelectMenuStep, 8003AE4C).
-- Scope products differently (function-scope x, block-scope y, inline third) to steer the last `mflo` into $v0 (func_8003CF34).
-- Launder `col` inside an if-arm to keep a redundant constant reload (func_80022448); launder after `if (t<0) t=-t` stops slti landing in bgez slot (SoundCalcCarParams).
+- Scope products differently (function-scope x, block-scope y, inline third) to steer the last `mflo` into $v0 (SetLightColorsScaled).
+- Launder `col` inside an if-arm to keep a redundant constant reload (DrawRaceTimesScreen); launder after `if (t<0) t=-t` stops slti landing in bgez slot (SoundCalcCarParams).
 - Switch tables: case blocks in original order, `case 0: default:` first, shared tails, `break` not early return, `/* RODATA addr size */` (InitRaceCars).
 - Second use of a constant in a loop makes loop.c hoist it to an s-reg; plain `for` duplicates the exit test with its own lui.
 - Soft-float: `typedef long long D` with 64-bit hex literals avoids .rdata doubles / maspsx `li.d` failure.
@@ -645,7 +645,7 @@ Makes $at allocatable: cc1 emits `lui $1,%hi(sym); sw v,%lo(sym)($1)` itself and
 
 ## Disabled diagnostic ABI
 
-PAL `func_8001E84C` is an eight-byte assembly entry that ignores its arguments
+PAL `DebugPrintStub` is an eight-byte assembly entry that ignores its arguments
 and returns 1. Callers pass diagnostic format strings, not callback addresses;
 for example overlay662's `801148F0` and `80114900` are `enter SaveBack\n` and
 `enter LoadBack\n`. Use `rr/diagnostics.h` for newly recovered callers.

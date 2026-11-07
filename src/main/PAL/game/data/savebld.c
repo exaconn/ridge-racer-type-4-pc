@@ -1,7 +1,7 @@
 /* RODATA 0x80011458 0x48 */
 #include "game/data/savebld.h"
 #include "game/data/savetype.h"
-extern Struct48 D_800ABE08;
+extern Struct48 CourseChoiceTable;
 extern SaveBuf *SaveBuffer;
 extern Struct2C SelectionState;
 extern Struct40 Options;
@@ -36,7 +36,7 @@ void BuildSaveData(int arg0) {
         s3->f280 = SaveProgress;
         s3->f2FC = Options;
         for (a3 = 0; a3 < 9; a3++) {
-            s3->f33C[a3] = D_800ABE08.f24[a3];
+            s3->f33C[a3] = CourseChoiceTable.f24[a3];
         }
         for (a3 = 0; a3 < 3; a3++) {
             D_8010B258[a3].f10 = 0;

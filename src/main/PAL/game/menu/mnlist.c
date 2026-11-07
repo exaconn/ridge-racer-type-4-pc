@@ -45,10 +45,10 @@ typedef struct
 extern int AddTextSprites();
 extern int AddDrawModePrim();
 extern int AddTilePrim();
-extern int func_8001FF84();
+extern int AddSpritePrim();
 extern int CopyStringClearTail();
 extern int FormatDecimalDigits();
-extern R4 D_8009FA1C[];
+extern R4 UiFontGlyphs[];
 extern char D_8009FDBF[];
 extern char D_8009FDC0[];
 extern char D_8009FDC4[];
@@ -56,11 +56,11 @@ extern u8 D_8009FDCC[];
 extern u8 D_8009FDD8[];
 extern u8 D_8009FDE4[];
 extern int D_800AC5D4;
-extern signed char *D_800F2AB0;
+extern signed char *ImageRows;
 extern char *D_800F39C8[];
 extern char *BadgeRows;
 extern R4 SelectionRows[];
-extern int func_80020508();
+extern int AddTileSemiTransPrim();
 extern u8 D_8009FDF4[];
 extern u8 D_8009FDF8[];
 extern u8 D_8009FDFC[];
@@ -68,12 +68,12 @@ extern u8 D_8009FE00[];
 extern u8 D_8009FE04[];
 extern u8 D_8009FE08[];
 extern u8 D_8009FE0C[];
-extern S2C D_800F2E30[];
+extern S2C SaveSlotSelections[];
 extern short D_800F4D3C;
-extern char D_8010C150[];
+extern char FractionText[];
 extern unsigned char D_8009FBEC[];
 extern char Options[];
-extern char D_800F3A38[];
+extern char PlayerControllers[];
 extern int D_800F4CB8;
 
 int func_80042254();
@@ -163,10 +163,10 @@ int arg2;
   {
     x += D_8009FDCC[i];
     e = D_8009FDD8 + i;
-    arg1 = func_8001FF84(arg0, arg1, x, y, &D_8009FA1C[*e], 0x7FF8, 0);
+    arg1 = AddSpritePrim(arg0, arg1, x, y, &UiFontGlyphs[*e], 0x7FF8, 0);
     t3 = x + 2;
-    s2 = t3 + D_8009FA1C[*e].c;
-    if (D_800F2AB0[1] != 6)
+    s2 = t3 + UiFontGlyphs[*e].c;
+    if (ImageRows[1] != 6)
     {
       switch (i)
       {
@@ -186,9 +186,9 @@ int arg2;
           for (s1 = s6; s1 < (s6 + 2); s1++)
           {
             f = ((signed char *) D_8009FDE4) + s1;
-            arg1 = func_8001FF84(arg0, arg1, s2, y, &D_8009FA1C[*f], 0x7FF8, 0);
+            arg1 = AddSpritePrim(arg0, arg1, s2, y, &UiFontGlyphs[*f], 0x7FF8, 0);
             t4 = s2 + 2;
-            s2 = t4 + D_8009FA1C[*f].c;
+            s2 = t4 + UiFontGlyphs[*f].c;
           }
         }
         else
@@ -226,7 +226,7 @@ int arg2;
           break;
 
         case 11:
-          arg1 = func_8001FF84(arg0, arg1, s2, y, &D_8009FA1C[sp48], 0x7FF8, 0);
+          arg1 = AddSpritePrim(arg0, arg1, s2, y, &UiFontGlyphs[sp48], 0x7FF8, 0);
           break;
 
       }
@@ -263,7 +263,7 @@ int arg2;
 
 /* legacy typing of shared globals in this part of the unit */
 #define FormatDecimalDigits ((void (*)())FormatDecimalDigits)
-#define D_8009FA1C (*(R4_1 (*)[])&D_8009FA1C)
+#define UiFontGlyphs (*(R4_1 (*)[])&UiFontGlyphs)
 
 int func_80042820(arg0, arg1, arg2)
 int arg0;
@@ -286,7 +286,7 @@ int arg2;
 
     for (i = 0; i < 4; i++) {
         x += D_8009FDF4[i];
-        arg1 = func_8001FF84(arg0, arg1, x, y, &D_8009FA1C[D_8009FDFC[i]], 0x7FF8, 0);
+        arg1 = AddSpritePrim(arg0, arg1, x, y, &UiFontGlyphs[D_8009FDFC[i]], 0x7FF8, 0);
     }
 
     i = 7;
@@ -302,16 +302,16 @@ int arg2;
         x = *(short *)(BadgeRows + arg2 * 0x1C + 4) + 8;
         FormatDecimalDigits(sp38, i + 1, 0);
         arg1 = AddTextSprites(arg0, arg1, x, y + D_8009FDF8[i + 1], sp38, 0x7FF8, 0, 0);
-        if ((sp28[2] = D_800F2E30[i].b17) != -1) {
-            sp28[0] = D_8009FE00[D_800F2E30[i].b1C & 3];
-            sp28[1] = D_8009FE04[D_800F2E30[i].b1D & 3];
-            sp28[2] = D_8009FE08[D_800F2E30[i].b17 / 2];
+        if ((sp28[2] = SaveSlotSelections[i].b17) != -1) {
+            sp28[0] = D_8009FE00[SaveSlotSelections[i].b1C & 3];
+            sp28[1] = D_8009FE04[SaveSlotSelections[i].b1D & 3];
+            sp28[2] = D_8009FE08[SaveSlotSelections[i].b17 / 2];
             for (j = 0; j < 3; j++) {
                 x += D_8009FDF4[j + 1];
-                arg1 = func_8001FF84(arg0, arg1, x, y + D_8009FDF8[i + 1], &D_8009FA1C[sp28[j]], 0x7FF8, 0);
-                if (j == 2 && D_800F2E30[i].b17 < 4) {
+                arg1 = AddSpritePrim(arg0, arg1, x, y + D_8009FDF8[i + 1], &UiFontGlyphs[sp28[j]], 0x7FF8, 0);
+                if (j == 2 && SaveSlotSelections[i].b17 < 4) {
                     x += 0xE;
-                    arg1 = func_8001FF84(arg0, arg1, x, y + D_8009FDF8[i + 1], &D_8009FA1C[38], 0x7FF8, 0);
+                    arg1 = AddSpritePrim(arg0, arg1, x, y + D_8009FDF8[i + 1], &UiFontGlyphs[38], 0x7FF8, 0);
                 }
             }
         } else {
@@ -321,7 +321,7 @@ int arg2;
             }
         }
         if (i == D_800F4D3C) {
-            arg1 = func_80020508(arg0, arg1, *(short *)(BadgeRows + arg2 * 0x1C + 4), y + D_8009FDF8[i + 1] - 4, sp40, 0x18, 0x20, 0x20, 0x20);
+            arg1 = AddTileSemiTransPrim(arg0, arg1, *(short *)(BadgeRows + arg2 * 0x1C + 4), y + D_8009FDF8[i + 1] - 4, sp40, 0x18, 0x20, 0x20, 0x20);
         }
     }
 
@@ -342,23 +342,23 @@ int arg2;
 }
 
 #undef FormatDecimalDigits
-#undef D_8009FA1C
+#undef UiFontGlyphs
 
 /* legacy typing of shared globals in this part of the unit */
 #define FormatDecimalDigits ((void (*)())FormatDecimalDigits)
 
 char *FormatCountOfTotal(int a, int b, int c) {
     int i = 7;
-    char *p = D_8010C150 + i;
+    char *p = FractionText + i;
     do {
         *p = 0;
         i--;
         p--;
     } while (i >= 0);
-    FormatDecimalDigits(D_8010C150, a, c);
-    D_8010C150[c + 1] = 0x2F;
-    FormatDecimalDigits(D_8010C150 + c + 2, b, c);
-    return D_8010C150;
+    FormatDecimalDigits(FractionText, a, c);
+    FractionText[c + 1] = 0x2F;
+    FormatDecimalDigits(FractionText + c + 2, b, c);
+    return FractionText;
 }
 
 #undef FormatDecimalDigits
@@ -405,7 +405,7 @@ int a2;
   {
     idx = 0;
   }
-  v1 = ((S3 *) (D_800F3A38 + (idx * 0x5C)))->w;
+  v1 = ((S3 *) (PlayerControllers + (idx * 0x5C)))->w;
   switch (v1)
   {
     case 0:
@@ -424,7 +424,7 @@ int a2;
 
   }
 
-  r = func_8001FF84(aa, a1, s3, s4, D_8009FBEC, 0x7FF8, 0);
+  r = AddSpritePrim(aa, a1, s3, s4, D_8009FBEC, 0x7FF8, 0);
   sp[0] = s2 + 0x41;
   nv = s3 + 2;
   AddDrawModePrim(aa, AddTextSprites(aa, r, nv + D_8009FBEC[2], s4, sp, 0x7FF8, 0, 0), 0x38);

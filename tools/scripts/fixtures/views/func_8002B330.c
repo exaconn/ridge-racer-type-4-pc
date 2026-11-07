@@ -24,23 +24,23 @@
 #undef MenuFrameState
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(s32 (*))&D_800ACC14)
+#define CurrentDrawBuf (*(s32 (*))&CurrentDrawBuf)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ACC14 (*(s32 (*))&D_800ACC14)
+#define CurrentDrawBuf (*(s32 (*))&CurrentDrawBuf)
 
 #define AddTilePrim ((s32 (*)())AddTilePrim)
 
-#undef D_800ACC14
+#undef CurrentDrawBuf
 
 #undef AddTilePrim
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A38 (*(E (*)[])&D_800F3A38)
+#define PlayerControllers (*(E (*)[])&PlayerControllers)
 
-#undef D_800F3A38
+#undef PlayerControllers
 
 /* legacy typing of shared globals in this part of the unit */
 #define PlayerCars (*(S_800ABEF8 (*)[])&PlayerCars)
@@ -53,7 +53,7 @@ typedef struct {
     char pad14[0x48];
 } S_F3A38;
 
-extern S_F3A38 D_800F3A38[];
+extern S_F3A38 PlayerControllers[];
 
 extern s32 MenuStepDirection;
 
@@ -82,7 +82,7 @@ void StepMenuValue(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4;
         break;
     }
     if ((a0 & 1) == 0) {
-        b = D_800F3A38[a].b;
+        b = PlayerControllers[a].b;
         if ((b & 0x8000) == 0) {
             if ((b & 0x2000) == 0) {
                 if (b & 0x1000) {
@@ -96,7 +96,7 @@ void StepMenuValue(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4;
             }
         }
     } else {
-        b = D_800F3A38[a].b;
+        b = PlayerControllers[a].b;
         if ((b & 0x1000) == 0) {
           if ((b & 0x4000) == 0) {
             if (b & 0x8000) {

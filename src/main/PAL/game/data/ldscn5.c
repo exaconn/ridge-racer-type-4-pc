@@ -5,7 +5,7 @@
 #include "game/data/cdfile1.h"
 #include "game/data/cdfile2.h"
 #include "rr/course_choices.h"
-extern void func_800436E8();
+extern void LoadTimList();
 extern unsigned char LoadState;
 
 int func_8003BEA8(int a) {
@@ -21,7 +21,7 @@ int func_8003BEA8(int a) {
         break;
     case 2:
         if (CdFileBytesLoaded() != 0) {
-            func_800436E8(LoadCursor);
+            LoadTimList(LoadCursor);
     case 3:
             if (CdFileReadStart(GetR4FileIndex(0, a + 10), LoadCursor) != 0) {
                 LoadState = 4;

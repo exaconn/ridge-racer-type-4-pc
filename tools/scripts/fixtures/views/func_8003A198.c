@@ -7,7 +7,7 @@
 
 #define IntroScriptStep ((int (*)())IntroScriptStep)
 
-#define D_800F4D70 (*(int (*))&D_800F4D70)
+#define MenuArenas (*(int (*))&MenuArenas)
 
 #define ModeGroup (*(short (*))&ModeGroup)
 
@@ -15,7 +15,7 @@
 
 #undef IntroScriptStep
 
-#undef D_800F4D70
+#undef MenuArenas
 
 #undef ModeGroup
 

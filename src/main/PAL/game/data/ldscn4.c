@@ -6,7 +6,7 @@
 #include "game/data/cdfile1.h"
 #include "game/data/cdfile2.h"
 #include "rr/course_choices.h"
-extern void func_800436E8();
+extern void LoadTimList();
 extern void RaceLoadReset();
 extern int func_80096464();
 extern int CdDirectoryBuffer;
@@ -27,7 +27,7 @@ int func_8003BD2C(void) {
         break;
     case 2:
         if (CdFileBytesLoaded() != 0) {
-            func_800436E8(LoadCursor);
+            LoadTimList(LoadCursor);
             LoadState = 3;
             LoadCursor = CdDirectoryBuffer;
         }

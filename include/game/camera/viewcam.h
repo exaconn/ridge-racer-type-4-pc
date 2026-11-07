@@ -4,6 +4,6 @@
 #include "types.h"
 
 int func_8006EDA4();
-int func_8006F188();
+int GetViewTrackNode();
 
 #endif /* RR_GAME_CAMERA_VIEWCAM_H */

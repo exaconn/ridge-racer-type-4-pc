@@ -7,7 +7,7 @@
 
 #define IntroScriptStep ((int (*)())IntroScriptStep)
 
-#define D_800F4D70 (*(int (*))&D_800F4D70)
+#define MenuArenas (*(int (*))&MenuArenas)
 
 #define ModeGroup (*(short (*))&ModeGroup)
 
@@ -15,7 +15,7 @@
 
 #undef IntroScriptStep
 
-#undef D_800F4D70
+#undef MenuArenas
 
 #undef ModeGroup
 
@@ -69,6 +69,6 @@ void UpdateMenuScript(void) {
         }
     }
     if (ModeGroup != 1) {
-        *(void **)0x1F800000 = AddTileGrid2x2((u32 *)((u8 *)D_800ACC14 + 0xB6C), *(void **)0x1F800000, 0, 0, 0x140, 0x200, 0, 0, 0);
+        *(void **)0x1F800000 = AddTileGrid2x2((u32 *)((u8 *)CurrentDrawBuf + 0xB6C), *(void **)0x1F800000, 0, 0, 0x140, 0x200, 0, 0, 0);
     }
 }

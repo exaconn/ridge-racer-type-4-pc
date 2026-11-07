@@ -35,7 +35,7 @@ typedef struct {u32 guard[4];RrLibSavedState saved;Registers regs[2];
  volatile u16 *statusRoot,*maskRoot;s32 stalled;
  u32 mode,acks,callbacks,prints,bios,injected,inactiveReturn;u32 tail[4];} World;
 static World actual,expected;
-const char D_8001183C[]="inactive interrupt";
+const char UnexpectedInterruptFmt[]="inactive interrupt";
 const char D_80011858[]="unhandled interrupt";
 typedef struct {World state;unsigned kind,first,second,third;} Event;
 static Event events[128];static unsigned count,cursor;
@@ -94,12 +94,12 @@ static void bios_effect(World *w){w->bios++;
 }
 #define D_800A52C8 (actual.saved)
 #define D_800A6354 (actual.statusRoot)
-#define D_800A6358 (actual.maskRoot)
-#define D_800A6360 (actual.stalled)
+#define I_MASK (actual.maskRoot)
+#define IntrStuckCount (actual.stalled)
 static void ack_actual(volatile u16 *p,u16 value){unsigned bank=port_id(&actual,p);enter(0,bank,value,0);acknowledge(&actual,bank,value);}
 static void call_callback(unsigned id){enter(1,id,0,0);callback_effect(&actual,id);}
-s32 func_8001E84C(const char *format,...){va_list ap;unsigned message,first,second=0;
- assert(format==D_8001183C||format==D_80011858);message=format==D_80011858;
+s32 DebugPrintStub(const char *format,...){va_list ap;unsigned message,first,second=0;
+ assert(format==UnexpectedInterruptFmt||format==D_80011858);message=format==D_80011858;
  va_start(ap,format);first=(unsigned)va_arg(ap,int);if(message)second=(unsigned)va_arg(ap,int);va_end(ap);
  enter(2,message,first,second);print_effect(&actual,message);return 1;}
 void ReturnFromException(void){enter(3,0,0,0);bios_effect(&actual);}

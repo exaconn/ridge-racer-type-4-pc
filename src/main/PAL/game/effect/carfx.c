@@ -266,13 +266,13 @@ void DrawHudSprite(int a0, int a1, int a2, int a3, int a4)
   p[0xD] = new_var;
   lo = 0xFFFFFF;
   cmd = 0xE1000229;
-  d = D_800ACC14;
+  d = CurrentDrawBuf;
   *((unsigned int *) p) = ((*((unsigned int *) p)) & hi) | ((*((unsigned int *) (d + 0x70))) & lo);
   *((unsigned int *) (d + 0x70)) = ((*((unsigned int *) (d + 0x70))) & hi) | (((unsigned int) p) & lo);
   p += 0x14;
   *g = (int) p;
   p[3] = 1;
-  d = D_800ACC14;
+  d = CurrentDrawBuf;
   *((unsigned int *) (p + 4)) = cmd;
   *((unsigned int *) p) = ((*((unsigned int *) p)) & hi) | ((*((unsigned int *) (d + 0x70))) & lo);
   *((unsigned int *) (d + 0x70)) = ((*((unsigned int *) (d + 0x70))) & hi) | (((unsigned int) p) & lo);
@@ -295,14 +295,14 @@ void DrawHudDigit(a0, a1, a2, a3) s32 a0; s32 a1; s32 a2; s32 a3; {
     p->h = 0x10;
     p->x = a1;
     p->clut = 0x7F38;
-    p->addr = ((RrSpritePacketSignedClut *)(D_800ACC14 + 0x70))->addr;
-    *(u32 *)(D_800ACC14 + 0x70) = (*(u32 *)(D_800ACC14 + 0x70) & 0xFF000000) | ((u32)p & 0xFFFFFF);
+    p->addr = ((RrSpritePacketSignedClut *)(CurrentDrawBuf + 0x70))->addr;
+    *(u32 *)(CurrentDrawBuf + 0x70) = (*(u32 *)(CurrentDrawBuf + 0x70) & 0xFF000000) | ((u32)p & 0xFFFFFF);
     p++;
     *(RrSpritePacketSignedClut **)SCRATCHPAD = p;
     p->len = 1;
     *((u32 *)p + 1) = (D_800111FE & 0x9FF) | 0xE1000200;
-    p->addr = ((RrSpritePacketSignedClut *)(D_800ACC14 + 0x70))->addr;
-    *(u32 *)(D_800ACC14 + 0x70) = (*(u32 *)(D_800ACC14 + 0x70) & 0xFF000000) | ((u32)p & 0xFFFFFF);
+    p->addr = ((RrSpritePacketSignedClut *)(CurrentDrawBuf + 0x70))->addr;
+    *(u32 *)(CurrentDrawBuf + 0x70) = (*(u32 *)(CurrentDrawBuf + 0x70) & 0xFF000000) | ((u32)p & 0xFFFFFF);
     *(RrSpritePacketSignedClut **)SCRATCHPAD = (RrSpritePacketSignedClut *)((u32 *)p + 2);
 }
 
@@ -362,9 +362,9 @@ int a1;
     else c = 0x80;
   } } while (0);
   i = 0; v[0] = 0x7C; v[2] = 0xC4; v[3] = 0xB0; v[1] = 0xB0; w[2] = c; w[1] = c; w[0] = c;
-  do { func_8004D290(v, w, 1, 0); i += 1; v[1] += 1; v[3] += 1; } while (i < 2);
+  do { AddLineF2Prim(v, w, 1, 0); i += 1; v[1] += 1; v[3] += 1; } while (i < 2);
   i = 0; v[3] = 0x118; v[1] = 0x118; w[2] = c; w[1] = c; w[0] = c;
-  do { func_8004D290(v, w, 1, 0); i += 1; v[1] += 1; v[3] += 1; } while (i < 2);
+  do { AddLineF2Prim(v, w, 1, 0); i += 1; v[1] += 1; v[3] += 1; } while (i < 2);
   ua = s1[2];
   if (s1[2] >= 0) {
     do {

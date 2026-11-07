@@ -8,7 +8,7 @@ void setRC2wait(s32 limit) {
     register s32 counter __asm__("$2") = *(volatile u16 *)0x1F801120;
     /* ASM_BARRIER: retain the original assembler temporary for the mapped store. */
     register s32 *base __asm__("$1");
-    D_801146BC = limit;
+    RC2WaitLimit = limit;
     /* ASM_BARRIER: finish the limit store before binding the saved-counter address. */
     __asm__ volatile("" : : : "$1", "memory");
     /* PAL RAM mapping for D_801146B8. */
@@ -19,7 +19,7 @@ void setRC2wait(s32 limit) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_801146BC (*(unsigned int (*))&D_801146BC)
+#define RC2WaitLimit (*(unsigned int (*))&RC2WaitLimit)
 
 int chkRC2wait() {
     unsigned int a0;
@@ -37,14 +37,14 @@ int chkRC2wait() {
     }
     if (!(*(volatile unsigned short *)0x1F801124 & 0x200)) {
         b = D_801146B8;
-        lim = D_801146BC;
+        lim = RC2WaitLimit;
         v0 = (a0 - b) >> 3;
     } else {
         b = D_801146B8;
-        lim = D_801146BC;
+        lim = RC2WaitLimit;
         v0 = a0 - b;
     }
     return v0 >= lim;
 }
 
-#undef D_801146BC
+#undef RC2WaitLimit

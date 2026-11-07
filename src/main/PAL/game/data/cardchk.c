@@ -3,11 +3,11 @@
 #include "game/data/cardchk.h"
 extern int D_8010EF88[];
 extern int D_8010EF90[];
-extern unsigned char D_800A409C[];
+extern unsigned char CardCheckCounts[];
 extern unsigned char D_800F3A24[];
-extern unsigned char D_800ACBCC[];
+extern unsigned char CardFileCounts[];
 
-void func_80078E40(a0, a1, a2)
+void PollCardStatus(a0, a1, a2)
 int a0; int a1; int a2;
 {
     int r, flag, k, s3, t, v;
@@ -21,15 +21,15 @@ int a0; int a1; int a2;
     if (r != 0) {
         D_8010EF90[k] = r;
         switch (r) {
-        case -2: D_800A409C[0]++; break;
-        case -1: D_800A409C[1]++; break;
-        case 1: D_800A409C[2]++; break;
-        case 2: D_800A409C[3] += 3; break;
-        case -3: D_800A409C[4]++; break;
-        case 3: D_800A409C[5]++; break;
-        case 4: D_800A409C[6] += 3; break;
-        case -4: D_800A409C[7]++; break;
-        default: D_800A409C[8]++; break;
+        case -2: CardCheckCounts[0]++; break;
+        case -1: CardCheckCounts[1]++; break;
+        case 1: CardCheckCounts[2]++; break;
+        case 2: CardCheckCounts[3] += 3; break;
+        case -3: CardCheckCounts[4]++; break;
+        case 3: CardCheckCounts[5]++; break;
+        case 4: CardCheckCounts[6] += 3; break;
+        case -4: CardCheckCounts[7]++; break;
+        default: CardCheckCounts[8]++; break;
         }
     } else {
         D_8010EF90[k] = 0;
@@ -41,7 +41,7 @@ int a0; int a1; int a2;
     p0 = b0 + s3;
     p1 = D_8010B2DC + s3;
 loop:
-    if (D_800A409C[i] >= 3) {
+    if (CardCheckCounts[i] >= 3) {
         switch (i) {
         case 0:
             *p0 = 0x14; *p1 = 0; flag = 1; break;
@@ -49,8 +49,8 @@ loop:
             *p0 = 0x1E; *p1 = 0; flag = 1; break;
         case 2:
             if (*p0 >= 0x10) {
-                D_800ACBCC[s3] = CountCardFiles(s3, a1 & 0xFF);
-                *p0 = 0xF - CardFreeBlocks(D_800ACBCC[s3]);
+                CardFileCounts[s3] = CountCardFiles(s3, a1 & 0xFF);
+                *p0 = 0xF - CardFreeBlocks(CardFileCounts[s3]);
                 *p1 = 0;
             }
             flag = 1; break;
@@ -61,8 +61,8 @@ loop:
             *p0 = 0x14; *p1 = 1; flag = 1; break;
         case 5:
             if (*p0 >= 0x10) {
-                D_800ACBCC[s3] = CountCardFiles(s3, a1 & 0xFF);
-                *p0 = 0xF - CardFreeBlocks(D_800ACBCC[s3]);
+                CardFileCounts[s3] = CountCardFiles(s3, a1 & 0xFF);
+                *p0 = 0xF - CardFreeBlocks(CardFileCounts[s3]);
                 *p1 = 1;
             }
             flag = 1; break;
@@ -81,6 +81,6 @@ next:
     i++;
     if (i < 9) goto loop;
     if (flag == 1 || (short)a2 == 1) {
-        i = 8; pp = D_800A409C + i; do { *pp-- = 0; } while (--i >= 0);
+        i = 8; pp = CardCheckCounts + i; do { *pp-- = 0; } while (--i >= 0);
     }
 }

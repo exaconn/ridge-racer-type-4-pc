@@ -7,7 +7,7 @@
 #include "rr/menu_arenas.h"
 #include "rr/menu_glyph.h"
 extern s16 D_800ABE2C;
-extern u8 *D_800F2AB0;
+extern u8 *ImageRows;
 void ovl662_func_80119B44(void);
 /* Render first, then increment the fresh word04 modulo2^32. A signed result
  * of28 or more publishes transition3/5/0. */

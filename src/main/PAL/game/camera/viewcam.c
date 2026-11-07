@@ -39,18 +39,18 @@ typedef struct {
 
 extern int ScaleMatrix();
 extern int D_8010E690;
-extern struct S8 D_800FF690;
+extern struct S8 CameraViewMatrix;
 extern struct S8 D_800F39A8;
 extern int SetLightMatrix();
 extern M2C_UNK ColorMatrix;
 extern char D_800ABF48[];
-extern short D_800F3914;
+extern short CourseIndex;
 extern void func_80060C70();
 extern unsigned short D_8010E280;
 extern unsigned int D_8010E290;
 extern int ApplyMatrix();
 extern int RotMatrixYXZ();
-extern short D_800ABED0[][3];
+extern short LightMatrix[][3];
 extern char D_800F38F8[][8];
 extern unsigned short D_800AD5BC[];
 extern s16 ViewOffsetX[];
@@ -77,7 +77,7 @@ void func_8006EDA4(void);
 void SetGteObjectTransform(short *a0, short *a1, int *a2);
 void BuildLightMatrix(void);
 void SetupViewport(s32 a0);
-int func_8006F188(int *a0, int a1);
+int GetViewTrackNode(int *a0, int a1);
 
 void func_8006E9E8(int a0, int *a1) {
     int v[4], w[4], x[4];
@@ -107,10 +107,10 @@ void SetupViewMatrix(void) {
     v[1] = -(g[1] >> 2);
     v[2] = 0x8000 - (g[2] >> 2);
     ApplyMatrixLV(SCRATCH_ROT_MATRIX, v, w);
-    D_800FF690.w[5] = w[0];
-    D_800FF690.w[6] = w[1];
-    D_800FF690.w[7] = w[2];
-    D_800F39A8 = D_800FF690;
+    CameraViewMatrix.w[5] = w[0];
+    CameraViewMatrix.w[6] = w[1];
+    CameraViewMatrix.w[7] = w[2];
+    D_800F39A8 = CameraViewMatrix;
     v[0] = 0x20000 - g[0];
     v[1] = -g[1];
     v[2] = 0x20000 - g[2];
@@ -130,18 +130,18 @@ void SetupViewMatrix(void) {
 }
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800ABED0 (*(M2C_UNK (*))&D_800ABED0)
+#define LightMatrix (*(M2C_UNK (*))&LightMatrix)
 
 void SetupViewLighting(void) {
     SetColorMatrix(&ColorMatrix);
     BuildLightMatrix();
-    SetLightMatrix(&D_800ABED0);
+    SetLightMatrix(&LightMatrix);
     SetBackColor(BackColorR, BackColorG, BackColorB);
     SetFarColor(FarColorR, FarColorG, FarColorB);
     SetFogNear(0x4E20, 0x122);
 }
 
-#undef D_800ABED0
+#undef LightMatrix
 
 void func_8006ECE8(int ignoredPlayer) {
     char *p = D_800ABF48;
@@ -150,7 +150,7 @@ void func_8006ECE8(int ignoredPlayer) {
     SetupViewLighting();
     func_8006E9E8(p, p - 0x30);
     SetupViewMatrix();
-    func_80060C70(SCRATCHPAD, D_8010E690, D_800F3914);
+    func_80060C70(SCRATCHPAD, D_8010E690, CourseIndex);
 }
 
 /* legacy typing of shared globals in this part of the unit */
@@ -164,7 +164,7 @@ void func_8006ED4C(void) {
     func_80071348();
     SetupViewLighting();
     SetupViewMatrix();
-    func_80060C70(SCRATCHPAD, D_8010E690, D_800F3914);
+    func_80060C70(SCRATCHPAD, D_8010E690, CourseIndex);
 }
 
 #undef func_80060C70
@@ -187,7 +187,7 @@ void func_8006EDA4(void) {
     }
     SetupViewLighting();
     SetupViewMatrix();
-    func_80060C70(g, D_8010E690, D_800F3914);
+    func_80060C70(g, D_8010E690, CourseIndex);
     g[0x2E] = (short)D_8010E280;
 }
 
@@ -219,9 +219,9 @@ void BuildLightMatrix(void) {
         RotMatrixYXZ(D_800F38F8[i], m);
         SetRotMatrix(m);
         ApplyRotMatrix(&s, &r);
-        D_800ABED0[i][0] = r.x;
-        D_800ABED0[i][1] = r.y;
-        D_800ABED0[i][2] = r.z;
+        LightMatrix[i][0] = r.x;
+        LightMatrix[i][1] = r.y;
+        LightMatrix[i][2] = r.z;
     }
 }
 
@@ -285,9 +285,9 @@ void SetupViewport(s32 a0) {
         p->f2 = v1;
     }
     if (a0 & 1) {
-        s2->f04 = D_800ACC14 + 0xB70;
+        s2->f04 = CurrentDrawBuf + 0xB70;
     } else {
-        s2->f04 = D_800ACC14 + 0x70;
+        s2->f04 = CurrentDrawBuf + 0x70;
     }
     SetDrawArea(s3);
     AddPrim(s2->f04 + 0xAFC, s3);
@@ -295,7 +295,7 @@ void SetupViewport(s32 a0) {
     G->f00 = s3;
 }
 
-int func_8006F188(int *a0, int a1) {
+int GetViewTrackNode(int *a0, int a1) {
     if (D_8010718C == 0) {
         return FindTrackNodeAtXZ(a0[0], a0[2]);
     }

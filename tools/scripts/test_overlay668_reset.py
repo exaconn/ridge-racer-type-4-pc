@@ -55,14 +55,14 @@ void ovl668_func_80116648(const void *command,u32 words){
  /* A submission can replace the RAM pointer cells before the next call. */
  ovl668_D_80116E54=w->s.regs+next()%4;ovl668_D_80116E28=w->s.regs+next()%4;ovl668_D_80116E34=w->s.regs+next()%4;
 }
-s32 func_8001E84C(const char *format,...){va_list a;va_start(a,format);
+s32 DebugPrintStub(const char *format,...){va_list a;va_start(a,format);
  if(format==invalid){s32 mode=va_arg(a,s32);event(4,0,(u32)mode);}
  else {assert(format==recover&&va_arg(a,const char*)==message);event(4,1,0);}
  va_end(a);w->s.regs[0]^=next();return 1;
 }
 static void expected(unsigned kind,s32 mode){
- if(kind)func_8001E84C(recover,message);
- else if(mode!=0&&mode!=1){func_8001E84C(invalid,mode);return;}
+ if(kind)DebugPrintStub(recover,message);
+ else if(mode!=0&&mode!=1){DebugPrintStub(invalid,mode);return;}
  write_port(ovl668_D_80116E54,0x80000000U);write_port(ovl668_D_80116E28,0);write_port(ovl668_D_80116E34,0);
  if(kind||mode==1)(void)read_port(ovl668_D_80116E34);
  write_port(ovl668_D_80116E54,0x60000000U);

@@ -23,7 +23,7 @@ typedef struct {
     u32 ordering70[704];
 } RrStrFrameStorage;
 
-extern RrStrFrameStorage *D_800ACC14;
+extern RrStrFrameStorage *CurrentDrawBuf;
 extern s32 DrawBufIndex;
 void *SetDefDrawEnv(void *environment, s32 x, s32 y, s32 w, s32 h);
 void SetDrawEnv(u32 *output, void *environment);
@@ -52,7 +52,7 @@ void ovl668_func_80115BD0(s32 mode) {
         SetDefDrawEnv(&env, 0, (DrawBufIndex << 8) | 40, 320, 160);
         packet = RR_STR_SCRATCH_CURSOR;
         SetDrawEnv(packet, &env);
-        ot = &D_800ACC14->ordering70[703];
+        ot = &CurrentDrawBuf->ordering70[703];
         *packet = (*packet & 0xFF000000) | (*ot & 0x00FFFFFF);
         *ot = (*ot & 0xFF000000) | ((u32)packet & 0x00FFFFFF);
         packet += 16;
@@ -62,7 +62,7 @@ void ovl668_func_80115BD0(s32 mode) {
         SetDefDrawEnv(&env, 0, DrawBufIndex << 8, 320, 256);
         packet = RR_STR_SCRATCH_CURSOR;
         SetDrawEnv(packet, &env);
-        ot = &D_800ACC14->ordering70[0];
+        ot = &CurrentDrawBuf->ordering70[0];
         *packet = (*packet & 0xFF000000) | (*ot & 0x00FFFFFF);
         *ot = (*ot & 0xFF000000) | ((u32)packet & 0x00FFFFFF);
         packet += 16;
@@ -79,7 +79,7 @@ void ovl668_func_80115BD0(s32 mode) {
         tile->g = 24;
         tile->b = 12;
         tile->x = 0;
-        ot = &D_800ACC14->ordering70[0];
+        ot = &CurrentDrawBuf->ordering70[0];
         RR_STR_SET_ADDR(tile, RR_STR_GET_ADDR(ot));
         *ot = (*ot & 0xFF000000) | ((u32)tile & 0x00FFFFFF);
         tile++;
@@ -90,7 +90,7 @@ void ovl668_func_80115BD0(s32 mode) {
         SetDefDrawEnv(&env, 0, (DrawBufIndex << 8) | 80, 320, 160);
         packet = RR_STR_SCRATCH_CURSOR;
         SetDrawEnv(packet, &env);
-        ot = &D_800ACC14->ordering70[0];
+        ot = &CurrentDrawBuf->ordering70[0];
         *packet = (*packet & 0xFF000000) | (*ot & 0x00FFFFFF);
         *ot = (*ot & 0xFF000000) | ((u32)packet & 0x00FFFFFF);
         packet += 16;

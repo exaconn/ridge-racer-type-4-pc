@@ -16,47 +16,47 @@
 #undef CD_cbready
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A674C ((unsigned char *)D_800A674C)
+#define CD_reg0 ((unsigned char *)CD_reg0)
 
-#define D_800A6750 ((unsigned char *)D_800A6750)
+#define CD_REG1 ((unsigned char *)CD_REG1)
 
-#define D_800A6754 ((unsigned char *)D_800A6754)
+#define CD_REG2 ((unsigned char *)CD_REG2)
 
-#undef D_800A674C
+#undef CD_reg0
 
-#undef D_800A6750
+#undef CD_REG1
 
-#undef D_800A6754
-
-/* legacy typing of shared globals in this part of the unit */
-#define D_800A674C ((signed char *)D_800A674C)
-
-#define D_800A6754 ((signed char *)D_800A6754)
-
-#undef D_800A674C
-
-#undef D_800A6754
+#undef CD_REG2
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A674C ((unsigned char *)D_800A674C)
+#define CD_reg0 ((signed char *)CD_reg0)
 
-#define D_800A6750 ((unsigned char *)D_800A6750)
+#define CD_REG2 ((signed char *)CD_REG2)
 
-#define D_800A6754 ((unsigned char *)D_800A6754)
+#undef CD_reg0
 
-#undef D_800A674C
+#undef CD_REG2
 
-#undef D_800A6750
+/* legacy typing of shared globals in this part of the unit */
+#define CD_reg0 ((unsigned char *)CD_reg0)
 
-#undef D_800A6754
+#define CD_REG1 ((unsigned char *)CD_REG1)
 
-extern volatile u8 *D_800A674C;
+#define CD_REG2 ((unsigned char *)CD_REG2)
 
-extern volatile u8 *D_800A6750;
+#undef CD_reg0
 
-extern volatile u8 *D_800A6754;
+#undef CD_REG1
 
-extern unsigned char *D_800A6758;
+#undef CD_REG2
+
+extern volatile u8 *CD_reg0;
+
+extern volatile u8 *CD_REG1;
+
+extern volatile u8 *CD_REG2;
+
+extern unsigned char *CD_reg3;
 
 int CD_initvol(void) {
     unsigned char b[4];
@@ -71,12 +71,12 @@ int CD_initvol(void) {
     b[0] = 0x80;
     b[3] = 0;
     b[1] = 0;
-    *D_800A674C = 2;
-    *D_800A6754 = b[0];
-    *D_800A6758 = b[1];
-    *D_800A674C = 3;
-    *D_800A6750 = b[2];
-    *D_800A6754 = b[3];
-    *D_800A6758 = 0x20;
+    *CD_reg0 = 2;
+    *CD_REG2 = b[0];
+    *CD_reg3 = b[1];
+    *CD_reg0 = 3;
+    *CD_REG1 = b[2];
+    *CD_REG2 = b[3];
+    *CD_reg3 = 0x20;
     return 0;
 }

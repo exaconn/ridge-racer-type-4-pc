@@ -4,6 +4,6 @@
 #include "types.h"
 
 void AddSIO(void);
-s32 func_8009A94C(s32 first, s32 second);
+s32 _sio_write_async(s32 first, s32 second);
 
 #endif /* RR_PSYQ_LIBSIO_SIOSTART_H */

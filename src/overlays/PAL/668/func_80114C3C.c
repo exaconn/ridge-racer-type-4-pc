@@ -23,7 +23,7 @@ void ovl668_func_80114C3C(void)
 retry:
     if (ovl668_func_801150D8(&((RrStrPlaybackState *)context->activeB8)->display24) == -1) {
         frame = (u32)StGetBackloc(location);
-        func_8001E84C(ovl668_D_8011487C, frame);
+        DebugPrintStub(ovl668_D_8011487C, frame);
         if (frame >= context->thresholdC8) {
             context->stopD0 = 1;
             goto complete;
@@ -40,7 +40,7 @@ complete:
         RaceContext.phaseB4 = 2;
         SsSetSerialVol(0, 0, 0);
     }
-    if (D_800F3A38[0].buttons08 & 0x800) {
+    if (PlayerControllers[0].buttons08 & 0x800) {
         SsSetSerialVol(0, 0, 0);
         RaceContext.phaseB4 = 2;
     }

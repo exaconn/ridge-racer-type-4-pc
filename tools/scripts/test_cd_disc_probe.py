@@ -56,7 +56,7 @@ s32 func_80096414(const void *left,const void *right,u32 count){
     comparisons++;if(left!=sector_pointer+1 || right!=D_80011D88 || count!=5)layout_ok=0;
     return memcmp(left,right,count);
 }
-s32 func_8001E84C(const char *message,...){
+s32 DebugPrintStub(const char *message,...){
     diagnostics++;if(message!=message_page+0x1D78 || strcmp(message,"Command Error: "))layout_ok=0;
     return -456;
 }

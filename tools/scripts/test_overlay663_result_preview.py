@@ -36,7 +36,7 @@ static const u32 frames[]={0,1,0x7FFFFFFFU,0x80000000U,0xFFFFFFFFU};
 #define SelectionRows w->s.choice
 #define UiRows (w->s.ui[w->s.uiRoot])
 #define BadgeRows (w->s.badges[w->s.badgeRoot])
-#define D_800F2AB0 (w->s.modes[w->s.modeRoot])
+#define ImageRows (w->s.modes[w->s.modeRoot])
 #define ModeFrame w->s.frame
 #define D_800F3A60 w->s.accepted
 #define ovl663_record_kind w->s.entry
@@ -67,9 +67,9 @@ void PlaySfx(s32 a){event(2)->args[0]=a;change();}
 void ovl663_init_selection(s32 a){event(3)->args[0]=a;if(w==&actual)seenExit=1;change();}
 void SetupMenuCarCamera(s32 a){event(4)->args[0]=a;change();}
 void SetupViewport(s32 a){event(5)->args[0]=a;change();}
-void func_80037198(s32 a){Event *e=event(6);e->args[0]=a;assert(w->s.choice.selection.pad02[1]==2);change();}
+void DrawSelectionIconGrid(s32 a){Event *e=event(6);e->args[0]=a;assert(w->s.choice.selection.pad02[1]==2);change();}
 void func_8002E5A0(RrRaceVehicle *car){event(7);assert(car==w->s.cars);assert((uintptr_t)car>UINT32_MAX);assert(w->s.choice.selection.pad02[1]==0);change();}
-void func_8002CC88(RrRaceVehicle *car,RrPreviewRgb3 color,s32 scale,s32 flags){Event *e=event(8);
+void DrawPreviewCar(RrRaceVehicle *car,RrPreviewRgb3 color,s32 scale,s32 flags){Event *e=event(8);
  assert(car==w->s.cars);e->args[0]=color.r;e->args[1]=color.g;e->args[2]=color.b;e->args[3]=scale;e->args[4]=flags;
  if(w==&actual){seenDraw=1;if(w->s.modes[w->s.modeRoot][1]==1){unsigned t=w->s.modes[w->s.modeRoot][2];seenTimers[t/32]|=1U<<(t%32);}}
  change();
@@ -88,10 +88,10 @@ static void expected(void){State *s=&w->s;unsigned p=(u16)s->phase;
  s->cars[0].rot54=(u32)(word((u32)s->cars[0].rot54+8U))&4095;
  SetupMenuCarCamera(1);SetupViewport(6);
  {unsigned mode=s->modes[s->modeRoot][1];if(mode==1||mode==2){RrPreviewRgb3 c;int scale;
-  s->choice.selection.pad02[1]=2;func_80037198(0);s->choice.selection.pad02[1]=0;func_8002E5A0(s->cars);
+  s->choice.selection.pad02[1]=2;DrawSelectionIconGrid(0);s->choice.selection.pad02[1]=0;func_8002E5A0(s->cars);
   if(s->modes[s->modeRoot][1]==1){int64_t t=s->modes[s->modeRoot][2];c.r=(u8)(255-t*255/30);c.g=c.r;c.b=c.r;scale=t*256/30;}
   else{c.r=128;c.g=128;c.b=128;scale=256;}
-  func_8002CC88(s->cars,c,scale,0);
+  DrawPreviewCar(s->cars,c,scale,0);
  }}
  DrawUiRow(3);UpdateBadgeRowAnim(0);UpdateImageRow(0);UpdateScreenFade(0x10022);
 }

@@ -23,7 +23,7 @@ static struct State {u32 guard[4];RrGarageWorkingStorage work;RrGarageSelectionP
  RrGarageRectangle *buttons[46];RrGarageActionPrefix *actions[4];u32 tail[4];} actual,reference,*w;
 #define ovl662_D_80127668 w->work
 #define ovl662_D_801276A8 w->selection
-#define D_800F3A38 w->input
+#define PlayerControllers w->input
 #define ovl662_D_801273B8 w->buttons
 #define ovl662_D_80127470 w->actions
 '''+body+center+r'''

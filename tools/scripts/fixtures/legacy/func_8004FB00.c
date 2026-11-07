@@ -1,6 +1,6 @@
 #include "types.h"
 extern int SlotKeyOffAll();
-extern int func_80050E94();
+extern int SetPlayerVoice();
 extern int func_800512C4();
 extern int func_80051538();
 extern int SoundLoopSet();
@@ -16,7 +16,7 @@ void SoundStopAll(void) {
     for (i = 0, p = SoundState; i < 4; i++, p++) {
         if (p->flags & 1) SlotKeyOffAll(i);
     }
-    for (i = 0; i < 2; i++) func_80050E94(0, 0, 0, i);
+    for (i = 0; i < 2; i++) SetPlayerVoice(0, 0, 0, i);
     for (i = 0; i < 2; i++) func_800512C4(i, 0, 0);
     func_80051538(0, 0, 0);
     SoundLoopSet(5, 0x1E00, 0, 0x40);

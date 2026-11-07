@@ -22,7 +22,7 @@ class GarageAnalogMotionTest(unittest.TestCase):
 typedef union {s16 halves[2];RrGaragePoint point;} Accumulator;
 typedef union {RrMenuItemState5C rows[3];RrGaragePoint points[69];} Controller;
 static struct World {u32 guard[4];Controller controller;Accumulator accumulator;RrGaragePoint out;u32 tail[4];} w,e;
-#define D_800F3A38 w.controller.rows
+#define PlayerControllers w.controller.rows
 #define ovl662_D_80126C14 w.accumulator.halves
 static unsigned calls;
 void *func_80096454(void *p,s32 value,u32 count){assert(value==0 && count==4);calls++;return memset(p,value,count);}

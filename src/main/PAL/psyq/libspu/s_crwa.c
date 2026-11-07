@@ -11,7 +11,7 @@ extern s32 _spu_t(s32 mode, ...);
 extern s32 WaitEvent(s32 event);
 extern s32 _spu_mem_mode_plus;
 extern u32 _spu_rev_startaddr[];
-extern u8 D_800A4938[];
+extern u8 SpuZeroBlock[];
 
 s32 SpuClearReverbWorkArea(u32 preset);
 
@@ -60,7 +60,7 @@ s32 SpuClearReverbWorkArea(u32 preset) {
         }
         _spu_t(2, destination);
         _spu_t(1);
-        _spu_t(3, D_800A4938, preset);
+        _spu_t(3, SpuZeroBlock, preset);
         WaitEvent(_spu_EVdma);
         remaining -= 0x400;
         destination += 0x400;

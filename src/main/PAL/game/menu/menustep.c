@@ -11,7 +11,7 @@ extern struct
   short f;
 } D_800A4258[];
 extern void (*D_800A4548[])();
-extern short D_800F3A1C;
+extern short MenuStateIndex;
 extern unsigned char D_800F3A24[];
 extern unsigned short D_800F3AF8;
 extern short D_800F4D3C;
@@ -21,7 +21,7 @@ extern unsigned short D_800FFC18;
 extern short D_80109478[];
 extern short D_8010948E;
 extern short D_800AC594;
-extern struct { char pad[0x28]; int x28; int x2c; char pad2[0x2C]; } D_800F3A38[];
+extern struct { char pad[0x28]; int x28; int x2c; char pad2[0x2C]; } PlayerControllers[];
 
 void func_8007B460();
 int func_8007B654();
@@ -44,15 +44,15 @@ void func_8007B460()
   int new_var;
   int fp;
   r = 1;
-  s0 = D_800A4258[D_800F3A1C].e;
-  s1 = D_800A4258[D_800F3A1C].c;
-  t0 = D_800A4258[D_800F3A1C].a;
+  s0 = D_800A4258[MenuStateIndex].e;
+  s1 = D_800A4258[MenuStateIndex].c;
+  t0 = D_800A4258[MenuStateIndex].a;
   s7 = s0 & 1;
-  s3 = D_800A4258[D_800F3A1C].b;
+  s3 = D_800A4258[MenuStateIndex].b;
   fp = D_800F3A24[D_800FFC00];
   if (w4c7_nz(s7))
   {
-    func_80078E40(D_800FFC00, 0, 0);
+    PollCardStatus(D_800FFC00, 0, 0);
   }
   if (s0 & 2)
   {
@@ -76,29 +76,29 @@ void func_8007B460()
         a = (short) v;
         if (a == 0)
         {
-          D_800F3A1C = 0;
+          MenuStateIndex = 0;
           return;
         }
         if (((unsigned short) (v - 6)) < 2)
         {
-          D_800F3A1C = 0x29;
+          MenuStateIndex = 0x29;
           D_800F3AF8 = 0x10;
           return;
         }
         new_var = 1;
         if ((a == new_var) || (a == 5))
         {
-          D_800F3A1C = 0x20;
+          MenuStateIndex = 0x20;
         }
         else
           if (a == 2)
         {
-          D_800F3A1C = 0x21;
+          MenuStateIndex = 0x21;
         }
         else
           if (a == 3)
         {
-          D_800F3A1C = 0x17;
+          MenuStateIndex = 0x17;
         }
       }
     }
@@ -140,8 +140,8 @@ int func_8007B654()
     case 0x28:
     case 0x3C:
     case 0x1E:
-        if (D_800F3A38[D_800AC594].x28 != 0 || D_800F3A38[D_800AC594].x2c != 0) {
-            D_800F3A1C = a1;
+        if (PlayerControllers[D_800AC594].x28 != 0 || PlayerControllers[D_800AC594].x2c != 0) {
+            MenuStateIndex = a1;
         }
         break;
     case 0x14:

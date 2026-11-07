@@ -19,7 +19,7 @@ void func_8004B8A8(void) {
     repeat = D_8009FFA0;
     small = 64;
     once = D_8009FF80;
-    next_output = D_800F3A38;
+    next_output = PlayerControllers;
     next_state = PadPulseState;
     do {
         /* ASM_BARRIER: keep the per-port state cursor in A2 inside the loop. */

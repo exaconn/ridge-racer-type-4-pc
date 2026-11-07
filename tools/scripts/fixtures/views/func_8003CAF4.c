@@ -27,7 +27,7 @@ void SetupRace(void)
         func_80114AF8(0x7E900);
     }
     DrawSync(0);
-    func_8004A678();
+    ApplyOptionsPadButtonMaps();
     InitRaceCars(D_800F4D44);
     if (((D_800F4D44 < 2) || (D_800F4D44 == 6)) || ((D_800F4D44 == 4) && (D_80107178 == 2)))
     {
@@ -69,7 +69,7 @@ void SetupRace(void)
     D_8010C140[0] = third;
     vectors = (u8 *) (&D_800F3838);
     D_8010C140[1] = (s32) (third * 2);
-    vector = (s32 *) (((D_800F3914 * 12) + (ReverseCourse * 96)) + vectors);
+    vector = (s32 *) (((CourseIndex * 12) + (ReverseCourse * 96)) + vectors);
     D_8010C0F8[0] = (s32) vector[0];
     D_8010C0F8[1] = (s32) vector[1];
     RaceState = SavedRaceState;
@@ -78,7 +78,7 @@ void SetupRace(void)
     {
         countRoot = (u8 *)&CourseBestLap;
 
-        offset0 = D_800F3914 * 4;
+        offset0 = CourseIndex * 4;
         offset1 = ReverseCourse * 32;
         offset0 += offset1;
         selectedCount = (s32 *)(offset0+countRoot);
@@ -90,7 +90,7 @@ void SetupRace(void)
         /* Retain the full table address before forming its byte offset. */
         __asm__("" : : "r"(otherRoot));
 
-        offset0 = D_800F3914 * 4;
+        offset0 = CourseIndex * 4;
         selectedCount = (s32 *)(offset0+otherRoot);
     publish_count:
         BestLapTime = *selectedCount;
@@ -109,7 +109,7 @@ void SetupRace(void)
     else
     {
     publish_participants:
-        courseIndex = D_800F3914;
+        courseIndex = CourseIndex;
         byteRoot = CourseLapCounts;
 
         if (D_800F4D44 == 1)
@@ -136,7 +136,7 @@ void SetupRace(void)
     }
     while (resetIndex < 0xA);
     TotalRaceTime = -1;
-    course = (u16) D_800F3914;
+    course = (u16) CourseIndex;
     if (((course - 2U) < 3U) || (((s16) course) == 7))
     {
         D_800ABEF0 = 1;
@@ -181,7 +181,7 @@ void SetupRace(void)
     D_800F2AB4.second = 0;
     RaceVoiceFlags = 0;
     func_8004F7E0();
-    func_80059168();
+    SelectCourseBgmTrack();
     SetModelTexturePage(0xA);
 
 }

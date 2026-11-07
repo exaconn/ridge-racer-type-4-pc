@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-void func_8001B688();
+void SetLightColorsFromAngle();
 
 #endif /* RR_GAME_GFX_LIGHT2_H */

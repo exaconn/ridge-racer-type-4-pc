@@ -6,7 +6,7 @@
 
 #include "rr/interrupts.h"
 
-extern u32 D_80114418[4];
+extern u32 PadIntQueueEntry[4];
 
 extern s32 EnterCriticalSection(void),ChangeClearRCnt(s32,s32);
 
@@ -29,20 +29,20 @@ void _padStartCom(void) {
         page[-0x4360/4]=0;
     }
     EnterCriticalSection();
-    SysDeqIntRP(2,D_80114418);
-    SysEnqIntRP(2,D_80114418);
-    p=D_800ABCC8;
+    SysDeqIntRP(2,PadIntQueueEntry);
+    SysEnqIntRP(2,PadIntQueueEntry);
+    p=I_STAT_Pad;
     p->pending=0xFFFFFFFEU;
     mask=p->mask;
     /* Ordinary final write view permits the original call-delay store. */
     *(u32 *)((u8 *)p+RR_FIELD_OFFSET(RrInterruptRegisters,mask))=mask|1;
     ChangeClearRCnt(3,0);
     ExitCriticalSection();
-    D_800ABC6C(D_800ABC9C);
-    D_800ABC6C(D_800ABC9C+1);
+    D_800ABC6C(PadChannelRecords);
+    D_800ABC6C(PadChannelRecords+1);
     counters=D_80114428;
     counters[1]=0;counters[0]=0;
-    D_800ABCA0=1;
+    PadComActive=1;
     /* ASM_BARRIER: Restore saved registers only after publishing the enabled state. */
     __asm__ volatile("" : : : "$16", "$31", "memory");
 }

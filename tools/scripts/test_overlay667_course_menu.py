@@ -38,7 +38,7 @@ static State actual,reference,*w;
 #define D_800AC648 w->course
 #define MenuCursor w->selection
 #define ReverseCourse w->style
-#define D_800F3914 w->mapped
+#define CourseIndex w->mapped
 #define NumLaps w->players
 #define D_800F3A26 w->scene
 #define D_800AD508 w->split
@@ -50,10 +50,10 @@ static State actual,reference,*w;
 #define D_800F4D8A w->phase
 #define ModeGroup w->enabled
 #define UiRows w->rows[w->rowRoot]
-#define D_800F3A38 w->input
+#define PlayerControllers w->input
 #define D_800F3A60 w->input[0].a
-#define D_800ACC14 (&w->frames[w->frameRoot])
-#define D_800F4D70 w->arenas
+#define CurrentDrawBuf (&w->frames[w->frameRoot])
+#define MenuArenas w->arenas
 #define LoadCursor w->published
 #define D_8009F64C w->map
 ''' + body + mapper + r'''
@@ -83,7 +83,7 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
  for(unsigned i=0;i<8;i++)w->map[i]=(u8)(v+i*31);
 }
 static void service(unsigned kind){const s32 args[7]={0};record(kind,args);effect(kind);}
-s32 func_80034FC0(void){service(0);return profile==14||profile==15?word(words[scenario%8]):0;}
+s32 ExitOnLinkLost(void){service(0);return profile==14||profile==15?word(words[scenario%8]):0;}
 void func_80053CB0(void){service(1);}
 s32 UpdateLinkHandshake(s32 a){const s32 args[7]={a};record(2,args);effect(2);return profile>=18?0:profile>=12&&profile<14?word(words[scenario%8]):1;}
 s32 LoadTrackNodesStep(void){service(3);return profile==10||profile==11?word(words[scenario%8]):1;}
@@ -99,8 +99,8 @@ void ResetScreenCounters(void){service(6);}
 void func_80033368(s32 a,s32 b){const s32 args[7]={a,b};record(7,args);effect(7);}
 s32 DecodeCourseIndex(s32 a){const s32 args[7]={a};record(8,args);effect(8);return actual_mapper(a);}
 void PlaySfx(s32 a){const s32 args[7]={a};record(9,args);effect(9);}
-void func_80053AF4(s32 a,s32 b){const s32 args[7]={a,b};record(10,args);effect(10);}
-void func_80034F80(void){service(11);}
+void SeqFadeVolume(s32 a,s32 b){const s32 args[7]={a,b};record(10,args);effect(10);}
+void BeginLinkSync(void){service(11);}
 void ovl667_func_801161A8(s32 a){assert(a==0||a==2);const s32 args[7]={a};record(12,args);effect(12);}
 void AddScreenFadeTiles(u32 *p,s32 b,u32 c){unsigned k;for(k=0;k<2&&p!=w->frames[k].ordering70;k++){}assert(k<2&&(uintptr_t)p>UINT32_MAX);const s32 args[7]={k,b,(s32)c};record(13,args);effect(13);}
 void DrawUiRow(s32 a){const s32 args[7]={a};record(14,args);effect(14);}
@@ -109,7 +109,7 @@ void DrawMenuStepArrows(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){const s32 arg
 s32 _sio_control(s32 a,s32 b,unsigned long c){assert(c<=UINT32_MAX);const s32 args[7]={a,b,(s32)c};record(17,args);effect(17);return word(scenario*0x1234567U);}
 void UpdateScreenFade(s32 a){const s32 args[7]={a};record(18,args);effect(18);}
 static void closeRows(unsigned n,u8 state){for(unsigned i=18;i<18+n;i++)if(w->rows[w->rowRoot][i].byte14==2)w->rows[w->rowRoot][i].byte14=state;}
-static void expected(void){s32 quit=func_80034FC0();early[quit!=0]++;if(quit){func_80053CB0();return;}
+static void expected(void){s32 quit=ExitOnLinkLost();early[quit!=0]++;if(quit){func_80053CB0();return;}
  s32 wait=UpdateLinkHandshake(2);w->frame=word((u32)w->frame+1);w->tick=word((u32)w->tick+1);
  int ready=1;if(w->phase!=3)ready=LoadTrackNodesStep()==1;readiness[ready]++;
  if(ready){unsigned phase=w->phase;states[phase==0?0:phase==3?1:phase==4?2:phase==8?3:4]++;
@@ -118,7 +118,7 @@ static void expected(void){s32 quit=func_80034FC0();early[quit!=0]++;if(quit){fu
    w->mapped=DecodeCourseIndex(w->course);w->rows[w->rowRoot][18+w->selection].cells[0]=0;StepMenuValue(0,2,(char*)&w->selection,3,0);w->rows[w->rowRoot][18+w->selection].cells[0]=2;
    unsigned cells=w->rows[w->rowRoot][21].byte02;for(unsigned i=0;i<cells;i++){if((s32)i==w->course){w->rows[w->rowRoot][21].cells[i]=2;w->rows[w->rowRoot][21].byte16=i;}else w->rows[w->rowRoot][21].cells[i]=0;}
    int state=w->rows[w->rowRoot][18].byte14;if(state==2){int back=0;if(w->input[0].a){PlaySfx(1);w->rows[w->rowRoot][18+w->selection].cells[0]=1;
-     if(w->selection==0){choices[0]++;closeRows(4,7);ResetScreenCounters();w->timer=64;w->published=w->arenas.first;func_80053AF4(0,60);func_80034F80();w->phase=3;SetMenuFrameOptions(0,1,1);}
+     if(w->selection==0){choices[0]++;closeRows(4,7);ResetScreenCounters();w->timer=64;w->published=w->arenas.first;SeqFadeVolume(0,60);BeginLinkSync();w->phase=3;SetMenuFrameOptions(0,1,1);}
      else if(w->selection==1){choices[1]++;w->rows[w->rowRoot][23].byte14=0;w->phase=4;}else if(w->selection==2){choices[2]++;back=1;}
     }else if(w->input[0].b){choices[3]++;PlaySfx(2);back=1;}
     if(back){SetMenuFrameOptions(0,1,1);closeRows(5,3);w->phase=8;}}

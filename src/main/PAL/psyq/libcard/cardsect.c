@@ -1,5 +1,5 @@
 #include "rr/bios_devices.h"
-extern s32 func_8001E84C(const char *format,...);
+extern s32 DebugPrintStub(const char *format,...);
 extern char D_80011FD8[];
 s32 _card_sector_write(s32 port,s32 sector,u8 *buffer) {
     u8 readback[128];
@@ -41,7 +41,7 @@ s32 _card_sector_write(s32 port,s32 sector,u8 *buffer) {
         if(_card_read(port,sector,scratch)!=one) {
             /* ASM_BARRIER: Form the failure message only after the read-result branch. */
             __asm__("" : : : "$4");
-            func_8001E84C(D_80011FD8);
+            DebugPrintStub(D_80011FD8);
         } else {
             while(!(_card_status(port>>4)&1)) {}
         }

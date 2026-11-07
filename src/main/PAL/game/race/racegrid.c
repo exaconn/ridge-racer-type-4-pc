@@ -80,7 +80,7 @@ extern int func_8004F2D8();
 extern int D_800ABEC0;
 extern short D_800AC5D0;
 extern int func_8004BAD4();
-extern int func_8004F24C();
+extern int PlaySfx();
 extern unsigned char D_8009F6DC[];
 extern signed char D_800F2FDC;
 extern int func_8003660C();
@@ -419,13 +419,13 @@ void func_80034844(int a0) {
     if (D_800F3A40 & 0x1000) {
         if (D_800F2FDC > 0) {
             D_800F2FDC = D_800F2FDC - 1;
-            func_8004F24C(0);
+            PlaySfx(0);
         }
     }
     if (D_800F3A40 & 0x4000) {
         if (D_800F2FDC < D_8009F6DC[a0]) {
             D_800F2FDC = D_800F2FDC + 1;
-            func_8004F24C(0);
+            PlaySfx(0);
         }
     }
     func_800347BC();
@@ -689,7 +689,7 @@ int func_80035024(int a0)
         new_var3 = z;
         if (e->a84 != 0)
         {
-          func_8004F24C(1);
+          PlaySfx(1);
           bp[new_var3 - (D_800AD508 * 2)] = 1;
         }
         else

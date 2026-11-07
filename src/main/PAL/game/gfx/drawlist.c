@@ -109,7 +109,7 @@ struct OT { int x; union H h; };
 extern int func_800207D4();
 extern int func_8002A604();
 extern int func_80032A14();
-extern int func_8003A198();
+extern int ResetScreenCounters();
 extern int func_8003A1B4();
 extern int func_8003B934();
 extern int func_8003D228();
@@ -258,7 +258,7 @@ case 0x0:
     func_8002A604();
     D_800ACC68 = 2;
     func_8003A1B4();
-    func_8003A198();
+    ResetScreenCounters();
     D_800F4CA8 = 4;
     func_8003D228(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
     D_8010BF7C = 1;

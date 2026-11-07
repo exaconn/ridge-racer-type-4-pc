@@ -81,10 +81,10 @@ void func_8002AF8C(s32 a,s32 b,s32 c){const s32 args[12]={a,b,c};record(1,args);
 void func_8002B330(s32 a,s32 b,char *p,s32 d,s32 e){unsigned kind=p==(char*)&w->course?0:1;assert(p==(char*)&w->course||p==(char*)&w->selection);assert((uintptr_t)p>UINT32_MAX);const s32 args[12]={a,b,kind,d,e};record(2,args);effect(2);
  if(kind==0){s16 value=(scenario&32)?half((u16)w->course+1):w->course;memcpy(p,&value,2);}else{ s16 value=(scenario+serial)%3;memcpy(p,&value,2);}
 }
-void func_8003A198(void){service(3);}
+void ResetScreenCounters(void){service(3);}
 void func_80033368(s32 a,s32 b){const s32 args[12]={a,b};record(4,args);effect(4);}
 s32 func_80032E9C(s32 a){const s32 args[12]={a};record(5,args);w->style=a>=8;return w->map[a&7];}
-void func_8004F24C(s32 a){const s32 args[12]={a};record(6,args);effect(6);}
+void PlaySfx(s32 a){const s32 args[12]={a};record(6,args);effect(6);}
 void func_80053AF4(s32 a,s32 b){const s32 args[12]={a,b};record(7,args);effect(7);}
 void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){va_list ap;va_start(ap,j);s32 x=va_arg(ap,s32),y=va_arg(ap,s32);va_end(ap);const s32 args[12]={a,b,c,d,e,f,g,h,i,j,x,y};record(8,args);effect(8);}
 void ovl660_func_801163C4(void){service(9);}
@@ -98,16 +98,16 @@ static void closeRows(int count){for(int i=0;i<count;i++)if(w->rows[w->rowRoot][
 static void closeLiveRows(void){for(int i=0;i<w->rowCount;i++)if(w->rows[w->rowRoot][i].byte14==2)w->rows[w->rowRoot][i].byte14=3;}
 static void expected(void){w->frame=word((u32)w->frame+1);w->tick=word((u32)w->tick+1);int ready=func_8003BAB0();readiness[ready==1]++;int course=1;
  if(ready==1){unsigned phase=w->phase;states[phase==0?0:phase==2?1:phase==4?2:phase==5?3:phase==3?4:phase==8?5:phase==10?6:7]++;
-  if(phase==0){func_8002AF8C(1,1,1);s16 old=w->course;func_8002B330(3,2,(char*)&w->course,w->available,0);courseChange[old!=w->course]++;if(old!=w->course)func_8003A198();else func_80033368(old,0);
+  if(phase==0){func_8002AF8C(1,1,1);s16 old=w->course;func_8002B330(3,2,(char*)&w->course,w->available,0);courseChange[old!=w->course]++;if(old!=w->course)ResetScreenCounters();else func_80033368(old,0);
    w->mapped=func_80032E9C(w->course);w->rows[w->rowRoot][w->selection].cells[0]=0;func_8002B330(0,2,(char*)&w->selection,w->limit,0);w->rows[w->rowRoot][w->selection].cells[0]=2;
    for(int i=0;i<w->rows[w->rowRoot][3].byte02;i++){if(i==(w->course&7)){w->rows[w->rowRoot][3].cells[i]=(u8)((u8)w->style+2);w->rows[w->rowRoot][3].byte16=(u8)i;}
     else w->rows[w->rowRoot][3].cells[i]=i>=w->available?1:(u8)w->style;}
-   int back=1;if(w->input[0].a&&w->rows[w->rowRoot][0].byte14==2){back=0;func_8004F24C(1);func_8002AF8C(0,1,1);int selected=w->selection;
+   int back=1;if(w->input[0].a&&w->rows[w->rowRoot][0].byte14==2){back=0;PlaySfx(1);func_8002AF8C(0,1,1);int selected=w->selection;
     if(selected==0){choices[0]++;w->rows[w->rowRoot][0].cells[0]=1;closeRows(4);w->phase=3;}
     else if(selected==1){choices[1]++;closeLiveRows();w->timer=64;w->phase=10;}
     else if(selected==2){choices[2]++;closeLiveRows();w->timer=64;w->phase=8;func_80053AF4(0,60);}
    }
-   if(back&&w->input[0].b&&w->rows[w->rowRoot][0].byte14==2){choices[3]++;func_8004F24C(2);func_8002AF8C(0,1,1);closeLiveRows();w->timer=64;w->phase=8;}
+   if(back&&w->input[0].b&&w->rows[w->rowRoot][0].byte14==2){choices[3]++;PlaySfx(2);func_8002AF8C(0,1,1);closeLiveRows();w->timer=64;w->phase=8;}
   }else if(phase==2){if(w->input[0].a&&w->rows[w->rowRoot][0].byte14==5){w->phase=4;func_8003E928(3,120,220,68,32,0,0,1,0,0,0,0);func_8003E928(4,120,260,68,32,0,0,1,0,0,0,0);}
   }else if(phase==4||phase==5){if(phase==4&&w->input[0].a&&w->rows[w->rowRoot][3].byte14==2){w->phase=5;w->modes[w->modeRoot][1]=3;w->rows[w->rowRoot][3].byte14=3;w->rows[w->rowRoot][4].byte14=3;}
    if(w->rows[w->rowRoot][3].byte14==5){for(unsigned i=0;i<3;i++)w->rows[w->rowRoot][i].byte14=0;w->phase=0;}

@@ -5,7 +5,7 @@ extern s32 ScreenFrame;
 extern s8 D_800F3A2C;
 extern s8 D_800F4D7C;
 
-void func_8003A198(void) {
+void ResetScreenCounters(void) {
     D_800F4D7C = 0;
     D_800F3A2C = 0;
     ScreenFrame = 0;

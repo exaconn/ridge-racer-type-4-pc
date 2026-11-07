@@ -42,7 +42,7 @@ void ovl663_update_selection(void) {
         D_800F4D80[D_800AC64A].cells[0] = 2;
         ovl663_selected_record = -1;
         if (D_800F3A38[0].a != 0) {
-            func_8004F24C(1);
+            PlaySfx(1);
             D_800F4D80[D_800AC64A].cells[0] = 1;
             if (D_800AC64A == 0) {
                 ovl663_selected_record = 0;
@@ -51,7 +51,7 @@ void ovl663_update_selection(void) {
                 i = 1;
             }
         } else if (D_800F3A38[0].b != 0) {
-            func_8004F24C(2);
+            PlaySfx(2);
             i = 1;
         }
         if (i == 1) {
@@ -69,12 +69,12 @@ void ovl663_update_selection(void) {
     case 2:
         func_8002B330(0, 4, (char *)&ovl663_selected_record, 5, 0);
         if (D_800F3A38[0].b != 0) {
-            func_8004F24C(2);
+            PlaySfx(2);
             D_800F4D8A = 1;
         } else if (D_800F3A38[0].a != 0) {
             func_8002AF8C(0, 1, 1);
             D_800F4D8A = 3;
-            func_8003A198();
+            ResetScreenCounters();
             D_800ACC18 = D_800F4D40;
             mirrorSet = D_800AC648 >= 8;
             if (ovl663_record_kind == 1) {

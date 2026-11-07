@@ -28,9 +28,9 @@ void ovl662_func_80123750(void) {
         ((RrGarageButton *)ovl662_D_801273B8[42])->timer0E = 7;
         if (val < 0) {
             val = 0;
-            func_8004F24C(4);
+            PlaySfx(4);
         } else {
-            func_8004F24C(0);
+            PlaySfx(0);
         }
         *pal = (*pal & 0xFC1F) | (val << 5);
     }

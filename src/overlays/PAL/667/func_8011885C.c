@@ -17,7 +17,7 @@ void func_8002B75C(char *, char *);
 void func_8002B7B4(char *, char *, s32);
 void func_8002B814(char *, s32, s32);
 void func_800207D4(u32 *, s32, u32);
-void func_8003A198(void);
+void ResetScreenCounters(void);
 void func_8003A1B4(void);
 void func_8002A344(s32);
 void func_8003662C(s32);
@@ -47,40 +47,40 @@ void ovl667_func_8011885C(void) {
     case 0:
         if (D_800F4C64 == -1) {
             group = 1;
-            if (D_800FFC14[11].signedBytes[2] >= 2) {
+            if (MenuTextRows[11].signedBytes[2] >= 2) {
                 D_800F4D8A = 3;
             }
             break;
         }
         group = 0;
-        if (D_800FFC14[3].signedBytes[3] >= 16) {
+        if (MenuTextRows[3].signedBytes[3] >= 16) {
             func_8002AF8C(1, 1, group);
             if (D_800F3A60 != 0) {
                 D_800F4D8A = 3;
                 func_8002AF8C(group, 1, group);
             }
         }
-        func_8002B814(D_800FFC14[4].marquee.at28 + 8, D_8010C070[0] + 1, 0);
-        func_8002B7B4(D_800FFC14[5].marquee.at28 + 1, D_8010C088[D_8010C070[0]], 9);
+        func_8002B814(MenuTextRows[4].marquee.at28 + 8, D_8010C070[0] + 1, 0);
+        func_8002B7B4(MenuTextRows[5].marquee.at28 + 1, D_8010C088[D_8010C070[0]], 9);
         /* The original literal occupies 12 bytes (zero word before "WIN "). */
-        func_8002B75C(D_800FFC14[5].marquee.at28 + 10, "WON !!!\0\0\0");
+        func_8002B75C(MenuTextRows[5].marquee.at28 + 10, "WON !!!\0\0\0");
         for (i = 0; i < 4; i++) {
             if (i < D_80107178) {
                 player = D_8010C070[i];
-                func_8002B7B4(D_800FFC14[7 + i].marquee.at28 + 5, D_8010C088[player], 9);
-                func_8002B75C(D_800FFC14[7 + i].marquee.at28 + 14, "WIN ");
-                func_8002B814(D_800FFC14[7 + i].marquee.at28 + 18, D_8010C080[player], 1);
+                func_8002B7B4(MenuTextRows[7 + i].marquee.at28 + 5, D_8010C088[player], 9);
+                func_8002B75C(MenuTextRows[7 + i].marquee.at28 + 14, "WIN ");
+                func_8002B814(MenuTextRows[7 + i].marquee.at28 + 18, D_8010C080[player], 1);
             } else {
-                D_800FFC14[7 + i].marquee.at28[0] = 0;
+                MenuTextRows[7 + i].marquee.at28[0] = 0;
             }
         }
         break;
     case 3:
         group = 3;
-        if (D_800FFC14[39].signedBytes[3] >= 17) {
+        if (MenuTextRows[39].signedBytes[3] >= 17) {
             func_8002AF8C(1, 1, 0);
             if (ovl667_func_801187DC(0) >= 0) {
-                func_8003A198();
+                ResetScreenCounters();
                 func_8003A1B4();
                 D_800AC5D0 = 64;
                 D_800F4D8A = D_800AC64A + 5;
@@ -107,7 +107,7 @@ void ovl667_func_8011885C(void) {
     case 5:
         group = 3;
         if (pressed == 0 && D_800AC5D0 == 64) {
-            func_8002B75C(D_800FFC14[38].marquee.at28, "*PLEASE WAIT! ");
+            func_8002B75C(MenuTextRows[38].marquee.at28, "*PLEASE WAIT! ");
             break;
         }
         D_800AC5D0 -= 2;
@@ -148,7 +148,7 @@ void ovl667_func_8011885C(void) {
             func_80040858(i + group * 11);
         }
     }
-    if ((u8)(D_800FFC14[0].bytes[2] - 3) < 5 || (u8)(D_800FFC14[11].bytes[2] - 3) < 5) {
+    if ((u8)(MenuTextRows[0].bytes[2] - 3) < 5 || (u8)(MenuTextRows[11].bytes[2] - 3) < 5) {
         func_800411D4();
     }
 }

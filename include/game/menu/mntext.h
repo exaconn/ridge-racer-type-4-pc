@@ -4,6 +4,6 @@
 #include "types.h"
 #include "rr/menu_text_rows.h"
 
-s32 func_800402F4(RrMenuTextRow60 *rows);
+s32 InitMenuTextRows(RrMenuTextRow60 *rows);
 
 #endif /* RR_GAME_MENU_MNTEXT_H */

@@ -21,7 +21,7 @@ extern int D_800F4BEC;
 extern int D_800F4CA8;
 extern short D_800FFC10;
 extern void func_8002B330();
-extern void func_8004F24C();
+extern void PlaySfx();
 extern unsigned func_8009AEAC();
 
 void func_8002F0E0(void);
@@ -72,10 +72,10 @@ int func_8002F1BC(void)
     s2 = 0;
     if (D_800F3A60 != 0) {
         if (D_800F4D80[D_800AC64A].s20 == 1) {
-            func_8004F24C(4);
+            PlaySfx(4);
             return s2;
         }
-        func_8004F24C(1);
+        PlaySfx(1);
         s2 = 1;
         if (D_800AC64A == D_800F4CD0)
             func_80034E14();

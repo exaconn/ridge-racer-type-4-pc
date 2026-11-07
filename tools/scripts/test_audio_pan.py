@@ -85,7 +85,7 @@ int main(void){
   s32 pitch=word(k<sizeof(edges)/sizeof(*edges)?edges[k]:random_word());
   s32 voice=(k&1)?-1:word(random_word());
   actual=expected=initial;w=&actual;count=0;memset(entries,0,sizeof(entries));
-  func_8004EF04(program,level,pan,pitch,voice);assert(count==2);memcpy(saved,entries,sizeof(saved));
+  TriggerSfx(program,level,pan,pitch,voice);assert(count==2);memcpy(saved,entries,sizeof(saved));
   w=&expected;count=0;memset(entries,0,sizeof(entries));reference(program,level,pan,pitch,voice);
   assert(count==2);assert(!memcmp(saved,entries,sizeof(saved)));assert(!memcmp(&actual,&expected,sizeof(actual)));
   modes[voice==-1]++;

@@ -22,7 +22,7 @@ void ovl661_func_80117430(void) {
             temp_s0 = D_800AC648;
             func_8002B330(3, 2, (char *)&D_800AC648, ovl661_D_80118414, 0);
             if ((s16) temp_s0 != (s16) D_800AC648) {
-                func_8003A198();
+                ResetScreenCounters();
             } else {
                 func_80033368((s16) temp_s0, 1);
             }
@@ -46,7 +46,7 @@ void ovl661_func_80117430(void) {
             var_s2 = 0;
             if (temp_s0_2 == 2) {
                 if (D_800F3A38[0].a != 0) {
-                    func_8004F24C(1);
+                    PlaySfx(1);
                     D_800F4D80[18+D_800AC64A].cells[0] = 1;
                     if ((s16) D_800AC64A == 0) {
                         var_s0 = 0;
@@ -72,7 +72,7 @@ void ovl661_func_80117430(void) {
                         choice->rows[1].parameter = temp_a2;
                         choice->rows[2].parameter = (u8) *temp_v1_2;
                         }
-                        func_8003A198();
+                        ResetScreenCounters();
                         D_800AC5D0 = 0x40;
                         D_800ACC18 = D_800F4D70.first;
                         func_80053AF4(0, 0x3C);
@@ -90,7 +90,7 @@ void ovl661_func_80117430(void) {
                         var_s2 = 1;
                     }
                 } else if (D_800F3A38[0].b != 0) {
-                    func_8004F24C(2);
+                    PlaySfx(2);
                     var_s2 = 1;
                 }
                 if (var_s2 == 1) {
@@ -141,7 +141,7 @@ block_42:
                 D_800F4D80[23].cells[0] = temp_s0_3;
                 func_8002B330(1, 4, (char *)&D_800F3A30, 0xA, (s32) temp_s0_3);
                 if (D_800F3A38[0].a != 0) {
-                    func_8004F24C(1);
+                    PlaySfx(1);
                     D_800F4D80[23].cells[0] = 1U;
                     D_800F4D80[23].byte14 = 3U;
                 }
@@ -163,7 +163,7 @@ block_42:
                     func_8002B330(1,2,(char *)&D_800ABEC8,4,0);
                 }
                 if (D_800F3A38[0].a != 0) {
-                    func_8004F24C(1);
+                    PlaySfx(1);
                     D_800F4D80[24].cells[0] = 1;
                     D_800F4D80[24].byte14 = 3U;
                     D_800F4D80[25].cells[0] = 1;

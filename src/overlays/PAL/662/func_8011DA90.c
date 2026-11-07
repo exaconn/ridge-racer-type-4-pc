@@ -14,7 +14,7 @@ void ovl662_func_8011DA90(void)
         }
     } else {
         if (ovl662_D_80127668.words[10] == 4096) {
-            func_8004F24C(2);
+            PlaySfx(2);
         }
         ovl662_D_80127668.words[10] -= ovl662_D_80127668.words[11];
         if ((s32)ovl662_D_80127668.words[10] < 0) {

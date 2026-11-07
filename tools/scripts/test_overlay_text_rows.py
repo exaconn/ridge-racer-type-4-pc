@@ -41,27 +41,27 @@ class OverlayTextRowsTest(unittest.TestCase):
 #include <string.h>
 #include "rr/menu_text_rows.h"
 static struct {u32 guard[4];RrMenuTextRow60 rows[55];u32 tail[4];} owners[2],before[2];
-RrMenuTextRow60 *D_800FFC14;
-s32 D_800F4D30;
+RrMenuTextRow60 *MenuTextRows;
+s32 MenuTextRowCount;
 static unsigned bank,count,mutation,calls;
 void func_80096434(void *pointer,u32 bytes) {
  assert(calls++==0 && pointer==owners[bank].rows && bytes==count*60);
- assert(D_800FFC14==pointer && (uintptr_t)pointer>UINT32_MAX);
+ assert(MenuTextRows==pointer && (uintptr_t)pointer>UINT32_MAX);
  memset(pointer,0,bytes);
- if(mutation){D_800F4D30=(s32)(55-count);D_800FFC14=owners[1-bank].rows;}
+ if(mutation){MenuTextRowCount=(s32)(55-count);MenuTextRows=owners[1-bank].rows;}
 }
 '''+body+r'''
 int main(void) {
  unsigned i,b;
  for(bank=0;bank<2;bank++)for(count=0;count<=55;count++)for(mutation=0;mutation<2;mutation++) {
   for(i=0;i<sizeof(owners);i++)((u8*)owners)[i]=(u8)(i*17+count*29+bank);
-  memcpy(before,owners,sizeof(owners));calls=0;D_800F4D30=(s32)count;
-  D_800FFC14=owners[1-bank].rows;
-  assert(func_800402F4(owners[bank].rows)==(s32)(count*60));assert(calls==1);
-  assert(D_800FFC14==owners[mutation?1-bank:bank].rows);
+  memcpy(before,owners,sizeof(owners));calls=0;MenuTextRowCount=(s32)count;
+  MenuTextRows=owners[1-bank].rows;
+  assert(InitMenuTextRows(owners[bank].rows)==(s32)(count*60));assert(calls==1);
+  assert(MenuTextRows==owners[mutation?1-bank:bank].rows);
   memset(before[bank].rows,0,count*60);
   assert(memcmp(owners,before,sizeof(owners))==0);
-  b=mutation?55-count:count;assert(D_800F4D30==(s32)b);
+  b=mutation?55-count:count;assert(MenuTextRowCount==(s32)b);
  }
  return 0;
 }
@@ -132,11 +132,11 @@ static void event(s32 kind,s32 a,s32 b,s32 c,s32 d,s32 e) {
   }
  }
 }
-s32 func_800402F4(RrMenuTextRow60 *rows) {
+s32 InitMenuTextRows(RrMenuTextRow60 *rows) {
  assert(rows==D_800FFC48 && (uintptr_t)rows>UINT32_MAX);
  assert(w->calls==0);event(0,0,0,0,0,0);return -1;
 }
-void func_80040338(s32 row,s32 position,s32 group,s32 mode,s32 label) {
+void SetMenuTextRow(s32 row,s32 position,s32 group,s32 mode,s32 label) {
  unsigned n=w->calls-1;
  assert(n<33);
  assert(row==(s32)(n<22?n:n+11));assert(position==(s32)(n%11));

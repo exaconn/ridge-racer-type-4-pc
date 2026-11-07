@@ -91,7 +91,7 @@ extern void func_8003660C();
 extern void func_80036FD4();
 extern void func_80037D88();
 extern void func_8003C96C();
-extern void func_8004F24C();
+extern void PlaySfx();
 extern void func_8004FA04();
 extern void func_8004FA50();
 extern void func_8004FC18();
@@ -228,13 +228,13 @@ void ovl667_func_80115640(void) {
         } else {
             if ((ovl667_D_80118EEE | ovl667_D_80118EED) & 2) {
                 if (D_800F2FDC > 0) {
-                    func_8004F24C(0);
+                    PlaySfx(0);
                     D_800F2FDC--;
                 }
             }
             if ((ovl667_D_80118EEE | ovl667_D_80118EED) & 4) {
                 if (D_800F2FDC < 2) {
-                    func_8004F24C(0);
+                    PlaySfx(0);
                     D_800F2FDC++;
                 }
             }

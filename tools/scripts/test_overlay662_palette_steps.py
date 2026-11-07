@@ -42,7 +42,7 @@ static unsigned family,bits,flags,slot,captured_pool,color_index,expected_sound,
 static s32 program;static uint64_t cases;
 static unsigned button_index(RrGarageRectangle*p){unsigned n=(unsigned)((RrGarageButton*)p-world.buttons);assert(n<46);return n;}
 static void sound_effect(struct World*w){w->palette[captured_pool].entries[color_index]=(u16)(bits^0xA55AU);w->garage.active21^=1;w->garage.config22=(u8)(color_index^15);w->garage.palette48[!w->garage.active21]=world.palette[!captured_pool].words;w->table[slot]=&world.buttons[(bits+19)%46].rectangle;w->work.words[1]^=0xA551FF45U;w->garage.reset08[0]=half(bits);}
-void func_8004EF04(s32 p,s32 level,s32 pan,s32 pitch,s32 voice){assert(expected_sound&&calls++==0);assert(p==program&&level==127&&pan==64&&pitch==0x1E00&&voice==-1);assert(memcmp(&world,&checkpoint,sizeof(world))==0);sound_effect(&world);}
+void TriggerSfx(s32 p,s32 level,s32 pan,s32 pitch,s32 voice){assert(expected_sound&&calls++==0);assert(p==program&&level==127&&pan==64&&pitch==0x1E00&&voice==-1);assert(memcmp(&world,&checkpoint,sizeof(world))==0);sound_effect(&world);}
 static void reference(void){unsigned n,j,shift=5*(family/2);int value=(bits>>shift)&31;
  if(flags&1){if(flags&2){expected.work.words[0]&=~8U;clip(13,63,294,346);return;}}
  else{if(!(flags&16)||!(flags&4))return;expected.work.words[4]=slot;expected.work.words[0]|=8;n=button_index(expected.table[slot]);for(j=0;j<4;j++)expected.work.halves[24+j]=half(expected.buttons[n].rectangle[j]);backup();}

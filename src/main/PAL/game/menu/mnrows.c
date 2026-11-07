@@ -28,7 +28,7 @@ extern int D_800AC5DC;
 extern int D_800F4D40;
 extern short D_800F3826;
 
-void func_8003A198(void);
+void ResetScreenCounters(void);
 void func_8003A1B4();
 void func_8003A2D4();
 
@@ -156,7 +156,7 @@ publish_state:
  }
 }
 
-void func_8003A198(void) {
+void ResetScreenCounters(void) {
     D_800F4D7C = 0;
     D_800F3A2C = 0;
     ScreenFrame = 0;
@@ -171,7 +171,7 @@ void func_8003A1B4()
   D_800F4C1C = 4;
   D_800F4BEC = 0x28;
   D_800ACC24 = 1;
-  D_800F4D30 = 0x37;
+  MenuTextRowCount = 0x37;
   D_800F4D70[1] = D_800102F0 + c;
   D_800ACC18 = D_800F4D70[1];
   func_8001E84C(D_8001075C, D_800ACC18, 0x2D000);
@@ -230,7 +230,7 @@ l418:
     func_8002A604();
     func_8003A1B4();
 l428:
-    func_8003A198();
+    ResetScreenCounters();
     if (D_800FFC10 == 1) {
         SetDispMask(0);
         a1 = 0;

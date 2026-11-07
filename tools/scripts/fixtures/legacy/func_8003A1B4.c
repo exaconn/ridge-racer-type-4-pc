@@ -14,7 +14,7 @@ extern int D_800ACC24;
 extern int D_800F2ECC;
 extern int D_800F4BEC;
 extern int D_800F4C1C;
-extern int D_800F4D30;
+extern int MenuTextRowCount;
 extern int D_800F4D70[];
 void func_8003A1B4()
 {
@@ -25,7 +25,7 @@ void func_8003A1B4()
   D_800F4C1C = 4;
   D_800F4BEC = 0x28;
   D_800ACC24 = 1;
-  D_800F4D30 = 0x37;
+  MenuTextRowCount = 0x37;
   D_800F4D70[1] = D_800102F0 + c;
   D_800ACC18 = D_800F4D70[1];
   func_8001E84C(D_8001075C, D_800ACC18, 0x2D000);

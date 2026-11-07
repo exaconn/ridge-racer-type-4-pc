@@ -82,7 +82,7 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
  tableState(n);
 }
 static void service(unsigned kind){const s32 args[10]={0};record(kind,args);effect(kind);}
-void func_8003A198(void){service(0);}
+void ResetScreenCounters(void){service(0);}
 void func_8003A1B4(void){service(1);}
 void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){const s32 args[10]={a,b,c,d,e,f,g,h,i,j};record(2,args);effect(2);}
 void func_80013890(s32 a){const s32 args[10]={a};record(3,args);effect(3);}
@@ -91,7 +91,7 @@ void func_8002E4F4(RrRaceVehicle *p){unsigned i;for(i=0;i<2&&p!=&w->vehicles[i];
 s32 func_800370BC(const RrCourseChoice4 *p){unsigned g,r;for(g=0;g<2;g++)for(r=0;r<2;r++)if(p==w->table[g][r])goto found;
 found:assert(g<2&&r<2&&(uintptr_t)p>UINT32_MAX);const s32 args[10]={g,r};record(6,args);s32 count=0;for(;count<9;count++){if(p[count].glyph==-1)break;if(count==8&&p[8].glyph!=0x167)break;}effect(6);return count;}
 void func_80037040(s8 *p,s32 glyph){unsigned i;for(i=0;i<4&&p!=(s8*)&w->selectionRows+4*i;i++){}assert(i<4&&(uintptr_t)p>UINT32_MAX);const s32 args[10]={i,glyph};record(7,args);encode_original(p,glyph);effect(7);}
-static void expected(s32 original){w->frame=0;w->tick=0;w->selection=0;w->limit=3;func_8003A198();w->arenas.second=w->base+0x2D000;func_8003A1B4();w->player=original;w->published=w->arenas.second;
+static void expected(s32 original){w->frame=0;w->tick=0;w->selection=0;w->limit=3;ResetScreenCounters();w->arenas.second=w->base+0x2D000;func_8003A1B4();w->player=original;w->published=w->arenas.second;
  static const s32 rows[24][10]={
  {0,24,88,68,32,0,0,1,0,83},{1,24,128,68,32,0,0,1,0,54},{2,24,168,68,32,0,0,1,0,85},
  {3,24,88,68,32,0,0,1,0,83},{4,24,128,68,32,0,0,1,0,101},{5,24,168,68,32,0,0,1,0,53},{6,24,208,68,32,0,0,1,0,85},{7,116,88,28,32,0,0,1,0,55},{8,116,128,28,32,0,0,1,0,56},
@@ -99,7 +99,7 @@ static void expected(s32 original){w->frame=0;w->tick=0;w->selection=0;w->limit=
  {12,24,88,68,32,0,0,1,0,83},{13,24,128,68,32,0,0,1,0,101},{14,24,168,68,32,0,0,1,0,53},{15,24,208,68,32,0,0,1,0,85},{16,116,88,28,32,0,0,1,0,55},{17,116,128,28,32,0,0,1,0,56},
  {18,12,64,68,32,0,0,1,0,84},{19,12,104,68,32,0,0,1,0,3},{20,12,144,68,32,0,0,1,0,85},{21,12,368,208,32,0,0,8,4,0},{23,104,104,68,32,0,0,1,5,3},{24,104,64,68,32,0,0,0,126,0}};
  for(unsigned i=0;i<24;i++){s32 args[10];memcpy(args,rows[i],40);if(args[0]==21)args[9]=w->course;record(2,args);effect(2);}
- func_80013890(5);w->selection=0;w->limit=3;func_8003A198();func_80037110();w->active=0;w->published=w->buffer;resourceBranch[w->player&1]++;
+ func_80013890(5);w->selection=0;w->limit=3;ResetScreenCounters();func_80037110();w->active=0;w->published=w->buffer;resourceBranch[w->player&1]++;
  if((w->player&1)==0)w->arenas.first=w->buffer;else w->published=w->arenas.first;
  w->scratch.word18=120;w->scratch.word08=-16;w->scratch.word0C=-248;w->scratch.word1C=0;w->scratch.word20=0;w->scratch.word10=-96;
  for(unsigned i=0;i<2;i++){func_8002E4F4(&w->vehicles[i]);w->vehicles[i].pos20[1]=10;w->vehicles[i].pos20[2]=308;w->vehicles[i].rot54=2048;}

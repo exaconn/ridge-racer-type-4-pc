@@ -9,7 +9,7 @@ void ovl661_func_80115598(s32 mode) {
     ScreenFrame=0;
     D_800AC64A=0;
     D_800AC5E0=3;
-    func_8003A198();
+    ResetScreenCounters();
     D_800F4D70.second=D_800102F0+0x2D000;
     func_8003A1B4();
     D_800AC5D4=mode;
@@ -43,7 +43,7 @@ void ovl661_func_80115598(s32 mode) {
     func_80013890(5);
     D_800AC64A=0;
     D_800AC5E0=3;
-    func_8003A198();
+    ResetScreenCounters();
     func_80037110();
     /* Allocation metadata for the real pointer cell; emits no instruction. */
     __asm__("" : "+m"(D_800ACC18));

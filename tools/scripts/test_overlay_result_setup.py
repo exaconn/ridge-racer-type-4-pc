@@ -88,11 +88,11 @@ static s32 event(s32 kind,s32 a,s32 b,s32 c,s32 d,s32 e) {
  }
  return (s32)((scenario+n)%7);
 }
-s32 func_800402F4(RrMenuTextRow60 *rows) {
+s32 InitMenuTextRows(RrMenuTextRow60 *rows) {
  assert(rows==D_800FFC48 && (uintptr_t)rows>UINT32_MAX);
  return event(0,0,0,0,0,0);
 }
-void func_80040338(s32 row,s32 position,s32 group,s32 mode,s32 label) {
+void SetMenuTextRow(s32 row,s32 position,s32 group,s32 mode,s32 label) {
  unsigned n=w->draws;
  if(overlay) {
   assert(n<33 && row==(s32)(n<22?n:n+11));assert(position==(s32)(n%11));

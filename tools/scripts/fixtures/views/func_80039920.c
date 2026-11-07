@@ -34,7 +34,7 @@
 
 #define func_80033A74 ((void (*)())func_80033A74)
 
-#define func_8003A198 ((void (*)())func_8003A198)
+#define ResetScreenCounters ((void (*)())ResetScreenCounters)
 
 #define func_8003FBA8 ((void (*)())func_8003FBA8)
 
@@ -60,7 +60,7 @@
 
 #undef func_80033A74
 
-#undef func_8003A198
+#undef ResetScreenCounters
 
 #undef func_8003FBA8
 

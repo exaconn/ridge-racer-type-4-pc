@@ -11,7 +11,7 @@
 #include "game/data/selection.h"
 #include "game/gfx/drawbuf.h"
 
-#define ROW(i) ((RrRow60 *)((s32)D_800FFC14 + (i) * 0x3C))
+#define ROW(i) ((RrRow60 *)((s32)MenuTextRows + (i) * 0x3C))
 
 typedef struct {
     u8 unk0;
@@ -48,7 +48,7 @@ typedef struct { char pad[4]; char f4; char pad2[2]; char f7; } T;
 extern RrSpritePacket *func_8001FCC8();
 extern s32 rsin();
 extern s32 rcos();
-extern RrRow60 *D_800FFC14;
+extern RrRow60 *MenuTextRows;
 extern unsigned short D_8009FDA0[];
 extern E_1 *D_800F4D8C;
 extern s32 D_800AC5DC;
@@ -235,7 +235,7 @@ void func_800411D4()
 #undef D_800ACC14
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800FFC14 ((E *)D_800FFC14)
+#define MenuTextRows ((E *)MenuTextRows)
 
 void func_80041320(a0, a1, a2)
 int a0;
@@ -243,20 +243,20 @@ int a1;
 int a2;
 {
   E *p;
-  ((E *) (((int) D_800FFC14) + (a0 * 0x3C)))->e = D_8009FDA0[a1];
+  ((E *) (((int) MenuTextRows) + (a0 * 0x3C)))->e = D_8009FDA0[a1];
   if (a2 < (-0xFF))
   {
-    ((E *) (((int) D_800FFC14) + (a0 * 0x3C)))->d = -a2;
+    ((E *) (((int) MenuTextRows) + (a0 * 0x3C)))->d = -a2;
     return;
   }
   switch (a2)
   {
     case 0:
-      ((E *) (((int) D_800FFC14) + (a0 * 0x3C)))->c = 0x20;
+      ((E *) (((int) MenuTextRows) + (a0 * 0x3C)))->c = 0x20;
       return;
 
     case 1:
-      ((E *) (((int) D_800FFC14) + (a0 * 0x3C)))->c = 0x3E;
+      ((E *) (((int) MenuTextRows) + (a0 * 0x3C)))->c = 0x3E;
       return;
 
     case -1:
@@ -266,7 +266,7 @@ int a2;
 
 }
 
-#undef D_800FFC14
+#undef MenuTextRows
 
 void func_8004139C(a0, a1)
 int a0;

@@ -45,7 +45,7 @@ static void service(unsigned id,int arg){
 s32 ovl662_func_8011E734(s32 n){assert(n==1);service(0,n);return (scenario>>1)&1;}
 void ovl662_func_8011E694(void){service(1,0);}
 void ovl662_func_8011D120(void){service(2,0);}
-void func_8004F24C(s32 n){service(3,n);}
+void PlaySfx(s32 n){service(3,n);}
 void ovl662_func_8011E5C0(s32 n){service(4,n);}
 static unsigned slot(u32 *p){for(unsigned i=0;i<4;i++)if(p==world.images[i])return i;assert(0);return 0;}
 static void reference(s32 command){

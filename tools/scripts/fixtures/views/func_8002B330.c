@@ -57,7 +57,7 @@ extern S_F3A38 D_800F3A38[];
 
 extern s32 D_8009FDA4;
 
-extern int func_8004F24C();
+extern int PlaySfx();
 
 void func_8002B330(a0, a1, a2, a3, a4) int a0; int a1; char *a2; int a3; int a4; {
     int s0;
@@ -119,7 +119,7 @@ L:
     if ((a0 & 2) == 0) {
         if (s0 < a3) {
             if (s0 >= a4) {
-                func_8004F24C(0, a);
+                PlaySfx(0, a);
             } else {
                 s0 = a4;
             }
@@ -127,7 +127,7 @@ L:
             s0 = a3 - 1;
         }
     } else {
-        func_8004F24C(0, a);
+        PlaySfx(0, a);
         if (s0 >= a3) {
             s0 = a4;
         } else if (s0 < a4) {

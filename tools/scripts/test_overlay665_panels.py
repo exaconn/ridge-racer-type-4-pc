@@ -82,7 +82,7 @@ void func_8003D228(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){Event *v=event(3);
 void func_8002AF8C(s32 a,s32 b,s32 c){Event *e=event(4);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
 void ovl665_func_80115C8C(void){event(5);change();}
 void func_8005B2D4(s32 mode){event(6)->args[0]=mode;change();}
-void func_8004F24C(s32 sound){event(7)->args[0]=sound;change();}
+void PlaySfx(s32 sound){event(7)->args[0]=sound;change();}
 void func_800207D4(u32 *head,s32 intensity,u32 mode){Event *e=event(8);assert(head==world.s.frames[world.s.frameRoot].ordering70);e->args[0]=intensity;e->args[1]=mode;*head^=(u32)intensity;change();}
 void ovl665_func_80114A24(void){event(9);change();}
 void *func_8001FF84(u32 *head,void *cursor,s32 x,s32 y,const RrUiUvRect *uv,u16 clut,s32 color){
@@ -121,7 +121,7 @@ static void reference(void){unsigned i;State *s=&world.s;
  {s32 phase=s->visual.layout0C;
   if(phase==0){ovl665_func_80115C8C();func_8005B2D4(0);s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
   else if(phase==1){if(D_800F3AFC[0].state10==3)s->visual.layout0C=2;}
-  else if(phase==2){if(s->accept){func_8004F24C(1);D_800F3AFC[0].state10=4;s->fade=64;s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}}
+  else if(phase==2){if(s->accept){PlaySfx(1);D_800F3AFC[0].state10=4;s->fade=64;s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}}
   else if(phase==3){s->fade=half((s32)s->fade-1);func_800207D4(s->frames[s->frameRoot].ordering70,(64-(s32)s->fade)*4,69);if(s->fade<=0&&D_800F3AFC[0].state10==11){ovl665_func_80114A24();s->visual.layout0C=0;s->visual.scene00=wrap((int64_t)s->visual.scene00-1);return;}}
  }
  {void *cursor=s->scratch.pointers.cursor;

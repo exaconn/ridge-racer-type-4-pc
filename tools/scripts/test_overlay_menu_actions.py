@@ -58,7 +58,7 @@ static void sound(struct World *w,s32 a,s32 b,s32 c,s32 d){
 }
 void func_80041320(s32 a,s32 b,s32 c){draw(&world,a,b,c);}
 void func_8002B330(s32 a,s32 b,char *p,s32 c,s32 d){choose(&world,a,b,p,c,d);}
-int func_8004F218(s32 a,s32 b,s32 c,s32 d){sound(&world,a,b,c,d);return -1;}
+int PlaySfxVolPan(s32 a,s32 b,s32 c,s32 d){sound(&world,a,b,c,d);return -1;}
 void func_8002B12C(s32 a,s32 b,s32 c,s32 d,s32 f,s32 g,s32 h){
  Event *e=event(&world,4);e->args[0]=a;e->args[1]=b;e->args[2]=c;e->args[3]=d;e->args[4]=f;e->args[5]=g;e->args[6]=h;
  memcpy(world.choice.bytes,world.changed_choice,4);

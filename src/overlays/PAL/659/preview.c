@@ -10,7 +10,7 @@ void ovl659_init_preview(void) {
         D_800AC64A = 0;
         D_800AC5E0 = 3;
         func_80053CB0();
-        func_8003A198();
+        ResetScreenCounters();
         func_8002A604();
         func_8003A1B4();
         D_800ACC18 = D_800F4D74;
@@ -95,7 +95,7 @@ void ovl659_update_preview(void) {
         func_8002B330(0, 2, (char *)&D_800AC64A, 3, 0);
         D_800F4D80[D_800AC64A].cells[0] = 2;
         if (D_800F3A38[0].a != 0) {
-            func_8004F24C(1);
+            PlaySfx(1);
             func_8002AF8C(0, 1, 0);
             D_800F4D80[D_800AC64A].cells[0] = 1;
             if (D_800AC64A == 0) {
@@ -145,13 +145,13 @@ void ovl659_update_preview(void) {
             func_8002AF8C(1, 1, 1);
             D_800F4D80[6].cells[0] = state6;
             if (D_800F3A38[0].a != 0) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 D_800F4D80[4].byte14 = 0;
                 D_800F4D80[5].byte14 = 0;
                 D_800F4D80[6].cells[0] = 1;
                 D_800F4D8A = 4;
             } else if (D_800F3A38[0].b != 0) {
-                func_8004F24C(2);
+                PlaySfx(2);
                 D_800F4D80[6].byte14 = 3;
                 ((s8 *)D_800F2AB0)[1] = 3;
                 D_800F4D8A = 10;
@@ -168,7 +168,7 @@ void ovl659_update_preview(void) {
             D_800F4D80[D_800AD4D8.copies[0].bytes[3] + 4].cells[0] = state4;
             D_800F4D98.choice = D_800AD4D8.copies[0];
             if (D_800F3A38[0].a != 0) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 D_800F4D80[D_800AD4D8.copies[0].bytes[3] + 4].cells[0] = 1;
                 ((s8 *)D_800F2AB0)[1] = 3;
                 D_800F4D80[4].byte14 = 3;

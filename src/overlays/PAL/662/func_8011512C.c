@@ -11,7 +11,7 @@ void ovl662_func_8011512C(void) {
     ScreenFrame=0;
     D_800AC64A=0;
     D_800AC5E0=4;
-    func_8003A198();
+    ResetScreenCounters();
     D_800F4D70.second=D_800102F0+0x2D000;
     func_8003A1B4();
     D_800ACC18=D_800F4D70.second;
@@ -20,7 +20,7 @@ void ovl662_func_8011512C(void) {
     func_8003E928(2,24,168,68,32,0,0,1,0,22);
     func_8003E928(3,24,208,68,32,0,0,1,0,85);
     func_80013890(5);
-    func_8003A198();
+    ResetScreenCounters();
     func_80037110();
     i=0;
     vehicle=D_800ABEF8;

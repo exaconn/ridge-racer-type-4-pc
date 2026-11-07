@@ -31,8 +31,8 @@ static struct World {struct State s;unsigned calls;struct {s32 service,a[5];u32 
 static unsigned scenario,mutation;
 #define D_800AD4D8 w->s.settings
 #define D_800FFC48 w->s.rows
-#define D_800FFC14 w->s.published
-#define D_800F4D30 w->s.count
+#define MenuTextRows w->s.published
+#define MenuTextRowCount w->s.count
 #define ovl659_result_labels w->s.labels
 #define ovl659_preview_timer w->s.local
 #define D_800F2DE4 w->s.frame
@@ -59,7 +59,7 @@ void func_80096434(void *destination,u32 bytes){
  assert(destination==w->s.rows && bytes<=sizeof(w->s.rows));
  event(2,(s32)bytes,0,0,0,0);memset(destination,0,bytes);
 }
-void func_80040338(s32 row,s32 position,s32 group,s32 mode,s32 label){
+void SetMenuTextRow(s32 row,s32 position,s32 group,s32 mode,s32 label){
  unsigned i;u32 values[4];assert(row>=0 && row<48);
  event(3,row,position,group,mode,label);
  values[0]=(u32)position;values[1]=(u32)group;values[2]=(u32)mode;values[3]=(u32)label;
@@ -77,9 +77,9 @@ static void reference(void){
  for(i=0;i<11;i++){
   s32 index=(s32)i+offset;
   if(w->s.settings.phase17>=4 && i==4 && offset==0)index=22;
-  func_80040338(i,i,0,0,w->s.labels[index]);
+  SetMenuTextRow(i,i,0,0,w->s.labels[index]);
  }
- for(i=0;i<11;i++)func_80040338(i+33,i,2,0,w->s.labels[i+23]);
+ for(i=0;i<11;i++)SetMenuTextRow(i+33,i,2,0,w->s.labels[i+23]);
  func_8002AF8C(0,1,0);w->s.local=-2;w->s.frame=0;
 }
 int main(void){

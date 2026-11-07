@@ -24,7 +24,7 @@
 
 #undef D_800F4DB8
 
-void func_8004EF04(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s16 temp_a2_2;
     register s16 temp_s0_2;
     register s16 temp_s0_4;

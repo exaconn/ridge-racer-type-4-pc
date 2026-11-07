@@ -24,7 +24,7 @@ void ovl662_func_80125370(void) {
     }
     if (c != 0) {
         ovl662_D_801276A8.config22 = c;
-        func_8004F24C(1);
+        PlaySfx(1);
     } else {
         c = (img1 + y * 32)[x / 2];
         if (x & 1) {
@@ -34,9 +34,9 @@ void ovl662_func_80125370(void) {
         }
         if (c != 0) {
             ovl662_D_801276A8.config22 = c;
-            func_8004F24C(1);
+            PlaySfx(1);
         } else {
-            func_8004F24C(4);
+            PlaySfx(4);
         }
     }
 }

@@ -56,7 +56,7 @@ void ovl662_func_801154C8(void) {
         func_8002B330(1, 2, (char*)&ovl662_D_801272E4, ovl662_D_801272E0, 0);
         func_80037040((s8*)&D_800F4D98, D_800ABE08[1][ovl662_D_801272E4].glyph);
         if (((u32)temp_s0 << 0x10) != ((u32)func_8003708C((s8*)&D_800F4D98) << 0x10)) {
-            func_8003A198();
+            ResetScreenCounters();
             D_800ACC18 = D_800F4D70.first;
             func_80037040((s8*)&D_800F4D98, D_800ABE08[1][ovl662_D_801272E4].glyph);
             (*(s8*)(D_800F2AB0+1)) = 6;
@@ -96,7 +96,7 @@ void ovl662_func_801154C8(void) {
                     if (D_800AC64A == 0) {
                         if (ovl662_D_801272E4 < 8) {
                             func_80014A8C(-1);
-                            func_8004F24C(1);
+                            PlaySfx(1);
                             var_s0 = 0;
 
                             D_800F4D8A = (u16) temp_s1;
@@ -117,7 +117,7 @@ void ovl662_func_801154C8(void) {
                         }
                     } else if (D_800AC64A == 1) {
                         func_80014A8C(-1);
-                        func_8004F24C(1);
+                        PlaySfx(1);
                         var_s0 = 0;
 
                         D_800F3AFC->state10 = 4;
@@ -135,7 +135,7 @@ void ovl662_func_801154C8(void) {
                     } else if (D_800AC64A == temp_s3) {
                         if (temp_s5 == 0) {
                             func_80014A8C(-1);
-                            func_8004F24C(1);
+                            PlaySfx(1);
                             var_s0 = 0;
 
                             D_800F4D8A = 4;
@@ -151,11 +151,11 @@ void ovl662_func_801154C8(void) {
                             } while (var_s0 < 4);
                         } else {
 block_40:
-                            func_8004F24C(4);
+                            PlaySfx(4);
                         }
                     } else if (D_800AC64A == temp_s1) {
                         func_80014A8C(-1);
-                        func_8004F24C(1);
+                        PlaySfx(1);
                         var_s0 = 0;
                         if (D_800F4BEC > 0) {
 
@@ -173,7 +173,7 @@ block_40:
                         goto block_54;
                     }
                 } else if (D_800F3A38[0].b != 0) {
-                    func_8004F24C(2);
+                    PlaySfx(2);
                     func_80014A8C(-1);
                     func_8002AF8C(0, 1, 1);
                     var_s0 = 0;

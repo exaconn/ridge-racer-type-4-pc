@@ -42,7 +42,7 @@ void ovl662_func_80121564(s32 mode) {
                 }
                 ((RrGarageButton *)ovl662_D_801273B8[19])->timer0E = 7;
                 ovl662_D_801276A8.layer23 = 0;
-                func_8004F24C(1);
+                PlaySfx(1);
             }
         }
     }

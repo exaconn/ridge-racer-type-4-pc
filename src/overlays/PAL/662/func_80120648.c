@@ -44,7 +44,7 @@ ovl662_D_801276A8.optionIndices98.flat[2] = 0;
                     ovl662_D_801276A8.saved64[4] = 6;
                 }
                 ovl662_D_801276A8.config1E = 3;
-                func_8004F24C(1);
+                PlaySfx(1);
             }
         }
     }

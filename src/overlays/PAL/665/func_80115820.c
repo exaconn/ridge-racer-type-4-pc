@@ -27,7 +27,7 @@ void ovl665_func_80115820(void) {
             D_800AD528.display.x34=0;
             D_800AD528.display.y38=16;
         } else if(D_800F3A38[0].accept30) {
-            func_8004F24C(1);
+            PlaySfx(1);
             D_800F3AFC[0].state10=4;
             D_800AC5D0=64;
             ovl665_D_80119768.layout0C=(s32)((u32)ovl665_D_80119768.layout0C+1U);

@@ -53,9 +53,9 @@ extern int D_800F2DE4;
 extern short *D_800F3AFC;
 extern int D_800F3A60;
 extern void func_80032A14();
-extern void func_8003A198();
+extern void ResetScreenCounters();
 extern void func_8003D6F0();
-extern void func_8004F24C();
+extern void PlaySfx();
 extern void func_8005D974();
 
 void func_8002E9B0();
@@ -177,7 +177,7 @@ void func_8002EC94(void)
                     goto call;
                 if (D_800F4D8A != 0xA)
                     goto els;
-                func_8004F24C(3);
+                PlaySfx(3);
                 D_800AC590[4] = D_800AC590[4] + 1;
                 goto c8;
             set:
@@ -220,7 +220,7 @@ void func_8002EC94(void)
         if (D_800F3A40 & 0x800) {
             if (s0 == 0)
                 func_8005C7A4();
-            func_8004F24C(1);
+            PlaySfx(1);
             func_8005CA04();
             D_800AC64A = 0;
             func_80034E14();
@@ -238,7 +238,7 @@ void func_8002EC94(void)
             if (func_8002F1BC() != 0) {
                 D_800F4D8A = 3;
                 D_800AC5D0 = 0x40;
-                func_8003A198();
+                ResetScreenCounters();
                 func_8005C8D8(D_800F4D2C);
                 D_800F3AFC->s10 = 4;
             }

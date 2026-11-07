@@ -34,7 +34,7 @@ static unsigned scenario,sound_calls,gte_calls;
 static const u32 factors[8]={0,1,4095,4096,4097,0xffffffffU,0x80000000U,0x7fffffffU};
 static const u32 steps[8]={0,1,2,4096,0xffffffffU,0x80000000U,0x7fffffffU,65535};
 static void dump(void){unsigned i;for(i=0;i<sizeof actual;i++)printf("%02x",((u8*)&actual)[i]);puts("");}
-void func_8004F24C(s32 sound){
+void PlaySfx(s32 sound){
  unsigned i;assert(sound==2&&sound_calls++==0);printf("S ");dump();
  if((scenario/1024)&1){
   for(i=0;i<64;i++)((u8*)&actual.work)[i]=(u8)(scenario*29+i*7+31);

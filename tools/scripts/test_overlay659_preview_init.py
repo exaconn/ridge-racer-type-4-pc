@@ -70,7 +70,7 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;
 }
 static void service(unsigned kind){const s32 args[10]={0};record(kind,args);effect(kind);}
 void func_80053CB0(void){service(0);}
-void func_8003A198(void){service(1);}
+void ResetScreenCounters(void){service(1);}
 void func_8002A604(void){service(2);}
 void func_8003A1B4(void){service(3);}
 void func_8003E928(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){

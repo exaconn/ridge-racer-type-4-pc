@@ -19,7 +19,7 @@ extern void *D_800ACC18;
 extern u8 D_80118374[4];
 void func_80014A8C(s32);void func_800207D4(u32*,s32,u32);void func_8002A344(s32);void func_8002AF8C(s32,s32,s32);
 void func_8002B12C(s32,s32,s32,s32,s32,s32,s32);void func_8002B330(s32,s32,char*,s32,s32);
-s32 func_80032E9C(s32);void func_80032F44(s32,s32);void func_80033368(s32,s32);void func_8003A198(void);s32 func_8003AE4C(s32,s32);s32 func_8003BAB0(void);void func_8003EC88(s32);void func_8004F24C(s32);void func_80053AF4(s32,s32);void func_80053CB0(void);void ovl661_func_80115598(s32);
+s32 func_80032E9C(s32);void func_80032F44(s32,s32);void func_80033368(s32,s32);void ResetScreenCounters(void);s32 func_8003AE4C(s32,s32);s32 func_8003BAB0(void);void func_8003EC88(s32);void PlaySfx(s32);void func_80053AF4(s32,s32);void func_80053CB0(void);void ovl661_func_80115598(s32);
 /* UI roots cover at least26 complete rows. Highlight count is0..10; its byte span may extend beyond cells[8]
  * into later bytes of the same complete row.
  * Parameter table indices are0..3. Menu phase0 accepts selection0..3; phase5

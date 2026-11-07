@@ -8,7 +8,7 @@ void ovl663_init_menu(void) {
     func_8002A604();
     ovl663_extra_courses_enabled = 0;
     ovl663_record_kind = 0;
-    func_8003A198();
+    ResetScreenCounters();
     D_800F4D70.second = D_800102F0 + 0x2D000;
     func_8003A1B4();
     D_800ACC18 = D_800F4D70.second;
@@ -85,23 +85,23 @@ void ovl663_update_menu(void) {
                 selected = D_800AC64A;
                 if (selected == 0) {
                     if (ovl663_available_course_count > 0) {
-                        func_8004F24C(1);
+                        PlaySfx(1);
                         closingMode = 2;
-                        func_8003A198();
+                        ResetScreenCounters();
                         D_800F4D8A = 3;
                         D_800ACC18 = D_800F4D40;
                     } else {
-                        func_8004F24C(4);
+                        PlaySfx(4);
                     }
                     goto chosen;
                 } else if (selected == 1) {
-                    func_8004F24C(1);
+                    PlaySfx(1);
                     closingMode = 2;
                     ovl663_record_kind = selected;
                     D_800F4D8A = 4;
                     goto chosen;
                 } else if (selected == 2) {
-                    func_8004F24C(1);
+                    PlaySfx(1);
                     ovl663_record_kind = selected;
                     closingMode = 2;
                     D_800F4D8A = 5;
@@ -116,7 +116,7 @@ void ovl663_update_menu(void) {
                 cancelSound = 2;
                 if (D_800F3A38[0].b != 0) {
                 cancel:
-                    func_8004F24C(cancelSound);
+                    PlaySfx(cancelSound);
                     D_800F4D8A = 8;
                     closingMode = 1;
                 }

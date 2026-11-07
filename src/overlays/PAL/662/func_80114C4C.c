@@ -34,7 +34,7 @@ void ovl662_func_80114C4C(void)
             if (D_800AC64A == 0) {
                 if (D_800ABE08[1][0].glyph != -1) {
                     func_80014A8C(-1);
-                    func_8004F24C(1);
+                    PlaySfx(1);
                     D_800F4D8A = 3;
                     D_800AC5D0 = 64;
                     for (i = 0; i < 3; i++) {
@@ -43,10 +43,10 @@ void ovl662_func_80114C4C(void)
                         }
                     }
                 } else {
-                    func_8004F24C(4);
+                    PlaySfx(4);
                 }
             } else if (D_800AC64A == 1) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 func_80014A8C(-1);
                 D_800F4D8A = 4;
                 for (i = 0; i < 3; i++) {
@@ -56,7 +56,7 @@ void ovl662_func_80114C4C(void)
                 }
                 D_800AC5D0 = 64;
             } else if (D_800AC64A == state) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 func_80014A8C(-1);
                 D_800F4D8A = 8;
                 for (i = 0; i < 3; i++) {
@@ -68,7 +68,7 @@ void ovl662_func_80114C4C(void)
                 func_80053AF4(0, 60);
             }
         } else if (D_800F3A38[0].b) {
-            func_8004F24C(2);
+            PlaySfx(2);
             func_80014A8C(-1);
             D_800F4D8A = 8;
             func_8002AF8C(0, 1, 1);

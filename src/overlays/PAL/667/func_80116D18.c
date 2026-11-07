@@ -74,7 +74,7 @@ void ovl667_func_80116D18(void) {
         func_80037040((s8 *)&D_800F4D98 + D_800AC5D4 * 4,
                       D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].glyph);
         if (((u32)previous << 16) != ((u32)func_8003708C((s8 *)&D_800F4D98 + D_800AC5D4 * 4) << 16)) {
-            func_8003A198();
+            ResetScreenCounters();
             D_800ACC18 = D_800F4D70.first;
             func_80037040((s8 *)&D_800F4D98 + D_800AC5D4 * 4,
                           D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].glyph);
@@ -97,7 +97,7 @@ void ovl667_func_80116D18(void) {
             break;
         }
         if (D_800F3A38[D_800AC5D4 & 1].a != 0) {
-            func_8004F24C(1);
+            PlaySfx(1);
             D_800F4D80[row].cells[0] = 1;
             if (D_800AC64A == ovl667_D_80118E14[D_8010C0D8[D_800AC5D4 & 1]][0]) {
                 D_8010C0B8 = state;
@@ -137,7 +137,7 @@ void ovl667_func_80116D18(void) {
                 D_800F3AFC->state10 = 4;
             }
         } else if (D_800F3A38[D_800AC5D4 & 1].b != 0) {
-            func_8004F24C(2);
+            PlaySfx(2);
             cancel = 1;
         }
         if (cancel == 1) {
@@ -170,7 +170,7 @@ void ovl667_func_80116D18(void) {
         func_8002B330((D_800AC5D4 & 1) * 4, 1, (char *)&((RrMenuChoice4 *)&D_800F4D98)[D_800AC5D4].bytes[3], 2, 0);
         D_800F4D80[row + ((RrMenuChoice4 *)&D_800F4D98)[D_800AC5D4].bytes[3]].cells[0] = state;
         if (D_800F3A38[D_800AC5D4 & 1].a != 0) {
-            func_8004F24C(1);
+            PlaySfx(1);
             D_800F4D80[row + ((RrMenuChoice4 *)&D_800F4D98)[D_800AC5D4].bytes[3]].cells[0] = 1;
             D_800F4D80[row].byte14 = 3;
             D_800F4D80[row + 1].byte14 = 3;
@@ -200,7 +200,7 @@ void ovl667_func_80116D18(void) {
             D_800AC5D4 = D_800AC5D4 + 1;
             ovl667_func_80116BB4();
         } else if (D_800F3A38[D_800AC5D4 & 1].b != 0) {
-            func_8004F24C(2);
+            PlaySfx(2);
             D_800F4D80[row].byte14 = 3;
             D_800F4D80[row + 1].byte14 = 3;
             D_800F4D8A = 6;
@@ -211,7 +211,7 @@ void ovl667_func_80116D18(void) {
         row = ovl667_D_80118E1C[D_800AC5D4 & 1][1][3] + 1;
         closing = D_800F4D80[row].byte14;
         if (closing == 5 && (s8)D_800F2AB0[1] == closing) {
-            func_8003A198();
+            ResetScreenCounters();
             ovl667_func_80117EF8();
             D_800F4C6A = 1;
             D_800F3A26 = 61;

@@ -151,7 +151,7 @@ extern int D_800F3A60;
 extern S_8010BF70 *D_8010BF70;
 extern int func_80013890();
 extern int func_80019C90();
-extern int func_8003A198();
+extern int ResetScreenCounters();
 extern int func_80043608();
 extern int func_800436E8();
 extern int func_8006E1AC();
@@ -319,7 +319,7 @@ void func_80019FC8(void) {
     if (D_800AC5D0 != 0) {
         D_800AC5D0 += 4;
         if (D_800AC5D0 >= 0x100) {
-            func_8003A198();
+            ResetScreenCounters();
             D_800F4C6A = 1;
             D_800F3A26 = 0xB;
             D_800F4D8A = 0;

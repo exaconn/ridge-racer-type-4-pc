@@ -77,7 +77,7 @@ void func_8001E854(void *p,s32 a,s32 b){unsigned bank;assert((uintptr_t)p>UINT32
  if(!referenceRun){assert(w->key>=0&&w->key<=25);mapped[w->key]++;}
  record(3,bank,a,b,0,0,0,0);change(3);
 }
-void func_8004F24C(s32 a){assert(a==1||a==2||a==4);record(4,a,0,0,0,0,0,0);change(4);}
+void PlaySfx(s32 a){assert(a==1||a==2||a==4);record(4,a,0,0,0,0,0,0);change(4);}
 s32 func_8003DCEC(s32 a){record(5,a,0,0,0,0,0,0);change(5);return (scenario&1)?1:word(scenario*0x1020304U);}
 void ovl662_func_80119898(s32 a){record(6,a,0,0,0,0,0,0);change(6);}
 void func_8002B12C(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){record(7,a,b,c,d,e,f,g);change(7);}
@@ -97,9 +97,9 @@ static void expected(void){unsigned state=(u16)w->state;int complete=0;
   int rowPhase=w->rows[w->root][0].byte14,badgePhase=w->badges[w->badgeRoot][0].state10;
   if(rowPhase==2&&badgePhase==3){
    if(w->input[0].a){w->rows[w->root][w->selection].cells[0]=1;
-    if(w->selection==0){if(w->key<25){action[0]++;func_8004F24C(1);w->phase=rowPhase;w->fade=0;w->state=badgePhase;closeRows();w->badges[w->badgeRoot][0].state10=4;}else{action[1]++;func_8004F24C(4);}}
-    else if(w->selection==1){action[2]++;func_8004F24C(1);w->fade=0;w->phase=rowPhase;w->badges[w->badgeRoot][0].state10=4;closeRows();w->state=4;}
-   }else if(w->input[0].b&&w->mode==0){action[3]++;func_8004F24C(2);w->phase=rowPhase;w->fade=0;w->badges[w->badgeRoot][0].state10=4;closeRows();w->state=4;}
+    if(w->selection==0){if(w->key<25){action[0]++;PlaySfx(1);w->phase=rowPhase;w->fade=0;w->state=badgePhase;closeRows();w->badges[w->badgeRoot][0].state10=4;}else{action[1]++;PlaySfx(4);}}
+    else if(w->selection==1){action[2]++;PlaySfx(1);w->fade=0;w->phase=rowPhase;w->badges[w->badgeRoot][0].state10=4;closeRows();w->state=4;}
+   }else if(w->input[0].b&&w->mode==0){action[3]++;PlaySfx(2);w->phase=rowPhase;w->fade=0;w->badges[w->badgeRoot][0].state10=4;closeRows();w->state=4;}
   }
  }else if(state==3||state==4){func_8002AF8C(0,1,w->mode==0);
   if(w->rows[w->root][0].byte14==5&&w->badges[w->badgeRoot][0].state10==11){

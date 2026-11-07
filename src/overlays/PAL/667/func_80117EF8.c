@@ -13,7 +13,7 @@ void ovl667_func_80117EF8(void)
     D_8010C068=0;
     choice=func_80032E9C(D_800AC648);
     D_800F3914=choice;
-    func_8003A198();
+    ResetScreenCounters();
     RR_GPU_PROJECTION_SCRATCH->word18=512;
     RR_GPU_PROJECTION_SCRATCH->word0C=-416;
     RR_GPU_PROJECTION_SCRATCH->word1C=0;

@@ -95,10 +95,10 @@ void func_8002B330(s32 a,s32 b,char *p,s32 d,s32 e){unsigned k;
  assert((uintptr_t)p>UINT32_MAX);inputKinds[k]++;const s32 args[7]={a,b,k,d,e};record(5,args);effect(5);
  if(k==2){s32 value=scenario%10;memcpy(p,&value,4);}
 }
-void func_8003A198(void){service(6);}
+void ResetScreenCounters(void){service(6);}
 void func_80033368(s32 a,s32 b){const s32 args[7]={a,b};record(7,args);effect(7);}
 s32 func_80032E9C(s32 a){const s32 args[7]={a};record(8,args);effect(8);return actual_mapper(a);}
-void func_8004F24C(s32 a){const s32 args[7]={a};record(9,args);effect(9);}
+void PlaySfx(s32 a){const s32 args[7]={a};record(9,args);effect(9);}
 void func_80053AF4(s32 a,s32 b){const s32 args[7]={a,b};record(10,args);effect(10);}
 void func_80034F80(void){service(11);}
 void ovl667_func_801161A8(s32 a){assert(a==0||a==2);const s32 args[7]={a};record(12,args);effect(12);}
@@ -114,20 +114,20 @@ static void expected(void){s32 quit=func_80034FC0();early[quit!=0]++;if(quit){fu
  int ready=1;if(w->phase!=3)ready=func_8003BAB0()==1;readiness[ready]++;
  if(ready){unsigned phase=w->phase;states[phase==0?0:phase==3?1:phase==4?2:phase==8?3:4]++;
   if(phase==0){func_8002AF8C(1,1,1);s16 old=w->course;func_8002B330(3,2,(char*)&w->course,w->available,0);
-   courseChange[old!=w->course]++;if(old!=w->course)func_8003A198();else func_80033368(old,2);
+   courseChange[old!=w->course]++;if(old!=w->course)ResetScreenCounters();else func_80033368(old,2);
    w->mapped=func_80032E9C(w->course);w->rows[w->rowRoot][18+w->selection].cells[0]=0;func_8002B330(0,2,(char*)&w->selection,3,0);w->rows[w->rowRoot][18+w->selection].cells[0]=2;
    unsigned cells=w->rows[w->rowRoot][21].byte02;for(unsigned i=0;i<cells;i++){if((s32)i==w->course){w->rows[w->rowRoot][21].cells[i]=2;w->rows[w->rowRoot][21].byte16=i;}else w->rows[w->rowRoot][21].cells[i]=0;}
-   int state=w->rows[w->rowRoot][18].byte14;if(state==2){int back=0;if(w->input[0].a){func_8004F24C(1);w->rows[w->rowRoot][18+w->selection].cells[0]=1;
-     if(w->selection==0){choices[0]++;closeRows(4,7);func_8003A198();w->timer=64;w->published=w->arenas.first;func_80053AF4(0,60);func_80034F80();w->phase=3;func_8002AF8C(0,1,1);}
+   int state=w->rows[w->rowRoot][18].byte14;if(state==2){int back=0;if(w->input[0].a){PlaySfx(1);w->rows[w->rowRoot][18+w->selection].cells[0]=1;
+     if(w->selection==0){choices[0]++;closeRows(4,7);ResetScreenCounters();w->timer=64;w->published=w->arenas.first;func_80053AF4(0,60);func_80034F80();w->phase=3;func_8002AF8C(0,1,1);}
      else if(w->selection==1){choices[1]++;w->rows[w->rowRoot][23].byte14=0;w->phase=4;}else if(w->selection==2){choices[2]++;back=1;}
-    }else if(w->input[0].b){choices[3]++;func_8004F24C(2);back=1;}
+    }else if(w->input[0].b){choices[3]++;PlaySfx(2);back=1;}
     if(back){func_8002AF8C(0,1,1);closeRows(5,3);w->phase=8;}}
   }else if(phase==3){func_80033368(w->course,2);int blockedNow=wait==0&&w->timer==64;blocked[blockedNow]++;
    if(blockedNow)func_8003EC88(24);else{w->waitFlag=1;if(w->timer>0)w->timer=half((u16)w->timer-1);func_800207D4(w->frames[w->frameRoot].ordering70,(64-(s32)w->timer)*4,69);
     if(w->timer<=0){exits[0]++;w->loadStatus=-1;func_80053CB0();w->enabled=1;w->scene=41;w->phase=0;w->card=0;func_8009AEAC(3,0,0);}}
   }else if(phase==4){int state=w->rows[w->rowRoot][23].byte14;
    if(state==2){func_8002AF8C(1,1,0);w->rows[w->rowRoot][23].cells[0]=2;func_8002B330(1,4,(char*)&w->players,10,2);
-    if(w->input[0].a){func_8004F24C(1);w->rows[w->rowRoot][23].cells[0]=1;w->rows[w->rowRoot][23].byte14=3;}}
+    if(w->input[0].a){PlaySfx(1);w->rows[w->rowRoot][23].cells[0]=1;w->rows[w->rowRoot][23].byte14=3;}}
    else if(state==5)w->phase=0;func_80033368(w->course,2);
   }else if(phase==8){if(w->rows[w->rowRoot][18].byte14==5){exits[1]++;ovl667_func_801161A8((1-(s32)w->split)*2);w->enabled=1;w->scene=60;w->phase=0;}}
  }

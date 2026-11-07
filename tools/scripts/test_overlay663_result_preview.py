@@ -63,7 +63,7 @@ static Event *event(s32 kind){unsigned i;u32 h=2166136261U;Event *e;assert(w->ca
 }
 static void change(void){if(mutation)effect(w->calls);}
 void func_8002AF8C(s32 a,s32 b,s32 c){Event *e=event(1);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
-void func_8004F24C(s32 a){event(2)->args[0]=a;change();}
+void PlaySfx(s32 a){event(2)->args[0]=a;change();}
 void ovl663_init_selection(s32 a){event(3)->args[0]=a;if(w==&actual)seenExit=1;change();}
 void func_80033A74(s32 a){event(4)->args[0]=a;change();}
 void func_8006EF8C(s32 a){event(5)->args[0]=a;change();}
@@ -83,7 +83,7 @@ static void expected(void){State *s=&w->s;unsigned p=(u16)s->phase;
  s->frame=word((u32)s->frame+1U);
  if(p==0){if(((u8*)&s->ui[s->uiRoot])[128]==2){func_8002AF8C(1,1,0);s->phase=1;}}
  else if(p==1){((u8*)&s->ui[s->uiRoot])[120]=2;
-  if(s->accepted){func_8004F24C(1);func_8002AF8C(0,1,0);((u8*)&s->ui[s->uiRoot])[120]=1;((u8*)&s->ui[s->uiRoot])[128]=3;s->phase=2;s->badges[s->badgeRoot][0].state10=4;s->modes[s->modeRoot][1]=3;}
+  if(s->accepted){PlaySfx(1);func_8002AF8C(0,1,0);((u8*)&s->ui[s->uiRoot])[120]=1;((u8*)&s->ui[s->uiRoot])[128]=3;s->phase=2;s->badges[s->badgeRoot][0].state10=4;s->modes[s->modeRoot][1]=3;}
  }else if(p==2){if(s->badges[s->badgeRoot][0].state10==11&&s->modes[s->modeRoot][1]==5){ovl663_init_selection(s->entry);s->scene=1;s->next=75;s->phase=0;}}
  s->cars[0].rot54=(u32)(word((u32)s->cars[0].rot54+8U))&4095;
  func_80033A74(1);func_8006EF8C(6);

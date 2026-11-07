@@ -26,7 +26,7 @@ void func_80033A74(s32);void func_8006EF8C(s32);s32 func_8003AE4C(s32,s32);
 void func_8002E394(RrRaceVehicle*);void func_8002E5A0(char*);
 void func_8002AF8C(s32,s32,s32);void func_8002B330(s32,s32,char*,s32,s32);
 void func_80037040(s8*,s32);s32 func_8003708C(void*);
-void func_8003A198(void);void func_80014A8C(s32);void func_8004F24C(s32);
+void ResetScreenCounters(void);void func_80014A8C(s32);void PlaySfx(s32);
 void func_8003EC88(s32);void func_80037198(s32);
 void func_8002CC88(RrRaceVehicle*,RrPreviewRgb3,s32,s32);
 void func_8003D6F0(s32);s32 func_8003FBA8(s32);

@@ -24,7 +24,7 @@ void func_80036D40(void) {
     goto active;
 changed:
     /* The sound helper can change selection and backing pointers. */
-    func_8004F24C(0);
+    PlaySfx(0);
     if(D_800F3826<0)D_800F3826=0;
     else if(D_800F3826>=4)D_800F3826=3;
     D_800FF68C[4]=(u8)D_800F3826+34;
@@ -43,7 +43,7 @@ active:
     if(D_800F3A60) {
         state=D_800F3AFC->state10;
         if(state==3) {
-            func_8004F24C(1);
+            PlaySfx(1);
             {
                 RrMenuSettings2C *settings=&D_800AD4D8;
                 RrBadgeRow1C *control=D_800F3AFC;
@@ -66,7 +66,7 @@ active:
                 }
             }
             func_80039920();
-            func_8003A198();
+            ResetScreenCounters();
             {
                 s32 zero=0;
                 void *resource;

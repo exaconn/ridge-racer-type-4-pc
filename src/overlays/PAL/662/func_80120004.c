@@ -44,7 +44,7 @@ ovl662_D_801276A8.optionIndices98.flat[1] = 0;
                 }
                 ((RrGarageButton *)ovl662_D_801273B8[10])->timer0E = 7;
                 ovl662_D_801276A8.active21 = (u8) ((u8) ovl662_D_801276A8.active21 < 1U);
-                func_8004F24C(1);
+                PlaySfx(1);
             }
         }
     }

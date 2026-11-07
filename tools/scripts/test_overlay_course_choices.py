@@ -98,7 +98,7 @@ static void event(s32 service,s32 arg){
  if(mutation)effect(n);
 }
 void func_80013890(s32 shift){assert(shift==5);event(1,shift);}
-void func_8003A198(void){event(2,0);}
+void ResetScreenCounters(void){event(2,0);}
 void func_80037110(void){event(3,0);}
 void func_8002E4F4(RrRaceVehicle *vehicle){assert(vehicle==&w->s.vehicles[0]);event(4,0);}
 ''' + glyph + count + bodies + r'''
@@ -110,7 +110,7 @@ static s32 reference_count(const RrCourseChoice4 *p){unsigned i;for(i=0;i<9;i++)
 static void reference(unsigned kind){
  if(kind==0){
   w->s.word2de4=0;w->s.wordabeb0=0;func_80013890(5);w->s.halfc64a=0;w->s.halfc5e0=3;
-  func_8003A198();func_80037110();
+  ResetScreenCounters();func_80037110();
   w->s.scratch.projection.word18=120;w->s.scratch.projection.word08=-16;
   w->s.scratch.projection.word0C=-248;w->s.scratch.projection.word10=-96;
   w->s.scratch.projection.word1C=0;w->s.scratch.projection.word20=0;
@@ -122,7 +122,7 @@ static void reference(unsigned kind){
   w->s.points[0].second=w->s.main[w->s.row660][w->s.col660].second;
   w->s.counts660[0]=reference_count(w->s.main[0]);w->s.counts660[1]=reference_count(w->s.main[1]);
  }else{
-  RrCourseChoice4 *p;s32 slot,side;func_8003A198();w->s.current=w->s.arenas.first;
+  RrCourseChoice4 *p;s32 slot,side;ResetScreenCounters();w->s.current=w->s.arenas.first;
   slot=w->s.player;side=slot%2;
   p=kind==1?&w->s.table661[side][w->s.rows661[side]][w->s.cols661[side]]:
             &w->s.table667[side][w->s.rows667[side]][w->s.cols667[side]];

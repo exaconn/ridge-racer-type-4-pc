@@ -83,7 +83,7 @@ void func_80053BB4(s32 mode){event(7)->args[0]=mode;change();}
 void func_800207D4(u32 *ordering,s32 intensity,u32 mode){Event *e=event(8);u32 *base=w->s.frames[w->s.frameRoot].ordering70;assert(ordering==base||ordering==base+702);e->args[0]=ordering-base;e->args[1]=intensity;e->args[2]=(s32)mode;*ordering^=(u32)intensity;change();}
 void func_8002B330(s32 a,s32 b,char *selection,s32 count,s32 flags){Event *e=event(9);assert(selection==(char*)&w->s.visual.selection08);e->args[0]=a;e->args[1]=b;e->args[2]=count;e->args[3]=flags;*selection=(char)(next()%8);change();}
 s32 ovl665_func_8011629C(s32 index){Event *e=event(10);s32 result=real_classify(index);e->args[0]=index;e->args[1]=result;return result;}
-void func_8004F24C(s32 sound){event(11)->args[0]=sound;change();}
+void PlaySfx(s32 sound){event(11)->args[0]=sound;change();}
 void func_8005B2D4(s32 mode){event(12)->args[0]=mode;change();}
 void func_80053AF4(s32 a,s32 b){Event *e=event(13);e->args[0]=a;e->args[1]=b;change();}
 void ovl665_func_80116070(void){event(14);change();}
@@ -102,9 +102,9 @@ static void expected(void){State *s=&w->s;unsigned i;
    D_800F4D80[s->visual.selection08].cells[0]=0;func_8002B330(0,2,(char*)&s->visual.selection08,7,0);D_800F4D80[s->visual.selection08].cells[0]=2;
    if(s->inputs[0].a){
     int reject=s->visual.selection08==1&&ovl665_func_8011629C(1)<0;
-    if(reject)func_8004F24C(4);
-    else {func_8004F24C(1);D_800F4D80[s->visual.selection08].cells[0]=1;s->fade=64;s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
-   }else if(s->inputs[0].b){func_8004F24C(2);s->visual.selection08=6;s->fade=64;s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
+    if(reject)PlaySfx(4);
+    else {PlaySfx(1);D_800F4D80[s->visual.selection08].cells[0]=1;s->fade=64;s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
+   }else if(s->inputs[0].b){PlaySfx(2);s->visual.selection08=6;s->fade=64;s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
   }
   func_8005B2D4(1);
  }else if(phase==1){

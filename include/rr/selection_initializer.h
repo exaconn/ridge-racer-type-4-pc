@@ -16,7 +16,7 @@ extern RrRaceVehicle D_800ABEF8[2];
 extern RrSelectionRows D_800F4D98;
 extern RrCourseChoice4 D_8010BFD8[2][2][9];
 extern s16 D_8010C0C0[2][2],D_8010C0D8[2],D_8010C0D0[2];
-void func_8003A198(void);
+void ResetScreenCounters(void);
 void func_8003A1B4(void);
 void func_80013890(s32);
 void func_80037110(void);

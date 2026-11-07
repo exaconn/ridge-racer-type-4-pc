@@ -64,9 +64,9 @@ extern int func_8002A344();
 extern int func_8002AF8C();
 extern int func_8002B330();
 extern int func_80032A14();
-extern int func_8003A198();
+extern int ResetScreenCounters();
 extern int func_8003D6F0();
-extern int func_8004F24C();
+extern int PlaySfx();
 extern struct { char pad[4]; char b4; char pad5; signed char b6; char pad2[0xC - 7]; } *D_800AC590;
 extern short D_800AC5D0;
 extern short D_800F4BE8;
@@ -456,21 +456,21 @@ void func_80031FE8(void) {
                 func_8002AF8C(1, 1, 1);
                 if (D_800F3A38.w28 != 0) {
                     if (D_800F2E30[D_800F4D3C].b17 > 0) {
-                        func_8004F24C(1);
+                        PlaySfx(1);
                         D_800F4D8A = 1;
                         D_800AC5D0 = 0x40;
-                        func_8003A198();
+                        ResetScreenCounters();
                         D_800ACC18 = D_800F4D74;
                         D_800F3AFC->s10 = s0;
                         D_800F3AFC->s2C = s0;
                     } else {
-                        func_8004F24C(4);
+                        PlaySfx(4);
                     }
                 } else if (D_800F3A38.w2C != 0) {
-                    func_8004F24C(2);
+                    PlaySfx(2);
                     D_800F4D8A = 2;
                     D_800AC5D0 = 0x40;
-                    func_8003A198();
+                    ResetScreenCounters();
                     D_800ACC18 = D_800F4D74;
                     func_8003B398(0);
                     D_800F3AFC->s10 = s0;

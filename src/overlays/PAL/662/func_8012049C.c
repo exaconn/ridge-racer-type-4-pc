@@ -47,7 +47,7 @@ ovl662_D_801276A8.selectorsB8[1] = 2;
                 if (ovl662_D_801276A8.config1D >= 9) {
                     ovl662_D_801276A8.config1D = 1U;
                 }
-                func_8004F24C(1);
+                PlaySfx(1);
             }
         }
     }

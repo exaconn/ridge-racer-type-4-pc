@@ -15,7 +15,7 @@ P=Path(os.environ.get('RR_TEST_DIR','build/tests/overlay661_frame_controller'));
 source=Path(sys.argv[1]) if len(sys.argv)>1 else root/'src/overlays/PAL/661/func_80114B00.c'
 body=source.read_text().split('\n',1)[1]
 body=re.sub(r' __asm__\("\$\d+"\)', '', body)
-globals=sorted(set(re.findall(r'\b(?:ovl661_)?(?:D_[0-9A-F]{8}|CarTable|ScreenFrame)\b',body)))
+globals=sorted(set(re.findall(r'\b(?:ovl661_)?(?:D_[0-9A-F]{8}|CarTable|ScreenFrame|MenuTextRows|MenuTextRowCount)\b',body)))
 aliases={'D_800AC0E2':'half1EA','D_800AC0E6':'half1EE'}
 globals=[x for x in globals if x not in aliases]
 functions=sorted(set(re.findall(r'\b(?:ovl661_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl661_func_80114B00'})

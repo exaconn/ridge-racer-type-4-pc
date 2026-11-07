@@ -33,7 +33,7 @@ void ovl662_func_8011F678(s32 mode) {
     } else if (ovl662_func_8011E734(5) == 0 && (ovl662_D_80127668.words[1] & 1)) {
         if (ovl662_func_8011D0C0() != 0) {
             ((RrGarageButton *)ovl662_D_801273B8[5])->timer0E = 7;
-            func_8004F24C(4);
+            PlaySfx(4);
         } else {
             if (ovl662_D_80127668.words[0] & 4) {
                 ovl662_func_8011E694();
@@ -48,7 +48,7 @@ void ovl662_func_8011F678(s32 mode) {
             }
             ovl662_func_8011D120();
             ((RrGarageButton *)ovl662_D_801273B8[5])->timer0E = 7;
-            func_8004F24C(1);
+            PlaySfx(1);
             if (ovl662_D_801276A8.layer23 == 0) {
                 dst = ovl662_D_801276A8.image38[ovl662_D_801276A8.active21];
             } else {

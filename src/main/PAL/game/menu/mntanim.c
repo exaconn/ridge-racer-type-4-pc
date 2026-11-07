@@ -29,17 +29,17 @@ void func_80040858(s32 row) {
     RrSpritePacket *cursor;
     RrSpritePacket *sprite;
 
-    if (row < D_800F4D30) {
-        mode = D_800FFC14[row].rendering.phase;
-        tick = D_800FFC14[row].rendering.tick;
-        x[0] = D_800FFC14[row].rendering.x;
-        y[0] = D_800FFC14[row].rendering.y;
+    if (row < MenuTextRowCount) {
+        mode = MenuTextRows[row].rendering.phase;
+        tick = MenuTextRows[row].rendering.tick;
+        x[0] = MenuTextRows[row].rendering.x;
+        y[0] = MenuTextRows[row].rendering.y;
         switch (mode) {
         case -1:
             break;
         case 0:
-            D_800FFC14[row].rendering.tick = 0;
-            D_800FFC14[row].rendering.phase = 1;
+            MenuTextRows[row].rendering.tick = 0;
+            MenuTextRows[row].rendering.phase = 1;
             break;
         case 1:
         case 8:
@@ -75,46 +75,46 @@ void func_80040858(s32 row) {
             }
             RR_TEXT_GPU_SCRATCH->cursor = func_8001FCC8(D_800ACC14->ordering.ordering70, cursor, 0x2E);
             if (tick >= 0x1E) {
-                D_800FFC14[row].rendering.phase++;
-                D_800FFC14[row].rendering.tick = 0;
+                MenuTextRows[row].rendering.phase++;
+                MenuTextRows[row].rendering.tick = 0;
             } else {
-                D_800FFC14[row].rendering.tick++;
+                MenuTextRows[row].rendering.tick++;
             }
             break;
         case 2:
-            D_800FFC14[row].rendering.visible = 0;
+            MenuTextRows[row].rendering.visible = 0;
             for (glyph = 0; glyph < 0x16; glyph++) {
-                D_800FFC14[row].rendering.revealed[glyph] = 0;
+                MenuTextRows[row].rendering.revealed[glyph] = 0;
             }
-            if ((u16)(D_800FFC14[row].rendering.flags - 1) < 0xFF) {
-                D_800FFC14[row].rendering.phase = 4;
-            } else if ((s16)D_800FFC14[row].rendering.flags >= 0) {
-                D_800FFC14[row].rendering.phase = 3;
+            if ((u16)(MenuTextRows[row].rendering.flags - 1) < 0xFF) {
+                MenuTextRows[row].rendering.phase = 4;
+            } else if ((s16)MenuTextRows[row].rendering.flags >= 0) {
+                MenuTextRows[row].rendering.phase = 3;
             } else {
-                D_800FFC14[row].rendering.phase = -1;
+                MenuTextRows[row].rendering.phase = -1;
             }
         case 3:
             if (tick >= 2) {
-                if (D_800FFC14[row].rendering.visible < 0x16) {
-                    D_800FFC14[row].rendering.visible++;
-                    D_800FFC14[row].rendering.revealed[D_800FFC14[row].rendering.visible] = 0;
-                    D_800FFC14[row].rendering.tick = 0;
+                if (MenuTextRows[row].rendering.visible < 0x16) {
+                    MenuTextRows[row].rendering.visible++;
+                    MenuTextRows[row].rendering.revealed[MenuTextRows[row].rendering.visible] = 0;
+                    MenuTextRows[row].rendering.tick = 0;
                 } else if (tick >= 0x40) {
-                    D_800FFC14[row].rendering.tick = 0;
+                    MenuTextRows[row].rendering.tick = 0;
                 } else {
-                    D_800FFC14[row].rendering.tick++;
+                    MenuTextRows[row].rendering.tick++;
                 }
             } else {
-                D_800FFC14[row].rendering.tick++;
+                MenuTextRows[row].rendering.tick++;
             }
             func_80040CB4(row);
             break;
         case 4:
-            D_800FFC14[row].rendering.visible = 0x16;
+            MenuTextRows[row].rendering.visible = 0x16;
             func_80040CB4(row);
             break;
         case 6:
-            D_800FFC14[row].rendering.visible = 1;
+            MenuTextRows[row].rendering.visible = 1;
             func_80040CB4(row);
             break;
         case 9:

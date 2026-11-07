@@ -81,7 +81,7 @@ void func_8002B330(s32 a,s32 b,char *p,s32 d,s32 e){unsigned kind;
  else if(kind==3){s16 value=(scenario+serial)&1;memcpy(p,&value,2);}
  else *p=(char)(u8)(scenario+serial);
 }
-void func_8004F24C(s32 a){const s32 args[5]={a};record(4,args);effect(4);}
+void PlaySfx(s32 a){const s32 args[5]={a};record(4,args);effect(4);}
 void func_8002AF8C(s32 a,s32 b,s32 c){const s32 args[5]={a,b,c};record(5,args);effect(5);}
 void func_80053A9C(s16 a){const s32 args[5]={a};record(6,args);effect(6);}
 void func_8004FA98(s32 a){const s32 args[5]={a};record(7,args);effect(7);}
@@ -97,14 +97,14 @@ static void expected(void){s32 phase=w->visual.layout0C;states[phase>=0&&phase<1
  }else if(phase==1){if(w->timer>0){s16 timer=half((u16)w->timer-1);w->timer=timer;func_800207D4(&w->frames[w->frameRoot].ordering70[702],timer*4,69);fadeTaken[0]++;}
   func_8005B2D4(1);if(w->rows[w->rowRoot][0].byte14==2&&w->timer==0)w->visual.layout0C=word((u32)w->visual.layout0C+1);
  }else if(phase==2){w->rows[w->rowRoot][w->visual.exit34.word].cells[0]=0;expectedInput(0,0,2,4);w->rows[w->rowRoot][w->visual.exit34.word].cells[0]=2;
-  if(w->input[0].a){func_8004F24C(1);w->rows[w->rowRoot][w->visual.exit34.word].cells[0]=1;w->visual.layout0C=w->visual.exit34.word+3;func_8002AF8C(1,1,0);}
-  else if(w->input[0].b){func_8004F24C(2);w->timer=64;w->visual.layout0C=6;}
+  if(w->input[0].a){PlaySfx(1);w->rows[w->rowRoot][w->visual.exit34.word].cells[0]=1;w->visual.layout0C=w->visual.exit34.word+3;func_8002AF8C(1,1,0);}
+  else if(w->input[0].b){PlaySfx(2);w->timer=64;w->visual.layout0C=6;}
  }else if(phase==3||phase==4){unsigned row=phase+1;if(w->rows[w->rowRoot][row].byte14==2){w->rows[w->rowRoot][row].cells[0]=2;expectedInput(phase==3?1:2,1,-1,17);
    if(phase==3){w->music=w->settings.bytes[48];func_80053A9C(w->gain);}else w->effects=w->settings.bytes[49];
-   if(w->input[0].a){audioTaken[phase-3]++;func_8004F24C(1);w->rows[w->rowRoot][row].cells[0]=1;w->visual.layout0C=7;func_8002AF8C(1,1,1);}}
+   if(w->input[0].a){audioTaken[phase-3]++;PlaySfx(1);w->rows[w->rowRoot][row].cells[0]=1;w->visual.layout0C=7;func_8002AF8C(1,1,1);}}
   func_8003EC88(row);
  }else if(phase==5){if(w->rows[w->rowRoot][6].byte14==2){w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=0;expectedInput(3,0,2,2);w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=2;
-   if(w->input[0].a){audioTaken[2]++;func_8004F24C(1);w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=1;w->visual.layout0C=7;func_8002AF8C(1,1,1);func_8004FA98(w->settings.audio.mono32);}}
+   if(w->input[0].a){audioTaken[2]++;PlaySfx(1);w->rows[w->rowRoot][6+w->settings.audio.mono32].cells[0]=1;w->visual.layout0C=7;func_8002AF8C(1,1,1);func_8004FA98(w->settings.audio.mono32);}}
   func_8003EC88(6);func_8003EC88(7);
  }else if(phase==6){for(unsigned i=0;i<4;i++)if(w->rows[w->rowRoot][i].byte14==2)w->rows[w->rowRoot][i].byte14=3;w->timer=64;w->visual.layout0C=9;
  }else if(phase==7){for(unsigned i=4;i<8;i++){u8 state=w->rows[w->rowRoot][i].byte14;if(state==2)w->rows[w->rowRoot][i].byte14=3;else if(state==6)w->visual.layout0C=8;

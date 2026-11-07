@@ -281,7 +281,7 @@ void func_800747EC(s32 arg0) {
             if (D_8010ECB4[i].f08 != 0) {
                 if (D_8010ECB4[i].f04 + 100 == D_8010ECB4[i].f00) {
                     if (D_800F4C68 == 0 && D_800F4D44 != 5) {
-                        func_8004F218(0x27, 0x7F, 0x40, -1);
+                        PlaySfxVolPan(0x27, 0x7F, 0x40, -1);
                     }
                 }
                 func_80070BA4(SCRATCH_BASE, D_8010ECB0[i].f00, D_800F4C68 == 0);
@@ -416,7 +416,7 @@ void func_800747EC(s32 arg0) {
             v = (0xC80 - dist) / 25;
             if (v >= 0x3D && D_8010ECB4[i].f08 == 0) {
                 D_8010ECB4[i].f08 = 1;
-                func_8004F218(0x26, 0x7F, 0x40, -1);
+                PlaySfxVolPan(0x26, 0x7F, 0x40, -1);
             }
             break;
 

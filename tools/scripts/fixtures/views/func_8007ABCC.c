@@ -139,7 +139,7 @@ void func_8007ABCC(void) {
         func_8003E928(0x27, 0x80, 0x108, 0x1C, 0x20, 0, 0, 1, 0, 0x69);
         func_8003D228(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
         D_800F3AFC[0].half02 = 1;
-        func_8003A198();
+        ResetScreenCounters();
         defaultChoice = 3;
         /* ASM_BARRIER: keep the initialized fill value apart from the count. */
         __asm__("" : "+r"(defaultChoice));

@@ -10,7 +10,7 @@ void ovl660_func_801163C4(void)
     func_80013890(5);
     D_800AC64A = 0;
     D_800AC5E0 = 3;
-    func_8003A198();
+    ResetScreenCounters();
     func_80037110();
     state = D_800ABEF8;
     scratch = RR_PROJECTION_SCRATCH;
@@ -80,7 +80,7 @@ void ovl660_func_80116530(void) {
         func_80037040((s8 *)&D_800F4D98,
                       D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].glyph);
         if (((u32)previousCar << 16) != ((u32)func_8003708C((s8 *)&D_800F4D98) << 16)) {
-            func_8003A198();
+            ResetScreenCounters();
             D_800ACC18 = D_800F4D40;
             func_80037040((s8 *)&D_800F4D98,
                           D_800ABE08[ovl660_preview_bank][ovl660_preview_selection].glyph);
@@ -98,11 +98,11 @@ void ovl660_func_80116530(void) {
         if (D_800F3A38[0].a != 0) {
             D_800F4D80[ovl660_preview_row_map[ovl660_preview_bank][D_800AC64A]].cells[0] = 1;
             if (D_800AC64A == 0) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 ovl660_preview_confirmation = selectionState;
                 D_800F4D8A = 4;
             } else if (D_800AC64A == 1 && D_800ABE08[1][0].glyph != -1) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 ovl660_preview_selection = 0;
                 rowIndex = 0;
                 do {
@@ -116,7 +116,7 @@ void ovl660_func_80116530(void) {
                 D_800AC64A = 0;
                 ovl660_preview_bank ^= 1;
             } else if (D_800AC64A == 2) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 rowIndex = 0;
                 do {
                     if (D_800F4D80[ovl660_preview_bank * 3 + rowIndex + 4].byte14 == 2) {
@@ -127,7 +127,7 @@ void ovl660_func_80116530(void) {
                 goto close_selection;
             }
         } else if (D_800F3A38[0].b != 0) {
-            func_8004F24C(2);
+            PlaySfx(2);
             rowIndex = 0;
             do {
                 if (D_800F4D80[ovl660_preview_bank * 3 + rowIndex + 4].byte14 == 2) {
@@ -161,7 +161,7 @@ void ovl660_func_80116530(void) {
             func_8002B330(0, 1, (char *)&D_800F4D98.selection.pad02[1], 2, 0);
             D_800F4D80[D_800F4D98.selection.pad02[1] + 10].cells[0] = confirmationState;
             if (D_800F3A38[0].a != 0) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 func_8002AF8C(0, 1, 1);
                 D_800F4D80[D_800F4D98.selection.pad02[1] + 10].cells[0] = 1;
                 D_800F4D80[10].byte14 = 7;
@@ -172,7 +172,7 @@ void ovl660_func_80116530(void) {
             save_preview_arena:
                 D_800F4D70.first = D_800ACC18;
             } else if (D_800F3A38[0].b != 0) {
-                func_8004F24C(2);
+                PlaySfx(2);
                 D_800F4D80[10].byte14 = 3;
                 D_800F4D80[11].byte14 = 3;
                 D_800F4D8A = 6;
@@ -190,7 +190,7 @@ void ovl660_func_80116530(void) {
     case 5:
         closingState = D_800F4D80[ovl660_preview_bank * 3 + 4].byte14;
         if (closingState == 5 && ((s8 *)D_800F2AB0)[1] == closingState) {
-            func_8003A198();
+            ResetScreenCounters();
             ovl660_func_80114920();
             D_800F4C6A = 1;
             D_800F3A26 = 50;

@@ -65,7 +65,7 @@ RrGaragePoint ovl662_func_8011DC74(s32 a){assert(a>=0&&a<46);record(8,a,0);RrGar
 s32 ovl662_func_8011DBD8(const RrGaragePoint *a,const RrGaragePoint *b){assert(a==&w->work.points.first20&&b==&w->work.points.second24&&(uintptr_t)a>UINT32_MAX);record(9,((u32)(u16)a->x<<16)|(u16)a->y,((u32)(u16)b->x<<16)|(u16)b->y);effect(9);return word(scenario*0x1234567U+serial);}
 static void action(unsigned k,s32 a){callbacks[k]++;record(10,k,a);effect(10);}
 static void action0(s32 a){action(0,a);}static void action1(s32 a){action(1,a);}static void action2(s32 a){action(2,a);}static void action3(s32 a){action(3,a);}
-void func_8004F24C(s32 a){record(11,a,0);effect(11);}
+void PlaySfx(s32 a){record(11,a,0);effect(11);}
 void ovl662_func_8011DE70(void){record(11,-1,0);effect(11);}
 static void expected(void){RrGaragePoint movement={0,0};u32 events=0;func_80096454(&movement,0,4);
  if(w->work.words[0]&1){paths[0]++;return;}
@@ -86,7 +86,7 @@ static void expected(void){RrGaragePoint movement={0,0};u32 events=0;func_800964
    RrGaragePoint dest=ovl662_func_8011DC74(w->selection.saved64[0]);w->work.points.second24=dest;w->work.points.word28=0;
    s32 distance=ovl662_func_8011DBD8(&w->work.points.first20,&w->work.points.second24);w->work.points.distance2C=distance;
    w->selection.current60=w->selection.saved64[0];for(unsigned i=0;i<4;i++)w->selection.selectorsB8[i]=w->selection.saved64[i+1];
-   RrGarageButton *button=(RrGarageButton *)w->buttons[w->selection.saved64[0]];w->actions[button->action0A]->callback(-1);func_8004F24C(3);return;
+   RrGarageButton *button=(RrGarageButton *)w->buttons[w->selection.saved64[0]];w->actions[button->action0A]->callback(-1);PlaySfx(3);return;
   }
  }
  paths[7]++;ovl662_func_8011DE70();

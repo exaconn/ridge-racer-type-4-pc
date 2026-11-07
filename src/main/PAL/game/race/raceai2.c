@@ -63,7 +63,7 @@ extern int func_80118634();
 extern int func_80115388();
 extern int D_8010C0E0;
 extern char D_800ACC68;
-extern int func_8003A198();
+extern int ResetScreenCounters();
 extern signed char D_800AD4D8[];
 extern E *D_800F2DE8[];
 extern int D_800F39C8;
@@ -485,7 +485,7 @@ block_5:
     if (temp_s0 == 1) {
         if (D_800F3A60 != 0) {
             D_800F2DE4 = 0;
-            func_8003A198();
+            ResetScreenCounters();
             D_800F4C6A = (s16) temp_s0;
             D_800F3A26 = 0xB;
             D_800F4D8A = 0;

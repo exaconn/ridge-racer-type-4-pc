@@ -44,7 +44,7 @@ void ovl662_func_8011F290(s32 mode) {
         }
         ovl662_func_8011D120();
         ((RrGarageButton *)ovl662_D_801273B8[3])->timer0E = 7;
-        func_8004F24C(1);
+        PlaySfx(1);
         if (ovl662_D_801276A8.layer23 == 0) {
             src = ovl662_D_801276A8.image38[ovl662_D_801276A8.active21 == 0];
             dst = ovl662_D_801276A8.image38[ovl662_D_801276A8.active21];

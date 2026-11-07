@@ -80,9 +80,9 @@ static void emit(int kind,s32 a,s32 b,s32 c){
  if(kind==2)w->resource=arena[(seed+3)%32];
  if(kind==3)w->resource=arena[(seed+7)%32];
 }
-void func_8004F24C(s32 mode){assert(mode==0||mode==1);emit(mode,mode,0,0);}
+void PlaySfx(s32 mode){assert(mode==0||mode==1);emit(mode,mode,0,0);}
 void func_80039920(void){emit(2,0,0,0);}
-void func_8003A198(void){emit(3,0,0,0);}
+void ResetScreenCounters(void){emit(3,0,0,0);}
 void func_8002AF8C(s32 a,s32 b,s32 c){emit(4,a,b,c);}
 static void put16(u8 *p,u16 v){memcpy(p,&v,2);}
 static void reference(void){

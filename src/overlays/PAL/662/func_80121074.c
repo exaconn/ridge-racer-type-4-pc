@@ -58,12 +58,12 @@ void ovl662_func_80121074(s32 mode) {
                                 if (ovl662_D_801276A8.stateD2 != 1) {
                                     ovl662_D_801276A8.stateD2 = 1U;
 block_32:
-                                    func_8004F24C(0);
+                                    PlaySfx(0);
                                 }
                             }
                             if (D_800F3A60 != 0) {
                                 ovl662_D_801276A8.stateD2 = (u8) (ovl662_D_801276A8.stateD2 + 2);
-                                func_8004F24C(1);
+                                PlaySfx(1);
                             }
                         }
                         selection = ovl662_D_801276A8.stateD2;
@@ -126,7 +126,7 @@ block_32:
             }
             ovl662_D_80127668.words[4] = 0x12;
             ovl662_D_80127668.words[0] = (s32) (ovl662_D_80127668.words[0] | 8);
-            func_8004F24C(1);
+            PlaySfx(1);
             ovl662_D_80127668.words[0] = (s32) (ovl662_D_80127668.words[0] | 1);
             if (ovl662_D_801276A8.dirtyD3 == 0) {
                 ovl662_D_801276A8.fade00 = 0x40;

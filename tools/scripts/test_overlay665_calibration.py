@@ -61,7 +61,7 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;u32
 static void service(unsigned kind){const s32 args[8]={0};record(kind,args);effect(kind);}
 void ovl665_func_80115798(void){service(0);}
 void func_8005B2D4(s32 a){const s32 args[8]={a};record(1,args);effect(1);}
-void func_8004F24C(s32 a){const s32 args[8]={a};record(2,args);effect(2);}
+void PlaySfx(s32 a){const s32 args[8]={a};record(2,args);effect(2);}
 void func_800207D4(u32 *p,s32 a,u32 b){assert(p==world.frames[world.frameRoot].ordering.ordering70&&(uintptr_t)p>UINT32_MAX);const s32 args[8]={world.frameRoot,a,(s32)b};record(3,args);effect(3);}
 void ovl665_func_80114A24(void){service(4);}
 void *func_8001FF84(u32 *head,void *cursor,s32 x,s32 y,const RrUiUvRect *region,u16 clut,s32 color){unsigned arena,which=99,n=world.sprites;u32 uv;assert(n<4&&head==world.frames[world.frameRoot].ordering.ordering70&&(uintptr_t)cursor>UINT32_MAX);
@@ -81,7 +81,7 @@ static void oracle(void){s32 phase=world.visual.layout0C;paths[phase>=0&&phase<4
   if(buttons&0x8000)x=word((u32)x-1);if(buttons&0x2000)x=word((u32)x+1);if(buttons&0x1000)y=word((u32)y-2);if(buttons&0x4000)y=word((u32)y+2);
   if(x<-10){x=-10;clamps[0]++;}else if(x>10){x=10;clamps[1]++;}if(y<0){y=0;clamps[2]++;}else if(y>32){y=32;clamps[3]++;}world.settings.display.x34=x;world.settings.display.y38=y;
   if(world.input[0].buttons08&0x800){buttonPaths[0]++;world.settings.display.x34=0;world.settings.display.y38=16;}
-  else if(world.input[0].accept30){buttonPaths[1]++;func_8004F24C(1);world.badges[world.badgeRoot][0].state10=4;world.timer=64;world.visual.layout0C=word((u32)world.visual.layout0C+1);}else buttonPaths[2]++;
+  else if(world.input[0].accept30){buttonPaths[1]++;PlaySfx(1);world.badges[world.badgeRoot][0].state10=4;world.timer=64;world.visual.layout0C=word((u32)world.visual.layout0C+1);}else buttonPaths[2]++;
   for(unsigned i=0;i<2;i++){world.frames[i].environment.screen.x=half((u32)world.settings.display.x34);world.frames[i].environment.screen.y=half((u32)world.settings.display.y38);}
  }else if(phase==3){s16 timer=half((u16)world.timer-1);world.timer=timer;func_800207D4(world.frames[world.frameRoot].ordering.ordering70,(64-(s32)timer)*4,69);
   if(world.timer<=0&&world.badges[world.badgeRoot][0].state10==11){exitKinds[0]++;service(4);world.visual.layout0C=0;world.visual.scene00=word((u32)world.visual.scene00-1);return;}exitKinds[1]++;

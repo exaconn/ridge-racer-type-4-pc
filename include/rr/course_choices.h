@@ -10,7 +10,7 @@ extern RrCourseChoice4 D_800ABE08[2][9];
 extern RrMenuArenas D_800F4D70;
 extern void *D_800ACC18;
 extern u8 *D_800F2AB0;
-void func_8003A198(void);
+void ResetScreenCounters(void);
 /* Nine readable entries; glyph-1 terminates. The final glyph0x167 counts
  * as the ninth valid entry. */
 s32 func_800370BC(const RrCourseChoice4 *choices);

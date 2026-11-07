@@ -25,7 +25,7 @@ static struct World {u32 before[8];RrGarageSelectionPrefix state;
  RrGarageWorkingStorage work;u32 calls; s32 args[4];u8 next_selector;u32 after[8];} world,expected;
 #define ovl662_D_801276A8 world.state
 #define ovl662_D_80127668 world.work
-int func_8004F218(s32 a,s32 b,s32 c,s32 d){
+int PlaySfxVolPan(s32 a,s32 b,s32 c,s32 d){
  world.calls++;world.args[0]=a;world.args[1]=b;world.args[2]=c;world.args[3]=d;
  world.state.active21=world.next_selector;world.work.words[1]^=2;
  return -1;

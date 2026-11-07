@@ -9,7 +9,7 @@ void ovl662_func_80116960(void){
  u8 *choice;
  RrGarageAvailableCar *captured;
  D_800F2DE4=0;ScreenFrame=0;ovl662_D_801272D4=0;ovl662_D_801272E4=0;D_800AC64A=0;D_800AC5E0=2;
- func_8003A198();
+ ResetScreenCounters();
  arenaOffset=0x2D000;i=0;count=i;
  D_800F4D70.second=D_800102F0+arenaOffset;
  func_8003A1B4();D_800ACC18=D_800F4D70.second;

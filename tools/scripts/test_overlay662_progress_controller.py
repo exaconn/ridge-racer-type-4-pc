@@ -75,7 +75,7 @@ s32 func_8003E13C(s32 selected){static const s32 values[]={0,1,-1,65536};Event *
 void func_8002AF8C(s32 a,s32 b,s32 c){Event *e=event(4);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
 void ovl662_func_80116690(void){event(5);change();}
 void ovl662_func_80116808(void){event(6);change();}
-void func_8004F24C(s32 sound){event(7)->args[0]=sound;change();}
+void PlaySfx(s32 sound){event(7)->args[0]=sound;change();}
 void ovl662_func_80115EC4(s32 base){event(8)->args[0]=base;change();}
 void ovl662_func_80116960(void){event(9);change();}
 void ovl662_func_80116020(void){event(10);change();}
@@ -97,10 +97,10 @@ static void expected(void){s32 flags=65538;unsigned phase=(u16)w->s.phase;
    if(completed){if(phase==1)ovl662_func_80116690();else ovl662_func_80116808();}
    if(w->s.controllers[0].a){
     s32 count=phase==1?half(w->s.counts[w->s.choice.bytes[0]]):half(w->s.grid[w->s.choice.bytes[0]][w->s.choice.bytes[1]]);
-    if(count<=0){func_8004F24C(4);branchSeen[0]++;}
-    else{func_8004F24C(1);w->s.frame=0;w->s.phase=phase==1?2:4;w->s.ui[w->s.uiRoot][0].byte14=3;w->s.badges[w->s.badgeRoot][0].state10=4;branchSeen[1]++;}
+    if(count<=0){PlaySfx(4);branchSeen[0]++;}
+    else{PlaySfx(1);w->s.frame=0;w->s.phase=phase==1?2:4;w->s.ui[w->s.uiRoot][0].byte14=3;w->s.badges[w->s.badgeRoot][0].state10=4;branchSeen[1]++;}
    }else if(w->s.controllers[0].b){
-    func_8004F24C(2);if(phase==1){w->s.phase=8;w->s.timer=64;}else{w->s.mode=1;w->s.phase=4;}
+    PlaySfx(2);if(phase==1){w->s.phase=8;w->s.timer=64;}else{w->s.mode=1;w->s.phase=4;}
     w->s.ui[w->s.uiRoot][0].byte14=3;w->s.badges[w->s.badgeRoot][0].state10=4;branchSeen[2]++;
    }
   }

@@ -67,7 +67,7 @@ for i,a in enumerate(half_addresses):
 for name,a in [('choices',0x80109478),('name',0x800A457C),('text',0x800F4D50),('stored',0x800F2E30),('snapshot',0x8010B258),('records',0x801272F0)]:macros+=f'#define D_{a:08X} (active.{name})\n'
 macros+='#define D_800F3AFC badgeRoot\n'
 functions=[]
-signatures=[('s32','func_80035024',['s32']),('s32','func_8009AEAC',['s32','s32','unsigned long']),('void','SetDispMask',['s32']),('void','func_8001ECE8',['s32','s32','s16','u32']),('void','func_8002A604',[]),('void','func_8003E928',['s32']*10),('void','func_80053BB4',['s32']),('void','func_8003D228',['s32','s32','s16','s32','u16','u16','u16']),('void','func_8003A198',[]),('s32','func_8003B934',[]),('void','func_8002A344',['s32']),('void','func_8002AF8C',['s32']*3)]
+signatures=[('s32','func_80035024',['s32']),('s32','func_8009AEAC',['s32','s32','unsigned long']),('void','SetDispMask',['s32']),('void','func_8001ECE8',['s32','s32','s16','u32']),('void','func_8002A604',[]),('void','func_8003E928',['s32']*10),('void','func_80053BB4',['s32']),('void','func_8003D228',['s32','s32','s16','s32','u16','u16','u16']),('void','ResetScreenCounters',[]),('s32','func_8003B934',[]),('void','func_8002A344',['s32']),('void','func_8002AF8C',['s32']*3)]
 for event,(ret,name,types) in enumerate(signatures,1):
  params=','.join(t+' a'+str(i) for i,t in enumerate(types)) or 'void'
  params+=',...' if name=='func_8003E928' else ''

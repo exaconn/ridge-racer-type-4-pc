@@ -34,7 +34,7 @@ extern int func_80096464();
 extern int func_80055300();
 extern int func_80055330();
 extern int func_8005534C();
-extern int func_8003A198();
+extern int ResetScreenCounters();
 
 void func_8005D974(int a0);
 void func_8005DD8C(void);
@@ -185,7 +185,7 @@ void func_8005D974(int a0) {
 
 void func_8005DD8C(void) {
     SetDispMask(0);
-    func_8003A198();
+    ResetScreenCounters();
     D_800F4BE8 = 8;
     D_800F4C6A = 1;
     D_800F3A26 = 0x23;

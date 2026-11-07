@@ -12,8 +12,8 @@ source=Path(sys.argv[1]) if len(sys.argv)>1 else ROOT/'src/overlays/PAL/661/func
 source=source.resolve()
 full=source.read_text();start=full.index('void ovl661_func_80117430(void) {');body=full[start:];header=full[:start]
 body=re.sub(r' __asm__\("\$\d+"\)','',body)
-globals=sorted(set(re.findall(r'\b(?:ovl661_)?(?:D_[0-9A-F]{8}|CarTable|ScreenFrame)\b',body))-{'D_800F3A60'})
-functions=sorted(set(re.findall(r'\b(?:ovl661_)?func_[0-9A-F]{8}(?=\()',body))-{'ovl661_func_80117430'})
+globals=sorted(set(re.findall(r'\b(?:ovl661_)?(?:D_[0-9A-F]{8}|CarTable|ScreenFrame|MenuTextRows|MenuTextRowCount)\b',body))-{'D_800F3A60'})
+functions=sorted(set(re.findall(r'\b(?:(?:ovl661_)?func_[0-9A-F]{8}|PlaySfx|PlaySfxVolPan|TriggerSfx|ResetScreenCounters|InitMenuTextRows|SetMenuTextRow)(?=\()',body))-{'ovl661_func_80117430'})
 head='''#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -118,7 +118,7 @@ def service(event,args,native):
    changes.update({'D_800F3A60':(case//7+serial)&1,'D_800AC59C':(case+serial)%6,'D_800AC5D0':[-32768,-1,0,1,64,32767][(case+serial)%6]})
   if name=='func_8003BAB0':changes['D_800F4D8A']=(case//9)%9
   for n,value in changes.items():setscalar(n,value,native)
-  if name in ['func_8003A198','func_8003AE4C','func_80053CB0']:
+  if name in ['ResetScreenCounters','func_8003AE4C','func_80053CB0']:
    first=0x801B0000+(case+serial)%3*1024+16
    second=0x801B0000+(case+serial+1)%3*1024+32
    published=0x801B0000+(case+serial+2)%3*1024+64
@@ -128,7 +128,7 @@ def service(event,args,native):
     C.c_void_p.from_address(N['D_800ACC18'][0]).value=nativepointer(published)
    else:
     write(0x800F4D70,struct.pack('<2I',first,second));write(0x800ACC18,struct.pack('<I',published))
-  if name in ['func_8003A198','func_8004F24C']:
+  if name in ['ResetScreenCounters','PlaySfx']:
    bank=(case+serial)&1
    if native:
     C.c_void_p.from_address(N['D_800F4D80'][0]).value=ui+bank*US

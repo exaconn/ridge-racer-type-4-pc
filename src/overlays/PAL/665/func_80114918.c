@@ -22,6 +22,6 @@ void ovl665_func_80114918(void)
     scratch=RR_PROJECTION_SCRATCH;
     scratch->word08=0;scratch->word0C=0;scratch->word10=0;
     scratch->word18=0;scratch->word1C=0;scratch->word20=0;
-    func_8003A198();
+    ResetScreenCounters();
     D_800F4CA8=2;D_800F4C6A=2;D_800F3A26=2;D_800F4D8A=0;
 }

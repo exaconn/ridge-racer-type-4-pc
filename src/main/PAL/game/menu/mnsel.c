@@ -5,8 +5,8 @@
 
 typedef struct { char p[0x10]; short s10; } T3;
 
-extern int func_8003A198();
-extern int func_8004F24C();
+extern int ResetScreenCounters();
+extern int PlaySfx();
 extern int D_8009FDA4;
 extern char D_800AD4D8[];
 extern short D_800AD520;
@@ -48,7 +48,7 @@ void func_800417EC()
     D_8009FDA4 = 0;
     goto L_54;
 L_a8:
-    func_8004F24C(0);
+    PlaySfx(0);
     if (D_800AD520 < 0) {
         D_800AD520 = 0;
     } else if (D_800AD520 >= 4) {
@@ -65,9 +65,9 @@ L_54:
     if (D_800F3A60 != 0) {
         s0 = D_800F3AFC->s10;
         if (s0 == 3) {
-            func_8004F24C(1);
+            PlaySfx(1);
             D_800F2DE4 = 0;
-            func_8003A198();
+            ResetScreenCounters();
             r = D_800AD4D8;
             *(short *)(r + 0x1A) = 1;
             r[0x1C] = D_800F4D98[0];

@@ -10,11 +10,11 @@
 #include "game/data/menuvars.h"
 extern int func_800207D4();
 extern int func_8002B330();
-extern int func_8003A198();
+extern int ResetScreenCounters();
 extern int func_8003B934();
 extern int func_8003D6F0();
 extern int func_8003EC88();
-extern int func_8004F24C();
+extern int PlaySfx();
 extern short D_800AC5D0;
 extern short D_800AC64A;
 extern short D_800F3A26;
@@ -44,14 +44,14 @@ void func_80032600(void) {
         *((char *)D_800F4D80 + D_800AC64A * 0x24 + 0xC) = 2;
         if (D_800F3A60 != 0) {
             if (D_800F4D80->b14 == 2) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 D_800F4D80->b14 = 3;
                 D_800F4D80->b38 = 3;
                 D_800F3AFC->s10 = 4;
                 *((char *)D_800F4D80 + D_800AC64A * 0x24 + 0xC) = 1;
                 D_800AC5D0 = 0x40;
                 D_800ACC18 = D_800F4D74;
-                func_8003A198();
+                ResetScreenCounters();
                 if (D_800AC64A == 0) {
                     D_800F4D8A = 3;
                 } else if (D_800AC64A == 1) {

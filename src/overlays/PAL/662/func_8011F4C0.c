@@ -40,7 +40,7 @@ void ovl662_func_8011F4C0(s32 mode) {
             ovl662_D_801276A8.saved64[4] = 2;
         }
         ovl662_D_801276A8.config1E = 4;
-        func_8004F24C(3);
+        PlaySfx(3);
         ovl662_D_80127668.words[0] |= 2;
         ovl662_D_80127668.points.first20 = ovl662_D_80127668.points.cursor14;
         ovl662_D_80127668.points.second24.x = 146;

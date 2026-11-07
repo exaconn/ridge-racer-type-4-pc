@@ -42,7 +42,7 @@ void ovl662_func_8011FE84(s32 mode) {
                     ovl662_D_801276A8.saved64[4] = 1;
                 }
                 ovl662_D_801276A8.config1E = 0;
-                func_8004F24C(1);
+                PlaySfx(1);
             }
         }
     }

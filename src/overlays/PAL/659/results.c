@@ -5,7 +5,7 @@ void ovl659_init_results(void) {
     s32 offset;
 
     ovl659_rank_standings();
-    func_800402F4(D_800FFC48);
+    InitMenuTextRows(D_800FFC48);
     D_800AC64A = 0;
     D_800AC5E0 = 2;
     offset = 0;
@@ -14,13 +14,13 @@ void ovl659_init_results(void) {
     }
     for (i = 0; i < 11; i++) {
         if (D_800AD4D8.phase17 >= 4 && i == 4 && offset == 0) {
-            func_80040338(i, i, 0, 0, ovl659_result_labels[22]);
+            SetMenuTextRow(i, i, 0, 0, ovl659_result_labels[22]);
         } else {
-            func_80040338(i, i, 0, 0, ovl659_result_labels[i + offset]);
+            SetMenuTextRow(i, i, 0, 0, ovl659_result_labels[i + offset]);
         }
     }
     for (i = 0; i < 11; i++) {
-        func_80040338(i + 33, i, 2, 0, ovl659_result_labels[i + 23]);
+        SetMenuTextRow(i + 33, i, 2, 0, ovl659_result_labels[i + 23]);
     }
     func_8002AF8C(0, 1, 0);
     ovl659_preview_timer = -2;
@@ -39,14 +39,14 @@ void ovl659_update_results(void) {
     switch (D_800F4D8A) {
     case 0:
         group = 0;
-        if (D_800FFC14[3].signedBytes[3] >= 16) {
+        if (MenuTextRows[3].signedBytes[3] >= 16) {
             func_8002AF8C(1, 1, 0);
             if (D_800F3A60 != 0) {
                 func_8002AF8C(0, 1, 0);
-                func_8004F24C(1);
+                PlaySfx(1);
                 if (D_800AD4D8.mode1A == 4) {
                     func_8003A1B4();
-                    func_8003A198();
+                    ResetScreenCounters();
                     D_800F4D8A = 5;
                     break;
                 } else {
@@ -66,7 +66,7 @@ void ovl659_update_results(void) {
         }
         for (i = 0; i < 3; i++) {
             if (i >= D_800F3A30) {
-                D_800FFC14[rowOffset + 2].state.d34 = -1;
+                MenuTextRows[rowOffset + 2].state.d34 = -1;
                 break;
             }
             if (i + lapOffset == D_800ABEF8[0].steering288.finish20) {
@@ -74,27 +74,27 @@ void ovl659_update_results(void) {
             } else {
                 func_80041320(i + rowOffset, 0, -1);
             }
-            func_8002B814((char *)&D_800FFC14[i + rowOffset].bytes[32], i + lapOffset + 1, 0);
-            func_8002B934((char *)&D_800FFC14[i + rowOffset].bytes[35], D_800F4C80[i + lapOffset]);
+            func_8002B814((char *)&MenuTextRows[i + rowOffset].bytes[32], i + lapOffset + 1, 0);
+            func_8002B934((char *)&MenuTextRows[i + rowOffset].bytes[35], D_800F4C80[i + lapOffset]);
         }
         break;
     case 3:
         group = 1;
         if (D_800AD4D8.retries08[D_800AD4D8.phase17] == 0) {
             D_800F4D8A = 7;
-        } else if (D_800FFC14[38].signedBytes[3] >= 14) {
+        } else if (MenuTextRows[38].signedBytes[3] >= 14) {
             func_8002AF8C(1, 1, 0);
             func_80041320(D_800AC64A + 37, 0, 0);
             func_8002B330(0, 2, (char *)&D_800AC64A, D_800AC5E0, 0);
             func_80041320(D_800AC64A + 37, 1, 1);
             if (D_800F3A60 != 0) {
                 func_8002AF8C(0, 1, 0);
-                func_8004F24C(1);
+                PlaySfx(1);
                 if (D_800AC64A == 0) {
                     D_800F4D8A = 4;
                     D_800AC5D0 = 64;
                     D_800AD4D8.retries08[D_800AD4D8.phase17]--;
-                    func_8002B814((char *)&D_800FFC14[40].bytes[36],
+                    func_8002B814((char *)&MenuTextRows[40].bytes[36],
                                   D_800AD4D8.retries08[D_800AD4D8.phase17], 0);
                 } else {
                     D_800F4D8A = 7;
@@ -117,12 +117,12 @@ void ovl659_update_results(void) {
     case 5:
         group = 0;
         for (i = 0; i < 11; i++) {
-            if (D_800FFC14[i].signedBytes[2] < 8) {
-                D_800FFC14[i].signedBytes[2] = 8;
-                D_800FFC14[i].signedBytes[0] = 0;
+            if (MenuTextRows[i].signedBytes[2] < 8) {
+                MenuTextRows[i].signedBytes[2] = 8;
+                MenuTextRows[i].signedBytes[0] = 0;
             }
         }
-        if (D_800FFC14[0].signedBytes[2] == 9) {
+        if (MenuTextRows[0].signedBytes[2] == 9) {
             D_800F4D8A = 6;
             ovl659_preview_timer = 64;
         }
@@ -140,7 +140,7 @@ void ovl659_update_results(void) {
                 D_800F4C6A = 0;
                 D_800F3A26 = 3;
             } else {
-                func_8003A198();
+                ResetScreenCounters();
                 func_80053BB4(1);
                 D_800F4C6A = ready;
                 D_800F3A26 = 11;
@@ -153,12 +153,12 @@ void ovl659_update_results(void) {
     case 7:
         group = 0;
         for (i = 0; i < 11; i++) {
-            if (D_800FFC14[i].signedBytes[2] < 8) {
-                D_800FFC14[i].signedBytes[2] = 8;
-                D_800FFC14[i].signedBytes[0] = 0;
+            if (MenuTextRows[i].signedBytes[2] < 8) {
+                MenuTextRows[i].signedBytes[2] = 8;
+                MenuTextRows[i].signedBytes[0] = 0;
             }
         }
-        if (D_800FFC14[0].signedBytes[2] == 9) {
+        if (MenuTextRows[0].signedBytes[2] == 9) {
             D_800F4D8A = 8;
         }
         break;
@@ -185,7 +185,7 @@ void ovl659_update_results(void) {
             i++;
         } while (i < 11);
     }
-    if (D_800FFC14[0].signedBytes[2] >= 3 && D_800F4D8A < 6) {
+    if (MenuTextRows[0].signedBytes[2] >= 3 && D_800F4D8A < 6) {
         func_800411D4();
     }
 }

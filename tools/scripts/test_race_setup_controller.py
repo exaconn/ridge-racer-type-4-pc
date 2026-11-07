@@ -11,16 +11,16 @@ class MainControllerTest(unittest.TestCase):
   body='void func_8003CAF4(void)'+body
   body=re.sub(r' __asm__\("\$[0-9]+"\)','',body)
   declarations=re.findall(r'^extern ([^;]+);',prefix,re.M)
-  declarations=[d for d in declarations if any(n in body for n in re.findall(r'\b(?:D_[A-Fa-f0-9]+|ScreenFrame)\b',d))]
+  declarations=[d for d in declarations if any(n in body for n in re.findall(r'\b(?:D_[A-Fa-f0-9]+|ScreenFrame|MenuTextRows|MenuTextRowCount)\b',d))]
   gname=lambda n:'g_'+(n[2:] if n.startswith('D_') else '%08X'%__import__('c_functions').address_of(n))
-  fields='\n'.join(re.sub(r'\b(?:D_[A-Fa-f0-9]+|ScreenFrame)\b',lambda m:gname(m[0]),d)+';' for d in declarations)
-  names=[name for d in declarations for name in re.findall(r'\b(?:D_[A-Fa-f0-9]+|ScreenFrame)\b',d)]
+  fields='\n'.join(re.sub(r'\b(?:D_[A-Fa-f0-9]+|ScreenFrame|MenuTextRows|MenuTextRowCount)\b',lambda m:gname(m[0]),d)+';' for d in declarations)
+  names=[name for d in declarations for name in re.findall(r'\b(?:D_[A-Fa-f0-9]+|ScreenFrame|MenuTextRows|MenuTextRowCount)\b',d)]
   aliases='\n'.join('#define '+n+' (w->s.'+gname(n)+')' for n in names)
   mutations=[]
   for d in declarations:
    typ,decl=d.split(' ',1)
    for v in decl.split(','):
-    v=v.strip();name=re.match(r'(?:D_[A-Fa-f0-9]+|ScreenFrame)',v)[0];bound=re.findall(r'\[(\d+)\]',v)
+    v=v.strip();name=re.match(r'(?:D_[A-Fa-f0-9]+|ScreenFrame|MenuTextRows|MenuTextRowCount)',v)[0];bound=re.findall(r'\[(\d+)\]',v)
     if typ=='RrRaceVehicle':mutations.append('for(i=0;i<2;i++)'+name+'[i].flags1E4=(next()%4)?(u16)next():0;')
     elif typ=='RrRaceSetupPair4':mutations.append(name+'.first=(s16)next();'+name+'.second=(s16)next();')
     elif bound:mutations.append('for(i=0;i<'+bound[0]+';i++)'+name+'[i]=('+typ+')next();')

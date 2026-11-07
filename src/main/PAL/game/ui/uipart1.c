@@ -89,7 +89,7 @@ extern struct { char pad[0xC]; unsigned char a; unsigned char b; short c; } D_80
 extern s8 D_8009EFFC[];
 extern char D_80010460[];
 extern s32 D_8009FDA4;
-extern int func_8004F24C();
+extern int PlaySfx();
 extern char D_8009F008[];
 extern int D_800F3A30;
 extern int D_800F4C80[];
@@ -573,7 +573,7 @@ L:
     if ((a0 & 2) == 0) {
         if (s0 < a3) {
             if (s0 >= a4) {
-                func_8004F24C(0, a);
+                PlaySfx(0, a);
             } else {
                 s0 = a4;
             }
@@ -581,7 +581,7 @@ L:
             s0 = a3 - 1;
         }
     } else {
-        func_8004F24C(0, a);
+        PlaySfx(0, a);
         if (s0 >= a3) {
             s0 = a4;
         } else if (s0 < a4) {
@@ -885,7 +885,7 @@ void func_8002BF34(a0, a1) RrRaceVehicle *a0; int a1; {
         if (a0->lateralVelF4 < 0) w2 = -w2;
         z = w2 + 0x40;
         if (a0 == &D_800ABEF8[0] || a0 == &D_800ABEF8[1]) {
-            if (D_800AD504 != 2) func_8004F218(0x21, sc, (short)z, -1);
+            if (D_800AD504 != 2) PlaySfxVolPan(0x21, sc, (short)z, -1);
         }
     }
 }

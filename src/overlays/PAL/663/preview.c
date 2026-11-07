@@ -65,12 +65,12 @@ void ovl663_update_preview(void) {
             old = ovl663_selected_record;
             func_8002B330(1, 4, (char *)&ovl663_selected_record, ovl663_available_course_count, 0);
             if (old != ovl663_selected_record)
-                func_8003A198();
+                ResetScreenCounters();
             else
                 ovl663_draw_preview();
             D_800F4D80->cells[0] = 2;
             if (D_800F3A60) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 func_8002AF8C(0, 1, 0);
                 D_800F4D8A = 8;
                 D_800F4D80->cells[0] = 1;
@@ -133,7 +133,7 @@ void ovl663_update_result_preview(void) {
     case 1:
         D_800F4D80[3].cells[0] = 2;
         if (D_800F3A60) {
-            func_8004F24C(1);
+            PlaySfx(1);
             func_8002AF8C(0, 1, 0);
             D_800F4D80[3].cells[0] = 1;
             D_800F4D80[3].byte14 = 3;

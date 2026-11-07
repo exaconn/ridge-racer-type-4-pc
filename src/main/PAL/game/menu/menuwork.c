@@ -32,7 +32,7 @@ extern int func_8002E4F4();
 extern int func_80031E3C();
 extern int func_80033A74();
 extern int func_80037110();
-extern int func_8003A198();
+extern int ResetScreenCounters();
 extern void func_8003E928(int,int,int,int,int,int,int,int,int,int,...);
 extern M2C_UNK D_800ABEF8;
 extern s32 D_800AC5DC;
@@ -58,7 +58,7 @@ extern void func_80037198();
 extern int func_8003AE4C();
 extern void func_8003D6F0();
 extern void func_8003EC88();
-extern void func_8004F24C();
+extern void PlaySfx();
 extern void func_8005AF5C();
 
 void func_800397A4(unsigned char *a0, int a1);
@@ -127,7 +127,7 @@ void func_80039920(void) {
 
 void func_80039988(void) {
     func_80013890(5);
-    func_8003A198();
+    ResetScreenCounters();
     func_80033A74(1);
     func_8002E4F4(&D_800ABEF8);
     M2C_FIELD(&D_800ABEF8, s32 *, 0x28) = 0x134;
@@ -190,7 +190,7 @@ void func_80039ABC(void) {
 #define func_8002CC88 ((void (*)())func_8002CC88)
 #define func_8002E5A0 ((void (*)())func_8002E5A0)
 #define func_80033A74 ((void (*)())func_80033A74)
-#define func_8003A198 ((void (*)())func_8003A198)
+#define ResetScreenCounters ((void (*)())ResetScreenCounters)
 #define func_8003FBA8 ((void (*)())func_8003FBA8)
 #define func_8006EF8C ((void (*)())func_8006EF8C)
 
@@ -225,7 +225,7 @@ void func_80039C0C(void)
             func_8002AF8C(1, 1, 0);
             P8(D_800F4D80, 0xC) = s0;
             if (D_800F3A60 != 0) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 P8(D_800F4D80, 0xC) = s2;
                 P8(D_800F4D80, 0x38) = 0;
                 P8(D_800F4D80, 0x5C) = 0;
@@ -243,7 +243,7 @@ void func_80039C0C(void)
             func_8002B330(0, 1, q + 3, c2, 0);
             IDX30(D_800F4D80, q[3]) = c2;
             if (D_800F3A60 != 0) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 a1 = 0;
                 a0 = 0;
                 IDX30(D_800F4D80, q[3]) = s2;
@@ -258,7 +258,7 @@ void func_80039C0C(void)
         D_800F2DE4 = 0;
         D_800F2AB0->b1 = 3;
         D_800F3AFC->s10 = 4;
-        func_8003A198();
+        ResetScreenCounters();
         {
         char *b = D_800AD4D8;
         *(W7C0_U *)(b + 0x1C) = *(W7C0_U *)D_800F4D98;
@@ -305,6 +305,6 @@ end:
 #undef func_8002CC88
 #undef func_8002E5A0
 #undef func_80033A74
-#undef func_8003A198
+#undef ResetScreenCounters
 #undef func_8003FBA8
 #undef func_8006EF8C

@@ -17,8 +17,8 @@ extern RrMenuGlyphRow1C *D_800F4D8C;
 extern RrMenuChoice4 D_800F4D98;
 extern u8 D_800F4D99; /* Alias of D_800F4D98.bytes[1]. */
 extern u8 *D_800FF68C;
-void func_8004F24C(s32 mode);
-void func_8003A198(void);
+void PlaySfx(s32 mode);
+void ResetScreenCounters(void);
 void func_8002AF8C(s32 first, s32 second, s32 third);
 
 /* Current UI backing must cover byte12+the initial byte selection (up to267).

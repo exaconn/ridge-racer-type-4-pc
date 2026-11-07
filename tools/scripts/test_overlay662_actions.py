@@ -52,7 +52,7 @@ static void action_effect(struct World *w,s32 id,s32 code){
 }
 static void action_a(s32 code){action_effect(&world,1,code);}
 static void action_b(s32 code){action_effect(&world,2,code);}
-void func_8004EF04(s32 a,s32 b,s32 c,s32 d,s32 f){sound_effect(&world,a,b,c,d,f);}
+void TriggerSfx(s32 a,s32 b,s32 c,s32 d,s32 f){sound_effect(&world,a,b,c,d,f);}
 ''' + bridge + sound + body + r'''
 static u32 seed=0x1dcdc;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}

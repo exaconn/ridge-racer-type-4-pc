@@ -17,8 +17,8 @@ extern s32 D_800F7650;
 
 void func_8004ED38(int *arg0, int arg1, int arg2);
 void func_8004EE90(int a0, int a1);
-void func_8004EF04(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-void func_8004F218(int a0, s16 a1, s16 a2, int a3);
+void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+void PlaySfxVolPan(int a0, s16 a1, s16 a2, int a3);
 
 /* legacy typing of shared globals in this part of the unit */
 #define func_8008AEC4 ((short (*)())func_8008AEC4)
@@ -96,7 +96,7 @@ void func_8004EE90(int a0, int a1) {
 
 #undef D_800F4DB8
 
-void func_8004EF04(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s16 temp_a2_2;
     register s16 temp_s0_2;
     register s16 temp_s0_4;
@@ -229,16 +229,16 @@ void func_8004EF04(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 }
 }
 
-void func_8004F218(int a0, s16 a1, s16 a2, int a3) {
-    func_8004EF04(a0, a1, a2, 0x1E00, a3);
+void PlaySfxVolPan(int a0, s16 a1, s16 a2, int a3) {
+    TriggerSfx(a0, a1, a2, 0x1E00, a3);
 }
 
-void func_8004F24C(int a0) {
-    func_8004F218(a0, 0x7F, 0x40, -1);
+void PlaySfx(int a0) {
+    PlaySfxVolPan(a0, 0x7F, 0x40, -1);
 }
 
 void func_8004F274(s32 arg0) {
-    func_8004F218(arg0 + 0x3C, 0x7F, 0x40, -1);
+    PlaySfxVolPan(arg0 + 0x3C, 0x7F, 0x40, -1);
 }
 
 /* legacy typing of shared globals in this part of the unit */

@@ -26,7 +26,7 @@ RrGarageSelectionPrefix ovl662_D_801276A8;RrGarageWorkingStorage ovl662_D_801276
 static RrGarageSelectionPrefix expected;static RrGarageWorkingStorage expected_work;
 static struct Image {u32 before;RrGarageImage512 words;u32 after;} images[4],image_model[4];
 static unsigned audio_calls,expected_mode,expected_before,after_color;
-void func_8004EF04(s32 program,s32 level,s32 pan,s32 pitch,s32 voice){
+void TriggerSfx(s32 program,s32 level,s32 pan,s32 pitch,s32 voice){
  assert((unsigned)program==expected_mode&&level==127&&pan==64&&pitch==0x1E00&&voice==-1);
  assert(ovl662_D_801276A8.config22==expected_before);audio_calls++;
  ovl662_D_801276A8.config22=(u8)after_color;ovl662_D_801276A8.config1C=0;ovl662_D_801276A8.active21=255;

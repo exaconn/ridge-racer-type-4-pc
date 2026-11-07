@@ -42,8 +42,8 @@ extern short D_800F4D8A;
 extern s32 D_800AC5DC;
 extern s16 D_800AD50A;
 extern int func_800207D4();
-extern int func_8003A198();
-extern int func_8004F24C();
+extern int ResetScreenCounters();
+extern int PlaySfx();
 extern int func_80053AF4();
 extern int func_80053CB0();
 extern unsigned short D_800AC5D0;
@@ -209,7 +209,7 @@ void func_80031244(void) {
         s0 = D_800F3AFC[D_800FF68C->h16].h10;
         if (s0 == 3) {
             if (D_800F3A38.w28 != 0 || (D_800F3A38.h8 & 0x800)) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 func_8002AF8C(0, 1, 0);
                 tab = D_800F3AFC;
                 ((typeof(D_800F3AFC))tab)[D_800FF68C->h16].h10 = 4;
@@ -217,7 +217,7 @@ void func_80031244(void) {
                 D_800AC5D0 = 0;
                 if (D_800F4C5C == 0x10F || D_800F4C5C == 0x12A || D_800F4C5C == 0x205) {
                     D_800AC5D0 = 0x40;
-                    func_8003A198(tab);
+                    ResetScreenCounters(tab);
                     D_800ACC18 = D_800F4D74;
                     func_8003B398(0);
                     func_80053AF4(0, (short)(D_800AC5D0 - 4));

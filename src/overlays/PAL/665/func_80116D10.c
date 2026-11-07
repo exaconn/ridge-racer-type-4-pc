@@ -130,7 +130,7 @@ extern void func_8002B330(s32, s32, void *, s32, s32);
 extern void func_8004A5C0(s32, s32, s32, s32);
 /* Sound cue; several call sites pass the freshly computed offset as a
  * second (ignored) argument, so it is declared without a prototype. */
-extern void func_8004F24C();
+extern void PlaySfx();
 extern void ovl665_func_80116AA4(void *, s32);
 extern void *func_8001FF84(void *, void *, s32, s32, void *, s32, s32);
 extern void ovl665_func_8011643C(void);
@@ -313,7 +313,7 @@ void ovl665_func_80116D10(s32 player) {
                                   D_800AD528.c[player].c[3]);
                 }
                 if (D_800F3A38[player].confirm28 != 0) {
-                    func_8004F24C(1);
+                    PlaySfx(1);
                     CLOSE_ROWS(5);
                     D_800AC5D0 = 64;
                     ST.step0C = 2;
@@ -348,7 +348,7 @@ void ovl665_func_80116D10(s32 player) {
                 ST.offset8C = value / 2;
                 ST.offset94 = -value / 2;
                 if (D_800F3A38[player].confirm28 != 0) {
-                    func_8004F24C(1, value);
+                    PlaySfx(1, value);
                     CLOSE_ROWS(5);
                     D_800AC5D0 = 64;
                     ST.step0C = 2;
@@ -388,7 +388,7 @@ void ovl665_func_80116D10(s32 player) {
                         ST.fade24 = 0;
                     }
                     if (D_800F3A38[player].confirm28 != 0) {
-                        func_8004F24C(1);
+                        PlaySfx(1);
                         CLOSE_ROWS(5);
                         D_800AC5D0 = 64;
                         ST.step0C = 2;
@@ -424,7 +424,7 @@ void ovl665_func_80116D10(s32 player) {
                     value = D_800F3A38[player].tilt41 * 16;
                     ST.offset90 = value;
                     if (D_800F3A38[player].confirm28 != 0) {
-                        func_8004F24C(1, value);
+                        PlaySfx(1, value);
                         CLOSE_ROWS(5);
                         D_800AC5D0 = 64;
                         ST.step0C = 2;
@@ -503,7 +503,7 @@ void ovl665_func_80116D10(s32 player) {
             ST.offset8C = value / 2;
             ST.offset94 = -value / 2;
             if (D_800F3A38[player].buttons08 & 0x800) {
-                func_8004F24C(1, value);
+                PlaySfx(1, value);
                 D_800AD528.b[player].h[0] = entry->b4 - 128;
                 D_800AD528.b[player].h[1] = entry->b5;
                 D_800AD528.b[player].h[2] = entry->b6;
@@ -530,7 +530,7 @@ void ovl665_func_80116D10(s32 player) {
                 ST.phase20 = phase - 4064;
             }
             if (D_800F3A38[player].buttons08 & 0x840) {
-                func_8004F24C(1, value);
+                PlaySfx(1, value);
                 D_800AC590->b4 = D_800AD528.b[player].h[5] + 14;
                 ST.view38 = ovl665_D_80119698[5];
                 ST.phase20 = 0;
@@ -570,7 +570,7 @@ void ovl665_func_80116D10(s32 player) {
                 ST.phase20 = phase - 4064;
             }
             if (D_800F3A38[player].buttons08 & 0x840) {
-                func_8004F24C(1, value);
+                PlaySfx(1, value);
                 CLOSE_ROWS(5);
                 D_800AC5D0 = 64;
                 ST.step0C = 2;
@@ -612,7 +612,7 @@ void ovl665_func_80116D10(s32 player) {
             value = D_800F3A38[player].tilt41 * 16;
             ST.offset90 = value;
             if (D_800F3A38[player].buttons08 & 0x800) {
-                func_8004F24C(1, value);
+                PlaySfx(1, value);
                 func_8004BB84(player, 3);
                 D_800AC590->b4 = D_800AD528.c[player].c[0] + 10;
                 ST.phase20 = 0;
@@ -634,7 +634,7 @@ void ovl665_func_80116D10(s32 player) {
                 ST.phase20 = phase - 4064;
             }
             if (D_800F3A38[player].confirm28 != 0) {
-                func_8004F24C(1, value);
+                PlaySfx(1, value);
                 D_800AC590->b4 = D_800AD528.c[player].c[1] + 18;
                 ST.phase20 = 0;
                 ST.detail10++;
@@ -666,7 +666,7 @@ void ovl665_func_80116D10(s32 player) {
                 ST.phase20 = phase - 4064;
             }
             if (D_800F3A38[player].confirm28 != 0) {
-                func_8004F24C(1, value);
+                PlaySfx(1, value);
                 D_800AC590->b4 = D_800AD528.c[player].c[2] + 23;
                 ST.phase20 = 0;
                 ST.detail10++;
@@ -695,7 +695,7 @@ void ovl665_func_80116D10(s32 player) {
                 ST.phase20 = phase - 4064;
             }
             if (D_800F3A38[player].confirm28 != 0) {
-                func_8004F24C(1, value);
+                PlaySfx(1, value);
                 CLOSE_ROWS(5);
                 D_800AC5D0 = 64;
                 ST.step0C = 2;

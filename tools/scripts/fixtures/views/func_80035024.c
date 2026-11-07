@@ -41,7 +41,7 @@ extern struct
   char pad[0x58];
 } D_800F3A38[];
 
-extern int func_8004F24C();
+extern int PlaySfx();
 
 extern int func_8009AEAC();
 
@@ -171,7 +171,7 @@ int func_80035024(int a0)
         new_var3 = z;
         if (e->a84 != 0)
         {
-          func_8004F24C(1);
+          PlaySfx(1);
           bp[new_var3 - (D_800AD508 * 2)] = 1;
         }
         else

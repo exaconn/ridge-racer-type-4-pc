@@ -63,7 +63,7 @@ static void service(unsigned id,const u32 *a){struct World *w=reference_run?&exp
  }}
  effect(w,id,order);
 }
-void func_8003A198(void){u32 a[10]={0};service(0,a);}
+void ResetScreenCounters(void){u32 a[10]={0};service(0,a);}
 void func_8003A1B4(void){u32 a[10]={0};service(1,a);}
 void func_8003E928(s32 a0,s32 a1,s32 a2,s32 a3,s32 a4,s32 a5,s32 a6,s32 a7,s32 a8,s32 a9,...){u32 a[10]={(u32)a0,(u32)a1,(u32)a2,(u32)a3,(u32)a4,(u32)a5,(u32)a6,(u32)a7,(u32)a8,(u32)a9};service(2,a);}
 void func_80037110(void){u32 a[10]={0};service(3,a);}

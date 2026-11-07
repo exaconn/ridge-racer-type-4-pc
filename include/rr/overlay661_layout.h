@@ -16,7 +16,7 @@ extern s32 D_800F2DE4,ScreenFrame;
 extern s16 D_800AC64A,D_800AC5E0,ovl661_D_80118438;
 extern s16 ovl661_D_80118440[2][2],ovl661_D_8011844C[2],ovl661_D_80118450[2];
 extern RrCourseChoice4 ovl661_D_80118458[2][2][9];
-void func_8003A198(void);
+void ResetScreenCounters(void);
 void func_8003A1B4(void);
 void func_80037110(void);
 void func_8002E4F4(RrRaceVehicle *);

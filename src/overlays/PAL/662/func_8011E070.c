@@ -69,7 +69,7 @@ processInput:
                     ovl662_D_801276A8.selectorsB8[2] = (s32) ovl662_D_801276A8.saved64[3];
                     ovl662_D_801276A8.selectorsB8[3] = (s32) ovl662_D_801276A8.saved64[4];
                     ovl662_D_80127470[((RrGarageButton *)ovl662_D_801273B8[ovl662_D_801276A8.saved64[0]])->action0A]->callback(-1);
-                    func_8004F24C(3);
+                    PlaySfx(3);
                     return;
                 }
 finishInput:

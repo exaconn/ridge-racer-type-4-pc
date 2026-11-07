@@ -12,7 +12,7 @@ void ovl666_init_preview(void) {
     func_8003E928(0, 24, 88, 68, 32, 0, 0, 1, 0, 84);
     func_8003E928(1, 24, 128, 68, 32, 0, 0, 1, 0, 85);
     func_80013890(5);
-    func_8003A198();
+    ResetScreenCounters();
     func_80037110();
     D_800ACC18 = D_800F4D40;
     D_800F3AFC[0].half02 = 1;
@@ -79,7 +79,7 @@ void ovl666_update_preview(void) {
         func_80037040((s8 *)&D_800F4D98,
                       ovl666_available_courses[D_800F3826][ovl666_selected_course.word].glyph);
         if (((u32)previousCar << 16) != ((u32)func_8003708C((s8 *)&D_800F4D98) << 16)) {
-            func_8003A198();
+            ResetScreenCounters();
             D_800ACC18 = D_800F4D40;
             func_80037040((s8 *)&D_800F4D98,
                           ovl666_available_courses[D_800F3826][ovl666_selected_course.word].glyph);
@@ -97,12 +97,12 @@ void ovl666_update_preview(void) {
             if (D_800F3A38[0].a != 0) {
                 D_800F4D80[D_800AC64A + 3].cells[0] = 1;
                 if (D_800AC64A == 0) {
-                    func_8004F24C(1);
+                    PlaySfx(1);
                     ovl666_preview_phase = selectionState;
                     D_800F4D8A = 4;
                     goto draw_selection;
                 } else if (D_800AC64A == 1) {
-                    func_8004F24C(1);
+                    PlaySfx(1);
                     rowIndex = 0;
 
                     do {
@@ -114,7 +114,7 @@ void ovl666_update_preview(void) {
                     goto close_selection;
                 }
             } else if (D_800F3A38[0].b != 0) {
-                func_8004F24C(2);
+                PlaySfx(2);
                 rowIndex = 0;
 
                 do {
@@ -160,7 +160,7 @@ void ovl666_update_preview(void) {
             func_8002B330(0, 1, (char *)&D_800F4D98.selection.pad02[1], 2, 0);
             D_800F4D80[D_800F4D98.selection.pad02[1] + 5].cells[0] = confirmationState;
             if (D_800F3A38[0].a != 0) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 func_8002AF8C(0, 1, 1);
                 D_800F4D80[D_800F4D98.selection.pad02[1] + 5].cells[0] = 1;
                 D_800F4D80[5].byte14 = 7;
@@ -169,7 +169,7 @@ void ovl666_update_preview(void) {
                 D_800F4D98.selection.rows[0].parameter = 0x13;
                 D_800F3914 = 0;
                 D_800F4D8A = 3;
-                func_8003A198();
+                ResetScreenCounters();
                 D_800AC5D0 = 0x40;
                 func_80053AF4(0, 0x3C);
             save_preview_arena:
@@ -177,7 +177,7 @@ void ovl666_update_preview(void) {
                 goto draw_selection;
             }
             if (D_800F3A38[0].b != 0) {
-                func_8004F24C(2);
+                PlaySfx(2);
                 D_800F4D80[5].byte14 = 3;
                 D_800F4D80[6].byte14 = 3;
                 D_800F4D8A = 6;
@@ -196,7 +196,7 @@ void ovl666_update_preview(void) {
         func_8002AF8C(0, 1, 1);
         closingState = D_800F4D80[3].byte14;
         if ((closingState == 5) && (((s8 *)D_800F2AB0)[1] == closingState)) {
-            func_8003A198();
+            ResetScreenCounters();
             ovl666_init_menu();
             D_800F4C6A = 1;
             D_800F3A26 = 0x4F;

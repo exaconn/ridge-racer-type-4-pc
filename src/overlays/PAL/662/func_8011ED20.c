@@ -75,7 +75,7 @@ update:
             }
             ovl662_func_8011D120();
             ((RrGarageButton *)ovl662_D_801273B8[1])->timer0E = 7;
-            func_8004F24C(1);
+            PlaySfx(1);
             var_t6 = 0;
             if (ovl662_D_801276A8.layer23 == 0) {
                 var_t8 = ovl662_D_801276A8.image38[ovl662_D_801276A8.active21 == 0];

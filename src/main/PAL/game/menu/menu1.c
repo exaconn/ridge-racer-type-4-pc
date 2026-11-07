@@ -34,10 +34,10 @@ extern E *D_800F4D80;
 extern short D_800FFC18;
 extern struct { int p[10]; int a28; int a2c; } D_800F3A38;
 extern int func_8002B330();
-extern int func_8004F24C();
+extern int PlaySfx();
 extern int func_800207D4();
 extern int func_8001FDD4();
-extern int func_8003A198();
+extern int ResetScreenCounters();
 extern int func_8003A1B4();
 extern int func_80041A54();
 extern int D_800ACC18;
@@ -126,7 +126,7 @@ void func_8002FEFC() {
     if (s != 2) goto END;
     func_8002AF8C(1, 1, 1);
     if (D_800F3A38.a28 == 0) goto L0C;
-    func_8004F24C(1);
+    PlaySfx(1);
     D_800F4D80[D_800AC64A].a = 1;
     v = 3;
     if (D_800AC64A < 2) v = 7;
@@ -138,7 +138,7 @@ void func_8002FEFC() {
     goto END;
 L0C:
     if (D_800F3A38.a2c == 0) goto END;
-    func_8004F24C(2);
+    PlaySfx(2);
     v = 3;
     D_800AC64A = s;
     D_800F4D80->b = 3;
@@ -207,7 +207,7 @@ void func_8003016C(void)
     D_800F2DE4 = 0;
     ScreenFrame = 0;
     D_800AC5DC = 0x80;
-    func_8003A198();
+    ResetScreenCounters();
     if (D_800AD4F2 == 6) {
         func_80031E3C();
         func_8002A604();

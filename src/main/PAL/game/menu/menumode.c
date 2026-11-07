@@ -8,7 +8,7 @@ struct E { char pad[4]; unsigned char a; char b; unsigned char c; signed char d;
 
 extern int func_8002B330();
 extern int func_8002B75C();
-extern int func_8004F24C();
+extern int PlaySfx();
 extern short D_800FFC18;
 extern short D_800FFC00;
 extern short D_800AC594;
@@ -44,7 +44,7 @@ void func_8007B774(void) {
     case 7:
         func_8002B330((D_800AC594 & 1) << 2, 2, &D_800F4D3C, 3, 0);
         if (D_800F3A38[D_800AC594].x28 != 0) {
-            func_8004F24C(1);
+            PlaySfx(1);
             if ((unsigned short)(D_800FFC18 - 6) < 2) {
                 D_800F3AF8 = 0x11;
                 func_8002B75C(D_800F4D50, D_800A4594[D_800F4D3C]);
@@ -121,7 +121,7 @@ void func_8007B954()
             b3 = D_800F3A38;
         r2 = (unsigned char *)b3 + D_800AC594 * 0x5C;
             if (*(int *)(r2 + 0x28) != 0) {
-                func_8004F24C(1);
+                PlaySfx(1);
                 if (D_80109478[D_8010948E] == 0) {
                     D_800F3A1C = s4;
                 } else {
@@ -129,7 +129,7 @@ void func_8007B954()
                 }
                 D_800F4D8A = 0;
             } else if (*(int *)(r2 + 0x2C) != 0) {
-                func_8004F24C(2);
+                PlaySfx(2);
                 D_800F3A1C = s3;
                 D_800F4D8A = 0;
             }

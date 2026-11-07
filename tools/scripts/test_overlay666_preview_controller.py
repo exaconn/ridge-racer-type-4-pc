@@ -34,7 +34,7 @@ void func_80033A74(s32);void func_8006EF8C(s32);s32 func_8003AE4C(s32,s32);s32 f
 void func_8002E394(RrRaceVehicle *);void func_80014A8C(s32);void func_800207D4(u32 *,s32,u32);void func_8003EC88(s32);
 void func_80037198(s32);void func_8002E5A0(RrRaceVehicle *);void func_8002CC88(RrRaceVehicle *,RrPreviewRgb3,s32,s32);
 void func_8003D6F0(s32);s32 func_8003FBA8(s32);void func_8002A344(s32);
-void func_8002AF8C(s32,s32,s32);void func_8002B330(s32,s32,char*,s32,s32);void func_80037040(s8*,s32);void func_8003A198(void);void func_8004F24C(s32);void func_80053CB0(void);void func_80053AF4(s32,s32);void ovl666_init_menu(void);
+void func_8002AF8C(s32,s32,s32);void func_8002B330(s32,s32,char*,s32,s32);void func_80037040(s8*,s32);void ResetScreenCounters(void);void PlaySfx(s32);void func_80053CB0(void);void func_80053AF4(s32,s32);void ovl666_init_menu(void);
 static struct State {u32 guard[4];s32 frame,player,rowCount; u16 state; s16 scene,timer,menu,row,course,d44,limitAlias;u16 enable,be8; s16 highCourse;u8 courseMap[8]; s32 overlayMode,ready; RrMenuSelectionWord32 selected; s16 limits[4];u16 courseTable[4][4];
  RrRaceVehicle vehicles[2];RrMenuItemState5C input[2];RrUiRow24 rows[2][7];RrBadgeRow1C badges[2][2];RrFrameStorage contexts[2];
  RrCurrentSelection choice;RrMenuGridPoint grid[4];RrCourseChoice4 courses[4][9];RrMenuArenas arenas;void *published;
@@ -100,9 +100,9 @@ void func_8002B330(s32 a,s32 b,char *p,s32 d,s32 e){unsigned target;if(p==(char*
  record(6,a,b,target,d,e,0,0,0);effect(6);if(target==0)w->selected.halves[0]=(scenario+serial)%9;else if(target==1)w->menu=(scenario/4+serial)%2;else w->choice.selection.pad02[1]=(scenario+serial)%2;
 }
 void func_80037040(s8 *p,s32 a){assert(p==(s8*)&w->choice);record(7,a,0,0,0,0,0,0,0);if(referenceRun){w->choice.selection.primary=a/160;w->choice.selection.variant=(a%160)/40;w->choice.selection.pad02[0]=a%40;}else actual_decode(p,a);}
-void func_8003A198(void){record(8,0,0,0,0,0,0,0,0);effect(8);}
+void ResetScreenCounters(void){record(8,0,0,0,0,0,0,0,0);effect(8);}
 void func_80014A8C(s32 a){record(9,a,0,0,0,0,0,0,0);effect(9);}
-void func_8004F24C(s32 a){record(10,a,0,0,0,0,0,0,0);effect(10);}
+void PlaySfx(s32 a){record(10,a,0,0,0,0,0,0,0);effect(10);}
 void ovl666_init_menu(void){record(11,0,0,0,0,0,0,0,0);effect(11);}
 void func_800207D4(u32 *p,s32 a,u32 b){assert(p==&w->contexts[w->contextRoot].ordering.ordering70&&(uintptr_t)p>UINT32_MAX);record(12,w->contextRoot,a,b,0,0,0,0,0);effect(12);}
 void func_8003EC88(s32 a){record(13,a,0,0,0,0,0,0,0);effect(13);}
@@ -128,20 +128,20 @@ static void expected(void){int ready=0;w->frame=word((u32)w->frame+1);w->player=
  ready=1;
  switch(w->state){
  case 0:{func_8002AF8C(1,1,1);int old=func_8003708C((s8*)&w->choice);func_8002B330(1,2,(char*)&w->selected.halves[0],w->limits[w->row],0);func_80037040((s8*)&w->choice,w->courses[w->row][w->selected.word].glyph);int current=func_8003708C((s8*)&w->choice);changed[(u16)old!=(u16)current]++;
-  if((u16)old!=(u16)current){func_8003A198();w->published=w->arenas.second;func_80037040((s8*)&w->choice,w->courses[w->row][w->selected.word].glyph);w->grid[0].first=w->courses[w->row][w->selected.word].first;w->grid[0].second=w->courses[w->row][w->selected.word].second;w->modes[w->modeRoot][1]=6;}
+  if((u16)old!=(u16)current){ResetScreenCounters();w->published=w->arenas.second;func_80037040((s8*)&w->choice,w->courses[w->row][w->selected.word].glyph);w->grid[0].first=w->courses[w->row][w->selected.word].first;w->grid[0].second=w->courses[w->row][w->selected.word].second;w->modes[w->modeRoot][1]=6;}
   w->rows[w->root][w->menu+3].cells[0]=0;func_8002B330(0,2,(char*)&w->menu,2,0);w->rows[w->root][w->menu+3].cells[0]=2;int phase=w->rows[w->root][w->menu+3].byte14;
-  if(phase==2){if(w->input[0].a){w->rows[w->root][w->menu+3].cells[0]=1;if(w->menu==0){actions[0]++;func_8004F24C(1);w->overlayMode=2;w->state=4;}else if(w->menu==1){actions[1]++;func_8004F24C(1);closeTwo();w->modes[w->modeRoot][1]=3;w->state=5;w->badges[w->badgeRoot][0].state10=4;}}
-   else if(w->input[0].b){actions[2]++;func_8004F24C(2);closeTwo();w->modes[w->modeRoot][1]=3;w->state=5;w->badges[w->badgeRoot][0].state10=4;}}
+  if(phase==2){if(w->input[0].a){w->rows[w->root][w->menu+3].cells[0]=1;if(w->menu==0){actions[0]++;PlaySfx(1);w->overlayMode=2;w->state=4;}else if(w->menu==1){actions[1]++;PlaySfx(1);closeTwo();w->modes[w->modeRoot][1]=3;w->state=5;w->badges[w->badgeRoot][0].state10=4;}}
+   else if(w->input[0].b){actions[2]++;PlaySfx(2);closeTwo();w->modes[w->modeRoot][1]=3;w->state=5;w->badges[w->badgeRoot][0].state10=4;}}
   break;}
  case 3:{func_8002AF8C(0,1,1);if(w->timer>0)w->timer=half((u16)w->timer-1);func_80014A8C(-1);func_800207D4(&w->contexts[w->contextRoot].ordering.ordering70,(64-w->timer)*4,69);int completion=func_8003AE4C(1,1);
   if(completion==1&&w->timer<=0){exits[0]++;w->d44=6;u16 course=w->courseTable[w->choice.selection.primary][w->choice.selection.variant];w->ready=completion;w->limitAlias=course;w->course=func_80032E9C(half(course));func_80053CB0();w->be8=0;w->enable=completion;w->scene=35;w->state=0;w->arenas.first=w->published;}break;}
  case 4:{int phase=w->rows[w->root][5].byte14;if(phase==2){w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=0;func_8002B330(0,1,(char*)&w->choice.selection.pad02[1],2,0);w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=phase;
-   if(w->input[0].a){actions[3]++;func_8004F24C(1);func_8002AF8C(0,1,1);w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=1;w->rows[w->root][5].byte14=w->rows[w->root][6].byte14=7;
-    u8 bytes[4];memcpy(bytes,&w->choice,4);memcpy(&w->choice.selection.rows[0],bytes,4);w->choice.selection.rows[0].parameter=19;w->course=0;w->state=3;func_8003A198();w->timer=64;func_80053AF4(0,60);w->arenas.first=w->published;
-   }else if(w->input[0].b){actions[4]++;func_8004F24C(2);w->rows[w->root][5].byte14=w->rows[w->root][6].byte14=3;w->state=6;}}
+   if(w->input[0].a){actions[3]++;PlaySfx(1);func_8002AF8C(0,1,1);w->rows[w->root][w->choice.selection.pad02[1]+5].cells[0]=1;w->rows[w->root][5].byte14=w->rows[w->root][6].byte14=7;
+    u8 bytes[4];memcpy(bytes,&w->choice,4);memcpy(&w->choice.selection.rows[0],bytes,4);w->choice.selection.rows[0].parameter=19;w->course=0;w->state=3;ResetScreenCounters();w->timer=64;func_80053AF4(0,60);w->arenas.first=w->published;
+   }else if(w->input[0].b){actions[4]++;PlaySfx(2);w->rows[w->root][5].byte14=w->rows[w->root][6].byte14=3;w->state=6;}}
   break;}
  case 6:if(w->rows[w->root][5].byte14==5){actions[5]++;w->state=0;w->overlayMode=1;w->rows[w->root][5].byte14=w->rows[w->root][6].byte14=0;}break;
- case 5:func_8002AF8C(0,1,1);if(w->rows[w->root][3].byte14==5&&(s8)w->modes[w->modeRoot][1]==5){exits[1]++;func_8003A198();ovl666_init_menu();w->enable=1;w->scene=79;w->state=0;goto title;}break;
+ case 5:func_8002AF8C(0,1,1);if(w->rows[w->root][3].byte14==5&&(s8)w->modes[w->modeRoot][1]==5){exits[1]++;ResetScreenCounters();ovl666_init_menu();w->enable=1;w->scene=79;w->state=0;goto title;}break;
  }
 footer:
  for(int i=3;i<5;i++)func_8003EC88(i);if(w->overlayMode==2){func_8003EC88(5);func_8003EC88(6);}

@@ -92,8 +92,8 @@ void func_8002B330(s32 a,s32 b,char *p,s32 d,s32 e){unsigned target;if(p==(char*
 }
 void func_8002B12C(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g){record(2,a,b,c,d,e,f,g);effect(2);}
 s32 func_80032E9C(s32 a){record(3,a,0,0,0,0,0,0);if(referenceRun){w->style=a>=8;return w->mapping[a&7];}return actual_mapper(a);}
-void func_8004F24C(s32 a){record(4,a,0,0,0,0,0,0);effect(4);}
-void func_8003A198(void){record(5,0,0,0,0,0,0,0);effect(5);}
+void PlaySfx(s32 a){record(4,a,0,0,0,0,0,0);effect(4);}
+void ResetScreenCounters(void){record(5,0,0,0,0,0,0,0);effect(5);}
 void func_80037040(s8 *p,s32 a){assert(p==(s8*)&w->choice&&(uintptr_t)p>UINT32_MAX);record(6,a,0,0,0,0,0,0);
  if(referenceRun){w->choice.choice.bytes[0]=a/160;w->choice.choice.bytes[1]=(a%160)/40;w->choice.choice.bytes[2]=a%40;}else actual_decode(p,a);
 }
@@ -113,12 +113,12 @@ static void expected(void){unsigned phase=(u16)w->state;w->frame=word((u32)w->fr
    else w->rows[w->root][2].cells[i]=i>=w->limit?1:(u8)w->style;
   }
   w->rows[w->root][w->menu].cells[0]=0;func_8002B330(0,2,(char*)&w->menu,2,0);w->rows[w->root][w->menu].cells[0]=2;w->selected=-1;int cancel=0;
-  if(w->input[0].a){func_8004F24C(1);w->rows[w->root][w->menu].cells[0]=1;if(w->menu==0){actions[0]++;w->selected=0;w->state=2;}else if(w->menu==1){actions[1]++;cancel=1;}}
-  else if(w->input[0].b){actions[2]++;func_8004F24C(2);cancel=1;}
+  if(w->input[0].a){PlaySfx(1);w->rows[w->root][w->menu].cells[0]=1;if(w->menu==0){actions[0]++;w->selected=0;w->state=2;}else if(w->menu==1){actions[1]++;cancel=1;}}
+  else if(w->input[0].b){actions[2]++;PlaySfx(2);cancel=1;}
   if(cancel){func_8002AF8C(0,1,1);w->timer=64;w->state=8;closeRows();}
  }else if(phase==2){func_8002B330(0,4,(char*)&w->selected,5,0);
-  if(w->input[0].b){actions[3]++;func_8004F24C(2);w->state=1;}
-  else if(w->input[0].a){actions[4]++;func_8002AF8C(0,1,1);w->state=3;func_8003A198();w->published=w->buffer;
+  if(w->input[0].b){actions[3]++;PlaySfx(2);w->state=1;}
+  else if(w->input[0].a){actions[4]++;func_8002AF8C(0,1,1);w->state=3;ResetScreenCounters();w->published=w->buffer;
    unsigned group=w->course>=8,bank=w->mode==1;int glyph=w->banks[bank][group][w->track][w->selected].car;func_80037040((s8*)&w->choice,glyph);
    if(w->choice.choice.bytes[2]==39){unsigned key=w->choice.choice.bytes[0]==2?0:w->choice.choice.bytes[0]*4+w->choice.choice.bytes[1];special[w->choice.choice.bytes[0]==2?1:0]++;w->grid[0].second=0;w->grid[0].first=w->courses[0][key].first;}
    else{special[2]++;w->grid[0].first=w->grid[0].second=0;}closeRows();

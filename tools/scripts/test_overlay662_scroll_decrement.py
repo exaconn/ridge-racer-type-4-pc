@@ -36,7 +36,7 @@ static unsigned axis,slot,bits,path,expected_sound,calls;static s32 sound_progra
 static u32 rng=0x22FB4;static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
 static s16 half(u32 x){u16 n=(u16)x;s16 v;memcpy(&v,&n,2);return v;}
 static void sound_effect(struct World *w){w->garage.reset08[axis]=half(bits^0x91A5U);w->garage.reset08[!axis]=half(bits^0x5623U);w->work.words[0]^=0xFE234567U;w->work.words[1]^=0x76543210U;w->table[slot]=&world.buttons[(bits+17)%46].rectangle;w->garage.config22=(u8)bits;}
-void func_8004EF04(s32 program,s32 level,s32 pan,s32 pitch,s32 voice){assert(expected_sound&&calls++==0);assert(program==sound_program&&level==127&&pan==64&&pitch==0x1E00&&voice==-1);assert(memcmp(&world,&checkpoint,sizeof(world))==0);sound_effect(&world);}
+void TriggerSfx(s32 program,s32 level,s32 pan,s32 pitch,s32 voice){assert(expected_sound&&calls++==0);assert(program==sound_program&&level==127&&pan==64&&pitch==0x1E00&&voice==-1);assert(memcmp(&world,&checkpoint,sizeof(world))==0);sound_effect(&world);}
 static unsigned button_index(RrGarageRectangle *p){unsigned n=(unsigned)((RrGarageButton*)p-world.buttons);assert(n<46);return n;}
 static void clip(s16 x,s16 y,s16 w,s16 h){expected.work.halves[24]=x;expected.work.halves[25]=y;expected.work.halves[26]=w;expected.work.halves[27]=h;}
 static void reference(void){unsigned n,j;int active=(path&1)!=0,cancel=(path&2)!=0,press=(path&4)!=0,repeat=(path&8)!=0,inside=(path&16)!=0;

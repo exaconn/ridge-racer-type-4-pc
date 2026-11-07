@@ -24,7 +24,7 @@ void ovl662_func_80116690(void)
     D_8009FDA4=0;
     goto active;
 changed:
-    func_8004F24C(0);
+    PlaySfx(0);
     if (D_800AD520<0)D_800AD520=0;
     else if (D_800AD520>=4)D_800AD520=3;
     D_800F4D98.bytes[0]=(u8)D_800AD520;

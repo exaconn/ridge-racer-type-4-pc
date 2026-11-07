@@ -9,7 +9,7 @@ void ovl661_func_80117350(void)
     D_800ACBD0[2].first=(func_80096464()&3)+10;
     D_800ACBD0[3].first=(func_80096464()&3)+12;
     D_800F3914=func_80032E9C(D_800AC648);
-    func_8003A198();
+    ResetScreenCounters();
     RR_GPU_PROJECTION_SCRATCH->word18=512;
     RR_GPU_PROJECTION_SCRATCH->word0C=-416;
     RR_GPU_PROJECTION_SCRATCH->word1C=0;

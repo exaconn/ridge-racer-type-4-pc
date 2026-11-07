@@ -13,7 +13,7 @@ void ovl660_func_80114920(void) {
     selection=func_80032E9C(D_800AC648);
     result=&D_800F3914;
     *result=selection;
-    func_8003A198();
+    ResetScreenCounters();
     D_800F4D70.second=D_800102F0+0x2D000;
     func_8003A1B4();
     D_800ACC18=D_800F4D70.second;
@@ -96,7 +96,7 @@ void ovl660_func_80114D38(void) {
             previousCourse = D_800AC648;
             func_8002B330(3, 2, (char *)&D_800AC648, ovl660_available_course_count, 0);
             if ((s16) previousCourse != (s16) D_800AC648) {
-                func_8003A198();
+                ResetScreenCounters();
             } else {
                 func_80033368((s16) previousCourse, 0);
             }
@@ -121,7 +121,7 @@ void ovl660_func_80114D38(void) {
             if (D_800F3A60 != 0) {
                 activeState = D_800F4D80[0].byte14;
                 if (activeState == 2) {
-                    func_8004F24C(1);
+                    PlaySfx(1);
                     func_8002AF8C(0, 1, 1);
                     if ((s16) D_800AC64A == 0) {
                         row = 0;
@@ -176,7 +176,7 @@ void ovl660_func_80114D38(void) {
             } else {
 check_back:
                 if ((D_800F3A64 != 0) && (D_800F4D80[0].byte14 == 2)) {
-                    func_8004F24C(2);
+                    PlaySfx(2);
                     func_8002AF8C(0, 1, 1);
                     row = 0;
                     if (D_800F4BEC > 0) {

@@ -19,7 +19,7 @@ typedef struct {
     int arr[0xC8];
 } S;
 
-extern int func_8004F24C();
+extern int PlaySfx();
 extern int D_800F3A60;
 extern char *D_800F3AFC;
 extern char *D_800FF68C;
@@ -85,7 +85,7 @@ void func_80032A14(int a0, int a1, S *s) {
                 if (D_800F3A60 == 0) {
                     goto call1;
                 }
-                func_8004F24C(3);
+                PlaySfx(3);
             }
             s->st = 3;
             s->s12 = s->bA - s->bB;
@@ -162,7 +162,7 @@ void func_80032DF0(void *arg0) {
     if (M2C_FIELD(arg0, s32 *, 0x18) < M2C_FIELD(arg0, s16 *, 0xC)) {
         if (D_800F3A60 != 0) {
             if (M2C_FIELD(arg0, s8 *, 6) != 4) {
-                func_8004F24C(3);
+                PlaySfx(3);
                 if (M2C_FIELD(arg0, s16 *, 0x12) < (M2C_FIELD(arg0, u8 *, 0xA) - M2C_FIELD(arg0, u8 *, 0xB))) {
                     M2C_FIELD(arg0, s16 *, 0x12) = (s16) (M2C_FIELD(arg0, u8 *, 0xA) - M2C_FIELD(arg0, u8 *, 0xB));
                     M2C_FIELD(arg0, s32 *, 0x18) = (s32) (M2C_FIELD(arg0, s16 *, 0xC) - 1);

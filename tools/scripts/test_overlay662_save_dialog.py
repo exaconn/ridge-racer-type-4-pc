@@ -46,7 +46,7 @@ static void service(unsigned kind,s32 a){struct World *w=reference_run?&expected
 }
 void ovl662_func_8011E5C0(s32 a){assert(a==0||a==1);service(0,a);}
 s32 ovl662_func_8011E734(s32 a){assert(a==17);service(1,a);return profile&1;}
-void ovl662_func_8011E694(void){service(2,0);}void func_8004F24C(s32 a){assert(a==0||a==1);service(3,a);}
+void ovl662_func_8011E694(void){service(2,0);}void PlaySfx(s32 a){assert(a==0||a==1);service(3,a);}
 void ovl662_func_80126044(void){struct World *w=reference_run?&expected:&world;unsigned bank=w->garage.active21;assert(bank<2);assert(w->garage.tim2C[bank]==&assets.tim[bank]&&w->garage.image38[bank]==assets.image[bank]&&w->garage.palette48[bank]==assets.palette[bank]);service(4,0);}
 static RrUiRow24 *rows(struct World *w){return w->rows[w->row==world.rows[1]];}
 static RrBadgeRow1C *badge(struct World *w){return &w->badges[w->badge==&world.badges[1]];}

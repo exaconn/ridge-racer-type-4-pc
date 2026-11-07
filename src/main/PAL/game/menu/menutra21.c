@@ -54,7 +54,7 @@ extern unsigned short D_800FFC18;
 extern short D_80109478[];
 extern short D_8010948E;
 extern int func_8002B330();
-extern int func_8004F24C();
+extern int PlaySfx();
 extern int func_80053AF4();
 extern int func_800207D4();
 extern int func_8003B934();
@@ -130,7 +130,7 @@ void func_8007BDF8(void)
   {
     if (a1 == 0)
     {
-      func_8004F24C(1);
+      PlaySfx(1);
       if (D_800F3A1C == 0xC)
       {
         D_800F3A1C = D_80109458;
@@ -146,7 +146,7 @@ void func_8007BDF8(void)
   {
     if (a1 == 0)
     {
-      func_8004F24C(2);
+      PlaySfx(2);
       D_800F3A1C = 0;
     }
   }
@@ -235,7 +235,7 @@ void func_8007BFF4()
     b3 = D_800F3A38;
     r = b3 + D_800AC594 * 0x5C;
     if (*(int *)(r + 0x28) != 0) {
-        func_8004F24C(1);
+        PlaySfx(1);
         D_800F4D8A = 0;
         D_800F3A1C = arr[D_80109478[D_8010948E]];
         if (D_800F3A1C != 0x43) {
@@ -243,7 +243,7 @@ void func_8007BFF4()
             func_80078E40(D_800FFC00, 0, 1);
         }
     } else if (*(int *)(r + 0x2C) != 0) {
-        func_8004F24C(2);
+        PlaySfx(2);
         D_800F4D8A = 0;
         D_800F3A1C = arr[n - 1];
     }
@@ -274,7 +274,7 @@ void func_8007C308(void) {
         if (D_800FFC18 == 0) {
             func_80053AF4(0, 0x3C);
         }
-        func_8003A198();
+        ResetScreenCounters();
         D_800F4CA8 = 2;
         return;
     }

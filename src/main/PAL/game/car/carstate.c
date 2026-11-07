@@ -82,7 +82,7 @@ void func_8002C328(char *p) {
                 if (D_800AD504 != 2 && B(0x1A5) == 0x1D) {
                     a1 = S(0x1BA) * 4;
                     if (a1 > 0x64) a1 = 0x64;
-                    func_8004F218(0x28, (short)a1, 0x40, -1);
+                    PlaySfxVolPan(0x28, (short)a1, 0x40, -1);
                 }
             }
         case 5:

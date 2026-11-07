@@ -77,7 +77,7 @@ s32 func_8003B47C(void){static const u32 returns[]={0,1,2,0xFFFFFFFFU,0x10001,0x
 void func_8002AF8C(s32 a,s32 b,s32 c){const s32 args[7]={a,b,c};record(1,args);effect(1);}
 void func_8002B330(s32 a,s32 b,char *p,s32 d,s32 e){assert(p==(char*)&w->selected&&(uintptr_t)p>UINT32_MAX);const s32 args[7]={a,b,0,d,e};record(2,args);effect(2);}
 void ovl666_update_course_selection(void){service(3);}
-void func_8004F24C(s32 a){const s32 args[7]={a};record(4,args);effect(4);}
+void PlaySfx(s32 a){const s32 args[7]={a};record(4,args);effect(4);}
 void func_80053AF4(s32 a,s32 b){const s32 args[7]={a,b};record(5,args);effect(5);}
 void ovl666_init_preview(void){service(6);}
 void func_800207D4(u32 *p,s32 b,u32 c){unsigned k;for(k=0;k<2&&p!=&w->contexts[k].ordering.ordering70;k++){}assert(k<2&&(uintptr_t)p>UINT32_MAX);const s32 args[7]={k,b,(s32)c};record(7,args);effect(7);}
@@ -95,9 +95,9 @@ static void expected(void){w->frame=word((u32)w->frame+1);w->tick=word((u32)w->t
   }else if(phase==1){func_8002AF8C(1,1,1);w->rows[w->rowRoot][w->selected].cells[0]=0;func_8002B330(0,2,(char*)&w->selected,2,0);
    int available=w->available[w->glyph]>0;w->rows[w->rowRoot][0].half20=available?0:1;w->rows[w->rowRoot][w->selected].cells[0]=!available&&w->selected==0?4:2;
    ovl666_update_course_selection();int close=0;
-   if(w->input[0].a){int selected=w->selected;if(selected==0){if(w->available[w->glyph]>0){choices[0]++;close=1;w->phase=3;func_8004F24C(1);closeRows();}else{choices[1]++;func_8004F24C(4);}}
-    else if(selected==1){choices[2]++;close=2;func_8004F24C(1);}
-   }else if(w->input[0].b){choices[3]++;close=2;func_8004F24C(2);}
+   if(w->input[0].a){int selected=w->selected;if(selected==0){if(w->available[w->glyph]>0){choices[0]++;close=1;w->phase=3;PlaySfx(1);closeRows();}else{choices[1]++;PlaySfx(4);}}
+    else if(selected==1){choices[2]++;close=2;PlaySfx(1);}
+   }else if(w->input[0].b){choices[3]++;close=2;PlaySfx(2);}
    if(close==2){closeRows();w->phase=8;w->timer=64;func_80053AF4(0,60);}
   }else if(phase==3){func_8002AF8C(0,1,1);if(w->rows[w->rowRoot][0].byte14==5){exits[0]++;ovl666_init_preview();w->enable=1;w->scene=80;w->phase=0;title=rows=0;}
   }else if(phase==8){title=0;func_8002AF8C(0,1,1);s16 timer=half((u16)w->timer-1);w->timer=timer;func_800207D4(&w->contexts[w->context].ordering.ordering70,(64-(s32)timer)*4,69);

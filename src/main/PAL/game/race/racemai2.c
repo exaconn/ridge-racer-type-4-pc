@@ -622,7 +622,7 @@ void func_80038654(CarCollision *arg0) {
                                         vol = 0x1FF;
                                     }
                                     if (D_800AD504 != 2 && arg0->unk1D8 >= 0) {
-                                        func_8004F218(0x21, (vol >> 3) + 0x3C, pan, -1);
+                                        PlaySfxVolPan(0x21, (vol >> 3) + 0x3C, pan, -1);
                                     }
                                 }
                                 break;

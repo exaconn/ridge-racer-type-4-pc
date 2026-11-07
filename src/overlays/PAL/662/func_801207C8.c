@@ -63,7 +63,7 @@ void ovl662_func_801207C8(s32 action)
             }
             ovl662_func_8011D120();
             ((RrGarageButton *)ovl662_D_801273B8[15])->timer0E = 7;
-            func_8004F24C(1);
+            PlaySfx(1);
 
             /* Preserve the observed pointer access order after sound.
              * Register declarations retain allocation, emitting no instructions. */

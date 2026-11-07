@@ -12,7 +12,7 @@ class OverlayArenaTest(unittest.TestCase):
         body = (root / 'src/overlays/PAL/662/func_80116148.c').read_text()
         reset = (root / 'tools/scripts/fixtures/legacy/func_8003A198.c').read_text()
         reset = re.sub(r'^extern[^\n]*;\n', '', reset, flags=re.M)
-        reset = reset.replace('func_8003A198', 'rr_real_reset')
+        reset = reset.replace('ResetScreenCounters', 'rr_real_reset')
         source = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -50,7 +50,7 @@ static void ui_effect(struct World *w,s32 a,s32 b,s32 c){
  event(w,3,a,b,c,w->active);w->slots.second=w->scratch_after_ui;w->active=w->active_after_ui;
 }
 static void finish_effect(struct World *w){event(w,4,0,0,0,w->active);w->counter=77;}
-void func_8003A198(void){rr_real_reset();assert(world.flag0==0 && world.flag1==0 && world.counter==0);reset_effect(&world);}
+void ResetScreenCounters(void){rr_real_reset();assert(world.flag0==0 && world.flag1==0 && world.counter==0);reset_effect(&world);}
 void func_8003A1B4(void){load_effect(&world);}
 void func_8002AF8C(s32 a,s32 b,s32 c){ui_effect(&world,a,b,c);}
 void ovl662_func_80116020(void){finish_effect(&world);}

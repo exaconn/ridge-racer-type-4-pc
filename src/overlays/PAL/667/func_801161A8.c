@@ -16,7 +16,7 @@ void ovl667_func_801161A8(s32 arg0) {
     ScreenFrame = 0;
     D_800AC64A = 0;
     D_800AC5E0 = 3;
-    func_8003A198();
+    ResetScreenCounters();
     D_800F4D70.second = D_800102F0 + 0x2D000;
     func_8003A1B4();
     D_800AC5D4 = arg0;
@@ -51,7 +51,7 @@ void ovl667_func_801161A8(s32 arg0) {
     func_80013890(5);
     D_800AC64A = 0;
     D_800AC5E0 = 3;
-    func_8003A198();
+    ResetScreenCounters();
     func_80037110();
     D_8010C0B8 = 0;
     D_800ACC18 = D_800F4D40;

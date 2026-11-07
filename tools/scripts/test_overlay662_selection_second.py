@@ -30,7 +30,7 @@ static struct World {u32 guard[4];s16 selection;RrMenuChoice4 choice;u16 buttons
 #define D_8009FDA4 world.direction
 #define D_800F4D80 world.ui
 #define D_800F4D8C world.glyphs
-void func_8004EF04(s32 program,s32 level,s32 pan,s32 pitch,s32 voice);
+void TriggerSfx(s32 program,s32 level,s32 pan,s32 pitch,s32 voice);
 ''' + bridge + sound + body + r'''
 static u32 seed=0x15148;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
@@ -44,7 +44,7 @@ static void effect(struct World *v,s32 a,s32 b,s32 c,s32 d,s32 e){
  v->choice.bytes[0]^=0xA5;v->choice.bytes[1]^=0x5A;v->selection=after;v->buttons^=0xA55A;v->direction=signed_word((u32)v->direction^0xFEDCBA98U);
  v->ui=world.backing[new_root].rows;v->glyphs=world.records[new_glyphs];
 }
-void func_8004EF04(s32 a,s32 b,s32 c,s32 d,s32 e){effect(&world,a,b,c,d,e);}
+void TriggerSfx(s32 a,s32 b,s32 c,s32 d,s32 e){effect(&world,a,b,c,d,e);}
 static void reference(void){
  int moved=0,index=initial;
  expected.selection=initial;

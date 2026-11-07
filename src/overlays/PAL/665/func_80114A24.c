@@ -2,7 +2,7 @@
 
 void ovl665_func_80114A24(void) {
     func_8002A604();
-    func_8003A198();
+    ResetScreenCounters();
     D_800F4D70.second=D_800102F0+0x2D000;
     func_8003A1B4();
     D_800ACC18=D_800F4D70.second;

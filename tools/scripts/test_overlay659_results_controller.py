@@ -13,9 +13,9 @@ ROOT=Path(__file__).resolve().parents[2];os.chdir(ROOT)
 P=Path(os.getenv('RR_TEST_DIR','build/tests/overlay659_results_controller'));P.mkdir(parents=True,exist_ok=True)
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/659/func_80115224.c')
 body=read_c_source(source);body=body[body.index('void ovl659_update_results'):]
-global_names=sorted(set(re.findall(r'\b(?:(?:D_[0-9A-F]{8}|CarTable|ScreenFrame)|ovl659_[a-z][a-z0-9_]*)\b',body)))
+global_names=sorted(set(re.findall(r'\b(?:(?:D_[0-9A-F]{8}|CarTable|ScreenFrame|MenuTextRows|MenuTextRowCount)|ovl659_[a-z][a-z0-9_]*)\b',body)))
 global_names=[n for n in global_names if not re.search(r"\b"+n+r"\s*\(",body)]
-functions=sorted(set(re.findall(r'\b(?:(?:ovl659_)?func_[0-9A-F]{8}|rsin|rcos|SquareRoot0|ApplyMatrixLV|SsSetMVol)(?=\()',body))-{'ovl659_update_results'})
+functions=sorted(set(re.findall(r'\b(?:(?:ovl659_)?func_[0-9A-F]{8}|PlaySfx|PlaySfxVolPan|TriggerSfx|ResetScreenCounters|InitMenuTextRows|SetMenuTextRow|rsin|rcos|SquareRoot0|ApplyMatrixLV|SsSetMVol)(?=\()',body))-{'ovl659_update_results'})
 head='''#include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -64,7 +64,7 @@ code+=f'case {G}:return &frames;case {G+1}:return &texts;default:abort();}}}}\n'
 code+='size_t object_size(unsigned i){switch(i){\n'
 for i,name in enumerate(global_names):code+=f'case {i}:return sizeof(n_{name});\n'
 code+=f'case {G}:return sizeof(frames);case {G+1}:return sizeof(texts);default:abort();}}}}\n'
-code+='void roots(unsigned f,unsigned t){D_800ACC14=(void*)&frames.data[f];D_800FFC14=texts.data[t];}\n'
+code+='void roots(unsigned f,unsigned t){D_800ACC14=(void*)&frames.data[f];MenuTextRows=texts.data[t];}\n'
 native=P/'native.c';native.write_text(code)
 subprocess.run(['cc','-std=gnu11','-O2','-shared','-fPIC','-Iinclude','-fsanitize=undefined,bounds','-fno-sanitize-recover=all',str(native),'-o',str(P/'native.dylib')],check=True)
 lib=C.CDLL(str(P/'native.dylib'));lib.object.restype=C.c_void_p;lib.object_size.restype=C.c_size_t
@@ -84,7 +84,7 @@ if os.getenv('RR_COMPILED_ELF'):
 read=lambda a,n:bytes(u.mem_read(a&0x1fffffff,n))
 def write(a,b):u.mem_write(a&0x1fffffff,b)
 addr=lambda n:SYMBOL_ADDRESSES[n] if n in SYMBOL_ADDRESSES else __import__('c_functions').address_of(n)
-regions=[(n,p,addr(n),s) for n,(p,s) in N.items() if n not in ['D_800ACC14','D_800FFC14']]
+regions=[(n,p,addr(n),s) for n,(p,s) in N.items() if n not in ['D_800ACC14','MenuTextRows']]
 regions += [('frames',frame,0x800ADAE0,frame_size),('texts',text,0x8018FFF0,text_size)]
 mappings=[(p,a,s) for n,p,a,s in regions]
 def palpointer(value):
@@ -105,7 +105,7 @@ def textbyte(bank,row,off,value,native):
  else:write(0x8018FFF0+offset,data)
 def snapshot(native):
  parts=[C.string_at(p,s) if native else read(a,s) for n,p,a,s in regions]
- for name in ['D_800ACC14','D_800FFC14']:
+ for name in ['D_800ACC14','MenuTextRows']:
   value=palpointer(C.c_void_p.from_address(N[name][0]).value) if native else struct.unpack('<I',read(addr(name),4))[0]
   parts.append(struct.pack('<I',value))
  return b''.join(parts)

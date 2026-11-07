@@ -15,15 +15,15 @@ void ovl665_func_80114C4C(void) {
             D_800F4D80[ovl665_D_80119768.selection08].cells[0]=2;
             if(D_800F3A38[0].a) {
                 if(ovl665_D_80119768.selection08==1 && ovl665_func_8011629C(1)<0) {
-                    func_8004F24C(4);
+                    PlaySfx(4);
                 } else {
-                    func_8004F24C(1);
+                    PlaySfx(1);
                     D_800F4D80[ovl665_D_80119768.selection08].cells[0]=1;
                     D_800AC5D0=64;
                     ovl665_D_80119768.layout0C=(s32)((u32)ovl665_D_80119768.layout0C+1U);
                 }
             } else if(D_800F3A38[0].b) {
-                func_8004F24C(2);
+                PlaySfx(2);
                 ovl665_D_80119768.selection08=6;
                 D_800AC5D0=64;
                 ovl665_D_80119768.layout0C=(s32)((u32)ovl665_D_80119768.layout0C+1U);

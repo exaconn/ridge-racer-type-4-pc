@@ -55,7 +55,7 @@ static void sound_effect(struct World *w){unsigned n=button_slot(w->table[slot])
  w->textroot=world.text+(scenario+1)%3;w->badgeroot=world.badges[(scenario+2)%3];w->garage.fade00=word(scenario^0xA1234567U);w->garage.flagsD1=(u8)scenario;
 }
 void ovl662_func_8011E5C0(s32 mode){assert(expected_map==1&&map_calls++==0&&mode==mapped_mode);assert(memcmp(&world,&map_checkpoint,sizeof(world))==0);map_effect(&world);}
-void func_8004EF04(s32 program,s32 level,s32 pan,s32 pitch,s32 voice){
+void TriggerSfx(s32 program,s32 level,s32 pan,s32 pitch,s32 voice){
  assert(expected_sound==1&&sound_calls++==0);assert(program==1&&level==127&&pan==64&&pitch==0x1E00&&voice==-1);
  assert(memcmp(&world,&sound_checkpoint,sizeof(world))==0);
  sound_effect(&world);

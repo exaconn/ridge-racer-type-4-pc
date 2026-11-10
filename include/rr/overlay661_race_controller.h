@@ -3,7 +3,12 @@
 #include "rr/overlay660_race_controller.h"
 #include "rr/race_checkpoint_types.h"
 typedef struct {s32 x,y,z,w;} Rr661FrameVector16;
-typedef struct {GpuScratchPointers pointers;Rr661FrameVector16 position08,rotation18;u8 reserved28[0x5E - 0x28];s16 mode5E;} Rr661FrameScratch;
+typedef struct {
+    GpuScratchPointers pointers;
+    Rr661FrameVector16 position08,rotation18;
+    u8 reserved28[0x5E - 0x28];
+    s16 mode5E;
+} Rr661FrameScratch;
 #ifndef RR_661_FRAME_SCRATCH
 #define RR_661_FRAME_SCRATCH ((Rr661FrameScratch *)0x1F800000U)
 #endif
@@ -13,7 +18,13 @@ typedef struct {GpuScratchPointers pointers;Rr661FrameVector16 position08,rotati
 extern Rr661FrameVector16 ovl661_camera_rotations[2],ovl661_camera_positions[2];
 extern s32 TotalRaceTime;
 extern s16 ovl661_finish_ranks[2];
-void DrawHudNumber5(s32,s32);void UpdateHudRankDisplay(s32,s32);void DrawLapCounter(s32,s32);void UpdateFinalLapHudSprite(s32);void DrawSplitScreenDivider(s32);void DrawTimeRemainingForPlayer(s32,s32);void SoundSetMasterVolume(s16,s16);
+void DrawHudNumber5(s32,s32);
+void UpdateHudRankDisplay(s32,s32);
+void DrawLapCounter(s32,s32);
+void UpdateFinalLapHudSprite(s32);
+void DrawSplitScreenDivider(s32);
+void DrawTimeRemainingForPlayer(s32,s32);
+void SoundSetMasterVolume(s16,s16);
 void ovl661_update_checkpoint(RaceVehicle *);
 /* The hardware view has two full CPU pointers followed by two four-word
  * vectors. Native builds grow the pointer prefix; vector and tail offsets

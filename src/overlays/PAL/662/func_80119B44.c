@@ -2,7 +2,11 @@
 #include "rr/load_cursor.h"
 void ovl662_init_emblem_selector(void) {
  s32 i;s16 val;BadgeRow1C *badge;
- ModeFrame=0;ScreenFrame=0;ovl662_menu_substate=0;ovl662_history_arrow_phase=0;MenuCursor=0;
+ ModeFrame=0;
+ ScreenFrame=0;
+ ovl662_menu_substate=0;
+ ovl662_history_arrow_phase=0;
+ MenuCursor=0;
  LoadCursor=MenuArenas.second;
  if(!ovl662_emblem_edit_from_menu)MenuItemCount=2;else MenuItemCount=1;
  InitRect16Row(0,128,128,64,128,0,0);

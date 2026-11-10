@@ -63,7 +63,11 @@ copy_start:
                 RR_MD_DIV_S(second, second, temp_lo);
                 value = temp_a3->keys0C[temp_a3->key08].z;
                 /* ASM_BARRIER: retain the original read/publish phase before this physical is reused. */
-                temp_a3->target20[2]=value;__asm__("" : "=r"(value) : "0"(value) : "memory");start=value;value=temp_a3->start10[2];start=W_SUB(start,value);
+                temp_a3->target20[2]=value;
+                __asm__("" : "=r"(value) : "0"(value) : "memory");
+                start=value;
+                value=temp_a3->start10[2];
+                start=W_SUB(start,value);
                 third=W_MUL(start,100);
                 RR_MD_DIV_S(third,third,temp_lo);
                 temp_a3->delta30[0]=first;
@@ -132,8 +136,14 @@ copy_start:
                 first>>=31;temp_a3->counter50=(u16)temp_v1_3;
                 temp_v1_3 = (temp_v1_3 * 0x10000U);second>>=31;
                 quotient=highFirst>>5;quotient=W_SUB(quotient,first);temp_a3->angles64[0]=(s16)quotient;
-                quotient=highSecond>>5;quotient=W_SUB(quotient,second);third>>=31;temp_a3->angles64[1]=(s16)quotient;
-                RR_MD_HI(highThird);quotient=highThird>>5;quotient=W_SUB(quotient,third);temp_a3->angles64[2]=(s16)quotient;
+                quotient=highSecond>>5;
+                quotient=W_SUB(quotient,second);
+                third>>=31;
+                temp_a3->angles64[1]=(s16)quotient;
+                RR_MD_HI(highThird);
+                quotient=highThird>>5;
+                quotient=W_SUB(quotient,third);
+                temp_a3->angles64[2]=(s16)quotient;
             }
             if ((temp_v1_3>>16) >= temp_a3->horizon52) {
                 temp_v0_4 = W_ADD(temp_a3->key08,1);
@@ -188,7 +198,11 @@ copy_start:
                 RR_MD_DIV_S(second, second, temp_lo_2);
                 value = temp_a3->keys0C[temp_a3->key08].z;
                 /* ASM_BARRIER: retain the original read/publish phase before this physical is reused. */
-                temp_a3->target20[2]=value;__asm__("" : "=r"(value) : "0"(value) : "memory");start=value;value=temp_a3->start10[2];start=W_SUB(start,value);
+                temp_a3->target20[2]=value;
+                __asm__("" : "=r"(value) : "0"(value) : "memory");
+                start=value;
+                value=temp_a3->start10[2];
+                start=W_SUB(start,value);
                 third=W_MUL(start,100);
                 RR_MD_DIV_S(third,third,temp_lo_2);
                 temp_a3->delta30[0]=first;
@@ -205,17 +219,44 @@ copy_start:
                 register s32 highFirst __asm__("$9"),highSecond __asm__("$8"),highThird __asm__("$6");
                 s32 multiplier=0x51EB851F;
                 /* ASM_BARRIER: retain the original read/publish phase before this physical is reused. */
-                value=temp_a3->current40[0];delta=temp_a3->delta30[0];value=W_ADD(value,delta);temp_a3->current40[0]=value;__asm__("" : "=r"(value) : "0"(value) : "memory");first=value;
+                value=temp_a3->current40[0];
+                delta=temp_a3->delta30[0];
+                value=W_ADD(value,delta);
+                temp_a3->current40[0]=value;
+                __asm__("" : "=r"(value) : "0"(value) : "memory");
+                first=value;
                 RR_MD_MULT_S(first,multiplier);
                 /* ASM_BARRIER: retain the original read/publish phase before this physical is reused. */
-                value=temp_a3->current40[1];delta=temp_a3->delta30[1];value=W_ADD(value,delta);RR_MD_HI(highFirst);temp_a3->current40[1]=value;__asm__("" : "=r"(value) : "0"(value) : "memory");second=value;
+                value=temp_a3->current40[1];
+                delta=temp_a3->delta30[1];
+                value=W_ADD(value,delta);
+                RR_MD_HI(highFirst);
+                temp_a3->current40[1]=value;
+                __asm__("" : "=r"(value) : "0"(value) : "memory");
+                second=value;
                 RR_MD_MULT_S(second,multiplier);
                 /* ASM_BARRIER: retain the original read/publish phase before this physical is reused. */
-                value=temp_a3->current40[2];delta=temp_a3->delta30[2];value=W_ADD(value,delta);RR_MD_HI(highSecond);temp_a3->current40[2]=value;__asm__("" : "=r"(value) : "0"(value) : "memory");third=value;
+                value=temp_a3->current40[2];
+                delta=temp_a3->delta30[2];
+                value=W_ADD(value,delta);
+                RR_MD_HI(highSecond);
+                temp_a3->current40[2]=value;
+                __asm__("" : "=r"(value) : "0"(value) : "memory");
+                third=value;
                 RR_MD_MULT_S(third,multiplier);
-                first>>=31;value=highFirst>>5;value=W_SUB(value,first);second>>=31;temp_a3->angles64[0]=(s16)value;
-                value=highSecond>>5;value=W_SUB(value,second);third>>=31;temp_a3->angles64[1]=(s16)value;
-                RR_MD_HI(highThird);value=highThird>>5;value=W_SUB(value,third);temp_a3->angles64[2]=(s16)value;
+                first>>=31;
+                value=highFirst>>5;
+                value=W_SUB(value,first);
+                second>>=31;
+                temp_a3->angles64[0]=(s16)value;
+                value=highSecond>>5;
+                value=W_SUB(value,second);
+                third>>=31;
+                temp_a3->angles64[1]=(s16)value;
+                RR_MD_HI(highThird);
+                value=highThird>>5;
+                value=W_SUB(value,third);
+                temp_a3->angles64[2]=(s16)value;
             }
             break;
         }

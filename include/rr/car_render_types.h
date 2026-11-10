@@ -120,7 +120,11 @@ RR_ASSERT_OFFSET(RroTrailPanelCommand, orderingBias09, 9);
 /* Packed short position with a signed bias in the high byte of its padding word. */
 typedef union {
     Vec3s8 position;
-    struct {s16 x,y,z;u8 reserved06;s8 orderingBias07;} fields;
+    struct {
+        s16 x,y,z;
+        u8 reserved06;
+        s8 orderingBias07;
+    } fields;
 } RroGlowPointCommand;
 RR_ASSERT_SIZE(RroGlowPointCommand, 8);
 typedef char rr_glow_command_bias_offset[

@@ -7,7 +7,11 @@
 typedef struct {u32 value;} __attribute__((packed)) CardWireWord;
 typedef union {u8 bytes[32];CardWireWord words[8];} CardDirectoryWire;
 typedef union {u8 bytes[4];CardWireWord word;} CardBrokenWire;
-typedef struct {u32 state,size;u16 next;u8 remainder[22];} CardDirectoryFields;
+typedef struct {
+    u32 state,size;
+    u16 next;
+    u8 remainder[22];
+} CardDirectoryFields;
 typedef union {
     CardDirectoryFields fields;
     CardDirectoryWire wire;

@@ -216,7 +216,10 @@ void InitUiRow(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g,s32
    /* Capture this fresh base before the halfword stores, as in the original. */
    tail=((UiRowPointerPage *)page)->rows4D80;
 
-   row->half04=a;row->half06=b;row->half08=c;row->half0A=d;
+   row->half04=a;
+   row->half06=b;
+   row->half08=c;
+   row->half0A=d;
   }
   ((UiRow24 *)(offset+(unsigned long)tail))->byte17=0;
   i=0;

@@ -6,7 +6,12 @@
 #include "rr/audio_loop.h"
 #undef RaceContext
 
-extern struct { u8 reserved00[0x14]; int mode; u8 reserved18[0x528]; RaceSpecEntry30 *tab; } RaceContext;
+extern struct {
+    u8 reserved00[0x14];
+    int mode;
+    u8 reserved18[0x528];
+    RaceSpecEntry30 *tab;
+} RaceContext;
 void ApplyRubberBandSpec(RaceVehicle *a0) {
     int s0 = 0;
     RaceSpecEntry30 *s2;

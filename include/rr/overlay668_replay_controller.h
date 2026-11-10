@@ -8,7 +8,11 @@
 typedef struct {s32 key,action;} ReplayEvent;
 extern ReplayEvent ovl668_epilogue_events[3];
 extern s16 ModeGroup,ModeIndex,SubmodeState;
-void AddScreenFadeTiles(u32*,s32,u32);void CdAudioBeginPlay(s32);void CdAudioFade(u16,s32);void SetupPlayerView(s32);void DrawTrackSceneryForPlayer(s32);
+void AddScreenFadeTiles(u32*,s32,u32);
+void CdAudioBeginPlay(s32);
+void CdAudioFade(u16,s32);
+void SetupPlayerView(s32);
+void DrawTrackSceneryForPlayer(s32);
 void ovl668_emit_letterbox_pass(s32);void ovl668_draw_credit_band(s32,s32);
 /* The three-entry event table contains a negative sentinel within its owner.
  * The camera owner covers byte0..4B7, including the low scene flag atB0 and

@@ -3,7 +3,12 @@
 #include "rr/hud_number.h"
 /* RGB occupies three bytes of a GPU color word. Its fourth byte is union
  * padding: copying the union preserves an unspecified, unused byte. */
-typedef union {struct {u8 r,g,b;} rgb;u32 word;} HudQuadColor;
+typedef union {
+    struct {
+        u8 r,g,b;
+    } rgb;
+    u32 word;
+} HudQuadColor;
 typedef struct {s16 x,y;HudQuadColor color;} HudQuadVertex;
 /* Four XY/color pairs follow the first color. The final RGB write is at36,
  * in the next packet's tag storage, so the accessible emission spans40 bytes. */

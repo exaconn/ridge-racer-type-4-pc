@@ -8,7 +8,10 @@
 #include "psyq/libgte/gtecord.h"
 #include "psyq/libgte/gtemat5.h"
 typedef struct {
- u8 pad00[0xB0];s32 flagB0;u8 padB4[0x390];s32 counter444,step448,state44C;
+ u8 pad00[0xB0];
+ s32 flagB0;
+ u8 padB4[0x390];
+ s32 counter444,step448,state44C;
  s32 position450[3],reserved45C;s16 pitch460,yaw462,roll464,reserved466;
  s32 target468[4],delta478[3];u8 reserved484[4];
  s16 offset488[4],angle490,timer492,timer494,reserved496;

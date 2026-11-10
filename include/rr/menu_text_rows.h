@@ -18,8 +18,17 @@ typedef union {
  MenuTextFields60 rendering;
  u8 bytes[60];
  s8 signedBytes[60];
- struct {u8 prefix[4];u8 at4[24];u8 at28[32];} marquee;
- struct {u8 prefix[0x34];s16 d34;u16 e36;u8 suffix[4];} state;
+ struct {
+     u8 prefix[4];
+     u8 at4[24];
+     u8 at28[32];
+ } marquee;
+ struct {
+     u8 prefix[0x34];
+     s16 d34;
+     u16 e36;
+     u8 suffix[4];
+ } state;
 } MenuTextRow60;
 extern MenuTextRow60 *MenuTextRows;
 extern s32 MenuTextRowCount;

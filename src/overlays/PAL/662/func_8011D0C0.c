@@ -9,6 +9,9 @@ s32 ovl662_is_active_layer_empty(void)
         cursor=ovl662_editor_workspace.image38[selected];
     else
         cursor=ovl662_editor_workspace.image40[selected];
-    for(i=0;i<512;cursor++){i++;if(*cursor)return 0;}
+    for(i=0;i<512;cursor++){
+        i++;
+        if(*cursor)return 0;
+    }
     return 1;
 }

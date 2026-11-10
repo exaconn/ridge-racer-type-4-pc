@@ -9,7 +9,11 @@ typedef struct {
 typedef struct {
  s8 deadzone00,range01,rumble02,buttonLayout03;
 } WheelCalibration4;
-typedef struct {u8 reserved00[0x30];u8 bgmVolume30,volume31;s16 mono32;} AudioSettings;
+typedef struct {
+    u8 reserved00[0x30];
+    u8 bgmVolume30,volume31;
+    s16 mono32;
+} AudioSettings;
 typedef struct {u8 reserved00[0x34];s32 x34,y38;} DisplaySettings3C;
 /* Resident5C0C4 initializes both controller settings and the trailing display
  * words. Frame setup reads the low halfwords of those same signed32 words. */

@@ -224,7 +224,10 @@ void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags) {
     one=1;
     settings=Options.halves;
     loopRgb24=rgb24;
-    window.y=0;window.x=0;window.h=0;window.w=0;
+    window.y=0;
+    window.x=0;
+    window.h=0;
+    window.w=0;
 loop:
     {
         env->buffer.environment00.draw00.r=red;env->buffer.environment00.draw00.g=green;env->buffer.environment00.draw00.b=b;

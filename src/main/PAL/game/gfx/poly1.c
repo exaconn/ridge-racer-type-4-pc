@@ -37,7 +37,11 @@
 
 
 
-struct PreviewSlotEntry10 { int w; int x; short a, b, c, d; };
+struct PreviewSlotEntry10 {
+    int w;
+    int x;
+    short a, b, c, d;
+};
 
 
 struct PreviewBytes8 { unsigned char c[8]; };

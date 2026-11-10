@@ -14,15 +14,25 @@ void ovl662_draw_emblem_preview_fade(s32 mode) {
 
  s32 fresh;
  if(amount>=129)amount=128;
- i=0;high=256;low=128;uv=63;
+ i=0;
+ high=256;
+ low=128;
+ uv=63;
 
- v=quad.v;u=quad.u;y=quad.y;x=quad.x;
+ v=quad.v;
+ u=quad.u;
+ y=quad.y;
+ x=quad.x;
  do {
   *x=((i&1)<<6)+128;
   if(i>=2)*y=high;else *y=low;
   *u=(i&1)*63;
   if(i>=2)*v=uv;else *v=0;
-  v++;u++;y++;i++;x++;
+  v++;
+  u++;
+  y++;
+  i++;
+  x++;
  }while(i<4);
  if(mode==1){
   amount=rsin(amount*8)/64;

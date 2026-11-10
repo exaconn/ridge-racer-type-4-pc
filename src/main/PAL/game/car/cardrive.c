@@ -5,7 +5,12 @@
 #include "rr/track_projection.h"
 
 
-typedef struct { MatrixWords32 m; Vec3sFields8 sv; Vec3sFields8 out; Vec3sFields8 rot; } DriveGteScratch;
+typedef struct {
+    MatrixWords32 m;
+    Vec3sFields8 sv;
+    Vec3sFields8 out;
+    Vec3sFields8 rot;
+} DriveGteScratch;
 
 void UpdateComCarSpeed(RaceVehicle *a0);
 

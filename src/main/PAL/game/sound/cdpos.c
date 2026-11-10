@@ -17,7 +17,11 @@ extern char R4StrPath[];
 extern char CdAudioTrackTable[];
 
 void CdAudioFindStreamFile(void) {
-    struct { u8 unused[8]; u8 b[8]; CdlFILE c; } L;
+    struct {
+        u8 unused[8];
+        u8 b[8];
+        CdlFILE c;
+    } L;
     SoundState.streamBanks[0].table = AUDIO_STREAM_TABLE_UNAVAILABLE;
     SoundState.streamBanks[1].table = AUDIO_STREAM_TABLE_UNAVAILABLE;
     if (CdControlB(1, 0, L.b) != 0) {

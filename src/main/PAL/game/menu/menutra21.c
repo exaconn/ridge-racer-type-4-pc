@@ -24,7 +24,11 @@
 
 extern BadgeRow1C *BadgeRows;
 
-typedef struct { char b[0x17]; signed char b17; char r[0x2C - 0x18]; } w8c5S;
+typedef struct {
+    char b[0x17];
+    signed char b17;
+    char r[0x2C - 0x18];
+} w8c5S;
 
 typedef struct { s16 a, b; } P2;
 

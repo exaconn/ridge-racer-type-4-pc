@@ -79,6 +79,10 @@ next:
     i++;
     if (i < 9) goto loop;
     if (flag == 1 || (short)a2 == 1) {
-        i = 8; pp = CardCheckCounts + i; do { *pp-- = 0; } while (--i >= 0);
+        i = 8;
+        pp = CardCheckCounts + i;
+        do {
+            *pp-- = 0;
+        } while (--i >= 0);
     }
 }

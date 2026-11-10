@@ -148,7 +148,12 @@ publish_rank:;
   /* ASM_BARRIER: retain the row base before adding the first-row offset. */
   __asm__("" : "+r"(rows_base));
   row=rows_base->rows;
-  do {row->parameter=level;i++;row++;}while(i<8);}
+  do {
+      row->parameter=level;
+      i++;
+      row++;
+  }while(i<8);
+  }
  }
 }
 

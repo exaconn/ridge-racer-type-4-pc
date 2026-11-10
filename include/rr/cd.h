@@ -18,7 +18,12 @@ typedef struct {
  * The command's low byte must select an accessible metadata entry. */
 extern u32 CD_com_info[];
 /* Reset clears all four bytes; command paths read the low status byte. */
-typedef union {u32 word;struct {u8 status,reserved[3];} bytes;} CdDriveStatus;
+typedef union {
+    u32 word;
+    struct {
+        u8 status,reserved[3];
+    } bytes;
+} CdDriveStatus;
 extern CdDriveStatus CD_status;
 extern s32 CD_status1;
 extern u8 CD_pos[4];

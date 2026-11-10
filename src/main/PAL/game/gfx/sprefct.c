@@ -12,7 +12,11 @@
 #include "rr/animated_glyph.h"
 #include "psyq/libc/rand.h"
 
-struct TilePrimPacket16 { int tag; unsigned char r, g, b, code; short x, y, w, h; };
+struct TilePrimPacket16 {
+    int tag;
+    unsigned char r, g, b, code;
+    short x, y, w, h;
+};
 
 /* extern */
 /* extern */

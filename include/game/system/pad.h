@@ -9,7 +9,11 @@ typedef struct {u8 status, type;u16 buttons;} ControllerInputFields4;
 typedef union {u32 word;ControllerInputFields4 fields;} ControllerInputWord4;
 typedef struct {u16 pressed, repeat;} ControllerEdgeFields4;
 typedef union {u32 word;ControllerEdgeFields4 fields;} ControllerEdges4;
-typedef union {u32 word;u8 bytes[4];s8 signedBytes[4];} ControllerAxes4;
+typedef union {
+    u32 word;
+    u8 bytes[4];
+    s8 signedBytes[4];
+} ControllerAxes4;
 
 typedef struct {
     ControllerInputWord4 input00;

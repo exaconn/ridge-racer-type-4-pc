@@ -12,7 +12,15 @@
 #include "rr/trig.h"
 
 
-typedef struct { s32 d[3]; s32 unused0; MatrixWords32 m; Vec3sFields8 sv; s32 unused1[2]; Vec3sFields8 rot; s32 fl; } SoundGteScratch;
+typedef struct {
+    s32 d[3];
+    s32 unused0;
+    MatrixWords32 m;
+    Vec3sFields8 sv;
+    s32 unused1[2];
+    Vec3sFields8 rot;
+    s32 fl;
+} SoundGteScratch;
 
 extern int SoundEventQueueLimit;
 extern s32 TrackLength;

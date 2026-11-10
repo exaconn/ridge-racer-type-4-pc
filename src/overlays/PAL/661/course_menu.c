@@ -15,7 +15,10 @@ void ovl661_select_scene(void) { ActiveSceneId = 0x137; }
 
 void ovl661_init_scene(void)
 {
-    ModeFrame=0;ScreenFrame=0;MenuCursor=0;MenuItemCount=4;
+    ModeFrame=0;
+    ScreenFrame=0;
+    MenuCursor=0;
+    MenuItemCount=4;
     PlayerCourseChoices[2].first=(PsyqRand()&3)+10;
     PlayerCourseChoices[3].first=(PsyqRand()&3)+12;
     CourseIndex=DecodeCourseIndex(SelectedCourseChoice);

@@ -18,7 +18,12 @@ typedef struct {
 typedef struct {
     s32 scene00,reserved04,selection08;
     s32 layout0C,detail10;
-    u8 pad14[4];s32 kind18;u8 pad1C[16];s32 reset2C;u8 pad30[4];MenuSelectionWord32 exit34;
+    u8 pad14[4];
+    s32 kind18;
+    u8 pad1C[16];
+    s32 reset2C;
+    u8 pad30[4];
+    MenuSelectionWord32 exit34;
     u16 centerX38,centerY3A;
     s32 scale3C,depth40;
     u16 rotation44;u8 pad46[2];s32 position48;

@@ -16,8 +16,15 @@ extern s8 LinkEntryState[2][2];
 extern s32 NumLaps,ActivePlayerIndex,LinkAvailableCourseCount;
 extern s16 CourseIndex,SelectedCourseChoice,ModeIndex,LinkMenuSyncPhase,LinkClientRoleState;
 extern u16 ModeGroup,SubmodeState;
-void SetDispMask(s32);void SetupDrawDispEnvs(s32,s32,s16,u32);s32 UpdateLinkHandshake(s32);void ClearScreenOverlayState(void);
-void CopyStringClearTail(char*,char*);void ovl667_init_car_selection(s32);void UnpackChoiceGlyph(s8*,s32);void SeqStartTrack(s32);void SetMenuFrameOptions(s32,s32,s32);
+void SetDispMask(s32);
+void SetupDrawDispEnvs(s32,s32,s16,u32);
+s32 UpdateLinkHandshake(s32);
+void ClearScreenOverlayState(void);
+void CopyStringClearTail(char*,char*);
+void ovl667_init_car_selection(s32);
+void UnpackChoiceGlyph(s8*,s32);
+void SeqStartTrack(s32);
+void SetMenuFrameOptions(s32,s32,s32);
 /* Four complete selection prefixes occupy bytes 0..15 of the 32-byte owner.
  * Each player base freshly read after a service is 0 or 2; mode is 0 or 1.
  * Name lookups are four native pointers to strings fitting twelve bytes.

@@ -361,7 +361,11 @@ void DrawArrowTrianglePair(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5) {
     s8 *tb;
     Vec2s *p, *bp;
     char *ub;
-    struct { Vec2s v[3]; s32 pad; B8 u; } w;
+    struct {
+        Vec2s v[3];
+        s32 pad;
+        B8 u;
+    } w;
     i = 0;
     bp = w.v;
     tb = BeamFadeStripHeights;
@@ -405,8 +409,15 @@ void DrawMenuStepArrows(s32 p0, s32 p1, s32 p2, s32 p3, s32 p4, s32 a5, s32 a6) 
     Vec2s *p, *bp;
     char *ub;
     s8 *tb, *nv;
-    struct { Vec2s v[3]; s32 pad; B8 u; } w;
-    a0 = p0; a1 = p1; a2 = p2; a3 = p3;
+    struct {
+        Vec2s v[3];
+        s32 pad;
+        B8 u;
+    } w;
+    a0 = p0;
+    a1 = p1;
+    a2 = p2;
+    a3 = p3;
     i = 0;
     bp = w.v;
     one = 1;
@@ -580,7 +591,12 @@ void CopyStringClearTail(char *d, char *s)
 
 void CopyStringPadSpaces(char *d, unsigned char *s, int n) {
     int i = 0;
-    if (*s != 0) do { unsigned char c = *s; s++; d[i] = c; i++; } while (*s != 0);
+    if (*s != 0) do {
+        unsigned char c = *s;
+        s++;
+        d[i] = c;
+        i++;
+    } while (*s != 0);
     if (i < n) do { d[i] = 0x20; i++; } while (i < n);
     d[i] = 0;
 }
@@ -620,7 +636,10 @@ void FormatRaceTime(char *a, int b)
   {
     if (s)
     {
-s = b / 1000; m = s / 60; r = s % 60; t = b % 1000;
+s = b / 1000;
+m = s / 60;
+r = s % 60;
+t = b % 1000;
       FormatDecimalDigits(a, m, 1);
       FormatDecimalDigits(a + 3, r, 1);
       FormatDecimalDigits(a + 6, t, 2);
@@ -628,14 +647,23 @@ s = b / 1000; m = s / 60; r = s % 60; t = b % 1000;
     }
     else
     {
-s = b / 1000; m = s / 60; r = s % 60; t = b % 1000;
+s = b / 1000;
+m = s / 60;
+r = s % 60;
+t = b % 1000;
       FormatDecimalDigits(a, m, 1);
       FormatDecimalDigits(a + 3, r, 1);
       FormatDecimalDigits(a + 6, t, 2);
       return;
     }
   }
-  a[8] = 0x2D; a[7] = 0x2D; a[6] = 0x2D; a[4] = 0x2D; a[3] = 0x2D; a[1] = 0x2D; a[0] = 0x2D;
+  a[8] = 0x2D;
+  a[7] = 0x2D;
+  a[6] = 0x2D;
+  a[4] = 0x2D;
+  a[3] = 0x2D;
+  a[1] = 0x2D;
+  a[0] = 0x2D;
 }
 
 void DrawLapTimeList(int a0) {
@@ -703,7 +731,10 @@ char *FormatFrameTimeMMSS(int a) {
         TimeTextMMSS[3] = r / 10 + 0x30;
         TimeTextMMSS[4] = r % 10 + 0x30;
     } else {
-        TimeTextMMSS[0] = 0x2D; TimeTextMMSS[1] = 0x2D; TimeTextMMSS[3] = 0x2D; TimeTextMMSS[4] = 0x2D;
+        TimeTextMMSS[0] = 0x2D;
+        TimeTextMMSS[1] = 0x2D;
+        TimeTextMMSS[3] = 0x2D;
+        TimeTextMMSS[4] = 0x2D;
     }
     return TimeTextMMSS;
 }

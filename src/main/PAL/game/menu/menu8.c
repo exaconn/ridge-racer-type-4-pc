@@ -270,7 +270,13 @@ void ResetRankEntries(void) {
     int i = 0;
     RankEntry8 **q = RankTable;
     RankEntry8 *p = RankEntries;
-    do { p->score00 = 0; p->carIndex04 = i; *q++ = p; i++; p++; } while (i < 8);
+    do {
+        p->score00 = 0;
+        p->carIndex04 = i;
+        *q++ = p;
+        i++;
+        p++;
+    } while (i < 8);
 }
 
 void ResetRankEntriesForCars(void) {

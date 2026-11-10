@@ -4,7 +4,10 @@
 void ovl662_init_progress_menu(void)
 {
     s32 i,j,k;
-    ModeFrame=0; ScreenFrame=0; MenuCursor=0; MenuItemCount=3;
+    ModeFrame=0;
+    ScreenFrame=0;
+    MenuCursor=0;
+    MenuItemCount=3;
     ResetScreenCounters();
     MenuArenas.second=CdDirectoryBuffer+0x2D000;
     InitMenuArenas();

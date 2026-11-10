@@ -44,7 +44,13 @@ struct Vec4Words16 { int w[4]; };
 
 struct GpuScratchCursorPair { struct GpuPrimPacket20 *cur; struct GpuOrderTablePair *ot; };
 
-union GpuPacketHeader { struct GpuPrimPacket20 *p; struct { char link[3]; unsigned char len; } b; };
+union GpuPacketHeader {
+    struct GpuPrimPacket20 *p;
+    struct {
+        char link[3];
+        unsigned char len;
+    } b;
+};
 
 struct GpuPrimPacket20 { union GpuPacketHeader h; int w[4]; };
 

@@ -3,7 +3,11 @@
 #include "rr/layout.h"
 #include "rr/course_view_types.h"
 typedef union {u32 relative;u8 *absolute;} RelativeSlot;
-typedef struct {u32 count;RelativeSlot first[3];u32 offsets[16];} RelativeHeader;
+typedef struct {
+    u32 count;
+    RelativeSlot first[3];
+    u32 offsets[16];
+} RelativeHeader;
 #if defined(mips)
 RR_ASSERT_SIZE(RelativeSlot,4);
 RR_ASSERT_SIZE(RelativeHeader,0x50);

@@ -6,7 +6,11 @@
 
 struct Ot { int x; int next; };
 
-struct Pk { u8 link0, link1, link2; char len; int a, b, c, d; };
+struct Pk {
+    u8 link0, link1, link2;
+    char len;
+    int a, b, c, d;
+};
 
 typedef struct {
     u32 tag;
@@ -318,7 +322,10 @@ void EmitTitleMaskSprites(int a0, int a1)
     int *g;
     do {
         if (a0 & 1) {
-            p->a = 0x65000000; p->b = *t | 0xA80000; p->d = 0x100004; p->c = col;
+            p->a = 0x65000000;
+            p->b = *t | 0xA80000;
+            p->d = 0x100004;
+            p->c = col;
             g = (int *)SCRATCHPAD;
             *(int *)p = ((struct Ot *)g[1])->next;
             p->len = 4;

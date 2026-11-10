@@ -2,7 +2,13 @@
 #define RR_SAVE_PROGRESS_H
 #include "rr/layout.h"
 #include "rr/selection_types.h"
-typedef union {u8 bytes[16];struct {char name[12];s32 configuration0C;} fields;} SaveHeader16;
+typedef union {
+    u8 bytes[16];
+    struct {
+        char name[12];
+        s32 configuration0C;
+    } fields;
+} SaveHeader16;
 typedef union {u8 bytes[12];s32 words[3];} SaveReserved12;
 
 /* Sixteen progress masks shared by the garage counts and result screens. */

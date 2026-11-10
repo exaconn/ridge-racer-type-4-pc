@@ -10,9 +10,24 @@
 typedef struct { s32 position,other04; } AudioTocEntry8;
 typedef struct { s32 keys[9], values[9]; } AudioCurve48;
 typedef struct { u16 coarse, fine; } AudioPitch4;
-typedef union { s32 word; struct {s16 level,gain;} halves; } AudioLevels4;
-typedef union { s32 word; struct {s16 value,reserved;} halves; } AudioSpatial4;
-typedef union { s32 word; struct {u16 value,reserved;} halves; } AudioUnsignedWord4;
+typedef union {
+    s32 word;
+    struct {
+        s16 level,gain;
+    } halves;
+} AudioLevels4;
+typedef union {
+    s32 word;
+    struct {
+        s16 value,reserved;
+    } halves;
+} AudioSpatial4;
+typedef union {
+    s32 word;
+    struct {
+        u16 value,reserved;
+    } halves;
+} AudioUnsignedWord4;
 typedef AudioUnsignedWord4 AudioTargetVol4;
 /* Full word stores and signed bank/program reads name the same four bytes. */
 typedef union {
@@ -107,7 +122,10 @@ typedef struct {
     AudioSpatial4 chProg19C8;
     s32 unk19CC;
     SoundSequenceState sequence19D0;
-    u16 left19F8,right19FA;u32 pitch19FC;s32 active1A00;AudioSignedWord4 program1A04;
+    u16 left19F8,right19FA;
+    u32 pitch19FC;
+    s32 active1A00;
+    AudioSignedWord4 program1A04;
     s32 unk1A08,unk1A0C[7],unk1A28,unk1A2C,unk1A30;
     u8 reserved1A34[0x2634-0x1A34];
     AudioStreamBank streamBanks[2];

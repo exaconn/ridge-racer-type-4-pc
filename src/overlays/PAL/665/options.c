@@ -5,7 +5,10 @@ void ovl665_update_options(void) {
  case 0:
   SetDispMask(0);ovl665_init_menu();
   ovl665_options_state.scene00=(ovl665_options_state.scene00+1U);
-  InitMotionController();SetPresentationDrawEnabled(1);SeqStartTrack(0);break;
+  InitMotionController();
+  SetPresentationDrawEnabled(1);
+  SeqStartTrack(0);
+  break;
  case 1:ovl665_update_menu();break;
  case 2:
   switch(ovl665_options_state.selection08) {
@@ -15,7 +18,10 @@ void ovl665_update_options(void) {
   case 3:ovl665_update_screen_adjust();break;
   case 4:ovl665_update_brightness_panel();break;
   case 5:StartAttractDemo(1);break;
-  case 6:ModeGroup=1;ModeIndex=3;SubmodeState=0;break;
+  case 6:ModeGroup=1;
+  ModeIndex=3;
+  SubmodeState=0;
+  break;
   }
   break;
  }

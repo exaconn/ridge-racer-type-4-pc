@@ -28,7 +28,10 @@ void ovl665_init_scene(void)
     scratch->pose08.position00.words[0]=0;scratch->pose08.position00.words[1]=0;scratch->pose08.position00.words[2]=0;
     scratch->pose08.angles10.xyz.x=0;scratch->pose08.angles10.xyz.y=0;scratch->pose08.angles10.xyz.z=0;
     ResetScreenCounters();
-    DialogueSceneMode=2;ModeGroup=2;ModeIndex=2;SubmodeState=0;
+    DialogueSceneMode=2;
+    ModeGroup=2;
+    ModeIndex=2;
+    SubmodeState=0;
 }
 
 void ovl665_init_menu(void) {

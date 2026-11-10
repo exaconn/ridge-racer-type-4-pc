@@ -45,11 +45,26 @@ void HsvToRgb(const HsvColor input,RgbColor output) {
     falling=(((v*(4096-(s*h)/4096))/4096)*255)/4096;
     rising=(((v*(4096-(s*(4096-h))/4096))/4096)*255)/4096;
     switch(sector) {
-    case 0:output[0]=top;output[1]=rising;output[2]=low;return;
-    case 1:output[0]=falling;output[1]=top;output[2]=low;return;
-    case 2:output[0]=low;output[1]=top;output[2]=rising;return;
-    case 3:output[0]=low;output[1]=falling;output[2]=top;return;
-    case 4:output[0]=rising;output[1]=low;output[2]=top;return;
+    case 0:output[0]=top;
+    output[1]=rising;
+    output[2]=low;
+    return;
+    case 1:output[0]=falling;
+    output[1]=top;
+    output[2]=low;
+    return;
+    case 2:output[0]=low;
+    output[1]=top;
+    output[2]=rising;
+    return;
+    case 3:output[0]=low;
+    output[1]=falling;
+    output[2]=top;
+    return;
+    case 4:output[0]=rising;
+    output[1]=low;
+    output[2]=top;
+    return;
     case 5:output[0]=top;output[1]=low;output[2]=falling;
     }
 }

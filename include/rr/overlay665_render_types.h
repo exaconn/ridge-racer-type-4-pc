@@ -11,7 +11,11 @@
  * slots used by the mesh dispatcher. */
 typedef union {
     ObjectTransform38 projection;
-    struct {u32 blend;GpuColorCommand first,second;u8 tail0C[44];} render;
+    struct {
+        u32 blend;
+        GpuColorCommand first,second;
+        u8 tail0C[44];
+    } render;
 } PreviewScratchTail;
 typedef struct {
     RroSceneScratchPrefix scene;

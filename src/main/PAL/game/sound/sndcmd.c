@@ -18,7 +18,15 @@ extern void InitSceneOverlayState(void);
 extern void SetSceneOverlayColor();
 extern void SetSceneOverlayEnabled(s32 arg0);
 extern int MaskBitSetting;
-extern struct { char p0[0x1C]; s32 x1C; char p1[0x28]; s32 x48; s32 x4C; char p2[0x38C]; s32 x3DC; } RaceContext;
+extern struct {
+    char p0[0x1C];
+    s32 x1C;
+    char p1[0x28];
+    s32 x48;
+    s32 x4C;
+    char p2[0x38C];
+    s32 x3DC;
+} RaceContext;
 
 void SoundQueueUpdate(void)
 {

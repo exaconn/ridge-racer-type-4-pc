@@ -162,7 +162,13 @@ int CardFreeBlocks(int a0) {
     char *v1;
     char *p = CardDirEntries;
     int v;
-    if (a0 > 0) { v1 = p; do { a1 += ((int *)v1)[6]; v1 += 0x28; } while (++a2 < a0); }
+    if (a0 > 0) {
+        v1 = p;
+        do {
+            a1 += ((int *)v1)[6];
+            v1 += 0x28;
+        } while (++a2 < a0);
+    }
     v = a1;
     if (v < 0) v += 0x1FFF;
     a1 = v >> 13;

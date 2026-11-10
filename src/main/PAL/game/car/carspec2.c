@@ -3,7 +3,14 @@
 #include "rr/audio_state_types.h"
 #include "game/car/carspec2.h"
 #include "rr/audio_loop.h"
-typedef struct { u8 reserved00[0xF8]; int f0, f4; unsigned short a[6]; unsigned short b[6]; short c, d; u8 reserved11C[0x320 - 0x11C]; } T;
+typedef struct {
+    u8 reserved00[0xF8];
+    int f0, f4;
+    unsigned short a[6];
+    unsigned short b[6];
+    short c, d;
+    u8 reserved11C[0x320 - 0x11C];
+} T;
 
 typedef struct {
     short x, y;

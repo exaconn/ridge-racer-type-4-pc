@@ -9,7 +9,12 @@ void ovl662_init_available_cars(void){
  s16 *status;GarageAvailableCar *entry;
  u8 *choice;
  GarageAvailableCar *captured;
- ModeFrame=0;ScreenFrame=0;ovl662_menu_substate=0;ovl662_selected_car_slot=0;MenuCursor=0;MenuItemCount=2;
+ ModeFrame=0;
+ ScreenFrame=0;
+ ovl662_menu_substate=0;
+ ovl662_selected_car_slot=0;
+ MenuCursor=0;
+ MenuItemCount=2;
  ResetScreenCounters();
  arenaOffset=0x2D000;i=0;count=i;
  MenuArenas.second=CdDirectoryBuffer+arenaOffset;
@@ -22,7 +27,10 @@ void ovl662_init_available_cars(void){
   SelectionRows.bytes[2]=i;
   *status=(SaveProgress.prefix.progress.progress10[SelectionRows.bytes[0]][SelectionRows.bytes[1]]>>i)&1;
   if(*status!=0){
-   entry->value=PackChoiceGlyph(&SelectionRows);j=0;captured=entry;choice=(u8*)&CourseChoiceTable;
+   entry->value=PackChoiceGlyph(&SelectionRows);
+   j=0;
+   captured=entry;
+   choice=(u8*)&CourseChoiceTable;
    do{
     UnpackChoiceGlyph((s8*)parts,((CourseChoice4*)(choice+36))->glyph);
     if(parts[2]<39)parts[2]%=20;

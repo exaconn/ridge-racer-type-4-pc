@@ -246,7 +246,11 @@ void InitTrackStartPos(void) {
 }
 
 void BuildObjectLightAndRotMatrices(A0 *a0, MatrixWords32 *a1) {
-    struct { MatrixWords32 m10; MatrixWords32 m30; MatrixWords32 m50; } s;
+    struct {
+        MatrixWords32 m10;
+        MatrixWords32 m30;
+        MatrixWords32 m50;
+    } s;
     MatrixWords32 t70;
     MatrixWords32 t90;
     V4 b0;

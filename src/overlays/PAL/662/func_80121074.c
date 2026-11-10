@@ -42,7 +42,10 @@ void ovl662_tool_exit_editor_dialog(s32 mode) {
                 if (ovl662_editor_workspace.fade00 == 0) {
                     ovl662_editor_cursor_state.words[0] = (ovl662_editor_cursor_state.words[0] & ~9);
                     ovl662_editor_workspace.fade00 = -1;
-                    ModeGroup=1;ModeIndex=0x27;SubmodeState=0;return;
+                    ModeGroup=1;
+                    ModeIndex=0x27;
+                    SubmodeState=0;
+                    return;
                 }
             } else {
                 phase = UiRows[0].byte14;

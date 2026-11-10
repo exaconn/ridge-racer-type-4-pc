@@ -297,10 +297,32 @@ void UpdateSparkBurstEffectB(int a0, int a1) {
     if (a1 < a0) c = 0x80 - ((a0 - a1) * 4);
     else c = 0x80;
   } } while (0);
-  i = 0; v[0] = 0x7C; v[2] = 0xC4; v[3] = 0xB0; v[1] = 0xB0; w[2] = c; w[1] = c; w[0] = c;
-  do { AddLineF2Prim(v, w, 1, 0); i += 1; v[1] += 1; v[3] += 1; } while (i < 2);
-  i = 0; v[3] = 0x118; v[1] = 0x118; w[2] = c; w[1] = c; w[0] = c;
-  do { AddLineF2Prim(v, w, 1, 0); i += 1; v[1] += 1; v[3] += 1; } while (i < 2);
+  i = 0;
+  v[0] = 0x7C;
+  v[2] = 0xC4;
+  v[3] = 0xB0;
+  v[1] = 0xB0;
+  w[2] = c;
+  w[1] = c;
+  w[0] = c;
+  do {
+      AddLineF2Prim(v, w, 1, 0);
+      i += 1;
+      v[1] += 1;
+      v[3] += 1;
+  } while (i < 2);
+  i = 0;
+  v[3] = 0x118;
+  v[1] = 0x118;
+  w[2] = c;
+  w[1] = c;
+  w[0] = c;
+  do {
+      AddLineF2Prim(v, w, 1, 0);
+      i += 1;
+      v[1] += 1;
+      v[3] += 1;
+  } while (i < 2);
   ua = s1[2];
   if (s1[2] >= 0) {
     do {

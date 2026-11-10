@@ -9,11 +9,20 @@ void ovl662_backup_layer_and_palette(void)
     other=!selected;
     source=ovl662_editor_workspace.image38[selected];
     destination=ovl662_editor_workspace.image38[other];
-    for(i=0;i<512;){i++;*destination++=*source++;}
+    for(i=0;i<512;){
+        i++;
+        *destination++=*source++;
+    }
     source=ovl662_editor_workspace.image40[selected];
     destination=ovl662_editor_workspace.image40[other];
-    for(i=0;i<512;){i++;*destination++=*source++;}
+    for(i=0;i<512;){
+        i++;
+        *destination++=*source++;
+    }
     source=ovl662_editor_workspace.palette48[selected];
     destination=ovl662_editor_workspace.palette48[other];
-    for(i=0;i<8;){i++;*destination++=*source++;}
+    for(i=0;i<8;){
+        i++;
+        *destination++=*source++;
+    }
 }

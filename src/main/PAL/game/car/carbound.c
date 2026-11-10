@@ -135,7 +135,11 @@ void ResetCarState(RaceVehicle *a)
 }
 
 void UpdateCarWorldTransform(RaceVehicle *a0) {
-    struct { int m1[8]; int m2[8]; short v[3]; } L;
+    struct {
+        int m1[8];
+        int m2[8];
+        short v[3];
+    } L;
     int t1, t2;
     unsigned short u1, u2, u3;
     a0->pos10[0] = a0->position20.words[0] * 4;

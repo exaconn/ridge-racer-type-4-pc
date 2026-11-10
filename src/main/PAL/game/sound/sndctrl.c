@@ -109,11 +109,17 @@ void SetCdMixMode(int a0) {
     if (a0 == 0) {
         SsSetStereo();
         p = b;
-        b[0] = 0x80; b[1] = 0; b[2] = 0x80; b[3] = 0;
+        b[0] = 0x80;
+        b[1] = 0;
+        b[2] = 0x80;
+        b[3] = 0;
     } else {
         SsSetMono();
         p = b;
-        b[0] = 0x64; b[1] = 0x64; b[2] = 0x64; b[3] = 0x64;
+        b[0] = 0x64;
+        b[1] = 0x64;
+        b[2] = 0x64;
+        b[3] = 0x64;
     }
     CdMix(p);
 }

@@ -11,7 +11,14 @@
 #include "rr/race_setup.h"
 #include "game/ui/badge1.h"
 
-struct HudNumberTargetPair28 { char *p0; char *p4; short s8, sA, sC, sE, s10, s12; char *p14; char *p18; short s1C, s1E, s20, s22, s24, s26; };
+struct HudNumberTargetPair28 {
+    char *p0;
+    char *p4;
+    short s8, sA, sC, sE, s10, s12;
+    char *p14;
+    char *p18;
+    short s1C, s1E, s20, s22, s24, s26;
+};
 
 extern char HudPrimaryDigitBuffer[];
 extern char HudSecondaryDigitBuffer[];
@@ -162,7 +169,10 @@ void DrawHudRotatingQuad(s32 phase,s32 index) {
         output+=4;
         /* Keep the initialized color destination after the XY writes. */
         *(HudQuadColor *)output=*color;
-        color++;corner++;i++;output+=4;
+        color++;
+        corner++;
+        i++;
+        output+=4;
     }while(i<4);
     packet->tag.bytes.length=8;packet->code=0x38;
     packet->tag.bits.address=((GpuDmaTag *)head)->bits.address;

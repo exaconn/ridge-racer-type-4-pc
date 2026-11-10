@@ -110,7 +110,17 @@ block_7:
                 DrawHudDigitMod10(temp_s0->control.previewSample84.halves.high, var_s2);
                 UpdateHudRankDisplay(temp_s0->half1EE, var_s2);
                 /* ASM_BARRIER: keep var_s2 from becoming a loop BIV so PlayerCars[var_s2] is indexed per iteration */
-                {s32 playerArg=var_s2;s32 budget=RaceTimeRemaining;__asm__("" : : "r"(budget));{s32 nextPlayer=playerArg+1;__asm__("" : : "r"(nextPlayer));var_s2=nextPlayer;DrawTimeRemainingForPlayer(budget,playerArg);}}
+                {
+                    s32 playerArg=var_s2;
+                    s32 budget=RaceTimeRemaining;
+                    __asm__("" : : "r"(budget));
+                    {
+                        s32 nextPlayer=playerArg+1;
+                        __asm__("" : : "r"(nextPlayer));
+                        var_s2=nextPlayer;
+                        DrawTimeRemainingForPlayer(budget,playerArg);
+                    }
+                }
                 DrawLapCounter(var_s2, temp_s0->control.dynamics94.steering.count22);
                 DrawRaceMinimap(var_s2);
                 DrawSteeringIndicator(CurrentDrawBuf->buffer.secondaryOrderingB70.words, var_s2);
@@ -223,7 +233,17 @@ block_7:
             DrawHudDigitMod10(temp_s0_3->control.previewSample84.halves.high, var_s2);
             UpdateHudRankDisplay(temp_s0_3->half1EE, var_s2);
             /* ASM_BARRIER: keep var_s2 from becoming a loop BIV so PlayerCars[var_s2] is indexed per iteration */
-            {s32 playerArg=var_s2;s32 budget=RaceTimeRemaining;__asm__("" : : "r"(budget));{s32 nextPlayer=playerArg+1;__asm__("" : : "r"(nextPlayer));var_s2=nextPlayer;DrawTimeRemainingForPlayer(budget,playerArg);}}
+            {
+                s32 playerArg=var_s2;
+                s32 budget=RaceTimeRemaining;
+                __asm__("" : : "r"(budget));
+                {
+                    s32 nextPlayer=playerArg+1;
+                    __asm__("" : : "r"(nextPlayer));
+                    var_s2=nextPlayer;
+                    DrawTimeRemainingForPlayer(budget,playerArg);
+                }
+            }
             DrawLapCounter(var_s2, temp_s0_3->control.dynamics94.steering.count22);
             DrawRaceMinimap(var_s2);
             DrawSteeringIndicator(CurrentDrawBuf->buffer.secondaryOrderingB70.words, var_s2);

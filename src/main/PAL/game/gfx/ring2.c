@@ -10,7 +10,13 @@ struct RingScaleVec12 { int x, y, z; };
 
 void DrawRingEffects(void) {
     int i;
-    struct { struct RingTransformPose18 a; struct RingScaleVec12 s; int align1C; int m[8]; int v[8]; } l;
+    struct {
+        struct RingTransformPose18 a;
+        struct RingScaleVec12 s;
+        int align1C;
+        int m[8];
+        int v[8];
+    } l;
     ScrollTrack40 *scroll = &RaceContext.controller3D8->scroll;
     for (i = 0; i < 2; i++) {
         if (scroll->channel[i].glyph > 0) {

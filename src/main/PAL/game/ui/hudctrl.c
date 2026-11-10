@@ -4,7 +4,11 @@
 #include "rr/controller_hud.h"
 #include "game/ui/hudctrl.h"
 
-struct HudTilePacket16 { unsigned w0; char b4, b5, b6, b7; short x, y, w, h; };
+struct HudTilePacket16 {
+    unsigned w0;
+    char b4, b5, b6, b7;
+    short x, y, w, h;
+};
 
 
 void DrawSteeringIndicator(u32 *ordering, s32 layout);
@@ -50,7 +54,11 @@ void DrawRaceMinimap(s32 arg0) {
             if ((u16)temp_a0->flags1E4 & 0x10) {
                 u16 clut=(temp_hi<<6)+0x1A16;
                 s32 yNumerator=temp_a0->position20.words[2]; s32 xNumerator=temp_a0->position20.words[0];
-                register s32 yValue __asm__("$2");s32 xValue;xValue=xNumerator/1150+4;yBase=var_s4+242;yValue=yBase-yNumerator/1150;
+                register s32 yValue __asm__("$2");
+                s32 xValue;
+                xValue=xNumerator/1150+4;
+                yBase=var_s4+242;
+                yValue=yBase-yNumerator/1150;
                 var_a1 = AddSpritePrim(var_s3, var_a1, xValue, yValue-4, glyph, clut, 0);
             }
             var_s0 += 1;

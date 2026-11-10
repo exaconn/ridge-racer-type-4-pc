@@ -18,7 +18,10 @@ void UpdateEngineRpm(RaceVehicle *vehicle) {
     if(a0==0) {
         /* ASM_BARRIER: retain the original value/read phase before register reuse or branch selection. */
         __asm__("" : "+r"(t2));
-        t0=t2;t1=8500;a1=control->shiftThresholds10C[0];a3=8500;
+        t0=t2;
+        t1=8500;
+        a1=control->shiftThresholds10C[0];
+        a3=8500;
     } else {
         t0=control->shiftThresholds10C[a0-1];
         v1=(control->gearCountFC-1U);t1=2500;
@@ -89,11 +92,18 @@ floor:
     if(a1>=4001) {
         a1-=4000;RR_MD_MULT_S(a1,v1);RR_MD_LO(v1);
         v0=(s32)0xEF66A241U;RR_MD_MULT_S(v1,v0);RR_MD_HI(v0);
-        v0=(v0+v1);v0>>=11;v1>>=31;a1=v0-v1;a1+=4000;
+        v0=(v0+v1);
+        v0>>=11;
+        v1>>=31;
+        a1=v0-v1;
+        a1+=4000;
     }
     if(GameModeType==6 && SelectedMakerIndex==3) {
         v1=a0;if(v1<0)v1+=255;
-        a3=8500;        v0=body->input;RR_MD_MULT_S(v0,a3);RR_MD_LO(a3);
+        a3=8500;
+        v0=body->input;
+        RR_MD_MULT_S(v0,a3);
+        RR_MD_LO(a3);
         a1=(u32)v1>>8;v0=a1&65535;RR_MD_DIV_S(a1,a3,v0);
     }
     if(control->latch60==0) {

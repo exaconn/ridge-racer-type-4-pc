@@ -10,7 +10,11 @@
 #include "rr/audio_loop.h"
 #include "rr/race_setup.h"
 #include "game/gfx/sprpkt.h"
-struct OrderingHeadEntry { s32 unk00[28]; u32 addr:24; u32 len:8; };
+struct OrderingHeadEntry {
+    s32 unk00[28];
+    u32 addr:24;
+    u32 len:8;
+};
 extern s32 RaceState;
 extern s32 SplitTimes[];
 void DrawRaceOverlaySprites(s32 a0)

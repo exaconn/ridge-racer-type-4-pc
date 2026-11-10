@@ -36,5 +36,5 @@ void UnpackChoiceGlyph(s8 *,s32);
 RR_ASSERT_SIZE(RaceVehicle,0x320);
 RR_ASSERT_SIZE(CourseChoice4,4);
 RR_ASSERT_SIZE(SelectionRows32,32);
-void ovl667_func_801161A8(s32 player);
+void ovl667_init_car_selection(s32 player);
 #endif

@@ -1,7 +1,7 @@
 #include "game/system/pad.h"
 #include "rr/overlay668_replay_controller.h"
 #include "rr/frame_storage_types.h"
-void ovl668_func_80115F80(void) {
+void ovl668_update_epilogue_credits(void) {
     s32 temp_a1;
     s32 temp_s1;
     s32 temp_v0;
@@ -13,7 +13,7 @@ ReplayCameraContextPrefix *ctx;
 
     switch (RaceContext.counter444) {                          
     case 0:
-        ovl668_func_80115DFC();
+        ovl668_init_epilogue_credits();
         RaceContext.counter444=RaceContext.counter444+1U;
         break;
     case 4:
@@ -23,8 +23,8 @@ ReplayCameraContextPrefix *ctx;
         break;
     case 5:                                        
         var_a0 = -1;
-        for(var_s0=0;ovl668_D_80116CA8[var_s0].key>=0;var_s0++){
-          if(ovl668_D_80116CA8[var_s0].key==RaceContext.state44C){var_a0=ovl668_D_80116CA8[var_s0].action;break;}
+        for(var_s0=0;ovl668_epilogue_events[var_s0].key>=0;var_s0++){
+          if(ovl668_epilogue_events[var_s0].key==RaceContext.state44C){var_a0=ovl668_epilogue_events[var_s0].action;break;}
         }
         switch (var_a0) {                          
         case 0:                                    
@@ -36,15 +36,15 @@ ReplayCameraContextPrefix *ctx;
             RaceContext.mode4A8 = 2;
             break;
         }
-        ovl668_func_80115554();
+        ovl668_step_epilogue_camera_yaw();
         ctx=&RaceContext;
         ctx->position450[0] = ((u32)ctx->position450[0] + (ctx->delta478[0] / 6));
         temp_a1 = ctx->delta478[2] / 6;
         ctx->position450[2] = ((u32)ctx->position450[2] + temp_a1);
-        ovl668_func_80115460(ctx->position450);
-        ovl668_func_801156FC();
-        ovl668_func_80115850();
-        ovl668_func_80115BD0(2);
+        ovl668_project_camera_to_track(ctx->position450);
+        ovl668_step_epilogue_camera_pitch();
+        ovl668_apply_epilogue_camera();
+        ovl668_emit_letterbox_pass(2);
         temp_s1 = ctx->mode4A8;
         switch (temp_s1) {                         
         case 1:                                    
@@ -76,7 +76,7 @@ ReplayCameraContextPrefix *ctx;
             if (temp_v1 == 1) {
                 var_s0 = 0;
                 D_80127E90 = (u32)D_80127E90 - D_80127E94;
-                for(;var_s0<62;var_s0++)ovl668_func_801159C0(var_s0,160);
+                for(;var_s0<62;var_s0++)ovl668_draw_credit_band(var_s0,160);
             }
         }
         if ((PlayerControllers[0].edges08.fields.pressed & 0x800) && (RaceContext.mode4A8 == 0)) {
@@ -86,8 +86,8 @@ ReplayCameraContextPrefix *ctx;
         SetupPlayerView(0);
         DrawTrackSceneryForPlayer(0);
         RaceContext.state44C = (RaceContext.state44C + 1U);
-        ovl668_func_80115BD0(1);
-        ovl668_func_80115BD0(0);
+        ovl668_emit_letterbox_pass(1);
+        ovl668_emit_letterbox_pass(0);
         /* fallthrough */
     default:                                       
         return;

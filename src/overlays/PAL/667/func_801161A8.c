@@ -1,6 +1,6 @@
 #include "rr/selection_initializer.h"
 #include "rr/load_cursor.h"
-void ovl667_func_801161A8(s32 arg0) {
+void ovl667_init_car_selection(s32 arg0) {
     s16 *temp_s0;
     s16 *temp_t0_2;
     s32 temp_a0;

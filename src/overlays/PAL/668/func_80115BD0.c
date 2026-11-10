@@ -9,7 +9,7 @@
 extern s32 DrawBufIndex;
 
 /* Queues the letterbox drawing-environment / fade packets for one pass. */
-void ovl668_func_80115BD0(s32 mode) {
+void ovl668_emit_letterbox_pass(s32 mode) {
     DrawEnvironment env;
     u32 *packet;
     u32 *ot;

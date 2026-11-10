@@ -6,5 +6,5 @@
 extern u16 ModeGroup,ModeIndex;
 extern s16 SubmodeState;
 void StopRaceAudioAndRumble(void),SetupRaceAndSceneId(void);
-void ovl667_func_801155E0(void);
+void ovl667_exit_race(void);
 #endif

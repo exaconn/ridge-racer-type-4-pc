@@ -25,10 +25,10 @@ void UpdateMenuTextRow(s32);
 void DrawResultsRankIcons(void);
 s32 LoadResultsSceneStep(void);
 void SeqStartTrack(s32);
-s32 ovl667_func_801187DC(s32);
-void ovl667_func_801161A8(s32);
+s32 ovl667_update_retry_choice(s32);
+void ovl667_init_car_selection(s32);
 
-void ovl667_func_8011885C(void) {
+void ovl667_update_results(void) {
     s32 pressed;
     s32 group;
     s32 i;
@@ -79,7 +79,7 @@ void ovl667_func_8011885C(void) {
         group = 3;
         if (MenuTextRows[39].signedBytes[3] >= 17) {
             SetMenuFrameOptions(1, 1, 0);
-            if (ovl667_func_801187DC(0) >= 0) {
+            if (ovl667_update_retry_choice(0) >= 0) {
                 ResetScreenCounters();
                 InitMenuArenas();
                 FadeCountdown = 64;
@@ -135,7 +135,7 @@ void ovl667_func_8011885C(void) {
         SeqStartTrack(0);
         LinkState = 0;
         ActivePlayerIndex = (result - LinkHostFlag) * 2;
-        ovl667_func_801161A8(ActivePlayerIndex);
+        ovl667_init_car_selection(ActivePlayerIndex);
         ModeGroup = result;
         ModeIndex = 60;
         SubmodeState = 0;

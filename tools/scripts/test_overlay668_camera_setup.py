@@ -73,16 +73,16 @@ static void call11(s32 enabled){assert(enabled==1);service(11);}
 #define D_80127E94 (actual.selected)
 #define D_800AD564 (actual.bank)
 #define SelectedTeamIndex (actual.row)
-#define ovl668_D_80116CC0 (actual.lookup)
+#define ovl668_credit_scroll_speeds (actual.lookup)
 #define SetDispMask call0
 #define SetupDrawDispEnvs call1
 #define InitCourseViewState call2
 #define SetupRenderer call3
 #define BuildCameraMatrices call4
-#define ovl668_func_80115460 call5
-#define ovl668_func_80115554 call6
-#define ovl668_func_801156FC call7
-#define ovl668_func_80115850 call8
+#define ovl668_project_camera_to_track call5
+#define ovl668_step_epilogue_camera_yaw call6
+#define ovl668_step_epilogue_camera_pitch call7
+#define ovl668_apply_epilogue_camera call8
 #define InitSceneOverlayState call9
 #define SetSceneOverlayColor call10
 #define SetSceneOverlayEnabled call11
@@ -121,7 +121,7 @@ int main(void){unsigned raw,i,b;uint64_t cases=0;
   for(i=0;i<20;i++)actual.lookup[i]=sign32(next());
   actual.root=0;actual.bank=0;actual.row=0;
   expected=actual;count=index_=0;model();
-  ovl668_func_80115DFC();assert(count==27&&index_==count);
+  ovl668_init_epilogue_credits();assert(count==27&&index_==count);
   assert(!memcmp(&actual,&expected,sizeof(actual)));if(!actual.root)roots[2]++;cases++;
  }
  for(i=0;i<3;i++)assert(roots[i]);for(i=0;i<20;i++)assert(entries[i]);

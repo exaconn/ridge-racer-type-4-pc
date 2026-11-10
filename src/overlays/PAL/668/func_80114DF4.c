@@ -2,8 +2,8 @@
 #include "rr/cd.h"
 void StUnSetRing(void);
 #include "rr/frame_loop.h"
-void ovl668_func_80114DF4(void){
- ovl668_func_80116534(0);
+void ovl668_stop_stream_playback(void){
+ ovl668_mdec_out_callback(0);
  StUnSetRing();
  CdControlB(9,0,0);
  ModeGroup=1;ModeIndex=3;SubmodeState=0;

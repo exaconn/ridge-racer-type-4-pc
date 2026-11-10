@@ -139,7 +139,7 @@ int main(void){
   for(i=0;i<sizeof(w->s.selection);i++)((u8*)&w->s.selection)[i]=(u8)(scenario+i*43);
   for(i=0;i<4;i++){w->s.guards[i]=0x12345678U+i;w->s.tail[i]=0x87654321U-i;}
   actual=initial;expected=initial;w=&actual;
-  if(kind==0)ovl660_init_preview();else if(kind==1)ovl661_reset_preview_selection();else ovl667_func_80116BB4();
+  if(kind==0)ovl660_init_preview();else if(kind==1)ovl661_reset_preview_selection();else ovl667_reset_preview_selection();
   w=&expected;reference(kind);assert(memcmp(&actual,&expected,sizeof(actual))==0);
  }
  return 0;

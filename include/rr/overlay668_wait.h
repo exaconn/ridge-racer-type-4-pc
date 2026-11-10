@@ -4,9 +4,9 @@
 
 /* Pointer cells for MDEC status and output DMA control. Access the hardware
  * words through volatile-qualified lvalues; the pointer cells are ordinary RAM. */
-extern u32 *ovl668_D_80116E54;
-extern u32 *ovl668_D_80116E34;
-extern char ovl668_D_801148DC[];
-extern char ovl668_D_801148EC[];
-s32 ovl668_func_801168A4(const char *message);
+extern u32 *ovl668_mdec1_ctrl_ptr;
+extern u32 *ovl668_dma1_chcr_ptr;
+extern char ovl668_mdec_in_timeout_msg[];
+extern char ovl668_mdec_out_timeout_msg[];
+s32 ovl668_mdec_handle_timeout(const char *message);
 #endif

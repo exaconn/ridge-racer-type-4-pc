@@ -1,2 +1,2 @@
 #include "rr/overlay667_status.h"
-s32 ovl667_func_80115058(void) { return ovl667_D_80118EE4; }
+s32 ovl667_get_sio_status_flag(void) { return ovl667_sio_status_flag; }

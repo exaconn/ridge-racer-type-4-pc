@@ -1,7 +1,7 @@
 #include "rr/overlay668_stream.h"
 extern s32 CdRead2(s32);
 
-void ovl668_func_801153F0(u8 *location) {
+void ovl668_seek_and_read_stream(u8 *location) {
     u8 mode = 0x80;
     do {
         while (CdControl(2, location, 0) == 0) {

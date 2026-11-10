@@ -1,6 +1,6 @@
 #include "rr/overlay_menu_init.h"
 
-void ovl665_func_80114FD8(void)
+void ovl665_init_audio_options(void)
 {
     ClearScreenOverlayState();
     InitUiRow(0,12,72,68,32,0,0,1,0,86);

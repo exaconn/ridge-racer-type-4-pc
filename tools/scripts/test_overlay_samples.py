@@ -43,8 +43,8 @@ BadgeRow1C first, second, *BadgeRows;
 s16 *sample665_badges;
 u8 ScreenFadeState;
 GarageWorkingStorage ovl662_D_80127668;
-s32 ovl667_D_80118EE0;
-u32 *ovl668_D_80116E54;
+s32 ovl667_sio_error_count;
+u32 *ovl668_mdec1_ctrl_ptr;
 ProjectionScratchPrefix test_scratch;
 #define RR_PROJECTION_SCRATCH (&test_scratch)
 static int scenario, step;
@@ -114,19 +114,19 @@ int main(void) {
             assert((u16)ovl662_D_80127668.halves[j] == expected);
         }
         u32 bits = (i << 16) | (i ^ 0xFFFF);
-        ovl667_D_80118EE0 = (s32)bits;
-        assert((u32)ovl667_func_80115048() == bits);
+        ovl667_sio_error_count = (s32)bits;
+        assert((u32)ovl667_get_sio_error_count() == bits);
         u32 values[3] = {bits, ~bits, i};
         for (int j = 0; j < 3; j++) {
-            ovl668_D_80116E54 = &values[j];
-            assert(ovl668_func_8011688C() == values[j]);
+            ovl668_mdec1_ctrl_ptr = &values[j];
+            assert(ovl668_mdec_read_status() == values[j]);
         }
     }
     for (int module = 663; module <= 665; module += 2) {
         scenario = module; step = 0;
         memset(&first, 0xA5, sizeof(first)); memset(&second, 0x5A, sizeof(second));
         BadgeRows = &first; sample665_badges=(s16 *)&first; ModeFrame = 99;
-        if (module == 663) ovl663_init_result_preview(); else ovl665_func_80115C8C();
+        if (module == 663) ovl663_init_result_preview(); else ovl665_init_brightness_panel();
         assert(step == 3);
         for (unsigned j = 0; j < sizeof(first); j++) {
             assert(((u8 *)&first)[j] == 0xA5);

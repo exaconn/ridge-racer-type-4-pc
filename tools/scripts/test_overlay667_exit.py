@@ -63,7 +63,7 @@ int main(void){unsigned k,i;
   expected.frames[world.selected].buffer.ordering70.words[0]=world.marker;
   expected.active=&world.frames[!world.selected];
   expected.screen=expected.post_screen;expected.step=expected.post_step;expected.counter=expected.post_counter;
-  ovl667_func_801155E0();
+  ovl667_exit_race();
   assert(memcmp(&world,&expected,sizeof(world))==0);
   assert((uintptr_t)world.frames[world.selected].buffer.ordering70.words>UINT32_MAX);
  }

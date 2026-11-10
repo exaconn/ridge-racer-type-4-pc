@@ -3,7 +3,7 @@
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
 
-void ovl667_func_80117FA8(void) {
+void ovl667_update_course_menu(void) {
     s32 previewIndex;
     s32 waitResult;
     s32 backIndex;
@@ -140,7 +140,7 @@ void ovl667_func_80117FA8(void) {
             break;
         case 8:
             if (UiRows[18].byte14 == 5) {
-                ovl667_func_801161A8((1 - LinkHostFlag) * 2);
+                ovl667_init_car_selection((1 - LinkHostFlag) * 2);
                 ModeGroup = 1;
                 ModeIndex = 0x3C;
                 SubmodeState = 0;

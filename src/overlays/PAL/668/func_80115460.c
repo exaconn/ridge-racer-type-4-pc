@@ -1,6 +1,6 @@
 #include "rr/overlay668_track_project.h"
 /* The initializer supplies its position pointer; this body uses globals. */
-void ovl668_func_80115460(s32 *unused_position) {
+void ovl668_project_camera_to_track(s32 *unused_position) {
     TrackOffsetArgument offsets[2];
     s32 position[3];
     s32 height;

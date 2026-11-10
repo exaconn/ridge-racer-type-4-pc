@@ -25,17 +25,17 @@ static struct World {
  u32 before[8];Serial serial;s32 frames;u16 screen,step;s16 counter;
  u32 calls;s32 post_word,post_frames;u16 post_screen,post_step;s16 post_counter;u32 after[8];
 } world,expected;
-#define ovl667_D_80118EE8 world.serial.word00
-#define ovl667_D_80118EEF world.serial.flag07
-#define ovl667_D_80118EF8 world.serial.word10
-#define ovl667_D_80118EFC world.serial.word14
-#define ovl667_D_80118F00 world.serial.word18
-#define ovl667_D_80118F04 world.serial.word1C
+#define ovl667_read_pending_flag world.serial.word00
+#define ovl667_checksum_error_flag world.serial.flag07
+#define ovl667_rx_packet_count world.serial.word10
+#define ovl667_rx_miss_count world.serial.word14
+#define ovl667_tx_packet_count world.serial.word18
+#define ovl667_tx_miss_count world.serial.word1C
 #define ModeFrame world.frames
 #define ModeGroup world.screen
 #define ModeIndex world.step
 #define SubmodeState world.counter
-void ovl667_func_80114A40(void){
+void ovl667_close_sio_session(void){
  assert(world.serial.word00==0 && world.serial.word10==0 && world.serial.word14==0 && world.serial.word18==0 && world.serial.word1C==0 && world.frames==0);
  world.calls++;world.serial.word1C=world.post_word;world.frames=world.post_frames;
  world.screen=world.post_screen;world.step=world.post_step;world.counter=world.post_counter;
@@ -68,7 +68,7 @@ int main(void){unsigned k,i;
    expected.serial.word1C=world.post_word;expected.frames=world.post_frames;expected.calls=1;
    expected.screen=1;expected.step=44;expected.counter=0;
   }
-  ovl667_func_801153F0();
+  ovl667_abort_on_link_timeout();
   assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  return 0;

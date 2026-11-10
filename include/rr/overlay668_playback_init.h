@@ -9,13 +9,13 @@
 typedef struct {CdLocation location;u32 byteSize;char name[16];} StrCdFileInfo;
 #include "rr/menu_arena_base.h"
 extern s16 ModeGroup,ModeIndex,SubmodeState;
-void ovl668_func_80114910(s32 resource,StrCdFileInfo *file,u32 *sectors);
+void ovl668_resolve_stream_file(s32 resource,StrCdFileInfo *file,u32 *sectors);
 /* After the display setup service, MenuArenaBase covers an aligned complete
  * playback owner. Publish its base and end, then clear the captured owner.
  * Services may replace roots and scalar state; the resource id is read after
  * both CD calls and must satisfy the resource service's directory contract.
  * The local output descriptors are not read by this initializer. */
-void ovl668_func_801149E8(void);
+void ovl668_init_stream_playback(void);
 RR_ASSERT_SIZE(StrCdFileInfo,24);
 RR_ASSERT_OFFSET(StrCdFileInfo,byteSize,4);
 RR_ASSERT_OFFSET(StrCdFileInfo,name,8);

@@ -4,7 +4,7 @@
 #include "rr/overlay668_stream.h"
 #include "rr/diagnostics.h"
 #include "rr/tables.h"
-extern const char ovl668_D_8011487C[];
+extern const char ovl668_backloc_debug_fmt[];
 s32 StGetBackloc(const CdLocation *location);
 void DrawSync(s32 mode);
 /* activeB8 addresses a complete playback owner, and command/display selectors
@@ -12,5 +12,5 @@ void DrawSync(s32 mode);
  * services, which may replace activeB8 and change thresholds, state or input.
  * Retry until the next-frame service succeeds or unsigned threshold is reached.
  * Timer and frame words retain 32-bit wrapping and signed/unsigned comparisons. */
-void ovl668_func_80114C3C(void);
+void ovl668_step_stream_playback(void);
 #endif

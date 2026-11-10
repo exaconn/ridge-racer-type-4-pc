@@ -87,7 +87,7 @@ int main(void){unsigned i;
   /* Exercise successful headers with unchanged dimensions as well as resize. */
   if(!mutation&&(scenario&32)&&busy<2000){LibQueueRecord32 *h=world.s.headers+(scenario+busy)%2;StrPlaybackState *p=world.s.context.activeB8;p->width00=h->width10;p->height04=h->height12;}
   initial=world;
-  world.result=ovl668_func_80115164(output());actual=world;world=initial;world.result=expected(output());
+  world.result=ovl668_acquire_stream_frame(output());actual=world;world=initial;world.result=expected(output());
   assert(!memcmp(&world,&actual,sizeof(world)));assert(world.polls==(busy<2000?busy+1:2000));
   if(busy>=2000)assert(world.result==0&&world.clears==0);else assert(world.result!=0);
   seenClear|=1U<<world.clears;seenLimits|=1U<<(scenario%8);

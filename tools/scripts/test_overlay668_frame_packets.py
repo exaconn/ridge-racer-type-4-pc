@@ -130,7 +130,7 @@ int main(void){
   world=&actual;actual.scratch.value.cursor=choose_cursor(0);actual.scratch.value.order=actual.frames[actual.root].buffer.ordering70.words;
   expected=actual;expected.scratch.value.cursor=resolve(&expected,address(&actual,actual.scratch.value.cursor));expected.scratch.value.order=resolve(&expected,address(&actual,actual.scratch.value.order));
   world=&expected;reference();u32 cursor=address(&expected,expected.scratch.value.cursor),ordering=address(&expected,expected.scratch.value.order);
-  world=&actual;ovl668_func_80115BD0(selectedMode);
+  world=&actual;ovl668_emit_letterbox_pass(selectedMode);
   assert(address(&actual,actual.scratch.value.cursor)==cursor&&address(&actual,actual.scratch.value.order)==ordering);
   expected.scratch.value=actual.scratch.value;assert(!memcmp(&actual,&expected,sizeof(actual)));
   seen[scenario&7]++;if((scenario&128)&&selectedMode>=0&&selectedMode<=3)aliases[selectedMode][aliasIndex]++;
@@ -153,7 +153,7 @@ class Overlay668FramePacketsTest(unittest.TestCase):
                 body = body.replace(name, 'real_' + name)
             helpers.append(body)
         emitter = definition_source((ROOT / 'src/overlays/PAL/668/func_80115BD0.c').read_text(),
-                                    'ovl668_func_80115BD0')
+                                    'ovl668_emit_letterbox_pass')
         with TemporaryDirectory() as directory:
             source = Path(directory) / 'frame_packets.c'
             binary = source.with_suffix('')

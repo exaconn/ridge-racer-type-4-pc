@@ -3,12 +3,12 @@
 /* GCC_VERSION: 2.7.2 */
 
 #include "rr/overlay668_wait.h"
-s32 ovl668_func_801167F8(void)
+s32 ovl668_mdec_wait_out_dma(void)
 {
     volatile s32 counter = 0x100000;
-    while (*(u32 *)ovl668_D_80116E34 & 0x01000000) {
+    while (*(u32 *)ovl668_dma1_chcr_ptr & 0x01000000) {
         if (--counter == -1) {
-            ovl668_func_801168A4(ovl668_D_801148EC);
+            ovl668_mdec_handle_timeout(ovl668_mdec_out_timeout_msg);
             return -1;
         }
     }

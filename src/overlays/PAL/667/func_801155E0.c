@@ -1,6 +1,6 @@
 #include "rr/overlay_screen_exit.h"
 #include "rr/frame_storage_types.h"
-void ovl667_func_801155E0(void)
+void ovl667_exit_race(void)
 {
     StopRaceAudioAndRumble();
     SetupRaceAndSceneId();

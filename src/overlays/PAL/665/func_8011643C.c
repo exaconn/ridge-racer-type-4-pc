@@ -6,7 +6,7 @@
 #define RR_PREVIEW_RENDER_SCRATCH ((PreviewRenderScratch *)0x1F800000)
 #endif
 
-void ovl665_func_8011643C(void) {
+void ovl665_draw_controller_model(void) {
     PreviewRenderScratch *scratch = RR_PREVIEW_RENDER_SCRATCH;
     PreviewMatrixWorkspace sp10;
     PreviewMatrixWorkspace sp30;
@@ -38,21 +38,21 @@ void ovl665_func_8011643C(void) {
     scratch->scene.view.projection.pose08.angles10.xyz.x = 0;
     BuildCameraMatrices();
     SetupViewport(6);
-    SetGeomOffset((s16)ovl665_D_80119768.centerX38, (s16)ovl665_D_80119768.centerY3A);
+    SetGeomOffset((s16)ovl665_options_state.centerX38, (s16)ovl665_options_state.centerY3A);
     ScaleMatrixRow1(2, &scratch->scene.view.matrix28);
-    switch (ovl665_D_80119768.kind18) {
+    switch (ovl665_options_state.kind18) {
     case 0:
-            temp_s1 = &ovl665_D_80119768.view74;
-            temp_s0 = &ovl665_D_80119768.lighting4C;
-            scale[2] = ovl665_D_80119768.scale3C;
-            scale[1] = ovl665_D_80119768.scale3C;
-            scale[0] = ovl665_D_80119768.scale3C;
-            ovl665_D_80119768.view74.rotation10 = (u16) ovl665_D_80119768.rotation44;
-            ovl665_D_80119768.view74.position00.words[2] = ovl665_D_80119768.position48;
+            temp_s1 = &ovl665_options_state.view74;
+            temp_s0 = &ovl665_options_state.lighting4C;
+            scale[2] = ovl665_options_state.scale3C;
+            scale[1] = ovl665_options_state.scale3C;
+            scale[0] = ovl665_options_state.scale3C;
+            ovl665_options_state.view74.rotation10 = (u16) ovl665_options_state.rotation44;
+            ovl665_options_state.view74.position00.words[2] = ovl665_options_state.position48;
             SetupObjectLightMatrices((char *)temp_s1, (char *)temp_s0, &sp10.matrix, &sp30.matrix);
             ScaleMatrix(sp10.words, scale);
-            SetGeomScreen(ovl665_D_80119768.depth40);
-            ovl665_func_80116358(&sp10, &temp_s0->matrix);
+            SetGeomScreen(ovl665_options_state.depth40);
+            ovl665_setup_preview_light_matrix(&sp10, &temp_s0->matrix);
             SelectModelBank(8);
             SetGteObjectTransform(&scratch->tail7C.projection, temp_s1->position00.halves, (s32 *)sp10.words);
             var_a1 = 1;
@@ -60,17 +60,17 @@ void ovl665_func_8011643C(void) {
             SubmitModelTwoTri(scratch, var_a1, 0, 0);
             break;
     case 1:
-    temp_s1_2 = &ovl665_D_80119768.view74;
-    temp_s0_4 = &ovl665_D_80119768.lighting4C;
-    scale[2] = ovl665_D_80119768.scale3C;
-    scale[1] = ovl665_D_80119768.scale3C;
-    scale[0] = ovl665_D_80119768.scale3C;
-    ovl665_D_80119768.view74.rotation10 = (u16) ovl665_D_80119768.rotation44;
-    ovl665_D_80119768.view74.position00.words[2] = ovl665_D_80119768.position48;
+    temp_s1_2 = &ovl665_options_state.view74;
+    temp_s0_4 = &ovl665_options_state.lighting4C;
+    scale[2] = ovl665_options_state.scale3C;
+    scale[1] = ovl665_options_state.scale3C;
+    scale[0] = ovl665_options_state.scale3C;
+    ovl665_options_state.view74.rotation10 = (u16) ovl665_options_state.rotation44;
+    ovl665_options_state.view74.position00.words[2] = ovl665_options_state.position48;
     SetupObjectLightMatrices((char *)temp_s1_2, (char *)temp_s0_4, &sp10.matrix, &sp30.matrix);
     ScaleMatrix(sp10.words, scale);
-    SetGeomScreen(ovl665_D_80119768.depth40);
-    ovl665_func_80116358(&sp10, &temp_s0_4->matrix);
+    SetGeomScreen(ovl665_options_state.depth40);
+    ovl665_setup_preview_light_matrix(&sp10, &temp_s0_4->matrix);
     SelectModelBank(8);
     SetGteObjectTransform(&scratch->tail7C.projection, temp_s1_2->position00.halves, (s32 *)sp10.words);
     scratch->scene.draw74.draw.counter = 0;
@@ -79,20 +79,20 @@ void ovl665_func_8011643C(void) {
     break;
 
     case 2:
-temp_s4 = &ovl665_D_80119768.view74;
-        temp_s0_3 = &ovl665_D_80119768.lighting4C;
-        scale[2] = ovl665_D_80119768.scale3C;
-        scale[1] = ovl665_D_80119768.scale3C;
-        scale[0] = ovl665_D_80119768.scale3C;
-        ovl665_D_80119768.view74.rotation10 = (u16) ovl665_D_80119768.rotation44;
-        ovl665_D_80119768.view74.position00.words[2] = ovl665_D_80119768.position48;
+temp_s4 = &ovl665_options_state.view74;
+        temp_s0_3 = &ovl665_options_state.lighting4C;
+        scale[2] = ovl665_options_state.scale3C;
+        scale[1] = ovl665_options_state.scale3C;
+        scale[0] = ovl665_options_state.scale3C;
+        ovl665_options_state.view74.rotation10 = (u16) ovl665_options_state.rotation44;
+        ovl665_options_state.view74.position00.words[2] = ovl665_options_state.position48;
         SetupObjectLightMatrices((char *)temp_s4, (char *)temp_s0_3, &sp10.matrix, &sp30.matrix);
         ScaleMatrix(sp10.words, scale);
-        SetGeomScreen(ovl665_D_80119768.depth40);
+        SetGeomScreen(ovl665_options_state.depth40);
         SelectModelBank(8);
-        BuildRotMatrixX(&sp30.matrix, ovl665_D_80119768.view74.rotation18);
+        BuildRotMatrixX(&sp30.matrix, ovl665_options_state.view74.rotation18);
         MulMatrix2(&sp10.matrix, &sp30.matrix);
-        ovl665_func_80116358(&sp30, &temp_s0_3->matrix);
+        ovl665_setup_preview_light_matrix(&sp30, &temp_s0_3->matrix);
         SetGteObjectTransform(
             &RR_PREVIEW_RENDER_SCRATCH->tail7C.projection,
             temp_s4->position00.halves,
@@ -103,8 +103,8 @@ temp_s4 = &ovl665_D_80119768.view74;
             var_a1_4 = 2;
         }
         SubmitModelTwoTri(RR_PREVIEW_RENDER_SCRATCH, var_a1_4, 0, 0);
-        if (ovl665_D_80119768.layout0C >= 2) {
-            if (ovl665_D_80119768.detail10 >= 2) {
+        if (ovl665_options_state.layout0C >= 2) {
+            if (ovl665_options_state.detail10 >= 2) {
                 SetGteObjectTransform(
                     &RR_PREVIEW_RENDER_SCRATCH->tail7C.projection,
                     temp_s4->position00.halves,
@@ -117,10 +117,10 @@ temp_s4 = &ovl665_D_80119768.view74;
                 SubmitModelTwoTri(RR_PREVIEW_RENDER_SCRATCH, var_a1_5, 0, 0);
             }
         }
-        BuildRotMatrixX(&sp30.matrix, ovl665_D_80119768.view74.rotation20);
+        BuildRotMatrixX(&sp30.matrix, ovl665_options_state.view74.rotation20);
         MulMatrix2(&sp10.matrix, &sp30.matrix);
-        ovl665_func_80116358(&sp30, &ovl665_D_80119768.lighting4C.matrix);
-        temp_s5_2 = &ovl665_D_80119768.view74;
+        ovl665_setup_preview_light_matrix(&sp30, &ovl665_options_state.lighting4C.matrix);
+        temp_s5_2 = &ovl665_options_state.view74;
         SetGteObjectTransform(
             &RR_PREVIEW_RENDER_SCRATCH->tail7C.projection,
             temp_s5_2->position00.halves,
@@ -131,8 +131,8 @@ temp_s4 = &ovl665_D_80119768.view74;
             var_a1_6 = 3;
         }
         SubmitModelTwoTri(RR_PREVIEW_RENDER_SCRATCH, var_a1_6, 0, 0);
-        if (ovl665_D_80119768.layout0C >= 2) {
-            if (ovl665_D_80119768.detail10 >= 2) {
+        if (ovl665_options_state.layout0C >= 2) {
+            if (ovl665_options_state.detail10 >= 2) {
                 SetGteObjectTransform(
                     &RR_PREVIEW_RENDER_SCRATCH->tail7C.projection,
                     temp_s5_2->position00.halves,
@@ -147,17 +147,17 @@ temp_s4 = &ovl665_D_80119768.view74;
         }
         break;
     case 3:
-temp_s5 = &ovl665_D_80119768.view74;
-            temp_s0_2 = &ovl665_D_80119768.lighting4C;
-            scale[2] = ovl665_D_80119768.scale3C;
-            scale[1] = ovl665_D_80119768.scale3C;
-            scale[0] = ovl665_D_80119768.scale3C;
-            ovl665_D_80119768.view74.rotation10 = (u16) ovl665_D_80119768.rotation44;
-            ovl665_D_80119768.view74.position00.words[2] = ovl665_D_80119768.position48;
+temp_s5 = &ovl665_options_state.view74;
+            temp_s0_2 = &ovl665_options_state.lighting4C;
+            scale[2] = ovl665_options_state.scale3C;
+            scale[1] = ovl665_options_state.scale3C;
+            scale[0] = ovl665_options_state.scale3C;
+            ovl665_options_state.view74.rotation10 = (u16) ovl665_options_state.rotation44;
+            ovl665_options_state.view74.position00.words[2] = ovl665_options_state.position48;
             SetupObjectLightMatrices((char *)temp_s5, (char *)temp_s0_2, &sp10.matrix, &sp30.matrix);
             ScaleMatrix(sp10.words, scale);
-            SetGeomScreen(ovl665_D_80119768.depth40);
-            ovl665_func_80116358(&sp10, &temp_s0_2->matrix);
+            SetGeomScreen(ovl665_options_state.depth40);
+            ovl665_setup_preview_light_matrix(&sp10, &temp_s0_2->matrix);
             SelectModelBank(8);
             SetGteObjectTransform(&scratch->tail7C.projection, temp_s5->position00.halves, (s32 *)sp10.words);
             var_a1_2 = 1;
@@ -166,9 +166,9 @@ temp_s5 = &ovl665_D_80119768.view74;
                 var_a1_2 = 4;
             }
             SubmitModelTwoTri(scratch, var_a1_2, 0, 0);
-            BuildRotMatrixZ(&sp30.matrix, ovl665_D_80119768.view74.rotation1C + 0x400);
+            BuildRotMatrixZ(&sp30.matrix, ovl665_options_state.view74.rotation1C + 0x400);
             MulMatrix2(&sp10.matrix, &sp30.matrix);
-            ovl665_func_80116358(&sp30, &temp_s0_2->matrix);
+            ovl665_setup_preview_light_matrix(&sp30, &temp_s0_2->matrix);
             SetGteObjectTransform(&scratch->tail7C.projection, temp_s5->position00.halves, (s32 *)sp30.words);
             var_a1_3 = 1;
             scratch->scene.draw74.draw.counter = 0;
@@ -176,9 +176,9 @@ temp_s5 = &ovl665_D_80119768.view74;
                 var_a1_3 = 5;
             }
             SubmitModelTwoTri(scratch, var_a1_3, 0, 0);
-            if (ovl665_D_80119768.layout0C >= 2) {
-                if (ovl665_D_80119768.detail10 >= 2) {
-                    if (ovl665_D_80119768.detail10 < 4) {
+            if (ovl665_options_state.layout0C >= 2) {
+                if (ovl665_options_state.detail10 >= 2) {
+                    if (ovl665_options_state.detail10 < 4) {
                         SetGteObjectTransform(
                             &scratch->tail7C.projection,
                             temp_s5->position00.halves,

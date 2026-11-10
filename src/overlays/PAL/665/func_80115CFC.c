@@ -1,41 +1,41 @@
 #include "rr/overlay665_panels.h"
 #include "rr/frame_storage_types.h"
-void ovl665_func_80115CFC(void) {
+void ovl665_update_brightness_panel(void) {
     s32 i,x;
     const UiUvRect *glyph;
     void *cursor;
     GpuSingleCommandPacket *packet;
-    switch(ovl665_D_80119768.layout0C) {
+    switch(ovl665_options_state.layout0C) {
     case 0:
-        ovl665_func_80115C8C();
+        ovl665_init_brightness_panel();
         SetPresentationDrawEnabled(0);
-        ovl665_D_80119768.layout0C=(ovl665_D_80119768.layout0C+1U);
+        ovl665_options_state.layout0C=(ovl665_options_state.layout0C+1U);
         break;
     case 1:
-        if(BadgeRows[0].state10==3)ovl665_D_80119768.layout0C=2;
+        if(BadgeRows[0].state10==3)ovl665_options_state.layout0C=2;
         break;
     case 2:
         if(D_800F3A60) {
             PlaySfx(1);
             BadgeRows[0].state10=4;
             FadeCountdown=64;
-            ovl665_D_80119768.layout0C=(ovl665_D_80119768.layout0C+1U);
+            ovl665_options_state.layout0C=(ovl665_options_state.layout0C+1U);
         }
         break;
     case 3:
         FadeCountdown--;
         AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,(64-FadeCountdown)*4,69);
         if(FadeCountdown<=0 && BadgeRows[0].state10==11) {
-            ovl665_func_80114A24();
-            ovl665_D_80119768.layout0C=0;
-            ovl665_D_80119768.scene00=(ovl665_D_80119768.scene00-1U);
+            ovl665_init_menu();
+            ovl665_options_state.layout0C=0;
+            ovl665_options_state.scene00=(ovl665_options_state.scene00-1U);
             return;
         }
         break;
     }
     cursor=RR_PROJECTION_SCRATCH->pointers.cursor;
     i=0;
-    glyph=&ovl665_D_80119028;
+    glyph=&ovl665_brightness_swatch_uv_rect;
     x=24;
     for(;i<8;x+=36,i++) {
         cursor=AddSpritePrim(CurrentDrawBuf->buffer.ordering70.words,cursor,x,144,glyph,0x7F38,((7-i)*223)/7+32);

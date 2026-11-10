@@ -21,13 +21,13 @@ static s32 reference(s32 frame){
 int main(void){unsigned bits;unsigned positive=0,plateau=0;
  for(bits=0;bits<65536;bits++){
   u16 raw=(u16)bits;s16 frame;s32 actual;memcpy(&frame,&raw,2);
-  actual=ovl668_func_8011596C(frame);
+  actual=ovl668_calc_credit_line_fade(frame);
   assert(actual==reference(frame));assert(actual>=0 && actual<=256 && actual%16==0);
   if(actual>0)positive++;if(actual==256)plateau++;
  }
  assert(positive==107 && plateau==77);
- assert(ovl668_func_8011596C(48)==0 && ovl668_func_8011596C(64)==256);
- assert(ovl668_func_8011596C(140)==256 && ovl668_func_8011596C(156)==0);
+ assert(ovl668_calc_credit_line_fade(48)==0 && ovl668_calc_credit_line_fade(64)==256);
+ assert(ovl668_calc_credit_line_fade(140)==256 && ovl668_calc_credit_line_fade(156)==0);
  return 0;
 }
 '''

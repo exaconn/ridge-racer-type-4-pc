@@ -1,7 +1,7 @@
 #include "rr/overlay668_playback_init.h"
 #include "rr/load_cursor.h"
 
-void ovl668_func_801149E8(void)
+void ovl668_init_stream_playback(void)
 {
     StrCdFileInfo file;
     u32 sectors;
@@ -19,7 +19,7 @@ void ovl668_func_801149E8(void)
     CdControl(9, 0, 0);
     RaceContext.phaseB4 = 0;
     RaceContext.stopD0 = 0;
-    ovl668_func_80114910(RaceContext.resourceB0, &file, &sectors);
+    ovl668_resolve_stream_file(RaceContext.resourceB0, &file, &sectors);
     ModeGroup = 2;
     ModeIndex = 4;
     SubmodeState = 0;

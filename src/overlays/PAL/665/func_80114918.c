@@ -2,13 +2,13 @@
 #ifndef RR_PROJECTION_SCRATCH
 #define RR_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)0x1F800000)
 #endif
-void ovl665_func_80114918(void)
+void ovl665_init_scene(void)
 {
     Overlay665VisualState *state;
     ProjectionScratchPrefix *scratch;
     SetDispMask(0);
     SetupDrawDispEnvs(0,0,0,2);
-    state=&ovl665_D_80119768;
+    state=&ovl665_options_state;
     PsyqBzero(state,160);
     state->lighting4C.matrix.signedHalves[6]=4500;
     state->lighting4C.matrix.signedHalves[7]=-4096;

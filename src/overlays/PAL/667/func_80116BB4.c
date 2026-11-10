@@ -2,7 +2,7 @@
 #include "rr/load_cursor.h"
 extern CourseChoice4 LinkCarChoiceTable[2][2][9];
 extern s16 LinkCarChoiceGroup[2],LinkCarChoiceIndex[2];
-void ovl667_func_80116BB4(void) {
+void ovl667_reset_preview_selection(void) {
     ResetScreenCounters();
     LoadCursor = MenuArenas.first;
     UnpackChoiceGlyph(

@@ -35,23 +35,23 @@ static struct World {
 } actual,expected,initial,*w;
 static unsigned scenario,mutation;
 static s32 result;
-#define ovl667_D_80118ED0 w->peer
+#define ovl667_peer_race_state w->peer
 #define RaceState w->local
-#define ovl667_D_80118ED4 w->halt
-#define ovl667_D_80118EC8 w->command
-#define ovl667_D_80118EF8 w->rxcount
-#define ovl667_D_80118EFC w->timeout
-#define ovl667_D_80118F00 w->txcount
-#define ovl667_D_80118F04 w->failures
-#define ovl667_D_80118F0C w->pending
-#define ovl667_D_80118EF4 w->serial
-#define ovl667_D_80118EEC w->phase
-#define ovl667_D_80118F08 w->read
-#define ovl667_D_80118F09 w->write
-#define ovl667_D_80118F8D w->selected
-#define ovl667_D_80118EED w->received
-#define ovl667_D_80118EEE w->sent
-#define ovl667_D_80118F20 w->ring
+#define ovl667_link_shutdown_stage w->halt
+#define ovl667_sync_retry_state w->command
+#define ovl667_rx_packet_count w->rxcount
+#define ovl667_rx_miss_count w->timeout
+#define ovl667_tx_packet_count w->txcount
+#define ovl667_tx_miss_count w->failures
+#define ovl667_tx_stage w->pending
+#define ovl667_rx_idle_flag w->serial
+#define ovl667_pending_pause_bits w->phase
+#define ovl667_rx_slot_index w->read
+#define ovl667_tx_slot_index w->write
+#define ovl667_active_slot_index w->selected
+#define ovl667_remote_pause_bits w->received
+#define ovl667_local_pause_bits w->sent
+#define ovl667_rx_packet_ring w->ring
 #define LinkRemoteCarInputs w->incoming
 #define LinkLocalCarInputs w->outgoing
 #define LinkPendingCarInputs w->payload
@@ -78,8 +78,8 @@ static s32 service(unsigned kind) {
  }
  return result;
 }
-s32 ovl667_func_80114E34(void){return service(1);}
-s32 ovl667_func_80114D30(void){return service(2);}
+s32 ovl667_poll_race_packet(void){return service(1);}
+s32 ovl667_send_race_packet(void){return service(2);}
 '''+bodies+r'''
 static void reference_receive(void) {
  unsigned chosen;
@@ -138,7 +138,7 @@ int main(void) {
   initial.calls=0;initial.checkpoint=0;initial.service=0;
   for(kind=0;kind<2;kind++)for(r=0;r<6;r++) {
    result=results[r];actual=initial;expected=initial;
-   w=&actual;if(kind)ovl667_func_801151E0();else ovl667_func_80115068();
+   w=&actual;if(kind)ovl667_transmit_local_inputs();else ovl667_receive_peer_inputs();
    w=&expected;if(kind)reference_send();else reference_receive();
    assert(memcmp(&actual,&expected,sizeof(actual))==0);
   }

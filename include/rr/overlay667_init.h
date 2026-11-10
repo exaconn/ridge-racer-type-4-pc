@@ -6,5 +6,5 @@
 #include "rr/menu_selection.h"
 #include "rr/projection_state.h"
 extern s16 D_8010C068,D_8010C0B8;
-void ovl667_func_80117EF8(void);
+void ovl667_init_course_menu(void);
 #endif

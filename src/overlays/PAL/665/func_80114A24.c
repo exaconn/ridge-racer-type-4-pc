@@ -1,7 +1,7 @@
 #include "rr/overlay665_menu.h"
 #include "rr/load_cursor.h"
 
-void ovl665_func_80114A24(void) {
+void ovl665_init_menu(void) {
     ClearScreenOverlayState();
     ResetScreenCounters();
     MenuArenas.second=CdDirectoryBuffer+0x2D000;
@@ -17,7 +17,7 @@ void ovl665_func_80114A24(void) {
     InitUiRow(6,94,336,112,32,0,0,1,0,85);
     SetMenuFrameOptions(1,1,1);
     if(RaceContext.mode18==1) {
-        ovl665_D_80119768.selection08=5;
+        ovl665_options_state.selection08=5;
         RaceContext.mode18=0;
     }
     FadeCountdown=64;

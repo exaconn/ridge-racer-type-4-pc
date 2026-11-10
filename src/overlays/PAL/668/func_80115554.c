@@ -1,6 +1,6 @@
 #include "rr/overlay668_camera.h"
 
-void ovl668_func_80115554(void) {
+void ovl668_step_epilogue_camera_yaw(void) {
     s32 unused[4];
     s32 var_a3;
     s32 idx1;

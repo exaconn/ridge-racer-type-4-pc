@@ -19,10 +19,10 @@ void SetDispMask(s32);
 void SsSetSerialAttr(s8,s8,s8);
 void SsSetSerialVol(s8,s32,s32);
 s32 VSync(s32);
-s32 ovl668_func_801150D8(StrDisplayConfig *);
-void ovl668_func_801153F0(u8 *location);
-void ovl668_func_80114B2C(u8 *resource);
-void ovl668_func_80114F48(void);
+s32 ovl668_decode_next_frame(StrDisplayConfig *);
+void ovl668_seek_and_read_stream(u8 *location);
+void ovl668_start_stream_playback(u8 *resource);
+void ovl668_on_mdec_slice_ready(void);
 /* Both selectors are0..1. The full playback state remains live across callbacks.
  * Coordinates narrow to signed16, DMA output covers width*height/2 words.
  * Captured rectangle is passed by address; its pixel buffer uses the old index. */

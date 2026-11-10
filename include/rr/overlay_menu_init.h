@@ -13,6 +13,6 @@ void ovl663_init_selection(s32 mode);
 /* The loader may replace the second arena. Layout calls may replace the UI
  * root and local condition; both are read after all four rows are configured. */
 void ovl663_init_menu(void);
-void ovl665_func_80114FD8(void);
+void ovl665_init_audio_options(void);
 void ovl666_init_menu(void);
 #endif

@@ -28,7 +28,7 @@ class Overlay667StatusTest(unittest.TestCase):
 _Static_assert(__builtin_types_compatible_p(__typeof__(ActiveSceneId),u16),"scene cell is unsigned16");
 static struct {u32 head;u16 before,marker,after,pad;s32 status;u32 tail;} world,snapshot;
 #define ActiveSceneId world.marker
-#define ovl667_D_80118EE4 world.status
+#define ovl667_sio_status_flag world.status
 ''' + '\n'.join(bodies) + r'''
 static u32 seed=0x1492C;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
@@ -37,20 +37,20 @@ int main(void){unsigned i,b;u32 calls=0;
  static const u32 elapsed[]={0,1,24999,25000,25001,65535,65536,0x7FFFFFFFU,0x80000000U,0xFFFFFFFFU};
  static const s32 outcome[]={1,1,1,0,0,0,0,0,0,0};
  for(i=0;i<10;i++){
-  assert(ovl667_func_8011492C(2,elapsed[i])==outcome[i]);calls++;
-  for(b=0;b<32;b++){s32 kind=word(2U^(1U<<b));assert(ovl667_func_8011492C(kind,elapsed[i])==1);calls++;}
+  assert(ovl667_check_sio_timeout(2,elapsed[i])==outcome[i]);calls++;
+  for(b=0;b<32;b++){s32 kind=word(2U^(1U<<b));assert(ovl667_check_sio_timeout(kind,elapsed[i])==1);calls++;}
  }
  for(i=0;i<65536;i++){
   u32 shifted=(i<<16)|i;unsigned j;
-  assert(ovl667_func_8011492C(2,i)==(i<=24999));calls++;
-  assert(ovl667_func_8011492C(2,0x80000000U|i)==0);calls++;
-  assert(ovl667_func_8011492C(word(0x10002U),shifted)==1);calls++;
+  assert(ovl667_check_sio_timeout(2,i)==(i<=24999));calls++;
+  assert(ovl667_check_sio_timeout(2,0x80000000U|i)==0);calls++;
+  assert(ovl667_check_sio_timeout(word(0x10002U),shifted)==1);calls++;
   for(j=0;j<sizeof(world);j++)((u8*)&world)[j]=(u8)next();
   world.marker=(u16)i;world.status=word(shifted);
   memcpy(&snapshot,&world,sizeof(world));
-  assert(ovl667_func_80115058()==snapshot.status);
+  assert(ovl667_get_sio_status_flag()==snapshot.status);
   assert(memcmp(&world,&snapshot,sizeof(world))==0);
-  ovl667_func_80117EE8();assert(world.marker==315);
+  ovl667_select_scene();assert(world.marker==315);
   world.marker=snapshot.marker;assert(memcmp(&world,&snapshot,sizeof(world))==0);
  }
  assert(calls==196938);return 0;

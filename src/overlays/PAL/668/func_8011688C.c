@@ -1,3 +1,3 @@
 #include "types.h"
-extern u32 *ovl668_D_80116E54;
-u32 ovl668_func_8011688C(void) { return *ovl668_D_80116E54; }
+extern u32 *ovl668_mdec1_ctrl_ptr;
+u32 ovl668_mdec_read_status(void) { return *ovl668_mdec1_ctrl_ptr; }

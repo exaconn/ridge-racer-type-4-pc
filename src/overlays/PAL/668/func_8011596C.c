@@ -1,5 +1,5 @@
 #include "types.h"
-s32 ovl668_func_8011596C(s16 arg0) {
+s32 ovl668_calc_credit_line_fade(s16 arg0) {
     if (arg0 >= 157) {
         return 0;
     }

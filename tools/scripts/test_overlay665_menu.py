@@ -16,7 +16,7 @@ class ReplayMenuTest(unittest.TestCase):
         owner = source_owners(root / 'src/main/PAL')['ResetScreenCounters']
         reset = definition_source(owner.read_text(), 'ResetScreenCounters')
         classifier = (root / 'src/overlays/PAL/665/func_8011629C.c').read_text()
-        classifier = classifier.replace('ovl665_func_8011629C','real_classify')
+        classifier = classifier.replace('ovl665_detect_controller_kind','real_classify')
         source = r'''
 #include <assert.h>
 #include "game/system/pad.h"
@@ -42,7 +42,7 @@ static World actual,reference,initial,*w;static unsigned scenario,mutation,kind;
 static u8 resources[3][0x2D100],storage[3][128];static u16 textData[32];
 FrameStorage *CurrentDrawBuf;UiRow24 *UiRows;MenuTextState *CardDialogueStatePtr;
 #define RaceContext w->s.context
-#define ovl665_D_80119768 w->s.visual
+#define ovl665_options_state w->s.visual
 #define PlayerControllers w->s.inputs
 #define MenuArenas w->s.arenas
 #define CdDirectoryBuffer w->s.resource
@@ -85,11 +85,11 @@ void RaceLoadReset(void){event(6);change();}
 void SeqStartTrack(s32 mode){event(7)->args[0]=mode;change();}
 void AddScreenFadeTiles(u32 *ordering,s32 intensity,u32 mode){Event *e=event(8);u32 *base=w->s.frames[w->s.frameRoot].buffer.ordering70.words;assert(ordering==base||ordering==base+702);e->args[0]=ordering-base;e->args[1]=intensity;e->args[2]=(s32)mode;*ordering^=(u32)intensity;change();}
 void StepMenuValue(s32 a,s32 b,char *selection,s32 count,s32 flags){Event *e=event(9);assert(selection==(char*)&w->s.visual.selection08);e->args[0]=a;e->args[1]=b;e->args[2]=count;e->args[3]=flags;*selection=(char)(next()%8);change();}
-s32 ovl665_func_8011629C(s32 index){Event *e=event(10);s32 result=real_classify(index);e->args[0]=index;e->args[1]=result;return result;}
+s32 ovl665_detect_controller_kind(s32 index){Event *e=event(10);s32 result=real_classify(index);e->args[0]=index;e->args[1]=result;return result;}
 void PlaySfx(s32 sound){event(11)->args[0]=sound;change();}
 void SetPresentationDrawEnabled(s32 mode){event(12)->args[0]=mode;change();}
 void SeqFadeVolume(s32 a,s32 b){Event *e=event(13);e->args[0]=a;e->args[1]=b;change();}
-void ovl665_func_80116070(void){event(14);change();}
+void ovl665_init_controller_options(void){event(14);change();}
 void DrawUiRow(s32 index){assert(index>=0&&index<8);event(15)->args[0]=index;change();}
 void UpdateScreenFade(s32 flags){event(16)->args[0]=flags;change();}
 static void expected(void){State *s=&w->s;unsigned i;
@@ -104,7 +104,7 @@ static void expected(void){State *s=&w->s;unsigned i;
   if(UiRows[0].byte14==2&&s->fade==0){
    UiRows[s->visual.selection08].cells[0]=0;StepMenuValue(0,2,(char*)&s->visual.selection08,7,0);UiRows[s->visual.selection08].cells[0]=2;
    if(s->inputs[0].action28){
-    int reject=s->visual.selection08==1&&ovl665_func_8011629C(1)<0;
+    int reject=s->visual.selection08==1&&ovl665_detect_controller_kind(1)<0;
     if(reject)PlaySfx(4);
     else {PlaySfx(1);UiRows[s->visual.selection08].cells[0]=1;s->fade=64;s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
    }else if(s->inputs[0].action2C){PlaySfx(2);s->visual.selection08=6;s->fade=64;s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
@@ -116,17 +116,17 @@ static void expected(void){State *s=&w->s;unsigned i;
   s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);
  }else if(phase==2){
   s->fade=half((s32)s->fade-1);AddScreenFadeTiles(s->frames[s->frameRoot].buffer.ordering70.words,(64-(s32)s->fade)*4,69);
-  if(s->fade<=0){SetPresentationDrawEnabled(0);s->visual.exit34.word=0;s->visual.layout0C=0;s->visual.detail10=0;s->visual.scene00=wrap((int64_t)s->visual.scene00+1);if(s->visual.selection08==0||s->visual.selection08==1)ovl665_func_80116070();}
+  if(s->fade<=0){SetPresentationDrawEnabled(0);s->visual.exit34.word=0;s->visual.layout0C=0;s->visual.detail10=0;s->visual.scene00=wrap((int64_t)s->visual.scene00+1);if(s->visual.selection08==0||s->visual.selection08==1)ovl665_init_controller_options();}
  }
  }
- if(ovl665_func_8011629C(1)<0){UiRows[1].half20=1;if(s->visual.selection08==1)UiRows[1].cells[0]=4;}else UiRows[1].half20=0;
+ if(ovl665_detect_controller_kind(1)<0){UiRows[1].half20=1;if(s->visual.selection08==1)UiRows[1].cells[0]=4;}else UiRows[1].half20=0;
  for(i=0;i<8;i++)DrawUiRow(i);UpdateScreenFade(0x10066);
 }
 int main(void){unsigned i;assert((uintptr_t)resources>UINT32_MAX);_Static_assert(sizeof(State)%4==0,"state words");
  for(scenario=0;scenario<32768;scenario++)for(kind=0;kind<2;kind++)for(mutation=0;mutation<2;mutation++){
   memset(&initial,0,sizeof(initial));w=&initial;w->s.rng=0x14c4c+scenario*31+kind;effect();w->s.visual.layout0C=phases[scenario%7];w->s.fade=fades[(scenario/7)%8];w->s.visual.selection08=scenario%8;
   for(i=0;i<4;i++){w->s.guard[i]=scenario+i;w->s.tail[i]=~(scenario+i);}actual=reference=initial;
-  w=&actual;roots();if(kind)ovl665_func_80114C4C();else ovl665_func_80114A24();w=&reference;roots();expected();assert(!memcmp(&actual,&reference,sizeof(actual)));
+  w=&actual;roots();if(kind)ovl665_update_menu();else ovl665_init_menu();w=&reference;roots();expected();assert(!memcmp(&actual,&reference,sizeof(actual)));
  }
  return 0;
 }

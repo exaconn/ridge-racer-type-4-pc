@@ -1,15 +1,15 @@
 #include "rr/overlay668_dispatch.h"
 #include "rr/load_cursor.h"
-void ovl668_func_80114AA8(void) {
+void ovl668_update_stream_mode(void) {
     switch (D_800AC704) {
     case 0:
-        ovl668_func_80114B2C(LoadCursor);
+        ovl668_start_stream_playback(LoadCursor);
         break;
     case 1:
-        ovl668_func_80114C3C();
+        ovl668_step_stream_playback();
         break;
     case 2:
-        ovl668_func_80114DF4();
+        ovl668_stop_stream_playback();
         break;
     }
 }

@@ -109,7 +109,7 @@ int main(void){unsigned kind,i;
   w->s.camera.yaw462=half(scenario);w->s.camera.fraction49C=scenario%1024;w->s.camera.node498=scenario%w->s.count;
   for(i=0;i<256;i++)w->s.scratch[i]=word(next());
   actual=reference=initial;w=&actual;TrackNodes=w->s.tables[w->s.table];
-  if(kind==0)ovl668_func_80115554();else if(kind==1)ovl668_func_801156FC();else ovl668_func_80115850();
+  if(kind==0)ovl668_step_epilogue_camera_yaw();else if(kind==1)ovl668_step_epilogue_camera_pitch();else ovl668_apply_epilogue_camera();
   w=&reference;TrackNodes=w->s.tables[w->s.table];expected(kind);assert(!memcmp(&actual,&reference,sizeof(actual)));
  }
  return 0;

@@ -40,7 +40,7 @@ int main(void){
   unsigned i,expected;
   for(i=0;i<4;i++)location[i]=(u8)(scenario>>(i*3));
   memcpy(before,location,4);roundIndex=stage=attempt=events=0;modeAddress=0;expectedMode=128;
-  ovl668_func_801153F0(location);
+  ovl668_seek_and_read_stream(location);
   expected=(retries(2)+1)*(retries(0)+retries(1)+4);
   assert(events==expected);assert(stage==0);assert(roundIndex==retries(2)+1);
   assert(memcmp(before,location,4)==0);

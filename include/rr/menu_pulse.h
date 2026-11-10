@@ -15,6 +15,6 @@ RR_ASSERT_OFFSET(PulseRow, duration, 2);
 
 extern const PulseRow *D_8009FF80[], *D_8009FFA0[];
 void PadStepPulse(void);
-s32 ovl665_func_8011629C(s32 index);
+s32 ovl665_detect_controller_kind(s32 index);
 
 #endif

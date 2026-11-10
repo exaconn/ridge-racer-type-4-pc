@@ -1,20 +1,20 @@
 #include "game/system/pad.h"
 #include "rr/overlay665_calibration.h"
 #include "rr/frame_storage_types.h"
-void ovl665_func_80115820(void) {
+void ovl665_update_screen_adjust(void) {
     s32 i;
     void *cursor;
     GpuSingleCommandPacket *packet;
     s16 timer;
     FrameStorage *context;
-    switch(ovl665_D_80119768.layout0C) {
+    switch(ovl665_options_state.layout0C) {
     case 0:
-        ovl665_func_80115798();
+        ovl665_init_screen_adjust();
         SetPresentationDrawEnabled(0);
-        ovl665_D_80119768.layout0C=(ovl665_D_80119768.layout0C+1U);
+        ovl665_options_state.layout0C=(ovl665_options_state.layout0C+1U);
         break;
     case 1:
-        if(BadgeRows[0].state10==3)ovl665_D_80119768.layout0C=2;
+        if(BadgeRows[0].state10==3)ovl665_options_state.layout0C=2;
         break;
     case 2:
         if(PlayerControllers[0].edges08.fields.repeat&0x8000)Options.display.x34=(Options.display.x34-1U);
@@ -32,7 +32,7 @@ void ovl665_func_80115820(void) {
             PlaySfx(1);
             BadgeRows[0].state10=4;
             FadeCountdown=64;
-            ovl665_D_80119768.layout0C=(ovl665_D_80119768.layout0C+1U);
+            ovl665_options_state.layout0C=(ovl665_options_state.layout0C+1U);
         }
         for(i=0;i<2;i++) {
             DrawBuffers[i].environment.display5C.screen.x=(s16)Options.display.x34;
@@ -44,19 +44,19 @@ void ovl665_func_80115820(void) {
         FadeCountdown=timer;
         AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,(64-timer)*4,69);
         if(FadeCountdown<=0 && BadgeRows[0].state10==11) {
-            ovl665_func_80114A24();
-            ovl665_D_80119768.layout0C=0;
-            ovl665_D_80119768.scene00=(ovl665_D_80119768.scene00-1U);
+            ovl665_init_menu();
+            ovl665_options_state.layout0C=0;
+            ovl665_options_state.scene00=(ovl665_options_state.scene00-1U);
             return;
         }
         break;
     }
     cursor=RR_PROJECTION_SCRATCH->pointers.cursor;
     for(i=0;i<2;i++) {
-        cursor=AddSpritePrim(CurrentDrawBuf->buffer.ordering70.words,cursor,160,128+i*96,&ovl665_D_80119018[i],0x7F38,255);
+        cursor=AddSpritePrim(CurrentDrawBuf->buffer.ordering70.words,cursor,160,128+i*96,&ovl665_screen_frame_uv_rects[i],0x7F38,255);
     }
     for(i=0;i<2;i++) {
-        cursor=AddSpritePrim(CurrentDrawBuf->buffer.ordering70.words,cursor,136+i*48,176,&ovl665_D_80119020[i],0x7F38,255);
+        cursor=AddSpritePrim(CurrentDrawBuf->buffer.ordering70.words,cursor,136+i*48,176,&ovl665_screen_arrow_uv_rects[i],0x7F38,255);
     }
     packet=(GpuSingleCommandPacket *)cursor;
     RR_PROJECTION_SCRATCH->pointers.cursor=(u8 *)packet;

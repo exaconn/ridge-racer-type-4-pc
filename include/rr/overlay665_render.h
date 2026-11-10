@@ -16,5 +16,5 @@ void SetupObjectLightMatrices(char *view,char *lighting,
 u32 *ScaleMatrix(u32 *matrix,s32 scale[3]);
 void SetGeomScreen(s32);
 void SubmitModelTwoTri(PreviewRenderScratch *scratch,s32 object,s32 blend,s32 depth);
-void ovl665_func_8011643C(void);
+void ovl665_draw_controller_model(void);
 #endif

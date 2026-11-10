@@ -4,7 +4,7 @@
 #define RR_GPU_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)0x1F800000)
 #endif
 
-void ovl667_func_80117EF8(void)
+void ovl667_init_course_menu(void)
 {
     s32 choice;
     ModeFrame=0;

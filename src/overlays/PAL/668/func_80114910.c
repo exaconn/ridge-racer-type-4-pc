@@ -1,5 +1,5 @@
 #include "rr/overlay668_resource.h"
-void ovl668_func_80114910(s32 arg0, StrCdFileInfo *arg1, u32 *arg2) {
+void ovl668_resolve_stream_file(s32 arg0, StrCdFileInfo *arg1, u32 *arg2) {
     /* Existing PAL compiler frame reserves this area; it carries no data. */
     u8 reserved_stack10[8];
     /* Emit 0x0FFFFFFF mask in $3 before &SoundState and offset math */

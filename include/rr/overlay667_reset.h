@@ -2,9 +2,9 @@
 #define RR_OVERLAY667_RESET_H
 #include "rr/frame_loop.h"
 
-extern s32 ovl667_D_80118F04,ovl667_D_80118EFC;
-extern s32 ovl667_D_80118EF8,ovl667_D_80118F00,ovl667_D_80118EE8;
-extern u8 ovl667_D_80118EEF;
-void ovl667_func_80114A40(void);
-void ovl667_func_801153F0(void);
+extern s32 ovl667_tx_miss_count,ovl667_rx_miss_count;
+extern s32 ovl667_rx_packet_count,ovl667_tx_packet_count,ovl667_read_pending_flag;
+extern u8 ovl667_checksum_error_flag;
+void ovl667_close_sio_session(void);
+void ovl667_abort_on_link_timeout(void);
 #endif

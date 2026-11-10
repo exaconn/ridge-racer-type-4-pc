@@ -85,7 +85,7 @@ int main(void){unsigned i,b,j;unsigned seen[8]={0},counts[16]={0},roots[2]={0};
   }
   actual.audio.archive2638=(u8*)&actual.archives[bank];
   actual.context.prefix.activeB8=&actual.active[7];
-  ovl668_func_80114910(id,&actual.file,output(&actual));
+  ovl668_resolve_stream_file(id,&actual.file,output(&actual));
   assert(calls==1 && !memcmp(&actual,&expected,sizeof actual));
   seen[alias]++;counts[id]++;roots[bank]++;
  }
@@ -95,7 +95,7 @@ int main(void){unsigned i,b,j;unsigned seen[8]={0},counts[16]={0},roots[2]={0};
 }
 '''
 def main():
- body=definition_source(SOURCE.read_text(),'ovl668_func_80114910')
+ body=definition_source(SOURCE.read_text(),'ovl668_resolve_stream_file')
  body=re.sub(r'__asm__\("\$\d+"\)','',body)
  # Preserve the original complete native archive fixture and all byte-pattern
  # inputs. Only the current production body sees the expanded AudioState.
@@ -140,9 +140,9 @@ u8 *CdIntToPos(s32 sector,u8 *location){
 #undef SoundState
 #define SoundState (audio_native.value)
 '''
- body=body.replace('void ovl668_func_80114910(', 'static void native_resource(')
+ body=body.replace('void ovl668_resolve_stream_file(', 'static void native_resource(')
  wrapper=r'''
-void ovl668_func_80114910(s32 index,StrCdFileInfo *file,u32 *sectors){
+void ovl668_resolve_stream_file(s32 index,StrCdFileInfo *file,u32 *sectors){
  archive_import();
  u32 *native_output=sectors==&actual.audio.sector2634
      ?&audio_native.value.streamBanks[0].sector:sectors;

@@ -42,27 +42,27 @@ static struct World {
  unsigned calls,probes,statuses;struct Event events[40];
 } actual,expected,initial,*w;
 static unsigned scenario,mutation;
-#define ovl667_D_80118EC8 w->state.command
-#define ovl667_D_80118ED0 w->state.peer
-#define ovl667_D_80118ED4 w->state.halt
-#define ovl667_D_80118F0C w->state.pending
-#define ovl667_D_80118EF4 w->state.serial
-#define ovl667_D_80118EF8 w->state.rxcount
-#define ovl667_D_80118EFC w->state.timeout
-#define ovl667_D_80118F00 w->state.txcount
-#define ovl667_D_80118F04 w->state.failures
-#define ovl667_D_80118EE8 w->state.event
-#define ovl667_D_80118EEC w->state.phase
-#define ovl667_D_80118EEF w->state.error
-#define ovl667_D_80118F08 w->state.read
-#define ovl667_D_80118F09 w->state.write
-#define ovl667_D_80118F8D w->state.selected
-#define ovl667_D_80118F8C w->state.limit
-#define ovl667_D_80118EED w->state.received
-#define ovl667_D_80118EEE w->state.sent
-#define ovl667_D_80118F20 w->state.ring
-#define ovl667_D_80118F10 w->state.rx
-#define ovl667_D_80118F80 w->state.tx
+#define ovl667_sync_retry_state w->state.command
+#define ovl667_peer_race_state w->state.peer
+#define ovl667_link_shutdown_stage w->state.halt
+#define ovl667_tx_stage w->state.pending
+#define ovl667_rx_idle_flag w->state.serial
+#define ovl667_rx_packet_count w->state.rxcount
+#define ovl667_rx_miss_count w->state.timeout
+#define ovl667_tx_packet_count w->state.txcount
+#define ovl667_tx_miss_count w->state.failures
+#define ovl667_read_pending_flag w->state.event
+#define ovl667_pending_pause_bits w->state.phase
+#define ovl667_checksum_error_flag w->state.error
+#define ovl667_rx_slot_index w->state.read
+#define ovl667_tx_slot_index w->state.write
+#define ovl667_active_slot_index w->state.selected
+#define ovl667_consumed_slot_index w->state.limit
+#define ovl667_remote_pause_bits w->state.received
+#define ovl667_local_pause_bits w->state.sent
+#define ovl667_rx_packet_ring w->state.ring
+#define ovl667_rx_staging_packet w->state.rx
+#define ovl667_tx_staging_packet w->state.tx
 #define LinkPendingCarInputs w->state.payload
 #define LinkRemoteCarInputs w->state.incoming
 #define LinkLocalCarInputs w->state.outgoing
@@ -90,7 +90,7 @@ void SetDispMask(s32 mode){assert(mode==0);(void)boundary(0,mode,0,0);}
 s32 _sio_control(s32 command,s32 operation,unsigned long argument) {
  if(command==4) {
   s32 (*registered)(s32,u32)=(s32(*)(s32,u32))argument;
-  assert(operation==0 && registered==ovl667_func_8011492C);
+  assert(operation==0 && registered==ovl667_check_sio_timeout);
   assert(argument>UINT32_MAX);
   assert(registered(2,24999)==1 && registered(2,25000)==0);
   assert(registered(1,UINT32_MAX)==1);
@@ -104,7 +104,7 @@ static void reference(unsigned long configuration) {
  (void)boundary(0,0,0,0);
  (void)boundary(1,1,3,configuration);
  (void)boundary(1,1,4,4);
- (void)boundary(1,4,0,(unsigned long)ovl667_func_8011492C);
+ (void)boundary(1,4,0,(unsigned long)ovl667_check_sio_timeout);
  w->state.error=0;w->state.selected=0;w->state.limit=7;
  w->state.read=0;w->state.write=0;
  w->state.timeout=0;w->state.failures=0;w->state.rxcount=0;w->state.txcount=0;
@@ -141,7 +141,7 @@ int main(void) {
   for(i=0;i<4;i++){initial.guard[i]=0x12345678U+i;initial.tail[i]=0x87654321U-i;}
   configuration=(scenario&16)?(unsigned long)&initial:((unsigned long)scenario<<16)|scenario;
   actual=initial;expected=initial;
-  w=&actual;ovl667_func_80114AF8(configuration);
+  w=&actual;ovl667_init_sio_session(configuration);
   w=&expected;reference(configuration);
   assert(memcmp(&actual,&expected,sizeof(actual))==0);
   assert(actual.calls>=9 && actual.calls<40);

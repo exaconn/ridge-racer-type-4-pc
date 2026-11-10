@@ -19,7 +19,7 @@ s32 CountChoiceGlyphs(const CourseChoice4 *choices);
  * The published UI pointer supplies at least two writable bytes. */
 void ovl660_init_preview(void);
 void ovl661_reset_preview_selection(void);
-void ovl667_func_80116BB4(void);
+void ovl667_reset_preview_selection(void);
 RR_ASSERT_SIZE(CourseChoice4,4);
 RR_ASSERT_OFFSET(CourseChoice4,second,2);
 RR_ASSERT_OFFSET(CourseChoice4,first,3);

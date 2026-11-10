@@ -1,5 +1,5 @@
 #include "rr/overlay668_display.h"
-void ovl668_func_80114E48(u8 *base){
+void ovl668_init_stream_buffers(u8 *base){
  ((StrBufferSet*)RaceContext.activeB8)->buffers[0]=base;
  base+=0xa000;
  ((StrBufferSet*)RaceContext.activeB8)->buffers[1]=base;

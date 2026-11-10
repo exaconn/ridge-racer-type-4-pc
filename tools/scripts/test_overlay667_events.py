@@ -23,11 +23,11 @@ class Overlay667EventsTest(unittest.TestCase):
 typedef struct {u32 head[4];s32 counter,status,pending;u32 event0,event1;s32 file0,file1;u32 tail[4];} State;
 typedef struct {s32 kind;u32 args[3];const char *name;BiosEventCallback callback;State state;} Event;
 static struct World {State s;u32 calls;BiosEventCallback registered;Event events[6];u32 guard[4];} world,expected;
-const char ovl667_D_8011487C[]="sio:";
-#define ovl667_D_80118EE0 world.s.counter
-#define ovl667_D_80118EE8 world.s.pending
-#define ovl667_D_80118ED8 world.s.event0
-#define ovl667_D_80118EDC world.s.event1
+const char ovl667_sio_device_name[]="sio:";
+#define ovl667_sio_error_count world.s.counter
+#define ovl667_read_pending_flag world.s.pending
+#define ovl667_sio_read_event world.s.event0
+#define ovl667_sio_error_event world.s.event1
 #define LinkWriteHandle world.s.file0
 #define LinkReadHandle world.s.file1
 ''' + bodies + r'''
@@ -42,7 +42,7 @@ static void effect(struct World *v){
  s->pending=word(scenario^step^0xFEDCBA98U);s->status=word(scenario*0x40506071U+step);
  s->event0=result(step+6);s->event1=result(step+7);s->file0=word(result(step+8));s->file1=word(result(step+9));
  if(v->registered && ((scenario+step)&1)){
-  assert(v->registered==ovl667_func_80114D10);
+  assert(v->registered==ovl667_on_sio_error_event);
   if(v==&world)assert(v->registered()==0);else callback_reference(s);
  }
 }
@@ -54,26 +54,26 @@ BiosEventHandle OpenEvent(u32 eventClass,u32 specification,u32 mode,BiosEventCal
  assert(world.calls<2);assert(eventClass==0xF000000BU);
  return observe(&world,0,eventClass,specification,mode,0,callback);
 }
-s32 FileOpen(const char *name,s32 mode){assert(world.calls==2 || world.calls==3);assert(name==ovl667_D_8011487C && strcmp(name,"sio:")==0);return word(observe(&world,1,(u32)mode,0,0,name,0));}
+s32 FileOpen(const char *name,s32 mode){assert(world.calls==2 || world.calls==3);assert(name==ovl667_sio_device_name && strcmp(name,"sio:")==0);return word(observe(&world,1,(u32)mode,0,0,name,0));}
 s32 EnableEvent(BiosEventHandle handle){assert(world.calls==4 || world.calls==5);return word(observe(&world,2,handle,0,0,0,0));}
 s32 _sio_control(s32 command,s32 operation,unsigned long argument){assert(world.calls<2 && argument==0);return word(observe(&world,3,(u32)command,(u32)operation,0,0,0));}
 static void reference_setup(void){
  expected.s.event0=observe(&expected,0,0xF000000BU,0x400,0x2000,0,0);
- expected.s.event1=observe(&expected,0,0xF000000BU,0x8000,0x1000,0,ovl667_func_80114D10);
- expected.s.file0=word(observe(&expected,1,2,0,0,ovl667_D_8011487C,0));
- expected.s.file1=word(observe(&expected,1,0x8001,0,0,ovl667_D_8011487C,0));
+ expected.s.event1=observe(&expected,0,0xF000000BU,0x8000,0x1000,0,ovl667_on_sio_error_event);
+ expected.s.file0=word(observe(&expected,1,2,0,0,ovl667_sio_device_name,0));
+ expected.s.file1=word(observe(&expected,1,0x8001,0,0,ovl667_sio_device_name,0));
  observe(&expected,2,expected.s.event1,0,0,0,0);observe(&expected,2,expected.s.event0,0,0,0,0);
 }
 static void initialize(void){unsigned i;for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)next();world.calls=0;world.registered=0;memcpy(&expected,&world,sizeof(world));}
 int main(void){unsigned k;u32 bits;
- assert((uintptr_t)ovl667_D_8011487C>UINT32_MAX && sizeof(BiosEventCallback)==sizeof(void*));
+ assert((uintptr_t)ovl667_sio_device_name>UINT32_MAX && sizeof(BiosEventCallback)==sizeof(void*));
  for(k=0;k<65536;k++){
   scenario=k;initialize();bits=k*65537U;
   if(k==0)bits=0x7FFFFFFFU;else if(k==1)bits=0xFFFFFFFFU;else if(k==2)bits=0x80000000U;
   world.s.counter=word(bits);memcpy(&expected,&world,sizeof(world));callback_reference(&expected.s);
-  assert(ovl667_func_80114D10()==0);assert(memcmp(&world,&expected,sizeof(world))==0);
-  initialize();reference_setup();assert(ovl667_func_80114988()==0);assert(world.calls==6);assert(memcmp(&world,&expected,sizeof(world))==0);
-  initialize();observe(&expected,3,0,0,0,0,0);observe(&expected,3,0,1,0,0,0);ovl667_func_80114950();assert(world.calls==2);assert(memcmp(&world,&expected,sizeof(world))==0);
+  assert(ovl667_on_sio_error_event()==0);assert(memcmp(&world,&expected,sizeof(world))==0);
+  initialize();reference_setup();assert(ovl667_open_sio_events()==0);assert(world.calls==6);assert(memcmp(&world,&expected,sizeof(world))==0);
+  initialize();observe(&expected,3,0,0,0,0,0);observe(&expected,3,0,1,0,0,0);ovl667_reset_sio_ports();assert(world.calls==2);assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  return 0;
 }

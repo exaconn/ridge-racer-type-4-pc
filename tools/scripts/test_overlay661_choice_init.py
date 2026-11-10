@@ -106,7 +106,7 @@ int main(void){unsigned k,i;const u32 edges[]={0,3,0x7fffffffU,0x80000000U,0xfff
   expected.flag=expected.selected>=8;expected.mapped=codes[(u16)expected.selected&7];expected.flag1=0;expected.flag2=0;
   expected.scratch.pose08.angles10.xyz.x=512;expected.scratch.pose08.position00.words[1]=-416;expected.scratch.pose08.angles10.xyz.y=0;expected.scratch.pose08.angles10.xyz.z=0;expected.scratch.pose08.position00.words[0]=0;expected.scratch.pose08.position00.words[2]=0;
   expected.scene.words20[0]=0;expected.scene.words20[1]=0;expected.scene.words20[2]=0;expected.bank=0;expected.selectionCounter=0;expected.published=expected.arenas.second;
-  ovl667_func_80117EF8();assert(memcmp(&world,&expected,sizeof(world))==0);
+  ovl667_init_course_menu();assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  return 0;
 }

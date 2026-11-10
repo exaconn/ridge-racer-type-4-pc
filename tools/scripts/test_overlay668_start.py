@@ -37,13 +37,13 @@ static struct {
  u32 guard[4]; LibInterruptCallback installed;
  LibQueueRecord32 *queue; s32 count,args[5]; unsigned events[4]; u32 tail[4];
 } world, expected;
-void ovl668_func_80116298(s32 mode) {
+void ovl668_mdec_reset(s32 mode) {
  assert(step==0 && mode==0); world.events[step++]=1;
  /* Both preceding boundaries can replace the active root. */
  ActiveStrStreamPtr=&streams[(scenario+1)%3];
  streams[(scenario+2)%3].queue20=&queues[(scenario+1)%3][scenario%4];
 }
-LibInterruptCallback ovl668_func_80116534(LibInterruptCallback callback) {
+LibInterruptCallback ovl668_mdec_out_callback(LibInterruptCallback callback) {
  LibInterruptCallback previous=world.installed;
  assert(step==1 && callback==requested); world.events[step++]=2;
  world.installed=callback;
@@ -81,7 +81,7 @@ int main(void) {
   expected.args[3]=0;expected.args[4]=0;
   for(i=0;i<4;i++)expected.events[i]=i+1;
   ActiveStrStreamPtr=&streams[scenario%3]; step=0;
-  ovl668_func_80114EE8(requested);
+  ovl668_setup_stream_ring(requested);
   assert(step==4 && ActiveStrStreamPtr==&streams[scenario%3]);
   assert(memcmp(&world,&expected,sizeof(world))==0);
   for(i=0;i<sizeof(queues);i++)assert(((u8*)queues)[i]==(u8)(scenario+i*17));

@@ -1,36 +1,36 @@
 #include "rr/overlay667_packet.h"
-void ovl667_func_801151E0(void) {
+void ovl667_transmit_local_inputs(void) {
     s32 state;
-    if (ovl667_D_80118ED0 == RaceState && ovl667_D_80118ED0 >= 4) {
-        if (ovl667_D_80118ED4 == 0) ovl667_D_80118ED4 = 1;
-    } else if (ovl667_D_80118ED4 <= 0) {
-        state = ovl667_D_80118F0C;
+    if (ovl667_peer_race_state == RaceState && ovl667_peer_race_state >= 4) {
+        if (ovl667_link_shutdown_stage == 0) ovl667_link_shutdown_stage = 1;
+    } else if (ovl667_link_shutdown_stage <= 0) {
+        state = ovl667_tx_stage;
         if (state == 1) {
-            if (ovl667_func_80114D30() == state) {
-                ovl667_D_80118F04 = 0;
+            if (ovl667_send_race_packet() == state) {
+                ovl667_tx_miss_count = 0;
                 LinkLocalCarInputs.choices[0] = LinkPendingCarInputs.choices[0];
                 LinkLocalCarInputs.choices[1] = LinkPendingCarInputs.choices[1];
-                ovl667_D_80118F00 = (ovl667_D_80118F00 + 1U);
-                ovl667_D_80118F09 = (ovl667_D_80118F09 + 1) & 7;
-                ovl667_D_80118EEE = ((u8 *)&ovl667_D_80118EEC)[0];
-                if (ovl667_D_80118EC8 == state) ovl667_D_80118EC8 = 0;
-                ovl667_D_80118F0C = 0;
-            } else ovl667_D_80118F0C = 2;
+                ovl667_tx_packet_count = (ovl667_tx_packet_count + 1U);
+                ovl667_tx_slot_index = (ovl667_tx_slot_index + 1) & 7;
+                ovl667_local_pause_bits = ((u8 *)&ovl667_pending_pause_bits)[0];
+                if (ovl667_sync_retry_state == state) ovl667_sync_retry_state = 0;
+                ovl667_tx_stage = 0;
+            } else ovl667_tx_stage = 2;
         } else if (state == 2) {
-            if (ovl667_func_80114D30() == 1) {
-                ovl667_D_80118F04 = 0;
+            if (ovl667_send_race_packet() == 1) {
+                ovl667_tx_miss_count = 0;
                 LinkLocalCarInputs.choices[0] = LinkPendingCarInputs.choices[0];
                 LinkLocalCarInputs.choices[1] = LinkPendingCarInputs.choices[1];
-                ovl667_D_80118F00 = (ovl667_D_80118F00 + 1U);
-                ovl667_D_80118F09 = (ovl667_D_80118F09 + 1) & 7;
-                ovl667_D_80118EEE = ((u8 *)&ovl667_D_80118EEC)[0];
-                if (ovl667_D_80118EC8 == 1) ovl667_D_80118EC8 = 0;
-                ovl667_D_80118F0C = 0;
+                ovl667_tx_packet_count = (ovl667_tx_packet_count + 1U);
+                ovl667_tx_slot_index = (ovl667_tx_slot_index + 1) & 7;
+                ovl667_local_pause_bits = ((u8 *)&ovl667_pending_pause_bits)[0];
+                if (ovl667_sync_retry_state == 1) ovl667_sync_retry_state = 0;
+                ovl667_tx_stage = 0;
             } else {
-                ovl667_D_80118F0C = 0;
-                ovl667_D_80118F04 = (ovl667_D_80118F04 + 1U);
-                if (ovl667_D_80118EC8 == 0) ovl667_D_80118EC8 = 1;
-                else if (ovl667_D_80118EC8 == 1) ovl667_D_80118EC8 = state;
+                ovl667_tx_stage = 0;
+                ovl667_tx_miss_count = (ovl667_tx_miss_count + 1U);
+                if (ovl667_sync_retry_state == 0) ovl667_sync_retry_state = 1;
+                else if (ovl667_sync_retry_state == 1) ovl667_sync_retry_state = state;
             }
         }
     }

@@ -10,10 +10,10 @@
 #include "rr/frame_environment.h"
 typedef struct {u8 reserved00[0x18];s32 mode18;} ReplayMenuContextPrefix;
 extern ReplayMenuContextPrefix RaceContext;
-extern Overlay665VisualState ovl665_D_80119768;
+extern Overlay665VisualState ovl665_options_state;
 extern s16 FadeCountdown;
 extern u8 ScreenFadeState[12];
-extern s32 ovl665_D_80119760;
+extern s32 ovl665_saved_stereo_mode;
 void RaceLoadReset(void);
 void SeqStartTrack(s32);
 void AddScreenFadeTiles(u32 *,s32,u32);
@@ -21,9 +21,9 @@ void SetPresentationDrawEnabled(s32);
 void SeqFadeVolume(s32,s32);
 void DrawUiRow(s32);
 void UpdateScreenFade(s32);
-void ovl665_func_80116070(void);
-void ovl665_func_80114A24(void);
-void ovl665_func_80114C4C(void);
+void ovl665_init_controller_options(void);
+void ovl665_init_menu(void);
+void ovl665_update_menu(void);
 /* Helpers may replace the full text-state root. */
 RR_ASSERT_SIZE(ReplayMenuContextPrefix,0x1C);
 RR_ASSERT_SIZE(Overlay665VisualState,0xA0);

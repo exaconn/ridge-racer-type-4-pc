@@ -24,9 +24,9 @@ typedef struct {
 
 
 extern s32 D_80127E90;
-const s32 ovl668_D_80114898[2] = {0x35, 0x36};
-const s32 ovl668_D_801148A0 = 0x7F94;
-s32 ovl668_func_8011596C(s16 arg0);
+const s32 ovl668_credit_tpages[2] = {0x35, 0x36};
+const s32 ovl668_credit_clut = 0x7F94;
+s32 ovl668_calc_credit_line_fade(s16 arg0);
 
 typedef struct {
     StrCreditQuad *cursor;
@@ -35,7 +35,7 @@ typedef struct {
 #define RR_STR_SCRATCH ((StrCreditScratch *)0x1F800000)
 
 /* Draws one 8-pixel band of the scrolling credits texture. */
-void ovl668_func_801159C0(s32 line, s32 unused) {
+void ovl668_draw_credit_band(s32 line, s32 unused) {
     u8 color[4] = {0, 0, 255, 8};
     s32 page;
     u8 v;
@@ -51,9 +51,9 @@ void ovl668_func_801159C0(s32 line, s32 unused) {
     y = D_80127E90 / 100 + line * 8;
     color[1] = v;
     if ((y - 1) < 239U) {
-        top = ovl668_func_8011596C(y) * 160 / 256;
+        top = ovl668_calc_credit_line_fade(y) * 160 / 256;
         y2 = y + 8;
-        bottom = ovl668_func_8011596C(y2) * 160 / 256;
+        bottom = ovl668_calc_credit_line_fade(y2) * 160 / 256;
         p = RR_STR_SCRATCH->cursor;
         ((u8 *)p)[3] = 12;
         p->code = 0x3E;
@@ -85,8 +85,8 @@ void ovl668_func_801159C0(s32 line, s32 unused) {
         p->r3 = bottom;
         p->g3 = bottom;
         p->b3 = bottom;
-        p->clut = ovl668_D_801148A0;
-        p->tpage = ovl668_D_80114898[page];
+        p->clut = ovl668_credit_clut;
+        p->tpage = ovl668_credit_tpages[page];
         ot = &CurrentDrawBuf->buffer.ordering70.words[0];
         p->tag = (p->tag & 0xFF000000) | (*ot & 0x00FFFFFF);
         *ot = (*ot & 0xFF000000) | ((u32)p & 0x00FFFFFF);

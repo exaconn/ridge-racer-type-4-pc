@@ -1,7 +1,7 @@
 #include "psyq/libgte/gtemat5.h"
 #include "rr/overlay668_camera.h"
 
-void ovl668_func_80115850(void) {
+void ovl668_apply_epilogue_camera(void) {
     PreviewMatrixWorkspace sp10;
     PreviewVector8 sp30;
     s32 *scratch = RR_REPLAY_SCRATCH_WORDS;

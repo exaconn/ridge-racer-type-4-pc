@@ -9,7 +9,7 @@ extern s16 FadeCountdown;
 extern void SaveCarSnapshots(s32);
 extern void SoundSetMasterVolume(s16, s16);
 
-void ovl667_func_80115508(RaceVehicle *arg0) {
+void ovl667_update_checkpoint(RaceVehicle *arg0) {
     RaceVehicleControl *sub = &arg0->control;
     /* MIPS sums and products retain their low 32 bits. */
     if ((s32)((u32)arg0->second + arg0->first) >= (s32)((u32)(s32)sub->dynamics94.steering.count22 * TrackLength)) {

@@ -3,9 +3,9 @@
 #include "rr/overlay665_menu.h"
 #include "rr/menu_label_render.h"
 #include "rr/projection_state.h"
-extern UiUvRect ovl665_D_80119028;
-void ovl665_func_80115C8C(void);
-void ovl665_func_80115CFC(void);
+extern UiUvRect ovl665_brightness_swatch_uv_rect;
+void ovl665_init_brightness_panel(void);
+void ovl665_update_brightness_panel(void);
 void DrawHudDigit(s32,s32,s32,s32);
 void UpdateBadgeRowAnim(s32);
 #ifndef RR_PROJECTION_SCRATCH

@@ -1,6 +1,6 @@
 #include "game/system/pad.h"
 #include "rr/menu_pulse.h"
-s32 ovl665_func_8011629C(s32 index)
+s32 ovl665_detect_controller_kind(s32 index)
 {
     ControllerState5C *item=&PlayerControllers[index];
     s32 result=-1;

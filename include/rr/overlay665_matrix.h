@@ -5,7 +5,7 @@
 
 /* Input is halfword-aligned; matrix source is word-aligned. Capture all32
  * source bytes before the ordered basis/color writes, including aliasing. */
-void ovl665_func_80116358(const PreviewMatrixWorkspace *source,
+void ovl665_setup_preview_light_matrix(const PreviewMatrixWorkspace *source,
     const PreviewLightInput36 *input);
 
 #endif

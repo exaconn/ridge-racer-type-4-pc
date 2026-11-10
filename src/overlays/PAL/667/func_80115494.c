@@ -1,5 +1,5 @@
 #include "rr/driver_control.h"
-void ovl667_func_80115494(void)
+void ovl667_sync_link_display(void)
 {
     ResetGraph(1);
     _sio_control(3,0,1);

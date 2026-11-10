@@ -3,14 +3,14 @@
 #include "rr/bios_events.h"
 #include "rr/driver_control.h"
 #include "rr/overlay667_status.h"
-extern BiosEventHandle ovl667_D_80118ED8,ovl667_D_80118EDC;
-extern s32 ovl667_D_80118EE0,ovl667_D_80118EE8;
+extern BiosEventHandle ovl667_sio_read_event,ovl667_sio_error_event;
+extern s32 ovl667_sio_error_count,ovl667_read_pending_flag;
 extern s32 LinkWriteHandle,LinkReadHandle;
-extern const char ovl667_D_8011487C[];
+extern const char ovl667_sio_device_name[];
 /* The callback wraps its counter modulo2^32 and clears the pending word. */
-s32 ovl667_func_80114D10(void);
+s32 ovl667_on_sio_error_event(void);
 /* Register two events, open sio: twice, then enable freshly read event handles.
  * Service boundaries may invoke the registered callback and mutate state. */
-s32 ovl667_func_80114988(void);
-void ovl667_func_80114950(void);
+s32 ovl667_open_sio_events(void);
+void ovl667_reset_sio_ports(void);
 #endif

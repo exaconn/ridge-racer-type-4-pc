@@ -36,24 +36,24 @@ typedef struct {
 typedef struct {s32 op,index;u32 value,hash,words[32];} Event;
 typedef struct {State s;unsigned count;Event events[12];} World;
 static World actual,reference,initial,*w;
-u32 *ovl668_D_80116E54,*ovl668_D_80116E28,*ovl668_D_80116E34;
-#define ovl668_D_80116D10 w->s.quant
-#define ovl668_D_80116D94 w->s.matrix
-#define ovl668_D_801148C0 invalid
-#define ovl668_D_801148FC recover
+u32 *ovl668_mdec1_ctrl_ptr,*ovl668_dma0_chcr_ptr,*ovl668_dma1_chcr_ptr;
+#define ovl668_mdec_quant_cmd w->s.quant
+#define ovl668_mdec_scale_cmd w->s.matrix
+#define ovl668_mdec_reset_error_fmt invalid
+#define ovl668_mdec_timeout_fmt recover
 ''' + bodies + r'''
 static u32 next(void){u32 x=w->s.rng;x^=x<<13;x^=x>>17;x^=x<<5;return w->s.rng=x;}
 static u32 hash(void){size_t i;u32 h=2166136261U;for(i=0;i<sizeof(w->s);i++)h=(h^((u8*)&w->s)[i])*16777619U;return h;}
 static Event *event(s32 op,s32 index,u32 value){Event *e;assert(w->count<12);e=&w->events[w->count++];memset(e,0,sizeof(*e));e->op=op;e->index=index;e->value=value;e->hash=hash();return e;}
 static u32 read_port(u32 *p){u32 v=*p;event(1,p-w->s.regs,v);*p^=0x13579bdfU;return v;}
 static void write_port(u32 *p,u32 value){event(2,p-w->s.regs,value);*p=value;}
-void ovl668_func_80116648(const void *command,u32 words){
+void ovl668_mdec_start_in_dma(const void *command,u32 words){
  Event *e;unsigned i;int which=command==&w->s.quant?0:1;
  assert(command==(which?(const void*)&w->s.matrix:(const void*)&w->s.quant));assert(words==32);
  e=event(3,which,words);memcpy(e->words,command,128);
  for(i=0;i<32;i++)w->s.matrix.matrix[i]^=next();w->s.matrix.header.word^=next();
  /* A submission can replace the RAM pointer cells before the next call. */
- ovl668_D_80116E54=w->s.regs+next()%4;ovl668_D_80116E28=w->s.regs+next()%4;ovl668_D_80116E34=w->s.regs+next()%4;
+ ovl668_mdec1_ctrl_ptr=w->s.regs+next()%4;ovl668_dma0_chcr_ptr=w->s.regs+next()%4;ovl668_dma1_chcr_ptr=w->s.regs+next()%4;
 }
 s32 DebugPrintStub(const char *format,...){va_list a;va_start(a,format);
  if(format==invalid){s32 mode=va_arg(a,s32);event(4,0,(u32)mode);}
@@ -63,12 +63,12 @@ s32 DebugPrintStub(const char *format,...){va_list a;va_start(a,format);
 static void expected(unsigned kind,s32 mode){
  if(kind)DebugPrintStub(recover,message);
  else if(mode!=0&&mode!=1){DebugPrintStub(invalid,mode);return;}
- write_port(ovl668_D_80116E54,0x80000000U);write_port(ovl668_D_80116E28,0);write_port(ovl668_D_80116E34,0);
- if(kind||mode==1)(void)read_port(ovl668_D_80116E34);
- write_port(ovl668_D_80116E54,0x60000000U);
- if(!kind&&mode==0){ovl668_func_80116648(&w->s.quant,32);ovl668_func_80116648(&w->s.matrix,32);}
+ write_port(ovl668_mdec1_ctrl_ptr,0x80000000U);write_port(ovl668_dma0_chcr_ptr,0);write_port(ovl668_dma1_chcr_ptr,0);
+ if(kind||mode==1)(void)read_port(ovl668_dma1_chcr_ptr);
+ write_port(ovl668_mdec1_ctrl_ptr,0x60000000U);
+ if(!kind&&mode==0){ovl668_mdec_start_in_dma(&w->s.quant,32);ovl668_mdec_start_in_dma(&w->s.matrix,32);}
 }
-static void ports(unsigned code){ovl668_D_80116E54=w->s.regs+(code&3);ovl668_D_80116E28=w->s.regs+((code>>2)&3);ovl668_D_80116E34=w->s.regs+((code>>4)&3);}
+static void ports(unsigned code){ovl668_mdec1_ctrl_ptr=w->s.regs+(code&3);ovl668_dma0_chcr_ptr=w->s.regs+((code>>2)&3);ovl668_dma1_chcr_ptr=w->s.regs+((code>>4)&3);}
 int main(void){unsigned scenario,kind,i;static const s32 modes[]={0,1,-1,2,INT32_MIN,INT32_MAX};
  assert((uintptr_t)actual.s.regs>UINT32_MAX);
  for(scenario=0;scenario<65536;scenario++)for(kind=0;kind<2;kind++){
@@ -76,7 +76,7 @@ int main(void){unsigned scenario,kind,i;static const s32 modes[]={0,1,-1,2,INT32
   for(i=0;i<4;i++){w->s.regs[i]=next();w->s.guard[i]=next();w->s.tail[i]=next();}
   w->s.quant.header.word=next();w->s.matrix.header.word=next();for(i=0;i<16;i++){w->s.quant.luma[i]=next();w->s.quant.chroma[i]=next();}
   for(i=0;i<32;i++)w->s.matrix.matrix[i]=next();actual=reference=initial;
-  w=&actual;ports(scenario);if(kind)assert(ovl668_func_801168A4(message)==0);else ovl668_func_80116558(mode);
+  w=&actual;ports(scenario);if(kind)assert(ovl668_mdec_handle_timeout(message)==0);else ovl668_mdec_reset_hw(mode);
   w=&reference;ports(scenario);expected(kind,mode);assert(!memcmp(&actual,&reference,sizeof(actual)));
  }
  return 0;

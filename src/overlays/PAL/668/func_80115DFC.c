@@ -1,6 +1,6 @@
 #include "rr/overlay668_camera.h"
 
-void ovl668_func_80115DFC(void) {
+void ovl668_init_epilogue_credits(void) {
     s32 i;
     TrackSample3C *p;
 
@@ -30,16 +30,16 @@ void ovl668_func_80115DFC(void) {
     RaceContext.timer492 = 0;
     RaceContext.timer494 = 0;
     RaceContext.node498 = 320;
-    ovl668_func_80115460(RaceContext.position450);
+    ovl668_project_camera_to_track(RaceContext.position450);
     for (i = 0; i < 16; i++) {
-        ovl668_func_80115554();
+        ovl668_step_epilogue_camera_yaw();
     }
-    ovl668_func_801156FC();
-    ovl668_func_80115850();
+    ovl668_step_epilogue_camera_pitch();
+    ovl668_apply_epilogue_camera();
     InitSceneOverlayState();
     SetSceneOverlayColor(0, 144, 144, 144);
     SetSceneOverlayEnabled(1);
     MaskBitSetting = 1;
     D_80127E90 = 16000;
-    D_80127E94 = ovl668_D_80116CC0[(D_800AD564 * 4U + SelectedTeamIndex)];
+    D_80127E94 = ovl668_credit_scroll_speeds[(D_800AD564 * 4U + SelectedTeamIndex)];
 }

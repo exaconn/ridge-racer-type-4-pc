@@ -39,31 +39,31 @@ struct Event {s32 kind,args[3];u32 hash;};
 static struct World {struct State s;unsigned calls;struct Event events[3];} actual,expected,initial,*w;
 static unsigned scenario,mutation;
 static s32 eventResult,queryResult,writeResult;
-#define ovl667_D_80118ED8 w->s.handle
-#define ovl667_D_80118ED4 w->s.halt
-#define ovl667_D_80118F0C w->s.request
-#define ovl667_D_80118EE8 w->s.pending
-#define ovl667_D_80118EF4 w->s.serial
-#define ovl667_D_80118EF8 w->s.rxcount
-#define ovl667_D_80118EFC w->s.timeouts
-#define ovl667_D_80118F00 w->s.txcount
-#define ovl667_D_80118F04 w->s.failures
-#define ovl667_D_80118EC8 w->s.command
-#define ovl667_D_80118ED0 w->s.peer
-#define ovl667_D_80118EEC w->s.phase
+#define ovl667_sio_read_event w->s.handle
+#define ovl667_link_shutdown_stage w->s.halt
+#define ovl667_tx_stage w->s.request
+#define ovl667_read_pending_flag w->s.pending
+#define ovl667_rx_idle_flag w->s.serial
+#define ovl667_rx_packet_count w->s.rxcount
+#define ovl667_rx_miss_count w->s.timeouts
+#define ovl667_tx_packet_count w->s.txcount
+#define ovl667_tx_miss_count w->s.failures
+#define ovl667_sync_retry_state w->s.command
+#define ovl667_peer_race_state w->s.peer
+#define ovl667_pending_pause_bits w->s.phase
 #define RaceState w->s.local
 #define LinkReadHandle w->s.reader
 #define LinkWriteHandle w->s.writer
-#define ovl667_D_80118F08 w->s.read
-#define ovl667_D_80118F09 w->s.write
-#define ovl667_D_80118F8D w->s.selected
-#define ovl667_D_80118EEF w->s.error
-#define ovl667_D_80118EF0 w->s.remote
-#define ovl667_D_80118EED w->s.received
-#define ovl667_D_80118EEE w->s.sent
-#define ovl667_D_80118F10 w->s.rx
-#define ovl667_D_80118F80 w->s.tx
-#define ovl667_D_80118F20 w->s.ring
+#define ovl667_rx_slot_index w->s.read
+#define ovl667_tx_slot_index w->s.write
+#define ovl667_active_slot_index w->s.selected
+#define ovl667_checksum_error_flag w->s.error
+#define ovl667_remote_error_code w->s.remote
+#define ovl667_remote_pause_bits w->s.received
+#define ovl667_local_pause_bits w->s.sent
+#define ovl667_rx_staging_packet w->s.rx
+#define ovl667_tx_staging_packet w->s.tx
+#define ovl667_rx_packet_ring w->s.ring
 #define LinkPendingCarInputs w->s.payload
 #define LinkRemoteCarInputs w->s.incoming
 #define LinkLocalCarInputs w->s.outgoing
@@ -191,8 +191,8 @@ int main(void) {
   for(kind=0;kind<4;kind++) {
    actual=initial;expected=initial;got=want=0;
    w=&actual;
-   if(kind==0)got=ovl667_func_80114E34();else if(kind==1)ovl667_func_80115068();
-   else if(kind==2)ovl667_func_801151E0();else got=ovl667_func_80114D30();
+   if(kind==0)got=ovl667_poll_race_packet();else if(kind==1)ovl667_receive_peer_inputs();
+   else if(kind==2)ovl667_transmit_local_inputs();else got=ovl667_send_race_packet();
    w=&expected;
    if(kind==0)want=reference_receive();else if(kind==1)reference_select();
    else if(kind==2)reference_transmit();else want=reference_packet_send();

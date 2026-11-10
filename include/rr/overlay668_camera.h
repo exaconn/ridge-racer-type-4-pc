@@ -23,22 +23,22 @@ s32 Atan2Table();
  * Position and interpolation results use wrapping32 arithmetic. Fraction is
  *0..1023; sample count is at least4. Services may replace the sample table and
  * camera state. The angle service returns an angle in-1024..3072. */
-void ovl668_func_80115554(void);
-void ovl668_func_801156FC(void);
+void ovl668_step_epilogue_camera_yaw(void);
+void ovl668_step_epilogue_camera_pitch(void);
 #include "rr/player_cars.h"
 #include "psyq/libgte/rotmat.h"
 void BuildCameraMatrices(void);
-void ovl668_func_80115850(void);
+void ovl668_apply_epilogue_camera(void);
 /* Explicit legacy position argument, ignored by the current body. */
-void ovl668_func_80115460(s32 *position);
+void ovl668_project_camera_to_track(s32 *position);
 /* The track root after setup services covers at least321 samples. Services
  * may change roots and state; the final wrapped selection index must address
  * one of the20 lookup entries. Initializes from captured sample320, advances
  * the camera sixteen times, then publishes the post-service lookup value. */
-void ovl668_func_80115DFC(void);
+void ovl668_init_epilogue_credits(void);
 extern s32 VSyncThreshold,ViewUsesCarTrackNode,MaskBitSetting,D_80127E90,D_80127E94,D_800AD564;
 extern s16 SelectedTeamIndex;
-extern s32 ovl668_D_80116CC0[20];
+extern s32 ovl668_credit_scroll_speeds[20];
 void SetDispMask(s32);
 void SetupDrawDispEnvs(s32,s32,s16,u32);
 void InitCourseViewState(void);

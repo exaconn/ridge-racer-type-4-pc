@@ -1,6 +1,6 @@
 #include "rr/overlay668_camera.h"
 
-void ovl668_func_801156FC(void) {
+void ovl668_step_epilogue_camera_pitch(void) {
     s32 sp18[4];
     s32 sp28[4];
     s32 sp38[4];

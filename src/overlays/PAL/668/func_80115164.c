@@ -1,5 +1,5 @@
 #include "rr/overlay668_frame_acquire.h"
-u8 *ovl668_func_80115164(StrDisplayConfig *config) {
+u8 *ovl668_acquire_stream_frame(StrDisplayConfig *config) {
  GpuRectangle rectangle;
  u8 *data;LibQueueRecord32 *header;
  s32 retry=2000;StrPlaybackState *playback;

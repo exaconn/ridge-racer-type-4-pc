@@ -1,16 +1,16 @@
 #include "rr/overlay665_strokes.h"
 
-void ovl665_func_80116AA4(const StrokeStep4 *const *paths,s32 factor) {
+void ovl665_draw_callout_strokes(const StrokeStep4 *const *paths,s32 factor) {
     u16 xy[4];
-    StrokeColor4 color=ovl665_D_801148C4;
+    StrokeColor4 color=ovl665_callout_stroke_color;
     const StrokeStep4 *step;
     u32 sum;
     s32 limit,n,i;
 
     if (factor) {
         for (i=0;i<5;i++) {
-            xy[0]=ovl665_D_8011920C[i][0];
-            xy[1]=ovl665_D_8011920C[i][1];
+            xy[0]=ovl665_callout_endpoint_coords[i][0];
+            xy[1]=ovl665_callout_endpoint_coords[i][1];
             step=paths[i];
             sum=0;
             while (step->direction!=-1) {

@@ -26,15 +26,15 @@ class OverlayWaitTest(unittest.TestCase):
 #include "rr/overlay668_wait.h"
 static struct World { u32 before[8],input,output,calls,after[8];
  const char *message; } world,expected;
-u32 *ovl668_D_80116E54,*ovl668_D_80116E34;
-char ovl668_D_801148DC[]="input timeout";
-char ovl668_D_801148EC[]="output timeout";
-s32 ovl668_func_801168A4(const char *message){
- assert(message==ovl668_D_801148DC || message==ovl668_D_801148EC);
+u32 *ovl668_mdec1_ctrl_ptr,*ovl668_dma1_chcr_ptr;
+char ovl668_mdec_in_timeout_msg[]="input timeout";
+char ovl668_mdec_out_timeout_msg[]="output timeout";
+s32 ovl668_mdec_handle_timeout(const char *message){
+ assert(message==ovl668_mdec_in_timeout_msg || message==ovl668_mdec_out_timeout_msg);
  world.calls++;world.message=message;
  world.input^=0x13579bdfU;world.output^=0x2468ace0U;
  /* The wait must return the timeout result even if diagnosis clears busy. */
- if(message==ovl668_D_801148DC)world.input&=~0x20000000U;
+ if(message==ovl668_mdec_in_timeout_msg)world.input&=~0x20000000U;
  else world.output&=~0x01000000U;
  return 0;
 }
@@ -42,23 +42,23 @@ s32 ovl668_func_801168A4(const char *message){
 static void initialize(u32 k){unsigned i;memset(&world,0,sizeof(world));
  for(i=0;i<8;i++){world.before[i]=k+i;world.after[i]=~(k+i);}
  world.input=k*0x9e3779b9U;world.output=~world.input;
- ovl668_D_80116E54=&world.input;ovl668_D_80116E34=&world.output;
- assert((uintptr_t)ovl668_D_80116E54>UINT32_MAX);
+ ovl668_mdec1_ctrl_ptr=&world.input;ovl668_dma1_chcr_ptr=&world.output;
+ assert((uintptr_t)ovl668_mdec1_ctrl_ptr>UINT32_MAX);
 }
 static void idle(void){u32 k;for(k=0;k<65536;k++){
  initialize(k);world.input&=~0x20000000U;world.output&=~0x01000000U;
- expected=world;assert(ovl668_func_80116764()==0);
+ expected=world;assert(ovl668_mdec_wait_in_dma()==0);
  assert(memcmp(&world,&expected,sizeof(world))==0);
- assert(ovl668_func_801167F8()==0);
+ assert(ovl668_mdec_wait_out_dma()==0);
  assert(memcmp(&world,&expected,sizeof(world))==0);
 }}
 static void timeout(void){u32 k;unsigned channel;for(k=0;k<8;k++)for(channel=0;channel<2;channel++){
  initialize(k*0x174935U);world.input|=0x20000000U;world.output|=0x01000000U;
  expected=world;expected.calls=1;
- expected.message=channel?ovl668_D_801148EC:ovl668_D_801148DC;
+ expected.message=channel?ovl668_mdec_out_timeout_msg:ovl668_mdec_in_timeout_msg;
  expected.input^=0x13579bdfU;expected.output^=0x2468ace0U;
  if(channel)expected.output&=~0x01000000U;else expected.input&=~0x20000000U;
- assert((channel?ovl668_func_801167F8():ovl668_func_80116764())==-1);
+ assert((channel?ovl668_mdec_wait_out_dma():ovl668_mdec_wait_in_dma())==-1);
  assert(memcmp(&world,&expected,sizeof(world))==0);
 }}
 int main(int argc,char **argv){assert(argc==2);if(argv[1][0]=='i')idle();else timeout();return 0;}

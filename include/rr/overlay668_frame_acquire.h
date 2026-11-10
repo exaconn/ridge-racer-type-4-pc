@@ -8,5 +8,5 @@ extern FrameStorage DrawBuffers[2];
  * owner; activeB8 points to a complete playback state. Config and both frame
  * owners stay live across clear-image callbacks, which may replace activeB8.
  * Width arithmetic wraps32 bits before signed division and narrowing. */
-u8 *ovl668_func_80115164(StrDisplayConfig *config);
+u8 *ovl668_acquire_stream_frame(StrDisplayConfig *config);
 #endif

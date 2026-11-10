@@ -3,7 +3,7 @@
 /* CC1_FLAGS: -fno-strength-reduce */
 #include "rr/overlay665_matrix.h"
 
-void ovl665_func_80116358(const PreviewMatrixWorkspace *arg0, const PreviewLightInput36 *input) {
+void ovl665_setup_preview_light_matrix(const PreviewMatrixWorkspace *arg0, const PreviewLightInput36 *input) {
     PreviewMatrixWorkspace mat[2];
     s32 i;
     u16 *dst1,*dst2;

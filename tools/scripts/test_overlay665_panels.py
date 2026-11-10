@@ -37,15 +37,15 @@ typedef struct {
 typedef struct {s32 op,args[10];u32 hash;} Event;
 typedef struct {State s;unsigned calls;Event events[40];} World;
 static World world,initial,expected;static u16 textData[32];static unsigned scenario,mutation,kind;
-#define ovl665_D_80119768 world.s.visual
-#define ovl665_D_80119760 world.s.local
+#define ovl665_options_state world.s.visual
+#define ovl665_saved_stereo_mode world.s.local
 #define ScreenFadeState world.s.work
 #define BadgeRows world.s.badges[world.s.badgeRoot]
 #define CardDialogueStatePtr (&world.s.text[world.s.textRoot])
 #define CurrentDrawBuf ((FrameStorage*)&world.s.frames[world.s.frameRoot])
 #define D_800F3A60 world.s.accept
 #define FadeCountdown world.s.fade
-#define ovl665_D_80119028 world.s.uv
+#define ovl665_brightness_swatch_uv_rect world.s.uv
 #undef RR_PROJECTION_SCRATCH
 #define RR_PROJECTION_SCRATCH (&world.s.scratch)
 ''' + bodies + r'''
@@ -81,11 +81,11 @@ void ClearScreenOverlayState(void){event(1);change();}
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){Event *v=event(2);s32 args[]={a,b,c,d,e,f,g,h,i,j};memcpy(v->args,args,sizeof(args));change();}
 void InitBadgeRow(s32 a,s32 b,s16 c,s32 d,u16 e,u16 f,u16 g){Event *v=event(3);s32 args[]={a,b,c,d,e,f,g};memcpy(v->args,args,sizeof(args));change();}
 void SetMenuFrameOptions(s32 a,s32 b,s32 c){Event *e=event(4);e->args[0]=a;e->args[1]=b;e->args[2]=c;change();}
-void ovl665_func_80115C8C(void){event(5);change();}
+void ovl665_init_brightness_panel(void){event(5);change();}
 void SetPresentationDrawEnabled(s32 mode){event(6)->args[0]=mode;change();}
 void PlaySfx(s32 sound){event(7)->args[0]=sound;change();}
 void AddScreenFadeTiles(u32 *head,s32 intensity,u32 mode){Event *e=event(8);assert(head==world.s.frames[world.s.frameRoot].buffer.ordering70.words);e->args[0]=intensity;e->args[1]=mode;*head^=(u32)intensity;change();}
-void ovl665_func_80114A24(void){event(9);change();}
+void ovl665_init_menu(void){event(9);change();}
 void *AddSpritePrim(u32 *head,void *cursor,s32 x,s32 y,const UiUvRect *uv,u16 clut,s32 color){
  Event *e=event(10);unsigned n=world.s.glyphCalls,i;GlyphStorage *p;int arena=-1;
  assert(n<8&&head==world.s.frames[world.s.frameRoot].buffer.ordering70.words&&uv==&world.s.uv);
@@ -120,10 +120,10 @@ static void reference(void){unsigned i;State *s=&world.s;
   for(i=0;i<3;i++)s->visual.view74.position00.words[i]=0;s->visual.view74.rotation10=0;s->visual.view74.rotation12=0;s->visual.view74.rotation14=0;s->visual.reset2C=0;SetMenuFrameOptions(1,1,0);return;
  }
  {s32 phase=s->visual.layout0C;
-  if(phase==0){ovl665_func_80115C8C();SetPresentationDrawEnabled(0);s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
+  if(phase==0){ovl665_init_brightness_panel();SetPresentationDrawEnabled(0);s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}
   else if(phase==1){if(BadgeRows[0].state10==3)s->visual.layout0C=2;}
   else if(phase==2){if(s->accept){PlaySfx(1);BadgeRows[0].state10=4;s->fade=64;s->visual.layout0C=wrap((int64_t)s->visual.layout0C+1);}}
-  else if(phase==3){s->fade=half((s32)s->fade-1);AddScreenFadeTiles(s->frames[s->frameRoot].buffer.ordering70.words,(64-(s32)s->fade)*4,69);if(s->fade<=0&&BadgeRows[0].state10==11){ovl665_func_80114A24();s->visual.layout0C=0;s->visual.scene00=wrap((int64_t)s->visual.scene00-1);return;}}
+  else if(phase==3){s->fade=half((s32)s->fade-1);AddScreenFadeTiles(s->frames[s->frameRoot].buffer.ordering70.words,(64-(s32)s->fade)*4,69);if(s->fade<=0&&BadgeRows[0].state10==11){ovl665_init_menu();s->visual.layout0C=0;s->visual.scene00=wrap((int64_t)s->visual.scene00-1);return;}}
  }
  {void *cursor=s->scratch.pointers.cursor;
   for(i=0;i<8;i++)cursor=AddSpritePrim(s->frames[s->frameRoot].buffer.ordering70.words,cursor,24+36*i,144,&s->uv,32568,255-(i*223+6)/7);
@@ -141,7 +141,7 @@ int main(void){unsigned i,j;
   memset(&world,0,sizeof(world));world.s.rng=0x15cfc+scenario*31+kind;effect();world.s.visual.layout0C=phases[scenario%7];world.s.fade=fades[(scenario/7)%7];world.s.accept=scenario%2;
   for(i=0;i<3;i++){world.s.streams[i].first.tag=next();world.s.streams[i].first.command=next();world.s.streams[i].second.tag=next();world.s.streams[i].second.command=next();for(j=0;j<4;j++)world.s.streams[i].tail[j]=next();}
   for(i=0;i<4;i++){world.s.guard[i]=scenario+i;world.s.tail[i]=~(scenario+i);}initial=world;reference();expected=world;world=initial;
-  if(kind)ovl665_func_80115CFC();else ovl665_func_80116070();assert(!memcmp(&world,&expected,sizeof(world)));
+  if(kind)ovl665_update_brightness_panel();else ovl665_init_controller_options();assert(!memcmp(&world,&expected,sizeof(world)));
  }
  return 0;
 }

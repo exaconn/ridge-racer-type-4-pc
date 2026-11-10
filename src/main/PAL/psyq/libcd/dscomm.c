@@ -34,13 +34,13 @@ s32 CdRead(s32 sectors,u8 *buffer,u32 mode);
 
 void cb_read(s32 event,u8 *data) {
     u8 header[12];
-    register volatile LibReadRequestState *initial=&CdReadState, *state, *transfer, *failed;
-    register u32 *completed;
-    register CdPositionView *position;
-    register CdPositionView *deferred;
+    volatile LibReadRequestState *initial=&CdReadState, *state, *transfer, *failed;
+    u32 *completed;
+    CdPositionView *position;
+    CdPositionView *deferred;
     CdDataNotify notify;
     s32 now;
-    register u8 *notify_page;
+    u8 *notify_page;
 
     /* ASM_BARRIER: materialize the initial full address before saving data. */
     __asm__("" : "+r"(initial));
@@ -128,7 +128,7 @@ void cb_read(s32 event,u8 *data) {
 }
 
 void cb_data(void) {
-    register volatile LibTransferState38 *state = &CdReadState;
+    volatile LibTransferState38 *state = &CdReadState;
     /* ASM_BARRIER: Keep the complete state address in its saved register. */
     __asm__("" : "=r"(state) : "0"(state));
     state->position08 += state->step10 << 2;
@@ -152,15 +152,15 @@ void cb_data(void) {
 
 s32 cd_read_retry(s32 restart) {
     u8 mode_byte;
-    register u32 requested;
-    register LibReadRequestState *state;
+    u32 requested;
+    LibReadRequestState *state;
     /* ASM_BARRIER: keep the captured mode address in s1 and preserve the raw
      * restart argument in s2 through the command and status helpers. */
     register u32 *mode_slot __asm__("$17");
-    register volatile LibReadRequestState *shell_state, *failed_state;
+    volatile LibReadRequestState *shell_state, *failed_state;
     u32 timestamp;
     s32 completed;
-    register LibCompletionCallback callback;
+    LibCompletionCallback callback;
     /* ASM_BARRIER: a0/a1 stage independent command/null-parameter values;
      * neither bound value is used across a call that can overwrite it. */
     register s32 command __asm__("$4");

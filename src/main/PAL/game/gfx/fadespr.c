@@ -11,7 +11,7 @@
 #include "rr/library.h"
 #include "psyq/libsnd/vmcfg.h"
 
-struct V4 { int a[4]; };
+struct OptionsDefaultTail16 { int a[4]; };
 
 typedef struct {
     short s00, s02;
@@ -27,7 +27,7 @@ typedef struct {
 
 extern OptionsState3C Options;
 extern char D_800ACA30[];
-extern struct V4 D_80011260;
+extern struct OptionsDefaultTail16 D_80011260;
 extern unsigned char D_800A1FC4[];
 extern FadeRaceContext RaceContext;
 extern SpritePacket *AddSpritePrim(u32 *, SpritePacket *, s32, s32,
@@ -63,7 +63,7 @@ void InitOptionsDefaults(void) {
 }
 
 void InitDemoFadeContext(int a0) {
-    struct V4 v;
+    struct OptionsDefaultTail16 v;
     int i;
     s16 t;
     FadeRaceContext *p = (FadeRaceContext *)D_800ACA30;

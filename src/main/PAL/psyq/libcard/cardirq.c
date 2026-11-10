@@ -33,7 +33,7 @@ void _cardStopCom() { EnterCriticalSection(); ChangeClearRCnt(3, 1); SysDeqIntRP
 
 s32 _cardChkVsyncIrq(void) {
     InterruptRegisters *registers=I_STAT_Card;
-    register s32 result;
+    s32 result;
     if(registers->mask&1) {
         if(registers->pending&1) result=1;
         else {
@@ -47,7 +47,7 @@ s32 _cardChkVsyncIrq(void) {
 
 s32 _cardChkSioIrq(void) {
     InterruptRegisters *registers=I_STAT_Card;
-    register s32 result;
+    s32 result;
     if(registers->mask&0x80) {
         if(registers->pending&0x80) result=1;
         else {

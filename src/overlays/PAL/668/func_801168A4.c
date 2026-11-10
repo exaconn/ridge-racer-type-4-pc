@@ -3,7 +3,7 @@
 #include "rr/diagnostics.h"
 extern const char ovl668_D_801148FC[];
 s32 ovl668_func_801168A4(const char *message) {
-    /* Preserve the full native register pointer; PAL uses32-bit pointers. */
+    /* Preserve the full native pointer; PAL uses32-bit pointers. */
     u32 *port;
     s32 result;
     DebugPrintStub(ovl668_D_801148FC, message);

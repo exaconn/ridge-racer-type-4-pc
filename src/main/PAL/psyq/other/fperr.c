@@ -6,7 +6,7 @@ extern s32 _err_math_param;
 extern s32 DeliverEvent(u32, u32);
 s32 _err_math(s32 mode, s32 parameter) {
     s32 *page;
-    register s32 first_mode=33;
+    s32 first_mode=33;
     _err_math_mode=mode;
     page=(s32 *)0x800A0000U;
     page[0x47D4/4]=parameter;

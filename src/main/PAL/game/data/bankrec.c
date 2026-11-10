@@ -31,19 +31,19 @@ void SetLightTable(TrackLighting2C *table) {
 void SetupRaceMemoryArena(s32 layout,s32 mode) {
     /* ASM_BARRIER: keep each loop's index in the consumed mode register. */
     register s32 i __asm__("$5");
-    register u32 factor;
-    register u8 *base;
+    u32 factor;
+    u8 *base;
     /* ASM_BARRIER: finish each shared arena address before copying its base. */
     register u8 *loaded __asm__("$2");
-    register u8 *bankbase;
-    register RaceVehicle **source_slots;
-    register u32 offset;
-    register RaceVehicle **bank_source_slots;
-    register ReplayFrame4 **bank_slots;
-    register u32 bank_offset;
+    u8 *bankbase;
+    RaceVehicle **source_slots;
+    u32 offset;
+    RaceVehicle **bank_source_slots;
+    ReplayFrame4 **bank_slots;
+    u32 bank_offset;
     RaceVehicle **restore_source,**restore_dest;
     s32 bound;
-    register u8 *read_page;
+    u8 *read_page;
     u8 *bound_page;
 
     ReplayFrame=0;
@@ -98,7 +98,7 @@ void SetupRaceMemoryArena(s32 layout,s32 mode) {
             bank_offset=RR_FIELD_OFFSET(ReplayLinkStorage,snapshots);
             bank_slots=ReplayInputs;
             do {
-                register u32 scaled=i*sizeof(ReplayFrame4);
+                u32 scaled=i*sizeof(ReplayFrame4);
                 u32 product;
                 product=factor*scaled;
                 *bank_slots=(ReplayFrame4 *)(product+(unsigned long)bankbase);

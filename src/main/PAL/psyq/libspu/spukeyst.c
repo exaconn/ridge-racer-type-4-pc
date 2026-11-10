@@ -27,7 +27,7 @@ int SpuGetKeyStatus(s32 voiceMask) {
     if (selected == -1) {
         return -1;
     }
-    /* Register stride follows the actual voice-register layout. */
+    /* Register stride follows the actual voice-layout. */
     voice = (SpuVoiceRegisters *)(selected * sizeof(*voice) + (unsigned long)_spu_RXX);
     keyed = _spu_keystat & (1U << selected);
     envelope = voice->envx;

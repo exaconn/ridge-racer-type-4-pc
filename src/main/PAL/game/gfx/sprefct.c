@@ -12,7 +12,7 @@
 #include "rr/animated_glyph.h"
 #include "psyq/libc/rand.h"
 
-struct P { int tag; unsigned char r, g, b, code; short x, y, w, h; };
+struct TilePrimPacket16 { int tag; unsigned char r, g, b, code; short x, y, w, h; };
 
 /* extern */
 /* extern */
@@ -52,9 +52,9 @@ u8 *AddJitterSprites(u32 *ordering, u8 *cursor, SpriteEffectSource *descriptor, 
         if (count == 1) {
             v = strength;
         } else if (i == 1) {
-            v = (s32)((u32)strength * (PsyqRand() & 15)) / 24;
+            v = (strength * (PsyqRand() & 15)) / 24;
         } else {
-            v = (s32)((u32)strength * ((PsyqRand() & 31) + 8)) / 48;
+            v = (strength * ((PsyqRand() & 31) + 8)) / 48;
         }
         ((SpritePacket *)cursor)->r = v;
         ((SpritePacket *)cursor)->g = v;

@@ -5,12 +5,12 @@
 #include "game/gfx/ring2.h"
 #include "rr/ring_renderer.h"
 #include "rr/overlay665_render.h"
-struct A { int x, y, z, pad; short rx, ry, rz; };
-struct S3 { int x, y, z; };
+struct RingTransformPose18 { int x, y, z, pad; short rx, ry, rz; };
+struct RingScaleVec12 { int x, y, z; };
 
 void DrawRingEffects(void) {
     int i;
-    struct { struct A a; struct S3 s; int align1C; int m[8]; int v[8]; } l;
+    struct { struct RingTransformPose18 a; struct RingScaleVec12 s; int align1C; int m[8]; int v[8]; } l;
     ScrollTrack40 *scroll = &RaceContext.controller3D8->scroll;
     for (i = 0; i < 2; i++) {
         if (scroll->channel[i].glyph > 0) {

@@ -19,7 +19,7 @@ void UpdateScrollTrack(MotionClock20 *clock)
         RaceContext.controller3D8->scroll.state = 2;
     case 1:
         if (clock->active != 0) {
-            s->hold = (u32)s->hold - 1U;
+            s->hold = s->hold - 1U;
             if (s->hold >= 0) {
                 break;
             }
@@ -28,14 +28,14 @@ void UpdateScrollTrack(MotionClock20 *clock)
         if (s->hold != 0) {
             break;
         }
-        s->wait = (u32)s->wait - 1U;
+        s->wait = s->wait - 1U;
         if (s->wait >= 0) {
             break;
         }
         s->wait = 0;
         s->state++;
     case 2:
-        speed = (clock->tempo * ((u32)RaceContext.controller3D8->scale4C << 1)) / 100;
+        speed = (clock->tempo * (RaceContext.controller3D8->scale4C << 1)) / 100;
         ch = (s->channel[0].glyph != 0);
         if (speed > 0) {
             s->step = -(0x1900 / speed);
@@ -54,7 +54,7 @@ void UpdateScrollTrack(MotionClock20 *clock)
     }
     for (i = 0; i < 2; i++) {
         if (s->channel[i].glyph > 0) {
-            s->channel[i].offset += (u32)s->step;
+            s->channel[i].offset += s->step;
             if ((s16)s->channel[i].offset < -0x95F) {
                 s->channel[i].glyph = 0;
             }

@@ -313,9 +313,9 @@ void DrawUiBox(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6)
     int i;
 
     x[0] = x[3] = a0;
-    x[1] = x[2] = a0 + (u32)a2;
+    x[1] = x[2] = a0 + a2;
     y[0] = y[1] = a1;
-    y[2] = y[3] = a1 + (u32)a3 - 2U;
+    y[2] = y[3] = a1 + a3 - 2U;
     i = 0;
     do {
         t = &CurrentDrawBuf->buffer.ordering70.words[0];
@@ -330,8 +330,8 @@ void DrawUiBox(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6)
         AddPartialLine(t, *px, *py, x[k], y[k], 0x100, 1, 0xFF, 0xFF, 0xFF, -1);
         i++;
     } while (i < 4);
-    x[0] = x[1] - (u32)x[3];
-    y[0] = y[3] - (u32)y[1];
+    x[0] = x[1] - x[3];
+    y[0] = y[3] - y[1];
     g = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
     ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], g, a0, a1, x[0], y[0], a4, a5, a6);
 }

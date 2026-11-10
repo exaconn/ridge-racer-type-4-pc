@@ -5,16 +5,16 @@
 #include "rr_asm.h"
 
 s32 _cardCmdStep(void) {
-    register s32 initial=CardTxCount;
+    s32 initial=CardTxCount;
     s32 one;
     /* ASM_BARRIER: Preserve the original masked exchange argument and delay slot. */
     register s32 byte __asm__("$4");
-    register s32 value;
+    s32 value;
     one=1;
     if(initial==one) {
         s32 slot=CardCommandRequest;
-        register u32 header;
-        register u32 count;
+        u32 header;
+        u32 count;
         CardCommandStatus=4;
         /* ASM_BARRIER: Capture the request before preparing the state-four temporary. */
         __asm__("" : : : "$2");
@@ -28,8 +28,8 @@ s32 _cardCmdStep(void) {
         return 0;
     }
     {
-        register u32 remaining=CardBytesRemaining;
-        register CommandReadCallback reader=CardCommandReader;
+        u32 remaining=CardBytesRemaining;
+        CommandReadCallback reader=CardCommandReader;
         s32 *page;
         remaining--;
         page=(s32 *)0x80110000U;
@@ -37,7 +37,7 @@ s32 _cardCmdStep(void) {
         byte=reader()&255;
     }
     {
-        register s32 *count=&CardReceiveIndex;
+        s32 *count=&CardReceiveIndex;
         u32 index;
         index=*count;
         D_801147D8[index]=byte;
@@ -47,9 +47,9 @@ s32 _cardCmdStep(void) {
     byte=value&255;
     if(value<0) {return value-1000U;}
     {
-        register s32 *phase=&CardRxCount;
+        s32 *phase=&CardRxCount;
         u32 index;
-        register CommandWriteCallback writer;
+        CommandWriteCallback writer;
         index=*phase;
         CardRxTrace[index]=value;
         writer=CardWriteHandler;
@@ -73,12 +73,12 @@ wait:
     }
 final_byte:
     {
-        register s32 *phase=&CardRxCount;
+        s32 *phase=&CardRxCount;
         u32 tick;
         u32 remaining,index;
-        register u32 raw;
+        u32 raw;
         SerialPortRegisters *port;
-        register CommandWriteCallback writer;
+        CommandWriteCallback writer;
         tick=CardTxCount;
         remaining=CardBytesRemaining;
         CardTxCount=tick+1;

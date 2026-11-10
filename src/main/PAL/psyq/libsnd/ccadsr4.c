@@ -3,7 +3,7 @@
 #include "psyq/libsnd/ccadsr4.h"
 
 void _SsSetNrpnVabAttr10(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; LibBlock24Fields s; u8 c; {
-    register s32 cc = c;
+    s32 cc = c;
     s16 loc[12];
     SsUtGetVagAtr(a0, a1, a2, &s);
     _SsUtResolveADSR(s.h10, s.h12, loc);
@@ -14,7 +14,7 @@ void _SsSetNrpnVabAttr10(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; LibBlock24Fie
 }
 
 void _SsSetNrpnVabAttr11(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; LibBlock24Fields s; u8 c; {
-    register s32 cc = c;
+    s32 cc = c;
     s16 loc[12];
     SsUtGetVagAtr(a0, a1, a2, &s);
     loc[7] = 1;

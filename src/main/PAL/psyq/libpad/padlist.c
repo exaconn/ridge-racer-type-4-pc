@@ -38,10 +38,10 @@ void _padAdvanceChannel(s32 command)
     /* ASM_BARRIER: retain the incoming command in a1 until first-pass dispatch. */
     register s32 mode __asm__("$5") = command;
     enum { SKIP_CLEANUP = -9 };
-    register s32 current;
+    s32 current;
     /* ASM_BARRIER: retain the control pointer in v0 until its halfword store. */
     register SerialPortRegisters *control __asm__("$2");
-    register s32 status;
+    s32 status;
     PadChannel *channel;
     do {
         channel = &PadChannelRecordArray[PadActiveChannel];
@@ -63,7 +63,7 @@ void _padAdvanceChannel(s32 command)
         /* ASM_BARRIER: finish control publication before reading the live bound. */
         __asm__("" : : : "memory");
         {
-            register s32 bound = PadLastChannel;
+            s32 bound = PadLastChannel;
             current++;
             PadActiveChannel = current;
             if (bound >= current) {

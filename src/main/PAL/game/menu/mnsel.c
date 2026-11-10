@@ -79,18 +79,18 @@ int AllocMenuGridRecords(void *buffer, int count) {
 
 
 void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y) {
-    register s32 six = 6;
-    register s32 quotient = six / count;
-    register s32 offset;
-    register MenuGridPointerPage *page;
+    s32 six = 6;
+    s32 quotient = six / count;
+    s32 offset;
+    MenuGridPointerPage *page;
     /* ASM_BARRIER: retain the captured record in V1 through the copy. */
     register MenuGrid38 *entry asm("$3");
-    register MenuGrid38 *next;
-    register MenuGrid38 *last;
+    MenuGrid38 *next;
+    MenuGrid38 *last;
     const GridRow8 *row, *table;
-    register s32 step_y;
+    s32 step_y;
     s32 step_x;
-    register s32 layout_offset;
+    s32 layout_offset;
     /* PAL RAM page owns the full-width record-pointer slot at offset 0x3A28. */
     page = (MenuGridPointerPage *)0x800F0000U;
     offset = index * sizeof(MenuGrid38);
@@ -102,7 +102,7 @@ void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y) {
     ((MenuGrid38 *)(offset + (unsigned long)page->records3A28))->rows2F = six;
     entry = (MenuGrid38 *)(offset + (unsigned long)page->records3A28);
     step_y = (s16)step_y / entry->rows2F;
-    step_x = (s16)x / (s32)((u32)count * entry->columns2E);
+    step_x = (s16)x / (count * entry->columns2E);
     layout_offset = layout * 8;
     entry->count2C = count;
     entry->width04 = 64;

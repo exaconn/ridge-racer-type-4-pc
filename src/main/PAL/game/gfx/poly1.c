@@ -37,10 +37,10 @@
 
 
 
-struct P { int w; int x; short a, b, c, d; };
+struct PreviewSlotEntry10 { int w; int x; short a, b, c, d; };
 
 
-struct S { unsigned char c[8]; };
+struct PreviewBytes8 { unsigned char c[8]; };
 
 extern int *D_800AC598;
 extern s32 RearViewMirrorVisible;
@@ -52,16 +52,16 @@ extern short D_80107182;
 extern short D_80107184;
 extern short *SegmentVisibilityTable;
 extern unsigned char *OctantLookupTable;
-extern struct S D_80011324;
-extern struct S D_8001132C;
-extern struct S D_80011334;
-extern struct S D_8001133C;
-extern struct S D_80011344;
+extern struct PreviewBytes8 D_80011324;
+extern struct PreviewBytes8 D_8001132C;
+extern struct PreviewBytes8 D_80011334;
+extern struct PreviewBytes8 D_8001133C;
+extern struct PreviewBytes8 D_80011344;
 
 void RelocateCountedOffsetTable(int *a0);
 int SetupRearViewMirror(void);
 void RestoreMainViewAfterMirror(void);
-struct P *EmitRearViewMirrorFrameTile(struct P *a0);
+struct PreviewSlotEntry10 *EmitRearViewMirrorFrameTile(struct PreviewSlotEntry10 *a0);
 void UpdateAndDrawRearViewMirror(int arg0);
 s32 GetSegmentVisibilityTableSize(void);
 s32 GetOctantLookupTableSize(void);
@@ -131,7 +131,7 @@ void RestoreMainViewAfterMirror(void) {
     scratch->matrix28 = D_8010E710;
 }
 
-struct P *EmitRearViewMirrorFrameTile(struct P *a0) {
+struct PreviewSlotEntry10 *EmitRearViewMirrorFrameTile(struct PreviewSlotEntry10 *a0) {
     
     int s1 = ((int *)SCRATCHPAD)[1];
     SetTile(a0);
@@ -279,9 +279,9 @@ void SetupAnimatedObjectMatrices(AnimatedTrackObject *object) {
     BuildRotMatrixZ(&axisRotation, object->anglesD8.z);
     MulMatrix2(&axisRotation, &rotation);
     ApplyMatrixLV(&HalfTransViewMatrix, &object->positionC8, &transformedPosition);
-    rotation.w[5] = (s32)((u32)HalfTransViewMatrix.w[5] + transformedPosition.x) >> 1;
-    rotation.w[6] = (s32)((u32)HalfTransViewMatrix.w[6] + transformedPosition.y) >> 1;
-    rotation.w[7] = (s32)((u32)HalfTransViewMatrix.w[7] + transformedPosition.z) >> 1;
+    rotation.w[5] = (HalfTransViewMatrix.w[5] + transformedPosition.x) >> 1;
+    rotation.w[6] = (HalfTransViewMatrix.w[6] + transformedPosition.y) >> 1;
+    rotation.w[7] = (HalfTransViewMatrix.w[7] + transformedPosition.z) >> 1;
     SetTransMatrix(rotation.w);
     MulMatrix(&rotation, &HalfTransViewMatrix);
     SetRotMatrix(rotation.w);
@@ -461,7 +461,7 @@ void SetOctantLookupTable(s32 arg0) {
 
 
 void InitSplashDispEnv(void) {
-    struct S a, b, c, d, e, f;
+    struct PreviewBytes8 a, b, c, d, e, f;
     a = D_80011324;
     b = D_80011324;
     c = D_8001132C;

@@ -141,7 +141,7 @@ void FrmTaskModeUpdate(void) {
 
 void MainLoop(void) {
     s32 threshold;
-    register u8 *bank_page;
+    u8 *bank_page;
     u32 bank;
     FrameStorage *frame;
     MainLoopStartupHook();
@@ -162,8 +162,8 @@ void MainLoop(void) {
             s32 length=0x2C0;
             /* ASM_BARRIER: materialize the frame arena in V1 before indexing it. */
             register FrameStorage *frames asm("$3");
-            register GpuScratchPointers *scratch;
-            register u32 *ordering;
+            GpuScratchPointers *scratch;
+            u32 *ordering;
             frames=DrawBuffers;
             bank=FrameCounter;
             bank &=1;

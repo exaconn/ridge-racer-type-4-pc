@@ -30,17 +30,17 @@ void InitMenuArenas();
 void InitMenuScript();
 
 void UpdateSelectionRank(void) {
- register u8 *first_page=(u8 *)0x800B0000U;
- register SelectionStatePrefix *first;
+ u8 *first_page=(u8 *)0x800B0000U;
+ SelectionStatePrefix *first;
  /* ASM_BARRIER: reuse V0 for word intermediates whose lifetimes end before publication. */
  register s32 word asm("$2");
- register s32 phase;
- register s32 level;
- register u8 *rows_page;
- register s32 group;
+ s32 phase;
+ s32 level;
+ u8 *rows_page;
+ s32 group;
  /* ASM_BARRIER: reuse A0 for bucket and row indices, resetting it after the callback. */
  register s32 i asm("$4");
- register s32 sum;
+ s32 sum;
  /* ASM_BARRIER: materialize the initial page before forming the state pointer. */
  __asm__("" : "+r"(first_page));
  first=(SelectionStatePrefix *)(first_page-0x2B28);
@@ -50,15 +50,15 @@ void UpdateSelectionRank(void) {
   level=first->current.parameter;
   if(phase<4) {
    u8 *weights;
-   register s8 *choices;
+   s8 *choices;
    sum=0;
    i=phase-1;
    if(i<=phase) {
     weights=D_8009F81C;
     choices=(s8 *)first;
     do {
-     register s32 choice=*(s8 *)(i+(unsigned long)choices);
-     register s32 scaled=i*4;
+     s32 choice=*(s8 *)(i+(unsigned long)choices);
+     s32 scaled=i*4;
      sum+=*(u8 *)((choice+scaled)+(unsigned long)weights);
      i++;
     }while(i<=phase);
@@ -68,8 +68,8 @@ void UpdateSelectionRank(void) {
   group=word>>1;
   if(group==1) {word=D_800AD4EC;group=word+1;}
   {
-   register u8 *middle_page=(u8 *)0x800B0000U;
-   register SelectionStatePrefix *middle;
+   u8 *middle_page=(u8 *)0x800B0000U;
+   SelectionStatePrefix *middle;
    /* ASM_BARRIER: repeat the state address after selecting the threshold group. */
    __asm__("" : "+r"(middle_page));
    middle=(SelectionStatePrefix *)(middle_page-0x2B28);
@@ -79,7 +79,7 @@ void UpdateSelectionRank(void) {
     /* ASM_BARRIER: hold the configuration pointer separately from threshold values. */
     register SelectionStatePrefix *config asm("$9");
 
-    register s32 next;
+    s32 next;
     /* ASM_BARRIER: retain the bucket adjustment base in T2. */
     register s32 four asm("$10");
     /* ASM_BARRIER: keep the bucket adjustment in V1 through the high-level branch. */
@@ -115,7 +115,7 @@ publish_rank:;
    /* ASM_BARRIER: reuse the dead page temporary for the configuration pointer. */
    register SelectionStatePrefix *publish asm("$2");
    SelectionRow *target;
-   register u32 index;
+   u32 index;
    /* ASM_BARRIER: form a fresh state pointer for publication. */
    __asm__("" : "+r"(publish_page));
    publish=(SelectionStatePrefix *)(publish_page-0x2B28);
@@ -137,12 +137,12 @@ publish_rank:;
    __asm__("" : "+r"(rows_page) : "r"(published_row));
    __builtin_memcpy(published_row,&publish->current,sizeof(SelectionRow));}
 
-   {register s32 check=publish->phase;
+   {s32 check=publish->phase;
    i=1;
    if(check==6) {SelectTeamCarGroup();i=1;}}
   }
 
-  {register SelectionRows32 *rows_base;
+  {SelectionRows32 *rows_base;
   SelectionRow *row;
   rows_base=(SelectionRows32 *)(rows_page+0x4D98);
   /* ASM_BARRIER: retain the row base before adding the first-row offset. */

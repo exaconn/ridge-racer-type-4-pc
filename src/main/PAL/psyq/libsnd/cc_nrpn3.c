@@ -38,10 +38,10 @@ void _SsUtBuildADSR(a0, a1, a2) S *a0; short *a1; short *a2; {
     S *p;
     short *d; 
     register int c __asm__("$2"); /* ASM_BARRIER: pin to the original register allocation */
-    register int t __asm__("$5"); /* ASM_BARRIER: pin to the original register allocation */
+    register int t __asm__("$5"); /* ASM_BARRIER: pin to the original allocation */
     int v; 
     int e; 
-    register int x __asm__("$3"); /* ASM_BARRIER: pin to the original register allocation */
+    register int x __asm__("$3"); /* ASM_BARRIER: pin to the original allocation */
     int y; 
     int k, g;
     p = a0;

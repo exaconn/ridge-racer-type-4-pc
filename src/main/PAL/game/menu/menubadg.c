@@ -5,22 +5,22 @@ void *EmitBadgePatternSprites(void *cursor, s32 style, s32 index) {
     register void *result asm("$7") = cursor;
     /* ASM_BARRIER: preserve the unscaled style index in S7 across helpers. */
     register s32 selected asm("$23") = style;
-    register s32 i = 0;
+    s32 i = 0;
     const s8 *patterns = BadgeStripPatterns;
-    register u8 *context_page = (u8 *)0x800B0000U;
-    register u8 *row_page = (u8 *)0x800F0000U;
+    u8 *context_page = (u8 *)0x800B0000U;
+    u8 *row_page = (u8 *)0x800F0000U;
     s32 offset = index*28;
-    register s32 xshift;
-    register s32 glyph;
+    s32 xshift;
+    s32 glyph;
     const s8 *q;
     /* ASM_BARRIER: use V1 for row geometry until the final extent load. */
     register BadgeRow1C *p asm("$3");
-    register BadgeRow1C *last;
+    BadgeRow1C *last;
     /* ASM_BARRIER: capture the helper cursor in A1 before preparing coordinates. */
     register void *outgoing asm("$5");
     /* ASM_BARRIER: stage the atlas base in V0 before scaling the glyph. */
     register UiUvRect *atlas asm("$2");
-    register UiUvRect *uv;
+    UiUvRect *uv;
     do {
         q = (const s8 *)((i+selected*8)+(unsigned long)patterns);
         xshift = q[4];

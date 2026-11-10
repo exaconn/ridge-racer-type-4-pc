@@ -28,7 +28,7 @@ typedef struct {
     short h250[2][4];
 } T;
 
-struct B4 { char b[4]; };
+struct TrackHeader4 { char b[4]; };
 
 extern short D_800AC53C;
 extern short D_800ACC74;
@@ -342,10 +342,10 @@ void UpdateWheelBumps(RaceVehicle *a)
 
 void SetTrackNodeData(char *a)
 {
-    struct B4 sp;
+    struct TrackHeader4 sp;
     int i;
     TrackNodeGrid = (short *)(a + 4);
-    sp = *(struct B4 *)a;
+    sp = *(struct TrackHeader4 *)a;
     TrackNodes = (TrackSample3C *)(a + 0x808);
     TrackLength = 0;
     TrackNodeCount = ((int *)a)[0x201];

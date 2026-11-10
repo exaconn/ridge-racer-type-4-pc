@@ -91,17 +91,17 @@ s32 GetTrackNodeHeading(s32 node, s32 lane)
 }
 
 void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
-    register SpritePacket *packet;
-    register u32 current_x;
-    register s32 glyph;
+    SpritePacket *packet;
+    u32 current_x;
+    s32 glyph;
     s32 width;
-    register const u8 *width_entry;
+    const u8 *width_entry;
     FrameStorage *context;
     u32 *head;
 
     /* ASM_BARRIER: retain the biased packet-field cursor in T0. */
     register u8 *fields asm("$8");
-    register s32 row;
+    s32 row;
     s32 v;
     /* ASM_BARRIER: retain Y in S1 while A1 becomes glyph and width address. */
     register s32 yy asm("$17");

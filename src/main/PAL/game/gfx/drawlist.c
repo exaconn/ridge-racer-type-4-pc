@@ -40,15 +40,15 @@
 #define ORDER (order_page->order)
 
 
-struct V16 { int w[4]; };
+struct Vec4Words16 { int w[4]; };
 
-struct SPD { struct P *cur; struct OT *ot; };
+struct GpuScratchCursorPair { struct GpuPrimPacket20 *cur; struct GpuOrderTablePair *ot; };
 
-union H { struct P *p; struct { char link[3]; unsigned char len; } b; };
+union GpuPacketHeader { struct GpuPrimPacket20 *p; struct { char link[3]; unsigned char len; } b; };
 
-struct P { union H h; int w[4]; };
+struct GpuPrimPacket20 { union GpuPacketHeader h; int w[4]; };
 
-struct OT { int x; union H h; };
+struct GpuOrderTablePair { int x; union GpuPacketHeader h; };
 
 extern void ClearScreenOverlayState();
 extern int CdAudioInit();
@@ -122,7 +122,7 @@ void StepIntroScene(void) {
     int var_a0_4;
     int var_a0_5;
     int v0;
-    struct V16 *dv;
+    struct Vec4Words16 *dv;
     register char *src asm("$2"); /* ASM_BARRIER: pin src to $2 as in original copy sequence */
     int *st;
     int *st_v1;
@@ -145,8 +145,8 @@ void StepIntroScene(void) {
     int var_v0_3;
     int var_v0_4;
     char *temp_s0, *temp_s1, *temp_s2;
-    struct P *temp_t1;
-    struct SPD *spd, *spd2;
+    struct GpuPrimPacket20 *temp_t1;
+    struct GpuScratchCursorPair *spd, *spd2;
     int col;
     temp_s5 = PollCdAudioStatus();
     if (TitleSceneStage >= 5) {
@@ -926,13 +926,13 @@ case 0x27:
     }
     G->s44 = (s16) ((u16) G->s44 + 1);
     G->s46 = (s16) ((u16) G->s46 + 1);
-    spd = (struct SPD *)SCRATCHPAD;
+    spd = (struct GpuScratchCursorPair *)SCRATCHPAD;
     spd->cur->w[0] = 0xE1000229;
     spd->cur->h.p = spd->ot->h.p;
     spd->cur->h.b.len = 1;
     spd->ot->h.p = spd->cur;
     spd->ot->h.b.len = 0;
-    spd->cur = (struct P *)((char *)spd->cur + 8);
+    spd->cur = (struct GpuPrimPacket20 *)((char *)spd->cur + 8);
     RampValueToLimit(&G->s48, &G->s74, 0x80);
     RampValueToLimit(&G->s4A, &G->s76, 0x80);
     RampValueToLimit(&G->s4C, &G->s78, 0x80);
@@ -1018,7 +1018,7 @@ case 0x27:
         c80 |= mid;
         c80 |= temp_t0;
         temp_t1->w[1] = c80;
-        spd2 = (struct SPD *)SCRATCHPAD;
+        spd2 = (struct GpuScratchCursorPair *)SCRATCHPAD;
         temp_t1->w[2] = c_800060;
         temp_t1->w[3] = c_800080;
         temp_t1->w[0] = c_e1000240;
@@ -1042,7 +1042,7 @@ void EmitSpriteGrid(u32 intensity, SpriteGridClock *state) {
     u32 hi, middle;
     s32 row, x, phase, index;
     GpuScratchPointers *scratch;
-    struct P *packet;
+    struct GpuPrimPacket20 *packet;
 
     hi = color << 16;
     middle = color << 8;
@@ -1050,7 +1050,7 @@ void EmitSpriteGrid(u32 intensity, SpriteGridClock *state) {
     hi |= middle;
     color |= hi;
 
-    packet = *(struct P **)SCRATCHPAD;
+    packet = *(struct GpuPrimPacket20 **)SCRATCHPAD;
     state->tick0E++;
     phase = state->tick0E;
     for (row = 0; row < 144; row += 48) {

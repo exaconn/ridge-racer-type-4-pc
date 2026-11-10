@@ -1362,7 +1362,7 @@ void DrawGlowFan(CarSlotBufferC8 *slot, RroEffectWork *work) {
 
 const RroTexturedQuadPrefix *EmitProjectedQuadsFT4(const RroTexturedQuadPrefix *quad, s32 count, RroEffectWork *work) {
     const RroProjectedVertex *vertices = &work->projection188.pipeline[3];
-    /* Existing volatile scratch reads preserve their original observation order. */
+    /* Existing scratch reads preserve their original observation order. */
     volatile RroSceneScratchPrefix *scene = (RroSceneScratchPrefix *)SCRATCHPAD;
     s32 shift = scene->depthShift60 + 4;
     GpuPolyFT4 *packet = (GpuPolyFT4 *)scene->view.projection.pointers.cursor;

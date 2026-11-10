@@ -168,13 +168,13 @@ void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags) {
     register u32 input asm("$16")=flags;
     /* ASM_BARRIER: retain red in the original saved register across environment helpers. */
     register s32 red asm("$23")=r;
-    register s32 green;
-    register u32 temp;
+    s32 green;
+    u32 temp;
     /* ASM_BARRIER: retain interlace independently of height and offset. */
     register s32 interlace asm("$19");
-    register u32 height;
-    register u32 other_y;
-    register s32 width;
+    u32 height;
+    u32 other_y;
+    s32 width;
     /* ASM_BARRIER: retain the rgb24-mode bit across environment helpers. */
     register u32 rgb24 asm("$21");
     /* ASM_BARRIER: preserve flags until the background-fill loop value is extracted. */
@@ -182,15 +182,15 @@ void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags) {
     /* ASM_BARRIER: reuse S0 for the arena after the input flags have been consumed. */
     register FrameStorage *env asm("$16");
     GpuRectangleFields window;
-    register s32 i;
-    register u16 *settings;
-    register s32 one;
+    s32 i;
+    u16 *settings;
+    s32 one;
     /* ASM_BARRIER: keep the loop rgb24-mode value in A3 after the helper calls. */
     register u32 loopRgb24 asm("$7");
     /* ASM_BARRIER: keep the loop background-fill value in T0 after the helper calls. */
     register u32 background asm("$8");
-    register s32 center_x;
-    register u32 center_y;
+    s32 center_x;
+    u32 center_y;
     /* ASM_BARRIER: capture red and flags before assigning green and geometry temporaries. */
     __asm__("" : "+r"(red) : "r"(input) : "$2", "$30");
     green=g;

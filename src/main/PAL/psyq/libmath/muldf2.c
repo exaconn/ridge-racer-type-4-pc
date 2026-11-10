@@ -43,7 +43,7 @@ Wide64 *_mul_mant_d(Wide64 *out,u32 a,u32 b) {
 }
 
 u64 __negdf2(u64 value) {
-    register u64 result=value;
+    u64 result=value;
     /* ASM_BARRIER: Retain the working words separately from the return pair. */
     register u64 bits __asm__("$6");
     union { u64 bits; Wide64 words; } work;

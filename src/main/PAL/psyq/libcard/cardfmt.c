@@ -2,18 +2,18 @@
 #include "rr/card_format.h"
 
 s32 _card_format(s32 arg0){
-    register s32 port=arg0;
-    register s32 i=0;
+    s32 port=arg0;
+    s32 i=0;
     CardFormatSector *scratch=&D_80114328;
     CardDirectoryRecord *base=CardFormatDirRecords;
-    register s32 state=0xA0,last=0xFFFF,success=1;
-    register s32 next;
+    s32 state=0xA0,last=0xFFFF,success=1;
+    s32 next;
     s32 status;
     s32 result;
-    register CardDirectoryRecord *entry;
+    CardDirectoryRecord *entry;
     /* ASM_BARRIER: retain the byte-aligned directory view for this copy phase. */
     register CardDirectoryWire *wire asm("$17");
-    register u32 offset;
+    u32 offset;
     CardBrokenRecord *slot;
 
     do {
@@ -27,7 +27,7 @@ s32 _card_format(s32 arg0){
         CardFormatDirRecords[i].fields.size=0;
         CardFormatDirRecords[i].fields.next=last;
         {
-        register u32 a,b,c,d;
+        u32 a,b,c,d;
         a=wire->words[0].value;
         b=wire->words[1].value;
         c=wire->words[2].value;
@@ -50,7 +50,7 @@ s32 _card_format(s32 arg0){
         __asm__("" : : "r"(scratch));
         }
         {
-        register s32 write_port=port;
+        s32 write_port=port;
 
         next=i+1;
         if(_card_sector_write(write_port,next,scratch->bytes)!=success){result=0;goto done;}
@@ -58,10 +58,10 @@ s32 _card_format(s32 arg0){
         i=next;
     }while(i<15);
     {
-    register CardFormatSector *second;
-    register s32 invalid;
-    register s32 one;
-    register CardWireWord *word;
+    CardFormatSector *second;
+    s32 invalid;
+    s32 one;
+    CardWireWord *word;
     u32 tail;
     i=0;
     invalid=-1;second=scratch;one=1;

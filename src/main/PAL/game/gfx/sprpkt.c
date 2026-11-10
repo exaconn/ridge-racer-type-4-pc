@@ -10,7 +10,7 @@
 #include "rr/audio_loop.h"
 #include "rr/race_setup.h"
 #include "game/gfx/sprpkt.h"
-struct O { s32 unk00[28]; u32 addr:24; u32 len:8; };
+struct OrderingHeadEntry { s32 unk00[28]; u32 addr:24; u32 len:8; };
 extern s32 RaceState;
 extern s32 SplitTimes[];
 void DrawRaceOverlaySprites(s32 a0)
@@ -61,8 +61,8 @@ void DrawRaceOverlaySprites(s32 a0)
         p->v = 0xA8;
         p->clut = 0x7EF8;
         p->code |= 1;
-        p->addr = ((struct O *)CurrentDrawBuf)->addr;
-        ((struct O *)CurrentDrawBuf)->addr = p++;
+        p->addr = ((struct OrderingHeadEntry *)CurrentDrawBuf)->addr;
+        ((struct OrderingHeadEntry *)CurrentDrawBuf)->addr = p++;
         ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)p;
     }
 }

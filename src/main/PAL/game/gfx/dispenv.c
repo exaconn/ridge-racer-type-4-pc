@@ -12,7 +12,7 @@ typedef struct {
     u8 r, g, b, pad;
 } LightPreset8;
 
-struct S {
+struct FogCameraContext48 {
     s32 unk00[7];
     int f1C, f20, f24, f28;
     s32 unk2C[3];
@@ -20,9 +20,9 @@ struct S {
 };
 
 extern int GetTrackPointAhead();
-extern struct S RaceContext;
+extern struct FogCameraContext48 RaceContext;
 /* same symbol under a 2nd C name: cse cannot reuse the earlier address, so the else arm re-materialises lui/addiu like the original */
-extern struct S D_800AC650b __asm__("RaceContext");
+extern struct FogCameraContext48 D_800AC650b __asm__("RaceContext");
 extern int D_800AC690;
 extern int D_800AC694;
 extern void RotMatrixZYX();
@@ -39,7 +39,7 @@ int ComputeCameraNodeDist(RaceVehicle *a0, CamNode44 *a1)
     int d[3];
     int sp20[4];
     int s;
-    struct S *q;
+    struct FogCameraContext48 *q;
     int t;
     d[0] = (RaceContext.f20 / 4 - a1->x) / 4;
     d[1] = (RaceContext.f24 / 4 - a1->y) / 4;

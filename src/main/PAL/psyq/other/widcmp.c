@@ -20,12 +20,12 @@ done:
 }
 
 Wide64 *_dbl_shift_us(Wide64 *result,s32 right,Wide64 value,s32 raw_count) {
-    register s32 count=raw_count;
-    register Wide64 *out=result;
+    s32 count=raw_count;
+    Wide64 *out=result;
     /* ASM_BARRIER: Keep the iteration variable in the original argument register. */
     register s32 i __asm__("$4");
     if(!right) {
-        register u32 mask;
+        u32 mask;
         i=0;
         if(count<=0) goto publish;
         /* ASM_BARRIER: Keep the carry mask after the nonpositive-count gate. */
@@ -41,7 +41,7 @@ Wide64 *_dbl_shift_us(Wide64 *result,s32 right,Wide64 value,s32 raw_count) {
             i++;
         } while(i<count);
     } else {
-        register u32 mask;
+        u32 mask;
         i=0;
         if(count<=0) goto publish;
         mask=0x80000000U;

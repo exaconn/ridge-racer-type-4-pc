@@ -4,7 +4,7 @@
 #include "rr/controller_hud.h"
 #include "game/ui/hudctrl.h"
 
-struct P { unsigned w0; char b4, b5, b6, b7; short x, y, w, h; };
+struct HudTilePacket16 { unsigned w0; char b4, b5, b6, b7; short x, y, w, h; };
 
 
 void DrawSteeringIndicator(u32 *ordering, s32 layout);
@@ -168,9 +168,9 @@ drawNeedle:
 
 void DrawSplitScreenDivider(int a0)
 {
-    struct P *p;
+    struct HudTilePacket16 *p;
     FrameStorage *o;
-    p = *(struct P **)SCRATCHPAD;
+    p = *(struct HudTilePacket16 **)SCRATCHPAD;
     ((char *)p)[3] = 3;
     p->b7 = 0x60;
     if (a0 == 0) {
@@ -191,5 +191,5 @@ void DrawSplitScreenDivider(int a0)
     p->w0 = (p->w0 & 0xFF000000) | (o->buffer.secondaryOrderingB70.words[0] & 0xFFFFFF);
     *(unsigned *)&o->buffer.secondaryOrderingB70.words[0] =
         (o->buffer.secondaryOrderingB70.words[0] & 0xFF000000) | ((unsigned)p++ & 0xFFFFFF);
-    *(struct P **)SCRATCHPAD = p;
+    *(struct HudTilePacket16 **)SCRATCHPAD = p;
 }

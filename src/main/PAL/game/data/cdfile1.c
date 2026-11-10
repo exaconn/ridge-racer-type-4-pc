@@ -27,8 +27,8 @@ extern const char StrReadSectorFmt[];
 extern CdFileEntry CdFileTable[];
 extern int LoadingTriangleAngle;
 extern int LoadingTriangleFlip;
-extern struct P { GpuDmaTag tag; int w4; short x0, y0; int c1; short x1, y1; int c2; short x2, y2; } D_80109400[];
-extern struct P *D_80109438;
+extern struct LoadingTriG3Packet { GpuDmaTag tag; int w4; short x0, y0; int c1; short x1, y1; int c2; short x2, y2; } D_80109400[];
+extern struct LoadingTriG3Packet *D_80109438;
 
 int GetCarFileIndex(int a0, int a1, int a2, int a3);
 int GetR4FileIndex(int a0, int a1);

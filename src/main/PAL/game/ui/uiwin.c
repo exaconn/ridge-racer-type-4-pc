@@ -196,9 +196,9 @@ int AllocUiRows(void *a) {
 
 
 void InitUiRow(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g,s32 h,...) {
- register s32 i;
+ s32 i;
  u32 offset;
- register UiRow24 *tail;
+ UiRow24 *tail;
  /* ASM_BARRIER: Keep the real PAL pointer page in its shared address register. */
  register u8 *page __asm__("$9");
  if(index<UiRowCount) {
@@ -222,8 +222,8 @@ void InitUiRow(s32 index,s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 count,s32 g,s32
   i=0;
   ((UiRow24 *)(offset+(unsigned long)((UiRowPointerPage *)page)->rows4D80))->half20=0;
   if(count>0) {
-   register u8 *loop_page=page;
-   register u32 clear_offset;
+   u8 *loop_page=page;
+   u32 clear_offset;
    clear_offset=offset;
    do {
     *(u8 *)(clear_offset+(unsigned long)((UiRowPointerPage *)loop_page)->rows4D80+i+RR_FIELD_OFFSET(UiRow24,cells))=0;

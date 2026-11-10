@@ -15,8 +15,8 @@ int *ScaleMatrix(int *a0_in, int *a1) {
     register int t4 __asm__("$12");
     /* ASM_BARRIER: PsyQ hand-coded register allocation */
     register int t5 __asm__("$13");
-    /* ASM_BARRIER: bind 64-bit multiply output directly to HI/LO register pair ($64/$65) */
-    register union {
+    /* ASM_BARRIER: bind 64-bit multiply output directly to HI/LO pair ($64/$65) */
+    union {
         u64 d;
         struct {
             s32 hi;

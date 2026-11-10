@@ -85,22 +85,22 @@ void TileRectSceneModeEnter(void);
 void TileRectSceneModeUpdate(void);
 
 void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head) {
-    register s32 value;
-    register u32 command;
-    register GpuRectangleFields *rect = rectangle;
-    register u32 *ordering = head;
-    register s32 height, y, width, x;
-    register s32 tile_h, tile_w;
+    s32 value;
+    u32 command;
+    GpuRectangleFields *rect = rectangle;
+    u32 *ordering = head;
+    s32 height, y, width, x;
+    s32 tile_h, tile_w;
     /* ASM_BARRIER: keep the common tile limit in S2 across both loops. */
     register s32 limit asm("$18");
     /* ASM_BARRIER: retain the Y texture remainder in V1 until row packing. */
     register s32 v asm("$3");
     /* ASM_BARRIER: retain the X texture remainder in T3 for UV packing. */
     register s32 u asm("$11");
-    register s32 shade = intensity;
+    s32 shade = intensity;
     /* ASM_BARRIER: materialize the per-packet length in V0 after the tag store. */
     register s32 length asm("$2");
-    register u32 packed;
+    u32 packed;
     /* ASM_BARRIER: retain packed row fields in S0/A2/T9/T8 across the X loop. */
     register u32 top asm("$16"), bits_h asm("$6"), vpart asm("$25"), ypage asm("$24");
     /* ASM_BARRIER: stage E1000200 in A0 within each tile. */
@@ -144,7 +144,7 @@ void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head) {
                 bits_h = tile_h * 0x10000U;
                 /* ASM_BARRIER: keep the texture remainder separate from packed V. */
                 __asm__("" : : "r"(v));
-                vpart = (u32)v<<8;
+                vpart = v<<8;
                 value = y&256;
                 /* ASM_BARRIER: retain the signed Y-page shift after masking. */
                 __asm__("" : "+r"(value));

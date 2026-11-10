@@ -12,10 +12,10 @@
 #include "rr/driver_control.h"
 #include "rr/race_setup.h"
 
-struct V8 { unsigned char c[8]; };
+struct IntroColorBytes8 { unsigned char c[8]; };
 
 extern char D_8001013C[];
-extern struct V8 D_800101E4;
+extern struct IntroColorBytes8 D_800101E4;
 extern int RotMatrixX();
 extern int RotMatrixY();
 extern char D_8009E88C[];
@@ -54,7 +54,7 @@ int DrawRotatingTitleModel(int objectIndex, int animate)
 
 void DrawRotatingSky(void)
 {
-    struct V8 sp10;
+    struct IntroColorBytes8 sp10;
     MatrixWords32 sp18;
     int t;
     sp10 = D_800101E4;

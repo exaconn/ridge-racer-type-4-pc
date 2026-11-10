@@ -13,7 +13,7 @@ macros are not expanded. These are cleanup indicators, not matching metrics.
 | gotos | 312 | 66 |
 | pad_arrays | 0 | 0 |
 | raw_offset_derefs | 12 | 0 |
-| integer_casts | 515 | 106 |
+| integer_casts | 489 | 106 |
 | gcc_2_7_2_units | 53 | 13 |
 | cc1_flags_units | 42 | 4 |
 | volatile_qualifiers | 235 | 7 |

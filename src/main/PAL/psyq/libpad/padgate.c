@@ -2,7 +2,7 @@
 #include "rr/channel_init.h"
 #include "psyq/libpad/padgate.h"
 void PadInitDirect(u8 *first,u8 *second) {
-    register PadChannel *record;
+    PadChannel *record;
     /* ASM_BARRIER: preserve the first input pointer in S1 across setup helpers. */
     register u8 *input_first __asm__("$17")=first;
     /* ASM_BARRIER: preserve the second input pointer in S2 across setup helpers. */
@@ -15,7 +15,7 @@ void PadInitDirect(u8 *first,u8 *second) {
     /* ASM_BARRIER: retain the shared byte sentinel in T1 for both loops. */
     register s32 sentinel __asm__("$9");
     u8 *payload;
-    register void (*callback)(PadChannel *);
+    void (*callback)(PadChannel *);
     PadComActive=0;
     PadMultitapEnabled=0;
     _padInitDirSeq();

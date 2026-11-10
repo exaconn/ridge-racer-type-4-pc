@@ -4,11 +4,11 @@
 #include "psyq/libpad/padchk.h"
 void _padAllocGates(void *argument) {
     PadChannel *record=argument;
-    register s32 i,j,found,mask;
+    s32 i,j,found,mask;
     s32 value;
-    register s32 one;
-    register s32 bound;
-    register s32 offset;
+    s32 one;
+    s32 bound;
+    s32 offset;
     s32 length;
     register u8 *mapping,*data,*gates asm("$4");
     PsyqBzero((record->output54.fields.gates+3),6);
@@ -84,7 +84,7 @@ reserved:
         if(!record->pending && record->length34>=2) {
             data=record->data28;
             if((data[0]&0xC0)==0x40 && (data[1]&1) && (s32)(PadTotalGateCost+10U)<61) {
-                register s32 enable=1;
+                s32 enable=1;
                 (record->output54.fields.gates+3)[1]=enable;
                 (record->output54.fields.gates+3)[0]=enable;
                 {
@@ -99,7 +99,7 @@ reserved:
     }
     if(((volatile PadChannel *)record)->responseE8==3) {(record->output54.fields.gates+3)[0]=1;goto out;}
     if(!record->pending) {
-        register s32 fill=1;
+        s32 fill=1;
         j=5;
         /* ASM_BARRIER: keep the reverse count separate from the byte-view base bias. */
         __asm__("" : "+r"(j));

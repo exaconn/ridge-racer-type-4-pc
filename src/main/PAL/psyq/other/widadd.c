@@ -3,7 +3,7 @@ Wide64 *_add_mant_d(Wide64 *result, Wide64 a, Wide64 b) {
     unsigned t[4];
     u32 low;
     /* ASM_BARRIER: Keep the result words in the original copy registers. */
-    register s32 high;
+    s32 high;
     t[1] = a.lo >> 16; t[0] = a.lo & 0xFFFF;
     t[3] = b.lo >> 16; t[2] = b.lo & 0xFFFF;
     t[0] = t[0] + t[2];

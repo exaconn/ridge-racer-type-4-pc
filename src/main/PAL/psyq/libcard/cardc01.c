@@ -29,7 +29,7 @@ int _cardCmd59Tx() {
     int a; 
     register int r __asm__("$2");
     int t; 
-    register int c; 
+    int c; 
     a = CardTxCount;
     t = 2;
     if (a == t) {

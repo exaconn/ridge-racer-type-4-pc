@@ -183,12 +183,12 @@ int DS_newmedia(void) {
 
 s32 DS_searchdir(s32 key, const char *name) {
     s32 i = 0;
-    register char *entry_name;
+    char *entry_name;
     s32 offset;
     entry_name = D_8011095C;
     offset = 0;
     do {
-        register u8 *page;
+        u8 *page;
         s32 entry_key;
         /* PAL mapping: page + offset + 0x954 addresses D_80110954[i]. */
         page = (u8 *)0x80110000U;

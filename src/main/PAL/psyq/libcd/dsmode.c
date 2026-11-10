@@ -23,7 +23,7 @@ void CdRead2(s32 flags) {
         } else {
             {
                 s32 *base;
-                register s32 one = 1;
+                s32 one = 1;
                 /* PAL mapping: base[0x348 / 4] is CdReadModeFlag. */
                 base = (s32 *)0x80110000U;
                 base[0x348 / 4] = one;

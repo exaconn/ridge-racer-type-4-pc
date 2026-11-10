@@ -11,7 +11,7 @@
 #include "rr/animated_glyph.h"
 #include "game/ui/badge1.h"
 
-struct P { unsigned addr:24; unsigned len:8; unsigned char r, g, b, code; short x; unsigned short y; unsigned char u, v; unsigned short clut; short w, h; };
+struct HudSpritePacket20 { unsigned addr:24; unsigned len:8; unsigned char r, g, b, code; short x; unsigned short y; unsigned char u, v; unsigned short clut; short w, h; };
 
 typedef struct {
     u16 x00;
@@ -32,13 +32,13 @@ extern char D_8009EB1C[];
 extern char D_8009EC48[];
 extern char D_800D0160[];
 
-void InitHudSpritePacket(struct P *a0, HudSpriteDef14 *a1);
+void InitHudSpritePacket(struct HudSpritePacket20 *a0, HudSpriteDef14 *a1);
 void SubmitRaceHudPackets();
 void DrawDigitString12();
 void DrawDigitString8();
 void DrawDigitString16();
 
-void InitHudSpritePacket(struct P *a0, HudSpriteDef14 *a1) {
+void InitHudSpritePacket(struct HudSpritePacket20 *a0, HudSpriteDef14 *a1) {
     ((u8 *)a0)[3] = 4;
     a0->code = 0x64;
     *(u16 *)&a0->x = a1->x00;
@@ -217,8 +217,8 @@ void DrawDigitString8(SpritePacket *a0, s32 a1, s32 a2, u8 *a3, s32 a4) {
 }
 
 
-void DrawDigitString16(struct P *a0, int a1, int a2, unsigned char *a3) {
-    struct P *p = *(struct P **)SCRATCHPAD;
+void DrawDigitString16(struct HudSpritePacket20 *a0, int a1, int a2, unsigned char *a3) {
+    struct HudSpritePacket20 *p = *(struct HudSpritePacket20 **)SCRATCHPAD;
     int c, u, kh;
     if (*a3 != 0) {
         kh = 0x10;

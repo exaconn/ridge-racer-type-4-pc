@@ -6,7 +6,7 @@
 #include "rr/animated_glyph.h"
 #include "rr/hud_number.h"
 
-struct P12 { int a, b, c; };
+struct GpuDrawAreaPacket12 { int a, b, c; };
 
 #include "rr/sprite_emit.h"
 
@@ -19,7 +19,7 @@ void *AddTilePrim(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5,
 void *AddTileGrid2x2(u32 *a0, void *a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
 
 void *AddDrawAreaPrim(u32 *a0, void *cursor, int a2, int a3, int a4, int a5) {
-    struct P12 *a1=cursor;
+    struct GpuDrawAreaPacket12 *a1=cursor;
     short sp[4];
     char *p = DrawBuffers;
     int t;

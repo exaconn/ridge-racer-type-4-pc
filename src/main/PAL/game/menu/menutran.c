@@ -40,7 +40,7 @@ void SetNextModeByGameType(void){
 void UpdateGrandPrixStageProgress(void) {
     int x, c0, i0, j;
     int a0;
-    register int v1;
+    int v1;
     int a2;
     char *s0, *p;
     a2 = (unsigned char)SelectionState[0x17];

@@ -13,7 +13,7 @@ int a0;
     _qout = 0;
     GpuResetSavedIntrMask = t;
     _qin = _qout;
-    /* Ordinary register views retain the original reset scheduling. */
+    /* Ordinary views retain the original reset scheduling. */
     switch (a0 & 7) {
     case 5:
     case 0:

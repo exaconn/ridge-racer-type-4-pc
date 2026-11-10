@@ -16,9 +16,9 @@ void _SsClose(s32 raw_bank) {
     s32 i;
     s32 offset;
     s32 argument_bank;
-    register s32 zero;
+    s32 zero;
     s32 minus_one;
-    register s32 maximum;
+    s32 maximum;
     LibStateB0 **q;
     argument_bank=a0;
     zero=0;
@@ -47,7 +47,7 @@ void _SsClose(s32 raw_bank) {
             P->h58[0] = maximum;
             i++;
             {
-                register LibStateB0 *last=P;
+                LibStateB0 *last=P;
                 offset+=sizeof(LibStateB0);
                 last->h58[1]=maximum;
             }

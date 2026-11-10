@@ -20,7 +20,7 @@ extern SpuRegisterPatch SpuReverbPresetTable[];
 extern void _spu_FsetRXX();
 extern void _spu_setReverbAttr();
 
-/* Byte copy of one reverb register preset (inlined at each use). */
+/* Byte copy of one reverb preset (inlined at each use). */
 static __inline__ void copy(u8 *dst, u8 *src, s32 n) {
     for (n--; n != -1; n--) {
         *dst++ = *src++;

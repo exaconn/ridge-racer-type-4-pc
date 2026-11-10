@@ -11,7 +11,7 @@
 #include "rr/race_setup.h"
 #include "game/ui/badge1.h"
 
-struct W3G0A { char *p0; char *p4; short s8, sA, sC, sE, s10, s12; char *p14; char *p18; short s1C, s1E, s20, s22, s24, s26; };
+struct HudNumberTargetPair28 { char *p0; char *p4; short s8, sA, sC, sE, s10, s12; char *p14; char *p18; short s1C, s1E, s20, s22, s24, s26; };
 
 extern char D_800ADB60[];
 extern char D_800D02D8[];
@@ -35,32 +35,32 @@ void InitHudNumberTargets(int a0) {
             goto w3g0b;
         }
     }
-    ((struct W3G0A *)HudNumberTargets)->p0 = D_800ADB60;
-    ((struct W3G0A *)HudNumberTargets)->p4 = D_800D02D8;
-    ((struct W3G0A *)HudNumberTargets)->s8 = 0x106;
-    ((struct W3G0A *)HudNumberTargets)->sA = 0xE6;
-    ((struct W3G0A *)HudNumberTargets)->sC = 0x122;
-    ((struct W3G0A *)HudNumberTargets)->sE = 0xDC;
-    ((struct W3G0A *)HudNumberTargets)->s10 = 0x112;
-    ((struct W3G0A *)HudNumberTargets)->s12 = 0xCE;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p0 = D_800ADB60;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p4 = D_800D02D8;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->s8 = 0x106;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->sA = 0xE6;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->sC = 0x122;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->sE = 0xDC;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->s10 = 0x112;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->s12 = 0xCE;
     return;
 w3g0b:
-    ((struct W3G0A *)HudNumberTargets)->p0 = D_800AE660;
-    ((struct W3G0A *)HudNumberTargets)->p4 = D_800D0DD8;
-    ((struct W3G0A *)HudNumberTargets)->s8 = 0xFC;
-    ((struct W3G0A *)HudNumberTargets)->sA = 0x58;
-    ((struct W3G0A *)HudNumberTargets)->sC = 0x128;
-    ((struct W3G0A *)HudNumberTargets)->sE = 0x4A;
-    ((struct W3G0A *)HudNumberTargets)->s10 = 0xFC;
-    ((struct W3G0A *)HudNumberTargets)->s12 = 0x68;
-    ((struct W3G0A *)HudNumberTargets)->p14 = D_800AE660;
-    ((struct W3G0A *)HudNumberTargets)->p18 = D_800D0DD8;
-    ((struct W3G0A *)HudNumberTargets)->s1C = 0xFC;
-    ((struct W3G0A *)HudNumberTargets)->s1E = 0xD8;
-    ((struct W3G0A *)HudNumberTargets)->s20 = 0x122;
-    ((struct W3G0A *)HudNumberTargets)->s22 = 0xCA;
-    ((struct W3G0A *)HudNumberTargets)->s24 = 0xFC;
-    ((struct W3G0A *)HudNumberTargets)->s26 = 0xE8;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p0 = D_800AE660;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p4 = D_800D0DD8;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->s8 = 0xFC;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->sA = 0x58;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->sC = 0x128;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->sE = 0x4A;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->s10 = 0xFC;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->s12 = 0x68;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p14 = D_800AE660;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p18 = D_800D0DD8;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->s1C = 0xFC;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->s1E = 0xD8;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->s20 = 0x122;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->s22 = 0xCA;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->s24 = 0xFC;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->s26 = 0xE8;
 }
 
 void DrawViewportBorderFrames(int a0) {

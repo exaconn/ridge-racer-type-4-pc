@@ -141,7 +141,7 @@ int AllocRect16Rows(void *a0) {
 
 void InitRect16Row(int i, short a, short b, short c, short d, short e, short f) {
     if (i < Rect16RowCount) {
-        /* Numeric byte addressing still constrains the PAL register allocation.
+        /* Numeric byte addressing still constrains the PAL allocation.
          * Keep the complete CPU address on native builds. */
         MenuRectRow10 *p = (MenuRectRow10 *)((i * 16)+(unsigned long)Rect16Rows);
         p->parameter00 = f;

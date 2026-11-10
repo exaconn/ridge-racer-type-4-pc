@@ -15,8 +15,8 @@ extern MenuSettings2C SelectionState;
 extern short SelectedTeamIndex;
 extern int ModeFrame;
 extern short ModeIndex;
-extern unsigned short D_800F3A42;
-extern int D_800F3A60;
+extern unsigned short MenuSelectedCarSlot;
+extern int MenuReturnSubmodeIndex;
 extern short ModeGroup;
 extern short SubmodeState;
 extern MenuGlyphRow1C *GlyphRows;
@@ -28,10 +28,10 @@ void StepModeSelectChoice(void) {
     int t = SelectionRows[0];
     SelectedTeamIndex = t;
     ((u8 *)UiRows)[t + 0xC] = 0;
-    if ((D_800F3A42 & 0x2000) && SelectedTeamIndex < 3) {
+    if ((MenuSelectedCarSlot & 0x2000) && SelectedTeamIndex < 3) {
         SelectedTeamIndex = (unsigned short)SelectedTeamIndex + 1;
         MenuStepDirection = 2;
-    } else if ((D_800F3A42 & 0x8000) && SelectedTeamIndex > 0) {
+    } else if ((MenuSelectedCarSlot & 0x8000) && SelectedTeamIndex > 0) {
         SelectedTeamIndex = (unsigned short)SelectedTeamIndex - 1;
         MenuStepDirection = 1;
     } else {
@@ -52,7 +52,7 @@ void StepModeSelectChoice(void) {
 skip_step:;
     q = UiRows->cells;
     q[SelectedTeamIndex] = 2;
-    if (D_800F3A60 != 0) {
+    if (MenuReturnSubmodeIndex != 0) {
         s0 = BadgeRows->state10;
         if (s0 == 3) {
             PlaySfx(1);

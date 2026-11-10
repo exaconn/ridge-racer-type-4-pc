@@ -10,7 +10,7 @@
 #include "rr/badge_rows.h"
 #include "rr/menu_choice.h"
 
-extern int D_800F3A60;
+extern int MenuReturnSubmodeIndex;
 
 void UpdateDialogue(int a0, int a1, MenuTextState *s);
 int DecodeCourseIndex(s32 a0);
@@ -61,7 +61,7 @@ void UpdateDialogue(int a0, int a1, MenuTextState *s) {
         if (s->i18 >= s->sC) {
             if (s->b7 == 1) {
                 DrawDialogueContinueMark(a0 + 0x10D, a1 + 0x58);
-                if (D_800F3A60 == 0) {
+                if (MenuReturnSubmodeIndex == 0) {
                     goto call1;
                 }
                 PlaySfx(3);
@@ -136,7 +136,7 @@ call1:
 
 void SkipDialoguePage(MenuTextState *arg0) {
     if (arg0->i18 < arg0->sC) {
-        if (D_800F3A60 != 0) {
+        if (MenuReturnSubmodeIndex != 0) {
             if (arg0->st != 4) {
                 PlaySfx(3);
                 if (arg0->s12 < (arg0->bA - arg0->bB)) {

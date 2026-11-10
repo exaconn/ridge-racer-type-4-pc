@@ -5,14 +5,14 @@
 
 /* Four-player selection: per-pair page, row and course group tables. */
 extern CourseChoice4 LinkCarChoiceTable[2][2][9];
-extern s16 D_8010C0B8;
+extern s16 LinkMenuSyncPhase;
 extern s16 LinkCarChoiceCounts[2][2];
 extern s16 LinkCarChoiceIndex[2];
 extern s16 LinkCarChoiceGroup[2];
 extern s8 LinkEntryState[];
 extern s32 UiRowCount;
 /* Resident word reached through its enclosing array object (aliases row stores). */
-extern s32 D_800F4CB8[1];
+extern s32 MenuAvailableCourseMask[1];
 extern s16 CardMenuOperation;
 extern s16 LinkHostFlag;
 extern u8 ovl667_group_option_counts[4];
@@ -102,7 +102,7 @@ void ovl667_update_car_selection(void) {
                 PlaySfx(1);
                 UiRows[row].cells[0] = 1;
                 if (MenuCursor == ovl667_group_slot_kinds[LinkCarChoiceGroup[ActivePlayerIndex & 1]][0]) {
-                    D_8010C0B8 = state;
+                    LinkMenuSyncPhase = state;
                     SubmodeState = 4;
                 } else if (MenuCursor == ovl667_group_slot_kinds[LinkCarChoiceGroup[ActivePlayerIndex & 1]][1] && LinkCarChoiceTable[ActivePlayerIndex][1][0].glyph != -1) {
                     LinkCarChoiceIndex[ActivePlayerIndex & 1] = 0;
@@ -158,7 +158,7 @@ void ovl667_update_car_selection(void) {
         case 3:
             row = ovl667_group_ui_rows[(ActivePlayerIndex - 1) & 1][1][3] + 1;
             if (UiRows[row].byte14 == 5) {
-                D_8010C0B8 = 1;
+                LinkMenuSyncPhase = 1;
                 SubmodeState = 0;
             }
             break;
@@ -224,7 +224,7 @@ void ovl667_update_car_selection(void) {
             row = ovl667_group_ui_rows[ActivePlayerIndex & 1][1][3] + 1;
             if (UiRows[row].byte14 == 5) {
                 SubmodeState = 0;
-                D_8010C0B8 = 1;
+                LinkMenuSyncPhase = 1;
                 UiRows[row].byte14 = 0;
                 UiRows[row + 1].byte14 = 0;
             }
@@ -255,8 +255,8 @@ void ovl667_update_car_selection(void) {
             break;
         }
     }
-    if (D_8010C0B8 == 0 && (s8)ImageRows[1] == 2) {
-        D_8010C0B8 = 1;
+    if (LinkMenuSyncPhase == 0 && (s8)ImageRows[1] == 2) {
+        LinkMenuSyncPhase = 1;
         BadgeRows->half02 = 1;
     }
     if (SubmodeState == 3) {
@@ -281,7 +281,7 @@ void ovl667_update_car_selection(void) {
         }
         DrawUiRow(row);
     }
-    if (D_8010C0B8 == 2) {
+    if (LinkMenuSyncPhase == 2) {
         row = ovl667_group_ui_rows[player & 1][1][3];
         DrawUiRow(row + 1);
         DrawUiRow(row + 2);
@@ -310,6 +310,6 @@ void ovl667_update_car_selection(void) {
     }
     UpdateBadgeRowAnim(0);
     UpdateImageRow(0);
-    D_800F4CB8[0] = ActivePlayerIndex + 1;
+    MenuAvailableCourseMask[0] = ActivePlayerIndex + 1;
     UpdateScreenFade(LinkCarChoiceGroup[ActivePlayerIndex & 1] != 0 ? 0x10036 : 0x10032);
 }

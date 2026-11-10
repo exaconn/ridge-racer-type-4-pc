@@ -38,7 +38,7 @@ static const u32 frames[]={0,1,0x7FFFFFFFU,0x80000000U,0xFFFFFFFFU};
 #define BadgeRows (w->s.badges[w->s.badgeRoot])
 #define ImageRows (w->s.modes[w->s.modeRoot])
 #define ModeFrame w->s.frame
-#define D_800F3A60 w->s.accepted
+#define MenuReturnSubmodeIndex w->s.accepted
 #define ovl663_record_kind w->s.entry
 #define ModeGroup w->s.scene
 #define ModeIndex w->s.next

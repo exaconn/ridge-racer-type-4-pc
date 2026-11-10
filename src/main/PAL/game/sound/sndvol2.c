@@ -11,7 +11,7 @@ typedef struct {
     s32 c;
 } TableEntry;
 
-extern AudioPlayerVoice1C D_800F6714[2];
+extern AudioPlayerVoice1C PlayerEngineVoiceState[2];
 extern const TableEntry PlayerVoiceParamTable[];
 
 void UpdatePlayerVoices(void) {
@@ -22,7 +22,7 @@ void UpdatePlayerVoices(void) {
     int a1, a2, v0;
 
     for (i = 0; i < 2; i++) {
-        s0 = &D_800F6714[i];
+        s0 = &PlayerEngineVoiceState[i];
         if (s0->prev0C != s0->mode08) {
             if (s0->mode08 == 0) {
                 SsUtKeyOffV((s16)s0->voice04);

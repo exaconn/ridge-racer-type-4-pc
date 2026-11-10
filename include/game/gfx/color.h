@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern short D_800AD55A;
+extern short CdAudioMixChannelMode;
 void ApplySoundVolumes(void);
 void EnablePadAnalogMode(int i);
 

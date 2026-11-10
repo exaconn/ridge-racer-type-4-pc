@@ -66,7 +66,7 @@ block_36:
                                 PlaySfx(0);
                             }
                         }
-                        if (D_800F3A60 != 0) {
+                        if (MenuReturnSubmodeIndex != 0) {
                             ovl662_editor_workspace.stateD2 = (u8) (ovl662_editor_workspace.stateD2 + 2);
                             PlaySfx(1);
                         }

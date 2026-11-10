@@ -77,7 +77,7 @@ void DrawTrackObjectLitModel(int placementIndex, int modelIndex)
     RR_GTE_SETROT(&work->rotation00);
     gteTable = CameraViewMatrix.w;
     RR_GTE_SETLLM(gteTable);
-    gteTable = D_800FF6A4;
+    gteTable = GteProjectionScaleTable;
     RR_GTE_SETBK_P(gteTable);
     {
         long off0 = placementIndex * sizeof(RroEffectMesh);

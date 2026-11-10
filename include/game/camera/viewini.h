@@ -8,8 +8,8 @@
 
 extern VisibleCourseViews PrimaryVisibleViews;
 extern VisibleCourseViews *ActiveVisibleViews;
-extern CourseViewIndices *D_800ADAD0;
-extern AdditionalCourseViews D_800F4C38;
+extern CourseViewIndices *TrackCourseViewIndices;
+extern AdditionalCourseViews ExtraCourseViewTable;
 
 /* Shared course-light defaults, live RGB matrix, directions and strengths. */
 extern MatrixWords32 TitleLogoWaveOffsets;

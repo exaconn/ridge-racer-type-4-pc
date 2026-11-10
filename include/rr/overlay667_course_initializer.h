@@ -14,7 +14,7 @@ extern char LinkPlayerNames[4][12];
 extern char *ovl667_default_player_names[4];
 extern s8 LinkEntryState[2][2];
 extern s32 NumLaps,ActivePlayerIndex,LinkAvailableCourseCount;
-extern s16 CourseIndex,SelectedCourseChoice,ModeIndex,D_8010C0B8,D_8010C0D4;
+extern s16 CourseIndex,SelectedCourseChoice,ModeIndex,LinkMenuSyncPhase,LinkClientRoleState;
 extern u16 ModeGroup,SubmodeState;
 void SetDispMask(s32);void SetupDrawDispEnvs(s32,s32,s16,u32);s32 UpdateLinkHandshake(s32);void ClearScreenOverlayState(void);
 void CopyStringClearTail(char*,char*);void ovl667_init_car_selection(s32);void UnpackChoiceGlyph(s8*,s32);void SeqStartTrack(s32);void SetMenuFrameOptions(s32,s32,s32);

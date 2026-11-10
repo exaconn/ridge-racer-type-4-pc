@@ -1,6 +1,6 @@
 """Disc-backed car layouts, the shared pointer API and original-MIPS result gating.
 
-Phase17 and D_800AD4EF are the same byte. Active stages stay in0..7; out-of-range
+Phase17 and MenuSubmodePendingId are the same byte. Active stages stay in0..7; out-of-range
 phases are exercised only with no ranked finisher and a latched result, so the
 production handler does not index the stage-result array in those cases.
 """
@@ -186,7 +186,7 @@ class CarRecordsTest(unittest.TestCase):
         put32=lambda a,v:write(a,struct.pack('<I',v&0xFFFFFFFF))
         start=address_of('EvaluateGpQualifyingResult');stop=0x803FF000;stack=0x803F0000
         selection=address_of('SelectionState');time=address_of('TotalRaceTime')
-        self.assertEqual(address_of('D_800AD4EF'),selection+0x17)
+        self.assertEqual(address_of('MenuSubmodePendingId'),selection+0x17)
         table=address_of('CarRecordPtrs');rank_table=address_of('RankTable');service=address_of('FramesToMilliseconds')
         executable=(ROOT/'assets/PAL/main.exe').read_bytes();base=struct.unpack_from('<I',executable,0x18)[0]
         size=next(int(row.split()[2],16) for row in (ROOT/'configs/PAL/functions.txt').read_text().splitlines() if row.split()[0]=='EvaluateGpQualifyingResult')

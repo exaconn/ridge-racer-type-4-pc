@@ -66,7 +66,7 @@ extern Ovl665Settings Options;
 extern Ovl665Panel *BadgeRows;
 extern s16 FadeCountdown;
 extern s32 ActivePlayerIndex;
-extern s32 D_800F4CB8;
+extern s32 MenuAvailableCourseMask;
 extern u8 ScreenFadeState;
 extern Ovl665View14 ovl665_controller_camera_poses[];
 extern Ovl665Colour4 ovl665_controller_colors_type0[][5];
@@ -682,7 +682,7 @@ void ovl665_update_controller_options(s32 player) {
     }
     if (ST.step0C < 3) {
         UpdateBadgeRowAnim(0);
-        D_800F4CB8 = player + 1;
+        MenuAvailableCourseMask = player + 1;
         arg = 0x10072;
     } else {
         UpdateBadgeRowAnim(0);

@@ -66,7 +66,7 @@ extern signed char LinkEntryState[];
 extern signed char LinkRaceSyncFlags;
 extern int RaceTimeRemaining;
 extern short LinkHostFlag;
-extern int D_800F3A64;
+extern int CourseSelectLockedFlag;
 
 void SetupMenuCarCamera(int a);
 void UpdateRaceChaseCamera(RaceVehicle *p);
@@ -632,7 +632,7 @@ int UpdateLinkHandshake(int a0)
         {
           *t = -1;
         }
-        if (D_800F3A64 != 0)
+        if (CourseSelectLockedFlag != 0)
         {
           LinkEntryState[1 - (q3 = LinkHostFlag)] = -1;
           ((void (*)())_sio_control)(1, 1, 0, q3);

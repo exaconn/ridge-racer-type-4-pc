@@ -57,7 +57,7 @@ static unsigned scenario,mutation,overlay;
 #define ovl660_race_record_rank w->state.first660
 #define ovl660_lap_record_rank w->state.second660
 #define ovl660_result_labels w->state.labels660
-#define D_800F3A48 w->state.uiMode
+#define ResultNextActionMode w->state.uiMode
 #define ovl660_result_transition w->state.screenFlag
 #define MenuCursor w->state.selection
 #define MenuItemCount w->state.mode

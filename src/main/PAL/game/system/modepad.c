@@ -15,8 +15,8 @@
 #include "game/demo/intro.h"
 
 extern short MenuCursor;
-extern s32 D_800AD564;
-extern int D_800F3AA4;
+extern s32 SelectedStoryBranchId;
+extern int MainMenuSavedCursor;
 extern short MenuScriptId;
 extern int DialogueSceneMode;
 extern short MenuTransitionOverlayMode;
@@ -56,13 +56,13 @@ int ModeSelectMenuStep(void)
     }
     UiRows[MenuCursor].cells[0] = 0;
     StepMenuValue(0, 2, &MenuCursor, s1, 0);
-    StepMenuValue(3, 4, &D_800AD564, 5, 0);
-    if (MenuCursor == 2 && D_800F3AA4 == -1)
+    StepMenuValue(3, 4, &SelectedStoryBranchId, 5, 0);
+    if (MenuCursor == 2 && MainMenuSavedCursor == -1)
         UiRows[2].cells[0] = 4;
     else
         UiRows[MenuCursor].cells[0] = 2;
     s2 = 0;
-    if (D_800F3A60 != 0) {
+    if (MenuReturnSubmodeIndex != 0) {
         if (UiRows[MenuCursor].half20 == 1) {
             PlaySfx(4);
             return s2;

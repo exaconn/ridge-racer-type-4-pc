@@ -6,9 +6,9 @@
 
 /* Workspace is a complete AnimatedTrackArena, followed by serialized color keys. */
 void InitAnimatedTrackObjects(void *memory);
-extern AnimatedTrackParticle (*D_8010E738)[255];
-extern const AnimatedTrackColorKey *D_8010E740[9],*D_8010E768[9];
-extern AnimatedTrackObject *D_8010E78C;
+extern AnimatedTrackParticle (*TrackParticlePoolPtr)[255];
+extern const AnimatedTrackColorKey *TrackColorKeysPrimary[9],*TrackColorKeysSecondary[9];
+extern AnimatedTrackObject *AnimatedTrackObjPool;
 void SetupAnimatedObjectMatrices(AnimatedTrackObject *object);
 void SetAnimatedTrackObjectState(int index, int flags, const s32 *position, int style);
 void DrawAnimatedTrackObject(AnimatedTrackScratch *scratch, int index, int advance);

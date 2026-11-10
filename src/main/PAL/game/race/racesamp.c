@@ -38,8 +38,8 @@ extern unsigned char RaceCarStatParam3[];
 extern unsigned char RaceCarStatParam4[];
 extern unsigned char RaceCarStatParam5[];
 extern RaceVehicle PlayerCars[];
-extern RaceVehicle D_80106B58[];
-extern RaceVehicle D_80106E78[];
+extern RaceVehicle DuelRaceVehicles[];
+extern RaceVehicle GrandPrixRaceVehicles[];
 extern RaceVehicle ComCars[];
 extern short NumCars;
 extern short LinkHostFlag;
@@ -115,7 +115,7 @@ void InitCarTable(int a) {
             if (i == 0) {
                 CarTable[0] = PlayerCars;
             } else {
-                CarTable[i] = D_80106E78 + i;
+                CarTable[i] = GrandPrixRaceVehicles + i;
             }
         }
         break;
@@ -132,7 +132,7 @@ void InitCarTable(int a) {
         if (i < v) {
             n = v;
             do {
-                CarTable[i] = D_80106B58 + i;
+                CarTable[i] = DuelRaceVehicles + i;
                 i++;
             } while (i < n);
         }

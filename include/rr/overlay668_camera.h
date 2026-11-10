@@ -36,7 +36,7 @@ void ovl668_project_camera_to_track(s32 *position);
  * one of the20 lookup entries. Initializes from captured sample320, advances
  * the camera sixteen times, then publishes the post-service lookup value. */
 void ovl668_init_epilogue_credits(void);
-extern s32 VSyncThreshold,ViewUsesCarTrackNode,MaskBitSetting,D_80127E90,D_80127E94,D_800AD564;
+extern s32 VSyncThreshold,ViewUsesCarTrackNode,MaskBitSetting,EpilogueCreditScrollY,EpilogueCreditScrollStep,SelectedStoryBranchId;
 extern s16 SelectedTeamIndex;
 extern s32 ovl668_credit_scroll_speeds[20];
 void SetDispMask(s32);

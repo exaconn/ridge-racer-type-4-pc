@@ -62,7 +62,7 @@ void UpdateHudRankDisplay(int a0, int a1) {
     if (GameModeType == 1) {
         s0 = 0x40;
         s1 = 0;
-        if (HudDisplayedLapIndex <= HudLapTargetThresholds[D_800AD4EF / 2]) {
+        if (HudDisplayedLapIndex <= HudLapTargetThresholds[MenuSubmodePendingId / 2]) {
             s1 = 1;
             v = rsin((ScreenFrame & 0x3F) << 6);
             if (v < 0) v += 0x3F;

@@ -1,5 +1,5 @@
 /* GCC_VERSION: 2.7.2 */
-extern int StRingSize, StRingReadIndex, StRingFrameStartIndex, StRingWriteIndex, StStreamStarted, D_801102DC, StCurFrameNo;
+extern int StRingSize, StRingReadIndex, StRingFrameStartIndex, StRingWriteIndex, StStreamStarted, CdMediaChangeCount, StCurFrameNo;
 extern short StCurSectorOffset;
 extern void init_ring_status();
 void StClearRing(void) {
@@ -9,7 +9,7 @@ void StClearRing(void) {
     StRingWriteIndex = 0;
     StStreamStarted = 0;
     init_ring_status(0, a);
-    D_801102DC = 0;
+    CdMediaChangeCount = 0;
     StCurSectorOffset = 0;
     StCurFrameNo = 0;
 }

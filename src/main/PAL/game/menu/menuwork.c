@@ -42,7 +42,7 @@ extern s16 ModeGroup;
 extern u16 SubmodeState;
 extern unsigned char ProgressBitMasks[];
 extern unsigned char SelectionState[];
-extern unsigned char D_800AD4EB;
+extern unsigned char CurrentStageUnlockFlags;
 
 extern int ResetCarState();
 extern RaceVehicle PlayerCars[2];
@@ -52,7 +52,7 @@ extern int SetMenuFrameOptions();
 extern int UpdateCarWorldTransform();
 extern unsigned char GpStageShowcaseModes[];
 extern short FadeCountdown;
-extern int D_800F3A60;
+extern int MenuReturnSubmodeIndex;
 extern void PlaySfx();
 
 void GetNameChar(unsigned char *a0, int a1);
@@ -112,7 +112,7 @@ void UpdateUnlockedCarMask(void) {
     } else if (v >= 9) {
         v = 8;
     }
-    D_800AD4EB = SaveProgress.unlocked60[v];
+    CurrentStageUnlockFlags = SaveProgress.unlocked60[v];
 }
 
 void InitCarPreviewScene(void) {
@@ -184,7 +184,7 @@ void GarageCarPreviewModeUpdate(void)
             if (rowStatus == 2) {
                 SetMenuFrameOptions(1, 1, 0);
                 UiRows->cells[0] = rowStatus;
-                if (D_800F3A60 != 0) {
+                if (MenuReturnSubmodeIndex != 0) {
                     PlaySfx(1);
                     UiRows->cells[0] = ready;
                     UiRows[1].byte14 = 0;
@@ -202,7 +202,7 @@ void GarageCarPreviewModeUpdate(void)
                 rows[selection[3] + 1].cells[0] = 0;
                 StepMenuValue(0, 1, (char *)selection + 3, optionCount, 0);
                 UiRows[selection[3] + 1].cells[0] = optionCount;
-                if (D_800F3A60 != 0) {
+                if (MenuReturnSubmodeIndex != 0) {
                     PlaySfx(1);
                     UiRows[selection[3] + 1].cells[0] = ready;
                     for (row = 0; row < 3; row++)

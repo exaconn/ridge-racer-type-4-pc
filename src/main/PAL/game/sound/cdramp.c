@@ -1,7 +1,7 @@
 /* RODATA 0x80011148 0x14 */
 #include "rr/audio_cd_controller.h"
 
-extern u8 D_800F7414[];
+extern u8 CdAudioStatusReportBuf[];
 
 void CdAudioFadeStep(void)
 {
@@ -64,8 +64,8 @@ void CdAudioPlayStep(void)
         }
         break;
     case 3:
-        CdControl(1, 0, D_800F7414);
-        p = (AudioState *)(D_800F7414 - 0x265C);
+        CdControl(1, 0, CdAudioStatusReportBuf);
+        p = (AudioState *)(CdAudioStatusReportBuf - 0x265C);
         if (p->status265C[0] & 0x20) {
             p->step2678 = p->step2678 + 1;
             break;

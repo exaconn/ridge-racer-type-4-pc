@@ -25,7 +25,7 @@ class Overlay662SelectionTest(unittest.TestCase):
 static struct World {u32 guard[4];s16 selection;MenuChoice4 choice;u16 buttons;s32 direction;UiRow24 *ui;MenuGlyphRow1C *glyphs;MenuUiBank backing[3];MenuGlyphRow1C records[3][4];u32 calls;s32 sound_args[5];u32 tail[4];} world,expected;
 #define SelectedTeamIndex world.selection
 #define SelectionRows world.choice
-#define D_800F3A42 world.buttons
+#define MenuSelectedCarSlot world.buttons
 #define MenuStepDirection world.direction
 #define UiRows world.ui
 #define GlyphRows world.glyphs

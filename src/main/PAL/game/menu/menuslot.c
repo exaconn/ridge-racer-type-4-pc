@@ -25,8 +25,8 @@ extern short MenuCursor;
 extern short ModeIndex;
 extern unsigned short SubmodeState;
 extern int ModeFrame;
-extern int D_800F3A60;
-extern int D_800F4D74;
+extern int MenuReturnSubmodeIndex;
+extern int MenuSharedScratchPtr;
 extern BadgeRow1C *BadgeRows;
 extern int DialogueSceneMode;
 extern char SaveSlotPanelSpriteUv[];
@@ -41,7 +41,7 @@ void YesNoPromptModeUpdate(void) {
         UiRows[MenuCursor].cells[0] = 0;
         StepMenuValue(0, 2, &MenuCursor, 2, 0);
         UiRows[MenuCursor].cells[0] = 2;
-        if (D_800F3A60 != 0) {
+        if (MenuReturnSubmodeIndex != 0) {
             if (UiRows->byte14 == 2) {
                 PlaySfx(1);
                 UiRows->byte14 = 3;
@@ -49,7 +49,7 @@ void YesNoPromptModeUpdate(void) {
                 BadgeRows->state10 = 4;
                 UiRows[MenuCursor].cells[0] = 1;
                 FadeCountdown = 0x40;
-                LoadCursor = D_800F4D74;
+                LoadCursor = MenuSharedScratchPtr;
                 ResetScreenCounters();
                 if (MenuCursor == 0) {
                     SubmodeState = 3;

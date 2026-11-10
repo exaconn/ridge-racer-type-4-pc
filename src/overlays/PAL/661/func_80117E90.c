@@ -1,7 +1,7 @@
 #include "rr/menu_text_rows.h"
 #include "rr/frame_storage_types.h"
 
-extern s32 ModeFrame, TotalRaceTime, D_800F3A60;
+extern s32 ModeFrame, TotalRaceTime, MenuReturnSubmodeIndex;
 extern u16 SubmodeState;
 extern s16 ModeGroup, ModeIndex, FadeCountdown, MenuCursor, MenuScriptId;
 extern s16 ovl661_player_standings[2];
@@ -47,7 +47,7 @@ void ovl661_update_results(void) {
         group = 0;
         if (MenuTextRows[3].signedBytes[3] >= 17) {
             SetMenuFrameOptions(1, 1, group);
-            if (D_800F3A60 != 0) {
+            if (MenuReturnSubmodeIndex != 0) {
                 PlaySfx(1);
                 SubmodeState = 3;
                 SetMenuFrameOptions(group, 1, group);

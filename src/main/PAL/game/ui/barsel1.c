@@ -22,7 +22,7 @@ s32 UpdateModeSelectBarAnim(void) {
     }
     UpdateBadgeRowAnim(0);
     if (Dialogue->b4 >= 0x22) {
-        if (((s16 *)BadgeRows)[8] == 0xB && D_800AD4F2 == 0) {
+        if (((s16 *)BadgeRows)[8] == 0xB && MenuActiveDialogId == 0) {
             ((s16 *)BadgeRows)[8] = 0;
         } else if (((s16 *)BadgeRows)[8] < 4) {
             DrawMenuStepArrows(0xA0, 0xCC, 0x30, 0, SelectedTeamIndex, 0, 4);

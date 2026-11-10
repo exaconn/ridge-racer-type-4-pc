@@ -6,7 +6,7 @@
 #include "rr/menu_transition.h"
 #include "rr/menu_setup.h"
 #include "rr/overlay662_sprites.h"
-extern u8 *D_800F4D74;
+extern u8 *MenuSharedScratchPtr;
 extern void *GarageSavedDecalTimA,*GarageSavedDecalTimB;
 extern s32 ovl662_arena_init_stage;
 extern GpuRectangle ovl662_vram_emblem_image_rect,ovl662_vram_emblem_clut_rect;

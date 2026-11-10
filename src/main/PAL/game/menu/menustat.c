@@ -23,7 +23,7 @@ extern unsigned short SubmodeState;
 extern S4D8 SelectionState;
 extern RaceVehicle PlayerCars[2];
 extern unsigned char MenuCameraPresetIndices[];
-extern int D_800F3A60;
+extern int MenuReturnSubmodeIndex;
 extern unsigned short FadeCountdown;
 extern short ModeIndex;
 extern unsigned char BadgeGlyphUvTable[];
@@ -53,7 +53,7 @@ void CarStandingsModeUpdate(void) {
                 SubmodeState = 3;
             }
         } else if (ModeFrame >= 0x96) {
-            if (D_800F3A60 != 0 || ModeFrame >= 0x177) {
+            if (MenuReturnSubmodeIndex != 0 || ModeFrame >= 0x177) {
                 SubmodeState = 1;
             }
         }
@@ -66,7 +66,7 @@ void CarStandingsModeUpdate(void) {
         if (LoadMenuCarStep(SelectionRows[0], SelectionRows[1])) SubmodeState = 4;
         break;
     case 4:
-        if (D_800F3A60 != 0 || ModeFrame >= 0x177) {
+        if (MenuReturnSubmodeIndex != 0 || ModeFrame >= 0x177) {
             CdAudioInit();
             CdAudioSelectTrack(0, 1);
             SubmodeState = 1;
@@ -77,7 +77,7 @@ void CarStandingsModeUpdate(void) {
         AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x20 - (short)FadeCountdown) << 3, 0x45);
         *(void **)SCRATCHPAD = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], *(int *)SCRATCHPAD, 0, 0, 0x140, 0x200);
         if ((short)FadeCountdown <= 0) {
-            if (D_800AD4F2 == 6) {
+            if (MenuActiveDialogId == 6) {
                 InitMenuArenas();
                 ModeGroup = 1;
                 ModeIndex = 0x21;

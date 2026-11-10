@@ -22,7 +22,7 @@ void ApplySoundVolumes(void) {
     short *p = (short *)&SoundState;
     CdAudioSetVolumeRaw((unsigned short)p[0x26C4 / 2]);
     SeqSetVolume(p[0x2888 / 2]);
-    SetCdMixMode(D_800AD55A);
+    SetCdMixMode(CdAudioMixChannelMode);
 }
 
 void HsvToRgb(const HsvColor input,RgbColor output) {

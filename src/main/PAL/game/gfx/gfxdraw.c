@@ -82,8 +82,8 @@ extern int SceneFogWorkVector[];
 extern int ScaleMatrix();
 extern V4 MenuCarDefaultScale;
 extern int RotTransPers();
-extern B D_800D0DD8[];
-extern B D_800AE660[];
+extern B ViewportRenderEnvRight[];
+extern B ViewportRenderEnvLeft[];
 
 void UpdateRaceCamera(int arg0, void *arg1);
 void InitTrackStartPos(void);
@@ -293,8 +293,8 @@ int RotTransPersOrigin(void) {
 void InitRaceContextBuffers(void) {
     int i;
     for (i = 0; i < 2; i++) {
-        RaceContext.e[i].a = &D_800AE660[i];
-        RaceContext.e[i].b = &D_800D0DD8[i];
+        RaceContext.e[i].a = &ViewportRenderEnvLeft[i];
+        RaceContext.e[i].b = &ViewportRenderEnvRight[i];
     }
 }
 

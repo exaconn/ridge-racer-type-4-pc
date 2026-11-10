@@ -25,13 +25,13 @@ extern short GpSaveSlotCursor;
 extern Struct10 LapRecords[2][8][5];
 extern Struct2C SaveSlotSnapshots[3];
 extern CourseChoice4 LinkCarChoiceTable[2][2][9];
-extern StructC D_80118420[];
-extern CourseChoice4 D_80118458[2][2][9];
-extern int D_801272F0[];
+extern StructC VsPlayerNames[];
+extern CourseChoice4 VsCarChoiceTable[2][2][9];
+extern int GarageExtraDefaultTimes[];
 extern char StrFmtPercentS[];
-extern GpuRectangle D_8010EF98;
+extern GpuRectangle SavedEmblemClutRect;
 extern char StrCardMagicCrd0[];
-extern GpuRectangle D_8010EFA0;
+extern GpuRectangle SavedEmblemPixelRect;
 
 void BuildCardHeaderAnim(char *a0, int a1, int a2, int a3, int a4, int a5);
 
@@ -98,8 +98,8 @@ int ApplySaveData(int arg0) {
         if (s3->f1AA4 == a1) {
             for (s0 = 0; s0 < 9; s0++) {
                 if (GameModeType == 2 || GameModeType == 3) {
-                    D_80118458[ActivePlayerIndex & 1][1][s0] = s3->f33C[s0];
-                    CopyStringClearTail(&D_80118420[ActivePlayerIndex & 1], &s3->f280);
+                    VsCarChoiceTable[ActivePlayerIndex & 1][1][s0] = s3->f33C[s0];
+                    CopyStringClearTail(&VsPlayerNames[ActivePlayerIndex & 1], &s3->f280);
                 } else if (GameModeType == 4) {
                     LinkCarChoiceTable[ActivePlayerIndex & 1][1][s0] = s3->f33C[s0];
                     CopyStringClearTail(&LinkPlayerNames[ActivePlayerIndex], &s3->f280);
@@ -113,12 +113,12 @@ int ApplySaveData(int arg0) {
         break;
     case 0x10:
         v10 = *(int *)SaveBuffer;
-        D_801272F0[GpSaveSlotCursor] = v10;
+        GarageExtraDefaultTimes[GpSaveSlotCursor] = v10;
         a2 = 1;
         break;
     case 0x11:
         v11 = (p = (SaveBuf11 *)SaveBuffer)->f280;
-        EmblemEditFrames = D_801272F0[GpSaveSlotCursor] = v11;
+        EmblemEditFrames = GarageExtraDefaultTimes[GpSaveSlotCursor] = v11;
         for (t0 = 0; t0 < 2; t0++) {
             for (s0 = 0; s0 < 0x840; s0++) {
                 if (t0 == 0) {
@@ -142,20 +142,20 @@ void BuildCardHeaderAnim(char *a0, int a1, int a2, int a3, int a4, int a5) {
     a0[2] = 0x13;
     a0[3] = 1;
     PsyqSprintf(a0 + 4, StrFmtPercentS, a1);
-    D_8010EF98.rect.x = a2;
-    D_8010EF98.rect.w = 0x10;
-    D_8010EF98.rect.y = a3;
-    D_8010EF98.rect.h = 1;
-    StoreImage(&D_8010EF98, a0 + 0x60);
+    SavedEmblemClutRect.rect.x = a2;
+    SavedEmblemClutRect.rect.w = 0x10;
+    SavedEmblemClutRect.rect.y = a3;
+    SavedEmblemClutRect.rect.h = 1;
+    StoreImage(&SavedEmblemClutRect, a0 + 0x60);
     DrawSync(0);
     i = 0;
     do {
-        D_8010EF98.rect.x = a4;
-        D_8010EF98.rect.y = a5;
-        D_8010EF98.rect.w = 4;
-        D_8010EF98.rect.h = 0x10;
+        SavedEmblemClutRect.rect.x = a4;
+        SavedEmblemClutRect.rect.y = a5;
+        SavedEmblemClutRect.rect.w = 4;
+        SavedEmblemClutRect.rect.h = 0x10;
         /* (new_var = &a4) is a dead address-of that keeps gcc from hoisting the li 0x10 out of the loop (found by permuter) */
-        StoreImage(&D_8010EF98, a0 + 0x80 + (*(new_var = &a4), i) * 0x80);
+        StoreImage(&SavedEmblemClutRect, a0 + 0x80 + (*(new_var = &a4), i) * 0x80);
         DrawSync(0);
         i++;
         a4 += 4;
@@ -172,19 +172,19 @@ void BuildCardHeaderStatic(unsigned char *a0, int a1, int a2, int a3, int a4, in
     a0[0x50] = 1;
     a0[0x51] = 0;
     PsyqSprintf(a0 + 0x52, StrFmtPercentS, StrCardMagicCrd0);
-    D_8010EFA0.rect.x = a2;
-    D_8010EFA0.rect.w = 0x10;
-    D_8010EFA0.rect.y = a3;
-    D_8010EFA0.rect.h = 1;
-    StoreImage(&D_8010EFA0, a0 + 0x60);
+    SavedEmblemPixelRect.rect.x = a2;
+    SavedEmblemPixelRect.rect.w = 0x10;
+    SavedEmblemPixelRect.rect.y = a3;
+    SavedEmblemPixelRect.rect.h = 1;
+    StoreImage(&SavedEmblemPixelRect, a0 + 0x60);
     DrawSync(0);
     i = 0;
     do {
-        D_8010EFA0.rect.x = a4;
-        D_8010EFA0.rect.y = a5;
-        D_8010EFA0.rect.w = 4;
-        D_8010EFA0.rect.h = 0x10;
-        StoreImage(&D_8010EFA0, a0 + 0x80 + i * 0x80);
+        SavedEmblemPixelRect.rect.x = a4;
+        SavedEmblemPixelRect.rect.y = a5;
+        SavedEmblemPixelRect.rect.w = 4;
+        SavedEmblemPixelRect.rect.h = 0x10;
+        StoreImage(&SavedEmblemPixelRect, a0 + 0x80 + i * 0x80);
         DrawSync(0);
         i++;
         a4 += 4;

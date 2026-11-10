@@ -38,23 +38,23 @@ extern s32 CdFileIndexCurrent;
 extern s32 (*CdFileStateHandlers[])();
 extern s32 CdFileSectorOffset;
 extern s32 CdFileSectors;
-extern void *D_80109480;
+extern void *CdActiveReadBuffer;
 extern s32 CdFileBytesRead;
 extern s32 CdFileSyncResult;
 extern CdLocation CdFileLocation;
-extern u8 D_80109498;
+extern u8 CdCmdParamScratch;
 extern CdFileEntry CdFileTable[];
 extern unsigned char CarModelCategoryOffsets[];
 extern unsigned char CarModelFileIndexTable[];
 extern int SceneLoadState;
-extern int D_8010943C;
-extern int D_8010BF60;
-extern int D_80109440;
-extern int D_80109444;
-extern int D_80109448;
-extern int D_8010944C;
-extern int D_80109450;
-extern int D_80109454;
+extern int CdBatchReadMode;
+extern int CdStreamSectorCursor;
+extern int PendingCarModelFileId;
+extern int PendingCarModelDestBuf;
+extern int PendingCarModelTeamId;
+extern int PendingCarModelTypeId;
+extern int PendingCarModelStageId;
+extern int PendingCarModelVariant;
 void DrawSync(s32);
 extern s32 CarOffsetTables[];
 extern short CourseIndex;
@@ -84,8 +84,8 @@ int ComputeCarSurfaceLighting(char *a0_in, int a1_in);
 s32 CdFileStateCheckShell(void) {
     s32 var_v0;
 
-    CdControlB(1, 0, &D_80109498);
-    var_v0 = D_80109498 & 0x10;
+    CdControlB(1, 0, &CdCmdParamScratch);
+    var_v0 = CdCmdParamScratch & 0x10;
     if (var_v0 != 0) {
         CdFileState = 5;
         var_v0 = 0;
@@ -110,8 +110,8 @@ s32 CdFileStateReloadDirectory(void) {
 }
 
 s32 CdFileStateSetMode(void) {
-    D_80109498 = 0x80;
-    CdControlF(0xE, &D_80109498);
+    CdCmdParamScratch = 0x80;
+    CdControlF(0xE, &CdCmdParamScratch);
     CdFileState = 4;
     CdFileSyncCount = 0;
     return 0;
@@ -134,8 +134,8 @@ s32 CdFileStateWaitSetMode(void) {
 }
 
 s32 CdFileStateWaitShellClose(void) {
-    CdControlB(1, 0, &D_80109498);
-    if (!(D_80109498 & 0x10)) {
+    CdControlB(1, 0, &CdCmdParamScratch);
+    if (!(CdCmdParamScratch & 0x10)) {
         CdFileState = 1;
     }
     return 0;
@@ -157,7 +157,7 @@ s32 CdFileStateWaitSetloc(void) {
 }
 
 s32 CdFileStateStartRead(void) {
-    if (CdRead(CdFileSectors, D_80109480, 0x80)) {
+    if (CdRead(CdFileSectors, CdActiveReadBuffer, 0x80)) {
         CdFileState = 9;
     } else {
         CdFileState = 0xB;
@@ -183,8 +183,8 @@ void CdFileFinish(void) {
 
 s32 CdFileStateRetry(void)
 {
-    CdControlB(1, 0, &D_80109498);
-    if (D_80109498 & 0x10) {
+    CdControlB(1, 0, &CdCmdParamScratch);
+    if (CdCmdParamScratch & 0x10) {
         CdFileState = 5;
         return 0;
     }
@@ -204,7 +204,7 @@ s32 CdFileStep(void) {
 
 s32 CdFileReadStart(s32 a0, void *a1) {
     if (CdFileState != 0) return 0;
-    D_80109480 = a1;
+    CdActiveReadBuffer = a1;
     CdFileIndexCurrent = a0;
     CdFileState = 6;
     CdFileSectorOffset = 0;
@@ -216,7 +216,7 @@ s32 CdFileReadStart(s32 a0, void *a1) {
 
 s32 CdFileReadRange(s32 a0, s32 a1, s32 a2, void *a3) {
     if (CdFileState != 0) return 0;
-    D_80109480 = a3;
+    CdActiveReadBuffer = a3;
     CdFileIndexCurrent = a0;
     CdFileState = 6;
     CdFileSectorOffset = a1;
@@ -506,7 +506,7 @@ int RequestSceneLoad(int a0) {
     if (SceneLoadState != 0) {
         return 0;
     }
-    D_8010943C = a0;
+    CdBatchReadMode = a0;
     return SceneLoadState = 1;
 }
 
@@ -527,7 +527,7 @@ int SceneLoadStep(void)
      * resource payload. These words are not the native arena pointer root. */
     switch (SceneLoadState) {
     case 1:
-        if (CdFileReadStart(GetCourseFileIndex(D_8010943C), LoadCursor) == 0)
+        if (CdFileReadStart(GetCourseFileIndex(CdBatchReadMode), LoadCursor) == 0)
             return 0;
         SceneLoadState = 2;
     case 2:
@@ -541,7 +541,7 @@ int SceneLoadStep(void)
         LoadTimList(s0);
         SceneLoadState = 3;
     case 3:
-        if (CdFileReadStart(GetCourseFileIndex(D_8010943C) + 1, LoadCursor) == 0)
+        if (CdFileReadStart(GetCourseFileIndex(CdBatchReadMode) + 1, LoadCursor) == 0)
             return 0;
         SceneLoadState = 4;
     case 4:
@@ -559,7 +559,7 @@ int SceneLoadStep(void)
         a1++; trackObjects = (TrackObjectFile *)(*a1 + (unsigned long)LoadCursor); *a1 = trackObjects;
         a1++; s5 = *a1 + (unsigned long)LoadCursor; *a1 = s5;
         a1++; s4 = *a1 + (unsigned long)LoadCursor; *a1 = s4;
-        if (D_8010943C == 7) {
+        if (CdBatchReadMode == 7) {
             /* Publish the PAL wire word, retaining the complete C address. */
             void *arena;
             a1++;
@@ -575,7 +575,7 @@ int SceneLoadStep(void)
         RelocateModelTable(modelTable);
         SetTrackNodeData(fp);
         SetLightTable((TrackLighting2C *)s6);
-        D_8010BF60 = s7;
+        CdStreamSectorCursor = s7;
         LoadCursor = (u8 *)LoadCursor + LoadTrackObjects(trackObjects, LoadCursor);
         SetSegmentVisibilityTable(s5);
         SetOctantLookupTable(s4);
@@ -589,13 +589,13 @@ int RequestCarLoad(int a0, int a1, int a2, int a3, int a4) {
     if (SceneLoadState != 0) {
         return 0;
     }
-    D_80109440 = GetCarFileIndex(a0, a1, a2, a3);
+    PendingCarModelFileId = GetCarFileIndex(a0, a1, a2, a3);
     r = 1;
-    D_80109444 = a4;
-    D_80109448 = a1;
-    D_8010944C = a0;
-    D_80109450 = a2;
-    D_80109454 = a3;
+    PendingCarModelDestBuf = a4;
+    PendingCarModelTeamId = a1;
+    PendingCarModelTypeId = a0;
+    PendingCarModelStageId = a2;
+    PendingCarModelVariant = a3;
     SceneLoadState = r;
     return r;
 }
@@ -609,7 +609,7 @@ s32 CarLoadStep(void) {
 
     switch (SceneLoadState) {
     case 1:
-        if (CdFileReadStart(D_80109440, LoadCursor) == 0) {
+        if (CdFileReadStart(PendingCarModelFileId, LoadCursor) == 0) {
             return 0;
         }
         SceneLoadState = 2;
@@ -628,25 +628,25 @@ s32 CarLoadStep(void) {
             s0 = (void *)((Resource *)LoadCursor)->pC;
             s1 = (void *)((Resource *)LoadCursor)->p10;
             s2 = (void *)((Resource *)LoadCursor)->p14;
-            SetCarRecordPtr((CarRecord *)((Resource *)LoadCursor)->p4, D_80109444);
-            CarBoundsTable[D_80109444] = (CarBounds *)s3;
-            RegisterModelBank(s0, D_80109444);
-            PatchModelBankTexPages(s0, D_80109444);
-            CarOffsetTables[D_80109444] = s1;
+            SetCarRecordPtr((CarRecord *)((Resource *)LoadCursor)->p4, PendingCarModelDestBuf);
+            CarBoundsTable[PendingCarModelDestBuf] = (CarBounds *)s3;
+            RegisterModelBank(s0, PendingCarModelDestBuf);
+            PatchModelBankTexPages(s0, PendingCarModelDestBuf);
+            CarOffsetTables[PendingCarModelDestBuf] = s1;
             RelocateOffsetTable(s1);
-            PatchOffsetTableTexPages(s1, D_80109444);
+            PatchOffsetTableTexPages(s1, PendingCarModelDestBuf);
             rect[2] = 0x40;
             rect[1] = 0;
             rect[3] = 0x100;
-            x = (D_80109444 << 6) + 0x180;
+            x = (PendingCarModelDestBuf << 6) + 0x180;
             rect[0] = x;
         }
         LoadImage(rect, s2);
         DrawSync(0);
         LoadCursor = s2;
-        AllocCarSlotBuffers((CarModelHeader *)CarOffsetTables[D_80109444], D_80109444);
-        if (D_80109454 != 0) {
-            ApplyCarWheelTexturePatch(D_80109448, D_8010944C, D_80109450, D_80109454 - 1, D_80109444);
+        AllocCarSlotBuffers((CarModelHeader *)CarOffsetTables[PendingCarModelDestBuf], PendingCarModelDestBuf);
+        if (PendingCarModelVariant != 0) {
+            ApplyCarWheelTexturePatch(PendingCarModelTeamId, PendingCarModelTypeId, PendingCarModelStageId, PendingCarModelVariant - 1, PendingCarModelDestBuf);
         }
         SceneLoadState = 0;
         return 1;
@@ -684,14 +684,14 @@ void SetupRenderer(s32 shift) {
     ((RendererScratch*)SCRATCHPAD)->depthShift60=shift;
     scratch=(RendererScratch*)SCRATCHPAD;
     scratch->renderFlags64=MirrorRenderFlag;
-    D_800F3A20.b=128;
-    D_800F3A20.g=128;
-    D_800F3A20.r=128;
-    D_800F3A20.code=0x2C;
-    D_800F3A18.b=255;
-    D_800F3A18.g=255;
-    D_800F3A18.r=255;
-    D_800F3A18.code=0x3C;
+    DefaultScreenClearColor.b=128;
+    DefaultScreenClearColor.g=128;
+    DefaultScreenClearColor.r=128;
+    DefaultScreenClearColor.code=0x2C;
+    LoadingScreenClearColor.b=255;
+    LoadingScreenClearColor.g=255;
+    LoadingScreenClearColor.r=255;
+    LoadingScreenClearColor.code=0x3C;
     scratch->viewport6C.rect.w=320;
     scratch->viewport6C.rect.x=0;
     scratch->viewport6C.rect.y=0;
@@ -725,7 +725,7 @@ int ComputeCarSurfaceLighting(char *a0_in, int a1_in) {
     a3 = ((RaceVehicle *)a0)->lateralOffset172;
     t2 = ((RaceVehicle *)a0)->trackFraction170;
     v0 = ((RaceVehicle *)a0)->trackNodeF0;
-    v1 = D_8010BF60;
+    v1 = CdStreamSectorCursor;
     t1 = a3 << 3;
     a3 = t1 + 0x2000;
     t2 <<= 2;

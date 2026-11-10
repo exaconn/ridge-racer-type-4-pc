@@ -200,10 +200,10 @@ void ovl666_update_course_selection(void) {
         s32 selected = SelectedMakerIndex;
         ui[2].cells[selected] = 0;
     }
-    if ((D_800F3A42 & 0x2000) && SelectedMakerIndex < 3) {
+    if ((MenuSelectedCarSlot & 0x2000) && SelectedMakerIndex < 3) {
         SelectedMakerIndex++;
         MenuStepDirection = 2;
-    } else if ((D_800F3A42 & 0x8000) && SelectedMakerIndex > 0) {
+    } else if ((MenuSelectedCarSlot & 0x8000) && SelectedMakerIndex > 0) {
         SelectedMakerIndex--;
         MenuStepDirection = 1;
     } else {

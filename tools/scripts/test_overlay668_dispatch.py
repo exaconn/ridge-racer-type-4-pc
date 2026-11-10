@@ -19,15 +19,15 @@ class Overlay668DispatchTest(unittest.TestCase):
 #define RR_ASSERT_SIZE(t,n) _Static_assert(sizeof(void*)!=4 || sizeof(t)==n,"PAL size")
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"PAL offset")
 #include "rr/overlay668_dispatch.h"
-s32 D_800AC704;
+s32 MoviePlaybackDispatchMode;
 void *LoadCursor;
 static u8 resources[2][259],before[2][259];
 static unsigned calls,selected,offset,case_id;
 static s32 initial;
 static void finish(unsigned chosen){
  assert(calls++==0);selected=chosen;
- assert(D_800AC704==initial);
- D_800AC704=(s32)((chosen+1)%3);
+ assert(MoviePlaybackDispatchMode==initial);
+ MoviePlaybackDispatchMode=(s32)((chosen+1)%3);
  LoadCursor=resources[(case_id+1)&1]+(258-offset);
 }
 void ovl668_start_stream_playback(u8 *resource){
@@ -45,15 +45,15 @@ int main(void){unsigned mode,j;u32 bits;
   memcpy(before,resources,sizeof(resources));
   offset=case_id%259;calls=0;selected=99;
   bits=mode==3 ? ((case_id<<16)|((case_id^0xB935U)&65535)) : mode;
-  initial=word(bits);D_800AC704=initial;
+  initial=word(bits);MoviePlaybackDispatchMode=initial;
   LoadCursor=mode==0 ? resources[case_id&1]+offset : 0;
   ovl668_update_stream_mode();
   if(mode<3){
    assert(calls==1&&selected==mode);
-   assert(D_800AC704==(s32)((mode+1)%3));
+   assert(MoviePlaybackDispatchMode==(s32)((mode+1)%3));
    assert(LoadCursor==resources[(case_id+1)&1]+(258-offset));
    if(mode==0)before[case_id&1][offset]^=0xA5;
-  }else{assert(calls==0&&selected==99);assert(D_800AC704==initial);assert(LoadCursor==0);}
+  }else{assert(calls==0&&selected==99);assert(MoviePlaybackDispatchMode==initial);assert(LoadCursor==0);}
   assert(memcmp(before,resources,sizeof(resources))==0);
  }
  return 0;

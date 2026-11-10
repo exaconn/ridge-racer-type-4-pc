@@ -123,9 +123,9 @@ block_27:
     temp_a0 = var_v0->request26B4;
     if (temp_a0 != 0 && var_v0->action2670 == -1) {
         switch (temp_a0) {
-        case 1:CdAudioRequestPause();D_800F746C=0;break;
-        case 2:CdAudioMute();D_800F746C=0;break;
-        default:D_800F746C=0;break;
+        case 1:CdAudioRequestPause();CdAudioRequestState=0;break;
+        case 2:CdAudioMute();CdAudioRequestState=0;break;
+        default:CdAudioRequestState=0;break;
         }
     }
     if (SoundState.state269C == 1) {
@@ -232,7 +232,7 @@ void SeqSetVolume(s16 a0) {
     AudioState *p = &SoundState;
     s16 v;
     p->seqVol2888 = a0;
-    v = (a0 * D_800AD558) / 16;
+    v = (a0 * CdMusicMasterVolume) / 16;
     SsSeqSetVol((s16)p->seqHandle2864, v, v);
 }
 

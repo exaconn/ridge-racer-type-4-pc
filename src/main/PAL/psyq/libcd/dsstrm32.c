@@ -31,7 +31,7 @@ typedef struct {
 extern volatile u8 *CD_REG2_STRM, *DS_cd_reg3;
 extern volatile s32 *CDROM_DELAY_SIZE, *CdComDelayReg, *D_800A6890, *DS_dma_regs;
 extern s32 StCdIntrState;
-extern s32 D_801102DC;
+extern s32 CdMediaChangeCount;
 extern s32 StRingHeaderIndex;
 extern u32 StEndFrame;
 extern void *StRingSectorDest;

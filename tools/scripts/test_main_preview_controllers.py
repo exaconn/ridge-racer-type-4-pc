@@ -73,7 +73,7 @@ static const s8 modes[]={INT8_MIN,-1,0,1,2,3,INT8_MAX};
 #define MenuArenas live.arenas
 #define LoadCursor live.cursor
 #define ModeFrame live.frame
-#define D_800F3A60 live.accepted
+#define MenuReturnSubmodeIndex live.accepted
 #define SubmodeState live.phase
 #define ModeGroup live.group
 #define ModeIndex live.next
@@ -285,7 +285,7 @@ class MainPreviewControllerTest(unittest.TestCase):
         scale = definition_source(owners['ScaleMatrixRow1'].read_text(), 'ScaleMatrixRow1').replace('ScaleMatrixRow1', 'native_scale')
         reset = definition_source(owners['ResetScreenCounters'].read_text(), 'ResetScreenCounters').replace('ResetScreenCounters', 'native_reset')
         prefix = PREFIX.replace('@CHOICE@', hex(address_of('SelectionRows'))+'U').replace('@CARS@', hex(address_of('PlayerCars'))+'U')
-        self.assertEqual(address_of('D_800AD4EF'), address_of('SelectionState')+0x17)
+        self.assertEqual(address_of('MenuSubmodePendingId'), address_of('SelectionState')+0x17)
         with TemporaryDirectory() as temporary:
             source, library = Path(temporary)/'native.c', Path(temporary)/'native.dylib'
             source.write_text(prefix+scale+reset+body+REFERENCE)
@@ -303,7 +303,7 @@ class MainPreviewControllerTest(unittest.TestCase):
                        (address_of('SelectionState'),44),(address_of('SelectionRows'),32),(0x1F800000,72),(0x80200000,6144),
                        (address_of('MenuArenas'),8),(address_of('LoadCursor'),4),(address_of('ImageRows'),4),
                        (address_of('UiRows'),4),(address_of('BadgeRows'),4),(address_of('ModeFrame'),4),
-                       (address_of('SubmodeState'),2),(address_of('D_800F3A60'),4),(address_of('ModeGroup'),2),
+                       (address_of('SubmodeState'),2),(address_of('MenuReturnSubmodeIndex'),4),(address_of('ModeGroup'),2),
                        (address_of('ModeIndex'),2),(address_of('FadeCountdown'),2),(address_of('ScreenFrame'),4),
                        (address_of('LoadState'),1),(address_of('MenuScriptStep'),1),(address_of('GpStageShowcaseModes'),4)]
             size = native.wire_size();self.assertEqual(sum(n for _,n in regions),size)

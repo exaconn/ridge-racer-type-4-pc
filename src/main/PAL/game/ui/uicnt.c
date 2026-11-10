@@ -3,7 +3,7 @@
 #include "game/ui/uicnt.h"
 #include "rr/menu_label_render.h"
 
-extern int D_800AD564;
+extern int SelectedStoryBranchId;
 extern int HudCountdownDigitSprites[];
 
 void DrawBadgeCountdownSprites(int a0, void *a1, int a2);
@@ -19,7 +19,7 @@ void DrawBadgeCountdownSprites(int a0, void *a1, int a2) {
 
     s4 = BadgeRows[a2].x04 + 0x10;
     s2 = BadgeRows[a2].y06 + 0x20;
-    rem = D_800AD564 % 5;
+    rem = SelectedStoryBranchId % 5;
     a1 = AddSpritePrim(a0, a1, s4, s2, &HudCountdownDigitSprites[rem], 0x4424, 0);
     for (i = 0; i < 2; i++) {
         off = i * 0x28 - 8;

@@ -7,7 +7,7 @@ void ovl668_start_stream_playback(u8 *arg0) {
     STR_STATE->width00 = 320;
     STR_STATE->height04 = 240;
     SsSetSerialAttr(0, 0, 1);
-    vol = (D_800AD558 * 127) / 16;
+    vol = (CdMusicMasterVolume * 127) / 16;
     SsSetSerialVol(0, vol, vol);
     VSyncThreshold = 128;
     ovl668_init_stream_buffers(arg0);

@@ -59,7 +59,7 @@ void DrawMenuCarPreviewScene(int a0) {
         s1 = AddBadgeSpriteStrip(0x11, &CurrentDrawBuf->buffer.ordering70.words[0], s1, BadgeRows[1].x04 + 0x90, BadgeRows[1].y06, 0x80);
         s1 = DrawStepProgressBar(&CurrentDrawBuf->buffer.ordering70.words[0], s1);
         s1 = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], s1, BadgeRows[1].x14, BadgeRows[1].y16, BadgeRows[1].w18, BadgeRows[1].h1A);
-        if (D_800AD4EF >= 4) {
+        if (MenuSubmodePendingId >= 4) {
             *(int *)SCRATCHPAD = s1;
             BuildCameraMatrices();
             ScaleMatrixRow1(2, (MatrixWords32 *)SCRATCH_ROT_MATRIX);

@@ -23,7 +23,7 @@ typedef struct {
 } StrCreditQuad;
 
 
-extern s32 D_80127E90;
+extern s32 EpilogueCreditScrollY;
 const s32 ovl668_credit_tpages[2] = {0x35, 0x36};
 const s32 ovl668_credit_clut = 0x7F94;
 s32 ovl668_calc_credit_line_fade(s16 arg0);
@@ -48,7 +48,7 @@ void ovl668_draw_credit_band(s32 line, s32 unused) {
 
     page = line / 31;
     v = (line % 31) * 8;
-    y = D_80127E90 / 100 + line * 8;
+    y = EpilogueCreditScrollY / 100 + line * 8;
     color[1] = v;
     if ((y - 1) < 239U) {
         top = ovl668_calc_credit_line_fade(y) * 160 / 256;

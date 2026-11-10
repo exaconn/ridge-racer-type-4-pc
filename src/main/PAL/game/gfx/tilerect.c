@@ -69,12 +69,12 @@ extern int VSyncThreshold;
 extern short ModeIndex;
 extern short ModeGroup;
 extern short SubmodeState;
-extern int D_8010BF74;
+extern int TileRectUploadPhase;
 extern Vec3sFields8 TileRectDefaultAngles;
 extern GpuRectangleFields TileRectCaptureVramRect;
 extern int TileRectSkyHorizonY;
-extern unsigned char D_800AD4EA;
-extern int D_800F3A60;
+extern unsigned char TileRectBgFileOffset;
+extern int MenuReturnSubmodeIndex;
 extern S_8010BF70 *TileRectScene;
 
 extern int TileFadeColorTable[];
@@ -208,7 +208,7 @@ void TileRectSceneModeEnter(void) {
     sp10.rect = TileRectSkyVramRect;
     ClearImage2(&sp10, 0, 0, 0);
     FadeCountdown = 0;
-    D_8010BF74 = 0;
+    TileRectUploadPhase = 0;
     ModeGroup = 0;
     ModeIndex = 4;
     SubmodeState = 0;
@@ -229,34 +229,34 @@ void TileRectSceneModeUpdate(void) {
         }
     }
 
-    switch (D_8010BF74) {
+    switch (TileRectUploadPhase) {
     case 0:
-        if (CdFileReadStart(GetR4FileIndex(0, D_800AD4EA + 1), LoadCursor) == 0) {
+        if (CdFileReadStart(GetR4FileIndex(0, TileRectBgFileOffset + 1), LoadCursor) == 0) {
             return;
         }
-        D_8010BF74 = 1;
+        TileRectUploadPhase = 1;
     case 1:
         if (CdFileBytesLoaded() == 0) {
             return;
         }
         LoadTimList(LoadCursor);
-        D_8010BF74 = 2;
+        TileRectUploadPhase = 2;
     case 2:
         if (CdFileReadStart(GetR4FileIndex(0, 0x14), LoadCursor) == 0) {
             return;
         }
-        D_8010BF74 = 3;
+        TileRectUploadPhase = 3;
     case 3:
         if (CdFileBytesLoaded() == 0) {
             return;
         }
         LoadTimImage(LoadCursor);
-        D_8010BF74 = 4;
+        TileRectUploadPhase = 4;
     case 4:
-        if (CdFileReadStart(GetR4FileIndex(0, D_800AD4EA + 0xA), LoadCursor) == 0) {
+        if (CdFileReadStart(GetR4FileIndex(0, TileRectBgFileOffset + 0xA), LoadCursor) == 0) {
             return;
         }
-        D_8010BF74 = 5;
+        TileRectUploadPhase = 5;
     case 5:
         s1 = CdFileBytesLoaded();
         if (s1 == 0) {
@@ -270,9 +270,9 @@ void TileRectSceneModeUpdate(void) {
         PsyqMemset(TileRectScene->unk28, 0, 0x10);
         {
             S_8010BF70 *p = TileRectScene;
-            D_8010BF74 = 6;
+            TileRectUploadPhase = 6;
             p->s48 = 0x40;
-            /* ASM_BARRIER: keep p in $v0 across D_8010BF74 = 6 and field stores */
+            /* ASM_BARRIER: keep p in $v0 across TileRectUploadPhase = 6 and field stores */
             __asm__("" : "+r"(p));
             p->w38 = 0;
             p->s3C = 0;
@@ -294,9 +294,9 @@ void TileRectSceneModeUpdate(void) {
             break;
         }
         SetMenuFrameOptions(1, 1, 0);
-        D_8010BF74 = 7;
+        TileRectUploadPhase = 7;
     case 7:
-        if (FadeCountdown == 0 && D_800F3A60 != 0) {
+        if (FadeCountdown == 0 && MenuReturnSubmodeIndex != 0) {
             FadeCountdown = 4;
             TileRectScene->s44 = -4;
             TileRectScene->s42 = -4;

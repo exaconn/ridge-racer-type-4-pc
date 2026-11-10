@@ -6,7 +6,7 @@
 /* Full resident audio owner: func8004EC28 clears0xA8D0 bytes from this base.
  * Four620-byte slots start38. CD status/control occupies265C..26F8.
  * The TOC address is28C8+bank*2048+entry*8; sixteen256-entry banks endA8C8.
- * D_800F746C is the request26B4 alias, not a separate allocation. */
+ * CdAudioRequestState is the request26B4 alias, not a separate allocation. */
 typedef struct { s32 position,other04; } AudioTocEntry8;
 typedef struct { s32 keys[9], values[9]; } AudioCurve48;
 typedef struct { u16 coarse, fine; } AudioPitch4;

@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern int D_800F3970;
+extern int ExtraModeUnlockedFlag;
 extern s32 AttractCycleCounter;
 void TitleModeEnter(void);
 void TitleMenuInit(void);

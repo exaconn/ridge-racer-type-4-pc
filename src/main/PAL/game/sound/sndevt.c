@@ -14,7 +14,7 @@
 
 typedef struct { s32 d[3]; s32 unused0; MatrixWords32 m; Vec3sFields8 sv; s32 unused1[2]; Vec3sFields8 rot; s32 fl; } SoundGteScratch;
 
-extern int D_800F66A0;
+extern int SoundEventQueueLimit;
 extern s32 TrackLength;
 extern struct {
     s32 unk00[4];
@@ -49,7 +49,7 @@ void SoundListenerInit(int arg0_in, int arg1_in) {
         SoundState.rec18EC[3].carIndex04 = t;
         break;
     }
-    D_800F66A0 = 4;
+    SoundEventQueueLimit = 4;
 }
 
 void SoundFindNearestCars(s32 arg0) {

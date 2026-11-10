@@ -10,7 +10,7 @@
 #include "rr/course_choice_types.h"
 #include "rr/projection_state.h"
 extern s32 ModeFrame,ScreenFrame;
-extern s16 MenuCursor,MenuItemCount,D_8010C0B8;
+extern s16 MenuCursor,MenuItemCount,LinkMenuSyncPhase;
 #include "rr/cd_directory_buffer.h"
 #include "rr/menu_arena_state.h"
 #include "rr/menu_arena_base.h"

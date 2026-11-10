@@ -3,7 +3,7 @@
 #include "rr/audio_cd_controller.h"
 #include "game/sound/cdclose.h"
 
-extern s32 D_800F745C;
+extern s32 CdCloseStateStep;
 
 void CdAudioPauseStep(void)
 {
@@ -48,7 +48,7 @@ void CdAudioResumeStep(void) {
         if (SoundState.phase2674 == 0) {
             if (SoundState.playActive26BC == 1) CdAudioBeginPlay(SoundState.flag26A0);
             else SoundState.action2670 = -1;
-            D_800F745C = 0;
+            CdCloseStateStep = 0;
         }
         break;
     }

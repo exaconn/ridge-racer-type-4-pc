@@ -390,7 +390,7 @@ vehicles and checks all original 4096 MIPS/service-trace cases. These are direct
 checks of those bodies, not evidence that every race/input function is native-safe.
 
 The result handler uses the canonical `RrMenuSettings2C`: per-stage results at0,
-phase at17, current result at19 and mode at1A. `D_800AD4EF` is the existing alias
+phase at17, current result at19 and mode at1A. `MenuSubmodePendingId` is the existing alias
 of `SelectionState.phase17`, not independent storage. Its old local prefix and
 reinterpretation macro are gone from `raceai2.c`; other callers of the address
 alias remain to be unified. Layout assertions live beside the shared type.
@@ -659,7 +659,7 @@ left shifts. Ordinary short casts have not yet retained the instruction match.
 
 `psyq/libgte/rotmatz.h` declares the real `RotMatrixZ` interface: a matrix pointer
 returned unchanged. Its two callers now use `MatrixWords32`, including the sky's
-stack matrix. The PAL label `D_800FF6A4` aliases
+stack matrix. The PAL label `GteProjectionScaleTable` aliases
 `CameraViewMatrix.fields.translation14`, rather than independent storage.
 The billboard reads that field directly. The lit caller still needs the named
 symbol view to preserve its address-load instructions; its header documents the
@@ -1416,7 +1416,7 @@ The garage state machine selects the live phase with a normal `switch` and
 retains its selected case across helper calls. Its labels, dead assignments,
 `W7C0_U` and private `MenuSelectionState` prefix are removed. Settings copies use
 the actual `MenuSettings2C`/`MenuChoice4` records. The showcase selector names
-that same owner's `phase17`, the real alias of `D_800AD4EF`. Frame increments
+that same owner's `phase17`, the real alias of `MenuSubmodePendingId`. Frame increments
 and angle updates use unsigned arithmetic before signed serialization, retaining
 the target wrap without signed-overflow dependencies. Existing target compiler
 settings and register/barrier constraints are unchanged.

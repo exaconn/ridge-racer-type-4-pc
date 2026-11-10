@@ -29,7 +29,7 @@ void InitLoopVoices(int a0) {
 
 void SetLoopVoiceVolumes(int a0, int a1, int a2) {
     int i;
-    if (D_800AD55A == 0) {
+    if (CdAudioMixChannelMode == 0) {
         SoundState.loopVoices1994[a0].vol10[0] = a1;
         SoundState.loopVoices1994[a0].vol10[1] = a2;
     } else {

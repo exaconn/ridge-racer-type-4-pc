@@ -48,7 +48,7 @@ typedef struct {
 static World world,expected;
 #define SCRATCHPAD ((u8*)&world.scratch.scene)
 #define CameraViewMatrix world.camera
-#define D_800FF6A4 world.camera.fields.translation14
+#define GteProjectionScaleTable world.camera.fields.translation14
 static unsigned scenario,events,services,instance,triangle;static u32 data[32],control[32],*trace;static u8 *serviceTrace;
 static const s32 depths[]={-2147483647-1,-1,0,1,148,149,297,298};
 static const s16 xy[][2]={{0,0},{-1,20},{320,20},{10,-1},{10,256},{319,255},{-32768,-32768},{32767,32767},{-1,-1},{320,256}};
@@ -267,7 +267,7 @@ def main():
             assert any((a&0x1FFFFFFF) <= address and address+size <= (a&0x1FFFFFFF)+n for a, n in
                        [(WORK, 88), (0x1F800000, 4), (gpu, GPU_SIZE), (STACK-512, 512)]), (hex(address), size)
         cpu = Cpu(memory, 0, 100, 101, 102, check_store)
-        camera_address, background_address = address_of('CameraViewMatrix'), address_of('D_800FF6A4')
+        camera_address, background_address = address_of('CameraViewMatrix'), address_of('GteProjectionScaleTable')
         paths, biases, tri_aliases, mode_aliases, shifts, placement_counts, triangle_counts = (set() for _ in range(7))
         for case in range(CASES):
             state = bytearray((case*19+i*29)&255 for i in range(STATE)); bank = (case>>2)&1

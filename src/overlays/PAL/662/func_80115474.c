@@ -5,6 +5,6 @@ void ovl662_reset_team_car_preview(void)
 {
     ResetScreenCounters();
     LoadCursor=MenuArenas.first;
-    UnpackChoiceGlyph((s8 *)&SelectionRows,D_800ABE2C);
+    UnpackChoiceGlyph((s8 *)&SelectionRows,GaragePackedChoiceGlyph);
     ImageRows[1]=6;
 }

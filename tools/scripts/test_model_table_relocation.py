@@ -35,7 +35,7 @@ static struct World {
  u8 before[16];RroSceneScratchPrefix scene;s32 count;u8 after[16];
 } world,expected;
 #define SCRATCHPAD ((u8*)&world.scene)
-#define D_800F2EC0 world.count
+#define ActiveModelVertexCount world.count
 '''
 TAIL = r'''
 void run_case(const u8 *input,u8 *output){
@@ -100,7 +100,7 @@ def main():
                 offset = symbol['st_value'] - section['sh_addr']
                 assert symbol['st_value'] == address_of(name)
                 write(symbol['st_value'], section.data()[offset:offset + symbol['st_size']])
-        count_address = address_of('D_800F2EC0')
+        count_address = address_of('ActiveModelVertexCount')
         stores = []
 
         def check_store(cpu, access, address, size, value, user):

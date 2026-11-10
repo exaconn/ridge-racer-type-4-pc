@@ -69,8 +69,8 @@ static unsigned clockSeen[2][2],viewportSeen[2],drawSeen[2],stencilSeen[2],dmaDi
 static unsigned sentinelSeen,fourthWordSeen,aliasExecuted[4];
 #define RaceContext live.root
 #define CurrentDrawBuf (&live.frames[live.frame])
-#define D_800F7488 live.clocks[0]
-#define D_800F7624 live.clocks[1]
+#define SecondaryMotionClock live.clocks[0]
+#define PrimaryMotionClock live.clocks[1]
 #define VSyncThreshold live.threshold
 #define SCRATCHPAD ((u8*)&live.scratch)
 #define SCRATCH_ROT_MATRIX ((u8*)&live.scratch.view.matrix28)
@@ -346,8 +346,8 @@ class CameraScriptSubmissionTest(unittest.TestCase):
         stp = definition_source(owners['SetDrawStp'].read_text(), 'SetDrawStp').replace('SetDrawStp', 'native_stp')
         scale = definition_source(owners['ScaleMatrixRow1'].read_text(), 'ScaleMatrixRow1').replace('ScaleMatrixRow1', 'native_scale')
         prefix = PREFIX.replace('@RACE@', hex(address_of('RaceContext'))+'U')
-        prefix = prefix.replace('@CLOCK0@', hex(address_of('D_800F7488'))+'U')
-        prefix = prefix.replace('@CLOCK1@', hex(address_of('D_800F7624'))+'U')
+        prefix = prefix.replace('@CLOCK0@', hex(address_of('SecondaryMotionClock'))+'U')
+        prefix = prefix.replace('@CLOCK1@', hex(address_of('PrimaryMotionClock'))+'U')
         with TemporaryDirectory() as temporary:
             source, library = Path(temporary)/'native.c', Path(temporary)/'native.dylib'
             source.write_text(prefix+stp+scale+body+REFERENCE)
@@ -404,7 +404,7 @@ class CameraScriptSubmissionTest(unittest.TestCase):
                 frame = 0x80300000 if (number >> 4) & 1 else 0x80200000
                 gpu = 0x80380000 if (number >> 4) & 1 else 0x80280000
                 regions = [(address_of('RaceContext'), 0x568), (ALT, 0x188),
-                           (address_of('D_800F7488'), 20), (address_of('D_800F7624'), 20),
+                           (address_of('SecondaryMotionClock'), 20), (address_of('PrimaryMotionClock'), 20),
                            (SCRIPTS[0], 32), (SCRIPTS[1], 32), (SCRATCH, 0x7C),
                            (frame, 0x22778), (frame+0x40000, 0x22778), (gpu, 8192),
                            (address_of('CurrentDrawBuf'), 4), (address_of('VSyncThreshold'), 4)]

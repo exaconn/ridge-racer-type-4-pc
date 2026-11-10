@@ -20,7 +20,7 @@ extern short SelectedMakerIndex;
 extern unsigned short SavedCourseIndex;
 extern short CourseIndex;
 
-extern char *D_800ACBB4;
+extern char *TrackSoundPayloadPtr;
 
 void SetupRaceSoundCarConfig(void);
 int LoadTrophyModelStep(void);
@@ -136,7 +136,7 @@ int LoadTrackVabsStep(void)
         bank = 0;
         RelocateOffsetTable(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->relocationOffset);
         configs = &CourseVabLoadConfigs[1];
-        D_800ACBB4 = (char *)(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->relocationOffset);
+        TrackSoundPayloadPtr = (char *)(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->relocationOffset);
         do {
             VabLoadArgs.header = (u8 *)(RaceLoadCursor + *(((const TrackSoundHeader *)RaceLoadCursor)->bankHeaderOffsets + bank));
             VabLoadArgs.samples = (const u16 *)(RaceLoadCursor + *(((const TrackSoundHeader *)RaceLoadCursor)->bankSampleOffsets + bank));

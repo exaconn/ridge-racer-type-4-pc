@@ -63,7 +63,7 @@ static const s16 layoutEdges[]={INT16_MIN,INT16_MIN+1,-65,-1,0,1,65,INT16_MAX};
 #define Options live.settings.value
 #define PlayerControllers live.controllers.values
 #define MenuStepArrowUv live.glyph.value
-#define D_800F4CB8 live.counter.value
+#define MenuAvailableCourseMask live.counter.value
 /* The original table contains15 entries; slot12 names this resident callback. */
 PanelDraw UiRowDrawHandlers[15]={[12]=DrawControllerConfigPanel};
 static u32 next(u32 *seed){u32 n=*seed;n^=n<<13;n^=n>>17;n^=n<<5;return *seed=n;}
@@ -96,7 +96,7 @@ static void mutate(void){
   Options.config.w[i].buttonLayout03=(s8)(scenario*37U+n+i);
  }
  for(unsigned i=0;i<4;i++)((u8*)&MenuStepArrowUv)[i]=(u8)(scenario*73U+n*17U+i);
- D_800F4CB8=selectors[(scenario+n)%10];
+ MenuAvailableCourseMask=selectors[(scenario+n)%10];
  live.heads.values[n%4]^=scenario*0x9E3779B9U+n;
  live.rows[n%2].values[(scenario+n)%6].x04=(s16)(scenario+n*37U);
 }
@@ -132,7 +132,7 @@ REFERENCE = r'''
 static void *referenceCallback(u32 *ordering,void *packet,s32 row){
  const u8 *record=(const u8*)(BadgeRows+row);
  s32 x=(s32)signed16(record+4)+8,y=(s32)signed16(record+6)+36;
- unsigned controller=((u32)D_800F4CB8-1U)%2U;controllerSeen[controller]++;
+ unsigned controller=((u32)MenuAvailableCourseMask-1U)%2U;controllerSeen[controller]++;
  s32 protocol=signed32((const u8*)&PlayerControllers+controller*92U+16U),layout;
  for(unsigned i=0;i<7;i++)if(protocol==protocols[i])protocolSeen[i]++;
  const u8 *settings=(const u8*)&Options;
@@ -155,7 +155,7 @@ static void referenceApply(void){
 static void initialize(unsigned n){
  scenario=n;kind=n&1;serial=0;rowIndex=(s32)((n/2)%6)-2;rootIndex=(n/12)%2;headIndex=(n/24)%6;arenaIndex=(n/144)%2;
  u32 seed=n*0x9E3779B9U+0x42DBCU;u8 *p=(u8*)&live;for(unsigned i=0;i<sizeof(live);i++)p[i]=(u8)next(&seed);
- BadgeRows=&live.rows[rootIndex].values[2];D_800F4CB8=selectors[(n/288)%10];selectorSeen[(n/288)%10]++;
+ BadgeRows=&live.rows[rootIndex].values[2];MenuAvailableCourseMask=selectors[(n/288)%10];selectorSeen[(n/288)%10]++;
  for(unsigned i=0;i<2;i++){
   PlayerControllers[i].protocol10=protocols[(n/2880+i)%7];
   Options.config.f0[i].buttonLayout00=layoutEdges[(n/2+i)%8];
@@ -207,7 +207,7 @@ class ControllerPanelCallbackTest(unittest.TestCase):
         owners = source_owners(ROOT/'src/main/PAL')
         bodies = '\n'.join(definition_source(owners[name].read_text(), name) for name in NAMES)
         prefix = PREFIX
-        for token, name in [('OPTIONS', 'Options'), ('CONTROLLERS', 'PlayerControllers'), ('GLYPH', 'MenuStepArrowUv'), ('COUNTER', 'D_800F4CB8')]:
+        for token, name in [('OPTIONS', 'Options'), ('CONTROLLERS', 'PlayerControllers'), ('GLYPH', 'MenuStepArrowUv'), ('COUNTER', 'MenuAvailableCourseMask')]:
             prefix = prefix.replace('@'+token+'@', hex(address_of(name))+'U')
         original = (ROOT/'assets/PAL/main.exe').read_bytes();base = struct.unpack_from('<I', original, 24)[0]
         self.assertEqual(struct.unpack_from('<I', original, 0x800+address_of('UiRowDrawHandlers')+12*4-base)[0], address_of(NAMES[0]))
@@ -245,7 +245,7 @@ class ControllerPanelCallbackTest(unittest.TestCase):
             self.assertEqual(traces.hexdigest(), 'bf425ec1ed0df5b88c2ca83be240c24e5f7cb83a7d0f36ec44e99c72b2c773d5')
             regions = [(0x80180000, 200), (0x80181000, 200), (address_of('Options')-16, 96),
                        (address_of('PlayerControllers')-16, 208), (address_of('MenuStepArrowUv')-16, 36),
-                       (address_of('D_800F4CB8')-16, 36), (0x80190000, 48), (0x801A0000, 544),
+                       (address_of('MenuAvailableCourseMask')-16, 36), (0x80190000, 48), (0x801A0000, 544),
                        (0x801B0000, 544), (address_of('BadgeRows'), 4)]
             self.assertEqual(sum(n for _, n in regions), 1916)
             intervals = sorted((a, a+n) for a, n in regions)

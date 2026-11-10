@@ -13,7 +13,7 @@ extern unsigned short PadButtonLayoutPresetsA[][8];
 extern unsigned short PadButtonLayoutPresetsB[][8];
 extern unsigned short PadDefaultButtonPresets[][8];
 extern unsigned short PadButtonMap[][3][8];
-extern unsigned short D_800F4BF8[][2][8];
+extern unsigned short ActivePadButtonLayouts[][2][8];
 
 void InitGamePads(void) {
     PsyqBzero(PlayerControllers, sizeof(PlayerControllers));
@@ -30,8 +30,8 @@ void SetPadButtonMapLayout(int a, int b, int c, int d) {
         PadButtonMap[a][0][i] = PadButtonLayoutPresetsA[b][i];
         PadButtonMap[a][1][i] = PadButtonLayoutPresetsB[c][i];
         PadButtonMap[a][2][i] = PadDefaultButtonPresets[d][i];
-        D_800F4BF8[0][0][i] = PadDefaultButtonPresets[b][i];
-        D_800F4BF8[0][1][i] = PadButtonLayoutPresetsB[c][i];
+        ActivePadButtonLayouts[0][0][i] = PadDefaultButtonPresets[b][i];
+        ActivePadButtonLayouts[0][1][i] = PadButtonLayoutPresetsB[c][i];
     }
 }
 

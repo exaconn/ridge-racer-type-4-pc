@@ -17,8 +17,8 @@
 #include "rr/rro_model.h"
 #include "game/camera/viewcam.h"
 
-extern MotionClock20 D_800F7488;
-extern MotionClock20 D_800F7624;
+extern MotionClock20 SecondaryMotionClock;
+extern MotionClock20 PrimaryMotionClock;
 extern void SetGeomOffset(s32, s32);
 extern void SetGeomScreen(s32);
 
@@ -33,9 +33,9 @@ void StepCameraScript(void) {
         RaceContext.controller3D8->scale4C = 1;
     }
     if (RaceContext.controller3D8->alternateClock5C == 0) {
-        clock = &D_800F7624;
+        clock = &PrimaryMotionClock;
     } else {
-        clock = &D_800F7488;
+        clock = &SecondaryMotionClock;
     }
     if (clock->active != 0) {
         if (++RaceContext.controller3D8->scriptTimer6A >= RaceContext.controller3D8->script64[RaceContext.controller3D8->scriptIndex68].duration) {

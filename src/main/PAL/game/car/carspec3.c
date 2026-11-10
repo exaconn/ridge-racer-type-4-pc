@@ -1,4 +1,4 @@
-#define RaceContext D_800AC650_prefix
+#define RaceContext RaceContextHeaderDecl
 #include "rr/race.h"
 #include "game/car/carspec3.h"
 #include "game/car/carspec1.h"

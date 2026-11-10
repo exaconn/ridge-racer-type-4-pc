@@ -106,7 +106,7 @@ void ovl667_update_course_menu(void) {
             if ((waitResult == 0) && (FadeCountdown == 0x40)) {
                 DrawUiRow(0x18);
             } else {
-                D_8010C0B8 = 1;
+                LinkMenuSyncPhase = 1;
                 if (FadeCountdown > 0) {
                     FadeCountdown = (s16)((u16) FadeCountdown - 1);
                 }
@@ -128,7 +128,7 @@ void ovl667_update_course_menu(void) {
                 SetMenuFrameOptions(1, 1, 0);
                 UiRows[23].cells[0] = detailState;
                 StepMenuValue(1, 4, (char *)&NumLaps, 0xA, detailState);
-                if (D_800F3A60 != 0) {
+                if (MenuReturnSubmodeIndex != 0) {
                     PlaySfx(1);
                     UiRows[23].cells[0] = 1U;
                     UiRows[23].byte14 = 3U;
@@ -160,6 +160,6 @@ void ovl667_update_course_menu(void) {
     if (SubmodeState == 4) {
         DrawUiRow(0x17);
     }
-    D_800F4CB8 = 0;
+    MenuAvailableCourseMask = 0;
     UpdateScreenFade(0x10026);
 }

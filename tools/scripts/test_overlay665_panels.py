@@ -43,7 +43,7 @@ static World world,initial,expected;static u16 textData[32];static unsigned scen
 #define BadgeRows world.s.badges[world.s.badgeRoot]
 #define CardDialogueStatePtr (&world.s.text[world.s.textRoot])
 #define CurrentDrawBuf ((FrameStorage*)&world.s.frames[world.s.frameRoot])
-#define D_800F3A60 world.s.accept
+#define MenuReturnSubmodeIndex world.s.accept
 #define FadeCountdown world.s.fade
 #define ovl665_brightness_swatch_uv_rect world.s.uv
 #undef RR_PROJECTION_SCRATCH

@@ -47,7 +47,7 @@ extern int ScaleMatrix();
 extern char ActiveCameraModeTable[];
 extern short CourseIndex;
 extern void SubmitCourseHorizon(void *scratch, VisibleCourseViews *views, s32 course);
-extern unsigned short D_8010E280;
+extern unsigned short CameraTargetTrackNode;
 extern s16 ViewOffsetX[];
 extern s16 ViewOffsetY[];
 extern s32 ViewScreenH[];
@@ -149,7 +149,7 @@ void RenderPlayerCourseView(int player) {
 void RenderMirrorCourseView(int player) {
     short *g = (short *)SCRATCHPAD;
     unsigned int v; int unused[12];
-    D_8010E280 = (unsigned short)g[0x2E];
+    CameraTargetTrackNode = (unsigned short)g[0x2E];
     g[0x2E] = -1;
     BuildViewSegmentObjectList(player);
     v = LookupOctantVisibility();
@@ -159,7 +159,7 @@ void RenderMirrorCourseView(int player) {
     SetupViewLighting();
     SetupViewMatrix();
     SubmitCourseHorizon(g, ActiveVisibleViews, CourseIndex);
-    g[0x2E] = (short)D_8010E280;
+    g[0x2E] = (short)CameraTargetTrackNode;
 }
 
 

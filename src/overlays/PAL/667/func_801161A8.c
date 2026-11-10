@@ -50,7 +50,7 @@ void ovl667_init_car_selection(s32 arg0) {
     MenuItemCount = 3;
     ResetScreenCounters();
     InitPreviewImageRows();
-    D_8010C0B8 = 0;
+    LinkMenuSyncPhase = 0;
     LoadCursor = MenuArenaBase;
     if (!(ActivePlayerIndex & 1)) {
         MenuArenas.first = MenuArenaBase;

@@ -4,7 +4,7 @@
 #include "rr/ui_bar.h"
 #include "rr/animated_sprite_grid.h"
 
-extern s32 D_800ACA3C,D_800ACA38;
+extern s32 FadeSpritePhaseAngle,FadeSpriteIntensityScale;
 extern UiUvRect HudCourseMapScaleTable[];
 extern u32 FadeSpriteDrawModes[];
 /* Index names an accessible UV entry. Pointer slots and returned packet must

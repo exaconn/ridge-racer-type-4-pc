@@ -3,7 +3,7 @@
 #include "rr/overlay665_menu.h"
 #include "rr/runtime_settings.h"
 extern s32 ovl665_saved_bgm_volume,ovl665_saved_sfx_volume;
-extern s16 D_800F7640;
+extern s16 OptionsPreviewBgmVolume;
 void SeqSetVolume(s16);
 void SetCdMixMode(s32);
 void ovl665_init_audio_options(void);

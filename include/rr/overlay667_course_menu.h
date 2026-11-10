@@ -8,9 +8,9 @@
 #include "rr/tables.h"
 #include "rr/driver_control.h"
 #include "game/race/racegrid.h"
-extern s16 FadeCountdown,LinkHostFlag,LinkState,D_8010C0B8,LinkPrevCarRanks,ModeIndex;
+extern s16 FadeCountdown,LinkHostFlag,LinkState,LinkMenuSyncPhase,LinkPrevCarRanks,ModeIndex;
 extern u16 SubmodeState,ModeGroup;
-extern s32 LinkAvailableCourseCount,NumLaps,D_800F4CB8,ModeFrame,ScreenFrame;
+extern s32 LinkAvailableCourseCount,NumLaps,MenuAvailableCourseMask,ModeFrame,ScreenFrame;
 s32 ExitOnLinkLost(void);
 s32 UpdateLinkHandshake(s32);
 s32 LoadTrackNodesStep(void);

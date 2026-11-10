@@ -51,14 +51,14 @@ extern int MirrorRenderFlag;
 extern signed char SelectionState[];
 extern short LinkHostFlag;
 extern char SaveDataWork[];
-extern char D_800F39D8[];
+extern char SaveHeaderPlayerNameBuf[];
 extern char CustomEmblemBuffers[];
 extern signed char SaveSlotSelections[];
 extern int TeamStringPtrTable[];
 extern int RivalTeamNamePtrTable[];
 extern int NumLaps;
-extern int D_800F4C24;
-extern int D_800F4C2C;
+extern int DisplayEnvOffsetX;
+extern int DisplayEnvOffsetY;
 extern int DialogueSceneMode;
 #include "rr/menu_arena_base.h"
 extern short GameModeType;
@@ -93,8 +93,8 @@ void SystemInit(void)
     _sio_control(1, 1, 0);
     SetupRenderer(5);
     VSyncThreshold = 0x80;
-    D_800F4C24 = 0;
-    D_800F4C2C = 0;
+    DisplayEnvOffsetX = 0;
+    DisplayEnvOffsetY = 0;
     DrawSubOtFlag = 0;
     NumLaps = 2;
     MirrorRenderFlag = 0;
@@ -118,10 +118,10 @@ void SystemInit(void)
     }
     LinkHostFlag = -1;
     CopyStringClearTail(&SaveProgress, DefaultPlayerName);
-    CopyStringClearTail(D_800F39D8, &SaveProgress);
-    CopyStringClearTail(D_800F39D8 + 0xC, &SaveProgress);
-    CopyStringClearTail(D_800F39D8 + 0x18, &SaveProgress);
-    CopyStringClearTail(D_800F39D8 + 0x24, &SaveProgress);
+    CopyStringClearTail(SaveHeaderPlayerNameBuf, &SaveProgress);
+    CopyStringClearTail(SaveHeaderPlayerNameBuf + 0xC, &SaveProgress);
+    CopyStringClearTail(SaveHeaderPlayerNameBuf + 0x18, &SaveProgress);
+    CopyStringClearTail(SaveHeaderPlayerNameBuf + 0x24, &SaveProgress);
     TeamStringPtrTable[0] = TeamNameDigRacingTeam;
     TeamStringPtrTable[4] = TeamAbbrevDRT;
     TeamStringPtrTable[1] = TeamNameMicroMouseMappy;

@@ -9,14 +9,14 @@
 #include "rr/menu_state_types.h"
 #include "game/menu/menuwork.h"
 
-extern s32 MenuStepDirection, D_800F3A60;
+extern s32 MenuStepDirection, MenuReturnSubmodeIndex;
 #include "rr/menu_arena_base.h"
 extern MenuSettings2C SelectionState;
 extern s16 SelectedMakerIndex;
-extern u16 D_800F3A42;
+extern u16 MenuSelectedCarSlot;
 extern MenuGlyphRow1C *GlyphRows;
 extern MenuChoice4 SelectionRows;
-extern u8 D_800F4D99; /* Alias of SelectionRows.bytes[1]. */
+extern u8 ActiveSelectionRowValue; /* Alias of SelectionRows.bytes[1]. */
 #include "rr/menu_text_state.h"
 void PlaySfx(s32 mode);
 void ResetScreenCounters(void);

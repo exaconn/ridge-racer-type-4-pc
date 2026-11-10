@@ -1,7 +1,7 @@
 #include "rr/overlay668_dispatch.h"
 #include "rr/load_cursor.h"
 void ovl668_update_stream_mode(void) {
-    switch (D_800AC704) {
+    switch (MoviePlaybackDispatchMode) {
     case 0:
         ovl668_start_stream_playback(LoadCursor);
         break;

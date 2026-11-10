@@ -83,7 +83,7 @@ void BuildCameraMatrices(void) {
     BuildRotMatrixY((MatrixWords32 *)SCRATCH_ROT_MATRIX, view->pose08.angles10.xyz.y);
     BuildRotMatrixY(&CameraViewMatrix, view->pose08.angles10.xyz.y);
     SetIdentityMatrix(&CameraPitchRollMatrix);
-    BuildRotMatrixY(&D_800FF6D8, view->pose08.angles10.xyz.y);
+    BuildRotMatrixY(&CameraYawRotMatrix, view->pose08.angles10.xyz.y);
     BuildRotMatrixX(&rotation, view->pose08.angles10.xyz.x);
     MulMatrix2(&rotation, (MatrixWords32 *)(SCRATCH_ROT_MATRIX));
     MulMatrix2(&rotation, &CameraViewMatrix);

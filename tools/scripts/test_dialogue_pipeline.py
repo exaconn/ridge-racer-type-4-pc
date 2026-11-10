@@ -33,7 +33,7 @@ FIELDS=(('b4',4,1),('b5',5,1),('st',6,1),('b7',7,1),('b8',8,1),('b9',9,1),
         ('b1C',28,1),('b1D',29,1),('b1E',30,1),('b1F',31,1),('reserved24',36,4))
 POINTERS=('Dialogue','CardDialogueStatePtr','LoadDestCursor','CdDirectoryBuffer',
           'DialoguePageCounts','DialogueAssetTable','BadgeRows')
-SCALARS=(('DialogueSceneMode',4),('D_800F3A60',4),('LoadState',1),('LoadIndex',1),('D_800AD564',4),('PendingModeId',2),('CardMenuOperation',2))
+SCALARS=(('DialogueSceneMode',4),('MenuReturnSubmodeIndex',4),('LoadState',1),('LoadIndex',1),('SelectedStoryBranchId',4),('PendingModeId',2),('CardMenuOperation',2))
 SERVICES=(('PsyqBzero',2,(0,)),('PlaySfx',1,()),('DrawDialogueContinueMark',2,()),
           ('DrawAnimatedGlyph',5,(4,)),('UpdateSelectionRank',0,()),
           ('SeqStartTrack',1,()),('CdFileReadRange',4,(3,)),
@@ -67,16 +67,16 @@ MenuTextState *Dialogue,*CardDialogueStatePtr;
 u8 *LoadDestCursor,*CdDirectoryBuffer,*DialoguePageCounts;
 s8 *DialogueAssetTable;
 u16 *DialogueScriptPtrs[40];BadgeRow1C *BadgeRows;
-s32 DialogueSceneMode,D_800F3A60,D_800AD564;
+s32 DialogueSceneMode,MenuReturnSubmodeIndex,SelectedStoryBranchId;
 u16 PendingModeId; s16 CardMenuOperation;
 u8 LoadState;char LoadIndex;
 /* This symbol is the low byte of the first current-choice record, not a
  * second allocation. The loader also reads that same field through its owner. */
-#define D_800AD4F4 (SelectionState.copies[0].bytes[0])
-#define D_800AD4F5 (SelectionState.copies[0].bytes[1])
-#define D_800AD4F2 (SelectionState.mode1A)
-#define D_800AD4EF (SelectionState.phase17)
-#define D_800AD4EC (SelectionState.reserved10[4])
+#define MenuSelectedTeamId (SelectionState.copies[0].bytes[0])
+#define MenuSelectedMakerId (SelectionState.copies[0].bytes[1])
+#define MenuActiveDialogId (SelectionState.mode1A)
+#define MenuSubmodePendingId (SelectionState.phase17)
+#define MenuSelectionLockedFlag (SelectionState.reserved10[4])
 typedef u32 (*Observer)(u32,const uintptr_t *);
 static Observer observer;
 void set_observer(Observer value){observer=value;}
@@ -174,7 +174,7 @@ class DialoguePipelineTest(unittest.TestCase):
                     'LoadDialogueStep':([],C.c_int32),'SelectDialogueScript':([],None)}
         for name,(args,returned)in signatures.items():
             fn=getattr(cls.library,name);fn.argtypes=args;fn.restype=returned
-        for name,offset in (('D_800AD4F2',0x1A),('D_800AD4EF',0x17),('D_800AD4EC',0x14),('D_800AD4F4',0x1C),('D_800AD4F5',0x1D)):
+        for name,offset in (('MenuActiveDialogId',0x1A),('MenuSubmodePendingId',0x17),('MenuSelectionLockedFlag',0x14),('MenuSelectedTeamId',0x1C),('MenuSelectedMakerId',0x1D)):
             assert address_of(name)==address_of('SelectionState')+offset
         cls.original=(ROOT/'assets/PAL/main.exe').read_bytes()[0x800:]
         with(ROOT/'build/PAL/main.elf').open('rb')as stream:
@@ -260,8 +260,8 @@ class DialoguePipelineTest(unittest.TestCase):
             if native:self.selection[0x17]=(self.selection[0x17]+1)%8
             else:self.put(address_of('SelectionState')+0x17,(self.read(address_of('SelectionState')+0x17,1)[0]+1)%8,1)
         if name=='DrawDialogueContinueMark'and self.case&1:
-            if native:self.scalar_cells['D_800F3A60'][0]=1
-            else:self.put(address_of('D_800F3A60'),1)
+            if native:self.scalar_cells['MenuReturnSubmodeIndex'][0]=1
+            else:self.put(address_of('MenuReturnSubmodeIndex'),1)
         if name=='PlaySfx'and self.case&2:self.set_pointer('Dialogue',STATES[1],native)
         if name=='SeqStartTrack'and self.case&4:self.set_pointer('Dialogue',STATES[1],native)
         if name in ('CdFileReadRange','CdFileReadStart'):return(0,1,0xFFFFFFFF)[self.case%3]

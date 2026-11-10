@@ -28,9 +28,9 @@
 #undef LoadImage
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010BF60 ((short *)D_8010BF60)
+#define CdStreamSectorCursor ((short *)CdStreamSectorCursor)
 
-#undef D_8010BF60
+#undef CdStreamSectorCursor
 
 extern s32 CdFileState;
 

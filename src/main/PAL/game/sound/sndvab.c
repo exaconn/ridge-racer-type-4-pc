@@ -11,7 +11,7 @@
 
 extern char VabOpenHeadErrorStr[];
 extern char VabTransBodyErrorStr[];
-extern s32 D_800F7650;
+extern s32 ActiveVabTransferSlot;
 
 void SetReverb(int a0, int a1);
 void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -51,7 +51,7 @@ void ReverbReset(void) {
 }
 
 void SetReverbDepthBoth(s32 arg0) {
-    D_800F7650 = arg0;
+    ActiveVabTransferSlot = arg0;
     SsUtSetReverbDepth((s16) arg0, (s16) arg0);
 }
 
@@ -96,12 +96,12 @@ void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 var_t0 = arg0;
     temp_t1 = (arg3 + 0x3CU);
     if (var_t0 < 0x1E) {
-        var_a3 = D_800F4DDC;
+        var_a3 = AudioPanCenterAngle;
     } else if (var_t0 < 0x3C) {
-        var_a3 = D_800F4DDE;
+        var_a3 = AudioPanRearAngle;
         var_t0 -= 0x1E;
     } else {
-        var_a3 = D_800F4DEA;
+        var_a3 = AudioPanFrontAngle;
         var_t0 -= 0x3C;
     }
     table=PanGainTable;

@@ -74,12 +74,12 @@ static void verify_dialogue(void){
   assert(!memcmp(&dialogue_before[i],&dialogue_owners[i],sizeof(MenuTextState)));
  }
 }
-#define D_800F4D99 (w->choice.bytes[1])
+#define ActiveSelectionRowValue (w->choice.bytes[1])
 #define SelectionRows (w->choice)
 #define SelectedMakerIndex (w->selected)
-#define D_800F3A42 (w->buttons)
+#define MenuSelectedCarSlot (w->buttons)
 #define MenuStepDirection (w->event)
-#define D_800F3A60 (w->accepted)
+#define MenuReturnSubmodeIndex (w->accepted)
 #define SelectionState (w->settings)
 #define BadgeRows (&w->rows[w->rowbank])
 #define UiRows ((UiRow24 *)w->ui[w->uibank].bytes)

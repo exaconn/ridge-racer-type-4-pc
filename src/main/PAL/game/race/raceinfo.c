@@ -49,7 +49,7 @@ extern TrackSample3C *TrackNodes;
 extern int TrackNodeCount;
 extern short ReverseCourse;
 extern char Options[];
-extern short D_8010BFD0[];
+extern short RaceLapSplitFlags[];
 
 void DrawCourseInfoPanel(int arg0, int arg1);
 void DrawCourseMapPreview(int unusedSelection,int unusedMode);
@@ -186,9 +186,9 @@ void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
   if (a1 < 2)
   {
     ResetCarSlotBuffers();
-    D_8010BFD0[0] = 0;
-    D_8010BFD0[2] = -0x100;
-    D_8010BFD0[1] = -0x100;
+    RaceLapSplitFlags[0] = 0;
+    RaceLapSplitFlags[2] = -0x100;
+    RaceLapSplitFlags[1] = -0x100;
     if ((a1 == 1) && (a0 == PlayerCars))
     {
       i = 0;
@@ -210,7 +210,7 @@ void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
   {
     s0 = (a1 << 11) / 75;
     v0 = rsin(s0);
-    s5 = D_8010BFD0;
+    s5 = RaceLapSplitFlags;
     if (v0 < 0)
     {
       v0 += 7;
@@ -229,7 +229,7 @@ void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
   MulMatrix(&m20, &m40);
   BuildRotMatrixZ(&m40, a0->rot58);
   MulMatrix2(&m20, &m40);
-  ApplyMatrix(&m40, (const Vec3s8 *)(D_8010BFD0), (Vec3i *)(sp10));
+  ApplyMatrix(&m40, (const Vec3s8 *)(RaceLapSplitFlags), (Vec3i *)(sp10));
   g[2] = a0->pos10[0] + sp10[0];
   g[3] = a0->pos10[1] + sp10[1];
   g[4] = a0->pos10[2] + sp10[2];

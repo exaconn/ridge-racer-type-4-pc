@@ -40,6 +40,6 @@ void ovl668_init_epilogue_credits(void) {
     SetSceneOverlayColor(0, 144, 144, 144);
     SetSceneOverlayEnabled(1);
     MaskBitSetting = 1;
-    D_80127E90 = 16000;
-    D_80127E94 = ovl668_credit_scroll_speeds[(D_800AD564 * 4U + SelectedTeamIndex)];
+    EpilogueCreditScrollY = 16000;
+    EpilogueCreditScrollStep = ovl668_credit_scroll_speeds[(SelectedStoryBranchId * 4U + SelectedTeamIndex)];
 }

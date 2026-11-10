@@ -40,8 +40,8 @@ typedef struct {
 static World actual,expected;
 #define SCRATCHPAD ((u8 *)&actual.scratch)
 #define MirrorRenderFlag actual.flags
-#define D_800F3A18 actual.gouraud
-#define D_800F3A20 actual.flat
+#define LoadingScreenClearColor actual.gouraud
+#define DefaultScreenClearColor actual.flat
 ''' + body + r'''
 static void store(size_t offset,u32 value,int size) {
     for(int i=0;i<size;i++)((u8*)&expected)[offset+i]=value>>(8*i);

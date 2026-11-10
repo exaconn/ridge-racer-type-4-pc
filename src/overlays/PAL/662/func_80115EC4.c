@@ -4,7 +4,7 @@ void ovl662_init_history_subpage(s32 arg0) {
     s32 i;
     ovl662_history_arrow_phase = 0;
     SelectedMakerIndex = 0;
-    D_800F4D99 = 0;
+    ActiveSelectionRowValue = 0;
     for (i = 0; i < 4; i++) {
         /* Unsigned addition wraps; the PAL signed-word conversion keeps its bits. */
         GlyphRows[arg0 + i].phase18 = (GlyphRows[i].phase18 + 0x30000U);

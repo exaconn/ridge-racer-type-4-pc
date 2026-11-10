@@ -19,9 +19,9 @@ extern int CourseAssetBaseFileIndex;
 extern int CourseAssetGroupIds[];
 extern AudioBankSetup SlotBankSetup;
 
-extern int D_8010C218;
+extern int TrackSeqTargetSlot;
 extern int RaceContext[];
-extern int D_800ACBBC;
+extern int PendingTrackSfxVabId;
 
 void SetRaceLoadCursor(char *arg0);
 char *GetRaceLoadCursor(void);
@@ -299,7 +299,7 @@ int LoadSfxVabStep(int a0, int a1) {
                 sampleBytes = samples - RaceLoadCursor;
                 LoadVab(&VabLoadArgs, config->open_mode, config->bank_slot);
                 if (a1 > 0) {
-                    SoundState.seqAddr2858[D_8010C218] = (char *)(RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
+                    SoundState.seqAddr2858[TrackSeqTargetSlot] = (char *)(RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
                 }
                 sampleBytes = AlignUp4(sampleBytes);
                 RaceLoadSubState = 0;
@@ -373,7 +373,7 @@ int LoadRaceSoundStep(void) {
         }
         return 0;
     case 1:
-        if (LoadSfxVabStep(D_800ACBBC, 0) != 0) {
+        if (LoadSfxVabStep(PendingTrackSfxVabId, 0) != 0) {
             RaceLoadStepIndex += 1;
         }
         return 0;

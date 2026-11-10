@@ -23,8 +23,8 @@ NAMES = ['GetViewTrackNode', 'GetViewTrackSegment', 'YawToOctant', 'GetSegmentVi
          'RelocateRelativeFile']
 RAM, ALT, RECORDS, NODES, SYNTHETIC = 0x80180000, 0x802A0000, 0x802B0000, 0x80270000, 0x80280010
 STACK, STOP, SCRATCH = 0x803F0000, 0x803FF000, 0x1F800000
-SECTION_NAMES = ['RelFileSection00','RelFileSection01','D_800ADAE8','RelFileOffsetPtr3','D_800F4C60',
-                 'RelFileSection05','RelFileOffsetPtr6','RelFileOffsetPtr7','D_800FFC40','RelFileOffsetPtr9',
+SECTION_NAMES = ['RelFileSection00','RelFileSection01','TrackRelSegment2Ptr','RelFileOffsetPtr3','TrackRelSegment4Ptr',
+                 'RelFileSection05','RelFileOffsetPtr6','RelFileOffsetPtr7','TrackRelSegment8Ptr','RelFileOffsetPtr9',
                  'TrackCollisionGridPtr','RelFileSection11','RelFileOffsetPtr12','RelFileOffsetPtr13','TrackSectionBoundsPtr','RelFileSection15']
 PREFIX = r'''
 #include <assert.h>
@@ -57,15 +57,15 @@ static u8 *initialArena;
 #define PlayerCars live.cars
 #define ViewUsesCarTrackNode live.mode
 #define TrackNodes (live.nodes)
-#define D_800F4C58 live.segmentYaw
+#define ModelTrackSegmentResult live.segmentYaw
 #define PrimaryVisibleViews live.lists[0]
 #define ActiveVisibleViews live.active
-#define D_800ADAD0 live.packet
-#define D_800F4C38 live.extra
-#define D_800F2EBC live.header
+#define TrackCourseViewIndices live.packet
+#define ExtraCourseViewTable live.extra
+#define TrackRelFileHeaderPtr live.header
 #define RelFileSegmentCount live.count
 #define RelFileSegmentViewSlots live.slots
-#define D_800F391C live.first
+#define TrackRelSecondTablePtr live.first
 #define RelFileViewRecords live.records
 '''
 PREFIX += ''.join(f'#define {name} live.sections[{i}]\n' for i,name in enumerate(SECTION_NAMES))
@@ -192,8 +192,8 @@ class VisibleCourseRecordsTest(unittest.TestCase):
             bodies.append(body)
         blob=(ROOT/'disc/PAL/R4.BIN').read_bytes();sectors=struct.unpack_from('<951I',blob,4)
         exe=(ROOT/'assets/PAL/main.exe').read_bytes();exe_base=struct.unpack_from('<I',exe,24)[0]
-        names=['PrimaryVisibleViews','ActiveVisibleViews','D_800ADAD0','D_800F4C38','D_800F4C58','PlayerCars','TrackNodes',
-               'ViewUsesCarTrackNode','D_800F2EBC','RelFileSegmentCount','RelFileSegmentViewSlots','D_800F391C','RelFileViewRecords',*SECTION_NAMES]
+        names=['PrimaryVisibleViews','ActiveVisibleViews','TrackCourseViewIndices','ExtraCourseViewTable','ModelTrackSegmentResult','PlayerCars','TrackNodes',
+               'ViewUsesCarTrackNode','TrackRelFileHeaderPtr','RelFileSegmentCount','RelFileSegmentViewSlots','TrackRelSecondTablePtr','RelFileViewRecords',*SECTION_NAMES]
         symbols={name:address_of(name) for name in names};start={name:address_of(name) for name in NAMES}
         spans={n:(int(a,16),int(s,16)) for n,a,s in map(str.split,(ROOT/'configs/PAL/functions.txt').read_text().splitlines())}
         self.assertEqual(symbols['ActiveVisibleViews']-symbols['PrimaryVisibleViews'],1024)
@@ -221,9 +221,9 @@ class VisibleCourseRecordsTest(unittest.TestCase):
                 def store(cpu,access,address,size,value,user):
                     a=address&0x1FFFFFFF;stack=(STACK-128)&0x1FFFFFFF
                     allowed=[(stack,128)]
-                    if phase[0]:allowed.extend([((RAM+phase[0])&0x1FFFFFFF,phase[1]),*[(symbols[n]&0x1FFFFFFF,4) for n in ['D_800F2EBC','RelFileSegmentCount','RelFileSegmentViewSlots','D_800F391C','RelFileViewRecords',*SECTION_NAMES]]])
+                    if phase[0]:allowed.extend([((RAM+phase[0])&0x1FFFFFFF,phase[1]),*[(symbols[n]&0x1FFFFFFF,4) for n in ['TrackRelFileHeaderPtr','RelFileSegmentCount','RelFileSegmentViewSlots','TrackRelSecondTablePtr','RelFileViewRecords',*SECTION_NAMES]]])
                     else:allowed.extend([(symbols['PrimaryVisibleViews']&0x1FFFFFFF,1024),(ALT&0x1FFFFFFF,1024),
-                                         *[(symbols[n]&0x1FFFFFFF,4) for n in ['ActiveVisibleViews','D_800ADAD0','D_800F4C58']]])
+                                         *[(symbols[n]&0x1FFFFFFF,4) for n in ['ActiveVisibleViews','TrackCourseViewIndices','ModelTrackSegmentResult']]])
                     self.assertTrue(any(lo<=a and a+size<=lo+n for lo,n in allowed),(hex(address),size))
                     writes.append((address,size,value&((1<<(size*8))-1)))
                 engines.append((variant,Cpu(memory,0,100,101,102,store),write,read))
@@ -300,8 +300,8 @@ class VisibleCourseRecordsTest(unittest.TestCase):
                             if synthetic_count is not None:write(SYNTHETIC,struct.pack('<I',synthetic_count)+bytes(510))
                             write(RECORDS,file[offset+header[3]:offset+header[3]+record_bytes])
                             write(symbols['PrimaryVisibleViews'],b'\xA5'*1024);write(ALT-16,b'\xA6'*16+packed_list([record_base,record_base+80])+b'\xA6'*16)
-                            put(symbols['ActiveVisibleViews'],ALT);put(symbols['D_800ADAD0'],SYNTHETIC)
-                            write(symbols['D_800F4C38'],bytes([extra_count,*extras]));write(symbols['D_800F4C58'],b'\xA5'*4)
+                            put(symbols['ActiveVisibleViews'],ALT);put(symbols['TrackCourseViewIndices'],SYNTHETIC)
+                            write(symbols['ExtraCourseViewTable'],bytes([extra_count,*extras]));write(symbols['ModelTrackSegmentResult'],b'\xA5'*4)
                             def search(cpu):
                                 self.assertEqual(cpu.r[4:6],[0x12345678,0x87654321])
                                 if flags&1:put(symbols['RelFileViewRecords'],RECORDS)
@@ -313,14 +313,14 @@ class VisibleCourseRecordsTest(unittest.TestCase):
                             alt=packed_list(result) if active_root else packed_list([record_base,record_base+80])
                             self.assertEqual(read(ALT-16,1056),b'\xA6'*16+alt+b'\xA6'*16)
                             self.assertEqual(read(symbols['ActiveVisibleViews'],4),struct.pack('<I',ALT if active_root else symbols['PrimaryVisibleViews']))
-                            self.assertEqual(read(symbols['D_800ADAD0'],4),struct.pack('<I',packet))
+                            self.assertEqual(read(symbols['TrackCourseViewIndices'],4),struct.pack('<I',packet))
                             self.assertEqual(read(symbols['RelFileViewRecords'],4),struct.pack('<I',base))
-                            self.assertEqual(read(symbols['D_800F4C38'],32),bytes([extra_count,*extras]))
+                            self.assertEqual(read(symbols['ExtraCourseViewTable'],32),bytes([extra_count,*extras]))
                             expected_pair=b'\xA5'*4
                             if mode==0:
                                 heading=C.c_int16((selected*5+2)*173+serial*19).value
                                 expected_pair=struct.pack('<hh',selected,(octant*512-(2048-heading))&4095)
-                            self.assertEqual(read(symbols['D_800F4C58'],4),expected_pair)
+                            self.assertEqual(read(symbols['ModelTrackSegmentResult'],4),expected_pair)
                             self.assertEqual(read(SCRATCH,len(pose)),pose);self.assertEqual(read(symbols['PlayerCars'],1600),cars)
                             self.assertEqual(read(NODES,len(nodes)),nodes)
                         target_cases+=2

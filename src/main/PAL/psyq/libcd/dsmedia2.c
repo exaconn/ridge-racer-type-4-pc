@@ -32,7 +32,7 @@ void StClearRing(void) {
     StRingWriteIndex = 0;
     StStreamStarted = 0;
     init_ring_status(0, a);
-    D_801102DC = 0;
+    CdMediaChangeCount = 0;
     StCurSectorOffset = 0;
     StCurFrameNo = 0;
 }

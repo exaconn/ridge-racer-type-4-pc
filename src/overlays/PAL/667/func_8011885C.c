@@ -1,10 +1,10 @@
 #include "rr/menu_text_rows.h"
 #include "rr/frame_storage_types.h"
 
-extern s32 ModeFrame, TotalRaceTime, D_800F3A60, ActivePlayerIndex;
+extern s32 ModeFrame, TotalRaceTime, MenuReturnSubmodeIndex, ActivePlayerIndex;
 extern u16 SubmodeState;
 extern s16 ModeGroup, ModeIndex, FadeCountdown, MenuCursor, LinkHostFlag;
-extern s16 LinkState, D_8010C068, LinkPlayerCount;
+extern s16 LinkState, LinkRaceAbortFlag, LinkPlayerCount;
 extern s16 LinkFinishCarOrder[4];
 extern s16 LinkPlayerWinCounts[4];
 extern char LinkPlayerNames[4][12];
@@ -55,7 +55,7 @@ void ovl667_update_results(void) {
         group = 0;
         if (MenuTextRows[3].signedBytes[3] >= 16) {
             SetMenuFrameOptions(1, 1, group);
-            if (D_800F3A60 != 0) {
+            if (MenuReturnSubmodeIndex != 0) {
                 SubmodeState = 3;
                 SetMenuFrameOptions(group, 1, group);
             }
@@ -97,7 +97,7 @@ void ovl667_update_results(void) {
         FadeCountdown--;
         AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - FadeCountdown) * 4, 69);
         if (FadeCountdown <= 0) {
-            D_8010C068 = 1;
+            LinkRaceAbortFlag = 1;
             ModeGroup = 1;
             ModeIndex = 41;
             SubmodeState = 0;

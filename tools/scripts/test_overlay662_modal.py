@@ -25,7 +25,7 @@ static struct World {u32 guard[4];GarageSelectionPrefix garage;GarageWorkingStor
 #define UiRows world.row
 #define BadgeRows world.badge
 #define CardDialogueStatePtr world.text
-#define D_800F3A60 world.accept
+#define MenuReturnSubmodeIndex world.accept
 #define ovl662_emblem_edit_from_menu world.exit
 #define ModeIndex world.scene
 #define ModeGroup world.enable

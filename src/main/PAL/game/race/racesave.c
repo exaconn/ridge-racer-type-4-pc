@@ -86,13 +86,13 @@ extern short GameModeType;
 extern short FadeCountdown;
 extern int TrackLength;
 extern int NumLaps;
-extern int D_800F3A60;
+extern int MenuReturnSubmodeIndex;
 extern RaceVehicle PlayerCars[2];
 extern short ModeIndex;
 extern short ModeGroup;
 extern short SubmodeState;
 extern int ReplayFocusCarIndex;
-extern int D_800F2A64;
+extern int RaceQuitTargetMode;
 extern short PlayerThrottleLoad[];
 extern int ModeFrame;
 extern short PlayerDisplayRpm[];
@@ -341,7 +341,7 @@ void CheckRaceFinish(RaceVehicle *vehicle) {
     if (ReplayFrame >= ReplayLength - 0x4B && FadeCountdown == -1) {
         FadeCountdown = 0x25;
         SoundSetMasterVolume(0, 0x21);
-    } else if (D_800F3A60 != 0) {
+    } else if (MenuReturnSubmodeIndex != 0) {
         if (FadeCountdown == -1) {
             FadeCountdown = 0x25;
             SoundSetMasterVolume(0, 0x21);
@@ -414,7 +414,7 @@ void ReplayModeUpdate(void) {
     UpdateTrackObjects(0);
     BuildCameraMatrices();
     DrawCars(6);
-    ((int *)SCRATCHPAD)[0x78 / 4] = D_800F2A64;
+    ((int *)SCRATCHPAD)[0x78 / 4] = RaceQuitTargetMode;
     SetupPlayerView(0);
     DrawTrackObjects(0);
     DrawTrackSceneryForPlayer(0);

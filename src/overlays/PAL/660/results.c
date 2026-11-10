@@ -34,7 +34,7 @@ void ovl660_init_results(void)
         SetMenuTextRow(i, i - 44, 0, 0, -1);
     }
     ovl660_result_kind = 0;
-    mode = D_800F3A48;
+    mode = ResultNextActionMode;
     if (mode == 2) {
         ovl660_result_kind = mode;
     } else if (mode == 1) {
@@ -48,7 +48,7 @@ s32 ovl660_update_retry_choice(s32 reserved){
  SetMenuTextRowStyle(MenuCursor+37,0,0);
  StepMenuValue(0,2,(char*)&MenuCursor,MenuItemCount,0);
  SetMenuTextRowStyle(MenuCursor+37,1,1);
- if(D_800F3A60){PlaySfx(1);return MenuCursor;}
+ if(MenuReturnSubmodeIndex){PlaySfx(1);return MenuCursor;}
  return -1;
 }
 
@@ -73,7 +73,7 @@ void ovl660_update_results(void) {
         group = 0;
         if (MenuTextRows[1].signedBytes[3] >= 15) {
             SetMenuFrameOptions(1, 1, 0);
-            if (D_800F3A60 != 0) {
+            if (MenuReturnSubmodeIndex != 0) {
                 PlaySfx(1);
                 ovl660_name_cursor = 0;
                 SubmodeState++;
@@ -116,7 +116,7 @@ void ovl660_update_results(void) {
         }
         if (MenuTextRows[15].signedBytes[3] >= 15) {
             SetMenuFrameOptions(1, 1, 0);
-            if (D_800F3A60 != 0) {
+            if (MenuReturnSubmodeIndex != 0) {
                 PlaySfx(1);
                 ovl660_name_cursor = 0;
                 SubmodeState++;
@@ -138,7 +138,7 @@ void ovl660_update_results(void) {
         }
         if (MenuTextRows[15].signedBytes[3] >= 15) {
             SetMenuFrameOptions(1, 1, 0);
-            if (D_800F3A60 != 0) {
+            if (MenuReturnSubmodeIndex != 0) {
                 PlaySfx(1);
                 SubmodeState++;
                 SetMenuFrameOptions(0, 1, 0);
@@ -163,7 +163,7 @@ void ovl660_update_results(void) {
             if (ovl660_result_transition == 1) {
                 ready = PackChoiceGlyph((s8 *)&SelectionRows);
                 MenuTextRows[42].bytes[28] = 34;
-                EncodeRecordPassword(SelectedCourseChoice, ready, TotalRaceTime, ovl660_result_kind, D_800AD564,
+                EncodeRecordPassword(SelectedCourseChoice, ready, TotalRaceTime, ovl660_result_kind, SelectedStoryBranchId,
                               &MenuTextRows[42].bytes[29]);
                 MenuTextRows[42].bytes[42] = 34;
                 ovl660_result_transition = 2;

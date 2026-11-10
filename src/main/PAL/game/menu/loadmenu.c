@@ -159,9 +159,9 @@ void CardMenuModeEnter(void) {
             MenuStateIndex = 0x29;
             InitBadgeRow(1, 0x80, 0x58, 0xA8, 0x80, 0, 0xE02);
             BadgeRows[1].half02 = 1;
-            D_801272F0[0] = -1;
-            D_801272F0[1] = -1;
-            D_801272F0[2] = -1;
+            GarageExtraDefaultTimes[0] = -1;
+            GarageExtraDefaultTimes[1] = -1;
+            GarageExtraDefaultTimes[2] = -1;
         } else {
             if (selection == 1 || selection == 3 || selection == 5) {
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);

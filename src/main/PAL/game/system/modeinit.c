@@ -36,7 +36,7 @@ extern int DrawSubOtFlag;
 extern short LinkHostFlag;
 extern short ReverseCourse;
 extern int MaskBitSetting;
-extern unsigned short D_800F3974;
+extern unsigned short MainMenuUnlockBitmask;
 extern short ModeIndex;
 extern short MenuScriptId;
 extern short ModeGroup;
@@ -44,14 +44,14 @@ extern int DialogueSceneMode;
 #include "rr/menu_arena_base.h"
 extern u16 SubmodeState;
 extern short LinkState;
-extern int D_8010BFB8;
+extern int ModeInitResetCount;
 extern char StrInitMainMenu0[];
 extern char LinkEntryState[];
 extern int VSyncThreshold;
 extern short MenuCursor;
 extern short ActiveSceneId;
 extern int ModeFrame;
-extern int D_800F3A60;
+extern int MenuReturnSubmodeIndex;
 extern void PlaySfx();
 
 void TitleModeEnter(void);
@@ -71,7 +71,7 @@ void TitleModeEnter(void) {
     LinkState = 0;
     FadeCountdown = 0;
     ActivePlayerIndex = 0;
-    D_8010BFB8 = 0;
+    ModeInitResetCount = 0;
     ReverseCourse = 0;
     do {
         a0[0] = 0;
@@ -93,7 +93,7 @@ void TitleModeEnter(void) {
     _sio_control(1, 1, 0);
     DrawSubOtFlag = 0;
     MaskBitSetting = 0;
-    ModeSelectBaseCount = (D_800F3974 & 1) + 7;
+    ModeSelectBaseCount = (MainMenuUnlockBitmask & 1) + 7;
     DebugPrintStub(StrMainMenu0Log);
 }
 
@@ -132,7 +132,7 @@ void TitleMenuInit(void)
 
   if (CountProgressFlags() == 0x140)
   {
-    D_800F3970 = 1;
+    ExtraModeUnlockedFlag = 1;
   }
   CardDialogueStatePtr->b7 = 2;
   InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
@@ -160,7 +160,7 @@ void TitleMenuUpdate(void)
         if (UnlockNoticeMask > 0) {
             UpdateBadgeRowAnim(0);
             if (BadgeRows->state10 == 3) {
-                if (D_800F3A60 != 0 || SubmodeState == 0 || CardDialogueStatePtr->st == 4) {
+                if (MenuReturnSubmodeIndex != 0 || SubmodeState == 0 || CardDialogueStatePtr->st == 4) {
                     if (SubmodeState == 0xA) {
                         PlaySfx(3);
                         CardDialogueStatePtr->b4 = CardDialogueStatePtr->b4 + 1;

@@ -26,7 +26,7 @@ extern short RaceContext[];
 extern unsigned char LoadState;
 #include "rr/cd_directory_buffer.h"
 #include "rr/menu_arena_base.h"
-extern int D_800F4D74;
+extern int MenuSharedScratchPtr;
 extern short CourseIndex;
 extern struct { short a; short b; } PlayerCourseChoices[];
 extern char *PresetEmblemTimPtr;
@@ -34,12 +34,12 @@ extern char CustomEmblemBuffers[];
 extern unsigned char SelectionRows[][4];
 extern int DialogueSceneMode;
 extern MenuSettings2C SelectionState;
-extern int D_800AD564;
-extern unsigned char D_800AD4F4;
-extern char D_80104DB0[];
+extern int SelectedStoryBranchId;
+extern unsigned char MenuSelectedTeamId;
+extern char SceneOffsetLookupBuf[];
 extern char *TrackNodes;
 extern int TrackNodeCount;
-extern char D_8010C220[];
+extern char MenuSoundVabBuffer[];
 
 int LoadDefaultRaceStep(void);
 int LoadModeMenuAssetsStep(void);
@@ -163,7 +163,7 @@ int LoadMenuSoundStep(void) {
             SoundCloseVabsAndReset();
             LoadState = 2;
             InitMenuArenas();
-            LoadCursor = D_800F4D74;
+            LoadCursor = MenuSharedScratchPtr;
     case 2:
             r = 1;
         }
@@ -403,7 +403,7 @@ int LoadTimListStep(void) {
     case 0:
         LoadIndex = 0;
         LoadState = 1;
-        LoadCursor = D_800F4D74;
+        LoadCursor = MenuSharedScratchPtr;
     case 1:
         if (CdFileReadStart(GetR4FileIndex(1, 0x13), LoadCursor)) {
             LoadState = 2;
@@ -479,7 +479,7 @@ int LoadDialogueStep(void) {
             s2 = 0x41;
             s1 = 4;
         }
-        if (CdFileReadRange(GetR4FileIndex(1, s2), s1 * D_800AD564, s1, LoadDestCursor)) {
+        if (CdFileReadRange(GetR4FileIndex(1, s2), s1 * SelectedStoryBranchId, s1, LoadDestCursor)) {
             LoadState = 2;
         }
         break;
@@ -504,7 +504,7 @@ int LoadDialogueStep(void) {
         }
         break;
     case 5:
-        s2 = D_800AD4F4 * 9 + 0x1C;
+        s2 = MenuSelectedTeamId * 9 + 0x1C;
         a0 = LoadIndex;
         s0 = DialogueAssetTable[Dialogue->b4 * 8 + a0];
         if (s0 != -1) {
@@ -585,14 +585,14 @@ int LoadMenuCarModelsStep(void) {
             } else {
                 a1 = 0x45;
             }
-            if (CdFileReadRange(GetR4FileIndex(1, a1), D_800AD564 << 2, 4, D_80104DB0)) {
+            if (CdFileReadRange(GetR4FileIndex(1, a1), SelectedStoryBranchId << 2, 4, SceneOffsetLookupBuf)) {
                 LoadState = 4;
             }
         }
         break;
     case 4:
         if (CdFileBytesLoaded()) {
-            SetupDialogueTable(D_80104DB0);
+            SetupDialogueTable(SceneOffsetLookupBuf);
             LoadState = 5;
     case 5:
             r = 1;
@@ -647,7 +647,7 @@ int LoadSplashAssetsStep(void) {
         }
         break;
     case 3:
-        if (LoadVabPairStep(D_8010C220) != 0) {
+        if (LoadVabPairStep(MenuSoundVabBuffer) != 0) {
             SoundCloseVabsAndReset();
             LoadState = 4;
             LoadCursor = CdDirectoryBuffer;

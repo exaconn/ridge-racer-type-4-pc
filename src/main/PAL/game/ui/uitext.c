@@ -36,8 +36,8 @@ extern s16 ReverseCourse;
 extern s16 SelectedMakerIndex;
 extern u8 SaveProgress[];
 extern s32 NumLaps;
-extern s32 D_80119754;
-extern s32 D_80119758;
+extern s32 TimeAttackBestTotalTimes;
+extern s32 TimeAttackBestLapTimes;
 extern ImagePreset10 PreviewImageRowPresets[];
 extern int EmitPolyFT3();
 
@@ -258,9 +258,9 @@ s32 DrawUiRow(s32 arg0) {
         s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4, s7 + 8, &SaveSlotStatusUvs[0], 0x7FF8, 0);
         s3 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4 + 0x44, s7 + 8, &SaveSlotStatusUvs[1], 0x7FF8, 0);
         if (s6 == 10) {
-            s0 = D_80119754;
+            s0 = TimeAttackBestTotalTimes;
         } else {
-            s0 = D_80119758;
+            s0 = TimeAttackBestLapTimes;
         }
         for (s1 = 0; s1 < s0; s1++) {
             s3 = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], s3, s4 + 0x12 + s1 * 3, s7 + 8, 2, 0x10, 0xFF, 0xFF, 0xFF);

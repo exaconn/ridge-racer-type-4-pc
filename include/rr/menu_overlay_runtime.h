@@ -34,7 +34,7 @@
 
 /* Shared resident storage: one type per symbol in these overlays. */
 #include "rr/cd_directory_buffer.h"
-extern UiUvRect D_8009FAA0[5];
+extern UiUvRect RecordsHeaderSpriteUvs[5];
 extern s32 MenuStepDirection;
 extern CourseChoice4 CourseChoiceTable[2][9];
 extern u32 ScreenFrame;
@@ -52,7 +52,7 @@ extern MenuSettings2C SelectionState;
 extern s16 ReverseCourse;
 extern TimeRecord16 RaceRecords[2][8][5];
 extern FrameStorage DrawBuffers[2];
-extern s32 D_800F2A64;
+extern s32 RaceQuitTargetMode;
 extern s32 RankEntries;
 extern u8 *ImageRows;
 extern RaceSetupPair4 PlayerThrottleLoad;
@@ -64,8 +64,8 @@ extern s16 CourseIndex;
 extern SaveProgressRecord7C SaveProgress;
 extern s16 ModeIndex;
 extern s32 NumLaps;
-extern u16 D_800F3A42;
-extern s32 D_800F3A60;
+extern u16 MenuSelectedCarSlot;
+extern s32 MenuReturnSubmodeIndex;
 extern BadgeRow1C *BadgeRows;
 extern u16 MenuScriptId;
 extern s32 TotalRaceTime;
@@ -76,7 +76,7 @@ extern s32 LapTimes[10];
 #include "rr/menu_arena_base.h"
 extern s16 GameModeType;
 #include "rr/menu_arena_state.h"
-extern u8 *D_800F4D74;
+extern u8 *MenuSharedScratchPtr;
 extern UiRow24 *UiRows;
 extern u16 SubmodeState;
 extern MenuGlyphRow1C *GlyphRows;

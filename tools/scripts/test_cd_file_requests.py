@@ -29,7 +29,7 @@ static struct World {
  CdLocation location;CdFileEntry files[16];u8 buffers[2][32];u8 after[16];
 } world,expected;
 #define CdFileState world.state
-#define D_80109480 world.buffer
+#define CdActiveReadBuffer world.buffer
 #define CdFileIndexCurrent world.index
 #define CdFileSectorOffset world.offset
 #define CdFileSectors world.sectors
@@ -93,7 +93,7 @@ void run_case(unsigned number,unsigned function,s32 file,s32 offset,s32 count,co
 
 def main():
     os.chdir(ROOT); owners = source_owners(ROOT/'src/main/PAL')
-    addresses = {n: address_of(n) for n in ('CdFileState', 'D_80109480', 'CdFileIndexCurrent', 'CdFileSectorOffset', 'CdFileSectors', 'CdFileBytesRead', 'CdFileLocation', 'CdFileTable')}
+    addresses = {n: address_of(n) for n in ('CdFileState', 'CdActiveReadBuffer', 'CdFileIndexCurrent', 'CdFileSectorOffset', 'CdFileSectors', 'CdFileBytesRead', 'CdFileLocation', 'CdFileTable')}
     with TemporaryDirectory() as directory:
         source, library = Path(directory)/'native.c', Path(directory)/'native.dylib'
         prefix = PREFIX.replace('LOCATION_ADDRESS', hex(addresses['CdFileLocation'])+'U').replace('TABLE_ADDRESS', hex(addresses['CdFileTable'])+'U').replace('STATE_SIZE', str(STATE))
@@ -143,7 +143,7 @@ def main():
                 return b''.join(read(addresses[n], 4) for n in list(addresses)[:7])+bytes(4)+read(addresses['CdFileTable'], 128)+read(BUFFERS, 64)
 
             def change(serial):
-                put(addresses['CdFileState'], case*0x1234567+serial); put(addresses['D_80109480'], BUFFERS+((case+serial)&1)*32)
+                put(addresses['CdFileState'], case*0x1234567+serial); put(addresses['CdActiveReadBuffer'], BUFFERS+((case+serial)&1)*32)
                 put(addresses['CdFileIndexCurrent'], (case+serial)&15)
                 put(addresses['CdFileTable']+((case+serial)&15)*8+4, 0x80000000|case)
                 at = BUFFERS+(serial&1)*32+(case&31); write(at, bytes([read(at, 1)[0]^((case+serial)&255)]))

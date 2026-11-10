@@ -47,8 +47,8 @@ void ovl665_update_audio_options(void) {
             UiRows[4].cells[0] = musicState;
             StepMenuValue(1, -1, (char *)&Options.bytes[0x30], 0x11, 0);
             ovl665_saved_bgm_volume = Options.bytes[0x30];
-            SeqSetVolume(D_800F7640);
-            if (D_800F3A60 != 0) {
+            SeqSetVolume(OptionsPreviewBgmVolume);
+            if (MenuReturnSubmodeIndex != 0) {
                 PlaySfx(1);
                 UiRows[4].cells[0] = 1U;
                 ovl665_options_state.layout0C = 7U;
@@ -63,7 +63,7 @@ void ovl665_update_audio_options(void) {
             UiRows[5].cells[0] = effectsState;
             StepMenuValue(1, -1, (char *)&Options.bytes[0x31], 0x11, 0);
             ovl665_saved_sfx_volume = Options.bytes[0x31];
-            if (D_800F3A60 != 0) {
+            if (MenuReturnSubmodeIndex != 0) {
                 PlaySfx(1);
                 UiRows[5].cells[0] = 1U;
                 ovl665_options_state.layout0C = 7U;
@@ -78,7 +78,7 @@ void ovl665_update_audio_options(void) {
             UiRows[Options.audio.mono32 + 6].cells[0] = 0;
             StepMenuValue(0, 2, (char *)&Options.audio.mono32, 2, 0);
             UiRows[Options.audio.mono32 + 6].cells[0] = monoState;
-            if (D_800F3A60 != 0) {
+            if (MenuReturnSubmodeIndex != 0) {
                 PlaySfx(1);
                 UiRows[Options.audio.mono32 + 6].cells[0] = 1;
                 ovl665_options_state.layout0C = 7U;

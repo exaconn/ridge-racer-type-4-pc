@@ -1,7 +1,7 @@
 #include "rr/overlay_menu.h"
 s32 ovl662_draw_history_arrows(u32 unused,s32 mode){
  s32 selected;
- if(mode)selected=D_800F4D99;else selected=SelectionRows.bytes[0];
+ if(mode)selected=ActiveSelectionRowValue;else selected=SelectionRows.bytes[0];
  DrawMenuStepArrows(160,204,48,0,selected,0,4);
  return UpdateGlyphRow(selected);
 }

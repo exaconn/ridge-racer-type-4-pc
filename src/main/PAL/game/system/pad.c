@@ -10,14 +10,14 @@
 #define NULL 0
 #endif
 
-extern s32 D_800FFC08[2];
-extern s32 D_800AD590[2];
-extern s32 D_800F4CD8[2];
+extern s32 PadActuatorInitStage[2];
+extern s32 PadPortConnectionFlags[2];
+extern s32 PadMotorActuatorCmd[2];
 extern s16 TwistRangeLimits[4];
 extern s16 PadRangeLimits[6];
 extern s32 WheelDeadzoneTable[8];
 extern s32 PadDeadzoneTable[8];
-extern s16 D_800F3824;
+extern s16 PadDigitalSteerSpeed;
 int abs(int);
 extern char StrControllerNoErrorFmt[];
 extern char StrActuatorNoErrorFmt[];
@@ -36,28 +36,28 @@ void PadUpdate(void) {
         states[i]->input00.fields.status = ports[i]->status00;
         states[i]->input00.fields.type = ports[i]->type01;
         if (ports[i]->status00 != 0) {
-            D_800FFC08[i] = 1;
-            D_800F4CD8[i] = 0x22;
-            D_800AD590[i] |= 0x10;
-        } else if (D_800F4CD8 != NULL) {
-            D_800F4CD8[i]--;
+            PadActuatorInitStage[i] = 1;
+            PadMotorActuatorCmd[i] = 0x22;
+            PadPortConnectionFlags[i] |= 0x10;
+        } else if (PadMotorActuatorCmd != NULL) {
+            PadMotorActuatorCmd[i]--;
             if (ports[i]->type01 == 0x23) {
                 u16 btn = ~((ports[i]->data02 << 8) | ports[i]->data03);
                 if ((btn & 0x5000) == 0x5000 || (btn & 0xA000) == 0xA000 || (btn & 0x1C4)) {
-                    D_800FFC08[i] = 2;
-                    D_800F4CD8[i] = 0x22;
-                    D_800AD590[i] |= 0x10;
+                    PadActuatorInitStage[i] = 2;
+                    PadMotorActuatorCmd[i] = 0x22;
+                    PadPortConnectionFlags[i] |= 0x10;
                 }
             }
         }
-        D_800AD590[i] >>= 1;
-        if (D_800AD590[i] != 0) {
+        PadPortConnectionFlags[i] >>= 1;
+        if (PadPortConnectionFlags[i] != 0) {
             PadPort28 *port = ports[i];
             ControllerState5C *pad = states[i];
             port->type01 = 0;
             pad->input00.fields.type = 0;
         } else {
-            D_800FFC08[i] = 0;
+            PadActuatorInitStage[i] = 0;
         }
         if (states[i]->input00.fields.type != 0 && states[i]->protocol10 < 0) {
             if (states[i]->input00.fields.type == 0x41) {
@@ -76,7 +76,7 @@ void PadUpdate(void) {
             states[i]->input00.fields.buttons = ~((ports[i]->data02 << 8) | ports[i]->data03);
             states[i]->edges08.fields.pressed = states[i]->input00.fields.buttons & ~states[i]->previous04;
             states[i]->released06 = states[i]->previous04 & (states[i]->input00.fields.buttons ^ states[i]->previous04);
-            states[i]->steering20 = (((states[i]->input00.fields.buttons >> 13) & 1) - ((states[i]->input00.fields.buttons & 0x8000) ? 1 : 0)) * TwistRangeLimits[D_800F3824] + 0x80;
+            states[i]->steering20 = (((states[i]->input00.fields.buttons >> 13) & 1) - ((states[i]->input00.fields.buttons & 0x8000) ? 1 : 0)) * TwistRangeLimits[PadDigitalSteerSpeed] + 0x80;
             states[i]->pressure22 = (states[i]->input00.fields.buttons & 0x40) ? 0x6A : 0;
             states[i]->pressure24 = (states[i]->input00.fields.buttons & 0x80) ? 0x6A : 0;
             states[i]->pressure26 = (states[i]->input00.fields.buttons & 4) ? 0x6A : 0;
@@ -195,8 +195,8 @@ void PadUpdate(void) {
             states[i]->idleTick58 = 0;
             break;
         default:
-            if (D_800FFC08[i] == 0) {
-                D_800FFC08[i] = 2;
+            if (PadActuatorInitStage[i] == 0) {
+                PadActuatorInitStage[i] = 2;
             }
             states[i]->input00.fields.status = 1;
             states[i]->input00.fields.buttons = 0;

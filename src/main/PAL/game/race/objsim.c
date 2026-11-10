@@ -16,12 +16,12 @@ extern int MenuSoundEffectMap;
 extern int ModeFrame;
 extern short CourseIndex;
 extern int RaceState;
-extern int D_8010E7A8;
-extern int D_8010E7AC;
-extern int D_8010E7B0;
-extern int D_8010E7B4;
-extern int D_8010E7B8;
-extern int D_8010E7C8[];
+extern int ObjSimBlimpTrackNode;
+extern int ObjSimJetTrackNode;
+extern int ObjSimCopterTrackNode;
+extern int ObjSimTrainTrackNode;
+extern int ObjSimEventTriggerNode;
+extern int ObjSimLastActiveFrame[];
 
 s32 InterpolateObjectKeyframe(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7) {
     s32 *sp = (s32 *)(SCRATCHPAD + 0x7C);
@@ -194,10 +194,10 @@ void UpdateTrackObjects(void) {
                         if ((unsigned short)GameModeType - 2 < 3U) {
                             a2 = TrackObjectStates[i].f0;
                             TrackObjectStates[i].f0 = a2 + 1;
-                            if (D_8010E7C8[i] == ModeFrame) {
+                            if (ObjSimLastActiveFrame[i] == ModeFrame) {
                                 TrackObjectStates[i].f0 = a2;
                             }
-                            D_8010E7C8[i] = ModeFrame;
+                            ObjSimLastActiveFrame[i] = ModeFrame;
                         } else {
                             TrackObjectStates[i].f0++;
                         }
@@ -288,59 +288,59 @@ void UpdateTrackObjects(void) {
                                         }
                                         break;
                                     }
-                                    D_8010E7A8 = 0x37;
-                                    D_8010E7AC = 0x36;
-                                    D_8010E7B0 = 0x35;
-                                    D_8010E7B4 = 0x20;
+                                    ObjSimBlimpTrackNode = 0x37;
+                                    ObjSimJetTrackNode = 0x36;
+                                    ObjSimCopterTrackNode = 0x35;
+                                    ObjSimTrainTrackNode = 0x20;
                                     if (ModeFrame == 0xAF) {
                                         if (TrackObjectStates[i].f8 != 4) {
                                             TrackObjectStates[i].f24 = -1;
                                         }
                                     }
                                 } else {
-                                    MenuSoundEffectMap += D_8010E7B4;
+                                    MenuSoundEffectMap += ObjSimTrainTrackNode;
                                     if (MenuSoundEffectMap >= 0x80) {
                                         MenuSoundEffectMap -= 0x80;
-                                        a0 = D_8010E7B0 - 1;
-                                        if (D_8010E7B0 <= 0) {
+                                        a0 = ObjSimCopterTrackNode - 1;
+                                        if (ObjSimCopterTrackNode <= 0) {
                                             a0 += TrackNodeCount;
                                         }
-                                        D_8010E7B0 = a0;
-                                        v1 = D_8010E7AC - 1;
-                                        if (D_8010E7AC <= 0) {
+                                        ObjSimCopterTrackNode = a0;
+                                        v1 = ObjSimJetTrackNode - 1;
+                                        if (ObjSimJetTrackNode <= 0) {
                                             v1 += TrackNodeCount;
                                         }
-                                        D_8010E7AC = v1;
-                                        v1 = D_8010E7A8 - 1;
-                                        if (D_8010E7A8 <= 0) {
+                                        ObjSimJetTrackNode = v1;
+                                        v1 = ObjSimBlimpTrackNode - 1;
+                                        if (ObjSimBlimpTrackNode <= 0) {
                                             v1 += TrackNodeCount;
                                         }
-                                        D_8010E7A8 = v1;
+                                        ObjSimBlimpTrackNode = v1;
                                     }
-                                    sp[2] = (((TrackNodes[D_8010E7AC].x08 - TrackNodes[D_8010E7A8].x08) * MenuSoundEffectMap) >> 5) + TrackNodes[D_8010E7A8].x08 * 4;
-                                    sp[3] = (((TrackNodes[D_8010E7AC].y10 - TrackNodes[D_8010E7A8].y10) * MenuSoundEffectMap) >> 7) + TrackNodes[D_8010E7A8].y10;
-                                    sp[4] = (((TrackNodes[D_8010E7AC].z0C - TrackNodes[D_8010E7A8].z0C) * MenuSoundEffectMap) >> 5) + TrackNodes[D_8010E7A8].z0C * 4;
-                                    sp[5] = ((((TrackNodes[D_8010E7B0].x08 - TrackNodes[D_8010E7AC].x08) * MenuSoundEffectMap) >> 5) + TrackNodes[D_8010E7AC].x08 * 4) - sp[2];
-                                    sp[6] = ((((TrackNodes[D_8010E7B0].y10 - TrackNodes[D_8010E7AC].y10) * MenuSoundEffectMap) >> 7) + TrackNodes[D_8010E7AC].y10) - sp[3];
-                                    sp[7] = ((((TrackNodes[D_8010E7B0].z0C - TrackNodes[D_8010E7AC].z0C) * MenuSoundEffectMap) >> 5) + TrackNodes[D_8010E7AC].z0C * 4) - sp[4];
+                                    sp[2] = (((TrackNodes[ObjSimJetTrackNode].x08 - TrackNodes[ObjSimBlimpTrackNode].x08) * MenuSoundEffectMap) >> 5) + TrackNodes[ObjSimBlimpTrackNode].x08 * 4;
+                                    sp[3] = (((TrackNodes[ObjSimJetTrackNode].y10 - TrackNodes[ObjSimBlimpTrackNode].y10) * MenuSoundEffectMap) >> 7) + TrackNodes[ObjSimBlimpTrackNode].y10;
+                                    sp[4] = (((TrackNodes[ObjSimJetTrackNode].z0C - TrackNodes[ObjSimBlimpTrackNode].z0C) * MenuSoundEffectMap) >> 5) + TrackNodes[ObjSimBlimpTrackNode].z0C * 4;
+                                    sp[5] = ((((TrackNodes[ObjSimCopterTrackNode].x08 - TrackNodes[ObjSimJetTrackNode].x08) * MenuSoundEffectMap) >> 5) + TrackNodes[ObjSimJetTrackNode].x08 * 4) - sp[2];
+                                    sp[6] = ((((TrackNodes[ObjSimCopterTrackNode].y10 - TrackNodes[ObjSimJetTrackNode].y10) * MenuSoundEffectMap) >> 7) + TrackNodes[ObjSimJetTrackNode].y10) - sp[3];
+                                    sp[7] = ((((TrackNodes[ObjSimCopterTrackNode].z0C - TrackNodes[ObjSimJetTrackNode].z0C) * MenuSoundEffectMap) >> 5) + TrackNodes[ObjSimJetTrackNode].z0C * 4) - sp[4];
                                     TrackObjectStates[i].fC += sp[2];
                                     TrackObjectStates[i].f10 += sp[3] - 0xFA;
                                     TrackObjectStates[i].f14 += sp[4];
                                     sp[8] = 0x400 - Atan2Table(sp[5], sp[7]);
-                                    if (sp[8] == D_8010E7B8) {
-                                        D_8010E7B4 += (D_8010E7B4 < 0x2C);
-                                    } else if ((sp[8] >> 4) == (D_8010E7B8 >> 4)) {
-                                        if (D_8010E7B4 < 0x26) {
-                                            D_8010E7B4++;
-                                        } else if (D_8010E7B4 >= 0x27) {
-                                            D_8010E7B4--;
+                                    if (sp[8] == ObjSimEventTriggerNode) {
+                                        ObjSimTrainTrackNode += (ObjSimTrainTrackNode < 0x2C);
+                                    } else if ((sp[8] >> 4) == (ObjSimEventTriggerNode >> 4)) {
+                                        if (ObjSimTrainTrackNode < 0x26) {
+                                            ObjSimTrainTrackNode++;
+                                        } else if (ObjSimTrainTrackNode >= 0x27) {
+                                            ObjSimTrainTrackNode--;
                                         }
                                     } else {
-                                        D_8010E7B4 -= (D_8010E7B4 >= 0x22);
+                                        ObjSimTrainTrackNode -= (ObjSimTrainTrackNode >= 0x22);
                                     }
                                     r6 = sp[8];
                                     TrackObjectStates[i].f1E = r6;
-                                    D_8010E7B8 = r6;
+                                    ObjSimEventTriggerNode = r6;
                                     TrackObjectStates[i].f1C = 0x400 - Atan2Table(sp[6], CordicSqrt(sp[5] * sp[5] + sp[7] * sp[7]) >> 6);
                                     TrackObjectStates[i].f20 = 0;
                                 }

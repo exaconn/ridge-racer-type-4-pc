@@ -138,7 +138,7 @@ void SplashModeUpdate(void) {
     if (temp_v0 == 1) {
         ModeFrame += 1;
         if (SplashLogoUpdate(LoadSaveFromCardStep(1) == 1) == temp_v0) {
-            SetCdMixMode(D_800AD55A);
+            SetCdMixMode(CdAudioMixChannelMode);
             SubmodeState = 0;
             ModeGroup = (s16) ((u16) PendingModeId >> 8);
             ModeIndex = PendingModeId & 0xFF;

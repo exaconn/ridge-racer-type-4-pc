@@ -38,17 +38,17 @@ extern short LinkState;
 extern s16 MenuScriptId;
 extern char LinkRaceSyncFlags[];
 extern char SelectedCourseChoice[];
-extern char D_800ACBD8[];
+extern char LinkCarSyncStateBuf[];
 extern char CourseIndex[];
 extern char NumLaps[];
-extern char D_800F4DA0[];
-extern char D_8010C0A0[];
+extern char LinkRacePositionSyncBuf[];
+extern char LinkPlayerPacketBuf[];
 extern short ActiveSceneId;
 extern short MenuTransitionOverlayMode;
 extern char StrLinkError[];
 extern char PressStartStr[];
 extern short FadeCountdown;
-extern int D_800F3A60;
+extern int MenuReturnSubmodeIndex;
 extern char StrLinkBattleEnd[];
 extern char PressStartText[];
 extern s32 MaskBitSetting;
@@ -57,7 +57,7 @@ extern void func_80117C78();
 extern void func_801154D8();
 extern void func_80118634();
 extern void func_80115388();
-extern int D_8010C0E0;
+extern int LinkCommTimeoutTimer;
 extern char ScreenFadeState;
 extern MenuSettings2C SelectionState;
 extern int TotalRaceTime;
@@ -204,9 +204,9 @@ void LinkExchangeModeUpdate(void) {
         return;
     case 1:
         if (LinkExchange(LinkRaceSyncFlags, LinkRaceSyncFlags - 2, 2, 1) == -1) { LinkState = 3; return; }
-        if (LinkExchange(D_8010C0A0, D_8010C0A0 - 0x18, 0x18, 1) == -1) { LinkState = 3; return; }
-        if (LinkExchange(D_800F4DA0, D_800F4DA0 - 8, 8, 1) == -1) { LinkState = 3; return; }
-        if (LinkExchange(D_800ACBD8, D_800ACBD8 - 8, 8, 1) == -1) { LinkState = 3; return; }
+        if (LinkExchange(LinkPlayerPacketBuf, LinkPlayerPacketBuf - 0x18, 0x18, 1) == -1) { LinkState = 3; return; }
+        if (LinkExchange(LinkRacePositionSyncBuf, LinkRacePositionSyncBuf - 8, 8, 1) == -1) { LinkState = 3; return; }
+        if (LinkExchange(LinkCarSyncStateBuf, LinkCarSyncStateBuf - 8, 8, 1) == -1) { LinkState = 3; return; }
         if (LinkExchange(CourseIndex, CourseIndex, 2, 0) == -1) { LinkState = 3; return; }
         if (LinkExchange(SelectedCourseChoice, SelectedCourseChoice, 2, 0) == -1) { LinkState = 3; return; }
         if (LinkExchange(NumLaps, NumLaps, 4, 0) == -1) { LinkState = 3; return; }
@@ -259,7 +259,7 @@ void LinkErrorModeUpdate(void) {
       g = (GpuScratchPointers *)SCRATCHPAD;
       new_var = g->cursor;
       g->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], new_var, 0x78, 0x100, StrLinkError, 0x7F38, 0, 1), 0x78, 0x114, PressStartStr, 0x7F38, 0, 1), 0, 0, 0x140, 0x200, 0x80, 0, 0), 0x5E);
-      if (D_800F3A60 == 0)
+      if (MenuReturnSubmodeIndex == 0)
     {
       if (ModeFrame < 0xFBU)
       {
@@ -312,7 +312,7 @@ void LinkBattleEndModeUpdate(void)
       ModeFrame++;
       new_var = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
       ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[0], new_var, 0x78, 0x100, StrLinkBattleEnd, 0x7F38, 0, 1), 0x78, 0x114, PressStartText, 0x7F38, 0, 1), 0x3E);
-      if (D_800F3A60 == 0)
+      if (MenuReturnSubmodeIndex == 0)
     {
       if (ModeFrame < 0xFBU)
       {
@@ -375,7 +375,7 @@ void InitPostRaceScreen(void) {
     SetupDrawDispEnvs(0, 0, 0, 2);
     VSyncThreshold = 0x80;
     ModeFrame = 0;
-    D_8010C0E0 = 0;
+    LinkCommTimeoutTimer = 0;
     ScreenFadeState = 2;
     SoundCloseVabsAndReset();
     switch (GameModeType) {
@@ -411,14 +411,14 @@ void PostRaceScreenModeUpdate(void) {
 
     ModeFrame += 1;
     UpdateScreenFade(1);
-    if ((ModeFrame >= 0x1C2U || D_800F3A60 != 0) && D_8010C0E0 <= 0) {
-        D_8010C0E0 += 1;
+    if ((ModeFrame >= 0x1C2U || MenuReturnSubmodeIndex != 0) && LinkCommTimeoutTimer <= 0) {
+        LinkCommTimeoutTimer += 1;
         ModeFrame = 0;
         return;
     }
-    temp_s0 = D_8010C0E0;
+    temp_s0 = LinkCommTimeoutTimer;
     if (temp_s0 == 1) {
-        if (D_800F3A60 != 0) {
+        if (MenuReturnSubmodeIndex != 0) {
             ModeFrame = 0;
             ResetScreenCounters();
             ModeGroup = (s16) temp_s0;

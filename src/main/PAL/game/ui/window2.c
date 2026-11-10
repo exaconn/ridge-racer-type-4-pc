@@ -13,10 +13,10 @@
 
 struct HudNumberTargetPair28 { char *p0; char *p4; short s8, sA, sC, sE, s10, s12; char *p14; char *p18; short s1C, s1E, s20, s22, s24, s26; };
 
-extern char D_800ADB60[];
-extern char D_800D02D8[];
-extern char D_800AE660[];
-extern char D_800D0DD8[];
+extern char HudPrimaryDigitBuffer[];
+extern char HudSecondaryDigitBuffer[];
+extern char ViewportRenderEnvLeft[];
+extern char ViewportRenderEnvRight[];
 extern char UiRowDefaultPresets[];
 extern char GlyphRowDefaultPresets[];
 
@@ -35,8 +35,8 @@ void InitHudNumberTargets(int a0) {
             goto w3g0b;
         }
     }
-    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p0 = D_800ADB60;
-    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p4 = D_800D02D8;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p0 = HudPrimaryDigitBuffer;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p4 = HudSecondaryDigitBuffer;
     ((struct HudNumberTargetPair28 *)HudNumberTargets)->s8 = 0x106;
     ((struct HudNumberTargetPair28 *)HudNumberTargets)->sA = 0xE6;
     ((struct HudNumberTargetPair28 *)HudNumberTargets)->sC = 0x122;
@@ -45,16 +45,16 @@ void InitHudNumberTargets(int a0) {
     ((struct HudNumberTargetPair28 *)HudNumberTargets)->s12 = 0xCE;
     return;
 w3g0b:
-    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p0 = D_800AE660;
-    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p4 = D_800D0DD8;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p0 = ViewportRenderEnvLeft;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p4 = ViewportRenderEnvRight;
     ((struct HudNumberTargetPair28 *)HudNumberTargets)->s8 = 0xFC;
     ((struct HudNumberTargetPair28 *)HudNumberTargets)->sA = 0x58;
     ((struct HudNumberTargetPair28 *)HudNumberTargets)->sC = 0x128;
     ((struct HudNumberTargetPair28 *)HudNumberTargets)->sE = 0x4A;
     ((struct HudNumberTargetPair28 *)HudNumberTargets)->s10 = 0xFC;
     ((struct HudNumberTargetPair28 *)HudNumberTargets)->s12 = 0x68;
-    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p14 = D_800AE660;
-    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p18 = D_800D0DD8;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p14 = ViewportRenderEnvLeft;
+    ((struct HudNumberTargetPair28 *)HudNumberTargets)->p18 = ViewportRenderEnvRight;
     ((struct HudNumberTargetPair28 *)HudNumberTargets)->s1C = 0xFC;
     ((struct HudNumberTargetPair28 *)HudNumberTargets)->s1E = 0xD8;
     ((struct HudNumberTargetPair28 *)HudNumberTargets)->s20 = 0x122;

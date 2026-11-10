@@ -11,7 +11,7 @@ void ovl667_init_course_menu(void)
     ScreenFrame=0;
     MenuCursor=0;
     MenuItemCount=3;
-    D_8010C068=0;
+    LinkRaceAbortFlag=0;
     choice=DecodeCourseIndex(SelectedCourseChoice);
     CourseIndex=choice;
     ResetScreenCounters();
@@ -25,6 +25,6 @@ void ovl667_init_course_menu(void)
     ComCars.words20[1]=0;
     ComCars.words20[2]=0;
     ActivePlayerIndex=0;
-    D_8010C0B8=0;
+    LinkMenuSyncPhase=0;
     LoadCursor=MenuArenas.second;
 }

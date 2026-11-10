@@ -38,7 +38,7 @@ extern u32 ModeFrame;
 extern short SelectedMakerIndex;
 extern BadgeRow1C *BadgeRows;
 extern int MenuStepDirection;
-extern int D_800F3A60;
+extern int MenuReturnSubmodeIndex;
 
 void DrawResultsRankIcons(void);
 void SetMenuTextRowStyle();
@@ -275,7 +275,7 @@ void ModeSelectMenuUpdate(void) {
         }
     }
     if (Dialogue->b4 == 1) {
-        if (D_800F3A60 == 0) {
+        if (MenuReturnSubmodeIndex == 0) {
             if (ModeFrame < 0x1F5) return;
         }
         a2 = Dialogue->st;

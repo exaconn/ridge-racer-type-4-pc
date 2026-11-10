@@ -50,13 +50,13 @@ static unsigned colorLength,arenaLength,number,eventCount;static u32 randomState
 static struct {u8 before[16];u32 words[1024];u8 after[16];} ordering;
 static AnimatedTrackScratch camera,draw;
 #define SCRATCHPAD ((u8*)&camera)
-AnimatedTrackParticle (*D_8010E738)[255];
-const AnimatedTrackColorKey *D_8010E740[9],*D_8010E768[9];
-AnimatedTrackObject *D_8010E78C;
+AnimatedTrackParticle (*TrackParticlePoolPtr)[255];
+const AnimatedTrackColorKey *TrackColorKeysPrimary[9],*TrackColorKeysSecondary[9];
+AnimatedTrackObject *AnimatedTrackObjPool;
 MatrixWords32 ColorMatrix,HalfTransViewMatrix;
 Vec3sFields8 LightSourceAngles[3];
 s32 DrawBufIndex;
-s16 D_80107180[3];
+s16 PolyStripTempCoords[3];
 static u32 next(u32 x){x^=x<<13;x^=x>>17;x^=x<<5;return x;}
 static s32 signed32(u32 x){s32 v;memcpy(&v,&x,4);return v;}
 static s16 signed16(u16 x){s16 v;memcpy(&v,&x,2);return v;}
@@ -134,7 +134,7 @@ static void guards(void){
  for(unsigned i=0;i<16;i++)assert(allocation[i]==0xA5&&allocation[16+arenaLength+i]==0xA5&&ordering.before[i]==0xA5&&ordering.after[i]==0xA5);
  for(unsigned i=sizeof(arena->particles);i<offsetof(AnimatedTrackArena,objects);i++)assert(((u8*)arena)[i]==0);
  for(unsigned n=0;n<5;n++)for(unsigned i=offsetof(AnimatedTrackObject,style3C)+4;i<offsetof(AnimatedTrackObject,keys40);i++)assert(((u8*)&arena->objects[n])[i]==0);
- assert((uintptr_t)arena>UINT32_MAX&&D_8010E78C==arena->objects&&D_8010E738==arena->particles);
+ assert((uintptr_t)arena>UINT32_MAX&&AnimatedTrackObjPool==arena->objects&&TrackParticlePoolPtr==arena->particles);
 }
 static void scene_wire(u8 *out,const AnimatedTrackScratch *s){
  memset(out,0,228);put32(out,pointer(s->scene.view.projection.pointers.cursor));put32(out+4,pointer(s->scene.view.projection.pointers.order));
@@ -154,10 +154,10 @@ void capture(u8 *out){
  }
  memcpy(out+0xB824,arena->packets,51000);memcpy(out+0x17F5C,arena->colorOffsets,colorLength);out+=0x17F5C+colorLength;
  memcpy(out,ordering.words,4096);out+=4096;scene_wire(out,&camera);scene_wire(out+228,&draw);out+=456;
- memcpy(out,&ColorMatrix,32);memcpy(out+32,&HalfTransViewMatrix,32);memcpy(out+64,LightSourceAngles,24);memcpy(out+88,D_80107180,6);memset(out+94,0,2);
+ memcpy(out,&ColorMatrix,32);memcpy(out+32,&HalfTransViewMatrix,32);memcpy(out+64,LightSourceAngles,24);memcpy(out+88,PolyStripTempCoords,6);memset(out+94,0,2);
  put32(out+96,(u32)DrawBufIndex);memcpy(out+100,farColor,12);put32(out+112,randomState);
- put32(out+116,pointer(D_8010E738));put32(out+120,pointer(D_8010E78C));
- for(unsigned i=0;i<9;i++){put32(out+124+i*4,pointer(D_8010E740[i]));put32(out+160+i*4,pointer(D_8010E768[i]));}
+ put32(out+116,pointer(TrackParticlePoolPtr));put32(out+120,pointer(AnimatedTrackObjPool));
+ for(unsigned i=0;i<9;i++){put32(out+124+i*4,pointer(TrackColorKeysPrimary[i]));put32(out+160+i*4,pointer(TrackColorKeysSecondary[i]));}
 }
 void prepare(const u8 *payload,unsigned length){
  assert(sizeof(void*)==8);colorLength=length;arenaLength=sizeof(AnimatedTrackArena)+length-72;
@@ -173,9 +173,9 @@ void configure(unsigned operation,unsigned n,u8 *before){
  memset(&camera,0,sizeof(camera));memset(&draw,0,sizeof(draw));camera.scene.view.projection.pointers.cursor=(u8*)arena->packets;camera.scene.view.projection.pointers.order=ordering.words;
  camera.scene.view.projection.pose08.position00.xyz.x=(s32)(n*77U%1000000U)-500000;camera.scene.view.projection.pose08.position00.xyz.y=(s32)(n*13U%1000000U)-500000;camera.scene.view.projection.pose08.position00.xyz.z=(s32)(n*91U%1000000U)-500000;draw=camera;
  u32 seed=n+0x1234U;for(unsigned i=0;i<8;i++){seed=next(seed);ColorMatrix.w[i]=signed32(seed);seed=next(seed);HalfTransViewMatrix.w[i]=signed32(seed);}
- for(unsigned i=0;i<3;i++){LightSourceAngles[i]=(Vec3sFields8){(s16)n,(s16)(n+1),(s16)(n+2),(s16)0x7788};D_80107180[i]=(s16)(n%1024U+i*100U);farColor[i]=n*0x1234567U+i;}
+ for(unsigned i=0;i<3;i++){LightSourceAngles[i]=(Vec3sFields8){(s16)n,(s16)(n+1),(s16)(n+2),(s16)0x7788};PolyStripTempCoords[i]=(s16)(n%1024U+i*100U);farColor[i]=n*0x1234567U+i;}
  DrawBufIndex=(n/5U)%2U;randomState=n+0x3456U;
- AnimatedTrackObject *o=&arena->objects[n%5U];o->particles00=arena->particles[n%5U];o->style3C=(s32)(n/10U%9U);o->keys40=D_8010E740[o->style3C];o->keys44=D_8010E768[o->style3C];
+ AnimatedTrackObject *o=&arena->objects[n%5U];o->particles00=arena->particles[n%5U];o->style3C=(s32)(n/10U%9U);o->keys40=TrackColorKeysPrimary[o->style3C];o->keys44=TrackColorKeysSecondary[o->style3C];
  o->capacity08=255;o->initialized10=255;o->frame14=32+(s32)(n%150U);o->startFrame28=32;o->endFrame2C=181;o->advance30=1;
  o->positionC8=(Vec3i){(s32)(n*7U%10000U)-5000,(s32)(n*11U%10000U)-5000,(s32)(n*17U%10000U)-5000};o->anglesD8=(Vec3i){(s32)(n*97U),(s32)(n*137U),(s32)(n*197U)};
  if(operation==3){
@@ -192,7 +192,7 @@ void configure(unsigned operation,unsigned n,u8 *before){
  if(n>=720U){
   for(unsigned i=0;i<sizeof(arena->particles);i++)((u8*)arena->particles)[i]=(u8)(n*17U+i*29U);
   for(unsigned i=0;i<16;i++){o->palette48.words[i]=0x52000000U|((n*0x171717U+i)&0xFFFFFFU);o->palette88.words[i]=0x52000000U|((n*0x123456U+i)&0xFFFFFFU);}
-  if(n&32U)o->keys44=D_8010E740[o->style3C];
+  if(n&32U)o->keys44=TrackColorKeysPrimary[o->style3C];
   if(n&64U){const AnimatedTrackColorKey *k=o->keys44;while(k->duration!=-1)k++;o->keyIndex38=(s32)(k-o->keys44);}
   static const u32 ticks[]={0,1,2,0x80000000U,0xFFFFFFFFU,0x7FFFFFFFU};
   o->colorTick18=signed32(ticks[n%6U]);o->colorTick1C=signed32(ticks[n/6U%6U]);
@@ -278,8 +278,8 @@ class AnimatedTrackOwnerTest(unittest.TestCase):
             else:self.fail('unterminated original color key table')
             end=max(end,cursor)
         colors=scene[start:end];arena_size=0x17F5C+len(colors);global_at=arena_size+4096+456
-        fields=[('ColorMatrix',0,32),('HalfTransViewMatrix',32,32),('LightSourceAngles',64,24),('D_80107180',88,6),('DrawBufIndex',96,4),
-                ('D_8010E738',116,4),('D_8010E78C',120,4),('D_8010E740',124,36),('D_8010E768',160,36)]
+        fields=[('ColorMatrix',0,32),('HalfTransViewMatrix',32,32),('LightSourceAngles',64,24),('PolyStripTempCoords',88,6),('DrawBufIndex',96,4),
+                ('TrackParticlePoolPtr',116,4),('AnimatedTrackObjPool',120,4),('TrackColorKeysPrimary',124,36),('TrackColorKeysSecondary',160,36)]
         addresses={n:address_of(n) for n,_,_ in fields};starts={n:address_of(n) for n in NAMES};services={address_of(n):n for n in SERVICES}
         exe=(ROOT/'assets/PAL/main.exe').read_bytes();base=struct.unpack_from('<I',exe,24)[0]
         variants={'original':{}}

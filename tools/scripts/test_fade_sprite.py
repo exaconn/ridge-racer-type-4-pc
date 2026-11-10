@@ -47,8 +47,8 @@ static World actual,expected;
 static Trace actual_log,expected_log;
 static int mutate,return_offset,return_kind,original_selector;
 #define CurrentDrawBuf actual.context
-#define D_800ACA3C actual.phase
-#define D_800ACA38 actual.gain
+#define FadeSpritePhaseAngle actual.phase
+#define FadeSpriteIntensityScale actual.gain
 #define HudCourseMapScaleTable actual.uv
 #define FadeSpriteDrawModes actual.modes
 '''+body+r'''

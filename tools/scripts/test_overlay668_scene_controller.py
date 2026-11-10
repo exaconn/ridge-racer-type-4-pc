@@ -28,8 +28,8 @@ static struct State{u32 guard[4];ReplayCameraContextPrefix camera;ReplayEvent ev
 #define ovl668_epilogue_events w->events
 #define PlayerControllers w->input
 #define CurrentDrawBuf (&w->contexts[w->root])
-#define D_80127E90 w->textPosition
-#define D_80127E94 w->textDelta
+#define EpilogueCreditScrollY w->textPosition
+#define EpilogueCreditScrollStep w->textDelta
 #define ModeGroup w->enable
 #define ModeIndex w->scene
 #define SubmodeState w->phase

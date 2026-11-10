@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern int D_8010E220;
+extern int CdPlaybackTrackIndex;
 void CdAudioFindStreamFile(void);
 
 #endif /* RR_GAME_SOUND_CDPOS_H */

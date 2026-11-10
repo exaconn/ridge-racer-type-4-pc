@@ -15,7 +15,7 @@ void ovl665_update_brightness_panel(void) {
         if(BadgeRows[0].state10==3)ovl665_options_state.layout0C=2;
         break;
     case 2:
-        if(D_800F3A60) {
+        if(MenuReturnSubmodeIndex) {
             PlaySfx(1);
             BadgeRows[0].state10=4;
             FadeCountdown=64;

@@ -127,11 +127,11 @@ extern signed char SelectionState[];
 
 extern int BgmNumberToCdTrack[];
 
-extern int D_800F3970;
+extern int ExtraModeUnlockedFlag;
 
 extern int RaceBgmListIndex;
 
-extern int D_800F7660;
+extern int HudMinimapFadeAlpha;
 
 void SelectCourseBgmTrack() {
     int a0, a1, v;
@@ -141,10 +141,10 @@ void SelectCourseBgmTrack() {
     } else {
         a0 = 1;
     }
-    if (D_800F3970 != 0 && GameModeType != 1) {
-        D_800F7660 = 0x10;
+    if (ExtraModeUnlockedFlag != 0 && GameModeType != 1) {
+        HudMinimapFadeAlpha = 0x10;
     } else {
-        D_800F7660 = 0xF;
+        HudMinimapFadeAlpha = 0xF;
     }
     if (a0 == 0) {
         a1 = CourseIndex + 3;

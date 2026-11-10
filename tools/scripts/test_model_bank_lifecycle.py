@@ -51,8 +51,8 @@ static World live,wanted;
 #define ModelBankFormat live.count.value
 #define SCRATCHPAD ((u8*)&live.scratch.value)
 #define MirrorRenderFlag live.flags.value
-#define D_800F3A18 live.color.gouraud
-#define D_800F3A20 live.color.flat
+#define LoadingScreenClearColor live.color.gouraud
+#define DefaultScreenClearColor live.color.flat
 #define ModelTexturePage live.page
 static char UnknownRroTypeFmt[]="unexpected bank command";
 static unsigned events,expectedEvents,colors;
@@ -220,7 +220,7 @@ def oracle(data, slot, texture_slot, shift, flags, delta):
     colors, format_owner = bytearray([0xA5] * 44), bytearray([0xA5] * 36)
     snapshots, trace = [], []
     banks, model_format = address_of('ModelBankTable'), address_of('ModelBankFormat')
-    flat, gouraud = address_of('D_800F3A20'), address_of('D_800F3A18')
+    flat, gouraud = address_of('DefaultScreenClearColor'), address_of('LoadingScreenClearColor')
     def put(target, at, size, value, address):
         value &= (1 << (8 * size)) - 1
         target[at:at + size] = value.to_bytes(size, 'little')
@@ -365,7 +365,7 @@ class ModelBankLifecycleTest(unittest.TestCase):
                 write(SCRATCH, scratch)
                 write(address_of('ModelBankTable') - 16, table)
                 write(address_of('ModelBankFormat') - 16, bytes([0xA5] * 36))
-                write(address_of('D_800F3A18') - 16, bytes([0xA5] * 44))
+                write(address_of('LoadingScreenClearColor') - 16, bytes([0xA5] * 44))
                 write(address_of('MirrorRenderFlag') - 16, bytes([0xA7] * 16) + struct.pack('<I', flags) + bytes([0xA7] * 16))
                 write(STACK - 64, bytes([0xAC] * 128))
                 args = [(BANK, slot), (shift & 0xFFFFFFFF,), (slot,), (BANK, texture & 0xFFFFFFFF), (BANK, BANK + delta)]
@@ -389,7 +389,7 @@ class ModelBankLifecycleTest(unittest.TestCase):
                         register_value=lambda r:memory.reg_read(UC_MIPS_REG_0+r)
                     self.assertEqual(pc,STOP,(variant,engine,seed,name))
                     actual = (read(ARENA, SIZE) + read(SCRATCH, 124) + read(address_of('ModelBankTable') - 16, 96)
-                              + read(address_of('D_800F3A18') - 16, 44) + read(address_of('ModelBankFormat') - 16, 36))
+                              + read(address_of('LoadingScreenClearColor') - 16, 44) + read(address_of('ModelBankFormat') - 16, 36))
                     self.assertEqual(actual, expected[phase][0], (variant, engine, seed, name))
                     self.assertEqual(read(ARENA - 16, 16) + read(ARENA + SIZE, 16), bytes([0xA6] * 32))
                     self.assertEqual(read(SCRATCH + 124, 512 - 124), bytes([0xA5] * (512 - 124)))

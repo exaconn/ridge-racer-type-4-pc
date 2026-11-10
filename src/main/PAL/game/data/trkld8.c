@@ -16,7 +16,7 @@
 #include "rr/audio_state_types.h"
 #include "game/course/trkintp2.h"
 extern short SelectedTeamIndex;
-extern int D_800AD564;
+extern int SelectedStoryBranchId;
 extern short CourseIndex;
 #include "rr/menu_arena_base.h"
 extern char RaceContext[];
@@ -64,7 +64,7 @@ int LoadIntroSceneStep(void) {
         }
         return v;
     case 4:
-        g = D_800AD564 << 2;
+        g = SelectedStoryBranchId << 2;
         h = SelectedTeamIndex + 0x97;
         v = CdFileReadStart(GetR4FileIndex(2, g + h), LoadCursor);
         if (v != 0) {

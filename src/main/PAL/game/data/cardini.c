@@ -39,7 +39,7 @@ extern int CardPortState[];
 extern int CardPortLastResult[];
 extern int CardPortResult[];
 extern int CardPortLoaded[];
-extern char D_8010EF28[];
+extern char CardRawSectorWorkBuf[];
 
 void CardSystemShutdown(void);
 int PollHwCardEvents(int arg);
@@ -345,7 +345,7 @@ int CardUpdate(int p, char *a1) {
         }
         break;
     case 2:
-        if (_cardCmd5ABegin(s2, p * 17 + D_8010EF28)) {
+        if (_cardCmd5ABegin(s2, p * 17 + CardRawSectorWorkBuf)) {
             CardPortState[p] = 3;
             CardPortTimer[p] = 0;
         } else {

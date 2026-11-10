@@ -48,8 +48,8 @@ static State actual,reference,*w;
 #define CardMenuOperation w->settings
 #define SubmodeState w->phase
 #define ModeGroup w->enabled
-#define D_800F3A60 w->input[0].action28
-#define D_800F3A64 w->input[0].action2C
+#define MenuReturnSubmodeIndex w->input[0].action28
+#define CourseSelectLockedFlag w->input[0].action2C
 #define ImageRows w->modes[w->modeRoot]
 #define UiRowCount w->rowCount
 #define UiRows w->rows[w->rowRoot]

@@ -30,7 +30,7 @@ extern short GpSaveSlotCursor;
 extern char CardTargetFileName[];
 extern short CardMenuOperation;
 extern Struct2C SaveSlotSnapshots[3];
-extern int D_801272F0[];
+extern int GarageExtraDefaultTimes[];
 
 int CardSaveStep(short a0, int a1) {
     int i;
@@ -44,7 +44,7 @@ int CardSaveStep(short a0, int a1) {
     case 0:
         CardSaveRetryCount = 0;
         PsyqBzero(SaveBuffer, 0x1AA8);
-        i = D_800F3970 != 0;
+        i = ExtraModeUnlockedFlag != 0;
         if (a0 == 1) {
             CardSaveIsMainData = 1;
             if (CardTransferMode < 0x10) {
@@ -106,7 +106,7 @@ int CardSaveStep(short a0, int a1) {
                 case 6:
                 case 7:
                     p = SaveBuffer;
-                    D_801272F0[GpSaveSlotCursor] = ((int *)p)[0x280 / 4];
+                    GarageExtraDefaultTimes[GpSaveSlotCursor] = ((int *)p)[0x280 / 4];
                     break;
                 }
             } else {

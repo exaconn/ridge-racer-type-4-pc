@@ -22,7 +22,7 @@ struct FogCameraContext48 {
 extern int GetTrackPointAhead();
 extern struct FogCameraContext48 RaceContext;
 /* same symbol under a 2nd C name: cse cannot reuse the earlier address, so the else arm re-materialises lui/addiu like the original */
-extern struct FogCameraContext48 D_800AC650b __asm__("RaceContext");
+extern struct FogCameraContext48 RaceContextAlias __asm__("RaceContext");
 extern int CarTrackProgressDelta;
 extern int CarTrackDirectionSign;
 extern void RotMatrixZYX();
@@ -61,7 +61,7 @@ int ComputeCameraNodeDist(RaceVehicle *a0, CamNode44 *a1)
         if (t < 0) {
             RaceContext.f44 = 1;
         } else {
-            q = &D_800AC650b;
+            q = &RaceContextAlias;
             if (q->f40 - s < 0) q->f44 = 1;
         }
     }

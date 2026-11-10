@@ -50,7 +50,7 @@ static s32 node;
 #define TrackNodes trackRoot
 #define ViewUsesCarTrackNode live.mode
 #define RelFileSegmentViewSlots slotRoot
-#define D_800F4C58 live.segmentYaw
+#define ModelTrackSegmentResult live.segmentYaw
 static s32 signed_word(u32 value){s32 out;memcpy(&out,&value,4);return out;}
 static s32 changed_yaw(void){return signed_word(0x81726354U+scenario*0x12345U);}
 int FindTrackNodeAtXZ(int x,int z) {
@@ -147,7 +147,7 @@ class ViewTrackSelectionTest(unittest.TestCase):
             read = lambda a,n: bytes(memory.mem_read(a & 0x1FFFFFFF,n))
             write = lambda a,data: memory.mem_write(a & 0x1FFFFFFF,bytes(data))
             put = lambda a,v: write(a,struct.pack('<I',v & 0xFFFFFFFF))
-            globals_ = {n:address_of(n) for n in ['ViewUsesCarTrackNode','PlayerCars','TrackNodes','RelFileSegmentViewSlots','D_800F4C58']}
+            globals_ = {n:address_of(n) for n in ['ViewUsesCarTrackNode','PlayerCars','TrackNodes','RelFileSegmentViewSlots','ModelTrackSegmentResult']}
             spans = {n:(int(a,16),int(s,16)) for n,a,s in map(str.split,(ROOT/'configs/PAL/functions.txt').read_text().splitlines())}
             exe = (ROOT/'assets/PAL/main.exe').read_bytes();base = struct.unpack_from('<I',exe,24)[0]
             variants = {'original':{n:exe[0x800+spans[n][0]-base:0x800+sum(spans[n])-base] for n in NAMES}}
@@ -161,7 +161,7 @@ class ViewTrackSelectionTest(unittest.TestCase):
             expected_stores=[];seen=set();service=address_of('FindTrackNodeAtXZ')
             def store(cpu,access,address,size,value,user):
                 a=address & 0x1FFFFFFF
-                stack=(STACK-128)&0x1FFFFFFF;result=globals_['D_800F4C58']&0x1FFFFFFF
+                stack=(STACK-128)&0x1FFFFFFF;result=globals_['ModelTrackSegmentResult']&0x1FFFFFFF
                 self.assertTrue(stack<=a and a+size<=stack+128 or result<=a and a+size<=result+4,(hex(address),size))
                 if result<=a<result+4:expected_stores.append((a-result,size,value & ((1<<(size*8))-1)))
             cpu=Cpu(memory,0,100,101,102,store)
@@ -205,7 +205,7 @@ class ViewTrackSelectionTest(unittest.TestCase):
                     write(globals_['PlayerCars']-16,b'\x6A'*16+cars+b'\xA6'*16)
                     write(NODES-16,b'\x6A'*16+nodes+b'\xA6'*16);write(SLOTS-16,b'\x6A'*16+slots+b'\xA6'*16)
                     put(globals_['ViewUsesCarTrackNode'],mode);put(globals_['TrackNodes'],NODES+40*60);put(globals_['RelFileSegmentViewSlots'],SLOTS+64*4)
-                    write(globals_['D_800F4C58']-4,b'\x6A'*4+b'\xA5'*4+b'\xA6'*4)
+                    write(globals_['ModelTrackSegmentResult']-4,b'\x6A'*4+b'\xA5'*4+b'\xA6'*4)
                     write(STACK-256,b'\xA5'*512)
                     cpu.reset();cpu.r=[0]+[0xBEEF0000+r for r in range(1,32)];cpu.r[29]=STACK;cpu.r[31]=STOP
                     cpu.r[4:6]=[player,0x12345678] if operation==3 else [SCRATCH+8,player]
@@ -227,7 +227,7 @@ class ViewTrackSelectionTest(unittest.TestCase):
                     for reg in (*range(16,24),28,30):self.assertEqual(cpu.r[reg],0xBEEF0000+reg)
                     self.assertEqual(search_calls,searched)
                     expected_pair=struct.pack('<hh',segment,relative) if operation in (1,3) and mode==0 else b'\xA5'*4
-                    self.assertEqual(read(globals_['D_800F4C58']-4,12),b'\x6A'*4+expected_pair+b'\xA6'*4)
+                    self.assertEqual(read(globals_['ModelTrackSegmentResult']-4,12),b'\x6A'*4+expected_pair+b'\xA6'*4)
                     self.assertEqual(expected_stores,[(2,2,relative),(0,2,segment&65535)] if operation in (1,3) and mode==0 else [])
                     final_scratch=bytearray(scratch)
                     if bank:struct.pack_into('<i',final_scratch,28,final_yaw)

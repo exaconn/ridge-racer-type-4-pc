@@ -6,7 +6,7 @@
 #include "rr/driver_control.h"
 
 extern char CardSaveFileName[], CardTargetFileName[24];
-extern s32 ActivePlayerIndex, LoadMenuStatusPromptId, DialogueSceneMode, D_801272F0[3];
+extern s32 ActivePlayerIndex, LoadMenuStatusPromptId, DialogueSceneMode, GarageExtraDefaultTimes[3];
 extern s16 MenuActiveControllerIndex, MenuStateIndex, CardTransferMode, ModeGroup;
 extern s16 GpSaveSlotCursor, GameModeType, LinkState, CardActivePort, CardMenuOperation;
 extern s16 CardReplayLoadedFlag, CardPromptIndex, CardPromptChoices[3];

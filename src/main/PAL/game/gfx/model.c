@@ -23,10 +23,10 @@ static __inline__ const u8 *RroModelBankAddress(const RroModelBank *bank,u32 rel
 #define G ((RroSceneScratchPrefix *)SCRATCHPAD)
 
 extern int ViewUsesCarTrackNode;
-extern short D_800F4C58[2];
+extern short ModelTrackSegmentResult[2];
 extern s16 *CarBoundsTable[];
-extern int D_800F2EC0;
-extern int D_8010E6D8[];
+extern int ActiveModelVertexCount;
+extern int ModelBoneMatrixTable[];
 extern char OpeningLensFlareSprites[];
 
 void SetFogNearFar(s32 a0, s32 a1, s32 a2);
@@ -39,8 +39,8 @@ int GetViewTrackSegment(const ProjectionView32 *view, s32 player) {
     if (ViewUsesCarTrackNode == 0) {
         node = GetViewTrackNode(view->position00.words, player);
         yaw = view->angles10.xyz.y;
-        GetTrackSegmentAndYaw(node, yaw, D_800F4C58);
-        return D_800F4C58[0];
+        GetTrackSegmentAndYaw(node, yaw, ModelTrackSegmentResult);
+        return ModelTrackSegmentResult[0];
     }
     return GetViewTrackNode(view->position00.words, player) / 5;
 }
@@ -331,7 +331,7 @@ void RelocateModelTable(RroModelTableWire *table) {
     int count = table->count;
     int limit;
     ((RroSceneScratchPrefix *)SCRATCHPAD)->modelEntries48 = entry;
-    D_800F2EC0 = count;
+    ActiveModelVertexCount = count;
     if (count > 0) {
         limit = count;
         do {
@@ -382,9 +382,9 @@ void SelectModelBank(int slot) {
 }
 
 void SetVramImageSlot(int a0, int a1) {
-    D_8010E6D8[a1] = a0;
+    ModelBoneMatrixTable[a1] = a0;
 }
 
 void LoadVramImageSlot(int a0) {
-    LoadImage(OpeningLensFlareSprites, D_8010E6D8[a0]);
+    LoadImage(OpeningLensFlareSprites, ModelBoneMatrixTable[a0]);
 }

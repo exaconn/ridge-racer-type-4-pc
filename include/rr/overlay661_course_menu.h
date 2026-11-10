@@ -8,7 +8,7 @@
 #include "rr/selection_types.h"
 #include "rr/menu_selection_word.h"
 #include "rr/menu_arena_types.h"
-extern s32 ScreenFrame,ModeFrame,NumLaps,D_800F4CB8,ovl661_available_course_count;
+extern s32 ScreenFrame,ModeFrame,NumLaps,MenuAvailableCourseMask,ovl661_available_course_count;
 extern s16 SelectedCourseChoice,MenuCursor,MenuItemCount,FadeCountdown,CourseIndex,ModeIndex,MenuScriptId,ModeGroup,GameModeType;
 extern s16 ovl661_finish_ranks[2];
 extern s16 ComDifficultyLevel;

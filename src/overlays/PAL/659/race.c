@@ -47,7 +47,7 @@ void ovl659_update_race(void) {
         SubmitRaceHudPackets(GameModeType);
         BuildCameraMatrices();
         DrawCars(0);
-        RR_659_SCRATCH->word78 = D_800F2A64;
+        RR_659_SCRATCH->word78 = RaceQuitTargetMode;
         SetupPlayerView(0);
         DrawTrackObjects(0);
         DrawTrackSceneryForPlayer(0);
@@ -139,7 +139,7 @@ void ovl659_update_race(void) {
     if (PlayerCars[0].half1EA != ReverseCourse) {
         DrawRaceStartSignalSprite(0);
     }
-    RR_659_SCRATCH->word78 = D_800F2A64;
+    RR_659_SCRATCH->word78 = RaceQuitTargetMode;
     SetupPlayerView(0);
     DrawTrackObjects(0);
     DrawTrackSceneryForPlayer(0);

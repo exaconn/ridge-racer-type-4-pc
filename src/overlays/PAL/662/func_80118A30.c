@@ -32,7 +32,7 @@ normalizeColumn:
         if((s8)ovl662_name_grid_row>=4)ovl662_name_grid_col=((s8)ovl662_name_grid_col+3)%3;
         else ovl662_name_grid_col=((s8)ovl662_name_grid_col+10)%10;
         ovl662_name_grid_index = (s8) ovl662_name_grid_col + ((s8) ovl662_name_grid_row * 0xA);
-        if (D_800F3A60 != 0) {
+        if (MenuReturnSubmodeIndex != 0) {
             PlaySfx(1);
             if(ovl662_name_grid_index<41){
                 if (ovl662_name_entry_cursor < 8) {

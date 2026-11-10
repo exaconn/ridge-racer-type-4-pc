@@ -74,8 +74,8 @@ extern S_ECB0 *TrackObjectDefs;
 extern S_ECB4 *TrackObjectStates;
 extern ObjectTrailPoint16 TrackObjectTrailPoints[];
 /* Legacy address labels alias the same selected definition/key/state roots. */
-extern Node24 *D_8010E8D8;
-extern S_ECB0 *D_8010E8DC;
-extern S_ECB4 *D_8010E8E0;
+extern Node24 *TrackObjSplineNodes;
+extern S_ECB0 *TrackObjMeshTablePtr;
+extern S_ECB4 *TrackObjInstanceStates;
 
 #endif

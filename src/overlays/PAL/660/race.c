@@ -65,7 +65,7 @@ update_pause_timer:
         BuildCameraMatrices();
         SetupViewport(0);
         DrawCars(0);
-        RR_660_FRAME_SCRATCH->word78 = D_800F2A64;
+        RR_660_FRAME_SCRATCH->word78 = RaceQuitTargetMode;
         SetupPlayerView(0);
         DrawTrackObjects(0);
         DrawTrackSceneryForPlayer(0);
@@ -148,7 +148,7 @@ update_pause_timer:
             DrawRaceStartSignalSprite(0);
         }
     }
-    RR_660_FRAME_SCRATCH->word78 = D_800F2A64;
+    RR_660_FRAME_SCRATCH->word78 = RaceQuitTargetMode;
     SetupPlayerView(0);
     DrawTrackObjects(0);
     DrawTrackSceneryForPlayer(0);

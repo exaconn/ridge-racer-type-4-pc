@@ -120,7 +120,7 @@ void ovl660_update_menu(void) {
                     cell += 1;
                 } while (cell < UiRows[3].byte02);
             }
-            if (D_800F3A60 != 0) {
+            if (MenuReturnSubmodeIndex != 0) {
                 activeState = UiRows[0].byte14;
                 if (activeState == 2) {
                     PlaySfx(1);
@@ -177,7 +177,7 @@ void ovl660_update_menu(void) {
                 }
             } else {
 check_back:
-                if ((D_800F3A64 != 0) && (UiRows[0].byte14 == 2)) {
+                if ((CourseSelectLockedFlag != 0) && (UiRows[0].byte14 == 2)) {
                     PlaySfx(2);
                     SetMenuFrameOptions(0, 1, 1);
                     row = 0;
@@ -200,7 +200,7 @@ check_back:
             }
             goto draw_course;
         case 2:
-            if (D_800F3A60 != 0) {
+            if (MenuReturnSubmodeIndex != 0) {
                 if (UiRows[0].byte14 == 5) {
                     SubmodeState = 4;
                     InitUiRow(3, 0x78, 0xDC, 0x44, 0x20, 0, 0, 1, 0, 0, 0, 0);
@@ -209,7 +209,7 @@ check_back:
             }
             goto draw_course;
         case 4:
-            if (D_800F3A60 != 0) {
+            if (MenuReturnSubmodeIndex != 0) {
                 if (UiRows[3].byte14 == 2) {
                     SubmodeState = 5;
                     ImageRows[1] = 3;

@@ -5,9 +5,9 @@ void ovl668_on_mdec_slice_ready(void) {
     GpuRectangle sp10;
     u32 prev2C;
 
-    if (D_801102DC != 0) {
+    if (CdMediaChangeCount != 0) {
         StCdInterrupt();
-        D_801102DC = 0;
+        CdMediaChangeCount = 0;
     }
     prev2C = STR_STATE->display24.word08;
     sp10.rect = STR_STATE->display24.rectangles[2];

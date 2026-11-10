@@ -18,8 +18,8 @@ extern short SelectedTeamIndex;
 extern short SelectedMakerIndex;
 extern short CourseIndex;
 extern signed char SelectionState[];
-extern unsigned char D_800AD4F0;
-extern unsigned char D_800F3981;
+extern unsigned char MenuTransitionStyleId;
+extern unsigned char NextMenuTransitionStyle;
 
 void SetNextModeByGameType(void);
 
@@ -52,7 +52,7 @@ void UpdateGrandPrixStageProgress(void) {
             }
         }
     }
-    a0 = D_800AD4EF;
+    a0 = MenuSubmodePendingId;
     if (a0 == -1) {
         PsyqBzero(RankEntries, 0x40);
         j = 0;
@@ -75,7 +75,7 @@ void UpdateGrandPrixStageProgress(void) {
             p[0] = a2;
             p[8] = 3;
         } while (v1 < 8);
-        D_800AD4F0 = D_800F3981;
+        MenuTransitionStyleId = NextMenuTransitionStyle;
     }
     x = (unsigned char)SelectionState[0x17];
     x = (x << 24) >> 25;

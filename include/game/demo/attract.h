@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern unsigned short D_800F3A3A;
+extern unsigned short AttractPromptBlinkMask;
 void StartAttractDemo(int a0);
 void AttractDemoRaceEnter(void);
 

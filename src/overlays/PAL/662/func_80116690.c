@@ -7,10 +7,10 @@ void ovl662_step_selected_team(void)
         s32 selected=SelectedTeamIndex;
         ((MenuUiBank *)ui)->cell_view.cells0C[selected]=0;
     }
-    if ((D_800F3A42 & 0x2000) && SelectedTeamIndex < 3) {
+    if ((MenuSelectedCarSlot & 0x2000) && SelectedTeamIndex < 3) {
         SelectedTeamIndex++;
         MenuStepDirection = 2;
-    } else if ((D_800F3A42 & 0x8000) && SelectedTeamIndex > 0) {
+    } else if ((MenuSelectedCarSlot & 0x8000) && SelectedTeamIndex > 0) {
         SelectedTeamIndex--;
         MenuStepDirection = 1;
     } else {

@@ -33,7 +33,7 @@ static u32 heads[704],arena[4096];static unsigned scenario,bank,mutation,seenTra
 #define CourseIndex w->s.track
 #define ScreenFrame w->s.tick
 #define ovl663_selected_record w->s.selected
-#define D_8009FAA0 w->s.glyphs
+#define RecordsHeaderSpriteUvs w->s.glyphs
 #define ovl663_record_badges w->s.footer
 #define ovl663_race_column_widths w->s.widths[0]
 #define ovl663_lap_column_widths w->s.widths[1]

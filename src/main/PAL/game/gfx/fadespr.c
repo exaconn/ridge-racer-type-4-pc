@@ -26,7 +26,7 @@ typedef struct {
 } OptionsState3C;
 
 extern OptionsState3C Options;
-extern char D_800ACA30[];
+extern char FadeSpriteRaceContext[];
 extern struct OptionsDefaultTail16 OptionsDefaultTailData;
 extern unsigned char HudPauseMenuTitleY[];
 extern FadeRaceContext RaceContext;
@@ -66,7 +66,7 @@ void InitDemoFadeContext(int a0) {
     struct OptionsDefaultTail16 v;
     int i;
     s16 t;
-    FadeRaceContext *p = (FadeRaceContext *)D_800ACA30;
+    FadeRaceContext *p = (FadeRaceContext *)FadeSpriteRaceContext;
     v = OptionsDefaultTailData;
     PsyqBzero((char *)p, 0x64);
     p = (FadeRaceContext *)((char *)p - 0x3E0);
@@ -116,7 +116,7 @@ void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity) {
     GpuCommandPacket *p;
 
     selector = (index == 4);
-    phase = D_800ACA3C;
+    phase = FadeSpritePhaseAngle;
     if (phase >= 128) {
         selector += 2;
         scale = phase - 127;
@@ -124,7 +124,7 @@ void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity) {
         scale = 128U - (u32)phase;
     }
     scale = (s32)((u32)scale * intensity) / 256;
-    scale = (s32)((u32)scale * D_800ACA38) / 256;
+    scale = (s32)((u32)scale * FadeSpriteIntensityScale) / 256;
     if (scale > 0) {
         u32 command;
         u32 low;

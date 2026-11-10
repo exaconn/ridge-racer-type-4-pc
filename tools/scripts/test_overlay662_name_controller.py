@@ -33,7 +33,7 @@ static struct World {u32 guard[4];SaveProgressRecord7C save;u8 name[12],glyphs[4
 #define ovl662_name_grid_index world.selected
 #define ModeFrame world.frame
 #define ScreenFrame world.tick
-#define D_800F3A60 world.accept
+#define MenuReturnSubmodeIndex world.accept
 #define PlayerControllers world.input
 #define FadeCountdown world.timer
 #define SubmodeState world.state

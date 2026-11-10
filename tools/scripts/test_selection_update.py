@@ -22,7 +22,7 @@ static struct {u8 prefix[0x4D98];SelectionRows32 value;u8 guard[16];} row_owner;
 #define native_rows_value row_owner.value
 static SelectionRows32 expected_rows;
 #define SelectionState ((s8*)actual)
-#define D_800AD4EC actual[0x14]
+#define MenuSelectionLockedFlag actual[0x14]
 #define SelectionRows native_rows_value
 #define CarSpecStatWeights (rom+128)
 #define CarSpecStatThresholds ((s8*)rom+144)

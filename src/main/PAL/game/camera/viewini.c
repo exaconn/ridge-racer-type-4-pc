@@ -60,7 +60,7 @@ void InitCourseViewState(void) {
         }
     }
     i = 0x1F;
-    p = (char *)&D_800F4C38 + i;
+    p = (char *)&ExtraCourseViewTable + i;
     do {
         *p-- = 0;
         i--;
@@ -73,7 +73,7 @@ void BuildViewSegmentObjectList(int player) {
     unsigned int i;
     ActiveVisibleViews = &PrimaryVisibleViews;
     source = (u32 *)GetSegmentViewTable(player);
-    D_800ADAD0 = (CourseViewIndices *)source;
+    TrackCourseViewIndices = (CourseViewIndices *)source;
     PrimaryVisibleViews.stream[0].count = *source;
     if (PrimaryVisibleViews.stream[0].count >= 0x100) {
         PrimaryVisibleViews.stream[0].count = COURSE_VISIBLE_CAPACITY;
@@ -99,8 +99,8 @@ void UpdateVisibleViewRecords(void) {
     cursor.list = ActiveVisibleViews;
     count = cursor.list->objects.count;
     cursor.next = cursor.list->objects.records + count;
-    for (extra = 0; extra < D_800F4C38.count; extra++) {
-        record = &RelFileViewRecords[D_800F4C38.indices[extra]];
+    for (extra = 0; extra < ExtraCourseViewTable.count; extra++) {
+        record = &RelFileViewRecords[ExtraCourseViewTable.indices[extra]];
         for (i = 0; i < ActiveVisibleViews->objects.count; i++) {
             if (record == ActiveVisibleViews->objects.records[i]) {
                 break;

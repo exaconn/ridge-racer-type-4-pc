@@ -37,7 +37,7 @@ extern u8 SaveSlotTrophyTileColors[];
 extern MenuSettings2C SaveSlotSelections[];
 extern short GpSaveSlotCursor;
 extern char FractionText[];
-extern int D_800F4CB8;
+extern int MenuAvailableCourseMask;
 
 
 void *DrawCarSpecBadgePanel(u32 *arg0, void *arg1, s32 arg2)
@@ -329,7 +329,7 @@ void *DrawControllerConfigPanel(u32 *ordering, void *cursor, s32 row)
     textCursor--;
   }
   while (character >= 0);
-  controller = (D_800F4CB8 - 1U) & 1;
+  controller = (MenuAvailableCourseMask - 1U) & 1;
   if (controller < 0)
   {
     controller = 0;

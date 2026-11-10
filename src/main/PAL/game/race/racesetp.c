@@ -47,7 +47,7 @@ void SetupRace(void)
     }
     InitCourseViewState();
     SetupRenderer(5);
-    D_8010C13C = 0;
+    RaceSetupReadyFlag = 0;
     SplitIndex = 2;
     SplitTimes[1] = 0;
     SplitTimes[0] = 0;

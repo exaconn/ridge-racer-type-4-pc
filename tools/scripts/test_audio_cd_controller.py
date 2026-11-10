@@ -16,7 +16,7 @@ head='''#include <stdint.h>
 #include "rr/audio_cd_controller.h"
 static struct {u8 before[64];AudioWireState owner;u8 after[64];} storage;
 #define SoundState storage.owner
-#define D_800F746C SoundState.request26B4
+#define CdAudioRequestState SoundState.request26B4
 char XaRepeatMsg[12];
 typedef uintptr_t(*Callback)(unsigned,uintptr_t*);static Callback cb;
 void set_callback(Callback p){cb=p;}
@@ -36,7 +36,7 @@ for i,(name,ret,types) in enumerate(services):
   else:arguments.append('(uintptr_t)a'+str(j))
  returned='audio_native_pointer((void*)v)' if '*' in ret else 'v'
  code+=ret+' '+name+'('+params+'){'+prefix+'audio_before_callback();uintptr_t a[4]={'+(','.join(arguments) or '0')+'};uintptr_t v=cb('+str(i)+',a);audio_after_callback();'+('return ('+ret+')'+returned+';' if ret!='void' else '')+'}\n'
-entry=scalar_entry(body,'CdAudioUpdate','storage.owner',aliases={'D_800F746C':'request26B4'})
+entry=scalar_entry(body,'CdAudioUpdate','storage.owner',aliases={'CdAudioRequestState':'request26B4'})
 code+=entry[len(transport('storage.owner')):]
 (P/'native.c').write_text(code)
 subprocess.run(['cc','-std=gnu11','-O2','-funsigned-char','-shared','-fPIC','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude','-I'+str(P),str(P/'native.c'),'-o',str(P/'native.dylib')],check=True)

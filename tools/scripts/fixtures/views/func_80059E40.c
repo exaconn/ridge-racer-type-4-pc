@@ -58,7 +58,7 @@ extern s16 CourseIndex;
 
 extern u16 Pad0Buttons;
 
-extern s32 D_800F3A60;
+extern s32 MenuReturnSubmodeIndex;
 
 extern struct {
     char pad[0x28A4];
@@ -185,7 +185,7 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
                 }
                 OpeningSlideTimer = 0;
             }
-            if (D_800F3A60 != 0) {
+            if (MenuReturnSubmodeIndex != 0) {
                 s4 = 1;
             }
         }
@@ -287,7 +287,7 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
                     }
                     OpeningSlideTimer = 0;
                 }
-                if (D_800F3A60 != 0) {
+                if (MenuReturnSubmodeIndex != 0) {
                     s4 = 1;
                 }
             }
@@ -309,7 +309,7 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
             PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.w28a4);
             DrawFontString(s0_3 + 0xE, 0xC8, sp30, sp18[5], 0);
             AddBrightnessSprite(HudViewModeIconUvs + 4, s0_3 + 0x20, 0xC8, sp18[5]);
-            if (sp18[5] >= 0x80 && D_800F3A60 != 0) {
+            if (sp18[5] >= 0x80 && MenuReturnSubmodeIndex != 0) {
                 s4 = 1;
             }
         }

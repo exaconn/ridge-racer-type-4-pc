@@ -45,7 +45,7 @@ static const u16 timers[8]={0,1,63,64,32767,32768,65534,65535};
 #define FadeCountdown w->s.timer
 #define ovl662_menu_substate w->s.mode
 #define SelectionRows w->s.choice
-#define D_800F4D99 w->s.choice.bytes[1]
+#define ActiveSelectionRowValue w->s.choice.bytes[1]
 #define PlayerControllers w->s.controllers
 #define UiRows w->s.ui[w->s.uiRoot]
 #define BadgeRows w->s.badges[w->s.badgeRoot]

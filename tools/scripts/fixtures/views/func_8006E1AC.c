@@ -26,7 +26,7 @@ extern char CameraViewMatrix[];
 
 extern char CameraPitchRollMatrix[];
 
-extern char D_800FF6D8[];
+extern char CameraYawRotMatrix[];
 
 extern void MulMatrix0();
 
@@ -40,7 +40,7 @@ void BuildCameraMatrices(void) {
     BuildRotMatrixY(0x1F800028, g[7]);
     BuildRotMatrixY(CameraViewMatrix, g[7]);
     SetIdentityMatrix(CameraPitchRollMatrix);
-    BuildRotMatrixY(D_800FF6D8, g[7]);
+    BuildRotMatrixY(CameraYawRotMatrix, g[7]);
     BuildRotMatrixX(sp10, g[6]);
     MulMatrix2(sp10, 0x1F800028);
     MulMatrix2(sp10, CameraViewMatrix);

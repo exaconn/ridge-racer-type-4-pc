@@ -6,14 +6,14 @@
 #undef RearViewMirrorY
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010E78C ((char *)D_8010E78C)
+#define AnimatedTrackObjPool ((char *)AnimatedTrackObjPool)
 
-#undef D_8010E78C
+#undef AnimatedTrackObjPool
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_8010E78C ((O *)D_8010E78C)
+#define AnimatedTrackObjPool ((O *)AnimatedTrackObjPool)
 
-#undef D_8010E78C
+#undef AnimatedTrackObjPool
 
 /* legacy typing of shared globals in this part of the unit */
 #define SegmentVisibilityTable (*(s32 (*))&SegmentVisibilityTable)

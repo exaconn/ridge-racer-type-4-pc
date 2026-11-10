@@ -6,7 +6,7 @@
 
 typedef RroSceneScratchPrefix RendererScratch;
 extern s32 MirrorRenderFlag;
-extern GpuColorCommand D_800F3A20,D_800F3A18;
+extern GpuColorCommand DefaultScreenClearColor,LoadingScreenClearColor;
 
 
 #if defined(mips)

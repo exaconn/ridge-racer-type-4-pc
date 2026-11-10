@@ -21,9 +21,9 @@ extern s16 ovl660_preview_selection;
 extern s32 ovl660_lap_record_rank;
 extern s16 ovl660_preview_bank;
 
-extern s32 D_800AD564;
+extern s32 SelectedStoryBranchId;
 extern s16 ActiveSceneId;
-extern s32 D_800F3A64, D_800F3A48;
+extern s32 CourseSelectLockedFlag, ResultNextActionMode;
 extern s16 CardMenuReturnModeId, CardMenuOperation;
 void CopyStringClearTail(char *destination, char *source);
 void StepNameChar(char *text);

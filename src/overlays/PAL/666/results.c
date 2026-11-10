@@ -33,7 +33,7 @@ s32 ovl666_update_retry_choice(s32 mode) {
     SetMenuTextRowStyle(MenuCursor + 37, 0, 0);
     StepMenuValue(0, 2, (char *)&MenuCursor, 3, 0);
     SetMenuTextRowStyle(MenuCursor + 37, 1, 1);
-    if (D_800F3A60) {
+    if (MenuReturnSubmodeIndex) {
         PlaySfx(1);
         return MenuCursor;
     }
@@ -60,7 +60,7 @@ void ovl666_update_results(void) {
             group = 0;
             if (MenuTextRows[5].signedBytes[3] >= 21) {
                 SetMenuFrameOptions(1, 1, 0);
-                if (D_800F3A60 != 0) {
+                if (MenuReturnSubmodeIndex != 0) {
                     PlaySfx(1);
                     SubmodeState = 3;
                     SetMenuFrameOptions(0, 1, 0);

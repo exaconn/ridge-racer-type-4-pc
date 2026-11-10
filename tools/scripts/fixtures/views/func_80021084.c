@@ -12,13 +12,13 @@
 
 #undef HudNumberTargets
 
-extern char D_800ADB60[];
+extern char HudPrimaryDigitBuffer[];
 
-extern char D_800D02D8[];
+extern char HudSecondaryDigitBuffer[];
 
-extern char D_800AE660[];
+extern char ViewportRenderEnvLeft[];
 
-extern char D_800D0DD8[];
+extern char ViewportRenderEnvRight[];
 
 extern short LinkPlayerCount;
 
@@ -31,8 +31,8 @@ void InitHudNumberTargets(int a0) {
             goto w3g0b;
         }
     }
-    HudNumberTargets.p0 = D_800ADB60;
-    HudNumberTargets.p4 = D_800D02D8;
+    HudNumberTargets.p0 = HudPrimaryDigitBuffer;
+    HudNumberTargets.p4 = HudSecondaryDigitBuffer;
     HudNumberTargets.s8 = 0x106;
     HudNumberTargets.sA = 0xE6;
     HudNumberTargets.sC = 0x122;
@@ -41,16 +41,16 @@ void InitHudNumberTargets(int a0) {
     HudNumberTargets.s12 = 0xCE;
     return;
 w3g0b:
-    HudNumberTargets.p0 = D_800AE660;
-    HudNumberTargets.p4 = D_800D0DD8;
+    HudNumberTargets.p0 = ViewportRenderEnvLeft;
+    HudNumberTargets.p4 = ViewportRenderEnvRight;
     HudNumberTargets.s8 = 0xFC;
     HudNumberTargets.sA = 0x58;
     HudNumberTargets.sC = 0x128;
     HudNumberTargets.sE = 0x4A;
     HudNumberTargets.s10 = 0xFC;
     HudNumberTargets.s12 = 0x68;
-    HudNumberTargets.p14 = D_800AE660;
-    HudNumberTargets.p18 = D_800D0DD8;
+    HudNumberTargets.p14 = ViewportRenderEnvLeft;
+    HudNumberTargets.p18 = ViewportRenderEnvRight;
     HudNumberTargets.s1C = 0xFC;
     HudNumberTargets.s1E = 0xD8;
     HudNumberTargets.s20 = 0x122;

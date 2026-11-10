@@ -15,7 +15,7 @@ class RelativeFileRelocationTest(unittest.TestCase):
         body=definition_source(owner.read_text(),'RelocateRelativeFile')
         body=re.sub(r'\s+(?:asm|__asm__)\("\$\d+"\)', '', body)
         body=re.sub(r'__asm__\(""[^;]*;','',body)
-        names=['RelFileSection00','RelFileSection01','D_800ADAE8','RelFileOffsetPtr3','D_800F4C60','RelFileSection05','RelFileOffsetPtr6','RelFileOffsetPtr7','D_800FFC40','RelFileOffsetPtr9','TrackCollisionGridPtr','RelFileSection11','RelFileOffsetPtr12','RelFileOffsetPtr13','TrackSectionBoundsPtr','RelFileSection15']
+        names=['RelFileSection00','RelFileSection01','TrackRelSegment2Ptr','RelFileOffsetPtr3','TrackRelSegment4Ptr','RelFileSection05','RelFileOffsetPtr6','RelFileOffsetPtr7','TrackRelSegment8Ptr','RelFileOffsetPtr9','TrackCollisionGridPtr','RelFileSection11','RelFileOffsetPtr12','RelFileOffsetPtr13','TrackSectionBoundsPtr','RelFileSection15']
         prefix=r'''
         #include <stdint.h>
         #include <stddef.h>
@@ -43,10 +43,10 @@ class RelativeFileRelocationTest(unittest.TestCase):
          u8 *outputs[16];
          u32 after[16];
         } world,initial,expected;
-        #define D_800F2EBC world.root
+        #define TrackRelFileHeaderPtr world.root
         #define RelFileSegmentCount world.count
         #define RelFileSegmentViewSlots world.entries
-        #define D_800F391C world.first
+        #define TrackRelSecondTablePtr world.first
         #define RelFileViewRecords world.second
         '''
         prefix+=''.join('#define '+n+' world.outputs['+str(i)+']\n' for i,n in enumerate(names))

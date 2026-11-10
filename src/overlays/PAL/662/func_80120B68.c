@@ -56,7 +56,7 @@ void ovl662_tool_save_emblem_dialog(s32 mode) {
                             PlaySfx(0);
                         skip_sfx:;
                         }
-                        if (D_800F3A60 != 0) {
+                        if (MenuReturnSubmodeIndex != 0) {
                             ovl662_editor_workspace.stateD2 = (u8) (ovl662_editor_workspace.stateD2 + 2);
                             PlaySfx(1);
                         }

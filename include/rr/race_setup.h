@@ -43,7 +43,7 @@ extern s16 LinkPlayerCount;
 extern s32 RaceStartWipeY;
 extern s32 SplitIndex;
 extern s16 LapVoicePending;
-extern s32 D_8010C13C;
+extern s32 RaceSetupReadyFlag;
 #include "rr/race_setup_types.h"
 #include "game/camera/viewini.h"
 #include "game/race/raceinit.h"

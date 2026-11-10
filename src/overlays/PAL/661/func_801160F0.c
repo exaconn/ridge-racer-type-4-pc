@@ -12,7 +12,7 @@ extern s16 ovl661_available_car_counts[2][2];       /* course count per player/g
 extern s16 ovl661_selected_cars[2];          /* selected course per player */
 extern s16 ovl661_selected_groups[2];          /* selected group per player */
 extern CourseChoice4 ovl661_car_choices[2][2][9];
-extern s32 UiRowCount, D_800F4CB8;
+extern s32 UiRowCount, MenuAvailableCourseMask;
 extern s16 CardMenuOperation;
 void SetupMenuCarCamera(s32);
 void SetupViewport(s32);
@@ -353,10 +353,10 @@ void ovl661_update_preview(void)
         DrawMenuStepArrows(0xA0, 0x90, 8, 1, ovl661_selected_cars[PLAYER], 0,
                       ovl661_available_car_counts[PLAYER][ovl661_selected_groups[PLAYER]]);
     }
-    D_800F4CB8 = ActivePlayerIndex + 1;
+    MenuAvailableCourseMask = ActivePlayerIndex + 1;
     sound = 0x10032;
     /* Integer base address: the original's table read is not disambiguated
-     * from the D_800F4CB8 store above. */
+     * from the MenuAvailableCourseMask store above. */
     groups = ovl661_selected_groups;
     if (*(s16 *)(groups + (ActivePlayerIndex & 1) * 2) != 0) {
         sound = 0x10036;

@@ -70,7 +70,7 @@ extern unsigned char ProgressBitMasks[];
 
 extern unsigned char SelectionState[];
 
-extern unsigned char D_800AD4EB;
+extern unsigned char CurrentStageUnlockFlags;
 
 extern unsigned char SaveProgress[];
 
@@ -82,5 +82,5 @@ void UpdateUnlockedCarMask(void) {
     } else if (v >= 9) {
         v = 8;
     }
-    D_800AD4EB = SaveProgress[v + 0x60];
+    CurrentStageUnlockFlags = SaveProgress[v + 0x60];
 }

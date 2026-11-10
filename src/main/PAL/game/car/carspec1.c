@@ -1,15 +1,15 @@
-#define RaceContext D_800AC650_prefix
+#define RaceContext RaceContextHeaderDecl
 #include "rr/race.h"
 #include "game/car/carspec1.h"
 #undef RaceContext
 
-extern char D_8010738C[];
+extern char CarSpecControlPool[];
 extern RaceSpecEntry30 *CarSpecTable;
 extern struct { u8 reserved00[0x544]; RaceSpecEntry30 *p[1]; } RaceContext;
 
 void BlendCarSpec(int a0, int a1, int a2, int a3) {
     RaceSpecEntry30 *t3 = &CarSpecTable[a0];
-    RaceVehicleControl *t2 = (RaceVehicleControl *)(D_8010738C + a1 * sizeof(RaceVehicle));
+    RaceVehicleControl *t2 = (RaceVehicleControl *)(CarSpecControlPool + a1 * sizeof(RaceVehicle));
     int lo, v, i, a;
     if (a2 < 0x401) {
         lo = a2 * t2->factor11E;

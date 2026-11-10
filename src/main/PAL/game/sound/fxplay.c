@@ -12,7 +12,7 @@
 #include "game/sound/cdmain.h"
 
 extern struct { s32 a, b, c; } ReplayCamTargetDistTable[];
-extern s16 D_800F761C;
+extern s16 ActiveSfxSeqHandle;
 
 void SeqStartTrack(int a0);
 void SeqMuteVolume(void);
@@ -41,9 +41,9 @@ void SeqMuteVolume(void) {
 }
 
 void SeqMusicPause(void) {
-    SsSeqPause(D_800F761C);
+    SsSeqPause(ActiveSfxSeqHandle);
 }
 
 void SeqMusicResume(void) {
-    SsSeqReplay(D_800F761C);
+    SsSeqReplay(ActiveSfxSeqHandle);
 }

@@ -27,7 +27,7 @@ void ovl667_init_session_menus(void){
  ovl667_init_car_selection((1-(s16)LinkHostFlag)*2);
  UnpackChoiceGlyph((s8*)((u8 *)&SelectionRows+ActivePlayerIndex*4),CourseChoiceTable[0][0].glyph);
  UnpackChoiceGlyph((s8*)((u8 *)&SelectionRows+4+ActivePlayerIndex*4),CourseChoiceTable[0][0].glyph);
- LinkAvailableCourseCount=8;SeqStartTrack(0);ModeGroup=1;ModeIndex=60;SubmodeState=0;D_8010C0B8=0;
- if(((Pair *)((s8 *)&LinkEntryState+ActivePlayerIndex))->second!=1)D_8010C0D4=0;else D_8010C0D4=2;
+ LinkAvailableCourseCount=8;SeqStartTrack(0);ModeGroup=1;ModeIndex=60;SubmodeState=0;LinkMenuSyncPhase=0;
+ if(((Pair *)((s8 *)&LinkEntryState+ActivePlayerIndex))->second!=1)LinkClientRoleState=0;else LinkClientRoleState=2;
  SetMenuFrameOptions(0,1,1);
 }

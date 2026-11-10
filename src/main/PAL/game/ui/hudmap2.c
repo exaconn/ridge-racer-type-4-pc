@@ -141,7 +141,7 @@ extern s16 CourseIndex;
 extern short SelectedTeamIndex;
 extern int CdAudioInit();
 extern signed char SelectionState[];
-extern int D_800F7660;
+extern int HudMinimapFadeAlpha;
 extern s16 HudTachRedlineAngles[];
 extern s16 HudTachSweepLimitAngles[];
 extern s16 *HudRankOrdinalUvs[];
@@ -374,10 +374,10 @@ void SelectCourseBgmTrack(void) {
     } else {
         a0 = 1;
     }
-    if (D_800F3970 != 0 && GameModeType != 1) {
-        D_800F7660 = 0x10;
+    if (ExtraModeUnlockedFlag != 0 && GameModeType != 1) {
+        HudMinimapFadeAlpha = 0x10;
     } else {
-        D_800F7660 = 0xF;
+        HudMinimapFadeAlpha = 0xF;
     }
     if (a0 == 0) {
         a1 = CourseIndex + 3;
@@ -471,10 +471,10 @@ void InitRaceOpeningOverlay(s32 arg0, s32 arg1) {
         }
     case 1:
     case 5:
-        if (D_800F3970 != 0 && GameModeType != 1) {
-            D_800F7660 = 0x10;
+        if (ExtraModeUnlockedFlag != 0 && GameModeType != 1) {
+            HudMinimapFadeAlpha = 0x10;
         } else {
-            D_800F7660 = 0xF;
+            HudMinimapFadeAlpha = 0xF;
         }
         break;
     case 4:
@@ -485,7 +485,7 @@ void InitRaceOpeningOverlay(s32 arg0, s32 arg1) {
         break;
     }
 
-    D_8010E220 = RaceBgmListIndex + 0xB;
+    CdPlaybackTrackIndex = RaceBgmListIndex + 0xB;
 
     for (i = 0; i < 8; i++) {
         CenterGlyphListX(OpeningDateGlyphLists[i], CarHandlingResponseTable);

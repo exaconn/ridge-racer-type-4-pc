@@ -23,7 +23,7 @@ typedef struct {
 } SelectionStatePrefix;
 extern s8 SelectionState[];
 /* Alias of the rank byte at offset 0x14, read before its new value is stored. */
-extern u8 D_800AD4EC;
+extern u8 MenuSelectionLockedFlag;
 extern u8 CarSpecStatWeights[];
 extern s8 CarSpecStatThresholds[];
 /* Positive phases update rank/parameter and publish both history and rows.

@@ -17,9 +17,9 @@ void ovl662_init_editor_arenas(void)
         ovl662_dispatch_editor_actions(-1);
         ovl662_init_option_groups(-1);
         ovl662_reset_editor_state();
-        base=D_800F4D74+4;
+        base=MenuSharedScratchPtr+4;
         owner=&ovl662_editor_workspace;
-        base-=((GarageArenaAddress)D_800F4D74&3U);
+        base-=((GarageArenaAddress)MenuSharedScratchPtr&3U);
         second=base+0x840;
         /* Retain each publication of the shared arena cursor. */
         *(void **)&LoadCursor=base;

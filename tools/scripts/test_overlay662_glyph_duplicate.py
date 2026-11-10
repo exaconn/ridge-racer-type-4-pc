@@ -29,7 +29,7 @@ static unsigned scenario,base,switching;
 #define BadgeRows world.badge
 #define ovl662_history_arrow_phase world.local
 #define SelectedMakerIndex world.selected
-#define D_800F4D99 world.choice.bytes[1]
+#define ActiveSelectionRowValue world.choice.bytes[1]
 '''+body+r'''
 static u32 rng=0x15EC4;
 static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}

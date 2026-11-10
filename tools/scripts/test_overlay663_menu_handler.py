@@ -36,7 +36,7 @@ static unsigned scenario,mutation,phaseSeen[10];
 #define ModeGroup w->s.scene
 #define ModeIndex w->s.nextScene
 #define FadeCountdown w->s.timer
-#define D_800F3A60 w->s.accepted
+#define MenuReturnSubmodeIndex w->s.accepted
 #define UiRows (w->s.rows[w->s.root])
 #define CurrentDrawBuf (&frames[w->s.bank])
 static Event *event(int kind){unsigned i;u32 h=2166136261U;Event *e;assert(w->calls<16);

@@ -214,6 +214,6 @@ block_64:
 block_73:
         DrawUiRow(var_a0_3);
     }
-    D_800F4CB8 = 0;
+    MenuAvailableCourseMask = 0;
     UpdateScreenFade(0x10026);
 }

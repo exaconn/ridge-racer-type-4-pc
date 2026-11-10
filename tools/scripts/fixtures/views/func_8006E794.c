@@ -1,9 +1,9 @@
 #include "types.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F4C38 (*(unsigned char (*)[])&D_800F4C38)
+#define ExtraCourseViewTable (*(unsigned char (*)[])&ExtraCourseViewTable)
 
-#undef D_800F4C38
+#undef ExtraCourseViewTable
 
 extern short CourseIndex;
 
@@ -13,7 +13,7 @@ extern int ViewUsesCarTrackNode;
 
 extern int DefaultSegmentVisibilityMask;
 
-extern char D_800F4C38[];
+extern char ExtraCourseViewTable[];
 
 void InitCourseViewState(void) {
     int i;
@@ -30,7 +30,7 @@ void InitCourseViewState(void) {
         }
     }
     i = 0x1F;
-    p = D_800F4C38 + i;
+    p = ExtraCourseViewTable + i;
     do {
         *p-- = 0;
         i--;

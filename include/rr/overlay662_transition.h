@@ -6,7 +6,7 @@
 #include "rr/menu_background.h"
 #include "rr/menu_arenas.h"
 #include "rr/menu_glyph.h"
-extern s16 D_800ABE2C;
+extern s16 GaragePackedChoiceGlyph;
 extern u8 *ImageRows;
 void ovl662_init_emblem_selector(void);
 /* Render first, then increment the fresh word04 modulo2^32. A signed result

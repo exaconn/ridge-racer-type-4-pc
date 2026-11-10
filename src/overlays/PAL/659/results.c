@@ -42,7 +42,7 @@ void ovl659_update_results(void) {
         group = 0;
         if (MenuTextRows[3].signedBytes[3] >= 16) {
             SetMenuFrameOptions(1, 1, 0);
-            if (D_800F3A60 != 0) {
+            if (MenuReturnSubmodeIndex != 0) {
                 SetMenuFrameOptions(0, 1, 0);
                 PlaySfx(1);
                 if (SelectionState.mode1A == 4) {
@@ -88,7 +88,7 @@ void ovl659_update_results(void) {
             SetMenuTextRowStyle(MenuCursor + 37, 0, 0);
             StepMenuValue(0, 2, (char *)&MenuCursor, MenuItemCount, 0);
             SetMenuTextRowStyle(MenuCursor + 37, 1, 1);
-            if (D_800F3A60 != 0) {
+            if (MenuReturnSubmodeIndex != 0) {
                 SetMenuFrameOptions(0, 1, 0);
                 PlaySfx(1);
                 if (MenuCursor == 0) {

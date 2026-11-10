@@ -5,6 +5,6 @@
 #include "rr/overlay_menu.h"
 #include "rr/menu_selection.h"
 #include "rr/projection_state.h"
-extern s16 D_8010C068,D_8010C0B8;
+extern s16 LinkRaceAbortFlag,LinkMenuSyncPhase;
 void ovl667_init_course_menu(void);
 #endif

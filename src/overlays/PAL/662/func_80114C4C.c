@@ -5,7 +5,7 @@
 
 extern CourseChoice4 CourseChoiceTable[2][9];
 extern s16 MenuCursor;
-extern u8 D_800F4368[];
+extern u8 GarageDefaultCarTimBuf[];
 void SetModelTexturePage(s32 mode);
 void StepMenuValue(s32 mode, s32 width, char *selection, s32 limit, s32 flags);
 void SeqFadeVolume(s32, s32);
@@ -98,8 +98,8 @@ void ovl662_update_progress_menu(void)
         AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,
                       (64 - FadeCountdown) * 4, 69);
         if (FadeCountdown <= 0) {
-            InitTimTemplate(D_800F4368);
-            UploadCarClut(D_800F4368, 0, 0);
+            InitTimTemplate(GarageDefaultCarTimBuf);
+            UploadCarClut(GarageDefaultCarTimBuf, 0, 0);
             ModeGroup = 3;
             ModeIndex = 1;
             SubmodeState = 0;

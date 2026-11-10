@@ -49,7 +49,7 @@ extern void SetMenuFrameOptions();
 extern char NewCar0Msg[];
 extern char StrNewCarLog[];
 extern int MenuStepDirection;
-extern int D_800F3A60;
+extern int MenuReturnSubmodeIndex;
 extern struct {
     short a;
     short b;
@@ -109,7 +109,7 @@ void DrawResultsStandingsOverlay(int a0) {
       switch (d)
       {
         case 1:
-          s2 = ResultMenuTableIndices[(D_800AD4EF * 2) + s1];
+          s2 = ResultMenuTableIndices[(MenuSubmodePendingId * 2) + s1];
           break;
 
         case 0:
@@ -238,7 +238,7 @@ void NewCarModeUpdate(void) {
         }
     }
     if (Dialogue->b4 == 1) {
-        if (D_800F3A60 != 0 || ModeFrame >= 0x1F5U) {
+        if (MenuReturnSubmodeIndex != 0 || ModeFrame >= 0x1F5U) {
             t = Dialogue->b6;
             if (t == 4) {
                 Dialogue->b4 = 0x22;
@@ -247,7 +247,7 @@ void NewCarModeUpdate(void) {
             }
         }
     }
-    if (D_800AD4F2 == 2) {
+    if (MenuActiveDialogId == 2) {
         r = LoadCarRangeStep(0, 1);
         if (r == 1) {
             if (BadgeRows->h10 == 0xB) {

@@ -43,16 +43,16 @@ extern char RepeatLabel[];
 extern char StrFmtTwoDigitsTitle[];
 extern char HudLapSlashSprite[];
 extern short FadeCountdown;
-extern int D_800ACA2C;
-extern int D_800ACB0C;
-extern int D_800ACB28;
-extern int D_800ACB2C;
-extern int D_800F2A64;
+extern int TitleSceneOverlayEnabled;
+extern int AttractDemoStateBuffer;
+extern int TitleAttractReadyFlag;
+extern int TitleAttractDelayTimer;
+extern int RaceQuitTargetMode;
 extern int MaskBitSetting;
 extern short ModeIndex;
-extern int D_800F3A60;
-extern int D_800F3A68;
-extern int D_800F3A6C;
+extern int MenuReturnSubmodeIndex;
+extern int TitleStartPressedFlag;
+extern int TitleSubmenuSelection;
 extern short ModeGroup;
 extern short SubmodeState;
 extern int ViewUsesCarTrackNode;
@@ -149,11 +149,11 @@ void AttractDemoRaceUpdate(void) {
   }
   if (p->w4c8 == 0)
   {
-    vv = D_800F3A60;
+    vv = MenuReturnSubmodeIndex;
   }
   else
   {
-    vv = D_800F3A6C;
+    vv = TitleSubmenuSelection;
   }
   if (vv != 0)
   {
@@ -216,17 +216,17 @@ void AttractDemoRaceUpdate(void) {
 
       }
 
-      SetSceneOverlayEnabled(D_800ACA2C);
+      SetSceneOverlayEnabled(TitleSceneOverlayEnabled);
     }
     if (RaceContext.w3dc == 1)
     {
       if (RaceContext.w530 == 0)
       {
-        if (D_800F3A3A & 8)
+        if (AttractPromptBlinkMask & 8)
         {
           RaceContext.h4e0 = RaceContext.h4e0 + 1;
         }
-        if (D_800F3A3A & 4)
+        if (AttractPromptBlinkMask & 4)
         {
           RaceContext.h4e0 = RaceContext.h4e0 - 1;
         }
@@ -238,11 +238,11 @@ void AttractDemoRaceUpdate(void) {
         {
           RaceContext.h4e0 = 0;
         }
-        if (D_800F3A3A & 2)
+        if (AttractPromptBlinkMask & 2)
         {
           RaceContext.h4e2 = 0x800;
         }
-        if (D_800F3A3A & 1)
+        if (AttractPromptBlinkMask & 1)
         {
           RaceContext.h4e2 = 0;
         }
@@ -260,11 +260,11 @@ void AttractDemoRaceUpdate(void) {
     }
     if (RaceContext.w530 == 1)
     {
-      if (D_800F3A3A & 4)
+      if (AttractPromptBlinkMask & 4)
       {
         RaceContext.w500 = RaceContext.w500 - 0x10;
       }
-      if (D_800F3A3A & 8)
+      if (AttractPromptBlinkMask & 8)
       {
         RaceContext.w500 = RaceContext.w500 + 0x10;
       }
@@ -348,9 +348,9 @@ void AttractDemoRaceUpdate(void) {
     }
   }
   else
-    if (D_800ACB0C < 0x1A)
+    if (AttractDemoStateBuffer < 0x1A)
   {
-    AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x19 - D_800ACB0C) * 8, 0x45);
+    AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x19 - AttractDemoStateBuffer) * 8, 0x45);
   }
   if (RaceContext.w4c8 == 1)
   {
@@ -428,10 +428,10 @@ void AttractDemoRaceUpdate(void) {
           {
             CdAudioBeginPlay(1);
           }
-          D_800ACB2C = 0xFA;
+          TitleAttractDelayTimer = 0xFA;
         }
       }
-      if (D_800F3A68 != 0)
+      if (TitleStartPressedFlag != 0)
       {
         if (RaceContext.w4d8 == 0)
         {
@@ -442,7 +442,7 @@ void AttractDemoRaceUpdate(void) {
           RaceContext.w4d8 = 0;
         }
       }
-      if (D_800ACB28 != 0)
+      if (TitleAttractReadyFlag != 0)
       {
         old = 0xC8;
         DrawFontStringRight(0x131, old, RepeatLabel, 0xFF, 0);
@@ -470,7 +470,7 @@ void AttractDemoRaceUpdate(void) {
       DrawOpponentCar(CarTable[k], 2);
     }
   }
-  ((int *)SCRATCHPAD)[0x78 / 4] = D_800F2A64;
+  ((int *)SCRATCHPAD)[0x78 / 4] = RaceQuitTargetMode;
   SetupPlayerView(0);
   DrawTrackObjects(0);
   DrawTrackSceneryForPlayer(0);

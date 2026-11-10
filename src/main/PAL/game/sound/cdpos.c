@@ -51,5 +51,5 @@ void CdAudioInit(void) {
     SoundState.fadeTarget26CA = 0;
     CdAudioSetVolume(0x7F);
     SoundState.seqTrack2868 = -1;
-    D_8010E220 = 0;
+    CdPlaybackTrackIndex = 0;
 }

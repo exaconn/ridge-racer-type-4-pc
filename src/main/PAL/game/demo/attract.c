@@ -17,7 +17,7 @@
 #include "game/menu/mnrows.h"
 
 extern int SlotOrder[];
-extern char D_800ACB0C[];
+extern char AttractDemoStateBuffer[];
 extern int MenuTransitionFadeRates[];
 extern short CourseIndex;
 extern unsigned short LoadingBarAnimCounter;
@@ -65,8 +65,8 @@ int *w;
         ShuffleSlotOrder();
         SlotOrder[0] = 0;
     }
-    PsyqBzero(D_800ACB0C, 0x80);
-    ((int *)D_800ACB0C)[3] = a0;
+    PsyqBzero(AttractDemoStateBuffer, 0x80);
+    ((int *)AttractDemoStateBuffer)[3] = a0;
     i = 3;
     q = sp + 3;
     do {
@@ -105,7 +105,7 @@ v = s0 + PsyqRand() % 2;
     } while (i < 4);
     CourseIndex = -1;
     if (a0 == 1) {
-        m = D_800F3A3A & LoadingBarAnimCounter;
+        m = AttractPromptBlinkMask & LoadingBarAnimCounter;
         if (m != 0) {
             i = 0;
             e = MenuStageEntryModeIds;

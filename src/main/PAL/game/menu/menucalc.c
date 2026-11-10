@@ -46,7 +46,7 @@ extern void ResetScreenCounters();
 extern void PlaySfx();
 extern unsigned short FadeCountdown;
 extern BadgeRow1C *BadgeRows;
-extern int D_800F4D74;
+extern int MenuSharedScratchPtr;
 
 int DrawCarStatBars(int x, int a1);
 int DrawStepProgressBar(int a0, int a1);
@@ -113,7 +113,7 @@ int DrawCarStatBars(int x, int a1)
 
 int DrawStepProgressBar(int a0, int a1) {
     int s0 = 0x28;
-    int sel = D_800AD4EF;
+    int sel = MenuSubmodePendingId;
     int i = 0;
     int v, y;
     do {
@@ -200,7 +200,7 @@ void DialogueModeUpdate(void) {
                 if (PendingModeId == 0x10F || PendingModeId == 0x12A || PendingModeId == 0x205) {
                     FadeCountdown = 0x40;
                     ResetScreenCounters(tab);
-                    LoadCursor = D_800F4D74;
+                    LoadCursor = MenuSharedScratchPtr;
                     LoadTimListStep(0);
                     SeqFadeVolume(0, (short)(FadeCountdown - 4));
                     SubmodeState = 1;

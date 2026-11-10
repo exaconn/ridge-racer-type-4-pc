@@ -8,7 +8,7 @@
 #include "game/menu/mnrows.h"
 extern MenuSettings2C SelectionState;
 extern SelectionRows32 SelectionRows;
-extern u8 D_800AD4EC;
+extern u8 MenuSelectionLockedFlag;
 #include "rr/ui.h"
 #include "rr/badge_row_types.h"
 #include "rr/menu_text_state.h"
@@ -31,7 +31,7 @@ extern u8 D_800AD4EC;
 
 typedef MenuSettings2C SaveSlotSelection;
 
-extern unsigned char D_800AD4F5;
+extern unsigned char MenuSelectedMakerId;
 extern short CardMenuOperation;
 #include "rr/sprite_effect.h"
 extern SpriteEffectSource MenuJitterSpritePresetA;
@@ -48,11 +48,11 @@ extern int StepMenuValue();
 extern void PlaySfx();
 extern short FadeCountdown;
 extern short MenuScriptId;
-extern int D_800F4D74;
+extern int MenuSharedScratchPtr;
 extern SaveSlotSelection SaveSlotSelections[];
 extern BadgeRow1C *BadgeRows;
-extern unsigned short D_800F3A42;
-extern int D_8010BFC0;
+extern unsigned short MenuSelectedCarSlot;
+extern int MenuAutoAdvanceTimer;
 extern s16 MenuCursor;
 extern s32 ModeFrame;
 extern s16 CardActivePort;
@@ -71,7 +71,7 @@ void SelectDialogueScript(void) {
     int u;
     int i;
 
-    sw = D_800AD4F2;
+    sw = MenuActiveDialogId;
     Dialogue->b7 = 1;
     Dialogue->s16 = 0;
     Dialogue->b1E = -2;
@@ -81,10 +81,10 @@ void SelectDialogueScript(void) {
     case 1:
         Dialogue->b4 = 0;
         PendingModeId = 0x109;
-        D_800AD4F2 = 1;
+        MenuActiveDialogId = 1;
         break;
     case 2:
-        Dialogue->b4 = D_800AD4F5 + 0x18;
+        Dialogue->b4 = MenuSelectedMakerId + 0x18;
         PendingModeId = 0x10F;
         break;
     case 4:
@@ -109,7 +109,7 @@ void SelectDialogueScript(void) {
             if (SelectionState.retries08[idx] >= 3) a1 = SelectionState.reserved10[4];
             break;
         case 4:
-            a1 = D_800AD4EC;
+            a1 = MenuSelectionLockedFlag;
             break;
         case 5:
             a1 = 3 - SelectionState.retries08[idx - 1];
@@ -136,11 +136,11 @@ void SelectDialogueScript(void) {
         u = a3 * 5;
         t = a1 + 4;
         P->b4 = u + t;
-        switch (D_800AD4EF) {
+        switch (MenuSubmodePendingId) {
         case 1:
         case 3:
         case 6:
-            D_800AD4F2 = 6;
+            MenuActiveDialogId = 6;
             UpdateSelectionRank();
             PendingModeId = 0x12A;
             break;
@@ -148,10 +148,10 @@ void SelectDialogueScript(void) {
             PendingModeId = 0x10F;
             break;
         }
-        if (D_800AD4EF == 7) PendingModeId = 0x205;
+        if (MenuSubmodePendingId == 7) PendingModeId = 0x205;
         break;
     case 6:
-        Dialogue->b4 = 0x25 - D_800AD4EC;
+        Dialogue->b4 = 0x25 - MenuSelectionLockedFlag;
         PendingModeId = 0x111;
         CardMenuOperation = 3;
         break;
@@ -392,7 +392,7 @@ void GpSaveSlotMenuUpdate(void) {
                         SubmodeState = 1;
                         FadeCountdown = 0x40;
                         ResetScreenCounters();
-                        LoadCursor = D_800F4D74;
+                        LoadCursor = MenuSharedScratchPtr;
                         BadgeRows->state10 = s0;
                         BadgeRows[1].state10 = s0;
                     } else {
@@ -403,7 +403,7 @@ void GpSaveSlotMenuUpdate(void) {
                     SubmodeState = 2;
                     FadeCountdown = 0x40;
                     ResetScreenCounters();
-                    LoadCursor = D_800F4D74;
+                    LoadCursor = MenuSharedScratchPtr;
                     LoadTimListStep(0);
                     BadgeRows->state10 = s0;
                     BadgeRows[1].state10 = s0;
@@ -450,15 +450,15 @@ void GpSaveSlotMenuUpdate(void) {
 }
 
 void StepReplaySavePrompt(void) {
-    if (D_800F3A42 & 0x1000) {
-        D_8010BFC0 = D_8010BFC0 - 1;
-    } else if (D_800F3A42 & 0x4000) {
-        D_8010BFC0 = D_8010BFC0 + 1;
+    if (MenuSelectedCarSlot & 0x1000) {
+        MenuAutoAdvanceTimer = MenuAutoAdvanceTimer - 1;
+    } else if (MenuSelectedCarSlot & 0x4000) {
+        MenuAutoAdvanceTimer = MenuAutoAdvanceTimer + 1;
     }
-    if (D_8010BFC0 < 0) {
-        D_8010BFC0 = 1;
-    } else if (D_8010BFC0 >= 2) {
-        D_8010BFC0 = 0;
+    if (MenuAutoAdvanceTimer < 0) {
+        MenuAutoAdvanceTimer = 1;
+    } else if (MenuAutoAdvanceTimer >= 2) {
+        MenuAutoAdvanceTimer = 0;
     }
     if (Pad0Buttons & 0x800) {
         ModeGroup = 1;

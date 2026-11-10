@@ -75,7 +75,7 @@ ReplayCameraContextPrefix *ctx;
         if (temp_v1 != 0) {
             if (temp_v1 == 1) {
                 var_s0 = 0;
-                D_80127E90 = (u32)D_80127E90 - D_80127E94;
+                EpilogueCreditScrollY = (u32)EpilogueCreditScrollY - EpilogueCreditScrollStep;
                 for(;var_s0<62;var_s0++)ovl668_draw_credit_band(var_s0,160);
             }
         }

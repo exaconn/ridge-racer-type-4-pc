@@ -8,7 +8,7 @@
 extern int BackColorR;
 extern s32 ActiveViewportIndex;
 extern SaveBuf *SaveBuffer;
-extern signed char D_800AD4EF;
+extern signed char MenuSubmodePendingId;
 extern int DefaultSegmentVisibilityMask;
 extern unsigned short PendingModeId;
 extern short ModeSelectBaseCount;

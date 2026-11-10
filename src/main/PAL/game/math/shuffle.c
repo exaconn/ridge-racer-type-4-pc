@@ -2,7 +2,7 @@
 #include "rr/frame_loop.h"
 #include "psyq/libc/rand.h"
 extern struct { int p; int a[8]; } SlotOrder;
-extern int D_8010E264;
+extern int ShuffleRandomSeedState;
 extern int PsyqSrand();
 void ShuffleSlotOrder(void) {
     int i, a, b, x, y, t;
@@ -20,5 +20,5 @@ void ShuffleSlotOrder(void) {
         SlotOrder.a[x] = SlotOrder.a[y];
         SlotOrder.a[y] = t;
     } while (i < 0x20);
-    D_8010E264 = 0;
+    ShuffleRandomSeedState = 0;
 }

@@ -57,9 +57,9 @@ extern s32 ModeFrame;
 extern s16 CourseIndex;
 extern s8 RacePaused;
 extern s32 RaceState;
-extern s32 D_8010E840;
-extern s32 D_8010E848[];
-extern Vec16 D_8010E8C8;
+extern s32 TrackObjCullDistance;
+extern s32 TrackObjVisibleFrame[];
+extern Vec16 TrackObjWorldOrigin;
 
 
 void DrawTrackObjects(s32 arg0) {
@@ -214,11 +214,11 @@ void DrawTrackObjects(s32 arg0) {
                 if (dist >= 0x899) {
                     v = 0;
                 }
-                s3[0x00 / 4] = D_8010E8C8.vx - (scene->view.projection.pose08.position00.xyz.x);
-                s3[0x04 / 4] = D_8010E8C8.vy - (scene->view.projection.pose08.position00.xyz.y);
-                s3[0x08 / 4] = D_8010E8C8.vz - (scene->view.projection.pose08.position00.xyz.z);
+                s3[0x00 / 4] = TrackObjWorldOrigin.vx - (scene->view.projection.pose08.position00.xyz.x);
+                s3[0x04 / 4] = TrackObjWorldOrigin.vy - (scene->view.projection.pose08.position00.xyz.y);
+                s3[0x08 / 4] = TrackObjWorldOrigin.vz - (scene->view.projection.pose08.position00.xyz.z);
                 s3[0x10 / 4] = CordicSqrt((s3[0x00 / 4] * s3[0x00 / 4] + s3[0x04 / 4] * s3[0x04 / 4] + s3[0x08 / 4] * s3[0x08 / 4]) >> 10) >> 2;
-                if (dist < D_8010E840) {
+                if (dist < TrackObjCullDistance) {
                     s3[0x10 / 4] = -s3[0x10 / 4];
                 }
                 {
@@ -227,8 +227,8 @@ void DrawTrackObjects(s32 arg0) {
                         SoundLoopSet(5, t, v, 0x40);
                     }
                 }
-                D_8010E8C8 = *(Vec16 *)&(scene->view.projection.pose08.position00.xyz.x);
-                D_8010E840 = dist;
+                TrackObjWorldOrigin = *(Vec16 *)&(scene->view.projection.pose08.position00.xyz.x);
+                TrackObjCullDistance = dist;
             }
             break;
 
@@ -354,13 +354,13 @@ void DrawTrackObjects(s32 arg0) {
                 pan = 0x7F;
             }
             if (((u16)GameModeType - 2U) < 3U) {
-                if (D_8010E848[i] == ModeFrame) {
+                if (TrackObjVisibleFrame[i] == ModeFrame) {
                     SetSoundChannelVolLR(1, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
                 } else {
                     SetSoundChannelVolLR(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
                     SetSoundChannelVolLR(1, 0, 0);
                 }
-                D_8010E848[i] = ModeFrame;
+                TrackObjVisibleFrame[i] = ModeFrame;
             } else {
                 SetSoundChannelVolLR(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
             }
@@ -384,13 +384,13 @@ void DrawTrackObjects(s32 arg0) {
                 v = 0;
             }
             if (((u16)GameModeType - 2U) < 3U) {
-                if (D_8010E848[i] == ModeFrame) {
+                if (TrackObjVisibleFrame[i] == ModeFrame) {
                     SetSoundChannelVolLR(1, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
                 } else {
                     SetSoundChannelVolLR(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
                     SetSoundChannelVolLR(1, 0, 0);
                 }
-                D_8010E848[i] = ModeFrame;
+                TrackObjVisibleFrame[i] = ModeFrame;
             } else {
                 SetSoundChannelVolLR(0, (s16)((v * pan) >> 7), (s16)((v * (0x80 - pan)) >> 7));
             }
@@ -616,10 +616,10 @@ void DrawTrackObjects(s32 arg0) {
                 s3[0x00 / 4] = CordicSqrt((dx * dx + dz * dz) >> 12);
             }
             if (((u16)GameModeType - 2U) < 3U) {
-                if (D_8010E848[i] != ModeFrame && RacePaused == 0) {
+                if (TrackObjVisibleFrame[i] != ModeFrame && RacePaused == 0) {
                     TrackObjectStates[i].f8 = (TrackObjectStates[i].f8 + (((i & 1) == 0) ? 0x20 : 0xFE0)) % 0x1000;
                 }
-                D_8010E848[i] = ModeFrame;
+                TrackObjVisibleFrame[i] = ModeFrame;
             } else if (RacePaused == 0) {
                 TrackObjectStates[i].f8 = (TrackObjectStates[i].f8 + (((i & 1) == 0) ? 0x20 : 0xFE0)) % 0x1000;
             }
@@ -797,13 +797,13 @@ s32 LoadTrackObjects(void *data, S_ECB4 *states) {
     int count = ((TrackObjectFile *)data)->count;
     int bytes;
     data = (u8 *)data + RR_FIELD_OFFSET(TrackObjectFile,definitions);
-    D_8010E8DC = (S_ECB0 *)data;
+    TrackObjMeshTablePtr = (S_ECB0 *)data;
     TrackObjectDefs = (S_ECB0 *)data;
-    D_8010E8E0 = states;
+    TrackObjInstanceStates = states;
     TrackObjectStates = states;
     data = (u8 *)data + count * sizeof(S_ECB0);
     TrackObjectCount = count;
-    D_8010E8D8 = (Node24 *)data;
+    TrackObjSplineNodes = (Node24 *)data;
     bytes = count * sizeof(*states);
     TrackObjectKeyframes = (Node24 *)data;
     PsyqBzero(states, bytes);

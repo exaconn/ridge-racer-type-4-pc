@@ -46,9 +46,9 @@ static State actual,reference,*w;
 #define ovl665_saved_sfx_volume w->effects
 #define Options w->settings
 #define FadeCountdown w->timer
-#define D_800F7640 w->gain
+#define OptionsPreviewBgmVolume w->gain
 #define PlayerControllers w->input
-#define D_800F3A60 w->input[0].action28
+#define MenuReturnSubmodeIndex w->input[0].action28
 #define UiRows w->rows[w->rowRoot]
 #define CurrentDrawBuf (w->frames[w->frameRoot])
 ''' + body + r'''

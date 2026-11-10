@@ -36,7 +36,7 @@ extern int FrameCounter;
 extern struct Buf DrawBuffers[];
 extern FadeRaceContext RaceContext;
 #include "rr/cd_directory_buffer.h"
-extern s32 D_800ACA94;
+extern s32 IntroSceneWorkState;
 extern s16 ModeIndex;
 extern s16 ModeGroup;
 extern s16 SubmodeState;
@@ -288,7 +288,7 @@ int IntroScriptStep(void) {
 
 void IntroInit(void) {
     SetDispMask(0);
-    PsyqBzero(&D_800ACA94, 0x78);
+    PsyqBzero(&IntroSceneWorkState, 0x78);
     InitDemoFadeContext(0);
     SelectDemoFadePreset(0);
     LoadCursor = CdDirectoryBuffer;

@@ -69,9 +69,9 @@ static void call11(s32 enabled){assert(enabled==1);service(11);}
 #define VSyncThreshold (actual.draw)
 #define ViewUsesCarTrackNode (actual.clock)
 #define MaskBitSetting (actual.ready)
-#define D_80127E90 (actual.delay)
-#define D_80127E94 (actual.selected)
-#define D_800AD564 (actual.bank)
+#define EpilogueCreditScrollY (actual.delay)
+#define EpilogueCreditScrollStep (actual.selected)
+#define SelectedStoryBranchId (actual.bank)
 #define SelectedTeamIndex (actual.row)
 #define ovl668_credit_scroll_speeds (actual.lookup)
 #define SetDispMask call0

@@ -71,10 +71,10 @@ extern unsigned short CardMenuReturnModeId;
 extern unsigned short GameModeType;
 extern int DialogueSceneMode;
 extern short GpSaveSlotCursor;
-extern int D_801272F0[];
+extern int GarageExtraDefaultTimes[];
 extern s16 MenuSlideStepVectors[][2];
 extern char *SaveBuffer;
-extern int D_8010EFA8;
+extern int MenuSaveBannerTimer;
 extern short MenuSubpageCursor;
 extern short MenuSubpageScroll;
 extern unsigned char CardFileCounts;
@@ -340,9 +340,9 @@ void CloseCardMenuUiRows(void) {
 void StepCardSlotHeaderScan(void) {
     short t;
     if (SubmodeState == 0) {
-        D_801272F0[0] = -1;
-        D_801272F0[1] = -1;
-        D_801272F0[2] = -1;
+        GarageExtraDefaultTimes[0] = -1;
+        GarageExtraDefaultTimes[1] = -1;
+        GarageExtraDefaultTimes[2] = -1;
         GpSaveSlotCursor = 0;
         ReadCardSlotHeaderStep(0, 0);
         SubmodeState = 1;
@@ -411,7 +411,7 @@ void StepCardDataTransfer(void)
   if (SubmodeState == 0)
   {
     ScanBothCardPortsStep(0);
-    D_8010EFA8 = 0;
+    MenuSaveBannerTimer = 0;
     SubmodeState = 1;
     return;
   }

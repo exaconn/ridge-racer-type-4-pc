@@ -25,7 +25,7 @@ void CdAudioSetVolume(u16 a0) {
     s16 s;
     if (SoundState.currentVol26C4 != a0) {
         SoundState.currentVol26C4 = (u8)a0;
-        s = (SoundState.currentVol26C4 * D_800AD558) / 16;
+        s = (SoundState.currentVol26C4 * CdMusicMasterVolume) / 16;
         SsSetSerialVol(0, s, s);
     }
 }
@@ -34,7 +34,7 @@ void CdAudioSetVolumeRaw(s32 arg0) {
     s32 var_a0;
     u32 temp_a1;
 
-    var_a0 = (arg0 & 0xFF) * D_800AD558;
+    var_a0 = (arg0 & 0xFF) * CdMusicMasterVolume;
     if (var_a0 < 0) {
         var_a0 += 0xF;
     }

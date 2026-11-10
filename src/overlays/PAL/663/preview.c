@@ -70,7 +70,7 @@ void ovl663_update_preview(void) {
             else
                 ovl663_draw_preview();
             UiRows->cells[0] = 2;
-            if (D_800F3A60) {
+            if (MenuReturnSubmodeIndex) {
                 PlaySfx(1);
                 SetMenuFrameOptions(0, 1, 0);
                 SubmodeState = 8;
@@ -133,7 +133,7 @@ void ovl663_update_result_preview(void) {
         break;
     case 1:
         UiRows[3].cells[0] = 2;
-        if (D_800F3A60) {
+        if (MenuReturnSubmodeIndex) {
             PlaySfx(1);
             SetMenuFrameOptions(0, 1, 0);
             UiRows[3].cells[0] = 1;

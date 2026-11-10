@@ -46,10 +46,10 @@ extern int *ActivePolyStripPtr;
 extern s32 RearViewMirrorVisible;
 extern int RaceState;
 extern int PsyqSrand();
-extern short D_80107180[];
+extern short PolyStripTempCoords[];
 extern s32 SquareRoot0(s32 value);
-extern short D_80107182;
-extern short D_80107184;
+extern short PolyStripTempCoordY;
+extern short PolyStripTempCoordZ;
 extern short *SegmentVisibilityTable;
 extern unsigned char *OctantLookupTable;
 extern struct PreviewBytes8 EmblemPreviewClutRect0;
@@ -100,7 +100,7 @@ int SetupRearViewMirror(void) {
         }
     }
     if (r != 0) {
-        D_8010E710 = scratch->matrix28;
+        PolyWorldTransformMtx = scratch->matrix28;
         scratch->matrix28 = RearViewMirrorMatrix;
         scratch->projection.pose08.angles10.xyz.y = (scratch->projection.pose08.angles10.xyz.y + 0x800U);
         BuildRotMatrixY(&rotation, 0x800);
@@ -128,7 +128,7 @@ int SetupRearViewMirror(void) {
 void RestoreMainViewAfterMirror(void) {
     ViewMatrixScratch48 *scratch = (ViewMatrixScratch48 *)SCRATCHPAD;
     scratch->projection.pose08.angles10.xyz.y = (scratch->projection.pose08.angles10.xyz.y - 0x800U);
-    scratch->matrix28 = D_8010E710;
+    scratch->matrix28 = PolyWorldTransformMtx;
 }
 
 struct PreviewSlotEntry10 *EmitRearViewMirrorFrameTile(struct PreviewSlotEntry10 *a0) {
@@ -180,15 +180,15 @@ void InitAnimatedTrackObjects(void *memory)
     const AnimatedTrackColorKey **firstKeys,**secondKeys;
     const u8 *colorBase;
     AnimatedTrackObject *state;
-    D_8010E738 = (AnimatedTrackParticle (*)[255])memory;
+    TrackParticlePoolPtr = (AnimatedTrackParticle (*)[255])memory;
     memory = (u8 *)memory + RR_FIELD_OFFSET(AnimatedTrackArena,objects);
     packet = (AnimatedLinePacket *)((u8 *)memory + sizeof(((AnimatedTrackArena *)0)->objects));
     buffer = 0;
-    D_8010E78C = (AnimatedTrackObject *)memory;
+    AnimatedTrackObjPool = (AnimatedTrackObject *)memory;
     do {
         objectIndex = 0;
         do {
-            state = D_8010E78C + objectIndex;
+            state = AnimatedTrackObjPool + objectIndex;
             state->headsE8[buffer] = packet;
             state->tailsF0[buffer] = 0;
             SetLineG2(packet);
@@ -207,8 +207,8 @@ void InitAnimatedTrackObjects(void *memory)
     offsets = (const u32 *)packet;
     colorBase = (const u8 *)packet;
     buffer = 0;
-    secondKeys = D_8010E768;
-    firstKeys = D_8010E740;
+    secondKeys = TrackColorKeysSecondary;
+    firstKeys = TrackColorKeysPrimary;
     do {
         *firstKeys = (const AnimatedTrackColorKey *)(colorBase + (s32)*offsets);
         offsets++;
@@ -221,7 +221,7 @@ void InitAnimatedTrackObjects(void *memory)
 }
 
 void SetAnimatedTrackObjectState(int index, int flags, const s32 *position, int style) {
-    AnimatedTrackObject *object = D_8010E78C + index;
+    AnimatedTrackObject *object = AnimatedTrackObjPool + index;
     int reset;
     int colorIndex;
     if (flags & 1) {
@@ -250,9 +250,9 @@ void SetAnimatedTrackObjectState(int index, int flags, const s32 *position, int 
         object->colorTick1C = 0;
         object->keyIndex34 = 0;
         object->keyIndex38 = 0;
-        object->particles00 = D_8010E738[index];
-        object->keys40 = D_8010E740[object->style3C];
-        object->keys44 = D_8010E768[object->style3C];
+        object->particles00 = TrackParticlePoolPtr[index];
+        object->keys40 = TrackColorKeysPrimary[object->style3C];
+        object->keys44 = TrackColorKeysSecondary[object->style3C];
         for (colorIndex = 0; colorIndex < 16; colorIndex++) {
             object->palette48.words[colorIndex] = 0x52000000;
             object->palette88.words[colorIndex] = 0x52000000;
@@ -262,9 +262,9 @@ void SetAnimatedTrackObjectState(int index, int flags, const s32 *position, int 
         object->anglesD8.z = 0;
         object->tailsF0[0] = 0;
         object->tailsF0[1] = 0;
-        D_80107180[0] = 0x420;
-        D_80107180[1] = 0x5D0;
-        D_80107180[2] = 0x610;
+        PolyStripTempCoords[0] = 0x420;
+        PolyStripTempCoords[1] = 0x5D0;
+        PolyStripTempCoords[2] = 0x610;
         PsyqSrand(VSync(1));
     }
 }
@@ -309,7 +309,7 @@ void DrawAnimatedTrackObject(AnimatedTrackScratch *scratch, int objectIndex, int
 
     PsyqMemset(&direction, 0, sizeof(direction));
     direction.fields.z = 0x100;
-    object = D_8010E78C + objectIndex;
+    object = AnimatedTrackObjPool + objectIndex;
     ordering = scratch->scene.view.projection.pointers.order + 0x900 / sizeof(u32);
     object->advance30 = advance;
     colorIndex = (object->frame14 - object->startFrame28) & 0xF;
@@ -389,12 +389,12 @@ void DrawAnimatedTrackObject(AnimatedTrackScratch *scratch, int objectIndex, int
                 if (cursor != object->headsE8[DrawBufIndex]) object->tailsF0[DrawBufIndex] = cursor - 1;
                 else object->tailsF0[DrawBufIndex] = 0;
                 if (objectIndex < 2) {
-                    if (object->palette48.values[colorIndex].r * 16 > D_80107180[0]) ColorMatrix.fields.rotation00[0][objectIndex] = (short)object->palette48.values[colorIndex].r << 4;
-                    else ColorMatrix.fields.rotation00[0][objectIndex] = D_80107180[0];
-                    if (object->palette48.values[colorIndex].g * 16 > D_80107180[1]) ColorMatrix.fields.rotation00[1][objectIndex] = (short)object->palette48.values[colorIndex].g << 4;
-                    else ColorMatrix.fields.rotation00[1][objectIndex] = D_80107180[1];
-                    if (object->palette48.values[colorIndex].b * 16 > D_80107180[2]) ColorMatrix.fields.rotation00[2][objectIndex] = (short)object->palette48.values[colorIndex].b << 4;
-                    else ColorMatrix.fields.rotation00[2][objectIndex] = D_80107180[2];
+                    if (object->palette48.values[colorIndex].r * 16 > PolyStripTempCoords[0]) ColorMatrix.fields.rotation00[0][objectIndex] = (short)object->palette48.values[colorIndex].r << 4;
+                    else ColorMatrix.fields.rotation00[0][objectIndex] = PolyStripTempCoords[0];
+                    if (object->palette48.values[colorIndex].g * 16 > PolyStripTempCoords[1]) ColorMatrix.fields.rotation00[1][objectIndex] = (short)object->palette48.values[colorIndex].g << 4;
+                    else ColorMatrix.fields.rotation00[1][objectIndex] = PolyStripTempCoords[1];
+                    if (object->palette48.values[colorIndex].b * 16 > PolyStripTempCoords[2]) ColorMatrix.fields.rotation00[2][objectIndex] = (short)object->palette48.values[colorIndex].b << 4;
+                    else ColorMatrix.fields.rotation00[2][objectIndex] = PolyStripTempCoords[2];
                 }
             }
         }
@@ -402,9 +402,9 @@ void DrawAnimatedTrackObject(AnimatedTrackScratch *scratch, int objectIndex, int
         if (last != 0) {
             AddPrims(ordering, object->headsE8[DrawBufIndex], &last->tag.word);
         } else if (objectIndex < 2) {
-            ColorMatrix.fields.rotation00[0][objectIndex] = D_80107180[0];
-            ColorMatrix.fields.rotation00[1][objectIndex] = D_80107180[1];
-            ColorMatrix.fields.rotation00[2][objectIndex] = D_80107180[2];
+            ColorMatrix.fields.rotation00[0][objectIndex] = PolyStripTempCoords[0];
+            ColorMatrix.fields.rotation00[1][objectIndex] = PolyStripTempCoords[1];
+            ColorMatrix.fields.rotation00[2][objectIndex] = PolyStripTempCoords[2];
         }
         if (objectIndex < 2) {
             toCamera[0] = (cameraPosition[0] >> 2) - 0x8000;

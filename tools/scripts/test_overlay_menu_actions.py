@@ -38,9 +38,9 @@ static struct World {
 } world,expected;
 #define MenuCursor world.selection
 #define MenuItemCount world.limit
-#define D_800F3A60 world.accepted
+#define MenuReturnSubmodeIndex world.accepted
 #define SelectionRows world.choice
-#define D_800F4D99 world.choice.bytes[1]
+#define ActiveSelectionRowValue world.choice.bytes[1]
 static Event *event(struct World *w,s32 kind){Event *e;assert(w->calls<8);e=&w->events[w->calls++];e->kind=kind;return e;}
 static void draw(struct World *w,s32 row,s32 a,s32 b){
  Event *e=event(w,1);e->args[0]=row;e->args[1]=a;e->args[2]=b;

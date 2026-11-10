@@ -1,5 +1,6 @@
 """STR command flags, DMA forwarding, status routing and native callback pointers."""
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
@@ -12,12 +13,12 @@ class OverlayControlTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         path = Path(cls.temp.name)
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/668/func_{name}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/668/func_{name}.c')
                            .replace('#include "rr/overlay668_control.h"', '')
                            for name in ('801163FC', '80116478', '80116498', '801164D4', '80116510'))
         resident = (root / 'tools/scripts/fixtures/legacy/func_8008B3C4.c').read_text()
         resident = resident.replace('#include "rr/library.h"', '')
-        query = (root / 'src/overlays/PAL/668/func_8011688C.c').read_text()
+        query = read_c_source(root / 'src/overlays/PAL/668/func_8011688C.c')
         query = query.replace('#include "types.h"', '').replace('ovl668_mdec_read_status', 'rr_real_status')
         source = r'''
 #include <assert.h>

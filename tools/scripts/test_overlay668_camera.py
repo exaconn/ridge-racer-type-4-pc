@@ -1,5 +1,6 @@
 """Replay camera: wrapped arithmetic, live track roots and explicit GTE simulation."""
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 import re
 import subprocess
 from tempfile import TemporaryDirectory
@@ -9,7 +10,7 @@ import unittest
 class ReplayCameraTest(unittest.TestCase):
     def test_native_camera(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/668/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/668/func_{a}.c')
                            for a in ('80115554', '801156FC', '80115850'))
         bodies = re.sub(r'__asm__\("\$3"\)', '', bodies)
         source = r'''

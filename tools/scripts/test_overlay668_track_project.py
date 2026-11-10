@@ -4,13 +4,14 @@ Services are stateful ABI mocks. Incoming aggregate padding is not a coordinate;
 only the low signed halfword consumed by the resident assembly is compared.
 """
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 from tempfile import TemporaryDirectory
 import hashlib,json,os,struct,subprocess
 from elftools.elf.elffile import ELFFile
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN,UC_HOOK_CODE,UC_HOOK_MEM_WRITE
 from unicorn.mips_const import *
 ROOT=Path(__file__).resolve().parents[2]
-SOURCE=ROOT/'src/overlays/PAL/668/func_80115460.c'
+SOURCE=resolve_c_source_path(ROOT/'src/overlays/PAL/668/func_80115460.c')
 CASES=512
 C=r'''
 #include <assert.h>
@@ -80,7 +81,7 @@ def signed(v,bits=32):
 def trunc4(v):return v//4 if v>=0 else -((-v)//4)
 def main():
  with TemporaryDirectory() as tmp:
-  c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(C+SOURCE.read_text()+TAIL)
+  c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(C+read_c_source(ROOT/'src/overlays/PAL/668/func_80115460.c')+TAIL)
   subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True)
   native=subprocess.check_output([str(exe)],text=True).splitlines()
  blob=(ROOT/'disc/PAL/R4.BIN').read_bytes();sector=struct.unpack_from('<I',blob,4+668*4)[0];off=sector*2048+0x80115460-0x80114878;code=blob[off:off+244]

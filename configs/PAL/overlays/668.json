@@ -1,246 +1,264 @@
 {
   "index": 668,
   "name": "movie_playback",
+  "units": [
+    {
+      "source": "src/overlays/PAL/668/stream.c",
+      "address": 2148616464
+    },
+    {
+      "source": "src/overlays/PAL/668/epilogue_camera.c",
+      "address": 2148619360
+    },
+    {
+      "source": "src/overlays/PAL/668/epilogue_credits.c",
+      "address": 2148621820
+    },
+    {
+      "source": "src/overlays/PAL/668/mdec.c",
+      "address": 2148623000
+    }
+  ],
   "functions": [
     {
       "address": 2148616464,
       "size": 216,
       "symbol": "ovl668_resolve_stream_file",
-      "source": "src/overlays/PAL/668/func_80114910.c"
+      "source": "src/overlays/PAL/668/stream.c"
     },
     {
       "address": 2148616680,
       "size": 192,
       "symbol": "ovl668_init_stream_playback",
-      "source": "src/overlays/PAL/668/func_801149E8.c"
+      "source": "src/overlays/PAL/668/stream.c"
     },
     {
       "address": 2148616872,
       "size": 132,
       "symbol": "ovl668_update_stream_mode",
-      "source": "src/overlays/PAL/668/func_80114AA8.c"
+      "source": "src/overlays/PAL/668/stream.c"
     },
     {
       "address": 2148617004,
       "size": 272,
       "symbol": "ovl668_start_stream_playback",
-      "source": "src/overlays/PAL/668/func_80114B2C.c"
+      "source": "src/overlays/PAL/668/stream.c"
     },
     {
       "address": 2148617276,
       "size": 440,
       "symbol": "ovl668_step_stream_playback",
-      "source": "src/overlays/PAL/668/func_80114C3C.c"
+      "source": "src/overlays/PAL/668/stream.c"
     },
     {
       "address": 2148617716,
       "size": 84,
       "symbol": "ovl668_stop_stream_playback",
-      "source": "src/overlays/PAL/668/func_80114DF4.c"
+      "source": "src/overlays/PAL/668/stream.c"
     },
     {
       "address": 2148617800,
       "size": 72,
       "symbol": "ovl668_init_stream_buffers",
-      "source": "src/overlays/PAL/668/func_80114E48.c"
+      "source": "src/overlays/PAL/668/stream.c"
     },
     {
       "address": 2148617872,
       "size": 88,
       "symbol": "ovl668_init_stream_display",
-      "source": "src/overlays/PAL/668/func_80114E90.c"
+      "source": "src/overlays/PAL/668/stream.c"
     },
     {
       "address": 2148617960,
       "size": 96,
       "symbol": "ovl668_setup_stream_ring",
-      "source": "src/overlays/PAL/668/func_80114EE8.c"
+      "source": "src/overlays/PAL/668/stream.c"
     },
     {
       "address": 2148618056,
       "size": 400,
       "symbol": "ovl668_on_mdec_slice_ready",
-      "source": "src/overlays/PAL/668/func_80114F48.c"
+      "source": "src/overlays/PAL/668/stream.c"
     },
     {
       "address": 2148618456,
       "size": 140,
       "symbol": "ovl668_decode_next_frame",
-      "source": "src/overlays/PAL/668/func_801150D8.c"
+      "source": "src/overlays/PAL/668/stream.c"
     },
     {
       "address": 2148618596,
       "size": 504,
       "symbol": "ovl668_acquire_stream_frame",
-      "source": "src/overlays/PAL/668/func_80115164.c"
+      "source": "src/overlays/PAL/668/stream.c"
     },
     {
       "address": 2148619100,
       "size": 148,
       "symbol": "ovl668_wait_frame_ready",
-      "source": "src/overlays/PAL/668/func_8011535C.c"
+      "source": "src/overlays/PAL/668/stream.c"
     },
     {
       "address": 2148619248,
       "size": 112,
       "symbol": "ovl668_seek_and_read_stream",
-      "source": "src/overlays/PAL/668/func_801153F0.c"
+      "source": "src/overlays/PAL/668/stream.c"
     },
     {
       "address": 2148619360,
       "size": 244,
       "symbol": "ovl668_project_camera_to_track",
-      "source": "src/overlays/PAL/668/func_80115460.c"
+      "source": "src/overlays/PAL/668/epilogue_camera.c"
     },
     {
       "address": 2148619604,
       "size": 424,
       "symbol": "ovl668_step_epilogue_camera_yaw",
-      "source": "src/overlays/PAL/668/func_80115554.c"
+      "source": "src/overlays/PAL/668/epilogue_camera.c"
     },
     {
       "address": 2148620028,
       "size": 340,
       "symbol": "ovl668_step_epilogue_camera_pitch",
-      "source": "src/overlays/PAL/668/func_801156FC.c"
+      "source": "src/overlays/PAL/668/epilogue_camera.c"
     },
     {
       "address": 2148620368,
       "size": 284,
       "symbol": "ovl668_apply_epilogue_camera",
-      "source": "src/overlays/PAL/668/func_80115850.c"
+      "source": "src/overlays/PAL/668/epilogue_camera.c"
     },
     {
       "address": 2148620652,
       "size": 84,
       "symbol": "ovl668_calc_credit_line_fade",
-      "source": "src/overlays/PAL/668/func_8011596C.c"
+      "source": "src/overlays/PAL/668/epilogue_camera.c"
     },
     {
       "address": 2148620736,
       "size": 528,
       "symbol": "ovl668_draw_credit_band",
-      "source": "src/overlays/PAL/668/func_801159C0.c"
+      "source": "src/overlays/PAL/668/epilogue_camera.c"
     },
     {
       "address": 2148621264,
       "size": 556,
       "symbol": "ovl668_emit_letterbox_pass",
-      "source": "src/overlays/PAL/668/func_80115BD0.c"
+      "source": "src/overlays/PAL/668/epilogue_camera.c"
     },
     {
       "address": 2148621820,
       "size": 388,
       "symbol": "ovl668_init_epilogue_credits",
-      "source": "src/overlays/PAL/668/func_80115DFC.c"
+      "source": "src/overlays/PAL/668/epilogue_credits.c"
     },
     {
       "address": 2148622208,
       "size": 792,
       "symbol": "ovl668_update_epilogue_credits",
-      "source": "src/overlays/PAL/668/func_80115F80.c"
+      "source": "src/overlays/PAL/668/epilogue_credits.c"
     },
     {
       "address": 2148623000,
       "size": 52,
       "symbol": "ovl668_mdec_reset",
-      "source": "src/overlays/PAL/668/func_80116298.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148623052,
       "size": 140,
       "symbol": "ovl668_mdec_get_env",
-      "source": "src/overlays/PAL/668/func_801162CC.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148623192,
       "size": 152,
       "symbol": "ovl668_mdec_put_env",
-      "source": "src/overlays/PAL/668/func_80116358.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148623344,
       "size": 12,
       "symbol": "ovl668_mdec_buf_size",
-      "source": "src/overlays/PAL/668/func_801163F0.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148623356,
       "size": 124,
       "symbol": "ovl668_mdec_in",
-      "source": "src/overlays/PAL/668/func_801163FC.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148623480,
       "size": 32,
       "symbol": "ovl668_mdec_out",
-      "source": "src/overlays/PAL/668/func_80116478.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148623512,
       "size": 60,
       "symbol": "ovl668_mdec_in_sync",
-      "source": "src/overlays/PAL/668/func_80116498.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148623572,
       "size": 60,
       "symbol": "ovl668_mdec_out_sync",
-      "source": "src/overlays/PAL/668/func_801164D4.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148623632,
       "size": 36,
       "symbol": "ovl668_mdec_in_callback",
-      "source": "src/overlays/PAL/668/func_80116510.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148623668,
       "size": 36,
       "symbol": "ovl668_mdec_out_callback",
-      "source": "src/overlays/PAL/668/func_80116534.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148623704,
       "size": 240,
       "symbol": "ovl668_mdec_reset_hw",
-      "source": "src/overlays/PAL/668/func_80116558.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148623944,
       "size": 144,
       "symbol": "ovl668_mdec_start_in_dma",
-      "source": "src/overlays/PAL/668/func_80116648.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148624088,
       "size": 140,
       "symbol": "ovl668_mdec_start_out_dma",
-      "source": "src/overlays/PAL/668/func_801166D8.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148624228,
       "size": 148,
       "symbol": "ovl668_mdec_wait_in_dma",
-      "source": "src/overlays/PAL/668/func_80116764.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148624376,
       "size": 148,
       "symbol": "ovl668_mdec_wait_out_dma",
-      "source": "src/overlays/PAL/668/func_801167F8.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148624524,
       "size": 24,
       "symbol": "ovl668_mdec_read_status",
-      "source": "src/overlays/PAL/668/func_8011688C.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     },
     {
       "address": 2148624548,
       "size": 124,
       "symbol": "ovl668_mdec_handle_timeout",
-      "source": "src/overlays/PAL/668/func_801168A4.c"
+      "source": "src/overlays/PAL/668/mdec.c"
     }
   ],
   "globals": {

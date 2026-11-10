@@ -1,5 +1,6 @@
 """Frame acquisition retry limits, fresh playback roots and full frame/config publication."""
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 from tempfile import TemporaryDirectory
 import subprocess
 import unittest
@@ -7,7 +8,7 @@ import unittest
 class Overlay668FrameAcquireTest(unittest.TestCase):
     def test_headers_retries_aliases_and_clear_callbacks(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/668/func_80115164.c').read_text()
+        body=read_c_source(root / 'src/overlays/PAL/668/func_80115164.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

@@ -1,5 +1,6 @@
 """Actual STR readiness polling and timeout buffer-coordinate selection."""
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
@@ -11,7 +12,7 @@ class OverlaySyncTest(unittest.TestCase):
         cls.temp = TemporaryDirectory()
         cls.addClassCleanup(cls.temp.cleanup)
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/668/func_8011535C.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/668/func_8011535C.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

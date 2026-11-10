@@ -1,5 +1,6 @@
 """STR live buffer state, captured rectangles and startup retry protocol."""
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
@@ -8,7 +9,7 @@ import unittest
 class StreamTest(unittest.TestCase):
     def test_stream_and_start(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/668/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/668/func_{a}.c')
                            for a in ('80114F48', '80114B2C'))
         source = r'''
 #include <assert.h>

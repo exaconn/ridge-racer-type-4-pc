@@ -1,9 +1,9 @@
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 import os,re,subprocess,sys
 os.chdir(Path(__file__).resolve().parents[2]);p=Path('build/goal_50/parallel668')
 source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/668/func_80115F80.c')
-if not source.exists():source=p/'ready.c'
-s=source.read_text();body=s[s.index('void ovl668_update_epilogue_credits'):]
+s=read_c_source(source);body=s[s.index('void ovl668_update_epilogue_credits'):]
 head=r'''
 #include <stdint.h>
 #include "game/system/pad.h"

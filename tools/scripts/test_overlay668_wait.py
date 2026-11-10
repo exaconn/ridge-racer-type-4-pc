@@ -1,5 +1,6 @@
 """Native STR polling: idle paths, bounded timeouts and diagnostic arguments."""
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
@@ -11,7 +12,7 @@ class OverlayWaitTest(unittest.TestCase):
         cls.temp = TemporaryDirectory()
         cls.addClassCleanup(cls.temp.cleanup)
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/668/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/668/func_{a}.c')
                            for a in ('80116764', '801167F8'))
         source = r'''
 #include <assert.h>

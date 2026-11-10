@@ -1,5 +1,6 @@
 """Playback dispatcher uses the full signed phase and fresh resource pointer."""
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 from tempfile import TemporaryDirectory
 import subprocess
 import unittest
@@ -7,7 +8,7 @@ import unittest
 class Overlay668DispatchTest(unittest.TestCase):
     def test_phase_and_mutating_boundaries(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/668/func_80114AA8.c').read_text()
+        body=read_c_source(root / 'src/overlays/PAL/668/func_80114AA8.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

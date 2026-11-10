@@ -1,5 +1,6 @@
 """Check STR text/data separation against the original disc payload."""
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 import struct
 import unittest
 

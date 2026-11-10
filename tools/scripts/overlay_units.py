@@ -48,7 +48,7 @@ def function_extent(source, symbol):
     """Find a complete C definition, ignoring braces inside comments/literals."""
     pattern = re.compile(r'/\*.*?\*/|//[^\n]*|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'', re.S)
     code = pattern.sub(lambda match: re.sub(r'[^\n]', ' ', match[0]), source)
-    definition = re.search(r'\b' + re.escape(symbol) + r'\s*\([^;{}]*\)\s*\{', code)
+    definition = re.search(r'\b' + re.escape(symbol) + r'\s*\([^(){};]*\)\s*\{', code)
     if definition is None:
         raise ValueError(f'Missing function definition: {symbol}')
     start = code.rfind('\n', 0, definition.start()) + 1

@@ -1,5 +1,6 @@
 """Playback retry/threshold flow with full native owners and mutable services."""
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 from tempfile import TemporaryDirectory
 import subprocess
 import unittest
@@ -8,7 +9,7 @@ import unittest
 class PlaybackStepTest(unittest.TestCase):
     def test_state_roots_retries_and_fresh_inputs(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/668/func_80114C3C.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/668/func_80114C3C.c')
         source = r'''
 #include <assert.h>
 #include "game/system/pad.h"

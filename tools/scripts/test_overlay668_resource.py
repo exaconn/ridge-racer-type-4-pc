@@ -3,12 +3,13 @@
 The CD converter is a stateful software mock. No physical disc is accessed.
 """
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 from c_functions import definition_source
 from audio_fixture_transport import wire_types, transport
 from tempfile import TemporaryDirectory
 import hashlib,json,os,re,subprocess
 ROOT=Path(__file__).resolve().parents[2]
-SOURCE=ROOT/'src/overlays/PAL/668/func_80114910.c'
+SOURCE=resolve_c_source_path(ROOT/'src/overlays/PAL/668/func_80114910.c')
 CASES=8192
 C=r'''
 #include <assert.h>

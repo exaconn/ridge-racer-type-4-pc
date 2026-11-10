@@ -1,5 +1,6 @@
 """STR shutdown with actual callback dispatcher and resident audio stop body."""
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 import re
 import subprocess
 from tempfile import TemporaryDirectory
@@ -13,7 +14,7 @@ class OverlayShutdownTest(unittest.TestCase):
                  'src/overlays/PAL/668/func_80116534.c',
                  'tools/scripts/fixtures/legacy/func_8008F564.c',
                  'src/overlays/PAL/668/func_80114DF4.c']
-        bodies = '\n'.join(re.sub(r'^extern[^\n]*;\n', '', (root / p).read_text(), flags=re.M)
+        bodies = '\n'.join(re.sub(r'^extern[^\n]*;\n', '', read_c_source(root / p), flags=re.M)
                            for p in paths)
         source = r'''
 #include <assert.h>

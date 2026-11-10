@@ -1,5 +1,6 @@
 """Actual STR configuration and full-width buffer publication, including aliases."""
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
@@ -12,7 +13,7 @@ class OverlayStrDisplayTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         path = Path(cls.temp.name)
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/668/func_{name}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/668/func_{name}.c')
                            .replace('#include "rr/overlay668_display.h"', '')
                            for name in ('80114E48', '80114E90'))
         source = r'''

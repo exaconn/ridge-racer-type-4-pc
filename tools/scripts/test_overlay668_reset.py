@@ -1,5 +1,6 @@
 """STR reset/recovery MMIO traces, native pointers and live command tables."""
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 import re
 import subprocess
 from tempfile import TemporaryDirectory
@@ -9,7 +10,7 @@ import unittest
 class StrResetTest(unittest.TestCase):
     def test_reset_and_recovery(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/668/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/668/func_{a}.c')
                            for a in ('80116558', '801168A4'))
         bodies = re.sub(r'__asm__\("\$2"\)', '', bodies)
         source = r'''

@@ -1,11 +1,12 @@
 """Replay camera setup with complete track tables, native roots and mutating services."""
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 from tempfile import TemporaryDirectory
 import subprocess, unittest
 ROOT=Path(__file__).resolve().parents[2]
 class ReplaySetupTest(unittest.TestCase):
  def test_sample320_initialization_and_service_reload_order(self):
-  body=(ROOT/'src/overlays/PAL/668/func_80115DFC.c').read_text()
+  body=read_c_source(ROOT / 'src/overlays/PAL/668/func_80115DFC.c')
   body='\n'.join(line for line in body.splitlines() if not line.startswith('#include'))
   code=r'''
 #include <assert.h>

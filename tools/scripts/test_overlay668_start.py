@@ -4,6 +4,7 @@ Device reset, callback installation, queue setup and playback are typed simulate
 boundaries; this test does not execute the hardware driver implementations.
 """
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 from tempfile import TemporaryDirectory
 import subprocess
 import unittest
@@ -12,7 +13,7 @@ import unittest
 class Overlay668StartTest(unittest.TestCase):
     def test_fresh_stream_root_callback_and_service_order(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/668/func_80114EE8.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/668/func_80114EE8.c')
         source = r'''
 #include <assert.h>
 #include <stddef.h>

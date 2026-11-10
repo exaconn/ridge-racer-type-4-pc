@@ -3,13 +3,14 @@
 Acquire, submit and release are stateful software boundaries, not hardware tests.
 """
 from pathlib import Path
+from overlay_units import read_c_source, resolve_c_source_path
 from tempfile import TemporaryDirectory
 import hashlib,json,os,re,struct,subprocess,sys
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN,UC_HOOK_CODE,UC_HOOK_MEM_WRITE
 from unicorn.mips_const import *
 from elftools.elf.elffile import ELFFile
 ROOT=Path(__file__).resolve().parents[2]
-SOURCE=ROOT/'src/overlays/PAL/668/func_801150D8.c'
+SOURCE=resolve_c_source_path(ROOT/'src/overlays/PAL/668/func_801150D8.c')
 CASES=300
 C=r'''
 #include <assert.h>
@@ -81,7 +82,7 @@ int main(void){unsigned i,j;const unsigned limits[6]={1,2,1999,2000,2001,17};
 }
 '''
 def main():
- body=re.sub(r'__asm__\("\$\d+"\)','',SOURCE.read_text())
+ body=re.sub(r'__asm__\("\$\d+"\)','',read_c_source(ROOT/'src/overlays/PAL/668/func_801150D8.c'))
  with TemporaryDirectory() as tmp:
   c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(C+body+TAIL)
   subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True)

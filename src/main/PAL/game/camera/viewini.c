@@ -27,10 +27,10 @@ void InitViewLighting(void)
     int *t;
     int *b;
     int i;
-    ColorMatrix = D_800A3B00;
-    LightSourceAngles[0] = D_800A3B20;
-    LightSourceAngles[1] = D_800A3B28;
-    LightSourceAngles[2] = D_800A3B30;
+    ColorMatrix = TitleLogoWaveOffsets;
+    LightSourceAngles[0] = MenuBgScrollSpeedX;
+    LightSourceAngles[1] = MenuBgScrollSpeedY;
+    LightSourceAngles[2] = MenuBgTileAnimFrames;
     LightSourceIntensities[0] = 0x1000;
     LightSourceIntensities[1] = 0x1000;
     LightSourceIntensities[2] = 0x1000;

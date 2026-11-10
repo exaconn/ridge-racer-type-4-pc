@@ -44,18 +44,18 @@ typedef struct {
 
 
 extern int ScaleMatrix();
-extern char D_800ABF48[];
+extern char ActiveCameraModeTable[];
 extern short CourseIndex;
 extern void SubmitCourseHorizon(void *scratch, VisibleCourseViews *views, s32 course);
 extern unsigned short D_8010E280;
 extern s16 ViewOffsetX[];
 extern s16 ViewOffsetY[];
 extern s32 ViewScreenH[];
-extern u16 D_800A3BE0[];
-extern s16 D_800A3BF0[];
-extern u16 D_800A3C00[];
-extern s16 D_800A3C10[];
-extern S_800A3C20 D_800A3C20[][7];
+extern u16 CourseSelectMapCoordsX[];
+extern s16 CourseSelectMapCoordsY[];
+extern u16 CourseSelectLabelPosX[];
+extern s16 CourseSelectLabelPosY[];
+extern S_800A3C20 CourseSelectPreviewUvs[][7];
 extern void SetGeomOffset(s32, s32);
 extern void SetGeomScreen(s32);
 extern void SetDrawArea(s32);
@@ -127,7 +127,7 @@ void SetupViewLighting(void) {
 
 
 void SetupPlayerView(int player) {
-    char *p = D_800ABF48;
+    char *p = ActiveCameraModeTable;
     BuildViewSegmentObjectList(player);
     ApplySegmentVisibilityMask();
     SetupViewLighting();
@@ -213,19 +213,19 @@ void SetupViewport(s32 a0) {
     SetGeomOffset(ViewOffsetX[a0], ViewOffsetY[a0]);
     s5 = (a0 == 1);
     SetGeomScreen(ViewScreenH[a0]);
-    s2->f6C = D_800A3BE0[a0];
-    v1 = D_800A3BF0[a0];
+    s2->f6C = CourseSelectMapCoordsX[a0];
+    v1 = CourseSelectMapCoordsY[a0];
     if (s1) {
         v1 += RearViewMirrorY;
     }
     s2->f6E = v1;
-    s2->f70 = D_800A3C00[a0];
-    v1 = D_800A3C10[a0];
+    s2->f70 = CourseSelectLabelPosX[a0];
+    v1 = CourseSelectLabelPosY[a0];
     if (s1) {
         v1 += RearViewMirrorY;
     }
     s2->f72 = v1;
-    p = &D_800A3C20[DrawBufIndex][a0];
+    p = &CourseSelectPreviewUvs[DrawBufIndex][a0];
     if (!s5) {
         s2->f64 = 0;
     } else {

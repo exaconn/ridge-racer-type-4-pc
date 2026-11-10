@@ -36,7 +36,7 @@ extern short ModeGroup;
 extern unsigned short SubmodeState;
 extern short LinkState;
 extern s16 MenuScriptId;
-extern char D_800ABEBE[];
+extern char LinkRaceSyncFlags[];
 extern char SelectedCourseChoice[];
 extern char D_800ACBD8[];
 extern char CourseIndex[];
@@ -203,7 +203,7 @@ void LinkExchangeModeUpdate(void) {
         LinkState = 1;
         return;
     case 1:
-        if (LinkExchange(D_800ABEBE, D_800ABEBE - 2, 2, 1) == -1) { LinkState = 3; return; }
+        if (LinkExchange(LinkRaceSyncFlags, LinkRaceSyncFlags - 2, 2, 1) == -1) { LinkState = 3; return; }
         if (LinkExchange(D_8010C0A0, D_8010C0A0 - 0x18, 0x18, 1) == -1) { LinkState = 3; return; }
         if (LinkExchange(D_800F4DA0, D_800F4DA0 - 8, 8, 1) == -1) { LinkState = 3; return; }
         if (LinkExchange(D_800ACBD8, D_800ACBD8 - 8, 8, 1) == -1) { LinkState = 3; return; }

@@ -37,8 +37,8 @@ static unsigned seen[4],aliases[4],maps[2],mutations[2],shaderFlags[3][5];
 static unsigned differentAddresses;
 #define CurrentDrawBuf (&w->data.frames[w->data.root])
 #define SCRATCHPAD ((u8*)&w->scratch)
-#define D_800A0D04 (w->data.geometry)
-#define D_800A0D24 (w->data.atlas)
+#define CarCameraSpringStiffness (w->data.geometry)
+#define CarCameraPitchOffsets (w->data.atlas)
 static u32 get32(const void *p){u32 n;memcpy(&n,p,4);return n;}
 static u16 get16(const void *p){u16 n;memcpy(&n,p,2);return n;}
 static void put32(void *p,u32 n){memcpy(p,&n,4);}

@@ -20,7 +20,7 @@ extern struct {
     s32 unk00[4];
     s32 count10;
 } RaceContext;
-extern s32 D_800AC660;
+extern s32 ActiveSoundEventCount;
 extern RaceVehicle ComCars[];
 extern RaceVehicle PlayerCars[];
 
@@ -73,7 +73,7 @@ void SoundFindNearestCars(s32 arg0) {
         min_idx[0] = -1;
         min_dist[1] = TrackLength;
         min_dist[0] = TrackLength;
-        for (i = 0; i < D_800AC660; i++) {
+        for (i = 0; i < ActiveSoundEventCount; i++) {
             car = &ComCars[i];
             dist = (car->first + car->second) - SoundState.unk18E4;
             dist %= TrackLength;

@@ -7,7 +7,7 @@
 #include "psyq/libpad/padctl.h"
 
 extern s16 PadRangeLimits[];
-extern u8 D_8009FFDC[];
+extern u8 PadDualShockActAlignCmd[];
 extern u8 PadActAlignBytes[];
 
 void PadSetRumbleParams(int i, short a, char b);
@@ -187,7 +187,7 @@ B:
         s1->flag40 = s3;
     }
     PadSetAct(s2, &s1->output19[0], 2);
-    if (PadSetActAlign(s2, D_8009FFDC) == 0)
+    if (PadSetActAlign(s2, PadDualShockActAlignCmd) == 0)
       return;
     s1->flag1B = 1;
     s1->changed1E = 0;

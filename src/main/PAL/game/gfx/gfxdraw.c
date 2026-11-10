@@ -70,7 +70,7 @@ typedef struct {
 } PolyG3Packet;
 
 extern Context650 RaceContext;
-extern int D_800AC698;
+extern int HorizonRollTargetAngle;
 extern int ViewUsesCarTrackNode;
 extern int ResetCarSlotBuffers();
 extern void UpdateRaceChaseCamera(void *);
@@ -78,7 +78,7 @@ extern void BuildCameraMatrices(void);
 extern int Atan2Table(int, int);
 extern void SetGeomScreen(int);
 extern int *TrackNodes;
-extern int D_800AC548[];
+extern int SceneFogWorkVector[];
 extern int ScaleMatrix();
 extern V4 MenuCarDefaultScale;
 extern int RotTransPers();
@@ -176,7 +176,7 @@ void UpdateRaceCamera(int arg0, void *arg1) {
         scratch[4] = s2->z * 4;
         scratch[6] = s2->f10;
         scratch[7] = s2->f14;
-        scratch[8] = LerpAngleWrap4096(s2, D_800AC698);
+        scratch[8] = LerpAngleWrap4096(s2, HorizonRollTargetAngle);
         SetGeomScreen(s2->f28);
         break;
     case 4:
@@ -237,12 +237,12 @@ void UpdateRaceCamera(int arg0, void *arg1) {
 
 void InitTrackStartPos(void) {
     int *s = TrackNodes;
-    D_800AC548[0] = s[2];
-    D_800AC548[1] = 0;
-    D_800AC548[2] = s[3];
-    D_800AC548[4] = 0;
-    D_800AC548[5] = 0;
-    D_800AC548[6] = 0;
+    SceneFogWorkVector[0] = s[2];
+    SceneFogWorkVector[1] = 0;
+    SceneFogWorkVector[2] = s[3];
+    SceneFogWorkVector[4] = 0;
+    SceneFogWorkVector[5] = 0;
+    SceneFogWorkVector[6] = 0;
 }
 
 void BuildObjectLightAndRotMatrices(A0 *a0, MatrixWords32 *a1) {

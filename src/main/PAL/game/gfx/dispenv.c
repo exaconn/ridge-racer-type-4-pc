@@ -23,8 +23,8 @@ extern int GetTrackPointAhead();
 extern struct FogCameraContext48 RaceContext;
 /* same symbol under a 2nd C name: cse cannot reuse the earlier address, so the else arm re-materialises lui/addiu like the original */
 extern struct FogCameraContext48 D_800AC650b __asm__("RaceContext");
-extern int D_800AC690;
-extern int D_800AC694;
+extern int CarTrackProgressDelta;
+extern int CarTrackDirectionSign;
 extern void RotMatrixZYX();
 extern CamNode44 *TrackCameraNodes;
 extern int SetSceneOverlayColor();
@@ -54,7 +54,7 @@ int ComputeCameraNodeDist(RaceVehicle *a0, CamNode44 *a1)
         if (s <= 0xFFFF || a0->half1EA != 0) {
             RaceContext.f44 = 1;
         }
-        if (a1->node32 - a0->trackNodeF0 >= 0) D_800AC694 = 1;
+        if (a1->node32 - a0->trackNodeF0 >= 0) CarTrackDirectionSign = 1;
     }
     t = s - RaceContext.f3C;
     if (RaceContext.f44 == 0) {
@@ -66,7 +66,7 @@ int ComputeCameraNodeDist(RaceVehicle *a0, CamNode44 *a1)
         }
     }
     GetTrackPointAhead(a0, sp20, a1->f14);
-    return D_800AC690 = s;
+    return CarTrackProgressDelta = s;
 }
 
 void GetTrackLaneWorldPos(RaceVehicle *a0, int *a1, int *a2) {

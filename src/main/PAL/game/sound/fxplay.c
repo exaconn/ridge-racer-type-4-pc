@@ -11,7 +11,7 @@
 #include "rr/overlay665_audio_options.h"
 #include "game/sound/cdmain.h"
 
-extern struct { s32 a, b, c; } D_800A0CD8[];
+extern struct { s32 a, b, c; } ReplayCamTargetDistTable[];
 extern s16 D_800F761C;
 
 void SeqStartTrack(int a0);
@@ -31,7 +31,7 @@ void SeqStartTrack(int a0) {
         SsSeqPlay((s16)SoundState.seqHandle2864, 1, 0);
         SeqSetVolume((s16)arr[a0]);
         PsyqBzero(&SoundState.seqTick286C, 0x1C);
-        SoundState.seqTempo287C = D_800A0CD8[a0].a;
+        SoundState.seqTempo287C = ReplayCamTargetDistTable[a0].a;
         RestartMotionSequence();
     }
 }

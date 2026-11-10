@@ -25,11 +25,11 @@ extern u8 *RelFileOffsetPtr6;
 extern u8 *RelFileOffsetPtr7;
 extern u8 *D_800FFC40;
 extern u8 *RelFileOffsetPtr9;
-extern u8 *D_800ABEA0;
+extern u8 *TrackCollisionGridPtr;
 extern u8 *RelFileSection11;
 extern u8 *RelFileOffsetPtr12;
 extern u8 *RelFileOffsetPtr13;
-extern u8 *D_800ABEB4;
+extern u8 *TrackSectionBoundsPtr;
 extern u8 *RelFileSection15;
 
 /* PAL adds modulo32; signed offsets retain negative displacements on LP64. */

@@ -5,7 +5,7 @@
 
 extern int MotionSequenceIndex;
 extern MotionKey32 MotionTrackTable[];
-extern CameraScriptEntry8 D_800A1E60[];
+extern CameraScriptEntry8 HudCircularGaugeVerts[];
 extern CameraScriptEntry8 *MotionSequenceTable[];
 void DrawPresentationTrackModel(void);
 void InitMotionTrack(int a0);

@@ -11,7 +11,7 @@ void ovl660_init_results(void)
     ModeFrame = 0;
     if (TotalRaceTime != -1) {
         ovl660_rank_standings();
-        ovl660_race_record_rank = ovl660_insert_record(0, LapTimes[(s16)D_800AC1A0]);
+        ovl660_race_record_rank = ovl660_insert_record(0, LapTimes[(s16)HudMapZoomMode]);
         ovl660_lap_record_rank = ovl660_insert_record(1, TotalRaceTime);
     } else {
         ovl660_race_record_rank = 6;
@@ -323,5 +323,5 @@ void ovl660_rank_standings(void)
             }
         }
     }
-    D_800AC1A0 = indices[0];
+    HudMapZoomMode = indices[0];
 }

@@ -25,7 +25,7 @@ RAM, ALT, RECORDS, NODES, SYNTHETIC = 0x80180000, 0x802A0000, 0x802B0000, 0x8027
 STACK, STOP, SCRATCH = 0x803F0000, 0x803FF000, 0x1F800000
 SECTION_NAMES = ['RelFileSection00','RelFileSection01','D_800ADAE8','RelFileOffsetPtr3','D_800F4C60',
                  'RelFileSection05','RelFileOffsetPtr6','RelFileOffsetPtr7','D_800FFC40','RelFileOffsetPtr9',
-                 'D_800ABEA0','RelFileSection11','RelFileOffsetPtr12','RelFileOffsetPtr13','D_800ABEB4','RelFileSection15']
+                 'TrackCollisionGridPtr','RelFileSection11','RelFileOffsetPtr12','RelFileOffsetPtr13','TrackSectionBoundsPtr','RelFileSection15']
 PREFIX = r'''
 #include <assert.h>
 #include <stdint.h>

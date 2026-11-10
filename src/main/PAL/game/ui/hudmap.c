@@ -15,7 +15,7 @@ extern int FormatDecimalDigits();
 extern char StrTotalTimeLabel[];
 extern char LapTimeLabel[];
 extern char StrPressStart[];
-extern short D_800AC1A0;
+extern short HudMapZoomMode;
 extern int NumLaps;
 extern int TotalRaceTime;
 extern int LapTimes[];
@@ -43,7 +43,7 @@ void DrawRaceTimesScreen(void) {
     int sel;
     *(int *)SCRATCHPAD = AddDrawAreaPrim(&CurrentDrawBuf->buffer.ordering70.words[0], *(int *)SCRATCHPAD, 0, 0, 0x140, 0x100);
     i = 0;
-    sel = D_800AC1A0;
+    sel = HudMapZoomMode;
     if (NumLaps > 0) {
         y = 0x86;
         q = LapTimes;
@@ -70,7 +70,7 @@ void DrawRaceTimesScreen(void) {
         i -= 1;
         b -= 1;
     } while (i >= 0);
-    FormatDecimalDigits(sp18, D_800AC0E6 + 1, 1);
+    FormatDecimalDigits(sp18, HudDisplayedLapIndex + 1, 1);
     DrawFontStringCentered(0x78, 0x3C, sp18, 0x80, 0);
     DrawFontStringCentered(0x78, 0xC8, StrPressStart, 0x80, 0);
     AddSetTexpagePrim(0);

@@ -19,7 +19,7 @@ typedef struct {
 } MenuGrid38;
 
 extern MenuGrid38 *MenuGridRecords;
-extern GridRow8 D_8009FDA8[];
+extern GridRow8 SelectionAnimStepTable[];
 
 /* The PAL routine captures this RAM page and reloads its pointer cell after
  * record writes. Model the cell at its byte offset, retaining native width. */

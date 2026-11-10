@@ -15,7 +15,7 @@ class RelativeFileRelocationTest(unittest.TestCase):
         body=definition_source(owner.read_text(),'RelocateRelativeFile')
         body=re.sub(r'\s+(?:asm|__asm__)\("\$\d+"\)', '', body)
         body=re.sub(r'__asm__\(""[^;]*;','',body)
-        names=['RelFileSection00','RelFileSection01','D_800ADAE8','RelFileOffsetPtr3','D_800F4C60','RelFileSection05','RelFileOffsetPtr6','RelFileOffsetPtr7','D_800FFC40','RelFileOffsetPtr9','D_800ABEA0','RelFileSection11','RelFileOffsetPtr12','RelFileOffsetPtr13','D_800ABEB4','RelFileSection15']
+        names=['RelFileSection00','RelFileSection01','D_800ADAE8','RelFileOffsetPtr3','D_800F4C60','RelFileSection05','RelFileOffsetPtr6','RelFileOffsetPtr7','D_800FFC40','RelFileOffsetPtr9','TrackCollisionGridPtr','RelFileSection11','RelFileOffsetPtr12','RelFileOffsetPtr13','TrackSectionBoundsPtr','RelFileSection15']
         prefix=r'''
         #include <stdint.h>
         #include <stddef.h>

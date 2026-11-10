@@ -17,7 +17,7 @@ typedef struct {
     s32 open_mode;
     s32 bank_slot;
 } VabLoadConfig;
-extern VabLoadConfig D_800A0228[];
+extern VabLoadConfig CourseVabLoadConfigs[];
 RR_ASSERT_SIZE(VabLoadConfig, 12);
 RR_ASSERT_OFFSET(VabLoadConfig, open_mode, 4);
 RR_ASSERT_OFFSET(VabLoadConfig, bank_slot, 8);

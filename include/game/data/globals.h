@@ -31,7 +31,7 @@ extern s8 _svm_auto_kof_mode;
 extern int StStartFrame;
 extern s32 CD_debug;
 extern s32 CD_nopen;
-extern short D_800AC0A4;
+extern short SunLightPitchAngle;
 extern s32 NumPlayers;
 
 #endif

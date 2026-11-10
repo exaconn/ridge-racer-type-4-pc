@@ -5,7 +5,7 @@
 #include "rr/animated_sprite_grid.h"
 
 extern s32 D_800ACA3C,D_800ACA38;
-extern UiUvRect D_800A1FB0[];
+extern UiUvRect HudCourseMapScaleTable[];
 extern u32 FadeSpriteDrawModes[];
 /* Index names an accessible UV entry. Pointer slots and returned packet must
  * be accessible and aligned; helper return must provide eight writable bytes.

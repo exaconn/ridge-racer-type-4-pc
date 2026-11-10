@@ -107,7 +107,7 @@ void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y) {
     entry->count2C = count;
     entry->width04 = 64;
     entry->height06 = 8;
-    table = D_8009FDA8;
+    table = SelectionAnimStepTable;
     entry->step_y0A = step_y;
     next = (MenuGrid38 *)(offset + (unsigned long)page->records3A28);
     row = (const GridRow8 *)((u8 *)table + layout_offset);

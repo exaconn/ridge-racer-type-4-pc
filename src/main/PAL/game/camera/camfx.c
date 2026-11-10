@@ -17,11 +17,11 @@ void UpdateCarShowcaseCamera(int time)
   value = InterpCurveEase(time);
   RaceContext.camera24C->parts18[0].rotation10.y = value;
   RaceContext.camera24C->parts18[1].rotation10.y = -(u32)value;
-  curve = D_800A0D70;
+  curve = FinishCamFollowTargets;
   RaceContext.camera24C->parts18[3].rotation10.x = InterpCurveLinear(curve, FindCurveSegment(curve, time), time);
   curve = ShowcaseCamDepthCurve;
   curveValue = InterpCurveLinear(curve, FindCurveSegment(curve, time), time);
-  curve = D_800A0D88;
+  curve = FinishCamSplineWeights;
   value = InterpCurveLinear(curve, FindCurveSegment(curve, time), time);
   RaceContext.camera24C->parts18[3].position00.xyz.z = curveValue - RaceContext.camera24C->extentA0 * 4U - 0x10U;
   RaceContext.camera24C->parts18[3].position00.xyz.y = value + 0xCU;
@@ -41,7 +41,7 @@ void UpdateCarShowcaseCamera(int time)
     value += 3;
   }
   heightCamera->offsetAC = value >> 2;
-  curve = D_800A0D94;
+  curve = IntroCamDollyKeyframes;
   curveValue = InterpCurveLinear(curve, FindCurveSegment(curve, time), time);
   steering = -(curveValue * 32U);
   car = PlayerCars;

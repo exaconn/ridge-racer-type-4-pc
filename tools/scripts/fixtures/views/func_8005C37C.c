@@ -65,7 +65,7 @@ void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity) {
                 __asm__("" : "+r"(ordering));
                 ordering;
             }),
-            cursor, xstage, ystage, &D_800A1FB0[index], 0x7F38,
+            cursor, xstage, ystage, &HudCourseMapScaleTable[index], 0x7F38,
             (s32)(((u32)scale << 1) | 1U));
         command = 0xE1000200U;
         low = 0xFFFFFFU;

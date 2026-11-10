@@ -10,8 +10,8 @@
 
 typedef struct { u32 tag; u32 code; } Pkt8;
 
-extern int D_800A2098[];
-extern const char D_800A1FC8[13][16];
+extern int SparkParticleInitVel[];
+extern const char HudPauseMenuItemCounts[13][16];
 extern unsigned int OverlayTextSpriteUv;
 extern FadeRaceContext RaceContext;
 void DrawIntroRippleSprites(void)
@@ -50,7 +50,7 @@ void DrawIntroRippleSprites(void)
     {
       ax = (j / 2) + 0x9E;
       ay = ((j % 2) << 1) + 0xE4;
-      p = AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[10], p, ax - D_800A2098[RaceContext.f438], h[i] + ay, D_800A1FC8[RaceContext.f438], 0x7F38, new_var = 1, (l[i] << new_var) | new_var);
+      p = AddTextSprites(&CurrentDrawBuf->buffer.ordering70.words[10], p, ax - SparkParticleInitVel[RaceContext.f438], h[i] + ay, HudPauseMenuItemCounts[RaceContext.f438], 0x7F38, new_var = 1, (l[i] << new_var) | new_var);
     }
 
   }

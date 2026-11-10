@@ -12,9 +12,9 @@ extern CourseViewIndices *D_800ADAD0;
 extern AdditionalCourseViews D_800F4C38;
 
 /* Shared course-light defaults, live RGB matrix, directions and strengths. */
-extern MatrixWords32 D_800A3B00;
+extern MatrixWords32 TitleLogoWaveOffsets;
 extern MatrixWords32 ColorMatrix;
-extern Vec3sFields8 D_800A3B20, D_800A3B28, D_800A3B30;
+extern Vec3sFields8 MenuBgScrollSpeedX, MenuBgScrollSpeedY, MenuBgTileAnimFrames;
 extern Vec3sFields8 LightSourceAngles[3];
 extern u16 LightSourceIntensities[3];
 

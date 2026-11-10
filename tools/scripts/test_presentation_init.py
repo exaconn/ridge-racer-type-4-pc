@@ -38,7 +38,7 @@ static World actual, expected;
 static unsigned replacement, clears, dispatches;
 static s32 expectedOperation, expectedArgument;
 static PresentationController *expectedTarget;
-CameraScriptEntry8 D_800A1E60[4], sequences[4][4];
+CameraScriptEntry8 HudCircularGaugeVerts[4], sequences[4][4];
 CameraScriptEntry8 *MotionSequenceTable[4] = {
     sequences[0], sequences[1], sequences[2], sequences[3]
 };
@@ -91,19 +91,19 @@ int main(void) {
         for (i=0;i<2;i++) actual.alternate[i].scriptIndex68=(seed+i)%4;
         actual.context.controller3D8=&actual.alternate[1];
         for (i=0;i<4;i++) {
-            D_800A1E60[i]=(CameraScriptEntry8){operations[operation],(s16)(seed+i),12345};
-            for (j=0;j<4;j++) sequences[i][j]=D_800A1E60[(i+j)%4];
+            HudCircularGaugeVerts[i]=(CameraScriptEntry8){operations[operation],(s16)(seed+i),12345};
+            for (j=0;j<4;j++) sequences[i][j]=HudCircularGaugeVerts[(i+j)%4];
         }
-        memcpy(savedDefault,D_800A1E60,sizeof savedDefault);
+        memcpy(savedDefault,HudCircularGaugeVerts,sizeof savedDefault);
         memcpy(savedSequences,sequences,sizeof savedSequences);
         expected=actual;
         memset(&expected.context.presentation250,0,sizeof(PresentationController));
         expectedTarget=mode?&actual.alternate[mode-1]:&actual.context.presentation250;
         expected.context.controller3D8=expectedTarget;
         PresentationController *p=mode?&expected.alternate[mode-1]:&expected.context.presentation250;
-        lighting(p);p->script64=D_800A1E60;
-        p->scriptOperation6C=D_800A1E60[p->scriptIndex68].operation;
-        p->scriptArgument70=D_800A1E60[p->scriptIndex68].argument;
+        lighting(p);p->script64=HudCircularGaugeVerts;
+        p->scriptOperation6C=HudCircularGaugeVerts[p->scriptIndex68].operation;
+        p->scriptArgument70=HudCircularGaugeVerts[p->scriptIndex68].argument;
         expectedOperation=p->scriptOperation6C;expectedArgument=p->scriptArgument70;
         replacement=mode;clears=dispatches=0;
         InitMotionController();
@@ -122,7 +122,7 @@ int main(void) {
         RestartMotionSequence();
         assert(!clears && dispatches==(expectedOperation>=0 && expectedOperation<4));
         assert(!memcmp(&actual,&expected,sizeof actual));
-        assert(!memcmp(D_800A1E60,savedDefault,sizeof savedDefault));
+        assert(!memcmp(HudCircularGaugeVerts,savedDefault,sizeof savedDefault));
         assert(!memcmp(sequences,savedSequences,sizeof savedSequences));
 
         /* The three setters address distinct members of the selected owner. */

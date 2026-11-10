@@ -51,7 +51,7 @@ extern int RaceStartSignalState;
 
 extern signed char LinkEntryState[];
 
-extern signed char D_800ABEBE;
+extern signed char LinkRaceSyncFlags;
 
 extern int RaceTimeRemaining;
 
@@ -84,7 +84,7 @@ int UpdateLinkHandshake(int a0)
       if (a0 == 0)
       {
         LinkHostFlag = 0;
-        D_800ABEBE = 1;
+        LinkRaceSyncFlags = 1;
         RaceStartSignalState = 3;
         LinkState = 10;
       }

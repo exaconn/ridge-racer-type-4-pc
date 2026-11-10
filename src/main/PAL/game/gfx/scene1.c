@@ -28,10 +28,10 @@
 
 
 extern s32 SceneOverlayEnabled;
-extern GpuRectangleFields D_800A0D04[];
-extern GpuRectangleFields D_800A0D24[][4];
+extern GpuRectangleFields CarCameraSpringStiffness[];
+extern GpuRectangleFields CarCameraPitchOffsets[][4];
 extern int SetModelTexturePage();
-extern int D_800A0FB0[];
+extern int ReplayCamBankWeights[];
 extern int DrawSubOtFlag;
 extern short SelectedMakerIndex;
 extern int ScaleMatrix();
@@ -73,7 +73,7 @@ void EmitSceneOverlaySprites(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
     unsigned long atlasAddress;
     s32 offset;
 
-    atlasAddress = (unsigned long)D_800A0D24;
+    atlasAddress = (unsigned long)CarCameraPitchOffsets;
     for (i = 0; i < 4; i++) {
         s2 = *(SpritePacket **)SCRATCHPAD;
         s2->len = 4;
@@ -91,10 +91,10 @@ void EmitSceneOverlaySprites(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
         s2->r = a2[0];
         s2->g = a2[1];
         s2->b = a2[2];
-        s2->x = D_800A0D04[i].x;
-        s2->y = D_800A0D04[i].y;
-        s2->w = D_800A0D04[i].w;
-        s2->h = D_800A0D04[i].h;
+        s2->x = CarCameraSpringStiffness[i].x;
+        s2->y = CarCameraSpringStiffness[i].y;
+        s2->w = CarCameraSpringStiffness[i].w;
+        s2->h = CarCameraSpringStiffness[i].h;
         offset = (i << 3) + (a0 << 5);
         uv = (GpuRectangleFields *)(offset + atlasAddress);
         s2->u = uv->x;
@@ -182,7 +182,7 @@ void InitCameraState(int mode, int flags)
     RaceContext.camera24C->value130 = 0x1B8;
     RaceContext.camera24C->parts18[0].position00.xyz.x = -0xC0;
     RaceContext.camera24C->parts18[1].position00.xyz.x = 0xC0;
-    if (!(D_800A0FB0[SelectedMakerIndex] & ((bit = 1) << SelectedMakerCarIndex))) {
+    if (!(ReplayCamBankWeights[SelectedMakerIndex] & ((bit = 1) << SelectedMakerCarIndex))) {
         RaceContext.camera24C->extentA0 = 0xA9;
         RaceContext.camera24C->mirrorA4 = 0;
     } else {

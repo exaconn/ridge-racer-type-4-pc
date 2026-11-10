@@ -21,8 +21,8 @@ static const PulseRow *repeat_owner[12],*once_owner[12];
 #define PlayerControllers actual.outputs
 #define PadPulseState actual.states
 #define Options actual.settings
-#define D_8009FFA0 (repeat_owner+4)
-#define D_8009FF80 (once_owner+4)
+#define PadPulseRepeatStepTable (repeat_owner+4)
+#define PadPulseOnceStepTable (once_owner+4)
 '''+body+r'''
 static const PulseRow *mapped(const PulseRow *row) {
  uintptr_t a=(uintptr_t)&actual,b=(uintptr_t)row;
@@ -37,7 +37,7 @@ static void reference(void) {
   if(expected.settings.controls.pulse[i].disabled02) {out->output19[0]=out->output19[1]=0;continue;}
   if(state->repeat04) {
    int table_index=state->repeat04+(out->kind1C?-1:2);
-   row=mapped(D_8009FFA0[table_index]+state->repeatStep0C);
+   row=mapped(PadPulseRepeatStepTable[table_index]+state->repeatStep0C);
    if(out->kind1C){out->output19[0]=row->first;out->output19[1]=row->second;}
    else {out->output19[0]=64;out->output19[1]=row->first;}
    state->repeatTick08++;
@@ -48,7 +48,7 @@ static void reference(void) {
   }else{out->output19[0]=out->output19[1]=0;}
   if(state->once06) {
    int table_index=state->once06+(out->kind1C?-1:2);
-   row=mapped(D_8009FF80[table_index]+state->onceStep0E);
+   row=mapped(PadPulseOnceStepTable[table_index]+state->onceStep0E);
    if(out->kind1C){out->output19[0]=row->first;out->output19[1]=row->second;}
    else{out->output19[0]=64;out->output19[1]=row->first;}
    state->onceTick0A++;

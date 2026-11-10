@@ -49,7 +49,7 @@ static int mutate,return_offset,return_kind,original_selector;
 #define CurrentDrawBuf actual.context
 #define D_800ACA3C actual.phase
 #define D_800ACA38 actual.gain
-#define D_800A1FB0 actual.uv
+#define HudCourseMapScaleTable actual.uv
 #define FadeSpriteDrawModes actual.modes
 '''+body+r'''
 static s32 bits(u32 u){s32 s;memcpy(&s,&u,4);return s;}

@@ -91,22 +91,22 @@
 #undef HudGlyphUvRects
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A1090 (*(u8 (*)[])&D_800A1090)
+#define CarHandlingResponseTable (*(u8 (*)[])&CarHandlingResponseTable)
 
 #define HudGlyphUvRects (*(u8 (*)[])&HudGlyphUvRects)
 
-#undef D_800A1090
+#undef CarHandlingResponseTable
 
 #undef HudGlyphUvRects
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A1090 (*(char (*)[])&D_800A1090)
+#define CarHandlingResponseTable (*(char (*)[])&CarHandlingResponseTable)
 
 #define HudGlyphUvRects (*(char (*)[])&HudGlyphUvRects)
 
 #define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
-#undef D_800A1090
+#undef CarHandlingResponseTable
 
 #undef HudGlyphUvRects
 
@@ -146,7 +146,7 @@ void DrawGlyphList(s16 *stream,s32 color,s32 bank)
                 uv = (UiUvRect*)((u8 *)HudGlyphUvRects + offset);
             } else {
                 offset = glyph * 4;
-                if (bank == 0) uv = (UiUvRect*)((u8 *)D_800A1090 + offset);
+                if (bank == 0) uv = (UiUvRect*)((u8 *)CarHandlingResponseTable + offset);
                 else uv = (UiUvRect*)((u8 *)HudGlyphUvRects + offset);
             }
             spriteCode = 0x66;

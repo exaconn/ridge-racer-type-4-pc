@@ -12,7 +12,7 @@
 #include "rr/overlay668_camera.h"
 #include "rr/audio_loop.h"
 
-extern int D_800A4090;
+extern int MenuSoundEffectMap;
 extern int ModeFrame;
 extern short CourseIndex;
 extern int RaceState;
@@ -107,15 +107,15 @@ void UpdateTrackObjects(void) {
                         if (GameModeType != 1) {
                             TrackObjectStates[i].f8 = 0xB;
                         } else if (CourseIndex == 7) {
-                            if (D_800AC1A2 != 0) {
-                                TrackObjectStates[i].f8 = D_800AC1A2 + 0xA;
+                            if (RaceFinishBannerTimer != 0) {
+                                TrackObjectStates[i].f8 = RaceFinishBannerTimer + 0xA;
                             } else {
                                 TrackObjectStates[i].f8 = 0xB;
                             }
-                        } else if (D_800AC1A2 <= 0 || (CourseIndex == 6 && D_800AC1A2 < 2)) {
+                        } else if (RaceFinishBannerTimer <= 0 || (CourseIndex == 6 && RaceFinishBannerTimer < 2)) {
                             TrackObjectStates[i].f8 = 0xB;
                         } else {
-                            switch (D_800AC0E6 + 1) {
+                            switch (HudDisplayedLapIndex + 1) {
                             case 1:
                                 TrackObjectStates[i].f8 = 0xC;
                                 break;
@@ -298,9 +298,9 @@ void UpdateTrackObjects(void) {
                                         }
                                     }
                                 } else {
-                                    D_800A4090 += D_8010E7B4;
-                                    if (D_800A4090 >= 0x80) {
-                                        D_800A4090 -= 0x80;
+                                    MenuSoundEffectMap += D_8010E7B4;
+                                    if (MenuSoundEffectMap >= 0x80) {
+                                        MenuSoundEffectMap -= 0x80;
                                         a0 = D_8010E7B0 - 1;
                                         if (D_8010E7B0 <= 0) {
                                             a0 += TrackNodeCount;
@@ -317,12 +317,12 @@ void UpdateTrackObjects(void) {
                                         }
                                         D_8010E7A8 = v1;
                                     }
-                                    sp[2] = (((TrackNodes[D_8010E7AC].x08 - TrackNodes[D_8010E7A8].x08) * D_800A4090) >> 5) + TrackNodes[D_8010E7A8].x08 * 4;
-                                    sp[3] = (((TrackNodes[D_8010E7AC].y10 - TrackNodes[D_8010E7A8].y10) * D_800A4090) >> 7) + TrackNodes[D_8010E7A8].y10;
-                                    sp[4] = (((TrackNodes[D_8010E7AC].z0C - TrackNodes[D_8010E7A8].z0C) * D_800A4090) >> 5) + TrackNodes[D_8010E7A8].z0C * 4;
-                                    sp[5] = ((((TrackNodes[D_8010E7B0].x08 - TrackNodes[D_8010E7AC].x08) * D_800A4090) >> 5) + TrackNodes[D_8010E7AC].x08 * 4) - sp[2];
-                                    sp[6] = ((((TrackNodes[D_8010E7B0].y10 - TrackNodes[D_8010E7AC].y10) * D_800A4090) >> 7) + TrackNodes[D_8010E7AC].y10) - sp[3];
-                                    sp[7] = ((((TrackNodes[D_8010E7B0].z0C - TrackNodes[D_8010E7AC].z0C) * D_800A4090) >> 5) + TrackNodes[D_8010E7AC].z0C * 4) - sp[4];
+                                    sp[2] = (((TrackNodes[D_8010E7AC].x08 - TrackNodes[D_8010E7A8].x08) * MenuSoundEffectMap) >> 5) + TrackNodes[D_8010E7A8].x08 * 4;
+                                    sp[3] = (((TrackNodes[D_8010E7AC].y10 - TrackNodes[D_8010E7A8].y10) * MenuSoundEffectMap) >> 7) + TrackNodes[D_8010E7A8].y10;
+                                    sp[4] = (((TrackNodes[D_8010E7AC].z0C - TrackNodes[D_8010E7A8].z0C) * MenuSoundEffectMap) >> 5) + TrackNodes[D_8010E7A8].z0C * 4;
+                                    sp[5] = ((((TrackNodes[D_8010E7B0].x08 - TrackNodes[D_8010E7AC].x08) * MenuSoundEffectMap) >> 5) + TrackNodes[D_8010E7AC].x08 * 4) - sp[2];
+                                    sp[6] = ((((TrackNodes[D_8010E7B0].y10 - TrackNodes[D_8010E7AC].y10) * MenuSoundEffectMap) >> 7) + TrackNodes[D_8010E7AC].y10) - sp[3];
+                                    sp[7] = ((((TrackNodes[D_8010E7B0].z0C - TrackNodes[D_8010E7AC].z0C) * MenuSoundEffectMap) >> 5) + TrackNodes[D_8010E7AC].z0C * 4) - sp[4];
                                     TrackObjectStates[i].fC += sp[2];
                                     TrackObjectStates[i].f10 += sp[3] - 0xFA;
                                     TrackObjectStates[i].f14 += sp[4];

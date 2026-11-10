@@ -18,7 +18,7 @@
 
 #undef rcos
 
-extern short D_800AC0A4;
+extern short SunLightPitchAngle;
 
 extern unsigned short RearViewMirrorMatrix[];
 
@@ -51,7 +51,7 @@ void BuildCameraMatrices(void) {
     MulMatrix2(sp10, CameraPitchRollMatrix);
     BuildRotMatrixY(sp10, 0x800);
     MulMatrix0(sp10, 0x1F800028, RearViewMirrorMatrix);
-    BuildRotMatrixX(sp10, D_800AC0A4 * 2);
+    BuildRotMatrixX(sp10, SunLightPitchAngle * 2);
     MulMatrix2(sp10, RearViewMirrorMatrix);
     RearViewMirrorMatrix[0] = -RearViewMirrorMatrix[0];
     RearViewMirrorMatrix[1] = -RearViewMirrorMatrix[1];

@@ -39,7 +39,7 @@ extern s32 MenuStepDirection;
 extern CourseChoice4 CourseChoiceTable[2][9];
 extern u32 ScreenFrame;
 #include "rr/player_cars.h"
-extern u16 D_800AC1A0;
+extern u16 HudMapZoomMode;
 extern s32 RaceTimeRemaining;
 extern s16 FadeCountdown;
 extern s16 MenuItemCount;

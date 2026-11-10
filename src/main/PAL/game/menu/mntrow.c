@@ -25,7 +25,7 @@
 #include "game/ui/uibar.h"
 #include "game/ui/uidraw.h"
 #include "game/sound/fxplay.h"
-extern unsigned short D_8009FDA0[];
+extern unsigned short MenuTextRowClutTable[];
 extern MenuGlyphRow1C *GlyphRows;
 extern s32 VSyncThreshold;
 extern s16 ModeIndex;
@@ -192,7 +192,7 @@ void DrawResultsRankIcons(void)
 
 
 void SetMenuTextRowStyle(int a0, int a1, int a2) {
-  MenuTextRows[a0].rendering.clut = D_8009FDA0[a1];
+  MenuTextRows[a0].rendering.clut = MenuTextRowClutTable[a1];
   if (a2 < (-0xFF))
   {
     MenuTextRows[a0].state.d34 = -a2;

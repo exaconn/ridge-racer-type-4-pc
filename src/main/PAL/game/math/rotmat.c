@@ -97,7 +97,7 @@ void BuildCameraMatrices(void) {
         &rotation,
         (const MatrixWords32 *)(SCRATCH_ROT_MATRIX),
         &RearViewMirrorMatrix);
-    BuildRotMatrixX(&rotation, D_800AC0A4 * 2);
+    BuildRotMatrixX(&rotation, SunLightPitchAngle * 2);
     MulMatrix2(&rotation, &RearViewMirrorMatrix);
     RearViewMirrorMatrix.halves[0] = -RearViewMirrorMatrix.halves[0];
     RearViewMirrorMatrix.halves[1] = -RearViewMirrorMatrix.halves[1];

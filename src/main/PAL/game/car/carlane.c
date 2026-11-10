@@ -25,7 +25,7 @@ typedef struct {
 extern ContextAC650 RaceContext;
 extern RaceVehicle ComCars[];
 extern RaceSpecEntry30 *D_800ACB94;
-extern u16 D_8009FE76;
+extern u16 CarDraftSlipstreamFactor;
 
 extern void ResetCarState(RaceVehicle *);
 
@@ -119,9 +119,9 @@ void InitComCars(s32 count) {
             sub->divisor11C = tmp >> 10;
             sub->boostTimer44 = sub->divisor11C < 0 ? -sub->divisor11C : sub->divisor11C;
         }
-        D_8009FE76 = D_800ACB94->factor26;
+        CarDraftSlipstreamFactor = D_800ACB94->factor26;
     } else {
-        D_8009FE76 = 0x320;
+        CarDraftSlipstreamFactor = 0x320;
     }
     DebugPrintStub("InitComCar OK!\n", i);
 }

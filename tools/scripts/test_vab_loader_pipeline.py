@@ -43,7 +43,7 @@ AudioState SoundState;
 VabData VabLoadArgs;
 char *RaceLoadCursor;
 s32 RaceLoadStepIndex, RaceLoadState;
-VabLoadConfig D_800A0228[4];
+VabLoadConfig CourseVabLoadConfigs[4];
 char VabOpenHeadErrorStr[64],VabTransBodyErrorStr[64];
 typedef uint64_t (*Observer)(u32,const uintptr_t *);
 static Observer observer;
@@ -130,7 +130,7 @@ s32 invoke_vab(u32 caller,char *header,s32 mode,s32 bank,s32 *result){
         cls.cursor=C.c_void_p.in_dll(cls.library,'RaceLoadCursor')
         cls.phase=C.c_int32.in_dll(cls.library,'RaceLoadStepIndex')
         cls.load_state=C.c_int32.in_dll(cls.library,'RaceLoadState')
-        cls.table=(Config*4).in_dll(cls.library,'D_800A0228')
+        cls.table=(Config*4).in_dll(cls.library,'CourseVabLoadConfigs')
         cls.messages=[(C.c_ubyte*64).in_dll(cls.library,n)for n in ('VabOpenHeadErrorStr','VabTransBodyErrorStr')]
         cls.payload=[(C.c_uint16*128)()for _ in range(3)]
         cls.native_map=[(C.addressof(cls.audio),address_of('SoundState'),AUDIO_SIZE)]
@@ -181,7 +181,7 @@ s32 invoke_vab(u32 caller,char *header,s32 mode,s32 bank,s32 *result){
         else:
             audio=self.read(address_of('SoundState'),AUDIO_SIZE)
             pair=struct.unpack('<II',self.read(address_of('VabLoadArgs'),8));cursor=self.word(address_of('RaceLoadCursor'))
-            phase=self.word(address_of('RaceLoadStepIndex'));load_state=self.word(address_of('RaceLoadState'));table=self.read(address_of('D_800A0228'),48)
+            phase=self.word(address_of('RaceLoadStepIndex'));load_state=self.word(address_of('RaceLoadState'));table=self.read(address_of('CourseVabLoadConfigs'),48)
             payload=tuple(self.read(p,256)for p in PAYLOADS)
         return audio,pair,cursor,phase,table,payload,load_state
 
@@ -203,7 +203,7 @@ s32 invoke_vab(u32 caller,char *header,s32 mode,s32 bank,s32 *result){
         else:
             self.write(address_of('SoundState'),audio)
             for address,data in zip(PAYLOADS,payload):self.write(address,data)
-            self.write(address_of('D_800A0228'),table);self.write(address_of('VabLoadArgs'),struct.pack('<II',PAYLOADS[0]+16,PAYLOADS[1]+32))
+            self.write(address_of('CourseVabLoadConfigs'),table);self.write(address_of('VabLoadArgs'),struct.pack('<II',PAYLOADS[0]+16,PAYLOADS[1]+32))
             self.put(address_of('RaceLoadCursor'),PAYLOADS[1]);self.put(address_of('RaceLoadStepIndex'),state);self.put(address_of('RaceLoadState'),0)
 
     def service(self,index,args,native):
@@ -226,7 +226,7 @@ s32 invoke_vab(u32 caller,char *header,s32 mode,s32 bank,s32 *result){
             self.set_cursor(PAYLOADS[2]+32,native)
             self.active_bank=(self.active_bank+1)%10
             if native:self.table[0].bank_slot=self.active_bank
-            else:self.put(address_of('D_800A0228')+8,self.active_bank)
+            else:self.put(address_of('CourseVabLoadConfigs')+8,self.active_bank)
         returns=(-1,0,1,15,32767,32768,65535,0x1234FFFF,-0x80000000,0x7FFFFFFF)
         if name=='SsVabOpenHeadSticky':return returns[self.case%len(returns)]&0xFFFFFFFF
         if name=='SsVabTransBody':return returns[(self.case//3+1)%len(returns)]&0xFFFFFFFF

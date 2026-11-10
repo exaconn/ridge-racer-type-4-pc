@@ -126,14 +126,14 @@ typedef struct {
     void *p;
 } Scratch;
 
-extern s32 D_800A101C;
+extern s32 CarCollisionGraceTimers;
 extern UvRect HudMapSpriteRects[];
-extern UvRect D_800A1028;
-extern UvRect D_800A102C;
-extern s16 D_800A1030[];
-extern s16 D_800A1040[];
-extern struct { u16 x, y; } D_800A1050[];
-extern s32 D_800A1070[];
+extern UvRect HudSpeedUnitScaleTable;
+extern UvRect HudSpeedUnitMaxTable;
+extern s16 CarDrivetrainStatBias[];
+extern s16 CarTireGripStatBias[];
+extern struct { u16 x, y; } CarAccelCurveThresholds[];
+extern s32 CarTopSpeedGearRatios[];
 extern S3C *TrackNodes;
 extern s32 TrackNodeCount;
 extern s16 SelectedCourseChoice;
@@ -142,14 +142,14 @@ extern short SelectedTeamIndex;
 extern int CdAudioInit();
 extern signed char SelectionState[];
 extern int D_800F7660;
-extern s16 D_800A1818[];
-extern s16 D_800A1824[];
-extern s16 *D_800A1950[];
-extern s16 *D_800A1984[];
-extern s16 *D_800A19C0[];
-extern s32 D_800A1A00[];
+extern s16 HudTachRedlineAngles[];
+extern s16 HudTachSweepLimitAngles[];
+extern s16 *HudRankOrdinalUvs[];
+extern s16 *HudTimeLabelSprites[];
+extern s16 *HudBigDigitSprites[];
+extern s32 HudSmallDigitSprites[];
 extern s32 CourseBgmChoiceTable3[];
-extern s32 D_800A1A40[];
+extern s32 HudGearDigitSprites[];
 extern struct {
     u8 unk0;
     u8 unk1;
@@ -229,8 +229,8 @@ void DrawTrackNodeMap(s32 *arg0) {
     S3C *sec;
 
     tile = SCRATCH->p;
-    sp10.vx = D_800A1050[CourseIndex].x;
-    sp10.vy = D_800A1050[CourseIndex].y;
+    sp10.vx = CarAccelCurveThresholds[CourseIndex].x;
+    sp10.vy = CarAccelCurveThresholds[CourseIndex].y;
 
     for (i = 0; i < TrackNodeCount; i++) {
         sp18.vx = TrackNodes[i].c / 384;
@@ -252,15 +252,15 @@ void DrawTrackNodeMap(s32 *arg0) {
     SCRATCH->p = tile;
 
     if (SelectedCourseChoice < 8) {
-        s1 = D_800A1030;
-        s3 = &D_800A1028;
+        s1 = CarDrivetrainStatBias;
+        s3 = &HudSpeedUnitScaleTable;
     } else {
-        s1 = D_800A1040;
-        s3 = &D_800A102C;
+        s1 = CarTireGripStatBias;
+        s3 = &HudSpeedUnitMaxTable;
     }
 
     base = TrackNodes;
-    sec = (S3C *)(D_800A1070[CourseIndex] * 0x3C + (s32)base);
+    sec = (S3C *)(CarTopSpeedGearRatios[CourseIndex] * 0x3C + (s32)base);
     sp18.vx = sec->c / 384;
     sp18.vy = -sec->d / 192;
     sp18.vx += sp10.vx;
@@ -319,20 +319,20 @@ void DrawTrackNodeMap(s32 *arg0) {
     sp18.vx += sp10.vx;
     sp18.vy += sp10.vy;
 
-    D_800A101C &= 0xFF;
-    if (D_800A101C & 0x80) {
-        D_800A101C &= 0x7F;
-        if (D_800A101C < 0x7A) {
-            D_800A101C = (D_800A101C + 6) | 0x80;
+    CarCollisionGraceTimers &= 0xFF;
+    if (CarCollisionGraceTimers & 0x80) {
+        CarCollisionGraceTimers &= 0x7F;
+        if (CarCollisionGraceTimers < 0x7A) {
+            CarCollisionGraceTimers = (CarCollisionGraceTimers + 6) | 0x80;
         } else {
-            D_800A101C = 0x7F;
+            CarCollisionGraceTimers = 0x7F;
         }
     } else {
-        D_800A101C &= 0x7F;
-        if (D_800A101C >= 6) {
-            D_800A101C -= 6;
+        CarCollisionGraceTimers &= 0x7F;
+        if (CarCollisionGraceTimers >= 6) {
+            CarCollisionGraceTimers -= 6;
         } else {
-            D_800A101C = 0x80;
+            CarCollisionGraceTimers = 0x80;
         }
     }
 
@@ -343,9 +343,9 @@ void DrawTrackNodeMap(s32 *arg0) {
     sprt->v0 = HudMapSpriteRects[0].v;
     sprt->w = HudMapSpriteRects[0].w;
     sprt->h = HudMapSpriteRects[0].h;
-    sprt->r0 = D_800A101C & 0x7F;
-    sprt->g0 = D_800A101C & 0x7F;
-    sprt->b0 = D_800A101C & 0x7F;
+    sprt->r0 = CarCollisionGraceTimers & 0x7F;
+    sprt->g0 = CarCollisionGraceTimers & 0x7F;
+    sprt->b0 = CarCollisionGraceTimers & 0x7F;
     sprt->x0 = sp18.vx - 4;
     sprt->y0 = sp18.vy - 8;
     sprt->code = (sprt->code | 2) & ~1;
@@ -444,10 +444,10 @@ void InitRaceOpeningOverlay(s32 arg0, s32 arg1) {
     } else {
         switch (SelectedTeamIndex) {
         case 0:
-            RaceBgmListIndex = D_800A1A40[CourseIndex] + 1;
+            RaceBgmListIndex = HudGearDigitSprites[CourseIndex] + 1;
             break;
         case 1:
-            RaceBgmListIndex = D_800A1A00[CourseIndex] + 1;
+            RaceBgmListIndex = HudSmallDigitSprites[CourseIndex] + 1;
             break;
         case 2:
             RaceBgmListIndex = CourseBgmChoiceTable2[CourseIndex] + 1;
@@ -488,31 +488,31 @@ void InitRaceOpeningOverlay(s32 arg0, s32 arg1) {
     D_8010E220 = RaceBgmListIndex + 0xB;
 
     for (i = 0; i < 8; i++) {
-        CenterGlyphListX(OpeningDateGlyphLists[i], D_800A1090);
-        CenterGlyphListX(OpeningTimeGlyphLists[i], D_800A1090);
-        CenterGlyphListX(OpeningStageGlyphLists[i], D_800A1090);
-        CenterGlyphListX(D_800A1950[i], D_800A1090);
+        CenterGlyphListX(OpeningDateGlyphLists[i], CarHandlingResponseTable);
+        CenterGlyphListX(OpeningTimeGlyphLists[i], CarHandlingResponseTable);
+        CenterGlyphListX(OpeningStageGlyphLists[i], CarHandlingResponseTable);
+        CenterGlyphListX(HudRankOrdinalUvs[i], CarHandlingResponseTable);
     }
 
     for (i = 0; i < 5; i++) {
-        CenterGlyphListX(OpeningAttemptGlyphLists[i], D_800A1090);
+        CenterGlyphListX(OpeningAttemptGlyphLists[i], CarHandlingResponseTable);
     }
 
     for (i = 0; i < 8; i++) {
-        CenterGlyphListX(D_800A1984[i], HudGlyphUvRects);
-        CenterGlyphListX(D_800A1984[i] + 8, HudGlyphUvRects);
-        CenterGlyphListX(D_800A1984[i] + 14, HudGlyphUvRects);
+        CenterGlyphListX(HudTimeLabelSprites[i], HudGlyphUvRects);
+        CenterGlyphListX(HudTimeLabelSprites[i] + 8, HudGlyphUvRects);
+        CenterGlyphListX(HudTimeLabelSprites[i] + 14, HudGlyphUvRects);
     }
 
     for (i = 0; i < 7; i++) {
-        CenterGlyphListX(OpeningModeGlyphLists[i], D_800A1090);
+        CenterGlyphListX(OpeningModeGlyphLists[i], CarHandlingResponseTable);
     }
 
-    CenterGlyphListX(D_800A1818, HudGlyphUvRects);
-    CenterGlyphListX(D_800A1824, HudGlyphUvRects);
+    CenterGlyphListX(HudTachRedlineAngles, HudGlyphUvRects);
+    CenterGlyphListX(HudTachSweepLimitAngles, HudGlyphUvRects);
 
     for (i = 0; i < 8; i++) {
-        CenterGlyphListX(D_800A19C0[i], HudGlyphUvRects);
+        CenterGlyphListX(HudBigDigitSprites[i], HudGlyphUvRects);
     }
 }
 
@@ -546,7 +546,7 @@ void DrawGlyphList(s16 *stream,s32 color,s32 bank)
                 uv = (UiUvRect*)((u8 *)HudGlyphUvRects + offset);
             } else {
                 offset = glyph * 4;
-                if (bank == 0) uv = (UiUvRect*)((u8 *)D_800A1090 + offset);
+                if (bank == 0) uv = (UiUvRect*)((u8 *)CarHandlingResponseTable + offset);
                 else uv = (UiUvRect*)((u8 *)HudGlyphUvRects + offset);
             }
             spriteCode = 0x66;
@@ -604,7 +604,7 @@ void DrawGlyphListSloped(s16 *t1, s32 a1, s32 a2) {
                 t0 = (u8 *)HudGlyphUvRects + v;
             } else {
                 v = e * 4;
-                if (a2 == 0) t0 = (u8 *)D_800A1090 + v;
+                if (a2 == 0) t0 = (u8 *)CarHandlingResponseTable + v;
                 else t0 = (u8 *)HudGlyphUvRects + v;
             }
             k = 0x66;

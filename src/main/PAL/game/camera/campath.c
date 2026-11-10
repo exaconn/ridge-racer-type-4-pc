@@ -22,7 +22,7 @@ typedef struct {
     s32 flags, depth;
 } MotionMarkerWork;
 
-extern u16 D_800A1F90[];
+extern u16 HudFinalLapBannerParts[];
 
 void DrawPresentationTrackModel(void) {
     MotionMarkerWork work;
@@ -46,7 +46,7 @@ void DrawPresentationTrackModel(void) {
         (ObjectTransform38 *)(SCRATCHPAD + 0x7C),
         (const s16 *)&work.position.x,
         work.lightMatrix.w);
-    row = D_800A1F90; i = 0; y = -0x438;
+    row = HudFinalLapBannerParts; i = 0; y = -0x438;
     do {
         j = 0;
         x = -0x438;
@@ -192,7 +192,7 @@ void InitMotionController(void) {
     RaceContext.controller3D8->lighting20.ambient[0] = 0;
     RaceContext.controller3D8->lighting20.ambient[1] = 0;
     RaceContext.controller3D8->lighting20.ambient[2] = 0;
-    RaceContext.controller3D8->script64 = D_800A1E60;
+    RaceContext.controller3D8->script64 = HudCircularGaugeVerts;
     RaceContext.controller3D8->scriptOperation6C = RaceContext.controller3D8->script64[RaceContext.controller3D8->scriptIndex68].operation;
     RaceContext.controller3D8->scriptArgument70 = RaceContext.controller3D8->script64[RaceContext.controller3D8->scriptIndex68].argument;
     switch (RaceContext.controller3D8->scriptOperation6C) {

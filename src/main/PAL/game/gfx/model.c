@@ -27,7 +27,7 @@ extern short D_800F4C58[2];
 extern s16 *CarBoundsTable[];
 extern int D_800F2EC0;
 extern int D_8010E6D8[];
-extern char D_800A3C90[];
+extern char OpeningLensFlareSprites[];
 
 void SetFogNearFar(s32 a0, s32 a1, s32 a2);
 s32 DrawArticulatedCarModel(RaceVehicle *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
@@ -386,5 +386,5 @@ void SetVramImageSlot(int a0, int a1) {
 }
 
 void LoadVramImageSlot(int a0) {
-    LoadImage(D_800A3C90, D_8010E6D8[a0]);
+    LoadImage(OpeningLensFlareSprites, D_8010E6D8[a0]);
 }

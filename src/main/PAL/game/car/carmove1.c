@@ -30,7 +30,7 @@ typedef struct {
 
 struct TrackHeader4 { char b[4]; };
 
-extern short D_800AC53C;
+extern short TrackLengthKilometers;
 extern short D_800ACC74;
 
 void FindAxleTrackNode(void)
@@ -352,7 +352,7 @@ void SetTrackNodeData(char *a)
     for (i = 0; i < TrackNodeCount; i++) {
         TrackLength += TrackNodes[i].segmentLength1C;
     }
-    D_800AC53C = TrackLength / 1024;
+    TrackLengthKilometers = TrackLength / 1024;
     D_800ACC74 = (TrackLength >> 8) + 1;
 }
 

@@ -16,13 +16,13 @@
 #include "psyq/libc/rand.h"
 
 extern int SetGeomScreen();
-extern VectorWords16 D_800A0FC0;
-extern Vec3s8 D_800A0FD0;
-extern int D_800A0FD8;
-extern unsigned char D_800A0DC8[][4];
+extern VectorWords16 ReplayCamZoomMultipliers;
+extern Vec3s8 StartCamLateralOffsets;
+extern int StartCamHeightKeyframes;
+extern unsigned char ReplayCamCutSequence[][4];
 extern u16 SparkSpriteTexpage;
-extern short *D_800A0F20[];
-extern short *D_800A0F8C[];
+extern short *ReplayCamAnchorNodes[];
+extern short *ReplayCamElevationBias[];
 extern short SelectedTeamIndex;
 
 int StepCarShowcasePhysics(RaceVehicle *arg0, int arg1, int arg2, int *arg3);
@@ -68,9 +68,9 @@ int StepCarShowcasePhysics(RaceVehicle *vehicle, int time, int track, int *segme
         orbitAngles.fields.x = 0;
         orbitAngles.fields.y = -0xA00;
         orbitAngles.fields.z = 0;
-        orbitOffset.fields.x = D_800A0FC0.xyz.x;
-        orbitOffset.fields.y = D_800A0FC0.xyz.y;
-        orbitOffset.fields.z = D_800A0FC0.xyz.z;
+        orbitOffset.fields.x = ReplayCamZoomMultipliers.xyz.x;
+        orbitOffset.fields.y = ReplayCamZoomMultipliers.xyz.y;
+        orbitOffset.fields.z = ReplayCamZoomMultipliers.xyz.z;
         RotMatrix(&orbitAngles.fields, &rotation);
         ApplyMatrix(&rotation, &orbitOffset, &orbitPosition.xyz);
         orbitPosition.xyz.x += PlayerCars[0].position20.vector.x * 4U;
@@ -79,10 +79,10 @@ int StepCarShowcasePhysics(RaceVehicle *vehicle, int time, int track, int *segme
         projection->pose08.position00.xyz.x = orbitPosition.xyz.x;
         projection->pose08.position00.xyz.y = orbitPosition.xyz.y;
         projection->pose08.position00.xyz.z = orbitPosition.xyz.z;
-        projection->pose08.angles10.xyz.x = D_800A0FD0.fields.x;
-        projection->pose08.angles10.xyz.y = D_800A0FD0.fields.y;
-        projection->pose08.angles10.xyz.z = D_800A0FD0.fields.z;
-        SetGeomScreen(D_800A0FD8);
+        projection->pose08.angles10.xyz.x = StartCamLateralOffsets.fields.x;
+        projection->pose08.angles10.xyz.y = StartCamLateralOffsets.fields.y;
+        projection->pose08.angles10.xyz.z = StartCamLateralOffsets.fields.z;
+        SetGeomScreen(StartCamHeightKeyframes);
         BuildCameraMatrices();
         return 1;
     }
@@ -138,9 +138,9 @@ int StepCarShowcasePhysics(RaceVehicle *vehicle, int time, int track, int *segme
     orbitAngles.fields.x = 0;
     orbitAngles.fields.y = -0xA00;
     orbitAngles.fields.z = 0;
-    orbitOffset.fields.x = D_800A0FC0.xyz.x;
-    orbitOffset.fields.y = D_800A0FC0.xyz.y;
-    orbitOffset.fields.z = D_800A0FC0.xyz.z;
+    orbitOffset.fields.x = ReplayCamZoomMultipliers.xyz.x;
+    orbitOffset.fields.y = ReplayCamZoomMultipliers.xyz.y;
+    orbitOffset.fields.z = ReplayCamZoomMultipliers.xyz.z;
     RotMatrix(&orbitAngles.fields, &rotation);
     ApplyMatrix(&rotation, &orbitOffset, &orbitPosition.xyz);
     orbitPosition.xyz.x += PlayerCars[0].position20.vector.x * 4U;
@@ -164,19 +164,19 @@ int StepCarShowcasePhysics(RaceVehicle *vehicle, int time, int track, int *segme
         projection->pose08.position00.xyz.x = InterpolateCameraDelta(orbitPosition.xyz.x, RaceContext.view60.pose00.position00.xyz.x, elapsed, duration) + RaceContext.view60.pose00.position00.xyz.x;
         projection->pose08.position00.xyz.y = InterpolateCameraDelta(orbitPosition.xyz.y, RaceContext.view60.pose00.position00.xyz.y, elapsed, duration) + RaceContext.view60.pose00.position00.xyz.y;
         projection->pose08.position00.xyz.z = InterpolateCameraDelta(orbitPosition.xyz.z, RaceContext.view60.pose00.position00.xyz.z, elapsed, duration) + RaceContext.view60.pose00.position00.xyz.z;
-        projection->pose08.angles10.xyz.x = InterpolateCameraDelta(D_800A0FD0.fields.x, RaceContext.view60.pose00.rotation10.x, elapsed, duration) + RaceContext.view60.pose00.rotation10.x;
-        projection->pose08.angles10.xyz.y = InterpolateCameraDelta(D_800A0FD0.fields.y, RaceContext.view60.pose00.rotation10.y, elapsed, duration) + RaceContext.view60.pose00.rotation10.y;
-        projection->pose08.angles10.xyz.z = InterpolateCameraDelta(D_800A0FD0.fields.z, RaceContext.view60.pose00.rotation10.z, elapsed, duration) + RaceContext.view60.pose00.rotation10.z;
-        RaceContext.view60.projection20 = InterpolateCameraDelta(D_800A0FD8, keys[startKey].view00.projection20, elapsed, duration) + keys[startKey].view00.projection20;
+        projection->pose08.angles10.xyz.x = InterpolateCameraDelta(StartCamLateralOffsets.fields.x, RaceContext.view60.pose00.rotation10.x, elapsed, duration) + RaceContext.view60.pose00.rotation10.x;
+        projection->pose08.angles10.xyz.y = InterpolateCameraDelta(StartCamLateralOffsets.fields.y, RaceContext.view60.pose00.rotation10.y, elapsed, duration) + RaceContext.view60.pose00.rotation10.y;
+        projection->pose08.angles10.xyz.z = InterpolateCameraDelta(StartCamLateralOffsets.fields.z, RaceContext.view60.pose00.rotation10.z, elapsed, duration) + RaceContext.view60.pose00.rotation10.z;
+        RaceContext.view60.projection20 = InterpolateCameraDelta(StartCamHeightKeyframes, keys[startKey].view00.projection20, elapsed, duration) + keys[startKey].view00.projection20;
         SetGeomScreen(RaceContext.view60.projection20);
     } else {
         projection->pose08.position00.xyz.x = orbitPosition.xyz.x;
         projection->pose08.position00.xyz.y = orbitPosition.xyz.y;
         projection->pose08.position00.xyz.z = orbitPosition.xyz.z;
-        projection->pose08.angles10.xyz.x = D_800A0FD0.fields.x;
-        projection->pose08.angles10.xyz.y = D_800A0FD0.fields.y;
-        projection->pose08.angles10.xyz.z = D_800A0FD0.fields.z;
-        SetGeomScreen(D_800A0FD8);
+        projection->pose08.angles10.xyz.x = StartCamLateralOffsets.fields.x;
+        projection->pose08.angles10.xyz.y = StartCamLateralOffsets.fields.y;
+        projection->pose08.angles10.xyz.z = StartCamLateralOffsets.fields.z;
+        SetGeomScreen(StartCamHeightKeyframes);
     }
     BuildCameraMatrices();
     return 0;
@@ -187,7 +187,7 @@ void DrawHudSprite(int a0, int a1, int a2, int a3, int a4)
     unsigned short sp[2];
     unsigned char *t0;
     SpritePacketSignedClut *p;
-    t0 = D_800A0DC8[a0];
+    t0 = ReplayCamCutSequence[a0];
     if (a4 != 0) {
         sp[0] = 0xA0 - (t0[2] >> 1);
         sp[1] = a2;
@@ -291,7 +291,7 @@ void UpdateSparkBurstEffectB(int a0, int a1) {
   int i;
   int c;
   unsigned short ua;
-  s1 = D_800A0F20[RaceContext.camera24C->mode13C];
+  s1 = ReplayCamAnchorNodes[RaceContext.camera24C->mode13C];
   do { c = a0 * 4U;
   if (a0 >= 0x20) {
     if (a1 < a0) c = 0x80 - ((a0 - a1) * 4);
@@ -309,7 +309,7 @@ void UpdateSparkBurstEffectB(int a0, int a1) {
       ua = s1[2];
     } while (s1[2] >= 0);
   }
-  s1 = D_800A0F8C[SelectedTeamIndex];
+  s1 = ReplayCamElevationBias[SelectedTeamIndex];
   ua = s1[2];
   if (s1[2] >= 0) {
     do {

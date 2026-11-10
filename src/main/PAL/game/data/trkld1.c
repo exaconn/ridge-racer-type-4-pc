@@ -15,8 +15,8 @@
 #include "rr/audio_loop.h"
 #include "game/course/trkintp2.h"
 
-extern int D_800A02BC;
-extern int D_800A029C[];
+extern int CourseAssetBaseFileIndex;
+extern int CourseAssetGroupIds[];
 extern AudioBankSetup SlotBankSetup;
 
 extern int D_8010C218;
@@ -43,19 +43,19 @@ int LoadCarSpecStep(int a0, int a1, int a2) {
       switch (GameModeType)
     {
       case 1:
-        D_800A02BC = GetR4FileIndex(2, D_800A029C[a0] + (a2 + v));
+        CourseAssetBaseFileIndex = GetR4FileIndex(2, CourseAssetGroupIds[a0] + (a2 + v));
         break;
 
       case 3:
-        D_800A02BC = GetR4FileIndex(2, (a0 * 4) + (a2 + e));
+        CourseAssetBaseFileIndex = GetR4FileIndex(2, (a0 * 4) + (a2 + e));
         break;
 
       case 5:
-        D_800A02BC = GetR4FileIndex(2, a0 + 0x74);
+        CourseAssetBaseFileIndex = GetR4FileIndex(2, a0 + 0x74);
         break;
 
       case 6:
-        D_800A02BC = GetR4FileIndex(2, (a0 * 2) + 0x64);
+        CourseAssetBaseFileIndex = GetR4FileIndex(2, (a0 * 2) + 0x64);
         break;
 
       default:
@@ -65,7 +65,7 @@ int LoadCarSpecStep(int a0, int a1, int a2) {
     }
 
     case 1:
-      v = CdFileReadStart(D_800A02BC, RaceLoadCursor);
+      v = CdFileReadStart(CourseAssetBaseFileIndex, RaceLoadCursor);
       if (v != 0)
     {
       RaceLoadState++;
@@ -157,7 +157,7 @@ int LoadCourseAssetsStep(int a0, int a1) {
             RegisterModelBank((RroModelBank *)(RaceLoadCursor), 8);
             v = AlignUp4(t);
             RaceLoadCursor += v;
-            if (D_8009FE60[a0] < 7) {
+            if (CourseSkyboxTypeTable[a0] < 7) {
                 RaceLoadState = 0;
                 return 1;
             }
@@ -282,7 +282,7 @@ int LoadSoundBanksStep(int a0, int a1, int a2) {
 int LoadSfxVabStep(int a0, int a1) {
     int prefixWords = 0;
     int sampleBytes;
-    VabLoadConfig *config = &D_800A0228[a0];
+    VabLoadConfig *config = &CourseVabLoadConfigs[a0];
     int readStatus;
     char *samples;
     switch (RaceLoadSubState) {
@@ -324,7 +324,7 @@ void RaceLoadReset(void) {
 
 int LoadVabPairStep(char *a0) {
     int v;
-    VabLoadConfig *t = D_800A0228;
+    VabLoadConfig *t = CourseVabLoadConfigs;
     switch (RaceLoadStepIndex) {
     case 0:
         v = CdFileReadStart(GetR4FileIndex(2, 0x11), a0);

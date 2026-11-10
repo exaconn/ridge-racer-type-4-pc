@@ -29,7 +29,7 @@ class CameraMotionInitTest(unittest.TestCase):
 #include "rr/camera_motion.h"
 #include "game/camera/camrun.h"
 PresentationContextPrefix RaceContext;
-CameraKey16 D_800A1AA0[4][3], D_800A1B60[4][2];
+CameraKey16 HudTachMeterSegments[4][3], HudGaugeArcVertices[4][2];
 typedef struct {
     u32 before[8];
     PresentationController objects[2];
@@ -51,22 +51,22 @@ int main(void) {
     CameraKey16 savedLinear[4][3], savedCyclic[4][2];
     const u32 edges[] = {0,1,0x7fffffffU,0x80000000U,0xffffffffU,0x12345678U,0x87654321U,4096};
     assert(sizeof(void*) == 8);
-    assert((uintptr_t)&actual > UINT32_MAX && (uintptr_t)D_800A1AA0 > UINT32_MAX);
+    assert((uintptr_t)&actual > UINT32_MAX && (uintptr_t)HudTachMeterSegments > UINT32_MAX);
     for (seed=0;seed<128;seed++) {
         for (row=0;row<4;row++) {
             for (key=0;key<3;key++) {
-                CameraKey16 *p=&D_800A1AA0[row][key];
+                CameraKey16 *p=&HudTachMeterSegments[row][key];
                 p->x=word(edges[(seed+row+key)%8]);
                 p->y=word(edges[(seed+row+key+3)%8]);
                 p->z=word(edges[(seed+row+key+5)%8]);
                 p->reservedC=word(0xfeed0000U+row*16+key);
-                if (key<2) D_800A1B60[row][key]=*p;
+                if (key<2) HudGaugeArcVertices[row][key]=*p;
             }
         }
-        memcpy(savedLinear,D_800A1AA0,sizeof(savedLinear));
-        memcpy(savedCyclic,D_800A1B60,sizeof(savedCyclic));
+        memcpy(savedLinear,HudTachMeterSegments,sizeof(savedLinear));
+        memcpy(savedCyclic,HudGaugeArcVertices,sizeof(savedCyclic));
         for (mode=0;mode<2;mode++) for (selection=0;selection<8;selection++) {
-            CameraKey16 *keys=selection<4?D_800A1AA0[selection]:D_800A1B60[selection-4];
+            CameraKey16 *keys=selection<4?HudTachMeterSegments[selection]:HudGaugeArcVertices[selection-4];
             CameraKey16 initial=*keys;
             CameraMotion70 *target;
             memset(&actual,(u8)(seed*29U+0xA5U),sizeof(actual));
@@ -85,8 +85,8 @@ int main(void) {
             assert(calls==1 && RaceContext.controller3D8==&actual.objects[mode]);
             assert(RaceContext.controller3D8->motion74.keys0C==keys);
             assert(!memcmp(&actual,&expected,sizeof(actual)));
-            assert(!memcmp(savedLinear,D_800A1AA0,sizeof(savedLinear)));
-            assert(!memcmp(savedCyclic,D_800A1B60,sizeof(savedCyclic)));
+            assert(!memcmp(savedLinear,HudTachMeterSegments,sizeof(savedLinear)));
+            assert(!memcmp(savedCyclic,HudGaugeArcVertices,sizeof(savedCyclic)));
             cases++;
         }
     }

@@ -4,8 +4,8 @@
 #include "rr/frame_loop.h"
 #include "rr/bios_devices.h"
 
-extern int D_800A099C[][3];
-extern int D_800A0904[];
+extern int RaceOverlayFilePath[][3];
+extern int StageUnlockMovieIds[];
 extern int PsyqSrand();
 
 
@@ -25,7 +25,7 @@ void CdAudioSelectTrack(int bank, int track) {
         CdAudioSetTarget(sector, filter, 0);
         state->end2690 = (((AudioStreamEntry *)state->streamBanks[bank].table)[track].sectors - 2U) * 8;
         PsyqBzero(&state->tick26D0, 0x1C);
-        { const s32 *base = D_800A099C[0]; timing = base + track * 3; }
+        { const s32 *base = RaceOverlayFilePath[0]; timing = base + track * 3; }
         state->reserved26EC = 0;
         state->base26F0 = 0;
         state->reserved26E0 = timing[0];
@@ -35,7 +35,7 @@ void CdAudioSelectTrack(int bank, int track) {
         state->timer26A8 = 0;
         state->end2690 = end + sector;
         state->offset26E8 = offset;
-        state->targetVol26C0.word = D_800A0904[track];
+        state->targetVol26C0.word = StageUnlockMovieIds[track];
         CdAudioSetVolumeRaw(0);
     }
     PsyqSrand(FrameCounter);

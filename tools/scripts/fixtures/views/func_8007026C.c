@@ -37,11 +37,11 @@ void RelocateRelativeFile(RelativeHeader *input){
  RelFileOffsetPtr7=rr_relative_file_address(base,base->offsets[7]);
  D_800FFC40=rr_relative_file_address(base,base->offsets[8]);
  RelFileOffsetPtr9=rr_relative_file_address(base,base->offsets[9]);
- D_800ABEA0=rr_relative_file_address(base,base->offsets[10]);
+ TrackCollisionGridPtr=rr_relative_file_address(base,base->offsets[10]);
  RelFileSection11=rr_relative_file_address(base,base->offsets[11]);
  RelFileOffsetPtr12=rr_relative_file_address(base,base->offsets[12]);
  RelFileOffsetPtr13=rr_relative_file_address(base,base->offsets[13]);
- D_800ABEB4=rr_relative_file_address(base,base->offsets[14]);
+ TrackSectionBoundsPtr=rr_relative_file_address(base,base->offsets[14]);
  last=base->offsets[15];
  RelFileSegmentViewSlots=cursor;
  RelFileSection15=rr_relative_file_address(base,last);

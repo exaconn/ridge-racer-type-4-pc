@@ -13,7 +13,7 @@ typedef struct {
 RR_ASSERT_SIZE(PulseRow, 4);
 RR_ASSERT_OFFSET(PulseRow, duration, 2);
 
-extern const PulseRow *D_8009FF80[], *D_8009FFA0[];
+extern const PulseRow *PadPulseOnceStepTable[], *PadPulseRepeatStepTable[];
 void PadStepPulse(void);
 s32 ovl665_detect_controller_kind(s32 index);
 

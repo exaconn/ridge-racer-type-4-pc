@@ -87,22 +87,22 @@
 #undef HudGlyphUvRects
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A1090 (*(u8 (*)[])&D_800A1090)
+#define CarHandlingResponseTable (*(u8 (*)[])&CarHandlingResponseTable)
 
 #define HudGlyphUvRects (*(u8 (*)[])&HudGlyphUvRects)
 
-#undef D_800A1090
+#undef CarHandlingResponseTable
 
 #undef HudGlyphUvRects
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800A1090 (*(char (*)[])&D_800A1090)
+#define CarHandlingResponseTable (*(char (*)[])&CarHandlingResponseTable)
 
 #define HudGlyphUvRects (*(char (*)[])&HudGlyphUvRects)
 
 #define CurrentDrawBuf ((char *)CurrentDrawBuf)
 
-#undef D_800A1090
+#undef CarHandlingResponseTable
 
 #undef HudGlyphUvRects
 

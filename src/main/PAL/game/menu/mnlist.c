@@ -19,21 +19,21 @@
 
 extern int FormatDecimalDigits();
 extern UiUvRect UiFontGlyphs[];
-extern char D_8009FDBF[];
-extern char D_8009FDC0[];
-extern char D_8009FDC4[];
-extern u8 D_8009FDCC[];
-extern u8 D_8009FDD8[];
-extern u8 D_8009FDE4[];
+extern char SaveSlotGradePrefixBuf[];
+extern char SaveSlotQuestionMarks[];
+extern char SaveSlotDashPlaceholder[];
+extern u8 SaveSlotHeaderStepX[];
+extern u8 SaveSlotHeaderGlyphIds[];
+extern u8 SaveSlotDigitGlyphIds[];
 extern SelectionRow SelectionRows[];
 extern void *AddTileSemiTransPrim();
-extern u8 D_8009FDF4[];
-extern u8 D_8009FDF8[];
-extern u8 D_8009FDFC[];
-extern u8 D_8009FE00[];
-extern u8 D_8009FE04[];
-extern u8 D_8009FE08[];
-extern u8 D_8009FE0C[];
+extern u8 SaveSlotTrophyStepX[];
+extern u8 SaveSlotRowOffsetY[];
+extern u8 SaveSlotStageGlyphIds[];
+extern u8 SaveSlotDifficultyCharsA[];
+extern u8 SaveSlotDifficultyCharsB[];
+extern u8 SaveSlotPhaseChars[];
+extern u8 SaveSlotTrophyTileColors[];
 extern MenuSettings2C SaveSlotSelections[];
 extern short GpSaveSlotCursor;
 extern char FractionText[];
@@ -80,19 +80,19 @@ void *DrawCarSpecBadgePanel(u32 *arg0, void *arg1, s32 arg2)
   {
     if (SelectionRows[ActivePlayerIndex].selection == 2)
     {
-      sp4C = D_8009FDC4;
+      sp4C = SaveSlotDashPlaceholder;
     }
     else
     {
       if (SelectionRows[ActivePlayerIndex].selection == 0)
       {
-        CopyStringClearTail(D_8009FDBF, "D ");
+        CopyStringClearTail(SaveSlotGradePrefixBuf, "D ");
       }
       else
       {
-        CopyStringClearTail(D_8009FDBF, "G ");
+        CopyStringClearTail(SaveSlotGradePrefixBuf, "G ");
       }
-      q = D_8009FDC0;
+      q = SaveSlotQuestionMarks;
       FormatDecimalDigits(q, SelectionRows[ActivePlayerIndex].variant + 1, 0);
       sp4C = q - 8;
     }
@@ -117,8 +117,8 @@ void *DrawCarSpecBadgePanel(u32 *arg0, void *arg1, s32 arg2)
   y += 0x1E;
   for (i = 0; i < 0xC; i++)
   {
-    x += D_8009FDCC[i];
-    e = D_8009FDD8 + i;
+    x += SaveSlotHeaderStepX[i];
+    e = SaveSlotHeaderGlyphIds + i;
     arg1 = AddSpritePrim(arg0, arg1, x, y, &UiFontGlyphs[*e], 0x7FF8, 0);
     t3 = x + 2;
     s2 = t3 + UiFontGlyphs[*e].w;
@@ -141,7 +141,7 @@ void *DrawCarSpecBadgePanel(u32 *arg0, void *arg1, s32 arg2)
           }
           for (s1 = s6; s1 < (s6 + 2); s1++)
           {
-            f = ((signed char *) D_8009FDE4) + s1;
+            f = ((signed char *) SaveSlotDigitGlyphIds) + s1;
             arg1 = AddSpritePrim(arg0, arg1, s2, y, &UiFontGlyphs[*f], 0x7FF8, 0);
             t4 = s2 + 2;
             s2 = t4 + UiFontGlyphs[*f].w;
@@ -234,8 +234,8 @@ void *DrawGpSaveSlotsPanel(u32 *arg0, void *arg1, s32 arg2)
     y += 0x20;
 
     for (i = 0; i < 4; i++) {
-        x += D_8009FDF4[i];
-        arg1 = AddSpritePrim(arg0, arg1, x, y, &UiFontGlyphs[D_8009FDFC[i]], 0x7FF8, 0);
+        x += SaveSlotTrophyStepX[i];
+        arg1 = AddSpritePrim(arg0, arg1, x, y, &UiFontGlyphs[SaveSlotStageGlyphIds[i]], 0x7FF8, 0);
     }
 
     i = 7;
@@ -250,27 +250,27 @@ void *DrawGpSaveSlotsPanel(u32 *arg0, void *arg1, s32 arg2)
     for (i = 0; i < 3; i++) {
         x = BadgeRows[arg2].x04 + 8;
         FormatDecimalDigits(sp38, i + 1, 0);
-        arg1 = AddTextSprites(arg0, arg1, x, y + D_8009FDF8[i + 1], sp38, 0x7FF8, 0, 0);
+        arg1 = AddTextSprites(arg0, arg1, x, y + SaveSlotRowOffsetY[i + 1], sp38, 0x7FF8, 0, 0);
         if ((sp28[2] = SaveSlotSelections[i].phase17) != -1) {
-            sp28[0] = D_8009FE00[SaveSlotSelections[i].copies[0].bytes[0] & 3];
-            sp28[1] = D_8009FE04[SaveSlotSelections[i].copies[0].bytes[1] & 3];
-            sp28[2] = D_8009FE08[SaveSlotSelections[i].phase17 / 2];
+            sp28[0] = SaveSlotDifficultyCharsA[SaveSlotSelections[i].copies[0].bytes[0] & 3];
+            sp28[1] = SaveSlotDifficultyCharsB[SaveSlotSelections[i].copies[0].bytes[1] & 3];
+            sp28[2] = SaveSlotPhaseChars[SaveSlotSelections[i].phase17 / 2];
             for (j = 0; j < 3; j++) {
-                x += D_8009FDF4[j + 1];
-                arg1 = AddSpritePrim(arg0, arg1, x, y + D_8009FDF8[i + 1], &UiFontGlyphs[sp28[j]], 0x7FF8, 0);
+                x += SaveSlotTrophyStepX[j + 1];
+                arg1 = AddSpritePrim(arg0, arg1, x, y + SaveSlotRowOffsetY[i + 1], &UiFontGlyphs[sp28[j]], 0x7FF8, 0);
                 if (j == 2 && SaveSlotSelections[i].phase17 < 4) {
                     x += 0xE;
-                    arg1 = AddSpritePrim(arg0, arg1, x, y + D_8009FDF8[i + 1], &UiFontGlyphs[38], 0x7FF8, 0);
+                    arg1 = AddSpritePrim(arg0, arg1, x, y + SaveSlotRowOffsetY[i + 1], &UiFontGlyphs[38], 0x7FF8, 0);
                 }
             }
         } else {
             for (j = 0; j < 3; j++) {
-                x += D_8009FDF4[j + 1];
-                arg1 = AddTilePrim(arg0, arg1, x, y + D_8009FDF8[i + 1] + 8, D_8009FE0C[j], 2, 0xFF, 0xFF, 0xFF);
+                x += SaveSlotTrophyStepX[j + 1];
+                arg1 = AddTilePrim(arg0, arg1, x, y + SaveSlotRowOffsetY[i + 1] + 8, SaveSlotTrophyTileColors[j], 2, 0xFF, 0xFF, 0xFF);
             }
         }
         if (i == GpSaveSlotCursor) {
-            arg1 = AddTileSemiTransPrim(arg0, arg1, BadgeRows[arg2].x04, y + D_8009FDF8[i + 1] - 4, sp40, 0x18, 0x20, 0x20, 0x20);
+            arg1 = AddTileSemiTransPrim(arg0, arg1, BadgeRows[arg2].x04, y + SaveSlotRowOffsetY[i + 1] - 4, sp40, 0x18, 0x20, 0x20, 0x20);
         }
     }
 
@@ -282,8 +282,8 @@ void *DrawGpSaveSlotsPanel(u32 *arg0, void *arg1, s32 arg2)
     for (i = 0; i < 4; i++) {
         x = BadgeRows[arg2].x04;
         for (j = 0; j < 3; j++) {
-            x += D_8009FDF4[j + 1];
-            arg1 = AddTilePrim(arg0, arg1, x, y + D_8009FDF8[i], 2, 0x10, 0xFF, 0xFF, 0xFF);
+            x += SaveSlotTrophyStepX[j + 1];
+            arg1 = AddTilePrim(arg0, arg1, x, y + SaveSlotRowOffsetY[i], 2, 0x10, 0xFF, 0xFF, 0xFF);
         }
     }
 

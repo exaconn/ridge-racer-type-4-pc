@@ -118,5 +118,5 @@ void InitScrollTrack(int selection) {
     ScrollTrack40 *scroll = &RaceContext.controller3D8->scroll;
     PsyqBzero(scroll, sizeof(*scroll));
     scroll->disabled = 0;
-    scroll->keys = D_800A1CD0[selection];
+    scroll->keys = HudLinearGaugeVerts[selection];
 }

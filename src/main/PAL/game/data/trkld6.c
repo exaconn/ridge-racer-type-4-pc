@@ -135,7 +135,7 @@ int LoadTrackVabsStep(void)
         RegisterModelBank((RroModelBank *)(resource), 7);
         bank = 0;
         RelocateOffsetTable(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->relocationOffset);
-        configs = &D_800A0228[1];
+        configs = &CourseVabLoadConfigs[1];
         D_800ACBB4 = (char *)(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->relocationOffset);
         do {
             VabLoadArgs.header = (u8 *)(RaceLoadCursor + *(((const TrackSoundHeader *)RaceLoadCursor)->bankHeaderOffsets + bank));
@@ -191,7 +191,7 @@ int LoadAttractRaceStep(void) {
             RaceLoadStepIndex++;
     case 1:
             if (CdFileBytesLoaded()) {
-                q = &D_800A0228[6];
+                q = &CourseVabLoadConfigs[6];
                 VabLoadArgs.header = (u8 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
                 VabLoadArgs.samples = (const u16 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
                 LoadVab(&VabLoadArgs, q->open_mode, q->bank_slot);

@@ -8,8 +8,8 @@
 #include "game/data/globals.h"
 #include "game/ui/uidraw.h"
 
-extern short D_800A41EC;
-extern short D_800A41EE;
+extern short CardSaveDialogChoice;
+extern short CardSavePromptId;
 
 void ExitCardMenuToMode(int arg0);
 void CardMenuModeUpdate(void);
@@ -19,15 +19,15 @@ int CardLoadStep(short a0, int a1) {
     int r;
     int q;
     if (a0 > 0) {
-        D_800A41EC = 0;
+        CardSaveDialogChoice = 0;
     }
-    switch (D_800A41EC) {
+    switch (CardSaveDialogChoice) {
     case 0:
-        D_800A41EE = 0;
-        D_800A41EC = 1;
+        CardSavePromptId = 0;
+        CardSaveDialogChoice = 1;
         break;
     case 1:
-        D_800A41EC = 2;
+        CardSaveDialogChoice = 2;
         break;
     case 2:
         for (i = 0x1D; i >= 0; i--) {
@@ -38,13 +38,13 @@ int CardLoadStep(short a0, int a1) {
             r = CardReadFileAt((short)a1, 0, CardTargetFileName, SaveBuffer, 0x80, 0x280);
         }
         if (r == -1) {
-            if (D_800A41EE < 3) {
-                D_800A41EE = (unsigned short)D_800A41EE + 1;
+            if (CardSavePromptId < 3) {
+                CardSavePromptId = (unsigned short)CardSavePromptId + 1;
                 break;
             }
-            D_800A41EC = 5;
+            CardSaveDialogChoice = 5;
         } else {
-            D_800A41EC = 3;
+            CardSaveDialogChoice = 3;
         }
         break;
     case 3:
@@ -52,16 +52,16 @@ int CardLoadStep(short a0, int a1) {
         if (q != 0) {
             if (q == 1) {
                 if (ApplySaveData(CardTransferMode) != 0) {
-                    D_800A41EC = 4;
+                    CardSaveDialogChoice = 4;
                 } else {
-                    D_800A41EC = 6;
+                    CardSaveDialogChoice = 6;
                 }
             } else {
-                if (D_800A41EE >= 3) {
-                    D_800A41EC = 5;
+                if (CardSavePromptId >= 3) {
+                    CardSaveDialogChoice = 5;
                 } else {
-                    D_800A41EC = 1;
-                    D_800A41EE = (unsigned short)D_800A41EE + 1;
+                    CardSaveDialogChoice = 1;
+                    CardSavePromptId = (unsigned short)CardSavePromptId + 1;
                 }
             }
         }
@@ -71,7 +71,7 @@ int CardLoadStep(short a0, int a1) {
     case 6:
         break;
     }
-    return D_800A41EC;
+    return CardSaveDialogChoice;
 }
 
 
@@ -142,18 +142,18 @@ void CardMenuModeEnter(void) {
             InitUiRow(0x25, 0xC, 0xB8, 0x44, 0x20, 0, 0, 1, 0, 0x55);
             MenuStateIndex = 0;
             CardTransferMode = 0;
-            D_800A45B8 = 0x1001A;
+            LoadMenuStatusPromptId = 0x1001A;
             SeqStartTrack(0);
         } else if (modeRange < 2U) {
             if (selection == 6) {
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
                 InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x65);
                 InitUiRow(0x24, 0xC, 0x90, 0x44, 0x20, 0, 0, 1, 0, 0x55);
-                D_800A45B8 = 0x1001A;
+                LoadMenuStatusPromptId = 0x1001A;
             } else {
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
                 InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
-                D_800A45B8 = 0x10012;
+                LoadMenuStatusPromptId = 0x10012;
             }
             CardTransferMode = 0x10;
             MenuStateIndex = 0x29;
@@ -166,7 +166,7 @@ void CardMenuModeEnter(void) {
             if (selection == 1 || selection == 3 || selection == 5) {
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
                 InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
-                D_800A45B8 = 0x10012;
+                LoadMenuStatusPromptId = 0x10012;
                 if (CardMenuOperation == 3) {
                     MenuStateIndex = 0x17;
                 } else {
@@ -176,13 +176,13 @@ void CardMenuModeEnter(void) {
                 BadgeRows[1].half02 = 1;
                 CardTransferMode = (s16) (u16) CardMenuOperation;
             } else if (selection == 2) {
-                D_800A45B8 = 0x10016;
+                LoadMenuStatusPromptId = 0x10016;
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x65);
                 InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
                 MenuStateIndex = 0x21;
                 CardTransferMode = selection;
             } else {
-                D_800A45B8 = 0x1001A;
+                LoadMenuStatusPromptId = 0x1001A;
             }
         }
         InitUiRow(0x26, 0x80, 0xE0, 0x1C, 0x20, 0, 0, 1, 0, 0x68);
@@ -218,7 +218,7 @@ void CardMenuModeEnter(void) {
         }
         break;
     }
-    UpdateScreenFade(D_800A45B8);
+    UpdateScreenFade(LoadMenuStatusPromptId);
     SetMenuFrameOptions(0, 1, 1);
 }
 
@@ -235,7 +235,7 @@ void CardMenuModeUpdate(void) {
     if (CardMenuOperation == 3 || CardMenuOperation == 6 || CardMenuOperation == 7) {
         UpdateBadgeRowAnim(1);
     }
-    UpdateScreenFade(D_800A45B8);
+    UpdateScreenFade(LoadMenuStatusPromptId);
     SetMenuFrameOptions(1, 1, 1);
 }
 

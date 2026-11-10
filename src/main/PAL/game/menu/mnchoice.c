@@ -7,7 +7,7 @@
 #include "game/menu/title.h"
 #include "game/gfx/sky.h"
 
-extern int D_800AC308;
+extern int MenuSavedTrackNode;
 extern int ViewUsesCarTrackNode;
 
 void DrawTrackSceneryForPlayer(int a0);
@@ -97,9 +97,9 @@ void DrawTrackSceneryForPlayer(int a0) {
     int v;
     if (ViewUsesCarTrackNode == 1) {
         if (a0 < 2) {
-            v = D_800ABFE8;
+            v = TitleDemoTrackNode;
         } else {
-            v = D_800AC308;
+            v = MenuSavedTrackNode;
         }
     } else {
         int *p = (int *)SCRATCHPAD;

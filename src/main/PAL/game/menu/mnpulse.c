@@ -21,11 +21,11 @@ void PadStepPulse(void) {
         } else {
             if (state->repeat04 != 0) {
                 if (output->kind1C != 0) {
-                    repeat_row = &D_8009FFA0[state->repeat04 - 1][state->repeatStep0C];
+                    repeat_row = &PadPulseRepeatStepTable[state->repeat04 - 1][state->repeatStep0C];
                     output->output19[0] = repeat_row->first;
                     output->output19[1] = repeat_row->second;
                 } else {
-                    repeat_row = &D_8009FFA0[state->repeat04 + 2][state->repeatStep0C];
+                    repeat_row = &PadPulseRepeatStepTable[state->repeat04 + 2][state->repeatStep0C];
                     output->output19[0] = 64;
                     output->output19[1] = repeat_row->first;
                 }
@@ -43,11 +43,11 @@ void PadStepPulse(void) {
             }
             if (state->once06 != 0) {
                 if (output->kind1C != 0) {
-                    once_row = &D_8009FF80[state->once06 - 1][state->onceStep0E];
+                    once_row = &PadPulseOnceStepTable[state->once06 - 1][state->onceStep0E];
                     output->output19[0] = once_row->first;
                     output->output19[1] = once_row->second;
                 } else {
-                    once_row = &D_8009FF80[state->once06 + 2][state->onceStep0E];
+                    once_row = &PadPulseOnceStepTable[state->once06 + 2][state->onceStep0E];
                     output->output19[0] = 64;
                     output->output19[1] = once_row->first;
                 }

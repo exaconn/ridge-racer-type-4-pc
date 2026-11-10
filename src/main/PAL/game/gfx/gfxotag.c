@@ -78,9 +78,9 @@ extern short SelectedTeamIndex;
 extern short CourseIndex;
 extern void SetGeomScreen();
 extern void RotMatrixZYX();
-extern SceneCameraView24 D_800AC6B0;
+extern SceneCameraView24 SecondaryViewportCam;
 extern Elem28 (*CameraTrackTriggerTable)[16];
-extern s32 D_800AC6D8;
+extern s32 SceneRenderScratchPad;
 extern int RaceIntroCameraState;
 extern signed char SelectionState[];
 extern int ViewUsesCarTrackNode;
@@ -120,7 +120,7 @@ void RenderSubOtObject(void) {
             (CurrentDrawBuf->buffer.ordering70.tags + s1)->bits.address = g[1] + 0x578;
         }
     }
-    if (D_8009FE60[CourseIndex] == 7) {
+    if (CourseSkyboxTypeTable[CourseIndex] == 7) {
         s2 = RaceContext.f55C + (SelectedTeamIndex << 7) + 0x40;
         BuildObjectLightAndRotMatrices(s2, sp10);
         SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)s2, sp10);
@@ -242,7 +242,7 @@ int FindCameraTrackTrigger(RaceVehicle *a0, int a1, int a2) {
         RaceContext.f7C = s2[s0].f1C;
         RaceContext.f80 = s2[s0].f20;
     }
-    ApplyCameraState(&D_800AC6B0);
+    ApplyCameraState(&SecondaryViewportCam);
     if (GameModeType == 1) {
         InitRaceContextBuffers();
         RenderSubOtObject();
@@ -251,8 +251,8 @@ int FindCameraTrackTrigger(RaceVehicle *a0, int a1, int a2) {
 }
 
 void ResetLensFlareState(void) {
-    PsyqBzero(&D_800AC6D8, 0x20);
-    ((s32 *)(&D_800AC6D8))[7] = -1;
+    PsyqBzero(&SceneRenderScratchPad, 0x20);
+    ((s32 *)(&SceneRenderScratchPad))[7] = -1;
 }
 
 int DrawLensFlareAndSun(RaceVehicle *arg0)
@@ -316,7 +316,7 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
         }
         {
             int x, d;
-            x = D_800AC6D8 << 8;
+            x = SceneRenderScratchPad << 8;
             d = x / 12;
             s0 = 0x100;
             /* ASM_BARRIER: keep 0x100 in s0 and prioritize x in v0 */
@@ -423,8 +423,8 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
             RaceContext.f70.z = 0;
             RaceContext.f80 = 0x1D6;
         }
-        ApplyCameraState(&D_800AC6B0);
-        g2 = (Context650 *)((char *)&D_800AC6B0 - 0x60);
+        ApplyCameraState(&SecondaryViewportCam);
+        g2 = (Context650 *)((char *)&SecondaryViewportCam - 0x60);
         if (g2->f88 >= 0x33) {
             g2->f90 = 1;
         }

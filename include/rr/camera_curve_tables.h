@@ -6,7 +6,7 @@
 /* Four three-point curves followed by a thirteen-point steering curve;
  * each ends with a negative time. InitCameraState updates the first value
  * of the curve at ShowcaseCamDepthCurve. */
-extern PairS16 D_800A0D64[3], D_800A0D70[3], ShowcaseCamDepthCurve[3];
-extern PairS16 D_800A0D88[3], D_800A0D94[13];
+extern PairS16 CarCameraHeightOffsets[3], FinishCamFollowTargets[3], ShowcaseCamDepthCurve[3];
+extern PairS16 FinishCamSplineWeights[3], IntroCamDollyKeyframes[13];
 
 #endif

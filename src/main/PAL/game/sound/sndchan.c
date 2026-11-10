@@ -6,7 +6,7 @@
 #include "rr/audio_loop.h"
 #include "rr/audio_pan.h"
 
-extern u16 D_800A053C[];
+extern u16 MenuCarTextureFileOffsets[];
 
 int SlotInterpCurve(int a0, int x, int a2, int a3);
 
@@ -49,7 +49,7 @@ void UpdateSoundSlot(int a0) {
     if (v1 >= 0x120) {
         v1 = 0x11F;
     }
-    sp20 = D_800A053C[v1];
+    sp20 = MenuCarTextureFileOffsets[v1];
 
     for (i = 0; i < s0->count0C; i++, s3++) {
         int s6 = SlotInterpCurve(i * 2, s5, s0->program14, a0);

@@ -10,7 +10,7 @@ extern char StrStarSpacePrefix[], LapTimeTemplateStr[];
 
 extern u8 *MenuTextTemplates[];
 
-extern char *D_8009FD8C[], *D_8009FD9C;
+extern char *MenuTransmissionLabels[], *MenuBlankLabelStr;
 
 extern MenuSettings2C SelectionState;
 
@@ -75,7 +75,7 @@ void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
             if (value >= 3) {
                 suffixIndex = 3;
             }
-            CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[1], D_8009FD8C[suffixIndex]);
+            CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[1], MenuTransmissionLabels[suffixIndex]);
             CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[4], LapTimeTemplateStr);
             if (formatKind < 10) {
                 CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[14], LapRecords[ReverseCourse][CourseIndex][value].name);
@@ -104,9 +104,9 @@ void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
                 if (value >= 3) {
                     value = 3;
                 }
-                CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[2], D_8009FD8C[value]);
+                CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[2], MenuTransmissionLabels[value]);
             } else {
-                CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[1], D_8009FD9C);
+                CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[1], MenuBlankLabelStr);
             }
             break;
         case 18:
@@ -118,7 +118,7 @@ void SetMenuTextRow(s32 row, s32 position, s32 phase, s32 style, s32 label) {
             if (value >= 3) {
                 value = 3;
             }
-            CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[2], D_8009FD8C[value]);
+            CopyStringClearTail((char *)&MenuTextRows[row].rendering.text[2], MenuTransmissionLabels[value]);
             break;
         case 30:
             MenuTextRows[row].rendering.clut = 0x2639;

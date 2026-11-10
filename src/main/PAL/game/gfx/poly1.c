@@ -42,7 +42,7 @@ struct PreviewSlotEntry10 { int w; int x; short a, b, c, d; };
 
 struct PreviewBytes8 { unsigned char c[8]; };
 
-extern int *D_800AC598;
+extern int *ActivePolyStripPtr;
 extern s32 RearViewMirrorVisible;
 extern int RaceState;
 extern int PsyqSrand();
@@ -70,7 +70,7 @@ void RelocateCountedOffsetTable(int *a0) {
     int *p = a0 + 1;
     int i = 0;
     int n = *a0 * 8;
-    D_800AC598 = p;
+    ActivePolyStripPtr = p;
     if (n > 0) {
         do {
             i++;
@@ -112,7 +112,7 @@ int SetupRearViewMirror(void) {
             &rotation,
             &CameraPitchRollMatrix,
             &CameraPitchRollMatrix);
-        BuildRotMatrixX(&rotation, D_800AC0A4 * 2);
+        BuildRotMatrixX(&rotation, SunLightPitchAngle * 2);
         MulMatrix2(&rotation, &CameraViewMatrix);
         MulMatrix2(&rotation, &CameraPitchRollMatrix);
         CameraViewMatrix.halves[0] = -CameraViewMatrix.halves[0];

@@ -132,12 +132,12 @@ s32 InterpCurveEase(s32 a0)
   int a3;
   int d;
   int h;
-  i = FindCurveSegment(D_800A0D64, a0);
+  i = FindCurveSegment(CarCameraHeightOffsets, a0);
   if (i == 0)
   {
-    return D_800A0D64[0].a;
+    return CarCameraHeightOffsets[0].a;
   }
-  p = (short *) ((i * 4) + ((int) D_800A0D64));
+  p = (short *) ((i * 4) + ((int) CarCameraHeightOffsets));
   if (p[1] < 0)
   {
     return p[0];

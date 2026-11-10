@@ -66,7 +66,7 @@ typedef struct
 
 extern Row60 *MenuTextRows;
 
-extern unsigned short D_8009FDA0[];
+extern unsigned short MenuTextRowClutTable[];
 
 void SetMenuTextRowStyle(a0, a1, a2)
 int a0;
@@ -74,7 +74,7 @@ int a1;
 int a2;
 {
   E *p;
-  ((E *) (((int) MenuTextRows) + (a0 * 0x3C)))->e = D_8009FDA0[a1];
+  ((E *) (((int) MenuTextRows) + (a0 * 0x3C)))->e = MenuTextRowClutTable[a1];
   if (a2 < (-0xFF))
   {
     ((E *) (((int) MenuTextRows) + (a0 * 0x3C)))->d = -a2;

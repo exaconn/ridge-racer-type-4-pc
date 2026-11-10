@@ -39,17 +39,17 @@ typedef struct
   short chk;
 } W10_H;
 
-extern MenuChoice D_800A44F4[];
-extern s32 D_800A4510[];
-extern s16 D_800A4514[];
-extern MenuChoice D_800A4520[];
+extern MenuChoice TeamSelectBannerUvs[];
+extern s32 MenuCursorBlinkColors[];
+extern s16 MenuPanelBorderColors[];
+extern MenuChoice MenuDividerLineColors[];
 extern s16 MenuActiveControllerIndex;
 extern s32 ModeFrame;
 extern s16 MenuStateIndex;
 extern u8 CardPortPollStatus[];
 extern s16 CardActivePort;
 extern s16 CardReplayLoadedFlag;
-extern unsigned char D_800A4524[][4];
+extern unsigned char MenuHighlightBarColors[][4];
 extern unsigned short CardTransferMode;
 extern unsigned short SubmodeState;
 extern short CardMenuOperation;
@@ -72,17 +72,17 @@ extern unsigned short GameModeType;
 extern int DialogueSceneMode;
 extern short GpSaveSlotCursor;
 extern int D_801272F0[];
-extern s16 D_800A4540[][2];
+extern s16 MenuSlideStepVectors[][2];
 extern char *SaveBuffer;
 extern int D_8010EFA8;
-extern short D_800A45BC;
-extern short D_800A45BE;
+extern short MenuSubpageCursor;
+extern short MenuSubpageScroll;
 extern unsigned char CardFileCounts;
 extern char CardSaveFileName[];
 extern char CardTargetFileName[];
-extern int D_800A45C0;
-extern int D_800A45C4;
-extern unsigned char D_800A4478[];
+extern int MenuConfirmDialogState;
+extern int MenuTransitionTimer;
+extern unsigned char GaragePreviewCamPresets[];
 
 void RunCardSaveOrLoadStep(void);
 void StepCardConfirmPrompt(void);
@@ -99,9 +99,9 @@ int ReadCardSlotHeaderStep();
 
 void RunCardSaveOrLoadStep(void) {
     s32 i = MenuStateTable[MenuStateIndex].tableIdx04;
-    s32 a = D_800A44F4[i].a;
-    s32 c = D_800A44F4[i].c;
-    s32 b = D_800A44F4[i].b;
+    s32 a = TeamSelectBannerUvs[i].a;
+    s32 c = TeamSelectBannerUvs[i].c;
+    s32 b = TeamSelectBannerUvs[i].b;
     s32 r;
     if (c == 1) r = CardSaveStep(0, CardActivePort);
     else r = CardLoadStep(0, CardActivePort);
@@ -119,7 +119,7 @@ void RunCardSaveOrLoadStep(void) {
 
 void StepCardConfirmPrompt(void)
 {
-  s32 a1 = *(D_800A4510 + MenuStateTable[MenuStateIndex].tableIdx04);
+  s32 a1 = *(MenuCursorBlinkColors + MenuStateTable[MenuStateIndex].tableIdx04);
   if ((&PlayerControllers[MenuActiveControllerIndex])->action28 != 0)
   {
     if (a1 == 0)
@@ -148,7 +148,7 @@ void StepCardConfirmPrompt(void)
 
 void WaitCardDialogueComplete(void) {
     s32 i = MenuStateTable[MenuStateIndex].tableIdx04;
-    s32 v = D_800A4514[i * 2];
+    s32 v = MenuPanelBorderColors[i * 2];
     if (CardDialogueStatePtr->st == 4) {
         MenuStateIndex = v;
         ModeFrame -= 1;
@@ -161,8 +161,8 @@ void RunCardFormatStep(void) {
     s32 a, b;
     for (k = 0x63; k >= 0; k--) ;
     i = MenuStateTable[MenuStateIndex].tableIdx04;
-    a = D_800A4520[i].a;
-    b = D_800A4520[i].c;
+    a = MenuDividerLineColors[i].a;
+    b = MenuDividerLineColors[i].c;
     if (CardFormatSlot(CardActivePort, 0) == 1) {
         MenuStateIndex = a;
         return;
@@ -201,7 +201,7 @@ void InitCardMenuSession(void) {
         SubmodeState = 1;
     }
     flag = 0;
-    q = D_800A4524[i];
+    q = MenuHighlightBarColors[i];
     i = 0;
     arr[0] = q[0];
     arr[1] = q[1];
@@ -381,8 +381,8 @@ void CheckCardPollStatusTransition(void) {
 
 void CheckCardFileExistsTransition(void) {
     s32 i = MenuStateTable[MenuStateIndex].tableIdx04;
-    s32 a = D_800A4540[i][0];
-    s32 b = D_800A4540[i][1];
+    s32 a = MenuSlideStepVectors[i][0];
+    s32 b = MenuSlideStepVectors[i][1];
     if (MenuStateIndex == 0x3B) {
         if (CardPortUnformatted[CardActivePort] == 1) {
             MenuStateIndex = a;
@@ -475,25 +475,25 @@ int ScanBothCardPortsStep(int a0) {
     int q;
     int v;
     if (a0 == 0) {
-        D_800A45BC = 0;
+        MenuSubpageCursor = 0;
     }
     ret = 0;
-    switch (D_800A45BC) {
+    switch (MenuSubpageCursor) {
     case 0:
         CardPortPollStatus[1] = 0x5A;
         CardPortPollStatus[0] = 0x5A;
         PollCardStatus(CardActivePort, 0, 1);
         CopyStringClearTail(CardTargetFileName, CardSaveFileName);
-        D_800A45BC = 1;
+        MenuSubpageCursor = 1;
         break;
     case 1:
         PollCardStatus(CardActivePort, 0, 0);
         if (CardPortPollStatus[0] < 0x10U) {
             if (CardHasFile(CardFileCounts, CardTargetFileName) == 1) {
-                D_800A45BE = 0;
-                D_800A45BC = 2;
+                MenuSubpageScroll = 0;
+                MenuSubpageCursor = 2;
             } else {
-                D_800A45BC = 7;
+                MenuSubpageCursor = 7;
             }
             break;
         }
@@ -503,7 +503,7 @@ int ScanBothCardPortsStep(int a0) {
         case 0x1E:
         case 0x28:
         case 0x3C:
-            D_800A45BC = 7;
+            MenuSubpageCursor = 7;
             break;
         case 0x32:
         case 0x5A:
@@ -512,20 +512,20 @@ int ScanBothCardPortsStep(int a0) {
         }
         break;
     case 2:
-        D_800A45BC = 3;
+        MenuSubpageCursor = 3;
         break;
     case 3:
         for (i = 0x63; i >= 0; i--) {
         }
         r = CardReadFileAt(CardActivePort, 0, CardTargetFileName, SaveBuffer + 0x1F00, 0x100, 0x300);
         if (r == -1) {
-            if (D_800A45BE < 3) {
-                D_800A45BE = (unsigned short)D_800A45BE + 1;
+            if (MenuSubpageScroll < 3) {
+                MenuSubpageScroll = (unsigned short)MenuSubpageScroll + 1;
             } else {
-                D_800A45BC = 7;
+                MenuSubpageCursor = 7;
             }
         } else {
-            D_800A45BC = 4;
+            MenuSubpageCursor = 4;
         }
         break;
     case 4:
@@ -534,12 +534,12 @@ int ScanBothCardPortsStep(int a0) {
         q = GetHwCardEvent();
         if (q != 0) {
             if (q == 1) {
-                D_800A45BC = 5;
-            } else if (D_800A45BE >= 3) {
-                D_800A45BC = 7;
+                MenuSubpageCursor = 5;
+            } else if (MenuSubpageScroll >= 3) {
+                MenuSubpageCursor = 7;
             } else {
-                D_800A45BC = 2;
-                D_800A45BE = (unsigned short)D_800A45BE + 1;
+                MenuSubpageCursor = 2;
+                MenuSubpageScroll = (unsigned short)MenuSubpageScroll + 1;
             }
         }
         break;
@@ -562,10 +562,10 @@ int LoadSaveFromCardStep(int a0) {
     int v;
     char *p;
     if (a0 == 0) {
-        D_800A45C0 = 0;
+        MenuConfirmDialogState = 0;
     }
     ret = 0;
-    switch (D_800A45C0) {
+    switch (MenuConfirmDialogState) {
     case 0:
         CardPortPollStatus[1] = 0x5A;
         CardPortPollStatus[0] = 0x5A;
@@ -579,14 +579,14 @@ int LoadSaveFromCardStep(int a0) {
         } while (i >= 0);
         CopyStringClearTail(CardTargetFileName, CardSaveFileName);
         CardTransferMode = 0x30;
-        D_800A45C0 = 1;
+        MenuConfirmDialogState = 1;
         break;
     case 1:
         PollCardStatus(0, 0, 0);
         if (CardPortPollStatus[0] < 0x10U) {
             if (CardHasFile(CardFileCounts, CardTargetFileName) == 1) {
                 CardLoadStep(2, 0);
-                D_800A45C0 = 2;
+                MenuConfirmDialogState = 2;
             } else {
                 goto set1;
             }
@@ -598,7 +598,7 @@ int LoadSaveFromCardStep(int a0) {
         case 0x1E:
         case 0x28:
         case 0x3C:
-            D_800A45C0 = 3;
+            MenuConfirmDialogState = 3;
             goto set1;
         case 0x32:
         case 0x5A:
@@ -633,16 +633,16 @@ int ReadCardSlotHeaderStep(int a0, int a1) {
     int ret;
     int v;
     if (a0 == 0) {
-        D_800A45C4 = 0;
+        MenuTransitionTimer = 0;
     }
     ret = 0;
-    switch (D_800A45C4) {
+    switch (MenuTransitionTimer) {
     default:
     case 0:
         CardPortPollStatus[1] = 0x5A;
         CardPortPollStatus[0] = 0x5A;
         PollCardStatus(0, 0, 1);
-        D_800A45C4 = 1;
+        MenuTransitionTimer = 1;
         CopyStringClearTail(CardTargetFileName, CardTargetFileNames[a1]);
         CardTransferMode = 0x10;
         break;
@@ -651,7 +651,7 @@ int ReadCardSlotHeaderStep(int a0, int a1) {
         if (CardPortPollStatus[0] < 0x10U) {
             if (CardHasFile(CardFileCounts, CardTargetFileName) == 1) {
                 CardLoadStep(2, 0);
-                D_800A45C4 = 2;
+                MenuTransitionTimer = 2;
             } else {
                 ret = -1;
             }
@@ -663,7 +663,7 @@ int ReadCardSlotHeaderStep(int a0, int a1) {
         case 0x1E:
         case 0x28:
         case 0x3C:
-            D_800A45C4 = 3;
+            MenuTransitionTimer = 3;
             ret = -2;
             break;
         case 0x32:
@@ -675,7 +675,7 @@ int ReadCardSlotHeaderStep(int a0, int a1) {
     case 2:
         ret = CardLoadStep(0, 0);
         if (ret == 4) {
-            D_800A45C4 = ret;
+            MenuTransitionTimer = ret;
             ret = 2;
         } else if (ret == 5) {
             ret = -1;
@@ -701,7 +701,7 @@ void DrawCardMenuStatusText(int a0, int a1, int a2, int a3, int a4, int a5) {
     int s0 = a1;
     if (a2 != 0) {
         int c14 = 0x14, c16 = 0x16, c4 = 4, c1 = 1;
-        v1 = D_800A4478;
+        v1 = GaragePreviewCamPresets;
         a3 = v1 + c14;
         do {
             if (a5 == v1[1]) {

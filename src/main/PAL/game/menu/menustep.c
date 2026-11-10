@@ -5,7 +5,7 @@
 #include "game/system/pad.h"
 #include "game/menu/menustep.h"
 #include "rr/frame_loop.h"
-extern void (*D_800A4548[])();
+extern void (*MenuStepHandlerTable[])();
 extern short MenuStateIndex;
 extern unsigned char CardPortPollStatus[];
 extern unsigned short CardTransferMode;
@@ -51,7 +51,7 @@ void StepCardMenuStateMachine(void) {
   }
   if (r == 1)
   {
-    D_800A4548[s1]();
+    MenuStepHandlerTable[s1]();
   }
   DrawCardMenuStatusText(s3, t0, s0, CardActivePort, CardPromptChoices[CardPromptIndex], CardPortPollStatus[CardActivePort]);
   if (IsNonZero(s7))

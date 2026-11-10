@@ -28,7 +28,7 @@ typedef struct {
 extern OptionsState3C Options;
 extern char D_800ACA30[];
 extern struct OptionsDefaultTail16 OptionsDefaultTailData;
-extern unsigned char D_800A1FC4[];
+extern unsigned char HudPauseMenuTitleY[];
 extern FadeRaceContext RaceContext;
 extern SpritePacket *AddSpritePrim(u32 *, SpritePacket *, s32, s32,
                                   UiUvRect *, u16, s32);
@@ -94,10 +94,10 @@ void InitDemoFadeContext(int a0) {
 
 void UpdateFadeTint(int a0) {
     int v1, a, v2;
-    RaceContext.r3F0 = (D_800A1FC4[0] * a0) / 255;
-    RaceContext.g3F1 = (D_800A1FC4[1] * a0) / 255;
+    RaceContext.r3F0 = (HudPauseMenuTitleY[0] * a0) / 255;
+    RaceContext.g3F1 = (HudPauseMenuTitleY[1] * a0) / 255;
     v1 = RaceContext.r3F0 * RaceContext.scale3E8;
-    RaceContext.b3F2 = (D_800A1FC4[2] * a0) / 255;
+    RaceContext.b3F2 = (HudPauseMenuTitleY[2] * a0) / 255;
     if (v1 < 0) v1 += 0xFF;
     a = RaceContext.g3F1 * RaceContext.scale3E8;
     RaceContext.r3F0 = v1 >> 8;
@@ -136,7 +136,7 @@ void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity) {
         p = (GpuCommandPacket *)AddSpritePrim(
             &CurrentDrawBuf->buffer.ordering70.words[10],
             (SpritePacket *)p,
-            x, y, &D_800A1FB0[index], 0x7F38,
+            x, y, &HudCourseMapScaleTable[index], 0x7F38,
             (scale * 2U) | 1U);
         command = 0xE1000200U;
         low = 0xFFFFFFU;

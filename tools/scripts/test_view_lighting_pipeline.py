@@ -46,11 +46,11 @@ typedef struct {
 static World live;
 static u32 control[32],data[32],events[64][5];
 static unsigned count,scenario,rotations,kind;
-#define D_800A3B00 live.defaults
+#define TitleLogoWaveOffsets live.defaults
 #define ColorMatrix live.color
-#define D_800A3B20 live.defaultAngles[0]
-#define D_800A3B28 live.defaultAngles[1]
-#define D_800A3B30 live.defaultAngles[2]
+#define MenuBgScrollSpeedX live.defaultAngles[0]
+#define MenuBgScrollSpeedY live.defaultAngles[1]
+#define MenuBgTileAnimFrames live.defaultAngles[2]
 #define LightSourceAngles live.angles
 #define LightSourceIntensities live.strength
 #define CourseIndex live.course
@@ -265,7 +265,7 @@ class GteCpu(CameraCpu):
 class ViewLightingPipelineTest(unittest.TestCase):
     def test_real_callers_transfers_wrapping_and_defined_fields(self):
         owners=source_owners(ROOT/'src/main/PAL');bodies='\n'.join(adapted_body(owners[n].read_text(),n) for n in NAMES)
-        regions=[('D_800A3B00',32),('ColorMatrix',32),('D_800A3B20',8),('D_800A3B28',8),('D_800A3B30',8),
+        regions=[('TitleLogoWaveOffsets',32),('ColorMatrix',32),('MenuBgScrollSpeedX',8),('MenuBgScrollSpeedY',8),('MenuBgTileAnimFrames',8),
                  ('LightSourceAngles',24),('LightSourceIntensities',6),('CourseIndex',2),('CourseFarColorTable',108),
                  ('BackColorR',4),('BackColorG',4),('BackColorB',4),('FarColorR',4),('FarColorG',4),('FarColorB',4),('LightMatrix',32)]
         addresses={n:address_of(n) for n,_ in regions};starts={n:address_of(n) for n in NAMES};rotate=address_of('RotMatrixYXZ')

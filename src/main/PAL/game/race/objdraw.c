@@ -47,10 +47,10 @@ typedef ObjectTrailPoint16 Vec16;
 typedef SemiTransTri38 Poly38;
 typedef SemiTransQuad48 Poly48;
 extern void SubmitCourseModel2(void *, s32);
-extern s32 D_800A3CDC[];
-extern s32 D_800A3D18[];
+extern s32 OpeningSunbeamPolys[];
+extern s32 OpeningCreditTextTable[];
 extern SVec CourseLightColors[];
-extern CVec D_800A4088[];
+extern CVec OpeningSkipHoldTimer[];
 extern TrackSample3C *TrackNodes;
 extern s32 ReplayState;
 extern s32 ModeFrame;
@@ -103,8 +103,8 @@ void DrawTrackObjects(s32 arg0) {
             SetTrackObjectTransform(i, &sp18, arg0);
             if ((TrackObjectStates[i].f8 / 10) == 1) {
                 s3[0x00 / 4] = TrackObjectStates[i].f8 + (CourseIndex % 4) * 3 - 11;
-                s3[0x04 / 4] = (TrackObjectStates[i].f0 / 6) % D_800A3CDC[s3[0x00 / 4]];
-                s3[0x08 / 4] = D_800A3D18[s3[0x00 / 4] * 12 + s3[0x04 / 4]];
+                s3[0x04 / 4] = (TrackObjectStates[i].f0 / 6) % OpeningSunbeamPolys[s3[0x00 / 4]];
+                s3[0x08 / 4] = OpeningCreditTextTable[s3[0x00 / 4] * 12 + s3[0x04 / 4]];
                 SubmitCourseModel2((scene), TrackObjectDefs[i].f0 + s3[0x08 / 4]);
                 continue;
             }
@@ -162,7 +162,7 @@ void DrawTrackObjects(s32 arg0) {
             continue;
 
         case 5:
-            if (ReplayState == 2 && GameModeType == 1 && D_800AC1A2 < 6) {
+            if (ReplayState == 2 && GameModeType == 1 && RaceFinishBannerTimer < 6) {
                 continue;
             }
             if (TrackObjectStates[i].f8 != 0) {
@@ -559,9 +559,9 @@ void DrawTrackObjects(s32 arg0) {
 
         case 3:
             for (k = 0; k < 38; k++) {
-                sp128[k].r = (k < 21) ? D_800A4088[CourseIndex - 4].r : D_800A4088[CourseIndex - 4].r - (D_800A4088[CourseIndex - 4].r * (k - 20)) / 17;
-                sp128[k].g = (k < 21) ? D_800A4088[CourseIndex - 4].g : D_800A4088[CourseIndex - 4].g - (D_800A4088[CourseIndex - 4].g * (k - 20)) / 17;
-                sp128[k].b = (k < 21) ? D_800A4088[CourseIndex - 4].b : D_800A4088[CourseIndex - 4].b - (D_800A4088[CourseIndex - 4].b * (k - 20)) / 17;
+                sp128[k].r = (k < 21) ? OpeningSkipHoldTimer[CourseIndex - 4].r : OpeningSkipHoldTimer[CourseIndex - 4].r - (OpeningSkipHoldTimer[CourseIndex - 4].r * (k - 20)) / 17;
+                sp128[k].g = (k < 21) ? OpeningSkipHoldTimer[CourseIndex - 4].g : OpeningSkipHoldTimer[CourseIndex - 4].g - (OpeningSkipHoldTimer[CourseIndex - 4].g * (k - 20)) / 17;
+                sp128[k].b = (k < 21) ? OpeningSkipHoldTimer[CourseIndex - 4].b : OpeningSkipHoldTimer[CourseIndex - 4].b - (OpeningSkipHoldTimer[CourseIndex - 4].b * (k - 20)) / 17;
                 for (j = 0; j < 2; j++) {
                     s3[0x38 / 4] = k * 2 + j;
                     sp638[s3[0x38 / 4]].v0.vx = TrackObjectTrailPoints[k + 1].vx;

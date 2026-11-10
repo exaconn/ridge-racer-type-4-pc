@@ -24,7 +24,7 @@ ChannelRecordCallback PadPortToChannelFn=_padPortToChannel;
 ChannelStatusCallback PadChannelBusyFn=_padChannelBusy;
 s32 PadMultitapEnabled;
 ControllerState5C PlayerControllers[2];
-u8 D_8009FFDC[6]={0,0,255,255,255,255};
+u8 PadDualShockActAlignCmd[6]={0,0,255,255,255,255};
 u8 PadActAlignBytes[6]={0,255,255,255,255,255};
 static u8 inputs[2][8];
 static ChannelGateEntry5 descriptions[2][2];
@@ -73,7 +73,7 @@ int main(void) {
             expected[bank].phase=1;
             expected[bank].update14=_padActAlignUpdate;
             expected[bank].complete18=_padActAlignComplete;
-            expected[bank].layout20=wheel?PadActAlignBytes:D_8009FFDC;
+            expected[bank].layout20=wheel?PadActAlignBytes:PadDualShockActAlignCmd;
             want->flag1B=1;want->changed1E=0;
             if(wheel)want->rumbleFlags48=0xC0;
         }

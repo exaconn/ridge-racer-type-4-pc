@@ -8,7 +8,7 @@ typedef struct {
     s32 frame104;
 } SparkSub108;
 
-extern SparkSub108 *D_800AC89C;
+extern SparkSub108 *ActiveSparkEmitterCar;
 void UpdateSparkEffects(void);
 
 #endif /* RR_GAME_EFFECT_SPARK_H */

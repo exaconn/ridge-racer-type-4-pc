@@ -152,11 +152,11 @@ void InitCameraMotion(int selection) {
     PsyqBzero(&RaceContext.controller3D8->motion74, sizeof(CameraMotion70));
     if (selection < 4) {
         RaceContext.controller3D8->motion74.mode04 = 0;
-        RaceContext.controller3D8->motion74.keys0C = D_800A1AA0[selection];
+        RaceContext.controller3D8->motion74.keys0C = HudTachMeterSegments[selection];
     } else {
         selection -= 4;
         RaceContext.controller3D8->motion74.mode04 = 1;
-        RaceContext.controller3D8->motion74.keys0C = D_800A1B60[selection];
+        RaceContext.controller3D8->motion74.keys0C = HudGaugeArcVertices[selection];
     }
     RaceContext.controller3D8->motion74.modelScale6C = 0x2D0;
     RaceContext.controller3D8->motion74.start10[0] =

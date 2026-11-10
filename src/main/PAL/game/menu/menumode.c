@@ -19,7 +19,7 @@ extern short CardTransferMode;
 extern char CardTargetFileName[];
 extern char CardFileNameTemplate[];
 extern char CardSaveFileName[];
-extern unsigned char D_800A448C[][4];
+extern unsigned char TeamSelectLogoPolys[][4];
 extern unsigned char CardPortPollStatus[];
 extern short CardPromptChoices[];
 extern short CardPromptIndex;
@@ -35,7 +35,7 @@ void StepCardFileSlotSelection(void) {
     register int s3 asm("$19");
     int i;
     i = MenuStateTable[MenuStateIndex].tableIdx04;
-    s3 = D_800A448C[i][1];
+    s3 = TeamSelectLogoPolys[i][1];
     switch (CardMenuOperation) {
     case 3:
     case 6:

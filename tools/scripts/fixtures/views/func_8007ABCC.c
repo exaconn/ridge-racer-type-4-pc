@@ -89,7 +89,7 @@ void CardMenuModeEnter(void) {
             InitUiRow(0x25, 0xC, 0xB8, 0x44, 0x20, 0, 0, 1, 0, 0x55);
             MenuStateIndex = 0;
             CardTransferMode = 0;
-            D_800A45B8 = 0x1001A;
+            LoadMenuStatusPromptId = 0x1001A;
             SeqStartTrack(0);
         } else if (modeRange < 2U) {
             if (selection == 6) {
@@ -102,7 +102,7 @@ void CardMenuModeEnter(void) {
                 InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
                 layout = 0x10012;
             }
-            D_800A45B8 = layout;
+            LoadMenuStatusPromptId = layout;
             /* ASM_BARRIER: publish the layout before the badge status. */
             __asm__("" : : : "memory");
             CardTransferMode = 0x10;
@@ -116,7 +116,7 @@ void CardMenuModeEnter(void) {
             if (selection == 1 || selection == 3 || selection == 5) {
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
                 InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
-                D_800A45B8 = 0x10012;
+                LoadMenuStatusPromptId = 0x10012;
                 if (CardMenuOperation == 3) {
                     MenuStateIndex = 0x17;
                 } else {
@@ -126,13 +126,13 @@ void CardMenuModeEnter(void) {
                 BadgeRows[1].half02 = 1;
                 CardTransferMode = (s16) (u16) CardMenuOperation;
             } else if (selection == 2) {
-                D_800A45B8 = 0x10016;
+                LoadMenuStatusPromptId = 0x10016;
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x65);
                 InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
                 MenuStateIndex = 0x21;
                 CardTransferMode = selection;
             } else {
-                D_800A45B8 = 0x1001A;
+                LoadMenuStatusPromptId = 0x1001A;
             }
         }
         InitUiRow(0x26, 0x80, 0xE0, 0x1C, 0x20, 0, 0, 1, 0, 0x68);
@@ -168,6 +168,6 @@ void CardMenuModeEnter(void) {
         }
         break;
     }
-    UpdateScreenFade(D_800A45B8);
+    UpdateScreenFade(LoadMenuStatusPromptId);
     SetMenuFrameOptions(0, 1, 1);
 }

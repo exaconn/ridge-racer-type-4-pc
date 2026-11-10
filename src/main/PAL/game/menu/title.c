@@ -41,7 +41,7 @@ extern int SetupPlayerView();
 extern int SetupViewport();
 extern char RepeatLabel[];
 extern char StrFmtTwoDigitsTitle[];
-extern char D_800A1A6C[];
+extern char HudLapSlashSprite[];
 extern short FadeCountdown;
 extern int D_800ACA2C;
 extern int D_800ACB0C;
@@ -290,7 +290,7 @@ void AttractDemoRaceUpdate(void) {
   else
   {
     ViewUsesCarTrackNode = 1;
-    D_800ABFE8 = ComCars[0].trackNodeF0;
+    TitleDemoTrackNode = ComCars[0].trackNodeF0;
     InitDemoComCars(ComCars, &RaceContext.w4ec);
   }
   if (RaceContext.w4c4 >= 0x178)
@@ -448,12 +448,12 @@ void AttractDemoRaceUpdate(void) {
         DrawFontStringRight(0x131, old, RepeatLabel, 0xFF, 0);
       }
       DrawFontStringRight(0xFA, 0xD4, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5), 0xFF, 0);
-      AddBrightnessSprite(D_800A1A6C, 0xFC, 0xD4, 0xFF);
-      AddBrightnessSprite(D_800A1A6C - 4, 0x105, 0xD4, 0xFF);
+      AddBrightnessSprite(HudLapSlashSprite, 0xFC, 0xD4, 0xFF);
+      AddBrightnessSprite(HudLapSlashSprite - 4, 0x105, 0xD4, 0xFF);
       PsyqSprintf(sp18, StrFmtTwoDigitsTitle, SoundState.track28A4);
       DrawFontString(0x112, 0xD4, sp18, 0xFF, 0);
-      AddBrightnessSprite(D_800A1A6C - 0xC, 0x121, 0xD4, 0xFF);
-        AddBrightnessSprite(D_800A1A6C - 8, 0x12A, 0xD4, 0xFF);
+      AddBrightnessSprite(HudLapSlashSprite - 0xC, 0x121, 0xD4, 0xFF);
+        AddBrightnessSprite(HudLapSlashSprite - 8, 0x12A, 0xD4, 0xFF);
         AddSetTexpagePrim(0);
     }
   }

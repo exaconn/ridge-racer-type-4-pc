@@ -84,9 +84,9 @@ static u8 firstWire[WIRE_SIZE],lastWire[WIRE_SIZE],eventWire[WIRE_SIZE];
 #define RaceContext live.context.value
 #define PlayerCars live.cars.values
 #define CarBoundsTable live.table.values
-#define D_800A0FC0 live.fallback
-#define D_800A0FD0 live.angles
-#define D_800A0FD8 live.projection
+#define ReplayCamZoomMultipliers live.fallback
+#define StartCamLateralOffsets live.angles
+#define StartCamHeightKeyframes live.projection
 #define Pad0Buttons live.buttons
 #define SCRATCHPAD (&live.scratch.value.projection)
 #define SCRATCH_ROT_MATRIX (&live.scratch.value.matrix28)
@@ -377,7 +377,7 @@ class SceneCameraTracksTest(unittest.TestCase):
             regions = [(address_of('RaceContext')-16, 0x564+32), (0x80180000, 384), (0x80181000, 384),
                        *((0x801B0000+b*65536, 3200) for b in range(3)), (address_of('PlayerCars')-16, 1632),
                        *((0x801A0000+b*4096, 44) for b in range(3)), (address_of('CarBoundsTable')-16, 44),
-                       (0x1F7FFFF0, 104), (0x801F0000, 160), (address_of('D_800A0FC0'), 28),
+                       (0x1F7FFFF0, 104), (0x801F0000, 160), (address_of('ReplayCamZoomMultipliers'), 28),
                        (address_of('Pad0Buttons'), 2), (0x801E0000, 36)]
             size = native.wire_size();self.assertEqual(size, sum(n for _, n in regions))
             intervals = sorted((a, a+n) for a, n in regions)

@@ -34,9 +34,9 @@ typedef struct {
     u16 pad2;
 } PolyFT4;
 
-extern unsigned char D_800A0CF4[];
+extern unsigned char CameraModeBaseFovTable[];
 extern FadeRaceContext RaceContext;
-extern GpuColorCommand D_800A0CF0;
+extern GpuColorCommand ViewViewportClipRect;
 
 void InitParticles(void) {
     SetupDrawDispEnvs(0, 0, 0, 3);
@@ -79,7 +79,7 @@ void SpawnParticlePair(void)
         s2 = ((r3 & 3) + one) << one;
         s0->speed16 = s2;
         r4 = PsyqRand() % 2;
-        tb = D_800A0CF4;
+        tb = CameraModeBaseFovTable;
         s1 = tb + r4 * 4;
         s0->r10 = s1[0];
         s0->g11 = s1[1];
@@ -287,7 +287,7 @@ void DrawParticle(int a0) {
         rect.y = e->y0E - (s16)(*(u16 *)&e->speed16) / 2 - 0x10;
         rect.w = s3;
         rect.h = 0x10;
-        AddSlantedGradientRect(&rect, 0, &D_800A0CF0, &c[2], 0x41);
+        AddSlantedGradientRect(&rect, 0, &ViewViewportClipRect, &c[2], 0x41);
 
         rect.x = s1;
         rect.y = e->y0E - (s16)(*(u16 *)&e->speed16) / 2;
@@ -305,14 +305,14 @@ void DrawParticle(int a0) {
         rect.y = e->y0E + (s16)(*(u16 *)&e->speed16) / 2;
         rect.w = s3;
         rect.h = 0x10;
-        AddSlantedGradientRect(&rect, 1, &c[2], &D_800A0CF0, 0x41);
+        AddSlantedGradientRect(&rect, 1, &c[2], &ViewViewportClipRect, 0x41);
 
         if (sp30 > 0) {
             rect.x = s7;
             rect.y = e->y0E - (s16)(*(u16 *)&e->speed16) / 2 - 0x10;
             rect.w = e->rot18 - s3;
             rect.h = 0x10;
-            AddVerticalGradientRect(&rect, &D_800A0CF0, &c[2], 0x41);
+            AddVerticalGradientRect(&rect, &ViewViewportClipRect, &c[2], 0x41);
 
             rect.x = s7;
             rect.y = e->y0E;
@@ -330,7 +330,7 @@ void DrawParticle(int a0) {
             rect.y = e->y0E + (s16)(*(u16 *)&e->speed16) / 2;
             rect.w = e->rot18 - s3;
             rect.h = 0x10;
-            AddVerticalGradientRect(&rect, &c[2], &D_800A0CF0, 0x41);
+            AddVerticalGradientRect(&rect, &c[2], &ViewViewportClipRect, 0x41);
         }
     }
 }

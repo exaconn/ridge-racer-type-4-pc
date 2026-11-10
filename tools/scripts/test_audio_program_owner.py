@@ -38,7 +38,7 @@ static union {u32 alignment;u8 bytes[0x5BC+64];} resource;
 RuntimeSettings Options;
 static struct {u32 guard[4];s16 pan[128];u16 offsets[288];u32 tail[4];} tables;
 #define PanGainTable tables.pan
-#define D_800A053C tables.offsets
+#define MenuCarTextureFileOffsets tables.offsets
 '''
 MOCKS=r'''
 typedef struct {u32 kind,args[8];AudioWireState audio;} ProgramEvent;
@@ -110,7 +110,7 @@ void set_profile(unsigned volume,s16 mono){
  unsigned i;memset(&Options,0xA7,sizeof(Options));memset(&tables,0xA7,sizeof(tables));
  Options.audio.volume31=volume;Options.audio.mono32=mono;
  for(i=0;i<128;i++)PanGainTable[i]=(i*127U)%16130U;
- for(i=0;i<288;i++)D_800A053C[i]=i*97U;
+ for(i=0;i<288;i++)MenuCarTextureFileOffsets[i]=i*97U;
 }
 unsigned update_case(const u8 *initial,const u8 *payload,unsigned scenario,unsigned slot,
                      unsigned mutation,u8 *output,ProgramEvent *out_events){

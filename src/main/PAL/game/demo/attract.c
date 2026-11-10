@@ -18,10 +18,10 @@
 
 extern int SlotOrder[];
 extern char D_800ACB0C[];
-extern int D_800A2124[];
+extern int MenuTransitionFadeRates[];
 extern short CourseIndex;
-extern unsigned short D_800A2134;
-extern unsigned short D_800A2138[];
+extern unsigned short LoadingBarAnimCounter;
+extern unsigned short MenuStageEntryModeIds[];
 extern short MenuTransitionOverlayMode;
 extern short MenuScriptId;
 extern short ModeGroup;
@@ -88,7 +88,7 @@ v = s0 + PsyqRand() % 2;
     i = 0;
     x6 = PsyqRand();
     s2 = x6 % 18;
-    tb = D_800A2124;
+    tb = MenuTransitionFadeRates;
     w = AttractCarTeams;
     b = (void *)SelectionRows;
     do {
@@ -105,10 +105,10 @@ v = s0 + PsyqRand() % 2;
     } while (i < 4);
     CourseIndex = -1;
     if (a0 == 1) {
-        m = D_800F3A3A & D_800A2134;
+        m = D_800F3A3A & LoadingBarAnimCounter;
         if (m != 0) {
             i = 0;
-            e = D_800A2138;
+            e = MenuStageEntryModeIds;
             do {
                 if (m == e[0])
                     CourseIndex = e[1];

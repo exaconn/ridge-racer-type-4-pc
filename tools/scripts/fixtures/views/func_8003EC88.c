@@ -80,11 +80,11 @@ extern FontGlyph4 SaveSlotTrophyUvs[];
 
 extern s8 SaveSlotStageTrophyMap[][4];
 
-extern s8 D_8009FC7C[][8];
+extern s8 UiScrollStepOffsets[][8];
 
-extern FontGlyph4 D_8009FCDC[];
+extern FontGlyph4 UiCursorArrowUvs[];
 
-extern s8 D_8009FD00[];
+extern s8 UiTimeTextScratch[];
 
 extern s16 ComDifficultyLevel;
 
@@ -245,11 +245,11 @@ s32 DrawUiRow(s32 arg0) {
                 for (s1 = 0; s1 < 2; s1++) {
                     s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4 + 0x1E + s1 * 0x16, s7 + 8, &SaveSlotTrophyUvs[s1], 0x7FF8, 0);
                     if (s1 == 0) {
-                        D_8009FD00[0] = s0 / 10;
+                        UiTimeTextScratch[0] = s0 / 10;
                     } else {
-                        D_8009FD00[0] = (s0 % 10) * 8;
+                        UiTimeTextScratch[0] = (s0 % 10) * 8;
                     }
-                    s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4 + 0x26 + s1 * 6, s7 + 8, D_8009FD00, 0x7FF8, 0);
+                    s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4 + 0x26 + s1 * 6, s7 + 8, UiTimeTextScratch, 0x7FF8, 0);
                 }
                 /* ASM_BARRIER: Keep base_0 (UiFontGlyphs) live across case 0 loop so reload rematerializes it into $t0 */
                 __asm__("" : : "ri"(base_0));
@@ -282,7 +282,7 @@ s32 DrawUiRow(s32 arg0) {
         break;
     case 2:
         for (s1 = 0; s1 < 7; s1++) {
-            s0 = D_8009FC7C[sp34][s1];
+            s0 = UiScrollStepOffsets[sp34][s1];
             if (s0 == -1) {
                 break;
             }
@@ -298,7 +298,7 @@ s32 DrawUiRow(s32 arg0) {
             if (s1 == 0) {
                 s0 = 0x45;
             } else {
-                s0 = D_8009FC7C[sp34][7];
+                s0 = UiScrollStepOffsets[sp34][7];
             }
             s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
             s4 += 2 + UiFontGlyphs[s0].b2;
@@ -306,7 +306,7 @@ s32 DrawUiRow(s32 arg0) {
         break;
     case 3:
         for (s1 = 0; s1 < 7; s1++) {
-            s0 = D_8009FC7C[sp34][s1];
+            s0 = UiScrollStepOffsets[sp34][s1];
             if (s0 == -1) {
                 break;
             }
@@ -340,7 +340,7 @@ s32 DrawUiRow(s32 arg0) {
         if (s2 != 0) {
             s1 = 0;
             do {
-                s0 = D_8009FC7C[sp34][s1];
+                s0 = UiScrollStepOffsets[sp34][s1];
                 s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &UiFontGlyphs[s0], 0x7FF8, 0);
                 s4 += 2 + UiFontGlyphs[s0].b2;
                 s1++;
@@ -351,7 +351,7 @@ s32 DrawUiRow(s32 arg0) {
         s3 = AddTextSprites(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, StrPleaseWait, 0x7FF8, 2, 0);
         break;
     case 0x7F:
-        s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &D_8009FCDC[sp34], fp | 0x4820, s2);
+        s3 = AddSpritePrim(CurrentDrawBuf + 0x70, s3, s4, s7 + 8, &UiCursorArrowUvs[sp34], fp | 0x4820, s2);
         break;
     }
 

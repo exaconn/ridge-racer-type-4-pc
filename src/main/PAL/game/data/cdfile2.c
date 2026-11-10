@@ -59,8 +59,8 @@ void DrawSync(s32);
 extern s32 CarOffsetTables[];
 extern short CourseIndex;
 extern short LoadingTriangleBaseVerts[];
-extern short D_800ABED6[];
-extern short D_800ABEDC[];
+extern short CdLoadRetryCounters[];
+extern short CdActiveCommandArgs[];
 
 s32 CdFileStateCheckShell(void);
 s32 CdFileStateGetTN(void);
@@ -812,7 +812,7 @@ int ComputeCarSurfaceLighting(char *a0_in, int a1_in) {
     RR_GTE_SETFC(a2, t0, a3);
     RR_GTE_MTC2_IR123_INTPL(a0, t1, t2);
 
-    t8 = D_800ABED6;
+    t8 = CdLoadRetryCounters;
     a2 = ((int *)p1)[8];
     a3 = ((TrackLighting2C *)p1)->lighting04.matrix.fields.vectors[2].z;
     a0 = ((int *)a1)[8];
@@ -827,7 +827,7 @@ int ComputeCarSurfaceLighting(char *a0_in, int a1_in) {
     RR_GTE_SETFC(a2, t0, a3);
     RR_GTE_MTC2_IR123_INTPL(a0, t1, t2);
 
-    t8 = D_800ABEDC;
+    t8 = CdActiveCommandArgs;
     a3 = ((int *)p1)[10];
     a0 = ((int *)a1)[10];
     v0 = a3 << 4;

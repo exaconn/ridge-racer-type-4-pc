@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern int D_800ABFE8;
+extern int TitleDemoTrackNode;
 extern int AttractCarTeams[];
 void AttractDemoRaceUpdate(void);
 

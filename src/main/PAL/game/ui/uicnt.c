@@ -4,7 +4,7 @@
 #include "rr/menu_label_render.h"
 
 extern int D_800AD564;
-extern int D_8009FE10[];
+extern int HudCountdownDigitSprites[];
 
 void DrawBadgeCountdownSprites(int a0, void *a1, int a2);
 s32 ChecksumBytes(u8 *p, int n);
@@ -20,10 +20,10 @@ void DrawBadgeCountdownSprites(int a0, void *a1, int a2) {
     s4 = BadgeRows[a2].x04 + 0x10;
     s2 = BadgeRows[a2].y06 + 0x20;
     rem = D_800AD564 % 5;
-    a1 = AddSpritePrim(a0, a1, s4, s2, &D_8009FE10[rem], 0x4424, 0);
+    a1 = AddSpritePrim(a0, a1, s4, s2, &HudCountdownDigitSprites[rem], 0x4424, 0);
     for (i = 0; i < 2; i++) {
         off = i * 0x28 - 8;
-        a1 = AddSpritePrim(a0, a1, s4 + off, s2, &D_8009FE10[i + 5], 0x4424, 0);
+        a1 = AddSpritePrim(a0, a1, s4 + off, s2, &HudCountdownDigitSprites[i + 5], 0x4424, 0);
     }
     AddDrawModePrim(a0, a1, 0x39);
 }

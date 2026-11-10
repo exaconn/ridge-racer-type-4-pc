@@ -19,10 +19,10 @@ extern const char StrOpeningApostrophe[];
 extern const char StrFmtTwoDigitsOpening[];
 extern const char StrRandomPlay[];
 extern char CourseNames[];
-extern u8 D_800A1A60[];
-extern u8 D_800A1A68[];
-extern u32 D_800A1A70[];
-extern u32 D_800A1A88[];
+extern u8 HudSpeedUnitSprites[];
+extern u8 HudViewModeIconUvs[];
+extern u32 HudSplitSignSprites[];
+extern u32 HudRecordCrownSprites[];
 
 s32 UpdateRaceOpeningOverlay(s32 arg0);
 void EmitProjectedMarkerSprt(int a0, int a1, int a2);
@@ -56,8 +56,8 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
 
     if (s2 < 8) {
         for (i = 0; i < 6; i++) {
-            if (D_800A1A70[i] < arg0) {
-                sp18[i] = arg0 - D_800A1A70[i];
+            if (HudSplitSignSprites[i] < arg0) {
+                sp18[i] = arg0 - HudSplitSignSprites[i];
                 if (sp18[i] < 0x19) {
                     sp18[i] = (sp18[i] * 0x80) / 25;
                 } else {
@@ -140,12 +140,12 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
             }
         }
 
-        AddBrightnessSprite(D_800A1A60, 0x3C, 0xC8, sp18[5]);
-        AddBrightnessSprite(D_800A1A60 + 4, 0xFC, 0xC8, sp18[5]);
-        AddBrightnessSprite(D_800A1A60 + 8, 0x4C, 0xC8, sp18[5]);
+        AddBrightnessSprite(HudSpeedUnitSprites, 0x3C, 0xC8, sp18[5]);
+        AddBrightnessSprite(HudSpeedUnitSprites + 4, 0xFC, 0xC8, sp18[5]);
+        AddBrightnessSprite(HudSpeedUnitSprites + 8, 0x4C, 0xC8, sp18[5]);
         PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.track28A4);
         DrawFontString(0x5A, 0xC8, sp30, sp18[5], 0);
-        AddBrightnessSprite(D_800A1A60 + 0xC, 0x6C, 0xC8, sp18[5]);
+        AddBrightnessSprite(HudSpeedUnitSprites + 0xC, 0x6C, 0xC8, sp18[5]);
         if (SoundState.track28A4 <= 0) {
             DrawFontString(0x78, 0xC8, StrRandomPlay, sp18[5], 0);
         } else {
@@ -155,8 +155,8 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
         return s4;
     } else {
         for (i = 0; i < 6; i++) {
-            if (D_800A1A88[i] < arg0) {
-                sp18[i] = arg0 - D_800A1A88[i];
+            if (HudRecordCrownSprites[i] < arg0) {
+                sp18[i] = arg0 - HudRecordCrownSprites[i];
                 if (i != 0) {
                     if (sp18[i] < 0x19) {
                         sp18[i] = (sp18[i] * 0x80) / 25;
@@ -242,12 +242,12 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
                 }
             }
             SoundState.displayed28AC = SoundState.track28A4;
-            AddBrightnessSprite(D_800A1A60, 0x3C, 0xC8, sp18[5]);
-            AddBrightnessSprite(D_800A1A60 + 4, 0xFC, 0xC8, sp18[5]);
-            AddBrightnessSprite(D_800A1A60 + 8, 0x4C, 0xC8, sp18[5]);
+            AddBrightnessSprite(HudSpeedUnitSprites, 0x3C, 0xC8, sp18[5]);
+            AddBrightnessSprite(HudSpeedUnitSprites + 4, 0xFC, 0xC8, sp18[5]);
+            AddBrightnessSprite(HudSpeedUnitSprites + 8, 0x4C, 0xC8, sp18[5]);
             PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.track28A4);
             DrawFontString(0x5A, 0xC8, sp30, sp18[5], 0);
-            AddBrightnessSprite(D_800A1A60 + 0xC, 0x6C, 0xC8, sp18[5]);
+            AddBrightnessSprite(HudSpeedUnitSprites + 0xC, 0x6C, 0xC8, sp18[5]);
             if (SoundState.track28A4 > 0) {
                 DrawFontString(0x78, 0xC8, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5), sp18[5], 0);
             } else {
@@ -255,10 +255,10 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
             }
         } else {
             s0_3 = 0x88 - DrawFontStringCenteredOffset(0x14, 0xC8, CdTrackTitleStrings + (BgmNumberToCdTrack[SoundState.track28A4 - 1] << 5), sp18[5], 0) / 2;
-            AddBrightnessSprite(D_800A1A68, s0_3, 0xC8, sp18[5]);
+            AddBrightnessSprite(HudViewModeIconUvs, s0_3, 0xC8, sp18[5]);
             PsyqSprintf(sp30, StrFmtTwoDigitsOpening, SoundState.track28A4);
             DrawFontString(s0_3 + 0xE, 0xC8, sp30, sp18[5], 0);
-            AddBrightnessSprite(D_800A1A68 + 4, s0_3 + 0x20, 0xC8, sp18[5]);
+            AddBrightnessSprite(HudViewModeIconUvs + 4, s0_3 + 0x20, 0xC8, sp18[5]);
             if (sp18[5] >= 0x80 && D_800F3A60 != 0) {
                 s4 = 1;
             }

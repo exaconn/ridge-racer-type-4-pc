@@ -11,7 +11,7 @@ typedef struct {
 
 extern T D_8010738C[];
 extern CurvePt RubberBandCurve[];
-extern short D_8009FE78;
+extern short BonusCarUnlockMask;
 extern RaceStandingsTable *RaceStandings;
 extern int ReplayState;
 extern int RaceState;
@@ -95,7 +95,7 @@ int CalcRubberBandFactor(RaceVehicle *a0, int a1) {
             s1 += 0x800;
         }
         if (GameModeType == 1 || GameModeType == 6) {
-            if (RaceStandings->entries18[0].unk00 == 0 && RaceStandings->entries18[1].unk00 == (s16)a0->flags1E4 && s2->b[a1] > D_8009FE78) {
+            if (RaceStandings->entries18[0].unk00 == 0 && RaceStandings->entries18[1].unk00 == (s16)a0->flags1E4 && s2->b[a1] > BonusCarUnlockMask) {
                 s1 = 0xC00;
             }
         }

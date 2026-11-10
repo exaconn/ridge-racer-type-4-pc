@@ -17,11 +17,11 @@ typedef struct {
 #include "rr/cd_directory_buffer.h"
 extern char CardHeaderTitles[][0x40];
 extern char CardTitleStrings[][0x40];
-extern unsigned char D_800A41E8;
-extern unsigned char D_800A41E9 __asm__("D_800A41E8+1");
-extern short D_800A41EA __asm__("D_800A41E8+2");
-extern char D_800A45C8[];
-extern char D_800A4648[][0x80];
+extern unsigned char CardSaveStepState;
+extern unsigned char CardSaveIsMainData __asm__("CardSaveStepState+1");
+extern short CardSaveRetryCount __asm__("CardSaveStepState+2");
+extern char CardExtraDataTitleBuf[];
+extern char CardSlotHeaderTitles[][0x80];
 extern Struct4000 *SaveBuffer;
 extern Struct2C SelectionState;
 extern Struct2C SaveSlotSelections[3];
@@ -38,64 +38,64 @@ int CardSaveStep(short a0, int a1) {
     Struct4000 *p;
 
     if (a0 > 0) {
-        D_800A41E8 = 0;
+        CardSaveStepState = 0;
     }
-    switch (D_800A41E8) {
+    switch (CardSaveStepState) {
     case 0:
-        D_800A41EA = 0;
+        CardSaveRetryCount = 0;
         PsyqBzero(SaveBuffer, 0x1AA8);
         i = D_800F3970 != 0;
         if (a0 == 1) {
-            D_800A41E9 = 1;
+            CardSaveIsMainData = 1;
             if (CardTransferMode < 0x10) {
-                BuildCardHeaderStatic(SaveBuffer, CardHeaderTitles[i], 0x250, 0x1FC, 0x254, 0x1D8, D_800A45C8);
+                BuildCardHeaderStatic(SaveBuffer, CardHeaderTitles[i], 0x250, 0x1FC, 0x254, 0x1D8, CardExtraDataTitleBuf);
                 BuildSaveData(CardTransferMode);
             } else if (CardTransferMode & 0x10) {
-                BuildCardHeaderStatic(SaveBuffer, CardTitleStrings[GpSaveSlotCursor], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[GpSaveSlotCursor]);
+                BuildCardHeaderStatic(SaveBuffer, CardTitleStrings[GpSaveSlotCursor], 0x250, 0x1FC, 0x254, 0x1D8, CardSlotHeaderTitles[GpSaveSlotCursor]);
                 BuildSaveData(CardTransferMode);
             } else if (CardTransferMode == 0x20) {
                 *SaveBuffer = *(const Struct4000 *)CdDirectoryBuffer;
             }
         } else if (a0 >= 2) {
-            D_800A41E9 = 0;
+            CardSaveIsMainData = 0;
             if (CardTransferMode < 0x10) {
-                BuildCardHeaderStatic(SaveBuffer, CardHeaderTitles[i], 0x250, 0x1FC, 0x254, 0x1D8, D_800A45C8);
+                BuildCardHeaderStatic(SaveBuffer, CardHeaderTitles[i], 0x250, 0x1FC, 0x254, 0x1D8, CardExtraDataTitleBuf);
                 BuildSaveData(CardTransferMode);
             } else if (CardTransferMode & 0x10) {
-                BuildCardHeaderStatic(SaveBuffer, CardTitleStrings[GpSaveSlotCursor], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[GpSaveSlotCursor]);
+                BuildCardHeaderStatic(SaveBuffer, CardTitleStrings[GpSaveSlotCursor], 0x250, 0x1FC, 0x254, 0x1D8, CardSlotHeaderTitles[GpSaveSlotCursor]);
                 BuildSaveData(CardTransferMode);
             } else if (CardTransferMode == 0x20) {
                 *SaveBuffer = *(const Struct4000 *)CdDirectoryBuffer;
             }
         }
-        D_800A41E8 = 1;
+        CardSaveStepState = 1;
         break;
     case 1:
-        D_800A41E8 = 2;
+        CardSaveStepState = 2;
         break;
     case 2:
         for (i = 0x1D; i >= 0; i--) {
         }
         if (CardTransferMode == 0x20) {
-            r = CardWriteFile((short)a1, 0, CardTargetFileName, SaveBuffer, 2, D_800A41E9);
+            r = CardWriteFile((short)a1, 0, CardTargetFileName, SaveBuffer, 2, CardSaveIsMainData);
         } else {
-            r = CardWriteFile((short)a1, 0, CardTargetFileName, SaveBuffer, 1, D_800A41E9);
+            r = CardWriteFile((short)a1, 0, CardTargetFileName, SaveBuffer, 1, CardSaveIsMainData);
         }
         if (r == -1) {
-            if (D_800A41EA < 3) {
-                D_800A41EA = (unsigned short)D_800A41EA + 1;
+            if (CardSaveRetryCount < 3) {
+                CardSaveRetryCount = (unsigned short)CardSaveRetryCount + 1;
                 break;
             }
-            D_800A41E8 = 5;
+            CardSaveStepState = 5;
         } else {
-            D_800A41E8 = 3;
+            CardSaveStepState = 3;
         }
         break;
     case 3:
         i = GetHwCardEvent();
         if (i != 0) {
             if (i == 1) {
-                D_800A41E8 = 4;
+                CardSaveStepState = 4;
                 switch (CardMenuOperation) {
                 case 3:
                     SaveSlotSnapshots[GpSaveSlotCursor] = SelectionState;
@@ -110,11 +110,11 @@ int CardSaveStep(short a0, int a1) {
                     break;
                 }
             } else {
-                if (D_800A41EA >= 3) {
-                    D_800A41E8 = 5;
+                if (CardSaveRetryCount >= 3) {
+                    CardSaveStepState = 5;
                 } else {
-                    D_800A41E8 = 1;
-                    D_800A41EA = (unsigned short)D_800A41EA + 1;
+                    CardSaveStepState = 1;
+                    CardSaveRetryCount = (unsigned short)CardSaveRetryCount + 1;
                 }
             }
         }
@@ -123,5 +123,5 @@ int CardSaveStep(short a0, int a1) {
     case 5:
         break;
     }
-    return D_800A41E8;
+    return CardSaveStepState;
 }

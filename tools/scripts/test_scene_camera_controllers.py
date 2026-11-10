@@ -56,12 +56,12 @@ static const s32 edges[]={INT32_MIN,INT32_MIN+1,-65537,-32768,-4,-1,0,1,4,32767,
 #define RaceContext live.context.value
 #define PlayerCars live.cars.values
 #define CarBoundsTable live.table.values
-#define D_800A0D64 (&live.curves[0])
-#define D_800A0D70 (&live.curves[3])
+#define CarCameraHeightOffsets (&live.curves[0])
+#define FinishCamFollowTargets (&live.curves[3])
 #define ShowcaseCamDepthCurve (&live.curves[6])
-#define D_800A0D88 (&live.curves[9])
-#define D_800A0D94 (&live.curves[12])
-#define D_800A0FB0 live.masks
+#define FinishCamSplineWeights (&live.curves[9])
+#define IntroCamDollyKeyframes (&live.curves[12])
+#define ReplayCamBankWeights live.masks
 #define SelectedMakerIndex live.index
 #define SelectedMakerCarIndex live.selector
 #define DrawSubOtFlag live.draw
@@ -163,15 +163,15 @@ static void reference(s32 first,s32 second){
  }else{
   s32 angle=InterpCurveEase(first);RaceContext.camera24C->parts18[0].rotation10.y=(s16)angle;
   RaceContext.camera24C->parts18[1].rotation10.y=(s16)(u16)(0U-(u32)angle);
-  s32 index=FindCurveSegment(D_800A0D70,first);s32 roll=InterpCurveLinear(D_800A0D70,index,first);
+  s32 index=FindCurveSegment(FinishCamFollowTargets,first);s32 roll=InterpCurveLinear(FinishCamFollowTargets,index,first);
   RaceContext.camera24C->parts18[3].rotation10.x=(s16)roll;
   index=FindCurveSegment(ShowcaseCamDepthCurve,first);s32 z=InterpCurveLinear(ShowcaseCamDepthCurve,index,first);
-  index=FindCurveSegment(D_800A0D88,first);s32 y=InterpCurveLinear(D_800A0D88,index,first);
+  index=FindCurveSegment(FinishCamSplineWeights,first);s32 y=InterpCurveLinear(FinishCamSplineWeights,index,first);
   SceneCameraState160 *c=RaceContext.camera24C;
   c->parts18[3].position00.xyz.z=word((u32)((uint64_t)(u32)z-(uint64_t)(u32)c->extentA0*4U-16U));
   c->parts18[3].position00.xyz.y=add(y,12);c->parts18[2].position00.xyz.z=z;c->parts18[2].position00.xyz.y=y;
   c->offsetB0=add(z/4,word(0U-(u32)c->distance100));c->offsetAC=y/4;
-  index=FindCurveSegment(D_800A0D94,first);s32 offset=InterpCurveLinear(D_800A0D94,index,first);
+  index=FindCurveSegment(IntroCamDollyKeyframes,first);s32 offset=InterpCurveLinear(IntroCamDollyKeyframes,index,first);
   s32 turn=word((u32)(UINT64_C(0)-(uint64_t)(u32)offset*32U));
   c=RaceContext.camera24C;c->offsetC8=offset;PlayerCars[0].wheelSteering17C=(s16)(turn%4096);
   PlayerCars[0].position20.words[2]=add(c->offsetB0,c->offsetC8);PlayerCars[0].position20.words[1]=add(c->offsetAC,c->offsetC4);
@@ -236,10 +236,10 @@ class SceneCameraControllerTest(unittest.TestCase):
         owners = source_owners(ROOT/'src/main/PAL')
         body = '\n'.join(definition_source(owners[n].read_text(), n) for n in NAMES)
         body = body.replace('SetModelTexturePage(', 'traceModelTexturePage(')
-        prefix = PREFIX.replace('@RACE@', hex(address_of('RaceContext'))+'U').replace('@CURVES@', hex(address_of('D_800A0D64'))+'U')
+        prefix = PREFIX.replace('@RACE@', hex(address_of('RaceContext'))+'U').replace('@CURVES@', hex(address_of('CarCameraHeightOffsets'))+'U')
         self.assertEqual(address_of('D_800AC006'), address_of('PlayerCars')+0x10E)
-        for offset, name in [(12, 'D_800A0D70'), (24, 'ShowcaseCamDepthCurve'), (36, 'D_800A0D88'), (48, 'D_800A0D94')]:
-            self.assertEqual(address_of(name), address_of('D_800A0D64')+offset)
+        for offset, name in [(12, 'FinishCamFollowTargets'), (24, 'ShowcaseCamDepthCurve'), (36, 'FinishCamSplineWeights'), (48, 'IntroCamDollyKeyframes')]:
+            self.assertEqual(address_of(name), address_of('CarCameraHeightOffsets')+offset)
         with TemporaryDirectory() as temporary:
             source, library = Path(temporary)/'native.c', Path(temporary)/'native.dylib'
             source.write_text(prefix+body+REFERENCE)
@@ -271,8 +271,8 @@ class SceneCameraControllerTest(unittest.TestCase):
             self.assertEqual(traces.hexdigest(), 'c75b00d6ff550d1e42f4367cd6895be23ae82dec9b2ea29f9f9b485d485dae84')
             regions = [(address_of('RaceContext')-16, 0x564+32), (0x80180000, 384), (0x80181000, 384),
                        (address_of('PlayerCars')-16, 1632), (0x801A0000, 44), (0x801A1000, 44), (0x801A2000, 44),
-                       (address_of('CarBoundsTable')-16, 44), (address_of('D_800A0D64'), 100),
-                       (address_of('D_800A0FB0'), 16), (address_of('SelectedMakerIndex'), 2),
+                       (address_of('CarBoundsTable')-16, 44), (address_of('CarCameraHeightOffsets'), 100),
+                       (address_of('ReplayCamBankWeights'), 16), (address_of('SelectedMakerIndex'), 2),
                        (address_of('SelectedMakerCarIndex'), 2), (address_of('DrawSubOtFlag'), 4)]
             size = native.wire_size();self.assertEqual(sum(n for _, n in regions), size)
             intervals = sorted((a, a+n) for a, n in regions)

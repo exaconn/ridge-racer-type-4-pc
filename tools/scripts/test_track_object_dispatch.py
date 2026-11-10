@@ -38,9 +38,9 @@ S_ECB4 *TrackObjectStates,*D_8010E8E0;
 Node24 *TrackObjectKeyframes,*D_8010E8D8;
 TrackSample3C *TrackNodes;
 TrackLighting2C *TrackLightTable;
-SVec CourseLightColors[27];CVec D_800A4088[4];
-s32 D_800A3CDC[4],D_800A3D18[4],ReplayState,ModeFrame,RaceState,D_8010E840,D_8010E848[4];
-s16 CourseIndex,GameModeType,D_800AC1A2;
+SVec CourseLightColors[27];CVec OpeningSkipHoldTimer[4];
+s32 OpeningSunbeamPolys[4],OpeningCreditTextTable[4],ReplayState,ModeFrame,RaceState,D_8010E840,D_8010E848[4];
+s16 CourseIndex,GameModeType,RaceFinishBannerTimer;
 s8 RacePaused;
 Vec16 D_8010E8C8;
 ObjectTrailPoint16 TrackObjectTrailPoints[16];
@@ -125,7 +125,7 @@ void dispatch_capture(u8 *out){
  out+=output_size();memcpy(out,fileStorage.data,16384);out+=16384;memcpy(out,stateStorage.values,sizeof(stateStorage.values));out+=sizeof(stateStorage.values);memcpy(out,frameStorage.words,4096);out+=4096;
  if(operation==2){memcpy(out,&helperMatrix,18);memset(out+18,0,14);}else memcpy(out,&helperMatrix,32);out+=32;memcpy(out,helperAngles,8);out+=8;memcpy(out,&CameraViewMatrix,32);out+=32;
  memcpy(out,control,32);memcpy(out+32,vectorData,8);memcpy(out+40,macs,12);memcpy(out+52,irs,12);out+=64;
- memset(out,0,64);put32(out,(u32)TrackObjectCount);put32(out+4,pointer(TrackObjectDefs));put32(out+8,pointer(TrackObjectStates));put32(out+12,pointer(TrackObjectKeyframes));put32(out+16,pointer(D_8010E8DC));put32(out+20,pointer(D_8010E8D8));put32(out+24,pointer(D_8010E8E0));put32(out+28,(u32)ReplayState);put32(out+32,(u32)(s32)GameModeType);put32(out+36,(u32)(s32)D_800AC1A2);put32(out+40,(u32)(s32)RacePaused);
+ memset(out,0,64);put32(out,(u32)TrackObjectCount);put32(out+4,pointer(TrackObjectDefs));put32(out+8,pointer(TrackObjectStates));put32(out+12,pointer(TrackObjectKeyframes));put32(out+16,pointer(D_8010E8DC));put32(out+20,pointer(D_8010E8D8));put32(out+24,pointer(D_8010E8E0));put32(out+28,(u32)ReplayState);put32(out+32,(u32)(s32)GameModeType);put32(out+36,(u32)(s32)RaceFinishBannerTimer);put32(out+40,(u32)(s32)RacePaused);
  for(unsigned i=0;i<16;i++)assert(fileStorage.before[i]==0xA5&&fileStorage.after[i]==0xA5&&stateStorage.before[i]==0xA5&&stateStorage.after[i]==0xA5&&frameStorage.before[i]==0xA5&&frameStorage.after[i]==0xA5);
 }
 void dispatch_configure(unsigned kind,unsigned n,u8 *before){
@@ -139,7 +139,7 @@ void dispatch_configure(unsigned kind,unsigned n,u8 *before){
  }
  TrackObjectCount=(s32)currentRows;TrackObjectDefs=file->definitions;TrackObjectStates=stateStorage.values;TrackObjectKeyframes=(Node24*)(file->definitions+currentRows);
  D_8010E8DC=file->definitions+1;D_8010E8D8=TrackObjectKeyframes+1;D_8010E8E0=stateStorage.values+1;
- ReplayState=(n&1U)?2:0;GameModeType=(s16)(n/2U%3U);D_800AC1A2=(s16)(n/3U%9U);RacePaused=(s8)(n/5U%2U);
+ ReplayState=(n&1U)?2:0;GameModeType=(s16)(n/2U%3U);RaceFinishBannerTimer=(s16)(n/3U%9U);RacePaused=(s8)(n/5U%2U);
  for(unsigned i=0;i<5;i++){arena->objects[i].initialized10=255;arena->objects[i].frame14=0;arena->objects[i].startFrame28=32;arena->objects[i].endFrame2C=181;}
  camera.scene.view.projection.pointers.cursor=(u8*)frameStorage.words;draw.scene.view.projection.pointers.cursor=(u8*)frameStorage.words;
  u32 seed=n+0xA345U;for(unsigned i=0;i<8;i++){seed=next(seed);CameraViewMatrix.w[i]=signed32(seed);seed=next(seed);helperMatrix.w[i]=signed32(seed);seed=next(seed);camera.scene.view.matrix28.w[i]=signed32(seed);}
@@ -216,7 +216,7 @@ class TrackObjectDispatchTest(unittest.TestCase):
         basic=[('ColorMatrix',0,32),('HalfTransViewMatrix',32,32),('LightSourceAngles',64,24),('D_80107180',88,6),('DrawBufIndex',96,4),
                ('D_8010E738',116,4),('D_8010E78C',120,4),('D_8010E740',124,36),('D_8010E768',160,36)]
         fields=[('TrackObjectCount',0,4),('TrackObjectDefs',4,4),('TrackObjectStates',8,4),('TrackObjectKeyframes',12,4),
-                ('D_8010E8DC',16,4),('D_8010E8D8',20,4),('D_8010E8E0',24,4),('ReplayState',28,4),('GameModeType',32,2),('D_800AC1A2',36,2),('RacePaused',40,1)]
+                ('D_8010E8DC',16,4),('D_8010E8D8',20,4),('D_8010E8E0',24,4),('ReplayState',28,4),('GameModeType',32,2),('RaceFinishBannerTimer',36,2),('RacePaused',40,1)]
         addresses={n:address_of(n) for n,_,_ in basic+fields};addresses['CameraViewMatrix']=address_of('CameraViewMatrix')
         starts={n:address_of(n) for n in NAMES};services={address_of(n):n for n in SERVICES}
         exe=(ROOT/'assets/PAL/main.exe').read_bytes();base=struct.unpack_from('<I',exe,24)[0];variants={'original':{}}
@@ -259,7 +259,7 @@ class TrackObjectDispatchTest(unittest.TestCase):
                 for n,offset,width in basic:globals_[offset:offset+width]=read(addresses[n],width)
                 struct.pack_into('<3I',globals_,100,*cpu.far);struct.pack_into('<I',globals_,112,cpu.random)
                 for n,offset,width in fields:
-                    value=int.from_bytes(read(addresses[n],width),'little',signed=n in ('GameModeType','D_800AC1A2','RacePaused'));struct.pack_into('<I',meta,offset,word(value))
+                    value=int.from_bytes(read(addresses[n],width),'little',signed=n in ('GameModeType','RaceFinishBannerTimer','RacePaused'));struct.pack_into('<I',meta,offset,word(value))
                 matrix=read(MATRIX,18)+bytes(14) if operation==2 else read(MATRIX,32)
                 h=[*cpu.hw.control[:8],*cpu.hw.data[:2],*cpu.hw.data[25:28],*cpu.hw.data[9:12]]
                 return (read(ARENA,arena_size)+read(ORDER,4096)+read(CAMERA,228)+read(DRAW,228)+bytes(globals_)+

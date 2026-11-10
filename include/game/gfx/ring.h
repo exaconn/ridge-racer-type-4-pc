@@ -3,7 +3,7 @@
 
 #include "rr/presentation_types.h"
 
-extern ScrollKey4 *D_800A1CD0[];
+extern ScrollKey4 *HudLinearGaugeVerts[];
 void InitScrollTrack(int a0);
 void DrawRing(s32 *position, s32 radius);
 

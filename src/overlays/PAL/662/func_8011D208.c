@@ -1,8 +1,8 @@
 #include "rr/overlay662_garage.h"
 #include "rr/trig.h"
-void ovl662_func_8011D208(void)
+void ovl662_update_cursor_pulse(void)
 {
-    ovl662_D_801276A8.shadeD0=rsin(ovl662_D_801276A8.phaseCC)/64-65;
-    ovl662_D_801276A8.phaseCC+=96U;
-    ovl662_D_801276A8.phaseCC=(s32)ovl662_D_801276A8.phaseCC%4096;
+    ovl662_editor_workspace.shadeD0=rsin(ovl662_editor_workspace.phaseCC)/64-65;
+    ovl662_editor_workspace.phaseCC+=96U;
+    ovl662_editor_workspace.phaseCC=(s32)ovl662_editor_workspace.phaseCC%4096;
 }

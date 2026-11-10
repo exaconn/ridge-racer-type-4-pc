@@ -35,9 +35,9 @@ class Overlay662ButtonSpriteTest(unittest.TestCase):
 #include "rr/overlay662_buttons.h"
 static struct World {u32 guard[4];GpuScratchPointers scratch;GarageButton buttons[46];GarageRectangle *table[46];GarageSpriteRecord records[72];GarageSpriteRecord *lookup[72];u32 order[704];SpritePacket packets[4];u32 tail[4];} world,expected;
 #define RR_GPU_SCRATCH (&world.scratch)
-#define ovl662_D_801273B8 world.table
-#define ovl662_D_80126260 world.records
-#define ovl662_D_80127548 world.lookup
+#define ovl662_button_rect_lookup world.table
+#define ovl662_sprite_records world.records
+#define ovl662_sprite_lookup world.lookup
 ''' + button_data + sprite_data + child + body + r'''
 static u32 seed=0x1B940;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
@@ -65,8 +65,8 @@ int main(void){unsigned k,i,index,packetIndex;static const u16 boundaries[8]={0,
   world.buttons[index].timer0E=half(timerBits);
   if(k<65536){world.buttons[index].rectangle[0]=(u16)k;world.buttons[index].rectangle[1]=(u16)(k*40503U);}
   assert((uintptr_t)world.table[index]>UINT32_MAX && (uintptr_t)world.scratch.cursor>UINT32_MAX);
-  memcpy(&expected,&world,sizeof(world));reference(index,packetIndex);ovl662_func_8011B940((s32)index);assert(memcmp(&world,&expected,sizeof(world))==0);
-  reference(index,packetIndex+1);ovl662_func_8011B940((s32)index);assert(memcmp(&world,&expected,sizeof(world))==0);
+  memcpy(&expected,&world,sizeof(world));reference(index,packetIndex);ovl662_draw_button_highlight((s32)index);assert(memcmp(&world,&expected,sizeof(world))==0);
+  reference(index,packetIndex+1);ovl662_draw_button_highlight((s32)index);assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  return 0;
 }

@@ -1,9 +1,9 @@
 #include "rr/overlay662_primitives.h"
 
-GpuPolyFT4Packet *ovl662_func_8011B1CC(u32 *ordering, GpuPolyFT4Packet *packet, u32 x, u32 y, u32 w, u32 h, u32 u, u32 v, u32 uw, u32 vh, u32 clut, u32 tpage)
+GpuPolyFT4Packet *ovl662_emit_textured_quad(u32 *ordering, GpuPolyFT4Packet *packet, u32 x, u32 y, u32 w, u32 h, u32 u, u32 v, u32 uw, u32 vh, u32 clut, u32 tpage)
 {
-    u16 baseX = ovl662_D_801276A8.halfC8;
-    u16 baseY = ovl662_D_801276A8.halfCA;
+    u16 baseX = ovl662_editor_workspace.halfC8;
+    u16 baseY = ovl662_editor_workspace.halfCA;
     u16 x1;
     u16 u1;
     u16 v1;

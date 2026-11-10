@@ -1,4 +1,6 @@
 /* GCC_VERSION: 2.7.2 */
 #include "psyq/libsnd/utrtype.h"
 #include "psyq/libsnd/midipro2.h"
-void _SsSetNrpnVabAttr19(int a0, int a1, int a2, int a3) { SsUtSetReverbDelay(*((unsigned char *)&a3 + 0x24)); }
+void _SsSetNrpnVabAttr19(s16 bank, s16 program, s16 tone, VagAtr parameters, s32 attribute, u8 data) {
+    SsUtSetReverbDelay(data);
+}

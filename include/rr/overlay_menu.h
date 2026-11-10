@@ -17,5 +17,5 @@ void ovl666_update_course_selection(void);
 s32 ovl667_update_retry_choice(void);
 /* The first machine-word argument is passed by callers but unused.
  * Return the final glyph-step completion value without truncation. */
-s32 ovl662_func_8011662C(u32 unused,s32 mode);
+s32 ovl662_draw_history_arrows(u32 unused,s32 mode);
 #endif

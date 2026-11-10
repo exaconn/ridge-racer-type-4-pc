@@ -30,9 +30,9 @@ class Overlay662ToolCyclesTest(unittest.TestCase):
 _Static_assert(sizeof(GarageButton)==16,"complete button owner");
 static struct World {u32 guard[4];GarageSelectionPrefix garage;GarageWorkingStorage work;GarageButton buttons[46];GarageRectangle *table[46];u32 tail[4];} world,expected,map_checkpoint,sound_checkpoint;
 static unsigned scenario,family,slot,postbyte,expected_map,expected_sound,map_calls,sound_calls,seen[2][256];static s32 mapped_mode;
-#define ovl662_D_801276A8 world.garage
-#define ovl662_D_80127668 world.work
-#define ovl662_D_801273B8 world.table
+#define ovl662_editor_workspace world.garage
+#define ovl662_editor_cursor_state world.work
+#define ovl662_button_rect_lookup world.table
 '''+data+bodies+r'''
 static u32 rng=0x1FB2C;
 static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
@@ -46,7 +46,7 @@ static void sound_effect(struct World *w){unsigned n=button_slot(w->table[slot])
  w->garage.reset08[0]=half(scenario*73U+17);w->garage.reset08[1]=half(scenario*251U+19);
  w->garage.saved64[0]=word(scenario^0x12345678U);w->work.words[0]^=0x98765432U;
 }
-void ovl662_func_8011E5C0(s32 mode){assert(expected_map==1&&map_calls++==0&&mode==mapped_mode);assert(memcmp(&world,&map_checkpoint,sizeof(world))==0);map_effect(&world);}
+void ovl662_select_option_target(s32 mode){assert(expected_map==1&&map_calls++==0&&mode==mapped_mode);assert(memcmp(&world,&map_checkpoint,sizeof(world))==0);map_effect(&world);}
 void TriggerSfx(s32 program,s32 level,s32 pan,s32 pitch,s32 voice){
  assert(expected_sound==1&&sound_calls++==0);assert(program==1&&level==127&&pan==64&&pitch==0x1E00&&voice==-1);
  assert(memcmp(&world,&sound_checkpoint,sizeof(world))==0);assert(((GarageButton*)world.table[slot])->timer0E==7);
@@ -84,7 +84,7 @@ int main(void){unsigned path,j,n;uint64_t cases=0;
   world.work.points.cursor14=(GaragePoint){(scenario&4)?146:-1,199};
   switch(path){case 0:mode=word(0x80000000U|scenario|(scenario<<16));break;case 1:mode=0;break;case 2:mode=1;break;case 3:mode=2;break;case 4:mode=4;break;case 5:mode=8;break;case 6:mode=3;break;default:mode=scenario%4==0?65536:scenario%4==1?INT32_MAX:word(next());break;}
   expected_map=expected_sound=map_calls=sound_calls=0;
-  memcpy(&expected,&world,sizeof(world));reference(mode);if(family)ovl662_func_8011FCE0(mode);else ovl662_func_8011FB2C(mode);
+  memcpy(&expected,&world,sizeof(world));reference(mode);if(family)ovl662_tool_cycle_zoom(mode);else ovl662_tool_cycle_preview_bg(mode);
   assert(map_calls==expected_map&&sound_calls==expected_sound);assert(memcmp(&world,&expected,sizeof(world))==0);assert((uintptr_t)world.table[slot]>UINT32_MAX);cases++;
  }
  for(j=0;j<256;j++)assert(seen[0][j]&&seen[1][j]);assert(cases==1048576ULL);return 0;

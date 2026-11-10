@@ -1,5 +1,5 @@
 #include "rr/menu_ui_bank.h"
-void ovl662_func_80116690(void)
+void ovl662_step_selected_team(void)
 {
     SelectedTeamIndex=SelectionRows.bytes[0];
     {

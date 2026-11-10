@@ -3,7 +3,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import subprocess
 body=Path('src/overlays/PAL/662/func_8011E070.c').read_text()
-center=Path('src/overlays/PAL/662/func_8011DC74.c').read_text().replace('ovl662_func_8011DC74','actual_center')
+center=Path('src/overlays/PAL/662/func_8011DC74.c').read_text().replace('ovl662_get_rect_center','actual_center')
 source=r'''
 #include <assert.h>
 #include "game/system/pad.h"
@@ -22,11 +22,11 @@ static GarageActionPrefix actionObjects[4]={{action0},{action1},{action2},{actio
 static struct {u32 guard[4];GarageButton banks[2][46];u32 tail[4];} fixed;
 static struct State {u32 guard[4];GarageWorkingStorage work;GarageSelectionPrefix selection;ControllerState5C input[2];
  GarageRectangle *buttons[46];GarageActionPrefix *actions[4];u32 tail[4];} actual,reference,*w;
-#define ovl662_D_80127668 w->work
-#define ovl662_D_801276A8 w->selection
+#define ovl662_editor_cursor_state w->work
+#define ovl662_editor_workspace w->selection
 #define PlayerControllers w->input
-#define ovl662_D_801273B8 w->buttons
-#define ovl662_D_80127470 w->actions
+#define ovl662_button_rect_lookup w->buttons
+#define ovl662_action_lookup w->actions
 '''+body+center+r'''
 static struct Event{unsigned kind;s32 a,b;struct State before;}events[16];
 static unsigned scenario,profile,serial,count,seen,coverage[12],paths[8],callbacks[4];static int referenceRun;
@@ -51,32 +51,32 @@ static void effect(unsigned kind){unsigned n=serial++;if(!(profile&1))return;u32
  for(unsigned i=0;i<4;i++)w->actions[i]=&actionObjects[(scenario+n+i+profile/4)%4];
 }
 void *PsyqMemset(void *p,s32 value,u32 size){assert(size==4&&value==0&&(uintptr_t)p>UINT32_MAX);record(0,value,size);return memset(p,value,size);}
-void ovl662_func_8011DA90(void){record(1,0,0);effect(1);}
+void ovl662_step_panel_fade_timers(void){record(1,0,0);effect(1);}
 static void movePoint(unsigned kind,GaragePoint *p){assert((uintptr_t)p>UINT32_MAX);record(kind,p->x,p->y);effect(kind);p->x=half(scenario*37U+serial*71U+kind);p->y=half(~(scenario*53U+serial*13U+kind));}
-void ovl662_func_8011D338(GaragePoint *p){movePoint(2,p);}void ovl662_func_8011D58C(GaragePoint *p){movePoint(3,p);}void ovl662_func_8011D664(GaragePoint *p){movePoint(4,p);}
+void ovl662_read_analog_cursor_delta(GaragePoint *p){movePoint(2,p);}void ovl662_read_mouse_cursor_delta(GaragePoint *p){movePoint(3,p);}void ovl662_read_dpad_cursor_delta(GaragePoint *p){movePoint(4,p);}
 static void repeat(unsigned kind,u32 *p){assert((uintptr_t)p>UINT32_MAX);record(kind,*p,0);effect(kind);*p|=(scenario+serial*7U)&15;}
-void ovl662_func_8011D730(u32 *p){repeat(5,p);}void ovl662_func_8011D8E4(u32 *p){repeat(6,p);}
-void ovl662_func_8011DCDC(u32 a){record(7,a,0);effect(7);}
-GaragePoint ovl662_func_8011DC74(s32 a){assert(a>=0&&a<46);record(8,a,0);GaragePoint result;
+void ovl662_poll_stick_direction_repeat(u32 *p){repeat(5,p);}void ovl662_poll_dpad_direction_repeat(u32 *p){repeat(6,p);}
+void ovl662_handle_shortcut_buttons(u32 a){record(7,a,0);effect(7);}
+GaragePoint ovl662_get_rect_center(s32 a){assert(a>=0&&a<46);record(8,a,0);GaragePoint result;
  if(referenceRun){GarageRectangle *r=w->buttons[a];int x=half((*r)[0]),y=half((*r)[1]),width=half((*r)[2]),height=half((*r)[3]);
   result.x=half(x+width/2-(width<0&&width%2));result.y=half(y+height/2-(height<0&&height%2));
  }else result=actual_center(a);
  effect(8);return result;
 }
-s32 ovl662_func_8011DBD8(const GaragePoint *a,const GaragePoint *b){assert(a==&w->work.points.first20&&b==&w->work.points.second24&&(uintptr_t)a>UINT32_MAX);record(9,((u32)(u16)a->x<<16)|(u16)a->y,((u32)(u16)b->x<<16)|(u16)b->y);effect(9);return word(scenario*0x1234567U+serial);}
+s32 ovl662_calc_point_distance(const GaragePoint *a,const GaragePoint *b){assert(a==&w->work.points.first20&&b==&w->work.points.second24&&(uintptr_t)a>UINT32_MAX);record(9,((u32)(u16)a->x<<16)|(u16)a->y,((u32)(u16)b->x<<16)|(u16)b->y);effect(9);return word(scenario*0x1234567U+serial);}
 static void action(unsigned k,s32 a){callbacks[k]++;record(10,k,a);effect(10);}
 static void action0(s32 a){action(0,a);}static void action1(s32 a){action(1,a);}static void action2(s32 a){action(2,a);}static void action3(s32 a){action(3,a);}
 void PlaySfx(s32 a){record(11,a,0);effect(11);}
-void ovl662_func_8011DE70(void){record(11,-1,0);effect(11);}
+void ovl662_update_button_states(void){record(11,-1,0);effect(11);}
 static void expected(void){GaragePoint movement={0,0};u32 events=0;PsyqMemset(&movement,0,4);
  if(w->work.words[0]&1){paths[0]++;return;}
- if(w->work.words[0]&2){ovl662_func_8011DA90();if(word(w->work.points.word28)<4096){paths[1]++;return;}
+ if(w->work.words[0]&2){ovl662_step_panel_fade_timers();if(word(w->work.points.word28)<4096){paths[1]++;return;}
   paths[2]++;w->work.points.cursor18=w->work.points.cursor14;w->work.words[0]&=~6U;
  }
- if(w->work.words[0]&4){if(!(w->work.words[0]&8)){ovl662_func_8011DA90();if(word(w->work.points.word28)<4096){paths[3]++;return;}
-   paths[4]++;ovl662_func_8011D730(&events);ovl662_func_8011D8E4(&events);ovl662_func_8011DCDC(events);
+ if(w->work.words[0]&4){if(!(w->work.words[0]&8)){ovl662_step_panel_fade_timers();if(word(w->work.points.word28)<4096){paths[3]++;return;}
+   paths[4]++;ovl662_poll_stick_direction_repeat(&events);ovl662_poll_dpad_direction_repeat(&events);ovl662_handle_shortcut_buttons(events);
   }else paths[5]++;
- }else{ovl662_func_8011D338(&movement);ovl662_func_8011D58C(&movement);ovl662_func_8011D664(&movement);
+ }else{ovl662_read_analog_cursor_delta(&movement);ovl662_read_mouse_cursor_delta(&movement);ovl662_read_dpad_cursor_delta(&movement);
   int x=half((u16)w->work.points.cursor18.x+(u16)movement.x),y=half((u16)w->work.points.cursor18.y+(u16)movement.y);w->work.points.cursor18=(GaragePoint){x,y};
   if(x<w->work.halves[24])w->work.points.cursor18.x=w->work.halves[24];int high=w->work.halves[24]+w->work.halves[26]-1;
   if(high<w->work.points.cursor18.x)w->work.points.cursor18.x=half(high);
@@ -84,13 +84,13 @@ static void expected(void){GaragePoint movement={0,0};u32 events=0;PsyqMemset(&m
   if(high<w->work.points.cursor18.y)w->work.points.cursor18.y=half(high);w->work.points.cursor14=w->work.points.cursor18;
   if(!(w->work.words[0]&8)&&w->input[0].input00.fields.type!=18&&(w->input[0].edges08.fields.pressed&4)){
    paths[6]++;w->work.words[0]|=4;w->work.words[1]=48;w->work.points.first20=w->work.points.cursor18;
-   GaragePoint dest=ovl662_func_8011DC74(w->selection.saved64[0]);w->work.points.second24=dest;w->work.points.word28=0;
-   s32 distance=ovl662_func_8011DBD8(&w->work.points.first20,&w->work.points.second24);w->work.points.distance2C=distance;
+   GaragePoint dest=ovl662_get_rect_center(w->selection.saved64[0]);w->work.points.second24=dest;w->work.points.word28=0;
+   s32 distance=ovl662_calc_point_distance(&w->work.points.first20,&w->work.points.second24);w->work.points.distance2C=distance;
    w->selection.current60=w->selection.saved64[0];for(unsigned i=0;i<4;i++)w->selection.selectorsB8[i]=w->selection.saved64[i+1];
    GarageButton *button=(GarageButton *)w->buttons[w->selection.saved64[0]];w->actions[button->action0A]->callback(-1);PlaySfx(3);return;
   }
  }
- paths[7]++;ovl662_func_8011DE70();
+ paths[7]++;ovl662_update_button_states();
 }
 int main(void){assert(sizeof(void*)==8);for(scenario=0;scenario<65536;scenario++)for(profile=0;profile<8;profile++){
  memset(&actual,0xA6,sizeof(actual));w=&actual;w->work.words[0]=scenario;w->work.points.word28=(u32)(s32)half(scenario);
@@ -101,7 +101,7 @@ int main(void){assert(sizeof(void*)==8);for(scenario=0;scenario<65536;scenario++
  w->input[0].input00.fields.type=((scenario>>6)&1)?18:(u8)scenario;w->input[0].edges08.fields.pressed=(u16)(scenario>>1);
  for(unsigned g=0;g<2;g++)for(unsigned i=0;i<46;i++){for(unsigned j=0;j<4;j++)fixed.banks[g][i].rectangle[j]=(u16)(scenario+i*71+g*13+j*0x4567);fixed.banks[g][i].action0A=(scenario+i+g)%4;}
  for(unsigned i=0;i<46;i++)w->buttons[i]=&fixed.banks[(scenario+i)&1][i].rectangle;for(unsigned i=0;i<4;i++)w->actions[i]=&actionObjects[(scenario+i+profile/4)%4];
- reference=actual;count=seen=serial=0;referenceRun=1;w=&reference;expected();serial=0;referenceRun=0;w=&actual;ovl662_func_8011E070();assert(count==seen&&!memcmp(&actual,&reference,sizeof(actual)));
+ reference=actual;count=seen=serial=0;referenceRun=1;w=&reference;expected();serial=0;referenceRun=0;w=&actual;ovl662_update_editor_cursor();assert(count==seen&&!memcmp(&actual,&reference,sizeof(actual)));
  }
  for(unsigned i=0;i<12;i++)assert(coverage[i]);for(unsigned i=0;i<8;i++)assert(paths[i]);for(unsigned i=0;i<4;i++)assert(callbacks[i]);
  puts("524288 cases passed; all cursor paths,full signed16 clipping,signed progress and fresh button/action owners");

@@ -18,11 +18,11 @@ typedef struct {
     u32 from, to;
 } GaragePanelTrack;
 
-extern GaragePanelElement ovl662_D_80126800, ovl662_D_80126810, ovl662_D_80126820,
-    ovl662_D_80126830, ovl662_D_80126840;
-extern GaragePanelTrack *ovl662_D_8012688C[5];
+extern GaragePanelElement ovl662_panel_elem_hline_top, ovl662_panel_elem_hline_bot, ovl662_panel_elem_tile_0,
+    ovl662_panel_elem_tile_1, ovl662_panel_elem_tile_2;
+extern GaragePanelTrack *ovl662_panel_fade_tracks[5];
 
-void ovl662_func_8011B484(void)
+void ovl662_draw_editor_panel_fades(void)
 {
     GpuScratchPointers *scratch = RR_GPU_SCRATCH;
     u32 *ordering = scratch->order + 128;
@@ -31,12 +31,12 @@ void ovl662_func_8011B484(void)
     s32 t;
     s32 range;
 
-    if (ovl662_D_801276A8.flagsD1 != 0) {
+    if (ovl662_editor_workspace.flagsD1 != 0) {
         return;
     }
     for (i = 0; i < 5; i++) {
-        t = ovl662_D_801276A8.word04 - ovl662_D_8012688C[i]->start;
-        range = ovl662_D_8012688C[i]->end - ovl662_D_8012688C[i]->start;
+        t = ovl662_editor_workspace.word04 - ovl662_panel_fade_tracks[i]->start;
+        range = ovl662_panel_fade_tracks[i]->end - ovl662_panel_fade_tracks[i]->start;
         if (t < 0) {
             continue;
         }
@@ -45,36 +45,36 @@ void ovl662_func_8011B484(void)
         } else {
             t = (t << 12) / range;
         }
-        RR_GARAGE_GTE_LERP(t, &ovl662_D_8012688C[i]->from, &point);
+        RR_GARAGE_GTE_LERP(t, &ovl662_panel_fade_tracks[i]->from, &point);
         switch (i) {
         case 0:
-            scratch->cursor = (u8 *)ovl662_func_8011AD3C(ordering + ovl662_D_80126800.order, (GpuTilePacket *)scratch->cursor,
-                ovl662_D_80126800.x, ovl662_D_80126800.y, point.x, ovl662_D_80126800.r, ovl662_D_80126800.g, ovl662_D_80126800.b);
+            scratch->cursor = (u8 *)ovl662_emit_hline_tile(ordering + ovl662_panel_elem_hline_top.order, (GpuTilePacket *)scratch->cursor,
+                ovl662_panel_elem_hline_top.x, ovl662_panel_elem_hline_top.y, point.x, ovl662_panel_elem_hline_top.r, ovl662_panel_elem_hline_top.g, ovl662_panel_elem_hline_top.b);
             break;
         case 1:
-            scratch->cursor = (u8 *)ovl662_func_8011AD3C(ordering + ovl662_D_80126810.order, (GpuTilePacket *)scratch->cursor,
-                ovl662_D_80126810.x, ovl662_D_80126810.y, point.x, ovl662_D_80126810.r, ovl662_D_80126810.g, ovl662_D_80126810.b);
+            scratch->cursor = (u8 *)ovl662_emit_hline_tile(ordering + ovl662_panel_elem_hline_bot.order, (GpuTilePacket *)scratch->cursor,
+                ovl662_panel_elem_hline_bot.x, ovl662_panel_elem_hline_bot.y, point.x, ovl662_panel_elem_hline_bot.r, ovl662_panel_elem_hline_bot.g, ovl662_panel_elem_hline_bot.b);
             break;
         case 2:
-            scratch->cursor = (u8 *)ovl662_func_8011B034(ordering + ovl662_D_80126820.order, (GpuTilePacket *)scratch->cursor,
-                point.x, point.y, ovl662_D_80126820.w, ovl662_D_80126820.h, ovl662_D_80126820.r, ovl662_D_80126820.g, ovl662_D_80126820.b);
-            scratch->cursor = (u8 *)ovl662_func_8011AEC4(ordering + ovl662_D_80126820.order, (GpuLineF4Packet *)scratch->cursor,
-                (s16)(point.x - 1), (s16)(point.y - 2), (s16)(ovl662_D_80126820.w + 2), (s16)(ovl662_D_80126820.h + 4), 255, 255, 255);
+            scratch->cursor = (u8 *)ovl662_emit_filled_tile(ordering + ovl662_panel_elem_tile_0.order, (GpuTilePacket *)scratch->cursor,
+                point.x, point.y, ovl662_panel_elem_tile_0.w, ovl662_panel_elem_tile_0.h, ovl662_panel_elem_tile_0.r, ovl662_panel_elem_tile_0.g, ovl662_panel_elem_tile_0.b);
+            scratch->cursor = (u8 *)ovl662_emit_wire_box(ordering + ovl662_panel_elem_tile_0.order, (GpuLineF4Packet *)scratch->cursor,
+                (s16)(point.x - 1), (s16)(point.y - 2), (s16)(ovl662_panel_elem_tile_0.w + 2), (s16)(ovl662_panel_elem_tile_0.h + 4), 255, 255, 255);
             break;
         case 3:
-            if (ovl662_D_801276A8.layer23) {
+            if (ovl662_editor_workspace.layer23) {
                 point.y += 80;
             }
-            scratch->cursor = (u8 *)ovl662_func_8011B034(ordering + ovl662_D_80126830.order, (GpuTilePacket *)scratch->cursor,
-                point.x, point.y, ovl662_D_80126830.w, ovl662_D_80126830.h, ovl662_D_80126830.r, ovl662_D_80126830.g, ovl662_D_80126830.b);
-            scratch->cursor = (u8 *)ovl662_func_8011AEC4(ordering + ovl662_D_80126830.order, (GpuLineF4Packet *)scratch->cursor,
-                point.x, (s16)(point.y - 2), (s16)(ovl662_D_80126830.w + 1), (s16)(ovl662_D_80126830.h + 4), 255, 255, 255);
+            scratch->cursor = (u8 *)ovl662_emit_filled_tile(ordering + ovl662_panel_elem_tile_1.order, (GpuTilePacket *)scratch->cursor,
+                point.x, point.y, ovl662_panel_elem_tile_1.w, ovl662_panel_elem_tile_1.h, ovl662_panel_elem_tile_1.r, ovl662_panel_elem_tile_1.g, ovl662_panel_elem_tile_1.b);
+            scratch->cursor = (u8 *)ovl662_emit_wire_box(ordering + ovl662_panel_elem_tile_1.order, (GpuLineF4Packet *)scratch->cursor,
+                point.x, (s16)(point.y - 2), (s16)(ovl662_panel_elem_tile_1.w + 1), (s16)(ovl662_panel_elem_tile_1.h + 4), 255, 255, 255);
             break;
         case 4:
-            scratch->cursor = (u8 *)ovl662_func_8011B034(ordering + ovl662_D_80126840.order, (GpuTilePacket *)scratch->cursor,
-                point.x, point.y, ovl662_D_80126840.w, ovl662_D_80126840.h, ovl662_D_80126840.r, ovl662_D_80126840.g, ovl662_D_80126840.b);
-            scratch->cursor = (u8 *)ovl662_func_8011AEC4(ordering + ovl662_D_80126840.order, (GpuLineF4Packet *)scratch->cursor,
-                (s16)(point.x - 1), (s16)(point.y - 2), (s16)(ovl662_D_80126840.w + 2), (s16)(ovl662_D_80126840.h + 4), 255, 255, 255);
+            scratch->cursor = (u8 *)ovl662_emit_filled_tile(ordering + ovl662_panel_elem_tile_2.order, (GpuTilePacket *)scratch->cursor,
+                point.x, point.y, ovl662_panel_elem_tile_2.w, ovl662_panel_elem_tile_2.h, ovl662_panel_elem_tile_2.r, ovl662_panel_elem_tile_2.g, ovl662_panel_elem_tile_2.b);
+            scratch->cursor = (u8 *)ovl662_emit_wire_box(ordering + ovl662_panel_elem_tile_2.order, (GpuLineF4Packet *)scratch->cursor,
+                (s16)(point.x - 1), (s16)(point.y - 2), (s16)(ovl662_panel_elem_tile_2.w + 2), (s16)(ovl662_panel_elem_tile_2.h + 4), 255, 255, 255);
             break;
         }
     }

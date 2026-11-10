@@ -7,8 +7,8 @@
 #include "rr/menu_arena_state.h"
 #include "rr/cd_directory_buffer.h"
 void InitMenuArenas(void);
-void ovl662_func_80116020(void);
-void ovl662_func_80116148(void);
+void ovl662_init_history_overview(void);
+void ovl662_setup_history_arenas(void);
 RR_ASSERT_SIZE(MenuArenas8,2*sizeof(void *));
 RR_ASSERT_OFFSET(MenuArenas8,second,sizeof(void *));
 #endif

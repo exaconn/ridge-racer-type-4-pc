@@ -2,8 +2,8 @@
 #include "rr/spu_tone_snapshot.h"
 #include "rr/spu_tone_update.h"
 #include "psyq/libsnd/cc_nrpn2.h"
-void _SsSetNrpnVabAttr3(s16 a0, s16 a1, s16 a2, LibBlock24 s, s32 c) {
-    SsUtGetVagAtr(a0, a1, a2, &s);
-    s.b[7] = c;
-    SsUtSetVagAtr(a0, a1, a2, &s);
+void _SsSetNrpnVabAttr3(s16 bank, s16 program, s16 tone, VagAtr parameters, s32 attribute, u8 data) {
+    SsUtGetVagAtr(bank, program, tone, (u8 *)&parameters);
+    parameters.max = data;
+    SsUtSetVagAtr(bank, program, tone, (u8 *)&parameters);
 }

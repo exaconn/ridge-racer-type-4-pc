@@ -1,7 +1,7 @@
 #include "rr/overlay662_available_cars.h"
 #include "rr/load_cursor.h"
 
-void ovl662_func_80116960(void){
+void ovl662_init_available_cars(void){
  u8 parts[3];
  s32 decoded;
  s32 arenaOffset;
@@ -9,7 +9,7 @@ void ovl662_func_80116960(void){
  s16 *status;GarageAvailableCar *entry;
  u8 *choice;
  GarageAvailableCar *captured;
- ModeFrame=0;ScreenFrame=0;ovl662_D_801272D4=0;ovl662_D_801272E4=0;MenuCursor=0;MenuItemCount=2;
+ ModeFrame=0;ScreenFrame=0;ovl662_menu_substate=0;ovl662_selected_car_slot=0;MenuCursor=0;MenuItemCount=2;
  ResetScreenCounters();
  arenaOffset=0x2D000;i=0;count=i;
  MenuArenas.second=CdDirectoryBuffer+arenaOffset;
@@ -17,7 +17,7 @@ void ovl662_func_80116960(void){
  InitUiRow(0,24,88,68,32,0,0,1,0,83);
  InitUiRow(1,24,128,68,32,0,0,1,0,85);
  InitPreviewImageRows();InitBadgeRow(1,24,192,84,34,0,0x201);SetupRenderer(5);
- status=ovl662_D_80127300;entry=ovl662_D_80127348;
+ status=ovl662_car_slot_statuses;entry=ovl662_available_car_slots;
  do{
   SelectionRows.bytes[2]=i;
   *status=(SaveProgress.prefix.progress.progress10[SelectionRows.bytes[0]][SelectionRows.bytes[1]]>>i)&1;
@@ -34,8 +34,8 @@ void ovl662_func_80116960(void){
   }
   i++;status++;
  }while(i<20);
- ovl662_D_801272E0=count;
- UnpackChoiceGlyph((s8*)&SelectionRows,ovl662_D_80127348[0].value);
+ ovl662_available_car_count=count;
+ UnpackChoiceGlyph((s8*)&SelectionRows,ovl662_available_car_slots[0].value);
  PlayerCourseChoices[0].first=0;PlayerCourseChoices[0].second=0;
  ModeGroup=1;ModeIndex=67;SubmodeState=0;
  LoadCursor=MenuArenaBase;MenuArenas.first=MenuArenaBase;

@@ -23,14 +23,14 @@ class GarageRepeatTest(unittest.TestCase):
 typedef union {ControllerState5C rows[3];u32 words[69];} ControllerOwner;
 static struct World {u32 guard[4];ControllerOwner controller;u32 counters[8];u32 mask;GaragePoint out;u32 tail[4];} w,e;
 #define PlayerControllers w.controller.rows
-#define ovl662_D_80126C18 w.counters[0]
-#define ovl662_D_80126C1C w.counters[1]
-#define ovl662_D_80126C20 w.counters[2]
-#define ovl662_D_80126C24 w.counters[3]
-#define ovl662_D_80126C28 w.counters[4]
-#define ovl662_D_80126C2C w.counters[5]
-#define ovl662_D_80126C30 w.counters[6]
-#define ovl662_D_80126C34 w.counters[7]
+#define ovl662_stick_repeat_up w.counters[0]
+#define ovl662_stick_repeat_down w.counters[1]
+#define ovl662_stick_repeat_left w.counters[2]
+#define ovl662_stick_repeat_right w.counters[3]
+#define ovl662_dpad_repeat_up w.counters[4]
+#define ovl662_dpad_repeat_down w.counters[5]
+#define ovl662_dpad_repeat_left w.counters[6]
+#define ovl662_dpad_repeat_right w.counters[7]
 static unsigned calls;
 void *PsyqMemset(void *p,s32 value,u32 n){assert(value==0 && n==4);calls++;return memset(p,value,n);}
 ''' + bodies + r'''
@@ -63,7 +63,7 @@ static void reference_repeat(unsigned analog,unsigned where){
 }
 static void repeat_case(unsigned analog,unsigned where){
  memcpy(&e,&w,sizeof(w));reference_repeat(analog,where);calls=0;
- if(analog)ovl662_func_8011D730(slot(&w,where));else ovl662_func_8011D8E4(slot(&w,where));
+ if(analog)ovl662_poll_stick_direction_repeat(slot(&w,where));else ovl662_poll_dpad_direction_repeat(slot(&w,where));
  assert(calls==0 && memcmp(&w,&e,sizeof(w))==0);
 }
 int main(void){unsigned type,b,i,j,k;const u32 edges[]={0,1,2,38,39,40,41,45,46,47,48,0x7ffffffe,0x7fffffff,0x80000000,0xfffffffe,0xffffffff};
@@ -74,7 +74,7 @@ int main(void){unsigned type,b,i,j,k;const u32 edges[]={0,1,2,38,39,40,41,45,46,
   memcpy(&e,&w,sizeof(w));calls=0;
   if(type!=18){if(b&0x1000)y=-2*step;if(b&0x4000)y=2*step;if(b&0x8000)x=-step;if(b&0x2000)x=step;
    if(x || y){e.out.x=x;e.out.y=y;}}
-  ovl662_func_8011D664(&w.out);
+  ovl662_read_dpad_cursor_delta(&w.out);
   assert(calls==1 && memcmp(&w,&e,sizeof(w))==0);
  }
  /* Exhaustive axis pairs crossed with all counter boundaries and output owners. */

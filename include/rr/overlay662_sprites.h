@@ -10,12 +10,12 @@ typedef struct {
     s32 key0C;
     u32 flags10;
 } GarageSpriteRecord;
-extern GarageSpriteRecord ovl662_D_80126260[72];
-extern GarageSpriteRecord *ovl662_D_80127548[72];
+extern GarageSpriteRecord ovl662_sprite_records[72];
+extern GarageSpriteRecord *ovl662_sprite_lookup[72];
 /* Negative index initializes the lookup and returnsNULL. Rendering requires an
  * initialized index0..71, a valid record, a sprite-array cursor and an ordering
  * head at scratch.order+128+depth00. RGB bytes are preserved. */
-u8 *ovl662_func_8011B2D4(s32 index,u8 *cursor,s32 x,s32 y);
+u8 *ovl662_emit_indexed_sprite(s32 index,u8 *cursor,s32 x,s32 y);
 RR_ASSERT_SIZE(GarageSpriteRecord,20);
 RR_ASSERT_OFFSET(GarageSpriteRecord,width04,4);
 RR_ASSERT_OFFSET(GarageSpriteRecord,clut0A,10);

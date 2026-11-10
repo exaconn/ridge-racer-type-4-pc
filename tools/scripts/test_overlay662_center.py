@@ -24,7 +24,7 @@ static struct World {
  u32 before[8];union {GarageRectangle rectangles[32];GaragePoint points[64];} arena;
  GarageRectangle *table[16];u32 after[8];
 } world,expected,initial;
-#define ovl662_D_801273B8 world.table
+#define ovl662_button_rect_lookup world.table
 ''' + body + r'''
 static u32 seed=0x1dc74;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
@@ -49,7 +49,7 @@ int main(void){unsigned k,i,j;
   memcpy(&expected.arena.points[output].x,&ex,2);
   memcpy(&expected.arena.points[output].y,&ey,2);
   assert((uintptr_t)world.table[index]>UINT32_MAX);
-  result=ovl662_func_8011DC74(index);
+  result=ovl662_get_rect_center(index);
   assert(memcmp(&world,&initial,sizeof(world))==0);
   /* A caller can place the returned structure over the selected rectangle. */
   world.arena.points[output]=result;

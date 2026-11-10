@@ -1,10 +1,10 @@
 #include "rr/overlay662_primitives.h"
 
-GpuTilePacket *ovl662_func_8011AD3C(u32 *ordering, GpuTilePacket *packet, u32 x0, u32 y, u32 x1, u32 r, u32 g, u32 b)
+GpuTilePacket *ovl662_emit_hline_tile(u32 *ordering, GpuTilePacket *packet, u32 x0, u32 y, u32 x1, u32 r, u32 g, u32 b)
 {
     /* ASM_BARRIER: keep the origin X offset in $v1 while computing both endpoints. */
-    register u32 baseX __asm__("$3") = (u16)ovl662_D_801276A8.halfC8;
-    u16 baseY = ovl662_D_801276A8.halfCA;
+    register u32 baseX __asm__("$3") = (u16)ovl662_editor_workspace.halfC8;
+    u16 baseY = ovl662_editor_workspace.halfCA;
     u16 px0;
     /* ASM_BARRIER: keep the right endpoint in $t2 so the 24-bit mask stays in $t1. */
     register u16 px1 __asm__("$10") = x1;

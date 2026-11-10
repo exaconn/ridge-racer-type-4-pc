@@ -5,7 +5,7 @@
 #include "rr/overlay662_palette_initializer.h"
 #include "rr/overlay662_image_fade.h"
 #include "rr/tables.h"
-void ovl662_func_80118ED8(void);
+void ovl662_init_garage_car_view(void);
 s32 UpdateRect16Row(s32);
 void DrawUiRow(s32);
 void UpdateBadgeRowAnim(s32);
@@ -18,5 +18,5 @@ void UpdateScreenFade(s32);
  * after each draw; the caller/services must bound the loop and row backing.
  * Byte-address formation retains the complete native address before adding
  * the record offset. The unsigned scene phase dispatches only0,3,4. */
-void ovl662_func_80119E00(void);
+void ovl662_update_emblem_selector(void);
 #endif

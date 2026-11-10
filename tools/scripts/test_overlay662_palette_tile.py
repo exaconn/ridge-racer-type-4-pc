@@ -32,11 +32,11 @@ class Overlay662PaletteTileTest(unittest.TestCase):
 #include "rr/overlay662_palette_tile.h"
 typedef struct {GpuTilePacket tile;SpritePacket highlight;} Stream;
 static struct World {u32 guard[4];GarageSelectionPrefix state;GpuScratchPointers scratch;Palette16 palettes[2];GarageRectangle rectangles[46];GarageRectangle *table[46];GarageSpriteRecord records[72];GarageSpriteRecord *lookup[72];u32 order[704];Stream stream;u32 tail[4];} world,expected;
-#define ovl662_D_801276A8 world.state
+#define ovl662_editor_workspace world.state
 #define RR_GPU_SCRATCH (&world.scratch)
-#define ovl662_D_801273B8 world.table
-#define ovl662_D_80126260 world.records
-#define ovl662_D_80127548 world.lookup
+#define ovl662_button_rect_lookup world.table
+#define ovl662_sprite_records world.records
+#define ovl662_sprite_lookup world.lookup
 ''' + original + tile + sprite + body + r'''
 static u32 seed=0x1BCC0;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
@@ -74,7 +74,7 @@ int main(void){unsigned k,mode,i,j,slot,record;
   memcpy(world.records,original,sizeof(original));for(i=0;i<72;i++)world.lookup[world.records[i].key0C]=&world.records[i];
   record=(unsigned)(world.lookup[69]-world.records);world.records[record].depth00=(k&1)?11:(s32)(4+k%8);world.records[record].flags10=next();world.records[record].width04=(u16)next();world.records[record].height06=(u16)next();
   assert((uintptr_t)world.state.palette48[0]>UINT32_MAX && (uintptr_t)world.scratch.cursor>UINT32_MAX);
-  memcpy(&expected,&world,sizeof(world));reference(slot);ovl662_func_8011BCC0((s32)(20+slot));assert(memcmp(&world,&expected,sizeof(world))==0);
+  memcpy(&expected,&world,sizeof(world));reference(slot);ovl662_draw_palette_swatch((s32)(20+slot));assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  return 0;
 }

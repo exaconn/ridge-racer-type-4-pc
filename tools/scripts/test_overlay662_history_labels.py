@@ -37,11 +37,11 @@ BadgeRow1C *BadgeRows;
 #define SelectionRows w->s.choice
 #define UiFontGlyphs w->s.uv
 #define ScreenFrame w->s.tick
-#define ovl662_D_80127328 w->s.counts
-#define ovl662_D_801272BC w->s.number
-#define ovl662_D_801272BE w->s.total
-s8 ovl662_D_80126218[3]={64,25,123},ovl662_D_80126224[3]={23,24,-1};
-s8 ovl662_D_80126228[3]={26,25,123},ovl662_D_8012622C[4]={42,25,123,-1};
+#define ovl662_team_maker_car_counts w->s.counts
+#define ovl662_selected_car_number w->s.number
+#define ovl662_selected_emblem_slot w->s.total
+s8 ovl662_stage_history_glyphs[3]={64,25,123},ovl662_maker_count_glyphs[3]={23,24,-1};
+s8 ovl662_car_number_glyphs[3]={26,25,123},ovl662_emblem_index_glyphs[4]={42,25,123,-1};
 ''' + bodies + formatter + r'''
 static u32 next(void){u32 x=w->s.rng;x^=x<<13;x^=x>>17;x^=x<<5;return w->s.rng=x;}
 static void change(void){
@@ -71,7 +71,7 @@ char *FormatCountOfTotal(s32 first,s32 second,s32 digits){
 }
 static void expected(unsigned kind,u32 *ot,void *p,s32 row){
  int x=BadgeRows[row].x04+8,y=BadgeRows[row].y06+32,flag=0,i;
- const s8 *keys=kind==0?ovl662_D_80126218:kind==1?ovl662_D_80126224:kind==2?ovl662_D_80126228:ovl662_D_8012622C;
+ const s8 *keys=kind==0?ovl662_stage_history_glyphs:kind==1?ovl662_maker_count_glyphs:kind==2?ovl662_car_number_glyphs:ovl662_emblem_index_glyphs;
  if(kind<2){
   for(i=0;i<4;i++){
    SelectionRow h=w->s.save.history6C[i];
@@ -96,7 +96,7 @@ static void expected(unsigned kind,u32 *ot,void *p,s32 row){
  }
  AddDrawModePrim(ot,p,56);
 }
-int main(void){unsigned scenario,kind,i;void (*functions[4])(u32*,void*,s32)={ovl662_func_80117654,ovl662_func_80117AA4,ovl662_func_80117C98,ovl662_func_80117DFC};
+int main(void){unsigned scenario,kind,i;void (*functions[4])(u32*,void*,s32)={ovl662_draw_stage_history_label,ovl662_draw_maker_car_count_label,ovl662_draw_car_number_label,ovl662_draw_emblem_index_label};
  assert((uintptr_t)arena>UINT32_MAX);_Static_assert(sizeof(SaveProgressRecord7C)==124,"full save");
  for(scenario=0;scenario<65536;scenario++)for(kind=0;kind<4;kind++){
   memset(&initial,0,sizeof(initial));w=&initial;w->s.rng=0x17654+scenario*17+kind;change();

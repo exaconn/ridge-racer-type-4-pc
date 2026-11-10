@@ -1,6 +1,6 @@
 #include "rr/overlay662_car_layout.h"
 #include "rr/load_cursor.h"
-void ovl662_func_8011512C(void) {
+void ovl662_init_team_car_layout(void) {
     s32 i;
     ProjectionScratchPrefix *scratch;
     void *arena;
@@ -21,7 +21,7 @@ void ovl662_func_8011512C(void) {
     ResetScreenCounters();
     InitPreviewImageRows();
     i=0;
-    ovl662_D_801272D4=0;
+    ovl662_menu_substate=0;
     scratch=RR_PROJECTION_SCRATCH;
     scratch->pose08.angles10.xyz.x=120;
     scratch->pose08.position00.words[0]=-16;
@@ -38,9 +38,9 @@ void ovl662_func_8011512C(void) {
         PlayerCars[i].position20.words[2] = 308;
         PlayerCars[i].rot54 = 2048;
     }
-    UnpackChoiceGlyph((s8*)SelectionRows.bytes,CourseChoiceTable[1][ovl662_D_801272E4].glyph);
-    PlayerCourseChoices[0].first=CourseChoiceTable[1][ovl662_D_801272E4].first;
-    PlayerCourseChoices[0].second=CourseChoiceTable[1][ovl662_D_801272E4].second;
-    ovl662_D_801272E0=CountChoiceGlyphs(CourseChoiceTable[1]);
+    UnpackChoiceGlyph((s8*)SelectionRows.bytes,CourseChoiceTable[1][ovl662_selected_car_slot].glyph);
+    PlayerCourseChoices[0].first=CourseChoiceTable[1][ovl662_selected_car_slot].first;
+    PlayerCourseChoices[0].second=CourseChoiceTable[1][ovl662_selected_car_slot].second;
+    ovl662_available_car_count=CountChoiceGlyphs(CourseChoiceTable[1]);
     SetMenuFrameOptions(0,1,1);
 }

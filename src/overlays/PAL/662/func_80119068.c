@@ -2,11 +2,11 @@
 #include "rr/overlay662_course_controller.h"
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
-extern s16 ovl662_D_801272BC;
-extern s32 ovl662_D_801272E8;
-void ovl662_func_8011512C(void);
+extern s16 ovl662_selected_car_number;
+extern s32 ovl662_emblem_edit_from_menu;
+void ovl662_init_team_car_layout(void);
 
-void ovl662_func_80119068(void) {
+void ovl662_update_garage_car_view(void) {
     PreviewColor color;
     s8 active;
     s32 ready;
@@ -44,14 +44,14 @@ void ovl662_func_80119068(void) {
         switch ((u16)SubmodeState) {
         case 0:
             SetMenuFrameOptions(1, 1, 1);
-            prev = ovl662_D_801272BC;
-            StepMenuValue(3, 2, (char*)&ovl662_D_801272BC, 17, 0);
-            if (prev != ovl662_D_801272BC) {
+            prev = ovl662_selected_car_number;
+            StepMenuValue(3, 2, (char*)&ovl662_selected_car_number, 17, 0);
+            if (prev != ovl662_selected_car_number) {
                 SelectionRows.pad02[0] %= 20;
-                if (ovl662_D_801272BC > 0) {
+                if (ovl662_selected_car_number > 0) {
                     SelectionRows.pad02[0] += 20;
                 }
-                PlayerCourseChoices[0].first = ovl662_D_801272BC;
+                PlayerCourseChoices[0].first = ovl662_selected_car_number;
                 ResetScreenCounters();
                 LoadCursor = MenuArenas.first;
                 ((s8 *)ImageRows)[1] = 6;
@@ -59,7 +59,7 @@ void ovl662_func_80119068(void) {
             UiRows[MenuCursor].cells[0] = 0;
             StepMenuValue(0, 2, (char*)&MenuCursor, 3, 0);
             cell = 2;
-            if (ovl662_D_801272BC == 0) {
+            if (ovl662_selected_car_number == 0) {
                 UiRows[1].half20 = 1;
                 if (MenuCursor == 1) {
                     cell = 4;
@@ -91,7 +91,7 @@ void ovl662_func_80119068(void) {
                     ((s8 *)ImageRows)[1] = 3;
                     FadeCountdown = 0x40;
                 } else if (MenuCursor == 1) {
-                    if (ovl662_D_801272BC > 0) {
+                    if (ovl662_selected_car_number > 0) {
                         SetModelTexturePage(-1);
                         PlaySfx(1);
                         SubmodeState = 4;
@@ -149,17 +149,17 @@ close:
             FadeCountdown = fade;
             AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - fade) * 4, 0x45);
             if ((s16)FadeCountdown > 0) break;
-            CourseChoiceTable[1][ovl662_D_801272E4].glyph = PackChoiceGlyph(&SelectionRows);
-            CourseChoiceTable[1][ovl662_D_801272E4].first = PlayerCourseChoices[0].first;
-            CourseChoiceTable[1][ovl662_D_801272E4].second = PlayerCourseChoices[0].second;
-            ovl662_func_8011512C();
+            CourseChoiceTable[1][ovl662_selected_car_slot].glyph = PackChoiceGlyph(&SelectionRows);
+            CourseChoiceTable[1][ovl662_selected_car_slot].first = PlayerCourseChoices[0].first;
+            CourseChoiceTable[1][ovl662_selected_car_slot].second = PlayerCourseChoices[0].second;
+            ovl662_init_team_car_layout();
             ModeGroup = 1;
             ModeIndex = 0x40;
             SubmodeState = 0;
             return;
         case 4:
             if (UiRows[0].byte14 == 5 && ((s8 *)ImageRows)[1] == 5) {
-                ovl662_D_801272E8 = 0;
+                ovl662_emblem_edit_from_menu = 0;
                 ModeGroup = 1;
                 ModeIndex = 0x45;
                 SubmodeState = 0;
@@ -170,15 +170,15 @@ close:
             FadeCountdown = fade;
             AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - fade) * 4, 0x45);
             if ((s16)FadeCountdown > 0) break;
-            ovl662_func_8011512C();
+            ovl662_init_team_car_layout();
             ModeGroup = 1;
             ModeIndex = 0x40;
             SubmodeState = 0;
             return;
         }
     }
-    if (ovl662_D_801272D4 == 0 && ((s8 *)ImageRows)[1] == 2) {
-        ovl662_D_801272D4 = 1;
+    if (ovl662_menu_substate == 0 && ((s8 *)ImageRows)[1] == 2) {
+        ovl662_menu_substate = 1;
         BadgeRows[0].half02 = 1;
         BadgeRows[1].half02 = 1;
         i = 0;
@@ -211,7 +211,7 @@ close:
     UpdateBadgeRowAnim(0);
     UpdateBadgeRowAnim(1);
     if (UpdateImageRow(0) > 0) {
-        DrawMenuStepArrows(0xA0, 0x90, 8, 1, ovl662_D_801272BC, -1, 18);
+        DrawMenuStepArrows(0xA0, 0x90, 8, 1, ovl662_selected_car_number, -1, 18);
     }
     UpdateScreenFade(0x10046);
 }

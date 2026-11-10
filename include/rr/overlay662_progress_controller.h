@@ -7,12 +7,12 @@
 #include "rr/tables.h"
 #include "rr/overlay_menu.h"
 extern s16 FadeCountdown;
-extern u16 ovl662_D_801272D8[4],ovl662_D_80127328[4][4];
+extern u16 ovl662_team_unlocked_counts[4],ovl662_team_maker_car_counts[4][4];
 s32 LoadGlyphRowsStep(void);
-void ovl662_func_80116690(void);
-void ovl662_func_80116808(void);
-void ovl662_func_80116960(void);
-void ovl662_func_8011512C(void);
+void ovl662_step_selected_team(void);
+void ovl662_step_selected_maker(void);
+void ovl662_init_available_cars(void);
+void ovl662_init_team_car_layout(void);
 void AddScreenFadeTiles(u32 *,s32,u32);
 void DrawUiRow(s32);
 void UpdateBadgeRowAnim(s32);
@@ -23,5 +23,5 @@ void UpdateScreenFade(s32);
  * UI row, badge, four glyph rows and an enclosing frame ordering owner.
  * All services may change globals; the badge state is captured before input.
  * Nonzero glyph-step completion triggers navigation. Countdown wraps signed16. */
-void ovl662_func_801161FC(void);
+void ovl662_update_history_screen(void);
 #endif

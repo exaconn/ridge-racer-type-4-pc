@@ -4,5 +4,5 @@
 
 /* Opaque saved word: resident code copies its 32 bits to/from buffer offset0x280. */
 extern u32 EmblemEditFrames;
-void ovl662_func_8011A414(void);
+void ovl662_reset_editor_state(void);
 #endif

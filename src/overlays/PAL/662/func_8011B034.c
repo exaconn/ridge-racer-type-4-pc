@@ -1,9 +1,9 @@
 #include "rr/overlay662_primitives.h"
 
-GpuTilePacket *ovl662_func_8011B034(u32 *ordering, GpuTilePacket *packet, u32 x, u32 y, u32 w, u32 h, u32 r, u32 g, u32 b)
+GpuTilePacket *ovl662_emit_filled_tile(u32 *ordering, GpuTilePacket *packet, u32 x, u32 y, u32 w, u32 h, u32 r, u32 g, u32 b)
 {
-    u16 baseX=ovl662_D_801276A8.halfC8;
-    u16 baseY=ovl662_D_801276A8.halfCA;
+    u16 baseX=ovl662_editor_workspace.halfC8;
+    u16 baseY=ovl662_editor_workspace.halfCA;
     packet->tag.bytes.length=3;
     packet->code=0x60;
     packet->x=baseX+x;

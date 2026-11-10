@@ -29,15 +29,15 @@ static struct World {
 static unsigned scenario;
 #define ModeFrame world.frame
 #define ScreenFrame world.counter
-#define ovl662_D_801273B4 world.local
-#define ovl662_D_801273A2 world.a
-#define ovl662_D_801273A3 world.b
-#define ovl662_D_801273A0 world.c
+#define ovl662_name_grid_index world.local
+#define ovl662_name_grid_col world.a
+#define ovl662_name_grid_row world.b
+#define ovl662_name_entry_cursor world.c
 #define ModeGroup world.mode
 #define ModeIndex world.scene
 #define SubmodeState world.timer
 #define SaveProgress world.save
-#define ovl662_D_801273A8 world.name
+#define ovl662_name_entry_buffer world.name
 #define BadgeRows world.root
 '''+copy+body+r'''
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
@@ -83,7 +83,7 @@ int main(void){unsigned j,length;
   world.frame=word(scenario*0x9E3779B9U);world.counter=word(scenario*0x1234567U);world.local=word(scenario*0x87654321U);
   world.a=world.b=world.c=(s8)scenario;world.mode=(u16)scenario;world.scene=world.timer=(s16)scenario;
   world.root=world.badges[scenario%3];
-  memcpy(&expected,&world,sizeof(world));reference();ovl662_func_80118930();
+  memcpy(&expected,&world,sizeof(world));reference();ovl662_init_name_entry();
   assert(memcmp(&world,&expected,sizeof(world))==0);assert((uintptr_t)world.root>UINT32_MAX);
  }
  return 0;

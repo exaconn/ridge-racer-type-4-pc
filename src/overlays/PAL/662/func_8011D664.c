@@ -1,7 +1,7 @@
 #include "game/system/pad.h"
 #include "rr/overlay662_input.h"
 
-void ovl662_func_8011D664(GaragePoint *output)
+void ovl662_read_dpad_cursor_delta(GaragePoint *output)
 {
     GaragePoint point;
     u32 buttons;

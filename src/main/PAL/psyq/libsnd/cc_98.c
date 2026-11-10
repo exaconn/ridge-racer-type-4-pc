@@ -3,10 +3,10 @@
 #include "rr/spu_tone_update.h"
 #include "psyq/libsnd/utrev3.h"
 #include "psyq/libsnd/cc_98.h"
-int _SsSetNrpnVabAttr1(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; LibBlock24 s; u8 c; {
-    SsUtGetVagAtr(a0, a1, a2, &s);
-    s.b[1] = c;
-    SsUtSetVagAtr(a0, a1, a2, &s);
-    if (c == 0) SsUtReverbOff();
-    else if (c == 4) SsUtReverbOn();
+void _SsSetNrpnVabAttr1(s16 bank, s16 program, s16 tone, VagAtr parameters, s32 attribute, u8 data) {
+    SsUtGetVagAtr(bank, program, tone, (u8 *)&parameters);
+    parameters.mode = data;
+    SsUtSetVagAtr(bank, program, tone, (u8 *)&parameters);
+    if (data == 0) SsUtReverbOff();
+    else if (data == 4) SsUtReverbOn();
 }

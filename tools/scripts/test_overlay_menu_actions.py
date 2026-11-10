@@ -104,7 +104,7 @@ static void choices(void){u32 k,m;
   e->args[0]=160;e->args[1]=204;e->args[2]=48;e->args[3]=0;e->args[4]=captured;e->args[5]=0;e->args[6]=4;
   memcpy(expected.choice.bytes,expected.changed_choice,4);
   e=event(&expected,5);e->args[0]=captured;expected.accepted^=0x12345678;
-  assert(ovl662_func_8011662C(next(),m?(k&1?-1:1):0)==-123);
+  assert(ovl662_draw_history_arrows(next(),m?(k&1?-1:1):0)==-123);
   assert(memcmp(&world,&expected,sizeof(world))==0);
  }
 }

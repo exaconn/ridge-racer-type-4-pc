@@ -1,9 +1,9 @@
 #ifndef RR_PSYQ_LIBSND_CC_NRPN_H
 #define RR_PSYQ_LIBSND_CC_NRPN_H
 
-#include "types.h"
+#include "rr/spu_tone_control.h"
 #include "rr/library.h"
 
-void _SsSetNrpnVabAttr2(s16 a0, s16 a1, s16 a2, LibBlock24 s, s32 c);
+void _SsSetNrpnVabAttr2(s16 bank, s16 program, s16 tone, VagAtr parameters, s32 attribute, u8 data);
 
 #endif /* RR_PSYQ_LIBSND_CC_NRPN_H */

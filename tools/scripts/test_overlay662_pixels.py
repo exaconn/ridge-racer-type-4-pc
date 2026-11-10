@@ -39,7 +39,7 @@ int main(void){unsigned k,i,n;
    expected.pixels[dst+i]|=expected.pixels[src+i];
   }
   assert((uintptr_t)&world.pixels[src]>UINT32_MAX);
-  ovl662_func_80125F60(&world.pixels[src],&world.pixels[dst]);
+  ovl662_composite_emblem_layers(&world.pixels[src],&world.pixels[dst]);
   assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  return 0;

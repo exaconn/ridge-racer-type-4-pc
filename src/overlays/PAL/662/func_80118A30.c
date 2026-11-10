@@ -2,7 +2,7 @@
 #include "rr/overlay662_name_controller.h"
 #include "rr/frame_storage_types.h"
 
-void ovl662_func_80118A30(void) {
+void ovl662_update_name_entry(void) {
     s16 fadeStep;
     s32 cancel;
     s32 phase;
@@ -16,50 +16,50 @@ void ovl662_func_80118A30(void) {
         SetMenuFrameOptions(1, 1, 1);
         if (PlayerControllers[0].action2C != 0) {cancel=1;goto normalizeColumn;}
         if (PlayerControllers[0].edges08.fields.repeat & 0x1000) {
-            PlaySfx(0);ovl662_D_801273A3--;goto normalizeRow;
+            PlaySfx(0);ovl662_name_grid_row--;goto normalizeRow;
         }else if (PlayerControllers[0].edges08.fields.repeat & 0x4000) {
-            PlaySfx(0);ovl662_D_801273A3++;goto normalizeRow;
+            PlaySfx(0);ovl662_name_grid_row++;goto normalizeRow;
         }else if (PlayerControllers[0].edges08.fields.repeat & 0x8000) {
-            PlaySfx(0);ovl662_D_801273A2--;goto normalizeColumn;
+            PlaySfx(0);ovl662_name_grid_col--;goto normalizeColumn;
         }else if (PlayerControllers[0].edges08.fields.repeat & 0x2000) {
-            PlaySfx(0);ovl662_D_801273A2++;goto normalizeColumn;
+            PlaySfx(0);ovl662_name_grid_col++;goto normalizeColumn;
         }else goto normalizeColumn;
 normalizeRow:
-        normalizedRow=((s8)ovl662_D_801273A3+5)%5;
-        ovl662_D_801273A3=normalizedRow;
-        if((s8)ovl662_D_801273A2>=3){if((s8)normalizedRow==4)ovl662_D_801273A2=2;}
+        normalizedRow=((s8)ovl662_name_grid_row+5)%5;
+        ovl662_name_grid_row=normalizedRow;
+        if((s8)ovl662_name_grid_col>=3){if((s8)normalizedRow==4)ovl662_name_grid_col=2;}
 normalizeColumn:
-        if((s8)ovl662_D_801273A3>=4)ovl662_D_801273A2=((s8)ovl662_D_801273A2+3)%3;
-        else ovl662_D_801273A2=((s8)ovl662_D_801273A2+10)%10;
-        ovl662_D_801273B4 = (s8) ovl662_D_801273A2 + ((s8) ovl662_D_801273A3 * 0xA);
+        if((s8)ovl662_name_grid_row>=4)ovl662_name_grid_col=((s8)ovl662_name_grid_col+3)%3;
+        else ovl662_name_grid_col=((s8)ovl662_name_grid_col+10)%10;
+        ovl662_name_grid_index = (s8) ovl662_name_grid_col + ((s8) ovl662_name_grid_row * 0xA);
         if (D_800F3A60 != 0) {
             PlaySfx(1);
-            if(ovl662_D_801273B4<41){
-                if (ovl662_D_801273A0 < 8) {
+            if(ovl662_name_grid_index<41){
+                if (ovl662_name_entry_cursor < 8) {
                     PlaySfx(1);
-                    if (ovl662_D_801273B4 == 0x28) {
-                        ovl662_D_801273A8[ovl662_D_801273A0] = NameCharset[0];
+                    if (ovl662_name_grid_index == 0x28) {
+                        ovl662_name_entry_buffer[ovl662_name_entry_cursor] = NameCharset[0];
                     } else {
-                        ovl662_D_801273A8[ovl662_D_801273A0] = NameCharset[ovl662_D_801273B4+1];
+                        ovl662_name_entry_buffer[ovl662_name_entry_cursor] = NameCharset[ovl662_name_grid_index+1];
                     }
-                    if (ovl662_D_801273A0 < 7) {
-                        ovl662_D_801273A0 = (u8) ovl662_D_801273A0 + 1;
+                    if (ovl662_name_entry_cursor < 7) {
+                        ovl662_name_entry_cursor = (u8) ovl662_name_entry_cursor + 1;
                     }
                 }
-}else if(ovl662_D_801273B4==41){
-                if (ovl662_D_801273A0 > 0) {
-                    ovl662_D_801273A0 = (u8) ovl662_D_801273A0 - 1;
+}else if(ovl662_name_grid_index==41){
+                if (ovl662_name_entry_cursor > 0) {
+                    ovl662_name_entry_cursor = (u8) ovl662_name_entry_cursor - 1;
                 }
-}else if(ovl662_D_801273B4==42){
+}else if(ovl662_name_grid_index==42){
                 FadeCountdown = 0x40;
                 SubmodeState = 1;
-                CopyStringClearTail(SaveProgress.prefix.progress.prefix00.fields.name,(char*)ovl662_D_801273A8);
+                CopyStringClearTail(SaveProgress.prefix.progress.prefix00.fields.name,(char*)ovl662_name_entry_buffer);
             }
         } else if (cancel == 1) {
             PlaySfx(2);
-            ovl662_D_801273A8[ovl662_D_801273A0] = NameCharset[0];
-            if (ovl662_D_801273A0 > 0) {
-                ovl662_D_801273A0 = (u8) ovl662_D_801273A0 - 1;
+            ovl662_name_entry_buffer[ovl662_name_entry_cursor] = NameCharset[0];
+            if (ovl662_name_entry_cursor > 0) {
+                ovl662_name_entry_cursor = (u8) ovl662_name_entry_cursor - 1;
             }
         }
     } else if (phase == 1) {

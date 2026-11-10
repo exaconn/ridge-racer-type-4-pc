@@ -5,7 +5,7 @@ macros are not expanded. These are cleanup indicators, not matching metrics.
 
 | Category | Resident | Overlays |
 |---|---:|---:|
-| pins | 350 | 28 |
+| pins | 349 | 28 |
 | barriers | 411 | 19 |
 | asm_bodies | 2 | 0 |
 | directives | 0 | 0 |

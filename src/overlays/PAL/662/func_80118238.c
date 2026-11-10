@@ -1,6 +1,6 @@
 #include "rr/overlay_extra_labels.h"
 
-void ovl662_func_80118238(u32 *arg0, void *arg1, s32 arg2) {
+void ovl662_draw_name_entry_chars(u32 *arg0, void *arg1, s32 arg2) {
     char buf[4];
     s32 i;
     s32 offset;
@@ -19,8 +19,8 @@ void ovl662_func_80118238(u32 *arg0, void *arg1, s32 arg2) {
         buf[i] = 0;
     }
     for (i = 0, offset = i; i < 8; i++, offset += 12) {
-        buf[0] = ovl662_D_801273A8[i];
-        if (i == ovl662_D_801273A0) {
+        buf[0] = ovl662_name_entry_buffer[i];
+        if (i == ovl662_name_entry_cursor) {
             clut = 0x7FF8;
             val = rcos(((ScreenFrame * 128U) - 682U));
             c = 0xFF;

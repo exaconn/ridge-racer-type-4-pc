@@ -1,7 +1,7 @@
 #include "game/system/pad.h"
 #include "rr/overlay662_palette_controller.h"
 
-void ovl662_func_80119E00(void) {
+void ovl662_update_emblem_selector(void) {
     s32 badgePhase;
     s32 ready;
     void *palette;
@@ -19,15 +19,15 @@ void ovl662_func_80119E00(void) {
     ScreenFrame = ScreenFrame + 1U;
     switch ((u16)SubmodeState) {
     case 0:
-        if (ovl662_D_801272E8 == 0) SetMenuFrameOptions(1,1,1);
+        if (ovl662_emblem_edit_from_menu == 0) SetMenuFrameOptions(1,1,1);
         else SetMenuFrameOptions(1,1,0);
-        previous = ovl662_D_801272BE;
-        if (ovl662_D_80127398 >= 0x11) {
-            StepMenuValue(1, 2, (char *)&ovl662_D_801272BE, 0x19, 0);
+        previous = ovl662_selected_emblem_slot;
+        if (ovl662_emblem_preview_fade >= 0x11) {
+            StepMenuValue(1, 2, (char *)&ovl662_selected_emblem_slot, 0x19, 0);
         }
-        if ((s16) previous != (s16) ovl662_D_801272BE) {
-            key = (s8)ovl662_D_801272A0[(s16)ovl662_D_801272BE];
-            ovl662_D_801272E2 = key;
+        if ((s16) previous != (s16) ovl662_selected_emblem_slot) {
+            key = (s8)ovl662_emblem_choice_map[(s16)ovl662_selected_emblem_slot];
+            ovl662_selected_emblem_id = key;
             if (key == 0) {
                 palette = CustomEmblemTimPtr;
                 paletteIndex = 0;
@@ -36,12 +36,12 @@ void ovl662_func_80119E00(void) {
                 paletteIndex = key - 1;
             }
             UploadCarClut(palette, paletteIndex, 0);
-            ovl662_D_80127398 = 0;
+            ovl662_emblem_preview_fade = 0;
         }
         UiRows[(s16)MenuCursor].cells[0] = 0;
         StepMenuValue(0, 2, (char *)&MenuCursor, MenuItemCount, 0);
         highlight = 2;
-        if (ovl662_D_801272E2 >= 0x19) {
+        if (ovl662_selected_emblem_id >= 0x19) {
             UiRows->half20 = 1;
             if ((s16) MenuCursor == 0) {
                 highlight = 4;
@@ -57,11 +57,11 @@ void ovl662_func_80119E00(void) {
                 if (PlayerControllers[0].action28 != 0) {
                     UiRows[(s16)MenuCursor].cells[0] = 1;
                     if ((s16) MenuCursor == 0) {
-                        if (ovl662_D_801272E2 < 0x19) {
+                        if (ovl662_selected_emblem_id < 0x19) {
                             PlaySfx(1);
                             index = 0;
-                            ovl662_D_801272D4 = (s16) rowPhase;
-                            ovl662_D_80127398 = 0;
+                            ovl662_menu_substate = (s16) rowPhase;
+                            ovl662_emblem_preview_fade = 0;
                             SubmodeState = (u16) badgePhase;
                             do {
                                 acceptRow = (UiRow24 *)(index * sizeof(UiRow24) + (unsigned long)UiRows);
@@ -77,8 +77,8 @@ void ovl662_func_80119E00(void) {
                     } else if ((s16) MenuCursor == 1) {
                         PlaySfx(1);
                         index = 0;
-                        ovl662_D_80127398 = 0;
-                        ovl662_D_801272D4 = (s16) rowPhase;
+                        ovl662_emblem_preview_fade = 0;
+                        ovl662_menu_substate = (s16) rowPhase;
                         BadgeRows->state10 = 4;
                         do {
                             closingRow = (UiRow24 *)(index * sizeof(UiRow24) + (unsigned long)UiRows);
@@ -90,11 +90,11 @@ void ovl662_func_80119E00(void) {
                         goto closeMenu;
                     }
                 } else if (PlayerControllers[0].action2C != 0) {
-                    if (ovl662_D_801272E8 == 0) {
+                    if (ovl662_emblem_edit_from_menu == 0) {
                         PlaySfx(2);
                         index = 0;
-                        ovl662_D_801272D4 = (s16) rowPhase;
-                        ovl662_D_80127398 = 0;
+                        ovl662_menu_substate = (s16) rowPhase;
+                        ovl662_emblem_preview_fade = 0;
                         BadgeRows->state10 = 4;
                         do {
                             cancelRow = (UiRow24 *)(index * sizeof(UiRow24) + (unsigned long)UiRows);
@@ -111,21 +111,21 @@ closeMenu:
         }
         goto drawMenu;
     case 3:
-        if (ovl662_D_801272E8 == 0) SetMenuFrameOptions(0,1,1);
+        if (ovl662_emblem_edit_from_menu == 0) SetMenuFrameOptions(0,1,1);
         else SetMenuFrameOptions(0,1,0);
         if ((UiRows->byte14 == 5) && (BadgeRows->state10 == 11)) {
-            PlayerCourseChoices[0].second = (u16)ovl662_D_801272E2+1;
-            if (ovl662_D_801272E8 == 0) goto enterPalette;
+            PlayerCourseChoices[0].second = (u16)ovl662_selected_emblem_id+1;
+            if (ovl662_emblem_edit_from_menu == 0) goto enterPalette;
             goto publishScene;
         }
         goto drawMenu;
     case 4:
-        if (ovl662_D_801272E8 == 0) SetMenuFrameOptions(0,1,1);
+        if (ovl662_emblem_edit_from_menu == 0) SetMenuFrameOptions(0,1,1);
         else SetMenuFrameOptions(0,1,0);
         if ((UiRows->byte14 == 5) && (BadgeRows->state10 == 11)) {
-            if (ovl662_D_801272E8 == 0) {
+            if (ovl662_emblem_edit_from_menu == 0) {
 enterPalette:
-                ovl662_func_80118ED8();
+                ovl662_init_garage_car_view();
             } else {
 publishScene:
                 ModeGroup=3;ModeIndex=1;SubmodeState=0;
@@ -135,14 +135,14 @@ publishScene:
         goto drawMenu;
     default:
 drawMenu:
-        if (ovl662_D_801272D4 == 0) {
+        if (ovl662_menu_substate == 0) {
             ready = UpdateRect16Row(0);
             if (ready == 1) {
-                ovl662_D_801272D4 = ready;
+                ovl662_menu_substate = ready;
             }
         } else {
-            ovl662_func_80119898(ovl662_D_801272D4 - 1);
-            DrawMenuStepArrows(0xA0, 0xC0, 0x30, 0, (s16) ovl662_D_801272BE, 0, ovl662_D_8012739A);
+            ovl662_draw_emblem_preview_fade(ovl662_menu_substate - 1);
+            DrawMenuStepArrows(0xA0, 0xC0, 0x30, 0, (s16) ovl662_selected_emblem_slot, 0, ovl662_emblem_choice_count);
         }
         index = 0;
         if (MenuItemCount > 0) {

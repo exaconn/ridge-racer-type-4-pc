@@ -1,8 +1,8 @@
 #ifndef RR_PSYQ_LIBSND_MIDIPROG_H
 #define RR_PSYQ_LIBSND_MIDIPROG_H
 
-#include "types.h"
+#include "rr/spu_tone_control.h"
 
-void _SsSetNrpnVabAttr18(int a0, int a1, int a2, int a3);
+void _SsSetNrpnVabAttr18(s16 bank, s16 program, s16 tone, VagAtr parameters, s32 attribute, u8 data);
 
 #endif /* RR_PSYQ_LIBSND_MIDIPROG_H */

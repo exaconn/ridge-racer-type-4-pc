@@ -23,8 +23,8 @@ typedef struct {s32 args[10];MenuGlyphRow1C *glyph;BadgeRow1C *badge;s32 frame,c
 static struct World {u32 guard[4];s32 frame,counter,word;s16 half,setting,selected;MenuChoice4 choice;MenuGlyphRow1C *glyph;BadgeRow1C *badge;MenuGlyphRow1C glyphs[3][4];BadgeRow1C badges[3];u32 calls;Event events[7];u32 tail[4];} world,expected;
 #define ModeFrame world.frame
 #define ScreenFrame world.counter
-#define ovl662_D_801272C0 world.word
-#define ovl662_D_801272D4 world.half
+#define ovl662_history_arrow_phase world.word
+#define ovl662_menu_substate world.half
 #define SelectedTeamIndex world.setting
 #define SelectedMakerIndex world.selected
 #define SelectionRows world.choice
@@ -71,7 +71,7 @@ int main(void){unsigned k,i;
   for(i=0;i<sizeof(world);i++)((u8*)&world)[i]=(u8)next();
   scenario=k;world.calls=0;world.glyph=world.glyphs[k%3];world.badge=&world.badges[(k+1)%3];
   assert((uintptr_t)world.glyph>UINT32_MAX && (uintptr_t)world.badge>UINT32_MAX);
-  memcpy(&expected,&world,sizeof(world));reference();ovl662_func_80116020();
+  memcpy(&expected,&world,sizeof(world));reference();ovl662_init_history_overview();
   assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  return 0;

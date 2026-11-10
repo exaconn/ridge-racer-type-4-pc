@@ -24,7 +24,7 @@ typedef union {s16 halves[2];GaragePoint point;} Accumulator;
 typedef union {ControllerState5C rows[3];GaragePoint points[69];} Controller;
 static struct World {u32 guard[4];Controller controller;Accumulator accumulator;GaragePoint out;u32 tail[4];} w,e;
 #define PlayerControllers w.controller.rows
-#define ovl662_D_80126C14 w.accumulator.halves
+#define ovl662_analog_cursor_accum w.accumulator.halves
 static unsigned calls;
 void *PsyqMemset(void *p,s32 value,u32 count){assert(value==0 && count==4);calls++;return memset(p,value,count);}
 ''' + body + r'''
@@ -55,7 +55,7 @@ static void reference(unsigned index){
 static void run(unsigned index){
  memcpy(&e,&w,sizeof(w));reference(index);calls=0;
  assert((uintptr_t)output(&w,index)>UINT32_MAX);
- ovl662_func_8011D338(output(&w,index));
+ ovl662_read_analog_cursor_delta(output(&w,index));
  assert(calls==1 && memcmp(&w,&e,sizeof(w))==0);
 }
 static void setup(unsigned x,unsigned y,unsigned speed){

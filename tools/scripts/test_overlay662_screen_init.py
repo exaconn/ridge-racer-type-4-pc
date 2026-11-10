@@ -32,7 +32,7 @@ static struct World {
 static unsigned scenario;
 #define ModeFrame world.frame
 #define ScreenFrame world.word
-#define ovl662_D_801272D4 world.local
+#define ovl662_menu_substate world.local
 #define MenuCursor world.setting
 #define MenuItemCount world.style
 #define LoadState world.flag0
@@ -87,7 +87,7 @@ int main(void){unsigned j;
   world.mode=(u16)scenario;world.scene=world.counter=(s16)scenario;
   world.base=arenas[scenario%3];world.arenas.first=arenas[(scenario+1)%3];world.arenas.second=arenas[(scenario+2)%3];
   world.published=world.arenas.first;world.resource=world.arenas.second;
-  memcpy(&expected,&world,sizeof(world));reference();ovl662_func_80118ED8();
+  memcpy(&expected,&world,sizeof(world));reference();ovl662_init_garage_car_view();
   assert(memcmp(&world,&expected,sizeof(world))==0);assert((uintptr_t)world.published>UINT32_MAX);
  }
  return 0;

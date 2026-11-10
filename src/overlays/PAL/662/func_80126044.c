@@ -1,10 +1,10 @@
 #include "rr/overlay662_tim.h"
 
-void ovl662_func_80126044(void) {
+void ovl662_pack_emblem_tims(void) {
     u32 *p;
-    GarageTimBytes *src2C = ovl662_D_801276A8.tim2C[ovl662_D_801276A8.active21];
-    u32 *img38 = ovl662_D_801276A8.image38[ovl662_D_801276A8.active21];
-    PaletteBytes32 *pal48 = (PaletteBytes32 *)(Palette16 *)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21];
+    GarageTimBytes *src2C = ovl662_editor_workspace.tim2C[ovl662_editor_workspace.active21];
+    u32 *img38 = ovl662_editor_workspace.image38[ovl662_editor_workspace.active21];
+    PaletteBytes32 *pal48 = (PaletteBytes32 *)(Palette16 *)ovl662_editor_workspace.palette48[ovl662_editor_workspace.active21];
 
     p = CustomEmblemBuffers.words;
     *(GarageTimBytes *)p = *src2C;
@@ -18,5 +18,5 @@ void ovl662_func_80126044(void) {
     *p++ = 0x80C;
     *p++ = 0x280;
     *p++ = 0x00400010;
-    ovl662_func_80125F60(img38, p);
+    ovl662_composite_emblem_layers(img38, p);
 }

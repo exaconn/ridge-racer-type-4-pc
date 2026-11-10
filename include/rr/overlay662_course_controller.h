@@ -21,8 +21,8 @@ extern u8 *ImageRows;
 extern s32 ModeFrame,ActivePlayerIndex;
 extern s16 MenuCursor,ModeIndex;
 extern u16 FadeCountdown,ModeGroup;
-extern s16 ovl662_D_801272D4,ovl662_D_801272E0,ovl662_D_801272E4;
-extern u16 ovl662_D_801272BA;
+extern s16 ovl662_menu_substate,ovl662_available_car_count,ovl662_selected_car_slot;
+extern u16 ovl662_saved_car_choice_idx;
 void SetupMenuCarCamera(s32);void SetupViewport(s32);s32 LoadCarRangeStep(s32,s32);
 void SetCarBounds(RaceVehicle*);void UpdateCarWorldTransform(char*);
 void SetMenuFrameOptions(s32,s32,s32);void StepMenuValue(s32,s32,char*,s32,s32);
@@ -31,10 +31,10 @@ void ResetScreenCounters(void);void SetModelTexturePage(s32);void PlaySfx(s32);
 void DrawUiRow(s32);void DrawSelectionIconGrid(s32);
 void UpdateBadgeRowAnim(s32);s32 UpdateImageRow(s32);
 void DrawMenuStepArrows(s32,s32,s32,s32,s32,s32,s32);void UpdateScreenFade(s32);
-void AddScreenFadeTiles(u32*,s32,u32);void ovl662_func_80118E6C(void);
+void AddScreenFadeTiles(u32*,s32,u32);void ovl662_select_garage_car(void);
 /* UI selection is0..3 and available-car selection0..8. Dynamic close counts
  * require initialized rows. Services may replace full UI, badge, frame, mode
  * and arena roots; the complete mode allocation and32-byte selection owner
  * remain live. Readiness is a full signed word; RGB has three defined bytes. */
-void ovl662_func_801154C8(void);
+void ovl662_update_team_car_select(void);
 #endif

@@ -33,7 +33,7 @@ typedef struct {u32 guard[4];GarageSelectionPrefix garage;u16 mode;s16 scene,pha
 typedef struct {s32 kind,arg;State state;} Event;
 static struct World {State s;u32 calls;Event events[3];u32 guard[4];} world,expected;
 static u32 resources[3][16];
-#define ovl662_D_801276A8 world.s.garage
+#define ovl662_editor_workspace world.s.garage
 #define ModeGroup world.s.mode
 #define ModeIndex world.s.scene
 #define SubmodeState world.s.phase
@@ -48,10 +48,10 @@ static void observe(struct World *v,s32 kind,s32 arg){
  v->s.mode=(u16)(scenario*40503U+step);v->s.scene=half(scenario*251U+step);v->s.phase=half(scenario*73U+step);
  for(i=0;i<2;i++){v->s.garage.image38[i]=resources[(scenario+step+i)%3];v->s.garage.image40[i]=resources[(scenario+step+i+1)%3];v->s.garage.palette48[i]=resources[(scenario+step+i+2)%3];}
 }
-void ovl662_func_8011B484(void){assert(world.calls==0);observe(&world,0,0);}
-void ovl662_func_8011B400(void){assert(world.calls==1);observe(&world,1,0);}
-void ovl662_func_8011CF8C(void){assert(world.calls==2);observe(&world,2,0);}
-void ovl662_func_80119B44(void){assert(world.calls==0);observe(&world,3,0);}
+void ovl662_draw_editor_panel_fades(void){assert(world.calls==0);observe(&world,0,0);}
+void ovl662_init_editor_draw_env(void){assert(world.calls==1);observe(&world,1,0);}
+void ovl662_update_editor_overlay(void){assert(world.calls==2);observe(&world,2,0);}
+void ovl662_init_emblem_selector(void){assert(world.calls==0);observe(&world,3,0);}
 void UpdateScreenFade(s32 flags){assert(world.calls==1 && flags==0x10002 && world.s.mode==1 && world.s.scene==70 && world.s.phase==0);observe(&world,4,flags);}
 static void reference_transition(void){
  int64_t counter;
@@ -67,8 +67,8 @@ static void initialize(void){unsigned i,j;for(i=0;i<sizeof(world);i++)((u8*)&wor
 int main(void){unsigned k;static const s32 edges[]={26,27,28,INT32_MAX,INT32_MIN,-1,0,INT32_MAX-1};
  for(k=0;k<65536;k++){
   scenario=k;after=k<8?edges[k]:word(k*0x9E3779B9U);
-  initialize();reference_transition();ovl662_func_8011AA84();assert(memcmp(&world,&expected,sizeof(world))==0);
-  initialize();observe(&expected,3,0);expected.s.mode=1;expected.s.scene=70;expected.s.phase=0;observe(&expected,4,0x10002);ovl662_func_80119DB4();assert(memcmp(&world,&expected,sizeof(world))==0);
+  initialize();reference_transition();ovl662_draw_editor_transition();assert(memcmp(&world,&expected,sizeof(world))==0);
+  initialize();observe(&expected,3,0);expected.s.mode=1;expected.s.scene=70;expected.s.phase=0;observe(&expected,4,0x10002);ovl662_enter_emblem_selector();assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  return 0;
 }
@@ -105,7 +105,7 @@ int main(void){unsigned k,i,alias,id;
   memcpy(&expected,&world,sizeof(world));expected.counter=0;expected.flag1=0;expected.flag2=0;expected.published=expected.arenas.first;
   expected.choice.bytes[0]=(u8)(glyph/160);expected.choice.bytes[1]=(u8)((glyph/40)-(glyph/160)*4);expected.choice.bytes[2]=(u8)(glyph%40);
   if(alias)expected.choice.bytes[alias]=6;else expected.backing[id][1]=6;
-  ovl662_func_80115474();assert(memcmp(&world,&expected,sizeof(world))==0);
+  ovl662_reset_team_car_preview();assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  return 0;
 }

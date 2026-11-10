@@ -1,6 +1,6 @@
 #include "rr/overlay662_character_grid.h"
 
-void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
+void ovl662_draw_character_grid(u32 *order, void *cursor, s32 row)
 {
     char text[4];
     s32 i, x, y, dx, dy, clut, color;
@@ -18,7 +18,7 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
         text[0] = NameCharset[i + 1];
         dx = (i % 10) * 24;
         dy = (i / 10) * 32;
-        if (i == ovl662_D_801273B4) {
+        if (i == ovl662_name_grid_index) {
             color = rcos(((ScreenFrame * 128U) - 682U));
             if (color >= 0) {
                 clut = 32760;
@@ -40,7 +40,7 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
         cursor = AddTilePrim(order, cursor, x + dx, y, 1, 16, 255, 255, 255);
         dx += 4;
         if (i < 3) {
-            if (i == (ovl662_D_801273B4 - 40U)) {
+            if (i == (ovl662_name_grid_index - 40U)) {
                 color = rcos(((ScreenFrame * 128U) - 682U));
                 if (color >= 0) {
                     clut = 32760;
@@ -54,8 +54,8 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
                 color = 0;
             }
             cursor = AddSpritePrim(order, cursor, x + dx, y,
-                &UiFontGlyphs[ovl662_D_80126230[i]], clut, color);
-            dx += UiFontGlyphs[ovl662_D_80126230[i]].w + 4;
+                &UiFontGlyphs[ovl662_char_grid_cmd_glyphs[i]], clut, color);
+            dx += UiFontGlyphs[ovl662_char_grid_cmd_glyphs[i]].w + 4;
         }
     }
     AddDrawModePrim(order, cursor, 56);

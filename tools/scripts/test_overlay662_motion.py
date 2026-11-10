@@ -41,7 +41,7 @@ int main(void){unsigned type,x,y,i;
    if(dx || dy){e.out.x=dx;e.out.y=dy;}
   }
   assert((uintptr_t)&w.out>UINT32_MAX);
-  ovl662_func_8011D58C(&w.out);
+  ovl662_read_mouse_cursor_delta(&w.out);
   assert(calls==1 && memcmp(&w,&e,sizeof(w))==0);
  }
  return 0;

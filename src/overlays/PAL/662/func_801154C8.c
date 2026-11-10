@@ -2,7 +2,7 @@
 #include "rr/overlay662_course_controller.h"
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
-void ovl662_func_801154C8(void) {
+void ovl662_update_team_car_select(void) {
     PreviewColor color;
     s32 var_a3;
     s32 temp_s1;
@@ -56,14 +56,14 @@ void ovl662_func_801154C8(void) {
     case 0:
         SetMenuFrameOptions(1, 1, 1);
         temp_s0 = PackChoiceGlyph((s8*)&SelectionRows);
-        StepMenuValue(1, 2, (char*)&ovl662_D_801272E4, ovl662_D_801272E0, 0);
-        UnpackChoiceGlyph((s8*)&SelectionRows, CourseChoiceTable[1][ovl662_D_801272E4].glyph);
+        StepMenuValue(1, 2, (char*)&ovl662_selected_car_slot, ovl662_available_car_count, 0);
+        UnpackChoiceGlyph((s8*)&SelectionRows, CourseChoiceTable[1][ovl662_selected_car_slot].glyph);
         if ((temp_s0 << 0x10) != ((u32)PackChoiceGlyph((s8*)&SelectionRows) << 0x10)) {
             ResetScreenCounters();
             LoadCursor = MenuArenas.first;
-            UnpackChoiceGlyph((s8*)&SelectionRows, CourseChoiceTable[1][ovl662_D_801272E4].glyph);
+            UnpackChoiceGlyph((s8*)&SelectionRows, CourseChoiceTable[1][ovl662_selected_car_slot].glyph);
             ((s8 *)ImageRows)[1] = 6;
-            temp_v1 = (u8 *)(void *)&CourseChoiceTable + ovl662_D_801272E4 * sizeof(CourseChoice4);
+            temp_v1 = (u8 *)(void *)&CourseChoiceTable + ovl662_selected_car_slot * sizeof(CourseChoice4);
             PlayerCourseChoices[0].first = (s16) (s8) ((CourseChoice4 *)(void *)(temp_v1 + sizeof(CourseChoiceTable[0])))->first;
             PlayerCourseChoices[0].second = (s16) (s8) ((CourseChoice4 *)(void *)(temp_v1 + sizeof(CourseChoiceTable[0])))->second;
         }
@@ -72,7 +72,7 @@ void ovl662_func_801154C8(void) {
         var_a1 = 2;
         temp_s5 = ((SelectionRows.pad02[0] % 20) & 0xFF) == 0x13;
         if (temp_s5 != 0) {
-            if (ovl662_D_801272E4 == 8) {
+            if (ovl662_selected_car_slot == 8) {
                 UiRows[0].half20 = 1;
                 if (MenuCursor == 0) {
                     var_a1 = 4;
@@ -97,7 +97,7 @@ void ovl662_func_801154C8(void) {
                     SetMenuFrameOptions(0, 1, 1);
                     UiRows[MenuCursor].cells[0] = 1;
                     if (MenuCursor == 0) {
-                        if (ovl662_D_801272E4 < 8) {
+                        if (ovl662_selected_car_slot < 8) {
                             SetModelTexturePage(-1);
                             PlaySfx(1);
                             var_s0 = 0;
@@ -204,12 +204,12 @@ block_54:
             ModeGroup = 1;
             ModeIndex = 0x41;
             SubmodeState = 0;
-            ovl662_D_801272BA = (u16) ovl662_D_801272E4;
+            ovl662_saved_car_choice_idx = (u16) ovl662_selected_car_slot;
         }
         break;
     case 4:
         if ((((s8 *)ImageRows)[1] == 5) && (BadgeRows->state10 == 0xB)) {
-            ovl662_func_80118E6C();
+            ovl662_select_garage_car();
             goto done;
         }
         break;
@@ -237,8 +237,8 @@ block_54:
         break;
     }
 block_67:
-        if ((ovl662_D_801272D4 == 0) && (((s8 *)ImageRows)[1] == 2)) {
-            ovl662_D_801272D4 = 1;
+        if ((ovl662_menu_substate == 0) && (((s8 *)ImageRows)[1] == 2)) {
+            ovl662_menu_substate = 1;
             BadgeRows->half02 = 1;
             var_s0 = 0;
         }
@@ -269,7 +269,7 @@ block_67:
         }
         UpdateBadgeRowAnim(0);
         if (UpdateImageRow(0) > 0) {
-            DrawMenuStepArrows(0xA0, 0x90, 8, 1, ovl662_D_801272E4, 0, ovl662_D_801272E0);
+            DrawMenuStepArrows(0xA0, 0x90, 8, 1, ovl662_selected_car_slot, 0, ovl662_available_car_count);
         }
 done:
     UpdateScreenFade(0x1008E);

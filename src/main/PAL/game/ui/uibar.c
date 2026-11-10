@@ -111,7 +111,7 @@ void DrawBadgeRow(s32 index) {
     s32 high_raw;
     void *cursor;
 
-    high_raw = BadgeRows[index].status00 << 16;
+    high_raw = (u32)BadgeRows[index].status00 << 16;
     status = high_raw >> 16;
     if (status != -1) {
         GpuScratchPointers *scratch = (GpuScratchPointers *)SCRATCHPAD;

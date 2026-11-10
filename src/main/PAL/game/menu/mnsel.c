@@ -102,7 +102,7 @@ void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y) {
     ((MenuGrid38 *)(offset + (unsigned long)page->records3A28))->rows2F = six;
     entry = (MenuGrid38 *)(offset + (unsigned long)page->records3A28);
     step_y = (s16)step_y / entry->rows2F;
-    step_x = (s16)x / (count * entry->columns2E);
+    step_x = (s16)x / (s32)((u32)count * entry->columns2E);
     layout_offset = layout * 8;
     entry->count2C = count;
     entry->width04 = 64;

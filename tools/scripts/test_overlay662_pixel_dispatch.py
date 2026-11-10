@@ -13,7 +13,7 @@ class GaragePixelDispatchTest(unittest.TestCase):
                            for a in ('80124E4C', '80124974'))
         bodies = re.sub(r' __asm__\("\$[0-9]+"\)', '', bodies)
         hit = (root / 'src/overlays/PAL/662/func_8011E6C8.c').read_text().replace(
-            'ovl662_func_8011E6C8(', 'real_hit(')
+            'ovl662_point_outside_rect(', 'real_hit(')
         source = r'''
 #include <assert.h>
 #include "game/system/pad.h"
@@ -32,8 +32,8 @@ typedef struct {State s;Event e[12];unsigned calls;} World;
 static World actual,reference,initial,*w;
 static u32 pool[8192],expectedPool[8192],initialPool[8192];
 static unsigned scenario,mutation,entry,seen[16],colors[256],xSeen[64],ySeen[64],brushSeen[5],maskSeen[3];
-#define ovl662_D_801276A8 w->s.garage
-#define ovl662_D_80127668 w->s.work
+#define ovl662_editor_workspace w->s.garage
+#define ovl662_editor_cursor_state w->s.work
 #define PlayerControllers w->s.controllers
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static s16 half(u16 n){s16 v;memcpy(&v,&n,2);return v;}
@@ -61,20 +61,20 @@ static void change(void){unsigned i;if(!mutation)return;
  w->s.controllers[0].input00.fields.type=(next()&1)?0x12:(u8)next();w->s.controllers[0].input00.fields.buttons=(u16)next();
  coordinates(next()%64,next()%64);
 }
-void ovl662_func_8012571C(void){event(1);change();}
+void ovl662_update_canvas_hover(void){event(1);change();}
 ''' + hit + r'''
-s32 ovl662_func_8011E6C8(s32 x,s32 y,s32 width,s32 height){Event *e=event(2);s32 result=real_hit(x,y,width,height);
+s32 ovl662_point_outside_rect(s32 x,s32 y,s32 width,s32 height){Event *e=event(2);s32 result=real_hit(x,y,width,height);
  e->args[0]=x;e->args[1]=y;e->args[2]=width;e->args[3]=height;e->args[4]=result;change();return result;
 }
-void ovl662_func_8011D120(void){unsigned i=currentPixel();event(3)->args[0]=i;payload()[i]^=255;w->s.garage.dirtyD3=1;change();}
+void ovl662_backup_layer_and_palette(void){unsigned i=currentPixel();event(3)->args[0]=i;payload()[i]^=255;w->s.garage.dirtyD3=1;change();}
 void FloodFill4bpp(u8 *pixel,u32 operation){Event *e=event(4);unsigned i=byteIndex(pixel);e->args[0]=i;e->args[1]=word(operation);e->args[2]=payload()[i];change();}
 static void service(s32 kind){event(kind);change();}
-void ovl662_func_80124ABC(void){service(10);}void ovl662_func_80124C94(void){service(11);}
-void ovl662_func_80124FD8(void){service(13);}void ovl662_func_801251AC(void){service(14);}
-void ovl662_func_80125370(void){service(20);}void ovl662_func_80125500(void){service(21);}void ovl662_func_801256D4(void){service(22);}
+void ovl662_apply_pen_stroke(void){service(10);}void ovl662_apply_line_stroke(void){service(11);}
+void ovl662_apply_primary_pen_stroke(void){service(13);}void ovl662_apply_move_drag(void){service(14);}
+void ovl662_apply_color_picker(void){service(20);}void ovl662_apply_eraser_stroke(void){service(21);}void ovl662_toggle_preview_side(void){service(22);}
 ''' + bodies + r'''
 static void expectedPixel(void){unsigned x,y,index,old,color;u32 operation;
- if(ovl662_func_8011E6C8(82,71,128,256)){seen[0]++;return;}
+ if(ovl662_point_outside_rect(82,71,128,256)){seen[0]++;return;}
  if(!(w->s.work.words[1]&1)){seen[1]++;return;}
  x=((u16)w->s.garage.reset08[0]+(u16)w->s.garage.reset08[6])%256;
  y=((u16)w->s.garage.reset08[1]+(u16)w->s.garage.reset08[7])%256;
@@ -83,17 +83,17 @@ static void expectedPixel(void){unsigned x,y,index,old,color;u32 operation;
  xSeen[x]++;ySeen[y]++;colors[color]++;seen[2+(x&1)]++;
  if(old==color){seen[4]++;return;}
  operation=(u32)x+(u32)y*256U+(u32)old*65536U+(u32)color*16777216U;
- ovl662_func_8011D120();FloodFill4bpp((u8*)pool+index,operation);seen[5]++;
+ ovl662_backup_layer_and_palette();FloodFill4bpp((u8*)pool+index,operation);seen[5]++;
 }
-static void expectedDispatcher(void){unsigned i,index;ovl662_func_8012571C();
+static void expectedDispatcher(void){unsigned i,index;ovl662_update_canvas_hover();
  index=byteIndex((u8*)w->s.garage.scratch34)/4;assert(index<=8192-512);for(i=0;i<512;i++)expectedPool[index+i]=0;
  if(w->s.garage.config20==2)seen[6]++;
  else switch(w->s.garage.config1E){
-  case 0:brushSeen[0]++;ovl662_func_80124ABC();break;case 1:brushSeen[1]++;ovl662_func_80124C94();break;
-  case 2:brushSeen[2]++;expectedPixel();break;case 3:brushSeen[3]++;ovl662_func_80124FD8();break;case 4:brushSeen[4]++;ovl662_func_801251AC();break;default:seen[7]++;break;
+  case 0:brushSeen[0]++;ovl662_apply_pen_stroke();break;case 1:brushSeen[1]++;ovl662_apply_line_stroke();break;
+  case 2:brushSeen[2]++;expectedPixel();break;case 3:brushSeen[3]++;ovl662_apply_primary_pen_stroke();break;case 4:brushSeen[4]++;ovl662_apply_move_drag();break;default:seen[7]++;break;
  }
  if(w->s.garage.config20==1)seen[8]++;
- else switch(w->s.garage.config1F){case 0:maskSeen[0]++;ovl662_func_80125370();break;case 1:maskSeen[1]++;ovl662_func_80125500();break;case 2:maskSeen[2]++;ovl662_func_801256D4();break;default:seen[9]++;break;}
+ else switch(w->s.garage.config1F){case 0:maskSeen[0]++;ovl662_apply_color_picker();break;case 1:maskSeen[1]++;ovl662_apply_eraser_stroke();break;case 2:maskSeen[2]++;ovl662_toggle_preview_side();break;default:seen[9]++;break;}
 }
 int main(void){unsigned i,j;uint64_t cases=0;static const s32 codes[8]={0,1,2,4,8,-1,INT32_MIN,INT32_MAX};
  for(i=0;i<8192;i++)initialPool[i]=0x9A456BC7U+i*73;
@@ -111,7 +111,7 @@ int main(void){unsigned i,j;uint64_t cases=0;static const s32 codes[8]={0,1,2,4,
   memcpy(pool,initialPool,sizeof(pool));
   if((scenario&128)&&w->s.garage.config22<16){unsigned k=currentPixel(),shift=4*(scenario%2);((u8*)pool)[k]=(((u8*)pool)[k]&~(15U<<shift))|(w->s.garage.config22<<shift);}
   memcpy(expectedPool,pool,sizeof(pool));actual=reference=initial;
-  w=&actual;if(entry==0){void (*callback)(s32)=ovl662_func_80124974;callback(codes[scenario%8]);}else ovl662_func_80124E4C();
+  w=&actual;if(entry==0){void (*callback)(s32)=ovl662_dispatch_canvas_tool;callback(codes[scenario%8]);}else ovl662_apply_flood_fill();
   w=&reference;if(entry==0)expectedDispatcher();else expectedPixel();
   assert(!memcmp(&actual,&reference,sizeof(actual)));assert(!memcmp(pool,expectedPool,sizeof(pool)));cases++;
  }

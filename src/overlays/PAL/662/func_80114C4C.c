@@ -13,7 +13,7 @@ void SeqMuteVolume(void);
 void InitTimTemplate(void *);
 void UploadCarClut(void *, s32, s32);
 
-void ovl662_func_80114C4C(void)
+void ovl662_update_progress_menu(void)
 {
     s32 i;
     s32 state;

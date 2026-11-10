@@ -1,7 +1,7 @@
 #include "rr/overlay662_arena_init.h"
 #include "rr/load_cursor.h"
 
-void ovl662_func_8011A518(void)
+void ovl662_init_editor_arenas(void)
 {
     s32 stage,i;
     register u8 *base __asm__("$3");
@@ -9,16 +9,16 @@ void ovl662_func_8011A518(void)
     register u8 *second __asm__("$6");
     GarageSelectionPrefix *owner;
     register u8 *allocated __asm__("$2");
-    stage=(ovl662_D_8012625C+1U);
-    ovl662_D_8012625C=stage;
+    stage=(ovl662_arena_init_stage+1U);
+    ovl662_arena_init_stage=stage;
     switch (stage) {
     case 1:
-        ovl662_func_8011B2D4(-1,0,0,0);
-        ovl662_func_8011E36C(-1);
-        ovl662_func_8011D278(-1);
-        ovl662_func_8011A414();
+        ovl662_emit_indexed_sprite(-1,0,0,0);
+        ovl662_dispatch_editor_actions(-1);
+        ovl662_init_option_groups(-1);
+        ovl662_reset_editor_state();
         base=D_800F4D74+4;
-        owner=&ovl662_D_801276A8;
+        owner=&ovl662_editor_workspace;
         base-=((GarageArenaAddress)D_800F4D74&3U);
         second=base+0x840;
         /* Retain each publication of the shared arena cursor. */
@@ -63,15 +63,15 @@ void ovl662_func_8011A518(void)
         GarageSavedDecalTimB=second;
         break;
     case 2:
-        StoreImage(&ovl662_D_8012624C,ovl662_D_801276A8.image38[0]);
-        StoreImage(&ovl662_D_80126254,ovl662_D_801276A8.palette48[0]);
-        clear=ovl662_D_801276A8.image40[0];
+        StoreImage(&ovl662_vram_emblem_image_rect,ovl662_editor_workspace.image38[0]);
+        StoreImage(&ovl662_vram_emblem_clut_rect,ovl662_editor_workspace.palette48[0]);
+        clear=ovl662_editor_workspace.image40[0];
         for(i=511;i>=0;i--)*clear++=0;
         break;
     case 3:
-        ovl662_D_8012625C=0;
-        ovl662_func_8011D120();
-        ovl662_D_801276A8.dirtyD3=0;
+        ovl662_arena_init_stage=0;
+        ovl662_backup_layer_and_palette();
+        ovl662_editor_workspace.dirtyD3=0;
         ClearScreenOverlayState();
         InitBadgeRow(0,12,304,296,88,0,0);
         InitUiRow(0,140,136,28,32,0,0,1,0,104);

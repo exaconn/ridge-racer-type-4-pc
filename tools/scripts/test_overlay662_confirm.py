@@ -31,9 +31,9 @@ class Overlay662ConfirmTest(unittest.TestCase):
 _Static_assert(sizeof(GarageButton)==16,"complete button owner");
 static struct World {u32 guard[4];GarageSelectionPrefix garage;GarageWorkingStorage work;GarageButton buttons[46];GarageRectangle *table[46];MenuTextState text[3],*textroot;BadgeRow1C badges[3][2],*badgeroot;ControllerState5C items[2];s16 pending,scene,latch;u16 transition;u32 tail[4];} world,expected,map_checkpoint,sound_checkpoint;
 static unsigned scenario,family,slot,postbyte,expected_map,expected_sound,map_calls,sound_calls;static s32 mapped_mode;
-#define ovl662_D_801276A8 world.garage
-#define ovl662_D_80127668 world.work
-#define ovl662_D_801273B8 world.table
+#define ovl662_editor_workspace world.garage
+#define ovl662_editor_cursor_state world.work
+#define ovl662_button_rect_lookup world.table
 #define CardDialogueStatePtr world.textroot
 #define BadgeRows world.badgeroot
 #define PlayerControllers world.items
@@ -55,7 +55,7 @@ static void sound_effect(struct World *w){unsigned n=button_slot(w->table[slot])
  w->garage.saved64[0]=word(scenario^0x12345678U);w->work.words[0]^=0x98765432U;
  w->textroot=world.text+(scenario+1)%3;w->badgeroot=world.badges[(scenario+2)%3];w->garage.fade00=word(scenario^0xA1234567U);w->garage.flagsD1=(u8)scenario;
 }
-void ovl662_func_8011E5C0(s32 mode){assert(expected_map==1&&map_calls++==0&&mode==mapped_mode);assert(memcmp(&world,&map_checkpoint,sizeof(world))==0);map_effect(&world);}
+void ovl662_select_option_target(s32 mode){assert(expected_map==1&&map_calls++==0&&mode==mapped_mode);assert(memcmp(&world,&map_checkpoint,sizeof(world))==0);map_effect(&world);}
 void TriggerSfx(s32 program,s32 level,s32 pan,s32 pitch,s32 voice){
  assert(expected_sound==1&&sound_calls++==0);assert(program==1&&level==127&&pan==64&&pitch==0x1E00&&voice==-1);
  assert(memcmp(&world,&sound_checkpoint,sizeof(world))==0);
@@ -105,7 +105,7 @@ int main(void){unsigned path,j,n;uint64_t cases=0;
   switch((scenario>>6)&3){case 0:world.garage.fade00=INT32_MIN;break;case 1:world.garage.fade00=-1;break;case 2:world.garage.fade00=0;break;default:world.garage.fade00=INT32_MAX;break;}
   world.garage.flagsD1=(u8)(scenario>>8);world.pending=half(next());world.transition=(u16)next();world.scene=half(next());world.latch=half(next());
   expected_map=expected_sound=map_calls=sound_calls=0;
-  memcpy(&expected,&world,sizeof(world));reference(mode);ovl662_func_8011F888(mode);
+  memcpy(&expected,&world,sizeof(world));reference(mode);ovl662_tool_load_card_dialog(mode);
   assert(map_calls==expected_map&&sound_calls==expected_sound);assert(memcmp(&world,&expected,sizeof(world))==0);assert((uintptr_t)world.table[slot]>UINT32_MAX);cases++;
  }
  assert(cases==524288ULL);return 0;

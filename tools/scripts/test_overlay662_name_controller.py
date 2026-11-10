@@ -26,11 +26,11 @@ source=r'''
 static struct World {u32 guard[4];SaveProgressRecord7C save;u8 name[12],glyphs[44];s8 index,column,row;s32 selected,frame,tick,accept;ControllerState5C input[2];s16 timer,state,slot,scene;u16 enable;FrameStorage contexts[2],*context;u32 tail[4];} world,expected;
 #define SaveProgress world.save
 #define NameCharset world.glyphs
-#define ovl662_D_801273A8 world.name
-#define ovl662_D_801273A0 world.index
-#define ovl662_D_801273A2 world.column
-#define ovl662_D_801273A3 world.row
-#define ovl662_D_801273B4 world.selected
+#define ovl662_name_entry_buffer world.name
+#define ovl662_name_entry_cursor world.index
+#define ovl662_name_grid_col world.column
+#define ovl662_name_grid_row world.row
+#define ovl662_name_grid_index world.selected
 #define ModeFrame world.frame
 #define ScreenFrame world.tick
 #define D_800F3A60 world.accept
@@ -91,7 +91,7 @@ int main(void){assert(sizeof(void*)==8);
   for(unsigned i=0;i<12;i++){world.name[i]='A'+(scenario+i)%26;world.save.prefix.progress.prefix00.fields.name[i]='a'+(scenario+i)%26;}world.name[scenario%12]=0;world.name[11]=0;world.save.prefix.progress.prefix00.fields.name[(scenario>>4)%12]=0;world.save.prefix.progress.prefix00.fields.name[11]=0;
   memcpy(world.glyphs," 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!?&@",42);world.glyphs[42]=world.glyphs[43]=0;
   world.state=profile<4?0:profile<6?1:half(scenario);world.timer=half(scenario);world.frame=word(scenario*0x1234567U);world.tick=word(~(scenario*0x2345678U));
-  expected=world;count=seen=serial=oneCalls=0;reference_run=1;reference();serial=oneCalls=0;reference_run=0;ovl662_func_80118A30();
+  expected=world;count=seen=serial=oneCalls=0;reference_run=1;reference();serial=oneCalls=0;reference_run=0;ovl662_update_name_entry();
   assert(count==seen&&memcmp(&world,&expected,sizeof(world))==0);
  }
  for(unsigned i=0;i<6;i++)assert(coverage[i]);for(unsigned i=0;i<46;i++)assert(choices[i]);assert(outcome[0]&&outcome[1]);

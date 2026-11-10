@@ -1,34 +1,34 @@
 #include "rr/overlay662_palette_edit.h"
 
-void ovl662_func_801243DC(void) {
+void ovl662_drag_palette_green_bar(void) {
     u16 val;
 
-    if (ovl662_D_80127668.words[0] & 8) {
-        if (ovl662_D_80127668.words[1] & 4) {
-            ovl662_D_80127668.words[0] &= ~8;
-            ovl662_func_8011E7C0(13, 63, 294, 346);
+    if (ovl662_editor_cursor_state.words[0] & 8) {
+        if (ovl662_editor_cursor_state.words[1] & 4) {
+            ovl662_editor_cursor_state.words[0] &= ~8;
+            ovl662_set_clip_rect(13, 63, 294, 346);
             return;
         }
     } else {
-        if (ovl662_func_8011E6C8(149, 373, 65, 13) != 0) {
+        if (ovl662_point_outside_rect(149, 373, 65, 13) != 0) {
             return;
         }
-        if (!(ovl662_D_80127668.words[1] & 1)) {
+        if (!(ovl662_editor_cursor_state.words[1] & 1)) {
             return;
         }
-        ovl662_D_80127668.words[4] = 49;
-        ovl662_D_80127668.words[0] |= 8;
-        ovl662_func_8011E7C0(149, 373, 64, 12);
-        ovl662_D_80127788 = 0;
-        ovl662_D_8012778C = (*(u16 *)((ovl662_D_801276A8.config22*2)+(PaletteAddress)(Palette16 *)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21]) >> 5) & 0x1F;
+        ovl662_editor_cursor_state.words[4] = 49;
+        ovl662_editor_cursor_state.words[0] |= 8;
+        ovl662_set_clip_rect(149, 373, 64, 12);
+        ovl662_green_bar_dragging = 0;
+        ovl662_green_bar_saved_color = (*(u16 *)((ovl662_editor_workspace.config22*2)+(PaletteAddress)(Palette16 *)ovl662_editor_workspace.palette48[ovl662_editor_workspace.active21]) >> 5) & 0x1F;
     }
-    val = (ovl662_D_80127668.halves[10] - 149) / 2;
-    if (ovl662_D_8012778C != val) {
-        if (ovl662_D_80127788 == 0) {
-            ovl662_D_80127788 = 1;
-            ovl662_func_8011D120();
+    val = (ovl662_editor_cursor_state.halves[10] - 149) / 2;
+    if (ovl662_green_bar_saved_color != val) {
+        if (ovl662_green_bar_dragging == 0) {
+            ovl662_green_bar_dragging = 1;
+            ovl662_backup_layer_and_palette();
         }
     }
-    *(u16 *)((ovl662_D_801276A8.config22*2)+(PaletteAddress)(Palette16 *)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21]) =
-        (*(u16 *)((ovl662_D_801276A8.config22*2)+(PaletteAddress)(Palette16 *)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21]) & 0xFC1F) | (val << 5);
+    *(u16 *)((ovl662_editor_workspace.config22*2)+(PaletteAddress)(Palette16 *)ovl662_editor_workspace.palette48[ovl662_editor_workspace.active21]) =
+        (*(u16 *)((ovl662_editor_workspace.config22*2)+(PaletteAddress)(Palette16 *)ovl662_editor_workspace.palette48[ovl662_editor_workspace.active21]) & 0xFC1F) | (val << 5);
 }

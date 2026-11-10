@@ -1,31 +1,31 @@
 #include "rr/overlay662_palette_edit.h"
 #include "rr/overlay662_tool_action.h"
 
-void ovl662_func_801235F4(void) {
-    u16 *pal = (u16 *)((PaletteAddress)(Palette16 *)ovl662_D_801276A8.palette48[ovl662_D_801276A8.active21]+(ovl662_D_801276A8.config22*2));
+void ovl662_step_palette_red_up(void) {
+    u16 *pal = (u16 *)((PaletteAddress)(Palette16 *)ovl662_editor_workspace.palette48[ovl662_editor_workspace.active21]+(ovl662_editor_workspace.config22*2));
     u16 val = *pal & 0x1F;
 
-    if (ovl662_D_80127668.words[0] & 8) {
-        if (ovl662_D_80127668.words[1] & 4) {
-            ovl662_D_80127668.words[0] &= ~8;
-            ovl662_func_8011E7C0(13, 63, 294, 346);
+    if (ovl662_editor_cursor_state.words[0] & 8) {
+        if (ovl662_editor_cursor_state.words[1] & 4) {
+            ovl662_editor_cursor_state.words[0] &= ~8;
+            ovl662_set_clip_rect(13, 63, 294, 346);
             return;
         }
     } else {
-        if (ovl662_func_8011E6C8(213, 355, 8, 12) != 0) {
+        if (ovl662_point_outside_rect(213, 355, 8, 12) != 0) {
             return;
         }
-        if (!(ovl662_D_80127668.words[1] & 1)) {
+        if (!(ovl662_editor_cursor_state.words[1] & 1)) {
             return;
         }
-        ovl662_D_80127668.words[4] = 41;
-        ovl662_D_80127668.words[0] |= 8;
-        ovl662_func_8011E7DC(41);
-        ovl662_func_8011D120();
+        ovl662_editor_cursor_state.words[4] = 41;
+        ovl662_editor_cursor_state.words[0] |= 8;
+        ovl662_set_button_clip_rect(41);
+        ovl662_backup_layer_and_palette();
     }
-    if (ovl662_D_80127668.words[1] & 0x40) {
+    if (ovl662_editor_cursor_state.words[1] & 0x40) {
         val++;
-        ((GarageButton *)ovl662_D_801273B8[41])->timer0E = 7;
+        ((GarageButton *)ovl662_button_rect_lookup[41])->timer0E = 7;
         if (val >= 32) {
             val = 31;
             PlaySfx(4);

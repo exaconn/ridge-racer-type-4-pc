@@ -25,9 +25,9 @@ static struct World {
  u32 guard[4];GarageSelectionPrefix garage;GarageWorkingStorage work;GaragePoint anchor;
  u32 images[4][512],palettes[2][8];u32 tail[4];
 } world,expected;
-#define ovl662_D_801276A8 world.garage
-#define ovl662_D_80127668 world.work
-#define ovl662_D_801277AC world.anchor
+#define ovl662_editor_workspace world.garage
+#define ovl662_editor_cursor_state world.work
+#define ovl662_move_drag_start_pt world.anchor
 '''+bodies+r'''
 static u32 rng=0x251AC;static uint64_t cases;
 static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
@@ -75,7 +75,7 @@ static void run(unsigned kind,unsigned x,unsigned y,unsigned ax,unsigned ay,unsi
  world.work.words[1]=0xFEDC0000U|(kind==2?4U:kind==4?0U:1U);
  world.work.halves[10]=kind==3?81:kind==1?INT16_MIN:100;world.work.halves[11]=100;
  if(kind>=2){world.garage.active21=255;for(j=0;j<2;j++){world.garage.image38[j]=0;world.garage.image40[j]=0;world.garage.palette48[j]=0;}}
- memcpy(&expected,&world,sizeof(world));reference(kind);ovl662_func_801251AC();
+ memcpy(&expected,&world,sizeof(world));reference(kind);ovl662_apply_move_drag();
  assert(memcmp(&world,&expected,sizeof(world))==0);assert((uintptr_t)world.images>UINT32_MAX);cases++;
 }
 int main(void){int dx,dy;unsigned active,layer,i,kind;

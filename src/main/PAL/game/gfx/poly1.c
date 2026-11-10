@@ -279,9 +279,9 @@ void SetupAnimatedObjectMatrices(AnimatedTrackObject *object) {
     BuildRotMatrixZ(&axisRotation, object->anglesD8.z);
     MulMatrix2(&axisRotation, &rotation);
     ApplyMatrixLV(&HalfTransViewMatrix, &object->positionC8, &transformedPosition);
-    rotation.w[5] = (HalfTransViewMatrix.w[5] + transformedPosition.x) >> 1;
-    rotation.w[6] = (HalfTransViewMatrix.w[6] + transformedPosition.y) >> 1;
-    rotation.w[7] = (HalfTransViewMatrix.w[7] + transformedPosition.z) >> 1;
+    rotation.w[5] = (s32)((u32)HalfTransViewMatrix.w[5] + transformedPosition.x) >> 1;
+    rotation.w[6] = (s32)((u32)HalfTransViewMatrix.w[6] + transformedPosition.y) >> 1;
+    rotation.w[7] = (s32)((u32)HalfTransViewMatrix.w[7] + transformedPosition.z) >> 1;
     SetTransMatrix(rotation.w);
     MulMatrix(&rotation, &HalfTransViewMatrix);
     SetRotMatrix(rotation.w);

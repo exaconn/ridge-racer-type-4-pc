@@ -495,7 +495,7 @@ s32 invoke_completion(s32 wait,s32 result){parser_result=result;return SsVabTran
         destination[offset+6:offset+8] = source[at:at+2]
         return 0
 
-    def invoke(self, function, args):
+    def invoke(self, function, args, max_instructions=50000):
         self.write(STACK-0x2000, b'\x5A'*0x2040)
         for reg in range(UC_MIPS_REG_1, UC_MIPS_REG_31+1):
             self.cpu.reg_write(reg, word(0xA5A50000 + self.case*31 + reg))
@@ -505,7 +505,7 @@ s32 invoke_completion(s32 wait,s32 result){parser_result=result;return SsVabTran
             self.cpu.reg_write(reg, word(value))
         preserved = {reg: self.cpu.reg_read(reg) for reg in
                      (*range(UC_MIPS_REG_S0, UC_MIPS_REG_S7+1), UC_MIPS_REG_FP, UC_MIPS_REG_GP, UC_MIPS_REG_SP, UC_MIPS_REG_RA)}
-        self.cpu.emu_start(address_of(function), STOP, count=50000)
+        self.cpu.emu_start(address_of(function), STOP, count=max_instructions)
         self.assertEqual(self.cpu.reg_read(UC_MIPS_REG_PC), STOP)
         self.assertEqual({reg: self.cpu.reg_read(reg) for reg in preserved}, preserved)
         self.assertEqual(self.read(STACK, 0x40), b'\x5A'*0x40)

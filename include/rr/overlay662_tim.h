@@ -10,7 +10,7 @@ extern GarageTimImage CustomEmblemBuffers;
  * struct copy requires disjoint owners or the exact same owner. Palette is a
  * genuine32-byte Palette16 owner. Image input covers512 words and may alias
  * the destination; compositor reads observe all preceding TIM/header writes. */
-void ovl662_func_80126044(void);
+void ovl662_pack_emblem_tims(void);
 RR_ASSERT_SIZE(GarageTimBytes,0x840);
 RR_ASSERT_SIZE(GarageTimImage,0x840);
 RR_ASSERT_SIZE(GarageTimLayout,0x840);

@@ -21,8 +21,8 @@ class OverlayResetTest(unittest.TestCase):
 #define RR_ASSERT_OFFSET(t,f,n) _Static_assert(sizeof(void*)!=4 || offsetof(t,f)==n,"target offset")
 #include "rr/overlay662_garage.h"
 static struct World {u32 before[8];GarageSelectionPrefix state;GarageWorkingStorage work;u32 after[8];} world,expected;
-#define ovl662_D_801276A8 world.state
-#define ovl662_D_80127668 world.work
+#define ovl662_editor_workspace world.state
+#define ovl662_editor_cursor_state world.work
 ''' + body + r'''
 static u32 seed=0x1a788;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
@@ -58,7 +58,7 @@ int main(void){unsigned k,m,i;const s32 modes[]={0,1,-1,(-2147483647-1)};
    expected.work.halves[12]=67;expected.work.halves[13]=149;
    expected.work.words[14]=0;
   }
-  ovl662_func_8011A788(modes[m]);
+  ovl662_setup_editor_buffers(modes[m]);
   assert(memcmp(&world,&expected,sizeof(world))==0);
   assert((uintptr_t)&world>UINT32_MAX);
  }

@@ -2,7 +2,7 @@
 #include "rr/overlay662_garage.h"
 #include "rr/tables.h"
 extern void *PsyqMemset(void *, s32, u32);
-void ovl662_func_8011D58C(GaragePoint *output)
+void ovl662_read_mouse_cursor_delta(GaragePoint *output)
 {
     GaragePoint point;
     s32 value;

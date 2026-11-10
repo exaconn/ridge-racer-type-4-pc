@@ -7,5 +7,5 @@ s32 CordicSqrt(s32 squared);
 /* Both inputs are complete points and may be the same owner. PAL scales X by2
  * and wraps squares/sum at32 bits before calling the root service. The normal
  * root-result contract is nonnegative, giving a positive final divisor. */
-s32 ovl662_func_8011DBD8(const GaragePoint *a,const GaragePoint *b);
+s32 ovl662_calc_point_distance(const GaragePoint *a,const GaragePoint *b);
 #endif

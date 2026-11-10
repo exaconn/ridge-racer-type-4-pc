@@ -32,17 +32,17 @@ static World actual,reference,initial,*w;
 static u32 pool[8192],expectedPool[8192],initialPool[8192];
 static unsigned scenario,mutation,stageSeen[3],alignmentSeen[4];
 static const s32 counters[8]={-1,0,1,2,3,INT32_MAX,INT32_MIN,-2};
-#define ovl662_D_801276A8 w->s.garage
+#define ovl662_editor_workspace w->s.garage
 #define D_800F4D74 w->s.root
 #define LoadCursor w->s.cursor
 #define GarageSavedDecalTimA w->s.first
 #define GarageSavedDecalTimB w->s.second
-#define ovl662_D_8012625C w->s.stage
+#define ovl662_arena_init_stage w->s.stage
 #define SubmodeState w->s.phase
 #define ModeIndex w->s.nextScene
 #define ModeGroup w->s.scene
-#define ovl662_D_8012624C w->s.rects[0]
-#define ovl662_D_80126254 w->s.rects[1]
+#define ovl662_vram_emblem_image_rect w->s.rects[0]
+#define ovl662_vram_emblem_clut_rect w->s.rects[1]
 static s32 word(u32 n){s32 v;memcpy(&v,&n,4);return v;}
 static u32 next(void){u32 n=w->s.rng;n^=n<<13;n^=n>>17;n^=n<<5;return w->s.rng=n;}
 static unsigned indexOf(const u32 *p){ptrdiff_t i=p-pool;assert(i>=0&&i<=8192-512);assert((uintptr_t)p>UINT32_MAX);return (unsigned)i;}
@@ -60,12 +60,12 @@ static void change(void){unsigned i;if(!mutation)return;
   w->s.garage.palette48[i]=pool+6144+i*8;
  }
 }
-u8 *ovl662_func_8011B2D4(s32 index,u8 *cursor,s32 x,s32 y){Event *e=event(1);e->args[0]=index;e->args[1]=x;e->args[2]=y;assert(!cursor);change();return 0;}
-void ovl662_func_8011E36C(s32 mode){event(2)->args[0]=mode;change();}
-void ovl662_func_8011D278(s32 mode){event(3)->args[0]=mode;change();}
-void ovl662_func_8011A414(void){event(4);change();}
+u8 *ovl662_emit_indexed_sprite(s32 index,u8 *cursor,s32 x,s32 y){Event *e=event(1);e->args[0]=index;e->args[1]=x;e->args[2]=y;assert(!cursor);change();return 0;}
+void ovl662_dispatch_editor_actions(s32 mode){event(2)->args[0]=mode;change();}
+void ovl662_init_option_groups(s32 mode){event(3)->args[0]=mode;change();}
+void ovl662_reset_editor_state(void){event(4);change();}
 void StoreImage(GpuRectangle *rectangle,void *pixels){Event *e=event(5);e->args[0]=rectangle-w->s.rects;assert(e->args[0]>=0&&e->args[0]<2);memcpy(e->args+1,rectangle,8);e->pointer=(uintptr_t)pixels;indexOf(pixels);change();}
-void ovl662_func_8011D120(void){event(6);w->s.garage.dirtyD3=1;change();}
+void ovl662_backup_layer_and_palette(void){event(6);w->s.garage.dirtyD3=1;change();}
 void ClearScreenOverlayState(void){event(7);change();}
 void InitBadgeRow(s32 index,s32 first,s16 x,s32 y,u16 width,u16 mode,u16 flags){Event *e=event(8);e->args[0]=index;e->args[1]=first;e->args[2]=x;e->args[3]=y;e->args[4]=width;e->args[5]=mode;e->args[6]=flags;change();}
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e0,s32 f,s32 g,s32 h,s32 i,s32 j,...){Event *e=event(9);s32 args[10]={a,b,c,d,e0,f,g,h,i,j};memcpy(e->args,args,sizeof(args));change();}
@@ -73,7 +73,7 @@ void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e0,s32 f,s32 g,s32 h,s32 i,s32 j,...)
 static void expected(void){s32 stage=word((u32)w->s.stage+1U);unsigned i;
  w->s.stage=stage;
  if(stage==1){u8 *b;GarageSelectionPrefix *g=&w->s.garage;
-  ovl662_func_8011B2D4(-1,0,0,0);ovl662_func_8011E36C(-1);ovl662_func_8011D278(-1);ovl662_func_8011A414();
+  ovl662_emit_indexed_sprite(-1,0,0,0);ovl662_dispatch_editor_actions(-1);ovl662_init_option_groups(-1);ovl662_reset_editor_state();
   b=(u8*)((((uintptr_t)w->s.root)/4+1)*4);assert((uintptr_t)b%4==0);
   for(i=0;i<2;i++){
    g->buffers24[i]=(u32*)(b+i*0x1080);g->tim2C[i]=(GarageTimBytes*)(b+0x840+i*0x1080);
@@ -86,7 +86,7 @@ static void expected(void){s32 stage=word((u32)w->s.stage+1U);unsigned i;
  }else if(stage==2){unsigned base;
   StoreImage(&w->s.rects[0],w->s.garage.image38[0]);StoreImage(&w->s.rects[1],w->s.garage.palette48[0]);
   base=indexOf(w->s.garage.image40[0]);for(i=0;i<512;i++)expectedPool[base+i]=0;stageSeen[1]++;
- }else if(stage==3){w->s.stage=0;ovl662_func_8011D120();w->s.garage.dirtyD3=0;ClearScreenOverlayState();
+ }else if(stage==3){w->s.stage=0;ovl662_backup_layer_and_palette();w->s.garage.dirtyD3=0;ClearScreenOverlayState();
   InitBadgeRow(0,12,304,296,88,0,0);
   InitUiRow(0,140,136,28,32,0,0,1,0,104);InitUiRow(1,140,176,28,32,0,0,1,0,105);
   w->s.scene=3;w->s.nextScene=4;w->s.phase=0;stageSeen[2]++;
@@ -105,7 +105,7 @@ int main(void){unsigned path,i,j;uint64_t cases=0;
   w->s.root=(u8*)pool+scenario%4;w->s.cursor=pool+7168;w->s.first=pool+7200;w->s.second=pool+7300;
   w->s.stage=counters[path];w->s.phase=(s16)next();w->s.scene=(u16)next();w->s.nextScene=(s16)next();w->s.garage.dirtyD3=(u8)next();
   memcpy(pool,initialPool,sizeof(pool));memcpy(expectedPool,initialPool,sizeof(pool));actual=reference=initial;
-  w=&actual;ovl662_func_8011A518();w=&reference;expected();
+  w=&actual;ovl662_init_editor_arenas();w=&reference;expected();
   assert(!memcmp(&actual,&reference,sizeof(actual)));assert(!memcmp(pool,expectedPool,sizeof(pool)));cases++;
  }
  assert(cases==65536);for(i=0;i<3;i++)assert(stageSeen[i]);for(i=0;i<4;i++)assert(alignmentSeen[i]);return 0;

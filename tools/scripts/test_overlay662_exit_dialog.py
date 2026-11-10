@@ -20,14 +20,14 @@ source=r'''
 #include "rr/menu_text_state.h"
 #include "rr/tables.h"
 static struct World {u32 guard[4];GarageSelectionPrefix garage;GarageWorkingStorage working;ControllerState5C input[2];UiRow24 rows[2][2];UiRow24 *row;BadgeRow1C badges[2];BadgeRow1C *badge;MenuTextState texts[2];MenuTextState *text;s32 accept,exit;s16 scene,enable,state;u32 tail[4];} world,expected;
-#define ovl662_D_801276A8 world.garage
-#define ovl662_D_80127668 world.working
+#define ovl662_editor_workspace world.garage
+#define ovl662_editor_cursor_state world.working
 #define PlayerControllers world.input
 #define UiRows world.row
 #define BadgeRows world.badge
 #define CardDialogueStatePtr world.text
 #define D_800F3A60 world.accept
-#define ovl662_D_801272E8 world.exit
+#define ovl662_emblem_edit_from_menu world.exit
 #define ModeIndex world.scene
 #define ModeGroup world.enable
 #define SubmodeState world.state
@@ -42,9 +42,9 @@ static void service(unsigned kind,s32 a){struct World *w=reference_run?&expected
  w->working.words[0]^=0x17;w->working.words[1]^=3;w->working.words[4]^=0x89ABCDEF;w->accept^=1;w->input[0].edges08.fields.repeat^=0x5000;
  w->texts[bank].b4^=5;w->texts[bank].st^=3;w->badges[bank].half02^=7;w->badges[bank].state10^=1;w->rows[bank][0].byte14^=5;w->rows[bank][1].cells[0]^=0xD7;
 }
-void ovl662_func_8011E5C0(s32 a){assert(a==0||a==1);service(0,a);}
-s32 ovl662_func_8011E734(s32 a){assert(a==18);service(1,a);return profile&1;}
-void ovl662_func_8011E694(void){service(2,0);}void PlaySfx(s32 a){assert(a==0||a==1);service(3,a);}
+void ovl662_select_option_target(s32 a){assert(a==0||a==1);service(0,a);}
+s32 ovl662_point_outside_button(s32 a){assert(a==18);service(1,a);return profile&1;}
+void ovl662_restore_saved_selection(void){service(2,0);}void PlaySfx(s32 a){assert(a==0||a==1);service(3,a);}
 static UiRow24 *rows(struct World *w){return w->rows[w->row==world.rows[1]];}
 static BadgeRow1C *badge(struct World *w){return &w->badges[w->badge==&world.badges[1]];}
 static MenuTextState *text(struct World *w){return &w->texts[w->text==&world.texts[1]];}
@@ -72,7 +72,7 @@ static void reference(s32 mode){struct World *w=&expected;
   }else if(phase==5||phase==6){if(badge(w)->state10==11){w->working.words[0]&=~9U;w->garage.flagsD1=0;}}
   else if(phase==9&&w->garage.fade00==0){exits[1]++;w->enable=1;w->scene=39;w->state=0;}return;
  }
- if(ovl662_func_8011E734(18)!=0||!(w->working.words[1]&1))return;
+ if(ovl662_point_outside_button(18)!=0||!(w->working.words[1]&1))return;
  if(w->working.words[0]&4)service(2,0);else{static const s32 defaults[5]={18,2,4,9,2};for(unsigned i=0;i<5;i++)w->garage.saved64[i]=defaults[i];w->garage.optionIndices98.flat[2]=w->garage.optionIndices98.flat[7]=0;}
  w->working.words[4]=18;w->working.words[0]|=8;service(3,1);w->working.words[0]|=1;
  if(w->garage.dirtyD3==0){dirty[0]++;w->garage.fade00=64;return;}dirty[1]++;
@@ -84,7 +84,7 @@ int main(void){assert(sizeof(void*)==8);static const s32 modes[]={-1,(-214748364
   for(unsigned bank=0;bank<2;bank++){world.rows[bank][0].byte14=scenario%12;world.badges[bank].state10=profile&2?3:11;world.texts[bank].st=profile&1?4:-1;world.texts[bank].p=(u16*)world.rows[bank];}
   world.working.words[0]=scenario;world.working.words[1]=scenario>>4;world.input[0].input00.fields.type=(scenario>>5)&1?18:0;world.input[0].edges08.fields.repeat=scenario;world.accept=(scenario>>6)&1;
   world.garage.dirtyD3=(scenario>>7)&1;world.garage.flagsD1=scenario>>4;world.garage.stateD2=scenario>>8;world.garage.fade00=(scenario>>12)&1?0:64;world.garage.selectorsB8[1]=scenario&1;world.garage.optionIndices98.flat[5]=scenario%6;
-  s32 mode=profile<4?0:modes[scenario%10];expected=world;count=seen=serial=0;reference_run=1;reference(mode);serial=0;reference_run=0;ovl662_func_80121074(mode);
+  s32 mode=profile<4?0:modes[scenario%10];expected=world;count=seen=serial=0;reference_run=1;reference(mode);serial=0;reference_run=0;ovl662_tool_exit_editor_dialog(mode);
   assert(count==seen&&memcmp(&world,&expected,sizeof(world))==0);assert((uintptr_t)world.row>UINT32_MAX&&(uintptr_t)world.badge>UINT32_MAX&&(uintptr_t)world.text>UINT32_MAX);
  }
  for(unsigned i=0;i<4;i++)assert(coverage[i]&&choices[i]);assert(exits[0]&&exits[1]&&dirty[0]&&dirty[1]);puts("524288 cases passed; full guarded owners and fresh callback roots across reset,navigation,entry and modal states");

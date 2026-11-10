@@ -1,7 +1,7 @@
 #include "rr/overlay662_transition.h"
 #include "rr/load_cursor.h"
 
-void ovl662_func_80115474(void)
+void ovl662_reset_team_car_preview(void)
 {
     ResetScreenCounters();
     LoadCursor=MenuArenas.first;

@@ -21,7 +21,7 @@ class Overlay662TimTest(unittest.TestCase):
 #include "rr/overlay662_tim.h"
 typedef union {GarageTimImage tim;struct{u8 prefix;GarageTimBytes file;}at1;struct{u8 prefix[2];GarageTimBytes file;}at2;struct{u8 prefix[3];GarageTimBytes file;}at3;} SourceViews;
 static struct World{u32 head[4];GarageSelectionPrefix garage;GarageTimImage output;SourceViews source[2];Palette16 palette[2];u32 images[2][512];u32 tail[4];}world,expected;
-#define ovl662_D_801276A8 world.garage
+#define ovl662_editor_workspace world.garage
 #define CustomEmblemBuffers world.output
 '''+bodies+r'''
 static u32 rng=0x26044;static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
@@ -51,7 +51,7 @@ int main(void){unsigned scenario,j,k,active,alignment;for(scenario=0;scenario<65
  if(scenario%13==0)world.garage.tim2C[active]=&world.output.file;
  if(scenario&8)world.garage.palette48[active]=world.output.layout.palette.words;
  switch((scenario>>4)%3){case 1:world.garage.image38[active]=world.output.words+(scenario%17);break;case 2:world.garage.image38[active]=world.source[active].tim.layout.pixels;break;default:break;}
- expected=world;reference();ovl662_func_80126044();assert(memcmp(&world,&expected,sizeof(world))==0);
+ expected=world;reference();ovl662_pack_emblem_tims();assert(memcmp(&world,&expected,sizeof(world))==0);
  assert((uintptr_t)world.garage.image38[active]>UINT32_MAX);}
  return 0;}
 '''

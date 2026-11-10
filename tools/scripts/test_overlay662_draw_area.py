@@ -27,7 +27,7 @@ class Overlay662DrawAreaTest(unittest.TestCase):
 _Static_assert(sizeof(FrameStorage)==0x22778,"real frame stride");
 _Static_assert(offsetof(FrameEnvironment,display5C.display.y)==0x5E,"comparison halfword");
 FrameStorage DrawBuffers[2];static FrameStorage expected_frames[2];
-GarageSelectionPrefix ovl662_D_801276A8;static GarageSelectionPrefix saved;
+GarageSelectionPrefix ovl662_editor_workspace;static GarageSelectionPrefix saved;
 s32 DrawBufIndex;s16 D_800ABAC4,D_800ABAC6;
 static struct Packets {u32 before[3],words[9],head,after[3];} actual,expected;
 '''+resident+constructor+body+r'''
@@ -46,11 +46,11 @@ static u32 *head(struct Packets *p,unsigned shape){
 }
 int main(void){unsigned i,shape,j;u32 x,y,w,h;uint64_t cases=0;
  static const s32 clocks[]={INT32_MIN,INT32_MAX,-1,0,1,0x00800000,-0x00800001,0x12345678};
- memset(&ovl662_D_801276A8,0,sizeof(ovl662_D_801276A8));
+ memset(&ovl662_editor_workspace,0,sizeof(ovl662_editor_workspace));
  for(i=0;i<65536;i++){
   s16 rx,ry;int64_t yy;
-  ovl662_D_801276A8.halfC8=half(i);ovl662_D_801276A8.halfCA=half(i*73U+17);
-  memcpy(&saved,&ovl662_D_801276A8,sizeof(saved));
+  ovl662_editor_workspace.halfC8=half(i);ovl662_editor_workspace.halfCA=half(i*73U+17);
+  memcpy(&saved,&ovl662_editor_workspace,sizeof(saved));
   DrawBuffers[0].environment.display5C.display.y=half(i);
   DrawBuffers[1].environment.display5C.display.y=half(i+(i&1));
   expected_frames[0].environment.display5C.display.y=DrawBuffers[0].environment.display5C.display.y;
@@ -70,10 +70,10 @@ int main(void){unsigned i,shape,j;u32 x,y,w,h;uint64_t cases=0;
    expected.words[5]=command(narrow((int64_t)(u16)rx+w-1),narrow((int64_t)(u16)ry+h-1),0xE4000000U);
    expected.words[3]=(expected.words[3]&0xFF000000U)|(*eorder&0xFFFFFFU);
    *eorder=(*eorder&0xFF000000U)|((u32)((uintptr_t)pkt&0xFFFFFFU));
-   result=ovl662_func_8011ABB4(ordering,pkt,x,y,(u16)w,(u16)h);
+   result=ovl662_emit_draw_area(ordering,pkt,x,y,(u16)w,(u16)h);
    assert(result==(u8*)(actual.words+6));assert((uintptr_t)result>UINT32_MAX);
    assert(memcmp(&actual,&expected,sizeof(actual))==0);
-   assert(memcmp(&saved,&ovl662_D_801276A8,sizeof(saved))==0);cases++;
+   assert(memcmp(&saved,&ovl662_editor_workspace,sizeof(saved))==0);cases++;
   }
  }
  assert(memcmp(DrawBuffers,expected_frames,sizeof(expected_frames))==0);

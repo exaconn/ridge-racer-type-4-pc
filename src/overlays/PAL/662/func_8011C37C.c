@@ -2,28 +2,28 @@
 #ifndef RR_GPU_SCRATCH
 #define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
 #endif
-void ovl662_func_8011C37C(s32 mode) {
+void ovl662_draw_scrollbars(s32 mode) {
  GpuScratchPointers *scratch=RR_GPU_SCRATCH;
  u32 *ordering=scratch->order+140;
  GpuRectangleFields rectangle;
  switch(mode) {
  case 46:
-  ovl662_func_8011C174(0,&rectangle);
-  scratch->cursor=(u8 *)ovl662_func_8011B034(ordering,(GpuTilePacket *)scratch->cursor,rectangle.x,rectangle.y,rectangle.w,rectangle.h,204,204,204);
-  scratch->cursor=(u8 *)ovl662_func_8011B034(ordering,(GpuTilePacket *)scratch->cursor,90,337,112,8,77,77,77);
-  scratch->cursor=(u8 *)ovl662_func_8011AEC4(ordering,(GpuLineF4Packet *)scratch->cursor,89,335,114,12,136,136,136);
+  ovl662_compute_scrollbar_thumb(0,&rectangle);
+  scratch->cursor=(u8 *)ovl662_emit_filled_tile(ordering,(GpuTilePacket *)scratch->cursor,rectangle.x,rectangle.y,rectangle.w,rectangle.h,204,204,204);
+  scratch->cursor=(u8 *)ovl662_emit_filled_tile(ordering,(GpuTilePacket *)scratch->cursor,90,337,112,8,77,77,77);
+  scratch->cursor=(u8 *)ovl662_emit_wire_box(ordering,(GpuLineF4Packet *)scratch->cursor,89,335,114,12,136,136,136);
   return;
  case 47:
-  ovl662_func_8011C174(1,&rectangle);
-  scratch->cursor=(u8 *)ovl662_func_8011B034(ordering,(GpuTilePacket *)scratch->cursor,rectangle.x,rectangle.y,rectangle.w,rectangle.h,204,204,204);
-  scratch->cursor=(u8 *)ovl662_func_8011B034(ordering,(GpuTilePacket *)scratch->cursor,216,87,4,224,77,77,77);
-  scratch->cursor=(u8 *)ovl662_func_8011AEC4(ordering,(GpuLineF4Packet *)scratch->cursor,215,85,6,228,136,136,136);
+  ovl662_compute_scrollbar_thumb(1,&rectangle);
+  scratch->cursor=(u8 *)ovl662_emit_filled_tile(ordering,(GpuTilePacket *)scratch->cursor,rectangle.x,rectangle.y,rectangle.w,rectangle.h,204,204,204);
+  scratch->cursor=(u8 *)ovl662_emit_filled_tile(ordering,(GpuTilePacket *)scratch->cursor,216,87,4,224,77,77,77);
+  scratch->cursor=(u8 *)ovl662_emit_wire_box(ordering,(GpuLineF4Packet *)scratch->cursor,215,85,6,228,136,136,136);
   return;
  case 48:
-  scratch->cursor=(u8 *)ovl662_func_8011B0CC(ordering,(PolyG4Storage *)scratch->cursor,149,355,65,13,0,0,0,255,0,0);return;
+  scratch->cursor=(u8 *)ovl662_emit_gradient_quad(ordering,(PolyG4Storage *)scratch->cursor,149,355,65,13,0,0,0,255,0,0);return;
  case 49:
-  scratch->cursor=(u8 *)ovl662_func_8011B0CC(ordering,(PolyG4Storage *)scratch->cursor,149,373,65,13,0,0,0,0,255,0);return;
+  scratch->cursor=(u8 *)ovl662_emit_gradient_quad(ordering,(PolyG4Storage *)scratch->cursor,149,373,65,13,0,0,0,0,255,0);return;
  case 50:
-  scratch->cursor=(u8 *)ovl662_func_8011B0CC(ordering,(PolyG4Storage *)scratch->cursor,149,391,65,13,0,0,0,0,0,255);return;
+  scratch->cursor=(u8 *)ovl662_emit_gradient_quad(ordering,(PolyG4Storage *)scratch->cursor,149,391,65,13,0,0,0,0,0,255);return;
  }
 }

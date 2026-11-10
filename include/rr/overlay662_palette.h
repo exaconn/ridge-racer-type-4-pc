@@ -8,9 +8,9 @@ typedef union {
     GaragePaletteEntry colors[16];
     u8 bytes[32];
 } GaragePalette;
-void ovl662_func_8011BF04(void);
+void ovl662_draw_rgb_sliders(void);
 /* Channel0..2; panel supplies a five-bit value. */
-void ovl662_func_8011C00C(s32 channel,s32 value);
+void ovl662_draw_rgb_digits(s32 channel,s32 value);
 RR_ASSERT_SIZE(GaragePaletteEntry,2);
 RR_ASSERT_SIZE(GaragePalette,32);
 #endif

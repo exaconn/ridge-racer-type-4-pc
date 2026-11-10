@@ -1,24 +1,27 @@
 #include "rr/library.h"
+#include "rr/spu_tone_update.h"
+#include "rr/spu_tone_snapshot.h"
 #include "psyq/libsnd/cc_nrpn3.h"
 #include "psyq/libsnd/ccadsr4.h"
 
-void _SsSetNrpnVabAttr10(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; LibBlock24Fields s; u8 c; {
-    s32 cc = c;
-    s16 loc[12];
-    SsUtGetVagAtr(a0, a1, a2, &s);
-    _SsUtResolveADSR(s.h10, s.h12, loc);
-    loc[7] = 0;
-    loc[4] = cc;
-    _SsUtBuildADSR(loc, &s.h10, &s.h12);
-    SsUtSetVagAtr(a0, a1, a2, &s);
+void _SsSetNrpnVabAttr10(s16 bank, s16 program, s16 tone, VagAtr parameters, s32 attribute, u8 data) {
+    s32 value = data;
+    SpuAdsrParameters envelope;
+    SsUtGetVagAtr(bank, program, tone, (u8 *)&parameters);
+    _SsUtResolveADSR(parameters.adsr1, parameters.adsr2, &envelope);
+    envelope.releaseExponential = 0;
+    envelope.releaseRate = value;
+    _SsUtBuildADSR(&envelope, &parameters.adsr1, &parameters.adsr2);
+    SsUtSetVagAtr(bank, program, tone, (u8 *)&parameters);
 }
 
-void _SsSetNrpnVabAttr11(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; LibBlock24Fields s; u8 c; {
-    s32 cc = c;
-    s16 loc[12];
-    SsUtGetVagAtr(a0, a1, a2, &s);
-    loc[7] = 1;
-    loc[4] = cc;
-    _SsUtBuildADSR(loc, &s.h10, &s.h12);
-    SsUtSetVagAtr(a0, a1, a2, &s);
+void _SsSetNrpnVabAttr11(s16 bank, s16 program, s16 tone, VagAtr parameters, s32 attribute, u8 data) {
+    s32 value = data;
+    /* Original defect: the remaining ADSR fields are not decoded here. */
+    SpuAdsrParameters envelope;
+    SsUtGetVagAtr(bank, program, tone, (u8 *)&parameters);
+    envelope.releaseExponential = 1;
+    envelope.releaseRate = value;
+    _SsUtBuildADSR(&envelope, &parameters.adsr1, &parameters.adsr2);
+    SsUtSetVagAtr(bank, program, tone, (u8 *)&parameters);
 }

@@ -11,13 +11,13 @@ void FloodFill4bpp(u8 *pixel,u32 operation);
 /* Only an active hit needs images. active21 remains0..1; the computed byte
  * offset y*32+x/2 fits a complete512-word selected image. Backup may mutate
  * globals and payloads, but the captured pixel address remains valid. */
-void ovl662_func_80124E4C(void);
-void ovl662_func_8012571C(void);
+void ovl662_apply_flood_fill(void);
+void ovl662_update_canvas_hover(void);
 /* Action record52 supplies a code; global input drives this callback and the
  * code is ignored. Preparation may replace scratch34, which then covers512
  * writable words. Brush and mask callbacks must satisfy their own contracts.
  * Mode is reread after the brush before selecting the optional mask action. */
-void ovl662_func_80124974(s32 actionCode);
+void ovl662_dispatch_canvas_tool(s32 actionCode);
 RR_ASSERT_SIZE(GaragePixelEdit4,4);
 RR_ASSERT_OFFSET(GaragePixelEdit4,x,0);
 RR_ASSERT_OFFSET(GaragePixelEdit4,y,1);

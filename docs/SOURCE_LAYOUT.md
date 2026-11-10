@@ -156,9 +156,58 @@ native allocations above 4 GiB, checking complete resources and owner guards.
 signed low halfwords; its cursor retains the native pointer width. Pitch
 integration exercises MIDI note/fine values 0..127; the older variable-shift
 expressions still require valid C shift counts and do not establish arbitrary
-raw-note support. NRPN callbacks and the local tone-copy declarations in
-`cc_6.c`, together with the existing voice-allocation pins/pages, remain
-reconstruction debt.
+raw-note support. Existing voice-allocation pins/pages remain reconstruction
+debt. The controller imports the public tone-copy declarations and explicitly
+normalizes its tone numbers to signed halfwords.
+
+NRPN handlers now share `SvmToneControl`: three signed-halfword selectors,
+one complete `VagAtr` by value, the selected attribute word and one data byte.
+The dispatcher actually passes both trailing arguments. The previous 36-byte
+`LibBlock24`/`LibBlock24Fields` carriers absorbed the attribute word into a
+fake tone tail; five reverb handlers instead reached for the data byte through
+another parameter's stack address. Both reconstructions are removed. All 20
+handlers and their public declarations use the same concrete signature. The
+mode handler returns `void`, matching its callers' use of the callback.
+
+`SpuAdsrParameters` names the nine decoded fields (18 bytes). Resolve/build and
+their callers share this type and explicit prototypes. The former 12-halfword
+locals had three unused elements; the real object retains the match without
+adding padding. Combining the attack-mode/rate expression also retires one
+of the builder's three register bindings. Two bindings remain debt.
+
+`test_spu_tone_control.py` compiles the current handlers, selector, tone copies,
+dispatcher and delta decoder with complete native owners and pointers above
+4 GiB, and compares them with original/linked MIPS. It exercises every data byte,
+raw transport words, a typed 20-entry callback table, complete resources/guards,
+all 65536 ADSR words on the native codec, and output aliases. The original SDK
+fixture cases and seeds are inherited unchanged. The runner invokes this
+indirect `TestCase` subclass through its explicit `unittest.main()` entry.
+
+Known original defects remain explicit: handlers 11..14 do not initialize all
+ADSR fields before calling the builder; the dispatcher passes an indeterminate
+incoming tone scratch value. Native compiler warnings remain visible in the
+new fixture's log. Tests of 11..14 observe only the fields actually initialized
+at the builder boundary, then supply deterministic builder outputs. They do
+not establish a fully defined native chain for those four handlers. Real
+resolve/build execution is checked separately and on the fully initialized
+4..10 paths. Dispatcher tests cover active NRPN banks, RPN tone counts 0/1/16/255,
+loop-start priority and idle decode. The real getter fills every consumed tone
+field. The fixture sets the program-table limit explicitly, exercising both
+successful selection and the deliberately ignored selection failures.
+`SsSeqOpen`'s mixed callback-table `void **` view still requires unification.
+
+`cc_6.c` imports the actual public getter/setter interfaces. Its verified stock
+GCC 970318 profile disables CSE block skipping (`-fno-cse-skip-blocks`), preserving
+the original allocation with the correct argument types and signed-halfword
+tone transport. This is a matching reconstruction profile, not evidence that
+the original build used that exact option. No incompatible local prototypes
+or new register bindings are used to retain the match.
+
+Coordinate sums/differences and packed status shifts use unsigned 32-bit operands
+before the operation where PAL wrapping is observable. Signed division and
+arithmetic right shifts explicitly receive the wrapped signed result. Native
+fixtures retain their extreme-word cases. An already-unsigned subtraction by
+`1U` and the bounded texture remainder `y & 255` need no redundant conversion.
 
 Word arithmetic that wraps on PAL needs unsigned operands before the operation
 in C. Converting only the result does not prevent signed overflow or an invalid
@@ -1732,7 +1781,7 @@ with4096 native cases under UBSan/bounds and8192 original/linked MIPS executions
 It covers both players, signed yaw/node boundaries, all selection modes and live
 replacement of the camera yaw, track-bank root and visibility-bank root by the
 geometric search service. Native owners and pointer targets remain complete and
-above4GiB. Whole-owner guards, exact output stores, stack guards and saved
+above4 GiB. Whole-owner guards, exact output stores, stack guards and saved
 registers are checked. Only geometric search is instrumented. Seventeen older
 fixtures have exactly reversible member-path adaptations, preserving their full
 cases, models, aliases and assertions;426 older modules are unchanged.
@@ -1998,7 +2047,7 @@ and callback-driven pointer/root replacement remain.
 
 Native audio fixtures preserve their original0xA8D0 wire protocol, models, cases
 and PRNG streams while transporting real pointer fields and scalar spans into
-the complete native owner. Native pointers exceed4GiB; complete snapshots,
+the complete native owner. Native pointers exceed4 GiB; complete snapshots,
 unused pointer cells, alignment gaps, exterior guards and callback reentry are
 checked. The bank fixture compiles the current bodies without erasing target
 constraints, with public layout assertions enabled. Player-slot cases remain;

@@ -41,15 +41,15 @@ static unsigned scenario,mutation,seenMap,seenFlags;
 #define ScreenFrame w->s.pulse
 #define MenuCursor w->s.flag
 #define MenuItemCount w->s.layout
-#define ovl662_D_801272D4 w->s.current
-#define ovl662_D_801272C0 w->s.local
-#define ovl662_D_801272E8 w->s.mode
-#define ovl662_D_8012739A w->s.count
-#define ovl662_D_80127398 w->s.reset
-#define ovl662_D_801272E2 w->s.selection
-#define ovl662_D_801272E4 w->s.course
-#define ovl662_D_801272BE w->s.index
-#define ovl662_D_801272A0 w->s.map
+#define ovl662_menu_substate w->s.current
+#define ovl662_history_arrow_phase w->s.local
+#define ovl662_emblem_edit_from_menu w->s.mode
+#define ovl662_emblem_choice_count w->s.count
+#define ovl662_emblem_preview_fade w->s.reset
+#define ovl662_selected_emblem_id w->s.selection
+#define ovl662_selected_car_slot w->s.course
+#define ovl662_selected_emblem_slot w->s.index
+#define ovl662_emblem_choice_map w->s.map
 static s16 half(unsigned bits){u16 u=bits;s16 v;memcpy(&v,&u,2);return v;}
 static void effect(unsigned n){unsigned i,g;State *s=&w->s;
  s->frame=(s32)(scenario+n*71);s->pulse=~s->frame;s->flag=half(scenario+n*51);s->layout=half(scenario+n*37);
@@ -92,7 +92,7 @@ static void expected(void){State *s=&w->s;unsigned i;int position;
 int main(void){unsigned i;
  for(scenario=0;scenario<65536;scenario++)for(mutation=0;mutation<2;mutation++){
   memset(&initial,0,sizeof(initial));w=&initial;effect(0);for(i=0;i<4;i++){initial.s.guard[i]=scenario+i;initial.s.tail[i]=~(scenario+i);}
-  actual=reference=initial;w=&actual;ovl662_func_80119B44();w=&reference;expected();assert(!memcmp(&actual,&reference,sizeof(actual)));assert(actual.calls==5);
+  actual=reference=initial;w=&actual;ovl662_init_emblem_selector();w=&reference;expected();assert(!memcmp(&actual,&reference,sizeof(actual)));assert(actual.calls==5);
  }
  assert(seenMap==0x3FFFFFF);assert(seenFlags==0xFFFF);return 0;
 }

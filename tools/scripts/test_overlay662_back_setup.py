@@ -30,12 +30,12 @@ static u32 buffers[4][512];
 struct State {u32 guard[4];GarageSelectionPrefix garage;s16 row,position,selection;u32 tail[4];};
 static struct World {struct State s;unsigned calls;struct {s32 kind,arg[10];u32 hash;} events[12];} actual,expected,initial,*w;
 static unsigned scenario,mutation,kind;
-#define ovl662_D_801276A8 w->s.garage
+#define ovl662_editor_workspace w->s.garage
 #define ModeGroup w->s.row
 #define ModeIndex w->s.position
 #define SubmodeState w->s.selection
-#define ovl662_D_801148F0 save_message
-#define ovl662_D_80114900 load_message
+#define ovl662_str_enter_editor_clean save_message
+#define ovl662_str_enter_editor_restore load_message
 static void effect(unsigned n){
  unsigned i;u32 v=scenario*0x9e3779b9U+n*47;
  w->s.garage.dirtyD3=(u8)v;w->s.garage.stateD2=(u8)(v+1);w->s.garage.flagsD1=(u8)(v+2);
@@ -53,17 +53,17 @@ static void event(s32 service,const s32 *args,unsigned count){
 s32 DebugPrintStub(const char *format,...){
  assert(format==(kind?load_message:save_message));event(0,0,0);return 1;
 }
-void ovl662_func_8011A788(s32 mode){event(1,&mode,1);}
-void ovl662_func_8011D278(s32 mode){assert(mode==-1);event(2,&mode,1);}
-void ovl662_func_8011D120(void){event(3,0,0);}
+void ovl662_setup_editor_buffers(s32 mode){event(1,&mode,1);}
+void ovl662_init_option_groups(s32 mode){assert(mode==-1);event(2,&mode,1);}
+void ovl662_backup_layer_and_palette(void){event(3,0,0);}
 void ClearScreenOverlayState(void){event(4,0,0);}
 void InitBadgeRow(s32 i,s32 first,s16 x,s32 y,u16 width,u16 mode,u16 flags){s32 a[]={i,first,x,y,width,mode,flags};event(5,a,7);}
 void InitUiRow(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f,s32 g,s32 h,s32 i,s32 j,...){s32 args[]={a,b,c,d,e,f,g,h,i,j};event(6,args,10);}
 ''' + bodies + r'''
 static void reference(void){
  DebugPrintStub(kind?load_message:save_message);
- ovl662_func_8011A788((s32)kind);
- if(kind){ovl662_func_8011D278(-1);ovl662_func_8011D120();}
+ ovl662_setup_editor_buffers((s32)kind);
+ if(kind){ovl662_init_option_groups(-1);ovl662_backup_layer_and_palette();}
  w->s.garage.dirtyD3=0;ClearScreenOverlayState();
  InitBadgeRow(0,12,304,296,88,0,0);
  InitUiRow(0,140,136,28,32,0,0,1,0,104);
@@ -76,7 +76,7 @@ int main(void){unsigned i;
   memset(&initial,0,sizeof(initial));w=&initial;effect(9);
   for(i=0;i<4;i++){w->s.guard[i]=0x12345678U+i;w->s.tail[i]=0x87654321U-i;}
   actual=initial;expected=initial;w=&actual;
-  if(kind)ovl662_func_8011A988();else ovl662_func_8011A898();
+  if(kind)ovl662_enter_editor_restore();else ovl662_enter_editor_clean();
   w=&expected;reference();assert(memcmp(&actual,&expected,sizeof(actual))==0);
  }
  return 0;

@@ -7,7 +7,7 @@
 #include "rr/renderer_setup.h"
 #include "rr/menu_setup.h"
 #include "rr/overlay_menu.h"
-extern s16 ovl662_D_801272D4,ovl662_D_801272E0;
+extern s16 ovl662_menu_substate,ovl662_available_car_count;
 void InitPreviewImageRows(void);
 void ResetCarState(RaceVehicle *vehicle);
 s32 CountChoiceGlyphs(const CourseChoice4 *choices);

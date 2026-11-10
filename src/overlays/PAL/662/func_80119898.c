@@ -3,9 +3,9 @@
 #ifndef RR_GPU_SCRATCH
 #define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
 #endif
-void ovl662_func_80119898(s32 mode) {
+void ovl662_draw_emblem_preview_fade(s32 mode) {
  GarageFadeGeometry quad;
- s32 amount=ovl662_D_80127398;
+ s32 amount=ovl662_emblem_preview_fade;
  s32 high,low,uv;
  s32 i,*x,*y,*u,*v;
  s32 color;
@@ -36,18 +36,18 @@ void ovl662_func_80119898(s32 mode) {
   cursor=EmitPolyFT3(&CurrentDrawBuf->buffer.ordering70.words[0],cursor,quad.x+1,quad.y+1,quad.u+1,quad.v+1,42,0x1028,0,(u16)amount);
   cursor=AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0],cursor,quad.x[0],quad.y[0],((u32)quad.x[1]-quad.x[0]),((u32)quad.y[2]-quad.y[0]),color,color,color);
  }else cursor=AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0],cursor,quad.x[0],quad.y[0],((u32)quad.x[1]-quad.x[0]),((u32)quad.y[2]-quad.y[0]),0,0,0);
- fresh=ovl662_D_80127398;
+ fresh=ovl662_emblem_preview_fade;
 
- previous=(u16)ovl662_D_80127398;
+ previous=(u16)ovl662_emblem_preview_fade;
  RR_GPU_SCRATCH->cursor=cursor;
 
- if(fresh>=128)ovl662_D_80127398=128;
+ if(fresh>=128)ovl662_emblem_preview_fade=128;
  else {
-  ovl662_D_80127398=previous+4;
+  ovl662_emblem_preview_fade=previous+4;
   if(mode==1){
    /* ASM_BARRIER: preserve the unconditional +4 store before the conditional +8 store */
    __asm__("" : : : "memory");
-   ovl662_D_80127398=previous+8;
+   ovl662_emblem_preview_fade=previous+8;
   }
  }
 }

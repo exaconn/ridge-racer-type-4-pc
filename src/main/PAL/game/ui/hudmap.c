@@ -102,8 +102,8 @@ void AddPartialLine(u32 *a0, int a1, int a2, int a3, int a4, int a5, int a6, int
     int d1, d2, x, y;
     void *r;
     if (a5 > 0) {
-        d1 = a3 - a1;
-        d2 = a4 - a2;
+        d1 = a3 - (u32)a1;
+        d2 = a4 - (u32)a2;
         if (a5 >= 0x100) a5 = 0x100;
         r = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
         x = a1 + ScaleLineDeltaQ8(d1, a5);

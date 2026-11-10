@@ -1,6 +1,6 @@
 #include "rr/overlay662_primitives.h"
 
-GpuDrawModePacket *ovl662_func_8011AC94(u32 *ordering,GpuDrawModePacket *packet,u32 x,u32 y)
+GpuDrawModePacket *ovl662_emit_draw_mode(u32 *ordering,GpuDrawModePacket *packet,u32 x,u32 y)
 {
     s32 page;
     page = ((s32)((y & 0x100) << 16) >> 20) | ((x & 0x3FF) >> 6) | ((s16)(y & 0x200) * 4);

@@ -1,10 +1,13 @@
 #include "rr/library.h"
+#include "rr/spu_tone_update.h"
+#include "rr/spu_tone_snapshot.h"
 #include "psyq/libsnd/cc_nrpn3.h"
 #include "psyq/libsnd/cc_rpn3.h"
-void _SsSetNrpnVabAttr14(s16 a0, s16 a1, s16 a2, LibBlock24Fields s, s32 c) {
-    s16 loc[12];
-    SsUtGetVagAtr(a0, a1, a2, &s);
-    s.b[10] = c;
-    _SsUtBuildADSR(loc, &s.h10, &s.h12);
-    SsUtSetVagAtr(a0, a1, a2, &s);
+void _SsSetNrpnVabAttr14(s16 bank, s16 program, s16 tone, VagAtr parameters, s32 attribute, u8 data) {
+    /* Original defect: the remaining ADSR fields are not decoded here. */
+    SpuAdsrParameters envelope;
+    SsUtGetVagAtr(bank, program, tone, (u8 *)&parameters);
+    parameters.porW = data;
+    _SsUtBuildADSR(&envelope, &parameters.adsr1, &parameters.adsr2);
+    SsUtSetVagAtr(bank, program, tone, (u8 *)&parameters);
 }

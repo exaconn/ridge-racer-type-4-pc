@@ -1,5 +1,5 @@
 #include "rr/menu_ui_bank.h"
-void ovl662_func_80116808(void)
+void ovl662_step_selected_maker(void)
 {
     SelectedMakerIndex=D_800F4D99;
     {

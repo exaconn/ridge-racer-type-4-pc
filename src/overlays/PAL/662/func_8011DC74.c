@@ -2,10 +2,10 @@
 
 
 #include "rr/overlay662_garage.h"
-GaragePoint ovl662_func_8011DC74(s32 index)
+GaragePoint ovl662_get_rect_center(s32 index)
 {
     GaragePoint point;
-    GarageRectangle *rectangle=ovl662_D_801273B8[index];
+    GarageRectangle *rectangle=ovl662_button_rect_lookup[index];
     s32 width=(s16)(*rectangle)[2];
     s32 x=(s16)(*rectangle)[0];
     s32 y=(s16)(*rectangle)[1];

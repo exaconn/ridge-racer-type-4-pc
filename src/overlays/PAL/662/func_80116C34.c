@@ -5,7 +5,7 @@
 #define RR_GPU_SCRATCH ((GpuScratchPointers *)0x1F800000U)
 #endif
 
-void ovl662_func_80116C34(s32 selected)
+void ovl662_draw_car_slot_bars(s32 selected)
 {
     UiUvRect strip;
     void *result;
@@ -25,7 +25,7 @@ void ovl662_func_80116C34(s32 selected)
     cursor = AddSpritePrim(head, initial, 40, y, &strip, 0x7FA4, 1);
 
     index = 0;
-    status = ovl662_D_80127300;
+    status = ovl662_car_slot_statuses;
     do {
         if (*status != 0) {
             r = 255;
@@ -47,9 +47,9 @@ void ovl662_func_80116C34(s32 selected)
 
     result = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], cursor, 0x39);
     RR_GPU_SCRATCH->cursor = result;
-    if (ovl662_D_80127300[(SelectionRows.bytes[2] % 20) & 255] == 2) {
+    if (ovl662_car_slot_statuses[(SelectionRows.bytes[2] % 20) & 255] == 2) {
         result = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], result, 142, 256,
-                              &ovl662_D_80126214, 0x7CBB, 0);
+                              &ovl662_car_slot_bar_uv, 0x7CBB, 0);
         RR_GPU_SCRATCH->cursor = AddDrawModePrim(&CurrentDrawBuf->buffer.ordering70.words[0], result, 0x38);
     }
 }

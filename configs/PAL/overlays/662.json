@@ -1,0 +1,1056 @@
+{
+  "entry": 662,
+  "aliases": [
+    672
+  ],
+  "load_address": 2148616312,
+  "functions": [
+    {
+      "address": 2148616600,
+      "size": 516,
+      "symbol": "ovl662_init_progress_menu",
+      "source": "src/overlays/PAL/662/func_80114998.c"
+    },
+    {
+      "address": 2148617116,
+      "size": 176,
+      "symbol": "ovl662_init_garage_scene",
+      "source": "src/overlays/PAL/662/func_80114B9C.c"
+    },
+    {
+      "address": 2148617292,
+      "size": 1248,
+      "symbol": "ovl662_update_progress_menu",
+      "source": "src/overlays/PAL/662/func_80114C4C.c"
+    },
+    {
+      "address": 2148618540,
+      "size": 644,
+      "symbol": "ovl662_init_team_car_layout",
+      "source": "src/overlays/PAL/662/func_8011512C.c"
+    },
+    {
+      "address": 2148619184,
+      "size": 196,
+      "symbol": "ovl662_init_team_car_choice",
+      "source": "src/overlays/PAL/662/func_801153B0.c"
+    },
+    {
+      "address": 2148619380,
+      "size": 84,
+      "symbol": "ovl662_reset_team_car_preview",
+      "source": "src/overlays/PAL/662/func_80115474.c"
+    },
+    {
+      "address": 2148619464,
+      "size": 2556,
+      "symbol": "ovl662_update_team_car_select",
+      "source": "src/overlays/PAL/662/func_801154C8.c"
+    },
+    {
+      "address": 2148622020,
+      "size": 348,
+      "symbol": "ovl662_init_history_subpage",
+      "source": "src/overlays/PAL/662/func_80115EC4.c"
+    },
+    {
+      "address": 2148622368,
+      "size": 296,
+      "symbol": "ovl662_init_history_overview",
+      "source": "src/overlays/PAL/662/func_80116020.c"
+    },
+    {
+      "address": 2148622664,
+      "size": 104,
+      "symbol": "ovl662_setup_history_arenas",
+      "source": "src/overlays/PAL/662/func_80116148.c"
+    },
+    {
+      "address": 2148622768,
+      "size": 76,
+      "symbol": "ovl662_enter_history_screen",
+      "source": "src/overlays/PAL/662/func_801161B0.c"
+    },
+    {
+      "address": 2148622844,
+      "size": 1072,
+      "symbol": "ovl662_update_history_screen",
+      "source": "src/overlays/PAL/662/func_801161FC.c"
+    },
+    {
+      "address": 2148623916,
+      "size": 100,
+      "symbol": "ovl662_draw_history_arrows",
+      "source": "src/overlays/PAL/662/func_8011662C.c"
+    },
+    {
+      "address": 2148624016,
+      "size": 376,
+      "symbol": "ovl662_step_selected_team",
+      "source": "src/overlays/PAL/662/func_80116690.c"
+    },
+    {
+      "address": 2148624392,
+      "size": 344,
+      "symbol": "ovl662_step_selected_maker",
+      "source": "src/overlays/PAL/662/func_80116808.c"
+    },
+    {
+      "address": 2148624736,
+      "size": 724,
+      "symbol": "ovl662_init_available_cars",
+      "source": "src/overlays/PAL/662/func_80116960.c"
+    },
+    {
+      "address": 2148625460,
+      "size": 476,
+      "symbol": "ovl662_draw_car_slot_bars",
+      "source": "src/overlays/PAL/662/func_80116C34.c"
+    },
+    {
+      "address": 2148625936,
+      "size": 2116,
+      "symbol": "ovl662_update_available_cars",
+      "source": "src/overlays/PAL/662/func_80116E10.c"
+    },
+    {
+      "address": 2148628052,
+      "size": 512,
+      "symbol": "ovl662_draw_stage_history_label",
+      "source": "src/overlays/PAL/662/func_80117654.c"
+    },
+    {
+      "address": 2148628564,
+      "size": 592,
+      "symbol": "ovl662_draw_team_car_counts_label",
+      "source": "src/overlays/PAL/662/func_80117854.c"
+    },
+    {
+      "address": 2148629156,
+      "size": 500,
+      "symbol": "ovl662_draw_maker_car_count_label",
+      "source": "src/overlays/PAL/662/func_80117AA4.c"
+    },
+    {
+      "address": 2148629656,
+      "size": 356,
+      "symbol": "ovl662_draw_car_number_label",
+      "source": "src/overlays/PAL/662/func_80117C98.c"
+    },
+    {
+      "address": 2148630012,
+      "size": 344,
+      "symbol": "ovl662_draw_emblem_index_label",
+      "source": "src/overlays/PAL/662/func_80117DFC.c"
+    },
+    {
+      "address": 2148630356,
+      "size": 740,
+      "symbol": "ovl662_draw_character_grid",
+      "source": "src/overlays/PAL/662/func_80117F54.c"
+    },
+    {
+      "address": 2148631096,
+      "size": 392,
+      "symbol": "ovl662_draw_name_entry_chars",
+      "source": "src/overlays/PAL/662/func_80118238.c"
+    },
+    {
+      "address": 2148631488,
+      "size": 1148,
+      "symbol": "ovl662_draw_extra_record_row",
+      "source": "src/overlays/PAL/662/func_801183C0.c"
+    },
+    {
+      "address": 2148632636,
+      "size": 244,
+      "symbol": "ovl662_format_record_time",
+      "source": "src/overlays/PAL/662/func_8011883C.c"
+    },
+    {
+      "address": 2148632880,
+      "size": 256,
+      "symbol": "ovl662_init_name_entry",
+      "source": "src/overlays/PAL/662/func_80118930.c"
+    },
+    {
+      "address": 2148633136,
+      "size": 1084,
+      "symbol": "ovl662_update_name_entry",
+      "source": "src/overlays/PAL/662/func_80118A30.c"
+    },
+    {
+      "address": 2148634220,
+      "size": 108,
+      "symbol": "ovl662_select_garage_car",
+      "source": "src/overlays/PAL/662/func_80118E6C.c"
+    },
+    {
+      "address": 2148634328,
+      "size": 400,
+      "symbol": "ovl662_init_garage_car_view",
+      "source": "src/overlays/PAL/662/func_80118ED8.c"
+    },
+    {
+      "address": 2148634728,
+      "size": 2096,
+      "symbol": "ovl662_update_garage_car_view",
+      "source": "src/overlays/PAL/662/func_80119068.c"
+    },
+    {
+      "address": 2148636824,
+      "size": 684,
+      "symbol": "ovl662_draw_emblem_preview_fade",
+      "source": "src/overlays/PAL/662/func_80119898.c"
+    },
+    {
+      "address": 2148637508,
+      "size": 624,
+      "symbol": "ovl662_init_emblem_selector",
+      "source": "src/overlays/PAL/662/func_80119B44.c"
+    },
+    {
+      "address": 2148638132,
+      "size": 76,
+      "symbol": "ovl662_enter_emblem_selector",
+      "source": "src/overlays/PAL/662/func_80119DB4.c"
+    },
+    {
+      "address": 2148638208,
+      "size": 1556,
+      "symbol": "ovl662_update_emblem_selector",
+      "source": "src/overlays/PAL/662/func_80119E00.c"
+    },
+    {
+      "address": 2148639764,
+      "size": 260,
+      "symbol": "ovl662_reset_editor_state",
+      "source": "src/overlays/PAL/662/func_8011A414.c"
+    },
+    {
+      "address": 2148640024,
+      "size": 624,
+      "symbol": "ovl662_init_editor_arenas",
+      "source": "src/overlays/PAL/662/func_8011A518.c"
+    },
+    {
+      "address": 2148640648,
+      "size": 272,
+      "symbol": "ovl662_setup_editor_buffers",
+      "source": "src/overlays/PAL/662/func_8011A788.c"
+    },
+    {
+      "address": 2148640920,
+      "size": 240,
+      "symbol": "ovl662_enter_editor_clean",
+      "source": "src/overlays/PAL/662/func_8011A898.c"
+    },
+    {
+      "address": 2148641160,
+      "size": 252,
+      "symbol": "ovl662_enter_editor_restore",
+      "source": "src/overlays/PAL/662/func_8011A988.c"
+    },
+    {
+      "address": 2148641412,
+      "size": 112,
+      "symbol": "ovl662_draw_editor_transition",
+      "source": "src/overlays/PAL/662/func_8011AA84.c"
+    },
+    {
+      "address": 2148641524,
+      "size": 192,
+      "symbol": "ovl662_step_editor_frame",
+      "source": "src/overlays/PAL/662/func_8011AAF4.c"
+    },
+    {
+      "address": 2148641716,
+      "size": 224,
+      "symbol": "ovl662_emit_draw_area",
+      "source": "src/overlays/PAL/662/func_8011ABB4.c"
+    },
+    {
+      "address": 2148641940,
+      "size": 168,
+      "symbol": "ovl662_emit_draw_mode",
+      "source": "src/overlays/PAL/662/func_8011AC94.c"
+    },
+    {
+      "address": 2148642108,
+      "size": 240,
+      "symbol": "ovl662_emit_hline_tile",
+      "source": "src/overlays/PAL/662/func_8011AD3C.c"
+    },
+    {
+      "address": 2148642348,
+      "size": 152,
+      "symbol": "ovl662_emit_vline_prim",
+      "source": "src/overlays/PAL/662/func_8011AE2C.c"
+    },
+    {
+      "address": 2148642500,
+      "size": 368,
+      "symbol": "ovl662_emit_wire_box",
+      "source": "src/overlays/PAL/662/func_8011AEC4.c"
+    },
+    {
+      "address": 2148642868,
+      "size": 152,
+      "symbol": "ovl662_emit_filled_tile",
+      "source": "src/overlays/PAL/662/func_8011B034.c"
+    },
+    {
+      "address": 2148643020,
+      "size": 256,
+      "symbol": "ovl662_emit_gradient_quad",
+      "source": "src/overlays/PAL/662/func_8011B0CC.c"
+    },
+    {
+      "address": 2148643276,
+      "size": 264,
+      "symbol": "ovl662_emit_textured_quad",
+      "source": "src/overlays/PAL/662/func_8011B1CC.c"
+    },
+    {
+      "address": 2148643540,
+      "size": 300,
+      "symbol": "ovl662_emit_indexed_sprite",
+      "source": "src/overlays/PAL/662/func_8011B2D4.c"
+    },
+    {
+      "address": 2148643840,
+      "size": 132,
+      "symbol": "ovl662_init_editor_draw_env",
+      "source": "src/overlays/PAL/662/func_8011B400.c"
+    },
+    {
+      "address": 2148643972,
+      "size": 1072,
+      "symbol": "ovl662_draw_editor_panel_fades",
+      "source": "src/overlays/PAL/662/func_8011B484.c"
+    },
+    {
+      "address": 2148645044,
+      "size": 140,
+      "symbol": "ovl662_draw_editor_cursor",
+      "source": "src/overlays/PAL/662/func_8011B8B4.c"
+    },
+    {
+      "address": 2148645184,
+      "size": 124,
+      "symbol": "ovl662_draw_button_highlight",
+      "source": "src/overlays/PAL/662/func_8011B940.c"
+    },
+    {
+      "address": 2148645308,
+      "size": 772,
+      "symbol": "ovl662_draw_canvas_grid",
+      "source": "src/overlays/PAL/662/func_8011B9BC.c"
+    },
+    {
+      "address": 2148646080,
+      "size": 264,
+      "symbol": "ovl662_draw_palette_swatch",
+      "source": "src/overlays/PAL/662/func_8011BCC0.c"
+    },
+    {
+      "address": 2148646344,
+      "size": 316,
+      "symbol": "ovl662_draw_tool_button",
+      "source": "src/overlays/PAL/662/func_8011BDC8.c"
+    },
+    {
+      "address": 2148646660,
+      "size": 264,
+      "symbol": "ovl662_draw_rgb_sliders",
+      "source": "src/overlays/PAL/662/func_8011BF04.c"
+    },
+    {
+      "address": 2148646924,
+      "size": 360,
+      "symbol": "ovl662_draw_rgb_digits",
+      "source": "src/overlays/PAL/662/func_8011C00C.c"
+    },
+    {
+      "address": 2148647284,
+      "size": 520,
+      "symbol": "ovl662_compute_scrollbar_thumb",
+      "source": "src/overlays/PAL/662/func_8011C174.c"
+    },
+    {
+      "address": 2148647804,
+      "size": 660,
+      "symbol": "ovl662_draw_scrollbars",
+      "source": "src/overlays/PAL/662/func_8011C37C.c"
+    },
+    {
+      "address": 2148648464,
+      "size": 556,
+      "symbol": "ovl662_draw_emblem_preview_box",
+      "source": "src/overlays/PAL/662/func_8011C610.c"
+    },
+    {
+      "address": 2148649020,
+      "size": 1244,
+      "symbol": "ovl662_draw_zoomed_canvas",
+      "source": "src/overlays/PAL/662/func_8011C83C.c"
+    },
+    {
+      "address": 2148650264,
+      "size": 628,
+      "symbol": "ovl662_upload_editor_textures",
+      "source": "src/overlays/PAL/662/func_8011CD18.c"
+    },
+    {
+      "address": 2148650892,
+      "size": 308,
+      "symbol": "ovl662_update_editor_overlay",
+      "source": "src/overlays/PAL/662/func_8011CF8C.c"
+    },
+    {
+      "address": 2148651200,
+      "size": 96,
+      "symbol": "ovl662_is_active_layer_empty",
+      "source": "src/overlays/PAL/662/func_8011D0C0.c"
+    },
+    {
+      "address": 2148651296,
+      "size": 232,
+      "symbol": "ovl662_backup_layer_and_palette",
+      "source": "src/overlays/PAL/662/func_8011D120.c"
+    },
+    {
+      "address": 2148651528,
+      "size": 112,
+      "symbol": "ovl662_update_cursor_pulse",
+      "source": "src/overlays/PAL/662/func_8011D208.c"
+    },
+    {
+      "address": 2148651640,
+      "size": 192,
+      "symbol": "ovl662_init_option_groups",
+      "source": "src/overlays/PAL/662/func_8011D278.c"
+    },
+    {
+      "address": 2148651832,
+      "size": 596,
+      "symbol": "ovl662_read_analog_cursor_delta",
+      "source": "src/overlays/PAL/662/func_8011D338.c"
+    },
+    {
+      "address": 2148652428,
+      "size": 216,
+      "symbol": "ovl662_read_mouse_cursor_delta",
+      "source": "src/overlays/PAL/662/func_8011D58C.c"
+    },
+    {
+      "address": 2148652644,
+      "size": 204,
+      "symbol": "ovl662_read_dpad_cursor_delta",
+      "source": "src/overlays/PAL/662/func_8011D664.c"
+    },
+    {
+      "address": 2148652848,
+      "size": 436,
+      "symbol": "ovl662_poll_stick_direction_repeat",
+      "source": "src/overlays/PAL/662/func_8011D730.c"
+    },
+    {
+      "address": 2148653284,
+      "size": 428,
+      "symbol": "ovl662_poll_dpad_direction_repeat",
+      "source": "src/overlays/PAL/662/func_8011D8E4.c"
+    },
+    {
+      "address": 2148653712,
+      "size": 328,
+      "symbol": "ovl662_step_panel_fade_timers",
+      "source": "src/overlays/PAL/662/func_8011DA90.c"
+    },
+    {
+      "address": 2148654040,
+      "size": 156,
+      "symbol": "ovl662_calc_point_distance",
+      "source": "src/overlays/PAL/662/func_8011DBD8.c"
+    },
+    {
+      "address": 2148654196,
+      "size": 104,
+      "symbol": "ovl662_get_rect_center",
+      "source": "src/overlays/PAL/662/func_8011DC74.c"
+    },
+    {
+      "address": 2148654300,
+      "size": 252,
+      "symbol": "ovl662_handle_shortcut_buttons",
+      "source": "src/overlays/PAL/662/func_8011DCDC.c"
+    },
+    {
+      "address": 2148654552,
+      "size": 152,
+      "symbol": "ovl662_map_controller_buttons",
+      "source": "src/overlays/PAL/662/func_8011DDD8.c"
+    },
+    {
+      "address": 2148654704,
+      "size": 512,
+      "symbol": "ovl662_update_button_states",
+      "source": "src/overlays/PAL/662/func_8011DE70.c"
+    },
+    {
+      "address": 2148655216,
+      "size": 764,
+      "symbol": "ovl662_update_editor_cursor",
+      "source": "src/overlays/PAL/662/func_8011E070.c"
+    },
+    {
+      "address": 2148655980,
+      "size": 596,
+      "symbol": "ovl662_dispatch_editor_actions",
+      "source": "src/overlays/PAL/662/func_8011E36C.c"
+    },
+    {
+      "address": 2148656576,
+      "size": 212,
+      "symbol": "ovl662_select_option_target",
+      "source": "src/overlays/PAL/662/func_8011E5C0.c"
+    },
+    {
+      "address": 2148656788,
+      "size": 52,
+      "symbol": "ovl662_restore_saved_selection",
+      "source": "src/overlays/PAL/662/func_8011E694.c"
+    },
+    {
+      "address": 2148656840,
+      "size": 108,
+      "symbol": "ovl662_point_outside_rect",
+      "source": "src/overlays/PAL/662/func_8011E6C8.c"
+    },
+    {
+      "address": 2148656948,
+      "size": 140,
+      "symbol": "ovl662_point_outside_button",
+      "source": "src/overlays/PAL/662/func_8011E734.c"
+    },
+    {
+      "address": 2148657088,
+      "size": 28,
+      "symbol": "ovl662_set_clip_rect",
+      "source": "src/overlays/PAL/662/func_8011E7C0.c"
+    },
+    {
+      "address": 2148657116,
+      "size": 72,
+      "symbol": "ovl662_set_button_clip_rect",
+      "source": "src/overlays/PAL/662/func_8011E7DC.c"
+    },
+    {
+      "address": 2148657188,
+      "size": 1276,
+      "symbol": "ovl662_tool_undo_modal",
+      "source": "src/overlays/PAL/662/func_8011E824.c"
+    },
+    {
+      "address": 2148658464,
+      "size": 732,
+      "symbol": "ovl662_tool_rotate_layer",
+      "source": "src/overlays/PAL/662/func_8011ED20.c"
+    },
+    {
+      "address": 2148659196,
+      "size": 660,
+      "symbol": "ovl662_tool_mirror_layer_h",
+      "source": "src/overlays/PAL/662/func_8011EFFC.c"
+    },
+    {
+      "address": 2148659856,
+      "size": 560,
+      "symbol": "ovl662_tool_flip_layer_v",
+      "source": "src/overlays/PAL/662/func_8011F290.c"
+    },
+    {
+      "address": 2148660416,
+      "size": 440,
+      "symbol": "ovl662_tool_center_cursor",
+      "source": "src/overlays/PAL/662/func_8011F4C0.c"
+    },
+    {
+      "address": 2148660856,
+      "size": 528,
+      "symbol": "ovl662_tool_clear_layer",
+      "source": "src/overlays/PAL/662/func_8011F678.c"
+    },
+    {
+      "address": 2148661384,
+      "size": 676,
+      "symbol": "ovl662_tool_load_card_dialog",
+      "source": "src/overlays/PAL/662/func_8011F888.c"
+    },
+    {
+      "address": 2148662060,
+      "size": 436,
+      "symbol": "ovl662_tool_cycle_preview_bg",
+      "source": "src/overlays/PAL/662/func_8011FB2C.c"
+    },
+    {
+      "address": 2148662496,
+      "size": 420,
+      "symbol": "ovl662_tool_cycle_zoom",
+      "source": "src/overlays/PAL/662/func_8011FCE0.c"
+    },
+    {
+      "address": 2148662916,
+      "size": 384,
+      "symbol": "ovl662_tool_select_pen",
+      "source": "src/overlays/PAL/662/func_8011FE84.c"
+    },
+    {
+      "address": 2148663300,
+      "size": 408,
+      "symbol": "ovl662_tool_toggle_emblem_side",
+      "source": "src/overlays/PAL/662/func_80120004.c"
+    },
+    {
+      "address": 2148663708,
+      "size": 384,
+      "symbol": "ovl662_tool_select_line",
+      "source": "src/overlays/PAL/662/func_8012019C.c"
+    },
+    {
+      "address": 2148664092,
+      "size": 384,
+      "symbol": "ovl662_tool_select_fill",
+      "source": "src/overlays/PAL/662/func_8012031C.c"
+    },
+    {
+      "address": 2148664476,
+      "size": 428,
+      "symbol": "ovl662_tool_cycle_brush_size",
+      "source": "src/overlays/PAL/662/func_8012049C.c"
+    },
+    {
+      "address": 2148664904,
+      "size": 384,
+      "symbol": "ovl662_tool_select_move",
+      "source": "src/overlays/PAL/662/func_80120648.c"
+    },
+    {
+      "address": 2148665288,
+      "size": 508,
+      "symbol": "ovl662_tool_swap_emblem_sides",
+      "source": "src/overlays/PAL/662/func_801207C8.c"
+    },
+    {
+      "address": 2148665796,
+      "size": 420,
+      "symbol": "ovl662_tool_merge_layers",
+      "source": "src/overlays/PAL/662/func_801209C4.c"
+    },
+    {
+      "address": 2148666216,
+      "size": 1292,
+      "symbol": "ovl662_tool_save_emblem_dialog",
+      "source": "src/overlays/PAL/662/func_80120B68.c"
+    },
+    {
+      "address": 2148667508,
+      "size": 1264,
+      "symbol": "ovl662_tool_exit_editor_dialog",
+      "source": "src/overlays/PAL/662/func_80121074.c"
+    },
+    {
+      "address": 2148668772,
+      "size": 372,
+      "symbol": "ovl662_tool_select_layer_0",
+      "source": "src/overlays/PAL/662/func_80121564.c"
+    },
+    {
+      "address": 2148669144,
+      "size": 372,
+      "symbol": "ovl662_tool_select_layer_1",
+      "source": "src/overlays/PAL/662/func_801216D8.c"
+    },
+    {
+      "address": 2148669516,
+      "size": 384,
+      "symbol": "ovl662_tool_select_color_01",
+      "source": "src/overlays/PAL/662/func_8012184C.c"
+    },
+    {
+      "address": 2148669900,
+      "size": 392,
+      "symbol": "ovl662_tool_select_color_02",
+      "source": "src/overlays/PAL/662/func_801219CC.c"
+    },
+    {
+      "address": 2148670292,
+      "size": 392,
+      "symbol": "ovl662_tool_select_color_03",
+      "source": "src/overlays/PAL/662/func_80121B54.c"
+    },
+    {
+      "address": 2148670684,
+      "size": 400,
+      "symbol": "ovl662_tool_select_color_04",
+      "source": "src/overlays/PAL/662/func_80121CDC.c"
+    },
+    {
+      "address": 2148671084,
+      "size": 392,
+      "symbol": "ovl662_tool_select_color_05",
+      "source": "src/overlays/PAL/662/func_80121E6C.c"
+    },
+    {
+      "address": 2148671476,
+      "size": 404,
+      "symbol": "ovl662_tool_select_color_06",
+      "source": "src/overlays/PAL/662/func_80121FF4.c"
+    },
+    {
+      "address": 2148671880,
+      "size": 392,
+      "symbol": "ovl662_tool_select_color_07",
+      "source": "src/overlays/PAL/662/func_80122188.c"
+    },
+    {
+      "address": 2148672272,
+      "size": 412,
+      "symbol": "ovl662_tool_select_color_08",
+      "source": "src/overlays/PAL/662/func_80122310.c"
+    },
+    {
+      "address": 2148672684,
+      "size": 396,
+      "symbol": "ovl662_tool_select_color_09",
+      "source": "src/overlays/PAL/662/func_801224AC.c"
+    },
+    {
+      "address": 2148673080,
+      "size": 396,
+      "symbol": "ovl662_tool_select_color_10",
+      "source": "src/overlays/PAL/662/func_80122638.c"
+    },
+    {
+      "address": 2148673476,
+      "size": 400,
+      "symbol": "ovl662_tool_select_color_11",
+      "source": "src/overlays/PAL/662/func_801227C4.c"
+    },
+    {
+      "address": 2148673876,
+      "size": 408,
+      "symbol": "ovl662_tool_select_color_12",
+      "source": "src/overlays/PAL/662/func_80122954.c"
+    },
+    {
+      "address": 2148674284,
+      "size": 392,
+      "symbol": "ovl662_tool_select_color_13",
+      "source": "src/overlays/PAL/662/func_80122AEC.c"
+    },
+    {
+      "address": 2148674676,
+      "size": 416,
+      "symbol": "ovl662_tool_select_color_14",
+      "source": "src/overlays/PAL/662/func_80122C74.c"
+    },
+    {
+      "address": 2148675092,
+      "size": 416,
+      "symbol": "ovl662_tool_select_color_15",
+      "source": "src/overlays/PAL/662/func_80122E14.c"
+    },
+    {
+      "address": 2148675508,
+      "size": 272,
+      "symbol": "ovl662_scroll_canvas_up",
+      "source": "src/overlays/PAL/662/func_80122FB4.c"
+    },
+    {
+      "address": 2148675780,
+      "size": 356,
+      "symbol": "ovl662_scroll_canvas_down",
+      "source": "src/overlays/PAL/662/func_801230C4.c"
+    },
+    {
+      "address": 2148676136,
+      "size": 272,
+      "symbol": "ovl662_scroll_canvas_left",
+      "source": "src/overlays/PAL/662/func_80123228.c"
+    },
+    {
+      "address": 2148676408,
+      "size": 356,
+      "symbol": "ovl662_scroll_canvas_right",
+      "source": "src/overlays/PAL/662/func_80123338.c"
+    },
+    {
+      "address": 2148676764,
+      "size": 344,
+      "symbol": "ovl662_step_palette_red_down",
+      "source": "src/overlays/PAL/662/func_8012349C.c"
+    },
+    {
+      "address": 2148677108,
+      "size": 348,
+      "symbol": "ovl662_step_palette_red_up",
+      "source": "src/overlays/PAL/662/func_801235F4.c"
+    },
+    {
+      "address": 2148677456,
+      "size": 348,
+      "symbol": "ovl662_step_palette_green_down",
+      "source": "src/overlays/PAL/662/func_80123750.c"
+    },
+    {
+      "address": 2148677804,
+      "size": 352,
+      "symbol": "ovl662_step_palette_green_up",
+      "source": "src/overlays/PAL/662/func_801238AC.c"
+    },
+    {
+      "address": 2148678156,
+      "size": 348,
+      "symbol": "ovl662_step_palette_blue_down",
+      "source": "src/overlays/PAL/662/func_80123A0C.c"
+    },
+    {
+      "address": 2148678504,
+      "size": 352,
+      "symbol": "ovl662_step_palette_blue_up",
+      "source": "src/overlays/PAL/662/func_80123B68.c"
+    },
+    {
+      "address": 2148678856,
+      "size": 712,
+      "symbol": "ovl662_drag_h_scrollbar",
+      "source": "src/overlays/PAL/662/func_80123CC8.c"
+    },
+    {
+      "address": 2148679568,
+      "size": 712,
+      "symbol": "ovl662_drag_v_scrollbar",
+      "source": "src/overlays/PAL/662/func_80123F90.c"
+    },
+    {
+      "address": 2148680280,
+      "size": 388,
+      "symbol": "ovl662_drag_palette_red_bar",
+      "source": "src/overlays/PAL/662/func_80124258.c"
+    },
+    {
+      "address": 2148680668,
+      "size": 388,
+      "symbol": "ovl662_drag_palette_green_bar",
+      "source": "src/overlays/PAL/662/func_801243DC.c"
+    },
+    {
+      "address": 2148681056,
+      "size": 388,
+      "symbol": "ovl662_drag_palette_blue_bar",
+      "source": "src/overlays/PAL/662/func_80124560.c"
+    },
+    {
+      "address": 2148681444,
+      "size": 656,
+      "symbol": "ovl662_drag_preview_viewport",
+      "source": "src/overlays/PAL/662/func_801246E4.c"
+    },
+    {
+      "address": 2148682100,
+      "size": 328,
+      "symbol": "ovl662_dispatch_canvas_tool",
+      "source": "src/overlays/PAL/662/func_80124974.c"
+    },
+    {
+      "address": 2148682428,
+      "size": 472,
+      "symbol": "ovl662_apply_pen_stroke",
+      "source": "src/overlays/PAL/662/func_80124ABC.c"
+    },
+    {
+      "address": 2148682900,
+      "size": 440,
+      "symbol": "ovl662_apply_line_stroke",
+      "source": "src/overlays/PAL/662/func_80124C94.c"
+    },
+    {
+      "address": 2148683340,
+      "size": 396,
+      "symbol": "ovl662_apply_flood_fill",
+      "source": "src/overlays/PAL/662/func_80124E4C.c"
+    },
+    {
+      "address": 2148683736,
+      "size": 468,
+      "symbol": "ovl662_apply_primary_pen_stroke",
+      "source": "src/overlays/PAL/662/func_80124FD8.c"
+    },
+    {
+      "address": 2148684204,
+      "size": 452,
+      "symbol": "ovl662_apply_move_drag",
+      "source": "src/overlays/PAL/662/func_801251AC.c"
+    },
+    {
+      "address": 2148684656,
+      "size": 400,
+      "symbol": "ovl662_apply_color_picker",
+      "source": "src/overlays/PAL/662/func_80125370.c"
+    },
+    {
+      "address": 2148685056,
+      "size": 468,
+      "symbol": "ovl662_apply_eraser_stroke",
+      "source": "src/overlays/PAL/662/func_80125500.c"
+    },
+    {
+      "address": 2148685524,
+      "size": 72,
+      "symbol": "ovl662_toggle_preview_side",
+      "source": "src/overlays/PAL/662/func_801256D4.c"
+    },
+    {
+      "address": 2148685596,
+      "size": 736,
+      "symbol": "ovl662_update_canvas_hover",
+      "source": "src/overlays/PAL/662/func_8012571C.c"
+    },
+    {
+      "address": 2148686332,
+      "size": 996,
+      "symbol": "ovl662_rasterize_brush_line",
+      "source": "src/overlays/PAL/662/func_801259FC.c"
+    },
+    {
+      "address": 2148687328,
+      "size": 384,
+      "symbol": "ovl662_scroll_layer_image",
+      "source": "src/overlays/PAL/662/func_80125DE0.c"
+    },
+    {
+      "address": 2148687712,
+      "size": 228,
+      "symbol": "ovl662_composite_emblem_layers",
+      "source": "src/overlays/PAL/662/func_80125F60.c"
+    },
+    {
+      "address": 2148687940,
+      "size": 464,
+      "symbol": "ovl662_pack_emblem_tims",
+      "source": "src/overlays/PAL/662/func_80126044.c"
+    }
+  ],
+  "globals": {
+    "ovl662_str_init_garage_scene": 2148616316,
+    "ovl662_str_init_car_choice": 2148616328,
+    "ovl662_str_enter_editor_clean": 2148616432,
+    "ovl662_str_enter_editor_restore": 2148616448,
+    "ovl662_car_slot_bar_uv": 2148688404,
+    "ovl662_stage_history_glyphs": 2148688408,
+    "ovl662_team_count_glyphs": 2148688412,
+    "ovl662_maker_count_glyphs": 2148688420,
+    "ovl662_car_number_glyphs": 2148688424,
+    "ovl662_emblem_index_glyphs": 2148688428,
+    "ovl662_char_grid_cmd_glyphs": 2148688432,
+    "ovl662_extra_record_col_dx": 2148688436,
+    "ovl662_extra_record_row_dy": 2148688440,
+    "ovl662_extra_record_label_glyphs": 2148688444,
+    "ovl662_record_time_str_buf": 2148688452,
+    "ovl662_vram_emblem_image_rect": 2148688460,
+    "ovl662_vram_emblem_clut_rect": 2148688468,
+    "ovl662_arena_init_stage": 2148688476,
+    "ovl662_sprite_records": 2148688480,
+    "ovl662_panel_elem_hline_top": 2148689920,
+    "ovl662_panel_elem_hline_bot": 2148689936,
+    "ovl662_panel_elem_tile_0": 2148689952,
+    "ovl662_panel_elem_tile_1": 2148689968,
+    "ovl662_panel_elem_tile_2": 2148689984,
+    "ovl662_panel_fade_tracks": 2148690060,
+    "ovl662_vram_scratch_rect": 2148690080,
+    "ovl662_vram_layer0_rect": 2148690088,
+    "ovl662_vram_layer1_rect": 2148690096,
+    "ovl662_vram_palette_rect": 2148690104,
+    "ovl662_vram_composite_rect": 2148690112,
+    "ovl662_palette_pulse_phase": 2148690120,
+    "ovl662_option_group_0": 2148690124,
+    "ovl662_option_group_1": 2148690324,
+    "ovl662_option_group_2": 2148690404,
+    "ovl662_option_group_3": 2148690484,
+    "ovl662_option_group_4": 2148690564,
+    "ovl662_option_group_5": 2148690684,
+    "ovl662_option_group_6": 2148690884,
+    "ovl662_option_group_7": 2148690924,
+    "ovl662_analog_cursor_accum": 2148690964,
+    "ovl662_stick_repeat_up": 2148690968,
+    "ovl662_stick_repeat_down": 2148690972,
+    "ovl662_stick_repeat_left": 2148690976,
+    "ovl662_stick_repeat_right": 2148690980,
+    "ovl662_dpad_repeat_up": 2148690984,
+    "ovl662_dpad_repeat_down": 2148690988,
+    "ovl662_dpad_repeat_left": 2148690992,
+    "ovl662_dpad_repeat_right": 2148690996,
+    "ovl662_editor_action_records": 2148691000,
+    "ovl662_editor_buttons": 2148691848,
+    "ovl662_hscroll_grab_offset": 2148692584,
+    "ovl662_hscroll_image_thumb": 2148692588,
+    "ovl662_hscroll_image_travel": 2148692592,
+    "ovl662_hscroll_track_thumb": 2148692596,
+    "ovl662_hscroll_track_travel": 2148692600,
+    "ovl662_vscroll_grab_offset": 2148692606,
+    "ovl662_vscroll_image_thumb": 2148692608,
+    "ovl662_vscroll_image_travel": 2148692612,
+    "ovl662_vscroll_track_thumb": 2148692616,
+    "ovl662_vscroll_track_travel": 2148692620,
+    "ovl662_preview_drag_grab": 2148692624,
+    "ovl662_preview_drag_thumb": 2148692628,
+    "ovl662_preview_drag_limit": 2148692632,
+    "ovl662_emblem_choice_map": 2148692640,
+    "ovl662_saved_car_choice_idx": 2148692666,
+    "ovl662_selected_car_number": 2148692668,
+    "ovl662_selected_emblem_slot": 2148692670,
+    "ovl662_history_arrow_phase": 2148692672,
+    "ovl662_saved_player_name": 2148692680,
+    "ovl662_menu_substate": 2148692692,
+    "ovl662_team_unlocked_counts": 2148692696,
+    "ovl662_available_car_count": 2148692704,
+    "ovl662_selected_emblem_id": 2148692706,
+    "ovl662_selected_car_slot": 2148692708,
+    "ovl662_emblem_edit_from_menu": 2148692712,
+    "ovl662_extra_default_times": 2148692720,
+    "ovl662_total_unlocked_cars": 2148692732,
+    "ovl662_car_slot_statuses": 2148692736,
+    "ovl662_team_maker_car_counts": 2148692776,
+    "ovl662_available_car_slots": 2148692808,
+    "ovl662_emblem_preview_fade": 2148692888,
+    "ovl662_emblem_choice_count": 2148692890,
+    "ovl662_name_entry_cursor": 2148692896,
+    "ovl662_name_grid_col": 2148692898,
+    "ovl662_name_grid_row": 2148692899,
+    "ovl662_name_entry_buffer": 2148692904,
+    "ovl662_name_grid_index": 2148692916,
+    "ovl662_button_rect_lookup": 2148692920,
+    "ovl662_action_lookup": 2148693104,
+    "ovl662_sprite_lookup": 2148693320,
+    "ovl662_editor_cursor_state": 2148693608,
+    "ovl662_editor_cursor_x_alias": 2148693628,
+    "ovl662_editor_cursor_y_alias": 2148693630,
+    "ovl662_editor_workspace": 2148693672,
+    "ovl662_editor_zoom_shift_alias": 2148693700,
+    "ovl662_red_bar_dragging": 2148693888,
+    "ovl662_red_bar_saved_color": 2148693892,
+    "ovl662_green_bar_dragging": 2148693896,
+    "ovl662_green_bar_saved_color": 2148693900,
+    "ovl662_blue_bar_dragging": 2148693904,
+    "ovl662_blue_bar_saved_color": 2148693908,
+    "ovl662_pen_stroke_prev_pt": 2148693912,
+    "ovl662_pen_stroke_curr_pt": 2148693916,
+    "ovl662_line_stroke_start_pt": 2148693920,
+    "ovl662_prim_pen_prev_pt": 2148693924,
+    "ovl662_prim_pen_curr_pt": 2148693928,
+    "ovl662_move_drag_start_pt": 2148693932,
+    "ovl662_eraser_stroke_prev_pt": 2148693936,
+    "ovl662_eraser_stroke_curr_pt": 2148693940
+  }
+}

@@ -23,8 +23,8 @@ static struct Event {unsigned kind;u32 args[8];void *cursor;u32 *head;struct Wor
 static unsigned count,seen,scenario,profile,serial;static int reference_run;
 #define CurrentDrawBuf world.context
 #define SelectionRows world.choice
-#define ovl662_D_80127300 world.status
-#define ovl662_D_80126214 world.icon
+#define ovl662_car_slot_statuses world.status
+#define ovl662_car_slot_bar_uv world.icon
 #define RR_GPU_SCRATCH (&world.scratch)
 '''+body+r'''
 static u32 seed=0x16c34;static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
@@ -58,7 +58,7 @@ int main(void){assert(sizeof(void*)==8);
   memset(&world,0xA6,sizeof(world));world.context=&world.contexts[0];world.scratch.cursor=(u8*)world.arena+16;world.scratch.order=(u32*)&world.contexts[0];world.choice.bytes[2]=(u8)scenario;
   for(unsigned i=0;i<20;i++)world.status[i]=(profile&2)&&!(scenario&(1U<<(i%16)))?0:half(scenario*(i*2+1)+i);
   world.icon=(UiUvRect){(u8)scenario,(u8)(scenario>>8),31,17};s32 selected=profile&2?word(next()):(s32)(scenario%24)-2;
-  expected=world;count=seen=serial=0;reference_run=1;reference(selected);reference_run=0;serial=0;ovl662_func_80116C34(selected);
+  expected=world;count=seen=serial=0;reference_run=1;reference(selected);reference_run=0;serial=0;ovl662_draw_car_slot_bars(selected);
   assert(count==seen&&memcmp(&world,&expected,sizeof(world))==0);
  }
  puts("262144 cases;fresh status/context/cursor state,all16-bit status encodings and controller bytes");return 0;

@@ -1,6 +1,6 @@
 #include "rr/overlay662_history_labels.h"
 
-void ovl662_func_80117C98(u32 *arg0, void *arg1, s32 arg2) {
+void ovl662_draw_car_number_label(u32 *arg0, void *arg1, s32 arg2) {
     char buf[8];
     s32 i;
     s32 x;
@@ -12,10 +12,10 @@ void ovl662_func_80117C98(u32 *arg0, void *arg1, s32 arg2) {
         buf[i] = 0;
     }
     for (i = 0; i < 3; i++) {
-        arg1 = AddSpritePrim(arg0, arg1, x, y, &UiFontGlyphs[ovl662_D_80126228[i]], 0x7FF8, 0);
-        x += UiFontGlyphs[ovl662_D_80126228[i]].w + 2;
+        arg1 = AddSpritePrim(arg0, arg1, x, y, &UiFontGlyphs[ovl662_car_number_glyphs[i]], 0x7FF8, 0);
+        x += UiFontGlyphs[ovl662_car_number_glyphs[i]].w + 2;
         if (i == 2) {
-            FormatDecimalDigits(buf, ovl662_D_801272BC, 1);
+            FormatDecimalDigits(buf, ovl662_selected_car_number, 1);
             arg1 = AddTextSprites(arg0, arg1, x, y, buf, 0x7FF8, 0, 0);
         }
     }

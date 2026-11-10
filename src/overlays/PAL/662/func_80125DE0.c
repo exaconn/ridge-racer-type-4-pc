@@ -1,6 +1,6 @@
 #include "rr/overlay662_image_scroll.h"
 
-void ovl662_func_80125DE0(u32 *source,u32 *destination,s32 x,s32 y)
+void ovl662_scroll_layer_image(u32 *source,u32 *destination,s32 x,s32 y)
 {
     u32 buffer[512];
     struct {s16 column,row;} cursor;

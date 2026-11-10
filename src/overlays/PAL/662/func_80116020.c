@@ -1,12 +1,12 @@
 #include "rr/overlay662_setup.h"
 
-void ovl662_func_80116020(void)
+void ovl662_init_history_overview(void)
 {
     s32 i;
     ModeFrame=0;
     ScreenFrame=0;
-    ovl662_D_801272D4=0;
-    ovl662_D_801272C0=0;
+    ovl662_menu_substate=0;
+    ovl662_history_arrow_phase=0;
     SelectedTeamIndex=2;
     SelectionRows.bytes[0]=2;
     SelectedMakerIndex=0;

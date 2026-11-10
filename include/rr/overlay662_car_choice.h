@@ -9,13 +9,13 @@
 #include "rr/menu_glyph.h"
 #include "rr/diagnostics.h"
 extern CourseChoice4 CourseChoiceTable[2][9];
-extern s16 ovl662_D_801272E4,ovl662_D_801272BC,ovl662_D_801272E2;
-extern char ovl662_D_801272C8[12];
-extern const char ovl662_D_80114888[];
-void ovl662_func_8011512C(void);
-void ovl662_func_80118ED8(void);
+extern s16 ovl662_selected_car_slot,ovl662_selected_car_number,ovl662_selected_emblem_id;
+extern char ovl662_saved_player_name[12];
+extern const char ovl662_str_init_car_choice[];
+void ovl662_init_team_car_layout(void);
+void ovl662_init_garage_car_view(void);
 /* Choice index0..8, signed byte coordinates, full nine-entry group. Saved and
  * destination names have accessible NUL terminators within12 bytes. */
-void ovl662_func_801153B0(void);
-void ovl662_func_80118E6C(void);
+void ovl662_init_team_car_choice(void);
+void ovl662_select_garage_car(void);
 #endif

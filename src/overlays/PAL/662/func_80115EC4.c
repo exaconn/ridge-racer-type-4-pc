@@ -1,8 +1,8 @@
 #include "rr/overlay662_setup.h"
 
-void ovl662_func_80115EC4(s32 arg0) {
+void ovl662_init_history_subpage(s32 arg0) {
     s32 i;
-    ovl662_D_801272C0 = 0;
+    ovl662_history_arrow_phase = 0;
     SelectedMakerIndex = 0;
     D_800F4D99 = 0;
     for (i = 0; i < 4; i++) {

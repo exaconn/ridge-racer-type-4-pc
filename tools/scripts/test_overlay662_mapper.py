@@ -23,18 +23,18 @@ class Overlay662MapperTest(unittest.TestCase):
 #include "rr/overlay662_options.h"
 #include "rr/overlay662_distance.h"
 static struct World {u32 head[4];GarageSelectionPrefix garage;GarageWorkingStorage work;GarageRectangle rects[46];GarageRectangle *table[46];u32 tail[4];}world,expected,checkpoint;
-#define ovl662_D_801276A8 world.garage
-#define ovl662_D_80127668 world.work
-#define ovl662_D_801273B8 world.table
-GarageOptionRecord ovl662_D_801268CC[5]={{{0,0,0,19,15,0,0,0,0,0}},{{1,2,3,19,15,0,0,0,0,0}},{{4,5,6,19,15,0,0,0,0,0}},{{7,7,8,19,15,0,0,0,0,0}},{{9,9,10,19,15,0,0,0,0,0}}};
-GarageOptionRecord ovl662_D_80126994[2]={{{11,12,20,16,0,0,0,0,0,0}},{{13,14,20,16,0,0,0,0,0,0}}};
-GarageOptionRecord ovl662_D_801269E4[2]={{{21,22,23,24,25,26,27,28,17,18}},{{29,30,31,32,33,34,35,35,17,18}}};
-GarageOptionRecord ovl662_D_80126A34[2]={{{0,1,4,7,0,0,0,0,0,0}},{{0,2,5,7,0,0,0,0,0,0}}};
-GarageOptionRecord ovl662_D_80126A84[3]={{{7,9,11,13,21,29,0,0,0,0}},{{7,9,11,13,22,30,0,0,0,0}},{{7,9,11,13,23,31,0,0,0,0}}};
-GarageOptionRecord ovl662_D_80126AFC[5]={{{0,3,6,8,10,12,14,24,32,0}},{{0,3,6,8,10,12,14,25,33,0}},{{0,3,6,8,10,12,14,26,34,0}},{{0,3,6,8,10,12,14,27,35,0}},{{0,3,6,8,10,12,14,28,28,0}}};
-GarageOptionRecord ovl662_D_80126BC4[1]={{{19,20,17,0,0,0,0,0,0,0}}};
-GarageOptionRecord ovl662_D_80126BEC[1]={{{15,16,18,0,0,0,0,0,0,0}}};
-static GarageOptionRecord *tables[8]={ovl662_D_801268CC,ovl662_D_80126994,ovl662_D_801269E4,ovl662_D_80126A34,ovl662_D_80126A84,ovl662_D_80126AFC,ovl662_D_80126BC4,ovl662_D_80126BEC};
+#define ovl662_editor_workspace world.garage
+#define ovl662_editor_cursor_state world.work
+#define ovl662_button_rect_lookup world.table
+GarageOptionRecord ovl662_option_group_0[5]={{{0,0,0,19,15,0,0,0,0,0}},{{1,2,3,19,15,0,0,0,0,0}},{{4,5,6,19,15,0,0,0,0,0}},{{7,7,8,19,15,0,0,0,0,0}},{{9,9,10,19,15,0,0,0,0,0}}};
+GarageOptionRecord ovl662_option_group_1[2]={{{11,12,20,16,0,0,0,0,0,0}},{{13,14,20,16,0,0,0,0,0,0}}};
+GarageOptionRecord ovl662_option_group_2[2]={{{21,22,23,24,25,26,27,28,17,18}},{{29,30,31,32,33,34,35,35,17,18}}};
+GarageOptionRecord ovl662_option_group_3[2]={{{0,1,4,7,0,0,0,0,0,0}},{{0,2,5,7,0,0,0,0,0,0}}};
+GarageOptionRecord ovl662_option_group_4[3]={{{7,9,11,13,21,29,0,0,0,0}},{{7,9,11,13,22,30,0,0,0,0}},{{7,9,11,13,23,31,0,0,0,0}}};
+GarageOptionRecord ovl662_option_group_5[5]={{{0,3,6,8,10,12,14,24,32,0}},{{0,3,6,8,10,12,14,25,33,0}},{{0,3,6,8,10,12,14,26,34,0}},{{0,3,6,8,10,12,14,27,35,0}},{{0,3,6,8,10,12,14,28,28,0}}};
+GarageOptionRecord ovl662_option_group_6[1]={{{19,20,17,0,0,0,0,0,0,0}}};
+GarageOptionRecord ovl662_option_group_7[1]={{{15,16,18,0,0,0,0,0,0,0}}};
+static GarageOptionRecord *tables[8]={ovl662_option_group_0,ovl662_option_group_1,ovl662_option_group_2,ovl662_option_group_3,ovl662_option_group_4,ovl662_option_group_5,ovl662_option_group_6,ovl662_option_group_7};
 
 '''+bodies+r'''
 static u32 rng=0x1E5C0;static unsigned group,row,col,variant,calls;static s32 argument,root_result;
@@ -53,10 +53,10 @@ int main(void){unsigned j;uint64_t cases=0;static const unsigned rows[8]={5,2,2,
  for(group=0;group<8;group++)for(row=0;row<rows[group];row++)for(col=0;col<10;col++)for(variant=0;variant<256;variant++){
  s32 mode;memset(&world,0,sizeof(world));for(j=0;j<4;j++){world.head[j]=next();world.tail[j]=next();world.garage.selectorsB8[j]=word(next());}
  for(j=0;j<16;j++)world.work.words[j]=next();for(j=0;j<46;j++){unsigned k;for(k=0;k<4;k++)world.rects[j][k]=(u16)next();world.table[j]=&world.rects[(j+variant)%46];}
- ovl662_func_8011D278(-1);world.garage.optionIndices98.flat[group]=(s32)row;
+ ovl662_init_option_groups(-1);world.garage.optionIndices98.flat[group]=(s32)row;
  if(group<3){world.garage.selectorsB8[0]=(s32)group;world.garage.selectorsB8[2]=(s32)col;switch(variant&3){case 0:mode=1;break;case 1:mode=INT32_MIN;break;case 2:mode=INT32_MAX;break;default:mode=word(next()|1U);break;}}
  else{mode=0;world.garage.selectorsB8[1]=(s32)group-3;world.garage.selectorsB8[3]=(s32)col;}
- root_result=outputs[variant%8];expected=world;calls=0;reference();ovl662_func_8011E5C0(mode);assert(calls==1);assert(memcmp(&world,&expected,sizeof(world))==0);assert((uintptr_t)world.garage.options78.flat[group]>UINT32_MAX);cases++;
+ root_result=outputs[variant%8];expected=world;calls=0;reference();ovl662_select_option_target(mode);assert(calls==1);assert(memcmp(&world,&expected,sizeof(world))==0);assert((uintptr_t)world.garage.options78.flat[group]>UINT32_MAX);cases++;
  }assert(cases==53760ULL);return 0;}
 '''
         with TemporaryDirectory() as tmp:

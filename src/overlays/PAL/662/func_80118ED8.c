@@ -1,9 +1,9 @@
 #include "rr/overlay662_screen_init.h"
 #include "rr/load_cursor.h"
-void ovl662_func_80118ED8(void) {
+void ovl662_init_garage_car_view(void) {
     ModeFrame = 0;
     ScreenFrame = 0;
-    ovl662_D_801272D4 = 0;
+    ovl662_menu_substate = 0;
     MenuCursor = 0;
     MenuItemCount = 3;
     ResetScreenCounters();

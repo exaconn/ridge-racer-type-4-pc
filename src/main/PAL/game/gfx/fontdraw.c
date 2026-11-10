@@ -170,13 +170,13 @@ void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
             displacement = 0;
         }
         cursor += 0x14;
-        sprites->x = (s16)(displacement + (x + pass));
+        sprites->x = (s16)(displacement + ((u32)x + pass));
         yStep = pass * 2;
         /* ASM_BARRIER: launder a2 so the second (a2 & 0xFE00) is not CSE'd with the 0x6000 test */
         __asm__("" : "+r"(sprites) : "r"(yStep),"r"(y));
         sprites->u = (s8)tileU;
         sprites->v = tileV;
-        sprites->y = (s16)(y + yStep);
+        sprites->y = (s16)((u32)y + yStep);
         sprites->w = 8;
         sprites->h = 0x18;
         sprites->clut = clut;

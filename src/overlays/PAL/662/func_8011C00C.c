@@ -5,7 +5,7 @@
 
 /* BF04 passes channel0..2 and a masked five-bit component. The tens
  * descriptor is read again after emitting that digit, for the ones position. */
-void ovl662_func_8011C00C(s32 channel, s32 value)
+void ovl662_draw_rgb_digits(s32 channel, s32 value)
 {
     GpuScratchPointers *scratch = RR_GPU_SCRATCH;
     s16 sliderX;
@@ -34,10 +34,10 @@ void ovl662_func_8011C00C(s32 channel, s32 value)
         digitY = 392;
         break;
     }
-    scratch->cursor = ovl662_func_8011B2D4(71, scratch->cursor, sliderX, sliderY);
+    scratch->cursor = ovl662_emit_indexed_sprite(71, scratch->cursor, sliderX, sliderY);
     tensSprite = (value / 10) + 59;
     /* ASM_BARRIER: prevent CSE from replacing $s0 with the temporary pseudo-register. */
     __asm__("" : "+r"(tensSprite));
-    scratch->cursor = ovl662_func_8011B2D4(tensSprite, scratch->cursor, digitX, digitY);
-    scratch->cursor = ovl662_func_8011B2D4((value % 10) + 59, scratch->cursor, (s16)(digitX + ovl662_D_80127548[tensSprite]->width04), digitY);
+    scratch->cursor = ovl662_emit_indexed_sprite(tensSprite, scratch->cursor, digitX, digitY);
+    scratch->cursor = ovl662_emit_indexed_sprite((value % 10) + 59, scratch->cursor, (s16)(digitX + ovl662_sprite_lookup[tensSprite]->width04), digitY);
 }

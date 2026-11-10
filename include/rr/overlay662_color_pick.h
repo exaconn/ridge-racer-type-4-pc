@@ -9,6 +9,6 @@ typedef u32 GarageImage512[512];
  *2/4/8/16, and each scroll origin in
  *0..64-128/zoom. Both selected images cover512 words. The first nonzero
  * nibble across image38 then image40 wins; two transparent pixels reject. */
-void ovl662_func_80125370(void);
+void ovl662_apply_color_picker(void);
 RR_ASSERT_SIZE(GarageImage512,2048);
 #endif

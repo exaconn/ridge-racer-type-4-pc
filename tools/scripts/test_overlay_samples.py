@@ -42,7 +42,7 @@ FrameStorage *CurrentDrawBuf, display_buffer;
 BadgeRow1C first, second, *BadgeRows;
 s16 *sample665_badges;
 u8 ScreenFadeState;
-GarageWorkingStorage ovl662_D_80127668;
+GarageWorkingStorage ovl662_editor_cursor_state;
 s32 ovl667_sio_error_count;
 u32 *ovl668_mdec1_ctrl_ptr;
 ProjectionScratchPrefix test_scratch;
@@ -105,13 +105,13 @@ int main(void) {
     ovl660_select_scene(); assert(ActiveSceneId == 0x131);
     ovl661_select_scene(); assert(ActiveSceneId == 0x137);
     for (unsigned i = 0; i < 65536; i++) {
-        memset(&ovl662_D_80127668, 0xA5, sizeof(ovl662_D_80127668));
+        memset(&ovl662_editor_cursor_state, 0xA5, sizeof(ovl662_editor_cursor_state));
         s32 args[4] = {(s32)(0x12340000U|i), (s32)(0xFFFF0000U|i),
                        (s32)(0x80000000U|(i^0xFFFF)), (s32)(0x7FFF0000U|i)};
-        ovl662_func_8011E7C0(args[0],args[1],args[2],args[3]);
+        ovl662_set_clip_rect(args[0],args[1],args[2],args[3]);
         for (int j = 0; j < 32; j++) {
             u16 expected = j >= 24 && j < 28 ? (u16)args[j-24] : 0xA5A5;
-            assert((u16)ovl662_D_80127668.halves[j] == expected);
+            assert((u16)ovl662_editor_cursor_state.halves[j] == expected);
         }
         u32 bits = (i << 16) | (i ^ 0xFFFF);
         ovl667_sio_error_count = (s32)bits;

@@ -1,5 +1,5 @@
 #include "rr/overlay662_pixels.h"
-void ovl662_func_80125F60(const u32 *source,u32 *destination)
+void ovl662_composite_emblem_layers(const u32 *source,u32 *destination)
 {
     s32 i;
     for(i=0;i<512;i++){

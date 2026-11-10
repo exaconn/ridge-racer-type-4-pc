@@ -4,14 +4,14 @@
 #include "rr/load_cursor.h"
 
 typedef struct {s16 value;u16 reserved;} GarageCarSlot;
-extern s16 ovl662_D_801272BA;
-extern s16 ovl662_D_801272D4,ovl662_D_801272E0,ovl662_D_801272E4;
-extern s16 ovl662_D_80127300[20];
-extern GarageCarSlot ovl662_D_80127348[20];
-void ovl662_func_8011512C(void);
-void ovl662_func_80116C34(s32);
+extern s16 ovl662_saved_car_choice_idx;
+extern s16 ovl662_menu_substate,ovl662_available_car_count,ovl662_selected_car_slot;
+extern s16 ovl662_car_slot_statuses[20];
+extern GarageCarSlot ovl662_available_car_slots[20];
+void ovl662_init_team_car_layout(void);
+void ovl662_draw_car_slot_bars(s32);
 
-void ovl662_func_80116E10(void)
+void ovl662_update_available_cars(void)
 {
     PreviewColor color;
     s8 shown;
@@ -49,13 +49,13 @@ void ovl662_func_80116E10(void)
         case 0:
             SetMenuFrameOptions(1, 1, 1);
             before = PackChoiceGlyph((s8 *)&SelectionRows);
-            StepMenuValue(3, 2, (char *)&ovl662_D_801272E4, ovl662_D_801272E0, 0);
-            UnpackChoiceGlyph((s8 *)&SelectionRows, ovl662_D_80127348[ovl662_D_801272E4].value);
-            status = ovl662_D_80127300[(SelectionRows.entry.parameter % 20) & 0xFF];
+            StepMenuValue(3, 2, (char *)&ovl662_selected_car_slot, ovl662_available_car_count, 0);
+            UnpackChoiceGlyph((s8 *)&SelectionRows, ovl662_available_car_slots[ovl662_selected_car_slot].value);
+            status = ovl662_car_slot_statuses[(SelectionRows.entry.parameter % 20) & 0xFF];
             if ((s16)before != (s16)PackChoiceGlyph((s8 *)&SelectionRows)) {
                 ResetScreenCounters();
                 LoadCursor = MenuArenas.first;
-                UnpackChoiceGlyph((s8 *)&SelectionRows, ovl662_D_80127348[ovl662_D_801272E4].value);
+                UnpackChoiceGlyph((s8 *)&SelectionRows, ovl662_available_car_slots[ovl662_selected_car_slot].value);
                 ImageRows[1] = 6;
                 PlayerCourseChoices[0].first = 0;
                 PlayerCourseChoices[0].second = 0;
@@ -134,11 +134,11 @@ void ovl662_func_80116E10(void)
             steps = 64;
             AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (steps - FadeCountdown) * 4, 69);
             if (FadeCountdown <= 0) {
-                CourseChoiceTable[1][ovl662_D_801272BA].glyph = ovl662_D_80127348[ovl662_D_801272E4].value;
-                CourseChoiceTable[1][ovl662_D_801272BA].first = 0;
-                CourseChoiceTable[1][ovl662_D_801272BA].second = 0;
-                ovl662_D_801272E4 = ovl662_D_801272BA;
-                ovl662_func_8011512C();
+                CourseChoiceTable[1][ovl662_saved_car_choice_idx].glyph = ovl662_available_car_slots[ovl662_selected_car_slot].value;
+                CourseChoiceTable[1][ovl662_saved_car_choice_idx].first = 0;
+                CourseChoiceTable[1][ovl662_saved_car_choice_idx].second = 0;
+                ovl662_selected_car_slot = ovl662_saved_car_choice_idx;
+                ovl662_init_team_car_layout();
                 ModeGroup = ready;
                 ModeIndex = steps;
                 SubmodeState = 0;
@@ -150,8 +150,8 @@ void ovl662_func_80116E10(void)
             steps = 64;
             AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (steps - FadeCountdown) * 4, 69);
             if (FadeCountdown <= 0) {
-                ovl662_D_801272E4 = ovl662_D_801272BA;
-                ovl662_func_8011512C();
+                ovl662_selected_car_slot = ovl662_saved_car_choice_idx;
+                ovl662_init_team_car_layout();
                 ModeGroup = ready;
                 ModeIndex = steps;
                 SubmodeState = 0;
@@ -160,8 +160,8 @@ void ovl662_func_80116E10(void)
             break;
         }
     }
-    if (ovl662_D_801272D4 == 0 && (s8)ImageRows[1] == 2) {
-        ovl662_D_801272D4 = 1;
+    if (ovl662_menu_substate == 0 && (s8)ImageRows[1] == 2) {
+        ovl662_menu_substate = 1;
         BadgeRows[0].half02 = 1;
         BadgeRows[1].half02 = 1;
     }
@@ -169,7 +169,7 @@ void ovl662_func_80116E10(void)
         DrawUiRow(i);
     }
     if (BadgeRows[1].state10 == 3) {
-        ovl662_func_80116C34(SelectionRows.entry.parameter);
+        ovl662_draw_car_slot_bars(SelectionRows.entry.parameter);
     }
     i = shown;
     if ((u8)(ImageRows[1] - 1) < 2 && i == 1) {
@@ -194,7 +194,7 @@ void ovl662_func_80116E10(void)
     UpdateBadgeRowAnim(0);
     UpdateBadgeRowAnim(1);
     if (UpdateImageRow(0) > 0) {
-        DrawMenuStepArrows(160, 144, 8, 1, ovl662_D_801272E4, -1, ovl662_D_801272E0 + 1);
+        DrawMenuStepArrows(160, 144, 8, 1, ovl662_selected_car_slot, -1, ovl662_available_car_count + 1);
     }
     UpdateScreenFade(0x1008E);
 }

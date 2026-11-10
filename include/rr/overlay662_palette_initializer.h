@@ -4,13 +4,13 @@
 #include "rr/save_progress.h"
 #include "rr/course_choice_types.h"
 extern CourseChoice4 CourseChoiceTable[2][9];
-extern s16 ovl662_D_801272D4,ovl662_D_8012739A,ovl662_D_80127398,ovl662_D_801272E2,ovl662_D_801272E4,ovl662_D_801272BE;
-extern s32 ovl662_D_801272C0,ovl662_D_801272E8;
-extern u8 ovl662_D_801272A0[25];
+extern s16 ovl662_menu_substate,ovl662_emblem_choice_count,ovl662_emblem_preview_fade,ovl662_selected_emblem_id,ovl662_selected_car_slot,ovl662_selected_emblem_slot;
+extern s32 ovl662_history_arrow_phase,ovl662_emblem_edit_from_menu;
+extern u8 ovl662_emblem_choice_map[25];
 extern void *CustomEmblemTimPtr,*PresetEmblemTimPtr;
 void UploadCarClut(void *,s32,s32);
 /* Fresh course selector is0..8. Its signed second byte is at most25;
  * positive values select one of25 map slots. Palette bank1 covers25 TIMs.
  * UI and palette services may replace global roots and mutate shared state. */
-void ovl662_func_80119B44(void);
+void ovl662_init_emblem_selector(void);
 #endif

@@ -1,8 +1,8 @@
 #ifndef RR_PSYQ_LIBSND_CCADSR_H
 #define RR_PSYQ_LIBSND_CCADSR_H
 
-#include "types.h"
+#include "rr/spu_tone_control.h"
 
-void _SsSetNrpnVabAttr6();
+void _SsSetNrpnVabAttr6(s16 bank, s16 program, s16 tone, VagAtr parameters, s32 attribute, u8 data);
 
 #endif /* RR_PSYQ_LIBSND_CCADSR_H */

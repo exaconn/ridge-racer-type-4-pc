@@ -1,6 +1,6 @@
 #include "rr/overlay662_history_labels.h"
 
-void ovl662_func_80117854(u32 *order, void *cursor, s32 row)
+void ovl662_draw_team_car_counts_label(u32 *order, void *cursor, s32 row)
 {
     s32 i, x, y;
     s32 flag = 0;
@@ -15,23 +15,23 @@ void ovl662_func_80117854(u32 *order, void *cursor, s32 row)
         }
     }
     for (i = 0; i < 7; i++) {
-        if (ovl662_D_8012621C[i] == -1) {
+        if (ovl662_team_count_glyphs[i] == -1) {
             cursor = AddTextSprites(
                 order, cursor, x, y,
-                FormatCountOfTotal((s16)ovl662_D_801272D8[SelectionRows.bytes[0]], 80, 1),
+                FormatCountOfTotal((s16)ovl662_team_unlocked_counts[SelectionRows.bytes[0]], 80, 1),
                 flag + 0x7FF8, 0, 0);
             x += 34;
             cursor = AddTilePrim(order, cursor, x, y - 2, 1, 20, 255, 255, 255);
             x += 8;
-        } else if (ovl662_D_8012621C[i] == -2) {
+        } else if (ovl662_team_count_glyphs[i] == -2) {
             cursor = AddTextSprites(
                 order, cursor, x, y,
-                FormatCountOfTotal((s16)ovl662_D_801272FC, 320, 2),
+                FormatCountOfTotal((s16)ovl662_total_unlocked_cars, 320, 2),
                 flag + 0x7FF8, 0, 0);
         } else {
             cursor = AddSpritePrim(order, cursor, x, y,
-                &UiFontGlyphs[ovl662_D_8012621C[i]], 0x7FF8, 0);
-            x += UiFontGlyphs[ovl662_D_8012621C[i]].w + 2;
+                &UiFontGlyphs[ovl662_team_count_glyphs[i]], 0x7FF8, 0);
+            x += UiFontGlyphs[ovl662_team_count_glyphs[i]].w + 2;
         }
     }
     AddDrawModePrim(order, cursor, 56);

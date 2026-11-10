@@ -60,9 +60,9 @@ static u8 resources[3][0x2D100],arenas[3][128],packets[128];static u32 orders[32
 #define MenuScriptStep w->s.clear1
 #define LoadState w->s.clear2
 #define D_8009F64C w->s.map
-#define ovl662_D_801272E4 w->s.index
-#define ovl662_D_801272D4 w->s.local
-#define ovl662_D_801272E0 w->s.count
+#define ovl662_selected_car_slot w->s.index
+#define ovl662_menu_substate w->s.local
+#define ovl662_available_car_count w->s.count
 ''' + helpers + bodies + r'''
 static s32 word(u32 u){s32 v;memcpy(&v,&u,4);return v;}
 static s16 half(u32 u){u16 n=u;s16 v;memcpy(&v,&n,2);return v;}
@@ -118,7 +118,7 @@ static void expected(void){unsigned i;State *s=&w->s;
 int main(void){unsigned i;assert((uintptr_t)resources>UINT32_MAX);
  for(scenario=0;scenario<65536;scenario++)for(kind=0;kind<2;kind++)for(mutation=0;mutation<2;mutation++){
   memset(&initial,0,sizeof(initial));w=&initial;effect(0);w->s.selection=half(scenario);for(i=0;i<4;i++){w->s.guard[i]=scenario+i;w->s.tail[i]=~(scenario+i);}actual=reference=initial;
-  w=&actual;if(kind)ovl662_func_8011512C();else ovl660_init_menu();w=&reference;expected();assert(!memcmp(&actual,&reference,sizeof(actual)));
+  w=&actual;if(kind)ovl662_init_team_car_layout();else ovl660_init_menu();w=&reference;expected();assert(!memcmp(&actual,&reference,sizeof(actual)));
  }
  assert(seenCounts==1023);return 0;
 }

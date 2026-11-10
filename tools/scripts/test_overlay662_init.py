@@ -23,8 +23,8 @@ class OverlayInitTest(unittest.TestCase):
 static struct World {u32 before[8],saved_word;GarageSelectionPrefix state;
  GarageWorkingStorage work;u32 after[8];} world,expected;
 #define EmblemEditFrames world.saved_word
-#define ovl662_D_801276A8 world.state
-#define ovl662_D_80127668 world.work
+#define ovl662_editor_workspace world.state
+#define ovl662_editor_cursor_state world.work
 ''' + body + r'''
 static u32 seed=0x1a414;
 static u32 next(void){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
@@ -53,7 +53,7 @@ int main(void){unsigned k,i;
   expected.work.halves[24]=13;expected.work.halves[25]=63;
   expected.work.halves[26]=294;expected.work.halves[27]=346;
   expected.work.words[14]=0;
-  ovl662_func_8011A414();
+  ovl662_reset_editor_state();
   assert(memcmp(&world,&expected,sizeof(world))==0);
   assert((uintptr_t)&world>UINT32_MAX);
  }

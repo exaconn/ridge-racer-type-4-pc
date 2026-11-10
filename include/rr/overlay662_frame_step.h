@@ -5,14 +5,14 @@ extern u32 EmblemEditFrames;
 extern s32 ScreenFrame;
 extern u32 *GarageActiveDecalTimA;
 extern GarageTimBytes *GarageActiveDecalTimB;
-void ovl662_func_8011E070(void);
-void ovl662_func_8011E36C(s32 mode);
-void ovl662_func_8011B8B4(void);
-void ovl662_func_8011B484(void);
-void ovl662_func_8011B400(void);
-void ovl662_func_8011CF8C(void);
-void ovl662_func_8011CD18(void);
+void ovl662_update_editor_cursor(void);
+void ovl662_dispatch_editor_actions(s32 mode);
+void ovl662_draw_editor_cursor(void);
+void ovl662_draw_editor_panel_fades(void);
+void ovl662_init_editor_draw_env(void);
+void ovl662_update_editor_overlay(void);
+void ovl662_upload_editor_textures(void);
 /* Increment pulse with PAL word wrap; clock wraps before its upper clamp.
  * After eight services, publish the fresh active0/1 buffer and TIM pointers. */
-void ovl662_func_8011AAF4(void);
+void ovl662_step_editor_frame(void);
 #endif

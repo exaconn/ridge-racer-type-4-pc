@@ -24,7 +24,7 @@ NAMES=['InitAnimatedTrackObjects','SetAnimatedTrackObjectState','SetupAnimatedOb
        'DrawAnimatedTrackObject','SetLineG2','CatPrim','AddPrims','DpqColor']
 SERVICES=['BuildRotMatrixY','BuildRotMatrixX','BuildRotMatrixZ','MulMatrix2','ApplyMatrixLV',
           'ApplyMatrixSV','SetTransMatrix','MulMatrix','SetRotMatrix','PsyqRand','PsyqSrand',
-          'VSync','SquareRoot0','Atan2Table','func_8006DB0C','PsyqMemset']
+          'VSync','SquareRoot0','Atan2Table','EmitAnimatedTrackLines','PsyqMemset']
 PREFIX=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -101,7 +101,7 @@ s32 VSync(s32 mode){u32 v=number*71U+13U;event(12,(u32)mode,v,0,0);return signed
 int SquareRoot0(int value){u32 v=next((u32)value)&32767U;event(13,(u32)value,v,0,0);return (int)v;}
 int Atan2Table(int x,int y){u32 v=((u32)x*17U^(u32)y*31U)&4095U;event(14,(u32)x,(u32)y,v,0);return (int)v;}
 void *PsyqMemset(void *p,s32 byte,u32 length){return memset(p,byte,length);}
-AnimatedLinePacket *func_8006DB0C(AnimatedTrackScratch *s,AnimatedLinePacket *p,AnimatedTrackObject *o,s32 color){
+AnimatedLinePacket *EmitAnimatedTrackLines(AnimatedTrackScratch *s,AnimatedLinePacket *p,AnimatedTrackObject *o,s32 color){
  unsigned count=number%7U;event(15,pointer(p),pointer(o),(u32)color,count);
  assert(s==&camera||s==&draw);assert(count<=255);
  for(unsigned i=0;i<count;i++){p[i].color0.word^=number*0x17171717U+i;p[i].xy1=signed32(number*17U+i);}
@@ -355,7 +355,7 @@ class AnimatedTrackOwnerTest(unittest.TestCase):
                     elif kind=='SquareRoot0':result=next_word(a)&32767;event(13,a,result)
                     elif kind=='Atan2Table':result=(word(a*17)^word(b*31))&4095;event(14,a,b,result)
                     elif kind=='PsyqMemset':write(a,bytes([b&255])*c);result=a
-                    elif kind=='func_8006DB0C':
+                    elif kind=='EmitAnimatedTrackLines':
                         count=number%7;event(15,b,c,d,count)
                         self.assertIn(a,(CAMERA,DRAW));self.assertEqual(c,ARENA+0xB34C+(number%5)*248)
                         for i in range(count):

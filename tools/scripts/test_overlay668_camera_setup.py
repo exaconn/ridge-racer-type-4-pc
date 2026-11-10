@@ -35,8 +35,8 @@ static void mutate(Environment *e,unsigned id,unsigned ordinal){
   e->camera.position450[0]=sign32((u32)e->camera.position450[0]+0x7fffffffU);
   e->camera.node498=sign32((u32)e->camera.node498+ordinal+1U);
   e->camera.offset488[3]=sign16((u16)(caseIndex+ordinal));
-  e->tracks[which].samples[320].x08=sign32((u32)e->tracks[which].samples[320].x08+0x87654321U);
-  e->tracks[which].samples[320].heading12=sign16((u16)(caseIndex+ordinal*32767U));
+  e->tracks[which].samples[320].road.x=sign32((u32)e->tracks[which].samples[320].road.x+0x87654321U);
+  e->tracks[which].samples[320].road.heading=sign16((u16)(caseIndex+ordinal*32767U));
   e->draw=-7;e->clock=-8;e->ready=-9;e->delay=-10;e->selected=-11;
   e->lookup[slot]=sign32(0xabcdef00U+caseIndex+ordinal);
  }
@@ -95,9 +95,9 @@ static void model(void){unsigned i,which,selected;TrackSample3C sample;
  which=root_index(expected.root);assert(which<2);roots[which]++;
  sample=expected.tracks[which].samples[320];
  put32(0x444,0);put32(0x44c,0);put32(0x4a4,0);put32(0x4a8,1);put32(0x4ac,0);
- put32(0x450,(u32)((int64_t)sample.x08*4));put32(0x454,(u32)((int)sample.y10-120));
- put32(0x458,(u32)((int64_t)sample.z0C*4));put16(0x460,0);
- put16(0x462,(u16)(-(int)sample.heading12));put16(0x464,0);
+ put32(0x450,(u32)((int64_t)sample.road.x*4));put32(0x454,(u32)((int)sample.road.height-120));
+ put32(0x458,(u32)((int64_t)sample.road.z*4));put16(0x460,0);
+ put16(0x462,(u16)(-(int)sample.road.heading));put16(0x464,0);
  put16(0x488,0);put16(0x48a,0);put16(0x48c,0);put16(0x490,(u16)-96);
  expected.clock=0;put16(0x492,0);put16(0x494,0);put32(0x498,320);
  expect_event(5);for(i=0;i<16;i++)expect_event(6);
@@ -113,10 +113,10 @@ int main(void){unsigned raw,i,b;uint64_t cases=0;
   caseIndex=raw;
   for(i=0;i<sizeof(actual);i++)bytes[i]=(unsigned char)(i*37U+raw+profile);
   for(b=0;b<2;b++){
-   actual.tracks[b].samples[320].x08=sign32(next());
-   actual.tracks[b].samples[320].z0C=sign32(next());
-   actual.tracks[b].samples[320].y10=sign16((u16)raw);
-   actual.tracks[b].samples[320].heading12=sign16((u16)raw);
+   actual.tracks[b].samples[320].road.x=sign32(next());
+   actual.tracks[b].samples[320].road.z=sign32(next());
+   actual.tracks[b].samples[320].road.height=sign16((u16)raw);
+   actual.tracks[b].samples[320].road.heading=sign16((u16)raw);
   }
   for(i=0;i<20;i++)actual.lookup[i]=sign32(next());
   actual.root=0;actual.bank=0;actual.row=0;

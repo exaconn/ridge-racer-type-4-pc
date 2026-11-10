@@ -87,7 +87,7 @@ RR_ASSERT_SIZE(AnimatedTrackScratch, 0xE4);
 #endif
 
 /* Handwritten emitter returns the first packet after those emitted. */
-AnimatedLinePacket *func_8006DB0C(AnimatedTrackScratch *scratch,
+AnimatedLinePacket *EmitAnimatedTrackLines(AnimatedTrackScratch *scratch,
                                AnimatedLinePacket *cursor,
                                AnimatedTrackObject *object, s32 colorOffset);
 

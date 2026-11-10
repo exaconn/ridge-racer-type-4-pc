@@ -73,7 +73,7 @@ void setup(unsigned number,s32 mode,unsigned selected,s32 returned,s32 car0,s32 
  live.scratch.scene.view.projection.pose08.position00.xyz.z=z;
  live.scratch.scene.view.projection.pose08.angles10.xyz.y=yaw;
  for(unsigned bank=0;bank<2;bank++)for(unsigned i=0;i<80;i++)
-  live.nodes[bank][i].heading12=(s16)((i*1031U+number*17U+bank*13007U)&65535U);
+  live.nodes[bank][i].road.heading=(s16)((i*1031U+number*17U+bank*13007U)&65535U);
  for(unsigned bank=0;bank<2;bank++)for(unsigned i=0;i<128;i++) {
   unsigned target=(i*37U+number+bank*13U)&127U;
   live.slots[bank][i].absolute=(u8*)live.payload[bank][target];

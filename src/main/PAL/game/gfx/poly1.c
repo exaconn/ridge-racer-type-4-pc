@@ -385,7 +385,7 @@ void DrawAnimatedTrackObject(AnimatedTrackScratch *scratch, int objectIndex, int
                     }
                 }
                 SetupAnimatedObjectMatrices(object);
-                cursor = func_8006DB0C(scratch, cursor, object, colorIndex << 2);
+                cursor = EmitAnimatedTrackLines(scratch, cursor, object, colorIndex << 2);
                 if (cursor != object->headsE8[DrawBufIndex]) object->tailsF0[DrawBufIndex] = cursor - 1;
                 else object->tailsF0[DrawBufIndex] = 0;
                 if (objectIndex < 2) {

@@ -52,11 +52,11 @@ extern int MenuReturnSubmodeIndex;
 extern char StrLinkBattleEnd[];
 extern char PressStartText[];
 extern s32 MaskBitSetting;
-extern void func_801150CC();
-extern void func_80117C78();
-extern void func_801154D8();
-extern void func_80118634();
-extern void func_80115388();
+extern void ovl659_init_results();
+extern void ovl661_init_results();
+extern void ovl660_init_results();
+extern void ovl667_init_results();
+extern void ovl666_init_results();
 extern int LinkCommTimeoutTimer;
 extern char ScreenFadeState;
 extern MenuSettings2C SelectionState;
@@ -380,24 +380,24 @@ void InitPostRaceScreen(void) {
     SoundCloseVabsAndReset();
     switch (GameModeType) {
     case 1:
-        func_801150CC();
+        ovl659_init_results();
         ActiveSceneId = 0x130;
         break;
     case 2:
     case 3:
-        func_80117C78();
+        ovl661_init_results();
         ActiveSceneId = 0x13A;
         break;
     case 0:
-        func_801154D8();
+        ovl660_init_results();
         ActiveSceneId = 0x136;
         break;
     case 4:
-        func_80118634();
+        ovl667_init_results();
         ActiveSceneId = 0x13E;
         break;
     case 6:
-        func_80115388();
+        ovl666_init_results();
         ActiveSceneId = 0x153;
         break;
     default:

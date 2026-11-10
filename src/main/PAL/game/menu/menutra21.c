@@ -58,10 +58,10 @@ extern short CardPromptIndex;
 extern int StepMenuValue();
 extern void PlaySfx();
 extern void ClearScreenOverlayState();
-extern int func_80114920();
-extern int func_80115598();
-extern int func_801161A8();
-extern int func_8011512C();
+extern int ovl660_init_menu();
+extern int ovl661_init_preview();
+extern int ovl667_init_car_selection();
+extern int ovl662_init_team_car_layout();
 extern w8c5S SaveSlotSelections[];
 extern w8c5S SaveSlotSnapshots[];
 extern short FadeCountdown;
@@ -283,7 +283,7 @@ void CloseCardMenuUiRows(void) {
         break;
     case 1:
         if (CardMenuReturnModeId == 0x132) {
-            func_80114920();
+            ovl660_init_menu();
             SubmodeState = 0;
             ModeGroup = CardMenuReturnModeId >> 8;
             ModeIndex = CardMenuReturnModeId & 0xFF;
@@ -291,13 +291,13 @@ void CloseCardMenuUiRows(void) {
         break;
     case 2:
         if ((GameModeType - 2) < 2U) {
-            func_80115598(ActivePlayerIndex);
+            ovl661_init_preview(ActivePlayerIndex);
             ModeGroup = 1;
             ModeIndex = 0x38;
             SubmodeState = 0;
         } else if ((short)GameModeType == 4) {
             if (LinkState != -1) {
-                func_801161A8(ActivePlayerIndex);
+                ovl667_init_car_selection(ActivePlayerIndex);
                 ModeGroup = 1;
                 ModeIndex = 0x3C;
             } else {
@@ -314,7 +314,7 @@ void CloseCardMenuUiRows(void) {
         SubmodeState = 0;
         break;
     case 5:
-        func_8011512C();
+        ovl662_init_team_car_layout();
         ModeGroup = 1;
         ModeIndex = 0x40;
         SubmodeState = 0;

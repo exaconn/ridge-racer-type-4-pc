@@ -27,7 +27,7 @@ NAMES=['InitAnimatedTrackObjects','SetAnimatedTrackObjectState','SetupAnimatedOb
        'SetLineG2','CatPrim','AddPrims','DpqColor','DrawTrackObjects','BuildObjectMatrix','SetTrackObjectTransform',
        'LoadTrackObjects','AddPrim','SetDrawMode','get_mode','get_tw','ApplyRotMatrix']
 SERVICES=['BuildRotMatrixY','BuildRotMatrixX','BuildRotMatrixZ','MulMatrix2','MulMatrix0','MulMatrix','ApplyMatrixLV','ApplyMatrixSV',
-          'SetTransMatrix','SetRotMatrix','PsyqRand','PsyqSrand','VSync','SquareRoot0','Atan2Table','func_8006DB0C','PsyqMemset',
+          'SetTransMatrix','SetRotMatrix','PsyqRand','PsyqSrand','VSync','SquareRoot0','Atan2Table','EmitAnimatedTrackLines','PsyqMemset',
           'PsyqBzero','PlaySfxVolPan']
 EXTRA=r'''
 MatrixWords32 CameraViewMatrix;
@@ -306,7 +306,7 @@ class TrackObjectDispatchTest(unittest.TestCase):
                     elif kind=='PlaySfxVolPan':
                         event(18,a,word(half(b)),word(half(c)),d)
                         if number&32:write(addresses['TrackObjectCount'],struct.pack('<I',1));write(addresses['RacePaused'],b'\x01')
-                    elif kind=='func_8006DB0C':self.fail('fixture expected the initial animated frames; broader emitter paths remain covered by the preserved animated-owner matrix')
+                    elif kind=='EmitAnimatedTrackLines':self.fail('fixture expected the initial animated frames; broader emitter paths remain covered by the preserved animated-owner matrix')
                     else:raise AssertionError(kind)
                     for r in (1,2,3,*range(4,16),24,25):cpu.r[r]=0xDEAD0000+r
                     cpu.r[2]=result;cpu.hi=0x12345678;cpu.lo=0x87654321;cpu.pc=resume

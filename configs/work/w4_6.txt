@@ -50,7 +50,7 @@ func_8006D138 0x8006d138 0x3c4 gte
 QuadOffscreenTest13 0x8006d4fc 0xa8 
 DrawWireQuadVerts1 0x8006d5a4 0x4a0 gte
 QuadOffscreenTestVerts1 0x8006da44 0xc8 
-func_8006DB0C 0x8006db0c 0x524 gte
+EmitAnimatedTrackLines 0x8006db0c 0x524 gte
 UpdateVisibleViewRecords 0x8006e8f8 0xd4 
 SetupViewport 0x8006ef8c 0x1fc 
 GetViewTrackSegment 0x8006f1ec 0x74 

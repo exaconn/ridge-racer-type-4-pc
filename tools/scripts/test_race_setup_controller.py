@@ -53,8 +53,8 @@ static void fill(void){unsigned i;
 }
 static Event *event(s32 kind){Event *e;assert(w->count<24);e=&w->events[w->count++];memset(e,0,sizeof(*e));e->kind=kind;e->snapshot=w->s;callbackSeen[kind]++;return e;}
 static void change(void){if(mutation)fill();}
-s32 func_80114988(void){event(1);change();return -123;}
-void func_80114AF8(unsigned long n){assert(n==0x7E900UL);event(2)->args[0]=(s32)n;change();}
+s32 ovl667_open_sio_events(void){event(1);change();return -123;}
+void ovl667_init_sio_session(unsigned long n){assert(n==0x7E900UL);event(2)->args[0]=(s32)n;change();}
 void DrawSync(s32 n){event(3)->args[0]=n;change();}
 void ApplyOptionsPadButtonMaps(void){event(4);change();}
 void InitRaceCars(s32 n){event(5)->args[0]=n;change();}
@@ -72,7 +72,7 @@ void SelectCourseBgmTrack(void){event(16);change();}
 void SetModelTexturePage(s32 n){event(17)->args[0]=n;change();}
 '''+body+r'''
 static void expected(void){unsigned i,index,course,group;int enabled;int64_t third;static const u8 special[8]={0,0,1,1,1,0,0,1};
- if(GameModeType==4){seen[0]++;func_80114988();func_80114AF8(0x7E900UL);}else seen[1]++;
+ if(GameModeType==4){seen[0]++;ovl667_open_sio_events();ovl667_init_sio_session(0x7E900UL);}else seen[1]++;
  DrawSync(0);ApplyOptionsPadButtonMaps();InitRaceCars(GameModeType);
  enabled=GameModeType<2||GameModeType==6||(GameModeType==4&&LinkPlayerCount==2);TrackEventSfxEnabled=enabled;seen[2+enabled]++;
  if(GameModeType==4)seen[20+(LinkPlayerCount==2)]++;

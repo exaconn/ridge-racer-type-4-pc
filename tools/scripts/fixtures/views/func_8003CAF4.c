@@ -23,8 +23,8 @@ void SetupRace(void)
     s32 *vector;
     if (GameModeType == 4)
     {
-        func_80114988();
-        func_80114AF8(0x7E900);
+        ovl667_open_sio_events();
+        ovl667_init_sio_session(0x7E900);
     }
     DrawSync(0);
     ApplyOptionsPadButtonMaps();

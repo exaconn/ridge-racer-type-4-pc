@@ -1,18 +1,17 @@
 """Draw-area packet with real resident constructor and coordinate helpers."""
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import re
 import subprocess
 import unittest
+from c_functions import definition_source, source_owners
 
 class Overlay662DrawAreaTest(unittest.TestCase):
     def test_geometry_shift_links_and_real_constructor(self):
         root=Path(__file__).resolve().parents[2]
         body=(root/'src/overlays/PAL/662/func_8011ABB4.c').read_text()
-        resident=(root/'tools/scripts/fixtures/legacy/gpu_coordinates.c').read_text()
-        resident=re.sub(r' __asm__\("\$[0-9]+"\)','',resident)
-        resident=re.sub(r'^.*__asm__.*\n','',resident,flags=re.M)
-        constructor=re.sub(r'^extern[^\n]*;\n','',(root/'tools/scripts/fixtures/legacy/func_80093B14.c').read_text(),flags=re.M)
+        owners=source_owners(root/'src/main/PAL')
+        resident='\n'.join(definition_source(owners[name].read_text(),name) for name in ('get_cs','get_ce'))
+        constructor=definition_source(owners['SetDrawArea'].read_text(),'SetDrawArea')
         source=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -30,6 +29,7 @@ FrameStorage DrawBuffers[2];static FrameStorage expected_frames[2];
 GarageSelectionPrefix ovl662_editor_workspace;static GarageSelectionPrefix saved;
 s32 DrawBufIndex;s16 D_800ABAC4,D_800ABAC6;
 static struct Packets {u32 before[3],words[9],head,after[3];} actual,expected;
+static GpuDmaRegion region;
 '''+resident+constructor+body+r'''
 static u32 rng=0x1ABB4;
 static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
@@ -47,6 +47,7 @@ static u32 *head(struct Packets *p,unsigned shape){
 int main(void){unsigned i,shape,j;u32 x,y,w,h;uint64_t cases=0;
  static const s32 clocks[]={INT32_MIN,INT32_MAX,-1,0,1,0x00800000,-0x00800001,0x12345678};
  memset(&ovl662_editor_workspace,0,sizeof(ovl662_editor_workspace));
+ region=(GpuDmaRegion){&actual,0x80180000U,sizeof(actual)};assert(GpuDmaSetRegions(&region,1));
  for(i=0;i<65536;i++){
   s16 rx,ry;int64_t yy;
   ovl662_editor_workspace.halfC8=half(i);ovl662_editor_workspace.halfCA=half(i*73U+17);
@@ -69,7 +70,7 @@ int main(void){unsigned i,shape,j;u32 x,y,w,h;uint64_t cases=0;
    expected.words[4]=command(rx,ry,0xE3000000U);
    expected.words[5]=command(narrow((int64_t)(u16)rx+w-1),narrow((int64_t)(u16)ry+h-1),0xE4000000U);
    expected.words[3]=(expected.words[3]&0xFF000000U)|(*eorder&0xFFFFFFU);
-   *eorder=(*eorder&0xFF000000U)|((u32)((uintptr_t)pkt&0xFFFFFFU));
+   *eorder=(*eorder&0xFF000000U)|((region.address+(u32)((u8*)pkt-(u8*)&actual))&0xFFFFFFU);
    result=ovl662_emit_draw_area(ordering,pkt,x,y,(u16)w,(u16)h);
    assert(result==(u8*)(actual.words+6));assert((uintptr_t)result>UINT32_MAX);
    assert(memcmp(&actual,&expected,sizeof(actual))==0);
@@ -82,7 +83,7 @@ int main(void){unsigned i,shape,j;u32 x,y,w,h;uint64_t cases=0;
 '''
         with TemporaryDirectory() as tmp:
             p=Path(tmp);(p/'test.c').write_text(source)
-            subprocess.run(['cc','-std=gnu11','-O2','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(root/'include'),str(p/'test.c'),'-o',str(p/'test')],check=True)
+            subprocess.run(['cc','-std=gnu11','-O2','-fsanitize=undefined','-fno-sanitize-recover=all','-I',str(root/'include'),str(p/'test.c'),str(root/'src/native/gpu_address.c'),'-o',str(p/'test')],check=True)
             subprocess.run([str(p/'test')],check=True)
 
 if __name__=='__main__':unittest.main()

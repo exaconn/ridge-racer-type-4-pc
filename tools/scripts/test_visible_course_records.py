@@ -131,7 +131,7 @@ u32 begin_case(unsigned serial,unsigned segment,unsigned octant,unsigned chosen,
  live.scratch.scene.view.projection.pose08.position00.xyz.x=0x12345678;
  live.scratch.scene.view.projection.pose08.position00.xyz.z=word(0x87654321);
  live.scratch.scene.view.projection.pose08.angles10.xyz.y=(s32)octant*512;
- for(unsigned i=0;i<768;i++)live.nodes[i].heading12=(s16)(i*173U+serial*19U);
+ for(unsigned i=0;i<768;i++)live.nodes[i].road.heading=(s16)(i*173U+serial*19U);
  live.extra.count=(u8)extraCount;memcpy(live.extra.indices,extras,31);
  unsigned slot=segment*8+octant;
  if(syntheticCount!=0xBADF00DU) {
@@ -163,7 +163,7 @@ void check(unsigned primaryCount,const u32 *primary,unsigned activeCount,const u
  if(mode==0){
   expected.segmentYaw[0]=(s16)selected;
   s32 yaw=initial.scratch.scene.view.projection.pose08.angles10.xyz.y;
-  s32 heading=initial.nodes[selected*5+2].heading12;
+  s32 heading=initial.nodes[selected*5+2].road.heading;
   expected.segmentYaw[1]=(s16)(((u32)yaw-(u32)(2048-heading))&4095U);
  }
  assert(searches==(mode==0));assert(!memcmp(&live,&expected,sizeof(live)));

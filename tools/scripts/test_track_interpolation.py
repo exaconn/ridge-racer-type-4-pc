@@ -42,9 +42,9 @@ static unsigned random_value(void) {
 static void samples(void) {
     memset(actual,0xA5,sizeof(actual));
     for(int i=0;i<256;i++){
-        actual[i].x08=(int)(random_value()%20001)-10000;
-        actual[i].z0C=(int)(random_value()%20001)-10000;
-        actual[i].y10=(int)(random_value()%20001)-10000;
+        actual[i].road.x=(int)(random_value()%20001)-10000;
+        actual[i].road.z=(int)(random_value()%20001)-10000;
+        actual[i].road.height=(int)(random_value()%20001)-10000;
     }
     memcpy(expected,actual,sizeof(actual));
 }
@@ -71,9 +71,9 @@ static int interpolate(int first,int second,int fraction) {
 static void reference(int a,int b,int fraction,s32 *out) {
     TrackSample3C *x=&expected[128+a],*y=&expected[128+b];
     /* Keep the original order: an aliased output can change z before its read. */
-    out[0]=4*interpolate(x->x08,y->x08,fraction);
-    out[1]=interpolate(x->y10,y->y10,fraction);
-    out[2]=4*interpolate(x->z0C,y->z0C,fraction);
+    out[0]=4*interpolate(x->road.x,y->road.x,fraction);
+    out[1]=interpolate(x->road.height,y->road.height,fraction);
+    out[2]=4*interpolate(x->road.z,y->road.z,fraction);
 }
 static void one(int count,int index,int difference,int direction,int alias) {
     RaceVehicle vehicle, before;
@@ -91,8 +91,8 @@ static void one(int count,int index,int difference,int direction,int alias) {
     s32 *output=out+1,*target=want;
     if(alias){
         int chosen=alias==1?a:b;
-        output=&actual[128+chosen].x08;
-        target=&expected[128+chosen].x08;
+        output=&actual[128+chosen].road.x;
+        target=&expected[128+chosen].road.x;
     }
     reference(a,b,(unsigned)difference&1023,target);
     GetTrackPointAhead(&vehicle,output,difference+offset);

@@ -117,7 +117,7 @@ int run_heading(s16 heading,s16 trackHeading) {
     RaceVehicle before;TrackSample3C beforeNode;
     memset(&PlayerCars[0],0xA5,sizeof(PlayerCars[0]));memset(nodes,0xA6,sizeof(nodes));
     PlayerCars[0].trackNodeF0=0;PlayerCars[0].heading1D4=heading;
-    nodes[0].heading12=trackHeading;before=PlayerCars[0];beforeNode=nodes[0];
+    nodes[0].road.heading=trackHeading;before=PlayerCars[0];beforeNode=nodes[0];
     {int result=IsCarFacingReverse(&PlayerCars[0]);
      assert(!memcmp(&before,&PlayerCars[0],sizeof(before)));
      assert(!memcmp(&beforeNode,&nodes[0],sizeof(beforeNode)));return result;}

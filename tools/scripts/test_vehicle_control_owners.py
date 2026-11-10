@@ -61,8 +61,8 @@ void InterpolateLanePointXZ(const TrackSample3C *first,const TrackSample3C *seco
     assert((uintptr_t)output>UINT32_MAX&&fraction>=0&&fraction<1024);
     w->arguments[0]=2;w->arguments[1]=(s32)(first-samples[0]);
     w->arguments[2]=(s32)(second-samples[0]);w->arguments[3]=lateral;w->arguments[4]=fraction;
-    output[0]=first->x08+(second->x08-first->x08)*fraction/1024+lateral;
-    output[2]=first->z0C+(second->z0C-first->z0C)*fraction/1024-lateral;
+    output[0]=first->road.x+(second->road.x-first->road.x)*fraction/1024+lateral;
+    output[2]=first->road.z+(second->road.z-first->road.z)*fraction/1024-lateral;
     mutate();
 }
 '''+bodies+r'''
@@ -80,10 +80,10 @@ static void reference(unsigned routine) {
         if(!c->laneTimer38)c->laneTarget3C=c->laneCurrent3E;
     }else{
         if(!c->laneActive6A&&c->laneTimer38==0){
-            s32 ax=samples[0][first].x08+offsets[0][first].x;
-            s32 az=samples[0][first].z0C+offsets[0][first].z;
-            s32 bx=samples[0][second].x08+offsets[0][second].x;
-            s32 bz=samples[0][second].z0C+offsets[0][second].z;
+            s32 ax=samples[0][first].road.x+offsets[0][first].x;
+            s32 az=samples[0][first].road.z+offsets[0][first].z;
+            s32 bx=samples[0][second].road.x+offsets[0][second].x;
+            s32 bz=samples[0][second].road.z+offsets[0][second].z;
             x=ax+(bx-ax)*fraction/1024;z=az+(bz-az)*fraction/1024;
         }else{
             s32 out[3];
@@ -113,8 +113,8 @@ int main(void) {
     assert(sizeof(void*)==8&&offsetof(RaceVehicle,control)==0x1F8);
     assert((uintptr_t)&actual.vehicle>UINT32_MAX);
     for(bank=0;bank<2;bank++)for(i=0;i<8;i++){
-        samples[bank][i].x08=(s32)i*1103-3000+(s32)bank*100;
-        samples[bank][i].z0C=(s32)i*-991+7000-(s32)bank*100;
+        samples[bank][i].road.x=(s32)i*1103-3000+(s32)bank*100;
+        samples[bank][i].road.z=(s32)i*-991+7000-(s32)bank*100;
         offsets[bank][i].x=(s16)(i*211)-700;offsets[bank][i].z=900-(s16)(i*193);
     }
     for(scenario=0;scenario<65536;scenario++)for(routine=0;routine<2;routine++)for(mutation=0;mutation<2;mutation++){

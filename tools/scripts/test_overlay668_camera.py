@@ -47,7 +47,7 @@ static void change(void){unsigned i,j;ReplayCameraContextPrefix *c=&w->s.camera;
  c->pitch460=half(next());c->yaw462=half(next());c->roll464=half(next());c->angle490=half(next());c->velocity4A0=word(next());
  for(i=0;i<3;i++){c->position450[i]=word(next());c->delta478[i]=word(next());}
  for(i=0;i<4;i++){c->target468[i]=word(next());c->offset488[i]=half(next());}
- for(i=0;i<2;i++)for(j=0;j<9;j++){w->s.tables[i][j].x08=word(next());w->s.tables[i][j].z0C=word(next());w->s.tables[i][j].y10=half(next());w->s.tables[i][j].heading12=half(next());}
+ for(i=0;i<2;i++)for(j=0;j<9;j++){w->s.tables[i][j].road.x=word(next());w->s.tables[i][j].road.z=word(next());w->s.tables[i][j].road.height=half(next());w->s.tables[i][j].road.heading=half(next());}
 }
 static Event *event(s32 op){size_t i;Event *e;u32 h=2166136261U;assert(w->calls<6);
  for(i=0;i<sizeof(w->s);i++)h=(h^((u8*)&w->s)[i])*16777619U;
@@ -60,9 +60,9 @@ void InterpolateLanePointXYZ(const TrackSample3C *a,const TrackSample3C *b,s32 l
  e->a[0]=ia;e->a[1]=ib;e->a[2]=lateral;e->a[3]=fraction;
  /* Bounded simulated samples keep the sqrt input valid. Full camera position
   * and velocity words still exercise wrapping subtraction and smoothing. */
- out[0]=(s32)(((u32)a->x08^(u32)b->x08)&2047)-1024;
- out[1]=(s32)(((u32)a->y10+(u32)b->y10+(u32)lateral)&2047)-1024;
- out[2]=(s32)(((u32)a->z0C+(u32)b->z0C+(u32)fraction)&2047)-1024;
+ out[0]=(s32)(((u32)a->road.x^(u32)b->road.x)&2047)-1024;
+ out[1]=(s32)(((u32)a->road.height+(u32)b->road.height+(u32)lateral)&2047)-1024;
+ out[2]=(s32)(((u32)a->road.z+(u32)b->road.z+(u32)fraction)&2047)-1024;
  out[3]=0;for(i=0;i<3;i++)e->a[4]^=out[i];effect();
 }
 s32 Atan2Table(s32 y,s32 x){Event *e=event(2);s32 result=(s32)(next()%4097)-1024;e->a[0]=y;e->a[1]=x;e->a[2]=result;effect();return result;}

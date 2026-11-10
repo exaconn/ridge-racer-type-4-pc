@@ -46,8 +46,8 @@ void ProjectToTrackSegment(TrackOffsetArgument x,TrackOffsetArgument z,s32 node,
  s16 a,b;u32 n=scenario%8;
  assert(event++==1&&node==(s32)n&&fraction==&camera.c.fraction49C&&lateral==&camera.c.lateral49E);
  memcpy(expected+0x498,&n,4);check();assert((uintptr_t)height>UINT32_MAX);
- a=half((u16)(camera.c.position450[0]/4-(u16)samples.table[(scenario+1)%3][n].x08));
- b=half((u16)(camera.c.position450[2]/4-(u16)samples.table[(scenario+1)%3][n].z0C));
+ a=half((u16)(camera.c.position450[0]/4-(u16)samples.table[(scenario+1)%3][n].road.x));
+ b=half((u16)(camera.c.position450[2]/4-(u16)samples.table[(scenario+1)%3][n].road.z));
  assert(x.value==a&&z.value==b);
  change(63);*fraction=half(scenario*37);*lateral=half(~(scenario*71));*height=word(scenario*0x9E3779B9U);
  memcpy(expected,&camera.c,sizeof expected);TrackNodes=samples.table[(scenario+2)%3];TrackNodeCount=word(~scenario);
@@ -62,8 +62,8 @@ int main(void){unsigned i,b,j;_Static_assert(sizeof(void*)==8,"full native point
   camera.c.node498=oldnode=scenario%8;TrackNodeCount=counts[(scenario/8)%8];count=word((u32)TrackNodeCount+1);
   for(b=0;b<3;b++)for(j=0;j<8;j++){
    u8 *p=(u8*)&samples.table[b][j];for(i=0;i<60;i++)p[i]=(u8)(scenario*11+b*17+j*19+i*3);
-   samples.table[b][j].x08=word(scenario*0x9E3779B9U+b*65537+j*97);
-   samples.table[b][j].z0C=word(~(scenario*0x85EBCA6BU+b*131071+j*193));
+   samples.table[b][j].road.x=word(scenario*0x9E3779B9U+b*65537+j*97);
+   samples.table[b][j].road.z=word(~(scenario*0x85EBCA6BU+b*131071+j*193));
   }
   saved=samples;TrackNodes=samples.table[scenario%3];event=0;memcpy(expected,&camera.c,sizeof expected);
   ovl668_project_camera_to_track(0);assert(event==2);check();assert(!memcmp(&samples,&saved,sizeof samples));

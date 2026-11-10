@@ -1,6 +1,6 @@
 #include "rr/overlay661_layout.h"
 #include "rr/load_cursor.h"
-void ovl661_func_80115598(s32 mode) {
+void ovl661_init_preview(s32 mode) {
     s32 i;
     ProjectionScratchPrefix *scratch;
     void *arena;
@@ -47,7 +47,7 @@ void ovl661_func_80115598(s32 mode) {
     /* ASM_BARRIER: reload LoadCursor address after InitPreviewImageRows before storing MenuArenaBase */
     __asm__("" : "+m"(LoadCursor));
     arena=MenuArenaBase;
-    ovl661_D_80118438=0;
+    ovl661_preview_confirmation=0;
     LoadCursor=arena;
     if(!(ActivePlayerIndex&1))MenuArenas.first=arena;
     else LoadCursor=MenuArenas.first;
@@ -64,13 +64,13 @@ void ovl661_func_80115598(s32 mode) {
         PlayerCars[i].position20.words[2] = 308;
         PlayerCars[i].rot54 = 2048;
     }
-    ovl661_D_80118440[0][0]=CountChoiceGlyphs(ovl661_D_80118458[0][0]);
-    ovl661_D_80118440[0][1]=CountChoiceGlyphs(ovl661_D_80118458[0][1]);
-    ovl661_D_80118440[1][0]=CountChoiceGlyphs(ovl661_D_80118458[1][0]);
-    ovl661_D_80118440[1][1]=CountChoiceGlyphs(ovl661_D_80118458[1][1]);
-    if(ovl661_D_80118440[mode&1][1]==0)ovl661_D_80118450[mode&1]=0;
-    if(ovl661_D_8011844C[ActivePlayerIndex&1]>=ovl661_D_80118440[ActivePlayerIndex&1][ovl661_D_80118450[ActivePlayerIndex&1]])ovl661_D_8011844C[ActivePlayerIndex&1]=0;
-    UnpackChoiceGlyph((s8*)&SelectionRows+ActivePlayerIndex*4,ovl661_D_80118458[ActivePlayerIndex&1][ovl661_D_80118450[ActivePlayerIndex&1]][ovl661_D_8011844C[ActivePlayerIndex&1]].glyph);
-    PlayerCourseChoices[ActivePlayerIndex].first=ovl661_D_80118458[ActivePlayerIndex&1][ovl661_D_80118450[ActivePlayerIndex&1]][ovl661_D_8011844C[ActivePlayerIndex&1]].first;
-    PlayerCourseChoices[ActivePlayerIndex].second=ovl661_D_80118458[ActivePlayerIndex&1][ovl661_D_80118450[ActivePlayerIndex&1]][ovl661_D_8011844C[ActivePlayerIndex&1]].second;
+    ovl661_available_car_counts[0][0]=CountChoiceGlyphs(ovl661_car_choices[0][0]);
+    ovl661_available_car_counts[0][1]=CountChoiceGlyphs(ovl661_car_choices[0][1]);
+    ovl661_available_car_counts[1][0]=CountChoiceGlyphs(ovl661_car_choices[1][0]);
+    ovl661_available_car_counts[1][1]=CountChoiceGlyphs(ovl661_car_choices[1][1]);
+    if(ovl661_available_car_counts[mode&1][1]==0)ovl661_selected_groups[mode&1]=0;
+    if(ovl661_selected_cars[ActivePlayerIndex&1]>=ovl661_available_car_counts[ActivePlayerIndex&1][ovl661_selected_groups[ActivePlayerIndex&1]])ovl661_selected_cars[ActivePlayerIndex&1]=0;
+    UnpackChoiceGlyph((s8*)&SelectionRows+ActivePlayerIndex*4,ovl661_car_choices[ActivePlayerIndex&1][ovl661_selected_groups[ActivePlayerIndex&1]][ovl661_selected_cars[ActivePlayerIndex&1]].glyph);
+    PlayerCourseChoices[ActivePlayerIndex].first=ovl661_car_choices[ActivePlayerIndex&1][ovl661_selected_groups[ActivePlayerIndex&1]][ovl661_selected_cars[ActivePlayerIndex&1]].first;
+    PlayerCourseChoices[ActivePlayerIndex].second=ovl661_car_choices[ActivePlayerIndex&1][ovl661_selected_groups[ActivePlayerIndex&1]][ovl661_selected_cars[ActivePlayerIndex&1]].second;
 }

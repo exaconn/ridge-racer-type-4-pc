@@ -103,7 +103,7 @@ int main(void) {
     ovl659_exit_race();
     assert(step == 1 && ModeGroup == 1 && ModeIndex == 47 && SubmodeState == 0);
     ovl660_select_scene(); assert(ActiveSceneId == 0x131);
-    ovl661_func_80117340(); assert(ActiveSceneId == 0x137);
+    ovl661_select_scene(); assert(ActiveSceneId == 0x137);
     for (unsigned i = 0; i < 65536; i++) {
         memset(&ovl662_D_80127668, 0xA5, sizeof(ovl662_D_80127668));
         s32 args[4] = {(s32)(0x12340000U|i), (s32)(0xFFFF0000U|i),

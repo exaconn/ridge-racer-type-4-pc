@@ -47,11 +47,11 @@ static unsigned scenario,mutation;
 #define PlayerCourseChoices w->s.points
 #define ImageRows w->s.ui[scenario%4]
 #define CourseChoiceTable w->s.main
-#define ovl661_D_80118458 w->s.table661
+#define ovl661_car_choices w->s.table661
 #define LinkCarChoiceTable w->s.table667
 #define ActivePlayerIndex w->s.player
-#define ovl661_D_80118450 w->s.rows661
-#define ovl661_D_8011844C w->s.cols661
+#define ovl661_selected_groups w->s.rows661
+#define ovl661_selected_cars w->s.cols661
 #define LinkCarChoiceGroup w->s.rows667
 #define LinkCarChoiceIndex w->s.cols667
 #define PlayerCars w->s.vehicles
@@ -139,7 +139,7 @@ int main(void){
   for(i=0;i<sizeof(w->s.selection);i++)((u8*)&w->s.selection)[i]=(u8)(scenario+i*43);
   for(i=0;i<4;i++){w->s.guards[i]=0x12345678U+i;w->s.tail[i]=0x87654321U-i;}
   actual=initial;expected=initial;w=&actual;
-  if(kind==0)ovl660_init_preview();else if(kind==1)ovl661_func_80115F8C();else ovl667_func_80116BB4();
+  if(kind==0)ovl660_init_preview();else if(kind==1)ovl661_reset_preview_selection();else ovl667_func_80116BB4();
   w=&expected;reference(kind);assert(memcmp(&actual,&expected,sizeof(actual))==0);
  }
  return 0;

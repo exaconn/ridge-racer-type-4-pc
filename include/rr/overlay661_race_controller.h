@@ -10,18 +10,18 @@ typedef struct {GpuScratchPointers pointers;Rr661FrameVector16 position08,rotati
 #ifndef RR_661_FRAME_MODE
 #define RR_661_FRAME_MODE (*(s16 *)0x1F80005EU)
 #endif
-extern Rr661FrameVector16 D_801183D0[2],D_801183F0[2];
+extern Rr661FrameVector16 ovl661_camera_rotations[2],ovl661_camera_positions[2];
 extern s32 TotalRaceTime;
-extern s16 ovl661_D_80118448[2];
+extern s16 ovl661_finish_ranks[2];
 void DrawHudNumber5(s32,s32);void UpdateHudRankDisplay(s32,s32);void DrawLapCounter(s32,s32);void UpdateFinalLapHudSprite(s32);void DrawSplitScreenDivider(s32);void DrawTimeRemainingForPlayer(s32,s32);void SoundSetMasterVolume(s16,s16);
-void ovl661_func_80114924(RaceVehicle *);
+void ovl661_update_checkpoint(RaceVehicle *);
 /* The hardware view has two full CPU pointers followed by two four-word
  * vectors. Native builds grow the pointer prefix; vector and tail offsets
  * follow that prefix rather than retaining PAL pointer widths.
  * Services may replace frame roots and mutate both complete vector tables,
  * vehicle/input owners and the later-read counters. Frame/tick arithmetic
  * wraps32; rendering visits both players and publishes current scratch state. */
-void ovl661_func_80114B00(void);
+void ovl661_update_race(void);
 RR_ASSERT_SIZE(Rr661FrameVector16,0x10);
 RR_ASSERT_OFFSET(Rr661FrameScratch,pointers,0);
 RR_ASSERT_OFFSET(Rr661FrameScratch,position08,sizeof(GpuScratchPointers));

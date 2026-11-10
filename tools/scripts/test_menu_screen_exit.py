@@ -63,7 +63,7 @@ int main(void){unsigned i,j;
   memcpy(saved,frames,sizeof(frames));phase=0;
   ModeGroup=(u16)case_id;ModeIndex=(s16)case_id;SubmodeState=(s16)~case_id;
   CurrentDrawBuf=&frames[3];
-  if(which)ovl661_func_80114AA0();else ovl660_exit_race();
+  if(which)ovl661_exit_race();else ovl660_exit_race();
   assert(phase==4);assert(CurrentDrawBuf==&frames[3]);
   assert(ModeGroup==(u16)(case_id+3));assert(ModeIndex==(s16)(case_id-3));
   assert(SubmodeState==(s16)(case_id+9));assert(MaskBitSetting==(s32)(case_id+3));

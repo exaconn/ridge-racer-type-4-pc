@@ -108,6 +108,14 @@ def signed(value):
 
 class VabSdkInterfaceTest(unittest.TestCase):
     @classmethod
+    def native_extension(cls, owners):
+        return ''
+
+    @classmethod
+    def native_compile_flags(cls):
+        return []
+
+    @classmethod
     def setUpClass(cls):
         cls.temporary = TemporaryDirectory()
         cls.addClassCleanup(cls.temporary.cleanup)
@@ -120,16 +128,19 @@ class VabSdkInterfaceTest(unittest.TestCase):
         # Observe calls before the actual mode helper without changing its body.
         code += definition_source(owners['SpuSetTransferMode'].read_text(), 'SpuSetTransferMode').replace(
             'void SpuSetTransferMode(', 'void test_actual_mode(')
+        code += cls.native_extension(owners)
         directory = Path(cls.temporary.name)
         source = directory/'sdk.c'
         source.write_text(code)
         result = subprocess.run(['cc', '-std=gnu11', '-O2', '-shared', '-fPIC',
             '-Wall', '-Wextra', '-Werror',
             '-fsanitize=undefined,bounds', '-fno-sanitize-recover=all',
+            *cls.native_compile_flags(),
             '-I'+str(ROOT/'include'), str(source), '-o', str(directory/'sdk.so')],
             capture_output=True, text=True)
         if result.returncode:
             raise AssertionError(result.stderr)
+        cls.native_compile_warnings = result.stderr
         cls.lib = C.CDLL(str(directory/'sdk.so'))
         image = (ROOT/'assets/PAL/main.exe').read_bytes()
         base = struct.unpack_from('<I', image, 24)[0]

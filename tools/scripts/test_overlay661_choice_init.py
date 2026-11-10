@@ -93,7 +93,7 @@ int main(void){unsigned k,i;const u32 edges[]={0,3,0x7fffffffU,0x80000000U,0xfff
   world.scratch.pointers.cursor=world.arena[k%3]+24;world.scratch.pointers.order=world.order;
   random_value[0]=(k&8)?next():edges[k&7];random_value[1]=(k&16)?next():edges[(k>>3)&7];
   assert((uintptr_t)world.scratch.pointers.cursor>UINT32_MAX && (uintptr_t)world.arenas.second>UINT32_MAX);
-  memcpy(&expected,&world,sizeof(world));reference();ovl661_func_80117350();assert(memcmp(&world,&expected,sizeof(world))==0);
+  memcpy(&expected,&world,sizeof(world));reference();ovl661_init_scene();assert(memcmp(&world,&expected,sizeof(world))==0);
  }
  /* The other initializer has no random/UI boundaries: execute its complete
   * resident selection/reset closure for every signed16 selector. */

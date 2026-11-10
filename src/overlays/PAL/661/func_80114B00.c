@@ -1,7 +1,7 @@
 #include "game/system/pad.h"
 #include "rr/overlay661_race_controller.h"
 #include "rr/frame_storage_types.h"
-void ovl661_func_80114B00(void) {
+void ovl661_update_race(void) {
     s32 var_a2;
     s32 var_a2_2;
     s32 temp_a1;
@@ -67,16 +67,16 @@ block_7:
         }
         var_s2 = 0;
         do {
-            RR_661_FRAME_SCRATCH->rotation18 = D_801183D0[var_s2];
-            RR_661_FRAME_SCRATCH->position08 = D_801183F0[var_s2];
+            RR_661_FRAME_SCRATCH->rotation18 = ovl661_camera_rotations[var_s2];
+            RR_661_FRAME_SCRATCH->position08 = ovl661_camera_positions[var_s2];
             SetupViewport(var_s2 + 2);
             if (RaceState == 0 && ModeFrame < 75U) {
                 UpdateRaceIntroCamera(&PlayerCars[var_s2], ModeFrame);
             } else {
                 UpdateRaceChaseCamera(&PlayerCars[var_s2]);
             }
-            D_801183D0[var_s2] = RR_661_FRAME_SCRATCH->rotation18;
-            D_801183F0[var_s2] = RR_661_FRAME_SCRATCH->position08;
+            ovl661_camera_rotations[var_s2] = RR_661_FRAME_SCRATCH->rotation18;
+            ovl661_camera_positions[var_s2] = RR_661_FRAME_SCRATCH->position08;
             temp_s0_2 = var_s2 + 1;
             BuildCameraMatrices();
             DrawCars(var_s2 + 2);
@@ -122,8 +122,8 @@ block_7:
                 RR_661_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(CurrentDrawBuf->buffer.secondaryOrderingB70.words, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
             }
             if (FadeCountdown <= 0) {
-                ovl661_D_80118448[0] = (u16) PlayerCars[0].half1EE;
-                ovl661_D_80118448[1] = (u16) PlayerCars[1].half1EE;
+                ovl661_finish_ranks[0] = (u16) PlayerCars[0].half1EE;
+                ovl661_finish_ranks[1] = (u16) PlayerCars[1].half1EE;
                 if (RaceState == 4) {
                     ModeGroup = 1;
                     ModeIndex = 0x15;
@@ -143,8 +143,8 @@ block_7:
             RR_661_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(CurrentDrawBuf->buffer.secondaryOrderingB70.words, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
         }
     }
-    ovl661_func_80114924(&PlayerCars[0]);
-    ovl661_func_80114924(&PlayerCars[1]);
+    ovl661_update_checkpoint(&PlayerCars[0]);
+    ovl661_update_checkpoint(&PlayerCars[1]);
     UpdateRaceRanking();
     if ((s16) PlayerCars[0].half1EE < (s16) PlayerCars[1].half1EE) {
         PlayerCars[0].half1EE = 0U;
@@ -180,16 +180,16 @@ block_7:
     }
     var_s2 = 0;
     do {
-        RR_661_FRAME_SCRATCH->rotation18 = D_801183D0[var_s2];
-        RR_661_FRAME_SCRATCH->position08 = D_801183F0[var_s2];
+        RR_661_FRAME_SCRATCH->rotation18 = ovl661_camera_rotations[var_s2];
+        RR_661_FRAME_SCRATCH->position08 = ovl661_camera_positions[var_s2];
         SetupViewport(var_s2 + 2);
         if (RaceState == 0 && ModeFrame < 75U) {
             UpdateRaceIntroCamera(&PlayerCars[var_s2], ModeFrame);
         } else {
             UpdateRaceChaseCamera(&PlayerCars[var_s2]);
         }
-        D_801183D0[var_s2] = RR_661_FRAME_SCRATCH->rotation18;
-        D_801183F0[var_s2] = RR_661_FRAME_SCRATCH->position08;
+        ovl661_camera_rotations[var_s2] = RR_661_FRAME_SCRATCH->rotation18;
+        ovl661_camera_positions[var_s2] = RR_661_FRAME_SCRATCH->position08;
         BuildCameraMatrices();
         DrawCars(var_s2 + 2);
         if (PlayerCars[var_s2].half1EA != 0) {

@@ -1,0 +1,110 @@
+{
+  "entry": 661,
+  "aliases": [
+    671
+  ],
+  "load_address": 2148616312,
+  "functions": [
+    {
+      "address": 2148616484,
+      "size": 380,
+      "symbol": "ovl661_update_checkpoint",
+      "source": "src/overlays/PAL/661/func_80114924.c"
+    },
+    {
+      "address": 2148616864,
+      "size": 96,
+      "symbol": "ovl661_exit_race",
+      "source": "src/overlays/PAL/661/func_80114AA0.c"
+    },
+    {
+      "address": 2148616960,
+      "size": 2712,
+      "symbol": "ovl661_update_race",
+      "source": "src/overlays/PAL/661/func_80114B00.c"
+    },
+    {
+      "address": 2148619672,
+      "size": 2080,
+      "symbol": "ovl661_init_preview",
+      "source": "src/overlays/PAL/661/func_80115598.c"
+    },
+    {
+      "address": 2148621752,
+      "size": 468,
+      "symbol": "ovl661_init_menu",
+      "source": "src/overlays/PAL/661/func_80115DB8.c"
+    },
+    {
+      "address": 2148622220,
+      "size": 356,
+      "symbol": "ovl661_reset_preview_selection",
+      "source": "src/overlays/PAL/661/func_80115F8C.c"
+    },
+    {
+      "address": 2148622576,
+      "size": 4688,
+      "symbol": "ovl661_update_preview",
+      "source": "src/overlays/PAL/661/func_801160F0.c"
+    },
+    {
+      "address": 2148627264,
+      "size": 16,
+      "symbol": "ovl661_select_scene",
+      "source": "src/overlays/PAL/661/func_80117340.c"
+    },
+    {
+      "address": 2148627280,
+      "size": 224,
+      "symbol": "ovl661_init_scene",
+      "source": "src/overlays/PAL/661/func_80117350.c"
+    },
+    {
+      "address": 2148627504,
+      "size": 2120,
+      "symbol": "ovl661_update_menu",
+      "source": "src/overlays/PAL/661/func_80117430.c"
+    },
+    {
+      "address": 2148629624,
+      "size": 408,
+      "symbol": "ovl661_init_results",
+      "source": "src/overlays/PAL/661/func_80117C78.c"
+    },
+    {
+      "address": 2148630032,
+      "size": 128,
+      "symbol": "ovl661_update_retry_choice",
+      "source": "src/overlays/PAL/661/func_80117E10.c"
+    },
+    {
+      "address": 2148630160,
+      "size": 1224,
+      "symbol": "ovl661_update_results",
+      "source": "src/overlays/PAL/661/func_80117E90.c"
+    }
+  ],
+  "globals": {
+    "ovl661_player2_default_name": 2148616316,
+    "ovl661_scene_name": 2148616328,
+    "ovl661_wins_suffix_label": 2148616428,
+    "ovl661_win_count_prefix": 2148616440,
+    "ovl661_group_option_counts": 2148631384,
+    "ovl661_group_slot_kinds": 2148631388,
+    "ovl661_group_ui_rows": 2148631396,
+    "ovl661_difficulty_parameters": 2148631412,
+    "ovl661_result_labels": 2148631416,
+    "ovl661_camera_rotations": 2148631504,
+    "ovl661_camera_positions": 2148631536,
+    "ovl661_player_standings": 2148631568,
+    "ovl661_available_course_count": 2148631572,
+    "ovl661_player_win_counts": 2148631576,
+    "ovl661_player_names": 2148631584,
+    "ovl661_preview_confirmation": 2148631608,
+    "ovl661_available_car_counts": 2148631616,
+    "ovl661_finish_ranks": 2148631624,
+    "ovl661_selected_cars": 2148631628,
+    "ovl661_selected_groups": 2148631632,
+    "ovl661_car_choices": 2148631640
+  }
+}

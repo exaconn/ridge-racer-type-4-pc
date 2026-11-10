@@ -11,7 +11,7 @@ extern s32 RaceVoiceFlags;
 extern void SaveCarSnapshots(s32);
 extern void SoundSetMasterVolume(s16, s16);
 
-void ovl661_func_80114924(RaceVehicle *vehicle) {
+void ovl661_update_checkpoint(RaceVehicle *vehicle) {
     RaceVehicleControl *control = &vehicle->control;
     s16 counter;
     s32 target;

@@ -3,7 +3,7 @@
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
 
-void ovl661_func_80117430(void) {
+void ovl661_update_menu(void) {
     s32 var_a0_3;
     s32 var_s2;
     s32 var_s0;
@@ -23,7 +23,7 @@ void ovl661_func_80117430(void) {
         case 0:
             SetMenuFrameOptions(1, 1, 1);
             temp_s0 = SelectedCourseChoice;
-            StepMenuValue(3, 2, (char *)&SelectedCourseChoice, ovl661_D_80118414, 0);
+            StepMenuValue(3, 2, (char *)&SelectedCourseChoice, ovl661_available_course_count, 0);
             if ((s16) temp_s0 != (s16) SelectedCourseChoice) {
                 ResetScreenCounters();
             } else {
@@ -61,7 +61,7 @@ void ovl661_func_80117430(void) {
                             var_s0 += 1;
                         } while (var_s0 < 4);
                         {
-                            u8 *parameterTable = D_80118374;
+                            u8 *parameterTable = ovl661_difficulty_parameters;
                             SelectionRows32 *choice = &SelectionRows;
                             u8 first = choice->primary;
                             u8 second = choice->variant;
@@ -129,7 +129,7 @@ void ovl661_func_80117430(void) {
 block_42:
                 if (FadeCountdown <= 0) {
                     SeqMuteVolume();
-                    ovl661_D_80118448[0] = -1;
+                    ovl661_finish_ranks[0] = -1;
                     MenuScriptId = 0;
                     ModeGroup = 1;
                     ModeIndex = 0x23;
@@ -182,7 +182,7 @@ block_59:
             goto block_63;
         case 8:
             if (UiRows[18].byte14 == 5) {
-                ovl661_func_80115598(0);
+                ovl661_init_preview(0);
                 ModeGroup = 1;
                 ModeIndex = 0x38;
                 SubmodeState = 0;
@@ -202,7 +202,7 @@ block_64:
         var_s0 += 1;
     } while (var_s0 < 5);
     if ((UiRows[18].byte14 == 2) && ((SubmodeState - 4) >= 2U)) {
-        DrawMenuStepArrows(0xCE, 0xD0, 0x5E, 0, (s16) SelectedCourseChoice, -1, ovl661_D_80118414 + 1);
+        DrawMenuStepArrows(0xCE, 0xD0, 0x5E, 0, (s16) SelectedCourseChoice, -1, ovl661_available_course_count + 1);
     }
     if (SubmodeState == 4) {
         var_a0_3 = 0x17;

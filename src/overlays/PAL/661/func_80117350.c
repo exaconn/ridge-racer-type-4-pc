@@ -4,7 +4,7 @@
 #define RR_GPU_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)0x1F800000)
 #endif
 
-void ovl661_func_80117350(void)
+void ovl661_init_scene(void)
 {
     ModeFrame=0;ScreenFrame=0;MenuCursor=0;MenuItemCount=4;
     PlayerCourseChoices[2].first=(PsyqRand()&3)+10;

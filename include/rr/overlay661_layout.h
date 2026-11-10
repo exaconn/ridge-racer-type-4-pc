@@ -14,9 +14,9 @@
 #include "rr/cd_directory_buffer.h"
 #include "rr/menu_arena_base.h"
 extern s32 ModeFrame,ScreenFrame;
-extern s16 MenuCursor,MenuItemCount,ovl661_D_80118438;
-extern s16 ovl661_D_80118440[2][2],ovl661_D_8011844C[2],ovl661_D_80118450[2];
-extern CourseChoice4 ovl661_D_80118458[2][2][9];
+extern s16 MenuCursor,MenuItemCount,ovl661_preview_confirmation;
+extern s16 ovl661_available_car_counts[2][2],ovl661_selected_cars[2],ovl661_selected_groups[2];
+extern CourseChoice4 ovl661_car_choices[2][2][9];
 void ResetScreenCounters(void);
 void InitMenuArenas(void);
 void InitPreviewImageRows(void);
@@ -25,7 +25,7 @@ s32 CountChoiceGlyphs(const CourseChoice4 *);
 /* Mode and fresh player selectors are0..1. Each group is0..1 and course0..8;
  * count helpers inspect all nine records. The full selection owner has32 bytes.
  * Setup callbacks may replace arenas and mutate every later selection. */
-void ovl661_func_80115598(s32 mode);
+void ovl661_init_preview(s32 mode);
 #ifndef RR_PROJECTION_SCRATCH
 #define RR_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)0x1F800000U)
 #endif

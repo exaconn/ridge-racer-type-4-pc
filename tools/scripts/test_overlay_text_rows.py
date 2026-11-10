@@ -94,11 +94,11 @@ static unsigned scenario,mutation;
 #define TotalRaceTime w->state.match
 #define MenuCursor w->state.selection
 #define MenuItemCount w->state.mode
-#define ovl661_D_80118378 w->state.table661
+#define ovl661_result_labels w->state.table661
 #define ovl667_D_80118E2C w->state.table667
-#define ovl661_D_80118448 w->state.scores
-#define ovl661_D_80118410 w->state.winners
-#define ovl661_D_80118418 w->state.wins
+#define ovl661_finish_ranks w->state.scores
+#define ovl661_player_standings w->state.winners
+#define ovl661_player_win_counts w->state.wins
 #define NumCars w->state.participants
 #define LinkFinishCarOrder w->state.ranks
 #define LinkPlayerWinCounts w->state.counts
@@ -188,7 +188,7 @@ int main(void) {
   }
   for(overlay=0;overlay<2;overlay++) {
    actual=initial;expected=initial;
-   w=&actual;if(overlay)ovl667_func_80118634();else ovl661_func_80117C78();
+   w=&actual;if(overlay)ovl667_func_80118634();else ovl661_init_results();
    w=&expected;reference(overlay);
    assert(actual.calls==35 && memcmp(&actual,&expected,sizeof(actual))==0);
   }

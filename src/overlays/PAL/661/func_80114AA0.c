@@ -1,6 +1,6 @@
 #include "rr/menu_screen_exit.h"
 #include "rr/frame_storage_types.h"
-void ovl661_func_80114AA0(void)
+void ovl661_exit_race(void)
 {
     StopRaceAudioAndRumble();
     SetupRaceAndSceneId();

@@ -50,15 +50,15 @@ static struct World {struct State s;unsigned calls;struct {s32 service,args[4];u
 static unsigned scenario,mutation,kind;static u8 seenCounts[4][10];
 #define SaveProgress w->s.save
 #define CourseChoiceTable w->s.source
-#define ovl661_D_80118458 w->s.versus
+#define ovl661_car_choices w->s.versus
 #define ovl666_available_courses w->s.extra
-#define ovl661_D_80118420 w->s.names
-#define ovl661_D_8011487C player2
-#define ovl661_D_80114888 format661
+#define ovl661_player_names w->s.names
+#define ovl661_player2_default_name player2
+#define ovl661_scene_name format661
 #define ovl666_scene_name format666
-#define ovl661_D_80118418 w->s.selections
-#define ovl661_D_80118450 w->s.rows
-#define ovl661_D_8011844C w->s.columns
+#define ovl661_player_win_counts w->s.selections
+#define ovl661_selected_groups w->s.rows
+#define ovl661_selected_cars w->s.columns
 #define ovl666_course_counts w->s.counts
 #define ComDifficultyLevel w->s.clearABEC8
 #define SelectedCourseChoice w->s.clearAC648
@@ -66,7 +66,7 @@ static unsigned scenario,mutation,kind;static u8 seenCounts[4][10];
 #define NumCars w->s.modeAC59C
 #define MenuCursor w->s.flag
 #define NumLaps w->s.laps
-#define ovl661_D_80118414 w->s.marker
+#define ovl661_available_course_count w->s.marker
 #define ModeGroup w->s.course
 #define ModeIndex w->s.position
 #define SubmodeState w->s.selected
@@ -106,7 +106,7 @@ static void event(s32 service,s32 a,s32 b,s32 c,s32 d){
 void SetDispMask(s32 mode){assert(mode==0);event(1,mode,0,0,0);}
 void ClearScreenOverlayState(void){event(2,0,0,0,0);}
 void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags){event(3,r,g,b,(s32)flags);}
-void ovl661_func_80115598(s32 mode){assert(mode==0);event(4,mode,0,0,0);}
+void ovl661_init_preview(s32 mode){assert(mode==0);event(4,mode,0,0,0);}
 void SeqStartTrack(s32 mode){assert(mode==0);event(5,mode,0,0,0);}
 void SetMenuFrameOptions(s32 a,s32 b,s32 c){event(6,a,b,c,0);}
 s32 DebugPrintStub(const char *format,...){
@@ -131,7 +131,7 @@ static void reference(void){unsigned i,j,k;
   w->s.clearABEC8=0;w->s.clearAC648=0;w->s.clearF3914=0;w->s.laps=3;w->s.modeAC59C=2;
   for(i=0;i<2;i++)for(j=0;j<9;j++){w->s.versus[0][i][j]=w->s.source[i][j];w->s.versus[1][i][j]=w->s.source[0][j];}
   reference_copy(w->s.names,(char*)w->s.save.prefix.progress.prefix00.bytes);reference_copy(w->s.names+12,player2);
-  SetupDrawDispEnvs(0,0,0,2);ovl661_func_80115598(0);
+  SetupDrawDispEnvs(0,0,0,2);ovl661_init_preview(0);
   reference_glyph((s8*)&w->s.choice.complete,w->s.source[0][0].glyph);
   reference_glyph((s8*)&w->s.choice.complete+4,w->s.source[0][0].glyph);
   SeqStartTrack(0);w->s.marker=8;w->s.course=1;w->s.position=56;w->s.selected=0;
@@ -157,7 +157,7 @@ int main(void){unsigned i,j;
   memset(&initial,0,sizeof(initial));w=&initial;effect(9);
   for(i=0;i<4;i++){w->s.guard[i]=0x12345678U+i;w->s.tail[i]=0x87654321U-i;}
   actual=initial;expected=initial;w=&actual;
-  if(kind)ovl666_init_scene();else ovl661_func_80115DB8();
+  if(kind)ovl666_init_scene();else ovl661_init_menu();
   w=&expected;reference();assert(memcmp(&actual,&expected,sizeof(actual))==0);
  }
  for(i=0;i<4;i++)for(j=0;j<10;j++)assert(seenCounts[i][j]);

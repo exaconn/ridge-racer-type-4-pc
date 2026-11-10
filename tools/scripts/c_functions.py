@@ -2,6 +2,7 @@
 
 Require an opening body brace so prototypes and calls are never counted.
 """
+import json
 import re
 from pathlib import Path
 
@@ -22,7 +23,8 @@ def _symbol_index():
     global _INDEX_KEY, _INDEX
     listing = _ROOT/'configs/PAL/functions.txt'
     registry = _ROOT/'configs/PAL/sym.main.txt'
-    revisions = [(path, path.stat()) for path in (listing, registry)]
+    overlays = sorted((_ROOT/'configs/PAL/overlays').glob('*.json'))
+    revisions = [(path, path.stat()) for path in (listing, registry, *overlays)]
     key = tuple((str(path), stat.st_dev, stat.st_ino, stat.st_mtime_ns, stat.st_size)
                 for path, stat in revisions)
     if key != _INDEX_KEY:
@@ -39,6 +41,13 @@ def _symbol_index():
             symbols.setdefault(name, address)
             if re.match(r';\s*//\s*type:func', line[match.end()-1:]) and not re.fullmatch(r'func_[0-9A-F]{8}', name):
                 names.setdefault(address, name)
+        for path in overlays:
+            config = json.loads(path.read_text())
+            for fn in config.get('functions', []):
+                if fn.get('symbol'):
+                    symbols.setdefault(fn['symbol'], fn['address'])
+            for sym, addr in config.get('globals', {}).items():
+                symbols.setdefault(sym, addr)
         _INDEX = functions, symbols, names
         _INDEX_KEY = key
     return _INDEX

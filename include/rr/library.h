@@ -5,21 +5,6 @@
 #include "rr/spu.h"
 #include "rr/sequence_channel.h"
 
-/* Partial library layouts. Names describe observed sizes, not identified SDK types.
- * Keep the byte-only and halfword views separate: their alignment differs. */
-
-typedef struct {
-    char b[16];
-    u16 h10, h12;
-    char r[16];
-} LibBlock24Fields;
-
-typedef struct {
-    char b[36];
-} LibBlock24;
-
-
-
 typedef struct {
     u32 value;
 } __attribute__((packed)) LibPackedWord;
@@ -230,10 +215,6 @@ extern void _SsSetProgramChange(s32 bank, s32 row, s32 value);
 extern s32 _SsReadDeltaValue(s32 bank, s32 row);
 extern void _SsVmSetVol(s32 channel, s32 device, s32 slot, u32 pitch, u32 value);
 
-RR_ASSERT_SIZE(LibBlock24Fields, 0x24);
-RR_ASSERT_OFFSET(LibBlock24Fields, h10, 0x10);
-RR_ASSERT_OFFSET(LibBlock24Fields, h12, 0x12);
-RR_ASSERT_SIZE(LibBlock24, 0x24);
 
 s32 SsUtSetReverbType(s32 value);
 

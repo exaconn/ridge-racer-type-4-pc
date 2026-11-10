@@ -1,3 +1,3 @@
 #include "types.h"
 extern s16 ActiveSceneId;
-void ovl661_func_80117340(void) { ActiveSceneId = 0x137; }
+void ovl661_select_scene(void) { ActiveSceneId = 0x137; }

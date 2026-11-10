@@ -4,14 +4,14 @@
 #include "rr/load_cursor.h"
 
 /* Versus course selection: each player picks a course group and course. */
-extern u8 ovl661_D_80118358[];            /* option count per course group */
-extern s8 ovl661_D_8011835C[2][4];        /* option meaning per group slot */
-extern s8 ovl661_D_80118364[2][2][4];     /* UI row per player, group, slot */
-extern s16 ovl661_D_80118438;
-extern s16 ovl661_D_80118440[2][2];       /* course count per player/group */
-extern s16 ovl661_D_8011844C[2];          /* selected course per player */
-extern s16 ovl661_D_80118450[2];          /* selected group per player */
-extern CourseChoice4 ovl661_D_80118458[2][2][9];
+extern u8 ovl661_group_option_counts[];            /* option count per course group */
+extern s8 ovl661_group_slot_kinds[2][4];        /* option meaning per group slot */
+extern s8 ovl661_group_ui_rows[2][2][4];     /* UI row per player, group, slot */
+extern s16 ovl661_preview_confirmation;
+extern s16 ovl661_available_car_counts[2][2];       /* course count per player/group */
+extern s16 ovl661_selected_cars[2];          /* selected course per player */
+extern s16 ovl661_selected_groups[2];          /* selected group per player */
+extern CourseChoice4 ovl661_car_choices[2][2][9];
 extern s32 UiRowCount, D_800F4CB8;
 extern s16 CardMenuOperation;
 void SetupMenuCarCamera(s32);
@@ -35,17 +35,17 @@ void UpdateScreenFade(s32);
 void AddScreenFadeTiles(u32 *, s32, u32);
 void SeqFadeVolume(s32, s32);
 void SeqMuteVolume(void);
-void ovl661_func_80115598(s32);
-void ovl661_func_80115F8C(void);
-void ovl661_func_80117350(void);
+void ovl661_init_preview(s32);
+void ovl661_reset_preview_selection(void);
+void ovl661_init_scene(void);
 
 #define MODE (((s8 *)ImageRows)[1])
 #define SELECTION ((s8 *)&SelectionRows)
 #define ENTRIES ((SelectionRow *)&SelectionRows)
 #define PLAYER (ActivePlayerIndex & 1)
-#define GROUP_ROW(p, g, i) ovl661_D_80118364[p][g][i]
+#define GROUP_ROW(p, g, i) ovl661_group_ui_rows[p][g][i]
 
-void ovl661_func_801160F0(void)
+void ovl661_update_preview(void)
 {
     PreviewColor color;
     s16 active;
@@ -88,30 +88,30 @@ void ovl661_func_801160F0(void)
         active = 1;
         switch (SubmodeState) {
         case 7:
-            row = GROUP_ROW(PLAYER, (s16)(ovl661_D_80118450[PLAYER] ^ 1), 0);
+            row = GROUP_ROW(PLAYER, (s16)(ovl661_selected_groups[PLAYER] ^ 1), 0);
             if (UiRows[row].byte14 == 5) {
                 SubmodeState = 0;
             }
         case 0:
             SetMenuFrameOptions(1, 1, 1);
             before = PackChoiceGlyph(SELECTION + ActivePlayerIndex * 4);
-            StepMenuValue(PLAYER * 4 | 1, 2, (char *)&ovl661_D_8011844C[PLAYER],
-                          ovl661_D_80118440[PLAYER][ovl661_D_80118450[PLAYER]], 0);
+            StepMenuValue(PLAYER * 4 | 1, 2, (char *)&ovl661_selected_cars[PLAYER],
+                          ovl661_available_car_counts[PLAYER][ovl661_selected_groups[PLAYER]], 0);
             UnpackChoiceGlyph(SELECTION + ActivePlayerIndex * 4,
-                          ovl661_D_80118458[PLAYER][ovl661_D_80118450[PLAYER]][ovl661_D_8011844C[PLAYER]].glyph);
+                          ovl661_car_choices[PLAYER][ovl661_selected_groups[PLAYER]][ovl661_selected_cars[PLAYER]].glyph);
             if ((s16)before != (s16)PackChoiceGlyph(SELECTION + ActivePlayerIndex * 4)) {
                 ResetScreenCounters();
                 LoadCursor = MenuArenas.first;
                 UnpackChoiceGlyph(SELECTION + ActivePlayerIndex * 4,
-                              ovl661_D_80118458[PLAYER][ovl661_D_80118450[PLAYER]][ovl661_D_8011844C[PLAYER]].glyph);
-                PlayerCourseChoices[ActivePlayerIndex].first = ovl661_D_80118458[PLAYER][ovl661_D_80118450[PLAYER]][ovl661_D_8011844C[PLAYER]].first;
-                PlayerCourseChoices[ActivePlayerIndex].second = ovl661_D_80118458[PLAYER][ovl661_D_80118450[PLAYER]][ovl661_D_8011844C[PLAYER]].second;
+                              ovl661_car_choices[PLAYER][ovl661_selected_groups[PLAYER]][ovl661_selected_cars[PLAYER]].glyph);
+                PlayerCourseChoices[ActivePlayerIndex].first = ovl661_car_choices[PLAYER][ovl661_selected_groups[PLAYER]][ovl661_selected_cars[PLAYER]].first;
+                PlayerCourseChoices[ActivePlayerIndex].second = ovl661_car_choices[PLAYER][ovl661_selected_groups[PLAYER]][ovl661_selected_cars[PLAYER]].second;
                 MODE = 6;
             }
-            row = GROUP_ROW(PLAYER, ovl661_D_80118450[PLAYER], MenuCursor);
+            row = GROUP_ROW(PLAYER, ovl661_selected_groups[PLAYER], MenuCursor);
             UiRows[row].cells[0] = 0;
-            StepMenuValue(PLAYER * 4, 2, (char *)&MenuCursor, ovl661_D_80118358[ovl661_D_80118450[PLAYER]], 0);
-            row = GROUP_ROW(PLAYER, ovl661_D_80118450[PLAYER], MenuCursor);
+            StepMenuValue(PLAYER * 4, 2, (char *)&MenuCursor, ovl661_group_option_counts[ovl661_selected_groups[PLAYER]], 0);
+            row = GROUP_ROW(PLAYER, ovl661_selected_groups[PLAYER], MenuCursor);
             UiRows[row].cells[0] = 2;
             i = UiRows[row].byte14;
             close = 0;
@@ -128,15 +128,15 @@ void ovl661_func_801160F0(void)
             if (input->action28 != 0) {
                 PlaySfx(1);
                 UiRows[row].cells[0] = 1;
-                if (MenuCursor == ovl661_D_8011835C[ovl661_D_80118450[PLAYER]][0]) {
-                    ovl661_D_80118438 = i;
+                if (MenuCursor == ovl661_group_slot_kinds[ovl661_selected_groups[PLAYER]][0]) {
+                    ovl661_preview_confirmation = i;
                     SubmodeState = 4;
-                } else if (MenuCursor == ovl661_D_8011835C[ovl661_D_80118450[PLAYER]][1]
-                           && ovl661_D_80118458[ActivePlayerIndex][1][0].glyph != -1) {
-                    ovl661_D_8011844C[PLAYER] = 0;
+                } else if (MenuCursor == ovl661_group_slot_kinds[ovl661_selected_groups[PLAYER]][1]
+                           && ovl661_car_choices[ActivePlayerIndex][1][0].glyph != -1) {
+                    ovl661_selected_cars[PLAYER] = 0;
                     MenuCursor = 0;
                     for (i = 0; i < 4; i++) {
-                        row = GROUP_ROW(PLAYER, ovl661_D_80118450[PLAYER], i);
+                        row = GROUP_ROW(PLAYER, ovl661_selected_groups[PLAYER], i);
                         if (row == -1) {
                             break;
                         }
@@ -145,7 +145,7 @@ void ovl661_func_801160F0(void)
                         }
                     }
                     for (i = 0; i < 4;) {
-                        row = GROUP_ROW(PLAYER, (s16)(ovl661_D_80118450[PLAYER] ^ 1), i);
+                        row = GROUP_ROW(PLAYER, (s16)(ovl661_selected_groups[PLAYER] ^ 1), i);
                         i++;
                         if (row == -1) {
                             break;
@@ -153,10 +153,10 @@ void ovl661_func_801160F0(void)
                         UiRows[row].byte14 = 0;
                     }
                     SubmodeState = 7;
-                    ovl661_D_80118450[PLAYER] ^= 1;
-                } else if (MenuCursor == ovl661_D_8011835C[ovl661_D_80118450[PLAYER]][2]) {
+                    ovl661_selected_groups[PLAYER] ^= 1;
+                } else if (MenuCursor == ovl661_group_slot_kinds[ovl661_selected_groups[PLAYER]][2]) {
                     close = 1;
-                } else if (MenuCursor == ovl661_D_8011835C[ovl661_D_80118450[PLAYER]][3]) {
+                } else if (MenuCursor == ovl661_group_slot_kinds[ovl661_selected_groups[PLAYER]][3]) {
                     for (i = 0; i < UiRowCount; i++) {
                         if (UiRows[i].byte14 == 2) {
                             UiRows[i].byte14 = 3;
@@ -187,7 +187,7 @@ void ovl661_func_801160F0(void)
         case 3:
             row = GROUP_ROW((ActivePlayerIndex - 1) & 1, 1, 3) + 1;
             if (UiRows[row].byte14 == 5) {
-                ovl661_D_80118438 = 1;
+                ovl661_preview_confirmation = 1;
                 SubmodeState = 0;
             }
             break;
@@ -210,7 +210,7 @@ void ovl661_func_801160F0(void)
                 UiRows[row].byte14 = 3;
                 UiRows[row + 1].byte14 = 3;
                 for (i = 0; i < 4; i++) {
-                    row = GROUP_ROW(PLAYER, ovl661_D_80118450[PLAYER], i);
+                    row = GROUP_ROW(PLAYER, ovl661_selected_groups[PLAYER], i);
                     if (row == -1) {
                         break;
                     }
@@ -232,7 +232,7 @@ void ovl661_func_801160F0(void)
                 } else {
                     SubmodeState = 3;
                     ActivePlayerIndex++;
-                    ovl661_func_80115F8C();
+                    ovl661_reset_preview_selection();
                 }
             } else if (input->action2C != 0) {
                 PlaySfx(2);
@@ -247,7 +247,7 @@ void ovl661_func_801160F0(void)
             status = UiRows[row].byte14;
             if (status == 5 && MODE == status) {
                 ResetScreenCounters();
-                ovl661_func_80117350();
+                ovl661_init_scene();
                 ModeGroup = 1;
                 ModeIndex = 0x39;
                 SubmodeState = 0;
@@ -257,7 +257,7 @@ void ovl661_func_801160F0(void)
             row = GROUP_ROW(PLAYER, 1, 3) + 1;
             if (UiRows[row].byte14 == 5) {
                 SubmodeState = 0;
-                ovl661_D_80118438 = 1;
+                ovl661_preview_confirmation = 1;
                 UiRows[row].byte14 = 0;
                 UiRows[row + 1].byte14 = 0;
             }
@@ -266,7 +266,7 @@ void ovl661_func_801160F0(void)
             row = GROUP_ROW(PLAYER, 1, 3) + 1;
             status = UiRows[row].byte14;
             if (status == 5 && MODE == status) {
-                ovl661_func_80115598(0);
+                ovl661_init_preview(0);
                 SubmodeState = 0;
             }
             break;
@@ -296,8 +296,8 @@ void ovl661_func_801160F0(void)
             break;
         }
     }
-    if (ovl661_D_80118438 == 0 && MODE == 2) {
-        ovl661_D_80118438 = 1;
+    if (ovl661_preview_confirmation == 0 && MODE == 2) {
+        ovl661_preview_confirmation = 1;
         BadgeRows->half02 = 1;
     }
     if (SubmodeState == 3) {
@@ -306,13 +306,13 @@ void ovl661_func_801160F0(void)
         player = ActivePlayerIndex;
     }
     if (SubmodeState == 7) {
-        group = ovl661_D_80118450[player & 1] ^ 1;
+        group = ovl661_selected_groups[player & 1] ^ 1;
         row = GROUP_ROW(player & 1, group, 0);
         if (UiRows[row].byte14 == 5) {
-            group = ovl661_D_80118450[player & 1];
+            group = ovl661_selected_groups[player & 1];
         }
     } else {
-        group = ovl661_D_80118450[player & 1];
+        group = ovl661_selected_groups[player & 1];
     }
     for (i = 0; i < 4; i++) {
         row = GROUP_ROW(player & 1, group, i);
@@ -321,7 +321,7 @@ void ovl661_func_801160F0(void)
         }
         DrawUiRow(row);
     }
-    if (ovl661_D_80118438 == 2) {
+    if (ovl661_preview_confirmation == 2) {
         last = GROUP_ROW(player & 1, 1, 3);
         DrawUiRow(last + 1);
         DrawUiRow(last + 2);
@@ -350,14 +350,14 @@ void ovl661_func_801160F0(void)
     }
     UpdateBadgeRowAnim(0);
     if (UpdateImageRow(0) > 0) {
-        DrawMenuStepArrows(0xA0, 0x90, 8, 1, ovl661_D_8011844C[PLAYER], 0,
-                      ovl661_D_80118440[PLAYER][ovl661_D_80118450[PLAYER]]);
+        DrawMenuStepArrows(0xA0, 0x90, 8, 1, ovl661_selected_cars[PLAYER], 0,
+                      ovl661_available_car_counts[PLAYER][ovl661_selected_groups[PLAYER]]);
     }
     D_800F4CB8 = ActivePlayerIndex + 1;
     sound = 0x10032;
     /* Integer base address: the original's table read is not disambiguated
      * from the D_800F4CB8 store above. */
-    groups = ovl661_D_80118450;
+    groups = ovl661_selected_groups;
     if (*(s16 *)(groups + (ActivePlayerIndex & 1) * 2) != 0) {
         sound = 0x10036;
     }

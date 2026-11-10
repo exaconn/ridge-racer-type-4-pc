@@ -14,7 +14,7 @@ s32 ovl666_update_retry_choice(s32 mode);
 /* Four-position selection, backed by at least three UI rows and four glyph
  * rows. A sound callback may replace the roots; its signed selection is clamped. */
 void ovl666_update_course_selection(void);
-s32 ovl667_update_retry_choice(void);
+s32 ovl667_update_retry_choice(s32 mode);
 /* The first machine-word argument is passed by callers but unused.
  * Return the final glyph-step completion value without truncation. */
 s32 ovl662_draw_history_arrows(u32 unused,s32 mode);

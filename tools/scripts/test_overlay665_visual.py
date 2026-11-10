@@ -1,5 +1,6 @@
 """Exact160-byte visual state and actual signed32 sine/cosine closure."""
 from pathlib import Path
+from overlay_units import read_c_source
 import re
 import struct
 import subprocess
@@ -29,7 +30,7 @@ class Overlay665VisualTest(unittest.TestCase):
     def test_visual_initialization_and_full_pointer_scratch(self):
         root=Path(__file__).resolve().parents[2]
         reset=re.sub(r'^extern[^\n]*;\n','',(root/'tools/scripts/fixtures/legacy/func_8003A198.c').read_text(),flags=re.M)
-        body=(root/'src/overlays/PAL/665/func_80114918.c').read_text()
+        body=read_c_source(root / 'src/overlays/PAL/665/func_80114918.c')
         source=PREFIX+r'''
 typedef struct {u32 guard[4];Overlay665VisualState visual;ProjectionScratchPrefix scratch;s32 counter;s8 flag1,flag2;s32 mode;u16 selector;s16 scene,phase;u32 tail[4];} State;
 typedef struct {s32 kind,args[4];void *buffer;State state;} Event;
@@ -88,7 +89,7 @@ int main(void){unsigned k,i;
         table=struct.unpack_from('<4097h',exe,0x800+0x800A50C0-0x80010000)
         self.assertEqual((min(table[3072:]),max(table[3072:])),(0,4096))
         trig=(root/'tools/scripts/fixtures/legacy/trig_sine.c').read_text()+(root/'tools/scripts/fixtures/legacy/func_800904F4.c').read_text()
-        body=(root/'src/overlays/PAL/665/func_801169BC.c').read_text()
+        body=read_c_source(root / 'src/overlays/PAL/665/func_801169BC.c')
         source=PREFIX+r'''
 typedef struct {u16 points[4];u8 rgb[3];u8 pad;const u8 *color;s32 blend,depth;Overlay665VisualState before;} Event;
 static struct World {u32 guard[4];Overlay665VisualState visual;u8 color[4];u32 calls;Event event;u32 tail[4];} world,expected;

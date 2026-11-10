@@ -16,7 +16,7 @@ class OverlaySamplesTest(unittest.TestCase):
             source = ROOT / f'src/overlays/PAL/{index}/func_{address:08X}.c'
             body = read_c_source(source)
             if index == 665:
-                body = body.replace('BadgeRows', 'sample665_badges')
+                body = body.replace('ScreenFadeState[0]', 'ScreenFadeState')
             bodies.append(body)
         self.assertEqual(len(bodies), 9)
         harness = r'''

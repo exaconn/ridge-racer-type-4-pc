@@ -18,7 +18,6 @@ void ovl665_init_scene(void);
  * in[-4096,4096], so multiplication by40 and negation are signed32-safe.
  * Output coordinates retain their low16 bits, including wrapped centers. */
 void ovl665_draw_twist_gauge_needle(s32 angle);
-RR_ASSERT_SIZE(Overlay665VisualState,0xA0);
 RR_ASSERT_OFFSET(Overlay665VisualState,centerX38,0x38);
 RR_ASSERT_OFFSET(Overlay665VisualState,centerY3A,0x3A);
 RR_ASSERT_OFFSET(Overlay665VisualState,lighting4C,0x4C);

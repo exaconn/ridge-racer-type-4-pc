@@ -1,9 +1,11 @@
 #include "game/system/pad.h"
 #include "rr/menu_overlay_runtime.h"
+#include "rr/renderer_setup.h"
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
 
-/* Four-player selection: per-pair page, row and course group tables. */
+extern s16 LinkPlayerWinCounts[4];
+extern CourseChoice4 CourseChoiceTable[2][9];
 extern CourseChoice4 LinkCarChoiceTable[2][2][9];
 extern s16 LinkMenuSyncPhase;
 extern s16 LinkCarChoiceCounts[2][2];
@@ -11,13 +13,158 @@ extern s16 LinkCarChoiceIndex[2];
 extern s16 LinkCarChoiceGroup[2];
 extern s8 LinkEntryState[];
 extern s32 UiRowCount;
-/* Resident word reached through its enclosing array object (aliases row stores). */
 extern s32 MenuAvailableCourseMask[1];
 extern s16 CardMenuOperation;
 extern s16 LinkHostFlag;
 extern u8 ovl667_group_option_counts[4];
 extern s8 ovl667_group_slot_kinds[2][4];
 extern s8 ovl667_group_ui_rows[2][2][4];
+extern char LinkPlayerNames[4][12];
+extern char *ovl667_default_player_names[4];
+extern s32 NumLaps, LinkAvailableCourseCount;
+extern s16 SelectedCourseChoice, LinkClientRoleState;
+s32 CountChoiceGlyphs(const CourseChoice4 *);
+void CopyStringClearTail(char *, char *);
+void ovl667_init_car_selection(s32);
+#ifndef RR_PROJECTION_SCRATCH
+#define RR_PROJECTION_SCRATCH ((ProjectionScratchPrefix *)0x1F800000)
+#endif
+
+void ovl667_init_car_selection(s32 arg0) {
+    s16 *temp_s0;
+    s16 *temp_t0_2;
+    s32 temp_a0;
+    s32 temp_a2;
+    s32 temp_a2_2;
+    s32 var_s1;
+    MenuGridPoint *temp_a3_2;
+
+    ModeFrame = 0;
+    ScreenFrame = 0;
+    MenuCursor = 0;
+    MenuItemCount = 3;
+    ResetScreenCounters();
+    MenuArenas.second = CdDirectoryBuffer + 0x2D000;
+    InitMenuArenas();
+    ActivePlayerIndex = arg0;
+    LoadCursor = MenuArenas.second;
+    InitUiRow(0, 0x18, 0x58, 0x44, 0x20, 0, 0, 1, 0, 0x53);
+    /* ASM_BARRIER: keep the published arena cell across the first UI service.
+     * Read/write memory annotation retains its value and original address lifetime. */
+    __asm__("" : "+m"(LoadCursor));
+    InitUiRow(1, 0x18, 0x80, 0x44, 0x20, 0, 0, 1, 0, 0x36);
+    InitUiRow(2, 0x18, 0xA8, 0x44, 0x20, 0, 0, 1, 0, 0x55);
+    InitUiRow(3, 0x18, 0x58, 0x44, 0x20, 0, 0, 1, 0, 0x53);
+    InitUiRow(4, 0x18, 0x80, 0x44, 0x20, 0, 0, 1, 0, 0x65);
+    InitUiRow(5, 0x18, 0xA8, 0x44, 0x20, 0, 0, 1, 0, 0x35);
+    InitUiRow(6, 0x18, 0xD0, 0x44, 0x20, 0, 0, 1, 0, 0x55);
+    InitUiRow(7, 0x74, 0x58, 0x1C, 0x20, 0, 0, 1, 0, 0x37);
+    InitUiRow(8, 0x74, 0x80, 0x1C, 0x20, 0, 0, 1, 0, 0x38);
+    InitUiRow(9, 0x18, 0x58, 0x44, 0x20, 0, 0, 1, 0, 0x53);
+    InitUiRow(0xA, 0x18, 0x80, 0x44, 0x20, 0, 0, 1, 0, 0x36);
+    InitUiRow(0xB, 0x18, 0xA8, 0x44, 0x20, 0, 0, 1, 0, 0x55);
+    InitUiRow(0xC, 0x18, 0x58, 0x44, 0x20, 0, 0, 1, 0, 0x53);
+    InitUiRow(0xD, 0x18, 0x80, 0x44, 0x20, 0, 0, 1, 0, 0x65);
+    InitUiRow(0xE, 0x18, 0xA8, 0x44, 0x20, 0, 0, 1, 0, 0x35);
+    InitUiRow(0xF, 0x18, 0xD0, 0x44, 0x20, 0, 0, 1, 0, 0x55);
+    InitUiRow(0x10, 0x74, 0x58, 0x1C, 0x20, 0, 0, 1, 0, 0x37);
+    InitUiRow(0x11, 0x74, 0x80, 0x1C, 0x20, 0, 0, 1, 0, 0x38);
+    InitUiRow(0x12, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x54);
+    InitUiRow(0x13, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 3);
+    InitUiRow(0x14, 0xC, 0x90, 0x44, 0x20, 0, 0, 1, 0, 0x55);
+    InitUiRow(0x15, 0xC, 0x170, 0xD0, 0x20, 0, 0, 8, 4, SelectedCourseChoice);
+    InitUiRow(0x17, 0x68, 0x68, 0x44, 0x20, 0, 0, 1, 5, 3);
+    InitUiRow(0x18, 0x68, 0x40, 0x44, 0x20, 0, 0, 0, 0x7E, 0);
+    SetupRenderer(5);
+    MenuCursor = 0;
+    MenuItemCount = 3;
+    ResetScreenCounters();
+    InitPreviewImageRows();
+    LinkMenuSyncPhase = 0;
+    LoadCursor = MenuArenaBase;
+    if (!(ActivePlayerIndex & 1)) {
+        MenuArenas.first = MenuArenaBase;
+    } else {
+        LoadCursor = MenuArenas.first;
+    }
+    RR_PROJECTION_SCRATCH->pose08.angles10.xyz.x = 0x78;
+    RR_PROJECTION_SCRATCH->pose08.position00.words[0] = -0x10;
+    RR_PROJECTION_SCRATCH->pose08.position00.words[1] = -0xF8;
+    RR_PROJECTION_SCRATCH->pose08.angles10.xyz.y = 0;
+    RR_PROJECTION_SCRATCH->pose08.angles10.xyz.z = 0;
+    RR_PROJECTION_SCRATCH->pose08.position00.words[2] = -0x60;
+    for (var_s1 = 0; var_s1 < 2; var_s1++) {
+        ResetCarState(&PlayerCars[var_s1]);
+        PlayerCars[var_s1].position20.words[1] = 10;
+        PlayerCars[var_s1].position20.words[2] = 308;
+        PlayerCars[var_s1].rot54 = 0x800;
+    }
+    LinkCarChoiceCounts[0][0] = CountChoiceGlyphs(LinkCarChoiceTable[0][0]);
+    LinkCarChoiceCounts[0][1] = CountChoiceGlyphs(LinkCarChoiceTable[0][1]);
+    LinkCarChoiceCounts[1][0] = CountChoiceGlyphs(LinkCarChoiceTable[1][0]);
+    LinkCarChoiceCounts[1][1] = CountChoiceGlyphs(LinkCarChoiceTable[1][1]);
+    temp_a0 = arg0 & 1;
+    if (LinkCarChoiceCounts[temp_a0][1] == 0) {
+        LinkCarChoiceGroup[temp_a0] = 0;
+    }
+    temp_a2 = ActivePlayerIndex & 1;
+    UnpackChoiceGlyph((s8 *)&SelectionRows + ActivePlayerIndex * 4,
+        LinkCarChoiceTable[temp_a2][LinkCarChoiceGroup[temp_a2]][LinkCarChoiceIndex[temp_a2]].glyph);
+    temp_a2_2 = ActivePlayerIndex & 1;
+    temp_s0 = &LinkCarChoiceGroup[temp_a2_2];
+    temp_t0_2 = &LinkCarChoiceIndex[temp_a2_2];
+    temp_a3_2 = &PlayerCourseChoices[ActivePlayerIndex];
+    temp_a3_2->first = LinkCarChoiceTable[temp_a2_2][*temp_s0][*temp_t0_2].first;
+    temp_a3_2->second = LinkCarChoiceTable[temp_a2_2][*temp_s0][*temp_t0_2].second;
+}
+
+void ovl667_init_session_menus(void){
+ typedef struct {s8 first,second;} Pair;
+ s32 i;s32 j;s32 offset;s32 pos;
+ u8 *repeat;
+ u8 *destBase;
+ u8 *sourceBase;
+ SetDispMask(0);
+ SetupDrawDispEnvs(0,0,0,2);
+ UpdateLinkHandshake(1);
+ i=0;
+ ClearScreenOverlayState();
+ for(;i<2;i++) {LinkCarChoiceGroup[i]=0;LinkCarChoiceIndex[i]=0;LinkPlayerWinCounts[i]=0;}
+ for(i=0;i<4;i++) {((MenuChoice4 *)((u8 *)&SelectionRows+i*4))->bytes[3]=0;LinkPlayerWinCounts[i]=0;}
+ i=0;
+ destBase=(u8 *)&LinkCarChoiceTable;
+ sourceBase=(u8 *)&CourseChoiceTable;
+ offset=0;
+ CourseIndex=0;SelectedCourseChoice=0;NumLaps=3;
+ ActivePlayerIndex=(1-(s16)LinkHostFlag)*2;
+ for(;i<2;i++,offset+=36)for(j=0,repeat=sourceBase,pos=offset;j<9;repeat+=4,j++,pos+=4) {
+  u8 *dest=((u8 *)(pos+(unsigned long)destBase));
+  __builtin_memcpy(dest,(u8 *)(pos+(unsigned long)sourceBase),4);
+  __builtin_memcpy(dest+72,repeat,4);
+ }
+ for(i=0;i<2;i++)CopyStringClearTail(LinkPlayerNames[ActivePlayerIndex+i],ovl667_default_player_names[ActivePlayerIndex+i]);
+ ovl667_init_car_selection((1-(s16)LinkHostFlag)*2);
+ UnpackChoiceGlyph((s8*)((u8 *)&SelectionRows+ActivePlayerIndex*4),CourseChoiceTable[0][0].glyph);
+ UnpackChoiceGlyph((s8*)((u8 *)&SelectionRows+4+ActivePlayerIndex*4),CourseChoiceTable[0][0].glyph);
+ LinkAvailableCourseCount=8;SeqStartTrack(0);ModeGroup=1;ModeIndex=60;SubmodeState=0;LinkMenuSyncPhase=0;
+ if(((Pair *)((s8 *)&LinkEntryState+ActivePlayerIndex))->second!=1)LinkClientRoleState=0;else LinkClientRoleState=2;
+ SetMenuFrameOptions(0,1,1);
+}
+
+void ovl667_reset_preview_selection(void) {
+    ResetScreenCounters();
+    LoadCursor = MenuArenas.first;
+    UnpackChoiceGlyph(
+        (s8 *)&SelectionRows + ActivePlayerIndex * 4,
+        LinkCarChoiceTable[ActivePlayerIndex & 1][LinkCarChoiceGroup[ActivePlayerIndex & 1]][LinkCarChoiceIndex[ActivePlayerIndex & 1]].glyph
+    );
+    PlayerCourseChoices[ActivePlayerIndex].first = LinkCarChoiceTable[ActivePlayerIndex & 1][LinkCarChoiceGroup[ActivePlayerIndex & 1]][LinkCarChoiceIndex[ActivePlayerIndex & 1]].first;
+    PlayerCourseChoices[ActivePlayerIndex].second = LinkCarChoiceTable[ActivePlayerIndex & 1][LinkCarChoiceGroup[ActivePlayerIndex & 1]][LinkCarChoiceIndex[ActivePlayerIndex & 1]].second;
+    ImageRows[1] = 6;
+}
+
+/* Four-player selection: per-pair page, row and course group tables. */
+/* Resident word reached through its enclosing array object (aliases row stores). */
 s32 ExitOnLinkLost(void);
 s32 UpdateLinkHandshake(s32);
 void ovl667_reset_preview_selection(void);

@@ -1,11 +1,11 @@
 from pathlib import Path
+from overlay_units import read_c_source
 import re,subprocess,sys
 root=Path(__file__).resolve().parents[2]
 import os
 os.chdir(root)
 p=Path('build/goal_50/parallel667_init');source=Path(sys.argv[1]) if len(sys.argv)>1 else Path('src/overlays/PAL/667/func_80116918.c')
-if not source.exists(): source=p/'public_ready.c'
-s=source.read_text();body=s[s.index('typedef struct'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
+s=read_c_source(source);body=re.sub(r' __asm__\("\$\d+"\)','',s)
 fields={'LinkPlayerWinCounts':'h0','LinkCarChoiceIndex':'h1','LinkCarChoiceGroup':'h2','SelectionRows':'choices','LinkCarChoiceTable':'records','CourseChoiceTable':'courses','LinkPlayerNames':'names','LinkEntryState':'pairs','NumLaps':'players','ActivePlayerIndex':'base','LinkAvailableCourseCount':'count','CourseIndex':'course','SelectedCourseChoice':'menu','LinkHostFlag':'flag','ModeIndex':'scene','LinkMenuSyncPhase':'small','LinkClientRoleState':'pairflag','ModeGroup':'enabled','SubmodeState':'phase'}
 head='''#include <stdint.h>
 #include <string.h>

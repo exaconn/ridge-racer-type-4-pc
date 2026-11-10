@@ -1,5 +1,6 @@
 """Calibration setup: complete shared settings and live badge roots."""
 from pathlib import Path
+from overlay_units import read_c_source
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
@@ -8,7 +9,7 @@ import unittest
 class CalibrationSetupTest(unittest.TestCase):
     def test_native_setup(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/665/func_80115798.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/665/func_80115798.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

@@ -1,5 +1,6 @@
 """Serial-menu reset thresholds and state publication across the setup hook."""
 from pathlib import Path
+from overlay_units import read_c_source
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
@@ -8,7 +9,7 @@ import unittest
 class OverlaySerialResetTest(unittest.TestCase):
     def test_thresholds_and_exact_flag(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/667/func_801153F0.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/667/func_801153F0.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

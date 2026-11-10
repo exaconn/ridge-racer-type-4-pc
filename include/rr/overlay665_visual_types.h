@@ -1,5 +1,6 @@
 #ifndef RR_OVERLAY665_VISUAL_TYPES_H
 #define RR_OVERLAY665_VISUAL_TYPES_H
+#include "rr/layout.h"
 #include "rr/overlay665_matrix.h"
 typedef union {s32 words[3];s16 halves[6];} PreviewPosition12;
 #include "rr/menu_selection_word.h"
@@ -24,4 +25,5 @@ typedef struct {
     PreviewLighting40 lighting4C;
     PreviewView44 view74;
 } Overlay665VisualState;
+RR_ASSERT_SIZE(Overlay665VisualState,0xA0);
 #endif

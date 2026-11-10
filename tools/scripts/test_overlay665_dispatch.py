@@ -1,5 +1,6 @@
 """Scene/selection dispatch with complete visual state and simulated service callbacks."""
 from pathlib import Path
+from overlay_units import read_c_source
 from tempfile import TemporaryDirectory
 import subprocess
 import unittest
@@ -7,7 +8,7 @@ import unittest
 class Overlay665DispatchTest(unittest.TestCase):
     def test_scene_capture_and_modular_increment(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/665/func_80118EB8.c').read_text()
+        body=read_c_source(root / 'src/overlays/PAL/665/func_80118EB8.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

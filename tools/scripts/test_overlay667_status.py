@@ -1,5 +1,6 @@
 """Unsigned threshold decisions and shared status/scene-cell widths."""
 from pathlib import Path
+from overlay_units import read_c_source
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
@@ -9,7 +10,7 @@ class Overlay667StatusTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2]
         bodies=[]
         for address in ['8011492C','80115058','80117EE8']:
-            body=(root/f'src/overlays/PAL/667/func_{address}.c').read_text()
+            body=read_c_source(root / f'src/overlays/PAL/667/func_{address}.c')
             body=body.replace(' __asm__("$2")','')
             body=body.replace('__asm__("");','')
             body=body.replace('__asm__("" : "=r"(ret) : "0"(ret));','')

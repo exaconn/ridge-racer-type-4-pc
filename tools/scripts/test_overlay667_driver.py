@@ -1,5 +1,6 @@
 """Driver startup, retry loop and nonzero completion semantics."""
 from pathlib import Path
+from overlay_units import read_c_source
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
@@ -8,7 +9,7 @@ import unittest
 class OverlayDriverTest(unittest.TestCase):
     def test_retry_counts_returns_and_order(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/667/func_80115494.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/667/func_80115494.c')
         source = r'''
 #include <assert.h>
 #include <stdint.h>

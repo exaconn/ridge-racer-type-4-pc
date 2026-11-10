@@ -26,7 +26,6 @@ void ovl665_init_menu(void);
 void ovl665_update_menu(void);
 /* Helpers may replace the full text-state root. */
 RR_ASSERT_SIZE(ReplayMenuContextPrefix,0x1C);
-RR_ASSERT_SIZE(Overlay665VisualState,0xA0);
 RR_ASSERT_OFFSET(Overlay665VisualState,selection08,8);
 RR_ASSERT_OFFSET(Overlay665VisualState,exit34,0x34);
 #endif

@@ -5,6 +5,7 @@ RaceVehicleControl bits are not stripped by the target; out-of-range flags are o
 memory-safe domain. BIOS event/read/write and device queries are simulated.
 """
 from pathlib import Path
+from overlay_units import read_c_source
 from tempfile import TemporaryDirectory
 import subprocess
 import unittest
@@ -13,7 +14,7 @@ import unittest
 class Overlay667ReceiveTest(unittest.TestCase):
     def test_checksum_queue_retry_and_real_serial_state_machines(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/667/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/667/func_{a}.c')
                            for a in ('80114E34', '80115068', '80114D30', '801151E0'))
         source = r'''
 #include <assert.h>

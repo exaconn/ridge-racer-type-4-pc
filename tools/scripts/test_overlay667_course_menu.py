@@ -1,10 +1,11 @@
 """Independent guarded native oracle for overlay667 course/card menu."""
 from pathlib import Path
+from overlay_units import read_c_source
 from tempfile import TemporaryDirectory
 import subprocess
 
 root=Path(__file__).resolve().parents[2]
-body=(root/'src/overlays/PAL/667/func_80117FA8.c').read_text()
+body=read_c_source(root / 'src/overlays/PAL/667/func_80117FA8.c')
 body=body[body.index('void ovl667_update_course_menu'):]
 mapper=(root/'tools/scripts/fixtures/views/func_80032E9C.c').read_text().replace('DecodeCourseIndex','actual_mapper')
 source=r'''

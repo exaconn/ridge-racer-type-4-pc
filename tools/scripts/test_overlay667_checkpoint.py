@@ -1,11 +1,12 @@
 """Complete vehicle checkpoint state and callback protocol against a wrapped oracle."""
 from pathlib import Path
+from overlay_units import read_c_source
 from tempfile import TemporaryDirectory
 import subprocess, unittest
 ROOT=Path(__file__).resolve().parents[2]
 class CheckpointTest(unittest.TestCase):
  def test_all_counter_encodings_and_callback_mutations(self):
-  body=(ROOT/'src/overlays/PAL/667/func_80115508.c').read_text()
+  body=read_c_source(ROOT / 'src/overlays/PAL/667/func_80115508.c')
   body='\n'.join(line for line in body.splitlines() if not line.startswith('#include') and not line.startswith('extern '))
   code=r'''
 #include <assert.h>

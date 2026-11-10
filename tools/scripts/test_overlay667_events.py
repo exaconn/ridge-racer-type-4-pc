@@ -1,5 +1,6 @@
 """Event setup, real wrapping callback and typed BIOS/driver service boundaries."""
 from pathlib import Path
+from overlay_units import read_c_source
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
@@ -8,7 +9,7 @@ class Overlay667EventsTest(unittest.TestCase):
     def test_fresh_handles_callbacks_and_scalar_driver_arguments(self):
         root=Path(__file__).resolve().parents[2]
         self.assertEqual((root/'build/overlays/667.bin').read_bytes()[4:9],b'sio:\0')
-        bodies='\n'.join((root/f'src/overlays/PAL/667/func_{a}.c').read_text() for a in ['80114D10','80114988','80114950'])
+        bodies='\n'.join(read_c_source(root / f'src/overlays/PAL/667/func_{a}.c') for a in ['80114D10','80114988','80114950'])
         source=r'''
 #include <assert.h>
 #include <stddef.h>

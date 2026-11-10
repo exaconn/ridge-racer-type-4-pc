@@ -4,6 +4,7 @@ Device dispatch and timing are typed simulated boundaries. The registered status
 callback is the actual recovered C helper; no BIOS/device hardware runs here.
 """
 from pathlib import Path
+from overlay_units import read_c_source
 from tempfile import TemporaryDirectory
 import subprocess
 import unittest
@@ -12,8 +13,8 @@ import unittest
 class Overlay667SerialInitTest(unittest.TestCase):
     def test_word_clear_service_order_callback_width_and_loop_exits(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/667/func_80114AF8.c').read_text()
-        callback = (root / 'src/overlays/PAL/667/func_8011492C.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/667/func_80114AF8.c')
+        callback = read_c_source(root / 'src/overlays/PAL/667/func_8011492C.c')
         # Host build omits only the helper's target register/scheduling metadata.
         callback = callback.replace(' __asm__("$2")', '')
         callback = callback.replace('__asm__("");', '')

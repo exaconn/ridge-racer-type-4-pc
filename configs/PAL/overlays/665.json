@@ -1,108 +1,138 @@
 {
   "index": 665,
   "name": "options",
+  "units": [
+    {
+      "source": "src/overlays/PAL/665/menu.c",
+      "address": 2148616472
+    },
+    {
+      "source": "src/overlays/PAL/665/audio_options.c",
+      "address": 2148618200
+    },
+    {
+      "source": "src/overlays/PAL/665/screen_adjust.c",
+      "address": 2148620184
+    },
+    {
+      "source": "src/overlays/PAL/665/controller_preview.c",
+      "address": 2148622448
+    },
+    {
+      "source": "src/overlays/PAL/665/controller_draw.c",
+      "address": 2148623420
+    },
+    {
+      "source": "src/overlays/PAL/665/controller_options.c",
+      "address": 2148625680
+    },
+    {
+      "source": "src/overlays/PAL/665/options.c",
+      "address": 2148634296
+    }
+  ],
   "functions": [
     {
       "address": 2148616472,
       "size": 268,
       "symbol": "ovl665_init_scene",
-      "source": "src/overlays/PAL/665/func_80114918.c"
+      "source": "src/overlays/PAL/665/menu.c"
     },
     {
       "address": 2148616740,
       "size": 552,
       "symbol": "ovl665_init_menu",
-      "source": "src/overlays/PAL/665/func_80114A24.c"
+      "source": "src/overlays/PAL/665/menu.c"
     },
     {
       "address": 2148617292,
       "size": 908,
       "symbol": "ovl665_update_menu",
-      "source": "src/overlays/PAL/665/func_80114C4C.c"
+      "source": "src/overlays/PAL/665/menu.c"
     },
     {
       "address": 2148618200,
       "size": 460,
       "symbol": "ovl665_init_audio_options",
-      "source": "src/overlays/PAL/665/func_80114FD8.c"
+      "source": "src/overlays/PAL/665/audio_options.c"
     },
     {
       "address": 2148618660,
       "size": 1524,
       "symbol": "ovl665_update_audio_options",
-      "source": "src/overlays/PAL/665/func_801151A4.c"
+      "source": "src/overlays/PAL/665/audio_options.c"
     },
     {
       "address": 2148620184,
       "size": 136,
       "symbol": "ovl665_init_screen_adjust",
-      "source": "src/overlays/PAL/665/func_80115798.c"
+      "source": "src/overlays/PAL/665/screen_adjust.c"
     },
     {
       "address": 2148620320,
       "size": 1132,
       "symbol": "ovl665_update_screen_adjust",
-      "source": "src/overlays/PAL/665/func_80115820.c"
+      "source": "src/overlays/PAL/665/screen_adjust.c"
     },
     {
       "address": 2148621452,
       "size": 112,
       "symbol": "ovl665_init_brightness_panel",
-      "source": "src/overlays/PAL/665/func_80115C8C.c"
+      "source": "src/overlays/PAL/665/screen_adjust.c"
     },
     {
       "address": 2148621564,
       "size": 884,
       "symbol": "ovl665_update_brightness_panel",
-      "source": "src/overlays/PAL/665/func_80115CFC.c"
+      "source": "src/overlays/PAL/665/screen_adjust.c"
     },
     {
       "address": 2148622448,
       "size": 556,
       "symbol": "ovl665_init_controller_options",
-      "source": "src/overlays/PAL/665/func_80116070.c"
+      "source": "src/overlays/PAL/665/controller_preview.c"
     },
     {
       "address": 2148623004,
       "size": 188,
       "symbol": "ovl665_detect_controller_kind",
-      "source": "src/overlays/PAL/665/func_8011629C.c"
+      "source": "src/overlays/PAL/665/controller_preview.c"
     },
     {
       "address": 2148623192,
       "size": 228,
       "symbol": "ovl665_setup_preview_light_matrix",
-      "source": "src/overlays/PAL/665/func_80116358.c"
+      "source": "src/overlays/PAL/665/controller_preview.c"
     },
     {
       "address": 2148623420,
       "size": 1408,
       "symbol": "ovl665_draw_controller_model",
-      "source": "src/overlays/PAL/665/func_8011643C.c"
+      "source": "src/overlays/PAL/665/controller_draw.c"
     },
     {
       "address": 2148624828,
       "size": 232,
       "symbol": "ovl665_draw_twist_gauge_needle",
-      "source": "src/overlays/PAL/665/func_801169BC.c"
+      "source": "src/overlays/PAL/665/controller_draw.c"
     },
     {
       "address": 2148625060,
       "size": 620,
       "symbol": "ovl665_draw_callout_strokes",
-      "source": "src/overlays/PAL/665/func_80116AA4.c"
+      "source": "src/overlays/PAL/665/controller_draw.c"
     },
     {
       "address": 2148625680,
       "size": 8616,
       "symbol": "ovl665_update_controller_options",
-      "source": "src/overlays/PAL/665/func_80116D10.c"
+      "source": "src/overlays/PAL/665/controller_options.c"
     },
     {
       "address": 2148634296,
       "size": 352,
       "symbol": "ovl665_update_options",
-      "source": "src/overlays/PAL/665/func_80118EB8.c"
+      "source": "src/overlays/PAL/665/options.c"
     }
   ],
   "globals": {

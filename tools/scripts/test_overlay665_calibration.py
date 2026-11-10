@@ -1,9 +1,10 @@
 from pathlib import Path
+from overlay_units import read_c_source
 from tempfile import TemporaryDirectory
 import re,subprocess,sys
 root=next(p for p in Path(__file__).resolve().parents if (p/'Makefile').exists() and (p/'tools/scripts').exists())
 target=Path(sys.argv[1]) if len(sys.argv)>1 else root/'src/overlays/PAL/665/func_80115820.c'
-body=target.read_text();macro=body[:body.index('#include')];body=body[body.index('void ovl665_update_screen_adjust'):]
+body=read_c_source(target);macro='';body=body[body.index('void ovl665_update_screen_adjust'):]
 source=r'''
 #include <assert.h>
 #include "game/system/pad.h"

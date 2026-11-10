@@ -5,6 +5,7 @@ only initialized temporary data:32 source bytes and nine auxiliary halfwords.
 It does not execute the GTE arithmetic or coprocessor register writes.
 """
 from pathlib import Path
+from overlay_units import read_c_source
 from tempfile import TemporaryDirectory
 import subprocess
 import unittest
@@ -13,7 +14,7 @@ import unittest
 class Overlay665MatrixTest(unittest.TestCase):
     def test_matrix_capture_order_halfword_input_and_aliasing(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/665/func_80116358.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/665/func_80116358.c')
         source = r'''
 #include <assert.h>
 #include <stddef.h>

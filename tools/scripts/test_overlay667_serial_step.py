@@ -4,6 +4,7 @@ Receive/send services are typed simulated boundaries that mutate the live state;
 this does not execute BIOS serial I/O or the receiver's packet parser.
 """
 from pathlib import Path
+from overlay_units import read_c_source
 from tempfile import TemporaryDirectory
 import subprocess
 import unittest
@@ -12,7 +13,7 @@ import unittest
 class Overlay667SerialStepTest(unittest.TestCase):
     def test_ring_branches_retry_capture_and_wrapping_counters(self):
         root = Path(__file__).resolve().parents[2]
-        bodies = '\n'.join((root / f'src/overlays/PAL/667/func_{a}.c').read_text()
+        bodies = '\n'.join(read_c_source(root / f'src/overlays/PAL/667/func_{a}.c')
                            for a in ('80115068', '801151E0'))
         source = r'''
 #include <assert.h>

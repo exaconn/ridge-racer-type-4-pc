@@ -1,5 +1,6 @@
 """Serial packet payload bounds, unsigned bytes and mutating service ABI."""
 from pathlib import Path
+from overlay_units import read_c_source
 from tempfile import TemporaryDirectory
 import subprocess
 import unittest
@@ -7,7 +8,7 @@ import unittest
 class Overlay667PacketTest(unittest.TestCase):
     def test_packet_and_driver_write_boundaries(self):
         root=Path(__file__).resolve().parents[2]
-        body=(root/'src/overlays/PAL/667/func_80114D30.c').read_text()
+        body=read_c_source(root / 'src/overlays/PAL/667/func_80114D30.c')
         source=r'''
 #include <assert.h>
 #include <stdint.h>

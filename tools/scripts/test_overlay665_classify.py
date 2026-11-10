@@ -1,5 +1,6 @@
 """Exhaustive byte classifications and signed-halfword truth values over real rows."""
 from pathlib import Path
+from overlay_units import read_c_source
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
@@ -8,7 +9,7 @@ import unittest
 class OverlayClassifyTest(unittest.TestCase):
     def test_classification_and_read_only_rows(self):
         root = Path(__file__).resolve().parents[2]
-        body = (root / 'src/overlays/PAL/665/func_8011629C.c').read_text()
+        body = read_c_source(root / 'src/overlays/PAL/665/func_8011629C.c')
         source = r'''
 #include <assert.h>
 #include "game/system/pad.h"

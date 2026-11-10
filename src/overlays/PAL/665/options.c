@@ -1,4 +1,5 @@
 #include "rr/overlay665_dispatch.h"
+
 void ovl665_update_options(void) {
  switch(ovl665_options_state.scene00) {
  case 0:

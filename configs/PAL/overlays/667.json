@@ -1,168 +1,190 @@
 {
   "index": 667,
   "name": "serial_link",
+  "units": [
+    {
+      "source": "src/overlays/PAL/667/sio.c",
+      "address": 2148616492
+    },
+    {
+      "source": "src/overlays/PAL/667/race.c",
+      "address": 2148619528
+    },
+    {
+      "source": "src/overlays/PAL/667/car_selection.c",
+      "address": 2148622760
+    },
+    {
+      "source": "src/overlays/PAL/667/course_menu.c",
+      "address": 2148630248
+    },
+    {
+      "source": "src/overlays/PAL/667/results.c",
+      "address": 2148632116
+    }
+  ],
   "functions": [
     {
       "address": 2148616492,
       "size": 36,
       "symbol": "ovl667_check_sio_timeout",
-      "source": "src/overlays/PAL/667/func_8011492C.c"
+      "source": "src/overlays/PAL/667/sio.c"
     },
     {
       "address": 2148616528,
       "size": 56,
       "symbol": "ovl667_reset_sio_ports",
-      "source": "src/overlays/PAL/667/func_80114950.c"
+      "source": "src/overlays/PAL/667/sio.c"
     },
     {
       "address": 2148616584,
       "size": 184,
       "symbol": "ovl667_open_sio_events",
-      "source": "src/overlays/PAL/667/func_80114988.c"
+      "source": "src/overlays/PAL/667/sio.c"
     },
     {
       "address": 2148616768,
       "size": 184,
       "symbol": "ovl667_close_sio_session",
-      "source": "src/overlays/PAL/667/func_80114A40.c"
+      "source": "src/overlays/PAL/667/sio.c"
     },
     {
       "address": 2148616952,
       "size": 536,
       "symbol": "ovl667_init_sio_session",
-      "source": "src/overlays/PAL/667/func_80114AF8.c"
+      "source": "src/overlays/PAL/667/sio.c"
     },
     {
       "address": 2148617488,
       "size": 32,
       "symbol": "ovl667_on_sio_error_event",
-      "source": "src/overlays/PAL/667/func_80114D10.c"
+      "source": "src/overlays/PAL/667/sio.c"
     },
     {
       "address": 2148617520,
       "size": 260,
       "symbol": "ovl667_send_race_packet",
-      "source": "src/overlays/PAL/667/func_80114D30.c"
+      "source": "src/overlays/PAL/667/sio.c"
     },
     {
       "address": 2148617780,
       "size": 532,
       "symbol": "ovl667_poll_race_packet",
-      "source": "src/overlays/PAL/667/func_80114E34.c"
+      "source": "src/overlays/PAL/667/sio.c"
     },
     {
       "address": 2148618312,
       "size": 16,
       "symbol": "ovl667_get_sio_error_count",
-      "source": "src/overlays/PAL/667/func_80115048.c"
+      "source": "src/overlays/PAL/667/sio.c"
     },
     {
       "address": 2148618328,
       "size": 16,
       "symbol": "ovl667_get_sio_status_flag",
-      "source": "src/overlays/PAL/667/func_80115058.c"
+      "source": "src/overlays/PAL/667/sio.c"
     },
     {
       "address": 2148618344,
       "size": 376,
       "symbol": "ovl667_receive_peer_inputs",
-      "source": "src/overlays/PAL/667/func_80115068.c"
+      "source": "src/overlays/PAL/667/sio.c"
     },
     {
       "address": 2148618720,
       "size": 528,
       "symbol": "ovl667_transmit_local_inputs",
-      "source": "src/overlays/PAL/667/func_801151E0.c"
+      "source": "src/overlays/PAL/667/sio.c"
     },
     {
       "address": 2148619248,
       "size": 164,
       "symbol": "ovl667_abort_on_link_timeout",
-      "source": "src/overlays/PAL/667/func_801153F0.c"
+      "source": "src/overlays/PAL/667/sio.c"
     },
     {
       "address": 2148619412,
       "size": 116,
       "symbol": "ovl667_sync_link_display",
-      "source": "src/overlays/PAL/667/func_80115494.c"
+      "source": "src/overlays/PAL/667/sio.c"
     },
     {
       "address": 2148619528,
       "size": 216,
       "symbol": "ovl667_update_checkpoint",
-      "source": "src/overlays/PAL/667/func_80115508.c"
+      "source": "src/overlays/PAL/667/race.c"
     },
     {
       "address": 2148619744,
       "size": 96,
       "symbol": "ovl667_exit_race",
-      "source": "src/overlays/PAL/667/func_801155E0.c"
+      "source": "src/overlays/PAL/667/race.c"
     },
     {
       "address": 2148619840,
       "size": 2920,
       "symbol": "ovl667_update_race",
-      "source": "src/overlays/PAL/667/func_80115640.c"
+      "source": "src/overlays/PAL/667/race.c"
     },
     {
       "address": 2148622760,
       "size": 1904,
       "symbol": "ovl667_init_car_selection",
-      "source": "src/overlays/PAL/667/func_801161A8.c"
+      "source": "src/overlays/PAL/667/car_selection.c"
     },
     {
       "address": 2148624664,
       "size": 668,
       "symbol": "ovl667_init_session_menus",
-      "source": "src/overlays/PAL/667/func_80116918.c"
+      "source": "src/overlays/PAL/667/car_selection.c"
     },
     {
       "address": 2148625332,
       "size": 356,
       "symbol": "ovl667_reset_preview_selection",
-      "source": "src/overlays/PAL/667/func_80116BB4.c"
+      "source": "src/overlays/PAL/667/car_selection.c"
     },
     {
       "address": 2148625688,
       "size": 4560,
       "symbol": "ovl667_update_car_selection",
-      "source": "src/overlays/PAL/667/func_80116D18.c"
+      "source": "src/overlays/PAL/667/car_selection.c"
     },
     {
       "address": 2148630248,
       "size": 16,
       "symbol": "ovl667_select_scene",
-      "source": "src/overlays/PAL/667/func_80117EE8.c"
+      "source": "src/overlays/PAL/667/course_menu.c"
     },
     {
       "address": 2148630264,
       "size": 176,
       "symbol": "ovl667_init_course_menu",
-      "source": "src/overlays/PAL/667/func_80117EF8.c"
+      "source": "src/overlays/PAL/667/course_menu.c"
     },
     {
       "address": 2148630440,
       "size": 1676,
       "symbol": "ovl667_update_course_menu",
-      "source": "src/overlays/PAL/667/func_80117FA8.c"
+      "source": "src/overlays/PAL/667/course_menu.c"
     },
     {
       "address": 2148632116,
       "size": 424,
       "symbol": "ovl667_init_results",
-      "source": "src/overlays/PAL/667/func_80118634.c"
+      "source": "src/overlays/PAL/667/results.c"
     },
     {
       "address": 2148632540,
       "size": 128,
       "symbol": "ovl667_update_retry_choice",
-      "source": "src/overlays/PAL/667/func_801187DC.c"
+      "source": "src/overlays/PAL/667/results.c"
     },
     {
       "address": 2148632668,
       "size": 1444,
       "symbol": "ovl667_update_results",
-      "source": "src/overlays/PAL/667/func_8011885C.c"
+      "source": "src/overlays/PAL/667/results.c"
     }
   ],
   "globals": {

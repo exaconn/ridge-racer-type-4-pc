@@ -3,12 +3,13 @@
 The line emitter is simulated; this does not execute GPU hardware.
 """
 from pathlib import Path
+from overlay_units import read_c_source
 from tempfile import TemporaryDirectory
 import subprocess, unittest
 ROOT=Path(__file__).resolve().parents[2]
 class StrokePathsTest(unittest.TestCase):
  def test_all_halfword_factors_and_mutable_owners(self):
-  body=(ROOT/'src/overlays/PAL/665/func_80116AA4.c').read_text().split('void ovl665_draw_callout_strokes',1)[1]
+  body=read_c_source(ROOT / 'src/overlays/PAL/665/func_80116AA4.c').split('void ovl665_draw_callout_strokes',1)[1]
   code=r'''
 #include <assert.h>
 #include <stddef.h>

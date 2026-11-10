@@ -1,12 +1,62 @@
 #include "rr/menu_text_rows.h"
+#include "rr/overlay_menu.h"
 #include "rr/frame_storage_types.h"
+
+extern s32 ModeFrame;
+extern s16 MenuCursor;
+extern s16 MenuItemCount;
+extern s32 ovl667_result_labels[22];
+extern s32 TotalRaceTime;
+extern s16 NumCars;
+extern s16 LinkFinishCarOrder[8];
+extern s16 LinkPlayerWinCounts[8];
+extern s16 LinkPrevCarRanks[8];
+extern s16 LinkState;
+extern void SetMenuFrameOptions(s32, s32, s32);
+
+void ovl667_init_results(void) {
+    s32 i;
+
+    /* The active participant count is0..8; order entries and the preexisting
+     * inverse position for participant0 are valid slots0..7. */
+    ModeFrame = 0;
+    InitMenuTextRows((MenuTextRow60 *)SharedWorkArena);
+    MenuCursor = 0;
+    MenuItemCount = 3;
+    for (i = 0; i < 11; i++) {
+        SetMenuTextRow(i, i, 0, 0, ovl667_result_labels[i]);
+    }
+    for (i = 11; i < 22; i++) {
+        SetMenuTextRow(i, i - 11, 0, 0, -1);
+    }
+    for (i = 33; i < 44; i++) {
+        SetMenuTextRow(i, i - 33, 2, 0, ovl667_result_labels[i - 22]);
+    }
+    if (TotalRaceTime >= 0) {
+        for (i = 0; i < NumCars; i++) {
+            LinkFinishCarOrder[LinkPrevCarRanks[i]] = i;
+        }
+        if (LinkPlayerWinCounts[LinkFinishCarOrder[0]] < 99) {
+            LinkPlayerWinCounts[LinkFinishCarOrder[0]]++;
+        }
+    }
+    LinkState = 0;
+    SetMenuFrameOptions(0, 1, 0);
+}
+
+s32 ovl667_update_retry_choice(s32 mode){
+ (void)mode;
+ SetMenuTextRowStyle(MenuCursor+39,0,0);
+ StepMenuValue(0,2,(char*)&MenuCursor,2,0);
+ SetMenuTextRowStyle(MenuCursor+39,1,1);
+ if(MenuReturnSubmodeIndex){PlaySfx(1);return MenuCursor;}
+ return -1;
+}
 
 extern s32 ModeFrame, TotalRaceTime, MenuReturnSubmodeIndex, ActivePlayerIndex;
 extern u16 SubmodeState;
 extern s16 ModeGroup, ModeIndex, FadeCountdown, MenuCursor, LinkHostFlag;
 extern s16 LinkState, LinkRaceAbortFlag, LinkPlayerCount;
-extern s16 LinkFinishCarOrder[4];
-extern s16 LinkPlayerWinCounts[4];
 extern char LinkPlayerNames[4][12];
 
 s32 ExitOnLinkLost(void);

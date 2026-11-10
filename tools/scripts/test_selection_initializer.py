@@ -1,11 +1,12 @@
 """Guarded native oracle for the two-player overlay667 selection initializer."""
 from pathlib import Path
+from overlay_units import read_c_source
 from tempfile import TemporaryDirectory
 import re,subprocess,sys,os,json,hashlib
 root=next(p for p in Path(__file__).resolve().parents if (p/'tools/scripts/cc.sh').is_file())
 stage=root/'tools/scripts'
 source_path=Path(sys.argv[1]) if len(sys.argv)>1 else root/'src/overlays/PAL/667/func_801161A8.c'
-body=source_path.read_text();macro='\n'.join(l for l in body.splitlines() if l.startswith('#define KEEP_GLYPH'))
+body=read_c_source(source_path);macro='\n'.join(l for l in body.splitlines() if l.startswith('#define KEEP_GLYPH'))
 body=body[body.index('void ovl667_init_car_selection'):];body=re.sub(r' __asm__\("\$\d+"\)','',body)
 encoder=(root/'tools/scripts/fixtures/views/func_80037040.c').read_text().replace('void UnpackChoiceGlyph','static void encode_original')
 source=r'''

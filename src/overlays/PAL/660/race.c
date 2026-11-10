@@ -8,7 +8,7 @@ void ovl660_check_reverse_run(RaceVehicle *player){
   s32 allow=0;
   if(control->dynamics94.steering.count22<=0)allow=player->half1EA!=ReverseCourse;
   else if(player->first<=(s32)(0U-TrackLength))allow=1;
-  if(allow==1){RaceState=5;D_800AC5D0=75;SoundSetMasterVolume(0,71);}
+  if(allow==1){RaceState=5;FadeCountdown=75;SoundSetMasterVolume(0,71);}
  }
 }
 
@@ -17,8 +17,8 @@ void ovl660_exit_race(void)
     StopRaceAudioAndRumble();
     SetupRaceAndSceneId();
     ModeGroup = 1;
-    D_800F3A26 = 53;
-    D_800F4D8A = 0;
+    ModeIndex = 53;
+    SubmodeState = 0;
     AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words, 255, 69);
 }
 
@@ -28,8 +28,8 @@ void ovl660_update_race(void) {
 
     ModeFrame = (ModeFrame + 1U);
     if (((RaceState - 1U) < 2U) && (PlayerControllers[0].edges08.fields.pressed & 0x800)) {
-        if (D_800AC5D0 <= 0) {
-            D_800AC5D0 = 0xF;
+        if (FadeCountdown <= 0) {
+            FadeCountdown = 0xF;
             paused = RacePaused == 0;
             RacePaused = paused;
             if (paused != 0) {
@@ -42,10 +42,10 @@ void ovl660_update_race(void) {
         } else {
             goto update_pause_timer;
         }
-    } else if (D_800AC5D0 > 0) {
+    } else if (FadeCountdown > 0) {
 update_pause_timer:
         if (RaceState < 4) {
-            D_800AC5D0 = (u16) D_800AC5D0 - 1;
+            FadeCountdown = (u16) FadeCountdown - 1;
         }
     }
     if (RacePaused != 0) {
@@ -55,7 +55,7 @@ update_pause_timer:
         DrawRaceOverlaySprites(1);
         DrawLapTimeList(0);
         DrawStartCountdown(CurrentDrawBuf->ordering.ordering70.words, ModeFrame);
-        DrawHudRotatingQuad(D_800F4C70.first, 0);
+        DrawHudRotatingQuad(PlayerDisplayRpm.first, 0);
         DrawViewportBorderFrames(0);
         DrawHudNumber3((PlayerCars[0].input * 0xA0) / 1168, 0);
         DrawHudDigitMod10(PlayerCars[0].control.previewSample84.halves.high, 0);
@@ -85,33 +85,33 @@ update_pause_timer:
                 CdAudioBeginPlay(1);
             }
     } else if (RaceState >= 4) {
-            if (D_800AC5D0 < 0x19) {
+            if (FadeCountdown < 0x19) {
                 fadeFlags = 0x45;
                 if (RaceState == 4) {
                     fadeFlags = 0x25;
                 }
-                AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x19 - D_800AC5D0) * 0xA, fadeFlags);
+                AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x19 - FadeCountdown) * 0xA, fadeFlags);
             }
-            if (D_800AC5D0 <= 0) {
+            if (FadeCountdown <= 0) {
                 if (RaceState == 4) {
                     ModeGroup = 1;
-                    D_800F3A26 = 0x15;
-                    D_800F4D8A = 0;
+                    ModeIndex = 0x15;
+                    SubmodeState = 0;
                 } else {
                     FinishRace();
                 }
             } else {
-                D_800AC5D0 = (u16) D_800AC5D0 - 1;
+                FadeCountdown = (u16) FadeCountdown - 1;
             }
     } else if (RaceState == 0) {
             if (ModeFrame >= 0x33U) {
                 AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (ModeFrame - 0x32U) * 0xAU, 0x25);
-                D_800ADAF0[1].environment.draw00.background = 0;
-                D_800ADAF0[0].environment.draw00.background = 0;
+                DrawBuffers[1].environment.draw00.background = 0;
+                DrawBuffers[0].environment.draw00.background = 0;
             } else if (ModeFrame < 0x19U) {
                 AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x19U - ModeFrame) * 0xAU, 0x45);
-                D_800ADAF0[1].environment.draw00.background = 1;
-                D_800ADAF0[0].environment.draw00.background = 1;
+                DrawBuffers[1].environment.draw00.background = 1;
+                DrawBuffers[0].environment.draw00.background = 1;
             }
             RR_660_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(CurrentDrawBuf->ordering.ordering70.words, RR_660_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
     }
@@ -126,7 +126,7 @@ update_pause_timer:
     CheckFinalLapEvent((char *)(void *)PlayerCars);
     if ((RaceState - 1U) < 3U) {
         DrawLapTimeList(0);
-        DrawHudRotatingQuad(D_800F4C70.first, 0);
+        DrawHudRotatingQuad(PlayerDisplayRpm.first, 0);
         DrawViewportBorderFrames(0);
         DrawHudNumber3((PlayerCars[0].input * 0xA0) / 1168, 0);
         DrawHudDigitMod10(PlayerCars[0].control.previewSample84.halves.high, 0);
@@ -152,7 +152,7 @@ update_pause_timer:
     SetupPlayerView(0);
     DrawTrackObjects(0);
     DrawTrackSceneryForPlayer(0);
-    SlotSetLevelProgram(D_800F4C70.first, D_800F2AB4.first, 0);
+    SlotSetLevelProgram(PlayerDisplayRpm.first, PlayerThrottleLoad.first, 0);
     if (RaceState >= 4) {
         StopRaceRumble();
         if (RaceState == 6) {

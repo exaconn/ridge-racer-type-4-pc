@@ -64,11 +64,11 @@ typedef struct {
 
 extern GpuRectangleFields D_80010104;
 extern int SetMenuFrameOptions();
-extern short D_800AC5D0;
+extern short FadeCountdown;
 extern int VSyncThreshold;
-extern short D_800F3A26;
+extern short ModeIndex;
 extern short ModeGroup;
-extern short D_800F4D8A;
+extern short SubmodeState;
 extern int D_8010BF74;
 extern Vec3sFields8 D_8001010C;
 extern GpuRectangleFields D_80010114;
@@ -209,11 +209,11 @@ void TileRectSceneModeEnter(void) {
     UpdateScreenFade(0x1000C);
     sp10.rect = D_80010104;
     ClearImage2(&sp10, 0, 0, 0);
-    D_800AC5D0 = 0;
+    FadeCountdown = 0;
     D_8010BF74 = 0;
     ModeGroup = 0;
-    D_800F3A26 = 4;
-    D_800F4D8A = 0;
+    ModeIndex = 4;
+    SubmodeState = 0;
 }
 
 void TileRectSceneModeUpdate(void) {
@@ -221,13 +221,13 @@ void TileRectSceneModeUpdate(void) {
     int s1;
 
     UpdateScreenFade(0x1000C);
-    if (D_800AC5D0 != 0) {
-        D_800AC5D0 += 4;
-        if (D_800AC5D0 >= 0x100) {
+    if (FadeCountdown != 0) {
+        FadeCountdown += 4;
+        if (FadeCountdown >= 0x100) {
             ResetScreenCounters();
             ModeGroup = 1;
-            D_800F3A26 = 0xB;
-            D_800F4D8A = 0;
+            ModeIndex = 0xB;
+            SubmodeState = 0;
         }
     }
 
@@ -264,7 +264,7 @@ void TileRectSceneModeUpdate(void) {
         if (s1 == 0) {
             return;
         }
-        RelocateOffsetTable(D_800AC64C = LoadCursor);
+        RelocateOffsetTable(SkyCommandListPtr = LoadCursor);
         TileRectScene = (S_8010BF70 *)(LoadCursor += s1);
         LoadCursor = (char *)TileRectScene + 0x4C;
         SetupRenderer(3);
@@ -298,8 +298,8 @@ void TileRectSceneModeUpdate(void) {
         SetMenuFrameOptions(1, 1, 0);
         D_8010BF74 = 7;
     case 7:
-        if (D_800AC5D0 == 0 && D_800F3A60 != 0) {
-            D_800AC5D0 = 4;
+        if (FadeCountdown == 0 && D_800F3A60 != 0) {
+            FadeCountdown = 4;
             TileRectScene->s44 = -4;
             TileRectScene->s42 = -4;
         }

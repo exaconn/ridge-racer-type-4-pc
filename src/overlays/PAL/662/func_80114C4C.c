@@ -20,7 +20,7 @@ void ovl662_func_80114C4C(void)
     s32 unused[2]; /* never referenced; original frame reserves 8 local bytes */
 
     ModeFrame++;
-    switch ((u16)D_800F4D8A) {
+    switch ((u16)SubmodeState) {
     case 0:
         state = UiRows->byte14;
         if (state != 2) {
@@ -37,8 +37,8 @@ void ovl662_func_80114C4C(void)
                 if (CourseChoiceTable[1][0].glyph != -1) {
                     SetModelTexturePage(-1);
                     PlaySfx(1);
-                    D_800F4D8A = 3;
-                    D_800AC5D0 = 64;
+                    SubmodeState = 3;
+                    FadeCountdown = 64;
                     for (i = 0; i < 3; i++) {
                         if (UiRows[i].byte14 == 2) {
                             UiRows[i].byte14 = 7;
@@ -50,69 +50,69 @@ void ovl662_func_80114C4C(void)
             } else if (MenuCursor == 1) {
                 PlaySfx(1);
                 SetModelTexturePage(-1);
-                D_800F4D8A = 4;
+                SubmodeState = 4;
                 for (i = 0; i < 3; i++) {
                     if (UiRows[i].byte14 == 2) {
                         UiRows[i].byte14 = 7;
                     }
                 }
-                D_800AC5D0 = 64;
+                FadeCountdown = 64;
             } else if (MenuCursor == state) {
                 PlaySfx(1);
                 SetModelTexturePage(-1);
-                D_800F4D8A = 8;
+                SubmodeState = 8;
                 for (i = 0; i < 3; i++) {
                     if (UiRows[i].byte14 == 2) {
                         UiRows[i].byte14 = 3;
                     }
                 }
-                D_800AC5D0 = 64;
+                FadeCountdown = 64;
                 SeqFadeVolume(0, 60);
             }
         } else if (PlayerControllers[0].action2C) {
             PlaySfx(2);
             SetModelTexturePage(-1);
-            D_800F4D8A = 8;
+            SubmodeState = 8;
             SetMenuFrameOptions(0, 1, 1);
             for (i = 0; i < 3; i++) {
                 if (UiRows[i].byte14 == 2) {
                     UiRows[i].byte14 = 3;
                 }
             }
-            D_800AC5D0 = 64;
+            FadeCountdown = 64;
             SeqFadeVolume(0, 60);
         }
         break;
     case 3:
-        D_800AC5D0--;
+        FadeCountdown--;
         AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,
-                      (64 - D_800AC5D0) * 4, 69);
-        if (D_800AC5D0 <= 0) {
+                      (64 - FadeCountdown) * 4, 69);
+        if (FadeCountdown <= 0) {
             ModeGroup = 1;
-            D_800F3A26 = 63;
-            D_800F4D8A = 0;
+            ModeIndex = 63;
+            SubmodeState = 0;
         }
         break;
     case 4:
-        D_800AC5D0--;
+        FadeCountdown--;
         AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,
-                      (64 - D_800AC5D0) * 4, 69);
-        if (D_800AC5D0 <= 0) {
+                      (64 - FadeCountdown) * 4, 69);
+        if (FadeCountdown <= 0) {
             InitTimTemplate(D_800F4368);
             UploadCarClut(D_800F4368, 0, 0);
             ModeGroup = 3;
-            D_800F3A26 = 1;
-            D_800F4D8A = 0;
+            ModeIndex = 1;
+            SubmodeState = 0;
         }
         break;
     case 8:
-        D_800AC5D0--;
+        FadeCountdown--;
         AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,
-                      (64 - D_800AC5D0) * 4, 69);
-        if (D_800AC5D0 <= 0) {
+                      (64 - FadeCountdown) * 4, 69);
+        if (FadeCountdown <= 0) {
             ModeGroup = 1;
-            D_800F3A26 = 3;
-            D_800F4D8A = 0;
+            ModeIndex = 3;
+            SubmodeState = 0;
             SeqMuteVolume();
         }
         break;

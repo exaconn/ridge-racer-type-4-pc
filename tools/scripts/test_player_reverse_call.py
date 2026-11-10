@@ -37,14 +37,14 @@ RaceVehicle PlayerCars[2];
 static struct {u8 before[16]; RaceVehicle vehicle; u8 after[16];} extra;
 static TrackSample3C nodes[4];
 TrackSample3C *TrackNodes=nodes;
-int RaceState, TrackEventSfxEnabled, ReplayState, D_800AC538;
-short D_800AD508;
+int RaceState, TrackEventSfxEnabled, ReplayState, ChaseViewEnabled;
+short LinkHostFlag;
 static RaceVehicle *selected;
 static unsigned scenario, events;
 static u8 *trace;
 static const s32 states[]={INT32_MIN,-1,0,1,2,3,4,INT32_MAX};
 static void snapshot(u8 *out) {
-    s32 globals[5]={RaceState,TrackEventSfxEnabled,ReplayState,D_800AC538,D_800AD508};
+    s32 globals[5]={RaceState,TrackEventSfxEnabled,ReplayState,ChaseViewEnabled,LinkHostFlag};
     rr_vehicle_wire_store(out,&PlayerCars[0]);
     rr_vehicle_wire_store(out+800,&PlayerCars[1]);
     rr_vehicle_wire_store(out+1600,&extra.vehicle);
@@ -104,7 +104,7 @@ unsigned run_case(unsigned number,unsigned operation,unsigned index,int player,c
     rr_vehicle_wire_load(&extra.vehicle,input+1600);
     memcpy(globals,input+2400,20);memcpy(nodes,input+2420,sizeof(nodes));
     RaceState=globals[0];TrackEventSfxEnabled=globals[1];ReplayState=globals[2];
-    D_800AC538=globals[3];D_800AD508=(s16)globals[4];
+    ChaseViewEnabled=globals[3];LinkHostFlag=(s16)globals[4];
     selected=index==2?&extra.vehicle:&PlayerCars[index];
     assert((uintptr_t)selected>UINT32_MAX&&(uintptr_t)TrackNodes>UINT32_MAX);
     if(operation)StepCarPhysics(selected);else UpdatePlayerCar(selected,player);
@@ -170,7 +170,7 @@ def main():
         vehicles = (player_root, player_root+800, 0x80180010)
         nodes, stack, stop = 0x80190010, 0x803F0000, 0x803FF000
         globals_ = tuple(address_of(n) for n in
-                         ('RaceState', 'TrackEventSfxEnabled', 'ReplayState', 'D_800AC538', 'D_800AD508'))
+                         ('RaceState', 'TrackEventSfxEnabled', 'ReplayState', 'ChaseViewEnabled', 'LinkHostFlag'))
         services = {address_of(n): i+1 for i, n in enumerate((
             'UpdateCarGear', 'UpdatePlayerSteering', 'UpdateCarEngine',
             'PlayTrackEventSfx', 'UpdateRumbleStrip', 'SetLoopVoiceVolumes',

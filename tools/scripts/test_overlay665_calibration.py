@@ -28,9 +28,9 @@ typedef struct {
 } State;
 static State world,initial,expected;
 #define ovl665_D_80119768 world.visual
-#define D_800AC5D0 world.timer
+#define FadeCountdown world.timer
 #define Options world.settings
-#define D_800ADAF0 world.frames
+#define DrawBuffers world.frames
 #define PlayerControllers world.input
 #define BadgeRows world.badges[world.badgeRoot]
 #define CardDialogueStatePtr (&world.text[world.textRoot])

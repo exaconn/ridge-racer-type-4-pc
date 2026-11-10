@@ -9,10 +9,10 @@
 #include "rr/menu_selection_word.h"
 #include "rr/menu_arena_types.h"
 extern s32 ScreenFrame,ModeFrame,NumLaps,D_800F4CB8,ovl661_D_80118414;
-extern s16 D_800AC648,MenuCursor,MenuItemCount,D_800AC5D0,CourseIndex,D_800F3A26,MenuScriptId,ModeGroup,GameModeType;
+extern s16 SelectedCourseChoice,MenuCursor,MenuItemCount,FadeCountdown,CourseIndex,ModeIndex,MenuScriptId,ModeGroup,GameModeType;
 extern s16 ovl661_D_80118448[2];
-extern s16 D_800ABEC8;
-extern u16 D_800F4D8A;
+extern s16 ComDifficultyLevel;
+extern u16 SubmodeState;
 extern MenuSelectionWord32 NumCars;
 extern SelectionRows32 SelectionRows;
 #include "rr/menu_arena_state.h"

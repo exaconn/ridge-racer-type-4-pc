@@ -73,29 +73,29 @@ extern int ReplayState;
 extern int SavedRaceState;
 extern int RaceState;
 extern short NumCars;
-extern short D_8009FFB8[];
+extern short TwistRangeLimits[];
 extern int ReplayFrame;
-extern int D_800ACBE0[];
-extern int D_800ACBF0[];
-extern short D_800AD508;
+extern int LinkRemoteCarInputs[];
+extern int LinkLocalCarInputs[];
+extern short LinkHostFlag;
 extern S_AD528 Options;
 extern unsigned char CarInputs[][4];
 extern S30 PadButtonMap[];
-extern int D_800F3AF0[];
+extern int LinkPendingCarInputs[];
 extern short GameModeType;
-extern short D_800AC5D0;
+extern short FadeCountdown;
 extern int TrackLength;
 extern int NumLaps;
 extern int D_800F3A60;
 extern RaceVehicle PlayerCars[2];
-extern short D_800F3A26;
+extern short ModeIndex;
 extern short ModeGroup;
-extern short D_800F4D8A;
+extern short SubmodeState;
 extern int ReplayFocusCarIndex;
 extern int D_800F2A64;
-extern short D_800F2AB4[];
+extern short PlayerThrottleLoad[];
 extern int ModeFrame;
-extern short D_800F4C70[];
+extern short PlayerDisplayRpm[];
 
 void ReadCarInput(RaceVehicle *arg0, s32 arg1);
 void ReplayModeEnter();
@@ -183,7 +183,7 @@ void ReadCarInput(RaceVehicle *arg0, s32 arg1) {
                     }
                     a1 = control->dynamics94.player.digitalThrottle1C + (b * 140);
                 } else if (mode == 1) {
-                    t5 = (PlayerControllers[idx].steering3C * 0x7F) / D_8009FFB8[Options.sub[idx].s12];
+                    t5 = (PlayerControllers[idx].steering3C * 0x7F) / TwistRangeLimits[Options.sub[idx].s12];
                     t1 = 0;
                     if (PlayerControllers[idx].input00.fields.buttons & PadButtonMap[idx].h14) {
                         t1 = 0xFF;
@@ -284,19 +284,19 @@ void ReadCarInput(RaceVehicle *arg0, s32 arg1) {
             CarInputs[arg1][2] = a1;
             CarInputs[arg1][3] = t3;
             if (GameModeType == 4) {
-                if (D_800AD508 != 0) {
+                if (LinkHostFlag != 0) {
                     if (arg1 >= 2) {
-                        *(int *)CarInputs[arg1] = D_800ACBE0[t2];
+                        *(int *)CarInputs[arg1] = LinkRemoteCarInputs[t2];
                     } else {
-                        D_800F3AF0[t2] = *(int *)CarInputs[arg1];
-                        *(int *)CarInputs[arg1] = D_800ACBF0[t2];
+                        LinkPendingCarInputs[t2] = *(int *)CarInputs[arg1];
+                        *(int *)CarInputs[arg1] = LinkLocalCarInputs[t2];
                     }
                 } else {
                     if (arg1 < 2) {
-                        *(int *)CarInputs[arg1] = D_800ACBE0[t2];
+                        *(int *)CarInputs[arg1] = LinkRemoteCarInputs[t2];
                     } else {
-                        D_800F3AF0[t2] = *(int *)CarInputs[arg1];
-                        *(int *)CarInputs[arg1] = D_800ACBF0[t2];
+                        LinkPendingCarInputs[t2] = *(int *)CarInputs[arg1];
+                        *(int *)CarInputs[arg1] = LinkLocalCarInputs[t2];
                     }
                 }
                 __asm__ ("" : : "r"(t2)); /* ASM_BARRIER: keep t2 live so t2<<2 allocates v1 */
@@ -329,21 +329,21 @@ void CheckRaceFinish(RaceVehicle *vehicle) {
             control->dynamics94.steering.count22 = u + 1;
             if (NumLaps < (short)(u + 1)) {
                 if (RaceState < 4) {
-                    if (D_800AC5D0 == -1) {
+                    if (FadeCountdown == -1) {
                         RaceState = 4;
-                        D_800AC5D0 = 0x4B;
+                        FadeCountdown = 0x4B;
                         SoundSetMasterVolume(0, 0x47);
                     }
                 }
             }
         }
     }
-    if (ReplayFrame >= ReplayLength - 0x4B && D_800AC5D0 == -1) {
-        D_800AC5D0 = 0x25;
+    if (ReplayFrame >= ReplayLength - 0x4B && FadeCountdown == -1) {
+        FadeCountdown = 0x25;
         SoundSetMasterVolume(0, 0x21);
     } else if (D_800F3A60 != 0) {
-        if (D_800AC5D0 == -1) {
-            D_800AC5D0 = 0x25;
+        if (FadeCountdown == -1) {
+            FadeCountdown = 0x25;
             SoundSetMasterVolume(0, 0x21);
         }
     }
@@ -361,10 +361,10 @@ void ReplayModeEnter(void) {
     if (((unsigned short)GameModeType - 2) < 2U) {
         if (PlayerCars[0].first < PlayerCars[1].first) ReplayFocusCarIndex = 1;
     }
-    D_800AC5D0 = -1;
+    FadeCountdown = -1;
     ModeGroup = 1;
-    D_800F3A26 = 0x16;
-    D_800F4D8A = 0;
+    ModeIndex = 0x16;
+    SubmodeState = 0;
 }
 
 void ReplayModeUpdate(void) {
@@ -380,13 +380,13 @@ void ReplayModeUpdate(void) {
         UpdateAndDrawSceneOverlay();
     }
     ScreenFrame += 1;
-    if (D_800AC5D0 >= 0) {
-        if (D_800AC5D0 == 0) {
+    if (FadeCountdown >= 0) {
+        if (FadeCountdown == 0) {
             SetReverbDepthBoth(0);
             FinishRace();
         }
-        t = (unsigned short)D_800AC5D0 - 1;
-        D_800AC5D0 = t;
+        t = (unsigned short)FadeCountdown - 1;
+        FadeCountdown = t;
         if (t < 0x19) {
             AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x19 - t) * 10, 0x45);
         }
@@ -421,8 +421,8 @@ void ReplayModeUpdate(void) {
     if (ReplayFrame >= 0x19) {
         QueueDrawStp();
     }
-    SlotSetLevelProgram(D_800F4C70[0], D_800F2AB4[0], 0);
-    SlotSetLevelProgram(D_800F4C70[1], D_800F2AB4[1], 1);
+    SlotSetLevelProgram(PlayerDisplayRpm[0], PlayerThrottleLoad[0], 0);
+    SlotSetLevelProgram(PlayerDisplayRpm[1], PlayerThrottleLoad[1], 1);
     PadClearPulse(0);
     PadClearPulse(1);
     PadRumbleStop(0);

@@ -4,7 +4,7 @@
 #include "types.h"
 
 extern int D_800ABFE8;
-extern int D_8010E270[];
+extern int AttractCarTeams[];
 void AttractDemoRaceUpdate(void);
 
 

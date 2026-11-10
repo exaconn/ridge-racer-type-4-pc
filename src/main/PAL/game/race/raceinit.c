@@ -21,7 +21,7 @@ void InitRaceCars(int a0)
     RaceVehicle *vehicle;
     PlayerCars[1].flags1E4 = 0;
     InitCarTable(a0);
-    D_800ABEC4 = 0;
+    CarViewportBankOffset = 0;
     switch (a0) {
     case 0:
     default:
@@ -67,7 +67,7 @@ void InitRaceCars(int a0)
                 s1++;
             } while (s1 < NumCars);
         }
-        D_80107178 = s2;
+        LinkPlayerCount = s2;
         SetupRaceMemoryArena(2, 0);
         break;
     case 5:

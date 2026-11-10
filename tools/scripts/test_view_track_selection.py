@@ -49,7 +49,7 @@ static s32 node;
 #define PlayerCars live.cars
 #define TrackNodes trackRoot
 #define ViewUsesCarTrackNode live.mode
-#define D_800F3820 slotRoot
+#define RelFileSegmentViewSlots slotRoot
 #define D_800F4C58 live.segmentYaw
 static s32 signed_word(u32 value){s32 out;memcpy(&out,&value,4);return out;}
 static s32 changed_yaw(void){return signed_word(0x81726354U+scenario*0x12345U);}
@@ -147,7 +147,7 @@ class ViewTrackSelectionTest(unittest.TestCase):
             read = lambda a,n: bytes(memory.mem_read(a & 0x1FFFFFFF,n))
             write = lambda a,data: memory.mem_write(a & 0x1FFFFFFF,bytes(data))
             put = lambda a,v: write(a,struct.pack('<I',v & 0xFFFFFFFF))
-            globals_ = {n:address_of(n) for n in ['ViewUsesCarTrackNode','PlayerCars','TrackNodes','D_800F3820','D_800F4C58']}
+            globals_ = {n:address_of(n) for n in ['ViewUsesCarTrackNode','PlayerCars','TrackNodes','RelFileSegmentViewSlots','D_800F4C58']}
             spans = {n:(int(a,16),int(s,16)) for n,a,s in map(str.split,(ROOT/'configs/PAL/functions.txt').read_text().splitlines())}
             exe = (ROOT/'assets/PAL/main.exe').read_bytes();base = struct.unpack_from('<I',exe,24)[0]
             variants = {'original':{n:exe[0x800+spans[n][0]-base:0x800+sum(spans[n])-base] for n in NAMES}}
@@ -204,7 +204,7 @@ class ViewTrackSelectionTest(unittest.TestCase):
                     # PlayerCars is the actual resident array, not a pointer slot.
                     write(globals_['PlayerCars']-16,b'\x6A'*16+cars+b'\xA6'*16)
                     write(NODES-16,b'\x6A'*16+nodes+b'\xA6'*16);write(SLOTS-16,b'\x6A'*16+slots+b'\xA6'*16)
-                    put(globals_['ViewUsesCarTrackNode'],mode);put(globals_['TrackNodes'],NODES+40*60);put(globals_['D_800F3820'],SLOTS+64*4)
+                    put(globals_['ViewUsesCarTrackNode'],mode);put(globals_['TrackNodes'],NODES+40*60);put(globals_['RelFileSegmentViewSlots'],SLOTS+64*4)
                     write(globals_['D_800F4C58']-4,b'\x6A'*4+b'\xA5'*4+b'\xA6'*4)
                     write(STACK-256,b'\xA5'*512)
                     cpu.reset();cpu.r=[0]+[0xBEEF0000+r for r in range(1,32)];cpu.r[29]=STACK;cpu.r[31]=STOP
@@ -217,7 +217,7 @@ class ViewTrackSelectionTest(unittest.TestCase):
                             self.assertEqual(cpu.r[4:6],[x&0xFFFFFFFF,z&0xFFFFFFFF])
                             if bank:
                                 put(SCRATCH+28,final_yaw);put(globals_['ViewUsesCarTrackNode'],final_mode)
-                                put(globals_['TrackNodes'],NODES+80*60+40*60);put(globals_['D_800F3820'],SLOTS+128*4+64*4)
+                                put(globals_['TrackNodes'],NODES+80*60+40*60);put(globals_['RelFileSegmentViewSlots'],SLOTS+128*4+64*4)
                             resume=cpu.r[31]
                             for reg in (1,2,3,*range(4,16),24,25):cpu.r[reg]=0xDEAD0000+reg
                             cpu.r[2]=node&0xFFFFFFFF;cpu.pc=resume;cpu.hi=0x12345678;cpu.lo=0x87654321
@@ -238,7 +238,7 @@ class ViewTrackSelectionTest(unittest.TestCase):
                     self.assertEqual(read(STACK-256,128),b'\xA5'*128);self.assertEqual(read(STACK,256),b'\xA5'*256)
                     self.assertEqual(read(globals_['ViewUsesCarTrackNode'],4),struct.pack('<i',final_mode))
                     self.assertEqual(read(globals_['TrackNodes'],4),struct.pack('<I',NODES+(bank*80+40)*60))
-                    self.assertEqual(read(globals_['D_800F3820'],4),struct.pack('<I',SLOTS+(bank*128+64)*4))
+                    self.assertEqual(read(globals_['RelFileSegmentViewSlots'],4),struct.pack('<I',SLOTS+(bank*128+64)*4))
             self.assertEqual({(op,mode,player) for op,mode,player,bank in seen},{(op,mode,player) for op in range(4) for mode in modes for player in range(2)})
             self.assertTrue(any(bank for op,mode,player,bank in seen))
             print('4096 native / 8192 original-and-compiled MIPS cases: actual camera selection chain, both players, signed yaw/node edges, mutable roots, full pointer slots, ordered stores, full owner guards and UBSan')

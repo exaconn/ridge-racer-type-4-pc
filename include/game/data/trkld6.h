@@ -3,8 +3,8 @@
 
 #include "types.h"
 
-extern int D_800ACBC8;
-extern int D_800F4DC8;
+extern int ComSoundBankIndex;
+extern int DualPlayerSoundEnabled;
 int LoadRaceSoundAndTrackStep(void);
 int LoadTrackVabsStep(void);
 int LoadAttractRaceStep();

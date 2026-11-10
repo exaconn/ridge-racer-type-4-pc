@@ -15,14 +15,14 @@ extern short CardActivePort;
 extern short MenuActiveControllerIndex;
 extern short MenuStateIndex;
 extern short GpSaveSlotCursor;
-extern short D_800F3AF8;
+extern short CardTransferMode;
 extern char CardTargetFileName[];
 extern char CardFileNameTemplate[];
 extern char CardSaveFileName[];
 extern unsigned char D_800A448C[][4];
 extern unsigned char CardPortPollStatus[];
-extern short D_80109478[];
-extern short D_8010948E;
+extern short CardPromptChoices[];
+extern short CardPromptIndex;
 extern unsigned char MenuCardStepRows[][4];
 extern unsigned char CardFileCounts[];
 
@@ -44,7 +44,7 @@ void StepCardFileSlotSelection(void) {
         if (PlayerControllers[MenuActiveControllerIndex].action28 != 0) {
             PlaySfx(1);
             if ((unsigned short)(CardMenuOperation - 6) < 2) {
-                D_800F3AF8 = 0x11;
+                CardTransferMode = 0x11;
                 CopyStringClearTail(CardTargetFileName, CardTargetFileNames[GpSaveSlotCursor]);
             } else {
                 CopyStringClearTail(CardTargetFileName, CardSaveFileName);
@@ -59,8 +59,8 @@ void StepCardFileSlotSelection(void) {
     default:
         if (CardMenuOperation == 0) {
             if (MenuStateIndex == 0x3A) {
-                D_801094A0 = 1;
-                D_800F3AF8 = 0x20;
+                CardPdaModeFlag = 1;
+                CardTransferMode = 0x20;
                 CopyStringClearTail(CardTargetFileName, CardFileNameTemplate);
             } else {
                 CopyStringClearTail(CardTargetFileName, CardSaveFileName);
@@ -93,15 +93,15 @@ void StepCardPortSelection(void) {
     p = base + MenuStateIndex;
     q = (unsigned char *)p->tableIdx04;
     c = p->promptIdx06;
-    D_8010948E = c;
-    if (D_800F4D8A == 0) {
+    CardPromptIndex = c;
+    if (SubmodeState == 0) {
         sb = p->defaultChoice07;
         if (sb >= 0) {
-            D_80109478[c] = sb;
+            CardPromptChoices[c] = sb;
         }
-        D_800F4D8A = 1;
+        SubmodeState = 1;
     }
-    tb = D_800A44A8;
+    tb = CardPollTransitionTable;
     ia = (int)q * 4;
     b2 = CardPortPollStatus;
     r = b2 + CardActivePort;
@@ -111,21 +111,21 @@ void StepCardPortSelection(void) {
     s3 = q[2];
     if (*r < 0x10 || a == *r) {
         if (UiRows[0x26].byte14 == 2) {
-            StepMenuValue(((unsigned short)MenuActiveControllerIndex & 1) << 2, 2, D_8010948E * 2 + (int)D_80109478, 2, 0);
+            StepMenuValue(((unsigned short)MenuActiveControllerIndex & 1) << 2, 2, CardPromptIndex * 2 + (int)CardPromptChoices, 2, 0);
             b3 = PlayerControllers;
             r2 = b3 + MenuActiveControllerIndex;
             if (r2->action28 != 0) {
                 PlaySfx(1);
-                if (D_80109478[D_8010948E] == 0) {
+                if (CardPromptChoices[CardPromptIndex] == 0) {
                     MenuStateIndex = s4;
                 } else {
                     MenuStateIndex = s3;
                 }
-                D_800F4D8A = 0;
+                SubmodeState = 0;
             } else if (r2->action2C != 0) {
                 PlaySfx(2);
                 MenuStateIndex = s3;
-                D_800F4D8A = 0;
+                SubmodeState = 0;
             }
         }
     } else {
@@ -133,14 +133,14 @@ void StepCardPortSelection(void) {
         if (*r != 0x14) return;
         t = MenuStateIndex;
         if (t == 2 || t == 0x1A || t == 0x2D || t == 0x3C) {
-            D_80109458 = MenuStateIndex;
+            SavedMenuStateIndex = MenuStateIndex;
             MenuStateIndex = 8;
         } else if (t == 0x10 || t == 0x23) {
             MenuStateIndex = 0x12;
         } else if (t == 0x34) {
             MenuStateIndex = 0x36;
         }
-        D_800F4D8A = 0;
+        SubmodeState = 0;
     }
 }
 
@@ -160,9 +160,9 @@ void UpdateCardMenuRowStates(void) {
     if (CardMenuOperation == 0) {
         if (MenuStateIndex == 0x3D) {
             if (CardHasFile(CardFileCounts[CardActivePort], CardSaveFileName) != 0) {
-                D_80109490 = 1;
+                CardMainSaveExists = 1;
             } else {
-                D_80109490 = 0;
+                CardMainSaveExists = 0;
             }
         }
     }

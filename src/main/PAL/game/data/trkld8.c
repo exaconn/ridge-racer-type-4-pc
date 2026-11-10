@@ -15,7 +15,7 @@
 #include "rr/bios_devices.h"
 #include "rr/audio_state_types.h"
 #include "game/course/trkintp2.h"
-extern short D_800AD520;
+extern short SelectedTeamIndex;
 extern int D_800AD564;
 extern short CourseIndex;
 extern int MenuArenaBase;
@@ -66,7 +66,7 @@ int LoadIntroSceneStep(void) {
         return v;
     case 4:
         g = D_800AD564 << 2;
-        h = D_800AD520 + 0x97;
+        h = SelectedTeamIndex + 0x97;
         v = CdFileReadStart(GetR4FileIndex(2, g + h), LoadCursor);
         if (v != 0) {
             RaceLoadStepIndex += 1;

@@ -8,9 +8,9 @@
 #include "rr/tables.h"
 #include "rr/driver_control.h"
 #include "game/race/racegrid.h"
-extern s16 D_800AC5D0,D_800AD508,LinkState,D_8010C0B8,D_8010C0C8,D_800F3A26;
-extern u16 D_800F4D8A,ModeGroup;
-extern s32 D_8010C078,NumLaps,D_800F4CB8,ModeFrame,ScreenFrame;
+extern s16 FadeCountdown,LinkHostFlag,LinkState,D_8010C0B8,LinkPrevCarRanks,ModeIndex;
+extern u16 SubmodeState,ModeGroup;
+extern s32 LinkAvailableCourseCount,NumLaps,D_800F4CB8,ModeFrame,ScreenFrame;
 s32 ExitOnLinkLost(void);
 s32 UpdateLinkHandshake(s32);
 s32 LoadTrackNodesStep(void);
@@ -26,7 +26,7 @@ void AddScreenFadeTiles(u32 *,s32,u32);
 void UpdateScreenFade(s32);
 void ovl667_func_801161A8(s32);
 /* At least25 complete UI rows are accessible. Menu selection is0..2 at
- * indexed accesses; the live highlight count is0..8. D_800AD508 is0..1
+ * indexed accesses; the live highlight count is0..8. LinkHostFlag is0..1
  * before scene8 reset,so initializer161A8 receives a valid player0 or2. Services may replace
  * roots,selections,counts and resources. Both counters wrap32 and the timer
  * wraps signed16. Driver/loader results are compared as complete32-bit words. */

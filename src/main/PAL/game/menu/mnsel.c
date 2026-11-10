@@ -11,13 +11,13 @@
 extern void PlaySfx();
 extern int MenuStepDirection;
 extern MenuSettings2C SelectionState;
-extern short D_800AD520;
+extern short SelectedTeamIndex;
 extern int ModeFrame;
-extern short D_800F3A26;
+extern short ModeIndex;
 extern unsigned short D_800F3A42;
 extern int D_800F3A60;
 extern short ModeGroup;
-extern short D_800F4D8A;
+extern short SubmodeState;
 extern MenuGlyphRow1C *GlyphRows;
 extern char *Dialogue;
 
@@ -26,33 +26,33 @@ void StepModeSelectChoice(void) {
     u8 *q;
     MenuSettings2C *r;
     int t = SelectionRows[0];
-    D_800AD520 = t;
+    SelectedTeamIndex = t;
     ((u8 *)UiRows)[t + 0xC] = 0;
     do {
-        if ((D_800F3A42 & 0x2000) && D_800AD520 < 3) {
-            D_800AD520 = (unsigned short)D_800AD520 + 1;
+        if ((D_800F3A42 & 0x2000) && SelectedTeamIndex < 3) {
+            SelectedTeamIndex = (unsigned short)SelectedTeamIndex + 1;
             MenuStepDirection = 2;
-        } else if ((D_800F3A42 & 0x8000) && D_800AD520 > 0) {
-            D_800AD520 = (unsigned short)D_800AD520 - 1;
+        } else if ((D_800F3A42 & 0x8000) && SelectedTeamIndex > 0) {
+            SelectedTeamIndex = (unsigned short)SelectedTeamIndex - 1;
             MenuStepDirection = 1;
         } else {
             MenuStepDirection = 0;
             break;
         }
         PlaySfx(0);
-        if (D_800AD520 < 0) {
-            D_800AD520 = 0;
-        } else if (D_800AD520 >= 4) {
-            D_800AD520 = 3;
+        if (SelectedTeamIndex < 0) {
+            SelectedTeamIndex = 0;
+        } else if (SelectedTeamIndex >= 4) {
+            SelectedTeamIndex = 3;
         }
-        SelectionRows[0] = D_800AD520;
-        Dialogue[4] = (unsigned char)D_800AD520 + 0x22;
-        GlyphRows[D_800AD520].control02 = -6;
-        GlyphRows[D_800AD520].flags00 = 0;
-        UiRows->byte16 = D_800AD520;
+        SelectionRows[0] = SelectedTeamIndex;
+        Dialogue[4] = (unsigned char)SelectedTeamIndex + 0x22;
+        GlyphRows[SelectedTeamIndex].control02 = -6;
+        GlyphRows[SelectedTeamIndex].flags00 = 0;
+        UiRows->byte16 = SelectedTeamIndex;
     } while (0);
     q = UiRows->cells;
-    q[D_800AD520] = 2;
+    q[SelectedTeamIndex] = 2;
     if (D_800F3A60 != 0) {
         s0 = BadgeRows->state10;
         if (s0 == 3) {
@@ -65,8 +65,8 @@ void StepModeSelectChoice(void) {
             BadgeRows->state10 = 4;
             UiRows->byte14 = s0;
             ModeGroup = 1;
-            D_800F3A26 = 0xB;
-            D_800F4D8A = 0;
+            ModeIndex = 0xB;
+            SubmodeState = 0;
         }
     }
 }

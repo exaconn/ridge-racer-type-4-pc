@@ -5,15 +5,15 @@
 void ovl659_exit_race(void) {
     SetupRaceAndSceneId();
     ModeGroup = 1;
-    D_800F3A26 = 0x2F;
-    D_800F4D8A = 0;
+    ModeIndex = 0x2F;
+    SubmodeState = 0;
 }
 
 void ovl659_update_race(void) {
     ModeFrame = ModeFrame + 1U;
     SetupViewport(0);
-    if ((RaceState - 1U) < 2U && (PlayerControllers[0].edges08.fields.pressed & 0x800) && D_800AC5D0 <= 0) {
-        D_800AC5D0 = 15;
+    if ((RaceState - 1U) < 2U && (PlayerControllers[0].edges08.fields.pressed & 0x800) && FadeCountdown <= 0) {
+        FadeCountdown = 15;
         RacePaused = (RacePaused == 0);
         if (RacePaused != 0) {
             SoundPause();
@@ -22,9 +22,9 @@ void ovl659_update_race(void) {
             ApplyPauseMenuChoice(GameModeType);
             SoundResume();
         }
-    } else if (D_800AC5D0 > 0) {
+    } else if (FadeCountdown > 0) {
         if (RaceState < 4) {
-            D_800AC5D0--;
+            FadeCountdown--;
         }
     }
 
@@ -36,7 +36,7 @@ void ovl659_update_race(void) {
         DrawLapTimeList(0);
         DrawTimeRemaining(RaceTimeRemaining);
         DrawStartCountdown(&CurrentDrawBuf->ordering.ordering70.words[0], ModeFrame);
-        DrawHudRotatingQuad(D_800F4C70.first, 0);
+        DrawHudRotatingQuad(PlayerDisplayRpm.first, 0);
         DrawViewportBorderFrames(0);
         DrawHudNumber3((PlayerCars[0].input * 160) / 1168, 0);
         DrawHudDigitMod10(PlayerCars[0].control.previewSample84.halves.high, 0);
@@ -60,13 +60,13 @@ void ovl659_update_race(void) {
         if ((RaceTimeRemaining = RaceTimeRemaining - 1U) <= 0) {
             RaceState = 5;
             PlayerCars[0].half1EE = 9;
-            D_800AC5D0 = 37;
+            FadeCountdown = 37;
             RankEntries = (0U - TrackLength);
             SoundSetMasterVolume(0, 33);
         }
     }
 
-    if (D_800AC6EC != 0 && RaceState == 0) {
+    if (RaceIntroCameraState != 0 && RaceState == 0) {
         ScreenFrame = 75;
         ModeFrame = 75;
         SlotsStartForRace();
@@ -82,26 +82,26 @@ void ovl659_update_race(void) {
         }
     } else if (RaceState >= 4) {
         s32 a2;
-        if (D_800AC5D0 < 25) {
+        if (FadeCountdown < 25) {
             if (CarTable[0]->half1EE <= ovl659_finish_rank_limits[SelectionState.phase17 >> 1]) {
                 a2 = 37;
             } else {
                 a2 = 69;
             }
-            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (25 - D_800AC5D0) * 10, a2);
+            AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (25 - FadeCountdown) * 10, a2);
         }
-        if (D_800AC5D0 <= 0) {
+        if (FadeCountdown <= 0) {
             SelectionState.result19 = PlayerCars[0].half1EE;
             if (PlayerCars[0].half1EE <= ovl659_finish_rank_limits[SelectionState.phase17 / 2] &&
                 RaceState == 4) {
                 ModeGroup = 1;
-                D_800F3A26 = 21;
-                D_800F4D8A = 0;
+                ModeIndex = 21;
+                SubmodeState = 0;
             } else {
                 FinishRace();
             }
         } else {
-            D_800AC5D0--;
+            FadeCountdown--;
         }
     }
 
@@ -115,7 +115,7 @@ void ovl659_update_race(void) {
     if ((RaceState - 1U) < 3U) {
         DrawLapTimeList(0);
         DrawTimeRemaining(RaceTimeRemaining);
-        DrawHudRotatingQuad(D_800F4C70.first, 0);
+        DrawHudRotatingQuad(PlayerDisplayRpm.first, 0);
         DrawViewportBorderFrames(0);
         DrawHudNumber3((PlayerCars[0].input * 160) / 1168, 0);
         DrawHudDigitMod10(PlayerCars[0].control.previewSample84.halves.high, 0);
@@ -147,18 +147,18 @@ void ovl659_update_race(void) {
     if (RaceState == 0) {
         RR_659_SCRATCH->pointers.cursor = AddDrawAreaPrim(
             CurrentDrawBuf->ordering.ordering70.words + 2, RR_659_SCRATCH->pointers.cursor, 0, 0, 320, 256);
-        D_800ADAF0[1].environment.draw00.background = 1;
-        D_800ADAF0[0].environment.draw00.background = 1;
+        DrawBuffers[1].environment.draw00.background = 1;
+        DrawBuffers[0].environment.draw00.background = 1;
         RR_659_SCRATCH->pointers.cursor =
             AddDrawAreaPrim(CurrentDrawBuf->ordering.ordering70.words + 702, RR_659_SCRATCH->pointers.cursor, 0,
-                          D_80107190, 320, (256U - D_80107190 * 2U));
-        if ((D_80107190 = (D_80107190 - 16U)) < 0) {
-            D_80107190 = 0;
-            D_800ADAF0[1].environment.draw00.background = 0;
-            D_800ADAF0[0].environment.draw00.background = 0;
+                          RaceStartWipeY, 320, (256U - RaceStartWipeY * 2U));
+        if ((RaceStartWipeY = (RaceStartWipeY - 16U)) < 0) {
+            RaceStartWipeY = 0;
+            DrawBuffers[1].environment.draw00.background = 0;
+            DrawBuffers[0].environment.draw00.background = 0;
         }
     }
-    SlotSetLevelProgram(D_800F4C70.first, D_800F2AB4.first, 0);
+    SlotSetLevelProgram(PlayerDisplayRpm.first, PlayerThrottleLoad.first, 0);
     if (RaceState >= 4) {
         StopRaceRumble();
         if (RaceState == 6) {

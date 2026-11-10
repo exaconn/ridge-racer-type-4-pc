@@ -92,7 +92,7 @@ int SetupRearViewMirror(void) {
     ViewMatrixScratch48 *scratch = (ViewMatrixScratch48 *)SCRATCHPAD;
     if (RearViewMirrorVisible != 0) {
         if (RearViewMirrorEnabled != 0) {
-            if (D_800AC538 == 0) {
+            if (ChaseViewEnabled == 0) {
                 if (GameModeType != 0) {
                     r = RaceState == 2;
                 }
@@ -101,7 +101,7 @@ int SetupRearViewMirror(void) {
     }
     if (r != 0) {
         D_8010E710 = scratch->matrix28;
-        scratch->matrix28 = D_800AD598;
+        scratch->matrix28 = RearViewMirrorMatrix;
         scratch->projection.pose08.angles10.xyz.y = (scratch->projection.pose08.angles10.xyz.y + 0x800U);
         BuildRotMatrixY(&rotation, 0x800);
         MulMatrix0(
@@ -110,17 +110,17 @@ int SetupRearViewMirror(void) {
             &CameraViewMatrix);
         MulMatrix0(
             &rotation,
-            &D_800FF6B8,
-            &D_800FF6B8);
+            &CameraPitchRollMatrix,
+            &CameraPitchRollMatrix);
         BuildRotMatrixX(&rotation, D_800AC0A4 * 2);
         MulMatrix2(&rotation, &CameraViewMatrix);
-        MulMatrix2(&rotation, &D_800FF6B8);
+        MulMatrix2(&rotation, &CameraPitchRollMatrix);
         CameraViewMatrix.halves[0] = -CameraViewMatrix.halves[0];
         CameraViewMatrix.halves[1] = -CameraViewMatrix.halves[1];
         CameraViewMatrix.halves[2] = -CameraViewMatrix.halves[2];
-        D_800FF6B8.halves[0] = -D_800FF6B8.halves[0];
-        D_800FF6B8.halves[1] = -D_800FF6B8.halves[1];
-        D_800FF6B8.halves[2] = -D_800FF6B8.halves[2];
+        CameraPitchRollMatrix.halves[0] = -CameraPitchRollMatrix.halves[0];
+        CameraPitchRollMatrix.halves[1] = -CameraPitchRollMatrix.halves[1];
+        CameraPitchRollMatrix.halves[2] = -CameraPitchRollMatrix.halves[2];
     }
     return r;
 }
@@ -413,16 +413,16 @@ void DrawAnimatedTrackObject(AnimatedTrackScratch *scratch, int objectIndex, int
             toCamera[0] = (toCamera[0] >> 1) - object->positionC8.x;
             toCamera[1] = (toCamera[1] >> 1) - object->positionC8.y;
             toCamera[2] = (toCamera[2] >> 1) - object->positionC8.z;
-            D_800F38F8[objectIndex].x = -Atan2Table(SquareRoot0((toCamera[0] >> 4) * (toCamera[0] >> 4) + (toCamera[2] >> 4) * (toCamera[2] >> 4)), toCamera[1] >> 4) & 0xFFF;
-            D_800F38F8[objectIndex].y = (0x400 - Atan2Table(toCamera[0], toCamera[2])) & 0xFFF;
-            D_800F38F8[objectIndex].z = 0;
+            LightSourceAngles[objectIndex].x = -Atan2Table(SquareRoot0((toCamera[0] >> 4) * (toCamera[0] >> 4) + (toCamera[2] >> 4) * (toCamera[2] >> 4)), toCamera[1] >> 4) & 0xFFF;
+            LightSourceAngles[objectIndex].y = (0x400 - Atan2Table(toCamera[0], toCamera[2])) & 0xFFF;
+            LightSourceAngles[objectIndex].z = 0;
         }
         RR_GTE_SETFC(farRed, farGreen, farBlue);
     }
 }
 
 s32 GetSegmentVisibilityTableSize(void) {
-    return D_800F39A4 * 0x10;
+    return RelFileSegmentCount * 0x10;
 }
 
 void ApplySegmentVisibilityMask(void) {
@@ -438,7 +438,7 @@ void ApplySegmentVisibilityMask(void) {
     if (*p >= 0) {
         v = *(unsigned short *)p;
     } else {
-        v = D_800AD5B8;
+        v = DefaultSegmentVisibilityMask;
     }
     /* ASM_BARRIER: legacy, reason not recorded (forces reg copy/CSE/scheduling); retire & retest with fd.py */
     __asm__("" : "=r"(g) : "0"(SCRATCHPAD));
@@ -451,7 +451,7 @@ void SetSegmentVisibilityTable(s32 arg0) {
 
 
 s32 GetOctantLookupTableSize(void) {
-    return D_800F39A4 * 8;
+    return RelFileSegmentCount * 8;
 }
 
 int LookupOctantVisibility(void) {

@@ -46,12 +46,12 @@ static u8 buffers[3][32];
 #define D_8009F64C w->courseMap
 #define ModeFrame w->frame
 #define UiRowCount w->rowCount
-#define D_800F4D8A w->state
-#define D_800F3A26 w->scene
+#define SubmodeState w->state
+#define ModeIndex w->scene
 #define ModeGroup w->enable
-#define D_800AC5D0 w->timer
+#define FadeCountdown w->timer
 #define MenuCursor w->menu
-#define D_800F3826 w->row
+#define SelectedMakerIndex w->row
 #define ovl666_selected_course w->selected
 #define ovl666_course_counts w->limits
 #define ovl666_course_dispatch w->courseTable
@@ -59,7 +59,7 @@ static u8 buffers[3][32];
 #define ovl666_result_kind w->ready
 #define ovl666_available_courses w->courses
 #define CourseIndex w->course
-#define D_800AC648 w->limitAlias
+#define SelectedCourseChoice w->limitAlias
 #define GameModeType w->d44
 #define MenuScriptId w->be8
 #define ScreenFrame w->player

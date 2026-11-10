@@ -50,7 +50,7 @@ static World live,wanted;
 #define ModelBankTable live.table.slots
 #define ModelBankFormat live.count.value
 #define SCRATCHPAD ((u8*)&live.scratch.value)
-#define D_800AD568 live.flags.value
+#define MirrorRenderFlag live.flags.value
 #define D_800F3A18 live.color.gouraud
 #define D_800F3A20 live.color.flat
 #define ModelTexturePage live.page
@@ -125,7 +125,7 @@ void run_case(unsigned scenario,const u8 *input,unsigned slot,s32 textureSlot,s3
  memset(&live,0xA5,sizeof(live));for(unsigned i=0;i<16;i++)ModelBankTable[i]=0;
  live.scratch.value.scene.view.projection.pointers.cursor=live.gpu;
  live.scratch.value.scene.view.projection.pointers.order=live.order;
- memcpy(&D_800AD568,&flags,4);wanted=live;
+ memcpy(&MirrorRenderFlag,&flags,4);wanted=live;
  RegisterModelBank(bank,(s32)slot);
  wanted.table.slots[slot]=bank;
  header_pointer(expectedHeader,offsetof(RroModelBank,vertices),resolved(arena,relative(input,1)));
@@ -366,7 +366,7 @@ class ModelBankLifecycleTest(unittest.TestCase):
                 write(address_of('ModelBankTable') - 16, table)
                 write(address_of('ModelBankFormat') - 16, bytes([0xA5] * 36))
                 write(address_of('D_800F3A18') - 16, bytes([0xA5] * 44))
-                write(address_of('D_800AD568') - 16, bytes([0xA7] * 16) + struct.pack('<I', flags) + bytes([0xA7] * 16))
+                write(address_of('MirrorRenderFlag') - 16, bytes([0xA7] * 16) + struct.pack('<I', flags) + bytes([0xA7] * 16))
                 write(STACK - 64, bytes([0xAC] * 128))
                 args = [(BANK, slot), (shift & 0xFFFFFFFF,), (slot,), (BANK, texture & 0xFFFFFFFF), (BANK, BANK + delta)]
                 for phase, name in enumerate(NAMES):
@@ -394,7 +394,7 @@ class ModelBankLifecycleTest(unittest.TestCase):
                     self.assertEqual(read(ARENA - 16, 16) + read(ARENA + SIZE, 16), bytes([0xA6] * 32))
                     self.assertEqual(read(SCRATCH + 124, 512 - 124), bytes([0xA5] * (512 - 124)))
                     self.assertEqual(read(STACK - 64, 128), bytes([0xAC] * 128))
-                    self.assertEqual(read(address_of('D_800AD568') - 16, 36), bytes([0xA7] * 16) + struct.pack('<I', flags) + bytes([0xA7] * 16))
+                    self.assertEqual(read(address_of('MirrorRenderFlag') - 16, 36), bytes([0xA7] * 16) + struct.pack('<I', flags) + bytes([0xA7] * 16))
                     for register in (*range(16, 24), 28, 30):
                         self.assertEqual(register_value(register), 0xBEEF0000 + register)
                     self.assertEqual(register_value(29), STACK)

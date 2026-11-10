@@ -52,7 +52,7 @@ static u8 resources[3][0x2D100],arenas[3][128],packets[128];static u32 orders[32
 #define CourseChoiceTable w->s.table
 #define ModeFrame w->s.frame
 #define ScreenFrame w->s.pulse
-#define D_800AC648 w->s.selection
+#define SelectedCourseChoice w->s.selection
 #define MenuCursor w->s.flag
 #define MenuItemCount w->s.mode
 #define ReverseCourse w->s.selectionFlag

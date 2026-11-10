@@ -6,7 +6,7 @@ void ovl659_init_results(void) {
     s32 offset;
 
     ovl659_rank_standings();
-    InitMenuTextRows((MenuTextRow60 *)D_800FFC48);
+    InitMenuTextRows((MenuTextRow60 *)SharedWorkArena);
     MenuCursor = 0;
     MenuItemCount = 2;
     offset = 0;
@@ -37,7 +37,7 @@ void ovl659_update_results(void) {
     s32 ready;
 
     ModeFrame = (ModeFrame + 1U);
-    switch (D_800F4D8A) {
+    switch (SubmodeState) {
     case 0:
         group = 0;
         if (MenuTextRows[3].signedBytes[3] >= 16) {
@@ -48,10 +48,10 @@ void ovl659_update_results(void) {
                 if (SelectionState.mode1A == 4) {
                     InitMenuArenas();
                     ResetScreenCounters();
-                    D_800F4D8A = 5;
+                    SubmodeState = 5;
                     break;
                 } else {
-                    D_800F4D8A = 3;
+                    SubmodeState = 3;
                 }
             }
         }
@@ -82,7 +82,7 @@ void ovl659_update_results(void) {
     case 3:
         group = 1;
         if (SelectionState.retries08[SelectionState.phase17] == 0) {
-            D_800F4D8A = 7;
+            SubmodeState = 7;
         } else if (MenuTextRows[38].signedBytes[3] >= 14) {
             SetMenuFrameOptions(1, 1, 0);
             SetMenuTextRowStyle(MenuCursor + 37, 0, 0);
@@ -92,27 +92,27 @@ void ovl659_update_results(void) {
                 SetMenuFrameOptions(0, 1, 0);
                 PlaySfx(1);
                 if (MenuCursor == 0) {
-                    D_800F4D8A = 4;
-                    D_800AC5D0 = 64;
+                    SubmodeState = 4;
+                    FadeCountdown = 64;
                     SelectionState.retries08[SelectionState.phase17]--;
                     FormatDecimalDigits((char *)&MenuTextRows[40].bytes[36],
                                   SelectionState.retries08[SelectionState.phase17], 0);
                 } else {
-                    D_800F4D8A = 7;
+                    SubmodeState = 7;
                 }
             }
         }
         break;
     case 4:
-        timer = (u16)D_800AC5D0 - 1;
-        D_800AC5D0 = timer;
+        timer = (u16)FadeCountdown - 1;
+        FadeCountdown = timer;
         AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (64 - timer) * 4, 69);
         group = 1;
-        if (D_800AC5D0 <= 0) {
+        if (FadeCountdown <= 0) {
             MenuScriptId = 0;
             ModeGroup = 1;
-            D_800F3A26 = 35;
-            D_800F4D8A = 0;
+            ModeIndex = 35;
+            SubmodeState = 0;
         }
         break;
     case 5:
@@ -124,7 +124,7 @@ void ovl659_update_results(void) {
             }
         }
         if (MenuTextRows[0].signedBytes[2] == 9) {
-            D_800F4D8A = 6;
+            SubmodeState = 6;
             ovl659_preview_timer = 64;
         }
         break;
@@ -139,14 +139,14 @@ void ovl659_update_results(void) {
             if (SelectionState.phase17 == 7) {
                 UpdateSaveProgress();
                 ModeGroup = 0;
-                D_800F3A26 = 3;
+                ModeIndex = 3;
             } else {
                 ResetScreenCounters();
                 SeqStartTrack(1);
                 ModeGroup = ready;
-                D_800F3A26 = 11;
+                ModeIndex = 11;
             }
-            D_800F4D8A = 0;
+            SubmodeState = 0;
             UpdateScreenFade(0x1000C);
             return;
         }
@@ -160,14 +160,14 @@ void ovl659_update_results(void) {
             }
         }
         if (MenuTextRows[0].signedBytes[2] == 9) {
-            D_800F4D8A = 8;
+            SubmodeState = 8;
         }
         break;
     case 8:
         InitMenuArenas();
         ModeGroup = 1;
-        D_800F3A26 = 31;
-        D_800F4D8A = 0;
+        ModeIndex = 31;
+        SubmodeState = 0;
         UpdateScreenFade(0x1000C);
         return;
     default:
@@ -186,7 +186,7 @@ void ovl659_update_results(void) {
             i++;
         } while (i < 11);
     }
-    if (MenuTextRows[0].signedBytes[2] >= 3 && D_800F4D8A < 6) {
+    if (MenuTextRows[0].signedBytes[2] >= 3 && SubmodeState < 6) {
         DrawResultsRankIcons();
     }
 }

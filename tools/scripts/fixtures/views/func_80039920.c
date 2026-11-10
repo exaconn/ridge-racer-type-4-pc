@@ -7,11 +7,11 @@
 /* legacy typing of shared globals in this part of the unit */
 #define PlayerCars (*(char (*)[])&PlayerCars)
 
-#define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
+#define SubmodeState (*(unsigned short (*))&SubmodeState)
 
 #undef PlayerCars
 
-#undef D_800F4D8A
+#undef SubmodeState
 
 /* legacy typing of shared globals in this part of the unit */
 #define PlayerCars (*(char (*)[])&PlayerCars)
@@ -20,7 +20,7 @@
 
 #define ImageRows ((W7C0_S *)ImageRows)
 
-#define D_800F4D8A (*(unsigned short (*))&D_800F4D8A)
+#define SubmodeState (*(unsigned short (*))&SubmodeState)
 
 #define UpdateScreenFade ((void (*)())UpdateScreenFade)
 
@@ -46,7 +46,7 @@
 
 #undef ImageRows
 
-#undef D_800F4D8A
+#undef SubmodeState
 
 #undef UpdateScreenFade
 

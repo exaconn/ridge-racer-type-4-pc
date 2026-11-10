@@ -243,8 +243,8 @@ void DrawPlayerCar(RaceVehicle *arg0, s32 viewMode) {
         sp168[i + 3].y += sp168[2].y;
         sp168[i + 3].z += sp168[2].z;
     }
-    s5_val = (s16)(TrackLightTable[s5_val].flags02 | D_800ABEF0);
-    slot_idx = arg0->slotIndex1E6 + D_800ABEC4;
+    s5_val = (s16)(TrackLightTable[s5_val].flags02 | ForceTailLightTrails);
+    slot_idx = arg0->slotIndex1E6 + CarViewportBankOffset;
     if (arg0->flags1E4 & 0x10) {
         v0_drag = arg0->control.dynamics94.steering.target18.halves.high;
     } else {
@@ -293,7 +293,7 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
 
     slot_half = arg0->slotIndex1E6 >> 1;
     fp_val = (arg0->slotIndex1E6 & 1) * 0x05000000;
-    slot_idx = arg0->slotIndex1E6 + D_800ABEC4;
+    slot_idx = arg0->slotIndex1E6 + CarViewportBankOffset;
     SelectModelBank(slot_half);
 
     sp168[0].x = (arg0->pos10[0] - G->x08) >> 2;
@@ -313,7 +313,7 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
             s7_val = -0x5A;
         }
         s5_val = ComputeCarSurfaceLighting(arg0, GetCarTrackLightIndex(arg0));
-        s5_val = (s16)(TrackLightTable[s5_val].flags02 | D_800ABEF0);
+        s5_val = (s16)(TrackLightTable[s5_val].flags02 | ForceTailLightTrails);
         if (arg0->flags1E4 & 0x10) {
             v0_drag = arg0->control.dynamics94.steering.target18.halves.high;
         } else {

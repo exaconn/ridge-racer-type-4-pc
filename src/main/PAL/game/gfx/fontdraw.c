@@ -39,7 +39,7 @@ void DrawBigFontString(s32 a0, s32 a1, u8 *a2) {
         a = *a2 - 0x20;
         a2++;
         if (a != 0) {
-            a = D_8009ED38[a * 2] + (D_8009ED38[a * 2 + 1] << 5);
+            a = FontAtlasTileCoords[a * 2] + (FontAtlasTileCoords[a * 2 + 1] << 5);
             row = a / 21;
             col = a % 21;
             u = col * 12;
@@ -80,8 +80,8 @@ void *AddTextSprites(u32 *ordering, void *cursor, s32 screenX, s32 screenY,
             glyph = (u8)*text - 0x20;
             text++;
             if (glyph != 0) {
-                tileU = D_8009ED38[glyph * 2] << 3;
-                tileV = D_8009ED38[(glyph * 2) + 1] << 4;
+                tileU = FontAtlasTileCoords[glyph * 2] << 3;
+                tileV = FontAtlasTileCoords[(glyph * 2) + 1] << 4;
                 SetSprt(cursor);
                 if (brightness == 0) {
                     SetShadeTex(cursor, 1);

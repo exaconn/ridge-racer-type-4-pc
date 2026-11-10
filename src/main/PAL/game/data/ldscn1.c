@@ -28,11 +28,11 @@ extern int MenuArenaBase;
 extern int D_800F4D74;
 extern short CourseIndex;
 extern struct { short a; short b; } PlayerCourseChoices[];
-extern char *D_800F3B24;
-extern char D_800F3B28[];
+extern char *PresetEmblemTimPtr;
+extern char CustomEmblemBuffers[];
 extern unsigned char SelectionRows[][4];
 extern MenuTextState *Dialogue;
-extern int D_800F4CA8;
+extern int DialogueSceneMode;
 extern struct { s8 choices[4]; u8 opaque04[0x10]; u8 rank, index, byte16; signed char f17; u8 byte18, byte19; short f1A; unsigned char f1C; } SelectionState;
 extern int D_800AD564;
 extern unsigned char D_800AD4F4;
@@ -92,7 +92,7 @@ int LoadModeMenuAssetsStep(void) {
             LoadCursor = MenuArenaBase;
             break;
         }
-        if (GameModeType == 5 && D_800F4D2C == 6) {
+        if (GameModeType == 5 && MainMenuChoice == 6) {
             r = 1;
             LoadCursor = MenuArenaBase;
             break;
@@ -128,7 +128,7 @@ int LoadOpeningMovieTimStep(void) {
     case 0:
         LoadState = 1;
         LoadCursor = CdDirectoryBuffer;
-        LoadIndex = D_800F4D2C;
+        LoadIndex = MainMenuChoice;
     case 1:
         if (CdFileReadStart(GetR4FileIndex(1, LoadIndex + 1), LoadCursor)) {
             LoadState = 2;
@@ -217,11 +217,11 @@ int LoadAllCarsStep(void) {
         if (r != 1) break;
         a1 = PlayerCourseChoices[s0].b;
         if (a1 >= 2) {
-            s2 = D_800F3B24;
+            s2 = PresetEmblemTimPtr;
             a1 -= 2;
         } else {
             if (a1 == r) {
-                s2 = D_800F3B28 + (s0 & 1) * 0x840;
+                s2 = CustomEmblemBuffers + (s0 & 1) * 0x840;
                 a1 = 0;
             } else {
                 a1 = -1;
@@ -269,11 +269,11 @@ int LoadCarRangeStep(int arg0, int arg1) {
         arg0 += LoadIndex;
         a1 = PlayerCourseChoices[arg0].b;
         if (a1 >= 2) {
-            q3 = D_800F3B24;
+            q3 = PresetEmblemTimPtr;
             a1 -= 2;
         } else {
             if (a1 == r) {
-                q3 = D_800F3B28 + (arg0 & 1) * 0x840;
+                q3 = CustomEmblemBuffers + (arg0 & 1) * 0x840;
                 a1 = 0;
             } else {
                 a1 = -1;
@@ -302,7 +302,7 @@ int LoadIndexedTimStep(void) {
     int r = 0;
     switch (LoadState) {
     case 0:
-        LoadCursor = D_800FFC48;
+        LoadCursor = SharedWorkArena;
         LoadState = 1;
         LoadIndex = 0;
     case 1:
@@ -338,7 +338,7 @@ int LoadResultsSceneStep(void) {
         if (CdFileBytesLoaded()) {
             LoadTimList(LoadCursor);
             LoadState = 3;
-            LoadCursor = D_800ACC1C;
+            LoadCursor = MenuBaseLoadCursor;
             RaceLoadReset();
         }
         break;
@@ -388,7 +388,7 @@ int LoadCarClutStep(void) {
     case 2:
         if (CdFileBytesLoaded()) {
             LoadState = 3;
-            D_800F3B24 = LoadDestCursor;
+            PresetEmblemTimPtr = LoadDestCursor;
     case 3:
             r = 1;
         }
@@ -463,14 +463,14 @@ int LoadDialogueStep(void) {
         Dialogue = (void *)v0;
         v0 += 0x348;
         LoadDestCursor = v0;
-        if (D_800F4CA8 == 1 && SelectionState.f17 == 7 && SelectionState.f1A == 4) {
+        if (DialogueSceneMode == 1 && SelectionState.f17 == 7 && SelectionState.f1A == 4) {
             SeqStartTrack(1);
         }
         InitDialogueState(Dialogue);
         LoadState = 1;
         break;
     case 1:
-        if (D_800F4CA8 == 1) {
+        if (DialogueSceneMode == 1) {
             s2 = 0x41;
             s1 = 0x14;
             s2 = SelectionState.f1C * 9 + (SelectionState.f17 + s1);
@@ -505,12 +505,12 @@ int LoadDialogueStep(void) {
     case 5:
         s2 = D_800AD4F4 * 9 + 0x1C;
         a0 = LoadIndex;
-        s0 = D_800ACBFC[Dialogue->b4 * 8 + a0];
+        s0 = DialogueAssetTable[Dialogue->b4 * 8 + a0];
         if (s0 != -1) {
-            if (D_800F4CA8 == 0) {
+            if (DialogueSceneMode == 0) {
                 s1 = 8;
                 s0 <<= 3;
-            } else if (D_800F4CA8 == 1) {
+            } else if (DialogueSceneMode == 1) {
                 s1 = 8;
                 if (a0 == 0) {
                     s1 = 0x2E;
@@ -539,7 +539,7 @@ int LoadDialogueStep(void) {
                 LoadDestCursor = LoadDestCursor + s2;
             }
             LoadIndex = LoadIndex + 1;
-            s0 = D_800ACBFC[Dialogue->b4 * 8 + LoadIndex];
+            s0 = DialogueAssetTable[Dialogue->b4 * 8 + LoadIndex];
             if (LoadIndex == 8 || s0 == -1) {
                 LoadState = 7;
             } else {
@@ -563,22 +563,22 @@ int LoadMenuCarModelsStep(void) {
         LoadState = 1;
         LoadIndex = 0;
     case 1:
-        if (CdFileReadStart(GetR4FileIndex(1, 0x42), D_800FFC48)) {
+        if (CdFileReadStart(GetR4FileIndex(1, 0x42), SharedWorkArena)) {
             LoadState = 2;
         }
         break;
     case 2:
         if (CdFileBytesLoaded()) {
-            s = D_800FFC48;
+            s = SharedWorkArena;
             LoadTimImage(s);
             s += 0x4E20;
             LoadState = 3;
             CardDialogueStatePtr = (MenuTextState *)s;
             InitDialogueState(s);
     case 3:
-            if (D_800F4CA8 == 2) {
+            if (DialogueSceneMode == 2) {
                 a1 = 0x44;
-            } else if (D_800F4CA8 == 4) {
+            } else if (DialogueSceneMode == 4) {
                 a1 = 0x46;
                 CardDialogueStatePtr->b7 = 2;
             } else {

@@ -50,7 +50,7 @@ static unsigned seed;
 static uint64_t arena[32][8];
 #define D_800F4D99 (w->choice.bytes[1])
 #define SelectionRows (w->choice)
-#define D_800F3826 (w->selected)
+#define SelectedMakerIndex (w->selected)
 #define D_800F3A42 (w->buttons)
 #define MenuStepDirection (w->event)
 #define D_800F3A60 (w->accepted)

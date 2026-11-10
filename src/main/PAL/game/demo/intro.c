@@ -33,13 +33,13 @@ struct Buf {
 
 extern struct Entry IntroTimeline[];
 extern int FrameCounter;
-extern struct Buf D_800ADAF0[];
+extern struct Buf DrawBuffers[];
 extern FadeRaceContext RaceContext;
 extern s32 CdDirectoryBuffer;
 extern s32 D_800ACA94;
-extern s16 D_800F3A26;
+extern s16 ModeIndex;
 extern s16 ModeGroup;
-extern s16 D_800F4D8A;
+extern s16 SubmodeState;
 
 int IntroScriptStep(void);
 void IntroInit(void);
@@ -247,9 +247,9 @@ int IntroScriptStep(void) {
     *(void **)SCRATCHPAD = AddTileGrid2x2(&CurrentDrawBuf->buffer.ordering70.words[703], *(int *)SCRATCHPAD, 0, 0, 0x140, 0x200,
                                        RaceContext.r3F0, RaceContext.g3F1, RaceContext.b3F2);
     for (i = 0; i < 2; i++) {
-        D_800ADAF0[i].r = RaceContext.r3F0;
-        D_800ADAF0[i].g = RaceContext.g3F1;
-        D_800ADAF0[i].b = RaceContext.b3F2;
+        DrawBuffers[i].r = RaceContext.r3F0;
+        DrawBuffers[i].g = RaceContext.g3F1;
+        DrawBuffers[i].b = RaceContext.b3F2;
     }
 
     RaceContext.f3E4++;
@@ -294,6 +294,6 @@ void IntroInit(void) {
     LoadCursor = CdDirectoryBuffer;
     RaceLoadReset();
     ModeGroup = 2;
-    D_800F3A26 = 6;
-    D_800F4D8A = 0;
+    ModeIndex = 6;
+    SubmodeState = 0;
 }

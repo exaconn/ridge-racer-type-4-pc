@@ -9,7 +9,7 @@ extern int CdDirectoryBuffer;
 extern char D_8001075C[];
 extern int Rect16RowCount;
 extern int LoadCursor;
-extern int D_800ACC1C;
+extern int MenuBaseLoadCursor;
 extern int ImageRowCount;
 extern int BadgeRowCount;
 extern int UiRowCount;
@@ -34,7 +34,7 @@ void InitMenuArenas()
   LoadCursor = LoadCursor + AllocGlyphRows(LoadCursor);
   LoadCursor = LoadCursor + AllocImageRows(LoadCursor);
   LoadCursor = LoadCursor + AllocUiRows(LoadCursor);
-  D_800ACC1C = LoadCursor;
+  MenuBaseLoadCursor = LoadCursor;
   MenuArenas[1] = LoadCursor + 0x19000;
   LoadCursor = LoadCursor + 0x19000;
 }

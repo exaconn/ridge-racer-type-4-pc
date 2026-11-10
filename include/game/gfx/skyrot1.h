@@ -27,7 +27,7 @@ RR_ASSERT_OFFSET(IntroSceneState, s44, 0x44);
 RR_ASSERT_OFFSET(IntroSceneState, objectYawAA, 0xAA);
 #endif
 
-extern IntroSceneState *D_8010BF78;
+extern IntroSceneState *IntroSceneStatePtr;
 extern int TitleSceneStage;
 int DrawRotatingTitleModel(int objectIndex, int animate);
 void DrawRotatingSky(void);

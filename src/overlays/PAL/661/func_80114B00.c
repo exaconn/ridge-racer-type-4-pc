@@ -33,8 +33,8 @@ void ovl661_func_80114B00(void) {
 
     ModeFrame=ModeFrame+1U;
     if (((RaceState - 1U) < 2U) && (PlayerControllers[0].edges08.fields.pressed & 0x800)) {
-        if (D_800AC5D0 <= 0) {
-            D_800AC5D0 = 0xF;
+        if (FadeCountdown <= 0) {
+            FadeCountdown = 0xF;
             temp_v1 = RacePaused == 0;
             RacePaused = temp_v1;
             if (temp_v1 != 0) {
@@ -47,10 +47,10 @@ void ovl661_func_80114B00(void) {
         } else {
             goto block_7;
         }
-    } else if (D_800AC5D0 > 0) {
+    } else if (FadeCountdown > 0) {
 block_7:
         if (RaceState < 4) {
-            D_800AC5D0 = (u16) D_800AC5D0 - 1;
+            FadeCountdown = (u16) FadeCountdown - 1;
         }
     }
     if (RacePaused != 0) {
@@ -66,7 +66,7 @@ block_7:
 
                 temp_s0 = &PlayerCars[var_s2];
                 DrawHudNumber3((temp_s0->input * 0xA0) / 1168, var_s2);
-                DrawHudNumber5(*(s16 *)((u8 *)&D_800F4C70+var_s2*2), var_s2);
+                DrawHudNumber5(*(s16 *)((u8 *)&PlayerDisplayRpm+var_s2*2), var_s2);
                 DrawHudDigitMod10(temp_s0->control.previewSample84.halves.high, var_s2);
                 UpdateHudRankDisplay(temp_s0->half1EE, var_s2);
                 {s32 playerArg=var_s2;s32 budget=RaceTimeRemaining;__asm__("" : : "r"(budget));{s32 nextPlayer=playerArg+1;__asm__("" : : "r"(nextPlayer));var_s2=nextPlayer;DrawTimeRemainingForPlayer(budget,playerArg);}}
@@ -116,7 +116,7 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
         RaceTimeRemaining = temp_v0_3;
         if (temp_v0_3 <= 0) {
             RaceState = 5;
-            D_800AC5D0 = 0x4B;
+            FadeCountdown = 0x4B;
             SoundSetMasterVolume(0,0x21);
         }
     }
@@ -125,8 +125,8 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
         SlotsStartForRace();
         SetModelTexturePage(-1);
         ResetCarSlotBuffers();
-        D_800ADAF0[1].environment.draw00.background = 0;
-        D_800ADAF0[0].environment.draw00.background = 0;
+        DrawBuffers[1].environment.draw00.background = 0;
+        DrawBuffers[0].environment.draw00.background = 0;
     } else {
         if (RaceState==1) {
             if (ModeFrame >= 0xB0U) {
@@ -140,22 +140,22 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
             if (TotalRaceTime == -1) {
                 var_a2 = 0x45;
             }
-            if (D_800AC5D0 < 0x19) {
-                AddScreenFadeTiles(CurrentDrawBuf->buffer.secondaryOrderingB70.words, (0x19 - D_800AC5D0) * 0xA, var_a2);
+            if (FadeCountdown < 0x19) {
+                AddScreenFadeTiles(CurrentDrawBuf->buffer.secondaryOrderingB70.words, (0x19 - FadeCountdown) * 0xA, var_a2);
                 RR_661_FRAME_SCRATCH->pointers.cursor = AddDrawAreaPrim(CurrentDrawBuf->buffer.secondaryOrderingB70.words, RR_661_FRAME_SCRATCH->pointers.cursor, 0, 0, 0x140, 0x100);
             }
-            if (D_800AC5D0 <= 0) {
+            if (FadeCountdown <= 0) {
                 ovl661_D_80118448[0] = (u16) PlayerCars[0].half1EE;
                 ovl661_D_80118448[1] = (u16) PlayerCars[1].half1EE;
                 if (RaceState == 4) {
                     ModeGroup = 1;
-                    D_800F3A26 = 0x15;
-                    D_800F4D8A = 0;
+                    ModeIndex = 0x15;
+                    SubmodeState = 0;
                 } else {
                     FinishRace();
                 }
             } else {
-                D_800AC5D0 = (u16) D_800AC5D0 - 1;
+                FadeCountdown = (u16) FadeCountdown - 1;
             }
         } else if (RaceState==0) {
             if (ModeFrame >= 51U) {
@@ -187,7 +187,7 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
 
                 temp_s0_3 = &PlayerCars[var_s2];
             DrawHudNumber3((temp_s0_3->input * 0xA0) / 1168, var_s2);
-            DrawHudNumber5(*(s16 *)((u8 *)&D_800F4C70+var_s2*2), var_s2);
+            DrawHudNumber5(*(s16 *)((u8 *)&PlayerDisplayRpm+var_s2*2), var_s2);
             DrawHudDigitMod10(temp_s0_3->control.previewSample84.halves.high, var_s2);
             UpdateHudRankDisplay(temp_s0_3->half1EE, var_s2);
             {s32 playerArg=var_s2;s32 budget=RaceTimeRemaining;__asm__("" : : "r"(budget));{s32 nextPlayer=playerArg+1;__asm__("" : : "r"(nextPlayer));var_s2=nextPlayer;DrawTimeRemainingForPlayer(budget,playerArg);}}
@@ -234,8 +234,8 @@ __asm__("" : : "r"(temp_v0_5),"r"(temp_v1_5));
         temp_s0_4 = var_s2 + 1;
         DrawTrackSceneryForPlayer(temp_s0_4);
         {register s32 playerArg2 __asm__("$6")=var_s2;
-        temp_a0 = *(s16 *)((u8 *)&D_800F4C70+playerSoundOffset);
-        temp_a1_3 = *(s16 *)((u8 *)&D_800F2AB4+playerSoundOffset);
+        temp_a0 = *(s16 *)((u8 *)&PlayerDisplayRpm+playerSoundOffset);
+        temp_a1_3 = *(s16 *)((u8 *)&PlayerThrottleLoad+playerSoundOffset);
         var_s2 = temp_s0_4;
         SlotSetLevelProgram(temp_a0,temp_a1_3,playerArg2);}
         __asm__("" : : "r"(playerSoundOffset));

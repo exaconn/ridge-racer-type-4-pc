@@ -35,10 +35,10 @@ static struct World {u32 guard[4];SaveProgressRecord7C save;u8 name[12],glyphs[4
 #define ScreenFrame world.tick
 #define D_800F3A60 world.accept
 #define PlayerControllers world.input
-#define D_800AC5D0 world.timer
-#define D_800F4D8A world.state
+#define FadeCountdown world.timer
+#define SubmodeState world.state
 #define CardMenuOperation world.slot
-#define D_800F3A26 world.scene
+#define ModeIndex world.scene
 #define ModeGroup world.enable
 #define CurrentDrawBuf world.context
 '''+body+copy+r'''

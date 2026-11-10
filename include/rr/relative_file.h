@@ -11,8 +11,8 @@ RR_ASSERT_OFFSET(RelativeHeader,first,4);
 RR_ASSERT_OFFSET(RelativeHeader,offsets,0x10);
 #endif
 extern RelativeHeader *D_800F2EBC;
-extern s32 D_800F39A4;
-extern RelativeSlot *D_800F3820;
+extern s32 RelFileSegmentCount;
+extern RelativeSlot *RelFileSegmentViewSlots;
 extern u8 *D_800F391C;
 extern CourseViewRecord *RelFileViewRecords;
 extern u8 *RelFileSection00;

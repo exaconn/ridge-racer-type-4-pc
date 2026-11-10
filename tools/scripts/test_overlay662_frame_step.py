@@ -22,10 +22,10 @@ class Overlay662FrameStepTest(unittest.TestCase):
 static struct World{u32 head[4];GarageSelectionPrefix garage;u32 buffers[4][8];GarageTimBytes tim[4];u32 clock;s32 pulse;u32*image;GarageTimBytes*file;u32 tail[4];}world,expected,checkpoints[8];
 static unsigned scenario,calls;static u32 rng=0x1AAF4;
 #define ovl662_D_801276A8 world.garage
-#define D_800F4D38 world.clock
+#define EmblemEditFrames world.clock
 #define ScreenFrame world.pulse
-#define D_800F39A0 world.image
-#define D_800F399C world.file
+#define GarageActiveDecalTimA world.image
+#define GarageActiveDecalTimB world.file
 '''+body+r'''
 static u32 next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
 static s32 word(u32 x){s32 v;memcpy(&v,&x,4);return v;}

@@ -33,7 +33,7 @@ extern int PsyqRand();
 extern char PasswordChars[];
 extern char PasswordBytes[];
 extern void DrawSync();
-extern char *D_800ACBA0;
+extern char *TrackCameraNodes;
 
 int ValidateRecordPassword(unsigned char *a0, unsigned char *a1);
 int EncodeRecordPassword();
@@ -164,7 +164,7 @@ void LoadTimList(int *p) {
 int FindNearestTrackEntry(char *a0) {
     int t2 = 0;
     int t1 = 0x7FFFFFFF;
-    TrackEntry44 *a2 = (TrackEntry44 *)D_800ACBA0;
+    TrackEntry44 *a2 = (TrackEntry44 *)TrackCameraNodes;
     unsigned short a1 = a2->node32;
     int a3 = 0;
     int a0v, v1, b;

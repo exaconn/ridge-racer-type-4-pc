@@ -8,7 +8,7 @@
 extern int SetMenuFrameOptions();
 extern int DrawMenuStepArrows();
 extern int UpdateDialogue();
-extern s16 D_800F3826;
+extern s16 SelectedMakerIndex;
 extern u8 D_800F4D99;
 extern void *Dialogue;
 
@@ -25,7 +25,7 @@ s32 UpdateResultsBarSelection(void) {
         if (((s16 *)BadgeRows)[8] == 0xB && D_800AD4F2 == 1) {
             ((s16 *)BadgeRows)[8] = 0;
         } else if (((s16 *)BadgeRows)[8] < 4) {
-            DrawMenuStepArrows(0xA0, 0xCC, 0x30, 0, D_800F3826, 0, 4);
+            DrawMenuStepArrows(0xA0, 0xCC, 0x30, 0, SelectedMakerIndex, 0, 4);
             var_s2 = UpdateGlyphRow(D_800F4D99);
         }
     }

@@ -29,20 +29,20 @@
 
 extern int CdDirectoryBuffer;
 extern char StrMainMenu0Log[];
-extern short D_800AC5D0;
-extern int D_800AC5D4;
+extern short FadeCountdown;
+extern int ActivePlayerIndex;
 extern short PlayerCourseChoices[];
 extern int DrawSubOtFlag;
-extern short D_800AD508;
+extern short LinkHostFlag;
 extern short ReverseCourse;
 extern int MaskBitSetting;
 extern unsigned short D_800F3974;
-extern short D_800F3A26;
+extern short ModeIndex;
 extern short MenuScriptId;
 extern short ModeGroup;
-extern int D_800F4CA8;
+extern int DialogueSceneMode;
 extern int MenuArenaBase;
-extern u16 D_800F4D8A;
+extern u16 SubmodeState;
 extern short LinkState;
 extern int D_8010BFB8;
 extern char StrInitMainMenu0[];
@@ -67,10 +67,10 @@ void TitleModeEnter(void) {
     a2 = 0;
     a1 = SelectionRows;
     a0 = PlayerCourseChoices;
-    D_800AD508 = -1;
+    LinkHostFlag = -1;
     LinkState = 0;
-    D_800AC5D0 = 0;
-    D_800AC5D4 = 0;
+    FadeCountdown = 0;
+    ActivePlayerIndex = 0;
     D_8010BFB8 = 0;
     ReverseCourse = 0;
     do {
@@ -81,11 +81,11 @@ void TitleModeEnter(void) {
         a2++;
         a0 += 2;
     } while (a2 < 4);
-    D_800F4CA8 = 2;
+    DialogueSceneMode = 2;
     MenuScriptId = 4;
     ModeGroup = 1;
-    D_800F3A26 = 0x23;
-    D_800F4D8A = 0;
+    ModeIndex = 0x23;
+    SubmodeState = 0;
     LoadCursor = CdDirectoryBuffer;
     MenuArenaBase = CdDirectoryBuffer;
     if ((u16)((u16)GameModeType - 2) < 3U) BackupSaveData();
@@ -93,7 +93,7 @@ void TitleModeEnter(void) {
     _sio_control(1, 1, 0);
     DrawSubOtFlag = 0;
     MaskBitSetting = 0;
-    D_800F4CD0 = (D_800F3974 & 1) + 7;
+    ModeSelectBaseCount = (D_800F3974 & 1) + 7;
     DebugPrintStub(StrMainMenu0Log);
 }
 
@@ -109,19 +109,19 @@ void TitleMenuInit(void)
   ModeFrame = 0;
   ScreenFrame = 0;
   VSyncThreshold = 0x80;
-  D_800F4D2C = 0;
+  MainMenuChoice = 0;
   MenuCursor = -1;
   LinkEntryState[3] = 0;
   LinkEntryState[2] = 0;
   LinkEntryState[1] = 0;
   LinkEntryState[0] = 0;
   ActiveSceneId = 0x104;
-  while (i < (D_800F4CD0 + 1))
+  while (i < (ModeSelectBaseCount + 1))
   {
     v = i;
-    if (D_800F4CD0 == c7)
+    if (ModeSelectBaseCount == c7)
     {
-      if (i == D_800F4CD0)
+      if (i == ModeSelectBaseCount)
       {
         v = 8;
       }
@@ -153,15 +153,15 @@ void TitleMenuUpdate(void)
     ModeFrame = ModeFrame + 1;
     ScreenFrame = ScreenFrame + 1;
     s0 = RunIntroScriptStep();
-    switch (D_800F4D8A) {
+    switch (SubmodeState) {
     case 0:
     case 10:
         _sio_control(1, 1, 0);
-        if (D_800F4BE0 > 0) {
+        if (UnlockNoticeMask > 0) {
             UpdateBadgeRowAnim(0);
             if (BadgeRows->state10 == 3) {
-                if (D_800F3A60 != 0 || D_800F4D8A == 0 || CardDialogueStatePtr->st == 4) {
-                    if (D_800F4D8A == 0xA) {
+                if (D_800F3A60 != 0 || SubmodeState == 0 || CardDialogueStatePtr->st == 4) {
+                    if (SubmodeState == 0xA) {
                         PlaySfx(3);
                         CardDialogueStatePtr->b4 = CardDialogueStatePtr->b4 + 1;
                     } else {
@@ -170,13 +170,13 @@ void TitleMenuUpdate(void)
                             CardDialogueStatePtr->b4 = v1;
                             goto call;
                         }
-                        D_800F4D8A = 0xA;
+                        SubmodeState = 0xA;
                     }
                     v1 = CardDialogueStatePtr->b4;
                     if (v1 < 4) {
                         c3 = 3;
                         c4 = 4;
-                        a1 = D_800F4BE0;
+                        a1 = UnlockNoticeMask;
                         a0 = BadgeRows;
                         do {
                             if ((a1 >> v1) & 1)
@@ -191,13 +191,13 @@ void TitleMenuUpdate(void)
                 UpdateDialogue(BadgeRows->x08 + 0xA, BadgeRows->y0A + 0x28, CardDialogueStatePtr);
                 return;
             } else if (BadgeRows->state10 == 0xB) {
-                D_800F4D8A = 1;
-                D_800F4BE0 = 0;
+                SubmodeState = 1;
+                UnlockNoticeMask = 0;
                 ScreenFrame = 0;
                 return;
             }
         } else {
-            D_800F4D8A = 1;
+            SubmodeState = 1;
             ScreenFrame = 0;
             return;
         }
@@ -211,57 +211,57 @@ void TitleMenuUpdate(void)
             EnableDemoFadeSkip();
             MenuCursor = 0;
             ResetLinkSioControl();
-            D_800F4D8A = 2;
+            SubmodeState = 2;
             InitBadgeRow(0, 0x10, 0x1B6, 0x40, 0x22, 0, 0xF00);
             BadgeRows->half02 = 1;
         }
         if (ScreenFrame >= 0x2EEU)
-            D_800F4D8A = 5;
+            SubmodeState = 5;
         return;
     case 2:
         ResetLinkSioControl();
         s0b = MenuCursor;
         if (UiRows->byte14 == 2) {
             if (ModeSelectMenuStep() != 0) {
-                D_800F4D8A = 3;
-                D_800AC5D0 = 0x40;
+                SubmodeState = 3;
+                FadeCountdown = 0x40;
                 ResetScreenCounters();
-                StartDemoFadeIn(D_800F4D2C);
+                StartDemoFadeIn(MainMenuChoice);
                 BadgeRows->state10 = 4;
             }
         }
         if (s0b != MenuCursor)
             ScreenFrame = 0;
         if (ScreenFrame >= 0xBB8U)
-            D_800F4D8A = 5;
+            SubmodeState = 5;
         DrawModeSelectRows();
         UpdateBadgeRowAnim(0);
         return;
     case 3:
-        if (D_800AC5D0 <= 0) {
+        if (FadeCountdown <= 0) {
             if (LoadOpeningMovieTimStep() == 1) {
-                D_800F4D8A = 0;
+                SubmodeState = 0;
                 ModeGroup = PendingModeId >> 8;
-                D_800F3A26 = PendingModeId & 0xFF;
+                ModeIndex = PendingModeId & 0xFF;
             }
         } else {
-            D_800AC5D0 = D_800AC5D0 - 1;
+            FadeCountdown = FadeCountdown - 1;
         }
         DrawModeSelectRows();
         UpdateBadgeRowAnim(0);
         return;
     case 5:
         _sio_control(1, 1, 0);
-        if (D_8010BFBC & 1) {
+        if (AttractCycleCounter & 1) {
             ModeGroup = 2;
-            D_800F3A26 = 3;
-            D_800F4D8A = 0;
+            ModeIndex = 3;
+            SubmodeState = 0;
         } else {
             StartAttractDemo(0);
         }
-        D_8010BFBC = D_8010BFBC + 1;
-        if (D_8010BFBC >= 0x64)
-            D_8010BFBC = 0;
+        AttractCycleCounter = AttractCycleCounter + 1;
+        if (AttractCycleCounter >= 0x64)
+            AttractCycleCounter = 0;
         return;
     }
 }

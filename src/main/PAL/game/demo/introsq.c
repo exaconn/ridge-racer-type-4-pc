@@ -7,9 +7,9 @@
 #include "game/demo/intro.h"
 
 extern int RaceContext[];
-extern short D_800F3A26;
+extern short ModeIndex;
 extern short ModeGroup;
-extern short D_800F4D8A;
+extern short SubmodeState;
 extern void CdAudioInit();
 
 void IntroModeUpdate(void);
@@ -32,9 +32,9 @@ void IntroModeUpdate(void) {
         if (s1 == RaceContext[0x444 / 4]) {
             SetDispMask(0);
             ModeGroup = s1;
-            D_800F3A26 = 7;
+            ModeIndex = 7;
             RaceContext[0x444 / 4] = 0;
-            D_800F4D8A = 0;
+            SubmodeState = 0;
         }
         break;
     }

@@ -5,12 +5,12 @@
 
 #undef SaveProgress
 
-extern s16 D_800F4D2C;
+extern s16 MainMenuChoice;
 
 extern s16 CardMenuOperation;
 
 void SetNextModeByGameType(void){
- switch(D_800F4D2C){
+ switch(MainMenuChoice){
  case 0:ActiveSceneId=0x105;break;
  case 1:default:ActiveSceneId=0x131;break;
  case 2:ActiveSceneId=0x137;break;

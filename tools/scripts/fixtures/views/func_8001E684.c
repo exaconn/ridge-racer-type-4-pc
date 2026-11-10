@@ -1,11 +1,11 @@
 #include "rr/frame_loop.h"
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A26 (*(s16 (*))&D_800F3A26)
+#define ModeIndex (*(s16 (*))&ModeIndex)
 
 #define ModeGroup (*(s16 (*))&ModeGroup)
 
-#undef D_800F3A26
+#undef ModeIndex
 
 #undef ModeGroup
 
@@ -14,15 +14,15 @@
 
 #define ModeGroup (*(short (*))&ModeGroup)
 
-#define D_800F3A26 (*(short (*))&D_800F3A26)
+#define ModeIndex (*(short (*))&ModeIndex)
 
 #undef CurrentDrawBuf
 
 #undef ModeGroup
 
-#undef D_800F3A26
+#undef ModeIndex
 
-extern void func_8007D710(void),ResetCallback(void),SetMem(s32),SystemInit(void);
+extern void MainLoopStartupHook(void),ResetCallback(void),SetMem(s32),SystemInit(void);
 
 extern s32 SetVideoMode(s32),CdFileStep(void);
 
@@ -41,7 +41,7 @@ void MainLoop(void) {
     register u8 *bank_page;
     u32 bank;
     u8 *frame;
-    func_8007D710();
+    MainLoopStartupHook();
     SetVideoMode(1);
     ResetCallback();
     bank_page=(u8 *)0x800F0000U;
@@ -51,8 +51,8 @@ void MainLoop(void) {
     SetDispMask(0);
     ModeFrame=0;
     ModeGroup=1;
-    D_800F3A26=1;
-    D_800F4D8A=0;
+    ModeIndex=1;
+    SubmodeState=0;
     FrameCounter=0;
     for (;;) {
         {
@@ -83,7 +83,7 @@ void MainLoop(void) {
         ClearOTagR((u32 *)(CurrentDrawBuf+0xB70),0x2C0);
         CdFileStep();
         SoundUpdate();
-        ModeFuncTable[ModeGroup][D_800F3A26]();
+        ModeFuncTable[ModeGroup][ModeIndex]();
         DrawSync(0);
         threshold=VSyncThreshold;
         do {} while (VSync(1)<threshold);

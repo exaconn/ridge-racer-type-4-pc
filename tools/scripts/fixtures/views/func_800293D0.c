@@ -47,7 +47,7 @@ void SetupRaceMemoryArena(s32 layout,s32 mode) {
         SavedRaceState=0;
         i=0;
         if (layout==1) {
-            loaded=D_800FFC48;
+            loaded=SharedWorkArena;
             base=loaded;
             source_slots=CarSnapshots;
             offset=0x5468;
@@ -68,7 +68,7 @@ void SetupRaceMemoryArena(s32 layout,s32 mode) {
             __asm__("" : : : "$5");
             i=0;
             factor=901;
-            bankbase=D_800FFC48;
+            bankbase=SharedWorkArena;
             bank_source_slots=CarSnapshots;
             bank_offset=0x3850;
             bank_slots=ReplayInputs;
@@ -85,7 +85,7 @@ void SetupRaceMemoryArena(s32 layout,s32 mode) {
                 bank_slots++;
             } while (i<4);
         } else {
-            loaded=D_800FFC48;
+            loaded=SharedWorkArena;
             base=loaded;
             source_slots=CarSnapshots;
             offset=0x3844;

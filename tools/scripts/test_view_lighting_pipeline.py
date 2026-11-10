@@ -51,8 +51,8 @@ static unsigned count,scenario,rotations,kind;
 #define D_800A3B20 live.defaultAngles[0]
 #define D_800A3B28 live.defaultAngles[1]
 #define D_800A3B30 live.defaultAngles[2]
-#define D_800F38F8 live.angles
-#define D_800AD5BC live.strength
+#define LightSourceAngles live.angles
+#define LightSourceIntensities live.strength
 #define CourseIndex live.course
 #define CourseFarColorTable live.courseColors
 #define BackColorR live.back[0]
@@ -266,7 +266,7 @@ class ViewLightingPipelineTest(unittest.TestCase):
     def test_real_callers_transfers_wrapping_and_defined_fields(self):
         owners=source_owners(ROOT/'src/main/PAL');bodies='\n'.join(adapted_body(owners[n].read_text(),n) for n in NAMES)
         regions=[('D_800A3B00',32),('ColorMatrix',32),('D_800A3B20',8),('D_800A3B28',8),('D_800A3B30',8),
-                 ('D_800F38F8',24),('D_800AD5BC',6),('CourseIndex',2),('CourseFarColorTable',108),
+                 ('LightSourceAngles',24),('LightSourceIntensities',6),('CourseIndex',2),('CourseFarColorTable',108),
                  ('BackColorR',4),('BackColorG',4),('BackColorB',4),('FarColorR',4),('FarColorG',4),('FarColorB',4),('LightMatrix',32)]
         addresses={n:address_of(n) for n,_ in regions};starts={n:address_of(n) for n in NAMES};rotate=address_of('RotMatrixYXZ')
         self.assertEqual(sum(size for _,size in regions),STATE)
@@ -324,7 +324,7 @@ class ViewLightingPipelineTest(unittest.TestCase):
                             for _ in range(8000):
                                 if cpu.pc==STOP:break
                                 if cpu.pc==rotate:
-                                    self.assertIsNone(cpu.delay);self.assertEqual(cpu.r[4],addresses['D_800F38F8']+calls*8)
+                                    self.assertIsNone(cpu.delay);self.assertEqual(cpu.r[4],addresses['LightSourceAngles']+calls*8)
                                     self.assertTrue(STACK-256<=cpu.r[5] and cpu.r[5]+32<=STACK)
                                     current=bytearray(state());matrix=rotation(current,cpu.hw,number,calls);load_state(current)
                                     pointer=cpu.r[5];write(pointer,matrix);calls+=1;resume=cpu.r[31]

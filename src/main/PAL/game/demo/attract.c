@@ -22,11 +22,11 @@ extern int D_800A2124[];
 extern short CourseIndex;
 extern unsigned short D_800A2134;
 extern unsigned short D_800A2138[];
-extern short D_800FFC10;
+extern short MenuTransitionOverlayMode;
 extern short MenuScriptId;
 extern short ModeGroup;
-extern short D_800F3A26;
-extern short D_800F4D8A;
+extern short ModeIndex;
+extern short SubmodeState;
 extern int MaskBitSetting;
 extern char RaceContext[];
 extern short ActiveSceneId;
@@ -92,7 +92,7 @@ void StartAttractDemo(int a0) {
     x6 = PsyqRand();
     s2 = x6 % 18;
     tb = D_800A2124;
-    w = D_8010E270;
+    w = AttractCarTeams;
     b = (void *)SelectionRows;
     do {
         b[i].a = sp[i];
@@ -132,14 +132,14 @@ void StartAttractDemo(int a0) {
     }
     InitRaceOpeningOverlay(0, 0);
     GameModeType = 5;
-    D_800FFC10 = 0;
+    MenuTransitionOverlayMode = 0;
     MenuScriptId = 0xA;
     ModeGroup = 1;
-    D_800F3A26 = 0x23;
-    D_800F4D8A = 0;
+    ModeIndex = 0x23;
+    SubmodeState = 0;
     if (a0 == 0) {
         StartDemoFadeIn(-1);
-        RaceBgmListIndex = D_800A19E0[CourseIndex] + 1;
+        RaceBgmListIndex = CourseBgmChoiceTable2[CourseIndex] + 1;
     } else {
         InitDemoFadeContext(0);
         SelectDemoFadePreset(2);
@@ -179,8 +179,8 @@ void AttractDemoRaceEnter(void) {
     ResetScreenCounters();
     MenuScriptId = 8;
     ModeGroup = 1;
-    D_800F3A26 = 0x23;
-    D_800F4D8A = 0;
+    ModeIndex = 0x23;
+    SubmodeState = 0;
     InitDemoFadeContext(0);
     SelectDemoFadePreset(1);
     DrawSubOtFlag = 0;

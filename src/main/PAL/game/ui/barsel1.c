@@ -10,7 +10,7 @@
 extern int SetMenuFrameOptions();
 extern int DrawMenuStepArrows();
 extern int UpdateDialogue();
-extern s16 D_800AD520;
+extern s16 SelectedTeamIndex;
 extern void *Dialogue;
 
 s32 UpdateModeSelectBarAnim(void) {
@@ -26,7 +26,7 @@ s32 UpdateModeSelectBarAnim(void) {
         if (((s16 *)BadgeRows)[8] == 0xB && D_800AD4F2 == 0) {
             ((s16 *)BadgeRows)[8] = 0;
         } else if (((s16 *)BadgeRows)[8] < 4) {
-            DrawMenuStepArrows(0xA0, 0xCC, 0x30, 0, D_800AD520, 0, 4);
+            DrawMenuStepArrows(0xA0, 0xCC, 0x30, 0, SelectedTeamIndex, 0, 4);
             var_s2 = UpdateGlyphRow(SelectionRows[0]);
         }
     }

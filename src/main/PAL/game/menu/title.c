@@ -42,19 +42,19 @@ extern int SetupViewport();
 extern char RepeatLabel[];
 extern char StrFmtTwoDigitsTitle[];
 extern char D_800A1A6C[];
-extern short D_800AC5D0;
+extern short FadeCountdown;
 extern int D_800ACA2C;
 extern int D_800ACB0C;
 extern int D_800ACB28;
 extern int D_800ACB2C;
 extern int D_800F2A64;
 extern int MaskBitSetting;
-extern short D_800F3A26;
+extern short ModeIndex;
 extern int D_800F3A60;
 extern int D_800F3A68;
 extern int D_800F3A6C;
 extern short ModeGroup;
-extern short D_800F4D8A;
+extern short SubmodeState;
 extern int ViewUsesCarTrackNode;
 extern RaceVehicle ComCars[];
 typedef struct 
@@ -111,7 +111,7 @@ void AttractDemoRaceUpdate(void) {
     RaceContext.w4dc = 0xFA;
     for (i = 0; i < 7; i++)
     {
-      if (D_8010E270[i & 3] < 2)
+      if (AttractCarTeams[i & 3] < 2)
       {
         ComCars[i].control.steeringEnabled124 = 1;
       }
@@ -157,7 +157,7 @@ void AttractDemoRaceUpdate(void) {
   }
   if (vv != 0)
   {
-    if (D_800AC5D0 == 0)
+    if (FadeCountdown == 0)
     {
       if (p->w4bc >= 0x1A)
       {
@@ -170,14 +170,14 @@ void AttractDemoRaceUpdate(void) {
   {
     if (RaceContext.w4bc == 0xBB8)
     {
-      D_800AC5D0 = 0x40;
+      FadeCountdown = 0x40;
       SoundSetMasterVolume(0, 0x3C);
     }
   }
   else
     if (RaceContext.w4cc == 1)
   {
-    D_800AC5D0 = 0x40;
+    FadeCountdown = 0x40;
     SoundSetMasterVolume(0, 0x3C);
     RaceContext.w4cc = 2;
   }
@@ -328,24 +328,24 @@ void AttractDemoRaceUpdate(void) {
       DrawSceneOverlayIfActive();
     }
   }
-  if (D_800AC5D0 > 0)
+  if (FadeCountdown > 0)
   {
-    D_800AC5D0 = D_800AC5D0 - 1;
-    AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - D_800AC5D0) * 4, 0x45);
-    if (D_800AC5D0 == 0)
+    FadeCountdown = FadeCountdown - 1;
+    AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - FadeCountdown) * 4, 0x45);
+    if (FadeCountdown == 0)
     {
       if (RaceContext.w4c8 == 0)
       {
         ModeGroup = 1;
-        D_800F3A26 = 3;
+        ModeIndex = 3;
       }
       else
       {
         RaceContext.w18 = 1;
         ModeGroup = 2;
-        D_800F3A26 = 8;
+        ModeIndex = 8;
       }
-      D_800F4D8A = 0;
+      SubmodeState = 0;
       MaskBitSetting = 0;
       __asm__ ("" ::: "memory"); /* ASM_BARRIER: prevent hoisting argument setup for SoundSetMasterVolume before stores */
       SoundSetMasterVolume(0, 0);

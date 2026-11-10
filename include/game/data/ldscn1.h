@@ -4,9 +4,9 @@
 #include "types.h"
 
 extern int LoadDestCursor;
-extern signed char *D_800ACBFC;
+extern signed char *DialogueAssetTable;
 extern char *TrackNodesEnd;
-extern short D_800F4D2C;
+extern short MainMenuChoice;
 int LoadOpeningMovieTimStep(void);
 int LoadTimListStep();
 int LoadDialogueStep(void);

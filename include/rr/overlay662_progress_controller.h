@@ -6,7 +6,7 @@
 #include "rr/frame_environment.h"
 #include "rr/tables.h"
 #include "rr/overlay_menu.h"
-extern s16 D_800AC5D0;
+extern s16 FadeCountdown;
 extern u16 ovl662_D_801272D8[4],ovl662_D_80127328[4][4];
 s32 LoadGlyphRowsStep(void);
 void ovl662_func_80116690(void);

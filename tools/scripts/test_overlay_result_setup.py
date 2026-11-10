@@ -36,7 +36,7 @@ class OverlayResultSetupTest(unittest.TestCase):
 #include "rr/save_progress.h"
 #include "rr/current_selection_types.h"
 static MenuTextRow60 row_storage[55];
-#define D_800FFC48 ((u8*)row_storage)
+#define SharedWorkArena ((u8*)row_storage)
 struct State {
  u32 guard[4];SaveProgressRecord7C save;CurrentSelection choice;
  s32 frame,counter,bank666,labels666[33],match,standings[6],first660,second660,labels660[55],uiMode,screenFlag;

@@ -32,15 +32,15 @@ extern TimeRecord16 LapRecords[2][8][5];
 extern CourseChoice4 CourseChoiceTable[2][9];
 extern unsigned short D_8009EA80[];
 extern unsigned char SaveDataWork[];
-extern unsigned char D_800F3B28[];
+extern unsigned char CustomEmblemBuffers[];
 extern s32 CdDirectoryBuffer;
 extern s32 D_800103B8;
 extern s32 VSyncThreshold;
 extern s32 ModeFrame;
-extern s16 D_800F3A26;
+extern s16 ModeIndex;
 extern s16 ModeGroup;
 extern s8 LoadState;
-extern s16 D_800F4D8A;
+extern s16 SubmodeState;
 extern s16 CardMenuOperation;
 
 void InitDefaultTimeRecords(void) {
@@ -128,14 +128,14 @@ loop:
 void BackupSaveData(void) {
     int i;
     for (i = 0; i < 0x840; i++) {
-        D_800F3B28[i] = SaveDataWork[i];
+        CustomEmblemBuffers[i] = SaveDataWork[i];
     }
 }
 
 void RestoreSaveData(void) {
     int i;
     for (i = 0; i < 0x840; i++) {
-        SaveDataWork[i] = D_800F3B28[i];
+        SaveDataWork[i] = CustomEmblemBuffers[i];
     }
 }
 
@@ -152,13 +152,13 @@ void SplashModeEnter(void) {
     LoadSaveFromCardStep(0);
     VSyncThreshold = 0x80;
     ModeFrame = 0;
-    D_800F4D8A = 0;
+    SubmodeState = 0;
     LoadState = 0;
-    D_8010BFBC = 0;
+    AttractCycleCounter = 0;
     PendingModeId = 0x203;
     ModeGroup = 1;
-    D_800F3A26 = 2;
-    D_800F4D8A = 0;
+    ModeIndex = 2;
+    SubmodeState = 0;
 }
 
 void SplashModeUpdate(void) {
@@ -169,9 +169,9 @@ void SplashModeUpdate(void) {
         ModeFrame += 1;
         if (SplashLogoUpdate(LoadSaveFromCardStep(1) == 1) == temp_v0) {
             SetCdMixMode(D_800AD55A);
-            D_800F4D8A = 0;
+            SubmodeState = 0;
             ModeGroup = (s16) ((u16) PendingModeId >> 8);
-            D_800F3A26 = PendingModeId & 0xFF;
+            ModeIndex = PendingModeId & 0xFF;
         }
     }
 }

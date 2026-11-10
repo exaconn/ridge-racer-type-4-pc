@@ -4,7 +4,7 @@
 #include "types.h"
 
 extern int D_800F3970;
-extern s32 D_8010BFBC;
+extern s32 AttractCycleCounter;
 void TitleModeEnter(void);
 void TitleMenuInit(void);
 void TitleMenuUpdate(void);

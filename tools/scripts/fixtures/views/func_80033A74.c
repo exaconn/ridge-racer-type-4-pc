@@ -42,7 +42,7 @@ extern struct
   char pad2[0x320 - 0x17C];
 } PlayerCars[];
 
-extern int D_800AC5D4;
+extern int ActivePlayerIndex;
 
 extern struct 
 {
@@ -77,23 +77,23 @@ void SetupMenuCarCamera(int a)
     ScaleMatrixRow1(2, t);
   }
   ;
-  if (PlayerControllers[D_800AC5D4 & 1].b & 4)
+  if (PlayerControllers[ActivePlayerIndex & 1].b & 4)
   {
-    PlayerCars[D_800AC5D4 & 1].v += 0xC0;
+    PlayerCars[ActivePlayerIndex & 1].v += 0xC0;
   }
   else
-    if (PlayerControllers[D_800AC5D4 & 1].b & 8)
+    if (PlayerControllers[ActivePlayerIndex & 1].b & 8)
   {
-    PlayerCars[D_800AC5D4 & 1].v -= 0xC0;
+    PlayerCars[ActivePlayerIndex & 1].v -= 0xC0;
   }
-  i = PlayerCars[D_800AC5D4 & 1].v;
+  i = PlayerCars[ActivePlayerIndex & 1].v;
   if (i > 0xF00)
   {
-    PlayerCars[D_800AC5D4 & 1].v = 0xF00;
+    PlayerCars[ActivePlayerIndex & 1].v = 0xF00;
   }
   else
     if (i < (-0xF00))
   {
-    PlayerCars[D_800AC5D4 & 1].v = -0xF00;
+    PlayerCars[ActivePlayerIndex & 1].v = -0xF00;
   }
 }

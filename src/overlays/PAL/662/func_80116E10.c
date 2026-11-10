@@ -45,7 +45,7 @@ void ovl662_func_80116E10(void)
             ImageRows[1] = ready;
         }
         shown = 1;
-        switch (D_800F4D8A) {
+        switch (SubmodeState) {
         case 0:
             SetMenuFrameOptions(1, 1, 1);
             before = PackChoiceGlyph((s8 *)&SelectionRows);
@@ -86,7 +86,7 @@ void ovl662_func_80116E10(void)
                     if (status == 1) {
                         PlaySfx(1);
                         SetModelTexturePage(-1);
-                        D_800F4D8A = 3;
+                        SubmodeState = 3;
                         BadgeRows[0].state10 = 4;
                         BadgeRows[1].state10 = 4;
                         ImageRows[1] = 3;
@@ -95,7 +95,7 @@ void ovl662_func_80116E10(void)
                                 UiRows[i].byte14 = 3;
                             }
                         }
-                        D_800AC5D0 = 64;
+                        FadeCountdown = 64;
                     } else {
                         PlaySfx(4);
                     }
@@ -110,8 +110,8 @@ void ovl662_func_80116E10(void)
                             UiRows[i].byte14 = 3;
                         }
                     }
-                    D_800AC5D0 = 64;
-                    D_800F4D8A = 8;
+                    FadeCountdown = 64;
+                    SubmodeState = 8;
                 }
             } else if (PlayerControllers[0].action2C) {
                 PlaySfx(2);
@@ -125,36 +125,36 @@ void ovl662_func_80116E10(void)
                         UiRows[i].byte14 = 3;
                     }
                 }
-                D_800AC5D0 = 64;
-                D_800F4D8A = 8;
+                FadeCountdown = 64;
+                SubmodeState = 8;
             }
             break;
         case 3:
-            D_800AC5D0--;
+            FadeCountdown--;
             steps = 64;
-            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (steps - D_800AC5D0) * 4, 69);
-            if (D_800AC5D0 <= 0) {
+            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (steps - FadeCountdown) * 4, 69);
+            if (FadeCountdown <= 0) {
                 CourseChoiceTable[1][ovl662_D_801272BA].glyph = ovl662_D_80127348[ovl662_D_801272E4].value;
                 CourseChoiceTable[1][ovl662_D_801272BA].first = 0;
                 CourseChoiceTable[1][ovl662_D_801272BA].second = 0;
                 ovl662_D_801272E4 = ovl662_D_801272BA;
                 ovl662_func_8011512C();
                 ModeGroup = ready;
-                D_800F3A26 = steps;
-                D_800F4D8A = 0;
+                ModeIndex = steps;
+                SubmodeState = 0;
                 return;
             }
             break;
         case 8:
-            D_800AC5D0--;
+            FadeCountdown--;
             steps = 64;
-            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (steps - D_800AC5D0) * 4, 69);
-            if (D_800AC5D0 <= 0) {
+            AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (steps - FadeCountdown) * 4, 69);
+            if (FadeCountdown <= 0) {
                 ovl662_D_801272E4 = ovl662_D_801272BA;
                 ovl662_func_8011512C();
                 ModeGroup = ready;
-                D_800F3A26 = steps;
-                D_800F4D8A = 0;
+                ModeIndex = steps;
+                SubmodeState = 0;
                 return;
             }
             break;

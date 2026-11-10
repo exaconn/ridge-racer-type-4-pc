@@ -31,9 +31,9 @@ static struct World {u32 guard[4];GarageSelectionPrefix garage;GarageWorkingStor
 #define D_800F3A60 world.accept
 #define ovl662_D_801272E8 world.exit
 #define CardMenuOperation world.slot
-#define D_800F3A26 world.scene
+#define ModeIndex world.scene
 #define ModeGroup world.enable
-#define D_800F4D8A world.state
+#define SubmodeState world.state
 '''+s+r'''
 static struct Event {unsigned kind;s32 a;struct World before;} events[4];
 static unsigned count,seen,serial,scenario,profile,coverage[5],choices[5],phases[12];static int reference_run;

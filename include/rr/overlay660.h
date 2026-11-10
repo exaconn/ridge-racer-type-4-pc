@@ -24,7 +24,7 @@ extern s16 ovl660_preview_bank;
 extern s32 D_800AD564;
 extern s16 ActiveSceneId;
 extern s32 D_800F3A64, D_800F3A48;
-extern s16 D_800F3A1E, CardMenuOperation;
+extern s16 CardMenuReturnModeId, CardMenuOperation;
 void CopyStringClearTail(char *destination, char *source);
 void StepNameChar(char *text);
 void DrawRaceOverlaySprites(s32 paused);

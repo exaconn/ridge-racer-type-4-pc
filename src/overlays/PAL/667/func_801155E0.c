@@ -5,7 +5,7 @@ void ovl667_func_801155E0(void)
     StopRaceAudioAndRumble();
     SetupRaceAndSceneId();
     ModeGroup=1;
-    D_800F3A26=26;
-    D_800F4D8A=0;
+    ModeIndex=26;
+    SubmodeState=0;
     AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,255,69);
 }

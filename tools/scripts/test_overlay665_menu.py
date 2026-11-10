@@ -47,7 +47,7 @@ FrameStorage *CurrentDrawBuf;UiRow24 *UiRows;MenuTextState *CardDialogueStatePtr
 #define MenuArenas w->s.arenas
 #define CdDirectoryBuffer w->s.resource
 #define LoadCursor w->s.published
-#define D_800AC5D0 w->s.fade
+#define FadeCountdown w->s.fade
 #define ScreenFrame w->s.pulse
 #define MenuScriptStep w->s.clear1
 #define LoadState w->s.clear2

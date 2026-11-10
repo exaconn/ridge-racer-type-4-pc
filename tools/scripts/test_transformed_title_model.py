@@ -27,7 +27,7 @@ def main():
     owners = source_owners(ROOT/'src/main/PAL')
     body = definition_source(owners['DrawTransformedTitleModel'].read_text(), 'DrawTransformedTitleModel')
     position = address_of('D_8001013C');entry = address_of('DrawTransformedTitleModel')
-    pointer, format_at = address_of('D_8010BF78'), address_of('ModelBankFormat')
+    pointer, format_at = address_of('IntroSceneStatePtr'), address_of('ModelBankFormat')
     prefix = shared.PREFIX.replace('s16 positions[8][8];',
         'union {Vec3s8 angles[2];VectorWords16 position;} inputs[8];')
     prefix = prefix.replace('world.positions', 'world.inputs')

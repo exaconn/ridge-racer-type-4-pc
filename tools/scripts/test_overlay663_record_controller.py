@@ -48,11 +48,11 @@ static const u32 counterBits[7]={0,1,0x7FFFFFFFU,0x80000000U,0xFFFFFFFEU,0xFFFFF
 static u8 buffers[3][32];static const s32 limits[3]={4,8,16};static const s32 modes[6]={-1,0,1,2,0x10001,(s32)0x80000001U};
 #define ModeFrame w->frame
 #define ScreenFrame w->tick
-#define D_800F4D8A w->state
-#define D_800F3A26 w->scene
+#define SubmodeState w->state
+#define ModeIndex w->scene
 #define ModeGroup w->enable
-#define D_800AC5D0 w->timer
-#define D_800AC648 w->course
+#define FadeCountdown w->timer
+#define SelectedCourseChoice w->course
 #define MenuCursor w->menu
 #define CourseIndex w->track
 #define ReverseCourse w->style

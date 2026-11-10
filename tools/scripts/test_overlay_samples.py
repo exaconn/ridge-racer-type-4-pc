@@ -36,7 +36,7 @@ class OverlaySamplesTest(unittest.TestCase):
 #include "rr/race_types.h"
 #include "rr/badge_row_types.h"
 #include "rr/projection_state.h"
-s16 ModeGroup, D_800F3A26, D_800F4D8A, ActiveSceneId;
+s16 ModeGroup, ModeIndex, SubmodeState, ActiveSceneId;
 s32 ModeFrame; RaceVehicle PlayerCars[2];
 FrameStorage *CurrentDrawBuf, display_buffer;
 BadgeRow1C first, second, *BadgeRows;
@@ -52,13 +52,13 @@ void StopRaceAudioAndRumble(void) { assert(scenario == 666 && step++ == 0); }
 void SetupRaceAndSceneId(void) {
     assert((scenario == 659 && step == 0) || (scenario == 666 && step == 1));
     step++;
-    ModeGroup = -8; D_800F3A26 = -9; D_800F4D8A = -10;
+    ModeGroup = -8; ModeIndex = -9; SubmodeState = -10;
     CurrentDrawBuf = &display_buffer;
 }
 void AddScreenFadeTiles(void *a, s32 b, s32 c) {
     assert(scenario == 666 && step++ == 2);
     assert(a == display_buffer.ordering.ordering70.words && b == 255 && c == 69);
-    assert(ModeGroup == 1 && D_800F3A26 == 82 && D_800F4D8A == 0);
+    assert(ModeGroup == 1 && ModeIndex == 82 && SubmodeState == 0);
 }
 void SetupRenderer(s32 a) {
     assert(scenario == 663 && step++ == 0 && a == 5 && ModeFrame == 0);
@@ -101,7 +101,7 @@ void SetMenuFrameOptions(s32 a,s32 b,s32 c) {
 int main(void) {
     scenario = 659; step = 0;
     ovl659_exit_race();
-    assert(step == 1 && ModeGroup == 1 && D_800F3A26 == 47 && D_800F4D8A == 0);
+    assert(step == 1 && ModeGroup == 1 && ModeIndex == 47 && SubmodeState == 0);
     ovl660_select_scene(); assert(ActiveSceneId == 0x131);
     ovl661_func_80117340(); assert(ActiveSceneId == 0x137);
     for (unsigned i = 0; i < 65536; i++) {

@@ -42,7 +42,7 @@ static struct {
 } world;
 #define SCRATCHPAD ((u8*)&world.scratch)
 #define D_8001013C ((char*)world.positions)
-IntroSceneState *D_8010BF78;
+IntroSceneState *IntroSceneStatePtr;
 s32 ModelBankFormat;
 static u32 control[32];
 static unsigned scenario,events,multiplies;
@@ -107,7 +107,7 @@ static void snapshot(u8 *out) {
  memcpy(out+596,world.positions,128);memcpy(out+724,world.gpu,512);
  memcpy(out+1236,world.streams,128);memcpy(out+1364,world.vertices,64);memcpy(out+1428,world.normals,64);
  for(unsigned i=0;i<2;i++)for(unsigned j=0;j<2;j++)put(out+1492+i*8+j*4,address(world.tables[i][j].pointer));
- put(out+1508,address(D_8010BF78));put(out+1512,(u32)ModelBankFormat);memcpy(out+1516,control,128);
+ put(out+1508,address(IntroSceneStatePtr));put(out+1512,(u32)ModelBankFormat);memcpy(out+1516,control,128);
 }
 static unsigned record(u32 kind,u32 a,u32 b,u32 c,u32 d) {
  u32 words[5]={kind,a,b,c,d};unsigned serial=events++;
@@ -129,13 +129,13 @@ void SelectModelBank(s32 slot) {
  RroSceneScratchPrefix *s=&world.scratch.scene;
  s->commands50=world.tables[bank];s->modelEntries48=world.streams[bank];
  s->vertices54=world.vertices[bank];s->normals58=world.normals[bank];
- D_8010BF78=&world.states[bank];
+ IntroSceneStatePtr=&world.states[bank];
 }
 MatrixWords32 *RotMatrix(const Vec3sFields8 *angles,MatrixWords32 *matrix) {
  record(2,address(angles),address(matrix),0,0);
  u32 seed=hash(angles,6)^scenario;
  for(unsigned i=0;i<8;i++){seed=next(seed);put((u8*)matrix+i*4,seed);}
- if(scenario&2)D_8010BF78=&world.states[1-(scenario&1)];
+ if(scenario&2)IntroSceneStatePtr=&world.states[1-(scenario&1)];
  return 0;
 }
 MatrixWords32 *MulRotMatrix0(const MatrixWords32 *input,MatrixWords32 *output) {
@@ -179,8 +179,8 @@ void run_case(unsigned number,s32 index,s32 animate,const u8 *input,u8 *output) 
  memcpy(world.positions,input+596,128);memcpy(world.gpu,input+724,512);memcpy(world.streams,input+1236,128);
  memcpy(world.vertices,input+1364,64);memcpy(world.normals,input+1428,64);
  for(unsigned i=0;i<2;i++)for(unsigned j=0;j<2;j++)world.tables[i][j].pointer=resolve(get(input+1492+i*8+j*4));
- D_8010BF78=resolve(get(input+1508));ModelBankFormat=(s32)get(input+1512);memcpy(control,input+1516,128);
- assert(sizeof(void*)==8&&(uintptr_t)D_8010BF78>UINT32_MAX);
+ IntroSceneStatePtr=resolve(get(input+1508));ModelBankFormat=(s32)get(input+1512);memcpy(control,input+1516,128);
+ assert(sizeof(void*)==8&&(uintptr_t)IntroSceneStatePtr>UINT32_MAX);
  assert(offsetof(RroModelScratch,work7C)!=0x7C&&offsetof(RroSceneScratchPrefix,draw74.draw.counter)!=0x78);
  assert(offsetof(RroSceneScratchPrefix,view.matrix28)!=0x28);
  memset(output,0,8+MAX_EVENTS*EVENT+STATE);s32 yaw=DrawRotatingTitleModel(index,animate);
@@ -216,7 +216,7 @@ class TransportCpu(Cpu):
 
 def main():
     owners = source_owners(ROOT/'src/main/PAL');body = definition_source(owners['DrawRotatingTitleModel'].read_text(), 'DrawRotatingTitleModel')
-    position = address_of('D_8001013C');entry = address_of('DrawRotatingTitleModel');pointer = address_of('D_8010BF78');format_at = address_of('ModelBankFormat')
+    position = address_of('D_8001013C');entry = address_of('DrawRotatingTitleModel');pointer = address_of('IntroSceneStatePtr');format_at = address_of('ModelBankFormat')
     prefix = PREFIX.replace('static u32 control[32];','static const u32 positionAddress=%dU;\nstatic u32 control[32];' % position)
     executable = (ROOT/'assets/PAL/main.exe').read_bytes();base = struct.unpack_from('<I', executable, 24)[0]
     with TemporaryDirectory() as temp:

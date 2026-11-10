@@ -31,8 +31,8 @@ static struct State{u32 guard[4];ReplayCameraContextPrefix camera;ReplayEvent ev
 #define D_80127E90 w->textPosition
 #define D_80127E94 w->textDelta
 #define ModeGroup w->enable
-#define D_800F3A26 w->scene
-#define D_800F4D8A w->phase
+#define ModeIndex w->scene
+#define SubmodeState w->phase
 '''
 rest=r'''
 static struct Event{struct State before;s32 args[4];}trace[90];static unsigned scenario,profile,serial,count,seen,coverage[13],stages[8],modes[3],exitCount,startCount,fadeCalls;static int ref;

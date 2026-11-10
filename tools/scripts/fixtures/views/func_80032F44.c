@@ -26,7 +26,7 @@ extern int CourseBestTotal[][8];
 
 extern short NumCars;
 
-extern short D_800ABEC8;
+extern short ComDifficultyLevel;
 
 extern int AddSpritePrim();
 
@@ -121,7 +121,7 @@ void DrawCourseInfoPanel(int arg0, int arg1) {
             if (i == 0) {
                 FormatDecimalDigits(sp28, NumCars - 2, 0);
             } else {
-                FormatDecimalDigits(sp28, D_800ABEC8 + 1, 0);
+                FormatDecimalDigits(sp28, ComDifficultyLevel + 1, 0);
             }
             DrawDigitString16(CurrentDrawBuf + 0x70, 0x3A - i * 0xC, 0x148 + i * 0x10, sp28);
         }

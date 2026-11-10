@@ -18,7 +18,7 @@ void DrawRaceOverlaySprites(s32 a0)
     s32 c;
     SpritePacket *p;
     if (GameModeType == 0 && RaceState != 0 && RaceState < 4) {
-        t = SplitTimes[D_8010C12C];
+        t = SplitTimes[SplitIndex];
         if (t < 0) {
             s3 = -1;
             s4 = -1;
@@ -27,9 +27,9 @@ void DrawRaceOverlaySprites(s32 a0)
             s4 = t;
             if (SplitDeltaTimer > 0) {
                 if (a0 == 0) SplitDeltaTimer--;
-                s3 = D_8010C10C;
-                s2 = D_8010C104;
-                s4 = D_8010C108;
+                s3 = LatchedBestSplitTime;
+                s2 = LatchedSplitIndex;
+                s4 = LatchedSplitTime;
                 s1 = SplitTimes[s2] - s3;
                 s5 = 0x84;
                 if (s1 < 0) {
@@ -43,8 +43,8 @@ void DrawRaceOverlaySprites(s32 a0)
                 *(SpritePacket **)SCRATCHPAD = GameQueueSprite((char *)&CurrentDrawBuf->buffer.ordering70.words[0], *(SpritePacket **)SCRATCHPAD, 0x70, 0x60, 0xC, 0xC, s5, 0xA8, 0x7EF8);
                 DrawRaceTime(0x80, 0x60, s1, 0x7EF8, 1);
             } else {
-                s3 = BestSplitTimes[D_8010C12C];
-                s2 = D_8010C12C;
+                s3 = BestSplitTimes[SplitIndex];
+                s2 = SplitIndex;
             }
         }
         DrawRaceTime(0x14, 0x1C, s3, 0x7EF8, 0);

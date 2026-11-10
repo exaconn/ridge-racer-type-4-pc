@@ -6,9 +6,9 @@ extern s16 MenuItemCount;
 extern s32 ovl667_D_80118E2C[22];
 extern s32 TotalRaceTime;
 extern s16 NumCars;
-extern s16 D_8010C070[8];
-extern s16 D_8010C080[8];
-extern s16 D_8010C0C8[8];
+extern s16 LinkFinishCarOrder[8];
+extern s16 LinkPlayerWinCounts[8];
+extern s16 LinkPrevCarRanks[8];
 extern s16 LinkState;
 extern void SetMenuFrameOptions(s32, s32, s32);
 
@@ -18,7 +18,7 @@ void ovl667_func_80118634(void) {
     /* The active participant count is0..8; order entries and the preexisting
      * inverse position for participant0 are valid slots0..7. */
     ModeFrame = 0;
-    InitMenuTextRows((MenuTextRow60 *)D_800FFC48);
+    InitMenuTextRows((MenuTextRow60 *)SharedWorkArena);
     MenuCursor = 0;
     MenuItemCount = 3;
     for (i = 0; i < 11; i++) {
@@ -32,10 +32,10 @@ void ovl667_func_80118634(void) {
     }
     if (TotalRaceTime >= 0) {
         for (i = 0; i < NumCars; i++) {
-            D_8010C070[D_8010C0C8[i]] = i;
+            LinkFinishCarOrder[LinkPrevCarRanks[i]] = i;
         }
-        if (D_8010C080[D_8010C070[0]] < 99) {
-            D_8010C080[D_8010C070[0]]++;
+        if (LinkPlayerWinCounts[LinkFinishCarOrder[0]] < 99) {
+            LinkPlayerWinCounts[LinkFinishCarOrder[0]]++;
         }
     }
     LinkState = 0;

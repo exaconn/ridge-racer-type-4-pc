@@ -27,7 +27,7 @@ fixture=r'''
 #include "rr/frame_loop.h"
 
 static FrameStorage actual[2],expected[2];
-#define D_800ADAF0 actual
+#define DrawBuffers actual
 RuntimeSettings Options;
 static int step,video;
 static u32 input_flags;

@@ -32,7 +32,7 @@ extern GpuRectangleFields D_800A0D24[][4];
 extern int SetModelTexturePage();
 extern int D_800A0FB0[];
 extern int DrawSubOtFlag;
-extern short D_800F3826;
+extern short SelectedMakerIndex;
 extern int BuildRotMatrixZ();
 extern int BuildRotMatrixY();
 extern int BuildRotMatrixX();
@@ -190,7 +190,7 @@ void InitCameraState(int mode, int flags)
     RaceContext.camera24C->value130 = 0x1B8;
     RaceContext.camera24C->parts18[0].position00.xyz.x = -0xC0;
     RaceContext.camera24C->parts18[1].position00.xyz.x = 0xC0;
-    if (!(D_800A0FB0[D_800F3826] & ((bit = 1) << D_800F4C28))) {
+    if (!(D_800A0FB0[SelectedMakerIndex] & ((bit = 1) << SelectedMakerCarIndex))) {
         RaceContext.camera24C->extentA0 = 0xA9;
         RaceContext.camera24C->mirrorA4 = 0;
     } else {
@@ -198,7 +198,7 @@ void InitCameraState(int mode, int flags)
         RaceContext.camera24C->mirrorA4 = 1;
     }
     camera = RaceContext.camera24C;
-    D_800A0D7C[0].a = *(int *)&camera->extentA0 * 4;
+    ShowcaseCamDepthCurve[0].a = *(int *)&camera->extentA0 * 4;
     distance = *(int *)&camera->extentA0 - 4;
     distance = distance - (CarBoundsTable[0]->unk08 + (PlayerCars[0].halfSpan10E / 2));
     *(int *)&camera->distance100 = distance;

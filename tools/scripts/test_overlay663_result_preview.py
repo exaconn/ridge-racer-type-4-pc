@@ -41,8 +41,8 @@ static const u32 frames[]={0,1,0x7FFFFFFFU,0x80000000U,0xFFFFFFFFU};
 #define D_800F3A60 w->s.accepted
 #define ovl663_record_kind w->s.entry
 #define ModeGroup w->s.scene
-#define D_800F3A26 w->s.next
-#define D_800F4D8A w->s.phase
+#define ModeIndex w->s.next
+#define SubmodeState w->s.phase
 static s32 word(u32 u){s32 v;memcpy(&v,&u,4);return v;}
 static s16 half(u32 u){u16 bits=u;s16 v;memcpy(&v,&bits,2);return v;}
 static void effect(unsigned n){unsigned i,r;

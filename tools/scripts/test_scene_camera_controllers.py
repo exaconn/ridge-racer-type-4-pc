@@ -58,12 +58,12 @@ static const s32 edges[]={INT32_MIN,INT32_MIN+1,-65537,-32768,-4,-1,0,1,4,32767,
 #define CarBoundsTable live.table.values
 #define D_800A0D64 (&live.curves[0])
 #define D_800A0D70 (&live.curves[3])
-#define D_800A0D7C (&live.curves[6])
+#define ShowcaseCamDepthCurve (&live.curves[6])
 #define D_800A0D88 (&live.curves[9])
 #define D_800A0D94 (&live.curves[12])
 #define D_800A0FB0 live.masks
-#define D_800F3826 live.index
-#define D_800F4C28 live.selector
+#define SelectedMakerIndex live.index
+#define SelectedMakerCarIndex live.selector
 #define DrawSubOtFlag live.draw
 static u32 next(u32 *seed){u32 n=*seed;n^=n<<13;n^=n>>17;n^=n<<5;return *seed=n;}
 static s32 word(u32 n){s32 r;memcpy(&r,&n,4);return r;}
@@ -165,7 +165,7 @@ static void reference(s32 first,s32 second){
   RaceContext.camera24C->parts18[1].rotation10.y=(s16)(u16)(0U-(u32)angle);
   s32 index=FindCurveSegment(D_800A0D70,first);s32 roll=InterpCurveLinear(D_800A0D70,index,first);
   RaceContext.camera24C->parts18[3].rotation10.x=(s16)roll;
-  index=FindCurveSegment(D_800A0D7C,first);s32 z=InterpCurveLinear(D_800A0D7C,index,first);
+  index=FindCurveSegment(ShowcaseCamDepthCurve,first);s32 z=InterpCurveLinear(ShowcaseCamDepthCurve,index,first);
   index=FindCurveSegment(D_800A0D88,first);s32 y=InterpCurveLinear(D_800A0D88,index,first);
   SceneCameraState160 *c=RaceContext.camera24C;
   c->parts18[3].position00.xyz.z=word((u32)((uint64_t)(u32)z-(uint64_t)(u32)c->extentA0*4U-16U));
@@ -238,7 +238,7 @@ class SceneCameraControllerTest(unittest.TestCase):
         body = body.replace('SetModelTexturePage(', 'traceModelTexturePage(')
         prefix = PREFIX.replace('@RACE@', hex(address_of('RaceContext'))+'U').replace('@CURVES@', hex(address_of('D_800A0D64'))+'U')
         self.assertEqual(address_of('D_800AC006'), address_of('PlayerCars')+0x10E)
-        for offset, name in [(12, 'D_800A0D70'), (24, 'D_800A0D7C'), (36, 'D_800A0D88'), (48, 'D_800A0D94')]:
+        for offset, name in [(12, 'D_800A0D70'), (24, 'ShowcaseCamDepthCurve'), (36, 'D_800A0D88'), (48, 'D_800A0D94')]:
             self.assertEqual(address_of(name), address_of('D_800A0D64')+offset)
         with TemporaryDirectory() as temporary:
             source, library = Path(temporary)/'native.c', Path(temporary)/'native.dylib'
@@ -272,8 +272,8 @@ class SceneCameraControllerTest(unittest.TestCase):
             regions = [(address_of('RaceContext')-16, 0x564+32), (0x80180000, 384), (0x80181000, 384),
                        (address_of('PlayerCars')-16, 1632), (0x801A0000, 44), (0x801A1000, 44), (0x801A2000, 44),
                        (address_of('CarBoundsTable')-16, 44), (address_of('D_800A0D64'), 100),
-                       (address_of('D_800A0FB0'), 16), (address_of('D_800F3826'), 2),
-                       (address_of('D_800F4C28'), 2), (address_of('DrawSubOtFlag'), 4)]
+                       (address_of('D_800A0FB0'), 16), (address_of('SelectedMakerIndex'), 2),
+                       (address_of('SelectedMakerCarIndex'), 2), (address_of('DrawSubOtFlag'), 4)]
             size = native.wire_size();self.assertEqual(sum(n for _, n in regions), size)
             intervals = sorted((a, a+n) for a, n in regions)
             self.assertTrue(all(a[1] <= b[0] for a, b in zip(intervals, intervals[1:])))

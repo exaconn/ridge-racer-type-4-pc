@@ -45,7 +45,7 @@ static State actual,reference,*w;
 #define ovl665_D_80119754 w->music
 #define ovl665_D_80119758 w->effects
 #define Options w->settings
-#define D_800AC5D0 w->timer
+#define FadeCountdown w->timer
 #define D_800F7640 w->gain
 #define PlayerControllers w->input
 #define D_800F3A60 w->input[0].action28

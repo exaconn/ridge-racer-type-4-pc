@@ -49,7 +49,7 @@ static u8 resources[3][0x2D100],arenas[3][128],packets[128];static u32 orders[32
 #define CourseChoiceTable w->s.table
 #define ModeFrame w->s.frame
 #define ScreenFrame w->s.pulse
-#define D_800AC648 w->s.selection
+#define SelectedCourseChoice w->s.selection
 #define MenuCursor w->s.flag
 #define MenuItemCount w->s.mode
 #define ReverseCourse w->s.selectionFlag
@@ -57,7 +57,7 @@ static u8 resources[3][0x2D100],arenas[3][128],packets[128];static u32 orders[32
 #define MenuScriptStep w->s.clear1
 #define LoadState w->s.clear2
 #define D_8009F64C w->s.map
-#define D_800AC5D4 w->s.player
+#define ActivePlayerIndex w->s.player
 #define ovl661_D_80118438 w->s.local
 #define ovl661_D_80118440 w->s.counts
 #define ovl661_D_8011844C w->s.courses

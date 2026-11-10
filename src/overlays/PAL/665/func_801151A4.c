@@ -24,21 +24,21 @@ void ovl665_func_801151A4(void) {
     case 0:
         row = 0;
         ovl665_func_80114FD8();
-        D_800AC5D0 = 0x40;
+        FadeCountdown = 0x40;
         ovl665_D_80119768.layout0C = (ovl665_D_80119768.layout0C + 1U);
         break;
     case 1:
-        signedTimer=D_800AC5D0;
+        signedTimer=FadeCountdown;
         __asm__("" : "+r"(signedTimer));
-        openingTimer = (u16) D_800AC5D0 - 1;
+        openingTimer = (u16) FadeCountdown - 1;
         if (signedTimer > 0) {
-            D_800AC5D0 = openingTimer;
+            FadeCountdown = openingTimer;
             AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[702], openingTimer*4, 0x45);
         }
         SetPresentationDrawEnabled(1);
         if (UiRows[0].byte14 == 2) {
             row = 0;
-            if (D_800AC5D0 == 0) {
+            if (FadeCountdown == 0) {
                 ovl665_D_80119768.layout0C = (ovl665_D_80119768.layout0C + 1U);
             }
         } else {
@@ -58,7 +58,7 @@ void ovl665_func_801151A4(void) {
         } else {
             if (PlayerControllers[0].action2C != 0) {
                 PlaySfx(2);
-                D_800AC5D0 = 0x40;
+                FadeCountdown = 0x40;
                 ovl665_D_80119768.layout0C = 6;
             }
             goto reset_rows;
@@ -126,7 +126,7 @@ void ovl665_func_801151A4(void) {
             row += 1;
             closeIndex++;
         } while (row < 4);
-        D_800AC5D0 = 0x40;
+        FadeCountdown = 0x40;
         ovl665_D_80119768.layout0C = 9U;
         goto reset_rows;
     case 7:
@@ -162,11 +162,11 @@ void ovl665_func_801151A4(void) {
         ovl665_D_80119768.layout0C = 1U;
         goto reset_rows;
     case 9:
-        closingTimer = (u16) D_800AC5D0 - 1;
-        D_800AC5D0 = closingTimer;
+        closingTimer = (u16) FadeCountdown - 1;
+        FadeCountdown = closingTimer;
         AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - closingTimer) * 4, 0x45);
         row = 0;
-        if (D_800AC5D0 <= 0) {
+        if (FadeCountdown <= 0) {
             ovl665_func_80114A24();
             ovl665_D_80119768.layout0C = 0;
             ovl665_D_80119768.scene00 = (ovl665_D_80119768.scene00 - 1U);

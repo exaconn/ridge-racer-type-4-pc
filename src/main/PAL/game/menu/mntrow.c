@@ -31,14 +31,14 @@ typedef struct {
 extern unsigned short D_8009FDA0[];
 extern MenuGlyphRow1C *GlyphRows;
 extern s32 VSyncThreshold;
-extern s16 D_800F3A26;
+extern s16 ModeIndex;
 extern s16 ModeGroup;
-extern s16 D_800F4D8A;
-extern short D_800AC5D0;
+extern s16 SubmodeState;
+extern short FadeCountdown;
 extern short ActiveSceneId;
-extern short D_800AD520;
+extern short SelectedTeamIndex;
 extern u32 ModeFrame;
-extern short D_800F3826;
+extern short SelectedMakerIndex;
 extern BadgeRow1C *BadgeRows;
 extern DialogueState *Dialogue;
 extern int MenuStepDirection;
@@ -76,7 +76,7 @@ void DrawMenuTextRow(s32 a0) {
         s0 = *sp1C - 0x20;
         sp1C++;
         if (s0 != 0) {
-            s0 = D_8009ED38[s0 * 2] + (D_8009ED38[s0 * 2 + 1] << 5);
+            s0 = FontAtlasTileCoords[s0 * 2] + (FontAtlasTileCoords[s0 * 2 + 1] << 5);
             a3 = 0;
             sp14 = (s0 % 21) * 12;
             sp18 = (s0 / 21) * 24;
@@ -240,8 +240,8 @@ void ModeSelectMenuEnter(void) {
     SetupDrawDispEnvs(0, 0, 0, 2);
     VSyncThreshold = 0x80;
     ModeGroup = 1;
-    D_800F3A26 = 8;
-    D_800F4D8A = 0;
+    ModeIndex = 8;
+    SubmodeState = 0;
 }
 
 void InitModeSelectMenu(void) {
@@ -251,9 +251,9 @@ void InitModeSelectMenu(void) {
     for (i = 0; i < 4; i++) {
         InitGlyphRow(i, -2, 0, 0);
     }
-    D_800AD520 = 2;
+    SelectedTeamIndex = 2;
     SelectionRows[0] = 2;
-    D_800F3826 = 0;
+    SelectedMakerIndex = 0;
     SeqStartTrack(0);
     InitRect16Row(GlyphRows->glyph07, GlyphRows->x08, GlyphRows->y0A, GlyphRows->w0C, GlyphRows->h0E, 0, 0);
     InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
@@ -263,7 +263,7 @@ void InitModeSelectMenu(void) {
     Dialogue->f7 = 0;
     ModeFrame = 0;
     ActiveSceneId = 0x108;
-    D_800AC5D0 = 0;
+    FadeCountdown = 0;
 }
 
 void ModeSelectMenuUpdate(void) {
@@ -287,8 +287,8 @@ void ModeSelectMenuUpdate(void) {
         }
         a2 = Dialogue->f6;
         if (a2 == 4) {
-            Dialogue->f4 = D_800AD520 + 0x22;
-            UiRows->byte16 = D_800AD520;
+            Dialogue->f4 = SelectedTeamIndex + 0x22;
+            UiRows->byte16 = SelectedTeamIndex;
             BadgeRows->state10 = a2;
         }
     }

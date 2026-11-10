@@ -42,7 +42,7 @@ extern short AngleDiffSigned();
 extern int ViewUsesCarTrackNode;
 extern s32 RaceState;
 extern int RaceVoiceFlags;
-extern short D_800AC5D0;
+extern short FadeCountdown;
 extern void PlaySfx();
 extern unsigned char D_8009F6DC[];
 extern signed char PauseCursor;
@@ -50,10 +50,10 @@ extern int D_8009F6E4[];
 extern char SelectionState[];
 extern int RankEntries;
 extern int TrackLength;
-extern short D_800F3A26;
+extern short ModeIndex;
 extern int TotalRaceTime;
 extern short ModeGroup;
-extern short D_800F4D8A;
+extern short SubmodeState;
 extern int GameQueueSprite();
 extern int EmitPolyF3();
 extern unsigned char D_8009F71C[][4];
@@ -65,7 +65,7 @@ extern int D_8009F728;
 extern signed char LinkEntryState[];
 extern signed char D_800ABEBE;
 extern int RaceTimeRemaining;
-extern short D_800AD508;
+extern short LinkHostFlag;
 extern int D_800F3A64;
 
 void SetupMenuCarCamera(int a);
@@ -93,24 +93,24 @@ void SetupMenuCarCamera(int a)
   g[8] = D_8009F694[a].z;
   BuildCameraMatrices();
   ScaleMatrixRow1(2, (MatrixWords32 *)SCRATCH_ROT_MATRIX);
-  if (PlayerControllers[D_800AC5D4 & 1].input00.fields.buttons & 4)
+  if (PlayerControllers[ActivePlayerIndex & 1].input00.fields.buttons & 4)
   {
-    PlayerCars[D_800AC5D4 & 1].lateralMotion178 += 0xC0;
+    PlayerCars[ActivePlayerIndex & 1].lateralMotion178 += 0xC0;
   }
   else
-    if (PlayerControllers[D_800AC5D4 & 1].input00.fields.buttons & 8)
+    if (PlayerControllers[ActivePlayerIndex & 1].input00.fields.buttons & 8)
   {
-    PlayerCars[D_800AC5D4 & 1].lateralMotion178 -= 0xC0;
+    PlayerCars[ActivePlayerIndex & 1].lateralMotion178 -= 0xC0;
   }
-  i = PlayerCars[D_800AC5D4 & 1].lateralMotion178;
+  i = PlayerCars[ActivePlayerIndex & 1].lateralMotion178;
   if (i > 0xF00)
   {
-    PlayerCars[D_800AC5D4 & 1].lateralMotion178 = 0xF00;
+    PlayerCars[ActivePlayerIndex & 1].lateralMotion178 = 0xF00;
   }
   else
     if (i < (-0xF00))
   {
-    PlayerCars[D_800AC5D4 & 1].lateralMotion178 = -0xF00;
+    PlayerCars[ActivePlayerIndex & 1].lateralMotion178 = -0xF00;
   }
 }
 
@@ -300,7 +300,7 @@ void DrawStartCountdown(u32 *ordering, s32 frame) {
 void PlayStartCountdownVoice(int a0) {
     if (RaceState != 0 && a0 < 0x115) {
         if (a0 == 0xC3) {
-            D_800AC5D0 = 0x1E;
+            FadeCountdown = 0x1E;
         }
         if (a0 == 0x65) {
             if (!(RaceVoiceFlags & 1)) {
@@ -375,7 +375,7 @@ void ApplyPauseMenuChoice(int arg0) {
     int *t;
     int b;
     if (PauseCursor == 0) {
-        D_800AC5D0 = 0x1E;
+        FadeCountdown = 0x1E;
         return;
     }
     SelectionState[0x19] = 0;
@@ -385,9 +385,9 @@ void ApplyPauseMenuChoice(int arg0) {
         RaceState = 6;
         RankEntries = -TrackLength;
         if (PauseCursor == 2) {
-            D_800F4D8A = 0;
+            SubmodeState = 0;
             ModeGroup = D_8009F6E4[3] >> 8;
-            D_800F3A26 = *(unsigned char *)&D_8009F6E4[3];
+            ModeIndex = *(unsigned char *)&D_8009F6E4[3];
             return;
         }
         FinishRace(SelectionState, PauseCursor);
@@ -399,8 +399,8 @@ void ApplyPauseMenuChoice(int arg0) {
     ModeGroup = *t >> 8;
     {
         int v = *(unsigned char *)t;
-        D_800F4D8A = 0;
-        D_800F3A26 = v;
+        SubmodeState = 0;
+        ModeIndex = v;
     }
 }
 
@@ -504,8 +504,8 @@ void BeginLinkSync(void) {
 int ExitOnLinkLost(void) {
     if (LinkState == -1) {
         ModeGroup = 1;
-        D_800F3A26 = 0x2D;
-        D_800F4D8A = 0;
+        ModeIndex = 0x2D;
+        SubmodeState = 0;
         _sio_control(1, 1, 0);
         return 1;
     }
@@ -536,7 +536,7 @@ int UpdateLinkHandshake(int a0)
       _sio_control(1, 1, 2);
       if (a0 == 0)
       {
-        D_800AD508 = 0;
+        LinkHostFlag = 0;
         D_800ABEBE = 1;
         D_8009F728 = 3;
         LinkState = 10;
@@ -550,7 +550,7 @@ int UpdateLinkHandshake(int a0)
       _sio_control(1, 1, 2);
       if (a0 == 0)
     {
-      D_800AD508 = 1;
+      LinkHostFlag = 1;
       LinkEntryState[0] = 1;
       LinkState = 1;
     }
@@ -609,7 +609,7 @@ int UpdateLinkHandshake(int a0)
       if (a0 == 0)
     {
       new_var = LinkEntryState;
-      xx = D_800AD508;
+      xx = LinkHostFlag;
       z = 3;
       new_var2 = xx * 2;
       bp = new_var;
@@ -621,7 +621,7 @@ int UpdateLinkHandshake(int a0)
         if ((*e)[1].action28 != 0)
         {
           PlaySfx(1);
-          bp[new_var3 - (D_800AD508 * 2)] = 1;
+          bp[new_var3 - (LinkHostFlag * 2)] = 1;
         }
         else
           if ((*e)[1].action2C != 0)
@@ -630,7 +630,7 @@ int UpdateLinkHandshake(int a0)
         }
         if (D_800F3A64 != 0)
         {
-          LinkEntryState[1 - (q3 = D_800AD508)] = -1;
+          LinkEntryState[1 - (q3 = LinkHostFlag)] = -1;
           ((void (*)())_sio_control)(1, 1, 0, q3);
         }
       }
@@ -650,7 +650,7 @@ int UpdateLinkHandshake(int a0)
         _sio_control(1, 1, 2);
       }
       else
-        if (LinkEntryState[3 - (D_800AD508 * 2)] != 0)
+        if (LinkEntryState[3 - (LinkHostFlag * 2)] != 0)
       {
         LinkState = 3;
         _sio_control(1, 1, 2);

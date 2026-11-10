@@ -11,12 +11,12 @@ void SetupDialogueTable(char *a) {
     int i;
     unsigned short *p;
     void **q;
-    D_800ACC20 = a + 0x50;
+    DialoguePageCounts = a + 0x50;
     i = 0;
-    q = D_800F2ED0;
+    q = DialogueScriptPtrs;
     p = (unsigned short *)a;
     do { *q++ = a + 0x1B8 + *p++ * 2; i++; } while (i < 0x28);
-    D_800ACBFC = a + 0x78;
+    DialogueAssetTable = a + 0x78;
 }
 
 void SetCarRecordPtr(CarRecord *record, s32 index) {
@@ -74,7 +74,7 @@ void SetupRaceMemoryArena(s32 layout,s32 mode) {
         SavedRaceState=0;
         i=0;
         if (layout==1) {
-            loaded=D_800FFC48;
+            loaded=SharedWorkArena;
             base=loaded;
             source_slots=CarSnapshots;
             offset=RR_FIELD_OFFSET(ReplayTwoStorage,snapshots);
@@ -95,7 +95,7 @@ void SetupRaceMemoryArena(s32 layout,s32 mode) {
             __asm__("" : : : "$5");
             i=0;
             factor=sizeof(((ReplayLinkStorage*)0)->inputs[0])/sizeof(ReplayFrame4);
-            bankbase=D_800FFC48;
+            bankbase=SharedWorkArena;
             bank_source_slots=CarSnapshots;
             bank_offset=RR_FIELD_OFFSET(ReplayLinkStorage,snapshots);
             bank_slots=ReplayInputs;
@@ -112,7 +112,7 @@ void SetupRaceMemoryArena(s32 layout,s32 mode) {
                 bank_slots++;
             } while (i<4);
         } else {
-            loaded=D_800FFC48;
+            loaded=SharedWorkArena;
             base=loaded;
             source_slots=CarSnapshots;
             offset=RR_FIELD_OFFSET(ReplaySingleStorage,snapshots);

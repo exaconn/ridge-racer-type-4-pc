@@ -6,7 +6,7 @@ void *EmitBadgePatternSprites(void *cursor, s32 style, s32 index) {
     /* ASM_BARRIER: preserve the unscaled style index in S7 across helpers. */
     register s32 selected asm("$23") = style;
     register s32 i = 0;
-    const s8 *patterns = D_8009F108;
+    const s8 *patterns = BadgeStripPatterns;
     register u8 *context_page = (u8 *)0x800B0000U;
     register u8 *row_page = (u8 *)0x800F0000U;
     s32 offset = index*28;
@@ -29,7 +29,7 @@ void *EmitBadgePatternSprites(void *cursor, s32 style, s32 index) {
         result = AddTilePrim(&(((FrameStorageSlot *)(context_page-0x33EC))->currentDrawBuf)->buffer.ordering70.words[0],result,p->x08,p->y0A+p->extent0E-2,248,2,8,8,8);
         if(i<4) {
             outgoing = result;
-            atlas = D_8009F074;
+            atlas = BadgeGlyphUvTable;
             uv = atlas+glyph;
             p = (BadgeRow1C *)(offset+(unsigned long)(*(BadgeRow1C **)(row_page+RR_FIELD_OFFSET(BadgeRowPointerPage, rows3AFC))));
             result = AddSpriteWithDrawMode(&(((FrameStorageSlot *)(context_page-0x33EC))->currentDrawBuf)->buffer.ordering70.words[0],outgoing,p->x08+xshift,p->y06-2,uv->w,uv->h,uv->u,uv->v,74,0x2E28,1,128);

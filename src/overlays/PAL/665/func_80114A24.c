@@ -20,7 +20,7 @@ void ovl665_func_80114A24(void) {
         ovl665_D_80119768.selection08=5;
         RaceContext.mode18=0;
     }
-    D_800AC5D0=64;
+    FadeCountdown=64;
     RaceLoadReset();
     SeqStartTrack(0);
     CardDialogueStatePtr->b4=-1;

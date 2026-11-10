@@ -81,8 +81,8 @@ void UpdateSoundSlot(int a0) {
             a1 = a2;
         }
 
-        a1 = (a1 * D_800F4DD0) / 128;
-        a2 = (a2 * D_800F4DD0) / 128;
+        a1 = (a1 * SoundMasterGain) / 128;
+        a2 = (a2 * SoundMasterGain) / 128;
         a2 = (a2 * Options.audio.volume31) / 16;
         a1 = (a1 * Options.audio.volume31) / 16;
 

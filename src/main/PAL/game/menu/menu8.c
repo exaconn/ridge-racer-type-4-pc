@@ -47,13 +47,13 @@ extern int SetMenuFrameOptions();
 extern short NumCars;
 extern void ClearScreenOverlayState(void);
 extern s8 ScreenFadeState;
-extern s16 D_800F3A26;
+extern s16 ModeIndex;
 extern s16 ModeGroup;
 extern s16 GpSaveSlotCursor;
-extern u16 D_800F4D8A;
+extern u16 SubmodeState;
 extern int StepMenuValue();
 extern void PlaySfx();
-extern short D_800AC5D0;
+extern short FadeCountdown;
 extern short MenuScriptId;
 extern int D_800F4D74;
 extern SaveSlotSelection SaveSlotSelections[];
@@ -377,13 +377,13 @@ void GpSaveSlotMenuEnter(void) {
     BadgeRows->half02 = 1;
     SetMenuFrameOptions(0, 1, 1);
     ModeGroup = 1;
-    D_800F3A26 = 0xE;
-    D_800F4D8A = 0;
+    ModeIndex = 0xE;
+    SubmodeState = 0;
 }
 
 void GpSaveSlotMenuUpdate(void) {
     int s0;
-    switch (D_800F4D8A) {
+    switch (SubmodeState) {
     case 0:
         UiRows[GpSaveSlotCursor].cells[0] = 0;
         StepMenuValue(0, 2, &GpSaveSlotCursor, 3, 0);
@@ -395,8 +395,8 @@ void GpSaveSlotMenuUpdate(void) {
                 if (PlayerControllers[0].action28 != 0) {
                     if (SaveSlotSelections[GpSaveSlotCursor].b17 > 0) {
                         PlaySfx(1);
-                        D_800F4D8A = 1;
-                        D_800AC5D0 = 0x40;
+                        SubmodeState = 1;
+                        FadeCountdown = 0x40;
                         ResetScreenCounters();
                         LoadCursor = D_800F4D74;
                         BadgeRows->state10 = s0;
@@ -406,8 +406,8 @@ void GpSaveSlotMenuUpdate(void) {
                     }
                 } else if (PlayerControllers[0].action2C != 0) {
                     PlaySfx(2);
-                    D_800F4D8A = 2;
-                    D_800AC5D0 = 0x40;
+                    SubmodeState = 2;
+                    FadeCountdown = 0x40;
                     ResetScreenCounters();
                     LoadCursor = D_800F4D74;
                     LoadTimListStep(0);
@@ -419,28 +419,28 @@ void GpSaveSlotMenuUpdate(void) {
         break;
     case 1:
         SetMenuFrameOptions(0, 1, 1);
-        if (D_800AC5D0 > 0) D_800AC5D0 = D_800AC5D0 - 1;
-        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (0x40 - D_800AC5D0) * 4, 0x45);
-        if (D_800AC5D0 <= 0) {
+        if (FadeCountdown > 0) FadeCountdown = FadeCountdown - 1;
+        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (0x40 - FadeCountdown) * 4, 0x45);
+        if (FadeCountdown <= 0) {
             if (LoadTimListStep(1) == 1) {
                 *(SaveSlotSelection *)SelectionState = SaveSlotSelections[GpSaveSlotCursor];
                 ModeGroup = 1;
-                D_800F3A26 = 0xF;
-                D_800F4D8A = 0;
+                ModeIndex = 0xF;
+                SubmodeState = 0;
                 return;
             }
         }
         break;
     case 2:
         SetMenuFrameOptions(0, 1, 1);
-        if (D_800AC5D0 > 0) D_800AC5D0 = D_800AC5D0 - 1;
-        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (0x40 - D_800AC5D0) * 4, 0x45);
-        if (D_800AC5D0 <= 0) {
+        if (FadeCountdown > 0) FadeCountdown = FadeCountdown - 1;
+        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (0x40 - FadeCountdown) * 4, 0x45);
+        if (FadeCountdown <= 0) {
             UpdateGrandPrixStageProgress();
             MenuScriptId = 1;
             ModeGroup = 1;
-            D_800F3A26 = 0x23;
-            D_800F4D8A = 0;
+            ModeIndex = 0x23;
+            SubmodeState = 0;
             return;
         }
     default:
@@ -468,8 +468,8 @@ void StepReplaySavePrompt(void) {
     }
     if (Pad0Buttons & 0x800) {
         ModeGroup = 1;
-        D_800F3A26 = 0xF;
-        D_800F4D8A = 0;
+        ModeIndex = 0xF;
+        SubmodeState = 0;
     }
 }
 
@@ -482,8 +482,8 @@ void YesNoPromptModeEnter(void) {
     InitUiRow(1, 0x8C, 0xB0, 0x1C, 0x20, 0, 0, 1, 0, 0x69);
     InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
     ModeGroup = 1;
-    D_800F3A26 = 0x2B;
-    D_800F4D8A = 0;
+    ModeIndex = 0x2B;
+    SubmodeState = 0;
     BadgeRows->half02 = 1;
     UpdateScreenFade(0x10086);
 }

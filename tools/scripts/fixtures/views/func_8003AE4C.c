@@ -6,11 +6,11 @@
 /* legacy typing of shared globals in this part of the unit */
 #define LoadIndex (*(unsigned char (*))&LoadIndex)
 
-#define D_800F4D2C (*(unsigned char (*))&D_800F4D2C)
+#define MainMenuChoice (*(unsigned char (*))&MainMenuChoice)
 
 #undef LoadIndex
 
-#undef D_800F4D2C
+#undef MainMenuChoice
 
 /* legacy typing of shared globals in this part of the unit */
 #define LoadIndex (*(unsigned char (*))&LoadIndex)
@@ -28,9 +28,9 @@
 #undef LoadIndex
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3B24 (*(int (*))&D_800F3B24)
+#define PresetEmblemTimPtr (*(int (*))&PresetEmblemTimPtr)
 
-#undef D_800F3B24
+#undef PresetEmblemTimPtr
 
 /* legacy typing of shared globals in this part of the unit */
 #define LoadIndex (*(unsigned char (*))&LoadIndex)
@@ -64,9 +64,9 @@ extern int UploadCarClut();
 
 extern struct { short a; short b; } PlayerCourseChoices[];
 
-extern char *D_800F3B24;
+extern char *PresetEmblemTimPtr;
 
-extern char D_800F3B28[];
+extern char CustomEmblemBuffers[];
 
 extern unsigned char SelectionRows[][4];
 
@@ -92,11 +92,11 @@ int LoadCarRangeStep(int arg0, int arg1) {
         arg0 += LoadIndex;
         a1 = PlayerCourseChoices[arg0].b;
         if (a1 >= 2) {
-            q3 = D_800F3B24;
+            q3 = PresetEmblemTimPtr;
             a1 -= 2;
         } else {
             if (a1 == r) {
-                q3 = D_800F3B28 + (arg0 & 1) * 0x840;
+                q3 = CustomEmblemBuffers + (arg0 & 1) * 0x840;
                 a1 = 0;
             } else {
                 a1 = -1;

@@ -53,7 +53,7 @@ AnimatedTrackParticle (*D_8010E738)[255];
 const AnimatedTrackColorKey *D_8010E740[9],*D_8010E768[9];
 AnimatedTrackObject *D_8010E78C;
 MatrixWords32 ColorMatrix,HalfTransViewMatrix;
-Vec3sFields8 D_800F38F8[3];
+Vec3sFields8 LightSourceAngles[3];
 s32 DrawBufIndex;
 s16 D_80107180[3];
 static u32 next(u32 x){x^=x<<13;x^=x>>17;x^=x<<5;return x;}
@@ -153,7 +153,7 @@ void capture(u8 *out){
  }
  memcpy(out+0xB824,arena->packets,51000);memcpy(out+0x17F5C,arena->colorOffsets,colorLength);out+=0x17F5C+colorLength;
  memcpy(out,ordering.words,4096);out+=4096;scene_wire(out,&camera);scene_wire(out+228,&draw);out+=456;
- memcpy(out,&ColorMatrix,32);memcpy(out+32,&HalfTransViewMatrix,32);memcpy(out+64,D_800F38F8,24);memcpy(out+88,D_80107180,6);memset(out+94,0,2);
+ memcpy(out,&ColorMatrix,32);memcpy(out+32,&HalfTransViewMatrix,32);memcpy(out+64,LightSourceAngles,24);memcpy(out+88,D_80107180,6);memset(out+94,0,2);
  put32(out+96,(u32)DrawBufIndex);memcpy(out+100,farColor,12);put32(out+112,randomState);
  put32(out+116,pointer(D_8010E738));put32(out+120,pointer(D_8010E78C));
  for(unsigned i=0;i<9;i++){put32(out+124+i*4,pointer(D_8010E740[i]));put32(out+160+i*4,pointer(D_8010E768[i]));}
@@ -172,7 +172,7 @@ void configure(unsigned operation,unsigned n,u8 *before){
  memset(&camera,0,sizeof(camera));memset(&draw,0,sizeof(draw));camera.scene.view.projection.pointers.cursor=(u8*)arena->packets;camera.scene.view.projection.pointers.order=ordering.words;
  camera.scene.view.projection.pose08.position00.xyz.x=(s32)(n*77U%1000000U)-500000;camera.scene.view.projection.pose08.position00.xyz.y=(s32)(n*13U%1000000U)-500000;camera.scene.view.projection.pose08.position00.xyz.z=(s32)(n*91U%1000000U)-500000;draw=camera;
  u32 seed=n+0x1234U;for(unsigned i=0;i<8;i++){seed=next(seed);ColorMatrix.w[i]=signed32(seed);seed=next(seed);HalfTransViewMatrix.w[i]=signed32(seed);}
- for(unsigned i=0;i<3;i++){D_800F38F8[i]=(Vec3sFields8){(s16)n,(s16)(n+1),(s16)(n+2),(s16)0x7788};D_80107180[i]=(s16)(n%1024U+i*100U);farColor[i]=n*0x1234567U+i;}
+ for(unsigned i=0;i<3;i++){LightSourceAngles[i]=(Vec3sFields8){(s16)n,(s16)(n+1),(s16)(n+2),(s16)0x7788};D_80107180[i]=(s16)(n%1024U+i*100U);farColor[i]=n*0x1234567U+i;}
  DrawBufIndex=(n/5U)%2U;randomState=n+0x3456U;
  AnimatedTrackObject *o=&arena->objects[n%5U];o->particles00=arena->particles[n%5U];o->style3C=(s32)(n/10U%9U);o->keys40=D_8010E740[o->style3C];o->keys44=D_8010E768[o->style3C];
  o->capacity08=255;o->initialized10=255;o->frame14=32+(s32)(n%150U);o->startFrame28=32;o->endFrame2C=181;o->advance30=1;
@@ -277,7 +277,7 @@ class AnimatedTrackOwnerTest(unittest.TestCase):
             else:self.fail('unterminated original color key table')
             end=max(end,cursor)
         colors=scene[start:end];arena_size=0x17F5C+len(colors);global_at=arena_size+4096+456
-        fields=[('ColorMatrix',0,32),('HalfTransViewMatrix',32,32),('D_800F38F8',64,24),('D_80107180',88,6),('DrawBufIndex',96,4),
+        fields=[('ColorMatrix',0,32),('HalfTransViewMatrix',32,32),('LightSourceAngles',64,24),('D_80107180',88,6),('DrawBufIndex',96,4),
                 ('D_8010E738',116,4),('D_8010E78C',120,4),('D_8010E740',124,36),('D_8010E768',160,36)]
         addresses={n:address_of(n) for n,_,_ in fields};starts={n:address_of(n) for n in NAMES};services={address_of(n):n for n in SERVICES}
         exe=(ROOT/'assets/PAL/main.exe').read_bytes();base=struct.unpack_from('<I',exe,24)[0]

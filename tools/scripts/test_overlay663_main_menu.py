@@ -25,11 +25,11 @@ static struct State{u32 guard[4];s32 frame,tick,mode,available,table[9];s16 menu
  UiRow24 rows[2][4];ControllerState5C input[2];FrameStorage *context;void *published,*buffer;unsigned root;u32 tail[4];}actual,reference,*w;
 #define ModeFrame w->frame
 #define ScreenFrame w->tick
-#define D_800F4D8A w->state
+#define SubmodeState w->state
 #define ModeGroup w->enable
-#define D_800F3A26 w->scene
+#define ModeIndex w->scene
 #define MenuCursor w->menu
-#define D_800AC5D0 w->timer
+#define FadeCountdown w->timer
 #define UiRows (w->rows[w->root])
 #define PlayerControllers w->input
 #define CurrentDrawBuf w->context

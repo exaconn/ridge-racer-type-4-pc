@@ -18,9 +18,9 @@ extern CourseChoice4 CourseChoiceTable[2][9];
 extern SelectionRows32 SelectionRows;
 #include "rr/menu_arena_state.h"
 extern u8 *ImageRows;
-extern s32 ModeFrame,D_800AC5D4;
-extern s16 MenuCursor,D_800F3A26;
-extern u16 D_800AC5D0,ModeGroup;
+extern s32 ModeFrame,ActivePlayerIndex;
+extern s16 MenuCursor,ModeIndex;
+extern u16 FadeCountdown,ModeGroup;
 extern s16 ovl662_D_801272D4,ovl662_D_801272E0,ovl662_D_801272E4;
 extern u16 ovl662_D_801272BA;
 void SetupMenuCarCamera(s32);void SetupViewport(s32);s32 LoadCarRangeStep(s32,s32);

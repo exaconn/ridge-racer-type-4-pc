@@ -6,13 +6,13 @@ extern CourseChoice4 CourseChoiceTable[2][9];
 extern Struct2C SelectionState;
 extern Struct10 RaceRecords[2][8][5];
 extern int CourseBestLapTimes[2][8][3];
-extern Struct840 *D_800F399C;
-extern Struct840 *D_800F39A0;
-extern int D_800F3B28[];
-extern int D_800F4D38;
+extern Struct840 *GarageActiveDecalTimB;
+extern Struct840 *GarageActiveDecalTimA;
+extern int CustomEmblemBuffers[];
+extern int EmblemEditFrames;
 extern unsigned short GpSaveSlotCursor;
 extern Struct10 LapRecords[2][8][5];
-extern Struct2C D_8010B258[3];
+extern Struct2C SaveSlotSnapshots[3];
 
 void BuildSaveData(int arg0) {
     SaveBuf *s3;
@@ -37,13 +37,13 @@ void BuildSaveData(int arg0) {
             s3->f33C[a3] = CourseChoiceTable[1][a3];
         }
         for (a3 = 0; a3 < 3; a3++) {
-            D_8010B258[a3].checksum10 = 0;
+            SaveSlotSnapshots[a3].checksum10 = 0;
             t1 = 0;
             for (t0 = 0; t0 < 0x16U; t0++) {
-                t1 += ((short *)&D_8010B258[a3])[t0];
+                t1 += ((short *)&SaveSlotSnapshots[a3])[t0];
             }
-            D_8010B258[a3].checksum10 = t1;
-            s3->f360[a3] = D_8010B258[a3];
+            SaveSlotSnapshots[a3].checksum10 = t1;
+            s3->f360[a3] = SaveSlotSnapshots[a3];
         }
         if (arg0 == 3) {
             SelectionState.checksum10 = 0;
@@ -66,7 +66,7 @@ void BuildSaveData(int arg0) {
             }
         }
         for (a3 = 0; a3 < 0x210; a3++) {
-            s3->fEA4[a3] = D_800F3B28[a3];
+            s3->fEA4[a3] = CustomEmblemBuffers[a3];
         }
         t1 = 0;
         for (a3 = 0; a3 < 0x6A9U; a3++) {
@@ -77,18 +77,18 @@ void BuildSaveData(int arg0) {
     case 6:
         s3 = SaveBuffer;
         for (a3 = 0; a3 < 0x210; a3++) {
-            s3->fEA4[a3] = D_800F3B28[a3];
+            s3->fEA4[a3] = CustomEmblemBuffers[a3];
         }
         /* fallthrough */
     case 17:
         p = (SaveBuf11 *)SaveBuffer;
-        p->f280 = D_800F4D38;
+        p->f280 = EmblemEditFrames;
         for (t0 = 0; t0 < 2; t0++) {
             for (a3 = 0; a3 < 0x840; a3++) {
                 if (t0 == 0) {
-                    p->f300[0][a3] = D_800F39A0->b[a3];
+                    p->f300[0][a3] = GarageActiveDecalTimA->b[a3];
                 } else {
-                    p->f300[t0][a3] = D_800F399C->b[a3];
+                    p->f300[t0][a3] = GarageActiveDecalTimB->b[a3];
                 }
             }
         }

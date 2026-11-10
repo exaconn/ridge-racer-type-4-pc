@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern int D_800ABEC4;
+extern int CarViewportBankOffset;
 void InitRaceCars(s32);
 
 #endif /* RR_GAME_RACE_RACEINIT_H */

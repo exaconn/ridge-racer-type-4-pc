@@ -12,7 +12,7 @@
 extern s32 MenuStepDirection, D_800F3A60;
 extern void  *MenuArenaBase;
 extern MenuSettings2C SelectionState;
-extern s16 D_800F3826;
+extern s16 SelectedMakerIndex;
 extern u16 D_800F3A42;
 extern MenuGlyphRow1C *GlyphRows;
 extern MenuChoice4 SelectionRows;

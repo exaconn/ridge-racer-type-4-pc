@@ -26,7 +26,7 @@ void DrawMenuCarPreviewScene(int a0) {
     BadgeRow1C *p;
     int one;
     s1 = *(int *)SCRATCHPAD;
-    if (a0 < 2 && D_800F4D8A == 0) {
+    if (a0 < 2 && SubmodeState == 0) {
         s0 = 0;
         do {
             t0 = (s0 == 1 || s0 == 7) ? 8 : 0;

@@ -44,14 +44,14 @@ static s8 *scripts[12];
 #define CurrentDrawBuf ((FrameStorage*)contexts[w->context])
 #define ActiveSceneId (w->transition)
 #define ModeFrame (w->frame)
-#define D_800F3A26 (w->next_timer)
+#define ModeIndex (w->next_timer)
 #define MenuScriptStep (w->step)
 #define MenuScriptId (w->scene)
 #define ModeGroup (w->phase)
 #define GameModeType (w->ui_mode)
 #define LoadState (w->operation)
-#define D_800F4D8A (w->timer)
-#define D_800FFC10 (w->mode)
+#define SubmodeState (w->timer)
+#define MenuTransitionOverlayMode (w->mode)
 #define MenuScripts scripts
 static void record(int kind,intptr_t a,intptr_t b,intptr_t c,intptr_t d,intptr_t e,intptr_t f,intptr_t g,intptr_t h,intptr_t j){
  assert(count<12);Entry *p=&entries[count++];memset(p,0,sizeof(*p));p->kind=kind;

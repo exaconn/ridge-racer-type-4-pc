@@ -61,7 +61,7 @@ s32 YawToOctant(const ProjectionView32 *view) {
 CourseViewIndices *GetSegmentViewTable(s32 player) {
     const ProjectionView32 *view = &G->view.projection.pose08;
     int segment = GetViewTrackSegment(view, player);
-    return (CourseViewIndices *)D_800F3820[segment * 8 + YawToOctant(view)].absolute;
+    return (CourseViewIndices *)RelFileSegmentViewSlots[segment * 8 + YawToOctant(view)].absolute;
 }
 
 void SetFogNearFar(s32 a0, s32 a1, s32 a2) {

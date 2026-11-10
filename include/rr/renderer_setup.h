@@ -5,7 +5,7 @@
 #include "rr/rro_model.h"
 
 typedef RroSceneScratchPrefix RendererScratch;
-extern s32 D_800AD568;
+extern s32 MirrorRenderFlag;
 extern GpuColorCommand D_800F3A20,D_800F3A18;
 
 

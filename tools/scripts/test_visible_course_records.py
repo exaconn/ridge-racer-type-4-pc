@@ -58,13 +58,13 @@ static u8 *initialArena;
 #define ViewUsesCarTrackNode live.mode
 #define TrackNodes (live.nodes)
 #define D_800F4C58 live.segmentYaw
-#define D_8010E290 live.lists[0]
-#define D_8010E690 live.active
+#define PrimaryVisibleViews live.lists[0]
+#define ActiveVisibleViews live.active
 #define D_800ADAD0 live.packet
 #define D_800F4C38 live.extra
 #define D_800F2EBC live.header
-#define D_800F39A4 live.count
-#define D_800F3820 live.slots
+#define RelFileSegmentCount live.count
+#define RelFileSegmentViewSlots live.slots
 #define D_800F391C live.first
 #define RelFileViewRecords live.records
 '''
@@ -192,11 +192,11 @@ class VisibleCourseRecordsTest(unittest.TestCase):
             bodies.append(body)
         blob=(ROOT/'disc/PAL/R4.BIN').read_bytes();sectors=struct.unpack_from('<951I',blob,4)
         exe=(ROOT/'assets/PAL/main.exe').read_bytes();exe_base=struct.unpack_from('<I',exe,24)[0]
-        names=['D_8010E290','D_8010E690','D_800ADAD0','D_800F4C38','D_800F4C58','PlayerCars','TrackNodes',
-               'ViewUsesCarTrackNode','D_800F2EBC','D_800F39A4','D_800F3820','D_800F391C','RelFileViewRecords',*SECTION_NAMES]
+        names=['PrimaryVisibleViews','ActiveVisibleViews','D_800ADAD0','D_800F4C38','D_800F4C58','PlayerCars','TrackNodes',
+               'ViewUsesCarTrackNode','D_800F2EBC','RelFileSegmentCount','RelFileSegmentViewSlots','D_800F391C','RelFileViewRecords',*SECTION_NAMES]
         symbols={name:address_of(name) for name in names};start={name:address_of(name) for name in NAMES}
         spans={n:(int(a,16),int(s,16)) for n,a,s in map(str.split,(ROOT/'configs/PAL/functions.txt').read_text().splitlines())}
-        self.assertEqual(symbols['D_8010E690']-symbols['D_8010E290'],1024)
+        self.assertEqual(symbols['ActiveVisibleViews']-symbols['PrimaryVisibleViews'],1024)
         variants={'original':{}}
         with (ROOT/'build/PAL/main.elf').open('rb') as stream:
             elf=ELFFile(stream);table=elf.get_section_by_name('.symtab');code={}
@@ -221,9 +221,9 @@ class VisibleCourseRecordsTest(unittest.TestCase):
                 def store(cpu,access,address,size,value,user):
                     a=address&0x1FFFFFFF;stack=(STACK-128)&0x1FFFFFFF
                     allowed=[(stack,128)]
-                    if phase[0]:allowed.extend([((RAM+phase[0])&0x1FFFFFFF,phase[1]),*[(symbols[n]&0x1FFFFFFF,4) for n in ['D_800F2EBC','D_800F39A4','D_800F3820','D_800F391C','RelFileViewRecords',*SECTION_NAMES]]])
-                    else:allowed.extend([(symbols['D_8010E290']&0x1FFFFFFF,1024),(ALT&0x1FFFFFFF,1024),
-                                         *[(symbols[n]&0x1FFFFFFF,4) for n in ['D_8010E690','D_800ADAD0','D_800F4C58']]])
+                    if phase[0]:allowed.extend([((RAM+phase[0])&0x1FFFFFFF,phase[1]),*[(symbols[n]&0x1FFFFFFF,4) for n in ['D_800F2EBC','RelFileSegmentCount','RelFileSegmentViewSlots','D_800F391C','RelFileViewRecords',*SECTION_NAMES]]])
+                    else:allowed.extend([(symbols['PrimaryVisibleViews']&0x1FFFFFFF,1024),(ALT&0x1FFFFFFF,1024),
+                                         *[(symbols[n]&0x1FFFFFFF,4) for n in ['ActiveVisibleViews','D_800ADAD0','D_800F4C58']]])
                     self.assertTrue(any(lo<=a and a+size<=lo+n for lo,n in allowed),(hex(address),size))
                     writes.append((address,size,value&((1<<(size*8))-1)))
                 engines.append((variant,Cpu(memory,0,100,101,102,store),write,read))
@@ -255,7 +255,7 @@ class VisibleCourseRecordsTest(unittest.TestCase):
                     run(cpu,'RelocateRelativeFile',[pal_header],write,read,limit=100000)
                     self.assertEqual(read(RAM,len(file)),relocated,(variant,course))
                     self.assertEqual(read(symbols['RelFileViewRecords'],4),struct.pack('<I',record_base))
-                    self.assertEqual(read(symbols['D_800F3820'],4),struct.pack('<I',pal_header+80))
+                    self.assertEqual(read(symbols['RelFileSegmentViewSlots'],4),struct.pack('<I',pal_header+80))
                     for i,n in enumerate(SECTION_NAMES):self.assertEqual(read(symbols[n],4),struct.pack('<I',pal_header+header[4+i]))
                 cases=[(slot,None) for slot in range(segments*8)]
                 if course==0:
@@ -295,24 +295,24 @@ class VisibleCourseRecordsTest(unittest.TestCase):
                             nodes=bytearray(b'\xA5'*(768*60))
                             for i in range(768):struct.pack_into('<H',nodes,i*60+18,(i*173+serial*19)&65535)
                             write(NODES,nodes);put(symbols['TrackNodes'],NODES);put(symbols['ViewUsesCarTrackNode'],mode)
-                            put(symbols['RelFileViewRecords'],record_base);put(symbols['D_800F3820'],pal_header+80)
+                            put(symbols['RelFileViewRecords'],record_base);put(symbols['RelFileSegmentViewSlots'],pal_header+80)
                             put(pal_header+80+slot*4,packet)
                             if synthetic_count is not None:write(SYNTHETIC,struct.pack('<I',synthetic_count)+bytes(510))
                             write(RECORDS,file[offset+header[3]:offset+header[3]+record_bytes])
-                            write(symbols['D_8010E290'],b'\xA5'*1024);write(ALT-16,b'\xA6'*16+packed_list([record_base,record_base+80])+b'\xA6'*16)
-                            put(symbols['D_8010E690'],ALT);put(symbols['D_800ADAD0'],SYNTHETIC)
+                            write(symbols['PrimaryVisibleViews'],b'\xA5'*1024);write(ALT-16,b'\xA6'*16+packed_list([record_base,record_base+80])+b'\xA6'*16)
+                            put(symbols['ActiveVisibleViews'],ALT);put(symbols['D_800ADAD0'],SYNTHETIC)
                             write(symbols['D_800F4C38'],bytes([extra_count,*extras]));write(symbols['D_800F4C58'],b'\xA5'*4)
                             def search(cpu):
                                 self.assertEqual(cpu.r[4:6],[0x12345678,0x87654321])
                                 if flags&1:put(symbols['RelFileViewRecords'],RECORDS)
-                                if flags&2:put(symbols['D_8010E690'],ALT)
+                                if flags&2:put(symbols['ActiveVisibleViews'],ALT)
                             writes.clear();run(cpu,'BuildViewSegmentObjectList',[player],write,read,search)
                             run(cpu,'UpdateVisibleViewRecords',[],write,read)
                             base=RECORDS if bank else record_base
-                            self.assertEqual(read(symbols['D_8010E290'],1024),packed_list(primary),(variant,serial,'primary'))
+                            self.assertEqual(read(symbols['PrimaryVisibleViews'],1024),packed_list(primary),(variant,serial,'primary'))
                             alt=packed_list(result) if active_root else packed_list([record_base,record_base+80])
                             self.assertEqual(read(ALT-16,1056),b'\xA6'*16+alt+b'\xA6'*16)
-                            self.assertEqual(read(symbols['D_8010E690'],4),struct.pack('<I',ALT if active_root else symbols['D_8010E290']))
+                            self.assertEqual(read(symbols['ActiveVisibleViews'],4),struct.pack('<I',ALT if active_root else symbols['PrimaryVisibleViews']))
                             self.assertEqual(read(symbols['D_800ADAD0'],4),struct.pack('<I',packet))
                             self.assertEqual(read(symbols['RelFileViewRecords'],4),struct.pack('<I',base))
                             self.assertEqual(read(symbols['D_800F4C38'],32),bytes([extra_count,*extras]))

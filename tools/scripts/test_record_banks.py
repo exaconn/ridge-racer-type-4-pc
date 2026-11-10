@@ -36,7 +36,7 @@ static CarRecord record_data[2];
 #define NumCars ((s16)actual.count_record.flags1E4)
 #define CarSnapshots actual.sources
 #define CarTable actual.destinations
-#define D_800FFC48 ((u8*)&actual.arena)
+#define SharedWorkArena ((u8*)&actual.arena)
 #define ReplayInputs actual.banks
 ''' + body + r'''
 static s32 bits(u32 x){s32 y;memcpy(&y,&x,4);return y;}

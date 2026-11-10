@@ -29,8 +29,8 @@ static struct World {
 } world,expected;
 #define CurrentDrawBuf world.active
 #define ModeGroup world.screen
-#define D_800F3A26 world.step
-#define D_800F4D8A world.counter
+#define ModeIndex world.step
+#define SubmodeState world.counter
 static Event *capture(struct World *w){Event *e;assert(w->calls<3);e=&w->events[w->calls++];e->context=w->active;e->screen=w->screen;e->step=w->step;e->counter=w->counter;return e;}
 static void first(struct World *w){capture(w);w->active=&world.frames[0];w->screen^=0xffff;w->step^=0xffff;w->counter=(s16)~w->counter;}
 static void second(struct World *w){capture(w);w->active=&world.frames[w->selected];w->screen=0x1234;w->step=0x5678;w->counter=-123;}

@@ -10,7 +10,7 @@ source=SOURCE.read_text();body=source[source.index('void SetNextModeByGameType')
 fixture='''#include "types.h"
 #include <string.h>
 static union { unsigned int align; unsigned char b[16]; } phase,menu,aux;
-#define D_800F4D2C (*(s16*)(phase.b+6))
+#define MainMenuChoice (*(s16*)(phase.b+6))
 #define ActiveSceneId (*(u16*)(menu.b+6))
 #define CardMenuOperation (*(s16*)(aux.b+6))
 '''+body+'''

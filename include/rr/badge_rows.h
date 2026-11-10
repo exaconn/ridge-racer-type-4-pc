@@ -7,8 +7,8 @@
 #include "rr/badge_row_types.h"
 
 extern BadgeRow1C *BadgeRows;
-extern s8 D_8009F108[];
-extern UiUvRect D_8009F074[];
+extern s8 BadgeStripPatterns[];
+extern UiUvRect BadgeGlyphUvTable[];
 
 typedef struct {
     u8 reserved00[0x3AFC];

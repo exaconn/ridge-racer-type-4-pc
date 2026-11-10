@@ -87,12 +87,12 @@ void InitComCars(s32 count) {
     switch ((s16)GameModeType) {
     case 6:
         RaceContext.mode14 = 1;
-        RaceContext.p544 = &RaceContext.p540[D_800F3826 + 7];
+        RaceContext.p544 = &RaceContext.p540[SelectedMakerIndex + 7];
         RaceContext.p548 = 0;
         break;
     case 1:
         RaceContext.mode14 = 1;
-        RaceContext.p544 = &RaceContext.p540[D_800AD520 + 7];
+        RaceContext.p544 = &RaceContext.p540[SelectedTeamIndex + 7];
         RaceContext.p548 = 0;
         break;
     case 2:
@@ -105,7 +105,7 @@ void InitComCars(s32 count) {
     case 5:
     default:
         RaceContext.mode14 = 0;
-        RaceContext.p544 = &RaceContext.p540[D_800AD520 + 7];
+        RaceContext.p544 = &RaceContext.p540[SelectedTeamIndex + 7];
         break;
     }
     if ((s16)GameModeType == 1) {

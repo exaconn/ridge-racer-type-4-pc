@@ -18,14 +18,14 @@ void ovl665_func_80115CFC(void) {
         if(D_800F3A60) {
             PlaySfx(1);
             BadgeRows[0].state10=4;
-            D_800AC5D0=64;
+            FadeCountdown=64;
             ovl665_D_80119768.layout0C=(ovl665_D_80119768.layout0C+1U);
         }
         break;
     case 3:
-        D_800AC5D0--;
-        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,(64-D_800AC5D0)*4,69);
-        if(D_800AC5D0<=0 && BadgeRows[0].state10==11) {
+        FadeCountdown--;
+        AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,(64-FadeCountdown)*4,69);
+        if(FadeCountdown<=0 && BadgeRows[0].state10==11) {
             ovl665_func_80114A24();
             ovl665_D_80119768.layout0C=0;
             ovl665_D_80119768.scene00=(ovl665_D_80119768.scene00-1U);

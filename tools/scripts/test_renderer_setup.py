@@ -39,7 +39,7 @@ typedef struct {
 } World;
 static World actual,expected;
 #define SCRATCHPAD ((u8 *)&actual.scratch)
-#define D_800AD568 actual.flags
+#define MirrorRenderFlag actual.flags
 #define D_800F3A18 actual.gouraud
 #define D_800F3A20 actual.flat
 ''' + body + r'''

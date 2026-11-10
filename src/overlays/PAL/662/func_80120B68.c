@@ -109,8 +109,8 @@ void ovl662_func_80120B68(s32 mode) {
                 if (ovl662_D_801276A8.fade00 == 0) {
                     CardMenuOperation = 7;
                     ModeGroup = 1;
-                    D_800F3A26 = 0x47;
-                    D_800F4D8A = 0;
+                    ModeIndex = 0x47;
+                    SubmodeState = 0;
                     return;
                 }
                 break;

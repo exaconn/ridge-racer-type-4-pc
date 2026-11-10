@@ -55,7 +55,7 @@ extern signed char D_800ABEBE;
 
 extern int RaceTimeRemaining;
 
-extern short D_800AD508;
+extern short LinkHostFlag;
 
 extern int D_800F3A64;
 
@@ -83,7 +83,7 @@ int UpdateLinkHandshake(int a0)
       _sio_control(1, 1, 2);
       if (a0 == 0)
       {
-        D_800AD508 = 0;
+        LinkHostFlag = 0;
         D_800ABEBE = 1;
         D_8009F728 = 3;
         LinkState = 10;
@@ -97,7 +97,7 @@ int UpdateLinkHandshake(int a0)
       _sio_control(1, 1, 2);
       if (a0 == 0)
     {
-      D_800AD508 = 1;
+      LinkHostFlag = 1;
       LinkEntryState[0] = 1;
       LinkState = 1;
     }
@@ -160,7 +160,7 @@ int UpdateLinkHandshake(int a0)
       if (a0 == 0)
     {
       new_var = LinkEntryState;
-      xx = D_800AD508;
+      xx = LinkHostFlag;
       z = 3;
       new_var2 = xx * 2;
       bp = new_var;
@@ -172,7 +172,7 @@ int UpdateLinkHandshake(int a0)
         if (e->a84 != 0)
         {
           PlaySfx(1);
-          bp[new_var3 - (D_800AD508 * 2)] = 1;
+          bp[new_var3 - (LinkHostFlag * 2)] = 1;
         }
         else
           if (e->a88 != 0)
@@ -181,7 +181,7 @@ int UpdateLinkHandshake(int a0)
         }
         if (D_800F3A64 != 0)
         {
-          LinkEntryState[1 - (q3 = D_800AD508)] = -1;
+          LinkEntryState[1 - (q3 = LinkHostFlag)] = -1;
           _sio_control(1, 1, 0, q3);
         }
       }
@@ -201,7 +201,7 @@ int UpdateLinkHandshake(int a0)
         _sio_control(1, 1, 2);
       }
       else
-        if (LinkEntryState[3 - (D_800AD508 * 2)] != 0)
+        if (LinkEntryState[3 - (LinkHostFlag * 2)] != 0)
       {
         LinkState = 3;
         _sio_control(1, 1, 2);

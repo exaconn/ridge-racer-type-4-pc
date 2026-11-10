@@ -24,8 +24,8 @@ static struct State {
 static u8 banks[3][25*0x840];
 #define ModeFrame w->frame
 #define ScreenFrame w->tick
-#define D_800F4D8A w->state
-#define D_800F3A26 w->scene
+#define SubmodeState w->state
+#define ModeIndex w->scene
 #define ModeGroup w->enable
 #define MenuCursor w->selection
 #define MenuItemCount w->count
@@ -33,8 +33,8 @@ static u8 banks[3][25*0x840];
 #define UiRows (w->rows[w->root])
 #define BadgeRows (w->badges[w->badgeRoot])
 #define PlayerCourseChoices w->grid
-#define D_800F3B20 w->palette0
-#define D_800F3B24 w->palette1
+#define CustomEmblemTimPtr w->palette0
+#define PresetEmblemTimPtr w->palette1
 #define ovl662_D_801272A0 w->map
 #define ovl662_D_801272BE w->current
 #define ovl662_D_801272D4 w->phase

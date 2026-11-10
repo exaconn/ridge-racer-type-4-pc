@@ -18,8 +18,8 @@ extern short MenuCursor;
 extern s32 D_800AD564;
 extern int D_800F3AA4;
 extern short MenuScriptId;
-extern int D_800F4CA8;
-extern short D_800FFC10;
+extern int DialogueSceneMode;
+extern short MenuTransitionOverlayMode;
 extern void StepMenuValue();
 extern unsigned _sio_control();
 
@@ -28,7 +28,7 @@ int RunIntroScriptStep(void) {
 }
 
 void DrawModeSelectRows(void) {
-    int n = D_800F4CD0 + IsLinkPeerPresent();
+    int n = ModeSelectBaseCount + IsLinkPeerPresent();
     int i = 0;
     if (n > 0) {
         do {
@@ -47,8 +47,8 @@ int ModeSelectMenuStep(void)
     int s1, s2, i;
     int v;
 
-    s1 = D_800F4CD0 + IsLinkPeerPresent();
-    if (MenuCursor == D_800F4CD0) {
+    s1 = ModeSelectBaseCount + IsLinkPeerPresent();
+    if (MenuCursor == ModeSelectBaseCount) {
         if (s1 == MenuCursor) {
             UiRows[s1].cells[0] = 0;
             MenuCursor = 0;
@@ -69,14 +69,14 @@ int ModeSelectMenuStep(void)
         }
         PlaySfx(1);
         s2 = 1;
-        if (MenuCursor == D_800F4CD0)
+        if (MenuCursor == ModeSelectBaseCount)
             ResetLinkSioControl();
         else
             _sio_control(1, 1, 0);
-        D_800F4CA8 = 2;
+        DialogueSceneMode = 2;
         MenuScriptId = 8;
         PendingModeId = 0x123;
-        D_800F4D2C = MenuCursor;
+        MainMenuChoice = MenuCursor;
         v = (short)MenuCursor;
         switch (v) {
         case 0:
@@ -84,42 +84,42 @@ int ModeSelectMenuStep(void)
             break;
         case 1:
             GameModeType = 0;
-            D_800FFC10 = 0;
+            MenuTransitionOverlayMode = 0;
             break;
         case 2:
             RestoreSaveData();
             GameModeType = 2;
-            D_800FFC10 = 0;
+            MenuTransitionOverlayMode = 0;
             break;
         case 3:
         case 4:
             GameModeType = 0;
             break;
         case 5:
-            D_800F4CA8 = 3;
+            DialogueSceneMode = 3;
             break;
         case 6:
             break;
         default:
-            if (v == D_800F4CD0) {
+            if (v == ModeSelectBaseCount) {
                 RestoreSaveData();
                 GameModeType = 4;
-                D_800F4D2C = 8;
+                MainMenuChoice = 8;
                 PendingModeId = 0x11D;
             } else {
-                D_800F4D2C = 7;
+                MainMenuChoice = 7;
                 GameModeType = 6;
             }
             break;
         }
     } else {
-        if (s1 == D_800F4CD0 + 1) {
+        if (s1 == ModeSelectBaseCount + 1) {
             if (((_sio_control(0, 0, 0) >> 7) & 3) == 2) {
                 UiRows[MenuCursor].cells[0] = 0;
                 s2 = 1;
-                UiRows[(short)D_800F4D2C].cells[0] = 0;
+                UiRows[(short)MainMenuChoice].cells[0] = 0;
                 RestoreSaveData();
-                D_800F4D2C = 8;
+                MainMenuChoice = 8;
                 GameModeType = 4;
                 PendingModeId = 0x11D;
             }

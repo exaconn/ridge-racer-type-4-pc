@@ -161,7 +161,7 @@ tail:
         }
         ((volatile RaceVehicleControl *)control)->dynamics94.steering.gain30 = gain;
         ((volatile RaceVehicleControl *)control)->dynamics94.steering.gain30 = (s32) ((s32)((u32)((volatile RaceVehicleControl *)control)->dynamics94.steering.gain30 * 96U) / 128);
-if (GameModeType == 6 && D_800F3826 == 0) {
+if (GameModeType == 6 && SelectedMakerIndex == 0) {
             shortRange = angleDifference < 0x201;
             ((volatile RaceVehicleControl *)control)->dynamics94.steering.gain30 = 0;
         } else {

@@ -5,7 +5,7 @@ void SetupRenderer(s32 shift) {
     register RendererScratch *scratch __asm__("$4");
     *(s32*)0x1F800060U=shift;
     scratch=(RendererScratch*)0x1F800000U;
-    scratch->renderFlags64=D_800AD568;
+    scratch->renderFlags64=MirrorRenderFlag;
     D_800F3A20.b=128;
     D_800F3A20.g=128;
     D_800F3A20.r=128;

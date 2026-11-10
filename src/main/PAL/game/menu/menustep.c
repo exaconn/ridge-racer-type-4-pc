@@ -8,12 +8,12 @@
 extern void (*D_800A4548[])();
 extern short MenuStateIndex;
 extern unsigned char CardPortPollStatus[];
-extern unsigned short D_800F3AF8;
+extern unsigned short CardTransferMode;
 extern short GpSaveSlotCursor;
 extern short CardActivePort;
 extern unsigned short CardMenuOperation;
-extern short D_80109478[];
-extern short D_8010948E;
+extern short CardPromptChoices[];
+extern short CardPromptIndex;
 extern short MenuActiveControllerIndex;
 
 int GetCardMenuInitialState();
@@ -53,17 +53,17 @@ void StepCardMenuStateMachine(void) {
   {
     D_800A4548[s1]();
   }
-  DrawCardMenuStatusText(s3, t0, s0, CardActivePort, D_80109478[D_8010948E], CardPortPollStatus[CardActivePort]);
+  DrawCardMenuStatusText(s3, t0, s0, CardActivePort, CardPromptChoices[CardPromptIndex], CardPortPollStatus[CardActivePort]);
   if (IsNonZero(s7))
   {
     if (fp == 0x1E)
     {
       if (CardPortPollStatus[CardActivePort] != fp)
       {
-        D_800F4D8A = 0;
+        SubmodeState = 0;
         GpSaveSlotCursor = 0;
         v = CardMenuOperation;
-        D_800F3AF8 = v;
+        CardTransferMode = v;
         a = (short) v;
         if (a == 0)
         {
@@ -73,7 +73,7 @@ void StepCardMenuStateMachine(void) {
         if (((unsigned short) (v - 6)) < 2)
         {
           MenuStateIndex = 0x29;
-          D_800F3AF8 = 0x10;
+          CardTransferMode = 0x10;
           return;
         }
         one = 1;

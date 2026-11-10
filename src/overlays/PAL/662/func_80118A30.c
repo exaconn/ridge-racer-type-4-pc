@@ -8,7 +8,7 @@ void ovl662_func_80118A30(void) {
     s32 phase;
     u8 normalizedRow;
 
-    phase = (u16)D_800F4D8A;
+    phase = (u16)SubmodeState;
     ModeFrame=ModeFrame+1U;
     cancel = 0;
     ScreenFrame=ScreenFrame+1U;
@@ -51,8 +51,8 @@ normalizeColumn:
                     ovl662_D_801273A0 = (u8) ovl662_D_801273A0 - 1;
                 }
 }else if(ovl662_D_801273B4==42){
-                D_800AC5D0 = 0x40;
-                D_800F4D8A = 1;
+                FadeCountdown = 0x40;
+                SubmodeState = 1;
                 CopyStringClearTail(SaveProgress.prefix.progress.prefix00.fields.name,(char*)ovl662_D_801273A8);
             }
         } else if (cancel == 1) {
@@ -64,14 +64,14 @@ normalizeColumn:
         }
     } else if (phase == 1) {
         SetMenuFrameOptions(0, 1, 1);
-        fadeStep = (u16)D_800AC5D0 - 1;
-        D_800AC5D0 = (u16) fadeStep;
+        fadeStep = (u16)FadeCountdown - 1;
+        FadeCountdown = (u16) fadeStep;
         AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - fadeStep) * 4, 0x45);
-        if ((s16) D_800AC5D0 <= 0) {
+        if ((s16) FadeCountdown <= 0) {
             CardMenuOperation = 5;
             ModeGroup = phase;
-            D_800F3A26 = 0x47;
-            D_800F4D8A = 0;
+            ModeIndex = 0x47;
+            SubmodeState = 0;
         }
     }
     UpdateBadgeRowAnim(0);

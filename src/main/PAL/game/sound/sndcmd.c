@@ -125,5 +125,5 @@ void StopAllSoundAndReset(void) {
     SoundState.active0C = 1;
     SoundState.muted04 = 0;
     SoundReset(SoundState.split10, 0);
-    D_800AC66C = 0;
+    CameraCutFlag = 0;
 }

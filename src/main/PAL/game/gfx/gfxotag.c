@@ -74,14 +74,14 @@ typedef struct {
 } Context650;
 
 extern Context650 RaceContext;
-extern short D_800AD520;
+extern short SelectedTeamIndex;
 extern short CourseIndex;
 extern void SetGeomScreen();
 extern void RotMatrixZYX();
 extern SceneCameraView24 D_800AC6B0;
 extern Elem28 (*CameraTrackTriggerTable)[16];
 extern s32 D_800AC6D8;
-extern int D_800AC6EC;
+extern int RaceIntroCameraState;
 extern signed char SelectionState[];
 extern int ViewUsesCarTrackNode;
 
@@ -97,7 +97,7 @@ void RenderSubOtObject(void) {
     int s1;
 
     s5 = g[0x18];
-    s2 = RaceContext.f55C + (D_800AD520 << 7);
+    s2 = RaceContext.f55C + (SelectedTeamIndex << 7);
     BuildObjectLightAndRotMatrices(s2, sp10);
     SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)s2, sp10);
     s1 = RotTransPersOrigin(sp10, s2);
@@ -121,7 +121,7 @@ void RenderSubOtObject(void) {
         }
     }
     if (D_8009FE60[CourseIndex] == 7) {
-        s2 = RaceContext.f55C + (D_800AD520 << 7) + 0x40;
+        s2 = RaceContext.f55C + (SelectedTeamIndex << 7) + 0x40;
         BuildObjectLightAndRotMatrices(s2, sp10);
         SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)s2, sp10);
         s1 = RotTransPersOrigin(sp10, s2);
@@ -371,7 +371,7 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
             s0 = 1;
             gL = gC;
             gL->f98 = 0;
-            r = &gL->f554[D_800AD520][1];
+            r = &gL->f554[SelectedTeamIndex][1];
             do {
                 v = r->f24;
                 if (gL->f98 < v) {
@@ -390,7 +390,7 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
     gD = &RaceContext;
     switch (gD->f94) {
     case 1:
-        FindCameraTrackTrigger(arg0, gD->f88, D_800AD520);
+        FindCameraTrackTrigger(arg0, gD->f88, SelectedTeamIndex);
         if (Pad0Buttons & 0x800) {
             if (gD->f88 >= 0x1A) {
                 if (gD->f90 == 0) {
@@ -465,7 +465,7 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
                     CdAudioSelectTrack(0, BgmNumberToCdTrack[RaceBgmListIndex - 1]);
                 }
             }
-            D_800AC6EC = 2;
+            RaceIntroCameraState = 2;
         }
         s0 = 0;
         p = (int *)&RaceContext;
@@ -479,5 +479,5 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
     } else {
         DrawSubOtFlag = 0;
     }
-    return D_800AC6EC;
+    return RaceIntroCameraState;
 }

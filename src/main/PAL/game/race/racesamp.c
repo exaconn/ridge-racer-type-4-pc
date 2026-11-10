@@ -42,7 +42,7 @@ extern RaceVehicle D_80106B58[];
 extern RaceVehicle D_80106E78[];
 extern RaceVehicle ComCars[];
 extern short NumCars;
-extern short D_800AD508;
+extern short LinkHostFlag;
 extern short ReverseCourse;
 extern struct {
     u8 reserved00[0x53C];
@@ -139,7 +139,7 @@ void InitCarTable(int a) {
         break;
     case 4:
         NumCars = 4;
-        if (D_800AD508 == 1) {
+        if (LinkHostFlag == 1) {
             CarTable[0] = PlayerCars;
             CarTable[1] = PlayerCars + 1;
             CarTable[2] = ComCars;

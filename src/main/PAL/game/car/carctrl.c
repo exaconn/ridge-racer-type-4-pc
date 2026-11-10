@@ -141,7 +141,7 @@ void UpdateComCarLaneChange(RaceVehicle *vehicle) {
         control->dynamics94.steering.gain30 = gain;
         /* The existing gain reload still needs volatile for the current match. */
         control->dynamics94.steering.gain30 = ((s32)(((volatile RaceVehicleControl *)control)->dynamics94.steering.gain30 * 96U) / 128);
-if (GameModeType == 6 && D_800F3826 == 0) {
+if (GameModeType == 6 && SelectedMakerIndex == 0) {
             shortRange = angleDifference < 0x201;
             control->dynamics94.steering.gain30 = 0;
         } else {

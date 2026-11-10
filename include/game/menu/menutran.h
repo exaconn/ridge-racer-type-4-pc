@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern short D_800F4C28;
+extern short SelectedMakerCarIndex;
 void UpdateGrandPrixStageProgress();
 int CountProgressFlags();
 void SetNextModeByGameType(void);

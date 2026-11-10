@@ -74,10 +74,10 @@ static const s8 modes[]={INT8_MIN,-1,0,1,2,3,INT8_MAX};
 #define LoadCursor live.cursor
 #define ModeFrame live.frame
 #define D_800F3A60 live.accepted
-#define D_800F4D8A live.phase
+#define SubmodeState live.phase
 #define ModeGroup live.group
-#define D_800F3A26 live.next
-#define D_800AC5D0 live.fade
+#define ModeIndex live.next
+#define FadeCountdown live.fade
 #define D_8009F818 live.table
 #define LoadState live.load
 #define MenuScriptStep live.step
@@ -303,8 +303,8 @@ class MainPreviewControllerTest(unittest.TestCase):
                        (address_of('SelectionState'),44),(address_of('SelectionRows'),32),(0x1F800000,72),(0x80200000,6144),
                        (address_of('MenuArenas'),8),(address_of('LoadCursor'),4),(address_of('ImageRows'),4),
                        (address_of('UiRows'),4),(address_of('BadgeRows'),4),(address_of('ModeFrame'),4),
-                       (address_of('D_800F4D8A'),2),(address_of('D_800F3A60'),4),(address_of('ModeGroup'),2),
-                       (address_of('D_800F3A26'),2),(address_of('D_800AC5D0'),2),(address_of('ScreenFrame'),4),
+                       (address_of('SubmodeState'),2),(address_of('D_800F3A60'),4),(address_of('ModeGroup'),2),
+                       (address_of('ModeIndex'),2),(address_of('FadeCountdown'),2),(address_of('ScreenFrame'),4),
                        (address_of('LoadState'),1),(address_of('MenuScriptStep'),1),(address_of('D_8009F818'),4)]
             size = native.wire_size();self.assertEqual(sum(n for _,n in regions),size)
             intervals = sorted((a,a+n) for a,n in regions)

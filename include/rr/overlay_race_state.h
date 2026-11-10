@@ -3,7 +3,7 @@
 #include "rr/race.h"
 
 extern s32 RaceState,TrackLength;
-extern s16 ReverseCourse,D_800AC5D0;
+extern s16 ReverseCourse,FadeCountdown;
 void SoundSetMasterVolume(s16 first,s16 second);
 void ovl660_check_reverse_run(RaceVehicle *player);
 RR_ASSERT_OFFSET(RaceVehicle,half1EA,0x1EA);

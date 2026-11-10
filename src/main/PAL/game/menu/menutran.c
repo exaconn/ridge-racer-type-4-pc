@@ -12,10 +12,10 @@ extern s16 CardMenuOperation;
 extern int PsyqBzero();
 extern int DecodeCourseIndex();
 extern unsigned char D_8009F06C[];
-extern short D_800ABEC8;
-extern short D_800AC648;
-extern short D_800AD520;
-extern short D_800F3826;
+extern short ComDifficultyLevel;
+extern short SelectedCourseChoice;
+extern short SelectedTeamIndex;
+extern short SelectedMakerIndex;
 extern short CourseIndex;
 extern signed char SelectionState[];
 extern unsigned char D_800AD4F0;
@@ -24,7 +24,7 @@ extern unsigned char D_800F3981;
 void SetNextModeByGameType(void);
 
 void SetNextModeByGameType(void){
- switch(D_800F4D2C){
+ switch(MainMenuChoice){
  case 0:ActiveSceneId=0x105;break;
  case 1:default:ActiveSceneId=0x131;break;
  case 2:ActiveSceneId=0x137;break;
@@ -68,7 +68,7 @@ void UpdateGrandPrixStageProgress(void) {
         v1 = 0;
         a2 = -1;
         *(U4 *)&SelectionState[0x1C] = *(U4 *)&SelectionRows[0];
-        D_800ABEC8 = 0;
+        ComDifficultyLevel = 0;
         do {
             p = (char *)SelectionState + v1;
             v1++;
@@ -84,20 +84,20 @@ void UpdateGrandPrixStageProgress(void) {
         SelectionState[0x15] = 2;
     }
     *(U4 *)&SelectionRows[0] = *(U4 *)&SelectionState[0x1C];
-    D_800AC648 = a0;
+    SelectedCourseChoice = a0;
     c0 = SelectionRows[0];
-    D_800AD520 = c0;
-    D_800F3826 = SelectionRows[1];
-    D_800F4C28 = SelectionRows[2];
+    SelectedTeamIndex = c0;
+    SelectedMakerIndex = SelectionRows[1];
+    SelectedMakerCarIndex = SelectionRows[2];
     CourseIndex = DecodeCourseIndex(a0, c0, a2);
-    D_800ABEC8 = 0;
-    SaveProgress.prefix.progress.prefix00.fields.configuration0C |= 1 << D_800AC648;
+    ComDifficultyLevel = 0;
+    SaveProgress.prefix.progress.prefix00.fields.configuration0C |= 1 << SelectedCourseChoice;
     if (SelectionRows[2] >= 5) {
-        D_800ABEC8 = (SelectionRows[2] - 5) % 7;
+        ComDifficultyLevel = (SelectionRows[2] - 5) % 7;
         return;
     }
     if (SelectionRows[2] != 0) {
-        D_800ABEC8 = SelectionRows[2] - 1;
+        ComDifficultyLevel = SelectionRows[2] - 1;
     }
 }
 

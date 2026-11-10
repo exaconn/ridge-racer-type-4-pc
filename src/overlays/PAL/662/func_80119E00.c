@@ -17,7 +17,7 @@ void ovl662_func_80119E00(void) {
 
     ModeFrame = ModeFrame + 1U;
     ScreenFrame = ScreenFrame + 1U;
-    switch ((u16)D_800F4D8A) {
+    switch ((u16)SubmodeState) {
     case 0:
         if (ovl662_D_801272E8 == 0) SetMenuFrameOptions(1,1,1);
         else SetMenuFrameOptions(1,1,0);
@@ -29,10 +29,10 @@ void ovl662_func_80119E00(void) {
             key = (s8)ovl662_D_801272A0[(s16)ovl662_D_801272BE];
             ovl662_D_801272E2 = key;
             if (key == 0) {
-                palette = D_800F3B20;
+                palette = CustomEmblemTimPtr;
                 paletteIndex = 0;
             } else {
-                palette = D_800F3B24;
+                palette = PresetEmblemTimPtr;
                 paletteIndex = key - 1;
             }
             UploadCarClut(palette, paletteIndex, 0);
@@ -62,7 +62,7 @@ void ovl662_func_80119E00(void) {
                             index = 0;
                             ovl662_D_801272D4 = (s16) rowPhase;
                             ovl662_D_80127398 = 0;
-                            D_800F4D8A = (u16) badgePhase;
+                            SubmodeState = (u16) badgePhase;
                             do {
                                 acceptRow = (UiRow24 *)(index * sizeof(UiRow24) + (unsigned long)UiRows);
                                 if (acceptRow->byte14 == 2) {
@@ -104,7 +104,7 @@ void ovl662_func_80119E00(void) {
                             index += 1;
                         } while (index < 2);
 closeMenu:
-                        D_800F4D8A = 4;
+                        SubmodeState = 4;
                     }
                 }
             }
@@ -128,7 +128,7 @@ enterPalette:
                 ovl662_func_80118ED8();
             } else {
 publishScene:
-                ModeGroup=3;D_800F3A26=1;D_800F4D8A=0;
+                ModeGroup=3;ModeIndex=1;SubmodeState=0;
             }
             break;
         }

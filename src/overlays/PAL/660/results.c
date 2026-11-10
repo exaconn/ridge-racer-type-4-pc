@@ -17,7 +17,7 @@ void ovl660_init_results(void)
         ovl660_race_record_rank = 6;
         ovl660_lap_record_rank = 6;
     }
-    InitMenuTextRows((MenuTextRow60 *)D_800FFC48);
+    InitMenuTextRows((MenuTextRow60 *)SharedWorkArena);
     MenuCursor = 0;
     MenuItemCount = 3;
     off = 0;
@@ -61,12 +61,12 @@ void ovl660_update_results(void) {
     s32 ready;
 
     ModeFrame++;
-    switch (D_800F4D8A) {
+    switch (SubmodeState) {
     case 0:
         if (TotalRaceTime == -1) {
             group = 44;
             if (MenuTextRows[44].signedBytes[2] >= 2) {
-                D_800F4D8A = 3;
+                SubmodeState = 3;
             }
             break;
         }
@@ -76,7 +76,7 @@ void ovl660_update_results(void) {
             if (D_800F3A60 != 0) {
                 PlaySfx(1);
                 ovl660_name_cursor = 0;
-                D_800F4D8A++;
+                SubmodeState++;
                 SetMenuFrameOptions(0, 1, 0);
             }
         }
@@ -119,7 +119,7 @@ void ovl660_update_results(void) {
             if (D_800F3A60 != 0) {
                 PlaySfx(1);
                 ovl660_name_cursor = 0;
-                D_800F4D8A++;
+                SubmodeState++;
                 SetMenuFrameOptions(0, 1, 0);
             }
         }
@@ -140,7 +140,7 @@ void ovl660_update_results(void) {
             SetMenuFrameOptions(1, 1, 0);
             if (D_800F3A60 != 0) {
                 PlaySfx(1);
-                D_800F4D8A++;
+                SubmodeState++;
                 SetMenuFrameOptions(0, 1, 0);
             }
         }
@@ -153,8 +153,8 @@ void ovl660_update_results(void) {
                 SetMenuFrameOptions(0, 1, 0);
                 ResetScreenCounters();
                 InitMenuArenas();
-                D_800AC5D0 = 64;
-                D_800F4D8A = MenuCursor + 4;
+                FadeCountdown = 64;
+                SubmodeState = MenuCursor + 4;
             }
         } else {
             SetMenuFrameOptions(0, 1, 0);
@@ -163,7 +163,7 @@ void ovl660_update_results(void) {
             if (ovl660_result_transition == 1) {
                 ready = PackChoiceGlyph((s8 *)&SelectionRows);
                 MenuTextRows[42].bytes[28] = 34;
-                EncodeRecordPassword(D_800AC648, ready, TotalRaceTime, ovl660_result_kind, D_800AD564,
+                EncodeRecordPassword(SelectedCourseChoice, ready, TotalRaceTime, ovl660_result_kind, D_800AD564,
                               &MenuTextRows[42].bytes[29]);
                 MenuTextRows[42].bytes[42] = 34;
                 ovl660_result_transition = 2;
@@ -173,36 +173,36 @@ void ovl660_update_results(void) {
         }
         break;
     case 4:
-        timer = (u16)D_800AC5D0 - 1;
-        D_800AC5D0 = timer;
+        timer = (u16)FadeCountdown - 1;
+        FadeCountdown = timer;
         AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (64 - timer) * 4, 69);
         group = 33;
-        if (D_800AC5D0 <= 0) {
+        if (FadeCountdown <= 0) {
             MenuScriptId = 0;
             ModeGroup = 1;
-            D_800F3A26 = 35;
-            D_800F4D8A = 0;
+            ModeIndex = 35;
+            SubmodeState = 0;
         }
         break;
     case 5:
-        timer = (u16)D_800AC5D0 - 2;
-        D_800AC5D0 = timer;
+        timer = (u16)FadeCountdown - 2;
+        FadeCountdown = timer;
         AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (64 - timer) * 4, 69);
         group = 33;
-        if (D_800AC5D0 <= 0) {
+        if (FadeCountdown <= 0) {
             group = -1;
-            D_800F4D8A = 8;
+            SubmodeState = 8;
         }
         break;
     case 6:
-        timer = (u16)D_800AC5D0 - 1;
-        D_800AC5D0 = timer;
+        timer = (u16)FadeCountdown - 1;
+        FadeCountdown = timer;
         AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (64 - timer) * 4, 69);
         group = -1;
-        if (D_800AC5D0 <= 0) {
+        if (FadeCountdown <= 0) {
             ModeGroup = 1;
-            D_800F3A26 = 3;
-            D_800F4D8A = 0;
+            ModeIndex = 3;
+            SubmodeState = 0;
         }
         break;
     case 8:
@@ -211,8 +211,8 @@ void ovl660_update_results(void) {
             SeqStartTrack(0);
             ovl660_init_menu();
             ModeGroup = ready;
-            D_800F3A26 = 50;
-            D_800F4D8A = 0;
+            ModeIndex = 50;
+            SubmodeState = 0;
         }
         return;
     }

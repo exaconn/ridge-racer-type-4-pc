@@ -10,24 +10,24 @@ void ovl667_func_80116918(void){
  UpdateLinkHandshake(1);
  i=0;
  ClearScreenOverlayState();
- for(;i<2;i++) {D_8010C0D8[i]=0;D_8010C0D0[i]=0;D_8010C080[i]=0;}
- for(i=0;i<4;i++) {((MenuChoice4 *)((u8 *)&SelectionRows+i*4))->bytes[3]=0;D_8010C080[i]=0;}
+ for(;i<2;i++) {LinkCarChoiceGroup[i]=0;LinkCarChoiceIndex[i]=0;LinkPlayerWinCounts[i]=0;}
+ for(i=0;i<4;i++) {((MenuChoice4 *)((u8 *)&SelectionRows+i*4))->bytes[3]=0;LinkPlayerWinCounts[i]=0;}
  i=0;
- destBase=(u8 *)&D_8010BFD8;
+ destBase=(u8 *)&LinkCarChoiceTable;
  sourceBase=(u8 *)&CourseChoiceTable;
  offset=0;
- CourseIndex=0;D_800AC648=0;NumLaps=3;
- D_800AC5D4=(1-(s16)D_800AD508)*2;
+ CourseIndex=0;SelectedCourseChoice=0;NumLaps=3;
+ ActivePlayerIndex=(1-(s16)LinkHostFlag)*2;
  for(;i<2;i++,offset+=36)for(j=0,repeat=sourceBase,pos=offset;j<9;repeat+=4,j++,pos+=4) {
   u8 *dest=((u8 *)(pos+(unsigned long)destBase));
   __builtin_memcpy(dest,(u8 *)(pos+(unsigned long)sourceBase),4);
   __builtin_memcpy(dest+72,repeat,4);
  }
- for(i=0;i<2;i++)CopyStringClearTail(D_8010C088[D_800AC5D4+i],ovl667_D_80118E00[D_800AC5D4+i]);
- ovl667_func_801161A8((1-(s16)D_800AD508)*2);
- UnpackChoiceGlyph((s8*)((u8 *)&SelectionRows+D_800AC5D4*4),CourseChoiceTable[0][0].glyph);
- UnpackChoiceGlyph((s8*)((u8 *)&SelectionRows+4+D_800AC5D4*4),CourseChoiceTable[0][0].glyph);
- D_8010C078=8;SeqStartTrack(0);ModeGroup=1;D_800F3A26=60;D_800F4D8A=0;D_8010C0B8=0;
- if(((Pair *)((s8 *)&LinkEntryState+D_800AC5D4))->second!=1)D_8010C0D4=0;else D_8010C0D4=2;
+ for(i=0;i<2;i++)CopyStringClearTail(LinkPlayerNames[ActivePlayerIndex+i],ovl667_D_80118E00[ActivePlayerIndex+i]);
+ ovl667_func_801161A8((1-(s16)LinkHostFlag)*2);
+ UnpackChoiceGlyph((s8*)((u8 *)&SelectionRows+ActivePlayerIndex*4),CourseChoiceTable[0][0].glyph);
+ UnpackChoiceGlyph((s8*)((u8 *)&SelectionRows+4+ActivePlayerIndex*4),CourseChoiceTable[0][0].glyph);
+ LinkAvailableCourseCount=8;SeqStartTrack(0);ModeGroup=1;ModeIndex=60;SubmodeState=0;D_8010C0B8=0;
+ if(((Pair *)((s8 *)&LinkEntryState+ActivePlayerIndex))->second!=1)D_8010C0D4=0;else D_8010C0D4=2;
  SetMenuFrameOptions(0,1,1);
 }

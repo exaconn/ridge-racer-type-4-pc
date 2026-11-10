@@ -43,7 +43,7 @@ s32 D_800A3CDC[4],D_800A3D18[4],ReplayState,ModeFrame,RaceState,D_8010E840,D_801
 s16 CourseIndex,GameModeType,D_800AC1A2;
 s8 RacePaused;
 Vec16 D_8010E8C8;
-ObjectTrailPoint16 D_8010E8E8[16];
+ObjectTrailPoint16 TrackObjectTrailPoints[16];
 static struct {u8 before[16];u32 data[4096];u8 after[16];} fileStorage;
 static struct {u8 before[16];S_ECB4 values[40];u8 after[16];} stateStorage;
 static struct {u8 before[16];u32 words[1024];u8 after[16];} frameStorage;
@@ -213,7 +213,7 @@ class TrackObjectDispatchTest(unittest.TestCase):
             end=max(end,cursor)
         colors=data[start:end];arena_size=0x17F5C+len(colors);base_global=arena_size+4096+456;base_size=base_global+196
         file_at=base_size;states_at=file_at+FILE_SIZE;frame_at=states_at+STATE_SIZE;matrix_at=frame_at+4096;angles_at=matrix_at+32;camera_at=angles_at+8;hardware_at=camera_at+32;meta_at=hardware_at+64
-        basic=[('ColorMatrix',0,32),('HalfTransViewMatrix',32,32),('D_800F38F8',64,24),('D_80107180',88,6),('DrawBufIndex',96,4),
+        basic=[('ColorMatrix',0,32),('HalfTransViewMatrix',32,32),('LightSourceAngles',64,24),('D_80107180',88,6),('DrawBufIndex',96,4),
                ('D_8010E738',116,4),('D_8010E78C',120,4),('D_8010E740',124,36),('D_8010E768',160,36)]
         fields=[('TrackObjectCount',0,4),('TrackObjectDefs',4,4),('TrackObjectStates',8,4),('TrackObjectKeyframes',12,4),
                 ('D_8010E8DC',16,4),('D_8010E8D8',20,4),('D_8010E8E0',24,4),('ReplayState',28,4),('GameModeType',32,2),('D_800AC1A2',36,2),('RacePaused',40,1)]

@@ -26,7 +26,7 @@ extern struct S D_800AC650b __asm__("RaceContext");
 extern int D_800AC690;
 extern int D_800AC694;
 extern void RotMatrixZYX();
-extern CamNode44 *D_800ACBA0;
+extern CamNode44 *TrackCameraNodes;
 extern int SetSceneOverlayColor();
 extern int SetSceneOverlayEnabled();
 extern LightPreset8 *TrackLightPresets;
@@ -138,7 +138,7 @@ s32 CountTrackEntries(void) {
     s32 var_a1;
     CamNode44 *var_a0;
 
-    var_a0 = D_800ACBA0;
+    var_a0 = TrackCameraNodes;
     var_a1 = 0;
     if (var_a0->node32 != -1) {
         do {

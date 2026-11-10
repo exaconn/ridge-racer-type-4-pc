@@ -28,12 +28,12 @@ void InitViewLighting(void)
     int *b;
     int i;
     ColorMatrix = D_800A3B00;
-    D_800F38F8[0] = D_800A3B20;
-    D_800F38F8[1] = D_800A3B28;
-    D_800F38F8[2] = D_800A3B30;
-    D_800AD5BC[0] = 0x1000;
-    D_800AD5BC[1] = 0x1000;
-    D_800AD5BC[2] = 0x1000;
+    LightSourceAngles[0] = D_800A3B20;
+    LightSourceAngles[1] = D_800A3B28;
+    LightSourceAngles[2] = D_800A3B30;
+    LightSourceIntensities[0] = 0x1000;
+    LightSourceIntensities[1] = 0x1000;
+    LightSourceIntensities[2] = 0x1000;
     BackColorR = 0x13;
     BackColorG = 0x1D;
     BackColorB = 0x1C;
@@ -51,7 +51,7 @@ void InitCourseViewState(void) {
     ViewInitScratch *g = (ViewInitScratch *)SCRATCHPAD;
     InitViewLighting();
     ViewUsesCarTrackNode = 1;
-    D_800AD5B8 = 0x1400;
+    DefaultSegmentVisibilityMask = 0x1400;
     g->w78 = 0;
     g->h5E = 0;
     if (CourseIndex == 7) {
@@ -71,20 +71,20 @@ void BuildViewSegmentObjectList(int player) {
     /* The serialized cursor passes its word count before halfword indices. */
     u32 *source;
     unsigned int i;
-    D_8010E690 = &D_8010E290;
+    ActiveVisibleViews = &PrimaryVisibleViews;
     source = (u32 *)GetSegmentViewTable(player);
     D_800ADAD0 = (CourseViewIndices *)source;
-    D_8010E290.stream[0].count = *source;
-    if (D_8010E290.stream[0].count >= 0x100) {
-        D_8010E290.stream[0].count = COURSE_VISIBLE_CAPACITY;
+    PrimaryVisibleViews.stream[0].count = *source;
+    if (PrimaryVisibleViews.stream[0].count >= 0x100) {
+        PrimaryVisibleViews.stream[0].count = COURSE_VISIBLE_CAPACITY;
     }
     source++;
     i = 0;
-    if (D_8010E290.stream[0].count != 0) {
+    if (PrimaryVisibleViews.stream[0].count != 0) {
         do {
-            D_8010E290.stream[i+1].record = &RelFileViewRecords[((u16 *)source)[i]];
+            PrimaryVisibleViews.stream[i+1].record = &RelFileViewRecords[((u16 *)source)[i]];
             i++;
-        } while (i < D_8010E290.stream[0].count);
+        } while (i < PrimaryVisibleViews.stream[0].count);
     }
 }
 
@@ -96,23 +96,23 @@ void UpdateVisibleViewRecords(void) {
     unsigned int i;
     unsigned int count;
 
-    cursor.list = D_8010E690;
+    cursor.list = ActiveVisibleViews;
     count = cursor.list->objects.count;
     cursor.next = cursor.list->objects.records + count;
     for (extra = 0; extra < D_800F4C38.count; extra++) {
         record = &RelFileViewRecords[D_800F4C38.indices[extra]];
-        for (i = 0; i < D_8010E690->objects.count; i++) {
-            if (record == D_8010E690->objects.records[i]) {
+        for (i = 0; i < ActiveVisibleViews->objects.count; i++) {
+            if (record == ActiveVisibleViews->objects.records[i]) {
                 break;
             }
         }
-        if (i == D_8010E690->objects.count) {
+        if (i == ActiveVisibleViews->objects.count) {
             *cursor.next = record;
             cursor.next++;
             count++;
         }
     }
-    D_8010E690->objects.count = count;
+    ActiveVisibleViews->objects.count = count;
 }
 
 void CourseViewInitNoop(void) {

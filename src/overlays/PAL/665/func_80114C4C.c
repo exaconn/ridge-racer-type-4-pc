@@ -7,11 +7,11 @@ void ovl665_func_80114C4C(void) {
     s32 choice;
     switch(ovl665_D_80119768.layout0C) {
     case 0:
-        if(D_800AC5D0>0) {
-            D_800AC5D0--;
-            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[702],D_800AC5D0*4,69);
+        if(FadeCountdown>0) {
+            FadeCountdown--;
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[702],FadeCountdown*4,69);
         }
-        if(UiRows[0].byte14==2 && D_800AC5D0==0) {
+        if(UiRows[0].byte14==2 && FadeCountdown==0) {
             UiRows[ovl665_D_80119768.selection08].cells[0]=0;
             StepMenuValue(0,2,(char*)&ovl665_D_80119768.selection08,7,0);
             UiRows[ovl665_D_80119768.selection08].cells[0]=2;
@@ -21,13 +21,13 @@ void ovl665_func_80114C4C(void) {
                 } else {
                     PlaySfx(1);
                     UiRows[ovl665_D_80119768.selection08].cells[0]=1;
-                    D_800AC5D0=64;
+                    FadeCountdown=64;
                     ovl665_D_80119768.layout0C=(ovl665_D_80119768.layout0C+1U);
                 }
             } else if(PlayerControllers[0].action2C) {
                 PlaySfx(2);
                 ovl665_D_80119768.selection08=6;
-                D_800AC5D0=64;
+                FadeCountdown=64;
                 ovl665_D_80119768.layout0C=(ovl665_D_80119768.layout0C+1U);
             }
         }
@@ -38,14 +38,14 @@ void ovl665_func_80114C4C(void) {
             if(UiRows[i].byte14==2)UiRows[i].byte14=3;
         }
         if(ovl665_D_80119768.selection08>=5 || ovl665_D_80119768.selection08==3) {
-            SeqFadeVolume(0,(s16)(D_800AC5D0-4));
+            SeqFadeVolume(0,(s16)(FadeCountdown-4));
         }
         ovl665_D_80119768.layout0C=(ovl665_D_80119768.layout0C+1U);
         break;
     case 2:
-        D_800AC5D0--;
-        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0],(64-D_800AC5D0)*4,69);
-        if(D_800AC5D0<=0) {
+        FadeCountdown--;
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0],(64-FadeCountdown)*4,69);
+        if(FadeCountdown<=0) {
             SetPresentationDrawEnabled(0);
             ovl665_D_80119768.exit34.word=0;
             ovl665_D_80119768.layout0C=0;

@@ -23,7 +23,7 @@ extern unsigned char D_800A0DC8[][4];
 extern u16 D_800111FE;
 extern short *D_800A0F20[];
 extern short *D_800A0F8C[];
-extern short D_800AD520;
+extern short SelectedTeamIndex;
 
 int StepCarShowcasePhysics(RaceVehicle *arg0, int arg1, int arg2, int *arg3);
 void DrawHudSprite(int a0, int a1, int a2, int a3, int a4);
@@ -324,7 +324,7 @@ void UpdateSparkBurstEffectB(int a0, int a1) {
       ua = s1[2];
     } while (s1[2] >= 0);
   }
-  s1 = D_800A0F8C[D_800AD520];
+  s1 = D_800A0F8C[SelectedTeamIndex];
   ua = s1[2];
   if (s1[2] >= 0) {
     do {

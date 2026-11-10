@@ -18,7 +18,7 @@
 #include "game/math/rotmat.h"
 
 extern short NumCars;
-extern short D_800AD508;
+extern short LinkHostFlag;
 
 void SetCarBounds(RaceVehicle *a);
 void ResetCarState(RaceVehicle *a);
@@ -28,7 +28,7 @@ void DrawCars(s32 a0) {
     int z; 
     int i, s2, y;
     RaceVehicle **p;
-    D_800ABEC4 = 0;
+    CarViewportBankOffset = 0;
     switch (a0) {
     case 0:
         z = 0;
@@ -44,19 +44,19 @@ void DrawCars(s32 a0) {
                 if (CarTable[i]->half1E8 != -1) DrawOpponentCar(CarTable[i], a0);
             }
         } else {
-            if (D_80107178 == 2) {
-                DrawOpponentCar(CarTable[D_800AD508 * 2], a0);
+            if (LinkPlayerCount == 2) {
+                DrawOpponentCar(CarTable[LinkHostFlag * 2], a0);
             }
         }
         break;
     case 3:
     case 5:
-        D_800ABEC4 = 1;
+        CarViewportBankOffset = 1;
     case 2:
     case 4:
         s2 = 3;
         if (GameModeType == 4) s2 = 4;
-        if (D_80107178 == 2) s2 = 0;
+        if (LinkPlayerCount == 2) s2 = 0;
         if (NumCars > 0) {
             i = 0;
             p = CarTable;
@@ -68,7 +68,7 @@ void DrawCars(s32 a0) {
                             DrawPlayerCar(p[0], z);
                         } else {
                             __asm__("" : "=r"(y) : "0"(z)); /* ASM_BARRIER: hide that z==0 from cse so the else-arm copies a1 (move a2,a1) while the then-arm keeps the single hoisted a1=0 */
-                            DrawWheelTrailEffects(p[0], y, y, y, p[0]->slotIndex1E6 + D_800ABEC4, 0, 0);
+                            DrawWheelTrailEffects(p[0], y, y, y, p[0]->slotIndex1E6 + CarViewportBankOffset, 0, 0);
                         }
                     } else {
                         DrawOpponentCar(p[0], s2);
@@ -96,7 +96,7 @@ void SetCarBounds(RaceVehicle *vehicle)
     int boundsIndex;
     CarBounds **boundsSlot;
     CarBounds **boundsTable;
-    if (D_800AD508 != 0) {
+    if (LinkHostFlag != 0) {
         boundsIndex = vehicle != PlayerCars;
     } else {
         boundsIndex = 3;

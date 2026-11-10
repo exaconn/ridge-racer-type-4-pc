@@ -4,12 +4,12 @@
 
 #include "rr/frame_storage_types.h"
 typedef void (*FrameStep)(void);
-extern FrameStorage D_800ADAF0[2];
+extern FrameStorage DrawBuffers[2];
 extern FrameStep *ModeFuncTable[];
 extern u32 FrameCounter;
 extern s32 VSyncThreshold, DrawSubOtFlag, ModeFrame, DrawBufIndex;
-extern u16 ModeGroup, D_800F3A26;
-extern s16 D_800F4D8A;
+extern u16 ModeGroup, ModeIndex;
+extern s16 SubmodeState;
 
 /* Initializes once, then runs indefinitely. Helpers may replace the current
  * context, frame counter, dispatch selectors and frame-wait threshold.

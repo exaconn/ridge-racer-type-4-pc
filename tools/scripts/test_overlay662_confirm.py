@@ -38,8 +38,8 @@ static unsigned scenario,family,slot,postbyte,expected_map,expected_sound,map_ca
 #define BadgeRows world.badgeroot
 #define PlayerControllers world.items
 #define CardMenuOperation world.pending
-#define D_800F3A26 world.scene
-#define D_800F4D8A world.latch
+#define ModeIndex world.scene
+#define SubmodeState world.latch
 #define ModeGroup world.transition
 '''+data+bodies+r'''
 static u32 rng=0x1FB2C;

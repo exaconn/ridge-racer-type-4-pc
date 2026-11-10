@@ -41,5 +41,5 @@ void ovl668_func_80115DFC(void) {
     SetSceneOverlayEnabled(1);
     MaskBitSetting = 1;
     D_80127E90 = 16000;
-    D_80127E94 = ovl668_D_80116CC0[(D_800AD564 * 4U + D_800AD520)];
+    D_80127E94 = ovl668_D_80116CC0[(D_800AD564 * 4U + SelectedTeamIndex)];
 }

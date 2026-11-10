@@ -216,7 +216,7 @@ void SoundCalcCarParams(s32 idx) {
         alpha = (alpha * alpha) / 737280;
         if (alpha > 0x80) alpha = 0x80;
     }
-    if (D_800AC66C) alpha = 0;
+    if (CameraCutFlag) alpha = 0;
     B3 = &SoundState;
     t2 = B3->rec18EC[idx].deltaDist10;
     if (t2 < 0) t2 = -t2;

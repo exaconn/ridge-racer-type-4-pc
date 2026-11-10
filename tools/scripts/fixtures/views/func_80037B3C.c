@@ -14,7 +14,7 @@ extern E PlayerCars[];
 
 extern short D_800AC3FC;
 
-extern int D_800ABEC4;
+extern int CarViewportBankOffset;
 
 extern short NumCars;
 
@@ -24,7 +24,7 @@ extern int CarTable[];
 
 extern int TrackLength;
 
-extern short D_80107178;
+extern short LinkPlayerCount;
 
 extern int SavedRaceState;
 
@@ -37,7 +37,7 @@ void InitRaceCars(int a0)
     int *s0;
     D_800AC3FC = 0;
     InitCarTable();
-    D_800ABEC4 = 0;
+    CarViewportBankOffset = 0;
     switch (a0) {
     case 0:
     default:
@@ -84,7 +84,7 @@ void InitRaceCars(int a0)
                 s1++;
             } while (s1 < NumCars);
         }
-        D_80107178 = s2;
+        LinkPlayerCount = s2;
         SetupRaceMemoryArena(2, 0);
         break;
     case 5:

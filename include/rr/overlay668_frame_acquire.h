@@ -3,7 +3,7 @@
 #include "rr/overlay668_stream.h"
 #include "rr/frame_storage_types.h"
 #include "psyq/libgpu/gpuenv.h"
-extern FrameStorage D_800ADAF0[2];
+extern FrameStorage DrawBuffers[2];
 /* Poll at most2000 times. A successful header has the full queue-record
  * owner; activeB8 points to a complete playback state. Config and both frame
  * owners stay live across clear-image callbacks, which may replace activeB8.

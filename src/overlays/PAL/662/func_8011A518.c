@@ -57,10 +57,10 @@ void ovl662_func_8011A518(void)
         owner->palette48[1]=(u32*)allocated;
         allocated=base+0x18D4;
         owner->paletteBackup50[1]=(u32*)allocated;
-        D_800F3918=base;
+        GarageSavedDecalTimA=base;
         owner->buffers24[0]=(u32*)base;
         owner->tim2C[0]=(GarageTimBytes*)second;
-        D_800F3910=second;
+        GarageSavedDecalTimB=second;
         break;
     case 2:
         StoreImage(&ovl662_D_8012624C,ovl662_D_801276A8.image38[0]);
@@ -77,8 +77,8 @@ void ovl662_func_8011A518(void)
         InitUiRow(0,140,136,28,32,0,0,1,0,104);
         InitUiRow(1,140,176,28,32,0,0,1,0,105);
         ModeGroup=stage;
-        D_800F3A26=4;
-        D_800F4D8A=0;
+        ModeIndex=4;
+        SubmodeState=0;
         break;
     }
 }

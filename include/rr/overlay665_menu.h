@@ -11,7 +11,7 @@
 typedef struct {u8 reserved00[0x18];s32 mode18;} ReplayMenuContextPrefix;
 extern ReplayMenuContextPrefix RaceContext;
 extern Overlay665VisualState ovl665_D_80119768;
-extern s16 D_800AC5D0;
+extern s16 FadeCountdown;
 extern u8 ScreenFadeState[12];
 extern s32 ovl665_D_80119760;
 void RaceLoadReset(void);

@@ -28,7 +28,7 @@ void SetupRace(void)
     DrawSync(0);
     ApplyOptionsPadButtonMaps();
     InitRaceCars(GameModeType);
-    if (((GameModeType < 2) || (GameModeType == 6)) || ((GameModeType == 4) && (D_80107178 == 2)))
+    if (((GameModeType < 2) || (GameModeType == 6)) || ((GameModeType == 4) && (LinkPlayerCount == 2)))
     {
         TrackEventSfxEnabled = 1;
     }
@@ -60,7 +60,7 @@ void SetupRace(void)
     InitCourseViewState();
     SetupRenderer(5);
     D_8010C13C = 0;
-    D_8010C12C = 2;
+    SplitIndex = 2;
     SplitTimes[1] = 0;
     SplitTimes[0] = 0;
     SplitTimes[2] = -1;
@@ -97,7 +97,7 @@ void SetupRace(void)
         BestLapTime = *selectedCount;
 
     }
-    D_8010C134 = -1;
+    LapVoicePending = -1;
 
     if ((GameModeType < 2) || (GameModeType == 6))
     {
@@ -129,24 +129,24 @@ void SetupRace(void)
     course = (u16) CourseIndex;
     if (((course - 2U) < 3U) || (((s16) course) == 7))
     {
-        D_800ABEF0 = 1;
+        ForceTailLightTrails = 1;
     }
     else
     {
-        D_800ABEF0 = 0;
+        ForceTailLightTrails = 0;
     }
     ResetLensFlareState();
     if ((GameModeType == 0) || (GameModeType == 5))
     {
         RearViewMirrorEnabled = 0;
-        D_800AC538 = 0;
+        ChaseViewEnabled = 0;
         DrawSubOtFlag = 0;
     }
     else
     {
         InitRearViewMirrorState();
         RearViewMirrorEnabled = 1;
-        D_800AC538 = 0;
+        ChaseViewEnabled = 0;
         DrawSubOtFlag = 1;
     }
     BuildCameraMatrices();
@@ -154,10 +154,10 @@ void SetupRace(void)
     InitHudNumberTargets(GameModeType);
     ScreenFrame = 0;
     ModeFrame = 0;
-    D_800AC5D0 = 0;
+    FadeCountdown = 0;
     RacePaused = 0;
     PauseCursor = 0;
-    D_80107190 = 0x80;
+    RaceStartWipeY = 0x80;
     RaceTimeRemaining = 0x3A98;
     if ((GameModeType != 1) && (GameModeType != 6))
     {
@@ -165,10 +165,10 @@ void SetupRace(void)
     }
     VSyncThreshold = 0x180;
     ClearTrackObjectStates(0);
-    D_800F4C70.first = 0;
-    D_800F4C70.second = 0;
-    D_800F2AB4.first = 0;
-    D_800F2AB4.second = 0;
+    PlayerDisplayRpm.first = 0;
+    PlayerDisplayRpm.second = 0;
+    PlayerThrottleLoad.first = 0;
+    PlayerThrottleLoad.second = 0;
     RaceVoiceFlags = 0;
     StopAllSoundAndReset();
     SelectCourseBgmTrack();

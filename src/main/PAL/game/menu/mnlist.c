@@ -73,18 +73,18 @@ void *DrawCarSpecBadgePanel(u32 *arg0, void *arg1, s32 arg2)
   x = BadgeRows[arg2].x04;
   y = BadgeRows[arg2].y06;
   sp30 = BadgeRows[arg2].width0C;
-  sp3C = (SelectionRows[D_800AC5D4].variant * 2) + 8;
-  sp38 = SelectionRows[D_800AC5D4].selection * 2;
-  sp34 = (SelectionRows[D_800AC5D4].parameter ^ 0x27) == 0;
-  if ((SelectionRows[D_800AC5D4].parameter ^ 0x27) == 0)
+  sp3C = (SelectionRows[ActivePlayerIndex].variant * 2) + 8;
+  sp38 = SelectionRows[ActivePlayerIndex].selection * 2;
+  sp34 = (SelectionRows[ActivePlayerIndex].parameter ^ 0x27) == 0;
+  if ((SelectionRows[ActivePlayerIndex].parameter ^ 0x27) == 0)
   {
-    if (SelectionRows[D_800AC5D4].selection == 2)
+    if (SelectionRows[ActivePlayerIndex].selection == 2)
     {
       sp4C = D_8009FDC4;
     }
     else
     {
-      if (SelectionRows[D_800AC5D4].selection == 0)
+      if (SelectionRows[ActivePlayerIndex].selection == 0)
       {
         CopyStringClearTail(D_8009FDBF, "D ");
       }
@@ -93,11 +93,11 @@ void *DrawCarSpecBadgePanel(u32 *arg0, void *arg1, s32 arg2)
         CopyStringClearTail(D_8009FDBF, "G ");
       }
       q = D_8009FDC0;
-      FormatDecimalDigits(q, SelectionRows[D_800AC5D4].variant + 1, 0);
+      FormatDecimalDigits(q, SelectionRows[ActivePlayerIndex].variant + 1, 0);
       sp4C = q - 8;
     }
   }
-  record = CarRecordPtrs[D_800AC5D4];
+  record = CarRecordPtrs[ActivePlayerIndex];
   sp48 = 0x11;
   sp44 = record->stage1F3 + 1;
   sp40 = record->topSpeed1F0;
@@ -156,7 +156,7 @@ void *DrawCarSpecBadgePanel(u32 *arg0, void *arg1, s32 arg2)
         case 3:
           if (sp34 == 0)
         {
-          arg1 = AddTextSprites(arg0, arg1, s2, y, CarRecordPtrs[D_800AC5D4]->name1F5, 0x7FF8, 2, 0);
+          arg1 = AddTextSprites(arg0, arg1, s2, y, CarRecordPtrs[ActivePlayerIndex]->name1F5, 0x7FF8, 2, 0);
         }
         else
         {

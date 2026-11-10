@@ -19,8 +19,8 @@ CARS, PLAYERS, SNAPSHOTS = 0x80200010, address_of('PlayerCars'), 0x80210010
 BANKS = ((CARS, 8), (PLAYERS, 2), (SNAPSHOTS, 8))
 RECORDS = (0x80220010, 0x80230010)
 GLOBALS = (
-    ('NumCars', 2), ('TrackLength', 4), ('D_800AC3FC', 2), ('D_800ABEC4', 4),
-    ('D_80107178', 2), ('SavedRaceState', 4), ('TotalRaceTime', 4),
+    ('NumCars', 2), ('TrackLength', 4), ('D_800AC3FC', 2), ('CarViewportBankOffset', 4),
+    ('LinkPlayerCount', 2), ('SavedRaceState', 4), ('TotalRaceTime', 4),
     ('ReplayState', 4), ('RaceState', 4),
 )
 STATE_SIZE = 18*800+2*0x218+64+9*4+4
@@ -50,8 +50,8 @@ static s8 links[2][2];
 #define PlayerCars players.values
 #define NumCars (*count_address)
 #define TrackLength state.length
-#define D_800ABEC4 state.marker
-#define D_80107178 state.participants
+#define CarViewportBankOffset state.marker
+#define LinkPlayerCount state.participants
 #define SavedRaceState state.saved
 #define TotalRaceTime state.time
 #define ReplayState state.replay
@@ -92,8 +92,8 @@ static void snapshot(u8 *p) {
  for(i=0;i<2;i++){memcpy(p,&rr_test_records[i].record,0x218);p+=0x218;}
  for(i=0;i<8;i++)put32(&p,address(CarTable[i]));
  for(i=0;i<8;i++)put32(&p,address(CarSnapshots[i]));
- put32(&p,NumCars);put32(&p,TrackLength);put32(&p,(s16)players.values[1].flags1E4);put32(&p,D_800ABEC4);
- put32(&p,D_80107178);put32(&p,SavedRaceState);put32(&p,TotalRaceTime);
+ put32(&p,NumCars);put32(&p,TrackLength);put32(&p,(s16)players.values[1].flags1E4);put32(&p,CarViewportBankOffset);
+ put32(&p,LinkPlayerCount);put32(&p,SavedRaceState);put32(&p,TotalRaceTime);
  put32(&p,ReplayState);put32(&p,RaceState);memcpy(p,links,4);p+=4;
  assert(p-start==STATE_SIZE);
 }
@@ -121,7 +121,7 @@ void InitPlayerCar(RaceVehicle *v,s32 slot,s32 grid) {
 }
 void InitComCars(s32 count) {
  event(3,count,0,0);cars.values[7].first=(s32)((u32)cars.values[7].first^(u32)count);
- D_800ABEC4=(s32)((u32)D_800ABEC4^(u32)count);
+ CarViewportBankOffset=(s32)((u32)CarViewportBankOffset^(u32)count);
 }
 void SetupRaceMemoryArena(s32 layout,s32 mode) {
  event(4,layout,mode,0);SavedRaceState=(s32)(scenario^0x1234);TotalRaceTime=scenario+13;
@@ -147,7 +147,7 @@ int run_case(unsigned sc,int init,s32 mode,const u8 *input,u8 *result) {
  for(i=0;i<8;i++)CarTable[i]=resolve(get32(&p));
  for(i=0;i<8;i++)CarSnapshots[i]=resolve(get32(&p));
  NumCars=(s16)get32(&p);TrackLength=(s32)get32(&p);players.values[1].flags1E4=(u16)get32(&p);
- D_800ABEC4=(s32)get32(&p);D_80107178=(s16)get32(&p);SavedRaceState=(s32)get32(&p);
+ CarViewportBankOffset=(s32)get32(&p);LinkPlayerCount=(s16)get32(&p);SavedRaceState=(s32)get32(&p);
  TotalRaceTime=(s32)get32(&p);ReplayState=(s32)get32(&p);RaceState=(s32)get32(&p);
  memcpy(links,p,4);p+=4;assert(p-input==STATE_SIZE);
  if(init)InitRaceCars(mode);else SaveCarSnapshots(mode);

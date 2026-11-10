@@ -27,7 +27,7 @@ extern int FlashingLightColorTable[];
 extern GpuRectangleFields D_800101BC;
 extern VectorWords16 D_800101C4;
 extern VectorWords16 D_800101D4;
-extern VectorWords16 D_8009E540;
+extern VectorWords16 IntroCameraPosKeyframes;
 
 void DrawTrackObjectModel(int a0, int a1);
 
@@ -302,18 +302,18 @@ void InitIntroSceneLights(void) {
     IntroSceneState *scene;
     int i;
 
-    D_8010BF78 = LoadCursor;
-    LoadCursor = (u8 *)LoadCursor + sizeof(*D_8010BF78);
+    IntroSceneStatePtr = LoadCursor;
+    LoadCursor = (u8 *)LoadCursor + sizeof(*IntroSceneStatePtr);
     SetupRenderer(1);
     sp18.rect = D_800101BC;
     ClearImage2(&sp18, 0, 0, 0);
     ((ProjectionScratchPrefix *)SCRATCHPAD)->pose08.angles10 = D_800101C4;
-    ((ProjectionScratchPrefix *)SCRATCHPAD)->pose08.position00 = D_8009E540;
-    D_8010BF78->mat20.w[1] = 0xFAAB;
-    D_8010BF78->mat20.w[2] = 0xFAAB0000;
-    D_8010BF78->mat20.w[0] = 0;
-    D_8010BF78->mat20.w[3] = 0;
-    D_8010BF78->mat20.w[4] = -0x555;
+    ((ProjectionScratchPrefix *)SCRATCHPAD)->pose08.position00 = IntroCameraPosKeyframes;
+    IntroSceneStatePtr->mat20.w[1] = 0xFAAB;
+    IntroSceneStatePtr->mat20.w[2] = 0xFAAB0000;
+    IntroSceneStatePtr->mat20.w[0] = 0;
+    IntroSceneStatePtr->mat20.w[3] = 0;
+    IntroSceneStatePtr->mat20.w[4] = -0x555;
     direction->fields.z = -0x555;
     direction->fields.y = 0;
     direction->fields.x = 0;
@@ -321,18 +321,18 @@ void InitIntroSceneLights(void) {
     angles->fields.y = 0x200;
     angles->fields.z = 0;
     RotMatrix(&angles->fields, &work->matrix);
-    ApplyMatrixSV(&work->matrix, direction, (s16 *)&D_8010BF78->mat00.halves[0]);
+    ApplyMatrixSV(&work->matrix, direction, (s16 *)&IntroSceneStatePtr->mat00.halves[0]);
     angles->fields.x = 0x400;
     angles->fields.y = 0x400;
     angles->fields.z = 0;
     RotMatrix(&angles->fields, &work->matrix);
-    ApplyMatrixSV(&work->matrix, direction, (s16 *)&D_8010BF78->mat00.halves[3]);
+    ApplyMatrixSV(&work->matrix, direction, (s16 *)&IntroSceneStatePtr->mat00.halves[3]);
     angles->fields.x = 0x400;
     angles->fields.y = 0x400;
     angles->fields.z = 0;
     RotMatrix(&angles->fields, &work->matrix);
-    ApplyMatrixSV(&work->matrix, direction, (s16 *)&D_8010BF78->mat00.halves[6]);
-    scene = D_8010BF78;
+    ApplyMatrixSV(&work->matrix, direction, (s16 *)&IntroSceneStatePtr->mat00.halves[6]);
+    scene = IntroSceneStatePtr;
     i = 7;
     scene->s48 = 0;
     scene->s4A = 0;
@@ -387,7 +387,7 @@ void InitIntroSceneLights(void) {
         scene->objectYawAA[i] = 0;
         i--;
     } while (i >= 0);
-    AllocMenuGridRecords(D_800FFC48, 1);
+    AllocMenuGridRecords(SharedWorkArena, 1);
     InitMenuGrid(0, 1, 3, 0xB4, 0x60);
     PsyqMemset((u8 *)MenuGridRecords + 0x1C, 0, 0x10);
     *(VectorWords16 *)&MenuGridRecords->x0C = D_800101D4;

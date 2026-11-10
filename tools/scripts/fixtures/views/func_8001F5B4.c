@@ -38,7 +38,7 @@ extern s32 SetSemiTrans();
 
 extern s32 SetShadeTex();
 
-extern u8 D_8009ED38[];
+extern u8 FontAtlasTileCoords[];
 
 extern unsigned char D_8009EDF8[];
 
@@ -69,8 +69,8 @@ int arg7;
       arg4++;
       if (c != 0)
       {
-        x = D_8009ED38[c * 2] << 3;
-        y = D_8009ED38[(c * 2) + 1] << 4;
+        x = FontAtlasTileCoords[c * 2] << 3;
+        y = FontAtlasTileCoords[(c * 2) + 1] << 4;
         SetSprt(arg1);
         if (h == 0)
         {

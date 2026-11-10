@@ -24,5 +24,5 @@ void ovl668_func_80114F48(void) {
         STR_STATE->display24.rectangles[2].x = STR_STATE->display24.rectangles[STR_STATE->display24.alternate04].x;
         STR_STATE->display24.rectangles[2].y = STR_STATE->display24.rectangles[STR_STATE->display24.alternate04].y;
     }
-    LoadImage(&sp10, D_800AC708->buffers18[prev2C]);
+    LoadImage(&sp10, ActiveStrStreamPtr->buffers18[prev2C]);
 }

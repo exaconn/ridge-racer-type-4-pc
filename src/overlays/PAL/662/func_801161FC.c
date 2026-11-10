@@ -8,12 +8,12 @@ void ovl662_func_801161FC(void)
 
     ModeFrame = (ModeFrame + 1U);
     ScreenFrame = (ScreenFrame + 1U);
-    switch ((u16)D_800F4D8A) {
+    switch ((u16)SubmodeState) {
     case 0:
         ready = LoadGlyphRowsStep();
         if (ready == 1) {
             SetMenuFrameOptions(1, 1, 1);
-            D_800F4D8A = ready;
+            SubmodeState = ready;
         }
         flags = 0x10002;
         break;
@@ -28,7 +28,7 @@ void ovl662_func_801161FC(void)
                 if ((s16)ovl662_D_801272D8[SelectionRows.bytes[0]] > 0) {
                     PlaySfx(1);
                     ModeFrame = 0;
-                    D_800F4D8A = 2;
+                    SubmodeState = 2;
                     UiRows->byte14 = state;
                     BadgeRows->state10 = 4;
                 } else {
@@ -36,8 +36,8 @@ void ovl662_func_801161FC(void)
                 }
             } else if (PlayerControllers[0].action2C) {
                 PlaySfx(2);
-                D_800F4D8A = 8;
-                D_800AC5D0 = 64;
+                SubmodeState = 8;
+                FadeCountdown = 64;
                 UiRows->byte14 = state;
                 BadgeRows->state10 = 4;
             }
@@ -47,7 +47,7 @@ void ovl662_func_801161FC(void)
     case 2:
         if (BadgeRows->state10 == 11 && UiRows->byte14 == 5) {
             ovl662_func_80115EC4(0);
-            D_800F4D8A = 3;
+            SubmodeState = 3;
         }
         flags = 0x10006;
         break;
@@ -62,7 +62,7 @@ void ovl662_func_801161FC(void)
                 if ((s16)ovl662_D_80127328[SelectionRows.bytes[0]][SelectionRows.bytes[1]] > 0) {
                     PlaySfx(1);
                     ModeFrame = 0;
-                    D_800F4D8A = 4;
+                    SubmodeState = 4;
                     UiRows->byte14 = state;
                     BadgeRows->state10 = 4;
                 } else {
@@ -71,7 +71,7 @@ void ovl662_func_801161FC(void)
             } else if (PlayerControllers[0].action2C) {
                 PlaySfx(2);
                 ovl662_D_801272D4 = 1;
-                D_800F4D8A = 4;
+                SubmodeState = 4;
                 UiRows->byte14 = state;
                 BadgeRows->state10 = 4;
             }
@@ -89,21 +89,21 @@ void ovl662_func_801161FC(void)
                 GlyphRows[i].phase18 = (GlyphRows[i].phase18 - 0x30000U);
             }
             ovl662_func_80116020();
-            D_800F4D8A = 1;
+            SubmodeState = 1;
             ovl662_D_801272D4 = 0;
         }
         flags = 0x10006;
         break;
     case 8:
-        D_800AC5D0--;
+        FadeCountdown--;
         SetMenuFrameOptions(0, 1, 1);
         AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words,
-                     (64 - D_800AC5D0) * 4, 69);
-        if (D_800AC5D0 <= 0) {
+                     (64 - FadeCountdown) * 4, 69);
+        if (FadeCountdown <= 0) {
             ovl662_func_8011512C();
             ModeGroup = 1;
-            D_800F3A26 = 64;
-            D_800F4D8A = 0;
+            ModeIndex = 64;
+            SubmodeState = 0;
         }
         flags = 0x10002;
         break;

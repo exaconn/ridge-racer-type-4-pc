@@ -13,7 +13,7 @@
 #include "game/race/racesetp.h"
 
 extern u8 D_8009F910[];
-extern s16 D_800AC5D0;
+extern s16 FadeCountdown;
 extern s32 CourseBestLap[2][8];
 extern s16 ReverseCourse;
 extern s32 TrackLength;
@@ -28,8 +28,8 @@ extern s32 LapTimes[];
 extern s32 RaceState;
 extern s32 BestSplitTimes[3];
 extern s32 SplitTimes[3];
-extern s32 D_8010C12C;
-extern s16 D_8010C134;
+extern s32 SplitIndex;
+extern s16 LapVoicePending;
 extern s32 SplitDistances[3];
 extern short NumCars;
 extern unsigned short GameTypeSceneIds[];
@@ -58,7 +58,7 @@ void UpdateLapTiming(RaceVehicle *arg0) {
                 LapTimes[s0->dynamics94.steering.count22 - 1] = 0x927BF;
             }
             if (GameModeType == 0) {
-                SplitTimes[D_8010C12C] = LapTimes[s0->dynamics94.steering.count22 - 1];
+                SplitTimes[SplitIndex] = LapTimes[s0->dynamics94.steering.count22 - 1];
             }
         }
     }
@@ -70,11 +70,11 @@ void UpdateLapTiming(RaceVehicle *arg0) {
             } else {
                 SplitDeltaTimer = 0x3C;
             }
-            D_8010C108 = SplitTimes[D_8010C12C];
-            D_8010C10C = BestSplitTimes[D_8010C12C];
-            D_8010C104 = D_8010C12C;
-            D_8010C12C = 0;
-            D_8010C134 = 0;
+            LatchedSplitTime = SplitTimes[SplitIndex];
+            LatchedBestSplitTime = BestSplitTimes[SplitIndex];
+            LatchedSplitIndex = SplitIndex;
+            SplitIndex = 0;
+            LapVoicePending = 0;
             if (BestLapTime > LapTimes[s0->dynamics94.steering.count22 - 2]) {
                 if (s0->dynamics94.steering.count22 != 1) {
                     SoundQueueEnqueue(9, 0);
@@ -96,9 +96,9 @@ void UpdateLapTiming(RaceVehicle *arg0) {
                 SaveCarSnapshots(0);
             } else if (s0->dynamics94.steering.count22 > NumLaps) {
                 if (RaceState < 4) {
-                    D_8010C134 = -1;
+                    LapVoicePending = -1;
                     RaceState = 4;
-                    D_800AC5D0 = 0x4B;
+                    FadeCountdown = 0x4B;
                     SoundSetMasterVolume(0, 0x47);
                     msg = 0x13;
                     if (GameModeType == 1) {
@@ -155,17 +155,17 @@ void UpdateLapTiming(RaceVehicle *arg0) {
         }
     } else {
 check_split:
-        if (SplitDistances[D_8010C12C] + TrackLength * (s0->dynamics94.steering.count22 - 1) <= arg0->second + arg0->first) {
+        if (SplitDistances[SplitIndex] + TrackLength * (s0->dynamics94.steering.count22 - 1) <= arg0->second + arg0->first) {
             if (GameModeType == 0) {
                 SplitDeltaTimer = 0x3C;
-                D_8010C104 = D_8010C12C;
-                D_8010C108 = SplitTimes[D_8010C12C];
-                D_8010C10C = BestSplitTimes[D_8010C12C];
-                D_8010C12C += 1;
+                LatchedSplitIndex = SplitIndex;
+                LatchedSplitTime = SplitTimes[SplitIndex];
+                LatchedBestSplitTime = BestSplitTimes[SplitIndex];
+                SplitIndex += 1;
             }
         }
     }
-    if (D_8010C134 == 0) {
+    if (LapVoicePending == 0) {
         msg = 9 - (NumLaps - s0->dynamics94.steering.count22);
         if (msg == 9) {
             msg = 0xF;
@@ -173,7 +173,7 @@ check_split:
         if (msg >= 6) {
             SoundQueueEnqueue(msg, 0);
         }
-        D_8010C134 = -1;
+        LapVoicePending = -1;
     }
 }
 

@@ -573,7 +573,7 @@ int SceneLoadStep(void)
             *a1 = arena;
             InitAnimatedTrackObjects(arena);
         }
-        D_8010BF68 = s2;
+        TrackSkyTable = s2;
         LoadCursor = LoadCursor + s1;
         RelocateRelativeFile(sp10);
         RelocateOffsetTable(s2);
@@ -691,7 +691,7 @@ void SetupRenderer(s32 shift) {
     RendererScratch *scratch;
     ((RendererScratch*)SCRATCHPAD)->depthShift60=shift;
     scratch=(RendererScratch*)SCRATCHPAD;
-    scratch->renderFlags64=D_800AD568;
+    scratch->renderFlags64=MirrorRenderFlag;
     D_800F3A20.b=128;
     D_800F3A20.g=128;
     D_800F3A20.r=128;

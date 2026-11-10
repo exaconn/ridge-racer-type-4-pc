@@ -96,7 +96,7 @@ floor:
         v0=(s32)0xEF66A241U;RR_MD_MULT_S(v1,v0);RR_MD_HI(v0);
         v0=(v0+v1);v0>>=11;v1>>=31;a1=v0-v1;a1+=4000;
     }
-    if(GameModeType==6 && D_800F3826==3) {
+    if(GameModeType==6 && SelectedMakerIndex==3) {
         v1=a0;if(v1<0)v1+=255;
         /* ASM_BARRIER: retain the original value/read phase before register reuse or branch selection. */
         a3=8500;        v0=body->input;RR_MD_MULT_S(v0,a3);RR_MD_LO(a3);

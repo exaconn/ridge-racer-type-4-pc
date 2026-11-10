@@ -16,7 +16,7 @@ void *SoundQueueEnqueue(s32 id, s32 restart) {
     register u8 *result __asm__("$2");
     AudioState *state;
     AudioState *updatedState;
-    if (D_800F6784 == 0) {
+    if (SoundSeqVariantIndex == 0) {
         input = SoundSequenceTable[id][0];
     } else {
         input = SoundSequenceTable[id][1];

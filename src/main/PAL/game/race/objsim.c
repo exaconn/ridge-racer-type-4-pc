@@ -238,33 +238,33 @@ void UpdateTrackObjects(void) {
                                     sp[1] = (sp[0] << 4) + (sp[0] << 2);
                                     if (TrackObjectStates[i].f0 == 1 || TrackObjectStates[i].f4 == 300) {
                                         for (a0 = 0; a0 < 20; a0++) {
-                                            D_8010E8E8[sp[1] + a0].vx = TrackObjectStates[i].fC >> 3;
-                                            D_8010E8E8[sp[1] + a0].vy = TrackObjectStates[i].f10 >> 3;
-                                            D_8010E8E8[sp[1] + a0].vz = TrackObjectStates[i].f14 >> 3;
+                                            TrackObjectTrailPoints[sp[1] + a0].vx = TrackObjectStates[i].fC >> 3;
+                                            TrackObjectTrailPoints[sp[1] + a0].vy = TrackObjectStates[i].f10 >> 3;
+                                            TrackObjectTrailPoints[sp[1] + a0].vz = TrackObjectStates[i].f14 >> 3;
                                         }
                                     } else if (TrackObjectStates[i].f0 % 2 == 1) {
                                         for (a0 = 19; a0 > 0; a0--) {
-                                            D_8010E8E8[sp[1] + a0] = D_8010E8E8[sp[1] + a0 - 1];
+                                            TrackObjectTrailPoints[sp[1] + a0] = TrackObjectTrailPoints[sp[1] + a0 - 1];
                                         }
-                                        D_8010E8E8[sp[1]].vx = TrackObjectStates[i].fC >> 3;
-                                        D_8010E8E8[sp[1]].vy = TrackObjectStates[i].f10 >> 3;
-                                        D_8010E8E8[sp[1]].vz = TrackObjectStates[i].f14 >> 3;
+                                        TrackObjectTrailPoints[sp[1]].vx = TrackObjectStates[i].fC >> 3;
+                                        TrackObjectTrailPoints[sp[1]].vy = TrackObjectStates[i].f10 >> 3;
+                                        TrackObjectTrailPoints[sp[1]].vz = TrackObjectStates[i].f14 >> 3;
                                     }
                                     break;
                                 case 3:
                                     if (TrackObjectStates[i].f0 == 1) {
                                         for (a0 = 0; a0 < 40; a0++) {
-                                            D_8010E8E8[a0].vx = TrackObjectStates[i].fC >> 3;
-                                            D_8010E8E8[a0].vy = TrackObjectStates[i].f10 >> 3;
-                                            D_8010E8E8[a0].vz = TrackObjectStates[i].f14 >> 3;
+                                            TrackObjectTrailPoints[a0].vx = TrackObjectStates[i].fC >> 3;
+                                            TrackObjectTrailPoints[a0].vy = TrackObjectStates[i].f10 >> 3;
+                                            TrackObjectTrailPoints[a0].vz = TrackObjectStates[i].f14 >> 3;
                                         }
                                     } else if (TrackObjectStates[i].f0 % 12 == 1) {
                                         for (a0 = 39; a0 > 0; a0--) {
-                                            D_8010E8E8[a0] = D_8010E8E8[a0 - 1];
+                                            TrackObjectTrailPoints[a0] = TrackObjectTrailPoints[a0 - 1];
                                         }
-                                        D_8010E8E8[0].vx = TrackObjectStates[i].fC >> 3;
-                                        D_8010E8E8[0].vy = TrackObjectStates[i].f10 >> 3;
-                                        D_8010E8E8[0].vz = TrackObjectStates[i].f14 >> 3;
+                                        TrackObjectTrailPoints[0].vx = TrackObjectStates[i].fC >> 3;
+                                        TrackObjectTrailPoints[0].vy = TrackObjectStates[i].f10 >> 3;
+                                        TrackObjectTrailPoints[0].vz = TrackObjectStates[i].f14 >> 3;
                                     }
                                     break;
                                 }

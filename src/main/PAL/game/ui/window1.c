@@ -78,7 +78,7 @@ void InitRaceHudPackets(int a0)
     case 3:
     case 4:
     case 6:
-        if ((D_80107178 == 2 && a0 == 4) || a0 == 6) {
+        if ((LinkPlayerCount == 2 && a0 == 4) || a0 == 6) {
             n = 6;
         } else {
             n = 12;
@@ -115,7 +115,7 @@ void SubmitRaceHudPackets(int a0) {
     case 2:
     case 3:
     case 4:
-        if ((D_80107178 == 2 && a0 == 3) || a0 == 4) {
+        if ((LinkPlayerCount == 2 && a0 == 3) || a0 == 4) {
             a1 = 6;
             s0 = (int *)(&CurrentDrawBuf->buffer.ordering70.words[0]);
         } else {

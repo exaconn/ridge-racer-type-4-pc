@@ -26,7 +26,7 @@
 #undef GlyphRows
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800AD520 (*(unsigned char (*))&D_800AD520)
+#define SelectedTeamIndex (*(unsigned char (*))&SelectedTeamIndex)
 
 #define ModeFrame (*(unsigned (*))&ModeFrame)
 
@@ -34,7 +34,7 @@
 
 #define Dialogue ((signed char *)Dialogue)
 
-#undef D_800AD520
+#undef SelectedTeamIndex
 
 #undef ModeFrame
 

@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern int D_8010BF68;
+extern int TrackSkyTable;
 void RenderSkyToRect(int a0, int a1, short *a2, int a3);
 void DrawTrackScenery(int a0);
 void RunSkyCommandList(char *a0, int a1);

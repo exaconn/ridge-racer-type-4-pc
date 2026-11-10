@@ -27,13 +27,13 @@ fixture=r'''
 #include "rr/frame_loop.h"
 #include "psyq/libgpu/gpudisp.h"
 #include "rr/gpu_scratch_types.h"
-FrameStorage D_800ADAF0[2];
+FrameStorage DrawBuffers[2];
 FrameStep *ModeFuncTable[65536];
 FrameStorage *CurrentDrawBuf;
 u32 FrameCounter;
 s32 VSyncThreshold,DrawSubOtFlag,ModeFrame;
-u16 ModeGroup,D_800F3A26;
-s16 D_800F4D8A;
+u16 ModeGroup,ModeIndex;
+s16 SubmodeState;
 static struct {u8 prefix[0x4BF0];s32 bank;} native_bank;
 static struct {u32 before[4];GpuScratchPointers value;u32 after[4];} scratch_owner;
 #define native_scratch scratch_owner.value
@@ -46,29 +46,29 @@ static u16 selector_a,selector_b;
 static s32 threshold;
 static void expect(int n) {assert(stage==n);stage++;}
 static void step(void) {
- expect(10);assert(ModeGroup==selector_a && D_800F3A26==selector_b);
+ expect(10);assert(ModeGroup==selector_a && ModeIndex==selector_b);
  CurrentDrawBuf=&alternate[2];VSyncThreshold=-999;
 }
 void MainLoopStartupHook(void) {expect(0);}
 s32 SetVideoMode(s32 n) {expect(1);assert(n==1);return INT_MIN;}
 void ResetCallback(void) {expect(2);}
 void SetMem(s32 n) {expect(3);assert(n==2);}
-void SystemInit(void) {expect(4);FrameCounter=42;ModeFrame=77;ModeGroup=0;D_800F3A26=0;D_800F4D8A=-2;}
+void SystemInit(void) {expect(4);FrameCounter=42;ModeFrame=77;ModeGroup=0;ModeIndex=0;SubmodeState=-2;}
 void SetDispMask(s32 n) {expect(5);assert(n==0 && VSyncThreshold==128);FrameCounter=0xFFFFFFFFU;}
 u32 *ClearOTagR(u32 *p,s32 n) {
  assert(n==704);
  if(stage==6) {
-  u32 bank=expected_counter&1;u8 *base=D_800ADAF0[bank].bytes;
-  assert(FrameCounter==expected_counter && CurrentDrawBuf==&D_800ADAF0[bank] && native_bank.bank==(s32)bank);
+  u32 bank=expected_counter&1;u8 *base=DrawBuffers[bank].bytes;
+  assert(FrameCounter==expected_counter && CurrentDrawBuf==&DrawBuffers[bank] && native_bank.bank==(s32)bank);
   assert(p==(u32 *)(base+0x70));
   assert(native_scratch.cursor==base+0x1670 && native_scratch.order==(u32 *)(base+0x70));
-  if(!frame_no)assert(ModeFrame==0 && ModeGroup==1 && D_800F3A26==1 && D_800F4D8A==0);
+  if(!frame_no)assert(ModeFrame==0 && ModeGroup==1 && ModeIndex==1 && SubmodeState==0);
   expect(6);CurrentDrawBuf=&alternate[0];
  }else {expect(7);assert(p==(u32 *)(alternate[0].bytes+0xB70));CurrentDrawBuf=&alternate[1];}
  return (u32 *)alternate[7].bytes;
 }
-s32 CdFileStep(void) {expect(8);ModeGroup=65534;D_800F3A26=65534;return -1;}
-void SoundUpdate(void) {expect(9);ModeGroup=selector_a;D_800F3A26=selector_b;}
+s32 CdFileStep(void) {expect(8);ModeGroup=65534;ModeIndex=65534;return -1;}
+void SoundUpdate(void) {expect(9);ModeGroup=selector_a;ModeIndex=selector_b;}
 void DrawSync(s32 n) {expect(11);assert(n==0);VSyncThreshold=threshold;}
 s32 VSync(s32 mode) {
  if(mode==1) {
@@ -100,7 +100,7 @@ void PadUpdate(void) {
 }
 ''' + source + r'''
 static void run(u32 counter,s32 wait,s32 optional,u16 a,u16 b) {
- memset(D_800ADAF0,0xA5,sizeof(D_800ADAF0));memcpy(saved_frames,D_800ADAF0,sizeof(saved_frames));
+ memset(DrawBuffers,0xA5,sizeof(DrawBuffers));memcpy(saved_frames,DrawBuffers,sizeof(saved_frames));
  memset(alternate,0x6A,sizeof(alternate));memcpy(saved_alternate,alternate,sizeof(saved_alternate));
  memset(&scratch_owner,0xA7,sizeof(scratch_owner));memset(&native_bank,0xB6,sizeof(native_bank));
  stage=frame_no=ticks=0;frames_to_run=3;expected_counter=0;next_counter=counter;
@@ -109,12 +109,12 @@ static void run(u32 counter,s32 wait,s32 optional,u16 a,u16 b) {
  DrawSubOtFlag=optional?0:1;
  if(!setjmp(done))MainLoop();
  assert(frame_no==3 && ticks==(wait==INT_MIN?1:3));
- assert(!memcmp(D_800ADAF0,saved_frames,sizeof(saved_frames)));
+ assert(!memcmp(DrawBuffers,saved_frames,sizeof(saved_frames)));
  assert(!memcmp(alternate,saved_alternate,sizeof(saved_alternate)));
  for(unsigned i=0;i<4;i++)assert(scratch_owner.before[i]==0xA7A7A7A7U&&scratch_owner.after[i]==0xA7A7A7A7U);
  for(unsigned i=0;i<sizeof(native_bank.prefix);i++)assert(native_bank.prefix[i]==0xB6);
- assert(native_scratch.cursor==D_800ADAF0[expected_counter&1].buffer.packets1670);
- assert(native_scratch.order==D_800ADAF0[expected_counter&1].buffer.ordering70.words);
+ assert(native_scratch.cursor==DrawBuffers[expected_counter&1].buffer.packets1670);
+ assert(native_scratch.order==DrawBuffers[expected_counter&1].buffer.ordering70.words);
  row[b]=0;ModeFuncTable[a]=0;
 }
 int main(int argc,char **argv) {
@@ -124,7 +124,7 @@ int main(int argc,char **argv) {
  u16 selectors[]={0,1,32767,32768,65535};
  int i,j,k;
  (void)argv;assert(argc==1);
- assert(sizeof(void*)==8&&(uintptr_t)D_800ADAF0>UINT32_MAX&&(uintptr_t)alternate>UINT32_MAX);
+ assert(sizeof(void*)==8&&(uintptr_t)DrawBuffers>UINT32_MAX&&(uintptr_t)alternate>UINT32_MAX);
  assert(sizeof(FrameStorage)==0x22778 && offsetof(FrameStorage,bytes)==0);
  assert(offsetof(FrameBuffer,packets1670)==0x1670);
  assert(offsetof(FrameBuffer,ordering70)==0x70&&offsetof(FrameBuffer,secondaryOrderingB70)==0xB70);

@@ -78,7 +78,7 @@ void CardSystemInit(void) {
     EnableEvent(SwCardEvNew);
     CardPortPollStatus[1] = 0x5A;
     CardPortPollStatus[0] = 0x5A;
-    SaveBuffer = (SaveBuf *)D_800FFC48;
+    SaveBuffer = (SaveBuf *)SharedWorkArena;
 }
 
 void CardSystemShutdown(void) {

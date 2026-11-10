@@ -19,7 +19,7 @@ void UpdateCarShowcaseCamera(int time)
   RaceContext.camera24C->parts18[1].rotation10.y = -(u32)value;
   curve = D_800A0D70;
   RaceContext.camera24C->parts18[3].rotation10.x = InterpCurveLinear(curve, FindCurveSegment(curve, time), time);
-  curve = D_800A0D7C;
+  curve = ShowcaseCamDepthCurve;
   curveValue = InterpCurveLinear(curve, FindCurveSegment(curve, time), time);
   curve = D_800A0D88;
   value = InterpCurveLinear(curve, FindCurveSegment(curve, time), time);

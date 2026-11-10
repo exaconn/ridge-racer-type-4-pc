@@ -44,7 +44,7 @@ static World world,initial,expected;static u16 textData[32];static unsigned scen
 #define CardDialogueStatePtr (&world.s.text[world.s.textRoot])
 #define CurrentDrawBuf ((FrameStorage*)&world.s.frames[world.s.frameRoot])
 #define D_800F3A60 world.s.accept
-#define D_800AC5D0 world.s.fade
+#define FadeCountdown world.s.fade
 #define ovl665_D_80119028 world.s.uv
 #undef RR_PROJECTION_SCRATCH
 #define RR_PROJECTION_SCRATCH (&world.s.scratch)

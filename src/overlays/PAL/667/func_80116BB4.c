@@ -1,15 +1,15 @@
 #include "rr/course_choices.h"
 #include "rr/load_cursor.h"
-extern CourseChoice4 D_8010BFD8[2][2][9];
-extern s16 D_8010C0D8[2],D_8010C0D0[2];
+extern CourseChoice4 LinkCarChoiceTable[2][2][9];
+extern s16 LinkCarChoiceGroup[2],LinkCarChoiceIndex[2];
 void ovl667_func_80116BB4(void) {
     ResetScreenCounters();
     LoadCursor = MenuArenas.first;
     UnpackChoiceGlyph(
-        (s8 *)&SelectionRows + D_800AC5D4 * 4,
-        D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].glyph
+        (s8 *)&SelectionRows + ActivePlayerIndex * 4,
+        LinkCarChoiceTable[ActivePlayerIndex & 1][LinkCarChoiceGroup[ActivePlayerIndex & 1]][LinkCarChoiceIndex[ActivePlayerIndex & 1]].glyph
     );
-    PlayerCourseChoices[D_800AC5D4].first = D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].first;
-    PlayerCourseChoices[D_800AC5D4].second = D_8010BFD8[D_800AC5D4 & 1][D_8010C0D8[D_800AC5D4 & 1]][D_8010C0D0[D_800AC5D4 & 1]].second;
+    PlayerCourseChoices[ActivePlayerIndex].first = LinkCarChoiceTable[ActivePlayerIndex & 1][LinkCarChoiceGroup[ActivePlayerIndex & 1]][LinkCarChoiceIndex[ActivePlayerIndex & 1]].first;
+    PlayerCourseChoices[ActivePlayerIndex].second = LinkCarChoiceTable[ActivePlayerIndex & 1][LinkCarChoiceGroup[ActivePlayerIndex & 1]][LinkCarChoiceIndex[ActivePlayerIndex & 1]].second;
     ImageRows[1] = 6;
 }

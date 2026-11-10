@@ -6,11 +6,11 @@
 /* legacy typing of shared globals in this part of the unit */
 #define LoadIndex (*(unsigned char (*))&LoadIndex)
 
-#define D_800F4D2C (*(unsigned char (*))&D_800F4D2C)
+#define MainMenuChoice (*(unsigned char (*))&MainMenuChoice)
 
 #undef LoadIndex
 
-#undef D_800F4D2C
+#undef MainMenuChoice
 
 /* legacy typing of shared globals in this part of the unit */
 #define LoadIndex (*(unsigned char (*))&LoadIndex)
@@ -28,9 +28,9 @@
 #undef LoadIndex
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3B24 (*(int (*))&D_800F3B24)
+#define PresetEmblemTimPtr (*(int (*))&PresetEmblemTimPtr)
 
-#undef D_800F3B24
+#undef PresetEmblemTimPtr
 
 /* legacy typing of shared globals in this part of the unit */
 #define LoadIndex (*(unsigned char (*))&LoadIndex)
@@ -62,7 +62,7 @@ extern int CdFileReadStart();
 
 extern int CdFileBytesLoaded();
 
-extern char D_800FFC48[];
+extern char SharedWorkArena[];
 
 extern int CdFileReadRange();
 
@@ -72,7 +72,7 @@ extern int SetupDialogueTable();
 
 extern int LoadTimImage();
 
-extern int D_800F4CA8;
+extern int DialogueSceneMode;
 
 extern int D_800AD564;
 
@@ -89,22 +89,22 @@ int LoadMenuCarModelsStep(void) {
         LoadState = 1;
         LoadIndex = 0;
     case 1:
-        if (CdFileReadStart(GetR4FileIndex(1, 0x42), D_800FFC48)) {
+        if (CdFileReadStart(GetR4FileIndex(1, 0x42), SharedWorkArena)) {
             LoadState = 2;
         }
         break;
     case 2:
         if (CdFileBytesLoaded()) {
-            s = D_800FFC48;
+            s = SharedWorkArena;
             LoadTimImage(s);
             s += 0x4E20;
             LoadState = 3;
             CardDialogueStatePtr = (Z *)s;
             InitDialogueState(s);
     case 3:
-            if (D_800F4CA8 == 2) {
+            if (DialogueSceneMode == 2) {
                 a1 = 0x44;
-            } else if (D_800F4CA8 == 4) {
+            } else if (DialogueSceneMode == 4) {
                 a1 = 0x46;
                 CardDialogueStatePtr->b = 2;
             } else {

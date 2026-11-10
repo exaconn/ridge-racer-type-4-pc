@@ -41,28 +41,28 @@ extern u32 ScreenFrame;
 #include "rr/player_cars.h"
 extern u16 D_800AC1A0;
 extern s32 RaceTimeRemaining;
-extern s16 D_800AC5D0;
+extern s16 FadeCountdown;
 extern s16 MenuItemCount;
-extern s16 D_800AC648;
+extern s16 SelectedCourseChoice;
 extern s16 MenuCursor;
-extern s32 D_800AC6EC;
+extern s32 RaceIntroCameraState;
 extern MenuGridPoint PlayerCourseChoices[4];
 extern s8 ScreenFadeState;
 extern MenuSettings2C SelectionState;
 extern s16 ReverseCourse;
 extern TimeRecord16 RaceRecords[2][8][5];
-extern FrameStorage D_800ADAF0[2];
+extern FrameStorage DrawBuffers[2];
 extern s32 D_800F2A64;
 extern s32 RankEntries;
 extern u8 *ImageRows;
-extern RaceSetupPair4 D_800F2AB4;
+extern RaceSetupPair4 PlayerThrottleLoad;
 extern s32 ModeFrame;
 extern s32 TrackLength;
 extern s8 PauseCursor;
-extern s16 D_800F3826;
+extern s16 SelectedMakerIndex;
 extern s16 CourseIndex;
 extern SaveProgressRecord7C SaveProgress;
-extern s16 D_800F3A26;
+extern s16 ModeIndex;
 extern s32 NumLaps;
 extern u16 D_800F3A42;
 extern s32 D_800F3A60;
@@ -71,22 +71,22 @@ extern u16 MenuScriptId;
 extern s32 TotalRaceTime;
 extern s8 RacePaused;
 extern u16 ModeGroup;
-extern RaceSetupPair4 D_800F4C70;
+extern RaceSetupPair4 PlayerDisplayRpm;
 extern s32 LapTimes[10];
 extern void *MenuArenaBase;
 extern s16 GameModeType;
 #include "rr/menu_arena_state.h"
 extern u8 *D_800F4D74;
 extern UiRow24 *UiRows;
-extern u16 D_800F4D8A;
+extern u16 SubmodeState;
 extern MenuGlyphRow1C *GlyphRows;
 extern CurrentSelection SelectionRows;
 extern s32 RaceState;
 extern TimeRecord16 LapRecords[2][8][5];
 extern MenuTextRow60 *MenuTextRows;
 #include "rr/vehicle_table.h"
-extern s32 D_80107190;
-extern s16 D_8010C134;
+extern s32 RaceStartWipeY;
+extern s16 LapVoicePending;
 
 #include "rr/race_frame_scratch.h"
 #include "game/data/ldscn5.h"

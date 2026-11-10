@@ -554,7 +554,7 @@ void DrawTrackScenery(int a0) {
     int k;
     int *s0;
     s0 = (int *)(SCRATCHPAD + 0x7C);
-    s4 = D_8010BF68;
+    s4 = TrackSkyTable;
     RR_GTE_SETROT((int *)SCRATCH_ROT_MATRIX);
     RR_GTE_CLRTR();
     a1 = CourseSkyKeyframePtrs[CourseIndex];
@@ -1185,7 +1185,7 @@ void SetupSkyLightMatrices(char *a0, unsigned short *a1_in)
     p[8] = a1[8];
     RR_GTE_SETROT(p);
     RR_GTE_SETTR(a0);
-    RunSkyCommandList(D_800AC64C, 0);
+    RunSkyCommandList(SkyCommandListPtr, 0);
 }
 
 void RenderSkyToRect(int a0, int a1, short *a2, int a3) {

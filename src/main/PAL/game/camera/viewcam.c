@@ -82,7 +82,7 @@ void SetupHorizonViewTransform(int *a0, int *a1) {
         g[0x29] = w[1];
         g[0x2A] = w[2];
         ScaleMatrix((SCRATCHPAD + 0x108), x);
-        ResetViewScratchMask(D_8010E690, a0, a1);
+        ResetViewScratchMask(ActiveVisibleViews, a0, a1);
     }
 }
 
@@ -133,7 +133,7 @@ void SetupPlayerView(int player) {
     SetupViewLighting();
     SetupHorizonViewTransform(p, p - 0x30);
     SetupViewMatrix();
-    SubmitCourseHorizon(SCRATCHPAD, D_8010E690, CourseIndex);
+    SubmitCourseHorizon(SCRATCHPAD, ActiveVisibleViews, CourseIndex);
 }
 
 void RenderPlayerCourseView(int player) {
@@ -142,7 +142,7 @@ void RenderPlayerCourseView(int player) {
     ApplySegmentVisibilityMask();
     SetupViewLighting();
     SetupViewMatrix();
-    SubmitCourseHorizon(SCRATCHPAD, D_8010E690, CourseIndex);
+    SubmitCourseHorizon(SCRATCHPAD, ActiveVisibleViews, CourseIndex);
 }
 
 
@@ -153,12 +153,12 @@ void RenderMirrorCourseView(int player) {
     g[0x2E] = -1;
     BuildViewSegmentObjectList(player);
     v = LookupOctantVisibility();
-    if (v < D_8010E290.objects.count) {
-        D_8010E290.objects.count = v;
+    if (v < PrimaryVisibleViews.objects.count) {
+        PrimaryVisibleViews.objects.count = v;
     }
     SetupViewLighting();
     SetupViewMatrix();
-    SubmitCourseHorizon(g, D_8010E690, CourseIndex);
+    SubmitCourseHorizon(g, ActiveVisibleViews, CourseIndex);
     g[0x2E] = (short)D_8010E280;
 }
 
@@ -184,8 +184,8 @@ void BuildLightMatrix(void) {
     direction.fields.y = 0;
     direction.fields.x = 0;
     for (i = 0; i < 3; i++) {
-        direction.fields.z = -D_800AD5BC[i];
-        RotMatrixYXZ(&D_800F38F8[i], &rotation);
+        direction.fields.z = -LightSourceIntensities[i];
+        RotMatrixYXZ(&LightSourceAngles[i], &rotation);
         SetRotMatrix(rotation.w);
         ApplyRotMatrix(&direction, &rotated.xyz);
         LightMatrix.matrix.fields.rotation00[i][0] = rotated.xyz.x;
@@ -208,7 +208,7 @@ void SetupViewport(s32 a0) {
     register s32 a2_val asm("$6");
 
     s3 = s2->f00;
-    D_800AC5D8 = a0;
+    ActiveViewportIndex = a0;
     s1 = (a0 == 1);
     SetGeomOffset(ViewOffsetX[a0], ViewOffsetY[a0]);
     s5 = (a0 == 1);

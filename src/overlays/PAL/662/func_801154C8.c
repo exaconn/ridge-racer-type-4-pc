@@ -32,7 +32,7 @@ void ovl662_func_801154C8(void) {
 
     var_s6 = 0;
     tick = &ModeFrame;
-    playerIndex = D_800AC5D4;
+    playerIndex = ActivePlayerIndex;
     vehicleBase = PlayerCars;
     temp_v0 = &vehicleBase[playerIndex&1];
     temp_a1 = (temp_v0->rot54 + 8U) & 0xFFF;
@@ -52,7 +52,7 @@ void ovl662_func_801154C8(void) {
         ((s8 *)ImageRows)[1] = temp_v0_2;
     }
     var_s6 = 1;
-    switch ((u16)D_800F4D8A) {
+    switch ((u16)SubmodeState) {
     case 0:
         SetMenuFrameOptions(1, 1, 1);
         temp_s0 = PackChoiceGlyph((s8*)&SelectionRows);
@@ -102,7 +102,7 @@ void ovl662_func_801154C8(void) {
                             PlaySfx(1);
                             var_s0 = 0;
 
-                            D_800F4D8A = (u16) temp_s1;
+                            SubmodeState = (u16) temp_s1;
                             BadgeRows->state10 = 4;
                             closePhase = 3;
                             ((s8 *)ImageRows)[1] = closePhase;
@@ -132,15 +132,15 @@ void ovl662_func_801154C8(void) {
                             var_s0 += 1;
 
                         } while (var_s0 < 4);
-                        D_800AC5D0 = 0x40;
-                        D_800F4D8A = 5;
+                        FadeCountdown = 0x40;
+                        SubmodeState = 5;
                     } else if (MenuCursor == temp_s3) {
                         if (temp_s5 == 0) {
                             SetModelTexturePage(-1);
                             PlaySfx(1);
                             var_s0 = 0;
 
-                            D_800F4D8A = 4;
+                            SubmodeState = 4;
                             BadgeRows->state10 = 4;
                             ((s8 *)ImageRows)[1] = (s8) temp_s1;
                             do {
@@ -193,8 +193,8 @@ block_40:
                         } while (var_s0 < UiRowCount);
                     }
 block_54:
-                    D_800AC5D0 = 0x40;
-                    D_800F4D8A = 8;
+                    FadeCountdown = 0x40;
+                    SubmodeState = 8;
                 }
             }
         }
@@ -202,8 +202,8 @@ block_54:
     case 3:
         if ((((s8 *)ImageRows)[1] == 5) && (BadgeRows->state10 == 0xB)) {
             ModeGroup = 1;
-            D_800F3A26 = 0x41;
-            D_800F4D8A = 0;
+            ModeIndex = 0x41;
+            SubmodeState = 0;
             ovl662_D_801272BA = (u16) ovl662_D_801272E4;
         }
         break;
@@ -214,23 +214,23 @@ block_54:
         }
         break;
     case 5:
-        temp_v1_7 = D_800AC5D0 - 1;
-        D_800AC5D0 = (u16) temp_v1_7;
+        temp_v1_7 = FadeCountdown - 1;
+        FadeCountdown = (u16) temp_v1_7;
         AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - temp_v1_7) * 4, 0x45);
-        if ((s16) D_800AC5D0 <= 0) {
+        if ((s16) FadeCountdown <= 0) {
             ModeGroup = 1;
-            D_800F3A26 = 0x1B;
-            D_800F4D8A = 0;
+            ModeIndex = 0x1B;
+            SubmodeState = 0;
         }
         break;
     case 8:
-        temp_v1_8 = D_800AC5D0 - 1;
-        D_800AC5D0 = (u16) temp_v1_8;
+        temp_v1_8 = FadeCountdown - 1;
+        FadeCountdown = (u16) temp_v1_8;
         AddScreenFadeTiles(CurrentDrawBuf->ordering.ordering70.words, (0x40 - temp_v1_8) * 4, 0x45);
-        if ((s16) D_800AC5D0 <= 0) {
+        if ((s16) FadeCountdown <= 0) {
             ModeGroup = 1;
-            D_800F3A26 = 0x27;
-            D_800F4D8A = 0;
+            ModeIndex = 0x27;
+            SubmodeState = 0;
         }
         break;
     default:

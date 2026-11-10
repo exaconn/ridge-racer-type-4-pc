@@ -37,9 +37,9 @@
 extern unsigned char NameCharset[];
 extern int StepMenuValue();
 extern s32 ModeFrame;
-extern s16 D_800F3A26;
+extern s16 ModeIndex;
 extern s16 ModeGroup;
-extern u16 D_800F4D8A;
+extern u16 SubmodeState;
 extern unsigned char D_8009F810[];
 extern unsigned char SelectionState[];
 extern unsigned char D_800AD4EB;
@@ -51,7 +51,7 @@ extern s16 ActiveSceneId;
 extern int SetMenuFrameOptions();
 extern int UpdateCarWorldTransform();
 extern unsigned char D_8009F818[];
-extern short D_800AC5D0;
+extern short FadeCountdown;
 extern int D_800F3A60;
 extern void PlaySfx();
 
@@ -78,8 +78,8 @@ void CarPreviewLoadModeEnter(void) {
     ResetFrmTaskState();
     UpdateScreenFade(0x1000C);
     ModeGroup = 0;
-    D_800F3A26 = 6;
-    D_800F4D8A = 0;
+    ModeIndex = 6;
+    SubmodeState = 0;
 }
 
 void CarPreviewLoadModeUpdate(void) {
@@ -137,11 +137,11 @@ void InitCarPreviewScene(void) {
 void CarPreviewModeUpdate(void) {
     ModeFrame = (ModeFrame + 1U);
     SetupViewport(6);
-    if (D_800F4D8A == 0) {
+    if (SubmodeState == 0) {
         if (StepCarShowcaseScene(D_8009F818[((MenuSettings2C *)SelectionState)->phase17 / 2]) != 0) {
-            D_800AC5D0 = 0x40;
+            FadeCountdown = 0x40;
             CdAudioFade(0, 0x3C);
-            D_800F4D8A = 1;
+            SubmodeState = 1;
             InitCarPreviewScene();
             ImageRows->f1 = 0;
         }
@@ -154,8 +154,8 @@ void CarPreviewModeUpdate(void) {
         UpdateImageRow(0);
         if (ImageRows->f1 == 2) {
             ModeGroup = 1;
-            D_800F3A26 = 0x22;
-            D_800F4D8A = 0;
+            ModeIndex = 0x22;
+            SubmodeState = 0;
             SeqStartTrack(0);
         }
     }
@@ -178,7 +178,7 @@ void GarageCarPreviewModeUpdate(void)
     if (ready == 1) {
         loadedArena = LoadCursor;
         MenuArenas.first = loadedArena;
-        switch (D_800F4D8A) {
+        switch (SubmodeState) {
         case 0:
             rowStatus = (u8)UiRows->byte14;
             if (rowStatus == 2) {
@@ -189,7 +189,7 @@ void GarageCarPreviewModeUpdate(void)
                     UiRows->cells[0] = ready;
                     UiRows[1].byte14 = 0;
                     UiRows[2].byte14 = 0;
-                    D_800F4D8A = ready;
+                    SubmodeState = ready;
                 }
             }
             break;
@@ -209,7 +209,7 @@ void GarageCarPreviewModeUpdate(void)
                         UiRows[row].byte14 = 3;
                 }
             } else if (rowState == 5) {
-                D_800F4D8A = optionCount;
+                SubmodeState = optionCount;
             }
             break;
         case 2:
@@ -225,8 +225,8 @@ void GarageCarPreviewModeUpdate(void)
             }
             InitMotionController();
             ModeGroup = ready;
-            D_800F3A26 = 0xB;
-            D_800F4D8A = 0;
+            ModeIndex = 0xB;
+            SubmodeState = 0;
             break;
         default:
             break;

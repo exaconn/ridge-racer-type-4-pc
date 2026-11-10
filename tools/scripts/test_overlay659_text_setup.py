@@ -30,7 +30,7 @@ struct State {u32 guard[4];MenuSettings2C settings;MenuTextRow60 rows[48];
 static struct World {struct State s;unsigned calls;struct {s32 service,a[5];u32 hash;} event[32];} actual,expected,initial,*w;
 static unsigned scenario,mutation;
 #define SelectionState w->s.settings
-#define D_800FFC48 ((u8*)w->s.rows)
+#define SharedWorkArena ((u8*)w->s.rows)
 #define MenuTextRows w->s.published
 #define MenuTextRowCount w->s.count
 #define ovl659_result_labels w->s.labels

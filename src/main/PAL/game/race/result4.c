@@ -37,14 +37,14 @@ typedef struct {
 
 extern unsigned char D_8009F730[];
 extern unsigned char D_8009F790[];
-extern unsigned short D_800AC648;
+extern unsigned short SelectedCourseChoice;
 extern int ModeFrame;
 extern int MenuArenaBase;
 extern signed char LoadState;
 extern int GlyphRows;
-extern s16 D_800F3A26;
+extern s16 ModeIndex;
 extern s16 ModeGroup;
-extern s16 D_800F4D8A;
+extern s16 SubmodeState;
 extern void SetMenuFrameOptions();
 extern char NewCar0Msg[];
 extern char StrNewCarLog[];
@@ -143,7 +143,7 @@ void DrawResultsStandingsOverlay(int a0) {
       if (s1 == 3)
     {
       t = s2 + 1;
-      s2 = t + (D_800AC648 & 7);
+      s2 = t + (SelectedCourseChoice & 7);
     }
     p = D_8009F730 + (s2 * 4);
     a1 = AddSpritePrim(&CurrentDrawBuf->buffer.ordering70.words[0], a1, s3, 0x48, p, 0x263A, (s4 + 1) * 2);
@@ -217,8 +217,8 @@ void NewCarModeEnter(void) {
     ModeFrame = 0;
     VSyncThreshold = 0x80;
     ModeGroup = 1;
-    D_800F3A26 = 0xA;
-    D_800F4D8A = 0;
+    ModeIndex = 0xA;
+    SubmodeState = 0;
 }
 
 void NewCarModeUpdate(void) {
@@ -260,8 +260,8 @@ void NewCarModeUpdate(void) {
                 InitMenuArenas();
                 InitCarPreviewScene();
                 ModeGroup = r;
-                D_800F3A26 = 0x22;
-                D_800F4D8A = 0;
+                ModeIndex = 0x22;
+                SubmodeState = 0;
                 LoadCursor = s1;
                 DebugPrintStub(StrNewCarLog);
             }

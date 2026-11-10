@@ -34,10 +34,10 @@ typedef struct {
 static State actual,reference,*w;
 #define ModeFrame w->frame
 #define ScreenFrame w->tick
-#define D_800AC5D4 w->player
+#define ActivePlayerIndex w->player
 #define MenuCursor w->selection
 #define MenuItemCount w->limit
-#define D_800AC648 w->course
+#define SelectedCourseChoice w->course
 #define D_8010C0B8 w->active
 #define CdDirectoryBuffer w->base
 #define MenuArenaBase w->buffer
@@ -45,10 +45,10 @@ static State actual,reference,*w;
 #define MenuArenas w->arenas
 #define PlayerCars w->vehicles
 #define SelectionRows w->selectionRows
-#define D_8010BFD8 w->table
-#define D_8010C0C0 w->counts
-#define D_8010C0D8 w->group
-#define D_8010C0D0 w->index
+#define LinkCarChoiceTable w->table
+#define LinkCarChoiceCounts w->counts
+#define LinkCarChoiceGroup w->group
+#define LinkCarChoiceIndex w->index
 #define PlayerCourseChoices w->point
 #undef RR_PROJECTION_SCRATCH
 #define RR_PROJECTION_SCRATCH (&w->scratch)

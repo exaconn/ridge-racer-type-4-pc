@@ -9,8 +9,8 @@
 #include "game/data/selection.h"
 #include "rr/selection_types.h"
 
-extern short D_800ABEC8;
-extern short D_800AD520;
+extern short ComDifficultyLevel;
+extern short SelectedTeamIndex;
 extern short CourseIndex;
 
 int LoadTrackStep(void) {
@@ -31,10 +31,10 @@ int LoadTrackStep(void) {
         }
         break;
     case 2:
-        r3 = LoadCarSpecStep(CourseIndex, D_800AD520, D_800ABEC8);
+        r3 = LoadCarSpecStep(CourseIndex, SelectedTeamIndex, ComDifficultyLevel);
         goto chk;
     case 3:
-        r3 = LoadCourseAssetsStep(CourseIndex, D_800AD520);
+        r3 = LoadCourseAssetsStep(CourseIndex, SelectedTeamIndex);
     chk:
         if (r3 != 0) {
     inc:

@@ -43,7 +43,7 @@ extern short D_8009F678[];
 extern int CourseBestLapRecords[];
 extern int CourseBestLap[][8];
 extern short NumCars;
-extern short D_800ABEC8;
+extern short ComDifficultyLevel;
 extern int EmitSpinningWheelIcon();
 extern TrackSample3C *TrackNodes;
 extern int TrackNodeCount;
@@ -134,7 +134,7 @@ void DrawCourseInfoPanel(int arg0, int arg1) {
             if (i == 0) {
                 FormatDecimalDigits(sp28, NumCars - 2, 0);
             } else {
-                FormatDecimalDigits(sp28, D_800ABEC8 + 1, 0);
+                FormatDecimalDigits(sp28, ComDifficultyLevel + 1, 0);
             }
             DrawDigitString16(&CurrentDrawBuf->buffer.ordering70.words[0], 0x3A - i * 0xC, 0x148 + i * 0x10, sp28);
         }

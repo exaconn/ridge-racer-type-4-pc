@@ -20,10 +20,10 @@ s32 func_80114988(void);
 void func_80114AF8(unsigned long);
 extern s32 ScreenFrame;
 extern s32 RaceVoiceFlags;
-extern s16 D_800ABEF0;
-extern s32 D_800AC538;
+extern s16 ForceTailLightTrails;
+extern s32 ChaseViewEnabled;
 extern s32 RaceTimeRemaining;
-extern s16 D_800AC5D0;
+extern s16 FadeCountdown;
 extern s32 VSyncThreshold;
 extern s32 DrawSubOtFlag;
 extern s16 RearViewMirrorEnabled;
@@ -39,15 +39,15 @@ extern s32 BestLapTime;
 extern s16 GameModeType;
 extern s32 RaceState;
 extern s32 TrackEventSfxEnabled;
-extern s16 D_80107178;
-extern s32 D_80107190;
-extern s32 D_8010C12C;
-extern s16 D_8010C134;
+extern s16 LinkPlayerCount;
+extern s32 RaceStartWipeY;
+extern s32 SplitIndex;
+extern s16 LapVoicePending;
 extern s32 D_8010C13C;
 #include "rr/race_setup_types.h"
 #include "game/camera/viewini.h"
 #include "game/race/raceinit.h"
-extern RaceSetupPair4 D_800F4C70,D_800F2AB4;
+extern RaceSetupPair4 PlayerDisplayRpm,PlayerThrottleLoad;
 #include "rr/player_cars.h"
 extern s32 BestSplitTimes[3],SplitTimes[3],SplitDistances[3];
 extern s32 CourseBestLapTimes[48],CourseBestLap[16],CourseBestLapRecords[8];

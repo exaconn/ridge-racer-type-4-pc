@@ -32,10 +32,10 @@ static unsigned scenario,mutation,phaseSeen[10];
 #define ovl663_available_courses choices
 #define ovl663_selected_record w->s.selection
 #define ovl663_available_course_count w->s.limit
-#define D_800F4D8A w->s.phase
+#define SubmodeState w->s.phase
 #define ModeGroup w->s.scene
-#define D_800F3A26 w->s.nextScene
-#define D_800AC5D0 w->s.timer
+#define ModeIndex w->s.nextScene
+#define FadeCountdown w->s.timer
 #define D_800F3A60 w->s.accepted
 #define UiRows (w->s.rows[w->s.root])
 #define CurrentDrawBuf (&frames[w->s.bank])

@@ -86,11 +86,11 @@ extern int LoadDestCursor;
 
 extern int LoadCursor;
 
-extern int D_800AD568;
+extern int MirrorRenderFlag;
 
 extern signed char SelectionState[];
 
-extern short D_800AD508;
+extern short LinkHostFlag;
 
 extern char RankEntries[];
 
@@ -100,7 +100,7 @@ extern char SaveProgress[];
 
 extern char D_800F39D8[];
 
-extern char D_800F3B28[];
+extern char CustomEmblemBuffers[];
 
 extern char SelectionRows[];
 
@@ -118,15 +118,15 @@ extern int D_800F4C24;
 
 extern int D_800F4C2C;
 
-extern int D_800F4CA8;
+extern int DialogueSceneMode;
 
 extern int MenuArenaBase;
 
-extern short D_800F4BE0;
+extern short UnlockNoticeMask;
 
 extern short GameModeType;
 
-extern char *D_800F3B20;
+extern char *CustomEmblemTimPtr;
 
 void SystemInit(void)
 {
@@ -159,7 +159,7 @@ void SystemInit(void)
     D_800F4C2C = 0;
     DrawSubOtFlag = 0;
     NumLaps = 2;
-    D_800AD568 = 0;
+    MirrorRenderFlag = 0;
     PsyqBzero(SaveProgress, 0x7C);
     PsyqBzero(SelectionRows, 0x20);
     PsyqBzero(SelectionState, 0x2C);
@@ -172,7 +172,7 @@ void SystemInit(void)
     } while (i >= 0);
     PsyqBzero(PlayerCars, 0x320);
     PsyqBzero(PlayerCars + 0x320, 0x320);
-    D_800F4BE0 = 0;
+    UnlockNoticeMask = 0;
     i = 0;
     c5 = 5;
     q = SaveProgress;
@@ -184,7 +184,7 @@ void SystemInit(void)
         i++;
         q += 4;
     } while (i < 4);
-    D_800AD508 = -1;
+    LinkHostFlag = -1;
     CopyStringClearTail(SaveProgress, DefaultPlayerName);
     CopyStringClearTail(D_800F39D8, SaveProgress);
     CopyStringClearTail(D_800F39D8 + 0xC, SaveProgress);
@@ -208,7 +208,7 @@ void SystemInit(void)
     k = 0xAF000;
     m = -1;
     i = 2;
-    D_800F4CA8 = 0;
+    DialogueSceneMode = 0;
     GameModeType = 0;
     LoadDestCursor = CdDirectoryBuffer + k;
     r = SaveSlotSelections + i * 0x2C;
@@ -219,10 +219,10 @@ void SystemInit(void)
     } while (i >= 0);
     InitDefaultTimeRecords(k, i, r, m);
     InitCourseChoices();
-    InitTimTemplate(D_800F3B28);
-    InitTimTemplate(D_800F3B28 + 0x840);
+    InitTimTemplate(CustomEmblemBuffers);
+    InitTimTemplate(CustomEmblemBuffers + 0x840);
     InitTimTemplate(SaveDataWork);
-    D_800F3B20 = D_800F3B28;
+    CustomEmblemTimPtr = CustomEmblemBuffers;
     ResetRankEntries();
     InitCarTable(1);
     ResetGraph(3);

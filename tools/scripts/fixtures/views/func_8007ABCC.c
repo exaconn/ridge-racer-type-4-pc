@@ -6,13 +6,13 @@
 #undef CardTargetFileName
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3A26 (*(short (*))&D_800F3A26)
+#define ModeIndex (*(short (*))&ModeIndex)
 
-#define D_800F4D8A (*(short (*))&D_800F4D8A)
+#define SubmodeState (*(short (*))&SubmodeState)
 
-#undef D_800F3A26
+#undef ModeIndex
 
-#undef D_800F4D8A
+#undef SubmodeState
 
 /* legacy typing of shared globals in this part of the unit */
 #define UpdateScreenFade ((int (*)())UpdateScreenFade)
@@ -49,17 +49,17 @@ void CardMenuModeEnter(void) {
             _sio_control(1, 1, 0);
         }
     }
-    phase = D_800F4D8A;
+    phase = SubmodeState;
     switch (phase) {
     case 0:
         SetDispMask(0);
         SetupDrawDispEnvs(0x20, 0x20, 0x20, 2);
         ModeFrame = 0;
         GpSaveSlotCursor = 0;
-        D_80109478[D_8010948E] = 3;
+        CardPromptChoices[CardPromptIndex] = 3;
         /* ASM_BARRIER: finish the choice write before the clock read. */
         __asm__("" : : : "memory");
-        __builtin_memcpy(&clockLow, &D_800AC5D4, sizeof(clockLow));
+        __builtin_memcpy(&clockLow, &ActivePlayerIndex, sizeof(clockLow));
         bank = clockLow & 1;
         MenuActiveControllerIndex = bank;
         CardActivePort = bank;
@@ -88,7 +88,7 @@ void CardMenuModeEnter(void) {
             InitUiRow(0x24, 0xC, 0x90, 0x44, 0x20, 0, 0, 1, 0, 0x64);
             InitUiRow(0x25, 0xC, 0xB8, 0x44, 0x20, 0, 0, 1, 0, 0x55);
             MenuStateIndex = 0;
-            D_800F3AF8 = 0;
+            CardTransferMode = 0;
             D_800A45B8 = 0x1001A;
             SeqStartTrack(0);
         } else if (modeRange < 2U) {
@@ -105,7 +105,7 @@ void CardMenuModeEnter(void) {
             D_800A45B8 = layout;
             /* ASM_BARRIER: publish the layout before the badge status. */
             __asm__("" : : : "memory");
-            D_800F3AF8 = 0x10;
+            CardTransferMode = 0x10;
             MenuStateIndex = 0x29;
             InitBadgeRow(1, 0x80, 0x58, 0xA8, 0x80, 0, 0xE02);
             BadgeRows[1].half02 = 1;
@@ -124,13 +124,13 @@ void CardMenuModeEnter(void) {
                 }
                 InitBadgeRow(1, 0x80, 0x58, 0xA8, 0x80, 0, 0x702);
                 BadgeRows[1].half02 = 1;
-                D_800F3AF8 = (s16) (u16) CardMenuOperation;
+                CardTransferMode = (s16) (u16) CardMenuOperation;
             } else if (selection == 2) {
                 D_800A45B8 = 0x10016;
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x65);
                 InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
                 MenuStateIndex = 0x21;
-                D_800F3AF8 = selection;
+                CardTransferMode = selection;
             } else {
                 D_800A45B8 = 0x1001A;
             }
@@ -143,28 +143,28 @@ void CardMenuModeEnter(void) {
         defaultChoice = 3;
         /* ASM_BARRIER: keep the initialized fill value apart from the count. */
         __asm__("" : "+r"(defaultChoice));
-        D_800F4CA8 = 3;
-        D_8010948E = 0;
+        DialogueSceneMode = 3;
+        CardPromptIndex = 0;
         for (i = 2; i >= 0; i--) {
-            D_80109478[i] = defaultChoice;
+            CardPromptChoices[i] = defaultChoice;
         }
-        D_8010948C = 0;
+        CardReplayLoadedFlag = 0;
         for (i = 0; i < 3; i++) {
-            D_8010B258[i] = SaveSlotSelections[i];
+            SaveSlotSnapshots[i] = SaveSlotSelections[i];
         }
-        D_800F4D8A = 1;
+        SubmodeState = 1;
         break;
     case 1:
         ModeFrame = (s32)((u32)ModeFrame + 1U);
-        if (D_800F3A26 == phase) {
+        if (ModeIndex == phase) {
             SetDispMask(1);
         }
         ready = LoadMenuCarModelsStep();
         if (ready == phase) {
             SetDispMask(1);
             ModeGroup = ready;
-            D_800F3A26 = 0x48;
-            D_800F4D8A = 0;
+            ModeIndex = 0x48;
+            SubmodeState = 0;
         }
         break;
     }

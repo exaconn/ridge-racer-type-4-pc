@@ -20,7 +20,7 @@ extern unsigned char SelectionRows[][4];
 extern int RaceState;
 extern int TrackEventSfxEnabled;
 extern int ReplayState;
-extern int D_800AC538;
+extern int ChaseViewEnabled;
 extern RaceVehicle PlayerCars[];
 extern void ResetCarSlotBuffers();
 
@@ -125,14 +125,14 @@ void UpdatePlayerCar(RaceVehicle *a0, int a1)
   {
     SetLoopVoiceVolumes(a1 & 1, 0, 0);
   }
-  if (D_800AD508 < 0)
+  if (LinkHostFlag < 0)
   {
     if (GetMappedPadButtons(a1 & 1) != 0)
     {
       if (RaceState - 2U < 2U)
       {
         unsigned short t = a0->flags1E4 ^ 0x100;
-        D_800AC538 ^= 1;
+        ChaseViewEnabled ^= 1;
         a0->flags1E4 = t;
         do { ResetCarSlotBuffers(t); } while (0);
       }

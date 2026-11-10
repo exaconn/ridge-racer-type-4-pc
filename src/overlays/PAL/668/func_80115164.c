@@ -15,16 +15,16 @@ u8 *ovl668_func_80115164(StrDisplayConfig *config) {
   rectangle.rect.h=512;
   ClearImage(&rectangle,0,0,0);
  }
- config->rectangles[0].y=D_800ADAF0[0].environment.display5C.display.y+(s32)(256U-((StrPlaybackState*)RaceContext.activeB8)->height04)/2;
- config->rectangles[1].y=D_800ADAF0[1].environment.display5C.display.y+(s32)(256U-((StrPlaybackState*)RaceContext.activeB8)->height04)/2;
+ config->rectangles[0].y=DrawBuffers[0].environment.display5C.display.y+(s32)(256U-((StrPlaybackState*)RaceContext.activeB8)->height04)/2;
+ config->rectangles[1].y=DrawBuffers[1].environment.display5C.display.y+(s32)(256U-((StrPlaybackState*)RaceContext.activeB8)->height04)/2;
  config->rectangles[1].w=(s32)(((StrPlaybackState*)RaceContext.activeB8)->width00*3U)/2;
  config->rectangles[0].w=config->rectangles[1].w;
  config->rectangles[1].h=((StrPlaybackState*)RaceContext.activeB8)->height04;
  config->rectangles[0].h=config->rectangles[1].h;
  config->rectangles[2].h=((StrPlaybackState*)RaceContext.activeB8)->height04;
- D_800ADAF0[1].environment.display5C.display.w=((StrPlaybackState*)RaceContext.activeB8)->width00;
- D_800ADAF0[0].environment.display5C.display.w=D_800ADAF0[1].environment.display5C.display.w;
- D_800ADAF0[1].environment.display5C.display.h=((StrPlaybackState*)RaceContext.activeB8)->height04;
- D_800ADAF0[0].environment.display5C.display.h=D_800ADAF0[1].environment.display5C.display.h;
+ DrawBuffers[1].environment.display5C.display.w=((StrPlaybackState*)RaceContext.activeB8)->width00;
+ DrawBuffers[0].environment.display5C.display.w=DrawBuffers[1].environment.display5C.display.w;
+ DrawBuffers[1].environment.display5C.display.h=((StrPlaybackState*)RaceContext.activeB8)->height04;
+ DrawBuffers[0].environment.display5C.display.h=DrawBuffers[1].environment.display5C.display.h;
  return data;
 }

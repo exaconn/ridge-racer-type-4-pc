@@ -23,7 +23,7 @@
 #include "rr/screen_tiles.h"
 #include "game/sound/cdplay.h"
 
-extern s16 D_800AC5D0;
+extern s16 FadeCountdown;
 extern s32 FrmTaskState;
 extern short *D_8010BF80;
 extern int D_800F3A60;
@@ -36,16 +36,16 @@ void FrmTaskModeUpdate(void);
 
 void FrmTaskModeEnter(void) {
     FrmTaskState = 0;
-    D_800AC5D0 = -1;
+    FadeCountdown = -1;
     ModeGroup = 0;
-    D_800F3A26 = 6;
-    D_800F4D8A = 0;
+    ModeIndex = 6;
+    SubmodeState = 0;
 }
 
 
 void ResetFrmTaskState(void) {
     FrmTaskState = 0;
-    D_800AC5D0 = -1;
+    FadeCountdown = -1;
 }
 
 void FrmTaskModeUpdate(void) {
@@ -99,16 +99,16 @@ void FrmTaskModeUpdate(void) {
         FrmTaskState = 8;
     case 8:
         SetMenuFrameOptions(1, 1, 0);
-        if (D_800AC5D0 > 0) {
-            D_800AC5D0--;
-            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - D_800AC5D0) * 4, 0x45);
-            if (D_800AC5D0 == 0) {
+        if (FadeCountdown > 0) {
+            FadeCountdown--;
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - FadeCountdown) * 4, 0x45);
+            if (FadeCountdown == 0) {
                 ModeGroup = 1;
-                D_800F3A26 = 3;
-                D_800F4D8A = 0;
+                ModeIndex = 3;
+                SubmodeState = 0;
             }
         } else if (D_800F3A60) {
-            D_800AC5D0 = 0x40;
+            FadeCountdown = 0x40;
             CdAudioFade(0, 0x40);
         }
     case 3: case 4: case 5: case 6:
@@ -154,8 +154,8 @@ void MainLoop(void) {
     SetDispMask(0);
     ModeFrame=0;
     ModeGroup=1;
-    D_800F3A26=1;
-    D_800F4D8A=0;
+    ModeIndex=1;
+    SubmodeState=0;
     FrameCounter=0;
     for (;;) {
         {
@@ -164,7 +164,7 @@ void MainLoop(void) {
             register FrameStorage *frames asm("$3");
             register GpuScratchPointers *scratch;
             register u32 *ordering;
-            frames=D_800ADAF0;
+            frames=DrawBuffers;
             bank=FrameCounter;
             bank &=1;
             frame=&frames[bank];
@@ -179,7 +179,7 @@ void MainLoop(void) {
         ClearOTagR(CurrentDrawBuf->buffer.secondaryOrderingB70.words,0x2C0);
         CdFileStep();
         SoundUpdate();
-        ModeFuncTable[ModeGroup][D_800F3A26]();
+        ModeFuncTable[ModeGroup][ModeIndex]();
         DrawSync(0);
         threshold=VSyncThreshold;
         do {} while (VSync(1)<threshold);

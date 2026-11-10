@@ -24,12 +24,12 @@ prefix='''
 #include "rr/cpu_md_leaf.h"
 #include "rr_asm.h"
 #include <stdint.h>
-s16 D_800F3826,GameModeType;
+s16 SelectedMakerIndex,GameModeType;
 typedef struct {u8 before[16];RaceVehicle vehicle;u8 after[16];} World;
 '''
 tail='''
 int main(void){World w;u8 bytes[832]; _Static_assert(sizeof(RaceVehicle)==(sizeof(void*)==4?0x320:0x330) && sizeof(RaceVehicleControl)==(sizeof(void*)==4?0x12C:0x138),"view sizes"); _Static_assert(sizeof(w)==sizeof(RaceVehicle)+32,"native world");_Static_assert(offsetof(RaceVehicleControl,latch60)==(0x60+(sizeof(void*)==8?8:0)),"native latch offset");_Static_assert(sizeof(void*)==8,"full native pointer");assert((uintptr_t)&w.vehicle>UINT32_MAX);
-while(fread(bytes,1,832,stdin)==832){if(fread(&D_800F3826,2,1,stdin)!=1||fread(&GameModeType,2,1,stdin)!=1)return 2;
+while(fread(bytes,1,832,stdin)==832){if(fread(&SelectedMakerIndex,2,1,stdin)!=1||fread(&GameModeType,2,1,stdin)!=1)return 2;
 rr_vehicle_wire_reset();memcpy(w.before,bytes,16);rr_vehicle_wire_load(&w.vehicle,bytes+16);memcpy(w.after,bytes+816,16);
 UpdateEngineRpm(&w.vehicle);memcpy(bytes,w.before,16);rr_vehicle_wire_store(bytes+16,&w.vehicle);memcpy(bytes+816,w.after,16);if(fwrite(bytes,1,832,stdout)!=832)return 3;}return 0;}
 '''

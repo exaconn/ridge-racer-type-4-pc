@@ -136,9 +136,9 @@ extern struct { u16 x, y; } D_800A1050[];
 extern s32 D_800A1070[];
 extern S3C *TrackNodes;
 extern s32 TrackNodeCount;
-extern s16 D_800AC648;
+extern s16 SelectedCourseChoice;
 extern s16 CourseIndex;
-extern short D_800AD520;
+extern short SelectedTeamIndex;
 extern int CdAudioInit();
 extern signed char SelectionState[];
 extern int D_800F7660;
@@ -251,7 +251,7 @@ void DrawTrackNodeMap(s32 *arg0) {
     }
     SCRATCH->p = tile;
 
-    if (D_800AC648 < 8) {
+    if (SelectedCourseChoice < 8) {
         s1 = D_800A1030;
         s3 = &D_800A1028;
     } else {
@@ -363,7 +363,7 @@ void DrawTrackNodeMap(s32 *arg0) {
 }
 
 void SelectReplayBgmTrack(void) {
- int r, a1; if (GameModeType == 1) { if (CourseIndex == 7) { a1 = D_800AD520 + 0x20; CdAudioSelectTrack(0, a1); return; } } r = PsyqRand(); a1 = r % 6 + 0x1A; CdAudioSelectTrack(0, a1);
+ int r, a1; if (GameModeType == 1) { if (CourseIndex == 7) { a1 = SelectedTeamIndex + 0x20; CdAudioSelectTrack(0, a1); return; } } r = PsyqRand(); a1 = r % 6 + 0x1A; CdAudioSelectTrack(0, a1);
 }
 
 void SelectCourseBgmTrack(void) {
@@ -432,17 +432,17 @@ void CenterGlyphListX(short *a0, int a1)
 void InitRaceOpeningOverlay(s32 arg0, s32 arg1) {
     s32 i;
 
-    D_8010E22C = arg0;
-    D_8010E230 = arg1;
+    OpeningBannerMode = arg0;
+    OpeningAttemptIndex = arg1;
     OpeningFadeTimer = -1;
-    D_8010E234 = 0;
+    OpeningBgmSelectState = 0;
     OpeningSlideTimer = 0;
     SoundReverbOffAll();
 
     if (GameModeType != 1) {
         RaceBgmListIndex = 0;
     } else {
-        switch (D_800AD520) {
+        switch (SelectedTeamIndex) {
         case 0:
             RaceBgmListIndex = D_800A1A40[CourseIndex] + 1;
             break;
@@ -450,7 +450,7 @@ void InitRaceOpeningOverlay(s32 arg0, s32 arg1) {
             RaceBgmListIndex = D_800A1A00[CourseIndex] + 1;
             break;
         case 2:
-            RaceBgmListIndex = D_800A19E0[CourseIndex] + 1;
+            RaceBgmListIndex = CourseBgmChoiceTable2[CourseIndex] + 1;
             break;
         case 3:
             RaceBgmListIndex = CourseBgmChoiceTable3[CourseIndex] + 1;
@@ -479,8 +479,8 @@ void InitRaceOpeningOverlay(s32 arg0, s32 arg1) {
         break;
     case 4:
     default:
-        D_8010E234 = -1;
-        SoundState.track28A4 = D_800A19E0[CourseIndex] + 1;
+        OpeningBgmSelectState = -1;
+        SoundState.track28A4 = CourseBgmChoiceTable2[CourseIndex] + 1;
         SoundState.count28A8 = 0;
         break;
     }
@@ -488,14 +488,14 @@ void InitRaceOpeningOverlay(s32 arg0, s32 arg1) {
     D_8010E220 = RaceBgmListIndex + 0xB;
 
     for (i = 0; i < 8; i++) {
-        CenterGlyphListX(D_800A18F0[i], D_800A1090);
-        CenterGlyphListX(D_800A1910[i], D_800A1090);
-        CenterGlyphListX(D_800A1930[i], D_800A1090);
+        CenterGlyphListX(OpeningDateGlyphLists[i], D_800A1090);
+        CenterGlyphListX(OpeningTimeGlyphLists[i], D_800A1090);
+        CenterGlyphListX(OpeningStageGlyphLists[i], D_800A1090);
         CenterGlyphListX(D_800A1950[i], D_800A1090);
     }
 
     for (i = 0; i < 5; i++) {
-        CenterGlyphListX(D_800A1970[i], D_800A1090);
+        CenterGlyphListX(OpeningAttemptGlyphLists[i], D_800A1090);
     }
 
     for (i = 0; i < 8; i++) {
@@ -505,7 +505,7 @@ void InitRaceOpeningOverlay(s32 arg0, s32 arg1) {
     }
 
     for (i = 0; i < 7; i++) {
-        CenterGlyphListX(D_800A19A4[i], D_800A1090);
+        CenterGlyphListX(OpeningModeGlyphLists[i], D_800A1090);
     }
 
     CenterGlyphListX(D_800A1818, HudGlyphUvRects);

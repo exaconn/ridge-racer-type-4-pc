@@ -2,8 +2,8 @@
 #include "rr/frame_storage_types.h"
 
 extern s32 ModeFrame, TotalRaceTime, D_800F3A60;
-extern u16 D_800F4D8A;
-extern s16 ModeGroup, D_800F3A26, D_800AC5D0, MenuCursor, MenuScriptId;
+extern u16 SubmodeState;
+extern s16 ModeGroup, ModeIndex, FadeCountdown, MenuCursor, MenuScriptId;
 extern s16 ovl661_D_80118410[2];
 extern s16 ovl661_D_80118418[2];
 extern char ovl661_D_80118420[2][12];
@@ -35,12 +35,12 @@ void ovl661_func_80117E90(void) {
     s32 ready;
 
     ModeFrame++;
-    switch (D_800F4D8A) {
+    switch (SubmodeState) {
     case 0:
         if (TotalRaceTime == -1) {
             group = 1;
             if (MenuTextRows[11].signedBytes[2] >= 2) {
-                D_800F4D8A = 3;
+                SubmodeState = 3;
             }
             break;
         }
@@ -49,7 +49,7 @@ void ovl661_func_80117E90(void) {
             SetMenuFrameOptions(1, 1, group);
             if (D_800F3A60 != 0) {
                 PlaySfx(1);
-                D_800F4D8A = 3;
+                SubmodeState = 3;
                 SetMenuFrameOptions(group, 1, group);
             }
         }
@@ -70,41 +70,41 @@ void ovl661_func_80117E90(void) {
             if (ovl661_func_80117E10(0) >= 0) {
                 ResetScreenCounters();
                 InitMenuArenas();
-                D_800AC5D0 = 64;
-                D_800F4D8A = MenuCursor + 4;
+                FadeCountdown = 64;
+                SubmodeState = MenuCursor + 4;
                 SetMenuFrameOptions(0, 1, 0);
             }
         }
         break;
     case 4:
-        D_800AC5D0--;
-        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - D_800AC5D0) * 4, 69);
+        FadeCountdown--;
+        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - FadeCountdown) * 4, 69);
         group = 3;
-        if (D_800AC5D0 <= 0) {
+        if (FadeCountdown <= 0) {
             MenuScriptId = 0;
             ovl661_D_80118448[0] = -1;
             ModeGroup = 1;
-            D_800F3A26 = 35;
-            D_800F4D8A = 0;
+            ModeIndex = 35;
+            SubmodeState = 0;
         }
         break;
     case 5:
-        D_800AC5D0 -= 2;
-        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - D_800AC5D0) * 4, 69);
+        FadeCountdown -= 2;
+        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - FadeCountdown) * 4, 69);
         group = 3;
-        if (D_800AC5D0 <= 0) {
+        if (FadeCountdown <= 0) {
             group = -1;
-            D_800F4D8A = 8;
+            SubmodeState = 8;
         }
         break;
     case 6:
-        D_800AC5D0--;
-        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - D_800AC5D0) * 4, 69);
+        FadeCountdown--;
+        AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (64 - FadeCountdown) * 4, 69);
         group = -1;
-        if (D_800AC5D0 <= 0) {
+        if (FadeCountdown <= 0) {
             ModeGroup = 1;
-            D_800F3A26 = 3;
-            D_800F4D8A = 0;
+            ModeIndex = 3;
+            SubmodeState = 0;
         }
         break;
     case 8:
@@ -113,8 +113,8 @@ void ovl661_func_80117E90(void) {
             SeqStartTrack(0);
             ovl661_func_80115598(0);
             ModeGroup = ready;
-            D_800F3A26 = 56;
-            D_800F4D8A = 0;
+            ModeIndex = 56;
+            SubmodeState = 0;
         }
         return;
     }

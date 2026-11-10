@@ -25,11 +25,11 @@ extern char D_800A4648[][0x80];
 extern Struct4000 *SaveBuffer;
 extern Struct2C SelectionState;
 extern Struct2C SaveSlotSelections[3];
-extern short D_800F3AF8;
+extern short CardTransferMode;
 extern short GpSaveSlotCursor;
 extern char CardTargetFileName[];
 extern short CardMenuOperation;
-extern Struct2C D_8010B258[3];
+extern Struct2C SaveSlotSnapshots[3];
 extern int D_801272F0[];
 
 int CardSaveStep(short a0, int a1) {
@@ -47,24 +47,24 @@ int CardSaveStep(short a0, int a1) {
         i = D_800F3970 != 0;
         if (a0 == 1) {
             D_800A41E9 = 1;
-            if (D_800F3AF8 < 0x10) {
+            if (CardTransferMode < 0x10) {
                 BuildCardHeaderStatic(SaveBuffer, CardHeaderTitles[i], 0x250, 0x1FC, 0x254, 0x1D8, D_800A45C8);
-                BuildSaveData(D_800F3AF8);
-            } else if (D_800F3AF8 & 0x10) {
+                BuildSaveData(CardTransferMode);
+            } else if (CardTransferMode & 0x10) {
                 BuildCardHeaderStatic(SaveBuffer, CardTitleStrings[GpSaveSlotCursor], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[GpSaveSlotCursor]);
-                BuildSaveData(D_800F3AF8);
-            } else if (D_800F3AF8 == 0x20) {
+                BuildSaveData(CardTransferMode);
+            } else if (CardTransferMode == 0x20) {
                 *SaveBuffer = *CdDirectoryBuffer;
             }
         } else if (a0 >= 2) {
             D_800A41E9 = 0;
-            if (D_800F3AF8 < 0x10) {
+            if (CardTransferMode < 0x10) {
                 BuildCardHeaderStatic(SaveBuffer, CardHeaderTitles[i], 0x250, 0x1FC, 0x254, 0x1D8, D_800A45C8);
-                BuildSaveData(D_800F3AF8);
-            } else if (D_800F3AF8 & 0x10) {
+                BuildSaveData(CardTransferMode);
+            } else if (CardTransferMode & 0x10) {
                 BuildCardHeaderStatic(SaveBuffer, CardTitleStrings[GpSaveSlotCursor], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[GpSaveSlotCursor]);
-                BuildSaveData(D_800F3AF8);
-            } else if (D_800F3AF8 == 0x20) {
+                BuildSaveData(CardTransferMode);
+            } else if (CardTransferMode == 0x20) {
                 *SaveBuffer = *CdDirectoryBuffer;
             }
         }
@@ -76,7 +76,7 @@ int CardSaveStep(short a0, int a1) {
     case 2:
         for (i = 0x1D; i >= 0; i--) {
         }
-        if (D_800F3AF8 == 0x20) {
+        if (CardTransferMode == 0x20) {
             r = CardWriteFile((short)a1, 0, CardTargetFileName, SaveBuffer, 2, D_800A41E9);
         } else {
             r = CardWriteFile((short)a1, 0, CardTargetFileName, SaveBuffer, 1, D_800A41E9);
@@ -98,9 +98,9 @@ int CardSaveStep(short a0, int a1) {
                 D_800A41E8 = 4;
                 switch (CardMenuOperation) {
                 case 3:
-                    D_8010B258[GpSaveSlotCursor] = SelectionState;
+                    SaveSlotSnapshots[GpSaveSlotCursor] = SelectionState;
                     for (i = 0; i < 3; i++) {
-                        SaveSlotSelections[i] = D_8010B258[i];
+                        SaveSlotSelections[i] = SaveSlotSnapshots[i];
                     }
                     break;
                 case 6:

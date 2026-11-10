@@ -31,9 +31,9 @@ void ovl666_init_preview(void) {
     PlayerCars[0].position20.words[2] = 308;
     PlayerCars[0].rot54 = 2048;
     UnpackChoiceGlyph((s8 *)&SelectionRows,
-                  ovl666_available_courses[D_800F3826][ovl666_selected_course.word].glyph);
-    PlayerCourseChoices[0].first = ovl666_available_courses[D_800F3826][ovl666_selected_course.word].first;
-    PlayerCourseChoices[0].second = ovl666_available_courses[D_800F3826][ovl666_selected_course.word].second;
+                  ovl666_available_courses[SelectedMakerIndex][ovl666_selected_course.word].glyph);
+    PlayerCourseChoices[0].first = ovl666_available_courses[SelectedMakerIndex][ovl666_selected_course.word].first;
+    PlayerCourseChoices[0].second = ovl666_available_courses[SelectedMakerIndex][ovl666_selected_course.word].second;
     SetMenuFrameOptions(0, 1, 1);
 }
 
@@ -58,7 +58,7 @@ void ovl666_update_preview(void) {
     PlayerCars[0].rot54 = (PlayerCars[0].rot54 + 8U) & 0xFFF;
     SetupMenuCarCamera(1);
     SetupViewport(6);
-    if (D_800F4D8A != 3) {
+    if (SubmodeState != 3) {
         loadResult = LoadCarRangeStep(0, 1);
         if (loadResult != 1) {
             if (((s8 *)ImageRows)[1] == 1) {
@@ -73,23 +73,23 @@ void ovl666_update_preview(void) {
         }
     }
     modelReady = 1;
-    switch (D_800F4D8A) {
+    switch (SubmodeState) {
     case 0:
         SetMenuFrameOptions(1, 1, 1);
         previousCar = PackChoiceGlyph((s8 *)&SelectionRows);
         StepMenuValue(1, 2, (char *)&ovl666_selected_course.halves[0],
-                      ovl666_course_counts[D_800F3826], 0);
+                      ovl666_course_counts[SelectedMakerIndex], 0);
         UnpackChoiceGlyph((s8 *)&SelectionRows,
-                      ovl666_available_courses[D_800F3826][ovl666_selected_course.word].glyph);
+                      ovl666_available_courses[SelectedMakerIndex][ovl666_selected_course.word].glyph);
         if ((previousCar << 16) != ((u32)PackChoiceGlyph((s8 *)&SelectionRows) << 16)) {
             ResetScreenCounters();
             LoadCursor = MenuArenaBase;
             UnpackChoiceGlyph((s8 *)&SelectionRows,
-                          ovl666_available_courses[D_800F3826][ovl666_selected_course.word].glyph);
+                          ovl666_available_courses[SelectedMakerIndex][ovl666_selected_course.word].glyph);
             PlayerCourseChoices[0].first =
-                ovl666_available_courses[D_800F3826][ovl666_selected_course.word].first;
+                ovl666_available_courses[SelectedMakerIndex][ovl666_selected_course.word].first;
             PlayerCourseChoices[0].second =
-                ovl666_available_courses[D_800F3826][ovl666_selected_course.word].second;
+                ovl666_available_courses[SelectedMakerIndex][ovl666_selected_course.word].second;
             ((s8 *)ImageRows)[1] = 6;
         }
         UiRows[MenuCursor + 3].cells[0] = 0;
@@ -102,7 +102,7 @@ void ovl666_update_preview(void) {
                 if (MenuCursor == 0) {
                     PlaySfx(1);
                     ovl666_preview_phase = selectionState;
-                    D_800F4D8A = 4;
+                    SubmodeState = 4;
                 } else if (MenuCursor == 1) {
                     PlaySfx(1);
                     rowIndex = 0;
@@ -127,31 +127,31 @@ void ovl666_update_preview(void) {
                 } while (rowIndex < 2);
             close_selection:
                 ((s8 *)ImageRows)[1] = 3;
-                D_800F4D8A = 5;
+                SubmodeState = 5;
                 BadgeRows->state10 = 4;
             }
         }
         break;
     case 3:
         SetMenuFrameOptions(0, 1, 1);
-        if (D_800AC5D0 > 0) {
-            D_800AC5D0 = (u16)D_800AC5D0 - 1;
+        if (FadeCountdown > 0) {
+            FadeCountdown = (u16)FadeCountdown - 1;
         }
         SetModelTexturePage(-1);
-        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (0x40 - D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->ordering.ordering70.words[0], (0x40 - FadeCountdown) * 4, 0x45);
         loadResult = LoadCarRangeStep(1, 1);
-        if ((loadResult == 1) && (D_800AC5D0 <= 0)) {
+        if ((loadResult == 1) && (FadeCountdown <= 0)) {
             GameModeType = 6;
             course =
                 ovl666_course_dispatch[SelectionRows.selection.primary][SelectionRows.selection.variant];
             ovl666_result_kind = loadResult;
-            D_800AC648 = course;
+            SelectedCourseChoice = course;
             CourseIndex = DecodeCourseIndex((s16)course);
             SeqMuteVolume();
             MenuScriptId = 0;
             ModeGroup = loadResult;
-            D_800F3A26 = 0x23;
-            D_800F4D8A = 0;
+            ModeIndex = 0x23;
+            SubmodeState = 0;
             goto save_preview_arena;
         }
         break;
@@ -170,9 +170,9 @@ void ovl666_update_preview(void) {
                 SelectionRows.selection.rows[0] = SelectionRows.entry;
                 SelectionRows.selection.rows[0].parameter = 0x13;
                 CourseIndex = 0;
-                D_800F4D8A = 3;
+                SubmodeState = 3;
                 ResetScreenCounters();
-                D_800AC5D0 = 0x40;
+                FadeCountdown = 0x40;
                 SeqFadeVolume(0, 0x3C);
             save_preview_arena:
                 MenuArenas.first = LoadCursor;
@@ -182,13 +182,13 @@ void ovl666_update_preview(void) {
                 PlaySfx(2);
                 UiRows[5].byte14 = 3;
                 UiRows[6].byte14 = 3;
-                D_800F4D8A = 6;
+                SubmodeState = 6;
             }
         }
         break;
     case 6:
         if (UiRows[5].byte14 == 5) {
-            D_800F4D8A = 0;
+            SubmodeState = 0;
             ovl666_preview_phase = 1;
             UiRows[5].byte14 = 0;
             UiRows[6].byte14 = 0;
@@ -201,8 +201,8 @@ void ovl666_update_preview(void) {
             ResetScreenCounters();
             ovl666_init_menu();
             ModeGroup = 1;
-            D_800F3A26 = 0x4F;
-            D_800F4D8A = 0;
+            ModeIndex = 0x4F;
+            SubmodeState = 0;
             goto end;
         }
         break;
@@ -239,9 +239,9 @@ draw_selection_rows:
     }
     UpdateBadgeRowAnim(0);
     if (UpdateImageRow(0) > 0) {
-        if (ovl666_course_counts[D_800F3826] >= 2) {
+        if (ovl666_course_counts[SelectedMakerIndex] >= 2) {
             DrawMenuStepArrows(0xA0, 0x90, 8, 1, ovl666_selected_course.word, 0,
-                          ovl666_course_counts[D_800F3826]);
+                          ovl666_course_counts[SelectedMakerIndex]);
         }
     }
 end:

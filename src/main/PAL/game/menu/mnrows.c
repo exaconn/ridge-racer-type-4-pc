@@ -23,7 +23,7 @@ extern int CdDirectoryBuffer;
 extern char D_8001075C[];
 extern void ClearScreenOverlayState();
 extern int MenuArenaBase;
-extern short D_800F3826;
+extern short SelectedMakerIndex;
 
 void ResetScreenCounters(void);
 void InitMenuArenas();
@@ -175,7 +175,7 @@ void InitMenuArenas(void) {
   LoadCursor = LoadCursor + AllocGlyphRows(LoadCursor);
   LoadCursor = LoadCursor + AllocImageRows(LoadCursor);
   LoadCursor = LoadCursor + AllocUiRows(LoadCursor);
-  D_800ACC1C = LoadCursor;
+  MenuBaseLoadCursor = LoadCursor;
   MenuArenas.second = LoadCursor + 0x19000;
   LoadCursor = LoadCursor + 0x19000;
 }
@@ -189,17 +189,17 @@ void InitMenuScript(void) {
     switch (MenuScriptId) {
     case 0:
         SetupDrawDispEnvs(0, 0, 0, 1);
-        D_800FFC10 = 1;
+        MenuTransitionOverlayMode = 1;
         LoadCursor = MenuArenas.first;
         goto l428;
     case 10:
         if (GameModeType != 5) {
             SetupDrawDispEnvs(0, 0, 0, 1);
-            D_800FFC10 = 1;
+            MenuTransitionOverlayMode = 1;
             LoadCursor = CdDirectoryBuffer;
         } else {
             SetupDrawDispEnvs(0, 0, 0, 2);
-            D_800FFC10 = 0;
+            MenuTransitionOverlayMode = 0;
         }
         goto l428;
     case 6:
@@ -209,18 +209,18 @@ void InitMenuScript(void) {
     case 1:
     case 4:
         SetupDrawDispEnvs(8, 8, 8, a3 | 2);
-        D_800FFC10 = 2;
+        MenuTransitionOverlayMode = 2;
         break;
     default:
         SetupDrawDispEnvs(0, 0, 0, 2);
-        D_800FFC10 = 0;
+        MenuTransitionOverlayMode = 0;
         break;
     }
     ClearScreenOverlayState();
     InitMenuArenas();
 l428:
     ResetScreenCounters();
-    if (D_800FFC10 == 1) {
+    if (MenuTransitionOverlayMode == 1) {
         SetDispMask(0);
         a1 = 0;
         switch (GameModeType) {
@@ -232,20 +232,20 @@ l428:
         case 2:
         case 3: a0 = 9; break;
         case 4: a0 = 10; break;
-        case 6: a0 = D_800F3826 + 0xB; break;
+        case 6: a0 = SelectedMakerIndex + 0xB; break;
         default:
             a0 = 0;
             a1 = a0;
-            D_800FFC10 = 3;
+            MenuTransitionOverlayMode = 3;
             break;
         }
-        if (D_800FFC10 == 1) InitRaceOpeningOverlay(a0, a1);
-    } else if (D_800FFC10 == 0) {
+        if (MenuTransitionOverlayMode == 1) InitRaceOpeningOverlay(a0, a1);
+    } else if (MenuTransitionOverlayMode == 0) {
         IntroScriptStep();
     }
     ModeGroup = 1;
-    D_800F3A26 = 0x24;
-    D_800F4D8A = 0;
+    ModeIndex = 0x24;
+    SubmodeState = 0;
 }
 
 void UpdateMenuScript(void) {
@@ -264,7 +264,7 @@ void UpdateMenuScript(void) {
     if (GameModeType == 4) {
         UpdateLinkHandshake(1);
     }
-    mode=D_800FFC10;
+    mode=MenuTransitionOverlayMode;
     if (mode == 1) {
         status = UpdateRaceOpeningOverlay(ModeFrame);
     } else {
@@ -284,17 +284,17 @@ void UpdateMenuScript(void) {
             if (opcode < 0) {
                 MenuScriptId = (u16) -opcode;
                 MenuScriptStep = -1;
-                if (D_800FFC10 == 0) {
+                if (MenuTransitionOverlayMode == 0) {
                     StartDemoFadeOutAndCloseVab();
                 }
             }
         }
     } else {
-        if((status==1 && D_800FFC10==status) || (D_800FFC10==0 && status==2) || (D_800FFC10>=2 && status==1)) {
+        if((status==1 && MenuTransitionOverlayMode==status) || (MenuTransitionOverlayMode==0 && status==2) || (MenuTransitionOverlayMode>=2 && status==1)) {
             MenuSceneEntries[MenuScriptId]();
-            D_800F4D8A = 0;
+            SubmodeState = 0;
             ModeGroup = (u16) ((u16) ActiveSceneId >> 8);
-            D_800F3A26 = ActiveSceneId & 0xFF;
+            ModeIndex = ActiveSceneId & 0xFF;
         }
     }
     if (ModeGroup != 1) {

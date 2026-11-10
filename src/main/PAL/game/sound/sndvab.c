@@ -127,12 +127,12 @@ var_t0 = arg0;
         var_a0 = (s16) temp_v0;
         var_a1 = (s16) temp_v0;
     }
-    var_v1 = var_a0 * D_800F4DD0;
+    var_v1 = var_a0 * SoundMasterGain;
     if (var_v1 < 0) {
         var_v1 += 0x7F;
     }
 
-    var_a0_2 = var_a1 * D_800F4DD0;
+    var_a0_2 = var_a1 * SoundMasterGain;
     first_div=var_v1>>7;
     if (var_a0_2 < 0) {
         var_a0_2 += 0x7F;

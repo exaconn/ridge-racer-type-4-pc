@@ -33,7 +33,7 @@ void UpdateDialogue(int a0, int a1, MenuTextState *s) {
     }
     switch (s->st) {
     case 0:
-        p = D_800F2ED0[(signed char)(s->b4 % 40)];
+        p = DialogueScriptPtrs[(signed char)(s->b4 % 40)];
         s->p = p;
         s->sC = p[0] & 0xFFF;
         s->p = p + 1;
@@ -46,7 +46,7 @@ void UpdateDialogue(int a0, int a1, MenuTextState *s) {
         s->p = p;
         s->bB = v;
         s->i18 = 0;
-        v = D_800ACC20[s->b4];
+        v = DialoguePageCounts[s->b4];
         s->s12 = 0;
         s->sE = 1;
         s->s10 = 0;

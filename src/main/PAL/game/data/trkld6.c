@@ -17,7 +17,7 @@
 #include "game/course/trkintp2.h"
 #include "game/sound/sndvab.h"
 extern int RaceContext[];
-extern short D_800F3826;
+extern short SelectedMakerIndex;
 extern unsigned short SavedCourseIndex;
 extern short CourseIndex;
 extern int D_800A0234[];
@@ -36,7 +36,7 @@ void SetupRaceSoundCarConfig(void) {
         RaceContext[0x570 / 4] = GetPlayerCarVariantIndex(0);
         RaceContext[0x574 / 4] = -1;
         SoundState.split10 = 0;
-        RaceContext[0x578 / 4] = D_800F3826 + 1;
+        RaceContext[0x578 / 4] = SelectedMakerIndex + 1;
         break;
     case 0:
         SoundState.unk19CC = 1;
@@ -66,26 +66,26 @@ void SetupRaceSoundCarConfig(void) {
         SoundState.split10 = 1;
         break;
     case 4:
-        D_800F6784 = 1;
+        SoundSeqVariantIndex = 1;
         RaceContext[0x56C / 4] = 5;
-        if (D_800AD508 != 0) {
+        if (LinkHostFlag != 0) {
             RaceContext[0x570 / 4] = GetPlayerCarVariantIndex(0);
             RaceContext[0x574 / 4] = GetPlayerCarVariantIndex(1);
         } else {
             RaceContext[0x570 / 4] = GetPlayerCarVariantIndex(2);
             RaceContext[0x574 / 4] = GetPlayerCarVariantIndex(3);
         }
-        D_800ACBC8 = -1;
-        D_800F4DC8 = 1;
+        ComSoundBankIndex = -1;
+        DualPlayerSoundEnabled = 1;
         break;
     }
 }
 
 int LoadRaceSoundAndTrackStep(void) {
-    switch (D_800A0218) {
+    switch (RaceSoundTrackLoadState) {
     case 0:
         SetupRaceSoundCarConfig();
-        D_800A0218 += 1;
+        RaceSoundTrackLoadState += 1;
     case 1:
         if (LoadRaceSoundStep() != 0) {
             RaceLoadStepIndex = 0;
@@ -96,12 +96,12 @@ int LoadRaceSoundAndTrackStep(void) {
             if (CourseIndex >= 8) {
                 CourseIndex = 7;
             }
-            D_800A0218 += 1;
+            RaceSoundTrackLoadState += 1;
         }
         return 0;
     case 2:
         if (LoadTrackStep() != 0) {
-            D_800A0218 += 1;
+            RaceSoundTrackLoadState += 1;
             CourseIndex = SavedCourseIndex;
         }
         return 0;

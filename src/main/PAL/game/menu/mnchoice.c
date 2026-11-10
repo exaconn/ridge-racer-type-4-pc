@@ -18,14 +18,14 @@ s32 CountChoiceGlyphs(const CourseChoice4 *a0);
 void StepResultsMenuChoice(void) {
     s32 state;
     u32 selected=D_800F4D99;
-    D_800F3826=selected;
+    SelectedMakerIndex=selected;
     ((u8 *)UiRows)[12+selected]=0;
     do {
-        if ((D_800F3A42 & 0x2000) && D_800F3826 < 3) {
-            D_800F3826 = D_800F3826 + 1;
+        if ((D_800F3A42 & 0x2000) && SelectedMakerIndex < 3) {
+            SelectedMakerIndex = SelectedMakerIndex + 1;
             MenuStepDirection = 2;
-        } else if ((D_800F3A42 & 0x8000) && D_800F3826 > 0) {
-            D_800F3826 = D_800F3826 - 1;
+        } else if ((D_800F3A42 & 0x8000) && SelectedMakerIndex > 0) {
+            SelectedMakerIndex = SelectedMakerIndex - 1;
             MenuStepDirection = 1;
         } else {
             MenuStepDirection = 0;
@@ -33,19 +33,19 @@ void StepResultsMenuChoice(void) {
         }
         /* The sound helper can change selection and backing pointers. */
         PlaySfx(0);
-        if(D_800F3826<0)D_800F3826=0;
-        else if(D_800F3826>=4)D_800F3826=3;
-        Dialogue[4]=(u8)D_800F3826+34;
-        D_800F4D99=D_800F3826;
-        GlyphRows[D_800F3826].control02=-6;
-        GlyphRows[D_800F3826].flags00=0;
-        UiRows->byte16=(u8)D_800F3826+4;
+        if(SelectedMakerIndex<0)SelectedMakerIndex=0;
+        else if(SelectedMakerIndex>=4)SelectedMakerIndex=3;
+        Dialogue[4]=(u8)SelectedMakerIndex+34;
+        D_800F4D99=SelectedMakerIndex;
+        GlyphRows[SelectedMakerIndex].control02=-6;
+        GlyphRows[SelectedMakerIndex].flags00=0;
+        UiRows->byte16=(u8)SelectedMakerIndex+4;
     } while (0);
     {
         u8 *ui=UiRows->cells;
         s32 active;
 
-        active=D_800F3826;
+        active=SelectedMakerIndex;
         ui[active]=2;
     }
     if(D_800F3A60) {

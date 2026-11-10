@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern u8 D_8009ED38[];
+extern u8 FontAtlasTileCoords[];
 /* Append sprite packets to an arena and return its next cursor. */
 void *AddTextSprites(u32 *ordering, void *cursor, s32 x, s32 y,
                      const char *text, s32 clut, s32 spacing, s32 color);

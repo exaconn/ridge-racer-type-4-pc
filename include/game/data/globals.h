@@ -6,12 +6,12 @@
 #include "game/data/savetype.h"
 
 extern int BackColorR;
-extern s32 D_800AC5D8;
+extern s32 ActiveViewportIndex;
 extern SaveBuf *SaveBuffer;
 extern signed char D_800AD4EF;
-extern int D_800AD5B8;
+extern int DefaultSegmentVisibilityMask;
 extern unsigned short PendingModeId;
-extern short D_800F4CD0;
+extern short ModeSelectBaseCount;
 extern s32 RearViewMirrorY;
 extern int FarColorB;
 extern int FarColorG;

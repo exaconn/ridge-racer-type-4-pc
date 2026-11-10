@@ -39,10 +39,10 @@ static const u16 timers[8]={0,1,63,64,32767,32768,65534,65535};
 #define ModeFrame w->s.frame
 #define ScreenFrame w->s.tick
 #define ovl662_D_801272C0 w->s.resource
-#define D_800F4D8A w->s.phase
+#define SubmodeState w->s.phase
 #define ModeGroup w->s.scene
-#define D_800F3A26 w->s.nextScene
-#define D_800AC5D0 w->s.timer
+#define ModeIndex w->s.nextScene
+#define FadeCountdown w->s.timer
 #define ovl662_D_801272D4 w->s.mode
 #define SelectionRows w->s.choice
 #define D_800F4D99 w->s.choice.bytes[1]

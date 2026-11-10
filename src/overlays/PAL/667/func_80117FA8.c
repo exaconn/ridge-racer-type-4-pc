@@ -23,25 +23,25 @@ void ovl667_func_80117FA8(void) {
     waitResult = UpdateLinkHandshake(2);
     ModeFrame = (ModeFrame + 1U);
     ScreenFrame = (ScreenFrame + 1U);
-    if ((D_800F4D8A == 3) || (LoadTrackNodesStep() == 1)) {
-        switch (D_800F4D8A) {                       /* irregular */
+    if ((SubmodeState == 3) || (LoadTrackNodesStep() == 1)) {
+        switch (SubmodeState) {                       /* irregular */
         case 0:
             SetMenuFrameOptions(1, 1, 1);
-            previousCourse = D_800AC648;
-            StepMenuValue(3, 2, (char *)&D_800AC648, D_8010C078, 0);
-            if ((s16) previousCourse != (s16) D_800AC648) {
+            previousCourse = SelectedCourseChoice;
+            StepMenuValue(3, 2, (char *)&SelectedCourseChoice, LinkAvailableCourseCount, 0);
+            if ((s16) previousCourse != (s16) SelectedCourseChoice) {
                 ResetScreenCounters();
             } else {
                 DrawCourseMapPreview((s16) previousCourse, 2);
             }
-            CourseIndex = DecodeCourseIndex((s16) D_800AC648);
+            CourseIndex = DecodeCourseIndex((s16) SelectedCourseChoice);
             UiRows[MenuCursor+18].cells[0] = 0;
             StepMenuValue(0, 2, (char *)&MenuCursor, 3, 0);
             UiRows[MenuCursor+18].cells[0] = 2;
             row = 0;
             if (UiRows[21].byte02 != 0) {
                 do {
-                    if (row == (s16) D_800AC648) {
+                    if (row == (s16) SelectedCourseChoice) {
                         UiRows[21].cells[row] = 2;
                         UiRows[21].byte16 = row;
                     } else {
@@ -69,15 +69,15 @@ void ovl667_func_80117FA8(void) {
                             previewIndex++;
                         } while (row < 4);
                         ResetScreenCounters();
-                        D_800AC5D0 = 0x40;
+                        FadeCountdown = 0x40;
                         LoadCursor = MenuArenas.first;
                         SeqFadeVolume(0, 0x3C);
                         BeginLinkSync();
-                        D_800F4D8A = 3;
+                        SubmodeState = 3;
                         SetMenuFrameOptions(0, 1, 1);
                     } else if ((s16) MenuCursor == 1) {
                         UiRows[23].byte14 = 0U;
-                        D_800F4D8A = 4;
+                        SubmodeState = 4;
                     } else if ((s16) MenuCursor == activeState) {
                         close = 1;
                     }
@@ -97,26 +97,26 @@ void ovl667_func_80117FA8(void) {
                         row += 1;
                         backIndex++;
                     } while (row < 5);
-                    D_800F4D8A = 8;
+                    SubmodeState = 8;
                 }
             }
             break;
         case 3:
-            DrawCourseMapPreview((s16) D_800AC648, 2);
-            if ((waitResult == 0) && (D_800AC5D0 == 0x40)) {
+            DrawCourseMapPreview((s16) SelectedCourseChoice, 2);
+            if ((waitResult == 0) && (FadeCountdown == 0x40)) {
                 DrawUiRow(0x18);
             } else {
                 D_8010C0B8 = 1;
-                if (D_800AC5D0 > 0) {
-                    D_800AC5D0 = (s16)((u16) D_800AC5D0 - 1);
+                if (FadeCountdown > 0) {
+                    FadeCountdown = (s16)((u16) FadeCountdown - 1);
                 }
-                AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words, (0x40 - D_800AC5D0) * 4, 0x45);
-                if (D_800AC5D0 <= 0) {
-                    D_8010C0C8 = -1;
+                AddScreenFadeTiles(CurrentDrawBuf->buffer.ordering70.words, (0x40 - FadeCountdown) * 4, 0x45);
+                if (FadeCountdown <= 0) {
+                    LinkPrevCarRanks = -1;
                     SeqMuteVolume();
                     ModeGroup = 1;
-                    D_800F3A26 = 0x29;
-                    D_800F4D8A = 0;
+                    ModeIndex = 0x29;
+                    SubmodeState = 0;
                     LinkState = 0;
                     _sio_control(3, 0, 0);
                 }
@@ -134,30 +134,30 @@ void ovl667_func_80117FA8(void) {
                     UiRows[23].byte14 = 3U;
                 }
             } else if (detailState == 5) {
-                D_800F4D8A = 0;
+                SubmodeState = 0;
             }
-            DrawCourseMapPreview((s16) D_800AC648, 2);
+            DrawCourseMapPreview((s16) SelectedCourseChoice, 2);
             break;
         case 8:
             if (UiRows[18].byte14 == 5) {
-                ovl667_func_801161A8((1 - D_800AD508) * 2);
+                ovl667_func_801161A8((1 - LinkHostFlag) * 2);
                 ModeGroup = 1;
-                D_800F3A26 = 0x3C;
-                D_800F4D8A = 0;
+                ModeIndex = 0x3C;
+                SubmodeState = 0;
             }
             break;
         }
     }
-    DrawCourseInfoPanel((s16) D_800AC648, 2);
+    DrawCourseInfoPanel((s16) SelectedCourseChoice, 2);
     row = 0;
     do {
         DrawUiRow(row + 0x12);
         row += 1;
     } while (row < 4);
-    if (UiRows[18].byte14 == 2 && D_800F4D8A != 4) {
-        DrawMenuStepArrows(0xCE, 0xD0, 0x5E, 0, (s16) D_800AC648, -1, (D_8010C078 + 1U));
+    if (UiRows[18].byte14 == 2 && SubmodeState != 4) {
+        DrawMenuStepArrows(0xCE, 0xD0, 0x5E, 0, (s16) SelectedCourseChoice, -1, (LinkAvailableCourseCount + 1U));
     }
-    if (D_800F4D8A == 4) {
+    if (SubmodeState == 4) {
         DrawUiRow(0x17);
     }
     D_800F4CB8 = 0;

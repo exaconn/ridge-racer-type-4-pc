@@ -18,13 +18,13 @@ extern int CourseBestLap[2][8];
 extern Struct10 RaceRecords[2][8][5];
 extern Struct2C SaveSlotSelections[3];
 extern int CourseBestLapTimes[2][8][3];
-extern Struct840 *D_800F3910;
-extern Struct840 *D_800F3918;
-extern int D_800F3B28[];
+extern Struct840 *GarageSavedDecalTimB;
+extern Struct840 *GarageSavedDecalTimA;
+extern int CustomEmblemBuffers[];
 extern short GpSaveSlotCursor;
 extern Struct10 LapRecords[2][8][5];
-extern Struct2C D_8010B258[3];
-extern CourseChoice4 D_8010BFD8[2][2][9];
+extern Struct2C SaveSlotSnapshots[3];
+extern CourseChoice4 LinkCarChoiceTable[2][2][9];
 extern StructC D_80118420[];
 extern CourseChoice4 D_80118458[2][2][9];
 extern int D_801272F0[];
@@ -63,7 +63,7 @@ int ApplySaveData(int arg0) {
                 if (arg0 == 0x30) {
                     SaveSlotSelections[s0] = s3->f360[s0];
                 } else {
-                    D_8010B258[s0] = s3->f360[s0];
+                    SaveSlotSnapshots[s0] = s3->f360[s0];
                 }
             }
             for (s0 = 0; s0 < 9; s0++) {
@@ -83,7 +83,7 @@ int ApplySaveData(int arg0) {
                 }
             }
             for (s0 = 0; s0 < 0x210; s0++) {
-                D_800F3B28[s0] = s3->fEA4[s0];
+                CustomEmblemBuffers[s0] = s3->fEA4[s0];
             }
             ApplySoundVolumes();
             a2 = 1;
@@ -98,15 +98,15 @@ int ApplySaveData(int arg0) {
         if (s3->f1AA4 == a1) {
             for (s0 = 0; s0 < 9; s0++) {
                 if (GameModeType == 2 || GameModeType == 3) {
-                    D_80118458[D_800AC5D4 & 1][1][s0] = s3->f33C[s0];
-                    CopyStringClearTail(&D_80118420[D_800AC5D4 & 1], &s3->f280);
+                    D_80118458[ActivePlayerIndex & 1][1][s0] = s3->f33C[s0];
+                    CopyStringClearTail(&D_80118420[ActivePlayerIndex & 1], &s3->f280);
                 } else if (GameModeType == 4) {
-                    D_8010BFD8[D_800AC5D4 & 1][1][s0] = s3->f33C[s0];
-                    CopyStringClearTail(&D_8010C088[D_800AC5D4], &s3->f280);
+                    LinkCarChoiceTable[ActivePlayerIndex & 1][1][s0] = s3->f33C[s0];
+                    CopyStringClearTail(&LinkPlayerNames[ActivePlayerIndex], &s3->f280);
                 }
             }
             for (s0 = 0; s0 < 0x210; s0++) {
-                *(int *)((D_800AC5D4 & 1) * 0x840 + (s0 << 2) + (int)D_800F3B28) = s3->fEA4[s0];
+                *(int *)((ActivePlayerIndex & 1) * 0x840 + (s0 << 2) + (int)CustomEmblemBuffers) = s3->fEA4[s0];
             }
             a2 = 1;
         }
@@ -118,13 +118,13 @@ int ApplySaveData(int arg0) {
         break;
     case 0x11:
         v11 = (p = (SaveBuf11 *)SaveBuffer)->f280;
-        D_800F4D38 = D_801272F0[GpSaveSlotCursor] = v11;
+        EmblemEditFrames = D_801272F0[GpSaveSlotCursor] = v11;
         for (t0 = 0; t0 < 2; t0++) {
             for (s0 = 0; s0 < 0x840; s0++) {
                 if (t0 == 0) {
-                    D_800F3918->b[s0] = p->f300[0][s0];
+                    GarageSavedDecalTimA->b[s0] = p->f300[0][s0];
                 } else {
-                    D_800F3910->b[s0] = p->f300[t0][s0];
+                    GarageSavedDecalTimB->b[s0] = p->f300[t0][s0];
                 }
             }
         }

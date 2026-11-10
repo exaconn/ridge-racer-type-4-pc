@@ -33,7 +33,7 @@
 #include "game/sound/cdplay.h"
 #include "game/sound/cdstart.h"
 
-#define G D_8010BF78
+#define G IntroSceneStatePtr
 #define H BadgeRows
 #define K CardDialogueStatePtr
 #define SPAD ((int *)SCRATCHPAD)
@@ -55,20 +55,20 @@ extern void ClearScreenOverlayState();
 extern int CdAudioInit();
 extern int SetGeomOffset();
 extern BadgeRow1C *BadgeRows;
-extern short D_800AC5D0;
+extern short FadeCountdown;
 extern char ScreenFadeState;
-extern short D_800F3A26;
+extern short ModeIndex;
 extern short MenuScriptId;
 extern short ModeGroup;
-extern int D_800F4CA8;
-extern short D_800F4D8A;
+extern int DialogueSceneMode;
+extern short SubmodeState;
 extern short D_8009E4EC;
 extern char *CdDirectoryBuffer;
 extern const Vec3s8 D_800101EC;
 extern const VectorWords16 D_8009E510;
 extern const VectorWords16 D_8009E520;
 extern const VectorWords16 D_8009E530;
-extern char D_8009E540[];
+extern char IntroCameraPosKeyframes[];
 
 void StepIntroScene();
 void EmitSpriteGrid(u32 intensity,SpriteGridClock *state);
@@ -150,20 +150,20 @@ void StepIntroScene(void) {
     int col;
     temp_s5 = PollCdAudioStatus();
     if (TitleSceneStage >= 5) {
-        if (D_800AC5D0 != 0) {
-            if (D_800AC5D0 == 4) {
+        if (FadeCountdown != 0) {
+            if (FadeCountdown == 4) {
                 CdAudioFade(0, 0x40);
-            } else if (D_800AC5D0 >= 0x100) {
-                D_800F4CA8 = 0;
+            } else if (FadeCountdown >= 0x100) {
+                DialogueSceneMode = 0;
                 MenuScriptId = 1;
                 ModeGroup = 1;
-                D_800F3A26 = 0x23;
-                D_800F4D8A = 0;
+                ModeIndex = 0x23;
+                SubmodeState = 0;
             }
-            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], D_800AC5D0, 0x45);
-            D_800AC5D0 = (u16) D_800AC5D0 + 4;
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], FadeCountdown, 0x45);
+            FadeCountdown = (u16) FadeCountdown + 4;
         } else if (Pad0Buttons & 0x800) {
-            D_800AC5D0 = 4;
+            FadeCountdown = 4;
         }
     }
     if (TitleSceneStage < 0x36U) {
@@ -174,7 +174,7 @@ case 0x0:
     ScreenFadeState = 2;
     InitMenuArenas();
     ResetScreenCounters();
-    D_800F4CA8 = 4;
+    DialogueSceneMode = 4;
     InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
     TitleSceneStage = 1;
 case 0x1:
@@ -193,7 +193,7 @@ case 0x2:
     LoadTimImage(LoadCursor + ((int *)LoadCursor)[3]);
     LoadTimImage(temp_s0);
     RegisterModelBank((RroModelBank *)temp_s1, 4);
-    D_800AC64C = temp_s2;
+    SkyCommandListPtr = temp_s2;
     RelocateOffsetTable(temp_s2);
     TitleSceneStage = 3;
     LoadCursor += temp_v0;
@@ -258,7 +258,7 @@ case 0x6:
         goto block_197;
     }
     PsyqMemset((SCRATCHPAD + 0x18), 0, 0x10);
-    src = D_8009E540;
+    src = IntroCameraPosKeyframes;
     st = &TitleSceneStage;
     sp2 = (int *)(SCRATCHPAD + 0x8);
     RR_COPY16_T(sp2, src, 16);
@@ -770,7 +770,7 @@ case 0x2F:
     G->s5E = 0x1000;
     G->s76 = 4;
     __asm__ (""); /* ASM_BARRIER: keep src load after s76 store */
-    src = D_8009E540;
+    src = IntroCameraPosKeyframes;
     G->s48 = c80;
     G->s4A = 0;
     G->s72 = 0;
@@ -810,8 +810,8 @@ case 0x32:
     sp4[6] = 0x400;
     sp4[7] = 0;
     sp4[8] = 0;
-    __asm__ volatile("" : "=r"(st) :: "memory"); /* ASM_BARRIER: clobber $a0 so %hi(D_8010BF78) stays in $a1 across sp4 stores */
-    src = D_8009E540;
+    __asm__ volatile("" : "=r"(st) :: "memory"); /* ASM_BARRIER: clobber $a0 so %hi(IntroSceneStatePtr) stays in $a1 across sp4 stores */
+    src = IntroCameraPosKeyframes;
     g_v1 = G;
     __asm__ ("" : "+r"(src), "+r"(g_v1) :: "$8", "$9"); /* ASM_BARRIER: emit src and G reload before state lui and reserve $t0-$t1 for sp2 in $t5 */
     st = &TitleSceneStage;
@@ -832,7 +832,7 @@ case 0x33:
     TitleSceneStage = 0x34;
 case 0x34:
     if (G->s46 >= *G->p40) {
-        D_800AC5D0 = 4;
+        FadeCountdown = 4;
         TitleSceneStage = 0x35;
     }
     goto block_222;
@@ -961,7 +961,7 @@ case 0x27:
         g_v1->sA0 = c8;
         RR_GTE_MTC2_IR0(c8);
         c8 = g_v1->s9E;
-        st = (int *)D_8009E540;
+        st = (int *)IntroCameraPosKeyframes;
         tabq = st + c8 * 4;
         RR_GTE_LWC2_IR(tabq);
         tabr = st + (c8 - 1) * 4;

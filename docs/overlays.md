@@ -20,7 +20,7 @@ Evidence:
   `CdFileReadStart(GetR4FileIndex(1, mode + 0xB), LoadCursor)`.
   The category-1 mapper adds `0x292`, so this selects entries 669..673 for
   mode 0..4. These include copies of the executable menu modules.
-- `LoadOpeningMovieTimStep` likewise requests entries `659 + D_800F4D2C` into that buffer.
+- `LoadOpeningMovieTimStep` likewise requests entries `659 + MainMenuChoice` into that buffer.
 - `LoadSplashAssetsStep` and `LoadAttractTimStep` explicitly load entry 668
   (`0x292 + 10`) into the reset buffer.
 - Absolute jump tables and intra-overlay calls agree with this base.

@@ -44,8 +44,8 @@ class RelativeFileRelocationTest(unittest.TestCase):
          u32 after[16];
         } world,initial,expected;
         #define D_800F2EBC world.root
-        #define D_800F39A4 world.count
-        #define D_800F3820 world.entries
+        #define RelFileSegmentCount world.count
+        #define RelFileSegmentViewSlots world.entries
         #define D_800F391C world.first
         #define RelFileViewRecords world.second
         '''

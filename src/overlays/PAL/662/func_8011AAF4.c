@@ -2,8 +2,8 @@
 
 void ovl662_func_8011AAF4(void) {
     ScreenFrame=(ScreenFrame+1U);
-    if (++D_800F4D38 > 0x014996FFU) {
-        D_800F4D38 = 0x014996FFU;
+    if (++EmblemEditFrames > 0x014996FFU) {
+        EmblemEditFrames = 0x014996FFU;
     }
     ovl662_func_8011D208();
     ovl662_func_8011E070();
@@ -13,6 +13,6 @@ void ovl662_func_8011AAF4(void) {
     ovl662_func_8011B400();
     ovl662_func_8011CF8C();
     ovl662_func_8011CD18();
-    D_800F39A0 = ovl662_D_801276A8.buffers24[ovl662_D_801276A8.active21];
-    D_800F399C = ovl662_D_801276A8.tim2C[ovl662_D_801276A8.active21];
+    GarageActiveDecalTimA = ovl662_D_801276A8.buffers24[ovl662_D_801276A8.active21];
+    GarageActiveDecalTimB = ovl662_D_801276A8.tim2C[ovl662_D_801276A8.active21];
 }

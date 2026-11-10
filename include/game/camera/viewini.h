@@ -6,8 +6,8 @@
 #include "rr/matrix_words.h"
 #include "rr/geometry.h"
 
-extern VisibleCourseViews D_8010E290;
-extern VisibleCourseViews *D_8010E690;
+extern VisibleCourseViews PrimaryVisibleViews;
+extern VisibleCourseViews *ActiveVisibleViews;
 extern CourseViewIndices *D_800ADAD0;
 extern AdditionalCourseViews D_800F4C38;
 
@@ -15,8 +15,8 @@ extern AdditionalCourseViews D_800F4C38;
 extern MatrixWords32 D_800A3B00;
 extern MatrixWords32 ColorMatrix;
 extern Vec3sFields8 D_800A3B20, D_800A3B28, D_800A3B30;
-extern Vec3sFields8 D_800F38F8[3];
-extern u16 D_800AD5BC[3];
+extern Vec3sFields8 LightSourceAngles[3];
+extern u16 LightSourceIntensities[3];
 
 void InitViewLighting(void);
 void InitCourseViewState(void);

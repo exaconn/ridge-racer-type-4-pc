@@ -85,26 +85,26 @@ void BuildCameraMatrices(void) {
     ProjectionScratchPrefix *view = (ProjectionScratchPrefix *)SCRATCHPAD;
     BuildRotMatrixY(SCRATCH_ROT_MATRIX, view->pose08.angles10.xyz.y);
     BuildRotMatrixY(&CameraViewMatrix, view->pose08.angles10.xyz.y);
-    SetIdentityMatrix(&D_800FF6B8);
+    SetIdentityMatrix(&CameraPitchRollMatrix);
     BuildRotMatrixY(&D_800FF6D8, view->pose08.angles10.xyz.y);
     BuildRotMatrixX(&rotation, view->pose08.angles10.xyz.x);
     MulMatrix2(&rotation, (MatrixWords32 *)(SCRATCH_ROT_MATRIX));
     MulMatrix2(&rotation, &CameraViewMatrix);
-    MulMatrix2(&rotation, &D_800FF6B8);
+    MulMatrix2(&rotation, &CameraPitchRollMatrix);
     BuildRotMatrixZ(&rotation, view->pose08.angles10.xyz.z);
     MulMatrix2(&rotation, (MatrixWords32 *)(SCRATCH_ROT_MATRIX));
     MulMatrix2(&rotation, &CameraViewMatrix);
-    MulMatrix2(&rotation, &D_800FF6B8);
+    MulMatrix2(&rotation, &CameraPitchRollMatrix);
     BuildRotMatrixY(&rotation, 0x800);
     MulMatrix0(
         &rotation,
         (const MatrixWords32 *)(SCRATCH_ROT_MATRIX),
-        &D_800AD598);
+        &RearViewMirrorMatrix);
     BuildRotMatrixX(&rotation, D_800AC0A4 * 2);
-    MulMatrix2(&rotation, &D_800AD598);
-    D_800AD598.halves[0] = -D_800AD598.halves[0];
-    D_800AD598.halves[1] = -D_800AD598.halves[1];
-    D_800AD598.halves[2] = -D_800AD598.halves[2];
+    MulMatrix2(&rotation, &RearViewMirrorMatrix);
+    RearViewMirrorMatrix.halves[0] = -RearViewMirrorMatrix.halves[0];
+    RearViewMirrorMatrix.halves[1] = -RearViewMirrorMatrix.halves[1];
+    RearViewMirrorMatrix.halves[2] = -RearViewMirrorMatrix.halves[2];
     SetRotMatrix(SCRATCH_ROT_MATRIX);
 }
 

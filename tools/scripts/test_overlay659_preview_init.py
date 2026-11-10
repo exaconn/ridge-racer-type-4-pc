@@ -37,8 +37,8 @@ static State actual,reference,*w;
 #define ScreenFrame w->tick
 #define MenuCursor w->selection
 #define MenuItemCount w->mode
-#define D_800F3A26 w->scene
-#define D_800F4D8A w->phase
+#define ModeIndex w->scene
+#define SubmodeState w->phase
 #define ModeGroup w->enable
 #define SelectionState w->settings
 #define UiRows (w->rows[w->root])

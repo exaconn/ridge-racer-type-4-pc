@@ -144,7 +144,7 @@ void UpdateScreenFade(int a0) {
         *(int *)SCRATCHPAD = AddTileGrid2x2(&CurrentDrawBuf->buffer.ordering70.words[703], t, 0, 0, 0x140, 0x200, sp.c[0], sp.c[1], sp.c[2]);
     }
     DrawMenuFrame(a0 >> 2);
-    if (D_800F4D2C != 6 && D_800F4D2C != 8) {
+    if (MainMenuChoice != 6 && MainMenuChoice != 8) {
         SetPresentationDrawEnabled(a0 & 1);
         StepCameraScript();
     }
@@ -286,7 +286,7 @@ void DrawMenuFrame(int arg0) {
         s5 = (j >= 2) ? 0x1BE : 0x1AA;
         sp30 = D_8009EE70[j];
         if ((unsigned int)(j - 3) < 2) {
-            s2 = (PlayerControllers[D_800AC5D4 & 1].protocol10 == 1);
+            s2 = (PlayerControllers[ActivePlayerIndex & 1].protocol10 == 1);
             if (s2 == 1) {
                 sp30.u += 0x14;
                 if (j == 4) {

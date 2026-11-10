@@ -25,14 +25,14 @@
 
 extern void ClearScreenOverlayState();
 extern int SetMenuFrameOptions();
-extern unsigned short D_800AC5D0;
+extern unsigned short FadeCountdown;
 extern int VSyncThreshold;
 extern short MenuCursor;
 extern int ModeFrame;
 extern MenuSettings2C SaveSlotSelections[];
-extern short D_800F3A26;
+extern short ModeIndex;
 extern short ModeGroup;
-extern unsigned short D_800F4D8A;
+extern unsigned short SubmodeState;
 extern int DrawUiRow();
 extern short CardMenuOperation;
 extern int StepMenuValue();
@@ -54,7 +54,7 @@ void GpMenuModeEnter(void) {
     SetupDrawDispEnvs(0, 0, 0, 3);
     ModeFrame = 0;
     ScreenFrame = 0;
-    D_800AC5D0 = 0;
+    FadeCountdown = 0;
     MenuCursor = 1;
     VSyncThreshold = 0x80;
     SelectionState[0x17] = -1;
@@ -73,8 +73,8 @@ void GpMenuModeEnter(void) {
     if (a1 == 0) {
         UpdateGrandPrixStageProgress();
         ModeGroup = 0;
-        D_800F3A26 = 1;
-        D_800F4D8A = 0;
+        ModeIndex = 1;
+        SubmodeState = 0;
         return;
     T:
         a1 = 1;
@@ -85,8 +85,8 @@ void GpMenuModeEnter(void) {
     InitUiRow(2, 0x6C, 0x108, 0x44, 0x20, 0, 0, 1, 0, 0x55);
     SetMenuFrameOptions(0, 1, 1);
     ModeGroup = 1;
-    D_800F3A26 = 6;
-    D_800F4D8A = 0;
+    ModeIndex = 6;
+    SubmodeState = 0;
 }
 
 void GpMenuModeUpdate(void) {
@@ -104,7 +104,7 @@ void DrawFirstThreeUiRows(void) {
 void StepGpMenuSelection(void) {
     int s;
     int v, t;
-    s = D_800F4D8A;
+    s = SubmodeState;
     if (s == 0) {
         UiRows[MenuCursor].cells[0] = 0;
         StepMenuValue(0, 2, &MenuCursor, 3, 0);
@@ -120,8 +120,8 @@ void StepGpMenuSelection(void) {
                 UiRows->byte14 = v;
                 UiRows[1].byte14 = v;
                 UiRows[2].byte14 = v;
-                D_800AC5D0 = 0x40;
-                D_800F4D8A = 1;
+                FadeCountdown = 0x40;
+                SubmodeState = 1;
             } else if (PlayerControllers[0].action2C != 0) {
                 PlaySfx(2);
                 v = 3;
@@ -129,33 +129,33 @@ void StepGpMenuSelection(void) {
                 UiRows->byte14 = 3;
                 UiRows[1].byte14 = v;
                 UiRows[2].byte14 = v;
-                D_800AC5D0 = 0x40;
-                D_800F4D8A = 1;
+                FadeCountdown = 0x40;
+                SubmodeState = 1;
             }
         }
     } else if (s == 1) {
         SetMenuFrameOptions(0, 1, 1);
-        t = D_800AC5D0 - 1;
-        D_800AC5D0 = t;
+        t = FadeCountdown - 1;
+        FadeCountdown = t;
         AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - (short)t) * 4, 0x45);
-        if ((short)D_800AC5D0 <= 0) {
+        if ((short)FadeCountdown <= 0) {
             switch (MenuCursor) {
             case 0:
                 UpdateGrandPrixStageProgress();
                 ModeGroup = 0;
-                D_800F3A26 = s;
-                D_800F4D8A = 0;
+                ModeIndex = s;
+                SubmodeState = 0;
                 break;
             case 1:
                 CardMenuOperation = 4;
                 ModeGroup = s;
-                D_800F3A26 = 0xD;
-                D_800F4D8A = 0;
+                ModeIndex = 0xD;
+                SubmodeState = 0;
                 break;
             case 2:
                 ModeGroup = s;
-                D_800F3A26 = 3;
-                D_800F4D8A = 0;
+                ModeIndex = 3;
+                SubmodeState = 0;
                 break;
             }
         }
@@ -166,7 +166,7 @@ void CarStandingsModeEnter(void)
 {
     int *sp = (int *)SCRATCHPAD;
     MenuGrid38 *p;
-    AllocMenuGridRecords(D_800FFC48, 1);
+    AllocMenuGridRecords(SharedWorkArena, 1);
     InitMenuGrid(0, 0, 3, 0xF0, 0xA0);
     PsyqBzero((SCRATCHPAD + 0x8), 0x20);
     p = MenuGridRecords;
@@ -189,6 +189,6 @@ void CarStandingsModeEnter(void)
     MenuFrameState = 0;
     sp[0] = AddTileGrid2x2(&CurrentDrawBuf->buffer.ordering70.words[0], sp[0], 0, 0, 0x140, 0x200, 8, 8, 8);
     ModeGroup = 1;
-    D_800F3A26 = 0x10;
-    D_800F4D8A = 0;
+    ModeIndex = 0x10;
+    SubmodeState = 0;
 }

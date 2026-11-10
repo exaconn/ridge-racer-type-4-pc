@@ -6,7 +6,7 @@ from normalize_asm_symbols import normalize
 
 class AsmSymbolNormalizationTest(unittest.TestCase):
     def test_definition_reference_and_interior_offset(self):
-        source = 'glabel func_80095E74\n lui $t0, %hi(func_80095E74 + 0x14)\n jr func_80095e74\n'
+        source = 'glabel _memcard_patch_stub\n lui $t0, %hi(_memcard_patch_stub + 0x14)\n jr func_80095e74\n'
         expected = 'glabel _memcard_patch_stub\n lui $t0, %hi(_memcard_patch_stub + 0x14)\n jr _memcard_patch_stub\n'
         self.assertEqual(normalize(source, {0x80095E74: '_memcard_patch_stub'}), expected)
 

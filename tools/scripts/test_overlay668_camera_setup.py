@@ -72,7 +72,7 @@ static void call11(s32 enabled){assert(enabled==1);service(11);}
 #define D_80127E90 (actual.delay)
 #define D_80127E94 (actual.selected)
 #define D_800AD564 (actual.bank)
-#define D_800AD520 (actual.row)
+#define SelectedTeamIndex (actual.row)
 #define ovl668_D_80116CC0 (actual.lookup)
 #define SetDispMask call0
 #define SetupDrawDispEnvs call1

@@ -11,7 +11,7 @@ extern int SetAnimatedTrackObjectState();
 
 extern int ViewUsesCarTrackNode;
 
-extern int D_800AD5B8;
+extern int DefaultSegmentVisibilityMask;
 
 extern char D_800F4C38[];
 
@@ -21,7 +21,7 @@ void InitCourseViewState(void) {
     char *g = (char *)0x1F800000;
     InitViewLighting();
     ViewUsesCarTrackNode = 1;
-    D_800AD5B8 = 0x1400;
+    DefaultSegmentVisibilityMask = 0x1400;
     *(int *)(g + 0x78) = 0;
     *(short *)(g + 0x5E) = 0;
     if (CourseIndex == 7) {

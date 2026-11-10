@@ -30,10 +30,10 @@ extern s8 D_8009FC14[][4];
 extern s8 D_8009FC7C[][8];
 extern UiUvRect D_8009FCDC[];
 extern s8 D_8009FD00[];
-extern s16 D_800ABEC8;
+extern s16 ComDifficultyLevel;
 extern s16 NumCars;
 extern s16 ReverseCourse;
-extern s16 D_800F3826;
+extern s16 SelectedMakerIndex;
 extern u8 SaveProgress[];
 extern s32 NumLaps;
 extern s32 D_80119754;
@@ -170,7 +170,7 @@ s32 DrawUiRow(s32 arg0) {
         }
         fp = 0;
         if (s6 == 7) {
-            s0 = D_800ABEC8 + 1;
+            s0 = ComDifficultyLevel + 1;
         }
         s2 = 0;
         /* fallthrough */
@@ -269,7 +269,7 @@ s32 DrawUiRow(s32 arg0) {
         }
         break;
     case 12:
-        if (SaveProgress[D_800F3826 + 0x5C] == 1) {
+        if (SaveProgress[SelectedMakerIndex + 0x5C] == 1) {
             s2 = 8;
         } else {
             s2 = 7;

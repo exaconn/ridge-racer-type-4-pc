@@ -85,8 +85,8 @@ void SlotsStartForRace(void) {
     s32 var_a0;
 
     SlotStart(0);
-    if (D_800F4DC8 == 0) {
-        if (D_800ACBC8 >= 0) {
+    if (DualPlayerSoundEnabled == 0) {
+        if (ComSoundBankIndex >= 0) {
             SlotStart(2);
             SlotStart(3);
         }

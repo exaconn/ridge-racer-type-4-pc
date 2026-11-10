@@ -42,7 +42,7 @@ void ovl662_func_80121074(s32 mode) {
                 if (ovl662_D_801276A8.fade00 == 0) {
                     ovl662_D_80127668.words[0] = (ovl662_D_80127668.words[0] & ~9);
                     ovl662_D_801276A8.fade00 = -1;
-                    ModeGroup=1;D_800F3A26=0x27;D_800F4D8A=0;return;
+                    ModeGroup=1;ModeIndex=0x27;SubmodeState=0;return;
                 }
             } else {
                 phase = UiRows[0].byte14;
@@ -106,8 +106,8 @@ block_32:
                 case 9:
                     if (ovl662_D_801276A8.fade00 == 0) {
                         ModeGroup = 1;
-                        D_800F3A26 = 0x27;
-                        D_800F4D8A = 0;
+                        ModeIndex = 0x27;
+                        SubmodeState = 0;
                         return;
                     }
                     break;

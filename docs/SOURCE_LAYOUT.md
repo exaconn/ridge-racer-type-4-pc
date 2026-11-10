@@ -164,7 +164,7 @@ types locally. The runtime/context headers forward that declaration.
 helper. Its full-page oracle, cases, inputs and assertions are preserved after
 exact field-path renames. The obsolete physical-page substitution and empty-asm
 erasure are removed; no fake shifted `AudioState` object or low-address mapping
-is needed. The historical `func_8004F2D8` view receives only the same field-path
+is needed. The historical `SoundQueueEnqueue` view receives only the same field-path
 adapter. The queue consumer's old register binding remains reconstruction debt.
 
 `SpuGetKeyStatus(s32 voiceMask)` has one public argument, matching the actual
@@ -299,7 +299,7 @@ view or remove the remaining register bindings in the race TUs.
 `rr/replay_types.h` describes the single-player, two-player and link work layouts:
 packed four-byte input frames followed by complete vehicles. PAL offsets and the
 maximum 0x60E8 payload are asserted; native offsets/strides use actual pointer
-alignment. `rr/work_arena.h` declares the shared `D_800FFC48` backing as bytes,
+alignment. `rr/work_arena.h` declares the shared `SharedWorkArena` backing as bytes,
 because loaded assets, menu rows and replay storage occupy it at different times.
 Menu initializers select their row view explicitly. Bank setup derives payload
 offsets and lengths from the actual layouts, but still contains legacy integer
@@ -1002,10 +1002,10 @@ suffix is an actual `DisplayEnvironment` child at `FrameEnvironment.display5C`.
 Frame initialization and the calibration/playback/draw-area consumers select
 that child through the same shared layout. `D_800D0268` and `D_800D02C4` name
 addresses inside bank1, rather than independent C globals; initialization now
-uses `D_800ADAF0[1]` and its display child, and their old externs are removed.
+uses `DrawBuffers[1]` and its display child, and their old externs are removed.
 The shared SDK header declares the actual typed `SetDefDispEnv` interface.
 
-`MainLoop` selects `&frames[bank]` from the real `D_800ADAF0` array. Its ordering
+`MainLoop` selects `&frames[bank]` from the real `DrawBuffers` array. Its ordering
 roots, packet cursor, draw/display environments and final table entries use
 named fields of that owner. Scratchpad publication uses `GpuScratchPointers`
 with real pointer cells. The reconstructed800B page and its numeric pointer
@@ -1408,7 +1408,7 @@ array's first record and the player's `halfSpan10E` member, the physical alias
 previously declared as `D_800AC006`. Camera curves likewise have one declaration
 in `rr/camera_curve_tables.h`: four three-point arrays and the thirteen-point
 steering array, including their negative-time sentinels. The old scalar view
-of `D_800A0D7C` and its cast to a curve pointer are gone. The scale vector uses
+of `ShowcaseCamDepthCurve` and its cast to a curve pointer are gone. The scale vector uses
 the shared `VectorWords16` rather than a private four-word record.
 
 Three current-body fixtures check 65,536 native point transforms, 32,768 native

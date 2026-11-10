@@ -41,7 +41,7 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
     s32 s0_2;
     s32 s0_3;
 
-    s2 = D_8010E22C;
+    s2 = OpeningBannerMode;
     s4 = 0;
     if (arg0 < 0) {
         arg0 = 0;
@@ -99,10 +99,10 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
             AddLineF2Prim(sp40, sp48, 1, 0);
         }
 
-        DrawGlyphList(D_800A18F0[s2], sp18[1], 0);
-        DrawGlyphList(D_800A1910[s2], sp18[1], 0);
-        DrawGlyphList(D_800A1930[s2], sp18[2], 0);
-        DrawGlyphListSloped(D_800A1970[D_8010E230], sp18[2], 0);
+        DrawGlyphList(OpeningDateGlyphLists[s2], sp18[1], 0);
+        DrawGlyphList(OpeningTimeGlyphLists[s2], sp18[1], 0);
+        DrawGlyphList(OpeningStageGlyphLists[s2], sp18[2], 0);
+        DrawGlyphListSloped(OpeningAttemptGlyphLists[OpeningAttemptIndex], sp18[2], 0);
         EmitIconSpriteRow128(0, sp18[3]);
         DrawFontString(0x9A, 0xA0, D_80011228, sp18[4], 0);
         s0_1 = DrawFontStringCentered(0x60, 0xB0, CourseNames + CourseIndex * 0x18, sp18[4], 0) / 2;
@@ -112,9 +112,9 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
 
         if (sp18[5] >= 0x80) {
             if (Pad0Buttons & 0x8000) {
-                if (D_8010E234 == 0) {
+                if (OpeningBgmSelectState == 0) {
                     SoundState.track28A4 = 0;
-                    D_8010E234 = 1;
+                    OpeningBgmSelectState = 1;
                 } else {
                     SoundState.track28A4--;
                     if (SoundState.track28A4 < 0) {
@@ -124,9 +124,9 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
                 OpeningSlideTimer = 0;
             }
             if (Pad0Buttons & 0x2000) {
-                if (D_8010E234 == 0) {
+                if (OpeningBgmSelectState == 0) {
                     SoundState.track28A4 = 0;
-                    D_8010E234 = 1;
+                    OpeningBgmSelectState = 1;
                 } else {
                     SoundState.track28A4++;
                     if (SoundState.track28A4 >= SoundState.count28A8) {
@@ -184,7 +184,7 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
         }
 
         s2 -= 8;
-        DrawGlyphList(D_800A19A4[s2], sp18[1], 0);
+        DrawGlyphList(OpeningModeGlyphLists[s2], sp18[1], 0);
 
         sp50[0] = 0x48;
         sp50[1] = 0x38;
@@ -221,7 +221,7 @@ s32 UpdateRaceOpeningOverlay(s32 arg0) {
             EmitIconSpriteRow120(s2 - 1, sp18[3]);
         }
 
-        if (D_8010E234 >= 0) {
+        if (OpeningBgmSelectState >= 0) {
             if (sp18[5] >= 0x80) {
                 if (Pad0Buttons & 0x8000) {
                     SoundState.track28A4--;

@@ -6,12 +6,12 @@
 #include "rr/driver_control.h"
 
 extern char CardSaveFileName[], CardTargetFileName[24];
-extern s32 D_800AC5D4, D_800A45B8, D_800F4CA8, D_801272F0[3];
-extern s16 MenuActiveControllerIndex, MenuStateIndex, D_800F3AF8, ModeGroup;
+extern s32 ActivePlayerIndex, D_800A45B8, DialogueSceneMode, D_801272F0[3];
+extern s16 MenuActiveControllerIndex, MenuStateIndex, CardTransferMode, ModeGroup;
 extern s16 GpSaveSlotCursor, GameModeType, LinkState, CardActivePort, CardMenuOperation;
-extern s16 D_8010948C, D_8010948E, D_80109478[3];
-extern u16 D_800F3A26, D_800F4D8A;
-extern MenuSettings2C SaveSlotSelections[3], D_8010B258[3];
+extern s16 CardReplayLoadedFlag, CardPromptIndex, CardPromptChoices[3];
+extern u16 ModeIndex, SubmodeState;
+extern MenuSettings2C SaveSlotSelections[3], SaveSlotSnapshots[3];
 
 void CopyStringClearTail(char *destination, char *source);
 s32 UpdateLinkHandshake(s32);

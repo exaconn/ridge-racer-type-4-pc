@@ -1807,7 +1807,7 @@ void DrawWheelTrailEffects(void *arg0, s32 *arg1, void *arg2, void *arg3, s32 ar
     }
 
     if (WORK->bounds94->wheelRotationAxis == 2 && (GameModeType == 6 || GameModeType == 0)) {
-        if (D_800AC5D8 != 6) {
+        if (ActiveViewportIndex != 6) {
             TransformRroVertices(SLOT, WORK);
         }
     }

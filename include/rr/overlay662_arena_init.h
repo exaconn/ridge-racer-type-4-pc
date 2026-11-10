@@ -7,7 +7,7 @@
 #include "rr/menu_setup.h"
 #include "rr/overlay662_sprites.h"
 extern u8 *D_800F4D74;
-extern void *D_800F3918,*D_800F3910;
+extern void *GarageSavedDecalTimA,*GarageSavedDecalTimB;
 extern s32 ovl662_D_8012625C;
 extern GpuRectangle ovl662_D_8012624C,ovl662_D_80126254;
 void ovl662_func_8011E36C(s32);

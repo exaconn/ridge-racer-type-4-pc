@@ -50,7 +50,7 @@ void UpdateHudRankDisplay(int a0, int a1) {
     ((SpritePacket *)(a1 * 0x78 + (int)s2))->u = (a0 + 1) * 0x18;
     p2 = (SpritePacket *)(base + 0x226D8);
     if (GameModeType == 4) {
-        a = D_80107178;
+        a = LinkPlayerCount;
     } else {
         if (GameModeType == 3) {
             a = 2;

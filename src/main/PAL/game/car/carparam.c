@@ -29,8 +29,8 @@ extern int PadSetRumbleParams();
 extern RaceVehicle PlayerCars[];
 extern int RaceState;
 extern unsigned char CarInputs[][4];
-extern short D_800F4C70[];
-extern short D_800F2AB4[];
+extern short PlayerDisplayRpm[];
+extern short PlayerThrottleLoad[];
 
 void UpdatePlayerSteering(RaceVehicle *arg0, int arg1);
 
@@ -77,7 +77,7 @@ void UpdatePlayerSteering(RaceVehicle *arg0, int arg1) {
     if (sw == 0x20)
     {
       s2 = (s1->handling1C->steeringGain08 * 0x1400) / 1000;
-      if (D_800AD568 != 0)
+      if (MirrorRenderFlag != 0)
       {
         p1 = a1 & 1;
         p0 = a1 & 2;
@@ -130,7 +130,7 @@ void UpdatePlayerSteering(RaceVehicle *arg0, int arg1) {
     {
       s2 = (s1->handling1C->steeringGain08 * 0x1800) / 1000;
       a0 = (s2 * (signed char)a2[0]) / 127;
-      d0 = D_800AD568;
+      d0 = MirrorRenderFlag;
       s1->steerInput0C = a0;
       if (d0 != 0)
       {
@@ -157,7 +157,7 @@ void UpdatePlayerSteering(RaceVehicle *arg0, int arg1) {
     {
       s2 = (s1->handling1C->steeringGain08 * 0x1800) / 1000;
       a0 = (s2 * (signed char)a2[0]) / 127;
-      d1 = D_800AD568;
+      d1 = MirrorRenderFlag;
       s1->steerInput0C = a0;
       if (d1 != 0)
       {
@@ -184,7 +184,7 @@ void UpdatePlayerSteering(RaceVehicle *arg0, int arg1) {
     {
       s2 = (s1->handling1C->steeringGain08 * 0x1400) / 1000;
       a0 = (s2 * (signed char)a2[0]) / 127;
-      d2 = D_800AD568;
+      d2 = MirrorRenderFlag;
       s1->steerInput0C = a0;
       if (d2 != 0)
       {
@@ -774,7 +774,7 @@ void UpdateCarEngine(RaceVehicle *a0) {
   }
   if ((a0 == &PlayerCars[0]) || (a0 == &PlayerCars[1]))
   {
-    d1 = D_800F4C70[q->playerFlags24 & 1];
+    d1 = PlayerDisplayRpm[q->playerFlags24 & 1];
     k2 = a0->steerRoll1DE;
     if (k2 > 0)
     {
@@ -788,12 +788,12 @@ void UpdateCarEngine(RaceVehicle *a0) {
     {
       k2 = 1;
     }
-    D_800F4C70[q->playerFlags24 & 1] = d1 + (((q->laneMode88 - d1) * 0x14) / k2);
-    if (D_800F4C70[q->playerFlags24 & 1] < 0x1F5)
+    PlayerDisplayRpm[q->playerFlags24 & 1] = d1 + (((q->laneMode88 - d1) * 0x14) / k2);
+    if (PlayerDisplayRpm[q->playerFlags24 & 1] < 0x1F5)
     {
-      D_800F4C70[q->playerFlags24 & 1] += 0x1F4 - ((PsyqRand() * 0x64) / 32767);
+      PlayerDisplayRpm[q->playerFlags24 & 1] += 0x1F4 - ((PsyqRand() * 0x64) / 32767);
     }
-    D_800F2AB4[q->playerFlags24 & 1] = (q->dynamics94.player.throttle18 >= 0x41) && (q->laneTimer38 == 0);
+    PlayerThrottleLoad[q->playerFlags24 & 1] = (q->dynamics94.player.throttle18 >= 0x41) && (q->laneTimer38 == 0);
   }
 }
 

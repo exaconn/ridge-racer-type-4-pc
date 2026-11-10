@@ -68,8 +68,8 @@ extern s32 ovl665_D_80119760;
 extern Ovl665Settings Options;
 extern Ovl665Panel *BadgeRows;
 extern Ovl665Text *CardDialogueStatePtr;
-extern s16 D_800AC5D0;
-extern s32 D_800AC5D4;
+extern s16 FadeCountdown;
+extern s32 ActivePlayerIndex;
 extern s32 D_800F4CB8;
 extern u8 ScreenFadeState;
 extern Ovl665View14 ovl665_D_80119698[];
@@ -84,7 +84,7 @@ extern s32 ovl665_D_80119740[];
 extern s32 ovl665_D_80119724[];
 extern u8 ovl665_D_8011973C[];
 extern u8 ovl665_D_80119020[], ovl665_D_80119024[];
-extern s16 D_8009FFB8[];
+extern s16 TwistRangeLimits[];
 extern s16 PadRangeLimits[];
 extern s32 WheelDeadzoneTable[];
 
@@ -188,7 +188,7 @@ void ovl665_func_80116D10(s32 player) {
                 ovl665_D_80119760 = 1;
             }
         }
-        D_800AC5D4 = player;
+        ActivePlayerIndex = player;
         if (LoadTrophyModelStep() == 0) {
             break;
         }
@@ -231,7 +231,7 @@ void ovl665_func_80116D10(s32 player) {
             COPY_COLOURS(src);
         } else {
             CLOSE_ROWS(8);
-            D_800AC5D0 = 64;
+            FadeCountdown = 64;
             ST.step0C = 2;
         }
         ST.detail10 = 0;
@@ -250,7 +250,7 @@ void ovl665_func_80116D10(s32 player) {
         if (BadgeRows->state10 == 3 && UiRows[0].byte14 == 2) {
             if (ovl665_func_8011629C(player) < 0) {
                 CLOSE_ROWS(8);
-                D_800AC5D0 = 64;
+                FadeCountdown = 64;
                 ST.step0C = 2;
                 ST.next14 = 0;
             }
@@ -280,7 +280,7 @@ void ovl665_func_80116D10(s32 player) {
                 if (PlayerControllers[player].action28 != 0) {
                     PlaySfx(1);
                     CLOSE_ROWS(5);
-                    D_800AC5D0 = 64;
+                    FadeCountdown = 64;
                     ST.step0C = 2;
                     ST.next14 = 0;
                 }
@@ -315,7 +315,7 @@ void ovl665_func_80116D10(s32 player) {
                 if (PlayerControllers[player].action28 != 0) {
                     PlaySfx(1, value);
                     CLOSE_ROWS(5);
-                    D_800AC5D0 = 64;
+                    FadeCountdown = 64;
                     ST.step0C = 2;
                     ST.next14 = 3;
                 }
@@ -355,7 +355,7 @@ void ovl665_func_80116D10(s32 player) {
                     if (PlayerControllers[player].action28 != 0) {
                         PlaySfx(1);
                         CLOSE_ROWS(5);
-                        D_800AC5D0 = 64;
+                        FadeCountdown = 64;
                         ST.step0C = 2;
                         ST.next14 = 0;
                     }
@@ -391,7 +391,7 @@ void ovl665_func_80116D10(s32 player) {
                     if (PlayerControllers[player].action28 != 0) {
                         PlaySfx(1, value);
                         CLOSE_ROWS(5);
-                        D_800AC5D0 = 64;
+                        FadeCountdown = 64;
                         ST.step0C = 2;
                         ST.next14 = 4;
                     }
@@ -429,14 +429,14 @@ void ovl665_func_80116D10(s32 player) {
         }
         break;
     case 2:
-        timer = D_800AC5D0 - 1;
-        D_800AC5D0 = timer;
+        timer = FadeCountdown - 1;
+        FadeCountdown = timer;
         AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (64 - timer) * 4, 69);
-        if (D_800AC5D0 <= 0) {
+        if (FadeCountdown <= 0) {
             if (ST.next14 == 0) {
                 ovl665_func_80114A24();
                 ST.step0C = 0;
-                D_800AC5D4 = 0;
+                ActivePlayerIndex = 0;
                 ST.scene00--;
                 return;
             }
@@ -526,7 +526,7 @@ void ovl665_func_80116D10(s32 player) {
             if (old != Options.b[player].h[5]) {
                 CardDialogueStatePtr->b4 = Options.b[player].h[5] + 14;
             }
-            value = rsin(ST.phase20) * D_8009FFB8[Options.b[player].h[5]] / 512;
+            value = rsin(ST.phase20) * TwistRangeLimits[Options.b[player].h[5]] / 512;
             ST.offset8C = value;
             ST.offset94 = -value;
             phase = ST.phase20;
@@ -537,7 +537,7 @@ void ovl665_func_80116D10(s32 player) {
             if (PlayerControllers[player].edges08.fields.pressed & 0x840) {
                 PlaySfx(1, value);
                 CLOSE_ROWS(5);
-                D_800AC5D0 = 64;
+                FadeCountdown = 64;
                 ST.step0C = 2;
             }
             cursor = SCRATCH->cursor;
@@ -552,7 +552,7 @@ void ovl665_func_80116D10(s32 player) {
         }
         if (ovl665_func_8011629C(player) < 0) {
             CLOSE_ROWS(8);
-            D_800AC5D0 = 64;
+            FadeCountdown = 64;
             ST.step0C = 2;
             ST.next14 = 0;
         }
@@ -662,7 +662,7 @@ void ovl665_func_80116D10(s32 player) {
             if (PlayerControllers[player].action28 != 0) {
                 PlaySfx(1, value);
                 CLOSE_ROWS(5);
-                D_800AC5D0 = 64;
+                FadeCountdown = 64;
                 ST.step0C = 2;
             }
             cursor = SCRATCH->cursor;
@@ -677,7 +677,7 @@ void ovl665_func_80116D10(s32 player) {
         }
         if (ovl665_func_8011629C(player) < 0 || PlayerControllers[player].input00.fields.type != 0xE3) {
             CLOSE_ROWS(8);
-            D_800AC5D0 = 64;
+            FadeCountdown = 64;
             ST.step0C = 2;
             ST.next14 = 0;
         }

@@ -64,7 +64,7 @@ extern s16 D_800A3C10[];
 
 extern S_800A3C20 D_800A3C20[][7];
 
-extern s32 D_800AC5D8;
+extern s32 ActiveViewportIndex;
 
 extern s32 CurrentDrawBuf;
 
@@ -97,7 +97,7 @@ void SetupViewport(s32 a0) {
     /* ASM_BARRIER: Materialize $s2 = 0x1F800000 at start of prologue. */
     __asm__("" : "=r"(s2) : "0"(s2));
     s3 = s2->f00;
-    D_800AC5D8 = a0;
+    ActiveViewportIndex = a0;
     s1 = (a0 == 1);
     SetGeomOffset(ViewOffsetX[a0], ViewOffsetY[a0]);
     s5 = (a0 == 1);

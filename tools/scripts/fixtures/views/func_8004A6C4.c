@@ -80,7 +80,7 @@ extern s32 D_800AD590[2];
 
 extern s32 D_800F4CD8[2];
 
-extern s16 D_8009FFB8[4];
+extern s16 TwistRangeLimits[4];
 
 extern s16 PadRangeLimits[6];
 
@@ -162,7 +162,7 @@ void PadUpdate(void) {
             states[i]->buttons02 = ~((ports[i]->data02 << 8) | ports[i]->data03);
             states[i]->pressed08 = states[i]->buttons02 & ~states[i]->previous04;
             states[i]->released06 = states[i]->previous04 & (states[i]->buttons02 ^ states[i]->previous04);
-            states[i]->steering20 = (((states[i]->buttons02 >> 13) & 1) - ((states[i]->buttons02 & 0x8000) ? 1 : 0)) * D_8009FFB8[D_800F3824] + 0x80;
+            states[i]->steering20 = (((states[i]->buttons02 >> 13) & 1) - ((states[i]->buttons02 & 0x8000) ? 1 : 0)) * TwistRangeLimits[D_800F3824] + 0x80;
             states[i]->pressure22 = (states[i]->buttons02 & 0x40) ? 0x6A : 0;
             states[i]->pressure24 = (states[i]->buttons02 & 0x80) ? 0x6A : 0;
             states[i]->pressure26 = (states[i]->buttons02 & 4) ? 0x6A : 0;
@@ -318,16 +318,16 @@ void PadUpdate(void) {
                 if (val < 0) {
                     val = 0;
                 }
-                if (val > D_8009FFB8[Options.p[i].range0A]) {
-                    val = D_8009FFB8[Options.p[i].range0A];
+                if (val > TwistRangeLimits[Options.p[i].range0A]) {
+                    val = TwistRangeLimits[Options.p[i].range0A];
                 }
             } else {
                 val += PadDeadzoneTable[Options.p[i].deadzone08];
                 if (val > 0) {
                     val = 0;
                 }
-                if (val < -D_8009FFB8[Options.p[i].range0A]) {
-                    val = -D_8009FFB8[Options.p[i].range0A];
+                if (val < -TwistRangeLimits[Options.p[i].range0A]) {
+                    val = -TwistRangeLimits[Options.p[i].range0A];
                 }
             }
             states[i]->steering3C = val;

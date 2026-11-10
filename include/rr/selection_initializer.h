@@ -16,8 +16,8 @@ extern u8 *CdDirectoryBuffer;
 extern void *MenuArenaBase;
 #include "rr/player_cars.h"
 extern SelectionRows32 SelectionRows;
-extern CourseChoice4 D_8010BFD8[2][2][9];
-extern s16 D_8010C0C0[2][2],D_8010C0D8[2],D_8010C0D0[2];
+extern CourseChoice4 LinkCarChoiceTable[2][2][9];
+extern s16 LinkCarChoiceCounts[2][2],LinkCarChoiceGroup[2],LinkCarChoiceIndex[2];
 void ResetScreenCounters(void);
 void InitMenuArenas(void);
 

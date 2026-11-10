@@ -21,6 +21,6 @@ void ovl668_func_801149E8(void)
     RaceContext.stopD0 = 0;
     ovl668_func_80114910(RaceContext.resourceB0, &file, &sectors);
     ModeGroup = 2;
-    D_800F3A26 = 4;
-    D_800F4D8A = 0;
+    ModeIndex = 4;
+    SubmodeState = 0;
 }

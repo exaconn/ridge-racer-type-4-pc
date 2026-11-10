@@ -23,5 +23,5 @@ void ovl665_func_80114918(void)
     scratch->pose08.position00.words[0]=0;scratch->pose08.position00.words[1]=0;scratch->pose08.position00.words[2]=0;
     scratch->pose08.angles10.xyz.x=0;scratch->pose08.angles10.xyz.y=0;scratch->pose08.angles10.xyz.z=0;
     ResetScreenCounters();
-    D_800F4CA8=2;ModeGroup=2;D_800F3A26=2;D_800F4D8A=0;
+    DialogueSceneMode=2;ModeGroup=2;ModeIndex=2;SubmodeState=0;
 }

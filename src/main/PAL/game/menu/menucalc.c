@@ -26,8 +26,8 @@
 #include "game/sound/cdmain.h"
 #include "game/sound/fxplay.h"
 
-extern unsigned char D_8009F074[][4];
-extern signed char D_8009F108[][8];
+extern unsigned char BadgeGlyphUvTable[][4];
+extern signed char BadgeStripPatterns[][8];
 extern unsigned char D_8009F1E0[];
 extern unsigned char D_8009F1E4[];
 extern MenuSettings2C SelectionState;
@@ -36,15 +36,15 @@ extern int ModeFrame;
 extern int SetMenuFrameOptions();
 extern int UpdateBadgeRowAnim();
 extern int InitRect16Row();
-extern short D_800F3A26;
+extern short ModeIndex;
 extern short ModeGroup;
-extern int D_800F4CA8;
-extern unsigned short D_800F4D8A;
+extern int DialogueSceneMode;
+extern unsigned short SubmodeState;
 extern s32 VSyncThreshold;
 extern s16 ActiveSceneId;
 extern void ResetScreenCounters();
 extern void PlaySfx();
-extern unsigned short D_800AC5D0;
+extern unsigned short FadeCountdown;
 extern BadgeRow1C *BadgeRows;
 extern int D_800F4D74;
 extern MenuTextState *Dialogue;
@@ -100,9 +100,9 @@ int DrawCarStatBars(int x, int a1)
     if (i == 1)
     {
       unsigned char *t;
-      int b = D_8009F108[s0][4];
+      int b = BadgeStripPatterns[s0][4];
       s0 = D_8009F1E4[SelectionState.phase17] + 0x20;
-      new_var = D_8009F074;
+      new_var = BadgeGlyphUvTable;
       t = new_var[s0];
       x = AddSpriteWithDrawMode(&CurrentDrawBuf->buffer.ordering70.words[0], x, b + 0x34, s3, t[2], t[3], t[0], t[1], 0x4A, 0x2E28, i, s2);
     }
@@ -153,7 +153,7 @@ void DialogueIntroModeUpdate(void)
         UpdateImageRow(0);
     }
     if (ModeFrame >= 3U) {
-        D_800F4CA8 = 1;
+        DialogueSceneMode = 1;
         t = LoadDialogueStep();
         if (t == 1) {
             if (StepMenuCameraTransition(MENU_TRANSITION_ALL) == MENU_TRANSITION_ALL) {
@@ -162,8 +162,8 @@ void DialogueIntroModeUpdate(void)
                 InitRect16Row(0, 0x10, 0x48, 0x120, 0x120, 0, 0);
                 InitImageRow(0, -1, 0, 0);
                 ModeGroup = t;
-                D_800F3A26 = 0xC;
-                D_800F4D8A = 0;
+                ModeIndex = 0xC;
+                SubmodeState = 0;
             }
         }
     } else {
@@ -197,54 +197,54 @@ void DialogueModeUpdate(void) {
                 tab = BadgeRows;
                 tab[Dialogue->s16].state10 = 4;
                 ImageRows->f1 = s0;
-                D_800AC5D0 = 0;
+                FadeCountdown = 0;
                 if (PendingModeId == 0x10F || PendingModeId == 0x12A || PendingModeId == 0x205) {
-                    D_800AC5D0 = 0x40;
+                    FadeCountdown = 0x40;
                     ResetScreenCounters(tab);
                     LoadCursor = D_800F4D74;
                     LoadTimListStep(0);
-                    SeqFadeVolume(0, (short)(D_800AC5D0 - 4));
-                    D_800F4D8A = 1;
+                    SeqFadeVolume(0, (short)(FadeCountdown - 4));
+                    SubmodeState = 1;
                 } else if (PendingModeId == 0x111) {
-                    D_800AC5D0 = 0x40;
+                    FadeCountdown = 0x40;
                     SeqFadeVolume(0, 0x3C);
-                    D_800F4D8A = 1;
+                    SubmodeState = 1;
                 }
             }
         }
     }
-    if (D_800F4D8A == 1) {
-        if ((short)D_800AC5D0 > 0) {
-            D_800AC5D0 -= 1;
+    if (SubmodeState == 1) {
+        if ((short)FadeCountdown > 0) {
+            FadeCountdown -= 1;
         }
-        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - (short)D_800AC5D0) * 4, 0x45);
+        AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - (short)FadeCountdown) * 4, 0x45);
     }
     if (BadgeRows[Dialogue->s16].state10 == 0xB) {
         if (ImageRows->f1 == 5) {
             if (PendingModeId == 0x10F || PendingModeId == 0x12A) {
                 if (LoadTimListStep(1) == 1) {
                     SeqMuteVolume();
-                    if ((short)D_800AC5D0 <= 0) {
+                    if ((short)FadeCountdown <= 0) {
                         unsigned c = PendingModeId;
-                        D_800F4D8A = 0;
+                        SubmodeState = 0;
                         ModeGroup = c >> 8;
-                        D_800F3A26 = c & 0xFF;
+                        ModeIndex = c & 0xFF;
                     }
                 }
             } else if (PendingModeId == 0x205) {
                 SeqMuteVolume();
-                if ((short)D_800AC5D0 <= 0) {
+                if ((short)FadeCountdown <= 0) {
                     unsigned c = PendingModeId;
-                    D_800F4D8A = 0;
+                    SubmodeState = 0;
                     ModeGroup = c >> 8;
-                    D_800F3A26 = c & 0xFF;
+                    ModeIndex = c & 0xFF;
                 }
             } else {
-                if ((short)D_800AC5D0 <= 0) {
+                if ((short)FadeCountdown <= 0) {
                     unsigned c = PendingModeId;
-                    D_800F4D8A = 0;
+                    SubmodeState = 0;
                     ModeGroup = c >> 8;
-                    D_800F3A26 = c & 0xFF;
+                    ModeIndex = c & 0xFF;
                 }
             }
         }

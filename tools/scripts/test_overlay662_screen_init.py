@@ -38,8 +38,8 @@ static unsigned scenario;
 #define LoadState world.flag0
 #define MenuScriptStep world.flag1
 #define ModeGroup world.mode
-#define D_800F3A26 world.scene
-#define D_800F4D8A world.counter
+#define ModeIndex world.scene
+#define SubmodeState world.counter
 #define MenuArenas world.arenas
 #define CdDirectoryBuffer world.base
 #define LoadCursor world.published

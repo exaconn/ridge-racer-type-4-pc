@@ -6,11 +6,11 @@
 /* legacy typing of shared globals in this part of the unit */
 #define LoadIndex (*(unsigned char (*))&LoadIndex)
 
-#define D_800F4D2C (*(unsigned char (*))&D_800F4D2C)
+#define MainMenuChoice (*(unsigned char (*))&MainMenuChoice)
 
 #undef LoadIndex
 
-#undef D_800F4D2C
+#undef MainMenuChoice
 
 /* legacy typing of shared globals in this part of the unit */
 #define LoadIndex (*(unsigned char (*))&LoadIndex)
@@ -28,9 +28,9 @@
 #undef LoadIndex
 
 /* legacy typing of shared globals in this part of the unit */
-#define D_800F3B24 (*(int (*))&D_800F3B24)
+#define PresetEmblemTimPtr (*(int (*))&PresetEmblemTimPtr)
 
-#undef D_800F3B24
+#undef PresetEmblemTimPtr
 
 /* legacy typing of shared globals in this part of the unit */
 #define LoadIndex (*(unsigned char (*))&LoadIndex)

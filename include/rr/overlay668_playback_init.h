@@ -8,7 +8,7 @@
 /* CD file descriptor: position, byte count and16-byte filename storage. */
 typedef struct {CdLocation location;u32 byteSize;char name[16];} StrCdFileInfo;
 extern void *MenuArenaBase;
-extern s16 ModeGroup,D_800F3A26,D_800F4D8A;
+extern s16 ModeGroup,ModeIndex,SubmodeState;
 void ovl668_func_80114910(s32 resource,StrCdFileInfo *file,u32 *sectors);
 /* After the display setup service, MenuArenaBase covers an aligned complete
  * playback owner. Publish its base and end, then clear the captured owner.

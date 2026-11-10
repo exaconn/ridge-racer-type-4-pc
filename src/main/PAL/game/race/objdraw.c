@@ -524,18 +524,18 @@ void DrawTrackObjects(s32 arg0) {
                 for (j = 0; j < 2; j++) {
                     s3[0x30 / 4] = k * 2 + j;
                     s3[0x34 / 4] = s3[0x28 / 4] * 16 + s3[0x28 / 4] * 4 + k + 1;
-                    sp638[s3[0x30 / 4]].v0.vx = D_8010E8E8[s3[0x34 / 4]].vx;
-                    sp638[s3[0x30 / 4]].v0.vy = D_8010E8E8[s3[0x34 / 4]].vy - s3[0x2C / 4] * j;
-                    sp638[s3[0x30 / 4]].v0.vz = D_8010E8E8[s3[0x34 / 4]].vz - s3[0x2C / 4] * (1 - j);
-                    sp638[s3[0x30 / 4]].v1.vx = D_8010E8E8[s3[0x34 / 4]].vx;
-                    sp638[s3[0x30 / 4]].v1.vy = D_8010E8E8[s3[0x34 / 4]].vy + s3[0x2C / 4] * j;
-                    sp638[s3[0x30 / 4]].v1.vz = D_8010E8E8[s3[0x34 / 4]].vz + s3[0x2C / 4] * (1 - j);
-                    sp638[s3[0x30 / 4]].v2.vx = D_8010E8E8[s3[0x34 / 4] + 1].vx;
-                    sp638[s3[0x30 / 4]].v2.vy = D_8010E8E8[s3[0x34 / 4] + 1].vy - j * 10;
-                    sp638[s3[0x30 / 4]].v2.vz = D_8010E8E8[s3[0x34 / 4] + 1].vz - (1 - j) * 10;
-                    sp638[s3[0x30 / 4]].v3.vx = D_8010E8E8[s3[0x34 / 4] + 1].vx;
-                    sp638[s3[0x30 / 4]].v3.vy = D_8010E8E8[s3[0x34 / 4] + 1].vy + j * 10;
-                    sp638[s3[0x30 / 4]].v3.vz = D_8010E8E8[s3[0x34 / 4] + 1].vz + (1 - j) * 10;
+                    sp638[s3[0x30 / 4]].v0.vx = TrackObjectTrailPoints[s3[0x34 / 4]].vx;
+                    sp638[s3[0x30 / 4]].v0.vy = TrackObjectTrailPoints[s3[0x34 / 4]].vy - s3[0x2C / 4] * j;
+                    sp638[s3[0x30 / 4]].v0.vz = TrackObjectTrailPoints[s3[0x34 / 4]].vz - s3[0x2C / 4] * (1 - j);
+                    sp638[s3[0x30 / 4]].v1.vx = TrackObjectTrailPoints[s3[0x34 / 4]].vx;
+                    sp638[s3[0x30 / 4]].v1.vy = TrackObjectTrailPoints[s3[0x34 / 4]].vy + s3[0x2C / 4] * j;
+                    sp638[s3[0x30 / 4]].v1.vz = TrackObjectTrailPoints[s3[0x34 / 4]].vz + s3[0x2C / 4] * (1 - j);
+                    sp638[s3[0x30 / 4]].v2.vx = TrackObjectTrailPoints[s3[0x34 / 4] + 1].vx;
+                    sp638[s3[0x30 / 4]].v2.vy = TrackObjectTrailPoints[s3[0x34 / 4] + 1].vy - j * 10;
+                    sp638[s3[0x30 / 4]].v2.vz = TrackObjectTrailPoints[s3[0x34 / 4] + 1].vz - (1 - j) * 10;
+                    sp638[s3[0x30 / 4]].v3.vx = TrackObjectTrailPoints[s3[0x34 / 4] + 1].vx;
+                    sp638[s3[0x30 / 4]].v3.vy = TrackObjectTrailPoints[s3[0x34 / 4] + 1].vy + j * 10;
+                    sp638[s3[0x30 / 4]].v3.vz = TrackObjectTrailPoints[s3[0x34 / 4] + 1].vz + (1 - j) * 10;
                     sp638[s3[0x30 / 4]].c0 = sp638[s3[0x30 / 4]].c1 = (k == 0) ? sp128[0] : sp128[k - 1];
                     sp638[s3[0x30 / 4]].c2 = sp638[s3[0x30 / 4]].c3 = sp128[k];
                 }
@@ -564,18 +564,18 @@ void DrawTrackObjects(s32 arg0) {
                 sp128[k].b = (k < 21) ? D_800A4088[CourseIndex - 4].b : D_800A4088[CourseIndex - 4].b - (D_800A4088[CourseIndex - 4].b * (k - 20)) / 17;
                 for (j = 0; j < 2; j++) {
                     s3[0x38 / 4] = k * 2 + j;
-                    sp638[s3[0x38 / 4]].v0.vx = D_8010E8E8[k + 1].vx;
-                    sp638[s3[0x38 / 4]].v0.vy = D_8010E8E8[k + 1].vy;
-                    sp638[s3[0x38 / 4]].v0.vz = D_8010E8E8[k + 1].vz;
-                    sp638[s3[0x38 / 4]].v1.vx = D_8010E8E8[k + 1].vx;
-                    sp638[s3[0x38 / 4]].v1.vy = D_8010E8E8[k + 1].vy - (k * 2 + 25) + (k * 4 + 50) * (1 - j);
-                    sp638[s3[0x38 / 4]].v1.vz = D_8010E8E8[k + 1].vz;
-                    sp638[s3[0x38 / 4]].v2.vx = D_8010E8E8[k + 2].vx;
-                    sp638[s3[0x38 / 4]].v2.vy = D_8010E8E8[k + 2].vy;
-                    sp638[s3[0x38 / 4]].v2.vz = D_8010E8E8[k + 2].vz;
-                    sp638[s3[0x38 / 4]].v3.vx = D_8010E8E8[k + 2].vx;
-                    sp638[s3[0x38 / 4]].v3.vy = D_8010E8E8[k + 2].vy - (k * 2 + 25) + (k * 4 + 50) * (1 - j);
-                    sp638[s3[0x38 / 4]].v3.vz = D_8010E8E8[k + 2].vz;
+                    sp638[s3[0x38 / 4]].v0.vx = TrackObjectTrailPoints[k + 1].vx;
+                    sp638[s3[0x38 / 4]].v0.vy = TrackObjectTrailPoints[k + 1].vy;
+                    sp638[s3[0x38 / 4]].v0.vz = TrackObjectTrailPoints[k + 1].vz;
+                    sp638[s3[0x38 / 4]].v1.vx = TrackObjectTrailPoints[k + 1].vx;
+                    sp638[s3[0x38 / 4]].v1.vy = TrackObjectTrailPoints[k + 1].vy - (k * 2 + 25) + (k * 4 + 50) * (1 - j);
+                    sp638[s3[0x38 / 4]].v1.vz = TrackObjectTrailPoints[k + 1].vz;
+                    sp638[s3[0x38 / 4]].v2.vx = TrackObjectTrailPoints[k + 2].vx;
+                    sp638[s3[0x38 / 4]].v2.vy = TrackObjectTrailPoints[k + 2].vy;
+                    sp638[s3[0x38 / 4]].v2.vz = TrackObjectTrailPoints[k + 2].vz;
+                    sp638[s3[0x38 / 4]].v3.vx = TrackObjectTrailPoints[k + 2].vx;
+                    sp638[s3[0x38 / 4]].v3.vy = TrackObjectTrailPoints[k + 2].vy - (k * 2 + 25) + (k * 4 + 50) * (1 - j);
+                    sp638[s3[0x38 / 4]].v3.vz = TrackObjectTrailPoints[k + 2].vz;
                     sp638[s3[0x38 / 4]].c0 = sp638[s3[0x38 / 4]].c2 = (k == 0) ? sp128[0] : sp128[k - 1];
                     sp638[s3[0x38 / 4]].c1 = sp638[s3[0x38 / 4]].c3 = sp128[37];
                 }
@@ -587,12 +587,12 @@ void DrawTrackObjects(s32 arg0) {
                 sp638[j + 76].v1.vx = TrackObjectStates[i].fC >> 3;
                 sp638[j + 76].v1.vy = TrackObjectStates[i].f10 >> 3;
                 sp638[j + 76].v1.vz = TrackObjectStates[i].f14 >> 3;
-                sp638[j + 76].v2.vx = D_8010E8E8[1].vx;
-                sp638[j + 76].v2.vy = D_8010E8E8[1].vy;
-                sp638[j + 76].v2.vz = D_8010E8E8[1].vz;
-                sp638[j + 76].v3.vx = D_8010E8E8[1].vx;
-                sp638[j + 76].v3.vy = D_8010E8E8[1].vy - 25 + 50 * (1 - j);
-                sp638[j + 76].v3.vz = D_8010E8E8[1].vz;
+                sp638[j + 76].v2.vx = TrackObjectTrailPoints[1].vx;
+                sp638[j + 76].v2.vy = TrackObjectTrailPoints[1].vy;
+                sp638[j + 76].v2.vz = TrackObjectTrailPoints[1].vz;
+                sp638[j + 76].v3.vx = TrackObjectTrailPoints[1].vx;
+                sp638[j + 76].v3.vy = TrackObjectTrailPoints[1].vy - 25 + 50 * (1 - j);
+                sp638[j + 76].v3.vz = TrackObjectTrailPoints[1].vz;
                 sp638[j + 76].c0 = sp638[j + 76].c2 = sp128[1];
                 sp638[j + 76].c1 = sp638[j + 76].c3 = sp128[37];
             }

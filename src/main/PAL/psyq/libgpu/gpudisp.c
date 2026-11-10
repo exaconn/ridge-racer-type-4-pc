@@ -1,5 +1,5 @@
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
 #include "rr/draw_environment.h"
 #include "rr/gpu.h"
@@ -37,8 +37,8 @@ void SetDrawMode(void *arg0, s32 arg1, s32 arg2, s32 arg3, GpuRectangleFields *a
 void SetDrawEnv(u32 *arg0, DrawEnvironment *arg1);
 void SetDrawEnv2(u32 *arg0, DrawEnvironment *arg1);
 int get_mode(int a0, int a1, int a2);
-u32 get_cs(s32 a0, s32 a1);
-u32 get_ce(s32 a0, s32 a1);
+u32 get_cs(s32 x, s32 y);
+u32 get_ce(s32 x, s32 y);
 unsigned get_ofs(int a, int b);
 u32 _status(void);
 s32 _otc(u8 *address, s32 count);
@@ -51,8 +51,7 @@ int _cwb(int *a, int n);
 
 DisplayEnvironment *PutDispEnv(DisplayEnvironment *env) {
     u32 mode;
-    /* ASM_BARRIER: retain the shared debug settings in S2 and descriptor in S1 */
-    register const GpuDebugSettings *debug asm("$18");
+    const GpuDebugSettings *debug;
     const volatile GpuRectangleFields *cachedDisplay, *cachedScreen;
     s32 y0, y1;
 
@@ -221,280 +220,90 @@ void SetDrawMode(void *arg0, s32 arg1, s32 arg2, s32 arg3, GpuRectangleFields *a
 }
 
 void SetDrawEnv(u32 *arg0, DrawEnvironment *arg1) {
-    register DrawEnvironment *env=arg1;
-    register u32 *output=arg0;
-    /* ASM_BARRIER: retain this arithmetic or packet-address phase. */
-    register s32 high asm("$2");
+    DrawEnvironment *env = arg1;
+    u32 *output = arg0;
     GpuRectangle rect;
-    /* ASM_BARRIER: retain this arithmetic or packet-address phase. */
-    register u32 color_offset asm("$6"),xy_offset asm("$7"),size_offset;
-    register u32 blue,green;
     s32 word_count;
-    /* ASM_BARRIER: retain this arithmetic or packet-address phase. */
-    register s32 signed_side asm("$3");
-    register s32 over;
-    /* ASM_BARRIER: retain this arithmetic or packet-address phase. */
-    register s32 raw_limit asm("$3");
-    register s32 raw_side;
-    /* ASM_BARRIER: retain this arithmetic or packet-address phase. */
-    register s32 width asm("$2");
-    /* ASM_BARRIER: retain this arithmetic or packet-address phase. */
-    register s32 height asm("$2");
 
     output[1] = get_cs(env->clip.x, env->clip.y);
-    output[2] = get_ce((s16) ((((u16)env->clip.w) + (u16) env->clip.x) - 1), (s16) (((u16) env->clip.y + ((u16)env->clip.h)) - 1));
+    output[2] = get_ce((s16)((u16)env->clip.w + (u16)env->clip.x - 1), (s16)((u16)env->clip.y + (u16)env->clip.h - 1));
     output[3] = get_ofs(env->offset_x, env->offset_y);
-    output[4] = get_mode(env->draw_display, env->dither, ((u16)env->page));
+    output[4] = get_mode(env->draw_display, env->dither, (u16)env->page);
     output[5] = get_tw(&env->window);
     output[6] = 0xE6000000;
     word_count = 7;
     if (env->background != 0) {
-        rect.rect.x = (u16) env->clip.x;
-        rect.rect.y = (u16) env->clip.y;
-        raw_side = ((u16)env->clip.w);
-        rect.rect.w = raw_side;
-        rect.rect.h = ((u16)env->clip.h);
-        /* ASM_BARRIER: finish the four halfword copies before sign extraction. */
-        __asm__("" : : "m"(rect.rect.h));
-        high=(raw_side * 0x10000U);
-        signed_side=high>>16;
-        width=0;
-        if(signed_side>=0) {
-            over=(D_800ABAC4-1)<signed_side;
-            raw_limit=(u16)D_800ABAC4;
-            if(over)width=raw_limit-1;
-            else width=raw_side;
-        }
-        rect.rect.w = width;
-        signed_side=rect.rect.h;
-        raw_side=(u16)rect.rect.h;
-        if(signed_side>=0) {
-            over=(D_800ABAC6-1)<signed_side;
-            raw_limit=(u16)D_800ABAC6;
-            if(over)height=raw_limit-1;
-            else height=raw_side;
-        }else height=0;
-        color_offset=word_count++*4U;
-        xy_offset=word_count++*4U;
-        size_offset=word_count++*4U;
-
-        rect.rect.h = height;
-        rect.rect.x -= (u16) env->offset_x;
-        /* ASM_BARRIER: prepare the color destination before the Y/command phase. */
-        __asm__("" : : "m"(output[color_offset/4U]));
-        rect.rect.y -= (u16) env->offset_y;
-        blue=env->b * 0x10000U;
-        green=(env->g * 0x100U)|0x60000000U;
-
-        output[color_offset/4U] = blue | green | env->r;
-        output[xy_offset/4U] = rect.words[0];
-        output[size_offset/4U] = rect.words[1];
+        u32 cmd;
+        rect.rect.x = env->clip.x;
+        rect.rect.y = env->clip.y;
+        rect.rect.w = env->clip.w;
+        rect.rect.h = env->clip.h;
+        rect.rect.w = rect.rect.w < 0 ? 0 : (rect.rect.w > D_800ABAC4 - 1 ? D_800ABAC4 - 1 : rect.rect.w);
+        rect.rect.h = rect.rect.h < 0 ? 0 : (rect.rect.h > D_800ABAC6 - 1 ? D_800ABAC6 - 1 : rect.rect.h);
+        rect.rect.x -= (u16)env->offset_x;
+        rect.rect.y -= (u16)env->offset_y;
+        output[word_count++] = ((env->b << 16) | ((env->g << 8) | (cmd = 0x60000000))) | env->r;
+        output[word_count++] = rect.words[0];
+        output[word_count++] = rect.words[1];
     }
-    ((u8*)output)[3] = (s8) (word_count - 1);
+    ((u8 *)output)[3] = word_count - 1;
 }
-
 void SetDrawEnv2(u32 *arg0, DrawEnvironment *arg1) {
-    register DrawEnvironment *env=arg1;
-    register u32 *output=arg0;
-    /* ASM_BARRIER: retain the original width sign-extraction register. */
-    register s32 high asm("$2");
+    DrawEnvironment *env = arg1;
+    u32 *output = arg0;
     GpuRectangle rect;
-    /* ASM_BARRIER: retain packet-offset and RGB arithmetic registers. */
-    register u32 color_offset,xy_offset asm("$7"),size_offset;
-    register u32 blue asm("$2"),green asm("$3");
     s32 word_count;
-    /* ASM_BARRIER: retain signed/unsigned clamp phases in their registers. */
-    register s32 signed_side asm("$3");
-    register s32 over;
-    /* ASM_BARRIER: retain the unsigned limit reload register. */
-    register s32 raw_limit asm("$3");
-    register s32 raw_side;
-    /* ASM_BARRIER: retain the width/height result registers. */
-    register s32 width asm("$2");
-    register s32 height asm("$2");
 
     output[1] = get_cs(env->clip.x, env->clip.y);
-    output[2] = get_ce((s16) ((((u16)env->clip.w) + (u16) env->clip.x) - 1), (s16) (((u16) env->clip.y + ((u16)env->clip.h)) - 1));
+    output[2] = get_ce((s16)((u16)env->clip.w + (u16)env->clip.x - 1), (s16)((u16)env->clip.y + (u16)env->clip.h - 1));
     output[3] = get_ofs(env->offset_x, env->offset_y);
-    output[4] = get_mode(env->draw_display, env->dither, ((u16)env->page));
+    output[4] = get_mode(env->draw_display, env->dither, (u16)env->page);
     output[5] = get_tw(&env->window);
     output[6] = 0xE6000000;
     word_count = 7;
     if (env->background != 0) {
-        rect.rect.x = (u16) env->clip.x;
-        rect.rect.y = (u16) env->clip.y;
-        raw_side = ((u16)env->clip.w);
-        rect.rect.w = raw_side;
-        rect.rect.h = ((u16)env->clip.h);
-        /* ASM_BARRIER: finish the four halfword copies before sign extraction. */
-        __asm__("" : : "m"(((u8*)&rect.rect.h)[0]));
-        high=(raw_side * 0x10000U);
-        signed_side=high>>16;
-        width=0;
-        if(signed_side>=0) {
-            over=(D_800ABAC4-1)<signed_side;
-            raw_limit=(u16)D_800ABAC4;
-            if(over)width=raw_limit-1;
-            else width=raw_side;
-        }
-        rect.rect.w = width;
-        signed_side=rect.rect.h;
-        raw_side=(u16)rect.rect.h;
-        if(signed_side>=0) {
-            over=(D_800ABAC6-1)<signed_side;
-            raw_limit=(u16)D_800ABAC6;
-            if(over)height=raw_limit-1;
-            else height=raw_side;
-        }else height=0;
-        rect.rect.h=height;
-        color_offset=word_count*4U;
-        if(((u16)rect.rect.x&63U)||((u16)rect.rect.w&63U)) {
-            word_count++;
-            xy_offset=word_count++*4U;
-            size_offset=word_count++*4U;
-            rect.rect.x-=(u16)env->offset_x;
-            /* ASM_BARRIER: prepare the color address before Y/command arithmetic. */
-            __asm__("" : : "m"((*(u8 *)(color_offset+(unsigned long)output))));
-            {
-                register u32 y=(u16)rect.rect.y;
-                register u32 offset_y=(u16)env->offset_y;
-                register u32 command;
-                command=0x60000000U;
-                rect.rect.y=y-offset_y;
-                blue=env->b * 0x10000U;
-                green=(env->g * 0x100U)|command;
-                (*(u32 *)(color_offset+(unsigned long)output))=blue|green|env->r;
-                output[xy_offset/4U]=rect.words[0];
-                output[size_offset/4U]=rect.words[1];
-            }
+        rect.rect.x = env->clip.x;
+        rect.rect.y = env->clip.y;
+        rect.rect.w = env->clip.w;
+        rect.rect.h = env->clip.h;
+        rect.rect.w = rect.rect.w < 0 ? 0 : (rect.rect.w > D_800ABAC4 - 1 ? D_800ABAC4 - 1 : rect.rect.w);
+        rect.rect.h = rect.rect.h < 0 ? 0 : (rect.rect.h > D_800ABAC6 - 1 ? D_800ABAC6 - 1 : rect.rect.h);
+        if (((u16)rect.rect.x & 63) || ((u16)rect.rect.w & 63)) {
+            u32 cmd;
+            u32 c_off = word_count++ * 4U;
+            u32 xy_off = word_count++ * 4U;
+            u32 sz_off = word_count++ * 4U;
+            rect.rect.x -= (u16)env->offset_x;
+            rect.rect.y -= (u16)env->offset_y;
+            *(u32 *)(c_off + (unsigned long)output) = ((env->b << 16) | ((env->g << 8) | (cmd = 0x60000000))) | env->r;
+            output[xy_off / 4U] = rect.words[0];
+            output[sz_off / 4U] = rect.words[1];
         } else {
-            register u32 fast_color,fast_xy,fast_size;
-            /* Modulo32 byte offset: masking before the shift also keeps this
-             * preparation independent of the extended branch's offset. */
-            fast_color=(word_count++&0x3FFFFFFFU)<<2;
-            fast_xy=word_count++*4U;
-            fast_size=word_count++*4U;
-            /* ASM_BARRIER: prepare the fast color address before its command. */
-            __asm__("" : : "m"((*(u8 *)(fast_color+(unsigned long)output))));
-            {
-                register u32 command=0x02000000U;
-                blue=env->b * 0x10000U;
-                green=(env->g * 0x100U)|command;
-                (*(u32 *)(fast_color+(unsigned long)output))=blue|green|env->r;
-                output[fast_xy/4U]=rect.words[0];
-                output[fast_size/4U]=rect.words[1];
-            }
+            u32 cmd;
+            output[word_count++] = ((env->b << 16) | ((env->g << 8) | (cmd = 0x02000000))) | env->r;
+            output[word_count++] = rect.words[0];
+            output[word_count++] = rect.words[1];
         }
     }
-    ((u8*)output)[3] = (s8) (word_count - 1);
+    ((u8 *)output)[3] = word_count - 1;
 }
-
 int get_mode(int a0, int a1, int a2) {
-    int v1;
-    register int v0 asm("$2");
-    v1 = 0xE1000000;
-    if (a1 != 0) {
-        v1 = 0xE1000200;
-    }
-    v0 = a2 & 0x9FF;
-    if (a0 != 0) {
-        v0 |= 0x400;
-    }
-    return v1 | v0;
+    return (a1 ? 0xE1000200 : 0xE1000000) | (a0 ? 0x400 : 0) | (a2 & 0x9FF);
 }
-
-u32 get_cs(s32 a0, s32 a1) {
-    /* ASM_BARRIER: Preserve the original coordinate result register. */
-    register s32 v __asm__("$2");
-    /* ASM_BARRIER: Preserve the original clamped y value register. */
-    register s32 w __asm__("$5");
-    /* ASM_BARRIER: Preserve the original packed y value register. */
-    register s32 u __asm__("$3");
-    s32 c;
-    s32 t;
-    s32 coordinate;
-    register s32 shifted=(a0 * 0x10000U);
-    coordinate=shifted>>16;
-    if (coordinate >= 0) {
-        c = D_800ABAC4 - 1 < coordinate;
-        /* ASM_BARRIER: Preserve the separate unsigned limit reload after the signed comparison. */
-        __asm__ volatile("" : "=r"(c) : "0"(c) : "memory");
-        t = *(u16 *)&D_800ABAC4;
-        if (c) v = t - 1; else v = a0;
-    } else v=0;
-    a0=v;
-    shifted=(a1 * 0x10000U);
-    coordinate=shifted>>16;
-    if (coordinate >= 0) {
-        c = D_800ABAC6 - 1 < coordinate;
-        /* ASM_BARRIER: Preserve the separate unsigned limit reload after the signed comparison. */
-        __asm__ volatile("" : "=r"(c) : "0"(c) : "memory");
-        t = *(u16 *)&D_800ABAC6;
-        u = a1 & 0x3FF;
-        if (c) {
-            /* ASM_BARRIER: Preserve the original y value on the unclamped path. */
-            __asm__("" : : : "$5");
-            w = t - 1;
-            goto L;
-        }
-    } else {
-        w = 0;
-L:
-        u = w & 0x3FF;
-    }
-    u <<= 10;
-    v=a0 & 0x3FF;
-    a0=(s32)0xE3000000U;
-    v |= a0;
-    return u | v;
+u32 get_cs(s32 x, s32 y) {
+    s16 clippedX = x;
+    s16 clippedY = y;
+    clippedX = clippedX < 0 ? 0 : (clippedX > D_800ABAC4 - 1 ? D_800ABAC4 - 1 : clippedX);
+    clippedY = clippedY < 0 ? 0 : (clippedY > D_800ABAC6 - 1 ? D_800ABAC6 - 1 : clippedY);
+    return 0xE3000000 | ((clippedY & 0x3FF) << 10) | (clippedX & 0x3FF);
 }
-
-u32 get_ce(s32 a0, s32 a1) {
-    /* ASM_BARRIER: Preserve the original coordinate result register. */
-    register s32 v __asm__("$2");
-    /* ASM_BARRIER: Preserve the original clamped y value register. */
-    register s32 w __asm__("$5");
-    /* ASM_BARRIER: Preserve the original packed y value register. */
-    register s32 u __asm__("$3");
-    s32 c;
-    s32 t;
-    s32 coordinate;
-    register s32 shifted=(a0 * 0x10000U);
-    coordinate=shifted>>16;
-    if (coordinate >= 0) {
-        c = D_800ABAC4 - 1 < coordinate;
-        /* ASM_BARRIER: Preserve the separate unsigned limit reload after the signed comparison. */
-        __asm__ volatile("" : "=r"(c) : "0"(c) : "memory");
-        t = *(u16 *)&D_800ABAC4;
-        if (c) v = t - 1; else v = a0;
-    } else v=0;
-    a0=v;
-    shifted=(a1 * 0x10000U);
-    coordinate=shifted>>16;
-    if (coordinate >= 0) {
-        c = D_800ABAC6 - 1 < coordinate;
-        /* ASM_BARRIER: Preserve the separate unsigned limit reload after the signed comparison. */
-        __asm__ volatile("" : "=r"(c) : "0"(c) : "memory");
-        t = *(u16 *)&D_800ABAC6;
-        u = a1 & 0x3FF;
-        if (c) {
-            /* ASM_BARRIER: Preserve the original y value on the unclamped path. */
-            __asm__("" : : : "$5");
-            w = t - 1;
-            goto L;
-        }
-    } else {
-        w = 0;
-L:
-        u = w & 0x3FF;
-    }
-    u <<= 10;
-    v=a0 & 0x3FF;
-    a0=(s32)0xE4000000U;
-    v |= a0;
-    return u | v;
+u32 get_ce(s32 x, s32 y) {
+    s16 clippedX = x;
+    s16 clippedY = y;
+    clippedX = clippedX < 0 ? 0 : (clippedX > D_800ABAC4 - 1 ? D_800ABAC4 - 1 : clippedX);
+    clippedY = clippedY < 0 ? 0 : (clippedY > D_800ABAC6 - 1 ? D_800ABAC6 - 1 : clippedY);
+    return 0xE4000000 | ((clippedY & 0x3FF) << 10) | (clippedX & 0x3FF);
 }
-
 unsigned get_ofs(int a, int b) { return 0xE5000000 | (b & 0x7FF) << 11 | (a & 0x7FF); }
 
 u32 get_tw(GpuRectangleFields *a0)
@@ -523,377 +332,126 @@ u32 _status(void) {
 
 
 s32 _otc(u8 *address, s32 count) {
-    u32 offset;
-    u32 *configuration=DPCR;
+    u32 offset, mask;
+    u32 *configuration = DPCR;
     *configuration |= 0x08000000;
     *DMA6_CHCR = 0;
-    offset = count * 4U;
-    offset -= 4;
-    address=(u8 *)(address+offset);
-    *DMA6_MADR = address;
+    offset = count * 4U - 4;
+    *DMA6_MADR = address + offset;
     *DMA6_BCR = count;
-    /* The final control store occupies the call delay slot in the original. */
     *(u32 *)DMA6_CHCR = 0x11000002;
     set_alarm();
-    if (*DMA6_CHCR & 0x01000000) {
-        /* ASM_BARRIER: Retire the first mask and prevent hoisting the loop mask across the busy gate. */
-        __asm__("" : : : "$3", "$17");
-        {
-            u32 mask = 0x01000000;
-            do {
-                if (get_alarm() != 0) return -1;
-            } while (*DMA6_CHCR & mask);
-        }
+    while ((mask = 0x01000000, (*DMA6_CHCR & mask) != 0)) {
+        if (get_alarm() != 0) return -1;
     }
     return count;
 }
-
-s32 _clr(GpuRectangle *arg0, u32 arg1) {
-    register GpuRectangle *rect=arg0;
-    register u32 color;
-    /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
-    register s32 signed_side asm("$3");
-    register u32 raw_side;
-    /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
-    register s32 over,width asm("$2");
-    /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
-    register s32 limit asm("$3"),height asm("$3");
-    signed_side=rect->rect.w;raw_side=(u16)rect->rect.w;
-    color=arg1;
-    if(signed_side>=0){
-        over=D_800ABAC4-1<signed_side;
-        limit=(u16)D_800ABAC4;
-        if(over)width=limit-1;else width=raw_side;
-    }else width=0;
-    signed_side=rect->rect.h;raw_side=(u16)rect->rect.h;
-    rect->rect.w=width;
-    if(signed_side>=0){
-        over=D_800ABAC6-1<signed_side;
-        limit=(u16)D_800ABAC6;
-        if(over)height=limit-1;else height=raw_side;
-    }else height=0;
-    rect->rect.h=height;
-    if(((u16)rect->rect.x&63)||((u16)rect->rect.w&63)){
-        register u32 mask=0xFFFFFFU;
-        register u32 full_area=0xE4FFFFFFU;
-        /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
-        register u32 tail_tag asm("$7")=0x03FF0000U;
-        register u32 *packet=GpuDrawEnvPacket;
-        u32 *secondary=D_801127B0;
-        /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
-        register u32 link asm("$2");
-        register u32 e3,e5;
-        register u32 command;
-        /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
-        register u32 fill asm("$2");
-        /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
-        register volatile u32 *status_ptr asm("$2");
-        /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
-        register u32 status,high asm("$2");
-        register u32 xy;
-        /* ASM_BARRIER: prepare the primary packet before completing the secondary header. */
-        __asm__("" : : "r"(tail_tag),"r"(packet));
-        /* The DMA link is a24-bit wire address; other pointers stay full width. */
-        link=(unsigned long)secondary&mask;
-        link|=0x08000000U;
-        e3=0xE3000000U;e5=0xE5000000U;
-        /* ASM_BARRIER: prepare both restore opcodes before storing the primary link. */
-        __asm__("" : : "r"(e3));
-        packet[0]=link;
-        fill=0xE6000000U;
-        command=color&mask;
-        command|=0x60000000U;
-        packet[4]=fill;
-        status_ptr=GPU_STATUS;
-        packet[1]=e3;packet[2]=full_area;packet[3]=e5;
-        status=*status_ptr;
-        high=(color>>31)<<10;
-        packet[6]=command;
-        high|=0xE1000000U;
-        status&=0x7FF;
-        status|=high;
-        packet[5]=status;
-        xy=rect->words[0];
-        tail_tag|=0xFFFFU;
-        packet[7]=xy;
-        secondary[0]=tail_tag;
-        packet[8]=rect->words[1];
-        secondary[1] = (_param(3) | e3);
-        secondary[2] = (_param(4) | 0xE4000000);
-        secondary[3] = (_param(5) | e5);
-    }else{
-        /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
-        register u32 header asm("$2")=0x05FFFFFFU;
-        register u32 mask=0xFFFFFFU;
-        register u32 *packet=GpuDrawEnvPacket;
-        /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
-        register u32 encoded asm("$3");
-        /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
-        register u32 textured asm("$5");
-        /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
-        register u32 e1 asm("$3");
-        /* ASM_BARRIER: retain the original clamp, packet or command register phase. */
-        register u32 fill asm("$2");
-        register volatile u32 *status_ptr;
-        register u32 status,high;
-        packet[0]=header;
-        fill=0xE6000000U;
-        packet[1]=fill;
-        encoded=color&mask;
-        textured=0x02000000U;
-        /* ASM_BARRIER: prepare the fast fill opcode before reading GPU status. */
-        __asm__("" : : "r"(textured));
-        encoded|=textured;
-        status_ptr=GPU_STATUS;
-        status=*status_ptr;
-        high=(color>>31)<<10;
-        packet[3]=encoded;
-        e1=0xE1000000U;
-        high|=e1;
-        status&=0x7FF;
-        status|=high;
-        packet[2]=status;
-        packet[4]=rect->words[0];
-        packet[5]=rect->words[1];
+s32 _clr(GpuRectangle *arg0, u32 color) {
+    GpuRectangle *r = arg0;
+    r->rect.w = r->rect.w < 0 ? 0 : (r->rect.w > D_800ABAC4 - 1 ? D_800ABAC4 - 1 : r->rect.w);
+    r->rect.h = r->rect.h < 0 ? 0 : (r->rect.h > D_800ABAC6 - 1 ? D_800ABAC6 - 1 : r->rect.h);
+    if (((u16)r->rect.x & 63) || ((u16)r->rect.w & 63)) {
+        u32 *packet = GpuDrawEnvPacket;
+        u32 *secondary = D_801127B0;
+        u32 e3 = 0xE3000000U, e5 = 0xE5000000U;
+        packet[0] = ((unsigned long)secondary & 0xFFFFFFU) | 0x08000000U;
+        packet[1] = e3;
+        packet[2] = 0xE4FFFFFFU;
+        packet[3] = e5;
+        packet[4] = 0xE6000000U;
+        packet[5] = 0xE1000000U | ((*GPU_STATUS) & 0x7FFU) | ((color >> 31) << 10);
+        packet[6] = 0x60000000U | (color & 0xFFFFFFU);
+        packet[7] = r->words[0];
+        packet[8] = r->words[1];
+        secondary[0] = 0x03FFFFFFU;
+        secondary[1] = _param(3) | e3;
+        secondary[2] = _param(4) | 0xE4000000U;
+        secondary[3] = _param(5) | e5;
+    } else {
+        u32 *packet = GpuDrawEnvPacket;
+        packet[0] = 0x05FFFFFFU;
+        packet[1] = 0xE6000000U;
+        packet[2] = 0xE1000000U | ((*GPU_STATUS) & 0x7FFU) | ((color >> 31) << 10);
+        packet[3] = 0x02000000U | (color & 0xFFFFFFU);
+        packet[4] = r->words[0];
+        packet[5] = r->words[1];
     }
     _cwc((unsigned long)GpuDrawEnvPacket);
-    {
-        register s32 result=0;
-        /* ASM_BARRIER: form the zero return value before restoring saved registers. */
-        __asm__("" : "+r"(result));
-        return result;
-    }
+    return 0;
 }
-
 /* The small CPU tail uses compiler-fenced stores so GCC can place the final
  * write in a branch delay slot. The per-iteration and final memory fences
  * make every port write visible and ordered before subsequent accesses. */
-s32 _dws(GpuRectangle *arg0,const u32 *arg1) {
-    register GpuRectangle *rect=arg0;
-    register const u32 *cursor;
-    register s32 signed_side;
-    /* ASM_BARRIER: retain the raw halfword reload register. */
-    register u32 raw_side asm("$3");
-    register u32 side;
-    register s32 over;
-    register u32 limit;
-    /* ASM_BARRIER: retain the adjusted word-count arithmetic register. */
-    register s32 count,blocks,remainder,adjusted asm("$3");
-    /* ASM_BARRIER: retain the preliminary count and captured quotient phases. */
-    register s32 preliminary asm("$16");
-    register s32 quotient asm("$3");
-    register s32 scaled;
-    register volatile u32 *status_ptr;
-    register u32 status;
-    register s32 mode;
-    u32 command;
-    cursor=arg1;
-    /* ASM_BARRIER: prepare both input pointers before starting the deadline. */
-    __asm__("" : "+r"(cursor) : "r"(rect));
+s32 _dws(GpuRectangle *arg0, const u32 *arg1) {
+    s32 count, n, blocks, mode;
     set_alarm();
-    signed_side=rect->rect.w;raw_side=(u16)rect->rect.w;
-    mode=0;
-    if(signed_side>=0){
-        side=raw_side;
-        over=D_800ABAC4<signed_side;
-        limit=(u16)D_800ABAC4;
-        if(over)side=limit;
-    }else side=0;
-    signed_side=rect->rect.h;raw_side=(u16)rect->rect.h;
-    rect->rect.w=side;
-    if(signed_side>=0){
-        side=raw_side;
-        over=D_800ABAC6<signed_side;
-        limit=(u16)D_800ABAC6;
-        if(over)side=limit;
-    }else side=0;
-    adjusted=rect->rect.w*(s16)side+1;
-    rect->rect.h=side;
-    adjusted+=(u32)adjusted>>31;
-    count=adjusted>>1;
-    preliminary=adjusted>>5;
-    if(count<=0)return -1;
-    quotient=preliminary;
-    /* ASM_BARRIER: capture the block quotient before forming the CPU tail. */
-    __asm__("" : "+r"(quotient));
-    scaled=quotient*16;
-    remainder=count-scaled;
-    status_ptr=GPU_STATUS;
-    blocks=quotient;
-    status=*status_ptr;
-    if(!(status&0x04000000U)){
-        register u32 mask;
-        /* ASM_BARRIER: materialize a fresh mask after the first status test. */
-        __asm__("" : : : "$3");
-        mask=0x04000000U;
+    mode = 0;
+    arg0->rect.w = arg0->rect.w < 0 ? 0 : (arg0->rect.w > D_800ABAC4 ? D_800ABAC4 : arg0->rect.w);
+    arg0->rect.h = arg0->rect.h < 0 ? 0 : (arg0->rect.h > D_800ABAC6 ? D_800ABAC6 : arg0->rect.h);
+    count = (arg0->rect.w * arg0->rect.h + 1) / 2;
+    if (count <= 0) return -1;
+    n = count % 16;
+    blocks = count / 16;
+    while (!(*GPU_STATUS & 0x04000000U)) {
+        if (get_alarm()) return -1;
+    }
+    *GPU_STATUS = 0x04000000U;
+    *GPU_DATA = 0x01000000U;
+    *GPU_DATA = mode ? 0xB0000000U : 0xA0000000U;
+    *GPU_DATA = arg0->words[0];
+    *GPU_DATA = arg0->words[1];
+    n--;
+    if (n != -1) {
         do {
-            if(get_alarm())return -1;
-        }while(!(*GPU_STATUS&mask));
+            u32 word = *arg1++;
+            n--;
+            *(u32 *)GPU_DATA = word;
+        } while (n != -1);
     }
-    command=0xA0000000U;
-    *GPU_STATUS=0x04000000U;
-    *GPU_DATA=0x01000000U;
-    {
-        register volatile u32 *port=GPU_DATA;
-        if(mode)command=0xB0000000U;
-        *port=command;
-    }
-    *GPU_DATA=rect->words[0];
-    *GPU_DATA=rect->words[1];
-    remainder--;
-    if(remainder!=-1){
-        register s32 sentinel;
-        /* ASM_BARRIER: form the loop sentinel independently of the return value. */
-        __asm__("" : : : "$2");
-        sentinel=-1;
-        do {
-            register u32 word;
-            word=*cursor++;
-            remainder--;
-            *(u32 *)GPU_DATA=word;
-        }while(remainder!=sentinel);
-    }
-    {
-        register u32 dma_mode=0x04000000U;
-        if(blocks){
-            /* ASM_BARRIER: retain DMA register-address and word-count phases. */
-            register volatile u32 *port asm("$2")=GPU_STATUS;
-            register u32 start;
-            register volatile u32 *length_port;
-            register u32 length asm("$2");
-            dma_mode|=2U;
-            *port=dma_mode;
-            port=DMA2_MADR;
-            start=0x01000000U;
-            /* DMA hardware consumes a32-bit bus-address word; keep CPU pointers full. */
-            *port=(u32)(unsigned long)cursor;
-            length=blocks * 0x10000U;
-            length_port=DMA2_BCR;
-            length|=16U;
-            *length_port=length;
-            port=DMA2_CHCR;
-            start|=0x201U;
-            *port=start;
-        }
+    if (blocks) {
+        *GPU_STATUS = 0x04000002U;
+        *DMA2_MADR = (u32)(unsigned long)arg1;
+        *DMA2_BCR = (blocks << 16) | 16U;
+        *DMA2_CHCR = 0x01000201U;
     }
     return 0;
 }
-
-s32 _drs(GpuRectangle *arg0,u32 *arg1) {
-    register GpuRectangle *rect=arg0;
-    register u32 *cursor;
-    register s32 signed_side;
-    /* ASM_BARRIER: retain the raw halfword reload register. */
-    register u32 raw_side asm("$3");
-    register u32 side;
-    register s32 over;
-    register u32 limit;
-    /* ASM_BARRIER: retain the adjusted word-count arithmetic register. */
-    register s32 count,blocks,remainder,adjusted asm("$3");
-    /* ASM_BARRIER: retain the preliminary count and captured quotient phases. */
-    register s32 preliminary asm("$16");
-    register s32 quotient asm("$3");
-    register s32 scaled;
-    register volatile u32 *status_ptr;
-    register u32 status;
-    cursor=arg1;
-    /* ASM_BARRIER: prepare rectangle and output pointers before starting the deadline. */
-    __asm__("" : "+r"(cursor) : "r"(rect));
+s32 _drs(GpuRectangle *arg0, u32 *arg1) {
+    s32 count, n, blocks;
     set_alarm();
-    signed_side=rect->rect.w;raw_side=(u16)rect->rect.w;
-    if(signed_side>=0){
-        side=raw_side;
-        over=D_800ABAC4<signed_side;
-        limit=(u16)D_800ABAC4;
-        if(over)side=limit;
-    }else side=0;
-    signed_side=rect->rect.h;raw_side=(u16)rect->rect.h;
-    rect->rect.w=side;
-    if(signed_side>=0){
-        side=raw_side;
-        over=D_800ABAC6<signed_side;
-        limit=(u16)D_800ABAC6;
-        if(over)side=limit;
-    }else side=0;
-    adjusted=rect->rect.w*(s16)side+1;
-    rect->rect.h=side;
-    adjusted+=(u32)adjusted>>31;
-    count=adjusted>>1;
-    preliminary=adjusted>>5;
-    if(count<=0)return -1;
-    quotient=preliminary;
-    /* ASM_BARRIER: capture the block quotient before forming the CPU tail. */
-    __asm__("" : "+r"(quotient));
-    scaled=quotient*16;
-    remainder=count-scaled;
-    status_ptr=GPU_STATUS;
-    blocks=quotient;
-    status=*status_ptr;
-    if(!(status&0x04000000U)){
-        register u32 mask;
-        /* ASM_BARRIER: materialize a fresh mask after the first status test. */
-        __asm__("" : : : "$3");
-        mask=0x04000000U;
+    arg0->rect.w = arg0->rect.w < 0 ? 0 : (arg0->rect.w > D_800ABAC4 ? D_800ABAC4 : arg0->rect.w);
+    arg0->rect.h = arg0->rect.h < 0 ? 0 : (arg0->rect.h > D_800ABAC6 ? D_800ABAC6 : arg0->rect.h);
+    count = (arg0->rect.w * arg0->rect.h + 1) / 2;
+    if (count <= 0) return -1;
+    n = count % 16;
+    blocks = count / 16;
+    while (!(*GPU_STATUS & 0x04000000U)) {
+        if (get_alarm()) return -1;
+    }
+    *GPU_STATUS = 0x04000000U;
+    *GPU_DATA = 0x01000000U;
+    *GPU_DATA = 0xC0000000U;
+    *GPU_DATA = arg0->words[0];
+    *GPU_DATA = arg0->words[1];
+    while (!(*GPU_STATUS & 0x08000000U)) {
+        if (get_alarm()) return -1;
+    }
+    n--;
+    if (n != -1) {
         do {
-            if(get_alarm())return -1;
-        }while(!(*GPU_STATUS&mask));
+            u32 word = *GPU_DATA;
+            n--;
+            *arg1++ = word;
+        } while (n != -1);
     }
-    *GPU_STATUS=0x04000000U;
-    *GPU_DATA=0x01000000U;
-    *GPU_DATA=0xC0000000U;
-    *GPU_DATA=rect->words[0];
-    *GPU_DATA=rect->words[1];
-    if(!(*GPU_STATUS&0x08000000U)) {
-        u32 mask;
-        /* ASM_BARRIER: materialize the receive mask after its first status test. */
-        __asm__("" : : : "$3");
-        mask=0x08000000U;
-        do {
-            if(get_alarm())return -1;
-        }while(!(*GPU_STATUS&mask));
-    }
-    {
-        register s32 empty;
-        remainder--;
-        empty=-1;
-        /* ASM_BARRIER: keep entry and loop sentinels in separate arithmetic phases. */
-        __asm__("" : "+r"(empty));
-        if(remainder!=empty){
-            register s32 sentinel;
-            sentinel=-1;
-            do {
-                u32 word=*GPU_DATA;
-                remainder--;
-                *cursor++=word;
-            }while(remainder!=sentinel);
-        }
-    }
-    {
-        register u32 dma_mode=0x04000000U;
-        if(blocks){
-            /* ASM_BARRIER: retain DMA register-address and word-count phases. */
-            register volatile u32 *port asm("$2")=GPU_STATUS;
-            register u32 start;
-            register volatile u32 *length_port;
-            register u32 length asm("$2");
-            dma_mode|=3U;
-            *port=dma_mode;
-            port=DMA2_MADR;
-            start=0x01000000U;
-            /* DMA hardware consumes a 32-bit bus address word; keep CPU pointers full. */
-            *port=(u32)(unsigned long)cursor;
-            length=blocks * 0x10000U;
-            length_port=DMA2_BCR;
-            length|=16U;
-            *length_port=length;
-            port=DMA2_CHCR;
-            start|=0x200U;
-            *port=start;
-        }
+    if (blocks) {
+        *GPU_STATUS = 0x04000003U;
+        *DMA2_MADR = (u32)(unsigned long)arg1;
+        *DMA2_BCR = (blocks << 16) | 16U;
+        *DMA2_CHCR = 0x01000200U;
     }
     return 0;
 }
-
 void _ctl(u32 command) {
     /* ASM_BARRIER: reuse v0 for the port pointer and then the command index. */
     register u32 index __asm__("$2");

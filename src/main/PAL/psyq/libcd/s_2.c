@@ -1,4 +1,5 @@
-/* CC1_FLAGS: -mno-split-addresses */
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "rr/cd.h"
 
@@ -14,6 +15,7 @@ s32 CdControlB(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffe
 s32 CdGetSector(u8 *buffer, u32 words);
 s32 CdGetSector2(u8 *buffer, u32 words);
 
+
 s32 CdControl(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer) {
     /* ASM_BARRIER: Retain the original full command across device calls. */
     register s32 command __asm__("$20");
@@ -23,56 +25,44 @@ s32 CdControl(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffer
     __asm__("" : "+r"(parameters), "+r"(result) : : "$20");
     command=requested_command;
     {
-    /* ASM_BARRIER: Retain the original retry counter. */
-    register s32 remaining __asm__("$16")=3;
-    s32 code=command&255;
-    u32 *table;
-    LibDataCallback saved;
-    u32 *metadata;
-    u32 offset;
-    /* ASM_BARRIER: Retain the independent success/failure state. */
-    register s32 state __asm__("$23");
-    s32 terminal;
-    table=CD_com_info;
-    saved=CD_cbsync;
-    offset=code*sizeof(*table);
-    metadata=(u32 *)(offset+(unsigned long)table);
-    state = 0;
-    terminal=-1;
-loop:
-    CD_cbsync = 0;
-    {
-    /* ASM_BARRIER: Keep the command-1 comparison in the original temporary. */
-    register s32 one __asm__("$8")=1;
-    /* ASM_BARRIER: Retain the command-1 comparison value. */
-    __asm__("" : "+r"(one));
-    if (code != one) {
-        if (CD_status.bytes.status & 0x10) {
-            s32 status_command=1;
-            const u8 *parameter_zero;
-            u8 *result_zero;
-            /* ASM_BARRIER: Materialize each zero independently before the status call. */
-            __asm__("" : "=r"(parameter_zero) : "0"(0));
-            /* ASM_BARRIER: Materialize each zero independently before the status call. */
-            __asm__("" : "=r"(result_zero) : "0"(0));
-            CD_cw(status_command, parameter_zero, result_zero, 0);
-        }
-    }
-    }
-    if (parameters != 0) {
-        if (*metadata != 0) {
-            if (CD_cw(2, parameters, result, 0) != 0) goto retry;
-        }
-    }
-    CD_cbsync = saved;
-    if (CD_cw(command & 0xFF, parameters, result, 0) == 0) goto done;
-retry:
-    remaining--;
-    if (remaining != terminal) goto loop;
-    CD_cbsync = saved;
-    state = -1;
+        /* ASM_BARRIER: Retain the original retry counter. */
+        register s32 remaining __asm__("$16")=3;
+        s32 code=command&255;
+        u32 *table=CD_com_info;
+        LibDataCallback saved=CD_cbsync;
+        u32 *metadata=code+table;
+        s32 state=0;
+        s32 terminal=-1;
+        do {
+            CD_cbsync = 0;
+            {
+                /* ASM_BARRIER: Keep the command-1 comparison in the original temporary. */
+                register s32 one __asm__("$8")=1;
+                if (code != one) {
+                    if (CD_status.bytes.status & 0x10) {
+                        s32 status_command=1;
+                        const u8 *parameter_zero;
+                        u8 *result_zero;
+                        /* ASM_BARRIER: Materialize each zero independently before the status call. */
+                        __asm__("" : "=r"(parameter_zero) : "0"(0));
+                        /* ASM_BARRIER: Materialize each zero independently before the status call. */
+                        __asm__("" : "=r"(result_zero) : "0"(0));
+                        CD_cw(status_command, parameter_zero, result_zero, 0);
+                    }
+                }
+            }
+            if (parameters != 0) {
+                if (*metadata != 0) {
+                    if (CD_cw(2, parameters, result, 0) != 0) continue;
+                }
+            }
+            CD_cbsync = saved;
+            if (CD_cw(command & 0xFF, parameters, result, 0) == 0) goto done;
+        } while (--remaining != terminal);
+        CD_cbsync = saved;
+        state = -1;
 done:
-    return state + 1;
+        return state + 1;
     }
 }
 
@@ -84,74 +74,48 @@ s32 CdControlF(s32 requested_command,const u8 *parameter_buffer) {
     __asm__("" : "+r"(parameters) : : "$19");
     command=requested_command;
     {
-    /* ASM_BARRIER: Retain the original retry counter. */
-    register s32 remaining __asm__("$16")=3;
-    s32 one;
-    /* ASM_BARRIER: Retain the byte command separately from its full input. */
-    register s32 code __asm__("$18");
-    /* ASM_BARRIER: Retain the command metadata base before indexing it. */
-    register u32 *table __asm__("$3");
-    LibDataCallback saved;
-    /* ASM_BARRIER: Retain the selected metadata entry across all raw device calls. */
-    register u32 *metadata __asm__("$21");
-    /* ASM_BARRIER: Form the metadata byte offset before preserving its selected pointer. */
-    register u32 offset __asm__("$2");
-    s32 state;
-    s32 terminal;
-    one=1;
-    code=command&255;
-    table=CD_com_info;
-    saved=CD_cbsync;
-    /* ASM_BARRIER: Capture the saved callback before computing the selected metadata entry. */
-    __asm__("" : "+r"(saved) : "r"(table) : "$2");
-    offset=code*sizeof(*table);
-    metadata=(u32 *)(offset+(unsigned long)table);
-    state = 0;
-    terminal=-1;
-loop:
-    {
-        /* ASM_BARRIER: Use the original address temporary for callback clearing. */
-        register LibDataCallback *page __asm__("$1");
-        /* ASM_BARRIER: Finish retry setup before materializing the callback page. */
-        __asm__("" : : : "$1");
-        page=(LibDataCallback *)0x800A0000U;
-        /* ASM_BARRIER: Expose callback clearing for the command-test delay slot. */
-        __asm__("" : "+r"(page));
-        page[0x6488/sizeof(*page)]=0;
-    }
-    {
-    if (code != one) {
-        if (CD_status.bytes.status & 0x10) {
-            s32 status_command=1;
-            const u8 *parameter_zero;
-            u8 *result_zero;
-            /* ASM_BARRIER: Materialize each zero independently before the status call. */
-            __asm__("" : "=r"(parameter_zero) : "0"(0));
-            /* ASM_BARRIER: Materialize each zero independently before the status call. */
-            __asm__("" : "=r"(result_zero) : "0"(0));
-            CD_cw(status_command, parameter_zero, result_zero, 0);
-        }
-    }
-    }
-    if (parameters != 0) {
-        if (*metadata != 0) {
+        /* ASM_BARRIER: Retain the original retry counter. */
+        register s32 remaining __asm__("$16")=3;
+        s32 one=1;
+        s32 code=command&255;
+        u32 *table=CD_com_info;
+        LibDataCallback saved=CD_cbsync;
+        u32 *metadata=code+table;
+        s32 state=0;
+        s32 terminal=-1;
+        do {
             {
-                u8 *result_zero;
-                /* ASM_BARRIER: Prepare the null result separately from mode zero. */
-                __asm__("" : "=r"(result_zero) : "0"(0));
-                if (CD_cw(2, parameters, result_zero, 0) != 0) goto retry;
+                LibDataCallback *page;
+                page=(LibDataCallback *)0x800A0000U;
+                page[0x6488/sizeof(*page)]=0;
             }
-        }
-    }
-    CD_cbsync = saved;
-    if (CD_cw(command & 0xFF, parameters, 0, 1) == 0) goto done;
-retry:
-    remaining--;
-    if (remaining != terminal) goto loop;
-    CD_cbsync = saved;
-    state = -1;
+            if (code != one) {
+                if (CD_status.bytes.status & 0x10) {
+                    s32 status_command=1;
+                    const u8 *parameter_zero;
+                    u8 *result_zero;
+                    /* ASM_BARRIER: Materialize each zero independently before the status call. */
+                    __asm__("" : "=r"(parameter_zero) : "0"(0));
+                    /* ASM_BARRIER: Materialize each zero independently before the status call. */
+                    __asm__("" : "=r"(result_zero) : "0"(0));
+                    CD_cw(status_command, parameter_zero, result_zero, 0);
+                }
+            }
+            if (parameters != 0) {
+                if (*metadata != 0) {
+                    u8 *result_zero;
+                    /* ASM_BARRIER: Prepare the null result separately from mode zero. */
+                    __asm__("" : "=r"(result_zero) : "0"(0));
+                    if (CD_cw(2, parameters, result_zero, 0) != 0) continue;
+                }
+            }
+            CD_cbsync = saved;
+            if (CD_cw(command & 0xFF, parameters, 0, 1) == 0) goto done;
+        } while (--remaining != terminal);
+        CD_cbsync = saved;
+        state = -1;
 done:
-    return state + 1;
+        return state + 1;
     }
 }
 
@@ -170,23 +134,18 @@ s32 CdControlB(s32 requested_command,const u8 *parameter_buffer,u8 *result_buffe
     u32 *table;
     LibDataCallback saved;
     u32 *metadata;
-    u32 offset;
     s32 outcome;
     s32 terminal;
     s32 one=1;
     code=command&255;
     table=CD_com_info;
     saved=CD_cbsync;
-    offset=code*sizeof(*table);
-    metadata=(u32 *)(offset+(unsigned long)table);
+    metadata=code+table;
     terminal=-1;
 loop:
     {
-        /* ASM_BARRIER: Retain the original address temporary for callback clearing. */
-        register LibDataCallback *page __asm__("$1");
+        LibDataCallback *page;
         page=(LibDataCallback *)0x800A0000U;
-        /* ASM_BARRIER: Expose callback clearing in the command-test delay slot. */
-        __asm__("" : "+r"(page));
         page[0x6488/sizeof(*page)]=0;
     }
     {

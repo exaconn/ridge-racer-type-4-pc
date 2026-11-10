@@ -5,7 +5,7 @@
 
 s32 GetCourseFileIndex(s32 arg0);
 int GetCarFileIndex();
-int GetR4FileIndex();
+int GetR4FileIndex(int category, int index);
 void LoadR4Directory(void);
 void InitCdFileDirectory(void);
 void DrawLoadingTriangle(void);

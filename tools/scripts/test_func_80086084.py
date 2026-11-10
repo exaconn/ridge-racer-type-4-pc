@@ -1,4 +1,4 @@
-"""Host checks for masked SPU register writes; fd.py checks target code/layout."""
+"""Native masked SPU register checks with the actual public layouts."""
 import ctypes as C
 from pathlib import Path
 import random
@@ -23,8 +23,7 @@ class MaskedSpuWriteTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         directory = Path(cls.temp.name)
         root = Path(__file__).resolve().parents[2]
-        header = (root / 'include/rr/spu.h').read_text()
-        header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
+        header = '#include "rr/spu.h"\n'
         source = (root / 'tools/scripts/fixtures/legacy/func_80086084.c').read_text()
         source = source.replace('#include "rr/spu.h"', '''#include <stdint.h>
 typedef uint8_t u8;
@@ -37,7 +36,7 @@ typedef int32_t s32;
             '#include "rr/spu.h"', '')
         source += '\nSpuRegisterBank *_spu_RXX;\n'
         (directory / 'function.c').write_text(source)
-        subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
+        subprocess.run(['cc', '-I'+str(Path(__file__).resolve().parents[2]/'include'), '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
         cls.function = cls.library._spu_setReverbAttr

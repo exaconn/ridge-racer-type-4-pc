@@ -4,32 +4,17 @@
 void ovl661_func_80114B00(void) {
     s32 var_a2;
     s32 var_a2_2;
-    s16 temp_a0;
-    s16 temp_a1_3;
     s32 temp_a1;
     s32 temp_a1_2;
     s32 temp_a2;
     s32 temp_s0_2;
     s32 temp_s0_4;
-    s32 playerSoundOffset;
     s32 temp_v0_3;
     s32 var_a1;
     s32 var_s2;
-    s32 var_v1;
-    s32 var_v1_2;
-    s32 var_v1_3;
-    s32 var_v1_4;
     s8 temp_v1;
     RaceVehicle *temp_s0;
     RaceVehicle *temp_s0_3;
-    Rr661FrameVector16 *temp_v0;
-    Rr661FrameVector16 *temp_v0_2;
-    Rr661FrameVector16 *temp_v0_4;
-    Rr661FrameVector16 *temp_v0_5;
-    Rr661FrameVector16 *temp_v1_2;
-    Rr661FrameVector16 *temp_v1_3;
-    Rr661FrameVector16 *temp_v1_4;
-    Rr661FrameVector16 *temp_v1_5;
 
     ModeFrame=ModeFrame+1U;
     if (((RaceState - 1U) < 2U) && (PlayerControllers[0].edges08.fields.pressed & 0x800)) {
@@ -69,6 +54,7 @@ block_7:
                 DrawHudNumber5(*(s16 *)((u8 *)&PlayerDisplayRpm+var_s2*2), var_s2);
                 DrawHudDigitMod10(temp_s0->control.previewSample84.halves.high, var_s2);
                 UpdateHudRankDisplay(temp_s0->half1EE, var_s2);
+                /* ASM_BARRIER: keep var_s2 from becoming a loop BIV so PlayerCars[var_s2] is indexed per iteration */
                 {s32 playerArg=var_s2;s32 budget=RaceTimeRemaining;__asm__("" : : "r"(budget));{s32 nextPlayer=playerArg+1;__asm__("" : : "r"(nextPlayer));var_s2=nextPlayer;DrawTimeRemainingForPlayer(budget,playerArg);}}
                 DrawLapCounter(var_s2, temp_s0->control.dynamics94.steering.count22);
                 DrawRaceMinimap(var_s2);
@@ -81,25 +67,16 @@ block_7:
         }
         var_s2 = 0;
         do {
-            var_v1 = var_s2 * 0x10;
-            temp_v0 = (Rr661FrameVector16 *)((u8 *)D_801183D0+var_v1);
-            temp_v1_2 = (Rr661FrameVector16 *)((u8 *)D_801183F0+var_v1);
-        RR_661_FRAME_SCRATCH->rotation18 = *temp_v0;
-        RR_661_FRAME_SCRATCH->position08 = *temp_v1_2;
-            __asm__("" : "+r"(var_s2));
-        SetupViewport(var_s2 + 2);
+            RR_661_FRAME_SCRATCH->rotation18 = D_801183D0[var_s2];
+            RR_661_FRAME_SCRATCH->position08 = D_801183F0[var_s2];
+            SetupViewport(var_s2 + 2);
             if (RaceState == 0 && ModeFrame < 75U) {
                 UpdateRaceIntroCamera(&PlayerCars[var_s2], ModeFrame);
-                var_v1_2 = var_s2 * 0x10;
             } else {
                 UpdateRaceChaseCamera(&PlayerCars[var_s2]);
-                var_v1_2 = var_s2 * 0x10;
             }
-            temp_v0_2 = (Rr661FrameVector16 *)((u8 *)D_801183D0+var_v1_2);
-            temp_v1_3 = (Rr661FrameVector16 *)((u8 *)D_801183F0+var_v1_2);
-__asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
-        *temp_v0_2 = RR_661_FRAME_SCRATCH->rotation18;
-        *temp_v1_3 = RR_661_FRAME_SCRATCH->position08;
+            D_801183D0[var_s2] = RR_661_FRAME_SCRATCH->rotation18;
+            D_801183F0[var_s2] = RR_661_FRAME_SCRATCH->position08;
             temp_s0_2 = var_s2 + 1;
             BuildCameraMatrices();
             DrawCars(var_s2 + 2);
@@ -190,6 +167,7 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
             DrawHudNumber5(*(s16 *)((u8 *)&PlayerDisplayRpm+var_s2*2), var_s2);
             DrawHudDigitMod10(temp_s0_3->control.previewSample84.halves.high, var_s2);
             UpdateHudRankDisplay(temp_s0_3->half1EE, var_s2);
+            /* ASM_BARRIER: keep var_s2 from becoming a loop BIV so PlayerCars[var_s2] is indexed per iteration */
             {s32 playerArg=var_s2;s32 budget=RaceTimeRemaining;__asm__("" : : "r"(budget));{s32 nextPlayer=playerArg+1;__asm__("" : : "r"(nextPlayer));var_s2=nextPlayer;DrawTimeRemainingForPlayer(budget,playerArg);}}
             DrawLapCounter(var_s2, temp_s0_3->control.dynamics94.steering.count22);
             DrawRaceMinimap(var_s2);
@@ -202,26 +180,16 @@ __asm__("" : : "r"(temp_v0_2),"r"(temp_v1_3));
     }
     var_s2 = 0;
     do {
-        var_v1_3 = var_s2 * 0x10;
-        temp_v0_4 = (Rr661FrameVector16 *)((u8 *)D_801183D0+var_v1_3);
-        temp_v1_4 = (Rr661FrameVector16 *)((u8 *)D_801183F0+var_v1_3);
-        RR_661_FRAME_SCRATCH->rotation18 = *temp_v0_4;
-        RR_661_FRAME_SCRATCH->position08 = *temp_v1_4;
-        __asm__("" : "+r"(var_s2));
+        RR_661_FRAME_SCRATCH->rotation18 = D_801183D0[var_s2];
+        RR_661_FRAME_SCRATCH->position08 = D_801183F0[var_s2];
         SetupViewport(var_s2 + 2);
         if (RaceState == 0 && ModeFrame < 75U) {
             UpdateRaceIntroCamera(&PlayerCars[var_s2], ModeFrame);
-            var_v1_4 = var_s2 * 0x10;
         } else {
             UpdateRaceChaseCamera(&PlayerCars[var_s2]);
-            var_v1_4 = var_s2 * 0x10;
         }
-        temp_v0_5 = (Rr661FrameVector16 *)((u8 *)D_801183D0+var_v1_4);
-        temp_v1_5 = (Rr661FrameVector16 *)((u8 *)D_801183F0+var_v1_4);
-__asm__("" : : "r"(temp_v0_5),"r"(temp_v1_5));
-        *temp_v0_5 = RR_661_FRAME_SCRATCH->rotation18;
-        *temp_v1_5 = RR_661_FRAME_SCRATCH->position08;
-        playerSoundOffset = var_s2 * 2;
+        D_801183D0[var_s2] = RR_661_FRAME_SCRATCH->rotation18;
+        D_801183F0[var_s2] = RR_661_FRAME_SCRATCH->position08;
         BuildCameraMatrices();
         DrawCars(var_s2 + 2);
         if (PlayerCars[var_s2].half1EA != 0) {
@@ -233,12 +201,8 @@ __asm__("" : : "r"(temp_v0_5),"r"(temp_v1_5));
         DrawTrackObjects(0);
         temp_s0_4 = var_s2 + 1;
         DrawTrackSceneryForPlayer(temp_s0_4);
-        {register s32 playerArg2 __asm__("$6")=var_s2;
-        temp_a0 = *(s16 *)((u8 *)&PlayerDisplayRpm+playerSoundOffset);
-        temp_a1_3 = *(s16 *)((u8 *)&PlayerThrottleLoad+playerSoundOffset);
+        SlotSetLevelProgram((&PlayerDisplayRpm.first)[var_s2], (&PlayerThrottleLoad.first)[var_s2], var_s2);
         var_s2 = temp_s0_4;
-        SlotSetLevelProgram(temp_a0,temp_a1_3,playerArg2);}
-        __asm__("" : : "r"(playerSoundOffset));
     } while (var_s2 < 2);
     if (RaceState >= 4) {
         StopRaceRumble();

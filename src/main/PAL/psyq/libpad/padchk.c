@@ -1,3 +1,4 @@
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/channel_gates.h"
 #include "psyq/libpad/padchk.h"
@@ -8,9 +9,7 @@ void _padAllocGates(void *argument) {
     register s32 one;
     register s32 bound;
     register s32 offset;
-    /* ASM_BARRIER: retain the clamped input length in T1 for both scans. */
     s32 length;
-    /* ASM_BARRIER: use A0 for gate stores after the input scan is finished. */
     register u8 *mapping,*data,*gates asm("$4");
     PsyqBzero((record->output54.fields.gates+3),6);
     if(record->pending && record->data28) {
@@ -90,12 +89,8 @@ reserved:
                 (record->output54.fields.gates+3)[0]=enable;
                 {
                     s32 total=PadTotalGateCost+10U;
-                    /* ASM_BARRIER: finish the wrapped increment before forming its AT address. */
-                    register s32 *tail_page asm("$1");
-                    __asm__("" : : "r"(total) : "$1");
+                    s32 *tail_page;
                     tail_page=(s32 *)0x800B0000U;
-                    /* ASM_BARRIER: retain an independent mapped store at the common exit. */
-                    __asm__("" : "+r"(tail_page));
                     tail_page[-0x4350/4]=total;
                 }
             }

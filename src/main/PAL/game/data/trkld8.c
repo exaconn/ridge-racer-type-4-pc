@@ -18,8 +18,7 @@
 extern short SelectedTeamIndex;
 extern int D_800AD564;
 extern short CourseIndex;
-extern int MenuArenaBase;
-extern char D_800F74B0[];
+#include "rr/menu_arena_base.h"
 extern char RaceContext[];
 extern void SsSetSerialAttr(signed char a0, signed char a1, signed char a2);
 extern int SsSetSerialVol(signed char a0, int a1, int a2);
@@ -30,7 +29,7 @@ int LoadIntroSceneStep(void) {
     int v;
     int t;
     int u;
-    int w;
+    char *w;
     int g;
     int h;
     switch (RaceLoadStepIndex) {
@@ -83,33 +82,31 @@ int LoadIntroSceneStep(void) {
 }
 
 void SoundSystemInit(void) {
-    char *s1;
-    /* ASM_BARRIER: keep SPU table cursor in $s0 across init calls */
-    register char *s0 asm("$16");
-    int i; int n; short m;
+    SequenceChannel *table;
+    AudioState *state;
+    int i;
+    s32 emptySlot;
+    s16 emptyBank;
     CdReset(1);
     SsSetSerialAttr(0, 0, 1);
     SsSetSerialVol(0, 0x7F, 0x7F);
-    s0 = D_800F74B0;
-    SsSetTableSize(s0, 2, 1);
+    table = SoundState.sequences;
+    SsSetTableSize(table, 2, 1);
     SsSetTickMode(1);
-    s1 = s0 - 0x26F8;
+    state = &SoundState;
     SsStart();
     SsSetMVol(0x7F, 0x7F);
-    PsyqBzero(s1, 0xA8D0);
+    PsyqBzero(state, sizeof(*state));
     PsyqBzero(RaceContext, 0x57C);
-    s0 -= 0x1498;
     InitSceneOverlayState();
     ResetSlotOrder();
-    ((AudioState *)s1)->master08 = 0x80;
-    n = -1;
-    for (i = 3; i >= 0; i--) {
-        *(AudioBankStorage32 *)&((AudioState *)s0)->slots38[0].bank04 = n;
-        s0 -= 0x620;
-    }
-    m = -1;
+    state->master08 = 0x80;
+    emptySlot = -1;
+    for (i = 3; i >= 0; i--)
+        state->slots38[i].bank04.word = emptySlot;
+    emptyBank = -1;
     for (i = 7; i >= 0; i--)
-        SoundState.bank24[i] = m;
+        SoundState.banks24.ids[i] = emptyBank;
     SoundState.seqInit2860 = -1;
     SoundState.seqInit2862 = -1;
     CdAudioInit();

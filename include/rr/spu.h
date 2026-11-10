@@ -2,22 +2,18 @@
 #define RR_SPU_H
 
 #include "rr/layout.h"
-
-/* Program attributes selected from a bank's 16-byte record table. */
-typedef struct {
-    u8 value00, value01, value02, value03, value04, pad05;
-    u16 value06;
-    u8 value08, pad09[3];
-    u16 value0C, value0E;
-} SpuProgram;
+#include "psyq/libsnd/vab_format.h"
+#include "psyq/libspu/spumode.h"
 
 typedef struct {
     u8 bank, pad01[4], program, value;
 } SpuSelectionPrefix;
 
-extern SpuProgram *_svm_vab_pg[], *_svm_pg;
-extern u8 *_svm_vab_vh[], *_svm_vab_tn[];
-extern u8 *_svm_vh, *_svm_tn;
+/* Resource cursors also support byte/halfword aliases of live SDK state.
+ * The parser's complete ProgAtr view is used only for word-aligned buffers. */
+extern ProgAtrBuffer *_svm_vab_pg[], *_svm_pg;
+extern u8 *_svm_vab_vh[], *_svm_vh;
+extern VagAtrBuffer *_svm_vab_tn[], *_svm_tn;
 extern s16 kMaxPrograms;
 extern SpuSelectionPrefix D_80110101;
 /* Signed low16 program is checked only against the upper bound; a negative
@@ -133,7 +129,6 @@ extern u32 _svm_vab_total[];
 /* Low16 bank values 0..16 are accepted; state2 is transferred and becomes1. */
 s32 SsVabTransBody(const u16 *source, s32 bank);
 u32 SpuSetTransferStartAddr(s32 address);
-void SpuSetTransferMode(s32 mode);
 void _spu_setInTransfer(s32 mode);
 
 extern u16 SvmSemitoneTable[12], SvmPitchFineTable[128];
@@ -144,14 +139,6 @@ void _spu_FiDMA(void);
 void SpuStart(void);
 void _spu_Fr_(s32 address, s32 transfer_address, s32 length);
 
-RR_ASSERT_SIZE(SpuProgram, 0x10);
-RR_ASSERT_OFFSET(SpuProgram, value00, 0);
-RR_ASSERT_OFFSET(SpuProgram, value01, 1);
-RR_ASSERT_OFFSET(SpuProgram, value02, 2);
-RR_ASSERT_OFFSET(SpuProgram, value03, 3);
-RR_ASSERT_OFFSET(SpuProgram, value06, 6);
-RR_ASSERT_OFFSET(SpuProgram, value04, 4);
-RR_ASSERT_OFFSET(SpuProgram, value08, 8);
 RR_ASSERT_SIZE(SpuSelectionPrefix, 7);
 RR_ASSERT_OFFSET(SpuSelectionPrefix, program, 5);
 RR_ASSERT_OFFSET(SpuSelectionPrefix, value, 6);

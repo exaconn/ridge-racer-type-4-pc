@@ -186,7 +186,7 @@ int UpdateGlyphRow(int arg0) {
     return s7 >= 0;
 }
 
-int AllocUiRows(int a) {
+int AllocUiRows(void *a) {
     int sz = UiRowCount * 36;
     UiRows = (UiRow24 *)a;
     PsyqBzero(a, sz);

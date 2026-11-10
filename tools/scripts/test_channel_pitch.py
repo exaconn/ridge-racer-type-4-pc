@@ -14,6 +14,8 @@ class ChannelPitchTest(unittest.TestCase):
         cls.temporary=TemporaryDirectory()
         cls.addClassCleanup(cls.temporary.cleanup)
         def header(name):
+            if name=="spu.h":
+                return '#include "rr/spu.h"\n'
             text=(ROOT/'include/rr'/name).read_text()
             return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
         body=(ROOT/'tools/scripts/fixtures/views/func_80084E74.c').read_text()
@@ -144,7 +146,7 @@ int main(int argc,char **argv) {
 '''
         directory=Path(cls.temporary.name);source=directory/'pitch.c'
         source.write_text(code);cls.executable=directory/'pitch'
-        result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
+        result=subprocess.run(['cc', '-I'+str(Path(__file__).resolve().parents[2]/'include'),'-std=c99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
                                '-fsanitize=undefined','-fno-strict-aliasing',
                                '-Wno-unused-parameter','-I',str(ROOT/'include'),
                                str(source),'-o',str(cls.executable)],capture_output=True,text=True)

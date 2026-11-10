@@ -39,7 +39,7 @@ extern unsigned char D_8009F730[];
 extern unsigned char D_8009F790[];
 extern unsigned short SelectedCourseChoice;
 extern int ModeFrame;
-extern int MenuArenaBase;
+#include "rr/menu_arena_base.h"
 extern signed char LoadState;
 extern int GlyphRows;
 extern s16 ModeIndex;
@@ -85,8 +85,6 @@ void DrawResultsStandingsOverlay(int a0) {
   int s0;
   int t0;
   int d;
-  /* ASM_BARRIER: pin t to $v1 like the original */
-  register int t asm("$3");
   int u;
   unsigned char *p;
   unsigned char *q;
@@ -142,7 +140,7 @@ void DrawResultsStandingsOverlay(int a0) {
     else
       if (s1 == 3)
     {
-      t = s2 + 1;
+      int t = s2 + 1;
       s2 = t + (SelectedCourseChoice & 7);
     }
     p = D_8009F730 + (s2 * 4);
@@ -178,8 +176,7 @@ void DrawResultsStandingsOverlay(int a0) {
       s2 = 0x17;
       s1++;
       q = base + 0x5C;
-      t = new_var;
-      s3 = t - q[2];
+      { int t = new_var; s3 = t - q[2]; }
       t0 = 0x263B;
     }
     while (s1 < s0);

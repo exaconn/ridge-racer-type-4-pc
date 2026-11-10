@@ -108,12 +108,12 @@ class Overlay665RenderTest(unittest.TestCase):
          }
          w->s.scratch.tail7C.projection.fields.transformed08=(Vec3i){word(m[0]^scenario),word(m[1]^scenario),word(m[2]^scenario)};
         }
-        void BuildRotMatrixZ(s16 *matrix,s32 angle) {
+        void BuildRotMatrixZ(MatrixWords32 *matrix,s32 angle) {
          unsigned i;(void)event(10,angle,0,0,matrix,0);
-         for(i=0;i<9;i++)matrix[i]=half((u32)angle+scenario+i*13);
+         for(i=0;i<9;i++)matrix->halves[i]=(u16)half((u32)angle+scenario+i*13);
         }
-        void BuildRotMatrixX(void *matrix,s32 angle) {
-         unsigned i;u16 *halves=matrix;(void)event(11,angle,0,0,matrix,0);
+        void BuildRotMatrixX(MatrixWords32 *matrix,s32 angle) {
+         unsigned i;u16 *halves=matrix->halves;(void)event(11,angle,0,0,matrix,0);
          for(i=0;i<9;i++)halves[i]=(u16)((u32)angle+scenario+i*17);
         }
         void SubmitModelTwoTri(PreviewRenderScratch *scratch,s32 object,s32 blend,s32 depth) {
@@ -153,15 +153,15 @@ class Overlay665RenderTest(unittest.TestCase):
            object=kind==0?1:w->s.meshes<1;
            SubmitModelTwoTri(&w->s.scratch,object,0,0);
           } else if(kind==2) {
-           BuildRotMatrixX(second.halves,w->s.visual.view74.rotation18);
+           BuildRotMatrixX(&second.matrix,w->s.visual.view74.rotation18);
            (void)MulMatrix2(&first.matrix,&second.matrix);light(&second);project(&second);draw(3,2);
            if(w->s.visual.layout0C>=2 && w->s.visual.detail10>=2){project(&second);draw(7,6);}
-           BuildRotMatrixX(second.halves,w->s.visual.view74.rotation20);
+           BuildRotMatrixX(&second.matrix,w->s.visual.view74.rotation20);
            (void)MulMatrix2(&first.matrix,&second.matrix);light(&second);project(&second);draw(4,3);
            if(w->s.visual.layout0C>=2 && w->s.visual.detail10>=2){project(&second);draw(8,7);}
           } else {
            project(&first);draw(5,4);
-           BuildRotMatrixZ((s16*)second.halves,(s32)w->s.visual.view74.rotation1C+1024);
+           BuildRotMatrixZ(&second.matrix,(s32)w->s.visual.view74.rotation1C+1024);
            (void)MulMatrix2(&first.matrix,&second.matrix);light(&second);project(&second);draw(6,5);
            if(w->s.visual.layout0C>=2 && w->s.visual.detail10>=2 && w->s.visual.detail10<4){project(&second);draw(9,8);}
           }

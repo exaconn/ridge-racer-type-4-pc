@@ -108,8 +108,7 @@ void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head) {
     u32 high, middle;
     /* ASM_BARRIER: retain the signed page-field shift in V1. */
     register s32 xpage asm("$3");
-    /* ASM_BARRIER: retain the output/biased-field cursors in T4/T0. */
-    register u8 *packet asm("$12"), *fields asm("$8");
+    u8 *packet;
     GpuScratchPointers *scratch;
     shade = (shade < 0 ? 0 : shade) > 255 ? 255 : (shade < 0 ? 0 : shade);
     command = 0xE6000000U;
@@ -150,7 +149,6 @@ void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head) {
                 /* ASM_BARRIER: retain the signed Y-page shift after masking. */
                 __asm__("" : "+r"(value));
                 ypage = (value>>4);
-                fields = packet+3;
                 do {
                     u = x&63;
                     value = limit-u;
@@ -164,25 +162,24 @@ void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head) {
                     xpage = x&1023;
                     x+=tile_w;
                     packed = top|value;
-                    ((u32 *)(fields+1))[2] = packed;
+                    ((u32 *)(packet+4))[2] = packed;
                     packed = bits_h|tile_w;
-                    ((u32 *)(fields+1))[4] = packed;
+                    ((u32 *)(packet+4))[4] = packed;
                     packed = vpart|u;
                     /* ASM_BARRIER: retain an arithmetic X-page shift. */
                     __asm__("" : "+r"(xpage));
                     xpage >>= 6;
                     xpage |= 256;
                     xpage = ypage|xpage;
-                    ((u32 *)(fields+1))[1] = shade;
-                    ((u32 *)(fields+1))[3] = packed;
-                    ((u32 *)(fields+1))[0] = xpage|drawmode;
+                    ((u32 *)(packet+4))[1] = shade;
+                    ((u32 *)(packet+4))[3] = packed;
+                    ((u32 *)(packet+4))[0] = xpage|drawmode;
                     packed = *ordering;
                     width-=tile_w;
                     *(u32 *)packet = packed;
                     length = 5;
 
-                    fields[0] = length;
-                    fields+=sizeof(TiledRectanglePacket);
+                    packet[3] = length;
                     *ordering = (u32)(unsigned long)packet;
                     packet+=sizeof(TiledRectanglePacket);
                     ((u8 *)ordering)[3] = 0;
@@ -197,8 +194,9 @@ void EmitTiledRect(GpuRectangleFields *rectangle, s32 intensity, u32 *head) {
     *(u32 *)packet = scratch->order[703];
     packet[3] = 1;
     scratch->order[703] = (u32)(unsigned long)packet;
+    packet += sizeof(GpuSingleCommandPacket);
     ((u8 *)&scratch->order[703])[3] = 0;
-    scratch->cursor = packet+sizeof(GpuSingleCommandPacket);
+    scratch->cursor = packet;
 }
 
 void TileRectSceneModeEnter(void) {
@@ -377,8 +375,7 @@ void DrawTrackObjectBillboard(int modelIndex) {
     GpuPolyFT4 *packet;
     const TrackObjectQuad *quad;
     const Vec3s8 *vertices;
-    /* ASM_BARRIER: pin count to $t8 ($24) to match original caller-saved loop allocation */
-    register int count asm("$24");
+    int count;
     u32 *orderingBase;
     int depthShift;
     int depthBucket;
@@ -403,8 +400,6 @@ void DrawTrackObjectBillboard(int modelIndex) {
     quad = (const TrackObjectQuad *)((const u8 *)quad + sizeof(RroBodyCommandHeader));
     word0 = quad->translationXY1C;
     word2 = quad->translationZ1A;
-    /* ASM_BARRIER: schedule count post-decrement and order global-alloc priorities quad ($t3) > packet ($t7) > vertices ($t9) */
-    __asm__("" : "+r"(count) : "r"(word0), "r"(word2), "r"(quad), "r"(packet), "r"(packet));
     work->input2C.signedWords[0] = word0;
     work->input2C.fields.z = word2;
     orderingBase = scene->view.projection.pointers.order + 128;
@@ -427,11 +422,9 @@ void DrawTrackObjectBillboard(int modelIndex) {
                 word3 = word1 >> 16;
                 word0 &= 0xFFFF;
                 word1 &= 0xFFFF;
-                RR_GTE_RTPT_LDV(
-                    &vertices[word0],
-                    &vertices[word2],
-                    &vertices[word1]
-                );
+                RR_GTE_LWC2_V012_3P(&vertices[word0], &vertices[word2], &vertices[word1]);
+                RR_GTE14_NOP2();
+                RR_GTE14_RTPT();
                 word0 = quad->uv0C;
                 word2 = quad->uv10;
                 packet->words.uv0 = word0;
@@ -485,11 +478,10 @@ void DrawTrackObjectFlashQuads(int modelIndex) {
     /* ASM_BARRIER: pin scratchpad base pointer to $a1 ($5) to match original pre-loop CSE */
     register RroSceneScratchPrefix *scene asm("$5");
     const RroModelTable *table;
-    GpuPolyFT4 *packet;
     const RroTexturedQuadPrefix *quad;
+    GpuPolyFT4 *packet;
     const Vec3s8 *vertices;
-    /* ASM_BARRIER: pin count to $t3 ($11) to match original caller-saved loop allocation */
-    register int count asm("$11");
+    int count;
     u32 *orderingBase;
     int windingMask;
     int depthShift;
@@ -504,22 +496,17 @@ void DrawTrackObjectFlashQuads(int modelIndex) {
     __asm__("" : "+r"(scene) : "r"(entryOffset));
     table = (const RroModelTable *)((const u8 *)scene->modelEntries48 - RR_FIELD_OFFSET(RroModelTable, entries));
     packet = (GpuPolyFT4 *)scene->view.projection.pointers.cursor;
-    depthShift = scene->depthShift60 + 2;
-    quad = (const RroTexturedQuadPrefix *)table->entries[modelIndex].commands;
     orderingBase = scene->view.projection.pointers.order + 128;
+    quad = (const RroTexturedQuadPrefix *)table->entries[modelIndex].commands;
+    depthShift = scene->depthShift60 + 2;
     vertices = table->entries[modelIndex].vertices;
     count = ((const RroBodyCommandHeader *)quad)->fields.count;
     quad = (const RroTexturedQuadPrefix *)((const u8 *)quad + sizeof(RroBodyCommandHeader));
     renderFlags = scene->renderFlags64;
-    /* ASM_BARRIER: materialize count in $t3 after scene[0x64/4] load and order global-alloc priorities quad ($t1) > packet ($t2) > vertices ($t4) > orderingBase ($t5) */
-    __asm__("" : "+r"(count) : "r"(quad), "r"(quad), "r"(quad), "r"(orderingBase), "r"(renderFlags));
     windingMask = renderFlags ? (-2147483647 - 1) : 0;
     while (count-- > 0) {
-        RR_GTE_RTPT_LDV(
-            &vertices[quad->vertices.indices[0]],
-            &vertices[quad->vertices.indices[1]],
-            &vertices[quad->vertices.indices[2]]
-        );
+        RR_GTE_LWC2_V012_3P(&vertices[quad->vertices.indices[0]], &vertices[quad->vertices.indices[1]], &vertices[quad->vertices.indices[2]]);
+        RR_GTE_RTPT_NOP2();
         word3 = quad->uv0C;
         word2 = quad->uv10;
         packet->words.uv0 = word3;
@@ -564,8 +551,6 @@ void DrawTrackObjectFlashQuads(int modelIndex) {
                             int y3 = work->projected24[3].xy.y;
                             if ((y0 >= 0 || y1 >= 0 || y2 >= 0 || y3 >= 0) &&
                                 (y0 < 0x100 || y1 < 0x100 || y2 < 0x100 || y3 < 0x100)) {
-                                /* ASM_BARRIER: give packet+3 GIV higher priority than quad+0x19 GIV ($a2 vs $t0) and windingMask higher priority than depthShift ($t6 vs $t7) */
-                                __asm__("" : : "m"(((char *)packet)[1]), "m"(((char *)packet)[2]), "r"(quad), "r"(packet), "r"(packet), "r"(windingMask));
                                 packet->words.tag.word = (orderingBase + work->depth1C)[quad->orderingBias19];
                                 packet->words.tag.bytes.length = 9;
                                 (orderingBase + work->depth1C)[quad->orderingBias19] = (u32)(unsigned long)packet;
@@ -585,8 +570,7 @@ void DrawTrackObjectFlashQuads(int modelIndex) {
 u8 *EmitModelTrisGT3(const TrackObjectLitWork *work, u32 *head, u8 *packetCursor) {
     const TrackObjectTriangle *triangle = (const TrackObjectTriangle *)work->commands30;
     const Vec3s8 *vertices = work->vertices2C;
-    /* ASM_BARRIER: allocate count to $t5 ($13) so vertices gets $t6 ($14) */
-    register int count __asm__("$13") = ((unsigned short *)triangle)[1];
+    int count = ((unsigned short *)triangle)[1];
     int x0, x1, x2, y0, y1, y2;
     u8 *ret;
 
@@ -596,11 +580,8 @@ u8 *EmitModelTrisGT3(const TrackObjectLitWork *work, u32 *head, u8 *packetCursor
         x2 = triangle->vertices.indices[2];
         x1 = x0 >> 16;
         x0 &= 0xFFFF;
-        RR_GTE_RTPT_LDV(
-            &vertices[x0],
-            &vertices[x1],
-            &vertices[x2]
-        );
+        RR_GTE_LWC2_V012_3P(&vertices[x0], &vertices[x1], &vertices[x2]);
+        RR_GTE_RTPT_NOP2();
         x0 = triangle->colors08[0];
         x1 = triangle->colors08[1];
         x2 = triangle->colors08[2];

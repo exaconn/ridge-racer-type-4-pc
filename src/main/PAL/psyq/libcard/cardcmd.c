@@ -1,3 +1,4 @@
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/commands.h"
 #include "rr/interrupts.h"
@@ -6,14 +7,9 @@ extern s32 SysDeqIntRP(s32,void *);
 s32 _cardSioHandler(void) {
     s32 result;
     InterruptRegisters *registers;
-    /* ASM_BARRIER: Use the original address temporary for stores in call delay slots. */
-    register s32 *page __asm__("$1");
+    s32 *page;
     u32 count=CardTxCount+1U;
-    /* ASM_BARRIER: Finish the counter read before materializing its mapped page. */
-    __asm__("" : : : "$1");
     page=(s32 *)0x800B0000U;
-    /* ASM_BARRIER: Expose the real mapped counter store to the delay-slot scheduler. */
-    __asm__("" : "+r"(page));
     page[-0x4218/4]=count;
     result=_cardCmdStep();
     registers=I_STAT_Card;
@@ -26,18 +22,15 @@ s32 _cardSioHandler(void) {
         /* ASM_BARRIER: Keep argument preparation after the zero-result gate. */
         __asm__("" : : : "$2", "$4");
         {
-            /* ASM_BARRIER: Keep the success comparison separate from the event argument. */
-            register s32 one __asm__("$2")=1;
+            s32 one=1;
             /* ASM_BARRIER: Retain the explicit success-comparison value before the branch. */
-            __asm__("" : "+r"(one));
+            __asm__("" : "+r"(one) : : "$4");
             flag=1;
             if(result==one) {
-                /* ASM_BARRIER: Capture the retry predicate before publishing the success state. */
-                register s32 retry __asm__("$3");
-                retry=CardRetriesLeft;
+                s32 retry=CardRetriesLeft;
+                /* ASM_BARRIER: Retain argument preparation and retry load before status store. */
+                __asm__ volatile("" : "+r"(flag) : "r"(retry));
                 CardCommandStatus=0x41;
-                /* ASM_BARRIER: Retain argument preparation on both retry paths. */
-                __asm__ volatile("" : "+r"(flag));
                 flag=1;
                 if(retry!=0) {
                     _cardCmdReset(CardCommandRequest);
@@ -58,8 +51,6 @@ s32 _cardSioHandler(void) {
             }
         }
         page=(s32 *)0x800B0000U;
-        /* ASM_BARRIER: Expose the real mapped counter store to the delay-slot scheduler. */
-        __asm__("" : "+r"(page));
         page[-0x4218/4]=0;
         SysDeqIntRP(flag,event);
     }

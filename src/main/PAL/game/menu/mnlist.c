@@ -313,18 +313,11 @@ void *DrawControllerConfigPanel(u32 *ordering, void *cursor, s32 row)
   char *textCursor;
   int x;
   int y;
-  /* ASM_BARRIER: pin ordering copy to $s5 to match original save-reg allocation */
-#ifdef __mips__
-  register u32 *order asm("$21");
-#else
-  u32 *order;
-#endif
   int textX;
   int layout;
   int controller;
   int protocol;
   void *result;
-  order = ordering;
   x = BadgeRows[row].x04 + 8;
   y = BadgeRows[row].y06 + 0x24;
   character = 7;
@@ -360,11 +353,10 @@ void *DrawControllerConfigPanel(u32 *ordering, void *cursor, s32 row)
 
   }
 
-  result = AddSpritePrim(order, cursor, x, y, &D_8009FBEC, 0x7FF8, 0);
+  result = AddSpritePrim(ordering, cursor, x, y, &D_8009FBEC, 0x7FF8, 0);
   text[0] = layout + 0x41;
   textX = x + 2;
-  result = AddDrawModePrim(order, AddTextSprites(order, result, textX + D_8009FBEC.w, y, text, 0x7FF8, 0, 0), 0x38);
-  /* ASM_BARRIER: keeps x live to the end (original save-reg order) */
-  __asm__ ("" : : "r"(x));
+  x = textX + D_8009FBEC.w;
+  result = AddDrawModePrim(ordering, AddTextSprites(ordering, result, x, y, text, 0x7FF8, 0, 0), 0x38);
   return result;
 }

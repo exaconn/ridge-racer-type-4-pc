@@ -4,6 +4,7 @@ import re
 import subprocess
 import tempfile
 import unittest
+from sequence_fixture_transport import current_body
 
 
 class SequencerTempoTest(unittest.TestCase):
@@ -11,9 +12,10 @@ class SequencerTempoTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         header = (root / 'include/rr/library.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
+        header = '#include \"rr/sequence_channel.h\"\n' + header
         bodies = []
         for name in ('80081AE4', '80081E04'):
-            body = (root / f'tools/scripts/fixtures/views/func_{name}.c').read_text()
+            body = current_body(root,name)
             body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
             body = re.sub(r'\s+(?:__asm__|asm)\("\$\d+"\)', '', body)
             body = re.sub(r'__asm__\(""[^;]*;', '', body)
@@ -138,7 +140,7 @@ int main(void) {
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp)
             (path / 'test.c').write_text(source)
-            subprocess.run(['cc', '-std=gnu11', '-O2', '-fsanitize=undefined',
+            subprocess.run(['cc', '-std=gnu11', '-O2', '-I', str(root/'include'), '-fsanitize=undefined',
                             '-fno-sanitize-recover=all', str(path / 'test.c'),
                             '-o', str(path / 'test')], check=True, capture_output=True)
             subprocess.run([str(path / 'test')], check=True, capture_output=True)

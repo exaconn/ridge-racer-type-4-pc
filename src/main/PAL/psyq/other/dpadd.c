@@ -1,3 +1,4 @@
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/softfloat.h"
 #include "psyq/other/dpadd.h"
@@ -82,11 +83,9 @@ s64 __adddf3(s64 leftBits, s64 rightBits) {
 
     {
         s32 topBits;
-        /* ASM_BARRIER: load leftMantissa.hi into v0 before materializing 0xE0000000 in v1 */
-        register s32 highWord asm("$2") = leftMantissa.hi;
+        s32 highWord = leftMantissa.hi;
         topBits = 0xE0000000;
         /* ASM_BARRIER: hide 0xE0000000 in v1 from CSE so s0 reloads via lui */
-        __asm__("" : "+r"(topBits));
         if ((highWord & topBits) == 0) {
             /* ASM_BARRIER: keep loop mask in s0 */
             register s32 normalizationMask asm("$16") = 0xE0000000;
@@ -98,36 +97,16 @@ s64 __adddf3(s64 leftBits, s64 rightBits) {
     }
 
     if (leftMantissa.hi & 0x40000000) {
-        s32 direction;
-        s32 count;
-        /* ASM_BARRIER: order a0 before a1 */
-        direction = 1;
-        /* ASM_BARRIER: order a1 before v0 */
-        __asm__("" : "+r"(direction));
-        count = 1;
-        /* ASM_BARRIER: order stack store of count before loading leftMantissa into a2/a3 */
-        __asm__("" : "+r"(count), "+m"(leftMantissa));
-        leftMantissa = _dbl_shift(direction, leftMantissa, count);
+        leftMantissa = _dbl_shift(1, leftMantissa, 1);
         exponent++;
     }
 
     rounding.hi = 0;
     rounding.lo = (leftMantissa.lo & 0x200) ? 0x100 : 0xFF;
-    /* ASM_BARRIER: reload rounding.lo from stack while keeping rounding.hi=0 constant */
-    __asm__("" : "+m"(rounding.lo));
     _add_mant_d(&leftMantissa, leftMantissa, rounding);
 
     if (leftMantissa.hi & 0x40000000) {
-        s32 direction;
-        s32 count;
-        /* ASM_BARRIER: order a0 before a1 */
-        direction = 1;
-        /* ASM_BARRIER: order a1 before v0 */
-        __asm__("" : "+r"(direction));
-        count = 1;
-        /* ASM_BARRIER: order stack store of count before loading leftMantissa into a2/a3 */
-        __asm__("" : "+r"(count), "+m"(leftMantissa));
-        leftMantissa = _dbl_shift(direction, leftMantissa, count);
+        leftMantissa = _dbl_shift(1, leftMantissa, 1);
         exponent++;
     }
 

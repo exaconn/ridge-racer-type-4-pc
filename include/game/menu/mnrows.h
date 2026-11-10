@@ -5,7 +5,7 @@
 #include "rr/menu_arena_state.h"
 
 extern int Rect16RowCount;
-extern int MenuBaseLoadCursor;
+extern void *MenuBaseLoadCursor;
 extern int ImageRowCount;
 extern int GlyphRowCount;
 void UpdateSelectionRank(void);

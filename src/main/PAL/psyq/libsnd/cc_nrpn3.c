@@ -1,3 +1,5 @@
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "rr/library.h"
 #include "psyq/libsnd/cc_nrpn3.h"
@@ -7,7 +9,7 @@ typedef struct { unsigned short s0, s2, s4, s6, s8; short sA, sC, sE, s10; } S;
 void _SsUtResolveADSR(s32 arg0, u32 arg1, void *arg2);
 
 void _SsSetNrpnVabAttr4(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; LibBlock24Fields s; u8 c; {
-    register s32 cc = c;
+    s32 cc = c;
     s16 loc[12];
     SsUtGetVagAtr(a0, a1, a2, &s);
     _SsUtResolveADSR(s.h10, s.h12, loc);
@@ -40,8 +42,7 @@ void _SsUtBuildADSR(a0, a1, a2) S *a0; short *a1; short *a2; {
     int v; 
     int e; 
     register int x __asm__("$3"); /* ASM_BARRIER: pin to the original register allocation */
-    register int y; 
-    register int w __asm__("$5"); /* ASM_BARRIER: pin to the original register allocation */
+    int y; 
     int k, g;
     p = a0;
     d = a1;
@@ -62,15 +63,15 @@ void _SsUtBuildADSR(a0, a1, a2) S *a0; short *a1; short *a2; {
     x = e | x;
     y = (p->s2 * 0x10) & 0xF0;
     x |= y;
-    w = p->s8 & 0x1F;
+    t = p->s8 & 0x1F;
     x |= p->s4 & 0xF;
-    y = v | ((p->s6 << 6) & 0x1FC0) | w;
+    y = v | ((p->s6 << 6) & 0x1FC0) | t;
     *d = x;
     *a2 = y;
 }
 
 void _SsSetNrpnVabAttr5(a0, a1, a2, s, c) s16 a0; s16 a1; s16 a2; LibBlock24Fields s; u8 c; {
-    register s32 cc = c;
+    s32 cc = c;
     s16 loc[12];
     SsUtGetVagAtr(a0, a1, a2, &s);
     _SsUtResolveADSR(s.h10, s.h12, loc);

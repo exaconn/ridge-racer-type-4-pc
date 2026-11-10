@@ -51,14 +51,9 @@ void UpdateEngineRpm(RaceVehicle *vehicle) {
                     a1-=a0;v0=(a1*24U);RR_MD_MULT_S(v0,v1);
                     v0>>=31;RR_MD_HI(high);v1=(high>>3)-v0;
                 }
-                v0=control->steering8C;
-                /* ASM_BARRIER: retain the original value/read phase before register reuse or branch selection. */
-                __asm__("" : "+r"(v1) : "r"(v0));
-                a1=v1+a0;
-                /* ASM_BARRIER: retain the original value/read phase before register reuse or branch selection. */
-                __asm__("" :: "r"(a1));
-                if(v0<0)v0=-v0;
-                v0=(v0<<6);a1-=v0;
+                a1 = v1 + a0;
+                v0 = __builtin_abs(control->steering8C);
+                a1 -= v0 << 6;
             }
         }
     } else {
@@ -98,7 +93,6 @@ floor:
     }
     if(GameModeType==6 && SelectedMakerIndex==3) {
         v1=a0;if(v1<0)v1+=255;
-        /* ASM_BARRIER: retain the original value/read phase before register reuse or branch selection. */
         a3=8500;        v0=body->input;RR_MD_MULT_S(v0,a3);RR_MD_LO(a3);
         a1=(u32)v1>>8;v0=a1&65535;RR_MD_DIV_S(a1,a3,v0);
     }

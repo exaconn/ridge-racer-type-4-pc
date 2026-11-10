@@ -1,4 +1,5 @@
-/* CC1_FLAGS: -mno-split-addresses */
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/spu.h"
 #include "rr/channel_pitch.h"
 #include "psyq/libsnd/vmnote2.h"
@@ -53,13 +54,13 @@ u32 _spu_note2pitch(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 /* Nonzero low16 pitch, with the fixed PAL tables: both searches always match. */
 u32 _spu_pitch2note(s32 first,s32 second,u32 pitch) {
- register s32 top=0;
- register s32 i;
- register s32 note;
+ s32 top=0;
+ s32 i;
+ s32 note;
  /* ASM_BARRIER: Preserve the fine-search result and accumulated caller word. */
  register s32 fine __asm__("$9");
  s32 value;
- register u16 *table;
+ u16 *table;
  u32 result;
  if((u16)pitch>=0x4000)pitch=0x3FFF;
  i=0;value=(u16)pitch;
@@ -72,7 +73,7 @@ u32 _spu_pitch2note(s32 first,s32 second,u32 pitch) {
  }
  value=((u32)(u16)pitch<<15)/SvmSemitoneTable[(u16)note];
 {
-  register u16 *fine_table;
+  u16 *fine_table;
   i=127;
   fine_table=&SvmPitchFineTable[127];
   value=(u16)value;
@@ -81,25 +82,22 @@ u32 _spu_pitch2note(s32 first,s32 second,u32 pitch) {
   }
  }
  {
-  /* ASM_BARRIER: Reuse the result register for two consecutive, disjoint sums. */
-  register u32 next __asm__("$2")=(fine+1);
-  register u32 total __asm__("$2");
-  register u32 part;
-  fine=second+next;
+  u32 total=(fine+1);
+  u32 part;
+  fine=second+total;
   part=(top-12);
   total=note+(first+part*12U);
   {
-   /* ASM_BARRIER: Reuse the consumed first argument for the packed low halfword. */
-   register u32 packed __asm__("$4")=(u16)fine;
-   part=packed>>7;
+   first=(u16)fine;
+   part=((u32)first)>>7;
    note=total+part;
-   result=(u32)(u16)note<<8;
+   result=((u16)note)*0x100U;
    /* ASM_BARRIER: Finish the note bits before masking the independent fine bits. */
-   __asm__("" : "+r"(result), "+r"(packed));
-   packed&=0x7E;
+   __asm__("" : "+r"(result), "+r"(first));
+   first&=0x7E;
    /* ASM_BARRIER: Retain unmasked search values until the final result merge. */
    __asm__("" : : "r"(top),"r"(note),"r"(fine));
-   return result|packed;
+   return result|first;
   }
  }
 }
@@ -121,10 +119,8 @@ s32 SsUtChangePitch(s32 raw_input, s32 bank, s32 program, s32 group, s32 unused,
     /* ASM_BARRIER: use the original temporary for the final selector address. */
     register u8 *group_page __asm__("$3");
     u16 pitch;
-    /* ASM_BARRIER: prepare the first pitch argument before publishing the request. */
-    register u32 pitch_first __asm__("$4");
-    /* ASM_BARRIER: reuse v1 only after the pitch byte offset has been consumed. */
-    register u8 *flags_page __asm__("$3");
+    u32 pitch_first;
+    u8 *flags_page;
     u8 flags;
     if ((u16)raw_voice >= 24) return -1;
     voice = (s16)raw_voice;
@@ -142,28 +138,18 @@ s32 SsUtChangePitch(s32 raw_input, s32 bank, s32 program, s32 group, s32 unused,
     selected_program=*(s16*)(program_page+offset-0x6E4);
     if (selected_program != (s16)program) return -1;
     group_page=(u8*)0x80110000U;
-    /* ASM_BARRIER: retain the actual PAL group-field page for indexed addressing. */
-    __asm__("" : "+r"(group_page));
-    if (*(s16*)(group_page+offset-0x6EA) != (s16)group) return -1;
+if (*(s16*)(group_page+offset-0x6EA) != (s16)group) return -1;
     _SsVmVSetUp(selected_bank, selected_program);
     pitch_first=first;
     state = D_8011010C.fields08;
     state[0] = 0x21;
     state[2] = raw_voice;
-    /* ASM_BARRIER: publish the request halfwords before the fresh row-byte address. */
-    __asm__("" : : : "$2","memory");
-    byte_page=(u8*)0x80110000U;
-    /* ASM_BARRIER: retain the PAL page for the row byte reloaded after selection. */
-    __asm__("" : "+r"(byte_page));
-    ((SpuPitchRequest*)((u8*)state-8))->instrument00=*(byte_page+offset-0x6E2);
+byte_page=(u8*)0x80110000U;
+((SpuPitchRequest*)((u8*)state-8))->instrument00=*(byte_page+offset-0x6E2);
     pitch = note2pitch2(pitch_first,second);
     *(u16 *)((voice * sizeof(SpuCachedVolumeEntry)) + _svm_sreg_dirty.voices[0].pad04) = pitch;
-    /* ASM_BARRIER: store pitch before reusing its offset register for fresh flags. */
-    __asm__("" : : : "$3","memory");
-    flags_page=(u8*)0x80110000U;
-    /* ASM_BARRIER: retain the PAL flag page for the indexed load. */
-    __asm__("" : "+r"(flags_page));
-    flags=*(flags_page+voice-0x1E8);
+flags_page=(u8*)0x80110000U;
+flags=*(flags_page+voice-0x1E8);
     _svm_sreg_dirty.flags[voice]=flags|4;
     return 0;
 }

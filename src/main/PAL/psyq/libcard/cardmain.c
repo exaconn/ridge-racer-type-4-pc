@@ -1,3 +1,4 @@
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr/commands.h"
 #include "rr/serial.h"
@@ -6,8 +7,6 @@
 s32 _cardCmdStep(void) {
     register s32 initial=CardTxCount;
     s32 one;
-    /* ASM_BARRIER: Keep each common-return result in the ABI result register. */
-    register s32 answer __asm__("$2");
     /* ASM_BARRIER: Preserve the original masked exchange argument and delay slot. */
     register s32 byte __asm__("$4");
     register s32 value;
@@ -21,25 +20,19 @@ s32 _cardCmdStep(void) {
         __asm__("" : : : "$2");
         _cardSelectSlot(slot>>4);
         _cardXferByte(~((CardCommandRequest&15)+0x81));
-        /* ASM_BARRIER: Retain an immediate increment instead of reusing saved constant one. */
         __asm__ __volatile__("" : "+r"(one));
         header=*(u8 *)&CardCommandRequest;
         count=CardReceiveIndex;
         D_801147D8[0]=(header&15)-0x7F;
         CardReceiveIndex=count+1;
-        answer=0;goto done;
+        return 0;
     }
     {
         register u32 remaining=CardBytesRemaining;
         register CommandReadCallback reader=CardCommandReader;
-        /* ASM_BARRIER: Publish the real remaining-count store in the reader call delay slot. */
-        register s32 *page __asm__("$1");
+        s32 *page;
         remaining--;
-        /* ASM_BARRIER: Finish the decrement before forming its mapped store address. */
-        __asm__("" : : : "$1");
         page=(s32 *)0x80110000U;
-        /* ASM_BARRIER: Expose the PAL RAM page to the stock delay-slot scheduler. */
-        __asm__("" : "+r"(page));
         page[0x4730/4]=remaining;
         byte=reader()&255;
     }
@@ -52,7 +45,7 @@ s32 _cardCmdStep(void) {
         value=_cardXferByte(byte);
     }
     byte=value&255;
-    if(value<0) {answer=value-1000U;goto done;}
+    if(value<0) {return value-1000U;}
     {
         register s32 *phase=&CardRxCount;
         u32 index;
@@ -63,8 +56,8 @@ s32 _cardCmdStep(void) {
         *phase=index+1;
         value=writer(byte);
     }
-    if(value) {answer=value-2000;goto done;}
-    if(CardBytesRemaining!=one) {answer=0;goto done;}
+    if(value) {return value-2000;}
+    if(CardBytesRemaining!=one) {return 0;}
     if(CardCurrentCommand==14) goto special;
     /* ASM_BARRIER: Retain the separate fresh subtype read for the second comparison. */
     __asm__("" : : : "$2", "$3", "memory");
@@ -104,8 +97,6 @@ final_byte:
         *phase=index;
         value=writer(value);
     }
-    if(value) answer=value-3000;
-    else answer=1;
-done:
-    return answer;
+    if(value) return value-3000;
+    return 1;
 }

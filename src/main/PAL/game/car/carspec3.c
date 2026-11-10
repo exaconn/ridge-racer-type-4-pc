@@ -13,14 +13,12 @@ void ApplyRubberBandSpec(RaceVehicle *a0) {
     RaceVehicleControl *s3;
     int a, b;
     int lo;
-    /* ASM_BARRIER: pin loop counter/pointers/temp to original a3/a2/a1/a0 */
-    register int k asm("$7");
-    register short * a2 asm("$6");
-    register short * a1 asm("$5");
-    register int tt asm("$4");
+    int tt;
+    short *a1;
+    short *a2;
+    int k;
     int w;
     int v1;
-    register int v2;
     s2 = RaceContext.tab + (a0->flags1E4 & 0xF) - 1;
     s3 = &a0->control;
     if (RaceContext.mode == 1) {
@@ -36,13 +34,7 @@ void ApplyRubberBandSpec(RaceVehicle *a0) {
     b = s3->boostTimer44;
     if (b > 0) {
         if (GameModeType == 1) {
-            v2 = b << 10;
-            /* Note: keep sll before the lh (original schedule) */
-            /* ASM_BARRIER: keep sll before the lh (original schedule) */
-            __asm__ ("" : "=r"(v2) : "0"(v2));
-            v1 = s3->divisor11C;
-            if (v1 < 0) v1 = -v1;
-            lo = v2 / v1;
+            lo = (b << 10) / __builtin_abs(s3->divisor11C);
             k = 1;
             if (s0 < lo) s0 = lo;
             a2 = (short *)s2 + 1;

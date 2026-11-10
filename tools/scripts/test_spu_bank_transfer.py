@@ -1,7 +1,6 @@
-"""Actual bank transfer with real mode/address/public transfer wrappers and PAL table pages."""
+"""Current bank transfer and wrappers, native arrays and the existing PAL snapshot model."""
 import ctypes as C
 from pathlib import Path
-import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
@@ -12,22 +11,40 @@ class SpuBankTransferTest(unittest.TestCase):
     def setUpClass(cls):
         cls.temp=TemporaryDirectory();cls.addClassCleanup(cls.temp.cleanup)
         root=Path(__file__).resolve().parents[2]
-        header=(root/'include/rr/spu.h').read_text()
-        header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
+        from c_functions import source_owners, definition_source
+        owners=source_owners(root/'src/main/PAL')
         source='''#include <stdint.h>
 #include <stdarg.h>
 #include <string.h>
-typedef uint8_t u8;typedef uint16_t u16;typedef int16_t s16;
-typedef uint32_t u32;typedef int32_t s32;
-''' + header + '''
-u8 test_table[65536] __attribute__((aligned(8)));
-u8 test_mode_page[65536] __attribute__((aligned(8)));
-#define _spu_transMode (*(s32*)(test_mode_page+0x47F4))
-#define _spu_tsa (*(volatile u16*)(test_mode_page+0x47F0))
-#define _spu_mem_mode_plus (*(s32*)(test_mode_page+0x4800))
-#define _spu_inTransfer (*(s32*)(test_mode_page+0x480C))
+#include "rr/spu.h"
+/* Preserve the existing complete PAL snapshot protocol. These are actual
+ * arrays in a native owner, selected by field adapters after the public header. */
+union {
+ u8 bytes[65536];
+ struct {
+  u8 prefix[0x120], used[17], gap131[7];
+  u32 total[17];
+  u8 gap17C[4];
+  u32 start[17];
+ } bank;
+} test_table;
+#define _svm_vab_used test_table.bank.used
+#define _svm_vab_total test_table.bank.total
+#define _svm_vab_start test_table.bank.start
+union {
+ u8 bytes[65536];
+ struct {
+  u8 prefix[0x47F0]; volatile u16 tsa; u8 gap47F2[2];
+  s32 mode; u8 gap47F8[8]; s32 shift; u8 gap4804[8]; s32 busy;
+ } transfer;
+} test_mode_page;
+#define _spu_transMode test_mode_page.transfer.mode
+#define _spu_tsa test_mode_page.transfer.tsa
+#define _spu_mem_mode_plus test_mode_page.transfer.shift
+#define _spu_inTransfer test_mode_page.transfer.busy
 s32 _spu_trans_mode;
 void (*volatile _spu_transferCallback)(void);
+''' + '''
 s32 test_commands[8],test_command_count,test_pio_calls,test_mode_calls,test_address_calls;
 u32 test_dma_address,test_dma_size,test_input_address;const u16 *test_dma_source;
 s32 test_forced_address_result;
@@ -49,11 +66,11 @@ s32 _spu_t(s32 command,...) {
 void _spu_FwriteByIO(const u16 *source,u32 bytes) {test_pio_calls++;}
 void test_completion(void) {}
 void test_reset(void) {
- s32 i;memset(test_table,0xA5,sizeof(test_table));memset(test_mode_page,0x5A,sizeof(test_mode_page));
+ s32 i;memset(test_table.bytes,0xA5,sizeof(test_table));memset(test_mode_page.bytes,0x5A,sizeof(test_mode_page));
  for(i=0;i<17;i++) {
-  test_table[0x120+i]=2;
-  *(u32*)(test_table+0x138+i*4)=100+i;
-  *(u32*)(test_table+0x180+i*4)=0x2000+i*8;
+  test_table.bytes[0x120+i]=2;
+  *(u32*)(test_table.bytes+0x138+i*4)=100+i;
+  *(u32*)(test_table.bytes+0x180+i*4)=0x2000+i*8;
  }
  _spu_transMode=1;_spu_mem_mode_plus=3;_spu_inTransfer=99;_spu_transferCallback=0;_spu_trans_mode=123;
  test_command_count=test_mode_calls=test_address_calls=test_pio_calls=0;
@@ -61,28 +78,15 @@ void test_reset(void) {
  test_forced_address_result=-1;
 }
 '''
-        mapped_tables=mapped_modes=0
-        for name in ('8008AEC4','8008B044','80087DA4','8008AFE4','8008AF84','8007F2E8'):
-            body=(root/('tools/scripts/fixtures/legacy/func_'+name+'.c')).read_text()
-            body=re.sub(r'^#include[^\n]*\n|^extern[^\n]*\n','',body,flags=re.M)
-            body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
-            body=re.sub(r'"\$[0-9]+",\s*','',body)
-            body=re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?=\))','',body)
-            if name=='8008AEC4':
-                assert body.count('=(u8*)0x80110000U;')==3
-                assert body.count('=0x80110000U;')==1
-                body=body.replace('=(u8*)0x80110000U;','=test_table;')
-                body=body.replace('=0x80110000U;','=(unsigned long)test_table;');mapped_tables+=4
-            if name in ('8008B044','80087DA4'):
-                assert body.count('(s32 *)0x800A0000U')==1
-                body=body.replace('(s32 *)0x800A0000U','(s32 *)test_mode_page');mapped_modes+=1
-            if name=='8008B044':
-                assert body.count('void SpuSetTransferMode(')==1
+        for name in ('SsVabTransBody','SpuSetTransferMode','_spu_setInTransfer',
+                     'SpuWrite','SpuSetTransferStartAddr','_spu_Fw'):
+            body=definition_source(owners[name].read_text(),name)
+            if name=='SpuSetTransferMode':
+                # Observe calls around the actual helper without changing its body.
                 body=body.replace('void SpuSetTransferMode(','void test_actual_mode(')
             source+=body
-        assert (mapped_tables,mapped_modes)==(4,2)
         directory=Path(cls.temp.name);(directory/'bank.c').write_text(source)
-        result=subprocess.run(['cc','-shared','-fPIC','-O2',str(directory/'bank.c'),
+        result=subprocess.run(['cc','-shared','-fPIC','-O2','-I'+str(root/'include'),str(directory/'bank.c'),
                                '-o',str(directory/'bank.so')],capture_output=True,text=True)
         if result.returncode:raise AssertionError(result.stderr)
         cls.lib=C.CDLL(str(directory/'bank.so'))

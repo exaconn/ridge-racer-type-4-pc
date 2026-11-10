@@ -8,6 +8,7 @@ from tempfile import TemporaryDirectory
 from elftools.elf.elffile import ELFFile
 from unicorn import Uc, UC_ARCH_MIPS, UC_MODE_LITTLE_ENDIAN, UC_MODE_MIPS32
 from c_functions import address_of, definition_source, source_owners
+from audio_fixture_transport import wire_types, transport, scalar_entry
 from test_vehicle_initializer import Cpu
 ROOT = Path(__file__).resolve().parents[2]
 STACK, STOP, BANK, SIZE = 0x803F0000, 0x803FF000, 0x80320010, 0xA8D0
@@ -131,7 +132,13 @@ def main():
     cpu=Cpu(memory,0,100,101,102,store);write(base,exe[0x800:]);coverage=set()
     with TemporaryDirectory() as directory:
         source,library=Path(directory)/'native.c',Path(directory)/'native.dylib'
-        source.write_text(PREFIX+body+caller+TAIL)
+        prefix=wire_types()+PREFIX.replace('AudioState sound;', 'AudioWireState sound;')
+        start=prefix.index('s32 SsUtKeyOnV(')
+        prefix=prefix[:start]+transport('actual.sound')+prefix[start:]
+        prefix=prefix.replace(' assert(count<2);', ' audio_before_callback();\n assert(count<2);')
+        prefix=prefix.replace(' return count==1?-123:456;', ' audio_after_callback();\n return count==1?-123:456;')
+        entry_code=scalar_entry(caller,'SoundQueueUpdate','actual.sound')
+        source.write_text(prefix+body+entry_code[len(transport('actual.sound')):]+TAIL)
         subprocess.run(['cc','-std=c11','-O2','-shared','-fPIC','-Wall','-Wextra','-Werror',
                         '-fsanitize=undefined,bounds','-fno-sanitize-recover=all',
                         '-I'+str(ROOT/'include'),str(source),'-o',str(library)],check=True)

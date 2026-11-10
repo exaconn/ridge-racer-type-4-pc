@@ -15,7 +15,7 @@ RR_ASSERT_SIZE(RankEntry8, 0x8);
 extern RankEntry8 RankEntries[];
 extern RankEntry8 *RankTable[];
 
-void SelectDialogueScript();
+void SelectDialogueScript(void);
 void UpdateDialoguePanel(void);
 void UpdateDialogueBox(void);
 void DialogueWaitEnterHook(void);

@@ -12,9 +12,8 @@
 
 extern RaceStandingsTable *RaceStandings;
 extern RaceVehicle ComCars[];
-extern int D_800F4DEC;
 extern int RaceState;
-extern struct { u8 reserved00[0x34]; int s34; } SoundState;
+#include "rr/audio_state_types.h"
 
 extern void UpdateComCarLaneChange();
 
@@ -28,10 +27,10 @@ void UpdateComCars(void) {
     UpdateRaceStandings();
     switch (RaceState) {
     case 0:
-        D_800F4DEC = 0;
+        SoundState.banks24.race.counter = 0;
         break;
     case 1:
-        SoundState.s34 = SoundState.s34 + 1;
+        SoundState.banks24.race.counter += 1U;
         break;
     }
     for (i = 0; i < 0xB; i++) {

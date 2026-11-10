@@ -24,6 +24,7 @@ extern s32 D_800AC660;
 extern RaceVehicle ComCars[];
 extern RaceVehicle PlayerCars[];
 
+int abs(int);
 void SoundListenerInit(int arg0, int arg1);
 
 void SoundListenerInit(int arg0_in, int arg1_in) {
@@ -219,9 +220,7 @@ void SoundCalcCarParams(s32 idx) {
     if (CameraCutFlag) alpha = 0;
     B3 = &SoundState;
     t2 = B3->rec18EC[idx].deltaDist10;
-    if (t2 < 0) t2 = -t2;
-    /* ASM_BARRIER: launder abs result so reorg cannot copy the slti into the bgez delay slot */
-    __asm__("" : "=r"(t2) : "0"(t2));
+    t2 = abs(t2);
     if (t2 > 0x800) alpha = 0;
     if (B3->unk18E8) alpha = 0;
     B3->rec18EC[idx].vol16 = alpha;

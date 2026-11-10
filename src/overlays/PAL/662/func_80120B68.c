@@ -45,17 +45,16 @@ void ovl662_func_80120B68(s32 mode) {
                 if ((BadgeRows->state10 == 3) && (ovl662_D_801276A8.flagsD1 = (u8) (ovl662_D_801276A8.flagsD1 | 4), (CardDialogueStatePtr->st == 4))) {
                     if (PlayerControllers[0].input00.fields.type != 0x12) {
                         if ((u8) ovl662_D_801276A8.stateD2 < 2U) {
-                            do {
-                                if (PlayerControllers[0].edges08.fields.repeat & 0x1000) {
-                                    if (ovl662_D_801276A8.stateD2 == 0) break;
-                                    ovl662_D_801276A8.stateD2 = 0U;
-                                } else if ((PlayerControllers[0].edges08.fields.repeat & 0x4000) && (ovl662_D_801276A8.stateD2 != 1)) {
-                                    ovl662_D_801276A8.stateD2 = 1U;
-                                } else {
-                                    break;
-                                }
-                                PlaySfx(0);
-                            } while (0);
+                            if (PlayerControllers[0].edges08.fields.repeat & 0x1000) {
+                                if (ovl662_D_801276A8.stateD2 == 0) goto skip_sfx;
+                                ovl662_D_801276A8.stateD2 = 0U;
+                            } else if ((PlayerControllers[0].edges08.fields.repeat & 0x4000) && (ovl662_D_801276A8.stateD2 != 1)) {
+                                ovl662_D_801276A8.stateD2 = 1U;
+                            } else {
+                                goto skip_sfx;
+                            }
+                            PlaySfx(0);
+                        skip_sfx:;
                         }
                         if (D_800F3A60 != 0) {
                             ovl662_D_801276A8.stateD2 = (u8) (ovl662_D_801276A8.stateD2 + 2);

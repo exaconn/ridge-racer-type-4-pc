@@ -1,3 +1,5 @@
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/library.h"
 #include "psyq/libcd/s_1.h"
 #include "psyq/libcd/dsmedia2.h"
@@ -13,14 +15,9 @@ void CdRead2(s32 flags) {
     if (flags & 0x100) {
         if (flags & 0x20) {
             {
-                /* ASM_BARRIER: Retain the assembler temporary for the mode-flag store. */
-                register s32 *base __asm__("$1");
-                /* ASM_BARRIER: Materialize the mode-store address only after its conditional branch. */
-                __asm__ volatile("" : : : "$1", "memory");
+                s32 *base;
                 /* PAL mapping: base[0x348 / 4] is CdReadModeFlag. */
                 base = (s32 *)0x80110000U;
-                /* ASM_BARRIER: Expose the PAL mode store without a symbol-address macro. */
-                __asm__("" : "=r"(base) : "0"(base));
                 base[0x348 / 4] = 0;
             }
         } else {
@@ -37,8 +34,6 @@ void CdRead2(s32 flags) {
     }
     {
         const u8 *zero = 0;
-        /* ASM_BARRIER: Keep the two null arguments independently initialized as in the original call. */
-        __asm__("" : "=r"(zero) : "0"(zero));
         CdControl(0x1B, zero, 0);
     }
 }

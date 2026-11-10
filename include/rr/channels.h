@@ -2,6 +2,7 @@
 #define RR_CHANNELS_H
 
 #include "rr/layout.h"
+#include "rr/sequence_channel.h"
 
 typedef void (*ChannelUpdateCallback)(void *);
 typedef s32 (*ChannelStatusCallback)(void *);
@@ -132,24 +133,7 @@ typedef struct {
     s16 f14, f16, f18;
 } SvmCur;
 
-/* Partial per-channel record selected through _ss_score (0xB0 stride). */
-typedef struct {
-    u8 pad00[0x17];
-    u8 unk17;
-    u8 pad18[0x26 - 0x18];
-    s8 unk26;
-    u8 pad27[0x48 - 0x27];
-    s16 rampDelta48, rampApplied4A;
-    u8 pad4C[0x58 - 0x4C];
-    u16 value58, value5A;
-    u16 volume5C, volume5E;
-    s16 unk60[16];
-    u8 pad80[0x98 - 0x80];
-    s32 mode98, rampDuration9C, rampElapsedA0;
-    u8 padA4[0xB0 - 0xA4];
-} ChannelValueRecordB0;
-
-extern ChannelValueRecordB0 *_ss_score[];
+/* Sequence rows use the complete shared owner from sequence_channel.h. */
 extern SvmCur _svm_cur;
 extern s16 _svm_cur_vab_id;
 extern u16 _svm_voice_cursor;
@@ -259,16 +243,6 @@ RR_ASSERT_OFFSET(ChannelControlRow36, match10, 0x10);
 RR_ASSERT_OFFSET(ChannelControlRow36, match14, 0x14);
 RR_ASSERT_OFFSET(ChannelControlRow36, match18, 0x18);
 RR_ASSERT_OFFSET(ChannelControlRow36, flags1D, 0x1D);
-RR_ASSERT_SIZE(ChannelValueRecordB0, 0xB0);
-RR_ASSERT_OFFSET(ChannelValueRecordB0, value58, 0x58);
-RR_ASSERT_OFFSET(ChannelValueRecordB0, value5A, 0x5A);
-RR_ASSERT_OFFSET(ChannelValueRecordB0, mode98, 0x98);
 
-RR_ASSERT_OFFSET(ChannelValueRecordB0, rampDelta48, 0x48);
-RR_ASSERT_OFFSET(ChannelValueRecordB0, rampApplied4A, 0x4A);
-RR_ASSERT_OFFSET(ChannelValueRecordB0, volume5C, 0x5C);
-RR_ASSERT_OFFSET(ChannelValueRecordB0, volume5E, 0x5E);
-RR_ASSERT_OFFSET(ChannelValueRecordB0, rampDuration9C, 0x9C);
-RR_ASSERT_OFFSET(ChannelValueRecordB0, rampElapsedA0, 0xA0);
 
 #endif

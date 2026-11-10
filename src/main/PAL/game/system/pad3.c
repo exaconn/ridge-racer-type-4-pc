@@ -124,12 +124,7 @@ void PadPollPort(int a0)
   int w11_r;
   int s3 = a0;
   int s2 = a0 * 16;
-  /* ASM_BARRIER: pin result var to $s0 (original assigns s0=result, s1=struct pointer) */
-#ifdef __mips__
-  register int s0 __asm__("$16");
-#else
   int s0;
-#endif
   int v1;
   ControllerState5C *s1 = &PlayerControllers[a0];
   s0 = PadGetState(s2);
@@ -186,9 +181,8 @@ B:
     s3 = PadInfoAct(s2, -1, s0);
     if (s3 == 1)
     {
-      s0 = PadInfoAct(s2, 0, 1);
+      w11_r = PadInfoAct(s2, 0, 1);
       v1 = PadInfoAct(s2, 0, 2);
-      w11_r = s0;
       if (w11_r == 4 && v1 == 3)
         s1->flag40 = s3;
     }

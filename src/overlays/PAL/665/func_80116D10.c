@@ -1,3 +1,4 @@
+#include "rr/menu_text_state.h"
 #include "game/car/carstat.h"
 #include "rr/line_emit.h"
 #include "rr/frame_storage_types.h"
@@ -44,10 +45,6 @@ typedef struct {
     s16 state10;
 } Ovl665Panel;
 
-typedef struct {
-    u8 pad00[4];
-    u8 b4;
-} Ovl665Text;
 
 
 typedef struct {
@@ -67,7 +64,6 @@ extern Ovl665CarState ovl665_D_80119768;
 extern s32 ovl665_D_80119760;
 extern Ovl665Settings Options;
 extern Ovl665Panel *BadgeRows;
-extern Ovl665Text *CardDialogueStatePtr;
 extern s16 FadeCountdown;
 extern s32 ActivePlayerIndex;
 extern s32 D_800F4CB8;
@@ -110,7 +106,6 @@ extern s32 rsin(s32);
 extern void PadSetRumbleFlags(s32, s32);
 extern void ovl665_func_801169BC(s32);
 extern void UpdateBadgeRowAnim(s32);
-extern void UpdateDialogue(s32, s32, void *);
 extern void UpdateScreenFade(s32);
 
 #define ST ovl665_D_80119768

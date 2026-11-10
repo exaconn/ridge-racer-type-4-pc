@@ -3,6 +3,6 @@
 
 #include "types.h"
 
-short SsSeqOpen();
+s16 SsSeqOpen(u8 *sequence,s32 bank);
 
 #endif /* RR_PSYQ_LIBSND_SSOPENQ_H */

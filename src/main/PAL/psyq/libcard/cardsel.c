@@ -1,3 +1,4 @@
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 /* CC1_FLAGS: -mno-split-addresses */
 #include "rr_asm.h"
 #include "rr/serial.h"
@@ -34,18 +35,10 @@ s32 _cardXferByte(s32 value) {
     SerialPortRegisters *port;
     u32 *interrupt;
     {
-        /* ASM_BARRIER: Keep the captured byte in the original zero-extended temporary. */
-        register s32 byte __asm__("$2")=initial->data;
-        /* ASM_BARRIER: Publish the captured byte in the original branch delay slot. */
-        register s32 *page __asm__("$1");
-        /* ASM_BARRIER: Capture the incoming byte before saving the outgoing value. */
-        __asm__("" : : "r"(byte) : "$16");
+        u8 byte=initial->data;
+        s32 *page;
         input=value;
-        /* ASM_BARRIER: Finish the input capture before forming the saved-byte page. */
-        __asm__("" : : : "$1");
         page=(s32 *)0x80110000U;
-        /* ASM_BARRIER: Expose the real mapped store to the branch-delay scheduler. */
-        __asm__("" : "+r"(page));
         page[0x4700/4]=byte;
     }
     if(input<0) {

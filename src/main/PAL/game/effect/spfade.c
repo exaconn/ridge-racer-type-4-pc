@@ -89,8 +89,7 @@ void RampValueTo4096(unsigned short *a0, short *a1) {
 
 void EmitTitleBeamFades(s32 intensity, s32 scale) {
     s32 r_a2 = intensity;
-    /* ASM_BARRIER: keep hi/y2 in $a0 */
-    register u32 r_a0 __asm__("$4");
+    u32 r_a0;
     u32 middle;
     s32 r_t7;
     /* ASM_BARRIER: keep interpolated GTE IR1 result in $t6 */

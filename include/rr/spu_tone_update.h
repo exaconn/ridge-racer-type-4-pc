@@ -3,7 +3,7 @@
 #include "rr/spu.h"
 
 /* Write the selected tone, using signed low16 bank/program and a signed low16
- * tone index after adding signed selection.value * 16. Accessible flag/tone
+ * tone index after adding the signed tone-group byte * 16. Accessible flag/tone
  * storage must cover those indices. Selector failure is intentionally ignored.
  * Input and destination must be halfword aligned. Destination bytes 14/15 are
  * preserved. Each byte reloads the selected pointer; the four halfwords share

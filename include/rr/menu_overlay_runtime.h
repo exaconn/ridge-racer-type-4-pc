@@ -33,7 +33,7 @@
 #include "rr/current_selection_types.h"
 
 /* Shared resident storage: one type per symbol in these overlays. */
-extern u8 *CdDirectoryBuffer;
+#include "rr/cd_directory_buffer.h"
 extern UiUvRect D_8009FAA0[5];
 extern s32 MenuStepDirection;
 extern CourseChoice4 CourseChoiceTable[2][9];
@@ -73,7 +73,7 @@ extern s8 RacePaused;
 extern u16 ModeGroup;
 extern RaceSetupPair4 PlayerDisplayRpm;
 extern s32 LapTimes[10];
-extern void *MenuArenaBase;
+#include "rr/menu_arena_base.h"
 extern s16 GameModeType;
 #include "rr/menu_arena_state.h"
 extern u8 *D_800F4D74;

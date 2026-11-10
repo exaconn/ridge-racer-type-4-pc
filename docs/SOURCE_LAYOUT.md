@@ -136,6 +136,30 @@ native fixtures while preserving the relocated instruction match and complete EX
 
 ## Shared types and constants
 
+`psyq/libsnd/vab_format.h` owns the complete VAB header, program and tone
+formats. `VagAtr` has named tone attributes and the original reserved fields;
+private `Tone`, `SpuTone20` and `SpuTone32` projections have been removed from
+the voice consumers. Resource cursors use `VagAtrBuffer *` and derive field
+positions from this format, retaining byte-addressable aliases and halfword
+alignment without converting native pointers to PAL integers. Getter/setter
+copy the fourteen byte attributes and four halfwords, preserving offsets 14/15
+and the reserved tail. Each byte observes the live cursor; the halfwords share
+one explicitly captured cursor. They do not require a complete 32-byte object
+at the 24-byte transfer buffer.
+
+The tone copy fixtures execute the current definitions with the complete
+`SvmCur` owner. Their original exhaustive cases, overlap models and pointer-cell
+aliases remain. The SDK integration fixture additionally runs the real parser,
+transfer, selector, tone copy and pitch helpers on original/linked MIPS and
+native allocations above 4 GiB, checking complete resources and owner guards.
+`note2pitch2` declares the promoted word arguments and explicitly uses their
+signed low halfwords; its cursor retains the native pointer width. Pitch
+integration exercises MIDI note/fine values 0..127; the older variable-shift
+expressions still require valid C shift counts and do not establish arbitrary
+raw-note support. NRPN callbacks and the local tone-copy declarations in
+`cc_6.c`, together with the existing voice-allocation pins/pages, remain
+reconstruction debt.
+
 Word arithmetic that wraps on PAL needs unsigned operands before the operation
 in C. Converting only the result does not prevent signed overflow or an invalid
 left shift. The native fixtures exercise extreme values as well as normal game
@@ -1841,3 +1865,309 @@ five objects, nine styles, two buffers and both update modes; additional inputs
 exercise sentinel/nonterminal second-color streams, reserved vector halves,
 full-word tick edges and mutable translation/buffer state. Existing native test
 modules are unchanged.
+
+## Menu loading and allocation pointer owners
+
+`rr/cd_directory_buffer.h` owns the reusable byte-buffer pointer, while
+`rr/menu_arena_base.h` owns the active resource/workspace root. Directory words
+and saved-card blocks are explicit views of the buffer contents; callers do not
+redeclare the shared pointer cell as an integer, a word array or a card block.
+`MenuBaseLoadCursor` also retains a full CPU pointer, including native builds.
+
+All five menu row allocators accept `void *` buffers. They publish the actual row
+pointer and return their existing scalar allocation size. `MenuRectRow10` is the
+one rectangle record shared by initialization and animation. Its pointer stays
+complete on the host. Numeric address arithmetic in its current consumers still
+constrains the PAL register allocation and remains reconstruction debt; the width
+check prevents it from silently becoming a 32-bit native address.
+
+The original `cd_read_ptr` diagnostic at `0x8001075C` contains one conversion.
+`InitMenuArenas` passes only its buffer address after the format string. The old
+extra `0x2D000` argument and the register binding used to support it are removed.
+`GetR4FileIndex` has two scalar arguments; its caller in `LoadSlotBankStep` no
+longer appends a register-lifetime artifact as a third argument.
+
+`test_menu_arena_pipeline.py` executes the current initializer, all five actual
+allocators, the rectangle constructor and two real loading callers. It compares
+original and linked MIPS with native allocations above 4 GiB, complete guarded
+buffers, pointer publications, service-entry state and loader transitions. It
+imports the public headers with their layout assertions enabled. The test's
+address transport checks known complete owners and cannot repair a truncated
+pointer. A separate negative-control probe confirms that such truncation fails.
+
+## Dialogue state and page animation ownership
+
+`rr/menu_text_state.h` owns both dialogue roots and the complete dialogue state.
+The PAL object is 0x348 bytes: a script cursor, scalar control fields, an image
+bank pointer at 0x20, the reserved word at 0x24, and 200 four-byte animation
+cells at 0x28. The previous 0x340-byte record incorrectly folded the image
+pointer into a 200-word array and omitted its final two animation cells.
+`DrawAnimatedText` imports this owner rather than defining a shorter private
+record with a single two-halfword animation slot.
+
+Initialization clears `sizeof(MenuTextState)` and the loader reserves that same
+native size. Both CPU pointers retain their actual host width. The renderer
+indexes real animation cells and both page resets clear the declared 200-cell
+array. Their C loops no longer construct pointers before an array or write ten
+words beyond a nominal loop cursor. A distinct page-header byte lifetime also
+removes the decompiler's unrelated reuse of one temporary while retaining the
+relocated instruction match.
+
+`InitDialogueState`, `SkipDialoguePage` and `DrawAnimatedText` expose the same
+record type to their actual callers. The selection entry has no arguments; its
+stage index is in 0..7 when selection mode4 dispatches through the eight cases.
+Its settings/retry accesses use the shared scalar record, without carrying a
+CPU pointer through `int`. Save-slot copies use that same record type. The
+unused arguments to the selection-rank helper and dialogue update are removed.
+The overlay665 controller also imports the shared owner instead of declaring a
+five-byte surrogate for `CardDialogueStatePtr`.
+
+`test_dialogue_pipeline.py` executes the current initializer, actual selector,
+page-table loader, streaming loader, controller, skip helper and text renderer.
+Original and linked MIPS are compared with complete native owners above 4 GiB,
+including the native-sized state embedded before the loading asset buffer.
+Transport maps actual pointer fields and animation cells to their PAL positions;
+it neither narrows pointers nor restores missing address bits. Complete buffers,
+guards, scalar state, pointer tables, callee-saved registers and helper-entry
+snapshots are checked. A negative control rejects using the fixed PAL clear size
+on the larger native object.
+
+The existing menu-choice model, 131072 cases, legacy World layout and PRNG stream
+are retained. Its adapter supplies complete native dialogue objects and maps
+only legacy highlight byte4 to `MenuTextState.b4`, the sole accessed field. Every
+other byte of each native dialogue owner must remain unchanged. New field access
+requires extending that explicit adapter, rather than silently treating the
+legacy eight-byte prefix as a complete native object.
+
+The existing empty-asm constraint in the text renderer and remaining offset-based
+field names are still reconstruction debt. This owner cleanup does not establish
+that the wider C reconstruction is complete.
+
+The GPU coordinate helpers `get_cs` and `get_ce` retain their public signed-word
+arguments and explicitly narrow to signed halfwords before clamping. Their
+former K&R parameter definitions are gone. The coordinate fixture now executes
+the current production bodies; its original cases, oracle and separately
+instrumented legacy read-order regression remain unchanged.
+
+The scroll controller's countdown subtraction, scale shift and channel offset
+addition use unsigned operands where the PAL operations wrap. Sprite-effect
+and fade intensity products likewise wrap before signed division. Casting only
+the result would leave signed overflow in C. These changes preserve relocated
+instruction Levenshtein 0; the original native cases and UBSan checks are retained.
+
+
+
+
+## Complete audio owner and bank descriptors
+
+`rr/audio_state_types.h` owns the complete resident SoundState. The PAL layout
+remains0xA8D0; native LP64 uses0xA920 with real pointers for the two stream tables,
+two sequence data pointers and two complete SequenceChannel rows. Public size
+and field assertions account for those pointer widths and natural alignment.
+The initializer clears sizeof(*state), including every native pointer and tail.
+SoundSlots names slots38 in this same owner; its one declaration is shared.
+
+AudioBanks20 exposes the ten signed bank IDs and the genuine overlapping AI
+counter at entries8/9. AudioSignedWord4 describes full-word bank/program stores
+and signed-halfword reads. Consumers use these actual members. AudioStreamEntry
+names the two-word on-disc entry, and stream-bank table pointers distinguish
+null from the unavailable sentinel without converting pointers to scalar words.
+
+AudioProgramData is the complete0x5BC resource record:two groups of ten curves,
+two groups of five program IDs and the four following halfwords. SlotLoadCurves
+copies non-overlapping source bytes into this actual nested record. The source
+may be unaligned; sizeof the record and builtin memcpy retain both original
+aligned and unaligned copy paths. Program/key-on/update consumers index genuine
+program/pitch arrays and actual word/halfword groups, without shifted whole-slot
+views or truncating pointers to stack work.
+
+`rr/audio_bank_setup_types.h` defines the one AudioBankSetup descriptor shared
+by the track loaders, SlotSetupBank and ComSlotSetupBank. Its first three fields
+are resource pointers; the fourth is the player slot selector, unused by Com.
+Both constructors import complete public declarations and read the live descriptor
+again after services. Com no longer interprets native pointers as three integers.
+Both use actual slots/program/pitch arrays and VagAtr outputs. SlotSetupBank's
+old shifted AudioState views, register bindings, empty asm and dead offset
+calculations are removed. Existing compiler settings remain unchanged.
+
+The track VAB loader uses real resource-header/configuration records and the
+sequence data pointer array. SsSeqOpen receives a real byte pointer and calls
+the three-argument initializer; its raw word selector is explicitly normalized
+where the original instructions narrow it. Original upper-half selector tests
+and callback-driven pointer/root replacement remain.
+
+Native audio fixtures preserve their original0xA8D0 wire protocol, models, cases
+and PRNG streams while transporting real pointer fields and scalar spans into
+the complete native owner. Native pointers exceed4GiB; complete snapshots,
+unused pointer cells, alignment gaps, exterior guards and callback reentry are
+checked. The bank fixture compiles the current bodies without erasing target
+constraints, with public layout assertions enabled. Player-slot cases remain;
+new Com cases exercise both MIPS images and replace an owned curve payload
+between its two copies. Other SDK entry-point declarations and existing compiler
+constraints remain separate reconstruction debt.
+
+## Axis rotation matrix interface
+
+`game/math/rotmat.h` owns the complete public declarations of BuildRotMatrixX,
+BuildRotMatrixY and BuildRotMatrixZ: a `MatrixWords32 *`, a signed word angle,
+and no return value. All resident and overlay users import that declaration.
+The constructors write the nine signed rotation halfwords through `rotation00`;
+the alignment halfword and three translation words remain unchanged. Their
+4096-unit angles retain the existing word normalization in the actual sine and
+cosine helpers. The old local int-returning declarations, void-pointer constructor
+interfaces and the chase-camera call's unused third argument are removed.
+
+Existing 32-byte character work buffers in the race cameras and angle builder are
+actual MatrixWords32 objects. Existing larger work capacities in camview and
+trkintp2 expose actual matrix union members while preserving their old extents;
+the untouched 32 bytes in InitDemoComCars and 8 bytes in each of camview and
+CarLocalToWorld are not newly recovered fields.
+Those unexplained capacities, other old scratch views and remaining register
+constraints in the callers are reconstruction debt. No new padding, register
+binding, barrier, volatile access or compiler setting is introduced.
+
+`test_axis_rotation_matrices.py` compiles the current three constructors and
+current sine/cosine helpers against the public types. An independent quarter-wave
+ROM oracle checks every phase plus signed-word boundaries, upper-half patterns
+and random word angles against native C and original/linked MIPS. Complete matrix
+and exterior snapshots verify that alignment/translation cells and guards survive;
+MIPS writes and callee-saved registers are checked. Existing scene/animated-object/
+overlay observers use the same public matrix prototypes and preserve their prior
+models, cases and PRNG streams.
+
+## Shared SDK sequence rows
+
+`rr/sequence_channel.h` owns the complete 0xB0-byte PAL sequence row and the
+single declaration of `_ss_score`. `LibStateB0`, `ChannelStreamB0` and
+`ChannelValueRecordB0` are spellings of that same C type. Its first five cells
+are CPU pointers, including the start and alternate cursors previously declared
+as scalar words in one partial view. Native rows occupy 200 bytes; field and
+size assertions account for full pointer widths and remain enabled.
+
+Sequence initialization, stream completion, tempo, volume and controller users
+share this owner. Ten controller/note handlers now use ordinary table, row and
+array indexing with the existing stock 970318 compiler and GNU assembler
+profile. No compiler backend or match verifier is changed. The three volume setters in `ssvolset` likewise use typed bank/row lookups and
+ordinary halfword value normalization, without register constraints or a PAL-page
+lookup. The selected-channel accesses in `cc_62` use a byte cursor over the actual
+owner and named field offsets. `sstick3` uses the stock 970318 compiler and GNU
+assembler profile; these are reconstructed matching settings, not recovered
+original build flags. Replay indexes the real sequence-row array. Stop copies
+its saved start cursor in ordinary C, removing the artificial volatile pointer
+reload. One numeric row-address expression in Stop remains reconstruction debt;
+the direct array spelling still has relocated instruction Levenshtein 1, so it
+has not replaced the matching expression.
+
+The three getters in `vmchval` now index `_ss_score` and its real sequence rows
+in ordinary C. The existing 2.7.2 compiler uses the stock GNU assembler profile
+and disables the second scheduling pass for this TU; these are reconstructed
+matching settings, not recovered original build flags. All three functions have
+relocated instruction Levenshtein 0. Their public header declares the complete
+argument and return types. The previous fixed RAM page and eight empty asm
+statements are removed, and native fixtures no longer replace a physical address
+or erase asm from these getter bodies. Their original 256-bank/256-row models,
+upper-word cases, overlapping outputs and callback-driven ramp cases remain.
+
+`test_sequence_channel_pipeline.py` executes the current table initializer, SEQ
+initializer, delta decoder, volume getter and playback/pause/replay/stop/end/tempo
+chain against both original and linked MIPS. It compares complete records,
+streams, pointer roots, scalar state and callback boundaries, including root and
+start-cursor replacement during callbacks. A separate replay/stop sweep covers
+three banks, five signed relative rows, four upper-half input patterns and both
+stable and callback-replaced roots/cursors against each MIPS image. Replay calls
+supply its declared signed-halfword argument with the required sign extension;
+Stop receives raw word arguments and performs its own narrowing. All original
+chain cases remain. Native pointers remain above 4 GiB.
+The older scalar fixtures retain their original 176-byte oracle protocols and
+cases through explicit row/field transport into complete native owners. Their
+production bodies come from the current source; pointer cells and native
+alignment bytes are guarded rather than replaced with 32-bit fake pointers.
+
+
+### VAB opening and transfer interfaces
+
+`psyq/libspu/spumem.h` owns the public sticky/fake opening wrappers and their
+allocation callback. The header/program buffer is writable: the parser patches
+program records in that allocation. `AudioBankSetup.bank00`, `VabData.header`,
+the resource producers and native service observers share that pointer type.
+The wrapper takes a raw word bank, explicitly narrows it to signed low16 before
+the parser call and sign-extends the parser result's low16. Both narrowing
+operations are present in the original wrapper's instructions. `VsGetAddr`
+implements the parser's three-argument allocation callback type; its size and
+bank arguments are deliberately unused.
+
+`SsVabTransBody` uses the real `_svm_vab_used`, `_svm_vab_start` and
+`_svm_vab_total` arrays. The physical RAM page, numeric field offsets and old
+register binding are removed. It captures the allocation before the mode call,
+reloads the size after address selection, and publishes the final flag after
+the write. The original low16 selector range 0..16 is retained.
+
+`test_vab_sdk_interface.py` executes the current opening wrappers, actual
+`VsGetAddr`, parser, busy-state and mode helpers, transfer wrapper and
+`SpuWrite` on native
+buffers above 4 GiB and against both original and linked MIPS. An independent
+resource-byte oracle checks complete buffers, table publications, callback
+arguments/mutations, rollback behavior, unsigned end-address wrap, pointer
+widths, exterior/alignment guards and MIPS callee-save/stack preservation.
+A separate wrapper observer covers high bank words and parser returns whose
+high and low halfwords differ. The existing game constructor/loader service
+observer tests remain separate; this SDK test does not claim to execute a
+complete game-to-hardware sound pipeline.
+
+`test_spu_bank_transfer.py` now extracts the current transfer and helper bodies,
+uses the public SPU header with its assertions enabled, and preserves all
+previous selectors, flags, address/size cases and callback mutations. Its table
+and transfer-state snapshot protocols map named native array fields; no target
+register annotations, barriers or physical-page expressions are erased from
+these current bodies for host compilation.
+
+`SpuSetTransferMode` uses ordinary global assignments without its old register
+binding, empty barriers or physical page. Its switch and the completion wrapper
+match together with stock gcc 2.7.2 and the stock GNU assembler profile. This is
+a verified reconstructed configuration, not an identification of the original
+assembler. `psyq/libspu/spumode.h` owns the shared mode/completion declarations.
+`SsVabTransCompleted` explicitly narrows the raw wait word and returned status
+to signed low16 at the boundaries present in the original instructions. The
+wrapper observer also covers high wait words and differing status halfwords
+against native C, original MIPS and the linked image.
+
+
+### Shared VAB program format and resource views
+
+`psyq/libsnd/vab_format.h` owns the complete 32-byte `VabHdr`, eight-byte
+`ProgAtrAttributes` prefix and 16-byte `ProgAtr` record. The parser's word at+8
+is the tone-block index; the halfwords at+12/+14 are paired SPU sample addresses.
+The previous private parser/controller program structs, placeholder public
+`ProgAtr` and `SpuProgram` byte-plus-padding view are removed. The controller
+uses the same embedded attribute prefix as the parser.
+
+`_svm_vab_pg` and `_svm_pg` have one canonical `ProgAtrBuffer` pointer type,
+representing 16-byte resource records with byte alignment. Native publication
+aliases can point at a selector byte or pointer cell, and allocation can read
+an address halfword from a source aligned to 2 bytes. Treating those cursors as
+complete word-aligned `ProgAtr` objects would introduce undefined behavior.
+The parser uses the full record only on its existing word-aligned VAB buffer;
+other consumers select named wire offsets derived from that same format.
+No packed structs, alignment overrides, additional padding or register
+constraints are used. The selected row retains its real 16-byte stride and
+signed prefix indexing. `_SsVmKeyOn` also drops its old pointer-to-int program
+address calculation; its other existing constraints remain separate debt.
+
+`SsUtGetProgAtr` copies five attribute bytes and the aligned halfword at+6,
+preserving output byte5. Its eight-byte output is no longer cast to a full
+16-byte program object. Selection failure still does not cancel the copy.
+
+`test_spu_program_selection.py` now compiles the actual selector, accessors
+and attribute copy with the public assertions enabled. It uses a complete
+properly aligned `SvmCur` owner, keeps the original PAL byte-snapshot protocol,
+and retains every previous signed selector, byte value, pointer-publication
+alias, overlapping copy and ignored-failure case. The selector-only source
+alias may be odd-aligned; no fake shifted `SvmCur` object is formed.
+`test_spu_voice_cache.py` extracts the current allocator, enables the public
+layout assertions and preserves its original PRNG, 98,304 cases and independent
+oracle, including the halfword-only program alias. Its preexisting host adapter
+for the allocator's remaining register/page constraints is still explicit debt.
+`test_vab_sdk_interface.py` additionally executes the actual parser, transfer,
+selector and attribute-copy chain with complete native pointer cells and
+`SvmCur`, original/linked MIPS, full resource snapshots and an independent byte
+oracle. The original parser cases and resource PRNG streams are retained.

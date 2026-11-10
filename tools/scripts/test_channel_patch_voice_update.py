@@ -6,6 +6,7 @@ import struct
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from sequence_fixture_transport import current_body
 
 Patch = C.CFUNCTYPE(C.c_int32, C.c_int32, C.c_int32, C.c_int32)
 Voice = C.CFUNCTYPE(None, C.c_int32, C.c_int32, C.c_int32, C.c_uint32, C.c_uint32)
@@ -25,6 +26,7 @@ class ChannelVoiceFixture:
         asm_header = (root / 'include/rr_asm.h').read_text()
         header = (root / 'include/rr/library.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
+        header = '#include \"rr/sequence_channel.h\"\n' + header
         source = '''#include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -32,6 +34,7 @@ typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + layout + header + asm_header + '''
+void _SsVmDamperOn(void),_SsVmDamperOff(void);
 s32 test_commands[32];
 s32 (*test_command_sink)(s32 *);
 s32 SpuSetReverbModeParam(s32 *command) { return test_command_sink(command); }
@@ -81,7 +84,7 @@ void test_prepare(s32 bank,s32 row,const u8 *input,u32 length,u32 accumulator) {
                                      cls.handler, 'D_8010EFEC=_SsContExpression'))
         for name in ('80080434', '800805D4', '800806C4', '80080774', '80080804', '80080904', '80081E04', '800818B4',
                      '80087044', '80087054', '80086554'):
-            body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
+            body = current_body(root,name)
             body = body.replace('#include "rr_asm.h"', '')
             body = body.replace('#include "rr/library.h"', '').replace('#include "types.h"', '')
             body = body.replace('extern short _svm_damper;', '')
@@ -96,7 +99,7 @@ void test_prepare(s32 bank,s32 row,const u8 *input,u32 length,u32 accumulator) {
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
             source += body
         (directory / 'function.c').write_text(source)
-        subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
+        subprocess.run(['cc', '-shared', '-fPIC', '-O2', '-I', str(root/'include'), str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.lib = C.CDLL(str(directory / 'function.so'))
         values = list((C.c_uint32 * (len(FIELDS) + 1)).in_dll(cls.lib, 'test_layout'))

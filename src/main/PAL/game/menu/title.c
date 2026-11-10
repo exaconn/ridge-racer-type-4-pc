@@ -181,47 +181,43 @@ void AttractDemoRaceUpdate(void) {
     SoundSetMasterVolume(0, 0x3C);
     RaceContext.w4cc = 2;
   }
+  if (RaceContext.w4c8 == 1)
   {
-    register int c8_1 asm("$5") = RaceContext.w4c8; /* ASM_BARRIER: pin w4c8 to a1 across switch cases and ResetCarSlotBuffers second argument */
-    register int one_v0 asm("$2") = 1; /* ASM_BARRIER: pin constant 1 to v0 for w4c8 comparison */
-    if (c8_1 == one_v0)
+    if (Pad0Buttons & 0x10)
     {
-      if (Pad0Buttons & 0x10)
+      RaceContext.w534 = RaceContext.w534 + 1;
+      if (RaceContext.w534 >= 4)
       {
-        RaceContext.w534 = RaceContext.w534 + 1;
-        if (RaceContext.w534 >= 4)
-        {
-          RaceContext.w534 = 0;
-        }
-        switch (RaceContext.w534)
-        {
-          case 0:
-            RaceContext.w3dc = 0;
-            RaceContext.w530 = 0;
-            ResetCarSlotBuffers(&RaceContext, c8_1);
-            break;
-
-          case 1:
-            RaceContext.w3dc = c8_1;
-            RaceContext.w530 = 0;
-            break;
-
-          case 2:
-            RaceContext.w3dc = 0;
-            __asm__ ("" ::: "memory"); /* ASM_BARRIER: keep w3dc store before w530 store in delay slot */
-            RaceContext.w530 = c8_1;
-            ResetCarSlotBuffers(&RaceContext, c8_1);
-            break;
-
-          case 3:
-            RaceContext.w3dc = c8_1;
-            RaceContext.w530 = c8_1;
-            break;
-
-        }
-
-        SetSceneOverlayEnabled(D_800ACA2C);
+        RaceContext.w534 = 0;
       }
+      switch (RaceContext.w534)
+      {
+        case 0:
+          RaceContext.w3dc = 0;
+          RaceContext.w530 = 0;
+          ResetCarSlotBuffers();
+          break;
+
+        case 1:
+          RaceContext.w3dc = 1;
+          RaceContext.w530 = 0;
+          break;
+
+        case 2:
+          RaceContext.w3dc = 0;
+          RaceContext.w530 = 1;
+          ResetCarSlotBuffers();
+          break;
+
+        case 3:
+          RaceContext.w3dc = 1;
+          RaceContext.w530 = 1;
+          break;
+
+      }
+
+      SetSceneOverlayEnabled(D_800ACA2C);
+    }
     if (RaceContext.w3dc == 1)
     {
       if (RaceContext.w530 == 0)
@@ -285,7 +281,6 @@ void AttractDemoRaceUpdate(void) {
       {
         RaceContext.w538 = RaceContext.w538 ^ 1;
       }
-    }
   }
   SetupViewport(0);
   if ((RaceContext.w4c8 == 0) || (RaceContext.w530 == 0))
@@ -338,16 +333,17 @@ void AttractDemoRaceUpdate(void) {
       {
         ModeGroup = 1;
         ModeIndex = 3;
+        SubmodeState = 0;
+        MaskBitSetting = 0;
       }
       else
       {
         RaceContext.w18 = 1;
         ModeGroup = 2;
         ModeIndex = 8;
+        SubmodeState = 0;
+        MaskBitSetting = 0;
       }
-      SubmodeState = 0;
-      MaskBitSetting = 0;
-      __asm__ ("" ::: "memory"); /* ASM_BARRIER: prevent hoisting argument setup for SoundSetMasterVolume before stores */
       SoundSetMasterVolume(0, 0);
     }
   }
@@ -356,33 +352,31 @@ void AttractDemoRaceUpdate(void) {
   {
     AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x19 - D_800ACB0C) * 8, 0x45);
   }
+  if (RaceContext.w4c8 == 1)
   {
-    register int c8_2 asm("$6") = RaceContext.w4c8; /* ASM_BARRIER: pin w4c8 to a2 across w28a4 clamping and PollCdAudioStatus third argument */
-    if (c8_2 == 1)
+    if (RaceContext.w538 == 0)
     {
-      if (RaceContext.w538 == 0)
+      old = SoundState.track28A4;
+      if (Pad0Buttons & 0x8000)
       {
-        old = SoundState.track28A4;
-        if (Pad0Buttons & 0x8000)
-        {
-          SoundState.track28A4 = SoundState.track28A4 - 1;
-        }
-        if (Pad0Buttons & 0x2000)
-        {
-          SoundState.track28A4 = SoundState.track28A4 + 1;
-        }
-        if (SoundState.track28A4 <= 0)
-        {
-          SoundState.track28A4 = SoundState.count28A8 - 1;
-        }
-        if (SoundState.track28A4 >= SoundState.count28A8)
-        {
-          SoundState.track28A4 = c8_2;
-        }
-        if (old != SoundState.track28A4)
-        {
-          RaceContext.w4d4 = 0x1D;
-          if (PollCdAudioStatus(&SoundState, old, c8_2) >= 0)
+        SoundState.track28A4 = SoundState.track28A4 - 1;
+      }
+      if (Pad0Buttons & 0x2000)
+      {
+        SoundState.track28A4 = SoundState.track28A4 + 1;
+      }
+      if (SoundState.track28A4 <= 0)
+      {
+        SoundState.track28A4 = SoundState.count28A8 - 1;
+      }
+      if (SoundState.track28A4 >= SoundState.count28A8)
+      {
+        SoundState.track28A4 = 1;
+      }
+      if (old != SoundState.track28A4)
+      {
+        RaceContext.w4d4 = 0x1D;
+        if (PollCdAudioStatus() >= 0)
         {
           if (RaceContext.w4d0 == 0)
           {
@@ -461,7 +455,6 @@ void AttractDemoRaceUpdate(void) {
       AddBrightnessSprite(D_800A1A6C - 0xC, 0x121, 0xD4, 0xFF);
         AddBrightnessSprite(D_800A1A6C - 8, 0x12A, 0xD4, 0xFF);
         AddSetTexpagePrim(0);
-      }
     }
   }
   SetModelTexturePage(0xA);
@@ -471,18 +464,11 @@ void AttractDemoRaceUpdate(void) {
   }
   else
   {
-    int i_s1 = 1;
-    RaceVehicle **ip_v0 = CarTable;
-    RaceVehicle **ip_s0;    ip_s0 = ip_v0 + 1;
-    do
+    int k;
+    for (k = 1; k < 7; k++)
     {
-      register RaceVehicle *a0 asm("$4") = *ip_s0; /* ASM_BARRIER: load *ip_s0 into a0 first */
-      register int a1 asm("$5") = 2;      ip_s0++;
-      __asm__ volatile("" : "+r"(ip_s0)); /* ASM_BARRIER: keep pointer increment before jal so i_s1++ fills delay slot */
-      DrawOpponentCar(a0, a1);
-      i_s1++;
+      DrawOpponentCar(CarTable[k], 2);
     }
-    while (i_s1 < 7);
   }
   ((int *)SCRATCHPAD)[0x78 / 4] = D_800F2A64;
   SetupPlayerView(0);

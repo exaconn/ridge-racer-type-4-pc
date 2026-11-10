@@ -6,6 +6,8 @@ import struct
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import definition_source, source_owners, name_at
+from sequence_fixture_transport import wire_definition, field_only_body, transport
 
 Event = C.CFUNCTYPE(None)
 Voice = C.CFUNCTYPE(None, C.c_int32, C.c_int32, C.c_int32, C.c_uint32, C.c_uint32)
@@ -21,38 +23,43 @@ class ChannelRecordUpdatesTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         header = (root / 'include/rr/library.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        # The functions never access c0; retain that PSX pointer's four-byte
-        # representation so all subsequent fields keep their target offsets.
-        header = header.replace('u8 *c0;', 'u32 c0;').replace('u8 *c8;', 'u32 c8;').replace('u8 *p10;', 'u32 p10;')
+        header = wire_definition() + '\n' + header
         source = '''#include <stdint.h>
+#include \"rr/sequence_channel.h\"
 typedef uint8_t u8; typedef int8_t s8;
 typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
 ''' + header + '''
-_Static_assert(sizeof(LibStateB0) == 0xB0, "record stride");
-_Static_assert(__builtin_offsetof(LibStateB0, b17) == 0x17, "slot offset");
-_Static_assert(__builtin_offsetof(LibStateB0, w90) == 0x90, "result offset");
-LibStateB0 *test_table[0x4100];
-LibStateB0 test_records[9][17];
+_Static_assert(sizeof(SequenceWire176) == 0xB0, "record stride");
+_Static_assert(__builtin_offsetof(SequenceWire176, b17) == 0x17, "slot offset");
+_Static_assert(__builtin_offsetof(SequenceWire176, w90) == 0x90, "result offset");
+SequenceWire176 *test_table[0x4100];
+SequenceWire176 test_records[9][17];
+static int sequence_active;
+static void sequence_import(void),sequence_export(void);
 void (*test_first)(void);
 void (*test_second)(void);
 s32 (*test_update)(s32, s32);
 void (*test_voice)(s32, s32, s32, u32, u32);
-void _SsVmSetVol(s32 channel, s32 device, s32 slot, u32 pitch, u32 value) { test_voice(channel, device, slot, pitch, value); }
-void SsUtReverbOff(void) { test_first(); }
-void _SsVmDamperOff(void) { test_second(); }
-s32 _SsReadDeltaValue(s32 bank, s32 row) { return test_update(bank, row); }
+void _SsVmSetVol(s32 channel, s32 device, s32 slot, u32 pitch, u32 value) { if(sequence_active)sequence_export();test_voice(channel, device, slot, pitch, value);if(sequence_active)sequence_import(); }
+void SsUtReverbOff(void) { if(sequence_active)sequence_export();test_first();if(sequence_active)sequence_import(); }
+void _SsVmDamperOff(void) { if(sequence_active)sequence_export();test_second();if(sequence_active)sequence_import(); }
+s32 _SsReadDeltaValue(s32 bank, s32 row) { s32 result;if(sequence_active)sequence_export();result=test_update(bank,row);if(sequence_active)sequence_import();return result; }
 '''
-        for name in ('80080A44', '80080AB4', '80081D94', '80080B24', '80080504'):
-            body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
-            body = body.replace('#include "rr/library.h"', '')
-            body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
-            body = re.sub(r'"\$[0-9]+", ', '', body)
-            body = re.sub(r' : "\$[0-9]+"', '', body)
-            body = body.replace('(LibStateB0 **)0x80110000U', '(test_table + 0x4000)')
-            source += body
+        source += transport()
+        source += '\n#define _ss_score (sequence_native_table + 0x4000 - 0xF98 / 4)\n'
+        owners=source_owners(root/'src/main/PAL')
+        for address in ('80080A44', '80080AB4', '80081D94', '80080B24', '80080504'):
+            name=name_at(address)
+            body=field_only_body(definition_source(owners[name].read_text(),name))
+            source += re.sub(r'\b'+re.escape(name)+r'\b','native_'+name,body)
+            arguments='s32 bank,s32 row' + ('' if name=='_SsContResetAll' else ',s32 value')
+            values='bank,row' + ('' if name=='_SsContResetAll' else ',value')
+            source += ('void '+name+'('+arguments+'){sequence_import();sequence_active++;'
+                       'native_'+name+'('+values+');sequence_active--;sequence_export();}\n')
         (directory / 'functions.c').write_text(source)
-        subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'functions.c'),
+        subprocess.run(['cc', '-shared', '-fPIC', '-O2', '-fsanitize=undefined,bounds',
+                        '-fno-sanitize-recover=all', '-I',str(root/'include'),str(directory / 'functions.c'),
                         '-o', str(directory / 'functions.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'functions.so'))
         cls.records = (C.c_uint8 * (9 * 17 * 0xB0)).in_dll(cls.library, 'test_records')

@@ -636,56 +636,36 @@ void DrawGlyphListSloped(s16 *t1, s32 a1, s32 a2) {
 }
 
 void AddBrightnessSprite(unsigned char *a0x, int a1, int a2, int a3) {
-    register unsigned char *p asm("$10");
-    int *g;
-    unsigned hi;
-    unsigned cmd;
-    register unsigned char *q asm("$2");
-    int t;
-    unsigned t3;
-    register unsigned lo asm("$5");
-    register int v1 asm("$3");
-    register FrameStorage *d asm("$4");
-    u32 *head;
-    p = *(unsigned char **)SCRATCHPAD;
-    p[3] = 4;
-    p[7] = 0x64;
+    SPRT *p;
+    DR_MODE_1 *m;
+
+    p = SCRATCH->p;
+    p->len = 4;
+    p->code = 0x64;
     if (a3 < 0xFF) {
-        p[7] = 0x66;
+        p->code = 0x66;
     } else {
-        p[7] = 0x65;
+        p->code = 0x65;
     }
-    v1 = a1;
-    lo = 0xFFFFFF;
-    cmd = 0xE100023E;
-    p[4] = a3;
-    p[5] = a3;
-    p[6] = a3;
-    ((short *)p)[4] = v1;
-    ((short *)p)[5] = a2;
-    ((short *)p)[8] = a0x[2];
-    ((short *)p)[9] = a0x[3];
-    p[0xC] = a0x[0];
-    t = a0x[1];
-    ((short *)p)[7] = 0x7F78;
-    p[0xD] = t;
-    hi = 0xFF000000;
-    g = (int *)SCRATCHPAD;
-    d = CurrentDrawBuf;
-    head = &d->buffer.ordering70.words[0];
-    *(unsigned int *)p = (*(unsigned int *)p & hi) | (*head & lo);
-    *head = (*head & hi) | ((unsigned int)p & lo);
-    p += 0x14;
-    *g = p;
-    p[3] = 1;
-    d = CurrentDrawBuf;
-    head = &d->buffer.ordering70.words[0];
-    t3 = *(unsigned int *)p;
-    ((unsigned int *)p)[1] = cmd;
-    *(unsigned int *)p = (t3 & hi) | (*head & lo);
-    *head = (*head & hi) | ((unsigned int)p & lo);
-    q = p + 8;
-    *g = q;
+    p->r0 = a3;
+    p->g0 = a3;
+    p->b0 = a3;
+    p->x0 = a1;
+    p->y0 = a2;
+    p->w = a0x[2];
+    p->h = a0x[3];
+    p->u0 = a0x[0];
+    p->v0 = a0x[1];
+    p->clut = 0x7F78;
+    ADDPRIM((u8 *)&CurrentDrawBuf->buffer.ordering70.words[0], p);
+    p++;
+    SCRATCH->p = p;
+    m = (DR_MODE_1 *)p;
+    m->len = 1;
+    m->code[0] = 0xE100023E;
+    ADDPRIM((u8 *)&CurrentDrawBuf->buffer.ordering70.words[0], m);
+    m++;
+    SCRATCH->p = m;
 }
 
 void EmitIconSpriteRow120(s32 index,s32 color) {

@@ -29,10 +29,11 @@ void ovl662_func_80124E4C(void)
         x += dx;
         y += dy;
         operation.y = y;
-        /* Only the initialized coordinate byte is an input at each barrier. */
+        /* ASM_BARRIER: spill operation.y to stack before computing pixel offset */
         __asm__("" : : "m"(operation.y));
         offset = (u8)y;
         operation.x = x;
+        /* ASM_BARRIER: spill operation.x to stack before computing pixel offset */
         __asm__("" : : "m"(operation.x));
         coordX = (u8)x;
         offset *= 32;

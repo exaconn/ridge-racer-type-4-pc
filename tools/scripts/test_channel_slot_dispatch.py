@@ -5,6 +5,7 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from sequence_fixture_transport import wire_definition, field_only_body, transport, current_body, compile_library
 
 Active = C.CFUNCTYPE(None, *([C.c_int32] * 6))
 Inactive = C.CFUNCTYPE(None, *([C.c_int32] * 4))
@@ -17,47 +18,30 @@ class ChannelSlotDispatchTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         root = Path(__file__).resolve().parents[2]
         directory = Path(cls.temp.name)
-        header = (root / 'include/rr/library.h').read_text()
-        header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        # c0 is unused by this function. Retain its target four-byte storage
-        # so native record offsets and stride remain exactly those of the PSX.
-        header = header.replace('u8 *c0;', 'u32 c0;').replace('u8 *c8;', 'u32 c8;').replace('u8 *p10;', 'u32 p10;')
-        body = (root / 'tools/scripts/fixtures/views/func_80081CB4.c').read_text().replace('#include "rr/library.h"', '')
-        body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
-        body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*,\s*"memory"', ': "memory"', body)
-        body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
-        body = body.replace('(LibStateB0 **)0x80110000U', '(test_table + 0x1000)')
-        source = '''#include <stdint.h>
-typedef uint8_t u8; typedef int8_t s8;
-typedef uint16_t u16; typedef int16_t s16;
-typedef uint32_t u32; typedef int32_t s32;
-''' + header + '''
-_Static_assert(sizeof(LibStateB0)==0xB0,"record stride");
-_Static_assert(__builtin_offsetof(LibStateB0,b17)==0x17,"slot");
-_Static_assert(__builtin_offsetof(LibStateB0,b26)==0x26,"signed metadata");
-_Static_assert(__builtin_offsetof(LibStateB0,b27)==0x27,"first slot array");
-_Static_assert(__builtin_offsetof(LibStateB0,b37)==0x37,"second slot array");
-_Static_assert(__builtin_offsetof(LibStateB0,h80)==0x80,"slot mask");
-LibStateB0 test_records[5][5];
-LibStateB0 *test_table[0x1100];
+        source = '#include \"rr/sequence_channel.h\"\n' + wire_definition() + r'''SequenceWire176 test_records[5][5];
+SequenceWire176 *test_table[0x1100];
+static void sequence_import(void),sequence_export(void);
 void (*test_active)(s32,s32,s32,s32,s32,s32);
 void (*test_inactive)(s32,s32,s32,s32);
-void _SsVmKeyOn(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f) { test_active(a,b,c,d,e,f); }
-void _SsVmKeyOff(s32 a,s32 b,s32 c,s32 d) { test_inactive(a,b,c,d); }
-void test_initialize(void) {
- int bank;
- for(bank=-2;bank<=2;bank++) test_table[0x1000-0xF98/4+bank]=&test_records[bank+2][2];
-}
-''' + body
-        (directory / 'function.c').write_text(source)
-        subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
-                        '-o', str(directory / 'function.so')], check=True, capture_output=True)
+void test_initialize(void){int bank;for(bank=-2;bank<=2;bank++)test_table[0x1000-0xF98/4+bank]=&test_records[bank+2][2];}
+'''
+        source += transport(banks=5,rows=5,table_size=0x1100)
+        source += r'''void _SsVmKeyOn(s32 a,s32 b,s32 c,s32 d,s32 e,s32 f){sequence_export();test_active(a,b,c,d,e,f);sequence_import();}
+void _SsVmKeyOff(s32 a,s32 b,s32 c,s32 d){sequence_export();test_inactive(a,b,c,d);sequence_import();}
+#define _ss_score (sequence_native_table+0x1000-0xF98/4)
+'''
+        body=field_only_body(current_body(root,'80081CB4'))
+        name=__import__('c_functions').name_at('80081CB4')
+        source += re.sub(r'\b'+name+r'\b','native_'+name,body)
+        source += 'void '+name+'(s32 bank,s32 row,s32 value,s32 mode){sequence_import();native_'+name+'(bank,row,value,mode);sequence_export();}\n'
+        compile_library(root,directory,source,'function')
         cls.lib = C.CDLL(str(directory / 'function.so'))
         cls.records = (C.c_uint8 * (25 * 0xB0)).in_dll(cls.lib, 'test_records')
         cls.lib.test_initialize()
         cls.function = cls.lib._SsNoteOn
         cls.function.argtypes = [C.c_int32] * 4
         cls.function.restype = None
+
 
     def setUp(self):
         C.memset(C.addressof(self.records), 0xA5, C.sizeof(self.records))

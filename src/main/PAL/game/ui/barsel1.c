@@ -1,3 +1,4 @@
+#include "rr/menu_text_state.h"
 #include "types.h"
 #include "game/ui/barsel1.h"
 #include "rr/badge_rows.h"
@@ -9,9 +10,7 @@
 
 extern int SetMenuFrameOptions();
 extern int DrawMenuStepArrows();
-extern int UpdateDialogue();
 extern s16 SelectedTeamIndex;
-extern void *Dialogue;
 
 s32 UpdateModeSelectBarAnim(void) {
     s32 var_s2;
@@ -22,7 +21,7 @@ s32 UpdateModeSelectBarAnim(void) {
         UpdateDialogue(((s16 *)BadgeRows)[4] + 0xA, ((s16 *)BadgeRows)[5] + 0x28, Dialogue);
     }
     UpdateBadgeRowAnim(0);
-    if (((s8 *)Dialogue)[4] >= 0x22) {
+    if (Dialogue->b4 >= 0x22) {
         if (((s16 *)BadgeRows)[8] == 0xB && D_800AD4F2 == 0) {
             ((s16 *)BadgeRows)[8] = 0;
         } else if (((s16 *)BadgeRows)[8] < 4) {

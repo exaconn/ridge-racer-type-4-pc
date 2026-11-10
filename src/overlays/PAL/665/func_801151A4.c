@@ -3,46 +3,27 @@
 #include "rr/frame_storage_types.h"
 
 void ovl665_func_801151A4(void) {
-    s16 openingTimer;
-    s32 signedTimer;
+    s32 row;
     s16 closingTimer;
-    s32 closeIndex;
-    s32 clearIndex;
-    register s32 row __asm__("$16");
-    s32 detailIndex;
-    u32 layout;
     u8 monoState;
     u8 musicState;
     u8 effectsState;
     u8 detailState;
-    UiRow24 *detail;
-    UiRow24 *closingRow;
-    UiRow24 *clearingRow;
 
-    layout = ovl665_D_80119768.layout0C;
-    switch (layout) {
+    switch (ovl665_D_80119768.layout0C) {
     case 0:
-        row = 0;
         ovl665_func_80114FD8();
         FadeCountdown = 0x40;
         ovl665_D_80119768.layout0C = (ovl665_D_80119768.layout0C + 1U);
         break;
     case 1:
-        signedTimer=FadeCountdown;
-        __asm__("" : "+r"(signedTimer));
-        openingTimer = (u16) FadeCountdown - 1;
-        if (signedTimer > 0) {
-            FadeCountdown = openingTimer;
-            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[702], openingTimer*4, 0x45);
+        if (FadeCountdown > 0) {
+            FadeCountdown--;
+            AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[702], FadeCountdown * 4, 0x45);
         }
         SetPresentationDrawEnabled(1);
-        if (UiRows[0].byte14 == 2) {
-            row = 0;
-            if (FadeCountdown == 0) {
-                ovl665_D_80119768.layout0C = (ovl665_D_80119768.layout0C + 1U);
-            }
-        } else {
-            goto reset_rows;
+        if (UiRows[0].byte14 == 2 && FadeCountdown == 0) {
+            ovl665_D_80119768.layout0C = (ovl665_D_80119768.layout0C + 1U);
         }
         break;
     case 2:
@@ -54,14 +35,10 @@ void ovl665_func_801151A4(void) {
             UiRows[ovl665_D_80119768.exit34.word].cells[0] = 1;
             ovl665_D_80119768.layout0C = (ovl665_D_80119768.exit34.word + 3);
             SetMenuFrameOptions(1, 1, 0);
-            row = 0;
-        } else {
-            if (PlayerControllers[0].action2C != 0) {
-                PlaySfx(2);
-                FadeCountdown = 0x40;
-                ovl665_D_80119768.layout0C = 6;
-            }
-            goto reset_rows;
+        } else if (PlayerControllers[0].action2C != 0) {
+            PlaySfx(2);
+            FadeCountdown = 0x40;
+            ovl665_D_80119768.layout0C = 6;
         }
         break;
     case 3:
@@ -79,7 +56,6 @@ void ovl665_func_801151A4(void) {
             }
         }
         DrawUiRow(4);
-        row = 0;
         break;
     case 4:
         effectsState = UiRows[5].byte14;
@@ -95,17 +71,16 @@ void ovl665_func_801151A4(void) {
             }
         }
         DrawUiRow(5);
-        row = 0;
         break;
     case 5:
         monoState = UiRows[6].byte14;
         if (monoState == 2) {
-            UiRows[Options.audio.mono32+6].cells[0] = 0;
+            UiRows[Options.audio.mono32 + 6].cells[0] = 0;
             StepMenuValue(0, 2, (char *)&Options.audio.mono32, 2, 0);
-            UiRows[Options.audio.mono32+6].cells[0] = monoState;
+            UiRows[Options.audio.mono32 + 6].cells[0] = monoState;
             if (D_800F3A60 != 0) {
                 PlaySfx(1);
-                UiRows[Options.audio.mono32+6].cells[0] = 1;
+                UiRows[Options.audio.mono32 + 6].cells[0] = 1;
                 ovl665_D_80119768.layout0C = 7U;
                 SetMenuFrameOptions(1, 1, 1);
                 SetCdMixMode(Options.audio.mono32);
@@ -113,75 +88,50 @@ void ovl665_func_801151A4(void) {
         }
         DrawUiRow(6);
         DrawUiRow(7);
-        row = 0;
         break;
     case 6:
-        row = 0;
-        closeIndex = 0;
-        do {
-            closingRow = (UiRow24 *)((closeIndex*sizeof(UiRow24))+(unsigned long)UiRows);
-            if (closingRow->byte14 == 2) {
-                closingRow->byte14 = 3U;
+        for (row = 0; row < 4; row++) {
+            if (UiRows[row].byte14 == 2) {
+                UiRows[row].byte14 = 3U;
             }
-            row += 1;
-            closeIndex++;
-        } while (row < 4);
+        }
         FadeCountdown = 0x40;
         ovl665_D_80119768.layout0C = 9U;
-        goto reset_rows;
+        break;
     case 7:
-        row = 4;
-        detailIndex = 4;
-        do {
-            detail = (UiRow24 *)((detailIndex*sizeof(UiRow24))+(unsigned long)UiRows);
-            detailState = detail->byte14;
+        for (row = 4; row < 8; row++) {
+            detailState = UiRows[row].byte14;
             if (detailState == 2) {
-                detail->byte14 = 3U;
+                UiRows[row].byte14 = 3U;
             } else if (detailState == 6) {
                 ovl665_D_80119768.layout0C = 8;
             }
-            if ((u8) UiRows[detailIndex].byte14 >= 2U) {
+            if ((u8)UiRows[row].byte14 >= 2U) {
                 DrawUiRow(row);
             }
-            row += 1;
-            detailIndex++;
-        } while (row < 8);
-        row = 0;
+        }
         break;
     case 8:
-        row = 4;
-        clearIndex = 4;
-        do {
-            clearingRow = (UiRow24 *)((clearIndex*sizeof(UiRow24))+(unsigned long)UiRows);
-            if (clearingRow->byte14 != 0) {
-                clearingRow->byte14 = 0U;
+        for (row = 4; row < 8; row++) {
+            if (UiRows[row].byte14 != 0) {
+                UiRows[row].byte14 = 0U;
             }
-            row += 1;
-            clearIndex++;
-        } while (row < 8);
+        }
         ovl665_D_80119768.layout0C = 1U;
-        goto reset_rows;
+        break;
     case 9:
-        closingTimer = (u16) FadeCountdown - 1;
+        closingTimer = (u16)FadeCountdown - 1;
         FadeCountdown = closingTimer;
         AddScreenFadeTiles(&CurrentDrawBuf->buffer.ordering70.words[0], (0x40 - closingTimer) * 4, 0x45);
-        row = 0;
         if (FadeCountdown <= 0) {
             ovl665_func_80114A24();
             ovl665_D_80119768.layout0C = 0;
             ovl665_D_80119768.scene00 = (ovl665_D_80119768.scene00 - 1U);
-            goto reset_rows;
         }
         break;
-    default: goto reset_rows;
     }
-    goto draw_rows;
-reset_rows:
-    row=0;
-draw_rows:
-    do {
+    for (row = 0; row < 4; row++) {
         DrawUiRow(row);
-        row += 1;
-    } while (row < 4);
+    }
     UpdateScreenFade(0x1006A);
 }

@@ -1,9 +1,10 @@
 """Actual SPU tone writer: signed selection, live targets, capture and overlap."""
 from pathlib import Path
-import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+
+from c_functions import definition_source
 
 ROOT=Path(__file__).resolve().parents[2]
 
@@ -13,14 +14,9 @@ class SpuToneUpdateTest(unittest.TestCase):
     def setUpClass(cls):
         cls.temporary=TemporaryDirectory()
         cls.addClassCleanup(cls.temporary.cleanup)
-        header=(ROOT/'include/rr/spu.h').read_text()
-        header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
-        body=(ROOT/'tools/scripts/fixtures/views/func_800867E4.c').read_text()
-        body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
-        body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
-        body=re.sub(r',?\s*"\$\d+"','',body)
-        assert body.count('(u8*)0x80110000U')==1
-        body=body.replace('(u8*)0x80110000U','flags+32768')
+        header = '#include "rr/channels.h"\n#include "rr/spu_tone_update.h"\n'
+        body=definition_source(
+            (ROOT/'src/main/PAL/psyq/libsnd/utsva.c').read_text(), 'SsUtSetVagAtr')
         code=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -28,13 +24,14 @@ class SpuToneUpdateTest(unittest.TestCase):
 #include <string.h>
 #include "types.h"
 ''' + header + r'''
-SpuSelectionPrefix D_80110101;
+SvmCur _svm_cur;
 static u8 flags[65536+0x200];
+#define _svm_vab_used (flags+32768+0x120)
 static u8 tones[2097280] __attribute__((aligned(512)));
 static u8 input[32] __attribute__((aligned(16)));
 static struct {
     u8 prefix[64];
-    union {u8 bytes[256];u8 *pointer;} state;
+    union {u8 bytes[256];VagAtrBuffer *pointer;} state;
 } holder __attribute__((aligned(65536)));
 #define _svm_tn holder.state.pointer
 static u8 *selected_base;
@@ -42,7 +39,7 @@ static u8 selected_value;
 static s32 selection_result,calls,seen_bank,seen_program;
 s32 _SsVmVSetUp(s32 bank,s32 program) {
     calls++;seen_bank=bank;seen_program=program;
-    _svm_tn=selected_base;D_80110101.value=selected_value;
+    _svm_tn=(VagAtrBuffer *)selected_base;_svm_cur.f07=selected_value;
     return selection_result;
 }
 ''' + body + r'''
@@ -110,25 +107,25 @@ int main(int argc,char **argv) {
         u8 representation[sizeof(redirected)];
         memcpy(representation,&redirected,sizeof(redirected));
         input[0]=representation[0];
-        _svm_tn=initial;
+        _svm_tn=(VagAtrBuffer *)initial;
         u8 want[sizeof(holder)];memcpy(want,&holder,sizeof(holder));
         want[64]=input[0];
         for(int i=1;i<14;i++)want[128+order[i]]=input[order[i]];
         for(int i=16;i<24;i++)want[128+i]=input[i];
         assert(SsUtSetVagAtr(0,0,0,input)==0);
-        assert(_svm_tn==redirected);
+        assert((u8 *)_svm_tn==redirected);
         assert(memcmp(&holder,want,sizeof(holder))==0);
 
         /* First halfword changes the global pointer; later halfwords retain
          * the destination captured before that write. */
         reset_alias();
         initial=(u8*)&holder+48;redirected=holder.state.bytes+64;
-        selected_base=initial;_svm_tn=initial;
+        selected_base=initial;_svm_tn=(VagAtrBuffer *)initial;
         memcpy(input+16,&redirected,sizeof(redirected));
         memcpy(want,&holder,sizeof(holder));
         copy_reference(want+48,input);
         assert(SsUtSetVagAtr(0,0,0,input)==0);
-        assert(_svm_tn==redirected);
+        assert((u8 *)_svm_tn==redirected);
         assert(memcmp(&holder,want,sizeof(holder))==0);
     }
     return 0;
@@ -136,7 +133,7 @@ int main(int argc,char **argv) {
 '''
         directory=Path(cls.temporary.name);source=directory/'update.c'
         source.write_text(code);cls.executable=directory/'update'
-        result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
+        result=subprocess.run(['cc', '-I'+str(Path(__file__).resolve().parents[2]/'include'),'-std=c99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
                                '-fsanitize=undefined','-fno-strict-aliasing',
                                '-I',str(ROOT/'include'),str(source),'-o',str(cls.executable)],
                               capture_output=True,text=True)

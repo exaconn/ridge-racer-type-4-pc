@@ -1,5 +1,6 @@
 #include "types.h"
 #include "rr/frame_storage_types.h"
+#include "rr/gpu_scratch_types.h"
 #include "scratchpad.h"
 #include "rr/ui.h"
 #include "rr/ui_primitives.h"
@@ -57,8 +58,6 @@ void SpawnParticlePair(void)
 {
     UiParticle20 *s0;
     unsigned char *s1;
-    /* ASM_BARRIER: pin table index to $v1 to match original register allocation */
-    register int ix asm("$3");
     unsigned char *tb;
     int v0, r1, r2, r3, r4, r5, r6, one;
     int s5, s2;
@@ -79,8 +78,9 @@ void SpawnParticlePair(void)
         r3 = PsyqRand();
         s2 = ((r3 & 3) + one) << one;
         s0->speed16 = s2;
-        r4 = PsyqRand();
-        ix = r4 - (r4 / 2) * 2; tb = D_800A0CF4; s1 = tb + (ix << 2);
+        r4 = PsyqRand() % 2;
+        tb = D_800A0CF4;
+        s1 = tb + r4 * 4;
         s0->r10 = s1[0];
         s0->g11 = s1[1];
         s0->b12 = s1[2];
@@ -191,7 +191,7 @@ void DrawParticle(int a0) {
         c[i].b = (c[i].b * e->scale1A) / 256;
     }
 
-    p = *(PolyFT4 **)SCRATCHPAD;
+    p = (PolyFT4 *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
     if (e->velY1E >= 4) {
         p->len = 9;
         p->code = 0x2E;
@@ -273,9 +273,7 @@ void DrawParticle(int a0) {
         ADDPRIM(&CurrentDrawBuf->buffer.ordering70.words[70], p);
         p++;
     }
-    *(PolyFT4 **)SCRATCHPAD = p;
-    /* ASM_BARRIER: keep scratchpad packet pointer store before s18 clamp */
-    __asm__ ("");
+    ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)p;
 
     s3 = 0x18;
     if (e->rot18 < 0x18) {

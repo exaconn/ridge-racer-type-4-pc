@@ -10,13 +10,8 @@
 #include "rr/menu_state_types.h"
 #include "rr/ui_panel.h"
 #include "rr/trig.h"
-#define EP ((E_2 *)((a0 * 16) + Rect16Rows))
 
-typedef struct { short f0, f2, f4, f6, f8, fA, fC, fE; } E_1;
 
-typedef struct {
-    short s0, s2, x, y, w, h, st, cnt;
-} E_2;
 
 typedef struct {
     short x00, y02, w04, h06;
@@ -25,7 +20,6 @@ typedef struct {
 } GlyphPreset14;
 
 extern BadgeRow1C *BadgeRows;
-extern int Rect16Rows;
 extern unsigned char D_8009F9C0[];
 extern unsigned char D_8009F9CC[];
 extern MenuGlyphRow1C *GlyphRows;
@@ -137,7 +131,7 @@ void UpdateBadgeRowAnim(int a0) {
     }
 }
 
-int AllocRect16Rows(int a0) {
+int AllocRect16Rows(void *a0) {
     int n = Rect16RowCount << 4;
     Rect16Rows = a0;
     PsyqBzero(a0, n);
@@ -147,14 +141,16 @@ int AllocRect16Rows(int a0) {
 
 void InitRect16Row(int i, short a, short b, short c, short d, short e, short f) {
     if (i < Rect16RowCount) {
-        E_1 *p = (E_1 *)((i << 4) + Rect16Rows);
-        p->f0 = f;
-        p->f2 = 0;
-        p->f4 = a;
-        p->f6 = b;
-        p->f8 = c;
-        p->fA = d;
-        p->fC = e;
+        /* Numeric byte addressing still constrains the PAL register allocation.
+         * Keep the complete CPU address on native builds. */
+        MenuRectRow10 *p = (MenuRectRow10 *)((i * 16)+(unsigned long)Rect16Rows);
+        p->parameter00 = f;
+        p->restart02 = 0;
+        p->x = a;
+        p->y = b;
+        p->width = c;
+        p->height = d;
+        p->phase = e;
     }
 }
 
@@ -167,7 +163,7 @@ int UpdateRect16Row(int a0) {
     int v;
     int k;
     int a1, a3;
-    E_2 *e0, *e1, *e2, *e3, *e4, *e5;
+    MenuRectRow10 *e0, *e1, *e2, *e3, *e4, *e5;
     unsigned char *p;
     int *q;
     int *q2;
@@ -177,9 +173,9 @@ int UpdateRect16Row(int a0) {
     v = a0 < Rect16RowCount;
     if (v != 0) {
         r = 0;
-        e0 = EP;
-        a1 = e0->st;
-        a3 = e0->cnt;
+        e0 = (MenuRectRow10 *)((a0 * 16)+(unsigned long)Rect16Rows);
+        a1 = e0->phase;
+        a3 = e0->tick;
         k = 3;
         q = &lv[3];
         do {
@@ -187,20 +183,20 @@ int UpdateRect16Row(int a0) {
             k--;
             q--;
         } while (k >= 0);
-        e1 = EP;
+        e1 = (MenuRectRow10 *)((a0 * 16)+(unsigned long)Rect16Rows);
         lx[0] = e1->x;
         ly[0] = e1->y;
-        lx[1] = e1->x + e1->w - 1;
+        lx[1] = e1->x + e1->width - 1;
         ly[1] = e1->y;
         lx[2] = e1->x;
-        ly[2] = e1->y + e1->h - 1;
-        lx[3] = e1->x + e1->w - 1;
-        ly[3] = e1->y + e1->h - 1;
+        ly[2] = e1->y + e1->height - 1;
+        lx[3] = e1->x + e1->width - 1;
+        ly[3] = e1->y + e1->height - 1;
         switch (a1) {
         case 0:
-            e2 = EP;
-            e2->st = 1;
-            e2->cnt = 0;
+            e2 = (MenuRectRow10 *)((a0 * 16)+(unsigned long)Rect16Rows);
+            e2->phase = 1;
+            e2->tick = 0;
             break;
         case 5:
             r = 1;
@@ -222,18 +218,18 @@ int UpdateRect16Row(int a0) {
         case 1:
             lv[a1 - 1] = (a3 << 8) / 6;
             if (a3 < 6) {
-                e3 = EP;
-                e3->cnt = e3->cnt + 1;
+                e3 = (MenuRectRow10 *)((a0 * 16)+(unsigned long)Rect16Rows);
+                e3->tick = e3->tick + 1;
             } else {
-                e4 = EP;
-                e4->cnt = 0;
-                e4->st = e4->st + 1;
+                e4 = (MenuRectRow10 *)((a0 * 16)+(unsigned long)Rect16Rows);
+                e4->tick = 0;
+                e4->phase = e4->phase + 1;
             }
             break;
         case 8:
-            e5 = EP;
-            if (e5->s2 != 0) {
-                e5->st = 1;
+            e5 = (MenuRectRow10 *)((a0 * 16)+(unsigned long)Rect16Rows);
+            if (e5->restart02 != 0) {
+                e5->phase = 1;
             }
             break;
         default:
@@ -245,7 +241,7 @@ int UpdateRect16Row(int a0) {
         tb = D_8009F9CC;
         p = D_8009F9C0;
     loop:
-        AddPartialLine(&CurrentDrawBuf->buffer.ordering70.words[0], *(int *)((char *)xs + (p[0] << 2)), *(int *)((char *)ys + (p[0] << 2)), *(int *)((char *)xs + (p[1] << 2)), *(int *)((char *)ys + (p[1] << 2)), lv[*(unsigned char *)(k + (int)tb)], 1, 8, 8, 8, -1);
+        AddPartialLine(&CurrentDrawBuf->buffer.ordering70.words[0], *(int *)((char *)xs + (p[0] << 2)), *(int *)((char *)ys + (p[0] << 2)), *(int *)((char *)xs + (p[1] << 2)), *(int *)((char *)ys + (p[1] << 2)), lv[*(u8 *)(k+(unsigned long)tb)], 1, 8, 8, 8, -1);
         p += 2;
         k++;
         if (k < 6) goto loop;
@@ -254,7 +250,7 @@ int UpdateRect16Row(int a0) {
     return v;
 }
 
-int AllocGlyphRows(int a) {
+int AllocGlyphRows(void *a) {
     int sz = GlyphRowCount * 28;
     GlyphRows = (MenuGlyphRow1C *)a;
     PsyqBzero(a, sz);
@@ -268,22 +264,22 @@ void InitGlyphRow(int a0, int a1, int a2, int a3) {
   MenuGlyphRow1C *q;
   if (a0 < GlyphRowCount)
   {
-    ((MenuGlyphRow1C *)((a0 * 0x1C) + (int)GlyphRows))->control02 = a1;
-    ((MenuGlyphRow1C *)((a0 * 0x1C) + (int)GlyphRows))->glyph07 = a2;
+    (&GlyphRows[a0])->control02 = a1;
+    (&GlyphRows[a0])->glyph07 = a2;
     s = &D_8009F9D4[a3];
-    new_var = (MenuGlyphRow1C *)((a0 * 0x1C) + (int)GlyphRows);
+    new_var = (MenuGlyphRow1C *)((a0 * 0x1C) + (unsigned long)GlyphRows);
     q = new_var;
     q->x08 = s->x00;
     q->y0A = s->y02;
     q->w0C = s->w04;
     q->h0E = s->h06;
     q->pad01 = s->f0E;
-    ((MenuGlyphRow1C *)((a0 * 0x1C) + (int)GlyphRows))->pad03[2] = s->f0F;
-    ((MenuGlyphRow1C *)((a0 * 0x1C) + (int)GlyphRows))->pad03[3] = s->f10;
-    q = (MenuGlyphRow1C *)((a0 * 0x1C) + (int)GlyphRows);
+    (&GlyphRows[a0])->pad03[2] = s->f0F;
+    (&GlyphRows[a0])->pad03[3] = s->f10;
+    q = (MenuGlyphRow1C *)((a0 * 0x1C) + (unsigned long)GlyphRows);
     ((short *)q->pad10)[0] = s->page08;
     ((short *)q->pad10)[1] = s->clut0A;
     q->pad10[4] = s->u0C;
-    ((MenuGlyphRow1C *)((a0 * 0x1C) + (int)GlyphRows))->pad10[5] = s->v0D;
+    (&GlyphRows[a0])->pad10[5] = s->v0D;
   }
 }

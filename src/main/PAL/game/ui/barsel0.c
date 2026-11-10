@@ -1,3 +1,4 @@
+#include "rr/menu_text_state.h"
 #include "types.h"
 #include "game/ui/barsel0.h"
 #include "rr/badge_rows.h"
@@ -7,10 +8,8 @@
 
 extern int SetMenuFrameOptions();
 extern int DrawMenuStepArrows();
-extern int UpdateDialogue();
 extern s16 SelectedMakerIndex;
 extern u8 D_800F4D99;
-extern void *Dialogue;
 
 s32 UpdateResultsBarSelection(void) {
     s32 var_s2;
@@ -21,7 +20,7 @@ s32 UpdateResultsBarSelection(void) {
         UpdateDialogue(((s16 *)BadgeRows)[4] + 0xA, ((s16 *)BadgeRows)[5] + 0x28, Dialogue);
     }
     UpdateBadgeRowAnim(0);
-    if (((s8 *)Dialogue)[4] >= 0x22) {
+    if (Dialogue->b4 >= 0x22) {
         if (((s16 *)BadgeRows)[8] == 0xB && D_800AD4F2 == 1) {
             ((s16 *)BadgeRows)[8] = 0;
         } else if (((s16 *)BadgeRows)[8] < 4) {

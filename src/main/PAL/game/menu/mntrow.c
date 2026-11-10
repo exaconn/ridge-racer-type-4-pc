@@ -1,3 +1,4 @@
+#include "rr/menu_text_state.h"
 #include "rr/gpu_address.h"
 #include "types.h"
 #include "scratchpad.h"
@@ -16,10 +17,6 @@
 #include "game/data/selection.h"
 #include "rr/frame_storage_types.h"
 
-typedef struct {
-    s32 unk00;
-    s8 f4, f5, f6, f7;
-} DialogueState;
 
 #include "rr/sprite_emit.h"
 #include "rr/gpu_scratch_types.h"
@@ -40,7 +37,6 @@ extern short SelectedTeamIndex;
 extern u32 ModeFrame;
 extern short SelectedMakerIndex;
 extern BadgeRow1C *BadgeRows;
-extern DialogueState *Dialogue;
 extern int MenuStepDirection;
 extern int D_800F3A60;
 
@@ -63,7 +59,7 @@ void DrawMenuTextRow(s32 a0) {
     s32 s0;
     s32 a3;
     s32 s1;
-    s16 d34;
+    s32 d34;
     s32 v1;
 
     s4 = *(SpritePacket **)SCRATCHPAD;
@@ -80,13 +76,10 @@ void DrawMenuTextRow(s32 a0) {
             a3 = 0;
             sp14 = (s0 % 21) * 12;
             sp18 = (s0 / 21) * 24;
-            d34 = MenuTextRows[a0].state.d34;
             s1 = MenuTextRows[a0].rendering.revealed[s2];
+            d34 = (s16)MenuTextRows[a0].state.d34;
             {
-                s32 ext = d34;
                 if (MenuTextRows[a0].rendering.visible >= s2) {
-                    /* ASM_BARRIER: keep sign-extension of d34 before unk3 >= s2 branch */
-                    __asm__("" : : "r"(ext));
                     if (d34 == 1) {
                         if (s2 & 1) {
                             s5 = 0x2638;
@@ -259,8 +252,8 @@ void InitModeSelectMenu(void) {
     InitBadgeRow(0, 0xC, 0x130, 0x128, 0x58, 0, 0);
     InitUiRow(0, 0xC, 0x48, 0xF0, 0x20, 0, 0, 4, 2, 0);
     BadgeRows->half02 = 1;
-    Dialogue->f4 = 1;
-    Dialogue->f7 = 0;
+    Dialogue->b4 = 1;
+    Dialogue->b7 = 0;
     ModeFrame = 0;
     ActiveSceneId = 0x108;
     FadeCountdown = 0;
@@ -269,7 +262,7 @@ void InitModeSelectMenu(void) {
 void ModeSelectMenuUpdate(void) {
     int a2;
     ModeFrame += 1;
-    if (Dialogue->f4 >= 0x22) {
+    if (Dialogue->b4 >= 0x22) {
         DrawUiRow(0);
         UpdateScreenFade(0x10002);
     } else {
@@ -281,13 +274,13 @@ void ModeSelectMenuUpdate(void) {
             return;
         }
     }
-    if (Dialogue->f4 == 1) {
+    if (Dialogue->b4 == 1) {
         if (D_800F3A60 == 0) {
             if (ModeFrame < 0x1F5) return;
         }
-        a2 = Dialogue->f6;
+        a2 = Dialogue->st;
         if (a2 == 4) {
-            Dialogue->f4 = SelectedTeamIndex + 0x22;
+            Dialogue->b4 = SelectedTeamIndex + 0x22;
             UiRows->byte16 = SelectedTeamIndex;
             BadgeRows->state10 = a2;
         }

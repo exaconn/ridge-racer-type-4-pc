@@ -82,10 +82,10 @@ void InitDemoFadeContext(int a0) {
         SoundState.seqHandle2864 = -1;
     }
     for (i = 0; i < 4; i++) {
-        t = SoundState.bank24[v.a[i]];
+        t = SoundState.banks24.ids[v.a[i]];
         if (t >= 0) {
             SsVabClose(t);
-            SoundState.bank24[v.a[i]] = -1;
+            SoundState.banks24.ids[v.a[i]] = -1;
         }
     }
     ResetSeqFadeState();
@@ -109,93 +109,49 @@ void UpdateFadeTint(int a0) {
 }
 
 void EmitFadeSprite(s32 index, s32 x, s32 y, s32 intensity) {
-    register s32 xstage = x;
-    register s32 ystage = y;
-    register s32 istage = intensity;
-    register s32 phase;
-    /* ASM_BARRIER: capture the phase in v1, then end its hard binding before
-     * the arithmetic temporaries reuse this register. */
-    register s32 captured __asm__("$3");
-    register s32 selector;
-    register s32 scale;
-    /* ASM_BARRIER: keep the scratchpad pointer in s0 through the sprite helper. */
-    register GpuScratchPointers *scratch __asm__("$16");
-    register FrameStorage **slot;
-    /* ASM_BARRIER: the input cursor dies at the helper call; its returned
-     * packet starts a separate t0 lifetime after that call. */
-    register GpuSingleCommandPacket *p __asm__("$8");
-    register SpritePacket *cursor __asm__("$8");
-    register FrameStorage *context;
-    register u32 command;
-    /* ASM_BARRIER: use a1 for the low-address mask only after the helper. */
-    register u32 low __asm__("$5");
-    register u32 high;
-    register u32 *modes;
-    register u32 mode;
-    register u32 length;
-    register u32 tag;
-    register s32 product;
-    /* ASM_BARRIER: prepare the outgoing head address in a0. */
-    register u32 *ordering __asm__("$4");
-    register u32 compared;
+    s32 phase;
+    s32 selector;
+    s32 scale;
+    GpuScratchPointers *scratch;
+    GpuCommandPacket *p;
 
-    /* ASM_BARRIER: preserve coordinates/intensity before phase capture. */
-    __asm__("" : "+r"(xstage), "+r"(ystage), "+r"(istage));
-    compared = index ^ 4U;
-    captured = D_800ACA3C;
-    phase = captured;
-    selector = compared == 0;
+    selector = (index == 4);
+    phase = D_800ACA3C;
     if (phase >= 128) {
         selector += 2;
-        scale = (phase - 127U);
+        scale = phase - 127;
     } else {
-        product = 128;
-        scale = ((u32)product - phase);
+        scale = 128U - (u32)phase;
     }
-    scale = (s32)((u32)scale * istage) / 256;
-    product = ((u32)scale * D_800ACA38);
-    scale = product >> 8;
-    if (product < 0) {
-        scale = (s32)(product + 255U) >> 8;
-    }
-    scratch = (GpuScratchPointers *)SCRATCHPAD;
+    scale = (s32)((u32)scale * intensity) / 256;
+    scale = (s32)((u32)scale * D_800ACA38) / 256;
     if (scale > 0) {
-        cursor = (SpritePacket *)scratch->cursor;
-        slot = &CurrentDrawBuf;
-        p = (GpuSingleCommandPacket *)AddSpritePrim(
-            ({
-                ordering = &(*slot)->buffer.ordering70.words[10];
-                /* ASM_BARRIER: finish a0 within argument evaluation, leaving
-                 * the independent cursor move for the call delay slot. */
-                __asm__("" : "+r"(ordering));
-                ordering;
-            }),
-            cursor, xstage, ystage, &D_800A1FB0[index], 0x7F38,
-            ((scale * 2U) | 1U));
+        u32 command;
+        u32 low;
+        u32 high;
+        u32 mode;
+        u32 tag;
+        scratch = (GpuScratchPointers *)SCRATCHPAD;
+        p = (GpuCommandPacket *)scratch->cursor;
+        p = (GpuCommandPacket *)AddSpritePrim(
+            &CurrentDrawBuf->buffer.ordering70.words[10],
+            (SpritePacket *)p,
+            x, y, &D_800A1FB0[index], 0x7F38,
+            (scale * 2U) | 1U);
         command = 0xE1000200U;
         low = 0xFFFFFFU;
-        modes = D_80011248;
-        mode = selector * 4U;
-        mode = *(u32 *)((u8 *)modes + mode);
+        mode = D_80011248[selector];
         /* ASM_BARRIER: capture the mode word before publishing the packet. */
-        __asm__("" : "+r"(mode));
-        length = 1;
+        __asm__("" : "+r"(mode) : "r"(low));
         scratch->cursor = (u8 *)p;
-        ((u8 *)p)[3] = length;
-        tag = p->tag;
+        p->tag.bytes.length = 1;
+        tag = p->tag.word;
         /* ASM_BARRIER: capture the tag before storing the command word. */
         __asm__("" : "+r"(tag), "+r"(mode));
-        mode &= 0x9FFU;
-        mode |= command;
-        context = *slot;
         high = 0xFF000000U;
-        p->command = mode;
-        tag = (tag & high) | (context->buffer.ordering70.words[10] & low);
-        p->tag = tag;
-        context->buffer.ordering70.words[10] = (context->buffer.ordering70.words[10] & high) |
-                          ((unsigned long)p & low);
-        scratch->cursor = (u8 *)p + sizeof(*p);
-        /* ASM_BARRIER: keep the returned packet live until cursor publication. */
-        __asm__("" : : "r"(p));
+        p->command = (mode & 0x9FF) | command;
+        p->tag.word = (tag & high) | (CurrentDrawBuf->buffer.ordering70.words[10] & low);
+        CurrentDrawBuf->buffer.ordering70.words[10] = (CurrentDrawBuf->buffer.ordering70.words[10] & high) | ((unsigned long)p & low);
+        scratch->cursor = (u8 *)(p + 1);
     }
 }

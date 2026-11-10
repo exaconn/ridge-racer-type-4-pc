@@ -62,8 +62,8 @@ void SoundQueueUpdate(void)
                     s0 = v0;
                     s1 = v0;
                 }
-                SsUtKeyOnV(4, SoundState.bank24[4], (short) s2, 0, 0x3C, 0, (short) s1, (short) s0);
-                SsUtKeyOnV(5, SoundState.bank24[4], (short) s2, t1 = 1, 0x3C, 0, (short) s1, (short) s0);
+                SsUtKeyOnV(4, SoundState.banks24.ids[4], (short) s2, 0, 0x3C, 0, (short) s1, (short) s0);
+                SsUtKeyOnV(5, SoundState.banks24.ids[4], (short) s2, t1 = 1, 0x3C, 0, (short) s1, (short) s0);
                 SoundState.sequence19D0.readIndex = SoundState.sequence19D0.readIndex + t1;
             }
         } else {
@@ -79,9 +79,9 @@ void SoundCloseVabsAndReset(void) {
     int i;
     SsUtAllKeyOff(0);
     for (i = 0; i < 4; i++) {
-        if (SoundState.bank24[idx[i]] >= 0) {
-            SsVabClose(SoundState.bank24[idx[i]]);
-            SoundState.bank24[idx[i]] = -1;
+        if (SoundState.banks24.ids[idx[i]] >= 0) {
+            SsVabClose(SoundState.banks24.ids[idx[i]]);
+            SoundState.banks24.ids[idx[i]] = -1;
         }
     }
     SsSetReservedVoice(0x18);

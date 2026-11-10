@@ -1,4 +1,5 @@
-/* GCC_VERSION: 2.7.2 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
+/* GCC_VERSION: 970318 */
 #include "types.h"
 #include "rr/counters.h"
 #include "rr/spu_tick_control.h"
@@ -33,14 +34,8 @@ int SetRCnt(unsigned a0, unsigned short a1, int a2) {
 
 s32 GetRCnt(u32 id) {
     s32 index=id & 0xFFFF;
-    s32 result;
-    if(index<3) {
-        u16 count=RCNT_REGS[index].count;
-        /* ASM_BARRIER: Preserve the zero-extended halfword load as the return word. */
-        __asm__("" : "=r"(result) : "0"(count));
-    }
-    else result=0;
-    return result;
+    if(index>=3) return 0;
+    return RCNT_REGS[index].count;
 }
 
 int StartRCnt(a0) unsigned int a0; {
@@ -51,26 +46,11 @@ int StartRCnt(a0) unsigned int a0; {
 }
 
 s32 StopRCnt(u32 index) {
-    u32 offset = (u32)(u16)index * 4;
-    u32 *state;
-    u8 *base;
-    state = D_800ABC30;
-    /* ASM_BARRIER: load the register pointer before materializing the mask table base. */
-    __asm__ volatile("" : : "r"(state), "r"(offset) : "$2");
-    /* PAL RAM mapping: RCntIntrMaskBits is base minus 0x43C8. */
-    base = (u8 *)0x800B0000U;
-    /* ASM_BARRIER: preserve the explicit base-plus-offset table load. */
-    __asm__("" : "=r"(base) : "0"(base));
-    base += offset;
-    {
-        /* ASM_BARRIER: reuse v0 for the mask, its complement and the return value. */
-        register u32 mask __asm__("$2") = *(u32 *)(base - 0x43C8);
-        mask = ~mask;
-        state[1] &= mask;
-    }
+    int v = index & 0xFFFF;
+    int *p = D_800ABC30;
+    p[1] &= ~((int *)((u8 *)0x800B0000U - 0x43C8))[v];
     return 1;
 }
-
 
 int ResetRCnt(a0) unsigned int a0; {
   int v = a0 & 0xFFFF;

@@ -1,17 +1,20 @@
 from pathlib import Path
+from c_functions import source_owners, definition_source
+from audio_fixture_transport import wire_types, scalar_entry, transport
 import ctypes as C,struct,re,subprocess,os,sys,random,json,hashlib
 from elftools.elf.elffile import ELFFile
 from unicorn import *
 from unicorn.mips_const import *
-P=Path(os.getenv("RR_TEST_DIR","build/goal_50/part32/native"));P.mkdir(parents=True,exist_ok=True);source=Path(sys.argv[1]) if len(sys.argv)>1 else Path("tools/scripts/fixtures/legacy/func_800534D8.c");count=int(sys.argv[2]) if len(sys.argv)>2 else 8192
-body=source.read_text().split('\n',1)[1];body=re.sub(r' __asm__\("[a-z0-9$]+"\)','',body)
+P=Path(os.getenv("RR_TEST_DIR","build/goal_50/part32/native"));P.mkdir(parents=True,exist_ok=True);source=Path(sys.argv[1]) if len(sys.argv)>1 else source_owners(Path("src/main/PAL"))["CdAudioUpdate"];count=int(sys.argv[2]) if len(sys.argv)>2 else 8192
+body=definition_source(source.read_text(),'CdAudioUpdate')
+body=re.sub(r' (?:__asm__|asm)\("[a-z0-9$]+"\)','',body)
 services=[('CdAudioPlayStep','void',[]),('CdAudioPauseStep','void',[]),('CdAudioResumeStep','void',[]),('CdAudioStopStep','void',[]),('CdAudioLoopStep','void',[]),('CdAudioFilterStep','void',[]),('CdSync','s32',['s32','u8*']),('CdIntToPos','u8*',['s32','u8*']),('CdControlF','s32',['s32','const u8*']),('CdDiskReady','s32',['s32']),('CdFlush','void',[]),('CdAudioMute','void',[]),('CdAudioRequestPause','void',[]),('DebugPrintStub','s32',['const char*','AudioState*']),('CdAudioSetVolumeRaw','void',['s32']),('CdAudioFadeStep','void',[]),('CdLastCom','s32',[]),('CdPosToInt','s32',['const u8*']),('CdAudioSetVolume','void',['u16'])]
 head='''#include <stdint.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include "rr/audio_cd_controller.h"
-static struct {u8 before[64];AudioState owner;u8 after[64];} storage;
+static struct {u8 before[64];AudioWireState owner;u8 after[64];} storage;
 #define SoundState storage.owner
 #define D_800F746C SoundState.request26B4
 char XaRepeatMsg[12];
@@ -21,12 +24,20 @@ void *owner(void){return &SoundState;}void *format(void){return XaRepeatMsg;}
 void guards(void){memset(storage.before,0xA6,64);memset(storage.after,0x6A,64);}
 unsigned check(void){unsigned j;for(j=0;j<64;j++)if(storage.before[j]!=0xA6||storage.after[j]!=0x6A)return 1;return 0;}
 '''
-code=head
+code=wire_types()+head+transport('storage.owner')
 for i,(name,ret,types) in enumerate(services):
  if name=='DebugPrintStub':params='const char *a0,...';prefix='va_list ap;AudioState *a1;va_start(ap,a0);a1=va_arg(ap,AudioState*);va_end(ap);'
  else:params=','.join(t+' a'+str(j) for j,t in enumerate(types)) or 'void';prefix=''
- code+=ret+' '+name+'('+params+'){'+prefix+'uintptr_t a[4]={'+(','.join('(uintptr_t)a'+str(j) for j in range(len(types))) or '0')+'};uintptr_t v=cb('+str(i)+',a);'+('return ('+ret+')v;' if ret!='void' else '')+'}\n'
-code+=body
+ arguments=[]
+ for j,kind in enumerate(types):
+  if '*' in kind:
+   span=8 if name=='CdSync' and j==1 else 3 if name=='CdIntToPos' and j==1 else 1
+   arguments.append('(uintptr_t)audio_model_buffer(a'+str(j)+','+str(span)+')')
+  else:arguments.append('(uintptr_t)a'+str(j))
+ returned='audio_native_pointer((void*)v)' if '*' in ret else 'v'
+ code+=ret+' '+name+'('+params+'){'+prefix+'audio_before_callback();uintptr_t a[4]={'+(','.join(arguments) or '0')+'};uintptr_t v=cb('+str(i)+',a);audio_after_callback();'+('return ('+ret+')'+returned+';' if ret!='void' else '')+'}\n'
+entry=scalar_entry(body,'CdAudioUpdate','storage.owner',aliases={'D_800F746C':'request26B4'})
+code+=entry[len(transport('storage.owner')):]
 (P/'native.c').write_text(code)
 subprocess.run(['cc','-std=gnu11','-O2','-funsigned-char','-shared','-fPIC','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude','-I'+str(P),str(P/'native.c'),'-o',str(P/'native.dylib')],check=True)
 lib=C.CDLL(str((P/'native.dylib').resolve()));lib.owner.restype=C.c_void_p;lib.format.restype=C.c_void_p;owner=lib.owner();fmt=lib.format();assert owner>0xffffffff

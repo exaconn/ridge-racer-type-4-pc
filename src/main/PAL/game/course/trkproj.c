@@ -343,32 +343,26 @@ void UpdateComCarOvertake(RaceVehicle *p)
         e3 = e3 + (e3 / 2);
         if (ab < e3)
         {
-          e1 = s1->lateralOffset172;
-          if (e1 < p->lateralOffset172)
+          if (s1->lateralOffset172 < p->lateralOffset172)
           {
-            e2 = (e1 + 0x400) / 2;
+            q->laneTarget3C = (s1->lateralOffset172 + 0x400) / 2;
           }
           else
           {
-            tt = e1 - 0x400; tt = tt + ((unsigned)tt >> 31);
-            __asm__ ("" : "=r"(tt) : "0"(tt)); /* ASM_BARRIER: keep the two /2 arms from being cross-jumped */
-            e2 = tt >> 1;
+            q->laneTarget3C = (s1->lateralOffset172 - 0x400) / 2;
           }
         }
         else
         {
-          e2 = s1->lateralOffset172;
-          e1 = (u16)s1->lateralOffset172;
-          if (e2 > 0)
+          if (s1->lateralOffset172 > 0)
           {
-            e2 = e1 - 0x200;
+            q->laneTarget3C = s1->lateralOffset172 - 0x200;
           }
           else
           {
-            e2 = e1 + 0x200;
+            q->laneTarget3C = s1->lateralOffset172 + 0x200;
           }
         }
-        *(volatile s16 *)&q->laneTarget3C = e2;
         if (q->laneTarget3C < (-0x220))
         {
           q->laneTarget3C = -0x220;
@@ -533,14 +527,10 @@ void InterpolateLanePointXZ(const TrackSample3C *first, const TrackSample3C *sec
 {
     Vector firstPoint;
     Vector secondPoint;
-    /* ASM_BARRIER: retain the lateral magnitude in t1. */
-    register s32 offset __asm__("$9");
-    /* ASM_BARRIER: retain the shared Z edge component in v1. */
-    register s32 edgeZ __asm__("$3");
+    s32 offset;
     const TrackSample3C *sample;
 
-    offset = lateral;
-    if (lateral < 0) offset = -offset;
+    offset = __builtin_abs(lateral);
     sample = first;
     if (lateral < 0) {
         firstPoint.x = extend_track_edge(sample->leftOffsetX04, sample->leftWidth18, sample->leftExtension2E);
@@ -549,23 +539,19 @@ void InterpolateLanePointXZ(const TrackSample3C *first, const TrackSample3C *sec
         firstPoint.z = (firstPoint.z * offset) / 1024 + sample->z0C;
         secondPoint.x = extend_track_edge(second->leftOffsetX04, second->leftWidth18, second->leftExtension2E);
         secondPoint.x = (secondPoint.x * offset) / 1024 + second->x08;
-        edgeZ = extend_track_edge(second->leftOffsetZ06, second->leftWidth18, second->leftExtension2E);
+        secondPoint.z = extend_track_edge(second->leftOffsetZ06, second->leftWidth18, second->leftExtension2E);
+        secondPoint.z = (secondPoint.z * offset) / 1024 + second->z0C;
     } else {
-        /* ASM_BARRIER: retain a separate base for the first sample. */
-        __asm__ ("" : "=r"(sample) : "0"(sample));
         firstPoint.x = extend_track_edge(sample->rightOffsetX00, sample->rightWidth1A, sample->rightExtension2C);
         firstPoint.x = (firstPoint.x * offset) / 1024 + sample->x08;
         firstPoint.z = extend_track_edge(sample->rightOffsetZ02, sample->rightWidth1A, sample->rightExtension2C);
         firstPoint.z = (firstPoint.z * offset) / 1024 + sample->z0C;
         secondPoint.x = extend_track_edge(second->rightOffsetX00, second->rightWidth1A, second->rightExtension2C);
         secondPoint.x = (secondPoint.x * offset) / 1024 + second->x08;
-        edgeZ = extend_track_edge(second->rightOffsetZ02, second->rightWidth1A, second->rightExtension2C);
+        secondPoint.z = extend_track_edge(second->rightOffsetZ02, second->rightWidth1A, second->rightExtension2C);
+        secondPoint.z = (secondPoint.z * offset) / 1024 + second->z0C;
     }
 
-    secondPoint.z = edgeZ;
-    secondPoint.z = (secondPoint.z * offset) / 1024 + second->z0C;
-    /* ASM_BARRIER: keep final firstPoint/secondPoint reloads after the secondPoint.z store */
-    __asm__ ("");
     output[0] = (secondPoint.x - firstPoint.x) * fraction / 1024 + firstPoint.x;
     output[2] = (secondPoint.z - firstPoint.z) * fraction / 1024 + firstPoint.z;
 }
@@ -576,14 +562,10 @@ void InterpolateLanePointXYZ(const TrackSample3C *first, const TrackSample3C *se
 {
     Vector firstPoint;
     Vector secondPoint;
-    /* ASM_BARRIER: retain the lateral magnitude in t1. */
-    register s32 offset __asm__("$9");
-    /* ASM_BARRIER: retain the shared Z edge component in v1. */
-    register s32 edgeZ __asm__("$3");
+    s32 offset;
     const TrackSample3C *sample;
 
-    offset = lateral;
-    if (lateral < 0) offset = -offset;
+    offset = __builtin_abs(lateral);
     sample = first;
     if (lateral < 0) {
         firstPoint.x = extend_track_edge(sample->leftOffsetX04, sample->leftWidth18, sample->leftExtension2E);
@@ -594,10 +576,9 @@ void InterpolateLanePointXYZ(const TrackSample3C *first, const TrackSample3C *se
         secondPoint.x = extend_track_edge(second->leftOffsetX04, second->leftWidth18, second->leftExtension2E);
         secondPoint.x = (secondPoint.x * offset) / 1024 + second->x08;
         secondPoint.y = second->y10;
-        edgeZ = extend_track_edge(second->leftOffsetZ06, second->leftWidth18, second->leftExtension2E);
+        secondPoint.z = extend_track_edge(second->leftOffsetZ06, second->leftWidth18, second->leftExtension2E);
+        secondPoint.z = (secondPoint.z * offset) / 1024 + second->z0C;
     } else {
-        /* ASM_BARRIER: retain a separate base for the first sample. */
-        __asm__ ("" : "=r"(sample) : "0"(sample));
         firstPoint.x = extend_track_edge(sample->rightOffsetX00, sample->rightWidth1A, sample->rightExtension2C);
         firstPoint.x = (firstPoint.x * offset) / 1024 + sample->x08;
         firstPoint.y = sample->y10;
@@ -606,13 +587,10 @@ void InterpolateLanePointXYZ(const TrackSample3C *first, const TrackSample3C *se
         secondPoint.x = extend_track_edge(second->rightOffsetX00, second->rightWidth1A, second->rightExtension2C);
         secondPoint.x = (secondPoint.x * offset) / 1024 + second->x08;
         secondPoint.y = second->y10;
-        edgeZ = extend_track_edge(second->rightOffsetZ02, second->rightWidth1A, second->rightExtension2C);
+        secondPoint.z = extend_track_edge(second->rightOffsetZ02, second->rightWidth1A, second->rightExtension2C);
+        secondPoint.z = (secondPoint.z * offset) / 1024 + second->z0C;
     }
 
-    secondPoint.z = edgeZ;
-    secondPoint.z = (secondPoint.z * offset) / 1024 + second->z0C;
-    /* ASM_BARRIER: keep final firstPoint/secondPoint reloads after the secondPoint.z store */
-    __asm__ ("");
     output[0] = (secondPoint.x - firstPoint.x) * fraction / 1024 + firstPoint.x;
     output[1] = (secondPoint.y - firstPoint.y) * fraction / 1024 + firstPoint.y;
     output[2] = (secondPoint.z - firstPoint.z) * fraction / 1024 + firstPoint.z;

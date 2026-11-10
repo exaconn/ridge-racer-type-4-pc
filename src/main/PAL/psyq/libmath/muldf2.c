@@ -1,3 +1,5 @@
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/wide.h"
 
 Wide64 *_mul_mant_d(Wide64 *out,u32 a,u32 b);
@@ -11,8 +13,6 @@ Wide64 *_mul_mant_d(Wide64 *out,u32 a,u32 b) {
     u32 m;
     /* ASM_BARRIER: Retain the high half of each cross product in the original temporary. */
     register u32 cross_high __asm__("$3");
-    /* ASM_BARRIER: Keep the output pointer independent of its incoming register value. */
-    __asm__("" : "+r"(result));
     /* Each 16-bit factor is nonnegative; the signed 64-bit product cannot overflow. */
     m=((s64)(s32)high_a*(s32)low_b);
     r.hi=0;

@@ -20,7 +20,7 @@ void UpdateDialogue(int a0, int a1, MenuTextState *s) {
     unsigned short *p;
     int i;
     int v;
-    int *q;
+    u8 withheld;
     int w;
     unsigned short *r;
 
@@ -39,12 +39,12 @@ void UpdateDialogue(int a0, int a1, MenuTextState *s) {
         s->p = p + 1;
         s->bA = *((unsigned char *)p + 2);
         s->p = p + 2;
-        v = *((unsigned char *)p + 4);
+        withheld = *((unsigned char *)p + 4);
         s->st = 5;
         s->b9 = 1;
         p += 3;
         s->p = p;
-        s->bB = v;
+        s->bB = withheld;
         s->i18 = 0;
         v = DialoguePageCounts[s->b4];
         s->s12 = 0;
@@ -53,10 +53,8 @@ void UpdateDialogue(int a0, int a1, MenuTextState *s) {
         s->b1F = 0;
         s->s14 = 0;
         s->b8 = v;
-        p = (unsigned short *)&s->arr[0xBF];
-        for (i = 0xC7; i >= 0; i--) {
-            ((int *)p)[10] = 0;
-            p = (unsigned short *)((char *)p - 4);
+        for (i = 199; i >= 0; i--) {
+            s->animation28[i].word = 0;
         }
         break;
     case 1:
@@ -87,7 +85,6 @@ void UpdateDialogue(int a0, int a1, MenuTextState *s) {
         }
 call1:
         DrawAnimatedText(a0, a1, s, 0, 0x3FFC);
-tail1:
         if ((signed char)s->b1C != (signed char)s->b1D) {
             s->b1F = 0;
             s->b1E = 0;
@@ -112,9 +109,8 @@ tail1:
             s->p = r;
             s->s12 = 0;
             s->bB = w;
-            for (i = 0xC7, q = &s->arr[0xBF]; i >= 0; i--) {
-                q[10] = 0;
-                q--;
+            for (i = 199; i >= 0; i--) {
+                s->animation28[i].word = 0;
             }
             s->i18 = 0;
             s->s10 = 0;
@@ -122,7 +118,7 @@ tail1:
             s->sE = 1;
             s->st = 1;
             if (s->b9 == (signed char)s->b8) {
-                Dialogue[7] = 0;
+                Dialogue->b7 = 0;
             }
             break;
         }
@@ -138,17 +134,17 @@ tail1:
     }
 }
 
-void SkipDialoguePage(void *arg0) {
-    if (((s32 *)arg0)[6] < ((s16 *)arg0)[6]) {
+void SkipDialoguePage(MenuTextState *arg0) {
+    if (arg0->i18 < arg0->sC) {
         if (D_800F3A60 != 0) {
-            if (((s8 *)arg0)[6] != 4) {
+            if (arg0->st != 4) {
                 PlaySfx(3);
-                if (((s16 *)arg0)[9] < (((u8 *)arg0)[10] - ((u8 *)arg0)[11])) {
-                    ((s16 *)arg0)[9] = (s16) (((u8 *)arg0)[10] - ((u8 *)arg0)[11]);
-                    ((s32 *)arg0)[6] = (((s16 *)arg0)[6] - 1);
+                if (arg0->s12 < (arg0->bA - arg0->bB)) {
+                    arg0->s12 = (s16) (arg0->bA - arg0->bB);
+                    arg0->i18 = (arg0->sC - 1);
                     return;
                 }
-                ((s32 *)arg0)[6] = (((s16 *)arg0)[6] - 1);
+                arg0->i18 = (arg0->sC - 1);
             }
         }
     }

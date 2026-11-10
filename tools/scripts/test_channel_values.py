@@ -1,14 +1,16 @@
-"""Host behavior of the shared channel-value TU, including overlapping outputs.
+r'''Host behavior of the actual channel getters, including overlapping outputs.
 
-The pointer-table page is represented by native pointer slots. The C source's
-sizeof-based indexing adapts to the host ABI; fd.py checks the PSX ABI/code.
-"""
+All encoded bank/row cases retain their original protocol and mathematical
+oracles. Production definitions index a genuine full-width pointer-table owner;
+no physical page substitution or empty-asm removal is needed by this fixture.
+'''
 import ctypes as C
 from pathlib import Path
 import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from sequence_fixture_transport import wire_definition, field_only_body, transport, compile_library
 
 
 class Record(C.Structure):
@@ -24,18 +26,9 @@ class ChannelValuesTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         directory = Path(cls.temp.name)
         root = Path(__file__).resolve().parents[2]
-        header = (root / 'include/rr/channels.h').read_text()
-        header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        source = '''#include <stdint.h>
-#include <string.h>
-typedef uint8_t u8; typedef int8_t s8;
-typedef uint16_t u16;
-typedef int16_t s16;
-typedef uint32_t u32;
-typedef int32_t s32;
-''' + header + '''
-ChannelValueRecordB0 *test_pointer_ram[0x4100];
-ChannelValueRecordB0 test_records[256][256];
+        source = '#include "rr/sequence_channel.h"\n#include <string.h>\n' + wire_definition('value')
+        source += r'''SequenceWire176 *test_pointer_ram[0x4100];
+SequenceWire176 test_records[256][256];
 s16 _svm_cur_vab_id;
 void test_initialize(void) {
     unsigned bank, row;
@@ -51,16 +44,22 @@ void test_initialize(void) {
     _svm_cur_vab_id = -123;
 }
 '''
-        body = (root / 'tools/scripts/fixtures/legacy/vmchval.c').read_text()
-        body = body.replace('#include "rr/channels.h"', '')
-        body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
-        body = re.sub(r'"\$[0-9]+", ', '', body)
-        body = re.sub(r' : "\$[0-9]+"', '', body)
-        body = body.replace('(ChannelValueRecordB0 **)0x80110000U', '(test_pointer_ram + 0x4000)')
-        source += body
-        (directory / 'functions.c').write_text(source)
-        subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'functions.c'),
-                        '-o', str(directory / 'functions.so')], check=True, capture_output=True)
+        source += transport(wire_table='test_pointer_ram',banks=256,rows=256)
+        source += '#define _ss_score (sequence_native_table+0x4000-0xF98/4)\n'
+        source += 'void test_validate_native(void){sequence_guard_all();}\n'
+        names=('_SsVmGetSeqVol','_SsVmGetSeqLVol','_SsVmGetSeqRVol')
+        owners=__import__('c_functions').source_owners(root/'src/main/PAL')
+        for name in names:
+            body=field_only_body(__import__('c_functions').definition_source(owners[name].read_text(),name))
+            source += re.sub(r'\b'+name+r'\b','native_'+name,body)
+            pair=name=='_SsVmGetSeqVol'
+            arguments='s32 input'+(',u16 *left,u16 *right' if pair else '')
+            values='input'+(',sequence_native_pointer(left),sequence_native_pointer(right)' if pair else '')
+            source += ('s32 '+name+'('+arguments+'){s32 result;'
+                       'sequence_select(((u32)input&255)*256+(((u32)input>>8)&255),'
+                       '0x4000-0xF98/4+((u32)input&255));sequence_import();'
+                       'result=native_'+name+'('+values+');sequence_export();return result;}\n')
+        compile_library(root,directory,source)
         cls.library = C.CDLL(str(directory / 'functions.so'))
         cls.records = (Record * (256 * 256)).in_dll(cls.library, 'test_records')
         cls.pointers = (C.c_void_p * 0x4100).in_dll(cls.library, 'test_pointer_ram')
@@ -74,8 +73,12 @@ void test_initialize(void) {
         cls.pair.argtypes = [C.c_int32, C.POINTER(C.c_uint16), C.POINTER(C.c_uint16)]
         cls.pair.restype = C.c_int32
 
+
     def setUp(self):
         self.library.test_initialize()
+
+    def tearDown(self):
+        self.library.test_validate_native()
 
     def test_all_encoded_banks_and_rows(self):
         before = C.string_at(C.addressof(self.records), C.sizeof(self.records))

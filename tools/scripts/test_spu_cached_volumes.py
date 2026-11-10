@@ -26,8 +26,7 @@ class CachedVolumesTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         directory = Path(cls.temp.name)
         root = Path(__file__).resolve().parents[2]
-        header = (root / 'include/rr/spu.h').read_text()
-        header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
+        header = '#include "rr/spu.h"\n'
         source = '''#include <stdint.h>
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -47,7 +46,7 @@ struct { SpuVolumeCache cache; u8 extra[0x200]; } test_holder;
             body = body.replace('(u8 *)0x80110000U', '((u8 *)&test_holder + 0x1E8)')
             source += body
         (directory / 'functions.c').write_text(source)
-        subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'functions.c'),
+        subprocess.run(['cc', '-I'+str(Path(__file__).resolve().parents[2]/'include'), '-shared', '-fPIC', '-O2', str(directory / 'functions.c'),
                         '-o', str(directory / 'functions.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'functions.so'))
         cls.holder = Holder.in_dll(cls.library, 'test_holder')

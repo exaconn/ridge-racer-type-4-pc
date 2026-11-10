@@ -1,3 +1,4 @@
+#include "psyq/libc/exit.h"
 /* RODATA 0x80010014 0x14 */
 #include "types.h"
 #include "rr/load_cursor.h"
@@ -14,18 +15,19 @@
 #include "rr/cd_read_request.h"
 #include "rr/cd_poll.h"
 #include "rr/trig.h"
+#include "rr/gpu.h"
+#include "rr/gpu_scratch_types.h"
 
 extern s32 CdPosToInt(void *arg0);
-extern void PsyqExit(s32);
 extern const char NowLoadingFmt[];
 extern const char R4BinPath[];
 extern const char StrFileNotFoundFmt[];
 extern const char StrReadSectorFmt[];
-extern u32 *CdDirectoryBuffer;
+#include "rr/cd_directory_buffer.h"
 extern CdFileEntry CdFileTable[];
 extern int LoadingTriangleAngle;
 extern int LoadingTriangleFlip;
-extern struct P { int w0, w4; short x0, y0; int c1; short x1, y1; int c2; short x2, y2; } D_80109400[];
+extern struct P { GpuDmaTag tag; int w4; short x0, y0; int c1; short x1, y1; int c2; short x2, y2; } D_80109400[];
 extern struct P *D_80109438;
 
 int GetCarFileIndex(int a0, int a1, int a2, int a3);
@@ -84,7 +86,7 @@ void LoadR4Directory(void)
     } while(status);
     DebugPrintStub((const char *)(message_page+0x68),sectors);
     base=CdPosToInt(file.pos);
-    directory=CdDirectoryBuffer;
+    directory=(u32 *)CdDirectoryBuffer;
     i=0;
     count=*directory++;
     sector=base+*directory++;
@@ -108,12 +110,7 @@ void InitCdFileDirectory(void) {
 
 void DrawLoadingTriangle(void)
 {
-    int a, v, w;
-    unsigned *t;
-    unsigned **g;
-    /* ASM_BARRIER: keep the 24-bit OT address mask in $a1 across both links. */
-    register unsigned m asm("$5");
-    unsigned h;
+    int a, v;
     a = LoadingTriangleAngle + 0x10;
     v = LoadingTriangleFlip ^ 1;
     LoadingTriangleFlip = v;
@@ -125,15 +122,10 @@ void DrawLoadingTriangle(void)
     D_80109438->y1 = (rcos(LoadingTriangleAngle + 0x555) >> 7) + 0x80;
     D_80109438->x2 = (rsin(LoadingTriangleAngle - 0x555) >> 7) + 0x50;
     D_80109438->y2 = (rcos(LoadingTriangleAngle - 0x555) >> 7) + 0x80;
-    w = 0x300000FF;
-    m = 0xFFFFFF;
-    g = (unsigned **)SCRATCHPAD;
-    h = 0xFF000000;
     D_80109438->c1 = 0xFF00;
     D_80109438->c2 = 0xFF0000;
-    D_80109438->w4 = w;
-    *((unsigned char *)D_80109438 + 3) = 6;
-    D_80109438->w0 = (D_80109438->w0 & h) | (**(g + 1) & m);
-    t = *(g + 1);
-    *t = (*t & h) | ((unsigned)D_80109438 & m);
+    D_80109438->w4 = 0x300000FF;
+    D_80109438->tag.bytes.length = 6;
+    D_80109438->tag.bits.address = ((GpuDmaTag *)((GpuScratchPointers *)SCRATCHPAD)->order)->bits.address;
+    ((GpuDmaTag *)((GpuScratchPointers *)SCRATCHPAD)->order)->bits.address = (unsigned long)D_80109438;
 }

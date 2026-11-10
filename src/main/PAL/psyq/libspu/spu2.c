@@ -120,8 +120,6 @@ s32 _spu_FsetRXXa(s32 index, s32 value) {
     u32 address = value;
     u32 units;
     u16 half;
-    /* ASM_BARRIER: Preserve the shared return value in v0 across the selector branches. */
-    register u32 result __asm__("$2");
 
     if (_spu_mem_mode && address % _spu_mem_mode_unit != 0) {
         address += _spu_mem_mode_unit;
@@ -131,19 +129,14 @@ s32 _spu_FsetRXXa(s32 index, s32 value) {
     half = units;
     switch (index) {
     case -1:
-        result = half;
-        break;
+        return half;
     case -2:
-        result = address;
-        break;
+        return address;
     default:
         ((SpuRegisterStorage *)_spu_RXX)->halves[index] = units;
-        result = address;
-        break;
+        return address;
     }
-    return result;
 }
-
 int _spu_FgetRXXa(int a0, int a1) {
     unsigned short v = ((SpuRegisterStorage *)_spu_RXX)->halves[a0];
     if (a1 == -1) return v;

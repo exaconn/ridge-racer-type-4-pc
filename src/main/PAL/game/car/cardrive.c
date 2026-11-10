@@ -52,8 +52,8 @@ void UpdateComCarDrive(RaceVehicle *arg0) {
     {
         s32 value;
         s32 channel;
-        /* ASM_BARRIER: Keep this initialized drive value in its original register phase. */
-        register s32 steering __asm__("$4");
+        s32 steering;
+        s32 negEighth;
         value = CalcSteerLimit(arg0);
         steering = var_s0;
         temp_s1->limit6E = value;
@@ -65,11 +65,10 @@ void UpdateComCarDrive(RaceVehicle *arg0) {
         if (steering < 0) steering += 7;
         channel = value;
         value = steering >> 3;
-        steering = -value;
+        negEighth = -value;
         if (channel < 0) channel += 3;
         value = channel >> 2;
-        value = steering - value;
-        temp_v0_3 = value;
+        temp_v0_3 = negEighth - value;
     }
     var_v1_2 = temp_v0_3;
     if (temp_v0_3 > 0) {

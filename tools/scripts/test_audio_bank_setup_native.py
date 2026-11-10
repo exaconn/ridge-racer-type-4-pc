@@ -1,33 +1,44 @@
+from c_functions import source_owners, definition_source
+from audio_fixture_transport import wire_types, scalar_entry, transport
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import ctypes as C,subprocess,sys,os,re,struct,random,json,hashlib
 from unicorn import Uc,UC_ARCH_MIPS,UC_MODE_MIPS32,UC_MODE_LITTLE_ENDIAN,UC_HOOK_CODE
 from unicorn.mips_const import *
 ROOT=Path(__file__).resolve().parents[2];P=ROOT/'include/rr';os.chdir(ROOT)
-source=Path(sys.argv[1]if len(sys.argv)>1 else ROOT/'tools/scripts/fixtures/views/func_80050BCC.c').resolve();count=int(sys.argv[2])if len(sys.argv)>2 else 4096
-body=source.read_text();body=body[body.index('void SlotSetupBank'):];body=re.sub(r'\s+(?:__asm__|asm)\s*\("\$\d+"\)','',body)
-# Make implicit read/write register inputs explicit for host diagnostics.
-body=re.sub(r'((?:__asm__|asm)\(""\s*:\s*"\+r"\((\w+)\))',lambda m:'asm("" : : "r"('+m[2]+'));'+m[1],body)
-# Target-only dead-register clobbers have identity semantics in host C.
-body=re.sub(r'(?:__asm__|asm)\s*\(\s*""\s*:\s*:\s*:\s*"\$21"\s*,\s*"\$22"\s*,\s*"\$2"\s*,\s*"memory"\s*\)', 'asm("" : : : "memory")', body)
-# Physical MIPS FP clobber has no logical operation in the host C model.
-for reg in ['$30','$fp','fp']:body=body.replace('asm("" : : : "'+reg+'");','asm("" : : : "memory");')
-services=[('SsVabClose','void',['s16']),('PsyqBzero','void',['void*','s32']),('SsVabOpenHeadSticky','s32',['const u8*','s32','s32']),('SsVabTransBody','s32',['const u16*','s32']),('SsVabTransCompleted','s32',['s32']),('SlotLoadCurves','void',['AudioProgramData*','s32']),('SsUtGetVagAtr','s32',['s32','s16','s32','u8*'])]
+count=int(sys.argv[2])if len(sys.argv)>2 else 4096
+function=os.getenv('RR_BANK_SETUP_FUNCTION','SlotSetupBank')
+assert function in ('SlotSetupBank','ComSlotSetupBank')
+source=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else source_owners(ROOT/'src/main/PAL')[function]
+# Compile the actual current C body without erasing target constraints.
+body=definition_source(source.read_text(),function)
+services=[('SsVabClose','void',['s16']),('PsyqBzero','void',['void*','s32']),('SsVabOpenHeadSticky','s32',['u8*','s32','s32']),('SsVabTransBody','s32',['const u16*','s32']),('SsVabTransCompleted','s32',['s32']),('SlotLoadCurves','void',['const void*','s32']),('SsUtGetVagAtr','s32',['s32','s16','s32','u8*'])]
 class Setup(C.Structure):_fields_=[('bank00',C.c_void_p),('data04',C.c_void_p),('group08',C.c_void_p),('slot0C',C.c_int32)]
 sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();pack=lambda x:struct.pack('<I',x&0xffffffff)
 with TemporaryDirectory(prefix='rr50bcc-')as td:
- d=Path(td);code='#include <stdint.h>\n#include <stddef.h>\n#include "rr/layout.h"\n#undef RR_ASSERT_SIZE\n#undef RR_ASSERT_OFFSET\n#define RR_ASSERT_SIZE(t,n)\n#define RR_ASSERT_OFFSET(t,f,n)\n#include "rr/audio_bank_setup.h"\nstruct {u8 a[16];AudioState v;u8 b[16];} state;\nstruct {u8 a[16];AudioBankSetup v;u8 b[16];} input;\nstruct {u8 a[16];u8 v[3064];u8 b[16];} resources;\nstruct {u8 a[16];AudioState v;u8 b[16];} rootBox;\n#define SoundState rootBox.v\n#define SoundSlots (SoundState.slots38)\ntypedef uintptr_t(*Callback)(unsigned,uintptr_t*);static Callback cb;void set_callback(Callback p){cb=p;}\n'
+ d=Path(td);code='#include <stdint.h>\n#include <stddef.h>\n#include "rr/layout.h"\n#include "rr/audio_bank_setup.h"\nstruct {u8 a[16];AudioState v;u8 b[16];} state;\nstruct {u8 a[16];AudioBankSetup v;u8 b[16];} input;\nstruct {u8 a[16];u8 v[3064];u8 b[16];} resources;\nstruct {u8 a[16];AudioState v;u8 b[16];} rootBox;\n#define SoundState rootBox.v\n#define SoundSlots (SoundState.slots38)\ntypedef uintptr_t(*Callback)(unsigned,uintptr_t*);static Callback cb;void set_callback(Callback p){cb=p;}\n'
  # The actual canonical owner is surrounded by separate explicit guards below.
- code=code.replace('struct {u8 a[16];AudioState v;u8 b[16];} state;','')
+ code=wire_types()+'#include "psyq/libsnd/libsnd.h"\n'+code.replace('struct {u8 a[16];AudioState v;u8 b[16];} state;','').replace('AudioState v;u8 b[16];} rootBox;', 'AudioWireState v;u8 b[16];} rootBox;')
+ code+=transport('rootBox.v')
  for i,(name,ret,types)in enumerate(services):
-  code+=ret+' '+name+'('+','.join(t+' a'+str(j)for j,t in enumerate(types))+'){uintptr_t a[]={'+','.join('(uintptr_t)a'+str(j)for j in range(len(types)))+'};uintptr_t r=cb('+str(i)+',a);'+('return('+ret+')r;'if ret!='void'else'')+'}\n'
- code+=body+'\nvoid *owner(int n){return n==0?(void*)&SoundState:n==1?(void*)&input.v:(void*)resources.v;}\nvoid run(void){SlotSetupBank(&input.v);}\n'
+  arguments=[]
+  for j,kind in enumerate(types):
+   if '*'in kind:
+    span='a1' if name=='PsyqBzero' and j==0 else '24' if name=='SsUtGetVagAtr' else '1'
+    arguments.append('(uintptr_t)audio_model_buffer(a'+str(j)+','+span+')')
+   else:arguments.append('(uintptr_t)a'+str(j))
+  code+=ret+' '+name+'('+','.join(kind+' a'+str(j)for j,kind in enumerate(types))+'){audio_before_callback();uintptr_t a[]={'+','.join(arguments)+'};uintptr_t r=cb('+str(i)+',a);audio_after_callback();'+('return('+ret+')r;'if ret!='void'else'')+'}\n'
+ entry=scalar_entry(body,function,'rootBox.v',parameters='AudioBankSetup *arg',arguments='arg',aliases={'SoundSlots':'slots38'})
+ code+=entry[len(transport('rootBox.v')):]+'\nvoid *owner(int n){return n==0?(void*)&SoundState:n==1?(void*)&input.v:(void*)resources.v;}\nvoid run(void){'+function+'(&input.v);}\n'
  (d/'test.c').write_text(code);subprocess.run(['cc','-std=gnu11','-O2','-funsigned-char','-Werror=uninitialized','-shared','-fPIC','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-Iinclude','-I'+str(P),str(d/'test.c'),'-o',str(d/'test.dylib')],check=True)
  lib=C.CDLL(str(d/'test.dylib'));lib.owner.restype=C.c_void_p;N=[lib.owner(i)for i in range(3)];assert all(n>0xffffffff for n in N)
  A=[0x800F4DB8,0x80180000,0x80190000];S=[0xA8D0,16,3064];u=Uc(UC_ARCH_MIPS,UC_MODE_MIPS32|UC_MODE_LITTLE_ENDIAN);u.mem_map(0,0x400000);u.mem_write(0x10000,Path('assets/PAL/main.exe').read_bytes()[0x800:]);elf=os.getenv('RR_COMPILED_ELF')
  if elf:
   from elftools.elf.elffile import ELFFile
-  with open(elf,'rb')as f:e=ELFFile(f);t=e.get_section_by_name('.text');u.mem_write(t['sh_addr']&0x1fffffff,t.data())
+  with open(elf,'rb')as f:
+   e=ELFFile(f)
+   for section in e.iter_sections():
+    if section['sh_flags']&2 and section['sh_type']=='SHT_PROGBITS':u.mem_write(section['sh_addr']&0x1fffffff,section.data())
  read=lambda a,n:bytes(u.mem_read(a&0x1fffffff,n));write=lambda a,b:u.mem_write(a&0x1fffffff,b)
  def pal(a):
   if a==0xffffffffffffffff:return 0xffffffff
@@ -35,7 +46,9 @@ with TemporaryDirectory(prefix='rr50bcc-')as td:
    if n<=a<n+size:return base+a-n
   raise AssertionError(('unknown native pointer',hex(a)))
  def get(a,n,native):
-  if not native:return read(a,n)
+  if not native:
+   assert any(base<=a and a+n<=base+size for base,size in zip(A,S)),('unowned PAL read',function,case,hex(a),n,len(events))
+   return read(a,n)
   for base,host,size in zip(A,N,[S[0],C.sizeof(Setup),3064]):
    if base<=a and a+n<=base+size:return C.string_at(host+a-base,n)
   raise AssertionError(('read',hex(a),n))
@@ -67,14 +80,20 @@ with TemporaryDirectory(prefix='rr50bcc-')as td:
   if name in ['SsVabOpenHeadSticky','SsVabTransBody']:normal.append(get(normal[0],32,native))
   if name=='SlotLoadCurves':normal.append(get(normal[0],0x5BC,native))
   event=(i,normal,snapshot(native));(observed if native else events).append(event);coverage.add(name)
-  if name=='PsyqBzero':assert normal[:2]==[A[0]+0x38+bankIndex*0x620,0x620];put(normal[0],b'\0'*0x620,native)
+  if name=='PsyqBzero':
+   if function=='SlotSetupBank':assert normal[:2]==[A[0]+0x38+bankIndex*0x620,0x620]
+   else:assert normal[0]in [A[0]+0x38+slot*0x620 for slot in (2,3)] and normal[1]==0x620
+   put(normal[0],b'\0'*0x620,native)
   if name=='SlotLoadCurves':put(A[0]+0x74+normal[1]*0x620,get(normal[0],0x5BC,native),native)
   # Mutations stay in the complete canonical owner and can affect subsequent reloads.
   if case&1:
-   for slot in range(2):
+   for slot in (range(2) if function=='SlotSetupBank' else range(2,4)):
     put(A[0]+0x38+slot*0x620+4,struct.pack('<h',[-32768,-1,0,1,32767][(case+seq+slot)%5]),native)
     for j in range(10):put(A[0]+0x38+slot*0x620+0x5dc+j*2,struct.pack('<H',(case*97+seq*31+j*8191)&65535),native)
-  if case&2 and i<6:setInput(native,A[2]+((case+seq)&1)*32 if (case+seq)%4 else 0xffffffff,A[2]+64+((case+seq+1)&1)*32 if (case+seq)%5 else 0xffffffff,A[2]+128+((case+seq)&1)*0x5BC if (case+seq)%3 else 0xffffffff,1-bankIndex)
+  # Com commits two copies after one availability check. Its new cases replace
+  # the descriptor with another owned payload between copies, never -1 there.
+  # The existing player-slot cases and all their mutations remain unchanged.
+  if case&2 and i<6:setInput(native,A[2]+((case+seq)&1)*32 if (case+seq)%4 else 0xffffffff,A[2]+64+((case+seq+1)&1)*32 if (case+seq)%5 else 0xffffffff,A[2]+128+((case+seq)&1)*0x5BC if ((case+seq)%3 or function=='ComSlotSetupBank' and name=='SlotLoadCurves') else 0xffffffff,1-bankIndex)
   if name=='SsUtGetVagAtr':
    data=bytes((case*17+seq*29+j*31)&255 for j in range(24));a=args[3]
    for start,end in [(0,14),(16,24)]:
@@ -101,7 +120,7 @@ with TemporaryDirectory(prefix='rr50bcc-')as td:
   u.context_restore(ctx);bankIndex=case&1;events=[];observed=[];errors=[];initialize(False);write(0x803df000,b'\x5a'*0x2000)
   for r in range(UC_MIPS_REG_1,UC_MIPS_REG_31+1):u.reg_write(r,(0x5aa50000+case*31+r)&0xffffffff)
   u.reg_write(UC_MIPS_REG_A0,A[1]);u.reg_write(UC_MIPS_REG_SP,0x803e0000);u.reg_write(UC_MIPS_REG_RA,0x803ff000);saved={r:u.reg_read(r)for r in [*range(UC_MIPS_REG_S0,UC_MIPS_REG_S7+1),UC_MIPS_REG_GP,UC_MIPS_REG_SP,UC_MIPS_REG_FP,UC_MIPS_REG_RA]}
-  u.emu_start(0x80050BCC,0x803ff000,count=10000);assert u.reg_read(UC_MIPS_REG_PC)==0x803ff000 and all(u.reg_read(r)==v for r,v in saved.items()),('return/callee',case,[(r,hex(v),hex(u.reg_read(r)))for r,v in saved.items()if u.reg_read(r)!=v],hex(u.reg_read(UC_MIPS_REG_PC)));expected=snapshot(False)
+  u.emu_start(__import__('c_functions').address_of(function),0x803ff000,count=10000);assert u.reg_read(UC_MIPS_REG_PC)==0x803ff000 and all(u.reg_read(r)==v for r,v in saved.items()),('return/callee',case,[(r,hex(v),hex(u.reg_read(r)))for r,v in saved.items()if u.reg_read(r)!=v],hex(u.reg_read(UC_MIPS_REG_PC)));expected=snapshot(False)
   initialize(True);lib.run()
   if errors:raise errors[0]
   assert len(events)==len(observed),('service count',case)
@@ -109,6 +128,6 @@ with TemporaryDirectory(prefix='rr50bcc-')as td:
   assert expected==snapshot(True),('final',case)
   if case and case%512==0:print(case,'cases',flush=True)
  assert coverage=={n for n,_,_ in services}if count>=512 else True
- result=dict(cases=count,engine=('compiled'if elf else'original')+' MIPS/native C',source_sha256=sha(source),header_sha256=sha(P/'audio_bank_setup.h'),test_sha256=sha(__file__),elf_sha256=sha(elf)if elf else None,full_host_pointers=True,full_owner_snapshots=True,mutating_callbacks=True,callee_saves_stack_return=True,caller_save_hi_lo_poison=True,services=sorted(coverage))
+ result=dict(function=function,cases=count,engine=('compiled'if elf else'original')+' MIPS/native C',source_sha256=sha(source),header_sha256=sha(P/'audio_bank_setup.h'),test_sha256=sha(__file__),elf_sha256=sha(elf)if elf else None,full_host_pointers=True,full_owner_snapshots=True,mutating_callbacks=True,callee_saves_stack_return=True,caller_save_hi_lo_poison=True,services=sorted(coverage))
  if os.getenv('RR_AUDIT_JSON'):Path(os.environ['RR_AUDIT_JSON']).write_text(json.dumps(result,indent=2)+'\n')
  print(count,result['engine'],'cases passed;7 services',flush=True)

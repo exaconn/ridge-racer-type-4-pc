@@ -1,4 +1,5 @@
-/* CC1_FLAGS: -mno-split-addresses */
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "rr/channels.h"
 #include "rr/serial.h"
@@ -16,16 +17,9 @@ int _padIntPad(void) {
     SerialPortRegisters *port=PadSio0Base;
     if(port->control&2) {*(u16 *)&port->control=0;goto out;}
     condition=PadFirstChannel;
-    /* ASM_BARRIER: Form the enable page after the serial-control gate. */
-    __asm__("" : : : "$2");
     enabled=1;
-    /* ASM_BARRIER: Materialize the enable value before the PAL page address. */
-    __asm__("" : "+r"(enabled) : "r"(condition) : "$1");
     {
-        /* ASM_BARRIER: Retain the actual PAL state page for the enable-store branch delay. */
-        register s32 *page __asm__("$1")=(s32 *)0x800B0000U;
-        /* ASM_BARRIER: Expose the enable store independently of its global-address macro. */
-        __asm__("" : "+r"(page));
+        s32 *page=(s32 *)0x800B0000U;
         page[-0x4330/4]=enabled;
     }
     if(condition) {
@@ -55,14 +49,9 @@ out:
 
 s32 _padChkVsync(void) {
     s32 previous = D_800ABCD0;
-    /* ASM_BARRIER: use the original assembler temporary for the store address. */
-    register s32 *base __asm__("$1");
-    /* ASM_BARRIER: load the prior value before materializing the store address. */
-    __asm__ volatile("" : "=r"(previous) : "0"(previous) : "$1");
+    s32 *base;
     /* PAL RAM mapping: D_800ABCD0 is base plus the signed offset below. */
     base = (s32 *)0x800B0000U;
-    /* ASM_BARRIER: expose a register-relative store so it can occupy the return slot. */
-    __asm__("" : "=r"(base) : "0"(base));
     base[(-0x4330) / 4] = 0;
     return previous;
 }
@@ -72,13 +61,8 @@ void _padStartCom(void) {
     u32 mask;
     s32 *counters;
     {
-        /* ASM_BARRIER: Keep the initial enable-state address in the assembler temporary. */
-        register s32 *page __asm__("$1");
-        /* ASM_BARRIER: Expose the initial state store in the critical-section call's delay slot. */
-        __asm__ volatile("" : : : "$1", "memory");
+        s32 *page;
         page=(s32 *)0x800B0000U;
-        /* ASM_BARRIER: Preserve the PAL page-relative enable-state store. */
-        __asm__("" : "+r"(page));
         page[-0x4360/4]=0;
     }
     EnterCriticalSection();
@@ -96,6 +80,4 @@ void _padStartCom(void) {
     counters=PadPortTimeoutCounts;
     counters[1]=0;counters[0]=0;
     PadComActive=1;
-    /* ASM_BARRIER: Restore saved registers only after publishing the enabled state. */
-    __asm__ volatile("" : : : "$16", "$31", "memory");
 }

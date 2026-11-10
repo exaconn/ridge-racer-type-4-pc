@@ -14,7 +14,7 @@ typedef struct {
 } Struct2C;
 
 
-extern Struct4000 *CdDirectoryBuffer;
+#include "rr/cd_directory_buffer.h"
 extern char CardHeaderTitles[][0x40];
 extern char CardTitleStrings[][0x40];
 extern unsigned char D_800A41E8;
@@ -54,7 +54,7 @@ int CardSaveStep(short a0, int a1) {
                 BuildCardHeaderStatic(SaveBuffer, CardTitleStrings[GpSaveSlotCursor], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[GpSaveSlotCursor]);
                 BuildSaveData(CardTransferMode);
             } else if (CardTransferMode == 0x20) {
-                *SaveBuffer = *CdDirectoryBuffer;
+                *SaveBuffer = *(const Struct4000 *)CdDirectoryBuffer;
             }
         } else if (a0 >= 2) {
             D_800A41E9 = 0;
@@ -65,7 +65,7 @@ int CardSaveStep(short a0, int a1) {
                 BuildCardHeaderStatic(SaveBuffer, CardTitleStrings[GpSaveSlotCursor], 0x250, 0x1FC, 0x254, 0x1D8, D_800A4648[GpSaveSlotCursor]);
                 BuildSaveData(CardTransferMode);
             } else if (CardTransferMode == 0x20) {
-                *SaveBuffer = *CdDirectoryBuffer;
+                *SaveBuffer = *(const Struct4000 *)CdDirectoryBuffer;
             }
         }
         D_800A41E8 = 1;

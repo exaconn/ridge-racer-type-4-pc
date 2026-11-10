@@ -1,16 +1,12 @@
 #include "rr/selection_initializer.h"
 #include "rr/load_cursor.h"
 void ovl667_func_801161A8(s32 arg0) {
-    RaceVehicle *var_s0;
     s16 *temp_s0;
     s16 *temp_t0_2;
     s32 temp_a0;
     s32 temp_a2;
     s32 temp_a2_2;
     s32 var_s1;
-    s32 placeY,placeZ;
-    /* ASM_BARRIER: preserve the original rotation publication register. */
-    register s32 rotation __asm__("$2");
     MenuGridPoint *temp_a3_2;
 
     ModeFrame = 0;
@@ -61,28 +57,18 @@ void ovl667_func_801161A8(s32 arg0) {
     } else {
         LoadCursor = MenuArenas.first;
     }
-    var_s1 = 0;
-    placeY=10;placeZ=308;
-    var_s0 = PlayerCars;
     RR_PROJECTION_SCRATCH->pose08.angles10.xyz.x = 0x78;
     RR_PROJECTION_SCRATCH->pose08.position00.words[0] = -0x10;
     RR_PROJECTION_SCRATCH->pose08.position00.words[1] = -0xF8;
     RR_PROJECTION_SCRATCH->pose08.angles10.xyz.y = 0;
     RR_PROJECTION_SCRATCH->pose08.angles10.xyz.z = 0;
     RR_PROJECTION_SCRATCH->pose08.position00.words[2] = -0x60;
-    do {
-        /* ASM_BARRIER: retain the current vehicle across its reset callback. */
-        __asm__("" : "+r"(var_s0));
-        ResetCarState(var_s0);
-        var_s0->position20.words[1] = placeY;
-        var_s0->position20.words[2] = placeZ;
-        rotation=0x800;
-        var_s0->rot54 = rotation;
-        /* ASM_BARRIER: publish vehicle fields before advancing the loop phase. */
-        __asm__("" : : "r"(var_s1) : "memory");
-        var_s1 += 1;
-        var_s0++;
-    } while (var_s1 < 2);
+    for (var_s1 = 0; var_s1 < 2; var_s1++) {
+        ResetCarState(&PlayerCars[var_s1]);
+        PlayerCars[var_s1].position20.words[1] = 10;
+        PlayerCars[var_s1].position20.words[2] = 308;
+        PlayerCars[var_s1].rot54 = 0x800;
+    }
     LinkCarChoiceCounts[0][0] = CountChoiceGlyphs(LinkCarChoiceTable[0][0]);
     LinkCarChoiceCounts[0][1] = CountChoiceGlyphs(LinkCarChoiceTable[0][1]);
     LinkCarChoiceCounts[1][0] = CountChoiceGlyphs(LinkCarChoiceTable[1][0]);

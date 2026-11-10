@@ -1,4 +1,4 @@
-"""Actual E3/E4 coordinate TU, with an independent clamp oracle and read hooks."""
+"""Current E3/E4 helpers and independent clamp oracle, plus legacy read-hook checks."""
 import ctypes as C
 from pathlib import Path
 import random
@@ -6,6 +6,7 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import definition_source, source_owners
 
 
 class GpuCoordinatesTest(unittest.TestCase):
@@ -18,11 +19,15 @@ class GpuCoordinatesTest(unittest.TestCase):
         body=(root/'tools/scripts/fixtures/legacy/gpu_coordinates.c').read_text().replace('#include "rr/gpu.h"','')
         body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
         body=re.sub(r' : "\$[0-9]+"','',body)
+        # Retain the existing instrumented legacy read sequence separately.
+        # The public entry points below execute the current production bodies.
         observed=body.replace('get_cs','observed_top_left').replace('get_ce','observed_bottom_right')
         for axis,name in enumerate(('D_800ABAC4','D_800ABAC6')):
             assert observed.count(f'c = {name} - 1')==2
             assert observed.count(f't = *(u16 *)&{name};')==2
             observed=observed.replace(f'c = {name} - 1',f'c = read_signed({axis}) - 1').replace(f't = *(u16 *)&{name};',f't = read_unsigned({axis});')
+        owner=source_owners(root/'src/main/PAL')['get_cs'].read_text()
+        current_body='\n'.join(definition_source(owner,name) for name in ('get_cs','get_ce'))
         code='''#include <stdint.h>
 typedef uint8_t u8; typedef int8_t s8; typedef uint16_t u16; typedef int16_t s16;
 typedef uint32_t u32; typedef int32_t s32;
@@ -39,7 +44,7 @@ u16 read_unsigned(s32 axis) {
     log_entries[reads++]=axis*2+1;
     return (u16)(axis ? D_800ABAC6 : D_800ABAC4);
 }
-'''+body+observed
+'''+current_body+observed
         (d/'f.c').write_text(code)
         subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'))

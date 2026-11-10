@@ -7,7 +7,7 @@
 #include "rr/menu_text_rows.h"
 /* CD file descriptor: position, byte count and16-byte filename storage. */
 typedef struct {CdLocation location;u32 byteSize;char name[16];} StrCdFileInfo;
-extern void *MenuArenaBase;
+#include "rr/menu_arena_base.h"
 extern s16 ModeGroup,ModeIndex,SubmodeState;
 void ovl668_func_80114910(s32 resource,StrCdFileInfo *file,u32 *sectors);
 /* After the display setup service, MenuArenaBase covers an aligned complete

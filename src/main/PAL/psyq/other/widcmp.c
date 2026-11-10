@@ -1,3 +1,5 @@
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/wide.h"
 s32 _comp_mant(Wide64 left,Wide64 right) {
     /* ASM_BARRIER: Keep the selected result in the common return register. */
@@ -14,8 +16,6 @@ s32 _comp_mant(Wide64 left,Wide64 right) {
 greater:
     result=1;
 done:
-    /* ASM_BARRIER: Keep comparison results before the common return instruction. */
-    __asm__ volatile("" : : "r"(result));
     return result;
 }
 

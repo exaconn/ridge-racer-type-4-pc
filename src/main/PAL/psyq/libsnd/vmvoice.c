@@ -1,4 +1,5 @@
-/* CC1_FLAGS: -mno-split-addresses */
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/channels.h"
 #include "rr/spu.h"
 #include "psyq/libspu/s_snc.h"
@@ -26,8 +27,6 @@ void vmNoiseOn(s32 arg0) {
         u8 *f4;
         s32 v0;
         s32 v1;
-        /* ASM_BARRIER: keep f4[0x18] in a0 */
-        register s32 f18 __asm__("$4");
         s8 *p;
         u32 a3;
         u32 vol;
@@ -35,8 +34,7 @@ void vmNoiseOn(s32 arg0) {
         register s32 ch __asm__("$4");
         u32 offset;
         s32 group_off;
-        /* ASM_BARRIER: preserve the indexed table-address computation in v1. */
-        register ChannelValueRecordB0 **table __asm__("$3");
+        ChannelValueRecordB0 **table;
         ChannelValueRecordB0 *rec;
         s32 pan;
 
@@ -44,11 +42,11 @@ void vmNoiseOn(s32 arg0) {
         /* ASM_BARRIER: load _svm_vh into v0 before _svm_cur_vab_id */
         __asm__("" : "+r"(f4), "+r"(s3));
         p = (s8 *)&_svm_cur_vab_id;
-        f18 = f4[0x18];
+        ch = f4[0x18];
         v1 = p[-0x10];
         /* ASM_BARRIER: load f4[0x18] into a0 and p[-0x10] into v1 */
-        __asm__("" : "+r"(f18), "+r"(v1), "+r"(p));
-        v0 = f18 * 0x3FFF;
+        __asm__("" : "+r"(ch), "+r"(v1), "+r"(p));
+        v0 = ch * 0x3FFF;
         v1 *= v0;
         a3 = v1 / 16129;
         v1 = a3 * p[-0xA];
@@ -74,8 +72,8 @@ void vmNoiseOn(s32 arg0) {
         if (ch != 0x21) {
             /* ASM_BARRIER: prevent CSE from replacing vol with a3 */
             __asm__("" : "+r"(vol));
-            a3 = (vol * rec->value58) / 127U;
-            vol = (vol * rec->value5A) / 127U;
+            a3 = (vol * rec->h58[0]) / 127U;
+            vol = (vol * rec->h58[1]) / 127U;
         }
         pan = p[-0x6];
         if (pan < 0x40U) {
@@ -157,23 +155,16 @@ void vmNoiseOn(s32 arg0) {
     _svm_okof1 &= ~f8;
     _svm_okof2 &= ~fa;
     if (D_80110112 & 4) {
-        /* ASM_BARRIER: retain assembler temporary for delay-slot halfword store */
-        register u16 *base __asm__("$1");
+        u16 *base;
         u16 fe;
         _svm_orev1 |= low_mask;
         fe = _svm_orev2 | high_mask;
-        /* ASM_BARRIER: finish _svm_orev1 store before materializing _svm_orev2 base */
-        __asm__ volatile("" : : "r"(fe) : "$1", "memory");
-        base = (u16 *)0x80110000U;
-        /* ASM_BARRIER: expose the final halfword store in the branch delay slot */
-        __asm__("" : "=r"(base) : "0"(base));
-        base[-0x702 / 2] = fe;
+base = (u16 *)0x80110000U;
+base[-0x702 / 2] = fe;
     } else {
         _svm_orev1 &= ~low_mask;
         _svm_orev2 &= ~high_mask;
     }
     _svm_onos1 = low_mask;
     _svm_onos2 = high_mask;
-    /* ASM_BARRIER: keep epilogue after final global stores */
-    __asm__ volatile("" : : : "memory");
 }

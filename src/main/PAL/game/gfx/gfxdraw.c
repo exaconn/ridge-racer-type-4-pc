@@ -1,3 +1,4 @@
+#include "game/math/rotmat.h"
 #include "psyq/libgte/gtemat4.h"
 #include "rr/frame_storage_types.h"
 #include "psyq/libgte/gtemat3.h"
@@ -78,9 +79,6 @@ extern int Atan2Table(int, int);
 extern void SetGeomScreen(int);
 extern int *TrackNodes;
 extern int D_800AC548[];
-extern int BuildRotMatrixZ();
-extern int BuildRotMatrixY();
-extern int BuildRotMatrixX();
 extern int ScaleMatrix();
 extern V4 D_80010F1C;
 extern int RotTransPers();

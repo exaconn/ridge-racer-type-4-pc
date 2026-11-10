@@ -1,3 +1,5 @@
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/cd.h"
 #include "rr/overlay668_stream.h"
 #include "rr/audio_cd_controller.h"
@@ -43,8 +45,6 @@ int CdGetDiskType(void) {
     CdControl(1, 0, L.st);
     if (L.st[0] & 0x10) return 0x10;
     sector=0x10;
-    /* ASM_BARRIER: Keep the sector number independent of the equal stack-buffer offset. */
-    __asm__("" : "+r"(sector));
     CdIntToPos(sector, (u8 *)L.a);
     CdControl(0x1B, (u8 *)L.a, 0);
     i = 0;

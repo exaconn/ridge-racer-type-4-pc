@@ -5,25 +5,25 @@ macros are not expanded. These are cleanup indicators, not matching metrics.
 
 | Category | Resident | Overlays |
 |---|---:|---:|
-| pins | 757 | 39 |
-| barriers | 816 | 37 |
+| pins | 350 | 28 |
+| barriers | 411 | 19 |
 | asm_bodies | 2 | 0 |
 | directives | 0 | 0 |
 | gte_asm | 1 | 0 |
-| gotos | 378 | 68 |
+| gotos | 312 | 66 |
 | pad_arrays | 0 | 0 |
-| raw_offset_derefs | 16 | 0 |
-| integer_casts | 549 | 109 |
-| gcc_2_7_2_units | 66 | 13 |
-| cc1_flags_units | 66 | 4 |
-| volatile_qualifiers | 327 | 7 |
+| raw_offset_derefs | 12 | 0 |
+| integer_casts | 515 | 106 |
+| gcc_2_7_2_units | 53 | 13 |
+| cc1_flags_units | 42 | 4 |
+| volatile_qualifiers | 235 | 7 |
 | legacy_type_blocks | 0 | 0 |
 | cast_alias_macros | 0 | 0 |
 | m2c_accesses | 0 | 0 |
 
-resident: 462 C files; 219 files flagged for review.
+resident: 462 C files; 144 files flagged for review.
 
-overlays: 271 C files; 32 files flagged for review.
+overlays: 271 C files; 24 files flagged for review.
 
 Register bindings include both `asm` and `__asm__`, with numeric or named registers.
 `gte_asm` is hardware access; compiler flags select stock toolchains. `volatile_qualifiers`,

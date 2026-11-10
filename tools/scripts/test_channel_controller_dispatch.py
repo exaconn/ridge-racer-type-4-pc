@@ -6,6 +6,7 @@ import struct
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from sequence_fixture_transport import current_body
 
 RaceVehicleControl = C.CFUNCTYPE(None, C.c_int32, C.c_int32, C.c_int32)
 Reset = C.CFUNCTYPE(None, C.c_int32, C.c_int32)
@@ -24,6 +25,7 @@ class ChannelControllerDispatchTest(unittest.TestCase):
         asm_header = (root / 'include/rr_asm.h').read_text()
         header = (root / 'include/rr/library.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
+        header = '#include \"rr/sequence_channel.h\"\n' + header
         source = '''#include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -54,7 +56,7 @@ void test_prepare(s32 bank,s32 row,const u8 *bytes,u32 count,u32 accumulator) {
 '''
         source += '\n'.join('LibControllerCallback ' + name + ';' for name in ROUTES.values()) + '\n'
         for name in ('800818B4', '80081E04'):
-            body = (root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
+            body = current_body(root,name)
             body = body.replace('#include "rr_asm.h"', '')
             body = body.replace('#include "rr/library.h"', '')
             body = body.replace('extern LibStateB0 *_ss_score[];', '')
@@ -64,7 +66,7 @@ void test_prepare(s32 bank,s32 row,const u8 *bytes,u32 count,u32 accumulator) {
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
             source += body
         (directory / 'function.c').write_text(source)
-        subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
+        subprocess.run(['cc', '-shared', '-fPIC', '-O2', '-I', str(root/'include'), str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.lib = C.CDLL(str(directory / 'function.so'))
         cls.stride, cls.byte_offset, cls.accumulator_offset, cls.counter_offset = (C.c_uint32 * 4).in_dll(cls.lib, 'test_layout')

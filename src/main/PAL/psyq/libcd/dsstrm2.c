@@ -1,4 +1,5 @@
-/* CC1_FLAGS: -mno-split-addresses */
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "psyq/libcd/dsstrm23.h"
 #include "psyq/libcd/dsmedia2.h"
 #include "psyq/libcd/dsstrm2.h"
@@ -15,6 +16,4 @@ void StSetStream(int a, int b, int c, int d, int e) {
     StCurSectorOffset = 0;
     StCurFrameNo = 0;
     StRingFullFunc = e;
-    /* ASM_BARRIER: keeps epilogue stack loads (lw ra/s*) after the final global stores; sched2 otherwise hoists/sinks them */
-    __asm__ volatile ("" : : : "memory");
 }

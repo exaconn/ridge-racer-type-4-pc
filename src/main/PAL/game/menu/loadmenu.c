@@ -96,7 +96,6 @@ void CardMenuModeEnter(void) {
     s32 ready;
     s32 i;
     s32 defaultChoice;
-    s32 layout;
     u16 phase;
 
     if (GameModeType == 4) {
@@ -150,15 +149,12 @@ void CardMenuModeEnter(void) {
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
                 InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x65);
                 InitUiRow(0x24, 0xC, 0x90, 0x44, 0x20, 0, 0, 1, 0, 0x55);
-                layout = 0x1001A;
+                D_800A45B8 = 0x1001A;
             } else {
                 InitUiRow(0x22, 0xC, 0x40, 0x44, 0x20, 0, 0, 1, 0, 0x66);
                 InitUiRow(0x23, 0xC, 0x68, 0x44, 0x20, 0, 0, 1, 0, 0x55);
-                layout = 0x10012;
+                D_800A45B8 = 0x10012;
             }
-            D_800A45B8 = layout;
-            /* ASM_BARRIER: publish the layout before the badge status. */
-            __asm__("" : : : "memory");
             CardTransferMode = 0x10;
             MenuStateIndex = 0x29;
             InitBadgeRow(1, 0x80, 0x58, 0xA8, 0x80, 0, 0xE02);

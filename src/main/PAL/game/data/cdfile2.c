@@ -517,17 +517,11 @@ int SceneLoadStep(void)
     register int s1 __asm__("$17");
     int s2,s5,s6,s7,fp;
     TrackObjectFile *trackObjects;
-    register int s4;
+    int s4;
     int sp10, sp14;
     RroModelTableWire *modelTable;
-    /* ASM_BARRIER: pin temps to the original v0/v1/a0 choices */
-    int a0;
-    /* ASM_BARRIER: pin u to $2 */
-    register int u __asm__("$2");
-    /* ASM_BARRIER: pin t to $3 */
-    register int t __asm__("$3");
-    /* ASM_BARRIER: pin pw to $2 */
-    register int *pw __asm__("$2"); int s0;
+    void *a0;
+    void *s0;
 
     /* This legacy loader relocates encoded 32-bit PAL address words in the
      * resource payload. These words are not the native arena pointer root. */
@@ -539,8 +533,8 @@ int SceneLoadStep(void)
     case 2:
         if (CdFileBytesLoaded() == 0)
             return 0;
-        a0 = ((Resource *)LoadCursor)->p4 + (unsigned long)LoadCursor;
-        s0 = ((Resource *)LoadCursor)->p8 + (unsigned long)LoadCursor;
+        a0 = rr_relative_file_address(LoadCursor, ((Resource *)LoadCursor)->p4);
+        s0 = rr_relative_file_address(LoadCursor, ((Resource *)LoadCursor)->p8);
         ((Resource *)LoadCursor)->p4 = a0;
         ((Resource *)LoadCursor)->p8 = s0;
         LoadTimList(a0);
@@ -555,21 +549,21 @@ int SceneLoadStep(void)
         if (s1 == 0)
             return 0;
         a1 = (int *)LoadCursor;
-        a1++; t = *a1; sp10 = t + (unsigned long)LoadCursor; *a1 = sp10;
-        a1++; t = *a1; s2 = t + (unsigned long)LoadCursor; *a1 = s2;
-        a1++; t = *a1; sp14 = t + (unsigned long)LoadCursor; *a1 = sp14;
-        a1++; t = *a1; modelTable = (RroModelTableWire *)(t + (unsigned long)LoadCursor); *a1 = modelTable;
-        a1++; t = *a1; fp = t + (unsigned long)LoadCursor; *a1 = fp;
-        a1++; t = *a1; s6 = t + (unsigned long)LoadCursor; *a1 = s6;
-        a1++; t = *a1; s7 = t + (unsigned long)LoadCursor; *a1 = s7;
-        a1++; t = *a1; trackObjects = (TrackObjectFile *)(t + (unsigned long)LoadCursor); *a1 = trackObjects;
-        a1++; t = *a1; s5 = t + (unsigned long)LoadCursor; *a1 = s5;
-        /* ASM_BARRIER: hoist lui of D_8010943C above the store (hi part only) */
-        a1++; t = *a1; u = LoadCursor; s4 = t + u; __asm__("" : "=r"(pw) : "0"(0x80110000)); *a1 = s4;
-        a1++;
-        if (pw[-0x6BC4 / 4] == 7) {
+        a1++; sp10 = *a1 + (unsigned long)LoadCursor; *a1 = sp10;
+        a1++; s2 = *a1 + (unsigned long)LoadCursor; *a1 = s2;
+        a1++; sp14 = *a1 + (unsigned long)LoadCursor; *a1 = sp14;
+        a1++; modelTable = (RroModelTableWire *)(*a1 + (unsigned long)LoadCursor); *a1 = modelTable;
+        a1++; fp = *a1 + (unsigned long)LoadCursor; *a1 = fp;
+        a1++; s6 = *a1 + (unsigned long)LoadCursor; *a1 = s6;
+        a1++; s7 = *a1 + (unsigned long)LoadCursor; *a1 = s7;
+        a1++; trackObjects = (TrackObjectFile *)(*a1 + (unsigned long)LoadCursor); *a1 = trackObjects;
+        a1++; s5 = *a1 + (unsigned long)LoadCursor; *a1 = s5;
+        a1++; s4 = *a1 + (unsigned long)LoadCursor; *a1 = s4;
+        if (D_8010943C == 7) {
             /* Publish the PAL wire word, retaining the complete C address. */
-            void *arena = (void *)((s32)*a1 + (unsigned long)LoadCursor);
+            void *arena;
+            a1++;
+            arena = (void *)((s32)*a1 + (unsigned long)LoadCursor);
             *a1 = arena;
             InitAnimatedTrackObjects(arena);
         }
@@ -630,15 +624,13 @@ s32 CarLoadStep(void) {
             ((Resource *)LoadCursor)->pC += (s32)LoadCursor;
             ((Resource *)LoadCursor)->p10 += (s32)LoadCursor;
             ((Resource *)LoadCursor)->p14 += (s32)LoadCursor;
+            s3 = (void *)((Resource *)LoadCursor)->p8;
             s0 = (void *)((Resource *)LoadCursor)->pC;
             s1 = (void *)((Resource *)LoadCursor)->p10;
             s2 = (void *)((Resource *)LoadCursor)->p14;
-            s3 = (void *)((Resource *)LoadCursor)->p8;
             SetCarRecordPtr((CarRecord *)((Resource *)LoadCursor)->p4, D_80109444);
             CarBoundsTable[D_80109444] = (CarBounds *)s3;
             RegisterModelBank(s0, D_80109444);
-            /* ASM_BARRIER: preserve local-alloc priority of s0 ($s0) over s3 ($s3) */
-            __asm__("" : : "r"(s0));
             PatchModelBankTexPages(s0, D_80109444);
             CarOffsetTables[D_80109444] = s1;
             RelocateOffsetTable(s1);
@@ -709,8 +701,8 @@ void SetupRenderer(s32 shift) {
 int ComputeCarSurfaceLighting(char *a0_in, int a1_in) {
     /* ASM_BARRIER: keep temp in $v0 */
     register int v0 __asm__("$2");
-    /* ASM_BARRIER: keep temp in $v1 */
-    register int v1 __asm__("$3");
+    int v1;
+    int p1;
     int a0 = a0_in;
     int a1 = a1_in;
     /* ASM_BARRIER: keep temp in $a2 */
@@ -789,11 +781,11 @@ int ComputeCarSurfaceLighting(char *a0_in, int a1_in) {
     a1 = ((int *)a1)[0x4D90 / 4];
     v0 <<= 2;
     t7[1] = a0;
-    v1 = a1 + v1;
+    p1 = a1 + v1;
     a1 = a1 + v0;
 
-    a2 = ((int *)v1)[4];
-    a3 = ((TrackLighting2C *)v1)->lighting04.matrix.fields.vectors[0].z;
+    a2 = ((int *)p1)[4];
+    a3 = ((TrackLighting2C *)p1)->lighting04.matrix.fields.vectors[0].z;
     a0 = ((int *)a1)[4];
     t2 = ((TrackLighting2C *)a1)->lighting04.matrix.fields.vectors[0].z;
     t0 = a2 >> 16;
@@ -806,8 +798,8 @@ int ComputeCarSurfaceLighting(char *a0_in, int a1_in) {
     RR_GTE_MTC2_IR123_INTPL(a0, t1, t2);
 
     t8 = (s16 *)LightMatrix.halves;
-    a2 = ((int *)v1)[6];
-    a3 = ((TrackLighting2C *)v1)->lighting04.matrix.fields.vectors[1].z;
+    a2 = ((int *)p1)[6];
+    a3 = ((TrackLighting2C *)p1)->lighting04.matrix.fields.vectors[1].z;
     a0 = ((int *)a1)[6];
     t2 = ((TrackLighting2C *)a1)->lighting04.matrix.fields.vectors[1].z;
     t0 = a2 >> 16;
@@ -821,8 +813,8 @@ int ComputeCarSurfaceLighting(char *a0_in, int a1_in) {
     RR_GTE_MTC2_IR123_INTPL(a0, t1, t2);
 
     t8 = D_800ABED6;
-    a2 = ((int *)v1)[8];
-    a3 = ((TrackLighting2C *)v1)->lighting04.matrix.fields.vectors[2].z;
+    a2 = ((int *)p1)[8];
+    a3 = ((TrackLighting2C *)p1)->lighting04.matrix.fields.vectors[2].z;
     a0 = ((int *)a1)[8];
     t2 = ((TrackLighting2C *)a1)->lighting04.matrix.fields.vectors[2].z;
     t0 = a2 >> 16;
@@ -836,7 +828,7 @@ int ComputeCarSurfaceLighting(char *a0_in, int a1_in) {
     RR_GTE_MTC2_IR123_INTPL(a0, t1, t2);
 
     t8 = D_800ABEDC;
-    a3 = ((int *)v1)[10];
+    a3 = ((int *)p1)[10];
     a0 = ((int *)a1)[10];
     v0 = a3 << 4;
     a2 = v0 & 0xFF0;
@@ -848,7 +840,7 @@ int ComputeCarSurfaceLighting(char *a0_in, int a1_in) {
     RR_GTE_SETFC(a2, t0, a3);
     GTE_MTC2_RGB_DPCS(a0);
 
-    a3 = ((int *)v1)[1];
+    a3 = ((int *)p1)[1];
     a0 = ((int *)a1)[1];
     v0 = a3 << 4;
     a2 = v0 & 0xFF0;
@@ -861,7 +853,7 @@ int ComputeCarSurfaceLighting(char *a0_in, int a1_in) {
     GTE_MTC2_RGB_DPCS(a0);
 
     t8 = (short *)(SCRATCHPAD + 0xB4);
-    a3 = ((int *)v1)[2];
+    a3 = ((int *)p1)[2];
     a0 = ((int *)a1)[2];
     v0 = a3 << 4;
     a2 = v0 & 0xFF0;
@@ -874,7 +866,7 @@ int ComputeCarSurfaceLighting(char *a0_in, int a1_in) {
     GTE_MTC2_RGB_DPCS(a0);
 
     t8 = (short *)(SCRATCHPAD + 0xB6);
-    a3 = ((int *)v1)[3];
+    a3 = ((int *)p1)[3];
     a0 = ((int *)a1)[3];
     v0 = a3 << 4;
     a2 = v0 & 0xFF0;

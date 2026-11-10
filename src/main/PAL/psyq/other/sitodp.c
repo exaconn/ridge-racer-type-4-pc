@@ -1,3 +1,5 @@
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/wide.h"
 u64 __floatsidf(s32 a0)
 {
@@ -5,13 +7,9 @@ u64 __floatsidf(s32 a0)
     u32 s2;
     union { u64 bits; Wide64 s; } r;
     Wide64 t;
-    /* ASM_BARRIER: Keep the sign accumulator distinct from literal zero results. */
-    __asm__("" : "+r"(s3));
     s2 = 0x41D;
     if (a0 == 0) {
         r.s.lo = 0;
-        /* ASM_BARRIER: Keep the two literal zero words independent during result construction. */
-        __asm__("" : "+r"(r.s.lo));
         r.s.hi = 0;
     } else if (a0 == (-2147483647 - 1)) {
         r.s.hi = 0xC1E00000;

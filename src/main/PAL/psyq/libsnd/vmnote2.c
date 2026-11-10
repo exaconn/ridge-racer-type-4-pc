@@ -9,10 +9,11 @@ unsigned short SsPitchFromNote(int cen_note_high, int cen_note_low, int note_hig
 
 unsigned short note2pitch(void) { return SsPitchFromNote(_svm_cur.f02, 0, (unsigned char)_svm_cur.f10, (unsigned char)_svm_cur.f11); }
 
-unsigned short note2pitch2(a0, a1) short a0; short a1; {
-    short i = _svm_cur.f07 * 16 + _svm_cur.f0C;
-    char *t = (char *)(i * 32 + (int)_svm_tn);
-    return SsPitchFromNote(a0, a1, t[4], t[5]);
+unsigned short note2pitch2(s32 raw_note, s32 raw_fine) {
+    s16 note = raw_note;
+    s16 fine = raw_fine;
+    s16 toneIndex = _svm_cur.f07 * 16 + _svm_cur.f0C;
+    return SsPitchFromNote(note, fine, _svm_tn[toneIndex][VAB_TONE_CENTER], _svm_tn[toneIndex][VAB_TONE_SHIFT]);
 }
 
 unsigned short SsPitchFromNote(int cen_note_high, int cen_note_low, int note_high, int note_low)
@@ -28,14 +29,14 @@ unsigned short SsPitchFromNote(int cen_note_high, int cen_note_low, int note_hig
     u32 pitch;
     int shift;
 
-    fine = (short)((note_low & 0xFF) + cen_note_low);
+    fine = (short)((u32)(note_low & 0xFF) + (u32)cen_note_low);
     q = fine / 128;
-    t = cen_note_high + q - (note_high & 0xFF);
+    t = (u32)cen_note_high + (u32)q - (u32)(note_high & 0xFF);
     note = t;
-    frac = fine - (q << 7);
+    frac = fine - q * 128;
     if (frac < 0) {
         frac = frac + 0x80;
-        t--;
+        t = (u32)t - 1U;
         note = t + frac / 128;
     }
     oct = note / 12;
@@ -45,12 +46,12 @@ unsigned short SsPitchFromNote(int cen_note_high, int cen_note_low, int note_hig
         scale = scale + 12;
         octave = oct - 3;
     }
-    pitch = (SsSemitonePitchTable[scale] * _svm_ptable[frac]) >> 16;
+    pitch = ((s32)((u32)SsSemitonePitchTable[scale] * _svm_ptable[frac])) >> 16;
     if (octave >= 0) {
         pitch = 0x3FFF;
     } else {
         shift = -octave;
-        pitch += 1 << (shift - 1);
+        pitch += 1U << (shift - 1);
         pitch = pitch >> shift;
     }
     return pitch;

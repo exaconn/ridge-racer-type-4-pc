@@ -187,14 +187,6 @@ void DrawHudSprite(int a0, int a1, int a2, int a3, int a4)
     unsigned short sp[2];
     unsigned char *t0;
     SpritePacketSignedClut *p;
-    int *g;
-    /* ASM_BARRIER: Keep CurrentDrawBuf pointer in $a1 across both OT links. */
-    register char *d asm("$5");
-    /* ASM_BARRIER: Keep 0xFFFFFF mask in $a2 across both OT links. */
-    register unsigned lo asm("$6");
-    unsigned hi;
-    unsigned cmd;
-    unsigned char new_var;
     t0 = D_800A0DC8[a0];
     if (a4 != 0) {
         sp[0] = 0xA0 - (t0[2] >> 1);
@@ -203,8 +195,7 @@ void DrawHudSprite(int a0, int a1, int a2, int a3, int a4)
         sp[0] = a1;
         sp[1] = a2;
     }
-    g = (int *)SCRATCHPAD;
-    p = *(SpritePacketSignedClut **)g;
+    p = (SpritePacketSignedClut *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
     p->len = 4;
     p->code = 0x66;
     p->r = a3;
@@ -215,23 +206,17 @@ void DrawHudSprite(int a0, int a1, int a2, int a3, int a4)
     p->w = t0[2];
     p->h = t0[3];
     p->u = t0[0];
-    hi = 0xFF000000;
-    new_var = t0[1];
+    p->v = t0[1];
     p->clut = 0x7F38;
-    p->v = new_var;
-    lo = 0xFFFFFF;
-    cmd = 0xE1000229;
-    d = (char *)CurrentDrawBuf;
-    *(unsigned int *)p = (*(unsigned int *)p & hi) | ((((unsigned int *)d)[0x70 / 4]) & lo);
-    *(unsigned int *)(d + RR_FIELD_OFFSET(FrameStorage, buffer.ordering70)) = ((((unsigned int *)d)[0x70 / 4]) & hi) | (((unsigned int)p) & lo);
+    p->addr = CurrentDrawBuf->buffer.ordering70.tags[0].bits.address;
+    CurrentDrawBuf->buffer.ordering70.tags[0].bits.address = (unsigned long)p;
     p++;
-    *g = p;
+    ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)p;
     p->len = 1;
-    d = (char *)CurrentDrawBuf;
-    *((unsigned int *)p + 1) = cmd;
-    *(unsigned int *)p = (*(unsigned int *)p & hi) | ((((unsigned int *)d)[0x70 / 4]) & lo);
-    *(unsigned int *)(d + RR_FIELD_OFFSET(FrameStorage, buffer.ordering70)) = ((((unsigned int *)d)[0x70 / 4]) & hi) | (((unsigned int)p) & lo);
-    *g = ((char *)p + 8);
+    *((u32 *)p + 1) = 0xE1000229;
+    p->addr = CurrentDrawBuf->buffer.ordering70.tags[0].bits.address;
+    CurrentDrawBuf->buffer.ordering70.tags[0].bits.address = (unsigned long)p;
+    ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)p + 8;
 }
 
 void DrawHudDigit(s32 a0, s32 a1, s32 a2, s32 a3) {

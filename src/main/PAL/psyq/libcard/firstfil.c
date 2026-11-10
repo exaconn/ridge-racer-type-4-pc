@@ -70,13 +70,11 @@ s32 _firstfile_hook(s32 *a0,s32 a1,s32 a2) {
         do {
             BiosDevice *device=(BiosDevice *)cursor;
             if(device->name) {
-                /* ASM_BARRIER: Materialize the comparison name in its call argument each iteration. */
-                register char *page __asm__("$5");
+                char *page;
                 /* ASM_BARRIER: Keep page materialization inside the nonnull-name branch. */
-                __asm__ volatile("" : : : "$5");
-                page=(char *)0x80110000U;
-                /* ASM_BARRIER: Materialize the name page before its call-delay offset. */
-                __asm__("" : "+r"(page));
+                __asm__("" : : : "$5");
+                /* ASM_BARRIER: Materialize the name page inside the loop before its call-delay offset. */
+                __asm__ volatile("" : "=r"(page) : "0"((char *)0x80110000U));
                 if(PsyqStrcmp(device->name,page+0x43C0)==0) {
                     device->handler=handler;
                     break;

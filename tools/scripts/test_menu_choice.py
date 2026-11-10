@@ -4,14 +4,17 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from c_functions import definition_source
 
 ROOT=Path(__file__).resolve().parents[2]
 
 
 class MenuChoiceTest(unittest.TestCase):
     def test_actual_body_and_complete_mutable_owners(self):
-        s=(ROOT/'tools/scripts/fixtures/views/func_80036D40.c').read_text()
-        s=re.sub(r'^#include.*\n','',s,flags=re.M)
+        s=definition_source((ROOT/'src/main/PAL/game/menu/mnchoice.c').read_text(),'StepResultsMenuChoice')
+        # This adapter transports only the actual field this caller accesses.
+        # Keep the legacy World, PRNG stream and reference model unchanged.
+        self.assertEqual(['b4'],re.findall(r'Dialogue->(\w+)',s))
         prefix=r'''
 #include <assert.h>
 #include <stdint.h>
@@ -19,10 +22,6 @@ class MenuChoiceTest(unittest.TestCase):
 #include <stdio.h>
 #include <string.h>
 #include "rr/layout.h"
-#undef RR_ASSERT_OFFSET
-#undef RR_ASSERT_SIZE
-#define RR_ASSERT_OFFSET(t,f,o)
-#define RR_ASSERT_SIZE(t,s)
 #include "rr/menu_choice.h"
 _Static_assert(sizeof(UiRow24)==36,"UI row");
 _Static_assert(offsetof(UiRow24,cells)==12,"cells");
@@ -48,6 +47,33 @@ static Entry entries[8],actual_entries[8];
 static int count,mutation;
 static unsigned seed;
 static uint64_t arena[32][8];
+
+/* The original eight-byte fixture prefix remains in World so its complete
+ * deterministic input stream and reference snapshots are unchanged. Actual C
+ * receives two complete MenuTextState objects. Only PAL byte4 maps to b4. */
+static MenuTextState dialogue_owners[2],dialogue_before[2];
+static u16 dialogue_words[2][8];
+static MenuTextState *native_dialogue(World *owner){
+ assert(owner==&actual);return &dialogue_owners[owner->hintbank];
+}
+static void sync_dialogue(void){
+ if(w==&actual)for(unsigned i=0;i<2;i++)actual.highlight[i][4]=(u8)dialogue_owners[i].b4;
+}
+static void reset_dialogue(void){
+ for(unsigned i=0;i<2;i++){
+  memset(&dialogue_owners[i],0xA7,sizeof(MenuTextState));
+  dialogue_owners[i].p=dialogue_words[i];dialogue_owners[i].images20=(u8*)arena[i];
+  dialogue_owners[i].b4=(s8)actual.highlight[i][4];
+  memcpy(&dialogue_before[i],&dialogue_owners[i],sizeof(MenuTextState));
+  assert((uintptr_t)&dialogue_owners[i]>UINT32_MAX);
+ }
+}
+static void verify_dialogue(void){
+ for(unsigned i=0;i<2;i++){
+  dialogue_before[i].b4=(s8)actual.highlight[i][4];
+  assert(!memcmp(&dialogue_before[i],&dialogue_owners[i],sizeof(MenuTextState)));
+ }
+}
 #define D_800F4D99 (w->choice.bytes[1])
 #define SelectionRows (w->choice)
 #define SelectedMakerIndex (w->selected)
@@ -58,12 +84,13 @@ static uint64_t arena[32][8];
 #define BadgeRows (&w->rows[w->rowbank])
 #define UiRows ((UiRow24 *)w->ui[w->uibank].bytes)
 #define GlyphRows (w->slots)
-#define Dialogue (w->highlight[w->hintbank])
+#define Dialogue native_dialogue(w)
 #define LoadCursor (w->current)
 #define MenuArenaBase (w->resource)
 '''
         reference=r'''
 static void emit(int kind,s32 a,s32 b,s32 c){
+ sync_dialogue();
  assert(count<8);Entry *e=&entries[count++];memset(e,0,sizeof(*e));e->kind=kind;e->args[0]=a;e->args[1]=b;e->args[2]=c;e->snapshot=*w;
  if(!mutation)return;
  if(kind==0){
@@ -122,8 +149,8 @@ int main(void){
   actual.rowbank=actual.uibank=actual.hintbank=0;
   actual.choice.bytes[1]=(u8)(k*17U);actual.buttons=(u16)k;actual.accepted=k&4;
   actual.rows[0].state10=k%5;actual.rows[1].state10=3;
-  actual.resource=arena[k%32];actual.current=arena[(k+1)%32];expected=actual;
-  bind(&actual);StepResultsMenuChoice();int actual_count=count;memcpy(actual_entries,entries,sizeof(entries));
+  actual.resource=arena[k%32];actual.current=arena[(k+1)%32];expected=actual;reset_dialogue();
+  bind(&actual);StepResultsMenuChoice();sync_dialogue();verify_dialogue();int actual_count=count;memcpy(actual_entries,entries,sizeof(entries));
   bind(&expected);reference();
   if(count!=actual_count || memcmp(entries,actual_entries,sizeof(entries)) || memcmp(&actual,&expected,sizeof(actual))){fprintf(stderr,"case%u mutation%d failed actual calls%d expected%d\n",k,mutation,actual_count,count);return 1;}
  }

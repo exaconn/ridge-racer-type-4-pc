@@ -1,4 +1,4 @@
-/* GCC_VERSION: 2.7.2 */
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/serial.h"
 #include "psyq/libsio/siorecv.h"
@@ -14,8 +14,6 @@ int _sio_write(u8 *buffer, int length) {
     SerialPortRegisters *port;
     volatile SerialRequest *p1 = &SioRequest;
 
-    /* ASM_BARRIER: keep $a1 live for the pre-loop stores and load. */
-    __asm__("" : "=r"(p1) : "0"(p1));
 
     if (p1->active != 0) {
         return -1;
@@ -37,14 +35,8 @@ int _sio_write(u8 *buffer, int length) {
                 int v50 = 0x50;
                 unsigned short ctrl;
                 volatile unsigned short *cfg;
-                /* ASM_BARRIER: materialize 0x50 at the start of the error block for the branch delay slot. */
-                __asm__ volatile("" : "=r"(v50) : "0"(v50));
                 ctrl = p->control;
-                /* ASM_BARRIER: schedule the control load before the configuration base load and keep 0x50 in $v0. */
-                __asm__ volatile("" : : "r"(ctrl), "r"(v50), "r"(v50));
                 cfg = &SioShadowRegs.mode;
-                /* ASM_BARRIER: keep the configuration base in $v1 for mode and baud loads. */
-                __asm__("" : "=r"(cfg) : "0"(cfg));
                 p->control = v50;
                 p->mode = cfg[0];
                 p->baud = cfg[3];
@@ -56,8 +48,6 @@ int _sio_write(u8 *buffer, int length) {
             }
             if ((p->status & 2) == 0) {
                 do {
-                    /* ASM_BARRIER: weight $s0 and $s1 counters ahead of request base $s2 in global-alloc. */
-                    __asm__ volatile("" : : "r"(s0), "r"(s0), "r"(s1), "r"(s1));
                     if (SioPollHook != 0) {
                         if (SioPollHook(1, s1++) == 0) {
                             SIO1_REGS->control &= ~0x20;

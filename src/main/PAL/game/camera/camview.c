@@ -28,7 +28,14 @@ extern void UpdateCarWorldTransform();
 
 void DrawGarageFloorReflection(void)
 {
-    struct { MatrixWords32 m18; MatrixWords32 m38; char m58[0x28]; VectorWords16 v80; PreviewColor color90; u8 reserved94[24]; } L;
+    struct {
+        MatrixWords32 m18, m38;
+        /* The existing work capacity beyond this matrix remains unresolved. */
+        union { MatrixWords32 matrix; u8 storage[0x28]; } m58;
+        VectorWords16 v80;
+        PreviewColor color90;
+        u8 reserved94[24];
+    } L;
     int *g = (int *)SCRATCHPAD;
     int s6;
     int a1;
@@ -48,30 +55,30 @@ void DrawGarageFloorReflection(void)
     SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, ModelBankFormat < 1, 0, 0);
     SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&RaceContext.camera24C->pose00.position00, (s32 *)&L.m18);
     DrawMeshPrimList(RaceContext.model560, 0, 0);
-    TransformPoint(&L.m38, &RaceContext.camera24C->pose00.position00.xyz, &RaceContext.camera24C->parts18[0].position00.xyz, &L.v80.xyz, (MatrixWords32 *)L.m58);
-    BuildRotMatrixY(L.m58, -RaceContext.camera24C->parts18[0].rotation10.y);
-    MulMatrix2((const MatrixWords32 *)(&L.m18), (MatrixWords32 *)(L.m58));
-    SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&L.v80, (s32 *)L.m58);
+    TransformPoint(&L.m38, &RaceContext.camera24C->pose00.position00.xyz, &RaceContext.camera24C->parts18[0].position00.xyz, &L.v80.xyz, &L.m58.matrix);
+    BuildRotMatrixY(&L.m58.matrix, -RaceContext.camera24C->parts18[0].rotation10.y);
+    MulMatrix2((const MatrixWords32 *)(&L.m18), &L.m58.matrix);
+    SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&L.v80, L.m58.matrix.w);
     g[0x1E] = 0;
     SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, 1, 0, 0);
-    TransformPoint(&L.m38, &RaceContext.camera24C->pose00.position00.xyz, &RaceContext.camera24C->parts18[1].position00.xyz, &L.v80.xyz, (MatrixWords32 *)L.m58);
-    BuildRotMatrixY(L.m58, -RaceContext.camera24C->parts18[1].rotation10.y);
-    MulMatrix2((const MatrixWords32 *)(&L.m18), (MatrixWords32 *)(L.m58));
-    SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&L.v80, (s32 *)L.m58);
+    TransformPoint(&L.m38, &RaceContext.camera24C->pose00.position00.xyz, &RaceContext.camera24C->parts18[1].position00.xyz, &L.v80.xyz, &L.m58.matrix);
+    BuildRotMatrixY(&L.m58.matrix, -RaceContext.camera24C->parts18[1].rotation10.y);
+    MulMatrix2((const MatrixWords32 *)(&L.m18), &L.m58.matrix);
+    SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&L.v80, L.m58.matrix.w);
     a1 = 1;
     g[0x1E] = 0;
     if (ModelBankFormat >= 3)
         a1 = 2;
     SubmitModel((RroSceneScratchPrefix *)SCRATCHPAD, a1, 0, 0);
-    TransformPoint(&L.m38, &RaceContext.camera24C->pose00.position00.xyz, &RaceContext.camera24C->parts18[3].position00.xyz, &L.v80.xyz, (MatrixWords32 *)L.m58);
-    BuildRotMatrixX(L.m58, -RaceContext.camera24C->parts18[3].rotation10.x);
-    MulMatrix2((const MatrixWords32 *)(&L.m18), (MatrixWords32 *)(L.m58));
-    SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&L.v80, (s32 *)L.m58);
+    TransformPoint(&L.m38, &RaceContext.camera24C->pose00.position00.xyz, &RaceContext.camera24C->parts18[3].position00.xyz, &L.v80.xyz, &L.m58.matrix);
+    BuildRotMatrixX(&L.m58.matrix, -RaceContext.camera24C->parts18[3].rotation10.x);
+    MulMatrix2((const MatrixWords32 *)(&L.m18), &L.m58.matrix);
+    SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&L.v80, L.m58.matrix.w);
     DrawMeshPrimList(RaceContext.model560, 2, 0);
-    TransformPoint(&L.m38, &RaceContext.camera24C->pose00.position00.xyz, &RaceContext.camera24C->parts18[2].position00.xyz, &L.v80.xyz, (MatrixWords32 *)L.m58);
-    BuildRotMatrixY(L.m58, -RaceContext.camera24C->parts18[2].rotation10.y);
-    MulMatrix2((const MatrixWords32 *)(&L.m18), (MatrixWords32 *)(L.m58));
-    SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&L.v80, (s32 *)L.m58);
+    TransformPoint(&L.m38, &RaceContext.camera24C->pose00.position00.xyz, &RaceContext.camera24C->parts18[2].position00.xyz, &L.v80.xyz, &L.m58.matrix);
+    BuildRotMatrixY(&L.m58.matrix, -RaceContext.camera24C->parts18[2].rotation10.y);
+    MulMatrix2((const MatrixWords32 *)(&L.m18), &L.m58.matrix);
+    SetGteObjectTransform((ObjectTransform38 *)(SCRATCHPAD + 0x7C), (const s16 *)&L.v80, L.m58.matrix.w);
     DrawMeshPrimList(RaceContext.model560, RaceContext.camera24C->mirrorA4 * 2 | 1, 0);
     g[0x18] = s6;
     L.color90.channels.r = 0x80;

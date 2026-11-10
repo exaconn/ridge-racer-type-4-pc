@@ -10,12 +10,7 @@
 #include "rr_asm.h"
 #include "game/camera/viewcam.h"
 #include "game/course/trkclip.h"
-#include "psyq/libmath/muldf1.h"
-#include "psyq/other/dpadd.h"
-#include "psyq/other/dpcmp.h"
-#include "psyq/other/dpmul.h"
 #include "rr/overlay662_palette_refresh.h"
-#include "psyq/other/dpsub.h"
 #include "rr/race_types.h"
 #include "game/gfx/model.h"
 #include "rr/relative_file.h"
@@ -29,10 +24,6 @@ static __inline__ const u8 *RroModelBankAddress(const RroModelBank *bank,u32 rel
 
 extern int ViewUsesCarTrackNode;
 extern short D_800F4C58[2];
-extern s32 __fixdfsi(s64);
-extern s64 __floatsidf(s32);
-extern s32 __ltdf2(s64, s64);
-extern s64 __negdf2(s64);
 extern s16 *CarBoundsTable[];
 extern int D_800F2EC0;
 extern int D_8010E6D8[];
@@ -64,71 +55,38 @@ CourseViewIndices *GetSegmentViewTable(s32 player) {
     return (CourseViewIndices *)RelFileSegmentViewSlots[segment * 8 + YawToOctant(view)].absolute;
 }
 
+extern double __muldf3(double, double);
 void SetFogNearFar(s32 a0, s32 a1, s32 a2) {
-    s64 d2, d0, d1, d6, t0, d4, d2_out;
-    /* ASM_BARRIER: Move d2 into $a0/$a1 so $s0/$s1 is freed for 1.0 constant before __muldf3. */
-    register s64 a0_d2 asm("$4");
-    /* ASM_BARRIER: Load constant into $a2/$a3 before $s0/$s1 constant setup. */
-    register s64 a2_c asm("$6");
-    s64 c1, c4096, t_mul;
-    s64 c_max, c_min;
+    double d2, d0, d1, d6, t0, d4, d2_out;
     s32 r0, r1;
 
-    d2 = __floatsidf(a2);
-    d0 = __floatsidf(a0);
-    d1 = __floatsidf(a1);
-    a0_d2 = d2;
-    a2_c = 0x40F0000000000000LL;
-    c1 = 0x3FF0000000000000LL;
-    /* ASM_BARRIER: Materialize 1.0 in $s0/$s1 after $a0..$a3 setup and before __muldf3. */
-    __asm__("" : "=r"(c1), "=r"(a0_d2), "=r"(a2_c) : "0"(c1), "1"(a0_d2), "2"(a2_c));
-    d6 = __muldf3(a0_d2, a2_c);
-    d4 = __divdf3(0x4170000000000000LL, __muldf3(d6, __subdf3(__divdf3(c1, d1), __divdf3(c1, d0))));
-    t0 = __divdf3(d6, d0);
-    d2_out = __muldf3(t0, __negdf2(d4));
-    a2_c = 0x40DFFFC000000000LL;
-    /* ASM_BARRIER: Load 0x40DFFFC000000000LL into $a2/$a3 before moving d4 to $a0/$a1. */
-    __asm__("" : "=r"(a2_c) : "0"(a2_c), "r"(d2_out));
-    if (__gtdf2(d4, a2_c) > 0 || __ltdf2(d4, 0xC0E0000000000000LL) < 0) {
-        /* ASM_BARRIER: Low word of $v0/$v1 return value for split argument setup. */
-        register s32 v0_lo asm("$2");
-        /* ASM_BARRIER: High word of $v0/$v1 return value for delay-slot move to $a1. */
-        register s32 v1_hi asm("$3");
-        /* ASM_BARRIER: Low word of $a0/$a1 argument. */
-        register s32 a0_lo asm("$4");
-        if (__gtdf2(d4, 0LL) > 0) {
-            d4 = 0x40DFFFC000000000LL;
+    d2 = a2;
+    d0 = a0;
+    d1 = a1;
+    d6 = __muldf3(d2, 65536.0);
+    d4 = 16777216.0 / (d6 * ((1.0 / d1) - (1.0 / d0)));
+    t0 = d6 / d0;
+    d2_out = t0 * (-d4);
+    if (d4 > 32767.0 || d4 < -32768.0) {
+        if (d4 > 0.0) {
+            d4 = 32767.0;
         } else {
-            d4 = 0xC0E0000000000000LL;
+            d4 = -32768.0;
         }
-        d2_out = __muldf3(t0, __negdf2(d4));
-        __adddf3(d2_out, __muldf3(d4, __divdf3(d6, d1)));
-        a0_lo = v0_lo;
-        a2_c = 0x3F30000000000000LL;
-        c4096 = 0x40B0000000000000LL;
-        /* ASM_BARRIER: Materialize 4096.0 in $s0/$s1 before __muldf3 while leaving $a1 = $v1 for the call delay slot. */
-        __asm__("" : "=r"(c4096), "=r"(a0_lo), "=r"(a2_c), "=r"(v1_hi) : "0"(c4096), "1"(a0_lo), "2"(a2_c), "3"(v1_hi));
-        t_mul = ((s64 (*)(s32, s32, s64))__muldf3)(a0_lo, v1_hi, a2_c);
-        d2_out = __adddf3(d2_out, __muldf3(__subdf3(c4096, t_mul), c4096));
+        d2_out = t0 * (-d4);
+        d2_out = d2_out + (4096.0 - ((d2_out + d4 * (d6 / d1)) * (1.0 / 4096.0))) * 4096.0;
     }
-    c_max = 0x41DFFFFFFFC00000LL;
-    /* ASM_BARRIER: Materialize INT_MAX double constant before argument setup. */
-    __asm__ ("" : "=r"(c_max) : "0"(c_max) : "$4", "$5");
-    if (__gtdf2(d2_out, c_max) > 0) {
-        d2_out = c_max;
+    if (d2_out > 2147483647.0) {
+        d2_out = 2147483647.0;
     }
-    c_min = 0xC1E0000000000000LL;
-    /* ASM_BARRIER: Materialize INT_MIN double constant before argument setup. */
-    __asm__ ("" : "=r"(c_min) : "0"(c_min) : "$4", "$5");
-    if (__ltdf2(d2_out, c_min) < 0) {
-        d2_out = c_min;
+    if (d2_out < -2147483648.0) {
+        d2_out = -2147483648.0;
     }
-    r0 = __fixdfsi(d4);
-    r1 = __fixdfsi(d2_out);
+    r0 = d4;
+    r1 = d2_out;
     GTE_CTC2_27(r0);
     GTE_CTC2_28(r1);
 }
-
 void InitTimTemplate(int *a0) {
     int n;
     *a0++ = 0x10;
@@ -416,16 +374,10 @@ void UnrelocateModelBank(RroModelBank *bank, const u8 *base) {
 }
 
 void SelectModelBank(int slot) {
-    RroModelBank *bank = ModelBankTable[slot];
-    RroModelBank *vertices;
-    int count;
     RroSceneScratchPrefix *scene = (RroSceneScratchPrefix *)SCRATCHPAD;
-    /* ASM_BARRIER: retain the bank-pointer copy before the selected-count publication. */
-    __asm__("" : "=r"(vertices) : "0"(bank));
-    count = bank->streamCount;
-    scene->vertices54 = vertices->vertices.pointer;
+    ModelBankFormat = ModelBankTable[slot]->streamCount;
+    scene->vertices54 = ModelBankTable[slot]->vertices.pointer;
     scene->normals58 = ModelBankTable[slot]->normals.pointer;
-    ModelBankFormat = count;
     scene->commands50 = ModelBankTable[slot]->streams;
 }
 

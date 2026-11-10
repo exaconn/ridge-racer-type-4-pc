@@ -34,13 +34,8 @@ void _padSendAtLoadInfo(u8 *channel) {
 s32 _padRecvAtLoadInfo(void *raw) {
     PadChannel *a0=raw;
     u8 *q;
-    int t, n;
-    /* ASM_BARRIER: pin b4 to $v1 so the load/add chain takes the original register allocation */
-#ifdef __mips__
-    register int b __asm__("$3");
-#else
+    int t;
     int b;
-#endif
     switch (a0->phase) {
     case 2:
         q = a0->packet;
@@ -76,14 +71,16 @@ s32 _padRecvAtLoadInfo(void *raw) {
     case 4:
         if (a0->packet[2] != 0) goto r0;
         if (a0->packet[3] != 0) goto r0;
-        t = a0->scanOffsetEC;
-        b = a0->packet[4];
-        t += 8;
-        t += (b + 3) & 0x1FC;
-        n = a0->state47 + 1;
-        a0->state47 = n;
-        a0->scanOffsetEC = t;
-        if ((unsigned char)n < a0->combCountEA) goto r0;
+        {
+            u8 s47;
+            t = a0->scanOffsetEC;
+            b = a0->packet[4];
+            t += 8 + ((b + 3) & 0x1FC);
+            s47 = a0->state47 + 1;
+            a0->state47 = s47;
+            a0->scanOffsetEC = t;
+            if (s47 < a0->combCountEA) goto r0;
+        }
         if (_padGetActSize(a0) >= 0x81) {
             PadResetChannelFn(a0);
             a0->phase = 0xFE;

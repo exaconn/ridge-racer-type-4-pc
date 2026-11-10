@@ -23,19 +23,10 @@ extern char StrControllerNoErrorFmt[];
 extern char StrActuatorNoErrorFmt[];
 
 void PadUpdate(void) {
-    PadPort28 *ports[2];
-    ControllerState5C *states[2];
+    PadPort28 *ports[2] = { &PadPorts[0], &PadPorts[1] };
+    ControllerState5C *states[2] = { &PlayerControllers[0], &PlayerControllers[1] };
     s32 i;
-    s32 v;
     s16 val;
-
-    /* ASM_BARRIER: keep prologue register saves before ports array initialization */
-    __asm__ ("" ::: "memory");
-    ports[0] = &PadPorts[0];
-    ports[1] = &PadPorts[1];
-    __asm__ ("" ::: "memory"); /* ASM_BARRIER: schedule ports array initialization before loop preheader */
-    states[0] = &PlayerControllers[0];
-    states[1] = &PlayerControllers[1];
 
     for (i = 0; i < 2; i++) {
         if (ports[i]->type01 != states[i]->input00.fields.type) {

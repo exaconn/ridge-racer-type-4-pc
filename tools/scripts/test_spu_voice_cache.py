@@ -1,4 +1,5 @@
 """Actual selected-voice cache update: all signed selectors and ordered aliases."""
+from c_functions import source_owners, definition_source
 from pathlib import Path
 import re
 import subprocess
@@ -12,7 +13,8 @@ class SpuVoiceCacheTest(unittest.TestCase):
     def test_actual_body_with_overlapping_tone_and_program_sources(self):
         with TemporaryDirectory() as temporary:
             p=Path(temporary)
-            s=(ROOT/'tools/scripts/fixtures/views/func_80086E74.c').read_text()
+            owner=source_owners(ROOT/'src/main/PAL')['_SsVmDoAllocate']
+            s=definition_source(owner.read_text(),'_SsVmDoAllocate')
             s=re.sub(r'^#include.*\n','',s,flags=re.M)
             s=re.sub(r'^extern .*;\n','',s,flags=re.M)
             s=re.sub(r' asm\("\$\d+"\)','',s)
@@ -26,29 +28,23 @@ class SpuVoiceCacheTest(unittest.TestCase):
             #include <stdlib.h>
             #include <string.h>
             #include "rr/layout.h"
-            #undef RR_ASSERT_SIZE
-            #undef RR_ASSERT_OFFSET
-            #define RR_ASSERT_SIZE(t,s)
-            #define RR_ASSERT_OFFSET(t,f,o)
-            #undef RR_FIELD_OFFSET
-            #define RR_FIELD_OFFSET(t,f) offsetof(t,f)
             #include "rr/spu_voice_cache.h"
-            _Static_assert(sizeof(SpuProgram)==16,"program");
-            _Static_assert(sizeof(SpuTone32)==32,"tone");
+            _Static_assert(sizeof(ProgAtr)==16,"program");
+            _Static_assert(sizeof(VagAtr)==32,"tone");
             _Static_assert(sizeof(SpuVolumeCache)==416,"cache");
             _Static_assert(sizeof(ChannelControlRow36)==54,"row");
-            _Static_assert(offsetof(SpuProgram,value0C)==12,"program0C");
-            _Static_assert(offsetof(SpuProgram,value0E)==14,"program0E");
+            _Static_assert(offsetof(ProgAtr,sampleAddresses)==12,"program0C");
+            _Static_assert(offsetof(ProgAtr,sampleAddresses)+sizeof(u16)==14,"program0E");
             _Static_assert(offsetof(SpuCachedVolumeEntry,program06)==6,"program06");
             _Static_assert(offsetof(SpuCachedVolumeEntry,tone08)==8,"tone08");
             _Static_assert(offsetof(ChannelControlRow36,value06)==6,"row06");
             typedef union { uint64_t align; unsigned char bytes[4096]; } World;
             static World initial, actual, expected;
             static unsigned char *page;
-            static SpuProgram programs[32768];
-            static SpuTone32 tones[4352];
-            static SpuProgram *program_ptr;
-            static u8 *tone_ptr;
+            static ProgAtr programs[32768];
+            static VagAtr tones[4352];
+            static ProgAtrBuffer *program_ptr;
+            static VagAtrBuffer *tone_ptr;
             #define AT(t,o) (*(t *)(page+(o)))
             #define _svm_voice_cursor AT(u16,280)
             #define _svm_envx_hist ((u32 *)(page-64))
@@ -82,7 +78,7 @@ class SpuVoiceCacheTest(unittest.TestCase):
              wr16(page-450+offset,value);
              int v=(int16_t)rd16(page+280); page[-488+v]|=8;
              int bank=(int8_t)page[263], note=(int8_t)page[268];
-             unsigned char *tone=tone_ptr+(bank*16+note)*32;
+             unsigned char *tone=(u8 *)tone_ptr+(bank*16+note)*32;
              wr16(page-448+offset,rd16(tone+16));
              uint16_t flags=rd16(tone+18);
              uint32_t sum=rd16(page+160)+(flags&31);
@@ -94,14 +90,14 @@ class SpuVoiceCacheTest(unittest.TestCase):
             static uint32_t next(void){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
             static void bind(World *w,int mode,int tone_index){
              page=w->bytes+2048;
-             program_ptr=programs+16384;
-             tone_ptr=(u8 *)(tones+2176);
+             program_ptr=(ProgAtrBuffer *)(programs+16384);
+             tone_ptr=(VagAtrBuffer *)(tones+2176);
              int offset=rd16(page+280)*16;
-             if(mode==1)tone_ptr=page-448+offset-16-tone_index*32;
-             if(mode==2)tone_ptr=page-448+offset-18-tone_index*32;
-             if(mode==3)program_ptr=(SpuProgram *)(page-1778+(int16_t)rd16(page+280)*54-12);
-             if(mode==4)tone_ptr=page-450+offset-16-tone_index*32;
-             if(mode==5)tone_ptr=page-64-16-tone_index*32;
+             if(mode==1)tone_ptr=(VagAtrBuffer *)(page-448+offset-16-tone_index*32);
+             if(mode==2)tone_ptr=(VagAtrBuffer *)(page-448+offset-18-tone_index*32);
+             if(mode==3)program_ptr=(ProgAtrBuffer *)(page-1778+(int16_t)rd16(page+280)*54-12);
+             if(mode==4)tone_ptr=(VagAtrBuffer *)(page-450+offset-16-tone_index*32);
+             if(mode==5)tone_ptr=(VagAtrBuffer *)(page-64-16-tone_index*32);
             }
             int main(void){
              for(size_t i=0;i<sizeof(programs);i++)((u8 *)programs)[i]=next();

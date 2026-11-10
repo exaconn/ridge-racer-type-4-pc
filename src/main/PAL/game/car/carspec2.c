@@ -80,15 +80,7 @@ int CalcRubberBandFactor(RaceVehicle *a0, int a1) {
             }
             i = t0->boostTimer44;
             if (i > 0) {
-                i = i << 10;
-                /* Note: keep sll before the lh (original schedule) and keep lo global */
-                /* ASM_BARRIER: keep sll before the lh (original schedule) and keep lo global */
-                __asm__ ("" : "=r"(i), "=r"(lo) : "0"(i));
-                v1 = t0->divisor11C;
-                if (v1 < 0) {
-                    v1 = -v1;
-                }
-                s1 = (s1 * (0x400 - (i / v1))) / 1024;
+                s1 = (s1 * (0x400 - ((i << 10) / __builtin_abs(t0->divisor11C)))) / 1024;
             }
         } else if (i < 7) {
             int lo2;
@@ -114,7 +106,8 @@ int CalcRubberBandFactor(RaceVehicle *a0, int a1) {
                 if (SoundState.unk1A28 == 0) {
                     v0 = PsyqRand() & 1;
                     SoundState.unk1A2C = v0;
-                    SoundQueueEnqueue(v0 + 0xD, 0);
+                    lo = v0 + 0xD;
+                    SoundQueueEnqueue(lo, 0);
                 }
                 SoundState.unk1A0C[((s16)a0->flags1E4 & 0xF) - 1] = 1;
                 SoundState.unk1A28 = 0x4B;

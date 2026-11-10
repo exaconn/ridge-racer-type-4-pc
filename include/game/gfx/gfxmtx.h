@@ -10,7 +10,7 @@ extern u8 D_8009F924[4];
 extern PreviewColor4 D_8009F928[3];
 extern LightDirectionBits8 D_8009F934[3];
 
-extern int StrSizeEqLdFmt[];
+extern char StrSizeEqLdFmt[];
 void SetLightColorsScaled(int a0);
 void SetLightColorsFromRow(s32 index);
 enum {
@@ -21,7 +21,7 @@ enum {
 /* Return readiness bits for both groups; flags selects which groups to scan.
  * Unselected groups and groups with a nonpositive row count are ready. */
 int StepMenuCameraTransition(int flags);
-int AllocBadgeRows(int a0);
+int AllocBadgeRows(void *a0);
 
 RR_ASSERT_SIZE(LightDirectionBits8, 8);
 

@@ -55,9 +55,8 @@ int DrawMenuGridMesh(s32 arg0, P_TAG *arg1, s32 arg2) {
     s32 sp6C;
     Scratch *g = (Scratch *)SCRATCHPAD;
     s32 t;
+    s32 div_num;
     s32 count;
-    /* ASM_BARRIER: pin dividend 0x600 to $a0 to match local-alloc order */
-    register s32 div_num asm("$4");
     s32 cols_total;
     s32 step_ang;
     s32 *sxy_buf;
@@ -87,11 +86,11 @@ int DrawMenuGridMesh(s32 arg0, P_TAG *arg1, s32 arg2) {
     SetTransMatrix(&sp10);
     SetRotMatrix(&sp10);
 
+    div_num = 0x600;
     count = MenuGridRecords[arg0].count2C;
     cols_total = MenuGridRecords[arg0].columns2E * count + 1;
     sxy_buf = (s32 *)(SCRATCHPAD + 0x7C);
     shade_buf = (u8 *)(SCRATCHPAD + 0x338);
-    div_num = 0x600;
     step_ang = div_num / count;
     s6 = 0;
     for (s5 = 0; s5 < MenuGridRecords[arg0].rows2F + 1; s5++) {

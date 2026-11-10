@@ -263,16 +263,11 @@ void UpdateWheelBumps(RaceVehicle *a)
         a->prevWheelNodes100[SC->s8] = a->wheelNodesF8[SC->s8];
     } while (++SC->s8 < 4);
     a->wheelRotX1A8 += Atan2Table(a->halfSpan10E, (SC->h150[0] + SC->h150[1] - (SC->h150[2] + SC->h150[3])) >> 3);
+    a->wheelRotZ1AA += Atan2Table(a->width10C, (SC->h150[0] + SC->h150[2] - (SC->h150[1] + SC->h150[3])) >> 3);
     {
-        short r = Atan2Table(a->width10C, (SC->h150[0] + SC->h150[2] - (SC->h150[1] + SC->h150[3])) >> 3);
-        int wac = a->wheelPositions88[2].y;
-        int wbc = a->wheelPositions88[3].y;
-        int m = (wac + wbc) >> 1;
+        int m = (a->wheelPositions88[2].y + a->wheelPositions88[3].y) >> 1;
         a->pos10[1] = m;
-        a->wheelRotZ1AA += r;
         a->pos10[1] = ((((a->wheelPositions88[0].y + a->wheelPositions88[1].y) - (a->wheelPositions88[2].y + a->wheelPositions88[3].y)) >> 1) * 0x14) / a->halfSpan10E + m;
-        /* ASM_BARRIER: keep wbc live past h1aa update so local-alloc picks a2 */
-        __asm__ ("" : : "r"(wbc));
     }
     {
         int m = (SC->w114[2][0] + SC->w114[3][0]) >> 1;
@@ -314,11 +309,10 @@ void UpdateWheelBumps(RaceVehicle *a)
         /* ASM_BARRIER: pin w78 to v0 */
         register int w78 asm("$2") = a->ir70[2];
         int w48 = a->ir40[2];
+        int w44 = a->ir40[1];
         int w10 = a->pos10[0];
         int w18 = a->pos10[2];
         int wcc;
-        /* ASM_BARRIER: pin w44 to a1 */
-        register int w44 asm("$5") = a->ir40[1];
         int v2;
         /* ASM_BARRIER: schedule w10/w18 loads before wcc load */
         __asm__ ("" : "+r"(w78) : "r"(w10), "r"(w18), "r"(w48), "r"(w44));
@@ -349,23 +343,14 @@ void UpdateWheelBumps(RaceVehicle *a)
 void SetTrackNodeData(char *a)
 {
     struct B4 sp;
-    int i = 0;
-    int n;
-    register TrackSample3C *p asm("$8");
+    int i;
     TrackNodeGrid = (short *)(a + 4);
     sp = *(struct B4 *)a;
-    n = ((int *)a)[0x201];
-    TrackNodes = p = (TrackSample3C *)(a + 0x808);
+    TrackNodes = (TrackSample3C *)(a + 0x808);
     TrackLength = 0;
-    TrackNodeCount = n;
-    if (n > 0) {
-        int m = n;
-        register TrackSample3C *q asm("$4") = p;
-        do {
-            TrackLength += q->segmentLength1C;
-            q++;
-            i++;
-        } while (i < m);
+    TrackNodeCount = ((int *)a)[0x201];
+    for (i = 0; i < TrackNodeCount; i++) {
+        TrackLength += TrackNodes[i].segmentLength1C;
     }
     D_800AC53C = TrackLength / 1024;
     D_800ACC74 = (TrackLength >> 8) + 1;

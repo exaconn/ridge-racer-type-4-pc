@@ -1,3 +1,4 @@
+#include "rr/menu_text_state.h"
 #include "rr/menu_grid.h"
 #include "rr/ui.h"
 #include "rr/badge_row_types.h"
@@ -19,7 +20,6 @@ extern int D_800F3A60;
 extern short ModeGroup;
 extern short SubmodeState;
 extern MenuGlyphRow1C *GlyphRows;
-extern char *Dialogue;
 
 void StepModeSelectChoice(void) {
     int s0;
@@ -28,29 +28,28 @@ void StepModeSelectChoice(void) {
     int t = SelectionRows[0];
     SelectedTeamIndex = t;
     ((u8 *)UiRows)[t + 0xC] = 0;
-    do {
-        if ((D_800F3A42 & 0x2000) && SelectedTeamIndex < 3) {
-            SelectedTeamIndex = (unsigned short)SelectedTeamIndex + 1;
-            MenuStepDirection = 2;
-        } else if ((D_800F3A42 & 0x8000) && SelectedTeamIndex > 0) {
-            SelectedTeamIndex = (unsigned short)SelectedTeamIndex - 1;
-            MenuStepDirection = 1;
-        } else {
-            MenuStepDirection = 0;
-            break;
-        }
-        PlaySfx(0);
-        if (SelectedTeamIndex < 0) {
-            SelectedTeamIndex = 0;
-        } else if (SelectedTeamIndex >= 4) {
-            SelectedTeamIndex = 3;
-        }
-        SelectionRows[0] = SelectedTeamIndex;
-        Dialogue[4] = (unsigned char)SelectedTeamIndex + 0x22;
-        GlyphRows[SelectedTeamIndex].control02 = -6;
-        GlyphRows[SelectedTeamIndex].flags00 = 0;
-        UiRows->byte16 = SelectedTeamIndex;
-    } while (0);
+    if ((D_800F3A42 & 0x2000) && SelectedTeamIndex < 3) {
+        SelectedTeamIndex = (unsigned short)SelectedTeamIndex + 1;
+        MenuStepDirection = 2;
+    } else if ((D_800F3A42 & 0x8000) && SelectedTeamIndex > 0) {
+        SelectedTeamIndex = (unsigned short)SelectedTeamIndex - 1;
+        MenuStepDirection = 1;
+    } else {
+        MenuStepDirection = 0;
+        goto skip_step;
+    }
+    PlaySfx(0);
+    if (SelectedTeamIndex < 0) {
+        SelectedTeamIndex = 0;
+    } else if (SelectedTeamIndex >= 4) {
+        SelectedTeamIndex = 3;
+    }
+    SelectionRows[0] = SelectedTeamIndex;
+    Dialogue->b4 = (unsigned char)SelectedTeamIndex + 0x22;
+    GlyphRows[SelectedTeamIndex].control02 = -6;
+    GlyphRows[SelectedTeamIndex].flags00 = 0;
+    UiRows->byte16 = SelectedTeamIndex;
+skip_step:;
     q = UiRows->cells;
     q[SelectedTeamIndex] = 2;
     if (D_800F3A60 != 0) {
@@ -92,8 +91,6 @@ void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y) {
     register s32 step_y;
     s32 step_x;
     register s32 layout_offset;
-    /* ASM_BARRIER: retain both captured packed words in T4/T5 until stores. */
-    register u32 first asm("$12"), second asm("$13");
     /* PAL RAM page owns the full-width record-pointer slot at offset 0x3A28. */
     page = (MenuGridPointerPage *)0x800F0000U;
     offset = index * sizeof(MenuGrid38);
@@ -115,12 +112,7 @@ void InitMenuGrid(s32 index, s32 layout, s32 count, s32 x, s32 y) {
     next = (MenuGrid38 *)(offset + (unsigned long)page->records3A28);
     row = (const GridRow8 *)((u8 *)table + layout_offset);
     entry->step_x08 = step_x;
-    first = row->first;
-    second = row->second;
-    /* ASM_BARRIER: stage the captured first word before the packed destination writes. */
-    __asm__("" : : "r"(first));
-    ((GridRow8 *)&entry->u30)->first = first;
-    ((GridRow8 *)&entry->u30)->second = second;
+    *(GridRow8 *)&entry->u30 = *row;
     next->du32 = next->du32 / next->columns2E;
     last = (MenuGrid38 *)(offset + (unsigned long)page->records3A28);
     last->dv33 = last->dv33 / last->rows2F;

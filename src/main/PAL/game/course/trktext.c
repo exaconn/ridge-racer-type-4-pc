@@ -105,10 +105,7 @@ void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
     s32 v;
     /* ASM_BARRIER: retain Y in S1 while A1 becomes glyph and width address. */
     register s32 yy asm("$17");
-    /* ASM_BARRIER: retain the ordering-head index in S0 across the loop. */
-    register s32 selected asm("$16");
-    /* ASM_BARRIER: retain glyph U in T2 until the coordinate stores. */
-    register s32 u asm("$10");
+    s32 u;
     const u8 *map, *widths;
     s32 missing, command;
     u32 low, high;
@@ -116,8 +113,7 @@ void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
     packet = (SpritePacket *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
     current_x = x;
     yy = y;
-    selected = bank;
-    if (*text != 0) {
+if (*text != 0) {
         map = D_800A015C + 32;
         missing = 255;
         command = 0x66;
@@ -133,14 +129,7 @@ void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
                 fields[-11] = 4;
                 fields[-7] = 0x64;
                 row = glyph / 21;
-                {
-                    s32 remainder = glyph - row * 21;
-                    /* ASM_BARRIER: finish the remainder-times-three value in V1. */
-                    register s32 triple asm("$3") = remainder * 3;
-                    /* ASM_BARRIER: expose the unscaled triple before the final shift. */
-                    __asm__("" : : "r"(triple));
-                    u = triple * 4;
-                }
+                u = (glyph % 21) * 12;
                 v = row * 12 + 188;
                 if (color == missing) {
                     fields[-7] = 0x65;
@@ -154,12 +143,12 @@ void DrawFontString(s32 x, s32 y, const u8 *text, s32 color, s32 bank) {
                 ((s16 *)fields)[-3] = current_x;
                 ((s16 *)fields)[-2] = yy;
                 width = *width_entry;
-                ((s16 *)fields)[2] = 12;
-                *(s16 *)fields = 0x7F78;
                 fields[-2] = u;
                 fields[-1] = v;
+                ((s16 *)fields)[2] = 12;
+                *(s16 *)fields = 0x7F78;
                 context = CurrentDrawBuf;
-                head = (u32 *)((selected * 4) + (unsigned long)context + 0x70);
+                head = (u32 *)((bank * 4) + (unsigned long)context + 0x70);
                 ((s16 *)fields)[1] = width;
                 fields += 20;
                 *(u32 *)packet = (*(u32 *)packet & high) | (*head & low);
@@ -228,19 +217,15 @@ void DrawFontStringRight(int a0, int a1, unsigned char *s, int a3, int a4) {
 }
 
 void AddSetTexpagePrim(int a0) {
-    register int *g asm("$8") = (int *)SCRATCHPAD;
-    int lo;
-    int *p = (int *)g[0];
+    GpuCommandPacket *p = (GpuCommandPacket *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
     int *q;
-    int t;
-    ((char *)p)[3] = 1;
-    p[1] = 0xE100023E;
+    p->tag.bytes.length = 1;
+    p->command = 0xE100023E;
     q = (int *)(a0 * 4 + (int)CurrentDrawBuf);
-    lo = 0xFFFFFF;
-    t = q[0x70/4];
-    p[0] = (p[0] & 0xFF000000) | (t & lo);
-    q[0x70/4] = (q[0x70/4] & 0xFF000000) | ((int)p & lo);
-    g[0] = (p + 2);
+    p->tag.word = (p->tag.word & 0xFF000000) | (q[0x70/4] & 0xFFFFFF);
+    q[0x70/4] = (q[0x70/4] & 0xFF000000) | ((int)p & 0xFFFFFF);
+    p++;
+    ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)p;
 }
 
 void *EmitTexturedQuadPrim(TexturedQuadDesc2C *a0)

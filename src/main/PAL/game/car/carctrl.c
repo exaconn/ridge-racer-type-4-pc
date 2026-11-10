@@ -2,7 +2,7 @@
 
 void UpdateComCarLaneChange(RaceVehicle *vehicle) {
     s32 stepOutput;
-    register s32 workingStep __asm__("$2");
+    s32 workingStep;
     s16 mode;
     s16 nextTimer;
     s32 timer; s32 currentNode; s32 trackCount;
@@ -42,16 +42,11 @@ void UpdateComCarLaneChange(RaceVehicle *vehicle) {
         break;
     case 1:
         EvalRateCurve(&vehicle->control.dynamics94.steering.primary34, control->dynamics94.steering.timer02, &stepOutput);
-        workingStep=stepOutput;
-        angle = ((u32)control->dynamics94.steering.angle0C - workingStep);
-        control->dynamics94.steering.angle0C = angle; asm("" : : "m"(control->dynamics94.steering.angle0C));
-        adjustedAngle = angle; asm("" : : "r"(angle), "r"(adjustedAngle));
+        workingStep = stepOutput;
+        control->dynamics94.steering.angle0C = ((u32)control->dynamics94.steering.angle0C - workingStep);
         control->dynamics94.steering.delta10 = workingStep;
         control->dynamics94.steering.remaining08 = ((u32)control->dynamics94.steering.remaining08 - workingStep);
-        if (adjustedAngle < 0) {
-            adjustedAngle += 0xFFF;
-        }
-        workingStep = adjustedAngle >> 12;  vehicle->rot54 = workingStep;
+        vehicle->rot54 = control->dynamics94.steering.angle0C / 4096;
         if (control->dynamics94.steering.phase28 == 0) {
             delta = control->dynamics94.steering.delta10;
             lateralStep = delta / 8;
@@ -71,7 +66,7 @@ void UpdateComCarLaneChange(RaceVehicle *vehicle) {
         phase = control->dynamics94.steering.phase28;
         if (phase > 0) {
             EvalRateCurve(&control->dynamics94.steering.secondary4C, phase - 1, &stepOutput);
-            workingStep=control->dynamics94.steering.lateral24;  lateral = ((u32)workingStep - stepOutput);
+            lateral = ((u32)control->dynamics94.steering.lateral24 - stepOutput);
             control->dynamics94.steering.lateral24 = lateral;
             vehicle->lateralMotion178 = lateral / 16;
             control->dynamics94.steering.phase28 = (control->dynamics94.steering.phase28 + 1U);

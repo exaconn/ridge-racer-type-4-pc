@@ -88,14 +88,19 @@ void *test_packet_address(void){return packet.prefix;}
             body = re.sub(r'"\$[0-9]+",\s*', '', body)
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?=\))', '', body)
             if name == 'MoveImage2':
-                assert body.count('status=*DMA2_CHCR;') == 2
-                assert body.count('*GPU_STATUS&') == 1
-                body = body.replace('status=*DMA2_CHCR;', 'status=test_dma_read(DMA2_CHCR);')
-                body = body.replace('*GPU_STATUS&', 'test_gpu_read(GPU_STATUS)&')
+                # Instrument each actual volatile read. The old spelling had
+                # separate initial/retry sites; the structured loop has one
+                # lexical site with the same runtime access sequence.
+                dma_reads = re.findall(r'\*DMA2_CHCR\b',body)
+                assert len(dma_reads) in (1,2)
+                assert len(re.findall(r'\*GPU_STATUS\b',body)) == 1
+                body = re.sub(r'\*DMA2_CHCR\b','test_dma_read(DMA2_CHCR)',body)
+                body = re.sub(r'\*GPU_STATUS\b','test_gpu_read(GPU_STATUS)',body)
             code += body
         directory = Path(cls.temp.name)
         (directory/'function.c').write_text(code)
-        result = subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory/'function.c'),
+        result = subprocess.run(['cc', '-shared', '-fPIC', '-O2', '-fsanitize=undefined,bounds',
+                                 '-fno-sanitize-recover=all', str(directory/'function.c'),
                                  '-o', str(directory/'function.so')], capture_output=True)
         if result.returncode:
             raise AssertionError(result.stderr.decode())

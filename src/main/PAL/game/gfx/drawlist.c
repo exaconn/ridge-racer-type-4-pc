@@ -1,5 +1,4 @@
 /* RODATA 0x800101f4 0xd8 */
-/* CC1_FLAGS: -fno-strength-reduce */
 #include "types.h"
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
@@ -63,7 +62,7 @@ extern short ModeGroup;
 extern int DialogueSceneMode;
 extern short SubmodeState;
 extern short D_8009E4EC;
-extern char *CdDirectoryBuffer;
+#include "rr/cd_directory_buffer.h"
 extern const Vec3s8 D_800101EC;
 extern const VectorWords16 D_8009E510;
 extern const VectorWords16 D_8009E520;
@@ -74,10 +73,11 @@ void StepIntroScene();
 void EmitSpriteGrid(u32 intensity,SpriteGridClock *state);
 
 void StepIntroScene(void) {
+    int idx;
     int temp_s5;
     register IntroSceneState *g asm("$2"); /* ASM_BARRIER: pin G reload pointer to $v0 */
     register IntroSceneState *g_a0 asm("$4"); /* ASM_BARRIER: pin G reload pointer to $a0 in case 0x2F */
-    register IntroSceneState *g_v1 asm("$3"); /* ASM_BARRIER: pin G reload pointer to $v1 in case 0x32 */
+    IntroSceneState *g_v1;
     int temp_a0;
     int temp_a0_10;
     int temp_a0_2;
@@ -104,7 +104,7 @@ void StepIntroScene(void) {
     short *temp_a1_7;
     short *temp_a1_8;
     short *temp_a1_9;
-    int temp_t0; /* ASM_BARRIER: pin clamped color temp to $t0 */
+    int temp_t0;
     int temp_v0;
     int temp_v1;
     int temp_v1_10;
@@ -124,16 +124,16 @@ void StepIntroScene(void) {
     int v0;
     struct V16 *dv;
     register char *src asm("$2"); /* ASM_BARRIER: pin src to $2 as in original copy sequence */
-    int *st; /* ASM_BARRIER: pin state pointer to $a0 */
-    int *st_v1; /* ASM_BARRIER: pin state pointer to $v1 in case 0x2F */
+    int *st;
+    int *st_v1;
     register int c80 asm("$3"); /* ASM_BARRIER: pin hoisted 0x80 constant to $v1 in case 0x2F */
-    register int c8 asm("$2"); /* ASM_BARRIER: pin 8 constant to $v0 in case 0x32 */
     int *sp1, *sp2, *sp3, *sp4;
-    int *tabq; /* ASM_BARRIER: pin GTE IR table pointer to $v1 */
+    int *tabq;
     int *tabr;
-    register int c_800060 asm("$7"); /* ASM_BARRIER: pin 0x800060 constant to $a3 in block_241 */
-    register int c_800080 asm("$6"); /* ASM_BARRIER: pin 0x800080 constant to $a2 in block_241 */
-    register int c_e1000240 asm("$5"); /* ASM_BARRIER: pin 0xE1000240 constant to $a1 in block_241 */
+    int mid;
+    int c_e1000240;
+    int c_800080;
+    int c_800060;
     int var_a1;
     int var_a1_2;
     int var_a1_3;
@@ -143,9 +143,9 @@ void StepIntroScene(void) {
     int var_v0;
     int var_v0_2;
     int var_v0_3;
-    int var_v0_4; /* ASM_BARRIER: pin clamp result to $v0 */
+    int var_v0_4;
     char *temp_s0, *temp_s1, *temp_s2;
-    struct P *temp_t1; /* ASM_BARRIER: pin packet pointer to $t1 */
+    struct P *temp_t1;
     struct SPD *spd, *spd2;
     int col;
     temp_s5 = PollCdAudioStatus();
@@ -810,7 +810,7 @@ case 0x32:
     sp4[6] = 0x400;
     sp4[7] = 0;
     sp4[8] = 0;
-    __asm__ volatile("" : "=r"(st) :: "memory"); /* ASM_BARRIER: clobber $a0 so %hi(IntroSceneStatePtr) stays in $a1 across sp4 stores */
+    __asm__ volatile("" : "=r"(temp_a0) :: "memory"); /* ASM_BARRIER: clobber $a0 so %hi(IntroSceneStatePtr) stays in $a1 across sp4 stores */
     src = IntroCameraPosKeyframes;
     g_v1 = G;
     __asm__ ("" : "+r"(src), "+r"(g_v1) :: "$8", "$9"); /* ASM_BARRIER: emit src and G reload before state lui and reserve $t0-$t1 for sp2 in $t5 */
@@ -818,11 +818,9 @@ case 0x32:
     sp2 = (int *)(SCRATCHPAD + 0x8);
     RR_COPY16_T(sp2, src, 144);
     *st = 0x33;
-    __asm__ ("" ::: "memory"); /* ASM_BARRIER: keep *st = 0x33 before c8 = 8 */
-    c8 = 8;
     g_v1->s48 = 0;
-    g_v1->s74 = c8;
-    g_v1->s98 = c8;
+    g_v1->s74 = 8;
+    g_v1->s98 = 8;
     g_v1->s44 = 0;
 case 0x33:
     if (G->s44 < 0x20) {
@@ -954,21 +952,14 @@ case 0x27:
     RampValueTo4096(&G->s6E, &G->s92);
     RampValueTo4096(&G->s70, &G->s94);
     RampValueTo4096(&G->s72, &G->s96);
-    g_v1 = G;
-    v0 = (unsigned short)g_v1->sA0;
-    if (g_v1->sA0 != 0) {
-        c8 = v0 - 0x80;
-        g_v1->sA0 = c8;
-        RR_GTE_MTC2_IR0(c8);
-        c8 = g_v1->s9E;
-        st = (int *)IntroCameraPosKeyframes;
-        tabq = st + c8 * 4;
-        RR_GTE_LWC2_IR(tabq);
-        tabr = st + (c8 - 1) * 4;
-        RR_GTE_SETFC_P(tabr);
+    if (G->sA0 != 0) {
+        G->sA0 -= 0x80;
+        RR_GTE_MTC2_IR0((unsigned short)G->sA0);
+        idx = G->s9E;
+        RR_GTE_LWC2_IR((int *)IntroCameraPosKeyframes + idx * 4);
+        RR_GTE_SETFC_P((int *)IntroCameraPosKeyframes + (idx - 1) * 4);
         RR_GTE_INTPL();
-        sp3 = (int *)(SCRATCHPAD + 0x8);
-        RR_GTE_STORE_IR(sp3);
+        RR_GTE_STORE_IR((int *)(SCRATCHPAD + 0x8));
     }
     BuildScaledCameraMatrices();
     SetupViewport(6);
@@ -1016,19 +1007,15 @@ case 0x27:
     }
     c80 = G->s9A;
     if (c80 != 0) {
-        var_v0_4 = 0x100;
-        __asm__ ("" : "+r"(var_v0_4)); /* ASM_BARRIER: fill beq delay slot with addiu $v0,$zero,256 */
         temp_t1 = spd->cur;
-        temp_t0 = var_v0_4 - c80;
+        temp_t0 = 0x100 - c80;
         temp_t0 = (temp_t0 < 0 ? 0 : temp_t0) > 0x100 ? 0x100 : (temp_t0 < 0 ? 0 : temp_t0);
         c_800060 = 0x800060;
         c_800080 = 0x800080;
         c_e1000240 = 0xE1000240;
         c80 = temp_t0 << 0x10;
-        var_v0_4 = temp_t0 << 8;
-        st = (int *)0x62000000;
-        var_v0_4 |= (int)st;
-        c80 |= var_v0_4;
+        mid = (temp_t0 << 8) | 0x62000000;
+        c80 |= mid;
         c80 |= temp_t0;
         temp_t1->w[1] = c80;
         spd2 = (struct SPD *)SCRATCHPAD;
@@ -1041,7 +1028,7 @@ case 0x27:
         spd2->ot->h.b.len = 0;
         temp_t1++;
         spd2->cur = temp_t1;
-        DrawMenuGridMesh(0, &spd2->ot->h, 1, c_800060);
+        DrawMenuGridMesh(0, &spd2->ot->h, 1);
     }
     H->half02 = 1;
     UpdateBadgeRowAnim(0);
@@ -1050,79 +1037,44 @@ case 0x27:
     UpdateScreenFade(0x1001C);
 }
 
-void EmitSpriteGrid(u32 intensity,SpriteGridClock *state) {
-    s32 row;
-    /* ASM_BARRIER: retain the horizontal position counter in a3. */
-    register s32 x __asm__("$7");
-    s32 phase;
-    s32 index;
-    u32 hi;
-    u32 middle;
-    u32 size;
-    u32 uv;
-    s32 limit;
-    s32 length;
-    s32 quotient;
-    /* ASM_BARRIER: materialize the packed row step only after each sprite row. */
-    register u32 row_step __asm__("$2");
-    u32 mode_command;
-    u32 y;
-    /* ASM_BARRIER: keep the raw/color word in its original temporary. */
-    register u32 color __asm__("$9")=intensity;
-    GpuScratchPointers *order_page;
+void EmitSpriteGrid(u32 intensity, SpriteGridClock *state) {
+    u32 color = intensity;
+    u32 hi, middle;
+    s32 row, x, phase, index;
     GpuScratchPointers *scratch;
-    u8 *packet;
-    u8 *fields;
-    hi=color<<16;
-    middle=color<<8;
-    middle|=0x66000000U;
-    hi|=middle;
-    color|=hi;
-    row=0;
-    /* ASM_BARRIER: keep the row counter distinct from later coordinate zero. */
-    __asm__("" : "+r"(row));
-    limit=15;size=0x180010;uv=0x2F29A400U;
-    order_page=(GpuScratchPointers*)SCRATCHPAD;
-    /* ASM_BARRIER: stage the scratch page before the packed-y constant. */
-    __asm__("" : "+r"(order_page) : : "$8");
-    length=4;
-    y=0xB00000;
-    packet=*(u8**)SCRATCHPAD;
+    struct P *packet;
+
+    hi = color << 16;
+    middle = color << 8;
+    middle |= 0x66000000U;
+    hi |= middle;
+    color |= hi;
+
+    packet = *(struct P **)SCRATCHPAD;
     state->tick0E++;
-    phase=state->tick0E;
-    /* ASM_BARRIER: capture tick phase before starting the horizontal counter. */
-    __asm__("" : "+r"(phase) : : "$7");
-    x=0;
-    do {
-        fields=packet+3;
-        do {
-            quotient=phase;
-            if(phase<0)quotient=phase+3;
-            index=(quotient>>2)&15;
-            if(index==limit)index=0;
-            ((u32*)(fields+1))[1]=y|(x+172);
-            ((u32*)(fields+1))[0]=color;
-            ((u32*)(fields+1))[3]=size;
-            ((u32*)(fields+1))[2]=index*16+uv;
-            phase+=5;x+=26;
-            *(u32*)packet=*ORDER;
-            fields[0]=length;
-            fields+=sizeof(SpritePacket);
-            *ORDER=packet;
-            ((u8*)ORDER)[3]=0;
-            packet+=sizeof(SpritePacket);
-        }while(x<130);
-        row_step=0x300000;
-        y+=row_step;
-        row+=48;x=0;
-    }while(row<144);
-    mode_command=0xE100022A;
-    scratch=(GpuScratchPointers*)SCRATCHPAD;
-    CURSOR=packet;
-    ((u32*)packet)[1]=mode_command;
-    *(u32*)CURSOR=*scratch->order;
-    CURSOR[3]=1;
-    *scratch->order=CURSOR;
-    ((u8*)scratch->order)[3]=0;
-    CURSOR+=sizeof(GpuSingleCommandPacket);
+    phase = state->tick0E;
+    for (row = 0; row < 144; row += 48) {
+        for (x = 0; x < 130; x += 26) {
+            index = (phase / 4) & 15;
+            if (index == 15) index = 0;
+            packet->w[1] = ((row + 0xB0) << 16) | (x + 172);
+            packet->w[0] = color;
+            packet->w[3] = 0x180010;
+            packet->w[2] = index * 16 + 0x2F29A400U;
+            phase += 5;
+            *(u32 *)packet = *((GpuScratchPointers *)SCRATCHPAD)->order;
+            packet->h.b.len = 4;
+            *((GpuScratchPointers *)SCRATCHPAD)->order = packet;
+            ((u8 *)((GpuScratchPointers *)SCRATCHPAD)->order)[3] = 0;
+            packet++;
+        }
+    }
+    scratch = (GpuScratchPointers *)SCRATCHPAD;
+    scratch->cursor = (u8 *)packet;
+    ((u32 *)packet)[1] = 0xE100022A;
+    *(u32 *)scratch->cursor = *scratch->order;
+    scratch->cursor[3] = 1;
+    *scratch->order = scratch->cursor;
+    ((u8 *)scratch->order)[3] = 0;
+    scratch->cursor += sizeof(GpuSingleCommandPacket);
 }

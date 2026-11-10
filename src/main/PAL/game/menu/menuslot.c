@@ -28,7 +28,6 @@ extern int ModeFrame;
 extern int D_800F3A60;
 extern int D_800F4D74;
 extern BadgeRow1C *BadgeRows;
-extern struct { s32 unk00; char b4; char unk05[2]; char b7; } *Dialogue;
 extern int DialogueSceneMode;
 extern char D_8009F648[];
 
@@ -96,10 +95,10 @@ void YesNoPromptModeUpdate(void) {
     UpdateScreenFade(0x10084);
 }
 
-void InitDialogueState(signed char *a0) {
-    PsyqBzero(a0, 0x348);
-    a0[5] = -1;
-    a0[4] = 0;
+void InitDialogueState(MenuTextState *a0) {
+    PsyqBzero(a0, sizeof(*a0));
+    a0->b5 = -1;
+    a0->b4 = 0;
     if (DialogueSceneMode == 1) {
         SelectDialogueScript();
     }

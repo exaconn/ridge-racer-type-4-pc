@@ -12,57 +12,54 @@
 
 extern short AtanTable[];
 
-void BuildRotMatrixZ(short *a0, int a1);
-void BuildRotMatrixY(void *arg0, s32 arg1);
-void BuildRotMatrixX(void *arg0, s32 arg1);
 s32 Atan2Table(int a0, int a1);
 
-void BuildRotMatrixZ(short *a0, int a1) {
-    short s = rsin(a1);
-    short c = rcos(a1);
-    a0[1] = -s;
-    a0[0] = c;
-    a0[4] = c;
-    a0[2] = 0;
-    a0[3] = s;
-    a0[5] = 0;
-    a0[6] = 0;
-    a0[7] = 0;
-    a0[8] = 0x1000;
+void BuildRotMatrixZ(MatrixWords32 *matrix, s32 angle) {
+    short sine = rsin(angle);
+    short cosine = rcos(angle);
+    matrix->fields.rotation00[0][1] = -sine;
+    matrix->fields.rotation00[0][0] = cosine;
+    matrix->fields.rotation00[1][1] = cosine;
+    matrix->fields.rotation00[0][2] = 0;
+    matrix->fields.rotation00[1][0] = sine;
+    matrix->fields.rotation00[1][2] = 0;
+    matrix->fields.rotation00[2][0] = 0;
+    matrix->fields.rotation00[2][1] = 0;
+    matrix->fields.rotation00[2][2] = 0x1000;
 }
 
-void BuildRotMatrixY(void *arg0, s32 arg1) {
-    s16 temp_s1;
-    s16 temp_v0;
+void BuildRotMatrixY(MatrixWords32 *matrix, s32 angle) {
+    s16 sine;
+    s16 cosine;
 
-    temp_s1 = rsin(arg1);
-    temp_v0 = rcos(arg1);
-    ((s16 *)arg0)[2] = (s16) -temp_s1;
-    ((s16 *)arg0)[0] = temp_v0;
-    ((s16 *)arg0)[1] = 0;
-    ((s16 *)arg0)[3] = 0;
-    ((s16 *)arg0)[4] = 0x1000;
-    ((s16 *)arg0)[5] = 0;
-    ((s16 *)arg0)[6] = temp_s1;
-    ((s16 *)arg0)[7] = 0;
-    ((s16 *)arg0)[8] = temp_v0;
+    sine = rsin(angle);
+    cosine = rcos(angle);
+    matrix->fields.rotation00[0][2] = (s16) -sine;
+    matrix->fields.rotation00[0][0] = cosine;
+    matrix->fields.rotation00[0][1] = 0;
+    matrix->fields.rotation00[1][0] = 0;
+    matrix->fields.rotation00[1][1] = 0x1000;
+    matrix->fields.rotation00[1][2] = 0;
+    matrix->fields.rotation00[2][0] = sine;
+    matrix->fields.rotation00[2][1] = 0;
+    matrix->fields.rotation00[2][2] = cosine;
 }
 
-void BuildRotMatrixX(void *arg0, s32 arg1) {
-    s16 temp_s1;
-    s16 temp_v0;
+void BuildRotMatrixX(MatrixWords32 *matrix, s32 angle) {
+    s16 sine;
+    s16 cosine;
 
-    temp_s1 = rsin(arg1);
-    temp_v0 = rcos(arg1);
-    ((s16 *)arg0)[0] = 0x1000;
-    ((s16 *)arg0)[1] = 0;
-    ((s16 *)arg0)[2] = 0;
-    ((s16 *)arg0)[3] = 0;
-    ((s16 *)arg0)[4] = temp_v0;
-    ((s16 *)arg0)[5] = (s16) -temp_s1;
-    ((s16 *)arg0)[6] = 0;
-    ((s16 *)arg0)[7] = temp_s1;
-    ((s16 *)arg0)[8] = temp_v0;
+    sine = rsin(angle);
+    cosine = rcos(angle);
+    matrix->fields.rotation00[0][0] = 0x1000;
+    matrix->fields.rotation00[0][1] = 0;
+    matrix->fields.rotation00[0][2] = 0;
+    matrix->fields.rotation00[1][0] = 0;
+    matrix->fields.rotation00[1][1] = cosine;
+    matrix->fields.rotation00[1][2] = (s16) -sine;
+    matrix->fields.rotation00[2][0] = 0;
+    matrix->fields.rotation00[2][1] = sine;
+    matrix->fields.rotation00[2][2] = cosine;
 }
 
 void SetIdentityMatrix(MatrixWords32 *matrix) {
@@ -83,7 +80,7 @@ void SetIdentityMatrix(MatrixWords32 *matrix) {
 void BuildCameraMatrices(void) {
     MatrixWords32 rotation;
     ProjectionScratchPrefix *view = (ProjectionScratchPrefix *)SCRATCHPAD;
-    BuildRotMatrixY(SCRATCH_ROT_MATRIX, view->pose08.angles10.xyz.y);
+    BuildRotMatrixY((MatrixWords32 *)SCRATCH_ROT_MATRIX, view->pose08.angles10.xyz.y);
     BuildRotMatrixY(&CameraViewMatrix, view->pose08.angles10.xyz.y);
     SetIdentityMatrix(&CameraPitchRollMatrix);
     BuildRotMatrixY(&D_800FF6D8, view->pose08.angles10.xyz.y);
@@ -109,12 +106,12 @@ void BuildCameraMatrices(void) {
 }
 
 void BuildRotMatrixAngles(int *a0) {
-    char sp10[32];
-    BuildRotMatrixY((SCRATCHPAD + 0x108), a0[1]);
-    BuildRotMatrixX(sp10, a0[0]);
-    MulMatrix2((const MatrixWords32 *)(sp10), (MatrixWords32 *)((SCRATCHPAD + 0x108)));
-    BuildRotMatrixZ(sp10, a0[2]);
-    MulMatrix2((const MatrixWords32 *)(sp10), (MatrixWords32 *)((SCRATCHPAD + 0x108)));
+    MatrixWords32 rotation;
+    BuildRotMatrixY((MatrixWords32 *)(SCRATCHPAD + 0x108), a0[1]);
+    BuildRotMatrixX(&rotation, a0[0]);
+    MulMatrix2(&rotation, (MatrixWords32 *)((SCRATCHPAD + 0x108)));
+    BuildRotMatrixZ(&rotation, a0[2]);
+    MulMatrix2(&rotation, (MatrixWords32 *)((SCRATCHPAD + 0x108)));
 }
 
 int Atan2Table(int a0, int a1)

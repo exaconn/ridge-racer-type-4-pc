@@ -1,24 +1,16 @@
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* GCC_VERSION: 2.7.2 */
-/* CC1_FLAGS: -mhard-float */
 #include "rr/channels.h"
 #include "rr/spu.h"
 #include "game/data/globals.h"
 
-typedef struct 
-{
-  u8 pad00[2];
-  u8 unk02;
-  u8 unk03;
-  u8 pad04[28];
-} SpuTone20;
 
 s32 _SsVmSetVol(s32 a0, s16 a1, s16 a2, u16 a3, u16 a4)
 {
   u8 new_var;
   s16 i;
   ChannelValueRecordB0 *rec;
-  SpuTone20 *tone;
+  s32 toneIndex;
   u32 vol;
   u32 left;
   u32 right;
@@ -29,15 +21,7 @@ s32 _SsVmSetVol(s32 a0, s16 a1, s16 a2, u16 a3, u16 a4)
   register s32 count asm("$23") = 0;
   s32 k;
   s16 ch;
-  s32 v1_tmp;
-  s32 a0_off;
-  a0_off = (a0 & 0xFF) << 2;
-  /* ASM_BARRIER: schedule a0 & 0xFF before sra 16 */
-  __asm__("" : "=r"(a0_off) : "0"(a0_off));
-  v1_tmp = ((s16) a0) & 0xFF00;
-  /* ASM_BARRIER: prevent combining sra 16 and andi 0xff00 into srl 24 */
-  __asm__("" : "=r"(v1_tmp) : "0"(v1_tmp));
-  rec = *(ChannelValueRecordB0 **)(a0_off + (s32)_ss_score) + (v1_tmp >> 8);
+  rec = _ss_score[a0 & 0xFF] + ((((s16) a0) & 0xFF00) >> 8);
   _SsVmVSetUp(a1, a2);
   _svm_cur_vab_id = a0;
   if (a4 == 0)
@@ -57,20 +41,20 @@ s32 _SsVmSetVol(s32 a0, s16 a1, s16 a2, u16 a3, u16 a4)
       if (((_svm_voice[i].match10 == ((s16) a0)) && (_svm_voice[i].match14 == a2)) && (_svm_voice[i].match18 == a1))
       {
         vol = (((_svm_voice[i].unk08 * a3) / 127) * (new_var * 0x3FFF)) / 16129;
-        if ((rec->unk60[rec->unk17] != a3) && (rec->unk60[rec->unk17] == 0))
+        if ((rec->h60[rec->b17] != a3) && (rec->h60[rec->b17] == 0))
         {
-          rec->unk60[rec->unk17] = 1;
+          rec->h60[rec->b17] = 1;
         }
         /* ASM_BARRIER: give vol two deaths in block so global-alloc allocates it to a0 */
         __asm__("" : "=r"(vol));
         /* ASM_BARRIER: second death of vol in block for global-alloc */
         __asm__ volatile("" : : "r"(vol));
         l = (((_svm_voice[i].unk08 * a3) / 127) * (k = _svm_vh[0x18] * 0x3FFF)) / 16129;
-        tone = (SpuTone20 *)((((_svm_voice[i].unk12 << 4) + _svm_voice[i].unk16) << 5) + (s32)_svm_tn);
-        vol = ((l * _svm_pg[a2].value01) * tone->unk02) / 16129;
-        l = (vol * rec->value58) / 127;
-        r = (vol * rec->value5A) / 127;
-        pan = tone->unk03;
+        toneIndex = _svm_voice[i].unk12 * 16 + _svm_voice[i].unk16;
+        vol = ((l * _svm_pg[a2][VAB_PROGRAM_VOLUME]) * _svm_tn[toneIndex][VAB_TONE_VOLUME]) / 16129;
+        l = (vol * rec->h58[0]) / 127;
+        r = (vol * rec->h58[1]) / 127;
+        pan = _svm_tn[toneIndex][VAB_TONE_PAN];
         if (pan < 0x40)
         {
           /* ASM_BARRIER: preserve r allocation priority over l in global-alloc */
@@ -83,7 +67,7 @@ s32 _SsVmSetVol(s32 a0, s16 a1, s16 a2, u16 a3, u16 a4)
           left = (l * (0x7F - pan)) / 63;
           right = r;
         }
-        pan = _svm_pg[_svm_voice[i].match14].value04;
+        pan = _svm_pg[_svm_voice[i].match14][VAB_PROGRAM_PAN];
         if (pan < 0x40)
         {
           right = (right * pan) / 63;

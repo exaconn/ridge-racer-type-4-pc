@@ -2,11 +2,12 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re, subprocess, unittest
+from sequence_fixture_transport import current_body
 ROOT=Path(__file__).resolve().parents[2]
 
 class ChannelTempoRampTest(unittest.TestCase):
  def test_signed_intervals_wrap_and_full_stream_owners(self):
-  body=(ROOT/'tools/scripts/fixtures/views/func_80084314.c').read_text()
+  body=current_body(ROOT,'80084314')
   body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
   body=re.sub(r' __asm__\("\$\d+"\)','',body)
   body=re.sub(r'__asm__\(""[^;]*;', '',body)
@@ -18,10 +19,6 @@ class ChannelTempoRampTest(unittest.TestCase):
 #include <stdio.h>
 #include <limits.h>
 #include "rr/layout.h"
-#undef RR_ASSERT_SIZE
-#undef RR_ASSERT_OFFSET
-#define RR_ASSERT_SIZE(t,n)
-#define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/channel_stream.h"
 #define BANKS 32
 #define ROWS 8
@@ -37,9 +34,9 @@ static s32 wrap(int64_t x){return signed32((u32)x);}
 #define VBLANK_MINUS (actual.rate)
 '''+body+r'''
 static void model(unsigned bank,unsigned row){ChannelStreamB0 *r=&expected.records[bank][row];
- s32 left=wrap((int64_t)r->tempoRemainingA8-1);int step=r->interval4E;u32 tempo=r->tempo94,target=r->targetTempoAC;
- uint64_t product,dividend,denominator,quotient;s32 pitch;r->tempoRemainingA8=left;
- if(left<0){r->mode98&=~192;paths[0]++;return;}
+ s32 left=wrap((int64_t)r->wa8-1);int step=r->h48[3];u32 tempo=r->w94,target=r->wac;
+ uint64_t product,dividend,denominator,quotient;s32 pitch;r->wa8=left;
+ if(left<0){r->w98&=~192;paths[0]++;return;}
  if(step>0){
   if(left%step){paths[1]++;return;}
   if(tempo<target){tempo=(u32)((uint64_t)tempo+1);paths[2]++;}
@@ -52,13 +49,13 @@ static void model(unsigned bank,unsigned row){ChannelStreamB0 *r=&expected.recor
    if(tempo<target){tempo=target;paths[7]++;}}
   else paths[4]++;
  }
- r->tempo94=tempo;
- product=(u32)((int64_t)r->scale50*(int64_t)tempo);
+ r->w94=tempo;
+ product=(u32)((int64_t)r->h48[4]*(int64_t)tempo);
  dividend=(u32)(product*10);denominator=(u32)((uint64_t)expected.rate*60);assert(denominator);
  quotient=dividend/denominator;pitch=(quotient&32768)?(s32)(quotient&65535)-65536:(s32)(quotient&65535);
  if(pitch<1){pitch=1;paths[8]++;}else paths[9]++;
- r->pitch54=(s16)pitch;
- if(!left||tempo==target){r->mode98&=~192;paths[10]++;}else paths[11]++;
+ r->h48[6]=(s16)pitch;
+ if(!left||tempo==target){r->w98&=~192;paths[10]++;}else paths[11]++;
  if(step==0)paths[12]++;if(step==-32768)paths[13]++;
 }
 static void compare(void){unsigned b;
@@ -71,37 +68,37 @@ int main(void){unsigned n,b,row,i,phase;uint64_t cases=0;unsigned seen[65536]={0
  static const u32 rates[9]={0,1,50,60,70,0x40000000,0x80000000,0xc0000000,0xffffffff};
  static const u32 edges[8]={0,1,2,127,32768,0x7fffffff,0x80000000,0xffffffff};
  _Static_assert(sizeof(ChannelStreamB0)==200,"native full owner");
- _Static_assert(offsetof(ChannelStreamB0,interval4E)==78+5*(sizeof(void*)-4),"signed interval");
- _Static_assert(offsetof(ChannelStreamB0,scale50)==80+5*(sizeof(void*)-4),"signed scale");
- _Static_assert(offsetof(ChannelStreamB0,tempo94)==148+5*(sizeof(void*)-4),"tempo");
- _Static_assert(offsetof(ChannelStreamB0,tempoRemainingA8)==168+5*(sizeof(void*)-4),"remaining");
- _Static_assert(offsetof(ChannelStreamB0,targetTempoAC)==172+5*(sizeof(void*)-4),"target");
+ _Static_assert(offsetof(ChannelStreamB0,h48[3])==78+5*(sizeof(void*)-4),"signed interval");
+ _Static_assert(offsetof(ChannelStreamB0,h48[4])==80+5*(sizeof(void*)-4),"signed scale");
+ _Static_assert(offsetof(ChannelStreamB0,w94)==148+5*(sizeof(void*)-4),"tempo");
+ _Static_assert(offsetof(ChannelStreamB0,wa8)==168+5*(sizeof(void*)-4),"remaining");
+ _Static_assert(offsetof(ChannelStreamB0,wac)==172+5*(sizeof(void*)-4),"target");
  assert((uintptr_t)&actual>UINT32_MAX);assert((uintptr_t)buffers>UINT32_MAX);
  {unsigned char *p=(unsigned char*)&actual;for(i=0;i<sizeof(actual);i++)p[i]=(u8)next();}
  for(b=0;b<BANKS;b++){
   actual.slots[b]=actual.records[b];
   for(row=0;row<ROWS;row++){ChannelStreamB0 *r=&actual.records[b][row];
-   r->cursor00=buffers[0]+row;r->start04=buffers[1]+b;r->saved08=buffers[2]+row;
-   r->alternate0C=buffers[3]+b;r->marker10=buffers[4]+row;}
+   r->c0=buffers[0]+row;r->c4=buffers[1]+b;r->c8=buffers[2]+row;
+   r->cC=buffers[3]+b;r->p10=buffers[4]+row;}
  }
  for(n=0;n<524288;n++){
   ChannelStreamB0 *r;s32 remaining;int interval,willDivide;
   b=n%BANKS;row=(n/BANKS)%ROWS;phase=n/65536;r=&actual.records[b][row];
-  interval=signed16((u16)n);r->interval4E=(s16)interval;r->scale50=signed16((u16)(n/8));
-  r->mode98=signed32(next());r->pitch54=signed16((u16)next());r->tempo94=next();r->targetTempoAC=next();
+  interval=signed16((u16)n);r->h48[3]=(s16)interval;r->h48[4]=signed16((u16)(n/8));
+  r->w98=signed32(next());r->h48[6]=signed16((u16)next());r->w94=next();r->wac=next();
   actual.rate=(n&1)?next():rates[(n>>1)%9];
   switch(phase){
-  case 0:r->tempoRemainingA8=0;break;
-  case 1:r->tempoRemainingA8=INT32_MIN;break;
-  case 2:r->tempoRemainingA8=INT32_MAX;break;
-  case 3:r->tempoRemainingA8=1;break;
-  case 4:r->tempoRemainingA8=signed32(next());break;
-  case 5:r->tempoRemainingA8=interval>0?interval*(s32)(next()%4)+1:2;break;
-  case 6:r->tempoRemainingA8=interval>1?interval+2:17;break;
-  default:r->tempoRemainingA8=2;r->targetTempoAC=r->tempo94;break;
+  case 0:r->wa8=0;break;
+  case 1:r->wa8=INT32_MIN;break;
+  case 2:r->wa8=INT32_MAX;break;
+  case 3:r->wa8=1;break;
+  case 4:r->wa8=signed32(next());break;
+  case 5:r->wa8=interval>0?interval*(s32)(next()%4)+1:2;break;
+  case 6:r->wa8=interval>1?interval+2:17;break;
+  default:r->wa8=2;r->wac=r->w94;break;
   }
-  if(phase==3||phase==5){r->tempo94=edges[(n>>3)&7];r->targetTempoAC=edges[(n>>6)&7];}
-  remaining=wrap((int64_t)r->tempoRemainingA8-1);
+  if(phase==3||phase==5){r->w94=edges[(n>>3)&7];r->wac=edges[(n>>6)&7];}
+  remaining=wrap((int64_t)r->wa8-1);
   willDivide=remaining>=0&&(interval<=0||remaining%interval==0);
   /* The original traps if the executed unsigned division has denominator0.
    * Keep zero/wrapped-zero rates in expiry and skipped-interval paths. */

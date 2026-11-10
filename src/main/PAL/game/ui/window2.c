@@ -125,16 +125,12 @@ void DrawHudRotatingQuad(s32 phase,s32 index) {
     HudQuadCorner *corner;
     NumberTarget *target;
     u32 *head;
-    /* ASM_BARRIER: keep output packet base in $t0 across vertex loop and tag linkage */
-    register HudQuadEmission *packet __asm__("$8");
+    HudQuadEmission *packet;
     u8 *output;
-    /* ASM_BARRIER: stage HudNumberTargets base pointer in $a0 before computing target/head */
-    register NumberTarget (*base)[] __asm__("$4");
+    NumberTarget (*base)[];
     unsigned long row;
-    /* ASM_BARRIER: keep target X/Y center coordinates in $t5/$a0 across the 4-corner loop */
-    register u32 x __asm__("$13");
-    register u32 y __asm__("$4");
-    u32 linkMask;
+    u32 x;
+    u32 y;
     colors[0].rgb.r=0xD0;
     colors[0].rgb.g=24;
     colors[0].rgb.b=0x30;
@@ -155,9 +151,9 @@ void DrawHudRotatingQuad(s32 phase,s32 index) {
     row=index*sizeof(NumberTarget);
     target=(NumberTarget *)((u8 *)base+row);
     packet=(HudQuadEmission *)RR_HUD_QUAD_SCRATCH->cursor;
+    x=(u16)target->x;y=(u16)target->y;
     /* Full native-width addresses retain the original sum order. */
     head=*(u32 **)(DrawBufIndex*sizeof(u32 *)+row+(unsigned long)base);
-    x=(u16)target->x;y=(u16)target->y;
     output=(u8 *)packet+8;
     packet->r=0xB0;packet->g=0xB0;packet->b=0;
     do {
@@ -168,12 +164,11 @@ void DrawHudRotatingQuad(s32 phase,s32 index) {
         *(HudQuadColor *)output=*color;
         color++;corner++;i++;output+=4;
     }while(i<4);
-    linkMask=0xFFFFFF;
     packet->tag.bytes.length=8;packet->code=0x38;
-    packet->tag.word=(packet->tag.word&0xFF000000)|(*head&linkMask);
-    linkMask=(unsigned long)packet&linkMask;
-    *head=(*head&0xFF000000)|linkMask;
-    RR_HUD_QUAD_SCRATCH->cursor=(u8 *)packet+36;
+    packet->tag.bits.address=((GpuDmaTag *)head)->bits.address;
+    ((GpuDmaTag *)head)->bits.address=(unsigned long)packet;
+    packet=(HudQuadEmission *)((u8 *)packet+36);
+    RR_HUD_QUAD_SCRATCH->cursor=(u8 *)packet;
 }
 
 void *EmitHudGlyph12(u32 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {

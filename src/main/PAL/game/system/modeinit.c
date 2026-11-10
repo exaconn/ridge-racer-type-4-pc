@@ -27,7 +27,7 @@
 #include "game/ui/uidraw.h"
 #include "game/demo/attract.h"
 
-extern int CdDirectoryBuffer;
+#include "rr/cd_directory_buffer.h"
 extern char StrMainMenu0Log[];
 extern short FadeCountdown;
 extern int ActivePlayerIndex;
@@ -41,7 +41,7 @@ extern short ModeIndex;
 extern short MenuScriptId;
 extern short ModeGroup;
 extern int DialogueSceneMode;
-extern int MenuArenaBase;
+#include "rr/menu_arena_base.h"
 extern u16 SubmodeState;
 extern short LinkState;
 extern int D_8010BFB8;
@@ -165,11 +165,11 @@ void TitleMenuUpdate(void)
                         PlaySfx(3);
                         CardDialogueStatePtr->b4 = CardDialogueStatePtr->b4 + 1;
                     } else {
-                        if (0) {
-                        set:
-                            CardDialogueStatePtr->b4 = v1;
-                            goto call;
-                        }
+                        goto set_submode;
+                    set:
+                        CardDialogueStatePtr->b4 = v1;
+                        goto call;
+                    set_submode:
                         SubmodeState = 0xA;
                     }
                     v1 = CardDialogueStatePtr->b4;

@@ -90,7 +90,7 @@ temp_s4 = &ovl665_D_80119768.view74;
         ScaleMatrix(sp10.words, scale);
         SetGeomScreen(ovl665_D_80119768.depth40);
         SelectModelBank(8);
-        BuildRotMatrixX(sp30.halves, ovl665_D_80119768.view74.rotation18);
+        BuildRotMatrixX(&sp30.matrix, ovl665_D_80119768.view74.rotation18);
         MulMatrix2(&sp10.matrix, &sp30.matrix);
         ovl665_func_80116358(&sp30, &temp_s0_3->matrix);
         SetGteObjectTransform(
@@ -117,7 +117,7 @@ temp_s4 = &ovl665_D_80119768.view74;
                 SubmitModelTwoTri(RR_PREVIEW_RENDER_SCRATCH, var_a1_5, 0, 0);
             }
         }
-        BuildRotMatrixX(sp30.halves, ovl665_D_80119768.view74.rotation20);
+        BuildRotMatrixX(&sp30.matrix, ovl665_D_80119768.view74.rotation20);
         MulMatrix2(&sp10.matrix, &sp30.matrix);
         ovl665_func_80116358(&sp30, &ovl665_D_80119768.lighting4C.matrix);
         temp_s5_2 = &ovl665_D_80119768.view74;
@@ -166,7 +166,7 @@ temp_s5 = &ovl665_D_80119768.view74;
                 var_a1_2 = 4;
             }
             SubmitModelTwoTri(scratch, var_a1_2, 0, 0);
-            BuildRotMatrixZ((s16 *)sp30.halves, ovl665_D_80119768.view74.rotation1C + 0x400);
+            BuildRotMatrixZ(&sp30.matrix, ovl665_D_80119768.view74.rotation1C + 0x400);
             MulMatrix2(&sp10.matrix, &sp30.matrix);
             ovl665_func_80116358(&sp30, &temp_s0_2->matrix);
             SetGteObjectTransform(&scratch->tail7C.projection, temp_s5->position00.halves, (s32 *)sp30.words);

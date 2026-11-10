@@ -115,23 +115,27 @@ void SetupMenuCarCamera(int a)
 }
 
 void UpdateRaceChaseCamera(RaceVehicle *p) {
-    struct { char a[0x20]; char b[0x20]; short v[3]; short reserved46; int w[3]; } s;
+    struct {
+        MatrixWords32 a, b;
+        short v[3], reserved46;
+        int w[3];
+    } s;
     int *g = (int *)SCRATCHPAD;
     int r;
     short t;
     unsigned short a1, a2;
     ViewUsesCarTrackNode = 1;
     if ((u16)p->flags1E4 & 0x100) {
-        BuildRotMatrixY(s.a, 0x800 - p->rot54);
-        BuildRotMatrixX(s.b, p->rot50);
-        MulMatrix((MatrixWords32 *)(s.a), (const MatrixWords32 *)(s.b));
-        BuildRotMatrixZ(s.b, p->rot58);
-        MulMatrix2((const MatrixWords32 *)(s.a), (MatrixWords32 *)(s.b));
+        BuildRotMatrixY(&s.a, 0x800 - p->rot54);
+        BuildRotMatrixX(&s.b, p->rot50);
+        MulMatrix(&s.a, &s.b);
+        BuildRotMatrixZ(&s.b, p->rot58);
+        MulMatrix2(&s.a, &s.b);
         s.v[0] = 0;
         s.v[1] = -0x64;
         if (p->height108 < 0x28) s.v[1] = (unsigned short)p->height108 - 0x8C;
         s.v[2] = 0;
-        ApplyMatrix((const MatrixWords32 *)(s.b), (const Vec3s8 *)(s.v), (Vec3i *)(s.w));
+        ApplyMatrix(&s.b, (const Vec3s8 *)(s.v), (Vec3i *)(s.w));
         *(w3g2V *)&g[2] = *(w3g2V *)&p->pos10[0];
         g[2] -= p->ir40[0];
         g[4] -= p->ir40[2];
@@ -151,16 +155,16 @@ void UpdateRaceChaseCamera(RaceVehicle *p) {
     g[6] += s.v[0];
     s.v[1] = t;
     g[7] += t;
-    BuildRotMatrixY(s.a, 0x800 - g[7], g[7]);
-    BuildRotMatrixX(s.b, g[6]);
-    MulMatrix((MatrixWords32 *)(s.a), (const MatrixWords32 *)(s.b));
-    BuildRotMatrixZ(s.b, g[8]);
-    MulMatrix2((const MatrixWords32 *)(s.a), (MatrixWords32 *)(s.b));
+    BuildRotMatrixY(&s.a, 0x800 - g[7]);
+    BuildRotMatrixX(&s.b, g[6]);
+    MulMatrix(&s.a, &s.b);
+    BuildRotMatrixZ(&s.b, g[8]);
+    MulMatrix2(&s.a, &s.b);
     s.v[0] = 0;
     s.v[1] = -0xFA;
     if (p->height108 < 0x28) s.v[1] = (unsigned short)p->height108 - 0x122;
     s.v[2] = 0x2D0;
-    ApplyMatrix((const MatrixWords32 *)(s.b), (const Vec3s8 *)(s.v), (Vec3i *)(s.w));
+    ApplyMatrix(&s.b, (const Vec3s8 *)(s.v), (Vec3i *)(s.w));
     *(w3g2V *)&g[2] = *(w3g2V *)&p->pos10[0];
     g[8] = p->rot58 - p->wheelRotZ1AA;
     g[2] += s.w[0];

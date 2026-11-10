@@ -2,6 +2,7 @@
 #define RR_AUDIO_STATE_TYPES_H
 #include "rr/layout.h"
 #include "rr/sound_sequence_types.h"
+#include "rr/sequence_channel.h"
 /* Full resident audio owner: func8004EC28 clears0xA8D0 bytes from this base.
  * Four620-byte slots start38. CD status/control occupies265C..26F8.
  * The TOC address is28C8+bank*2048+entry*8; sixteen256-entry banks endA8C8.
@@ -11,8 +12,36 @@ typedef struct { s32 keys[9], values[9]; } AudioCurve48;
 typedef struct { u16 coarse, fine; } AudioPitch4;
 typedef union { s32 word; struct {s16 level,gain;} halves; } AudioLevels4;
 typedef union { s32 word; struct {s16 value,reserved;} halves; } AudioSpatial4;
-typedef union { s32 word; struct {u16 value,reserved;} halves; } AudioTargetVol4;
-typedef s32 AudioBankStorage32 __attribute__((__may_alias__));
+typedef union { s32 word; struct {u16 value,reserved;} halves; } AudioUnsignedWord4;
+typedef AudioUnsignedWord4 AudioTargetVol4;
+/* Full word stores and signed bank/program reads name the same four bytes. */
+typedef union {
+    s32 word;
+    struct { s16 value; u16 reserved; } half;
+} AudioSignedWord4;
+/* AI counter accesses overlap bank IDs8 and9; both views own these bytes. */
+typedef union {
+    s16 ids[10];
+    struct { s16 ids[8]; u32 counter; } race;
+} AudioBanks20;
+typedef struct { u32 position, sectors; } AudioStreamEntry;
+RR_ASSERT_SIZE(AudioStreamEntry,8);
+RR_ASSERT_OFFSET(AudioStreamEntry,sectors,4);
+typedef struct {
+    u32 sector;
+    u8 *table;
+} AudioStreamBank;
+/* The original API distinguishes an unavailable table from a null address. */
+#define AUDIO_STREAM_TABLE_UNAVAILABLE ((u8 *)(long)-1)
+enum {
+    AUDIO_BANKS_OFFSET = (0x2634+__alignof__(AudioStreamBank)-1)&~(__alignof__(AudioStreamBank)-1),
+    AUDIO_CD_DELTA = AUDIO_BANKS_OFFSET+2*sizeof(AudioStreamBank)-0x2644,
+    AUDIO_ROWS_OFFSET = (0x26F8+AUDIO_CD_DELTA+__alignof__(SequenceChannel)-1)&~(__alignof__(SequenceChannel)-1),
+    AUDIO_SEQUENCE_DATA_OFFSET = AUDIO_ROWS_OFFSET+2*sizeof(SequenceChannel),
+    AUDIO_SEQUENCE_DELTA = AUDIO_SEQUENCE_DATA_OFFSET+2*sizeof(u8 *)-0x2860
+};
+RR_ASSERT_SIZE(AudioSignedWord4,4);
+RR_ASSERT_SIZE(AudioBanks20,20);
 typedef union {
     struct {
         u16 rx00, unk02;
@@ -37,23 +66,33 @@ typedef struct {
     AudioSpatial4 bank08, voice0C;
     s16 vol10[2];
 } AudioLoopVoice14;
+/* Complete on-disc program payload copied into each slot at +0x3C. */
+typedef struct AudioProgramData {
+    AudioCurve48 curves[2][10];
+    u16 programs[2][5];
+    u16 duration,gain,spread,reserved;
+} AudioProgramData;
+RR_ASSERT_SIZE(AudioProgramData,0x5BC);
+RR_ASSERT_OFFSET(AudioProgramData,programs,0x5A0);
+RR_ASSERT_OFFSET(AudioProgramData,duration,0x5B4);
+RR_ASSERT_OFFSET(AudioProgramData,gain,0x5B6);
+RR_ASSERT_OFFSET(AudioProgramData,spread,0x5B8);
+RR_ASSERT_OFFSET(AudioProgramData,reserved,0x5BA);
 typedef struct {
- u32 flags00; s16 bank04; u16 reserved06;
+ u32 flags00; AudioSignedWord4 bank04;
  s32 voice08,count0C,level10,program14,previous18,reserved1C;
  AudioLevels4 levels20; s16 pan24,reserved26,group28,reserved2A; AudioSpatial4 spatial2C;
  s32 filter30; u8 reserved34[8];
- AudioCurve48 curves3C[2][10];
- u16 programs5DC[2][5];
- u16 duration5F0,gain5F2,spread5F4,reserved5F6;
+ AudioProgramData programData3C;
  AudioPitch4 pitch5F8[2][5];
 } AudioSlot620;
 RR_ASSERT_SIZE(AudioSlot620,0x620);
-RR_ASSERT_OFFSET(AudioSlot620,programs5DC,0x5DC);
+RR_ASSERT_OFFSET(AudioSlot620,programData3C,0x3C);
 RR_ASSERT_OFFSET(AudioSlot620,pitch5F8,0x5F8);
 typedef struct {
     s32 unk00,muted04,master08,active0C,split10,reserved14;
     s16 gain18,fadeLength1A,fadeTick1C,fadeTarget1E,fadeStart20,fadeReserved22;
-    s16 bank24[10];
+    AudioBanks20 banks24;
     AudioSlot620 slots38[4];
     s32 active18B8,unk18BC;
     u16 mode18C0,submode18C2;
@@ -68,10 +107,10 @@ typedef struct {
     AudioSpatial4 chProg19C8;
     s32 unk19CC;
     SoundSequenceState sequence19D0;
-    u16 left19F8,right19FA;u32 pitch19FC;s32 active1A00;s16 program1A04;u8 reserved1A06[2];
+    u16 left19F8,right19FA;u32 pitch19FC;s32 active1A00;AudioSignedWord4 program1A04;
     s32 unk1A08,unk1A0C[7],unk1A28,unk1A2C,unk1A30;
     u8 reserved1A34[0x2634-0x1A34];
-    s32 streamBase2634,streamTable2638,unk263C,unk2640;
+    AudioStreamBank streamBanks[2];
     u8 reserved2644[0x2658-0x2644];
     u8 cdMode2658,reserved2659[3];
     u8 status265C[8];
@@ -85,8 +124,8 @@ typedef struct {
     u16 fadeTarget26CA,fadeStart26CC,volume26CE;
     s16 tick26D0,half26D2,quarter26D4,reserved26D6;
     s32 tick26D8,previous26DC,reserved26E0,reserved26E4,offset26E8,reserved26EC,base26F0,rate26F4;
-    u8 reserved26F8[0x2858-0x26F8];
-    s32 seqAddr2858[2];
+    SequenceChannel sequences[2];
+    u8 *seqAddr2858[2];
     s16 seqInit2860,seqInit2862;
     s32 seqHandle2864,seqTrack2868;
     s16 seqTick286C,seqHalf286E,seqQuarter2870,seqReserved2872;
@@ -99,18 +138,24 @@ typedef struct {
     u8 reserved28B0[24];AudioTocEntry8 toc28C8[16][256];
     s32 reservedA8C8,bankA8CC;
 } AudioState;
-RR_ASSERT_SIZE(AudioState,0xA8D0);
+RR_ASSERT_SIZE(AudioState,((0xA8D0+AUDIO_SEQUENCE_DELTA+__alignof__(AudioState)-1)&~(__alignof__(AudioState)-1)));
+RR_ASSERT_OFFSET(AudioState,banks24,0x24);
+RR_ASSERT_OFFSET(AudioState,slots38,0x38);
+RR_ASSERT_OFFSET(AudioState,streamBanks,AUDIO_BANKS_OFFSET);
+RR_ASSERT_OFFSET(AudioState,sequences,AUDIO_ROWS_OFFSET);
+RR_ASSERT_OFFSET(AudioState,seqAddr2858,AUDIO_SEQUENCE_DATA_OFFSET);
 RR_ASSERT_OFFSET(AudioState,sequence19D0,0x19D0);
 RR_ASSERT_OFFSET(AudioState,left19F8,0x19F8);
-RR_ASSERT_OFFSET(AudioState,track28A4,0x28A4);
-RR_ASSERT_OFFSET(AudioState,status265C,0x265C);
-RR_ASSERT_OFFSET(AudioState,sector2664,0x2664);
-RR_ASSERT_OFFSET(AudioState,phase2674,0x2674);
-RR_ASSERT_OFFSET(AudioState,request26B4,0x26B4);
-RR_ASSERT_OFFSET(AudioState,tick26D0,0x26D0);
-RR_ASSERT_OFFSET(AudioState,rate26F4,0x26F4);
-RR_ASSERT_OFFSET(AudioState,toc28C8,0x28C8);
-RR_ASSERT_OFFSET(AudioState,bankA8CC,0xA8CC);
+RR_ASSERT_OFFSET(AudioState,track28A4,0x28A4+AUDIO_SEQUENCE_DELTA);
+RR_ASSERT_OFFSET(AudioState,status265C,0x265C+AUDIO_CD_DELTA);
+RR_ASSERT_OFFSET(AudioState,sector2664,0x2664+AUDIO_CD_DELTA);
+RR_ASSERT_OFFSET(AudioState,phase2674,0x2674+AUDIO_CD_DELTA);
+RR_ASSERT_OFFSET(AudioState,request26B4,0x26B4+AUDIO_CD_DELTA);
+RR_ASSERT_OFFSET(AudioState,tick26D0,0x26D0+AUDIO_CD_DELTA);
+RR_ASSERT_OFFSET(AudioState,rate26F4,0x26F4+AUDIO_CD_DELTA);
+RR_ASSERT_OFFSET(AudioState,toc28C8,0x28C8+AUDIO_SEQUENCE_DELTA);
+RR_ASSERT_OFFSET(AudioState,bankA8CC,0xA8CC+AUDIO_SEQUENCE_DELTA);
 extern AudioState SoundState;
+/* Alias of slots38 in SoundState; never a separate allocation. */
 extern AudioSlot620 SoundSlots[4];
 #endif

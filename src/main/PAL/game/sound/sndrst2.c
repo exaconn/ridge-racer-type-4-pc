@@ -52,8 +52,8 @@ void UpdateMasterSoundVolumes(void)
             i++;
         } while (i < 2);
         if (SoundState.chActive19C4 == 0) {
-            SsUtKeyOnV(8, SoundState.bank24[0], SoundState.chProg19C8.halves.value, 0, 0x3C, 0, (short)s1, (short)s0);
-            SsUtKeyOnV(9, SoundState.bank24[0], SoundState.chProg19C8.halves.value, 1, 0x3C, 0, (short)s1, (short)s0);
+            SsUtKeyOnV(8, SoundState.banks24.ids[0], SoundState.chProg19C8.halves.value, 0, 0x3C, 0, (short)s1, (short)s0);
+            SsUtKeyOnV(9, SoundState.banks24.ids[0], SoundState.chProg19C8.halves.value, 1, 0x3C, 0, (short)s1, (short)s0);
             SoundState.chActive19C4 = 1;
         }
     } else if (SoundState.chActive19C4 != 0) {
@@ -68,7 +68,7 @@ void SoundLoopReset(void) {
     SoundState.right19FA = 0;
     SoundState.pitch19FC = 0;
     SoundState.active1A00 = 0;
-    *(AudioBankStorage32 *)&SoundState.program1A04 = 0;
+    SoundState.program1A04.word = 0;
 }
 
 void SoundLoopSet(int a0, int a1, int a2, int a3) {
@@ -77,8 +77,8 @@ void SoundLoopSet(int a0, int a1, int a2, int a3) {
     SoundState.pitch19FC = a1;
     SoundState.left19F8 = y / 16129;
     SoundState.right19FA = x / 16129;
-    if (a0 != *(AudioBankStorage32 *)&SoundState.program1A04) {
-        *(AudioBankStorage32 *)&SoundState.program1A04 = a0;
+    if (a0 != SoundState.program1A04.word) {
+        SoundState.program1A04.word = a0;
         SoundState.active1A00 = 0;
     }
     if (a2 == 0) {

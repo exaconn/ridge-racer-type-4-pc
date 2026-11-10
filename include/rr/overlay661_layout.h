@@ -11,8 +11,8 @@
 #include "rr/menu_glyph.h"
 #include "rr/ui.h"
 #include "rr/menu_arena_state.h"
-extern u8 *CdDirectoryBuffer;
-extern void *MenuArenaBase;
+#include "rr/cd_directory_buffer.h"
+#include "rr/menu_arena_base.h"
 extern s32 ModeFrame,ScreenFrame;
 extern s16 MenuCursor,MenuItemCount,ovl661_D_80118438;
 extern s16 ovl661_D_80118440[2][2],ovl661_D_8011844C[2],ovl661_D_80118450[2];

@@ -3,7 +3,12 @@
 #include "rr/frame_storage_types.h"
 #include "rr/load_cursor.h"
 #include "scratchpad.h"
-#include "rr/selection.h"
+#include "rr/menu_state_types.h"
+#include "rr/selection_types.h"
+#include "game/menu/mnrows.h"
+extern MenuSettings2C SelectionState;
+extern SelectionRows32 SelectionRows;
+extern u8 D_800AD4EC;
 #include "rr/ui.h"
 #include "rr/badge_row_types.h"
 #include "rr/menu_text_state.h"
@@ -15,7 +20,6 @@
 #include "game/ui/barsel0.h"
 #include "game/data/globals.h"
 #include "rr/menu_background.h"
-#include "rr/course_choices.h"
 #include "game/ui/badge1.h"
 #include "rr/badge_rows.h"
 #include "game/course/trkintp2.h"
@@ -24,25 +28,14 @@
 #include "game/ui/uidraw.h"
 #include "game/ui/uibar.h"
 
-typedef struct {
-    u8 unk00[0x16];
-    s16 unk16;
-    u8 unk18[0x4];
-    s8 unk1C;
-    s8 unk1D;
-    s8 unk1E;
-    u8 unk1F;
-    s32 unk20;
-} Struct800FF68C;
 
-typedef struct { char b[0x17]; signed char b17; char r[0x2C - 0x18]; } SaveSlotSelection;
+typedef MenuSettings2C SaveSlotSelection;
 
 extern unsigned char D_800AD4F5;
-extern signed char *Dialogue;
 extern short CardMenuOperation;
-extern void *AddJitterSprites(s32, void *, void *, s32, s32, s32);
-extern u8 D_8009F3F8[];
-extern u8 D_8009F404[];
+#include "rr/sprite_effect.h"
+extern SpriteEffectSource D_8009F3F8;
+extern SpriteEffectSource D_8009F404;
 extern int SetMenuFrameOptions();
 extern short NumCars;
 extern void ClearScreenOverlayState(void);
@@ -64,69 +57,70 @@ extern s16 MenuCursor;
 extern s32 ModeFrame;
 extern s16 CardActivePort;
 
-void SelectDialogueScript(int a0, int a1);
+void SelectDialogueScript(void);
 void GpSaveSlotMenuEnter(void);
 void GpSaveSlotMenuUpdate(void);
 void StepReplaySavePrompt(void);
 void YesNoPromptModeEnter(void);
 
-void SelectDialogueScript(int a0, int a1) {
+void SelectDialogueScript(void) {
     int sw;
-    int idx, a3, v, t, r;
-    signed char *P;
+    int idx, a1, a3, t;
+    const MenuSettings2C *settings;
+    MenuTextState *P;
     int u;
-    int i, sum;
+    int i;
 
     sw = D_800AD4F2;
-    Dialogue[7] = 1;
-    ((short *)Dialogue)[0x16 / 2] = 0;
-    Dialogue[0x1E] = -2;
+    Dialogue->b7 = 1;
+    Dialogue->s16 = 0;
+    Dialogue->b1E = -2;
     switch (sw) {
     case 0:
-        Dialogue[7] = 0;
+        Dialogue->b7 = 0;
     case 1:
-        Dialogue[4] = 0;
+        Dialogue->b4 = 0;
         PendingModeId = 0x109;
         D_800AD4F2 = 1;
         break;
     case 2:
-        Dialogue[4] = D_800AD4F5 + 0x18;
+        Dialogue->b4 = D_800AD4F5 + 0x18;
         PendingModeId = 0x10F;
         break;
     case 4:
-        idx = SelectionState[0x17];
+        idx = SelectionState.phase17;
         if (idx < 4) {
-            a3 = SelectionState[idx];
+            a3 = SelectionState.results00[idx];
         } else {
-            a3 = 3 - SelectionState[idx + 8];
+            a3 = 3 - SelectionState.retries08[idx];
             if (idx == 7) a3 = 0;
         }
         switch (idx) {
         case 0:
-            a1 = SelectionState[idx + 8] < 3;
+            a1 = SelectionState.retries08[idx] < 3;
             break;
         case 1:
         case 3:
             a1 = 4;
-            if (SelectionState[idx + 8] >= 3) a1 = SelectionState[idx - 1];
+            if (SelectionState.retries08[idx] >= 3) a1 = SelectionState.results00[idx - 1];
             break;
         case 2:
             a1 = 4;
-            if (SelectionState[idx + 8] >= 3) a1 = (unsigned char)SelectionState[0x14];
+            if (SelectionState.retries08[idx] >= 3) a1 = SelectionState.reserved10[4];
             break;
         case 4:
             a1 = D_800AD4EC;
             break;
         case 5:
-            a1 = 3 - SelectionState[idx + 7];
+            a1 = 3 - SelectionState.retries08[idx - 1];
             break;
         case 6:
         case 7:
             a1 = 0;
             i = 0;
-            sw = SelectionState;
+            settings = &SelectionState;
             do {
-                a1 += ((signed char *)(i + sw))[0xC];
+                a1 += settings->retries08[i + 4];
                 i++;
             } while (i < 4);
             if (a1 == 0xC) {
@@ -134,20 +128,20 @@ void SelectDialogueScript(int a0, int a1) {
             } else if (idx == 7) {
                 a1 = 1;
             } else {
-                a1 = 4 - SelectionState[idx + 7];
+                a1 = 4 - SelectionState.retries08[idx - 1];
             }
             break;
         }
         P = Dialogue;
         u = a3 * 5;
         t = a1 + 4;
-        P[4] = u + t;
+        P->b4 = u + t;
         switch (D_800AD4EF) {
         case 1:
         case 3:
         case 6:
             D_800AD4F2 = 6;
-            ((int (*)())UpdateSelectionRank)(P, a1, sw, a3);
+            UpdateSelectionRank();
             PendingModeId = 0x12A;
             break;
         default:
@@ -157,7 +151,7 @@ void SelectDialogueScript(int a0, int a1) {
         if (D_800AD4EF == 7) PendingModeId = 0x205;
         break;
     case 6:
-        Dialogue[4] = 0x25 - D_800AD4EC;
+        Dialogue->b4 = 0x25 - D_800AD4EC;
         PendingModeId = 0x111;
         CardMenuOperation = 3;
         break;
@@ -169,22 +163,22 @@ void UpdateDialoguePanel(void) {
     s32 temp_v0;
     s32 temp_s2;
 
-    temp_v0 = ((Struct800FF68C *)Dialogue)->unk1E;
-    temp_s2 = ((Struct800FF68C *)Dialogue)->unk1F;
+    temp_v0 = Dialogue->b1E;
+    temp_s2 = Dialogue->b1F;
     switch (temp_v0) {
     case -2:
-        ((Struct800FF68C *)Dialogue)->unk1F = 0;
-        ((Struct800FF68C *)Dialogue)->unk1E = -4;
-        ((Struct800FF68C *)Dialogue)->unk1D = -1;
-        ((Struct800FF68C *)Dialogue)->unk1C = -1;
+        Dialogue->b1F = 0;
+        Dialogue->b1E = -4;
+        Dialogue->b1D = -1;
+        Dialogue->b1C = -1;
         break;
     case -4:
         InitRect16Row(0, 0x78, 0x60, 0x50, 0xB4, 0, 0);
-        ((Struct800FF68C *)Dialogue)->unk1E = -5;
+        Dialogue->b1E = -5;
         break;
     case -5:
         if (UpdateRect16Row(0) != 0) {
-            ((Struct800FF68C *)Dialogue)->unk1E = -1;
+            Dialogue->b1E = -1;
         }
         break;
     case -3:
@@ -197,11 +191,11 @@ void UpdateDialoguePanel(void) {
                 AddTileSemiTransPrim(&CurrentDrawBuf->buffer.ordering70.words[1], a1, 0x78, 0x60, 0x50, 0xB4, (u16)temp_s2, (u16)temp_s2, (u16)temp_s2),
                 0x45);
             if ((u16)temp_s2 >= 0x7C) {
-                ((Struct800FF68C *)Dialogue)->unk1E = 2;
-                ((Struct800FF68C *)Dialogue)->unk1F = 0;
-                BadgeRows[((Struct800FF68C *)Dialogue)->unk16].half02 = 1;
+                Dialogue->b1E = 2;
+                Dialogue->b1F = 0;
+                BadgeRows[Dialogue->s16].half02 = 1;
             } else {
-                ((Struct800FF68C *)Dialogue)->unk1F += 8;
+                Dialogue->b1F += 8;
             }
             UpdateRect16Row(0);
         }
@@ -209,19 +203,19 @@ void UpdateDialoguePanel(void) {
     case 0:
         var_a1 = *(void **)SCRATCHPAD;
         if ((u16)temp_s2 >= 3) {
-            var_a1 = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], var_a1, D_8009F3F8, 1, 0xFF, 2);
+            var_a1 = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], var_a1, &D_8009F3F8, 1, 0xFF, 2);
         }
         *(void **)SCRATCHPAD = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[1], var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
         if ((u16)temp_s2 >= 0x15) {
-            ((Struct800FF68C *)Dialogue)->unk1E = 1;
-            ((Struct800FF68C *)Dialogue)->unk1F = 0;
+            Dialogue->b1E = 1;
+            Dialogue->b1F = 0;
         } else {
-            ((Struct800FF68C *)Dialogue)->unk1F += 1;
+            Dialogue->b1F += 1;
         }
         if (temp_s2 == 1) {
-            u8 temp_a0 = ((Struct800FF68C *)Dialogue)->unk1C;
+            u8 temp_a0 = Dialogue->b1C;
             if ((temp_a0 - 1) < 5U) {
-                LoadTimImage(((Struct800FF68C *)Dialogue)->unk20 + (((s8)temp_a0 - 1) << 14));
+                LoadTimImage((int *)(Dialogue->images20 + (((s8)temp_a0 - 1) << 14)));
             }
         }
         break;
@@ -232,22 +226,22 @@ void UpdateDialoguePanel(void) {
                 &CurrentDrawBuf->buffer.ordering70.words[3],
                 AddJitterSprites(
                     &CurrentDrawBuf->buffer.ordering70.words[0],
-                    AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], *(void **)SCRATCHPAD, D_8009F404, 1, temp_s2, 1),
-                    D_8009F3F8, 1, (0x80 - temp_s2) * 2, two),
+                    AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], *(void **)SCRATCHPAD, &D_8009F404, 1, temp_s2, 1),
+                    &D_8009F3F8, 1, (0x80 - temp_s2) * 2, two),
                 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
             if (temp_s2 >= 0x80U) {
-                ((Struct800FF68C *)Dialogue)->unk1F = 0;
-                ((Struct800FF68C *)Dialogue)->unk1E = two;
+                Dialogue->b1F = 0;
+                Dialogue->b1E = two;
             } else {
-                ((Struct800FF68C *)Dialogue)->unk1F += 8;
+                Dialogue->b1F += 8;
             }
         }
         break;
     case 2:
     default:
         var_a1 = *(void **)SCRATCHPAD;
-        if (((Struct800FF68C *)Dialogue)->unk1C >= 0) {
-            var_a1 = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], var_a1, D_8009F404, 0, 0x80, 1);
+        if (Dialogue->b1C >= 0) {
+            var_a1 = AddJitterSprites(&CurrentDrawBuf->buffer.ordering70.words[0], var_a1, &D_8009F404, 0, 0x80, 1);
         }
         *(void **)SCRATCHPAD = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[1], var_a1, 0x78, 0x60, 0x50, 0xB4, 8, 8, 8);
         break;
@@ -257,13 +251,13 @@ void UpdateDialoguePanel(void) {
 void UpdateDialogueBox(void) {
     BadgeRow1C *temp_v0;
 
-    if (((BadgeRow1C *)((((s16 *)Dialogue)[11] * 0x1C) + (s32)BadgeRows))->state10 == 3) {
+    if (((BadgeRow1C *)((Dialogue->s16 * 0x1C) + (unsigned long)BadgeRows))->state10 == 3) {
         SetMenuFrameOptions(1, 1, 0);
         SkipDialoguePage(Dialogue);
-        temp_v0 = (BadgeRow1C *)((((s16 *)Dialogue)[11] * 0x1C) + (s32)BadgeRows);
+        temp_v0 = (BadgeRow1C *)((Dialogue->s16 * 0x1C) + (unsigned long)BadgeRows);
         UpdateDialogue(temp_v0->x08 + 0xA, temp_v0->y0A + 0x28, (MenuTextState *)Dialogue);
     }
-    UpdateBadgeRowAnim(((s16 *)Dialogue)[11]);
+    UpdateBadgeRowAnim(Dialogue->s16);
 }
 
 void DialogueWaitEnterHook(void) {
@@ -307,12 +301,12 @@ void InitSelectionRows(void) {
     SelectionRows32 *b;
     unsigned char *page;
     const u8 *choices, *variants;
-    const SelectionConfigView *config;
+    const MenuSettings2C *config;
     u8 t;
     s32 x;
     unsigned char *stage;
-    /* ASM_BARRIER: Preserve the indexed byte offset in the address temporary. */
-    register u32 offset __asm__("$2");
+    u32 idx;
+    u32 offset;
     u32 attribute;
     page=(unsigned char *)0x800F0000U;
     /* ASM_BARRIER: Materialize the state page after the initial row index. */
@@ -331,14 +325,14 @@ void InitSelectionRows(void) {
     stage=(unsigned char *)0x800B0000U;
     /* ASM_BARRIER: Expose the configuration page before adding its signed offset. */
     __asm__("" : "+r"(stage));
-    config=(const SelectionConfigView *)(stage-0x2B28);
+    config=(const MenuSettings2C *)(stage-0x2B28);
     /* ASM_BARRIER: Form lookup bases before initializing the byte offset. */
     __asm__("" : : "r"(choices), "r"(variants), "r"(config) : "$5");
     a1=RR_FIELD_OFFSET(SelectionRows32,rows);
     do {
         x = page[0x4D98];
-        offset=x*8;
-        offset=a2+offset;
+        idx=x*8;
+        offset=a2+idx;
         t=*(unsigned char *)(offset+(unsigned long)choices);
         a0 = (SelectionRow *)(a1+(unsigned long)b);
         a0->selection = t;
@@ -358,7 +352,7 @@ void InitSelectionRows(void) {
         v1 = (SelectionRow *)(a1+(unsigned long)b);
         /* ASM_BARRIER: Keep the current row and index before publishing its attribute. */
         __asm__("" : : "r"(v1), "r"(a2));
-        attribute=config->parameter;
+        attribute=config->copies[0].bytes[2];
         /* ASM_BARRIER: Read the row attribute before advancing the loop index. */
         __asm__("" : "+r"(attribute) : "r"(a2));
         a2 += 1;
@@ -393,7 +387,7 @@ void GpSaveSlotMenuUpdate(void) {
             if (s0 == 4) {
                 SetMenuFrameOptions(1, 1, 1);
                 if (PlayerControllers[0].action28 != 0) {
-                    if (SaveSlotSelections[GpSaveSlotCursor].b17 > 0) {
+                    if (SaveSlotSelections[GpSaveSlotCursor].phase17 > 0) {
                         PlaySfx(1);
                         SubmodeState = 1;
                         FadeCountdown = 0x40;
@@ -423,7 +417,7 @@ void GpSaveSlotMenuUpdate(void) {
         AddScreenFadeTiles((u32 *)(&CurrentDrawBuf->buffer.ordering70.words[0]), (0x40 - FadeCountdown) * 4, 0x45);
         if (FadeCountdown <= 0) {
             if (LoadTimListStep(1) == 1) {
-                *(SaveSlotSelection *)SelectionState = SaveSlotSelections[GpSaveSlotCursor];
+                SelectionState = SaveSlotSelections[GpSaveSlotCursor];
                 ModeGroup = 1;
                 ModeIndex = 0xF;
                 SubmodeState = 0;

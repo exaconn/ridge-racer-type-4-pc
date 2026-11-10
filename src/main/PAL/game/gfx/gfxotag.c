@@ -309,20 +309,9 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
             if (gB->f94 == s0) {
                 CdAudioBeginPlay(0);
             }
-            {
-                int two;
-                s0 = 0;
-                two = 2;
-                q = (signed char *)&Options;
-                p = (int *)gB;
-                do {
-                    s0++;
-                    p[0xA8 / 4] = q[0x2A];
-                    __asm__ volatile("" : "+r"(q) : "r"(p)); /* ASM_BARRIER: prevent CSE of q + 0x2A and prioritize p for a0 */
-                    q[0x2A] = two;
-                    q += 4;
-                    p++;
-                } while (s0 < 2);
+            for (s0 = 0; s0 < 2; s0++) {
+                gB->fA8[s0] = Options.config.w[s0].rumble02;
+                Options.config.w[s0].rumble02 = 2;
             }
         }
         {
@@ -330,40 +319,30 @@ int DrawLensFlareAndSun(RaceVehicle *arg0)
             x = D_800AC6D8 << 8;
             d = x / 12;
             s0 = 0x100;
-            __asm__("" : "+r"(s0) : "r"(x)); /* ASM_BARRIER: keep 0x100 in s0 and prioritize x in v0 */
+            /* ASM_BARRIER: keep 0x100 in s0 and prioritize x in v0 */
+            __asm__("" : "+r"(s0) : "r"(x));
             s0 -= d;
         }
         UpdateRaceOpeningOverlay(0x1C2);
-        {
-            int w, low, high;
-            low = 0xFFFFFF;
-            high = 0xFF000000;
-            pk = *(GpuTilePacket **)SCRATCHPAD;
-            pk->tag.bytes.length = 3;
-            pk->code = 0x62;
-            pk->r = s0;
-            pk->g = s0;
-            pk->b = s0;
-            ot = (char *)CurrentDrawBuf;
-            __asm__("" : "+r"(pk) : "r"(ot), "r"(low)); /* ASM_BARRIER: order ot load before pk load and prioritize low */
-            w = *(int *)pk;
-            pk->w = 0x140;
-            pk->x = 0;
-            pk->y = 0;
-            pk->h = 0xF0;
-            *(int *)pk = (w & high) | ((((int *)ot)[0x70 / 4]) & low);
-            *(int *)(ot + RR_FIELD_OFFSET(FrameStorage, buffer.ordering70)) = ((((int *)ot)[0x70 / 4]) & high) | (((int)pk) & low);
-            pk++;
-            *(GpuTilePacket **)SCRATCHPAD = pk;
-            pk->tag.bytes.length = 1;
-            ot2 = (char *)CurrentDrawBuf;
-            __asm__("" : "+r"(pk) : "r"(ot2)); /* ASM_BARRIER: order ot2 load before pk load */
-            w = *(int *)pk;
-            ((int *)pk)[1] = 0xE1000245;
-            *(int *)pk = (w & high) | ((((int *)ot2)[0x70 / 4]) & low);
-            *(int *)(ot2 + RR_FIELD_OFFSET(FrameStorage, buffer.ordering70)) = ((((int *)ot2)[0x70 / 4]) & high) | (((int)pk) & low);
-            *(char **)SCRATCHPAD = (char *)pk + 8;
-        }
+        pk = (GpuTilePacket *)((GpuScratchPointers *)SCRATCHPAD)->cursor;
+        pk->tag.bytes.length = 3;
+        pk->code = 0x62;
+        pk->r = s0;
+        pk->g = s0;
+        pk->b = s0;
+        pk->x = 0;
+        pk->y = 0;
+        pk->w = 0x140;
+        pk->h = 0xF0;
+        pk->tag.bits.address = CurrentDrawBuf->buffer.ordering70.tags[0].bits.address;
+        CurrentDrawBuf->buffer.ordering70.tags[0].bits.address = (unsigned long)pk;
+        pk++;
+        ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)pk;
+        pk->tag.bytes.length = 1;
+        ((u32 *)pk)[1] = 0xE1000245;
+        pk->tag.bits.address = CurrentDrawBuf->buffer.ordering70.tags[0].bits.address;
+        CurrentDrawBuf->buffer.ordering70.tags[0].bits.address = (unsigned long)pk;
+        ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)pk + 8;
     }
     gC = &RaceContext;
     if (gC->f94 == 0) {

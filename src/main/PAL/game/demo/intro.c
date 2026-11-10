@@ -35,7 +35,7 @@ extern struct Entry IntroTimeline[];
 extern int FrameCounter;
 extern struct Buf DrawBuffers[];
 extern FadeRaceContext RaceContext;
-extern s32 CdDirectoryBuffer;
+#include "rr/cd_directory_buffer.h"
 extern s32 D_800ACA94;
 extern s16 ModeIndex;
 extern s16 ModeGroup;

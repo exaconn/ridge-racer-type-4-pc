@@ -1,45 +1,9 @@
+/* GCC_VERSION: 970318 */
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
 #include "rr/spu.h"
 #include "psyq/libsnd/vmmain.h"
 #include "psyq/libsnd/ssvab.h"
-
-typedef struct {
-    u32 form;
-    s32 ver;
-    s32 id;
-    u32 fsize;
-    u16 reserved0;
-    u16 ps;
-    u16 ts;
-    u16 vs;
-    u8 mvol;
-    u8 pan;
-    u8 attr1;
-    u8 attr2;
-    u32 reserved1;
-} VabHdr;
-
-typedef struct {
-    u8 tones;
-    u8 mvol;
-    u8 prior;
-    u8 mode;
-    u8 mpan;
-    s8 reserved0;
-    s16 attr;
-    u32 reserved1;
-    u16 fake_prog_idx;
-    u16 reserved2;
-} ProgAtr;
-
-static inline void vab_count_dec(void) {
-    /* ASM_BARRIER: keep the decremented count in v1 as in the target */
-    register u16 c __asm__("$3");
-    c = _svm_vab_count;
-    _svm_vab_count = c - 1;
-}
 
 s32 _SsVabOpenHeadWithMode(void *addr, s16 vabid, VabTransFunc func, s32 mode) {
     s16 vab_id = 0x10;
@@ -93,8 +57,7 @@ s32 _SsVabOpenHeadWithMode(void *addr, s16 vabid, VabTransFunc func, s32 mode) {
     if ((vab_h->form >> 8) != 0x564142) {
         _svm_vab_used[vab_id] = 0;
         _spu_setInTransfer(0);
-        vab_count_dec();
-        goto err;
+        { s32 ret = -1; _svm_vab_count--; return ret; }
     }
     if ((vab_h->form & 0xFF) == 0x70) {
         if (vab_h->ver >= 5) {
@@ -108,22 +71,19 @@ s32 _SsVabOpenHeadWithMode(void *addr, s16 vabid, VabTransFunc func, s32 mode) {
     if (vab_h->ps > kMaxPrograms) {
         _svm_vab_used[vab_id] = 0;
         _spu_setInTransfer(0);
-        vab_count_dec();
-        goto err;
+        { s32 ret = -1; _svm_vab_count--; return ret; }
     }
-    _svm_vab_pg[vab_id] = (SpuProgram *)p;
+    _svm_vab_pg[vab_id] = (ProgAtrBuffer *)p;
     prog_atr = (ProgAtr *)p;
     p += kMaxPrograms * sizeof(ProgAtr);
     i = 0;
-    /* ASM_BARRIER: hide zero in i from reload_cse so tot_size is initialized from $zero */
-    __asm__("" : "+r"(i));
-    tot_size = 0;
+tot_size = 0;
     if ((s32)tot_size < kMaxPrograms) {
         s32 limit = kMaxPrograms;
         ProgAtr *cur = prog_atr;
         do {
-            cur->reserved1 = tot_size;
-            if (cur->tones != 0) {
+            cur->toneBlockIndex = tot_size;
+            if (cur->attributes.tones != 0) {
                 tot_size++;
             }
             i++;
@@ -131,9 +91,7 @@ s32 _SsVabOpenHeadWithMode(void *addr, s16 vabid, VabTransFunc func, s32 mode) {
         } while (i < limit);
     }
     tot_size = 0;
-    /* ASM_BARRIER: hide the zero from reload_cse so later zero inits stay separate (target has no reg copy of 0) */
-    __asm__("" : "+r"(tot_size));
-    _svm_vab_tn[vab_id] = p;
+_svm_vab_tn[vab_id] = (VagAtrBuffer *)p;
     p += vab_h->ps << 9;
     vag_off = (u16 *)p;
     num_vags = vab_h->vs;
@@ -150,35 +108,29 @@ s32 _SsVabOpenHeadWithMode(void *addr, s16 vabid, VabTransFunc func, s32 mode) {
         vag_off++;
     }
     spu_alloc = (*func)(tot_size, mode, vab_id);
-    if (spu_alloc == -1) {
-    err:
+    if (spu_alloc == 0xFFFFFFFFU) {
         return -1;
     }
     if ((spu_alloc + tot_size) > 0x80000U) {
         _svm_vab_used[vab_id] = 0;
         _spu_setInTransfer(0);
-        vab_count_dec();
-        goto err;
+        { s32 ret = -1; _svm_vab_count--; return ret; }
     }
     _svm_vab_start[vab_id] = spu_alloc;
     tot_size = 0;
-    /* ASM_BARRIER: hide zero in tot_size from reload_cse */
-    __asm__("" : "+r"(tot_size));
-    {
+{
         s32 nv = num_vags;
         s32 zero = 0;
         s32 cond = (nv < zero);
-        /* ASM_BARRIER: schedule slti before i = 0 so reload_cse keeps slti and reorg fills delay slot with i = 0 */
-        __asm__ volatile("" : : "r"(cond));
-        i = 0;
+i = 0;
         if (!cond) {
             s32 limit = nv;
             do {
                 tot_size += vag_size[i];
                 if (!(i & 1)) {
-                    prog_atr[i / 2].fake_prog_idx = (spu_alloc + tot_size) >> 3;
+                    prog_atr[i / 2].sampleAddresses[0] = (spu_alloc + tot_size) >> 3;
                 } else {
-                    prog_atr[i / 2].reserved2 = (spu_alloc + tot_size) >> 3;
+                    prog_atr[i / 2].sampleAddresses[1] = (spu_alloc + tot_size) >> 3;
                 }
                 i++;
             } while (i <= limit);

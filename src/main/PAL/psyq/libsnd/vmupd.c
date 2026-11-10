@@ -32,8 +32,8 @@ void _SsVmKeyOnNow(u8 arg0, u16 arg1) {
     if (_svm_cur.f14 != 0x21) {
         /* ASM_BARRIER: prevent replacing vol with a3 in first multiply */
         __asm__("" : "+r"(vol));
-        a3 = (vol * rec->value58) / 127U;
-        vol = (vol * rec->value5A) / 127U;
+        a3 = (vol * rec->h58[0]) / 127U;
+        vol = (vol * rec->h58[1]) / 127U;
     }
     pan = _svm_cur.f0E;
     if (pan < 0x40U) {

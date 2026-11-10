@@ -1,39 +1,37 @@
 """Recovered SPU tone snapshot: signed indexing, live pointers, overlap and guards."""
 from pathlib import Path
-import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+
+from c_functions import definition_source
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 class SpuToneSnapshotTest(unittest.TestCase):
     def test_native_snapshot(self):
-        body = (ROOT/'tools/scripts/fixtures/views/func_800850C4.c').read_text()
-        body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
-        body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
-        body = re.sub(r',?\s*"\$\d+"', '', body)
-        self.assertEqual(body.count('(u8*)0x80110000U'), 1)
-        body = body.replace('(u8*)0x80110000U', 'test_flags + 32768')
+        body = definition_source(
+            (ROOT/'src/main/PAL/psyq/libsnd/utgva.c').read_text(), 'SsUtGetVagAtr')
         code = r'''
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
-typedef uint8_t u8; typedef int8_t s8; typedef uint16_t u16; typedef int16_t s16; typedef int32_t s32; typedef uint32_t u32;
-typedef struct {u8 bank, padding[4], program, value;} Selection;
-Selection D_80110101;
+#include "rr/channels.h"
+#include "rr/spu_tone_snapshot.h"
+SvmCur _svm_cur;
 u8 test_flags[65536+0x200];
+#define _svm_vab_used (test_flags+32768+0x120)
 u8 tone_pool[2097152] __attribute__((aligned(512)));
-struct {u8 prefix[16]; union {u8 bytes[32]; u8 *pointer;} state;} holder;
-#define selected holder.state
-#define _svm_tn selected.pointer
+struct {u8 prefix[16]; union {u8 bytes[32]; VagAtrBuffer *pointer;} state;} holder;
+#define test_selected holder.state
+#define _svm_tn test_selected.pointer
 static u8 *next_base;
 static u8 next_value;
 static s32 selector_result, calls, seen_bank, seen_program;
 s32 _SsVmVSetUp(s32 bank,s32 program) {
     calls++; seen_bank=bank; seen_program=program;
-    _svm_tn=next_base; D_80110101.value=next_value;
+    _svm_tn=(VagAtrBuffer *)next_base; _svm_cur.f07=next_value;
     return selector_result;
 }
 ''' + body + r'''
@@ -92,14 +90,14 @@ int main(void) {
     initial[0]=representation[0];
     memcpy(redirected+1,representation+1,sizeof(redirected)-1);
     for(unsigned i=sizeof(redirected);i<32;i++)redirected[i]=(u8)(0x30+i);
-    memset(selected.bytes,0xA5,sizeof(selected.bytes));
+    memset(test_selected.bytes,0xA5,sizeof(test_selected.bytes));
     next_base=initial;next_value=0;selector_result=-1;
     u8 expected[32]; memset(expected,0xA5,sizeof(expected));
     memcpy(expected,representation,sizeof(representation));
     for(int i=8;i<14;i++)expected[i]=redirected[i];
     memcpy(expected+16,redirected+16,8);
-    assert(SsUtGetVagAtr(0,0,0,selected.bytes)==0);
-    assert(_svm_tn==redirected && memcmp(selected.bytes,expected,32)==0);
+    assert(SsUtGetVagAtr(0,0,0,test_selected.bytes)==0);
+    assert((u8 *)_svm_tn==redirected && memcmp(test_selected.bytes,expected,32)==0);
     /* The final four halfwords share one captured source pointer. */
     memset(&holder,0xA5,sizeof(holder));
     memset(redirected+16,0xCC,8);
@@ -108,7 +106,7 @@ int main(void) {
     copy_reference(tail_expected,initial);
     next_base=initial; next_value=0; selector_result=-1;
     assert(SsUtGetVagAtr(0,0,0,holder.prefix)==0);
-    assert(_svm_tn==redirected);
+    assert((u8 *)_svm_tn==redirected);
     assert(memcmp(&holder,tail_expected,sizeof(holder))==0);
     return 0;
 }
@@ -117,7 +115,7 @@ int main(void) {
             directory=Path(temporary); source=directory/'tone.c'; executable=directory/'tone'
             source.write_text(code)
             result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
-                                   '-fsanitize=undefined',str(source),'-o',str(executable)],
+                                   '-I'+str(ROOT/'include'),'-fsanitize=undefined',str(source),'-o',str(executable)],
                                   capture_output=True,text=True)
             self.assertEqual(result.returncode,0,result.stderr)
             result=subprocess.run([str(executable)],capture_output=True,text=True)

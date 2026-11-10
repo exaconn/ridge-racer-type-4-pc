@@ -117,7 +117,7 @@ int StepMenuCameraTransition(int flags)
     return ready;
 }
 
-int AllocBadgeRows(int a0) {
+int AllocBadgeRows(void *a0) {
     int n = BadgeRowCount * 28;
     BadgeRows = (BadgeRow1C *)a0;
     PsyqBzero(a0, n);

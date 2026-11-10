@@ -366,13 +366,16 @@ void StepCardSlotHeaderScan(void) {
 }
 
 void CheckCardPollStatusTransition(void) {
- MenuStateEntry8 *e = MenuStateTable; int s = MenuStateIndex;
- unsigned char *q = CardPollTransitionTable + e[s].tableIdx04*4;
- int x = q[0], y = q[1];
- unsigned c = CardPortPollStatus[CardActivePort];
- register int d asm("$3"); /* ASM_BARRIER: pin reload value to v1 */
- if (c < 0x10 || x == (d = *(volatile unsigned char *)&CardPortPollStatus[CardActivePort])) { MenuStateIndex = y; return; }
- if (d == 0x14 && s == 2) MenuStateIndex = 8;
+    int i = MenuStateTable[MenuStateIndex].tableIdx04;
+    unsigned char *q = CardPollTransitionTable + i * 4;
+    int x = q[0], y = q[1];
+    if (CardPortPollStatus[CardActivePort] < 0x10 || x == CardPortPollStatus[CardActivePort]) {
+        MenuStateIndex = y;
+        return;
+    }
+    if (CardPortPollStatus[CardActivePort] == 0x14 && MenuStateIndex == 2) {
+        MenuStateIndex = 8;
+    }
 }
 
 
@@ -722,7 +725,7 @@ void DrawCardMenuStatusText(int a0, int a1, int a2, int a3, int a4, int a5) {
         if (a0 == -1) {
             if (CardMenuOperation == 3 || CardMenuOperation == 6 || CardMenuOperation == 7) a0 = 0x19;
         } else if (a0 == -128) {
-            a0 = ((s8 *)CardDialogueStatePtr)[4];
+            a0 = CardDialogueStatePtr->b4;
         } else {
             if (a0 == 0x12 && CardPdaModeFlag == 1 && CardPortUnformatted[CardActivePort] == 1) {
                 a0 = 0x1C;
@@ -735,11 +738,11 @@ void DrawCardMenuStatusText(int a0, int a1, int a2, int a3, int a4, int a5) {
             }
         }
         if (a0 >= 0) {
-            ((s8 *)CardDialogueStatePtr)[4] = a0;
-            ((void (*)())UpdateDialogue)(((short *)BadgeRows)[4] + 10, ((short *)BadgeRows)[5] + 0x28, CardDialogueStatePtr, a3);
+            CardDialogueStatePtr->b4 = a0;
+            UpdateDialogue(((short *)BadgeRows)[4] + 10, ((short *)BadgeRows)[5] + 0x28, CardDialogueStatePtr);
         }
     }
-    UpdateCardSlotUiRows(a4, ((s0 & 2) > 0) & (((short *)CardDialogueStatePtr)[9] >= 6));
+    UpdateCardSlotUiRows(a4, ((s0 & 2) > 0) & (CardDialogueStatePtr->s12 >= 6));
     DrawCardMenuCommandRows(a4, (s0 & 4) > 0);
     if (s0 & 8) DrawSaveSlotTableHeader(GpSaveSlotCursor);
 }

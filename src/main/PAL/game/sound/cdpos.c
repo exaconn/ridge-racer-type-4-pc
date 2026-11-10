@@ -18,15 +18,15 @@ extern char CdAudioTrackTable[];
 
 void CdAudioFindStreamFile(void) {
     struct { u8 unused[8]; u8 b[8]; CdlFILE c; } L;
-    SoundState.streamTable2638 = -1;
-    SoundState.unk2640 = -1;
+    SoundState.streamBanks[0].table = AUDIO_STREAM_TABLE_UNAVAILABLE;
+    SoundState.streamBanks[1].table = AUDIO_STREAM_TABLE_UNAVAILABLE;
     if (CdControlB(1, 0, L.b) != 0) {
         u32 v = L.b[0];
         if ((v & 0x10) == 0) {
             if ((v & 1) == 0) {
                 CdSearchFile(&L.c, R4StrPath);
-                SoundState.streamBase2634 = CdPosToInt(L.c.pos) & 0xFFFFFF;
-                SoundState.streamTable2638 = CdAudioTrackTable;
+                SoundState.streamBanks[0].sector = CdPosToInt(L.c.pos) & 0xFFFFFF;
+                SoundState.streamBanks[0].table = (u8 *)CdAudioTrackTable;
             }
         }
     }

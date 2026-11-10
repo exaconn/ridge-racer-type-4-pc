@@ -22,7 +22,7 @@ void InitLoopVoices(int a0) {
         SoundState.loopVoices1994[i].vol10[1] = 0;
         SoundState.loopVoices1994[i].vol10[0] = 0;
         SoundState.loopVoices1994[i].active04 = 0;
-        SoundState.loopVoices1994[i].bank08.word = SoundState.bank24[1];
+        SoundState.loopVoices1994[i].bank08.word = SoundState.banks24.ids[1];
         SoundState.loopVoices1994[i].voice0C.word = k + i;
     }
 }

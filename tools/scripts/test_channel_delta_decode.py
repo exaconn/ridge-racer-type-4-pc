@@ -7,6 +7,7 @@ import struct
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from sequence_fixture_transport import current_body
 
 
 ValueUpdate = C.CFUNCTYPE(None, C.c_int32, C.c_int32, C.c_int32, C.c_int32)
@@ -22,6 +23,7 @@ class ChannelDeltaDecodeTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         header = (root / 'include/rr/library.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
+        header = '#include \"rr/sequence_channel.h\"\n' + header
         source = '''#include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -61,7 +63,7 @@ void test_prepare(s32 bank, s32 row, const u8 *input, u32 length, u32 accumulato
     test_records[bank + 4][row + 8].w88 = accumulator;
 }
 '''
-        body = '\n'.join((root / ('tools/scripts/fixtures/views/func_' + name + '.c')).read_text()
+        body = '\n'.join(current_body(root,name)
                          for name in ('80081E04', '8008424C', '80080034', '80081804'))
         body = body.replace('#include "rr/library.h"', '')
         body = body.replace('extern LibStateB0 *_ss_score[];', '')
@@ -72,7 +74,7 @@ void test_prepare(s32 bank, s32 row, const u8 *input, u32 length, u32 accumulato
         body = body.replace('(LibStateB0 **)0x80110000U', '(test_table + 0x4000)')
         source += body
         (directory / 'function.c').write_text(source)
-        subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
+        subprocess.run(['cc', '-shared', '-fPIC', '-O2', '-I', str(root/'include'), str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
         cls.stride = C.c_uint32.in_dll(cls.library, 'test_record_size').value

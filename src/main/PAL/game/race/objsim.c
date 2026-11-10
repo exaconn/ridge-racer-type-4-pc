@@ -96,7 +96,7 @@ void UpdateTrackObjects(void) {
     int v1, a0, a2;
     int t0, t1;
     int r1, r2, r3, r5, r6;
-    register int r4 asm("$2"); /* ASM_BARRIER: force modulo result into v0 before copying to a3 */
+    int r4;
     int *hw;
 
     UpdateTrackObjectActivation();
@@ -142,9 +142,7 @@ void UpdateTrackObjects(void) {
                         TrackObjectStates[i].f10 = TrackObjectKeyframes[TrackObjectDefs[i].f24].f10 + (r2 % TrackObjectKeyframes[TrackObjectDefs[i].f24 + 1].f10);
                         r3 = PsyqRand();
                         TrackObjectStates[i].f14 = TrackObjectKeyframes[TrackObjectDefs[i].f24].f14 + (r3 % TrackObjectKeyframes[TrackObjectDefs[i].f24 + 1].f14);
-                        r4 = PsyqRand() % 6;
-                        TrackObjectStates[i].f8 = r4 + 1;
-                        SetAnimatedTrackObjectState(TrackObjectDefs[i].f0, 7, &TrackObjectStates[i].fC, r4);
+                        SetAnimatedTrackObjectState(TrackObjectDefs[i].f0, 7, &TrackObjectStates[i].fC, (TrackObjectStates[i].f8 = (PsyqRand() % 6) + 1) - 1);
                         TrackObjectStates[i].f0 = 0;
                     } else if (TrackObjectStates[i].f0 == 0x3C) {
                         hw = (int *)SCRATCHPAD;

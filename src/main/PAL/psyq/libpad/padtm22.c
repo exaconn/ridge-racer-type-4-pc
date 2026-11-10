@@ -1,21 +1,16 @@
-/* GCC_VERSION: 2.7.2 */
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "rr/counters.h"
 #include "psyq/libpad/padtm22.h"
 #include "rr/serial.h"
 
 void setRC2wait(s32 limit) {
-    /* ASM_BARRIER: keep the zero-extended timer read in its original register. */
-    register s32 counter __asm__("$2") = ((RootCounterRegisters *)0x1F801120)->count;
-    /* ASM_BARRIER: retain the original assembler temporary for the mapped store. */
-    register s32 *base __asm__("$1");
+    u16 counter = ((RootCounterRegisters *)0x1F801120)->count;
+    s32 *base;
     RC2WaitLimit = limit;
-    /* ASM_BARRIER: finish the limit store before binding the saved-counter address. */
-    __asm__ volatile("" : : : "$1", "memory");
     /* PAL RAM mapping for PadRcnt2Start. */
     base = (s32 *)0x80110000U;
-    /* ASM_BARRIER: expose the register-relative return-slot store. */
-    __asm__("" : "=r"(base) : "0"(base));
     base[0x46B8 / 4] = counter;
 }
 

@@ -45,7 +45,7 @@ void ovl662_func_80119898(s32 mode) {
  else {
   ovl662_D_80127398=previous+4;
   if(mode==1){
-   /* Empty compiler barrier preserves the conditional phase update. */
+   /* ASM_BARRIER: preserve the unconditional +4 store before the conditional +8 store */
    __asm__("" : : : "memory");
    ovl662_D_80127398=previous+8;
   }

@@ -7,16 +7,17 @@
 
 void SetupRaceMemoryArena(s32 layout,s32 mode);
 
-void SetupDialogueTable(char *a) {
+void SetupDialogueTable(void *buffer) {
+    u8 *a = buffer;
     int i;
     unsigned short *p;
-    void **q;
+    u16 **q;
     DialoguePageCounts = a + 0x50;
     i = 0;
     q = DialogueScriptPtrs;
     p = (unsigned short *)a;
-    do { *q++ = a + 0x1B8 + *p++ * 2; i++; } while (i < 0x28);
-    DialogueAssetTable = a + 0x78;
+    do { *q++ = (u16 *)(a + 0x1B8 + *p++ * 2); i++; } while (i < 0x28);
+    DialogueAssetTable = (s8 *)(a + 0x78);
 }
 
 void SetCarRecordPtr(CarRecord *record, s32 index) {
@@ -72,8 +73,8 @@ void SetupRaceMemoryArena(s32 layout,s32 mode) {
         }
     } else {
         SavedRaceState=0;
-        i=0;
         if (layout==1) {
+            i=0;
             loaded=SharedWorkArena;
             base=loaded;
             source_slots=CarSnapshots;
@@ -90,9 +91,6 @@ void SetupRaceMemoryArena(s32 layout,s32 mode) {
             } while (i<4);
         } else if (layout==2) {
             ReplayLength=900;
-            /* ASM_BARRIER: republish zero after this branch's metadata store;
-             * the previous fixed-register index value is dead at this point. */
-            __asm__("" : : : "$5");
             i=0;
             factor=sizeof(((ReplayLinkStorage*)0)->inputs[0])/sizeof(ReplayFrame4);
             bankbase=SharedWorkArena;
@@ -112,6 +110,7 @@ void SetupRaceMemoryArena(s32 layout,s32 mode) {
                 bank_slots++;
             } while (i<4);
         } else {
+            i=0;
             loaded=SharedWorkArena;
             base=loaded;
             source_slots=CarSnapshots;

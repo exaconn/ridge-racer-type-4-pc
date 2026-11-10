@@ -1,20 +1,9 @@
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "rr/library.h"
 #include "psyq/libsnd/midiread.h"
 void _SsContBankChange(s16 bank, s16 row) {
-    /* ASM_BARRIER: Retain the original table/record register across the update call. */
-    register LibStateB0 **table __asm__("$16");
-    register s32 index = bank * (s32)sizeof(*table);
-    register s32 units;
-    LibStateB0 *state;
-    units = row * 11;
-    /* ASM_BARRIER: Complete index arithmetic before materializing the PAL table page. */
-    __asm__ volatile("" : : "r"(index), "r"(units) : "$16");
-    /* PAL mapping: table[-0xF98 / 4] selects _ss_score[bank]. */
-    table = (LibStateB0 **)0x80110000U;
-    /* ASM_BARRIER: Expose the PAL table page without folding its signed low offset. */
-    __asm__("" : "=r"(table) : "0"(table));
-    table = (LibStateB0 **)((u8 *)table + index);
-    state = table[-0xF98 / 4] + row;
+    LibStateB0 *state = &_ss_score[bank][row];
     {
         u8 *cursor = state->c0;
         u8 value = *cursor++;

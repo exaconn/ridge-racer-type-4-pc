@@ -24,7 +24,7 @@ void SeqStartTrack(int a0) {
     if (SoundState.seqTrack2868 != a0) {
         SeqMuteVolume();
         SoundState.seqTrack2868 = a0;
-        SoundState.seqHandle2864 = (s16)SsSeqOpen(SoundState.seqAddr2858[a0], SoundState.bank24[a0 + 2]);
+        SoundState.seqHandle2864 = (s16)SsSeqOpen(SoundState.seqAddr2858[a0], SoundState.banks24.ids[a0 + 2]);
         SsSetMarkCallback((s16)SoundState.seqHandle2864, 0, SeqMarkCallback);
         ReverbReset();
         SetReverbDepthBoth(0x32);

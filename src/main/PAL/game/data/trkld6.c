@@ -1,5 +1,4 @@
 /* RODATA 0x800110a0 0x1c */
-/* CC1_FLAGS: -fno-strength-reduce */
 #include "game/data/cdfile2.h"
 #include "rr/load_cursor.h"
 #include "game/data/trkld1.h"
@@ -20,14 +19,22 @@ extern int RaceContext[];
 extern short SelectedMakerIndex;
 extern unsigned short SavedCourseIndex;
 extern short CourseIndex;
-extern int D_800A0234[];
+
 extern char *D_800ACBB4;
-extern char *VabLoadArgs[2];
-extern int D_800A0270[];
 
 void SetupRaceSoundCarConfig(void);
 int LoadTrophyModelStep(void);
 
+/* Offsets in the track audio resource are relative to its live load base. */
+typedef struct {
+    u32 tag;
+    s32 modelOffset,relocationOffset;
+    s32 sequenceOffsets[2],bankHeaderOffsets[2],bankSampleOffsets[2];
+    s32 imageListOffset;
+} TrackSoundHeader;
+RR_ASSERT_SIZE(TrackSoundHeader,40);
+RR_ASSERT_OFFSET(TrackSoundHeader,sequenceOffsets,12);
+RR_ASSERT_OFFSET(TrackSoundHeader,bankSampleOffsets,28);
 void SetupRaceSoundCarConfig(void) {
     switch (GameModeType) {
     case 6:
@@ -114,46 +121,42 @@ int LoadRaceSoundAndTrackStep(void) {
 
 int LoadTrackVabsStep(void)
 {
-    int i, i4, r, ret;
-    int *s1;
-    char *s3;
-    char *t;
+    s32 bank, started, result;
+    VabLoadConfig *configs;
+    char *resource;
     switch (RaceLoadStepIndex) {
     case 0:
-        ret = r = CdFileReadStart(GetR4FileIndex(2, 1), RaceLoadCursor);
-        if (r == 0) break;
+        result = started = CdFileReadStart(GetR4FileIndex(2, 1), RaceLoadCursor);
+        if (started == 0) break;
         RaceLoadStepIndex = RaceLoadStepIndex + 1;
     case 1:
-        if (CdFileBytesLoaded() == 0) { ret = 0; break; }
-        t = (char *)(RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
-        RegisterModelBank((RroModelBank *)(t), 7);
-        i = 0;
-        RelocateOffsetTable(RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
-        s3 = (char *)&SoundState;
-        s1 = D_800A0234;
-        D_800ACBB4 = (char *)(RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
+        if (CdFileBytesLoaded() == 0) { result = 0; break; }
+        resource = (char *)(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->modelOffset);
+        RegisterModelBank((RroModelBank *)(resource), 7);
+        bank = 0;
+        RelocateOffsetTable(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->relocationOffset);
+        configs = &D_800A0228[1];
+        D_800ACBB4 = (char *)(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->relocationOffset);
         do {
-            VabLoadArgs[0] = (char *)(RaceLoadCursor + ((int *)(RaceLoadCursor + i * 4))[5]);
-            VabLoadArgs[1] = (char *)(RaceLoadCursor + ((int *)(RaceLoadCursor + i * 4))[7]);
-            LoadVab(VabLoadArgs, s1[1], s1[2]);
-            s1 += 3;
-            ((AudioState *)s3)->seqAddr2858[0] = (char *)(RaceLoadCursor + ((int *)(RaceLoadCursor + i * 4))[3]);
-            s3 += 4;
-            i++;
-        } while (i < 2);
-        LoadTimList(RaceLoadCursor + ((int *)RaceLoadCursor)[9]);
-        t = (char *)AlignUp4(RaceLoadCursor + ((int *)RaceLoadCursor)[7]);
-        LoadCursor = t;
-        RaceLoadCursor = t;
+            VabLoadArgs.header = (u8 *)(RaceLoadCursor + *(((const TrackSoundHeader *)RaceLoadCursor)->bankHeaderOffsets + bank));
+            VabLoadArgs.samples = (const u16 *)(RaceLoadCursor + *(((const TrackSoundHeader *)RaceLoadCursor)->bankSampleOffsets + bank));
+            LoadVab(&VabLoadArgs, configs[bank].open_mode, configs[bank].bank_slot);
+            SoundState.seqAddr2858[bank] = (u8 *)(RaceLoadCursor + *(((const TrackSoundHeader *)RaceLoadCursor)->sequenceOffsets + bank));
+            bank++;
+        } while (bank < 2);
+        LoadTimList(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->imageListOffset);
+        resource = (char *)AlignUp4((unsigned long)(RaceLoadCursor + ((const TrackSoundHeader *)RaceLoadCursor)->bankSampleOffsets[0]));
+        LoadCursor = resource;
+        RaceLoadCursor = resource;
         RaceLoadStepIndex = 0;
         SoundCloseVabsAndReset();
-        ret = 1;
+        result = 1;
         break;
     default:
-        ret = 0;
+        result = 0;
         break;
     }
-    return ret;
+    return result;
 }
 
 int LoadTrophyModelStep(void) {
@@ -180,7 +183,7 @@ int LoadTrophyModelStep(void) {
 
 int LoadAttractRaceStep(void) {
     int r;
-    int *q;
+    VabLoadConfig *q;
     switch (RaceLoadStepIndex) {
     case 0:
         r = CdFileReadStart(GetR4FileIndex(2, 0), RaceLoadCursor);
@@ -188,10 +191,10 @@ int LoadAttractRaceStep(void) {
             RaceLoadStepIndex++;
     case 1:
             if (CdFileBytesLoaded()) {
-                q = D_800A0270;
-                VabLoadArgs[0] = (char *)(RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
-                VabLoadArgs[1] = (char *)(RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
-                LoadVab(VabLoadArgs, q[1], q[2]);
+                q = &D_800A0228[6];
+                VabLoadArgs.header = (u8 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[1]);
+                VabLoadArgs.samples = (const u16 *)(RaceLoadCursor + ((int *)RaceLoadCursor)[2]);
+                LoadVab(&VabLoadArgs, q->open_mode, q->bank_slot);
                 LoadTimList(RaceLoadCursor + ((int *)RaceLoadCursor)[3]);
                 RaceLoadStepIndex = 0;
                 RaceLoadCursor = RaceLoadCursor + ((int *)RaceLoadCursor)[2];

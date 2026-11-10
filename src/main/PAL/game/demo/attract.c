@@ -47,9 +47,7 @@ void StartAttractDemo(int a0) {
     int s0;
     int s2;
     int v;
-    /* ASM_BARRIER: pin rand()%2 result to $v0 like the original shuffle loop */
-    register int r __asm__("$2");
-    int *w;
+int *w;
     struct { unsigned char a, b, c, d; } *b;
     unsigned short m;
     unsigned short *e;
@@ -79,8 +77,7 @@ void StartAttractDemo(int a0) {
     i = 0;
     do {
         s0 = PsyqRand() % 4;
-        r = PsyqRand() % 2;
-        v = s0 + r;
+v = s0 + PsyqRand() % 2;
         vq = v % 4;
         s2 = sp[s0];
         y = sp[vq];

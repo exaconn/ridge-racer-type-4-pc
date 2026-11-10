@@ -61,10 +61,8 @@ l11:
                 a0->phase = 0xFF;
                 break;
             default: {
-                /* ASM_BARRIER: keep the callback return value in $v0 across the join label. */
-                register int v asm("$2");
-                if (a0->complete18 != 0) v = a0->complete18(a0); else v = _padRecvAtLoadInfo(a0);
-                a0->phase += v;
+                if (a0->complete18 != 0) a0->phase += a0->complete18(a0);
+                else a0->phase += _padRecvAtLoadInfo(a0);
                 break;
             }
             }

@@ -8,7 +8,6 @@ u8 *ovl662_func_8011B2D4(s32 index,u8 *cursor,s32 x,s32 y)
     SpritePacket *packet=(SpritePacket *)cursor;
     GarageSpriteRecord *record;
     s32 i;
-    s32 code;
     if (index<0) {
         for (i=0;i<72;i++) {
             record=&ovl662_D_80126260[i];
@@ -19,12 +18,8 @@ u8 *ovl662_func_8011B2D4(s32 index,u8 *cursor,s32 x,s32 y)
     record=ovl662_D_80127548[index];
     packet->len=4;
     packet->code=0x64;
-    code=record->flags10 &1;
-    if (code) code=0x66;
-    else code=0x64;
-    packet->code=code;
-    /* ASM_BARRIER: retain the original code-byte read after selecting the mode. */
-    __asm__("" ::: "memory");
+    if (record->flags10 & 1) packet->code = packet->code | 2;
+    else packet->code = packet->code & ~2;
     packet->x=x;packet->y=y;
     packet->code |=1;
     packet->w=record->width04;

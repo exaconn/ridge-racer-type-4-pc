@@ -32,6 +32,7 @@ PREFIX=r'''
 #include <stdlib.h>
 #include <string.h>
 #include "game/gfx/poly1.h"
+#include "game/math/rotmat.h"
 #include "game/camera/viewini.h"
 #include "rr/camera_matrices.h"
 #include "rr/gpu_address.h"
@@ -72,9 +73,9 @@ static void rotation(unsigned kind,void *output,s32 angle){
  event(kind,(u32)angle,0,0,0);MatrixWords32 *m=output;u32 x=(u32)angle^(kind*0x17171717U);
  for(unsigned i=0;i<9;i++){x=next(x+i+1U);m->halves[i]=(u16)x;}
 }
-void BuildRotMatrixY(void *p,s32 a){rotation(1,p,a);}
-void BuildRotMatrixX(void *p,s32 a){rotation(2,p,a);}
-void BuildRotMatrixZ(void *p,s32 a){rotation(3,p,a);}
+void BuildRotMatrixY(MatrixWords32 *p,s32 a){rotation(1,p,a);}
+void BuildRotMatrixX(MatrixWords32 *p,s32 a){rotation(2,p,a);}
+void BuildRotMatrixZ(MatrixWords32 *p,s32 a){rotation(3,p,a);}
 static MatrixWords32 *product(unsigned kind,const MatrixWords32 *a,MatrixWords32 *b){
  u32 x=hash(a,18),y=hash(b,18);event(kind,x,y,a==b,0);
  for(unsigned i=0;i<9;i++){x=next(x+y+i);b->halves[i]=(u16)x;}return b;

@@ -11,15 +11,14 @@ void SsSeqPlay(short a, signed char b, short c);
 void SsSepPlay(short a, short b, signed char c, short d);
 
 void _SsSndSetPauseMode(int a0, short a1) {
-    int t = a0 << 16;
-    LibStateB0 **b = _ss_score;
-    LibStateB0 **q = (LibStateB0 **)((int)b + (t >> 14));
-    int o = a1 * 0xB0;
-    LibStateB0 *p = (LibStateB0 *)((char *)*q + o);
-    _SsVmGetSeqVol((short)(a0 | (a1 << 8)), (char *)p + 0x5C, (char *)p + 0x5E);
-    ((LibStateB0 *)(o + (int)*q))->w98 &= ~1;
-    ((LibStateB0 *)(o + (int)*q))->w98 &= ~8;
-    ((LibStateB0 *)(o + (int)*q))->w98 |= 2;
+    u32 bankBits = (u32)a0 << 16;
+    LibStateB0 **table = _ss_score;
+    LibStateB0 **q = &table[(s32)bankBits >> 16];
+    LibStateB0 *p = &(*q)[(s16)a1];
+    _SsVmGetSeqVol((short)(a0 | ((u32)a1 << 8)), &p->h58[2], &p->h58[3]);
+    (*q)[(s16)a1].w98 &= ~1;
+    (*q)[(s16)a1].w98 &= ~8;
+    (*q)[(s16)a1].w98 |= 2;
 }
 
 void SsSeqPause(short a) { _SsSndSetPauseMode(a, 0); }

@@ -1,3 +1,4 @@
+#include "psyq/libc/exit.h"
 #include "types.h"
 #include "rr/audio_state_types.h"
 #include "rr/audio_pan.h"
@@ -8,39 +9,30 @@
 #include "rr/audio_bank_setup.h"
 #include "rr/audio_cd_controller.h"
 
-extern int PsyqExit();
 extern char VabOpenHeadErrorStr[];
 extern char D_800110F0[];
 extern s32 D_800F7650;
 
-void LoadVab(int *arg0, int arg1, int arg2);
 void SetReverb(int a0, int a1);
 void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void PlaySfxVolPan(int a0, s16 a1, s16 a2, int a3);
 
-void LoadVab(int *arg0, int arg1, int arg2) {
-    int k = &SoundState;
-    short *p = (short *)(k + (arg2 << 1));
-    short v;
-    /* ASM_BARRIER: original keeps the first result sign-extended in $a1 */
-    register int t asm("$5");
-    short v2;
-    if (p[0x12] >= 0) {
-        SsVabClose(p[0x12]);
-        p[0x12] = -1;
+void LoadVab(const VabData *data, s32 mode, s32 bankIndex) {
+    s32 opened;
+    s32 transferred;
+    if (SoundState.banks24.ids[bankIndex] >= 0) {
+        SsVabClose(SoundState.banks24.ids[bankIndex]);
+        SoundState.banks24.ids[bankIndex] = -1;
     }
-    v = SsVabOpenHeadSticky(arg0[0], -1, arg1);
-    p[0x12] = v;
-    /* ASM_BARRIER: keep the result store ahead of the sign-extension in the schedule */
-    __asm__ ("");
-    t = v;
-    if (t == -1) {
+    opened = SsVabOpenHeadSticky(data->header, -1, mode);
+    SoundState.banks24.ids[bankIndex] = opened;
+    if ((s16)opened == -1) {
         DebugPrintStub(VabOpenHeadErrorStr);
         PsyqExit(1);
     }
-    v2 = SsVabTransBody((u8 *)arg0[1], t);
-    p[0x12] = v2;
-    if (v2 == -1) {
+    transferred = SsVabTransBody(data->samples, (s16)opened);
+    SoundState.banks24.ids[bankIndex] = transferred;
+    if ((s16)transferred == -1) {
         DebugPrintStub(D_800110F0);
         PsyqExit(1);
     }
@@ -80,30 +72,27 @@ void SetReverb(int a0, int a1) {
 
 void TriggerSfx(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s16 temp_a2_2;
-    register s16 temp_s0_2;
-    register s16 temp_s0_4;
+    s16 temp_s0_2;
+    s16 temp_s0_4;
     s16 temp_v1;
     s16 var_a0;
     s16 var_a1;
-    register s32 var_t0;
+    s32 var_t0;
     s32 temp_a2;
-    register s32 temp_s0;
-    register s32 temp_s0_3;
-    register s32 temp_s1;
-    register s32 temp_s2;
-    register s32 temp_t1;
+    s32 temp_s1;
+    s32 temp_s2;
+    s32 temp_t1;
     s32 temp_v0;
     s32 var_a0_2;
-    register s32 var_s0;
+    s32 var_s0;
     s32 var_s1;
     s32 var_v0;
     s32 first_div,second_div;
-    register s32 volume;
+    s32 volume;
     s16 *table;
-    /* ASM_BARRIER: retain this phase value in its original MIPS register. */
-    register s32 note asm("$19");
+    s16 note;
     s32 var_v1;
-    register u16 var_a3;
+    u16 var_a3;
 var_t0 = arg0;
     temp_t1 = (arg3 + 0x3CU);
     if (var_t0 < 0x1E) {
@@ -155,55 +144,19 @@ var_t0 = arg0;
     temp_s2 = var_v0 >> 4;
     var_s0 = temp_t1;
     if (arg4 == -1) {
-        /* ASM_BARRIER: retain this phase value in its original MIPS register. */
-        register s32 outbank asm("$4"),outprogram asm("$5"),mode asm("$6");
-        register s32 outnote;
-        register s32 hi;
-        register s32 bank;
-        register s32 program;
-        hi=(var_a3 * 0x10000U); bank=hi>>16;
-        hi=(var_t0 * 0x10000U); program=hi>>16;
-        if (temp_t1 < 0) {
-            var_s0 = temp_t1 + 0x7F;
-        }
-        outbank=bank;outprogram=program;mode=0;
-        /* ASM_BARRIER: preserve argument preparation before the next phase. */
-        __asm__("" : : "r"(outbank));
-        temp_s0 = var_s0 >> 7;
-        note=(s16)temp_s0;
-        outnote=note;
-
-        temp_s0_2 = temp_t1 - temp_s0 * 128U;
-        SsUtKeyOn(outbank, outprogram, mode, outnote, temp_s0_2, (s16) temp_s2, (s16) temp_s1);
+        s16 bank = var_a3;
+        s16 program = var_t0;
+        SsUtKeyOn(bank, program, 0, note = temp_t1 / 128, temp_s0_2 = temp_t1 % 128, (s16) temp_s2, (s16) temp_s1);
         SsUtKeyOn(bank, program, 1, note, temp_s0_2, (s16) temp_s2, (s16) temp_s1);
         return;
     }
     {
-    register u32 voice=arg4*2U;
-    /* ASM_BARRIER: retain this phase value in its original MIPS register. */
-    s32 hi;
-    register s32 bank;
-    register s32 program;
-    register s32 outvoice;
-    /* ASM_BARRIER: retain this phase value in its original MIPS register. */
-    register s32 outbank asm("$5"),outprogram asm("$6"),mode asm("$7");
-    hi=(voice<<16);
-    outvoice=hi>>16;
-
-    hi=(var_a3 * 0x10000U); bank=hi>>16;
-    hi=(var_t0 * 0x10000U); program=hi>>16;
-    if (temp_t1 < 0) {
-        var_s0 = temp_t1 + 0x7F;
+        u32 voice = arg4 * 2U;
+        s16 bank = var_a3;
+        s16 program = var_t0;
+        SsUtKeyOnV((s16)voice, bank, program, 0, note = temp_t1 / 128, temp_s0_4 = temp_t1 % 128, (s16) temp_s2, (s16) temp_s1);
+        SsUtKeyOnV((s16)(voice + 1U), bank, program, 1, note, temp_s0_4, (s16) temp_s2, (s16) temp_s1);
     }
-    outbank=bank;outprogram=program;mode=0;
-    /* ASM_BARRIER: preserve argument preparation before the next phase. */
-    __asm__("" : : "r"(outbank));
-    temp_s0_3 = var_s0 >> 7;
-    note=(s16)temp_s0_3;
-    temp_s0_4 = temp_t1 - temp_s0_3 * 128U;
-    SsUtKeyOnV(outvoice, outbank, outprogram, mode, note, temp_s0_4, (s16) temp_s2, (s16) temp_s1);
-    SsUtKeyOnV((s16)(voice+1U), bank, program, 1, note, temp_s0_4, (s16) temp_s2, (s16) temp_s1);
-}
 }
 
 void PlaySfxVolPan(int a0, s16 a1, s16 a2, int a3) {

@@ -5,6 +5,7 @@ import subprocess
 from tempfile import TemporaryDirectory
 import unittest
 from c_functions import source_owners, definition_source
+from audio_fixture_transport import wire_types, scalar_body, transport
 
 ROOT=Path(__file__).resolve().parents[2]
 
@@ -49,7 +50,8 @@ typedef struct {int kind;u32 args[8];World snapshot;} Entry;
 static World initial,actual,expected,*w;
 static Entry entries[8],actual_entries[8];
 static unsigned seed;
-static int mutation,count;
+static int mutation,count,reenter;
+static void volume_reference(u32 voice,int left,int right);
 #define SoundState (w->audio)
 #define Options (w->settings)
 #define GameModeType (w->mode)
@@ -71,6 +73,10 @@ static u32 emit(int kind,u32 a,u32 b,u32 c,u32 d,u32 e,u32 f,u32 g,u32 hh){
   w->audio.muted04^=0xA5;
   w->settings.audio.volume31+=37;w->settings.audio.mono32^=0x4000;
   w->mode=(s16)(u16)(seed+sequence);
+ }
+ if(reenter&&sequence==0){
+  if(audio_active)SetVoiceVolumeScaled(17,-12345,23456);
+  else volume_reference(17,-12345,23456);
  }
  return seed|0x80000000U;
 }
@@ -147,19 +153,70 @@ int main(void){
   bind(&actual);SetVoiceVolumeScaled((s32)voices[i],levels[j],levels[(j+3)%8]);memcpy(actual_entries,entries,sizeof(entries));
   bind(&expected);volume_reference(voices[i],levels[j],levels[(j+3)%8]);if(count!=1||compare(131072+k))return 1;
  }
- puts("131072 loop cases and64 promoted helper cases: OK (UBSan)");return 0;
+ mutation=1;reenter=1;
+ for(unsigned k=0;k<512;k++){
+  seed=k*2654435761U;actual=initial;
+  actual.audio.left19F8=(u16)k;actual.audio.right19FA=(u16)(k*31337U+0x1234U);
+  actual.audio.master08=(s32)seed;actual.audio.gain18=(s16)(u16)(k*251U);
+  actual.audio.muted04=k%17?0:((s32)seed|1);
+  actual.audio.bank24[1]=(s16)(u16)seed;actual.audio.program1A04=(s16)(u16)(seed>>16);
+  actual.audio.pitch19FC=seed^(seed>>13);actual.audio.active1A00=k%3?((s32)seed|1):0;
+  actual.settings.audio.volume31=(u8)(k*17U);actual.settings.audio.mono32=k&1?(s16)(u16)(seed|1):0;
+  actual.mode=k%7?(s16)(u16)k:5;expected=actual;
+  bind(&actual);SoundLoopUpdate();int actual_count=count;memcpy(actual_entries,entries,sizeof(entries));
+  bind(&expected);reference();if(count!=actual_count||compare(131136+k))return 1;
+ }
+ puts("131072 loop cases and64 promoted helper cases: OK (UBSan)");
+ puts("512 additional callback reentry cases: OK");return 0;
 }
 '''
         with TemporaryDirectory() as temporary:
             p=Path(temporary)
             source=p/'audio.c'
-            source.write_text(prefix+helper+s+reference)
+            # Retain the exact original protocol World and its PRNG stream.
+            prefix=wire_types()+re.sub(r'\bAudioState\b','AudioWireState',prefix)
+            adapter=transport('w->audio')
+            mock_start=reference.index('s32 SsUtSetVVol')
+            mock_end=reference.index('static u16 r16',mock_start)
+            mocks=reference[mock_start:mock_end].replace('(s32)emit(', '(s32)audio_emit(')
+            emit_adapter=r'''
+static u32 audio_emit(int kind,u32 a,u32 b,u32 c,u32 d,u32 e,u32 f,u32 g,u32 hh){
+ audio_before_callback();u32 result=emit(kind,a,b,c,d,e,f,g,hh);
+ audio_after_callback();return result;
+}
+'''
+            reference=reference[:mock_start]+emit_adapter+mocks+reference[mock_end:]
+            begin=r'''
+#undef SoundState
+#define SoundState (audio_native.value)
+#undef VoiceVolumeScale
+#define VoiceVolumeScale (audio_native.value.master08)
+'''
+            body=scalar_body(helper)+scalar_body(s)
+            body=body.replace('void SetVoiceVolumeScaled(', 'void native_SetVoiceVolumeScaled(')
+            body=body.replace('void SoundLoopUpdate(', 'void native_SoundLoopUpdate(')
+            wrappers=r'''
+void SetVoiceVolumeScaled(s32 voice,s32 left,s32 right){
+ AudioCallFrame frame=audio_enter();
+ native_SetVoiceVolumeScaled(voice,left,right);audio_leave(frame);
+}
+void SoundLoopUpdate(void){
+ AudioCallFrame frame=audio_enter();
+ native_SoundLoopUpdate();audio_leave(frame);
+}
+#undef SoundState
+#define SoundState (w->audio)
+#undef VoiceVolumeScale
+#define VoiceVolumeScale (w->audio.master08)
+'''
+            source.write_text(prefix+adapter+begin+body+wrappers+reference)
             executable=p/'audio'
             subprocess.run(['clang','-std=gnu11','-O2','-fsanitize=undefined',
                             '-fno-sanitize-recover=all','-I'+str(ROOT/'include'),
                             str(source),'-o',str(executable)],check=True,capture_output=True,text=True)
             result=subprocess.run([str(executable)],check=True,capture_output=True,text=True)
             self.assertIn('131072 loop cases and64 promoted helper cases: OK (UBSan)',result.stdout)
+            self.assertIn('512 additional callback reentry cases: OK',result.stdout)
 
 
 if __name__=='__main__':

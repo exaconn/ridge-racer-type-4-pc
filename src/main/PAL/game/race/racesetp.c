@@ -3,11 +3,9 @@
 void SetupRace(void)
 {
     u8 *vectors;
-    register u8 *countRoot __asm__("$4");
     u8 *otherRoot,*byteRoot;
     s32 courseIndex;
     s32 minusOne;
-    register s32 offset0 __asm__("$2");
     s32 offset1;
 
     RaceVehicle *vehicle;
@@ -38,24 +36,14 @@ void SetupRace(void)
     }
     if (GameModeType != 5)
     {
-        vehicleIndex = 0;
-        vehicle = PlayerCars;
-        do
+        for (vehicleIndex = 0; vehicleIndex < 2; vehicleIndex++)
         {
-            /* Note: Keep the complete owner address through this traversal. */
-            /* ASM_BARRIER: preserve original register scheduling. */
-            __asm__("" : "+r"(vehicle));
-            vehicleFlags = (s16) vehicle->flags1E4;
-
-            if (vehicleFlags != 0)
+            if ((s16)PlayerCars[vehicleIndex].flags1E4 != 0)
             {
                 PadRumbleStart(vehicleIndex);
-                vehicle->flags1E4 = (s16) (((u16) vehicle->flags1E4) ^ 0x100);
+                PlayerCars[vehicleIndex].flags1E4 ^= 0x100;
             }
-            vehicleIndex += 1;
-            vehicle++;
         }
-        while (vehicleIndex < 2);
     }
     InitCourseViewState();
     SetupRenderer(5);
@@ -76,26 +64,11 @@ void SetupRace(void)
     BestSplitTimes[2] = vector[2];
     if (GameModeType == 0)
     {
-        countRoot = (u8 *)&CourseBestLap;
-
-        offset0 = CourseIndex * 4;
-        offset1 = ReverseCourse * 32;
-        offset0 += offset1;
-        selectedCount = (s32 *)(offset0+countRoot);
-        goto publish_count;
+        BestLapTime = (&CourseBestLap[CourseIndex])[ReverseCourse * 8];
     }
-    if (GameModeType == 1)
+    else if (GameModeType == 1)
     {
-        otherRoot = (u8 *)&CourseBestLapRecords;
-        /* Note: Retain the full table address before forming its byte offset. */
-        /* ASM_BARRIER: preserve original register scheduling. */
-        __asm__("" : : "r"(otherRoot));
-
-        offset0 = CourseIndex * 4;
-        selectedCount = (s32 *)(offset0+otherRoot);
-    publish_count:
-        BestLapTime = *selectedCount;
-
+        BestLapTime = CourseBestLapRecords[CourseIndex];
     }
     LapVoicePending = -1;
 

@@ -2,58 +2,41 @@
 #include "rr/track_lateral.h"
 #include "rr/vehicle_drive.h"
 
-s32 CalcSteerLimit(RaceVehicle *input) {
-    register RaceVehicle *vehicle=input;
-    register s32 raw=vehicle->input;
-    s32 rounded=raw;
-    register s32 fraction;
-    register u32 value;
-    if(raw<0)rounded=raw+7;
-    fraction=rounded>>3;
-    if(raw) {
-        register s32 span=vehicle->control.span11A;
-        if(span<fraction) {
-            value=16;
+s32 CalcSteerLimit(RaceVehicle *vehicle) {
+    s32 raw = vehicle->input;
+    s32 rounded = raw;
+    s32 fraction;
+    s16 value;
+    s32 v0;
+    s32 v1;
+    if (raw < 0) rounded = raw + 7;
+    fraction = rounded >> 3;
+    if (raw) {
+        s32 span = vehicle->control.span11A;
+        if (span < fraction) {
+            value = 16;
         } else {
-            /* ASM_BARRIER: Read the signed maximum before preparing its scaled numerator. */
-            register s32 maximum_signed __asm__("$2")=vehicle->control.maximum118;
-            /* ASM_BARRIER: Retain the signed numerator and DIV guard operands. */
-            register s32 scaled __asm__("$3")=(maximum_signed-16)*4096;
-            s32 quotient=scaled/span;
-            s32 product=((s64)quotient*fraction);
-            register u32 maximum=(u16)vehicle->control.maximum118;
-            /* ASM_BARRIER: Preserve the original signed divide-by-eight rounding temporary. */
-    register s32 rounded_product=product>>12;
-            if(product<0)rounded_product=(product+4095)>>12;
-            value=maximum-rounded_product;
-        }
-        {
-            register s32 blend=vehicle->control.boostTimer44;
-            if(blend>0) {
-                register s32 delta;
-                /* ASM_BARRIER: Retain the low wrapped product in the original rounding register. */
-            register s32 product __asm__("$3");
-                /* ASM_BARRIER: Load the final divisor after launching the blend multiply. */
-                register s32 divisor __asm__("$2");
-                /* ASM_BARRIER: Sign-extend the intermediate value before reusing the divisor register. */
-                register s32 signed_value __asm__("$2");
-                /* ASM_BARRIER: Keep the quotient in the original multiply source register. */
-            register s32 quotient __asm__("$3");
-                signed_value=(s16)value;
-                delta=vehicle->control.maximum118-signed_value;
-                product=delta*blend;
-                divisor=vehicle->control.divisor11C;
-                if(divisor<0)divisor=-divisor;
-                quotient=product/divisor;
-                value=value+quotient;
+            v0 = vehicle->control.maximum118;
+            v1 = (v0 - 16) << 12;
+            v1 /= span;
+            {
+                s32 product = v1 * fraction;
+                u32 maximum = (u16)vehicle->control.maximum118;
+                s32 rounded_product = product >> 12;
+                if (product < 0) rounded_product = (product + 4095) >> 12;
+                value = maximum - rounded_product;
             }
         }
+        if (vehicle->control.boostTimer44 > 0) {
+            v1 = (vehicle->control.maximum118 - value) * vehicle->control.boostTimer44;
+            v0 = __builtin_abs(vehicle->control.divisor11C);
+            v1 /= v0;
+            value += v1;
+        }
     } else {
-        value=0;
+        value = 0;
     }
-    /* ASM_BARRIER: Keep final sign extension at the common return entry. */
-    __asm__("" : "+r"(value) : : "$2");
-    return (s16)value;
+    return value;
 }
 
 int ScanCurveAhead(char *a0, int a1, int *a2, int *a3, int *a4) {
@@ -84,9 +67,7 @@ int ScanCurveAhead(char *a0, int a1, int *a2, int *a3, int *a4) {
             v1 = v1 & 0xFFF;
             if (v1 & 0x800) v1 |= ~0xFFF;
             if (v1 > 0) s4 += v1; else s3 += v1;
-            if (v1 < 0) v1 = -v1;
-            /* ASM_BARRIER: stop reorg copying the slt into the bgez delay slot */
-            __asm__("" : "=r"(v1) : "0"(v1));
+            v1 = __builtin_abs(v1);
             if (s5 < v1) s5 = v1;
             s0 -= 1;
             s1 = r0;

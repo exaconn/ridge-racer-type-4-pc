@@ -16,8 +16,7 @@ class SpuPitchConversionTest(unittest.TestCase):
         cls.temp=TemporaryDirectory();cls.addClassCleanup(cls.temp.cleanup)
         cls.directory=Path(cls.temp.name)
         root=Path(__file__).resolve().parents[2]
-        header=(root/'include/rr/spu.h').read_text()
-        header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
+        header = '#include "rr/spu.h"\n'
         body=(root/'tools/scripts/fixtures/views/func_80084D44.c').read_text()
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$[0-9]+"\)','',body)
@@ -28,7 +27,7 @@ typedef uint8_t u8;typedef uint16_t u16;typedef int16_t s16;
 typedef uint32_t u32;typedef int32_t s32;
 ''' + header + '\nu16 SvmSemitoneTable[12],SvmPitchFineTable[128];\n' + body
         (cls.directory/'pitch.c').write_text(cls.source)
-        result=subprocess.run(['cc','-shared','-fPIC','-O2',str(cls.directory/'pitch.c'),
+        result=subprocess.run(['cc', '-I'+str(Path(__file__).resolve().parents[2]/'include'),'-shared','-fPIC','-O2',str(cls.directory/'pitch.c'),
                                '-o',str(cls.directory/'pitch.so')],capture_output=True,text=True)
         if result.returncode:raise AssertionError(result.stderr)
         cls.lib=C.CDLL(str(cls.directory/'pitch.so'))
@@ -97,7 +96,7 @@ int main(void) {
 }
 '''.replace('COARSE',coarse).replace('FINE',fine)
         path=self.directory/'sanitize.c';path.write_text(self.source+main)
-        result=subprocess.run(['cc','-O2','-fsanitize=undefined','-fno-sanitize-recover=all',
+        result=subprocess.run(['cc', '-I'+str(Path(__file__).resolve().parents[2]/'include'),'-O2','-fsanitize=undefined','-fno-sanitize-recover=all',
                                str(path),'-o',str(self.directory/'sanitize')],capture_output=True,text=True)
         self.assertEqual(result.returncode,0,result.stderr)
         result=subprocess.run([str(self.directory/'sanitize')],capture_output=True,text=True)

@@ -371,19 +371,7 @@ void UpdatePlayerSteering(RaceVehicle *arg0, int arg1) {
     {
       if (arg0->state1A4 != 1)
       {
-        int v7_reg;
-        v7_reg = arg0->steerAngle1A2;
-        if (v7_reg < 0)
-        {
-          v = v7_reg;
-          /* ASM_BARRIER: force copy to a0 in delay slot before negu a0,a0 */
-          __asm__("" : "+r"(v));
-          v = -v;
-        }
-        else
-        {
-          v = v7_reg;
-        }
+        v = __builtin_abs(arg0->steerAngle1A2);
         if (v >= 0x96)
         {
           s2 = 0xF;

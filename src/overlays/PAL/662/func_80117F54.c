@@ -4,8 +4,6 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
 {
     char text[4];
     s32 i, x, y, dx, dy, clut, color;
-    register s32 v __asm__("$3");
-    s32 shifted;
     CharacterGridAddress clearAddress;
 
     x = BadgeRows[row].x04 + 36;
@@ -21,11 +19,10 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
         dx = (i % 10) * 24;
         dy = (i / 10) * 32;
         if (i == ovl662_D_801273B4) {
-            v = rcos(((ScreenFrame * 128U) - 682U));
-            if (v >= 0) {
+            color = rcos(((ScreenFrame * 128U) - 682U));
+            if (color >= 0) {
                 clut = 32760;
-                shifted = v >> 6;
-                color = (shifted + 100) * 2;
+                color = ((color >> 6) + 100) * 2;
             } else {
                 clut = 32761;
                 color = 0;
@@ -44,11 +41,10 @@ void ovl662_func_80117F54(u32 *order, void *cursor, s32 row)
         dx += 4;
         if (i < 3) {
             if (i == (ovl662_D_801273B4 - 40U)) {
-                v = rcos(((ScreenFrame * 128U) - 682U));
-                if (v >= 0) {
+                color = rcos(((ScreenFrame * 128U) - 682U));
+                if (color >= 0) {
                     clut = 32760;
-                    shifted = v >> 6;
-                    color = (shifted + 100) * 2;
+                    color = ((color >> 6) + 100) * 2;
                 } else {
                     clut = 32761;
                     color = 0;

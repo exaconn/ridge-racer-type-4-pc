@@ -1,3 +1,4 @@
+#include "rr/menu_state_types.h"
 #include "rr/work_arena.h"
 #include "rr/load_cursor.h"
 #include "game/camera/campath.h"
@@ -23,17 +24,16 @@
 
 extern short RaceContext[];
 extern unsigned char LoadState;
-extern int CdDirectoryBuffer;
-extern int MenuArenaBase;
+#include "rr/cd_directory_buffer.h"
+#include "rr/menu_arena_base.h"
 extern int D_800F4D74;
 extern short CourseIndex;
 extern struct { short a; short b; } PlayerCourseChoices[];
 extern char *PresetEmblemTimPtr;
 extern char CustomEmblemBuffers[];
 extern unsigned char SelectionRows[][4];
-extern MenuTextState *Dialogue;
 extern int DialogueSceneMode;
-extern struct { s8 choices[4]; u8 opaque04[0x10]; u8 rank, index, byte16; signed char f17; u8 byte18, byte19; short f1A; unsigned char f1C; } SelectionState;
+extern MenuSettings2C SelectionState;
 extern int D_800AD564;
 extern unsigned char D_800AD4F4;
 extern char D_80104DB0[];
@@ -137,7 +137,7 @@ int LoadOpeningMovieTimStep(void) {
     case 2:
         v = CdFileBytesLoaded();
         if (v) {
-            int t;
+            u8 *t;
             LoadState = 3;
             t = LoadCursor + v;
             LoadCursor = t;
@@ -451,7 +451,8 @@ int LoadGlyphRowsStep(void) {
 
 int LoadDialogueStep(void) {
     int s3 = 0;
-    int s0, s1, s2, a0, v0, k;
+    int s0, s1, s2, a0, k;
+    u8 *v0;
 
     switch (LoadState) {
     case 0:
@@ -461,9 +462,9 @@ int LoadDialogueStep(void) {
         v0 = LoadDestCursor;
         LoadDestCursor = v0;
         Dialogue = (void *)v0;
-        v0 += 0x348;
+        v0 += sizeof(MenuTextState);
         LoadDestCursor = v0;
-        if (DialogueSceneMode == 1 && SelectionState.f17 == 7 && SelectionState.f1A == 4) {
+        if (DialogueSceneMode == 1 && SelectionState.phase17 == 7 && SelectionState.mode1A == 4) {
             SeqStartTrack(1);
         }
         InitDialogueState(Dialogue);
@@ -473,7 +474,7 @@ int LoadDialogueStep(void) {
         if (DialogueSceneMode == 1) {
             s2 = 0x41;
             s1 = 0x14;
-            s2 = SelectionState.f1C * 9 + (SelectionState.f17 + s1);
+            s2 = SelectionState.copies[0].bytes[0] * 9 + (SelectionState.phase17 + s1);
         } else {
             s2 = 0x41;
             s1 = 4;
@@ -488,7 +489,7 @@ int LoadDialogueStep(void) {
             SetupDialogueTable(LoadDestCursor);
             LoadState = 3;
             LoadDestCursor += s2;
-            Dialogue->arr[0] = LoadDestCursor;
+            Dialogue->images20 = LoadDestCursor;
         }
         break;
     case 3:
@@ -498,7 +499,7 @@ int LoadDialogueStep(void) {
         break;
     case 4:
         if (CdFileBytesLoaded()) {
-            LoadTimImage(LoadDestCursor);
+            LoadTimImage((int *)LoadDestCursor);
             LoadState = 5;
         }
         break;
@@ -534,7 +535,7 @@ int LoadDialogueStep(void) {
         s2 = CdFileBytesLoaded();
         if (s2) {
             if (LoadIndex == 0) {
-                LoadTimList(LoadDestCursor);
+                LoadTimList((int *)LoadDestCursor);
             } else {
                 LoadDestCursor = LoadDestCursor + s2;
             }
@@ -574,7 +575,7 @@ int LoadMenuCarModelsStep(void) {
             s += 0x4E20;
             LoadState = 3;
             CardDialogueStatePtr = (MenuTextState *)s;
-            InitDialogueState(s);
+            InitDialogueState((MenuTextState *)s);
     case 3:
             if (DialogueSceneMode == 2) {
                 a1 = 0x44;

@@ -2,14 +2,15 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re, subprocess, unittest
+from c_functions import source_owners, definition_source
 ROOT=Path(__file__).resolve().parents[2]
 
 class SpuTickTest(unittest.TestCase):
  def test_modes_system_words_and_complete_timer_owner(self):
-  body=(ROOT/'tools/scripts/fixtures/views/func_80084004.c').read_text()
-  body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
+  owners=source_owners(ROOT/'src/main/PAL')
+  body=definition_source(owners['SsSetTickMode'].read_text(),'SsSetTickMode')
   body=re.sub(r' __asm__\("\$\d+"\)','',body)
-  getter=(ROOT/'tools/scripts/fixtures/views/func_8008BDF8.c').read_text()
+  getter=definition_source(owners['GetVideoMode'].read_text(),'GetVideoMode')
   getter=re.sub(r'^#include[^\n]*\n|^extern[^\n]*\n','',getter,flags=re.M).replace('GetVideoMode','actual_system')
   code=r'''
 #include <assert.h>
@@ -18,10 +19,6 @@ class SpuTickTest(unittest.TestCase):
 #include <string.h>
 #include <limits.h>
 #include "rr/layout.h"
-#undef RR_ASSERT_SIZE
-#undef RR_ASSERT_OFFSET
-#define RR_ASSERT_SIZE(t,n)
-#define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/spu_tick.h"
 typedef struct {u32 guard[4];SpuTickState20 timer;u32 tail[4];s32 rate,system;} Environment;
 static Environment actual,expected;

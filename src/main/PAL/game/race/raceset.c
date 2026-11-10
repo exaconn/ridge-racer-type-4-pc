@@ -100,19 +100,14 @@ void UpdateLapTiming(RaceVehicle *arg0) {
                     RaceState = 4;
                     FadeCountdown = 0x4B;
                     SoundSetMasterVolume(0, 0x47);
-                    msg = 0x13;
-                    if (GameModeType == 1) {
-                        /* ASM_BARRIER: clobber msg on entry to mode-1 branch so CSE retains msg = 0x13 and frees $a0 for phase17 */
-                        __asm__ ("" : "=r"(msg));
-                        if (arg0->half1EE <= D_8009F910[SelectionState.phase17 / 2]) {
-                            msg = 0x13;
-                        } else {
-                            if (SelectionState.retries08[SelectionState.phase17] > 0) {
-                                msg = 0x14;
-                            } else {
-                                msg = -1;
-                            }
-                        }
+                    if (GameModeType != 1) {
+                        msg = 0x13;
+                    } else if (arg0->half1EE <= D_8009F910[SelectionState.phase17 / 2]) {
+                        msg = 0x13;
+                    } else if (SelectionState.retries08[SelectionState.phase17] > 0) {
+                        msg = 0x14;
+                    } else {
+                        msg = -1;
                     }
                     if (msg >= 0) {
                         SoundQueueEnqueue(msg, 1);

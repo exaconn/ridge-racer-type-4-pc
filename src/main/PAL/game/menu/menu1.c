@@ -38,7 +38,7 @@ extern short CardMenuOperation;
 extern int StepMenuValue();
 extern void PlaySfx();
 extern short MenuFrameState;
-extern int MenuArenaBase;
+#include "rr/menu_arena_base.h"
 
 void GpMenuModeEnter();
 void GpMenuModeUpdate(void);

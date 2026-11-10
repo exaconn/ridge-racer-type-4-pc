@@ -4,12 +4,8 @@
 #include "rr/commands.h"
 
 int _cardCmd5ATx() {
-    /* ASM_BARRIER: pin return value to $v0 across the comparison. */
-    register int r asm("$2") = 0x5A;
-    int d;
-    d = CardTxCount;
-    if (d != 2) r = 0;
-    return r;
+    if (CardTxCount == 2) return 0x5A;
+    return 0;
 }
 
 int _cardCmd5ARx(a0) int a0; {

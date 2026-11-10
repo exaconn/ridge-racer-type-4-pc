@@ -1,4 +1,5 @@
-/* CC1_FLAGS: -mno-split-addresses */
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "types.h"
 #include "rr/library.h"
 #include "psyq/libsnd/utrev.h"
@@ -9,34 +10,28 @@ extern s16 D_8011000C;
 
 s16 SsUtGetReverbType(void);
 
-s32 SsUtSetReverbType(s32 a0) {
-    register int v1 __asm__("$3"); /* ASM_BARRIER: original keeps the sign-adjusted copy in v1, not a0 */
-    short s;
-    /* ASM_BARRIER: Retain the narrowing shift independently of its source. */
-    register u32 shifted __asm__("$2");
-    int a1;
-    a1 = 0;
-    v1 = a0;
-    if ((short)a0 < 0) { a1 = 1; v1 = (0U - a0); }
-    if ((unsigned short)v1 < 10) {
+s32 SsUtSetReverbType(s32 raw_a0) {
+    s32 neg = 0;
+    s16 a0 = raw_a0;
+    if (a0 < 0) {
+        neg = 1;
+        a0 = -(u16)a0;
+    }
+    if ((u16)a0 < 10) {
         _svm_rattr[0] = 1;
-        if (a1 != 0) _svm_rattr[1] = (short)(v1 | 0x100);
-        else _svm_rattr[1] = (short)v1;
-        shifted=v1 * 0x10000U;
-        /* ASM_BARRIER: Retain the shifted temporary in v0 before signed narrowing. */
-        __asm__("" : "+r"(shifted));
-        s=shifted>>16;
-        if (s == 0) SpuSetReverb(0);
+        if (neg) _svm_rattr[1] = a0 | 0x100;
+        else _svm_rattr[1] = a0;
+        if (a0 == 0) SpuSetReverb(0);
         {
             s32 *page;
             /* ASM_BARRIER: Finish the optional reset before preparing its shared command argument. */
             __asm__ volatile("" : : : "$4");
-            page=(s32 *)0x80110000U;
+            page = (s32 *)0x80110000U;
             /* ASM_BARRIER: Materialize the command page before the call-delay offset. */
             __asm__("" : "+r"(page));
-            SpuSetReverbModeParam(page+2);
+            SpuSetReverbModeParam(page + 2);
         }
-        return s;
+        return a0;
     }
     return -1;
 }

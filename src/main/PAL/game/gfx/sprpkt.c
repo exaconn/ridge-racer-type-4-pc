@@ -1,6 +1,7 @@
 #include "game/sound/sndque.h"
 #include "scratchpad.h"
 #include "rr/frame_storage_types.h"
+#include "rr/gpu_scratch_types.h"
 #include "rr/gpu.h"
 #include "game/ui/uipart1.h"
 #include "game/race/raceset.h"
@@ -62,8 +63,6 @@ void DrawRaceOverlaySprites(s32 a0)
         p->code |= 1;
         p->addr = ((struct O *)CurrentDrawBuf)->addr;
         ((struct O *)CurrentDrawBuf)->addr = p++;
-        /* ASM_BARRIER: keeps the SCRATCHPAD pointer store after the bitfield store (original order) */
-        __asm__ ("" : : : "memory");
-        *(SpritePacket **)SCRATCHPAD = p;
+        ((GpuScratchPointers *)SCRATCHPAD)->cursor = (u8 *)p;
     }
 }

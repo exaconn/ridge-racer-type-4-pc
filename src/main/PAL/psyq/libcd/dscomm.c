@@ -283,9 +283,9 @@ begin_first_wait:
     first_tick=VSync(-1);
     if(root->finished24!=0) {
         pending_a=&root->finished24;
-first_poll:
-        if(VSync(-1)-first_tick>=121U)goto first_timeout;
-        if(*pending_a!=0)goto first_poll;
+        do {
+            if(VSync(-1)-first_tick>=121U)goto first_timeout;
+        } while(*pending_a!=0);
     }
     decision=0;
 after_first_wait:
@@ -305,9 +305,9 @@ after_first_wait:
             second_tick=VSync(-1);
             if(RR_PAIR_PENDING(pair)!=0) {
                 pending_b=&RR_PAIR_PENDING(pair);
-second_poll:
-                if(VSync(-1)-second_tick>=121U)goto second_timeout;
-                if(*pending_b!=0)goto second_poll;
+                do {
+                    if(VSync(-1)-second_tick>=121U)goto second_timeout;
+                } while(*pending_b!=0);
             }
         }
     }
@@ -318,8 +318,7 @@ done:
 s32 CdRead(s32 sectors,u8 *buffer,u32 mode) {
     s32 count=sectors;
     u8 *destination=buffer;
-    /* ASM_BARRIER: preserve request mode across pending-completion helpers. */
-    register u32 format __asm__("$18");
+    u32 format;
     u32 start;
     /* ASM_BARRIER: retain the complete request address across callback setters. */
     register LibReadRequestState *state __asm__("$16");
@@ -344,9 +343,9 @@ s32 CdRead(s32 sectors,u8 *buffer,u32 mode) {
     if(busy!=0) {
         start=VSync(-1);
         if(*pending!=0) {
-wait:
-            if(VSync(-1)-start>=121U)goto timeout;
-            if(*pending!=0)goto wait;
+            do {
+                if(VSync(-1)-start>=121U)goto timeout;
+            } while(*pending!=0);
         }
     }
 setup:
@@ -404,7 +403,7 @@ timeout:
     }
     result=cd_read_retry(0)>0;
     /* ASM_BARRIER: finish the Boolean result before restoring saved temporaries. */
-    __asm__("" : "+r"(result) : : "$17", "$19");
+    __asm__("" : "+r"(result));
     return result;
 }
 

@@ -4,7 +4,8 @@
 #include "types.h"
 #include "rr/race_types.h"
 
-int AlignUp4(int a);
+/* Align an address or size in the native machine-word domain. */
+unsigned long AlignUp4(unsigned long value);
 void SetCarSpecTable(RaceSpecEntry30 *arg0);
 void SetTrackStartNode(s32 *startNode);
 void SetTrackWorkspace(u8 *workspace);

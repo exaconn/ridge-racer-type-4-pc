@@ -4,6 +4,7 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from sequence_fixture_transport import current_body
 
 ROOT=Path(__file__).resolve().parents[2]
 
@@ -14,9 +15,11 @@ class SequencerInitTest(unittest.TestCase):
         cls.temporary=TemporaryDirectory()
         cls.addClassCleanup(cls.temporary.cleanup)
         def header(name):
+            if name=="spu.h":
+                return '#include "rr/spu.h"\n'
             text=(ROOT/'include/rr'/name).read_text()
-            return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
-        body=(ROOT/'tools/scripts/fixtures/views/func_80083DE4.c').read_text()
+            return ('#include \"rr/sequence_channel.h\"\n' if name=='library.h' else '')+re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
+        body=current_body(ROOT,'80083DE4')
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         body=re.sub(r'\s+__asm__\("\$\d+"\)','',body)
         code=r'''
@@ -97,7 +100,7 @@ int main(int argc,char **argv) {
 '''
         directory=Path(cls.temporary.name);source=directory/'init.c'
         source.write_text(code);cls.executable=directory/'init'
-        result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
+        result=subprocess.run(['cc', '-I'+str(Path(__file__).resolve().parents[2]/'include'),'-std=c99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
                                '-fsanitize=undefined','-fno-strict-aliasing',
                                '-I',str(ROOT/'include'),str(source),'-o',str(cls.executable)],
                               capture_output=True,text=True)

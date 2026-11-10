@@ -149,12 +149,6 @@ void StepCameraScript(void) {
 }
 
 void InitCameraMotion(int selection) {
-    /* ASM_BARRIER: retain the existing object pointer register while key components are copied. */
-    register PresentationController *object asm("$2");
-    PresentationController *settings;
-    PresentationContextPrefix *root;
-    s32 value;
-
     PsyqBzero(&RaceContext.controller3D8->motion74, sizeof(CameraMotion70));
     if (selection < 4) {
         RaceContext.controller3D8->motion74.mode04 = 0;
@@ -164,21 +158,15 @@ void InitCameraMotion(int selection) {
         RaceContext.controller3D8->motion74.mode04 = 1;
         RaceContext.controller3D8->motion74.keys0C = D_800A1B60[selection];
     }
-    root = &RaceContext;
-    settings = root->controller3D8;
-    settings->motion74.modelScale6C = 0x2D0;
-    object = root->controller3D8;
-    value = object->motion74.keys0C->x;
-    object->motion74.current40[0] = value;
-    object->motion74.start10[0] = value;
-    object = root->controller3D8;
-    value = object->motion74.keys0C->y;
-    object->motion74.current40[1] = value;
-    object->motion74.start10[1] = value;
-    object = root->controller3D8;
-    value = object->motion74.keys0C->z;
-    object->motion74.current40[2] = value;
-    object->motion74.start10[2] = value;
-    settings = root->controller3D8;
-    settings->motion74.key08 = 1;
+    RaceContext.controller3D8->motion74.modelScale6C = 0x2D0;
+    RaceContext.controller3D8->motion74.start10[0] =
+        RaceContext.controller3D8->motion74.current40[0] =
+        RaceContext.controller3D8->motion74.keys0C->x;
+    RaceContext.controller3D8->motion74.start10[1] =
+        RaceContext.controller3D8->motion74.current40[1] =
+        RaceContext.controller3D8->motion74.keys0C->y;
+    RaceContext.controller3D8->motion74.start10[2] =
+        RaceContext.controller3D8->motion74.current40[2] =
+        RaceContext.controller3D8->motion74.keys0C->z;
+    RaceContext.controller3D8->motion74.key08 = 1;
 }

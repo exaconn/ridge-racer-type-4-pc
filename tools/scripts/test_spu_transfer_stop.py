@@ -14,8 +14,7 @@ class SpuTransferStopTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         root = Path(__file__).resolve().parents[2]
         directory = Path(cls.temp.name)
-        header = (root / 'include/rr/spu.h').read_text()
-        header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
+        header = '#include "rr/spu.h"\n'
         source = '''#include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -76,7 +75,7 @@ void test_initialize(u32 initial,u32 active,u32 callback,u32 busy) {
         body = body.replace('bank->spu_control', 'test_read_control(bank)')
         source += body
         (directory / 'stop.c').write_text(source)
-        result = subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'stop.c'),
+        result = subprocess.run(['cc', '-I'+str(Path(__file__).resolve().parents[2]/'include'), '-shared', '-fPIC', '-O2', str(directory / 'stop.c'),
                                  '-o', str(directory / 'stop.so')], capture_output=True)
         if result.returncode:
             raise AssertionError(result.stderr.decode())

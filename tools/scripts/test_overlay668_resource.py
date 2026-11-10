@@ -3,6 +3,8 @@
 The CD converter is a stateful software mock. No physical disc is accessed.
 """
 from pathlib import Path
+from c_functions import definition_source
+from audio_fixture_transport import wire_types, transport
 from tempfile import TemporaryDirectory
 import hashlib,json,os,re,subprocess
 ROOT=Path(__file__).resolve().parents[2]
@@ -93,9 +95,64 @@ int main(void){unsigned i,b,j;unsigned seen[8]={0},counts[16]={0},roots[2]={0};
 }
 '''
 def main():
- body=re.sub(r'__asm__\("\$\d+"\)','',SOURCE.read_text())
+ body=definition_source(SOURCE.read_text(),'ovl668_func_80114910')
+ body=re.sub(r'__asm__\("\$\d+"\)','',body)
+ # Preserve the original complete native archive fixture and all byte-pattern
+ # inputs. Only the current production body sees the expanded AudioState.
+ legacy=r'''
+typedef struct {
+ u8 prefix[0x2634];u32 sector2634;u8 *archive2638;
+ u8 suffix[0xA8D0-0x263C];
+} StrArchiveAudioState;
+'''
+ prefix=wire_types()+legacy+C
+ position=prefix.index('u8 *CdIntToPos(')
+ bridge=transport('archive_wire')
+ bridge=bridge.replace('audio_native.value.streamBanks[i].table=targets+i;',
+                       'audio_native.value.streamBanks[i].table=i?targets+i:archive_root_expected;')
+ bridge=bridge.replace('a->streamBanks[i].table==t+i',
+                       'a->streamBanks[i].table==(i?t+i:archive_root_expected)')
+ adapter=r'''
+static AudioWireState archive_wire;
+static u8 *archive_root_expected;
+'''+bridge+r'''
+static void archive_import(void){
+ memcpy(&archive_wire,&actual.audio,0x2638);
+ memcpy((u8 *)&archive_wire+0x263C,actual.audio.suffix,sizeof(actual.audio.suffix));
+ audio_import();
+ archive_root_expected=actual.audio.archive2638;
+ audio_native.value.streamBanks[0].table=archive_root_expected;
+}
+static void archive_export(void){
+ audio_export();
+ memcpy(&actual.audio,&archive_wire,0x2638);
+ memcpy(actual.audio.suffix,(u8 *)&archive_wire+0x263C,sizeof(actual.audio.suffix));
+}
+'''
+ prefix=prefix[:position]+adapter+prefix[position:]
+ prefix=prefix.replace('u8 *CdIntToPos(s32 sector,u8 *location){',
+                       'static u8 *model_CdIntToPos(s32 sector,u8 *location){')
+ service=r'''
+u8 *CdIntToPos(s32 sector,u8 *location){
+ archive_export();u8 *result=model_CdIntToPos(sector,location);
+ archive_import();return result;
+}
+#undef SoundState
+#define SoundState (audio_native.value)
+'''
+ body=body.replace('void ovl668_func_80114910(', 'static void native_resource(')
+ wrapper=r'''
+void ovl668_func_80114910(s32 index,StrCdFileInfo *file,u32 *sectors){
+ archive_import();
+ u32 *native_output=sectors==&actual.audio.sector2634
+     ?&audio_native.value.streamBanks[0].sector:sectors;
+ native_resource(index,file,native_output);archive_export();
+}
+#undef SoundState
+#define SoundState actual.audio
+'''
  with TemporaryDirectory() as tmp:
-  c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(C+body+TAIL)
+  c=Path(tmp)/'test.c';exe=Path(tmp)/'test';c.write_text(prefix+service+body+wrapper+TAIL)
   subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype','-fsanitize=undefined,bounds','-fno-sanitize-recover=all','-I',str(ROOT/'include'),str(c),'-o',str(exe)],check=True)
   subprocess.run([str(exe)],check=True)
  sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()

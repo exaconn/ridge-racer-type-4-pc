@@ -1,6 +1,6 @@
+/* GCC_VERSION: 970318 */
 #include "rr/gpu_address.h"
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* CC1_FLAGS: -mno-split-addresses */
 #include "types.h"
 #include "rr/gpu_reset.h"
 #include "rr/gpu.h"
@@ -31,9 +31,9 @@ extern int PsyqMemcpy();
 extern char PutDrawEnvFmt[];
 extern char StrDrawOTagEnvFmt[];
 
-int LoadTPage(int *pix, int tp, int abr, int x, int y, int w, int h);
-int LoadClut(int a, int b, int c);
-int LoadClut2(int a, int b, int c);
+u16 LoadTPage(int *pix, int tp, int abr, int x, int y, int w, int h);
+u16 LoadClut(int a, int b, int c);
+u16 LoadClut2(int a, int b, int c);
 DisplayEnvironment *SetDefDispEnv(DisplayEnvironment *p, int a, int b, int c, int d);
 int SetGraphQueue();
 u8 GetGraphDebug(void);
@@ -49,9 +49,8 @@ unsigned *ClearOTagR(unsigned *a, int b);
 void DrawPrim(char *a0);
 void DrawOTag(s32 ordering_table);
 
-int LoadTPage(int *pix, int tp, int abr, int x, int y, int w, int h) {
+u16 LoadTPage(int *pix, int tp, int abr, int x, int y, int w, int h) {
     short sp[4];
-    int r;
     sp[0] = x;
     sp[1] = y;
     sp[3] = h;
@@ -67,38 +66,27 @@ int LoadTPage(int *pix, int tp, int abr, int x, int y, int w, int h) {
         break;
     }
     LoadImage(sp, pix);
-    /* ASM_BARRIER: boost x and abr reference counts so global-alloc assigns $s1 to x, $s2 to abr, and $s3 to y */
-    __asm__ volatile("" : : "r"(x), "r"(abr));
-    r = GetTPage(tp, abr, x, y);
-    /* ASM_BARRIER: keep andi right after the call, before the epilogue loads */
-    __asm__ volatile("" : "=r"(r) : "0"(r));
-    return r;
+    return GetTPage(tp, abr, x, y);
 }
 
-int LoadClut(int a, int b, int c) {
+u16 LoadClut(int a, int b, int c) {
     short sp[4];
-    int r;
     sp[2] = 0x100;
     sp[0] = b;
     sp[1] = c;
     sp[3] = 1;
     LoadImage(sp, a);
-    r = GetClut(b, c);
-    /* ASM_BARRIER: keep andi right after the call, before the epilogue loads */
-    __asm__ volatile("" : "=r"(r) : "0"(r));
-    return r;
+    return GetClut(b, c);
 }
 
-int LoadClut2(int a, int b, int c) {
+u16 LoadClut2(int a, int b, int c) {
     short sp[4];
-    int r;
     sp[2] = 0x10;
     sp[0] = b;
     sp[1] = c;
     sp[3] = 1;
     LoadImage(sp, a);
-    /* ASM_BARRIER: keeps the u16 mask (andi) scheduled right after the call, before the epilogue loads */
-    r = GetClut(b, c) & 0xFFFF; __asm__ volatile("" : "=r"(r) : "0"(r)); return r;
+    return GetClut(b, c);
 }
 
 DrawEnvironment *SetDefDrawEnv(DrawEnvironment *environment, int x, int y, int width, int height) {
@@ -179,7 +167,7 @@ s32 SetGraphDebug(s32 enabled) {
 }
 
 int SetGraphQueue(a0) int a0; {
-    register unsigned char *p __asm__("$17"); /* ASM_BARRIER: original keeps the pointer in s1 and a0 in s0 */
+    unsigned char *p;
     int old;
     p = &GpuResetState.enabled01;
     old = p[0];
@@ -363,18 +351,8 @@ void DrawPrim(char *a0)
 }
 
 void DrawOTag(s32 ordering_table) {
-    register s32 second;
-    register s32 third;
-    LibGraphicsDriverPrefix *driver;
     if (D_800ABAC2.level >= 2) GPU_printf(D_80011F38, ordering_table);
-    second = ordering_table;
-    driver = GpuFuncTable;
-    /* ASM_BARRIER: Load the current driver before preparing the dispatch zeros. */
-    __asm__("" : "+r"(driver) : : "$6");
-    third = 0;
-    /* ASM_BARRIER: Prevent reuse of the third argument when preparing the fourth zero. */
-    __asm__("" : "+r"(third));
-    driver->dispatch((GpuOpFunc)driver->draw_ordering_table, (void *)second, third, 0);
+    GpuFuncTable->dispatch((GpuOpFunc)GpuFuncTable->draw_ordering_table, (void *)ordering_table, 0, 0);
 }
 
 DrawEnvironment *PutDrawEnv(DrawEnvironment *environment) {

@@ -28,8 +28,7 @@ int VSync(a0) int a0; {
     unsigned s0;
     unsigned s1;
     volatile unsigned *r;
-    register int v __asm__("$2"); /* ASM_BARRIER: first call argument stays in v0 like the original */
-    int w;
+    int v;
     s0 = *GPUSTAT;
     do {
         t = *RCNT1_VALUE;
@@ -37,16 +36,7 @@ int VSync(a0) int a0; {
     s1 = (t - VSyncRcnt1Last) & 0xFFFF;
     if (a0 < 0) return Vcount;
     if (a0 == 1) return s1;
-    if (a0 > 0) {
-        v = D_800A5264;
-        v = v - 1;
-        v = v + a0;
-    } else {
-        v = D_800A5264;
-    }
-    w = 0;
-    if (a0 > 0) w = a0 - 1;
-    v_wait(v, w);
+    v_wait((a0 > 0) ? (v = D_800A5264 - 1, v + a0) : D_800A5264, (a0 > 0) ? (a0 - 1) : 0);
     s0 = *GPUSTAT;
     v_wait(Vcount + 1, 1);
     if (s0 & 0x400000) {

@@ -2,7 +2,6 @@
 #define RR_SEQUENCER_INIT_H
 #include "rr/library.h"
 
-extern LibStateB0 *_ss_score[];
 extern u32 _snd_openflag;
 extern s16 _snd_seq_s_max, _snd_seq_t_max;
 

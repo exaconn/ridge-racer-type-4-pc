@@ -58,22 +58,19 @@ void StUnSetRing(void) {
 void data_ready_callback(void)
 {
     s32 value;
-    /* ASM_BARRIER: Keep the next queue index in the original register until publication. */
-    register s32 next __asm__("$3");
-    /* ASM_BARRIER: Retain the original indirect-call register while publishing queue state. */
-    register void (*callback)(void) __asm__("$4");
+    s32 next;
+    void (*callback)(void);
     LibQueueRecord32 *p = StRingHeaders + StRingFrameStartIndex;
     p->state = 2;
     D_80112750 = p->word1C;
     value = p->value08;
     next = StRingWriteIndex;
     callback = StDataReadyFunc;
-    D_80112754 = value;
     {
-        /* ASM_BARRIER: Preserve the assembler temporary for publishing the next index. */
         u8 *base;
-        /* ASM_BARRIER: Read callback and next index before publishing state and materializing its address. */
-        __asm__ volatile("" : : "r"(next), "r"(callback) : "$1", "memory");
+        /* ASM_BARRIER: Read value, next index, and callback before publishing state. */
+        __asm__ volatile("" : : "r"(value), "r"(next), "r"(callback) : "$1", "memory");
+        D_80112754 = value;
         /* PAL mapping: base + 0x2F8 is &StRingFrameStartIndex. */
         base = (u8 *)0x80110000U;
         *(s32 *)(base + 0x2F8) = next;

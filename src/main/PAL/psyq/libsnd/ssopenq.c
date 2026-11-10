@@ -28,11 +28,11 @@
 #include "psyq/libsnd/cc_98.h"
 extern char SsSeqOpenFailMsg[];
 extern void *SsFCALL[];
-short SsSeqOpen(a0, a1) int a0; int a1; {
+s16 SsSeqOpen(u8 *a0, s32 a1) {
     int t0;
     int v1;
     int a3;
-    int a;
+    s32 a;
     int x;
     int bit;
     /* ASM_BARRIER: pin tab to v1 to match original register allocation */
@@ -41,7 +41,7 @@ short SsSeqOpen(a0, a1) int a0; int a1; {
     /* ASM_BARRIER: pin v0 to match original register allocation */
     register int v0 asm("$2");
     int t1;
-    int a2;
+    u8 *a2;
     t0 = 0;
     a2 = a0;
     x = a1;
@@ -57,7 +57,7 @@ short SsSeqOpen(a0, a1) int a0; int a1; {
         a = 0;
         t1 = 1;
         for (;;) {
-            bit = t1 << v1;
+            bit = (u32)t1 << v1;
             if (!(a3 & bit)) {
                 t0 = v1;
                 a = 1;
@@ -69,15 +69,15 @@ short SsSeqOpen(a0, a1) int a0; int a1; {
             if (v0 != 0) {
                 v0 = t0 << 16;
                 s0 = v0 >> 16;
-                /* ASM_BARRIER: force addu a0, s0, zero before 1 << s0 */
+                /* ASM_BARRIER: preserve the existing normalized slot copy. */
                 __asm__ volatile("" : "=r"(a) : "0"(s0));
                 v0 = 1;
-                v0 <<= s0;
-                x <<= 16;
+                v0 = 1U << s0;
+                x = (u32)x << 16;
                 v1 = _snd_openflag;
                 v1 |= v0;
                 _snd_openflag = v1;
-                x = _SsInitSoundSeq(a, x >> 16, a2, a3) << 16;
+                x = (u32)_SsInitSoundSeq(a, x >> 16, a2) << 16;
                 tab = SsFCALL;
                 tab[0] = _SsNoteOn;
                 tab[1] = _SsSetProgramChange;

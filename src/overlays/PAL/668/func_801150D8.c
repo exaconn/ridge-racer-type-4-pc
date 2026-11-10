@@ -2,7 +2,7 @@
 
 s32 ovl668_func_801150D8(StrDisplayConfig *config) {
     u8 *data;
-    register s32 remaining __asm__("$17") = 2000;
+    s32 remaining = 2000;
     u32 *index;
 
     while (1) {

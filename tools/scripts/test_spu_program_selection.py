@@ -1,12 +1,10 @@
 """Actual grouped SPU selection/accessors: native pointers and publication aliases."""
 import ctypes as C
 from pathlib import Path
-import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
 from c_functions import source_owners, definition_source, name_at
-from test_cd_disc_probe import native_body
 
 
 class SpuProgramSelectionTest(unittest.TestCase):
@@ -15,36 +13,36 @@ class SpuProgramSelectionTest(unittest.TestCase):
         cls.temp = TemporaryDirectory()
         cls.addClassCleanup(cls.temp.cleanup)
         root = Path(__file__).resolve().parents[2]
-        header = (root/'include/rr/spu.h').read_text()
-        header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        source = '''#include <stdint.h>
+        source = r'''#include <stdint.h>
+#include <stddef.h>
 #include <string.h>
-typedef uint8_t u8;typedef uint16_t u16;typedef int16_t s16;
-typedef uint32_t u32;typedef int32_t s32;
-''' + header + '''
+#include "rr/spu.h"
+#include "rr/channels.h"
 u8 test_flag_storage[65536+0x200];
 #define test_flag_page (test_flag_storage+32768)
+#define _svm_vab_used (test_flag_page+0x120)
 void *test_flags(void) {return test_flag_page;}
 u8 *test_data_page[0x60/sizeof(u8 *)+16];
-SpuProgram *test_program_page[0x20/sizeof(SpuProgram *)+16];
-u8 *_svm_vab_tn[16];
-SpuProgram test_programs[65536+16];
+ProgAtrBuffer *test_program_page[0x20/sizeof(ProgAtrBuffer *)+16];
+#define _svm_vab_vh (test_data_page+0x60/sizeof(u8 *))
+#define _svm_vab_pg (test_program_page+0x20/sizeof(u8 *))
+VagAtrBuffer *_svm_vab_tn[16];
+ProgAtr test_programs[65536+16];
 u8 test_data[16][8],test_tones[16][8];
 s16 kMaxPrograms;
-typedef union {SpuProgram program;struct {u8 pad[8];SpuSelectionPrefix state;} view;} SelectionAlias;
-typedef union {SpuProgram program;struct {u8 pad[8];u8 *pointer;} view;} DataAlias;
-typedef union {SpuProgram program;struct {u8 pad[8];SpuProgram *pointer;} view;} ProgramAlias;
-SelectionAlias test_selection;
-DataAlias test_selected_data,test_selected_tones;
-ProgramAlias test_selected_program;
-#define D_80110101 test_selection.view.state
-#define _svm_vh test_selected_data.view.pointer
-#define _svm_tn test_selected_tones.view.pointer
-#define _svm_pg test_selected_program.view.pointer
+typedef struct {u8 before[16];SvmCur state;u8 after[16];} SelectionOwner;
+SelectionOwner test_selection;
+struct {u8 prefix[8];u8 *pointer;} test_selected_data;
+struct {u8 prefix[8];VagAtrBuffer *pointer;} test_selected_tones;
+struct {u8 prefix[8];ProgAtrBuffer *pointer;} test_selected_program;
+#define _svm_cur test_selection.state
+#define _svm_vh test_selected_data.pointer
+#define _svm_tn test_selected_tones.pointer
+#define _svm_pg test_selected_program.pointer
 void *test_current(s32 which) {
  if(which==0)return _svm_vh;
  if(which==1)return _svm_pg;
- return _svm_tn;
+ return (u8 *)_svm_tn;
 }
 void *test_expected(s32 bank,s32 which) {
  if(which==0)return test_data[bank];
@@ -53,15 +51,22 @@ void *test_expected(s32 bank,s32 which) {
 }
 void *test_program(s32 bank,s32 index) {return test_programs+32768+bank+index;}
 void *test_alias(s32 which) {
- if(which==0)return &test_selection.program;
- if(which==1)return &test_selected_data.program;
- if(which==2)return &test_selected_program.program;
- return &test_selected_tones.program;
+ if(which==0)return (u8 *)&test_selection+offsetof(SelectionOwner,state)+offsetof(SvmCur,f01)-8;
+ if(which==1)return &test_selected_data;
+ if(which==2)return &test_selected_program;
+ return &test_selected_tones;
 }
-void test_current_table(SpuProgram *program) {_svm_pg=program;}
+void test_current_table(ProgAtrBuffer *program) {_svm_pg=program;}
 void *test_pointer_storage(void) {return &_svm_pg;}
-void test_table(s32 bank,SpuProgram *program) {
- test_program_page[0x20/sizeof(SpuProgram *)+bank]=program;
+void test_table(s32 bank,ProgAtrBuffer *program) {
+ test_program_page[0x20/sizeof(u8 *)+bank]=program;
+}
+s32 test_selection_guards(void) {
+ const u8 *bytes=(const u8 *)&test_selection;
+ size_t start=offsetof(SelectionOwner,state),i;
+ for(i=0;i<sizeof(test_selection);i++)
+  if(i!=start+offsetof(SvmCur,f01)&&i!=start+offsetof(SvmCur,f06)&&i!=start+offsetof(SvmCur,f07)&&bytes[i]!=0xA5)return 0;
+ return 1;
 }
 void test_reset(void) {
  s32 i;
@@ -73,32 +78,23 @@ void test_reset(void) {
  for(i=0;i<16;i++) {
   test_flag_page[0x120+i]=1;
   test_data_page[0x60/sizeof(u8 *)+i]=test_data[i];
-  test_program_page[0x20/sizeof(SpuProgram *)+i]=test_programs+32768+i;
-  _svm_vab_tn[i]=test_tones[i];
+  test_program_page[0x20/sizeof(u8 *)+i]=(ProgAtrBuffer *)(test_programs+32768+i);
+  _svm_vab_tn[i]=(VagAtrBuffer *)test_tones[i];
  }
  kMaxPrograms=32767;
- _svm_vh=test_data[0];_svm_pg=test_programs+32768;_svm_tn=test_tones[0];
+ _svm_vh=test_data[0];_svm_pg=(ProgAtrBuffer *)(test_programs+32768);_svm_tn=(VagAtrBuffer *)test_tones[0];
 }
 '''
         owners=source_owners(root/'src/main/PAL')
-        body = ((root/'tools/scripts/fixtures/views/func_8008A564.c').read_text() +
-                '\n'.join(native_body(definition_source(owners[name].read_text(),name))
-                          for name in ('_SsVmSetProgVol','_SsVmGetProgVol','_SsVmSetProgPan','_SsVmGetProgPan')) + '\n' +
-                (root/'tools/scripts/fixtures/views/func_80084FB4.c').read_text())
-        body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
-        body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
-        body = re.sub(r'"\$[0-9]+",\s*', '', body)
-        body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*(?=\))', '', body)
-        assert body.count('=0x80110000U;') == 2
-        body = body.replace('=0x80110000U;', '=(unsigned long)test_flag_page;')
-        assert body.count('(u8 **)0x80110000U') == 1
-        body = body.replace('(u8 **)0x80110000U', 'test_data_page')
-        assert body.count('(SpuProgram **)0x80110000U') == 1
-        body = body.replace('(SpuProgram **)0x80110000U', 'test_program_page')
-        directory = Path(cls.temp.name)
+        body='\n'.join(definition_source(owners[name].read_text(),name)
+                       for name in ('_SsVmVSetUp','_SsVmSetProgVol','_SsVmGetProgVol',
+                                    '_SsVmSetProgPan','_SsVmGetProgPan','SsUtGetProgAtr'))
+        directory=Path(cls.temp.name)
         (directory/'function.c').write_text(source+body)
-        result = subprocess.run(['cc','-shared','-fPIC','-O2',str(directory/'function.c'),
-                                 '-o',str(directory/'function.so')],capture_output=True)
+        result=subprocess.run(['cc','-std=gnu11','-shared','-fPIC','-O2',
+                               '-fsanitize=undefined,bounds','-fno-sanitize-recover=all',
+                               '-I'+str(root/'include'),str(directory/'function.c'),
+                               '-o',str(directory/'function.so')],capture_output=True)
         if result.returncode:
             raise AssertionError(result.stderr.decode())
         cls.lib = C.CDLL(str(directory/'function.so'))
@@ -106,7 +102,9 @@ void test_reset(void) {
         cls.flag_address=cls.lib.test_flags()
         cls.flags = (C.c_uint8*0x200).from_address(cls.flag_address)
         cls.programs = (C.c_uint8*((65536+16)*16)).in_dll(cls.lib,'test_programs')
-        cls.selection = (C.c_uint8*16).in_dll(cls.lib,'test_selection')
+        cls.lib.test_alias.argtypes=[C.c_int32]
+        cls.lib.test_alias.restype=C.c_void_p
+        cls.selection=(C.c_uint8*16).from_address(cls.lib.test_alias(0))
         cls.limit = C.c_int16.in_dll(cls.lib,'kMaxPrograms')
         cls.select = cls.lib._SsVmVSetUp
         cls.select.argtypes = [C.c_int32,C.c_int32]
@@ -131,6 +129,9 @@ void test_reset(void) {
 
     def setUp(self):
         self.lib.test_reset()
+
+    def tearDown(self):
+        self.assertEqual(self.lib.test_selection_guards(),1)
 
     def snapshot(self):
         return bytes(self.selection),tuple(self.lib.test_current(i) for i in range(3))

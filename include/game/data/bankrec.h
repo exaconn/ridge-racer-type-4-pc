@@ -6,7 +6,7 @@
 
 extern CarRecord *CarRecordPtrs[];
 
-void SetupDialogueTable();
+void SetupDialogueTable(void *buffer);
 void SetCarRecordPtr(CarRecord *record, s32 index);
 void SetLightTable(TrackLighting2C *table);
 void SetupRaceMemoryArena(s32 layout,s32 mode);

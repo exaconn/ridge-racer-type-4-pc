@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+extern void *SavedLoadCursor;
+
 int AddBadgeSpriteStrip();
 void CarStandingsModeUpdate(void);
 

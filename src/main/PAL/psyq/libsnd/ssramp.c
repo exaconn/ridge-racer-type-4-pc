@@ -15,21 +15,21 @@ void _SsSndCrescendo(s32 bankInput, s32 rowInput) {
     ChannelValueRecordB0 *base = *slot;
     ChannelValueRecordB0 *record = (ChannelValueRecordB0 *)((u8 *)base + offset);
     ChannelValueRecordB0 *current;
-    s32 elapsed = (record->rampElapsedA0 + 1U);
-    s32 duration = record->rampDuration9C;
+    s32 elapsed = (record->wa0 + 1U);
+    s32 duration = record->w9c;
     u32 delta;
     s32 l, r;
     s32 packed;
-    record->rampElapsedA0 = elapsed;
+    record->wa0 = elapsed;
     if (duration < elapsed) {
-        (*slot)[row].mode98 &= ~0x10;
+        (*slot)[row].w98 &= ~0x10;
     } else {
-        s32 product = ((u32)(s32)record->rampDelta48 * elapsed);
+        s32 product = ((u32)(s32)record->h48[0] * elapsed);
         delta = product / duration;
-        delta = (delta - record->rampApplied4A);
+        delta = (delta - record->h48[1]);
         if (delta != 0) {
             packed = (s16)(bank | ((u32)row << 8));
-            record->rampApplied4A = (u16)record->rampApplied4A + delta;
+            record->h48[1] = (u16)record->h48[1] + delta;
             _SsVmGetSeqVol(packed, &left, &right);
             l = (left + delta);
             if (l >= 128) l = 127;
@@ -39,9 +39,9 @@ void _SsSndCrescendo(s32 bankInput, s32 rowInput) {
             if (r < 0) r = 0;
             _SsVmSetSeqVol(packed, (u16)l, (u16)r, 1);
             if ((l == 127 && r == l) || (l == 0 && r == 0)) {
-                _ss_score[(s16)bank][(s16)row].mode98 &= ~0x10;
+                _ss_score[(s16)bank][(s16)row].w98 &= ~0x10;
             }
         }
     }
-    _SsVmGetSeqVol((s16)(bank | ((u32)row << 8)), &record->volume5C, &record->volume5E);
+    _SsVmGetSeqVol((s16)(bank | ((u32)row << 8)), &record->h58[2], &record->h58[3]);
 }

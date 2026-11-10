@@ -6,6 +6,7 @@ import struct
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from sequence_fixture_transport import current_body
 
 Hook = C.CFUNCTYPE(None, C.c_int32)
 
@@ -19,6 +20,7 @@ class BankResetTests(unittest.TestCase):
         directory = Path(cls.temp.name)
         header = (root / 'include/rr/library.h').read_text()
         header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
+        header = '#include \"rr/sequence_channel.h\"\n' + header
         source = '''#include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -49,13 +51,17 @@ void initialize(void) {
 void replace_bank(s32 bank) {_ss_score[bank]=replacement;}
 '''
         for name in ('8007F794', '8007F910', '8007F934'):
-            body = (root / f'tools/scripts/fixtures/views/func_{name}.c').read_text()
+            body = current_body(root,name)
             body = re.sub(r'^#include[^\n]*\n', '', body, flags=re.M)
             body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
             body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
+            if name=='8007F794':
+                owner=__import__('c_functions').source_owners(root/'src/main/PAL')['_SsClose']
+                macro=next(line for line in owner.read_text().splitlines() if line.startswith('#define P '))
+                body=macro+'\n'+body+'\n#undef P\n'
             source += body
         (directory / 'reset.c').write_text(source)
-        subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'reset.c'),
+        subprocess.run(['cc', '-shared', '-fPIC', '-O2', '-I', str(root/'include'), str(directory / 'reset.c'),
                         '-o', str(directory / 'reset.so')], check=True, capture_output=True)
         cls.lib = C.CDLL(str(directory / 'reset.so'))
         cls.layout = list((C.c_uint32 * 10).in_dll(cls.lib, 'layout'))

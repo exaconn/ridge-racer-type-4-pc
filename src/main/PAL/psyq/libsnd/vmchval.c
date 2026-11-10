@@ -1,78 +1,31 @@
+/* CC1_FLAGS: -fno-schedule-insns2 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 /* GCC_VERSION: 2.7.2 */
 #include "rr/channels.h"
 #include "psyq/libsnd/vmchval.h"
 
+/* The low byte selects a bank; the next byte selects its sequence row. */
 s32 _SsVmGetSeqVol(s32 input, u16 *left, u16 *right) {
-    s32 channel = input;
-    u32 offset = (channel & 0xFF) * sizeof(ChannelValueRecordB0 *);
-    /* ASM_BARRIER: preserve the indexed table-address computation in v1. */
-    register ChannelValueRecordB0 **table __asm__("$3");
-    ChannelValueRecordB0 *record;
-    s32 group;
-    s16 *last;
-    /* ASM_BARRIER: form the pointer-table offset before materializing its base. */
-    __asm__ volatile("" : : "r"(offset) : "$3");
-    /* PAL table mapping: _ss_score is 0xF98 bytes below this page. */
-    table = (ChannelValueRecordB0 **)0x80110000U;
-    /* ASM_BARRIER: preserve the explicit table base through the indexed load. */
-    __asm__("" : "=r"(table) : "0"(table));
-    table += (s32)(offset / sizeof(*table));
-    record = table[-0xF98 / 4];
-    last = &_svm_cur_vab_id;
-    *last = channel;
-    
-    group = (channel & 0xFF00) >> 8;
-    record += group;
-    *left = record->value58;
-    *right = record->value5A;
+    SequenceChannel *record = _ss_score[input & 0xFF];
+    s16 *last = &_svm_cur_vab_id;
+    *last = input;
+    record += (input & 0xFF00) >> 8;
+    *left = record->h58[0];
+    *right = record->h58[1];
+    /* An output may alias the selected-ID cell or the other volume field. */
     return *last;
 }
 
 s32 _SsVmGetSeqLVol(s32 input) {
-    s32 channel = input;
-    u32 offset = (channel & 0xFF) * sizeof(ChannelValueRecordB0 *);
-    /* ASM_BARRIER: preserve the indexed table-address computation in v1. */
-    register ChannelValueRecordB0 **table __asm__("$3");
-    /* ASM_BARRIER: reuse v1 for the loaded channel-record pointer. */
-    register ChannelValueRecordB0 *record __asm__("$3");
-    s32 group;
-    /* ASM_BARRIER: form the pointer-table offset before materializing its base. */
-    __asm__ volatile("" : : "r"(offset) : "$3");
-    /* PAL table mapping: _ss_score is 0xF98 bytes below this page. */
-    table = (ChannelValueRecordB0 **)0x80110000U;
-    /* ASM_BARRIER: preserve the explicit table base through the indexed load. */
-    __asm__("" : "=r"(table) : "0"(table));
-    table += (s32)(offset / sizeof(*table));
-    record = table[-0xF98 / 4];
-    _svm_cur_vab_id = channel;
-    /* ASM_BARRIER: record the channel id before decoding its row number. */
-    __asm__ volatile("" : "=r"(channel) : "0"(channel) : "memory");
-    group = (channel & 0xFF00) >> 8;
-    record += group;
-    return (s16)record->value58;
+    SequenceChannel *record = _ss_score[input & 0xFF];
+    _svm_cur_vab_id = input;
+    record += (input & 0xFF00) >> 8;
+    return (s16)record->h58[0];
 }
 
 s32 _SsVmGetSeqRVol(s32 input) {
-    s32 channel = input;
-    u32 offset = (channel & 0xFF) * sizeof(ChannelValueRecordB0 *);
-    /* ASM_BARRIER: preserve the indexed table-address computation in v1. */
-    register ChannelValueRecordB0 **table __asm__("$3");
-    /* ASM_BARRIER: reuse v1 for the loaded channel-record pointer. */
-    register ChannelValueRecordB0 *record __asm__("$3");
-    s32 group;
-    /* ASM_BARRIER: form the pointer-table offset before materializing its base. */
-    __asm__ volatile("" : : "r"(offset) : "$3");
-    /* PAL table mapping: _ss_score is 0xF98 bytes below this page. */
-    table = (ChannelValueRecordB0 **)0x80110000U;
-    /* ASM_BARRIER: preserve the explicit table base through the indexed load. */
-    __asm__("" : "=r"(table) : "0"(table));
-    table += (s32)(offset / sizeof(*table));
-    record = table[-0xF98 / 4];
-    _svm_cur_vab_id = channel;
-    /* ASM_BARRIER: record the channel id before decoding its row number. */
-    __asm__ volatile("" : "=r"(channel) : "0"(channel) : "memory");
-    group = (channel & 0xFF00) >> 8;
-    record += group;
-    return (s16)record->value5A;
+    SequenceChannel *record = _ss_score[input & 0xFF];
+    _svm_cur_vab_id = input;
+    record += (input & 0xFF00) >> 8;
+    return (s16)record->h58[1];
 }
-

@@ -14,20 +14,21 @@ void ovl662_func_8011CF8C(void)
     if(ovl662_D_801276A8.flagsD1&2){DrawUiRow(0);DrawUiRow(1);}
     if(ovl662_D_801276A8.flagsD1&4){SkipDialoguePage(CardDialogueStatePtr);UpdateDialogue(22,320,CardDialogueStatePtr);}
     first = 0;
-    do {
-        if (ovl662_D_801276A8.fade00 < 0) {
-            if (!(ovl662_D_801276A8.flagsD1 & 3)) {
-                first = 1;
-            } else if (ovl662_D_801276A8.flagsD1 & 4) {
+    if (ovl662_D_801276A8.fade00 < 0) {
+        if (ovl662_D_801276A8.flagsD1 & 3) {
+            if (ovl662_D_801276A8.flagsD1 & 4) {
                 first = 1;
                 second = first;
-                break;
+                goto apply_options;
             }
+        } else {
+            first = 1;
         }
-        /* ASM_BARRIER: retain the common second-flag assignment after the branch. */
-        __asm__ ("" : : : "memory");
-        second = 0;
-    } while (0);
+    }
+    /* ASM_BARRIER: retain the common second-flag assignment after the branch. */
+    __asm__ ("" : : : "memory");
+    second = 0;
+apply_options:;
     SetMenuFrameOptions(first,second,0);
     UpdateScreenFade(0x1004E);
 }

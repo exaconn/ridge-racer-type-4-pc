@@ -31,7 +31,7 @@
 extern void CdAudioInit(void);
 extern int InitGeom();
 
-extern int CdDirectoryBuffer;
+#include "rr/cd_directory_buffer.h"
 extern char StrTotalInitLog[];
 extern char DefaultPlayerName[];
 extern char D_8001030C[];
@@ -60,7 +60,7 @@ extern int NumLaps;
 extern int D_800F4C24;
 extern int D_800F4C2C;
 extern int DialogueSceneMode;
-extern int MenuArenaBase;
+#include "rr/menu_arena_base.h"
 extern short GameModeType;
 extern char *CustomEmblemTimPtr;
 extern void SetGeomOffset(s32,s32);
@@ -71,11 +71,8 @@ void SetupDrawDispEnvs(s32 r,s32 g,s16 b,u32 flags);
 void SystemInit(void)
 {
     int i;
-    int *p;
-    char *s;
-    volatile char *q;
     signed char *r;
-    int k, c5;
+    int k;
     int m;
 
     DebugPrintStub(StrTotalInitLog);
@@ -114,18 +111,11 @@ void SystemInit(void)
     PsyqBzero(&PlayerCars[0], 0x320);
     PsyqBzero(&PlayerCars[1], 0x320);
     UnlockNoticeMask = 0;
-    i = 0;
-    c5 = 5;
-    q = (void *)&SaveProgress;
-    do {
-        q[0x6C] = c5;
-        q[0x6D] = c5;
-        q[0x6E] = 0;
-        /* ASM_BARRIER: keep i++ after the byte stores like the original schedule */
-        __asm__ ("" : : : "memory");
-        i++;
-        q += 4;
-    } while (i < 4);
+    for (i = 0; i < 4; i++) {
+        SaveProgress.history6C[i].selection = 5;
+        SaveProgress.history6C[i].variant = 5;
+        SaveProgress.history6C[i].parameter = 0;
+    }
     LinkHostFlag = -1;
     CopyStringClearTail(&SaveProgress, DefaultPlayerName);
     CopyStringClearTail(D_800F39D8, &SaveProgress);

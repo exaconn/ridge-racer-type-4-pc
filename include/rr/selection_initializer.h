@@ -11,9 +11,9 @@
 #include "rr/projection_state.h"
 extern s32 ModeFrame,ScreenFrame;
 extern s16 MenuCursor,MenuItemCount,D_8010C0B8;
-extern u8 *CdDirectoryBuffer;
+#include "rr/cd_directory_buffer.h"
 #include "rr/menu_arena_state.h"
-extern void *MenuArenaBase;
+#include "rr/menu_arena_base.h"
 #include "rr/player_cars.h"
 extern SelectionRows32 SelectionRows;
 extern CourseChoice4 LinkCarChoiceTable[2][2][9];

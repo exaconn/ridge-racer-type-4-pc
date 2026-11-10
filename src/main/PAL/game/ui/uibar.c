@@ -100,63 +100,46 @@ SpritePacket *DrawBadgeTitleBar(u32 *order,SpritePacket *cursor,s32 x,s32 y,s32 
 
 
 void DrawBadgeRow(s32 index) {
-    /* ASM_BARRIER: retain the selected index across helper and callback calls. */
-    register s32 which asm("$23")=index;
-    s32 high_raw;
-    s32 offset=which*sizeof(BadgeRow1C);
-    BadgeRow1C *row=(BadgeRow1C *)(offset+(unsigned long)BadgeRows);
-    u32 raw;
+    s32 y;
+    s32 x;
+    s32 width;
+    s32 extent;
+    s32 height;
+    u32 *order;
+    s32 white;
     s32 status;
-    /* ASM_BARRIER: retain the byte offset for the two fresh table captures. */
-    __asm__("" : "+r"(offset));
-    raw=row->status00;
+    s32 high_raw;
+    void *cursor;
 
-    high_raw=raw<<16;
-
-    status=high_raw>>16;
-    if(status!=-1) {
-        s32 y;
-        s32 x;
-        s32 width;
-        u32 *order;
-        FrameStorage *context;
-        s32 zero6;
-        s32 zero7;
-        s32 extent;
-        s32 height;
-        s32 callback;
-        void *cursor;
-        s32 white=255;
-        GpuScratchPointers *scratch=(GpuScratchPointers *)SCRATCHPAD;
-        zero6=0;
-
-        zero7=zero6;
-        y=row->y06;x=row->x04;width=row->width0C;extent=row->extent0E;
-        
-        context=CurrentDrawBuf;
-        
-        order=&context->buffer.ordering70.words[1];
-        height=extent-22;
-        cursor=AddDrawAreaPrim(order,scratch->cursor,zero6,zero7,320,512);
-        cursor=AddDrawModePrim(order,cursor,37);
-        callback=high_raw>>24;
+    high_raw = (u32)BadgeRows[index].status00 << 16;
+    status = high_raw >> 16;
+    if (status != -1) {
+        GpuScratchPointers *scratch = (GpuScratchPointers *)SCRATCHPAD;
+        white = 255;
+        y = BadgeRows[index].y06;
+        x = BadgeRows[index].x04;
+        width = BadgeRows[index].width0C;
+        extent = BadgeRows[index].extent0E;
+        height = extent - 22;
+        order = &CurrentDrawBuf->buffer.ordering70.words[1];
+        cursor = AddDrawAreaPrim(order, scratch->cursor, 0, 0, 320, 512);
+        cursor = AddDrawModePrim(order, cursor, 37);
         {
-            void *call_cursor=cursor;
-            
-            if(callback)call_cursor=D_8009F984[callback-1](order,call_cursor,which);
-            cursor=call_cursor;
+            void *call_cursor = cursor;
+            if (high_raw >> 24) {
+                call_cursor = D_8009F984[(high_raw >> 24) - 1](order, call_cursor, index);
+            }
+            cursor = call_cursor;
         }
-        cursor=DrawBadgeTitleBar(order,cursor,x,y,status&255);
-        y=y+22;
-        row=(BadgeRow1C *)(offset+(unsigned long)BadgeRows);
-        cursor=AddTilePrim(order,cursor,x,row->y0A+height+20,width,2,white,white,white);
-        cursor=AddTilePrim(order,cursor,x,y,width,2,white,white,white);
-        cursor=AddTilePrim(order,cursor,x,y,1,height,white,white,white);
-        cursor=AddTilePrim(order,cursor,x+width-1,y,1,height,white,white,white);
-        white=74;
-        cursor=AddTilePrim(order,cursor,x,y,width,height,white,white,white);
-        cursor=AddDrawModePrim(order,cursor,37);
-        row=(BadgeRow1C *)(offset+(unsigned long)BadgeRows);
-        scratch->cursor=AddDrawAreaPrim(order,cursor,row->x14,row->y16,row->w18,row->h1A);
+        cursor = DrawBadgeTitleBar(order, cursor, x, y, status & 255);
+        y += 22;
+        cursor = AddTilePrim(order, cursor, x, BadgeRows[index].y0A + height + 20, width, 2, white, white, white);
+        cursor = AddTilePrim(order, cursor, x, y, width, 2, white, white, white);
+        cursor = AddTilePrim(order, cursor, x, y, 1, height, white, white, white);
+        cursor = AddTilePrim(order, cursor, x + width - 1, y, 1, height, white, white, white);
+        white = 74;
+        cursor = AddTilePrim(order, cursor, x, y, width, height, white, white, white);
+        cursor = AddDrawModePrim(order, cursor, 37);
+        scratch->cursor = AddDrawAreaPrim(order, cursor, BadgeRows[index].x14, BadgeRows[index].y16, BadgeRows[index].w18, BadgeRows[index].h1A);
     }
 }

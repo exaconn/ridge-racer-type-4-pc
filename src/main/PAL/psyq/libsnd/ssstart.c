@@ -13,7 +13,7 @@ void SsSeqCalledTbyT(void) {
         _snd_ev_flag = 1;
         _SsVmFlush();
         for (bank = 0; bank < _snd_seq_s_max; bank++) {
-            if (_snd_openflag & (1 << bank)) {
+            if (_snd_openflag & (1U << bank)) {
                 for (row = 0; row < _snd_seq_t_max; row++) {
                     if (_ss_score[bank][row].w98 & 1) {
                         _SsSndPlay((s16)bank, (s16)row);

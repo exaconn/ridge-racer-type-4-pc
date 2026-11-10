@@ -30,6 +30,7 @@ PREFIX = r'''
 #include <stddef.h>
 #include <string.h>
 #include "game/gfx/scene1.h"
+#include "game/math/rotmat.h"
 #include "rr/matrix_workspace.h"
 #include "psyq/libgte/gtemat.h"
 #include "psyq/libgte/gtemat3.h"

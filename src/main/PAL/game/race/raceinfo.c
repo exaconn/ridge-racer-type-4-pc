@@ -167,8 +167,8 @@ void DrawCourseMapPreview(int unusedSelection,int unusedMode) {
 void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
 {
   int sp10[3];
-  char m20[0x20];
-  char m40[0x20];
+  MatrixWords32 m20;
+  MatrixWords32 m40;
   int *g = (int *) SCRATCHPAD;
   int s0;
   int v0;
@@ -224,12 +224,12 @@ void UpdateRaceIntroCamera(RaceVehicle *a0, int a1)
     s5[2] = v0 >> 12;
     s5[1] = ((a1 << 8) / 75) - 0x200;
   }
-  BuildRotMatrixY(m20, 0x800 - a0->rot54);
-  BuildRotMatrixX(m40, a0->rot50);
-  MulMatrix((MatrixWords32 *)(m20), (const MatrixWords32 *)(m40));
-  BuildRotMatrixZ(m40, a0->rot58);
-  MulMatrix2((const MatrixWords32 *)(m20), (MatrixWords32 *)(m40));
-  ApplyMatrix((const MatrixWords32 *)(m40), (const Vec3s8 *)(D_8010BFD0), (Vec3i *)(sp10));
+  BuildRotMatrixY(&m20, 0x800 - a0->rot54);
+  BuildRotMatrixX(&m40, a0->rot50);
+  MulMatrix(&m20, &m40);
+  BuildRotMatrixZ(&m40, a0->rot58);
+  MulMatrix2(&m20, &m40);
+  ApplyMatrix(&m40, (const Vec3s8 *)(D_8010BFD0), (Vec3i *)(sp10));
   g[2] = a0->pos10[0] + sp10[0];
   g[3] = a0->pos10[1] + sp10[1];
   g[4] = a0->pos10[2] + sp10[2];

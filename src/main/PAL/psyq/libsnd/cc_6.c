@@ -6,20 +6,7 @@
 
 /* libsnd _SsContDataEntry (cc_6.o): SEQ control change 6, data entry.
  * Same source as bashalarmistdecomp/eternal-silver-sssc-decomp libsnd_cc_6.c. */
-typedef struct {
-    u8 prior, mode, vol, pan, center, shift, min, max;
-    u8 vibW, vibT, porW, porT, pbmin, pbmax, reserved1, reserved2;
-    u16 adsr1, adsr2;
-    s16 prog, vag;
-    s16 reserved[4];
-} VagAtr;
-typedef struct {
-    u8 tones, mvol, prior, mode, mpan, reserved0;
-    s16 attr;
-    u32 reserved1, reserved2;
-} ProgAtr;
-RR_ASSERT_SIZE(VagAtr, 0x20);
-RR_ASSERT_SIZE(ProgAtr, 0x10);
+
 
   /* _ss_score */
 extern void (*SsFCALLCcEntry[])();      /* SsFCALL.ccentry: _SsSetNrpnVabAttr0.. */
@@ -46,7 +33,7 @@ void _SsContDataEntry(s16 bank, s16 row, u8 data) {
     } else if (s->b1e == 2) {
         /* RPN complete: 0 = bend range, 1 = fine tune, 2 = coarse tune */
         if (s->b19 == 0) {
-            for (i = 0; i < progAtr.tones; i++) {
+            for (i = 0; i < progAtr.attributes.tones; i++) {
                 SsUtGetVagAtr(s->b26, s->b37[ch], i, &vagAtr);
                 switch (s->b18) {
                 case 0:

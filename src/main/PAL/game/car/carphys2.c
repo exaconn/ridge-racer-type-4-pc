@@ -92,12 +92,10 @@ void StepCarStateNormal(RaceVehicle *c) {
     int s2;
     int s4;
     int s1;
-    /* ASM_BARRIER: pin a0 to $4 for abs(s2) and c->s1DE shift register allocation */
-    register int a0 __asm__("$4");
+    int a0;
     int a2;
     int a3;
-    /* ASM_BARRIER: pin v0 to $2 to match original expression temp register */
-    register int v0 __asm__("$2");
+    int v0;
     int v1;
     short x;
     int unused[4];
@@ -122,12 +120,8 @@ void StepCarStateNormal(RaceVehicle *c) {
     c->vel38 = (v1 * v0) >> 8;
     if (t->steeringMode0A == 0) {
         if (d->dynamics94.player.acceleratorEdge14 == 1) {
-            v0 = v1;
-            a0 = s2;
-            if (s2 < 0) {
-                a0 = -a0;
-            }
-            d->lateralSpeed58 = (v0 * a0 * d->engine54.word) / 64;
+            a0 = __builtin_abs(s2);
+            d->lateralSpeed58 = (c->input * a0 * d->engine54.word) / 64;
             d->engine54.word = 0;
             if (c->input >= 0x3C1 && d->lateralSpeed58 > d->dynamics94.player.slideThreshold00) {
                 d->unk2C = 1;
@@ -205,23 +199,11 @@ void StepCarStateNormal(RaceVehicle *c) {
             v1 = a0 >> 16;
             if (v1 >= 0) {
                 a0 = a0 >> 19;
-                /* ASM_BARRIER: keep a0 = a0 >> 19 before c->s1DC load so reorg fills bltz slot */
-                __asm__ ("");
-                v0 = c->steerPitch1DC;
-                if (v0 < 0) {
-                    v0 = -v0;
-                }
-                v0 = v0 >> 2;
+                v0 = __builtin_abs(c->steerPitch1DC) >> 2;
             } else {
                 v1 = -v1;
-                v0 = c->steerPitch1DC;
                 a0 = v1 >> 1;
-                /* ASM_BARRIER: stop reorg moving sra a0,v1,1 into bgez delay slot */
-                __asm__ ("");
-                if (v0 < 0) {
-                    v0 = -v0;
-                }
-                v0 = v0 + 2;
+                v0 = __builtin_abs(c->steerPitch1DC) + 2;
             }
             a0 = a0 * v0;
             if (a0 < 0x80) {
@@ -287,7 +269,6 @@ void StepCarStateSlide(RaceVehicle *c0) {
     int x;
     int s0i;
     int unused[4];
-    register int y __asm__("$4"); /* ASM_BARRIER: match a0 temp of original */
     int w;
     int z;
 
@@ -369,9 +350,9 @@ void StepCarStateSlide(RaceVehicle *c0) {
     }
     x = AngleDiffSigned(c->heading1D4, s3);
     x = ((x * d->handling1C->unk02) >> 8) * s0i;
-    y = x / 1024;
+    v = x / 1024;
     if (s4 == 0) {
-        c->heading1D4 = c->heading1D4 + y;
+        c->heading1D4 = c->heading1D4 + v;
     }
     c->input = (u16)c->input - s0i / 256;
     c->vel30 = (c->input * rsin(c->heading1D4)) >> 8;

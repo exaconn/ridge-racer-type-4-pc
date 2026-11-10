@@ -6,11 +6,12 @@ The new C body and its native-width stream-record layout are used directly.
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import re, subprocess, unittest
+from sequence_fixture_transport import current_body
 ROOT=Path(__file__).resolve().parents[2]
 
 class ChannelStreamEndTest(unittest.TestCase):
  def test_signed_byte_boundaries_and_callback_mutations(self):
-  body=(ROOT/'tools/scripts/fixtures/views/func_800833A0.c').read_text()
+  body=current_body(ROOT,'800833A0')
   body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
   body=re.sub(r'__asm__\(""[^;]*;', '',body)
   code=r'''
@@ -20,10 +21,6 @@ class ChannelStreamEndTest(unittest.TestCase):
 #include <string.h>
 #include <stdio.h>
 #include "rr/layout.h"
-#undef RR_ASSERT_SIZE
-#undef RR_ASSERT_OFFSET
-#define RR_ASSERT_SIZE(t,n)
-#define RR_ASSERT_OFFSET(t,f,n)
 #include "rr/channel_stream.h"
 #define BANKS 2
 #define ROWS 3
@@ -52,15 +49,15 @@ static void enter(unsigned kind,s32 first,s32 second){Event *e;assert(eventIndex
  * Root changes and pitch writes model effects observable through callbacks. */
 static void restart(World *w,s32 bank,s32 row){ChannelStreamB0 *r;
  assert(bank>=0&&bank<BANKS&&row>=0&&row<ROWS);r=&w->slots[bank][row];
- r->duration20=1;r->elapsed21=0;r->mode98=(r->mode98&~(0x100|8|2|4|0x200))|1;
- r->active14=1;r->cursor00=r->start04;
+ r->b20=1;r->b21=0;r->w98=(r->w98&~(0x100|8|2|4|0x200))|1;
+ r->b14=1;r->c0=r->c4;
  if(mutation&1)w->slots[bank]=w->records[1][bank];
 }
 static void notify(World *w,s32 packed){unsigned b=(u32)packed&255,row=((u32)packed>>8)&255;
  assert(b<BANKS&&row<ROWS);notifications++;
  if(mutation&2)w->slots[b]=w->records[(notifications>>1)&1][b];
- if(mutation&4){w->records[0][b][row].pitch54=signed16((u16)(0x8123U+notifications*97));
-  w->records[0][b][row].state1C=(u8)(17+notifications);}
+ if(mutation&4){w->records[0][b][row].h48[6]=signed16((u16)(0x8123U+notifications*97));
+  w->records[0][b][row].b1c=(u8)(17+notifications);}
 }
 #define _ss_score (actual.slots)
 void _SsSndNextSep(s32 bank,s16 row){enter(0,bank,row);restart(&actual,bank,row);}
@@ -68,27 +65,27 @@ void _SsVmSeqKeyOff(s32 packed){enter(1,packed,0);notify(&actual,packed);}
 '''+body+r'''
 static unsigned branches[8],mutations[8];
 static void model(unsigned bank,unsigned row){ChannelStreamB0 *r=&expected.slots[bank][row];
- unsigned elapsed=((unsigned)r->elapsed21+1)%256;int duration=r->duration20;
- s32 packed=(s32)(bank+256*row);r->elapsed21=(u8)elapsed;
- if(!duration){r->accumulator88=0;r->state1C=0;r->accumulator90=0;
-  r->cursor00=(r->mode98&1024)?r->alternate0C:r->start04;branches[0]++;
- }else if(signedByte(elapsed)<duration){r->accumulator88=0;r->state1C=0;r->accumulator90=0;
-  r->cursor00=(r->mode98&1024)?r->alternate0C:r->start04;r->saved08=r->cursor00;branches[1]++;
- }else{r->mode98=(r->mode98&~11)|516;r->active14=0;
-  r->saved08=(r->mode98&1024)?r->alternate0C:r->start04;
-  if(r->restartBank22!=-1){snapshot(0,r->restartBank22,r->restartRow23);restart(&expected,r->restartBank22,r->restartRow23);
+ unsigned elapsed=((unsigned)r->b21+1)%256;int duration=r->b20;
+ s32 packed=(s32)(bank+256*row);r->b21=(u8)elapsed;
+ if(!duration){r->w88=0;r->b1c=0;r->w90=0;
+  r->c0=(r->w98&1024)?r->cC:r->c4;branches[0]++;
+ }else if(signedByte(elapsed)<duration){r->w88=0;r->b1c=0;r->w90=0;
+  r->c0=(r->w98&1024)?r->cC:r->c4;r->c8=r->c0;branches[1]++;
+ }else{r->w98=(r->w98&~11)|516;r->b14=0;
+  r->c8=(r->w98&1024)?r->cC:r->c4;
+  if(r->b22[0]!=-1){snapshot(0,r->b22[0],r->b22[1]);restart(&expected,r->b22[0],r->b22[1]);
    snapshot(1,packed,0);notify(&expected,packed);branches[2]++;
   }else branches[3]++;
-  snapshot(1,packed,0);notify(&expected,packed);r->accumulator90=r->pitch54;
+  snapshot(1,packed,0);notify(&expected,packed);r->w90=r->h48[6];
  }
  if(elapsed==0)branches[4]++;if(elapsed==128)branches[5]++;if(duration<0)branches[6]++;if(mutation)branches[7]++;
 }
 int main(void){unsigned n,i,bank,row,set,b,r;uint64_t cases=0;
- _Static_assert(offsetof(ChannelStreamB0,start04)==sizeof(void*),"start pointer");
- _Static_assert(offsetof(ChannelStreamB0,marker10)==4*sizeof(void*),"marker pointer");
- _Static_assert(offsetof(ChannelStreamB0,active14)==5*sizeof(void*),"full native pointer prefix");
- _Static_assert(offsetof(ChannelStreamB0,duration20)==32+5*(sizeof(void*)-4),"signed duration");
- _Static_assert(offsetof(ChannelStreamB0,mode98)==152+5*(sizeof(void*)-4),"mode word");
+ _Static_assert(offsetof(ChannelStreamB0,c4)==sizeof(void*),"start pointer");
+ _Static_assert(offsetof(ChannelStreamB0,p10)==4*sizeof(void*),"marker pointer");
+ _Static_assert(offsetof(ChannelStreamB0,b14)==5*sizeof(void*),"full native pointer prefix");
+ _Static_assert(offsetof(ChannelStreamB0,b20)==32+5*(sizeof(void*)-4),"signed duration");
+ _Static_assert(offsetof(ChannelStreamB0,w98)==152+5*(sizeof(void*)-4),"mode word");
  _Static_assert(sizeof(ChannelStreamB0)==200,"complete LP64 row and tail alignment");
  assert((uintptr_t)&actual>UINT32_MAX);assert((uintptr_t)buffers>UINT32_MAX);
  for(n=0;n<262144;n++){
@@ -96,18 +93,18 @@ int main(void){unsigned n,i,bank,row,set,b,r;uint64_t cases=0;
   for(i=0;i<sizeof(actual);i++)raw[i]=(u8)next();
   for(set=0;set<2;set++)for(b=0;b<BANKS;b++)for(r=0;r<ROWS;r++){
    ChannelStreamB0 *p=&actual.records[set][b][r];
-   p->cursor00=buffers[0]+next()%64;p->start04=buffers[1]+next()%64;p->saved08=buffers[2]+next()%64;
-   p->alternate0C=buffers[3]+next()%64;p->marker10=buffers[4]+next()%64;
-   if((next()&7)==0)p->start04=0;if((next()&7)==0)p->alternate0C=0;
-   p->restartBank22=-1;p->restartRow23=(s8)next();
+   p->c0=buffers[0]+next()%64;p->c4=buffers[1]+next()%64;p->c8=buffers[2]+next()%64;
+   p->cC=buffers[3]+next()%64;p->p10=buffers[4]+next()%64;
+   if((next()&7)==0)p->c4=0;if((next()&7)==0)p->cC=0;
+   p->b22[0]=-1;p->b22[1]=(s8)next();
   }
   for(b=0;b<BANKS;b++)actual.slots[b]=actual.records[0][b];
   bank=(n/3)%BANKS;row=n%ROWS;mutation=next()&7;mutations[mutation]++;
   {ChannelStreamB0 *p=&actual.records[0][bank][row];
-   p->duration20=(s8)signedByte((n>>8)&255);p->elapsed21=(u8)n;
-   p->mode98=(p->mode98&~1024)|((n>>16)&1)*1024;
-   p->pitch54=signed16((u16)n);
-   if(n&0x20000){p->restartBank22=(s8)(next()%BANKS);p->restartRow23=(s8)(next()%ROWS);}
+   p->b20=(s8)signedByte((n>>8)&255);p->b21=(u8)n;
+   p->w98=(p->w98&~1024)|((n>>16)&1)*1024;
+   p->h48[6]=signed16((u16)n);
+   if(n&0x20000){p->b22[0]=(s8)(next()%BANKS);p->b22[1]=(s8)(next()%ROWS);}
   }
   memcpy(&expected,&actual,sizeof(actual));for(b=0;b<BANKS;b++)expected.slots[b]=expected.records[0][b];
   eventCount=eventIndex=notifications=0;model(bank,row);notifications=0;

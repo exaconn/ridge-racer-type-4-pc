@@ -26,8 +26,7 @@ class SpuBankReleaseTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         directory = Path(cls.temp.name)
         root = Path(__file__).resolve().parents[2]
-        header = (root / 'include/rr/spu.h').read_text()
-        header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
+        header = '#include "rr/spu.h"\n'
         source = '''#include <stdint.h>
 #include <stddef.h>
 typedef uint8_t u8; typedef uint16_t u16; typedef int16_t s16;
@@ -48,7 +47,7 @@ void SpuFree(u32 address) { test_free(address); }
         body = definition_source(owner.read_text(), 'SsVabClose')
         source += body
         (directory / 'function.c').write_text(source)
-        subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
+        subprocess.run(['cc', '-I'+str(Path(__file__).resolve().parents[2]/'include'), '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
         cls.page = Page.in_dll(cls.library, 'test_page')

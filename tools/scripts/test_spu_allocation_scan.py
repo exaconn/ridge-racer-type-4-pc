@@ -17,8 +17,7 @@ class SpuAllocationScanTest(unittest.TestCase):
     def setUpClass(cls):
         cls.temp=TemporaryDirectory();cls.addClassCleanup(cls.temp.cleanup)
         root=Path(__file__).resolve().parents[2];d=Path(cls.temp.name)
-        header=(root/'include/rr/spu.h').read_text()
-        header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
+        header = '#include "rr/spu.h"\n'
         body=(root/'tools/scripts/fixtures/views/func_8007FC54.c').read_text().replace('#include "rr/spu.h"','')
         body=re.sub(r' : "\$[0-9]+"','',body)
         assert body.count('value=p->address_flags;')==1 and body.count('value+p->size')==1
@@ -38,7 +37,7 @@ u32 read_flags(SpuAllocation *p) {
 u32 read_size(SpuAllocation *p) {kind[reads]=1;entry[reads++]=p-table;return p->size;}
 '''+body+observed
         (d/'f.c').write_text(code)
-        subprocess.run(['cc','-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
+        subprocess.run(['cc', '-I'+str(Path(__file__).resolve().parents[2]/'include'),'-shared','-fPIC','-O2',str(d/'f.c'),'-o',str(d/'f.so')],check=True,capture_output=True)
         cls.lib=C.CDLL(str(d/'f.so'))
         cls.table=(Allocation*80).in_dll(cls.lib,'table');cls.base=C.c_void_p.in_dll(cls.lib,'_spu_memList')
         cls.reads=C.c_int32.in_dll(cls.lib,'reads');cls.replace=C.c_int32.in_dll(cls.lib,'replace_base')

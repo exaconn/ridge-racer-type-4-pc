@@ -33,7 +33,7 @@ extern CourseChoice4 CourseChoiceTable[2][9];
 extern unsigned short D_8009EA80[];
 extern unsigned char SaveDataWork[];
 extern unsigned char CustomEmblemBuffers[];
-extern s32 CdDirectoryBuffer;
+#include "rr/cd_directory_buffer.h"
 extern s32 D_800103B8;
 extern s32 VSyncThreshold;
 extern s32 ModeFrame;
@@ -80,49 +80,19 @@ void InitDefaultTimeRecords(void) {
 
 void InitCourseChoices(void)
 {
-    /* ASM_BARRIER: register pins reproduce original t/a register allocation */
-    register int a2 asm("$6");
-    register int a3 asm("$7");
-    int t1;
-    int t2;
-    register int t4 asm("$12");
-    register int e asm("$13");
-    unsigned short *t6;
-    short *t3;
-    char *a1;
-    register unsigned short *t0;
-    unsigned short u;
+    int i, j;
     PsyqBzero(CourseChoiceTable, 0x90);
     PsyqBzero((char *)CourseChoiceTable + 0x24, 0x90);
-    t4 = 0;
-    e = 8;
-    t6 = D_8009EA80;
-    t2 = 0x20;
-    t1 = t4;
-    do {
-        a2 = 0;
-        t3 = (short *)(t2 + (char *)CourseChoiceTable);
-        t0 = t6;
-        a3 = t1;
-loop:
-        a1 = a3 + (char *)CourseChoiceTable;
-        if (a2 == e) {
-            int m;
-            __asm__ volatile("" : "=r"(m) : "0"(-1)); /* ASM_BARRIER: keep -1 inside branch */
-            *t3 = m;
-        } else {
-            u = *t0;
-            a1[3] = (a2 / 2) + (a2 < 4);
-            *(unsigned short *)a1 = u;
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 9; j++) {
+            if (j == 8) {
+                CourseChoiceTable[i][j].glyph = -1;
+            } else {
+                CourseChoiceTable[i][j].glyph = D_8009EA80[j];
+                CourseChoiceTable[i][j].first = (j / 2) + (j < 4);
+            }
         }
-        t0++;
-        a2++;
-        a3 += 4;
-        if (a2 < 9) goto loop;
-        t2 += 0x24;
-        t4++;
-        t1 += 0x24;
-    } while (t4 < 4);
+    }
 }
 
 void BackupSaveData(void) {

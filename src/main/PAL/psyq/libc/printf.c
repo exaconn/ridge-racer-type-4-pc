@@ -117,21 +117,13 @@ s32 PsyqSprintf(s8 *dst, const s8 *fmt, ...) {
             }
             if (c == '.') {
                 register const s8 *f asm("$4"); /* ASM_BARRIER: pin fmt reload to a0 */
-                register const s8 *f1 asm("$2"); /* ASM_BARRIER: pin fmt+1 to v0 */
                 f = fmt;
-                f1 = f + 1;
-                fmt = f1;
+                fmt = f + 1;
                 c = f[1];
                 if (c == '*') {
-                    register s32 *a asm("$2"); /* ASM_BARRIER: pin ap reload to v0 */
-                    s32 pr;
-                    a = ap;
-                    pr = *a;
-                    a++;
-                    ap = a;
-                    f1 = f + 2;
+                    s32 pr = *ap++;
                     st.prec = pr;
-                    fmt = f1;
+                    fmt = f + 2;
                     c = f[2];
                 } else {
                     u32 d;

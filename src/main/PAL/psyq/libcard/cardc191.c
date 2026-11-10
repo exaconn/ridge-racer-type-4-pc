@@ -6,131 +6,94 @@
 s32 _cardGetIdBegin(s32 request, u32 *first, u32 *second);
 
 s32 _cardSectorTx(void) {
-    register s32 result;
-    /* ASM_BARRIER: Keep the folding accumulator separate from the returned byte. */
-    register s32 checksum __asm__("$3");
+    s32 result;
     if(CardRetriesLeft) {
         switch(CardTxCount) {
-        case 2: result=0x52;goto done;
-        case 5: goto high;
-        case 6: goto low;
-        default: result=0;goto done;
+        case 2: return 0x52;
+        case 5: return ((u8 *)&CardCmdSector)[1];
+        case 6: return *(u8 *)&CardCmdSector;
+        default: return 0;
         }
     }
     switch(CardTxCount) {
-    case 2: CardChecksum=0;result=0x57;goto done;
-    case 5:
-high: result=((u8 *)&CardCmdSector)[1];goto done;
-    case 6:
-low: result=*(u8 *)&CardCmdSector;goto done;
-    case 133: result=CardCmdParam.value;checksum=CardChecksum^result;goto fold;
-    case 134: result=CardChecksum;goto done;
-    case 135: result=((CardCmdSector>>8)^CardCmdSector)&255;goto done;
+    case 2: CardChecksum=0; return 0x57;
+    case 5: return ((u8 *)&CardCmdSector)[1];
+    case 6: return *(u8 *)&CardCmdSector;
+    case 133: result=CardCmdParam.value; CardChecksum^=result; return result;
+    case 134: return CardChecksum;
+    case 135: return ((CardCmdSector>>8)^CardCmdSector)&255;
     default:
-        if(CardTxCount<7) {result=0;goto done;}
-        if(CardTxCount>=133) {result=0;goto done;}
-        {
-            s32 phase=CardTxCount;
-            checksum=CardChecksum;
-            result=CardRxTrace[phase+3];
-            checksum^=result;
-        }
-fold:
-        CardChecksum=checksum;
+        if(CardTxCount<7) return 0;
+        if(CardTxCount>=133) return 0;
+        result=CardRxTrace[CardTxCount+3];
+        CardChecksum^=result;
+        return result;
     }
-done:
-    return result;
 }
 
 s32 _cardSectorRx(s32 input) {
-    register s32 original=input;
-    /* ASM_BARRIER: Retain the original byte argument and final-marker mask register. */
-    register s32 value __asm__("$4");
-    /* ASM_BARRIER: Keep error values and shared checksum folding in the ABI result register. */
-    register s32 result __asm__("$2");
-    /* ASM_BARRIER: Capture the full input before loading the retry flag. */
-    __asm__("" : "+r"(original) : : "$2");
-    value=original;
-    if(CardRetriesLeft) {
-        switch(CardRxCount) {
-        case 2: {
-            /* ASM_BARRIER: Preserve the original byte comparison temporary and branch delay. */
-            register u32 byte __asm__("$3")=value&255;
-            if(byte==8) {
-                CardRetriesLeft=0;
-                byte=1;
-                CardBytesRemaining=byte;
-                result=0;goto done;
+    s32 original = input;
+    u8 value;
+    value = original;
+    if (CardRetriesLeft) {
+        switch (CardRxCount) {
+        case 2:
+            if (value == 8) {
+                CardRetriesLeft = 0;
+                CardBytesRemaining = 1;
+                return 0;
             }
-            CardBytesRemaining=138;
-            result=0;goto done;
-        }
-        case 3:goto handshake;
-        case 8: {
-            /* ASM_BARRIER: Preserve the original byte comparison temporary and branch delay. */
-            register u32 byte __asm__("$3")=value&255;
-            if(byte!=0x5D){result=-8;goto done;}
-            CardSectorRxChecksum=0;result=0;goto done;
-        }
+            CardBytesRemaining = 138;
+            return 0;
+        case 3:
+            goto handshake;
+        case 8:
+            if (value != 0x5D) return -8;
+            CardSectorRxChecksum = 0;
+            return 0;
         case 9:
-            if((result=value&255)!=((u8 *)&CardCmdSector)[1]){result=-9;goto done;}
+            if (value != ((u8 *)&CardCmdSector)[1]) return -9;
             goto fold_original;
         case 10:
-            if((result=value&255)!=*(u8 *)&CardCmdSector){result=-10;goto done;}
+            if (value != *(u8 *)&CardCmdSector) return -10;
 fold_original:
-            result=CardSectorRxChecksum;
-            result^=original;
-            CardSectorRxChecksum=result;result=0;goto done;
+            CardSectorRxChecksum ^= original;
+            goto success;
         case 139:
-            if((result=value&255)==CardSectorRxChecksum)goto success;
-            result=-139;goto done;
+            if (value == CardSectorRxChecksum) goto success;
+            return -139;
         case 140:
-            if((value&255)!=0x47){result=-140;goto done;}
+            if (value != 0x47) return -140;
+            /* fallthrough */
         default:
-            if(CardRxCount-11U<128)CardSectorRxChecksum^=value;
-            result=0;goto done;
+            if (CardRxCount - 11U < 128) CardSectorRxChecksum ^= value;
+            return 0;
         }
     } else {
-        switch(CardRxCount) {
-        case 2: {
-            /* ASM_BARRIER: Preserve the original byte comparison temporary and branch delay. */
-            register u32 byte __asm__("$3")=value&255;
-            if(byte==8) {
-                CardBytesRemaining=1;
-                result=0;goto done;
+        switch (CardRxCount) {
+        case 2:
+            if (value == 8) {
+                CardBytesRemaining = 1;
+                return 0;
             }
-            CardBytesRemaining=136;
-            result=0;goto done;
-        }
+            CardBytesRemaining = 136;
+            return 0;
         case 3:
 handshake:
-            {
-                /* ASM_BARRIER: Preserve the original byte comparison temporary and branch delay. */
-            register u32 byte __asm__("$3")=value&255;
-                if(byte!=0x5A) {result=-3;goto done;}
-                goto success;
-            }
-        case 137: {
-            /* ASM_BARRIER: Preserve the original byte comparison temporary and branch delay. */
-            register u32 byte __asm__("$3")=value&255;
-            if(byte!=0x5D) {result=-137;goto done;}
+            if (value != 0x5A) return -3;
             goto success;
-        }
-        case 138: {
-            /* ASM_BARRIER: Keep the final marker separate from the masked argument. */
-            register s32 magic __asm__("$3");
-            value&=255;
-            magic=0x47;
-            if(value!=magic) {result=-138;goto done;}
+        case 137:
+            if (value != 0x5D) return -137;
             goto success;
-        }
-        default:result=0;goto done;
+        default:
+            return 0;
+        case 138:
+            if (value != 0x47) return -138;
+            break;
         }
     }
 success:
-    result=0;
-done:
-    return result;
+    return 0;
 }
 
 s32 _cardGetIdBegin(s32 request, u32 *first, u32 *second) {

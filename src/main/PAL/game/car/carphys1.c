@@ -7,7 +7,7 @@ void UpdateCarHeading(RaceVehicle *a0) {
     VehicleHandlingPrefix *s1;
     RaceVehicleControl *s2;
     int v1, a1, d;
-    register int v asm("$2"); /* ASM_BARRIER: pin v to $2 */
+    int v;
     int t;
     s2 = &a0->control;
     s1 = s2->handling1C;
@@ -39,7 +39,8 @@ void UpdateCarHeading(RaceVehicle *a0) {
             if (v < 0) v = -v;
             v >>= 2;
         }
-        d = v / (t + 1) + 4;
+        t++;
+        d = v / t + 4;
     } else {
         d = s2->laneTarget3C + 4;
         t = s1->headingDamping1C;

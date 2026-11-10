@@ -7,12 +7,6 @@
 #include "psyq/libsnd/ssatr2.h"
 #include "game/data/globals.h"
 
-typedef struct {
-    u8 pad00[2];
-    u8 unk02;
-    u8 unk03;
-    u8 pad04[0x20 - 4];
-} SpuTone20;
 
 s32 _SsVmSetProgVol(s16 bank, s16 program, s32 value);
 s32 _SsVmGetProgVol(s16 bank, s16 program);
@@ -22,24 +16,24 @@ s16 _SsVmSetSeqVol(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in);
 
 s32 _SsVmSetProgVol(s16 bank, s16 program, s32 value) {
     if(_SsVmVSetUp(bank, program)!=0)return -1;
-    _svm_pg[program].value01=value;
-    return _svm_pg[program].value01;
+    _svm_pg[program][VAB_PROGRAM_VOLUME]=value;
+    return _svm_pg[program][VAB_PROGRAM_VOLUME];
 }
 
 s32 _SsVmGetProgVol(s16 bank, s16 program) {
     if(_SsVmVSetUp(bank, program)!=0)return -1;
-    return _svm_pg[program].value01;
+    return _svm_pg[program][VAB_PROGRAM_VOLUME];
 }
 
 s32 _SsVmSetProgPan(s16 bank, s16 program, s32 value) {
     if(_SsVmVSetUp(bank, program)!=0)return -1;
-    _svm_pg[program].value04=value;
-    return _svm_pg[program].value04;
+    _svm_pg[program][VAB_PROGRAM_PAN]=value;
+    return _svm_pg[program][VAB_PROGRAM_PAN];
 }
 
 s32 _SsVmGetProgPan(s16 bank, s16 program) {
     if(_SsVmVSetUp(bank, program)!=0)return -1;
-    return _svm_pg[program].value04;
+    return _svm_pg[program][VAB_PROGRAM_PAN];
 }
 
 s16 _SsVmSetSeqVol(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in) {
@@ -55,30 +49,30 @@ s16 _SsVmSetSeqVol(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in) {
     u16 right;
     u16 left;
     u8 pan;
-    SpuTone20 *tone_ptr;
+    s32 toneIndex;
     ChannelValueRecordB0 *ptr;
 
     ptr = &_ss_score[a0 & 0xFF][(a0 & 0xFF00) >> 8];
-    ptr->value58 = a1;
-    ptr->value5A = a2;
-    if (ptr->value58 >= 0x7F) {
-        ptr->value58 = 0x7F;
+    ptr->h58[0] = a1;
+    ptr->h58[1] = a2;
+    if (ptr->h58[0] >= 0x7F) {
+        ptr->h58[0] = 0x7F;
     }
-    if (ptr->value5A >= 0x7F) {
-        ptr->value5A = 0x7F;
+    if (ptr->h58[1] >= 0x7F) {
+        ptr->h58[1] = 0x7F;
     }
     for (i = 0; i < spuVmMaxVoice; i++) {
         if (!(_snd_vmask & (1 << i))) {
-            if (_svm_voice[i].match10 == a0 && _svm_voice[i].match18 == ptr->unk26) {
+            if (_svm_voice[i].match10 == a0 && _svm_voice[i].match18 == ptr->b26) {
                 _SsVmVSetUp(_svm_voice[i].match18, _svm_voice[i].unk12);
-                v = (_svm_voice[i].unk08 * ptr->unk60[_svm_voice[i].unk0C]) / 0x7F;
+                v = (_svm_voice[i].unk08 * ptr->h60[_svm_voice[i].unk0C]) / 0x7F;
                 w = v * 0x3FFF;
                 vl = (_svm_vh[0x18] * w) / 0x3F01;
-                tone_ptr = (SpuTone20 *)(((_svm_voice[i].unk12 << 4) + _svm_voice[i].unk16) * 32 + (s32)_svm_tn);
-                vr = (vl * _svm_pg[_svm_voice[i].match14].value01 * tone_ptr->unk02) / 0x3F01;
-                vl = (vr * ptr->value58) / 0x7F;
-                vr = (vr * ptr->value5A) / 0x7F;
-                pan = tone_ptr->unk03;
+                toneIndex = _svm_voice[i].unk12 * 16 + _svm_voice[i].unk16;
+                vr = (vl * _svm_pg[_svm_voice[i].match14][VAB_PROGRAM_VOLUME] * _svm_tn[toneIndex][VAB_TONE_VOLUME]) / 0x3F01;
+                vl = (vr * ptr->h58[0]) / 0x7F;
+                vr = (vr * ptr->h58[1]) / 0x7F;
+                pan = _svm_tn[toneIndex][VAB_TONE_PAN];
                 if (pan < 0x40) {
                     vr = (vr * pan) / 0x3F;
                 } else {
@@ -86,7 +80,7 @@ s16 _SsVmSetSeqVol(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in) {
                 }
                 right = vr;
                 left = vl;
-                pan = _svm_pg[_svm_voice[i].match14].value04;
+                pan = _svm_pg[_svm_voice[i].match14][VAB_PROGRAM_PAN];
                 if (pan < 0x40) {
                     right = (right * pan) / 0x3F;
                 } else {

@@ -7,7 +7,7 @@
 
 /* Anchors originate in the complete timer object. Signed native-width
  * offset differences keep every scalar access within that object. */
-#define FIELD(p,type,member) (*(type *)((p)+(RR_FIELD_OFFSET(SpuTickState20,member)-RR_FIELD_OFFSET(SpuTickState20,flags))))
+#define FIELD(p,type,member) (*(type *)((p)+RR_FIELD_OFFSET(SpuTickState20,member)-RR_FIELD_OFFSET(SpuTickState20,flags)))
 #define FLAG(p,member) (*(s8 *)((p)+RR_FIELD_OFFSET(SpuTickFlags4,member)))
 
 extern void (*D_800A4D44[])();
@@ -27,7 +27,7 @@ void _SsStart(s32 direct)
 {
     s32 wait=999;
     u32 counter;
-    s32 period;
+    u16 period;
     SpuTickCallback callback;
     s32 interrupt;
     u8 *setup;
@@ -51,17 +51,18 @@ void _SsStart(s32 direct)
     case 3:period=0x89D0;break;
     default:
         {
-        register u8 *active=(u8 *)&_snd_seq_tick_env+RR_FIELD_OFFSET(SpuTickState20,active);
+        u8 *active=(u8 *)&_snd_seq_tick_env+RR_FIELD_OFFSET(SpuTickState20,active);
         if(*(s32 *)active!=0) return;
         {
-            register s32 frequency=((s32 *)active)[-1];
-            register u8 *parent=active-4;
+            s32 frequency=((s32 *)active)[-1];
+            u8 *parent=active-4;
             if(frequency<70) {
-                register s32 quotient=0x204CC0/frequency;
+                s32 quotient=0x204CC0/frequency;
                 parent[RR_FIELD_OFFSET(SpuTickState20,flags)+1]++;
-                /* ASM_BARRIER: Publish the divided flag before assigning the period. */
                 period=quotient;
-            } else { register s32 quotient __asm__("$2")=0x409980/frequency;  period=quotient; }
+            } else {
+                period=0x409980/frequency;
+            }
         }
         }
     }
@@ -72,7 +73,7 @@ void _SsStart(s32 direct)
     } else {
         EnterCriticalSection();
         ResetRCnt(counter);
-        SetRCnt(counter,(u16)period,0x1000);
+        SetRCnt(counter,period,0x1000);
         interrupt=FLAG(state,interrupt);
         if(interrupt==0) {
             interrupt=0;

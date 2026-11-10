@@ -55,19 +55,15 @@ void trapIntrDMA(void) {
 LibInterruptCallback setIntrDMA(s32 channel,LibInterruptCallback callback) {
     s32 i=channel;
     LibInterruptCallback *entry=InterruptCallbackTable;
-    /* ASM_BARRIER: Retain the previous callback for the common return. */
-    register LibInterruptCallback old __asm__("$7");
+    LibInterruptCallback old;
     LibInterruptCallback value;
     /* ASM_BARRIER: Keep the device word base in the consumed argument register. */
     register volatile u32 *control __asm__("$5");
-    LibInterruptCallback result;
     entry=(LibInterruptCallback *)((unsigned long)entry+i*sizeof(*entry));
     old=*entry;
     value=callback;
-    result=old;
     if(value!=old) {
-        u32 mask;
-        mask=0xFF0000;
+        u32 mask=0xFF0000;
         if(value) {
             u32 word,bit;
             s32 shift;
@@ -91,9 +87,8 @@ LibInterruptCallback setIntrDMA(s32 channel,LibInterruptCallback callback) {
             word|=0x800000;
             *control=word&~(1U<<shift);
         }
-        result=old;
     }
-    return result;
+    return old;
 }
 
 void DMA_memclr(LibInterruptCallback *callbacks, s32 count) {

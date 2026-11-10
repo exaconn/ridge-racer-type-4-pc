@@ -15,38 +15,40 @@ void mem2mem(int *d, int *s, unsigned n) {
 
 void dma_execute(s32 ch, s32 madr, s32 bcr_hi, s32 bcr_lo, s32 chcr, u8 flag_in) {
     volatile s32 dummy;
-    s32 i = 0;
+    s32 i;
     /* ASM_BARRIER: pin p to a1 */
     register volatile s32 *p __asm__("$5");
     s32 cond;
     /* ASM_BARRIER: pin bit24 to v1 */
-    register s32 bit24 __asm__("$3") = 0x01000000;
+    register s32 bit24 __asm__("$3");
     s32 flag = flag_in;
+    s32 shift;
 
+    i = 0;
     p = (void *)(ch << 4);
+    bit24 = 0x01000000;
     if ((cond = p[0x1F801088 / 4] & bit24)) {
+        shift = 0x10000;
         do {
-            if (i == 0x10000) {
+            if (i == shift) {
                 DebugPrintStub(DmaStatusErrorFmt, p[0x1F801088 / 4]);
                 goto after_loop;
             }
             i++;
         } while ((cond = p[0x1F801088 / 4] & bit24));
-        {
-            s32 dead_a2;
-        }
     }
 after_loop:
     {
         s32 mask = 1;
-        /* ASM_BARRIER: pin dicr to v1 */
-        register u8 *dicr __asm__("$3");
+        u8 *dicr;
         if (flag == mask) {
             dicr = (u8 *)DICR;
-            mask = dicr[2] | (mask << ch);
+            i = dicr[2];
+            mask = i | (mask << ch);
         } else {
             dicr = (u8 *)DICR;
-            mask = dicr[2] & ~(mask << ch);
+            i = dicr[2];
+            mask = i & ~(mask << ch);
         }
         dicr[2] = mask;
     }
@@ -54,29 +56,24 @@ after_loop:
     /* ASM_BARRIER: prevent scheduling across dummy store */
     __asm__ volatile("" : : : "memory");
     {
-        /* ASM_BARRIER: pin shift to a2 */
-        register s32 shift __asm__("$6") = ch << 2;
-        /* ASM_BARRIER: pin mask3 to v1 */
-        register s32 mask3 __asm__("$3");
-        /* ASM_BARRIER: pin bcr to v0 */
-        register s32 bcr __asm__("$2");
-        /* ASM_BARRIER: pin d88 to a0 */
-        register s32 *d88 __asm__("$4");
-        /* ASM_BARRIER: prevent combining sll and addiu into ori */
-        __asm__ volatile("" : "=r"(shift) : "0"(shift));
+        s32 bcr;
+        s32 *d88;
+        shift = ch << 2;
         shift += 3;
-        mask3 = 1;
-        mask3 <<= shift;
+        bit24 = 1;
+        bit24 <<= shift;
         p = (void *)0x1F801080;
         bcr = ch << 4;
         p = (void *)(bcr + (s32)p);
         /* ASM_BARRIER: prevent constant folding of p + 1 */
-        __asm__ volatile("" : "=r"(p), "=r"(mask3) : "0"(p), "1"(mask3));
-        d88 = D_800A6888;
+        __asm__ volatile("" : "=r"(p), "=r"(bit24) : "0"(p), "1"(bit24));
+        d88 = (s32 *)D_800A6888;
         /* ASM_BARRIER: allocate madr to s2 before bcr_hi/bcr_lo to s3/s4 */
         __asm__ volatile("" : : "r"(madr));
         bcr = (bcr_hi << 16) | bcr_lo;
-        *d88 |= mask3;
+        shift = *d88;
+        shift |= bit24;
+        *d88 = shift;
         *p = madr;
         p++;
         *p = bcr;

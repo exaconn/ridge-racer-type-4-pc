@@ -1,7 +1,5 @@
 #include "rr/overlay662_rotate.h"
 void ovl662_func_8011ED20(s32 arg0) {
-    GarageSelectionPrefix *selection;
-    s32 mode;
     u32 *destination;
     s32 var_t2;
     s32 var_t4;
@@ -10,7 +8,6 @@ void ovl662_func_8011ED20(s32 arg0) {
     u32 *var_t8;
     s32 var_v0;
     s32 last;
-    register s32 var_v1 __asm__("$3");
     u32 temp_a0;
     u32 temp_a1;
     u32 temp_a2;
@@ -21,37 +18,32 @@ void ovl662_func_8011ED20(s32 arg0) {
     u32 temp_v1;
     u32 *temp_t3;
 
-    var_v1 = arg0;
-    if (var_v1 < 0) {
+    if (arg0 < 0) {
         ovl662_D_801276A8.optionIndices98.flat[0] = 1;
         ovl662_D_801276A8.optionIndices98.flat[3] = 0;
         return;
     }
-    if (var_v1 > 0) {
-        switch (var_v1) {
+    if (arg0 > 0) {
+        switch (arg0) {
         case 1:
             ovl662_D_801276A8.optionIndices98.flat[0] = 0;
             ovl662_D_801276A8.selectorsB8[3] = 0;
             ovl662_func_8011E5C0(0);
             return;
         case 2:
-            ovl662_D_801276A8.optionIndices98.flat[0] = var_v1;
-            ovl662_D_801276A8.selectorsB8[3] = var_v1;
+            ovl662_D_801276A8.optionIndices98.flat[0] = 2;
+            ovl662_D_801276A8.selectorsB8[3] = 2;
             ovl662_func_8011E5C0(0);
             return;
         case 4:
-            mode = 1;
-            selection = &ovl662_D_801276A8;
-            selection->selectorsB8[1] = var_v1;
-            goto keyCommon;
+            ovl662_D_801276A8.selectorsB8[1] = 4;
+            ovl662_D_801276A8.selectorsB8[2] = 4;
+            ovl662_func_8011E5C0(1);
+            return;
         case 8:
-            mode = 1;
-            selection = &ovl662_D_801276A8;
-            var_v1 = mode;
-            selection->optionIndices98.flat[3] = var_v1;
-        keyCommon:
-            selection->selectorsB8[2] = var_v1;
-            ovl662_func_8011E5C0(mode);
+            ovl662_D_801276A8.optionIndices98.flat[3] = 1;
+            ovl662_D_801276A8.selectorsB8[2] = 1;
+            ovl662_func_8011E5C0(1);
             return;
         default:
             return;

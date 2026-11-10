@@ -53,15 +53,13 @@ s32 DrawUiRow(s32 arg0) {
     s32 s2;
     /* ASM_BARRIER: Keep s3 in $s3 while s3_init has single assignment in prologue */
     register void *s3 asm("$19");
-    /* ASM_BARRIER: Use $0 register operand so reload_cse_regs does not replace 0 with $fp */
-    register s32 zero asm("$0");
     void *s3_init;
     s32 s4;
     s32 s5_1;
     s32 s5_2;
     s32 s6;
     s32 s7;
-    s32 fp;
+    u16 fp;
     u32 a0_byte;
     u32 *a0_arg;
     UiUvRect *glyph;
@@ -69,7 +67,7 @@ s32 DrawUiRow(s32 arg0) {
     fp = 0;
     s3_init = ((GpuScratchPointers *)SCRATCHPAD)->cursor;
     sp38 = UiRows[arg0].half04;
-    s2 = zero;
+    s2 = 0;
     sp30 = UiRows[arg0].byte14;
     s4 = sp38;
     a0_byte = UiRows[arg0].reserved00;
@@ -338,7 +336,7 @@ void DrawUiBox(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6)
     ((GpuScratchPointers *)SCRATCHPAD)->cursor = AddTilePrim(&CurrentDrawBuf->buffer.ordering70.words[0], g, a0, a1, x[0], y[0], a4, a5, a6);
 }
 
-int AllocImageRows(int a) {
+int AllocImageRows(void *a) {
     int sz = ImageRowCount * 28;
     ImageRows = (ImageRow20 *)a;
     PsyqBzero(a, sz);

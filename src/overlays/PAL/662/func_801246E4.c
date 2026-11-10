@@ -34,6 +34,7 @@ void ovl662_func_801246E4(void) {
         return;
     }
     {
+        /* ASM_BARRIER: reload cursor and reset globals at the common drag join */
         __asm__("" : : "m"(ovl662_D_801276A8),"m"(ovl662_D_80127668));
         offsetX=ovl662_D_80127290[0]+0xED;
         

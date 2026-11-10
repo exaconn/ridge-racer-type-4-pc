@@ -43,9 +43,9 @@ s32 EvalRateCurve(const Curve24 *curve, s32 time, s32 *output)
     return 0;
 }
 
-int AlignUp4(int a) {
-    int v = a;
-    int r = v & 3;
+unsigned long AlignUp4(unsigned long a) {
+    unsigned long v = a;
+    unsigned long r = v & 3;
     if (r != 0) {
         v += 4 - r;
     }

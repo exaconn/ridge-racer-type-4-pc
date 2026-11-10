@@ -10,8 +10,7 @@ class GarageSpriteTest(unittest.TestCase):
         root=Path(__file__).resolve().parents[2]
         body=(root/'src/overlays/PAL/662/func_8011B2D4.c').read_text()
         hint='    __asm__("" ::: "memory");\n'
-        self.assertEqual(body.count(hint),1)
-        body=body.replace(hint,'') # Only an empty compiler scheduling constraint.
+        self.assertEqual(body.count(hint),0) # The emitter no longer needs scheduling metadata.
         blob=(root/'disc/PAL/R4.BIN').read_bytes()
         sector=struct.unpack_from('<I',blob,4+662*4)[0]
         address=sector*2048+0x80126260-0x80114878

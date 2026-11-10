@@ -22,7 +22,6 @@ extern unsigned int ModeFrame;
 extern unsigned short SubmodeState;
 extern S4D8 SelectionState;
 extern RaceVehicle PlayerCars[2];
-extern int SavedLoadCursor;
 extern unsigned char D_8009F070[];
 extern int D_800F3A60;
 extern unsigned short FadeCountdown;

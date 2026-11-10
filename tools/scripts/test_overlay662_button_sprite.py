@@ -20,8 +20,7 @@ class Overlay662ButtonSpriteTest(unittest.TestCase):
         sprite_data='static const GarageSpriteRecord original_sprites[72]={\n'+',\n'.join('{'+','.join(map(str,r))+'}' for r in sprites)+'\n};\n'
         child=(root/'src/overlays/PAL/662/func_8011B2D4.c').read_text()
         hint='    __asm__("" ::: "memory");\n'
-        self.assertEqual(child.count(hint),1)
-        child=child.replace(hint,'') # Only the existing empty scheduling metadata.
+        self.assertEqual(child.count(hint),0) # The emitter no longer needs scheduling metadata.
         body=(root/'src/overlays/PAL/662/func_8011B940.c').read_text()
         source=r'''
 #include <assert.h>

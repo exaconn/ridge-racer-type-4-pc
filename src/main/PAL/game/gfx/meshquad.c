@@ -65,10 +65,8 @@ MeshQuadGT4 *DrawMeshQuadGT4(MeshQuadGT4 *p, s32 *s) {
     u8 *verts = (u8 *)s[0];
     s32 n = s[1];
     s32 nv;
-    /* ASM_BARRIER: Keep paired packet word copies in $v1/$a0 around GTE pipeline gaps. */
-    register s32 x __asm__("$3");
-    /* ASM_BARRIER: Keep second word of paired packet copy in $a0. */
-    register s32 y __asm__("$4");
+    s32 x;
+    s32 y;
     PolyGT4WordPacket *t1 = out;
     if (n-- > 0) {
         s32 c3c = 0x3C;
@@ -90,20 +88,19 @@ MeshQuadGT4 *DrawMeshQuadGT4(MeshQuadGT4 *p, s32 *s) {
             RR_GTE14_SWC2_SXYZ(s + 2);
             if (s[6] > 0) {
                 u8 *v3 = verts + (p->v3 << 3);
-                s32 x2, y2;
                 RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, v3);
                 x = s[2]; y = s[3];
                 RTPS();
                 t1->xy0 = x;
                 t1->xy1 = y;
                 RR_GTE_SWC2_AT(14, 0, s + 5);
-                x2 = s[4]; y2 = s[5];
+                x = s[4]; y = s[5];
                 AVSZ4();
                 RR_GTE14_SWC2_OTZ(s + 8);
                 s[8] = s[8] >> sh;
                 if (s[8] < 0x1C1) {
-                    t1->xy2 = x2;
-                    t1->xy3 = y2;
+                    t1->xy2 = x;
+                    t1->xy3 = y;
                     {
                         x = p->uvClut18; y = p->uvTpage1C;
                         t1->uvClut0C = x;
@@ -145,10 +142,8 @@ MeshQuadG4 *DrawMeshQuadG4(MeshQuadG4 *p, s32 *s) {
     u8 *verts = (u8 *)s[0];
     s32 n = s[1];
     s32 nv;
-    /* ASM_BARRIER: Keep paired packet word copies in $v1/$a0 around GTE pipeline gaps. */
-    register s32 x __asm__("$3");
-    /* ASM_BARRIER: Keep second word of paired packet copy in $a0. */
-    register s32 y __asm__("$4");
+    s32 x;
+    s32 y;
     PolyG4WordPacket *t1 = out;
     if (n-- > 0) {
         s32 c3c = 0x38;
@@ -170,20 +165,19 @@ MeshQuadG4 *DrawMeshQuadG4(MeshQuadG4 *p, s32 *s) {
             RR_GTE14_SWC2_SXYZ(s + 2);
             if (s[6] > 0) {
                 u8 *v3 = verts + (p->v3 << 3);
-                s32 x2, y2;
                 RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, v3);
                 x = s[2]; y = s[3];
                 RTPS();
                 t1->xy0 = x;
                 t1->xy1 = y;
                 RR_GTE_SWC2_AT(14, 0, s + 5);
-                x2 = s[4]; y2 = s[5];
+                x = s[4]; y = s[5];
                 AVSZ4();
                 RR_GTE14_SWC2_OTZ(s + 8);
                 s[8] = s[8] >> sh;
                 if (s[8] < 0x1C1) {
-                    t1->xy2 = x2;
-                    t1->xy3 = y2;
+                    t1->xy2 = x;
+                    t1->xy3 = y;
                     {
                         x = p->color10; y = p->color14;
                         t1->color14 = x;

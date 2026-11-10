@@ -3,6 +3,7 @@
 
 #include "rr/layout.h"
 #include "rr/spu.h"
+#include "rr/sequence_channel.h"
 
 /* Partial library layouts. Names describe observed sizes, not identified SDK types.
  * Keep the byte-only and halfword views separate: their alignment differs. */
@@ -17,37 +18,7 @@ typedef struct {
     char b[36];
 } LibBlock24;
 
-typedef struct {
-    u8 *c0;
-    s32 c4;
-    u8 *c8; /* Saved loop cursor, restored by controller 30. */
-    s32 cC;
-    u8 *p10; /* Stream marker checked before repeat/reset dispatch. */
-    u8 b14, b15, b16;
-    u8 b17, b18, b19, b1a, b1b, b1c, b1d, b1e, b1f;
-    /* b20 is compared as signed; b21 increments modulo 256. */
-    s8 b20;
-    u8 b21;
-    s8 b22[2];
-    char p24[2];
-    s8 b26;
-    u8 b27[0x10];
-    u8 b37[0x10];
-    char p47[1];
-    s16 h48[8];
-    u16 h58[4];
-    u16 h60[0x10];
-    s16 h80;
-    char p82[6];
-    s32 w88;
-    s32 w8c;
-    s32 w90;
-    s32 w94;
-    s32 w98;
-    s32 w9c;
-    s32 wa0, wa4, wa8, wac;
-    char pb0[0];
-} LibStateB0;
+
 
 typedef struct {
     u32 value;
@@ -263,18 +234,6 @@ RR_ASSERT_SIZE(LibBlock24Fields, 0x24);
 RR_ASSERT_OFFSET(LibBlock24Fields, h10, 0x10);
 RR_ASSERT_OFFSET(LibBlock24Fields, h12, 0x12);
 RR_ASSERT_SIZE(LibBlock24, 0x24);
-#if defined(mips)
-RR_ASSERT_SIZE(LibStateB0, 0xb0);
-RR_ASSERT_OFFSET(LibStateB0, c8, 8);
-RR_ASSERT_OFFSET(LibStateB0, p10, 0x10);
-RR_ASSERT_OFFSET(LibStateB0, b20, 0x20);
-RR_ASSERT_OFFSET(LibStateB0, b21, 0x21);
-RR_ASSERT_OFFSET(LibStateB0, h48, 0x48);
-RR_ASSERT_OFFSET(LibStateB0, w88, 0x88);
-RR_ASSERT_OFFSET(LibStateB0, w94, 0x94);
-RR_ASSERT_OFFSET(LibStateB0, w98, 0x98);
-RR_ASSERT_OFFSET(LibStateB0, wac, 0xac);
-#endif
 
 s32 SsUtSetReverbType(s32 value);
 

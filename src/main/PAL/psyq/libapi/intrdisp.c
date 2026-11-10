@@ -1,5 +1,5 @@
 /* MASPSX_FLAGS: --assembler-profile=gnu */
-/* CC1_FLAGS: -mno-split-addresses */
+/* GCC_VERSION: 970318 */
 #include "rr_asm.h"
 #include "rr/interrupt_dispatch.h"
 #include "rr/library.h"
@@ -18,30 +18,32 @@ LibSavedState *restartIntr(void);
 void trapIntr(void) {
     LibSavedState *state=&IntrDispatchState;
     LibInterruptCallback *base;
+    /* ASM_BARRIER: keep mask bit constant in $s3 across callback calls */
     register u32 one __asm__("$19");
     LibInterruptCallback *callbacks;
     u32 pending;
     u32 next;
+    /* ASM_BARRIER: share $s1 between initial state pointer and loop index */
     register s32 index __asm__("$17");
+    volatile u16 *status;
     if(state->active==0) {
         DebugPrintStub(UnexpectedInterruptFmt,*I_STAT);
         ReturnFromException();
     }
     {
-        register volatile u16 *status __asm__("$4")=I_STAT;
-        u32 enabled=state->enabled_mask;
-        u16 *mask;
-        register u32 statusValue __asm__("$4");
-        u32 maskValue;
+        u16 enabled;
+        volatile u16 *mask;
+        u16 statusValue;
+        u16 maskValue;
+        status=I_STAT;
+        enabled=state->enabled_mask;
         state->dispatching02=1;
         mask=I_MASK;
         statusValue=*status;
         maskValue=*mask;
-        /* Preserve the initialized register values through mask composition. */
-        /* ASM_BARRIER: Preserve the requested callback across kernel calls. */
-        __asm__("" : : "r"(enabled),"r"(statusValue));
         enabled&=statusValue;
-        next=maskValue&enabled;
+        maskValue&=enabled;
+        next=maskValue;
         pending=next;
     }
     if(next) {
@@ -66,30 +68,32 @@ again:
             }
 reread:
             {
-                register volatile u16 *status __asm__("$4")=I_STAT;
-                u32 enabled=IntrDispatchState.enabled_mask;
-                volatile u16 *mask=I_MASK;
-                register u32 statusValue __asm__("$4")=*status;
-                register u32 maskValue __asm__("$2")=*mask;
-                /* ASM_BARRIER: Preserve the requested callback across kernel calls. */
-                __asm__("" : : "r"(enabled),"r"(statusValue));
+                u16 enabled;
+                volatile u16 *mask;
+                u16 statusValue;
+                u16 maskValue;
+                status=I_STAT;
+                enabled=IntrDispatchState.enabled_mask;
+                mask=I_MASK;
+                statusValue=*status;
+                maskValue=*mask;
                 enabled&=statusValue;
-                next=maskValue&enabled;
+                maskValue&=enabled;
+                next=maskValue;
             }
             pending=next;
         } while(next);
     }
     {
-        volatile u16 *status=I_STAT, *mask=I_MASK;
-        if(*status & *mask) {
+        volatile u16 *st=I_STAT, *mk=I_MASK;
+        if(*st & *mk) {
             s32 *counter=&IntrStuckCount;
             u32 count=(u32)*counter;
             s32 previous=count;
             count++;
             *counter=count;
             if(previous>=0x801) {
-                /* ASM_BARRIER: Preserve the requested callback across kernel calls. */
-                DebugPrintStub(({const char *format=IntrTimeoutFmt; __asm__("" : "+r"(format));format;}),*status,*mask);
+                DebugPrintStub(IntrTimeoutFmt,*st,*mk);
                 IntrStuckCount=0;
                 RR_IRQ_ACK16(I_STAT,0);
             }

@@ -36,9 +36,9 @@ void SoundReset(int a0, int a1) {
         SoundState.seqHandle2864 = -1;
     }
     for (i = 0; i < 3; i++) {
-        if (SoundState.bank24[a[i]] >= 0) {
-            SsVabClose(SoundState.bank24[a[i]]);
-            SoundState.bank24[a[i]] = -1;
+        if (SoundState.banks24.ids[a[i]] >= 0) {
+            SsVabClose(SoundState.banks24.ids[a[i]]);
+            SoundState.banks24.ids[a[i]] = -1;
         }
     }
     SoundMasterVolumeReset();

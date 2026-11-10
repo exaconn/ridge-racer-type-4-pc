@@ -43,54 +43,30 @@ void IntroModeUpdate(void) {
 void EmitTexturedPanel(s32 index) {
     PolyFT4Packet *p;
     GpuScratchPointers *scratch;
-    u32 *order;
-    /* ASM_BARRIER: retain the DMA address mask through the final link store. */
-    register u32 low __asm__("$7")=0xFFFFFFU;
-    u32 high=0xFF000000U;
-    /* ASM_BARRIER: keep the left coordinate across both UV calculations. */
-    register s32 left __asm__("$6");
-    s32 half,vertical;
-    s32 clut,length;
-    /* ASM_BARRIER: right edge becomes the right texture coordinate after the division. */
-    register s32 right __asm__("$3");
+
     scratch=(GpuScratchPointers*)SCRATCHPAD;
-    length=9;
-    left=32;
-    /* ASM_BARRIER: stage the scratch page and packet constants before capture. */
-    __asm__("" : "+r"(scratch), "+r"(length), "+r"(left));
     p=(PolyFT4Packet*)scratch->cursor;
-    right=288;
-    ((u8*)p)[3]=length;
+    ((GpuDmaTag *)p)->bytes.length=9;
     p->code=0x2D;
+    p->x0=32;
     p->y0=112;
+    p->x1=288;
     p->y1=112;
+    p->x2=32;
     p->y2=368;
+    p->x3=288;
     p->y3=368;
-    /* ASM_BARRIER: finish the vertical stores before signed index division. */
-    __asm__("" : "+r"(index) : : "memory");
-    half=index/2;
-    p->x1=right;
-    p->x3=right;
-    /* ASM_BARRIER: publish the right edge before deriving the remainder. */
-    __asm__("" : "+r"(half) : : "memory");
-    vertical=(u32)(index-half*2)<<7;
-    right=255;
-    p->v0=vertical;
-    p->v1=vertical;
-    vertical+=127;
-    p->tpage=(((s32)((half * 64U)+320)&1023)>>6)|16;
-    clut=0x1BD6;
-    p->v2=vertical;
-    p->v3=vertical;
-    p->x0=left;
-    p->x2=left;
     p->u0=0;
-    p->u1=right;
+    p->v0=(index%2)*128U;
+    p->u1=255;
+    p->v1=(index%2)*128U;
     p->u2=0;
-    p->u3=right;
-    p->clut=clut;
-    *(u32*)p=(*(u32*)p&high)|(scratch->order[1]&low);
-    order=scratch->order;
-    order[1]=(order[1]&high)|((unsigned long)p&low);
+    p->v2=(index%2)*128U+127;
+    p->u3=255;
+    p->v3=(index%2)*128U+127;
+    p->tpage=(((s32)((index/2)*64U+320U)&1023)>>6)|16;
+    p->clut=0x1BD6;
+    ((GpuDmaTag *)p)->bits.address=((GpuDmaTag *)&scratch->order[1])->bits.address;
+    ((GpuDmaTag *)&scratch->order[1])->bits.address=(unsigned long)p;
     scratch->cursor=(u8*)(p+1);
 }

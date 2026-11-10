@@ -16,8 +16,7 @@ class Overlay662PaletteTileTest(unittest.TestCase):
         original='static const GarageSpriteRecord original[72]={\n'+',\n'.join('{'+','.join(map(str,r))+'}' for r in rows)+'\n};\n'
         sprite=(root/'src/overlays/PAL/662/func_8011B2D4.c').read_text()
         hint='    __asm__("" ::: "memory");\n'
-        self.assertEqual(sprite.count(hint),1)
-        sprite=sprite.replace(hint,'') # Existing empty scheduling metadata only.
+        self.assertEqual(sprite.count(hint),0) # The emitter no longer needs scheduling metadata.
         tile=(root/'src/overlays/PAL/662/func_8011B034.c').read_text()
         body=(root/'src/overlays/PAL/662/func_8011BCC0.c').read_text()
         source=r'''

@@ -1,7 +1,7 @@
 """Host specification checks for marking a SPU allocation free.
 
-Only the target register annotations and layout assertions are omitted on the
-host. fd.py verifies those separately against the original MIPS instructions.
+The original model and cases use the public SPU layouts with assertions enabled.
+The existing target-register adapter remains separate reconstruction debt.
 """
 import ctypes as C
 from pathlib import Path
@@ -26,8 +26,7 @@ class FreeAllocationTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         directory = Path(cls.temp.name)
         root = Path(__file__).resolve().parents[2]
-        header = (root / 'include/rr/spu.h').read_text()
-        header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
+        header = '#include "rr/spu.h"\n'
         source = (root / 'tools/scripts/fixtures/views/func_8008A6F4.c').read_text()
         source = source.replace('#include "rr/spu.h"', '''#include <stdint.h>
 typedef uint8_t u8;
@@ -44,7 +43,7 @@ void (*test_consolidate)(void);
 void _spu_gcSPU(void) { test_consolidate(); }
 '''
         (directory / 'function.c').write_text(source)
-        subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
+        subprocess.run(['cc', '-I'+str(Path(__file__).resolve().parents[2]/'include'), '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
                         '-o', str(directory / 'function.so')], check=True, capture_output=True)
         cls.library = C.CDLL(str(directory / 'function.so'))
         cls.function = cls.library.SpuFree

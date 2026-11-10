@@ -427,13 +427,10 @@ SkyQuad177E4 *SkyEmitQuadFT4(SkyQuad177E4 *a0, SkyCtxQuad *a1, int a2) {
             RR_GTE_LWC2_PAIR_AT(0, 0, 1, 4, &a1->v3_0);
             a3 = a0->uv23;
             RR_GTE_CMD_1NOP(0x4A180001);
-            v0 = a3 >> 16;
-            /* ASM_BARRIER: keep sra $v0, $a3, 16 right after rtps and before pkt stores */
-            __asm__ volatile("" : "+r"(v0));
             pkt[3] = v1;
             pkt[5] = t0;
-            pkt[9] = v0;
             pkt[7] = a3;
+            pkt[9] = a3 >> 16;
             v1 = a1->u.w.sxy0;
             t0 = a1->u.w.sxy1;
             a3 = a1->u.w.sxy2;
@@ -636,11 +633,7 @@ SkyLitTri14 *SkyEmitLitTriG3(SkyLitTri14 *a0, SkyLitCtx *a1) {
     verts = a1->verts70;
 
     while (n-- > 0) {
-        RR_GTE_RTPT_LDV(
-            verts + (a0->v0 << 3),
-            verts + (a0->v1 << 3),
-            verts + (a0->v2 << 3)
-        );
+        RR_GTE_LWC2_V012_3P(verts + (a0->v0 << 3), verts + (a0->v1 << 3), verts + (a0->v2 << 3)); RR_GTE_RTPT_NOP2();
         RR_GTE14_NOP2();
         RR_GTE14_NCLIP();
         RR_GTE14_SWC2_MAC0(&a1->mac0EC);
@@ -742,8 +735,6 @@ SkyLitTri14 *SkyEmitLitTriG3(SkyLitTri14 *a0, SkyLitCtx *a1) {
         a0++;
     }
 
-    /* ASM_BARRIER: extend live ranges of n and a0 past loop for register allocation priority */
-    __asm__("" : : "r"(n), "r"(n), "r"(n), "r"(a0), "r"(a0), "r"(a0));
     *(int **)SCRATCHPAD = pkt;
     return a0;
 }
@@ -765,11 +756,7 @@ SkyLitQuad18 *SkyEmitLitTexQuadGT4(SkyLitQuad18 *a0, SkyLitCtx *a1) {
     verts = a1->verts70;
 
     while (n-- > 0) {
-        RR_GTE_RTPT_LDV(
-            verts + (a0->v0 << 3),
-            verts + (a0->v1 << 3),
-            verts + (a0->v2 << 3)
-        );
+        RR_GTE_LWC2_V012_3P(verts + (a0->v0 << 3), verts + (a0->v1 << 3), verts + (a0->v2 << 3)); RR_GTE_RTPT_NOP2();
         RR_GTE14_NOP2();
         RR_GTE14_NCLIP();
         RR_GTE14_SWC2_MAC0(&a1->mac0EC);
@@ -899,8 +886,6 @@ SkyLitQuad18 *SkyEmitLitTexQuadGT4(SkyLitQuad18 *a0, SkyLitCtx *a1) {
         a0++;
     }
 
-    /* ASM_BARRIER: extend live range of n past loop for register allocation priority */
-    __asm__("" : : "r"(n), "r"(n), "r"(n));
     *(int **)SCRATCHPAD = pkt;
     return a0;
 }
@@ -913,11 +898,7 @@ SkyLitQuad18 *SkyEmitLitQuadG4(SkyLitQuad18 *a0, SkyLitCtx *a1) {
     char *verts = a1->verts70;
 
     while (n-- > 0) {
-        RR_GTE_RTPT_LDV(
-            verts + (a0->v0 << 3),
-            verts + (a0->v1 << 3),
-            verts + (a0->v2 << 3)
-        );
+        RR_GTE_LWC2_V012_3P(verts + (a0->v0 << 3), verts + (a0->v1 << 3), verts + (a0->v2 << 3)); RR_GTE_RTPT_NOP2();
         RR_GTE14_NOP2();
         RR_GTE14_NCLIP();
         RR_GTE14_SWC2_MAC0(&a1->mac0EC);
@@ -969,11 +950,7 @@ SkyLitQuad18 *SkyEmitLitQuadG4(SkyLitQuad18 *a0, SkyLitCtx *a1) {
             }
         }
         a0++;
-        /* ASM_BARRIER: boost n ref count in loop so n gets $t3 */
-        __asm__("" : "+r"(n));
     }
-    /* ASM_BARRIER: boost a0 ref count and extend verts live range past loop so a0 gets $t4 and verts gets $t5 */
-    __asm__("" : : "r"(a0), "r"(a0), "r"(a0), "r"(verts));
     *(int **)SCRATCHPAD = pkt;
     return a0;
 }
@@ -987,11 +964,7 @@ SkyLitTexQuad24 *EmitSkyLitGT4(SkyLitTexQuad24 *a0, SkyLitCtx *a1) {
     int z;
 
     while (n-- > 0) {
-        RR_GTE_RTPT_LDV(
-            verts + (a0->v0 << 3),
-            verts + (a0->v1 << 3),
-            verts + (a0->v2 << 3)
-        );
+        RR_GTE_LWC2_V012_3P(verts + (a0->v0 << 3), verts + (a0->v1 << 3), verts + (a0->v2 << 3)); RR_GTE_RTPT_NOP2();
         RR_GTE14_NOP2();
         RR_GTE14_NCLIP();
         RR_GTE14_SWC2_MAC0(&a1->mac0EC);
@@ -1029,21 +1002,31 @@ SkyLitTexQuad24 *EmitSkyLitGT4(SkyLitTexQuad24 *a0, SkyLitCtx *a1) {
                                     a1->verts70 + (a0->n2 << 3)
                                 );
                                 RR_GTE14_NOP2();
-                                RR_GTE14_LIGHT0();
-                                RR_GTE14_LIGHT1();
-                                RR_GTE14_LIGHT2();
+                                RR_GTE_OP(0x4A4A6412);
+                                RR_GTE_SQR12();
+                                RR_GTE_SQR12();
+                                RR_GTE_OP(0x4B38041C);
+                                RR_GTE_OP(0x4A4AE412);
+                                RR_GTE_SQR12();
+                                RR_GTE_SQR12();
+                                RR_GTE_OP(0x4B38041C);
+                                RR_GTE_OP(0x4A4B6412);
+                                RR_GTE_SQR12();
+                                RR_GTE_SQR12();
+                                RR_GTE_OP(0x4B38041C);
                                 RR_GTE_SWC2_RGB012_ENV(pkt);
                                 RR_GTE14_LWC2_V0(a1->verts70 + (a0->n3 << 3));
                                 RR_GTE14_NOP2();
-                                RR_GTE14_LIGHT0();
+                                RR_GTE_OP(0x4A4A6412);
+                                RR_GTE_SQR12();
+                                RR_GTE_SQR12();
+                                RR_GTE_OP(0x4B38041C);
                                 RR_GTE14_SWC2_RGB2(pkt + 10);
                                 pkt[0] = *(int *)((a0->b21 << 2) + ((z << 2) + g[1]) + 0x200);
                                 ((char *)pkt)[3] = 0xC;
                                 *(int *)((a0->b21 << 2) + ((z << 2) + g[1]) + 0x200) = pkt;
                                 pkt += 13;
                                 *(char *)((a0->b21 << 2) + ((z << 2) + g[1]) + 0x203) = 0;
-                                /* ASM_BARRIER: extend z live range to end of block so pkt+3 gets $t0 and z gets $t1 */
-                                __asm__("" : : "r"(z));
                             }
                         }
                     }
@@ -1051,11 +1034,7 @@ SkyLitTexQuad24 *EmitSkyLitGT4(SkyLitTexQuad24 *a0, SkyLitCtx *a1) {
             }
         }
         a0++;
-        /* ASM_BARRIER: boost n ref count in loop so n gets $t3 */
-        __asm__("" : "+r"(n));
     }
-    /* ASM_BARRIER: boost a0 ref count and extend verts live range past loop */
-    __asm__("" : : "r"(a0), "r"(a0), "r"(a0), "r"(verts));
     *(int **)SCRATCHPAD = pkt;
     return a0;
 }
@@ -1068,11 +1047,7 @@ SkyLitTexQuad24 *SkyEmitSpecTexQuadGT4(SkyLitTexQuad24 *a0, SkyLitCtx *a1) {
     char *verts = a1->verts70;
 
     while (n-- > 0) {
-        RR_GTE_RTPT_LDV(
-            verts + (a0->v0 << 3),
-            verts + (a0->v1 << 3),
-            verts + (a0->v2 << 3)
-        );
+        RR_GTE_LWC2_V012_3P(verts + (a0->v0 << 3), verts + (a0->v1 << 3), verts + (a0->v2 << 3)); RR_GTE_RTPT_NOP2();
         RR_GTE14_NOP2();
         RR_GTE14_NCLIP();
         RR_GTE14_SWC2_MAC0(&a1->mac0EC);
@@ -1121,8 +1096,6 @@ SkyLitTexQuad24 *SkyEmitSpecTexQuadGT4(SkyLitTexQuad24 *a0, SkyLitCtx *a1) {
             }
         }
         a0++;
-        /* ASM_BARRIER: weight pkt, n, a0 loop references for register allocation order */
-        __asm__("" : "+r"(n) : "r"(pkt), "r"(a0));
     }
     *(int **)SCRATCHPAD = pkt;
     return a0;

@@ -17,6 +17,7 @@ from unicorn import Uc, UC_ARCH_MIPS, UC_MODE_LITTLE_ENDIAN, UC_MODE_MIPS32
 from c_functions import address_of, definition_source, source_owners
 from mips_preview_engine import signed
 from test_vehicle_initializer import Cpu
+from track_gte_fixture import GTE_TRANSFER_ADAPTERS
 
 ROOT = Path(__file__).resolve().parents[2]
 MESH, BILL, FLASH, VERTICES, WORK = 0x80200010, 0x80210010, 0x80211010, 0x80220010, 0x1F80007C
@@ -291,7 +292,7 @@ def main():
     bodies = [re.sub(r'(?:__asm__|asm)\("\$\d+"\)', '', definition_source(owners[n].read_text(), n)) for n in names]
     with TemporaryDirectory() as directory:
         source, library = Path(directory)/'native.c', Path(directory)/'native.dylib'
-        source.write_text(PREFIX+'\n'.join(bodies)+TAIL.replace('OUTPUT_SIZE', str(OUTPUT)).replace('STATE_SIZE', str(STATE)))
+        source.write_text(PREFIX+GTE_TRANSFER_ADAPTERS+'\n'.join(bodies)+TAIL.replace('OUTPUT_SIZE', str(OUTPUT)).replace('STATE_SIZE', str(STATE)))
         subprocess.run(['cc', '-std=c11', '-O2', '-shared', '-fPIC', '-Wall', '-Wextra', '-Werror',
                         '-fsanitize=undefined,bounds', '-fno-sanitize-recover=all', '-Iinclude', str(source), '-o', str(library)], check=True)
         native = C.CDLL(str(library)); native.run_case.argtypes = [C.c_uint, C.c_uint, C.c_void_p, C.c_void_p, C.c_void_p]

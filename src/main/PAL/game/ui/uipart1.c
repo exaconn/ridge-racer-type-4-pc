@@ -502,27 +502,27 @@ void StepMenuValue(int a0, int a1, char *a2, int a3, int a4) {
         }
         MenuStepDirection = 0;
     }
-    if (0) {
+    goto write_value;
 L:
-        if ((a0 & 2) == 0) {
-            if (s0 < a3) {
-                if (s0 >= a4) {
-                    PlaySfx(0, a);
-                } else {
-                    s0 = a4;
-                }
+    if ((a0 & 2) == 0) {
+        if (s0 < a3) {
+            if (s0 >= a4) {
+                PlaySfx(0, a);
             } else {
-                s0 = a3 - 1;
+                s0 = a4;
             }
         } else {
-            PlaySfx(0, a);
-            if (s0 >= a3) {
-                s0 = a4;
-            } else if (s0 < a4) {
-                s0 = a3 - 1;
-            }
+            s0 = a3 - 1;
+        }
+    } else {
+        PlaySfx(0, a);
+        if (s0 >= a3) {
+            s0 = a4;
+        } else if (s0 < a4) {
+            s0 = a3 - 1;
         }
     }
+write_value:
     switch (a1) {
     case 2: *(short *)a2 = s0; break;
     case 4: *(int *)a2 = s0; break;

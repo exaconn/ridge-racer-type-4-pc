@@ -6,6 +6,7 @@ import struct
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from sequence_fixture_transport import wire_definition, field_only_body, transport, current_body, compile_library
 
 Callback = C.CFUNCTYPE(None, C.c_int32, C.c_int32, C.c_int32, C.c_int32)
 
@@ -17,44 +18,31 @@ class ChannelRowPairUpdateTest(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         root = Path(__file__).resolve().parents[2]
         directory = Path(cls.temp.name)
-        header = (root / 'include/rr/channels.h').read_text()
-        header = re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n', '', header, flags=re.M)
-        source = '''#include <stdint.h>
-#include <string.h>
-typedef uint8_t u8; typedef int8_t s8;
-typedef uint16_t u16; typedef int16_t s16;
-typedef uint32_t u32; typedef int32_t s32;
-''' + header + '''
-ChannelValueRecordB0 test_records[9][17];
-ChannelValueRecordB0 *test_table[0x4100];
+        source = '#include \"rr/sequence_channel.h\"\n' + wire_definition("value") + r'''#include <string.h>
+SequenceWire176 test_records[9][17];
+SequenceWire176 *test_table[0x4100];
+void test_initialize(void){s32 bank;memset(test_records,0xA5,sizeof(test_records));memset(test_table,0,sizeof(test_table));for(bank=-4;bank<=4;bank++)test_table[0x4000-0xF98/4+bank]=&test_records[bank+4][8];}
 void (*test_callback)(s32,s32,s32,s32);
-void _SsVmSetSeqVol(s32 packed,s32 left,s32 right,s32 mode) {
- test_callback(packed,left,right,mode);
-}
-void test_initialize(void) {
- s32 bank;
- memset(test_records,0xA5,sizeof(test_records));
- memset(test_table,0,sizeof(test_table));
- for(bank=-4;bank<=4;bank++) test_table[0x4000-0xF98/4+bank]=&test_records[bank+4][8];
-}
 '''
-        body = (root / 'tools/scripts/fixtures/views/func_80084154.c').read_text()
-        body = body.replace('#include "rr/channels.h"', '')
-        body = body.replace('(ChannelValueRecordB0 **)0x80110000U', '(test_table + 0x4000)')
-        body = re.sub(r'\s+__asm__\("\$[0-9]+"\)', '', body)
-        body = re.sub(r':\s*"\$[0-9]+"(?:,\s*"\$[0-9]+")*', '', body)
-        source += body
-        (directory / 'function.c').write_text(source)
-        result = subprocess.run(['cc', '-shared', '-fPIC', '-O2', str(directory / 'function.c'),
-                                 '-o', str(directory / 'function.so')], capture_output=True)
-        if result.returncode:
-            raise AssertionError(result.stderr.decode())
+        source += transport(wire_rows='test_records',banks=9,rows=17,table_size=16640)
+        source += '#define _ss_score (sequence_native_table+0x4000-0xF98/4)\n'
+        source += r'''s16 _SsVmSetSeqVol(s32 packed,s32 left,s32 right,s32 mode){sequence_export();test_callback(packed,left,right,mode);sequence_import();return (s16)packed;}
+'''
+        body=field_only_body(current_body(root,'80084154'))
+        body=re.sub(r'\s+(?:__asm__|asm)\(\"\$[0-9]+\"\)','',body)
+        body=re.sub(r'__asm__(?: volatile)?\(\"\"[^;]*;','',body)
+        body=body.replace('(ChannelValueRecordB0 **)0x80110000U','(sequence_native_table+0x4000-0xF98/4+0xF98/4)')
+        name=__import__('c_functions').name_at('80084154')
+        source += re.sub(r'\b'+name+r'\b','native_'+name,body)
+        source += 'void '+name+'(s32 bank,s32 row,s32 left,s32 right){sequence_import();native_'+name+'(bank,row,left,right);sequence_export();}\n'
+        compile_library(root,directory,source,'function')
         cls.lib = C.CDLL(str(directory / 'function.so'))
         cls.records = (C.c_uint8 * (9 * 17 * 0xB0)).in_dll(cls.lib, 'test_records')
         cls.table = (C.c_void_p * 0x4100).in_dll(cls.lib, 'test_table')
         cls.function = cls.lib._SsSndSetVol
         cls.function.argtypes = [C.c_int32] * 4
         cls.function.restype = None
+
 
     def setUp(self):
         self.lib.test_initialize()

@@ -18,8 +18,7 @@ class SpuPioTransferTest(unittest.TestCase):
         cls.temp=TemporaryDirectory()
         cls.addClassCleanup(cls.temp.cleanup)
         root=Path(__file__).resolve().parents[2]
-        header=(root/'include/rr/spu.h').read_text()
-        header=re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',header,flags=re.M)
+        header = '#include "rr/spu.h"\n'
         source='''#include <stdint.h>
 #include <stdarg.h>
 #include <string.h>
@@ -90,7 +89,7 @@ void test_reset(void) {
             source+=body
         directory=Path(cls.temp.name)
         (directory/'function.c').write_text(source)
-        result=subprocess.run(['cc','-shared','-fPIC','-O2',str(directory/'function.c'),
+        result=subprocess.run(['cc', '-I'+str(Path(__file__).resolve().parents[2]/'include'),'-shared','-fPIC','-O2',str(directory/'function.c'),
                                '-o',str(directory/'function.so')],capture_output=True)
         if result.returncode:raise AssertionError(result.stderr.decode())
         cls.lib=C.CDLL(str(directory/'function.so'))

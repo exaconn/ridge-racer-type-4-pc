@@ -4,6 +4,7 @@ import re
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from sequence_fixture_transport import current_body
 
 ROOT=Path(__file__).resolve().parents[2]
 
@@ -14,9 +15,11 @@ class SequencerDispatchTest(unittest.TestCase):
         cls.temporary=TemporaryDirectory()
         cls.addClassCleanup(cls.temporary.cleanup)
         def header(name):
+            if name=="spu.h":
+                return '#include "rr/spu.h"\n'
             text=(ROOT/'include/rr'/name).read_text()
-            return re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
-        body=(ROOT/'tools/scripts/fixtures/views/func_80082D54.c').read_text()
+            return ('#include \"rr/sequence_channel.h\"\n' if name=='library.h' else '')+re.sub(r'^#include[^\n]*\n|^RR_ASSERT_[^\n]*\n','',text,flags=re.M)
+        body=current_body(ROOT,'80082D54')
         body=re.sub(r'^#include[^\n]*\n','',body,flags=re.M)
         code=r'''
 #include <assert.h>
@@ -24,6 +27,12 @@ class SequencerDispatchTest(unittest.TestCase):
 #include <stdlib.h>
 #include <string.h>
 #include "types.h"
+#include "psyq/libsnd/vmtick2.h"
+#include "psyq/libsnd/ssramp.h"
+#include "psyq/libsnd/ssresum2.h"
+#include "psyq/libsnd/ssresume.h"
+#include "psyq/libsnd/sstick3.h"
+void _SsSndTempo(s32,s32);
 ''' + header('spu.h') + header('library.h') + header('sequencer_init.h') + header('sequencer_dispatch.h') + r'''
 typedef struct {
     LibStateB0 *table[32];
@@ -198,7 +207,7 @@ int main(int argc,char **argv) {
 '''
         directory=Path(cls.temporary.name);source=directory/'dispatch.c'
         source.write_text(code);cls.executable=directory/'dispatch'
-        result=subprocess.run(['cc','-std=c99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
+        result=subprocess.run(['cc', '-I'+str(Path(__file__).resolve().parents[2]/'include'),'-std=c99','-O2','-Wall','-Wextra','-Werror','-Wno-error=deprecated-non-prototype',
                                '-fsanitize=undefined','-fno-strict-aliasing',
                                '-I',str(ROOT/'include'),str(source),'-o',str(cls.executable)],
                               capture_output=True,text=True)

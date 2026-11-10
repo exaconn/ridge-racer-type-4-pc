@@ -1,56 +1,41 @@
 #include "types.h"
+#include "game/sound/cdplay.h"
 #include "rr/audio_cd_controller.h"
 #include "rr/frame_loop.h"
 #include "rr/bios_devices.h"
-
-typedef struct {
-    u32 start;
-    s32 length;
-} CdTrackEntry8;
 
 extern int D_800A099C[][3];
 extern int D_800A0904[];
 extern int PsyqSrand();
 
-void CdAudioSelectTrack();
-void CdAudioSetTarget(int a0, int a1, int a2);
 
-void CdAudioSelectTrack(int a0, int a1) {
-    register AudioState *g = &SoundState;
-    register AudioState *s2;
-    register int s1;
-    unsigned s0;
-    int a;
-    int h;
-    unsigned t2;
-    int v2, tt;
-    unsigned m;
-    int *v;
-    s2 = (AudioState *)((char *)g + a0 * 8);
-    a = s2->streamTable2638;
-    if (a != -1) {
-        m = 0xFFF0000;
-        s1 = a1 * 8;
-        t2 = s1 + a;
-        m |= 0xFFFF;
-        s0 = *(unsigned *)t2;
-        h = s0 >> 28;
-        s0 &= m;
-        s0 += s2->streamBase2634;
-        CdAudioSetTarget(s0, h, 0);
-        g->end2690 = (((CdTrackEntry8 *)(s1 + s2->streamTable2638))->length - 2) * 8;
-        PsyqBzero(&g->tick26D0, 0x1C);
-        { int b = D_800A099C; v = (int *)(b + a1 * 12); }
-        g->reserved26EC = 0;
-        g->base26F0 = 0;
-        g->reserved26E0 = v[0];
-        g->rate26F4 = v[1];
-        tt = g->end2690;
-        v2 = v[2];
-        g->timer26A8 = 0;
-        g->end2690 = tt + s0;
-        g->offset26E8 = v2;
-        g->targetVol26C0.word = D_800A0904[a1];
+void CdAudioSelectTrack(int bank, int track) {
+    AudioState *state = &SoundState;
+    u32 sector;
+    u8 *table;
+    int filter;
+    int offset, end;
+    const s32 *timing;
+    table = state->streamBanks[bank].table;
+    if (table != AUDIO_STREAM_TABLE_UNAVAILABLE) {
+        sector = ((AudioStreamEntry *)table)[track].position;
+        filter = sector >> 28;
+        sector &= 0x0FFFFFFF;
+        sector += state->streamBanks[bank].sector;
+        CdAudioSetTarget(sector, filter, 0);
+        state->end2690 = (((AudioStreamEntry *)state->streamBanks[bank].table)[track].sectors - 2U) * 8;
+        PsyqBzero(&state->tick26D0, 0x1C);
+        { const s32 *base = D_800A099C[0]; timing = base + track * 3; }
+        state->reserved26EC = 0;
+        state->base26F0 = 0;
+        state->reserved26E0 = timing[0];
+        state->rate26F4 = timing[1];
+        end = state->end2690;
+        offset = timing[2];
+        state->timer26A8 = 0;
+        state->end2690 = end + sector;
+        state->offset26E8 = offset;
+        state->targetVol26C0.word = D_800A0904[track];
         CdAudioSetVolumeRaw(0);
     }
     PsyqSrand(FrameCounter);

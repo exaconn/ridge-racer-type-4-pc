@@ -7,25 +7,6 @@
 #include "psyq/libgpu/settrans.h"
 #include "rr/player_status.h"
 
-typedef struct {
-    u16 *text00;
-    s32 unk04;
-    u16 unk08;
-    u8 count0A;
-    u8 start0B;
-    s16 unk0C;
-    s16 unk0E;
-    s16 unk10;
-    s16 len12;
-    s16 unk14;
-    s16 unk16;
-    s32 unk18;
-    s8 unk1C;
-    u8 unk1D, unk1E, unk1F;
-    s32 unk20, unk24;
-    s16 anim28[2];
-} AnimatedTextState;
-
 extern unsigned char D_8009EDF8[];
 
 void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation);
@@ -212,18 +193,19 @@ void DrawAnimatedGlyph(s32 x, s32 y, s32 glyph, s32 clut, s16 *animation) {
     RR_GLYPH_ANIMATION_SCRATCH->cursor = cursor + 0xC;
 }
 
-void DrawAnimatedText(int arg0, int arg1, AnimatedTextState *p, int arg3, int arg4) {
-    int s7 = 0, s4 = 0, s2 = 0, s6, s3;
+void DrawAnimatedText(int arg0, int arg1, MenuTextState *p, int arg3, int arg4) {
+    int s7 = 0, s4 = 0, s2 = 0, s3;
+    unsigned s6;
     unsigned s0;
     unsigned short *s1;
     unsigned a2, v0; int v1;
     if (arg3 == 1) {
-        p->len12 = p->count0A - p->start0B;
-        s6 = p->count0A - p->start0B;
+        p->s12 = p->bA - p->bB;
+        s6 = p->bA - p->bB;
     } else {
-        s6 = p->len12;
+        s6 = p->s12;
     }
-    s1 = p->text00;
+    s1 = p->p;
     s0 = 0;
     if (s6 != 0) {
         do {
@@ -249,13 +231,13 @@ void DrawAnimatedText(int arg0, int arg1, AnimatedTextState *p, int arg3, int ar
                         s0 += 1;
                         continue;
                     case 0x6005:
-                        p->unk0E = a2 & 0xFF;
+                        p->sE = a2 & 0xFF;
                         break;
                     case 0x6003:
-                        p->unk1C = a2;
+                        p->b1C = a2;
                         break;
                     case 0x6004:
-                        p->unk14 = (signed char)a2;
+                        p->s14 = (signed char)a2;
                         if (s0 != s6 - 2) {
                             s0++;
                             continue;
@@ -271,7 +253,7 @@ void DrawAnimatedText(int arg0, int arg1, AnimatedTextState *p, int arg3, int ar
                             s2 += 7;
                         } else {
                         L_call:
-                            DrawAnimatedGlyph(arg0 + (short)s2, arg1 + (short)s4, a2 - 1, arg4, (s16 *)((char *)p + (s7 * 4 + 0x28)));
+                            DrawAnimatedGlyph(arg0 + (short)s2, arg1 + (short)s4, a2 - 1, arg4, p->animation28[s7].halves);
                             s2 += 7;
                             if (s3 != 0) {
                                 s2 = 0;

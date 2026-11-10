@@ -47,7 +47,6 @@ extern void PlaySfx();
 extern unsigned short FadeCountdown;
 extern BadgeRow1C *BadgeRows;
 extern int D_800F4D74;
-extern MenuTextState *Dialogue;
 
 int DrawCarStatBars(int x, int a1);
 int DrawStepProgressBar(int a0, int a1);

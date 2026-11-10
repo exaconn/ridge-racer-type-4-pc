@@ -45,7 +45,6 @@ void DrawTrackObjectLitModel(int placementIndex, int modelIndex)
     int remaining, depthLimit, instanceCount;
     u8 *packetCursor;
     long orderingBase;
-    char *placementCursor;
     int *gteTable;
     int angle, translationXY, translationZ;
     long ordering;
@@ -102,14 +101,14 @@ void DrawTrackObjectLitModel(int placementIndex, int modelIndex)
     sceneOrShift = ((RroSceneScratchPrefix *)sceneOrShift)->depthShift60;
     orderingBase = ordering + 0x200;
     if (instanceCount > 0) {
-        placementCursor = placements + 7;
+        const TrackObjectPlacement *p = (const TrackObjectPlacement *)placements;
         do {
             int nextXY, nextZ, rawDepth, bucketDepth;
-            /* ASM_BARRIER: prevent loop strength reduction from creating a second pointer GIV for placementCursor+1/placementCursor+5 */
-            __asm__("" : "+r"(placementCursor));
-            RR_GTE_MVMVA_LLM_BK_LDV0(&work->input24);
-            nextXY = ((const TrackObjectPlacement *)(placementCursor - 7))[1].xy00;
-            nextZ = ((const TrackObjectPlacement *)(placementCursor - 7))[1].z04;
+            RR_GTE14_LWC2_V0(&work->input24);
+            RR_GTE14_NOP2();
+            RR_GTE_OP(0x4A4A2012);
+            nextXY = p[1].xy00;
+            nextZ = p[1].z04;
             work->input24.signedWords[0] = nextXY;
             work->input24.fields.z = nextZ;
             RR_GTE_SWC2_IR3(&work->depth54);
@@ -120,12 +119,11 @@ void DrawTrackObjectLitModel(int placementIndex, int modelIndex)
                     RR_GTE_TR_FROM_IR();
                     packetCursor = EmitModelTrisGT3(
                         work,
-                        (u32 *)(orderingBase + bucketDepth * 4 +
-                            ((const TrackObjectPlacement *)(placementCursor - 7))->orderingBias07 * 4),
+                        (u32 *)(orderingBase + bucketDepth * 4 + p->orderingBias07 * 4),
                         packetCursor);
                 }
             }
-            placementCursor += sizeof(TrackObjectPlacement);
+            p++;
         } while (remaining-- > 0);
     }
     ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = packetCursor;
@@ -134,162 +132,111 @@ void DrawTrackObjectLitModel(int placementIndex, int modelIndex)
 void DrawTrackObjectModel(int modelIndex, int flashing) {
     /* ASM_BARRIER: keep scratch pointer (SCRATCHPAD + 0x7C) in $a2 */
     register TrackObjectRenderWork *work __asm__("$6") = &((TrackObjectScratch *)SCRATCHPAD)->work7C;
-    /* Full-width address/scalar temporaries remain until their lifetimes can
-     * be separated without the retained register and scheduling constraints. */
-    long r_a1;
     RroSceneScratchPrefix *sceneRoot;
-    /* ASM_BARRIER: keep temp/count/vertex ptr in $a0 */
-    register long r_a0 __asm__("$4");
-    /* ASM_BARRIER: keep temp in $v0 */
-    register long r_v0 __asm__("$2");
-    /* ASM_BARRIER: keep temp in $v1 */
-    register long r_v1 __asm__("$3");
-    long r_a3;
+    const RroModelTable *table;
+    GpuPolyFT4 *packetCursor;
+    const TrackObjectQuad *quadCursor;
+    const Vec3s8 *vertices;
+    int remaining;
+    u32 *orderingBase;
+    int depthShift;
     /* ASM_BARRIER: keep GTE IR3 / otz index in $t3 */
     register int depth __asm__("$11");
-    int remaining;
-    const char *vertices;
-    long orderingBase;
-    int depthShift;
-    char *quadCursor, *packetCursor;
-    int x0, x1, x2, x3, y0, y1, y2, y3, cval;
 
     work->flashing54 = flashing;
     sceneRoot = (RroSceneScratchPrefix *)SCRATCHPAD;
-    r_v0 = modelIndex * sizeof(RroEffectMesh);
-    r_v1 = (long)sceneRoot->modelEntries48;
-    packetCursor = (char *)sceneRoot->view.projection.pointers.cursor;
-
-    r_v1 -= 4;
-    r_v1 += r_v0;
-    quadCursor = (char *)((RroEffectMesh *)(r_v1 + 4))->commands;
-    vertices = (const char *)((RroEffectMesh *)(r_v1 + 4))->vertices;
-    remaining = ((unsigned short *)quadCursor)[1];
-    quadCursor += 4;
-    r_v0 = ((const TrackObjectQuad *)quadCursor)->translationXY1C;
-    r_v1 = ((const TrackObjectQuad *)quadCursor)->translationZ1A;
-    r_a0 = remaining;
-    remaining--;
-
-    work->input00.signedWords[0] = r_v0;
-    work->input00.fields.z = r_v1;
-    r_v0 = (long)sceneRoot->view.projection.pointers.order;
-    r_v1 = sceneRoot->depthShift60;
-
-    orderingBase = r_v0 + 0x200;
-    depthShift = r_v1 + 2;
-    if (r_a0 > 0) {
-        do {
-            RR_GTE_MVMVA_LLM_BK_LDV0(&work->input00);
-
-            r_v0 = ((const TrackObjectQuad *)quadCursor)[1].translationXY1C;
-            r_v1 = ((const TrackObjectQuad *)quadCursor)[1].translationZ1A;
-            /* ASM_BARRIER: load the next translation before staging the GTE input. */
-            __asm__ ("" : "+r"(r_v0), "+r"(r_v1));
-            work->input00.signedWords[0] = r_v0;
-            work->input00.fields.z = r_v1;
-
-            RR_GTE_READ_IR3(depth);
-            RR_NOP_DEP_ON(depth);
-            if (depth > 0) {
-                /* ASM_BARRIER: keep blez delay slot as nop before srav */
-                __asm__ ("");
-                depth >>= depthShift;
-                if (depth < 0x1C0) {
-                    work->depth50 = depth;
-                    RR_GTE_TR_FROM_IR();
-
-                    r_v0 = ((const TrackObjectQuad *)quadCursor)->vertices.words[0];
-                    r_a1 = ((const TrackObjectQuad *)quadCursor)->vertices.words[1];
-                    /* ASM_BARRIER: load packed vertex indices before unpacking */
-                    __asm__ ("" : "+r"(r_v0), "+r"(r_a1));
-                    r_v1 = r_v0 >> 16;
-                    r_a3 = r_a1 >> 16;
-                    r_v0 &= 0xFFFF;
-                    r_a1 &= 0xFFFF;
-                    /* ASM_BARRIER: order index shifts and masks before address math */
-                    __asm__ ("" : "+r"(r_v1), "+r"(r_a3), "+r"(r_v0), "+r"(r_a1));
-                    r_a0 = r_v0 << 3;
-                    /* ASM_BARRIER: shift first vertex index into $a0 before adding vertices */
-                    __asm__ ("" : "+r"(r_a0));
-                    r_a0 = (long)(vertices + r_a0);
-                    /* ASM_BARRIER: compute first vertex address in $a0 */
-                    __asm__ ("" : "+r"(r_a0));
-                    r_v1 = (long)(vertices + (r_v1 * 8));
-                    /* ASM_BARRIER: compute second vertex address in $v1 */
-                    __asm__ ("" : "+r"(r_v1));
-                    r_v0 = (long)(vertices + (r_a1 << 3));
-                    /* ASM_BARRIER: compute third vertex address in $v0 */
-                    __asm__ ("" : "+r"(r_v0));
-                    RR_GTE_RTPT_LDV(r_a0, r_v1, r_v0);
-
-                    r_v0 = ((const TrackObjectQuad *)quadCursor)->uv0C;
-                    r_v1 = ((const TrackObjectQuad *)quadCursor)->uv10;
-                    /* ASM_BARRIER: load first two UV words before storing */
-                    __asm__ ("" : "+r"(r_v0), "+r"(r_v1));
-                    ((GpuPolyFT4 *)packetCursor)->words.uv0 = r_v0;
-                    ((GpuPolyFT4 *)packetCursor)->words.uv1 = r_v1;
-                    r_v0 = ((const TrackObjectQuad *)quadCursor)->uv14;
-                    r_v1 = r_v0 >> 16;
-                    ((GpuPolyFT4 *)packetCursor)->words.uv2 = r_v0;
-                    r_v0 = (long)&work->projected58[0];
-                    ((GpuPolyFT4 *)packetCursor)->words.uv3 = r_v1;
-                    RR_GTE_SWC2_SXYZ(r_v0);
-
-                    r_v0 = (long)(vertices + (r_a3 * 8));
-                    RR_GTE_RTPS_LDV(r_v0);
-
-                    if (work->flashing54 != 0) {
-                        cval = FlashingLightColorTable[((u32)ScreenFrame + ((const TrackObjectQuad *)quadCursor)->flashPhase18) & 0x1F];
-                    } else {
-                        cval = FlashingLightColorTable[0];
-                    }
-                    r_v0 = cval;
-
-                    r_v1 = work->projected58[0].word;
-                    r_a1 = work->projected58[1].word;
-                    r_a3 = work->projected58[2].word;
-                    /* ASM_BARRIER: load SXY0..SXY2 before storing to packet */
-                    __asm__ ("" : "+r"(r_v0), "+r"(r_v1), "+r"(r_a1), "+r"(r_a3));
-                    ((GpuPolyFT4 *)packetCursor)->words.color04 = r_v0;
-                    r_v0 = (long)&work->projected58[3];
-
-                    ((GpuPolyFT4 *)packetCursor)->words.xy0 = r_v1;
-                    ((GpuPolyFT4 *)packetCursor)->words.xy1 = r_a1;
-                    ((GpuPolyFT4 *)packetCursor)->words.xy2 = r_a3;
-                    RR_GTE_SWC2_SXY2(r_v0);
-                    r_v0 = work->projected58[3].word;
-                    ((GpuPolyFT4 *)packetCursor)->words.xy3 = r_v0;
-
-                    x0 = work->projected58[0].xy.x;
-                    x1 = work->projected58[1].xy.x;
-                    x2 = work->projected58[2].xy.x;
-                    x3 = work->projected58[3].xy.x;
+    table = (const RroModelTable *)((const u8 *)sceneRoot->modelEntries48 - RR_FIELD_OFFSET(RroModelTable, entries));
+    packetCursor = (GpuPolyFT4 *)sceneRoot->view.projection.pointers.cursor;
+    quadCursor = (const TrackObjectQuad *)table->entries[modelIndex].commands;
+    vertices = table->entries[modelIndex].vertices;
+    remaining = ((const RroBodyCommandHeader *)quadCursor)->fields.count;
+    quadCursor = (const TrackObjectQuad *)((const u8 *)quadCursor + sizeof(RroBodyCommandHeader));
+    {
+        int xy = quadCursor->translationXY1C;
+        int z = quadCursor->translationZ1A;
+        work->input00.signedWords[0] = xy;
+        work->input00.fields.z = z;
+    }
+    orderingBase = sceneRoot->view.projection.pointers.order + 128;
+    depthShift = sceneRoot->depthShift60 + 2;
+    while (remaining-- > 0) {
+        RR_GTE14_LWC2_V0(&work->input00);
+        RR_GTE14_NOP2();
+        RR_GTE_OP(0x4A4A2012);
+        {
+            int nextXY = quadCursor[1].translationXY1C;
+            int nextZ = quadCursor[1].translationZ1A;
+            work->input00.signedWords[0] = nextXY;
+            work->input00.fields.z = nextZ;
+        }
+        RR_GTE_READ_IR3_NOP(depth);
+        if (depth > 0) {
+            /* ASM_BARRIER: keep blez delay slot as nop before srav */
+            __asm__ ("");
+            depth >>= depthShift;
+            if (depth < 0x1C0) {
+                int word0, word1, word2, word3;
+                work->depth50 = depth;
+                RR_GTE_TR_FROM_IR();
+                word0 = quadCursor->vertices.words[0];
+                word1 = quadCursor->vertices.words[1];
+                word2 = word0 >> 16;
+                word3 = word1 >> 16;
+                word0 &= 0xFFFF;
+                word1 &= 0xFFFF;
+                RR_GTE_LWC2_V012_3P(&vertices[word0], &vertices[word2], &vertices[word1]);
+                RR_GTE_RTPT_NOP2();
+                word0 = quadCursor->uv0C;
+                word2 = quadCursor->uv10;
+                packetCursor->words.uv0 = word0;
+                packetCursor->words.uv1 = word2;
+                word0 = quadCursor->uv14;
+                word2 = word0 >> 16;
+                packetCursor->words.uv2 = word0;
+                packetCursor->words.uv3 = word2;
+                RR_GTE_SWC2_SXYZ(&work->projected58[0]);
+                RR_GTE_RTPS_LDV(&vertices[word3]);
+                if (work->flashing54 != 0) {
+                    word0 = FlashingLightColorTable[((u32)ScreenFrame + quadCursor->flashPhase18) & 0x1F];
+                } else {
+                    word0 = FlashingLightColorTable[0];
+                }
+                word2 = work->projected58[0].word;
+                word1 = work->projected58[1].word;
+                word3 = work->projected58[2].word;
+                packetCursor->words.color04 = word0;
+                packetCursor->words.xy0 = word2;
+                packetCursor->words.xy1 = word1;
+                packetCursor->words.xy2 = word3;
+                RR_GTE_SWC2_SXY2(&work->projected58[3]);
+                packetCursor->words.xy3 = work->projected58[3].word;
+                {
+                    int x0 = work->projected58[0].xy.x;
+                    int x1 = work->projected58[1].xy.x;
+                    int x2 = work->projected58[2].xy.x;
+                    int x3 = work->projected58[3].xy.x;
                     if ((x0 >= 0 || x1 >= 0 || x2 >= 0 || x3 >= 0) &&
                         (x0 < 0x140 || x1 < 0x140 || x2 < 0x140 || x3 < 0x140)) {
-                        y0 = work->projected58[0].xy.y;
-                        y1 = work->projected58[1].xy.y;
-                        y2 = work->projected58[2].xy.y;
-                        y3 = work->projected58[3].xy.y;
+                        int y0 = work->projected58[0].xy.y;
+                        int y1 = work->projected58[1].xy.y;
+                        int y2 = work->projected58[2].xy.y;
+                        int y3 = work->projected58[3].xy.y;
                         if ((y0 >= 0 || y1 >= 0 || y2 >= 0 || y3 >= 0) &&
                             (y0 < 0x100 || y1 < 0x100 || y2 < 0x100 || y3 < 0x100)) {
-                            ((GpuPolyFT4 *)packetCursor)->words.tag.word = *(int *)(((s32)((u32)((const TrackObjectQuad *)quadCursor)->orderingBias19 << 2)) + ((work->depth50 << 2) + orderingBase));
-                            ((GpuPolyFT4 *)packetCursor)->words.tag.bytes.length = 9;
-
-                            *(int *)(((s32)((u32)((const TrackObjectQuad *)quadCursor)->orderingBias19 << 2)) + ((work->depth50 << 2) + orderingBase)) = (u32)(unsigned long)packetCursor;
-                            packetCursor += sizeof(GpuPolyFT4);
-
-                            ((char *)(((s32)((u32)((const TrackObjectQuad *)quadCursor)->orderingBias19 << 2)) + ((work->depth50 << 2) + orderingBase)))[3] = 0;
+                            packetCursor->words.tag.word = (orderingBase + work->depth50)[quadCursor->orderingBias19];
+                            packetCursor->words.tag.bytes.length = 9;
+                            (orderingBase + work->depth50)[quadCursor->orderingBias19] = (u32)(unsigned long)packetCursor;
+                            packetCursor++;
+                            ((GpuDmaTag *)&(orderingBase + work->depth50)[quadCursor->orderingBias19])->bytes.length = 0;
                         }
                     }
                 }
             }
-            quadCursor += sizeof(TrackObjectQuad);
-        } while (remaining-- > 0);
+        }
+        quadCursor++;
     }
     ((RroSceneScratchPrefix *)SCRATCHPAD)->view.projection.pointers.cursor = (u8 *)packetCursor;
 }
-
 void InitIntroSceneLights(void) {
     GpuRectangle sp18;
     struct IntroLightTransformWork {

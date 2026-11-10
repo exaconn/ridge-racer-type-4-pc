@@ -28,7 +28,7 @@ publish:
     _svm_tn = _svm_vab_tn[i];
     _svm_cur.f01 = i;
     _svm_cur.f06 = j;
-    _svm_cur.f07 = _svm_pg[j].value08;
+    _svm_cur.f07 = _svm_pg[j][VAB_PROGRAM_TONE_BLOCK_INDEX];
     return 0;
 }
 

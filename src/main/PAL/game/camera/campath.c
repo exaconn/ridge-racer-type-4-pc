@@ -85,7 +85,6 @@ void UpdateMotionTrack(MotionClock20 *clock) {
     u32 delta;
     s32 start, code, units;
     s32 rate;
-    register s32 velocity __asm__("$4");
     u32 tempo;
     MotionKey32 *key;
     MotionKey32 *finishKey;
@@ -152,37 +151,16 @@ void UpdateMotionTrack(MotionClock20 *clock) {
             }
             break;
         case 2:
-            /* Publish scale, damped velocity, then x/z/y in wire order. */
-            velocity = track->velocity;
-            rate = ((u32)velocity << 5);
             {
                 u32 current = track->scale;
-                s32 carry = velocity;
-                /* ASM_BARRIER: preserve original register scheduling. */
-                __asm__("" :: "r"(current));
-                __asm__("" : "+r"(carry) : "r"(rate));
-                rate = ((u32)rate - velocity);
-                track->scale = (current + carry);
+                s32 rate;
+                track->scale = current + track->velocity;
+                rate = track->velocity * 31U;
+                track->velocity = rate / 32;
             }
-            if (rate < 0) {
-                rate += 31;
-            }
-            {
-                u16 x, y, z;
-                s32 damped;
-                x = (u16)track->position.x;
-                /* ASM_BARRIER: preserve original register scheduling. */
-                __asm__("" : "+r"(rate), "+r"(x));
-                damped = rate >> 5;
-                track->velocity = damped;
-                z = (u16)track->position.z;
-                track->position.x = x + 16;
-                y = (u16)track->position.y;
-                track->position.z = z + 8;
-                /* ASM_BARRIER: preserve original register scheduling. */
-                __asm__("" :: "r"(y));
-                track->position.y = y + 8;
-            }
+            track->position.x += 16;
+            track->position.y += 8;
+            track->position.z += 8;
             break;
         }
     }

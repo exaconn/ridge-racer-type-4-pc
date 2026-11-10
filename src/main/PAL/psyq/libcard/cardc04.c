@@ -35,31 +35,21 @@ s32 _cardCmd5BBegin(s32 request, u8 *buffer) {
 }
 
 int _cardCmd5BTx() {
-    /* ASM_BARRIER: pin return value and threshold to $v0. */
-    register int r asm("$2");
     /* ASM_BARRIER: share $v0 between threshold and return value. */
-    register int k asm("$2");
+    register int r asm("$2") = 2;
     int d = CardTxCount;
-    k = 2;
-    if (d == k) r = 0x5B;
+    if (d == r) r = 0x5B;
     else r = 0;
     return r;
 }
 
 s32 _cardCmd5BRx(s32 value) {
+    u8 v=value;
     s32 phase=CardRxCount;
-    /* ASM_BARRIER: Retain the copied input for status-byte publication. */
-    register s32 saved __asm__("$5")=value;
-    s32 result;
-    if(phase==5) {
-        CardBytesRemaining=saved & 255;
-        /* ASM_BARRIER: Keep the copied raw input distinct from its masked status. */
-        __asm__ volatile("" : : "r"(saved));
-    }
-    else if(phase==10) CardCmdBuffer[4]=value-1U;
-    else if(phase>=6) CardCmdBuffer[phase-6]=value;
-    result=0;
-    return result;
+    if(phase==5) CardBytesRemaining=v;
+    else if(phase==10) CardCmdBuffer[4]=v-1U;
+    else if(phase>=6) CardCmdBuffer[phase-6]=v;
+    return 0;
 }
 
 s32 _cardCmd5BRangeBegin(s32 request, u8 *buffer, s32 sector, s32 input_count) {

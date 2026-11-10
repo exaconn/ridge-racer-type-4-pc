@@ -2,10 +2,7 @@
 #include "rr/load_cursor.h"
 void ovl662_func_8011512C(void) {
     s32 i;
-    RaceVehicle *vehicle;
     ProjectionScratchPrefix *scratch;
-    /* Keep the per-vehicle rotation temporary in the call-result register. */
-    register s32 rotation __asm__("$2");
     void *arena;
     ClearScreenOverlayState();
     ModeFrame=0;
@@ -24,7 +21,6 @@ void ovl662_func_8011512C(void) {
     ResetScreenCounters();
     InitPreviewImageRows();
     i=0;
-    vehicle=PlayerCars;
     ovl662_D_801272D4=0;
     scratch=RR_PROJECTION_SCRATCH;
     scratch->pose08.angles10.xyz.x=120;
@@ -36,19 +32,12 @@ void ovl662_func_8011512C(void) {
     arena=MenuArenaBase;
     LoadCursor=arena;
     MenuArenas.first=arena;
-    do {
-        /* Keep one full vehicle cursor through both setup calls. */
-        __asm__("" : "+r"(vehicle));
-        ResetCarState(vehicle);
-        vehicle->position20.words[1]=10;
-        vehicle->position20.words[2]=308;
-        rotation=2048;
-        vehicle->rot54=rotation;
-        /* Publish this vehicle before advancing the loop counter. */
-        __asm__("" : "+r"(i) : : "memory");
-        i++;
-        vehicle++;
-    } while(i<2);
+    for (i = 0; i < 2; i++) {
+        ResetCarState(&PlayerCars[i]);
+        PlayerCars[i].position20.words[1] = 10;
+        PlayerCars[i].position20.words[2] = 308;
+        PlayerCars[i].rot54 = 2048;
+    }
     UnpackChoiceGlyph((s8*)SelectionRows.bytes,CourseChoiceTable[1][ovl662_D_801272E4].glyph);
     PlayerCourseChoices[0].first=CourseChoiceTable[1][ovl662_D_801272E4].first;
     PlayerCourseChoices[0].second=CourseChoiceTable[1][ovl662_D_801272E4].second;

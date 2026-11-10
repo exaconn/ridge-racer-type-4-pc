@@ -16,21 +16,14 @@ void UpdateCameraMotion(MotionClock20 *input) {
     MotionClock20 *arg0=input;
     PresentationContextPrefix *root=&RaceContext;
     PresentationController *object=root->controller3D8;
-    s32 boundary;
-    /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-    register s32 temp_a0 __asm__("$4");
     s32 temp_lo;
     s32 temp_lo_2;
     s32 temp_v0_4;
     s32 temp_v0_5;
     s32 temp_v0_6;
-    s32 temp_v0_7;
     s32 temp_v1;
     s32 temp_v1_2;
     s32 temp_v1_5;
-    s32 var_v0;
-    s32 var_v0_2;
-    s32 var_v0_3;
     /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
     register s32 temp_v1_3 __asm__("$3");
     CameraMotion70 *temp_a3;
@@ -57,31 +50,18 @@ copy_start:
                 register s32 first __asm__("$5"),second __asm__("$4"),third;
                 value= arg0->tempo;start=object->scale4C;
                 value=W_SUB(W_MUL(value,2),300);RR_MD_MULT_S(value,start);
-                {
-                    s32 key=temp_a3->key08;
-                    /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register CameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
-                    CameraKey16 *point=(CameraKey16 *)(key*16+(unsigned long)keys);
-                    value=point->x;
-                }
-                start=temp_a3->start10[0];temp_a3->target20[0]=value;value=W_SUB(value,start);first=W_MUL(value,2);first=W_ADD(first,value);first=W_MUL(first,8);
-                RR_MD_LO_ACCUM_SHL2(temp_lo,first,value);
-                RR_MD_DIV_S(first,first,temp_lo);
-                {
-                    s32 key=temp_a3->key08;
-                    /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register CameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
-                    CameraKey16 *point=(CameraKey16 *)(key*16+(unsigned long)keys);
-                    value=point->y;
-                }
-                start=temp_a3->start10[1];temp_a3->target20[1]=value;value=W_SUB(value,start);second=W_MUL(value,100);
-                RR_MD_DIV_S(second,second,temp_lo);
-                {
-                    s32 key=temp_a3->key08;
-                    CameraKey16 *keys=temp_a3->keys0C;
-                    CameraKey16 *point=(CameraKey16 *)(key*16+(unsigned long)keys);
-                    value=point->z;
-                }
+                value = temp_a3->keys0C[temp_a3->key08].x;
+                temp_a3->target20[0] = value;
+                value = W_SUB(value, temp_a3->start10[0]);
+                first = W_MUL(W_ADD(W_MUL(value, 2), value), 8);
+                RR_MD_LO_ACCUM_SHL2(temp_lo, first, value);
+                RR_MD_DIV_S(first, first, temp_lo);
+                value = temp_a3->keys0C[temp_a3->key08].y;
+                temp_a3->target20[1] = value;
+                value = W_SUB(value, temp_a3->start10[1]);
+                second = W_MUL(value, 100);
+                RR_MD_DIV_S(second, second, temp_lo);
+                value = temp_a3->keys0C[temp_a3->key08].z;
                 /* ASM_BARRIER: retain the original read/publish phase before this physical register is reused. */
                 temp_a3->target20[2]=value;__asm__("" : "=r"(value) : "0"(value) : "memory");start=value;value=temp_a3->start10[2];start=W_SUB(start,value);
                 third=W_MUL(start,100);
@@ -107,48 +87,36 @@ copy_start:
             }
             object->motion74.phase00 = W_ADD(object->motion74.phase00,1);
         case 1:
-            {
-                s32 position=temp_a3->current40[0];
-                s32 second;
-                /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                register s32 deltaY __asm__("$5");
-                temp_a0=temp_a3->delta30[0];
-                second=temp_a3->current40[1];deltaY=temp_a3->delta30[1];
-
-                position=W_ADD(position,temp_a0);temp_a3->current40[0]=position;
-                position=temp_a3->current40[2];second=W_ADD(second,deltaY);temp_a3->current40[1]=second;
-                second=temp_a3->delta30[2];position=W_ADD(position,second);temp_a3->current40[2]=position;
-            }
-            if (temp_a0 > 0) {
-                /* ASM_BARRIER: retain the captured clamp boundary through comparison and conditional publication. */
-                boundary=temp_a3->target20[0];__asm__("" : "+r"(boundary));
-                var_v0 = boundary < temp_a3->current40[0];
+            temp_a3->current40[0] = W_ADD(temp_a3->current40[0], temp_a3->delta30[0]);
+            temp_a3->current40[1] = W_ADD(temp_a3->current40[1], temp_a3->delta30[1]);
+            temp_a3->current40[2] = W_ADD(temp_a3->current40[2], temp_a3->delta30[2]);
+            if (temp_a3->delta30[0] > 0) {
+                if (temp_a3->current40[0] > temp_a3->target20[0]) {
+                    temp_a3->current40[0] = temp_a3->target20[0];
+                }
             } else {
-                /* ASM_BARRIER: retain the captured clamp boundary through comparison and conditional publication. */
-                boundary=temp_a3->target20[0];__asm__("" : "+r"(boundary));
-                var_v0 = temp_a3->current40[0] < boundary;
+                if (temp_a3->current40[0] < temp_a3->target20[0]) {
+                    temp_a3->current40[0] = temp_a3->target20[0];
+                }
             }
-            if (var_v0) temp_a3->current40[0]=boundary;
             if (temp_a3->delta30[1] > 0) {
-                /* ASM_BARRIER: retain the captured clamp boundary through comparison and conditional publication. */
-                boundary=temp_a3->target20[1];__asm__("" : "+r"(boundary));
-                var_v0_2 = boundary < temp_a3->current40[1];
+                if (temp_a3->current40[1] > temp_a3->target20[1]) {
+                    temp_a3->current40[1] = temp_a3->target20[1];
+                }
             } else {
-                /* ASM_BARRIER: retain the captured clamp boundary through comparison and conditional publication. */
-                boundary=temp_a3->target20[1];__asm__("" : "+r"(boundary));
-                var_v0_2 = temp_a3->current40[1] < boundary;
+                if (temp_a3->current40[1] < temp_a3->target20[1]) {
+                    temp_a3->current40[1] = temp_a3->target20[1];
+                }
             }
-            if (var_v0_2) temp_a3->current40[1]=boundary;
             if (temp_a3->delta30[2] > 0) {
-                /* ASM_BARRIER: retain the captured clamp boundary through comparison and conditional publication. */
-                boundary=temp_a3->target20[2];__asm__("" : "+r"(boundary));
-                var_v0_3 = boundary < temp_a3->current40[2];
+                if (temp_a3->current40[2] > temp_a3->target20[2]) {
+                    temp_a3->current40[2] = temp_a3->target20[2];
+                }
             } else {
-                /* ASM_BARRIER: retain the captured clamp boundary through comparison and conditional publication. */
-                boundary=temp_a3->target20[2];__asm__("" : "+r"(boundary));
-                var_v0_3 = temp_a3->current40[2] < boundary;
+                if (temp_a3->current40[2] < temp_a3->target20[2]) {
+                    temp_a3->current40[2] = temp_a3->target20[2];
+                }
             }
-            if (var_v0_3) temp_a3->current40[2]=boundary;
             {
                 s32 multiplier=0x51EB0000;
                 s32 first,second,third;
@@ -162,8 +130,7 @@ copy_start:
                 third=temp_a3->current40[2];temp_v1_3++;
                 RR_MD_MULT_S(third,multiplier);
                 first>>=31;temp_a3->counter50=(u16)temp_v1_3;
-                /* ASM_BARRIER: retain the signed16 counter preparation before angle-result publication. */
-                __asm__("" : "=r"(temp_v1_3) : "0"((temp_v1_3 * 0x10000U)) : "memory");second>>=31;
+                temp_v1_3 = (temp_v1_3 * 0x10000U);second>>=31;
                 quotient=highFirst>>5;quotient=W_SUB(quotient,first);temp_a3->angles64[0]=(s16)quotient;
                 quotient=highSecond>>5;quotient=W_SUB(quotient,second);third>>=31;temp_a3->angles64[1]=(s16)quotient;
                 RR_MD_HI(highThird);quotient=highThird>>5;quotient=W_SUB(quotient,third);temp_a3->angles64[2]=(s16)quotient;
@@ -196,16 +163,11 @@ copy_start:
         }
         break;
     case 1:
-        temp_v0_7 = object->motion74.phase00;
-        if (temp_v0_7 != 0) {
-            if (temp_v0_7 != temp_v1) {
-                /* ASM_BARRIER: keep the distinct mode1 return path at its original control-flow boundary. */
-                __asm__ ("");
-                return;
+        switch (object->motion74.phase00) {
+        case 0:
+            if (arg0->active == 0) {
+                goto copy_start;
             }
-            goto block_34;
-        }
-        if (arg0->active != 0) {
             {
                 /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
                 register s32 value __asm__("$2"),start __asm__("$3");
@@ -213,31 +175,18 @@ copy_start:
                 register s32 first __asm__("$5"),second __asm__("$4"),third;
                 value= arg0->tempo;start=object->scale4C;
                 value=W_SUB(W_MUL(value,2),300);RR_MD_MULT_S(value,start);
-                {
-                    s32 key=temp_a3->key08;
-                    /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register CameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
-                    CameraKey16 *point=(CameraKey16 *)(key*16+(unsigned long)keys);
-                    value=point->x;
-                }
-                start=temp_a3->start10[0];temp_a3->target20[0]=value;value=W_SUB(value,start);first=W_MUL(value,2);first=W_ADD(first,value);first=W_MUL(first,8);
-                RR_MD_LO_ACCUM_SHL2(temp_lo_2,first,value);
-                RR_MD_DIV_S(first,first,temp_lo_2);
-                {
-                    s32 key=temp_a3->key08;
-                    /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
-                    register CameraKey16 *keys __asm__("$3")=temp_a3->keys0C;
-                    CameraKey16 *point=(CameraKey16 *)(key*16+(unsigned long)keys);
-                    value=point->y;
-                }
-                start=temp_a3->start10[1];temp_a3->target20[1]=value;value=W_SUB(value,start);second=W_MUL(value,100);
-                RR_MD_DIV_S(second,second,temp_lo_2);
-                {
-                    s32 key=temp_a3->key08;
-                    CameraKey16 *keys=temp_a3->keys0C;
-                    CameraKey16 *point=(CameraKey16 *)(key*16+(unsigned long)keys);
-                    value=point->z;
-                }
+                value = temp_a3->keys0C[temp_a3->key08].x;
+                temp_a3->target20[0] = value;
+                value = W_SUB(value, temp_a3->start10[0]);
+                first = W_MUL(W_ADD(W_MUL(value, 2), value), 8);
+                RR_MD_LO_ACCUM_SHL2(temp_lo_2, first, value);
+                RR_MD_DIV_S(first, first, temp_lo_2);
+                value = temp_a3->keys0C[temp_a3->key08].y;
+                temp_a3->target20[1] = value;
+                value = W_SUB(value, temp_a3->start10[1]);
+                second = W_MUL(value, 100);
+                RR_MD_DIV_S(second, second, temp_lo_2);
+                value = temp_a3->keys0C[temp_a3->key08].z;
                 /* ASM_BARRIER: retain the original read/publish phase before this physical register is reused. */
                 temp_a3->target20[2]=value;__asm__("" : "=r"(value) : "0"(value) : "memory");start=value;value=temp_a3->start10[2];start=W_SUB(start,value);
                 third=W_MUL(start,100);
@@ -247,7 +196,7 @@ copy_start:
                 temp_a3->delta30[2]=third;
             }
             object->motion74.phase00 = W_ADD(object->motion74.phase00,1);
-block_34:
+        case 1:
             {
                 /* ASM_BARRIER: retain the initialized value or pointer in the original register phase. */
                 register s32 value __asm__("$2"),delta;
@@ -268,8 +217,7 @@ block_34:
                 value=highSecond>>5;value=W_SUB(value,second);third>>=31;temp_a3->angles64[1]=(s16)value;
                 RR_MD_HI(highThird);value=highThird>>5;value=W_SUB(value,third);temp_a3->angles64[2]=(s16)value;
             }
-        } else {
-            goto copy_start;
+            break;
         }
         break;
     }

@@ -22,14 +22,7 @@ Wide64 *_mainasu(Wide64 *result,Wide64 x) {
     *(s32 *)&x.hi=~x.hi;
     x.lo=~x.lo;
     _add_mant_d(&x,x,one);
-    {
-        u32 low=x.lo;
-        s32 high=x.hi;
-        result->lo=low;
-        result->hi=high;
-    }
-    /* ASM_BARRIER: Publish both result words before forming the returned address. */
-    __asm__("" : : "r"(result) : "$2", "$3", "memory");
+    *result=x;
     return result;
 }
 

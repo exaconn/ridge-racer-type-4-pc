@@ -1,3 +1,4 @@
+#include "game/math/rotmat.h"
 #include "psyq/libgte/gtemat5.h"
 #include "psyq/libgte/gtemat4.h"
 #include "psyq/libgte/gtemat3.h"
@@ -33,9 +34,6 @@ extern int SetModelTexturePage();
 extern int D_800A0FB0[];
 extern int DrawSubOtFlag;
 extern short SelectedMakerIndex;
-extern int BuildRotMatrixZ();
-extern int BuildRotMatrixY();
-extern int BuildRotMatrixX();
 extern int ScaleMatrix();
 
 void InitSceneOverlayState(void);
@@ -73,23 +71,17 @@ void EmitSceneOverlaySprites(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4) {
     /* ASM_BARRIER: Keep SCRATCHPAD in $s1 inside loop without hoisting */
     register GpuDrawModePacket **p1f80 asm("$17");
     unsigned long atlasAddress;
-    s32 c;
     s32 offset;
 
     atlasAddress = (unsigned long)D_800A0D24;
     for (i = 0; i < 4; i++) {
         s2 = *(SpritePacket **)SCRATCHPAD;
         s2->len = 4;
-        c = 0x64;
-        /* ASM_BARRIER: Keep 0x64 after s2->len = 4 */
-        __asm__ volatile("" : "+r"(c));
-        s2->code = c;
+        s2->code = 0x64;
         if (a4 != 0) {
-            c = 0x66;
-            s2->code = c;
+            s2->code |= 2;
         } else {
-            c = 0x64;
-            s2->code = c;
+            s2->code &= ~2;
         }
         if (a1 != 0) {
             s2->code |= 1;

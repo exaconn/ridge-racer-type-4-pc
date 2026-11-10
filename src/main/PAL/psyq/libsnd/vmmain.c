@@ -9,15 +9,7 @@
 #include "psyq/libsnd/vmmain.h"
 #include "rr/spu_voice_cache.h"
 
-typedef struct {
-    char p00[0x12];
-    unsigned short h12;
-} VabHdr;
 
-typedef struct {
-    unsigned char f00, f01, f02, f03, f04, f05;
-    char p06[0x20 - 6];
-} Tone;
 
 extern s32 _SsVmAlloc();
 extern void vmNoiseOn();
@@ -49,8 +41,7 @@ s32 _SsVmKeyOn(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in, s32 a4_in, s32 a5_in)
     short v;
     int ret;
     ChannelValueRecordB0 *s5;
-    SpuProgram *prog;
-    Tone *tone;
+    u16 toneIndex;
     ChannelValueRecordB0 **tbl;
     int a4 = (unsigned short)a4_in;
     int a5 = (unsigned short)a5_in;
@@ -70,7 +61,7 @@ s32 _SsVmKeyOn(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in, s32 a4_in, s32 a5_in)
         /* ASM_BARRIER: pins the product to $v0; with the identical arms (merged by
            post-reload cross-jumping) this keeps mult and div in separate flow blocks,
            so the highpart stays in HI and is reloaded via $t0 like the original */
-        register int t asm("$2") = a4 * ((ChannelValueRecordB0 *)((s5->unk17 << 1) + (int)s5))->unk60[0];
+        register int t asm("$2") = a4 * s5->h60[s5->b17];
         if (t < 0) {
             _svm_cur.f04 = t / 127;
         } else {
@@ -78,11 +69,10 @@ s32 _SsVmKeyOn(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in, s32 a4_in, s32 a5_in)
         }
     }
     _svm_cur.f05 = a5;
-    prog = (SpuProgram *)((a2 << 4) + (int)_svm_pg);
-    _svm_cur.f0A = prog->value01;
-    _svm_cur.f0B = prog->value04;
-    _svm_cur.f00 = prog->value00;
-    if (_svm_cur.f07 >= ((VabHdr *)_svm_vh)->h12) {
+    _svm_cur.f0A = _svm_pg[a2][VAB_PROGRAM_VOLUME];
+    _svm_cur.f0B = _svm_pg[a2][VAB_PROGRAM_PAN];
+    _svm_cur.f00 = _svm_pg[a2][VAB_PROGRAM_TONE_COUNT];
+    if (_svm_cur.f07 >= ((VabHdr *)_svm_vh)->ps) {
         return -1;
     }
     if (a4 == 0) {
@@ -92,13 +82,13 @@ s32 _SsVmKeyOn(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in, s32 a4_in, s32 a5_in)
         for (i = 0; i < n; i++) {
             _svm_cur.f16 = sp10[i];
             _svm_cur.f0C = sp90[i];
-            tone = (Tone *)(((unsigned short)((_svm_cur.f07 * 16) + _svm_cur.f0C) << 5) + (int)_svm_tn);
-            _svm_cur.f0F = tone->f00;
-            _svm_cur.f0D = tone->f02;
-            _svm_cur.f0E = tone->f03;
-            _svm_cur.f10 = tone->f04;
-            _svm_cur.f11 = tone->f05;
-            _svm_cur.f12 = tone->f01;
+            toneIndex = (u16)(_svm_cur.f07 * 16 + _svm_cur.f0C);
+            _svm_cur.f0F = _svm_tn[toneIndex][VAB_TONE_PRIORITY];
+            _svm_cur.f0D = _svm_tn[toneIndex][VAB_TONE_VOLUME];
+            _svm_cur.f0E = _svm_tn[toneIndex][VAB_TONE_PAN];
+            _svm_cur.f10 = _svm_tn[toneIndex][VAB_TONE_CENTER];
+            _svm_cur.f11 = _svm_tn[toneIndex][VAB_TONE_SHIFT];
+            _svm_cur.f12 = _svm_tn[toneIndex][VAB_TONE_MODE];
             v = (unsigned char)_SsVmAlloc(0);
             _svm_cur.f18 = v;
             if (v < spuVmMaxVoice) {
@@ -111,7 +101,7 @@ s32 _SsVmKeyOn(s32 a0_in, s32 a1_in, s32 a2_in, s32 a3_in, s32 a4_in, s32 a5_in)
                 _svm_voice[_svm_cur.f18].match14 = a2;
                 if (a0_ext != 0x21) {
                     _svm_voice[_svm_cur.f18].unk08 = a4;
-                    _svm_voice[_svm_cur.f18].unk0C = s5->unk17;
+                    _svm_voice[_svm_cur.f18].unk0C = s5->b17;
                 }
                 _svm_voice[_svm_cur.f18].unk0A = a5;
                 _svm_voice[_svm_cur.f18].unk16 = _svm_cur.f0C;

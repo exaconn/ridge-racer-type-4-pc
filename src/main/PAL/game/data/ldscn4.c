@@ -9,8 +9,8 @@
 #include "game/course/trkintp2.h"
 #include "game/data/trkld1.h"
 #include "psyq/libc/rand.h"
-extern int CdDirectoryBuffer;
-extern int MenuArenaBase;
+#include "rr/cd_directory_buffer.h"
+#include "rr/menu_arena_base.h"
 extern unsigned char LoadState;
 
 int LoadAttractTimStep(void) {

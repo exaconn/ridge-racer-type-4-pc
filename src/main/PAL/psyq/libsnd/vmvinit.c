@@ -1,6 +1,7 @@
 #include "psyq/libspu/libspu.h"
 /* RODATA 0x800117b8 0x3c */
-/* CC1_FLAGS: -mno-split-addresses */
+/* GCC_VERSION: 970318 */
+/* MASPSX_FLAGS: --assembler-profile=gnu */
 #include "psyq/libsnd/vmpitch.h"
 #include "psyq/libsnd/vmvinit.h"
 #include "rr/spu.h"
@@ -56,10 +57,8 @@ void SpuSetVoiceAttr(SpuVoiceAttr *attributes) {
     volatile struct { int counter; unsigned int accumulator; } work;
     int voiceIndex;
     int registerIndex;
-    /* ASM_BARRIER: Keep mask and zero-mask flag in $s1 and $s2 so incoming arg0 gets $s0. */
-    register unsigned int mask __asm__("$17");
-    /* ASM_BARRIER: Keep zero-mask flag in $s2 as in original register allocation. */
-    register int allFields __asm__("$18");
+    unsigned int mask;
+    int allFields;
     int volumeMode;
     unsigned int value;
     int envelopeMode;
@@ -259,15 +258,7 @@ void SpuSetVoiceAttr(SpuVoiceAttr *attributes) {
         }
     }
     work.accumulator = 1;
-    *(int *)&work.counter = 0;
-    goto test;
-body:
-    {
-        /* ASM_BARRIER: Keep the loaded accumulator separate from the multiply result. */
-        register unsigned int value __asm__("$3") = work.accumulator;
-        work.accumulator = value * 13;
+    for (work.counter = 0; work.counter < 2; work.counter++) {
+        work.accumulator *= 13;
     }
-    *(int *)&work.counter = work.counter + 1;
-test:
-    if (*(int *)&work.counter < 2) goto body;
 }

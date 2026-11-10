@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-extern int LoadDestCursor;
+extern u8 *LoadDestCursor;
 extern signed char *DialogueAssetTable;
 extern char *TrackNodesEnd;
 extern short MainMenuChoice;

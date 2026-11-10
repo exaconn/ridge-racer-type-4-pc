@@ -22,11 +22,11 @@ s32 GetVideoMode(void);
 void SsSetTickMode(s32 mode);
 
 RR_ASSERT_SIZE(SpuTickFlags4,4);
-RR_ASSERT_SIZE(SpuTickState20,0x20);
+RR_ASSERT_SIZE(SpuTickState20,24+2*sizeof(SpuTickCallback));
 RR_ASSERT_OFFSET(SpuTickState20,active,4);
 RR_ASSERT_OFFSET(SpuTickState20,callback,8);
-RR_ASSERT_OFFSET(SpuTickState20,previous,0xC);
-RR_ASSERT_OFFSET(SpuTickState20,flags,0x10);
-RR_ASSERT_OFFSET(SpuTickState20,state,0x14);
+RR_ASSERT_OFFSET(SpuTickState20,previous,8+sizeof(SpuTickCallback));
+RR_ASSERT_OFFSET(SpuTickState20,flags,8+2*sizeof(SpuTickCallback));
+RR_ASSERT_OFFSET(SpuTickState20,state,12+2*sizeof(SpuTickCallback));
 
 #endif

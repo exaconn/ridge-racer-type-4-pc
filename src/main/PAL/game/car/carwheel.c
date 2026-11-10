@@ -103,15 +103,10 @@ void DrawPreviewCar(RaceVehicle *arg0, PreviewRgb3 color, s32 arg2, s32 flags) {
     sp158[2].y = arg0->pos10[1] + arg0->ir60[1];
     sp158[2].z = arg0->pos10[2] + arg0->ir60[2];
 
-    {
-        /* ASM_BARRIER: load unk17C into v0 before copying to s4_val */
-        register s32 v0_tmp asm("$2") = arg0->wheelSteering17C;
-        /* ASM_BARRIER: preserve v0 load before move to s4 */
-        __asm__ ("" : "+r"(v0_tmp));
-        s4_val = v0_tmp;
-    }
-    if (s4_val & 0x1000) {
-        s4_val = -s4_val;
+    if (arg0->wheelSteering17C & 0x1000) {
+        s4_val = -arg0->wheelSteering17C;
+    } else {
+        s4_val = arg0->wheelSteering17C;
     }
     if (CarBoundsTable[slot_half]->wheelRotationAxis == 1) {
         BuildRotMatrixY(&sp98[3], s4_val);
@@ -205,15 +200,10 @@ void DrawPlayerCar(RaceVehicle *arg0, s32 viewMode) {
     sp168[2].x = arg0->pos10[0] + arg0->ir60[0];
     sp168[2].y = arg0->pos10[1] + arg0->ir60[1];
     sp168[2].z = arg0->pos10[2] + arg0->ir60[2];
-    {
-        /* ASM_BARRIER: load unk17C into v0 before copying to s4_val */
-        register s32 v0_tmp asm("$2") = arg0->wheelSteering17C;
-        /* ASM_BARRIER: preserve v0 load before move to s4 */
-        __asm__ ("" : "+r"(v0_tmp));
-        s4_val = v0_tmp;
-    }
-    if (s4_val & 0x1000) {
-        s4_val = -s4_val;
+    if (arg0->wheelSteering17C & 0x1000) {
+        s4_val = -arg0->wheelSteering17C;
+    } else {
+        s4_val = arg0->wheelSteering17C;
     }
     if (CarBoundsTable[slot_half]->wheelRotationAxis == 1) {
         BuildRotMatrixY(&spA8[3], s4_val);
@@ -315,16 +305,15 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
         s5_val = ComputeCarSurfaceLighting(arg0, GetCarTrackLightIndex(arg0));
         s5_val = (s16)(TrackLightTable[s5_val].flags02 | ForceTailLightTrails);
         if (arg0->flags1E4 & 0x10) {
-            v0_drag = arg0->control.dynamics94.steering.target18.halves.high;
+            if (arg0->control.dynamics94.steering.target18.halves.high > 0) {
+                s5_val |= 2;
+            }
         } else {
-            v0_drag = arg0->control.dragFlag46;
-        }
-        if (v0_drag > 0) {
-            s5_val |= 2;
+            if (arg0->control.dragFlag46 > 0) {
+                s5_val |= 2;
+            }
         }
         s5_val &= 3;
-        /* ASM_BARRIER: keep the lighting result live while matrix addresses are prepared. */
-        __asm__ ("" : "+r"(s5_val));
         BuildRotMatrixY(&sp80, -arg0->rot54);
         BuildRotMatrixX(&sp40, -arg0->rot50);
         BuildRotMatrixZ(&sp60, -arg0->rot58);
@@ -350,15 +339,10 @@ void DrawOpponentCar(RaceVehicle *arg0, s32 arg1) {
             sp168[2].x = arg0->pos10[0] + arg0->ir60[0];
             sp168[2].y = arg0->pos10[1] + arg0->ir60[1];
             sp168[2].z = arg0->pos10[2] + arg0->ir60[2];
-            {
-                /* ASM_BARRIER: load unk17C into v0 before copying to s4_val */
-                register s32 v0_tmp asm("$2") = arg0->wheelSteering17C;
-                /* ASM_BARRIER: preserve v0 load before move to s4 */
-                __asm__ ("" : "+r"(v0_tmp));
-                s4_val = v0_tmp;
-            }
-            if (s4_val & 0x1000) {
-                s4_val = -s4_val;
+            if (arg0->wheelSteering17C & 0x1000) {
+                s4_val = -arg0->wheelSteering17C;
+            } else {
+                s4_val = arg0->wheelSteering17C;
             }
             if (CarBoundsTable[slot_half]->wheelRotationAxis == 1) {
                 BuildRotMatrixY(&spA8[3], s4_val);

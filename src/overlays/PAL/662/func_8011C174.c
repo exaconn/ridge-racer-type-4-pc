@@ -3,12 +3,7 @@
 
 void ovl662_func_8011C174(s32 arg0, GpuRectangleFields *arg1)
 {
-    /* ASM_BARRIER: match GCC local-alloc assignment of $v0/$v1/$a0 so global-alloc keeps base in $a1 */
-    register s32 q __asm__("$2");
-    /* ASM_BARRIER: match GCC local-alloc assignment of 64 to $v1 */
-    register s32 c64 __asm__("$3");
-    s32 diff;
-
+    s32 range, span;
     if (arg0 == 0) {
         arg1->w = 112 / (ovl662_D_801276A8.config1C >> 1);
         arg1->h = 8;
@@ -17,12 +12,9 @@ void ovl662_func_8011C174(s32 arg0, GpuRectangleFields *arg1)
             arg1->x = 90;
             return;
         }
-        c64 = 64;
-        q = c64 / (ovl662_D_801276A8.config1C >> 1);
-        diff = 112 - arg1->w;
-        c64 -= q;
-        q = ovl662_D_801276A8.reset08[0] * diff / c64;
-        arg1->x = q + 90;
+        range = 64 - 64 / (ovl662_D_801276A8.config1C >> 1);
+        span = 112 - arg1->w;
+        arg1->x = ovl662_D_801276A8.reset08[0] * span / range + 90;
     } else {
         arg1->w = 4;
         arg1->h = 224 / (ovl662_D_801276A8.config1C >> 1);
@@ -31,11 +23,8 @@ void ovl662_func_8011C174(s32 arg0, GpuRectangleFields *arg1)
             arg1->y = 87;
             return;
         }
-        c64 = 64;
-        q = c64 / (ovl662_D_801276A8.config1C >> 1);
-        diff = 224 - arg1->h;
-        c64 -= q;
-        q = ovl662_D_801276A8.reset08[1] * diff / c64;
-        arg1->y = q + 87;
+        range = 64 - 64 / (ovl662_D_801276A8.config1C >> 1);
+        span = 224 - arg1->h;
+        arg1->y = ovl662_D_801276A8.reset08[1] * span / range + 87;
     }
 }

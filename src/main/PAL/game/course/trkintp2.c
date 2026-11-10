@@ -186,27 +186,33 @@ int FindNearestTrackEntry(char *a0) {
 }
 
 void InitDemoComCars(char *a0, int *a1) {
-    struct { int m[16]; int n[8]; short c[4]; short d[4]; V4 e; V4 f; } s;
+    struct {
+        /* Preserve the existing work capacity; its extra half is unresolved. */
+        union { MatrixWords32 matrix; s32 storage[16]; } m;
+        MatrixWords32 n;
+        short c[4], d[4];
+        V4 e, f;
+    } s;
     int *g;
     RaceVehicle *car = (RaceVehicle *)a0;
-    BuildRotMatrixY(s.m, 0x800 - car->ang82);
-    BuildRotMatrixX(s.n, car->ang80);
-    MulMatrix((MatrixWords32 *)(s.m), (const MatrixWords32 *)(s.n));
-    BuildRotMatrixZ(s.n, car->ang84);
-    MulMatrix2((const MatrixWords32 *)(s.m), (MatrixWords32 *)(s.n));
+    BuildRotMatrixY(&s.m.matrix, 0x800 - car->ang82);
+    BuildRotMatrixX(&s.n, car->ang80);
+    MulMatrix(&s.m.matrix, &s.n);
+    BuildRotMatrixZ(&s.n, car->ang84);
+    MulMatrix2(&s.m.matrix, &s.n);
     s.c[0] = a1[0] * 4;
     s.c[1] = a1[1] * 4;
     s.c[2] = a1[2] * 4;
-    ApplyMatrix((const MatrixWords32 *)(s.n), (const Vec3s8 *)(s.c), (Vec3i *)(&s.e));
-    BuildRotMatrixY(s.m, a1[5]);
-    BuildRotMatrixX(s.n, car->ang80);
-    MulMatrix((MatrixWords32 *)(s.m), (const MatrixWords32 *)(s.n));
-    BuildRotMatrixZ(s.n, car->ang84);
-    MulMatrix2((const MatrixWords32 *)(s.m), (MatrixWords32 *)(s.n));
+    ApplyMatrix(&s.n, (const Vec3s8 *)(s.c), (Vec3i *)(&s.e));
+    BuildRotMatrixY(&s.m.matrix, a1[5]);
+    BuildRotMatrixX(&s.n, car->ang80);
+    MulMatrix(&s.m.matrix, &s.n);
+    BuildRotMatrixZ(&s.n, car->ang84);
+    MulMatrix2(&s.m.matrix, &s.n);
     s.d[0] = (unsigned short)car->ang80;
     s.d[1] = 0;
     s.d[2] = (unsigned short)car->ang84;
-    ApplyMatrix((const MatrixWords32 *)(s.n), (const Vec3s8 *)(s.d), (Vec3i *)(&s.f));
+    ApplyMatrix(&s.n, (const Vec3s8 *)(s.d), (Vec3i *)(&s.f));
     ((ScratchTrackView *)SCRATCHPAD)->vec18 = s.f;
     g = (int *)SCRATCHPAD;
     g[7] = car->ang82 + a1[5];
@@ -220,16 +226,17 @@ void InitDemoComCars(char *a0, int *a1) {
 }
 
 void CarLocalToWorld(char *a, int b, int *c) {
-    int m1[8];
-    int m2[10];
+    MatrixWords32 m1;
+    /* The existing two spare words remain reconstruction debt. */
+    union { MatrixWords32 matrix; s32 storage[10]; } m2;
     int t[3];
     RaceVehicle *car = (RaceVehicle *)a;
-    BuildRotMatrixY(m1, 0x800 - car->ang82);
-    BuildRotMatrixX(m2, car->ang80);
-    MulMatrix((MatrixWords32 *)(m1), (const MatrixWords32 *)(m2));
-    BuildRotMatrixZ(m2, car->ang84);
-    MulMatrix2((const MatrixWords32 *)(m1), (MatrixWords32 *)(m2));
-    ApplyMatrix((const MatrixWords32 *)(m2), (const Vec3s8 *)(b), (Vec3i *)(t));
+    BuildRotMatrixY(&m1, 0x800 - car->ang82);
+    BuildRotMatrixX(&m2.matrix, car->ang80);
+    MulMatrix(&m1, &m2.matrix);
+    BuildRotMatrixZ(&m2.matrix, car->ang84);
+    MulMatrix2(&m1, &m2.matrix);
+    ApplyMatrix(&m2.matrix, (const Vec3s8 *)(b), (Vec3i *)(t));
     *(V *)c = *(V *)car->pos10;
     c[0] = c[0] + t[0];
     c[1] = c[1] + t[1];

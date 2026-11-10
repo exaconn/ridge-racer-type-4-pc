@@ -130,25 +130,25 @@ void SlotSetLevelProgram(int a0, int a1, int a2) {
 }
 
 void SlotKeyOn(int a0) {
-    int s[4];
+    AudioUnsignedWord4 groups[4];
     AudioSlot620 *w = &SoundSlots[a0];
-    unsigned short *q;
+    AudioUnsignedWord4 *q;
     int i;
     int k;
     int t;
-    PsyqMemset(s, 0, 0x10);
-    s[3] = 2;
+    PsyqMemset(groups, 0, sizeof(groups));
+    groups[3].word = 2;
     k = w->voice08;
     i = 0;
     if (w->count0C > 0) {
-        q = (unsigned short *)((int)s + a0 * 4);
+        q = &groups[a0];
         do {
-            SsUtKeyOnV((short)k, w->bank04, (s16)w->programs5DC[0][w->program14 * 5 + i], 0, (short)(*q + 0x3C), 0, 0, 0);
+            SsUtKeyOnV((short)k, w->bank04.half.value, (s16)w->programData3C.programs[w->program14][i], 0, (short)(q->halves.value + 0x3C), 0, 0, 0);
             k++;
             i++;
         } while (i < w->count0C);
     }
-    t = *(unsigned short *)&s[a0];
+    t = groups[a0].halves.value;
     w->reserved2A = 0;
     w->group28 = t + 0x3C;
 }

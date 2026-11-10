@@ -428,21 +428,17 @@ s32 GetSegmentVisibilityTableSize(void) {
 void ApplySegmentVisibilityMask(void) {
     int a, b;
     short *p;
-    short v;
     int base;
-    register short *g __asm__("$17");
+    short *g = (short *)SCRATCHPAD;
     a = GetViewTrackSegment(&((ProjectionScratchPrefix *)SCRATCHPAD)->pose08, 0);
     b = YawToOctant(&((ProjectionScratchPrefix *)SCRATCHPAD)->pose08);
     base = SegmentVisibilityTable;
     p = (short *)(b * 2 + ((a << 4) + base));
     if (*p >= 0) {
-        v = *(unsigned short *)p;
+        g[0x2E] = *(unsigned short *)p;
     } else {
-        v = DefaultSegmentVisibilityMask;
+        g[0x2E] = DefaultSegmentVisibilityMask;
     }
-    /* ASM_BARRIER: legacy, reason not recorded (forces reg copy/CSE/scheduling); retire & retest with fd.py */
-    __asm__("" : "=r"(g) : "0"(SCRATCHPAD));
-    g[0x2E] = v;
 }
 
 void SetSegmentVisibilityTable(s32 arg0) {

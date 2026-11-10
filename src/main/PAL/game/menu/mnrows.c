@@ -19,10 +19,10 @@
 #include "rr/race_setup.h"
 #include "rr/menu_screen_exit.h"
 
-extern int CdDirectoryBuffer;
+#include "rr/cd_directory_buffer.h"
 extern char D_8001075C[];
 extern void ClearScreenOverlayState();
-extern int MenuArenaBase;
+#include "rr/menu_arena_base.h"
 extern short SelectedMakerIndex;
 
 void ResetScreenCounters(void);
@@ -102,12 +102,12 @@ void UpdateSelectionRank(void) {
      }
      i++;
     }while(i<4);
-    if (0) {
+    goto publish_rank;
 high_level:
-     word=level+3;
-     level=word+delta;
-    }
+    word=level+3;
+    level=word+delta;
    }else {level+=7;i=level<16;}
+publish_rank:;
   }
   {
    /* ASM_BARRIER: materialize the configuration page in V0. */
@@ -159,17 +159,16 @@ void ResetScreenCounters(void) {
 }
 
 void InitMenuArenas(void) {
-  /* ASM_BARRIER: pin the 0x2D000 constant to $a2 so the addu and the call share one lui/ori like the original */
-  register int c asm("$6") = 0x2D000;
+  const int arenaOffset = 0x2D000;
   BadgeRowCount = 10;
   Rect16RowCount = 4;
   GlyphRowCount = 4;
   UiRowCount = 0x28;
   ImageRowCount = 1;
   MenuTextRowCount = 0x37;
-  MenuArenas.second = CdDirectoryBuffer + c;
+  MenuArenas.second = CdDirectoryBuffer + arenaOffset;
   LoadCursor = MenuArenas.second;
-  DebugPrintStub(D_8001075C, LoadCursor, 0x2D000);
+  DebugPrintStub(D_8001075C, LoadCursor);
   LoadCursor = LoadCursor + AllocBadgeRows(LoadCursor);
   LoadCursor = LoadCursor + AllocRect16Rows(LoadCursor);
   LoadCursor = LoadCursor + AllocGlyphRows(LoadCursor);

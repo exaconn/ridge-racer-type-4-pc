@@ -10,14 +10,14 @@
 #include "game/menu/menuwork.h"
 
 extern s32 MenuStepDirection, D_800F3A60;
-extern void  *MenuArenaBase;
+#include "rr/menu_arena_base.h"
 extern MenuSettings2C SelectionState;
 extern s16 SelectedMakerIndex;
 extern u16 D_800F3A42;
 extern MenuGlyphRow1C *GlyphRows;
 extern MenuChoice4 SelectionRows;
 extern u8 D_800F4D99; /* Alias of SelectionRows.bytes[1]. */
-extern u8 *Dialogue;
+#include "rr/menu_text_state.h"
 void PlaySfx(s32 mode);
 void ResetScreenCounters(void);
 void SetMenuFrameOptions(s32 first, s32 second, s32 third);

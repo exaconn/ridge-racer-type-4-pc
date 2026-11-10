@@ -755,7 +755,7 @@ void BuildObjectMatrix(int unused, const s16 *p, MatrixWords32 *out, int flag) {
     MatrixWords32 m90;
     MatrixWords32 *q = &m70;
     (void)unused;
-    BuildRotMatrixZ((s16 *)q->halves, -p[2]);
+    BuildRotMatrixZ(q, -p[2]);
     BuildRotMatrixX(&m30, -p[0]);
     if (flag == 2) {
         m90 = ((ViewMatrixScratch48 *)SCRATCHPAD)->matrix28;

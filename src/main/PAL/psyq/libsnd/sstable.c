@@ -12,7 +12,7 @@ void SsSetTableSize(LibStateB0 *base, s32 raw_banks, s32 raw_rows) {
         _ss_score[i] = &base[i * rows];
     }
     for (i = banks; i < 32; i++) {
-        _snd_openflag |= 1 << i;
+        _snd_openflag |= 1U << i;
     }
     for (i = 0; i < _snd_seq_s_max; i++) {
         for (j = 0; j < _snd_seq_t_max; j++) {

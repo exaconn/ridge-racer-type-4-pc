@@ -192,11 +192,11 @@ l64:
                 t2 = 1;
                 break;
             }
-            if (0) {
+            goto next_entry;
 l74:
-                a3++;
-                goto l64;
-            }
+            a3++;
+            goto l64;
+next_entry:
             t0 += 0x28;
         } while (t1 < a0);
     }
